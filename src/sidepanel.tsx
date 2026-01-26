@@ -14,6 +14,7 @@ function SidePanel() {
   const [showSettings, setShowSettings] = useState(false)
   const [pageContext, setPageContext] = useState<string | null>(null)
   const [pageTitle, setPageTitle] = useState<string | null>(null)
+  const [isReadabilityParsed, setIsReadabilityParsed] = useState(false)
   const [isLoadingContext, setIsLoadingContext] = useState(false)
 
   // Load API key from storage on mount
@@ -37,11 +38,13 @@ function SidePanel() {
       if (response?.success && response.text) {
         setPageContext(response.text)
         setPageTitle(response.title || null)
+        setIsReadabilityParsed(response.isReadabilityParsed || false)
       }
     } catch {
       // Silently fail - user might be on a restricted page
       setPageContext(null)
       setPageTitle(null)
+      setIsReadabilityParsed(false)
     } finally {
       setIsLoadingContext(false)
     }
@@ -125,6 +128,7 @@ function SidePanel() {
             apiKey={apiKey}
             pageContext={pageContext}
             pageTitle={pageTitle}
+            isReadabilityParsed={isReadabilityParsed}
           />
         )}
       </main>

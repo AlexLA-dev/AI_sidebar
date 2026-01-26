@@ -10,6 +10,7 @@
     "package": "plasmo package"
   },
   "dependencies": {
+    "@mozilla/readability": "^0.6.0",
     "@plasmohq/messaging": "^0.7.2",
     "autoprefixer": "^10.4.23",
     "clsx": "^2.1.1",

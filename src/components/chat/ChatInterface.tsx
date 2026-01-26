@@ -11,9 +11,10 @@ type ChatInterfaceProps = {
   apiKey: string
   pageContext: string | null
   pageTitle: string | null
+  isReadabilityParsed?: boolean
 }
 
-export function ChatInterface({ apiKey, pageContext, pageTitle }: ChatInterfaceProps) {
+export function ChatInterface({ apiKey, pageContext, pageTitle, isReadabilityParsed }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
   const [isStreaming, setIsStreaming] = useState(false)
@@ -107,9 +108,19 @@ export function ChatInterface({ apiKey, pageContext, pageTitle }: ChatInterfaceP
       {/* Context indicator */}
       {pageContext && (
         <div className="px-3 py-2 bg-purple-50 dark:bg-purple-900/20 border-b border-purple-100 dark:border-purple-800">
-          <p className="text-xs text-purple-700 dark:text-purple-300 truncate">
-            Context: {pageTitle || "Current page"}
-          </p>
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-xs text-purple-700 dark:text-purple-300 truncate flex-1">
+              {pageTitle || "Current page"}
+            </p>
+            <span className={cn(
+              "text-[10px] px-1.5 py-0.5 rounded-full font-medium",
+              isReadabilityParsed
+                ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
+            )}>
+              {isReadabilityParsed ? "Article" : "Raw"}
+            </span>
+          </div>
         </div>
       )}
 
