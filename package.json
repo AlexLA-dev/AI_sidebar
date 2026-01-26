@@ -10,6 +10,7 @@
     "package": "plasmo package"
   },
   "dependencies": {
+    "@plasmohq/messaging": "^0.7.2",
     "autoprefixer": "^10.4.23",
     "clsx": "^2.1.1",
     "lucide-react": "^0.563.0",
@@ -33,7 +34,8 @@
     ],
     "permissions": [
       "storage",
-      "sidePanel"
+      "sidePanel",
+      "activeTab"
     ]
   }
 }

@@ -1,10 +1,9 @@
 import type { PlasmoCSConfig } from "plasmo"
 
 export const config: PlasmoCSConfig = {
-  matches: ["<all_urls>"]
+  matches: ["<all_urls>"],
+  run_at: "document_idle"
 }
 
-// Content script for DOM awareness
-// Reads document content and handles text selection
-
-export {}
+// Main content script entry point
+// Message handlers are in separate files (text-reader.ts)
