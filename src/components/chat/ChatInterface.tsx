@@ -4,17 +4,18 @@ import Markdown from "react-markdown"
 import { motion, AnimatePresence } from "framer-motion"
 
 import { cn } from "~/lib/utils"
-import type { Message } from "~/lib/ai"
+import type { Message, ContextType } from "~/lib/ai"
 import { streamChatResponse } from "~/lib/ai"
 
 type ChatInterfaceProps = {
   apiKey: string
   pageContext: string | null
   pageTitle: string | null
+  contextType?: ContextType
   isReadabilityParsed?: boolean
 }
 
-export function ChatInterface({ apiKey, pageContext, pageTitle, isReadabilityParsed }: ChatInterfaceProps) {
+export function ChatInterface({ apiKey, pageContext, pageTitle, contextType = "page", isReadabilityParsed }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
   const [isStreaming, setIsStreaming] = useState(false)
@@ -22,6 +23,7 @@ export function ChatInterface({ apiKey, pageContext, pageTitle, isReadabilityPar
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const streamingContentRef = useRef("")
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -49,6 +51,7 @@ export function ChatInterface({ apiKey, pageContext, pageTitle, isReadabilityPar
     setInput("")
     setIsStreaming(true)
     setStreamingContent("")
+    streamingContentRef.current = ""
 
     await streamChatResponse(
       newMessages,
@@ -56,14 +59,19 @@ export function ChatInterface({ apiKey, pageContext, pageTitle, isReadabilityPar
       apiKey,
       {
         onChunk: (chunk) => {
-          setStreamingContent((prev) => prev + chunk)
+          streamingContentRef.current += chunk
+          setStreamingContent(streamingContentRef.current)
         },
         onComplete: () => {
-          setMessages((prev) => [
-            ...prev,
-            { role: "assistant", content: streamingContent || "" }
-          ])
+          const finalContent = streamingContentRef.current
+          if (finalContent) {
+            setMessages((prev) => [
+              ...prev,
+              { role: "assistant", content: finalContent }
+            ])
+          }
           setStreamingContent("")
+          streamingContentRef.current = ""
           setIsStreaming(false)
         },
         onError: (error) => {
@@ -72,25 +80,13 @@ export function ChatInterface({ apiKey, pageContext, pageTitle, isReadabilityPar
             { role: "assistant", content: `Error: ${error.message}` }
           ])
           setStreamingContent("")
+          streamingContentRef.current = ""
           setIsStreaming(false)
         }
-      }
+      },
+      contextType
     )
   }
-
-  // Fix: Update final message content from streaming
-  useEffect(() => {
-    if (!isStreaming && streamingContent) {
-      setMessages((prev) => {
-        const lastMessage = prev[prev.length - 1]
-        if (lastMessage?.role === "assistant" && !lastMessage.content) {
-          return [...prev.slice(0, -1), { role: "assistant", content: streamingContent }]
-        }
-        return prev
-      })
-      setStreamingContent("")
-    }
-  }, [isStreaming, streamingContent])
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -110,15 +106,17 @@ export function ChatInterface({ apiKey, pageContext, pageTitle, isReadabilityPar
         <div className="px-3 py-2 bg-purple-50 dark:bg-purple-900/20 border-b border-purple-100 dark:border-purple-800">
           <div className="flex items-center justify-between gap-2">
             <p className="text-xs text-purple-700 dark:text-purple-300 truncate flex-1">
-              {pageTitle || "Current page"}
+              {contextType === "selection" ? "Selected text" : (pageTitle || "Current page")}
             </p>
             <span className={cn(
               "text-[10px] px-1.5 py-0.5 rounded-full font-medium",
-              isReadabilityParsed
-                ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
+              contextType === "selection"
+                ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+                : isReadabilityParsed
+                  ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                  : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
             )}>
-              {isReadabilityParsed ? "Article" : "Raw"}
+              {contextType === "selection" ? "Selection" : (isReadabilityParsed ? "Article" : "Raw")}
             </span>
           </div>
         </div>

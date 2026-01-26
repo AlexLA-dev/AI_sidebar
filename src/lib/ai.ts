@@ -1,9 +1,13 @@
 import OpenAI from "openai"
 
+import { storage, STORAGE_KEYS } from "./storage"
+
 export type Message = {
   role: "user" | "assistant" | "system"
   content: string
 }
+
+export type ContextType = "page" | "selection"
 
 export type StreamCallbacks = {
   onChunk: (chunk: string) => void
@@ -21,13 +25,22 @@ When PAGE_CONTEXT is provided, use it to answer the user's questions accurately 
 
 export function buildMessagesWithContext(
   messages: Message[],
-  pageContext: string | null
+  pageContext: string | null,
+  contextType: ContextType = "page"
 ): Message[] {
+  let contextSection = ""
+
+  if (pageContext) {
+    if (contextType === "selection") {
+      contextSection = `\n\n--- USER SELECTED TEXT ---\n${pageContext.slice(0, 8000)}\n--- END SELECTED TEXT ---\n\nFocus your answer on the selected text above.`
+    } else {
+      contextSection = `\n\n--- PAGE_CONTEXT ---\n${pageContext.slice(0, 12000)}\n--- END PAGE_CONTEXT ---`
+    }
+  }
+
   const systemMessage: Message = {
     role: "system",
-    content: pageContext
-      ? `${SYSTEM_PROMPT}\n\n--- PAGE_CONTEXT ---\n${pageContext.slice(0, 12000)}\n--- END PAGE_CONTEXT ---`
-      : SYSTEM_PROMPT
+    content: SYSTEM_PROMPT + contextSection
   }
 
   return [systemMessage, ...messages]
@@ -37,7 +50,8 @@ export async function streamChatResponse(
   messages: Message[],
   pageContext: string | null,
   apiKey: string,
-  callbacks: StreamCallbacks
+  callbacks: StreamCallbacks,
+  contextType: ContextType = "page"
 ): Promise<void> {
   if (!apiKey) {
     callbacks.onError(new Error("API key is required"))
@@ -49,7 +63,7 @@ export async function streamChatResponse(
     dangerouslyAllowBrowser: true
   })
 
-  const messagesWithContext = buildMessagesWithContext(messages, pageContext)
+  const messagesWithContext = buildMessagesWithContext(messages, pageContext, contextType)
 
   try {
     const stream = await client.chat.completions.create({
@@ -82,19 +96,16 @@ export async function streamChatResponse(
   }
 }
 
-// Storage helpers for API key
-const API_KEY_STORAGE_KEY = "contextflow_openai_key"
-
-export function getStoredApiKey(): string {
-  if (typeof window === "undefined") return ""
-  return localStorage.getItem(API_KEY_STORAGE_KEY) || ""
+// Storage helpers for API key (using Plasmo Storage)
+export async function getStoredApiKey(): Promise<string> {
+  const key = await storage.get<string>(STORAGE_KEYS.OPENAI_API_KEY)
+  return key || ""
 }
 
-export function setStoredApiKey(key: string): void {
-  if (typeof window === "undefined") return
+export async function setStoredApiKey(key: string): Promise<void> {
   if (key) {
-    localStorage.setItem(API_KEY_STORAGE_KEY, key)
+    await storage.set(STORAGE_KEYS.OPENAI_API_KEY, key)
   } else {
-    localStorage.removeItem(API_KEY_STORAGE_KEY)
+    await storage.remove(STORAGE_KEYS.OPENAI_API_KEY)
   }
 }

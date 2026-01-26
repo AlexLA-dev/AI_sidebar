@@ -12,6 +12,7 @@
   "dependencies": {
     "@mozilla/readability": "^0.6.0",
     "@plasmohq/messaging": "^0.7.2",
+    "@plasmohq/storage": "^1.15.0",
     "autoprefixer": "^10.4.23",
     "clsx": "^2.1.1",
     "framer-motion": "^12.29.2",
@@ -34,12 +35,22 @@
   },
   "manifest": {
     "host_permissions": [
+      "http://*/*",
       "https://*/*"
     ],
     "permissions": [
       "storage",
       "sidePanel",
       "activeTab"
-    ]
+    ],
+    "commands": {
+      "_execute_action": {
+        "suggested_key": {
+          "default": "Ctrl+Shift+E",
+          "mac": "MacCtrl+Shift+E"
+        },
+        "description": "Open ContextFlow Sidebar"
+      }
+    }
   }
 }

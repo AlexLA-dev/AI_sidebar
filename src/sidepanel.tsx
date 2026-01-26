@@ -3,7 +3,7 @@ import { Sparkles, RefreshCw, Settings, X } from "lucide-react"
 import { sendToContentScript } from "@plasmohq/messaging"
 
 import { cn } from "~/lib/utils"
-import { getStoredApiKey, setStoredApiKey } from "~/lib/ai"
+import { getStoredApiKey, setStoredApiKey, type ContextType } from "~/lib/ai"
 import { ChatInterface, ApiKeyInput } from "~/components/chat"
 import type { RequestBody, ResponseBody } from "~/contents/text-reader"
 
@@ -14,16 +14,20 @@ function SidePanel() {
   const [showSettings, setShowSettings] = useState(false)
   const [pageContext, setPageContext] = useState<string | null>(null)
   const [pageTitle, setPageTitle] = useState<string | null>(null)
+  const [contextType, setContextType] = useState<ContextType>("page")
   const [isReadabilityParsed, setIsReadabilityParsed] = useState(false)
   const [isLoadingContext, setIsLoadingContext] = useState(false)
 
   // Load API key from storage on mount
   useEffect(() => {
-    const storedKey = getStoredApiKey()
-    setApiKey(storedKey)
-    if (!storedKey) {
-      setShowSettings(true)
+    const loadApiKey = async () => {
+      const storedKey = await getStoredApiKey()
+      setApiKey(storedKey)
+      if (!storedKey) {
+        setShowSettings(true)
+      }
     }
+    loadApiKey()
   }, [])
 
   // Fetch page context
@@ -38,12 +42,14 @@ function SidePanel() {
       if (response?.success && response.text) {
         setPageContext(response.text)
         setPageTitle(response.title || null)
+        setContextType(response.contextType || "page")
         setIsReadabilityParsed(response.isReadabilityParsed || false)
       }
     } catch {
       // Silently fail - user might be on a restricted page
       setPageContext(null)
       setPageTitle(null)
+      setContextType("page")
       setIsReadabilityParsed(false)
     } finally {
       setIsLoadingContext(false)
@@ -55,9 +61,9 @@ function SidePanel() {
     fetchPageContext()
   }, [fetchPageContext])
 
-  const handleApiKeyChange = (key: string) => {
+  const handleApiKeyChange = async (key: string) => {
     setApiKey(key)
-    setStoredApiKey(key)
+    await setStoredApiKey(key)
     if (key) {
       setShowSettings(false)
     }
@@ -128,6 +134,7 @@ function SidePanel() {
             apiKey={apiKey}
             pageContext={pageContext}
             pageTitle={pageTitle}
+            contextType={contextType}
             isReadabilityParsed={isReadabilityParsed}
           />
         )}

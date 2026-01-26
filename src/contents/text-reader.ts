@@ -10,6 +10,8 @@ export type RequestBody = {
   action: "getPageText"
 }
 
+export type ContextType = "page" | "selection"
+
 export type ResponseBody = {
   success: boolean
   text?: string
@@ -17,8 +19,17 @@ export type ResponseBody = {
   url?: string
   excerpt?: string
   byline?: string
+  contextType?: ContextType
   isReadabilityParsed?: boolean
   error?: string
+}
+
+function getSelectedText(): string | null {
+  const selection = window.getSelection()
+  if (selection && selection.toString().trim().length > 0) {
+    return selection.toString().trim()
+  }
+  return null
 }
 
 function extractWithReadability(): {
@@ -89,7 +100,21 @@ const handler: PlasmoMessaging.MessageHandler<RequestBody, ResponseBody> = async
     if (req.body?.action === "getPageText") {
       const url = window.location.href
 
-      // Try Readability first (best for articles)
+      // Priority 1: Check for text selection
+      const selectedText = getSelectedText()
+      if (selectedText && selectedText.length > 10) {
+        res.send({
+          success: true,
+          text: selectedText,
+          title: document.title,
+          url,
+          contextType: "selection",
+          isReadabilityParsed: false
+        })
+        return
+      }
+
+      // Priority 2: Try Readability for articles
       const readabilityResult = extractWithReadability()
 
       if (readabilityResult.success) {
@@ -100,12 +125,13 @@ const handler: PlasmoMessaging.MessageHandler<RequestBody, ResponseBody> = async
           url,
           excerpt: readabilityResult.excerpt || undefined,
           byline: readabilityResult.byline || undefined,
+          contextType: "page",
           isReadabilityParsed: true
         })
         return
       }
 
-      // Fallback to cleaned innerText
+      // Priority 3: Fallback to cleaned innerText
       const fallbackResult = extractFallback()
 
       res.send({
@@ -113,6 +139,7 @@ const handler: PlasmoMessaging.MessageHandler<RequestBody, ResponseBody> = async
         text: fallbackResult.text,
         title: fallbackResult.title,
         url,
+        contextType: "page",
         isReadabilityParsed: false
       })
     } else {
