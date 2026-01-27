@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback } from "react"
 import { Sparkles, RefreshCw, Settings, X, AlertTriangle } from "lucide-react"
 import { cn } from "~/lib/utils"
-import { getStoredApiKey, setStoredApiKey, type ContextType } from "~/lib/ai"
-import { ChatInterface, ApiKeyInput } from "~/components/chat"
+import { getStoredApiKey, setStoredApiKey, getUserMode, type ContextType } from "~/lib/ai"
+import { ChatInterface, SettingsPanel } from "~/components/chat"
+import { OnboardingModal } from "~/components/onboarding"
+import { type UserMode, storage, STORAGE_KEYS } from "~/lib/storage"
 import type { RequestBody, ResponseBody } from "~/contents/context-parser"
 
 import "./style.css"
@@ -11,6 +13,7 @@ type ContextStatus = "idle" | "loading" | "success" | "error"
 
 function SidePanel() {
   const [apiKey, setApiKey] = useState("")
+  const [userMode, setUserMode] = useState<UserMode | "loading">("loading")
   const [showSettings, setShowSettings] = useState(false)
   const [pageContext, setPageContext] = useState<string | null>(null)
   const [pageTitle, setPageTitle] = useState<string | null>(null)
@@ -19,16 +22,21 @@ function SidePanel() {
   const [contextStatus, setContextStatus] = useState<ContextStatus>("idle")
   const [contextError, setContextError] = useState<string | null>(null)
 
-  // Load API key from storage on mount
+  // Load user mode and API key from storage on mount
   useEffect(() => {
-    const loadApiKey = async () => {
+    const loadSettings = async () => {
+      const mode = await getUserMode()
+      setUserMode(mode)
+
       const storedKey = await getStoredApiKey()
       setApiKey(storedKey)
-      if (!storedKey) {
+
+      // Show settings if no API key (for both modes in MVP)
+      if (!storedKey && mode !== null) {
         setShowSettings(true)
       }
     }
-    loadApiKey()
+    loadSettings()
   }, [])
 
   // Fetch page context
@@ -92,6 +100,40 @@ function SidePanel() {
     if (key) {
       setShowSettings(false)
     }
+  }
+
+  const handleOnboardingComplete = (mode: UserMode, key?: string) => {
+    setUserMode(mode)
+    if (key) {
+      setApiKey(key)
+    }
+    // For subscription mode in MVP, still need API key
+    if (mode === "subscription") {
+      setShowSettings(true)
+    }
+  }
+
+  const handleModeReset = async () => {
+    // Clear user mode to show onboarding again
+    await storage.remove(STORAGE_KEYS.USER_MODE)
+    await storage.remove(STORAGE_KEYS.SUBSCRIPTION_ACTIVE)
+    await storage.remove(STORAGE_KEYS.USAGE_COUNTER)
+    await storage.remove(STORAGE_KEYS.USAGE_PERIOD_END)
+    setUserMode(null)
+  }
+
+  // Show loading state
+  if (userMode === "loading") {
+    return (
+      <div className="flex items-center justify-center h-screen bg-white dark:bg-gray-900">
+        <div className="w-8 h-8 border-2 border-purple-200 border-t-purple-600 rounded-full animate-spin" />
+      </div>
+    )
+  }
+
+  // Show onboarding if user mode is not set
+  if (userMode === null) {
+    return <OnboardingModal onComplete={handleOnboardingComplete} />
   }
 
   return (
@@ -175,7 +217,11 @@ function SidePanel() {
       {/* Settings panel */}
       {showSettings && (
         <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
-          <ApiKeyInput apiKey={apiKey} onApiKeyChange={handleApiKeyChange} />
+          <SettingsPanel
+            apiKey={apiKey}
+            onApiKeyChange={handleApiKeyChange}
+            onModeReset={handleModeReset}
+          />
         </div>
       )}
 
@@ -185,7 +231,9 @@ function SidePanel() {
           <div className="flex flex-col items-center justify-center h-full px-6 text-center">
             <Settings className="h-10 w-10 text-gray-300 dark:text-gray-600 mb-3" />
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-              Enter your OpenAI API key to get started
+              {userMode === "subscription"
+                ? "Enter an API key to use with your subscription (backend proxy coming soon)"
+                : "Enter your OpenAI API key to get started"}
             </p>
             <button
               onClick={() => setShowSettings(true)}
