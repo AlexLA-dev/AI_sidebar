@@ -1,11 +1,9 @@
 import { useState, useEffect, useCallback } from "react"
 import { Sparkles, RefreshCw, Settings, X, AlertTriangle } from "lucide-react"
-import { sendToContentScript } from "@plasmohq/messaging"
-
 import { cn } from "~/lib/utils"
 import { getStoredApiKey, setStoredApiKey, type ContextType } from "~/lib/ai"
 import { ChatInterface, ApiKeyInput } from "~/components/chat"
-import type { RequestBody, ResponseBody } from "~/contents/text-reader"
+import type { RequestBody, ResponseBody } from "~/contents/context-parser"
 
 import "./style.css"
 
@@ -41,10 +39,19 @@ function SidePanel() {
     console.log("[ContextFlow] Fetching page context...")
 
     try {
-      const response = await sendToContentScript<RequestBody, ResponseBody>({
-        name: "text-reader",
-        body: { action: "getPageText" }
+      const [activeTab] = await chrome.tabs.query({
+        active: true,
+        lastFocusedWindow: true
       })
+
+      if (!activeTab?.id) {
+        throw new Error("No active tab available")
+      }
+
+      const response = await chrome.tabs.sendMessage<RequestBody, ResponseBody>(
+        activeTab.id,
+        { action: "getPageText" }
+      )
 
       console.log("[ContextFlow] Response:", response)
 
