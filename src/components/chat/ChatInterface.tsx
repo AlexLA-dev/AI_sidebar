@@ -101,27 +101,6 @@ export function ChatInterface({ apiKey, pageContext, pageTitle, contextType = "p
 
   return (
     <div className="flex flex-col h-full">
-      {/* Context indicator */}
-      {pageContext && (
-        <div className="px-3 py-2 bg-purple-50 dark:bg-purple-900/20 border-b border-purple-100 dark:border-purple-800">
-          <div className="flex items-center justify-between gap-2">
-            <p className="text-xs text-purple-700 dark:text-purple-300 truncate flex-1">
-              {contextType === "selection" ? "Selected text" : (pageTitle || "Current page")}
-            </p>
-            <span className={cn(
-              "text-[10px] px-1.5 py-0.5 rounded-full font-medium",
-              contextType === "selection"
-                ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
-                : isReadabilityParsed
-                  ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                  : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
-            )}>
-              {contextType === "selection" ? "Selection" : (isReadabilityParsed ? "Article" : "Raw")}
-            </span>
-          </div>
-        </div>
-      )}
-
       {/* Messages area */}
       <div className="flex-1 overflow-y-auto px-3 py-4 space-y-4">
         {displayMessages.length === 0 && (
