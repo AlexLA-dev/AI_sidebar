@@ -1,5 +1,4 @@
 import type { PlasmoCSConfig } from "plasmo"
-import type { PlasmoMessaging } from "@plasmohq/messaging"
 import { Readability } from "@mozilla/readability"
 
 export const config: PlasmoCSConfig = {
@@ -24,11 +23,17 @@ export type ResponseBody = {
   error?: string
 }
 
-function getSelectedText(): string | null {
+function extractSelection(): { text: string; title: string } | null {
   const selection = window.getSelection()
-  if (selection && selection.toString().trim().length > 0) {
-    return selection.toString().trim()
+  const selectedText = selection?.toString().trim()
+
+  if (selectedText) {
+    return {
+      text: selectedText,
+      title: document.title
+    }
   }
+
   return null
 }
 
@@ -95,18 +100,22 @@ function extractFallback(): { text: string; title: string } {
   }
 }
 
-const handler: PlasmoMessaging.MessageHandler<RequestBody, ResponseBody> = async (req, res) => {
-  try {
-    if (req.body?.action === "getPageText") {
+chrome.runtime.onMessage.addListener((request: RequestBody, _sender, sendResponse) => {
+  if (request?.action !== "getPageText") {
+    return false
+  }
+
+  const respond = async () => {
+    try {
       const url = window.location.href
 
       // Priority 1: Check for text selection
-      const selectedText = getSelectedText()
-      if (selectedText && selectedText.length > 10) {
-        res.send({
+      const selectionResult = extractSelection()
+      if (selectionResult && selectionResult.text.length > 10) {
+        sendResponse({
           success: true,
-          text: selectedText,
-          title: document.title,
+          text: selectionResult.text,
+          title: selectionResult.title,
           url,
           contextType: "selection",
           isReadabilityParsed: false
@@ -118,7 +127,7 @@ const handler: PlasmoMessaging.MessageHandler<RequestBody, ResponseBody> = async
       const readabilityResult = extractWithReadability()
 
       if (readabilityResult.success) {
-        res.send({
+        sendResponse({
           success: true,
           text: readabilityResult.text,
           title: readabilityResult.title,
@@ -134,7 +143,7 @@ const handler: PlasmoMessaging.MessageHandler<RequestBody, ResponseBody> = async
       // Priority 3: Fallback to cleaned innerText
       const fallbackResult = extractFallback()
 
-      res.send({
+      sendResponse({
         success: true,
         text: fallbackResult.text,
         title: fallbackResult.title,
@@ -142,18 +151,15 @@ const handler: PlasmoMessaging.MessageHandler<RequestBody, ResponseBody> = async
         contextType: "page",
         isReadabilityParsed: false
       })
-    } else {
-      res.send({
+    } catch (error) {
+      sendResponse({
         success: false,
-        error: "Unknown action"
+        error: error instanceof Error ? error.message : "Failed to read page"
       })
     }
-  } catch (error) {
-    res.send({
-      success: false,
-      error: error instanceof Error ? error.message : "Failed to read page"
-    })
   }
-}
 
-export default handler
+  void respond()
+
+  return true
+})
