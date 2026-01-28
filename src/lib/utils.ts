@@ -75,10 +75,12 @@ export async function sendMessageToActiveTab<TPayload, TResponse>(
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err)
 
-    // Check for content script not ready error
+    // Check for content script not ready or channel closed errors
     if (
       errorMessage.includes("Receiving end does not exist") ||
-      errorMessage.includes("Could not establish connection")
+      errorMessage.includes("Could not establish connection") ||
+      errorMessage.includes("message channel closed") ||
+      errorMessage.includes("message port closed")
     ) {
       return {
         success: false,

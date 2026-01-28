@@ -105,61 +105,59 @@ chrome.runtime.onMessage.addListener((request: RequestBody, _sender, sendRespons
     return false
   }
 
-  const respond = async () => {
-    try {
-      const url = window.location.href
+  // All extraction functions are synchronous, so we respond immediately
+  // This prevents "message channel closed" errors
+  try {
+    const url = window.location.href
 
-      // Priority 1: Check for text selection
-      const selectionResult = extractSelection()
-      if (selectionResult && selectionResult.text.length > 10) {
-        sendResponse({
-          success: true,
-          text: selectionResult.text,
-          title: selectionResult.title,
-          url,
-          contextType: "selection",
-          isReadabilityParsed: false
-        })
-        return
-      }
-
-      // Priority 2: Try Readability for articles
-      const readabilityResult = extractWithReadability()
-
-      if (readabilityResult.success) {
-        sendResponse({
-          success: true,
-          text: readabilityResult.text,
-          title: readabilityResult.title,
-          url,
-          excerpt: readabilityResult.excerpt || undefined,
-          byline: readabilityResult.byline || undefined,
-          contextType: "page",
-          isReadabilityParsed: true
-        })
-        return
-      }
-
-      // Priority 3: Fallback to cleaned innerText
-      const fallbackResult = extractFallback()
-
+    // Priority 1: Check for text selection
+    const selectionResult = extractSelection()
+    if (selectionResult && selectionResult.text.length > 10) {
       sendResponse({
         success: true,
-        text: fallbackResult.text,
-        title: fallbackResult.title,
+        text: selectionResult.text,
+        title: selectionResult.title,
         url,
-        contextType: "page",
+        contextType: "selection",
         isReadabilityParsed: false
       })
-    } catch (error) {
-      sendResponse({
-        success: false,
-        error: error instanceof Error ? error.message : "Failed to read page"
-      })
+      return // Synchronous response - no need to return true
     }
+
+    // Priority 2: Try Readability for articles
+    const readabilityResult = extractWithReadability()
+
+    if (readabilityResult.success) {
+      sendResponse({
+        success: true,
+        text: readabilityResult.text,
+        title: readabilityResult.title,
+        url,
+        excerpt: readabilityResult.excerpt || undefined,
+        byline: readabilityResult.byline || undefined,
+        contextType: "page",
+        isReadabilityParsed: true
+      })
+      return // Synchronous response - no need to return true
+    }
+
+    // Priority 3: Fallback to cleaned innerText
+    const fallbackResult = extractFallback()
+
+    sendResponse({
+      success: true,
+      text: fallbackResult.text,
+      title: fallbackResult.title,
+      url,
+      contextType: "page",
+      isReadabilityParsed: false
+    })
+    // Synchronous response - no need to return true
+  } catch (error) {
+    console.error("[ContextFlow] Content script error:", error)
+    sendResponse({
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to read page"
+    })
   }
-
-  void respond()
-
-  return true // REQUIRED: Keeps the channel open for async response
 })
