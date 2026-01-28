@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react"
 import { Sparkles, RefreshCw, Settings, X, AlertTriangle } from "lucide-react"
-import { cn } from "~/lib/utils"
+import { cn, sendMessageToActiveTab } from "~/lib/utils"
 import { getStoredApiKey, setStoredApiKey, getUserMode, type ContextType } from "~/lib/ai"
 import { ChatInterface, SettingsPanel } from "~/components/chat"
 import { OnboardingModal } from "~/components/onboarding"
@@ -46,46 +46,61 @@ function SidePanel() {
 
     console.log("[ContextFlow] Fetching page context...")
 
-    try {
-      const [activeTab] = await chrome.tabs.query({
-        active: true,
-        lastFocusedWindow: true
-      })
+    const result = await sendMessageToActiveTab<RequestBody, ResponseBody>({
+      action: "getPageText"
+    })
 
-      if (!activeTab?.id) {
-        throw new Error("No active tab available")
-      }
+    console.log("[ContextFlow] Message result:", result)
 
-      const response = await chrome.tabs.sendMessage<RequestBody, ResponseBody>(
-        activeTab.id,
-        { action: "getPageText" }
-      )
+    // Handle restricted pages (chrome://, etc.) - show idle state, not error
+    if (result.isRestrictedPage) {
+      console.log("[ContextFlow] Restricted page, showing idle state")
+      setPageContext(null)
+      setPageTitle(null)
+      setContextType("page")
+      setIsReadabilityParsed(false)
+      setContextStatus("idle")
+      setContextError(null)
+      return
+    }
 
-      console.log("[ContextFlow] Response:", response)
-
-      if (response?.success && response.text) {
-        setPageContext(response.text)
-        setPageTitle(response.title || null)
-        setContextType(response.contextType || "page")
-        setIsReadabilityParsed(response.isReadabilityParsed || false)
-        setContextStatus("success")
-        console.log("[ContextFlow] Context loaded:", {
-          title: response.title,
-          type: response.contextType,
-          textLength: response.text.length
-        })
-      } else {
-        throw new Error(response?.error || "Empty response from content script")
-      }
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to connect"
-      console.error("[ContextFlow] Error:", message)
+    // Handle errors
+    if (!result.success) {
+      console.error("[ContextFlow] Error:", result.error)
       setPageContext(null)
       setPageTitle(null)
       setContextType("page")
       setIsReadabilityParsed(false)
       setContextStatus("error")
-      setContextError(message)
+      setContextError(
+        result.shouldRetry
+          ? "Content script not ready. Please refresh the page."
+          : result.error || "Failed to connect"
+      )
+      return
+    }
+
+    // Handle successful response
+    const response = result.data
+    if (response?.success && response.text) {
+      setPageContext(response.text)
+      setPageTitle(response.title || null)
+      setContextType(response.contextType || "page")
+      setIsReadabilityParsed(response.isReadabilityParsed || false)
+      setContextStatus("success")
+      console.log("[ContextFlow] Context loaded:", {
+        title: response.title,
+        type: response.contextType,
+        textLength: response.text.length
+      })
+    } else {
+      console.error("[ContextFlow] Invalid response:", response)
+      setPageContext(null)
+      setPageTitle(null)
+      setContextType("page")
+      setIsReadabilityParsed(false)
+      setContextStatus("error")
+      setContextError(response?.error || "Empty response from content script")
     }
   }, [])
 
