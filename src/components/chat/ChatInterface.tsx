@@ -4,8 +4,8 @@ import Markdown from "react-markdown"
 import { motion, AnimatePresence } from "framer-motion"
 
 import { cn } from "~/lib/utils"
-import type { Message, ContextType } from "~/lib/ai"
-import { streamChatResponse } from "~/lib/ai"
+import type { Message, ContextType, TrialInfo } from "~/lib/ai"
+import { streamChatResponse, LimitReachedError } from "~/lib/ai"
 
 type ChatInterfaceProps = {
   apiKey: string
@@ -13,9 +13,21 @@ type ChatInterfaceProps = {
   pageTitle: string | null
   contextType?: ContextType
   isReadabilityParsed?: boolean
+  trialInfo: TrialInfo | null
+  onTrialUpdate: () => void
+  onLimitReached: () => void
 }
 
-export function ChatInterface({ apiKey, pageContext, pageTitle, contextType = "page", isReadabilityParsed }: ChatInterfaceProps) {
+export function ChatInterface({
+  apiKey,
+  pageContext,
+  pageTitle,
+  contextType = "page",
+  isReadabilityParsed,
+  trialInfo,
+  onTrialUpdate,
+  onLimitReached
+}: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
   const [isStreaming, setIsStreaming] = useState(false)
@@ -73,12 +85,21 @@ export function ChatInterface({ apiKey, pageContext, pageTitle, contextType = "p
           setStreamingContent("")
           streamingContentRef.current = ""
           setIsStreaming(false)
+          // Update trial info after successful request
+          onTrialUpdate()
         },
         onError: (error) => {
-          setMessages((prev) => [
-            ...prev,
-            { role: "assistant", content: `Error: ${error.message}` }
-          ])
+          // Handle limit reached error specifically
+          if (error instanceof LimitReachedError) {
+            onLimitReached()
+            // Remove the user message since request wasn't processed
+            setMessages((prev) => prev.slice(0, -1))
+          } else {
+            setMessages((prev) => [
+              ...prev,
+              { role: "assistant", content: `Error: ${error.message}` }
+            ])
+          }
           setStreamingContent("")
           streamingContentRef.current = ""
           setIsStreaming(false)
@@ -99,8 +120,35 @@ export function ChatInterface({ apiKey, pageContext, pageTitle, contextType = "p
     ? [...messages, { role: "assistant" as const, content: streamingContent }]
     : messages
 
+  // Show trial counter only for non-licensed users
+  const showTrialCounter = trialInfo && !trialInfo.hasLicense
+
   return (
     <div className="flex flex-col h-full">
+      {/* Trial Counter */}
+      {showTrialCounter && (
+        <div className="px-3 py-2 bg-purple-50 dark:bg-purple-900/20 border-b border-purple-100 dark:border-purple-800">
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-purple-600 dark:text-purple-400">
+              Trial: {trialInfo.remaining}/5 requests left
+            </span>
+            <div className="flex gap-1">
+              {[...Array(5)].map((_, i) => (
+                <div
+                  key={i}
+                  className={cn(
+                    "w-2 h-2 rounded-full",
+                    i < trialInfo.remaining
+                      ? "bg-purple-500"
+                      : "bg-purple-200 dark:bg-purple-700"
+                  )}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Messages area */}
       <div className="flex-1 overflow-y-auto px-3 py-4 space-y-4">
         {displayMessages.length === 0 && (

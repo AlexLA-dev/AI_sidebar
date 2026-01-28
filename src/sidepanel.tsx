@@ -1,10 +1,9 @@
 import { useState, useEffect, useCallback } from "react"
 import { Sparkles, RefreshCw, Settings, X, AlertTriangle } from "lucide-react"
 import { cn, sendMessageToActiveTab } from "~/lib/utils"
-import { getStoredApiKey, setStoredApiKey, getUserMode, type ContextType } from "~/lib/ai"
+import { getStoredApiKey, setStoredApiKey, getTrialInfo, type ContextType, type TrialInfo } from "~/lib/ai"
 import { ChatInterface, SettingsPanel } from "~/components/chat"
-import { OnboardingModal } from "~/components/onboarding"
-import { type UserMode, storage, STORAGE_KEYS } from "~/lib/storage"
+import { OnboardingModal, PaywallModal } from "~/components/onboarding"
 import type { RequestBody, ResponseBody } from "~/contents/context-parser"
 
 import "./style.css"
@@ -13,30 +12,35 @@ type ContextStatus = "idle" | "loading" | "success" | "error"
 
 function SidePanel() {
   const [apiKey, setApiKey] = useState("")
-  const [userMode, setUserMode] = useState<UserMode | "loading">("loading")
+  const [isInitialized, setIsInitialized] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
+  const [showPaywall, setShowPaywall] = useState(false)
   const [pageContext, setPageContext] = useState<string | null>(null)
   const [pageTitle, setPageTitle] = useState<string | null>(null)
   const [contextType, setContextType] = useState<ContextType>("page")
   const [isReadabilityParsed, setIsReadabilityParsed] = useState(false)
   const [contextStatus, setContextStatus] = useState<ContextStatus>("idle")
   const [contextError, setContextError] = useState<string | null>(null)
+  const [trialInfo, setTrialInfo] = useState<TrialInfo | null>(null)
 
-  // Load user mode and API key from storage on mount
+  // Load API key and trial info from storage on mount
   useEffect(() => {
     const loadSettings = async () => {
-      const mode = await getUserMode()
-      setUserMode(mode)
-
       const storedKey = await getStoredApiKey()
       setApiKey(storedKey)
 
-      // Show settings if no API key (for both modes in MVP)
-      if (!storedKey && mode !== null) {
-        setShowSettings(true)
-      }
+      const info = await getTrialInfo()
+      setTrialInfo(info)
+
+      setIsInitialized(true)
     }
     loadSettings()
+  }, [])
+
+  // Refresh trial info
+  const refreshTrialInfo = useCallback(async () => {
+    const info = await getTrialInfo()
+    setTrialInfo(info)
   }, [])
 
   // Fetch page context
@@ -117,28 +121,21 @@ function SidePanel() {
     }
   }
 
-  const handleOnboardingComplete = (mode: UserMode, key?: string) => {
-    setUserMode(mode)
-    if (key) {
-      setApiKey(key)
-    }
-    // For subscription mode in MVP, still need API key
-    if (mode === "subscription") {
-      setShowSettings(true)
-    }
+  const handleOnboardingComplete = (key: string) => {
+    setApiKey(key)
   }
 
-  const handleModeReset = async () => {
-    // Clear user mode to show onboarding again
-    await storage.remove(STORAGE_KEYS.USER_MODE)
-    await storage.remove(STORAGE_KEYS.SUBSCRIPTION_ACTIVE)
-    await storage.remove(STORAGE_KEYS.USAGE_COUNTER)
-    await storage.remove(STORAGE_KEYS.USAGE_PERIOD_END)
-    setUserMode(null)
+  const handleLimitReached = () => {
+    setShowPaywall(true)
+  }
+
+  const handleSubscribed = () => {
+    setShowPaywall(false)
+    refreshTrialInfo()
   }
 
   // Show loading state
-  if (userMode === "loading") {
+  if (!isInitialized) {
     return (
       <div className="flex items-center justify-center h-screen bg-white dark:bg-gray-900">
         <div className="w-8 h-8 border-2 border-purple-200 border-t-purple-600 rounded-full animate-spin" />
@@ -146,13 +143,21 @@ function SidePanel() {
     )
   }
 
-  // Show onboarding if user mode is not set
-  if (userMode === null) {
+  // Show onboarding if no API key
+  if (!apiKey) {
     return <OnboardingModal onComplete={handleOnboardingComplete} />
   }
 
   return (
     <div className={cn("flex flex-col h-screen bg-white dark:bg-gray-900")}>
+      {/* Paywall Modal */}
+      {showPaywall && (
+        <PaywallModal
+          onClose={() => setShowPaywall(false)}
+          onSubscribed={handleSubscribed}
+        />
+      )}
+
       {/* Header */}
       <header className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-800">
         <div className="flex items-center gap-2">
@@ -189,7 +194,7 @@ function SidePanel() {
         </div>
       </header>
 
-      {/* Context status indicator - always visible for debugging */}
+      {/* Context status indicator */}
       <div className={cn(
         "px-3 py-2 border-b text-xs",
         contextStatus === "error"
@@ -235,37 +240,24 @@ function SidePanel() {
           <SettingsPanel
             apiKey={apiKey}
             onApiKeyChange={handleApiKeyChange}
-            onModeReset={handleModeReset}
+            trialInfo={trialInfo}
+            onShowPaywall={() => setShowPaywall(true)}
           />
         </div>
       )}
 
       {/* Main content */}
       <main className="flex-1 overflow-hidden">
-        {!apiKey ? (
-          <div className="flex flex-col items-center justify-center h-full px-6 text-center">
-            <Settings className="h-10 w-10 text-gray-300 dark:text-gray-600 mb-3" />
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-              {userMode === "subscription"
-                ? "Enter an API key to use with your subscription (backend proxy coming soon)"
-                : "Enter your OpenAI API key to get started"}
-            </p>
-            <button
-              onClick={() => setShowSettings(true)}
-              className="text-sm text-purple-600 hover:text-purple-700 font-medium"
-            >
-              Open Settings
-            </button>
-          </div>
-        ) : (
-          <ChatInterface
-            apiKey={apiKey}
-            pageContext={pageContext}
-            pageTitle={pageTitle}
-            contextType={contextType}
-            isReadabilityParsed={isReadabilityParsed}
-          />
-        )}
+        <ChatInterface
+          apiKey={apiKey}
+          pageContext={pageContext}
+          pageTitle={pageTitle}
+          contextType={contextType}
+          isReadabilityParsed={isReadabilityParsed}
+          trialInfo={trialInfo}
+          onTrialUpdate={refreshTrialInfo}
+          onLimitReached={handleLimitReached}
+        />
       </main>
     </div>
   )

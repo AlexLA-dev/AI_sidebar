@@ -1,6 +1,12 @@
 import OpenAI from "openai"
 
-import { storage, STORAGE_KEYS, SUBSCRIPTION_CONFIG, getNextPeriodEnd, type UserMode } from "./storage"
+import {
+  getTrialInfo,
+  incrementTrialUsage,
+  getStoredApiKey,
+  setStoredApiKey,
+  type TrialInfo
+} from "./storage"
 
 export type Message = {
   role: "user" | "assistant" | "system"
@@ -15,11 +21,14 @@ export type StreamCallbacks = {
   onError: (error: Error) => void
 }
 
-export type UsageInfo = {
-  used: number
-  limit: number
-  periodEnd: string | null
-  isSubscription: boolean
+// Custom error for limit reached
+export class LimitReachedError extends Error {
+  code = "LIMIT_REACHED" as const
+
+  constructor() {
+    super("Trial limit reached. Please subscribe to continue.")
+    this.name = "LimitReachedError"
+  }
 }
 
 const SYSTEM_PROMPT = `You are ContextFlow, an AI browser assistant. You help users understand and interact with web pages.
@@ -53,88 +62,22 @@ export function buildMessagesWithContext(
   return [systemMessage, ...messages]
 }
 
-// Check and reset usage period if needed
-async function checkAndResetUsagePeriod(): Promise<void> {
-  const periodEnd = await storage.get<string>(STORAGE_KEYS.USAGE_PERIOD_END)
+// Check if user can make a request
+async function checkAccessPermission(): Promise<{ allowed: boolean; trialInfo: TrialInfo }> {
+  const trialInfo = await getTrialInfo()
 
-  if (periodEnd && new Date() > new Date(periodEnd)) {
-    // Period has ended, reset counter
-    await storage.set(STORAGE_KEYS.USAGE_COUNTER, 0)
-    await storage.set(STORAGE_KEYS.USAGE_PERIOD_END, getNextPeriodEnd())
-  }
-}
-
-// Get current usage info
-export async function getUsageInfo(): Promise<UsageInfo> {
-  const userMode = await storage.get<UserMode>(STORAGE_KEYS.USER_MODE)
-  const isSubscription = userMode === "subscription"
-
-  if (!isSubscription) {
-    return {
-      used: 0,
-      limit: 0,
-      periodEnd: null,
-      isSubscription: false
-    }
+  // Licensed users have unlimited access
+  if (trialInfo.hasLicense) {
+    return { allowed: true, trialInfo }
   }
 
-  await checkAndResetUsagePeriod()
-
-  const usageCounter = await storage.get<number>(STORAGE_KEYS.USAGE_COUNTER) || 0
-  const periodEnd = await storage.get<string>(STORAGE_KEYS.USAGE_PERIOD_END) || null
-
-  return {
-    used: usageCounter,
-    limit: SUBSCRIPTION_CONFIG.WEEKLY_LIMIT,
-    periodEnd,
-    isSubscription: true
-  }
-}
-
-// Check if usage limit is reached (for subscription mode)
-async function checkUsageLimit(): Promise<{ allowed: boolean; error?: string }> {
-  const userMode = await storage.get<UserMode>(STORAGE_KEYS.USER_MODE)
-
-  // BYOK mode - no limits
-  if (userMode === "byok") {
-    return { allowed: true }
+  // Trial users: check remaining requests
+  if (trialInfo.remaining > 0) {
+    return { allowed: true, trialInfo }
   }
 
-  // Subscription mode - check limits
-  if (userMode === "subscription") {
-    const subscriptionActive = await storage.get<boolean>(STORAGE_KEYS.SUBSCRIPTION_ACTIVE)
-
-    if (!subscriptionActive) {
-      return { allowed: false, error: "Subscription is not active" }
-    }
-
-    await checkAndResetUsagePeriod()
-
-    const usageCounter = await storage.get<number>(STORAGE_KEYS.USAGE_COUNTER) || 0
-
-    if (usageCounter >= SUBSCRIPTION_CONFIG.WEEKLY_LIMIT) {
-      const periodEnd = await storage.get<string>(STORAGE_KEYS.USAGE_PERIOD_END)
-      const resetDate = periodEnd ? new Date(periodEnd).toLocaleDateString() : "soon"
-      return {
-        allowed: false,
-        error: `Weekly limit reached (${SUBSCRIPTION_CONFIG.WEEKLY_LIMIT}/${SUBSCRIPTION_CONFIG.WEEKLY_LIMIT}). Resets on ${resetDate}. Switch to BYOK for unlimited usage.`
-      }
-    }
-
-    return { allowed: true }
-  }
-
-  return { allowed: false, error: "Please complete onboarding first" }
-}
-
-// Increment usage counter (for subscription mode)
-async function incrementUsageCounter(): Promise<void> {
-  const userMode = await storage.get<UserMode>(STORAGE_KEYS.USER_MODE)
-
-  if (userMode === "subscription") {
-    const currentCount = await storage.get<number>(STORAGE_KEYS.USAGE_COUNTER) || 0
-    await storage.set(STORAGE_KEYS.USAGE_COUNTER, currentCount + 1)
-  }
+  // Trial expired
+  return { allowed: false, trialInfo }
 }
 
 export async function streamChatResponse(
@@ -144,10 +87,11 @@ export async function streamChatResponse(
   callbacks: StreamCallbacks,
   contextType: ContextType = "page"
 ): Promise<void> {
-  // Check usage limits first
-  const usageCheck = await checkUsageLimit()
-  if (!usageCheck.allowed) {
-    callbacks.onError(new Error(usageCheck.error || "Usage limit reached"))
+  // Check access permission (gatekeeper)
+  const { allowed, trialInfo } = await checkAccessPermission()
+
+  if (!allowed) {
+    callbacks.onError(new LimitReachedError())
     return
   }
 
@@ -178,8 +122,10 @@ export async function streamChatResponse(
       }
     }
 
-    // Increment usage counter on successful completion
-    await incrementUsageCounter()
+    // Increment usage counter for trial users (after successful completion)
+    if (!trialInfo.hasLicense) {
+      await incrementTrialUsage()
+    }
 
     callbacks.onComplete()
   } catch (error) {
@@ -197,28 +143,5 @@ export async function streamChatResponse(
   }
 }
 
-// Storage helpers (using Plasmo Storage)
-export async function getStoredApiKey(): Promise<string> {
-  const key = await storage.get<string>(STORAGE_KEYS.OPENAI_API_KEY)
-  return key || ""
-}
-
-export async function setStoredApiKey(key: string): Promise<void> {
-  if (key) {
-    await storage.set(STORAGE_KEYS.OPENAI_API_KEY, key)
-  } else {
-    await storage.remove(STORAGE_KEYS.OPENAI_API_KEY)
-  }
-}
-
-export async function getUserMode(): Promise<UserMode> {
-  return await storage.get<UserMode>(STORAGE_KEYS.USER_MODE) || null
-}
-
-export async function setUserMode(mode: UserMode): Promise<void> {
-  if (mode) {
-    await storage.set(STORAGE_KEYS.USER_MODE, mode)
-  } else {
-    await storage.remove(STORAGE_KEYS.USER_MODE)
-  }
-}
+// Re-export storage helpers
+export { getStoredApiKey, setStoredApiKey, getTrialInfo, type TrialInfo }

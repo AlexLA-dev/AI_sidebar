@@ -3,28 +3,65 @@ import { Storage } from "@plasmohq/storage"
 // Shared storage instance for the extension
 export const storage = new Storage()
 
-// User mode type
-export type UserMode = "byok" | "subscription" | null
-
 // Storage keys
 export const STORAGE_KEYS = {
-  OPENAI_API_KEY: "openai_api_key",
-  USER_MODE: "user_mode",
-  USAGE_COUNTER: "usage_counter",
-  USAGE_PERIOD_END: "usage_period_end",
-  SUBSCRIPTION_ACTIVE: "subscription_active"
+  // License & Trial
+  TRIAL_USAGE_COUNT: "trial_usage_count",
+  HAS_ACTIVE_LICENSE: "has_active_license",
+  // API Key (BYOK)
+  USER_API_KEY: "user_api_key"
 } as const
 
-// Subscription constants
-export const SUBSCRIPTION_CONFIG = {
-  WEEKLY_LIMIT: 150,
-  PRICE_MONTHLY: 6.99,
-  PERIOD_DAYS: 7
+// License constants
+export const LICENSE_CONFIG = {
+  TRIAL_LIMIT: 5,
+  PRICE_MONTHLY: 1.99
 } as const
 
-// Helper to get next period end date
-export function getNextPeriodEnd(): string {
-  const date = new Date()
-  date.setDate(date.getDate() + SUBSCRIPTION_CONFIG.PERIOD_DAYS)
-  return date.toISOString()
+// Trial info type
+export type TrialInfo = {
+  usageCount: number
+  hasLicense: boolean
+  remaining: number
+  isTrialExpired: boolean
+}
+
+// Get trial info
+export async function getTrialInfo(): Promise<TrialInfo> {
+  const usageCount = (await storage.get<number>(STORAGE_KEYS.TRIAL_USAGE_COUNT)) || 0
+  const hasLicense = (await storage.get<boolean>(STORAGE_KEYS.HAS_ACTIVE_LICENSE)) || false
+
+  return {
+    usageCount,
+    hasLicense,
+    remaining: Math.max(0, LICENSE_CONFIG.TRIAL_LIMIT - usageCount),
+    isTrialExpired: !hasLicense && usageCount >= LICENSE_CONFIG.TRIAL_LIMIT
+  }
+}
+
+// Increment trial usage
+export async function incrementTrialUsage(): Promise<number> {
+  const currentCount = (await storage.get<number>(STORAGE_KEYS.TRIAL_USAGE_COUNT)) || 0
+  const newCount = currentCount + 1
+  await storage.set(STORAGE_KEYS.TRIAL_USAGE_COUNT, newCount)
+  return newCount
+}
+
+// Set license status
+export async function setLicenseStatus(active: boolean): Promise<void> {
+  await storage.set(STORAGE_KEYS.HAS_ACTIVE_LICENSE, active)
+}
+
+// API Key helpers
+export async function getStoredApiKey(): Promise<string> {
+  const key = await storage.get<string>(STORAGE_KEYS.USER_API_KEY)
+  return key || ""
+}
+
+export async function setStoredApiKey(key: string): Promise<void> {
+  if (key) {
+    await storage.set(STORAGE_KEYS.USER_API_KEY, key)
+  } else {
+    await storage.remove(STORAGE_KEYS.USER_API_KEY)
+  }
 }
