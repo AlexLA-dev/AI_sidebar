@@ -170,9 +170,12 @@ export function SettingsPanel({
 
       {/* Pricing Info */}
       {!hasLicense && (
-        <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
+        <div className="pt-2 border-t border-gray-100 dark:border-gray-800 space-y-1">
           <p className="text-xs text-gray-400">
-            <strong>Pro License:</strong> ${LICENSE_CONFIG.PRICE_MONTHLY}/month for unlimited BYOK usage
+            <strong>{LICENSE_CONFIG.BASIC.label}:</strong> ${LICENSE_CONFIG.BASIC.price}/mo &mdash; {LICENSE_CONFIG.BASIC.description}
+          </p>
+          <p className="text-xs text-gray-400">
+            <strong>{LICENSE_CONFIG.PRO.label}:</strong> ${LICENSE_CONFIG.PRO.price}/mo &mdash; {LICENSE_CONFIG.PRO.description}
           </p>
         </div>
       )}

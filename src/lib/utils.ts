@@ -1,8 +1,59 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
+import { getSupabaseClient } from "./supabase"
+
 export function cn(...inputs: ClassValue[]): string {
   return twMerge(clsx(inputs))
+}
+
+// Stripe Payment Link environment variables
+const STRIPE_LINKS: Record<string, string | undefined> = {
+  basic: process.env.PLASMO_PUBLIC_STRIPE_LINK_BASIC,
+  pro: process.env.PLASMO_PUBLIC_STRIPE_LINK_PRO
+}
+
+export type PlanId = "basic" | "pro"
+
+export interface PaymentLinkResult {
+  success: boolean
+  url?: string
+  error?: string
+}
+
+/**
+ * Get a Stripe Payment Link URL for a given plan.
+ * Appends client_reference_id if the user is logged in via Supabase.
+ */
+export async function getPaymentLink(plan: PlanId): Promise<PaymentLinkResult> {
+  const baseUrl = STRIPE_LINKS[plan]
+
+  if (!baseUrl) {
+    return {
+      success: false,
+      error: `Payment link not configured for "${plan}" plan. Check PLASMO_PUBLIC_STRIPE_LINK_${plan.toUpperCase()}.`
+    }
+  }
+
+  try {
+    const supabase = getSupabaseClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (user) {
+      // Append user ID so Stripe webhook can link payment to account
+      const separator = baseUrl.includes("?") ? "&" : "?"
+      return {
+        success: true,
+        url: `${baseUrl}${separator}client_reference_id=${user.id}`
+      }
+    }
+
+    // No authenticated user — still return the link (Stripe will handle it)
+    return { success: true, url: baseUrl }
+  } catch {
+    // Supabase not configured or unavailable — return link without user ID
+    return { success: true, url: baseUrl }
+  }
 }
 
 // Restricted URL prefixes where content scripts cannot run

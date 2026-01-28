@@ -12,10 +12,19 @@ export const STORAGE_KEYS = {
   USER_API_KEY: "user_api_key"
 } as const
 
-// License constants
+// Plan & pricing constants
 export const LICENSE_CONFIG = {
   TRIAL_LIMIT: 5,
-  PRICE_MONTHLY: 1.99
+  BASIC: {
+    label: "BYOK License",
+    price: 1.99,
+    description: "Unlimited interface access. Use your own API keys."
+  },
+  PRO: {
+    label: "Pro Subscription",
+    price: 6.99,
+    description: "All included. No API keys needed."
+  }
 } as const
 
 // Trial info type

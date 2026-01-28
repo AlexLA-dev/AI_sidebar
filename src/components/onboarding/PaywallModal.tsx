@@ -1,9 +1,9 @@
 import { useState } from "react"
-import { Lock, Sparkles, Key, Check, Zap } from "lucide-react"
+import { Lock, Check, Zap, Key, Crown } from "lucide-react"
 import { motion } from "framer-motion"
 
-import { cn } from "~/lib/utils"
-import { setLicenseStatus, LICENSE_CONFIG } from "~/lib/storage"
+import { cn, getPaymentLink, type PlanId } from "~/lib/utils"
+import { LICENSE_CONFIG } from "~/lib/storage"
 
 type PaywallModalProps = {
   onClose: () => void
@@ -11,18 +11,59 @@ type PaywallModalProps = {
 }
 
 export function PaywallModal({ onClose, onSubscribed }: PaywallModalProps) {
+  const [selectedPlan, setSelectedPlan] = useState<PlanId>("basic")
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleSubscribe = async () => {
     setIsLoading(true)
+    setError(null)
 
-    // Mock subscription - in real app this would open Stripe/Apple Pay
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    await setLicenseStatus(true)
+    const result = await getPaymentLink(selectedPlan)
 
+    if (!result.success || !result.url) {
+      setError(result.error || "Failed to get payment link")
+      setIsLoading(false)
+      return
+    }
+
+    // Open Stripe checkout in a new tab
+    window.open(result.url, "_blank")
     setIsLoading(false)
-    onSubscribed()
+
+    // Note: actual subscription activation happens via Stripe webhook.
+    // For now, close modal — user will need to reload after payment completes.
   }
+
+  const plans = [
+    {
+      id: "basic" as PlanId,
+      icon: Key,
+      label: LICENSE_CONFIG.BASIC.label,
+      price: LICENSE_CONFIG.BASIC.price,
+      description: LICENSE_CONFIG.BASIC.description,
+      features: [
+        "Unlimited interface access",
+        "Bring your own OpenAI key",
+        "Full control over costs"
+      ]
+    },
+    {
+      id: "pro" as PlanId,
+      icon: Crown,
+      label: LICENSE_CONFIG.PRO.label,
+      price: LICENSE_CONFIG.PRO.price,
+      description: LICENSE_CONFIG.PRO.description,
+      badge: "Best value",
+      features: [
+        "Everything in Basic",
+        "No API key needed",
+        "We handle everything"
+      ]
+    }
+  ]
+
+  const activePlan = plans.find((p) => p.id === selectedPlan)!
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
@@ -32,7 +73,7 @@ export function PaywallModal({ onClose, onSubscribed }: PaywallModalProps) {
         className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden"
       >
         {/* Header */}
-        <div className="bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-6 text-center relative">
+        <div className="bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-5 text-center relative">
           <button
             onClick={onClose}
             className="absolute top-3 right-3 text-white/70 hover:text-white p-1"
@@ -43,49 +84,73 @@ export function PaywallModal({ onClose, onSubscribed }: PaywallModalProps) {
             </svg>
           </button>
 
-          <div className="inline-flex items-center justify-center w-14 h-14 bg-white/20 rounded-full mb-3">
-            <Lock className="h-7 w-7 text-white" />
+          <div className="inline-flex items-center justify-center w-12 h-12 bg-white/20 rounded-full mb-2">
+            <Lock className="h-6 w-6 text-white" />
           </div>
-          <h1 className="text-xl font-bold text-white mb-1">
+          <h1 className="text-lg font-bold text-white mb-1">
             Unlock ContextFlow Pro
           </h1>
-          <p className="text-purple-100 text-sm">
-            Your free trial has ended
+          <p className="text-purple-100 text-xs">
+            You have used all {LICENSE_CONFIG.TRIAL_LIMIT} free test requests.
           </p>
         </div>
 
-        {/* Content */}
-        <div className="p-5 space-y-4">
-          {/* Trial Status */}
-          <div className="bg-amber-50 dark:bg-amber-900/20 rounded-lg p-3 text-center">
-            <p className="text-sm text-amber-700 dark:text-amber-300">
-              You have used all {LICENSE_CONFIG.TRIAL_LIMIT} free test requests.
-            </p>
-          </div>
+        {/* Plans */}
+        <div className="p-4 space-y-3">
+          {plans.map((plan) => (
+            <button
+              key={plan.id}
+              onClick={() => setSelectedPlan(plan.id)}
+              className={cn(
+                "w-full p-3 rounded-xl border-2 transition-all text-left relative",
+                selectedPlan === plan.id
+                  ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20"
+                  : "border-gray-200 dark:border-gray-700 hover:border-purple-300"
+              )}
+            >
+              {plan.badge && (
+                <span className="absolute -top-2 right-3 bg-purple-600 text-white text-[10px] px-2 py-0.5 rounded-full font-medium">
+                  {plan.badge}
+                </span>
+              )}
+              <div className="flex items-start gap-3">
+                <div className={cn(
+                  "p-1.5 rounded-lg mt-0.5",
+                  selectedPlan === plan.id
+                    ? "bg-purple-500 text-white"
+                    : "bg-gray-100 dark:bg-gray-800 text-gray-500"
+                )}>
+                  <plan.icon className="h-4 w-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+                      {plan.label}
+                    </h3>
+                    <span className="text-purple-600 dark:text-purple-400 font-bold text-sm">
+                      ${plan.price}/mo
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                    {plan.description}
+                  </p>
+                  <ul className="mt-1.5 space-y-0.5">
+                    {plan.features.map((feat) => (
+                      <li key={feat} className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+                        <Check className="h-3 w-3 text-green-500 flex-shrink-0" />
+                        {feat}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </button>
+          ))}
 
-          {/* Value Props */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-              <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
-              <span>Unlimited requests with your API key</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-              <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
-              <span>BYOK - You control your costs</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-              <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
-              <span>Works with any OpenAI-compatible API</span>
-            </div>
-          </div>
-
-          {/* Price */}
-          <div className="text-center py-2">
-            <span className="text-3xl font-bold text-gray-900 dark:text-white">
-              ${LICENSE_CONFIG.PRICE_MONTHLY}
-            </span>
-            <span className="text-gray-500 dark:text-gray-400">/month</span>
-          </div>
+          {/* Error */}
+          {error && (
+            <p className="text-xs text-red-500 text-center">{error}</p>
+          )}
 
           {/* Subscribe Button */}
           <button
@@ -104,12 +169,12 @@ export function PaywallModal({ onClose, onSubscribed }: PaywallModalProps) {
             ) : (
               <>
                 <Zap className="h-4 w-4" />
-                Subscribe for ${LICENSE_CONFIG.PRICE_MONTHLY}/mo
+                Subscribe (${activePlan.price}/mo)
               </>
             )}
           </button>
 
-          <p className="text-xs text-gray-400 text-center">
+          <p className="text-[10px] text-gray-400 text-center">
             Cancel anytime. Secure payment via Stripe.
           </p>
         </div>

@@ -71,6 +71,10 @@ export function OnboardingModal({ onComplete }: OnboardingModalProps) {
             <p className="text-sm text-green-700 dark:text-green-300 font-medium">
               Start with {LICENSE_CONFIG.TRIAL_LIMIT} free requests!
             </p>
+            <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+              Then from ${LICENSE_CONFIG.BASIC.price}/mo ({LICENSE_CONFIG.BASIC.label})
+              or ${LICENSE_CONFIG.PRO.price}/mo ({LICENSE_CONFIG.PRO.label})
+            </p>
           </div>
 
           {/* API Key Input */}

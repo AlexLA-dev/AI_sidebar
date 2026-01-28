@@ -1,9 +1,7 @@
-import { createClient, type SupabaseClient, type User } from "@supabase/supabase-js"
+import type { User } from "@supabase/supabase-js"
 
-// Environment configuration
-// In production, these would be injected at build time or from extension config
-const SUPABASE_URL = process.env.PLASMO_PUBLIC_SUPABASE_URL || ""
-const SUPABASE_ANON_KEY = process.env.PLASMO_PUBLIC_SUPABASE_ANON_KEY || ""
+import { getSupabaseClient } from "./supabase"
+
 const API_BASE_URL = process.env.PLASMO_PUBLIC_API_URL || "/.netlify/functions"
 
 // Types
@@ -57,37 +55,6 @@ export class UseOwnKeyError extends ApiError {
   constructor() {
     super("BYOK users should use their own API key", "USE_OWN_KEY", 403)
   }
-}
-
-// Supabase client singleton
-let supabaseClient: SupabaseClient | null = null
-
-export function getSupabaseClient(): SupabaseClient {
-  if (!supabaseClient) {
-    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-      throw new Error("Supabase configuration missing")
-    }
-    supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth: {
-        autoRefreshToken: true,
-        persistSession: true,
-        storage: {
-          // Use Chrome storage for session persistence
-          getItem: async (key) => {
-            const result = await chrome.storage.local.get(key)
-            return result[key] || null
-          },
-          setItem: async (key, value) => {
-            await chrome.storage.local.set({ [key]: value })
-          },
-          removeItem: async (key) => {
-            await chrome.storage.local.remove(key)
-          }
-        }
-      }
-    })
-  }
-  return supabaseClient
 }
 
 // Auth functions
@@ -273,44 +240,5 @@ export async function proxyChatRequest(
   }
 }
 
-// Stripe checkout - creates a checkout session
-export async function createCheckoutSession(
-  planType: "byok_license" | "pro_subscription"
-): Promise<string> {
-  const token = await getSession()
-  const user = await getCurrentUser()
-
-  if (!token || !user) {
-    throw new ApiError("Not authenticated", "AUTH_REQUIRED", 401)
-  }
-
-  // In a real implementation, you'd call a Netlify function to create the checkout session
-  // For now, we'll construct the Stripe checkout URL directly
-  const priceId =
-    planType === "byok_license"
-      ? process.env.PLASMO_PUBLIC_STRIPE_BYOK_PRICE_ID
-      : process.env.PLASMO_PUBLIC_STRIPE_PRO_PRICE_ID
-
-  if (!priceId) {
-    throw new ApiError("Stripe price not configured", "CONFIG_ERROR", 500)
-  }
-
-  // This would typically be a call to your backend to create a secure checkout session
-  // The backend would use Stripe.checkout.sessions.create() with client_reference_id: user.id
-  const checkoutUrl = `https://checkout.stripe.com/pay/${priceId}?client_reference_id=${user.id}`
-
-  return checkoutUrl
-}
-
-// Customer portal - for managing subscriptions
-export async function createPortalSession(): Promise<string> {
-  const subscription = await getUserSubscription()
-
-  if (!subscription?.stripe_customer_id) {
-    throw new ApiError("No active subscription", "NO_SUBSCRIPTION", 400)
-  }
-
-  // This would call a backend function to create a Stripe Customer Portal session
-  // For now, return a placeholder
-  throw new ApiError("Portal not implemented", "NOT_IMPLEMENTED", 501)
-}
+// Re-export getPaymentLink for convenience
+export { getPaymentLink } from "./utils"
