@@ -5,6 +5,9 @@ node_modules/
 .plasmo/
 build/
 
+# Netlify
+.netlify/
+
 # Environment files
 .env
 .env.local

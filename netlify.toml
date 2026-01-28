@@ -1,0 +1,46 @@
+# Netlify Configuration for ContextFlow Backend
+
+[build]
+  command = "pnpm build"
+  publish = "build/chrome-mv3-prod"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# Environment variables should be set in Netlify Dashboard:
+# - OPENAI_API_KEY
+# - STRIPE_SECRET_KEY
+# - STRIPE_WEBHOOK_SECRET
+# - SUPABASE_URL
+# - SUPABASE_SERVICE_ROLE_KEY
+
+# Function-specific configuration
+[functions.chat-proxy]
+  # Allow streaming responses
+  included_files = []
+
+[functions.stripe-webhook]
+  # Stripe webhooks need raw body access
+  included_files = []
+
+# Headers for CORS (if serving extension from different origin)
+[[headers]]
+  for = "/.netlify/functions/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Headers = "Content-Type, Authorization"
+    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
+
+# Redirects (optional - for SPA routing if you have a web app)
+# [[redirects]]
+#   from = "/*"
+#   to = "/index.html"
+#   status = 200
+
+# Dev server configuration
+[dev]
+  command = "pnpm dev"
+  port = 8888
+  targetPort = 1234
+  autoLaunch = false
