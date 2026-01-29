@@ -233,8 +233,8 @@ export function ChatInterface({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder={apiKey ? "Ask about this page..." : "Enter API key first"}
-            disabled={!apiKey || isStreaming}
+            placeholder="Ask about this page..."
+            disabled={isStreaming}
             rows={1}
             className={cn(
               "flex-1 resize-none rounded-xl border border-gray-200 dark:border-gray-700",
@@ -246,7 +246,7 @@ export function ChatInterface({
           />
           <button
             onClick={handleSubmit}
-            disabled={!input.trim() || !apiKey || isStreaming}
+            disabled={!input.trim() || isStreaming}
             className={cn(
               "flex-shrink-0 p-2 rounded-xl",
               "bg-purple-600 text-white",

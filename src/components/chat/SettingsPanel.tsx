@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Key, Crown, Eye, EyeOff, Check, X, Sparkles } from "lucide-react"
+import { Key, Crown, Eye, EyeOff, Check, X, Sparkles, LogOut, User } from "lucide-react"
 
 import { cn } from "~/lib/utils"
 import { setStoredApiKey, LICENSE_CONFIG, type TrialInfo } from "~/lib/storage"
@@ -9,13 +9,17 @@ type SettingsPanelProps = {
   onApiKeyChange: (key: string) => void
   trialInfo: TrialInfo | null
   onShowPaywall: () => void
+  userEmail?: string
+  onSignOut: () => void
 }
 
 export function SettingsPanel({
   apiKey,
   onApiKeyChange,
   trialInfo,
-  onShowPaywall
+  onShowPaywall,
+  userEmail,
+  onSignOut
 }: SettingsPanelProps) {
   const [isEditingKey, setIsEditingKey] = useState(false)
   const [inputValue, setInputValue] = useState(apiKey)
@@ -40,6 +44,25 @@ export function SettingsPanel({
 
   return (
     <div className="space-y-4">
+      {/* Account */}
+      {userEmail && (
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 min-w-0">
+            <User className="h-4 w-4 text-gray-400 flex-shrink-0" />
+            <span className="text-sm text-gray-600 dark:text-gray-400 truncate">
+              {userEmail}
+            </span>
+          </div>
+          <button
+            onClick={onSignOut}
+            className="flex items-center gap-1 text-xs text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 font-medium flex-shrink-0 ml-2"
+          >
+            <LogOut className="h-3 w-3" />
+            Sign Out
+          </button>
+        </div>
+      )}
+
       {/* License Status */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">

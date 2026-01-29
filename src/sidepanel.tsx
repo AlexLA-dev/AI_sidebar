@@ -1,7 +1,10 @@
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { Sparkles, RefreshCw, Settings, X, AlertTriangle } from "lucide-react"
+import type { Session } from "@supabase/supabase-js"
+
 import { cn, sendMessageToActiveTab } from "~/lib/utils"
 import { getStoredApiKey, setStoredApiKey, getTrialInfo, type ContextType, type TrialInfo } from "~/lib/ai"
+import { getSupabaseClient } from "~/lib/supabase"
 import { ChatInterface, SettingsPanel } from "~/components/chat"
 import { OnboardingModal, PaywallModal } from "~/components/onboarding"
 import type { RequestBody, ResponseBody } from "~/contents/context-parser"
@@ -12,6 +15,7 @@ type ContextStatus = "idle" | "loading" | "success" | "error"
 
 function SidePanel() {
   const [apiKey, setApiKey] = useState("")
+  const [session, setSession] = useState<Session | null>(null)
   const [isInitialized, setIsInitialized] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
   const [showPaywall, setShowPaywall] = useState(false)
@@ -23,18 +27,48 @@ function SidePanel() {
   const [contextError, setContextError] = useState<string | null>(null)
   const [trialInfo, setTrialInfo] = useState<TrialInfo | null>(null)
 
-  // Load API key and trial info from storage on mount
+  // Track whether we've already set up listeners
+  const listenersSetUp = useRef(false)
+
+  // Load settings and auth session on mount
   useEffect(() => {
     const loadSettings = async () => {
+      // Load API key
       const storedKey = await getStoredApiKey()
       setApiKey(storedKey)
 
+      // Load trial info
       const info = await getTrialInfo()
       setTrialInfo(info)
 
+      // Check Supabase auth session
+      try {
+        const supabase = getSupabaseClient()
+        const { data: { session: currentSession } } = await supabase.auth.getSession()
+        setSession(currentSession)
+
+        // Listen for auth state changes (sign in, sign out, token refresh)
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(
+          (_event, newSession) => {
+            setSession(newSession)
+          }
+        )
+
+        // Cleanup subscription on unmount
+        return () => {
+          subscription.unsubscribe()
+        }
+      } catch {
+        // Supabase not configured — treat as authenticated (dev mode)
+        setSession(null)
+      }
+
       setIsInitialized(true)
     }
-    loadSettings()
+
+    loadSettings().then(() => {
+      setIsInitialized(true)
+    })
   }, [])
 
   // Refresh trial info
@@ -113,6 +147,56 @@ function SidePanel() {
     fetchPageContext()
   }, [fetchPageContext])
 
+  // Auto-refresh context on tab changes and navigation
+  useEffect(() => {
+    if (listenersSetUp.current) return
+    listenersSetUp.current = true
+
+    // Re-fetch when user switches to a different tab
+    const handleTabActivated = (_activeInfo: chrome.tabs.TabActiveInfo) => {
+      console.log("[ContextFlow] Tab activated, refreshing context")
+      fetchPageContext()
+    }
+
+    // Re-fetch when current tab finishes loading (navigation)
+    const handleTabUpdated = (
+      _tabId: number,
+      changeInfo: chrome.tabs.TabChangeInfo,
+      _tab: chrome.tabs.Tab
+    ) => {
+      if (changeInfo.status === "complete") {
+        console.log("[ContextFlow] Tab updated (complete), refreshing context")
+        fetchPageContext()
+      }
+    }
+
+    // Re-fetch when window focus changes
+    const handleWindowFocusChanged = (windowId: number) => {
+      if (windowId !== chrome.windows.WINDOW_ID_NONE) {
+        console.log("[ContextFlow] Window focus changed, refreshing context")
+        fetchPageContext()
+      }
+    }
+
+    try {
+      chrome.tabs.onActivated.addListener(handleTabActivated)
+      chrome.tabs.onUpdated.addListener(handleTabUpdated)
+      chrome.windows.onFocusChanged.addListener(handleWindowFocusChanged)
+    } catch (err) {
+      console.warn("[ContextFlow] Could not set up tab listeners:", err)
+    }
+
+    return () => {
+      try {
+        chrome.tabs.onActivated.removeListener(handleTabActivated)
+        chrome.tabs.onUpdated.removeListener(handleTabUpdated)
+        chrome.windows.onFocusChanged.removeListener(handleWindowFocusChanged)
+      } catch {
+        // Ignore cleanup errors
+      }
+    }
+  }, [fetchPageContext])
+
   const handleApiKeyChange = async (key: string) => {
     setApiKey(key)
     await setStoredApiKey(key)
@@ -121,8 +205,12 @@ function SidePanel() {
     }
   }
 
-  const handleOnboardingComplete = (key: string) => {
-    setApiKey(key)
+  const handleOnboardingComplete = (apiKey?: string) => {
+    if (apiKey) {
+      setApiKey(apiKey)
+    }
+    // Session will be picked up by onAuthStateChange
+    refreshTrialInfo()
   }
 
   const handleLimitReached = () => {
@@ -134,6 +222,18 @@ function SidePanel() {
     refreshTrialInfo()
   }
 
+  const handleSignOut = async () => {
+    try {
+      const supabase = getSupabaseClient()
+      await supabase.auth.signOut()
+      // Session will be cleared by onAuthStateChange
+      setApiKey("")
+      setShowSettings(false)
+    } catch (err) {
+      console.error("[ContextFlow] Sign out error:", err)
+    }
+  }
+
   // Show loading state
   if (!isInitialized) {
     return (
@@ -143,8 +243,8 @@ function SidePanel() {
     )
   }
 
-  // Show onboarding if no API key
-  if (!apiKey) {
+  // Show onboarding if not authenticated
+  if (!session) {
     return <OnboardingModal onComplete={handleOnboardingComplete} />
   }
 
@@ -242,6 +342,8 @@ function SidePanel() {
             onApiKeyChange={handleApiKeyChange}
             trialInfo={trialInfo}
             onShowPaywall={() => setShowPaywall(true)}
+            userEmail={session?.user?.email}
+            onSignOut={handleSignOut}
           />
         </div>
       )}
