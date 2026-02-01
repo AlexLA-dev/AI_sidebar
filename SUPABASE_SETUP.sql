@@ -76,6 +76,13 @@ create trigger update_user_subscriptions_updated_at
 -- =============================================
 -- Usage tracking table (optional, for analytics)
 -- =============================================
+
+-- Pro subscription usage tracking columns
+-- Run this ALTER if table already exists:
+alter table public.user_subscriptions
+  add column if not exists usage_count int default 0,
+  add column if not exists last_reset_at timestamp with time zone default timezone('utc'::text, now());
+
 create table if not exists public.usage_logs (
   id uuid default gen_random_uuid() primary key,
   user_id uuid references auth.users not null,
