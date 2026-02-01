@@ -181,6 +181,15 @@ async function handleChatRequest(
   const { plan_type, credits_balance, subscription_status } = subscription
   console.log(`[chat-proxy] User ${userId}: plan=${plan_type}, status=${subscription_status}, credits=${credits_balance}, usage=${subscription.usage_count}`)
 
+  // Collect debug info to send in SSE stream
+  const debug: Record<string, unknown> = {
+    plan_type,
+    subscription_status,
+    credits_balance_before: credits_balance,
+    usage_count_before: subscription.usage_count,
+    user_id_short: userId.slice(0, 8)
+  }
+
   // === BYOK users should call OpenAI directly ===
   if (plan_type === "byok_license") {
     return jsonResponse(
@@ -217,24 +226,15 @@ async function handleChatRequest(
 
     // Increment usage count BEFORE processing (optimistic)
     const newUsageCount = usageCount + 1
-    const { error: incError } = await supabase
+    const { data: updatedRows, error: incError } = await supabase
       .from("user_subscriptions")
       .update({ usage_count: newUsageCount })
       .eq("user_id", userId)
-
-    if (incError) {
-      console.error(`[Pro] FAILED to increment usage for ${userId}:`, JSON.stringify(incError))
-    } else {
-      console.log(`[Pro] User ${userId}: usage_count incremented to ${newUsageCount}`)
-    }
-
-    // Verify the update actually worked
-    const { data: verifyRow } = await supabase
-      .from("user_subscriptions")
       .select("usage_count")
-      .eq("user_id", userId)
-      .single()
-    console.log(`[Pro] User ${userId}: DB verify usage_count=${verifyRow?.usage_count}`)
+
+    debug.pro_update_target = newUsageCount
+    debug.pro_update_error = incError ? JSON.stringify(incError) : null
+    debug.pro_update_returned = updatedRows
 
     // Send admin alert at threshold
     if (newUsageCount === ALERT_THRESHOLD) {
@@ -251,14 +251,16 @@ async function handleChatRequest(
       )
     }
 
-    const { error: updateError } = await supabase
+    const newCredits = credits_balance - 1
+    const { data: updatedCredits, error: updateError } = await supabase
       .from("user_subscriptions")
-      .update({ credits_balance: credits_balance - 1 })
+      .update({ credits_balance: newCredits })
       .eq("user_id", userId)
+      .select("credits_balance")
 
-    if (updateError) {
-      console.error("Failed to decrement credits:", updateError)
-    }
+    debug.free_update_target = newCredits
+    debug.free_update_error = updateError ? JSON.stringify(updateError) : null
+    debug.free_update_returned = updatedCredits
   }
 
   // === Parse request body ===
@@ -309,6 +311,10 @@ async function handleChatRequest(
             }
           }
 
+          // Send debug info as SSE event (client ignores non-content fields)
+          debug.tokens_used = totalTokens || null
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ debug })}\n\n`))
+
           controller.enqueue(encoder.encode("data: [DONE]\n\n"))
           controller.close()
 
@@ -319,7 +325,7 @@ async function handleChatRequest(
               user_id: userId,
               action: "chat_request",
               tokens_used: totalTokens || null,
-              metadata: { model, messages_count: messages.length, plan_type }
+              metadata: { model, messages_count: messages.length, plan_type, debug }
             })
             .then(({ error }) => {
               if (error) console.error("Failed to log usage:", error)
