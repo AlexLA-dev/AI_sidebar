@@ -178,6 +178,7 @@ async function handleChatRequest(
   userId: string
 ): Promise<Response> {
   const { plan_type, credits_balance, subscription_status } = subscription
+  console.log(`[chat-proxy] User ${userId}: plan_type=${plan_type}, status=${subscription_status}, credits=${credits_balance}, usage_count=${subscription.usage_count}`)
 
   // === BYOK users should call OpenAI directly ===
   if (plan_type === "byok_license") {
@@ -197,7 +198,8 @@ async function handleChatRequest(
     }
 
     // Check weekly reset
-    const { usageCount } = await checkWeeklyReset(subscription, userId)
+    const { usageCount, wasReset } = await checkWeeklyReset(subscription, userId)
+    console.log(`[Pro] User ${userId}: usage=${usageCount}, wasReset=${wasReset}, last_reset_at=${subscription.last_reset_at}`)
 
     // Check weekly limit
     if (usageCount >= WEEKLY_LIMIT) {
@@ -214,13 +216,16 @@ async function handleChatRequest(
 
     // Increment usage count
     const newUsageCount = usageCount + 1
-    const { error: incError } = await supabase
+    const { error: incError, data: incData } = await supabase
       .from("user_subscriptions")
       .update({ usage_count: newUsageCount })
       .eq("user_id", userId)
+      .select("usage_count")
 
     if (incError) {
-      console.error("Failed to increment usage:", incError)
+      console.error(`[Pro] Failed to increment usage for ${userId}:`, incError)
+    } else {
+      console.log(`[Pro] User ${userId}: usage_count updated to ${newUsageCount}, DB returned:`, incData)
     }
 
     // Send admin alert at threshold (fire-and-forget, don't await)
