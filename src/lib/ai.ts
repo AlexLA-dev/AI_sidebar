@@ -105,6 +105,16 @@ export async function streamChatResponse(
   }
 
   // No API key — use the Netlify proxy (trial / pro users)
+  const apiUrl = process.env.PLASMO_PUBLIC_API_URL
+  if (!apiUrl) {
+    callbacks.onError(
+      new Error(
+        "Backend proxy is not configured. Please set PLASMO_PUBLIC_API_URL in .env.local, or enter your own OpenAI API key in Settings."
+      )
+    )
+    return
+  }
+
   try {
     await proxyChatRequest(messagesWithContext, {
       onChunk: callbacks.onChunk,
