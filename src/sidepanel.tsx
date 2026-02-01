@@ -178,14 +178,16 @@ function SidePanel() {
       }
     }
 
-    // Listen for text selection changes from content script
+    // Listen for context updates from content script (selection / clear)
     const handleMessage = (message: any) => {
-      if (message?.action === "selectionChanged" && message.text) {
-        console.log("[ContextFlow] Selection changed, updating context")
+      if (message?.action === "contextUpdate" && message.text) {
+        const type = message.type === "selection" ? "selection" : "page"
+        console.log(`[ContextFlow] Context update: ${type}`, message.text.slice(0, 80))
+        // Soft update — no loading spinner, just swap data
         setPageContext(message.text)
         setPageTitle(message.title || null)
-        setContextType("selection")
-        setIsReadabilityParsed(false)
+        setContextType(type as ContextType)
+        setIsReadabilityParsed(message.isReadabilityParsed || false)
         setContextStatus("success")
       }
     }

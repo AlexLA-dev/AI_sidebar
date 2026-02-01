@@ -176,9 +176,15 @@ export function Auth({ onAuthSuccess }: AuthProps) {
 
       {/* Success message */}
       {successMessage && (
-        <p className="text-xs text-green-600 dark:text-green-400 text-center">
-          {successMessage}
-        </p>
+        <div className="space-y-1.5 text-center">
+          <p className="text-xs text-green-600 dark:text-green-400">
+            {successMessage}
+          </p>
+          <p className="text-[11px] text-gray-400 dark:text-gray-500">
+            Don't see the email? Check your <strong>Spam/Junk</strong> folder.
+            The sender may appear as "Supabase".
+          </p>
+        </div>
       )}
 
       {/* Error */}

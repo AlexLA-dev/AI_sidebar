@@ -100,29 +100,52 @@ function extractFallback(): { text: string; title: string } {
   }
 }
 
-// Auto-detect text selection and notify the sidepanel
-let selectionTimeout: ReturnType<typeof setTimeout> | null = null
+// Auto-detect text selection via mouseup and notify the sidepanel
+let selectionDebounce: ReturnType<typeof setTimeout> | null = null
+let lastSentText = ""
 
-document.addEventListener("selectionchange", () => {
-  // Debounce: wait for user to finish selecting
-  if (selectionTimeout) clearTimeout(selectionTimeout)
-  selectionTimeout = setTimeout(() => {
-    const selection = window.getSelection()
-    const selectedText = selection?.toString().trim()
+function sendContextUpdate() {
+  const selection = window.getSelection()
+  const selectedText = selection?.toString().trim() || ""
 
-    if (selectedText && selectedText.length > 10) {
-      try {
-        chrome.runtime.sendMessage({
-          action: "selectionChanged",
-          text: selectedText,
-          title: document.title,
-          url: window.location.href
-        })
-      } catch {
-        // Extension context may be invalidated — ignore
-      }
+  // Avoid sending duplicate updates
+  if (selectedText === lastSentText) return
+  lastSentText = selectedText
+
+  try {
+    if (selectedText.length > 0) {
+      // User selected text — send selection context
+      chrome.runtime.sendMessage({
+        action: "contextUpdate",
+        type: "selection",
+        text: selectedText,
+        title: document.title,
+        url: window.location.href
+      })
+    } else {
+      // Selection cleared — revert to page context
+      const readability = extractWithReadability()
+      const fallback = extractFallback()
+      const pageText = readability.success ? readability.text : fallback.text
+      const pageTitle = readability.success ? readability.title : fallback.title
+
+      chrome.runtime.sendMessage({
+        action: "contextUpdate",
+        type: "page",
+        text: pageText,
+        title: pageTitle,
+        url: window.location.href,
+        isReadabilityParsed: readability.success
+      })
     }
-  }, 500)
+  } catch {
+    // Extension context may be invalidated — ignore
+  }
+}
+
+document.addEventListener("mouseup", () => {
+  if (selectionDebounce) clearTimeout(selectionDebounce)
+  selectionDebounce = setTimeout(sendContextUpdate, 300)
 })
 
 chrome.runtime.onMessage.addListener((request: RequestBody, _sender, sendResponse) => {

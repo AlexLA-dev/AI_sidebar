@@ -12,6 +12,17 @@ const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!
 const stripe = new Stripe(STRIPE_SECRET_KEY)
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
 
+// Safe date conversion: Stripe sends seconds, JS needs milliseconds
+function safeTimestamp(ts: number | undefined | null): string | null {
+  if (!ts) return null
+  try {
+    return new Date(ts * 1000).toISOString()
+  } catch {
+    console.warn("Invalid timestamp:", ts)
+    return new Date().toISOString()
+  }
+}
+
 // Product IDs mapped to plan types (configure these in Stripe)
 const PRODUCT_PLAN_MAP: Record<string, "byok_license" | "pro_subscription"> = {
   // Set your Stripe Product IDs here
@@ -107,11 +118,11 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   }
 
   // Get subscription details if it's a subscription
-  let currentPeriodEnd: Date | null = null
+  let currentPeriodEnd: string | null = null
   if (subscriptionId) {
     try {
       const subscription = await stripe.subscriptions.retrieve(subscriptionId)
-      currentPeriodEnd = new Date(subscription.current_period_end * 1000)
+      currentPeriodEnd = safeTimestamp(subscription.current_period_end)
     } catch (error) {
       console.error("Failed to retrieve subscription:", error)
     }
@@ -126,7 +137,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       subscription_status: "active",
       stripe_customer_id: customerId,
       stripe_subscription_id: subscriptionId || null,
-      current_period_end: currentPeriodEnd?.toISOString() || null,
+      current_period_end: currentPeriodEnd,
       credits_balance: planType === "byok_license" ? -1 : null // -1 = unlimited for BYOK
     })
 
@@ -176,14 +187,14 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   }
 
   const status = statusMap[subscription.status] || subscription.status
-  const currentPeriodEnd = new Date(subscription.current_period_end * 1000)
+  const currentPeriodEnd = safeTimestamp(subscription.current_period_end)
 
   const { error: updateError } = await supabase
     .from("user_subscriptions")
     .update({
       subscription_status: status,
       stripe_subscription_id: subscription.id,
-      current_period_end: currentPeriodEnd.toISOString()
+      current_period_end: currentPeriodEnd
     })
     .eq("user_id", userSub.user_id)
 
@@ -264,13 +275,13 @@ async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
 
   // Get updated subscription period
   const subscription = await stripe.subscriptions.retrieve(subscriptionId)
-  const currentPeriodEnd = new Date(subscription.current_period_end * 1000)
+  const currentPeriodEnd = safeTimestamp(subscription.current_period_end)
 
   const { error: updateError } = await supabase
     .from("user_subscriptions")
     .update({
       subscription_status: "active",
-      current_period_end: currentPeriodEnd.toISOString()
+      current_period_end: currentPeriodEnd
     })
     .eq("user_id", userSub.user_id)
 
