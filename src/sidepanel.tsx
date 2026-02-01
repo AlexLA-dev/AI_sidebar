@@ -178,10 +178,23 @@ function SidePanel() {
       }
     }
 
+    // Listen for text selection changes from content script
+    const handleMessage = (message: any) => {
+      if (message?.action === "selectionChanged" && message.text) {
+        console.log("[ContextFlow] Selection changed, updating context")
+        setPageContext(message.text)
+        setPageTitle(message.title || null)
+        setContextType("selection")
+        setIsReadabilityParsed(false)
+        setContextStatus("success")
+      }
+    }
+
     try {
       chrome.tabs.onActivated.addListener(handleTabActivated)
       chrome.tabs.onUpdated.addListener(handleTabUpdated)
       chrome.windows.onFocusChanged.addListener(handleWindowFocusChanged)
+      chrome.runtime.onMessage.addListener(handleMessage)
     } catch (err) {
       console.warn("[ContextFlow] Could not set up tab listeners:", err)
     }
@@ -191,6 +204,7 @@ function SidePanel() {
         chrome.tabs.onActivated.removeListener(handleTabActivated)
         chrome.tabs.onUpdated.removeListener(handleTabUpdated)
         chrome.windows.onFocusChanged.removeListener(handleWindowFocusChanged)
+        chrome.runtime.onMessage.removeListener(handleMessage)
       } catch {
         // Ignore cleanup errors
       }

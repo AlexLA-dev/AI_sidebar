@@ -7,6 +7,7 @@ import {
   setStoredApiKey,
   type TrialInfo
 } from "./storage"
+import { proxyChatRequest } from "./api-client"
 
 export type Message = {
   role: "user" | "assistant" | "system"
@@ -95,17 +96,41 @@ export async function streamChatResponse(
     return
   }
 
-  if (!apiKey) {
-    callbacks.onError(new Error("API key is required"))
+  const messagesWithContext = buildMessagesWithContext(messages, pageContext, contextType)
+
+  // If user has their own API key, use it directly via OpenAI
+  if (apiKey) {
+    await streamWithDirectKey(apiKey, messagesWithContext, trialInfo, callbacks)
     return
   }
 
+  // No API key — use the Netlify proxy (trial / pro users)
+  try {
+    await proxyChatRequest(messagesWithContext, {
+      onChunk: callbacks.onChunk,
+      onComplete: async () => {
+        if (!trialInfo.hasLicense) {
+          await incrementTrialUsage()
+        }
+        callbacks.onComplete()
+      },
+      onError: callbacks.onError
+    })
+  } catch (error) {
+    callbacks.onError(error instanceof Error ? error : new Error("Unknown error occurred"))
+  }
+}
+
+async function streamWithDirectKey(
+  apiKey: string,
+  messagesWithContext: Message[],
+  trialInfo: TrialInfo,
+  callbacks: StreamCallbacks
+): Promise<void> {
   const client = new OpenAI({
     apiKey,
     dangerouslyAllowBrowser: true
   })
-
-  const messagesWithContext = buildMessagesWithContext(messages, pageContext, contextType)
 
   try {
     const stream = await client.chat.completions.create({

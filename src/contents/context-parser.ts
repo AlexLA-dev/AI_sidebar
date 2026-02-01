@@ -100,6 +100,31 @@ function extractFallback(): { text: string; title: string } {
   }
 }
 
+// Auto-detect text selection and notify the sidepanel
+let selectionTimeout: ReturnType<typeof setTimeout> | null = null
+
+document.addEventListener("selectionchange", () => {
+  // Debounce: wait for user to finish selecting
+  if (selectionTimeout) clearTimeout(selectionTimeout)
+  selectionTimeout = setTimeout(() => {
+    const selection = window.getSelection()
+    const selectedText = selection?.toString().trim()
+
+    if (selectedText && selectedText.length > 10) {
+      try {
+        chrome.runtime.sendMessage({
+          action: "selectionChanged",
+          text: selectedText,
+          title: document.title,
+          url: window.location.href
+        })
+      } catch {
+        // Extension context may be invalidated — ignore
+      }
+    }
+  }, 500)
+})
+
 chrome.runtime.onMessage.addListener((request: RequestBody, _sender, sendResponse) => {
   if (request?.action !== "getPageText") {
     return false
