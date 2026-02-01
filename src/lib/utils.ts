@@ -75,7 +75,8 @@ export interface MessageResponse<T = unknown> {
 }
 
 export async function sendMessageToActiveTab<TPayload, TResponse>(
-  payload: TPayload
+  payload: TPayload,
+  maxRetries = 3
 ): Promise<MessageResponse<TResponse>> {
   try {
     const [activeTab] = await chrome.tabs.query({
@@ -113,33 +114,55 @@ export async function sendMessageToActiveTab<TPayload, TResponse>(
       }
     }
 
-    // Attempt to send message
-    const response = await chrome.tabs.sendMessage<TPayload, TResponse>(
-      activeTab.id,
-      payload
-    )
+    // Retry loop — content script may not be injected yet
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        const response = await chrome.tabs.sendMessage<TPayload, TResponse>(
+          activeTab.id,
+          payload
+        )
 
-    return {
-      success: true,
-      data: response
-    }
-  } catch (err) {
-    const errorMessage = err instanceof Error ? err.message : String(err)
+        return {
+          success: true,
+          data: response
+        }
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : String(err)
 
-    // Check for content script not ready or channel closed errors
-    if (
-      errorMessage.includes("Receiving end does not exist") ||
-      errorMessage.includes("Could not establish connection") ||
-      errorMessage.includes("message channel closed") ||
-      errorMessage.includes("message port closed")
-    ) {
-      return {
-        success: false,
-        error: "Content script not ready. Try refreshing the page.",
-        shouldRetry: true
+        const isNotReady =
+          errorMessage.includes("Receiving end does not exist") ||
+          errorMessage.includes("Could not establish connection") ||
+          errorMessage.includes("message channel closed") ||
+          errorMessage.includes("message port closed")
+
+        if (isNotReady && attempt < maxRetries) {
+          // Wait before retry: 500ms, 1000ms, 1500ms
+          await new Promise(resolve => setTimeout(resolve, 500 * (attempt + 1)))
+          continue
+        }
+
+        if (isNotReady) {
+          return {
+            success: false,
+            error: "Content script not ready. Try refreshing the page.",
+            shouldRetry: true
+          }
+        }
+
+        return {
+          success: false,
+          error: errorMessage
+        }
       }
     }
 
+    return {
+      success: false,
+      error: "Failed to connect to content script",
+      shouldRetry: true
+    }
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err)
     return {
       success: false,
       error: errorMessage

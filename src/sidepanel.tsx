@@ -175,14 +175,15 @@ function SidePanel() {
     }
 
     // Re-fetch when current tab finishes loading (navigation)
+    // Delay 800ms to give Plasmo content script time to inject
     const handleTabUpdated = (
       _tabId: number,
       changeInfo: chrome.tabs.TabChangeInfo,
       _tab: chrome.tabs.Tab
     ) => {
       if (changeInfo.status === "complete") {
-        console.log("[ContextFlow] Tab updated (complete), refreshing context")
-        fetchPageContext()
+        console.log("[ContextFlow] Tab updated (complete), refreshing context in 800ms")
+        setTimeout(() => fetchPageContext(), 800)
       }
     }
 
