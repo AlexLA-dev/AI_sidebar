@@ -3,6 +3,7 @@ import OpenAI from "openai"
 import {
   getTrialInfo,
   incrementTrialUsage,
+  syncSubscriptionFromServer,
   getStoredApiKey,
   setStoredApiKey,
   type TrialInfo
@@ -179,4 +180,4 @@ async function streamWithDirectKey(
 }
 
 // Re-export storage helpers
-export { getStoredApiKey, setStoredApiKey, getTrialInfo, type TrialInfo }
+export { getStoredApiKey, setStoredApiKey, getTrialInfo, syncSubscriptionFromServer, type TrialInfo }

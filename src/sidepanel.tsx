@@ -3,7 +3,7 @@ import { Sparkles, RefreshCw, Settings, X, AlertTriangle } from "lucide-react"
 import type { Session } from "@supabase/supabase-js"
 
 import { cn, sendMessageToActiveTab } from "~/lib/utils"
-import { getStoredApiKey, setStoredApiKey, getTrialInfo, type ContextType, type TrialInfo } from "~/lib/ai"
+import { getStoredApiKey, setStoredApiKey, getTrialInfo, syncSubscriptionFromServer, type ContextType, type TrialInfo } from "~/lib/ai"
 import { getSupabaseClient } from "~/lib/supabase"
 import { ChatInterface, SettingsPanel } from "~/components/chat"
 import { OnboardingModal, PaywallModal } from "~/components/onboarding"
@@ -37,20 +37,29 @@ function SidePanel() {
       const storedKey = await getStoredApiKey()
       setApiKey(storedKey)
 
-      // Load trial info
-      const info = await getTrialInfo()
-      setTrialInfo(info)
-
       // Check Supabase auth session
       try {
         const supabase = getSupabaseClient()
         const { data: { session: currentSession } } = await supabase.auth.getSession()
         setSession(currentSession)
 
+        // If authenticated, sync subscription from Supabase (server is source of truth)
+        if (currentSession) {
+          const syncedInfo = await syncSubscriptionFromServer()
+          setTrialInfo(syncedInfo)
+        } else {
+          const info = await getTrialInfo()
+          setTrialInfo(info)
+        }
+
         // Listen for auth state changes (sign in, sign out, token refresh)
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
           (_event, newSession) => {
             setSession(newSession)
+            // Re-sync subscription when auth state changes
+            if (newSession) {
+              syncSubscriptionFromServer().then(setTrialInfo)
+            }
           }
         )
 
@@ -59,7 +68,9 @@ function SidePanel() {
           subscription.unsubscribe()
         }
       } catch {
-        // Supabase not configured — treat as authenticated (dev mode)
+        // Supabase not configured — load local trial info
+        const info = await getTrialInfo()
+        setTrialInfo(info)
         setSession(null)
       }
 
@@ -71,11 +82,16 @@ function SidePanel() {
     })
   }, [])
 
-  // Refresh trial info
+  // Refresh trial info (sync from server when possible)
   const refreshTrialInfo = useCallback(async () => {
-    const info = await getTrialInfo()
-    setTrialInfo(info)
-  }, [])
+    if (session) {
+      const info = await syncSubscriptionFromServer()
+      setTrialInfo(info)
+    } else {
+      const info = await getTrialInfo()
+      setTrialInfo(info)
+    }
+  }, [session])
 
   // Fetch page context
   const fetchPageContext = useCallback(async () => {
@@ -233,9 +249,11 @@ function SidePanel() {
     setShowPaywall(true)
   }
 
-  const handleSubscribed = () => {
+  const handleSubscribed = async () => {
     setShowPaywall(false)
-    refreshTrialInfo()
+    // Sync from server to pick up the new subscription
+    const info = await syncSubscriptionFromServer()
+    setTrialInfo(info)
   }
 
   const handleSignOut = async () => {

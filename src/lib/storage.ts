@@ -61,6 +61,32 @@ export async function setLicenseStatus(active: boolean): Promise<void> {
   await storage.set(STORAGE_KEYS.HAS_ACTIVE_LICENSE, active)
 }
 
+// Sync subscription status from Supabase to local storage
+export async function syncSubscriptionFromServer(): Promise<TrialInfo> {
+  try {
+    const { getUserSubscription } = await import("./api-client")
+    const sub = await getUserSubscription()
+
+    if (sub) {
+      const isActive =
+        (sub.plan_type === "pro_subscription" || sub.plan_type === "byok_license") &&
+        sub.subscription_status === "active"
+
+      await storage.set(STORAGE_KEYS.HAS_ACTIVE_LICENSE, isActive)
+
+      // Sync trial usage from server credits_balance
+      if (sub.plan_type === "free" && sub.credits_balance >= 0) {
+        const serverUsage = LICENSE_CONFIG.TRIAL_LIMIT - sub.credits_balance
+        await storage.set(STORAGE_KEYS.TRIAL_USAGE_COUNT, Math.max(0, serverUsage))
+      }
+    }
+  } catch (err) {
+    console.warn("[ContextFlow] Failed to sync subscription:", err)
+  }
+
+  return getTrialInfo()
+}
+
 // API Key helpers
 export async function getStoredApiKey(): Promise<string> {
   const key = await storage.get<string>(STORAGE_KEYS.USER_API_KEY)
