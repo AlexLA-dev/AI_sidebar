@@ -17,8 +17,10 @@ const WEEKLY_LIMIT = 375
 const ALERT_THRESHOLD = 300 // 80% of 375
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000
 
-// Initialize clients
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+// Initialize clients — db.auth.admin bypasses RLS
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
+  auth: { autoRefreshToken: false, persistSession: false }
+})
 const openai = new OpenAI({ apiKey: OPENAI_API_KEY })
 const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null
 
@@ -77,7 +79,6 @@ async function sendAdminAlert(userId: string, usageCount: number): Promise<void>
     })
     console.log(`Admin alert sent for user ${userId}`)
   } catch (err) {
-    // Never block a request because email failed
     console.error("Failed to send admin alert:", err)
   }
 }
@@ -93,7 +94,6 @@ async function checkWeeklyReset(
   const now = Date.now()
 
   if (now - lastReset > WEEK_MS) {
-    // Reset usage counter
     const { error } = await supabase
       .from("user_subscriptions")
       .update({ usage_count: 0, last_reset_at: new Date().toISOString() })
@@ -101,10 +101,10 @@ async function checkWeeklyReset(
 
     if (error) {
       console.error("Failed to reset weekly usage:", error)
-      // Continue with current count on error
       return { usageCount: subscription.usage_count || 0, wasReset: false }
     }
 
+    console.log(`[Pro] Weekly reset for user ${userId}`)
     return { usageCount: 0, wasReset: true }
   }
 
@@ -159,6 +159,7 @@ export default async function handler(req: Request, _context: Context) {
         .single()
 
       if (createError) {
+        console.error("Failed to create subscription:", createError)
         return jsonResponse({ error: "Failed to create user subscription" }, 500)
       }
 
@@ -178,7 +179,7 @@ async function handleChatRequest(
   userId: string
 ): Promise<Response> {
   const { plan_type, credits_balance, subscription_status } = subscription
-  console.log(`[chat-proxy] User ${userId}: plan_type=${plan_type}, status=${subscription_status}, credits=${credits_balance}, usage_count=${subscription.usage_count}`)
+  console.log(`[chat-proxy] User ${userId}: plan=${plan_type}, status=${subscription_status}, credits=${credits_balance}, usage=${subscription.usage_count}`)
 
   // === BYOK users should call OpenAI directly ===
   if (plan_type === "byok_license") {
@@ -199,7 +200,7 @@ async function handleChatRequest(
 
     // Check weekly reset
     const { usageCount, wasReset } = await checkWeeklyReset(subscription, userId)
-    console.log(`[Pro] User ${userId}: usage=${usageCount}, wasReset=${wasReset}, last_reset_at=${subscription.last_reset_at}`)
+    console.log(`[Pro] User ${userId}: usage=${usageCount}, wasReset=${wasReset}`)
 
     // Check weekly limit
     if (usageCount >= WEEKLY_LIMIT) {
@@ -214,21 +215,28 @@ async function handleChatRequest(
       )
     }
 
-    // Increment usage count
+    // Increment usage count BEFORE processing (optimistic)
     const newUsageCount = usageCount + 1
-    const { error: incError, data: incData } = await supabase
+    const { error: incError } = await supabase
       .from("user_subscriptions")
       .update({ usage_count: newUsageCount })
       .eq("user_id", userId)
-      .select("usage_count")
 
     if (incError) {
-      console.error(`[Pro] Failed to increment usage for ${userId}:`, incError)
+      console.error(`[Pro] FAILED to increment usage for ${userId}:`, JSON.stringify(incError))
     } else {
-      console.log(`[Pro] User ${userId}: usage_count updated to ${newUsageCount}, DB returned:`, incData)
+      console.log(`[Pro] User ${userId}: usage_count incremented to ${newUsageCount}`)
     }
 
-    // Send admin alert at threshold (fire-and-forget, don't await)
+    // Verify the update actually worked
+    const { data: verifyRow } = await supabase
+      .from("user_subscriptions")
+      .select("usage_count")
+      .eq("user_id", userId)
+      .single()
+    console.log(`[Pro] User ${userId}: DB verify usage_count=${verifyRow?.usage_count}`)
+
+    // Send admin alert at threshold
     if (newUsageCount === ALERT_THRESHOLD) {
       sendAdminAlert(userId, newUsageCount)
     }
@@ -243,7 +251,6 @@ async function handleChatRequest(
       )
     }
 
-    // Decrement credits before processing
     const { error: updateError } = await supabase
       .from("user_subscriptions")
       .update({ credits_balance: credits_balance - 1 })
@@ -268,20 +275,22 @@ async function handleChatRequest(
     return jsonResponse({ error: "Messages array is required" }, 400)
   }
 
-  // Enforce model and max_tokens for all proxy requests
+  // Enforce model and max_tokens
   const model = PRO_MODEL
   const max_tokens = PRO_MAX_TOKENS
 
   try {
-    // Create streaming response
     const stream = await openai.chat.completions.create({
       model,
       messages,
       max_tokens,
-      stream: true
+      stream: true,
+      stream_options: { include_usage: true }
     })
 
-    // Create a ReadableStream to pipe the OpenAI response
+    // Track token usage from stream
+    let totalTokens = 0
+
     const readableStream = new ReadableStream({
       async start(controller) {
         const encoder = new TextEncoder()
@@ -293,28 +302,34 @@ async function handleChatRequest(
               const data = JSON.stringify({ content })
               controller.enqueue(encoder.encode(`data: ${data}\n\n`))
             }
+
+            // Capture usage from final chunk
+            if (chunk.usage) {
+              totalTokens = chunk.usage.total_tokens || 0
+            }
           }
 
-          // Send done signal
           controller.enqueue(encoder.encode("data: [DONE]\n\n"))
           controller.close()
+
+          // Log usage with token count (fire-and-forget)
+          supabase
+            .from("usage_logs")
+            .insert({
+              user_id: userId,
+              action: "chat_request",
+              tokens_used: totalTokens || null,
+              metadata: { model, messages_count: messages.length, plan_type }
+            })
+            .then(({ error }) => {
+              if (error) console.error("Failed to log usage:", error)
+            })
         } catch (error) {
           console.error("Streaming error:", error)
           controller.error(error)
         }
       }
     })
-
-    // Log usage (async, don't wait)
-    supabase
-      .from("usage_logs")
-      .insert({
-        user_id: userId,
-        action: "chat_request",
-        metadata: { model, messages_count: messages.length, plan_type }
-      })
-      .then(() => {})
-      .catch(console.error)
 
     return new Response(readableStream, {
       headers: {
@@ -327,7 +342,7 @@ async function handleChatRequest(
   } catch (error) {
     console.error("OpenAI API error:", error)
 
-    // If we decremented credits for free user, restore them on error
+    // Rollback on error
     if (plan_type === "free") {
       await supabase
         .from("user_subscriptions")
@@ -335,11 +350,10 @@ async function handleChatRequest(
         .eq("user_id", userId)
     }
 
-    // If we incremented usage for pro user, restore on error
     if (plan_type === "pro_subscription") {
       await supabase
         .from("user_subscriptions")
-        .update({ usage_count: (subscription.usage_count || 0) })
+        .update({ usage_count: subscription.usage_count || 0 })
         .eq("user_id", userId)
     }
 
