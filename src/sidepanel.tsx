@@ -173,9 +173,9 @@ function SidePanel() {
       }
     }
 
-    // Re-fetch when window focus changes
+    // Re-fetch when window focus changes (Chrome only, Safari doesn't have full windows API)
     const handleWindowFocusChanged = (windowId: number) => {
-      if (windowId !== chrome.windows.WINDOW_ID_NONE) {
+      if (chrome.windows?.WINDOW_ID_NONE !== undefined && windowId !== chrome.windows.WINDOW_ID_NONE) {
         fetchPageContext()
       }
     }
@@ -196,17 +196,22 @@ function SidePanel() {
     try {
       chrome.tabs.onActivated.addListener(handleTabActivated)
       chrome.tabs.onUpdated.addListener(handleTabUpdated)
-      chrome.windows.onFocusChanged.addListener(handleWindowFocusChanged)
+      // Safari may not have full windows API
+      if (chrome.windows?.onFocusChanged) {
+        chrome.windows.onFocusChanged.addListener(handleWindowFocusChanged)
+      }
       chrome.runtime.onMessage.addListener(handleMessage)
-    } catch (err) {
-      console.warn("[ContextFlow] Could not set up tab listeners:", err)
+    } catch {
+      // Some APIs may not be available in Safari
     }
 
     return () => {
       try {
         chrome.tabs.onActivated.removeListener(handleTabActivated)
         chrome.tabs.onUpdated.removeListener(handleTabUpdated)
-        chrome.windows.onFocusChanged.removeListener(handleWindowFocusChanged)
+        if (chrome.windows?.onFocusChanged) {
+          chrome.windows.onFocusChanged.removeListener(handleWindowFocusChanged)
+        }
         chrome.runtime.onMessage.removeListener(handleMessage)
       } catch {
         // Ignore cleanup errors

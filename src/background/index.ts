@@ -1,25 +1,27 @@
 export {}
 
 // Background service worker for ContextFlow
-// Handles extension lifecycle events and future API proxy
+// Handles extension lifecycle events and cross-browser compatibility
 
-// TODO: Move OpenAI API calls here for better security and persistence in V2
-// Benefits:
-// - API key stored in service worker context (more secure than sidepanel)
-// - Persistent connections survive sidepanel close/reopen
-// - Better error handling and retry logic
-// - Centralized rate limiting
-//
-// Trade-off: Requires message passing for streaming, which adds complexity.
-// For MVP, we keep API calls in sidepanel for simpler real-time streaming UX.
+// Detect browser (Chrome has sidePanel, Safari doesn't)
+const isSafari = typeof chrome.sidePanel === "undefined"
 
 chrome.runtime.onInstalled.addListener(() => {
-  console.log("[ContextFlow] Extension installed")
+  // Extension installed
 })
 
-// Handle extension icon click to open side panel
+// Handle extension icon click
 chrome.action.onClicked.addListener((tab) => {
-  if (tab.id) {
+  if (!tab.id) return
+
+  if (isSafari) {
+    // Safari: open popup is handled automatically by manifest
+    // Or open in new tab as fallback
+    chrome.tabs.create({
+      url: chrome.runtime.getURL("sidepanel.html")
+    })
+  } else {
+    // Chrome: open side panel
     chrome.sidePanel.open({ tabId: tab.id })
   }
 })

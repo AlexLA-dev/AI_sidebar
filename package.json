@@ -7,7 +7,9 @@
   "scripts": {
     "dev": "plasmo dev",
     "build": "plasmo build",
-    "package": "plasmo package"
+    "build:safari": "plasmo build --target=safari-mv3",
+    "package": "plasmo package",
+    "package:safari": "plasmo package --target=safari-mv3"
   },
   "dependencies": {
     "@mozilla/readability": "^0.6.0",
