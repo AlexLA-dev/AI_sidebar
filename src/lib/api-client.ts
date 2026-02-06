@@ -223,9 +223,6 @@ export async function proxyChatRequest(
             if (parsed.content) {
               callbacks.onChunk(parsed.content)
             }
-            if (parsed.debug) {
-              console.log("[ContextFlow] Server debug:", parsed.debug)
-            }
           } catch {
             // Ignore parse errors for incomplete chunks
           }

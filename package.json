@@ -1,9 +1,9 @@
 {
   "name": "context-flow",
-  "displayName": "ContextFlow",
-  "version": "0.0.1",
-  "description": "A hybrid AI sidebar extension for Safari & Chrome",
-  "author": "",
+  "displayName": "ContextFlow - AI Sidebar",
+  "version": "1.0.0",
+  "description": "Smart AI assistant that understands the page you're viewing. Get summaries, answers, and insights instantly.",
+  "author": "AlexLA",
   "scripts": {
     "dev": "plasmo dev",
     "build": "plasmo build",
