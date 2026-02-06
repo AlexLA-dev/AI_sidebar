@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>ContextFlow - Safari Setup</title>
+  <link rel="icon" type="image/png" href="/icon.png">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+      background: linear-gradient(180deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+      min-height: 100vh;
+      color: white;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 420px;
+      margin: 0 auto;
+      padding: 40px 24px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .logo {
+      width: 80px;
+      height: 80px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      margin: 0 auto 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(10px);
+    }
+
+    .logo img {
+      width: 60px;
+      height: 60px;
+      border-radius: 12px;
+    }
+
+    .logo-fallback {
+      font-size: 40px;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 16px;
+      opacity: 0.9;
+    }
+
+    /* Steps */
+    .steps {
+      flex: 1;
+    }
+
+    .step {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .step-number {
+      width: 32px;
+      height: 32px;
+      background: white;
+      color: #764ba2;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .step-content {
+      flex: 1;
+    }
+
+    .step-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .step-desc {
+      font-size: 14px;
+      opacity: 0.85;
+      line-height: 1.4;
+    }
+
+    .step-image {
+      margin-top: 12px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .step-image img {
+      width: 100%;
+      display: block;
+    }
+
+    .step-placeholder {
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      opacity: 0.6;
+    }
+
+    /* Highlight */
+    .highlight {
+      background: rgba(255, 255, 255, 0.25);
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-weight: 500;
+    }
+
+    /* CTA Button */
+    .cta {
+      margin-top: 24px;
+    }
+
+    .cta-btn {
+      width: 100%;
+      padding: 18px;
+      background: white;
+      color: #764ba2;
+      border: none;
+      border-radius: 14px;
+      font-size: 17px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .cta-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .cta-btn:active {
+      transform: scale(0.98);
+    }
+
+    .cta-note {
+      text-align: center;
+      margin-top: 12px;
+      font-size: 13px;
+      opacity: 0.8;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding-top: 24px;
+      font-size: 12px;
+      opacity: 0.7;
+    }
+
+    .footer a {
+      color: white;
+      text-decoration: underline;
+    }
+
+    /* Animation */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .step {
+      animation: fadeInUp 0.5s ease-out forwards;
+      opacity: 0;
+    }
+
+    .step:nth-child(1) { animation-delay: 0.1s; }
+    .step:nth-child(2) { animation-delay: 0.2s; }
+    .step:nth-child(3) { animation-delay: 0.3s; }
+    .step:nth-child(4) { animation-delay: 0.4s; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="logo">
+        <span class="logo-fallback">✨</span>
+      </div>
+      <h1>Set Up ContextFlow</h1>
+      <p class="subtitle">Enable the extension in Safari</p>
+    </header>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <div class="step-title">Open Safari Settings</div>
+          <div class="step-desc">
+            Tap <span class="highlight">aA</span> in the address bar, then tap <span class="highlight">Manage Extensions</span>
+          </div>
+          <div class="step-image">
+            <div class="step-placeholder">📱 Safari address bar → aA → Manage Extensions</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <div class="step-title">Enable ContextFlow</div>
+          <div class="step-desc">
+            Find <span class="highlight">ContextFlow</span> in the list and toggle it <span class="highlight">ON</span>
+          </div>
+          <div class="step-image">
+            <div class="step-placeholder">🔘 Toggle ContextFlow extension ON</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <div class="step-title">Allow Permissions</div>
+          <div class="step-desc">
+            Tap <span class="highlight">Always Allow</span> or <span class="highlight">Allow for One Day</span> when prompted
+          </div>
+          <div class="step-image">
+            <div class="step-placeholder">✅ Allow on All Websites</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <div class="step-title">Start Using</div>
+          <div class="step-desc">
+            Look for the <span class="highlight">✨</span> button on any webpage. Tap it to ask questions!
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cta">
+      <button class="cta-btn" onclick="openSafariSettings()">
+        Open Safari Settings
+      </button>
+      <p class="cta-note">You'll be redirected to enable the extension</p>
+    </div>
+
+    <footer class="footer">
+      <a href="/privacy-policy.html">Privacy Policy</a> ·
+      <a href="mailto:top10resource@gmail.com">Support</a>
+    </footer>
+  </div>
+
+  <script>
+    function openSafariSettings() {
+      // On iOS, this deep link opens Safari extension settings
+      // Note: This may not work on all iOS versions
+      window.location.href = 'App-prefs:SAFARI&path=WEB_EXTENSIONS';
+
+      // Fallback: show instructions
+      setTimeout(() => {
+        alert('If settings didn\'t open, go to:\n\nSettings → Safari → Extensions → ContextFlow');
+      }, 1000);
+    }
+
+    // Check if already in Safari on iOS
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
+
+    if (!isIOS) {
+      document.querySelector('.cta-btn').textContent = 'Continue to Extension';
+      document.querySelector('.cta-btn').onclick = () => {
+        window.location.href = '/';
+      };
+      document.querySelector('.cta-note').textContent = 'Desktop Safari setup may vary';
+    }
+  </script>
+</body>
+</html>

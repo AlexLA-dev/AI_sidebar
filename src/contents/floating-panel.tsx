@@ -31,12 +31,23 @@ export const getRootContainer = () => {
   return container
 }
 
+// Detect if running in Safari (no sidePanel API)
+const isSafari = () => {
+  try {
+    return typeof chrome.sidePanel === "undefined"
+  } catch {
+    return true
+  }
+}
+
 interface Message {
   role: "user" | "assistant"
   content: string
 }
 
 function FloatingPanel() {
+  // Only render on Safari (Chrome uses sidePanel)
+  const [shouldRender, setShouldRender] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
   const [session, setSession] = useState<Session | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -51,8 +62,15 @@ function FloatingPanel() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
-  // Initialize auth
+  // Check if we should render (Safari only)
   useEffect(() => {
+    setShouldRender(isSafari())
+  }, [])
+
+  // Initialize auth (only if rendering)
+  useEffect(() => {
+    if (!shouldRender) return
+
     const init = async () => {
       try {
         const supabase = getSupabaseClient()
@@ -76,7 +94,7 @@ function FloatingPanel() {
       setIsLoading(false)
     }
     init()
-  }, [])
+  }, [shouldRender])
 
   // Fetch page context when panel opens
   const fetchContext = useCallback(() => {
@@ -167,7 +185,8 @@ function FloatingPanel() {
     chrome.runtime.sendMessage({ action: "openAuth" })
   }
 
-  if (isLoading) return null
+  // Don't render on Chrome (uses sidePanel) or while loading
+  if (!shouldRender || isLoading) return null
 
   return (
     <>
