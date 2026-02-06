@@ -2,246 +2,219 @@ import type { Context } from "@netlify/functions"
 import { createClient } from "@supabase/supabase-js"
 import OpenAI from "openai"
 
-// Environment variables (set in Netlify dashboard)
-const SUPABASE_URL = process.env.SUPABASE_URL!
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY!
+// Initialize clients outside handler for reuse
+const supabase = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  { auth: { autoRefreshToken: false, persistSession: false } }
+)
 
-// Constants
-const PRO_MODEL = "gpt-4o-mini"
-const PRO_MAX_TOKENS = 2048
-const WEEKLY_LIMIT = 375
-const WEEK_MS = 7 * 24 * 60 * 60 * 1000
-
-// Initialize Supabase with service role key (bypasses RLS)
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
-  auth: { autoRefreshToken: false, persistSession: false }
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
 })
-const openai = new OpenAI({ apiKey: OPENAI_API_KEY })
 
 // CORS headers
-const corsHeaders = {
+const headers = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
   "Access-Control-Allow-Methods": "POST, OPTIONS"
 }
 
-function jsonResponse(body: object, status: number): Response {
-  return new Response(JSON.stringify(body), {
+function jsonResponse(body: object | string, status: number): Response {
+  return new Response(typeof body === "string" ? body : JSON.stringify(body), {
     status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" }
+    headers: { ...headers, "Content-Type": "application/json" }
   })
 }
 
-interface ChatRequest {
-  messages: Array<{
-    role: "user" | "assistant" | "system"
-    content: string
-  }>
-}
-
 export default async function handler(req: Request, _context: Context) {
-  // Handle CORS preflight
+  // CORS preflight
   if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: corsHeaders })
-  }
-
-  if (req.method !== "POST") {
-    return jsonResponse({ error: "Method not allowed" }, 405)
+    return new Response("ok", { status: 200, headers })
   }
 
   try {
-    // ── Step 1: Auth ──────────────────────────────────────────
+    // 1. Get User ID from Authorization header
     const authHeader = req.headers.get("Authorization")
-    if (!authHeader?.startsWith("Bearer ")) {
-      return jsonResponse({ error: "Missing or invalid authorization header" }, 401)
+    if (!authHeader) {
+      console.error("[Proxy] Missing Authorization header")
+      return jsonResponse("Missing Authorization header", 401)
     }
 
     const token = authHeader.replace("Bearer ", "")
     const { data: { user }, error: authError } = await supabase.auth.getUser(token)
 
     if (authError || !user) {
-      return jsonResponse({ error: "Invalid or expired token" }, 401)
+      console.error("[Proxy] Auth Error:", authError)
+      return jsonResponse("Unauthorized", 401)
     }
 
-    // ── Step 2: Fetch subscription ────────────────────────────
-    let { data: sub, error: subError } = await supabase
+    const userId = user.id
+    console.log(`[Proxy] User identified: ${userId}`)
+
+    // 2. Get subscription (Admin query - bypasses RLS)
+    const { data: subscription, error: subError } = await supabase
       .from("user_subscriptions")
       .select("*")
-      .eq("user_id", user.id)
+      .eq("user_id", userId)
       .single()
 
-    if (subError || !sub) {
-      // Auto-create for new users
-      const { data: newSub, error: createError } = await supabase
-        .from("user_subscriptions")
-        .insert({
-          user_id: user.id,
-          plan_type: "free",
-          credits_balance: 5,
-          usage_count: 0,
-          last_reset_at: new Date().toISOString()
-        })
-        .select()
-        .single()
-
-      if (createError || !newSub) {
-        console.error("Failed to create subscription:", createError)
-        return jsonResponse({ error: "Failed to initialize user" }, 500)
-      }
-      sub = newSub
+    if (subError) {
+      console.error(`[Proxy] Subscription error for ${userId}:`, subError)
+      return jsonResponse("Subscription not found", 403)
     }
 
-    const planType = sub.plan_type as string
-    console.log(`[chat-proxy] User ${user.id}: plan=${planType}, credits=${sub.credits_balance}, usage=${sub.usage_count}`)
+    // 3. Limit logic
+    const plan = subscription.plan_type || "free"
+    console.log(`[Proxy] Plan: ${plan}, Usage: ${subscription.usage_count}, Credits: ${subscription.credits_balance}`)
 
-    // ── Step 3: Enforce limits & update DB (BEFORE OpenAI call) ──
+    // --- PRO LOGIC ---
+    if (plan === "pro_subscription") {
+      // Check weekly reset
+      const lastReset = new Date(subscription.last_reset_at || 0)
+      const now = new Date()
+      const diffDays = (now.getTime() - lastReset.getTime()) / (1000 * 3600 * 24)
 
-    if (planType === "byok_license") {
-      return jsonResponse(
-        { error: "BYOK users should use their own API key", code: "USE_OWN_KEY" },
-        403
-      )
-    }
+      if (diffDays > 7) {
+        console.log(`[Proxy] Resetting weekly limit for ${userId}`)
+        const { error: resetError } = await supabase
+          .from("user_subscriptions")
+          .update({
+            usage_count: 0,
+            last_reset_at: now.toISOString()
+          })
+          .eq("user_id", userId)
 
-    if (planType === "pro_subscription") {
-      if (sub.subscription_status !== "active") {
-        return jsonResponse(
-          { error: "Subscription is not active", code: "SUBSCRIPTION_INACTIVE" },
-          403
-        )
-      }
-
-      // Weekly reset check
-      const lastReset = sub.last_reset_at
-        ? new Date(sub.last_reset_at).getTime()
-        : 0
-
-      if (Date.now() - lastReset > WEEK_MS) {
-        const { error: resetErr } = await supabase.rpc("reset_weekly_usage", {
-          user_id_input: user.id
-        })
-        if (resetErr) {
-          console.error("Weekly reset failed:", resetErr)
+        if (resetError) {
+          console.error(`[Proxy] Reset error:`, resetError)
         } else {
-          console.log(`[Pro] Weekly reset for user ${user.id}`)
-          sub.usage_count = 0
+          console.log(`[Proxy] Weekly reset successful for ${userId}`)
         }
-      }
-
-      // Check limit
-      if ((sub.usage_count || 0) >= WEEKLY_LIMIT) {
-        return jsonResponse(
-          {
-            error: "Weekly request limit reached (375/week). Resets every 7 days.",
-            code: "WEEKLY_LIMIT_REACHED",
-            usage_count: sub.usage_count,
-            limit: WEEKLY_LIMIT
-          },
-          429
-        )
+      } else if (subscription.usage_count >= 375) {
+        console.log(`[Proxy] Weekly limit reached for ${userId}`)
+        return jsonResponse({ error: "Weekly limit reached (375 req/week)", code: "WEEKLY_LIMIT_REACHED" }, 429)
       }
 
       // Atomic increment via RPC
-      const { data: newCount, error: incErr } = await supabase.rpc("increment_usage", {
-        user_id_input: user.id
+      console.log(`[Proxy] Calling increment_usage for ${userId}...`)
+      const { data: newCount, error: rpcError } = await supabase.rpc("increment_usage", {
+        user_id_input: userId
       })
 
-      if (incErr) {
-        console.error("increment_usage RPC failed:", incErr)
-        return jsonResponse({ error: "Failed to track usage" }, 500)
-      }
+      if (rpcError) {
+        console.error("[Proxy] RPC Error (Pro):", rpcError)
+        // Fallback: direct update
+        console.log(`[Proxy] Trying direct update fallback...`)
+        const { error: updateError } = await supabase
+          .from("user_subscriptions")
+          .update({ usage_count: (subscription.usage_count || 0) + 1 })
+          .eq("user_id", userId)
 
-      console.log(`[Pro] User ${user.id}: usage_count is now ${newCount}`)
+        if (updateError) {
+          console.error("[Proxy] Fallback update also failed:", updateError)
+        } else {
+          console.log(`[Proxy] Fallback update succeeded`)
+        }
+      } else {
+        console.log(`[Proxy] increment_usage returned: ${newCount}`)
+      }
     }
 
-    if (planType === "free") {
-      if ((sub.credits_balance || 0) <= 0) {
-        return jsonResponse(
-          { error: "Trial credits exhausted", code: "CREDITS_EXHAUSTED", credits_remaining: 0 },
-          403
-        )
+    // --- FREE/TRIAL LOGIC ---
+    else {
+      if ((subscription.credits_balance || 0) <= 0) {
+        console.log(`[Proxy] Credits exhausted for ${userId}`)
+        return jsonResponse({ error: "Trial credits exhausted", code: "CREDITS_EXHAUSTED" }, 402)
       }
 
-      // Atomic deduct via RPC
-      const { data: remaining, error: deductErr } = await supabase.rpc("deduct_credit", {
-        user_id_input: user.id
+      // Atomic deduction via RPC
+      console.log(`[Proxy] Calling deduct_credit for ${userId}...`)
+      const { data: remaining, error: rpcError } = await supabase.rpc("deduct_credit", {
+        user_id_input: userId
       })
 
-      if (deductErr) {
-        console.error("deduct_credit RPC failed:", deductErr)
-        return jsonResponse({ error: "Failed to track usage" }, 500)
-      }
+      if (rpcError) {
+        console.error("[Proxy] RPC Error (Free):", rpcError)
+        // Fallback: direct update
+        console.log(`[Proxy] Trying direct update fallback...`)
+        const { error: updateError } = await supabase
+          .from("user_subscriptions")
+          .update({ credits_balance: subscription.credits_balance - 1 })
+          .eq("user_id", userId)
 
-      // -1 means no row was updated (credits were already 0, race condition)
-      if (remaining === -1) {
-        return jsonResponse(
-          { error: "Trial credits exhausted", code: "CREDITS_EXHAUSTED", credits_remaining: 0 },
-          403
-        )
+        if (updateError) {
+          console.error("[Proxy] Fallback update also failed:", updateError)
+          return jsonResponse("Database error during credit deduction", 500)
+        } else {
+          console.log(`[Proxy] Fallback update succeeded`)
+        }
+      } else {
+        console.log(`[Proxy] deduct_credit returned: ${remaining}`)
       }
-
-      console.log(`[Free] User ${user.id}: credits_balance is now ${remaining}`)
     }
 
-    // ── Step 4: Parse request body ────────────────────────────
-    let body: ChatRequest
+    // 4. Parse request body
+    let body: { messages?: Array<{ role: string; content: string }>; context?: string }
     try {
       body = await req.json()
     } catch {
-      return jsonResponse({ error: "Invalid JSON body" }, 400)
+      return jsonResponse("Invalid JSON body", 400)
     }
 
-    const { messages } = body
-    if (!messages || !Array.isArray(messages) || messages.length === 0) {
-      return jsonResponse({ error: "Messages array is required" }, 400)
+    const { messages, context } = body
+    if (!messages || !Array.isArray(messages)) {
+      return jsonResponse("Messages array is required", 400)
     }
 
-    // ── Step 5: Call OpenAI (ONLY after DB update succeeded) ──
-    // Note: tokens_used tracking is skipped for now because it requires
-    // parsing the final stream chunk, which complicates the proxy.
-    // usage_count / credits_balance are the primary economic safeguards.
+    // 5. OpenAI request (GPT-4o-mini)
+    const systemMessage = {
+      role: "system" as const,
+      content: `You are a helpful AI assistant. Context: ${context ? context.substring(0, 10000) : "No context"}`
+    }
+
+    console.log(`[Proxy] Calling OpenAI for ${userId} with ${messages.length} messages...`)
 
     const stream = await openai.chat.completions.create({
-      model: PRO_MODEL,
-      messages,
-      max_tokens: PRO_MAX_TOKENS,
+      model: "gpt-4o-mini",
+      messages: [systemMessage, ...messages],
       stream: true
     })
 
-    const readableStream = new ReadableStream({
+    // 6. Stream response (SSE format for client compatibility)
+    const encoder = new TextEncoder()
+    const readable = new ReadableStream({
       async start(controller) {
-        const encoder = new TextEncoder()
-
         try {
           for await (const chunk of stream) {
             const content = chunk.choices[0]?.delta?.content
             if (content) {
+              // SSE format: data: {"content": "..."}\n\n
               controller.enqueue(
                 encoder.encode(`data: ${JSON.stringify({ content })}\n\n`)
               )
             }
           }
-
           controller.enqueue(encoder.encode("data: [DONE]\n\n"))
           controller.close()
+          console.log(`[Proxy] Stream completed for ${userId}`)
         } catch (error) {
-          console.error("Streaming error:", error)
+          console.error("[Proxy] Stream error:", error)
           controller.error(error)
         }
       }
     })
 
-    return new Response(readableStream, {
+    return new Response(readable, {
+      status: 200,
       headers: {
-        ...corsHeaders,
+        ...headers,
         "Content-Type": "text/event-stream",
         "Cache-Control": "no-cache",
         Connection: "keep-alive"
       }
     })
   } catch (error) {
-    console.error("Chat proxy error:", error)
+    console.error("[Proxy] Fatal Error:", error)
     return jsonResponse(
       { error: error instanceof Error ? error.message : "Internal server error" },
       500
