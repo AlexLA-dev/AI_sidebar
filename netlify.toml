@@ -1,8 +1,8 @@
 # Netlify Configuration for ContextFlow Backend
 
 [build]
-  command = "pnpm build"
-  publish = "build/chrome-mv3-prod"
+  command = "echo 'Static site ready'"
+  publish = "site"
 
 [functions]
   directory = "netlify/functions"
