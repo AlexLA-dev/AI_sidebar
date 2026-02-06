@@ -15,8 +15,7 @@ chrome.action.onClicked.addListener((tab) => {
   if (!tab.id) return
 
   if (isSafari) {
-    // Safari: open popup is handled automatically by manifest
-    // Or open in new tab as fallback
+    // Safari: open in new tab
     chrome.tabs.create({
       url: chrome.runtime.getURL("sidepanel.html")
     })
@@ -24,4 +23,16 @@ chrome.action.onClicked.addListener((tab) => {
     // Chrome: open side panel
     chrome.sidePanel.open({ tabId: tab.id })
   }
+})
+
+// Handle messages from content scripts
+chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  if (message.action === "openAuth") {
+    // Open auth page in new tab
+    chrome.tabs.create({
+      url: chrome.runtime.getURL("sidepanel.html")
+    })
+    sendResponse({ success: true })
+  }
+  return true
 })
