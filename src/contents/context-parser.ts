@@ -104,6 +104,11 @@ function extractFallback(): { text: string; title: string } {
 let selectionDebounce: ReturnType<typeof setTimeout> | null = null
 let lastSentText = ""
 
+// Cache the last non-empty selection so it survives focus shifts to the sidebar.
+// On iOS Safari, tapping the extension sidebar clears the page selection.
+let cachedSelection: { text: string; title: string; timestamp: number } | null = null
+const SELECTION_CACHE_TTL = 10_000 // 10 seconds
+
 function sendContextUpdate() {
   const selection = window.getSelection()
   const selectedText = selection?.toString().trim() || ""
@@ -114,6 +119,9 @@ function sendContextUpdate() {
 
   try {
     if (selectedText.length > 0) {
+      // Cache the selection before sending
+      cachedSelection = { text: selectedText, title: document.title, timestamp: Date.now() }
+
       // User selected text — send selection context
       chrome.runtime.sendMessage({
         action: "contextUpdate",
@@ -123,7 +131,15 @@ function sendContextUpdate() {
         url: window.location.href
       })
     } else {
-      // Selection cleared — revert to page context
+      // Selection cleared — but if we have a recent cached selection, keep it.
+      // This handles iOS Safari where tapping the sidebar clears the page selection.
+      if (cachedSelection && (Date.now() - cachedSelection.timestamp) < SELECTION_CACHE_TTL) {
+        return
+      }
+
+      cachedSelection = null
+
+      // No recent selection — revert to page context
       const readability = extractWithReadability()
       const fallback = extractFallback()
       const pageText = readability.success ? readability.text : fallback.text
@@ -165,7 +181,7 @@ chrome.runtime.onMessage.addListener((request: RequestBody, _sender, sendRespons
   try {
     const url = window.location.href
 
-    // Priority 1: Check for text selection
+    // Priority 1: Check for live text selection
     const selectionResult = extractSelection()
     if (selectionResult && selectionResult.text.length > 10) {
       sendResponse({
@@ -177,6 +193,19 @@ chrome.runtime.onMessage.addListener((request: RequestBody, _sender, sendRespons
         isReadabilityParsed: false
       })
       return // Synchronous response - no need to return true
+    }
+
+    // Priority 1b: Check cached selection (iOS Safari clears selection when sidebar opens)
+    if (cachedSelection && (Date.now() - cachedSelection.timestamp) < SELECTION_CACHE_TTL) {
+      sendResponse({
+        success: true,
+        text: cachedSelection.text,
+        title: cachedSelection.title,
+        url,
+        contextType: "selection",
+        isReadabilityParsed: false
+      })
+      return
     }
 
     // Priority 2: Try Readability for articles
