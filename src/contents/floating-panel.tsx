@@ -14,7 +14,6 @@ export const config: PlasmoCSConfig = {
     "*://localhost/*"
   ],
   all_frames: false,
-  // Don't use Plasmo's default injection - we'll handle it manually
   css: []
 }
 
@@ -33,7 +32,26 @@ const isSafari = () => {
   }
 }
 
-// Styles as objects for inline styling (Safari compatibility)
+// --- Scroll lock helpers (prevents page jump on iOS Safari) ---
+let savedScrollY = 0
+
+function lockBodyScroll() {
+  savedScrollY = window.scrollY
+  document.body.style.position = "fixed"
+  document.body.style.top = `-${savedScrollY}px`
+  document.body.style.width = "100%"
+  document.body.style.overflow = "hidden"
+}
+
+function unlockBodyScroll() {
+  document.body.style.position = ""
+  document.body.style.top = ""
+  document.body.style.width = ""
+  document.body.style.overflow = ""
+  window.scrollTo(0, savedScrollY)
+}
+
+// Styles as objects for inline styling (Safari CSP compatibility)
 const styles = {
   fab: {
     position: "fixed" as const,
@@ -69,6 +87,7 @@ const styles = {
     bottom: 0,
     background: "rgba(0, 0, 0, 0.3)",
     zIndex: 2147483645,
+    touchAction: "none" as const,
   },
   panel: {
     position: "fixed" as const,
@@ -93,6 +112,7 @@ const styles = {
     WebkitOverflowScrolling: "touch" as const,
     overflow: "hidden",
     boxSizing: "border-box" as const,
+    overscrollBehavior: "none" as const,
   },
   panelOpen: {
     transform: "translateY(0)",
@@ -101,7 +121,7 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: "16px 16px",
+    padding: "12px 16px",
     borderBottom: "1px solid #e5e7eb",
     flexShrink: 0,
     boxSizing: "border-box" as const,
@@ -112,14 +132,35 @@ const styles = {
     display: "flex",
     alignItems: "center",
     gap: "10px",
+    minWidth: 0,
+    flex: 1,
   },
   logo: {
     color: "#7c3aed",
+    flexShrink: 0,
   },
   title: {
     fontWeight: 600,
     fontSize: "16px",
     color: "#1f2937",
+    flexShrink: 0,
+  },
+  contextBadge: {
+    fontSize: "10px",
+    padding: "2px 8px",
+    borderRadius: "10px",
+    fontWeight: 500,
+    whiteSpace: "nowrap" as const,
+    flexShrink: 0,
+    marginLeft: "6px",
+  },
+  contextBadgeSelection: {
+    background: "#dbeafe",
+    color: "#1d4ed8",
+  },
+  contextBadgePage: {
+    background: "#f3e8ff",
+    color: "#7c3aed",
   },
   iconBtn: {
     width: "36px",
@@ -132,6 +173,7 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    flexShrink: 0,
   },
   content: {
     flex: 1,
@@ -184,6 +226,7 @@ const styles = {
     width: "100%",
     maxWidth: "100%",
     boxSizing: "border-box" as const,
+    overscrollBehavior: "contain" as const,
   },
   empty: {
     height: "100%",
@@ -306,6 +349,8 @@ interface Message {
   content: string
 }
 
+type ContextInfo = { type: "page" | "selection"; title: string }
+
 function FloatingPanelContent() {
   const [isOpen, setIsOpen] = useState(false)
   const [session, setSession] = useState<Session | null>(null)
@@ -314,12 +359,22 @@ function FloatingPanelContent() {
   const [input, setInput] = useState("")
   const [isStreaming, setIsStreaming] = useState(false)
   const [pageContext, setPageContext] = useState<string | null>(null)
-  const [pageTitle, setPageTitle] = useState<string | null>(null)
+  const [contextInfo, setContextInfo] = useState<ContextInfo | null>(null)
   const [trialInfo, setTrialInfo] = useState<TrialInfo | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+
+  // Lock/unlock body scroll when panel opens/closes (prevents page jump - bug 3)
+  useEffect(() => {
+    if (isOpen) {
+      lockBodyScroll()
+    } else {
+      unlockBodyScroll()
+    }
+    return () => unlockBodyScroll()
+  }, [isOpen])
 
   // Listen for toggle message from background script
   useEffect(() => {
@@ -365,30 +420,31 @@ function FloatingPanelContent() {
     // Prefer selected text if available
     const selection = window.getSelection()?.toString().trim() || ""
     if (selection.length > 10) {
-      setPageTitle(title)
       setPageContext(selection)
+      setContextInfo({ type: "selection", title })
       return
     }
     const bodyText = document.body?.innerText?.slice(0, 15000) || ""
-    setPageTitle(title)
     setPageContext(bodyText)
+    setContextInfo({ type: "page", title })
   }, [])
 
+  // Re-fetch context every time panel opens (not just first time)
   useEffect(() => {
-    if (isOpen && !pageContext) {
+    if (isOpen) {
       fetchContext()
     }
-  }, [isOpen, pageContext, fetchContext])
+  }, [isOpen, fetchContext])
 
   // Scroll to bottom on new messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
 
-  // Focus input when opened
+  // Focus input when opened — use preventScroll to avoid page jump
   useEffect(() => {
     if (isOpen && inputRef.current) {
-      setTimeout(() => inputRef.current?.focus(), 300)
+      setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 300)
     }
   }, [isOpen])
 
@@ -405,12 +461,11 @@ function FloatingPanelContent() {
     setMessages(prev => [...prev, { role: "assistant", content: "" }])
 
     try {
-      // streamChatResponse(messages, pageContext, apiKey, callbacks, contextType)
       await streamChatResponse(
         [...messages, { role: "user", content: userMessage }],
-        pageContext,  // pageContext (2nd arg)
-        "",           // apiKey - empty to use proxy (3rd arg)
-        {             // callbacks (4th arg)
+        pageContext,
+        "",
+        {
           onChunk: (chunk) => {
             assistantMessage += chunk
             setMessages(prev => {
@@ -432,7 +487,7 @@ function FloatingPanelContent() {
             setMessages(prev => prev.slice(0, -1))
           }
         },
-        "page"        // contextType (5th arg)
+        contextInfo?.type || "page"
       )
     } catch (err) {
       setIsStreaming(false)
@@ -467,11 +522,12 @@ function FloatingPanelContent() {
         <SparklesIcon size={24} />
       </button>
 
-      {/* Backdrop */}
+      {/* Backdrop — touch-action:none prevents scroll-through */}
       {isOpen && (
         <div
           style={styles.backdrop}
           onClick={() => setIsOpen(false)}
+          onTouchMove={(e) => e.preventDefault()}
         />
       )}
 
@@ -480,11 +536,21 @@ function FloatingPanelContent() {
         ...styles.panel,
         ...(isOpen ? styles.panelOpen : {}),
       }}>
-        {/* Header */}
+        {/* Header with context status */}
         <div style={styles.header}>
           <div style={styles.headerLeft}>
             <span style={styles.logo}><SparklesIcon size={20} /></span>
             <span style={styles.title}>ContextFlow</span>
+            {contextInfo && (
+              <span style={{
+                ...styles.contextBadge,
+                ...(contextInfo.type === "selection"
+                  ? styles.contextBadgeSelection
+                  : styles.contextBadgePage),
+              }}>
+                {contextInfo.type === "selection" ? "Selection" : "Page"}
+              </span>
+            )}
           </div>
           <button onClick={() => setIsOpen(false)} style={styles.iconBtn}>
             <ChevronDownIcon size={20} />
