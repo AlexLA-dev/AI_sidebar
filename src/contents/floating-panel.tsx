@@ -37,8 +37,8 @@ const isSafari = () => {
 const styles = {
   fab: {
     position: "fixed" as const,
-    bottom: "calc(24px + env(safe-area-inset-bottom, 0px))",
-    right: "calc(24px + env(safe-area-inset-right, 0px))",
+    bottom: "calc(80px + env(safe-area-inset-bottom, 0px))",
+    right: "calc(20px + env(safe-area-inset-right, 0px))",
     width: "56px",
     height: "56px",
     borderRadius: "28px",
@@ -75,6 +75,8 @@ const styles = {
     bottom: 0,
     left: 0,
     right: 0,
+    width: "100%",
+    maxWidth: "100vw",
     height: "55vh",
     maxHeight: "500px",
     minHeight: "350px",
@@ -90,6 +92,7 @@ const styles = {
     paddingBottom: "env(safe-area-inset-bottom, 0px)",
     WebkitOverflowScrolling: "touch" as const,
     overflow: "hidden",
+    boxSizing: "border-box" as const,
   },
   panelOpen: {
     transform: "translateY(0)",
@@ -373,13 +376,12 @@ function FloatingPanelContent() {
     setMessages(prev => [...prev, { role: "assistant", content: "" }])
 
     try {
+      // streamChatResponse(messages, pageContext, apiKey, callbacks, contextType)
       await streamChatResponse(
         [...messages, { role: "user", content: userMessage }],
-        "",
-        pageContext,
-        pageTitle || undefined,
-        "page",
-        {
+        pageContext,  // pageContext (2nd arg)
+        "",           // apiKey - empty to use proxy (3rd arg)
+        {             // callbacks (4th arg)
           onChunk: (chunk) => {
             assistantMessage += chunk
             setMessages(prev => {
@@ -400,7 +402,8 @@ function FloatingPanelContent() {
             setError(err.message)
             setMessages(prev => prev.slice(0, -1))
           }
-        }
+        },
+        "page"        // contextType (5th arg)
       )
     } catch (err) {
       setIsStreaming(false)
