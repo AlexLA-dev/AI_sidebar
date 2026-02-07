@@ -281,7 +281,7 @@ const S = {
   },
   headerRight: {
     display: "flex", alignItems: "center", gap: "4px",
-    flexShrink: 0,
+    flexShrink: 0, marginLeft: "auto",
   },
   logo: { color: "#7c3aed", flexShrink: 0 },
   title: { fontWeight: 600, fontSize: "16px", color: "#1f2937", flexShrink: 0 },
@@ -292,12 +292,17 @@ const S = {
   badgeSel: { background: "#dbeafe", color: "#1d4ed8" },
   badgePage: { background: "#f3e8ff", color: "#7c3aed" },
   iconBtn: {
-    width: "36px", height: "36px",
-    border: "none", background: "#f3f4f6",
+    width: "36px", height: "36px", minWidth: "36px", minHeight: "36px",
+    border: "none !important", background: "#f3f4f6",
     borderRadius: "10px", color: "#374151",
     cursor: "pointer",
-    display: "flex", alignItems: "center", justifyContent: "center",
+    display: "flex !important", alignItems: "center", justifyContent: "center",
     flexShrink: 0,
+    padding: "0", margin: "0",
+    opacity: 1, visibility: "visible" as const,
+    overflow: "visible",
+    WebkitAppearance: "none" as const,
+    boxSizing: "border-box" as const,
   },
   iconBtnActive: { background: "#f3e8ff", color: "#7c3aed" },
   content: {
@@ -311,7 +316,7 @@ const S = {
     background: "#f9fafb",
     fontSize: "13px", color: "#374151",
     overflowY: "auto" as const,
-    maxHeight: "200px",
+    maxHeight: "260px",
   },
   settingsRow: {
     display: "flex", alignItems: "center", justifyContent: "space-between",
@@ -622,12 +627,6 @@ function FloatingPanelContent() {
 
   const maskedKey = apiKey ? `${apiKey.slice(0, 7)}...${apiKey.slice(-4)}` : ""
   const hasLicense = trialInfo?.hasLicense || false
-  const lastAiIdx = (() => {
-    for (let j = messages.length - 1; j >= 0; j--) {
-      if (messages[j].role === "assistant") return j
-    }
-    return -1
-  })()
 
   return (
     <>
@@ -803,9 +802,15 @@ function FloatingPanelContent() {
                         {msg.role === "assistant" ? (
                           <div style={S.msgWrapper}>
                             <div style={{ ...S.msgBubble, ...S.msgBubbleAI, fontSize: bubbleFontSize }}>
-                              {msg.content ? renderMarkdown(msg.content) : "..."}
+                              {msg.content ? renderMarkdown(msg.content) : (
+                                <span style={{ display: "inline-flex", gap: "4px", alignItems: "center", letterSpacing: "2px", color: "#9ca3af" }}>
+                                  <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#9ca3af", display: "inline-block" }} />
+                                  <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#b4b8c0", display: "inline-block" }} />
+                                  <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#d1d5db", display: "inline-block" }} />
+                                </span>
+                              )}
                             </div>
-                            {msg.content && !isStreaming && i === lastAiIdx && (
+                            {msg.content && !isStreaming && (
                               <button
                                 onClick={() => handleShare(msg.content)}
                                 style={S.shareBtn}
@@ -862,6 +867,36 @@ function initFloatingPanel() {
   }
 
   console.log("[ContextFlow] Initializing floating panel for Safari")
+
+  // Inject scoped CSS reset to prevent page styles from hiding our UI elements
+  const style = document.createElement("style")
+  style.textContent = `
+    #contextflow-floating-panel button,
+    #contextflow-floating-panel svg {
+      visibility: visible !important;
+      opacity: 1 !important;
+      pointer-events: auto !important;
+      transform: none !important;
+      max-width: none !important;
+      max-height: none !important;
+      position: static !important;
+      float: none !important;
+      clip: auto !important;
+      clip-path: none !important;
+      -webkit-appearance: none !important;
+    }
+    #contextflow-floating-panel svg {
+      overflow: visible !important;
+    }
+    #contextflow-floating-panel strong { font-weight: 700 !important; }
+    #contextflow-floating-panel em { font-style: italic !important; }
+    #contextflow-floating-panel ol { list-style-type: decimal !important; }
+    #contextflow-floating-panel ul { list-style-type: disc !important; }
+    #contextflow-floating-panel li { display: list-item !important; }
+    #contextflow-floating-panel code { font-family: monospace !important; }
+    #contextflow-floating-panel a { color: #7c3aed !important; text-decoration: underline !important; }
+  `
+  document.head.appendChild(style)
 
   const container = document.createElement("div")
   container.id = "contextflow-floating-panel"
