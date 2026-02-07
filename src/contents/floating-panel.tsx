@@ -102,6 +102,12 @@ const XIcon = ({ size = 18 }: { size?: number }) => (
   </svg>
 )
 
+const MoreIcon = ({ size = 16 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+    <circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/>
+  </svg>
+)
+
 const LogOutIcon = ({ size = 14 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/>
@@ -271,6 +277,16 @@ const S = {
   },
   msgBubbleAI: {
     background: "#f3f4f6", color: "#1f2937", borderBottomLeftRadius: "4px",
+  },
+  msgWrapper: {
+    display: "flex", flexDirection: "column" as const, alignItems: "flex-start",
+    maxWidth: "85%",
+  },
+  shareBtn: {
+    border: "none", background: "none", padding: "4px 6px",
+    color: "#9ca3af", cursor: "pointer",
+    display: "inline-flex", alignItems: "center",
+    borderRadius: "6px", marginTop: "2px",
   },
   error: {
     padding: "12px 16px", background: "#fef2f2", color: "#dc2626",
@@ -456,6 +472,23 @@ function FloatingPanelContent() {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend() }
   }
 
+  const handleShare = async (text: string) => {
+    if (navigator.share) {
+      try {
+        await navigator.share({ text })
+      } catch {
+        // User cancelled share sheet — ignore
+      }
+    } else {
+      // Fallback: copy to clipboard
+      try {
+        await navigator.clipboard.writeText(text)
+      } catch {
+        // Clipboard API blocked — ignore
+      }
+    }
+  }
+
   const openAuth = () => chrome.runtime.sendMessage({ action: "openAuth" })
 
   const handleSignOut = async () => {
@@ -622,12 +655,25 @@ function FloatingPanelContent() {
                 ) : (
                   messages.map((msg, i) => (
                     <div key={i} style={{ ...S.msg, ...(msg.role === "user" ? S.msgUser : {}) }}>
-                      <div style={{
-                        ...S.msgBubble,
-                        ...(msg.role === "user" ? S.msgBubbleUser : S.msgBubbleAI),
-                      }}>
-                        {msg.content || "..."}
-                      </div>
+                      {msg.role === "assistant" ? (
+                        <div style={S.msgWrapper}>
+                          <div style={{ ...S.msgBubble, ...S.msgBubbleAI }}>
+                            {msg.content || "..."}
+                          </div>
+                          {msg.content && !isStreaming && (
+                            <button
+                              onClick={() => handleShare(msg.content)}
+                              style={S.shareBtn}
+                            >
+                              <MoreIcon size={16} />
+                            </button>
+                          )}
+                        </div>
+                      ) : (
+                        <div style={{ ...S.msgBubble, ...S.msgBubbleUser }}>
+                          {msg.content || "..."}
+                        </div>
+                      )}
                     </div>
                   ))
                 )}
