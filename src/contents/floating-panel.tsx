@@ -32,9 +32,22 @@ export const getRootContainer = () => {
 }
 
 // Detect if running in Safari (no sidePanel API)
+// More reliable detection using multiple checks
 const isSafari = () => {
   try {
-    return typeof chrome.sidePanel === "undefined"
+    // Check 1: Safari uses 'browser' namespace natively
+    if (typeof browser !== "undefined" && browser.runtime) {
+      return true
+    }
+    // Check 2: Chrome sidePanel API doesn't exist in Safari
+    if (typeof chrome !== "undefined" && typeof chrome.sidePanel === "undefined") {
+      return true
+    }
+    // Check 3: User agent check as fallback
+    if (navigator.userAgent.includes("Safari") && !navigator.userAgent.includes("Chrome")) {
+      return true
+    }
+    return false
   } catch {
     return true
   }
@@ -64,7 +77,10 @@ function FloatingPanel() {
 
   // Check if we should render (Safari only)
   useEffect(() => {
-    setShouldRender(isSafari())
+    const shouldShow = isSafari()
+    console.log("[ContextFlow] Safari detection:", shouldShow)
+    console.log("[ContextFlow] User agent:", navigator.userAgent)
+    setShouldRender(shouldShow)
   }, [])
 
   // Listen for toggle message from background script (when icon clicked)
