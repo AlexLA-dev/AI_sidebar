@@ -148,6 +148,13 @@ document.addEventListener("mouseup", () => {
   selectionDebounce = setTimeout(sendContextUpdate, 300)
 })
 
+// iOS Safari: text selection via long-press doesn't fire mouseup.
+// selectionchange fires on all platforms when the selection changes.
+document.addEventListener("selectionchange", () => {
+  if (selectionDebounce) clearTimeout(selectionDebounce)
+  selectionDebounce = setTimeout(sendContextUpdate, 500)
+})
+
 chrome.runtime.onMessage.addListener((request: RequestBody, _sender, sendResponse) => {
   if (request?.action !== "getPageText") {
     return false

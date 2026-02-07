@@ -18,8 +18,9 @@ chrome.runtime.onInstalled.addListener(() => {
 })
 
 // Handle extension icon click to open side panel
+// chrome.sidePanel is Chrome-only; Safari uses popover/action instead.
 chrome.action.onClicked.addListener((tab) => {
-  if (tab.id) {
+  if (tab.id && chrome.sidePanel?.open) {
     chrome.sidePanel.open({ tabId: tab.id })
   }
 })
