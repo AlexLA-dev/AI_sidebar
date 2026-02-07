@@ -9,7 +9,111 @@ import {
   syncSubscriptionFromServer,
   type TrialInfo
 } from "~/lib/ai"
-import { getStoredApiKey, setStoredApiKey } from "~/lib/storage"
+import { getStoredApiKey, setStoredApiKey, storage } from "~/lib/storage"
+
+// --- Lightweight inline markdown renderer (no external deps) ---
+function renderMarkdown(text: string): React.ReactNode[] {
+  const lines = text.split("\n")
+  const result: React.ReactNode[] = []
+  let listBuffer: { ordered: boolean; items: string[] } | null = null
+  let keyIdx = 0
+
+  function flushList() {
+    if (!listBuffer) return
+    const Tag = listBuffer.ordered ? "ol" : "ul"
+    const listStyle: React.CSSProperties = {
+      margin: "4px 0", paddingLeft: "20px",
+      listStyleType: listBuffer.ordered ? "decimal" : "disc",
+    }
+    result.push(
+      <Tag key={`list-${keyIdx++}`} style={listStyle}>
+        {listBuffer.items.map((item, j) => (
+          <li key={j} style={{ marginBottom: "2px" }}>{inlineFormat(item)}</li>
+        ))}
+      </Tag>
+    )
+    listBuffer = null
+  }
+
+  function inlineFormat(s: string): React.ReactNode {
+    // Process inline: **bold**, *italic*, `code`, [link](url)
+    const parts: React.ReactNode[] = []
+    let remaining = s
+    let k = 0
+    const rx = /(\*\*(.+?)\*\*|\*(.+?)\*|`(.+?)`|\[([^\]]+)\]\(([^)]+)\))/g
+    let match: RegExpExecArray | null
+    let lastIndex = 0
+    rx.lastIndex = 0
+    while ((match = rx.exec(remaining)) !== null) {
+      if (match.index > lastIndex) {
+        parts.push(remaining.slice(lastIndex, match.index))
+      }
+      if (match[2]) {
+        parts.push(<strong key={`b${k++}`}>{match[2]}</strong>)
+      } else if (match[3]) {
+        parts.push(<em key={`i${k++}`}>{match[3]}</em>)
+      } else if (match[4]) {
+        parts.push(
+          <code key={`c${k++}`} style={{
+            background: "#e5e7eb", borderRadius: "3px",
+            padding: "1px 4px", fontSize: "0.9em", fontFamily: "monospace",
+          }}>{match[4]}</code>
+        )
+      } else if (match[5] && match[6]) {
+        parts.push(
+          <a key={`a${k++}`} href={match[6]} target="_blank" rel="noopener noreferrer"
+            style={{ color: "#7c3aed", textDecoration: "underline" }}>{match[5]}</a>
+        )
+      }
+      lastIndex = match.index + match[0].length
+    }
+    if (lastIndex < remaining.length) {
+      parts.push(remaining.slice(lastIndex))
+    }
+    return parts.length === 1 ? parts[0] : <>{parts}</>
+  }
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+    // Ordered list: "1. item", "2. item" etc.
+    const olMatch = line.match(/^\s*(\d+)\.\s+(.+)/)
+    // Unordered list: "- item" or "* item" (but not bold **)
+    const ulMatch = !olMatch && line.match(/^\s*[-*]\s+(.+)/)
+
+    if (olMatch) {
+      if (listBuffer && !listBuffer.ordered) flushList()
+      if (!listBuffer) listBuffer = { ordered: true, items: [] }
+      listBuffer.items.push(olMatch[2])
+    } else if (ulMatch) {
+      if (listBuffer && listBuffer.ordered) flushList()
+      if (!listBuffer) listBuffer = { ordered: false, items: [] }
+      listBuffer.items.push(ulMatch[1])
+    } else {
+      flushList()
+      // Heading: ### text
+      const headingMatch = line.match(/^(#{1,3})\s+(.+)/)
+      if (headingMatch) {
+        const level = headingMatch[1].length
+        const fontSize = level === 1 ? "1.2em" : level === 2 ? "1.1em" : "1em"
+        result.push(
+          <div key={`h-${keyIdx++}`} style={{ fontWeight: 700, fontSize, margin: "6px 0" }}>
+            {inlineFormat(headingMatch[2])}
+          </div>
+        )
+      } else if (line.trim() === "") {
+        result.push(<div key={`br-${keyIdx++}`} style={{ height: "6px" }} />)
+      } else {
+        result.push(
+          <div key={`p-${keyIdx++}`} style={{ margin: "2px 0" }}>
+            {inlineFormat(line)}
+          </div>
+        )
+      }
+    }
+  }
+  flushList()
+  return result
+}
 
 export const config: PlasmoCSConfig = {
   matches: ["http://*/*", "https://*/*"],
@@ -182,7 +286,7 @@ const S = {
   logo: { color: "#7c3aed", flexShrink: 0 },
   title: { fontWeight: 600, fontSize: "16px", color: "#1f2937", flexShrink: 0 },
   badge: {
-    fontSize: "10px", padding: "2px 8px", borderRadius: "10px",
+    fontSize: "14px", padding: "2px 10px", borderRadius: "12px",
     fontWeight: 500, whiteSpace: "nowrap" as const, flexShrink: 0, marginLeft: "6px",
   },
   badgeSel: { background: "#dbeafe", color: "#1d4ed8" },
@@ -277,6 +381,7 @@ const S = {
   },
   msgBubbleAI: {
     background: "#f3f4f6", color: "#1f2937", borderBottomLeftRadius: "4px",
+    whiteSpace: "normal" as const,
   },
   msgWrapper: {
     display: "flex", flexDirection: "column" as const, alignItems: "flex-start",
@@ -336,6 +441,7 @@ function FloatingPanelContent() {
   const [apiKey, setApiKey] = useState("")
   const [apiKeyInput, setApiKeyInput] = useState("")
   const [editingKey, setEditingKey] = useState(false)
+  const [largeFont, setLargeFont] = useState(false)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -365,6 +471,9 @@ function FloatingPanelContent() {
         const storedKey = await getStoredApiKey()
         setApiKey(storedKey)
         setApiKeyInput(storedKey)
+
+        const storedFont = await storage.get<boolean>("cf_large_font")
+        if (storedFont) setLargeFont(true)
 
         const supabase = getSupabaseClient()
         const { data: { session: s } } = await supabase.auth.getSession()
@@ -513,6 +622,12 @@ function FloatingPanelContent() {
 
   const maskedKey = apiKey ? `${apiKey.slice(0, 7)}...${apiKey.slice(-4)}` : ""
   const hasLicense = trialInfo?.hasLicense || false
+  const lastAiIdx = (() => {
+    for (let j = messages.length - 1; j >= 0; j--) {
+      if (messages[j].role === "assistant") return j
+    }
+    return -1
+  })()
 
   return (
     <>
@@ -546,7 +661,7 @@ function FloatingPanelContent() {
                   onClick={clearSelection}
                   style={{ ...S.badge, ...S.badgeSel, border: "none", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: "4px" }}
                 >
-                  Selection <span style={{ fontSize: "12px", lineHeight: 1 }}>&times;</span>
+                  Selection <span style={{ fontSize: "14px", lineHeight: 1 }}>&times;</span>
                 </button>
               ) : (
                 <span style={{ ...S.badge, ...S.badgePage }}>Page</span>
@@ -630,6 +745,33 @@ function FloatingPanelContent() {
             <div style={{ fontSize: "11px", color: "#9ca3af", marginTop: "4px" }}>
               Stored locally. Never sent to our servers.
             </div>
+
+            {/* Font size toggle */}
+            <div style={{ ...S.settingsRow, marginTop: "14px", marginBottom: 0 }}>
+              <div style={S.settingsLabel}>Font Size</div>
+              <div style={{ display: "flex", gap: "6px" }}>
+                <button
+                  onClick={() => { setLargeFont(false); storage.set("cf_large_font", false) }}
+                  style={{
+                    padding: "4px 12px", border: "1px solid #e5e7eb", borderRadius: "8px",
+                    fontSize: "12px", cursor: "pointer",
+                    background: !largeFont ? "#7c3aed" : "white",
+                    color: !largeFont ? "white" : "#374151",
+                    fontWeight: 500,
+                  }}
+                >Normal</button>
+                <button
+                  onClick={() => { setLargeFont(true); storage.set("cf_large_font", true) }}
+                  style={{
+                    padding: "4px 12px", border: "1px solid #e5e7eb", borderRadius: "8px",
+                    fontSize: "12px", cursor: "pointer",
+                    background: largeFont ? "#7c3aed" : "white",
+                    color: largeFont ? "white" : "#374151",
+                    fontWeight: 500,
+                  }}
+                >Large</button>
+              </div>
+            </div>
           </div>
         )}
 
@@ -653,29 +795,33 @@ function FloatingPanelContent() {
                     )}
                   </div>
                 ) : (
-                  messages.map((msg, i) => (
-                    <div key={i} style={{ ...S.msg, ...(msg.role === "user" ? S.msgUser : {}) }}>
-                      {msg.role === "assistant" ? (
-                        <div style={S.msgWrapper}>
-                          <div style={{ ...S.msgBubble, ...S.msgBubbleAI }}>
+                  messages.map((msg, i) => {
+                    const fontScale = largeFont ? 1.5 : 1
+                    const bubbleFontSize = `${14 * fontScale}px`
+                    return (
+                      <div key={i} style={{ ...S.msg, ...(msg.role === "user" ? S.msgUser : {}) }}>
+                        {msg.role === "assistant" ? (
+                          <div style={S.msgWrapper}>
+                            <div style={{ ...S.msgBubble, ...S.msgBubbleAI, fontSize: bubbleFontSize }}>
+                              {msg.content ? renderMarkdown(msg.content) : "..."}
+                            </div>
+                            {msg.content && !isStreaming && i === lastAiIdx && (
+                              <button
+                                onClick={() => handleShare(msg.content)}
+                                style={S.shareBtn}
+                              >
+                                <MoreIcon size={16} />
+                              </button>
+                            )}
+                          </div>
+                        ) : (
+                          <div style={{ ...S.msgBubble, ...S.msgBubbleUser, fontSize: bubbleFontSize }}>
                             {msg.content || "..."}
                           </div>
-                          {msg.content && !isStreaming && (
-                            <button
-                              onClick={() => handleShare(msg.content)}
-                              style={S.shareBtn}
-                            >
-                              <MoreIcon size={16} />
-                            </button>
-                          )}
-                        </div>
-                      ) : (
-                        <div style={{ ...S.msgBubble, ...S.msgBubbleUser }}>
-                          {msg.content || "..."}
-                        </div>
-                      )}
-                    </div>
-                  ))
+                        )}
+                      </div>
+                    )
+                  })
                 )}
                 {error && <div style={S.error}>{error}</div>}
                 <div ref={messagesEndRef} />
