@@ -67,6 +67,20 @@ function FloatingPanel() {
     setShouldRender(isSafari())
   }, [])
 
+  // Listen for toggle message from background script (when icon clicked)
+  useEffect(() => {
+    if (!shouldRender) return
+
+    const handleMessage = (message: { action: string }) => {
+      if (message.action === "toggleFloatingPanel") {
+        setIsOpen(prev => !prev)
+      }
+    }
+
+    chrome.runtime.onMessage.addListener(handleMessage)
+    return () => chrome.runtime.onMessage.removeListener(handleMessage)
+  }, [shouldRender])
+
   // Initialize auth (only if rendering)
   useEffect(() => {
     if (!shouldRender) return
