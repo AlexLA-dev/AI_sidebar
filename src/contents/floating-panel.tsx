@@ -387,6 +387,15 @@ function FloatingPanelContent() {
     setContextInfo({ type: "page", title })
   }, [])
 
+  // Clear cached selection and revert to full page context
+  const clearSelection = useCallback(() => {
+    cachedSelectionText = ""
+    window.getSelection()?.removeAllRanges()
+    const bodyText = document.body?.innerText?.slice(0, 15000) || ""
+    setPageContext(bodyText)
+    setContextInfo({ type: "page", title: document.title })
+  }, [])
+
   useEffect(() => {
     if (isOpen) fetchContext()
   }, [isOpen, fetchContext])
@@ -499,12 +508,16 @@ function FloatingPanelContent() {
             <span style={S.logo}><SparklesIcon size={20} /></span>
             <span style={S.title}>ContextFlow</span>
             {contextInfo && (
-              <span style={{
-                ...S.badge,
-                ...(contextInfo.type === "selection" ? S.badgeSel : S.badgePage),
-              }}>
-                {contextInfo.type === "selection" ? "Selection" : "Page"}
-              </span>
+              contextInfo.type === "selection" ? (
+                <button
+                  onClick={clearSelection}
+                  style={{ ...S.badge, ...S.badgeSel, border: "none", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: "4px" }}
+                >
+                  Selection <span style={{ fontSize: "12px", lineHeight: 1 }}>&times;</span>
+                </button>
+              ) : (
+                <span style={{ ...S.badge, ...S.badgePage }}>Page</span>
+              )
             )}
           </div>
           <div style={S.headerRight}>
