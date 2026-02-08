@@ -335,7 +335,7 @@ const S = {
   apiKeyInput: {
     flex: 1, padding: "8px 10px",
     border: "1px solid #e5e7eb", borderRadius: "8px",
-    fontSize: "13px", fontFamily: "monospace",
+    fontSize: "16px", fontFamily: "monospace",
     outline: "none", boxSizing: "border-box" as const,
     WebkitAppearance: "none" as const,
   },

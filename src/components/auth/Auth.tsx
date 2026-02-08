@@ -145,7 +145,7 @@ export function Auth({ onAuthSuccess }: AuthProps) {
           onKeyDown={handleKeyDown}
           placeholder="you@example.com"
           className={cn(
-            "w-full px-3 py-2 text-sm rounded-lg",
+            "w-full px-3 py-2 text-base rounded-lg",
             "border border-gray-200 dark:border-gray-700",
             "bg-white dark:bg-gray-800",
             "focus:outline-none focus:ring-2 focus:ring-purple-500"
@@ -166,7 +166,7 @@ export function Auth({ onAuthSuccess }: AuthProps) {
           onKeyDown={handleKeyDown}
           placeholder={mode === "signup" ? "Min 6 characters" : "Your password"}
           className={cn(
-            "w-full px-3 py-2 text-sm rounded-lg",
+            "w-full px-3 py-2 text-base rounded-lg",
             "border border-gray-200 dark:border-gray-700",
             "bg-white dark:bg-gray-800",
             "focus:outline-none focus:ring-2 focus:ring-purple-500"
