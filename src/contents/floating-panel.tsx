@@ -293,14 +293,13 @@ const S = {
   badgePage: { background: "#f3e8ff", color: "#7c3aed" },
   iconBtn: {
     width: "36px", height: "36px", minWidth: "36px", minHeight: "36px",
-    border: "none !important", background: "#f3f4f6",
+    border: "none", background: "#f3f4f6",
     borderRadius: "10px", color: "#374151",
     cursor: "pointer",
-    display: "flex !important", alignItems: "center", justifyContent: "center",
+    display: "flex", alignItems: "center", justifyContent: "center",
     flexShrink: 0,
     padding: "0", margin: "0",
     opacity: 1, visibility: "visible" as const,
-    overflow: "visible",
     WebkitAppearance: "none" as const,
     boxSizing: "border-box" as const,
   },
@@ -623,8 +622,6 @@ function FloatingPanelContent() {
     setEditingKey(false)
   }
 
-  if (isLoading) return null
-
   const maskedKey = apiKey ? `${apiKey.slice(0, 7)}...${apiKey.slice(-4)}` : ""
   const hasLicense = trialInfo?.hasLicense || false
 
@@ -632,10 +629,18 @@ function FloatingPanelContent() {
     <>
       {/* FAB */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
-        style={{ ...S.fab, ...(isOpen ? S.fabHidden : {}) }}
+        onClick={() => { if (!isLoading) setIsOpen(!isOpen) }}
+        style={{ ...S.fab, ...(isOpen ? S.fabHidden : {}), ...(isLoading ? { opacity: 0.7 } : {}) }}
       >
-        <SparklesIcon size={24} />
+        {isLoading ? (
+          <div style={{
+            width: "20px", height: "20px", border: "3px solid rgba(255,255,255,0.3)",
+            borderTopColor: "white", borderRadius: "50%",
+            animation: "cfSpin 0.8s linear infinite",
+          }} />
+        ) : (
+          <SparklesIcon size={24} />
+        )}
       </button>
 
       {/* Backdrop */}
@@ -868,33 +873,39 @@ function initFloatingPanel() {
 
   console.log("[ContextFlow] Initializing floating panel for Safari")
 
-  // Inject scoped CSS reset to prevent page styles from hiding our UI elements
+  // Inject scoped CSS reset — only protect against common page CSS interference
+  // IMPORTANT: Do NOT override position, transform, display, width, height —
+  // those are set by our inline styles and must not be clobbered
   const style = document.createElement("style")
   style.textContent = `
-    #contextflow-floating-panel button,
-    #contextflow-floating-panel svg {
-      visibility: visible !important;
-      opacity: 1 !important;
-      pointer-events: auto !important;
-      transform: none !important;
-      max-width: none !important;
-      max-height: none !important;
-      position: static !important;
-      float: none !important;
-      clip: auto !important;
-      clip-path: none !important;
-      -webkit-appearance: none !important;
+    #contextflow-floating-panel,
+    #contextflow-floating-panel * {
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: normal;
+      letter-spacing: normal;
+      text-transform: none;
+      text-indent: 0;
+      text-shadow: none;
+      text-decoration: none;
+      float: none;
+    }
+    #contextflow-floating-panel button {
+      -webkit-appearance: none;
+      appearance: none;
+      text-align: center;
+      outline: none;
     }
     #contextflow-floating-panel svg {
-      overflow: visible !important;
+      vertical-align: middle;
     }
     #contextflow-floating-panel strong { font-weight: 700 !important; }
     #contextflow-floating-panel em { font-style: italic !important; }
-    #contextflow-floating-panel ol { list-style-type: decimal !important; }
-    #contextflow-floating-panel ul { list-style-type: disc !important; }
+    #contextflow-floating-panel ol { list-style-type: decimal !important; padding-left: 20px; }
+    #contextflow-floating-panel ul { list-style-type: disc !important; padding-left: 20px; }
     #contextflow-floating-panel li { display: list-item !important; }
     #contextflow-floating-panel code { font-family: monospace !important; }
-    #contextflow-floating-panel a { color: #7c3aed !important; text-decoration: underline !important; }
+    @keyframes cfSpin { to { transform: rotate(360deg); } }
   `
   document.head.appendChild(style)
 
