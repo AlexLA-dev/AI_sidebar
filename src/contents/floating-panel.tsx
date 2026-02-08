@@ -7,9 +7,11 @@ import { getSupabaseClient } from "~/lib/supabase"
 import {
   streamChatResponse,
   syncSubscriptionFromServer,
+  LimitReachedError,
   type TrialInfo
 } from "~/lib/ai"
-import { getStoredApiKey, setStoredApiKey, storage } from "~/lib/storage"
+import { getStoredApiKey, setStoredApiKey, storage, LICENSE_CONFIG } from "~/lib/storage"
+import { getPaymentLink } from "~/lib/utils"
 
 // --- Lightweight inline markdown renderer (no external deps) ---
 function renderMarkdown(text: string): React.ReactNode[] {
@@ -446,6 +448,7 @@ function FloatingPanelContent() {
   const [apiKeyInput, setApiKeyInput] = useState("")
   const [editingKey, setEditingKey] = useState(false)
   const [largeFont, setLargeFont] = useState(false)
+  const [limitReached, setLimitReached] = useState(false)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -568,8 +571,13 @@ function FloatingPanelContent() {
           },
           onError: (err) => {
             setIsStreaming(false)
-            setError(err.message)
-            setMessages(prev => prev.slice(0, -1))
+            if (err instanceof LimitReachedError) {
+              setLimitReached(true)
+              setMessages(prev => prev.slice(0, -2)) // remove user msg + empty assistant msg
+            } else {
+              setError(err.message)
+              setMessages(prev => prev.slice(0, -1))
+            }
           }
         },
         contextInfo?.type || "page"
@@ -599,6 +607,13 @@ function FloatingPanelContent() {
       } catch {
         // Clipboard API blocked — ignore
       }
+    }
+  }
+
+  const handleUpgrade = async (plan: "basic" | "pro" = "pro") => {
+    const result = await getPaymentLink(plan)
+    if (result.success && result.url) {
+      window.open(result.url, "_blank")
     }
   }
 
@@ -708,9 +723,21 @@ function FloatingPanelContent() {
                 <div style={S.settingsValue}>{hasLicense ? "Pro License" : "Free Trial"}</div>
               </div>
               {trialInfo && !hasLicense && (
-                <span style={{ fontSize: "12px", color: "#7c3aed" }}>
-                  {trialInfo.remaining}/5 left
-                </span>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <span style={{ fontSize: "12px", color: "#7c3aed" }}>
+                    {trialInfo.remaining}/{LICENSE_CONFIG.TRIAL_LIMIT} left
+                  </span>
+                  <button
+                    onClick={() => handleUpgrade("pro")}
+                    style={{
+                      padding: "3px 10px", border: "none", borderRadius: "8px",
+                      background: "#7c3aed", color: "white", fontSize: "11px",
+                      fontWeight: 600, cursor: "pointer",
+                    }}
+                  >
+                    Upgrade
+                  </button>
+                </div>
               )}
             </div>
 
@@ -833,7 +860,42 @@ function FloatingPanelContent() {
                     )
                   })
                 )}
-                {error && <div style={S.error}>{error}</div>}
+                {limitReached && (
+                  <div style={{
+                    padding: "16px", background: "#faf5ff", borderRadius: "12px",
+                    marginBottom: "12px", border: "1px solid #e9d5ff", textAlign: "center" as const,
+                  }}>
+                    <div style={{ fontSize: "14px", fontWeight: 600, color: "#6b21a8", marginBottom: "6px" }}>
+                      Free trial ended
+                    </div>
+                    <div style={{ fontSize: "12px", color: "#7e22ce", marginBottom: "12px" }}>
+                      You've used all {LICENSE_CONFIG.TRIAL_LIMIT} free requests. Upgrade to continue.
+                    </div>
+                    <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
+                      <button
+                        onClick={() => handleUpgrade("basic")}
+                        style={{
+                          padding: "8px 14px", border: "1px solid #d8b4fe", borderRadius: "10px",
+                          background: "white", color: "#7c3aed", fontSize: "12px",
+                          fontWeight: 600, cursor: "pointer",
+                        }}
+                      >
+                        BYOK ${LICENSE_CONFIG.BASIC.price}/mo
+                      </button>
+                      <button
+                        onClick={() => handleUpgrade("pro")}
+                        style={{
+                          padding: "8px 14px", border: "none", borderRadius: "10px",
+                          background: "linear-gradient(135deg, #7c3aed, #a855f7)", color: "white",
+                          fontSize: "12px", fontWeight: 600, cursor: "pointer",
+                        }}
+                      >
+                        Pro ${LICENSE_CONFIG.PRO.price}/mo
+                      </button>
+                    </div>
+                  </div>
+                )}
+                {error && !limitReached && <div style={S.error}>{error}</div>}
                 <div ref={messagesEndRef} />
               </div>
 
