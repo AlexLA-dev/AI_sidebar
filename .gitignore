@@ -21,6 +21,10 @@ build/
 .DS_Store
 Thumbs.db
 
+# TypeScript build cache
+tsconfig.tsbuildinfo
+*.tsbuildinfo
+
 # Logs
 *.log
 npm-debug.log*
