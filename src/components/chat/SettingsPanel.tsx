@@ -1,8 +1,10 @@
 import { useState } from "react"
-import { Key, Crown, Eye, EyeOff, Check, X, Sparkles, LogOut, User } from "lucide-react"
+import { Key, Crown, Eye, EyeOff, Check, X, Sparkles, LogOut, User, ExternalLink } from "lucide-react"
 
 import { cn } from "~/lib/utils"
 import { setStoredApiKey, LICENSE_CONFIG, type TrialInfo } from "~/lib/storage"
+import { getPaymentProvider } from "~/lib/platform"
+import { openManageSubscriptions } from "~/lib/appstore"
 
 type SettingsPanelProps = {
   apiKey: string
@@ -41,6 +43,20 @@ export function SettingsPanel({
     : ""
 
   const hasLicense = trialInfo?.hasLicense || false
+  const paymentProvider = getPaymentProvider()
+  const subscriptionSource = trialInfo?.paymentProvider
+
+  const handleManageSubscription = () => {
+    if (subscriptionSource === "appstore" || paymentProvider === "appstore") {
+      openManageSubscriptions().catch(() => {
+        // Fallback: open Apple subscription management URL
+        window.open("https://apps.apple.com/account/subscriptions", "_blank")
+      })
+    } else {
+      // Stripe customer portal (could be a Stripe billing portal link)
+      window.open("https://billing.stripe.com/p/login/contextflow", "_blank")
+    }
+  }
 
   return (
     <div className="space-y-4">
@@ -75,7 +91,15 @@ export function SettingsPanel({
             {hasLicense ? "Pro License" : "Free Trial"}
           </span>
         </div>
-        {!hasLicense && (
+        {hasLicense ? (
+          <button
+            onClick={handleManageSubscription}
+            className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 hover:underline"
+          >
+            Manage
+            <ExternalLink className="h-3 w-3" />
+          </button>
+        ) : (
           <button
             onClick={onShowPaywall}
             className="text-xs text-purple-600 dark:text-purple-400 hover:underline font-medium"

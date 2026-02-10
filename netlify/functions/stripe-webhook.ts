@@ -135,6 +135,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       user_id: userId,
       plan_type: planType,
       subscription_status: "active",
+      payment_provider: "stripe",
       stripe_customer_id: customerId,
       stripe_subscription_id: subscriptionId || null,
       current_period_end: currentPeriodEnd,

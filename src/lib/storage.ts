@@ -9,7 +9,9 @@ export const STORAGE_KEYS = {
   TRIAL_USAGE_COUNT: "trial_usage_count",
   HAS_ACTIVE_LICENSE: "has_active_license",
   // API Key (BYOK)
-  USER_API_KEY: "user_api_key"
+  USER_API_KEY: "user_api_key",
+  // Payment provider tracking
+  PAYMENT_PROVIDER: "payment_provider"
 } as const
 
 // Plan & pricing constants
@@ -27,24 +29,29 @@ export const LICENSE_CONFIG = {
   }
 } as const
 
+export type PaymentProviderType = "stripe" | "appstore" | null
+
 // Trial info type
 export type TrialInfo = {
   usageCount: number
   hasLicense: boolean
   remaining: number
   isTrialExpired: boolean
+  paymentProvider: PaymentProviderType
 }
 
 // Get trial info
 export async function getTrialInfo(): Promise<TrialInfo> {
   const usageCount = (await storage.get<number>(STORAGE_KEYS.TRIAL_USAGE_COUNT)) || 0
   const hasLicense = (await storage.get<boolean>(STORAGE_KEYS.HAS_ACTIVE_LICENSE)) || false
+  const paymentProvider = (await storage.get<PaymentProviderType>(STORAGE_KEYS.PAYMENT_PROVIDER)) || null
 
   return {
     usageCount,
     hasLicense,
     remaining: Math.max(0, LICENSE_CONFIG.TRIAL_LIMIT - usageCount),
-    isTrialExpired: !hasLicense && usageCount >= LICENSE_CONFIG.TRIAL_LIMIT
+    isTrialExpired: !hasLicense && usageCount >= LICENSE_CONFIG.TRIAL_LIMIT,
+    paymentProvider
   }
 }
 
@@ -73,6 +80,11 @@ export async function syncSubscriptionFromServer(): Promise<TrialInfo> {
         sub.subscription_status === "active"
 
       await storage.set(STORAGE_KEYS.HAS_ACTIVE_LICENSE, isActive)
+
+      // Track payment provider
+      if (sub.payment_provider) {
+        await storage.set(STORAGE_KEYS.PAYMENT_PROVIDER, sub.payment_provider)
+      }
 
       // Sync trial usage from server credits_balance
       if (sub.plan_type === "free" && sub.credits_balance >= 0) {

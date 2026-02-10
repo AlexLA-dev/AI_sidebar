@@ -14,6 +14,8 @@ export interface UserSubscription {
   subscription_status: string
   stripe_customer_id?: string
   current_period_end?: string
+  payment_provider?: "stripe" | "appstore" | null
+  appstore_original_transaction_id?: string
 }
 
 export interface ChatMessage {
