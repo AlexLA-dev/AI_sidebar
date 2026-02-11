@@ -113,3 +113,55 @@ create index if not exists idx_usage_logs_user_id
 
 create index if not exists idx_usage_logs_created_at
   on public.usage_logs(created_at desc);
+
+-- =============================================
+-- Atomic RPC functions for usage tracking
+-- These ensure counters update reliably from serverless functions
+-- =============================================
+
+-- Increment usage_count for Pro users (atomic, returns new count)
+create or replace function public.increment_usage(user_id_input uuid)
+returns int as $$
+declare
+  new_count int;
+begin
+  update public.user_subscriptions
+  set usage_count = usage_count + 1,
+      updated_at = timezone('utc'::text, now())
+  where user_id = user_id_input
+  returning usage_count into new_count;
+
+  return coalesce(new_count, -1);
+end;
+$$ language plpgsql security definer;
+
+-- Deduct one credit for Free users (atomic, returns remaining credits)
+create or replace function public.deduct_credit(user_id_input uuid)
+returns int as $$
+declare
+  remaining int;
+begin
+  update public.user_subscriptions
+  set credits_balance = credits_balance - 1,
+      updated_at = timezone('utc'::text, now())
+  where user_id = user_id_input
+    and credits_balance > 0
+  returning credits_balance into remaining;
+
+  return coalesce(remaining, -1);
+end;
+$$ language plpgsql security definer;
+
+-- Reset weekly usage (atomic, returns 0 on success)
+create or replace function public.reset_weekly_usage(user_id_input uuid)
+returns int as $$
+begin
+  update public.user_subscriptions
+  set usage_count = 0,
+      last_reset_at = timezone('utc'::text, now()),
+      updated_at = timezone('utc'::text, now())
+  where user_id = user_id_input;
+
+  return 0;
+end;
+$$ language plpgsql security definer;

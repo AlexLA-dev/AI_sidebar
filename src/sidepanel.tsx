@@ -98,17 +98,12 @@ function SidePanel() {
     setContextStatus("loading")
     setContextError(null)
 
-    console.log("[ContextFlow] Fetching page context...")
-
     const result = await sendMessageToActiveTab<RequestBody, ResponseBody>({
       action: "getPageText"
     })
 
-    console.log("[ContextFlow] Message result:", result)
-
     // Handle restricted pages (chrome://, etc.) - show idle state, not error
     if (result.isRestrictedPage) {
-      console.log("[ContextFlow] Restricted page, showing idle state")
       setPageContext(null)
       setPageTitle(null)
       setContextType("page")
@@ -120,7 +115,6 @@ function SidePanel() {
 
     // Handle errors
     if (!result.success) {
-      console.error("[ContextFlow] Error:", result.error)
       setPageContext(null)
       setPageTitle(null)
       setContextType("page")
@@ -142,13 +136,7 @@ function SidePanel() {
       setContextType(response.contextType || "page")
       setIsReadabilityParsed(response.isReadabilityParsed || false)
       setContextStatus("success")
-      console.log("[ContextFlow] Context loaded:", {
-        title: response.title,
-        type: response.contextType,
-        textLength: response.text.length
-      })
     } else {
-      console.error("[ContextFlow] Invalid response:", response)
       setPageContext(null)
       setPageTitle(null)
       setContextType("page")
@@ -170,7 +158,6 @@ function SidePanel() {
 
     // Re-fetch when user switches to a different tab
     const handleTabActivated = (_activeInfo: chrome.tabs.TabActiveInfo) => {
-      console.log("[ContextFlow] Tab activated, refreshing context")
       fetchPageContext()
     }
 
@@ -182,15 +169,13 @@ function SidePanel() {
       _tab: chrome.tabs.Tab
     ) => {
       if (changeInfo.status === "complete") {
-        console.log("[ContextFlow] Tab updated (complete), refreshing context in 800ms")
         setTimeout(() => fetchPageContext(), 800)
       }
     }
 
-    // Re-fetch when window focus changes
+    // Re-fetch when window focus changes (Chrome only, Safari doesn't have full windows API)
     const handleWindowFocusChanged = (windowId: number) => {
-      if (windowId !== chrome.windows.WINDOW_ID_NONE) {
-        console.log("[ContextFlow] Window focus changed, refreshing context")
+      if (chrome.windows?.WINDOW_ID_NONE !== undefined && windowId !== chrome.windows.WINDOW_ID_NONE) {
         fetchPageContext()
       }
     }
@@ -199,7 +184,6 @@ function SidePanel() {
     const handleMessage = (message: any) => {
       if (message?.action === "contextUpdate" && message.text) {
         const type = message.type === "selection" ? "selection" : "page"
-        console.log(`[ContextFlow] Context update: ${type}`, message.text.slice(0, 80))
         // Soft update — no loading spinner, just swap data
         setPageContext(message.text)
         setPageTitle(message.title || null)
@@ -212,17 +196,22 @@ function SidePanel() {
     try {
       chrome.tabs.onActivated.addListener(handleTabActivated)
       chrome.tabs.onUpdated.addListener(handleTabUpdated)
-      chrome.windows.onFocusChanged.addListener(handleWindowFocusChanged)
+      // Safari may not have full windows API
+      if (chrome.windows?.onFocusChanged) {
+        chrome.windows.onFocusChanged.addListener(handleWindowFocusChanged)
+      }
       chrome.runtime.onMessage.addListener(handleMessage)
-    } catch (err) {
-      console.warn("[ContextFlow] Could not set up tab listeners:", err)
+    } catch {
+      // Some APIs may not be available in Safari
     }
 
     return () => {
       try {
         chrome.tabs.onActivated.removeListener(handleTabActivated)
         chrome.tabs.onUpdated.removeListener(handleTabUpdated)
-        chrome.windows.onFocusChanged.removeListener(handleWindowFocusChanged)
+        if (chrome.windows?.onFocusChanged) {
+          chrome.windows.onFocusChanged.removeListener(handleWindowFocusChanged)
+        }
         chrome.runtime.onMessage.removeListener(handleMessage)
       } catch {
         // Ignore cleanup errors
