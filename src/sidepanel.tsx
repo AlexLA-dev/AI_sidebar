@@ -30,6 +30,14 @@ function SidePanel() {
   // Track whether we've already set up listeners
   const listenersSetUp = useRef(false)
 
+  // Check if opened with ?showPaywall=1 query param (from floating panel upgrade)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get("showPaywall") === "1") {
+      setShowPaywall(true)
+    }
+  }, [])
+
   // Load settings and auth session on mount
   useEffect(() => {
     const loadSettings = async () => {
@@ -244,6 +252,20 @@ function SidePanel() {
     }
     // Session will be picked up by onAuthStateChange
     refreshTrialInfo()
+
+    // If this page was opened as a standalone auth tab (from floating panel's "Sign In"),
+    // close it so the user returns to their original page.
+    // Detection: sidepanel.html opened as a tab has no sidePanel context.
+    try {
+      chrome.tabs.getCurrent((tab) => {
+        if (tab?.id) {
+          // This is a standalone tab — close it
+          chrome.tabs.remove(tab.id)
+        }
+      })
+    } catch {
+      // Running in actual side panel or permissions not available — ignore
+    }
   }
 
   const handleLimitReached = () => {
@@ -255,6 +277,17 @@ function SidePanel() {
     // Sync from server to pick up the new subscription
     const info = await syncSubscriptionFromServer()
     setTrialInfo(info)
+
+    // If opened as a standalone paywall tab (from floating panel), close it
+    try {
+      chrome.tabs.getCurrent((tab) => {
+        if (tab?.id) {
+          chrome.tabs.remove(tab.id)
+        }
+      })
+    } catch {
+      // Ignore — running in actual side panel
+    }
   }
 
   const handleSignOut = async () => {

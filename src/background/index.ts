@@ -31,6 +31,12 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       url: chrome.runtime.getURL("sidepanel.html")
     })
     sendResponse({ success: true })
+  } else if (message.action === "openPaywall") {
+    // Open sidepanel with paywall flag — StoreKit requires native WKWebView context
+    chrome.tabs.create({
+      url: chrome.runtime.getURL("sidepanel.html?showPaywall=1")
+    })
+    sendResponse({ success: true })
   }
   return true
 })

@@ -32,11 +32,11 @@
     Access-Control-Allow-Headers = "Content-Type, Authorization"
     Access-Control-Allow-Methods = "GET, POST, OPTIONS"
 
-# Redirects (optional - for SPA routing if you have a web app)
-# [[redirects]]
-#   from = "/*"
-#   to = "/index.html"
-#   status = 200
+# Email confirmation landing page — redirect to Netlify function
+[[redirects]]
+  from = "/confirm"
+  to = "/.netlify/functions/email-confirmed"
+  status = 200
 
 # Dev server configuration
 [dev]

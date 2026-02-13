@@ -1,63 +1,11 @@
 import { useState, useEffect } from "react"
-import { Sparkles, Key, Zap, ExternalLink, ArrowRight, Shield } from "lucide-react"
+import { Sparkles, Key, Zap, ExternalLink, ArrowRight } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
 import { cn } from "~/lib/utils"
 import { setStoredApiKey, LICENSE_CONFIG } from "~/lib/storage"
 import { getSupabaseClient } from "~/lib/supabase"
 import { Auth } from "~/components/auth"
-
-function SetupInstructions() {
-  return (
-    <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 mb-4 text-left">
-      <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
-        How to enable ContextFlow in Safari
-      </h3>
-      <ol className="space-y-2 text-xs text-gray-600 dark:text-gray-400 list-none p-0 m-0">
-        <li className="flex gap-2">
-          <span className="text-purple-600 font-bold shrink-0">1.</span>
-          <span>Open <strong>Safari</strong></span>
-        </li>
-        <li className="flex gap-2">
-          <span className="text-purple-600 font-bold shrink-0">2.</span>
-          <span>Tap the <strong>extensions icon</strong> (puzzle piece) near the address bar</span>
-        </li>
-        <li className="flex gap-2">
-          <span className="text-purple-600 font-bold shrink-0">3.</span>
-          <span>You'll see a <strong>"1" badge</strong> next to Manage Extensions</span>
-        </li>
-        <li className="flex gap-2">
-          <span className="text-purple-600 font-bold shrink-0">4.</span>
-          <span>Tap <strong>Manage Extensions</strong> and enable <strong>ContextFlow</strong></span>
-        </li>
-        <li className="flex gap-2">
-          <span className="text-purple-600 font-bold shrink-0">5.</span>
-          <span>Sign in or create an account in the extension</span>
-        </li>
-        <li className="flex gap-2">
-          <span className="text-purple-600 font-bold shrink-0">6.</span>
-          <span>Grant permission to access <strong>all websites</strong> (Always Allow)</span>
-        </li>
-      </ol>
-    </div>
-  )
-}
-
-function PostLoginInstructions() {
-  return (
-    <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4 text-left">
-      <div className="flex items-center gap-2 mb-2">
-        <Shield className="h-4 w-4 text-purple-600" />
-        <h3 className="text-sm font-semibold text-purple-800 dark:text-purple-200">
-          Almost done!
-        </h3>
-      </div>
-      <p className="text-xs text-purple-700 dark:text-purple-300">
-        Grant ContextFlow permission to access all websites so it can read page content. When prompted, tap <strong>"Always Allow"</strong>.
-      </p>
-    </div>
-  )
-}
 
 type OnboardingModalProps = {
   onComplete: (apiKey?: string) => void
@@ -167,7 +115,6 @@ export function OnboardingModal({ onComplete }: OnboardingModalProps) {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
               >
-                <SetupInstructions />
                 <Auth onAuthSuccess={handleAuthSuccess} />
               </motion.div>
             )}
@@ -180,9 +127,6 @@ export function OnboardingModal({ onComplete }: OnboardingModalProps) {
                 exit={{ opacity: 0, x: 20 }}
                 className="space-y-4"
               >
-                {/* Post-login instructions */}
-                <PostLoginInstructions />
-
                 {/* Trial Banner */}
                 <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3 text-center">
                   <p className="text-sm text-green-700 dark:text-green-300 font-medium">
