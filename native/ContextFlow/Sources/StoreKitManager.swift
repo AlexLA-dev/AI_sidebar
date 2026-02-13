@@ -1,4 +1,5 @@
 import StoreKit
+import Combine
 import os.log
 
 /// Manages App Store subscriptions via StoreKit 2.
@@ -175,7 +176,7 @@ final class StoreKitManager: ObservableObject {
         purchasedProductIDs = purchased
     }
 
-    private func checkVerified<T>(_ result: VerificationResult<T>) throws -> T {
+    nonisolated private func checkVerified<T>(_ result: VerificationResult<T>) throws -> T {
         switch result {
         case .verified(let safe):
             return safe
