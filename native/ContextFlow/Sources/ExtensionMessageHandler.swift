@@ -177,10 +177,10 @@ final class ExtensionMessageHandler: NSObject, WKScriptMessageHandler {
         let js = "if (typeof window['\(callbackId)'] === 'function') { window['\(callbackId)'](\(escaped)); }"
 
         Task { @MainActor in
-            webView.evaluateJavaScript(js) { _, jsError in
-                if let jsError {
-                    self.logger.error("JS callback error: \(jsError.localizedDescription)")
-                }
+            do {
+                _ = try await webView.evaluateJavaScript(js)
+            } catch {
+                self.logger.error("JS callback error: \(error.localizedDescription)")
             }
         }
     }
