@@ -32,3 +32,6 @@ pnpm-debug.log*
 
 # Keys (never commit API keys)
 keys/
+
+# Generated Xcode project (created by safari-web-extension-converter)
+/ContextFlow/

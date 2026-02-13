@@ -132,44 +132,51 @@ ContextFlow/
 └── Shared (App)/                     ← Общие ресурсы (если универсальное)
 ```
 
-### 3.3. Открыть проект в Xcode
+### 3.3. Не открывай проект сразу
 
-```bash
-open ContextFlow/ContextFlow.xcodeproj
-```
-
-Xcode автоматически откроется с проектом.
-
-### 3.4. Проверить базовый билд
-
-В Xcode:
-1. Выбери схему **ContextFlow (macOS)** или **(iOS)**
-2. Нажми **Cmd+B** (Build)
-3. Убедись, что нет ошибок компиляции
+После конвертации **не открывай** проект в Xcode. Сначала нужно скопировать
+нативные Swift-файлы (Часть 4). Если открыть проект сейчас — увидишь ошибки
+компиляции, связанные с отсутствующими файлами.
 
 ---
 
 ## Часть 4. Интеграция StoreKit 2 и нативных файлов
 
-Теперь нужно добавить в Xcode-проект файлы подписок, которые уже лежат в репозитории.
+Теперь нужно добавить в Xcode-проект файлы подписок, которые уже лежат в
+репозитории. Для этого используется скрипт, который копирует файлы **внутрь**
+сгенерированного проекта — это гарантирует корректные пути в Xcode.
 
-### 4.1. Добавить Swift-файлы
+### 4.1. Запустить скрипт интеграции
 
-1. В Xcode, в **Project Navigator** (левая панель), кликни правой кнопкой на папку **ContextFlow** (основной таргет, НЕ Extension)
-2. Выбери **Add Files to "ContextFlow"...**
-3. Перейди в `AI_sidebar/native/ContextFlow/Sources/`
-4. Выбери оба файла:
+```bash
+# Из корня репозитория:
+./scripts/setup-xcode.sh
+```
+
+Скрипт сделает следующее:
+- Скопирует `ContentView.swift`, `StoreKitManager.swift`,
+  `ExtensionMessageHandler.swift` в `ContextFlow/ContextFlow/`
+- Заменит автосгенерированный `ViewController.swift` на наш
+  (показывает SwiftUI ContentView через NSHostingView / UIHostingController)
+- Скопирует `PrivacyInfo.xcprivacy` в `ContextFlow/ContextFlow/`
+
+### 4.2. Добавить скопированные файлы в Xcode-таргет
+
+1. Открой проект: `open ContextFlow/ContextFlow.xcodeproj`
+2. В **Project Navigator** (левая панель), правый клик на **ContextFlow**
+   (основной таргет, НЕ Extension)
+3. Выбери **Add Files to "ContextFlow"...**
+4. Перейди в папку `ContextFlow/ContextFlow/` (файлы уже там после скрипта)
+5. Выбери **все четыре** файла:
+   - `ContentView.swift`
    - `StoreKitManager.swift`
    - `ExtensionMessageHandler.swift`
-5. Убедись, что **Target: ContextFlow** отмечен галочкой (основной таргет)
-6. Нажми **Add**
+   - `PrivacyInfo.xcprivacy`
+6. Убедись, что **Target: ContextFlow** отмечен галочкой
+7. Нажми **Add**
 
-### 4.2. Добавить Privacy Manifest
-
-1. Правый клик на **ContextFlow** → **Add Files to "ContextFlow"...**
-2. Выбери `AI_sidebar/native/ContextFlow/PrivacyInfo.xcprivacy`
-3. Таргет: **ContextFlow** (основной)
-4. **Add**
+> **Важно:** `ViewController.swift` добавлять не нужно — скрипт заменил
+> автосгенерированный файл, и он уже есть в проекте.
 
 ### 4.3. Добавить capability In-App Purchase
 
@@ -184,54 +191,6 @@ Xcode автоматически откроется с проектом.
 На той же вкладке **General** таргета ContextFlow:
 - **macOS Deployment Target**: `13.0` (минимум для StoreKit 2)
 - **iOS Deployment Target**: `16.0` (если поддерживаешь iOS)
-
-### 4.5. Подключить ExtensionMessageHandler к WebView
-
-Открой файл `ContextFlow/ViewController.swift` (сгенерирован конвертером).
-
-Найди место, где создаётся или конфигурируется WKWebView, и добавь
-регистрацию StoreKit message handler.
-
-**До** (примерно так выглядит сгенерированный код):
-```swift
-import WebKit
-
-class ViewController: NSViewController, WKNavigationDelegate {
-    @IBOutlet var webView: WKWebView!
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        // Existing code...
-    }
-}
-```
-
-**После** (добавь регистрацию хэндлера):
-```swift
-import WebKit
-
-class ViewController: NSViewController, WKNavigationDelegate {
-    @IBOutlet var webView: WKWebView!
-
-    // Сохраняем ссылку чтобы не был deallocated
-    private let storeKitHandler = ExtensionMessageHandler()
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        // Регистрируем StoreKit bridge для JavaScript
-        webView.configuration.userContentController.add(
-            storeKitHandler,
-            name: "storekit"
-        )
-
-        // Existing code...
-    }
-}
-```
-
-> **Важно:** Имя `"storekit"` должно совпадать с тем, что используется в
-> `src/lib/appstore.ts` → `webkit.messageHandlers.storekit.postMessage(...)`.
 
 ### 4.6. Создать StoreKit Configuration File (для тестирования)
 
@@ -628,17 +587,18 @@ xcrun safari-web-extension-converter ./build/safari-mv3-prod \
   --copy-resources \
   --force
 
-# 4. Открыть в Xcode
+# 4. Скопировать нативные файлы в Xcode-проект
+./scripts/setup-xcode.sh
+
+# 5. Открыть в Xcode
 open ContextFlow/ContextFlow.xcodeproj
 
 # === Далее в Xcode ===
-# 5. Добавить Swift-файлы из native/ContextFlow/Sources/
-# 6. Добавить PrivacyInfo.xcprivacy
+# 6. Добавить скопированные файлы в таргет (Add Files to "ContextFlow"...)
 # 7. Добавить capability: In-App Purchase
-# 8. Подключить ExtensionMessageHandler в ViewController.swift
-# 9. Создать StoreKit Configuration File
-# 10. Build & Run (Cmd+R) — тестирование
-# 11. Product → Archive → Distribute App → App Store Connect
+# 8. Создать StoreKit Configuration File
+# 9. Build & Run (Cmd+R) — тестирование
+# 10. Product → Archive → Distribute App → App Store Connect
 ```
 
 ---
