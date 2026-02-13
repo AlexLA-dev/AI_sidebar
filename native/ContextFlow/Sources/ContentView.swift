@@ -1,4 +1,7 @@
 import SwiftUI
+#if os(macOS)
+import SafariServices
+#endif
 
 /// Main view of the ContextFlow container app.
 /// Shows setup instructions so users know how to enable the Safari extension.
@@ -50,7 +53,11 @@ struct ContentView: View {
                     setupStep(number: 6, text: "Grant permission to access **all websites** (Always Allow)")
                 }
                 .padding(20)
+                #if os(iOS)
                 .background(Color(.systemBackground))
+                #else
+                .background(Color(nsColor: .controlBackgroundColor))
+                #endif
                 .cornerRadius(16)
                 .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
 
@@ -95,7 +102,11 @@ struct ContentView: View {
             }
             .padding(.horizontal, 24)
         }
+        #if os(iOS)
         .background(Color(.systemGroupedBackground))
+        #else
+        .background(Color(nsColor: .windowBackgroundColor))
+        #endif
     }
 
     // MARK: - Helpers
