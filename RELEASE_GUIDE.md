@@ -507,7 +507,7 @@ pnpm build --target=safari-mv3
 Затем скопировать обновлённые файлы в Xcode-проект:
 ```bash
 cp -R build/safari-mv3-prod/* \
-  ContextFlow/"ContextFlow Extension"/Resources/
+  ContextFlow/"Shared (Extension)"/Resources/
 ```
 
 ### 10.3. Обновить версию
@@ -598,7 +598,7 @@ pnpm build --target=safari-mv3
 
 # 3. Скопировать в Xcode-проект
 cp -R build/safari-mv3-prod/* \
-  ContextFlow/"ContextFlow Extension"/Resources/
+  ContextFlow/"Shared (Extension)"/Resources/
 
 # 4. Увеличить Build number в Xcode
 # 5. Archive → Upload → Submit for Review
