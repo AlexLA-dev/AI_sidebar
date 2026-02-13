@@ -153,23 +153,42 @@ Xcode автоматически откроется с проектом.
 
 Теперь нужно добавить в Xcode-проект файлы подписок, которые уже лежат в репозитории.
 
-### 4.1. Добавить Swift-файлы
+### 4.0. Скопировать нативные файлы в Xcode-проект (автоматически)
+
+Запусти скрипт, который скопирует все нативные Swift-файлы в папку
+сгенерированного Xcode-проекта:
+
+```bash
+bash scripts/setup-xcode.sh
+```
+
+> Скрипт по умолчанию ищет проект в `./ContextFlow/`.
+> Если проект в другом месте: `bash scripts/setup-xcode.sh /path/to/ContextFlow`
+
+После выполнения скрипта файлы будут лежать рядом с остальными файлами
+в `ContextFlow/ContextFlow/`:
+- `ContentView.swift`
+- `StoreKitManager.swift`
+- `ExtensionMessageHandler.swift`
+- `PrivacyInfo.xcprivacy`
+
+### 4.1. Добавить файлы в Xcode
 
 1. В Xcode, в **Project Navigator** (левая панель), кликни правой кнопкой на папку **ContextFlow** (основной таргет, НЕ Extension)
 2. Выбери **Add Files to "ContextFlow"...**
-3. Перейди в `AI_sidebar/native/ContextFlow/Sources/`
-4. Выбери оба файла:
+3. Выбери **все 4 файла** (они уже в папке проекта после шага 4.0):
+   - `ContentView.swift`
    - `StoreKitManager.swift`
    - `ExtensionMessageHandler.swift`
-5. Убедись, что **Target: ContextFlow** отмечен галочкой (основной таргет)
-6. Нажми **Add**
+   - `PrivacyInfo.xcprivacy`
+4. **ВАЖНО:** Убедись, что отмечены **оба таргета**:
+   - ✅ **ContextFlow (iOS)**
+   - ✅ **ContextFlow (macOS)**
+5. Нажми **Add**
 
-### 4.2. Добавить Privacy Manifest
-
-1. Правый клик на **ContextFlow** → **Add Files to "ContextFlow"...**
-2. Выбери `AI_sidebar/native/ContextFlow/PrivacyInfo.xcprivacy`
-3. Таргет: **ContextFlow** (основной)
-4. **Add**
+> **Частая ошибка:** Если добавить файлы только в один таргет,
+> второй будет выдавать "Cannot find 'ContentView' in scope".
+> Всегда отмечай оба таргета при добавлении.
 
 ### 4.3. Добавить capability In-App Purchase
 
@@ -628,12 +647,14 @@ xcrun safari-web-extension-converter ./build/safari-mv3-prod \
   --copy-resources \
   --force
 
-# 4. Открыть в Xcode
+# 4. Скопировать нативные файлы в Xcode-проект
+bash scripts/setup-xcode.sh
+
+# 5. Открыть в Xcode
 open ContextFlow/ContextFlow.xcodeproj
 
 # === Далее в Xcode ===
-# 5. Добавить Swift-файлы из native/ContextFlow/Sources/
-# 6. Добавить PrivacyInfo.xcprivacy
+# 6. Добавить скопированные файлы: Add Files → выбрать все 4 файла → оба таргета ✅
 # 7. Добавить capability: In-App Purchase
 # 8. Подключить ExtensionMessageHandler в ViewController.swift
 # 9. Создать StoreKit Configuration File
