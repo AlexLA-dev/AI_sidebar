@@ -2,12 +2,12 @@
  * App Store (StoreKit 2) bridge for Safari Web Extension.
  *
  * Communication flow:
- * 1. Extension JS → webkit.messageHandlers.storekit → Native Swift handler
- * 2. Native Swift handler → StoreKit 2 API → App Store
- * 3. Native Swift handler → webkit.messageHandlers callback / shared storage → Extension JS
+ * 1. Extension JS → browser.runtime.sendNativeMessage() → SafariWebExtensionHandler
+ * 2. SafariWebExtensionHandler → StoreKit 2 API → App Store
+ * 3. SafariWebExtensionHandler → response → Extension JS
  *
- * The native container app must implement a WKScriptMessageHandler named "storekit"
- * that processes the commands defined here.
+ * The extension target must implement NSExtensionRequestHandling in
+ * SafariWebExtensionHandler.swift to route StoreKit commands.
  */
 
 import { getSupabaseClient } from "./supabase"
@@ -56,50 +56,28 @@ export interface AppStoreSubscriptionStatus {
 // ── Native bridge ─────────────────────────────────────────────────────────
 
 /**
- * Send a message to the native StoreKit handler and wait for a response.
- * The native side posts results back via a global callback function.
+ * Send a message to the native SafariWebExtensionHandler and wait for a response.
+ * Uses browser.runtime.sendNativeMessage() — the standard Safari Web Extension
+ * native messaging API.
  */
-function sendNativeMessage<T>(command: string, params: Record<string, unknown> = {}): Promise<T> {
-  return new Promise((resolve, reject) => {
-    if (!isNativeStoreKitAvailable()) {
-      reject(new Error("StoreKit bridge is not available. Ensure you are running the App Store build of ContextFlow."))
-      return
-    }
+async function sendNativeMessage<T>(command: string, params: Record<string, unknown> = {}): Promise<T> {
+  if (!isNativeStoreKitAvailable()) {
+    throw new Error("StoreKit bridge is not available. Ensure you are running the App Store build of ContextFlow.")
+  }
 
-    // Register a one-time callback the native side will invoke
-    const callbackId = `storekit_${Date.now()}_${Math.random().toString(36).slice(2)}`
+  const browser = (globalThis as any).browser
+  const message = { command, ...params }
 
-    const cleanup = () => {
-      delete (window as any)[callbackId]
-      clearTimeout(timer)
-    }
+  const response = await browser.runtime.sendNativeMessage(
+    "com.contextflow.app.Extension",
+    message
+  )
 
-    // Timeout after 60 seconds (purchases can take a while with Face ID / password)
-    const timer = setTimeout(() => {
-      cleanup()
-      reject(new Error(`StoreKit command "${command}" timed out`))
-    }, 60_000)
+  if (response && response.success) {
+    return response.data as T
+  }
 
-    ;(window as any)[callbackId] = (result: { success: boolean; data?: T; error?: string }) => {
-      cleanup()
-      if (result.success) {
-        resolve(result.data as T)
-      } else {
-        reject(new Error(result.error || `StoreKit command "${command}" failed`))
-      }
-    }
-
-    try {
-      ;(window as any).webkit.messageHandlers.storekit.postMessage({
-        command,
-        callbackId,
-        ...params
-      })
-    } catch (err) {
-      cleanup()
-      reject(err instanceof Error ? err : new Error(String(err)))
-    }
-  })
+  throw new Error(response?.error || `StoreKit command "${command}" failed`)
 }
 
 // ── Public API ─────────────────────────────────────────────────────────────

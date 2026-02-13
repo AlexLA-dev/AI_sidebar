@@ -165,49 +165,69 @@ bash scripts/setup-xcode.sh
 > Скрипт по умолчанию ищет проект в `./ContextFlow/`.
 > Если проект в другом месте: `bash scripts/setup-xcode.sh /path/to/ContextFlow`
 
-После выполнения скрипта файлы будут лежать в `ContextFlow/Shared (App)/`:
-- `ContentView.swift`
-- `StoreKitManager.swift`
-- `ExtensionMessageHandler.swift`
-- `PrivacyInfo.xcprivacy`
+После выполнения скрипта файлы будут скопированы в **две** папки:
 
-> **Важно:** Файлы должны быть **только в Shared (App)/**, НЕ в `iOS (App)/`
-> и НЕ в `macOS (App)/`. Дублирование в платформенных папках вызывает
-> ошибку "Ambiguous use of 'init()'".
+**Shared (App)/:**
+- `ContentView.swift` — SwiftUI-экран контейнер-приложения
+- `StoreKitManager.swift` — менеджер подписок StoreKit 2
+- `PrivacyInfo.xcprivacy` — Privacy Manifest
+
+**Shared (Extension)/:**
+- `SafariWebExtensionHandler.swift` — обработчик нативных сообщений (заменяет дефолтный)
+- `StoreKitManager.swift` — менеджер подписок (нужен и в Extension-таргете)
+
+> **Архитектура:** Расширение Safari работает в своём процессе.
+> JS-код общается с нативным Swift через `browser.runtime.sendNativeMessage()` →
+> `SafariWebExtensionHandler`. Старый подход через `webkit.messageHandlers`
+> НЕ работает, т.к. расширение не имеет доступа к WebView контейнера.
 
 ### 4.1. Очистить дубликаты и добавить файлы в Xcode
 
-**Шаг A — Удалить дубликаты (если есть):**
+**Шаг A — Удалить старое:**
 
-1. В **Project Navigator** проверь папки **iOS (App)** и **macOS (App)**
-2. Если в них есть ContentView, StoreKitManager, ExtensionMessageHandler
-   или PrivacyInfo — выдели их → **Delete → Move to Trash**
-3. Также удали все **красные (битые) ссылки** на уровне корня проекта
+1. Удали **красные (битые) ссылки** на уровне корня проекта
+2. Удали `ExtensionMessageHandler.swift` откуда бы то ни было (устарел)
+3. Удали дубликаты из **iOS (App)** и **macOS (App)** если есть
 
-**Шаг B — Добавить файлы из Shared (App):**
+**Шаг B — Добавить файлы в App-таргет (из Shared (App)):**
 
 1. Правый клик на **Shared (App)** → **Add Files to "ContextFlow"...**
-2. Выбери **все 4 файла**:
+2. Выбери:
    - `ContentView.swift`
    - `StoreKitManager.swift`
-   - `ExtensionMessageHandler.swift`
    - `PrivacyInfo.xcprivacy`
-3. **ВАЖНО:** Убедись, что отмечены **оба таргета**:
-   - ✅ **ContextFlow (iOS)**
-   - ✅ **ContextFlow (macOS)**
-4. Нажми **Add**
+3. Таргеты: ✅ **ContextFlow (iOS)** + ✅ **ContextFlow (macOS)**
+4. **Add**
+
+**Шаг C — Обновить Extension-таргет (из Shared (Extension)):**
+
+1. В **Shared (Extension)** удали старый `SafariWebExtensionHandler.swift`
+   (тот, что сгенерировал конвертер) → **Delete → Move to Trash**
+2. Правый клик на **Shared (Extension)** → **Add Files to "ContextFlow"...**
+3. Выбери:
+   - `SafariWebExtensionHandler.swift` (наш, с поддержкой StoreKit)
+   - `StoreKitManager.swift`
+4. Таргеты: ✅ **ContextFlow Extension (iOS)** + ✅ **ContextFlow Extension (macOS)**
+5. **Add**
 
 > **Частая ошибка:** Если добавить файлы только в один таргет,
-> второй будет выдавать "Cannot find 'ContentView' in scope".
+> второй будет выдавать "Cannot find … in scope".
 > Всегда отмечай оба таргета при добавлении.
 
 ### 4.3. Добавить capability In-App Purchase
 
+Нужно добавить **для обоих таргетов** (App и Extension):
+
 1. В Xcode, кликни на **ContextFlow.xcodeproj** (корень проекта) в навигаторе
 2. Выбери таргет **ContextFlow** (основное приложение)
 3. Перейди на вкладку **Signing & Capabilities**
-4. Нажми **+ Capability**
-5. Найди и добавь **In-App Purchase**
+4. Нажми **+ Capability** → **In-App Purchase**
+5. Повтори для таргета **ContextFlow Extension**:
+   - Выбери таргет **ContextFlow Extension**
+   - **Signing & Capabilities** → **+ Capability** → **In-App Purchase**
+
+> StoreKit вызывается из Extension-процесса (через SafariWebExtensionHandler),
+> поэтому In-App Purchase capability обязателен для обоих таргетов.
 
 ### 4.4. Установить Deployment Target
 
@@ -215,7 +235,7 @@ bash scripts/setup-xcode.sh
 - **macOS Deployment Target**: `13.0` (минимум для StoreKit 2)
 - **iOS Deployment Target**: `16.0` (если поддерживаешь iOS)
 
-### 4.5. Подключить ExtensionMessageHandler к WebView и ContentView
+### 4.5. Настроить ViewController (ContentView)
 
 Открой файл `Shared (App)/ViewController.swift` (сгенерирован конвертером).
 
@@ -244,17 +264,8 @@ let extensionBundleIdentifier = "com.contextflow.app.Extension"
 class ViewController: PlatformViewController, WKNavigationDelegate {
     @IBOutlet var webView: WKWebView!
 
-    // Сохраняем ссылку чтобы не был deallocated
-    private let storeKitHandler = ExtensionMessageHandler()
-
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Регистрируем StoreKit bridge для JavaScript
-        webView.configuration.userContentController.add(
-            storeKitHandler,
-            name: "storekit"
-        )
 
         // Скрываем дефолтный WebView — заменяем на SwiftUI ContentView
         webView.isHidden = true
@@ -289,8 +300,8 @@ class ViewController: PlatformViewController, WKNavigationDelegate {
 > **Важно:**
 > - Класс наследуется от `PlatformViewController` (typealias), НЕ от `NSViewController` —
 >   иначе iOS-таргет не скомпилируется.
-> - Имя `"storekit"` должно совпадать с тем, что используется в
->   `src/lib/appstore.ts` → `webkit.messageHandlers.storekit.postMessage(...)`.
+> - `ExtensionMessageHandler` больше не нужен в контейнере. StoreKit-коммуникация
+>   теперь идёт через `SafariWebExtensionHandler` в Extension-таргете.
 > - ContentView показывает инструкции по настройке расширения в Safari.
 
 ### 4.6. Создать StoreKit Configuration File (для тестирования)

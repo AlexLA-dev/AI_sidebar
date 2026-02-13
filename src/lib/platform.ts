@@ -18,7 +18,6 @@ export function getPlatform(): Platform {
 
   try {
     // Safari Web Extensions expose the `browser` namespace (WebExtensions API)
-    // and webkit message handlers from the native container app
     const isSafari =
       typeof (globalThis as any).browser !== "undefined" &&
       typeof (globalThis as any).browser.runtime !== "undefined" &&
@@ -55,14 +54,14 @@ export function isChrome(): boolean {
 
 /**
  * Check if the native StoreKit bridge is available.
- * The native container app injects `webkit.messageHandlers.storekit` when built
- * with the StoreKit extension handler.
+ * Safari Web Extensions communicate with native code via
+ * browser.runtime.sendNativeMessage() → SafariWebExtensionHandler.
  */
 export function isNativeStoreKitAvailable(): boolean {
   try {
     return (
       isSafari() &&
-      typeof (globalThis as any).webkit?.messageHandlers?.storekit !== "undefined"
+      typeof (globalThis as any).browser?.runtime?.sendNativeMessage === "function"
     )
   } catch {
     return false

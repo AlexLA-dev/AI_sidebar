@@ -3,8 +3,9 @@
 # setup-xcode.sh — Integrates native Swift files into the generated Xcode project.
 #
 # Run this AFTER `safari-web-extension-converter` generates the ContextFlow project.
-# It copies StoreKit, ExtensionMessageHandler, ContentView, and PrivacyInfo
-# into the "Shared (App)" folder so they compile for both iOS and macOS.
+# Copies files to two locations:
+#   - "Shared (App)/"      → ContentView, StoreKitManager, PrivacyInfo
+#   - "Shared (Extension)/" → SafariWebExtensionHandler (replaces default), StoreKitManager
 #
 # Usage:
 #   cd AI_sidebar
@@ -50,12 +51,7 @@ if [ ! -d "$SOURCES_DIR" ]; then
     exit 1
 fi
 
-# 3. Detect the target folder
-# The converter creates "Shared (App)/" for universal builds.
-# Files go ONLY there — NOT into "iOS (App)/" or "macOS (App)/"
-# because native files use #if os() for platform differences.
-# Duplicating into platform folders causes "Ambiguous use of init()" errors.
-
+# 3. Detect the App target folder
 if [ -d "$XCODE_PROJECT/Shared (App)" ]; then
     APP_DIR="$XCODE_PROJECT/Shared (App)"
 elif [ -d "$XCODE_PROJECT/ContextFlow" ] && [ ! -f "$XCODE_PROJECT/ContextFlow/project.pbxproj" ]; then
@@ -63,9 +59,18 @@ elif [ -d "$XCODE_PROJECT/ContextFlow" ] && [ ! -f "$XCODE_PROJECT/ContextFlow/p
 else
     echo "ERROR: Could not detect app target folder inside $XCODE_PROJECT"
     echo ""
-    echo "Expected one of:"
-    echo "  - Shared (App)/"
-    echo "  - ContextFlow/"
+    echo "Contents of $XCODE_PROJECT:"
+    ls -la "$XCODE_PROJECT"
+    exit 1
+fi
+
+# 4. Detect the Extension target folder
+if [ -d "$XCODE_PROJECT/Shared (Extension)" ]; then
+    EXT_DIR="$XCODE_PROJECT/Shared (Extension)"
+elif [ -d "$XCODE_PROJECT/ContextFlow Extension" ]; then
+    EXT_DIR="$XCODE_PROJECT/ContextFlow Extension"
+else
+    echo "ERROR: Could not detect extension target folder inside $XCODE_PROJECT"
     echo ""
     echo "Contents of $XCODE_PROJECT:"
     ls -la "$XCODE_PROJECT"
@@ -74,75 +79,101 @@ fi
 
 echo "Xcode project:  $XCODE_PROJECT"
 echo "Native sources: $SOURCES_DIR"
-echo "Target dir:     $APP_DIR"
+echo "App target:     $APP_DIR"
+echo "Extension dir:  $EXT_DIR"
 echo ""
 
-# 4. Copy Swift source files
-echo "Copying Swift files..."
-for file in "$SOURCES_DIR"/*.swift; do
-    filename=$(basename "$file")
-    if [ -f "$APP_DIR/$filename" ]; then
-        echo "  [update] $filename"
-    else
-        echo "  [new]    $filename"
+# ── 5. Copy files to App target (Shared (App)) ──
+
+echo "--- App target: $(basename "$APP_DIR") ---"
+
+# App target gets: ContentView, StoreKitManager, PrivacyInfo
+for fname in ContentView.swift StoreKitManager.swift; do
+    src="$SOURCES_DIR/$fname"
+    if [ -f "$src" ]; then
+        if [ -f "$APP_DIR/$fname" ]; then echo "  [update] $fname"
+        else echo "  [new]    $fname"; fi
+        cp "$src" "$APP_DIR/$fname"
     fi
-    cp "$file" "$APP_DIR/$filename"
 done
 
-# 5. Copy PrivacyInfo.xcprivacy
-echo "Copying PrivacyInfo.xcprivacy..."
 if [ -f "$NATIVE_DIR/PrivacyInfo.xcprivacy" ]; then
     cp "$NATIVE_DIR/PrivacyInfo.xcprivacy" "$APP_DIR/PrivacyInfo.xcprivacy"
-    echo "  [ok] PrivacyInfo.xcprivacy"
-else
-    echo "  [skip] PrivacyInfo.xcprivacy not found in native/"
+    echo "  [ok]     PrivacyInfo.xcprivacy"
 fi
 
-# 6. Warn about duplicates in platform folders
 echo ""
-HAS_DUPLICATES=false
+
+# ── 6. Copy files to Extension target (Shared (Extension)) ──
+
+echo "--- Extension target: $(basename "$EXT_DIR") ---"
+
+# Extension target gets: SafariWebExtensionHandler (replaces default), StoreKitManager
+for fname in SafariWebExtensionHandler.swift StoreKitManager.swift; do
+    src="$SOURCES_DIR/$fname"
+    if [ -f "$src" ]; then
+        if [ -f "$EXT_DIR/$fname" ]; then echo "  [update] $fname"
+        else echo "  [new]    $fname"; fi
+        cp "$src" "$EXT_DIR/$fname"
+    fi
+done
+
+echo ""
+
+# ── 7. Warn about duplicates / stale files ──
+
+HAS_WARNINGS=false
+
+# Warn about ExtensionMessageHandler.swift (no longer needed)
+for dir in "$APP_DIR" "$EXT_DIR"; do
+    if [ -f "$dir/ExtensionMessageHandler.swift" ]; then
+        if [ "$HAS_WARNINGS" = false ]; then echo "WARNINGS:"; HAS_WARNINGS=true; fi
+        echo "  ExtensionMessageHandler.swift in $(basename "$dir") is OBSOLETE"
+        echo "  → Delete it from Xcode (it was replaced by SafariWebExtensionHandler)"
+    fi
+done
+
+# Warn about duplicates in platform folders
 for PLATFORM_DIR in "iOS (App)" "macOS (App)"; do
     DIR="$XCODE_PROJECT/$PLATFORM_DIR"
     if [ -d "$DIR" ]; then
-        for fname in ContentView.swift StoreKitManager.swift ExtensionMessageHandler.swift PrivacyInfo.xcprivacy; do
+        for fname in ContentView.swift StoreKitManager.swift ExtensionMessageHandler.swift SafariWebExtensionHandler.swift PrivacyInfo.xcprivacy; do
             if [ -f "$DIR/$fname" ]; then
-                if [ "$HAS_DUPLICATES" = false ]; then
-                    echo "⚠️  WARNING: Found duplicate files in platform folders."
-                    echo "   These cause 'Ambiguous use of init()' errors."
-                    echo "   Remove them — files should ONLY be in '$APP_DIR'."
-                    echo ""
-                    HAS_DUPLICATES=true
-                fi
-                echo "   DELETE: $PLATFORM_DIR/$fname"
+                if [ "$HAS_WARNINGS" = false ]; then echo "WARNINGS:"; HAS_WARNINGS=true; fi
+                echo "  Duplicate: $PLATFORM_DIR/$fname → DELETE from Xcode"
             fi
         done
     fi
 done
 
 echo ""
-echo "=== Files copied to: $(basename "$APP_DIR")/ ==="
+echo "=== Setup complete ==="
 echo ""
-echo "Now open Xcode and complete the setup:"
+echo "In Xcode:"
 echo ""
-echo "  1. CLEAN UP duplicates (if any warnings above):"
-echo "     → In the Project Navigator, check 'iOS (App)' and 'macOS (App)' folders"
-echo "     → If you see ContentView, StoreKitManager, ExtensionMessageHandler,"
-echo "       or PrivacyInfo there — select them → Delete → 'Move to Trash'"
-echo "     → Also remove any red (broken) file references at the project root"
+echo "  1. CLEAN UP:"
+echo "     → Delete any red (broken) file references at the project root"
+echo "     → Delete ExtensionMessageHandler.swift if present (obsolete)"
+echo "     → Delete duplicates in 'iOS (App)' and 'macOS (App)' folders"
 echo ""
-echo "  2. Add files from '$(basename "$APP_DIR")/' to the project:"
-echo "     → Right-click '$(basename "$APP_DIR")' → 'Add Files to \"ContextFlow\"...'"
-echo "     → Select: ContentView.swift, StoreKitManager.swift,"
-echo "       ExtensionMessageHandler.swift, PrivacyInfo.xcprivacy"
-echo "     → Check BOTH targets: ✅ ContextFlow (iOS)  ✅ ContextFlow (macOS)"
-echo "     → Click 'Add'"
+echo "  2. ADD files to App target (from '$(basename "$APP_DIR")'):"
+echo "     → Right-click '$(basename "$APP_DIR")' → Add Files..."
+echo "     → Select: ContentView.swift, StoreKitManager.swift, PrivacyInfo.xcprivacy"
+echo "     → Targets: ✅ ContextFlow (iOS)  ✅ ContextFlow (macOS)"
 echo ""
-echo "  3. Fix ViewController.swift (in Shared (App)):"
-echo "     → Line 20: change 'NSViewController' to 'PlatformViewController'"
+echo "  3. ADD files to Extension target (from '$(basename "$EXT_DIR")'):"
+echo "     → Replace the existing SafariWebExtensionHandler.swift"
+echo "       (delete old one first, then Add the new one)"
+echo "     → Also add StoreKitManager.swift to the Extension target"
+echo "     → Targets: ✅ ContextFlow Extension (iOS)  ✅ ContextFlow Extension (macOS)"
+echo ""
+echo "  4. Fix ViewController.swift (in $(basename "$APP_DIR")):"
 echo "     → class ViewController: PlatformViewController, WKNavigationDelegate {"
+echo "     → See RELEASE_GUIDE.md section 4.5 for the full code"
 echo ""
-echo "  4. Add In-App Purchase capability:"
-echo "     → ContextFlow.xcodeproj → Signing & Capabilities → + → In-App Purchase"
+echo "  5. Add In-App Purchase capability to BOTH targets:"
+echo "     → App target: Signing & Capabilities → + → In-App Purchase"
+echo "     → Extension target: Signing & Capabilities → + → In-App Purchase"
 echo ""
-echo "  5. Build (Cmd+B) — errors should be resolved!"
+echo "  6. Build (Cmd+B)"
 echo ""
