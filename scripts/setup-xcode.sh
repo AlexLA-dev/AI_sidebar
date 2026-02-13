@@ -4,7 +4,7 @@
 #
 # Run this AFTER `safari-web-extension-converter` generates the ContextFlow project.
 # It copies StoreKit, ExtensionMessageHandler, ContentView, and PrivacyInfo
-# into the correct locations so Xcode can find them.
+# into the "Shared (App)" folder so they compile for both iOS and macOS.
 #
 # Usage:
 #   cd AI_sidebar
@@ -50,33 +50,21 @@ if [ ! -d "$SOURCES_DIR" ]; then
     exit 1
 fi
 
-# 3. Detect the generated project structure
-# The converter creates different folder layouts depending on version/flags:
-#   - Modern (universal): "Shared (App)/", "iOS (App)/", "macOS (App)/"
-#   - Modern (single):    "Shared (App)/"
-#   - Legacy:             "ContextFlow/" (inner folder matching app name)
-APP_DIRS=()
+# 3. Detect the target folder
+# The converter creates "Shared (App)/" for universal builds.
+# Files go ONLY there — NOT into "iOS (App)/" or "macOS (App)/"
+# because native files use #if os() for platform differences.
+# Duplicating into platform folders causes "Ambiguous use of init()" errors.
 
 if [ -d "$XCODE_PROJECT/Shared (App)" ]; then
-    APP_DIRS+=("$XCODE_PROJECT/Shared (App)")
-fi
-if [ -d "$XCODE_PROJECT/iOS (App)" ]; then
-    APP_DIRS+=("$XCODE_PROJECT/iOS (App)")
-fi
-if [ -d "$XCODE_PROJECT/macOS (App)" ]; then
-    APP_DIRS+=("$XCODE_PROJECT/macOS (App)")
-fi
-if [ -d "$XCODE_PROJECT/ContextFlow" ] && [ ! -f "$XCODE_PROJECT/ContextFlow/project.pbxproj" ]; then
-    # Inner "ContextFlow" folder exists and is NOT the .xcodeproj bundle
-    APP_DIRS+=("$XCODE_PROJECT/ContextFlow")
-fi
-
-if [ ${#APP_DIRS[@]} -eq 0 ]; then
+    APP_DIR="$XCODE_PROJECT/Shared (App)"
+elif [ -d "$XCODE_PROJECT/ContextFlow" ] && [ ! -f "$XCODE_PROJECT/ContextFlow/project.pbxproj" ]; then
+    APP_DIR="$XCODE_PROJECT/ContextFlow"
+else
     echo "ERROR: Could not detect app target folder inside $XCODE_PROJECT"
     echo ""
     echo "Expected one of:"
     echo "  - Shared (App)/"
-    echo "  - iOS (App)/ + macOS (App)/"
     echo "  - ContextFlow/"
     echo ""
     echo "Contents of $XCODE_PROJECT:"
@@ -86,62 +74,75 @@ fi
 
 echo "Xcode project:  $XCODE_PROJECT"
 echo "Native sources: $SOURCES_DIR"
-echo "Target dirs:    ${APP_DIRS[*]}"
+echo "Target dir:     $APP_DIR"
 echo ""
 
-# 4. Copy Swift source files into each target folder
-for APP_DIR in "${APP_DIRS[@]}"; do
-    echo "--- Copying to: $APP_DIR ---"
-
-    echo "Copying Swift files..."
-    for file in "$SOURCES_DIR"/*.swift; do
-        filename=$(basename "$file")
-        if [ -f "$APP_DIR/$filename" ]; then
-            echo "  [update] $filename"
-        else
-            echo "  [new]    $filename"
-        fi
-        cp "$file" "$APP_DIR/$filename"
-    done
-
-    echo "Copying PrivacyInfo.xcprivacy..."
-    if [ -f "$NATIVE_DIR/PrivacyInfo.xcprivacy" ]; then
-        cp "$NATIVE_DIR/PrivacyInfo.xcprivacy" "$APP_DIR/PrivacyInfo.xcprivacy"
-        echo "  [ok] PrivacyInfo.xcprivacy"
+# 4. Copy Swift source files
+echo "Copying Swift files..."
+for file in "$SOURCES_DIR"/*.swift; do
+    filename=$(basename "$file")
+    if [ -f "$APP_DIR/$filename" ]; then
+        echo "  [update] $filename"
     else
-        echo "  [skip] PrivacyInfo.xcprivacy not found in native/"
+        echo "  [new]    $filename"
     fi
-    echo ""
+    cp "$file" "$APP_DIR/$filename"
 done
 
-echo "=== Files copied successfully ==="
+# 5. Copy PrivacyInfo.xcprivacy
+echo "Copying PrivacyInfo.xcprivacy..."
+if [ -f "$NATIVE_DIR/PrivacyInfo.xcprivacy" ]; then
+    cp "$NATIVE_DIR/PrivacyInfo.xcprivacy" "$APP_DIR/PrivacyInfo.xcprivacy"
+    echo "  [ok] PrivacyInfo.xcprivacy"
+else
+    echo "  [skip] PrivacyInfo.xcprivacy not found in native/"
+fi
+
+# 6. Warn about duplicates in platform folders
+echo ""
+HAS_DUPLICATES=false
+for PLATFORM_DIR in "iOS (App)" "macOS (App)"; do
+    DIR="$XCODE_PROJECT/$PLATFORM_DIR"
+    if [ -d "$DIR" ]; then
+        for fname in ContentView.swift StoreKitManager.swift ExtensionMessageHandler.swift PrivacyInfo.xcprivacy; do
+            if [ -f "$DIR/$fname" ]; then
+                if [ "$HAS_DUPLICATES" = false ]; then
+                    echo "⚠️  WARNING: Found duplicate files in platform folders."
+                    echo "   These cause 'Ambiguous use of init()' errors."
+                    echo "   Remove them — files should ONLY be in '$APP_DIR'."
+                    echo ""
+                    HAS_DUPLICATES=true
+                fi
+                echo "   DELETE: $PLATFORM_DIR/$fname"
+            fi
+        done
+    fi
+done
+
+echo ""
+echo "=== Files copied to: $(basename "$APP_DIR")/ ==="
 echo ""
 echo "Now open Xcode and complete the setup:"
 echo ""
-echo "  1. In Xcode, for EACH app folder that received files:"
-echo "     → Right-click the folder → 'Add Files to \"ContextFlow\"...'"
-echo "     → Select ALL newly copied files:"
-echo "       - ContentView.swift"
-echo "       - StoreKitManager.swift"
-echo "       - ExtensionMessageHandler.swift"
-echo "       - PrivacyInfo.xcprivacy"
-echo "     → Make sure BOTH targets are checked:"
-echo "       ✅ ContextFlow (iOS)"
-echo "       ✅ ContextFlow (macOS)"
+echo "  1. CLEAN UP duplicates (if any warnings above):"
+echo "     → In the Project Navigator, check 'iOS (App)' and 'macOS (App)' folders"
+echo "     → If you see ContentView, StoreKitManager, ExtensionMessageHandler,"
+echo "       or PrivacyInfo there — select them → Delete → 'Move to Trash'"
+echo "     → Also remove any red (broken) file references at the project root"
+echo ""
+echo "  2. Add files from '$(basename "$APP_DIR")/' to the project:"
+echo "     → Right-click '$(basename "$APP_DIR")' → 'Add Files to \"ContextFlow\"...'"
+echo "     → Select: ContentView.swift, StoreKitManager.swift,"
+echo "       ExtensionMessageHandler.swift, PrivacyInfo.xcprivacy"
+echo "     → Check BOTH targets: ✅ ContextFlow (iOS)  ✅ ContextFlow (macOS)"
 echo "     → Click 'Add'"
 echo ""
-echo "  2. Add In-App Purchase capability:"
-echo "     → Click ContextFlow.xcodeproj in navigator"
-echo "     → Select target 'ContextFlow'"
-echo "     → Signing & Capabilities → + Capability → In-App Purchase"
+echo "  3. Fix ViewController.swift (in Shared (App)):"
+echo "     → Line 20: change 'NSViewController' to 'PlatformViewController'"
+echo "     → class ViewController: PlatformViewController, WKNavigationDelegate {"
 echo ""
-echo "  3. Set deployment targets (General tab):"
-echo "     → macOS: 13.0"
-echo "     → iOS: 16.0"
-echo ""
-echo "  4. Connect ExtensionMessageHandler to WebView:"
-echo "     → Open ViewController.swift"
-echo "     → See RELEASE_GUIDE.md section 4.5 for the code changes"
+echo "  4. Add In-App Purchase capability:"
+echo "     → ContextFlow.xcodeproj → Signing & Capabilities → + → In-App Purchase"
 echo ""
 echo "  5. Build (Cmd+B) — errors should be resolved!"
 echo ""

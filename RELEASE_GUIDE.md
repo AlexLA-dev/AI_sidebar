@@ -165,26 +165,37 @@ bash scripts/setup-xcode.sh
 > Скрипт по умолчанию ищет проект в `./ContextFlow/`.
 > Если проект в другом месте: `bash scripts/setup-xcode.sh /path/to/ContextFlow`
 
-После выполнения скрипта файлы будут лежать рядом с остальными файлами
-в `ContextFlow/ContextFlow/`:
+После выполнения скрипта файлы будут лежать в `ContextFlow/Shared (App)/`:
 - `ContentView.swift`
 - `StoreKitManager.swift`
 - `ExtensionMessageHandler.swift`
 - `PrivacyInfo.xcprivacy`
 
-### 4.1. Добавить файлы в Xcode
+> **Важно:** Файлы должны быть **только в Shared (App)/**, НЕ в `iOS (App)/`
+> и НЕ в `macOS (App)/`. Дублирование в платформенных папках вызывает
+> ошибку "Ambiguous use of 'init()'".
 
-1. В Xcode, в **Project Navigator** (левая панель), кликни правой кнопкой на папку **ContextFlow** (основной таргет, НЕ Extension)
-2. Выбери **Add Files to "ContextFlow"...**
-3. Выбери **все 4 файла** (они уже в папке проекта после шага 4.0):
+### 4.1. Очистить дубликаты и добавить файлы в Xcode
+
+**Шаг A — Удалить дубликаты (если есть):**
+
+1. В **Project Navigator** проверь папки **iOS (App)** и **macOS (App)**
+2. Если в них есть ContentView, StoreKitManager, ExtensionMessageHandler
+   или PrivacyInfo — выдели их → **Delete → Move to Trash**
+3. Также удали все **красные (битые) ссылки** на уровне корня проекта
+
+**Шаг B — Добавить файлы из Shared (App):**
+
+1. Правый клик на **Shared (App)** → **Add Files to "ContextFlow"...**
+2. Выбери **все 4 файла**:
    - `ContentView.swift`
    - `StoreKitManager.swift`
    - `ExtensionMessageHandler.swift`
    - `PrivacyInfo.xcprivacy`
-4. **ВАЖНО:** Убедись, что отмечены **оба таргета**:
+3. **ВАЖНО:** Убедись, что отмечены **оба таргета**:
    - ✅ **ContextFlow (iOS)**
    - ✅ **ContextFlow (macOS)**
-5. Нажми **Add**
+4. Нажми **Add**
 
 > **Частая ошибка:** Если добавить файлы только в один таргет,
 > второй будет выдавать "Cannot find 'ContentView' in scope".
@@ -204,32 +215,33 @@ bash scripts/setup-xcode.sh
 - **macOS Deployment Target**: `13.0` (минимум для StoreKit 2)
 - **iOS Deployment Target**: `16.0` (если поддерживаешь iOS)
 
-### 4.5. Подключить ExtensionMessageHandler к WebView
+### 4.5. Подключить ExtensionMessageHandler к WebView и ContentView
 
-Открой файл `ContextFlow/ViewController.swift` (сгенерирован конвертером).
+Открой файл `Shared (App)/ViewController.swift` (сгенерирован конвертером).
 
-Найди место, где создаётся или конфигурируется WKWebView, и добавь
-регистрацию StoreKit message handler.
+Замени весь файл на следующий код:
 
-**До** (примерно так выглядит сгенерированный код):
 ```swift
+//
+//  ViewController.swift
+//  Shared (App)
+//
+
+import SwiftUI
 import WebKit
 
-class ViewController: NSViewController, WKNavigationDelegate {
-    @IBOutlet var webView: WKWebView!
+#if os(iOS)
+import UIKit
+typealias PlatformViewController = UIViewController
+#elseif os(macOS)
+import Cocoa
+import SafariServices
+typealias PlatformViewController = NSViewController
+#endif
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        // Existing code...
-    }
-}
-```
+let extensionBundleIdentifier = "com.contextflow.app.Extension"
 
-**После** (добавь регистрацию хэндлера):
-```swift
-import WebKit
-
-class ViewController: NSViewController, WKNavigationDelegate {
+class ViewController: PlatformViewController, WKNavigationDelegate {
     @IBOutlet var webView: WKWebView!
 
     // Сохраняем ссылку чтобы не был deallocated
@@ -244,13 +256,42 @@ class ViewController: NSViewController, WKNavigationDelegate {
             name: "storekit"
         )
 
-        // Existing code...
+        // Скрываем дефолтный WebView — заменяем на SwiftUI ContentView
+        webView.isHidden = true
+
+        #if os(iOS)
+        let hostingController = UIHostingController(rootView: ContentView())
+        addChild(hostingController)
+        hostingController.view.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(hostingController.view)
+        NSLayoutConstraint.activate([
+            hostingController.view.topAnchor.constraint(equalTo: view.topAnchor),
+            hostingController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            hostingController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            hostingController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+        hostingController.didMove(toParent: self)
+        #elseif os(macOS)
+        let hostingView = NSHostingView(rootView: ContentView())
+        hostingView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(hostingView)
+        NSLayoutConstraint.activate([
+            hostingView.topAnchor.constraint(equalTo: view.topAnchor),
+            hostingView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            hostingView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            hostingView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+        #endif
     }
 }
 ```
 
-> **Важно:** Имя `"storekit"` должно совпадать с тем, что используется в
-> `src/lib/appstore.ts` → `webkit.messageHandlers.storekit.postMessage(...)`.
+> **Важно:**
+> - Класс наследуется от `PlatformViewController` (typealias), НЕ от `NSViewController` —
+>   иначе iOS-таргет не скомпилируется.
+> - Имя `"storekit"` должно совпадать с тем, что используется в
+>   `src/lib/appstore.ts` → `webkit.messageHandlers.storekit.postMessage(...)`.
+> - ContentView показывает инструкции по настройке расширения в Safari.
 
 ### 4.6. Создать StoreKit Configuration File (для тестирования)
 
