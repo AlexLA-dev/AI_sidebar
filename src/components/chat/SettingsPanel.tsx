@@ -53,8 +53,9 @@ export function SettingsPanel({
         window.open("https://apps.apple.com/account/subscriptions", "_blank")
       })
     } else {
-      // Stripe customer portal (could be a Stripe billing portal link)
-      window.open("https://billing.stripe.com/p/login/contextflow", "_blank")
+      // Stripe customer portal
+      const portalUrl = process.env.PLASMO_PUBLIC_STRIPE_PORTAL_URL || "https://billing.stripe.com"
+      window.open(portalUrl, "_blank")
     }
   }
 
