@@ -216,18 +216,17 @@ bash scripts/setup-xcode.sh
 
 ### 4.3. Добавить capability In-App Purchase
 
-Нужно добавить **для обоих таргетов** (App и Extension):
+Добавь **только на основные App-таргеты** (iOS и macOS).
+Extension-таргеты наследуют StoreKit-права автоматически.
 
 1. В Xcode, кликни на **ContextFlow.xcodeproj** (корень проекта) в навигаторе
-2. Выбери таргет **ContextFlow** (основное приложение)
+2. Выбери таргет **ContextFlow (iOS)**
 3. Перейди на вкладку **Signing & Capabilities**
 4. Нажми **+ Capability** → **In-App Purchase**
-5. Повтори для таргета **ContextFlow Extension**:
-   - Выбери таргет **ContextFlow Extension**
-   - **Signing & Capabilities** → **+ Capability** → **In-App Purchase**
+5. Повтори для таргета **ContextFlow (macOS)**
 
-> StoreKit вызывается из Extension-процесса (через SafariWebExtensionHandler),
-> поэтому In-App Purchase capability обязателен для обоих таргетов.
+> Extension-таргетам НЕ нужно добавлять In-App Purchase —
+> они наследуют права от основного приложения (тот же Team ID).
 
 ### 4.4. Установить Deployment Target
 
