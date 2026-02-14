@@ -8,7 +8,7 @@ const SUPABASE_URL = process.env.SUPABASE_URL!
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY!
 const RESEND_API_KEY = process.env.RESEND_API_KEY || ""
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || ""
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "top10resource@gmail.com"
 
 // Constants
 const PRO_MODEL = "gpt-4o-mini"

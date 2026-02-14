@@ -195,7 +195,7 @@ export function PaywallModal({ onClose, onSubscribed }: PaywallModalProps) {
       price: LICENSE_CONFIG.BASIC.price,
       description: LICENSE_CONFIG.BASIC.description,
       features: [
-        "Full interface access",
+        "Unlimited interface access",
         "Bring your own OpenAI key",
         "Full control over costs"
       ]
@@ -206,11 +206,11 @@ export function PaywallModal({ onClose, onSubscribed }: PaywallModalProps) {
       label: LICENSE_CONFIG.PRO.label,
       price: LICENSE_CONFIG.PRO.price,
       description: LICENSE_CONFIG.PRO.description,
-      badge: "Popular",
+      badge: "Best value",
       features: [
         "Everything in Basic",
-        "Built-in AI — no API key needed",
-        "375 requests / week included"
+        "No API key needed",
+        "We handle everything"
       ]
     }
   ]
