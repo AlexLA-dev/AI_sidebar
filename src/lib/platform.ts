@@ -12,10 +12,15 @@ let cachedPlatform: Platform | null = null
 /**
  * Detect the current browser platform.
  *
- * Safari detection: Chrome has `chrome.sidePanel` API (when the permission
- * is declared), Safari does not. This is the same approach used in
- * background/index.ts and works reliably in all extension contexts
- * (background, sidebar, popup, content scripts).
+ * Uses multiple signals because the `chrome.sidePanel` check alone can be
+ * unreliable — Safari may expose a stub when the permission is declared in
+ * the manifest, and Plasmo may polyfill it in built output.
+ *
+ * Detection order:
+ * 1. Safari (and Firefox) expose a native `browser` global with `browser.runtime`.
+ *    Chrome does NOT have this unless a polyfill is loaded (Plasmo does not add one).
+ * 2. Fallback: Chrome has `chrome.sidePanel` when the permission is declared;
+ *    Safari does not implement it.
  */
 export function getPlatform(): Platform {
   if (cachedPlatform) return cachedPlatform
@@ -27,8 +32,15 @@ export function getPlatform(): Platform {
       return "unknown"
     }
 
-    // Safari doesn't support the sidePanel API.
-    // Chrome exposes chrome.sidePanel when the "sidePanel" permission is declared.
+    // Primary signal: Safari exposes the native `browser` global with runtime API.
+    // Chrome does not have `browser.runtime` unless a polyfill adds it.
+    const browserGlobal = (globalThis as any).browser
+    if (browserGlobal && typeof browserGlobal.runtime !== "undefined") {
+      cachedPlatform = "safari"
+      return "safari"
+    }
+
+    // Secondary signal: Chrome has chrome.sidePanel; Safari does not.
     if (typeof (chrome as any).sidePanel === "undefined") {
       cachedPlatform = "safari"
       return "safari"
@@ -54,11 +66,19 @@ export function isChrome(): boolean {
 
 /**
  * Check if the native StoreKit bridge is available.
- * `isSafari()` already verifies that `browser.runtime.sendNativeMessage` exists,
- * so this is equivalent to the Safari check.
+ *
+ * Requires both:
+ * 1. Running in Safari (detected by platform check)
+ * 2. The `browser.runtime.sendNativeMessage` function exists in the background
+ *    (we can only check the `browser` global here — the sidebar relays via
+ *    chrome.runtime.sendMessage to the background which calls sendNativeMessage)
  */
 export function isNativeStoreKitAvailable(): boolean {
-  return isSafari()
+  if (!isSafari()) return false
+
+  // Extra safety: verify chrome.runtime.sendMessage is available
+  // (the sidebar uses this to relay StoreKit commands to the background script)
+  return typeof chrome !== "undefined" && typeof chrome.runtime?.sendMessage === "function"
 }
 
 /**

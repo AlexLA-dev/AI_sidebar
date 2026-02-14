@@ -3,11 +3,19 @@ export {}
 // Background service worker for ContextFlow
 // Handles extension lifecycle events and cross-browser compatibility
 
-// Detect browser (Chrome has sidePanel, Safari doesn't)
-const isSafari = typeof chrome.sidePanel === "undefined"
+// Detect browser: Safari exposes the native `browser` global; Chrome does not.
+// Fallback: Chrome has chrome.sidePanel when the permission is declared.
+const browserGlobal = (globalThis as any).browser
+const isSafari =
+  (browserGlobal && typeof browserGlobal.runtime !== "undefined") ||
+  typeof chrome.sidePanel === "undefined"
 
 chrome.runtime.onInstalled.addListener(() => {
-  console.log("[ContextFlow] Extension installed")
+  console.log("[ContextFlow] Extension installed, platform:", isSafari ? "safari" : "chrome")
+  if (isSafari) {
+    const hasNativeMessaging = typeof browserGlobal?.runtime?.sendNativeMessage === "function"
+    console.log("[ContextFlow] Native messaging available:", hasNativeMessaging)
+  }
 })
 
 // Handle extension icon click
@@ -41,20 +49,33 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     // Relay StoreKit commands from sidebar/popup to native SafariWebExtensionHandler.
     // browser.runtime.sendNativeMessage() is only available in the background script,
     // so extension pages must relay through here.
-    const browser = (globalThis as any).browser
     const { action: _, ...nativeMessage } = message
 
-    if (typeof browser?.runtime?.sendNativeMessage === "function") {
-      browser.runtime.sendNativeMessage(
+    console.log("[ContextFlow] StoreKit relay:", nativeMessage.command)
+
+    // Try browser.runtime.sendNativeMessage (Safari native messaging)
+    if (typeof browserGlobal?.runtime?.sendNativeMessage === "function") {
+      browserGlobal.runtime.sendNativeMessage(
         "com.contextflow.app.Extension",
         nativeMessage
       ).then((response: any) => {
+        console.log("[ContextFlow] Native response:", JSON.stringify(response))
         sendResponse(response)
       }).catch((err: any) => {
+        console.error("[ContextFlow] Native messaging error:", err)
         sendResponse({ success: false, error: String(err) })
       })
     } else {
-      sendResponse({ success: false, error: "Native messaging not available in background" })
+      console.error(
+        "[ContextFlow] Native messaging not available.",
+        "browser global:", typeof browserGlobal,
+        "browser.runtime:", typeof browserGlobal?.runtime,
+        "sendNativeMessage:", typeof browserGlobal?.runtime?.sendNativeMessage
+      )
+      sendResponse({
+        success: false,
+        error: "Native messaging not available. Ensure ContextFlow is installed from the App Store and the extension is enabled in Safari."
+      })
     }
   }
   return true
