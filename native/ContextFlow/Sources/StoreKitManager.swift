@@ -6,6 +6,7 @@ import os.log
 ///
 /// This class is used by the native container app that wraps the Safari Web Extension.
 /// It handles product fetching, purchasing, restoration, and transaction listening.
+@available(iOS 15.0, macOS 12.0, *)
 @MainActor
 final class StoreKitManager: ObservableObject {
 

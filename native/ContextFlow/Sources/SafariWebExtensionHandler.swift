@@ -10,6 +10,7 @@ import os.log
 /// This file lives in the **Extension target** (ContextFlow Extension),
 /// NOT in the container app. StoreKitManager and related files must be
 /// added to the Extension target as well.
+@available(iOS 15.0, macOS 12.0, *)
 class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
 
     private let logger = Logger(subsystem: "com.contextflow.app.Extension", category: "NativeHandler")
