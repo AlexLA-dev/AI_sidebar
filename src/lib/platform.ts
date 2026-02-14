@@ -11,19 +11,26 @@ let cachedPlatform: Platform | null = null
 
 /**
  * Detect the current browser platform.
- * Safari Web Extensions set `browser` global and have webkit message handlers.
+ *
+ * Safari detection: check for `browser.runtime.sendNativeMessage` — this API
+ * exists ONLY in Safari Web Extensions with a native app container.
+ * We avoid user-agent sniffing because WKWebView extension pages often omit
+ * the "Safari" token from `navigator.userAgent`.
  */
 export function getPlatform(): Platform {
   if (cachedPlatform) return cachedPlatform
 
   try {
-    // Safari Web Extensions expose the `browser` namespace (WebExtensions API)
-    const isSafari =
-      typeof (globalThis as any).browser !== "undefined" &&
-      typeof (globalThis as any).browser.runtime !== "undefined" &&
-      /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
+    const browser = (globalThis as any).browser
 
-    if (isSafari) {
+    // Safari Web Extensions expose `browser.runtime.sendNativeMessage`
+    // for communicating with the native SafariWebExtensionHandler.
+    // Chrome does NOT have this on the `browser` namespace.
+    if (
+      typeof browser !== "undefined" &&
+      typeof browser.runtime !== "undefined" &&
+      typeof browser.runtime.sendNativeMessage === "function"
+    ) {
       cachedPlatform = "safari"
       return "safari"
     }
@@ -54,18 +61,11 @@ export function isChrome(): boolean {
 
 /**
  * Check if the native StoreKit bridge is available.
- * Safari Web Extensions communicate with native code via
- * browser.runtime.sendNativeMessage() → SafariWebExtensionHandler.
+ * `isSafari()` already verifies that `browser.runtime.sendNativeMessage` exists,
+ * so this is equivalent to the Safari check.
  */
 export function isNativeStoreKitAvailable(): boolean {
-  try {
-    return (
-      isSafari() &&
-      typeof (globalThis as any).browser?.runtime?.sendNativeMessage === "function"
-    )
-  } catch {
-    return false
-  }
+  return isSafari()
 }
 
 /**
