@@ -198,16 +198,11 @@ final class StoreKitManager: ObservableObject {
 
     // MARK: – Manage subscriptions
 
-    func showManageSubscriptions() async {
-        #if os(iOS)
-        if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-            try? await AppStore.showManageSubscriptions(in: scene)
-        }
-        #elseif os(macOS)
-        if let url = URL(string: "https://apps.apple.com/account/subscriptions") {
-            NSWorkspace.shared.open(url)
-        }
-        #endif
+    /// Returns the URL for managing subscriptions.
+    /// The caller (SafariWebExtensionHandler) passes it to JS, which opens it in a browser tab.
+    /// UIApplication.shared / NSWorkspace.shared are unavailable in App Extensions.
+    func manageSubscriptionsURL() -> String {
+        return "https://apps.apple.com/account/subscriptions"
     }
 }
 

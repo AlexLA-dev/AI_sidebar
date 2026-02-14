@@ -135,9 +135,13 @@ export async function getSubscriptionStatus(): Promise<AppStoreSubscriptionStatu
 
 /**
  * Open the App Store subscription management page.
+ * The native handler returns a URL, and we open it in a new tab.
  */
 export async function openManageSubscriptions(): Promise<void> {
-  return sendNativeMessage<void>("manageSubscriptions")
+  const result = await sendNativeMessage<{ url: string }>("manageSubscriptions")
+  if (result?.url) {
+    window.open(result.url, "_blank")
+  }
 }
 
 // ── Server-side verification ──────────────────────────────────────────────

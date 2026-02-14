@@ -46,8 +46,8 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                     result = try await handleGetSubscriptionStatus()
 
                 case "manageSubscriptions":
-                    await StoreKitManager.shared.showManageSubscriptions()
-                    result = ["success": true, "data": [:] as [String: Any]]
+                    let url = await StoreKitManager.shared.manageSubscriptionsURL()
+                    result = ["success": true, "data": ["url": url]]
 
                 default:
                     result = ["success": false, "error": "Unknown command: \(command)"]
