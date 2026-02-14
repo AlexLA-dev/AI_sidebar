@@ -23,7 +23,7 @@ chrome.action.onClicked.addListener((tab) => {
   }
 })
 
-// Handle messages from content scripts
+// Handle messages from content scripts and extension pages
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message.action === "openAuth") {
     // Open auth page in new tab
@@ -37,6 +37,25 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       url: chrome.runtime.getURL("sidepanel.html?showPaywall=1")
     })
     sendResponse({ success: true })
+  } else if (message.action === "storekit") {
+    // Relay StoreKit commands from sidebar/popup to native SafariWebExtensionHandler.
+    // browser.runtime.sendNativeMessage() is only available in the background script,
+    // so extension pages must relay through here.
+    const browser = (globalThis as any).browser
+    const { action: _, ...nativeMessage } = message
+
+    if (typeof browser?.runtime?.sendNativeMessage === "function") {
+      browser.runtime.sendNativeMessage(
+        "com.contextflow.app.Extension",
+        nativeMessage
+      ).then((response: any) => {
+        sendResponse(response)
+      }).catch((err: any) => {
+        sendResponse({ success: false, error: String(err) })
+      })
+    } else {
+      sendResponse({ success: false, error: "Native messaging not available in background" })
+    }
   }
   return true
 })

@@ -12,37 +12,30 @@ let cachedPlatform: Platform | null = null
 /**
  * Detect the current browser platform.
  *
- * Safari detection: check for `browser.runtime.sendNativeMessage` — this API
- * exists ONLY in Safari Web Extensions with a native app container.
- * We avoid user-agent sniffing because WKWebView extension pages often omit
- * the "Safari" token from `navigator.userAgent`.
+ * Safari detection: Chrome has `chrome.sidePanel` API (when the permission
+ * is declared), Safari does not. This is the same approach used in
+ * background/index.ts and works reliably in all extension contexts
+ * (background, sidebar, popup, content scripts).
  */
 export function getPlatform(): Platform {
   if (cachedPlatform) return cachedPlatform
 
   try {
-    const browser = (globalThis as any).browser
+    // Both Chrome and Safari expose `chrome.runtime` in extension contexts
+    if (typeof chrome === "undefined" || typeof chrome.runtime === "undefined") {
+      cachedPlatform = "unknown"
+      return "unknown"
+    }
 
-    // Safari Web Extensions expose `browser.runtime.sendNativeMessage`
-    // for communicating with the native SafariWebExtensionHandler.
-    // Chrome does NOT have this on the `browser` namespace.
-    if (
-      typeof browser !== "undefined" &&
-      typeof browser.runtime !== "undefined" &&
-      typeof browser.runtime.sendNativeMessage === "function"
-    ) {
+    // Safari doesn't support the sidePanel API.
+    // Chrome exposes chrome.sidePanel when the "sidePanel" permission is declared.
+    if (typeof (chrome as any).sidePanel === "undefined") {
       cachedPlatform = "safari"
       return "safari"
     }
 
-    // Chrome / Chromium-based browsers
-    if (typeof chrome !== "undefined" && chrome.runtime?.id) {
-      cachedPlatform = "chrome"
-      return "chrome"
-    }
-
-    cachedPlatform = "unknown"
-    return "unknown"
+    cachedPlatform = "chrome"
+    return "chrome"
   } catch {
     cachedPlatform = "unknown"
     return "unknown"

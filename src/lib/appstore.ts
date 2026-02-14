@@ -2,12 +2,13 @@
  * App Store (StoreKit 2) bridge for Safari Web Extension.
  *
  * Communication flow:
- * 1. Extension JS → browser.runtime.sendNativeMessage() → SafariWebExtensionHandler
- * 2. SafariWebExtensionHandler → StoreKit 2 API → App Store
- * 3. SafariWebExtensionHandler → response → Extension JS
+ * 1. Extension page (sidebar) → chrome.runtime.sendMessage() → Background script
+ * 2. Background script → browser.runtime.sendNativeMessage() → SafariWebExtensionHandler
+ * 3. SafariWebExtensionHandler → StoreKit 2 API → App Store
+ * 4. Response flows back through the same chain
  *
- * The extension target must implement NSExtensionRequestHandling in
- * SafariWebExtensionHandler.swift to route StoreKit commands.
+ * Note: browser.runtime.sendNativeMessage() is only available in the background
+ * script context, so extension pages must relay through the background.
  */
 
 import { getSupabaseClient } from "./supabase"
@@ -56,22 +57,22 @@ export interface AppStoreSubscriptionStatus {
 // ── Native bridge ─────────────────────────────────────────────────────────
 
 /**
- * Send a message to the native SafariWebExtensionHandler and wait for a response.
- * Uses browser.runtime.sendNativeMessage() — the standard Safari Web Extension
- * native messaging API.
+ * Send a StoreKit command to the native SafariWebExtensionHandler.
+ *
+ * Extension pages (sidebar, popup) do NOT have access to
+ * browser.runtime.sendNativeMessage(), so we relay through the background
+ * script via chrome.runtime.sendMessage({ action: "storekit", ... }).
  */
 async function sendNativeMessage<T>(command: string, params: Record<string, unknown> = {}): Promise<T> {
   if (!isNativeStoreKitAvailable()) {
     throw new Error("StoreKit bridge is not available. Ensure you are running the App Store build of ContextFlow.")
   }
 
-  const browser = (globalThis as any).browser
-  const message = { command, ...params }
-
-  const response = await browser.runtime.sendNativeMessage(
-    "com.contextflow.app.Extension",
-    message
-  )
+  const response = await chrome.runtime.sendMessage({
+    action: "storekit",
+    command,
+    ...params
+  })
 
   if (response && response.success) {
     return response.data as T
