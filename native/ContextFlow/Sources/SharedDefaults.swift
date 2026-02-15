@@ -1,6 +1,19 @@
 import Foundation
 import os.log
 
+// MARK: – Shared Types
+
+/// Subscription data passed between StoreKitManager and SharedDefaults.
+/// Defined here (not in StoreKitManager) so the Extension target can use it
+/// without importing StoreKit.
+struct SubscriptionInfo {
+    let isSubscribed: Bool
+    var productId: String?
+    var expirationDate: Date?
+    var isInGracePeriod: Bool = false
+    var willAutoRenew: Bool = false
+}
+
 /// Manages shared data between the container app and the Safari extension via App Group UserDefaults.
 ///
 /// The container app writes subscription status, settings, and usage data here.

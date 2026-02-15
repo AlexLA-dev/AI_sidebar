@@ -208,14 +208,7 @@ final class StoreKitManager: ObservableObject {
 }
 
 // MARK: – Types
-
-struct SubscriptionInfo {
-    let isSubscribed: Bool
-    var productId: String?
-    var expirationDate: Date?
-    var isInGracePeriod: Bool = false
-    var willAutoRenew: Bool = false
-}
+// NOTE: SubscriptionInfo is defined in SharedDefaults.swift (shared between App and Extension targets)
 
 enum StoreKitError: LocalizedError {
     case userCancelled
