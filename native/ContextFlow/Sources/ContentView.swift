@@ -5,6 +5,7 @@ import SafariServices
 
 /// Main view of the ContextFlow container app.
 /// Shows setup instructions so users know how to enable the Safari extension.
+@available(macOS 12.0, iOS 15.0, *)
 struct ContentView: View {
     @State private var extensionEnabled = false
 
