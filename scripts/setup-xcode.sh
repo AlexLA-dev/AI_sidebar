@@ -87,8 +87,8 @@ echo ""
 
 echo "--- App target: $(basename "$APP_DIR") ---"
 
-# App target gets: ContentView, StoreKitManager, PrivacyInfo
-for fname in ContentView.swift StoreKitManager.swift; do
+# App target gets: ViewController, ContentView, StoreKitManager, PrivacyInfo
+for fname in ViewController.swift ContentView.swift StoreKitManager.swift; do
     src="$SOURCES_DIR/$fname"
     if [ -f "$src" ]; then
         if [ -f "$APP_DIR/$fname" ]; then echo "  [update] $fname"
@@ -100,6 +100,12 @@ done
 if [ -f "$NATIVE_DIR/PrivacyInfo.xcprivacy" ]; then
     cp "$NATIVE_DIR/PrivacyInfo.xcprivacy" "$APP_DIR/PrivacyInfo.xcprivacy"
     echo "  [ok]     PrivacyInfo.xcprivacy"
+fi
+
+# Copy StoreKit Configuration file to project root (for Xcode scheme setup)
+if [ -f "$NATIVE_DIR/ContextFlow.storekit" ]; then
+    cp "$NATIVE_DIR/ContextFlow.storekit" "$XCODE_PROJECT/ContextFlow.storekit"
+    echo "  [ok]     ContextFlow.storekit → project root"
 fi
 
 echo ""
@@ -158,8 +164,9 @@ echo "     → Delete duplicates in 'iOS (App)' and 'macOS (App)' folders"
 echo ""
 echo "  2. ADD files to App target (from '$(basename "$APP_DIR")'):"
 echo "     → Right-click '$(basename "$APP_DIR")' → Add Files..."
-echo "     → Select: ContentView.swift, StoreKitManager.swift, PrivacyInfo.xcprivacy"
+echo "     → Select: ViewController.swift, ContentView.swift, StoreKitManager.swift, PrivacyInfo.xcprivacy"
 echo "     → Targets: ✅ ContextFlow (iOS)  ✅ ContextFlow (macOS)"
+echo "     NOTE: ViewController.swift REPLACES the converter-generated one"
 echo ""
 echo "  3. ADD files to Extension target (from '$(basename "$EXT_DIR")'):"
 echo "     → Replace the existing SafariWebExtensionHandler.swift"
@@ -167,14 +174,19 @@ echo "       (delete old one first, then Add the new one)"
 echo "     → Also add StoreKitManager.swift to the Extension target"
 echo "     → Targets: ✅ ContextFlow Extension (iOS)  ✅ ContextFlow Extension (macOS)"
 echo ""
-echo "  4. Fix ViewController.swift (in $(basename "$APP_DIR")):"
-echo "     → class ViewController: PlatformViewController, WKNavigationDelegate {"
-echo "     → See RELEASE_GUIDE.md section 4.5 for the full code"
+echo "  4. SET deployment targets:"
+echo "     → Select project (blue icon) → Build Settings → search 'deployment'"
+echo "     → macOS Deployment Target: 12.0"
+echo "     → iOS Deployment Target: 15.0"
 echo ""
 echo "  5. Add In-App Purchase capability to App targets only:"
 echo "     → ContextFlow (iOS): Signing & Capabilities → + → In-App Purchase"
 echo "     → ContextFlow (macOS): Signing & Capabilities → + → In-App Purchase"
 echo "     → Extension targets inherit it automatically"
 echo ""
-echo "  6. Build (Cmd+B)"
+echo "  6. ENABLE StoreKit testing (for local dev):"
+echo "     → Product → Scheme → Edit Scheme → Run → Options"
+echo "     → StoreKit Configuration → select 'ContextFlow.storekit'"
+echo ""
+echo "  7. Build (Cmd+B)"
 echo ""
