@@ -4,8 +4,8 @@
 #
 # Run this AFTER `safari-web-extension-converter` generates the ContextFlow project.
 # Copies files to two locations:
-#   - "Shared (App)/"      → ContentView, StoreKitManager, PrivacyInfo
-#   - "Shared (Extension)/" → SafariWebExtensionHandler (replaces default), StoreKitManager
+#   - "Shared (App)/"      → ContentView, StoreKitManager, SharedDefaults, ViewController, PrivacyInfo
+#   - "Shared (Extension)/" → SafariWebExtensionHandler, SharedDefaults
 #
 # Usage:
 #   cd AI_sidebar
@@ -87,8 +87,8 @@ echo ""
 
 echo "--- App target: $(basename "$APP_DIR") ---"
 
-# App target gets: ViewController, ContentView, StoreKitManager, PrivacyInfo
-for fname in ViewController.swift ContentView.swift StoreKitManager.swift; do
+# App target gets: ViewController, ContentView, StoreKitManager, SharedDefaults
+for fname in ViewController.swift ContentView.swift StoreKitManager.swift SharedDefaults.swift; do
     src="$SOURCES_DIR/$fname"
     if [ -f "$src" ]; then
         if [ -f "$APP_DIR/$fname" ]; then echo "  [update] $fname"
@@ -114,8 +114,10 @@ echo ""
 
 echo "--- Extension target: $(basename "$EXT_DIR") ---"
 
-# Extension target gets: SafariWebExtensionHandler (replaces default), StoreKitManager
-for fname in SafariWebExtensionHandler.swift StoreKitManager.swift; do
+# Extension target gets: SafariWebExtensionHandler, SharedDefaults
+# NOTE: StoreKit is no longer needed in the extension — purchases happen in the app.
+# The extension only reads subscription status from SharedDefaults (App Group).
+for fname in SafariWebExtensionHandler.swift SharedDefaults.swift; do
     src="$SOURCES_DIR/$fname"
     if [ -f "$src" ]; then
         if [ -f "$EXT_DIR/$fname" ]; then echo "  [update] $fname"
@@ -139,11 +141,18 @@ for dir in "$APP_DIR" "$EXT_DIR"; do
     fi
 done
 
+# Warn about old StoreKitManager in Extension (no longer needed there)
+if [ -f "$EXT_DIR/StoreKitManager.swift" ]; then
+    if [ "$HAS_WARNINGS" = false ]; then echo "WARNINGS:"; HAS_WARNINGS=true; fi
+    echo "  StoreKitManager.swift in $(basename "$EXT_DIR") is NO LONGER NEEDED"
+    echo "  → Delete it from the Extension target (purchases happen in the App now)"
+fi
+
 # Warn about duplicates in platform folders
 for PLATFORM_DIR in "iOS (App)" "macOS (App)"; do
     DIR="$XCODE_PROJECT/$PLATFORM_DIR"
     if [ -d "$DIR" ]; then
-        for fname in ContentView.swift StoreKitManager.swift ExtensionMessageHandler.swift SafariWebExtensionHandler.swift PrivacyInfo.xcprivacy; do
+        for fname in ContentView.swift StoreKitManager.swift SharedDefaults.swift ExtensionMessageHandler.swift SafariWebExtensionHandler.swift PrivacyInfo.xcprivacy; do
             if [ -f "$DIR/$fname" ]; then
                 if [ "$HAS_WARNINGS" = false ]; then echo "WARNINGS:"; HAS_WARNINGS=true; fi
                 echo "  Duplicate: $PLATFORM_DIR/$fname → DELETE from Xcode"
@@ -160,18 +169,20 @@ echo ""
 echo "  1. CLEAN UP:"
 echo "     → Delete any red (broken) file references at the project root"
 echo "     → Delete ExtensionMessageHandler.swift if present (obsolete)"
+echo "     → Delete StoreKitManager.swift from Extension target (no longer needed there)"
 echo "     → Delete duplicates in 'iOS (App)' and 'macOS (App)' folders"
 echo ""
 echo "  2. ADD files to App target (from '$(basename "$APP_DIR")'):"
 echo "     → Right-click '$(basename "$APP_DIR")' → Add Files..."
-echo "     → Select: ViewController.swift, ContentView.swift, StoreKitManager.swift, PrivacyInfo.xcprivacy"
+echo "     → Select: ViewController.swift, ContentView.swift, StoreKitManager.swift,"
+echo "       SharedDefaults.swift, PrivacyInfo.xcprivacy"
 echo "     → Targets: ✅ ContextFlow (iOS)  ✅ ContextFlow (macOS)"
 echo "     NOTE: ViewController.swift REPLACES the converter-generated one"
 echo ""
 echo "  3. ADD files to Extension target (from '$(basename "$EXT_DIR")'):"
 echo "     → Replace the existing SafariWebExtensionHandler.swift"
 echo "       (delete old one first, then Add the new one)"
-echo "     → Also add StoreKitManager.swift to the Extension target"
+echo "     → Also add SharedDefaults.swift to the Extension target"
 echo "     → Targets: ✅ ContextFlow Extension (iOS)  ✅ ContextFlow Extension (macOS)"
 echo ""
 echo "  4. SET deployment targets:"
@@ -179,14 +190,27 @@ echo "     → Select project (blue icon) → Build Settings → search 'deploym
 echo "     → macOS Deployment Target: 12.0"
 echo "     → iOS Deployment Target: 15.0"
 echo ""
-echo "  5. Add In-App Purchase capability to App targets only:"
-echo "     → ContextFlow (iOS): Signing & Capabilities → + → In-App Purchase"
-echo "     → ContextFlow (macOS): Signing & Capabilities → + → In-App Purchase"
-echo "     → Extension targets inherit it automatically"
+echo "  5. ADD capabilities:"
+echo "     a) In-App Purchase (App targets only):"
+echo "        → ContextFlow (iOS): Signing & Capabilities → + → In-App Purchase"
+echo "        → ContextFlow (macOS): Signing & Capabilities → + → In-App Purchase"
 echo ""
-echo "  6. ENABLE StoreKit testing (for local dev):"
+echo "     b) App Groups (ALL 4 targets):"
+echo "        → Add group: group.com.contextflow.shared"
+echo "        → ContextFlow (iOS):                ✅ App Groups"
+echo "        → ContextFlow (macOS):               ✅ App Groups"
+echo "        → ContextFlow Extension (iOS):       ✅ App Groups"
+echo "        → ContextFlow Extension (macOS):     ✅ App Groups"
+echo ""
+echo "  6. REGISTER URL Scheme (App targets):"
+echo "     → Select ContextFlow (macOS) target → Info → URL Types"
+echo "     → Click +, set URL Schemes: contextflow"
+echo "     → Repeat for ContextFlow (iOS)"
+echo ""
+echo "  7. ENABLE StoreKit testing (for local dev):"
 echo "     → Product → Scheme → Edit Scheme → Run → Options"
 echo "     → StoreKit Configuration → select 'ContextFlow.storekit'"
+echo "     → Do this for BOTH macOS and iOS schemes"
 echo ""
-echo "  7. Build (Cmd+B)"
+echo "  8. Build (Cmd+B)"
 echo ""
