@@ -57,6 +57,10 @@ final class SharedDefaults {
         static let theme = "cf_theme"
         // Usage
         static let trialUsageCount = "cf_trial_usage_count"
+        // Account
+        static let userEmail = "cf_user_email"
+        // API Key (BYOK)
+        static let apiKey = "cf_api_key"
     }
 
     // MARK: – Subscription Status
@@ -163,5 +167,52 @@ final class SharedDefaults {
             defaults.set(newValue, forKey: Key.trialUsageCount)
             defaults.synchronize()
         }
+    }
+
+    // MARK: – Account
+
+    var userEmail: String? {
+        get { defaults.string(forKey: Key.userEmail) }
+        set {
+            if let email = newValue {
+                defaults.set(email, forKey: Key.userEmail)
+            } else {
+                defaults.removeObject(forKey: Key.userEmail)
+            }
+            defaults.synchronize()
+        }
+    }
+
+    // MARK: – API Key (BYOK)
+
+    var apiKey: String? {
+        get { defaults.string(forKey: Key.apiKey) }
+        set {
+            if let key = newValue, !key.isEmpty {
+                defaults.set(key, forKey: Key.apiKey)
+            } else {
+                defaults.removeObject(forKey: Key.apiKey)
+            }
+            defaults.synchronize()
+        }
+    }
+
+    // MARK: – Debug
+
+    /// Returns all stored values for debugging (shown in the native app Status tab).
+    func debugDump() -> [String: Any] {
+        var dump: [String: Any] = [
+            "suiteName": SharedDefaults.suiteName,
+            "isSubscribed": defaults.bool(forKey: Key.isSubscribed),
+            "planType": defaults.string(forKey: Key.planType) ?? "free",
+            "lastUpdated": defaults.double(forKey: Key.lastUpdated)
+        ]
+        if let pid = defaults.string(forKey: Key.productId) { dump["productId"] = pid }
+        if let email = defaults.string(forKey: Key.userEmail) { dump["userEmail"] = email }
+        if defaults.string(forKey: Key.apiKey) != nil { dump["apiKey"] = "(set)" }
+        dump["trialUsageCount"] = defaults.integer(forKey: Key.trialUsageCount)
+        dump["fontSize"] = defaults.integer(forKey: Key.fontSize)
+        dump["theme"] = defaults.string(forKey: Key.theme) ?? "system"
+        return dump
     }
 }

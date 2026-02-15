@@ -11,6 +11,7 @@ import {
   type TrialInfo
 } from "~/lib/ai"
 import { getStoredApiKey, setStoredApiKey, storage, LICENSE_CONFIG } from "~/lib/storage"
+import { syncUserInfo } from "~/lib/appstore"
 
 // --- Lightweight inline markdown renderer (no external deps) ---
 function renderMarkdown(text: string): React.ReactNode[] {
@@ -490,9 +491,19 @@ function FloatingPanelContent() {
           setTrialInfo(info)
         }
 
+        // Sync user email to native app on initial load
+        if (s?.user?.email) {
+          syncUserInfo(s.user.email)
+        }
+
         supabase.auth.onAuthStateChange((_event, newSession) => {
           setSession(newSession)
-          if (newSession) syncSubscriptionFromServer().then(setTrialInfo)
+          if (newSession) {
+            syncSubscriptionFromServer().then(setTrialInfo)
+            if (newSession.user?.email) syncUserInfo(newSession.user.email)
+          } else {
+            syncUserInfo(null)
+          }
         })
       } catch {
         setSession(null)
@@ -622,6 +633,7 @@ function FloatingPanelContent() {
       await supabase.auth.signOut()
       setSession(null)
       setShowSettings(false)
+      syncUserInfo(null)
     } catch (err) {
       console.error("[ContextFlow] Sign out error:", err)
     }

@@ -40,9 +40,34 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             ]
             result = ["success": true, "data": settings]
 
+        case "syncUserInfo":
+            // Extension writes user email to shared storage so the native app can display it
+            if let email = message["email"] as? String {
+                SharedDefaults.shared.userEmail = email
+                logger.info("Synced user email: \(email)")
+            } else {
+                SharedDefaults.shared.userEmail = nil
+                logger.info("Cleared user email")
+            }
+            result = ["success": true, "data": [:] as [String: Any]]
+
+        case "getApiKey":
+            let key = SharedDefaults.shared.apiKey ?? ""
+            result = ["success": true, "data": ["apiKey": key]]
+
+        case "setApiKey":
+            let key = message["apiKey"] as? String
+            SharedDefaults.shared.apiKey = key
+            logger.info("API key \(key != nil && !key!.isEmpty ? "set" : "cleared")")
+            result = ["success": true, "data": [:] as [String: Any]]
+
         case "openApp":
             // Return a signal that JS should open the app via URL scheme
             result = ["success": true, "data": ["action": "openApp", "urlScheme": "contextflow://subscribe"]]
+
+        case "ping":
+            // Health check — extension can verify native messaging works
+            result = ["success": true, "data": ["pong": true, "version": "1.0"]]
 
         default:
             result = ["success": false, "error": "Unknown command: \(command). Purchases are now handled in the ContextFlow app."]

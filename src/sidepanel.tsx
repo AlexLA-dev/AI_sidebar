@@ -6,7 +6,7 @@ import { cn, sendMessageToActiveTab } from "~/lib/utils"
 import { getStoredApiKey, setStoredApiKey, getTrialInfo, syncSubscriptionFromServer, type ContextType, type TrialInfo } from "~/lib/ai"
 import { getSupabaseClient } from "~/lib/supabase"
 import { isSafari } from "~/lib/platform"
-import { checkNativeSubscription } from "~/lib/appstore"
+import { checkNativeSubscription, syncUserInfo } from "~/lib/appstore"
 import { setLicenseStatus } from "~/lib/storage"
 import { ChatInterface, SettingsPanel } from "~/components/chat"
 import { OnboardingModal, PaywallModal } from "~/components/onboarding"
@@ -75,6 +75,11 @@ function SidePanel() {
           setTrialInfo(info)
         }
 
+        // Sync user email to native app on initial load
+        if (currentSession?.user?.email) {
+          syncUserInfo(currentSession.user.email)
+        }
+
         // Listen for auth state changes (sign in, sign out, token refresh)
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
           (_event, newSession) => {
@@ -82,6 +87,12 @@ function SidePanel() {
             // Re-sync subscription when auth state changes
             if (newSession) {
               syncSubscriptionFromServer().then(setTrialInfo)
+              // Sync user email to native app shared storage
+              if (newSession.user?.email) {
+                syncUserInfo(newSession.user.email)
+              }
+            } else {
+              syncUserInfo(null)
             }
           }
         )
@@ -312,6 +323,8 @@ function SidePanel() {
       // Session will be cleared by onAuthStateChange
       setApiKey("")
       setShowSettings(false)
+      // Clear user info from native app shared storage
+      syncUserInfo(null)
     } catch (err) {
       console.error("[ContextFlow] Sign out error:", err)
     }

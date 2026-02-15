@@ -108,3 +108,53 @@ export function openManageSubscriptions(): void {
 export function openAppForSubscription(): void {
   window.open("contextflow://subscribe", "_blank")
 }
+
+// ── Account sync ─────────────────────────────────────────────────────────
+
+/**
+ * Sync user email to shared storage so the native app can display it.
+ * Call this after login/signup. Pass null/undefined to clear on logout.
+ */
+export async function syncUserInfo(email: string | null): Promise<void> {
+  try {
+    await sendNativeMessage("syncUserInfo", { email: email ?? "" })
+  } catch {
+    // Non-critical — native app just won't show email
+    console.warn("[ContextFlow] Failed to sync user info:", email)
+  }
+}
+
+// ── API Key (BYOK) ──────────────────────────────────────────────────────
+
+/**
+ * Get API key from shared storage (set in native app or extension).
+ */
+export async function getNativeApiKey(): Promise<string> {
+  try {
+    const result = await sendNativeMessage<{ apiKey: string }>("getApiKey")
+    return result.apiKey || ""
+  } catch {
+    return ""
+  }
+}
+
+/**
+ * Set API key in shared storage (accessible by both app and extension).
+ */
+export async function setNativeApiKey(apiKey: string): Promise<void> {
+  await sendNativeMessage("setApiKey", { apiKey })
+}
+
+// ── Health check ─────────────────────────────────────────────────────────
+
+/**
+ * Ping the native handler to verify the messaging bridge works.
+ */
+export async function pingNative(): Promise<boolean> {
+  try {
+    const result = await sendNativeMessage<{ pong: boolean }>("ping")
+    return result.pong === true
+  } catch {
+    return false
+  }
+}

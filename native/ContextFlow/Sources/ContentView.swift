@@ -14,6 +14,7 @@ struct ContentView: View {
         case subscription = "Subscription"
         case settings = "Settings"
         case setup = "Setup"
+        case status = "Status"
     }
 
     @State private var selectedTab: Tab = .subscription
@@ -44,6 +45,12 @@ struct ContentView: View {
                     Label("Setup", systemImage: "safari")
                 }
                 .tag(Tab.setup)
+
+            StatusTab()
+                .tabItem {
+                    Label("Status", systemImage: "info.circle")
+                }
+                .tag(Tab.status)
         }
         .tint(.purple)
         #endif
@@ -68,6 +75,8 @@ struct ContentView: View {
             SettingsTab()
         case .setup:
             SetupTab()
+        case .status:
+            StatusTab()
         }
     }
 
@@ -76,6 +85,7 @@ struct ContentView: View {
         case .subscription: return "crown"
         case .settings: return "gearshape"
         case .setup: return "safari"
+        case .status: return "info.circle"
         }
     }
     #endif
@@ -115,6 +125,9 @@ struct SubscriptionTab: View {
                         .foregroundColor(.secondary)
                 }
                 .padding(.top, 24)
+
+                // Account info
+                accountCard
 
                 // Current status
                 statusCard
@@ -158,6 +171,48 @@ struct SubscriptionTab: View {
                 successOverlay
             }
         }
+    }
+
+    // MARK: – Account Card
+
+    private var accountCard: some View {
+        let email = SharedDefaults.shared.userEmail
+
+        return VStack(spacing: 8) {
+            HStack(spacing: 10) {
+                Image(systemName: email != nil ? "person.crop.circle.fill" : "person.crop.circle")
+                    .font(.title2)
+                    .foregroundColor(email != nil ? .purple : .gray)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    if let email {
+                        Text(email)
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                        Text("Signed in via Safari extension")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    } else {
+                        Text("Not signed in")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        Text("Sign in through the Safari extension")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
+                }
+
+                Spacer()
+            }
+        }
+        .padding(16)
+        #if os(iOS)
+        .background(Color(.systemBackground))
+        #else
+        .background(Color(nsColor: .controlBackgroundColor))
+        #endif
+        .cornerRadius(12)
+        .shadow(color: .black.opacity(0.04), radius: 4, y: 2)
     }
 
     // MARK: – Status Card
@@ -473,6 +528,8 @@ struct SubscriptionTab: View {
 struct SettingsTab: View {
     @State private var fontSize: Double = Double(SharedDefaults.shared.fontSize)
     @State private var selectedTheme: String = SharedDefaults.shared.theme
+    @State private var apiKey: String = SharedDefaults.shared.apiKey ?? ""
+    @State private var showApiKey = false
 
     let themes = ["system", "light", "dark"]
 
@@ -493,6 +550,9 @@ struct SettingsTab: View {
                         .foregroundColor(.secondary)
                 }
                 .padding(.top, 24)
+
+                // API Key (BYOK)
+                apiKeySection
 
                 // Font size
                 VStack(alignment: .leading, spacing: 12) {
@@ -561,6 +621,66 @@ struct SettingsTab: View {
             .padding(.horizontal, 24)
         }
         .background(backgroundStyle)
+    }
+
+    // MARK: – API Key Section
+
+    private var apiKeySection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Label("OpenAI API Key", systemImage: "key")
+                .font(.headline)
+
+            Text("Required for BYOK plan. Your key is stored locally and shared with the extension.")
+                .font(.caption)
+                .foregroundColor(.secondary)
+
+            HStack {
+                if showApiKey {
+                    TextField("sk-...", text: $apiKey)
+                        .textFieldStyle(.roundedBorder)
+                        .font(.system(.body, design: .monospaced))
+                        #if os(iOS)
+                        .autocapitalization(.none)
+                        .disableAutocorrection(true)
+                        #endif
+                } else {
+                    SecureField("sk-...", text: $apiKey)
+                        .textFieldStyle(.roundedBorder)
+                        .font(.system(.body, design: .monospaced))
+                }
+
+                Button(action: { showApiKey.toggle() }) {
+                    Image(systemName: showApiKey ? "eye.slash" : "eye")
+                        .foregroundColor(.secondary)
+                }
+                .buttonStyle(.plain)
+            }
+
+            HStack {
+                Button("Save Key") {
+                    SharedDefaults.shared.apiKey = apiKey.isEmpty ? nil : apiKey
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.blue)
+                .disabled(apiKey.isEmpty && SharedDefaults.shared.apiKey == nil)
+
+                if SharedDefaults.shared.apiKey != nil {
+                    Button("Clear") {
+                        apiKey = ""
+                        SharedDefaults.shared.apiKey = nil
+                    }
+                    .foregroundColor(.red)
+                }
+            }
+        }
+        .padding(20)
+        #if os(iOS)
+        .background(Color(.systemBackground))
+        #else
+        .background(Color(nsColor: .controlBackgroundColor))
+        #endif
+        .cornerRadius(16)
+        .shadow(color: .black.opacity(0.06), radius: 6, y: 2)
     }
 
     @ViewBuilder
@@ -685,6 +805,165 @@ struct SetupTab: View {
             Text(text)
                 .font(.subheadline)
                 .foregroundColor(.primary)
+        }
+    }
+
+    @ViewBuilder
+    private var backgroundStyle: some View {
+        #if os(iOS)
+        Color(.systemGroupedBackground)
+        #else
+        Color(nsColor: .windowBackgroundColor)
+        #endif
+    }
+}
+
+// MARK: – Status Tab (Debug / Connection Health)
+
+@available(macOS 12.0, iOS 15.0, *)
+struct StatusTab: View {
+    @State private var debugInfo: [String: Any] = [:]
+    @State private var isRefreshing = false
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 24) {
+                VStack(spacing: 8) {
+                    Image(systemName: "info.circle")
+                        .font(.system(size: 44))
+                        .foregroundColor(.purple)
+
+                    Text("Status")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+
+                    Text("Shared storage debug info")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+                .padding(.top, 24)
+
+                // App Group status
+                VStack(alignment: .leading, spacing: 12) {
+                    Label("App Group Storage", systemImage: "externaldrive.connected.to.line.below")
+                        .font(.headline)
+
+                    if debugInfo.isEmpty {
+                        Text("Tap Refresh to load")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    } else {
+                        ForEach(debugInfo.sorted(by: { $0.key < $1.key }), id: \.key) { key, value in
+                            HStack {
+                                Text(key)
+                                    .font(.caption)
+                                    .fontWeight(.medium)
+                                    .foregroundColor(.primary)
+                                Spacer()
+                                Text("\(String(describing: value))")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                    .lineLimit(1)
+                            }
+                        }
+                    }
+
+                    Button(action: refreshDebugInfo) {
+                        HStack(spacing: 6) {
+                            if isRefreshing {
+                                ProgressView()
+                                    .scaleEffect(0.7)
+                            }
+                            Text("Refresh")
+                        }
+                    }
+                    .buttonStyle(.bordered)
+                    .disabled(isRefreshing)
+                }
+                .padding(20)
+                #if os(iOS)
+                .background(Color(.systemBackground))
+                #else
+                .background(Color(nsColor: .controlBackgroundColor))
+                #endif
+                .cornerRadius(16)
+                .shadow(color: .black.opacity(0.06), radius: 6, y: 2)
+
+                // Connection checklist
+                VStack(alignment: .leading, spacing: 12) {
+                    Label("Checklist", systemImage: "checklist")
+                        .font(.headline)
+
+                    let hasAppGroup = UserDefaults(suiteName: SharedDefaults.suiteName) != nil
+                    let isSubscribed = SharedDefaults.shared.readSubscriptionStatus()["isSubscribed"] as? Bool ?? false
+                    let hasEmail = SharedDefaults.shared.userEmail != nil
+                    let hasApiKey = SharedDefaults.shared.apiKey != nil
+
+                    checkItem("App Group configured", ok: hasAppGroup)
+                    checkItem("Subscription active", ok: isSubscribed)
+                    checkItem("User email synced", ok: hasEmail)
+                    checkItem("API key set", ok: hasApiKey)
+                }
+                .padding(20)
+                #if os(iOS)
+                .background(Color(.systemBackground))
+                #else
+                .background(Color(nsColor: .controlBackgroundColor))
+                #endif
+                .cornerRadius(16)
+                .shadow(color: .black.opacity(0.06), radius: 6, y: 2)
+
+                // How it works
+                VStack(alignment: .leading, spacing: 8) {
+                    Label("How it works", systemImage: "questionmark.circle")
+                        .font(.headline)
+
+                    Text("1. You subscribe in this app (StoreKit)")
+                        .font(.caption)
+                    Text("2. Status is written to App Group shared storage")
+                        .font(.caption)
+                    Text("3. Safari extension reads status via native messaging")
+                        .font(.caption)
+                    Text("4. Extension unlocks premium features")
+                        .font(.caption)
+
+                    Text("\nIf the extension doesn't see your subscription, make sure App Groups are enabled for ALL 4 targets in Xcode (both App + Extension, iOS + macOS).")
+                        .font(.caption)
+                        .foregroundColor(.orange)
+                }
+                .padding(20)
+                #if os(iOS)
+                .background(Color(.systemBackground))
+                #else
+                .background(Color(nsColor: .controlBackgroundColor))
+                #endif
+                .cornerRadius(16)
+                .shadow(color: .black.opacity(0.06), radius: 6, y: 2)
+
+                Spacer(minLength: 32)
+            }
+            .padding(.horizontal, 24)
+        }
+        .background(backgroundStyle)
+        .onAppear { refreshDebugInfo() }
+    }
+
+    private func refreshDebugInfo() {
+        isRefreshing = true
+        debugInfo = SharedDefaults.shared.debugDump()
+        isRefreshing = false
+    }
+
+    private func checkItem(_ label: String, ok: Bool) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: ok ? "checkmark.circle.fill" : "xmark.circle")
+                .foregroundColor(ok ? .green : .red)
+            Text(label)
+                .font(.subheadline)
+            Spacer()
+            Text(ok ? "OK" : "Missing")
+                .font(.caption)
+                .foregroundColor(ok ? .green : .red)
         }
     }
 
