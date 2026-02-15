@@ -42,7 +42,7 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
 
         case "syncUserInfo":
             // Extension writes user email to shared storage so the native app can display it
-            if let email = message["email"] as? String {
+            if let email = message["email"] as? String, !email.isEmpty {
                 SharedDefaults.shared.userEmail = email
                 logger.info("Synced user email: \(email)")
             } else {

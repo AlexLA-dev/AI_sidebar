@@ -101,6 +101,14 @@ struct SubscriptionTab: View {
     @State private var errorMessage: String?
     @State private var showSuccess = false
 
+    // Reactive state — polled from SharedDefaults so we pick up changes
+    // written by the Safari extension (which runs in a separate process).
+    @State private var userEmail: String? = SharedDefaults.shared.userEmail
+    @State private var trialUsageCount: Int = SharedDefaults.shared.trialUsageCount
+
+    // Timer that re-reads SharedDefaults every 2 seconds
+    private let refreshTimer = Timer.publish(every: 2, on: .main, in: .common).autoconnect()
+
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
@@ -171,22 +179,30 @@ struct SubscriptionTab: View {
                 successOverlay
             }
         }
+        .onAppear {
+            userEmail = SharedDefaults.shared.userEmail
+            trialUsageCount = SharedDefaults.shared.trialUsageCount
+        }
+        .onReceive(refreshTimer) { _ in
+            let newEmail = SharedDefaults.shared.userEmail
+            let newCount = SharedDefaults.shared.trialUsageCount
+            if newEmail != userEmail { userEmail = newEmail }
+            if newCount != trialUsageCount { trialUsageCount = newCount }
+        }
     }
 
     // MARK: – Account Card
 
     private var accountCard: some View {
-        let email = SharedDefaults.shared.userEmail
-
-        return VStack(spacing: 8) {
+        VStack(spacing: 8) {
             HStack(spacing: 10) {
-                Image(systemName: email != nil ? "person.crop.circle.fill" : "person.crop.circle")
+                Image(systemName: userEmail != nil ? "person.crop.circle.fill" : "person.crop.circle")
                     .font(.title2)
-                    .foregroundColor(email != nil ? .purple : .gray)
+                    .foregroundColor(userEmail != nil ? .purple : .gray)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    if let email {
-                        Text(email)
+                    if let userEmail {
+                        Text(userEmail)
                             .font(.subheadline)
                             .fontWeight(.medium)
                         Text("Signed in via Safari extension")
@@ -282,7 +298,7 @@ struct SubscriptionTab: View {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Free Trial")
                             .font(.headline)
-                        Text("\(max(0, 5 - SharedDefaults.shared.trialUsageCount)) of 5 requests remaining")
+                        Text("\(max(0, 5 - trialUsageCount)) of 5 requests remaining")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                     }
@@ -300,7 +316,7 @@ struct SubscriptionTab: View {
                         RoundedRectangle(cornerRadius: 4)
                             .fill(Color.blue)
                             .frame(
-                                width: geo.size.width * CGFloat(min(SharedDefaults.shared.trialUsageCount, 5)) / 5.0,
+                                width: geo.size.width * CGFloat(min(trialUsageCount, 5)) / 5.0,
                                 height: 6
                             )
                     }
@@ -825,6 +841,13 @@ struct StatusTab: View {
     @State private var debugInfo: [String: Any] = [:]
     @State private var isRefreshing = false
 
+    // Reactive state — polled from SharedDefaults
+    @State private var hasEmail: Bool = SharedDefaults.shared.userEmail != nil
+    @State private var hasApiKey: Bool = SharedDefaults.shared.apiKey != nil
+    @State private var isSubscribed: Bool = SharedDefaults.shared.readSubscriptionStatus()["isSubscribed"] as? Bool ?? false
+
+    private let refreshTimer = Timer.publish(every: 2, on: .main, in: .common).autoconnect()
+
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
@@ -895,9 +918,6 @@ struct StatusTab: View {
                         .font(.headline)
 
                     let hasAppGroup = UserDefaults(suiteName: SharedDefaults.suiteName) != nil
-                    let isSubscribed = SharedDefaults.shared.readSubscriptionStatus()["isSubscribed"] as? Bool ?? false
-                    let hasEmail = SharedDefaults.shared.userEmail != nil
-                    let hasApiKey = SharedDefaults.shared.apiKey != nil
 
                     checkItem("App Group configured", ok: hasAppGroup)
                     checkItem("Subscription active", ok: isSubscribed)
@@ -945,7 +965,22 @@ struct StatusTab: View {
             .padding(.horizontal, 24)
         }
         .background(backgroundStyle)
-        .onAppear { refreshDebugInfo() }
+        .onAppear {
+            refreshDebugInfo()
+            refreshChecklist()
+        }
+        .onReceive(refreshTimer) { _ in
+            refreshChecklist()
+        }
+    }
+
+    private func refreshChecklist() {
+        let newHasEmail = SharedDefaults.shared.userEmail != nil
+        let newHasApiKey = SharedDefaults.shared.apiKey != nil
+        let newIsSubscribed = SharedDefaults.shared.readSubscriptionStatus()["isSubscribed"] as? Bool ?? false
+        if newHasEmail != hasEmail { hasEmail = newHasEmail }
+        if newHasApiKey != hasApiKey { hasApiKey = newHasApiKey }
+        if newIsSubscribed != isSubscribed { isSubscribed = newIsSubscribed }
     }
 
     private func refreshDebugInfo() {
