@@ -5,6 +5,9 @@ import type { Session } from "@supabase/supabase-js"
 import { cn, sendMessageToActiveTab } from "~/lib/utils"
 import { getStoredApiKey, setStoredApiKey, getTrialInfo, syncSubscriptionFromServer, type ContextType, type TrialInfo } from "~/lib/ai"
 import { getSupabaseClient } from "~/lib/supabase"
+import { isSafari } from "~/lib/platform"
+import { checkNativeSubscription } from "~/lib/appstore"
+import { setLicenseStatus } from "~/lib/storage"
 import { ChatInterface, SettingsPanel } from "~/components/chat"
 import { OnboardingModal, PaywallModal } from "~/components/onboarding"
 import type { RequestBody, ResponseBody } from "~/contents/context-parser"
@@ -44,6 +47,18 @@ function SidePanel() {
       // Load API key
       const storedKey = await getStoredApiKey()
       setApiKey(storedKey)
+
+      // On Safari, check native app shared storage for subscription status first
+      if (isSafari()) {
+        try {
+          const nativeActive = await checkNativeSubscription()
+          if (nativeActive) {
+            await setLicenseStatus(true)
+          }
+        } catch {
+          // Native bridge not available — continue with server check
+        }
+      }
 
       // Check Supabase auth session
       try {

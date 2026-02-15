@@ -1,17 +1,16 @@
 /**
- * App Store (StoreKit 2) bridge for Safari Web Extension.
+ * App Store subscription bridge for Safari Web Extension.
+ *
+ * Purchases are now handled in the native ContextFlow app.
+ * This module only reads subscription status from the native handler,
+ * which reads from App Group shared UserDefaults.
  *
  * Communication flow:
- * 1. Extension page (sidebar) → chrome.runtime.sendMessage() → Background script
+ * 1. Extension page → chrome.runtime.sendMessage() → Background script
  * 2. Background script → browser.runtime.sendNativeMessage() → SafariWebExtensionHandler
- * 3. SafariWebExtensionHandler → StoreKit 2 API → App Store
- * 4. Response flows back through the same chain
- *
- * Note: browser.runtime.sendNativeMessage() is only available in the background
- * script context, so extension pages must relay through the background.
+ * 3. SafariWebExtensionHandler → SharedDefaults (App Group) → returns status
  */
 
-import { getSupabaseClient } from "./supabase"
 import { isNativeStoreKitAvailable } from "./platform"
 
 // ── Product IDs (must match App Store Connect configuration) ──────────────
@@ -25,51 +24,35 @@ export type AppStoreProductId = (typeof APPSTORE_PRODUCT_IDS)[keyof typeof APPST
 
 // ── Types ─────────────────────────────────────────────────────────────────
 
-export interface AppStoreProduct {
-  id: string
-  displayName: string
-  description: string
-  displayPrice: string
-  /** Price in the user's local currency (number) */
-  price: number
-  /** ISO 4217 currency code */
-  currencyCode: string
-}
-
-export interface AppStorePurchaseResult {
-  success: boolean
-  transactionId?: string
-  originalTransactionId?: string
-  productId?: string
-  error?: string
-  /** JWS-encoded transaction for server verification */
-  jwsTransaction?: string
-}
-
 export interface AppStoreSubscriptionStatus {
   isSubscribed: boolean
   productId?: string
+  planType?: string
   expirationDate?: string
   isInGracePeriod?: boolean
   willAutoRenew?: boolean
+  lastUpdated?: number
+}
+
+export interface AppStoreSettings {
+  fontSize: number
+  theme: string
 }
 
 // ── Native bridge ─────────────────────────────────────────────────────────
 
 /**
- * Send a StoreKit command to the native SafariWebExtensionHandler.
- *
- * Extension pages (sidebar, popup) do NOT have access to
- * browser.runtime.sendNativeMessage(), so we relay through the background
- * script via chrome.runtime.sendMessage({ action: "storekit", ... }).
+ * Send a command to the native SafariWebExtensionHandler.
+ * Relays through the background script since extension pages
+ * don't have access to browser.runtime.sendNativeMessage().
  */
 async function sendNativeMessage<T>(command: string, params: Record<string, unknown> = {}): Promise<T> {
   if (!isNativeStoreKitAvailable()) {
-    throw new Error("StoreKit bridge is not available. Ensure you are running the App Store build of ContextFlow.")
+    throw new Error("Native bridge is not available.")
   }
 
   const response = await chrome.runtime.sendMessage({
-    action: "storekit",
+    action: "native",
     command,
     ...params
   })
@@ -78,106 +61,50 @@ async function sendNativeMessage<T>(command: string, params: Record<string, unkn
     return response.data as T
   }
 
-  throw new Error(response?.error || `StoreKit command "${command}" failed`)
+  throw new Error(response?.error || `Native command "${command}" failed`)
 }
 
 // ── Public API ─────────────────────────────────────────────────────────────
 
 /**
- * Fetch available products from StoreKit.
- * Returns localized pricing for the user's App Store region.
- */
-export async function fetchProducts(): Promise<AppStoreProduct[]> {
-  const productIds = Object.values(APPSTORE_PRODUCT_IDS)
-  return sendNativeMessage<AppStoreProduct[]>("fetchProducts", { productIds })
-}
-
-/**
- * Initiate a StoreKit purchase for the given product.
- * This triggers the native payment sheet (Face ID / password confirmation).
- */
-export async function purchase(productId: AppStoreProductId): Promise<AppStorePurchaseResult> {
-  // Get the Supabase user ID to pass as appAccountToken for server-side linking
-  let appAccountToken: string | undefined
-  try {
-    const supabase = getSupabaseClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    appAccountToken = user?.id
-  } catch {
-    // Continue without token; server will try to match by other means
-  }
-
-  const result = await sendNativeMessage<AppStorePurchaseResult>("purchase", {
-    productId,
-    appAccountToken
-  })
-
-  // If we got a JWS transaction, verify it on our server and link to Supabase user
-  if (result.success && result.jwsTransaction) {
-    await verifyTransactionOnServer(result.jwsTransaction)
-  }
-
-  return result
-}
-
-/**
- * Restore previous purchases (e.g. after reinstall or on a new device).
- */
-export async function restorePurchases(): Promise<AppStoreSubscriptionStatus> {
-  return sendNativeMessage<AppStoreSubscriptionStatus>("restorePurchases")
-}
-
-/**
- * Get the current subscription status from StoreKit.
+ * Get subscription status from App Group shared storage.
+ * This is fast — no StoreKit initialization, just reads UserDefaults.
  */
 export async function getSubscriptionStatus(): Promise<AppStoreSubscriptionStatus> {
   return sendNativeMessage<AppStoreSubscriptionStatus>("getSubscriptionStatus")
 }
 
 /**
- * Open the App Store subscription management page.
- * The native handler returns a URL, and we open it in a new tab.
+ * Get extension settings from the native app (font size, theme).
  */
-export async function openManageSubscriptions(): Promise<void> {
-  const result = await sendNativeMessage<{ url: string }>("manageSubscriptions")
-  if (result?.url) {
-    window.open(result.url, "_blank")
+export async function getAppSettings(): Promise<AppStoreSettings> {
+  return sendNativeMessage<AppStoreSettings>("getSettings")
+}
+
+/**
+ * Check if there's an active subscription via the native bridge.
+ * Returns false if the bridge is not available (e.g., Chrome).
+ */
+export async function checkNativeSubscription(): Promise<boolean> {
+  try {
+    const status = await getSubscriptionStatus()
+    return status.isSubscribed === true
+  } catch {
+    return false
   }
 }
 
-// ── Server-side verification ──────────────────────────────────────────────
-
-const API_BASE_URL = process.env.PLASMO_PUBLIC_API_URL || "/.netlify/functions"
+/**
+ * Open the App Store subscription management page.
+ */
+export function openManageSubscriptions(): void {
+  window.open("https://apps.apple.com/account/subscriptions", "_blank")
+}
 
 /**
- * Send the JWS-encoded transaction to our backend for verification.
- * The backend validates the signature with Apple, then updates the
- * user_subscriptions table in Supabase.
+ * Open the ContextFlow native app for subscription purchase.
+ * Uses a custom URL scheme registered by the app.
  */
-async function verifyTransactionOnServer(jwsTransaction: string): Promise<void> {
-  try {
-    const supabase = getSupabaseClient()
-    const { data: { session } } = await supabase.auth.getSession()
-
-    if (!session?.access_token) {
-      console.warn("[AppStore] No auth session, skipping server verification")
-      return
-    }
-
-    const response = await fetch(`${API_BASE_URL}/appstore-verify`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${session.access_token}`
-      },
-      body: JSON.stringify({ jwsTransaction })
-    })
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}))
-      console.error("[AppStore] Server verification failed:", error)
-    }
-  } catch (err) {
-    console.error("[AppStore] Failed to verify transaction on server:", err)
-  }
+export function openAppForSubscription(): void {
+  window.open("contextflow://subscribe", "_blank")
 }

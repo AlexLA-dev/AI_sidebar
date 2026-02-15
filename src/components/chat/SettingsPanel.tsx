@@ -3,8 +3,8 @@ import { Key, Crown, Eye, EyeOff, Check, X, Sparkles, LogOut, User, ExternalLink
 
 import { cn } from "~/lib/utils"
 import { setStoredApiKey, LICENSE_CONFIG, type TrialInfo } from "~/lib/storage"
-import { getPaymentProvider } from "~/lib/platform"
-import { openManageSubscriptions } from "~/lib/appstore"
+import { getPaymentProvider, isSafari } from "~/lib/platform"
+import { openManageSubscriptions, openAppForSubscription } from "~/lib/appstore"
 
 type SettingsPanelProps = {
   apiKey: string
@@ -48,12 +48,9 @@ export function SettingsPanel({
 
   const handleManageSubscription = () => {
     if (subscriptionSource === "appstore" || paymentProvider === "appstore") {
-      openManageSubscriptions().catch(() => {
-        // Fallback: open Apple subscription management URL
-        window.open("https://apps.apple.com/account/subscriptions", "_blank")
-      })
+      openManageSubscriptions()
     } else {
-      // Stripe customer portal (could be a Stripe billing portal link)
+      // Stripe customer portal
       window.open("https://billing.stripe.com/p/login/contextflow", "_blank")
     }
   }

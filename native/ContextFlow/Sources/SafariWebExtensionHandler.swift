@@ -1,15 +1,14 @@
 import SafariServices
-import StoreKit
 import os.log
 
 /// Handles native messages from the Safari Web Extension's JavaScript code.
 ///
 /// The extension sends messages via `browser.runtime.sendNativeMessage()`
-/// and this handler processes StoreKit commands and returns results.
+/// and this handler reads subscription status from SharedDefaults (App Group)
+/// written by the container app.
 ///
-/// This file lives in the **Extension target** (ContextFlow Extension),
-/// NOT in the container app. StoreKitManager and related files must be
-/// added to the Extension target as well.
+/// Purchase flow is handled entirely in the container app — this handler
+/// only reads status and settings, no StoreKit initialization needed.
 @available(iOS 15.0, macOS 12.0, *)
 class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
 
@@ -27,113 +26,29 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
 
         logger.info("Received command: \(command)")
 
-        Task {
-            do {
-                let result: [String: Any]
+        let result: [String: Any]
 
-                switch command {
-                case "fetchProducts":
-                    result = try await handleFetchProducts()
+        switch command {
+        case "getSubscriptionStatus":
+            let status = SharedDefaults.shared.readSubscriptionStatus()
+            result = ["success": true, "data": status]
 
-                case "purchase":
-                    let productId = message["productId"] as? String ?? ""
-                    let appAccountToken = (message["appAccountToken"] as? String).flatMap { UUID(uuidString: $0) }
-                    result = try await handlePurchase(productId: productId, appAccountToken: appAccountToken)
+        case "getSettings":
+            let settings: [String: Any] = [
+                "fontSize": SharedDefaults.shared.fontSize,
+                "theme": SharedDefaults.shared.theme
+            ]
+            result = ["success": true, "data": settings]
 
-                case "restorePurchases":
-                    result = try await handleRestorePurchases()
+        case "openApp":
+            // Return a signal that JS should open the app via URL scheme
+            result = ["success": true, "data": ["action": "openApp", "urlScheme": "contextflow://subscribe"]]
 
-                case "getSubscriptionStatus":
-                    result = try await handleGetSubscriptionStatus()
-
-                case "manageSubscriptions":
-                    let url = await StoreKitManager.shared.manageSubscriptionsURL()
-                    result = ["success": true, "data": ["url": url]]
-
-                default:
-                    result = ["success": false, "error": "Unknown command: \(command)"]
-                }
-
-                sendResponse(context: context, data: result)
-            } catch {
-                logger.error("Command \(command) failed: \(error.localizedDescription)")
-                sendResponse(context: context, data: [
-                    "success": false,
-                    "error": error.localizedDescription
-                ])
-            }
-        }
-    }
-
-    // MARK: – Command Handlers
-
-    private func handleFetchProducts() async throws -> [String: Any] {
-        let manager = await StoreKitManager.shared
-        await manager.loadProducts()
-
-        let products = await manager.products.map { product in
-            [
-                "id": product.id,
-                "displayName": product.displayName,
-                "description": product.description,
-                "displayPrice": product.displayPrice,
-                "price": product.price as NSDecimalNumber,
-                "currencyCode": product.priceFormatStyle.currencyCode
-            ] as [String: Any]
+        default:
+            result = ["success": false, "error": "Unknown command: \(command). Purchases are now handled in the ContextFlow app."]
         }
 
-        return ["success": true, "data": products]
-    }
-
-    private func handlePurchase(productId: String, appAccountToken: UUID?) async throws -> [String: Any] {
-        let manager = await StoreKitManager.shared
-        let (transaction, jws) = try await manager.purchase(productId: productId, appAccountToken: appAccountToken)
-
-        return [
-            "success": true,
-            "data": [
-                "success": true,
-                "transactionId": String(transaction.id),
-                "originalTransactionId": String(transaction.originalID),
-                "productId": transaction.productID,
-                "jwsTransaction": jws
-            ] as [String: Any]
-        ]
-    }
-
-    private func handleRestorePurchases() async throws -> [String: Any] {
-        let manager = await StoreKitManager.shared
-        await manager.restorePurchases()
-
-        let status = await manager.currentSubscriptionStatus()
-
-        var data: [String: Any] = [
-            "isSubscribed": status.isSubscribed,
-            "isInGracePeriod": status.isInGracePeriod,
-            "willAutoRenew": status.willAutoRenew
-        ]
-        if let productId = status.productId { data["productId"] = productId }
-        if let expDate = status.expirationDate {
-            data["expirationDate"] = ISO8601DateFormatter().string(from: expDate)
-        }
-
-        return ["success": true, "data": data]
-    }
-
-    private func handleGetSubscriptionStatus() async throws -> [String: Any] {
-        let status = await StoreKitManager.shared.currentSubscriptionStatus()
-
-        var data: [String: Any] = [
-            "isSubscribed": status.isSubscribed,
-            "isInGracePeriod": status.isInGracePeriod,
-            "willAutoRenew": status.willAutoRenew
-        ]
-        if let productId = status.productId { data["productId"] = productId }
-        if let expDate = status.expirationDate {
-            data["expirationDate"] = ISO8601DateFormatter().string(from: expDate)
-        }
-
-        return ["success": true, "data": data]
+        sendResponse(context: context, data: result)
     }
 
     // MARK: – Response

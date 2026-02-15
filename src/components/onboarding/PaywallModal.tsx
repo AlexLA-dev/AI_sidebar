@@ -1,17 +1,11 @@
 import { useState, useEffect, useRef } from "react"
-import { Lock, Check, Zap, Key, Crown, Loader2, RotateCcw } from "lucide-react"
+import { Lock, Check, Zap, Key, Crown, Loader2, ExternalLink } from "lucide-react"
 import { motion } from "framer-motion"
 
 import { cn, getPaymentLink, type PlanId } from "~/lib/utils"
 import { LICENSE_CONFIG, syncSubscriptionFromServer } from "~/lib/storage"
-import { getPaymentProvider, type PaymentProvider } from "~/lib/platform"
-import {
-  purchase as appStorePurchase,
-  fetchProducts as fetchAppStoreProducts,
-  restorePurchases,
-  APPSTORE_PRODUCT_IDS,
-  type AppStoreProduct
-} from "~/lib/appstore"
+import { getPaymentProvider, isSafari, type PaymentProvider } from "~/lib/platform"
+import { checkNativeSubscription, openAppForSubscription } from "~/lib/appstore"
 
 type PaywallModalProps = {
   onClose: () => void
@@ -21,32 +15,12 @@ type PaywallModalProps = {
 export function PaywallModal({ onClose, onSubscribed }: PaywallModalProps) {
   const [selectedPlan, setSelectedPlan] = useState<PlanId>("basic")
   const [isLoading, setIsLoading] = useState(false)
-  const [isRestoring, setIsRestoring] = useState(false)
   const [isWaitingForPayment, setIsWaitingForPayment] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const paymentProvider: PaymentProvider = getPaymentProvider()
-
-  // Localized App Store prices (fetched from StoreKit)
-  const [appStorePrices, setAppStorePrices] = useState<Record<string, AppStoreProduct>>({})
-
-  // Fetch App Store prices on mount (Safari only)
-  useEffect(() => {
-    if (paymentProvider === "appstore") {
-      fetchAppStoreProducts()
-        .then((products) => {
-          const priceMap: Record<string, AppStoreProduct> = {}
-          for (const product of products) {
-            priceMap[product.id] = product
-          }
-          setAppStorePrices(priceMap)
-        })
-        .catch((err) => {
-          console.warn("[PaywallModal] Failed to fetch App Store products:", err)
-        })
-    }
-  }, [paymentProvider])
+  const isSafariPlatform = isSafari()
 
   // Clean up polling on unmount
   useEffect(() => {
@@ -90,74 +64,40 @@ export function PaywallModal({ onClose, onSubscribed }: PaywallModalProps) {
   }
 
   // ── App Store purchase flow (Safari) ────────────────────────────────────
+  // Opens the native ContextFlow app for purchase, then polls for status.
 
-  const handleAppStoreSubscribe = async () => {
-    setIsLoading(true)
+  const handleAppStoreSubscribe = () => {
     setError(null)
 
-    const productId = selectedPlan === "pro"
-      ? APPSTORE_PRODUCT_IDS.pro
-      : APPSTORE_PRODUCT_IDS.basic
+    // Open the native app for subscription
+    openAppForSubscription()
 
-    try {
-      const result = await appStorePurchase(productId)
-
-      if (result.success) {
-        // Transaction verified on server, sync subscription locally
-        const info = await syncSubscriptionFromServer()
-        if (info.hasLicense) {
-          onSubscribed()
-        } else {
-          // Server may need a moment; poll briefly
-          setIsWaitingForPayment(true)
-          pollRef.current = setInterval(async () => {
-            try {
-              const syncedInfo = await syncSubscriptionFromServer()
-              if (syncedInfo.hasLicense) {
-                if (pollRef.current) clearInterval(pollRef.current)
-                pollRef.current = null
-                onSubscribed()
-              }
-            } catch { /* keep trying */ }
-          }, 2000)
-        }
-      } else {
-        setError(result.error || "Purchase failed")
-      }
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Purchase failed"
-      // User cancellation is not an error
-      if (message.toLowerCase().includes("cancel")) {
-        // Silently handle cancellation
-      } else {
-        setError(message)
-      }
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  // ── Restore purchases (App Store only) ──────────────────────────────────
-
-  const handleRestore = async () => {
-    setIsRestoring(true)
-    setError(null)
-
-    try {
-      const status = await restorePurchases()
-      if (status.isSubscribed) {
-        const info = await syncSubscriptionFromServer()
-        if (info.hasLicense) {
+    // Start polling for subscription activation via shared storage
+    setIsWaitingForPayment(true)
+    pollRef.current = setInterval(async () => {
+      try {
+        // Check native shared storage first
+        const nativeActive = await checkNativeSubscription()
+        if (nativeActive) {
+          if (pollRef.current) clearInterval(pollRef.current)
+          pollRef.current = null
+          // Also sync to server
+          await syncSubscriptionFromServer()
           onSubscribed()
           return
         }
+
+        // Fallback: check server
+        const info = await syncSubscriptionFromServer()
+        if (info.hasLicense) {
+          if (pollRef.current) clearInterval(pollRef.current)
+          pollRef.current = null
+          onSubscribed()
+        }
+      } catch {
+        // Keep trying
       }
-      setError("No active subscription found to restore.")
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Restore failed")
-    } finally {
-      setIsRestoring(false)
-    }
+    }, 2000)
   }
 
   // ── Unified subscribe handler ───────────────────────────────────────────
@@ -170,22 +110,6 @@ export function PaywallModal({ onClose, onSubscribed }: PaywallModalProps) {
   }
 
   // ── Plan data ───────────────────────────────────────────────────────────
-
-  /** Get the display price — use localized App Store price if available. */
-  const getDisplayPrice = (planId: PlanId): string => {
-    if (paymentProvider === "appstore") {
-      const appStoreId = planId === "pro"
-        ? APPSTORE_PRODUCT_IDS.pro
-        : APPSTORE_PRODUCT_IDS.basic
-      const product = appStorePrices[appStoreId]
-      if (product) {
-        return product.displayPrice
-      }
-    }
-    // Fallback to hardcoded USD price
-    const config = planId === "pro" ? LICENSE_CONFIG.PRO : LICENSE_CONFIG.BASIC
-    return `$${config.price}`
-  }
 
   const plans = [
     {
@@ -214,8 +138,6 @@ export function PaywallModal({ onClose, onSubscribed }: PaywallModalProps) {
       ]
     }
   ]
-
-  const activePlan = plans.find((p) => p.id === selectedPlan)!
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
@@ -252,13 +174,13 @@ export function PaywallModal({ onClose, onSubscribed }: PaywallModalProps) {
           <div className="p-6 text-center space-y-3">
             <Loader2 className="h-8 w-8 animate-spin text-purple-500 mx-auto" />
             <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              {paymentProvider === "appstore"
-                ? "Confirming your purchase..."
+              {isSafariPlatform
+                ? "Waiting for subscription..."
                 : "Waiting for payment confirmation..."}
             </p>
             <p className="text-xs text-gray-400">
-              {paymentProvider === "appstore"
-                ? "Your subscription is being activated."
+              {isSafariPlatform
+                ? "Complete your purchase in the ContextFlow app. This will update automatically."
                 : "Complete the payment in the opened tab. This window will close automatically."}
             </p>
             <button
@@ -302,7 +224,7 @@ export function PaywallModal({ onClose, onSubscribed }: PaywallModalProps) {
                         {plan.label}
                       </h3>
                       <span className="text-purple-600 dark:text-purple-400 font-bold text-sm">
-                        {getDisplayPrice(plan.id)}/mo
+                        ${plan.price}/mo
                       </span>
                     </div>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
@@ -340,33 +262,22 @@ export function PaywallModal({ onClose, onSubscribed }: PaywallModalProps) {
             >
               {isLoading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : isSafariPlatform ? (
+                <>
+                  <ExternalLink className="h-4 w-4" />
+                  Subscribe in ContextFlow App
+                </>
               ) : (
                 <>
                   <Zap className="h-4 w-4" />
-                  Subscribe ({getDisplayPrice(selectedPlan)}/mo)
+                  Subscribe (${plans.find(p => p.id === selectedPlan)?.price}/mo)
                 </>
               )}
             </button>
 
-            {/* Restore Purchases (App Store only, required by Review Guideline 3.1.1) */}
-            {paymentProvider === "appstore" && (
-              <button
-                onClick={handleRestore}
-                disabled={isRestoring}
-                className="w-full flex items-center justify-center gap-1.5 text-xs text-purple-600 dark:text-purple-400 hover:underline disabled:opacity-50"
-              >
-                {isRestoring ? (
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                ) : (
-                  <RotateCcw className="h-3 w-3" />
-                )}
-                Restore Purchases
-              </button>
-            )}
-
             <p className="text-[10px] text-gray-400 text-center">
-              {paymentProvider === "appstore"
-                ? "Cancel anytime in Settings > Subscriptions. Payment charged to your Apple ID."
+              {isSafariPlatform
+                ? "You'll be taken to the ContextFlow app to complete your purchase. Cancel anytime in Settings > Subscriptions."
                 : "Cancel anytime. Secure payment via Stripe."}
             </p>
           </div>

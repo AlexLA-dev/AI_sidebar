@@ -4,8 +4,9 @@ import os.log
 
 /// Manages App Store subscriptions via StoreKit 2.
 ///
-/// This class is used by the native container app that wraps the Safari Web Extension.
-/// It handles product fetching, purchasing, restoration, and transaction listening.
+/// This class is used by the native container app to handle purchases.
+/// After each purchase/restore/status change, it writes the subscription
+/// status to SharedDefaults so the Safari extension can read it.
 @available(iOS 15.0, macOS 12.0, *)
 @MainActor
 final class StoreKitManager: ObservableObject {
@@ -24,6 +25,7 @@ final class StoreKitManager: ObservableObject {
     @Published private(set) var products: [Product] = []
     @Published private(set) var purchasedProductIDs: Set<String> = []
     @Published private(set) var isLoading = false
+    @Published private(set) var currentStatus = SubscriptionInfo(isSubscribed: false)
 
     // MARK: – Private
 
@@ -34,8 +36,10 @@ final class StoreKitManager: ObservableObject {
 
     private init() {
         transactionListener = listenForTransactions()
-        Task { await loadProducts() }
-        Task { await updatePurchasedProducts() }
+        Task {
+            await loadProducts()
+            await refreshSubscriptionStatus()
+        }
     }
 
     deinit {
@@ -59,7 +63,7 @@ final class StoreKitManager: ObservableObject {
 
     // MARK: – Purchase
 
-    /// Purchase a product and return the JWS-encoded transaction for server verification.
+    /// Purchase a product. After success, writes status to SharedDefaults.
     func purchase(_ product: Product, appAccountToken: UUID? = nil) async throws -> (
         transaction: Transaction,
         jwsRepresentation: String
@@ -75,16 +79,9 @@ final class StoreKitManager: ObservableObject {
         case .success(let verification):
             let transaction = try checkVerified(verification)
             await transaction.finish()
-            await updatePurchasedProducts()
+            await refreshSubscriptionStatus()
 
-            // Return the JWS representation for server-side verification
-            let jws: String
-            switch verification {
-            case .verified:
-                jws = verification.jwsRepresentation
-            case .unverified(_, _):
-                jws = verification.jwsRepresentation
-            }
+            let jws = verification.jwsRepresentation
 
             logger.info("Purchase succeeded: \(product.id)")
             return (transaction, jws)
@@ -100,13 +97,12 @@ final class StoreKitManager: ObservableObject {
         }
     }
 
-    /// Purchase by product ID string (used by the native message handler).
+    /// Purchase by product ID string.
     func purchase(productId: String, appAccountToken: UUID? = nil) async throws -> (
         transaction: Transaction,
         jwsRepresentation: String
     ) {
         guard let product = products.first(where: { $0.id == productId }) else {
-            // Try loading products first
             await loadProducts()
             guard let product = products.first(where: { $0.id == productId }) else {
                 throw StoreKitError.productNotFound
@@ -120,12 +116,31 @@ final class StoreKitManager: ObservableObject {
 
     func restorePurchases() async {
         try? await AppStore.sync()
-        await updatePurchasedProducts()
+        await refreshSubscriptionStatus()
     }
 
     // MARK: – Subscription status
 
-    func currentSubscriptionStatus() async -> SubscriptionInfo {
+    /// Refresh subscription status and write to SharedDefaults.
+    func refreshSubscriptionStatus() async {
+        let status = await querySubscriptionStatus()
+        currentStatus = status
+
+        // Write to SharedDefaults so the extension can read it
+        SharedDefaults.shared.writeSubscriptionStatus(status)
+
+        // Update purchased product IDs
+        var purchased = Set<String>()
+        for await result in Transaction.currentEntitlements {
+            if let transaction = try? checkVerified(result) {
+                purchased.insert(transaction.productID)
+            }
+        }
+        purchasedProductIDs = purchased
+    }
+
+    /// Query StoreKit for current subscription status.
+    private func querySubscriptionStatus() async -> SubscriptionInfo {
         for product in products {
             guard let subscription = product.subscription else { continue }
 
@@ -157,25 +172,13 @@ final class StoreKitManager: ObservableObject {
                 guard let self else { return }
                 if let transaction = try? self.checkVerified(result) {
                     await transaction.finish()
-                    await self.updatePurchasedProducts()
+                    await self.refreshSubscriptionStatus()
                 }
             }
         }
     }
 
     // MARK: – Helpers
-
-    private func updatePurchasedProducts() async {
-        var purchased = Set<String>()
-
-        for await result in Transaction.currentEntitlements {
-            if let transaction = try? checkVerified(result) {
-                purchased.insert(transaction.productID)
-            }
-        }
-
-        purchasedProductIDs = purchased
-    }
 
     nonisolated private func checkVerified<T>(_ result: VerificationResult<T>) throws -> T {
         switch result {
@@ -199,9 +202,6 @@ final class StoreKitManager: ObservableObject {
 
     // MARK: – Manage subscriptions
 
-    /// Returns the URL for managing subscriptions.
-    /// The caller (SafariWebExtensionHandler) passes it to JS, which opens it in a browser tab.
-    /// UIApplication.shared / NSWorkspace.shared are unavailable in App Extensions.
     func manageSubscriptionsURL() -> String {
         return "https://apps.apple.com/account/subscriptions"
     }

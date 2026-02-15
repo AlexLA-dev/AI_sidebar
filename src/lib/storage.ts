@@ -27,6 +27,7 @@ export const LICENSE_CONFIG = {
     price: 6.99,
     description: "All included. No API keys needed."
   }
+
 } as const
 
 export type PaymentProviderType = "stripe" | "appstore" | null

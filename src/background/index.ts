@@ -45,15 +45,14 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       url: chrome.runtime.getURL("sidepanel.html?showPaywall=1")
     })
     sendResponse({ success: true })
-  } else if (message.action === "storekit") {
-    // Relay StoreKit commands from sidebar/popup to native SafariWebExtensionHandler.
-    // browser.runtime.sendNativeMessage() is only available in the background script,
-    // so extension pages must relay through here.
+  } else if (message.action === "native") {
+    // Relay native commands from sidebar/popup to SafariWebExtensionHandler.
+    // browser.runtime.sendNativeMessage() is only available in the background script.
+    // Used for: getSubscriptionStatus, getSettings (no StoreKit purchases here).
     const { action: _, ...nativeMessage } = message
 
-    console.log("[ContextFlow] StoreKit relay:", nativeMessage.command)
+    console.log("[ContextFlow] Native relay:", nativeMessage.command)
 
-    // Try browser.runtime.sendNativeMessage (Safari native messaging)
     if (typeof browserGlobal?.runtime?.sendNativeMessage === "function") {
       browserGlobal.runtime.sendNativeMessage(
         "com.contextflow.app.Extension",
@@ -66,15 +65,10 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         sendResponse({ success: false, error: String(err) })
       })
     } else {
-      console.error(
-        "[ContextFlow] Native messaging not available.",
-        "browser global:", typeof browserGlobal,
-        "browser.runtime:", typeof browserGlobal?.runtime,
-        "sendNativeMessage:", typeof browserGlobal?.runtime?.sendNativeMessage
-      )
+      console.error("[ContextFlow] Native messaging not available.")
       sendResponse({
         success: false,
-        error: "Native messaging not available. Ensure ContextFlow is installed from the App Store and the extension is enabled in Safari."
+        error: "Native messaging not available. Ensure ContextFlow is installed from the App Store."
       })
     }
   }
