@@ -38,6 +38,18 @@
   to = "/.netlify/functions/email-confirmed"
   status = 200
 
+# Privacy Policy page (linked from App Store Connect)
+[[redirects]]
+  from = "/privacy"
+  to = "/.netlify/functions/privacy"
+  status = 200
+
+# Support page (linked from App Store Connect)
+[[redirects]]
+  from = "/support"
+  to = "/.netlify/functions/support"
+  status = 200
+
 # Dev server configuration
 [dev]
   command = "pnpm dev"
