@@ -913,6 +913,52 @@ struct StatusTab: View {
                 .cornerRadius(16)
                 .shadow(color: .black.opacity(0.06), radius: 6, y: 2)
 
+                // Native Bridge diagnostic
+                VStack(alignment: .leading, spacing: 12) {
+                    Label("Native Bridge", systemImage: "arrow.left.arrow.right")
+                        .font(.headline)
+
+                    let lastCmd = SharedDefaults.shared.debugLastNativeCommand
+                    let lastTs = SharedDefaults.shared.debugLastNativeTimestamp
+                    let bridgeCalled = lastTs > 0
+
+                    checkItem("Bridge ever called", ok: bridgeCalled)
+
+                    if bridgeCalled {
+                        let date = Date(timeIntervalSince1970: lastTs)
+                        let fmt = DateFormatter()
+                        fmt.dateFormat = "yyyy-MM-dd HH:mm:ss"
+                        HStack {
+                            Text("Last command:")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            Spacer()
+                            Text(lastCmd ?? "—")
+                                .font(.caption.monospaced())
+                        }
+                        HStack {
+                            Text("Last called:")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            Spacer()
+                            Text(fmt.string(from: date))
+                                .font(.caption.monospaced())
+                        }
+                    } else {
+                        Text("The extension has never called the native bridge.\nOpen the extension in Safari and interact with it,\nthen come back here and tap Refresh.")
+                            .font(.caption)
+                            .foregroundColor(.orange)
+                    }
+                }
+                .padding(20)
+                #if os(iOS)
+                .background(Color(.systemBackground))
+                #else
+                .background(Color(nsColor: .controlBackgroundColor))
+                #endif
+                .cornerRadius(16)
+                .shadow(color: .black.opacity(0.06), radius: 6, y: 2)
+
                 // Connection checklist
                 VStack(alignment: .leading, spacing: 12) {
                     Label("Checklist", systemImage: "checklist")
@@ -972,6 +1018,7 @@ struct StatusTab: View {
         }
         .onReceive(refreshTimer) { _ in
             refreshChecklist()
+            debugInfo = SharedDefaults.shared.debugDump()
         }
     }
 

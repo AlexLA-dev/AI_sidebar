@@ -54,10 +54,19 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     console.log("[ContextFlow] Native relay:", nativeMessage.command)
 
     if (typeof browserGlobal?.runtime?.sendNativeMessage === "function") {
-      // Safari's sendNativeMessage takes ONE argument (the message).
-      // Unlike Chrome/Firefox, Safari routes to the containing app's
-      // SafariWebExtensionHandler automatically — no application ID needed.
-      browserGlobal.runtime.sendNativeMessage(nativeMessage).then((response: any) => {
+      // Try both calling conventions: Safari may use 1-arg or 2-arg form
+      // depending on the version. We try 2-arg first (per Apple's docs),
+      // then fall back to 1-arg if it fails.
+      const tryNativeMessage = (msg: any): Promise<any> => {
+        return browserGlobal.runtime.sendNativeMessage(
+          "com.contextflow.app.Extension", msg
+        ).catch(() => {
+          // Fallback: 1-arg form (some Safari versions)
+          return browserGlobal.runtime.sendNativeMessage(msg)
+        })
+      }
+
+      tryNativeMessage(nativeMessage).then((response: any) => {
         console.log("[ContextFlow] Native response:", JSON.stringify(response))
         sendResponse(response)
       }).catch((err: any) => {

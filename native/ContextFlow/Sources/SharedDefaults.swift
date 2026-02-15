@@ -61,6 +61,9 @@ final class SharedDefaults {
         static let userEmail = "cf_user_email"
         // API Key (BYOK)
         static let apiKey = "cf_api_key"
+        // Debug — native bridge diagnostics
+        static let debugLastNativeCommand = "cf_debug_last_native_command"
+        static let debugLastNativeTimestamp = "cf_debug_last_native_timestamp"
     }
 
     // MARK: – Subscription Status
@@ -197,6 +200,23 @@ final class SharedDefaults {
         }
     }
 
+    // MARK: – Native Bridge Debug
+
+    /// Records the last native bridge call for diagnostics.
+    func recordNativeBridgeCall(command: String) {
+        defaults.set(command, forKey: Key.debugLastNativeCommand)
+        defaults.set(Date().timeIntervalSince1970, forKey: Key.debugLastNativeTimestamp)
+        defaults.synchronize()
+    }
+
+    var debugLastNativeCommand: String? {
+        defaults.string(forKey: Key.debugLastNativeCommand)
+    }
+
+    var debugLastNativeTimestamp: Double {
+        defaults.double(forKey: Key.debugLastNativeTimestamp)
+    }
+
     // MARK: – Debug
 
     /// Returns all stored values for debugging (shown in the native app Status tab).
@@ -213,6 +233,16 @@ final class SharedDefaults {
         dump["trialUsageCount"] = defaults.integer(forKey: Key.trialUsageCount)
         dump["fontSize"] = defaults.integer(forKey: Key.fontSize)
         dump["theme"] = defaults.string(forKey: Key.theme) ?? "system"
+        if let cmd = defaults.string(forKey: Key.debugLastNativeCommand) {
+            dump["lastNativeCommand"] = cmd
+        }
+        let ts = defaults.double(forKey: Key.debugLastNativeTimestamp)
+        if ts > 0 {
+            let date = Date(timeIntervalSince1970: ts)
+            let fmt = DateFormatter()
+            fmt.dateFormat = "HH:mm:ss"
+            dump["lastNativeCallTime"] = fmt.string(from: date)
+        }
         return dump
     }
 }
