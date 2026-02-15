@@ -108,6 +108,20 @@ if [ -f "$NATIVE_DIR/ContextFlow.storekit" ]; then
     echo "  [ok]     ContextFlow.storekit → project root"
 fi
 
+# Copy Assets.xcassets (AppIcon) — replaces the converter-generated empty one
+if [ -d "$NATIVE_DIR/Assets.xcassets" ]; then
+    # Find the existing Assets.xcassets in the App target
+    if [ -d "$APP_DIR/Assets.xcassets" ]; then
+        # Merge: copy our AppIcon into existing catalog
+        cp -R "$NATIVE_DIR/Assets.xcassets/AppIcon.appiconset" "$APP_DIR/Assets.xcassets/AppIcon.appiconset"
+        echo "  [ok]     AppIcon.appiconset → Assets.xcassets"
+    else
+        # No existing catalog — copy the whole thing
+        cp -R "$NATIVE_DIR/Assets.xcassets" "$APP_DIR/Assets.xcassets"
+        echo "  [ok]     Assets.xcassets (new)"
+    fi
+fi
+
 echo ""
 
 # ── 6. Copy files to Extension target (Shared (Extension)) ──
@@ -178,6 +192,11 @@ echo "     → Select: ViewController.swift, ContentView.swift, StoreKitManager.
 echo "       SharedDefaults.swift, PrivacyInfo.xcprivacy"
 echo "     → Targets: ✅ ContextFlow (iOS)  ✅ ContextFlow (macOS)"
 echo "     NOTE: ViewController.swift REPLACES the converter-generated one"
+echo ""
+echo "  2b. APP ICON (already copied by this script):"
+echo "     → Open Assets.xcassets in '$(basename "$APP_DIR")'"
+echo "     → Verify AppIcon shows the ContextFlow icon (sparkles on gradient)"
+echo "     → If empty: drag icon-1024.png from AppIcon.appiconset into the slot"
 echo ""
 echo "  3. ADD files to Extension target (from '$(basename "$EXT_DIR")'):"
 echo "     → Replace the existing SafariWebExtensionHandler.swift"

@@ -51,6 +51,14 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             }
             result = ["success": true, "data": [:] as [String: Any]]
 
+        case "syncTrialUsage":
+            // Extension syncs trial usage count so the native app displays accurate remaining requests
+            if let count = message["count"] as? Int {
+                SharedDefaults.shared.trialUsageCount = count
+                logger.info("Synced trial usage count: \(count)")
+            }
+            result = ["success": true, "data": [:] as [String: Any]]
+
         case "getApiKey":
             let key = SharedDefaults.shared.apiKey ?? ""
             result = ["success": true, "data": ["apiKey": key]]

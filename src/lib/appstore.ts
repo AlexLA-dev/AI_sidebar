@@ -124,6 +124,18 @@ export async function syncUserInfo(email: string | null): Promise<void> {
   }
 }
 
+/**
+ * Sync trial usage count to shared storage so the native app shows
+ * accurate "X of 5 requests remaining". Call after incrementTrialUsage().
+ */
+export async function syncTrialUsage(count: number): Promise<void> {
+  try {
+    await sendNativeMessage("syncTrialUsage", { count })
+  } catch {
+    // Non-critical — native app will just show stale count
+  }
+}
+
 // ── API Key (BYOK) ──────────────────────────────────────────────────────
 
 /**

@@ -56,11 +56,20 @@ export async function getTrialInfo(): Promise<TrialInfo> {
   }
 }
 
-// Increment trial usage
+// Increment trial usage and sync to native app
 export async function incrementTrialUsage(): Promise<number> {
   const currentCount = (await storage.get<number>(STORAGE_KEYS.TRIAL_USAGE_COUNT)) || 0
   const newCount = currentCount + 1
   await storage.set(STORAGE_KEYS.TRIAL_USAGE_COUNT, newCount)
+
+  // Sync to native app so it shows accurate remaining count
+  try {
+    const { syncTrialUsage } = await import("./appstore")
+    await syncTrialUsage(newCount)
+  } catch {
+    // Non-critical — native app just won't update immediately
+  }
+
   return newCount
 }
 
@@ -89,8 +98,16 @@ export async function syncSubscriptionFromServer(): Promise<TrialInfo> {
 
       // Sync trial usage from server credits_balance
       if (sub.plan_type === "free" && sub.credits_balance >= 0) {
-        const serverUsage = LICENSE_CONFIG.TRIAL_LIMIT - sub.credits_balance
-        await storage.set(STORAGE_KEYS.TRIAL_USAGE_COUNT, Math.max(0, serverUsage))
+        const serverUsage = Math.max(0, LICENSE_CONFIG.TRIAL_LIMIT - sub.credits_balance)
+        await storage.set(STORAGE_KEYS.TRIAL_USAGE_COUNT, serverUsage)
+
+        // Also sync to native app
+        try {
+          const { syncTrialUsage } = await import("./appstore")
+          await syncTrialUsage(serverUsage)
+        } catch {
+          // Non-critical
+        }
       }
     }
   } catch (err) {
