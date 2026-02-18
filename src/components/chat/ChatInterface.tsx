@@ -53,10 +53,10 @@ export function ChatInterface({
     }
   }, [input])
 
-  const handleSubmit = async () => {
-    if (!input.trim() || isStreaming) return
+  const sendMessage = async (text: string) => {
+    if (!text.trim() || isStreaming) return
 
-    const userMessage: Message = { role: "user", content: input.trim() }
+    const userMessage: Message = { role: "user", content: text.trim() }
     const newMessages = [...messages, userMessage]
 
     setMessages(newMessages)
@@ -109,6 +109,11 @@ export function ChatInterface({
     )
   }
 
+  const handleSubmit = async () => {
+    if (!input.trim() || isStreaming) return
+    await sendMessage(input)
+  }
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault()
@@ -159,6 +164,22 @@ export function ChatInterface({
                 ? "Ask me anything about this page"
                 : "Open a page and ask me about it"}
             </p>
+            {pageContext && (
+              <button
+                onClick={() => sendMessage("Summarize this page")}
+                disabled={isStreaming}
+                className={cn(
+                  "mt-3 px-4 py-1.5 text-xs rounded-full",
+                  "border border-purple-200 dark:border-purple-800",
+                  "text-purple-600 dark:text-purple-400",
+                  "hover:bg-purple-50 dark:hover:bg-purple-900/20",
+                  "transition-colors",
+                  "disabled:opacity-50 disabled:cursor-not-allowed"
+                )}
+              >
+                Summarize this page
+              </button>
+            )}
           </div>
         )}
 

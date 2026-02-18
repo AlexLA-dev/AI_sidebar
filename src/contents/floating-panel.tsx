@@ -11,10 +11,12 @@ import {
   type TrialInfo
 } from "~/lib/ai"
 import { getStoredApiKey, setStoredApiKey, storage, LICENSE_CONFIG, syncSubscriptionFromNative } from "~/lib/storage"
-import { syncUserInfo, openManageSubscriptions } from "~/lib/appstore"
+import { syncUserInfo, openManageSubscriptions, getAppSettings } from "~/lib/appstore"
 
 // --- Lightweight inline markdown renderer (no external deps) ---
-function renderMarkdown(text: string): React.ReactNode[] {
+function renderMarkdown(text: string, themeColors?: { codeBg: string; linkColor: string }): React.ReactNode[] {
+  const codeBg = themeColors?.codeBg || "#e5e7eb"
+  const linkColor = themeColors?.linkColor || "#7c3aed"
   const lines = text.split("\n")
   const result: React.ReactNode[] = []
   let listBuffer: { ordered: boolean; items: string[] } | null = null
@@ -57,14 +59,14 @@ function renderMarkdown(text: string): React.ReactNode[] {
       } else if (match[4]) {
         parts.push(
           <code key={`c${k++}`} style={{
-            background: "#e5e7eb", borderRadius: "3px",
+            background: codeBg, borderRadius: "3px",
             padding: "1px 4px", fontSize: "0.9em", fontFamily: "monospace",
           }}>{match[4]}</code>
         )
       } else if (match[5] && match[6]) {
         parts.push(
           <a key={`a${k++}`} href={match[6]} target="_blank" rel="noopener noreferrer"
-            style={{ color: "#7c3aed", textDecoration: "underline" }}>{match[5]}</a>
+            style={{ color: linkColor, textDecoration: "underline" }}>{match[5]}</a>
         )
       }
       lastIndex = match.index + match[0].length
@@ -235,6 +237,29 @@ const NewChatIcon = ({ size = 18 }: { size?: number }) => (
     <line x1="12" y1="8" x2="12" y2="14"/><line x1="9" y1="11" x2="15" y2="11"/>
   </svg>
 )
+
+// --- Theme colors ---
+function getThemeColors(dark: boolean) {
+  return {
+    bg: dark ? "#1f2937" : "white",
+    textPrimary: dark ? "#f9fafb" : "#1f2937",
+    textSecondary: dark ? "#9ca3af" : "#6b7280",
+    textMuted: dark ? "#6b7280" : "#9ca3af",
+    border: dark ? "#374151" : "#e5e7eb",
+    iconBtnBg: dark ? "#374151" : "#f3f4f6",
+    iconBtnColor: dark ? "#d1d5db" : "#374151",
+    settingsBg: dark ? "#111827" : "#f9fafb",
+    aiBubbleBg: dark ? "#374151" : "#f3f4f6",
+    aiBubbleText: dark ? "#f3f4f6" : "#1f2937",
+    inputBg: dark ? "#374151" : "white",
+    inputBorder: dark ? "#4b5563" : "#e5e7eb",
+    codeBg: dark ? "#4b5563" : "#e5e7eb",
+    linkColor: dark ? "#a78bfa" : "#7c3aed",
+    settingsValue: dark ? "#e5e7eb" : "#1f2937",
+    green: dark ? "#86efac" : "#16a34a",
+    panelShadow: dark ? "0 -10px 40px rgba(0, 0, 0, 0.4)" : "0 -10px 40px rgba(0, 0, 0, 0.15)",
+  }
+}
 
 // --- Inline styles ---
 const S = {
@@ -465,9 +490,15 @@ function FloatingPanelContent() {
   const [editingKey, setEditingKey] = useState(false)
   const [largeFont, setLargeFont] = useState(false)
   const [limitReached, setLimitReached] = useState(false)
+  const [isDark, setIsDark] = useState(() =>
+    window.matchMedia("(prefers-color-scheme: dark)").matches
+  )
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+
+  // Theme colors derived from isDark state
+  const T = getThemeColors(isDark)
 
   // Lock/unlock body scroll when panel opens/closes
   useEffect(() => {
@@ -475,6 +506,33 @@ function FloatingPanelContent() {
     else unlockBodyScroll()
     return () => unlockBodyScroll()
   }, [isOpen])
+
+  // Detect theme from native settings or system preference
+  useEffect(() => {
+    let themeMode: "dark" | "light" | "system" = "system"
+
+    function applyTheme(mode: "dark" | "light" | "system") {
+      if (mode === "dark") setIsDark(true)
+      else if (mode === "light") setIsDark(false)
+      else setIsDark(window.matchMedia("(prefers-color-scheme: dark)").matches)
+    }
+
+    getAppSettings()
+      .then((settings) => {
+        if (settings.theme === "dark" || settings.theme === "light") {
+          themeMode = settings.theme
+        }
+        applyTheme(themeMode)
+      })
+      .catch(() => applyTheme("system"))
+
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)")
+    const handleChange = () => {
+      if (themeMode === "system") applyTheme("system")
+    }
+    mediaQuery.addEventListener("change", handleChange)
+    return () => mediaQuery.removeEventListener("change", handleChange)
+  }, [])
 
   // Listen for toggle message from background script
   useEffect(() => {
@@ -512,7 +570,7 @@ function FloatingPanelContent() {
         // haven't been synced to Supabase yet.
         try {
           const nativeInfo = await syncSubscriptionFromNative()
-          if (nativeInfo.hasLicense) {
+          if (nativeInfo.nativeConfirmed && nativeInfo.hasLicense) {
             setTrialInfo(nativeInfo)
           }
         } catch {
@@ -534,7 +592,7 @@ function FloatingPanelContent() {
                 if (!info.hasLicense) {
                   try {
                     const nativeInfo = await syncSubscriptionFromNative()
-                    if (nativeInfo.hasLicense) {
+                    if (nativeInfo.nativeConfirmed && nativeInfo.hasLicense) {
                       setTrialInfo(nativeInfo)
                       return
                     }
@@ -602,9 +660,9 @@ function FloatingPanelContent() {
     }
   }, [isOpen])
 
-  const handleSend = async () => {
-    if (!input.trim() || isStreaming) return
-    const userMessage = input.trim()
+  const sendMessage = async (text: string) => {
+    if (!text.trim() || isStreaming) return
+    const userMessage = text.trim()
     setInput("")
     setError(null)
     setMessages(prev => [...prev, { role: "user", content: userMessage }])
@@ -631,7 +689,7 @@ function FloatingPanelContent() {
             if (!info.hasLicense) {
               try {
                 const nativeInfo = await syncSubscriptionFromNative()
-                if (nativeInfo.hasLicense) { setTrialInfo(nativeInfo); return }
+                if (nativeInfo.nativeConfirmed && nativeInfo.hasLicense) { setTrialInfo(nativeInfo); return }
               } catch { /* ignore */ }
             }
             setTrialInfo(info)
@@ -655,6 +713,8 @@ function FloatingPanelContent() {
       setMessages(prev => prev.slice(0, -1))
     }
   }
+
+  const handleSend = () => sendMessage(input)
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend() }
@@ -737,12 +797,12 @@ function FloatingPanelContent() {
       )}
 
       {/* Panel */}
-      <div style={{ ...S.panel, ...(isOpen ? S.panelOpen : {}) }}>
+      <div style={{ ...S.panel, ...(isOpen ? S.panelOpen : {}), background: T.bg, boxShadow: T.panelShadow }}>
         {/* Header */}
-        <div style={S.header}>
+        <div style={{ ...S.header, borderBottomColor: T.border }}>
           <div style={S.headerLeft}>
             <span style={S.logo}><SparklesIcon size={20} /></span>
-            <span style={S.title}>ContextFlow</span>
+            <span style={{ ...S.title, color: T.textPrimary }}>ContextFlow</span>
             {contextInfo && (
               contextInfo.type === "selection" ? (
                 <button
@@ -767,19 +827,19 @@ function FloatingPanelContent() {
                     fetchContext()
                   }}
                   title="New Chat"
-                  style={S.iconBtn}
+                  style={{ ...S.iconBtn, background: T.iconBtnBg, color: T.iconBtnColor }}
                 >
                   <NewChatIcon size={18} />
                 </button>
                 <button
                   onClick={() => setShowSettings(!showSettings)}
-                  style={{ ...S.iconBtn, ...(showSettings ? S.iconBtnActive : {}) }}
+                  style={{ ...S.iconBtn, background: showSettings ? (isDark ? "#2e1065" : "#f3e8ff") : T.iconBtnBg, color: showSettings ? "#7c3aed" : T.iconBtnColor }}
                 >
                   {showSettings ? <XIcon size={18} /> : <GearIcon size={18} />}
                 </button>
               </>
             )}
-            <button onClick={() => setIsOpen(false)} style={S.iconBtn}>
+            <button onClick={() => setIsOpen(false)} style={{ ...S.iconBtn, background: T.iconBtnBg, color: T.iconBtnColor }}>
               <ChevronDownIcon size={20} />
             </button>
           </div>
@@ -787,12 +847,12 @@ function FloatingPanelContent() {
 
         {/* Settings panel (collapsible) */}
         {showSettings && session && (
-          <div style={S.settingsBox}>
+          <div style={{ ...S.settingsBox, background: T.settingsBg, borderBottomColor: T.border, color: T.textPrimary }}>
             {/* Email + Sign out */}
             <div style={S.settingsRow}>
               <div>
-                <div style={S.settingsLabel}>Account</div>
-                <div style={S.settingsValue}>{session.user?.email || "—"}</div>
+                <div style={{ ...S.settingsLabel, color: T.textSecondary }}>Account</div>
+                <div style={{ ...S.settingsValue, color: T.settingsValue }}>{session.user?.email || "—"}</div>
               </div>
               <button onClick={handleSignOut} style={S.signOutBtn}>
                 <LogOutIcon size={14} /> Sign Out
@@ -802,8 +862,8 @@ function FloatingPanelContent() {
             {/* Plan */}
             <div style={{ ...S.settingsRow, marginBottom: "4px" }}>
               <div>
-                <div style={S.settingsLabel}>Plan</div>
-                <div style={S.settingsValue}>{hasLicense
+                <div style={{ ...S.settingsLabel, color: T.textSecondary }}>Plan</div>
+                <div style={{ ...S.settingsValue, color: T.settingsValue }}>{hasLicense
                   ? (trialInfo?.planType === "byok_license" ? "BYOK License" : "Pro License")
                   : "Free Trial"}</div>
               </div>
@@ -812,8 +872,8 @@ function FloatingPanelContent() {
                   <button
                     onClick={() => openManageSubscriptions()}
                     style={{
-                      padding: "3px 10px", border: "1px solid #e5e7eb", borderRadius: "8px",
-                      background: "white", color: "#7c3aed", fontSize: "11px",
+                      padding: "3px 10px", border: `1px solid ${T.border}`, borderRadius: "8px",
+                      background: T.bg, color: "#7c3aed", fontSize: "11px",
                       fontWeight: 500, cursor: "pointer",
                     }}
                   >
@@ -859,10 +919,10 @@ function FloatingPanelContent() {
             )}
 
             {/* API Key */}
-            <div style={S.settingsLabel}>OpenAI API Key</div>
+            <div style={{ ...S.settingsLabel, color: T.textSecondary }}>OpenAI API Key</div>
             {!editingKey && apiKey ? (
               <div style={{ ...S.apiKeyRow, marginTop: "4px" }}>
-                <span style={{ fontFamily: "monospace", fontSize: "12px", color: "#16a34a" }}>
+                <span style={{ fontFamily: "monospace", fontSize: "12px", color: T.green }}>
                   {maskedKey}
                 </span>
                 <button
@@ -890,7 +950,7 @@ function FloatingPanelContent() {
                   value={apiKeyInput}
                   onChange={(e) => setApiKeyInput(e.target.value)}
                   placeholder="sk-..."
-                  style={S.apiKeyInput}
+                  style={{ ...S.apiKeyInput, background: T.inputBg, borderColor: T.inputBorder, color: T.textPrimary }}
                 />
                 <button
                   onClick={handleSaveApiKey}
@@ -901,31 +961,31 @@ function FloatingPanelContent() {
                 </button>
               </div>
             )}
-            <div style={{ fontSize: "11px", color: "#9ca3af", marginTop: "4px" }}>
+            <div style={{ fontSize: "11px", color: T.textMuted, marginTop: "4px" }}>
               Stored locally. Never sent to our servers.
             </div>
 
             {/* Font size toggle */}
             <div style={{ ...S.settingsRow, marginTop: "14px", marginBottom: 0 }}>
-              <div style={S.settingsLabel}>Font Size</div>
+              <div style={{ ...S.settingsLabel, color: T.textSecondary }}>Font Size</div>
               <div style={{ display: "flex", gap: "6px" }}>
                 <button
                   onClick={() => { setLargeFont(false); storage.set("cf_large_font", false) }}
                   style={{
-                    padding: "4px 12px", border: "1px solid #e5e7eb", borderRadius: "8px",
+                    padding: "4px 12px", border: `1px solid ${T.border}`, borderRadius: "8px",
                     fontSize: "12px", cursor: "pointer",
-                    background: !largeFont ? "#7c3aed" : "white",
-                    color: !largeFont ? "white" : "#374151",
+                    background: !largeFont ? "#7c3aed" : T.bg,
+                    color: !largeFont ? "white" : T.textPrimary,
                     fontWeight: 500,
                   }}
                 >Normal</button>
                 <button
                   onClick={() => { setLargeFont(true); storage.set("cf_large_font", true) }}
                   style={{
-                    padding: "4px 12px", border: "1px solid #e5e7eb", borderRadius: "8px",
+                    padding: "4px 12px", border: `1px solid ${T.border}`, borderRadius: "8px",
                     fontSize: "12px", cursor: "pointer",
-                    background: largeFont ? "#7c3aed" : "white",
-                    color: largeFont ? "white" : "#374151",
+                    background: largeFont ? "#7c3aed" : T.bg,
+                    color: largeFont ? "white" : T.textPrimary,
                     fontWeight: 500,
                   }}
                 >Large</button>
@@ -940,16 +1000,34 @@ function FloatingPanelContent() {
           {!session ? (
             <div style={S.authPrompt}>
               <div style={S.authIcon}><SparklesIcon size={48} /></div>
-              <div style={S.authTitle}>Sign in to ContextFlow</div>
-              <div style={S.authText}>Get AI-powered answers about any webpage</div>
+              <div style={{ ...S.authTitle, color: T.textPrimary }}>Sign in to ContextFlow</div>
+              <div style={{ ...S.authText, color: T.textSecondary }}>Get AI-powered answers about any webpage</div>
               <button onClick={openAuth} style={S.authBtn}>Sign In</button>
             </div>
           ) : (
             <>
               <div style={S.messages}>
                 {messages.length === 0 ? (
-                  <div style={S.empty}>
+                  <div style={{ ...S.empty, color: T.textMuted }}>
                     <p>Ask anything about this page</p>
+                    {pageContext && (
+                      <button
+                        onClick={() => sendMessage("Summarize this page")}
+                        disabled={isStreaming}
+                        style={{
+                          marginTop: "10px", padding: "6px 16px",
+                          fontSize: "13px", borderRadius: "20px",
+                          border: `1px solid ${isDark ? "#6d28d9" : "#e9d5ff"}`,
+                          background: "transparent",
+                          color: isDark ? "#a78bfa" : "#7c3aed",
+                          cursor: isStreaming ? "not-allowed" : "pointer",
+                          opacity: isStreaming ? 0.5 : 1,
+                          fontFamily: "inherit",
+                        }}
+                      >
+                        Summarize this page
+                      </button>
+                    )}
                     {trialInfo && !hasLicense && (
                       <p style={S.trialInfo}>{trialInfo.remaining} free messages left</p>
                     )}
@@ -962,8 +1040,8 @@ function FloatingPanelContent() {
                       <div key={i} style={{ ...S.msg, ...(msg.role === "user" ? S.msgUser : {}) }}>
                         {msg.role === "assistant" ? (
                           <div style={S.msgWrapper}>
-                            <div style={{ ...S.msgBubble, ...S.msgBubbleAI, fontSize: bubbleFontSize }}>
-                              {msg.content ? renderMarkdown(msg.content) : (
+                            <div style={{ ...S.msgBubble, ...S.msgBubbleAI, fontSize: bubbleFontSize, background: T.aiBubbleBg, color: T.aiBubbleText }}>
+                              {msg.content ? renderMarkdown(msg.content, { codeBg: T.codeBg, linkColor: T.linkColor }) : (
                                 <span style={{ display: "inline-flex", gap: "4px", alignItems: "center", letterSpacing: "2px", color: "#9ca3af" }}>
                                   <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#9ca3af", display: "inline-block" }} />
                                   <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#b4b8c0", display: "inline-block" }} />
@@ -1016,14 +1094,14 @@ function FloatingPanelContent() {
                 <div ref={messagesEndRef} />
               </div>
 
-              <div style={S.inputArea}>
+              <div style={{ ...S.inputArea, background: T.bg, borderTopColor: T.border }}>
                 <textarea
                   ref={inputRef}
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder="Ask about this page..."
-                  style={S.input}
+                  style={{ ...S.input, background: T.inputBg, borderColor: T.inputBorder, color: T.textPrimary }}
                   rows={1}
                   disabled={isStreaming}
                 />

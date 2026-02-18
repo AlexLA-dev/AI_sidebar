@@ -49,6 +49,8 @@ export type TrialInfo = {
   proUsageCount?: number
   proWeeklyLimit?: number
   proLastResetAt?: string | null
+  // Set by syncSubscriptionFromNative() when the native bridge confirmed a subscription
+  nativeConfirmed?: boolean
 }
 
 // Get trial info
@@ -98,12 +100,17 @@ export async function setLicenseStatus(active: boolean): Promise<void> {
 
 // Sync subscription status from native App Store bridge to local storage.
 // Reads SharedDefaults (App Group) via native handler and writes to Plasmo storage.
+// Returns TrialInfo with `nativeConfirmed` flag indicating if the native bridge
+// actually confirmed a subscription (vs just echoing back server-written data).
 export async function syncSubscriptionFromNative(): Promise<TrialInfo> {
+  let nativeConfirmed = false
+
   try {
     const { getSubscriptionStatus } = await import("./appstore")
     const status = await getSubscriptionStatus()
 
     if (status.isSubscribed) {
+      nativeConfirmed = true
       await storage.set(STORAGE_KEYS.HAS_ACTIVE_LICENSE, true)
       await storage.set(STORAGE_KEYS.PAYMENT_PROVIDER, "appstore" as PaymentProviderType)
       if (status.planType) {
@@ -115,7 +122,8 @@ export async function syncSubscriptionFromNative(): Promise<TrialInfo> {
     console.warn("[ContextFlow] Failed to sync subscription from native:", err)
   }
 
-  return getTrialInfo()
+  const info = await getTrialInfo()
+  return { ...info, nativeConfirmed }
 }
 
 // Sync subscription status from Supabase to local storage

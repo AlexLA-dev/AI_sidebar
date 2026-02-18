@@ -5,7 +5,7 @@ import type { Session } from "@supabase/supabase-js"
 import { cn, sendMessageToActiveTab } from "~/lib/utils"
 import { getStoredApiKey, setStoredApiKey, getTrialInfo, syncSubscriptionFromServer, type ContextType, type TrialInfo } from "~/lib/ai"
 import { getSupabaseClient } from "~/lib/supabase"
-import { syncUserInfo } from "~/lib/appstore"
+import { syncUserInfo, getAppSettings } from "~/lib/appstore"
 import { syncSubscriptionFromNative } from "~/lib/storage"
 import { ChatInterface, SettingsPanel } from "~/components/chat"
 import { OnboardingModal, PaywallModal } from "~/components/onboarding"
@@ -41,6 +41,49 @@ function SidePanel() {
     }
   }, [])
 
+  // Apply dark/light theme based on native settings or system preference
+  useEffect(() => {
+    function applyTheme(mode: "dark" | "light" | "system") {
+      if (mode === "dark") {
+        document.documentElement.classList.add("dark")
+      } else if (mode === "light") {
+        document.documentElement.classList.remove("dark")
+      } else {
+        // System — follow OS preference
+        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+          document.documentElement.classList.add("dark")
+        } else {
+          document.documentElement.classList.remove("dark")
+        }
+      }
+    }
+
+    // Try native settings first (Safari), fall back to system preference
+    let themeMode: "dark" | "light" | "system" = "system"
+
+    getAppSettings()
+      .then((settings) => {
+        if (settings.theme === "dark" || settings.theme === "light") {
+          themeMode = settings.theme
+        }
+        applyTheme(themeMode)
+      })
+      .catch(() => {
+        // Native bridge not available (Chrome) — use system preference
+        applyTheme("system")
+      })
+
+    // Listen for system preference changes (applies when theme is "system")
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)")
+    const handleChange = () => {
+      if (themeMode === "system") {
+        applyTheme("system")
+      }
+    }
+    mediaQuery.addEventListener("change", handleChange)
+    return () => mediaQuery.removeEventListener("change", handleChange)
+  }, [])
+
   // Load settings and auth session on mount
   useEffect(() => {
     const loadSettings = async () => {
@@ -67,7 +110,7 @@ function SidePanel() {
         // Catches purchases made in the native app not yet in Supabase.
         try {
           const nativeInfo = await syncSubscriptionFromNative()
-          if (nativeInfo.hasLicense) {
+          if (nativeInfo.nativeConfirmed && nativeInfo.hasLicense) {
             setTrialInfo(nativeInfo)
           }
         } catch {
@@ -90,7 +133,7 @@ function SidePanel() {
                   if (!info.hasLicense) {
                     try {
                       const nativeInfo = await syncSubscriptionFromNative()
-                      if (nativeInfo.hasLicense) {
+                      if (nativeInfo.nativeConfirmed && nativeInfo.hasLicense) {
                         setTrialInfo(nativeInfo)
                         return
                       }
@@ -139,7 +182,7 @@ function SidePanel() {
     if (!info.hasLicense) {
       try {
         const nativeInfo = await syncSubscriptionFromNative()
-        if (nativeInfo.hasLicense) { setTrialInfo(nativeInfo); return }
+        if (nativeInfo.nativeConfirmed && nativeInfo.hasLicense) { setTrialInfo(nativeInfo); return }
       } catch { /* ignore */ }
     }
     setTrialInfo(info)
@@ -302,7 +345,7 @@ function SidePanel() {
     if (!info.hasLicense) {
       try {
         const nativeInfo = await syncSubscriptionFromNative()
-        if (nativeInfo.hasLicense) info = nativeInfo
+        if (nativeInfo.nativeConfirmed && nativeInfo.hasLicense) info = nativeInfo
       } catch { /* ignore */ }
     }
     setTrialInfo(info)
