@@ -116,7 +116,27 @@ export function SettingsPanel({
             ? "bg-purple-50 dark:bg-purple-900/20"
             : "bg-blue-50 dark:bg-blue-900/20"
         )}>
-          {hasLicense ? (
+          {hasLicense && trialInfo.planType === "pro_subscription" && trialInfo.proUsageCount != null ? (
+            <div className="space-y-1">
+              <div className="flex items-center justify-between text-purple-700 dark:text-purple-300">
+                <span>Weekly requests</span>
+                <span className="font-medium">
+                  {trialInfo.proUsageCount} / {trialInfo.proWeeklyLimit || 375}
+                </span>
+              </div>
+              <div className="h-1.5 bg-purple-200 dark:bg-purple-800 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-purple-500 transition-all"
+                  style={{
+                    width: `${(trialInfo.proUsageCount / (trialInfo.proWeeklyLimit || 375)) * 100}%`
+                  }}
+                />
+              </div>
+              <p className="text-xs text-purple-500 dark:text-purple-400">
+                Resets weekly
+              </p>
+            </div>
+          ) : hasLicense ? (
             <div className="flex items-center gap-2 text-purple-700 dark:text-purple-300">
               <Check className="h-4 w-4" />
               <span>Unlimited requests with your API key</span>
@@ -161,6 +181,16 @@ export function SettingsPanel({
               className="text-xs text-green-600 dark:text-green-400 hover:underline"
             >
               Change
+            </button>
+            <button
+              onClick={async () => {
+                await setStoredApiKey("")
+                onApiKeyChange("")
+                setInputValue("")
+              }}
+              className="text-xs text-red-500 dark:text-red-400 hover:underline"
+            >
+              Clear
             </button>
           </div>
         ) : (

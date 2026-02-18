@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react"
-import { Sparkles, RefreshCw, Settings, X, AlertTriangle } from "lucide-react"
+import { Sparkles, RefreshCw, Settings, X, AlertTriangle, SquarePen } from "lucide-react"
 import type { Session } from "@supabase/supabase-js"
 
 import { cn, sendMessageToActiveTab } from "~/lib/utils"
@@ -28,6 +28,7 @@ function SidePanel() {
   const [contextStatus, setContextStatus] = useState<ContextStatus>("idle")
   const [contextError, setContextError] = useState<string | null>(null)
   const [trialInfo, setTrialInfo] = useState<TrialInfo | null>(null)
+  const [chatKey, setChatKey] = useState(0)
 
   // Track whether we've already set up listeners
   const listenersSetUp = useRef(false)
@@ -149,17 +150,12 @@ function SidePanel() {
     setContextStatus("loading")
     setContextError(null)
 
-    console.log("[ContextFlow] Fetching page context...")
-
     const result = await sendMessageToActiveTab<RequestBody, ResponseBody>({
       action: "getPageText"
     })
 
-    console.log("[ContextFlow] Message result:", result)
-
     // Handle restricted pages (chrome://, etc.) - show idle state, not error
     if (result.isRestrictedPage) {
-      console.log("[ContextFlow] Restricted page, showing idle state")
       setPageContext(null)
       setPageTitle(null)
       setContextType("page")
@@ -171,7 +167,6 @@ function SidePanel() {
 
     // Handle errors
     if (!result.success) {
-      console.error("[ContextFlow] Error:", result.error)
       setPageContext(null)
       setPageTitle(null)
       setContextType("page")
@@ -193,13 +188,7 @@ function SidePanel() {
       setContextType(response.contextType || "page")
       setIsReadabilityParsed(response.isReadabilityParsed || false)
       setContextStatus("success")
-      console.log("[ContextFlow] Context loaded:", {
-        title: response.title,
-        type: response.contextType,
-        textLength: response.text.length
-      })
     } else {
-      console.error("[ContextFlow] Invalid response:", response)
       setPageContext(null)
       setPageTitle(null)
       setContextType("page")
@@ -219,38 +208,29 @@ function SidePanel() {
     if (listenersSetUp.current) return
     listenersSetUp.current = true
 
-    // Re-fetch when user switches to a different tab
     const handleTabActivated = (_activeInfo: chrome.tabs.TabActiveInfo) => {
-      console.log("[ContextFlow] Tab activated, refreshing context")
       fetchPageContext()
     }
 
-    // Re-fetch when current tab finishes loading (navigation)
-    // Delay 800ms to give Plasmo content script time to inject
     const handleTabUpdated = (
       _tabId: number,
       changeInfo: chrome.tabs.TabChangeInfo,
       _tab: chrome.tabs.Tab
     ) => {
       if (changeInfo.status === "complete") {
-        console.log("[ContextFlow] Tab updated (complete), refreshing context in 800ms")
         setTimeout(() => fetchPageContext(), 800)
       }
     }
 
-    // Re-fetch when window focus changes
     const handleWindowFocusChanged = (windowId: number) => {
       if (windowId !== chrome.windows.WINDOW_ID_NONE) {
-        console.log("[ContextFlow] Window focus changed, refreshing context")
         fetchPageContext()
       }
     }
 
-    // Listen for context updates from content script (selection / clear)
     const handleMessage = (message: any) => {
       if (message?.action === "contextUpdate" && message.text) {
         const type = message.type === "selection" ? "selection" : "page"
-        console.log(`[ContextFlow] Context update: ${type}`, message.text.slice(0, 80))
         // Soft update — no loading spinner, just swap data
         setPageContext(message.text)
         setPageTitle(message.title || null)
@@ -348,8 +328,8 @@ function SidePanel() {
       setShowSettings(false)
       // Clear user info from native app shared storage
       syncUserInfo(null)
-    } catch (err) {
-      console.error("[ContextFlow] Sign out error:", err)
+    } catch {
+      // Sign out error — ignore
     }
   }
 
@@ -386,6 +366,16 @@ function SidePanel() {
           </h1>
         </div>
         <div className="flex items-center gap-1">
+          <button
+            onClick={() => setChatKey(k => k + 1)}
+            title="New Chat"
+            className={cn(
+              "p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100",
+              "dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800"
+            )}
+          >
+            <SquarePen className="h-4 w-4" />
+          </button>
           <button
             onClick={fetchPageContext}
             disabled={contextStatus === "loading"}
@@ -453,9 +443,9 @@ function SidePanel() {
         )}
       </div>
 
-      {/* Settings panel */}
-      {showSettings && (
-        <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
+      {/* Settings panel — replaces chat when open */}
+      {showSettings ? (
+        <div className="flex-1 overflow-y-auto px-4 py-3 bg-gray-50 dark:bg-gray-800/50">
           <SettingsPanel
             apiKey={apiKey}
             onApiKeyChange={handleApiKeyChange}
@@ -465,21 +455,21 @@ function SidePanel() {
             onSignOut={handleSignOut}
           />
         </div>
+      ) : (
+        <main className="flex-1 overflow-hidden">
+          <ChatInterface
+            key={chatKey}
+            apiKey={apiKey}
+            pageContext={pageContext}
+            pageTitle={pageTitle}
+            contextType={contextType}
+            isReadabilityParsed={isReadabilityParsed}
+            trialInfo={trialInfo}
+            onTrialUpdate={refreshTrialInfo}
+            onLimitReached={handleLimitReached}
+          />
+        </main>
       )}
-
-      {/* Main content */}
-      <main className="flex-1 overflow-hidden">
-        <ChatInterface
-          apiKey={apiKey}
-          pageContext={pageContext}
-          pageTitle={pageTitle}
-          contextType={contextType}
-          isReadabilityParsed={isReadabilityParsed}
-          trialInfo={trialInfo}
-          onTrialUpdate={refreshTrialInfo}
-          onLimitReached={handleLimitReached}
-        />
-      </main>
     </div>
   )
 }

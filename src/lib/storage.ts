@@ -12,7 +12,11 @@ export const STORAGE_KEYS = {
   // API Key (BYOK)
   USER_API_KEY: "user_api_key",
   // Payment provider tracking
-  PAYMENT_PROVIDER: "payment_provider"
+  PAYMENT_PROVIDER: "payment_provider",
+  // Pro usage tracking
+  PRO_USAGE_COUNT: "pro_usage_count",
+  PRO_WEEKLY_LIMIT: "pro_weekly_limit",
+  PRO_LAST_RESET_AT: "pro_last_reset_at"
 } as const
 
 // Plan & pricing constants
@@ -42,6 +46,9 @@ export type TrialInfo = {
   isTrialExpired: boolean
   paymentProvider: PaymentProviderType
   planType: PlanType
+  proUsageCount?: number
+  proWeeklyLimit?: number
+  proLastResetAt?: string | null
 }
 
 // Get trial info
@@ -50,6 +57,9 @@ export async function getTrialInfo(): Promise<TrialInfo> {
   const hasLicense = (await storage.get<boolean>(STORAGE_KEYS.HAS_ACTIVE_LICENSE)) || false
   const paymentProvider = (await storage.get<PaymentProviderType>(STORAGE_KEYS.PAYMENT_PROVIDER)) || null
   const planType = (await storage.get<PlanType>(STORAGE_KEYS.PLAN_TYPE)) || null
+  const proUsageCount = (await storage.get<number>(STORAGE_KEYS.PRO_USAGE_COUNT)) || undefined
+  const proWeeklyLimit = (await storage.get<number>(STORAGE_KEYS.PRO_WEEKLY_LIMIT)) || undefined
+  const proLastResetAt = (await storage.get<string>(STORAGE_KEYS.PRO_LAST_RESET_AT)) || undefined
 
   return {
     usageCount,
@@ -57,7 +67,10 @@ export async function getTrialInfo(): Promise<TrialInfo> {
     remaining: Math.max(0, LICENSE_CONFIG.TRIAL_LIMIT - usageCount),
     isTrialExpired: !hasLicense && usageCount >= LICENSE_CONFIG.TRIAL_LIMIT,
     paymentProvider,
-    planType
+    planType,
+    proUsageCount,
+    proWeeklyLimit,
+    proLastResetAt
   }
 }
 
@@ -135,6 +148,15 @@ export async function syncSubscriptionFromServer(): Promise<TrialInfo> {
           await syncTrialUsage(serverUsage)
         } catch {
           // Non-critical
+        }
+      }
+
+      // Sync Pro usage data
+      if (sub.plan_type === "pro_subscription") {
+        await storage.set(STORAGE_KEYS.PRO_USAGE_COUNT, sub.usage_count || 0)
+        await storage.set(STORAGE_KEYS.PRO_WEEKLY_LIMIT, 375)
+        if (sub.last_reset_at) {
+          await storage.set(STORAGE_KEYS.PRO_LAST_RESET_AT, sub.last_reset_at)
         }
       }
     }

@@ -11,11 +11,7 @@ const isSafari =
   typeof chrome.sidePanel === "undefined"
 
 chrome.runtime.onInstalled.addListener(() => {
-  console.log("[ContextFlow] Extension installed, platform:", isSafari ? "safari" : "chrome")
-  if (isSafari) {
-    const hasNativeMessaging = typeof browserGlobal?.runtime?.sendNativeMessage === "function"
-    console.log("[ContextFlow] Native messaging available:", hasNativeMessaging)
-  }
+  // Extension installed
 })
 
 // Handle extension icon click
@@ -68,40 +64,11 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     // Relay native commands from sidebar/popup to SafariWebExtensionHandler.
     const { action: _, ...nativeMessage } = message
 
-    console.log("[ContextFlow] Native relay:", nativeMessage.command)
-
     callNative(nativeMessage).then((response: any) => {
-      console.log("[ContextFlow] Native response:", JSON.stringify(response))
       sendResponse(response)
     }).catch((err: any) => {
-      console.error("[ContextFlow] Native messaging error:", err)
       sendResponse({ success: false, error: String(err) })
     })
-  } else if (message.action === "diagnoseBridge") {
-    // Diagnostic: test every step of the native bridge and report results.
-    const diag: Record<string, any> = {
-      isSafari,
-      hasBrowserGlobal: !!browserGlobal,
-      hasBrowserRuntime: !!browserGlobal?.runtime,
-      hasSendNativeMessage: typeof browserGlobal?.runtime?.sendNativeMessage === "function",
-      timestamp: new Date().toISOString()
-    }
-
-    if (typeof browserGlobal?.runtime?.sendNativeMessage !== "function") {
-      diag.error = "sendNativeMessage not available"
-      sendResponse({ success: true, data: diag })
-    } else {
-      // Actually try calling native with a ping command
-      callNative({ command: "ping" }).then((response: any) => {
-        diag.nativePingResponse = response
-        diag.nativePingOK = true
-        sendResponse({ success: true, data: diag })
-      }).catch((err: any) => {
-        diag.nativePingOK = false
-        diag.nativePingError = String(err)
-        sendResponse({ success: true, data: diag })
-      })
-    }
   }
   return true
 })

@@ -18,9 +18,6 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         let item = context.inputItems.first as? NSExtensionItem
         let message = item?.userInfo?[SFExtensionMessageKey] as? [String: Any]
 
-        // Record raw message receipt for diagnostics (even if parsing fails)
-        SharedDefaults.shared.recordNativeBridgeCall(command: message?["command"] as? String ?? "(no command)")
-
         guard let message, let command = message["command"] as? String else {
             logger.warning("Invalid message from extension (no command). Raw: \(String(describing: item?.userInfo))")
             sendResponse(context: context, data: ["success": false, "error": "Invalid message"])

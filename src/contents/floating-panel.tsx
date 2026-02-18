@@ -11,7 +11,7 @@ import {
   type TrialInfo
 } from "~/lib/ai"
 import { getStoredApiKey, setStoredApiKey, storage, LICENSE_CONFIG, syncSubscriptionFromNative } from "~/lib/storage"
-import { syncUserInfo, diagnoseBridge } from "~/lib/appstore"
+import { syncUserInfo, openAppForSubscription } from "~/lib/appstore"
 
 // --- Lightweight inline markdown renderer (no external deps) ---
 function renderMarkdown(text: string): React.ReactNode[] {
@@ -217,6 +217,12 @@ const MoreIcon = ({ size = 16 }: { size?: number }) => (
 const LogOutIcon = ({ size = 14 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/>
+  </svg>
+)
+
+const NewChatIcon = ({ size = 18 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
   </svg>
 )
 
@@ -444,7 +450,6 @@ function FloatingPanelContent() {
   const [trialInfo, setTrialInfo] = useState<TrialInfo | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [showSettings, setShowSettings] = useState(false)
-  const [bridgeDiag, setBridgeDiag] = useState<Record<string, any> | null>(null)
   const [apiKey, setApiKey] = useState("")
   const [apiKeyInput, setApiKeyInput] = useState("")
   const [editingKey, setEditingKey] = useState(false)
@@ -508,9 +513,6 @@ function FloatingPanelContent() {
         if (s?.user?.email) {
           syncUserInfo(s.user.email)
         }
-
-        // Run bridge diagnostics (results shown in settings)
-        diagnoseBridge(setBridgeDiag)
 
         supabase.auth.onAuthStateChange((_event, newSession) => {
           setSession(newSession)
@@ -674,8 +676,8 @@ function FloatingPanelContent() {
       setSession(null)
       setShowSettings(false)
       syncUserInfo(null)
-    } catch (err) {
-      console.error("[ContextFlow] Sign out error:", err)
+    } catch {
+      // Sign out error — ignore
     }
   }
 
@@ -738,12 +740,26 @@ function FloatingPanelContent() {
           </div>
           <div style={S.headerRight}>
             {session && (
-              <button
-                onClick={() => setShowSettings(!showSettings)}
-                style={{ ...S.iconBtn, ...(showSettings ? S.iconBtnActive : {}) }}
-              >
-                {showSettings ? <XIcon size={18} /> : <GearIcon size={18} />}
-              </button>
+              <>
+                <button
+                  onClick={() => {
+                    setMessages([])
+                    setError(null)
+                    setLimitReached(false)
+                    fetchContext()
+                  }}
+                  title="New Chat"
+                  style={S.iconBtn}
+                >
+                  <NewChatIcon size={18} />
+                </button>
+                <button
+                  onClick={() => setShowSettings(!showSettings)}
+                  style={{ ...S.iconBtn, ...(showSettings ? S.iconBtnActive : {}) }}
+                >
+                  {showSettings ? <XIcon size={18} /> : <GearIcon size={18} />}
+                </button>
+              </>
             )}
             <button onClick={() => setIsOpen(false)} style={S.iconBtn}>
               <ChevronDownIcon size={20} />
@@ -766,31 +782,63 @@ function FloatingPanelContent() {
             </div>
 
             {/* Plan */}
-            <div style={{ ...S.settingsRow, marginBottom: "12px" }}>
+            <div style={{ ...S.settingsRow, marginBottom: "4px" }}>
               <div>
                 <div style={S.settingsLabel}>Plan</div>
                 <div style={S.settingsValue}>{hasLicense
                   ? (trialInfo?.planType === "byok_license" ? "BYOK License" : "Pro License")
                   : "Free Trial"}</div>
               </div>
-              {trialInfo && !hasLicense && (
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  <span style={{ fontSize: "12px", color: "#7c3aed" }}>
-                    {trialInfo.remaining}/{LICENSE_CONFIG.TRIAL_LIMIT} left
-                  </span>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                {hasLicense && (
                   <button
-                    onClick={handleUpgrade}
+                    onClick={() => openAppForSubscription("pro")}
                     style={{
-                      padding: "3px 10px", border: "none", borderRadius: "8px",
-                      background: "#7c3aed", color: "white", fontSize: "11px",
-                      fontWeight: 600, cursor: "pointer",
+                      padding: "3px 10px", border: "1px solid #e5e7eb", borderRadius: "8px",
+                      background: "white", color: "#7c3aed", fontSize: "11px",
+                      fontWeight: 500, cursor: "pointer",
                     }}
                   >
-                    Upgrade
+                    Manage
                   </button>
-                </div>
-              )}
+                )}
+                {trialInfo && !hasLicense && (
+                  <>
+                    <span style={{ fontSize: "12px", color: "#7c3aed" }}>
+                      {trialInfo.remaining}/{LICENSE_CONFIG.TRIAL_LIMIT} left
+                    </span>
+                    <button
+                      onClick={handleUpgrade}
+                      style={{
+                        padding: "3px 10px", border: "none", borderRadius: "8px",
+                        background: "#7c3aed", color: "white", fontSize: "11px",
+                        fontWeight: 600, cursor: "pointer",
+                      }}
+                    >
+                      Upgrade
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
+
+            {/* Pro usage progress */}
+            {trialInfo && hasLicense && trialInfo.planType === "pro_subscription" && trialInfo.proUsageCount != null && (
+              <div style={{ marginBottom: "10px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", color: "#7c3aed", marginBottom: "4px" }}>
+                  <span>Weekly requests</span>
+                  <span>{trialInfo.proUsageCount} / {trialInfo.proWeeklyLimit || 375}</span>
+                </div>
+                <div style={{ height: "4px", background: "#e9d5ff", borderRadius: "2px", overflow: "hidden" }}>
+                  <div style={{
+                    height: "100%", background: "#7c3aed", borderRadius: "2px",
+                    width: `${(trialInfo.proUsageCount / (trialInfo.proWeeklyLimit || 375)) * 100}%`,
+                    transition: "width 0.3s"
+                  }} />
+                </div>
+                <div style={{ fontSize: "10px", color: "#9ca3af", marginTop: "2px" }}>Resets weekly</div>
+              </div>
+            )}
 
             {/* API Key */}
             <div style={S.settingsLabel}>OpenAI API Key</div>
@@ -804,6 +852,17 @@ function FloatingPanelContent() {
                   style={{ ...S.signOutBtn, color: "#7c3aed" }}
                 >
                   Change
+                </button>
+                <button
+                  onClick={async () => {
+                    await setStoredApiKey("")
+                    setApiKey("")
+                    setApiKeyInput("")
+                    setEditingKey(false)
+                  }}
+                  style={{ ...S.signOutBtn, color: "#dc2626" }}
+                >
+                  Clear
                 </button>
               </div>
             ) : (
@@ -855,19 +914,6 @@ function FloatingPanelContent() {
               </div>
             </div>
 
-            {/* Native Bridge Diagnostic */}
-            {bridgeDiag && (
-              <div style={{ marginTop: "14px", padding: "8px", background: "#f3f4f6", borderRadius: "8px" }}>
-                <div style={{ fontSize: "11px", fontWeight: 600, color: "#374151", marginBottom: "4px" }}>
-                  Native Bridge Diagnostic
-                </div>
-                {Object.entries(bridgeDiag).map(([k, v]) => (
-                  <div key={k} style={{ fontSize: "10px", color: "#6b7280", fontFamily: "monospace", lineHeight: "1.6" }}>
-                    {k}: {typeof v === "object" ? JSON.stringify(v) : String(v)}
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
         )}
 
@@ -981,12 +1027,7 @@ function FloatingPanelContent() {
 
 // Manual initialization for Safari compatibility
 function initFloatingPanel() {
-  if (!isSafari()) {
-    console.log("[ContextFlow] Not Safari, skipping floating panel")
-    return
-  }
-
-  console.log("[ContextFlow] Initializing floating panel for Safari")
+  if (!isSafari()) return
 
   // Inject scoped CSS reset — only protect against common page CSS interference
   // IMPORTANT: Do NOT override position, transform, display, width, height —
