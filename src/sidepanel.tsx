@@ -84,7 +84,19 @@ function SidePanel() {
             setSession(newSession)
             // Re-sync subscription when auth state changes
             if (newSession) {
-              syncSubscriptionFromServer().then(setTrialInfo)
+              syncSubscriptionFromServer()
+                .then(async (info) => {
+                  if (!info.hasLicense) {
+                    try {
+                      const nativeInfo = await syncSubscriptionFromNative()
+                      if (nativeInfo.hasLicense) {
+                        setTrialInfo(nativeInfo)
+                        return
+                      }
+                    } catch { /* ignore */ }
+                  }
+                  setTrialInfo(info)
+                })
               // Sync user email to native app shared storage
               if (newSession.user?.email) {
                 syncUserInfo(newSession.user.email)
@@ -114,15 +126,22 @@ function SidePanel() {
     })
   }, [])
 
-  // Refresh trial info (sync from server when possible)
+  // Refresh trial info (sync from server, then native fallback)
   const refreshTrialInfo = useCallback(async () => {
+    let info: TrialInfo
     if (session) {
-      const info = await syncSubscriptionFromServer()
-      setTrialInfo(info)
+      info = await syncSubscriptionFromServer()
     } else {
-      const info = await getTrialInfo()
-      setTrialInfo(info)
+      info = await getTrialInfo()
     }
+    // Also check native bridge — subscription may not be in Supabase
+    if (!info.hasLicense) {
+      try {
+        const nativeInfo = await syncSubscriptionFromNative()
+        if (nativeInfo.hasLicense) { setTrialInfo(nativeInfo); return }
+      } catch { /* ignore */ }
+    }
+    setTrialInfo(info)
   }, [session])
 
   // Fetch page context
@@ -299,7 +318,13 @@ function SidePanel() {
   const handleSubscribed = async () => {
     setShowPaywall(false)
     // Sync from server to pick up the new subscription
-    const info = await syncSubscriptionFromServer()
+    let info = await syncSubscriptionFromServer()
+    if (!info.hasLicense) {
+      try {
+        const nativeInfo = await syncSubscriptionFromNative()
+        if (nativeInfo.hasLicense) info = nativeInfo
+      } catch { /* ignore */ }
+    }
     setTrialInfo(info)
 
     // If opened as a standalone paywall tab (from floating panel), close it

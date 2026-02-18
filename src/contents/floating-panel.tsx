@@ -515,7 +515,21 @@ function FloatingPanelContent() {
         supabase.auth.onAuthStateChange((_event, newSession) => {
           setSession(newSession)
           if (newSession) {
-            syncSubscriptionFromServer().then(setTrialInfo)
+            syncSubscriptionFromServer()
+              .then(async (info) => {
+                // After server sync, also check native App Store bridge.
+                // Native subscription may not be in Supabase yet.
+                if (!info.hasLicense) {
+                  try {
+                    const nativeInfo = await syncSubscriptionFromNative()
+                    if (nativeInfo.hasLicense) {
+                      setTrialInfo(nativeInfo)
+                      return
+                    }
+                  } catch { /* ignore */ }
+                }
+                setTrialInfo(info)
+              })
             if (newSession.user?.email) syncUserInfo(newSession.user.email)
           } else {
             syncUserInfo(null)
@@ -591,9 +605,16 @@ function FloatingPanelContent() {
               return n
             })
           },
-          onComplete: () => {
+          onComplete: async () => {
             setIsStreaming(false)
-            syncSubscriptionFromServer().then(setTrialInfo)
+            const info = await syncSubscriptionFromServer()
+            if (!info.hasLicense) {
+              try {
+                const nativeInfo = await syncSubscriptionFromNative()
+                if (nativeInfo.hasLicense) { setTrialInfo(nativeInfo); return }
+              } catch { /* ignore */ }
+            }
+            setTrialInfo(info)
           },
           onError: (err) => {
             setIsStreaming(false)
@@ -748,7 +769,9 @@ function FloatingPanelContent() {
             <div style={{ ...S.settingsRow, marginBottom: "12px" }}>
               <div>
                 <div style={S.settingsLabel}>Plan</div>
-                <div style={S.settingsValue}>{hasLicense ? "Pro License" : "Free Trial"}</div>
+                <div style={S.settingsValue}>{hasLicense
+                  ? (trialInfo?.paymentProvider === "appstore" ? "BYOK License" : "Pro License")
+                  : "Free Trial"}</div>
               </div>
               {trialInfo && !hasLicense && (
                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
