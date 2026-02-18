@@ -770,7 +770,7 @@ function FloatingPanelContent() {
               <div>
                 <div style={S.settingsLabel}>Plan</div>
                 <div style={S.settingsValue}>{hasLicense
-                  ? (trialInfo?.paymentProvider === "appstore" ? "BYOK License" : "Pro License")
+                  ? (trialInfo?.planType === "byok_license" ? "BYOK License" : "Pro License")
                   : "Free Trial"}</div>
               </div>
               {trialInfo && !hasLicense && (

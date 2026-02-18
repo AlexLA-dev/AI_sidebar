@@ -85,7 +85,9 @@ export function SettingsPanel({
             <Sparkles className="h-4 w-4 text-blue-500" />
           )}
           <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-            {hasLicense ? "Pro License" : "Free Trial"}
+            {hasLicense
+              ? (trialInfo?.planType === "byok_license" ? "BYOK License" : "Pro License")
+              : "Free Trial"}
           </span>
         </div>
         {hasLicense ? (

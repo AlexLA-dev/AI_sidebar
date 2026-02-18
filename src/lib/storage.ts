@@ -8,6 +8,7 @@ export const STORAGE_KEYS = {
   // License & Trial
   TRIAL_USAGE_COUNT: "trial_usage_count",
   HAS_ACTIVE_LICENSE: "has_active_license",
+  PLAN_TYPE: "plan_type",
   // API Key (BYOK)
   USER_API_KEY: "user_api_key",
   // Payment provider tracking
@@ -31,6 +32,7 @@ export const LICENSE_CONFIG = {
 } as const
 
 export type PaymentProviderType = "stripe" | "appstore" | null
+export type PlanType = "free" | "byok_license" | "pro_subscription" | null
 
 // Trial info type
 export type TrialInfo = {
@@ -39,6 +41,7 @@ export type TrialInfo = {
   remaining: number
   isTrialExpired: boolean
   paymentProvider: PaymentProviderType
+  planType: PlanType
 }
 
 // Get trial info
@@ -46,13 +49,15 @@ export async function getTrialInfo(): Promise<TrialInfo> {
   const usageCount = (await storage.get<number>(STORAGE_KEYS.TRIAL_USAGE_COUNT)) || 0
   const hasLicense = (await storage.get<boolean>(STORAGE_KEYS.HAS_ACTIVE_LICENSE)) || false
   const paymentProvider = (await storage.get<PaymentProviderType>(STORAGE_KEYS.PAYMENT_PROVIDER)) || null
+  const planType = (await storage.get<PlanType>(STORAGE_KEYS.PLAN_TYPE)) || null
 
   return {
     usageCount,
     hasLicense,
     remaining: Math.max(0, LICENSE_CONFIG.TRIAL_LIMIT - usageCount),
     isTrialExpired: !hasLicense && usageCount >= LICENSE_CONFIG.TRIAL_LIMIT,
-    paymentProvider
+    paymentProvider,
+    planType
   }
 }
 
@@ -88,6 +93,9 @@ export async function syncSubscriptionFromNative(): Promise<TrialInfo> {
     if (status.isSubscribed) {
       await storage.set(STORAGE_KEYS.HAS_ACTIVE_LICENSE, true)
       await storage.set(STORAGE_KEYS.PAYMENT_PROVIDER, "appstore" as PaymentProviderType)
+      if (status.planType) {
+        await storage.set(STORAGE_KEYS.PLAN_TYPE, status.planType as PlanType)
+      }
     }
   } catch (err) {
     // Non-critical — native bridge may not be available (e.g. Chrome)
@@ -109,6 +117,7 @@ export async function syncSubscriptionFromServer(): Promise<TrialInfo> {
         sub.subscription_status === "active"
 
       await storage.set(STORAGE_KEYS.HAS_ACTIVE_LICENSE, isActive)
+      await storage.set(STORAGE_KEYS.PLAN_TYPE, (sub.plan_type || "free") as PlanType)
 
       // Track payment provider
       if (sub.payment_provider) {
