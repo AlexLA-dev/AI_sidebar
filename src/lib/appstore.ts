@@ -11,7 +11,7 @@
  * 3. SafariWebExtensionHandler → SharedDefaults (App Group) → returns status
  */
 
-import { isNativeStoreKitAvailable } from "./platform"
+import { isSafari, isNativeStoreKitAvailable } from "./platform"
 
 // ── Product IDs (must match App Store Connect configuration) ──────────────
 
@@ -172,26 +172,61 @@ export async function pingNative(): Promise<boolean> {
 }
 
 /**
- * Run full native bridge diagnostics. Returns detailed info about
- * each step in the chain: platform detection → background script →
- * native handler. Results are visible in the floating panel settings.
+ * Run native bridge diagnostics with progressive updates.
+ * Calls onUpdate with results as each step completes — never hangs.
  */
-export async function diagnoseBridge(): Promise<Record<string, any>> {
+export function diagnoseBridge(onUpdate: (diag: Record<string, any>) => void): void {
   const diag: Record<string, any> = {
-    step1_isSafari: (await import("./platform")).isSafari(),
-    step2_isNativeAvailable: (await import("./platform")).isNativeStoreKitAvailable(),
-    step3_chromeRuntimeExists: typeof chrome !== "undefined" && typeof chrome.runtime?.sendMessage === "function"
+    safari: isSafari(),
+    nativeAvail: isNativeStoreKitAvailable(),
+    chromeRT: typeof chrome !== "undefined" && typeof chrome.runtime?.sendMessage === "function",
+    bgReached: "...",
+    nativePing: "..."
   }
 
-  // Test: can we reach the background script at all?
+  // Show basic info immediately
+  onUpdate({ ...diag })
+
+  // Try background with 3s timeout
+  const hasRuntime = typeof chrome !== "undefined" && typeof chrome.runtime?.sendMessage === "function"
+  if (!hasRuntime) {
+    diag.bgReached = false
+    diag.nativePing = "N/A"
+    onUpdate({ ...diag })
+    return
+  }
+
+  let bgTimedOut = false
+  const timeout = setTimeout(() => {
+    bgTimedOut = true
+    diag.bgReached = "TIMEOUT"
+    diag.nativePing = "TIMEOUT"
+    onUpdate({ ...diag })
+  }, 3000)
+
   try {
-    const bgResponse = await chrome.runtime.sendMessage({ action: "diagnoseBridge" })
-    diag.step4_backgroundReached = true
-    diag.step5_backgroundData = bgResponse?.data || bgResponse
-  } catch (err) {
-    diag.step4_backgroundReached = false
-    diag.step4_error = String(err)
-  }
+    chrome.runtime.sendMessage({ action: "diagnoseBridge" }, (response: any) => {
+      if (bgTimedOut) return
+      clearTimeout(timeout)
 
-  return diag
+      if (chrome.runtime.lastError) {
+        diag.bgReached = false
+        diag.bgError = chrome.runtime.lastError.message || "unknown"
+        diag.nativePing = "N/A"
+      } else {
+        diag.bgReached = true
+        const data = response?.data || response || {}
+        diag.hasSendNative = data.hasSendNativeMessage
+        diag.nativePing = data.nativePingOK ?? false
+        if (data.nativePingError) diag.pingErr = data.nativePingError
+      }
+      onUpdate({ ...diag })
+    })
+  } catch (err) {
+    clearTimeout(timeout)
+    diag.bgReached = false
+    diag.bgError = String(err)
+    diag.nativePing = "N/A"
+    onUpdate({ ...diag })
+  }
 }

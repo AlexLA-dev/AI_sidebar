@@ -498,7 +498,7 @@ function FloatingPanelContent() {
         }
 
         // Run bridge diagnostics (results shown in settings)
-        diagnoseBridge().then(setBridgeDiag).catch(() => {})
+        diagnoseBridge(setBridgeDiag)
 
         supabase.auth.onAuthStateChange((_event, newSession) => {
           setSession(newSession)

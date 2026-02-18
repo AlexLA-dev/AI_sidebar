@@ -914,71 +914,10 @@ struct StatusTab: View {
                 .shadow(color: .black.opacity(0.06), radius: 6, y: 2)
 
                 // Native Bridge diagnostic
-                VStack(alignment: .leading, spacing: 12) {
-                    Label("Native Bridge", systemImage: "arrow.left.arrow.right")
-                        .font(.headline)
-
-                    let lastCmd = SharedDefaults.shared.debugLastNativeCommand
-                    let lastTs = SharedDefaults.shared.debugLastNativeTimestamp
-                    let bridgeCalled = lastTs > 0
-
-                    checkItem("Bridge ever called", ok: bridgeCalled)
-
-                    if bridgeCalled {
-                        let date = Date(timeIntervalSince1970: lastTs)
-                        let fmt = DateFormatter()
-                        fmt.dateFormat = "yyyy-MM-dd HH:mm:ss"
-                        HStack {
-                            Text("Last command:")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                            Spacer()
-                            Text(lastCmd ?? "—")
-                                .font(.caption.monospaced())
-                        }
-                        HStack {
-                            Text("Last called:")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                            Spacer()
-                            Text(fmt.string(from: date))
-                                .font(.caption.monospaced())
-                        }
-                    } else {
-                        Text("The extension has never called the native bridge.\nOpen the extension in Safari and interact with it,\nthen come back here and tap Refresh.")
-                            .font(.caption)
-                            .foregroundColor(.orange)
-                    }
-                }
-                .padding(20)
-                #if os(iOS)
-                .background(Color(.systemBackground))
-                #else
-                .background(Color(nsColor: .controlBackgroundColor))
-                #endif
-                .cornerRadius(16)
-                .shadow(color: .black.opacity(0.06), radius: 6, y: 2)
+                nativeBridgeCard
 
                 // Connection checklist
-                VStack(alignment: .leading, spacing: 12) {
-                    Label("Checklist", systemImage: "checklist")
-                        .font(.headline)
-
-                    let hasAppGroup = UserDefaults(suiteName: SharedDefaults.suiteName) != nil
-
-                    checkItem("App Group configured", ok: hasAppGroup)
-                    checkItem("Subscription active", ok: isSubscribed)
-                    checkItem("User email synced", ok: hasEmail)
-                    checkItem("API key set", ok: hasApiKey)
-                }
-                .padding(20)
-                #if os(iOS)
-                .background(Color(.systemBackground))
-                #else
-                .background(Color(nsColor: .controlBackgroundColor))
-                #endif
-                .cornerRadius(16)
-                .shadow(color: .black.opacity(0.06), radius: 6, y: 2)
+                checklistCard
 
                 // How it works
                 VStack(alignment: .leading, spacing: 8) {
@@ -1020,6 +959,77 @@ struct StatusTab: View {
             refreshChecklist()
             debugInfo = SharedDefaults.shared.debugDump()
         }
+    }
+
+    private var nativeBridgeCard: some View {
+        let bridgeCalled = SharedDefaults.shared.debugLastNativeTimestamp > 0
+
+        return VStack(alignment: .leading, spacing: 12) {
+            Label("Native Bridge", systemImage: "arrow.left.arrow.right")
+                .font(.headline)
+
+            checkItem("Bridge ever called", ok: bridgeCalled)
+
+            if bridgeCalled {
+                HStack {
+                    Text("Last command:")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Spacer()
+                    Text(SharedDefaults.shared.debugLastNativeCommand ?? "—")
+                        .font(.caption.monospaced())
+                }
+                HStack {
+                    Text("Last called:")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Spacer()
+                    Text(formattedTimestamp(SharedDefaults.shared.debugLastNativeTimestamp))
+                        .font(.caption.monospaced())
+                }
+            } else {
+                Text("The extension has never called the native bridge.\nOpen the extension in Safari and interact with it,\nthen come back here and tap Refresh.")
+                    .font(.caption)
+                    .foregroundColor(.orange)
+            }
+        }
+        .padding(20)
+        #if os(iOS)
+        .background(Color(.systemBackground))
+        #else
+        .background(Color(nsColor: .controlBackgroundColor))
+        #endif
+        .cornerRadius(16)
+        .shadow(color: .black.opacity(0.06), radius: 6, y: 2)
+    }
+
+    private var checklistCard: some View {
+        let appGroupOK = UserDefaults(suiteName: SharedDefaults.suiteName) != nil
+
+        return VStack(alignment: .leading, spacing: 12) {
+            Label("Checklist", systemImage: "checklist")
+                .font(.headline)
+
+            checkItem("App Group configured", ok: appGroupOK)
+            checkItem("Subscription active", ok: isSubscribed)
+            checkItem("User email synced", ok: hasEmail)
+            checkItem("API key set", ok: hasApiKey)
+        }
+        .padding(20)
+        #if os(iOS)
+        .background(Color(.systemBackground))
+        #else
+        .background(Color(nsColor: .controlBackgroundColor))
+        #endif
+        .cornerRadius(16)
+        .shadow(color: .black.opacity(0.06), radius: 6, y: 2)
+    }
+
+    private func formattedTimestamp(_ ts: Double) -> String {
+        guard ts > 0 else { return "—" }
+        let fmt = DateFormatter()
+        fmt.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        return fmt.string(from: Date(timeIntervalSince1970: ts))
     }
 
     private func refreshChecklist() {
