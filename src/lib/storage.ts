@@ -116,6 +116,15 @@ export async function syncSubscriptionFromNative(): Promise<TrialInfo> {
       if (status.planType) {
         await storage.set(STORAGE_KEYS.PLAN_TYPE, status.planType as PlanType)
       }
+      // Initialize Pro usage data so the progress bar appears even when
+      // the server record hasn't been updated to pro_subscription yet
+      if (status.planType === "pro_subscription") {
+        const existingCount = await storage.get<number>(STORAGE_KEYS.PRO_USAGE_COUNT)
+        if (existingCount == null) {
+          await storage.set(STORAGE_KEYS.PRO_USAGE_COUNT, 0)
+          await storage.set(STORAGE_KEYS.PRO_WEEKLY_LIMIT, 375)
+        }
+      }
     }
   } catch (err) {
     // Non-critical — native bridge may not be available (e.g. Chrome)
