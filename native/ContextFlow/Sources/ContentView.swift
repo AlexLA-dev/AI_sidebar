@@ -20,6 +20,9 @@ struct ContentView: View {
 
     @State private var selectedTab: Tab = .subscription
 
+    /// Product ID hint from URL scheme (e.g. contextflow://subscribe?plan=byok)
+    @State private var suggestedProductId: String?
+
     var body: some View {
         #if os(macOS)
         NavigationView {
@@ -27,9 +30,10 @@ struct ContentView: View {
             tabContent
         }
         .frame(minWidth: 600, minHeight: 450)
+        .onOpenURL { url in handleDeepLink(url) }
         #else
         TabView(selection: $selectedTab) {
-            SubscriptionTab(storeManager: storeManager)
+            SubscriptionTab(storeManager: storeManager, suggestedProductId: $suggestedProductId)
                 .tabItem {
                     Label("Subscription", systemImage: "crown")
                 }
@@ -54,7 +58,23 @@ struct ContentView: View {
                 .tag(Tab.status)
         }
         .tint(.purple)
+        .onOpenURL { url in handleDeepLink(url) }
         #endif
+    }
+
+    /// Parse deep link: contextflow://subscribe?plan=byok or contextflow://subscribe?plan=pro
+    private func handleDeepLink(_ url: URL) {
+        guard url.scheme == "contextflow", url.host == "subscribe" else { return }
+        selectedTab = .subscription
+
+        if let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+           let planParam = components.queryItems?.first(where: { $0.name == "plan" })?.value {
+            switch planParam {
+            case "byok": suggestedProductId = "com.contextflow.byok.monthly"
+            case "pro": suggestedProductId = "com.contextflow.pro.monthly"
+            default: break
+            }
+        }
     }
 
     #if os(macOS)
@@ -71,7 +91,7 @@ struct ContentView: View {
     private var tabContent: some View {
         switch selectedTab {
         case .subscription:
-            SubscriptionTab(storeManager: storeManager)
+            SubscriptionTab(storeManager: storeManager, suggestedProductId: $suggestedProductId)
         case .settings:
             SettingsTab()
         case .setup:
@@ -97,6 +117,7 @@ struct ContentView: View {
 @available(macOS 12.0, iOS 15.0, *)
 struct SubscriptionTab: View {
     @ObservedObject var storeManager: StoreKitManager
+    @Binding var suggestedProductId: String?
     @State private var isPurchasing = false
     @State private var isRestoring = false
     @State private var errorMessage: String?
@@ -367,6 +388,7 @@ struct SubscriptionTab: View {
     private func planCard(_ product: Product) -> some View {
         let isBYOK = product.id.contains("byok")
         let isPro = product.id.contains("pro")
+        let isSuggested = suggestedProductId == product.id
 
         return VStack(alignment: .leading, spacing: 10) {
             HStack {
@@ -434,7 +456,7 @@ struct SubscriptionTab: View {
         .shadow(color: .black.opacity(0.06), radius: 6, y: 2)
         .overlay(
             RoundedRectangle(cornerRadius: 16)
-                .stroke(isPro ? Color.purple.opacity(0.3) : Color.clear, lineWidth: 2)
+                .stroke(isSuggested ? Color.purple : (isPro ? Color.purple.opacity(0.3) : Color.clear), lineWidth: isSuggested ? 3 : 2)
         )
     }
 

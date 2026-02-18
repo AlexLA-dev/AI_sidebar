@@ -69,8 +69,8 @@ export function PaywallModal({ onClose, onSubscribed }: PaywallModalProps) {
   const handleAppStoreSubscribe = () => {
     setError(null)
 
-    // Open the native app for subscription
-    openAppForSubscription()
+    // Open the native app with the selected plan hint
+    openAppForSubscription(selectedPlan === "basic" ? "byok" : "pro")
 
     // Start polling for subscription activation via shared storage
     setIsWaitingForPayment(true)

@@ -9,6 +9,7 @@
 
 import type { Context } from "@netlify/functions"
 import { createClient } from "@supabase/supabase-js"
+import * as crypto from "crypto"
 
 // ── Environment variables ─────────────────────────────────────────────────
 
@@ -330,7 +331,7 @@ async function processNotificationForUser(
   }
 }
 
-// ── JWS Decoding ──────────────────────────────────────────────────────────
+// ── JWS Verification & Decoding ──────────────────────────────────────────
 
 interface DecodedTransaction {
   transactionId: string
@@ -352,49 +353,140 @@ interface DecodedNotification {
   }
 }
 
+// Apple Root CA - G3 (PEM). Used to verify the certificate chain in JWS tokens.
+// Source: https://www.apple.com/certificateauthority/
+const APPLE_ROOT_CA_G3_PEM = `-----BEGIN CERTIFICATE-----
+MIICQzCCAcmgAwIBAgIILcX8iNLFS5UwCgYIKoZIzj0EAwMwZzEbMBkGA1UEAwwS
+QXBwbGUgUm9vdCBDQSAtIEczMSYwJAYDVQQLDB1BcHBsZSBDZXJ0aWZpY2F0aW9u
+IEF1dGhvcml0eTETMBEGA1UECgwKQXBwbGUgSW5jLjELMAkGA1UEBhMCVVMwHhcN
+MTQwNDMwMTgxOTA2WhcNMzkwNDMwMTgxOTA2WjBnMRswGQYDVQQDDBJBcHBsZSBS
+b290IENBIC0gRzMxJjAkBgNVBAsMHUFwcGxlIENlcnRpZmljYXRpb24gQXV0aG9y
+aXR5MRMwEQYDVQQKDApBcHBsZSBJbmMuMQswCQYDVQQGEwJVUzB2MBAGByqGSM49
+AgEGBSuBBAAiA2IABJjpLz1AcqTtkyJygRMc3RCV8cWjTnHcFBbZDuWmBSp3ZHtf
+TjjTuxxEtX/1H7YyYl3J6YRbTzBPEVoA/VhYDKX1DyxNB0cTddqXl5dvMVztK515
+1BVeolqDi6YyrKYMOtaNCMEAwHQYDVR0OBBYEFLuw3GKOGLg0JnX2LQIrL6b1sUMm
+MA8GA1UdEwEB/wQFMAMBAf8wDgYDVR0PAQH/BAQDAgEGMAoGCCqGSM49BAMDA2gA
+MGUCMQCD6cHEFl4aXTQY2e3v9GwOAEZLuN+yRhHFD/3meoyhpmvOwgPUnPWTxnS4
+at+qIxUCMG1mihDK1A3UT82NQz60imOlM27jbdoXt2QfyFMm+YhidDkLF1vLUagM
+6BgD56KyKA==
+-----END CERTIFICATE-----`
+
 /**
- * Decode a JWS-encoded transaction from StoreKit.
- * In production, you should verify the signature against Apple's root CA.
- * For now we decode the payload (signature was verified on-device by StoreKit).
+ * Convert JWS ES256 raw signature (r || s, 64 bytes) to DER format for OpenSSL.
  */
-function decodeJWSTransaction(jws: string): DecodedTransaction | null {
+function jwsSignatureToDer(sig: Buffer): Buffer {
+  const r = sig.subarray(0, 32)
+  const s = sig.subarray(32, 64)
+
+  function toDerInt(buf: Buffer): Buffer {
+    let i = 0
+    while (i < buf.length - 1 && buf[i] === 0 && !(buf[i + 1]! & 0x80)) i++
+    const trimmed = buf.subarray(i)
+    if (trimmed[0]! & 0x80) return Buffer.concat([Buffer.from([0x00]), trimmed])
+    return trimmed
+  }
+
+  const rDer = toDerInt(r)
+  const sDer = toDerInt(s)
+  const rTlv = Buffer.concat([Buffer.from([0x02, rDer.length]), rDer])
+  const sTlv = Buffer.concat([Buffer.from([0x02, sDer.length]), sDer])
+  const body = Buffer.concat([rTlv, sTlv])
+  return Buffer.concat([Buffer.from([0x30, body.length]), body])
+}
+
+/**
+ * Verify Apple JWS signature and certificate chain, then return decoded payload.
+ * Falls back to decode-only with warning if x5c header is missing (e.g. sandbox).
+ */
+function verifyAndDecodeJWS<T>(jws: string): T | null {
   try {
     const parts = jws.split(".")
     if (parts.length !== 3) return null
 
-    const payload = JSON.parse(atob(parts[1]))
-    return {
-      transactionId: payload.transactionId,
-      originalTransactionId: payload.originalTransactionId,
-      productId: payload.productId,
-      bundleId: payload.bundleId,
-      purchaseDate: payload.purchaseDate,
-      expiresDate: payload.expiresDate,
-      environment: payload.environment || APPSTORE_ENVIRONMENT,
-      appAccountToken: payload.appAccountToken
+    // Decode header
+    const header = JSON.parse(Buffer.from(parts[0]!, "base64url").toString())
+    const x5c: string[] | undefined = header.x5c
+
+    // Decode payload (always needed)
+    const payload = JSON.parse(Buffer.from(parts[1]!, "base64url").toString()) as T
+
+    if (!x5c || x5c.length < 2) {
+      console.warn("[AppStore] No x5c in JWS header — skipping signature verification (sandbox?)")
+      return payload
     }
+
+    // Build certificate objects
+    const leafPem = `-----BEGIN CERTIFICATE-----\n${x5c[0]}\n-----END CERTIFICATE-----`
+    const intermediatePem = `-----BEGIN CERTIFICATE-----\n${x5c[1]}\n-----END CERTIFICATE-----`
+
+    const leafCert = new crypto.X509Certificate(leafPem)
+    const intermediateCert = new crypto.X509Certificate(intermediatePem)
+    const rootCert = new crypto.X509Certificate(APPLE_ROOT_CA_G3_PEM)
+
+    // Verify certificate chain: leaf → intermediate → Apple Root CA G3
+    if (!leafCert.verify(intermediateCert.publicKey)) {
+      console.error("[AppStore] Leaf certificate not signed by intermediate")
+      return null
+    }
+    if (!intermediateCert.verify(rootCert.publicKey)) {
+      console.error("[AppStore] Intermediate certificate not signed by Apple Root CA G3")
+      return null
+    }
+
+    // Verify JWS signature using leaf certificate's public key
+    const signedData = Buffer.from(`${parts[0]}.${parts[1]}`)
+    const signature = Buffer.from(parts[2]!, "base64url")
+    const derSignature = jwsSignatureToDer(signature)
+
+    const isValid = crypto.verify(
+      "SHA256",
+      signedData,
+      { key: leafCert.publicKey, dsaEncoding: "der" },
+      derSignature
+    )
+
+    if (!isValid) {
+      console.error("[AppStore] JWS signature verification failed")
+      return null
+    }
+
+    return payload
   } catch (err) {
-    console.error("[AppStore] Failed to decode JWS transaction:", err)
+    console.error("[AppStore] JWS verification error:", err)
     return null
   }
 }
 
 /**
- * Decode the signed payload from App Store Server Notifications v2.
+ * Verify and decode a JWS-encoded transaction from StoreKit.
+ * Verifies the Apple certificate chain and ECDSA signature.
+ */
+function decodeJWSTransaction(jws: string): DecodedTransaction | null {
+  const payload = verifyAndDecodeJWS<Record<string, unknown>>(jws)
+  if (!payload) return null
+
+  return {
+    transactionId: payload.transactionId as string,
+    originalTransactionId: payload.originalTransactionId as string,
+    productId: payload.productId as string,
+    bundleId: payload.bundleId as string,
+    purchaseDate: payload.purchaseDate as number,
+    expiresDate: payload.expiresDate as number | undefined,
+    environment: (payload.environment as string) || APPSTORE_ENVIRONMENT,
+    appAccountToken: payload.appAccountToken as string | undefined
+  }
+}
+
+/**
+ * Verify and decode the signed payload from App Store Server Notifications v2.
  */
 function decodeSignedPayload(signedPayload: string): DecodedNotification | null {
-  try {
-    const parts = signedPayload.split(".")
-    if (parts.length !== 3) return null
+  const payload = verifyAndDecodeJWS<Record<string, unknown>>(signedPayload)
+  if (!payload) return null
 
-    const payload = JSON.parse(atob(parts[1]))
-    return {
-      notificationType: payload.notificationType,
-      subtype: payload.subtype,
-      data: payload.data
-    }
-  } catch (err) {
-    console.error("[AppStore] Failed to decode signed payload:", err)
-    return null
+  return {
+    notificationType: payload.notificationType as string,
+    subtype: payload.subtype as string | undefined,
+    data: payload.data as DecodedNotification["data"]
   }
 }

@@ -104,9 +104,13 @@ export function openManageSubscriptions(): void {
 /**
  * Open the ContextFlow native app for subscription purchase.
  * Uses a custom URL scheme registered by the app.
+ * @param plan - Optional plan hint: "byok" or "pro". Passed as ?plan= query param.
  */
-export function openAppForSubscription(): void {
-  window.open("contextflow://subscribe", "_blank")
+export function openAppForSubscription(plan?: string): void {
+  const url = plan
+    ? `contextflow://subscribe?plan=${encodeURIComponent(plan)}`
+    : "contextflow://subscribe"
+  window.open(url, "_blank")
 }
 
 // ── Account sync ─────────────────────────────────────────────────────────
