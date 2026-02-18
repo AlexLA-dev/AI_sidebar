@@ -712,7 +712,7 @@ struct SettingsTab: View {
                     }
                 }
                 .buttonStyle(.borderedProminent)
-                .tint(keySaved ? .green : .blue)
+                .tint(keySaved ? .green : .purple)
                 .disabled(apiKey.isEmpty)
 
                 if !apiKey.isEmpty || SharedDefaults.shared.apiKey != nil {
