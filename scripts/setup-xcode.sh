@@ -1,11 +1,13 @@
 #!/bin/bash
 #
-# setup-xcode.sh — Integrates native Swift files into the generated Xcode project.
+# setup-xcode.sh — Integrates native Swift files AND extension web resources
+# into the generated Xcode project.
 #
 # Run this AFTER `safari-web-extension-converter` generates the ContextFlow project.
-# Copies files to two locations:
-#   - "Shared (App)/"      → ContentView, StoreKitManager, SharedDefaults, ViewController, PrivacyInfo
-#   - "Shared (Extension)/" → SafariWebExtensionHandler, SharedDefaults
+# Copies files to three locations:
+#   - "Shared (App)/"              → ContentView, StoreKitManager, SharedDefaults, ViewController, PrivacyInfo
+#   - "Shared (Extension)/"        → SafariWebExtensionHandler, SharedDefaults
+#   - "Shared (Extension)/Resources/" → JS/HTML/CSS from build/safari-mv3-prod/
 #
 # Usage:
 #   cd AI_sidebar
@@ -25,6 +27,9 @@ XCODE_PROJECT="${1:-$REPO_ROOT/ContextFlow}"
 # Source files from the repo
 NATIVE_DIR="$REPO_ROOT/native/ContextFlow"
 SOURCES_DIR="$NATIVE_DIR/Sources"
+
+# Plasmo build output (JS/HTML/CSS for the Safari extension)
+BUILD_DIR="$REPO_ROOT/build/safari-mv3-prod"
 
 echo "=== ContextFlow Xcode Setup ==="
 echo ""
@@ -139,6 +144,34 @@ for fname in SafariWebExtensionHandler.swift SharedDefaults.swift; do
         cp "$src" "$EXT_DIR/$fname"
     fi
 done
+
+# ── 6b. Copy extension web resources (JS/HTML/CSS) ──
+
+echo "--- Extension web resources ---"
+
+if [ -d "$BUILD_DIR" ]; then
+    # Detect the Resources folder inside the Extension target
+    if [ -d "$EXT_DIR/Resources" ]; then
+        RES_DIR="$EXT_DIR/Resources"
+    else
+        # Fallback: create Resources if it doesn't exist
+        RES_DIR="$EXT_DIR/Resources"
+        mkdir -p "$RES_DIR"
+    fi
+
+    # Count files before copy
+    BEFORE_COUNT=$(find "$RES_DIR" -type f 2>/dev/null | wc -l | tr -d ' ')
+
+    # Copy all built extension files (JS, HTML, CSS, manifest, icons, etc.)
+    cp -R "$BUILD_DIR"/* "$RES_DIR"/
+
+    AFTER_COUNT=$(find "$RES_DIR" -type f 2>/dev/null | wc -l | tr -d ' ')
+    echo "  [ok]     Copied build/safari-mv3-prod/* → $(basename "$EXT_DIR")/Resources/"
+    echo "           ($AFTER_COUNT files in Resources)"
+else
+    echo "  [SKIP]   build/safari-mv3-prod/ not found — run 'pnpm build:safari' first!"
+    echo "           Without this step, the extension JS/HTML/CSS will NOT be updated."
+fi
 
 echo ""
 
