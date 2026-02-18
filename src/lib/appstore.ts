@@ -221,6 +221,20 @@ export function diagnoseBridge(onUpdate: (diag: Record<string, any>) => void): v
         if (data.nativePingError) diag.pingErr = data.nativePingError
       }
       onUpdate({ ...diag })
+
+      // Also fetch subscription status for diagnostic display
+      if (diag.nativePing === true) {
+        getSubscriptionStatus()
+          .then(status => {
+            diag.subStatus = status.isSubscribed
+            diag.planType = status.planType || "none"
+            onUpdate({ ...diag })
+          })
+          .catch(() => {
+            diag.subStatus = "error"
+            onUpdate({ ...diag })
+          })
+      }
     })
   } catch (err) {
     clearTimeout(timeout)

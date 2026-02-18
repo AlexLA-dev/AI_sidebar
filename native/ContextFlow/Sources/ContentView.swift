@@ -547,6 +547,7 @@ struct SettingsTab: View {
     @State private var selectedTheme: String = SharedDefaults.shared.theme
     @State private var apiKey: String = SharedDefaults.shared.apiKey ?? ""
     @State private var showApiKey = false
+    @State private var keySaved = false
 
     let themes = ["system", "light", "dark"]
 
@@ -674,20 +675,31 @@ struct SettingsTab: View {
             }
 
             HStack {
-                Button("Save Key") {
+                Button(keySaved ? "Saved ✓" : "Save Key") {
                     SharedDefaults.shared.apiKey = apiKey.isEmpty ? nil : apiKey
+                    keySaved = true
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                        keySaved = false
+                    }
                 }
                 .buttonStyle(.borderedProminent)
-                .tint(.blue)
-                .disabled(apiKey.isEmpty && SharedDefaults.shared.apiKey == nil)
+                .tint(keySaved ? .green : .blue)
+                .disabled(apiKey.isEmpty)
 
-                if SharedDefaults.shared.apiKey != nil {
+                if !apiKey.isEmpty || SharedDefaults.shared.apiKey != nil {
                     Button("Clear") {
                         apiKey = ""
                         SharedDefaults.shared.apiKey = nil
+                        keySaved = false
                     }
                     .foregroundColor(.red)
                 }
+            }
+
+            if keySaved {
+                Text("Key saved and shared with extension")
+                    .font(.caption)
+                    .foregroundColor(.green)
             }
         }
         .padding(20)

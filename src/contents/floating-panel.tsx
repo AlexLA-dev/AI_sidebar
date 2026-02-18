@@ -620,16 +620,19 @@ function FloatingPanelContent() {
   }
 
   const handleShare = async (text: string) => {
+    const pageUrl = window.location.href
+    const shareText = `${text}\n\n— Source: ${pageUrl}`
+
     if (navigator.share) {
       try {
-        await navigator.share({ text })
+        await navigator.share({ text: shareText })
       } catch {
         // User cancelled share sheet — ignore
       }
     } else {
       // Fallback: copy to clipboard
       try {
-        await navigator.clipboard.writeText(text)
+        await navigator.clipboard.writeText(shareText)
       } catch {
         // Clipboard API blocked — ignore
       }
