@@ -57,9 +57,9 @@ export async function getTrialInfo(): Promise<TrialInfo> {
   const hasLicense = (await storage.get<boolean>(STORAGE_KEYS.HAS_ACTIVE_LICENSE)) || false
   const paymentProvider = (await storage.get<PaymentProviderType>(STORAGE_KEYS.PAYMENT_PROVIDER)) || null
   const planType = (await storage.get<PlanType>(STORAGE_KEYS.PLAN_TYPE)) || null
-  const proUsageCount = (await storage.get<number>(STORAGE_KEYS.PRO_USAGE_COUNT)) || undefined
-  const proWeeklyLimit = (await storage.get<number>(STORAGE_KEYS.PRO_WEEKLY_LIMIT)) || undefined
-  const proLastResetAt = (await storage.get<string>(STORAGE_KEYS.PRO_LAST_RESET_AT)) || undefined
+  const proUsageCount = (await storage.get<number>(STORAGE_KEYS.PRO_USAGE_COUNT)) ?? undefined
+  const proWeeklyLimit = (await storage.get<number>(STORAGE_KEYS.PRO_WEEKLY_LIMIT)) ?? undefined
+  const proLastResetAt = (await storage.get<string>(STORAGE_KEYS.PRO_LAST_RESET_AT)) ?? undefined
 
   return {
     usageCount,

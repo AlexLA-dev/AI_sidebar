@@ -11,7 +11,7 @@ import {
   type TrialInfo
 } from "~/lib/ai"
 import { getStoredApiKey, setStoredApiKey, storage, LICENSE_CONFIG, syncSubscriptionFromNative } from "~/lib/storage"
-import { syncUserInfo, openAppForSubscription } from "~/lib/appstore"
+import { syncUserInfo, openManageSubscriptions } from "~/lib/appstore"
 
 // --- Lightweight inline markdown renderer (no external deps) ---
 function renderMarkdown(text: string): React.ReactNode[] {
@@ -147,10 +147,19 @@ const isSafari = () => {
 let cachedSelectionText = ""
 
 function trackSelection() {
-  const sel = window.getSelection()?.toString().trim() || ""
-  if (sel.length > 10) {
-    cachedSelectionText = sel
+  const sel = window.getSelection()
+  if (!sel || sel.rangeCount === 0) return
+  const text = sel.toString().trim()
+  if (text.length <= 10) return
+
+  // Ignore selections inside our own floating panel
+  const anchor = sel.anchorNode
+  if (anchor) {
+    const panel = document.getElementById("contextflow-floating-panel")
+    if (panel && panel.contains(anchor)) return
   }
+
+  cachedSelectionText = text
 }
 
 document.addEventListener("selectionchange", trackSelection)
@@ -222,7 +231,8 @@ const LogOutIcon = ({ size = 14 }: { size?: number }) => (
 
 const NewChatIcon = ({ size = 18 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+    <line x1="12" y1="8" x2="12" y2="14"/><line x1="9" y1="11" x2="15" y2="11"/>
   </svg>
 )
 
@@ -548,8 +558,16 @@ function FloatingPanelContent() {
   // Fetch page context (or cached selection) when panel opens
   const fetchContext = useCallback(() => {
     const title = document.title
-    // Check live selection first, then cached selection
-    const liveSel = window.getSelection()?.toString().trim() || ""
+    // Check live selection first, then cached selection (but only from the page, not our panel)
+    const sel = window.getSelection()
+    let liveSel = ""
+    if (sel && sel.rangeCount > 0) {
+      const anchor = sel.anchorNode
+      const panel = document.getElementById("contextflow-floating-panel")
+      if (!panel || !panel.contains(anchor)) {
+        liveSel = sel.toString().trim()
+      }
+    }
     const selText = liveSel.length > 10 ? liveSel : cachedSelectionText
     if (selText.length > 10) {
       setPageContext(selText)
@@ -792,7 +810,7 @@ function FloatingPanelContent() {
               <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                 {hasLicense && (
                   <button
-                    onClick={() => openAppForSubscription("pro")}
+                    onClick={() => openManageSubscriptions()}
                     style={{
                       padding: "3px 10px", border: "1px solid #e5e7eb", borderRadius: "8px",
                       background: "white", color: "#7c3aed", fontSize: "11px",

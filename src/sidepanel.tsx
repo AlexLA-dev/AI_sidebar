@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react"
-import { Sparkles, RefreshCw, Settings, X, AlertTriangle, SquarePen } from "lucide-react"
+import { Sparkles, RefreshCw, Settings, X, AlertTriangle, MessageSquarePlus } from "lucide-react"
 import type { Session } from "@supabase/supabase-js"
 
 import { cn, sendMessageToActiveTab } from "~/lib/utils"
@@ -374,7 +374,7 @@ function SidePanel() {
               "dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800"
             )}
           >
-            <SquarePen className="h-4 w-4" />
+            <MessageSquarePlus className="h-4 w-4" />
           </button>
           <button
             onClick={fetchPageContext}

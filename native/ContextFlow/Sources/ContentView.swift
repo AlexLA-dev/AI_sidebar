@@ -38,17 +38,17 @@ struct ContentView: View {
                 }
                 .tag(Tab.subscription)
 
-            SettingsTab()
-                .tabItem {
-                    Label("Settings", systemImage: "gearshape")
-                }
-                .tag(Tab.settings)
-
             SetupTab()
                 .tabItem {
                     Label("Setup", systemImage: "safari")
                 }
                 .tag(Tab.setup)
+
+            SettingsTab()
+                .tabItem {
+                    Label("Settings", systemImage: "gearshape")
+                }
+                .tag(Tab.settings)
         }
         .tint(.purple)
         .onOpenURL { url in handleDeepLink(url) }
@@ -764,21 +764,34 @@ struct SetupTab: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
-                // Header
+                // Header + Value proposition
                 VStack(spacing: 8) {
-                    Image(systemName: "safari")
+                    Image(systemName: "sparkles")
                         .font(.system(size: 44))
-                        .foregroundColor(.purple)
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [.purple, .indigo],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
 
-                    Text("Enable Extension")
+                    Text("ContextFlow")
                         .font(.largeTitle)
                         .fontWeight(.bold)
 
-                    Text("Follow these steps to enable ContextFlow in Safari")
+                    Text("Ask AI about any webpage right in Safari.\nSummarize, explain, translate — instantly.")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 8)
                 }
                 .padding(.top, 24)
+
+                // Getting started
+                Text("Getting Started")
+                    .font(.headline)
+                    .frame(maxWidth: .infinity, alignment: .leading)
 
                 // Steps
                 VStack(alignment: .leading, spacing: 16) {
