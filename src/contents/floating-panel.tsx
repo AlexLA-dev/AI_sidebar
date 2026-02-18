@@ -10,7 +10,7 @@ import {
   LimitReachedError,
   type TrialInfo
 } from "~/lib/ai"
-import { getStoredApiKey, setStoredApiKey, storage, LICENSE_CONFIG } from "~/lib/storage"
+import { getStoredApiKey, setStoredApiKey, storage, LICENSE_CONFIG, syncSubscriptionFromNative } from "~/lib/storage"
 import { syncUserInfo, diagnoseBridge } from "~/lib/appstore"
 
 // --- Lightweight inline markdown renderer (no external deps) ---
@@ -490,6 +490,18 @@ function FloatingPanelContent() {
         if (s) {
           const info = await syncSubscriptionFromServer()
           setTrialInfo(info)
+        }
+
+        // Also sync from native App Store bridge (Safari).
+        // This catches purchases made in the native app that
+        // haven't been synced to Supabase yet.
+        try {
+          const nativeInfo = await syncSubscriptionFromNative()
+          if (nativeInfo.hasLicense) {
+            setTrialInfo(nativeInfo)
+          }
+        } catch {
+          // Not on Safari or bridge unavailable — ignore
         }
 
         // Sync user email to native app on initial load

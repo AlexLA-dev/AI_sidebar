@@ -5,9 +5,8 @@ import type { Session } from "@supabase/supabase-js"
 import { cn, sendMessageToActiveTab } from "~/lib/utils"
 import { getStoredApiKey, setStoredApiKey, getTrialInfo, syncSubscriptionFromServer, type ContextType, type TrialInfo } from "~/lib/ai"
 import { getSupabaseClient } from "~/lib/supabase"
-import { isSafari } from "~/lib/platform"
-import { checkNativeSubscription, syncUserInfo } from "~/lib/appstore"
-import { setLicenseStatus } from "~/lib/storage"
+import { syncUserInfo } from "~/lib/appstore"
+import { syncSubscriptionFromNative } from "~/lib/storage"
 import { ChatInterface, SettingsPanel } from "~/components/chat"
 import { OnboardingModal, PaywallModal } from "~/components/onboarding"
 import type { RequestBody, ResponseBody } from "~/contents/context-parser"
@@ -48,18 +47,6 @@ function SidePanel() {
       const storedKey = await getStoredApiKey()
       setApiKey(storedKey)
 
-      // On Safari, check native app shared storage for subscription status first
-      if (isSafari()) {
-        try {
-          const nativeActive = await checkNativeSubscription()
-          if (nativeActive) {
-            await setLicenseStatus(true)
-          }
-        } catch {
-          // Native bridge not available — continue with server check
-        }
-      }
-
       // Check Supabase auth session
       try {
         const supabase = getSupabaseClient()
@@ -73,6 +60,17 @@ function SidePanel() {
         } else {
           const info = await getTrialInfo()
           setTrialInfo(info)
+        }
+
+        // Also sync from native App Store bridge (Safari).
+        // Catches purchases made in the native app not yet in Supabase.
+        try {
+          const nativeInfo = await syncSubscriptionFromNative()
+          if (nativeInfo.hasLicense) {
+            setTrialInfo(nativeInfo)
+          }
+        } catch {
+          // Not on Safari or bridge unavailable — ignore
         }
 
         // Sync user email to native app on initial load

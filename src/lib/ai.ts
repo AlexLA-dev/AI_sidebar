@@ -4,6 +4,7 @@ import {
   getTrialInfo,
   incrementTrialUsage,
   syncSubscriptionFromServer,
+  syncSubscriptionFromNative,
   getStoredApiKey,
   setStoredApiKey,
   type TrialInfo
@@ -66,11 +67,23 @@ export function buildMessagesWithContext(
 
 // Check if user can make a request
 async function checkAccessPermission(): Promise<{ allowed: boolean; trialInfo: TrialInfo }> {
-  const trialInfo = await getTrialInfo()
+  let trialInfo = await getTrialInfo()
 
   // Licensed users have unlimited access
   if (trialInfo.hasLicense) {
     return { allowed: true, trialInfo }
+  }
+
+  // Fallback: check native App Store bridge (Safari only).
+  // Plasmo storage may not have the license yet if it was purchased
+  // in the native app and never synced to chrome.storage.
+  try {
+    trialInfo = await syncSubscriptionFromNative()
+    if (trialInfo.hasLicense) {
+      return { allowed: true, trialInfo }
+    }
+  } catch {
+    // Native bridge not available — continue with Plasmo-only check
   }
 
   // Trial users: check remaining requests

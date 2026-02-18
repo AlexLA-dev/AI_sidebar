@@ -78,6 +78,25 @@ export async function setLicenseStatus(active: boolean): Promise<void> {
   await storage.set(STORAGE_KEYS.HAS_ACTIVE_LICENSE, active)
 }
 
+// Sync subscription status from native App Store bridge to local storage.
+// Reads SharedDefaults (App Group) via native handler and writes to Plasmo storage.
+export async function syncSubscriptionFromNative(): Promise<TrialInfo> {
+  try {
+    const { getSubscriptionStatus } = await import("./appstore")
+    const status = await getSubscriptionStatus()
+
+    if (status.isSubscribed) {
+      await storage.set(STORAGE_KEYS.HAS_ACTIVE_LICENSE, true)
+      await storage.set(STORAGE_KEYS.PAYMENT_PROVIDER, "appstore" as PaymentProviderType)
+    }
+  } catch (err) {
+    // Non-critical — native bridge may not be available (e.g. Chrome)
+    console.warn("[ContextFlow] Failed to sync subscription from native:", err)
+  }
+
+  return getTrialInfo()
+}
+
 // Sync subscription status from Supabase to local storage
 export async function syncSubscriptionFromServer(): Promise<TrialInfo> {
   try {
