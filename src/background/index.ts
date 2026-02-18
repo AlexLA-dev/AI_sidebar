@@ -31,6 +31,25 @@ chrome.action.onClicked.addListener((tab) => {
   }
 })
 
+// ── Native messaging helper ──────────────────────────────────────────────
+
+/**
+ * Send a message to the native SafariWebExtensionHandler.
+ * Tries both 2-arg and 1-arg calling conventions.
+ */
+function callNative(msg: any): Promise<any> {
+  if (typeof browserGlobal?.runtime?.sendNativeMessage !== "function") {
+    return Promise.reject(new Error("sendNativeMessage is not a function"))
+  }
+
+  // Try 2-arg first (Apple docs example), then 1-arg fallback
+  return browserGlobal.runtime.sendNativeMessage(
+    "com.contextflow.app.Extension", msg
+  ).catch(() => {
+    return browserGlobal.runtime.sendNativeMessage(msg)
+  })
+}
+
 // Handle messages from content scripts and extension pages
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message.action === "openAuth") {
@@ -47,37 +66,40 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     sendResponse({ success: true })
   } else if (message.action === "native") {
     // Relay native commands from sidebar/popup to SafariWebExtensionHandler.
-    // browser.runtime.sendNativeMessage() is only available in the background script.
-    // Used for: getSubscriptionStatus, getSettings (no StoreKit purchases here).
     const { action: _, ...nativeMessage } = message
 
     console.log("[ContextFlow] Native relay:", nativeMessage.command)
 
-    if (typeof browserGlobal?.runtime?.sendNativeMessage === "function") {
-      // Try both calling conventions: Safari may use 1-arg or 2-arg form
-      // depending on the version. We try 2-arg first (per Apple's docs),
-      // then fall back to 1-arg if it fails.
-      const tryNativeMessage = (msg: any): Promise<any> => {
-        return browserGlobal.runtime.sendNativeMessage(
-          "com.contextflow.app.Extension", msg
-        ).catch(() => {
-          // Fallback: 1-arg form (some Safari versions)
-          return browserGlobal.runtime.sendNativeMessage(msg)
-        })
-      }
+    callNative(nativeMessage).then((response: any) => {
+      console.log("[ContextFlow] Native response:", JSON.stringify(response))
+      sendResponse(response)
+    }).catch((err: any) => {
+      console.error("[ContextFlow] Native messaging error:", err)
+      sendResponse({ success: false, error: String(err) })
+    })
+  } else if (message.action === "diagnoseBridge") {
+    // Diagnostic: test every step of the native bridge and report results.
+    const diag: Record<string, any> = {
+      isSafari,
+      hasBrowserGlobal: !!browserGlobal,
+      hasBrowserRuntime: !!browserGlobal?.runtime,
+      hasSendNativeMessage: typeof browserGlobal?.runtime?.sendNativeMessage === "function",
+      timestamp: new Date().toISOString()
+    }
 
-      tryNativeMessage(nativeMessage).then((response: any) => {
-        console.log("[ContextFlow] Native response:", JSON.stringify(response))
-        sendResponse(response)
-      }).catch((err: any) => {
-        console.error("[ContextFlow] Native messaging error:", err)
-        sendResponse({ success: false, error: String(err) })
-      })
+    if (typeof browserGlobal?.runtime?.sendNativeMessage !== "function") {
+      diag.error = "sendNativeMessage not available"
+      sendResponse({ success: true, data: diag })
     } else {
-      console.error("[ContextFlow] Native messaging not available.")
-      sendResponse({
-        success: false,
-        error: "Native messaging not available. Ensure ContextFlow is installed from the App Store."
+      // Actually try calling native with a ping command
+      callNative({ command: "ping" }).then((response: any) => {
+        diag.nativePingResponse = response
+        diag.nativePingOK = true
+        sendResponse({ success: true, data: diag })
+      }).catch((err: any) => {
+        diag.nativePingOK = false
+        diag.nativePingError = String(err)
+        sendResponse({ success: true, data: diag })
       })
     }
   }

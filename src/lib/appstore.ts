@@ -170,3 +170,28 @@ export async function pingNative(): Promise<boolean> {
     return false
   }
 }
+
+/**
+ * Run full native bridge diagnostics. Returns detailed info about
+ * each step in the chain: platform detection → background script →
+ * native handler. Results are visible in the floating panel settings.
+ */
+export async function diagnoseBridge(): Promise<Record<string, any>> {
+  const diag: Record<string, any> = {
+    step1_isSafari: (await import("./platform")).isSafari(),
+    step2_isNativeAvailable: (await import("./platform")).isNativeStoreKitAvailable(),
+    step3_chromeRuntimeExists: typeof chrome !== "undefined" && typeof chrome.runtime?.sendMessage === "function"
+  }
+
+  // Test: can we reach the background script at all?
+  try {
+    const bgResponse = await chrome.runtime.sendMessage({ action: "diagnoseBridge" })
+    diag.step4_backgroundReached = true
+    diag.step5_backgroundData = bgResponse?.data || bgResponse
+  } catch (err) {
+    diag.step4_backgroundReached = false
+    diag.step4_error = String(err)
+  }
+
+  return diag
+}

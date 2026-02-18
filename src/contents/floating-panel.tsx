@@ -11,7 +11,7 @@ import {
   type TrialInfo
 } from "~/lib/ai"
 import { getStoredApiKey, setStoredApiKey, storage, LICENSE_CONFIG } from "~/lib/storage"
-import { syncUserInfo } from "~/lib/appstore"
+import { syncUserInfo, diagnoseBridge } from "~/lib/appstore"
 
 // --- Lightweight inline markdown renderer (no external deps) ---
 function renderMarkdown(text: string): React.ReactNode[] {
@@ -444,6 +444,7 @@ function FloatingPanelContent() {
   const [trialInfo, setTrialInfo] = useState<TrialInfo | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [showSettings, setShowSettings] = useState(false)
+  const [bridgeDiag, setBridgeDiag] = useState<Record<string, any> | null>(null)
   const [apiKey, setApiKey] = useState("")
   const [apiKeyInput, setApiKeyInput] = useState("")
   const [editingKey, setEditingKey] = useState(false)
@@ -495,6 +496,9 @@ function FloatingPanelContent() {
         if (s?.user?.email) {
           syncUserInfo(s.user.email)
         }
+
+        // Run bridge diagnostics (results shown in settings)
+        diagnoseBridge().then(setBridgeDiag).catch(() => {})
 
         supabase.auth.onAuthStateChange((_event, newSession) => {
           setSession(newSession)
@@ -812,6 +816,20 @@ function FloatingPanelContent() {
                 >Large</button>
               </div>
             </div>
+
+            {/* Native Bridge Diagnostic */}
+            {bridgeDiag && (
+              <div style={{ marginTop: "14px", padding: "8px", background: "#f3f4f6", borderRadius: "8px" }}>
+                <div style={{ fontSize: "11px", fontWeight: 600, color: "#374151", marginBottom: "4px" }}>
+                  Native Bridge Diagnostic
+                </div>
+                {Object.entries(bridgeDiag).map(([k, v]) => (
+                  <div key={k} style={{ fontSize: "10px", color: "#6b7280", fontFamily: "monospace", lineHeight: "1.6" }}>
+                    {k}: {typeof v === "object" ? JSON.stringify(v) : String(v)}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
