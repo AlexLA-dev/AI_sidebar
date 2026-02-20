@@ -146,6 +146,20 @@ export async function syncSubscriptionFromServer(): Promise<TrialInfo> {
         (sub.plan_type === "pro_subscription" || sub.plan_type === "byok_license") &&
         sub.subscription_status === "active"
 
+      // If the server says inactive, check native bridge first — the Supabase
+      // record may not exist yet for App Store purchases.
+      if (!isActive) {
+        try {
+          const { checkNativeSubscription } = await import("./appstore")
+          if (await checkNativeSubscription()) {
+            // Native bridge confirms active subscription — don't overwrite
+            return getTrialInfo()
+          }
+        } catch {
+          // Not on Safari — continue with server data
+        }
+      }
+
       await storage.set(STORAGE_KEYS.HAS_ACTIVE_LICENSE, isActive)
       await storage.set(STORAGE_KEYS.PLAN_TYPE, (sub.plan_type || "free") as PlanType)
 

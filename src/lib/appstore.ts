@@ -116,12 +116,16 @@ export function openAppForSubscription(plan?: string): void {
 // ── Account sync ─────────────────────────────────────────────────────────
 
 /**
- * Sync user email to shared storage so the native app can display it.
+ * Sync user email and Supabase user ID to shared storage so the native app
+ * can display the account and link App Store purchases to the correct user.
  * Call this after login/signup. Pass null/undefined to clear on logout.
  */
-export async function syncUserInfo(email: string | null): Promise<void> {
+export async function syncUserInfo(email: string | null, userId?: string | null): Promise<void> {
   try {
-    await sendNativeMessage("syncUserInfo", { email: email ?? "" })
+    await sendNativeMessage("syncUserInfo", {
+      email: email ?? "",
+      userId: userId ?? ""
+    })
   } catch {
     // Non-critical — native app just won't show email
     console.warn("[ContextFlow] Failed to sync user info:", email)

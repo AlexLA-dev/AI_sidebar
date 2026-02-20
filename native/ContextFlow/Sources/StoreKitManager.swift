@@ -116,6 +116,11 @@ final class StoreKitManager: ObservableObject {
 
     func restorePurchases() async {
         try? await AppStore.sync()
+        // Ensure products are loaded before querying status — querySubscriptionStatus()
+        // iterates self.products, which may be empty on a slow network.
+        if products.isEmpty {
+            await loadProducts()
+        }
         await refreshSubscriptionStatus()
     }
 

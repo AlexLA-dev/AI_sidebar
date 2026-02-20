@@ -280,6 +280,11 @@ export function PaywallModal({ onClose, onSubscribed }: PaywallModalProps) {
                 ? "You'll be taken to the ContextFlow app to complete your purchase. Cancel anytime in Settings > Subscriptions."
                 : "Cancel anytime. Secure payment via Stripe."}
             </p>
+            <p className="text-[10px] text-gray-400 text-center">
+              <a href="https://aisidebar.netlify.app/terms" target="_blank" rel="noopener noreferrer" className="underline hover:text-purple-500">Terms of Use</a>
+              {" · "}
+              <a href="https://aisidebar.netlify.app/privacy" target="_blank" rel="noopener noreferrer" className="underline hover:text-purple-500">Privacy Policy</a>
+            </p>
           </div>
         )}
       </motion.div>

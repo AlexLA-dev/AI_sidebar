@@ -181,6 +181,9 @@ struct SubscriptionTab: View {
                         .padding(.horizontal)
                 }
 
+                // Legal links (required by App Store 3.1.2)
+                legalLinks
+
                 Spacer(minLength: 32)
             }
             .padding(.horizontal, 24)
@@ -483,7 +486,9 @@ struct SubscriptionTab: View {
 
         Task {
             do {
-                let (_, jws) = try await storeManager.purchase(product)
+                // Pass Supabase user ID as appAccountToken so Apple embeds it in the JWS
+                let userIdUUID: UUID? = SharedDefaults.shared.userId.flatMap { UUID(uuidString: $0) }
+                let (_, jws) = try await storeManager.purchase(product, appAccountToken: userIdUUID)
                 // Verify on server (fire-and-forget)
                 await verifyOnServer(jws: jws)
                 showSuccess = true
@@ -522,15 +527,43 @@ struct SubscriptionTab: View {
     }
 
     /// Send JWS to backend for verification.
+    /// Includes the Supabase user ID so the server can link the purchase
+    /// to the correct user even without an auth token.
     private func verifyOnServer(jws: String) async {
         guard let url = URL(string: "https://aisidebar.netlify.app/.netlify/functions/appstore-verify") else { return }
+
+        var body: [String: Any] = ["jwsTransaction": jws]
+        if let userId = SharedDefaults.shared.userId {
+            body["userId"] = userId
+        }
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try? JSONSerialization.data(withJSONObject: ["jwsTransaction": jws])
+        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
 
         _ = try? await URLSession.shared.data(for: request)
+    }
+
+    // MARK: – Legal Links
+
+    private var legalLinks: some View {
+        VStack(spacing: 6) {
+            HStack(spacing: 4) {
+                Link("Terms of Use (EULA)", destination: URL(string: "https://aisidebar.netlify.app/terms")!)
+                Text("·")
+                    .foregroundColor(.secondary)
+                Link("Privacy Policy", destination: URL(string: "https://aisidebar.netlify.app/privacy")!)
+            }
+            .font(.caption2)
+            .foregroundColor(.purple)
+
+            Text("Subscriptions auto-renew monthly unless cancelled at least 24 hours before the end of the current period. Manage in Settings > Subscriptions.")
+                .font(.caption2)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 8)
+        }
     }
 
     // MARK: – Helpers
@@ -833,6 +866,53 @@ struct SetupTab: View {
                 .cornerRadius(16)
                 .shadow(color: .black.opacity(0.06), radius: 6, y: 2)
 
+                // Data & Privacy disclosure (required by App Store 5.1.1/5.1.2)
+                VStack(alignment: .leading, spacing: 10) {
+                    Label("Data & Privacy", systemImage: "hand.raised.fill")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.purple)
+
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("What data is shared")
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                        Text("When you ask a question, the text content of the current webpage (or your selected text) is sent to generate an AI response.")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
+
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Who receives it")
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                        Text("Page content is sent to OpenAI's API for processing. If you use the BYOK plan, data goes directly from your device to OpenAI. On the Pro plan, data is proxied through our server to OpenAI.")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
+
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Your control")
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                        Text("No data is sent until you explicitly ask a question. We do not store page content on our servers. Your browsing history is never collected.")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
+
+                    HStack(spacing: 4) {
+                        Link("Privacy Policy", destination: URL(string: "https://aisidebar.netlify.app/privacy")!)
+                        Text("·")
+                            .foregroundColor(.secondary)
+                        Link("Terms of Use", destination: URL(string: "https://aisidebar.netlify.app/terms")!)
+                    }
+                    .font(.caption2)
+                    .foregroundColor(.purple)
+                }
+                .padding(16)
+                .background(Color.purple.opacity(0.06))
+                .cornerRadius(12)
+
                 // Why all websites
                 VStack(spacing: 8) {
                     Label("Why \"All Websites\"?", systemImage: "shield.checkered")
@@ -840,7 +920,7 @@ struct SetupTab: View {
                         .fontWeight(.semibold)
                         .foregroundColor(.purple)
 
-                    Text("ContextFlow needs access to read page content so it can answer your questions. Your data is processed securely and never stored on our servers.")
+                    Text("ContextFlow needs access to read page content so it can answer your questions about any webpage you visit.")
                         .font(.caption)
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)

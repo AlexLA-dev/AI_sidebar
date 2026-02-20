@@ -117,9 +117,9 @@ function SidePanel() {
           // Not on Safari or bridge unavailable — ignore
         }
 
-        // Sync user email to native app on initial load
+        // Sync user email and ID to native app on initial load
         if (currentSession?.user?.email) {
-          syncUserInfo(currentSession.user.email)
+          syncUserInfo(currentSession.user.email, currentSession.user.id)
         }
 
         // Listen for auth state changes (sign in, sign out, token refresh)
@@ -143,7 +143,7 @@ function SidePanel() {
                 })
               // Sync user email to native app shared storage
               if (newSession.user?.email) {
-                syncUserInfo(newSession.user.email)
+                syncUserInfo(newSession.user.email, newSession.user.id)
               }
             } else {
               syncUserInfo(null)

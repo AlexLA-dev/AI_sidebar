@@ -61,6 +61,8 @@ final class SharedDefaults {
         static let userEmail = "cf_user_email"
         // API Key (BYOK)
         static let apiKey = "cf_api_key"
+        // Supabase user ID (synced from extension for App Store verification)
+        static let userId = "cf_user_id"
     }
 
     // MARK: – Subscription Status
@@ -192,6 +194,20 @@ final class SharedDefaults {
                 defaults.set(key, forKey: Key.apiKey)
             } else {
                 defaults.removeObject(forKey: Key.apiKey)
+            }
+            defaults.synchronize()
+        }
+    }
+
+    // MARK: – User ID (Supabase)
+
+    var userId: String? {
+        get { defaults.string(forKey: Key.userId) }
+        set {
+            if let id = newValue, !id.isEmpty {
+                defaults.set(id, forKey: Key.userId)
+            } else {
+                defaults.removeObject(forKey: Key.userId)
             }
             defaults.synchronize()
         }

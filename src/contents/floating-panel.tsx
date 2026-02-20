@@ -577,9 +577,9 @@ function FloatingPanelContent() {
           // Not on Safari or bridge unavailable — ignore
         }
 
-        // Sync user email to native app on initial load
+        // Sync user email and ID to native app on initial load
         if (s?.user?.email) {
-          syncUserInfo(s.user.email)
+          syncUserInfo(s.user.email, s.user.id)
         }
 
         supabase.auth.onAuthStateChange((_event, newSession) => {
@@ -600,7 +600,7 @@ function FloatingPanelContent() {
                 }
                 setTrialInfo(info)
               })
-            if (newSession.user?.email) syncUserInfo(newSession.user.email)
+            if (newSession.user?.email) syncUserInfo(newSession.user.email, newSession.user.id)
           } else {
             syncUserInfo(null)
           }

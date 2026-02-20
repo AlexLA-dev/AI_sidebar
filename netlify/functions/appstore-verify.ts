@@ -77,7 +77,7 @@ export default async function handler(req: Request, _context: Context) {
 
   // Route: Client-initiated transaction verification
   if (body.jwsTransaction) {
-    return handleClientVerification(req, body.jwsTransaction)
+    return handleClientVerification(req, body.jwsTransaction, body.userId)
   }
 
   return jsonResponse({ error: "Missing jwsTransaction or signedPayload" }, 400)
@@ -85,18 +85,32 @@ export default async function handler(req: Request, _context: Context) {
 
 // ── Client verification (called from extension after purchase) ────────────
 
-async function handleClientVerification(req: Request, jwsTransaction: string): Promise<Response> {
-  // Authenticate the user
+async function handleClientVerification(req: Request, jwsTransaction: string, bodyUserId?: string): Promise<Response> {
+  // Authenticate the user — prefer auth token, fall back to userId from body.
+  // The userId fallback is used by the native iOS app which doesn't have a
+  // Supabase session. It's safe because the JWS is Apple-signed and verified.
+  let userId: string | undefined
+
   const authHeader = req.headers.get("Authorization")
-  if (!authHeader?.startsWith("Bearer ")) {
-    return jsonResponse({ error: "Missing authorization" }, 401)
+  if (authHeader?.startsWith("Bearer ")) {
+    const token = authHeader.replace("Bearer ", "")
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    if (!authError && user) {
+      userId = user.id
+    }
   }
 
-  const token = authHeader.replace("Bearer ", "")
-  const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+  // Fallback: use userId from request body (sent by native iOS app)
+  if (!userId && bodyUserId) {
+    // Verify the user exists in Supabase
+    const { data: { user }, error } = await supabase.auth.admin.getUserById(bodyUserId)
+    if (!error && user) {
+      userId = user.id
+    }
+  }
 
-  if (authError || !user) {
-    return jsonResponse({ error: "Invalid token" }, 401)
+  if (!userId) {
+    return jsonResponse({ error: "Missing or invalid authorization" }, 401)
   }
 
   try {
@@ -129,7 +143,7 @@ async function handleClientVerification(req: Request, jwsTransaction: string): P
     const { error: upsertError } = await supabase
       .from("user_subscriptions")
       .upsert({
-        user_id: user.id,
+        user_id: userId,
         plan_type: planType,
         subscription_status: "active",
         payment_provider: "appstore",
@@ -145,7 +159,7 @@ async function handleClientVerification(req: Request, jwsTransaction: string): P
 
     // Log the event
     await supabase.from("usage_logs").insert({
-      user_id: user.id,
+      user_id: userId,
       action: "appstore_subscription_created",
       metadata: {
         plan_type: planType,
@@ -155,7 +169,7 @@ async function handleClientVerification(req: Request, jwsTransaction: string): P
       }
     })
 
-    console.log(`[AppStore] Subscription activated for user ${user.id}: ${planType}`)
+    console.log(`[AppStore] Subscription activated for user ${userId}: ${planType}`)
 
     return jsonResponse({ success: true, plan_type: planType }, 200)
   } catch (err) {

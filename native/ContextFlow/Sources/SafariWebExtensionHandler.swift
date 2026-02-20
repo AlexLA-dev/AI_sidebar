@@ -41,13 +41,21 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             result = ["success": true, "data": settings]
 
         case "syncUserInfo":
-            // Extension writes user email to shared storage so the native app can display it
+            // Extension writes user email and Supabase user ID to shared storage
             if let email = message["email"] as? String, !email.isEmpty {
                 SharedDefaults.shared.userEmail = email
                 logger.info("Synced user email: \(email)")
             } else {
                 SharedDefaults.shared.userEmail = nil
                 logger.info("Cleared user email")
+            }
+            if let userId = message["userId"] as? String, !userId.isEmpty {
+                SharedDefaults.shared.userId = userId
+                logger.info("Synced user ID: \(userId)")
+            } else if (message["email"] as? String ?? "").isEmpty {
+                // Only clear userId when email is also cleared (logout)
+                SharedDefaults.shared.userId = nil
+                logger.info("Cleared user ID")
             }
             result = ["success": true, "data": [:] as [String: Any]]
 
