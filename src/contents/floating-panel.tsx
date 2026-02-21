@@ -147,6 +147,7 @@ const isSafari = () => {
 
 // --- Selection cache (iOS Safari clears selection when FAB is tapped) ---
 let cachedSelectionText = ""
+let cachedRange: Range | null = null
 
 function trackSelection() {
   const sel = window.getSelection()
@@ -162,27 +163,37 @@ function trackSelection() {
   }
 
   cachedSelectionText = text
+  // Save the Range so we can restore the visual highlight later
+  try { cachedRange = sel.getRangeAt(0).cloneRange() } catch { cachedRange = null }
 }
 
 document.addEventListener("selectionchange", trackSelection)
 document.addEventListener("mouseup", () => setTimeout(trackSelection, 50))
 
-// --- Scroll lock helpers (prevents page jump on iOS Safari) ---
+// --- Scroll lock helpers ---
+// Uses overflow:hidden + touch-action:none instead of position:fixed
+// to avoid the iOS Safari bug where the page jumps to the top.
 let savedScrollY = 0
+
+function preventTouchScroll(e: TouchEvent) {
+  // Allow scrolling inside the floating panel (messages, settings)
+  const panel = document.getElementById("contextflow-floating-panel")
+  if (panel && panel.contains(e.target as Node)) return
+  e.preventDefault()
+}
 
 function lockBodyScroll() {
   savedScrollY = window.scrollY
-  document.body.style.position = "fixed"
-  document.body.style.top = `-${savedScrollY}px`
-  document.body.style.width = "100%"
+  document.documentElement.style.overflow = "hidden"
   document.body.style.overflow = "hidden"
+  // Block touch-based scrolling on the page behind the panel
+  document.addEventListener("touchmove", preventTouchScroll, { passive: false })
 }
 
 function unlockBodyScroll() {
-  document.body.style.position = ""
-  document.body.style.top = ""
-  document.body.style.width = ""
+  document.documentElement.style.overflow = ""
   document.body.style.overflow = ""
+  document.removeEventListener("touchmove", preventTouchScroll)
   window.scrollTo(0, savedScrollY)
 }
 
@@ -630,6 +641,13 @@ function FloatingPanelContent() {
     if (selText.length > 10) {
       setPageContext(selText)
       setContextInfo({ type: "selection", title })
+      // Restore the visual highlight if iOS cleared it on FAB tap
+      if (liveSel.length <= 10 && cachedRange && sel) {
+        try {
+          sel.removeAllRanges()
+          sel.addRange(cachedRange)
+        } catch { /* range may be stale */ }
+      }
       return
     }
     const bodyText = document.body?.innerText?.slice(0, 15000) || ""
@@ -640,6 +658,7 @@ function FloatingPanelContent() {
   // Clear cached selection and revert to full page context
   const clearSelection = useCallback(() => {
     cachedSelectionText = ""
+    cachedRange = null
     window.getSelection()?.removeAllRanges()
     const bodyText = document.body?.innerText?.slice(0, 15000) || ""
     setPageContext(bodyText)
