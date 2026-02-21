@@ -364,12 +364,12 @@ const S = {
     display: "flex", alignItems: "center", justifyContent: "space-between",
     marginBottom: "10px",
   },
-  settingsLabel: { color: "#6b7280", fontSize: "12px" },
-  settingsValue: { fontSize: "13px", fontWeight: 500, color: "#1f2937" },
+  settingsLabel: { color: "#6b7280", fontSize: "13px" },
+  settingsValue: { fontSize: "14px", fontWeight: 500, color: "#1f2937" },
   signOutBtn: {
-    display: "inline-flex", alignItems: "center", gap: "4px",
+    display: "inline-flex", alignItems: "center", gap: "6px",
     border: "none", background: "none",
-    color: "#dc2626", fontSize: "12px", fontWeight: 500,
+    color: "#dc2626", fontSize: "13px", fontWeight: 500,
     cursor: "pointer", padding: "4px 0",
   },
   apiKeyRow: {
@@ -383,8 +383,8 @@ const S = {
     WebkitAppearance: "none" as const,
   },
   apiKeySaveBtn: {
-    padding: "8px 14px", border: "none", borderRadius: "8px",
-    background: "#7c3aed", color: "white", fontSize: "12px",
+    padding: "8px 16px", border: "none", borderRadius: "8px",
+    background: "#7c3aed", color: "white", fontSize: "13px",
     fontWeight: 500, cursor: "pointer",
   },
   // --- Auth ---
@@ -872,8 +872,8 @@ function FloatingPanelContent() {
                   <button
                     onClick={() => openManageSubscriptions()}
                     style={{
-                      padding: "3px 10px", border: `1px solid ${T.border}`, borderRadius: "8px",
-                      background: T.bg, color: "#7c3aed", fontSize: "11px",
+                      padding: "6px 14px", border: `1px solid ${T.border}`, borderRadius: "8px",
+                      background: T.bg, color: "#7c3aed", fontSize: "13px",
                       fontWeight: 500, cursor: "pointer",
                     }}
                   >
@@ -882,14 +882,14 @@ function FloatingPanelContent() {
                 )}
                 {trialInfo && !hasLicense && (
                   <>
-                    <span style={{ fontSize: "12px", color: "#7c3aed" }}>
+                    <span style={{ fontSize: "13px", color: "#7c3aed" }}>
                       {trialInfo.remaining}/{LICENSE_CONFIG.TRIAL_LIMIT} left
                     </span>
                     <button
                       onClick={handleUpgrade}
                       style={{
-                        padding: "3px 10px", border: "none", borderRadius: "8px",
-                        background: "#7c3aed", color: "white", fontSize: "11px",
+                        padding: "6px 14px", border: "none", borderRadius: "8px",
+                        background: "#7c3aed", color: "white", fontSize: "13px",
                         fontWeight: 600, cursor: "pointer",
                       }}
                     >
@@ -972,8 +972,8 @@ function FloatingPanelContent() {
                 <button
                   onClick={() => { setLargeFont(false); storage.set("cf_large_font", false) }}
                   style={{
-                    padding: "4px 12px", border: `1px solid ${T.border}`, borderRadius: "8px",
-                    fontSize: "12px", cursor: "pointer",
+                    padding: "6px 14px", border: `1px solid ${T.border}`, borderRadius: "8px",
+                    fontSize: "13px", cursor: "pointer",
                     background: !largeFont ? "#7c3aed" : T.bg,
                     color: !largeFont ? "white" : T.textPrimary,
                     fontWeight: 500,
@@ -982,8 +982,8 @@ function FloatingPanelContent() {
                 <button
                   onClick={() => { setLargeFont(true); storage.set("cf_large_font", true) }}
                   style={{
-                    padding: "4px 12px", border: `1px solid ${T.border}`, borderRadius: "8px",
-                    fontSize: "12px", cursor: "pointer",
+                    padding: "6px 14px", border: `1px solid ${T.border}`, borderRadius: "8px",
+                    fontSize: "13px", cursor: "pointer",
                     background: largeFont ? "#7c3aed" : T.bg,
                     color: largeFont ? "white" : T.textPrimary,
                     fontWeight: 500,

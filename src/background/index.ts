@@ -49,9 +49,15 @@ function callNative(msg: any): Promise<any> {
 // Handle messages from content scripts and extension pages
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message.action === "openAuth") {
-    // Open auth page in new tab
+    // Remember the current tab so we can switch back after auth
+    const senderTabId = _sender.tab?.id
     chrome.tabs.create({
       url: chrome.runtime.getURL("sidepanel.html")
+    }, (newTab) => {
+      // Store the originating tab ID so the auth page can switch back
+      if (senderTabId && newTab?.id) {
+        chrome.storage.local.set({ _authOriginTabId: senderTabId })
+      }
     })
     sendResponse({ success: true })
   } else if (message.action === "openPaywall") {

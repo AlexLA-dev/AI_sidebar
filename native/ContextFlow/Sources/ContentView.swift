@@ -5,6 +5,49 @@ import Combine
 import SafariServices
 #endif
 
+// MARK: – Shared Helpers
+
+/// "Open Safari" / "Open Extension Settings" button used across tabs
+struct OpenSafariButton: View {
+    var body: some View {
+        #if os(iOS)
+        Button(action: {
+            if let safariURL = URL(string: "x-web-search://") {
+                UIApplication.shared.open(safariURL, options: [:]) { success in
+                    if !success {
+                        if let fallback = URL(string: "https://www.apple.com") {
+                            UIApplication.shared.open(fallback)
+                        }
+                    }
+                }
+            }
+        }) {
+            Label("Open Safari", systemImage: "safari")
+                .font(.headline)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 14)
+        }
+        .buttonStyle(.borderedProminent)
+        .tint(.purple)
+        #else
+        Button(action: {
+            SFSafariApplication.showPreferencesForExtension(
+                withIdentifier: Bundle.main.bundleIdentifier.map {
+                    $0 + ".Extension"
+                } ?? ""
+            )
+        }) {
+            Label("Open Safari Extension Settings", systemImage: "gear")
+                .font(.headline)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 14)
+        }
+        .buttonStyle(.borderedProminent)
+        .tint(.purple)
+        #endif
+    }
+}
+
 // MARK: – Main App View
 
 @available(macOS 12.0, iOS 15.0, *)
@@ -152,10 +195,8 @@ struct SubscriptionTab: View {
                 // Current status
                 statusCard
 
-                // Plans
-                if !storeManager.currentStatus.isSubscribed {
-                    plansSection
-                }
+                // Plans (always shown — for upgrade/downgrade when subscribed)
+                plansSection
 
                 // Restore
                 if !storeManager.currentStatus.isSubscribed {
@@ -180,6 +221,8 @@ struct SubscriptionTab: View {
                         .foregroundColor(.red)
                         .padding(.horizontal)
                 }
+
+                OpenSafariButton()
 
                 // Legal links (required by App Store 3.1.2)
                 legalLinks
@@ -396,15 +439,34 @@ struct SubscriptionTab: View {
         let isPro = product.id.contains("pro")
         let isSuggested = suggestedProductId == product.id
 
+        // Determine if this is the user's current plan
+        let currentProductId = storeManager.currentStatus.productId ?? ""
+        let isCurrentPlan = storeManager.currentStatus.isSubscribed &&
+            ((isBYOK && currentProductId.contains("byok")) ||
+             (isPro && currentProductId.contains("pro")))
+        let isSubscribed = storeManager.currentStatus.isSubscribed
+
         return VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Image(systemName: isBYOK ? "key" : "crown.fill")
                     .font(.title3)
-                    .foregroundColor(isPro ? .purple : .blue)
+                    .foregroundColor(isPro ? .purple : .orange)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(product.displayName)
-                        .font(.headline)
+                    HStack(spacing: 6) {
+                        Text(product.displayName)
+                            .font(.headline)
+                        if isCurrentPlan {
+                            Text("Current")
+                                .font(.caption2)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 2)
+                                .background(Color.green)
+                                .cornerRadius(6)
+                        }
+                    }
                     Text(product.description)
                         .font(.caption)
                         .foregroundColor(.secondary)
@@ -436,21 +498,47 @@ struct SubscriptionTab: View {
                 }
             }
 
-            Button(action: { handlePurchase(product) }) {
-                HStack {
-                    if isPurchasing {
-                        ProgressView()
-                            .scaleEffect(0.8)
+            if isCurrentPlan {
+                // No action needed for current plan
+                Text("Active subscription")
+                    .font(.subheadline)
+                    .foregroundColor(.green)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+            } else if isSubscribed {
+                // Switch plan button
+                Button(action: { handlePurchase(product) }) {
+                    HStack {
+                        if isPurchasing {
+                            ProgressView()
+                                .scaleEffect(0.8)
+                        }
+                        Text(isPro ? "Upgrade to Pro" : "Switch to BYOK")
+                            .fontWeight(.semibold)
                     }
-                    Text("Subscribe — \(product.displayPrice)/mo")
-                        .fontWeight(.semibold)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 12)
+                .buttonStyle(.borderedProminent)
+                .tint(isPro ? .purple : .orange)
+                .disabled(isPurchasing)
+            } else {
+                Button(action: { handlePurchase(product) }) {
+                    HStack {
+                        if isPurchasing {
+                            ProgressView()
+                                .scaleEffect(0.8)
+                        }
+                        Text("Subscribe — \(product.displayPrice)/mo")
+                            .fontWeight(.semibold)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(isPro ? .purple : .blue)
+                .disabled(isPurchasing)
             }
-            .buttonStyle(.borderedProminent)
-            .tint(isPro ? .purple : .blue)
-            .disabled(isPurchasing)
         }
         .padding(16)
         #if os(iOS)
@@ -695,6 +783,8 @@ struct SettingsTab: View {
                 .cornerRadius(12)
                 .shadow(color: .black.opacity(0.04), radius: 4, y: 2)
 
+                OpenSafariButton()
+
                 Spacer(minLength: 16)
             }
             .padding(.horizontal, 20)
@@ -929,44 +1019,7 @@ struct SetupTab: View {
                 .background(Color.purple.opacity(0.06))
                 .cornerRadius(12)
 
-                // Open Safari button
-                #if os(iOS)
-                Button(action: {
-                    // Open Safari specifically using its bundle URL scheme
-                    if let safariURL = URL(string: "x-web-search://") {
-                        UIApplication.shared.open(safariURL, options: [:]) { success in
-                            if !success {
-                                // Fallback: open a URL that Safari will handle
-                                if let fallback = URL(string: "https://www.apple.com") {
-                                    UIApplication.shared.open(fallback)
-                                }
-                            }
-                        }
-                    }
-                }) {
-                    Label("Open Safari", systemImage: "safari")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(.purple)
-                #else
-                Button(action: {
-                    SFSafariApplication.showPreferencesForExtension(
-                        withIdentifier: Bundle.main.bundleIdentifier.map {
-                            $0 + ".Extension"
-                        } ?? ""
-                    )
-                }) {
-                    Label("Open Safari Extension Settings", systemImage: "gear")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(.purple)
-                #endif
+                OpenSafariButton()
 
                 Spacer(minLength: 32)
             }

@@ -320,17 +320,23 @@ function SidePanel() {
     refreshTrialInfo()
 
     // If this page was opened as a standalone auth tab (from floating panel's "Sign In"),
-    // close it so the user returns to their original page.
-    // Detection: sidepanel.html opened as a tab has no sidePanel context.
+    // switch back to the original tab and close this one.
     try {
       chrome.tabs.getCurrent((tab) => {
         if (tab?.id) {
-          // This is a standalone tab — close it
-          chrome.tabs.remove(tab.id)
+          // Switch back to the originating tab first, then close this auth tab
+          chrome.storage.local.get("_authOriginTabId", (result) => {
+            if (result._authOriginTabId) {
+              chrome.tabs.update(result._authOriginTabId, { active: true })
+              chrome.storage.local.remove("_authOriginTabId")
+            }
+            chrome.tabs.remove(tab.id!)
+          })
         }
       })
     } catch {
-      // Running in actual side panel or permissions not available — ignore
+      // Running in actual side panel or permissions not available
+      try { window.close() } catch { /* ignore */ }
     }
   }
 

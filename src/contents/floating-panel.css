@@ -357,6 +357,64 @@
   }
 }
 
+/* Responsive - iPad and larger tablets */
+@media (min-width: 768px) {
+  .cf-panel {
+    height: 50vh !important;
+    max-height: 600px !important;
+    min-height: 400px !important;
+    left: 15% !important;
+    right: 15% !important;
+    border-radius: 20px 20px 0 0 !important;
+  }
+
+  .cf-fab {
+    width: 64px !important;
+    height: 64px !important;
+    border-radius: 32px !important;
+  }
+
+  .cf-header {
+    padding: 18px 24px;
+  }
+
+  .cf-title {
+    font-size: 18px;
+  }
+
+  .cf-icon-btn {
+    width: 42px;
+    height: 42px;
+  }
+
+  .cf-messages {
+    padding: 20px 24px;
+  }
+
+  .cf-message-content {
+    font-size: 15px;
+  }
+
+  .cf-input-area {
+    padding: 14px 24px 24px;
+  }
+
+  .cf-input {
+    padding: 14px 18px;
+    font-size: 16px;
+  }
+
+  .cf-send-btn {
+    width: 48px;
+    height: 48px;
+  }
+
+  .cf-auth-btn {
+    padding: 14px 40px;
+    font-size: 16px;
+  }
+}
+
 /* Scrollbar */
 .cf-messages::-webkit-scrollbar {
   width: 6px;
