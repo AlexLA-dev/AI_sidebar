@@ -7,6 +7,7 @@ import { getSupabaseClient } from "~/lib/supabase"
 import {
   streamChatResponse,
   syncSubscriptionFromServer,
+  getAnonymousTrialInfo,
   LimitReachedError,
   type TrialInfo
 } from "~/lib/ai"
@@ -608,6 +609,10 @@ function FloatingPanelContent() {
         if (s) {
           const info = await syncSubscriptionFromServer()
           setTrialInfo(info)
+        } else {
+          // No session: load anonymous trial info
+          const anonInfo = await getAnonymousTrialInfo()
+          setTrialInfo(anonInfo)
         }
 
         // Also sync from native App Store bridge (Safari).
@@ -648,6 +653,8 @@ function FloatingPanelContent() {
             if (newSession.user?.email) syncUserInfo(newSession.user.email, newSession.user.id)
           } else {
             syncUserInfo(null)
+            // Signed out: switch to anonymous trial info
+            getAnonymousTrialInfo().then(setTrialInfo)
           }
         })
       } catch {
@@ -755,6 +762,12 @@ function FloatingPanelContent() {
           },
           onComplete: async () => {
             setIsStreaming(false)
+            if (!session) {
+              // Anonymous user: refresh local trial count
+              const anonInfo = await getAnonymousTrialInfo()
+              setTrialInfo(anonInfo)
+              return
+            }
             const info = await syncSubscriptionFromServer()
             if (!info.hasLicense) {
               try {
@@ -887,27 +900,37 @@ function FloatingPanelContent() {
             )}
           </div>
           <div style={S.headerRight}>
+            {!session && (
+              <button
+                onClick={openAuth}
+                style={{
+                  border: "none", background: "none", color: "#7c3aed",
+                  fontSize: "13px", fontWeight: 600, cursor: "pointer",
+                  padding: "6px 10px", whiteSpace: "nowrap" as const,
+                }}
+              >
+                Sign In
+              </button>
+            )}
+            <button
+              onClick={() => {
+                setMessages([])
+                setError(null)
+                setLimitReached(false)
+                fetchContext()
+              }}
+              title="New Chat"
+              style={{ ...S.iconBtn, background: T.iconBtnBg, color: T.iconBtnColor }}
+            >
+              <NewChatIcon size={18} />
+            </button>
             {session && (
-              <>
-                <button
-                  onClick={() => {
-                    setMessages([])
-                    setError(null)
-                    setLimitReached(false)
-                    fetchContext()
-                  }}
-                  title="New Chat"
-                  style={{ ...S.iconBtn, background: T.iconBtnBg, color: T.iconBtnColor }}
-                >
-                  <NewChatIcon size={18} />
-                </button>
-                <button
-                  onClick={() => setShowSettings(!showSettings)}
-                  style={{ ...S.iconBtn, background: showSettings ? (isDark ? "#2e1065" : "#f3e8ff") : T.iconBtnBg, color: showSettings ? "#7c3aed" : T.iconBtnColor }}
-                >
-                  {showSettings ? <XIcon size={18} /> : <GearIcon size={18} />}
-                </button>
-              </>
+              <button
+                onClick={() => setShowSettings(!showSettings)}
+                style={{ ...S.iconBtn, background: showSettings ? (isDark ? "#2e1065" : "#f3e8ff") : T.iconBtnBg, color: showSettings ? "#7c3aed" : T.iconBtnColor }}
+              >
+                {showSettings ? <XIcon size={18} /> : <GearIcon size={18} />}
+              </button>
             )}
             <button onClick={() => setIsOpen(false)} style={{ ...S.iconBtn, background: T.iconBtnBg, color: T.iconBtnColor }}>
               <ChevronDownIcon size={20} />
@@ -1067,124 +1090,136 @@ function FloatingPanelContent() {
 
         {/* Content */}
         <div style={S.content}>
-          {!session ? (
-            <div style={S.authPrompt}>
-              <div style={S.authIcon}><SparklesIcon size={48} /></div>
-              <div style={{ ...S.authTitle, color: T.textPrimary }}>Sign in to ContextFlow</div>
-              <div style={{ ...S.authText, color: T.textSecondary }}>Get AI-powered answers about any webpage</div>
-              <button onClick={openAuth} style={S.authBtn}>Sign In</button>
-            </div>
-          ) : (
-            <>
-              <div style={S.messages}>
-                {messages.length === 0 ? (
-                  <div style={{ ...S.empty, color: T.textMuted }}>
-                    <p>Ask anything about this page</p>
-                    {pageContext && (
-                      <button
-                        onClick={() => sendMessage("Summarize this page")}
-                        disabled={isStreaming}
-                        style={{
-                          marginTop: "10px", padding: "6px 16px",
-                          fontSize: "13px", borderRadius: "20px",
-                          border: `1px solid ${isDark ? "#6d28d9" : "#e9d5ff"}`,
-                          background: "transparent",
-                          color: isDark ? "#a78bfa" : "#7c3aed",
-                          cursor: isStreaming ? "not-allowed" : "pointer",
-                          opacity: isStreaming ? 0.5 : 1,
-                          fontFamily: "inherit",
-                        }}
-                      >
-                        Summarize this page
-                      </button>
-                    )}
-                    {trialInfo && !hasLicense && (
-                      <p style={S.trialInfo}>{trialInfo.remaining} free messages left</p>
-                    )}
-                  </div>
-                ) : (
-                  messages.map((msg, i) => {
-                    const fontScale = largeFont ? 1.5 : 1
-                    const bubbleFontSize = `${14 * fontScale}px`
-                    return (
-                      <div key={i} style={{ ...S.msg, ...(msg.role === "user" ? S.msgUser : {}) }}>
-                        {msg.role === "assistant" ? (
-                          <div style={S.msgWrapper}>
-                            <div style={{ ...S.msgBubble, ...S.msgBubbleAI, fontSize: bubbleFontSize, background: T.aiBubbleBg, color: T.aiBubbleText }}>
-                              {msg.content ? renderMarkdown(msg.content, { codeBg: T.codeBg, linkColor: T.linkColor }) : (
-                                <span style={{ display: "inline-flex", gap: "4px", alignItems: "center", letterSpacing: "2px", color: "#9ca3af" }}>
-                                  <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#9ca3af", display: "inline-block" }} />
-                                  <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#b4b8c0", display: "inline-block" }} />
-                                  <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#d1d5db", display: "inline-block" }} />
-                                </span>
-                              )}
-                            </div>
-                            {msg.content && !isStreaming && (
-                              <button
-                                onClick={() => handleShare(msg.content)}
-                                style={S.shareBtn}
-                              >
-                                <MoreIcon size={16} />
-                              </button>
-                            )}
-                          </div>
-                        ) : (
-                          <div style={{ ...S.msgBubble, ...S.msgBubbleUser, fontSize: bubbleFontSize }}>
-                            {msg.content || "..."}
-                          </div>
+          <div style={S.messages}>
+            {messages.length === 0 ? (
+              <div style={{ ...S.empty, color: T.textMuted }}>
+                <p>Ask anything about this page</p>
+                {pageContext && (
+                  <button
+                    onClick={() => sendMessage("Summarize this page")}
+                    disabled={isStreaming}
+                    style={{
+                      marginTop: "10px", padding: "6px 16px",
+                      fontSize: "13px", borderRadius: "20px",
+                      border: `1px solid ${isDark ? "#6d28d9" : "#e9d5ff"}`,
+                      background: "transparent",
+                      color: isDark ? "#a78bfa" : "#7c3aed",
+                      cursor: isStreaming ? "not-allowed" : "pointer",
+                      opacity: isStreaming ? 0.5 : 1,
+                      fontFamily: "inherit",
+                    }}
+                  >
+                    Summarize this page
+                  </button>
+                )}
+                {trialInfo && !hasLicense && (
+                  <p style={S.trialInfo}>{trialInfo.remaining} free messages left</p>
+                )}
+              </div>
+            ) : (
+              messages.map((msg, i) => {
+                const fontScale = largeFont ? 1.5 : 1
+                const bubbleFontSize = `${14 * fontScale}px`
+                return (
+                  <div key={i} style={{ ...S.msg, ...(msg.role === "user" ? S.msgUser : {}) }}>
+                    {msg.role === "assistant" ? (
+                      <div style={S.msgWrapper}>
+                        <div style={{ ...S.msgBubble, ...S.msgBubbleAI, fontSize: bubbleFontSize, background: T.aiBubbleBg, color: T.aiBubbleText }}>
+                          {msg.content ? renderMarkdown(msg.content, { codeBg: T.codeBg, linkColor: T.linkColor }) : (
+                            <span style={{ display: "inline-flex", gap: "4px", alignItems: "center", letterSpacing: "2px", color: "#9ca3af" }}>
+                              <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#9ca3af", display: "inline-block" }} />
+                              <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#b4b8c0", display: "inline-block" }} />
+                              <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#d1d5db", display: "inline-block" }} />
+                            </span>
+                          )}
+                        </div>
+                        {msg.content && !isStreaming && (
+                          <button
+                            onClick={() => handleShare(msg.content)}
+                            style={S.shareBtn}
+                          >
+                            <MoreIcon size={16} />
+                          </button>
                         )}
                       </div>
-                    )
-                  })
-                )}
-                {limitReached && (
-                  <div style={{
-                    padding: "16px", background: "#faf5ff", borderRadius: "12px",
-                    marginBottom: "12px", border: "1px solid #e9d5ff", textAlign: "center" as const,
-                  }}>
-                    <div style={{ fontSize: "14px", fontWeight: 600, color: "#6b21a8", marginBottom: "6px" }}>
-                      Free trial ended
-                    </div>
-                    <div style={{ fontSize: "12px", color: "#7e22ce", marginBottom: "12px" }}>
-                      You've used all {LICENSE_CONFIG.TRIAL_LIMIT} free requests. Upgrade to continue.
-                    </div>
-                    <button
-                      onClick={handleUpgrade}
-                      style={{
-                        padding: "10px 24px", border: "none", borderRadius: "10px",
-                        background: "linear-gradient(135deg, #7c3aed, #a855f7)", color: "white",
-                        fontSize: "13px", fontWeight: 600, cursor: "pointer",
-                      }}
-                    >
-                      View Plans
-                    </button>
+                    ) : (
+                      <div style={{ ...S.msgBubble, ...S.msgBubbleUser, fontSize: bubbleFontSize }}>
+                        {msg.content || "..."}
+                      </div>
+                    )}
                   </div>
-                )}
-                {error && !limitReached && <div style={S.error}>{error}</div>}
-                <div ref={messagesEndRef} />
-              </div>
-
-              <div style={{ ...S.inputArea, background: T.bg, borderTopColor: T.border }}>
-                <textarea
-                  ref={inputRef}
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Ask about this page..."
-                  style={{ ...S.input, background: T.inputBg, borderColor: T.inputBorder, color: T.textPrimary }}
-                  rows={1}
-                  disabled={isStreaming}
-                />
+                )
+              })
+            )}
+            {limitReached && !session && (
+              <div style={{
+                padding: "16px", background: "#faf5ff", borderRadius: "12px",
+                marginBottom: "12px", border: "1px solid #e9d5ff", textAlign: "center" as const,
+              }}>
+                <div style={{ fontSize: "14px", fontWeight: 600, color: "#6b21a8", marginBottom: "6px" }}>
+                  Free trial ended
+                </div>
+                <div style={{ fontSize: "12px", color: "#7e22ce", marginBottom: "12px" }}>
+                  Sign up for free to get {LICENSE_CONFIG.TRIAL_LIMIT} more requests, or subscribe for unlimited access.
+                </div>
                 <button
-                  onClick={handleSend}
-                  disabled={!input.trim() || isStreaming}
-                  style={{ ...S.sendBtn, opacity: !input.trim() || isStreaming ? 0.5 : 1 }}
+                  onClick={openAuth}
+                  style={{
+                    padding: "10px 24px", border: "none", borderRadius: "10px",
+                    background: "linear-gradient(135deg, #7c3aed, #a855f7)", color: "white",
+                    fontSize: "13px", fontWeight: 600, cursor: "pointer",
+                  }}
                 >
-                  <SendIcon size={18} />
+                  Sign Up Free
                 </button>
               </div>
-            </>
-          )}
+            )}
+            {limitReached && session && (
+              <div style={{
+                padding: "16px", background: "#faf5ff", borderRadius: "12px",
+                marginBottom: "12px", border: "1px solid #e9d5ff", textAlign: "center" as const,
+              }}>
+                <div style={{ fontSize: "14px", fontWeight: 600, color: "#6b21a8", marginBottom: "6px" }}>
+                  Free trial ended
+                </div>
+                <div style={{ fontSize: "12px", color: "#7e22ce", marginBottom: "12px" }}>
+                  You've used all {LICENSE_CONFIG.TRIAL_LIMIT} free requests. Upgrade to continue.
+                </div>
+                <button
+                  onClick={handleUpgrade}
+                  style={{
+                    padding: "10px 24px", border: "none", borderRadius: "10px",
+                    background: "linear-gradient(135deg, #7c3aed, #a855f7)", color: "white",
+                    fontSize: "13px", fontWeight: 600, cursor: "pointer",
+                  }}
+                >
+                  View Plans
+                </button>
+              </div>
+            )}
+            {error && !limitReached && <div style={S.error}>{error}</div>}
+            <div ref={messagesEndRef} />
+          </div>
+
+          <div style={{ ...S.inputArea, background: T.bg, borderTopColor: T.border }}>
+            <textarea
+              ref={inputRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Ask about this page..."
+              style={{ ...S.input, background: T.inputBg, borderColor: T.inputBorder, color: T.textPrimary }}
+              rows={1}
+              disabled={isStreaming}
+            />
+            <button
+              onClick={handleSend}
+              disabled={!input.trim() || isStreaming}
+              style={{ ...S.sendBtn, opacity: !input.trim() || isStreaming ? 0.5 : 1 }}
+            >
+              <SendIcon size={18} />
+            </button>
+          </div>
         </div>
       </div>
     </>

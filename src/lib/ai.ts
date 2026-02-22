@@ -3,13 +3,15 @@ import OpenAI from "openai"
 import {
   getTrialInfo,
   incrementTrialUsage,
+  getAnonymousTrialInfo,
+  incrementAnonymousUsage,
   syncSubscriptionFromServer,
   syncSubscriptionFromNative,
   getStoredApiKey,
   setStoredApiKey,
   type TrialInfo
 } from "./storage"
-import { proxyChatRequest } from "./api-client"
+import { proxyChatRequest, getSession } from "./api-client"
 
 export type Message = {
   role: "user" | "assistant" | "system"
@@ -65,34 +67,43 @@ export function buildMessagesWithContext(
   return [systemMessage, ...messages]
 }
 
-// Check if user can make a request
-async function checkAccessPermission(): Promise<{ allowed: boolean; trialInfo: TrialInfo }> {
-  let trialInfo = await getTrialInfo()
+// Check if user can make a request.
+// Returns `isAnonymous: true` when there's no active session (user hasn't signed in).
+async function checkAccessPermission(): Promise<{ allowed: boolean; trialInfo: TrialInfo; isAnonymous: boolean }> {
+  // If user is logged in, use full subscription-based logic
+  const token = await getSession()
 
-  // Licensed users have unlimited access
-  if (trialInfo.hasLicense) {
-    return { allowed: true, trialInfo }
-  }
+  if (token) {
+    let trialInfo = await getTrialInfo()
 
-  // Fallback: check native App Store bridge (Safari only).
-  // Plasmo storage may not have the license yet if it was purchased
-  // in the native app and never synced to chrome.storage.
-  try {
-    trialInfo = await syncSubscriptionFromNative()
     if (trialInfo.hasLicense) {
-      return { allowed: true, trialInfo }
+      return { allowed: true, trialInfo, isAnonymous: false }
     }
-  } catch {
-    // Native bridge not available — continue with Plasmo-only check
+
+    // Fallback: check native App Store bridge (Safari only)
+    try {
+      trialInfo = await syncSubscriptionFromNative()
+      if (trialInfo.hasLicense) {
+        return { allowed: true, trialInfo, isAnonymous: false }
+      }
+    } catch {
+      // Native bridge not available
+    }
+
+    if (trialInfo.remaining > 0) {
+      return { allowed: true, trialInfo, isAnonymous: false }
+    }
+
+    return { allowed: false, trialInfo, isAnonymous: false }
   }
 
-  // Trial users: check remaining requests
-  if (trialInfo.remaining > 0) {
-    return { allowed: true, trialInfo }
+  // Anonymous user (not signed in): local-only trial tracking
+  const anonInfo = await getAnonymousTrialInfo()
+  return {
+    allowed: anonInfo.remaining > 0,
+    trialInfo: anonInfo,
+    isAnonymous: true
   }
-
-  // Trial expired
-  return { allowed: false, trialInfo }
 }
 
 export async function streamChatResponse(
@@ -103,7 +114,7 @@ export async function streamChatResponse(
   contextType: ContextType = "page"
 ): Promise<void> {
   // Check access permission (gatekeeper)
-  const { allowed, trialInfo } = await checkAccessPermission()
+  const { allowed, trialInfo, isAnonymous } = await checkAccessPermission()
 
   if (!allowed) {
     callbacks.onError(new LimitReachedError())
@@ -114,11 +125,11 @@ export async function streamChatResponse(
 
   // If user has their own API key, use it directly via OpenAI
   if (apiKey) {
-    await streamWithDirectKey(apiKey, messagesWithContext, trialInfo, callbacks)
+    await streamWithDirectKey(apiKey, messagesWithContext, trialInfo, callbacks, isAnonymous)
     return
   }
 
-  // No API key — use the Netlify proxy (trial / pro users)
+  // No API key — use the Netlify proxy (trial / pro / anonymous users)
   const apiUrl = process.env.PLASMO_PUBLIC_API_URL
   if (!apiUrl) {
     callbacks.onError(
@@ -133,7 +144,9 @@ export async function streamChatResponse(
     await proxyChatRequest(messagesWithContext, {
       onChunk: callbacks.onChunk,
       onComplete: async () => {
-        if (!trialInfo.hasLicense) {
+        if (isAnonymous) {
+          await incrementAnonymousUsage()
+        } else if (!trialInfo.hasLicense) {
           await incrementTrialUsage()
         }
         callbacks.onComplete()
@@ -149,7 +162,8 @@ async function streamWithDirectKey(
   apiKey: string,
   messagesWithContext: Message[],
   trialInfo: TrialInfo,
-  callbacks: StreamCallbacks
+  callbacks: StreamCallbacks,
+  isAnonymous = false
 ): Promise<void> {
   const client = new OpenAI({
     apiKey,
@@ -172,7 +186,9 @@ async function streamWithDirectKey(
     }
 
     // Increment usage counter for trial users (after successful completion)
-    if (!trialInfo.hasLicense) {
+    if (isAnonymous) {
+      await incrementAnonymousUsage()
+    } else if (!trialInfo.hasLicense) {
       await incrementTrialUsage()
     }
 
@@ -193,4 +209,4 @@ async function streamWithDirectKey(
 }
 
 // Re-export storage helpers
-export { getStoredApiKey, setStoredApiKey, getTrialInfo, syncSubscriptionFromServer, type TrialInfo }
+export { getStoredApiKey, setStoredApiKey, getTrialInfo, getAnonymousTrialInfo, syncSubscriptionFromServer, type TrialInfo }

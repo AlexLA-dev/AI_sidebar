@@ -140,7 +140,8 @@ export async function getUserSubscription(): Promise<UserSubscription | null> {
   return data as UserSubscription
 }
 
-// Chat proxy function - calls Netlify function with streaming
+// Chat proxy function - calls Netlify function with streaming.
+// Works both for authenticated users (sends JWT) and anonymous trial users (no auth).
 export async function proxyChatRequest(
   messages: ChatMessage[],
   callbacks: StreamCallbacks,
@@ -149,22 +150,23 @@ export async function proxyChatRequest(
 ): Promise<void> {
   const token = await getSession()
 
-  if (!token) {
-    callbacks.onError(new ApiError("Not authenticated", "AUTH_REQUIRED", 401))
-    return
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json"
+  }
+
+  if (token) {
+    headers.Authorization = `Bearer ${token}`
   }
 
   try {
     const response = await fetch(`${API_BASE_URL}/chat-proxy`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
+      headers,
       body: JSON.stringify({
         messages,
         model,
-        max_tokens: maxTokens
+        max_tokens: maxTokens,
+        ...(!token ? { anonymous: true } : {})
       })
     })
 

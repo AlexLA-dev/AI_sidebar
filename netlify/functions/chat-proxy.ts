@@ -122,22 +122,37 @@ export default async function handler(req: Request, _context: Context) {
   }
 
   try {
-    // Extract and verify JWT token
+    // Extract and verify JWT token (optional — anonymous trial requests don't have one)
     const authHeader = req.headers.get("Authorization")
-    if (!authHeader?.startsWith("Bearer ")) {
-      return jsonResponse({ error: "Missing or invalid authorization header" }, 401)
+    let user: { id: string } | null = null
+
+    if (authHeader?.startsWith("Bearer ")) {
+      const token = authHeader.replace("Bearer ", "")
+      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser(token)
+      if (!authError && authUser) {
+        user = authUser
+      }
     }
 
-    const token = authHeader.replace("Bearer ", "")
+    // Anonymous trial: client enforces 5-request limit locally.
+    // Server just processes the request without subscription tracking.
+    if (!user) {
+      // Quick sanity check: body must have anonymous flag
+      let body: ChatRequest & { anonymous?: boolean }
+      try {
+        body = await req.json()
+      } catch {
+        return jsonResponse({ error: "Invalid JSON body" }, 400)
+      }
 
-    // Verify user with Supabase
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+      if (!body.anonymous) {
+        return jsonResponse({ error: "Missing or invalid authorization header" }, 401)
+      }
 
-    if (authError || !user) {
-      return jsonResponse({ error: "Invalid or expired token" }, 401)
+      return handleAnonymousChatRequest(body)
     }
 
-    // Get user subscription
+    // Authenticated user: full subscription-based flow
     const { data: subscription, error: subError } = await supabase
       .from("user_subscriptions")
       .select("*")
@@ -357,6 +372,83 @@ async function handleChatRequest(
         .eq("user_id", userId)
     }
 
+    return jsonResponse(
+      { error: error instanceof Error ? error.message : "Failed to process chat request" },
+      500
+    )
+  }
+}
+
+// Handle anonymous trial requests — no auth, no subscription tracking.
+// The client enforces the 5-request limit via local extension storage.
+async function handleAnonymousChatRequest(
+  body: ChatRequest & { anonymous?: boolean }
+): Promise<Response> {
+  const { messages } = body
+
+  if (!messages || !Array.isArray(messages) || messages.length === 0) {
+    return jsonResponse({ error: "Messages array is required" }, 400)
+  }
+
+  console.log(`[chat-proxy] Anonymous trial request: ${messages.length} messages`)
+
+  try {
+    const stream = await openai.chat.completions.create({
+      model: PRO_MODEL,
+      messages,
+      max_tokens: PRO_MAX_TOKENS,
+      stream: true,
+      stream_options: { include_usage: true }
+    })
+
+    let totalTokens = 0
+
+    const readableStream = new ReadableStream({
+      async start(controller) {
+        const encoder = new TextEncoder()
+        try {
+          for await (const chunk of stream) {
+            const content = chunk.choices[0]?.delta?.content
+            if (content) {
+              const data = JSON.stringify({ content })
+              controller.enqueue(encoder.encode(`data: ${data}\n\n`))
+            }
+            if (chunk.usage) {
+              totalTokens = chunk.usage.total_tokens || 0
+            }
+          }
+          controller.enqueue(encoder.encode("data: [DONE]\n\n"))
+          controller.close()
+
+          // Log anonymous usage (fire-and-forget)
+          supabase
+            .from("usage_logs")
+            .insert({
+              user_id: "anonymous",
+              action: "chat_request",
+              tokens_used: totalTokens || null,
+              metadata: { model: PRO_MODEL, messages_count: messages.length, plan_type: "anonymous_trial" }
+            })
+            .then(({ error }) => {
+              if (error) console.error("Failed to log anonymous usage:", error)
+            })
+        } catch (error) {
+          console.error("Anonymous streaming error:", error)
+          controller.error(error)
+        }
+      }
+    })
+
+    return new Response(readableStream, {
+      headers: {
+        ...corsHeaders,
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive"
+      }
+    })
+  } catch (error) {
+    console.error("Anonymous OpenAI API error:", error)
     return jsonResponse(
       { error: error instanceof Error ? error.message : "Failed to process chat request" },
       500

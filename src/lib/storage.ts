@@ -16,7 +16,9 @@ export const STORAGE_KEYS = {
   // Pro usage tracking
   PRO_USAGE_COUNT: "pro_usage_count",
   PRO_WEEKLY_LIMIT: "pro_weekly_limit",
-  PRO_LAST_RESET_AT: "pro_last_reset_at"
+  PRO_LAST_RESET_AT: "pro_last_reset_at",
+  // Anonymous trial (no sign-in required)
+  ANONYMOUS_USAGE_COUNT: "anonymous_usage_count"
 } as const
 
 // Plan & pricing constants
@@ -196,6 +198,26 @@ export async function syncSubscriptionFromServer(): Promise<TrialInfo> {
   }
 
   return getTrialInfo()
+}
+
+// Anonymous trial (no sign-in required) — tracked only in local extension storage
+export async function getAnonymousTrialInfo(): Promise<TrialInfo> {
+  const usageCount = (await storage.get<number>(STORAGE_KEYS.ANONYMOUS_USAGE_COUNT)) || 0
+  return {
+    usageCount,
+    hasLicense: false,
+    remaining: Math.max(0, LICENSE_CONFIG.TRIAL_LIMIT - usageCount),
+    isTrialExpired: usageCount >= LICENSE_CONFIG.TRIAL_LIMIT,
+    paymentProvider: null,
+    planType: null
+  }
+}
+
+export async function incrementAnonymousUsage(): Promise<number> {
+  const currentCount = (await storage.get<number>(STORAGE_KEYS.ANONYMOUS_USAGE_COUNT)) || 0
+  const newCount = currentCount + 1
+  await storage.set(STORAGE_KEYS.ANONYMOUS_USAGE_COUNT, newCount)
+  return newCount
 }
 
 // API Key helpers
