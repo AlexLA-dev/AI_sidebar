@@ -169,10 +169,12 @@ function trackSelection() {
 
 document.addEventListener("selectionchange", trackSelection)
 document.addEventListener("mouseup", () => setTimeout(trackSelection, 50))
+// On iOS, also cache on touchend so we capture before the FAB tap clears it
+document.addEventListener("touchend", () => setTimeout(trackSelection, 50))
 
 // --- Scroll lock helpers ---
-// Uses overflow:hidden + touch-action:none instead of position:fixed
-// to avoid the iOS Safari bug where the page jumps to the top.
+// iOS Safari ignores overflow:hidden on <body>. The reliable approach is
+// position:fixed + top:-scrollY which freezes the viewport in place.
 let savedScrollY = 0
 
 function preventTouchScroll(e: TouchEvent) {
@@ -184,16 +186,27 @@ function preventTouchScroll(e: TouchEvent) {
 
 function lockBodyScroll() {
   savedScrollY = window.scrollY
+  // position:fixed removes the element from flow, causing a visual jump.
+  // Compensate by setting top:-scrollY so the page stays visually in place.
+  document.body.style.position = "fixed"
+  document.body.style.top = `-${savedScrollY}px`
+  document.body.style.left = "0"
+  document.body.style.right = "0"
+  document.body.style.width = "100%"
   document.documentElement.style.overflow = "hidden"
-  document.body.style.overflow = "hidden"
   // Block touch-based scrolling on the page behind the panel
   document.addEventListener("touchmove", preventTouchScroll, { passive: false })
 }
 
 function unlockBodyScroll() {
+  document.body.style.position = ""
+  document.body.style.top = ""
+  document.body.style.left = ""
+  document.body.style.right = ""
+  document.body.style.width = ""
   document.documentElement.style.overflow = ""
-  document.body.style.overflow = ""
   document.removeEventListener("touchmove", preventTouchScroll)
+  // Restore the original scroll position
   window.scrollTo(0, savedScrollY)
 }
 
@@ -641,12 +654,20 @@ function FloatingPanelContent() {
     if (selText.length > 10) {
       setPageContext(selText)
       setContextInfo({ type: "selection", title })
-      // Restore the visual highlight if iOS cleared it on FAB tap
-      if (liveSel.length <= 10 && cachedRange && sel) {
-        try {
-          sel.removeAllRanges()
-          sel.addRange(cachedRange)
-        } catch { /* range may be stale */ }
+      // Restore the visual highlight if iOS cleared it on FAB tap.
+      // Use a delay so the restoration happens after iOS finishes
+      // processing the tap and after the scroll lock is applied.
+      if (liveSel.length <= 10 && cachedRange) {
+        const rangeToRestore = cachedRange
+        setTimeout(() => {
+          try {
+            const s = window.getSelection()
+            if (s) {
+              s.removeAllRanges()
+              s.addRange(rangeToRestore)
+            }
+          } catch { /* range may be stale */ }
+        }, 100)
       }
       return
     }
