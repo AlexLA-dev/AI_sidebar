@@ -173,9 +173,15 @@ document.addEventListener("mouseup", () => setTimeout(trackSelection, 50))
 document.addEventListener("touchend", () => setTimeout(trackSelection, 50))
 
 // --- Scroll lock helpers ---
-// iOS Safari ignores overflow:hidden on <body>. The reliable approach is
-// position:fixed + top:-scrollY which freezes the viewport in place.
+// iOS Safari is notoriously difficult to lock scroll on.
+// We use a belt-and-suspenders approach:
+//   1. position:fixed + top:-scrollY on <body> (standard iOS trick)
+//   2. overflow:hidden on <html> (works on most desktop browsers)
+//   3. touchmove preventDefault on background (blocks finger scrolling)
+//   4. scroll event listener that snaps back (ultimate fallback)
+// scrollY is captured eagerly in the FAB click handler BEFORE React re-renders.
 let savedScrollY = 0
+let scrollLocked = false
 
 function preventTouchScroll(e: TouchEvent) {
   // Allow scrolling inside the floating panel (messages, settings)
@@ -184,10 +190,21 @@ function preventTouchScroll(e: TouchEvent) {
   e.preventDefault()
 }
 
-function lockBodyScroll() {
+function enforceScrollPosition() {
+  if (scrollLocked && Math.abs(window.scrollY - savedScrollY) > 1) {
+    window.scrollTo(0, savedScrollY)
+  }
+}
+
+function captureScrollY() {
+  // Call this BEFORE any state change that triggers scroll lock.
+  // By the time useEffect runs, iOS may have already scrolled.
   savedScrollY = window.scrollY
-  // position:fixed removes the element from flow, causing a visual jump.
-  // Compensate by setting top:-scrollY so the page stays visually in place.
+}
+
+function lockBodyScroll() {
+  scrollLocked = true
+  // position:fixed + top keeps the page visually in the same place
   document.body.style.position = "fixed"
   document.body.style.top = `-${savedScrollY}px`
   document.body.style.left = "0"
@@ -196,9 +213,12 @@ function lockBodyScroll() {
   document.documentElement.style.overflow = "hidden"
   // Block touch-based scrolling on the page behind the panel
   document.addEventListener("touchmove", preventTouchScroll, { passive: false })
+  // Fallback: if anything still triggers a scroll, snap back immediately
+  window.addEventListener("scroll", enforceScrollPosition)
 }
 
 function unlockBodyScroll() {
+  scrollLocked = false
   document.body.style.position = ""
   document.body.style.top = ""
   document.body.style.left = ""
@@ -206,6 +226,7 @@ function unlockBodyScroll() {
   document.body.style.width = ""
   document.documentElement.style.overflow = ""
   document.removeEventListener("touchmove", preventTouchScroll)
+  window.removeEventListener("scroll", enforceScrollPosition)
   // Restore the original scroll position
   window.scrollTo(0, savedScrollY)
 }
@@ -562,7 +583,7 @@ function FloatingPanelContent() {
   useEffect(() => {
     const handleMessage = (message: { action: string }) => {
       if (message.action === "toggleFloatingPanel") {
-        setIsOpen(prev => !prev)
+        setIsOpen(prev => { if (!prev) captureScrollY(); return !prev })
       }
     }
     chrome.runtime.onMessage.addListener(handleMessage)
@@ -696,7 +717,16 @@ function FloatingPanelContent() {
 
   useEffect(() => {
     if (isOpen && inputRef.current) {
-      setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 300)
+      // preventScroll is unreliable on iOS Safari.
+      // After focusing, re-enforce the saved scroll position.
+      setTimeout(() => {
+        inputRef.current?.focus({ preventScroll: true })
+        if (scrollLocked) {
+          // iOS may have scrolled to the input — snap back
+          window.scrollTo(0, savedScrollY)
+          document.body.style.top = `-${savedScrollY}px`
+        }
+      }, 300)
     }
   }, [isOpen])
 
@@ -813,7 +843,7 @@ function FloatingPanelContent() {
     <>
       {/* FAB */}
       <button
-        onClick={() => { if (!isLoading) setIsOpen(!isOpen) }}
+        onClick={() => { if (!isLoading) { if (!isOpen) captureScrollY(); setIsOpen(!isOpen) } }}
         style={{ ...S.fab, ...(isOpen ? S.fabHidden : {}), ...(isLoading ? { opacity: 0.7 } : {}) }}
       >
         {isLoading ? (
