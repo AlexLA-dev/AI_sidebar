@@ -38,6 +38,12 @@
   to = "/.netlify/functions/email-confirmed"
   status = 200
 
+# Terms of Use page (linked from App Store Connect and in-app)
+[[redirects]]
+  from = "/terms"
+  to = "/.netlify/functions/terms"
+  status = 200
+
 # Privacy Policy page (linked from App Store Connect)
 [[redirects]]
   from = "/privacy"
