@@ -1,8 +1,8 @@
 # Netlify Configuration for ContextFlow Backend
 
 [build]
-  command = "pnpm build"
-  publish = "build/chrome-mv3-prod"
+  command = "echo 'Static site ready'"
+  publish = "site"
 
 [functions]
   directory = "netlify/functions"
@@ -36,24 +36,6 @@
 [[redirects]]
   from = "/confirm"
   to = "/.netlify/functions/email-confirmed"
-  status = 200
-
-# Terms of Use page (linked from App Store Connect and in-app)
-[[redirects]]
-  from = "/terms"
-  to = "/.netlify/functions/terms"
-  status = 200
-
-# Privacy Policy page (linked from App Store Connect)
-[[redirects]]
-  from = "/privacy"
-  to = "/.netlify/functions/privacy"
-  status = 200
-
-# Support page (linked from App Store Connect)
-[[redirects]]
-  from = "/support"
-  to = "/.netlify/functions/support"
   status = 200
 
 # Dev server configuration

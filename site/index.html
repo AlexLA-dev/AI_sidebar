@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ContextFlow — AI Web Assistant</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 50%, #e0e7ff 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+      color: #1f2937;
+    }
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 48px 36px;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 8px 32px rgba(124, 58, 237, 0.12);
+    }
+    .logo-icon {
+      width: 72px; height: 72px;
+      background: linear-gradient(135deg, #7c3aed, #a855f7);
+      border-radius: 18px;
+      display: inline-flex; align-items: center; justify-content: center;
+      margin-bottom: 20px;
+    }
+    .logo-icon svg { width: 36px; height: 36px; stroke: white; fill: none; }
+    h1 { font-size: 32px; font-weight: 700; margin-bottom: 8px; }
+    .subtitle { color: #6b7280; font-size: 16px; margin-bottom: 32px; line-height: 1.5; }
+    .links { display: flex; flex-direction: column; gap: 12px; }
+    .links a {
+      display: block;
+      padding: 14px 20px;
+      background: #f5f3ff;
+      border-radius: 12px;
+      color: #7c3aed;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 15px;
+      transition: background 0.2s;
+    }
+    .links a:hover { background: #ede9fe; }
+    .footer { margin-top: 32px; }
+    .footer p { font-size: 13px; color: #9ca3af; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+      </svg>
+    </div>
+    <h1>ContextFlow</h1>
+    <p class="subtitle">AI-powered answers about any web page.<br>Available for Safari and Chrome.</p>
+    <div class="links">
+      <a href="/privacy">Privacy Policy</a>
+      <a href="/terms">Terms of Use</a>
+      <a href="/support">Support</a>
+    </div>
+    <div class="footer">
+      <p>&copy; 2026 ContextFlow. All rights reserved.</p>
+    </div>
+  </div>
+</body>
+</html>
