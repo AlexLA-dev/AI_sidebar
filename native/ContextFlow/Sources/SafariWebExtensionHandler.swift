@@ -67,6 +67,13 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             }
             result = ["success": true, "data": [:] as [String: Any]]
 
+        case "syncDataConsent":
+            if let given = message["given"] as? Bool {
+                SharedDefaults.shared.dataConsentGiven = given
+                logger.info("Synced data consent: \(given)")
+            }
+            result = ["success": true, "data": [:] as [String: Any]]
+
         case "getApiKey":
             let key = SharedDefaults.shared.apiKey ?? ""
             result = ["success": true, "data": ["apiKey": key]]

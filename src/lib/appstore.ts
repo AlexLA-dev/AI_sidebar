@@ -144,6 +144,16 @@ export async function syncTrialUsage(count: number): Promise<void> {
   }
 }
 
+// ── Data Sharing Consent ─────────────────────────────────────────────────
+
+export async function syncDataConsent(given: boolean): Promise<void> {
+  try {
+    await sendNativeMessage("syncDataConsent", { given })
+  } catch {
+    // Non-critical
+  }
+}
+
 // ── API Key (BYOK) ──────────────────────────────────────────────────────
 
 /**

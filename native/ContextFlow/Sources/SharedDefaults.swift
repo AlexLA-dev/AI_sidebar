@@ -63,6 +63,8 @@ final class SharedDefaults {
         static let apiKey = "cf_api_key"
         // Supabase user ID (synced from extension for App Store verification)
         static let userId = "cf_user_id"
+        // Data sharing consent
+        static let dataConsentGiven = "cf_data_consent_given"
     }
 
     // MARK: – Subscription Status
@@ -195,6 +197,16 @@ final class SharedDefaults {
             } else {
                 defaults.removeObject(forKey: Key.apiKey)
             }
+            defaults.synchronize()
+        }
+    }
+
+    // MARK: – Data Sharing Consent
+
+    var dataConsentGiven: Bool {
+        get { defaults.bool(forKey: Key.dataConsentGiven) }
+        set {
+            defaults.set(newValue, forKey: Key.dataConsentGiven)
             defaults.synchronize()
         }
     }

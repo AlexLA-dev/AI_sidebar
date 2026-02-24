@@ -18,7 +18,9 @@ export const STORAGE_KEYS = {
   PRO_WEEKLY_LIMIT: "pro_weekly_limit",
   PRO_LAST_RESET_AT: "pro_last_reset_at",
   // Anonymous trial (no sign-in required)
-  ANONYMOUS_USAGE_COUNT: "anonymous_usage_count"
+  ANONYMOUS_USAGE_COUNT: "anonymous_usage_count",
+  // Data sharing consent (required by App Store guideline 5.1.1/5.1.2)
+  DATA_CONSENT_GIVEN: "data_consent_given"
 } as const
 
 // Plan & pricing constants
@@ -198,6 +200,22 @@ export async function syncSubscriptionFromServer(): Promise<TrialInfo> {
   }
 
   return getTrialInfo()
+}
+
+// Data sharing consent — must be given before first AI request (App Store 5.1.1/5.1.2)
+export async function hasDataConsent(): Promise<boolean> {
+  return (await storage.get<boolean>(STORAGE_KEYS.DATA_CONSENT_GIVEN)) || false
+}
+
+export async function setDataConsent(given: boolean): Promise<void> {
+  await storage.set(STORAGE_KEYS.DATA_CONSENT_GIVEN, given)
+  // Sync to native app
+  try {
+    const { syncDataConsent } = await import("./appstore")
+    await syncDataConsent(given)
+  } catch {
+    // Non-critical
+  }
 }
 
 // Anonymous trial (no sign-in required) — tracked only in local extension storage

@@ -11,7 +11,7 @@ import {
   LimitReachedError,
   type TrialInfo
 } from "~/lib/ai"
-import { getStoredApiKey, setStoredApiKey, storage, LICENSE_CONFIG, syncSubscriptionFromNative } from "~/lib/storage"
+import { getStoredApiKey, setStoredApiKey, storage, LICENSE_CONFIG, syncSubscriptionFromNative, hasDataConsent, setDataConsent } from "~/lib/storage"
 import { syncUserInfo, openManageSubscriptions, getAppSettings } from "~/lib/appstore"
 
 // --- Lightweight inline markdown renderer (no external deps) ---
@@ -536,12 +536,15 @@ function FloatingPanelContent() {
   const [editingKey, setEditingKey] = useState(false)
   const [largeFont, setLargeFont] = useState(false)
   const [limitReached, setLimitReached] = useState(false)
+  const [consentGiven, setConsentGiven] = useState(true) // default true, updated on init
+  const [showConsentDialog, setShowConsentDialog] = useState(false)
   const [isDark, setIsDark] = useState(() =>
     window.matchMedia("(prefers-color-scheme: dark)").matches
   )
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+  const pendingConsentMsg = useRef<string>("")
 
   // Theme colors derived from isDark state
   const T = getThemeColors(isDark)
@@ -601,6 +604,9 @@ function FloatingPanelContent() {
 
         const storedFont = await storage.get<boolean>("cf_large_font")
         if (storedFont) setLargeFont(true)
+
+        const consent = await hasDataConsent()
+        setConsentGiven(consent)
 
         const supabase = getSupabaseClient()
         const { data: { session: s } } = await supabase.auth.getSession()
@@ -737,10 +743,7 @@ function FloatingPanelContent() {
     }
   }, [isOpen])
 
-  const sendMessage = async (text: string) => {
-    if (!text.trim() || isStreaming) return
-    const userMessage = text.trim()
-    setInput("")
+  const sendMessageDirect = async (userMessage: string) => {
     setError(null)
     setMessages(prev => [...prev, { role: "user", content: userMessage }])
     setIsStreaming(true)
@@ -794,6 +797,29 @@ function FloatingPanelContent() {
       setIsStreaming(false)
       setError(err instanceof Error ? err.message : "Failed to send message")
       setMessages(prev => prev.slice(0, -1))
+    }
+  }
+
+  const sendMessage = async (text: string) => {
+    if (!text.trim() || isStreaming) return
+    if (!consentGiven) {
+      pendingConsentMsg.current = text.trim()
+      setShowConsentDialog(true)
+      return
+    }
+    setInput("")
+    sendMessageDirect(text.trim())
+  }
+
+  const handleAcceptConsent = async () => {
+    setConsentGiven(true)
+    setShowConsentDialog(false)
+    await setDataConsent(true)
+    const pending = pendingConsentMsg.current
+    if (pending) {
+      pendingConsentMsg.current = ""
+      setInput("")
+      sendMessageDirect(pending)
     }
   }
 
@@ -1085,6 +1111,66 @@ function FloatingPanelContent() {
               </div>
             </div>
 
+          </div>
+        )}
+
+        {/* Data Sharing Consent Dialog (App Store 5.1.1/5.1.2) */}
+        {showConsentDialog && (
+          <div style={{
+            position: "absolute" as const, top: 0, left: 0, right: 0, bottom: 0,
+            background: T.bg, zIndex: 10, display: "flex", flexDirection: "column" as const,
+            padding: "24px 20px", overflowY: "auto" as const, boxSizing: "border-box" as const,
+          }}>
+            <div style={{ color: "#7c3aed", marginBottom: "12px" }}><SparklesIcon size={32} /></div>
+            <div style={{ fontSize: "17px", fontWeight: 700, color: T.textPrimary, marginBottom: "8px" }}>
+              Data & Privacy
+            </div>
+            <div style={{ fontSize: "13px", color: T.textSecondary, lineHeight: 1.6, marginBottom: "16px" }}>
+              ContextFlow uses <strong style={{ color: T.textPrimary }}>OpenAI's API</strong> to answer your questions. When you send a message:
+            </div>
+            <div style={{
+              background: isDark ? "#1a1a2e" : "#f9fafb", borderRadius: "10px", padding: "12px 14px",
+              fontSize: "13px", color: T.textPrimary, lineHeight: 1.6, marginBottom: "16px",
+            }}>
+              <div style={{ marginBottom: "6px" }}><strong>What is sent:</strong></div>
+              <div style={{ paddingLeft: "12px", color: T.textSecondary }}>
+                &bull; Page content or selected text<br/>
+                &bull; Your messages in the conversation
+              </div>
+              <div style={{ marginTop: "8px", marginBottom: "6px" }}><strong>Where it goes:</strong></div>
+              <div style={{ paddingLeft: "12px", color: T.textSecondary }}>
+                &bull; Pro plan: our server &rarr; OpenAI<br/>
+                &bull; BYOK plan: directly to OpenAI
+              </div>
+            </div>
+            <div style={{ fontSize: "12px", color: T.textMuted, marginBottom: "20px", lineHeight: 1.5 }}>
+              We do not sell or store your data beyond what is needed to process requests. See our{" "}
+              <a href="https://aisidebar.netlify.app/terms" target="_blank" rel="noopener noreferrer"
+                style={{ color: "#7c3aed", textDecoration: "underline" }}>Terms of Use</a>{" "}and{" "}
+              <a href="https://aisidebar.netlify.app/privacy" target="_blank" rel="noopener noreferrer"
+                style={{ color: "#7c3aed", textDecoration: "underline" }}>Privacy Policy</a>.
+            </div>
+            <div style={{ display: "flex", gap: "10px", marginTop: "auto" }}>
+              <button
+                onClick={() => setShowConsentDialog(false)}
+                style={{
+                  flex: 1, padding: "12px", border: `1px solid ${T.border}`, borderRadius: "12px",
+                  background: T.bg, color: T.textPrimary, fontSize: "14px", fontWeight: 500, cursor: "pointer",
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAcceptConsent}
+                style={{
+                  flex: 1, padding: "12px", border: "none", borderRadius: "12px",
+                  background: "linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)",
+                  color: "white", fontSize: "14px", fontWeight: 600, cursor: "pointer",
+                }}
+              >
+                I Agree
+              </button>
+            </div>
           </div>
         )}
 
