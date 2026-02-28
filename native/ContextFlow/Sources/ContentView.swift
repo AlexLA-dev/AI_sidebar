@@ -247,6 +247,23 @@ struct SubscriptionTab: View {
             if newEmail != userEmail { userEmail = newEmail }
             if newCount != trialUsageCount { trialUsageCount = newCount }
         }
+        .onChange(of: suggestedProductId) { productId in
+            guard let productId, !isPurchasing else { return }
+            // Auto-trigger purchase when deep link sets a suggested product
+            if let product = storeManager.products.first(where: { $0.id == productId }) {
+                handlePurchase(product)
+                suggestedProductId = nil
+            } else {
+                // Products may not be loaded yet — wait and retry
+                Task {
+                    await storeManager.loadProducts()
+                    if let product = storeManager.products.first(where: { $0.id == productId }) {
+                        handlePurchase(product)
+                    }
+                    suggestedProductId = nil
+                }
+            }
+        }
     }
 
     // MARK: – Account Card
@@ -722,6 +739,9 @@ struct SettingsTab: View {
     @State private var showApiKey = false
     @State private var keySaved = false
     @State private var aboutMe: String = SharedDefaults.shared.aboutMe
+    #if os(iOS)
+    @FocusState private var isAboutMeFocused: Bool
+    #endif
 
     let themes = ["system", "light", "dark"]
 
@@ -823,6 +843,17 @@ struct SettingsTab: View {
                         .onChange(of: aboutMe) { newValue in
                             SharedDefaults.shared.aboutMe = newValue
                         }
+                        #if os(iOS)
+                        .focused($isAboutMeFocused)
+                        .toolbar {
+                            ToolbarItemGroup(placement: .keyboard) {
+                                Spacer()
+                                Button("Done") {
+                                    isAboutMeFocused = false
+                                }
+                            }
+                        }
+                        #endif
                 }
                 .padding(14)
                 #if os(iOS)
@@ -839,6 +870,9 @@ struct SettingsTab: View {
             }
             .padding(.horizontal, 20)
         }
+        #if os(iOS)
+        .scrollDismissesKeyboard(.interactively)
+        #endif
         .background(backgroundStyle)
     }
 
