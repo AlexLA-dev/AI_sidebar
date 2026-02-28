@@ -36,7 +36,8 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         case "getSettings":
             let settings: [String: Any] = [
                 "fontSize": SharedDefaults.shared.fontSize,
-                "theme": SharedDefaults.shared.theme
+                "theme": SharedDefaults.shared.theme,
+                "aboutMe": SharedDefaults.shared.aboutMe
             ]
             result = ["success": true, "data": settings]
 
@@ -82,6 +83,12 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             let key = message["apiKey"] as? String
             SharedDefaults.shared.apiKey = key
             logger.info("API key \(key != nil && !key!.isEmpty ? "set" : "cleared")")
+            result = ["success": true, "data": [:] as [String: Any]]
+
+        case "syncAboutMe":
+            let text = message["aboutMe"] as? String ?? ""
+            SharedDefaults.shared.aboutMe = text
+            logger.info("Synced aboutMe (\(text.count) chars)")
             result = ["success": true, "data": [:] as [String: Any]]
 
         case "openApp":

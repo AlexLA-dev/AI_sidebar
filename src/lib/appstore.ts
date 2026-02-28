@@ -37,6 +37,7 @@ export interface AppStoreSubscriptionStatus {
 export interface AppStoreSettings {
   fontSize: number
   theme: string
+  aboutMe?: string
 }
 
 // ── Native bridge ─────────────────────────────────────────────────────────
@@ -173,6 +174,16 @@ export async function getNativeApiKey(): Promise<string> {
  */
 export async function setNativeApiKey(apiKey: string): Promise<void> {
   await sendNativeMessage("setApiKey", { apiKey })
+}
+
+// ── About Me ─────────────────────────────────────────────────────────────
+
+export async function syncAboutMe(aboutMe: string): Promise<void> {
+  try {
+    await sendNativeMessage("syncAboutMe", { aboutMe })
+  } catch {
+    // Non-critical
+  }
 }
 
 // ── Health check ─────────────────────────────────────────────────────────

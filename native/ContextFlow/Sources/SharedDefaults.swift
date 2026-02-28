@@ -65,6 +65,8 @@ final class SharedDefaults {
         static let userId = "cf_user_id"
         // Data sharing consent
         static let dataConsentGiven = "cf_data_consent_given"
+        // About Me (user profile for AI personalization)
+        static let aboutMe = "cf_about_me"
     }
 
     // MARK: – Subscription Status
@@ -207,6 +209,20 @@ final class SharedDefaults {
         get { defaults.bool(forKey: Key.dataConsentGiven) }
         set {
             defaults.set(newValue, forKey: Key.dataConsentGiven)
+            defaults.synchronize()
+        }
+    }
+
+    // MARK: – About Me
+
+    var aboutMe: String {
+        get { defaults.string(forKey: Key.aboutMe) ?? "" }
+        set {
+            if newValue.isEmpty {
+                defaults.removeObject(forKey: Key.aboutMe)
+            } else {
+                defaults.set(newValue, forKey: Key.aboutMe)
+            }
             defaults.synchronize()
         }
     }

@@ -583,6 +583,10 @@ struct SubscriptionTab: View {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                     showSuccess = false
                 }
+                // Request App Store review after successful purchase (3s delay for best UX)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                    requestAppReview()
+                }
             } catch let error as StoreKitError where error == .userCancelled {
                 // User cancelled — no error message
             } catch {
@@ -684,6 +688,20 @@ struct SubscriptionTab: View {
         .transition(.opacity)
     }
 
+    /// Request an App Store review at a moment of value.
+    /// Apple allows up to 3 prompts per year per user; the system
+    /// silently ignores extras.
+    private func requestAppReview() {
+        #if os(iOS)
+        if let scene = UIApplication.shared.connectedScenes
+            .first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
+            SKStoreReviewController.requestReview(in: scene)
+        }
+        #elseif os(macOS)
+        SKStoreReviewController.requestReview()
+        #endif
+    }
+
     @ViewBuilder
     private var backgroundStyle: some View {
         #if os(iOS)
@@ -703,6 +721,7 @@ struct SettingsTab: View {
     @State private var apiKey: String = SharedDefaults.shared.apiKey ?? ""
     @State private var showApiKey = false
     @State private var keySaved = false
+    @State private var aboutMe: String = SharedDefaults.shared.aboutMe
 
     let themes = ["system", "light", "dark"]
 
@@ -773,6 +792,37 @@ struct SettingsTab: View {
                     .onChange(of: selectedTheme) { newValue in
                         SharedDefaults.shared.theme = newValue
                     }
+                }
+                .padding(14)
+                #if os(iOS)
+                .background(Color(.systemBackground))
+                #else
+                .background(Color(nsColor: .controlBackgroundColor))
+                #endif
+                .cornerRadius(12)
+                .shadow(color: .black.opacity(0.04), radius: 4, y: 2)
+
+                // About Me
+                VStack(alignment: .leading, spacing: 8) {
+                    Label("About Me", systemImage: "person.text.rectangle")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+
+                    Text("Tell the AI about yourself — profession, interests, preferred language. This helps personalize answers.")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+
+                    TextEditor(text: $aboutMe)
+                        .frame(minHeight: 80, maxHeight: 150)
+                        .font(.body)
+                        .cornerRadius(8)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
+                        )
+                        .onChange(of: aboutMe) { newValue in
+                            SharedDefaults.shared.aboutMe = newValue
+                        }
                 }
                 .padding(14)
                 #if os(iOS)

@@ -12,7 +12,7 @@ import {
   type TrialInfo
 } from "~/lib/ai"
 import { getStoredApiKey, setStoredApiKey, storage, LICENSE_CONFIG, syncSubscriptionFromNative, hasDataConsent, setDataConsent } from "~/lib/storage"
-import { syncUserInfo, openManageSubscriptions, getAppSettings } from "~/lib/appstore"
+import { syncUserInfo, openManageSubscriptions, getAppSettings, syncAboutMe } from "~/lib/appstore"
 
 // --- Lightweight inline markdown renderer (no external deps) ---
 function renderMarkdown(text: string, themeColors?: { codeBg: string; linkColor: string }): React.ReactNode[] {
@@ -277,6 +277,12 @@ const LogOutIcon = ({ size = 14 }: { size?: number }) => (
   </svg>
 )
 
+const ShareIcon = ({ size = 18 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16,6 12,2 8,6"/><line x1="12" y1="2" x2="12" y2="15"/>
+  </svg>
+)
+
 const NewChatIcon = ({ size = 18 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
@@ -328,6 +334,7 @@ const S = {
     zIndex: 2147483646,
     WebkitAppearance: "none" as const,
     WebkitTapHighlightColor: "transparent",
+    touchAction: "manipulation" as const,
     fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
   },
   fabHidden: { transform: "scale(0)", opacity: 0, pointerEvents: "none" as const },
@@ -400,11 +407,11 @@ const S = {
   // --- Settings ---
   settingsBox: {
     padding: "14px 16px",
-    borderBottom: "1px solid #e5e7eb",
     background: "#f9fafb",
     fontSize: "13px", color: "#374151",
     overflowY: "auto" as const,
-    maxHeight: "260px",
+    flex: 1,
+    boxSizing: "border-box" as const,
   },
   settingsRow: {
     display: "flex", alignItems: "center", justifyContent: "space-between",
@@ -525,6 +532,7 @@ function FloatingPanelContent() {
   const [isLoading, setIsLoading] = useState(true)
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
+  const chatLoadedRef = useRef(false)
   const [isStreaming, setIsStreaming] = useState(false)
   const [pageContext, setPageContext] = useState<string | null>(null)
   const [contextInfo, setContextInfo] = useState<ContextInfo | null>(null)
@@ -535,6 +543,7 @@ function FloatingPanelContent() {
   const [apiKeyInput, setApiKeyInput] = useState("")
   const [editingKey, setEditingKey] = useState(false)
   const [largeFont, setLargeFont] = useState(false)
+  const [aboutMe, setAboutMe] = useState("")
   const [limitReached, setLimitReached] = useState(false)
   const [consentGiven, setConsentGiven] = useState(true) // default true, updated on init
   const [showConsentDialog, setShowConsentDialog] = useState(false)
@@ -548,6 +557,25 @@ function FloatingPanelContent() {
 
   // Theme colors derived from isDark state
   const T = getThemeColors(isDark)
+
+  // Load persisted chat on first mount
+  useEffect(() => {
+    if (chatLoadedRef.current) return
+    chatLoadedRef.current = true
+    storage.get<Message[]>("cf_chat_messages").then((saved) => {
+      if (saved && saved.length > 0) setMessages(saved)
+    })
+  }, [])
+
+  // Persist messages whenever they change
+  useEffect(() => {
+    if (!chatLoadedRef.current) return
+    if (messages.length > 0) {
+      storage.set("cf_chat_messages", messages)
+    } else {
+      storage.remove("cf_chat_messages")
+    }
+  }, [messages])
 
   // Lock/unlock body scroll when panel opens/closes
   useEffect(() => {
@@ -604,6 +632,20 @@ function FloatingPanelContent() {
 
         const storedFont = await storage.get<boolean>("cf_large_font")
         if (storedFont) setLargeFont(true)
+
+        const storedAbout = await storage.get<string>("cf_about_me")
+        if (storedAbout) {
+          setAboutMe(storedAbout)
+        } else {
+          // Try loading from native app settings
+          try {
+            const nativeSettings = await getAppSettings()
+            if (nativeSettings.aboutMe) {
+              setAboutMe(nativeSettings.aboutMe)
+              storage.set("cf_about_me", nativeSettings.aboutMe)
+            }
+          } catch { /* not on Safari */ }
+        }
 
         const consent = await hasDataConsent()
         setConsentGiven(consent)
@@ -720,8 +762,35 @@ function FloatingPanelContent() {
     setContextInfo({ type: "page", title: document.title })
   }, [])
 
+  // Re-fetch context every time the panel opens, and detect SPA navigation / content changes
+  const lastUrlRef = useRef(window.location.href)
   useEffect(() => {
     if (isOpen) fetchContext()
+  }, [isOpen, fetchContext])
+
+  // Poll for URL changes (SPA navigation) and re-fetch context
+  useEffect(() => {
+    if (!isOpen) return
+    const interval = setInterval(() => {
+      const currentUrl = window.location.href
+      if (currentUrl !== lastUrlRef.current) {
+        lastUrlRef.current = currentUrl
+        // Clear cached selection on navigation — it's stale
+        cachedSelectionText = ""
+        cachedRange = null
+        fetchContext()
+      }
+    }, 1000)
+
+    const handleVisibility = () => {
+      if (!document.hidden && isOpen) fetchContext()
+    }
+    document.addEventListener("visibilitychange", handleVisibility)
+
+    return () => {
+      clearInterval(interval)
+      document.removeEventListener("visibilitychange", handleVisibility)
+    }
   }, [isOpen, fetchContext])
 
   useEffect(() => {
@@ -750,10 +819,15 @@ function FloatingPanelContent() {
     let assistantMessage = ""
     setMessages(prev => [...prev, { role: "assistant", content: "" }])
 
+    // Prepend "About me" to page context so AI knows about the user
+    const enrichedContext = aboutMe
+      ? `--- USER PROFILE ---\n${aboutMe}\n--- END USER PROFILE ---\n\n${pageContext || ""}`
+      : pageContext
+
     try {
       await streamChatResponse(
         [...messages, { role: "user", content: userMessage }],
-        pageContext, apiKey,
+        enrichedContext, apiKey,
         {
           onChunk: (chunk) => {
             assistantMessage += chunk
@@ -829,9 +903,11 @@ function FloatingPanelContent() {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend() }
   }
 
+  const APP_STORE_URL = "https://apps.apple.com/cy/app/contextflow-ai-web-assistant/id6759115793"
+
   const handleShare = async (text: string) => {
     const pageUrl = window.location.href
-    const shareText = `${text}\n\n— Source: ${pageUrl}`
+    const shareText = `${text}\n\n— Source: ${pageUrl}\nSummarized by ContextFlow — AI Web Assistant\n${APP_STORE_URL}`
 
     if (navigator.share) {
       try {
@@ -846,6 +922,20 @@ function FloatingPanelContent() {
       } catch {
         // Clipboard API blocked — ignore
       }
+    }
+  }
+
+  const handleShareChat = async () => {
+    if (messages.length === 0) return
+    const pageUrl = window.location.href
+    const chatLines = messages.map(m =>
+      m.role === "user" ? `You: ${m.content}` : `AI: ${m.content}`
+    ).join("\n\n")
+    const shareText = `${chatLines}\n\n— Source: ${pageUrl}\nGenerated by ContextFlow — AI Web Assistant\n${APP_STORE_URL}`
+    if (navigator.share) {
+      try { await navigator.share({ text: shareText }) } catch { /* cancelled */ }
+    } else {
+      try { await navigator.clipboard.writeText(shareText) } catch { /* blocked */ }
     }
   }
 
@@ -882,7 +972,23 @@ function FloatingPanelContent() {
     <>
       {/* FAB */}
       <button
-        onClick={() => { if (!isLoading) { if (!isOpen) captureScrollY(); setIsOpen(!isOpen) } }}
+        onPointerDown={(e) => {
+          // On iOS Safari, native text selection UI can intercept taps on the FAB.
+          // By capturing the pointer and handling on pointerDown, we ensure the
+          // button responds even when overlapping selected text.
+          e.stopPropagation()
+          ;(e.target as HTMLElement).releasePointerCapture?.(e.pointerId)
+        }}
+        onClick={(e) => {
+          e.stopPropagation()
+          e.preventDefault()
+          if (!isLoading) { if (!isOpen) captureScrollY(); setIsOpen(!isOpen) }
+        }}
+        onTouchEnd={(e) => {
+          // Fallback for iOS: if onClick doesn't fire due to selection overlay,
+          // handle it via touchend
+          e.stopPropagation()
+        }}
         style={{ ...S.fab, ...(isOpen ? S.fabHidden : {}), ...(isLoading ? { opacity: 0.7 } : {}) }}
       >
         {isLoading ? (
@@ -936,6 +1042,15 @@ function FloatingPanelContent() {
                 }}
               >
                 Sign In
+              </button>
+            )}
+            {messages.length > 0 && (
+              <button
+                onClick={handleShareChat}
+                title="Share Chat"
+                style={{ ...S.iconBtn, background: T.iconBtnBg, color: T.iconBtnColor }}
+              >
+                <ShareIcon size={16} />
               </button>
             )}
             <button
@@ -1111,6 +1226,32 @@ function FloatingPanelContent() {
               </div>
             </div>
 
+            {/* About Me */}
+            <div style={{ marginTop: "14px" }}>
+              <div style={{ ...S.settingsLabel, color: T.textSecondary, marginBottom: "4px" }}>About Me</div>
+              <textarea
+                value={aboutMe}
+                onChange={(e) => {
+                  setAboutMe(e.target.value)
+                  storage.set("cf_about_me", e.target.value)
+                  syncAboutMe(e.target.value)
+                }}
+                placeholder="Tell the AI about yourself (profession, interests, preferred language)..."
+                style={{
+                  width: "100%", padding: "8px 10px",
+                  border: `1px solid ${T.inputBorder}`, borderRadius: "8px",
+                  fontSize: "13px", fontFamily: "inherit",
+                  resize: "vertical" as const, outline: "none",
+                  minHeight: "60px", maxHeight: "120px",
+                  boxSizing: "border-box" as const,
+                  background: T.inputBg, color: T.textPrimary,
+                }}
+              />
+              <div style={{ fontSize: "11px", color: T.textMuted, marginTop: "2px" }}>
+                AI will use this info to personalize answers.
+              </div>
+            </div>
+
           </div>
         )}
 
@@ -1174,8 +1315,8 @@ function FloatingPanelContent() {
           </div>
         )}
 
-        {/* Content */}
-        <div style={S.content}>
+        {/* Content — hidden when settings are open */}
+        <div style={{ ...S.content, ...(showSettings && session ? { display: "none" } : {}) }}>
           <div style={S.messages}>
             {messages.length === 0 ? (
               <div style={{ ...S.empty, color: T.textMuted }}>
@@ -1338,9 +1479,18 @@ function initFloatingPanel() {
       appearance: none;
       text-align: center;
       outline: none;
+      position: relative;
+      z-index: 1;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #contextflow-floating-panel input,
+    #contextflow-floating-panel textarea {
+      touch-action: manipulation;
     }
     #contextflow-floating-panel svg {
       vertical-align: middle;
+      pointer-events: none;
     }
     #contextflow-floating-panel strong { font-weight: 700 !important; }
     #contextflow-floating-panel em { font-style: italic !important; }
@@ -1348,6 +1498,10 @@ function initFloatingPanel() {
     #contextflow-floating-panel ul { list-style-type: disc !important; padding-left: 20px; }
     #contextflow-floating-panel li { display: list-item !important; }
     #contextflow-floating-panel code { font-family: monospace !important; }
+    #contextflow-floating-panel > button:first-child {
+      -webkit-user-select: none !important;
+      user-select: none !important;
+    }
     @keyframes cfSpin { to { transform: rotate(360deg); } }
   `
   document.head.appendChild(style)
