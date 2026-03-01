@@ -802,8 +802,19 @@ function FloatingPanelContent() {
       }
     }, 1000)
 
-    const handleVisibility = () => {
-      if (!document.hidden && isOpen) fetchContext()
+    const handleVisibility = async () => {
+      if (!document.hidden && isOpen) {
+        fetchContext()
+        // Re-sync subscription status when returning from the native app
+        // (user may have just completed a purchase in the ContextFlow app)
+        try {
+          const nativeInfo = await syncSubscriptionFromNative()
+          if (nativeInfo.nativeConfirmed && nativeInfo.hasLicense) {
+            setTrialInfo(nativeInfo)
+            setLimitReached(false)
+          }
+        } catch { /* Not on Safari or bridge unavailable */ }
+      }
     }
     document.addEventListener("visibilitychange", handleVisibility)
 
@@ -960,8 +971,17 @@ function FloatingPanelContent() {
   }
 
   const handleUpgrade = () => {
-    // Open the sidepanel page with paywall — StoreKit purchases require the native WKWebView context
-    chrome.runtime.sendMessage({ action: "openPaywall" })
+    // Open the native ContextFlow app directly for App Store purchase.
+    // 1. Set pending plan via native bridge so the app knows to show Subscription tab
+    chrome.runtime.sendMessage({ action: "native", command: "setPendingSubscribe", plan: "" }, () => {})
+    // 2. Open the app via custom URL scheme using a link click
+    //    (safer than window.location.href in content script — doesn't navigate host page)
+    const a = document.createElement("a")
+    a.href = "contextflow://subscribe"
+    a.style.display = "none"
+    document.body.appendChild(a)
+    a.click()
+    setTimeout(() => a.remove(), 100)
   }
 
   const openAuth = () => chrome.runtime.sendMessage({ action: "openAuth" })

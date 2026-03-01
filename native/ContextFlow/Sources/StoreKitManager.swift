@@ -246,7 +246,7 @@ final class StoreKitManager: ObservableObject {
 // MARK: – Types
 // NOTE: SubscriptionInfo is defined in SharedDefaults.swift (shared between App and Extension targets)
 
-enum StoreKitError: LocalizedError {
+enum StoreKitError: LocalizedError, Equatable {
     case userCancelled
     case purchasePending
     case productNotFound

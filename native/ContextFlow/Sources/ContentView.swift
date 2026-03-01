@@ -270,6 +270,8 @@ struct SubscriptionTab: View {
         .onAppear {
             userEmail = SharedDefaults.shared.userEmail
             trialUsageCount = SharedDefaults.shared.trialUsageCount
+            // Refresh subscription status on appear — catches pending purchases that resolved
+            Task { await storeManager.refreshSubscriptionStatus() }
         }
         .onReceive(refreshTimer) { _ in
             let newEmail = SharedDefaults.shared.userEmail
@@ -277,6 +279,12 @@ struct SubscriptionTab: View {
             if newEmail != userEmail { userEmail = newEmail }
             if newCount != trialUsageCount { trialUsageCount = newCount }
         }
+        #if os(iOS)
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+            // Refresh status when returning from Settings or App Store (e.g. Sandbox approval)
+            Task { await storeManager.refreshSubscriptionStatus() }
+        }
+        #endif
         .onChange(of: suggestedProductId) { productId in
             guard let productId, !isPurchasing else { return }
             // Auto-trigger purchase when deep link sets a suggested product
@@ -636,6 +644,10 @@ struct SubscriptionTab: View {
                 }
             } catch let error as StoreKitError where error == .userCancelled {
                 // User cancelled — no error message
+            } catch let error as StoreKitError where error == .purchasePending {
+                // Sandbox and Ask to Buy — purchase needs external approval
+                errorMessage = "Purchase is pending approval. Complete it in Settings → App Store, then return here."
+                // Refresh status when approved (the transaction listener will pick it up)
             } catch {
                 errorMessage = error.localizedDescription
             }
