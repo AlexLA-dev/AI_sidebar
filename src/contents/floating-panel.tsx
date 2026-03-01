@@ -550,10 +550,12 @@ function FloatingPanelContent() {
   const [isDark, setIsDark] = useState(() =>
     window.matchMedia("(prefers-color-scheme: dark)").matches
   )
+  const [keyboardHeight, setKeyboardHeight] = useState(0)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const pendingConsentMsg = useRef<string>("")
+  const settingsBoxRef = useRef<HTMLDivElement>(null)
 
   // Theme colors derived from isDark state
   const T = getThemeColors(isDark)
@@ -583,6 +585,24 @@ function FloatingPanelContent() {
     else unlockBodyScroll()
     return () => unlockBodyScroll()
   }, [isOpen])
+
+  // Detect iOS keyboard via visualViewport and adjust panel position
+  useEffect(() => {
+    const vv = window.visualViewport
+    if (!vv) return
+    const onResize = () => {
+      // On iOS, when keyboard opens, visualViewport.height shrinks
+      const kbH = Math.max(0, window.innerHeight - vv.height - vv.offsetTop)
+      // Only treat as keyboard if offset is significant (> 100px rules out address bar changes)
+      setKeyboardHeight(kbH > 100 ? kbH : 0)
+    }
+    vv.addEventListener("resize", onResize)
+    vv.addEventListener("scroll", onResize)
+    return () => {
+      vv.removeEventListener("resize", onResize)
+      vv.removeEventListener("scroll", onResize)
+    }
+  }, [])
 
   // Detect theme from native settings or system preference
   useEffect(() => {
@@ -1012,7 +1032,17 @@ function FloatingPanelContent() {
       )}
 
       {/* Panel */}
-      <div style={{ ...S.panel, ...(isOpen ? S.panelOpen : {}), background: T.bg, boxShadow: T.panelShadow }}>
+      <div style={{
+        ...S.panel,
+        ...(isOpen ? S.panelOpen : {}),
+        background: T.bg,
+        boxShadow: T.panelShadow,
+        ...(keyboardHeight > 0 ? {
+          bottom: keyboardHeight,
+          maxHeight: `calc(${window.visualViewport?.height || window.innerHeight}px - 20px)`,
+          transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), bottom 0.1s ease-out, max-height 0.1s ease-out",
+        } : {}),
+      }}>
         {/* Header */}
         <div style={{ ...S.header, borderBottomColor: T.border }}>
           <div style={S.headerLeft}>
@@ -1081,7 +1111,7 @@ function FloatingPanelContent() {
 
         {/* Settings panel (collapsible) */}
         {showSettings && session && (
-          <div style={{ ...S.settingsBox, background: T.settingsBg, borderBottomColor: T.border, color: T.textPrimary }}>
+          <div ref={settingsBoxRef} style={{ ...S.settingsBox, background: T.settingsBg, borderBottomColor: T.border, color: T.textPrimary }}>
             {/* Email + Sign out */}
             <div style={S.settingsRow}>
               <div>
@@ -1235,6 +1265,17 @@ function FloatingPanelContent() {
                   setAboutMe(e.target.value)
                   storage.set("cf_about_me", e.target.value)
                   syncAboutMe(e.target.value)
+                }}
+                onFocus={(e) => {
+                  // On iOS, wait for keyboard to appear then scroll the textarea into view
+                  const el = e.target as HTMLElement
+                  setTimeout(() => {
+                    el.scrollIntoView({ behavior: "smooth", block: "center" })
+                    // Also scroll settings container to show the field
+                    if (settingsBoxRef.current) {
+                      settingsBoxRef.current.scrollTop = settingsBoxRef.current.scrollHeight
+                    }
+                  }, 350)
                 }}
                 placeholder="Tell the AI about yourself (profession, interests, preferred language)..."
                 style={{
