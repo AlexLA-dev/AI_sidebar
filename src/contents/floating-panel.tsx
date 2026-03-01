@@ -649,10 +649,14 @@ function FloatingPanelContent() {
   )
   const [keyboardHeight, setKeyboardHeight] = useState(0)
 
+  const sessionRef = useRef<Session | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const pendingConsentMsg = useRef<string>("")
   const settingsBoxRef = useRef<HTMLDivElement>(null)
+
+  // Keep ref in sync so visibility handler avoids stale closure
+  useEffect(() => { sessionRef.current = session }, [session])
 
   // Theme colors derived from isDark state
   const T = getThemeColors(isDark)
@@ -770,12 +774,14 @@ function FloatingPanelContent() {
         const supabase = getSupabaseClient()
         const { data: { session: s } } = await supabase.auth.getSession()
 
-        // Check if the native app requested a logout (e.g. user tapped Logout in the app)
-        if (s) {
-          try {
-            const shouldLogout = await getPendingLogout()
-            if (shouldLogout) {
-              await clearPendingLogout()
+        // Check if the native app requested a logout (e.g. user tapped Logout in the app).
+        // Always check & clear the flag — even without a session — to prevent a stale
+        // flag from immediately signing out a user who signs in later.
+        try {
+          const shouldLogout = await getPendingLogout()
+          if (shouldLogout) {
+            await clearPendingLogout()
+            if (s) {
               await supabase.auth.signOut()
               setSession(null)
               syncUserInfo(null)
@@ -784,8 +790,8 @@ function FloatingPanelContent() {
               setIsLoading(false)
               return
             }
-          } catch { /* Not on Safari or bridge unavailable */ }
-        }
+          }
+        } catch { /* Not on Safari or bridge unavailable */ }
 
         setSession(s)
 
@@ -920,21 +926,41 @@ function FloatingPanelContent() {
     const handleVisibility = async () => {
       if (!document.hidden && isOpen) {
         fetchContext()
-        // Check if the native app requested a logout
+
+        // Re-read the Supabase session — it may have been created by sidepanel.html
+        // (another extension context). chrome.storage.local is shared but
+        // onAuthStateChange doesn't fire across contexts automatically.
         try {
-          const shouldLogout = await getPendingLogout()
-          if (shouldLogout) {
-            await clearPendingLogout()
-            const supabase = getSupabaseClient()
-            await supabase.auth.signOut()
-            setSession(null)
-            setShowSettings(false)
-            syncUserInfo(null)
-            const anonInfo = await getAnonymousTrialInfo()
-            setTrialInfo(anonInfo)
-            return
+          const supabase = getSupabaseClient()
+          const { data: { session: freshSession } } = await supabase.auth.getSession()
+
+          // Check if the native app requested a logout (only when signed in)
+          if (freshSession) {
+            try {
+              const shouldLogout = await getPendingLogout()
+              if (shouldLogout) {
+                await clearPendingLogout()
+                await supabase.auth.signOut()
+                setSession(null)
+                setShowSettings(false)
+                syncUserInfo(null)
+                const anonInfo = await getAnonymousTrialInfo()
+                setTrialInfo(anonInfo)
+                return
+              }
+            } catch { /* Not on Safari or bridge unavailable */ }
           }
-        } catch { /* Not on Safari or bridge unavailable */ }
+
+          // If session state changed (signed in from another context, or token refreshed)
+          if (freshSession && !sessionRef.current) {
+            setSession(freshSession)
+            const info = await syncSubscriptionFromServer()
+            setTrialInfo(info)
+            setLimitReached(false)
+            if (freshSession.user?.email) syncUserInfo(freshSession.user.email, freshSession.user.id)
+          }
+        } catch { /* Supabase not configured */ }
+
         // Re-sync subscription status when returning from the native app
         // (user may have just completed a purchase in the ContextFlow app)
         try {
