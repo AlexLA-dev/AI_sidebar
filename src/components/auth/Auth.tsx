@@ -78,10 +78,14 @@ export function Auth({ onAuthSuccess }: AuthProps) {
       const supabase = getSupabaseClient()
 
       if (mode === "signup") {
-        const { error: signUpError } = await supabase.auth.signUp({
+        const signUpOptions: { email: string; password: string; options?: { emailRedirectTo?: string } } = {
           email: email.trim(),
           password
-        })
+        }
+        if (SITE_URL) {
+          signUpOptions.options = { emailRedirectTo: `${SITE_URL}/email-confirmed` }
+        }
+        const { error: signUpError } = await supabase.auth.signUp(signUpOptions)
 
         if (signUpError) {
           throw signUpError

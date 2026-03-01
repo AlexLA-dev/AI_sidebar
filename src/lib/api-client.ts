@@ -84,9 +84,11 @@ export async function signUpWithEmail(
   password: string
 ): Promise<User> {
   const supabase = getSupabaseClient()
+  const siteUrl = process.env.PLASMO_PUBLIC_SITE_URL || ""
   const { data, error } = await supabase.auth.signUp({
     email,
-    password
+    password,
+    ...(siteUrl ? { options: { emailRedirectTo: `${siteUrl}/email-confirmed` } } : {})
   })
 
   if (error) {
