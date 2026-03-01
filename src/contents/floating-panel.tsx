@@ -12,7 +12,7 @@ import {
   type TrialInfo
 } from "~/lib/ai"
 import { getStoredApiKey, setStoredApiKey, storage, LICENSE_CONFIG, syncSubscriptionFromNative, hasDataConsent, setDataConsent } from "~/lib/storage"
-import { syncUserInfo, openManageSubscriptions, getAppSettings, syncAboutMe } from "~/lib/appstore"
+import { syncUserInfo, openManageSubscriptions, getAppSettings, syncAboutMe, getPendingLogout, clearPendingLogout } from "~/lib/appstore"
 
 // --- Lightweight inline markdown renderer (no external deps) ---
 function renderMarkdown(text: string, themeColors?: { codeBg: string; linkColor: string }): React.ReactNode[] {
@@ -306,13 +306,11 @@ function captureScrollY() {
 
 function lockBodyScroll() {
   scrollLocked = true
-  // position:fixed + top keeps the page visually in the same place
-  document.body.style.position = "fixed"
-  document.body.style.top = `-${savedScrollY}px`
-  document.body.style.left = "0"
-  document.body.style.right = "0"
-  document.body.style.width = "100%"
+  // Do NOT use position:fixed + top on <body> — it causes iOS Safari to
+  // offset touch coordinates for position:fixed children (our panel buttons).
+  // Instead, use overflow:hidden + touchmove prevention + scroll enforcement.
   document.documentElement.style.overflow = "hidden"
+  document.body.style.overflow = "hidden"
   // Block touch-based scrolling on the page behind the panel
   document.addEventListener("touchmove", preventTouchScroll, { passive: false })
   // Fallback: if anything still triggers a scroll, snap back immediately
@@ -321,12 +319,8 @@ function lockBodyScroll() {
 
 function unlockBodyScroll() {
   scrollLocked = false
-  document.body.style.position = ""
-  document.body.style.top = ""
-  document.body.style.left = ""
-  document.body.style.right = ""
-  document.body.style.width = ""
   document.documentElement.style.overflow = ""
+  document.body.style.overflow = ""
   document.removeEventListener("touchmove", preventTouchScroll)
   window.removeEventListener("scroll", enforceScrollPosition)
   // Restore the original scroll position
@@ -775,6 +769,24 @@ function FloatingPanelContent() {
 
         const supabase = getSupabaseClient()
         const { data: { session: s } } = await supabase.auth.getSession()
+
+        // Check if the native app requested a logout (e.g. user tapped Logout in the app)
+        if (s) {
+          try {
+            const shouldLogout = await getPendingLogout()
+            if (shouldLogout) {
+              await clearPendingLogout()
+              await supabase.auth.signOut()
+              setSession(null)
+              syncUserInfo(null)
+              const anonInfo = await getAnonymousTrialInfo()
+              setTrialInfo(anonInfo)
+              setIsLoading(false)
+              return
+            }
+          } catch { /* Not on Safari or bridge unavailable */ }
+        }
+
         setSession(s)
 
         if (s) {
@@ -908,6 +920,21 @@ function FloatingPanelContent() {
     const handleVisibility = async () => {
       if (!document.hidden && isOpen) {
         fetchContext()
+        // Check if the native app requested a logout
+        try {
+          const shouldLogout = await getPendingLogout()
+          if (shouldLogout) {
+            await clearPendingLogout()
+            const supabase = getSupabaseClient()
+            await supabase.auth.signOut()
+            setSession(null)
+            setShowSettings(false)
+            syncUserInfo(null)
+            const anonInfo = await getAnonymousTrialInfo()
+            setTrialInfo(anonInfo)
+            return
+          }
+        } catch { /* Not on Safari or bridge unavailable */ }
         // Re-sync subscription status when returning from the native app
         // (user may have just completed a purchase in the ContextFlow app)
         try {
@@ -1198,7 +1225,6 @@ function FloatingPanelContent() {
         <div style={{ ...S.header, borderBottomColor: T.border }}>
           <div style={S.headerLeft}>
             <span style={S.logo}><SparklesIcon size={20} /></span>
-            <span style={{ ...S.title, color: T.textPrimary }}>ContextFlow</span>
             {contextInfo && (
               contextInfo.type === "selection" ? (
                 <button

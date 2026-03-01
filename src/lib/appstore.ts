@@ -198,6 +198,32 @@ export async function syncAboutMe(aboutMe: string): Promise<void> {
   }
 }
 
+// ── Logout sync (app → extension) ────────────────────────────────────────
+
+/**
+ * Check if the native app set a pending logout flag.
+ * The extension should sign out from Supabase and clear the flag.
+ */
+export async function getPendingLogout(): Promise<boolean> {
+  try {
+    const result = await sendNativeMessage<{ pendingLogout: boolean }>("getPendingLogout")
+    return result.pendingLogout === true
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Clear the pending logout flag after signing out from Supabase.
+ */
+export async function clearPendingLogout(): Promise<void> {
+  try {
+    await sendNativeMessage("clearPendingLogout")
+  } catch {
+    // Non-critical
+  }
+}
+
 // ── Health check ─────────────────────────────────────────────────────────
 
 /**

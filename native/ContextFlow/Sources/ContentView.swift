@@ -325,13 +325,44 @@ struct SubscriptionTab: View {
                         Text("Not signed in")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
-                        Text("Sign in through the Safari extension")
+                        Text("Open Safari and tap the extension icon")
                             .font(.caption2)
                             .foregroundColor(.secondary)
                     }
                 }
 
                 Spacer()
+
+                if userEmail == nil {
+                    Button(action: {
+                        #if os(iOS)
+                        if let safariURL = URL(string: "x-web-search://") {
+                            UIApplication.shared.open(safariURL, options: [:]) { success in
+                                if !success {
+                                    if let fallback = URL(string: "https://www.apple.com") {
+                                        UIApplication.shared.open(fallback)
+                                    }
+                                }
+                            }
+                        }
+                        #else
+                        SFSafariApplication.showPreferencesForExtension(
+                            withIdentifier: Bundle.main.bundleIdentifier.map {
+                                $0 + ".Extension"
+                            } ?? ""
+                        )
+                        #endif
+                    }) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "arrow.right.circle")
+                                .font(.caption)
+                            Text("Sign In")
+                                .font(.caption)
+                        }
+                        .foregroundColor(.purple)
+                    }
+                    .buttonStyle(.plain)
+                }
 
                 if userEmail != nil {
                     Button(action: handleLogout) {
@@ -669,6 +700,8 @@ struct SubscriptionTab: View {
     }
 
     private func handleLogout() {
+        // Signal the extension to sign out from Supabase
+        SharedDefaults.shared.pendingLogout = true
         SharedDefaults.shared.userEmail = nil
         SharedDefaults.shared.apiKey = nil
         SharedDefaults.shared.trialUsageCount = 0

@@ -249,6 +249,19 @@ final class SharedDefaults {
         }
     }
 
+    // MARK: – Pending Logout (app → extension communication)
+
+    /// Set by the native app when the user taps "Logout".
+    /// The extension reads this flag and signs out from Supabase,
+    /// then clears the flag via the native handler.
+    var pendingLogout: Bool {
+        get { defaults.bool(forKey: "cf_pending_logout") }
+        set {
+            defaults.set(newValue, forKey: "cf_pending_logout")
+            defaults.synchronize()
+        }
+    }
+
     // MARK: – User ID (Supabase)
 
     var userId: String? {

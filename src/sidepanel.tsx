@@ -408,11 +408,8 @@ function SidePanel() {
 
       {/* Header */}
       <header className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-800">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center">
           <Sparkles className="h-5 w-5 text-purple-600" />
-          <h1 className="text-base font-semibold text-gray-900 dark:text-white">
-            ContextFlow
-          </h1>
         </div>
         <div className="flex items-center gap-1">
           <button

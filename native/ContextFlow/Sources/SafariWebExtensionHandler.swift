@@ -102,6 +102,16 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             // Return a signal that JS should open the app via URL scheme
             result = ["success": true, "data": ["action": "openApp", "urlScheme": "contextflow://subscribe"]]
 
+        case "getPendingLogout":
+            // Extension checks if the native app requested a logout
+            let pending = SharedDefaults.shared.pendingLogout
+            result = ["success": true, "data": ["pendingLogout": pending]]
+
+        case "clearPendingLogout":
+            // Extension clears the flag after signing out from Supabase
+            SharedDefaults.shared.pendingLogout = false
+            result = ["success": true, "data": [:] as [String: Any]]
+
         case "ping":
             // Health check — extension can verify native messaging works
             result = ["success": true, "data": ["pong": true, "version": "1.0"]]
