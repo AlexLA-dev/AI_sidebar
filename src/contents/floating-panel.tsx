@@ -120,6 +120,90 @@ function renderMarkdown(text: string, themeColors?: { codeBg: string; linkColor:
   return result
 }
 
+// --- Convert markdown text to HTML string for rich-text sharing ---
+function markdownToHtml(text: string): string {
+  const lines = text.split("\n")
+  const htmlParts: string[] = []
+  let listBuffer: { ordered: boolean; items: string[] } | null = null
+
+  function escapeHtml(s: string): string {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+  }
+
+  function inlineToHtml(s: string): string {
+    let result = escapeHtml(s)
+    // Bold **text**
+    result = result.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>")
+    // Italic *text*
+    result = result.replace(/\*(.+?)\*/g, "<i>$1</i>")
+    // Code `text`
+    result = result.replace(/`(.+?)`/g, '<code style="background:#e5e7eb;border-radius:3px;padding:1px 4px;font-family:monospace;font-size:0.9em">$1</code>')
+    // Links [text](url)
+    result = result.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" style="color:#7c3aed;text-decoration:underline">$1</a>')
+    return result
+  }
+
+  function flushList() {
+    if (!listBuffer) return
+    const tag = listBuffer.ordered ? "ol" : "ul"
+    const items = listBuffer.items.map(item => `<li>${inlineToHtml(item)}</li>`).join("")
+    htmlParts.push(`<${tag} style="margin:4px 0;padding-left:20px">${items}</${tag}>`)
+    listBuffer = null
+  }
+
+  for (const line of lines) {
+    const olMatch = line.match(/^\s*(\d+)\.\s+(.+)/)
+    const ulMatch = !olMatch && line.match(/^\s*[-*]\s+(.+)/)
+
+    if (olMatch) {
+      if (listBuffer && !listBuffer.ordered) flushList()
+      if (!listBuffer) listBuffer = { ordered: true, items: [] }
+      listBuffer.items.push(olMatch[2])
+    } else if (ulMatch) {
+      if (listBuffer && listBuffer.ordered) flushList()
+      if (!listBuffer) listBuffer = { ordered: false, items: [] }
+      listBuffer.items.push(ulMatch[1])
+    } else {
+      flushList()
+      const headingMatch = line.match(/^(#{1,3})\s+(.+)/)
+      if (headingMatch) {
+        const level = headingMatch[1].length
+        const tag = `h${level + 1}` as "h2" | "h3" | "h4"
+        htmlParts.push(`<${tag} style="margin:6px 0">${inlineToHtml(headingMatch[2])}</${tag}>`)
+      } else if (line.trim() === "") {
+        htmlParts.push("<br>")
+      } else {
+        htmlParts.push(`<p style="margin:2px 0">${inlineToHtml(line)}</p>`)
+      }
+    }
+  }
+  flushList()
+  return htmlParts.join("")
+}
+
+// --- Write rich text (HTML + plain text) to clipboard ---
+async function copyRichText(html: string, plainText: string): Promise<boolean> {
+  try {
+    const htmlBlob = new Blob([html], { type: "text/html" })
+    const textBlob = new Blob([plainText], { type: "text/plain" })
+    await navigator.clipboard.write([
+      new ClipboardItem({
+        "text/html": htmlBlob,
+        "text/plain": textBlob,
+      })
+    ])
+    return true
+  } catch {
+    // Fallback: plain text clipboard
+    try {
+      await navigator.clipboard.writeText(plainText)
+      return true
+    } catch {
+      return false
+    }
+  }
+}
+
 export const config: PlasmoCSConfig = {
   matches: ["http://*/*", "https://*/*"],
   exclude_matches: [
@@ -366,24 +450,25 @@ const S = {
   panelOpen: { transform: "translateY(0)" },
   header: {
     display: "flex", alignItems: "center", justifyContent: "space-between",
-    padding: "12px 16px",
+    padding: "12px 16px", gap: "8px",
     borderBottom: "1px solid #e5e7eb",
     flexShrink: 0, boxSizing: "border-box" as const,
     width: "100%",
   },
   headerLeft: {
     display: "flex", alignItems: "center", gap: "10px",
-    minWidth: 0, flex: 1,
+    minWidth: 0, flex: 1, overflow: "hidden" as const,
   },
   headerRight: {
     display: "flex", alignItems: "center", gap: "4px",
-    flexShrink: 0, marginLeft: "auto",
+    flexShrink: 0,
   },
   logo: { color: "#7c3aed", flexShrink: 0 },
   title: { fontWeight: 600, fontSize: "16px", color: "#1f2937", flexShrink: 0 },
   badge: {
     fontSize: "14px", padding: "2px 10px", borderRadius: "12px",
-    fontWeight: 500, whiteSpace: "nowrap" as const, flexShrink: 0, marginLeft: "6px",
+    fontWeight: 500, whiteSpace: "nowrap" as const, marginLeft: "6px",
+    flexShrink: 1, overflow: "hidden" as const,
   },
   badgeSel: { background: "#dbeafe", color: "#1d4ed8" },
   badgePage: { background: "#f3e8ff", color: "#7c3aed" },
@@ -938,35 +1023,42 @@ function FloatingPanelContent() {
 
   const handleShare = async (text: string) => {
     const pageUrl = window.location.href
-    const shareText = `${text}\n\n— Source: ${pageUrl}\nSummarized by ContextFlow — AI Web Assistant\n${APP_STORE_URL}`
+    // Plain text version (for share sheet / fallback)
+    const plainText = `${text}\n\n— Source: ${pageUrl}\nSummarized by ContextFlow — AI Web Assistant\n${APP_STORE_URL}`
+    // Rich HTML version (for clipboard)
+    const htmlContent = `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px;line-height:1.6">${markdownToHtml(text)}<br><p style="color:#6b7280;font-size:13px;margin-top:12px">— <a href="${pageUrl}" style="color:#7c3aed;text-decoration:underline">Source</a><br><a href="${APP_STORE_URL}" style="color:#7c3aed;text-decoration:underline">Summarized by ContextFlow — AI Web Assistant</a></p></div>`
 
     if (navigator.share) {
       try {
-        await navigator.share({ text: shareText })
+        await navigator.share({ text: plainText, url: pageUrl })
       } catch {
         // User cancelled share sheet — ignore
       }
     } else {
-      // Fallback: copy to clipboard
-      try {
-        await navigator.clipboard.writeText(shareText)
-      } catch {
-        // Clipboard API blocked — ignore
-      }
+      await copyRichText(htmlContent, plainText)
     }
   }
 
   const handleShareChat = async () => {
     if (messages.length === 0) return
     const pageUrl = window.location.href
+    // Plain text version
     const chatLines = messages.map(m =>
       m.role === "user" ? `You: ${m.content}` : `AI: ${m.content}`
     ).join("\n\n")
-    const shareText = `${chatLines}\n\n— Source: ${pageUrl}\nGenerated by ContextFlow — AI Web Assistant\n${APP_STORE_URL}`
+    const plainText = `${chatLines}\n\n— Source: ${pageUrl}\nGenerated by ContextFlow — AI Web Assistant\n${APP_STORE_URL}`
+    // Rich HTML version
+    const chatHtml = messages.map(m =>
+      m.role === "user"
+        ? `<p style="margin:8px 0"><b>You:</b> ${markdownToHtml(m.content)}</p>`
+        : `<div style="margin:8px 0"><b>AI:</b><br>${markdownToHtml(m.content)}</div>`
+    ).join("")
+    const htmlContent = `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px;line-height:1.6">${chatHtml}<br><p style="color:#6b7280;font-size:13px;margin-top:12px">— <a href="${pageUrl}" style="color:#7c3aed;text-decoration:underline">Source</a><br><a href="${APP_STORE_URL}" style="color:#7c3aed;text-decoration:underline">Generated by ContextFlow — AI Web Assistant</a></p></div>`
+
     if (navigator.share) {
-      try { await navigator.share({ text: shareText }) } catch { /* cancelled */ }
+      try { await navigator.share({ text: plainText, url: pageUrl }) } catch { /* cancelled */ }
     } else {
-      try { await navigator.clipboard.writeText(shareText) } catch { /* blocked */ }
+      await copyRichText(htmlContent, plainText)
     }
   }
 
@@ -1072,9 +1164,10 @@ function FloatingPanelContent() {
               contextInfo.type === "selection" ? (
                 <button
                   onClick={clearSelection}
-                  style={{ ...S.badge, ...S.badgeSel, border: "none", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: "4px" }}
+                  style={{ ...S.badge, ...S.badgeSel, border: "none", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: "4px", minWidth: "24px" }}
                 >
-                  Selection <span style={{ fontSize: "14px", lineHeight: 1 }}>&times;</span>
+                  <span style={{ overflow: "hidden", textOverflow: "ellipsis" as const }}>Selection</span>
+                  <span style={{ flexShrink: 0, fontSize: "14px", lineHeight: 1 }}>&times;</span>
                 </button>
               ) : (
                 <span style={{ ...S.badge, ...S.badgePage }}>Page</span>

@@ -152,12 +152,20 @@ final class StoreKitManager: ObservableObject {
 
         let status = await querySubscriptionStatus()
 
-        // Don't overwrite an active status with inactive if products failed to load.
-        // This prevents a race condition in Sandbox where the status query returns
-        // false momentarily after a successful purchase.
-        if !status.isSubscribed && currentStatus.isSubscribed && products.isEmpty {
-            logger.warning("Skipping status downgrade — products not loaded")
-            return
+        // Guard against overwriting a recently-written active status.
+        // In Sandbox, subscription.status can lag behind an actual purchase,
+        // and a background refresh can race with the immediate write in purchase().
+        if !status.isSubscribed && currentStatus.isSubscribed {
+            if products.isEmpty {
+                logger.warning("Skipping status downgrade — products not loaded")
+                return
+            }
+            let lastUpdated = SharedDefaults.shared.lastUpdatedTimestamp
+            let elapsed = Date().timeIntervalSince1970 - lastUpdated
+            if elapsed < 120 {
+                logger.warning("Skipping status downgrade — last update was \(Int(elapsed))s ago (< 120s)")
+                return
+            }
         }
 
         currentStatus = status
@@ -176,7 +184,29 @@ final class StoreKitManager: ObservableObject {
     }
 
     /// Query StoreKit for current subscription status.
+    /// Uses Transaction.currentEntitlements as the primary check (reliable in both
+    /// Production and Sandbox), then falls back to subscription.status.
     private func querySubscriptionStatus() async -> SubscriptionInfo {
+        // Primary: check Transaction.currentEntitlements — Apple's recommended approach.
+        // This is more reliable than subscription.status, especially in Sandbox where
+        // subscription.status can return empty or stale results.
+        let productIDs = Set(ProductID.allCases.map(\.rawValue))
+        for await result in Transaction.currentEntitlements {
+            if let transaction = try? checkVerified(result) {
+                if productIDs.contains(transaction.productID) &&
+                   transaction.productType == .autoRenewable {
+                    logger.info("Active entitlement found via currentEntitlements: \(transaction.productID)")
+                    return SubscriptionInfo(
+                        isSubscribed: true,
+                        productId: transaction.productID,
+                        expirationDate: transaction.expirationDate,
+                        willAutoRenew: true
+                    )
+                }
+            }
+        }
+
+        // Fallback: check subscription.status on each product
         for product in products {
             guard let subscription = product.subscription else { continue }
 

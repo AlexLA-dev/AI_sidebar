@@ -130,6 +130,11 @@ final class SharedDefaults {
         return result
     }
 
+    /// Raw timestamp of last subscription status update (for race-condition guards).
+    var lastUpdatedTimestamp: Double {
+        defaults.double(forKey: Key.lastUpdated)
+    }
+
     /// Clear subscription (e.g. on expiration or revocation).
     func clearSubscription() {
         defaults.set(false, forKey: Key.isSubscribed)
