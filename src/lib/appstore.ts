@@ -104,14 +104,26 @@ export function openManageSubscriptions(): void {
 
 /**
  * Open the ContextFlow native app for subscription purchase.
- * Uses a custom URL scheme registered by the app.
- * @param plan - Optional plan hint: "byok" or "pro". Passed as ?plan= query param.
+ * First writes the desired plan to SharedDefaults via the native bridge
+ * (reliable cross-process communication), then opens the app via URL scheme.
+ * The app checks SharedDefaults on appear and auto-starts the purchase flow.
+ * @param plan - Optional plan hint: "byok" or "pro".
  */
-export function openAppForSubscription(plan?: string): void {
+export async function openAppForSubscription(plan?: string): Promise<void> {
+  // Write pending plan to SharedDefaults so the app knows what to do
+  // even if the URL scheme deep link doesn't trigger .onOpenURL.
+  try {
+    await sendNativeMessage("setPendingSubscribe", { plan: plan || "" })
+  } catch {
+    // Non-critical — deep link may still work
+  }
+
   const url = plan
     ? `contextflow://subscribe?plan=${encodeURIComponent(plan)}`
     : "contextflow://subscribe"
-  window.open(url, "_blank")
+  // Use location.href instead of window.open — custom URL schemes
+  // are not handled correctly by window.open in Safari extensions on iOS.
+  window.location.href = url
 }
 
 // ── Account sync ─────────────────────────────────────────────────────────

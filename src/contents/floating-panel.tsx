@@ -1240,7 +1240,7 @@ function FloatingPanelContent() {
                 style={{
                   width: "100%", padding: "8px 10px",
                   border: `1px solid ${T.inputBorder}`, borderRadius: "8px",
-                  fontSize: "13px", fontFamily: "inherit",
+                  fontSize: "16px", fontFamily: "inherit",
                   resize: "vertical" as const, outline: "none",
                   minHeight: "60px", maxHeight: "120px",
                   boxSizing: "border-box" as const,

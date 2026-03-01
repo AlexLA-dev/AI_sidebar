@@ -227,6 +227,23 @@ final class SharedDefaults {
         }
     }
 
+    // MARK: – Pending Subscribe (extension → app communication)
+
+    /// Written by the extension when the user taps "Subscribe".
+    /// The app reads this on appear and auto-navigates to the Subscription tab.
+    /// Cleared after the app reads it.
+    var pendingSubscribePlan: String? {
+        get { defaults.string(forKey: "cf_pending_subscribe_plan") }
+        set {
+            if let plan = newValue, !plan.isEmpty {
+                defaults.set(plan, forKey: "cf_pending_subscribe_plan")
+            } else {
+                defaults.removeObject(forKey: "cf_pending_subscribe_plan")
+            }
+            defaults.synchronize()
+        }
+    }
+
     // MARK: – User ID (Supabase)
 
     var userId: String? {

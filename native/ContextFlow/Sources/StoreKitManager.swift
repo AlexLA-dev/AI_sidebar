@@ -79,7 +79,23 @@ final class StoreKitManager: ObservableObject {
         case .success(let verification):
             let transaction = try checkVerified(verification)
             await transaction.finish()
-            await refreshSubscriptionStatus()
+
+            // Immediately write subscription status from the successful transaction.
+            // In Sandbox, subscription.status can have a delay — writing directly
+            // ensures SharedDefaults reflects the purchase right away.
+            let immediateStatus = SubscriptionInfo(
+                isSubscribed: true,
+                productId: product.id,
+                expirationDate: transaction.expirationDate,
+                willAutoRenew: true
+            )
+            currentStatus = immediateStatus
+            purchasedProductIDs.insert(product.id)
+            SharedDefaults.shared.writeSubscriptionStatus(immediateStatus)
+
+            // Also refresh via the standard path (non-blocking).
+            // This will reconcile with StoreKit's subscription.status eventually.
+            Task { await refreshSubscriptionStatus() }
 
             let jws = verification.jwsRepresentation
 
@@ -128,7 +144,22 @@ final class StoreKitManager: ObservableObject {
 
     /// Refresh subscription status and write to SharedDefaults.
     func refreshSubscriptionStatus() async {
+        // Ensure products are loaded before querying — querySubscriptionStatus()
+        // iterates self.products, and would return isSubscribed=false if empty.
+        if products.isEmpty {
+            await loadProducts()
+        }
+
         let status = await querySubscriptionStatus()
+
+        // Don't overwrite an active status with inactive if products failed to load.
+        // This prevents a race condition in Sandbox where the status query returns
+        // false momentarily after a successful purchase.
+        if !status.isSubscribed && currentStatus.isSubscribed && products.isEmpty {
+            logger.warning("Skipping status downgrade — products not loaded")
+            return
+        }
+
         currentStatus = status
 
         // Write to SharedDefaults so the extension can read it

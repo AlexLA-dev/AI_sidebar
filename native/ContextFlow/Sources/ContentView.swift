@@ -95,15 +95,45 @@ struct ContentView: View {
         }
         .tint(.purple)
         .onOpenURL { url in handleDeepLink(url) }
+        .onReceive(NotificationCenter.default.publisher(for: .contextFlowOpenURL)) { notification in
+            if let url = notification.object as? URL {
+                handleDeepLink(url)
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+            checkPendingSubscribe()
+        }
+        .onAppear {
+            checkPendingSubscribe()
+        }
         #endif
+    }
+
+    /// Check SharedDefaults for a pending subscription request from the extension.
+    /// This is a reliable fallback when .onOpenURL doesn't fire.
+    private func checkPendingSubscribe() {
+        guard let plan = SharedDefaults.shared.pendingSubscribePlan, !plan.isEmpty else { return }
+        // Clear immediately to avoid re-processing
+        SharedDefaults.shared.pendingSubscribePlan = nil
+
+        selectedTab = .subscription
+
+        switch plan {
+        case "byok": suggestedProductId = "com.contextflow.byok.monthly"
+        case "pro":  suggestedProductId = "com.contextflow.pro.monthly"
+        default: break
+        }
     }
 
     /// Parse deep link: contextflow://subscribe?plan=byok or contextflow://subscribe?plan=pro
     private func handleDeepLink(_ url: URL) {
-        guard url.scheme == "contextflow", url.host == "subscribe" else { return }
+        guard url.scheme == "contextflow" else { return }
+
+        // Always switch to subscription tab when the app is opened via deep link
         selectedTab = .subscription
 
-        if let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+        if url.host == "subscribe",
+           let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
            let planParam = components.queryItems?.first(where: { $0.name == "plan" })?.value {
             switch planParam {
             case "byok": suggestedProductId = "com.contextflow.byok.monthly"
@@ -641,17 +671,30 @@ struct SubscriptionTab: View {
     private func verifyOnServer(jws: String) async {
         guard let url = URL(string: "https://aisidebar.netlify.app/.netlify/functions/appstore-verify") else { return }
 
-        var body: [String: Any] = ["jwsTransaction": jws]
-        if let userId = SharedDefaults.shared.userId {
-            body["userId"] = userId
+        guard let userId = SharedDefaults.shared.userId, !userId.isEmpty else {
+            // No Supabase user ID — server will reject (401).
+            // The subscription is still active locally via SharedDefaults.
+            // It will be synced to the server when the user signs in through the extension.
+            print("[ContextFlow] Skipping server verification — no userId. Subscription is active locally.")
+            return
         }
+
+        var body: [String: Any] = ["jwsTransaction": jws, "userId": userId]
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try? JSONSerialization.data(withJSONObject: body)
 
-        _ = try? await URLSession.shared.data(for: request)
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
+                let body = String(data: data, encoding: .utf8) ?? "no body"
+                print("[ContextFlow] Server verification failed (\(httpResponse.statusCode)): \(body)")
+            }
+        } catch {
+            print("[ContextFlow] Server verification network error: \(error.localizedDescription)")
+        }
     }
 
     // MARK: – Legal Links

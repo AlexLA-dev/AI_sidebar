@@ -66,11 +66,11 @@ export function PaywallModal({ onClose, onSubscribed }: PaywallModalProps) {
   // ── App Store purchase flow (Safari) ────────────────────────────────────
   // Opens the native ContextFlow app for purchase, then polls for status.
 
-  const handleAppStoreSubscribe = () => {
+  const handleAppStoreSubscribe = async () => {
     setError(null)
 
     // Open the native app with the selected plan hint
-    openAppForSubscription(selectedPlan === "basic" ? "byok" : "pro")
+    await openAppForSubscription(selectedPlan === "basic" ? "byok" : "pro")
 
     // Start polling for subscription activation via shared storage
     setIsWaitingForPayment(true)

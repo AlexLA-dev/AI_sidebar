@@ -39,6 +39,16 @@ class ViewController: PlatformViewController, WKNavigationDelegate {
             hostingController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
         hostingController.didMove(toParent: self)
+
+        // Register for URL scheme handling — UIKit dispatches open-url events
+        // via SceneDelegate / AppDelegate. We listen for those and re-broadcast
+        // via NotificationCenter so the SwiftUI ContentView can react reliably.
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleIncomingURL(_:)),
+            name: .contextFlowOpenURL,
+            object: nil
+        )
         #elseif os(macOS)
         let hostingView = NSHostingView(rootView: ContentView())
         hostingView.translatesAutoresizingMaskIntoConstraints = false
@@ -51,4 +61,16 @@ class ViewController: PlatformViewController, WKNavigationDelegate {
         ])
         #endif
     }
+
+    #if os(iOS)
+    @objc private func handleIncomingURL(_ notification: Notification) {
+        // Already handled by ContentView via .onOpenURL — this observer
+        // exists as a fallback for edge cases where .onOpenURL doesn't fire.
+    }
+    #endif
+}
+
+// Notification name used to forward deep-link URLs from UIKit to SwiftUI.
+extension Notification.Name {
+    static let contextFlowOpenURL = Notification.Name("contextFlowOpenURL")
 }

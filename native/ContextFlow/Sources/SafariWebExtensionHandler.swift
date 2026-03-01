@@ -91,6 +91,13 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             logger.info("Synced aboutMe (\(text.count) chars)")
             result = ["success": true, "data": [:] as [String: Any]]
 
+        case "setPendingSubscribe":
+            // Extension writes the desired plan so the app auto-navigates to purchase on open
+            let plan = message["plan"] as? String ?? ""
+            SharedDefaults.shared.pendingSubscribePlan = plan.isEmpty ? nil : plan
+            logger.info("Set pending subscribe plan: \(plan)")
+            result = ["success": true, "data": [:] as [String: Any]]
+
         case "openApp":
             // Return a signal that JS should open the app via URL scheme
             result = ["success": true, "data": ["action": "openApp", "urlScheme": "contextflow://subscribe"]]
