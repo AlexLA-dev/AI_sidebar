@@ -13,6 +13,7 @@
 # - STRIPE_SECRET_KEY
 # - STRIPE_WEBHOOK_SECRET
 # - SUPABASE_URL
+# - SUPABASE_ANON_KEY
 # - SUPABASE_SERVICE_ROLE_KEY
 
 # Function-specific configuration
@@ -36,6 +37,12 @@
 [[redirects]]
   from = "/confirm"
   to = "/.netlify/functions/email-confirmed"
+  status = 200
+
+# Password reset page — redirect to Netlify function
+[[redirects]]
+  from = "/reset-password"
+  to = "/.netlify/functions/reset-password"
   status = 200
 
 # Dev server configuration
