@@ -114,9 +114,14 @@ export async function getCurrentUser(): Promise<User | null> {
 }
 
 export async function getSession(): Promise<string | null> {
-  const supabase = getSupabaseClient()
-  const { data } = await supabase.auth.getSession()
-  return data.session?.access_token || null
+  try {
+    const supabase = getSupabaseClient()
+    const { data } = await supabase.auth.getSession()
+    return data.session?.access_token || null
+  } catch {
+    // Supabase not configured — treat as anonymous (no session)
+    return null
+  }
 }
 
 // Subscription functions

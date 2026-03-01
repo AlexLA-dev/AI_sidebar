@@ -181,6 +181,23 @@ function markdownToHtml(text: string): string {
   return htmlParts.join("")
 }
 
+// --- Strip markdown syntax for clean plain-text sharing ---
+function stripMarkdown(text: string): string {
+  return text
+    // Headers: ## Title → Title
+    .replace(/^#{1,6}\s+/gm, "")
+    // Bold: **text** → text
+    .replace(/\*\*(.+?)\*\*/g, "$1")
+    // Italic: *text* → text
+    .replace(/\*(.+?)\*/g, "$1")
+    // Code: `text` → text
+    .replace(/`(.+?)`/g, "$1")
+    // Links: [text](url) → text (url)
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1 ($2)")
+    // Bullet lists: - item → • item
+    .replace(/^\s*[-*]\s+/gm, "• ")
+}
+
 // --- Write rich text (HTML + plain text) to clipboard ---
 async function copyRichText(html: string, plainText: string): Promise<boolean> {
   try {
@@ -453,7 +470,7 @@ const S = {
     padding: "12px 16px", gap: "8px",
     borderBottom: "1px solid #e5e7eb",
     flexShrink: 0, boxSizing: "border-box" as const,
-    width: "100%",
+    width: "100%", overflow: "hidden" as const,
   },
   headerLeft: {
     display: "flex", alignItems: "center", gap: "10px",
@@ -464,11 +481,12 @@ const S = {
     flexShrink: 0,
   },
   logo: { color: "#7c3aed", flexShrink: 0 },
-  title: { fontWeight: 600, fontSize: "16px", color: "#1f2937", flexShrink: 0 },
+  title: { fontWeight: 600, fontSize: "16px", color: "#1f2937", flexShrink: 1, overflow: "hidden" as const, textOverflow: "ellipsis" as const, whiteSpace: "nowrap" as const, minWidth: "40px" },
   badge: {
     fontSize: "14px", padding: "2px 10px", borderRadius: "12px",
     fontWeight: 500, whiteSpace: "nowrap" as const, marginLeft: "6px",
-    flexShrink: 1, overflow: "hidden" as const,
+    flexShrink: 1, overflow: "hidden" as const, textOverflow: "ellipsis" as const,
+    minWidth: 0,
   },
   badgeSel: { background: "#dbeafe", color: "#1d4ed8" },
   badgePage: { background: "#f3e8ff", color: "#7c3aed" },
@@ -608,7 +626,7 @@ const S = {
   },
 }
 
-interface Message { role: "user" | "assistant"; content: string }
+interface Message { role: "user" | "assistant"; content: string; sourceUrl?: string }
 type ContextInfo = { type: "page" | "selection"; title: string }
 
 function FloatingPanelContent() {
@@ -930,10 +948,11 @@ function FloatingPanelContent() {
 
   const sendMessageDirect = async (userMessage: string) => {
     setError(null)
-    setMessages(prev => [...prev, { role: "user", content: userMessage }])
+    const currentSourceUrl = window.location.href
+    setMessages(prev => [...prev, { role: "user", content: userMessage, sourceUrl: currentSourceUrl }])
     setIsStreaming(true)
     let assistantMessage = ""
-    setMessages(prev => [...prev, { role: "assistant", content: "" }])
+    setMessages(prev => [...prev, { role: "assistant", content: "", sourceUrl: currentSourceUrl }])
 
     // Prepend "About me" to page context so AI knows about the user
     const enrichedContext = aboutMe
@@ -949,7 +968,7 @@ function FloatingPanelContent() {
             assistantMessage += chunk
             setMessages(prev => {
               const n = [...prev]
-              n[n.length - 1] = { role: "assistant", content: assistantMessage }
+              n[n.length - 1] = { role: "assistant", content: assistantMessage, sourceUrl: currentSourceUrl }
               return n
             })
           },
@@ -1023,14 +1042,15 @@ function FloatingPanelContent() {
 
   const handleShare = async (text: string) => {
     const pageUrl = window.location.href
-    // Plain text version (for share sheet / fallback)
-    const plainText = `${text}\n\n— Source: ${pageUrl}\nSummarized by ContextFlow — AI Web Assistant\n${APP_STORE_URL}`
+    // Plain text version — stripped of markdown for clean reading
+    const cleanText = stripMarkdown(text)
+    const plainText = `${cleanText}\n\n— Source: ${pageUrl}\nSummarized by ContextFlow — AI Web Assistant\n${APP_STORE_URL}`
     // Rich HTML version (for clipboard)
     const htmlContent = `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px;line-height:1.6">${markdownToHtml(text)}<br><p style="color:#6b7280;font-size:13px;margin-top:12px">— <a href="${pageUrl}" style="color:#7c3aed;text-decoration:underline">Source</a><br><a href="${APP_STORE_URL}" style="color:#7c3aed;text-decoration:underline">Summarized by ContextFlow — AI Web Assistant</a></p></div>`
 
     if (navigator.share) {
       try {
-        await navigator.share({ text: plainText, url: pageUrl })
+        await navigator.share({ title: "ContextFlow", text: plainText })
       } catch {
         // User cancelled share sheet — ignore
       }
@@ -1041,22 +1061,41 @@ function FloatingPanelContent() {
 
   const handleShareChat = async () => {
     if (messages.length === 0) return
-    const pageUrl = window.location.href
-    // Plain text version
-    const chatLines = messages.map(m =>
-      m.role === "user" ? `You: ${m.content}` : `AI: ${m.content}`
-    ).join("\n\n")
-    const plainText = `${chatLines}\n\n— Source: ${pageUrl}\nGenerated by ContextFlow — AI Web Assistant\n${APP_STORE_URL}`
-    // Rich HTML version
-    const chatHtml = messages.map(m =>
-      m.role === "user"
-        ? `<p style="margin:8px 0"><b>You:</b> ${markdownToHtml(m.content)}</p>`
-        : `<div style="margin:8px 0"><b>AI:</b><br>${markdownToHtml(m.content)}</div>`
-    ).join("")
-    const htmlContent = `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px;line-height:1.6">${chatHtml}<br><p style="color:#6b7280;font-size:13px;margin-top:12px">— <a href="${pageUrl}" style="color:#7c3aed;text-decoration:underline">Source</a><br><a href="${APP_STORE_URL}" style="color:#7c3aed;text-decoration:underline">Generated by ContextFlow — AI Web Assistant</a></p></div>`
+
+    // Build chat text with source annotations after each site group
+    const plainLines: string[] = []
+    const htmlParts: string[] = []
+    let lastSource: string | null = null
+
+    for (const m of messages) {
+      const msgSource = m.sourceUrl || null
+      // If the source URL changed from the previous message group, insert a source annotation
+      if (lastSource && msgSource && msgSource !== lastSource) {
+        plainLines.push(`\n— Source: ${lastSource}\n`)
+        htmlParts.push(`<p style="color:#6b7280;font-size:12px;margin:8px 0;border-top:1px solid #e5e7eb;padding-top:6px">— <a href="${lastSource}" style="color:#7c3aed;text-decoration:underline">Source</a></p>`)
+      }
+      lastSource = msgSource
+
+      if (m.role === "user") {
+        plainLines.push(`You: ${m.content}`)
+        htmlParts.push(`<p style="margin:8px 0"><b>You:</b> ${markdownToHtml(m.content)}</p>`)
+      } else {
+        plainLines.push(`AI: ${stripMarkdown(m.content)}`)
+        htmlParts.push(`<div style="margin:8px 0"><b>AI:</b><br>${markdownToHtml(m.content)}</div>`)
+      }
+    }
+
+    // Add final source annotation
+    const finalSource = lastSource || window.location.href
+    plainLines.push(`\n— Source: ${finalSource}`)
+    plainLines.push(`Generated by ContextFlow — AI Web Assistant\n${APP_STORE_URL}`)
+    htmlParts.push(`<p style="color:#6b7280;font-size:13px;margin-top:12px;border-top:1px solid #e5e7eb;padding-top:8px">— <a href="${finalSource}" style="color:#7c3aed;text-decoration:underline">Source</a><br><a href="${APP_STORE_URL}" style="color:#7c3aed;text-decoration:underline">Generated by ContextFlow — AI Web Assistant</a></p>`)
+
+    const plainText = plainLines.join("\n\n")
+    const htmlContent = `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px;line-height:1.6">${htmlParts.join("")}</div>`
 
     if (navigator.share) {
-      try { await navigator.share({ text: plainText, url: pageUrl }) } catch { /* cancelled */ }
+      try { await navigator.share({ title: "ContextFlow Chat", text: plainText }) } catch { /* cancelled */ }
     } else {
       await copyRichText(htmlContent, plainText)
     }
