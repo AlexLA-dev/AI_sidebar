@@ -224,6 +224,68 @@ export async function clearPendingLogout(): Promise<void> {
   }
 }
 
+// ── Auth session sync (shared between native app and extension) ──────────
+
+export interface SharedAuthSession {
+  access_token: string
+  refresh_token: string
+  expires_at: number
+  user_id: string
+  email: string
+}
+
+/**
+ * Read the shared Supabase auth session from SharedDefaults (App Group).
+ * Returns null if no session is stored.
+ */
+export async function getSharedAuthSession(): Promise<SharedAuthSession | null> {
+  try {
+    const result = await sendNativeMessage<Record<string, unknown>>("getAuthSession")
+    if (result && typeof result.access_token === "string" && result.access_token) {
+      return result as unknown as SharedAuthSession
+    }
+    return null
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Write the current Supabase auth session to SharedDefaults so the native
+ * app can display the user's account and link App Store purchases.
+ * Call this after sign-in or token refresh in the extension.
+ */
+export async function setSharedAuthSession(
+  accessToken: string,
+  refreshToken: string,
+  expiresAt: number,
+  userId: string,
+  email: string
+): Promise<void> {
+  try {
+    await sendNativeMessage("setAuthSession", {
+      access_token: accessToken,
+      refresh_token: refreshToken,
+      expires_at: expiresAt,
+      user_id: userId,
+      email: email
+    })
+  } catch {
+    // Non-critical on Chrome or if native bridge unavailable
+  }
+}
+
+/**
+ * Clear the shared auth session (on sign-out).
+ */
+export async function clearSharedAuthSession(): Promise<void> {
+  try {
+    await sendNativeMessage("clearAuthSession")
+  } catch {
+    // Non-critical
+  }
+}
+
 // ── Health check ─────────────────────────────────────────────────────────
 
 /**

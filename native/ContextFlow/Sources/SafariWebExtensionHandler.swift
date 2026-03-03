@@ -112,6 +112,37 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             SharedDefaults.shared.pendingLogout = false
             result = ["success": true, "data": [:] as [String: Any]]
 
+        case "getAuthSession":
+            // Extension reads shared auth session (tokens written by native app or extension)
+            if let session = SharedDefaults.shared.readAuthSession() {
+                result = ["success": true, "data": session]
+            } else {
+                result = ["success": true, "data": [:] as [String: Any]]
+            }
+
+        case "setAuthSession":
+            // Extension writes auth session after sign-in so the native app picks it up
+            if let accessToken = message["access_token"] as? String,
+               let refreshToken = message["refresh_token"] as? String,
+               !accessToken.isEmpty {
+                let expiresAt = message["expires_at"] as? Double ?? 0
+                let userId = message["user_id"] as? String ?? ""
+                let email = message["email"] as? String ?? ""
+                SharedDefaults.shared.writeAuthSession(
+                    accessToken: accessToken,
+                    refreshToken: refreshToken,
+                    expiresAt: expiresAt,
+                    userId: userId,
+                    email: email
+                )
+            }
+            result = ["success": true, "data": [:] as [String: Any]]
+
+        case "clearAuthSession":
+            // Clear stored auth session (sign-out)
+            SharedDefaults.shared.clearAuthSession()
+            result = ["success": true, "data": [:] as [String: Any]]
+
         case "ping":
             // Health check — extension can verify native messaging works
             result = ["success": true, "data": ["pong": true, "version": "1.0"]]

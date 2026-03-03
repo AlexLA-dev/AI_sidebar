@@ -191,6 +191,15 @@ struct SubscriptionTab: View {
     @State private var userEmail: String? = SharedDefaults.shared.userEmail
     @State private var trialUsageCount: Int = SharedDefaults.shared.trialUsageCount
 
+    // Auth form state
+    @State private var showSignInForm = false
+    @State private var authMode: AuthMode = .signIn
+    @State private var signInEmail = ""
+    @State private var signInPassword = ""
+    @State private var signInError: String?
+    @State private var signInSuccess: String?
+    @State private var isSigningIn = false
+
     // Timer that re-reads SharedDefaults every 2 seconds
     private let refreshTimer = Timer.publish(every: 2, on: .main, in: .common).autoconnect()
 
@@ -272,6 +281,8 @@ struct SubscriptionTab: View {
             trialUsageCount = SharedDefaults.shared.trialUsageCount
             // Refresh subscription status on appear — catches pending purchases that resolved
             Task { await storeManager.refreshSubscriptionStatus() }
+            // Refresh auth token if expired
+            Task { await refreshAuthTokenIfNeeded() }
         }
         .onReceive(refreshTimer) { _ in
             let newEmail = SharedDefaults.shared.userEmail
@@ -308,63 +319,24 @@ struct SubscriptionTab: View {
 
     private var accountCard: some View {
         VStack(spacing: 8) {
-            HStack(spacing: 10) {
-                Image(systemName: userEmail != nil ? "person.crop.circle.fill" : "person.crop.circle")
-                    .font(.title2)
-                    .foregroundColor(userEmail != nil ? .purple : .gray)
+            if let email = userEmail {
+                // Signed-in state
+                HStack(spacing: 10) {
+                    Image(systemName: "person.crop.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(.purple)
 
-                VStack(alignment: .leading, spacing: 2) {
-                    if let userEmail {
-                        Text(userEmail)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(email)
                             .font(.subheadline)
                             .fontWeight(.medium)
-                        Text("Signed in via Safari extension")
-                            .font(.caption2)
-                            .foregroundColor(.secondary)
-                    } else {
-                        Text("Not signed in")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                        Text("Open Safari and tap the extension icon")
+                        Text("Signed in")
                             .font(.caption2)
                             .foregroundColor(.secondary)
                     }
-                }
 
-                Spacer()
+                    Spacer()
 
-                if userEmail == nil {
-                    Button(action: {
-                        #if os(iOS)
-                        if let safariURL = URL(string: "x-web-search://") {
-                            UIApplication.shared.open(safariURL, options: [:]) { success in
-                                if !success {
-                                    if let fallback = URL(string: "https://www.apple.com") {
-                                        UIApplication.shared.open(fallback)
-                                    }
-                                }
-                            }
-                        }
-                        #else
-                        SFSafariApplication.showPreferencesForExtension(
-                            withIdentifier: Bundle.main.bundleIdentifier.map {
-                                $0 + ".Extension"
-                            } ?? ""
-                        )
-                        #endif
-                    }) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "arrow.right.circle")
-                                .font(.caption)
-                            Text("Sign In")
-                                .font(.caption)
-                        }
-                        .foregroundColor(.purple)
-                    }
-                    .buttonStyle(.plain)
-                }
-
-                if userEmail != nil {
                     Button(action: handleLogout) {
                         HStack(spacing: 4) {
                             Image(systemName: "rectangle.portrait.and.arrow.right")
@@ -373,6 +345,38 @@ struct SubscriptionTab: View {
                                 .font(.caption)
                         }
                         .foregroundColor(.red)
+                    }
+                    .buttonStyle(.plain)
+                }
+            } else if showSignInForm {
+                // Inline sign-in form
+                signInFormView
+            } else {
+                // Not signed in — prompt
+                HStack(spacing: 10) {
+                    Image(systemName: "person.crop.circle")
+                        .font(.title2)
+                        .foregroundColor(.gray)
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Not signed in")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        Text("Sign in to sync across devices")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
+
+                    Spacer()
+
+                    Button(action: { showSignInForm = true }) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "arrow.right.circle")
+                                .font(.caption)
+                            Text("Sign In")
+                                .font(.caption)
+                        }
+                        .foregroundColor(.purple)
                     }
                     .buttonStyle(.plain)
                 }
@@ -386,6 +390,99 @@ struct SubscriptionTab: View {
         #endif
         .cornerRadius(12)
         .shadow(color: .black.opacity(0.04), radius: 4, y: 2)
+    }
+
+    // MARK: – Sign-In Form
+
+    private var signInFormView: some View {
+        VStack(spacing: 12) {
+            // Header with close button
+            HStack {
+                Text(authMode == .signIn ? "Sign In" : "Create Account")
+                    .font(.headline)
+                Spacer()
+                Button(action: {
+                    showSignInForm = false
+                    signInError = nil
+                    signInSuccess = nil
+                }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(.secondary)
+                }
+                .buttonStyle(.plain)
+            }
+
+            // Toggle sign-in / sign-up
+            Picker("", selection: $authMode) {
+                Text("Sign In").tag(AuthMode.signIn)
+                Text("Sign Up").tag(AuthMode.signUp)
+            }
+            .pickerStyle(.segmented)
+            .onChange(of: authMode) { _ in
+                signInError = nil
+                signInSuccess = nil
+            }
+
+            // Email
+            TextField("Email", text: $signInEmail)
+                .textFieldStyle(.roundedBorder)
+                #if os(iOS)
+                .textContentType(.emailAddress)
+                .autocapitalization(.none)
+                .keyboardType(.emailAddress)
+                #endif
+
+            // Password
+            SecureField(authMode == .signUp ? "Password (min 6 chars)" : "Password", text: $signInPassword)
+                .textFieldStyle(.roundedBorder)
+                #if os(iOS)
+                .textContentType(authMode == .signIn ? .password : .newPassword)
+                #endif
+
+            // Success message
+            if let success = signInSuccess {
+                Text(success)
+                    .font(.caption)
+                    .foregroundColor(.green)
+                    .frame(maxWidth: .infinity, alignment: .center)
+            }
+
+            // Error message
+            if let error = signInError {
+                Text(error)
+                    .font(.caption)
+                    .foregroundColor(.red)
+                    .frame(maxWidth: .infinity, alignment: .center)
+            }
+
+            // Submit button
+            Button(action: handleAuth) {
+                HStack(spacing: 6) {
+                    if isSigningIn {
+                        ProgressView()
+                            .scaleEffect(0.8)
+                    }
+                    Text(authMode == .signIn ? "Sign In" : "Create Account")
+                        .fontWeight(.semibold)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(.purple)
+            .disabled(isSigningIn || signInEmail.isEmpty || signInPassword.isEmpty)
+
+            // Forgot password (sign-in mode only)
+            if authMode == .signIn {
+                Button(action: handleForgotPassword) {
+                    Text("Forgot password?")
+                        .font(.caption)
+                        .foregroundColor(.purple)
+                }
+                .buttonStyle(.plain)
+                .disabled(isSigningIn)
+            }
+        }
     }
 
     // MARK: – Status Card
@@ -702,12 +799,117 @@ struct SubscriptionTab: View {
     private func handleLogout() {
         // Signal the extension to sign out from Supabase
         SharedDefaults.shared.pendingLogout = true
+        SharedDefaults.shared.clearAuthSession()
         SharedDefaults.shared.userEmail = nil
         SharedDefaults.shared.apiKey = nil
         SharedDefaults.shared.trialUsageCount = 0
         SharedDefaults.shared.clearSubscription()
         userEmail = nil
         trialUsageCount = 0
+    }
+
+    // MARK: – Auth Actions
+
+    private func handleAuth() {
+        guard !signInEmail.isEmpty, !signInPassword.isEmpty else { return }
+        if authMode == .signUp && signInPassword.count < 6 {
+            signInError = "Password must be at least 6 characters"
+            return
+        }
+
+        isSigningIn = true
+        signInError = nil
+        signInSuccess = nil
+
+        Task {
+            do {
+                let response: SupabaseAuth.AuthResponse
+                if authMode == .signUp {
+                    response = try await SupabaseAuth.signUp(email: signInEmail.trimmingCharacters(in: .whitespaces), password: signInPassword)
+                } else {
+                    response = try await SupabaseAuth.signIn(email: signInEmail.trimmingCharacters(in: .whitespaces), password: signInPassword)
+                }
+
+                // Store session in SharedDefaults for extension to pick up
+                SharedDefaults.shared.writeAuthSession(
+                    accessToken: response.accessToken,
+                    refreshToken: response.refreshToken,
+                    expiresAt: response.expiresAt,
+                    userId: response.userId,
+                    email: response.email
+                )
+
+                // Update local UI state
+                userEmail = response.email
+                showSignInForm = false
+                signInEmail = ""
+                signInPassword = ""
+            } catch {
+                let msg = error.localizedDescription
+                if msg.contains("Invalid login credentials") {
+                    signInError = "Wrong email or password"
+                } else if msg.contains("User already registered") {
+                    signInError = "Account already exists. Try signing in."
+                    authMode = .signIn
+                } else if msg.contains("Email not confirmed") {
+                    signInError = "Please check your email and confirm your account first."
+                } else if msg.contains("Signups not allowed") || msg.contains("signup_disabled") {
+                    signInError = "Sign-up is currently disabled. Please sign in with an existing account."
+                } else {
+                    signInError = msg
+                }
+            }
+            isSigningIn = false
+        }
+    }
+
+    private func handleForgotPassword() {
+        guard !signInEmail.trimmingCharacters(in: .whitespaces).isEmpty else {
+            signInError = "Enter your email first"
+            return
+        }
+
+        isSigningIn = true
+        signInError = nil
+        signInSuccess = nil
+
+        Task {
+            do {
+                try await SupabaseAuth.resetPassword(email: signInEmail.trimmingCharacters(in: .whitespaces))
+                signInSuccess = "Password reset link sent! Check your email."
+            } catch {
+                signInError = error.localizedDescription
+            }
+            isSigningIn = false
+        }
+    }
+
+    /// Refresh the Supabase access token if it is expired or about to expire.
+    private func refreshAuthTokenIfNeeded() async {
+        guard let session = SharedDefaults.shared.readAuthSession(),
+              let refreshToken = session["refresh_token"] as? String,
+              !refreshToken.isEmpty else { return }
+
+        let expiresAt = session["expires_at"] as? Double ?? 0
+        // Refresh if expires within 5 minutes
+        guard Date().timeIntervalSince1970 > expiresAt - 300 else { return }
+
+        do {
+            let response = try await SupabaseAuth.refreshToken(refreshToken)
+            SharedDefaults.shared.writeAuthSession(
+                accessToken: response.accessToken,
+                refreshToken: response.refreshToken,
+                expiresAt: response.expiresAt,
+                userId: response.userId,
+                email: response.email
+            )
+            if userEmail == nil, !response.email.isEmpty {
+                userEmail = response.email
+            }
+        } catch {
+            // Token may be fully expired — user needs to sign in again
+            print("[ContextFlow] Token refresh failed: \(error.localizedDescription)")
+        }
     }
 
     /// Send JWS to backend for verification.
@@ -1248,5 +1450,150 @@ struct SetupTab: View {
         #else
         Color(nsColor: .windowBackgroundColor)
         #endif
+    }
+}
+
+// MARK: – Auth Mode
+
+enum AuthMode {
+    case signIn
+    case signUp
+}
+
+// MARK: – Supabase REST API Auth
+
+/// Lightweight Supabase GoTrue REST API client for native sign-in.
+/// Uses the same project URL and anon key as the web extension.
+enum SupabaseAuth {
+    static let supabaseURL = "https://schyokcqfqxqrjlsnxnj.supabase.co"
+    static let anonKey = "sb_publishable_pU9po5xhCKv1hTVT3xrNQA_8nors2lF"
+
+    struct AuthResponse {
+        let accessToken: String
+        let refreshToken: String
+        let expiresAt: Double
+        let userId: String
+        let email: String
+    }
+
+    /// Sign in with email and password.
+    static func signIn(email: String, password: String) async throws -> AuthResponse {
+        let url = URL(string: "\(supabaseURL)/auth/v1/token?grant_type=password")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(anonKey, forHTTPHeaderField: "apikey")
+
+        let body: [String: String] = ["email": email, "password": password]
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+
+        return try await performAuthRequest(request)
+    }
+
+    /// Create a new account with email and password.
+    static func signUp(email: String, password: String) async throws -> AuthResponse {
+        let url = URL(string: "\(supabaseURL)/auth/v1/signup")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(anonKey, forHTTPHeaderField: "apikey")
+
+        let body: [String: String] = ["email": email, "password": password]
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+
+        return try await performAuthRequest(request)
+    }
+
+    /// Refresh an expired access token.
+    static func refreshToken(_ refreshToken: String) async throws -> AuthResponse {
+        let url = URL(string: "\(supabaseURL)/auth/v1/token?grant_type=refresh_token")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(anonKey, forHTTPHeaderField: "apikey")
+
+        let body: [String: String] = ["refresh_token": refreshToken]
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+
+        return try await performAuthRequest(request)
+    }
+
+    /// Send a password reset email.
+    static func resetPassword(email: String) async throws {
+        let url = URL(string: "\(supabaseURL)/auth/v1/recover")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(anonKey, forHTTPHeaderField: "apikey")
+
+        let body: [String: String] = ["email": email]
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+        if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode >= 400 {
+            let errMsg = parseErrorMessage(from: data) ?? "Failed to send reset email"
+            throw NSError(domain: "SupabaseAuth", code: httpResponse.statusCode,
+                          userInfo: [NSLocalizedDescriptionKey: errMsg])
+        }
+    }
+
+    // MARK: – Private
+
+    private static func performAuthRequest(_ request: URLRequest) async throws -> AuthResponse {
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw NSError(domain: "SupabaseAuth", code: -1,
+                          userInfo: [NSLocalizedDescriptionKey: "Invalid response"])
+        }
+
+        if httpResponse.statusCode >= 400 {
+            let errMsg = parseErrorMessage(from: data) ?? "Authentication failed (\(httpResponse.statusCode))"
+            throw NSError(domain: "SupabaseAuth", code: httpResponse.statusCode,
+                          userInfo: [NSLocalizedDescriptionKey: errMsg])
+        }
+
+        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            throw NSError(domain: "SupabaseAuth", code: -2,
+                          userInfo: [NSLocalizedDescriptionKey: "Invalid response format"])
+        }
+
+        guard let accessToken = json["access_token"] as? String,
+              let refreshToken = json["refresh_token"] as? String else {
+            // Sign-up may return user without tokens (email confirmation required)
+            if let user = json["user"] as? [String: Any],
+               let identities = user["identities"] as? [[String: Any]],
+               identities.isEmpty {
+                throw NSError(domain: "SupabaseAuth", code: 0,
+                              userInfo: [NSLocalizedDescriptionKey: "User already registered"])
+            }
+            throw NSError(domain: "SupabaseAuth", code: 0,
+                          userInfo: [NSLocalizedDescriptionKey: "Account created! Check your email to confirm, then sign in."])
+        }
+
+        let expiresAt = json["expires_at"] as? Double
+            ?? (Date().timeIntervalSince1970 + (json["expires_in"] as? Double ?? 3600))
+
+        let user = json["user"] as? [String: Any] ?? [:]
+        let userId = user["id"] as? String ?? ""
+        let email = user["email"] as? String ?? ""
+
+        return AuthResponse(
+            accessToken: accessToken,
+            refreshToken: refreshToken,
+            expiresAt: expiresAt,
+            userId: userId,
+            email: email
+        )
+    }
+
+    private static func parseErrorMessage(from data: Data) -> String? {
+        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            return nil
+        }
+        return json["error_description"] as? String
+            ?? json["msg"] as? String
+            ?? json["message"] as? String
+            ?? json["error"] as? String
     }
 }

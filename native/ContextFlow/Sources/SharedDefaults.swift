@@ -232,6 +232,51 @@ final class SharedDefaults {
         }
     }
 
+    // MARK: – Auth Session (Supabase tokens shared between app and extension)
+
+    private enum AuthKey {
+        static let accessToken = "cf_auth_access_token"
+        static let refreshToken = "cf_auth_refresh_token"
+        static let expiresAt = "cf_auth_expires_at"
+    }
+
+    /// Write a full Supabase auth session to shared storage.
+    /// Called by the native app after sign-in or by the extension via the native handler.
+    func writeAuthSession(accessToken: String, refreshToken: String, expiresAt: Double, userId: String, email: String) {
+        defaults.set(accessToken, forKey: AuthKey.accessToken)
+        defaults.set(refreshToken, forKey: AuthKey.refreshToken)
+        defaults.set(expiresAt, forKey: AuthKey.expiresAt)
+        self.userId = userId
+        self.userEmail = email
+        defaults.synchronize()
+        logger.info("Wrote auth session for: \(email)")
+    }
+
+    /// Read the stored auth session. Returns nil if no session is stored.
+    func readAuthSession() -> [String: Any]? {
+        guard let accessToken = defaults.string(forKey: AuthKey.accessToken),
+              let refreshToken = defaults.string(forKey: AuthKey.refreshToken),
+              !accessToken.isEmpty else {
+            return nil
+        }
+        return [
+            "access_token": accessToken,
+            "refresh_token": refreshToken,
+            "expires_at": defaults.double(forKey: AuthKey.expiresAt),
+            "user_id": userId ?? "",
+            "email": userEmail ?? ""
+        ]
+    }
+
+    /// Clear the stored auth session (on sign-out).
+    func clearAuthSession() {
+        defaults.removeObject(forKey: AuthKey.accessToken)
+        defaults.removeObject(forKey: AuthKey.refreshToken)
+        defaults.removeObject(forKey: AuthKey.expiresAt)
+        defaults.synchronize()
+        logger.info("Cleared auth session")
+    }
+
     // MARK: – Pending Subscribe (extension → app communication)
 
     /// Written by the extension when the user taps "Subscribe".

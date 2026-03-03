@@ -4,8 +4,8 @@ import type { Session } from "@supabase/supabase-js"
 
 import { cn, sendMessageToActiveTab } from "~/lib/utils"
 import { getStoredApiKey, setStoredApiKey, getTrialInfo, syncSubscriptionFromServer, type ContextType, type TrialInfo } from "~/lib/ai"
-import { getSupabaseClient } from "~/lib/supabase"
-import { syncUserInfo, getAppSettings } from "~/lib/appstore"
+import { getSupabaseClient, initFromSharedSession } from "~/lib/supabase"
+import { syncUserInfo, getAppSettings, setSharedAuthSession, clearSharedAuthSession, getPendingLogout, clearPendingLogout } from "~/lib/appstore"
 import { syncSubscriptionFromNative } from "~/lib/storage"
 import { ChatInterface, SettingsPanel } from "~/components/chat"
 import { OnboardingModal, PaywallModal } from "~/components/onboarding"
@@ -94,6 +94,11 @@ function SidePanel() {
       // Check Supabase auth session
       try {
         const supabase = getSupabaseClient()
+
+        // On Safari: try to pick up a session written by the native app
+        // BEFORE checking the local session, so the user can sign in from the app
+        await initFromSharedSession()
+
         const { data: { session: currentSession } } = await supabase.auth.getSession()
         setSession(currentSession)
 
@@ -122,6 +127,19 @@ function SidePanel() {
           syncUserInfo(currentSession.user.email, currentSession.user.id)
         }
 
+        // Check if native app requested a logout
+        try {
+          const pending = await getPendingLogout()
+          if (pending) {
+            await supabase.auth.signOut()
+            await clearPendingLogout()
+            await clearSharedAuthSession()
+            setSession(null)
+          }
+        } catch {
+          // Not on Safari — ignore
+        }
+
         // Listen for auth state changes (sign in, sign out, token refresh)
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
           (_event, newSession) => {
@@ -145,8 +163,20 @@ function SidePanel() {
               if (newSession.user?.email) {
                 syncUserInfo(newSession.user.email, newSession.user.id)
               }
+              // Sync auth session tokens to native app (SharedDefaults)
+              // so native app can display account and refresh token if needed
+              if (newSession.access_token && newSession.refresh_token) {
+                setSharedAuthSession(
+                  newSession.access_token,
+                  newSession.refresh_token,
+                  newSession.expires_at ?? 0,
+                  newSession.user?.id ?? "",
+                  newSession.user?.email ?? ""
+                )
+              }
             } else {
               syncUserInfo(null)
+              clearSharedAuthSession()
             }
           }
         )
@@ -375,8 +405,9 @@ function SidePanel() {
       // Session will be cleared by onAuthStateChange
       setApiKey("")
       setShowSettings(false)
-      // Clear user info from native app shared storage
+      // Clear user info and auth session from native app shared storage
       syncUserInfo(null)
+      clearSharedAuthSession()
     } catch {
       // Sign out error — ignore
     }
