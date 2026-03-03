@@ -98,7 +98,14 @@ const html = (supabaseUrl: string, supabaseKey: string) => `<!DOCTYPE html>
     <!-- Invalid link state -->
     <div id="invalid" class="hidden">
       <h1>Invalid Link</h1>
-      <p class="subtitle">This password reset link is invalid or has expired. Please request a new one from the extension.</p>
+      <p class="subtitle">This password reset link is invalid or has expired.</p>
+      <div class="steps" style="margin-top: 16px">
+        <strong>How to get a new link:</strong><br>
+        1. Open the ContextFlow extension<br>
+        2. Tap <strong>Sign In</strong><br>
+        3. Tap <strong>Forgot password?</strong><br>
+        4. Enter your email to receive a new reset link
+      </div>
     </div>
 
     <!-- Form state -->
@@ -124,8 +131,9 @@ const html = (supabaseUrl: string, supabaseKey: string) => `<!DOCTYPE html>
       <p class="success">Your password has been changed successfully.</p>
       <div class="steps">
         <strong>Next steps:</strong><br>
-        1. Open the ContextFlow extension<br>
-        2. Sign in with your new password
+        1. Go back to the page where you use ContextFlow<br>
+        2. Open the ContextFlow extension<br>
+        3. Sign in with your email and <strong>new password</strong> (the one you just set above)
       </div>
     </div>
   </div>

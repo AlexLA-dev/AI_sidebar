@@ -649,6 +649,15 @@ function FloatingPanelContent() {
   )
   const [keyboardHeight, setKeyboardHeight] = useState(0)
 
+  // Inline auth form state
+  const [showAuthForm, setShowAuthForm] = useState(false)
+  const [authEmail, setAuthEmail] = useState("")
+  const [authPassword, setAuthPassword] = useState("")
+  const [authMode, setAuthMode] = useState<"signin" | "signup" | "forgot">("signin")
+  const [authError, setAuthError] = useState<string | null>(null)
+  const [authSuccess, setAuthSuccess] = useState<string | null>(null)
+  const [authLoading, setAuthLoading] = useState(false)
+
   const sessionRef = useRef<Session | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -732,11 +741,22 @@ function FloatingPanelContent() {
     return () => mediaQuery.removeEventListener("change", handleChange)
   }, [])
 
-  // Listen for toggle message from background script
+  // Listen for toggle message from background script + auth state changes
   useEffect(() => {
     const handleMessage = (message: { action: string }) => {
       if (message.action === "toggleFloatingPanel") {
         setIsOpen(prev => { if (!prev) captureScrollY(); return !prev })
+      }
+      // Auth completed in sidepanel tab — refresh session
+      if (message.action === "authStateChanged") {
+        const supabase = getSupabaseClient()
+        supabase.auth.getSession().then(({ data: { session: s } }) => {
+          setSession(s)
+          if (s) {
+            setShowAuthForm(false)
+            syncSubscriptionFromServer().then(setTrialInfo)
+          }
+        })
       }
     }
     chrome.runtime.onMessage.addListener(handleMessage)
@@ -823,6 +843,8 @@ function FloatingPanelContent() {
 
         supabase.auth.onAuthStateChange((_event, newSession) => {
           setSession(newSession)
+          // Close auth form when user signs in successfully
+          if (newSession) setShowAuthForm(false)
           if (newSession) {
             syncSubscriptionFromServer()
               .then(async (info) => {
@@ -1168,7 +1190,125 @@ function FloatingPanelContent() {
     setTimeout(() => a.remove(), 100)
   }
 
-  const openAuth = () => chrome.runtime.sendMessage({ action: "openAuth" })
+  const openAuth = () => {
+    setShowAuthForm(true)
+    setAuthError(null)
+    setAuthSuccess(null)
+  }
+
+  const SITE_URL = process.env.PLASMO_PUBLIC_SITE_URL || ""
+
+  const handleAuthSubmit = async () => {
+    if (authMode === "forgot") {
+      handleForgotPassword()
+      return
+    }
+
+    if (!authEmail.trim() || !authPassword.trim()) {
+      setAuthError("Please fill in all fields")
+      return
+    }
+    if (authPassword.length < 6) {
+      setAuthError("Password must be at least 6 characters")
+      return
+    }
+
+    setAuthLoading(true)
+    setAuthError(null)
+    setAuthSuccess(null)
+
+    try {
+      const supabase = getSupabaseClient()
+
+      if (authMode === "signup") {
+        const signUpOptions: { email: string; password: string; options?: { emailRedirectTo?: string } } = {
+          email: authEmail.trim(),
+          password: authPassword
+        }
+        if (SITE_URL) {
+          signUpOptions.options = { emailRedirectTo: `${SITE_URL}/email-confirmed` }
+        }
+        const { error: signUpError } = await supabase.auth.signUp(signUpOptions)
+        if (signUpError) throw signUpError
+
+        // Try to sign in immediately (works if email confirmation is disabled)
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: authEmail.trim(),
+          password: authPassword
+        })
+        if (signInError) {
+          setAuthSuccess("Account created! Check your email to confirm, then sign in.")
+          setAuthMode("signin")
+          setAuthLoading(false)
+          return
+        }
+
+        setShowAuthForm(false)
+        // Session will be picked up by onAuthStateChange
+      } else {
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: authEmail.trim(),
+          password: authPassword
+        })
+        if (signInError) throw signInError
+
+        setShowAuthForm(false)
+        // Session will be picked up by onAuthStateChange
+      }
+    } catch (err: any) {
+      const message = err?.message || "Authentication failed"
+      if (message.includes("Invalid login credentials")) {
+        setAuthError("Wrong email or password")
+      } else if (message.includes("User already registered")) {
+        setAuthError("Account already exists. Try signing in.")
+        setAuthMode("signin")
+      } else if (message.includes("Email not confirmed")) {
+        setAuthError("Please check your email and confirm your account first.")
+      } else {
+        setAuthError(message)
+      }
+    } finally {
+      setAuthLoading(false)
+    }
+  }
+
+  const handleForgotPassword = async () => {
+    if (!authEmail.trim()) {
+      setAuthError("Please enter your email address")
+      return
+    }
+
+    setAuthLoading(true)
+    setAuthError(null)
+    setAuthSuccess(null)
+
+    try {
+      const supabase = getSupabaseClient()
+      const options: { redirectTo?: string } = {}
+      if (SITE_URL) {
+        options.redirectTo = `${SITE_URL}/reset-password`
+      }
+
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(
+        authEmail.trim(),
+        options
+      )
+      if (resetError) throw resetError
+
+      setAuthSuccess("Password reset link sent! Check your email inbox.")
+    } catch (err: any) {
+      setAuthError(err?.message || "Failed to send reset email")
+    } finally {
+      setAuthLoading(false)
+    }
+  }
+
+  const handleAuthKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault()
+      handleAuthSubmit()
+    }
+  }
 
   const handleSignOut = async () => {
     try {
@@ -1557,6 +1697,215 @@ function FloatingPanelContent() {
                 I Agree
               </button>
             </div>
+          </div>
+        )}
+
+        {/* Inline Auth Form */}
+        {showAuthForm && !session && (
+          <div style={{
+            position: "absolute" as const, top: 0, left: 0, right: 0, bottom: 0,
+            background: T.bg, zIndex: 10, display: "flex", flexDirection: "column" as const,
+            padding: "24px 20px", overflowY: "auto" as const, boxSizing: "border-box" as const,
+          }}>
+            {/* Close button */}
+            <button
+              onClick={() => { setShowAuthForm(false); setAuthError(null); setAuthSuccess(null) }}
+              style={{
+                position: "absolute" as const, top: "12px", right: "12px",
+                border: "none", background: "none", cursor: "pointer",
+                color: T.textSecondary, padding: "4px",
+              }}
+            >
+              <XIcon size={20} />
+            </button>
+
+            {authMode === "forgot" ? (
+              <>
+                {/* Back to sign in */}
+                <button
+                  onClick={() => { setAuthMode("signin"); setAuthError(null); setAuthSuccess(null) }}
+                  style={{
+                    border: "none", background: "none", color: T.textSecondary,
+                    fontSize: "13px", cursor: "pointer", padding: 0, marginBottom: "16px",
+                    display: "flex", alignItems: "center", gap: "4px",
+                  }}
+                >
+                  &larr; Back to Sign In
+                </button>
+
+                <div style={{ color: "#7c3aed", marginBottom: "8px", textAlign: "center" as const }}>
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+                  </svg>
+                </div>
+                <div style={{ fontSize: "17px", fontWeight: 700, color: T.textPrimary, marginBottom: "4px", textAlign: "center" as const }}>
+                  Reset Password
+                </div>
+                <div style={{ fontSize: "13px", color: T.textSecondary, marginBottom: "16px", textAlign: "center" as const }}>
+                  Enter your email and we'll send you a reset link.
+                </div>
+
+                <div style={{ marginBottom: "12px" }}>
+                  <div style={{ fontSize: "12px", fontWeight: 500, color: T.textSecondary, marginBottom: "4px" }}>Email</div>
+                  <input
+                    type="email"
+                    value={authEmail}
+                    onChange={(e) => setAuthEmail(e.target.value)}
+                    onKeyDown={handleAuthKeyDown}
+                    placeholder="you@example.com"
+                    style={{
+                      width: "100%", padding: "10px 12px", fontSize: "16px",
+                      border: `1px solid ${T.inputBorder}`, borderRadius: "10px",
+                      background: T.inputBg, color: T.textPrimary, outline: "none",
+                      boxSizing: "border-box" as const,
+                    }}
+                  />
+                </div>
+
+                {authSuccess && (
+                  <div style={{ textAlign: "center" as const, marginBottom: "12px" }}>
+                    <div style={{ fontSize: "13px", color: "#059669" }}>{authSuccess}</div>
+                    <div style={{ fontSize: "11px", color: T.textMuted, marginTop: "4px" }}>
+                      Don't see the email? Check your <strong>Spam/Junk</strong> folder.
+                    </div>
+                  </div>
+                )}
+
+                {authError && (
+                  <div style={{ fontSize: "13px", color: "#ef4444", textAlign: "center" as const, marginBottom: "12px" }}>{authError}</div>
+                )}
+
+                <button
+                  onClick={handleAuthSubmit}
+                  disabled={authLoading || !authEmail.trim()}
+                  style={{
+                    width: "100%", padding: "12px", border: "none", borderRadius: "12px",
+                    background: "linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)",
+                    color: "white", fontSize: "14px", fontWeight: 600, cursor: "pointer",
+                    opacity: (authLoading || !authEmail.trim()) ? 0.5 : 1,
+                  }}
+                >
+                  {authLoading ? "Sending..." : "Send Reset Link"}
+                </button>
+              </>
+            ) : (
+              <>
+                <div style={{ color: "#7c3aed", marginBottom: "8px", textAlign: "center" as const, marginTop: "8px" }}>
+                  <SparklesIcon size={32} />
+                </div>
+                <div style={{ fontSize: "17px", fontWeight: 700, color: T.textPrimary, marginBottom: "4px", textAlign: "center" as const }}>
+                  {authMode === "signin" ? "Welcome Back" : "Create Account"}
+                </div>
+                <div style={{ fontSize: "13px", color: T.textSecondary, marginBottom: "16px", textAlign: "center" as const }}>
+                  {authMode === "signin" ? "Sign in to your account" : "Sign up for free to continue"}
+                </div>
+
+                {/* Tabs */}
+                <div style={{
+                  display: "flex", background: isDark ? "#1e1b4b" : "#f3f4f6",
+                  borderRadius: "8px", padding: "3px", marginBottom: "16px",
+                }}>
+                  <button
+                    onClick={() => { setAuthMode("signin"); setAuthError(null); setAuthSuccess(null) }}
+                    style={{
+                      flex: 1, padding: "8px", border: "none", borderRadius: "6px",
+                      fontSize: "13px", fontWeight: 500, cursor: "pointer",
+                      background: authMode === "signin" ? (isDark ? "#312e81" : "white") : "transparent",
+                      color: authMode === "signin" ? T.textPrimary : T.textSecondary,
+                      boxShadow: authMode === "signin" ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
+                    }}
+                  >
+                    Sign In
+                  </button>
+                  <button
+                    onClick={() => { setAuthMode("signup"); setAuthError(null); setAuthSuccess(null) }}
+                    style={{
+                      flex: 1, padding: "8px", border: "none", borderRadius: "6px",
+                      fontSize: "13px", fontWeight: 500, cursor: "pointer",
+                      background: authMode === "signup" ? (isDark ? "#312e81" : "white") : "transparent",
+                      color: authMode === "signup" ? T.textPrimary : T.textSecondary,
+                      boxShadow: authMode === "signup" ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
+                    }}
+                  >
+                    Sign Up
+                  </button>
+                </div>
+
+                {/* Email */}
+                <div style={{ marginBottom: "12px" }}>
+                  <div style={{ fontSize: "12px", fontWeight: 500, color: T.textSecondary, marginBottom: "4px" }}>Email</div>
+                  <input
+                    type="email"
+                    value={authEmail}
+                    onChange={(e) => setAuthEmail(e.target.value)}
+                    onKeyDown={handleAuthKeyDown}
+                    placeholder="you@example.com"
+                    style={{
+                      width: "100%", padding: "10px 12px", fontSize: "16px",
+                      border: `1px solid ${T.inputBorder}`, borderRadius: "10px",
+                      background: T.inputBg, color: T.textPrimary, outline: "none",
+                      boxSizing: "border-box" as const,
+                    }}
+                  />
+                </div>
+
+                {/* Password */}
+                <div style={{ marginBottom: "8px" }}>
+                  <div style={{ fontSize: "12px", fontWeight: 500, color: T.textSecondary, marginBottom: "4px" }}>Password</div>
+                  <input
+                    type="password"
+                    value={authPassword}
+                    onChange={(e) => setAuthPassword(e.target.value)}
+                    onKeyDown={handleAuthKeyDown}
+                    placeholder={authMode === "signup" ? "Min 6 characters" : "Your password"}
+                    style={{
+                      width: "100%", padding: "10px 12px", fontSize: "16px",
+                      border: `1px solid ${T.inputBorder}`, borderRadius: "10px",
+                      background: T.inputBg, color: T.textPrimary, outline: "none",
+                      boxSizing: "border-box" as const,
+                    }}
+                  />
+                </div>
+
+                {/* Forgot password link */}
+                {authMode === "signin" && (
+                  <div style={{ textAlign: "right" as const, marginBottom: "12px" }}>
+                    <button
+                      onClick={() => { setAuthMode("forgot"); setAuthError(null); setAuthSuccess(null) }}
+                      style={{
+                        border: "none", background: "none", color: "#7c3aed",
+                        fontSize: "12px", cursor: "pointer", padding: 0,
+                      }}
+                    >
+                      Forgot password?
+                    </button>
+                  </div>
+                )}
+
+                {authSuccess && (
+                  <div style={{ textAlign: "center" as const, marginBottom: "12px" }}>
+                    <div style={{ fontSize: "13px", color: "#059669" }}>{authSuccess}</div>
+                  </div>
+                )}
+
+                {authError && (
+                  <div style={{ fontSize: "13px", color: "#ef4444", textAlign: "center" as const, marginBottom: "12px" }}>{authError}</div>
+                )}
+
+                <button
+                  onClick={handleAuthSubmit}
+                  disabled={authLoading || !authEmail.trim() || !authPassword.trim()}
+                  style={{
+                    width: "100%", padding: "12px", border: "none", borderRadius: "12px",
+                    background: "linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)",
+                    color: "white", fontSize: "14px", fontWeight: 600, cursor: "pointer",
+                    opacity: (authLoading || !authEmail.trim() || !authPassword.trim()) ? 0.5 : 1,
+                  }}
+                >
+                  {authLoading ? "..." : (authMode === "signin" ? "Sign In" : "Create Account")}
+                </button>
+              </>
+            )}
           </div>
         )}
 

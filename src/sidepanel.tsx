@@ -349,6 +349,17 @@ function SidePanel() {
     // Session will be picked up by onAuthStateChange
     refreshTrialInfo()
 
+    // Broadcast auth completion to all tabs so floating panels can refresh session
+    try {
+      chrome.tabs.query({}, (tabs) => {
+        for (const tab of tabs) {
+          if (tab.id) {
+            chrome.tabs.sendMessage(tab.id, { action: "authStateChanged" }).catch(() => {})
+          }
+        }
+      })
+    } catch { /* ignore */ }
+
     // If this page was opened as a standalone auth tab (from floating panel's "Sign In"),
     // switch back to the original tab and close this one.
     try {

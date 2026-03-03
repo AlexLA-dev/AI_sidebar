@@ -64,12 +64,12 @@ const html = `<!DOCTYPE html>
       </svg>
     </div>
     <h1>Email Confirmed!</h1>
-    <p>Your ContextFlow account is ready. You can close this tab and return to Safari.</p>
+    <p>Your ContextFlow account is ready. You can close this tab now.</p>
     <div class="steps">
       <strong>Next steps:</strong><br>
-      1. Open Safari<br>
-      2. Tap the ContextFlow extension icon<br>
-      3. Sign in with your email and password
+      1. Go back to the page where you use ContextFlow<br>
+      2. Open the ContextFlow extension (tap the extension icon)<br>
+      3. Sign in with the email and password you used during sign-up
     </div>
   </div>
 </body>

@@ -39,6 +39,11 @@
   to = "/.netlify/functions/email-confirmed"
   status = 200
 
+[[redirects]]
+  from = "/email-confirmed"
+  to = "/.netlify/functions/email-confirmed"
+  status = 200
+
 # Password reset page — redirect to Netlify function
 [[redirects]]
   from = "/reset-password"
