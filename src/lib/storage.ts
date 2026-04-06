@@ -112,6 +112,7 @@ export async function syncSubscriptionFromNative(): Promise<TrialInfo> {
   try {
     const { getSubscriptionStatus } = await import("./appstore")
     const status = await getSubscriptionStatus()
+    console.log("[ContextFlow] Native subscription status:", JSON.stringify(status))
 
     if (status.isSubscribed) {
       nativeConfirmed = true
