@@ -11,7 +11,7 @@ import {
   setStoredApiKey,
   type TrialInfo
 } from "./storage"
-import { proxyChatRequest, getSession } from "./api-client"
+import { proxyChatRequest, getSession, logChatUsage } from "./api-client"
 
 export type Message = {
   role: "user" | "assistant" | "system"
@@ -36,13 +36,31 @@ export class LimitReachedError extends Error {
   }
 }
 
-const SYSTEM_PROMPT = `You are ContextFlow, an AI browser assistant. You help users understand and interact with web pages.
+function getSystemPrompt(): string {
+  const now = new Date()
+  const dateStr = now.toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric"
+  })
+  const timeStr = now.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true
+  })
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone
+
+  return `You are ContextFlow, an AI browser assistant. You help users understand and interact with web pages.
+
+Current date and time: ${dateStr}, ${timeStr} (${tz})
 
 When PAGE_CONTEXT is provided, use it to answer the user's questions accurately and concisely.
 - Be helpful and direct
 - Use markdown formatting when appropriate
 - If the answer isn't in the context, say so honestly
 - Keep responses focused and relevant`
+}
 
 export function buildMessagesWithContext(
   messages: Message[],
@@ -61,7 +79,7 @@ export function buildMessagesWithContext(
 
   const systemMessage: Message = {
     role: "system",
-    content: SYSTEM_PROMPT + contextSection
+    content: getSystemPrompt() + contextSection
   }
 
   return [systemMessage, ...messages]
@@ -113,7 +131,16 @@ export async function streamChatResponse(
   callbacks: StreamCallbacks,
   contextType: ContextType = "page"
 ): Promise<void> {
-  // Check access permission (gatekeeper)
+  // If user has their own API key, bypass access checks entirely —
+  // they're paying OpenAI directly, our limits don't apply.
+  if (apiKey) {
+    const trialInfo = await getTrialInfo()
+    const messagesWithContext = buildMessagesWithContext(messages, pageContext, contextType)
+    await streamWithDirectKey(apiKey, messagesWithContext, trialInfo, callbacks, false)
+    return
+  }
+
+  // No API key — check access permission (trial/subscription gatekeeper)
   const { allowed, trialInfo, isAnonymous } = await checkAccessPermission()
 
   if (!allowed) {
@@ -122,12 +149,6 @@ export async function streamChatResponse(
   }
 
   const messagesWithContext = buildMessagesWithContext(messages, pageContext, contextType)
-
-  // If user has their own API key, use it directly via OpenAI
-  if (apiKey) {
-    await streamWithDirectKey(apiKey, messagesWithContext, trialInfo, callbacks, isAnonymous)
-    return
-  }
 
   // No API key — use the Netlify proxy (trial / pro / anonymous users)
   const apiUrl = process.env.PLASMO_PUBLIC_API_URL
@@ -191,6 +212,13 @@ async function streamWithDirectKey(
     } else if (!trialInfo.hasLicense) {
       await incrementTrialUsage()
     }
+
+    // Log usage to Supabase (fire-and-forget)
+    logChatUsage({
+      messagesCount: messagesWithContext.length,
+      planType: isAnonymous ? "anonymous_trial" : (trialInfo.planType || "free"),
+      model: "gpt-4o-mini"
+    })
 
     callbacks.onComplete()
   } catch (error) {

@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback, useRef } from "react"
 import { createRoot } from "react-dom/client"
 import type { Session } from "@supabase/supabase-js"
 
-import { getSupabaseClient } from "~/lib/supabase"
+import { getSupabaseClient, initFromSharedSession } from "~/lib/supabase"
 import {
   streamChatResponse,
   syncSubscriptionFromServer,
@@ -413,7 +413,6 @@ const S = {
   fab: {
     position: "fixed" as const,
     bottom: "calc(80px + env(safe-area-inset-bottom, 0px))",
-    right: "calc(20px + env(safe-area-inset-right, 0px))",
     width: "56px",
     height: "56px",
     borderRadius: "28px",
@@ -425,7 +424,7 @@ const S = {
     alignItems: "center",
     justifyContent: "center",
     boxShadow: "0 4px 20px rgba(124, 58, 237, 0.4)",
-    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+    transition: "opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
     zIndex: 2147483646,
     WebkitAppearance: "none" as const,
     WebkitTapHighlightColor: "transparent",
@@ -649,6 +648,17 @@ function FloatingPanelContent() {
   )
   const [keyboardHeight, setKeyboardHeight] = useState(0)
 
+  // FAB draggable state: which corner it's snapped to
+  const [fabSide, setFabSide] = useState<"left" | "right">("right")
+  // Drag tracking refs (avoid re-renders during drag)
+  const fabDragRef = useRef({
+    dragging: false,
+    startX: 0,
+    startY: 0,
+    currentX: 0,
+    movedEnough: false, // distinguish tap from drag
+  })
+
   // Inline auth form state
   const [showAuthForm, setShowAuthForm] = useState(false)
   const [authEmail, setAuthEmail] = useState("")
@@ -669,6 +679,13 @@ function FloatingPanelContent() {
 
   // Theme colors derived from isDark state
   const T = getThemeColors(isDark)
+
+  // Load persisted FAB side preference
+  useEffect(() => {
+    storage.get<"left" | "right">("cf_fab_side").then((saved) => {
+      if (saved === "left" || saved === "right") setFabSide(saved)
+    })
+  }, [])
 
   // Load persisted chat on first mount
   useEffect(() => {
@@ -790,6 +807,10 @@ function FloatingPanelContent() {
 
         const consent = await hasDataConsent()
         setConsentGiven(consent)
+
+        // Pick up auth session from native app (SharedDefaults → Supabase SDK).
+        // Wrapped in try-catch to never block normal auth flow.
+        try { await initFromSharedSession() } catch { /* ignore */ }
 
         const supabase = getSupabaseClient()
         const { data: { session: s } } = await supabase.auth.getSession()
@@ -1232,7 +1253,7 @@ function FloatingPanelContent() {
         if (signUpError) throw signUpError
 
         // Try to sign in immediately (works if email confirmation is disabled)
-        const { error: signInError } = await supabase.auth.signInWithPassword({
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
           email: authEmail.trim(),
           password: authPassword
         })
@@ -1243,17 +1264,27 @@ function FloatingPanelContent() {
           return
         }
 
+        if (signInData.session) {
+          setSession(signInData.session)
+          syncSubscriptionFromServer().then(setTrialInfo)
+          if (signInData.session.user?.email) syncUserInfo(signInData.session.user.email, signInData.session.user.id)
+        }
         setShowAuthForm(false)
         // Session will be picked up by onAuthStateChange
       } else {
-        const { error: signInError } = await supabase.auth.signInWithPassword({
+        const { data, error: signInError } = await supabase.auth.signInWithPassword({
           email: authEmail.trim(),
           password: authPassword
         })
         if (signInError) throw signInError
 
+        // Explicitly set session as safeguard (onAuthStateChange may not fire in all contexts)
+        if (data.session) {
+          setSession(data.session)
+          syncSubscriptionFromServer().then(setTrialInfo)
+          if (data.session.user?.email) syncUserInfo(data.session.user.email, data.session.user.id)
+        }
         setShowAuthForm(false)
-        // Session will be picked up by onAuthStateChange
       }
     } catch (err: any) {
       const message = err?.message || "Authentication failed"
@@ -1332,28 +1363,109 @@ function FloatingPanelContent() {
   const maskedKey = apiKey ? `${apiKey.slice(0, 7)}...${apiKey.slice(-4)}` : ""
   const hasLicense = trialInfo?.hasLicense || false
 
+  // --- FAB drag handlers ---
+  // Use transform for dragging to avoid conflicting with React's inline styles.
+  const fabRef = useRef<HTMLButtonElement>(null)
+  const [fabDragOffset, setFabDragOffset] = useState<{ x: number; y: number } | null>(null)
+
+  const onFabTouchStart = useCallback((e: React.TouchEvent) => {
+    e.stopPropagation()
+    const touch = e.touches[0]
+    const d = fabDragRef.current
+    d.dragging = true
+    d.startX = touch.clientX
+    d.startY = touch.clientY
+    d.currentX = touch.clientX
+    d.movedEnough = false
+    // Capture initial position for clamping
+    if (fabRef.current) fabStartRect.current = fabRef.current.getBoundingClientRect()
+  }, [])
+
+  // Store the FAB's initial rect when drag starts so we can clamp correctly
+  const fabStartRect = useRef<DOMRect | null>(null)
+
+  const onFabTouchMove = useCallback((e: React.TouchEvent) => {
+    const d = fabDragRef.current
+    if (!d.dragging || !fabRef.current) return
+    const touch = e.touches[0]
+    d.currentX = touch.clientX
+    const dx = touch.clientX - d.startX
+    const dy = touch.clientY - d.startY
+    if (Math.abs(dx) > 10 || Math.abs(dy) > 10) d.movedEnough = true
+    if (d.movedEnough) {
+      e.preventDefault()
+      // Clamp so the 56px FAB stays within viewport
+      const r = fabStartRect.current
+      if (r) {
+        const margin = 10
+        const minDx = margin - r.left
+        const maxDx = window.innerWidth - r.right - margin
+        const minDy = margin - r.top
+        const maxDy = window.innerHeight - r.bottom - margin
+        setFabDragOffset({
+          x: Math.max(minDx, Math.min(maxDx, dx)),
+          y: Math.max(minDy, Math.min(maxDy, dy)),
+        })
+      } else {
+        setFabDragOffset({ x: dx, y: dy })
+      }
+    }
+  }, [])
+
+  const onFabTouchEnd = useCallback((e: React.TouchEvent) => {
+    e.stopPropagation()
+    const d = fabDragRef.current
+    d.dragging = false
+    if (d.movedEnough) {
+      // Snap to nearest side based on final horizontal position
+      const midpoint = window.innerWidth / 2
+      const newSide = d.currentX < midpoint ? "left" : "right"
+      setFabSide(newSide)
+      storage.set("cf_fab_side", newSide)
+      setFabDragOffset(null)
+    } else {
+      setFabDragOffset(null)
+      // It was a tap, not a drag — toggle the panel
+      if (!isLoading) { if (!isOpen) captureScrollY(); setIsOpen(!isOpen) }
+    }
+  }, [isLoading, isOpen])
+
+  // Dynamic FAB position style based on side
+  const fabPosition = fabSide === "left"
+    ? { left: "calc(20px + env(safe-area-inset-left, 0px))", right: "auto" }
+    : { right: "calc(20px + env(safe-area-inset-right, 0px))", left: "auto" }
+
   return (
     <>
       {/* FAB */}
       <button
+        ref={fabRef}
         onPointerDown={(e) => {
-          // On iOS Safari, native text selection UI can intercept taps on the FAB.
-          // By capturing the pointer and handling on pointerDown, we ensure the
-          // button responds even when overlapping selected text.
           e.stopPropagation()
           ;(e.target as HTMLElement).releasePointerCapture?.(e.pointerId)
         }}
+        onTouchStart={onFabTouchStart}
+        onTouchMove={onFabTouchMove}
+        onTouchEnd={onFabTouchEnd}
         onClick={(e) => {
           e.stopPropagation()
           e.preventDefault()
-          if (!isLoading) { if (!isOpen) captureScrollY(); setIsOpen(!isOpen) }
+          // On desktop (no touch), toggle directly
+          if (!fabDragRef.current.movedEnough && !isLoading) {
+            if (!isOpen) captureScrollY()
+            setIsOpen(!isOpen)
+          }
         }}
-        onTouchEnd={(e) => {
-          // Fallback for iOS: if onClick doesn't fire due to selection overlay,
-          // handle it via touchend
-          e.stopPropagation()
+        style={{
+          ...S.fab,
+          ...fabPosition,
+          ...(isOpen ? S.fabHidden : {}),
+          ...(isLoading ? { opacity: 0.7 } : {}),
+          ...(fabDragOffset ? {
+            transform: `translate(${fabDragOffset.x}px, ${fabDragOffset.y}px)`,
+            transition: "none",
+          } : {}),
         }}
-        style={{ ...S.fab, ...(isOpen ? S.fabHidden : {}), ...(isLoading ? { opacity: 0.7 } : {}) }}
       >
         {isLoading ? (
           <div style={{

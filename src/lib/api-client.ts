@@ -253,5 +253,33 @@ export async function proxyChatRequest(
   }
 }
 
+// Log chat usage directly to Supabase (fire-and-forget).
+// Used for BYOK and anonymous requests that bypass the server proxy.
+export async function logChatUsage(opts: {
+  messagesCount: number
+  planType: string
+  model?: string
+  tokensUsed?: number
+}): Promise<void> {
+  try {
+    const supabase = getSupabaseClient()
+    const user = await getCurrentUser()
+
+    await supabase.from("usage_logs").insert({
+      user_id: user?.id ?? null,
+      action: "chat_request",
+      tokens_used: opts.tokensUsed ?? null,
+      metadata: {
+        model: opts.model || "gpt-4o-mini",
+        messages_count: opts.messagesCount,
+        plan_type: opts.planType,
+        source: "direct"
+      }
+    })
+  } catch {
+    // Fire-and-forget — don't break the chat flow
+  }
+}
+
 // Re-export getPaymentLink for convenience
 export { getPaymentLink } from "./utils"

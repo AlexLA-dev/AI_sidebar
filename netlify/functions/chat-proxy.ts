@@ -424,7 +424,7 @@ async function handleAnonymousChatRequest(
           supabase
             .from("usage_logs")
             .insert({
-              user_id: "anonymous",
+              user_id: null,
               action: "chat_request",
               tokens_used: totalTokens || null,
               metadata: { model: PRO_MODEL, messages_count: messages.length, plan_type: "anonymous_trial" }
