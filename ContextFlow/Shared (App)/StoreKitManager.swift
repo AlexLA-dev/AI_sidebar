@@ -191,20 +191,26 @@ final class StoreKitManager: ObservableObject {
         let productIDs = Set(ProductID.allCases.map(\.rawValue))
         print("[ContextFlow][StoreKit] Querying subscription. Product IDs: \(productIDs)")
 
-        // First, collect renewal info from subscription.status (needed for pending switches)
+        // Collect renewal info to detect pending plan switches.
+        // autoRenewPreference shows what product will renew next.
+        // Compare with the ACTIVE transaction's product to detect changes.
         var pendingSwitch: String? = nil
+        var activeProductFromStatus: String? = nil
         for product in products {
             guard let subscription = product.subscription else { continue }
             if let status = try? await subscription.status.first(where: {
                 $0.state == .subscribed || $0.state == .inGracePeriod
             }) {
-                if let renewalInfo = try? checkVerifiedRenewalInfo(status.renewalInfo) {
-                    // autoRenewPreference is the product the user switched to
-                    if let preference = renewalInfo.autoRenewPreference,
-                       preference != product.id {
-                        pendingSwitch = preference
-                    }
+                if let tx = try? checkVerified(status.transaction) {
+                    activeProductFromStatus = tx.productID
                 }
+                if let renewalInfo = try? checkVerifiedRenewalInfo(status.renewalInfo),
+                   let preference = renewalInfo.autoRenewPreference,
+                   let activeProduct = activeProductFromStatus,
+                   preference != activeProduct {
+                    pendingSwitch = preference
+                }
+                break // Same group — one check is enough
             }
         }
 
