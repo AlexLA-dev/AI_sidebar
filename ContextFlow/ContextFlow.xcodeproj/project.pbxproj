@@ -1,0 +1,1121 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		410D88952F41EE9800684748 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 410D88922F41EE9800684748 /* PrivacyInfo.xcprivacy */; };
+		410D88962F41EE9800684748 /* SharedDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D88932F41EE9800684748 /* SharedDefaults.swift */; };
+		410D88972F41EE9800684748 /* StoreKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D88942F41EE9800684748 /* StoreKitManager.swift */; };
+		410D88982F41EE9800684748 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D88912F41EE9800684748 /* ContentView.swift */; };
+		410D88992F41EE9800684748 /* SharedDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D88932F41EE9800684748 /* SharedDefaults.swift */; };
+		410D889A2F41EE9800684748 /* StoreKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D88942F41EE9800684748 /* StoreKitManager.swift */; };
+		410D889B2F41EE9800684748 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D88912F41EE9800684748 /* ContentView.swift */; };
+		410D889C2F41EE9800684748 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 410D88922F41EE9800684748 /* PrivacyInfo.xcprivacy */; };
+		410D889E2F41EEAA00684748 /* SharedDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D889D2F41EEAA00684748 /* SharedDefaults.swift */; };
+		410D889F2F41EEAA00684748 /* SharedDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D889D2F41EEAA00684748 /* SharedDefaults.swift */; };
+		410D88A32F41EF0800684748 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 410D88A22F41EF0800684748 /* StoreKit.framework */; };
+		410D88A52F41EF1000684748 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 410D88A42F41EF1000684748 /* StoreKit.framework */; };
+		41FA27C12F41ED2100FED9FC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41FA27C02F41ED2100FED9FC /* AppDelegate.swift */; };
+		41FA27C32F41ED2100FED9FC /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41FA27C22F41ED2100FED9FC /* SceneDelegate.swift */; };
+		41FA27C62F41ED2100FED9FC /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 41FA27C42F41ED2100FED9FC /* LaunchScreen.storyboard */; };
+		41FA27C92F41ED2100FED9FC /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 41FA27C72F41ED2100FED9FC /* Main.storyboard */; };
+		41FA27D22F41ED2100FED9FC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41FA27D12F41ED2100FED9FC /* AppDelegate.swift */; };
+		41FA27D52F41ED2100FED9FC /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 41FA27D32F41ED2100FED9FC /* Main.storyboard */; };
+		41FA27DC2F41ED2100FED9FC /* ContextFlow Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 41FA27DB2F41ED2100FED9FC /* ContextFlow Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		41FA27E62F41ED2100FED9FC /* ContextFlow Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 41FA27E52F41ED2100FED9FC /* ContextFlow Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		41FA27EB2F41ED2100FED9FC /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = 41FA27B02F41ED2000FED9FC /* Main.html */; };
+		41FA27EC2F41ED2100FED9FC /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = 41FA27B02F41ED2000FED9FC /* Main.html */; };
+		41FA27ED2F41ED2100FED9FC /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FA27B22F41ED2000FED9FC /* Icon.png */; };
+		41FA27EE2F41ED2100FED9FC /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FA27B22F41ED2000FED9FC /* Icon.png */; };
+		41FA27EF2F41ED2100FED9FC /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = 41FA27B32F41ED2000FED9FC /* Style.css */; };
+		41FA27F02F41ED2100FED9FC /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = 41FA27B32F41ED2000FED9FC /* Style.css */; };
+		41FA27F12F41ED2100FED9FC /* Script.js in Resources */ = {isa = PBXBuildFile; fileRef = 41FA27B42F41ED2000FED9FC /* Script.js */; };
+		41FA27F22F41ED2100FED9FC /* Script.js in Resources */ = {isa = PBXBuildFile; fileRef = 41FA27B42F41ED2000FED9FC /* Script.js */; };
+		41FA27F32F41ED2100FED9FC /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41FA27B52F41ED2000FED9FC /* ViewController.swift */; };
+		41FA27F42F41ED2100FED9FC /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41FA27B52F41ED2000FED9FC /* ViewController.swift */; };
+		41FA27F52F41ED2100FED9FC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 41FA27B62F41ED2100FED9FC /* Assets.xcassets */; };
+		41FA27F62F41ED2100FED9FC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 41FA27B62F41ED2100FED9FC /* Assets.xcassets */; };
+		41FA27F72F41ED2100FED9FC /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41FA27B82F41ED2100FED9FC /* SafariWebExtensionHandler.swift */; };
+		41FA27F82F41ED2100FED9FC /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41FA27B82F41ED2100FED9FC /* SafariWebExtensionHandler.swift */; };
+		41FA28162F41ED2200FED9FC /* icon16.plasmo.6c567d50.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FA280A2F41ED2200FED9FC /* icon16.plasmo.6c567d50.png */; };
+		41FA28172F41ED2200FED9FC /* icon32.plasmo.76b92899.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FA280B2F41ED2200FED9FC /* icon32.plasmo.76b92899.png */; };
+		41FA28182F41ED2200FED9FC /* sidepanel.df89bfed.css in Resources */ = {isa = PBXBuildFile; fileRef = 41FA280C2F41ED2200FED9FC /* sidepanel.df89bfed.css */; };
+		41FA28192F41ED2200FED9FC /* icon128.plasmo.3c1ed2d2.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FA280D2F41ED2200FED9FC /* icon128.plasmo.3c1ed2d2.png */; };
+		41FA281A2F41ED2200FED9FC /* floating-panel.5f923bf2.js in Resources */ = {isa = PBXBuildFile; fileRef = 41FA280E2F41ED2200FED9FC /* floating-panel.5f923bf2.js */; };
+		41FA281B2F41ED2200FED9FC /* sidepanel.b7741352.js in Resources */ = {isa = PBXBuildFile; fileRef = 41FA280F2F41ED2200FED9FC /* sidepanel.b7741352.js */; };
+		41FA281C2F41ED2200FED9FC /* static in Resources */ = {isa = PBXBuildFile; fileRef = 41FA28102F41ED2200FED9FC /* static */; };
+		41FA281D2F41ED2200FED9FC /* icon64.plasmo.8bb5e6e0.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FA28112F41ED2200FED9FC /* icon64.plasmo.8bb5e6e0.png */; };
+		41FA281E2F41ED2200FED9FC /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 41FA28122F41ED2200FED9FC /* manifest.json */; };
+		41FA281F2F41ED2200FED9FC /* context-parser.781a0283.js in Resources */ = {isa = PBXBuildFile; fileRef = 41FA28132F41ED2200FED9FC /* context-parser.781a0283.js */; };
+		41FA28202F41ED2200FED9FC /* icon48.plasmo.aced7582.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FA28142F41ED2200FED9FC /* icon48.plasmo.aced7582.png */; };
+		41FA28212F41ED2200FED9FC /* sidepanel.html in Resources */ = {isa = PBXBuildFile; fileRef = 41FA28152F41ED2200FED9FC /* sidepanel.html */; };
+		41FA28322F41ED2200FED9FC /* appstore.ddb1a286.js in Resources */ = {isa = PBXBuildFile; fileRef = 41FA28302F41ED2200FED9FC /* appstore.ddb1a286.js */; };
+		41FA28332F41ED2200FED9FC /* platform.291d7b65.js in Resources */ = {isa = PBXBuildFile; fileRef = 41FA28312F41ED2200FED9FC /* platform.291d7b65.js */; };
+		41FA28222F41ED2200FED9FC /* icon16.plasmo.6c567d50.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FA280A2F41ED2200FED9FC /* icon16.plasmo.6c567d50.png */; };
+		41FA28232F41ED2200FED9FC /* icon32.plasmo.76b92899.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FA280B2F41ED2200FED9FC /* icon32.plasmo.76b92899.png */; };
+		41FA28242F41ED2200FED9FC /* sidepanel.df89bfed.css in Resources */ = {isa = PBXBuildFile; fileRef = 41FA280C2F41ED2200FED9FC /* sidepanel.df89bfed.css */; };
+		41FA28252F41ED2200FED9FC /* icon128.plasmo.3c1ed2d2.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FA280D2F41ED2200FED9FC /* icon128.plasmo.3c1ed2d2.png */; };
+		41FA28262F41ED2200FED9FC /* floating-panel.5f923bf2.js in Resources */ = {isa = PBXBuildFile; fileRef = 41FA280E2F41ED2200FED9FC /* floating-panel.5f923bf2.js */; };
+		41FA28272F41ED2200FED9FC /* sidepanel.b7741352.js in Resources */ = {isa = PBXBuildFile; fileRef = 41FA280F2F41ED2200FED9FC /* sidepanel.b7741352.js */; };
+		41FA28282F41ED2200FED9FC /* static in Resources */ = {isa = PBXBuildFile; fileRef = 41FA28102F41ED2200FED9FC /* static */; };
+		41FA28292F41ED2200FED9FC /* icon64.plasmo.8bb5e6e0.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FA28112F41ED2200FED9FC /* icon64.plasmo.8bb5e6e0.png */; };
+		41FA282A2F41ED2200FED9FC /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 41FA28122F41ED2200FED9FC /* manifest.json */; };
+		41FA282B2F41ED2200FED9FC /* context-parser.781a0283.js in Resources */ = {isa = PBXBuildFile; fileRef = 41FA28132F41ED2200FED9FC /* context-parser.781a0283.js */; };
+		41FA282C2F41ED2200FED9FC /* icon48.plasmo.aced7582.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FA28142F41ED2200FED9FC /* icon48.plasmo.aced7582.png */; };
+		41FA282D2F41ED2200FED9FC /* sidepanel.html in Resources */ = {isa = PBXBuildFile; fileRef = 41FA28152F41ED2200FED9FC /* sidepanel.html */; };
+		41FA28342F41ED2200FED9FC /* appstore.ddb1a286.js in Resources */ = {isa = PBXBuildFile; fileRef = 41FA28302F41ED2200FED9FC /* appstore.ddb1a286.js */; };
+		41FA28352F41ED2200FED9FC /* platform.291d7b65.js in Resources */ = {isa = PBXBuildFile; fileRef = 41FA28312F41ED2200FED9FC /* platform.291d7b65.js */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		41FA27DD2F41ED2100FED9FC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 41FA27AA2F41ED2000FED9FC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 41FA27DA2F41ED2100FED9FC;
+			remoteInfo = "ContextFlow Extension (iOS)";
+		};
+		41FA27E72F41ED2100FED9FC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 41FA27AA2F41ED2000FED9FC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 41FA27E42F41ED2100FED9FC;
+			remoteInfo = "ContextFlow Extension (macOS)";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		41FA27FE2F41ED2100FED9FC /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				41FA27DC2F41ED2100FED9FC /* ContextFlow Extension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		41FA28052F41ED2100FED9FC /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				41FA27E62F41ED2100FED9FC /* ContextFlow Extension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		410D88912F41EE9800684748 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		410D88922F41EE9800684748 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		410D88932F41EE9800684748 /* SharedDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedDefaults.swift; sourceTree = "<group>"; };
+		410D88942F41EE9800684748 /* StoreKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreKitManager.swift; sourceTree = "<group>"; };
+		410D889D2F41EEAA00684748 /* SharedDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedDefaults.swift; sourceTree = "<group>"; };
+		410D88A02F41EEBB00684748 /* ContextFlow.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = ContextFlow.storekit; sourceTree = "<group>"; };
+		410D88A22F41EF0800684748 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.2.sdk/System/Library/Frameworks/StoreKit.framework; sourceTree = DEVELOPER_DIR; };
+		410D88A42F41EF1000684748 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
+		410D88A62F41EF2700684748 /* ContextFlow (iOS).entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "ContextFlow (iOS).entitlements"; sourceTree = "<group>"; };
+		410D88A72F41EF2F00684748 /* ContextFlow (macOS).entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "ContextFlow (macOS).entitlements"; sourceTree = "<group>"; };
+		410D88A82F41EF3A00684748 /* ContextFlow Extension (iOS).entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "ContextFlow Extension (iOS).entitlements"; sourceTree = "<group>"; };
+		410D88A92F41EF4000684748 /* ContextFlow Extension (macOS).entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "ContextFlow Extension (macOS).entitlements"; sourceTree = "<group>"; };
+		41FA27B12F41ED2000FED9FC /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Base; path = Base.lproj/Main.html; sourceTree = "<group>"; };
+		41FA27B22F41ED2000FED9FC /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
+		41FA27B32F41ED2000FED9FC /* Style.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = Style.css; sourceTree = "<group>"; };
+		41FA27B42F41ED2000FED9FC /* Script.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = Script.js; sourceTree = "<group>"; };
+		41FA27B52F41ED2000FED9FC /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		41FA27B62F41ED2100FED9FC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		41FA27B82F41ED2100FED9FC /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
+		41FA27BD2F41ED2100FED9FC /* ContextFlow.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ContextFlow.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		41FA27C02F41ED2100FED9FC /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		41FA27C22F41ED2100FED9FC /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		41FA27C52F41ED2100FED9FC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		41FA27C82F41ED2100FED9FC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		41FA27CA2F41ED2100FED9FC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		41FA27CF2F41ED2100FED9FC /* ContextFlow.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ContextFlow.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		41FA27D12F41ED2100FED9FC /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		41FA27D42F41ED2100FED9FC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		41FA27D62F41ED2100FED9FC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		41FA27DB2F41ED2100FED9FC /* ContextFlow Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "ContextFlow Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		41FA27E02F41ED2100FED9FC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		41FA27E52F41ED2100FED9FC /* ContextFlow Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "ContextFlow Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		41FA27EA2F41ED2100FED9FC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		41FA280A2F41ED2200FED9FC /* icon16.plasmo.6c567d50.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = icon16.plasmo.6c567d50.png; path = Resources/icon16.plasmo.6c567d50.png; sourceTree = "<group>"; };
+		41FA280B2F41ED2200FED9FC /* icon32.plasmo.76b92899.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = icon32.plasmo.76b92899.png; path = Resources/icon32.plasmo.76b92899.png; sourceTree = "<group>"; };
+		41FA280C2F41ED2200FED9FC /* sidepanel.df89bfed.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; name = sidepanel.df89bfed.css; path = Resources/sidepanel.df89bfed.css; sourceTree = "<group>"; };
+		41FA280D2F41ED2200FED9FC /* icon128.plasmo.3c1ed2d2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = icon128.plasmo.3c1ed2d2.png; path = Resources/icon128.plasmo.3c1ed2d2.png; sourceTree = "<group>"; };
+		41FA280E2F41ED2200FED9FC /* floating-panel.5f923bf2.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = "floating-panel.5f923bf2.js"; path = "Resources/floating-panel.5f923bf2.js"; sourceTree = "<group>"; };
+		41FA280F2F41ED2200FED9FC /* sidepanel.b7741352.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = sidepanel.b7741352.js; path = Resources/sidepanel.b7741352.js; sourceTree = "<group>"; };
+		41FA28102F41ED2200FED9FC /* static */ = {isa = PBXFileReference; lastKnownFileType = folder; name = static; path = Resources/static; sourceTree = "<group>"; };
+		41FA28112F41ED2200FED9FC /* icon64.plasmo.8bb5e6e0.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = icon64.plasmo.8bb5e6e0.png; path = Resources/icon64.plasmo.8bb5e6e0.png; sourceTree = "<group>"; };
+		41FA28122F41ED2200FED9FC /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.json; path = Resources/manifest.json; sourceTree = "<group>"; };
+		41FA28132F41ED2200FED9FC /* context-parser.781a0283.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = "context-parser.781a0283.js"; path = "Resources/context-parser.781a0283.js"; sourceTree = "<group>"; };
+		41FA28142F41ED2200FED9FC /* icon48.plasmo.aced7582.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = icon48.plasmo.aced7582.png; path = Resources/icon48.plasmo.aced7582.png; sourceTree = "<group>"; };
+		41FA28152F41ED2200FED9FC /* sidepanel.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = sidepanel.html; path = Resources/sidepanel.html; sourceTree = "<group>"; };
+		41FA28302F41ED2200FED9FC /* appstore.ddb1a286.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = "appstore.ddb1a286.js"; path = "Resources/appstore.ddb1a286.js"; sourceTree = "<group>"; };
+		41FA28312F41ED2200FED9FC /* platform.291d7b65.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = "platform.291d7b65.js"; path = "Resources/platform.291d7b65.js"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		41FA27BA2F41ED2100FED9FC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				410D88A32F41EF0800684748 /* StoreKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		41FA27CC2F41ED2100FED9FC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				410D88A52F41EF1000684748 /* StoreKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		41FA27D82F41ED2100FED9FC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		41FA27E22F41ED2100FED9FC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		410D88A12F41EF0800684748 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				410D88A42F41EF1000684748 /* StoreKit.framework */,
+				410D88A22F41EF0800684748 /* StoreKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		41FA27A92F41ED2000FED9FC = {
+			isa = PBXGroup;
+			children = (
+				410D88A92F41EF4000684748 /* ContextFlow Extension (macOS).entitlements */,
+				410D88A82F41EF3A00684748 /* ContextFlow Extension (iOS).entitlements */,
+				410D88A72F41EF2F00684748 /* ContextFlow (macOS).entitlements */,
+				410D88A62F41EF2700684748 /* ContextFlow (iOS).entitlements */,
+				410D88A02F41EEBB00684748 /* ContextFlow.storekit */,
+				41FA27AE2F41ED2000FED9FC /* Shared (App) */,
+				41FA27B72F41ED2100FED9FC /* Shared (Extension) */,
+				41FA27BF2F41ED2100FED9FC /* iOS (App) */,
+				41FA27D02F41ED2100FED9FC /* macOS (App) */,
+				41FA27DF2F41ED2100FED9FC /* iOS (Extension) */,
+				41FA27E92F41ED2100FED9FC /* macOS (Extension) */,
+				410D88A12F41EF0800684748 /* Frameworks */,
+				41FA27BE2F41ED2100FED9FC /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		41FA27AE2F41ED2000FED9FC /* Shared (App) */ = {
+			isa = PBXGroup;
+			children = (
+				410D88912F41EE9800684748 /* ContentView.swift */,
+				410D88922F41EE9800684748 /* PrivacyInfo.xcprivacy */,
+				410D88932F41EE9800684748 /* SharedDefaults.swift */,
+				410D88942F41EE9800684748 /* StoreKitManager.swift */,
+				41FA27B52F41ED2000FED9FC /* ViewController.swift */,
+				41FA27B62F41ED2100FED9FC /* Assets.xcassets */,
+				41FA27AF2F41ED2000FED9FC /* Resources */,
+			);
+			path = "Shared (App)";
+			sourceTree = "<group>";
+		};
+		41FA27AF2F41ED2000FED9FC /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				41FA27B02F41ED2000FED9FC /* Main.html */,
+				41FA27B22F41ED2000FED9FC /* Icon.png */,
+				41FA27B32F41ED2000FED9FC /* Style.css */,
+				41FA27B42F41ED2000FED9FC /* Script.js */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		41FA27B72F41ED2100FED9FC /* Shared (Extension) */ = {
+			isa = PBXGroup;
+			children = (
+				410D889D2F41EEAA00684748 /* SharedDefaults.swift */,
+				41FA28092F41ED2200FED9FC /* Resources */,
+				41FA27B82F41ED2100FED9FC /* SafariWebExtensionHandler.swift */,
+			);
+			path = "Shared (Extension)";
+			sourceTree = "<group>";
+		};
+		41FA27BE2F41ED2100FED9FC /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				41FA27BD2F41ED2100FED9FC /* ContextFlow.app */,
+				41FA27CF2F41ED2100FED9FC /* ContextFlow.app */,
+				41FA27DB2F41ED2100FED9FC /* ContextFlow Extension.appex */,
+				41FA27E52F41ED2100FED9FC /* ContextFlow Extension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		41FA27BF2F41ED2100FED9FC /* iOS (App) */ = {
+			isa = PBXGroup;
+			children = (
+				41FA27C02F41ED2100FED9FC /* AppDelegate.swift */,
+				41FA27C22F41ED2100FED9FC /* SceneDelegate.swift */,
+				41FA27C42F41ED2100FED9FC /* LaunchScreen.storyboard */,
+				41FA27C72F41ED2100FED9FC /* Main.storyboard */,
+				41FA27CA2F41ED2100FED9FC /* Info.plist */,
+			);
+			path = "iOS (App)";
+			sourceTree = "<group>";
+		};
+		41FA27D02F41ED2100FED9FC /* macOS (App) */ = {
+			isa = PBXGroup;
+			children = (
+				41FA27D12F41ED2100FED9FC /* AppDelegate.swift */,
+				41FA27D32F41ED2100FED9FC /* Main.storyboard */,
+				41FA27D62F41ED2100FED9FC /* Info.plist */,
+			);
+			path = "macOS (App)";
+			sourceTree = "<group>";
+		};
+		41FA27DF2F41ED2100FED9FC /* iOS (Extension) */ = {
+			isa = PBXGroup;
+			children = (
+				41FA27E02F41ED2100FED9FC /* Info.plist */,
+			);
+			path = "iOS (Extension)";
+			sourceTree = "<group>";
+		};
+		41FA27E92F41ED2100FED9FC /* macOS (Extension) */ = {
+			isa = PBXGroup;
+			children = (
+				41FA27EA2F41ED2100FED9FC /* Info.plist */,
+			);
+			path = "macOS (Extension)";
+			sourceTree = "<group>";
+		};
+		41FA28092F41ED2200FED9FC /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				41FA280A2F41ED2200FED9FC /* icon16.plasmo.6c567d50.png */,
+				41FA280B2F41ED2200FED9FC /* icon32.plasmo.76b92899.png */,
+				41FA280C2F41ED2200FED9FC /* sidepanel.df89bfed.css */,
+				41FA280D2F41ED2200FED9FC /* icon128.plasmo.3c1ed2d2.png */,
+				41FA280E2F41ED2200FED9FC /* floating-panel.5f923bf2.js */,
+				41FA280F2F41ED2200FED9FC /* sidepanel.b7741352.js */,
+				41FA28102F41ED2200FED9FC /* static */,
+				41FA28112F41ED2200FED9FC /* icon64.plasmo.8bb5e6e0.png */,
+				41FA28122F41ED2200FED9FC /* manifest.json */,
+				41FA28132F41ED2200FED9FC /* context-parser.781a0283.js */,
+				41FA28142F41ED2200FED9FC /* icon48.plasmo.aced7582.png */,
+				41FA28152F41ED2200FED9FC /* sidepanel.html */,
+				41FA28302F41ED2200FED9FC /* appstore.ddb1a286.js */,
+				41FA28312F41ED2200FED9FC /* platform.291d7b65.js */,
+			);
+			name = Resources;
+			path = "Shared (Extension)";
+			sourceTree = SOURCE_ROOT;
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		41FA27BC2F41ED2100FED9FC /* ContextFlow (iOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 41FA27FF2F41ED2100FED9FC /* Build configuration list for PBXNativeTarget "ContextFlow (iOS)" */;
+			buildPhases = (
+				41FA27B92F41ED2100FED9FC /* Sources */,
+				41FA27BA2F41ED2100FED9FC /* Frameworks */,
+				41FA27BB2F41ED2100FED9FC /* Resources */,
+				41FA27FE2F41ED2100FED9FC /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				41FA27DE2F41ED2100FED9FC /* PBXTargetDependency */,
+			);
+			name = "ContextFlow (iOS)";
+			packageProductDependencies = (
+			);
+			productName = "ContextFlow (iOS)";
+			productReference = 41FA27BD2F41ED2100FED9FC /* ContextFlow.app */;
+			productType = "com.apple.product-type.application";
+		};
+		41FA27CE2F41ED2100FED9FC /* ContextFlow (macOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 41FA28062F41ED2100FED9FC /* Build configuration list for PBXNativeTarget "ContextFlow (macOS)" */;
+			buildPhases = (
+				41FA27CB2F41ED2100FED9FC /* Sources */,
+				41FA27CC2F41ED2100FED9FC /* Frameworks */,
+				41FA27CD2F41ED2100FED9FC /* Resources */,
+				41FA28052F41ED2100FED9FC /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				41FA27E82F41ED2100FED9FC /* PBXTargetDependency */,
+			);
+			name = "ContextFlow (macOS)";
+			packageProductDependencies = (
+			);
+			productName = "ContextFlow (macOS)";
+			productReference = 41FA27CF2F41ED2100FED9FC /* ContextFlow.app */;
+			productType = "com.apple.product-type.application";
+		};
+		41FA27DA2F41ED2100FED9FC /* ContextFlow Extension (iOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 41FA27FB2F41ED2100FED9FC /* Build configuration list for PBXNativeTarget "ContextFlow Extension (iOS)" */;
+			buildPhases = (
+				41FA27D72F41ED2100FED9FC /* Sources */,
+				41FA27D82F41ED2100FED9FC /* Frameworks */,
+				41FA27D92F41ED2100FED9FC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "ContextFlow Extension (iOS)";
+			packageProductDependencies = (
+			);
+			productName = "ContextFlow Extension (iOS)";
+			productReference = 41FA27DB2F41ED2100FED9FC /* ContextFlow Extension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		41FA27E42F41ED2100FED9FC /* ContextFlow Extension (macOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 41FA28022F41ED2100FED9FC /* Build configuration list for PBXNativeTarget "ContextFlow Extension (macOS)" */;
+			buildPhases = (
+				41FA27E12F41ED2100FED9FC /* Sources */,
+				41FA27E22F41ED2100FED9FC /* Frameworks */,
+				41FA27E32F41ED2100FED9FC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "ContextFlow Extension (macOS)";
+			packageProductDependencies = (
+			);
+			productName = "ContextFlow Extension (macOS)";
+			productReference = 41FA27E52F41ED2100FED9FC /* ContextFlow Extension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		41FA27AA2F41ED2000FED9FC /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2620;
+				LastUpgradeCheck = 2620;
+				TargetAttributes = {
+					41FA27BC2F41ED2100FED9FC = {
+						CreatedOnToolsVersion = 26.2;
+					};
+					41FA27CE2F41ED2100FED9FC = {
+						CreatedOnToolsVersion = 26.2;
+					};
+					41FA27DA2F41ED2100FED9FC = {
+						CreatedOnToolsVersion = 26.2;
+					};
+					41FA27E42F41ED2100FED9FC = {
+						CreatedOnToolsVersion = 26.2;
+					};
+				};
+			};
+			buildConfigurationList = 41FA27AD2F41ED2000FED9FC /* Build configuration list for PBXProject "ContextFlow" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 41FA27A92F41ED2000FED9FC;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 41FA27BE2F41ED2100FED9FC /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				41FA27BC2F41ED2100FED9FC /* ContextFlow (iOS) */,
+				41FA27CE2F41ED2100FED9FC /* ContextFlow (macOS) */,
+				41FA27DA2F41ED2100FED9FC /* ContextFlow Extension (iOS) */,
+				41FA27E42F41ED2100FED9FC /* ContextFlow Extension (macOS) */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		41FA27BB2F41ED2100FED9FC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				41FA27ED2F41ED2100FED9FC /* Icon.png in Resources */,
+				41FA27C62F41ED2100FED9FC /* LaunchScreen.storyboard in Resources */,
+				41FA27EB2F41ED2100FED9FC /* Main.html in Resources */,
+				41FA27F12F41ED2100FED9FC /* Script.js in Resources */,
+				41FA27F52F41ED2100FED9FC /* Assets.xcassets in Resources */,
+				41FA27C92F41ED2100FED9FC /* Main.storyboard in Resources */,
+				410D88952F41EE9800684748 /* PrivacyInfo.xcprivacy in Resources */,
+				41FA27EF2F41ED2100FED9FC /* Style.css in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		41FA27CD2F41ED2100FED9FC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				41FA27EE2F41ED2100FED9FC /* Icon.png in Resources */,
+				410D889C2F41EE9800684748 /* PrivacyInfo.xcprivacy in Resources */,
+				41FA27F02F41ED2100FED9FC /* Style.css in Resources */,
+				41FA27D52F41ED2100FED9FC /* Main.storyboard in Resources */,
+				41FA27F22F41ED2100FED9FC /* Script.js in Resources */,
+				41FA27F62F41ED2100FED9FC /* Assets.xcassets in Resources */,
+				41FA27EC2F41ED2100FED9FC /* Main.html in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		41FA27D92F41ED2100FED9FC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				41FA28292F41ED2200FED9FC /* icon64.plasmo.8bb5e6e0.png in Resources */,
+				41FA28232F41ED2200FED9FC /* icon32.plasmo.76b92899.png in Resources */,
+				41FA28262F41ED2200FED9FC /* floating-panel.5f923bf2.js in Resources */,
+				41FA28282F41ED2200FED9FC /* static in Resources */,
+				41FA282A2F41ED2200FED9FC /* manifest.json in Resources */,
+				41FA282C2F41ED2200FED9FC /* icon48.plasmo.aced7582.png in Resources */,
+				41FA282B2F41ED2200FED9FC /* context-parser.781a0283.js in Resources */,
+				41FA28272F41ED2200FED9FC /* sidepanel.b7741352.js in Resources */,
+				41FA28242F41ED2200FED9FC /* sidepanel.df89bfed.css in Resources */,
+				41FA28222F41ED2200FED9FC /* icon16.plasmo.6c567d50.png in Resources */,
+				41FA282D2F41ED2200FED9FC /* sidepanel.html in Resources */,
+				41FA28252F41ED2200FED9FC /* icon128.plasmo.3c1ed2d2.png in Resources */,
+				41FA28322F41ED2200FED9FC /* appstore.ddb1a286.js in Resources */,
+				41FA28332F41ED2200FED9FC /* platform.291d7b65.js in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		41FA27E32F41ED2100FED9FC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				41FA281D2F41ED2200FED9FC /* icon64.plasmo.8bb5e6e0.png in Resources */,
+				41FA28172F41ED2200FED9FC /* icon32.plasmo.76b92899.png in Resources */,
+				41FA281A2F41ED2200FED9FC /* floating-panel.5f923bf2.js in Resources */,
+				41FA281C2F41ED2200FED9FC /* static in Resources */,
+				41FA281E2F41ED2200FED9FC /* manifest.json in Resources */,
+				41FA28202F41ED2200FED9FC /* icon48.plasmo.aced7582.png in Resources */,
+				41FA281F2F41ED2200FED9FC /* context-parser.781a0283.js in Resources */,
+				41FA281B2F41ED2200FED9FC /* sidepanel.b7741352.js in Resources */,
+				41FA28182F41ED2200FED9FC /* sidepanel.df89bfed.css in Resources */,
+				41FA28162F41ED2200FED9FC /* icon16.plasmo.6c567d50.png in Resources */,
+				41FA28212F41ED2200FED9FC /* sidepanel.html in Resources */,
+				41FA28192F41ED2200FED9FC /* icon128.plasmo.3c1ed2d2.png in Resources */,
+				41FA28342F41ED2200FED9FC /* appstore.ddb1a286.js in Resources */,
+				41FA28352F41ED2200FED9FC /* platform.291d7b65.js in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		41FA27B92F41ED2100FED9FC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				410D88962F41EE9800684748 /* SharedDefaults.swift in Sources */,
+				410D88972F41EE9800684748 /* StoreKitManager.swift in Sources */,
+				410D88982F41EE9800684748 /* ContentView.swift in Sources */,
+				41FA27F32F41ED2100FED9FC /* ViewController.swift in Sources */,
+				41FA27C12F41ED2100FED9FC /* AppDelegate.swift in Sources */,
+				41FA27C32F41ED2100FED9FC /* SceneDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		41FA27CB2F41ED2100FED9FC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				41FA27F42F41ED2100FED9FC /* ViewController.swift in Sources */,
+				410D88992F41EE9800684748 /* SharedDefaults.swift in Sources */,
+				410D889A2F41EE9800684748 /* StoreKitManager.swift in Sources */,
+				410D889B2F41EE9800684748 /* ContentView.swift in Sources */,
+				41FA27D22F41ED2100FED9FC /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		41FA27D72F41ED2100FED9FC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				410D889E2F41EEAA00684748 /* SharedDefaults.swift in Sources */,
+				41FA27F72F41ED2100FED9FC /* SafariWebExtensionHandler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		41FA27E12F41ED2100FED9FC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				410D889F2F41EEAA00684748 /* SharedDefaults.swift in Sources */,
+				41FA27F82F41ED2100FED9FC /* SafariWebExtensionHandler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		41FA27DE2F41ED2100FED9FC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 41FA27DA2F41ED2100FED9FC /* ContextFlow Extension (iOS) */;
+			targetProxy = 41FA27DD2F41ED2100FED9FC /* PBXContainerItemProxy */;
+		};
+		41FA27E82F41ED2100FED9FC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 41FA27E42F41ED2100FED9FC /* ContextFlow Extension (macOS) */;
+			targetProxy = 41FA27E72F41ED2100FED9FC /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		41FA27B02F41ED2000FED9FC /* Main.html */ = {
+			isa = PBXVariantGroup;
+			children = (
+				41FA27B12F41ED2000FED9FC /* Base */,
+			);
+			name = Main.html;
+			sourceTree = "<group>";
+		};
+		41FA27C42F41ED2100FED9FC /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				41FA27C52F41ED2100FED9FC /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		41FA27C72F41ED2100FED9FC /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				41FA27C82F41ED2100FED9FC /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		41FA27D32F41ED2100FED9FC /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				41FA27D42F41ED2100FED9FC /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		41FA27F92F41ED2100FED9FC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.5;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		41FA27FA2F41ED2100FED9FC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.5;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		41FA27FC2F41ED2100FED9FC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "ContextFlow Extension (iOS).entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 4;
+				DEVELOPMENT_TEAM = P9NCXXTCU8;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "ContextFlow Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.1;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.contextflow.app.Extension;
+				PRODUCT_NAME = "ContextFlow Extension";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		41FA27FD2F41ED2100FED9FC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "ContextFlow Extension (iOS).entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 4;
+				DEVELOPMENT_TEAM = P9NCXXTCU8;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "ContextFlow Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.1;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.contextflow.app.Extension;
+				PRODUCT_NAME = "ContextFlow Extension";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		41FA28002F41ED2100FED9FC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "ContextFlow (iOS).entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 4;
+				DEVELOPMENT_TEAM = P9NCXXTCU8;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (App)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = ContextFlow;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.1;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.contextflow.app;
+				PRODUCT_NAME = ContextFlow;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		41FA28012F41ED2100FED9FC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "ContextFlow (iOS).entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 4;
+				DEVELOPMENT_TEAM = P9NCXXTCU8;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (App)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = ContextFlow;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.1;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.contextflow.app;
+				PRODUCT_NAME = ContextFlow;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		41FA28032F41ED2100FED9FC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "ContextFlow Extension (macOS).entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 4;
+				DEVELOPMENT_TEAM = P9NCXXTCU8;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (Extension)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "ContextFlow Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.5;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.contextflow.app.Extension;
+				PRODUCT_NAME = "ContextFlow Extension";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		41FA28042F41ED2100FED9FC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "ContextFlow Extension (macOS).entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 4;
+				DEVELOPMENT_TEAM = P9NCXXTCU8;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (Extension)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "ContextFlow Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.5;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.contextflow.app.Extension;
+				PRODUCT_NAME = "ContextFlow Extension";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		41FA28072F41ED2100FED9FC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "ContextFlow (macOS).entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 4;
+				DEVELOPMENT_TEAM = P9NCXXTCU8;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (App)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = ContextFlow;
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.5;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.contextflow.app;
+				PRODUCT_NAME = ContextFlow;
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		41FA28082F41ED2100FED9FC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "ContextFlow (macOS).entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 4;
+				DEVELOPMENT_TEAM = P9NCXXTCU8;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (App)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = ContextFlow;
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.5;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.contextflow.app;
+				PRODUCT_NAME = ContextFlow;
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		41FA27AD2F41ED2000FED9FC /* Build configuration list for PBXProject "ContextFlow" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				41FA27F92F41ED2100FED9FC /* Debug */,
+				41FA27FA2F41ED2100FED9FC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		41FA27FB2F41ED2100FED9FC /* Build configuration list for PBXNativeTarget "ContextFlow Extension (iOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				41FA27FC2F41ED2100FED9FC /* Debug */,
+				41FA27FD2F41ED2100FED9FC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		41FA27FF2F41ED2100FED9FC /* Build configuration list for PBXNativeTarget "ContextFlow (iOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				41FA28002F41ED2100FED9FC /* Debug */,
+				41FA28012F41ED2100FED9FC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		41FA28022F41ED2100FED9FC /* Build configuration list for PBXNativeTarget "ContextFlow Extension (macOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				41FA28032F41ED2100FED9FC /* Debug */,
+				41FA28042F41ED2100FED9FC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		41FA28062F41ED2100FED9FC /* Build configuration list for PBXNativeTarget "ContextFlow (macOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				41FA28072F41ED2100FED9FC /* Debug */,
+				41FA28082F41ED2100FED9FC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 41FA27AA2F41ED2000FED9FC /* Project object */;
+}

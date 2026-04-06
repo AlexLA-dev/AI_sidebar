@@ -836,25 +836,30 @@ function FloatingPanelContent() {
 
         setSession(s)
 
-        if (s) {
-          const info = await syncSubscriptionFromServer()
-          setTrialInfo(info)
-        } else {
-          // No session: load anonymous trial info
-          const anonInfo = await getAnonymousTrialInfo()
-          setTrialInfo(anonInfo)
-        }
-
-        // Also sync from native App Store bridge (Safari).
-        // This catches purchases made in the native app that
-        // haven't been synced to Supabase yet.
+        // Sync subscription from native App Store bridge FIRST (Safari).
+        // Native SharedDefaults is the source of truth for App Store purchases
+        // (especially sandbox purchases that may not be in Supabase yet).
+        let nativeConfirmed = false
         try {
           const nativeInfo = await syncSubscriptionFromNative()
           if (nativeInfo.nativeConfirmed && nativeInfo.hasLicense) {
             setTrialInfo(nativeInfo)
+            nativeConfirmed = true
           }
         } catch {
           // Not on Safari or bridge unavailable — ignore
+        }
+
+        if (s) {
+          const info = await syncSubscriptionFromServer()
+          // Only use server info if native didn't confirm a subscription
+          if (!nativeConfirmed) {
+            setTrialInfo(info)
+          }
+        } else if (!nativeConfirmed) {
+          // No session and no native subscription: load anonymous trial info
+          const anonInfo = await getAnonymousTrialInfo()
+          setTrialInfo(anonInfo)
         }
 
         // Sync user email and ID to native app on initial load
@@ -867,21 +872,19 @@ function FloatingPanelContent() {
           // Close auth form when user signs in successfully
           if (newSession) setShowAuthForm(false)
           if (newSession) {
-            syncSubscriptionFromServer()
-              .then(async (info) => {
-                // After server sync, also check native App Store bridge.
-                // Native subscription may not be in Supabase yet.
-                if (!info.hasLicense) {
-                  try {
-                    const nativeInfo = await syncSubscriptionFromNative()
-                    if (nativeInfo.nativeConfirmed && nativeInfo.hasLicense) {
-                      setTrialInfo(nativeInfo)
-                      return
-                    }
-                  } catch { /* ignore */ }
+            // Check native subscription first, then server
+            (async () => {
+              let nativeOk = false
+              try {
+                const nativeInfo = await syncSubscriptionFromNative()
+                if (nativeInfo.nativeConfirmed && nativeInfo.hasLicense) {
+                  setTrialInfo(nativeInfo)
+                  nativeOk = true
                 }
-                setTrialInfo(info)
-              })
+              } catch { /* ignore */ }
+              const info = await syncSubscriptionFromServer()
+              if (!nativeOk) setTrialInfo(info)
+            })()
             if (newSession.user?.email) syncUserInfo(newSession.user.email, newSession.user.id)
           } else {
             syncUserInfo(null)
