@@ -31,7 +31,6 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         switch command {
         case "getSubscriptionStatus":
             let status = SharedDefaults.shared.readSubscriptionStatus()
-            logger.info("Subscription status from SharedDefaults: \(status)")
             result = ["success": true, "data": status]
 
         case "getSettings":

@@ -1,4 +1,6 @@
 import { Storage } from "@plasmohq/storage"
+import { getSubscriptionStatus, checkNativeSubscription, syncTrialUsage, syncDataConsent } from "./appstore"
+import { getUserSubscription } from "./api-client"
 
 // Shared storage instance for the extension
 export const storage = new Storage()
@@ -88,7 +90,7 @@ export async function incrementTrialUsage(): Promise<number> {
 
   // Sync to native app so it shows accurate remaining count
   try {
-    const { syncTrialUsage } = await import("./appstore")
+
     await syncTrialUsage(newCount)
   } catch {
     // Non-critical — native app just won't update immediately
@@ -110,9 +112,9 @@ export async function syncSubscriptionFromNative(): Promise<TrialInfo> {
   let nativeConfirmed = false
 
   try {
-    const { getSubscriptionStatus } = await import("./appstore")
+
     const status = await getSubscriptionStatus()
-    console.log("[ContextFlow] Native subscription status:", JSON.stringify(status))
+    // TEMPORARY DEBUG — store for floating-panel to read
 
     if (status.isSubscribed) {
       nativeConfirmed = true
@@ -131,9 +133,8 @@ export async function syncSubscriptionFromNative(): Promise<TrialInfo> {
         }
       }
     }
-  } catch (err) {
-    // Non-critical — native bridge may not be available (e.g. Chrome)
-    console.warn("[ContextFlow] Failed to sync subscription from native:", err)
+  } catch {
+    // Native bridge not available (e.g. Chrome)
   }
 
   const info = await getTrialInfo()
@@ -143,7 +144,7 @@ export async function syncSubscriptionFromNative(): Promise<TrialInfo> {
 // Sync subscription status from Supabase to local storage
 export async function syncSubscriptionFromServer(): Promise<TrialInfo> {
   try {
-    const { getUserSubscription } = await import("./api-client")
+
     const sub = await getUserSubscription()
 
     if (sub) {
@@ -155,7 +156,7 @@ export async function syncSubscriptionFromServer(): Promise<TrialInfo> {
       // record may not exist yet for App Store purchases.
       if (!isActive) {
         try {
-          const { checkNativeSubscription } = await import("./appstore")
+
           if (await checkNativeSubscription()) {
             // Native bridge confirms active subscription — don't overwrite
             return getTrialInfo()
@@ -180,7 +181,7 @@ export async function syncSubscriptionFromServer(): Promise<TrialInfo> {
 
         // Also sync to native app
         try {
-          const { syncTrialUsage } = await import("./appstore")
+      
           await syncTrialUsage(serverUsage)
         } catch {
           // Non-critical
@@ -212,7 +213,7 @@ export async function setDataConsent(given: boolean): Promise<void> {
   await storage.set(STORAGE_KEYS.DATA_CONSENT_GIVEN, given)
   // Sync to native app
   try {
-    const { syncDataConsent } = await import("./appstore")
+
     await syncDataConsent(given)
   } catch {
     // Non-critical

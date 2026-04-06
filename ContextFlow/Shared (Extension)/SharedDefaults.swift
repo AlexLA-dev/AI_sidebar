@@ -38,13 +38,9 @@ final class SharedDefaults {
     private init() {
         if let defaults = UserDefaults(suiteName: SharedDefaults.suiteName) {
             self.defaults = defaults
-            logger.info("App Group UserDefaults initialized successfully for \(SharedDefaults.suiteName)")
         } else {
             // Fallback to standard UserDefaults if App Group isn't provisioned.
-            // This means data won't be shared between app and extension, but
-            // at least neither process will crash.
             self.defaults = UserDefaults.standard
-            logger.error("Failed to create UserDefaults for App Group \(SharedDefaults.suiteName) — falling back to standard")
         }
     }
 
@@ -103,15 +99,19 @@ final class SharedDefaults {
         }
 
         defaults.synchronize()
-        logger.info("Wrote subscription status: subscribed=\(info.isSubscribed), product=\(info.productId ?? "none")")
+        print("[ContextFlow][SharedDefaults] WRITE subscription: subscribed=\(info.isSubscribed), product=\(info.productId ?? "none"), suite=\(defaults === UserDefaults.standard ? "STANDARD!" : "AppGroup")")
+        // Verify the write by reading back
+        let readBack = defaults.bool(forKey: Key.isSubscribed)
+        print("[ContextFlow][SharedDefaults] READ-BACK isSubscribed=\(readBack)")
     }
 
     /// Read subscription status from shared storage (called by the extension handler).
     func readSubscriptionStatus() -> [String: Any] {
-        // Log which UserDefaults suite we're reading from
-        let suiteName = defaults === UserDefaults.standard ? "standard (FALLBACK!)" : SharedDefaults.suiteName
-        logger.info("Reading subscription from UserDefaults suite: \(suiteName)")
+        // Force re-read from disk — critical for cross-process reads (extension ↔ app)
+        defaults.synchronize()
+        let suiteName = defaults === UserDefaults.standard ? "STANDARD!" : "AppGroup"
         let isSubscribed = defaults.bool(forKey: Key.isSubscribed)
+        print("[ContextFlow][SharedDefaults] READ subscription: suite=\(suiteName), isSubscribed=\(isSubscribed)")
         let productId = defaults.string(forKey: Key.productId)
         let planType = defaults.string(forKey: Key.planType) ?? "free"
         let isInGracePeriod = defaults.bool(forKey: Key.isInGracePeriod)
@@ -263,6 +263,7 @@ final class SharedDefaults {
 
     /// Read the stored auth session. Returns nil if no session is stored.
     func readAuthSession() -> [String: Any]? {
+        defaults.synchronize()
         guard let accessToken = defaults.string(forKey: AuthKey.accessToken),
               let refreshToken = defaults.string(forKey: AuthKey.refreshToken),
               !accessToken.isEmpty else {

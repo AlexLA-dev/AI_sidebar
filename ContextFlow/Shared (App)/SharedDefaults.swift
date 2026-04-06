@@ -36,10 +36,12 @@ final class SharedDefaults {
     private let defaults: UserDefaults
 
     private init() {
-        guard let defaults = UserDefaults(suiteName: SharedDefaults.suiteName) else {
-            fatalError("Failed to create UserDefaults for App Group: \(SharedDefaults.suiteName)")
+        if let defaults = UserDefaults(suiteName: SharedDefaults.suiteName) {
+            self.defaults = defaults
+        } else {
+            // Fallback to standard UserDefaults if App Group isn't provisioned.
+            self.defaults = UserDefaults.standard
         }
-        self.defaults = defaults
     }
 
     // MARK: – Keys
@@ -97,12 +99,19 @@ final class SharedDefaults {
         }
 
         defaults.synchronize()
-        logger.info("Wrote subscription status: subscribed=\(info.isSubscribed), product=\(info.productId ?? "none")")
+        print("[ContextFlow][SharedDefaults] WRITE subscription: subscribed=\(info.isSubscribed), product=\(info.productId ?? "none"), suite=\(defaults === UserDefaults.standard ? "STANDARD!" : "AppGroup")")
+        // Verify the write by reading back
+        let readBack = defaults.bool(forKey: Key.isSubscribed)
+        print("[ContextFlow][SharedDefaults] READ-BACK isSubscribed=\(readBack)")
     }
 
     /// Read subscription status from shared storage (called by the extension handler).
     func readSubscriptionStatus() -> [String: Any] {
+        // Force re-read from disk — critical for cross-process reads (extension ↔ app)
+        defaults.synchronize()
+        let suiteName = defaults === UserDefaults.standard ? "STANDARD!" : "AppGroup"
         let isSubscribed = defaults.bool(forKey: Key.isSubscribed)
+        print("[ContextFlow][SharedDefaults] READ subscription: suite=\(suiteName), isSubscribed=\(isSubscribed)")
         let productId = defaults.string(forKey: Key.productId)
         let planType = defaults.string(forKey: Key.planType) ?? "free"
         let isInGracePeriod = defaults.bool(forKey: Key.isInGracePeriod)
@@ -254,6 +263,7 @@ final class SharedDefaults {
 
     /// Read the stored auth session. Returns nil if no session is stored.
     func readAuthSession() -> [String: Any]? {
+        defaults.synchronize()
         guard let accessToken = defaults.string(forKey: AuthKey.accessToken),
               let refreshToken = defaults.string(forKey: AuthKey.refreshToken),
               !accessToken.isEmpty else {

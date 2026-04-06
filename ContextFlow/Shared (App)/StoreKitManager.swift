@@ -38,9 +38,9 @@ final class StoreKitManager: ObservableObject {
         transactionListener = listenForTransactions()
         Task {
             await loadProducts()
-            logger.info("Init: loaded \(self.products.count) products: \(self.products.map(\.id))")
+            print("[ContextFlow][StoreKit] Init: loaded \(self.products.count) products: \(self.products.map(\.id))")
             await refreshSubscriptionStatus()
-            logger.info("Init: subscription status = subscribed:\(self.currentStatus.isSubscribed), product:\(self.currentStatus.productId ?? "none")")
+            print("[ContextFlow][StoreKit] Init: subscription status = subscribed:\(self.currentStatus.isSubscribed), product:\(self.currentStatus.productId ?? "none")")
         }
     }
 
@@ -191,14 +191,14 @@ final class StoreKitManager: ObservableObject {
     private func querySubscriptionStatus() async -> SubscriptionInfo {
         // Primary: check Transaction.currentEntitlements — Apple's recommended approach.
         let productIDs = Set(ProductID.allCases.map(\.rawValue))
-        logger.info("Querying subscription status. Known product IDs: \(productIDs)")
+        print("[ContextFlow][StoreKit] Querying subscription. Product IDs: \(productIDs)")
 
         var entitlementCount = 0
         for await result in Transaction.currentEntitlements {
             entitlementCount += 1
             if let transaction = try? checkVerified(result) {
                 let expStr = transaction.expirationDate.map { "\($0)" } ?? "none"
-                logger.info("Entitlement #\(entitlementCount): product=\(transaction.productID), type=\(String(describing: transaction.productType)), expires=\(expStr)")
+                print("[ContextFlow][StoreKit] Entitlement #\(entitlementCount): product=\(transaction.productID), type=\(transaction.productType), expires=\(expStr)")
                 if productIDs.contains(transaction.productID) &&
                    transaction.productType == .autoRenewable {
                     logger.info("Active entitlement found via currentEntitlements: \(transaction.productID)")
@@ -210,24 +210,24 @@ final class StoreKitManager: ObservableObject {
                     )
                 }
             } else {
-                logger.warning("Entitlement #\(entitlementCount): verification failed")
+                print("[ContextFlow][StoreKit] Entitlement #\(entitlementCount): VERIFICATION FAILED")
             }
         }
-        logger.info("No matching entitlements found (checked \(entitlementCount) total)")
+        print("[ContextFlow][StoreKit] No matching entitlements (checked \(entitlementCount) total)")
 
         // Fallback: check subscription.status on each product
-        logger.info("Checking subscription.status on \(self.products.count) products")
+        print("[ContextFlow][StoreKit] Checking subscription.status on \(self.products.count) products")
         for product in products {
             guard let subscription = product.subscription else { continue }
 
             do {
                 let statuses = try await subscription.status
-                logger.info("Product \(product.id): \(statuses.count) status entries")
+                print("[ContextFlow][StoreKit] Product \(product.id): \(statuses.count) statuses")
                 for s in statuses {
-                    logger.info("  state=\(String(describing: s.state))")
+                    print("[ContextFlow][StoreKit]   state=\(s.state)")
                 }
             } catch {
-                logger.error("Product \(product.id): status query failed: \(error.localizedDescription)")
+                print("[ContextFlow][StoreKit] Product \(product.id): status query FAILED: \(error)")
             }
 
             if let status = try? await subscription.status.first(where: {
@@ -246,7 +246,7 @@ final class StoreKitManager: ObservableObject {
             }
         }
 
-        logger.info("querySubscriptionStatus: no active subscription found")
+        print("[ContextFlow][StoreKit] querySubscriptionStatus: NO active subscription found")
         return SubscriptionInfo(isSubscribed: false)
     }
 

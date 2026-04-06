@@ -842,15 +842,13 @@ function FloatingPanelContent() {
         }
 
         // Also sync from native App Store bridge (Safari).
-        // This catches purchases made in the native app that
-        // haven't been synced to Supabase yet.
         try {
           const nativeInfo = await syncSubscriptionFromNative()
           if (nativeInfo.nativeConfirmed && nativeInfo.hasLicense) {
             setTrialInfo(nativeInfo)
           }
         } catch {
-          // Not on Safari or bridge unavailable — ignore
+          // Not on Safari or bridge unavailable
         }
 
         // Sync user email and ID to native app on initial load
