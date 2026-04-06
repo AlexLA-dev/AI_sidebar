@@ -38,7 +38,9 @@ final class StoreKitManager: ObservableObject {
         transactionListener = listenForTransactions()
         Task {
             await loadProducts()
+            logger.info("Init: loaded \(self.products.count) products: \(self.products.map(\.id))")
             await refreshSubscriptionStatus()
+            logger.info("Init: subscription status = subscribed:\(self.currentStatus.isSubscribed), product:\(self.currentStatus.productId ?? "none")")
         }
     }
 
@@ -188,11 +190,15 @@ final class StoreKitManager: ObservableObject {
     /// Production and Sandbox), then falls back to subscription.status.
     private func querySubscriptionStatus() async -> SubscriptionInfo {
         // Primary: check Transaction.currentEntitlements — Apple's recommended approach.
-        // This is more reliable than subscription.status, especially in Sandbox where
-        // subscription.status can return empty or stale results.
         let productIDs = Set(ProductID.allCases.map(\.rawValue))
+        logger.info("Querying subscription status. Known product IDs: \(productIDs)")
+
+        var entitlementCount = 0
         for await result in Transaction.currentEntitlements {
+            entitlementCount += 1
             if let transaction = try? checkVerified(result) {
+                let expStr = transaction.expirationDate.map { "\($0)" } ?? "none"
+                logger.info("Entitlement #\(entitlementCount): product=\(transaction.productID), type=\(String(describing: transaction.productType)), expires=\(expStr)")
                 if productIDs.contains(transaction.productID) &&
                    transaction.productType == .autoRenewable {
                     logger.info("Active entitlement found via currentEntitlements: \(transaction.productID)")
@@ -203,12 +209,26 @@ final class StoreKitManager: ObservableObject {
                         willAutoRenew: true
                     )
                 }
+            } else {
+                logger.warning("Entitlement #\(entitlementCount): verification failed")
             }
         }
+        logger.info("No matching entitlements found (checked \(entitlementCount) total)")
 
         // Fallback: check subscription.status on each product
+        logger.info("Checking subscription.status on \(self.products.count) products")
         for product in products {
             guard let subscription = product.subscription else { continue }
+
+            do {
+                let statuses = try await subscription.status
+                logger.info("Product \(product.id): \(statuses.count) status entries")
+                for s in statuses {
+                    logger.info("  state=\(String(describing: s.state))")
+                }
+            } catch {
+                logger.error("Product \(product.id): status query failed: \(error.localizedDescription)")
+            }
 
             if let status = try? await subscription.status.first(where: {
                 $0.state == .subscribed || $0.state == .inGracePeriod
@@ -226,6 +246,7 @@ final class StoreKitManager: ObservableObject {
             }
         }
 
+        logger.info("querySubscriptionStatus: no active subscription found")
         return SubscriptionInfo(isSubscribed: false)
     }
 
