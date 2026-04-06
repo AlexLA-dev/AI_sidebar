@@ -624,10 +624,15 @@ struct SubscriptionTab: View {
 
         // Determine if this is the user's current plan
         let currentProductId = storeManager.currentStatus.productId ?? ""
+        let pendingProductId = storeManager.currentStatus.pendingProductId ?? ""
         let isCurrentPlan = storeManager.currentStatus.isSubscribed &&
             ((isBYOK && currentProductId.contains("byok")) ||
              (isPro && currentProductId.contains("pro")))
         let isSubscribed = storeManager.currentStatus.isSubscribed
+        // Check if this plan is the pending switch target
+        let isPendingSwitch = isSubscribed && !isCurrentPlan &&
+            ((isBYOK && pendingProductId.contains("byok")) ||
+             (isPro && pendingProductId.contains("pro")))
 
         return VStack(alignment: .leading, spacing: 10) {
             HStack {
@@ -681,15 +686,30 @@ struct SubscriptionTab: View {
                 }
             }
 
-            if isCurrentPlan {
-                // No action needed for current plan
+            if isCurrentPlan && !pendingProductId.isEmpty {
+                VStack(spacing: 4) {
+                    Text("Active until end of period")
+                        .font(.subheadline)
+                        .foregroundColor(.orange)
+                    Text("Then switches to \(pendingProductId.contains("byok") ? "BYOK" : "Pro")")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+            } else if isCurrentPlan {
                 Text("Active subscription")
                     .font(.subheadline)
                     .foregroundColor(.green)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
+            } else if isPendingSwitch {
+                Text("Switching at next renewal")
+                    .font(.subheadline)
+                    .foregroundColor(.blue)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
             } else if isSubscribed {
-                // Switch plan button
                 Button(action: { handlePurchase(product) }) {
                     HStack {
                         if isPurchasing {

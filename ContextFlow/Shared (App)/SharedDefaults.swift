@@ -12,6 +12,8 @@ struct SubscriptionInfo {
     var expirationDate: Date?
     var isInGracePeriod: Bool = false
     var willAutoRenew: Bool = false
+    /// The product ID the subscription will switch to at next renewal (downgrade pending)
+    var pendingProductId: String? = nil
 }
 
 /// Manages shared data between the container app and the Safari extension via App Group UserDefaults.

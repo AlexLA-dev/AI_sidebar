@@ -83,11 +83,9 @@ final class StoreKitManager: ObservableObject {
             await transaction.finish()
 
             // Immediately write subscription status from the successful transaction.
-            // In Sandbox, subscription.status can have a delay — writing directly
-            // ensures SharedDefaults reflects the purchase right away.
             let immediateStatus = SubscriptionInfo(
                 isSubscribed: true,
-                productId: product.id,
+                productId: transaction.productID,
                 expirationDate: transaction.expirationDate,
                 willAutoRenew: true
             )
@@ -193,43 +191,43 @@ final class StoreKitManager: ObservableObject {
         let productIDs = Set(ProductID.allCases.map(\.rawValue))
         print("[ContextFlow][StoreKit] Querying subscription. Product IDs: \(productIDs)")
 
+        // First, collect renewal info from subscription.status (needed for pending switches)
+        var pendingSwitch: String? = nil
+        for product in products {
+            guard let subscription = product.subscription else { continue }
+            if let status = try? await subscription.status.first(where: {
+                $0.state == .subscribed || $0.state == .inGracePeriod
+            }) {
+                if let renewalInfo = try? checkVerifiedRenewalInfo(status.renewalInfo) {
+                    // autoRenewPreference is the product the user switched to
+                    if let preference = renewalInfo.autoRenewPreference,
+                       preference != product.id {
+                        pendingSwitch = preference
+                    }
+                }
+            }
+        }
+
         var entitlementCount = 0
         for await result in Transaction.currentEntitlements {
             entitlementCount += 1
             if let transaction = try? checkVerified(result) {
-                let expStr = transaction.expirationDate.map { "\($0)" } ?? "none"
-                print("[ContextFlow][StoreKit] Entitlement #\(entitlementCount): product=\(transaction.productID), type=\(transaction.productType), expires=\(expStr)")
                 if productIDs.contains(transaction.productID) &&
                    transaction.productType == .autoRenewable {
-                    logger.info("Active entitlement found via currentEntitlements: \(transaction.productID)")
                     return SubscriptionInfo(
                         isSubscribed: true,
                         productId: transaction.productID,
                         expirationDate: transaction.expirationDate,
-                        willAutoRenew: true
+                        willAutoRenew: true,
+                        pendingProductId: pendingSwitch
                     )
                 }
-            } else {
-                print("[ContextFlow][StoreKit] Entitlement #\(entitlementCount): VERIFICATION FAILED")
             }
         }
-        print("[ContextFlow][StoreKit] No matching entitlements (checked \(entitlementCount) total)")
 
         // Fallback: check subscription.status on each product
-        print("[ContextFlow][StoreKit] Checking subscription.status on \(self.products.count) products")
         for product in products {
             guard let subscription = product.subscription else { continue }
-
-            do {
-                let statuses = try await subscription.status
-                print("[ContextFlow][StoreKit] Product \(product.id): \(statuses.count) statuses")
-                for s in statuses {
-                    print("[ContextFlow][StoreKit]   state=\(s.state)")
-                }
-            } catch {
-                print("[ContextFlow][StoreKit] Product \(product.id): status query FAILED: \(error)")
-            }
-
             if let status = try? await subscription.status.first(where: {
                 $0.state == .subscribed || $0.state == .inGracePeriod
             }) {
@@ -241,12 +239,11 @@ final class StoreKitManager: ObservableObject {
                     productId: product.id,
                     expirationDate: transaction?.expirationDate,
                     isInGracePeriod: status.state == .inGracePeriod,
-                    willAutoRenew: renewalInfo?.willAutoRenew ?? false
+                    willAutoRenew: renewalInfo?.willAutoRenew ?? false,
+                    pendingProductId: pendingSwitch
                 )
             }
         }
-
-        print("[ContextFlow][StoreKit] querySubscriptionStatus: NO active subscription found")
         return SubscriptionInfo(isSubscribed: false)
     }
 
