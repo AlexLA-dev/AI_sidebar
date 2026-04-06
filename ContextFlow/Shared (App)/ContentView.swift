@@ -12,8 +12,13 @@ struct OpenSafariButton: View {
     var body: some View {
         #if os(iOS)
         Button(action: {
-            if let url = URL(string: "https://www.apple.com") {
-                UIApplication.shared.open(url)
+            // x-web-search:// always opens Safari regardless of default browser
+            if let safariURL = URL(string: "x-web-search://?site:apple.com") {
+                UIApplication.shared.open(safariURL, options: [:]) { success in
+                    if !success, let fallback = URL(string: "https://www.apple.com") {
+                        UIApplication.shared.open(fallback)
+                    }
+                }
             }
         }) {
             Label("Open Safari", systemImage: "safari")
