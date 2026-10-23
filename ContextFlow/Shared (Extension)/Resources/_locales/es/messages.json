@@ -1,0 +1,397 @@
+{
+ "extName": {
+  "message": "ContextFlow — IA para Safari"
+ },
+ "extDescription": {
+  "message": "Pregúntale a la IA sobre la página que estás leyendo: resúmenes, explicaciones y traducciones sin salir de Safari."
+ },
+ "actionTitle": {
+  "message": "Preguntar a ContextFlow sobre esta página"
+ },
+ "languageName": {
+  "message": "Español"
+ },
+ "ctxPage": {
+  "message": "Esta página"
+ },
+ "ctxSelection": {
+  "message": "Selección · $P0$ palabras",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "ctxNone": {
+  "message": "Chat general"
+ },
+ "ctxUsePage": {
+  "message": "Usar toda la página"
+ },
+ "emptyTitle": {
+  "message": "¿Qué te gustaría saber?"
+ },
+ "emptyPage": {
+  "message": "Puedo ver esta página. Haz una pregunta o elige una acción."
+ },
+ "emptySelection": {
+  "message": "Pregunta sobre el texto seleccionado o elige una acción."
+ },
+ "emptyNone": {
+  "message": "No puedo leer esta página, pero puedes preguntarme lo que quieras."
+ },
+ "actSummarize": {
+  "message": "Resumir"
+ },
+ "actKeyPoints": {
+  "message": "Ideas clave"
+ },
+ "actExplain": {
+  "message": "Explicar sencillo"
+ },
+ "actTranslate": {
+  "message": "Traducir"
+ },
+ "actImprove": {
+  "message": "Mejorar texto"
+ },
+ "actReply": {
+  "message": "Redactar respuesta"
+ },
+ "promptSummarize": {
+  "message": "Resume esta página en 5 a 7 viñetas y luego da la conclusión principal en una sola oración."
+ },
+ "promptKeyPoints": {
+  "message": "¿Cuáles son las ideas clave de esta página? Enumera los datos, cifras y fechas importantes."
+ },
+ "promptExplain": {
+  "message": "Explica esta página con palabras sencillas, como si se lo explicaras a un niño listo de 12 años."
+ },
+ "promptTranslate": {
+  "message": "Traduce el contenido principal de esta página al $P0$. Mantén la estructura y los títulos.",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "promptSelSummarize": {
+  "message": "Resume brevemente el texto seleccionado."
+ },
+ "promptSelExplain": {
+  "message": "Explica el texto seleccionado con palabras sencillas."
+ },
+ "promptSelTranslate": {
+  "message": "Traduce el texto seleccionado al $P0$.",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "promptSelImprove": {
+  "message": "Reescribe el texto seleccionado para que sea más claro y conciso. Da una sola versión mejorada."
+ },
+ "promptReply": {
+  "message": "Redacta una respuesta breve y cordial a este mensaje o publicación."
+ },
+ "placeholderPage": {
+  "message": "Pregunta sobre esta página…"
+ },
+ "placeholderSelection": {
+  "message": "Pregunta sobre la selección…"
+ },
+ "placeholderNone": {
+  "message": "Pregunta lo que quieras…"
+ },
+ "send": {
+  "message": "Enviar"
+ },
+ "stop": {
+  "message": "Detener"
+ },
+ "newChat": {
+  "message": "Nuevo chat"
+ },
+ "settings": {
+  "message": "Configuración"
+ },
+ "close": {
+  "message": "Cerrar"
+ },
+ "back": {
+  "message": "Atrás"
+ },
+ "copy": {
+  "message": "Copiar"
+ },
+ "copied": {
+  "message": "Copiado"
+ },
+ "share": {
+  "message": "Compartir"
+ },
+ "retry": {
+  "message": "Reintentar"
+ },
+ "thinking": {
+  "message": "Leyendo la página…"
+ },
+ "errNetwork": {
+  "message": "Sin conexión. Revisa tu conexión a internet e inténtalo de nuevo."
+ },
+ "errBusy": {
+  "message": "ContextFlow tiene mucha demanda en este momento. Inténtalo de nuevo en un minuto."
+ },
+ "errUpstream": {
+  "message": "El servicio de IA no respondió. Inténtalo de nuevo."
+ },
+ "errInterrupted": {
+  "message": "La respuesta se interrumpió."
+ },
+ "errBadKey": {
+  "message": "OpenAI rechazó tu clave de API. Revísala en Configuración."
+ },
+ "errGeneric": {
+  "message": "Algo salió mal. Inténtalo de nuevo."
+ },
+ "limitFreeTitle": {
+  "message": "Se acabaron tus respuestas gratis de hoy"
+ },
+ "limitFreeBody": {
+  "message": "Tendrás nuevas respuestas gratis en $P0$. Con Pro obtienes hasta $P1$ respuestas por semana.",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "limitProTitle": {
+  "message": "Límite semanal alcanzado"
+ },
+ "limitProBody": {
+  "message": "Tus respuestas Pro se renuevan en $P0$.",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "getPro": {
+  "message": "Obtener Pro"
+ },
+ "useOwnKey": {
+  "message": "Usar mi clave de OpenAI"
+ },
+ "usageFree": {
+  "message": "Te quedan $P0$ de $P1$ respuestas gratis hoy",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "usagePro": {
+  "message": "Pro · Te quedan $P0$ de $P1$ respuestas esta semana",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "usageOwnKey": {
+  "message": "Usando tu clave de OpenAI"
+ },
+ "hours": {
+  "message": "$P0$ h",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "minutes": {
+  "message": "$P0$ min",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "consentTitle": {
+  "message": "Antes de tu primera respuesta"
+ },
+ "consentBody": {
+  "message": "Para responder, ContextFlow envía tu pregunta y el texto de esta página (o de tu selección) a OpenAI a través de nuestro servidor. El contenido de las páginas y los chats no se guardan en nuestros servidores; tus chats se quedan en este dispositivo."
+ },
+ "consentAccept": {
+  "message": "Aceptar y continuar"
+ },
+ "privacyPolicy": {
+  "message": "Política de privacidad"
+ },
+ "setPlan": {
+  "message": "Plan"
+ },
+ "planFree": {
+  "message": "Gratis"
+ },
+ "planPro": {
+  "message": "Pro"
+ },
+ "planByok": {
+  "message": "Clave propia"
+ },
+ "planRenews": {
+  "message": "Se renueva el $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "manageSubscription": {
+  "message": "Administrar suscripción"
+ },
+ "restorePurchases": {
+  "message": "Restaurar compras"
+ },
+ "setAppearance": {
+  "message": "Apariencia"
+ },
+ "themeAuto": {
+  "message": "Automático"
+ },
+ "themeLight": {
+  "message": "Claro"
+ },
+ "themeDark": {
+  "message": "Oscuro"
+ },
+ "setTextSize": {
+  "message": "Tamaño del texto"
+ },
+ "sizeNormal": {
+  "message": "Normal"
+ },
+ "sizeLarge": {
+  "message": "Grande"
+ },
+ "setFab": {
+  "message": "Botón flotante"
+ },
+ "fabAuto": {
+  "message": "Automático"
+ },
+ "fabOn": {
+  "message": "Activado"
+ },
+ "fabOff": {
+  "message": "Desactivado"
+ },
+ "setFabHint": {
+  "message": "En Automático, el botón aparece en iPhone y iPad. En Mac, usa el icono de la barra de herramientas o Ctrl+Shift+E."
+ },
+ "hideOnSite": {
+  "message": "Ocultar en $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "showOnSite": {
+  "message": "Mostrar en $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "setSelectionButton": {
+  "message": "Botón al seleccionar texto"
+ },
+ "setAbout": {
+  "message": "Sobre mí"
+ },
+ "setAboutHint": {
+  "message": "Opcional. Ayuda a personalizar las respuestas, p. ej., “Soy diseñador de producto, sé breve”."
+ },
+ "setOwnKey": {
+  "message": "Clave propia de OpenAI"
+ },
+ "setOwnKeyHint": {
+  "message": "Incluida en los planes Pro y Clave propia. Las solicitudes van directo de tu dispositivo a OpenAI."
+ },
+ "setOwnKeyLocked": {
+  "message": "Disponible con el plan Pro o Clave propia"
+ },
+ "getKey": {
+  "message": "Obtener una clave"
+ },
+ "save": {
+  "message": "Guardar"
+ },
+ "remove": {
+  "message": "Eliminar"
+ },
+ "saved": {
+  "message": "Guardado"
+ },
+ "deleteChats": {
+  "message": "Eliminar todos los chats"
+ },
+ "chatsDeleted": {
+  "message": "Chats eliminados"
+ },
+ "support": {
+  "message": "Soporte"
+ },
+ "terms": {
+  "message": "Términos de uso"
+ },
+ "rateApp": {
+  "message": "Calificar ContextFlow"
+ },
+ "version": {
+  "message": "Versión $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "fabLabel": {
+  "message": "Preguntar a ContextFlow"
+ },
+ "selAsk": {
+  "message": "Preguntar a la IA"
+ },
+ "selExplain": {
+  "message": "Explicar"
+ },
+ "selTranslate": {
+  "message": "Traducir"
+ },
+ "welcomeTitle": {
+  "message": "ContextFlow está listo"
+ },
+ "welcomeBody": {
+  "message": "Abre cualquier sitio web y toca el botón ✦ o el icono de ContextFlow en la barra de herramientas. Selecciona texto para preguntar solo sobre esa parte."
+ },
+ "welcomeRestricted": {
+  "message": "Safari no permite que las extensiones lean esta página. Abre un sitio web normal para usar ContextFlow."
+ },
+ "welcomePermission": {
+  "message": "Si no pasa nada, permite ContextFlow en todos los sitios web: Safari → Extensiones → ContextFlow → Todos los sitios web → Permitir."
+ }
+}

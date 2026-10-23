@@ -1,65 +1,29 @@
 {
-  "name": "context-flow",
+  "name": "contextflow",
   "displayName": "ContextFlow",
-  "version": "0.0.1",
-  "description": "A hybrid AI sidebar extension for Safari & Chrome",
-  "author": "",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "AI assistant for the page you are reading \u2014 Safari Web Extension for iPhone, iPad and Mac",
   "scripts": {
-    "dev": "plasmo dev",
-    "build": "plasmo build",
-    "build:safari": "plasmo build --target=safari-mv3",
-    "package": "plasmo package"
+    "build": "node scripts/build-extension.mjs",
+    "build:chrome": "node scripts/build-extension.mjs --target=chrome",
+    "watch": "node scripts/build-extension.mjs --watch",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p netlify/tsconfig.json",
+    "test": "node --test --experimental-strip-types --no-warnings 'tests/**/*.test.mts'",
+    "check": "npm run typecheck && npm test && npm run build"
   },
   "dependencies": {
     "@mozilla/readability": "^0.6.0",
-    "@netlify/functions": "^5.1.2",
-    "@plasmohq/messaging": "^0.7.2",
-    "@plasmohq/storage": "^1.15.0",
     "@supabase/supabase-js": "^2.93.2",
-    "@tailwindcss/typography": "^0.5.19",
-    "autoprefixer": "^10.4.23",
-    "clsx": "^2.1.1",
-    "dotenv": "^17.2.3",
-    "framer-motion": "^12.29.2",
-    "lucide-react": "^0.563.0",
-    "openai": "^6.16.0",
-    "plasmo": "^0.90.5",
-    "postcss": "^8.5.6",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-markdown": "8.0.7",
-    "resend": "^6.9.1",
-    "stripe": "^20.2.0",
-    "tailwind-merge": "^3.4.0",
-    "tailwindcss": "^3.4.17"
+    "preact": "^10.27.2"
   },
   "devDependencies": {
+    "@netlify/functions": "^5.1.2",
     "@types/chrome": "^0.0.280",
     "@types/node": "^22.10.5",
-    "@types/react": "^18.3.14",
-    "@types/react-dom": "^18.3.5",
-    "netlify-cli": "^23.13.5",
+    "esbuild": "^0.25.10",
     "typescript": "^5.7.3"
   },
-  "manifest": {
-    "host_permissions": [
-      "http://*/*",
-      "https://*/*"
-    ],
-    "permissions": [
-      "storage",
-      "sidePanel",
-      "nativeMessaging",
-      "activeTab"
-    ],
-    "commands": {
-      "_execute_action": {
-        "suggested_key": {
-          "default": "Ctrl+Shift+E",
-          "mac": "MacCtrl+Shift+E"
-        },
-        "description": "Open ContextFlow Sidebar"
-      }
-    }
-  }
+  "packageManager": "pnpm@10.28.0"
 }

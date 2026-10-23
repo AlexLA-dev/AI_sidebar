@@ -1,0 +1,397 @@
+{
+ "extName": {
+  "message": "ContextFlow — AI for Safari"
+ },
+ "extDescription": {
+  "message": "Ask AI about the page you're reading: summaries, explanations and translations without leaving Safari."
+ },
+ "actionTitle": {
+  "message": "Ask ContextFlow about this page"
+ },
+ "languageName": {
+  "message": "English"
+ },
+ "ctxPage": {
+  "message": "This page"
+ },
+ "ctxSelection": {
+  "message": "Selection · $P0$ words",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "ctxNone": {
+  "message": "General chat"
+ },
+ "ctxUsePage": {
+  "message": "Use whole page"
+ },
+ "emptyTitle": {
+  "message": "What would you like to know?"
+ },
+ "emptyPage": {
+  "message": "I can see this page. Ask a question or pick an action."
+ },
+ "emptySelection": {
+  "message": "Ask about the selected text or pick an action."
+ },
+ "emptyNone": {
+  "message": "This page can't be read, but you can ask me anything."
+ },
+ "actSummarize": {
+  "message": "Summarize"
+ },
+ "actKeyPoints": {
+  "message": "Key takeaways"
+ },
+ "actExplain": {
+  "message": "Explain simply"
+ },
+ "actTranslate": {
+  "message": "Translate"
+ },
+ "actImprove": {
+  "message": "Improve writing"
+ },
+ "actReply": {
+  "message": "Draft a reply"
+ },
+ "promptSummarize": {
+  "message": "Summarize this page in 5–7 bullet points, then give the main conclusion in one sentence."
+ },
+ "promptKeyPoints": {
+  "message": "What are the key takeaways from this page? List the important facts, numbers and dates."
+ },
+ "promptExplain": {
+  "message": "Explain this page in simple words, as if to a smart 12-year-old."
+ },
+ "promptTranslate": {
+  "message": "Translate the main content of this page into $P0$. Keep the structure and headings.",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "promptSelSummarize": {
+  "message": "Summarize the selected text briefly."
+ },
+ "promptSelExplain": {
+  "message": "Explain the selected text in simple words."
+ },
+ "promptSelTranslate": {
+  "message": "Translate the selected text into $P0$.",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "promptSelImprove": {
+  "message": "Rewrite the selected text to be clearer and more concise. Give one improved version."
+ },
+ "promptReply": {
+  "message": "Draft a short, polite reply to this message or post."
+ },
+ "placeholderPage": {
+  "message": "Ask about this page…"
+ },
+ "placeholderSelection": {
+  "message": "Ask about the selection…"
+ },
+ "placeholderNone": {
+  "message": "Ask anything…"
+ },
+ "send": {
+  "message": "Send"
+ },
+ "stop": {
+  "message": "Stop"
+ },
+ "newChat": {
+  "message": "New chat"
+ },
+ "settings": {
+  "message": "Settings"
+ },
+ "close": {
+  "message": "Close"
+ },
+ "back": {
+  "message": "Back"
+ },
+ "copy": {
+  "message": "Copy"
+ },
+ "copied": {
+  "message": "Copied"
+ },
+ "share": {
+  "message": "Share"
+ },
+ "retry": {
+  "message": "Retry"
+ },
+ "thinking": {
+  "message": "Reading the page…"
+ },
+ "errNetwork": {
+  "message": "No connection. Check your internet and try again."
+ },
+ "errBusy": {
+  "message": "ContextFlow is very busy right now. Please try again in a minute."
+ },
+ "errUpstream": {
+  "message": "The AI service didn't respond. Please try again."
+ },
+ "errInterrupted": {
+  "message": "The answer was interrupted."
+ },
+ "errBadKey": {
+  "message": "OpenAI rejected your API key. Check it in Settings."
+ },
+ "errGeneric": {
+  "message": "Something went wrong. Please try again."
+ },
+ "limitFreeTitle": {
+  "message": "You've used today's free answers"
+ },
+ "limitFreeBody": {
+  "message": "New free answers in $P0$. Pro gives you up to $P1$ answers a week.",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "limitProTitle": {
+  "message": "Weekly limit reached"
+ },
+ "limitProBody": {
+  "message": "Your Pro answers refresh in $P0$.",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "getPro": {
+  "message": "Get Pro"
+ },
+ "useOwnKey": {
+  "message": "Use my OpenAI key"
+ },
+ "usageFree": {
+  "message": "$P0$ of $P1$ free answers left today",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "usagePro": {
+  "message": "Pro · $P0$ of $P1$ answers left this week",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "usageOwnKey": {
+  "message": "Using your OpenAI key"
+ },
+ "hours": {
+  "message": "$P0$ h",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "minutes": {
+  "message": "$P0$ min",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "consentTitle": {
+  "message": "Before your first answer"
+ },
+ "consentBody": {
+  "message": "To answer, ContextFlow sends your question and the text of this page (or your selection) to OpenAI via our server. Page content and chats are not stored on our servers; your chats stay on this device."
+ },
+ "consentAccept": {
+  "message": "Agree and continue"
+ },
+ "privacyPolicy": {
+  "message": "Privacy Policy"
+ },
+ "setPlan": {
+  "message": "Plan"
+ },
+ "planFree": {
+  "message": "Free"
+ },
+ "planPro": {
+  "message": "Pro"
+ },
+ "planByok": {
+  "message": "Own key"
+ },
+ "planRenews": {
+  "message": "Renews $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "manageSubscription": {
+  "message": "Manage subscription"
+ },
+ "restorePurchases": {
+  "message": "Restore purchases"
+ },
+ "setAppearance": {
+  "message": "Appearance"
+ },
+ "themeAuto": {
+  "message": "Auto"
+ },
+ "themeLight": {
+  "message": "Light"
+ },
+ "themeDark": {
+  "message": "Dark"
+ },
+ "setTextSize": {
+  "message": "Text size"
+ },
+ "sizeNormal": {
+  "message": "Normal"
+ },
+ "sizeLarge": {
+  "message": "Large"
+ },
+ "setFab": {
+  "message": "Floating button"
+ },
+ "fabAuto": {
+  "message": "Auto"
+ },
+ "fabOn": {
+  "message": "On"
+ },
+ "fabOff": {
+  "message": "Off"
+ },
+ "setFabHint": {
+  "message": "Auto shows the button on iPhone and iPad. On Mac use the toolbar icon or Ctrl+Shift+E."
+ },
+ "hideOnSite": {
+  "message": "Hide on $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "showOnSite": {
+  "message": "Show on $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "setSelectionButton": {
+  "message": "Button when selecting text"
+ },
+ "setAbout": {
+  "message": "About me"
+ },
+ "setAboutHint": {
+  "message": "Optional. Helps tailor answers, e.g. “I'm a product designer, keep it short”."
+ },
+ "setOwnKey": {
+  "message": "Own OpenAI key"
+ },
+ "setOwnKeyHint": {
+  "message": "Included in Pro and Own key plans. Requests go straight from your device to OpenAI."
+ },
+ "setOwnKeyLocked": {
+  "message": "Available with Pro or Own key plan"
+ },
+ "getKey": {
+  "message": "Get a key"
+ },
+ "save": {
+  "message": "Save"
+ },
+ "remove": {
+  "message": "Remove"
+ },
+ "saved": {
+  "message": "Saved"
+ },
+ "deleteChats": {
+  "message": "Delete all chats"
+ },
+ "chatsDeleted": {
+  "message": "Chats deleted"
+ },
+ "support": {
+  "message": "Support"
+ },
+ "terms": {
+  "message": "Terms of Use"
+ },
+ "rateApp": {
+  "message": "Rate ContextFlow"
+ },
+ "version": {
+  "message": "Version $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "fabLabel": {
+  "message": "Ask ContextFlow"
+ },
+ "selAsk": {
+  "message": "Ask AI"
+ },
+ "selExplain": {
+  "message": "Explain"
+ },
+ "selTranslate": {
+  "message": "Translate"
+ },
+ "welcomeTitle": {
+  "message": "ContextFlow is ready"
+ },
+ "welcomeBody": {
+  "message": "Open any website and tap the ✦ button or the ContextFlow icon in the toolbar. Select text to ask about just that part."
+ },
+ "welcomeRestricted": {
+  "message": "Safari doesn't let extensions read this page. Open a regular website to use ContextFlow."
+ },
+ "welcomePermission": {
+  "message": "If nothing happens, allow ContextFlow on all websites: Safari → Extensions → ContextFlow → All Websites → Allow."
+ }
+}

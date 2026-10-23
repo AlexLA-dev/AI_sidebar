@@ -1,0 +1,397 @@
+{
+ "extName": {
+  "message": "ContextFlow — ИИ для Safari"
+ },
+ "extDescription": {
+  "message": "Спросите ИИ о странице, которую читаете: пересказ, объяснение и перевод прямо в Safari."
+ },
+ "actionTitle": {
+  "message": "Спросить ContextFlow об этой странице"
+ },
+ "languageName": {
+  "message": "русский"
+ },
+ "ctxPage": {
+  "message": "Эта страница"
+ },
+ "ctxSelection": {
+  "message": "Выделено · $P0$ слов",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "ctxNone": {
+  "message": "Общий чат"
+ },
+ "ctxUsePage": {
+  "message": "Вся страница"
+ },
+ "emptyTitle": {
+  "message": "Что хотите узнать?"
+ },
+ "emptyPage": {
+  "message": "Я вижу эту страницу. Задайте вопрос или выберите действие."
+ },
+ "emptySelection": {
+  "message": "Спросите о выделенном тексте или выберите действие."
+ },
+ "emptyNone": {
+  "message": "Эту страницу прочитать нельзя, но спросить можно о чём угодно."
+ },
+ "actSummarize": {
+  "message": "Кратко"
+ },
+ "actKeyPoints": {
+  "message": "Главное"
+ },
+ "actExplain": {
+  "message": "Объясни просто"
+ },
+ "actTranslate": {
+  "message": "Перевести"
+ },
+ "actImprove": {
+  "message": "Улучшить текст"
+ },
+ "actReply": {
+  "message": "Набросать ответ"
+ },
+ "promptSummarize": {
+  "message": "Перескажи эту страницу в 5–7 пунктах, а затем одним предложением дай главный вывод."
+ },
+ "promptKeyPoints": {
+  "message": "Что главное на этой странице? Перечисли важные факты, цифры и даты."
+ },
+ "promptExplain": {
+  "message": "Объясни эту страницу простыми словами, как умному двенадцатилетнему."
+ },
+ "promptTranslate": {
+  "message": "Переведи основной текст этой страницы на $P0$. Сохрани структуру и заголовки.",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "promptSelSummarize": {
+  "message": "Кратко перескажи выделенный текст."
+ },
+ "promptSelExplain": {
+  "message": "Объясни выделенный текст простыми словами."
+ },
+ "promptSelTranslate": {
+  "message": "Переведи выделенный текст на $P0$.",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "promptSelImprove": {
+  "message": "Перепиши выделенный текст понятнее и короче. Дай один улучшенный вариант."
+ },
+ "promptReply": {
+  "message": "Набросай короткий вежливый ответ на это сообщение или пост."
+ },
+ "placeholderPage": {
+  "message": "Спросите об этой странице…"
+ },
+ "placeholderSelection": {
+  "message": "Спросите о выделенном…"
+ },
+ "placeholderNone": {
+  "message": "Спросите что угодно…"
+ },
+ "send": {
+  "message": "Отправить"
+ },
+ "stop": {
+  "message": "Стоп"
+ },
+ "newChat": {
+  "message": "Новый чат"
+ },
+ "settings": {
+  "message": "Настройки"
+ },
+ "close": {
+  "message": "Закрыть"
+ },
+ "back": {
+  "message": "Назад"
+ },
+ "copy": {
+  "message": "Копировать"
+ },
+ "copied": {
+  "message": "Скопировано"
+ },
+ "share": {
+  "message": "Поделиться"
+ },
+ "retry": {
+  "message": "Повторить"
+ },
+ "thinking": {
+  "message": "Читаю страницу…"
+ },
+ "errNetwork": {
+  "message": "Нет соединения. Проверьте интернет и попробуйте ещё раз."
+ },
+ "errBusy": {
+  "message": "Сейчас ContextFlow перегружен. Попробуйте через минуту."
+ },
+ "errUpstream": {
+  "message": "ИИ-сервис не ответил. Попробуйте ещё раз."
+ },
+ "errInterrupted": {
+  "message": "Ответ прервался."
+ },
+ "errBadKey": {
+  "message": "OpenAI отклонил ваш API-ключ. Проверьте его в настройках."
+ },
+ "errGeneric": {
+  "message": "Что-то пошло не так. Попробуйте ещё раз."
+ },
+ "limitFreeTitle": {
+  "message": "Бесплатные ответы на сегодня закончились"
+ },
+ "limitFreeBody": {
+  "message": "Новые бесплатные ответы через $P0$. С Pro — до $P1$ ответов в неделю.",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "limitProTitle": {
+  "message": "Недельный лимит исчерпан"
+ },
+ "limitProBody": {
+  "message": "Ответы Pro обновятся через $P0$.",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "getPro": {
+  "message": "Получить Pro"
+ },
+ "useOwnKey": {
+  "message": "Свой ключ OpenAI"
+ },
+ "usageFree": {
+  "message": "Осталось $P0$ из $P1$ бесплатных ответов на сегодня",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "usagePro": {
+  "message": "Pro · осталось $P0$ из $P1$ ответов на неделю",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "usageOwnKey": {
+  "message": "Используется ваш ключ OpenAI"
+ },
+ "hours": {
+  "message": "$P0$ ч",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "minutes": {
+  "message": "$P0$ мин",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "consentTitle": {
+  "message": "Перед первым ответом"
+ },
+ "consentBody": {
+  "message": "Чтобы ответить, ContextFlow отправляет ваш вопрос и текст этой страницы (или выделенный фрагмент) в OpenAI через наш сервер. Мы не храним содержимое страниц и переписку на своих серверах — чаты остаются на этом устройстве."
+ },
+ "consentAccept": {
+  "message": "Согласен, продолжить"
+ },
+ "privacyPolicy": {
+  "message": "Политика конфиденциальности"
+ },
+ "setPlan": {
+  "message": "Тариф"
+ },
+ "planFree": {
+  "message": "Бесплатный"
+ },
+ "planPro": {
+  "message": "Pro"
+ },
+ "planByok": {
+  "message": "Свой ключ"
+ },
+ "planRenews": {
+  "message": "Продление $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "manageSubscription": {
+  "message": "Управлять подпиской"
+ },
+ "restorePurchases": {
+  "message": "Восстановить покупки"
+ },
+ "setAppearance": {
+  "message": "Оформление"
+ },
+ "themeAuto": {
+  "message": "Авто"
+ },
+ "themeLight": {
+  "message": "Светлое"
+ },
+ "themeDark": {
+  "message": "Тёмное"
+ },
+ "setTextSize": {
+  "message": "Размер текста"
+ },
+ "sizeNormal": {
+  "message": "Обычный"
+ },
+ "sizeLarge": {
+  "message": "Крупный"
+ },
+ "setFab": {
+  "message": "Плавающая кнопка"
+ },
+ "fabAuto": {
+  "message": "Авто"
+ },
+ "fabOn": {
+  "message": "Вкл"
+ },
+ "fabOff": {
+  "message": "Выкл"
+ },
+ "setFabHint": {
+  "message": "«Авто» показывает кнопку на iPhone и iPad. На Mac используйте значок на панели или Ctrl+Shift+E."
+ },
+ "hideOnSite": {
+  "message": "Скрыть на $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "showOnSite": {
+  "message": "Показывать на $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "setSelectionButton": {
+  "message": "Кнопка при выделении текста"
+ },
+ "setAbout": {
+  "message": "Обо мне"
+ },
+ "setAboutHint": {
+  "message": "Необязательно. Помогает подстроить ответы, например: «Я продуктовый дизайнер, отвечай коротко»."
+ },
+ "setOwnKey": {
+  "message": "Свой ключ OpenAI"
+ },
+ "setOwnKeyHint": {
+  "message": "Входит в тарифы Pro и «Свой ключ». Запросы идут напрямую с вашего устройства в OpenAI."
+ },
+ "setOwnKeyLocked": {
+  "message": "Доступно в тарифах Pro и «Свой ключ»"
+ },
+ "getKey": {
+  "message": "Получить ключ"
+ },
+ "save": {
+  "message": "Сохранить"
+ },
+ "remove": {
+  "message": "Удалить"
+ },
+ "saved": {
+  "message": "Сохранено"
+ },
+ "deleteChats": {
+  "message": "Удалить все чаты"
+ },
+ "chatsDeleted": {
+  "message": "Чаты удалены"
+ },
+ "support": {
+  "message": "Поддержка"
+ },
+ "terms": {
+  "message": "Условия использования"
+ },
+ "rateApp": {
+  "message": "Оценить ContextFlow"
+ },
+ "version": {
+  "message": "Версия $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "fabLabel": {
+  "message": "Спросить ContextFlow"
+ },
+ "selAsk": {
+  "message": "Спросить ИИ"
+ },
+ "selExplain": {
+  "message": "Объяснить"
+ },
+ "selTranslate": {
+  "message": "Перевести"
+ },
+ "welcomeTitle": {
+  "message": "ContextFlow готов к работе"
+ },
+ "welcomeBody": {
+  "message": "Откройте любой сайт и нажмите кнопку ✦ или значок ContextFlow на панели Safari. Выделите текст, чтобы спросить только о нём."
+ },
+ "welcomeRestricted": {
+  "message": "Safari не разрешает расширениям читать эту страницу. Откройте обычный сайт, чтобы пользоваться ContextFlow."
+ },
+ "welcomePermission": {
+  "message": "Если ничего не происходит, разрешите ContextFlow на всех сайтах: Safari → Расширения → ContextFlow → Все сайты → Разрешить."
+ }
+}

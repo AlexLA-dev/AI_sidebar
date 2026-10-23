@@ -1,0 +1,397 @@
+{
+ "extName": {
+  "message": "ContextFlow — Safari용 AI"
+ },
+ "extDescription": {
+  "message": "읽고 있는 페이지에 대해 AI에게 물어보세요. Safari를 떠나지 않고 요약, 설명, 번역까지 한 번에."
+ },
+ "actionTitle": {
+  "message": "이 페이지에 대해 ContextFlow에게 묻기"
+ },
+ "languageName": {
+  "message": "한국어"
+ },
+ "ctxPage": {
+  "message": "이 페이지"
+ },
+ "ctxSelection": {
+  "message": "선택 영역 · $P0$단어",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "ctxNone": {
+  "message": "일반 채팅"
+ },
+ "ctxUsePage": {
+  "message": "페이지 전체 사용"
+ },
+ "emptyTitle": {
+  "message": "무엇이 궁금하세요?"
+ },
+ "emptyPage": {
+  "message": "이 페이지를 보고 있어요. 질문하거나 작업을 선택하세요."
+ },
+ "emptySelection": {
+  "message": "선택한 텍스트에 대해 질문하거나 작업을 선택하세요."
+ },
+ "emptyNone": {
+  "message": "이 페이지는 읽을 수 없지만, 무엇이든 물어보세요."
+ },
+ "actSummarize": {
+  "message": "요약"
+ },
+ "actKeyPoints": {
+  "message": "핵심 정리"
+ },
+ "actExplain": {
+  "message": "쉽게 설명"
+ },
+ "actTranslate": {
+  "message": "번역"
+ },
+ "actImprove": {
+  "message": "문장 다듬기"
+ },
+ "actReply": {
+  "message": "답장 쓰기"
+ },
+ "promptSummarize": {
+  "message": "이 페이지를 5~7개의 글머리 기호로 요약한 다음, 핵심 결론을 한 문장으로 알려 주세요."
+ },
+ "promptKeyPoints": {
+  "message": "이 페이지의 핵심 내용은 무엇인가요? 중요한 사실, 수치, 날짜를 정리해 주세요."
+ },
+ "promptExplain": {
+  "message": "이 페이지를 똑똑한 12살 아이에게 설명하듯 쉬운 말로 설명해 주세요."
+ },
+ "promptTranslate": {
+  "message": "이 페이지의 주요 내용을 $P0$로 번역해 주세요. 구조와 제목은 그대로 유지해 주세요.",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "promptSelSummarize": {
+  "message": "선택한 텍스트를 간단히 요약해 주세요."
+ },
+ "promptSelExplain": {
+  "message": "선택한 텍스트를 쉬운 말로 설명해 주세요."
+ },
+ "promptSelTranslate": {
+  "message": "선택한 텍스트를 $P0$로 번역해 주세요.",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "promptSelImprove": {
+  "message": "선택한 텍스트를 더 명확하고 간결하게 다시 써 주세요. 개선된 버전 하나만 제시해 주세요."
+ },
+ "promptReply": {
+  "message": "이 메시지나 게시물에 대한 짧고 정중한 답장 초안을 작성해 주세요."
+ },
+ "placeholderPage": {
+  "message": "이 페이지에 대해 물어보세요…"
+ },
+ "placeholderSelection": {
+  "message": "선택한 내용에 대해 물어보세요…"
+ },
+ "placeholderNone": {
+  "message": "무엇이든 물어보세요…"
+ },
+ "send": {
+  "message": "보내기"
+ },
+ "stop": {
+  "message": "중지"
+ },
+ "newChat": {
+  "message": "새 채팅"
+ },
+ "settings": {
+  "message": "설정"
+ },
+ "close": {
+  "message": "닫기"
+ },
+ "back": {
+  "message": "뒤로"
+ },
+ "copy": {
+  "message": "복사"
+ },
+ "copied": {
+  "message": "복사됨"
+ },
+ "share": {
+  "message": "공유"
+ },
+ "retry": {
+  "message": "다시 시도"
+ },
+ "thinking": {
+  "message": "페이지를 읽는 중…"
+ },
+ "errNetwork": {
+  "message": "인터넷에 연결되어 있지 않아요. 연결을 확인하고 다시 시도해 주세요."
+ },
+ "errBusy": {
+  "message": "지금 ContextFlow 사용량이 많아요. 1분 후에 다시 시도해 주세요."
+ },
+ "errUpstream": {
+  "message": "AI 서비스가 응답하지 않았어요. 다시 시도해 주세요."
+ },
+ "errInterrupted": {
+  "message": "답변이 중단되었어요."
+ },
+ "errBadKey": {
+  "message": "OpenAI에서 API 키를 거부했어요. 설정에서 확인해 주세요."
+ },
+ "errGeneric": {
+  "message": "문제가 발생했어요. 다시 시도해 주세요."
+ },
+ "limitFreeTitle": {
+  "message": "오늘의 무료 답변을 모두 사용했어요"
+ },
+ "limitFreeBody": {
+  "message": "$P0$ 후에 무료 답변이 다시 제공돼요. Pro를 이용하면 매주 최대 $P1$개의 답변을 받을 수 있어요.",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "limitProTitle": {
+  "message": "주간 한도에 도달했어요"
+ },
+ "limitProBody": {
+  "message": "Pro 답변은 $P0$ 후에 다시 채워져요.",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "getPro": {
+  "message": "Pro 시작하기"
+ },
+ "useOwnKey": {
+  "message": "내 OpenAI 키 사용"
+ },
+ "usageFree": {
+  "message": "오늘 남은 무료 답변 $P0$/$P1$개",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "usagePro": {
+  "message": "Pro · 이번 주 남은 답변 $P0$/$P1$개",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "usageOwnKey": {
+  "message": "내 OpenAI 키 사용 중"
+ },
+ "hours": {
+  "message": "$P0$시간",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "minutes": {
+  "message": "$P0$분",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "consentTitle": {
+  "message": "첫 답변 전에 확인해 주세요"
+ },
+ "consentBody": {
+  "message": "답변을 위해 ContextFlow는 질문과 이 페이지(또는 선택한 부분)의 텍스트를 당사 서버를 거쳐 OpenAI로 보내요. 페이지 내용과 채팅은 당사 서버에 저장되지 않으며, 채팅은 이 기기에만 보관돼요."
+ },
+ "consentAccept": {
+  "message": "동의하고 계속"
+ },
+ "privacyPolicy": {
+  "message": "개인정보 처리방침"
+ },
+ "setPlan": {
+  "message": "요금제"
+ },
+ "planFree": {
+  "message": "무료"
+ },
+ "planPro": {
+  "message": "Pro"
+ },
+ "planByok": {
+  "message": "내 키"
+ },
+ "planRenews": {
+  "message": "$P0$에 갱신",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "manageSubscription": {
+  "message": "구독 관리"
+ },
+ "restorePurchases": {
+  "message": "구입 항목 복원"
+ },
+ "setAppearance": {
+  "message": "화면 모드"
+ },
+ "themeAuto": {
+  "message": "자동"
+ },
+ "themeLight": {
+  "message": "라이트"
+ },
+ "themeDark": {
+  "message": "다크"
+ },
+ "setTextSize": {
+  "message": "텍스트 크기"
+ },
+ "sizeNormal": {
+  "message": "보통"
+ },
+ "sizeLarge": {
+  "message": "크게"
+ },
+ "setFab": {
+  "message": "플로팅 버튼"
+ },
+ "fabAuto": {
+  "message": "자동"
+ },
+ "fabOn": {
+  "message": "켬"
+ },
+ "fabOff": {
+  "message": "끔"
+ },
+ "setFabHint": {
+  "message": "'자동'으로 설정하면 iPhone과 iPad에서 버튼이 표시돼요. Mac에서는 도구 막대의 아이콘이나 Ctrl+Shift+E를 사용하세요."
+ },
+ "hideOnSite": {
+  "message": "$P0$에서 숨기기",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "showOnSite": {
+  "message": "$P0$에서 보기",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "setSelectionButton": {
+  "message": "텍스트 선택 시 버튼"
+ },
+ "setAbout": {
+  "message": "내 소개"
+ },
+ "setAboutHint": {
+  "message": "선택 사항이에요. 답변을 나에게 맞추는 데 도움이 돼요. 예: “저는 프로덕트 디자이너예요. 짧게 답해 주세요.”"
+ },
+ "setOwnKey": {
+  "message": "내 OpenAI 키"
+ },
+ "setOwnKeyHint": {
+  "message": "Pro 및 '내 키' 요금제에 포함돼요. 요청은 기기에서 OpenAI로 바로 전송돼요."
+ },
+ "setOwnKeyLocked": {
+  "message": "Pro 또는 '내 키' 요금제에서 사용할 수 있어요"
+ },
+ "getKey": {
+  "message": "키 발급받기"
+ },
+ "save": {
+  "message": "저장"
+ },
+ "remove": {
+  "message": "삭제"
+ },
+ "saved": {
+  "message": "저장됨"
+ },
+ "deleteChats": {
+  "message": "모든 채팅 삭제"
+ },
+ "chatsDeleted": {
+  "message": "채팅 삭제됨"
+ },
+ "support": {
+  "message": "지원"
+ },
+ "terms": {
+  "message": "이용약관"
+ },
+ "rateApp": {
+  "message": "ContextFlow 평가하기"
+ },
+ "version": {
+  "message": "버전 $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "fabLabel": {
+  "message": "ContextFlow에게 묻기"
+ },
+ "selAsk": {
+  "message": "AI에게 묻기"
+ },
+ "selExplain": {
+  "message": "설명"
+ },
+ "selTranslate": {
+  "message": "번역"
+ },
+ "welcomeTitle": {
+  "message": "ContextFlow가 준비됐어요"
+ },
+ "welcomeBody": {
+  "message": "아무 웹 사이트나 열고 ✦ 버튼이나 도구 막대의 ContextFlow 아이콘을 탭하세요. 텍스트를 선택하면 그 부분에 대해서만 물어볼 수 있어요."
+ },
+ "welcomeRestricted": {
+  "message": "Safari에서는 확장 프로그램이 이 페이지를 읽을 수 없어요. ContextFlow를 사용하려면 일반 웹 사이트를 열어 주세요."
+ },
+ "welcomePermission": {
+  "message": "아무 반응이 없으면 모든 웹 사이트에서 ContextFlow를 허용하세요: Safari → 확장 프로그램 → ContextFlow → 모든 웹 사이트 → 허용."
+ }
+}
