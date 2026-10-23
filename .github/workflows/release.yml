@@ -12,10 +12,6 @@ name: Release to App Store Connect
 # Then: Actions → "Release to App Store Connect" → Run workflow.
 
 on:
-  # One run from the PR branch, approved by the owner ("do everything yourself"): uploads if the ASC secrets exist.
-  push:
-    branches: [claude/zen-ramanujan-x01dn9]
-    paths: [.github/workflows/release.yml]
   workflow_dispatch:
     inputs:
       platforms:
