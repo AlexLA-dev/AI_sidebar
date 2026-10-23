@@ -1,0 +1,37 @@
+ContextFlow porta un assistente IA direttamente in Safari. Riassumi articoli lunghi, estrai i fatti chiave, fatti spiegare qualsiasi cosa in parole semplici o traduci l’intera pagina, senza copiare, incollare o cambiare app.
+
+COSA PUOI FARE
+• Riassumere in pochi secondi qualsiasi articolo, report, thread o pagina prodotto
+• Cogliere al volo i punti chiave, i numeri e le date
+• Fare le tue domande: “Dov’è la fregatura?”, “Vale la pena comprarlo?”, “Cosa dovrei fare adesso?”
+• Spiegare il gergo e gli argomenti complessi in parole semplici
+• Tradurre le pagine nella tua lingua
+• Selezionare il testo per fartelo spiegare, migliorare ciò che scrivi o preparare una bozza di risposta
+
+PENSATO PER SAFARI SU IPHONE, IPAD E MAC
+• iPhone e iPad: tocca il pulsante ✦ su qualsiasi pagina
+• Mac: una barra laterale che si apre dalla barra degli strumenti o con Control-Shift-E
+• Ogni pagina conserva la propria conversazione, così puoi riprenderla in seguito
+• Modalità chiara e scura, disponibile in 11 lingue
+
+PRIVACY FIN DALLA PROGETTAZIONE
+• Nessun account, nessuna registrazione, nessun tracciamento
+• Una pagina viene letta solo quando fai una domanda su di essa
+• Il testo delle pagine non viene mai salvato sui nostri server; le tue chat restano sul tuo dispositivo
+
+GRATIS E PRO
+• Gratis: 5 risposte ogni giorno
+• Pro: fino a 375 risposte a settimana su tutti i tuoi dispositivi Apple
+• Chiave propria: risposte illimitate con la tua chiave API di OpenAI
+
+INIZIA IN UN MINUTO
+1. Apri l’app ContextFlow e segui i passaggi per attivare l’estensione in Safari.
+2. Apri un sito qualsiasi e tocca ✦ (su Mac, fai clic sull’icona di ContextFlow nella barra degli strumenti).
+3. Scegli “Riassumi”, “Punti chiave”, “In parole semplici” o “Traduci”, oppure fai semplicemente una domanda.
+
+L’IA può commettere errori. Verifica le informazioni importanti.
+
+Gli abbonamenti si rinnovano automaticamente, a meno che non vengano disdetti almeno 24 ore prima della fine del periodo in corso. Il pagamento viene addebitato sul tuo Account Apple. Puoi gestire o disdire il tuo abbonamento in qualsiasi momento nelle impostazioni del tuo account App Store.
+
+Termini di utilizzo: https://aisidebar.netlify.app/terms
+Informativa sulla privacy: https://aisidebar.netlify.app/privacy
