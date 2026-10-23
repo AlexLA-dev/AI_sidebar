@@ -39,3 +39,6 @@ xcuserdata/
 DerivedData/
 build-ios/
 build-macos/
+
+# App Store preview videos (~30 MB each; rebuilt with tools/store/preview-*.mjs, not stored in git)
+store/previews/

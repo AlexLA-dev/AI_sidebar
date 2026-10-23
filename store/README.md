@@ -141,3 +141,15 @@ node tools/store/compose.mjs /tmp/raw-en /tmp/shots-en en          # → iphone/
 ```
 
 Подписи и выноски лежат в `COPY` в `tools/store/compose.mjs`, демо-ответы в `tools/preview/answers.json`, демо-статьи в `tools/preview/article*.html`.
+
+## Как пересобрать видео-превью (iPhone 6.9")
+
+`store/previews/<locale>/iphone.mp4` (папка в `.gitignore`: файлы по ~30 МБ в репозиторий не кладём): 886×1920, 30 fps, H.264 High 4.0, ~10 Мбит/с, беззвучная стерео-дорожка AAC, до 30 с. Загружены в iOS 2.0 (en-US и ru, слот iPhone 6.9"). Сценарий: «Кратко» → «Главное» → свой вопрос, затем объяснение выделенного текста и перевод. Нужен `ffmpeg` с libx264.
+
+```bash
+STREAM_DELAY_MS=22 node --experimental-strip-types tools/preview/server.mts &   # ответы печатаются в читаемом темпе
+node tools/store/preview-record.mjs /tmp/ext-local /tmp/rec-en en               # дубли с реальным интерфейсом
+node tools/store/preview-render.mjs /tmp/rec-en store/previews/en-US/iphone.mp4 en
+```
+
+Подписи совпадают со скриншотами (`COPY` в `tools/store/preview-render.mjs`), финальная карточка берёт название из `metadata/<locale>/name.txt`.
