@@ -3,6 +3,7 @@ import type { Config, Context } from "@netlify/functions"
 import { consume, logEvent, maybeCleanup, refund, touchInstall, type ConsumeResult } from "../shared/db.mts"
 import { clip, ipSubject, isUuid, json, preflight, readJson, corsHeaders } from "../shared/http.mts"
 import { readDeltas, sanitizeMessages, sanitizePage, startCompletion, systemPrompt, type StreamStats } from "../shared/llm.mts"
+import { modelsFor } from "../shared/models.mts"
 import { blockReason, countersFor, resolveAccess, visibleUsage } from "../shared/plan.mts"
 
 /**
@@ -52,7 +53,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const system = systemPrompt(page, clip(body.profile, 1_000), locale)
   let completion
   try {
-    completion = await startCompletion(system, messages, req.signal)
+    completion = await startCompletion(system, messages, await modelsFor(access.plan), req.signal)
   } catch (err) {
     console.error("[cf] upstream failed:", err instanceof Error ? err.message : err)
     context.waitUntil(Promise.all([

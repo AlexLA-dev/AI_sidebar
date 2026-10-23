@@ -16,6 +16,7 @@ export interface StatusInfo {
   // What the device's App Store account says (may be ahead of the server).
   store: { active: boolean; productId: string | null; expiresAt: string | null } | null
   hasOwnKey: boolean
+  ownKeyProvider: "openai" | "anthropic" | null
   offline: boolean
 }
 
@@ -62,6 +63,8 @@ export const STORAGE = {
   chats: "cf:chats",
   consent: "cf:consent",
   ownKey: "cf:ownKey",
+  // Provider model lists for the own key ({ openai?: { ids, at }, anthropic?: { models, at } }).
+  ownKeyModels: "cf:ownKeyModels",
   platform: "cf:platform"
 } as const
 
@@ -74,6 +77,8 @@ export interface Settings {
   textSize: "normal" | "large"
   theme: "auto" | "light" | "dark"
   aboutMe: string
+  // Model class used with the user's own key: newest Haiku / GPT mini or newest Sonnet / GPT.
+  ownKeyModel: "fast" | "smart"
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -84,5 +89,6 @@ export const DEFAULT_SETTINGS: Settings = {
   selectionButton: true,
   textSize: "normal",
   theme: "auto",
-  aboutMe: ""
+  aboutMe: "",
+  ownKeyModel: "smart"
 }

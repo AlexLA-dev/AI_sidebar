@@ -184,7 +184,7 @@
   "message": "Pro holen"
  },
  "useOwnKey": {
-  "message": "Eigenen OpenAI-Schlüssel nutzen"
+  "message": "Eigenen API-Schlüssel nutzen"
  },
  "usageFree": {
   "message": "Heute noch $P0$ von $P1$ Gratis-Antworten",
@@ -209,7 +209,7 @@
   }
  },
  "usageOwnKey": {
-  "message": "Dein OpenAI-Schlüssel wird verwendet"
+  "message": "Dein eigener API-Schlüssel wird verwendet"
  },
  "hours": {
   "message": "$P0$ Std.",
@@ -327,13 +327,25 @@
   "message": "Optional. Hilft, die Antworten anzupassen, z. B. „Ich bin Produktdesigner, fass dich kurz“."
  },
  "setOwnKey": {
-  "message": "Eigener OpenAI-Schlüssel"
+  "message": "Eigener API-Schlüssel (OpenAI oder Claude)"
  },
  "setOwnKeyHint": {
-  "message": "In den Tarifen Pro und Eigener Schlüssel enthalten. Anfragen gehen direkt von deinem Gerät an OpenAI."
+  "message": "In den Tarifen Pro und Eigener Schlüssel enthalten. Füge einen OpenAI- oder Anthropic-Schlüssel (Claude) ein; Anfragen gehen direkt von deinem Gerät an diesen Anbieter."
  },
  "setOwnKeyLocked": {
   "message": "Verfügbar mit dem Tarif Pro oder Eigener Schlüssel"
+ },
+ "setOwnKeyModel": {
+  "message": "Modell"
+ },
+ "modelFast": {
+  "message": "Schnell"
+ },
+ "modelSmart": {
+  "message": "Intelligent"
+ },
+ "setOwnKeyModelHint": {
+  "message": "Schnell: neuestes Claude Haiku oder GPT mini. Intelligent: neuestes Claude Sonnet oder GPT."
  },
  "getKey": {
   "message": "Schlüssel holen"

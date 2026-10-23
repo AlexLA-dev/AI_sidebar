@@ -184,7 +184,7 @@
   "message": "Pro 시작하기"
  },
  "useOwnKey": {
-  "message": "내 OpenAI 키 사용"
+  "message": "내 API 키 사용"
  },
  "usageFree": {
   "message": "오늘 남은 무료 답변 $P0$/$P1$개",
@@ -209,7 +209,7 @@
   }
  },
  "usageOwnKey": {
-  "message": "내 OpenAI 키 사용 중"
+  "message": "내 API 키 사용 중"
  },
  "hours": {
   "message": "$P0$시간",
@@ -327,13 +327,25 @@
   "message": "선택 사항이에요. 답변을 나에게 맞추는 데 도움이 돼요. 예: “저는 프로덕트 디자이너예요. 짧게 답해 주세요.”"
  },
  "setOwnKey": {
-  "message": "내 OpenAI 키"
+  "message": "내 API 키 (OpenAI 또는 Claude)"
  },
  "setOwnKeyHint": {
-  "message": "Pro 및 '내 키' 요금제에 포함돼요. 요청은 기기에서 OpenAI로 바로 전송돼요."
+  "message": "Pro 및 '내 키' 요금제에 포함돼요. OpenAI 또는 Anthropic(Claude) 키를 붙여 넣으세요. 요청은 기기에서 해당 제공업체로 바로 전송돼요."
  },
  "setOwnKeyLocked": {
   "message": "Pro 또는 '내 키' 요금제에서 사용할 수 있어요"
+ },
+ "setOwnKeyModel": {
+  "message": "모델"
+ },
+ "modelFast": {
+  "message": "빠름"
+ },
+ "modelSmart": {
+  "message": "똑똑함"
+ },
+ "setOwnKeyModelHint": {
+  "message": "빠름: 최신 Claude Haiku 또는 GPT mini. 똑똑함: 최신 Claude Sonnet 또는 GPT."
  },
  "getKey": {
   "message": "키 발급받기"

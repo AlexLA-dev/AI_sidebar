@@ -331,7 +331,7 @@ struct ProView: View {
             Feature(systemImage: "bolt.fill", text: "Up to 375 answers a week instead of 5 a day")
             Feature(systemImage: "doc.text.magnifyingglass", text: "Summaries, key takeaways, explanations and translations of any page")
             Feature(systemImage: "text.cursor", text: "Ask about selected text, rewrite it or draft a reply")
-            Feature(systemImage: "key.fill", text: "Optional: use your own OpenAI key")
+            Feature(systemImage: "key.fill", text: "Optional: use your own OpenAI or Claude key")
             Feature(systemImage: "laptopcomputer.and.iphone", text: "One subscription for iPhone, iPad and Mac")
         }
     }
@@ -381,7 +381,7 @@ struct ProView: View {
                     PlanCard(
                         product: byok,
                         title: "Own key",
-                        subtitle: "Unlimited answers with your own OpenAI API key.",
+                        subtitle: "Unlimited answers with your own OpenAI or Claude API key.",
                         badge: nil,
                         highlighted: false,
                         trialEligible: store.introEligible.contains(byok.id),

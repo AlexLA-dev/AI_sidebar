@@ -184,7 +184,7 @@
   "message": "Get Pro"
  },
  "useOwnKey": {
-  "message": "Use my OpenAI key"
+  "message": "Use my own API key"
  },
  "usageFree": {
   "message": "$P0$ of $P1$ free answers left today",
@@ -209,7 +209,7 @@
   }
  },
  "usageOwnKey": {
-  "message": "Using your OpenAI key"
+  "message": "Using your own API key"
  },
  "hours": {
   "message": "$P0$ h",
@@ -327,13 +327,25 @@
   "message": "Optional. Helps tailor answers, e.g. “I'm a product designer, keep it short”."
  },
  "setOwnKey": {
-  "message": "Own OpenAI key"
+  "message": "Own API key (OpenAI or Claude)"
  },
  "setOwnKeyHint": {
-  "message": "Included in Pro and Own key plans. Requests go straight from your device to OpenAI."
+  "message": "Included in Pro and Own key plans. Paste an OpenAI or Anthropic (Claude) key; requests go straight from your device to that provider."
  },
  "setOwnKeyLocked": {
   "message": "Available with Pro or Own key plan"
+ },
+ "setOwnKeyModel": {
+  "message": "Model"
+ },
+ "modelFast": {
+  "message": "Fast"
+ },
+ "modelSmart": {
+  "message": "Smart"
+ },
+ "setOwnKeyModelHint": {
+  "message": "Fast: newest Claude Haiku or GPT mini. Smart: newest Claude Sonnet or GPT."
  },
  "getKey": {
   "message": "Get a key"

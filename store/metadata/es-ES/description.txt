@@ -22,7 +22,7 @@ PRIVACIDAD DESDE EL DISEÑO
 GRATIS Y PRO
 • Gratis: 5 respuestas cada día
 • Pro: hasta 375 respuestas a la semana en todos tus dispositivos Apple
-• Clave propia: respuestas ilimitadas con tu propia clave de API de OpenAI
+• Clave propia: respuestas ilimitadas con tu propia clave de API de OpenAI o Claude
 
 EMPIEZA EN UN MINUTO
 1. Abre la app ContextFlow y sigue los pasos para activar la extensión en Safari.

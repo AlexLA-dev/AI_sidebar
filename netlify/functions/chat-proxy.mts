@@ -4,6 +4,7 @@ import { config } from "../shared/config.mts"
 import { consume, db, entitlementByToken, logEvent, refund, type Counter } from "../shared/db.mts"
 import { corsHeaders, ipSubject, json, preflight, readJson } from "../shared/http.mts"
 import { readDeltas, startCompletion, type StreamStats } from "../shared/llm.mts"
+import { modelsFor } from "../shared/models.mts"
 
 /**
  * /.netlify/functions/chat-proxy — compatibility endpoint for the extension
@@ -69,7 +70,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
 
   let completion
   try {
-    completion = await startCompletion(system.content || "You are ContextFlow, a helpful AI browser assistant.", chat, req.signal)
+    completion = await startCompletion(system.content || "You are ContextFlow, a helpful AI browser assistant.", chat, await modelsFor("free"), req.signal)
   } catch (err) {
     console.error("[legacy] upstream failed:", err instanceof Error ? err.message : err)
     context.waitUntil(refund(counters).catch(() => undefined))

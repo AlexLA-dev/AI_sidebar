@@ -184,7 +184,7 @@
   "message": "Passa a Pro"
  },
  "useOwnKey": {
-  "message": "Usa la mia chiave OpenAI"
+  "message": "Usa la mia chiave API"
  },
  "usageFree": {
   "message": "Oggi ti restano $P0$ risposte gratuite su $P1$",
@@ -209,7 +209,7 @@
   }
  },
  "usageOwnKey": {
-  "message": "Stai usando la tua chiave OpenAI"
+  "message": "Stai usando la tua chiave API"
  },
  "hours": {
   "message": "$P0$ h",
@@ -327,13 +327,25 @@
   "message": "Facoltativo. Aiuta a personalizzare le risposte, ad es. “Sono un product designer, sii breve”."
  },
  "setOwnKey": {
-  "message": "Chiave OpenAI personale"
+  "message": "Chiave API personale (OpenAI o Claude)"
  },
  "setOwnKeyHint": {
-  "message": "Inclusa nei piani Pro e Chiave propria. Le richieste vanno direttamente dal tuo dispositivo a OpenAI."
+  "message": "Inclusa nei piani Pro e Chiave propria. Incolla una chiave OpenAI o Anthropic (Claude); le richieste vanno direttamente dal tuo dispositivo a quel fornitore."
  },
  "setOwnKeyLocked": {
   "message": "Disponibile con il piano Pro o Chiave propria"
+ },
+ "setOwnKeyModel": {
+  "message": "Modello"
+ },
+ "modelFast": {
+  "message": "Veloce"
+ },
+ "modelSmart": {
+  "message": "Intelligente"
+ },
+ "setOwnKeyModelHint": {
+  "message": "Veloce: l’ultimo Claude Haiku o GPT mini. Intelligente: l’ultimo Claude Sonnet o GPT."
  },
  "getKey": {
   "message": "Ottieni una chiave"
