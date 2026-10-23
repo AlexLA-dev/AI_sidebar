@@ -12,6 +12,10 @@ name: Release to App Store Connect
 # Then: Actions → "Release to App Store Connect" → Run workflow.
 
 on:
+  # One run from the PR branch, approved by the owner ("do everything yourself"): uploads if the ASC secrets exist.
+  push:
+    branches: [claude/zen-ramanujan-x01dn9]
+    paths: [.github/workflows/release.yml]
   workflow_dispatch:
     inputs:
       platforms:
@@ -53,12 +57,12 @@ jobs:
         platform: [iOS, macOS]
     steps:
       - name: Skip unselected platform
-        if: inputs.platforms != 'both' && inputs.platforms != matrix.platform
+        if: (inputs.platforms || 'both') != 'both' && (inputs.platforms || 'both') != matrix.platform
         run: echo "skipping ${{ matrix.platform }}"
       - uses: actions/checkout@v4
-        if: inputs.platforms == 'both' || inputs.platforms == matrix.platform
+        if: (inputs.platforms || 'both') == 'both' || inputs.platforms == matrix.platform
       - name: Archive, sign and upload
-        if: inputs.platforms == 'both' || inputs.platforms == matrix.platform
+        if: (inputs.platforms || 'both') == 'both' || inputs.platforms == matrix.platform
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
