@@ -1,40 +1,14 @@
-# ContextFlow Engineering Rules
+# ContextFlow — rules for AI coding assistants
 
-You are a Senior Frontend Engineer specializing in Browser Extensions (Manifest V3), React, and TypeScript.
-You are building "ContextFlow" - a hybrid AI sidebar extension for Safari & Chrome.
+ContextFlow is a Safari Web Extension (iPhone, iPad, Mac) with a SwiftUI container app and a Netlify backend. Read README.md first.
 
-## Tech Stack & Constraints
-- **Framework:** Plasmo (React + TypeScript).
-- **Styling:** Tailwind CSS (utility-first).
-- **State Management:** React Context + Plasmo Storage (for persistence).
-- **Backend:** Python (FastAPI) - separate repo/folder, focus on Frontend for now.
-- **AI Integration:** WebLLM (Local, WebGPU) + OpenAI API (Cloud).
-
-## Critical Rules
-1. **Manifest V3 Strictness:** NEVER suggest Manifest V2 code. No background pages (use Service Workers). No `eval()`.
-2. **Plasmo Specifics:**
-   - Use `plasmo` CLI for dev/build.
-   - Content Scripts live in `contents/*.tsx`.
-   - Sidepanel lives in `sidepanel.tsx`.
-   - Use `@plasmohq/storage` for syncing data between Popup, Options, and Content Scripts.
-3. **Safari Compatibility:**
-   - Avoid `chrome.*` APIs where `browser.*` polyfill is better, BUT Plasmo handles this.
-   - Be aware of Safari's strict Content Security Policy (CSP).
-4. **Code Style:**
-   - Functional Components only (Hooks).
-   - Strict TypeScript: No `any`. Define interfaces for all props and API responses.
-   - Use "Early Return" pattern to reduce nesting.
-   - Comments: Only for complex logic (The "Why", not the "What").
-5. **Performance:**
-   - This runs in a browser. Memory leaks in `useEffect` are forbidden.
-   - Always clean up event listeners in `useEffect` return.
-   - Use `React.memo` for components that re-render often (like chat messages).
-
-## User Interface (UI)
-- The UI must look "Native" to macOS/Safari.
-- Use Lucide React for icons.
-- Use Radix UI primitives for complex interactive components (Dialogs, Popovers) to ensure accessibility.
-
-## Behavior
-- Be skeptical. If I ask for a feature that violates Apple's Review Guidelines, warn me.
-- Optimize for "Local First". If logic can run in JS without an API call, do it.
+- Extension: TypeScript + Preact, bundled by esbuild (`scripts/build-extension.mjs`). Manifest V3. No Plasmo, no React, no Tailwind.
+  - All UI lives in a shadow root (`src/content`). Use px units only, no global CSS.
+  - All network calls go through the background worker (`src/background`). Content scripts never call APIs directly.
+  - User-facing strings: `src/locales/<lang>.json` (keys must exist in all languages) → `t("key")`.
+  - After changing anything in `src/`, run `pnpm run build` and commit `ContextFlow/Shared (Extension)/Resources` (CI checks it).
+- Native app: `ContextFlow/` (Xcode). Purchases only in the app (StoreKit 2). The app shares the signed transaction with the extension via the App Group (`SharedDefaults.swift`, two identical copies).
+- Backend: `netlify/functions/*.mts`, shared code in `netlify/shared`. Data lives in the `contextflow` schema of a Supabase project shared with another product — never touch other schemas/tables; add migrations to `supabase/migrations`.
+- No accounts. Users are identified by a random install id; paid access = Apple-signed JWS verified server-side (`netlify/shared/apple.mts`).
+- Apple review: purchases must stay in-app (no external payment links), keep restore/manage/terms/privacy links on the paywall, ask for consent before sending page content to AI.
+- Tests: `pnpm test` (backend), `node tools/preview/e2e.mjs` (extension in Chromium against the local preview server).

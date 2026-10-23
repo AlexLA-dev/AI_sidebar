@@ -1,74 +1,76 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ContextFlow — AI Web Assistant</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 50%, #e0e7ff 100%);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 40px 24px;
-      color: #1f2937;
-    }
-    .container {
-      background: white;
-      border-radius: 20px;
-      padding: 48px 36px;
-      max-width: 480px;
-      width: 100%;
-      text-align: center;
-      box-shadow: 0 8px 32px rgba(124, 58, 237, 0.12);
-    }
-    .logo-icon {
-      width: 72px; height: 72px;
-      background: linear-gradient(135deg, #7c3aed, #a855f7);
-      border-radius: 18px;
-      display: inline-flex; align-items: center; justify-content: center;
-      margin-bottom: 20px;
-    }
-    .logo-icon svg { width: 36px; height: 36px; stroke: white; fill: none; }
-    h1 { font-size: 32px; font-weight: 700; margin-bottom: 8px; }
-    .subtitle { color: #6b7280; font-size: 16px; margin-bottom: 32px; line-height: 1.5; }
-    .links { display: flex; flex-direction: column; gap: 12px; }
-    .links a {
-      display: block;
-      padding: 14px 20px;
-      background: #f5f3ff;
-      border-radius: 12px;
-      color: #7c3aed;
-      text-decoration: none;
-      font-weight: 500;
-      font-size: 15px;
-      transition: background 0.2s;
-    }
-    .links a:hover { background: #ede9fe; }
-    .footer { margin-top: 32px; }
-    .footer p { font-size: 13px; color: #9ca3af; }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ContextFlow — AI assistant for Safari on iPhone, iPad and Mac</title>
+<meta name="description" content="Summarize, explain and translate any web page in Safari. Ask questions about what you're reading — 5 free answers every day, no sign-up." />
+<link rel="icon" href="/icon.png" />
+<link rel="apple-touch-icon" href="/icon-512.png" />
+<link rel="stylesheet" href="/style.css" />
+<meta name="apple-itunes-app" content="app-id=6759115793" />
+<meta property="og:title" content="ContextFlow — AI assistant for Safari on iPhone, iPad and Mac" />
+<meta property="og:description" content="Summarize, explain and translate any web page in Safari. Ask questions about what you're reading — 5 free answers every day, no sign-up." />
+<meta property="og:image" content="https://aisidebar.netlify.app/icon-512.png" />
 </head>
 <body>
-  <div class="container">
-    <div class="logo-icon">
-      <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-      </svg>
+<nav class="wrap"><a class="brand" href="/"><img src="/icon.png" alt="" />ContextFlow</a><div class="links"><a href="/#how">How it works</a><a href="/#pricing">Pricing</a><a href="/support">Support</a></div></nav>
+<main class="wrap">
+  <div class="hero">
+    <div>
+      <h1>Understand any page <span>in seconds</span></h1>
+      <p>ContextFlow is an AI assistant built into Safari. Summarize long articles, get the key facts, explain jargon or translate a page — without copying, pasting or switching apps.</p>
+      <a class="cta" href="https://apps.apple.com/app/id6759115793"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.37 12.6c-.02-2.2 1.8-3.26 1.88-3.31-1.03-1.5-2.62-1.71-3.18-1.73-1.35-.14-2.64.8-3.33.8-.69 0-1.74-.78-2.87-.76-1.47.02-2.83.86-3.59 2.18-1.53 2.66-.39 6.6 1.1 8.76.73 1.06 1.6 2.24 2.73 2.2 1.1-.04 1.51-.71 2.84-.71 1.32 0 1.7.71 2.86.69 1.18-.02 1.93-1.07 2.65-2.13.84-1.22 1.18-2.41 1.2-2.47-.03-.01-2.3-.88-2.32-3.52zM14.2 6.13c.6-.73 1.01-1.75.9-2.76-.87.04-1.92.58-2.54 1.31-.56.64-1.05 1.68-.92 2.67.97.08 1.96-.49 2.56-1.22z"/></svg><span><small>Download on the</small>App Store</span></a>
+      <div class="note">Free to start · 5 answers every day · No account needed · iPhone, iPad &amp; Mac</div>
     </div>
-    <h1>ContextFlow</h1>
-    <p class="subtitle">AI-powered answers about any web page.<br>Available for Safari and Chrome.</p>
-    <div class="links">
-      <a href="/privacy">Privacy Policy</a>
-      <a href="/terms">Terms of Use</a>
-      <a href="/support">Support</a>
-    </div>
-    <div class="footer">
-      <p>&copy; 2026 ContextFlow. All rights reserved.</p>
+    <div class="mock" aria-hidden="true">
+      <div class="card">
+        <div class="q">Summarize</div>
+        <strong>In short:</strong> a four-day week kept revenue steady while cutting burnout.
+        <ul><li><strong>56 of 61</strong> companies kept it</li><li><strong>71%</strong> of staff less burned out</li><li>Resignations <strong>−57%</strong></li></ul>
+        <div class="chips"><span>Key takeaways</span><span>Explain simply</span><span>Translate</span></div>
+      </div>
     </div>
   </div>
+
+  <section id="features">
+    <h2>Everything you read, made easier</h2>
+    <div class="grid">
+      <div class="tile"><h3>Summaries in one tap</h3><p>Get the gist of long articles, reports and threads as clear bullet points.</p></div>
+      <div class="tile"><h3>Ask the page</h3><p>“What's the price?”, “Is this source reliable?”, “What should I do next?” — answers grounded in the page.</p></div>
+      <div class="tile"><h3>Explain &amp; translate</h3><p>Turn jargon into plain words or translate the whole page into your language.</p></div>
+      <div class="tile"><h3>Select text to focus</h3><p>Highlight a paragraph to explain it, rewrite it or draft a reply.</p></div>
+      <div class="tile"><h3>Private by design</h3><p>No account, no tracking. Chats stay on your device; page text is never stored on our servers.</p></div>
+      <div class="tile"><h3>iPhone, iPad and Mac</h3><p>A floating ✦ button on iPhone and iPad, a sidebar and a keyboard shortcut on Mac.</p></div>
+    </div>
+  </section>
+
+  <section id="how">
+    <h2>How it works</h2>
+    <div class="steps">
+      <div>Install ContextFlow from the App Store and turn it on in Safari (Settings → Apps → Safari → Extensions on iPhone; Safari → Settings → Extensions on Mac).</div>
+      <div>Open any website and tap ✦ — or click the ContextFlow icon in the toolbar (Control-Shift-E on Mac).</div>
+      <div>Pick Summarize, Key takeaways, Explain or Translate, or ask your own question.</div>
+    </div>
+  </section>
+
+  <section id="pricing">
+    <h2>Simple pricing</h2>
+    <div class="plans">
+      <div class="plan"><h3>Free</h3><div class="price">$0</div><ul><li>5 answers every day</li><li>All actions and languages</li><li>No account needed</li></ul></div>
+      <div class="plan pro"><h3>Pro</h3><div class="price">$6.99 <small>/ month</small></div><ul><li>Up to 375 answers a week</li><li>Everything in Free</li><li>Optional: use your own OpenAI key</li></ul></div>
+      <div class="plan"><h3>Own key</h3><div class="price">$1.99 <small>/ month</small></div><ul><li>Unlimited with your own OpenAI API key</li><li>Requests go straight to OpenAI</li></ul></div>
+    </div>
+    <p class="note">Prices in USD; local prices are shown in the App Store. Subscriptions renew monthly until cancelled in your App Store account settings.</p>
+  </section>
+
+  <section id="faq">
+    <h2>Questions</h2>
+    <details><summary>Do I need an account?</summary><p>No. ContextFlow works right after you turn it on in Safari. Subscriptions are tied to your Apple Account and work on all your devices.</p></details>
+    <details><summary>Which AI does ContextFlow use?</summary><p>Answers are generated by OpenAI models. Page text is sent only when you ask something and is not used to train models.</p></details>
+    <details><summary>Does it work on every website?</summary><p>On regular websites, yes. Safari doesn't let extensions read some pages (the start page, App Store pages, PDFs in some cases) — you can still ask general questions there.</p></details>
+  </section>
+</main>
+<footer class="wrap"><span>© 2026 ContextFlow</span><a href="/privacy">Privacy Policy</a><a href="/terms">Terms of Use</a><a href="/support">Support</a><a href="mailto:top10resource@gmail.com">top10resource@gmail.com</a></footer>
 </body>
 </html>

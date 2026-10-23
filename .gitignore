@@ -32,3 +32,10 @@ pnpm-debug.log*
 
 # Keys (never commit API keys)
 keys/
+
+# Xcode per-user state
+xcuserdata/
+*.xcuserstate
+DerivedData/
+build-ios/
+build-macos/

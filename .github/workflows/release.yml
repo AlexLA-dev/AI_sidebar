@@ -1,0 +1,87 @@
+name: Release to App Store Connect
+
+# Archives the iOS/iPadOS and macOS apps, signs them with Xcode-managed
+# (cloud) signing and uploads the builds to App Store Connect / TestFlight.
+#
+# One-time setup (GitHub → Settings → Secrets and variables → Actions):
+#   ASC_KEY_ID        Key ID of an App Store Connect API key (Users and Access → Integrations
+#                     → App Store Connect API → Team Keys, access "Admin")
+#   ASC_ISSUER_ID     Issuer ID shown on the same page
+#   ASC_PRIVATE_KEY   Full contents of the downloaded AuthKey_XXXX.p8 file
+#
+# Then: Actions → "Release to App Store Connect" → Run workflow.
+
+on:
+  workflow_dispatch:
+    inputs:
+      platforms:
+        description: "Platforms to upload"
+        type: choice
+        options: [both, iOS, macOS]
+        default: both
+      build_number:
+        description: "Build number (empty = 100 + run number)"
+        required: false
+        default: ""
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      build: ${{ steps.build.outputs.number }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run typecheck && pnpm test && pnpm run build
+      - name: Extension build in the Xcode project is up to date
+        run: git diff --exit-code -- "ContextFlow/Shared (Extension)/Resources"
+      - id: build
+        run: echo "number=${{ inputs.build_number || '' }}" >> "$GITHUB_OUTPUT"
+
+  upload:
+    needs: check
+    name: Archive + upload (${{ matrix.platform }})
+    runs-on: macos-26
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [iOS, macOS]
+    steps:
+      - name: Skip unselected platform
+        if: inputs.platforms != 'both' && inputs.platforms != matrix.platform
+        run: echo "skipping ${{ matrix.platform }}"
+      - uses: actions/checkout@v4
+        if: inputs.platforms == 'both' || inputs.platforms == matrix.platform
+      - name: Archive, sign and upload
+        if: inputs.platforms == 'both' || inputs.platforms == matrix.platform
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+          BUILD_INPUT: ${{ needs.check.outputs.build }}
+        run: |
+          set -euo pipefail
+          if [ -z "$ASC_KEY_ID" ] || [ -z "$ASC_ISSUER_ID" ] || [ -z "$ASC_PRIVATE_KEY" ]; then
+            echo "::error::Add ASC_KEY_ID, ASC_ISSUER_ID and ASC_PRIVATE_KEY repository secrets first"; exit 1
+          fi
+          KEY_PATH="$RUNNER_TEMP/AuthKey_$ASC_KEY_ID.p8"
+          printf '%s' "$ASC_PRIVATE_KEY" > "$KEY_PATH"
+          BUILD="${BUILD_INPUT:-$((100 + GITHUB_RUN_NUMBER))}"
+          if [ "${{ matrix.platform }}" = "iOS" ]; then
+            SCHEME="ContextFlow (iOS)"; DEST="generic/platform=iOS"; OPTIONS=ci/ExportOptions-iOS.plist
+          else
+            SCHEME="ContextFlow (macOS)"; DEST="generic/platform=macOS"; OPTIONS=ci/ExportOptions-macOS.plist
+          fi
+          AUTH=(-allowProvisioningUpdates -authenticationKeyPath "$KEY_PATH" -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID")
+          ARCHIVE="$RUNNER_TEMP/ContextFlow-${{ matrix.platform }}.xcarchive"
+          echo "Building ${{ matrix.platform }} build $BUILD"
+          xcodebuild archive -project ContextFlow/ContextFlow.xcodeproj -scheme "$SCHEME" -destination "$DEST" \
+            -archivePath "$ARCHIVE" "${AUTH[@]}" CURRENT_PROJECT_VERSION="$BUILD" | tail -n 30
+          xcodebuild -exportArchive -archivePath "$ARCHIVE" -exportOptionsPlist "$OPTIONS" \
+            -exportPath "$RUNNER_TEMP/export-${{ matrix.platform }}" "${AUTH[@]}" | tail -n 30
+          echo "### ${{ matrix.platform }} build $BUILD uploaded to App Store Connect" >> "$GITHUB_STEP_SUMMARY"
