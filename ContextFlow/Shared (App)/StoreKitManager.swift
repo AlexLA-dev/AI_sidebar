@@ -1,317 +1,133 @@
-import StoreKit
 import Combine
-import os.log
+import Foundation
+import StoreKit
+import SwiftUI
 
-/// Manages App Store subscriptions via StoreKit 2.
-///
-/// This class is used by the native container app to handle purchases.
-/// After each purchase/restore/status change, it writes the subscription
-/// status to SharedDefaults so the Safari extension can read it.
-@available(iOS 15.0, macOS 12.0, *)
+/// App Store subscriptions (StoreKit 2). Purchases happen in the app; after any
+/// change the current entitlement — including Apple's signed transaction — is
+/// written to the App Group so the Safari extension can use it.
 @MainActor
 final class StoreKitManager: ObservableObject {
-
     static let shared = StoreKitManager()
 
-    // MARK: – Product IDs (must match App Store Connect)
-
-    enum ProductID: String, CaseIterable {
-        case byokMonthly = "com.contextflow.byok.monthly"
-        case proMonthly  = "com.contextflow.pro.monthly"
+    enum ProductID {
+        static let pro = "com.contextflow.pro.monthly"
+        // Optional: shown automatically once created in App Store Connect.
+        static let proYearly = "com.contextflow.pro.yearly"
+        static let byok = "com.contextflow.byok.monthly"
+        static let all = [pro, proYearly, byok]
     }
-
-    // MARK: – Published state
 
     @Published private(set) var products: [Product] = []
-    @Published private(set) var purchasedProductIDs: Set<String> = []
-    @Published private(set) var isLoading = false
-    @Published private(set) var currentStatus = SubscriptionInfo(isSubscribed: false)
+    @Published private(set) var entitlement: SharedEntitlement = SharedDefaults.shared.readEntitlement()
+    @Published private(set) var isLoadingProducts = false
+    @Published private(set) var productsFailed = false
 
-    // MARK: – Private
-
-    private let logger = Logger(subsystem: "com.contextflow.app", category: "StoreKit")
-    private var transactionListener: Task<Void, Never>?
-
-    // MARK: – Lifecycle
+    private var updates: Task<Void, Never>?
 
     private init() {
-        transactionListener = listenForTransactions()
+        updates = Task.detached { [weak self] in
+            for await result in Transaction.updates {
+                if case .verified(let transaction) = result {
+                    await transaction.finish()
+                }
+                await self?.refreshEntitlement()
+            }
+        }
         Task {
             await loadProducts()
-            print("[ContextFlow][StoreKit] Init: loaded \(self.products.count) products: \(self.products.map(\.id))")
-            await refreshSubscriptionStatus()
-            print("[ContextFlow][StoreKit] Init: subscription status = subscribed:\(self.currentStatus.isSubscribed), product:\(self.currentStatus.productId ?? "none")")
+            await refreshEntitlement()
         }
     }
 
-    deinit {
-        transactionListener?.cancel()
-    }
+    @Published private(set) var introEligible: Set<String> = []
 
-    // MARK: – Load products
+    var pro: Product? { products.first { $0.id == ProductID.pro } }
+    var proYearly: Product? { products.first { $0.id == ProductID.proYearly } }
+    var byok: Product? { products.first { $0.id == ProductID.byok } }
 
     func loadProducts() async {
-        isLoading = true
-        defer { isLoading = false }
-
+        isLoadingProducts = true
+        defer { isLoadingProducts = false }
         do {
-            let ids = ProductID.allCases.map(\.rawValue)
-            products = try await Product.products(for: ids)
-            logger.info("Loaded \(self.products.count) products")
+            let loaded = try await Product.products(for: ProductID.all)
+            products = loaded.sorted { $0.price > $1.price }
+            productsFailed = loaded.isEmpty
+            var eligible = Set<String>()
+            for product in loaded {
+                if let subscription = product.subscription,
+                   subscription.introductoryOffer != nil,
+                   await subscription.isEligibleForIntroOffer {
+                    eligible.insert(product.id)
+                }
+            }
+            introEligible = eligible
         } catch {
-            logger.error("Failed to load products: \(error.localizedDescription)")
+            productsFailed = true
         }
     }
 
-    // MARK: – Purchase
+    enum PurchaseOutcome {
+        case purchased, cancelled, pending
+    }
 
-    /// Purchase a product. After success, writes status to SharedDefaults.
-    func purchase(_ product: Product, appAccountToken: UUID? = nil) async throws -> (
-        transaction: Transaction,
-        jwsRepresentation: String
-    ) {
-        var options: Set<Product.PurchaseOption> = []
-        if let token = appAccountToken {
-            options.insert(.appAccountToken(token))
-        }
-
-        let result = try await product.purchase(options: options)
-
+    func purchase(_ product: Product) async throws -> PurchaseOutcome {
+        let result = try await product.purchase()
         switch result {
         case .success(let verification):
-            let transaction = try checkVerified(verification)
+            guard case .verified(let transaction) = verification else {
+                throw StoreError.unverified
+            }
             await transaction.finish()
-
-            // Immediately write subscription status from the successful transaction.
-            let immediateStatus = SubscriptionInfo(
-                isSubscribed: true,
-                productId: transaction.productID,
-                expirationDate: transaction.expirationDate,
-                willAutoRenew: true
-            )
-            currentStatus = immediateStatus
-            purchasedProductIDs.insert(product.id)
-            SharedDefaults.shared.writeSubscriptionStatus(immediateStatus)
-
-            // Also refresh via the standard path (non-blocking).
-            // This will reconcile with StoreKit's subscription.status eventually.
-            Task { await refreshSubscriptionStatus() }
-
-            let jws = verification.jwsRepresentation
-
-            logger.info("Purchase succeeded: \(product.id)")
-            return (transaction, jws)
-
+            await refreshEntitlement()
+            return .purchased
         case .userCancelled:
-            throw StoreKitError.userCancelled
-
+            return .cancelled
         case .pending:
-            throw StoreKitError.purchasePending
-
+            return .pending
         @unknown default:
-            throw StoreKitError.unknown
+            return .cancelled
         }
     }
 
-    /// Purchase by product ID string.
-    func purchase(productId: String, appAccountToken: UUID? = nil) async throws -> (
-        transaction: Transaction,
-        jwsRepresentation: String
-    ) {
-        guard let product = products.first(where: { $0.id == productId }) else {
-            await loadProducts()
-            guard let product = products.first(where: { $0.id == productId }) else {
-                throw StoreKitError.productNotFound
-            }
-            return try await purchase(product, appAccountToken: appAccountToken)
-        }
-        return try await purchase(product, appAccountToken: appAccountToken)
-    }
-
-    // MARK: – Restore
-
-    func restorePurchases() async {
+    /// "Restore Purchases": re-syncs with the App Store (may ask the user to sign in).
+    func restore() async -> Bool {
         try? await AppStore.sync()
-        // Ensure products are loaded before querying status — querySubscriptionStatus()
-        // iterates self.products, which may be empty on a slow network.
-        if products.isEmpty {
-            await loadProducts()
-        }
-        await refreshSubscriptionStatus()
+        await refreshEntitlement()
+        return entitlement.active
     }
 
-    // MARK: – Subscription status
-
-    /// Refresh subscription status and write to SharedDefaults.
-    func refreshSubscriptionStatus() async {
-        // Ensure products are loaded before querying — querySubscriptionStatus()
-        // iterates self.products, and would return isSubscribed=false if empty.
-        if products.isEmpty {
-            await loadProducts()
-        }
-
-        let status = await querySubscriptionStatus()
-
-        // Guard against overwriting a recently-written active status.
-        // In Sandbox, subscription.status can lag behind an actual purchase,
-        // and a background refresh can race with the immediate write in purchase().
-        if !status.isSubscribed && currentStatus.isSubscribed {
-            if products.isEmpty {
-                logger.warning("Skipping status downgrade — products not loaded")
-                return
-            }
-            let lastUpdated = SharedDefaults.shared.lastUpdatedTimestamp
-            let elapsed = Date().timeIntervalSince1970 - lastUpdated
-            if elapsed < 120 {
-                logger.warning("Skipping status downgrade — last update was \(Int(elapsed))s ago (< 120s)")
-                return
-            }
-        }
-
-        currentStatus = status
-
-        // Write to SharedDefaults so the extension can read it
-        SharedDefaults.shared.writeSubscriptionStatus(status)
-
-        // Update purchased product IDs
-        var purchased = Set<String>()
+    /// Reads the active subscription from StoreKit and shares it with the extension.
+    func refreshEntitlement() async {
+        var best: (transaction: Transaction, jws: String)?
         for await result in Transaction.currentEntitlements {
-            if let transaction = try? checkVerified(result) {
-                purchased.insert(transaction.productID)
-            }
+            guard case .verified(let transaction) = result,
+                  ProductID.all.contains(transaction.productID),
+                  transaction.revocationDate == nil else { continue }
+            let better = best.map { ($0.transaction.expirationDate ?? .distantPast) < (transaction.expirationDate ?? .distantPast) } ?? true
+            if better { best = (transaction, result.jwsRepresentation) }
         }
-        purchasedProductIDs = purchased
+
+        let value: SharedEntitlement
+        if let best {
+            value = SharedEntitlement(
+                active: true,
+                productId: best.transaction.productID,
+                expiresAt: best.transaction.expirationDate,
+                jws: best.jws,
+                updatedAt: Date()
+            )
+        } else {
+            value = SharedEntitlement(active: false, productId: nil, expiresAt: nil, jws: nil, updatedAt: Date())
+        }
+        entitlement = value
+        SharedDefaults.shared.writeEntitlement(value)
     }
 
-    /// Query StoreKit for current subscription status.
-    /// Uses Transaction.currentEntitlements as the primary check (reliable in both
-    /// Production and Sandbox), then falls back to subscription.status.
-    private func querySubscriptionStatus() async -> SubscriptionInfo {
-        // Primary: check Transaction.currentEntitlements — Apple's recommended approach.
-        let productIDs = Set(ProductID.allCases.map(\.rawValue))
-        print("[ContextFlow][StoreKit] Querying subscription. Product IDs: \(productIDs)")
-
-        // Collect renewal info to detect pending plan switches.
-        // autoRenewPreference shows what product will renew next.
-        // Compare with the ACTIVE transaction's product to detect changes.
-        var pendingSwitch: String? = nil
-        var activeProductFromStatus: String? = nil
-        for product in products {
-            guard let subscription = product.subscription else { continue }
-            if let status = try? await subscription.status.first(where: {
-                $0.state == .subscribed || $0.state == .inGracePeriod
-            }) {
-                if let tx = try? checkVerified(status.transaction) {
-                    activeProductFromStatus = tx.productID
-                }
-                if let renewalInfo = try? checkVerifiedRenewalInfo(status.renewalInfo),
-                   let preference = renewalInfo.autoRenewPreference,
-                   let activeProduct = activeProductFromStatus,
-                   preference != activeProduct {
-                    pendingSwitch = preference
-                }
-                break // Same group — one check is enough
-            }
-        }
-
-        var entitlementCount = 0
-        for await result in Transaction.currentEntitlements {
-            entitlementCount += 1
-            if let transaction = try? checkVerified(result) {
-                if productIDs.contains(transaction.productID) &&
-                   transaction.productType == .autoRenewable {
-                    return SubscriptionInfo(
-                        isSubscribed: true,
-                        productId: transaction.productID,
-                        expirationDate: transaction.expirationDate,
-                        willAutoRenew: true,
-                        pendingProductId: pendingSwitch
-                    )
-                }
-            }
-        }
-
-        // Fallback: check subscription.status on each product
-        for product in products {
-            guard let subscription = product.subscription else { continue }
-            if let status = try? await subscription.status.first(where: {
-                $0.state == .subscribed || $0.state == .inGracePeriod
-            }) {
-                let renewalInfo = try? checkVerifiedRenewalInfo(status.renewalInfo)
-                let transaction = try? checkVerified(status.transaction)
-
-                return SubscriptionInfo(
-                    isSubscribed: true,
-                    productId: product.id,
-                    expirationDate: transaction?.expirationDate,
-                    isInGracePeriod: status.state == .inGracePeriod,
-                    willAutoRenew: renewalInfo?.willAutoRenew ?? false,
-                    pendingProductId: pendingSwitch
-                )
-            }
-        }
-        return SubscriptionInfo(isSubscribed: false)
-    }
-
-    // MARK: – Transaction listener
-
-    /// Listens for transaction updates (renewals, revocations, etc.) in the background.
-    private func listenForTransactions() -> Task<Void, Never> {
-        Task.detached { [weak self] in
-            for await result in Transaction.updates {
-                guard let self else { return }
-                if let transaction = try? self.checkVerified(result) {
-                    await transaction.finish()
-                    await self.refreshSubscriptionStatus()
-                }
-            }
-        }
-    }
-
-    // MARK: – Helpers
-
-    nonisolated private func checkVerified<T>(_ result: VerificationResult<T>) throws -> T {
-        switch result {
-        case .verified(let safe):
-            return safe
-        case .unverified(_, let error):
-            throw error
-        }
-    }
-
-    private func checkVerifiedRenewalInfo(
-        _ result: VerificationResult<Product.SubscriptionInfo.RenewalInfo>
-    ) throws -> Product.SubscriptionInfo.RenewalInfo {
-        switch result {
-        case .verified(let info):
-            return info
-        case .unverified(_, let error):
-            throw error
-        }
-    }
-
-    // MARK: – Manage subscriptions
-
-    func manageSubscriptionsURL() -> String {
-        return "https://apps.apple.com/account/subscriptions"
-    }
-}
-
-// MARK: – Types
-// NOTE: SubscriptionInfo is defined in SharedDefaults.swift (shared between App and Extension targets)
-
-enum StoreKitError: LocalizedError, Equatable {
-    case userCancelled
-    case purchasePending
-    case productNotFound
-    case unknown
-
-    var errorDescription: String? {
-        switch self {
-        case .userCancelled:  return "Purchase was cancelled."
-        case .purchasePending: return "Purchase is pending approval."
-        case .productNotFound: return "Product not found."
-        case .unknown:         return "An unknown error occurred."
+    enum StoreError: LocalizedError {
+        case unverified
+        var errorDescription: String? {
+            String(localized: "The App Store could not verify this purchase. Please try again.")
         }
     }
 }

@@ -2,20 +2,19 @@
 //  AppDelegate.swift
 //  macOS (App)
 //
-//  Created by Alexandr Lubchenko on 15/02/2026.
-//
 
 import Cocoa
 
 @main
 class AppDelegate: NSObject, NSApplicationDelegate {
 
-    func applicationDidFinishLaunching(_ notification: Notification) {
-        // Override point for customization after application launch.
+    func application(_ application: NSApplication, open urls: [URL]) {
+        if let url = urls.first {
+            DeepLinkRouter.shared.handle(url)
+        }
     }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
-        return true
+        true
     }
-
 }

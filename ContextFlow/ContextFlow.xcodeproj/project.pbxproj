@@ -17,8 +17,6 @@
 		410D889C2F41EE9800684748 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 410D88922F41EE9800684748 /* PrivacyInfo.xcprivacy */; };
 		410D889E2F41EEAA00684748 /* SharedDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D889D2F41EEAA00684748 /* SharedDefaults.swift */; };
 		410D889F2F41EEAA00684748 /* SharedDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D889D2F41EEAA00684748 /* SharedDefaults.swift */; };
-		410D88A32F41EF0800684748 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 410D88A22F41EF0800684748 /* StoreKit.framework */; };
-		410D88A52F41EF1000684748 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 410D88A42F41EF1000684748 /* StoreKit.framework */; };
 		41FA27C12F41ED2100FED9FC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41FA27C02F41ED2100FED9FC /* AppDelegate.swift */; };
 		41FA27C32F41ED2100FED9FC /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41FA27C22F41ED2100FED9FC /* SceneDelegate.swift */; };
 		41FA27C62F41ED2100FED9FC /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 41FA27C42F41ED2100FED9FC /* LaunchScreen.storyboard */; };
@@ -41,34 +39,20 @@
 		41FA27F62F41ED2100FED9FC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 41FA27B62F41ED2100FED9FC /* Assets.xcassets */; };
 		41FA27F72F41ED2100FED9FC /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41FA27B82F41ED2100FED9FC /* SafariWebExtensionHandler.swift */; };
 		41FA27F82F41ED2100FED9FC /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41FA27B82F41ED2100FED9FC /* SafariWebExtensionHandler.swift */; };
-		41FA28162F41ED2200FED9FC /* icon16.plasmo.6c567d50.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FA280A2F41ED2200FED9FC /* icon16.plasmo.6c567d50.png */; };
-		41FA28172F41ED2200FED9FC /* icon32.plasmo.76b92899.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FA280B2F41ED2200FED9FC /* icon32.plasmo.76b92899.png */; };
-		41FA28182F41ED2200FED9FC /* sidepanel.df89bfed.css in Resources */ = {isa = PBXBuildFile; fileRef = 41FA280C2F41ED2200FED9FC /* sidepanel.df89bfed.css */; };
-		41FA28192F41ED2200FED9FC /* icon128.plasmo.3c1ed2d2.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FA280D2F41ED2200FED9FC /* icon128.plasmo.3c1ed2d2.png */; };
-		41FA281A2F41ED2200FED9FC /* floating-panel.5f923bf2.js in Resources */ = {isa = PBXBuildFile; fileRef = 41FA280E2F41ED2200FED9FC /* floating-panel.5f923bf2.js */; };
-		41FA281B2F41ED2200FED9FC /* sidepanel.b7741352.js in Resources */ = {isa = PBXBuildFile; fileRef = 41FA280F2F41ED2200FED9FC /* sidepanel.b7741352.js */; };
-		41FA281C2F41ED2200FED9FC /* static in Resources */ = {isa = PBXBuildFile; fileRef = 41FA28102F41ED2200FED9FC /* static */; };
-		41FA281D2F41ED2200FED9FC /* icon64.plasmo.8bb5e6e0.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FA28112F41ED2200FED9FC /* icon64.plasmo.8bb5e6e0.png */; };
-		41FA281E2F41ED2200FED9FC /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 41FA28122F41ED2200FED9FC /* manifest.json */; };
-		41FA281F2F41ED2200FED9FC /* context-parser.781a0283.js in Resources */ = {isa = PBXBuildFile; fileRef = 41FA28132F41ED2200FED9FC /* context-parser.781a0283.js */; };
-		41FA28202F41ED2200FED9FC /* icon48.plasmo.aced7582.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FA28142F41ED2200FED9FC /* icon48.plasmo.aced7582.png */; };
-		41FA28212F41ED2200FED9FC /* sidepanel.html in Resources */ = {isa = PBXBuildFile; fileRef = 41FA28152F41ED2200FED9FC /* sidepanel.html */; };
-		41FA28322F41ED2200FED9FC /* appstore.ddb1a286.js in Resources */ = {isa = PBXBuildFile; fileRef = 41FA28302F41ED2200FED9FC /* appstore.ddb1a286.js */; };
-		41FA28332F41ED2200FED9FC /* platform.291d7b65.js in Resources */ = {isa = PBXBuildFile; fileRef = 41FA28312F41ED2200FED9FC /* platform.291d7b65.js */; };
-		41FA28222F41ED2200FED9FC /* icon16.plasmo.6c567d50.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FA280A2F41ED2200FED9FC /* icon16.plasmo.6c567d50.png */; };
-		41FA28232F41ED2200FED9FC /* icon32.plasmo.76b92899.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FA280B2F41ED2200FED9FC /* icon32.plasmo.76b92899.png */; };
-		41FA28242F41ED2200FED9FC /* sidepanel.df89bfed.css in Resources */ = {isa = PBXBuildFile; fileRef = 41FA280C2F41ED2200FED9FC /* sidepanel.df89bfed.css */; };
-		41FA28252F41ED2200FED9FC /* icon128.plasmo.3c1ed2d2.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FA280D2F41ED2200FED9FC /* icon128.plasmo.3c1ed2d2.png */; };
-		41FA28262F41ED2200FED9FC /* floating-panel.5f923bf2.js in Resources */ = {isa = PBXBuildFile; fileRef = 41FA280E2F41ED2200FED9FC /* floating-panel.5f923bf2.js */; };
-		41FA28272F41ED2200FED9FC /* sidepanel.b7741352.js in Resources */ = {isa = PBXBuildFile; fileRef = 41FA280F2F41ED2200FED9FC /* sidepanel.b7741352.js */; };
-		41FA28282F41ED2200FED9FC /* static in Resources */ = {isa = PBXBuildFile; fileRef = 41FA28102F41ED2200FED9FC /* static */; };
-		41FA28292F41ED2200FED9FC /* icon64.plasmo.8bb5e6e0.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FA28112F41ED2200FED9FC /* icon64.plasmo.8bb5e6e0.png */; };
-		41FA282A2F41ED2200FED9FC /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 41FA28122F41ED2200FED9FC /* manifest.json */; };
-		41FA282B2F41ED2200FED9FC /* context-parser.781a0283.js in Resources */ = {isa = PBXBuildFile; fileRef = 41FA28132F41ED2200FED9FC /* context-parser.781a0283.js */; };
-		41FA282C2F41ED2200FED9FC /* icon48.plasmo.aced7582.png in Resources */ = {isa = PBXBuildFile; fileRef = 41FA28142F41ED2200FED9FC /* icon48.plasmo.aced7582.png */; };
-		41FA282D2F41ED2200FED9FC /* sidepanel.html in Resources */ = {isa = PBXBuildFile; fileRef = 41FA28152F41ED2200FED9FC /* sidepanel.html */; };
-		41FA28342F41ED2200FED9FC /* appstore.ddb1a286.js in Resources */ = {isa = PBXBuildFile; fileRef = 41FA28302F41ED2200FED9FC /* appstore.ddb1a286.js */; };
-		41FA28352F41ED2200FED9FC /* platform.291d7b65.js in Resources */ = {isa = PBXBuildFile; fileRef = 41FA28312F41ED2200FED9FC /* platform.291d7b65.js */; };
+		CF2000000000000000000010 /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = CF2000000000000000000001 /* manifest.json */; };
+		CF2000000000000000000011 /* welcome.html in Resources */ = {isa = PBXBuildFile; fileRef = CF2000000000000000000002 /* welcome.html */; };
+		CF2000000000000000000012 /* dist in Resources */ = {isa = PBXBuildFile; fileRef = CF2000000000000000000003 /* dist */; };
+		CF2000000000000000000013 /* icons in Resources */ = {isa = PBXBuildFile; fileRef = CF2000000000000000000004 /* icons */; };
+		CF2000000000000000000014 /* _locales in Resources */ = {isa = PBXBuildFile; fileRef = CF2000000000000000000005 /* _locales */; };
+		CF200000000000000000001A /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = CF2000000000000000000006 /* Localizable.xcstrings */; };
+		CF2000000000000000000015 /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = CF2000000000000000000001 /* manifest.json */; };
+		CF2000000000000000000016 /* welcome.html in Resources */ = {isa = PBXBuildFile; fileRef = CF2000000000000000000002 /* welcome.html */; };
+		CF2000000000000000000017 /* dist in Resources */ = {isa = PBXBuildFile; fileRef = CF2000000000000000000003 /* dist */; };
+		CF2000000000000000000018 /* icons in Resources */ = {isa = PBXBuildFile; fileRef = CF2000000000000000000004 /* icons */; };
+		CF2000000000000000000019 /* _locales in Resources */ = {isa = PBXBuildFile; fileRef = CF2000000000000000000005 /* _locales */; };
+		CF200000000000000000001B /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = CF2000000000000000000006 /* Localizable.xcstrings */; };
+		CF2000000000000000000030 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 410D88922F41EE9800684748 /* PrivacyInfo.xcprivacy */; };
+		CF2000000000000000000031 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 410D88922F41EE9800684748 /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -120,8 +104,6 @@
 		410D88942F41EE9800684748 /* StoreKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreKitManager.swift; sourceTree = "<group>"; };
 		410D889D2F41EEAA00684748 /* SharedDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedDefaults.swift; sourceTree = "<group>"; };
 		410D88A02F41EEBB00684748 /* ContextFlow.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = ContextFlow.storekit; sourceTree = "<group>"; };
-		410D88A22F41EF0800684748 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.2.sdk/System/Library/Frameworks/StoreKit.framework; sourceTree = DEVELOPER_DIR; };
-		410D88A42F41EF1000684748 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		410D88A62F41EF2700684748 /* ContextFlow (iOS).entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "ContextFlow (iOS).entitlements"; sourceTree = "<group>"; };
 		410D88A72F41EF2F00684748 /* ContextFlow (macOS).entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "ContextFlow (macOS).entitlements"; sourceTree = "<group>"; };
 		410D88A82F41EF3A00684748 /* ContextFlow Extension (iOS).entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "ContextFlow Extension (iOS).entitlements"; sourceTree = "<group>"; };
@@ -147,20 +129,12 @@
 		41FA27E02F41ED2100FED9FC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		41FA27E52F41ED2100FED9FC /* ContextFlow Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "ContextFlow Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		41FA27EA2F41ED2100FED9FC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		41FA280A2F41ED2200FED9FC /* icon16.plasmo.6c567d50.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = icon16.plasmo.6c567d50.png; path = Resources/icon16.plasmo.6c567d50.png; sourceTree = "<group>"; };
-		41FA280B2F41ED2200FED9FC /* icon32.plasmo.76b92899.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = icon32.plasmo.76b92899.png; path = Resources/icon32.plasmo.76b92899.png; sourceTree = "<group>"; };
-		41FA280C2F41ED2200FED9FC /* sidepanel.df89bfed.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; name = sidepanel.df89bfed.css; path = Resources/sidepanel.df89bfed.css; sourceTree = "<group>"; };
-		41FA280D2F41ED2200FED9FC /* icon128.plasmo.3c1ed2d2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = icon128.plasmo.3c1ed2d2.png; path = Resources/icon128.plasmo.3c1ed2d2.png; sourceTree = "<group>"; };
-		41FA280E2F41ED2200FED9FC /* floating-panel.5f923bf2.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = "floating-panel.5f923bf2.js"; path = "Resources/floating-panel.5f923bf2.js"; sourceTree = "<group>"; };
-		41FA280F2F41ED2200FED9FC /* sidepanel.b7741352.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = sidepanel.b7741352.js; path = Resources/sidepanel.b7741352.js; sourceTree = "<group>"; };
-		41FA28102F41ED2200FED9FC /* static */ = {isa = PBXFileReference; lastKnownFileType = folder; name = static; path = Resources/static; sourceTree = "<group>"; };
-		41FA28112F41ED2200FED9FC /* icon64.plasmo.8bb5e6e0.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = icon64.plasmo.8bb5e6e0.png; path = Resources/icon64.plasmo.8bb5e6e0.png; sourceTree = "<group>"; };
-		41FA28122F41ED2200FED9FC /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.json; path = Resources/manifest.json; sourceTree = "<group>"; };
-		41FA28132F41ED2200FED9FC /* context-parser.781a0283.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = "context-parser.781a0283.js"; path = "Resources/context-parser.781a0283.js"; sourceTree = "<group>"; };
-		41FA28142F41ED2200FED9FC /* icon48.plasmo.aced7582.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = icon48.plasmo.aced7582.png; path = Resources/icon48.plasmo.aced7582.png; sourceTree = "<group>"; };
-		41FA28152F41ED2200FED9FC /* sidepanel.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = sidepanel.html; path = Resources/sidepanel.html; sourceTree = "<group>"; };
-		41FA28302F41ED2200FED9FC /* appstore.ddb1a286.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = "appstore.ddb1a286.js"; path = "Resources/appstore.ddb1a286.js"; sourceTree = "<group>"; };
-		41FA28312F41ED2200FED9FC /* platform.291d7b65.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = "platform.291d7b65.js"; path = "Resources/platform.291d7b65.js"; sourceTree = "<group>"; };
+		CF2000000000000000000001 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.json; path = Resources/manifest.json; sourceTree = "<group>"; };
+		CF2000000000000000000002 /* welcome.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = welcome.html; path = Resources/welcome.html; sourceTree = "<group>"; };
+		CF2000000000000000000003 /* dist */ = {isa = PBXFileReference; lastKnownFileType = folder; name = dist; path = Resources/dist; sourceTree = "<group>"; };
+		CF2000000000000000000004 /* icons */ = {isa = PBXFileReference; lastKnownFileType = folder; name = icons; path = Resources/icons; sourceTree = "<group>"; };
+		CF2000000000000000000005 /* _locales */ = {isa = PBXFileReference; lastKnownFileType = folder; name = _locales; path = Resources/_locales; sourceTree = "<group>"; };
+		CF2000000000000000000006 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -168,7 +142,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				410D88A32F41EF0800684748 /* StoreKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -176,7 +149,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				410D88A52F41EF1000684748 /* StoreKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -197,15 +169,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		410D88A12F41EF0800684748 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				410D88A42F41EF1000684748 /* StoreKit.framework */,
-				410D88A22F41EF0800684748 /* StoreKit.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
 		41FA27A92F41ED2000FED9FC = {
 			isa = PBXGroup;
 			children = (
@@ -220,7 +183,6 @@
 				41FA27D02F41ED2100FED9FC /* macOS (App) */,
 				41FA27DF2F41ED2100FED9FC /* iOS (Extension) */,
 				41FA27E92F41ED2100FED9FC /* macOS (Extension) */,
-				410D88A12F41EF0800684748 /* Frameworks */,
 				41FA27BE2F41ED2100FED9FC /* Products */,
 			);
 			sourceTree = "<group>";
@@ -234,6 +196,7 @@
 				410D88942F41EE9800684748 /* StoreKitManager.swift */,
 				41FA27B52F41ED2000FED9FC /* ViewController.swift */,
 				41FA27B62F41ED2100FED9FC /* Assets.xcassets */,
+				CF2000000000000000000006 /* Localizable.xcstrings */,
 				41FA27AF2F41ED2000FED9FC /* Resources */,
 			);
 			path = "Shared (App)";
@@ -312,20 +275,11 @@
 		41FA28092F41ED2200FED9FC /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				41FA280A2F41ED2200FED9FC /* icon16.plasmo.6c567d50.png */,
-				41FA280B2F41ED2200FED9FC /* icon32.plasmo.76b92899.png */,
-				41FA280C2F41ED2200FED9FC /* sidepanel.df89bfed.css */,
-				41FA280D2F41ED2200FED9FC /* icon128.plasmo.3c1ed2d2.png */,
-				41FA280E2F41ED2200FED9FC /* floating-panel.5f923bf2.js */,
-				41FA280F2F41ED2200FED9FC /* sidepanel.b7741352.js */,
-				41FA28102F41ED2200FED9FC /* static */,
-				41FA28112F41ED2200FED9FC /* icon64.plasmo.8bb5e6e0.png */,
-				41FA28122F41ED2200FED9FC /* manifest.json */,
-				41FA28132F41ED2200FED9FC /* context-parser.781a0283.js */,
-				41FA28142F41ED2200FED9FC /* icon48.plasmo.aced7582.png */,
-				41FA28152F41ED2200FED9FC /* sidepanel.html */,
-				41FA28302F41ED2200FED9FC /* appstore.ddb1a286.js */,
-				41FA28312F41ED2200FED9FC /* platform.291d7b65.js */,
+				CF2000000000000000000001 /* manifest.json */,
+				CF2000000000000000000002 /* welcome.html */,
+				CF2000000000000000000003 /* dist */,
+				CF2000000000000000000004 /* icons */,
+				CF2000000000000000000005 /* _locales */,
 			);
 			name = Resources;
 			path = "Shared (Extension)";
@@ -444,6 +398,16 @@
 			knownRegions = (
 				en,
 				Base,
+				ru,
+				uk,
+				de,
+				es,
+				fr,
+				it,
+				ja,
+				ko,
+				"pt-BR",
+				"zh-Hans",
 			);
 			mainGroup = 41FA27A92F41ED2000FED9FC;
 			minimizedProjectReferenceProxies = 1;
@@ -465,6 +429,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CF200000000000000000001A /* Localizable.xcstrings in Resources */,
 				41FA27ED2F41ED2100FED9FC /* Icon.png in Resources */,
 				41FA27C62F41ED2100FED9FC /* LaunchScreen.storyboard in Resources */,
 				41FA27EB2F41ED2100FED9FC /* Main.html in Resources */,
@@ -480,6 +445,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CF200000000000000000001B /* Localizable.xcstrings in Resources */,
 				41FA27EE2F41ED2100FED9FC /* Icon.png in Resources */,
 				410D889C2F41EE9800684748 /* PrivacyInfo.xcprivacy in Resources */,
 				41FA27F02F41ED2100FED9FC /* Style.css in Resources */,
@@ -494,20 +460,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				41FA28292F41ED2200FED9FC /* icon64.plasmo.8bb5e6e0.png in Resources */,
-				41FA28232F41ED2200FED9FC /* icon32.plasmo.76b92899.png in Resources */,
-				41FA28262F41ED2200FED9FC /* floating-panel.5f923bf2.js in Resources */,
-				41FA28282F41ED2200FED9FC /* static in Resources */,
-				41FA282A2F41ED2200FED9FC /* manifest.json in Resources */,
-				41FA282C2F41ED2200FED9FC /* icon48.plasmo.aced7582.png in Resources */,
-				41FA282B2F41ED2200FED9FC /* context-parser.781a0283.js in Resources */,
-				41FA28272F41ED2200FED9FC /* sidepanel.b7741352.js in Resources */,
-				41FA28242F41ED2200FED9FC /* sidepanel.df89bfed.css in Resources */,
-				41FA28222F41ED2200FED9FC /* icon16.plasmo.6c567d50.png in Resources */,
-				41FA282D2F41ED2200FED9FC /* sidepanel.html in Resources */,
-				41FA28252F41ED2200FED9FC /* icon128.plasmo.3c1ed2d2.png in Resources */,
-				41FA28322F41ED2200FED9FC /* appstore.ddb1a286.js in Resources */,
-				41FA28332F41ED2200FED9FC /* platform.291d7b65.js in Resources */,
+				CF2000000000000000000030 /* PrivacyInfo.xcprivacy in Resources */,
+				CF2000000000000000000010 /* manifest.json in Resources */,
+				CF2000000000000000000011 /* welcome.html in Resources */,
+				CF2000000000000000000012 /* dist in Resources */,
+				CF2000000000000000000013 /* icons in Resources */,
+				CF2000000000000000000014 /* _locales in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -515,20 +473,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				41FA281D2F41ED2200FED9FC /* icon64.plasmo.8bb5e6e0.png in Resources */,
-				41FA28172F41ED2200FED9FC /* icon32.plasmo.76b92899.png in Resources */,
-				41FA281A2F41ED2200FED9FC /* floating-panel.5f923bf2.js in Resources */,
-				41FA281C2F41ED2200FED9FC /* static in Resources */,
-				41FA281E2F41ED2200FED9FC /* manifest.json in Resources */,
-				41FA28202F41ED2200FED9FC /* icon48.plasmo.aced7582.png in Resources */,
-				41FA281F2F41ED2200FED9FC /* context-parser.781a0283.js in Resources */,
-				41FA281B2F41ED2200FED9FC /* sidepanel.b7741352.js in Resources */,
-				41FA28182F41ED2200FED9FC /* sidepanel.df89bfed.css in Resources */,
-				41FA28162F41ED2200FED9FC /* icon16.plasmo.6c567d50.png in Resources */,
-				41FA28212F41ED2200FED9FC /* sidepanel.html in Resources */,
-				41FA28192F41ED2200FED9FC /* icon128.plasmo.3c1ed2d2.png in Resources */,
-				41FA28342F41ED2200FED9FC /* appstore.ddb1a286.js in Resources */,
-				41FA28352F41ED2200FED9FC /* platform.291d7b65.js in Resources */,
+				CF2000000000000000000031 /* PrivacyInfo.xcprivacy in Resources */,
+				CF2000000000000000000015 /* manifest.json in Resources */,
+				CF2000000000000000000016 /* welcome.html in Resources */,
+				CF2000000000000000000017 /* dist in Resources */,
+				CF2000000000000000000018 /* icons in Resources */,
+				CF2000000000000000000019 /* _locales in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -684,7 +634,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 2.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -742,7 +692,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 2.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
@@ -754,19 +704,19 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "ContextFlow Extension (iOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 50;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "ContextFlow Extension";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_CFBundleDisplayName = ContextFlow;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2026 ContextFlow";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 2.0;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -789,19 +739,19 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "ContextFlow Extension (iOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 50;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "ContextFlow Extension";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_CFBundleDisplayName = ContextFlow;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2026 ContextFlow";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 2.0;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -827,7 +777,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "ContextFlow (iOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 50;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS (App)/Info.plist";
@@ -842,7 +792,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 2.0;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -869,7 +819,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "ContextFlow (iOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 50;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS (App)/Info.plist";
@@ -884,7 +834,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 2.0;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -910,22 +860,22 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "ContextFlow Extension (macOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 50;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "macOS (Extension)/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "ContextFlow Extension";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_CFBundleDisplayName = ContextFlow;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2026 ContextFlow";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 2.0;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -948,22 +898,22 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "ContextFlow Extension (macOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 50;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "macOS (Extension)/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "ContextFlow Extension";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_CFBundleDisplayName = ContextFlow;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2026 ContextFlow";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 2.0;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -988,7 +938,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "ContextFlow (macOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 50;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -1004,7 +954,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 2.0;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -1031,7 +981,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "ContextFlow (macOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 50;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -1047,7 +997,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 2.0;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
