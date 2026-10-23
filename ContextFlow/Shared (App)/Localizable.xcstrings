@@ -2817,66 +2817,66 @@
         }
       }
     },
-    "Subscriptions renew automatically each month unless cancelled at least 24 hours before the end of the current period. Payment is charged to your Apple Account. You can manage or cancel your subscription in your App Store account settings.": {
+    "Subscriptions renew automatically unless cancelled at least 24 hours before the end of the current period. Payment is charged to your Apple Account. You can manage or cancel your subscription in your App Store account settings.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Abos verlängern sich automatisch jeden Monat, sofern sie nicht mindestens 24 Stunden vor Ende des aktuellen Zeitraums gekündigt werden. Die Zahlung wird über deinen Apple Account abgerechnet. Du kannst dein Abo in den Accounteinstellungen im App Store verwalten oder kündigen."
+            "value": "Abos verlängern sich automatisch, sofern sie nicht mindestens 24 Stunden vor Ende des aktuellen Zeitraums gekündigt werden. Die Zahlung wird über deinen Apple Account abgerechnet. Du kannst dein Abo in den Accounteinstellungen im App Store verwalten oder kündigen."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Las suscripciones se renuevan automáticamente cada mes, salvo que se cancelen al menos 24 horas antes de que finalice el periodo actual. El pago se cargará en tu Cuenta de Apple. Puedes gestionar o cancelar tu suscripción en los ajustes de tu cuenta del App Store."
+            "value": "Las suscripciones se renuevan automáticamente, salvo que se cancelen al menos 24 horas antes de que finalice el periodo actual. El pago se cargará en tu Cuenta de Apple. Puedes gestionar o cancelar tu suscripción en los ajustes de tu cuenta del App Store."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Les abonnements sont renouvelés automatiquement chaque mois, sauf s’ils sont résiliés au moins 24 heures avant la fin de la période en cours. Le paiement est débité sur votre compte Apple. Vous pouvez gérer ou résilier votre abonnement dans les réglages de votre compte App Store."
+            "value": "Les abonnements sont renouvelés automatiquement, sauf s’ils sont résiliés au moins 24 heures avant la fin de la période en cours. Le paiement est débité sur votre compte Apple. Vous pouvez gérer ou résilier votre abonnement dans les réglages de votre compte App Store."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gli abbonamenti si rinnovano automaticamente ogni mese, a meno che non vengano annullati almeno 24 ore prima della fine del periodo in corso. Il pagamento viene addebitato sul tuo Account Apple. Puoi gestire o annullare l’abbonamento nelle impostazioni del tuo account App Store."
+            "value": "Gli abbonamenti si rinnovano automaticamente, a meno che non vengano annullati almeno 24 ore prima della fine del periodo in corso. Il pagamento viene addebitato sul tuo Account Apple. Puoi gestire o annullare l’abbonamento nelle impostazioni del tuo account App Store."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "サブスクリプションは、現在の期間が終了する24時間以上前までにキャンセルしない限り、毎月自動的に更新されます。お支払いはApple Accountに請求されます。サブスクリプションの管理やキャンセルは、App Storeのアカウント設定で行えます。"
+            "value": "サブスクリプションは、現在の期間が終了する24時間以上前までにキャンセルしない限り、自動的に更新されます。お支払いはApple Accountに請求されます。サブスクリプションの管理やキャンセルは、App Storeのアカウント設定で行えます。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "구독은 현재 기간이 끝나기 최소 24시간 전에 취소하지 않으면 매월 자동으로 갱신됩니다. 결제 금액은 Apple 계정으로 청구됩니다. 구독은 App Store 계정 설정에서 관리하거나 취소할 수 있습니다."
+            "value": "구독은 현재 기간이 끝나기 최소 24시간 전에 취소하지 않으면 자동으로 갱신됩니다. 결제 금액은 Apple 계정으로 청구됩니다. 구독은 App Store 계정 설정에서 관리하거나 취소할 수 있습니다."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "As assinaturas são renovadas automaticamente todo mês, a menos que sejam canceladas pelo menos 24 horas antes do fim do período atual. O pagamento é cobrado na sua Conta Apple. Você pode gerenciar ou cancelar a assinatura nos ajustes da sua conta da App Store."
+            "value": "As assinaturas são renovadas automaticamente, a menos que sejam canceladas pelo menos 24 horas antes do fim do período atual. O pagamento é cobrado na sua Conta Apple. Você pode gerenciar ou cancelar a assinatura nos ajustes da sua conta da App Store."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Подписка продлевается автоматически каждый месяц, если её не отменить не позднее чем за 24 часа до окончания текущего периода. Оплата списывается с вашего Аккаунта Apple. Управлять подпиской или отменить её можно в настройках аккаунта App Store."
+            "value": "Подписка продлевается автоматически, если её не отменить не позднее чем за 24 часа до окончания текущего периода. Оплата списывается с вашего Аккаунта Apple. Управлять подпиской или отменить её можно в настройках аккаунта App Store."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Підписка поновлюється автоматично щомісяця, якщо не скасувати її щонайменше за 24 години до завершення поточного періоду. Оплата стягується з вашого облікового запису Apple. Керувати підпискою або скасувати її можна в налаштуваннях облікового запису App Store."
+            "value": "Підписка поновлюється автоматично, якщо не скасувати її щонайменше за 24 години до завершення поточного періоду. Оплата стягується з вашого облікового запису Apple. Керувати підпискою або скасувати її можна в налаштуваннях облікового запису App Store."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "除非在当前周期结束前至少 24 小时取消，否则订阅将每月自动续订。费用将通过你的 Apple 账户收取。你可以在 App Store 的账户设置中管理或取消订阅。"
+            "value": "除非在当前周期结束前至少 24 小时取消，否则订阅将自动续订。费用将通过你的 Apple 账户收取。你可以在 App Store 的账户设置中管理或取消订阅。"
           }
         }
       }
