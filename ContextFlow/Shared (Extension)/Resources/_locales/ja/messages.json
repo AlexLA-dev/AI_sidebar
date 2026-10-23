@@ -1,0 +1,397 @@
+{
+ "extName": {
+  "message": "ContextFlow — Safari用AIアシスタント"
+ },
+ "extDescription": {
+  "message": "読んでいるページについてAIに質問。要約、解説、翻訳をSafariから離れずに利用できます。"
+ },
+ "actionTitle": {
+  "message": "このページについてContextFlowに質問"
+ },
+ "languageName": {
+  "message": "日本語"
+ },
+ "ctxPage": {
+  "message": "このページ"
+ },
+ "ctxSelection": {
+  "message": "選択範囲 · $P0$語",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "ctxNone": {
+  "message": "フリーチャット"
+ },
+ "ctxUsePage": {
+  "message": "ページ全体を使用"
+ },
+ "emptyTitle": {
+  "message": "何を知りたいですか？"
+ },
+ "emptyPage": {
+  "message": "このページの内容を読み取れます。質問するか、アクションを選んでください。"
+ },
+ "emptySelection": {
+  "message": "選択したテキストについて質問するか、アクションを選んでください。"
+ },
+ "emptyNone": {
+  "message": "このページは読み取れませんが、どんなことでも質問できます。"
+ },
+ "actSummarize": {
+  "message": "要約"
+ },
+ "actKeyPoints": {
+  "message": "重要ポイント"
+ },
+ "actExplain": {
+  "message": "やさしく解説"
+ },
+ "actTranslate": {
+  "message": "翻訳"
+ },
+ "actImprove": {
+  "message": "文章を改善"
+ },
+ "actReply": {
+  "message": "返信を作成"
+ },
+ "promptSummarize": {
+  "message": "このページを5〜7個の箇条書きで要約し、最後に主な結論を1文で述べてください。"
+ },
+ "promptKeyPoints": {
+  "message": "このページの重要なポイントは何ですか？重要な事実、数字、日付を挙げてください。"
+ },
+ "promptExplain": {
+  "message": "このページの内容を、賢い12歳の子どもにもわかるように、やさしい言葉で説明してください。"
+ },
+ "promptTranslate": {
+  "message": "このページの主な内容を$P0$に翻訳してください。構成と見出しはそのまま残してください。",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "promptSelSummarize": {
+  "message": "選択したテキストを簡潔に要約してください。"
+ },
+ "promptSelExplain": {
+  "message": "選択したテキストをやさしい言葉で説明してください。"
+ },
+ "promptSelTranslate": {
+  "message": "選択したテキストを$P0$に翻訳してください。",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "promptSelImprove": {
+  "message": "選択したテキストを、より明確で簡潔な文章に書き直してください。改善案は1つだけ示してください。"
+ },
+ "promptReply": {
+  "message": "このメッセージまたは投稿への、短く丁寧な返信の下書きを作成してください。"
+ },
+ "placeholderPage": {
+  "message": "このページについて質問…"
+ },
+ "placeholderSelection": {
+  "message": "選択範囲について質問…"
+ },
+ "placeholderNone": {
+  "message": "何でも聞いてください…"
+ },
+ "send": {
+  "message": "送信"
+ },
+ "stop": {
+  "message": "停止"
+ },
+ "newChat": {
+  "message": "新規チャット"
+ },
+ "settings": {
+  "message": "設定"
+ },
+ "close": {
+  "message": "閉じる"
+ },
+ "back": {
+  "message": "戻る"
+ },
+ "copy": {
+  "message": "コピー"
+ },
+ "copied": {
+  "message": "コピーしました"
+ },
+ "share": {
+  "message": "共有"
+ },
+ "retry": {
+  "message": "再試行"
+ },
+ "thinking": {
+  "message": "ページを読んでいます…"
+ },
+ "errNetwork": {
+  "message": "インターネットに接続されていません。接続を確認して、もう一度お試しください。"
+ },
+ "errBusy": {
+  "message": "ContextFlowは現在大変混み合っています。1分ほどしてからもう一度お試しください。"
+ },
+ "errUpstream": {
+  "message": "AIサービスから応答がありませんでした。もう一度お試しください。"
+ },
+ "errInterrupted": {
+  "message": "回答が中断されました。"
+ },
+ "errBadKey": {
+  "message": "OpenAIにAPIキーが拒否されました。設定で確認してください。"
+ },
+ "errGeneric": {
+  "message": "問題が発生しました。もう一度お試しください。"
+ },
+ "limitFreeTitle": {
+  "message": "本日の無料回答の上限に達しました"
+ },
+ "limitFreeBody": {
+  "message": "$P0$後に新しい無料回答が利用できます。Proなら週に最大$P1$回まで回答を受け取れます。",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "limitProTitle": {
+  "message": "週の上限に達しました"
+ },
+ "limitProBody": {
+  "message": "Proの回答数は$P0$後にリセットされます。",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "getPro": {
+  "message": "Proを入手"
+ },
+ "useOwnKey": {
+  "message": "自分のOpenAIキーを使う"
+ },
+ "usageFree": {
+  "message": "今日の無料回答：残り$P0$/$P1$回",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "usagePro": {
+  "message": "Pro · 今週の回答：残り$P0$/$P1$回",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "usageOwnKey": {
+  "message": "自分のOpenAIキーを使用中"
+ },
+ "hours": {
+  "message": "$P0$時間",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "minutes": {
+  "message": "$P0$分",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "consentTitle": {
+  "message": "ご利用の前に"
+ },
+ "consentBody": {
+  "message": "回答するために、ContextFlowはあなたの質問とこのページ（または選択範囲）のテキストを、当社のサーバ経由でOpenAIに送信します。ページの内容やチャットは当社のサーバに保存されず、チャットはこのデバイス上にのみ保存されます。"
+ },
+ "consentAccept": {
+  "message": "同意して続ける"
+ },
+ "privacyPolicy": {
+  "message": "プライバシーポリシー"
+ },
+ "setPlan": {
+  "message": "プラン"
+ },
+ "planFree": {
+  "message": "無料"
+ },
+ "planPro": {
+  "message": "Pro"
+ },
+ "planByok": {
+  "message": "自分のキー"
+ },
+ "planRenews": {
+  "message": "$P0$に更新",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "manageSubscription": {
+  "message": "サブスクリプションを管理"
+ },
+ "restorePurchases": {
+  "message": "購入を復元"
+ },
+ "setAppearance": {
+  "message": "外観"
+ },
+ "themeAuto": {
+  "message": "自動"
+ },
+ "themeLight": {
+  "message": "ライト"
+ },
+ "themeDark": {
+  "message": "ダーク"
+ },
+ "setTextSize": {
+  "message": "文字サイズ"
+ },
+ "sizeNormal": {
+  "message": "標準"
+ },
+ "sizeLarge": {
+  "message": "大"
+ },
+ "setFab": {
+  "message": "フローティングボタン"
+ },
+ "fabAuto": {
+  "message": "自動"
+ },
+ "fabOn": {
+  "message": "オン"
+ },
+ "fabOff": {
+  "message": "オフ"
+ },
+ "setFabHint": {
+  "message": "「自動」ではiPhoneとiPadでボタンを表示します。Macではツールバーのアイコンか、Ctrl+Shift+Eを使ってください。"
+ },
+ "hideOnSite": {
+  "message": "$P0$で非表示",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "showOnSite": {
+  "message": "$P0$で表示",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "setSelectionButton": {
+  "message": "テキスト選択時のボタン"
+ },
+ "setAbout": {
+  "message": "自己紹介"
+ },
+ "setAboutHint": {
+  "message": "任意。回答をあなたに合わせるのに役立ちます。例：「プロダクトデザイナーです。簡潔にお願いします」"
+ },
+ "setOwnKey": {
+  "message": "自分のOpenAIキー"
+ },
+ "setOwnKeyHint": {
+  "message": "Proプランと「自分のキー」プランに含まれます。リクエストはデバイスからOpenAIに直接送信されます。"
+ },
+ "setOwnKeyLocked": {
+  "message": "Proまたは「自分のキー」プランで利用できます"
+ },
+ "getKey": {
+  "message": "キーを取得"
+ },
+ "save": {
+  "message": "保存"
+ },
+ "remove": {
+  "message": "削除"
+ },
+ "saved": {
+  "message": "保存しました"
+ },
+ "deleteChats": {
+  "message": "すべてのチャットを削除"
+ },
+ "chatsDeleted": {
+  "message": "チャットを削除しました"
+ },
+ "support": {
+  "message": "サポート"
+ },
+ "terms": {
+  "message": "利用規約"
+ },
+ "rateApp": {
+  "message": "ContextFlowを評価"
+ },
+ "version": {
+  "message": "バージョン $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "fabLabel": {
+  "message": "ContextFlowに質問"
+ },
+ "selAsk": {
+  "message": "AIに質問"
+ },
+ "selExplain": {
+  "message": "説明"
+ },
+ "selTranslate": {
+  "message": "翻訳"
+ },
+ "welcomeTitle": {
+  "message": "ContextFlowの準備ができました"
+ },
+ "welcomeBody": {
+  "message": "好きなWebサイトを開いて、✦ボタンかツールバーのContextFlowアイコンをタップしてください。テキストを選択すると、その部分だけについて質問できます。"
+ },
+ "welcomeRestricted": {
+  "message": "Safariでは、機能拡張からこのページを読み取ることはできません。ContextFlowを使うには、通常のWebサイトを開いてください。"
+ },
+ "welcomePermission": {
+  "message": "何も起こらない場合は、すべてのWebサイトでContextFlowを許可してください：Safari → 機能拡張 → ContextFlow → すべてのWebサイト → 許可。"
+ }
+}

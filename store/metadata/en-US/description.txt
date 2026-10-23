@@ -1,0 +1,37 @@
+ContextFlow puts an AI assistant right inside Safari. Summarize long articles, pull out the key facts, explain anything in plain words or translate the whole page — without copying, pasting or switching apps.
+
+WHAT YOU CAN DO
+• Summarize any article, report, thread or product page in seconds
+• Get the key takeaways, numbers and dates at a glance
+• Ask your own questions: “What's the catch?”, “Is this worth buying?”, “What should I do next?”
+• Explain jargon and complex topics in simple words
+• Translate pages into your language
+• Select text to explain it, improve your writing or draft a reply
+
+MADE FOR SAFARI ON IPHONE, IPAD AND MAC
+• iPhone and iPad: tap the floating ContextFlow button on any page
+• Mac: a sidebar that opens from the toolbar or with Control-Shift-E
+• Each page keeps its own conversation, so you can come back later
+• Light and dark mode, available in 11 languages
+
+PRIVATE BY DESIGN
+• No account, no sign-up, no tracking
+• A page is read only when you ask about it
+• Page text is never stored on our servers; your chats stay on your device
+
+FREE AND PRO
+• Free: 5 answers every day
+• Pro: up to 375 answers a week on all your Apple devices
+• Own key: unlimited answers with your own OpenAI API key
+
+GET STARTED IN A MINUTE
+1. Open the ContextFlow app and follow the steps to turn the extension on in Safari.
+2. Open any website and tap the ContextFlow button (on Mac, click the ContextFlow icon in the toolbar).
+3. Pick Summarize, Key takeaways, Explain or Translate — or just ask.
+
+AI can make mistakes. Check important information.
+
+Subscriptions renew automatically unless cancelled at least 24 hours before the end of the current period. Payment is charged to your Apple Account. You can manage or cancel your subscription at any time in your App Store account settings.
+
+Terms of Use: https://aisidebar.netlify.app/terms
+Privacy Policy: https://aisidebar.netlify.app/privacy

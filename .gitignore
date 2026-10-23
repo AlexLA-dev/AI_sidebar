@@ -21,6 +21,10 @@ build/
 .DS_Store
 Thumbs.db
 
+# TypeScript build cache
+tsconfig.tsbuildinfo
+*.tsbuildinfo
+
 # Logs
 *.log
 npm-debug.log*
@@ -28,3 +32,10 @@ pnpm-debug.log*
 
 # Keys (never commit API keys)
 keys/
+
+# Xcode per-user state
+xcuserdata/
+*.xcuserstate
+DerivedData/
+build-ios/
+build-macos/

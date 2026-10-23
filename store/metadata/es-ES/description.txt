@@ -1,0 +1,37 @@
+ContextFlow lleva un asistente de IA directamente a Safari. Resume artículos largos, extrae los datos clave, explica cualquier cosa con palabras sencillas o traduce la página entera, sin copiar, pegar ni cambiar de app.
+
+QUÉ PUEDES HACER
+• Resumir cualquier artículo, informe, hilo o página de producto en segundos
+• Ver de un vistazo las ideas clave, las cifras y las fechas
+• Hacer tus propias preguntas: «¿Dónde está la trampa?», «¿Merece la pena comprarlo?», «¿Qué debería hacer ahora?»
+• Explicar jerga y temas complejos con palabras sencillas
+• Traducir páginas a tu idioma
+• Seleccionar texto para que te lo explique, mejorar lo que escribes o redactar una respuesta
+
+HECHO PARA SAFARI EN IPHONE, IPAD Y MAC
+• iPhone y iPad: toca el botón flotante de ContextFlow en cualquier página
+• Mac: una barra lateral que se abre desde la barra de herramientas o con Control-Shift-E
+• Cada página conserva su propia conversación, para que puedas retomarla más tarde
+• Modo claro y oscuro, disponible en 11 idiomas
+
+PRIVACIDAD DESDE EL DISEÑO
+• Sin cuenta, sin registro, sin rastreo
+• Una página solo se lee cuando preguntas sobre ella
+• El texto de las páginas nunca se guarda en nuestros servidores; tus chats se quedan en tu dispositivo
+
+GRATIS Y PRO
+• Gratis: 5 respuestas cada día
+• Pro: hasta 375 respuestas a la semana en todos tus dispositivos Apple
+• Clave propia: respuestas ilimitadas con tu propia clave de API de OpenAI
+
+EMPIEZA EN UN MINUTO
+1. Abre la app ContextFlow y sigue los pasos para activar la extensión en Safari.
+2. Abre cualquier web y toca el botón de ContextFlow (en el Mac, haz clic en el icono de ContextFlow de la barra de herramientas).
+3. Elige «Resumir», «Ideas clave», «Explicar sencillo» o «Traducir», o simplemente pregunta.
+
+La IA puede cometer errores. Comprueba la información importante.
+
+Las suscripciones se renuevan automáticamente salvo que se cancelen al menos 24 horas antes del final del periodo actual. El pago se cargará en tu Cuenta de Apple. Puedes gestionar o cancelar tu suscripción en cualquier momento en los ajustes de tu cuenta del App Store.
+
+Términos de uso: https://aisidebar.netlify.app/terms
+Política de privacidad: https://aisidebar.netlify.app/privacy

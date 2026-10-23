@@ -1,13 +1,18 @@
 {
-  "extends": "plasmo/templates/tsconfig.base",
   "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "types": ["chrome"],
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact",
     "strict": true,
-    "noImplicitAny": true,
-    "baseUrl": ".",
-    "paths": {
-      "~/*": ["./src/*"]
-    }
+    "noEmit": true,
+    "resolveJsonModule": true,
+    "allowImportingTsExtensions": true,
+    "skipLibCheck": true,
+    "isolatedModules": true
   },
-  "include": ["src/**/*", ".plasmo/index.d.ts"],
-  "exclude": ["node_modules"]
+  "include": ["src/**/*"]
 }

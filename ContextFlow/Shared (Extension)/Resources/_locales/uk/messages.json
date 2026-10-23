@@ -1,0 +1,397 @@
+{
+ "extName": {
+  "message": "ContextFlow — ШІ для Safari"
+ },
+ "extDescription": {
+  "message": "Запитуйте ШІ про сторінку, яку читаєте: короткі підсумки, пояснення й переклади без виходу з Safari."
+ },
+ "actionTitle": {
+  "message": "Запитати ContextFlow про цю сторінку"
+ },
+ "languageName": {
+  "message": "Українська"
+ },
+ "ctxPage": {
+  "message": "Ця сторінка"
+ },
+ "ctxSelection": {
+  "message": "Виділення · $P0$ сл.",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "ctxNone": {
+  "message": "Загальний чат"
+ },
+ "ctxUsePage": {
+  "message": "Використати всю сторінку"
+ },
+ "emptyTitle": {
+  "message": "Що ви хочете дізнатися?"
+ },
+ "emptyPage": {
+  "message": "Я бачу цю сторінку. Поставте запитання або виберіть дію."
+ },
+ "emptySelection": {
+  "message": "Запитайте про виділений текст або виберіть дію."
+ },
+ "emptyNone": {
+  "message": "Цю сторінку не вдається прочитати, але ви можете запитати мене про будь-що."
+ },
+ "actSummarize": {
+  "message": "Підсумувати"
+ },
+ "actKeyPoints": {
+  "message": "Ключові тези"
+ },
+ "actExplain": {
+  "message": "Пояснити просто"
+ },
+ "actTranslate": {
+  "message": "Перекласти"
+ },
+ "actImprove": {
+  "message": "Покращити текст"
+ },
+ "actReply": {
+  "message": "Написати відповідь"
+ },
+ "promptSummarize": {
+  "message": "Підсумуйте цю сторінку в 5–7 пунктах, а потім одним реченням сформулюйте головний висновок."
+ },
+ "promptKeyPoints": {
+  "message": "Які ключові тези цієї сторінки? Перелічіть важливі факти, цифри й дати."
+ },
+ "promptExplain": {
+  "message": "Поясніть цю сторінку простими словами, ніби кмітливій 12-річній дитині."
+ },
+ "promptTranslate": {
+  "message": "Перекладіть основний вміст цієї сторінки на мову «$P0$». Збережіть структуру й заголовки.",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "promptSelSummarize": {
+  "message": "Коротко підсумуйте виділений текст."
+ },
+ "promptSelExplain": {
+  "message": "Поясніть виділений текст простими словами."
+ },
+ "promptSelTranslate": {
+  "message": "Перекладіть виділений текст на мову «$P0$».",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "promptSelImprove": {
+  "message": "Перепишіть виділений текст, щоб він був зрозумілішим і стислішим. Дайте один покращений варіант."
+ },
+ "promptReply": {
+  "message": "Напишіть коротку ввічливу відповідь на це повідомлення чи допис."
+ },
+ "placeholderPage": {
+  "message": "Запитайте про цю сторінку…"
+ },
+ "placeholderSelection": {
+  "message": "Запитайте про виділене…"
+ },
+ "placeholderNone": {
+  "message": "Запитайте будь-що…"
+ },
+ "send": {
+  "message": "Надіслати"
+ },
+ "stop": {
+  "message": "Зупинити"
+ },
+ "newChat": {
+  "message": "Новий чат"
+ },
+ "settings": {
+  "message": "Налаштування"
+ },
+ "close": {
+  "message": "Закрити"
+ },
+ "back": {
+  "message": "Назад"
+ },
+ "copy": {
+  "message": "Скопіювати"
+ },
+ "copied": {
+  "message": "Скопійовано"
+ },
+ "share": {
+  "message": "Поширити"
+ },
+ "retry": {
+  "message": "Повторити"
+ },
+ "thinking": {
+  "message": "Читаю сторінку…"
+ },
+ "errNetwork": {
+  "message": "Немає з’єднання. Перевірте інтернет і спробуйте ще раз."
+ },
+ "errBusy": {
+  "message": "ContextFlow зараз дуже завантажений. Спробуйте ще раз за хвилину."
+ },
+ "errUpstream": {
+  "message": "Сервіс ШІ не відповів. Спробуйте ще раз."
+ },
+ "errInterrupted": {
+  "message": "Відповідь перервано."
+ },
+ "errBadKey": {
+  "message": "OpenAI відхилив ваш API-ключ. Перевірте його в налаштуваннях."
+ },
+ "errGeneric": {
+  "message": "Щось пішло не так. Спробуйте ще раз."
+ },
+ "limitFreeTitle": {
+  "message": "Безкоштовні відповіді на сьогодні вичерпано"
+ },
+ "limitFreeBody": {
+  "message": "Нові безкоштовні відповіді — через $P0$. З Pro ви отримуєте до $P1$ відповідей на тиждень.",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "limitProTitle": {
+  "message": "Тижневий ліміт вичерпано"
+ },
+ "limitProBody": {
+  "message": "Ваші відповіді Pro оновляться через $P0$.",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "getPro": {
+  "message": "Отримати Pro"
+ },
+ "useOwnKey": {
+  "message": "Використати мій ключ OpenAI"
+ },
+ "usageFree": {
+  "message": "Сьогодні залишилося $P0$ з $P1$ безкоштовних відповідей",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "usagePro": {
+  "message": "Pro · Цього тижня залишилося $P0$ з $P1$ відповідей",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "usageOwnKey": {
+  "message": "Використовується ваш ключ OpenAI"
+ },
+ "hours": {
+  "message": "$P0$ год",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "minutes": {
+  "message": "$P0$ хв",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "consentTitle": {
+  "message": "Перед першою відповіддю"
+ },
+ "consentBody": {
+  "message": "Щоб відповісти, ContextFlow надсилає ваше запитання й текст цієї сторінки (або виділений фрагмент) до OpenAI через наш сервер. Вміст сторінок і чати не зберігаються на наших серверах; ваші чати залишаються на цьому пристрої."
+ },
+ "consentAccept": {
+  "message": "Погодитися й продовжити"
+ },
+ "privacyPolicy": {
+  "message": "Політика конфіденційності"
+ },
+ "setPlan": {
+  "message": "Тариф"
+ },
+ "planFree": {
+  "message": "Безкоштовний"
+ },
+ "planPro": {
+  "message": "Pro"
+ },
+ "planByok": {
+  "message": "Власний ключ"
+ },
+ "planRenews": {
+  "message": "Поновлення $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "manageSubscription": {
+  "message": "Керувати підпискою"
+ },
+ "restorePurchases": {
+  "message": "Відновити покупки"
+ },
+ "setAppearance": {
+  "message": "Вигляд"
+ },
+ "themeAuto": {
+  "message": "Авто"
+ },
+ "themeLight": {
+  "message": "Світла"
+ },
+ "themeDark": {
+  "message": "Темна"
+ },
+ "setTextSize": {
+  "message": "Розмір тексту"
+ },
+ "sizeNormal": {
+  "message": "Звичайний"
+ },
+ "sizeLarge": {
+  "message": "Великий"
+ },
+ "setFab": {
+  "message": "Плаваюча кнопка"
+ },
+ "fabAuto": {
+  "message": "Авто"
+ },
+ "fabOn": {
+  "message": "Увімк."
+ },
+ "fabOff": {
+  "message": "Вимк."
+ },
+ "setFabHint": {
+  "message": "У режимі «Авто» кнопка з’являється на iPhone та iPad. На Mac використовуйте іконку на панелі інструментів або Ctrl+Shift+E."
+ },
+ "hideOnSite": {
+  "message": "Сховати на $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "showOnSite": {
+  "message": "Показувати на $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "setSelectionButton": {
+  "message": "Кнопка під час виділення тексту"
+ },
+ "setAbout": {
+  "message": "Про мене"
+ },
+ "setAboutHint": {
+  "message": "Необов’язково. Допомагає краще підлаштовувати відповіді, напр.: «Я продуктовий дизайнер, відповідай коротко»."
+ },
+ "setOwnKey": {
+  "message": "Власний ключ OpenAI"
+ },
+ "setOwnKeyHint": {
+  "message": "Входить у тарифи Pro і «Власний ключ». Запити надходять напряму з вашого пристрою до OpenAI."
+ },
+ "setOwnKeyLocked": {
+  "message": "Доступно з тарифом Pro або «Власний ключ»"
+ },
+ "getKey": {
+  "message": "Отримати ключ"
+ },
+ "save": {
+  "message": "Зберегти"
+ },
+ "remove": {
+  "message": "Видалити"
+ },
+ "saved": {
+  "message": "Збережено"
+ },
+ "deleteChats": {
+  "message": "Видалити всі чати"
+ },
+ "chatsDeleted": {
+  "message": "Чати видалено"
+ },
+ "support": {
+  "message": "Підтримка"
+ },
+ "terms": {
+  "message": "Умови використання"
+ },
+ "rateApp": {
+  "message": "Оцінити ContextFlow"
+ },
+ "version": {
+  "message": "Версія $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "fabLabel": {
+  "message": "Запитати ContextFlow"
+ },
+ "selAsk": {
+  "message": "Запитати ШІ"
+ },
+ "selExplain": {
+  "message": "Пояснити"
+ },
+ "selTranslate": {
+  "message": "Перекласти"
+ },
+ "welcomeTitle": {
+  "message": "ContextFlow готовий до роботи"
+ },
+ "welcomeBody": {
+  "message": "Відкрийте будь-який вебсайт і торкніться кнопки ✦ або іконки ContextFlow на панелі інструментів. Виділіть текст, щоб запитати лише про цей фрагмент."
+ },
+ "welcomeRestricted": {
+  "message": "Safari не дозволяє розширенням читати цю сторінку. Відкрийте звичайний вебсайт, щоб скористатися ContextFlow."
+ },
+ "welcomePermission": {
+  "message": "Якщо нічого не відбувається, дозвольте ContextFlow на всіх вебсайтах: Safari → Розширення → ContextFlow → Усі вебсайти → Дозволити."
+ }
+}

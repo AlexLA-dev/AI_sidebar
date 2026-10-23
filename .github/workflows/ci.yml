@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  web:
+    name: Extension + backend (typecheck, tests, build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run typecheck
+      - run: pnpm test
+      - name: Build Safari extension into the Xcode project
+        run: pnpm run build
+      - name: Committed extension build must match the sources
+        run: |
+          if ! git diff --quiet -- "ContextFlow/Shared (Extension)/Resources"; then
+            git status --short -- "ContextFlow/Shared (Extension)/Resources"
+            echo "::error::Run 'pnpm run build' and commit ContextFlow/Shared (Extension)/Resources"
+            exit 1
+          fi
+      - run: pnpm run build:chrome
+
+  xcode:
+    name: Xcode compile (${{ matrix.platform }})
+    runs-on: macos-26
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: iOS
+            scheme: ContextFlow (iOS)
+            destination: generic/platform=iOS
+          - platform: macOS
+            scheme: ContextFlow (macOS)
+            destination: generic/platform=macOS
+    steps:
+      - uses: actions/checkout@v4
+      - name: Xcode version
+        run: xcodebuild -version
+      - name: Build without signing
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project ContextFlow/ContextFlow.xcodeproj \
+            -scheme "${{ matrix.scheme }}" \
+            -destination "${{ matrix.destination }}" \
+            -configuration Release \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            | tee xcodebuild.log | grep -E "(error|warning: .*(deprecated|will be an error)|BUILD (SUCCEEDED|FAILED))" || true
+          grep -q "BUILD SUCCEEDED" xcodebuild.log
+      - name: Upload log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcodebuild-${{ matrix.platform }}.log
+          path: xcodebuild.log

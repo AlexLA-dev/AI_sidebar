@@ -1,0 +1,37 @@
+ContextFlow bringt einen KI-Assistenten direkt in Safari. Fasse lange Artikel zusammen, hol dir die wichtigsten Fakten, lass dir alles in einfachen Worten erklären oder übersetze die ganze Seite – ohne Kopieren, Einfügen oder App-Wechsel.
+
+DAS KANNST DU DAMIT MACHEN
+• Artikel, Berichte, Threads und Produktseiten in Sekunden zusammenfassen
+• Die wichtigsten Erkenntnisse, Zahlen und Datumsangaben auf einen Blick sehen
+• Eigene Fragen stellen: „Wo ist der Haken?“, „Lohnt sich der Kauf?“, „Was sollte ich als Nächstes tun?“
+• Fachbegriffe und komplexe Themen in einfachen Worten erklären lassen
+• Seiten in deine Sprache übersetzen
+• Text markieren, um ihn erklären zu lassen, deine Formulierungen zu verbessern oder eine Antwort zu entwerfen
+
+GEMACHT FÜR SAFARI AUF IPHONE, IPAD UND MAC
+• iPhone und iPad: Tippe auf jeder Seite auf die schwebende ContextFlow-Taste
+• Mac: eine Seitenleiste, die du über die Symbolleiste oder mit Control-Shift-E öffnest
+• Jede Seite behält ihre eigene Unterhaltung, sodass du später weitermachen kannst
+• Heller und dunkler Modus, verfügbar in 11 Sprachen
+
+DATENSCHUTZ VON ANFANG AN
+• Kein Konto, keine Registrierung, kein Tracking
+• Eine Seite wird nur gelesen, wenn du danach fragst
+• Seitentexte werden nie auf unseren Servern gespeichert; deine Chats bleiben auf deinem Gerät
+
+KOSTENLOS UND PRO
+• Kostenlos: 5 Antworten pro Tag
+• Pro: bis zu 375 Antworten pro Woche auf all deinen Apple-Geräten
+• Eigener Schlüssel: unbegrenzte Antworten mit deinem eigenen OpenAI-API-Schlüssel
+
+IN EINER MINUTE STARTKLAR
+1. Öffne die ContextFlow-App und folge den Schritten, um die Erweiterung in Safari zu aktivieren.
+2. Öffne eine beliebige Website und tippe auf die ContextFlow-Taste (auf dem Mac klickst du in der Symbolleiste auf das ContextFlow-Symbol).
+3. Wähle „Zusammenfassen“, „Das Wichtigste“, „Einfach erklären“ oder „Übersetzen“ – oder frag einfach.
+
+KI kann Fehler machen. Überprüfe wichtige Informationen.
+
+Abonnements verlängern sich automatisch, sofern sie nicht mindestens 24 Stunden vor Ende des aktuellen Zeitraums gekündigt werden. Die Zahlung wird deinem Apple Account belastet. Du kannst dein Abonnement jederzeit in den Einstellungen deines App Store-Accounts verwalten oder kündigen.
+
+Nutzungsbedingungen: https://aisidebar.netlify.app/terms
+Datenschutzrichtlinie: https://aisidebar.netlify.app/privacy

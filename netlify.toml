@@ -1,46 +1,40 @@
-# Netlify Configuration for ContextFlow Backend
+# ContextFlow backend + website (aisidebar.netlify.app)
+#
+# Static pages (site/): landing, privacy, terms, support — linked from the App Store.
+# Functions (netlify/functions/): the API used by the Safari extension.
+#   POST /api/v2/chat     streaming answers (new builds)
+#   POST /api/v2/status   plan + remaining allowance (new builds)
+#   /.netlify/functions/chat-proxy        compatibility for builds <= 40
+#   /.netlify/functions/appstore-verify   App Store Server Notifications V2
+#   /.netlify/functions/stripe-webhook    audit-only (Stripe is no longer sold)
+#
+# Environment variables (Netlify UI → Project configuration → Environment variables):
+#   OPENAI_API_KEY, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY   required
+#   OPENAI_MODEL (default "gpt-4.1-mini,gpt-4o-mini"), FREE_DAILY_LIMIT (5),
+#   FREE_IP_DAILY_LIMIT (40), FREE_GLOBAL_DAILY_LIMIT (3000), PRO_WEEKLY_LIMIT (375)
+#   APPSTORE_BUNDLE_ID (com.contextflow.app), STRIPE_WEBHOOK_SECRET
 
 [build]
-  command = "pnpm build"
-  publish = "build/chrome-mv3-prod"
+  command = "echo 'Static site, functions are bundled by Netlify'"
+  publish = "site"
 
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
 
-# Environment variables should be set in Netlify Dashboard:
-# - OPENAI_API_KEY
-# - STRIPE_SECRET_KEY
-# - STRIPE_WEBHOOK_SECRET
-# - SUPABASE_URL
-# - SUPABASE_SERVICE_ROLE_KEY
-
-# Function-specific configuration
-[functions.chat-proxy]
-  # Allow streaming responses
-  included_files = []
-
-[functions.stripe-webhook]
-  # Stripe webhooks need raw body access
-  included_files = []
-
-# Headers for CORS (if serving extension from different origin)
 [[headers]]
-  for = "/.netlify/functions/*"
+  for = "/*"
   [headers.values]
-    Access-Control-Allow-Origin = "*"
-    Access-Control-Allow-Headers = "Content-Type, Authorization"
-    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
 
-# Redirects (optional - for SPA routing if you have a web app)
-# [[redirects]]
-#   from = "/*"
-#   to = "/index.html"
-#   status = 200
+# Old builds send sign-up confirmation links here.
+[[redirects]]
+  from = "/email-confirmed"
+  to = "/.netlify/functions/email-confirmed"
+  status = 200
 
-# Dev server configuration
-[dev]
-  command = "pnpm dev"
-  port = 8888
-  targetPort = 1234
-  autoLaunch = false
+[[redirects]]
+  from = "/confirm"
+  to = "/.netlify/functions/email-confirmed"
+  status = 200
