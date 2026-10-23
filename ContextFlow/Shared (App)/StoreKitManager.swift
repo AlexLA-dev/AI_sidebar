@@ -27,7 +27,7 @@ final class StoreKitManager: ObservableObject {
 
     private init() {
         updates = Task.detached { [weak self] in
-            for await result in Transaction.updates {
+            for await result in StoreKit.Transaction.updates {
                 if case .verified(let transaction) = result {
                     await transaction.finish()
                 }
@@ -99,8 +99,8 @@ final class StoreKitManager: ObservableObject {
 
     /// Reads the active subscription from StoreKit and shares it with the extension.
     func refreshEntitlement() async {
-        var best: (transaction: Transaction, jws: String)?
-        for await result in Transaction.currentEntitlements {
+        var best: (transaction: StoreKit.Transaction, jws: String)?
+        for await result in StoreKit.Transaction.currentEntitlements {
             guard case .verified(let transaction) = result,
                   ProductID.all.contains(transaction.productID),
                   transaction.revocationDate == nil else { continue }

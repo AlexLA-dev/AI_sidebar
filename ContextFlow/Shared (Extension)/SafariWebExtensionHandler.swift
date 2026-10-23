@@ -73,7 +73,7 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
     private static func liveEntitlement() async -> SharedEntitlement? {
         let products: Set<String> = ["com.contextflow.pro.monthly", "com.contextflow.pro.yearly", "com.contextflow.byok.monthly"]
         var best: SharedEntitlement?
-        for await result in Transaction.currentEntitlements {
+        for await result in StoreKit.Transaction.currentEntitlements {
             guard case .verified(let transaction) = result,
                   products.contains(transaction.productID),
                   transaction.revocationDate == nil else { continue }
