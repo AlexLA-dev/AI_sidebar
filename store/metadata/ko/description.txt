@@ -9,7 +9,7 @@ ContextFlow는 Safari 안에서 바로 쓰는 AI 어시스턴트예요. 긴 기�
 • 텍스트를 선택해 설명 듣기, 글 다듬기, 답장 초안 작성
 
 iPhone, iPad, Mac의 Safari를 위해 제작
-• iPhone 및 iPad: 어떤 페이지에서든 ✦ 버튼을 탭
+• iPhone 및 iPad: 어떤 페이지에서든 ContextFlow 플로팅 버튼을 탭
 • Mac: 도구 막대에서 또는 Control-Shift-E로 여는 사이드바
 • 페이지마다 대화가 따로 저장되어 나중에 이어서 볼 수 있어요
 • 라이트 및 다크 모드, 11개 언어 지원
@@ -26,7 +26,7 @@ iPhone, iPad, Mac의 Safari를 위해 제작
 
 1분 만에 시작하기
 1. ContextFlow 앱을 열고 안내에 따라 Safari에서 확장 프로그램을 켜세요.
-2. 아무 웹사이트나 열고 ✦를 탭하세요(Mac에서는 도구 막대의 ContextFlow 아이콘을 클릭).
+2. 아무 웹사이트나 열고 ContextFlow 버튼을 탭하세요(Mac에서는 도구 막대의 ContextFlow 아이콘을 클릭).
 3. 요약, 핵심 정리, 쉽게 설명, 번역 중에서 선택하거나 그냥 질문하세요.
 
 AI는 실수할 수 있어요. 중요한 정보는 확인하세요.

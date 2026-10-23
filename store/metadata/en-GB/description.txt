@@ -9,7 +9,7 @@ WHAT YOU CAN DO
 • Select text to explain it, improve your writing or draft a reply
 
 MADE FOR SAFARI ON IPHONE, IPAD AND MAC
-• iPhone and iPad: tap the ✦ button on any page
+• iPhone and iPad: tap the floating ContextFlow button on any page
 • Mac: a sidebar that opens from the toolbar or with Control-Shift-E
 • Each page keeps its own conversation, so you can come back later
 • Light and dark mode, available in 11 languages
@@ -26,7 +26,7 @@ FREE AND PRO
 
 GET STARTED IN A MINUTE
 1. Open the ContextFlow app and follow the steps to turn the extension on in Safari.
-2. Open any website and tap ✦ (on Mac, click the ContextFlow icon in the toolbar).
+2. Open any website and tap the ContextFlow button (on Mac, click the ContextFlow icon in the toolbar).
 3. Pick Summarise, Key takeaways, Explain or Translate — or just ask.
 
 AI can make mistakes. Check important information.

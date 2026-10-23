@@ -9,7 +9,7 @@ QUÉ PUEDES HACER
 • Seleccionar texto para que te lo explique, mejorar tu redacción o escribir un borrador de respuesta
 
 HECHO PARA SAFARI EN IPHONE, IPAD Y MAC
-• iPhone y iPad: toca el botón ✦ en cualquier página
+• iPhone y iPad: toca el botón flotante de ContextFlow en cualquier página
 • Mac: una barra lateral que se abre desde la barra de herramientas o con Control-Shift-E
 • Cada página guarda su propia conversación, para que puedas volver a ella más tarde
 • Modo claro y oscuro, disponible en 11 idiomas
@@ -26,7 +26,7 @@ GRATIS Y PRO
 
 EMPIEZA EN UN MINUTO
 1. Abre la app ContextFlow y sigue los pasos para activar la extensión en Safari.
-2. Abre cualquier sitio web y toca ✦ (en la Mac, haz clic en el ícono de ContextFlow en la barra de herramientas).
+2. Abre cualquier sitio web y toca el botón de ContextFlow (en la Mac, haz clic en el ícono de ContextFlow en la barra de herramientas).
 3. Elige “Resumir”, “Ideas clave”, “Explicar sencillo” o “Traducir”, o simplemente pregunta.
 
 La IA puede cometer errores. Verifica la información importante.

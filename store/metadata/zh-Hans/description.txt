@@ -9,7 +9,7 @@ ContextFlow 将 AI 助手直接带进 Safari。总结长文章、提炼关键事
 • 选中文本即可获得解释、润色你的文字或起草回复
 
 专为 iPhone、iPad 和 Mac 上的 Safari 打造
-• iPhone 和 iPad：在任意网页上轻点 ✦ 按钮
+• iPhone 和 iPad：在任意网页上轻点 ContextFlow 悬浮按钮
 • Mac：从工具栏或按 Control-Shift-E 打开侧边栏
 • 每个网页都会保留各自的对话，方便你稍后回来继续
 • 支持浅色和深色模式，提供 11 种语言
@@ -26,7 +26,7 @@ ContextFlow 将 AI 助手直接带进 Safari。总结长文章、提炼关键事
 
 一分钟即可上手
 1. 打开 ContextFlow App，按照步骤在 Safari 中启用扩展。
-2. 打开任意网站并轻点 ✦（在 Mac 上，点按工具栏中的 ContextFlow 图标）。
+2. 打开任意网站并轻点 ContextFlow 按钮（在 Mac 上，点按工具栏中的 ContextFlow 图标）。
 3. 选择“总结”“关键要点”“通俗解释”或“翻译”，或者直接提问。
 
 AI 可能会出错。请核实重要信息。

@@ -9,7 +9,7 @@ DAS KANNST DU DAMIT MACHEN
 • Text markieren, um ihn erklären zu lassen, deine Formulierungen zu verbessern oder eine Antwort zu entwerfen
 
 GEMACHT FÜR SAFARI AUF IPHONE, IPAD UND MAC
-• iPhone und iPad: Tippe auf jeder Seite auf die ✦-Taste
+• iPhone und iPad: Tippe auf jeder Seite auf die schwebende ContextFlow-Taste
 • Mac: eine Seitenleiste, die du über die Symbolleiste oder mit Control-Shift-E öffnest
 • Jede Seite behält ihre eigene Unterhaltung, sodass du später weitermachen kannst
 • Heller und dunkler Modus, verfügbar in 11 Sprachen
@@ -26,7 +26,7 @@ KOSTENLOS UND PRO
 
 IN EINER MINUTE STARTKLAR
 1. Öffne die ContextFlow-App und folge den Schritten, um die Erweiterung in Safari zu aktivieren.
-2. Öffne eine beliebige Website und tippe auf ✦ (auf dem Mac klickst du in der Symbolleiste auf das ContextFlow-Symbol).
+2. Öffne eine beliebige Website und tippe auf die ContextFlow-Taste (auf dem Mac klickst du in der Symbolleiste auf das ContextFlow-Symbol).
 3. Wähle „Zusammenfassen“, „Das Wichtigste“, „Einfach erklären“ oder „Übersetzen“ – oder frag einfach.
 
 KI kann Fehler machen. Überprüfe wichtige Informationen.
