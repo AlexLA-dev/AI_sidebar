@@ -26,8 +26,11 @@ test("newestClaudeModel picks the most recently released Sonnet or Haiku", () =>
   assert.equal(newestClaudeModel([{ id: "claude-opus-5-5", created_at: "2026-09-01T00:00:00Z" }], "fast"), null)
 })
 
+// Built from parts so secret scanners don't take the fixtures for real keys.
+const fakeKey = (...prefix: string[]) => ["sk", ...prefix, "x".repeat(32)].join("-")
+
 test("keyProvider tells Anthropic keys from OpenAI keys", () => {
-  assert.equal(keyProvider("sk-ant-api03-abcdefghijklmnopqrstuvwxyz"), "anthropic")
-  assert.equal(keyProvider("sk-proj-abcdefghijklmnopqrstuvwxyz"), "openai")
-  assert.equal(keyProvider("sk-abcdefghijklmnopqrstuvwxyz"), "openai")
+  assert.equal(keyProvider(fakeKey("ant", "api03")), "anthropic")
+  assert.equal(keyProvider(fakeKey("proj")), "openai")
+  assert.equal(keyProvider(fakeKey()), "openai")
 })
