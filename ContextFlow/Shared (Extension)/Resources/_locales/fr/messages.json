@@ -184,7 +184,7 @@
   "message": "Passer à Pro"
  },
  "useOwnKey": {
-  "message": "Utiliser ma clé OpenAI"
+  "message": "Utiliser ma propre clé d’API"
  },
  "usageFree": {
   "message": "Réponses gratuites restantes aujourd’hui : $P0$ sur $P1$",
@@ -209,7 +209,7 @@
   }
  },
  "usageOwnKey": {
-  "message": "Votre clé OpenAI est utilisée"
+  "message": "Votre propre clé d’API est utilisée"
  },
  "hours": {
   "message": "$P0$ h",
@@ -327,13 +327,25 @@
   "message": "Facultatif. Permet d’adapter les réponses, par exemple « Je suis designer produit, réponds brièvement »."
  },
  "setOwnKey": {
-  "message": "Clé OpenAI personnelle"
+  "message": "Clé d’API personnelle (OpenAI ou Claude)"
  },
  "setOwnKeyHint": {
-  "message": "Incluse dans les forfaits Pro et Clé personnelle. Les requêtes vont directement de votre appareil à OpenAI."
+  "message": "Incluse dans les forfaits Pro et Clé personnelle. Collez une clé OpenAI ou Anthropic (Claude) ; les requêtes vont directement de votre appareil à ce fournisseur."
  },
  "setOwnKeyLocked": {
   "message": "Disponible avec le forfait Pro ou Clé personnelle"
+ },
+ "setOwnKeyModel": {
+  "message": "Modèle"
+ },
+ "modelFast": {
+  "message": "Rapide"
+ },
+ "modelSmart": {
+  "message": "Intelligent"
+ },
+ "setOwnKeyModelHint": {
+  "message": "Rapide : le dernier Claude Haiku ou GPT mini. Intelligent : le dernier Claude Sonnet ou GPT."
  },
  "getKey": {
   "message": "Obtenir une clé"

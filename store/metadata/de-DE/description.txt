@@ -22,7 +22,7 @@ DATENSCHUTZ VON ANFANG AN
 KOSTENLOS UND PRO
 • Kostenlos: 5 Antworten pro Tag
 • Pro: bis zu 375 Antworten pro Woche auf all deinen Apple-Geräten
-• Eigener Schlüssel: unbegrenzte Antworten mit deinem eigenen OpenAI-API-Schlüssel
+• Eigener Schlüssel: unbegrenzte Antworten mit deinem eigenen OpenAI- oder Claude-API-Schlüssel
 
 IN EINER MINUTE STARTKLAR
 1. Öffne die ContextFlow-App und folge den Schritten, um die Erweiterung in Safari zu aktivieren.

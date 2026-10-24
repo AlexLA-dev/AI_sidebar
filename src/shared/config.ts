@@ -14,7 +14,8 @@ export const LINKS = {
   appStore: "https://apps.apple.com/app/id6759115793",
   review: "https://apps.apple.com/app/id6759115793?action=write-review",
   manageSubscriptions: "https://apps.apple.com/account/subscriptions",
-  openAiKeys: "https://platform.openai.com/api-keys"
+  openAiKeys: "https://platform.openai.com/api-keys",
+  anthropicKeys: "https://platform.claude.com/settings/keys"
 }
 
 // Matches the products in App Store Connect.

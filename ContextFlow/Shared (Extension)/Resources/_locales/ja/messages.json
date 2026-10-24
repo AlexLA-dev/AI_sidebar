@@ -184,7 +184,7 @@
   "message": "Proを入手"
  },
  "useOwnKey": {
-  "message": "自分のOpenAIキーを使う"
+  "message": "自分のAPIキーを使う"
  },
  "usageFree": {
   "message": "今日の無料回答：残り$P0$/$P1$回",
@@ -209,7 +209,7 @@
   }
  },
  "usageOwnKey": {
-  "message": "自分のOpenAIキーを使用中"
+  "message": "自分のAPIキーを使用中"
  },
  "hours": {
   "message": "$P0$時間",
@@ -327,13 +327,25 @@
   "message": "任意。回答をあなたに合わせるのに役立ちます。例：「プロダクトデザイナーです。簡潔にお願いします」"
  },
  "setOwnKey": {
-  "message": "自分のOpenAIキー"
+  "message": "自分のAPIキー（OpenAIまたはClaude）"
  },
  "setOwnKeyHint": {
-  "message": "Proプランと「自分のキー」プランに含まれます。リクエストはデバイスからOpenAIに直接送信されます。"
+  "message": "Proプランと「自分のキー」プランに含まれます。OpenAIまたはAnthropic（Claude）のキーを貼り付けてください。リクエストはデバイスからそのプロバイダに直接送信されます。"
  },
  "setOwnKeyLocked": {
   "message": "Proまたは「自分のキー」プランで利用できます"
+ },
+ "setOwnKeyModel": {
+  "message": "モデル"
+ },
+ "modelFast": {
+  "message": "高速"
+ },
+ "modelSmart": {
+  "message": "高性能"
+ },
+ "setOwnKeyModelHint": {
+  "message": "高速：最新のClaude HaikuまたはGPT mini。高性能：最新のClaude SonnetまたはGPT。"
  },
  "getKey": {
   "message": "キーを取得"

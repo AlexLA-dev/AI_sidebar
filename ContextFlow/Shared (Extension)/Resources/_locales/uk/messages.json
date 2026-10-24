@@ -184,7 +184,7 @@
   "message": "Отримати Pro"
  },
  "useOwnKey": {
-  "message": "Використати мій ключ OpenAI"
+  "message": "Використати мій ключ API"
  },
  "usageFree": {
   "message": "Сьогодні залишилося $P0$ з $P1$ безкоштовних відповідей",
@@ -209,7 +209,7 @@
   }
  },
  "usageOwnKey": {
-  "message": "Використовується ваш ключ OpenAI"
+  "message": "Використовується ваш ключ API"
  },
  "hours": {
   "message": "$P0$ год",
@@ -327,13 +327,25 @@
   "message": "Необов’язково. Допомагає краще підлаштовувати відповіді, напр.: «Я продуктовий дизайнер, відповідай коротко»."
  },
  "setOwnKey": {
-  "message": "Власний ключ OpenAI"
+  "message": "Власний ключ API (OpenAI або Claude)"
  },
  "setOwnKeyHint": {
-  "message": "Входить у тарифи Pro і «Власний ключ». Запити надходять напряму з вашого пристрою до OpenAI."
+  "message": "Входить у тарифи Pro і «Власний ключ». Підійде ключ OpenAI або Anthropic (Claude); запити надходять напряму з вашого пристрою до цього провайдера."
  },
  "setOwnKeyLocked": {
   "message": "Доступно з тарифом Pro або «Власний ключ»"
+ },
+ "setOwnKeyModel": {
+  "message": "Модель"
+ },
+ "modelFast": {
+  "message": "Швидка"
+ },
+ "modelSmart": {
+  "message": "Розумна"
+ },
+ "setOwnKeyModelHint": {
+  "message": "Швидка — найновіша Claude Haiku або GPT mini. Розумна — найновіша Claude Sonnet або GPT."
  },
  "getKey": {
   "message": "Отримати ключ"

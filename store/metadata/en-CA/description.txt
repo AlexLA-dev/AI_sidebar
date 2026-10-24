@@ -22,7 +22,7 @@ PRIVATE BY DESIGN
 FREE AND PRO
 • Free: 5 answers every day
 • Pro: up to 375 answers a week on all your Apple devices
-• Own key: unlimited answers with your own OpenAI API key
+• Own key: unlimited answers with your own OpenAI or Claude API key
 
 GET STARTED IN A MINUTE
 1. Open the ContextFlow app and follow the steps to turn the extension on in Safari.

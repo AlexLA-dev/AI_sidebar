@@ -1601,66 +1601,66 @@
         }
       }
     },
-    "Optional: use your own OpenAI key": {
+    "Optional: use your own OpenAI or Claude key": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Optional: dein eigener OpenAI-Schlüssel"
+            "value": "Optional: dein eigener OpenAI- oder Claude-Schlüssel"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Opcional: usa tu propia clave de OpenAI"
+            "value": "Opcional: usa tu propia clave de OpenAI o Claude"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "En option : votre propre clé OpenAI"
+            "value": "En option : votre propre clé OpenAI ou Claude"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Facoltativo: usa la tua chiave OpenAI"
+            "value": "Facoltativo: usa la tua chiave OpenAI o Claude"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "オプション：自分のOpenAIキーも使用可能"
+            "value": "オプション：自分のOpenAIまたはClaudeのキーも使用可能"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "선택 사항: 내 OpenAI 키 사용"
+            "value": "선택 사항: 내 OpenAI 또는 Claude 키 사용"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Opcional: use sua própria chave da OpenAI"
+            "value": "Opcional: use sua própria chave da OpenAI ou do Claude"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "По желанию: свой ключ OpenAI"
+            "value": "По желанию: свой ключ OpenAI или Claude"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "За бажанням: власний ключ OpenAI"
+            "value": "За бажанням: власний ключ OpenAI або Claude"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "可选：使用你自己的 OpenAI 密钥"
+            "value": "可选：使用你自己的 OpenAI 或 Claude 密钥"
           }
         }
       }
@@ -3521,66 +3521,66 @@
         }
       }
     },
-    "Unlimited answers with your own OpenAI API key.": {
+    "Unlimited answers with your own OpenAI or Claude API key.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Unbegrenzte Antworten mit deinem eigenen OpenAI-API-Schlüssel."
+            "value": "Unbegrenzte Antworten mit deinem eigenen OpenAI- oder Claude-API-Schlüssel."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Respuestas ilimitadas con tu propia clave de API de OpenAI."
+            "value": "Respuestas ilimitadas con tu propia clave de API de OpenAI o Claude."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Réponses illimitées avec votre propre clé API OpenAI."
+            "value": "Réponses illimitées avec votre propre clé API OpenAI ou Claude."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Risposte illimitate con la tua chiave API di OpenAI."
+            "value": "Risposte illimitate con la tua chiave API di OpenAI o Claude."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "自分のOpenAI APIキーで、回答数は無制限。"
+            "value": "自分のOpenAIまたはClaudeのAPIキーで、回答数は無制限。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "내 OpenAI API 키로 답변 무제한."
+            "value": "내 OpenAI 또는 Claude API 키로 답변 무제한."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Respostas ilimitadas com sua própria chave de API da OpenAI."
+            "value": "Respostas ilimitadas com sua própria chave de API da OpenAI ou do Claude."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Безлимитные ответы с вашим API-ключом OpenAI."
+            "value": "Безлимитные ответы с вашим API-ключом OpenAI или Claude."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Безлімітні відповіді з вашим API-ключем OpenAI."
+            "value": "Безлімітні відповіді з вашим API-ключем OpenAI або Claude."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "使用你自己的 OpenAI API 密钥，回答次数不限。"
+            "value": "使用你自己的 OpenAI 或 Claude API 密钥，回答次数不限。"
           }
         }
       }

@@ -184,7 +184,7 @@
   "message": "升级 Pro"
  },
  "useOwnKey": {
-  "message": "使用我的 OpenAI 密钥"
+  "message": "使用我的 API 密钥"
  },
  "usageFree": {
   "message": "今日剩余免费回答：$P0$/$P1$",
@@ -209,7 +209,7 @@
   }
  },
  "usageOwnKey": {
-  "message": "正在使用你的 OpenAI 密钥"
+  "message": "正在使用你的 API 密钥"
  },
  "hours": {
   "message": "$P0$ 小时",
@@ -327,13 +327,25 @@
   "message": "可选。帮助定制回答，例如“我是产品设计师，回答简短些”。"
  },
  "setOwnKey": {
-  "message": "自有 OpenAI 密钥"
+  "message": "自有 API 密钥（OpenAI 或 Claude）"
  },
  "setOwnKeyHint": {
-  "message": "包含在 Pro 和“自有密钥”套餐中。请求将直接从你的设备发送到 OpenAI。"
+  "message": "包含在 Pro 和“自有密钥”套餐中。粘贴 OpenAI 或 Anthropic（Claude）密钥；请求将直接从你的设备发送到该服务商。"
  },
  "setOwnKeyLocked": {
   "message": "适用于 Pro 或“自有密钥”套餐"
+ },
+ "setOwnKeyModel": {
+  "message": "模型"
+ },
+ "modelFast": {
+  "message": "快速"
+ },
+ "modelSmart": {
+  "message": "智能"
+ },
+ "setOwnKeyModelHint": {
+  "message": "快速：最新的 Claude Haiku 或 GPT mini。智能：最新的 Claude Sonnet 或 GPT。"
  },
  "getKey": {
   "message": "获取密钥"

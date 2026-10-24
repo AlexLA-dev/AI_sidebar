@@ -3,6 +3,7 @@ import { useEffect, useState } from "preact/hooks"
 
 import { LINKS, TARGET, VERSION } from "../shared/config"
 import { t } from "../shared/i18n"
+import { OWN_KEY_PATTERN } from "../shared/models"
 import type { Platform, Settings, StatusInfo, Usage } from "../shared/types"
 import * as Icon from "./icons"
 import { deleteAllChats } from "./store"
@@ -136,7 +137,7 @@ export function SettingsView(props: Props): VNode {
         </div>
         {status?.hasOwnKey ? (
           <div class="cf-row buttons">
-            <span class="cf-key">sk-••••••••</span>
+            <span class="cf-key">{status.ownKeyProvider === "anthropic" ? "Claude · sk-ant-••••" : "OpenAI · sk-••••"}</span>
             <button type="button" class="cf-secondary" onClick={() => saveKey("")}>{t("remove")}</button>
           </div>
         ) : (
@@ -144,7 +145,7 @@ export function SettingsView(props: Props): VNode {
             <input
               class="cf-text"
               type="password"
-              placeholder="sk-…"
+              placeholder="sk-… / sk-ant-…"
               autoComplete="off"
               spellcheck={false}
               value={keyDraft}
@@ -152,15 +153,26 @@ export function SettingsView(props: Props): VNode {
               onInput={(e) => setKeyDraft(e.currentTarget.value)}
               onKeyDown={(e) => e.stopPropagation()}
             />
-            <button type="button" class="cf-secondary" disabled={!ownKeyAllowed || !/^sk-[\w-]{20,}$/.test(keyDraft.trim())} onClick={() => saveKey(keyDraft)}>
+            <button type="button" class="cf-secondary" disabled={!ownKeyAllowed || !OWN_KEY_PATTERN.test(keyDraft.trim())} onClick={() => saveKey(keyDraft)}>
               {keySaved ? t("saved") : t("save")}
             </button>
           </div>
         )}
         <p class="cf-hint">
-          {t("setOwnKeyHint")}{" "}
-          <button type="button" class="cf-link" onClick={() => props.onOpenUrl(LINKS.openAiKeys)}>{t("getKey")}</button>
+          {t("setOwnKeyHint")} {t("getKey")}:{" "}
+          <button type="button" class="cf-link" onClick={() => props.onOpenUrl(LINKS.openAiKeys)}>OpenAI</button>
+          {" · "}
+          <button type="button" class="cf-link" onClick={() => props.onOpenUrl(LINKS.anthropicKeys)}>Claude</button>
         </p>
+        {(ownKeyAllowed || status?.hasOwnKey) && (
+          <>
+            <div class="cf-row">
+              <span class="cf-label">{t("setOwnKeyModel")}</span>
+              <Segmented value={settings.ownKeyModel} options={[["fast", t("modelFast")], ["smart", t("modelSmart")]]} onChange={(ownKeyModel) => onChange({ ownKeyModel })} />
+            </div>
+            <p class="cf-hint">{t("setOwnKeyModelHint")}</p>
+          </>
+        )}
       </section>
 
       <section class="cf-group">

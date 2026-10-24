@@ -22,7 +22,7 @@ ContextFlow 将 AI 助手直接带进 Safari。总结长文章、提炼关键事
 免费版与 Pro
 • 免费：每天 5 次回答
 • Pro：在你所有的 Apple 设备上每周最多 375 次回答
-• 自有密钥：使用你自己的 OpenAI API 密钥，回答次数不限
+• 自有密钥：使用你自己的 OpenAI 或 Claude API 密钥，回答次数不限
 
 一分钟即可上手
 1. 打开 ContextFlow App，按照步骤在 Safari 中启用扩展。

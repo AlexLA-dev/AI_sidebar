@@ -14,7 +14,8 @@ type Item = { subject: string; period: string; limit: number | null }
 let counters = new Map<string, number>()
 let entitlements = new Map<string, Record<string, unknown>>()
 let events: { kind: string; data: Record<string, unknown> }[] = []
-let openai: { failModels: string[]; status?: number; answer: string } = { failModels: [], answer: "Hello world" }
+const OPENAI_MODELS = ["gpt-4o-mini", "gpt-4.1-mini", "gpt-5", "gpt-5-mini", "gpt-5-nano", "gpt-5.2", "gpt-5.2-mini", "gpt-5.2-pro", "gpt-5.2-2026-01-10", "o3"]
+let openai: { failModels: string[]; status?: number; listStatus?: number; answer: string; lastBody?: Record<string, unknown> } = { failModels: [], answer: "Hello world" }
 
 const rpc: Record<string, (args: Record<string, any>) => unknown> = {
   cf_consume: ({ p_items }) => {
@@ -57,7 +58,12 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     if (!rpc[fn]) return new Response(JSON.stringify({ message: "not found" }), { status: 404 })
     return new Response(JSON.stringify(rpc[fn](body)), { headers: { "Content-Type": "application/json" } })
   }
+  if (url === "https://api.openai.com/v1/models") {
+    if (openai.listStatus) return new Response("unavailable", { status: openai.listStatus })
+    return new Response(JSON.stringify({ data: OPENAI_MODELS.map((id) => ({ id, object: "model" })) }), { headers: { "Content-Type": "application/json" } })
+  }
   if (url === "https://api.openai.com/v1/chat/completions") {
+    openai.lastBody = body
     if (openai.failModels.includes(body.model)) return new Response(`{"error":{"message":"The model ${body.model} does not exist"}}`, { status: 404 })
     if (openai.status) return new Response("overloaded", { status: openai.status })
     return sse(openai.answer.split(" ").map((w, i) => (i ? ` ${w}` : w)))
@@ -70,10 +76,12 @@ let chat: (req: Request, ctx: any) => Promise<Response>
 let status: (req: Request, ctx: any) => Promise<Response>
 let legacy: (req: Request, ctx: any) => Promise<Response>
 let notify: (req: Request, ctx: any) => Promise<Response>
+let resetModelList: () => void
 
 before(async () => {
   const apple = await import("../netlify/shared/apple.mts")
   apple.setTrustedRootFingerprintForTests(TEST_ROOT_FINGERPRINT)
+  resetModelList = (await import("../netlify/shared/models.mts")).resetModelListForTests
   chat = (await import("../netlify/functions/v2-chat.mts")).default
   status = (await import("../netlify/functions/v2-status.mts")).default
   legacy = (await import("../netlify/functions/chat-proxy.mts")).default
@@ -85,6 +93,7 @@ beforeEach(() => {
   entitlements = new Map()
   events = []
   openai = { failModels: [], answer: "Hello world" }
+  resetModelList()
 })
 
 function ctx() {
@@ -130,10 +139,23 @@ test("free plan streams an answer and enforces the daily limit", async () => {
   assert.ok(events.some((e) => e.kind === "chat" && e.data.prompt_tokens === 100))
 })
 
-test("falls back to the next model when the first is unavailable", async () => {
-  openai.failModels = ["gpt-4.1-mini"]
+test("free plan uses the newest mini model as a reasoning model", async () => {
   const ev = await events$(await chat(ask(), ctx()))
-  assert.equal(ev[0].model, "gpt-4o-mini")
+  assert.equal(ev[0].model, "gpt-5.2-mini")
+  assert.equal(openai.lastBody?.reasoning_effort, "low")
+  assert.equal(openai.lastBody?.temperature, undefined)
+})
+
+test("falls back to the next model when the first is unavailable", async () => {
+  openai.failModels = ["gpt-5.2-mini"]
+  const ev = await events$(await chat(ask(), ctx()))
+  assert.equal(ev[0].model, "gpt-5-mini")
+})
+
+test("uses the fallback models when the model list can't be fetched", async () => {
+  openai.listStatus = 500
+  const ev = await events$(await chat(ask(), ctx()))
+  assert.equal(ev[0].model, "gpt-5-mini")
 })
 
 test("upstream failure refunds the request", async () => {
@@ -149,6 +171,7 @@ test("a verified Pro transaction switches to the weekly Pro allowance", async ()
   const jws = signJws(transaction())
   const ev = await events$(await chat(ask({ entitlement: jws }), ctx()))
   assert.equal(ev[0].plan, "pro")
+  assert.equal(ev[0].model, "gpt-5.2")
   assert.deepEqual([ev[0].usage.used, ev[0].usage.limit, ev[0].usage.period], [1, 375, "week"])
   assert.equal(counters.get("tx:2000000123"), 1)
   assert.equal(counters.get(`install:${INSTALL}`), undefined)

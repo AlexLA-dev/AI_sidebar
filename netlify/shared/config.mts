@@ -16,8 +16,12 @@ export const config = {
   supabaseUrl: env("SUPABASE_URL") ?? "",
   supabaseServiceKey: env("SUPABASE_SERVICE_ROLE_KEY") ?? "",
   openaiKey: env("OPENAI_API_KEY") ?? "",
-  // First model is tried first; the next ones are used only if the previous is unavailable.
-  models: (env("OPENAI_MODEL") ?? "gpt-4.1-mini,gpt-4o-mini").split(",").map((m) => m.trim()).filter(Boolean),
+  // Model per plan. "auto:smart" / "auto:fast" pick the newest full-size / mini GPT model from
+  // OpenAI's model list (refreshed every few hours); any other value pins that model id.
+  proModel: env("OPENAI_MODEL_PRO") ?? "auto:smart",
+  freeModel: env("OPENAI_MODEL_FREE") ?? "auto:fast",
+  // Tried in order when the model above is unavailable or the model list can't be fetched.
+  fallbackModels: (env("OPENAI_MODEL") ?? "gpt-5-mini,gpt-4.1-mini").split(",").map((m) => m.trim()).filter(Boolean),
   maxOutputTokens: int("OPENAI_MAX_TOKENS", 1500),
 
   appStoreBundleId: env("APPSTORE_BUNDLE_ID") ?? "com.contextflow.app",

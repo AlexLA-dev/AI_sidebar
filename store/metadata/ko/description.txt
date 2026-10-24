@@ -22,7 +22,7 @@ iPhone, iPad, Mac의 Safari를 위해 제작
 무료 및 Pro
 • 무료: 매일 답변 5개
 • Pro: 모든 Apple 기기에서 매주 최대 375개 답변
-• 내 키: 내 OpenAI API 키로 답변 무제한
+• 내 키: 내 OpenAI 또는 Claude API 키로 답변 무제한
 
 1분 만에 시작하기
 1. ContextFlow 앱을 열고 안내에 따라 Safari에서 확장 프로그램을 켜세요.

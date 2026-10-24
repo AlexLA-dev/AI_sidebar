@@ -1,4 +1,5 @@
 import { config } from "./config.mts"
+import { isReasoningGpt } from "../../src/shared/models.ts"
 import { MAX_PAGE_CHARS, systemPrompt, type PageContext } from "../../src/shared/prompt.ts"
 
 export { systemPrompt, type PageContext }
@@ -56,19 +57,19 @@ export interface Completion {
  * missing/retired for this key falls through to the next one, every other
  * error is final.
  */
-export async function startCompletion(system: string, messages: ChatMessage[], signal?: AbortSignal): Promise<Completion> {
+export async function startCompletion(system: string, messages: ChatMessage[], models: string[], signal?: AbortSignal): Promise<Completion> {
   let lastError: UpstreamError | null = null
-  for (const model of config.models) {
-    const reasoning = /^(gpt-5|o\d)/.test(model)
+  for (const model of models) {
     const body: Record<string, unknown> = {
       model,
       stream: true,
       stream_options: { include_usage: true },
       messages: [{ role: "system", content: system }, ...messages]
     }
-    if (reasoning) {
-      body.max_completion_tokens = config.maxOutputTokens + 1024
-      body.reasoning_effort = "minimal"
+    if (isReasoningGpt(model)) {
+      body.max_completion_tokens = config.maxOutputTokens + 2048
+      // Accepted by every GPT-5.x ("minimal" is not).
+      body.reasoning_effort = "low"
     } else {
       body.max_tokens = config.maxOutputTokens
       body.temperature = 0.4

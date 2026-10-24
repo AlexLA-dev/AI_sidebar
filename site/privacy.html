@@ -41,11 +41,12 @@
   </ul>
 
   <h2>4. Data on your device</h2>
-  <p>Chats, settings, the optional "About me" text and your own OpenAI API key (if you add one) are stored locally in Safari's extension storage. "About me" text is included in requests to personalize answers. With your own key, requests go directly from your device to OpenAI and do not pass through our servers. You can delete all chats in the extension settings; removing the app deletes everything.</p>
+  <p>Chats, settings, the optional "About me" text and your own OpenAI or Anthropic API key (if you add one) are stored locally in Safari's extension storage. "About me" text is included in requests to personalize answers. With your own key, requests go directly from your device to the provider of that key (OpenAI or Anthropic) under your own account with them, and do not pass through our servers. You can delete all chats in the extension settings; removing the app deletes everything.</p>
 
   <h2>5. Service providers</h2>
   <ul>
     <li><strong>OpenAI</strong> — generates answers (<a href="https://openai.com/policies/privacy-policy">privacy policy</a>).</li>
+    <li><strong>Anthropic</strong> — generates answers only when you add your own Anthropic (Claude) API key; requests go from your device straight to Anthropic (<a href="https://www.anthropic.com/legal/privacy">privacy policy</a>).</li>
     <li><strong>Netlify</strong> — hosts our API (<a href="https://www.netlify.com/privacy/">privacy policy</a>).</li>
     <li><strong>Supabase</strong> — database for counters and subscription records (<a href="https://supabase.com/privacy">privacy policy</a>).</li>
     <li><strong>Apple</strong> — processes payments; we never see your payment details.</li>

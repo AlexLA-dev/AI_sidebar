@@ -1,5 +1,6 @@
 import { API_BASE, LINKS, PRODUCTS, TARGET, VERSION } from "../shared/config"
 import { uiLanguage } from "../shared/i18n"
+import { keyProvider, OWN_KEY_PATTERN } from "../shared/models"
 import {
   DEFAULT_SETTINGS,
   STORAGE,
@@ -81,9 +82,9 @@ async function status(refresh = false): Promise<StatusInfo> {
     })
     if (!res.ok) throw new Error(`status ${res.status}`)
     const body = (await res.json()) as { plan: Plan; usage: Usage | null }
-    value = { plan: body.plan, usage: body.usage, store, hasOwnKey: Boolean(key), offline: false }
+    value = { plan: body.plan, usage: body.usage, store, hasOwnKey: Boolean(key), ownKeyProvider: key ? keyProvider(key) : null, offline: false }
   } catch {
-    value = { plan: ent?.active ? planFromProduct(ent.productId) : "free", usage: null, store, hasOwnKey: Boolean(key), offline: true }
+    value = { plan: ent?.active ? planFromProduct(ent.productId) : "free", usage: null, store, hasOwnKey: Boolean(key), ownKeyProvider: key ? keyProvider(key) : null, offline: true }
   }
   statusCache = { at: Date.now(), value }
   return value
@@ -98,7 +99,7 @@ async function runChat(payload: AskPayload, emit: (e: StreamEvent) => void, sign
   const ownKeyAllowed = TARGET === "chrome" || storePlan !== "free"
 
   if (key && ownKeyAllowed) {
-    await askWithOwnKey(key, payload, prefs.aboutMe, client.locale, emit, signal)
+    await askWithOwnKey(key, payload, prefs.aboutMe, client.locale, prefs.ownKeyModel, emit, signal)
     return
   }
   await askServer(
@@ -166,7 +167,8 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
     case "setOwnKey": {
       const key = message.key.trim()
       const op = key ? chrome.storage.local.set({ [STORAGE.ownKey]: key }) : chrome.storage.local.remove(STORAGE.ownKey)
-      op.then(() => {
+      // A different key may see different models.
+      op.then(() => chrome.storage.local.remove(STORAGE.ownKeyModels)).then(() => {
         statusCache = null
         sendResponse({ ok: true })
       })
@@ -218,7 +220,7 @@ async function migrateFromV1(): Promise<void> {
     } catch {
       // stored as a plain string
     }
-    if (typeof key === "string" && /^sk-[\w-]{20,}$/.test(key.trim())) {
+    if (typeof key === "string" && OWN_KEY_PATTERN.test(key.trim())) {
       await chrome.storage.local.set({ [STORAGE.ownKey]: key.trim() })
     }
   }
