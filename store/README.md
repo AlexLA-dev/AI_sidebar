@@ -144,3 +144,27 @@ node tools/store/compose.mjs /tmp/raw-en /tmp/shots-en en          # → iphone/
 ```
 
 Подписи и выноски лежат в `COPY` в `tools/store/compose.mjs`, демо-ответы в `tools/preview/answers.json`, демо-статьи в `tools/preview/article*.html`.
+
+## Как пересобрать видео-превью (iPhone 6.9")
+
+`store/previews/<locale>/iphone.mp4` (папка в `.gitignore`: файлы по ~30 МБ в репозиторий не кладём): 886×1920, 30 fps, H.264 High 4.0, ~10 Мбит/с, беззвучная стерео-дорожка AAC, до 30 с. Загружены в iOS 2.0 (en-US и ru, слот iPhone 6.9"). Сценарий: «Кратко» → «Главное» → свой вопрос, затем объяснение выделенного текста и перевод. Нужен `ffmpeg` с libx264.
+
+```bash
+STREAM_DELAY_MS=22 node --experimental-strip-types tools/preview/server.mts &   # ответы печатаются в читаемом темпе
+node tools/store/preview-record.mjs /tmp/ext-local /tmp/rec-en en               # дубли с реальным интерфейсом
+node tools/store/preview-render.mjs /tmp/rec-en store/previews/en-US/iphone.mp4 en
+```
+
+Подписи совпадают со скриншотами (`COPY` в `tools/store/preview-render.mjs`), финальная карточка берёт название из `metadata/<locale>/name.txt`.
+
+## Заголовок и результаты поиска (iOS / iPadOS 27+)
+
+Новые материалы страницы продукта, вкладка «Заголовок и результаты поиска» в версии. Делаются из того же записанного интерфейса, что и видео:
+
+```bash
+node tools/store/creative.mjs /tmp/rec-en store/previews/en-US en   # → header.png 3840×1646 (21:9), search.png 3840×2560 (3:2)
+```
+
+- **Безопасная зона заголовка** (проверено в «Предпросмотре» App Store Connect): на iPhone верхние ~22% закрыты статус-баром, Dynamic Island и кнопками «Назад» / «Поделиться»; iPad показывает только среднюю полосу (примерно 14–86% высоты), сверху по центру лежит панель вкладок. Всё важное — в пределах y 540–1400 и x 440–3400.
+- По правилам Apple в материалах нельзя: цены и «бесплатно», URL, ©, логотипы других платформ, награды Apple. Текст — короткая фраза, локализованная.
+- Загрузка в App Store Connect принимает только PNG без альфа-канала. Пока версия в черновике заявки, медиа заблокированы: сначала уберите её из черновика, после загрузки добавьте снова.

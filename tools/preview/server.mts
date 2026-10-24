@@ -31,6 +31,9 @@ const rpc: Record<string, (a: any) => unknown> = {
   cf_entitlement_by_token: () => null
 }
 
+// Delay between streamed words; the App Store preview video slows it down to a readable pace.
+const STREAM_DELAY_MS = Number(process.env.STREAM_DELAY_MS ?? 8)
+
 const answers: [RegExp, string][] = JSON.parse(readFileSync(new URL("./answers.json", import.meta.url), "utf8")).map(
   ([re, text]: [string, string]) => [new RegExp(re, "i"), text]
 )
@@ -53,7 +56,7 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
         const enc = new TextEncoder()
         for (const w of words) {
           c.enqueue(enc.encode(`data: ${JSON.stringify({ choices: [{ delta: { content: w } }] })}\n\n`))
-          await new Promise((r) => setTimeout(r, 8))
+          await new Promise((r) => setTimeout(r, STREAM_DELAY_MS))
         }
         c.enqueue(enc.encode(`data: ${JSON.stringify({ choices: [], usage: { prompt_tokens: 900, completion_tokens: 200 } })}\n\ndata: [DONE]\n\n`))
         c.close()
