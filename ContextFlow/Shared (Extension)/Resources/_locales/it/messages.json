@@ -143,6 +143,37 @@
  "share": {
   "message": "Condividi"
  },
+ "shareSource": {
+  "message": "Fonte"
+ },
+ "shareMadeWith": {
+  "message": "Creato con ContextFlow"
+ },
+ "shareChat": {
+  "message": "Condividi chat"
+ },
+ "shareYou": {
+  "message": "Tu"
+ },
+ "newPage": {
+  "message": "Nuova pagina: $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "pageUpdated": {
+  "message": "Pagina aggiornata"
+ },
+ "nowOnPage": {
+  "message": "Ora: $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
  "retry": {
   "message": "Riprova"
  },
@@ -313,9 +344,6 @@
  "setFab": {
   "message": "Pulsante fluttuante"
  },
- "fabAuto": {
-  "message": "Automatico"
- },
  "fabOn": {
   "message": "Attivo"
  },
@@ -323,7 +351,7 @@
   "message": "Disattivo"
  },
  "setFabHint": {
-  "message": "In modalità Automatico il pulsante appare su iPhone e iPad. Su Mac usa l’icona nella barra degli strumenti o Ctrl+Shift+E."
+  "message": "Il pulsante ✦ apre ContextFlow su qualsiasi sito. Nascondilo su un singolo sito con il link qui sotto o disattivalo qui."
  },
  "hideOnSite": {
   "message": "Nascondi su $P0$",

@@ -5,7 +5,7 @@ import { LINKS, TARGET } from "../shared/config"
 import { t, type MessageKey } from "../shared/i18n"
 import {
   DEFAULT_SETTINGS,
-  type ChatTurn,
+  type AskPayload,
   type ErrorCode,
   type Grounding,
   type Platform,
@@ -15,9 +15,10 @@ import {
   type Usage
 } from "../shared/types"
 import * as Icon from "./icons"
-import { Markdown, stripCitations, toPlainText } from "./markdown"
+import { historyForModel, lastPage, pageHasChanged, textFingerprint, type Entry } from "../shared/conversation"
+import { Markdown, toPlainText } from "./markdown"
 import {
-  buildContext,
+  extractPage,
   forgetSelection,
   isTouch,
   MIN_SELECTION_WORDS,
@@ -30,16 +31,11 @@ import {
   type SelectionInfo
 } from "./page"
 import { SettingsView } from "./Settings"
-import { giveConsent, hasConsent, loadChat, loadSettings, onSettingsChanged, saveChat, saveSettings } from "./store"
+import { giveConsent, hasConsent, loadConversation, loadSettings, onSettingsChanged, saveConversation, saveSettings } from "./store"
 
 export type Bus = EventTarget
 
-interface Turn extends ChatTurn {
-  label?: string
-  mode?: "google"
-  // Google answers: sources and Search Suggestions shown with the answer.
-  grounding?: Grounding
-}
+type Turn = Entry
 
 interface ChatError {
   code: ErrorCode
@@ -166,12 +162,15 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
   const [copied, setCopied] = useState<number | null>(null)
   const [dragY, setDragY] = useState<number | null>(null)
 
-  const keyRef = useRef(pageKey())
+  // The page the panel is on now (normalized URL), followed while open for single-page apps.
+  const [pageUrl, setPageUrl] = useState(pageKey())
+  const pageUrlRef = useRef(pageUrl)
+  const [chatCopied, setChatCopied] = useState(false)
   const portRef = useRef<chrome.runtime.Port | null>(null)
   const partialRef = useRef("")
   const listRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
-  const loadedKeyRef = useRef<string | null>(null)
+  const loadedRef = useRef(false)
   const openedAt = useRef(0)
   const settingsRef = useRef(settings)
   settingsRef.current = settings
@@ -234,33 +233,40 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
     }
   }, [bus, open, show, hide])
 
-  // Load the conversation of this page and fresh status whenever the panel opens.
+  // Every time the panel opens: the running conversation (another tab may have continued it),
+  // the page as it is now, and fresh status.
   useEffect(() => {
     if (!open) return
     const key = pageKey()
-    keyRef.current = key
-    if (loadedKeyRef.current !== key) {
-      loadedKeyRef.current = key
-      setError(null)
-      void loadChat(key).then(setMessages)
+    pageUrlRef.current = key
+    setPageUrl(key)
+    if (!portRef.current) {
+      void loadConversation().then((entries) => {
+        loadedRef.current = true
+        setMessages(entries)
+        // Show the end of the conversation (and this page's actions under it).
+        requestAnimationFrame(() => {
+          const list = listRef.current
+          if (list) list.scrollTop = list.scrollHeight
+        })
+      })
     }
     setPageReadable(Boolean(document.body && (document.body.innerText || "").trim().length > 40))
     void refreshStatus()
     if (!touch) setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 250)
   }, [open, refreshStatus, touch])
 
-  // Single-page apps: follow URL changes while open.
+  // Single-page apps: follow URL changes while open (the conversation carries on).
   useEffect(() => {
     if (!open) return
     const timer = setInterval(() => {
       const key = pageKey()
-      if (key !== keyRef.current && !portRef.current) {
-        keyRef.current = key
-        loadedKeyRef.current = key
+      if (key !== pageUrlRef.current) {
+        pageUrlRef.current = key
+        setPageUrl(key)
         forgetSelection()
         setSelection(null)
-        setError(null)
-        void loadChat(key).then(setMessages)
+        setPageReadable(Boolean(document.body && (document.body.innerText || "").trim().length > 40))
       }
     }, 1500)
     return () => clearInterval(timer)
@@ -275,10 +281,10 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
     return () => document.removeEventListener("visibilitychange", onVisible)
   }, [open, refreshStatus])
 
-  // Persist conversations per page.
+  // Persist the running conversation.
   useEffect(() => {
-    if (loadedKeyRef.current !== keyRef.current) return
-    const timer = setTimeout(() => void saveChat(keyRef.current, document.title, messages), 300)
+    if (!loadedRef.current) return
+    const timer = setTimeout(() => void saveConversation(messages), 300)
     return () => clearTimeout(timer)
   }, [messages])
 
@@ -369,7 +375,12 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
     partialRef.current = ""
     setPartial(null)
     setStreamMode(null)
-    if (text) setMessages([...history, grounding ? { role: "assistant", content: text, grounding } : { role: "assistant", content: text }])
+    if (text) {
+      const next: Turn[] = [...history, grounding ? { role: "assistant", content: text, grounding } : { role: "assistant", content: text }]
+      setMessages(next)
+      // Right away, not on the debounced save: the user may go to another page as soon as the answer is in.
+      void saveConversation(next)
+    }
     if (err) setError(err)
   }, [])
 
@@ -381,8 +392,14 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
       return
     }
     const base = opts.retry ? messages.slice(0, messages.length - 1) : messages
-    const user: Turn = { role: "user", content, label: opts.label }
+    // The page as it is now: read fresh for every question, so new content is always in the request.
+    const url = pageKey()
+    const full = extractPage()
+    const hash = textFingerprint(full.text)
+    const changed = pageHasChanged(base, url, hash)
+    const user: Turn = { role: "user", content, label: opts.label, page: { url, title: full.title, hash } }
     if (opts.mode) user.mode = opts.mode
+    if (changed) user.pageChanged = true
     const history: Turn[] = [...base, user]
     setMessages(history)
     setDraft("")
@@ -392,7 +409,9 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
     setStreamMode(opts.mode ?? null)
     partialRef.current = ""
 
-    const page = buildContext(selection)
+    const page: AskPayload["page"] = selection
+      ? { kind: "selection", title: document.title.slice(0, 300), url: location.href, text: selection.text }
+      : full.text ? { kind: "page", title: full.title, url: location.href, text: full.text, changed } : null
     let port: chrome.runtime.Port
     try {
       port = chrome.runtime.connect({ name: "chat" })
@@ -428,7 +447,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
     port.postMessage({
       type: "ask",
       payload: {
-        messages: history.slice(-12).map(({ role, content: c }) => ({ role, content: stripCitations(c) })),
+        messages: historyForModel(history, url),
         page,
         action: opts.action,
         mode: opts.mode
@@ -480,8 +499,38 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
     stop()
     setMessages([])
     setError(null)
-    void saveChat(keyRef.current, "", [])
+    void saveConversation([])
   }, [stop])
+
+  // ------------------------------------------------------------ sharing
+  const shareFooter = (url: string) => `${t("shareSource")}: ${url}\n${t("shareMadeWith")}: ${LINKS.appStoreShare}`
+
+  /** Shares (or copies, where sharing isn't available) the whole conversation. */
+  const shareChat = useCallback(async () => {
+    const lines: string[] = []
+    const pages = new Map<string, string>()
+    for (const m of messages) {
+      if (m.role === "user") {
+        if (m.page) pages.set(m.page.url, m.page.title)
+        lines.push(`${t("shareYou")}: ${m.label ?? m.content}`)
+      } else {
+        lines.push(`ContextFlow: ${toPlainText(m.content)}`, "")
+      }
+    }
+    const sources = [...pages].map(([url, title]) => (title ? `${title} — ${url}` : url))
+    const text = [
+      lines.join("\n").trim(),
+      "",
+      sources.length ? `${t("shareSource")}:\n${sources.join("\n")}` : `${t("shareSource")}: ${location.href}`,
+      `${t("shareMadeWith")}: ${LINKS.appStoreShare}`
+    ].join("\n")
+    if (typeof navigator.share === "function") {
+      await navigator.share({ text }).catch(() => undefined)
+    } else if (await copyText(text)) {
+      setChatCopied(true)
+      setTimeout(() => setChatCopied(false), 1500)
+    }
+  }, [messages])
 
   // ------------------------------------------------------------ upgrade
   const openApp = useCallback(async (target: "subscribe" | "manage") => {
@@ -490,7 +539,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
   }, [])
 
   // ------------------------------------------------------------ FAB
-  const fabEnabled = settings.fab === "on" || (settings.fab === "auto" && touch)
+  const fabEnabled = settings.fab !== "off"
   const fabVisible = fabEnabled && !open && !settings.fabHiddenSites.includes(siteName())
   const dragRef = useRef<{ startY: number; startX: number; moved: boolean; pointer: number } | null>(null)
 
@@ -534,6 +583,8 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
 
   const theme = settings.theme === "auto" ? undefined : settings.theme
   const lastIsUser = messages[messages.length - 1]?.role === "user"
+  // The conversation was last on another page: offer this page's actions.
+  const onNewPage = messages.length > 0 && Boolean(lastPage(messages)) && lastPage(messages)?.url !== pageUrl
 
   // ------------------------------------------------------------ render
   return (
@@ -613,6 +664,11 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
                 />
               )}
             </div>
+            {view === "chat" && messages.length > 0 && partial === null && (
+              <button type="button" class="cf-icon" onClick={() => void shareChat()} aria-label={t("shareChat")} title={chatCopied ? t("copied") : t("shareChat")}>
+                {chatCopied ? <Icon.Check /> : <Icon.Share />}
+              </button>
+            )}
             {view === "chat" && messages.length > 0 && (
               <button type="button" class="cf-icon" onClick={newChat} aria-label={t("newChat")} title={t("newChat")}><Icon.Plus /></button>
             )}
@@ -660,6 +716,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
                 {messages.map((m, idx) =>
                   m.role === "user" ? (
                     <div class="cf-msg user" key={idx}>
+                      <PageDivider entries={messages} index={idx} />
                       <div class="cf-bubble-user">{m.mode === "google" && <span class="cf-user-mode"><Icon.Search size={12} /></span>}{m.label ?? m.content}</div>
                     </div>
                   ) : (
@@ -672,7 +729,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
                           {copied === idx ? <Icon.Check /> : <Icon.Copy />} {copied === idx ? t("copied") : t("copy")}
                         </button>
                         {typeof navigator.share === "function" && (
-                          <button type="button" onClick={() => void navigator.share({ text: `${toPlainText(m.content)}\n\n— ${location.href}` }).catch(() => undefined)}>
+                          <button type="button" onClick={() => void navigator.share({ text: `${toPlainText(m.content)}\n\n${shareFooter(sourceOf(messages, idx))}` }).catch(() => undefined)}>
                             <Icon.Share /> {t("share")}
                           </button>
                         )}
@@ -687,7 +744,18 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
                   </div>
                 )}
 
-                {messages.length > 0 && partial === null && !error && actions.length > 0 && lastIsUser === false && messages.length < 3 && (
+                {messages.length > 0 && partial === null && !error && actions.length > 0 && lastIsUser === false && onNewPage && (
+                  <div class="cf-newpage">
+                    <div class="cf-divider"><span>{t("nowOnPage", document.title || siteName())}</span></div>
+                    <div class="cf-actions follow">
+                      {actions.slice(0, 4).map((a) => (
+                        <button type="button" key={a.id} class="cf-chip small" onClick={() => runAction(a)}>{t(a.label)}</button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {messages.length > 0 && partial === null && !error && actions.length > 0 && lastIsUser === false && !onNewPage && messages.length < 3 && (
                   <div class="cf-actions follow">
                     {actions.filter((a) => !messages.some((m) => m.label === t(a.label))).slice(0, 3).map((a) => (
                       <button type="button" key={a.id} class="cf-chip small" onClick={() => runAction(a)}>{t(a.label)}</button>
@@ -796,6 +864,23 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
 }
 
 const runActionRef: { current: (a: Action) => void } = { current: () => undefined }
+
+/** URL of the page the answer at `index` was about (its question's page), for sharing. */
+function sourceOf(entries: Entry[], index: number): string {
+  for (let i = index; i >= 0; i--) if (entries[i].role === "user" && entries[i].page) return entries[i].page!.url
+  return location.href
+}
+
+/** Above a question: "New page: …" when it moved to another page, "Page updated" when the page changed. */
+function PageDivider({ entries, index }: { entries: Entry[]; index: number }): VNode | null {
+  const m = entries[index]
+  const previous = lastPage(entries.slice(0, index))
+  if (m.page && previous && previous.url !== m.page.url) {
+    return <div class="cf-divider"><span>{t("newPage", m.page.title || m.page.url)}</span></div>
+  }
+  if (m.pageChanged) return <div class="cf-divider"><span>{t("pageUpdated")}</span></div>
+  return null
+}
 
 // Selection buttons act on pointerup: on iPhone the tap that reaches them also clears the
 // selection, and the click may never come. Keyboard activation still arrives as a click.

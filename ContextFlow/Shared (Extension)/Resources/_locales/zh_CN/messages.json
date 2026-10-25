@@ -143,6 +143,37 @@
  "share": {
   "message": "分享"
  },
+ "shareSource": {
+  "message": "来源"
+ },
+ "shareMadeWith": {
+  "message": "由 ContextFlow 生成"
+ },
+ "shareChat": {
+  "message": "分享对话"
+ },
+ "shareYou": {
+  "message": "你"
+ },
+ "newPage": {
+  "message": "新页面：$P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "pageUpdated": {
+  "message": "页面已更新"
+ },
+ "nowOnPage": {
+  "message": "当前：$P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
  "retry": {
   "message": "重试"
  },
@@ -313,9 +344,6 @@
  "setFab": {
   "message": "悬浮按钮"
  },
- "fabAuto": {
-  "message": "自动"
- },
  "fabOn": {
   "message": "开启"
  },
@@ -323,7 +351,7 @@
   "message": "关闭"
  },
  "setFabHint": {
-  "message": "选择“自动”时，按钮会显示在 iPhone 和 iPad 上。在 Mac 上，请使用工具栏图标或 Ctrl+Shift+E。"
+  "message": "✦ 按钮可在任何网站上打开 ContextFlow。可通过下方链接在单个网站上隐藏，或在此处关闭。"
  },
  "hideOnSite": {
   "message": "在 $P0$ 上隐藏",

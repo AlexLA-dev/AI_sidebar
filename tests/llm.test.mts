@@ -49,3 +49,13 @@ test("readDeltas parses OpenAI SSE including split chunks and usage", async () =
   assert.equal(text, "Hello")
   assert.deepEqual(stats, { promptTokens: 11, completionTokens: 2, chars: 5 })
 })
+
+test("the prompt says when the page changed and how multi-page conversations look", () => {
+  const changed = sanitizePage({ kind: "page", title: "T", url: "https://x", text: "New text", changed: true })
+  assert.equal(changed?.changed, true)
+  assert.equal(sanitizePage({ kind: "page", title: "T", url: "https://x", text: "t", changed: "yes" })?.changed, false)
+  const prompt = systemPrompt(changed, "", "en")
+  assert.match(prompt, /it has changed since the earlier messages/)
+  assert.match(prompt, /Asked on another page/)
+  assert.doesNotMatch(systemPrompt(sanitizePage({ kind: "page", title: "T", url: "u", text: "t" }), "", "en"), /has changed/)
+})

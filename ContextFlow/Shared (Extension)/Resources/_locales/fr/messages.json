@@ -143,6 +143,37 @@
  "share": {
   "message": "Partager"
  },
+ "shareSource": {
+  "message": "Source"
+ },
+ "shareMadeWith": {
+  "message": "Créé avec ContextFlow"
+ },
+ "shareChat": {
+  "message": "Partager la discussion"
+ },
+ "shareYou": {
+  "message": "Vous"
+ },
+ "newPage": {
+  "message": "Nouvelle page : $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "pageUpdated": {
+  "message": "Page mise à jour"
+ },
+ "nowOnPage": {
+  "message": "Maintenant : $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
  "retry": {
   "message": "Réessayer"
  },
@@ -313,9 +344,6 @@
  "setFab": {
   "message": "Bouton flottant"
  },
- "fabAuto": {
-  "message": "Auto"
- },
  "fabOn": {
   "message": "Activé"
  },
@@ -323,7 +351,7 @@
   "message": "Désactivé"
  },
  "setFabHint": {
-  "message": "En mode Auto, le bouton s’affiche sur iPhone et iPad. Sur Mac, utilisez l’icône de la barre d’outils ou Ctrl+Shift+E."
+  "message": "Le bouton ✦ ouvre ContextFlow sur n’importe quel site. Masquez-le sur un site avec le lien ci-dessous ou désactivez-le ici."
  },
  "hideOnSite": {
   "message": "Masquer sur $P0$",

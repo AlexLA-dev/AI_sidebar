@@ -197,6 +197,68 @@ await fetch(`${BASE}/reset`)
   await ctx.close()
 }
 
+// ------------------------------------- one conversation across pages, fresh page content
+{
+  await fetch(`${BASE}/reset`)
+  const { ctx } = await launch(IPHONE_UA, { width: 430, height: 932 }, { hasTouch: true })
+  for (const p of ctx.pages()) if (p.url().startsWith("chrome-extension://")) await p.close()
+  const page = await ctx.newPage()
+  const idle = () => page.waitForFunction(() => !document.querySelector("contextflow-root")?.shadowRoot?.querySelector(".cf-send.stop"), null, { timeout: 15000 })
+  const lastRequest = () => fetch(`${BASE}/last-request`).then((r) => r.json())
+
+  await page.goto(`${BASE}/article`)
+  await page.locator(".cf-fab").tap()
+  await page.locator(".cf-chip", { hasText: "Summarize" }).tap()
+  await page.locator(".cf-card.consent .cf-primary").tap()
+  await page.locator(".cf-msg.ai .md").first().waitFor({ timeout: 15000 })
+  await idle()
+
+  // The page gets new content while the user reads it: the next question carries it and says so.
+  await page.locator(".cf-header button[aria-label=Close]").tap()
+  await page.evaluate(() => {
+    const p = document.createElement("p")
+    p.textContent = "Update: two more companies announced today that they are moving to a four-day week from January."
+    document.querySelector("main").append(p)
+  })
+  await page.locator(".cf-fab").tap()
+  await page.locator(".cf-input textarea").fill("What is new on this page?")
+  await page.locator(".cf-send").tap()
+  await idle()
+  let body = await lastRequest()
+  check("updated page content is sent and flagged", body.page.changed === true && body.page.text.includes("two more companies"), String(body.page.changed))
+  check("'Page updated' divider", (await page.locator(".cf-divider", { hasText: "Page updated" }).count()) === 1)
+
+  // Another page: the conversation carries on, this page's actions are offered, and the earlier
+  // questions reach the model marked with the page they were asked on.
+  await page.goto(`${BASE}/article-ru`)
+  await page.locator(".cf-fab").tap()
+  await page.locator(".cf-panel.in").waitFor()
+  await page.locator(".cf-msg.ai").first().waitFor({ timeout: 5000 })
+  check("conversation continues on another page", (await page.locator(".cf-msg.user").count()) === 2)
+  const newPage = page.locator(".cf-newpage")
+  check("actions for the new page offered", (await newPage.count()) === 1 && (await newPage.locator(".cf-chip").count()) >= 3, await newPage.innerText().catch(() => ""))
+  await page.screenshot({ path: `${outDir}/conversation-1-new-page.png` })
+  await newPage.locator(".cf-chip").first().tap()
+  await idle()
+  body = await lastRequest()
+  const marked = body.messages.filter((m) => m.role === "user" && m.content.startsWith("[Asked on another page:"))
+  check("earlier questions marked with their page", marked.length === 2 && body.messages.at(-1).content.startsWith("[Asked") === false, marked.map((m) => m.content.split("\n")[0]).join(" | "))
+  check("'New page' divider", (await page.locator(".cf-divider", { hasText: "New page" }).count()) === 1)
+  await page.screenshot({ path: `${outDir}/conversation-2-divider.png` })
+
+  // The whole chat can be shared (copied where sharing isn't available).
+  check("share chat button", (await page.locator(".cf-header button[aria-label='Share chat']").count()) === 1)
+
+  // New chat ends it everywhere.
+  await page.locator(".cf-header button[aria-label='New chat']").tap()
+  await page.locator(".cf-header button[aria-label=Close]").tap()
+  await page.goto(`${BASE}/article`)
+  await page.locator(".cf-fab").tap()
+  await page.locator(".cf-empty").waitFor({ timeout: 5000 })
+  check("new chat starts empty on every page", (await page.locator(".cf-msg").count()) === 0)
+  await ctx.close()
+}
+
 // ---------------------------------------------------------------- Mac
 {
   await fetch(`${BASE}/reset`)
@@ -205,7 +267,8 @@ await fetch(`${BASE}/reset`)
   const page = await ctx.newPage()
   await page.goto(`${BASE}/article`)
   await page.waitForSelector("contextflow-root", { state: "attached" })
-  check("no FAB on Mac by default", (await page.locator(".cf-fab").count()) === 0)
+  await page.locator(".cf-fab").waitFor({ timeout: 8000 })
+  check("FAB on Mac by default", await page.locator(".cf-fab").isVisible())
 
   // toolbar click = background sends "toggle"
   await sw.evaluate(async () => {

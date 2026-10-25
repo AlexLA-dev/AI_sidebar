@@ -143,6 +143,37 @@
  "share": {
   "message": "Share"
  },
+ "shareSource": {
+  "message": "Source"
+ },
+ "shareMadeWith": {
+  "message": "Made with ContextFlow"
+ },
+ "shareChat": {
+  "message": "Share chat"
+ },
+ "shareYou": {
+  "message": "You"
+ },
+ "newPage": {
+  "message": "New page: $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "pageUpdated": {
+  "message": "Page updated"
+ },
+ "nowOnPage": {
+  "message": "Now on: $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
  "retry": {
   "message": "Retry"
  },
@@ -313,9 +344,6 @@
  "setFab": {
   "message": "Floating button"
  },
- "fabAuto": {
-  "message": "Auto"
- },
  "fabOn": {
   "message": "On"
  },
@@ -323,7 +351,7 @@
   "message": "Off"
  },
  "setFabHint": {
-  "message": "Auto shows the button on iPhone and iPad. On Mac use the toolbar icon or Ctrl+Shift+E."
+  "message": "The ✦ button opens ContextFlow on any site. Hide it on a single site with the link below, or turn it off here."
  },
  "hideOnSite": {
   "message": "Hide on $P0$",

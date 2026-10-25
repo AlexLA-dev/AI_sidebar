@@ -221,6 +221,12 @@
 .cf-chip.small { padding: 5px 10px; font-size: 12.5px; color: var(--text-2); }
 
 .cf-msg { margin: 0 0 14px; display: flex; flex-direction: column; }
+/* "New page: …" / "Page updated" between questions of the running conversation. */
+.cf-divider { align-self: stretch; display: flex; align-items: center; gap: 8px; margin: 2px 0 10px; color: var(--text-3); font-size: 11.5px; font-weight: 600; }
+.cf-divider::before, .cf-divider::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+.cf-divider span { max-width: 75%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cf-newpage { margin: 4px 0 10px; }
+.cf-newpage .cf-actions.follow { margin: 0; }
 .cf-msg.user { align-items: flex-end; }
 .cf-user-mode { display: inline-flex; vertical-align: -1px; margin-right: 5px; opacity: 0.85; }
 .cf-bubble-user {

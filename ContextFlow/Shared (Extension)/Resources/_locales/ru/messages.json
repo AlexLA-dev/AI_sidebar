@@ -143,6 +143,37 @@
  "share": {
   "message": "Поделиться"
  },
+ "shareSource": {
+  "message": "Источник"
+ },
+ "shareMadeWith": {
+  "message": "Сделано в ContextFlow"
+ },
+ "shareChat": {
+  "message": "Поделиться чатом"
+ },
+ "shareYou": {
+  "message": "Вы"
+ },
+ "newPage": {
+  "message": "Новая страница: $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "pageUpdated": {
+  "message": "Страница обновилась"
+ },
+ "nowOnPage": {
+  "message": "Сейчас: $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
  "retry": {
   "message": "Повторить"
  },
@@ -313,9 +344,6 @@
  "setFab": {
   "message": "Плавающая кнопка"
  },
- "fabAuto": {
-  "message": "Авто"
- },
  "fabOn": {
   "message": "Вкл"
  },
@@ -323,7 +351,7 @@
   "message": "Выкл"
  },
  "setFabHint": {
-  "message": "«Авто» показывает кнопку на iPhone и iPad. На Mac используйте значок на панели или Ctrl+Shift+E."
+  "message": "Кнопка ✦ открывает ContextFlow на любом сайте. Скройте её на отдельном сайте ссылкой ниже или выключите здесь."
  },
  "hideOnSite": {
   "message": "Скрыть на $P0$",

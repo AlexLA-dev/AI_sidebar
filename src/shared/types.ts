@@ -27,7 +27,7 @@ export interface ChatTurn {
 
 export interface AskPayload {
   messages: ChatTurn[]
-  page: { kind: "page" | "selection"; title: string; url: string; text: string } | null
+  page: { kind: "page" | "selection"; title: string; url: string; text: string; changed?: boolean } | null
   action?: string
   // "google": answer with Google Search grounding (always through our server).
   mode?: "google"
@@ -89,7 +89,14 @@ export type ContentRequest = { type: "toggle" } | { type: "open"; selection?: bo
 export const STORAGE = {
   installId: "cf:installId",
   settings: "cf:settings",
+  // Per-page chats of 2.0 / 2.1; read once to seed the running conversation.
   chats: "cf:chats",
+  // The running conversation (follows the user across pages until "New chat").
+  conversation: "cf:conversation",
+  // When the settings last changed here (ms), to merge with the app's copy.
+  settingsUpdatedAt: "cf:settingsUpdatedAt",
+  // Successful answers so far; the app asks for an App Store rating after a few.
+  valueMoments: "cf:valueMoments",
   consent: "cf:consent",
   ownKey: "cf:ownKey",
   // Provider model lists for the own key ({ openai?: { ids, at }, anthropic?: { models, at } }).
@@ -98,6 +105,7 @@ export const STORAGE = {
 } as const
 
 export interface Settings {
+  // "auto" (2.0 / 2.1 default, iPhone and iPad only) is read as "on".
   fab: "auto" | "on" | "off"
   fabHiddenSites: string[]
   fabSide: "left" | "right"
@@ -111,7 +119,7 @@ export interface Settings {
 }
 
 export const DEFAULT_SETTINGS: Settings = {
-  fab: "auto",
+  fab: "on",
   fabHiddenSites: [],
   fabSide: "right",
   fabY: 72,

@@ -143,6 +143,37 @@
  "share": {
   "message": "Teilen"
  },
+ "shareSource": {
+  "message": "Quelle"
+ },
+ "shareMadeWith": {
+  "message": "Erstellt mit ContextFlow"
+ },
+ "shareChat": {
+  "message": "Chat teilen"
+ },
+ "shareYou": {
+  "message": "Du"
+ },
+ "newPage": {
+  "message": "Neue Seite: $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "pageUpdated": {
+  "message": "Seite aktualisiert"
+ },
+ "nowOnPage": {
+  "message": "Jetzt: $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
  "retry": {
   "message": "Erneut versuchen"
  },
@@ -313,9 +344,6 @@
  "setFab": {
   "message": "Schwebender Button"
  },
- "fabAuto": {
-  "message": "Automatisch"
- },
  "fabOn": {
   "message": "An"
  },
@@ -323,7 +351,7 @@
   "message": "Aus"
  },
  "setFabHint": {
-  "message": "„Automatisch“ zeigt den Button auf iPhone und iPad. Auf dem Mac nutzt du das Symbol in der Symbolleiste oder Ctrl+Shift+E."
+  "message": "Die ✦-Taste öffnet ContextFlow auf jeder Website. Blende sie über den Link unten für eine Website aus oder schalte sie hier aus."
  },
  "hideOnSite": {
   "message": "Auf $P0$ ausblenden",

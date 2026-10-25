@@ -143,6 +143,37 @@
  "share": {
   "message": "Compartilhar"
  },
+ "shareSource": {
+  "message": "Fonte"
+ },
+ "shareMadeWith": {
+  "message": "Feito com o ContextFlow"
+ },
+ "shareChat": {
+  "message": "Compartilhar conversa"
+ },
+ "shareYou": {
+  "message": "Você"
+ },
+ "newPage": {
+  "message": "Nova página: $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "pageUpdated": {
+  "message": "Página atualizada"
+ },
+ "nowOnPage": {
+  "message": "Agora: $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
  "retry": {
   "message": "Tentar novamente"
  },
@@ -313,9 +344,6 @@
  "setFab": {
   "message": "Botão flutuante"
  },
- "fabAuto": {
-  "message": "Automático"
- },
  "fabOn": {
   "message": "Ativado"
  },
@@ -323,7 +351,7 @@
   "message": "Desativado"
  },
  "setFabHint": {
-  "message": "No modo Automático, o botão aparece no iPhone e no iPad. No Mac, use o ícone na barra de ferramentas ou Ctrl+Shift+E."
+  "message": "O botão ✦ abre o ContextFlow em qualquer site. Oculte-o em um site pelo link abaixo ou desative-o aqui."
  },
  "hideOnSite": {
   "message": "Ocultar em $P0$",

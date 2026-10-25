@@ -39,7 +39,7 @@ final class DeepLinkRouter: ObservableObject {
 }
 
 enum AppTab: Hashable {
-    case home, pro
+    case home, pro, settings
 }
 
 // MARK: - Root
@@ -47,7 +47,19 @@ enum AppTab: Hashable {
 struct ContentView: View {
     @StateObject private var store = StoreKitManager.shared
     @StateObject private var router = DeepLinkRouter.shared
+    @Environment(\.requestReview) private var requestReview
     @State private var tab: AppTab = .home
+
+    /// The extension counted enough good answers since the last time: ask for an App Store rating
+    /// (Apple decides whether to show it, at most 3 times a year). Never on a plain first launch.
+    private func askForReviewIfDue() {
+        guard let moment = SharedDefaults.shared.pendingReviewMoment() else { return }
+        SharedDefaults.shared.markReviewAsked(moment)
+        Task {
+            try? await Task.sleep(nanoseconds: 1_500_000_000)
+            requestReview()
+        }
+    }
 
     var body: some View {
         root
@@ -59,6 +71,7 @@ struct ContentView: View {
             .task {
                 SharedDefaults.shared.removeLegacyData()
                 await store.refreshEntitlement()
+                askForReviewIfDue()
             }
     }
 
@@ -74,26 +87,34 @@ struct ContentView: View {
                 .navigationViewStyle(.stack)
                 .tabItem { Label("Pro", systemImage: "crown") }
                 .tag(AppTab.pro)
+            NavigationView { SettingsView() }
+                .navigationViewStyle(.stack)
+                .tabItem { Label("Settings", systemImage: "gearshape") }
+                .tag(AppTab.settings)
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
             Task { await store.refreshEntitlement() }
+            askForReviewIfDue()
         }
         #else
         NavigationSplitView {
             List(selection: Binding<AppTab?>(get: { tab }, set: { tab = $0 ?? .home })) {
                 Label("Get Started", systemImage: "sparkles").tag(AppTab.home)
                 Label("Pro", systemImage: "crown").tag(AppTab.pro)
+                Label("Settings", systemImage: "gearshape").tag(AppTab.settings)
             }
             .navigationSplitViewColumnWidth(min: 170, ideal: 190)
         } detail: {
             switch tab {
             case .home: HomeView(store: store, openPro: { tab = .pro })
             case .pro: ProView(store: store)
+            case .settings: SettingsView()
             }
         }
         .frame(minWidth: 720, minHeight: 560)
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
             Task { await store.refreshEntitlement() }
+            askForReviewIfDue()
         }
         #endif
     }
@@ -636,5 +657,113 @@ struct FooterLinks: View {
                 .font(.caption)
                 .foregroundColor(.secondary)
         }
+    }
+}
+
+// MARK: - Settings (shared with the Safari extension)
+
+/// The extension's settings, kept in the App Group. Edited here or in the extension;
+/// the extension picks up changes from the app the next time its panel opens, and the other way round.
+@MainActor
+final class ExtensionSettings: ObservableObject {
+    @Published var theme = "auto" { didSet { save() } }
+    @Published var textSize = "normal" { didSet { save() } }
+    @Published var floatingButton = true { didSet { save() } }
+    @Published var selectionButton = true { didSet { save() } }
+    @Published var aboutMe = "" { didSet { save() } }
+    @Published var ownKeyModel = "smart" { didSet { save() } }
+    @Published var hiddenSites: [String] = [] { didSet { save() } }
+
+    private var stored: [String: Any] = [:]
+    private var loading = false
+
+    init() { reload() }
+
+    /// Reads the shared copy (it may have changed in Safari since).
+    func reload() {
+        loading = true
+        defer { loading = false }
+        stored = SharedDefaults.shared.readSettings()?.settings ?? [:]
+        theme = stored["theme"] as? String ?? "auto"
+        textSize = stored["textSize"] as? String ?? "normal"
+        floatingButton = (stored["fab"] as? String ?? "on") != "off"
+        selectionButton = stored["selectionButton"] as? Bool ?? true
+        aboutMe = stored["aboutMe"] as? String ?? ""
+        ownKeyModel = stored["ownKeyModel"] as? String ?? "smart"
+        hiddenSites = stored["fabHiddenSites"] as? [String] ?? []
+    }
+
+    private func save() {
+        guard !loading else { return }
+        stored["theme"] = theme
+        stored["textSize"] = textSize
+        stored["fab"] = floatingButton ? "on" : "off"
+        stored["selectionButton"] = selectionButton
+        stored["aboutMe"] = String(aboutMe.prefix(1000))
+        stored["ownKeyModel"] = ownKeyModel
+        stored["fabHiddenSites"] = hiddenSites
+        SharedDefaults.shared.writeSettings(stored, updatedAt: Date().timeIntervalSince1970 * 1000)
+    }
+}
+
+struct SettingsView: View {
+    @StateObject private var settings = ExtensionSettings()
+
+    var body: some View {
+        Form {
+            Section(header: Text("Appearance")) {
+                Picker("Appearance", selection: $settings.theme) {
+                    Text("Auto").tag("auto")
+                    Text("Light").tag("light")
+                    Text("Dark").tag("dark")
+                }
+                Picker("Text size", selection: $settings.textSize) {
+                    Text("Normal").tag("normal")
+                    Text("Large").tag("large")
+                }
+            }
+
+            Section(header: Text("On web pages")) {
+                Toggle("Floating ✦ button", isOn: $settings.floatingButton)
+                Toggle("Button when selecting text", isOn: $settings.selectionButton)
+                if !settings.hiddenSites.isEmpty {
+                    Button("Show the ✦ button on all sites again (\(settings.hiddenSites.count) hidden)") {
+                        settings.hiddenSites = []
+                    }
+                }
+            }
+
+            Section(
+                header: Text("About me"),
+                footer: Text("Optional. Helps tailor answers, e.g. “I'm a product designer, keep it short”.")
+            ) {
+                TextEditor(text: $settings.aboutMe)
+                    .frame(minHeight: 90)
+            }
+
+            Section(
+                header: Text("Own API key"),
+                footer: Text("Applies when you use your own OpenAI or Claude key. The key itself is entered in the extension settings in Safari.")
+            ) {
+                Picker("Model", selection: $settings.ownKeyModel) {
+                    Text("Fast").tag("fast")
+                    Text("Smart").tag("smart")
+                }
+            }
+
+            Section(footer: Text("These settings are shared with ContextFlow in Safari. A change here shows up there the next time you open ContextFlow, and the other way round.")) {
+                EmptyView()
+            }
+        }
+        .navigationTitle("Settings")
+        #if os(iOS)
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in settings.reload() }
+        #else
+        .formStyle(.grouped)
+        .frame(maxWidth: 640)
+        .frame(maxWidth: .infinity)
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in settings.reload() }
+        #endif
+        .onAppear { settings.reload() }
     }
 }
