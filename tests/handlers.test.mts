@@ -303,9 +303,14 @@ test("Google mode streams a grounded answer with citations, sources and Search S
 
 test("Google answers have their own, smaller allowance", async () => {
   for (let i = 0; i < 3; i++) assert.equal((await chat(ask({ mode: "google" }), ctx())).status, 200)
-  const res = await chat(ask({ mode: "google" }), ctx())
+  const c = ctx()
+  const res = await chat(ask({ mode: "google" }), c)
+  await Promise.all(c.pending)
   assert.equal(res.status, 402)
   assert.equal((await res.json()).code, "SEARCH_LIMIT")
+  // Limit events carry the app version and device so review traffic can be told apart.
+  const limit = events.find((e) => e.kind === "limit")
+  assert.deepEqual([limit?.data.reason, limit?.data.mode, limit?.data.platform, limit?.data.version], ["search", "google", "ios", "2.0.0"])
   // Regular answers still work.
   assert.equal((await chat(ask(), ctx())).status, 200)
 })
