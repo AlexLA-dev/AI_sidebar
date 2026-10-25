@@ -50,7 +50,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
 
   if (!quota.allowed) {
     const reason = blockReason(quota.blocked)
-    context.waitUntil(logEvent("limit", installId, { plan: access.plan, reason, platform, mode: google ? "google" : "chat" }))
+    context.waitUntil(logEvent("limit", installId, { plan: access.plan, reason, platform, version, mode: google ? "google" : "chat" }))
     const code = reason === "busy" ? "BUSY" : reason === "search" ? "SEARCH_LIMIT" : "LIMIT_REACHED"
     return json({ code, plan: access.plan, usage }, reason === "busy" ? 503 : 402)
   }
@@ -68,7 +68,9 @@ export default async (req: Request, context: Context): Promise<Response> => {
       logEvent("upstream_error", installId, {
         message: err instanceof Error ? err.message.slice(0, 300) : "unknown",
         mode: google ? "google" : "chat",
-        provider: google ? "gemini" : "openai"
+        provider: google ? "gemini" : "openai",
+        platform,
+        version
       })
     ]))
     return json({ code: "UPSTREAM", message: "The AI service is busy. Please try again in a moment." }, 502)

@@ -61,6 +61,7 @@ const SEGMENTS = [
   { key: "ours", segment: "google", title: "Наш ключ · Google", sub: "Gemini + поиск Google через наш сервер", color: "var(--c2)" },
   { key: "own", segment: "ai", title: "Ключ пользователя", sub: "OpenAI / Claude напрямую с устройства", color: "var(--c3)" }
 ]
+const DEVICES = { iPhone: "iPhone", iPad: "iPad", Mac: "Mac", Chrome: "Chrome", unknown: "Версии 1.x (тип устройства не передают)" }
 const n = new Intl.NumberFormat("ru-RU")
 const compact = new Intl.NumberFormat("ru-RU", { notation: "compact", maximumFractionDigits: 1 })
 const app = document.getElementById("app")
@@ -204,6 +205,24 @@ function render(data) {
     el("td", {}, r.segment === "google" ? n.format(r.search_queries) : "—"),
     el("td", {}, ms(r.avg_ms))
   ))
+  const devices = (data.by_device || []).map((r) => el("tr", {},
+    el("td", {}, DEVICES[r.device] || r.device),
+    el("td", {}, label(r)),
+    el("td", {}, n.format(r.requests)),
+    el("td", {}, n.format(r.installs)),
+    el("td", {}, compact.format(r.prompt_tokens)),
+    el("td", {}, compact.format(r.completion_tokens)),
+    el("td", {}, r.segment === "google" ? n.format(r.search_queries) : "—")
+  ))
+  const review = data.review || []
+  const reviewRows = review.map((r) => el("tr", {},
+    el("td", {}, DEVICES[r.device] || r.device),
+    el("td", {}, label(r)),
+    el("td", {}, r.version || "—"),
+    el("td", {}, n.format(r.requests)),
+    el("td", {}, n.format(r.installs)),
+    el("td", {}, r.first_day === r.last_day ? r.first_day : `${r.first_day} – ${r.last_day}`)
+  ))
   const LIMIT = { limit: "дневной/недельный лимит", search: "лимит Google", busy: "общий лимит (BUSY)", ip: "лимит по IP" }
   const limits = (data.limits || []).map((r) => el("tr", {},
     el("td", {}, r.segment === "google" ? "Google" : "ИИ"), el("td", {}, `${LIMIT[r.reason] || r.reason} · ${r.plan}`), el("td", {}, n.format(r.hits))))
@@ -213,17 +232,19 @@ function render(data) {
   app.replaceChildren(
     el("div", { class: "bar" },
       el("h1", {}, "Аналитика"),
-      el("span", { class: "muted" }, `${n.format(total)} запросов за ${data.days} дн. · обновлено ${new Date(data.generated_at).toLocaleString("ru-RU")}`),
+      el("span", { class: "muted" }, `${n.format(total)} запросов реальных пользователей за ${data.days} дн. · обновлено ${new Date(data.generated_at).toLocaleString("ru-RU")}`),
       el("div", { class: "seg" }, periodButtons),
       el("button", { class: "link", onclick: () => load() }, "Обновить"),
       el("button", { class: "link", onclick: () => { store(""); login() } }, "Выйти")
     ),
     el("div", { class: "cards" }, SEGMENTS.map((s) => card(s, segments.find((r) => r.key === s.key && r.segment === s.segment)))),
     chart(data.by_day || [], data.days),
+    table("По устройствам", ["Устройство", "Сегмент", "Запросы", "Устройств", "Токены вход", "Токены выход", "Поиск Google"], devices, "Пока нет запросов."),
     table("По моделям", ["Сегмент", "Модель", "Запросы", "Ошибки", "Токены вход", "Токены выход", "Поиск Google", "Ср. время"], models, "Пока нет запросов."),
+    table(`Ревью: вы или App Review (${n.format(sum(review, "requests"))})`, ["Устройство", "Сегмент", "Версия", "Запросы", "Устройств", "Дни"], reviewRows, "Пока версия на ревью, запросы с неё попадают сюда, а не в цифры выше."),
     table("Упёрлись в лимит", ["Тип", "Лимит · план", "Раз"], limits, "Никто не упирался в лимиты."),
     table("Ошибки провайдеров", ["Тип", "Провайдер", "Ошибок"], errors, "Ошибок не было."),
-    el("p", { class: "note" }, "Время — UTC. Запросы с ключом пользователя видны начиная со следующей сборки после 2.1: расширение присылает только счётчики (модель, токены, время), без ключа и текста. События старше 180 дней удаляются.")
+    el("p", { class: "note" }, `Цифры выше — только реальные пользователи. Не входят: запросы с версии, пока она на ревью (блок «Ревью»), и наши тестовые проверки (${n.format(data.excluded_tests || 0)}). Время — UTC. Запросы с ключом пользователя видны начиная со следующей сборки после 2.1: расширение присылает только счётчики (модель, токены, время), без ключа и текста. События старше 180 дней удаляются.`)
   )
 }
 

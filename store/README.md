@@ -23,6 +23,7 @@ store/
 - [ ] Проверить, что https://aisidebar.netlify.app/privacy показывает новую политику (раздел «No account»).
 - [ ] Netlify → Environment variables: пометить ключи (OpenAI, Supabase service role, Stripe, Resend) как **Secret**. По желанию добавить `CF_IP_PEPPER` — любую случайную строку.
 - [ ] С версии 2.1: добавить `GEMINI_API_KEY` (Secret) для ответов с Google — см. раздел 7.
+- [ ] При отправке на ревью и после решения обновить окно ревью для аналитики (раздел 8), иначе запросы ревьюера попадут в реальные.
 
 **Сборка**
 - [ ] Вариант A (CI): создать ключ App Store Connect API (Users and Access → Integrations, роль **Admin**, нужна для облачной подписи). Добавить в GitHub → Settings → Secrets → Actions: `ASC_KEY_ID`, `ASC_ISSUER_ID`, `ASC_PRIVATE_KEY` (содержимое .p8). Запустить **Actions → Release to App Store Connect** (platforms: both).
@@ -196,4 +197,12 @@ node tools/store/creative.mjs /tmp/rec-en store/previews/en-US en   # → header
 
 - **Настройка:** в Netlify добавить `ADMIN_TOKEN` (Secret, длинная случайная строка), передеплоить. На странице ввести этот токен: он хранится только в браузере. Без `ADMIN_TOKEN` эндпоинт отвечает 404.
 - **Данные:** события `chat` в `contextflow.events` (Supabase) с полями `key` (`ours`/`own`), `mode` (`google`/`chat`), `provider`, `model`, токены, `search_queries`, `ms`, `ok`. Отчёт считает SQL-функция `public.cf_usage_report(days)` (миграция `20261025120000_contextflow_usage_report.sql`); её же можно вызвать в SQL editor.
+- **Реальные пользователи, ревью и тесты.** Запросы с версии, пока она на ревью, делаете вы или ревьюер Apple: они идут в отдельный блок «Ревью» с разбивкой по устройству и версии, а не в основные цифры. Окна ревью лежат в `contextflow.review_windows` (миграция `20261025180000_contextflow_analytics_audience.sql`), по строке на заявку и платформу:
+  ```sql
+  -- при отправке (IOS или MAC_OS, маркетинговая версия):
+  insert into contextflow.review_windows values ('IOS', '2.2', now(), null);
+  -- когда ревью закончилось (одобрено и выпущено или отклонено):
+  update contextflow.review_windows set completed_at = now() where platform = 'IOS' and version = '2.2' and completed_at is null;
+  ```
+  Наши проверки помечаются `data.audience = 'test'` (или версией клиента `dev-check`) и не считаются вовсе; на странице показано их число.
 - Ответы со своим ключом видны начиная со сборки, в которую попал этот отчёт (следующая после 2.1). Отчёты ограничены `OWN_KEY_REPORT_DAILY_LIMIT` на установку в день.
