@@ -104,6 +104,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   })
 
   context.waitUntil(done.then(() => logEvent("chat", null, {
+    key: "ours", provider: "openai", ok: stats.chars > 0,
     plan, model: completion.model, prompt_tokens: stats.promptTokens, completion_tokens: stats.completionTokens, legacy: true
   })))
 

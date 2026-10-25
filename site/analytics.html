@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Аналитика — ContextFlow</title>
+<link rel="icon" href="/icon.png" />
+<link rel="stylesheet" href="/style.css" />
+<style>
+  :root { --c1: #2563eb; --c2: #10b981; --c3: #8b5cf6; --warn: #d92d20; }
+  @media (prefers-color-scheme: dark) { :root { --c1: #60a5fa; --c2: #34d399; --c3: #a78bfa; --warn: #ff6b5e; } }
+  body { font-size: 15px; }
+  .bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 6px 0 18px; }
+  .bar h1 { font-size: 26px; margin: 0; letter-spacing: -0.01em; }
+  .bar .muted { color: var(--text-2); font-size: 13px; }
+  .seg { display: inline-flex; padding: 3px; border-radius: 10px; background: var(--bg-2); margin-left: auto; }
+  .seg button { border: 0; background: none; font: inherit; font-size: 13px; padding: 6px 11px; border-radius: 8px; color: var(--text-2); cursor: pointer; }
+  .seg button.on { background: var(--bg); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  .link { border: 0; background: none; color: var(--blue); font: inherit; font-size: 13px; cursor: pointer; padding: 0; }
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .card { background: var(--bg-2); border-radius: 16px; padding: 16px 18px; border-top: 4px solid var(--c); }
+  .card h2 { font-size: 15px; margin: 0; }
+  .card .sub { color: var(--text-2); font-size: 12.5px; margin: 2px 0 10px; }
+  .card .big { font-size: 34px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
+  .card .big small { font-size: 13px; font-weight: 500; color: var(--text-2); margin-left: 6px; }
+  .card dl { display: grid; grid-template-columns: 1fr auto; gap: 3px 12px; margin: 12px 0 0; font-size: 13.5px; }
+  .card dt { color: var(--text-2); }
+  .card dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+  .card .bad { color: var(--warn); }
+  .panel { background: var(--bg-2); border-radius: 16px; padding: 16px 18px; margin-top: 14px; }
+  .panel h3 { margin: 0 0 10px; font-size: 15px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12.5px; color: var(--text-2); margin-bottom: 8px; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+  svg text { fill: var(--text-2); font-size: 10.5px; }
+  .tbl { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums; }
+  th, td { text-align: right; padding: 7px 8px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  th:first-child, td:first-child, th:nth-child(2), td:nth-child(2) { text-align: left; }
+  th { color: var(--text-2); font-weight: 600; }
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 4px; margin-right: 6px; }
+  .empty { color: var(--text-2); font-size: 13px; }
+  .login { max-width: 420px; margin: 60px auto; background: var(--bg-2); border-radius: 18px; padding: 22px; }
+  .login h1 { font-size: 22px; margin: 0 0 6px; }
+  .login p { color: var(--text-2); font-size: 14px; margin: 0 0 14px; }
+  .login input { width: 100%; font: inherit; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text); }
+  .login button { margin-top: 10px; width: 100%; font: inherit; font-weight: 600; padding: 10px; border: 0; border-radius: 10px; background: var(--blue); color: #fff; cursor: pointer; }
+  .err { color: var(--warn); font-size: 13.5px; margin-top: 10px; min-height: 1em; }
+  .note { font-size: 12.5px; color: var(--text-2); margin: 14px 0 30px; }
+  @media (max-width: 760px) { .cards { grid-template-columns: 1fr; } .seg { margin-left: 0; } }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+"use strict"
+// Owner analytics: GET /api/v2/admin/usage with the ADMIN_TOKEN (kept in this browser only).
+const TOKEN_KEY = "cf-admin-token"
+const SEGMENTS = [
+  { key: "ours", segment: "ai", title: "Наш ключ · ИИ", sub: "OpenAI через наш сервер", color: "var(--c1)" },
+  { key: "ours", segment: "google", title: "Наш ключ · Google", sub: "Gemini + поиск Google через наш сервер", color: "var(--c2)" },
+  { key: "own", segment: "ai", title: "Ключ пользователя", sub: "OpenAI / Claude напрямую с устройства", color: "var(--c3)" }
+]
+const n = new Intl.NumberFormat("ru-RU")
+const compact = new Intl.NumberFormat("ru-RU", { notation: "compact", maximumFractionDigits: 1 })
+const app = document.getElementById("app")
+let days = 30
+
+function store(value) {
+  try { value ? localStorage.setItem(TOKEN_KEY, value) : localStorage.removeItem(TOKEN_KEY) } catch {}
+}
+function token() {
+  try { return localStorage.getItem(TOKEN_KEY) || "" } catch { return "" }
+}
+
+// Builds elements with textContent only: model names come from client reports.
+function el(tag, props = {}, ...children) {
+  const node = document.createElement(tag)
+  for (const [k, v] of Object.entries(props)) {
+    if (k === "style") node.setAttribute("style", v)
+    else if (k.startsWith("on")) node.addEventListener(k.slice(2), v)
+    else if (v !== undefined && v !== null && v !== false) node.setAttribute(k, v === true ? "" : v)
+  }
+  for (const c of children.flat()) if (c !== null && c !== undefined && c !== false) node.append(c instanceof Node ? c : String(c))
+  return node
+}
+function svg(tag, attrs = {}, ...children) {
+  const node = document.createElementNS("http://www.w3.org/2000/svg", tag)
+  for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, v)
+  for (const c of children.flat()) if (c) node.append(c instanceof Node ? c : document.createTextNode(String(c)))
+  return node
+}
+
+function login(message = "") {
+  const input = el("input", { type: "password", placeholder: "ADMIN_TOKEN", autocomplete: "current-password" })
+  const submit = (e) => { e.preventDefault(); if (input.value.trim()) { store(input.value.trim()); load() } }
+  app.replaceChildren(el("form", { class: "login", onsubmit: submit },
+    el("h1", {}, "Аналитика ContextFlow"),
+    el("p", {}, "Введите ADMIN_TOKEN из переменных окружения Netlify. Он сохранится только в этом браузере."),
+    input,
+    el("button", { type: "submit" }, "Открыть"),
+    el("div", { class: "err" }, message)
+  ))
+  input.focus()
+}
+
+async function load() {
+  const t = token()
+  if (!t) return login()
+  app.replaceChildren(el("p", { class: "empty", style: "padding:40px 0" }, "Загружаю…"))
+  let res
+  try {
+    res = await fetch(`/api/v2/admin/usage?days=${days}`, { headers: { Authorization: `Bearer ${t}` } })
+  } catch {
+    return login("Нет соединения с сервером.")
+  }
+  if (res.status === 401) { store(""); return login("Неверный токен.") }
+  if (res.status === 404) return login("Аналитика выключена: задайте ADMIN_TOKEN в Netlify и передеплойте сайт.")
+  if (!res.ok) return login(`Сервер ответил ${res.status}. Попробуйте позже.`)
+  render(await res.json())
+}
+
+const sum = (rows, field) => rows.reduce((s, r) => s + Number(r[field] || 0), 0)
+const ms = (v) => v == null ? "—" : v >= 1000 ? `${(v / 1000).toFixed(1)} с` : `${n.format(v)} мс`
+const segOf = (r) => SEGMENTS.find((s) => s.key === r.key && s.segment === r.segment)
+
+function card(seg, row) {
+  const r = row || { requests: 0, failed: 0, installs: 0, prompt_tokens: 0, completion_tokens: 0, search_queries: 0, avg_ms: null }
+  return el("div", { class: "card", style: `--c:${seg.color}` },
+    el("h2", {}, seg.title),
+    el("div", { class: "sub" }, seg.sub),
+    el("div", { class: "big" }, n.format(r.requests), el("small", {}, "запросов")),
+    el("dl", {},
+      el("dt", {}, "Устройств"), el("dd", {}, n.format(r.installs)),
+      el("dt", {}, "Токены: вход / выход"), el("dd", {}, `${compact.format(r.prompt_tokens)} / ${compact.format(r.completion_tokens)}`),
+      seg.segment === "google" ? [el("dt", {}, "Поисковых запросов Google"), el("dd", {}, n.format(r.search_queries))] : null,
+      el("dt", {}, "Среднее время ответа"), el("dd", {}, ms(r.avg_ms)),
+      el("dt", {}, "С ошибкой"), el("dd", { class: r.failed ? "bad" : "" }, n.format(r.failed))
+    )
+  )
+}
+
+function chart(byDay, totalDays) {
+  const end = new Date()
+  const keys = []
+  for (let i = totalDays - 1; i >= 0; i--) keys.push(new Date(Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), end.getUTCDate() - i)).toISOString().slice(0, 10))
+  const value = (day, seg) => Number(byDay.find((r) => r.day === day && r.key === seg.key && r.segment === seg.segment)?.requests || 0)
+  const totals = keys.map((d) => SEGMENTS.reduce((s, seg) => s + value(d, seg), 0))
+  const max = Math.max(1, ...totals)
+  const W = 900, H = 210, L = 34, B = 22, T = 8
+  const bw = (W - L) / keys.length
+  const nodes = []
+  for (const f of [0, 0.5, 1]) {
+    const y = T + (H - T - B) * (1 - f)
+    nodes.push(svg("line", { x1: L, x2: W, y1: y, y2: y, stroke: "currentColor", "stroke-opacity": "0.12" }))
+    nodes.push(svg("text", { x: L - 6, y: y + 3, "text-anchor": "end" }, n.format(Math.round(max * f))))
+  }
+  keys.forEach((d, i) => {
+    let y = H - B
+    const x = L + i * bw + bw * 0.15
+    for (const seg of SEGMENTS) {
+      const v = value(d, seg)
+      if (!v) continue
+      const h = (H - T - B) * (v / max)
+      y -= h
+      nodes.push(svg("rect", { x, y, width: Math.max(1, bw * 0.7), height: h, rx: 2, fill: seg.color }, svg("title", {}, `${d} · ${seg.title}: ${v}`)))
+    }
+    const every = Math.ceil(keys.length / 10)
+    if (i % every === 0 || i === keys.length - 1) nodes.push(svg("text", { x: L + i * bw + bw / 2, y: H - 6, "text-anchor": "middle" }, d.slice(5).replace("-", ".")))
+  })
+  return el("div", { class: "panel" },
+    el("h3", {}, "Запросы по дням"),
+    el("div", { class: "legend" }, SEGMENTS.map((s) => el("span", {}, el("i", { style: `background:${s.color}` }), s.title))),
+    // Wide enough to stay readable on a phone (scrolls sideways there).
+    el("div", { class: "tbl" }, svg("svg", { viewBox: `0 0 ${W} ${H}`, width: "100%", style: "min-width:640px", role: "img", "aria-label": "Запросы по дням" }, nodes))
+  )
+}
+
+function table(title, head, rows, empty) {
+  return el("div", { class: "panel" },
+    el("h3", {}, title),
+    rows.length
+      ? el("div", { class: "tbl" }, el("table", {}, el("thead", {}, el("tr", {}, head.map((h) => el("th", {}, h)))), el("tbody", {}, rows)))
+      : el("p", { class: "empty" }, empty)
+  )
+}
+
+function label(r) {
+  const seg = segOf(r)
+  return el("span", {}, el("span", { class: "dot", style: `background:${seg ? seg.color : "var(--text-2)"}` }), seg ? seg.title : `${r.key} · ${r.segment}`)
+}
+
+function render(data) {
+  const segments = data.segments || []
+  const total = sum(segments, "requests")
+  const periodButtons = [7, 30, 90, 180].map((d) => el("button", { class: d === days ? "on" : "", onclick: () => { days = d; load() } }, `${d} дн.`))
+  const models = (data.by_model || []).map((r) => el("tr", {},
+    el("td", {}, label(r)),
+    el("td", {}, `${r.provider} · ${r.model}`),
+    el("td", {}, n.format(r.requests)),
+    el("td", { class: r.failed ? "bad" : "" }, n.format(r.failed || 0)),
+    el("td", {}, compact.format(r.prompt_tokens)),
+    el("td", {}, compact.format(r.completion_tokens)),
+    el("td", {}, r.segment === "google" ? n.format(r.search_queries) : "—"),
+    el("td", {}, ms(r.avg_ms))
+  ))
+  const LIMIT = { limit: "дневной/недельный лимит", search: "лимит Google", busy: "общий лимит (BUSY)", ip: "лимит по IP" }
+  const limits = (data.limits || []).map((r) => el("tr", {},
+    el("td", {}, r.segment === "google" ? "Google" : "ИИ"), el("td", {}, `${LIMIT[r.reason] || r.reason} · ${r.plan}`), el("td", {}, n.format(r.hits))))
+  const errors = (data.upstream_errors || []).map((r) => el("tr", {},
+    el("td", {}, r.segment === "google" ? "Google" : "ИИ"), el("td", {}, r.provider), el("td", {}, n.format(r.errors))))
+
+  app.replaceChildren(
+    el("div", { class: "bar" },
+      el("h1", {}, "Аналитика"),
+      el("span", { class: "muted" }, `${n.format(total)} запросов за ${data.days} дн. · обновлено ${new Date(data.generated_at).toLocaleString("ru-RU")}`),
+      el("div", { class: "seg" }, periodButtons),
+      el("button", { class: "link", onclick: () => load() }, "Обновить"),
+      el("button", { class: "link", onclick: () => { store(""); login() } }, "Выйти")
+    ),
+    el("div", { class: "cards" }, SEGMENTS.map((s) => card(s, segments.find((r) => r.key === s.key && r.segment === s.segment)))),
+    chart(data.by_day || [], data.days),
+    table("По моделям", ["Сегмент", "Модель", "Запросы", "Ошибки", "Токены вход", "Токены выход", "Поиск Google", "Ср. время"], models, "Пока нет запросов."),
+    table("Упёрлись в лимит", ["Тип", "Лимит · план", "Раз"], limits, "Никто не упирался в лимиты."),
+    table("Ошибки провайдеров", ["Тип", "Провайдер", "Ошибок"], errors, "Ошибок не было."),
+    el("p", { class: "note" }, "Время — UTC. Запросы с ключом пользователя видны начиная со следующей сборки после 2.1: расширение присылает только счётчики (модель, токены, время), без ключа и текста. События старше 180 дней удаляются.")
+  )
+}
+
+load()
+</script>
+</body>
+</html>

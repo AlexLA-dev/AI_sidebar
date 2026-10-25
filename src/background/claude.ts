@@ -2,7 +2,7 @@ import Anthropic from "@anthropic-ai/sdk"
 
 import { newestClaudeModel, type ModelTier } from "../shared/models"
 import { systemPrompt } from "../shared/prompt"
-import { STORAGE, type AskPayload, type StreamEvent } from "../shared/types"
+import { STORAGE, type AskPayload, type OwnKeyUsage, type StreamEvent } from "../shared/types"
 
 type Emit = (event: StreamEvent) => void
 
@@ -45,7 +45,7 @@ export async function askClaude(
   tier: ModelTier,
   emit: Emit,
   signal: AbortSignal
-): Promise<void> {
+): Promise<OwnKeyUsage> {
   // The key never leaves the device except to api.anthropic.com (pinned so no environment can redirect it).
   const client = new Anthropic({ apiKey: key, baseURL: "https://api.anthropic.com", dangerouslyAllowBrowser: true, maxRetries: 1 })
   const newest = await newestModel(client, tier)
@@ -67,6 +67,7 @@ export async function askClaude(
       emit({ type: "delta", text })
     }
 
+    const usage: OwnKeyUsage = { provider: "anthropic", model, ok: false, promptTokens: 0, completionTokens: 0 }
     try {
       // Sonnet can decline in a few safety categories; the API then re-runs the request on its
       // recommended fallback model instead of returning the refusal.
@@ -76,18 +77,24 @@ export async function askClaude(
             .on("text", onText)
             .finalMessage()
         : await client.messages.stream(params, { signal }).on("text", onText).finalMessage()
+      usage.model = message.model || model
+      const u = message.usage
+      usage.promptTokens = (u.input_tokens ?? 0) + (u.cache_creation_input_tokens ?? 0) + (u.cache_read_input_tokens ?? 0)
+      usage.completionTokens = u.output_tokens ?? 0
       if (message.stop_reason === "refusal") {
         emit({ type: "error", code: "UPSTREAM", message: message.stop_details?.explanation ?? "Claude declined this request." })
-        return
+        return { ...usage, error: "UPSTREAM" }
       }
     } catch (err) {
-      if (signal.aborted) return
+      if (signal.aborted) return { ...usage, error: "STOPPED" }
       // The newest model may not be enabled for this key's organization: try the known one.
       if (err instanceof Anthropic.NotFoundError && chars === 0 && i < candidates.length - 1) continue
-      emit(errorEvent(err))
-      return
+      const event = errorEvent(err)
+      emit(event)
+      return { ...usage, error: event.type === "error" ? event.code : "STREAM" }
     }
     emit(chars > 0 ? { type: "done", usage: null } : { type: "error", code: "EMPTY" })
-    return
+    return chars > 0 ? { ...usage, ok: true } : { ...usage, error: "EMPTY" }
   }
+  return { provider: "anthropic", model: candidates.at(-1) ?? "", ok: false, error: "UPSTREAM", promptTokens: 0, completionTokens: 0 }
 }

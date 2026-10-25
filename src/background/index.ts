@@ -13,7 +13,7 @@ import {
   type StreamEvent,
   type Usage
 } from "../shared/types"
-import { askServer, askWithOwnKey } from "./chat"
+import { askServer, askWithOwnKey, reportOwnKeyUsage } from "./chat"
 import { callNative, type NativeEntitlement } from "./native"
 
 // ---------------------------------------------------------------- identity
@@ -100,7 +100,9 @@ async function runChat(payload: AskPayload, emit: (e: StreamEvent) => void, sign
 
   // Google answers need Google Search grounding, which only our server has.
   if (key && ownKeyAllowed && payload.mode !== "google") {
-    await askWithOwnKey(key, payload, prefs.aboutMe, client.locale, prefs.ownKeyModel, emit, signal)
+    const started = Date.now()
+    const usage = await askWithOwnKey(key, payload, prefs.aboutMe, client.locale, prefs.ownKeyModel, emit, signal)
+    reportOwnKeyUsage({ ...usage, ms: Date.now() - started, tier: prefs.ownKeyModel, action: payload.action }, id, client)
     return
   }
   await askServer(

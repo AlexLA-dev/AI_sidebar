@@ -50,7 +50,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
 
   if (!quota.allowed) {
     const reason = blockReason(quota.blocked)
-    context.waitUntil(logEvent("limit", installId, { plan: access.plan, reason, platform }))
+    context.waitUntil(logEvent("limit", installId, { plan: access.plan, reason, platform, mode: google ? "google" : "chat" }))
     const code = reason === "busy" ? "BUSY" : reason === "search" ? "SEARCH_LIMIT" : "LIMIT_REACHED"
     return json({ code, plan: access.plan, usage }, reason === "busy" ? 503 : 402)
   }
@@ -65,7 +65,11 @@ export default async (req: Request, context: Context): Promise<Response> => {
     console.error("[cf] upstream failed:", err instanceof Error ? err.message : err)
     context.waitUntil(Promise.all([
       refund(counters).catch(() => undefined),
-      logEvent("upstream_error", installId, { message: err instanceof Error ? err.message.slice(0, 300) : "unknown" })
+      logEvent("upstream_error", installId, {
+        message: err instanceof Error ? err.message.slice(0, 300) : "unknown",
+        mode: google ? "google" : "chat",
+        provider: google ? "gemini" : "openai"
+      })
     ]))
     return json({ code: "UPSTREAM", message: "The AI service is busy. Please try again in a moment." }, 502)
   }
@@ -76,6 +80,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const send = (controller: ReadableStreamDefaultController<Uint8Array>, payload: unknown) =>
     controller.enqueue(encoder.encode(`data: ${JSON.stringify(payload)}\n\n`))
 
+  let succeeded = false
   let finished!: () => void
   const done = new Promise<void>((resolve) => (finished = resolve))
 
@@ -107,6 +112,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
           // already closed
         }
         if (!ok) await refund(counters).catch(() => undefined)
+        succeeded = ok
         finished()
       }
     }
@@ -114,6 +120,10 @@ export default async (req: Request, context: Context): Promise<Response> => {
 
   context.waitUntil(done.then(() => Promise.all([
     logEvent("chat", installId, {
+      // Analytics segments: whose key paid (ours / the user's own) and Google vs other AI.
+      key: "ours",
+      provider: google ? "gemini" : "openai",
+      ok: succeeded,
       plan: access.plan,
       model: completion.model,
       action: clip(body.action, 32) || null,

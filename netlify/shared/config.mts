@@ -50,7 +50,12 @@ export const config = {
   proWeeklyLimit: int("PRO_WEEKLY_LIMIT", 375),
   legacyIpDailyLimit: int("LEGACY_IP_DAILY_LIMIT", 10),
 
-  ipPepper: env("CF_IP_PEPPER") ?? "contextflow-ip-v1"
+  ipPepper: env("CF_IP_PEPPER") ?? "contextflow-ip-v1",
+
+  // Bearer token for GET /api/v2/admin/usage (the /analytics page). Unset = endpoint disabled.
+  adminToken: (env("ADMIN_TOKEN") ?? "").trim(),
+  // Own-key usage reports accepted per install per day (they only feed analytics).
+  ownKeyReportDailyLimit: int("OWN_KEY_REPORT_DAILY_LIMIT", 1000)
 }
 
 export const PRODUCTS = {
