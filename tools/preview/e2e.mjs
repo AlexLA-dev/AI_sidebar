@@ -15,7 +15,8 @@ const check = (name, ok, detail = "") => { results.push({ name, ok }); console.l
 async function launch(ua, viewport, extra = {}) {
   const ctx = await chromium.launchPersistentContext("", {
     headless: true,
-    executablePath: process.env.CHROMIUM ?? undefined,
+    // The default headless shell can't load extensions: use full Chromium (or $CHROMIUM).
+    ...(process.env.CHROMIUM ? { executablePath: process.env.CHROMIUM } : { channel: "chromium" }),
     args: [`--disable-extensions-except=${extDir}`, `--load-extension=${extDir}`],
     userAgent: ua,
     viewport,
@@ -46,7 +47,7 @@ await fetch(`${BASE}/reset`)
   await page.waitForTimeout(400)
   check("panel opens as bottom sheet", (await page.locator(".cf[data-layout=sheet]").count()) === 1)
   const chips = await page.locator(".cf-empty .cf-chip").allInnerTexts()
-  check("quick actions shown", chips.length === 4, chips.join(", "))
+  check("quick actions shown", chips.length === 5 && chips.includes("Google"), chips.join(", "))
   await page.screenshot({ path: `${outDir}/iphone-2-empty.png` })
 
   await page.locator(".cf-chip", { hasText: "Summarize" }).click()
@@ -94,6 +95,108 @@ await fetch(`${BASE}/reset`)
   await ctx.close()
 }
 
+// ------------------------------------------------- iPhone: selection button + Google
+{
+  await fetch(`${BASE}/reset`)
+  const { ctx } = await launch(IPHONE_UA, { width: 430, height: 932 }, { hasTouch: true })
+  for (const p of ctx.pages()) if (p.url().startsWith("chrome-extension://")) await p.close()
+  const page = await ctx.newPage()
+  await page.goto(`${BASE}/article`)
+  await page.locator(".cf-fab").waitFor({ timeout: 8000 })
+  const root = () => document.querySelector("contextflow-root")?.shadowRoot
+  const idle = () => page.waitForFunction((r) => !new Function(`return (${r})()`)()?.querySelector(".cf-send.stop"), root.toString(), { timeout: 15000 })
+
+  // A long-press selects one word: iPhone has no mouseup, so the button follows the selection itself.
+  const selectWord = (nth) => page.evaluate((n) => {
+    const p = document.querySelectorAll("main p")[n]
+    const text = p.firstChild
+    const range = document.createRange()
+    range.setStart(text, 0)
+    range.setEnd(text, text.textContent.indexOf(" "))
+    getSelection().removeAllRanges()
+    getSelection().addRange(range)
+  }, nth)
+  await selectWord(1)
+  const pill = page.locator(".cf-bubble.touch")
+  await pill.waitFor({ timeout: 3000 })
+  const pillText = await pill.innerText()
+  check("selection button on iPhone for a one-word selection", /Ask ContextFlow/.test(pillText) && /Google/.test(pillText), pillText.replace(/\s+/g, " "))
+  const pillBox = await pill.boundingBox()
+  check("selection button stays on screen", pillBox.x >= 8 && pillBox.x + pillBox.width <= 430 - 8, JSON.stringify(pillBox))
+  await page.screenshot({ path: `${outDir}/touch-1-selection-button.png` })
+
+  // The tap that reaches the button clears the selection on iPhone; the button keeps what it saw.
+  await page.evaluate(() => document.addEventListener("pointerdown", () => getSelection().removeAllRanges(), { capture: true, once: true }))
+  await pill.locator("button.primary").tap()
+  await page.locator(".cf-panel.in").waitFor()
+  const ctxChip = await page.locator(".cf-ctx").innerText()
+  check("Ask ContextFlow opens the sidebar on the selection", /“When”/.test(ctxChip), ctxChip)
+  const selChips = await page.locator(".cf-empty .cf-chip").allInnerTexts()
+  check("Google among selection actions", selChips.includes("Google"), selChips.join(", "))
+
+  await page.locator(".cf-empty .cf-chip", { hasText: "Google" }).tap()
+  await page.locator(".cf-card.consent .cf-primary").tap()
+  await page.locator(".cf-msg.ai .cf-sources").waitFor({ timeout: 15000 })
+  await idle()
+  const cites = await page.locator(".cf-msg.ai .md-cite").count()
+  const sources = await page.locator(".cf-msg.ai .cf-source-list li").allInnerTexts()
+  const suggest = await page.evaluate(() => document.querySelector("contextflow-root").shadowRoot.querySelector(".cf-suggest")?.shadowRoot?.querySelector("a.chip")?.getAttribute("target"))
+  check("Google answer has citations and sources", cites >= 4 && sources.length === 3, `${cites} citations; ${sources.map((t) => t.replace(/\s+/g, " ")).join(" | ")}`)
+  check("Search Suggestions rendered, opening in a new tab", suggest === "_blank", String(suggest))
+  check("Google answer labelled", (await page.locator(".cf-msg.ai .cf-grounded").count()) === 1)
+  await page.screenshot({ path: `${outDir}/touch-2-google-answer.png` })
+  await ctx.grantPermissions(["clipboard-read", "clipboard-write"], { origin: BASE })
+  await page.locator(".cf-msg.ai .cf-msg-tools button").first().tap()
+  await page.waitForTimeout(100)
+  const copied = await page.evaluate(() => navigator.clipboard.readText())
+  check("copied text has no citation links", copied.length > 50 && !/vertexaisearch|\[\d\]/.test(copied), copied.slice(0, 60))
+
+  // Google straight from the selection button.
+  await page.locator(".cf-header button[aria-label=Close]").tap()
+  await page.waitForTimeout(400)
+  await selectWord(2)
+  await pill.waitFor({ timeout: 3000 })
+  await pill.locator("button", { hasText: "Google" }).tap()
+  await page.waitForFunction((r) => (new Function(`return (${r})()`)()?.querySelectorAll(".cf-msg.ai .cf-sources").length ?? 0) >= 2, root.toString(), { timeout: 15000 })
+  check("Google from the selection button answers right away", (await page.locator(".cf-msg.ai .cf-grounded").count()) === 2)
+
+  // Google toggle in the composer.
+  const mode = page.locator(".cf-mode")
+  await mode.tap()
+  check("Google toggle in the composer", (await mode.getAttribute("aria-pressed")) === "true" && (await page.locator(".cf-input textarea").getAttribute("placeholder")) === "Ask Google…")
+  await page.locator(".cf-input textarea").fill("What do other studies say?")
+  await page.locator(".cf-send").tap()
+  await page.waitForFunction((r) => (new Function(`return (${r})()`)()?.querySelectorAll(".cf-msg.ai .cf-sources").length ?? 0) >= 3, root.toString(), { timeout: 15000 })
+  check("typed question goes to Google while the toggle is on", (await page.locator(".cf-msg.user .cf-user-mode").count()) === 3)
+  await page.screenshot({ path: `${outDir}/touch-3-google-toggle.png` })
+
+  // Free plan: 3 Google answers a day, then a clear message and a way out.
+  await page.locator(".cf-input textarea").fill("And in Germany?")
+  await page.locator(".cf-send").tap()
+  await page.locator(".cf-card.error").waitFor({ timeout: 8000 })
+  const err = await page.locator(".cf-card.error").innerText()
+  check("Google limit explained, with ask-without-Google", /limit of Google answers/.test(err) && /Ask without Google/.test(err), err.replace(/\s+/g, " "))
+  await page.locator(".cf-card.error button", { hasText: "Ask without Google" }).tap()
+  await idle()
+  check("asking without Google works", (await mode.getAttribute("aria-pressed")) === "false" && (await page.locator(".cf-msg.ai").count()) === 4)
+
+  await page.emulateMedia({ colorScheme: "dark" })
+  await page.waitForTimeout(200)
+  await page.locator(".cf-messages").evaluate((el) => { el.scrollTop = 0 })
+  await page.screenshot({ path: `${outDir}/touch-4-dark.png` })
+
+  await page.locator(".cf-header button[aria-label=Settings]").tap()
+  const toggle = page.locator(".cf-row.toggle", { hasText: "Button when selecting text" })
+  check("selection button setting shown on iPhone", (await toggle.count()) === 1)
+  await toggle.locator("input").tap()
+  await page.locator(".cf-header button[aria-label=Close]").tap()
+  await page.waitForTimeout(400)
+  await selectWord(3)
+  await page.waitForTimeout(800)
+  check("selection button can be turned off", (await page.locator(".cf-bubble").count()) === 0)
+  await ctx.close()
+}
+
 // ---------------------------------------------------------------- Mac
 {
   await fetch(`${BASE}/reset`)
@@ -133,7 +236,7 @@ await fetch(`${BASE}/reset`)
   await page.mouse.move(box.x + box.width - 10, box.y + box.height - 8, { steps: 8 })
   await page.mouse.up()
   await page.locator(".cf-bubble").waitFor({ timeout: 3000 })
-  check("selection bubble on Mac", await page.locator(".cf-bubble").isVisible())
+  check("selection bubble on Mac", await page.locator(".cf-bubble").isVisible() && (await page.locator(".cf-bubble button").count()) === 4)
   await page.screenshot({ path: `${outDir}/mac-3-bubble.png` })
   await page.locator(".cf-bubble button", { hasText: "Explain" }).click()
   await page.waitForFunction(() => document.querySelector("contextflow-root")?.shadowRoot?.querySelectorAll(".cf-msg.ai .md").length >= 2 && !document.querySelector("contextflow-root")?.shadowRoot?.querySelector(".cf-send.stop"), null, { timeout: 15000 })

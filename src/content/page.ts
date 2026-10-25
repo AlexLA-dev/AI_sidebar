@@ -47,6 +47,8 @@ export interface SelectionInfo {
 
 let lastSelection: SelectionInfo | null = null
 const SELECTION_TTL_MS = 30_000
+// A long-press on iPhone selects a single word, so one word is already a selection worth using.
+export const MIN_SELECTION_WORDS = 1
 
 function countWords(text: string): number {
   // CJK text has no spaces: count characters / 2 as a rough word count.
@@ -75,15 +77,20 @@ export function readSelection(): SelectionInfo | null {
 /** Remembers the latest selection: on iPhone tapping our button clears it. */
 export function trackSelection(): SelectionInfo | null {
   const current = readSelection()
-  if (current && current.words >= 1) lastSelection = current
+  if (current && current.words >= MIN_SELECTION_WORDS) lastSelection = current
   return current
 }
 
 export function recentSelection(): SelectionInfo | null {
   const live = readSelection()
-  if (live && live.words >= 3) return live
-  if (lastSelection && Date.now() - lastSelection.at < SELECTION_TTL_MS && lastSelection.words >= 3) return lastSelection
+  if (live && live.words >= MIN_SELECTION_WORDS) return live
+  if (lastSelection && Date.now() - lastSelection.at < SELECTION_TTL_MS) return lastSelection
   return null
+}
+
+/** Uses `selection` as the context of the next answer (e.g. the one our selection button captured). */
+export function rememberSelection(selection: SelectionInfo): void {
+  lastSelection = { ...selection, at: Date.now() }
 }
 
 export function forgetSelection(): void {
@@ -136,8 +143,8 @@ export function extractPage(): { title: string; text: string } {
   return cache
 }
 
-export function buildContext(useSelection: boolean): AskPayload["page"] {
-  const selection = useSelection ? recentSelection() : null
+/** Page context for a request: the selection the panel shows, or the readable page. */
+export function buildContext(selection: SelectionInfo | null): AskPayload["page"] {
   if (selection) {
     return { kind: "selection", title: document.title.slice(0, 300), url: location.href, text: selection.text }
   }

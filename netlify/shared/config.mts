@@ -24,6 +24,19 @@ export const config = {
   fallbackModels: (env("OPENAI_MODEL") ?? "gpt-5-mini,gpt-4.1-mini").split(",").map((m) => m.trim()).filter(Boolean),
   maxOutputTokens: int("OPENAI_MAX_TOKENS", 1500),
 
+  // "Google in ContextFlow": Gemini with Grounding with Google Search. Without a key the mode
+  // answers SEARCH_UNAVAILABLE. "auto" picks the newest stable Gemini Flash from the model list.
+  // Trimmed: a key pasted into the Netlify UI easily picks up a trailing space or newline.
+  geminiKey: (env("GEMINI_API_KEY") ?? "").trim(),
+  geminiModel: env("GEMINI_MODEL") ?? "auto",
+  geminiFallbackModels: (env("GEMINI_FALLBACK_MODELS") ?? "gemini-3.8-flash,gemini-3.6-flash,gemini-2.5-flash").split(",").map((m) => m.trim()).filter(Boolean),
+  geminiMaxOutputTokens: int("GEMINI_MAX_TOKENS", 4096),
+  // Google answers also count against the plan's normal allowance; these cap the search share
+  // (each grounded answer is billed per search query on top of tokens).
+  searchFreeDailyLimit: int("SEARCH_FREE_DAILY_LIMIT", 3),
+  searchProWeeklyLimit: int("SEARCH_PRO_WEEKLY_LIMIT", 100),
+  searchGlobalDailyLimit: int("SEARCH_GLOBAL_DAILY_LIMIT", 1500),
+
   appStoreBundleId: env("APPSTORE_BUNDLE_ID") ?? "com.contextflow.app",
   // Sandbox purchases are what App Review and TestFlight use, so they must be accepted in production too.
   acceptSandbox: (env("APPSTORE_ACCEPT_SANDBOX") ?? "true") !== "false",

@@ -20,6 +20,7 @@
   "actTranslate": "Übersetzen",
   "actImprove": "Text verbessern",
   "actReply": "Antwort entwerfen",
+  "actGoogle": "Google",
 
   "promptSummarize": "Fasse diese Seite in 5–7 Stichpunkten zusammen und nenne dann das wichtigste Fazit in einem Satz.",
   "promptKeyPoints": "Was sind die wichtigsten Erkenntnisse dieser Seite? Liste wichtige Fakten, Zahlen und Datumsangaben auf.",
@@ -30,10 +31,13 @@
   "promptSelTranslate": "Übersetze den markierten Text auf {0}.",
   "promptSelImprove": "Formuliere den markierten Text klarer und knapper. Gib eine verbesserte Version aus.",
   "promptReply": "Entwirf eine kurze, höfliche Antwort auf diese Nachricht oder diesen Beitrag.",
+  "promptGoogle": "Suche bei Google nach aktuellen Informationen zum Thema dieser Seite und gib mir einen Überblick.",
+  "promptSelGoogle": "Suche den ausgewählten Text bei Google: Was ist das, mit den wichtigsten Fakten.",
 
   "placeholderPage": "Frag etwas zu dieser Seite …",
   "placeholderSelection": "Frag etwas zur Auswahl …",
   "placeholderNone": "Frag, was du willst …",
+  "placeholderGoogle": "Google fragen …",
   "send": "Senden",
   "stop": "Stopp",
   "newChat": "Neuer Chat",
@@ -44,14 +48,18 @@
   "copied": "Kopiert",
   "share": "Teilen",
   "retry": "Erneut versuchen",
+  "askWithoutGoogle": "Ohne Google fragen",
   "thinking": "Seite wird gelesen …",
+  "searching": "Suche bei Google …",
 
   "errNetwork": "Keine Verbindung. Prüfe deine Internetverbindung und versuch es erneut.",
   "errBusy": "ContextFlow ist gerade stark ausgelastet. Versuch es in einer Minute noch mal.",
   "errUpstream": "Der KI-Dienst hat nicht geantwortet. Bitte versuch es noch mal.",
   "errInterrupted": "Die Antwort wurde unterbrochen.",
-  "errBadKey": "OpenAI hat deinen API-Schlüssel abgelehnt. Prüfe ihn in den Einstellungen.",
+  "errBadKey": "Dein API-Schlüssel wurde abgelehnt. Prüfe ihn in den Einstellungen.",
   "errGeneric": "Etwas ist schiefgelaufen. Bitte versuch es noch mal.",
+  "errSearchLimit": "Das Limit für Google-Antworten ist vorerst erreicht. Normale Antworten funktionieren weiter.",
+  "errSearchUnavailable": "Google-Antworten sind gerade nicht verfügbar. Normale Antworten funktionieren weiter.",
 
   "limitFreeTitle": "Deine Gratis-Antworten für heute sind aufgebraucht",
   "limitFreeBody": "Neue Gratis-Antworten in {0}. Mit Pro bekommst du bis zu {1} Antworten pro Woche.",
@@ -66,7 +74,7 @@
   "minutes": "{0} Min.",
 
   "consentTitle": "Vor deiner ersten Antwort",
-  "consentBody": "Um zu antworten, sendet ContextFlow deine Frage und den Text dieser Seite (oder deiner Auswahl) über unseren Server an OpenAI. Seiteninhalte und Chats werden nicht auf unseren Servern gespeichert – deine Chats bleiben auf diesem Gerät.",
+  "consentBody": "Um zu antworten, sendet ContextFlow deine Frage und den Text dieser Seite (oder deiner Auswahl) über unseren Server an OpenAI, bei Google-Antworten an Google. Seiteninhalte und Chats werden nicht auf unseren Servern gespeichert – deine Chats bleiben auf diesem Gerät.",
   "consentAccept": "Zustimmen und weiter",
   "privacyPolicy": "Datenschutzerklärung",
 
@@ -116,6 +124,9 @@
   "selAsk": "KI fragen",
   "selExplain": "Erklären",
   "selTranslate": "Übersetzen",
+  "googleModeHint": "Antwort mit der Google-Suche: aktuelle Fakten mit Quellen",
+  "googleBadge": "Google-Suche",
+  "sources": "Quellen",
 
   "welcomeTitle": "ContextFlow ist bereit",
   "welcomeBody": "Öffne eine beliebige Website und tippe auf die Taste ✦ oder das ContextFlow-Symbol in der Symbolleiste. Markiere Text, um nur zu diesem Teil zu fragen.",

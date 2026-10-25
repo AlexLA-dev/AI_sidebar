@@ -20,6 +20,7 @@
   "actTranslate": "번역",
   "actImprove": "문장 다듬기",
   "actReply": "답장 쓰기",
+  "actGoogle": "Google",
 
   "promptSummarize": "이 페이지를 5~7개의 글머리 기호로 요약한 다음, 핵심 결론을 한 문장으로 알려 주세요.",
   "promptKeyPoints": "이 페이지의 핵심 내용은 무엇인가요? 중요한 사실, 수치, 날짜를 정리해 주세요.",
@@ -30,10 +31,13 @@
   "promptSelTranslate": "선택한 텍스트를 {0}로 번역해 주세요.",
   "promptSelImprove": "선택한 텍스트를 더 명확하고 간결하게 다시 써 주세요. 개선된 버전 하나만 제시해 주세요.",
   "promptReply": "이 메시지나 게시물에 대한 짧고 정중한 답장 초안을 작성해 주세요.",
+  "promptGoogle": "이 페이지 주제에 대한 최신 정보를 Google에서 검색해서 개요를 알려 줘.",
+  "promptSelGoogle": "선택한 텍스트를 Google에서 검색해서 무엇인지 핵심 사실과 함께 알려 줘.",
 
   "placeholderPage": "이 페이지에 대해 물어보세요…",
   "placeholderSelection": "선택한 내용에 대해 물어보세요…",
   "placeholderNone": "무엇이든 물어보세요…",
+  "placeholderGoogle": "Google에 질문…",
   "send": "보내기",
   "stop": "중지",
   "newChat": "새 채팅",
@@ -44,14 +48,18 @@
   "copied": "복사됨",
   "share": "공유",
   "retry": "다시 시도",
+  "askWithoutGoogle": "Google 없이 묻기",
   "thinking": "페이지를 읽는 중…",
+  "searching": "Google에서 검색하는 중…",
 
   "errNetwork": "인터넷에 연결되어 있지 않아요. 연결을 확인하고 다시 시도해 주세요.",
   "errBusy": "지금 ContextFlow 사용량이 많아요. 1분 후에 다시 시도해 주세요.",
   "errUpstream": "AI 서비스가 응답하지 않았어요. 다시 시도해 주세요.",
   "errInterrupted": "답변이 중단되었어요.",
-  "errBadKey": "OpenAI에서 API 키를 거부했어요. 설정에서 확인해 주세요.",
+  "errBadKey": "API 키가 거부되었어요. 설정에서 확인해 주세요.",
   "errGeneric": "문제가 발생했어요. 다시 시도해 주세요.",
+  "errSearchLimit": "지금은 Google 답변 한도에 도달했어요. 일반 답변은 계속 사용할 수 있어요.",
+  "errSearchUnavailable": "지금은 Google 답변을 사용할 수 없어요. 일반 답변은 계속 사용할 수 있어요.",
 
   "limitFreeTitle": "오늘의 무료 답변을 모두 사용했어요",
   "limitFreeBody": "{0} 후에 무료 답변이 다시 제공돼요. Pro를 이용하면 매주 최대 {1}개의 답변을 받을 수 있어요.",
@@ -66,7 +74,7 @@
   "minutes": "{0}분",
 
   "consentTitle": "첫 답변 전에 확인해 주세요",
-  "consentBody": "답변을 위해 ContextFlow는 질문과 이 페이지(또는 선택한 부분)의 텍스트를 당사 서버를 거쳐 OpenAI로 보내요. 페이지 내용과 채팅은 당사 서버에 저장되지 않으며, 채팅은 이 기기에만 보관돼요.",
+  "consentBody": "답변을 위해 ContextFlow는 질문과 이 페이지(또는 선택한 부분)의 텍스트를 당사 서버를 거쳐 OpenAI로, Google 답변의 경우 Google로 보내요. 페이지 내용과 채팅은 당사 서버에 저장되지 않으며, 채팅은 이 기기에만 보관돼요.",
   "consentAccept": "동의하고 계속",
   "privacyPolicy": "개인정보 처리방침",
 
@@ -116,6 +124,9 @@
   "selAsk": "AI에게 묻기",
   "selExplain": "설명",
   "selTranslate": "번역",
+  "googleModeHint": "Google 검색으로 답변: 출처와 함께 최신 정보",
+  "googleBadge": "Google 검색",
+  "sources": "출처",
 
   "welcomeTitle": "ContextFlow가 준비됐어요",
   "welcomeBody": "아무 웹 사이트나 열고 ✦ 버튼이나 도구 막대의 ContextFlow 아이콘을 탭하세요. 텍스트를 선택하면 그 부분에 대해서만 물어볼 수 있어요.",

@@ -8,6 +8,7 @@ process.env.SUPABASE_URL = "https://db.test"
 process.env.SUPABASE_SERVICE_ROLE_KEY = "service-key"
 process.env.OPENAI_API_KEY = "sk-test"
 process.env.FREE_DAILY_LIMIT = "5"
+process.env.GEMINI_API_KEY = "gemini-test"
 
 // ---- in-memory stand-in for the cf_* RPCs --------------------------------
 type Item = { subject: string; period: string; limit: number | null }
@@ -16,6 +17,33 @@ let entitlements = new Map<string, Record<string, unknown>>()
 let events: { kind: string; data: Record<string, unknown> }[] = []
 const OPENAI_MODELS = ["gpt-4o-mini", "gpt-4.1-mini", "gpt-5", "gpt-5-mini", "gpt-5-nano", "gpt-5.2", "gpt-5.2-mini", "gpt-5.2-pro", "gpt-5.2-2026-01-10", "o3"]
 let openai: { failModels: string[]; status?: number; listStatus?: number; answer: string; lastBody?: Record<string, unknown> } = { failModels: [], answer: "Hello world" }
+const GEMINI_MODELS = ["gemini-2.5-flash", "gemini-3.6-flash", "gemini-3.8-flash", "gemini-3.5-flash-lite", "gemini-3-flash-preview", "gemini-3.8-flash-tts", "gemini-4-argon"]
+const GEMINI = "https://generativelanguage.googleapis.com/v1beta/models"
+const REDIRECT = "https://vertexaisearch.cloud.google.com/grounding-api-redirect/"
+let gemini: { lastUrl?: string; lastBody?: Record<string, any>; lastKey?: string | null } = {}
+
+function geminiStream(): Response {
+  const frames = [
+    { candidates: [{ content: { role: "model", parts: [{ text: "Paris is the capital of France. " }] } }] },
+    {
+      candidates: [{
+        content: { role: "model", parts: [{ text: "It has about 2 million residents." }] },
+        finishReason: "STOP",
+        groundingMetadata: {
+          webSearchQueries: ["capital of France"],
+          searchEntryPoint: { renderedContent: "<style>.chip{color:#000}</style><div class=\"container\"><a class=\"chip\" href=\"https://www.google.com/search?q=capital+of+France\">capital of France</a></div>" },
+          groundingChunks: [{ web: { uri: `${REDIRECT}a`, title: "wikipedia.org" } }, { web: { uri: `${REDIRECT}b`, title: "britannica.com" } }],
+          groundingSupports: [
+            { segment: { startIndex: 0, endIndex: 31, text: "Paris is the capital of France." }, groundingChunkIndices: [0] },
+            { segment: { startIndex: 32, endIndex: 65, text: "It has about 2 million residents." }, groundingChunkIndices: [1, 0] }
+          ]
+        }
+      }],
+      usageMetadata: { promptTokenCount: 300, candidatesTokenCount: 20 }
+    }
+  ]
+  return new Response(frames.map((f) => `data: ${JSON.stringify(f)}\r\n\r\n`).join(""), { headers: { "Content-Type": "text/event-stream" } })
+}
 
 const rpc: Record<string, (args: Record<string, any>) => unknown> = {
   cf_consume: ({ p_items }) => {
@@ -68,6 +96,13 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     if (openai.status) return new Response("overloaded", { status: openai.status })
     return sse(openai.answer.split(" ").map((w, i) => (i ? ` ${w}` : w)))
   }
+  if (url === `${GEMINI}?pageSize=1000`) {
+    return new Response(JSON.stringify({ models: GEMINI_MODELS.map((id) => ({ name: `models/${id}`, supportedGenerationMethods: ["generateContent", "countTokens"] })) }), { headers: { "Content-Type": "application/json" } })
+  }
+  if (url.startsWith(GEMINI) && url.endsWith(":streamGenerateContent?alt=sse")) {
+    gemini = { lastUrl: url, lastBody: body, lastKey: new Headers(init?.headers).get("x-goog-api-key") }
+    return geminiStream()
+  }
   throw new Error(`unexpected fetch ${url}`)
 }) as typeof fetch
 
@@ -77,11 +112,13 @@ let status: (req: Request, ctx: any) => Promise<Response>
 let legacy: (req: Request, ctx: any) => Promise<Response>
 let notify: (req: Request, ctx: any) => Promise<Response>
 let resetModelList: () => void
+let serverConfig: { geminiKey: string }
 
 before(async () => {
   const apple = await import("../netlify/shared/apple.mts")
   apple.setTrustedRootFingerprintForTests(TEST_ROOT_FINGERPRINT)
   resetModelList = (await import("../netlify/shared/models.mts")).resetModelListForTests
+  serverConfig = (await import("../netlify/shared/config.mts")).config
   chat = (await import("../netlify/functions/v2-chat.mts")).default
   status = (await import("../netlify/functions/v2-status.mts")).default
   legacy = (await import("../netlify/functions/chat-proxy.mts")).default
@@ -93,6 +130,8 @@ beforeEach(() => {
   entitlements = new Map()
   events = []
   openai = { failModels: [], answer: "Hello world" }
+  gemini = {}
+  serverConfig.geminiKey = "gemini-test"
   resetModelList()
 })
 
@@ -227,4 +266,47 @@ test("App Store notification records a refund", async () => {
   assert.ok(entitlements.get("n1")?.revoked_at)
   const bad = await notify(post("/.netlify/functions/appstore-verify", { signedPayload: signJws({ notificationType: "TEST" }, { leaf: "rogue" }) }), ctx())
   assert.equal(bad.status, 400)
+})
+
+test("Google mode streams a grounded answer with citations, sources and Search Suggestions", async () => {
+  const c = ctx()
+  const res = await chat(ask({ mode: "google", page: { kind: "selection", title: "T", url: "https://example.com", text: "capital of France" } }), c)
+  assert.equal(res.status, 200)
+  const ev = await events$(res)
+  await Promise.all(c.pending)
+  assert.deepEqual(ev.map((e) => e.type), ["meta", "delta", "delta", "grounding", "done"])
+  assert.equal(ev[0].model, "gemini-3.8-flash")
+  assert.equal(gemini.lastUrl, `${GEMINI}/gemini-3.8-flash:streamGenerateContent?alt=sse`)
+  assert.equal(gemini.lastKey, "gemini-test")
+  assert.deepEqual(gemini.lastBody?.tools, [{ google_search: {} }])
+  assert.equal(gemini.lastBody?.generationConfig.thinkingConfig.thinkingLevel, "low")
+  assert.match(gemini.lastBody?.systemInstruction.parts[0].text, /selected this text/)
+  assert.deepEqual(gemini.lastBody?.contents, [{ role: "user", parts: [{ text: "Summarize" }] }])
+
+  const g = ev[3]
+  assert.equal(g.text, `Paris is the capital of France.[1](${REDIRECT}a) It has about 2 million residents.[2](${REDIRECT}b)[1](${REDIRECT}a)`)
+  assert.deepEqual(g.grounding.sources.map((s: { title: string }) => s.title), ["wikipedia.org", "britannica.com"])
+  assert.match(g.grounding.suggestions, /google\.com\/search/)
+  assert.deepEqual(g.grounding.queries, ["capital of France"])
+  // Counts as a normal answer too.
+  assert.equal(ev[0].usage.used, 1)
+  assert.equal(counters.get(`search:install:${INSTALL}`), 1)
+  assert.ok(events.some((e) => e.kind === "chat" && e.data.mode === "google" && e.data.search_queries === 1))
+})
+
+test("Google answers have their own, smaller allowance", async () => {
+  for (let i = 0; i < 3; i++) assert.equal((await chat(ask({ mode: "google" }), ctx())).status, 200)
+  const res = await chat(ask({ mode: "google" }), ctx())
+  assert.equal(res.status, 402)
+  assert.equal((await res.json()).code, "SEARCH_LIMIT")
+  // Regular answers still work.
+  assert.equal((await chat(ask(), ctx())).status, 200)
+})
+
+test("Google mode without a Gemini key is unavailable and charges nothing", async () => {
+  serverConfig.geminiKey = ""
+  const res = await chat(ask({ mode: "google" }), ctx())
+  assert.equal(res.status, 503)
+  assert.equal((await res.json()).code, "SEARCH_UNAVAILABLE")
+  assert.equal(counters.size, 0)
 })

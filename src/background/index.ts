@@ -98,7 +98,8 @@ async function runChat(payload: AskPayload, emit: (e: StreamEvent) => void, sign
   // The own-key mode is part of the Pro and "Own key" plans (on Chrome there are no plans).
   const ownKeyAllowed = TARGET === "chrome" || storePlan !== "free"
 
-  if (key && ownKeyAllowed) {
+  // Google answers need Google Search grounding, which only our server has.
+  if (key && ownKeyAllowed && payload.mode !== "google") {
     await askWithOwnKey(key, payload, prefs.aboutMe, client.locale, prefs.ownKeyModel, emit, signal)
     return
   }

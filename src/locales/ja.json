@@ -20,6 +20,7 @@
   "actTranslate": "翻訳",
   "actImprove": "文章を改善",
   "actReply": "返信を作成",
+  "actGoogle": "Google",
 
   "promptSummarize": "このページを5〜7個の箇条書きで要約し、最後に主な結論を1文で述べてください。",
   "promptKeyPoints": "このページの重要なポイントは何ですか？重要な事実、数字、日付を挙げてください。",
@@ -30,10 +31,13 @@
   "promptSelTranslate": "選択したテキストを{0}に翻訳してください。",
   "promptSelImprove": "選択したテキストを、より明確で簡潔な文章に書き直してください。改善案は1つだけ示してください。",
   "promptReply": "このメッセージまたは投稿への、短く丁寧な返信の下書きを作成してください。",
+  "promptGoogle": "このページのテーマについてGoogleで最新情報を検索し、概要を教えて。",
+  "promptSelGoogle": "選択したテキストをGoogleで検索して、それが何か、重要な事実とあわせて教えて。",
 
   "placeholderPage": "このページについて質問…",
   "placeholderSelection": "選択範囲について質問…",
   "placeholderNone": "何でも聞いてください…",
+  "placeholderGoogle": "Googleに質問…",
   "send": "送信",
   "stop": "停止",
   "newChat": "新規チャット",
@@ -44,14 +48,18 @@
   "copied": "コピーしました",
   "share": "共有",
   "retry": "再試行",
+  "askWithoutGoogle": "Googleなしで質問",
   "thinking": "ページを読んでいます…",
+  "searching": "Googleで検索中…",
 
   "errNetwork": "インターネットに接続されていません。接続を確認して、もう一度お試しください。",
   "errBusy": "ContextFlowは現在大変混み合っています。1分ほどしてからもう一度お試しください。",
   "errUpstream": "AIサービスから応答がありませんでした。もう一度お試しください。",
   "errInterrupted": "回答が中断されました。",
-  "errBadKey": "OpenAIにAPIキーが拒否されました。設定で確認してください。",
+  "errBadKey": "APIキーが拒否されました。設定で確認してください。",
   "errGeneric": "問題が発生しました。もう一度お試しください。",
+  "errSearchLimit": "Googleでの回答の上限に達しました。通常の回答は引き続き使えます。",
+  "errSearchUnavailable": "現在Googleでの回答は利用できません。通常の回答は引き続き使えます。",
 
   "limitFreeTitle": "本日の無料回答の上限に達しました",
   "limitFreeBody": "{0}後に新しい無料回答が利用できます。Proなら週に最大{1}回まで回答を受け取れます。",
@@ -66,7 +74,7 @@
   "minutes": "{0}分",
 
   "consentTitle": "ご利用の前に",
-  "consentBody": "回答するために、ContextFlowはあなたの質問とこのページ（または選択範囲）のテキストを、当社のサーバ経由でOpenAIに送信します。ページの内容やチャットは当社のサーバに保存されず、チャットはこのデバイス上にのみ保存されます。",
+  "consentBody": "回答するために、ContextFlowはあなたの質問とこのページ（または選択範囲）のテキストを、当社のサーバ経由でOpenAI（Googleでの回答の場合はGoogle）に送信します。ページの内容やチャットは当社のサーバに保存されず、チャットはこのデバイス上にのみ保存されます。",
   "consentAccept": "同意して続ける",
   "privacyPolicy": "プライバシーポリシー",
 
@@ -116,6 +124,9 @@
   "selAsk": "AIに質問",
   "selExplain": "説明",
   "selTranslate": "翻訳",
+  "googleModeHint": "Google検索で回答：出典付きの最新情報",
+  "googleBadge": "Google検索",
+  "sources": "出典",
 
   "welcomeTitle": "ContextFlowの準備ができました",
   "welcomeBody": "好きなWebサイトを開いて、✦ボタンかツールバーのContextFlowアイコンをタップしてください。テキストを選択すると、その部分だけについて質問できます。",

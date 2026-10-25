@@ -58,6 +58,9 @@
  "actReply": {
   "message": "Antwort entwerfen"
  },
+ "actGoogle": {
+  "message": "Google"
+ },
  "promptSummarize": {
   "message": "Fasse diese Seite in 5–7 Stichpunkten zusammen und nenne dann das wichtigste Fazit in einem Satz."
  },
@@ -95,6 +98,12 @@
  "promptReply": {
   "message": "Entwirf eine kurze, höfliche Antwort auf diese Nachricht oder diesen Beitrag."
  },
+ "promptGoogle": {
+  "message": "Suche bei Google nach aktuellen Informationen zum Thema dieser Seite und gib mir einen Überblick."
+ },
+ "promptSelGoogle": {
+  "message": "Suche den ausgewählten Text bei Google: Was ist das, mit den wichtigsten Fakten."
+ },
  "placeholderPage": {
   "message": "Frag etwas zu dieser Seite …"
  },
@@ -103,6 +112,9 @@
  },
  "placeholderNone": {
   "message": "Frag, was du willst …"
+ },
+ "placeholderGoogle": {
+  "message": "Google fragen …"
  },
  "send": {
   "message": "Senden"
@@ -134,8 +146,14 @@
  "retry": {
   "message": "Erneut versuchen"
  },
+ "askWithoutGoogle": {
+  "message": "Ohne Google fragen"
+ },
  "thinking": {
   "message": "Seite wird gelesen …"
+ },
+ "searching": {
+  "message": "Suche bei Google …"
  },
  "errNetwork": {
   "message": "Keine Verbindung. Prüfe deine Internetverbindung und versuch es erneut."
@@ -150,10 +168,16 @@
   "message": "Die Antwort wurde unterbrochen."
  },
  "errBadKey": {
-  "message": "OpenAI hat deinen API-Schlüssel abgelehnt. Prüfe ihn in den Einstellungen."
+  "message": "Dein API-Schlüssel wurde abgelehnt. Prüfe ihn in den Einstellungen."
  },
  "errGeneric": {
   "message": "Etwas ist schiefgelaufen. Bitte versuch es noch mal."
+ },
+ "errSearchLimit": {
+  "message": "Das Limit für Google-Antworten ist vorerst erreicht. Normale Antworten funktionieren weiter."
+ },
+ "errSearchUnavailable": {
+  "message": "Google-Antworten sind gerade nicht verfügbar. Normale Antworten funktionieren weiter."
  },
  "limitFreeTitle": {
   "message": "Deine Gratis-Antworten für heute sind aufgebraucht"
@@ -231,7 +255,7 @@
   "message": "Vor deiner ersten Antwort"
  },
  "consentBody": {
-  "message": "Um zu antworten, sendet ContextFlow deine Frage und den Text dieser Seite (oder deiner Auswahl) über unseren Server an OpenAI. Seiteninhalte und Chats werden nicht auf unseren Servern gespeichert – deine Chats bleiben auf diesem Gerät."
+  "message": "Um zu antworten, sendet ContextFlow deine Frage und den Text dieser Seite (oder deiner Auswahl) über unseren Server an OpenAI, bei Google-Antworten an Google. Seiteninhalte und Chats werden nicht auf unseren Servern gespeichert – deine Chats bleiben auf diesem Gerät."
  },
  "consentAccept": {
   "message": "Zustimmen und weiter"
@@ -393,6 +417,15 @@
  },
  "selTranslate": {
   "message": "Übersetzen"
+ },
+ "googleModeHint": {
+  "message": "Antwort mit der Google-Suche: aktuelle Fakten mit Quellen"
+ },
+ "googleBadge": {
+  "message": "Google-Suche"
+ },
+ "sources": {
+  "message": "Quellen"
  },
  "welcomeTitle": {
   "message": "ContextFlow ist bereit"

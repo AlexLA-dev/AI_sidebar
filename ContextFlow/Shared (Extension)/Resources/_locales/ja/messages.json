@@ -58,6 +58,9 @@
  "actReply": {
   "message": "返信を作成"
  },
+ "actGoogle": {
+  "message": "Google"
+ },
  "promptSummarize": {
   "message": "このページを5〜7個の箇条書きで要約し、最後に主な結論を1文で述べてください。"
  },
@@ -95,6 +98,12 @@
  "promptReply": {
   "message": "このメッセージまたは投稿への、短く丁寧な返信の下書きを作成してください。"
  },
+ "promptGoogle": {
+  "message": "このページのテーマについてGoogleで最新情報を検索し、概要を教えて。"
+ },
+ "promptSelGoogle": {
+  "message": "選択したテキストをGoogleで検索して、それが何か、重要な事実とあわせて教えて。"
+ },
  "placeholderPage": {
   "message": "このページについて質問…"
  },
@@ -103,6 +112,9 @@
  },
  "placeholderNone": {
   "message": "何でも聞いてください…"
+ },
+ "placeholderGoogle": {
+  "message": "Googleに質問…"
  },
  "send": {
   "message": "送信"
@@ -134,8 +146,14 @@
  "retry": {
   "message": "再試行"
  },
+ "askWithoutGoogle": {
+  "message": "Googleなしで質問"
+ },
  "thinking": {
   "message": "ページを読んでいます…"
+ },
+ "searching": {
+  "message": "Googleで検索中…"
  },
  "errNetwork": {
   "message": "インターネットに接続されていません。接続を確認して、もう一度お試しください。"
@@ -150,10 +168,16 @@
   "message": "回答が中断されました。"
  },
  "errBadKey": {
-  "message": "OpenAIにAPIキーが拒否されました。設定で確認してください。"
+  "message": "APIキーが拒否されました。設定で確認してください。"
  },
  "errGeneric": {
   "message": "問題が発生しました。もう一度お試しください。"
+ },
+ "errSearchLimit": {
+  "message": "Googleでの回答の上限に達しました。通常の回答は引き続き使えます。"
+ },
+ "errSearchUnavailable": {
+  "message": "現在Googleでの回答は利用できません。通常の回答は引き続き使えます。"
  },
  "limitFreeTitle": {
   "message": "本日の無料回答の上限に達しました"
@@ -231,7 +255,7 @@
   "message": "ご利用の前に"
  },
  "consentBody": {
-  "message": "回答するために、ContextFlowはあなたの質問とこのページ（または選択範囲）のテキストを、当社のサーバ経由でOpenAIに送信します。ページの内容やチャットは当社のサーバに保存されず、チャットはこのデバイス上にのみ保存されます。"
+  "message": "回答するために、ContextFlowはあなたの質問とこのページ（または選択範囲）のテキストを、当社のサーバ経由でOpenAI（Googleでの回答の場合はGoogle）に送信します。ページの内容やチャットは当社のサーバに保存されず、チャットはこのデバイス上にのみ保存されます。"
  },
  "consentAccept": {
   "message": "同意して続ける"
@@ -393,6 +417,15 @@
  },
  "selTranslate": {
   "message": "翻訳"
+ },
+ "googleModeHint": {
+  "message": "Google検索で回答：出典付きの最新情報"
+ },
+ "googleBadge": {
+  "message": "Google検索"
+ },
+ "sources": {
+  "message": "出典"
  },
  "welcomeTitle": {
   "message": "ContextFlowの準備ができました"

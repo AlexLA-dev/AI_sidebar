@@ -58,6 +58,9 @@
  "actReply": {
   "message": "답장 쓰기"
  },
+ "actGoogle": {
+  "message": "Google"
+ },
  "promptSummarize": {
   "message": "이 페이지를 5~7개의 글머리 기호로 요약한 다음, 핵심 결론을 한 문장으로 알려 주세요."
  },
@@ -95,6 +98,12 @@
  "promptReply": {
   "message": "이 메시지나 게시물에 대한 짧고 정중한 답장 초안을 작성해 주세요."
  },
+ "promptGoogle": {
+  "message": "이 페이지 주제에 대한 최신 정보를 Google에서 검색해서 개요를 알려 줘."
+ },
+ "promptSelGoogle": {
+  "message": "선택한 텍스트를 Google에서 검색해서 무엇인지 핵심 사실과 함께 알려 줘."
+ },
  "placeholderPage": {
   "message": "이 페이지에 대해 물어보세요…"
  },
@@ -103,6 +112,9 @@
  },
  "placeholderNone": {
   "message": "무엇이든 물어보세요…"
+ },
+ "placeholderGoogle": {
+  "message": "Google에 질문…"
  },
  "send": {
   "message": "보내기"
@@ -134,8 +146,14 @@
  "retry": {
   "message": "다시 시도"
  },
+ "askWithoutGoogle": {
+  "message": "Google 없이 묻기"
+ },
  "thinking": {
   "message": "페이지를 읽는 중…"
+ },
+ "searching": {
+  "message": "Google에서 검색하는 중…"
  },
  "errNetwork": {
   "message": "인터넷에 연결되어 있지 않아요. 연결을 확인하고 다시 시도해 주세요."
@@ -150,10 +168,16 @@
   "message": "답변이 중단되었어요."
  },
  "errBadKey": {
-  "message": "OpenAI에서 API 키를 거부했어요. 설정에서 확인해 주세요."
+  "message": "API 키가 거부되었어요. 설정에서 확인해 주세요."
  },
  "errGeneric": {
   "message": "문제가 발생했어요. 다시 시도해 주세요."
+ },
+ "errSearchLimit": {
+  "message": "지금은 Google 답변 한도에 도달했어요. 일반 답변은 계속 사용할 수 있어요."
+ },
+ "errSearchUnavailable": {
+  "message": "지금은 Google 답변을 사용할 수 없어요. 일반 답변은 계속 사용할 수 있어요."
  },
  "limitFreeTitle": {
   "message": "오늘의 무료 답변을 모두 사용했어요"
@@ -231,7 +255,7 @@
   "message": "첫 답변 전에 확인해 주세요"
  },
  "consentBody": {
-  "message": "답변을 위해 ContextFlow는 질문과 이 페이지(또는 선택한 부분)의 텍스트를 당사 서버를 거쳐 OpenAI로 보내요. 페이지 내용과 채팅은 당사 서버에 저장되지 않으며, 채팅은 이 기기에만 보관돼요."
+  "message": "답변을 위해 ContextFlow는 질문과 이 페이지(또는 선택한 부분)의 텍스트를 당사 서버를 거쳐 OpenAI로, Google 답변의 경우 Google로 보내요. 페이지 내용과 채팅은 당사 서버에 저장되지 않으며, 채팅은 이 기기에만 보관돼요."
  },
  "consentAccept": {
   "message": "동의하고 계속"
@@ -393,6 +417,15 @@
  },
  "selTranslate": {
   "message": "번역"
+ },
+ "googleModeHint": {
+  "message": "Google 검색으로 답변: 출처와 함께 최신 정보"
+ },
+ "googleBadge": {
+  "message": "Google 검색"
+ },
+ "sources": {
+  "message": "출처"
  },
  "welcomeTitle": {
   "message": "ContextFlow가 준비됐어요"

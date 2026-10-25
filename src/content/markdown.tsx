@@ -36,7 +36,10 @@ export function inline(text: string, keyBase = "i"): Inline[] {
     else if (m[4]) {
       const label = token.slice(1, token.indexOf("]("))
       const href = safeHref(m[5] ?? "")
-      out.push(href ? <a key={key} href={href} target="_blank" rel="noopener noreferrer">{label}</a> : label)
+      // "[2](url)" is a numbered source citation (Google answers).
+      const cite = /^\d{1,2}$/.test(label)
+      if (href && cite) out.push(<a key={key} class="md-cite" href={href} target="_blank" rel="noopener noreferrer">{label}</a>)
+      else out.push(href ? <a key={key} href={href} target="_blank" rel="noopener noreferrer">{label}</a> : label)
     } else if (m[6]) {
       const href = safeHref(token)
       out.push(href ? <a key={key} href={href} target="_blank" rel="noopener noreferrer">{token}</a> : token)
@@ -156,9 +159,14 @@ export function Markdown({ text, onCopyCode }: { text: string; onCopyCode?: (cod
   return <div class="md">{blocks}</div>
 }
 
+/** Removes numbered source citations ("[2](url)") from an answer. */
+export function stripCitations(text: string): string {
+  return text.replace(/\[\d{1,2}\]\(https?:[^)\s]+\)/g, "")
+}
+
 /** Plain text for copy/share: strip Markdown syntax but keep structure. */
 export function toPlainText(text: string): string {
-  return text
+  return stripCitations(text)
     .replace(/```[a-z]*\n?/gi, "")
     .replace(/^#{1,6}\s+/gm, "")
     .replace(/\*\*([^*]+)\*\*/g, "$1")

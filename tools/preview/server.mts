@@ -11,6 +11,7 @@ import { readFileSync } from "node:fs"
 process.env.SUPABASE_URL = "https://db.local"
 process.env.SUPABASE_SERVICE_ROLE_KEY = "local"
 process.env.OPENAI_API_KEY = "local"
+process.env.GEMINI_API_KEY = "local"
 process.env.FREE_DAILY_LIMIT = process.env.FREE_DAILY_LIMIT ?? "5"
 
 const counters = new Map<string, number>()
@@ -38,6 +39,67 @@ const answers: [RegExp, string][] = JSON.parse(readFileSync(new URL("./answers.j
   ([re, text]: [string, string]) => [new RegExp(re, "i"), text]
 )
 
+// Google mode: a grounded answer with sources and a Search Suggestions snippet shaped like Gemini's.
+const GOOGLE_ANSWERS = {
+  en: {
+    query: "four-day work week results",
+    parts: [
+      "**Yes — most trials of a four-day week kept productivity steady while cutting burnout.**",
+      "\n\n**What the largest trials found**\n- In the UK pilot, 56 of 61 companies kept the four-day week after six months.",
+      "\n- Revenue stayed roughly flat, while sick days fell by about two thirds.",
+      "\n\n**Where it struggles**\n- Shift-based and customer-facing teams need rotating days off to keep coverage."
+    ],
+    sources: [["autonomy.work", "a"], ["4dayweek.com", "b"], ["bbc.com", "c"]]
+  },
+  ru: {
+    query: "результаты четырёхдневной рабочей недели",
+    parts: [
+      "**Да — в большинстве экспериментов четырёхдневка сохранила продуктивность и снизила выгорание.**",
+      "\n\n**Что показали крупные эксперименты**\n- В британском пилоте 56 из 61 компании остались на четырёх днях через полгода.",
+      "\n- Выручка почти не изменилась, а больничных стало примерно на две трети меньше.",
+      "\n\n**Где сложнее**\n- Сменным командам и поддержке клиентов нужны скользящие выходные, чтобы не терять покрытие."
+    ],
+    sources: [["autonomy.work", "a"], ["rbc.ru", "b"], ["bbc.com", "c"]]
+  }
+}
+
+function suggestionsHtml(query: string): string {
+  const href = `https://www.google.com/search?q=${encodeURIComponent(query)}&client=app-vertex-grounding&safesearch=active`
+  return `<style>.container{align-items:center;border-radius:8px;display:flex;font-family:Google Sans,Roboto,sans-serif;font-size:14px;line-height:20px;padding:8px 12px}.chip{display:inline-block;border:solid 1px;border-radius:16px;min-width:14px;padding:5px 16px;text-align:center;user-select:none;margin:0 8px;-webkit-tap-highlight-color:transparent}.carousel{overflow:auto;scrollbar-width:none;white-space:nowrap;margin-right:-12px}.headline{display:flex;margin-right:4px}@media (prefers-color-scheme:light){.container{background-color:#fafafa;box-shadow:0 0 0 1px #0000000f}.chip{background-color:#fff;border-color:#d2d2d2;color:#5e5e5e;text-decoration:none}}@media (prefers-color-scheme:dark){.container{background-color:#1f1f1f;box-shadow:0 0 0 1px #ffffff26}.chip{background-color:#2c2c2c;border-color:#3c4043;color:#fff;text-decoration:none}}</style><div class="container"><div class="headline"><svg width="18" height="18" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#4285f4"/></svg></div><div class="carousel"><a class="chip" href="${href}">${query}</a></div></div>`
+}
+
+function geminiStream(lastQuestion: string): Response {
+  const answer = /[а-яё]/i.test(lastQuestion) ? GOOGLE_ANSWERS.ru : GOOGLE_ANSWERS.en
+  const text = answer.parts.join("")
+  const supports = answer.parts.map((part, i) => {
+    const segment = part.replace(/^\s+/, "").split("\n").pop() as string
+    const before = answer.parts.slice(0, i).join("") + part.slice(0, part.length - segment.length)
+    const startIndex = Buffer.byteLength(before)
+    return { segment: { startIndex, endIndex: startIndex + Buffer.byteLength(segment), text: segment }, groundingChunkIndices: i === 1 ? [0, 1] : [i % 3] }
+  })
+  const grounding = {
+    webSearchQueries: [answer.query],
+    searchEntryPoint: { renderedContent: suggestionsHtml(answer.query) },
+    groundingChunks: answer.sources.map(([title, id]) => ({ web: { uri: `https://vertexaisearch.cloud.google.com/grounding-api-redirect/${id}`, title } })),
+    groundingSupports: supports
+  }
+  const stream = new ReadableStream({
+    async start(c) {
+      const enc = new TextEncoder()
+      const words = text.match(/\S+\s*|\s+/g) ?? []
+      await new Promise((r) => setTimeout(r, 600))
+      for (const [i, w] of words.entries()) {
+        const last = i === words.length - 1
+        const frame = { candidates: [{ content: { role: "model", parts: [{ text: w }] }, ...(last ? { finishReason: "STOP", groundingMetadata: grounding } : {}) }] }
+        c.enqueue(enc.encode(`data: ${JSON.stringify(frame)}\r\n\r\n`))
+        await new Promise((r) => setTimeout(r, STREAM_DELAY_MS))
+      }
+      c.close()
+    }
+  })
+  return new Response(stream, { headers: { "Content-Type": "text/event-stream" } })
+}
+
 const realFetch = globalThis.fetch
 globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
   const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url
@@ -45,6 +107,11 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     const fn = url.split("/rpc/")[1].split("?")[0]
     const body = init?.body ? JSON.parse(String(init.body)) : {}
     return new Response(JSON.stringify(rpc[fn]?.(body) ?? null), { headers: { "Content-Type": "application/json" } })
+  }
+  if (url.startsWith("https://generativelanguage.googleapis.com/v1beta/models")) {
+    if (!url.includes(":streamGenerateContent")) return new Response(JSON.stringify({ models: [{ name: "models/gemini-3.8-flash", supportedGenerationMethods: ["generateContent"] }] }))
+    const body = JSON.parse(String(init?.body))
+    return geminiStream(body.contents[body.contents.length - 1].parts[0].text)
   }
   if (url === "https://api.openai.com/v1/chat/completions") {
     const body = JSON.parse(String(init?.body))

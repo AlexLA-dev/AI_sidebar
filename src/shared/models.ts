@@ -46,3 +46,24 @@ export const OWN_KEY_PATTERN = /^sk-[\w-]{20,}$/
 export function keyProvider(key: string): "anthropic" | "openai" {
   return key.startsWith("sk-ant-") ? "anthropic" : "openai"
 }
+
+// Stable Flash models only: Flash-Lite, previews, dated snapshots, TTS/Live/Image variants never match.
+const GEMINI_FLASH = /^gemini-(\d+)(?:\.(\d+))?-flash$/
+
+/** Newest Gemini Flash id among `ids` (Gemini GET /v1beta/models, without the "models/" prefix), or null. */
+export function newestGeminiFlash(ids: string[]): string | null {
+  let best: { id: string; version: number } | null = null
+  for (const id of ids) {
+    const m = GEMINI_FLASH.exec(id)
+    if (!m) continue
+    const version = Number(m[1]) * 1000 + Number(m[2] ?? 0)
+    if (!best || version > best.version) best = { id, version }
+  }
+  return best?.id ?? null
+}
+
+/** Gemini 3 and later take thinkingLevel; 2.x only understands thinkingBudget. */
+export function geminiGeneration(model: string): number {
+  const m = /^gemini-(\d+)/.exec(model)
+  return m ? Number(m[1]) : 0
+}
