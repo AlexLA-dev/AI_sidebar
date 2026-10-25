@@ -386,6 +386,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
     const history: Turn[] = [...base, user]
     setMessages(history)
     setDraft("")
+    if (inputRef.current) inputRef.current.style.height = "auto"
     setError(null)
     setPartial("")
     setStreamMode(opts.mode ?? null)

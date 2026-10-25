@@ -179,8 +179,9 @@ export function buildGrounding(text: string, meta: GroundingMetadata | null): { 
       if (found >= 0) end = found + segText.length
     }
     if (end < 0) continue
-    // Step over closing Markdown so a link never splits "**bold**" or `code`.
-    while (end < text.length && /[*_`]/.test(text[end])) end++
+    // Step over closing Markdown (so a link never splits "**bold**" or `code`) and over the
+    // punctuation that ends the passage, so citations follow the sentence instead of wrapping before its period.
+    while (end < text.length && /[*_`.,;:!?)»”]/.test(text[end])) end++
     marks.set(end, [...new Set([...(marks.get(end) ?? []), ...refs])])
   }
 

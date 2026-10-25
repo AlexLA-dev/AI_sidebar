@@ -36,9 +36,24 @@ test("buildGrounding maps UTF-8 byte offsets in non-Latin text and steps over cl
       { segment: { startIndex: start2, endIndex: start2 + bytes(second), text: second }, groundingChunkIndices: [0] }
     ]
   })
-  assert.equal(out?.text, `Столица — **Москва**[1](${SRC("ru")}). Население около 13 млн человек.[1](${SRC("ru")})`)
+  assert.equal(out?.text, `Столица — **Москва**.[1](${SRC("ru")}) Население около 13 млн человек.[1](${SRC("ru")})`)
   // No title: the source is named after its host.
   assert.equal(out?.grounding.sources[0].title, "vertexaisearch.cloud.google.com")
+})
+
+test("buildGrounding puts citations after the punctuation that ends a passage", () => {
+  const text = "Limassol has about 111,000 residents. The metro area is larger (over 200,000)."
+  const first = "Limassol has about 111,000 residents"
+  const second = "over 200,000"
+  const start2 = text.indexOf(second)
+  const out = buildGrounding(text, {
+    groundingChunks: [{ web: { uri: SRC("l"), title: "wikipedia.org" } }],
+    groundingSupports: [
+      { segment: { startIndex: 0, endIndex: bytes(first), text: first }, groundingChunkIndices: [0] },
+      { segment: { startIndex: start2, endIndex: start2 + bytes(second), text: second }, groundingChunkIndices: [0] }
+    ]
+  })
+  assert.equal(out?.text, `Limassol has about 111,000 residents.[1](${SRC("l")}) The metro area is larger (over 200,000).[1](${SRC("l")})`)
 })
 
 test("buildGrounding falls back to finding the passage when offsets don't match", () => {
