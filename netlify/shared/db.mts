@@ -63,6 +63,9 @@ export const getEntitlement = (originalTransactionId: string) =>
   rpc<EntitlementRow | null>("cf_entitlement_get", { p_original_transaction_id: originalTransactionId })
 export const entitlementByToken = (token: string) => rpc<EntitlementRow | null>("cf_entitlement_by_token", { p_token: token })
 
+/** Usage analytics for the last `days` days (see cf_usage_report in supabase/migrations). */
+export const usageReport = (days: number) => rpc<Record<string, unknown>>("cf_usage_report", { p_days: days })
+
 export async function logEvent(kind: string, installId: string | null, data: Record<string, unknown>): Promise<void> {
   try {
     await rpc<null>("cf_log", { p_kind: kind, p_install: installId, p_data: data })

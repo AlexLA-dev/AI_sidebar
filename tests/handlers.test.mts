@@ -69,7 +69,8 @@ const rpc: Record<string, (args: Record<string, any>) => unknown> = {
     return row
   },
   cf_entitlement_get: ({ p_original_transaction_id }) => entitlements.get(p_original_transaction_id) ?? null,
-  cf_entitlement_by_token: () => null
+  cf_entitlement_by_token: () => null,
+  cf_usage_report: ({ p_days }) => ({ days: p_days, segments: [{ key: "ours", segment: "ai", requests: 3 }] })
 }
 
 function sse(chunks: string[]): Response {
@@ -111,8 +112,10 @@ let chat: (req: Request, ctx: any) => Promise<Response>
 let status: (req: Request, ctx: any) => Promise<Response>
 let legacy: (req: Request, ctx: any) => Promise<Response>
 let notify: (req: Request, ctx: any) => Promise<Response>
+let usage: (req: Request, ctx: any) => Promise<Response>
+let adminUsage: (req: Request) => Promise<Response>
 let resetModelList: () => void
-let serverConfig: { geminiKey: string }
+let serverConfig: { geminiKey: string; adminToken: string; ownKeyReportDailyLimit: number }
 
 before(async () => {
   const apple = await import("../netlify/shared/apple.mts")
@@ -123,6 +126,8 @@ before(async () => {
   status = (await import("../netlify/functions/v2-status.mts")).default
   legacy = (await import("../netlify/functions/chat-proxy.mts")).default
   notify = (await import("../netlify/functions/appstore-verify.mts")).default
+  usage = (await import("../netlify/functions/v2-usage.mts")).default
+  adminUsage = (await import("../netlify/functions/v2-admin-usage.mts")).default
 })
 
 beforeEach(() => {
@@ -132,6 +137,8 @@ beforeEach(() => {
   openai = { failModels: [], answer: "Hello world" }
   gemini = {}
   serverConfig.geminiKey = "gemini-test"
+  serverConfig.adminToken = ""
+  serverConfig.ownKeyReportDailyLimit = 1000
   resetModelList()
 })
 
@@ -309,4 +316,61 @@ test("Google mode without a Gemini key is unavailable and charges nothing", asyn
   assert.equal(res.status, 503)
   assert.equal((await res.json()).code, "SEARCH_UNAVAILABLE")
   assert.equal(counters.size, 0)
+})
+
+test("answer events record the analytics segment: our key, provider, Google or not", async () => {
+  const c1 = ctx()
+  await (await chat(ask(), c1)).text()
+  await Promise.all(c1.pending)
+  const c2 = ctx()
+  await (await chat(ask({ mode: "google" }), c2)).text()
+  await Promise.all(c2.pending)
+  const [ai, google] = events.filter((e) => e.kind === "chat").map((e) => e.data)
+  assert.deepEqual([ai.key, ai.provider, ai.mode, ai.ok], ["ours", "openai", "chat", true])
+  assert.deepEqual([google.key, google.provider, google.mode, google.ok], ["ours", "gemini", "google", true])
+})
+
+const report = (extra: Record<string, unknown> = {}) => post("/api/v2/usage", {
+  installId: INSTALL,
+  client: { version: "2.1.1", platform: "ios", locale: "en-US" },
+  usage: { provider: "anthropic", model: "claude-sonnet-5-5", tier: "smart", action: "summarize", ok: true, promptTokens: 1200, completionTokens: 300, ms: 4200, ...extra }
+})
+
+test("own-key usage reports are logged as counters only", async () => {
+  const c = ctx()
+  const res = await usage(report({ question: "secret", key: "sk-should-not-be-stored" }), c)
+  await Promise.all(c.pending)
+  assert.equal(res.status, 204)
+  const e = events.find((x) => x.kind === "chat")
+  assert.deepEqual(
+    [e?.data.key, e?.data.provider, e?.data.model, e?.data.ok, e?.data.prompt_tokens, e?.data.completion_tokens, e?.data.ms, e?.data.action],
+    ["own", "anthropic", "claude-sonnet-5-5", true, 1200, 300, 4200, "summarize"]
+  )
+  assert.ok(!JSON.stringify(e?.data).includes("secret"))
+  assert.equal((await usage(report({ provider: "gemini" }), ctx())).status, 400)
+  assert.equal((await usage(post("/api/v2/usage", { installId: "nope", usage: {} }), ctx())).status, 400)
+})
+
+test("own-key usage reports are capped per install", async () => {
+  serverConfig.ownKeyReportDailyLimit = 2
+  for (let i = 0; i < 4; i++) {
+    const c = ctx()
+    assert.equal((await usage(report({ ok: false, error: "BUSY" }), c)).status, 204)
+    await Promise.all(c.pending)
+  }
+  assert.equal(events.filter((x) => x.kind === "chat").length, 2)
+  assert.equal(events[0].data.error, "BUSY")
+})
+
+test("admin usage report needs ADMIN_TOKEN", async () => {
+  const get = (token?: string, days = "7") => new Request(`https://aisidebar.netlify.app/api/v2/admin/usage?days=${days}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
+  assert.equal((await adminUsage(get("anything"))).status, 404)
+  serverConfig.adminToken = "admin-test"
+  assert.equal((await adminUsage(get())).status, 401)
+  assert.equal((await adminUsage(get("wrong"))).status, 401)
+  const res = await adminUsage(get("admin-test", "999"))
+  assert.equal(res.status, 200)
+  const body = await res.json()
+  assert.equal(body.days, 180)
+  assert.equal(body.segments[0].requests, 3)
 })

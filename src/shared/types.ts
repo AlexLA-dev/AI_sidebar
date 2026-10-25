@@ -46,6 +46,16 @@ export interface Grounding {
   queries: string[]
 }
 
+/** Outcome of an answer with the user's own key, reported to our server for analytics (counters only). */
+export interface OwnKeyUsage {
+  provider: "openai" | "anthropic"
+  model: string
+  ok: boolean
+  error?: ErrorCode | "STOPPED"
+  promptTokens: number
+  completionTokens: number
+}
+
 export type StreamEvent =
   | { type: "meta"; plan: Plan; usage: Usage | null; viaOwnKey: boolean }
   | { type: "delta"; text: string }

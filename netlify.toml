@@ -4,6 +4,8 @@
 # Functions (netlify/functions/): the API used by the Safari extension.
 #   POST /api/v2/chat     streaming answers (new builds)
 #   POST /api/v2/status   plan + remaining allowance (new builds)
+#   POST /api/v2/usage    usage counters for answers made with the user's own key
+#   GET  /api/v2/admin/usage   analytics for site/analytics.html (Bearer ADMIN_TOKEN)
 #   /.netlify/functions/chat-proxy        compatibility for builds <= 40
 #   /.netlify/functions/appstore-verify   App Store Server Notifications V2
 #   /.netlify/functions/stripe-webhook    audit-only (Stripe is no longer sold)
