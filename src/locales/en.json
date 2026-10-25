@@ -20,6 +20,7 @@
   "actTranslate": "Translate",
   "actImprove": "Improve writing",
   "actReply": "Draft a reply",
+  "actGoogle": "Google",
 
   "promptSummarize": "Summarize this page in 5–7 bullet points, then give the main conclusion in one sentence.",
   "promptKeyPoints": "What are the key takeaways from this page? List the important facts, numbers and dates.",
@@ -30,10 +31,13 @@
   "promptSelTranslate": "Translate the selected text into {0}.",
   "promptSelImprove": "Rewrite the selected text to be clearer and more concise. Give one improved version.",
   "promptReply": "Draft a short, polite reply to this message or post.",
+  "promptGoogle": "Search Google for the latest information on the topic of this page and give me an overview.",
+  "promptSelGoogle": "Search Google for the selected text: what is it, with the key facts.",
 
   "placeholderPage": "Ask about this page…",
   "placeholderSelection": "Ask about the selection…",
   "placeholderNone": "Ask anything…",
+  "placeholderGoogle": "Ask Google…",
   "send": "Send",
   "stop": "Stop",
   "newChat": "New chat",
@@ -44,14 +48,18 @@
   "copied": "Copied",
   "share": "Share",
   "retry": "Retry",
+  "askWithoutGoogle": "Ask without Google",
   "thinking": "Reading the page…",
+  "searching": "Searching Google…",
 
   "errNetwork": "No connection. Check your internet and try again.",
   "errBusy": "ContextFlow is very busy right now. Please try again in a minute.",
   "errUpstream": "The AI service didn't respond. Please try again.",
   "errInterrupted": "The answer was interrupted.",
-  "errBadKey": "OpenAI rejected your API key. Check it in Settings.",
+  "errBadKey": "Your API key was rejected. Check it in Settings.",
   "errGeneric": "Something went wrong. Please try again.",
+  "errSearchLimit": "You've reached the limit of Google answers for now. Regular answers still work.",
+  "errSearchUnavailable": "Google answers aren't available right now. Regular answers still work.",
 
   "limitFreeTitle": "You've used today's free answers",
   "limitFreeBody": "New free answers in {0}. Pro gives you up to {1} answers a week.",
@@ -66,7 +74,7 @@
   "minutes": "{0} min",
 
   "consentTitle": "Before your first answer",
-  "consentBody": "To answer, ContextFlow sends your question and the text of this page (or your selection) to OpenAI via our server. Page content and chats are not stored on our servers; your chats stay on this device.",
+  "consentBody": "To answer, ContextFlow sends your question and the text of this page (or your selection) via our server to OpenAI, or to Google for Google answers. Page content and chats are not stored on our servers; your chats stay on this device.",
   "consentAccept": "Agree and continue",
   "privacyPolicy": "Privacy Policy",
 
@@ -116,6 +124,9 @@
   "selAsk": "Ask AI",
   "selExplain": "Explain",
   "selTranslate": "Translate",
+  "googleModeHint": "Answer with Google Search: fresh facts with sources",
+  "googleBadge": "Google Search",
+  "sources": "Sources",
 
   "welcomeTitle": "ContextFlow is ready",
   "welcomeBody": "Open any website and tap the ✦ button or the ContextFlow icon in the toolbar. Select text to ask about just that part.",

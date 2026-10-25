@@ -108,12 +108,10 @@ export function SettingsView(props: Props): VNode {
             {hidden ? t("showOnSite", site) : t("hideOnSite", site)}
           </button>
         </div>
-        {props.platform !== "ios" && props.platform !== "ipados" && (
-          <label class="cf-row toggle">
-            <span class="cf-label">{t("setSelectionButton")}</span>
-            <input type="checkbox" checked={settings.selectionButton} onChange={(e) => onChange({ selectionButton: e.currentTarget.checked })} />
-          </label>
-        )}
+        <label class="cf-row toggle">
+          <span class="cf-label">{t("setSelectionButton")}</span>
+          <input type="checkbox" checked={settings.selectionButton} onChange={(e) => onChange({ selectionButton: e.currentTarget.checked })} />
+        </label>
       </section>
 
       <section class="cf-group">

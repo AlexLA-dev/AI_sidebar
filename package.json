@@ -1,7 +1,7 @@
 {
   "name": "contextflow",
   "displayName": "ContextFlow",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "private": true,
   "type": "module",
   "description": "AI assistant for the page you are reading — Safari Web Extension for iPhone, iPad and Mac",

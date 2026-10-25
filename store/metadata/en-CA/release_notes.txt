@@ -1,9 +1,5 @@
-ContextFlow 2.0 is rebuilt from the ground up:
-• No sign-up: start right away with 5 free answers every day
-• One-tap actions: Summarize, Key takeaways, Explain, Translate
-• Ask about selected text, improve your writing or draft a reply
-• A real sidebar on Mac and a smoother panel on iPhone and iPad
-• Faster, more accurate answers from a newer AI model
-• Conversations saved per page, light and dark themes
-• Now in 11 languages
-• Simpler subscriptions that work on all your devices
+What's new in ContextFlow 2.1:
+• Google answers: tap "Google" for an answer built from fresh Google Search results, with numbered sources you can open
+• iPhone and iPad: select text and tap "Ask ContextFlow" to open the sidebar right on your selection, or "Google" to look it up
+• Even a single selected word now counts as your selection
+• Fixes and improvements

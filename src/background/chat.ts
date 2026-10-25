@@ -2,7 +2,7 @@ import { API_BASE } from "../shared/config"
 import { isReasoningGpt, keyProvider, newestGptModel, type ModelTier } from "../shared/models"
 import { systemPrompt } from "../shared/prompt"
 import { sseData } from "../shared/sse"
-import { STORAGE, type AskPayload, type ErrorCode, type Plan, type StreamEvent, type Usage } from "../shared/types"
+import { STORAGE, type AskPayload, type ErrorCode, type Grounding, type Plan, type StreamEvent, type Usage } from "../shared/types"
 import { askClaude } from "./claude"
 
 type Emit = (event: StreamEvent) => void
@@ -35,7 +35,8 @@ export async function askServer(req: ServerRequest, emit: Emit, signal: AbortSig
         profile: req.profile,
         messages: req.payload.messages,
         page: req.payload.page,
-        action: req.payload.action
+        action: req.payload.action,
+        mode: req.payload.mode
       }),
       signal: timeout.signal
     })
@@ -55,7 +56,7 @@ export async function askServer(req: ServerRequest, emit: Emit, signal: AbortSig
   let finished = false
   try {
     for await (const data of sseData(res.body)) {
-      let event: { type?: string; text?: string; plan?: Plan; usage?: Usage; code?: ErrorCode; message?: string }
+      let event: { type?: string; text?: string; plan?: Plan; usage?: Usage; code?: ErrorCode; message?: string; grounding?: Grounding }
       try {
         event = JSON.parse(data)
       } catch {
@@ -63,6 +64,7 @@ export async function askServer(req: ServerRequest, emit: Emit, signal: AbortSig
       }
       if (event.type === "meta") emit({ type: "meta", plan: event.plan ?? "free", usage: event.usage ?? null, viaOwnKey: false })
       else if (event.type === "delta" && event.text) emit({ type: "delta", text: event.text })
+      else if (event.type === "grounding" && event.text && event.grounding) emit({ type: "grounding", text: event.text, grounding: event.grounding })
       else if (event.type === "done") {
         finished = true
         emit({ type: "done", usage: event.usage ?? null })

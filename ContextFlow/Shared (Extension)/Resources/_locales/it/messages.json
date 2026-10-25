@@ -58,6 +58,9 @@
  "actReply": {
   "message": "Bozza di risposta"
  },
+ "actGoogle": {
+  "message": "Google"
+ },
  "promptSummarize": {
   "message": "Riassumi questa pagina in 5–7 punti elenco, poi indica la conclusione principale in una frase."
  },
@@ -95,6 +98,12 @@
  "promptReply": {
   "message": "Scrivi una bozza di risposta breve e cortese a questo messaggio o post."
  },
+ "promptGoogle": {
+  "message": "Cerca su Google le informazioni più recenti sul tema di questa pagina e dammi una panoramica."
+ },
+ "promptSelGoogle": {
+  "message": "Cerca su Google il testo selezionato: che cos’è, con i fatti principali."
+ },
  "placeholderPage": {
   "message": "Chiedi qualcosa su questa pagina…"
  },
@@ -103,6 +112,9 @@
  },
  "placeholderNone": {
   "message": "Chiedi qualsiasi cosa…"
+ },
+ "placeholderGoogle": {
+  "message": "Chiedi a Google…"
  },
  "send": {
   "message": "Invia"
@@ -134,8 +146,14 @@
  "retry": {
   "message": "Riprova"
  },
+ "askWithoutGoogle": {
+  "message": "Chiedi senza Google"
+ },
  "thinking": {
   "message": "Sto leggendo la pagina…"
+ },
+ "searching": {
+  "message": "Cerco su Google…"
  },
  "errNetwork": {
   "message": "Nessuna connessione. Controlla la connessione a internet e riprova."
@@ -150,10 +168,16 @@
   "message": "La risposta è stata interrotta."
  },
  "errBadKey": {
-  "message": "OpenAI ha rifiutato la tua chiave API. Controllala nelle Impostazioni."
+  "message": "La tua chiave API è stata rifiutata. Controllala nelle Impostazioni."
  },
  "errGeneric": {
   "message": "Si è verificato un errore. Riprova."
+ },
+ "errSearchLimit": {
+  "message": "Hai raggiunto il limite di risposte Google per ora. Le risposte normali funzionano ancora."
+ },
+ "errSearchUnavailable": {
+  "message": "Le risposte Google non sono disponibili al momento. Le risposte normali funzionano ancora."
  },
  "limitFreeTitle": {
   "message": "Hai usato le risposte gratuite di oggi"
@@ -231,7 +255,7 @@
   "message": "Prima di iniziare"
  },
  "consentBody": {
-  "message": "Per rispondere, ContextFlow invia la tua domanda e il testo di questa pagina (o della tua selezione) a OpenAI tramite il nostro server. I contenuti delle pagine e le chat non vengono salvati sui nostri server; le tue chat restano su questo dispositivo."
+  "message": "Per rispondere, ContextFlow invia la tua domanda e il testo di questa pagina (o della tua selezione) tramite il nostro server a OpenAI, oppure a Google per le risposte Google. I contenuti delle pagine e le chat non vengono salvati sui nostri server; le tue chat restano su questo dispositivo."
  },
  "consentAccept": {
   "message": "Accetta e continua"
@@ -393,6 +417,15 @@
  },
  "selTranslate": {
   "message": "Traduci"
+ },
+ "googleModeHint": {
+  "message": "Risposta con la Ricerca Google: fatti aggiornati con le fonti"
+ },
+ "googleBadge": {
+  "message": "Ricerca Google"
+ },
+ "sources": {
+  "message": "Fonti"
  },
  "welcomeTitle": {
   "message": "ContextFlow è pronto"

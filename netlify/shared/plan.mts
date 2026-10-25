@@ -71,6 +71,14 @@ export function countersFor(access: Access, installId: string, ipSubject: string
   ]
 }
 
+/** Extra counters for a Google (search-grounded) answer, charged together with countersFor(). */
+export function searchCountersFor(access: Access, installId: string): Counter[] {
+  const own = access.plan === "pro" && access.entitlement
+    ? { subject: `search:tx:${access.entitlement.originalTransactionId}`, period: "week" as const, limit: config.searchProWeeklyLimit }
+    : { subject: `search:install:${installId}`, period: "day" as const, limit: config.searchFreeDailyLimit }
+  return [own, { subject: "global:search", period: "day", limit: config.searchGlobalDailyLimit }]
+}
+
 export interface Usage {
   used: number
   limit: number
@@ -100,9 +108,10 @@ function nextReset(period: "day" | "week"): string {
 }
 
 /** Explains which limit stopped the request. */
-export function blockReason(blocked: string | null): "limit" | "busy" | "ip" {
+export function blockReason(blocked: string | null): "limit" | "busy" | "ip" | "search" {
   if (!blocked) return "limit"
   if (blocked.startsWith("global:")) return "busy"
   if (blocked.startsWith("ip:")) return "ip"
+  if (blocked.startsWith("search:")) return "search"
   return "limit"
 }

@@ -96,6 +96,7 @@
 /* ------------------------------------------------- selection bubble */
 .cf-bubble {
   position: fixed;
+  left: 0;
   display: flex; gap: 2px; padding: 4px;
   background: var(--bg);
   border: 1px solid var(--border);
@@ -107,6 +108,11 @@
 .cf-bubble button { display: flex; align-items: center; gap: 5px; padding: 6px 10px; border-radius: 8px; font-size: 13px; font-weight: 500; color: var(--text-2); white-space: nowrap; }
 .cf-bubble button:hover { background: var(--bg-2); color: var(--text); }
 .cf-bubble button.primary { color: var(--accent-text); }
+/* iPhone / iPad: bigger tap targets, primary action filled. */
+.cf-bubble.touch { gap: 4px; padding: 5px; border-radius: 16px; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.cf-bubble.touch button { min-height: 36px; padding: 7px 12px; border-radius: 11px; font-size: 14.5px; font-weight: 600; color: var(--text); }
+.cf-bubble.touch button.primary { color: #fff !important; background: linear-gradient(135deg, #38bdf8, #2563eb) !important; }
+.cf-bubble.touch button:active { transform: scale(0.97); }
 @keyframes cf-pop { from { opacity: 0; transform: translateY(-4px) scale(0.98); } to { opacity: 1; transform: none; } }
 
 /* ------------------------------------------------------------ panel */
@@ -216,6 +222,7 @@
 
 .cf-msg { margin: 0 0 14px; display: flex; flex-direction: column; }
 .cf-msg.user { align-items: flex-end; }
+.cf-user-mode { display: inline-flex; vertical-align: -1px; margin-right: 5px; opacity: 0.85; }
 .cf-bubble-user {
   max-width: 86%;
   padding: 8px 13px;
@@ -225,6 +232,19 @@
   white-space: pre-wrap; word-break: break-word;
 }
 .cf-msg.ai { align-items: stretch; }
+.cf-grounded { display: inline-flex; align-items: center; gap: 5px; margin-bottom: 6px; font-size: 12px; font-weight: 600; color: var(--text-3); }
+.cf-sources { margin-top: 10px; }
+.cf-sources-title { font-size: 12px; font-weight: 600; color: var(--text-3); margin-bottom: 6px; }
+.cf-source-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.cf-source-list a {
+  display: inline-flex; align-items: center; gap: 6px; max-width: 220px;
+  padding: 4px 10px 4px 4px; border-radius: 999px;
+  background: var(--bg-2); color: var(--text-2); font-size: 12.5px; text-decoration: none;
+}
+.cf-source-list a:hover { background: var(--accent-soft); color: var(--accent-text); }
+.cf-source-list .n { flex-shrink: 0; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 9px; background: var(--bg); font-size: 11px; font-weight: 650; display: flex; align-items: center; justify-content: center; }
+.cf-source-list .t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cf-suggest { margin-top: 8px; }
 .cf-msg-tools { display: flex; gap: 4px; margin-top: 4px; }
 .cf-msg-tools button { display: flex; align-items: center; gap: 5px; padding: 4px 8px; border-radius: 8px; font-size: 12px; color: var(--text-3); }
 .cf-msg-tools button:hover { background: var(--bg-2); color: var(--text-2); }
@@ -246,6 +266,13 @@
 .md strong { font-weight: 650; }
 .md em { font-style: italic; }
 .md a { color: var(--accent-text); text-decoration: underline; text-underline-offset: 2px; }
+.md a.md-cite {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 17px; height: 17px; padding: 0 4px; margin-left: 2px;
+  border-radius: 9px; background: var(--bg-2); color: var(--text-2);
+  font-size: 10.5px; font-weight: 650; line-height: 1; text-decoration: none; vertical-align: 2px;
+}
+.md a.md-cite:hover { background: var(--accent-soft); color: var(--accent-text); }
 .md code { font-family: var(--mono); font-size: 0.9em; background: var(--bg-2); padding: 1px 5px; border-radius: 5px; }
 .md hr { border: 0; border-top: 1px solid var(--border); margin: 12px 0; }
 .md blockquote { margin: 0 0 8px; padding: 2px 0 2px 12px; border-left: 3px solid var(--bg-3); color: var(--text-2); }
@@ -297,6 +324,15 @@
   background: var(--bg-2);
 }
 .cf-input:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.cf-mode {
+  flex-shrink: 0; align-self: flex-end;
+  display: flex; align-items: center; gap: 4px;
+  height: 32px; margin-left: -8px; padding: 0 10px; border-radius: 16px;
+  font-size: 12.5px; font-weight: 600; color: var(--text-3);
+  border: 1px solid var(--border) !important;
+}
+.cf-mode:hover { color: var(--text-2); }
+.cf-mode.on { color: var(--accent-text); background: var(--accent-soft) !important; border-color: transparent !important; }
 .cf-input textarea {
   flex: 1; min-width: 0;
   max-height: 140px; min-height: 30px;

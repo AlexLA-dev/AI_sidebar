@@ -1,17 +1,20 @@
 import type { Config, Context } from "@netlify/functions"
 
+import { config as settings } from "../shared/config.mts"
 import { consume, logEvent, maybeCleanup, refund, touchInstall, type ConsumeResult } from "../shared/db.mts"
 import { clip, ipSubject, isUuid, json, preflight, readJson, corsHeaders } from "../shared/http.mts"
-import { readDeltas, sanitizeMessages, sanitizePage, startCompletion, systemPrompt, type StreamStats } from "../shared/llm.mts"
-import { modelsFor } from "../shared/models.mts"
-import { blockReason, countersFor, resolveAccess, visibleUsage } from "../shared/plan.mts"
+import { buildGrounding, googlePrompt, readGoogle, startGoogle, type GoogleStats } from "../shared/google.mts"
+import { readDeltas, sanitizeMessages, sanitizePage, startCompletion, systemPrompt } from "../shared/llm.mts"
+import { geminiModels, modelsFor } from "../shared/models.mts"
+import { blockReason, countersFor, resolveAccess, searchCountersFor, visibleUsage } from "../shared/plan.mts"
 
 /**
  * POST /api/v2/chat — streaming answer about the current page.
  *
  * Body: { installId, client: {version, platform, locale}, entitlement?: <StoreKit JWS>,
- *         messages: [{role, content}], page?: {kind, title, url, text}, profile?, action? }
- * Response: text/event-stream of `data: {"type": "meta"|"delta"|"done"|"error", …}` lines,
+ *         messages: [{role, content}], page?: {kind, title, url, text}, profile?, action?, mode?: "google" }
+ * Response: text/event-stream of `data: {"type": "meta"|"delta"|"grounding"|"done"|"error", …}` lines
+ * ("grounding" only in Google mode: the final text with citations, sources and Search Suggestions),
  * or JSON {code, …} with a 4xx/5xx status when the request is refused before streaming.
  */
 export default async (req: Request, context: Context): Promise<Response> => {
@@ -29,9 +32,11 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const platform = clip(client.platform, 20)
   const version = clip(client.version, 20)
   const locale = clip(client.locale, 12)
+  const google = body.mode === "google"
+  if (google && !settings.geminiKey) return json({ code: "SEARCH_UNAVAILABLE", message: "Google search is not available right now." }, 503)
 
   const access = await resolveAccess(body.entitlement, installId)
-  const counters = countersFor(access, installId, ipSubject(context.ip))
+  const counters = [...countersFor(access, installId, ipSubject(context.ip)), ...(google ? searchCountersFor(access, installId) : [])]
 
   let quota: ConsumeResult
   try {
@@ -46,14 +51,16 @@ export default async (req: Request, context: Context): Promise<Response> => {
   if (!quota.allowed) {
     const reason = blockReason(quota.blocked)
     context.waitUntil(logEvent("limit", installId, { plan: access.plan, reason, platform }))
-    const code = reason === "busy" ? "BUSY" : "LIMIT_REACHED"
+    const code = reason === "busy" ? "BUSY" : reason === "search" ? "SEARCH_LIMIT" : "LIMIT_REACHED"
     return json({ code, plan: access.plan, usage }, reason === "busy" ? 503 : 402)
   }
 
-  const system = systemPrompt(page, clip(body.profile, 1_000), locale)
+  const profile = clip(body.profile, 1_000)
   let completion
   try {
-    completion = await startCompletion(system, messages, await modelsFor(access.plan), req.signal)
+    completion = google
+      ? await startGoogle(googlePrompt(page, profile, locale), messages, await geminiModels(), req.signal)
+      : await startCompletion(systemPrompt(page, profile, locale), messages, await modelsFor(access.plan), req.signal)
   } catch (err) {
     console.error("[cf] upstream failed:", err instanceof Error ? err.message : err)
     context.waitUntil(Promise.all([
@@ -64,7 +71,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   }
 
   const started = Date.now()
-  const stats: StreamStats = { promptTokens: 0, completionTokens: 0, chars: 0 }
+  const stats: GoogleStats = { promptTokens: 0, completionTokens: 0, chars: 0, grounding: null }
   const encoder = new TextEncoder()
   const send = (controller: ReadableStreamDefaultController<Uint8Array>, payload: unknown) =>
     controller.enqueue(encoder.encode(`data: ${JSON.stringify(payload)}\n\n`))
@@ -77,8 +84,14 @@ export default async (req: Request, context: Context): Promise<Response> => {
       let ok = false
       try {
         send(controller, { type: "meta", plan: access.plan, usage, model: completion.model, entitlementError: access.entitlementError })
-        for await (const text of readDeltas(completion.body, stats)) send(controller, { type: "delta", text })
+        let answer = ""
+        for await (const text of (google ? readGoogle : readDeltas)(completion.body, stats)) {
+          answer += text
+          send(controller, { type: "delta", text })
+        }
         ok = stats.chars > 0
+        const grounded = ok && google ? buildGrounding(answer, stats.grounding) : null
+        if (grounded) send(controller, { type: "grounding", ...grounded })
         send(controller, ok ? { type: "done", usage } : { type: "error", code: "EMPTY", message: "Empty answer, please retry." })
       } catch (err) {
         console.error("[cf] stream failed:", err instanceof Error ? err.message : err)
@@ -104,6 +117,8 @@ export default async (req: Request, context: Context): Promise<Response> => {
       plan: access.plan,
       model: completion.model,
       action: clip(body.action, 32) || null,
+      mode: google ? "google" : "chat",
+      search_queries: stats.grounding?.webSearchQueries?.length ?? 0,
       page: page ? page.kind : "none",
       page_chars: page?.text.length ?? 0,
       history: messages.length,

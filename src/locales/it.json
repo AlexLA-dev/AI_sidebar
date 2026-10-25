@@ -20,6 +20,7 @@
   "actTranslate": "Traduci",
   "actImprove": "Migliora il testo",
   "actReply": "Bozza di risposta",
+  "actGoogle": "Google",
 
   "promptSummarize": "Riassumi questa pagina in 5–7 punti elenco, poi indica la conclusione principale in una frase.",
   "promptKeyPoints": "Quali sono i punti chiave di questa pagina? Elenca fatti, numeri e date importanti.",
@@ -30,10 +31,13 @@
   "promptSelTranslate": "Traduci il testo selezionato in {0}.",
   "promptSelImprove": "Riscrivi il testo selezionato in modo più chiaro e conciso. Fornisci una sola versione migliorata.",
   "promptReply": "Scrivi una bozza di risposta breve e cortese a questo messaggio o post.",
+  "promptGoogle": "Cerca su Google le informazioni più recenti sul tema di questa pagina e dammi una panoramica.",
+  "promptSelGoogle": "Cerca su Google il testo selezionato: che cos’è, con i fatti principali.",
 
   "placeholderPage": "Chiedi qualcosa su questa pagina…",
   "placeholderSelection": "Chiedi qualcosa sulla selezione…",
   "placeholderNone": "Chiedi qualsiasi cosa…",
+  "placeholderGoogle": "Chiedi a Google…",
   "send": "Invia",
   "stop": "Interrompi",
   "newChat": "Nuova chat",
@@ -44,14 +48,18 @@
   "copied": "Copiato",
   "share": "Condividi",
   "retry": "Riprova",
+  "askWithoutGoogle": "Chiedi senza Google",
   "thinking": "Sto leggendo la pagina…",
+  "searching": "Cerco su Google…",
 
   "errNetwork": "Nessuna connessione. Controlla la connessione a internet e riprova.",
   "errBusy": "ContextFlow è molto richiesto in questo momento. Riprova tra un minuto.",
   "errUpstream": "Il servizio IA non ha risposto. Riprova.",
   "errInterrupted": "La risposta è stata interrotta.",
-  "errBadKey": "OpenAI ha rifiutato la tua chiave API. Controllala nelle Impostazioni.",
+  "errBadKey": "La tua chiave API è stata rifiutata. Controllala nelle Impostazioni.",
   "errGeneric": "Si è verificato un errore. Riprova.",
+  "errSearchLimit": "Hai raggiunto il limite di risposte Google per ora. Le risposte normali funzionano ancora.",
+  "errSearchUnavailable": "Le risposte Google non sono disponibili al momento. Le risposte normali funzionano ancora.",
 
   "limitFreeTitle": "Hai usato le risposte gratuite di oggi",
   "limitFreeBody": "Nuove risposte gratuite tra {0}. Con Pro hai fino a {1} risposte a settimana.",
@@ -66,7 +74,7 @@
   "minutes": "{0} min",
 
   "consentTitle": "Prima di iniziare",
-  "consentBody": "Per rispondere, ContextFlow invia la tua domanda e il testo di questa pagina (o della tua selezione) a OpenAI tramite il nostro server. I contenuti delle pagine e le chat non vengono salvati sui nostri server; le tue chat restano su questo dispositivo.",
+  "consentBody": "Per rispondere, ContextFlow invia la tua domanda e il testo di questa pagina (o della tua selezione) tramite il nostro server a OpenAI, oppure a Google per le risposte Google. I contenuti delle pagine e le chat non vengono salvati sui nostri server; le tue chat restano su questo dispositivo.",
   "consentAccept": "Accetta e continua",
   "privacyPolicy": "Informativa sulla privacy",
 
@@ -116,6 +124,9 @@
   "selAsk": "Chiedi all’IA",
   "selExplain": "Spiega",
   "selTranslate": "Traduci",
+  "googleModeHint": "Risposta con la Ricerca Google: fatti aggiornati con le fonti",
+  "googleBadge": "Ricerca Google",
+  "sources": "Fonti",
 
   "welcomeTitle": "ContextFlow è pronto",
   "welcomeBody": "Apri un sito web qualsiasi e tocca il pulsante ✦ o l’icona di ContextFlow nella barra degli strumenti. Seleziona del testo per fare domande solo su quella parte.",

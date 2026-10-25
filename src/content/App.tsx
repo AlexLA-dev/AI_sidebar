@@ -1,5 +1,5 @@
-import type { VNode } from "preact"
-import { useCallback, useEffect, useMemo, useRef, useState } from "preact/hooks"
+import type { ComponentChildren, VNode } from "preact"
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "preact/hooks"
 
 import { LINKS, TARGET } from "../shared/config"
 import { t, type MessageKey } from "../shared/i18n"
@@ -7,6 +7,7 @@ import {
   DEFAULT_SETTINGS,
   type ChatTurn,
   type ErrorCode,
+  type Grounding,
   type Platform,
   type Settings,
   type StatusInfo,
@@ -14,14 +15,16 @@ import {
   type Usage
 } from "../shared/types"
 import * as Icon from "./icons"
-import { Markdown, toPlainText } from "./markdown"
+import { Markdown, stripCitations, toPlainText } from "./markdown"
 import {
   buildContext,
   forgetSelection,
   isTouch,
+  MIN_SELECTION_WORDS,
   pageKey,
   readSelection,
   recentSelection,
+  rememberSelection,
   siteName,
   trackSelection,
   type SelectionInfo
@@ -33,6 +36,9 @@ export type Bus = EventTarget
 
 interface Turn extends ChatTurn {
   label?: string
+  mode?: "google"
+  // Google answers: sources and Search Suggestions shown with the answer.
+  grounding?: Grounding
 }
 
 interface ChatError {
@@ -45,19 +51,24 @@ interface Action {
   id: string
   label: MessageKey
   prompt: MessageKey
+  mode?: "google"
 }
 
 const PAGE_ACTIONS: Action[] = [
   { id: "summarize", label: "actSummarize", prompt: "promptSummarize" },
   { id: "key_points", label: "actKeyPoints", prompt: "promptKeyPoints" },
   { id: "explain", label: "actExplain", prompt: "promptExplain" },
-  { id: "translate", label: "actTranslate", prompt: "promptTranslate" }
+  { id: "translate", label: "actTranslate", prompt: "promptTranslate" },
+  { id: "google", label: "actGoogle", prompt: "promptGoogle", mode: "google" }
 ]
+
+const SEL_GOOGLE: Action = { id: "sel_google", label: "actGoogle", prompt: "promptSelGoogle", mode: "google" }
 
 const SELECTION_ACTIONS: Action[] = [
   { id: "sel_explain", label: "actExplain", prompt: "promptSelExplain" },
   { id: "sel_summarize", label: "actSummarize", prompt: "promptSelSummarize" },
   { id: "sel_translate", label: "actTranslate", prompt: "promptSelTranslate" },
+  SEL_GOOGLE,
   { id: "sel_improve", label: "actImprove", prompt: "promptSelImprove" },
   { id: "sel_reply", label: "actReply", prompt: "promptReply" }
 ]
@@ -121,6 +132,10 @@ function errorText(error: ChatError): string {
       return t("errInterrupted")
     case "BAD_KEY":
       return t("errBadKey")
+    case "SEARCH_LIMIT":
+      return t("errSearchLimit")
+    case "SEARCH_UNAVAILABLE":
+      return t("errSearchUnavailable")
     default:
       return t("errGeneric")
   }
@@ -140,12 +155,14 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
   const [partial, setPartial] = useState<string | null>(null)
   const [draft, setDraft] = useState("")
   const [error, setError] = useState<ChatError | null>(null)
-  const [pending, setPending] = useState<{ text: string; label?: string; action?: string } | null>(null)
+  const [pending, setPending] = useState<{ text: string; label?: string; action?: string; mode?: "google" } | null>(null)
   const [selection, setSelection] = useState<SelectionInfo | null>(null)
   const [pageReadable, setPageReadable] = useState(true)
   const [wide, setWide] = useState(() => window.innerWidth >= 700)
   const [keyboard, setKeyboard] = useState(0)
   const [bubble, setBubble] = useState<SelectionInfo | null>(null)
+  const [googleMode, setGoogleMode] = useState(false)
+  const [streamMode, setStreamMode] = useState<"google" | null>(null)
   const [copied, setCopied] = useState<number | null>(null)
   const [dragY, setDragY] = useState<number | null>(null)
 
@@ -155,6 +172,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
   const listRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const loadedKeyRef = useRef<string | null>(null)
+  const openedAt = useRef(0)
   const settingsRef = useRef(settings)
   settingsRef.current = settings
 
@@ -184,14 +202,21 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
   }, [platform])
 
   // ------------------------------------------------------------ open/close
-  const show = useCallback((preferSelection = true) => {
-    const sel = preferSelection ? recentSelection() : null
+  // `captured`: the selection our selection button saw (on iPhone the tap itself clears it).
+  const show = useCallback((captured?: SelectionInfo) => {
+    openedAt.current = Date.now()
+    if (captured) {
+      rememberSelection(captured)
+      // On iPhone and iPad the system edit menu stays up while text is selected, over our panel.
+      if (touch) document.getSelection()?.removeAllRanges()
+    }
+    const sel = captured ?? recentSelection()
     setSelection(sel)
     setBubble(null)
     setView("chat")
     setOpen(true)
     requestAnimationFrame(() => requestAnimationFrame(() => setVisible(true)))
-  }, [])
+  }, [touch])
 
   const hide = useCallback(() => {
     setVisible(false)
@@ -294,28 +319,44 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
   // ------------------------------------------------------------ selection
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout> | undefined
+    let scrollTimer: ReturnType<typeof setTimeout> | undefined
+    // On a Mac the button follows a mouse selection of a few words; on iPhone and iPad (no
+    // mouseup after a long-press) it appears once the selection stops changing, even for one word.
+    const offerButton = () => {
+      if (!settingsRef.current.selectionButton || open) return
+      const sel = readSelection()
+      const vv = window.visualViewport
+      const top = vv?.offsetTop ?? 0
+      const onScreen = Boolean(sel?.rect && sel.rect.bottom > top && sel.rect.top < top + (vv?.height ?? window.innerHeight))
+      setBubble(sel && onScreen && sel.words >= (touch ? MIN_SELECTION_WORDS : 3) ? sel : null)
+    }
     const onSelectionChange = () => {
+      // Remember it right away: tapping our button on iPhone clears the selection.
+      trackSelection()
       clearTimeout(timer)
       timer = setTimeout(() => {
-        const sel = trackSelection()
-        if (open && sel && sel.words >= 3) setSelection(sel)
+        const sel = readSelection()
+        if (open && sel && sel.words >= MIN_SELECTION_WORDS) setSelection(sel)
         if (!sel) setBubble(null)
-      }, 250)
+        else if (touch) offerButton()
+      }, touch ? 350 : 250)
     }
     const onMouseUp = (e: MouseEvent) => {
-      if (touch || !settingsRef.current.selectionButton || open) return
+      if (touch) return
       if ((e.target as Element | null)?.closest?.("contextflow-root")) return
-      setTimeout(() => {
-        const sel = readSelection()
-        setBubble(sel && sel.words >= 3 && sel.rect ? sel : null)
-      }, 10)
+      setTimeout(offerButton, 10)
     }
-    const onScroll = () => setBubble(null)
+    const onScroll = () => {
+      setBubble(null)
+      clearTimeout(scrollTimer)
+      if (touch) scrollTimer = setTimeout(offerButton, 400)
+    }
     document.addEventListener("selectionchange", onSelectionChange)
     document.addEventListener("mouseup", onMouseUp)
     window.addEventListener("scroll", onScroll, { passive: true })
     return () => {
       clearTimeout(timer)
+      clearTimeout(scrollTimer)
       document.removeEventListener("selectionchange", onSelectionChange)
       document.removeEventListener("mouseup", onMouseUp)
       window.removeEventListener("scroll", onScroll)
@@ -323,30 +364,34 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
   }, [open, touch])
 
   // ------------------------------------------------------------ chat
-  const finish = useCallback((history: Turn[], text: string, err: ChatError | null) => {
+  const finish = useCallback((history: Turn[], text: string, err: ChatError | null, grounding?: Grounding) => {
     portRef.current = null
     partialRef.current = ""
     setPartial(null)
-    if (text) setMessages([...history, { role: "assistant", content: text }])
+    setStreamMode(null)
+    if (text) setMessages([...history, grounding ? { role: "assistant", content: text, grounding } : { role: "assistant", content: text }])
     if (err) setError(err)
   }, [])
 
-  const ask = useCallback((text: string, opts: { label?: string; action?: string; retry?: boolean } = {}) => {
+  const ask = useCallback((text: string, opts: { label?: string; action?: string; retry?: boolean; mode?: "google" } = {}) => {
     const content = text.trim()
     if (!content || portRef.current) return
     if (!consent) {
-      setPending({ text: content, label: opts.label, action: opts.action })
+      setPending({ text: content, label: opts.label, action: opts.action, mode: opts.mode })
       return
     }
     const base = opts.retry ? messages.slice(0, messages.length - 1) : messages
-    const history: Turn[] = [...base, { role: "user", content, label: opts.label }]
+    const user: Turn = { role: "user", content, label: opts.label }
+    if (opts.mode) user.mode = opts.mode
+    const history: Turn[] = [...base, user]
     setMessages(history)
     setDraft("")
     setError(null)
     setPartial("")
+    setStreamMode(opts.mode ?? null)
     partialRef.current = ""
 
-    const page = buildContext(Boolean(selection))
+    const page = buildContext(selection)
     let port: chrome.runtime.Port
     try {
       port = chrome.runtime.connect({ name: "chat" })
@@ -356,6 +401,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
     }
     portRef.current = port
     let settled = false
+    let grounded: { text: string; grounding: Grounding } | null = null
     port.onMessage.addListener((event: StreamEvent) => {
       if (event.type === "meta") {
         setViaOwnKey(event.viaOwnKey)
@@ -363,10 +409,12 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
       } else if (event.type === "delta") {
         partialRef.current += event.text
         setPartial(partialRef.current)
+      } else if (event.type === "grounding") {
+        grounded = { text: event.text, grounding: event.grounding }
       } else if (event.type === "done") {
         settled = true
         if (event.usage) setUsage(event.usage)
-        finish(history, partialRef.current, null)
+        finish(history, grounded?.text ?? partialRef.current, null, grounded?.grounding)
       } else if (event.type === "error") {
         settled = true
         if (event.usage) setUsage(event.usage)
@@ -378,7 +426,12 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
     })
     port.postMessage({
       type: "ask",
-      payload: { messages: history.slice(-12).map(({ role, content: c }) => ({ role, content: c })), page, action: opts.action }
+      payload: {
+        messages: history.slice(-12).map(({ role, content: c }) => ({ role, content: stripCitations(c) })),
+        page,
+        action: opts.action,
+        mode: opts.mode
+      }
     })
   }, [consent, messages, selection, finish])
 
@@ -394,17 +447,21 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
     const text = partialRef.current
     partialRef.current = ""
     setPartial(null)
+    setStreamMode(null)
     if (text) setMessages((prev) => [...prev, { role: "assistant", content: text }])
   }, [])
 
-  const retry = useCallback(() => {
+  // `withoutGoogle`: ask the same question as a normal answer (e.g. after the Google limit).
+  const retry = useCallback((withoutGoogle = false) => {
     const last = messages[messages.length - 1]
-    if (last?.role === "user") ask(last.content, { label: last.label, retry: true })
+    if (last?.role !== "user") return
+    if (withoutGoogle) setGoogleMode(false)
+    ask(last.content, { label: last.label, retry: true, mode: withoutGoogle ? undefined : last.mode })
   }, [messages, ask])
 
   const runAction = useCallback((action: Action) => {
     const language = t("languageName")
-    ask(t(action.prompt, language), { label: t(action.label), action: action.id })
+    ask(t(action.prompt, language), { label: t(action.label), action: action.id, mode: action.mode })
   }, [ask])
   runActionRef.current = runAction
 
@@ -413,7 +470,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
     setConsent(true)
     const p = pending
     setPending(null)
-    if (p) setTimeout(() => askRef.current(p.text, { label: p.label, action: p.action }), 0)
+    if (p) setTimeout(() => askRef.current(p.text, { label: p.label, action: p.action, mode: p.mode }), 0)
   }, [pending])
   const askRef = useRef(ask)
   askRef.current = ask
@@ -500,21 +557,31 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
       )}
 
       {bubble?.rect && !open && (
-        <div
-          class="cf-bubble"
-          style={{
-            top: `${Math.min(window.innerHeight - 52, bubble.rect.bottom + 8)}px`,
-            left: `${Math.max(8, Math.min(window.innerWidth - 300, bubble.rect.left))}px`
-          }}
-          onMouseDown={(e) => e.preventDefault()}
-        >
-          <button type="button" class="primary" onClick={() => show(true)}><Icon.Sparkle size={14} /> {t("selAsk")}</button>
-          <button type="button" onClick={() => { show(true); setTimeout(() => runActionRef.current(SELECTION_ACTIONS[0]), 60) }}>{t("selExplain")}</button>
-          <button type="button" onClick={() => { show(true); setTimeout(() => runActionRef.current(SELECTION_ACTIONS[2]), 60) }}>{t("selTranslate")}</button>
-        </div>
+        <SelectionBubble rect={bubble.rect} touch={touch}>
+          {touch ? (
+            <>
+              <button type="button" class="primary" {...press(() => show(bubble))}><Icon.Sparkle size={16} /> {t("fabLabel")}</button>
+              <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SEL_GOOGLE), 60) })}><Icon.Search size={15} /> {t("actGoogle")}</button>
+            </>
+          ) : (
+            <>
+              <button type="button" class="primary" {...press(() => show(bubble))}><Icon.Sparkle size={14} /> {t("selAsk")}</button>
+              <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SELECTION_ACTIONS[0]), 60) })}>{t("selExplain")}</button>
+              <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SELECTION_ACTIONS[2]), 60) })}>{t("selTranslate")}</button>
+              <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SEL_GOOGLE), 60) })}><Icon.Search size={13} /> {t("actGoogle")}</button>
+            </>
+          )}
+        </SelectionBubble>
       )}
 
-      {open && layout === "sheet" && <div class={`cf-backdrop ${visible ? "in" : ""}`} onClick={hide} onTouchMove={(e) => e.preventDefault()} />}
+      {open && layout === "sheet" && (
+        <div
+          class={`cf-backdrop ${visible ? "in" : ""}`}
+          // Ignore the click of the very tap that opened the panel.
+          onClick={() => Date.now() - openedAt.current > 500 && hide()}
+          onTouchMove={(e) => e.preventDefault()}
+        />
+      )}
 
       {open && (
         <section
@@ -537,6 +604,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
                 <ContextChip
                   kind={contextKind}
                   words={selection?.words ?? 0}
+                  text={selection?.text ?? ""}
                   onClear={() => {
                     forgetSelection()
                     setSelection(null)
@@ -590,10 +658,14 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
 
                 {messages.map((m, idx) =>
                   m.role === "user" ? (
-                    <div class="cf-msg user" key={idx}><div class="cf-bubble-user">{m.label ?? m.content}</div></div>
+                    <div class="cf-msg user" key={idx}>
+                      <div class="cf-bubble-user">{m.mode === "google" && <span class="cf-user-mode"><Icon.Search size={12} /></span>}{m.label ?? m.content}</div>
+                    </div>
                   ) : (
                     <div class="cf-msg ai" key={idx}>
+                      {m.grounding && <div class="cf-grounded"><Icon.Search size={13} /> {t("googleBadge")}</div>}
                       <Markdown text={m.content} onCopyCode={(code) => void copyText(code)} />
+                      {m.grounding && <Sources grounding={m.grounding} />}
                       <div class="cf-msg-tools">
                         <button type="button" onClick={async () => { if (await copyText(toPlainText(m.content))) { setCopied(idx); setTimeout(() => setCopied(null), 1500) } }}>
                           {copied === idx ? <Icon.Check /> : <Icon.Copy />} {copied === idx ? t("copied") : t("copy")}
@@ -610,7 +682,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
 
                 {partial !== null && (
                   <div class="cf-msg ai">
-                    {partial ? <Markdown text={partial} /> : <div class="cf-thinking"><span /><span /><span /> {t("thinking")}</div>}
+                    {partial ? <Markdown text={partial} /> : <div class="cf-thinking"><span /><span /><span /> {t(streamMode === "google" ? "searching" : "thinking")}</div>}
                   </div>
                 )}
 
@@ -642,8 +714,15 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
                 {error && error.code !== "LIMIT_REACHED" && (
                   <div class="cf-card error">
                     <p>{errorText(error)}</p>
-                    {lastIsUser && <button type="button" class="cf-secondary" onClick={retry}><Icon.Retry /> {t("retry")}</button>}
-                    {error.code === "BAD_KEY" && <button type="button" class="cf-secondary" onClick={() => setView("settings")}>{t("settings")}</button>}
+                    <div class="cf-card-actions">
+                      {lastIsUser && error.code !== "SEARCH_LIMIT" && error.code !== "SEARCH_UNAVAILABLE" && (
+                        <button type="button" class="cf-secondary" onClick={() => retry()}><Icon.Retry /> {t("retry")}</button>
+                      )}
+                      {lastIsUser && (error.code === "SEARCH_LIMIT" || error.code === "SEARCH_UNAVAILABLE") && (
+                        <button type="button" class="cf-secondary" onClick={() => retry(true)}><Icon.Sparkle size={14} /> {t("askWithoutGoogle")}</button>
+                      )}
+                      {error.code === "BAD_KEY" && <button type="button" class="cf-secondary" onClick={() => setView("settings")}>{t("settings")}</button>}
+                    </div>
                   </div>
                 )}
 
@@ -661,11 +740,20 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
 
               <footer class="cf-composer">
                 <div class="cf-input">
+                  <button
+                    type="button"
+                    class={`cf-mode ${googleMode ? "on" : ""}`}
+                    aria-pressed={googleMode}
+                    title={t("googleModeHint")}
+                    onClick={() => setGoogleMode(!googleMode)}
+                  >
+                    <Icon.Search size={14} /> {t("actGoogle")}
+                  </button>
                   <textarea
                     ref={inputRef}
                     rows={1}
                     value={draft}
-                    placeholder={t(contextKind === "selection" ? "placeholderSelection" : contextKind === "page" ? "placeholderPage" : "placeholderNone")}
+                    placeholder={t(googleMode ? "placeholderGoogle" : contextKind === "selection" ? "placeholderSelection" : contextKind === "page" ? "placeholderPage" : "placeholderNone")}
                     enterkeyhint="send"
                     onInput={(e) => {
                       const el = e.currentTarget
@@ -676,7 +764,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && !e.shiftKey && !e.isComposing) {
                         e.preventDefault()
-                        ask(draft)
+                        ask(draft, { mode: googleMode ? "google" : undefined })
                       }
                       e.stopPropagation()
                     }}
@@ -686,7 +774,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
                   {streaming ? (
                     <button type="button" class="cf-send stop" onClick={stop} aria-label={t("stop")} title={t("stop")}><Icon.Stop /></button>
                   ) : (
-                    <button type="button" class="cf-send" disabled={!draft.trim()} onClick={() => ask(draft)} aria-label={t("send")} title={t("send")}><Icon.ArrowUp /></button>
+                    <button type="button" class="cf-send" disabled={!draft.trim()} onClick={() => ask(draft, { mode: googleMode ? "google" : undefined })} aria-label={t("send")} title={t("send")}><Icon.ArrowUp /></button>
                   )}
                 </div>
                 {usageLine && (
@@ -708,11 +796,123 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
 
 const runActionRef: { current: (a: Action) => void } = { current: () => undefined }
 
-function ContextChip({ kind, words, onClear }: { kind: "selection" | "page" | "none"; words: number; onClear: () => void }): VNode {
+// Selection buttons act on pointerup: on iPhone the tap that reaches them also clears the
+// selection, and the click may never come. Keyboard activation still arrives as a click.
+// touchend is cancelled so the tap's late click doesn't land on the panel opening underneath.
+let pressed: EventTarget | null = null
+function press(action: () => void) {
+  return {
+    onTouchEnd: (e: TouchEvent) => e.preventDefault(),
+    onPointerDown: (e: PointerEvent) => {
+      pressed = e.currentTarget
+      e.preventDefault()
+    },
+    onPointerUp: (e: PointerEvent) => {
+      if (pressed !== e.currentTarget) return
+      pressed = null
+      action()
+    },
+    onClick: (e: MouseEvent) => {
+      if (e.detail === 0) action()
+    }
+  }
+}
+
+/**
+ * Where the selection button goes. iPhone and iPad: below the selection (above it when there's no
+ * room), clear of the selection handles and of the system edit menu, which iOS 26+ shows right
+ * below the selection and older versions above it.
+ */
+function bubbleTop(rect: DOMRect, touch: boolean): number {
+  const vv = window.visualViewport
+  const top0 = vv?.offsetTop ?? 0
+  const bottom = top0 + (vv?.height ?? window.innerHeight)
+  const HEIGHT = 48
+  if (!touch) return Math.min(bottom - 52, rect.bottom + 8)
+  const CLEAR = 70
+  let top = rect.bottom + CLEAR
+  if (top + HEIGHT > bottom - 12) top = rect.top - CLEAR - HEIGHT
+  return Math.max(top0 + 8, Math.min(bottom - HEIGHT - 12, top))
+}
+
+/** The buttons shown for a page selection, centered under it and kept on screen. */
+function SelectionBubble({ rect, touch, children }: { rect: DOMRect; touch: boolean; children: ComponentChildren }): VNode {
+  const ref = useRef<HTMLDivElement>(null)
+  const center = rect.left + rect.width / 2
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const vv = window.visualViewport
+    const min = (vv?.offsetLeft ?? 0) + 8
+    const max = min + (vv?.width ?? window.innerWidth) - 16 - el.offsetWidth
+    el.style.left = `${Math.max(min, Math.min(max, center - el.offsetWidth / 2))}px`
+  }, [center])
+  return (
+    <div ref={ref} class={`cf-bubble ${touch ? "touch" : ""}`} style={{ top: `${bubbleTop(rect, touch)}px` }} onMouseDown={(e) => e.preventDefault()}>
+      {children}
+    </div>
+  )
+}
+
+function Sources({ grounding }: { grounding: Grounding }): VNode {
+  return (
+    <div class="cf-sources">
+      {grounding.sources.length > 0 && (
+        <>
+          <div class="cf-sources-title">{t("sources")}</div>
+          <ol class="cf-source-list">
+            {grounding.sources.map((s, i) => (
+              <li key={s.url}>
+                <a href={s.url} target="_blank" rel="noopener noreferrer"><span class="n">{i + 1}</span><span class="t">{s.title}</span></a>
+              </li>
+            ))}
+          </ol>
+        </>
+      )}
+      {grounding.suggestions && <SearchSuggestions html={grounding.suggestions} />}
+    </div>
+  )
+}
+
+/** Google's Search Suggestions, rendered as Google provides them, in their own shadow root. */
+function SearchSuggestions({ html }: { html: string }): VNode {
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const host = ref.current
+    if (!host) return
+    const root = host.shadowRoot ?? host.attachShadow({ mode: "open" })
+    root.replaceChildren(suggestionNodes(html))
+  }, [html])
+  return <div class="cf-suggest" ref={ref} />
+}
+
+// The snippet is HTML + CSS from the Gemini API: keep markup and styles, drop anything that could
+// run or load (scripts, frames, handlers, non-https links), and open links in a new tab.
+function suggestionNodes(html: string): DocumentFragment {
+  const doc = new DOMParser().parseFromString(html, "text/html")
+  doc.querySelectorAll("script,iframe,frame,object,embed,form,link,meta,base").forEach((el) => el.remove())
+  doc.querySelectorAll("*").forEach((el) => {
+    for (const attr of [...el.attributes]) {
+      const url = /^(href|src|xlink:href|action|formaction)$/i.test(attr.name)
+      if (/^on/i.test(attr.name) || (url && !/^(https:|data:image\/)/i.test(attr.value.trim()))) el.removeAttribute(attr.name)
+    }
+    if (el.tagName === "A") {
+      el.setAttribute("target", "_blank")
+      el.setAttribute("rel", "noopener noreferrer")
+    }
+  })
+  const fragment = document.createDocumentFragment()
+  for (const node of [...doc.head.childNodes, ...doc.body.childNodes]) fragment.appendChild(document.importNode(node, true))
+  return fragment
+}
+
+function ContextChip({ kind, words, text, onClear }: { kind: "selection" | "page" | "none"; words: number; text: string; onClear: () => void }): VNode {
   if (kind === "selection") {
+    // A word or two (a long-press on iPhone) reads better as itself than as a word count.
+    const short = words <= 3 && text.length <= 28
     return (
       <span class="cf-ctx selection">
-        <Icon.Cursor /> <span class="cf-ctx-text">{t("ctxSelection", words)}</span>
+        <Icon.Cursor /> <span class="cf-ctx-text">{short ? `“${text}”` : t("ctxSelection", words)}</span>
         <button type="button" class="cf-ctx-clear" onClick={onClear} title={t("ctxUsePage")} aria-label={t("ctxUsePage")}>×</button>
       </span>
     )

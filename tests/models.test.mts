@@ -1,7 +1,7 @@
 import assert from "node:assert/strict"
 import { test } from "node:test"
 
-import { keyProvider, newestClaudeModel, newestGptModel } from "../src/shared/models.ts"
+import { geminiGeneration, keyProvider, newestClaudeModel, newestGeminiFlash, newestGptModel } from "../src/shared/models.ts"
 
 test("newestGptModel picks the newest full-size and mini GPT, ignoring snapshots and variants", () => {
   const ids = ["gpt-4o", "gpt-4.1", "gpt-4.1-mini", "gpt-5", "gpt-5-mini", "gpt-5.2", "gpt-5.2-mini", "gpt-5.2-pro", "gpt-5.2-2026-01-10", "gpt-5.2-codex", "gpt-5.2-chat-latest", "gpt-5-nano", "o3"]
@@ -33,4 +33,14 @@ test("keyProvider tells Anthropic keys from OpenAI keys", () => {
   assert.equal(keyProvider(fakeKey("ant", "api03")), "anthropic")
   assert.equal(keyProvider(fakeKey("proj")), "openai")
   assert.equal(keyProvider(fakeKey()), "openai")
+})
+
+test("newestGeminiFlash picks the newest stable Flash, ignoring Lite, previews and variants", () => {
+  const ids = ["gemini-2.5-flash", "gemini-3.6-flash", "gemini-3.8-flash", "gemini-3.5-flash-lite", "gemini-3-flash-preview", "gemini-3.8-flash-tts", "gemini-3.8-live", "gemini-4-argon"]
+  assert.equal(newestGeminiFlash(ids), "gemini-3.8-flash")
+  assert.equal(newestGeminiFlash([...ids, "gemini-4-flash"]), "gemini-4-flash")
+  assert.equal(newestGeminiFlash(["gemini-3.10-flash", "gemini-3.9-flash"]), "gemini-3.10-flash")
+  assert.equal(newestGeminiFlash(["gemini-3.5-flash-lite"]), null)
+  assert.equal(geminiGeneration("gemini-3.8-flash"), 3)
+  assert.equal(geminiGeneration("gemini-2.5-flash"), 2)
 })

@@ -58,6 +58,9 @@
  "actReply": {
   "message": "Draft a reply"
  },
+ "actGoogle": {
+  "message": "Google"
+ },
  "promptSummarize": {
   "message": "Summarize this page in 5–7 bullet points, then give the main conclusion in one sentence."
  },
@@ -95,6 +98,12 @@
  "promptReply": {
   "message": "Draft a short, polite reply to this message or post."
  },
+ "promptGoogle": {
+  "message": "Search Google for the latest information on the topic of this page and give me an overview."
+ },
+ "promptSelGoogle": {
+  "message": "Search Google for the selected text: what is it, with the key facts."
+ },
  "placeholderPage": {
   "message": "Ask about this page…"
  },
@@ -103,6 +112,9 @@
  },
  "placeholderNone": {
   "message": "Ask anything…"
+ },
+ "placeholderGoogle": {
+  "message": "Ask Google…"
  },
  "send": {
   "message": "Send"
@@ -134,8 +146,14 @@
  "retry": {
   "message": "Retry"
  },
+ "askWithoutGoogle": {
+  "message": "Ask without Google"
+ },
  "thinking": {
   "message": "Reading the page…"
+ },
+ "searching": {
+  "message": "Searching Google…"
  },
  "errNetwork": {
   "message": "No connection. Check your internet and try again."
@@ -150,10 +168,16 @@
   "message": "The answer was interrupted."
  },
  "errBadKey": {
-  "message": "OpenAI rejected your API key. Check it in Settings."
+  "message": "Your API key was rejected. Check it in Settings."
  },
  "errGeneric": {
   "message": "Something went wrong. Please try again."
+ },
+ "errSearchLimit": {
+  "message": "You've reached the limit of Google answers for now. Regular answers still work."
+ },
+ "errSearchUnavailable": {
+  "message": "Google answers aren't available right now. Regular answers still work."
  },
  "limitFreeTitle": {
   "message": "You've used today's free answers"
@@ -231,7 +255,7 @@
   "message": "Before your first answer"
  },
  "consentBody": {
-  "message": "To answer, ContextFlow sends your question and the text of this page (or your selection) to OpenAI via our server. Page content and chats are not stored on our servers; your chats stay on this device."
+  "message": "To answer, ContextFlow sends your question and the text of this page (or your selection) via our server to OpenAI, or to Google for Google answers. Page content and chats are not stored on our servers; your chats stay on this device."
  },
  "consentAccept": {
   "message": "Agree and continue"
@@ -393,6 +417,15 @@
  },
  "selTranslate": {
   "message": "Translate"
+ },
+ "googleModeHint": {
+  "message": "Answer with Google Search: fresh facts with sources"
+ },
+ "googleBadge": {
+  "message": "Google Search"
+ },
+ "sources": {
+  "message": "Sources"
  },
  "welcomeTitle": {
   "message": "ContextFlow is ready"

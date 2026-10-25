@@ -1,9 +1,5 @@
-ContextFlow 2.0 se ha rehecho desde cero:
-• Sin registro: empieza ya con 5 respuestas gratis cada día
-• Acciones con un toque: Resumir, Ideas clave, Explicar sencillo, Traducir
-• Pregunta sobre el texto seleccionado, mejora lo que escribes o redacta una respuesta
-• Una barra lateral de verdad en el Mac y un panel más fluido en iPhone y iPad
-• Respuestas más rápidas y precisas con un modelo de IA más reciente
-• Conversaciones guardadas por página, temas claro y oscuro
-• Ahora en 11 idiomas
-• Suscripciones más sencillas que funcionan en todos tus dispositivos
+Novedades de ContextFlow 2.1:
+• Respuestas de Google: toca «Google» para obtener una respuesta basada en resultados recientes de la Búsqueda de Google, con fuentes numeradas que puedes abrir
+• iPhone y iPad: selecciona texto y toca «Preguntar a ContextFlow» para abrir el panel sobre tu selección, o «Google» para buscarlo
+• Ahora incluso una sola palabra seleccionada cuenta como selección
+• Correcciones y mejoras

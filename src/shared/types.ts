@@ -29,11 +29,28 @@ export interface AskPayload {
   messages: ChatTurn[]
   page: { kind: "page" | "selection"; title: string; url: string; text: string } | null
   action?: string
+  // "google": answer with Google Search grounding (always through our server).
+  mode?: "google"
+}
+
+export interface GroundingSource {
+  title: string
+  url: string
+}
+
+/** What a Google-grounded answer comes with; Google's terms require showing it with the answer. */
+export interface Grounding {
+  sources: GroundingSource[]
+  // Google's "Search Suggestions" snippet (HTML + CSS), rendered as provided.
+  suggestions: string
+  queries: string[]
 }
 
 export type StreamEvent =
   | { type: "meta"; plan: Plan; usage: Usage | null; viaOwnKey: boolean }
   | { type: "delta"; text: string }
+  // Sent once before "done" for Google answers: the final text with citation links, and its sources.
+  | { type: "grounding"; text: string; grounding: Grounding }
   | { type: "done"; usage: Usage | null }
   | { type: "error"; code: ErrorCode; message?: string; usage?: Usage | null; plan?: Plan }
 
@@ -47,6 +64,8 @@ export type ErrorCode =
   | "BAD_KEY"
   | "UNAVAILABLE"
   | "BAD_REQUEST"
+  | "SEARCH_LIMIT"
+  | "SEARCH_UNAVAILABLE"
 
 export type BackgroundRequest =
   | { type: "status"; refresh?: boolean; platform?: Platform }
