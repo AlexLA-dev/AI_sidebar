@@ -1,5 +1,7 @@
-ContextFlow 2.1 新功能：
-• Google 回答：轻点“Google”，即可获得基于最新 Google 搜索结果的回答，并附带可打开的编号来源
-• iPhone 和 iPad：选择文字后轻点“询问 ContextFlow”，即可直接针对所选内容打开侧边栏；轻点“Google”即可搜索
-• 现在即使只选中一个词，也会作为所选内容
+ContextFlow 2.2 新功能：
+• 跨网站的同一段对话：切换页面后可以继续提问，直到轻点“新对话”
+• 始终最新：ContextFlow 每次都会重新读取页面，新内容也会被纳入
+• 分享整段对话，附带来源和 ContextFlow 链接
+• 在 App 中设置：直接在 ContextFlow App 中更改外观、按钮等
+• Mac 上现在也默认开启 ✦ 按钮
 • 问题修复与改进

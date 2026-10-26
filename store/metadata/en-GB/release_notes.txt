@@ -1,5 +1,7 @@
-What's new in ContextFlow 2.1:
-• Google answers: tap "Google" for an answer built from fresh Google Search results, with numbered sources you can open
-• iPhone and iPad: select text and tap "Ask ContextFlow" to open the sidebar right on your selection, or "Google" to look it up
-• Even a single selected word now counts as your selection
+What's new in ContextFlow 2.2:
+• One conversation across websites: keep asking as you move between pages, until you tap New chat
+• Always up to date: ContextFlow re-reads the page each time, so new content is included
+• Share a whole chat, with a link to the source and to ContextFlow
+• Settings in the app: change appearance, buttons and more right in the ContextFlow app
+• The ✦ button is now on for Mac too
 • Fixes and improvements

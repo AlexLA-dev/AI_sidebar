@@ -1,5 +1,7 @@
-Neu in ContextFlow 2.1:
-• Google-Antworten: Tippe auf „Google“ für eine Antwort aus aktuellen Google-Suchergebnissen – mit nummerierten Quellen zum Öffnen
-• iPhone und iPad: Text auswählen und „ContextFlow fragen“ tippen, um die Seitenleiste direkt zur Auswahl zu öffnen, oder „Google“, um ihn nachzuschlagen
-• Schon ein einzelnes ausgewähltes Wort zählt jetzt als Auswahl
+Neu in ContextFlow 2.2:
+• Ein Gespräch über alle Websites: Frag weiter, während du zwischen Seiten wechselst – bis du auf „Neuer Chat“ tippst
+• Immer aktuell: ContextFlow liest die Seite jedes Mal neu, damit neue Inhalte berücksichtigt werden
+• Ganze Chats teilen – mit Link zur Quelle und zu ContextFlow
+• Einstellungen in der App: Darstellung, Tasten und mehr direkt in der ContextFlow-App
+• Die ✦-Taste ist jetzt auch auf dem Mac eingeschaltet
 • Fehlerbehebungen und Verbesserungen
