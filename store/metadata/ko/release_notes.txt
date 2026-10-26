@@ -3,5 +3,5 @@ ContextFlow 2.2의 새로운 기능:
 • 항상 최신: ContextFlow가 매번 페이지를 다시 읽어 새 내용도 반영해요
 • 채팅 전체 공유: 출처와 ContextFlow 링크 포함
 • 앱에서 설정: 화면 모드, 버튼 등을 ContextFlow 앱에서 바로 바꿀 수 있어요
-• 이제 Mac에서도 ✦ 버튼이 켜져 있어요
+• 이제 Mac에서도 ContextFlow 플로팅 버튼이 켜져 있어요
 • 버그 수정 및 개선

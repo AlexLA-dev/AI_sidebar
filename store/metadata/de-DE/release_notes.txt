@@ -3,5 +3,5 @@ Neu in ContextFlow 2.2:
 • Immer aktuell: ContextFlow liest die Seite jedes Mal neu, damit neue Inhalte berücksichtigt werden
 • Ganze Chats teilen – mit Link zur Quelle und zu ContextFlow
 • Einstellungen in der App: Darstellung, Tasten und mehr direkt in der ContextFlow-App
-• Die ✦-Taste ist jetzt auch auf dem Mac eingeschaltet
+• Die schwebende ContextFlow-Taste ist jetzt auch auf dem Mac eingeschaltet
 • Fehlerbehebungen und Verbesserungen

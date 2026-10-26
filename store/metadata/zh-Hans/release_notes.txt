@@ -3,5 +3,5 @@ ContextFlow 2.2 新功能：
 • 始终最新：ContextFlow 每次都会重新读取页面，新内容也会被纳入
 • 分享整段对话，附带来源和 ContextFlow 链接
 • 在 App 中设置：直接在 ContextFlow App 中更改外观、按钮等
-• Mac 上现在也默认开启 ✦ 按钮
+• Mac 上现在也默认开启 ContextFlow 悬浮按钮
 • 问题修复与改进

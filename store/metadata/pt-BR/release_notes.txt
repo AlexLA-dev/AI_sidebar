@@ -3,5 +3,5 @@ Novidades do ContextFlow 2.2:
 • Sempre atualizado: o ContextFlow relê a página a cada vez, para incluir o conteúdo novo
 • Compartilhe uma conversa inteira, com link para a fonte e para o ContextFlow
 • Ajustes no app: aparência, botões e mais, direto no app ContextFlow
-• O botão ✦ agora também fica ativado no Mac
+• O botão flutuante do ContextFlow agora também fica ativado no Mac
 • Correções e melhorias

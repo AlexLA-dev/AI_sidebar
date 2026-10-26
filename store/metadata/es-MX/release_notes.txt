@@ -3,5 +3,5 @@ Novedades de ContextFlow 2.2:
 • Siempre actualizado: ContextFlow vuelve a leer la página cada vez para incluir el contenido nuevo
 • Comparte un chat completo, con enlace a la fuente y a ContextFlow
 • Ajustes en la app: apariencia, botones y más, directamente en la app ContextFlow
-• El botón ✦ ahora también está activado en Mac
+• El botón flotante de ContextFlow ahora también está activado en Mac
 • Correcciones y mejoras

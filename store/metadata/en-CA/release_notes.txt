@@ -3,5 +3,5 @@ What's new in ContextFlow 2.2:
 • Always up to date: ContextFlow re-reads the page each time, so new content is included
 • Share a whole chat, with a link to the source and to ContextFlow
 • Settings in the app: change appearance, buttons and more right in the ContextFlow app
-• The ✦ button is now on for Mac too
+• The floating ContextFlow button is now on for Mac too
 • Fixes and improvements
