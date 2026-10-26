@@ -96,7 +96,7 @@ export function SettingsView(props: Props): VNode {
       <section class="cf-group">
         <div class="cf-row">
           <span class="cf-label">{t("setFab")}</span>
-          <Segmented value={settings.fab} options={[["auto", t("fabAuto")], ["on", t("fabOn")], ["off", t("fabOff")]]} onChange={(fab) => onChange({ fab })} />
+          <Segmented value={settings.fab === "off" ? "off" : "on"} options={[["on", t("fabOn")], ["off", t("fabOff")]]} onChange={(fab) => onChange({ fab })} />
         </div>
         <p class="cf-hint">{t("setFabHint")}</p>
         <div class="cf-row">

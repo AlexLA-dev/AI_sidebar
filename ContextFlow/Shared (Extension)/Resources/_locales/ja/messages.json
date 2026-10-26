@@ -143,6 +143,37 @@
  "share": {
   "message": "共有"
  },
+ "shareSource": {
+  "message": "出典"
+ },
+ "shareMadeWith": {
+  "message": "ContextFlowで作成"
+ },
+ "shareChat": {
+  "message": "チャットを共有"
+ },
+ "shareYou": {
+  "message": "あなた"
+ },
+ "newPage": {
+  "message": "新しいページ: $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "pageUpdated": {
+  "message": "ページが更新されました"
+ },
+ "nowOnPage": {
+  "message": "現在: $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
  "retry": {
   "message": "再試行"
  },
@@ -313,9 +344,6 @@
  "setFab": {
   "message": "フローティングボタン"
  },
- "fabAuto": {
-  "message": "自動"
- },
  "fabOn": {
   "message": "オン"
  },
@@ -323,7 +351,7 @@
   "message": "オフ"
  },
  "setFabHint": {
-  "message": "「自動」ではiPhoneとiPadでボタンを表示します。Macではツールバーのアイコンか、Ctrl+Shift+Eを使ってください。"
+  "message": "✦ボタンでどのサイトでもContextFlowを開けます。下のリンクで特定のサイトだけ非表示にするか、ここでオフにできます。"
  },
  "hideOnSite": {
   "message": "$P0$で非表示",

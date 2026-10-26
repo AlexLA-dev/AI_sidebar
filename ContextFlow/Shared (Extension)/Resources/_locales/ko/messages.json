@@ -143,6 +143,37 @@
  "share": {
   "message": "공유"
  },
+ "shareSource": {
+  "message": "출처"
+ },
+ "shareMadeWith": {
+  "message": "ContextFlow로 작성"
+ },
+ "shareChat": {
+  "message": "채팅 공유"
+ },
+ "shareYou": {
+  "message": "나"
+ },
+ "newPage": {
+  "message": "새 페이지: $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "pageUpdated": {
+  "message": "페이지가 업데이트됐어요"
+ },
+ "nowOnPage": {
+  "message": "현재: $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
  "retry": {
   "message": "다시 시도"
  },
@@ -313,9 +344,6 @@
  "setFab": {
   "message": "플로팅 버튼"
  },
- "fabAuto": {
-  "message": "자동"
- },
  "fabOn": {
   "message": "켬"
  },
@@ -323,7 +351,7 @@
   "message": "끔"
  },
  "setFabHint": {
-  "message": "'자동'으로 설정하면 iPhone과 iPad에서 버튼이 표시돼요. Mac에서는 도구 막대의 아이콘이나 Ctrl+Shift+E를 사용하세요."
+  "message": "✦ 버튼으로 어느 사이트에서나 ContextFlow를 열 수 있어요. 아래 링크로 특정 사이트에서만 숨기거나 여기서 끌 수 있어요."
  },
  "hideOnSite": {
   "message": "$P0$에서 숨기기",

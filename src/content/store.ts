@@ -1,6 +1,6 @@
-import { DEFAULT_SETTINGS, STORAGE, type ChatTurn, type Settings } from "../shared/types"
+import type { Entry } from "../shared/conversation"
+import { DEFAULT_SETTINGS, STORAGE, type Settings } from "../shared/types"
 
-const MAX_CHATS = 40
 const MAX_TURNS = 40
 
 async function get<T>(key: string): Promise<T | undefined> {
@@ -19,12 +19,20 @@ async function set(key: string, value: unknown): Promise<void> {
   }
 }
 
+function normalize(stored: Partial<Settings> | undefined): Settings {
+  const settings = { ...DEFAULT_SETTINGS, ...stored }
+  // 2.0 / 2.1 showed the floating button only on iPhone and iPad ("auto"); now it's on everywhere.
+  if (settings.fab === "auto") settings.fab = "on"
+  return settings
+}
+
 export async function loadSettings(): Promise<Settings> {
-  return { ...DEFAULT_SETTINGS, ...(await get<Partial<Settings>>(STORAGE.settings)) }
+  return normalize(await get<Partial<Settings>>(STORAGE.settings))
 }
 
 export async function saveSettings(settings: Settings): Promise<void> {
-  await set(STORAGE.settings, settings)
+  // The time lets the background merge these settings with the copy edited in the ContextFlow app.
+  await chrome.storage.local.set({ [STORAGE.settings]: settings, [STORAGE.settingsUpdatedAt]: Date.now() }).catch(() => undefined)
 }
 
 export async function hasConsent(): Promise<boolean> {
@@ -35,30 +43,34 @@ export async function giveConsent(): Promise<void> {
   await set(STORAGE.consent, true)
 }
 
-type ChatStore = Record<string, { t: string; u: number; m: ChatTurn[] }>
+type LegacyChats = Record<string, { t: string; u: number; m: Entry[] }>
 
-export async function loadChat(key: string): Promise<ChatTurn[]> {
-  const chats = (await get<ChatStore>(STORAGE.chats)) ?? {}
-  return chats[key]?.m ?? []
+/**
+ * The running conversation, shared by every tab and page until the user starts a new chat.
+ * The first time, it continues the most recent per-page chat of 2.0 / 2.1.
+ */
+export async function loadConversation(): Promise<Entry[]> {
+  const stored = await get<{ u: number; m: Entry[] }>(STORAGE.conversation)
+  if (stored) return stored.m
+  const legacy = (await get<LegacyChats>(STORAGE.chats)) ?? {}
+  const [url, latest] = Object.entries(legacy).sort(([, a], [, b]) => b.u - a.u)[0] ?? []
+  if (!url || !latest) return []
+  // Those questions were asked on that page: keep it so later pages are told apart.
+  return latest.m.map((m) => (m.role === "user" && !m.page ? { ...m, page: { url, title: latest.t } } : m))
 }
 
-export async function saveChat(key: string, title: string, messages: ChatTurn[]): Promise<void> {
-  const chats = (await get<ChatStore>(STORAGE.chats)) ?? {}
-  if (messages.length === 0) delete chats[key]
-  else chats[key] = { t: title.slice(0, 120), u: Date.now(), m: messages.slice(-MAX_TURNS) }
-  const keys = Object.keys(chats).sort((a, b) => chats[b].u - chats[a].u)
-  for (const old of keys.slice(MAX_CHATS)) delete chats[old]
-  await set(STORAGE.chats, chats)
+export async function saveConversation(entries: Entry[]): Promise<void> {
+  await set(STORAGE.conversation, { u: Date.now(), m: entries.slice(-MAX_TURNS) })
 }
 
 export async function deleteAllChats(): Promise<void> {
-  await set(STORAGE.chats, {})
+  await chrome.storage.local.set({ [STORAGE.conversation]: { u: Date.now(), m: [] }, [STORAGE.chats]: {} }).catch(() => undefined)
 }
 
 export function onSettingsChanged(listener: (settings: Settings) => void): () => void {
   const handler = (changes: Record<string, chrome.storage.StorageChange>, area: string) => {
     if (area === "local" && changes[STORAGE.settings]) {
-      listener({ ...DEFAULT_SETTINGS, ...(changes[STORAGE.settings].newValue as Partial<Settings>) })
+      listener(normalize(changes[STORAGE.settings].newValue as Partial<Settings>))
     }
   }
   try {

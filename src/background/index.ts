@@ -15,6 +15,7 @@ import {
 } from "../shared/types"
 import { askServer, askWithOwnKey, reportOwnKeyUsage } from "./chat"
 import { callNative, type NativeEntitlement } from "./native"
+import { countValueMoment, syncSettings, watchSettings } from "./sync"
 
 // ---------------------------------------------------------------- identity
 
@@ -122,6 +123,7 @@ chrome.runtime.onConnect.addListener((port) => {
   port.onMessage.addListener((message: { type: "ask"; payload: AskPayload }) => {
     if (message?.type !== "ask") return
     const emit = (event: StreamEvent) => {
+      if (event.type === "done") void countValueMoment().catch(() => undefined)
       try {
         port.postMessage(event)
       } catch {
@@ -160,6 +162,8 @@ async function openApp(target: "subscribe" | "manage" | "home"): Promise<{ opene
 chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendResponse) => {
   switch (message?.type) {
     case "status":
+      // The panel just opened: pick up settings changed in the ContextFlow app (never delays the status).
+      void syncSettings().catch(() => undefined)
       ;(message.platform ? chrome.storage.local.set({ [STORAGE.platform]: message.platform }) : Promise.resolve())
         .then(() => status(Boolean(message.refresh)))
         .then(sendResponse, () => sendResponse(null))
@@ -238,3 +242,6 @@ chrome.runtime.onInstalled.addListener((details) => {
     void migrateFromV1().catch(() => undefined)
   }
 })
+
+watchSettings()
+void syncSettings().catch(() => undefined)

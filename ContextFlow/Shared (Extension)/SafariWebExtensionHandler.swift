@@ -38,6 +38,19 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             // iOS extensions can't open URLs; the page follows the contextflow:// link instead.
             Self.reply(context, ["success": true, "data": ["opened": false]])
             #endif
+        case "getSettings":
+            let stored = SharedDefaults.shared.readSettings()
+            var data: [String: Any] = ["updatedAt": stored?.updatedAt ?? 0]
+            data["settings"] = stored.map { $0.settings as Any } ?? NSNull()
+            Self.reply(context, ["success": true, "data": data])
+        case "setSettings":
+            let settings = message["settings"] as? [String: Any] ?? [:]
+            let updatedAt = (message["updatedAt"] as? NSNumber)?.doubleValue ?? Date().timeIntervalSince1970 * 1000
+            let stored = SharedDefaults.shared.writeSettings(settings, updatedAt: updatedAt)
+            Self.reply(context, ["success": true, "data": ["stored": stored]])
+        case "reviewMoment":
+            SharedDefaults.shared.recordReviewMoment((message["count"] as? NSNumber)?.intValue ?? 0)
+            Self.reply(context, ["success": true, "data": ["recorded": true]])
         case "ping":
             let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
             Self.reply(context, ["success": true, "data": ["pong": true, "version": version]])

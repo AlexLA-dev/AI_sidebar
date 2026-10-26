@@ -1,7 +1,7 @@
 import { Readability } from "@mozilla/readability"
 
 import { MAX_PAGE_CHARS } from "../shared/prompt"
-import type { AskPayload, Platform } from "../shared/types"
+import type { Platform } from "../shared/types"
 
 export const HOST_TAG = "contextflow-root"
 
@@ -99,8 +99,6 @@ export function forgetSelection(): void {
 
 // ------------------------------------------------------------ page text
 
-let cache: { key: string; at: number; text: string; title: string } | null = null
-
 function cleanText(text: string): string {
   return text
     .replace(/ /g, " ")
@@ -118,10 +116,11 @@ function fallbackText(): string {
   return clone.innerText || clone.textContent || ""
 }
 
-/** Readable text of the page (Readability for articles, cleaned body text otherwise). */
+/**
+ * Readable text of the page (Readability for articles, cleaned body text otherwise).
+ * Read fresh every time: pages load more content after the first look (feeds, SPAs, live updates).
+ */
 export function extractPage(): { title: string; text: string } {
-  const key = pageKey()
-  if (cache && cache.key === key && Date.now() - cache.at < 20_000) return cache
   let title = document.title
   let text = ""
   try {
@@ -139,16 +138,5 @@ export function extractPage(): { title: string; text: string } {
   const description = document.querySelector<HTMLMetaElement>('meta[name="description"],meta[property="og:description"]')?.content
   text = cleanText(text)
   if (text.length < 200 && description) text = `${description}\n\n${text}`.trim()
-  cache = { key, at: Date.now(), title: title.slice(0, 300), text: text.slice(0, MAX_PAGE_CHARS) }
-  return cache
-}
-
-/** Page context for a request: the selection the panel shows, or the readable page. */
-export function buildContext(selection: SelectionInfo | null): AskPayload["page"] {
-  if (selection) {
-    return { kind: "selection", title: document.title.slice(0, 300), url: location.href, text: selection.text }
-  }
-  const { title, text } = extractPage()
-  if (!text) return null
-  return { kind: "page", title, url: location.href, text }
+  return { title: title.slice(0, 300), text: text.slice(0, MAX_PAGE_CHARS) }
 }

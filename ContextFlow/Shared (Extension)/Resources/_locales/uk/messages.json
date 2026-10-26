@@ -143,6 +143,37 @@
  "share": {
   "message": "Поширити"
  },
+ "shareSource": {
+  "message": "Джерело"
+ },
+ "shareMadeWith": {
+  "message": "Зроблено в ContextFlow"
+ },
+ "shareChat": {
+  "message": "Поділитися чатом"
+ },
+ "shareYou": {
+  "message": "Ви"
+ },
+ "newPage": {
+  "message": "Нова сторінка: $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "pageUpdated": {
+  "message": "Сторінка оновилася"
+ },
+ "nowOnPage": {
+  "message": "Зараз: $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
  "retry": {
   "message": "Повторити"
  },
@@ -313,9 +344,6 @@
  "setFab": {
   "message": "Плаваюча кнопка"
  },
- "fabAuto": {
-  "message": "Авто"
- },
  "fabOn": {
   "message": "Увімк."
  },
@@ -323,7 +351,7 @@
   "message": "Вимк."
  },
  "setFabHint": {
-  "message": "У режимі «Авто» кнопка з’являється на iPhone та iPad. На Mac використовуйте іконку на панелі інструментів або Ctrl+Shift+E."
+  "message": "Кнопка ✦ відкриває ContextFlow на будь-якому сайті. Сховайте її на окремому сайті посиланням нижче або вимкніть тут."
  },
  "hideOnSite": {
   "message": "Сховати на $P0$",

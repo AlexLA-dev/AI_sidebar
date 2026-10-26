@@ -15,6 +15,8 @@ process.env.GEMINI_API_KEY = "local"
 process.env.FREE_DAILY_LIMIT = process.env.FREE_DAILY_LIMIT ?? "5"
 
 const counters = new Map<string, number>()
+// The last /api/v2/chat request body, for e2e checks of what the extension sends (GET /last-request).
+let lastChatRequest: unknown = null
 type Item = { subject: string; limit: number | null }
 const rpc: Record<string, (a: any) => unknown> = {
   cf_consume: ({ p_items }) => {
@@ -149,6 +151,13 @@ createServer(async (req, res) => {
   if (handler) {
     const chunks: Buffer[] = []
     for await (const c of req) chunks.push(c as Buffer)
+    if (url.pathname === "/api/v2/chat") {
+      try {
+        lastChatRequest = JSON.parse(Buffer.concat(chunks).toString("utf8"))
+      } catch {
+        lastChatRequest = null
+      }
+    }
     const request = new Request(`http://localhost${url.pathname}`, {
       method: req.method,
       headers: req.headers as Record<string, string>,
@@ -158,6 +167,11 @@ createServer(async (req, res) => {
     res.writeHead(response.status, Object.fromEntries(response.headers))
     if (response.body) for await (const c of response.body as any) res.write(c)
     res.end()
+    return
+  }
+  if (url.pathname === "/last-request") {
+    res.writeHead(200, { "Content-Type": "application/json" })
+    res.end(JSON.stringify(lastChatRequest))
     return
   }
   if (url.pathname === "/reset") {

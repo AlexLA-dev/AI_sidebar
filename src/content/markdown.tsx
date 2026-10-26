@@ -1,5 +1,9 @@
 import type { ComponentChildren, VNode } from "preact"
 
+import { stripCitations } from "../shared/conversation"
+
+export { stripCitations }
+
 // Small Markdown renderer for model answers. Produces Preact nodes only (no
 // innerHTML), and links are limited to http(s) so a crafted answer can't run
 // script in the host page.
@@ -157,11 +161,6 @@ export function Markdown({ text, onCopyCode }: { text: string; onCopyCode?: (cod
   }
 
   return <div class="md">{blocks}</div>
-}
-
-/** Removes numbered source citations ("[2](url)") from an answer. */
-export function stripCitations(text: string): string {
-  return text.replace(/\[\d{1,2}\]\(https?:[^)\s]+\)/g, "")
 }
 
 /** Plain text for copy/share: strip Markdown syntax but keep structure. */

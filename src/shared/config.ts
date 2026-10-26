@@ -13,6 +13,8 @@ export const LINKS = {
   support: `${SITE}/support`,
   appStore: "https://apps.apple.com/app/id6759115793",
   review: "https://apps.apple.com/app/id6759115793?action=write-review",
+  // Shared answers end with this link (no storefront, so it opens the reader's own App Store).
+  appStoreShare: "https://apps.apple.com/app/contextflow-ai-web-assistant/id6759115793",
   manageSubscriptions: "https://apps.apple.com/account/subscriptions",
   openAiKeys: "https://platform.openai.com/api-keys",
   anthropicKeys: "https://platform.claude.com/settings/keys"

@@ -34,7 +34,8 @@ export function sanitizePage(raw: unknown): PageContext | null {
     kind: p.kind === "selection" ? "selection" : "page",
     title: typeof p.title === "string" ? p.title.slice(0, 300) : "",
     url: typeof p.url === "string" ? p.url.slice(0, 1_000) : "",
-    text
+    text,
+    changed: p.changed === true
   }
 }
 

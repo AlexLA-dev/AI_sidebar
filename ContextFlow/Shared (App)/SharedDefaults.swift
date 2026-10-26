@@ -1,10 +1,13 @@
 import Foundation
 
-/// The one piece of state shared between the ContextFlow app and its Safari
-/// extension (App Group `group.com.contextflow.shared`): the user's current
-/// App Store subscription, including Apple's signed transaction (JWS) that the
-/// extension forwards to the backend as proof of purchase. No accounts, no
-/// personal data.
+/// State shared between the ContextFlow app and its Safari extension
+/// (App Group `group.com.contextflow.shared`):
+/// - the user's current App Store subscription, including Apple's signed
+///   transaction (JWS) that the extension forwards to the backend as proof of purchase;
+/// - the extension's settings, editable in either place (the newer copy wins);
+/// - "moments of value" counted by the extension, after which the app may ask
+///   for an App Store rating.
+/// No accounts, no personal data.
 ///
 /// This file is compiled into both the app and the extension targets
 /// (two copies: "Shared (App)" and "Shared (Extension)" — keep them identical).
@@ -32,6 +35,9 @@ final class SharedDefaults {
 
     private let defaults: UserDefaults
     private let entitlementKey = "cf_entitlement_v2"
+    private let settingsKey = "cf_settings_v1"
+    private let reviewMomentKey = "cf_review_moment_v1"
+    private let reviewAskedKey = "cf_review_asked_v1"
 
     private init() {
         defaults = UserDefaults(suiteName: SharedDefaults.suiteName) ?? .standard
@@ -62,6 +68,42 @@ final class SharedDefaults {
             jws: stored["jws"] as? String,
             updatedAt: Date(timeIntervalSince1970: stored["updatedAt"] as? Double ?? 0)
         )
+    }
+
+    // MARK: Settings shared with the extension
+
+    /// The extension's settings (JSON-like dictionary) and when they last changed, in ms since 1970.
+    func readSettings() -> (settings: [String: Any], updatedAt: Double)? {
+        guard let stored = defaults.dictionary(forKey: settingsKey),
+              let settings = stored["settings"] as? [String: Any] else { return nil }
+        return (settings, stored["updatedAt"] as? Double ?? 0)
+    }
+
+    /// Stores settings unless the stored copy is newer. Returns whether they were written.
+    @discardableResult
+    func writeSettings(_ settings: [String: Any], updatedAt: Double) -> Bool {
+        if let current = readSettings(), current.updatedAt >= updatedAt { return false }
+        // Only property-list values can be stored; JSON null has no meaning here.
+        let clean = settings.filter { !($0.value is NSNull) }
+        defaults.set(["settings": clean, "updatedAt": updatedAt], forKey: settingsKey)
+        return true
+    }
+
+    // MARK: App Store rating
+
+    /// The extension reached the `count`-th good answer: a moment the app may ask for a rating.
+    func recordReviewMoment(_ count: Int) {
+        defaults.set(["count": count, "at": Date().timeIntervalSince1970], forKey: reviewMomentKey)
+    }
+
+    /// The latest moment of value the app hasn't asked about yet.
+    func pendingReviewMoment() -> Int? {
+        guard let count = defaults.dictionary(forKey: reviewMomentKey)?["count"] as? Int else { return nil }
+        return count > defaults.integer(forKey: reviewAskedKey) ? count : nil
+    }
+
+    func markReviewAsked(_ count: Int) {
+        defaults.set(count, forKey: reviewAskedKey)
     }
 
     /// Version 1.x kept Supabase sessions, e-mail and the user's OpenAI key here.
