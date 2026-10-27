@@ -85,6 +85,13 @@ Page text is processed only on request and is not stored. The app has no ads and
 
 With the Pro or Own key plan, the user can paste their own OpenAI or Anthropic (Claude) API key in the
 extension settings; requests then go directly from the device to that provider.
+
+New in 2.2:
+- The chat continues across websites until the user taps New chat (+). Page content is re-read for every question.
+- The share button in the panel header shares the whole chat.
+- The ContextFlow app has a new Settings tab (appearance, buttons, About me); it is shared with the extension.
+- The app asks for a rating only with Apple's standard prompt (requestReview), after the user has had several
+  successful answers in Safari.
 ```
 
 В поле Contact Information укажите свои имя, телефон и e-mail.
