@@ -146,9 +146,18 @@ node --experimental-strip-types tools/preview/server.mts &        # локаль
 # Playwright нужен в той же папке, что и скрипты (npm i playwright):
 node tools/store/capture.mjs /tmp/ext-local /tmp/raw-en en         # ONLY=iphone,ipad,mac ограничит устройства
 node tools/store/compose.mjs /tmp/raw-en /tmp/shots-en en          # → iphone/ ipad/ mac/ + strip.png
+# Русский интерфейс: Chromium на macOS не слушает --lang, язык задаётся в настройках Chrome for Testing
+defaults write com.google.chrome.for.testing AppleLanguages -array ru
+node tools/store/capture.mjs /tmp/ext-local /tmp/raw-ru ru
+defaults delete com.google.chrome.for.testing AppleLanguages
+node tools/store/compose.mjs /tmp/raw-ru /tmp/shots-ru ru
 ```
 
-Подписи и выноски лежат в `COPY` в `tools/store/compose.mjs`, демо-ответы в `tools/preview/answers.json`, демо-статьи в `tools/preview/article*.html`.
+Набор (с 2.2, одинаковый на iPhone, iPad и Mac): «Перескажет любую страницу» → «Ответы Google с источниками» → «Выделите текст и спросите» → «Сравнит статьи в одном чате» (тёмный) → «Переведёт на русский». Каждая подпись подтверждается тем, что видно на кадре; выноски увеличивают доказательство: источники Google, кнопку у выделения, таблицу сравнения (на iPhone панель во всю ширину, поэтому там вместо таблицы плашка «Помнит контекст между сайтами»).
+
+Подписи, плашки и выноски лежат в `COPY` и `SETS` в `tools/store/compose.mjs`, демо-ответы в `tools/preview/answers.json`, демо-статьи в `tools/preview/article*.html` (вторая статья для сравнения — `article-2*.html`).
+
+Если `capture.mjs` падает на ожидании service worker, пересоберите расширение: macOS чистит временные папки и может удалить часть файлов сборки (иконки), тогда Chromium молча не загружает расширение.
 
 ## Как пересобрать видео-превью (iPhone 6.9")
 
@@ -164,14 +173,15 @@ node tools/store/preview-render.mjs /tmp/rec-en store/previews/en-US/iphone.mp4 
 
 ## Заголовок и результаты поиска (iOS / iPadOS 27+)
 
-Новые материалы страницы продукта, вкладка «Заголовок и результаты поиска» в версии. Делаются из того же записанного интерфейса, что и видео:
+Новые материалы страницы продукта, вкладка «Заголовок и результаты поиска» в версии. Делаются из тех же снимков интерфейса, что и скриншоты (`iphone-summary-clean.png`: тот же кадр без строки «осталось N бесплатных ответов» и «Получить Pro»):
 
 ```bash
-node tools/store/creative.mjs /tmp/rec-en store/previews/en-US en   # → header.png 3840×1646 (21:9), search.png 3840×2560 (3:2)
+node tools/store/creative.mjs /tmp/raw-en store/previews/en-US en   # → header.png 3840×1646 (21:9), search.png 3840×2560 (3:2)
+node tools/store/creative.mjs /tmp/raw-ru store/previews/ru ru
 ```
 
 - **Безопасная зона заголовка** (проверено в «Предпросмотре» App Store Connect): на iPhone верхние ~22% закрыты статус-баром, Dynamic Island и кнопками «Назад» / «Поделиться»; iPad показывает только среднюю полосу (примерно 14–86% высоты), сверху по центру лежит панель вкладок. Всё важное — в пределах y 540–1400 и x 440–3400.
-- По правилам Apple в материалах нельзя: цены и «бесплатно», URL, ©, логотипы других платформ, награды Apple. Текст — короткая фраза, локализованная.
+- По правилам Apple в материалах нельзя: цены и «бесплатно», URL, ©, логотипы других платформ, награды Apple. Текст — короткая фраза, локализованная. Поэтому адресная строка Safari на телефоне в баннерах пустая.
 - Загрузка в App Store Connect принимает только PNG без альфа-канала. Пока версия в черновике заявки, медиа заблокированы: сначала уберите её из черновика, после загрузки добавьте снова.
 
 ## 7. Google в ContextFlow (с версии 2.1)
