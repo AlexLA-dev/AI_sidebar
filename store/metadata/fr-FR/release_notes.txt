@@ -1,5 +1,7 @@
-Nouveautés de ContextFlow 2.1 :
-• Réponses Google : touchez « Google » pour une réponse tirée des derniers résultats de la recherche Google, avec des sources numérotées à ouvrir
-• iPhone et iPad : sélectionnez du texte et touchez « Demander à ContextFlow » pour ouvrir le panneau sur votre sélection, ou « Google » pour la rechercher
-• Un seul mot sélectionné compte désormais comme une sélection
+Nouveautés de ContextFlow 2.2 :
+• Une seule conversation sur tous les sites : continuez à poser vos questions en changeant de page, jusqu’à toucher « Nouvelle discussion »
+• Toujours à jour : ContextFlow relit la page à chaque fois pour tenir compte du nouveau contenu
+• Partagez toute une discussion, avec un lien vers la source et vers ContextFlow
+• Réglages dans l’app : apparence, boutons et plus encore directement dans l’app ContextFlow
+• Le bouton flottant ContextFlow est désormais activé aussi sur Mac
 • Corrections et améliorations

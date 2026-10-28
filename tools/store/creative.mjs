@@ -1,16 +1,16 @@
 // Renders the App Store creative assets (iOS / iPadOS 27+): product page header (21:9,
-// 3840 × 1646) and search results asset (3:2, 3840 × 2560), from a frame of the real UI
-// recorded by preview-record.mjs. No prices, URLs or other platforms' logos (Apple's asset rules).
-//   node tools/store/creative.mjs <recDir> <outDir> [lang:en|ru]
+// 3840 × 1646) and search results asset (3:2, 3840 × 2560), from the real UI captured by
+// capture.mjs. No prices, URLs or other platforms' logos (Apple's asset rules).
+//   node tools/store/creative.mjs <rawDir> <outDir> [lang:en|ru]
 // Output: <outDir>/header.png, <outDir>/search.png (App Store Connect takes PNG for these)
 import { chromium } from "playwright"
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs"
+import { existsSync, mkdirSync, writeFileSync } from "node:fs"
 import { dirname, join, resolve } from "node:path"
 import { fileURLToPath, pathToFileURL } from "node:url"
 
 const root = process.env.CF_ROOT ?? resolve(dirname(fileURLToPath(import.meta.url)), "../..")
-const [recArg, outArg, lang = "en"] = process.argv.slice(2)
-const REC = resolve(recArg)
+const [rawArg, outArg, lang = "en"] = process.argv.slice(2)
+const RAW = resolve(rawArg)
 const OUT = resolve(outArg)
 mkdirSync(OUT, { recursive: true })
 const file = (p) => pathToFileURL(p).href
@@ -19,23 +19,19 @@ const COPY = {
   en: {
     header: ["Read less.", "Know more."],
     search: ["Summarize any", "page in Safari"],
-    chips: ["Summarize", "Key takeaways", "Explain simply", "Translate"],
-    pills: [["✦", "Key facts at a glance"], ["文", "Translate any page"], ["?", "Ask anything"]],
-    host: "weeklyreview.com"
+    chips: ["Summarize any page", "Google answers with sources", "Select text, get answers", "One chat across sites"],
+    pills: [["✦", "Google answers with sources"], ["?", "Select text, get answers"], ["↻", "Compare pages in one chat"]],
   },
   ru: {
     header: ["Читайте меньше.", "Знайте больше."],
-    search: ["Перескажет любую", "страницу в Safari"],
-    chips: ["Кратко", "Главное", "Объясни просто", "Перевести"],
-    pills: [["✦", "Главное за секунды"], ["文", "Перевод страницы"], ["?", "Ответы на вопросы"]],
-    host: "delovoyobzor.ru"
+    search: ["Перескажет", "любую страницу"],
+    chips: ["Пересказ любой страницы", "Ответы Google с источниками", "Выделите текст и спросите", "Один чат на все сайты"],
+    pills: [["✦", "Ответы Google с источниками"], ["?", "Выделите текст и спросите"], ["↻", "Сравнит статьи в одном чате"]],
   }
 }[lang]
 
-// The summary answer, fully streamed: the last frame before the "keys" caption in the main take.
-const main = JSON.parse(readFileSync(join(REC, "main.json"), "utf8"))
-const keysAt = main.events.find((e) => e.type === "caption" && e.key === "keys").t
-const summaryFrame = file(join(REC, "main", main.frames.filter((f) => f.t <= keysAt - 0.1).at(-1).f))
+// The summary answer on the iPhone (1290 × 2400 page area), without the free-answers line.
+const summaryFrame = file(join(RAW, "iphone-summary-clean.png"))
 
 const svg = {
   signal: `<svg viewBox="0 0 18 12" width="54" height="36"><g fill="#000"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></g></svg>`,
@@ -47,12 +43,13 @@ const svg = {
 }
 
 // iPhone screen (1290 × 2796 @3x: status 162 + web 2400 + Safari bar 234), frameless.
+// The address field stays empty: creative assets may not show URLs.
 function phone(scale, left, top) {
   return `
   <div class="screen" style="left:${left}px;top:${top}px;transform:scale(${scale})">
     <div class="ios-status"><div class="t">9:41</div><div class="ic">${svg.signal}${svg.wifi}${svg.battery}</div></div>
     <img class="web" src="${summaryFrame}">
-    <div class="ios-bar"><div class="btn">${svg.back}</div><div class="url"><span class="aa">aA</span><span>${COPY.host}</span></div><div class="btn">${svg.more}</div></div>
+    <div class="ios-bar"><div class="btn">${svg.back}</div><div class="url"><span class="aa">aA</span></div><div class="btn">${svg.more}</div></div>
     <div class="home"></div><div class="island"></div>
   </div>`
 }
@@ -105,7 +102,7 @@ const paint = () => {
 }
 // Captions shrink until they fit their area (longer languages must not reach the edge or the phone).
 const fit = () => {
-  for (const h of document.querySelectorAll("h1[data-max]")) {
+  for (const h of document.querySelectorAll("h1[data-max], .chip[data-max]")) {
     let size = parseFloat(getComputedStyle(h).fontSize)
     while (h.getBoundingClientRect().width > Number(h.dataset.max) && size > 60) h.style.fontSize = (size -= 4) + "px"
   }
@@ -132,7 +129,7 @@ function header() {
   const pw = 1290 * k
   const px = (W - pw) / 2
   const mid = top + ph / 2
-  const chips = COPY.chips.map((c, i) => `<div class="chip" style="left:${px + pw + 140 + (i % 2) * 80}px;top:${mid - 330 + i * 170}px"><i>${svg.sparkle}</i>${c}</div>`).join("")
+  const chips = COPY.chips.map((c, i) => `<div class="chip" data-max="${3400 - (px + pw + 120)}" style="left:${px + pw + 120}px;top:${mid - 330 + i * 170}px"><i>${svg.sparkle}</i>${c}</div>`).join("")
   const body = `
   <div style="position:absolute;inset:0;background:radial-gradient(110% 120% at 50% 60%, #1B3A86 0%, #0B1633 55%, #070D1F 100%)"></div>
   ${ribbon(W, H, 0.55)}

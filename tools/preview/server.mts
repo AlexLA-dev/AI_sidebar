@@ -142,7 +142,9 @@ const status = (await import("../../netlify/functions/v2-status.mts")).default
 const pages: Record<string, string> = {
   "/": "article.html",
   "/article": "article.html",
-  "/article-ru": "article-ru.html"
+  "/article-ru": "article-ru.html",
+  "/article-2": "article-2.html",
+  "/article-2-ru": "article-2-ru.html"
 }
 
 createServer(async (req, res) => {

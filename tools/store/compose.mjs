@@ -24,35 +24,36 @@ const EXT_ICON = file(join(root, "extension/icons/icon-128.png"))
 
 // ------------------------------------------------------------------- copy
 
+// Captions: two short lines, action + outcome; each claim is visible in the shot below it.
 const COPY = {
   en: {
     summary: ["Summarize any", "page in Safari"],
-    keys: ["Get key facts", "at a glance"],
-    selection: ["Explain any", "selected text"],
-    ask: ["Ask anything", "about the page"],
-    translate: ["Translate any", "page instantly"],
+    google: ["Google answers", "with sources"],
+    select: ["Select text,", "get answers"],
+    chat: ["Compare pages", "in one chat"],
+    translate: ["Translate", "foreign pages"],
     free: "5 free answers a day",
     nosignup: "No sign-up needed",
-    private: "No account. No tracking.",
     langs: "Русский → English",
-    langsMac: "Русский → English",
+    context: "Keeps context across sites",
     shortcut: "⌃⇧E opens the panel",
     host: "weeklyreview.com",
+    host2: "techledger.com",
     foreignHost: "delovoyobzor.ru"
   },
   ru: {
-    summary: ["Перескажет любую", "страницу в Safari"],
-    keys: ["Покажет главное", "за секунды"],
-    selection: ["Объяснит любой", "выделенный текст"],
-    ask: ["Ответит на вопросы", "по странице"],
-    translate: ["Переведёт страницу", "на русский"],
+    summary: ["Перескажет", "любую страницу"],
+    google: ["Ответы Google", "с источниками"],
+    select: ["Выделите текст", "и спросите"],
+    chat: ["Сравнит статьи", "в одном чате"],
+    translate: ["Переведёт", "на русский"],
     free: "5 бесплатных ответов в день",
     nosignup: "Без регистрации",
-    private: "Без аккаунта и трекинга",
     langs: "English → Русский",
-    langsMac: "English → Русский",
+    context: "Помнит контекст между сайтами",
     shortcut: "⌃⇧E — открыть панель",
     host: "delovoyobzor.ru",
+    host2: "tehrynok.ru",
     foreignHost: "weeklyreview.com"
   }
 }[lang]
@@ -65,26 +66,43 @@ const DEVICES = {
   mac: { W: 2880, H: 1800, captionTop: 105, captionMax: 2500, captionSize: 112, oneLine: true }
 }
 
+// Where the captured page lands on the canvas: screen origin, scale, and the
+// browser chrome drawn above the page. The iPhone is drawn large and runs off
+// the bottom edge so the panel text stays legible in the App Store.
+const GEO = {
+  iphone: { scale: 0.84, x: (1290 - 1290 * 0.84) / 2, y: 620, top: 162, rawW: 1290 },
+  ipad: { scale: 0.78, x: (2064 - 2064 * 0.78) / 2, y: 534, top: 172, rawW: 2064 },
+  mac: { scale: 0.9, x: (2880 - 2360 * 0.9) / 2, y: 290, top: 104, rawW: 2360 }
+}
+
+// Call-outs magnify the element that proves the caption: `select` lists the
+// elements (their union is shown), `mag` the magnification over the device.
+const SOURCES = [".cf-sources-title", ".cf-source-list"]
 const SETS = {
   iphone: [
     { name: "summary", shot: "iphone-summary", caption: COPY.summary, icon: true,
-      pills: [{ text: COPY.free, icon: "✦", x: 50, y: 730 }, { text: COPY.nosignup, icon: "✓", right: 50, y: 880 }] },
-    { name: "keys", shot: "iphone-keys", caption: COPY.keys, zoom: { rectFile: "iphone-keys", selector: ".md table", pad: 10, width: 1110, y: 1560, tilt: -1.5 } },
-    { name: "selection", shot: "iphone-selection", caption: COPY.selection },
-    { name: "ask", shot: "iphone-ask-dark", caption: COPY.ask, dark: true, pills: [{ text: COPY.private, icon: "✓", x: 50, y: 730 }] },
-    { name: "translate", shot: "iphone-translate", caption: COPY.translate, foreign: true, pills: [{ text: COPY.langs, icon: "文", x: 50, y: 780 }] }
+      pills: [{ text: COPY.free, icon: "✦", x: 50, y: 830 }, { text: COPY.nosignup, icon: "✓", right: 50, y: 970 }] },
+    { name: "google", shot: "iphone-google", caption: COPY.google, callout: { select: SOURCES, pad: 12, mag: 1.25, maxW: 1190 } },
+    { name: "select", shot: "iphone-select", caption: COPY.select, callout: { select: [".cf-bubble"], pad: 0, mag: 1.45, maxW: 1150, radius: 16 } },
+    // The panel is as wide as the phone, so the table can't be magnified much: a pill instead.
+    { name: "chat", shot: "iphone-chat", caption: COPY.chat, dark: true, second: true, pills: [{ text: COPY.context, icon: "↻", x: 50, y: 830 }] },
+    { name: "translate", shot: "iphone-translate", caption: COPY.translate, foreign: true, pills: [{ text: COPY.langs, icon: "文", x: 50, y: 830 }] }
   ],
   ipad: [
-    { name: "summary", shot: "ipad-summary", caption: COPY.summary, pills: [{ text: COPY.free, icon: "✦", x: 70, y: 2540 }] },
-    { name: "selection", shot: "ipad-selection", caption: COPY.selection },
-    { name: "translate", shot: "ipad-translate", caption: COPY.translate, foreign: true, pills: [{ text: COPY.langs, icon: "文", x: 70, y: 2540 }] },
-    { name: "ask", shot: "ipad-ask-dark", caption: COPY.ask, dark: true, pills: [{ text: COPY.private, icon: "✓", x: 70, y: 2540 }] }
+    { name: "summary", shot: "ipad-summary", caption: COPY.summary,
+      pills: [{ text: COPY.free, icon: "✦", x: 70, y: 2520 }, { text: COPY.nosignup, icon: "✓", x: 70, y: 2360 }] },
+    { name: "google", shot: "ipad-google", caption: COPY.google, callout: { select: SOURCES, pad: 10, mag: 1.7, maxW: 1400 } },
+    { name: "select", shot: "ipad-select", caption: COPY.select, callout: { select: [".cf-bubble"], pad: 0, mag: 1.8, maxW: 1300, radius: 16 } },
+    { name: "chat", shot: "ipad-chat", caption: COPY.chat, dark: true, second: true, callout: { select: [".md-table"], pad: 10, mag: 1.6, maxW: 1400 } },
+    { name: "translate", shot: "ipad-translate", caption: COPY.translate, foreign: true, pills: [{ text: COPY.langs, icon: "文", x: 70, y: 2520 }] }
   ],
   mac: [
-    { name: "summary", shot: "mac-summary", caption: COPY.summary, pills: [{ text: COPY.shortcut, icon: "⌘", x: 110, y: 1560 }] },
-    { name: "selection", shot: "mac-selection", caption: COPY.selection, bubble: { rectFile: "mac-bubble", shot: "mac-bubble", selector: ".cf-bubble", zoom: 2.1 } },
-    { name: "translate", shot: "mac-translate", caption: COPY.translate, foreign: true, pills: [{ text: COPY.langsMac, icon: "文", x: 110, y: 1560 }] },
-    { name: "ask", shot: "mac-ask-dark", caption: COPY.ask, dark: true, pills: [{ text: COPY.private, icon: "✓", x: 110, y: 1560 }] }
+    { name: "summary", shot: "mac-summary", caption: COPY.summary,
+      pills: [{ text: COPY.free, icon: "✦", x: 110, y: 1400 }, { text: COPY.shortcut, icon: "⌘", x: 110, y: 1560 }] },
+    { name: "google", shot: "mac-google", caption: COPY.google, callout: { select: SOURCES, pad: 10, mag: 1.9, maxW: 1250 } },
+    { name: "select", shot: "mac-select", caption: COPY.select, callout: { select: [".cf-bubble"], pad: 0, mag: 2.3, maxW: 1300, radius: 12 } },
+    { name: "chat", shot: "mac-chat", caption: COPY.chat, dark: true, second: true, callout: { select: [".md-table"], pad: 10, mag: 1.8, maxW: 1250 } },
+    { name: "translate", shot: "mac-translate", caption: COPY.translate, foreign: true, pills: [{ text: COPY.langs, icon: "文", x: 110, y: 1560 }] }
   ]
 }
 
@@ -163,12 +181,10 @@ function pills(list = [], dark, scale = 1) {
 // iPhone 6.9" at @3x: 1290 × 2796 screen; scaled into the slot.
 function iphone(shot, dark, host) {
   const fg = dark ? "#fff" : "#000"
-  const scale = 0.748
-  const sw = 1290 * scale
+  const { scale, x, y } = GEO.iphone
   const bezel = 30
-  const left = (1290 - sw) / 2 - bezel
   return `
-  <div class="phone" style="left:${left}px;top:${560}px;width:${sw + bezel * 2}px;height:${2796 * scale + bezel * 2}px">
+  <div class="phone" style="left:${x - bezel}px;top:${y - bezel}px;width:${1290 * scale + bezel * 2}px;height:${2796 * scale + bezel * 2}px">
     <div class="phone-screen" style="width:1290px;height:2796px;transform:scale(${scale})">
       <div class="ios-status" data-sample="top" style="color:${fg}">
         <div class="t">9:41</div>
@@ -189,12 +205,10 @@ function iphone(shot, dark, host) {
 // iPad 13" at @2x: 2064 × 2752 screen (status 48 + toolbar 124 + page 2580).
 function ipad(shot, dark, host) {
   const fg = dark ? "#f2f2f7" : "#1c1c1e"
-  const scale = 0.76
-  const sw = 2064 * scale
+  const { scale, x, y } = GEO.ipad
   const bezel = 44
-  const left = (2064 - sw) / 2 - bezel
   return `
-  <div class="tablet" style="left:${left}px;top:${500}px;width:${sw + bezel * 2}px;height:${2752 * scale + bezel * 2}px">
+  <div class="tablet" style="left:${x - bezel}px;top:${y - bezel}px;width:${2064 * scale + bezel * 2}px;height:${2752 * scale + bezel * 2}px">
     <div class="tablet-screen" style="width:2064px;height:2752px;transform:scale(${scale})">
       <div class="ipad-top ${dark ? "dark" : ""}">
         <div class="st" style="color:${fg}"><b>9:41</b>&nbsp;&nbsp;${lang === "ru" ? "Пт 23 окт." : "Fri Oct 23"}<span class="ic">${svg.wifi(fg)}${svg.battery(fg)}</span></div>
@@ -212,12 +226,11 @@ function ipad(shot, dark, host) {
 // Safari window on macOS at @2x: 2360 × (104 toolbar + 1520 page).
 const MAC_W = 2360
 const MAC_H = 1520
-function macWindow(shot, dark, host, extra = "") {
+function macWindow(shot, dark, host) {
   const fg = dark ? "#e5e5ea" : "#3a3a3c"
-  const scale = 0.9
-  const left = (2880 - MAC_W * scale) / 2
+  const { scale, x, y } = GEO.mac
   return `
-  <div class="win ${dark ? "dark" : ""}" style="left:${left}px;top:290px;width:${MAC_W}px;height:${MAC_H + 104}px;transform:scale(${scale})">
+  <div class="win ${dark ? "dark" : ""}" style="left:${x}px;top:${y}px;width:${MAC_W}px;height:${MAC_H + 104}px;transform:scale(${scale})">
     <div class="mac-tb">
       <div class="lights"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></div>
       <div class="grp"><i>${svg.sidebar(fg)}</i><i>${svg.back(fg)}</i><i class="dim">${svg.fwd(fg)}</i></div>
@@ -225,35 +238,33 @@ function macWindow(shot, dark, host, extra = "") {
       <div class="grp right"><i class="ext"><img src="${EXT_ICON}"></i><i>${svg.share(fg)}</i><i>${svg.plus(fg)}</i><i>${svg.tabs(fg)}</i></div>
     </div>
     <img class="web" src="${file(join(RAW, shot + ".png"))}" style="top:104px;width:${MAC_W}px;height:${MAC_H}px">
-    ${extra}
   </div>`
 }
 
-// Enlarged copy of one UI element (cropped from the capture) floating over the device.
-function zoomCard(spec, slotW, dark) {
-  const meta = JSON.parse(readFileSync(join(RAW, spec.rectFile + ".json"), "utf8"))
-  const r = meta[spec.selector]
-  const s = meta.scale
-  const crop = { x: (r.x - spec.pad) * s, y: (r.y - spec.pad) * s, w: (r.width + spec.pad * 2) * s, h: (r.height + spec.pad * 2) * s }
-  const k = spec.width / crop.w
-  const shot = spec.shot ?? spec.rectFile
-  return `<div class="zoom ${dark ? "on-dark" : ""}" style="left:${(slotW - spec.width) / 2}px;top:${spec.y}px;width:${spec.width}px;height:${crop.h * k}px;transform:rotate(${spec.tilt ?? 0}deg)">
-    <div style="width:100%;height:100%;background:url('${file(join(RAW, shot + ".png"))}') ${-crop.x * k}px ${-crop.y * k}px / ${1290 * k}px auto no-repeat"></div>
-  </div>`
-}
-
-// The Mac selection bubble, enlarged in place (it disappears in the real UI once clicked).
-function bubbleZoom(spec) {
-  const meta = JSON.parse(readFileSync(join(RAW, spec.rectFile + ".json"), "utf8"))
-  const r = meta[spec.selector]
-  const s = meta.scale
-  const crop = { x: r.x * s, y: r.y * s, w: r.width * s, h: r.height * s }
-  const k = spec.zoom
-  // Window-local coordinates (the window itself is scaled by 0.8 later).
-  const cx = crop.x + crop.w / 2
-  const top = 104 + crop.y + crop.h * 0.2
-  return `<div class="zoom bubble" style="left:${Math.max(40, cx - (crop.w * k) / 2)}px;top:${top}px;width:${crop.w * k}px;height:${crop.h * k}px">
-    <div style="width:100%;height:100%;background:url('${file(join(RAW, spec.shot + ".png"))}') ${-crop.x * k}px ${-crop.y * k}px / ${MAC_W * k}px auto no-repeat"></div>
+// Magnified copy of the elements that prove the caption, centred over where they
+// sit on the device (cropped from the same capture).
+function callout(kind, shot, spec, dark) {
+  const meta = JSON.parse(readFileSync(join(RAW, shot + ".json"), "utf8"))
+  const rects = spec.select.map((sel) => meta[sel]).filter(Boolean)
+  if (rects.length === 0) throw new Error(`${shot}: none of ${spec.select.join(", ")} was captured`)
+  const ms = meta.scale
+  const x0 = Math.min(...rects.map((r) => r.x)) - spec.pad
+  const y0 = Math.min(...rects.map((r) => r.y)) - spec.pad
+  const x1 = Math.max(...rects.map((r) => r.x + r.width)) + spec.pad
+  const y1 = Math.max(...rects.map((r) => r.y + r.height)) + spec.pad
+  const g = GEO[kind]
+  const { W, H } = DEVICES[kind]
+  // The element on the canvas…
+  const on = { x: g.x + x0 * ms * g.scale, y: g.y + (g.top + y0 * ms) * g.scale, w: (x1 - x0) * ms * g.scale, h: (y1 - y0) * ms * g.scale }
+  // …and the magnified card over it.
+  const w = Math.min(on.w * spec.mag, spec.maxW)
+  const f = w / ((x1 - x0) * ms)
+  const h = (y1 - y0) * ms * f
+  const left = Math.max(50, Math.min(W - 50 - w, on.x + on.w / 2 - w / 2))
+  const top = Math.max(40, Math.min(H - 40 - h, on.y + on.h / 2 - h / 2))
+  const radius = spec.radius ? spec.radius * ms * f : 36
+  return `<div class="zoom ${dark ? "on-dark" : ""}" style="left:${left}px;top:${top}px;width:${w}px;height:${h}px;border-radius:${radius}px">
+    <div style="width:100%;height:100%;background:url('${file(join(RAW, shot + ".png"))}') ${-x0 * ms * f}px ${-y0 * ms * f}px / ${g.rawW * f}px auto no-repeat"></div>
   </div>`
 }
 
@@ -266,7 +277,7 @@ body { position: relative; background: linear-gradient(180deg, #F4F9FF 0%, #E7F0
 body.dark { background: radial-gradient(120% 70% at 50% 62%, #16306F 0%, #0B1633 48%, #070D1F 100%); }
 .bg { position: absolute; top: 0; height: 100%; }
 .bg svg { display: block; }
-.cap { position: absolute; left: 0; right: 0; margin: 0 auto; text-align: center; font-family: "Inter Display", Inter, sans-serif; font-weight: 800; line-height: 1.06; letter-spacing: -0.025em; color: #0B1530; }
+.cap { position: absolute; left: 0; right: 0; margin: 0 auto; text-align: center; font-family: "Inter Display", Inter, sans-serif; font-weight: 800; line-height: 1.06; letter-spacing: -0.015em; color: #0B1530; }
 .cap .l2 { background: linear-gradient(90deg, #0EA5E9, #2563EB 70%, #4F46E5); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .cap.on-dark { color: #fff; }
 .cap.on-dark .l2 { background: linear-gradient(90deg, #7DD3FC, #93C5FD 60%, #A5B4FC); -webkit-background-clip: text; background-clip: text; }
@@ -324,26 +335,21 @@ body.dark .tablet { box-shadow: 0 0 0 5px #4a4c55, 0 0 0 8px #22232a, 0 80px 180
 .win.dark .mac-tb .url { background: #3a3a3d; color: #f2f2f7; }
 
 .zoom { position: absolute; z-index: 4; border-radius: 40px; overflow: hidden; background: #fff; box-shadow: 0 0 0 3px rgba(37,99,235,.18), 0 40px 90px rgba(20, 45, 110, .30), 0 8px 24px rgba(20, 45, 110, .14); }
-.zoom.bubble { border-radius: 36px; }
+.zoom.on-dark { background: #1c1c1e; box-shadow: 0 0 0 3px rgba(147,197,253,.35), 0 40px 100px rgba(0,0,0,.55), 0 0 90px rgba(59,130,246,.35); }
 `
 
 function page(device, count, index, spec, size) {
   const dark = Boolean(spec.dark)
-  const host = spec.foreign ? COPY.foreignHost : COPY.host
+  const host = spec.foreign ? COPY.foreignHost : spec.second ? COPY.host2 : COPY.host
   let body = panorama(device, count, index, dark)
   body += caption(device, spec.caption, dark, size)
   if (spec.icon) body += `<img class="appicon" src="${APP_ICON}" style="top:70px;width:132px;height:132px">`
-  if (device === DEVICES.iphone) {
-    body += iphone(spec.shot, dark, host)
-    if (spec.zoom) body += zoomCard(spec.zoom, device.W, dark)
-    body += pills(spec.pills, dark)
-  } else if (device === DEVICES.ipad) {
-    body += ipad(spec.shot, dark, host)
-    body += pills(spec.pills, dark, 1.25)
-  } else {
-    body += macWindow(spec.shot, dark, host, spec.bubble ? bubbleZoom(spec.bubble) : "")
-    body += pills(spec.pills, dark, 1.3)
-  }
+  const kind = Object.keys(DEVICES).find((k) => DEVICES[k] === device)
+  if (kind === "iphone") body += iphone(spec.shot, dark, host)
+  else if (kind === "ipad") body += ipad(spec.shot, dark, host)
+  else body += macWindow(spec.shot, dark, host)
+  if (spec.callout) body += callout(kind, spec.shot, spec.callout, dark)
+  body += pills(spec.pills, dark, { iphone: 1, ipad: 1.25, mac: 1.3 }[kind])
   return `<!doctype html><html><head><meta charset="utf-8"><style>:root{--W:${device.W}px;--H:${device.H}px}${CSS}</style></head>
 <body class="${dark ? "dark" : ""}">${body}
 <script>
@@ -376,7 +382,7 @@ async function fitSize(device, specs) {
   const size = await p.evaluate(async ({ lines, max, base, one }) => {
     await document.fonts.load(`800 100px "Inter Display"`)
     const span = document.createElement("span")
-    span.style.cssText = `font-family:"Inter Display";font-weight:800;letter-spacing:-0.025em;white-space:nowrap;position:absolute`
+    span.style.cssText = `font-family:"Inter Display";font-weight:800;letter-spacing:-0.015em;white-space:nowrap;position:absolute`
     document.body.appendChild(span)
     let s = base
     for (; s > 40; s -= 2) {
