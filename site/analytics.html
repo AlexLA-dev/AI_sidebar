@@ -29,7 +29,15 @@
   .card dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
   .card .bad { color: var(--warn); }
   .panel + .cards { margin-top: 14px; }
-  .panel { background: var(--bg-2); border-radius: 16px; padding: 16px 18px; margin-top: 14px; }
+  .panel { position: relative; background: var(--bg-2); border-radius: 16px; padding: 16px 18px; margin-top: 14px; }
+  .tip { position: absolute; z-index: 5; pointer-events: none; display: none; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; font-size: 12.5px; box-shadow: 0 6px 18px rgba(0,0,0,.14); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .tip b { display: block; margin-bottom: 4px; }
+  .tip .row { display: flex; justify-content: space-between; gap: 14px; }
+  .tip .row span:last-child { font-weight: 600; }
+  .tip .total { border-top: 1px solid var(--border); margin-top: 4px; padding-top: 4px; }
+  td.hist { white-space: normal; min-width: 240px; line-height: 1.45; }
+  td.hist div { white-space: nowrap; }
+  td.hist time { color: var(--text-2); margin-right: 6px; }
   .panel h3 { margin: 0 0 10px; font-size: 15px; }
   .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12.5px; color: var(--text-2); margin-bottom: 8px; }
   .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
@@ -69,7 +77,22 @@ const PLANS = {
   free: "Бесплатный", pro: "Pro", byok: "Подписка «Свой ключ», через наш сервер", own_key: "Ключ пользователя, с устройства",
   legacy_anonymous: "1.x без аккаунта", legacy_user: "1.x с аккаунтом", unknown: "Не указан"
 }
-const SUB_STATUS = { active: "активна", renewal_off: "автопродление выключено", billing_retry: "не прошла оплата", expired: "закончилась", refunded: "возврат" }
+const SUB_STATUS = {
+  active: "активна", renewal_off: "автопродление выключено", billing_retry: "не прошла оплата",
+  downgrade: "сменит тариф при продлении", expired: "закончилась", refunded: "возврат"
+}
+// App Store notifications (type or type:subtype) in a subscription's history; "+" adds the plan's name.
+const SUB_EVENT = {
+  "SUBSCRIBED:INITIAL_BUY": "оформил +", "SUBSCRIBED:RESUBSCRIBE": "снова оформил +",
+  "DID_RENEW": "продлилась", "DID_RENEW:BILLING_RECOVERY": "продлилась после сбоя оплаты",
+  "DID_CHANGE_RENEWAL_PREF:UPGRADE": "перешёл на +", "DID_CHANGE_RENEWAL_PREF:DOWNGRADE": "при продлении перейдёт на +",
+  "DID_CHANGE_RENEWAL_PREF": "при продлении останется на +",
+  "DID_CHANGE_RENEWAL_STATUS:AUTO_RENEW_DISABLED": "выключил автопродление",
+  "DID_CHANGE_RENEWAL_STATUS:AUTO_RENEW_ENABLED": "включил автопродление",
+  "DID_FAIL_TO_RENEW": "не прошла оплата", "DID_FAIL_TO_RENEW:GRACE_PERIOD": "не прошла оплата, льготный период",
+  "EXPIRED": "закончилась", "GRACE_PERIOD_EXPIRED": "закончилась после сбоя оплаты",
+  "REFUND": "возврат денег", "REVOKE": "доступ отозван"
+}
 const n = new Intl.NumberFormat("ru-RU")
 const compact = new Intl.NumberFormat("ru-RU", { notation: "compact", maximumFractionDigits: 1 })
 const app = document.getElementById("app")
@@ -198,6 +221,7 @@ function userCards(users, subs, totalDays) {
       rows: [
         ...products.map((p) => [PRODUCTS[p.product_id] || p.product_id, n.format(p.active)]),
         [`Новых за ${totalDays} дн.`, n.format(sum(products, "new"))],
+        sum(products, "switched") > 0 && ["Сменили тариф", n.format(sum(products, "switched"))],
         ["Автопродление выключено", n.format(sum(products, "renewal_off"))],
         sum(products, "billing_retry") > 0 && ["Не прошла оплата", n.format(sum(products, "billing_retry")), "bad"],
         ["Закончились или возврат", n.format(lost), lost ? "bad" : ""]
@@ -206,7 +230,9 @@ function userCards(users, subs, totalDays) {
   )
 }
 
-// Stacked bars per UTC day. series: [{ title, color, value(day) }].
+const dayLabel = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString("ru-RU", { weekday: "short", day: "numeric", month: "long", timeZone: "UTC" })
+
+// Stacked bars per UTC day; hovering (or tapping) a day shows its numbers. series: [{ title, color, value(day) }].
 function chart(title, series, totalDays) {
   const keys = lastDays(totalDays)
   const totals = keys.map((d) => series.reduce((s, x) => s + x.value(d), 0))
@@ -227,17 +253,63 @@ function chart(title, series, totalDays) {
       if (!v) continue
       const h = (H - T - B) * (v / max)
       y -= h
-      nodes.push(svg("rect", { x, y, width: Math.max(1, bw * 0.7), height: h, rx: 2, fill: s.color }, svg("title", {}, `${d} · ${s.title}: ${v} из ${totals[i]}`)))
+      nodes.push(svg("rect", { x, y, width: Math.max(1, bw * 0.7), height: h, rx: 2, fill: s.color }))
     }
     const every = Math.ceil(keys.length / 10)
     if (i % every === 0 || i === keys.length - 1) nodes.push(svg("text", { x: L + i * bw + bw / 2, y: H - 6, "text-anchor": "middle" }, d.slice(5).replace("-", ".")))
   })
-  return el("div", { class: "panel" },
+  const tip = el("div", { class: "tip" })
+  const panel = el("div", { class: "panel" })
+  const highlight = svg("rect", { x: 0, y: T, width: bw, height: H - T - B, rx: 3, fill: "currentColor", "fill-opacity": "0.07", visibility: "hidden" })
+  const show = (i, e) => {
+    highlight.setAttribute("x", L + i * bw)
+    highlight.setAttribute("visibility", "visible")
+    tip.replaceChildren(...[
+      el("b", {}, dayLabel(keys[i])),
+      ...series.map((s) => el("div", { class: "row" }, el("span", {}, el("span", { class: "dot", style: `background:${s.color}` }), s.title), el("span", {}, n.format(s.value(keys[i]))))),
+      series.length > 1 && el("div", { class: "row total" }, el("span", {}, "Всего"), el("span", {}, n.format(totals[i])))
+    ].filter(Boolean))
+    tip.style.display = "block"
+    const box = panel.getBoundingClientRect()
+    const left = e.clientX - box.left + 14
+    tip.style.left = `${Math.max(8, Math.min(left, box.width - tip.offsetWidth - 8))}px`
+    tip.style.top = `${Math.max(8, e.clientY - box.top - tip.offsetHeight - 12)}px`
+  }
+  const hide = () => {
+    tip.style.display = "none"
+    highlight.setAttribute("visibility", "hidden")
+  }
+  // A transparent column per day catches the pointer over its whole height, not just the bar.
+  const hits = keys.map((_, i) => {
+    const hit = svg("rect", { x: L + i * bw, y: T, width: bw, height: H - T - B, fill: "transparent" })
+    hit.addEventListener("pointermove", (e) => show(i, e))
+    hit.addEventListener("pointerdown", (e) => show(i, e))
+    return hit
+  })
+  const chartSvg = svg("svg", { viewBox: `0 0 ${W} ${H}`, width: "100%", style: "min-width:640px", role: "img", "aria-label": title }, highlight, nodes, hits)
+  chartSvg.addEventListener("pointerleave", hide)
+  panel.append(
     el("h3", {}, title),
     el("div", { class: "legend" }, series.map((s) => el("span", {}, el("i", { style: `background:${s.color}` }), s.title))),
     // Wide enough to stay readable on a phone (scrolls sideways there).
-    el("div", { class: "tbl" }, svg("svg", { viewBox: `0 0 ${W} ${H}`, width: "100%", style: "min-width:640px", role: "img", "aria-label": title }, nodes))
+    el("div", { class: "tbl" }, chartSvg),
+    tip
   )
+  return panel
+}
+
+// The subscription's App Store history, oldest first. Apple also reports the old plan's renewal
+// switching off when someone upgrades or downgrades; that's part of the switch, not a cancellation.
+function history(events) {
+  const shown = events.filter((e, i) => !(
+    e.type === "DID_CHANGE_RENEWAL_STATUS" &&
+    events.slice(i + 1).some((x) => x.type === "DID_CHANGE_RENEWAL_PREF" && x.product !== e.product && Date.parse(x.at) - Date.parse(e.at) < 120_000)
+  ))
+  return shown.map((e) => {
+    const label = SUB_EVENT[e.subtype ? `${e.type}:${e.subtype}` : e.type] || SUB_EVENT[e.type] || [e.type, e.subtype].filter(Boolean).join(" · ")
+    const text = label.endsWith("+") ? `${label.slice(0, -1)}${PRODUCTS[e.product] || e.product}` : label
+    return el("div", {}, el("time", {}, new Date(e.at).toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })), text)
+  })
 }
 
 // cls "num2": the second column holds numbers too (right-aligned).
@@ -298,6 +370,7 @@ function render(data) {
   const date = (v) => v ? new Date(v).toLocaleDateString("ru-RU") : "—"
   const subRows = (subs.list || []).map((r) => el("tr", {},
     el("td", {}, PRODUCTS[r.product_id] || r.product_id),
+    el("td", { class: "hist" }, (r.history || []).length ? history(r.history) : "—"),
     el("td", { class: ["expired", "refunded", "billing_retry"].includes(r.status) ? "bad" : "" }, SUB_STATUS[r.status] || r.status),
     el("td", {}, new Date(r.created_at).toLocaleString("ru-RU", { dateStyle: "short", timeStyle: "short" })),
     el("td", {}, date(r.expires_at))
@@ -323,7 +396,7 @@ function render(data) {
       { title: "Вернувшиеся", color: "var(--c1)", value: (d) => userDay("active")(d) - userDay("new")(d) }
     ], data.days),
     table(`Подписки${subs.sandbox ? ` · ещё ${n.format(subs.sandbox)} в песочнице (App Review, тесты)` : ""}`,
-      ["Тариф", "Статус", "Оформлена", "Оплачена до"], subRows, "Подписок пока нет."),
+      ["Тариф", "История (ваше время)", "Статус", "Оформлена", "Оплачена до"], subRows, "Подписок пока нет."),
     el("div", { class: "cards" }, SEGMENTS.map((s) => card(s, segments.find((r) => r.key === s.key && r.segment === s.segment)))),
     chart("Запросы по дням", SEGMENTS.map((seg) => ({
       title: seg.title, color: seg.color,
