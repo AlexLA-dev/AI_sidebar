@@ -68,7 +68,13 @@ async function handleNotification(signedPayload: string): Promise<Response> {
     last_notification: subtype ? `${type}:${subtype}` : type
   })
   await logEvent("appstore_notification", null, {
-    type, subtype, product: tx.productId, environment: tx.environment, uuid: notification.notificationUUID
+    type, subtype, product: tx.productId, environment: tx.environment, uuid: notification.notificationUUID,
+    // Links the event to its subscription (upgrades and downgrades keep the original transaction).
+    otid: String(tx.originalTransactionId),
+    price: tx.price ?? null,
+    currency: tx.currency ?? null,
+    storefront: tx.storefront ?? null,
+    offer: tx.offerType ?? null
   })
   return json({ received: true })
 }
@@ -88,7 +94,7 @@ async function handleClientTransaction(jws: string): Promise<Response> {
     app_account_token: tx.appAccountToken ?? null,
     last_transaction_id: String(tx.transactionId)
   })
-  await logEvent("appstore_client_tx", null, { product: tx.productId, environment: tx.environment })
+  await logEvent("appstore_client_tx", null, { product: tx.productId, environment: tx.environment, otid: String(tx.originalTransactionId) })
   const planType = tx.productId.includes("byok") ? "byok_license" : "pro_subscription"
   return json({ success: true, plan_type: planType })
 }

@@ -85,6 +85,12 @@ export interface AppleTransaction {
   revocationDate?: number
   appAccountToken?: string
   signedDate?: number
+  // What the customer paid (milliunits of `currency`) and where; absent in some sandbox data.
+  price?: number
+  currency?: string
+  storefront?: string
+  // 1 introductory, 2 promotional, 3 offer code, 4 win-back.
+  offerType?: number
 }
 
 export interface Entitlement {
