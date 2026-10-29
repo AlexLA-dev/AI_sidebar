@@ -137,6 +137,15 @@
  "deleteChat": {
   "message": "删除对话"
  },
+ "renameChat": {
+  "message": "重命名对话"
+ },
+ "chatName": {
+  "message": "对话名称"
+ },
+ "chatNameHint": {
+  "message": "留空则以第一个问题作为对话名称。"
+ },
  "settings": {
   "message": "设置"
  },
@@ -472,6 +481,62 @@
  },
  "sources": {
   "message": "来源"
+ },
+ "tourStep": {
+  "message": "$P0$/$P1$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "tourSkip": {
+  "message": "跳过"
+ },
+ "tourNext": {
+  "message": "下一步"
+ },
+ "tourDone": {
+  "message": "知道了"
+ },
+ "tourShow": {
+  "message": "查看使用提示"
+ },
+ "tourAskTitle": {
+  "message": "就此页面提问"
+ },
+ "tourAskBody": {
+  "message": "ContextFlow 会读取你正在浏览的页面。选择“总结”等操作，或输入你自己的问题。"
+ },
+ "tourSelectTitle": {
+  "message": "只想问一部分？"
+ },
+ "tourSelectBody": {
+  "message": "先在页面上选中文字，回答就只针对这部分内容。这个标签显示 ContextFlow 正在读取的内容。"
+ },
+ "tourGoogleTitle": {
+  "message": "来自 Google 的最新信息"
+ },
+ "tourGoogleBody": {
+  "message": "开启后将借助 Google 搜索回答：提供最新信息并附上来源。"
+ },
+ "tourChatsTitle": {
+  "message": "你的对话"
+ },
+ "tourChatsBody": {
+  "message": "对话会随你跨页面继续。点 + 开始新对话，在对话列表中打开、重命名或删除以前的对话。"
+ },
+ "tourChatsBodySync": {
+  "message": "对话会随你跨页面继续，并通过 iCloud 在你的 iPhone、iPad 和 Mac 上接着聊。点 + 开始新对话，在对话列表中打开、重命名或删除以前的对话。"
+ },
+ "tourSettingsTitle": {
+  "message": "按你的习惯设置"
+ },
+ "tourSettingsBody": {
+  "message": "主题和文字大小、✦ 按钮、用于更好回答的自我介绍、自有 API 密钥和你的套餐。这些提示也可以在这里再次查看。"
  },
  "welcomeTitle": {
   "message": "ContextFlow 已准备就绪"

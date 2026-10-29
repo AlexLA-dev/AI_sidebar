@@ -26,6 +26,9 @@ export const Chats = (): VNode => (
 export const Trash = (): VNode => (
   <svg {...base} width={16} height={16}><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6" /></svg>
 )
+export const Pencil = (): VNode => (
+  <svg {...base} width={16} height={16}><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4z" /><path d="M14.5 5.5l3 3" /></svg>
+)
 export const Doc = (): VNode => <svg {...base} width={14} height={14}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6" /></svg>
 export const Cursor = (): VNode => <svg {...base} width={14} height={14}><path d="M4 7V4h16v3M9 20h6M12 4v16" /></svg>
 export const Lock = (): VNode => <svg {...base} width={14} height={14}><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>

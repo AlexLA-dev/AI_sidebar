@@ -105,6 +105,8 @@ export const STORAGE = {
   // Successful answers so far; the app asks for an App Store rating after a few.
   valueMoments: "cf:valueMoments",
   consent: "cf:consent",
+  // The first-session tour of the panel was seen (finished or skipped).
+  tourSeen: "cf:tourSeen",
   ownKey: "cf:ownKey",
   // Provider model lists for the own key ({ openai?: { ids, at }, anthropic?: { models, at } }).
   ownKeyModels: "cf:ownKeyModels",

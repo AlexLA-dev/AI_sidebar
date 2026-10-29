@@ -377,9 +377,16 @@
 .cf-thread-title { font-weight: 600; font-size: 14px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cf-thread-snippet { font-size: 13px; color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cf-thread-meta { font-size: 11.5px; color: var(--text-3); }
-.cf-thread-delete { flex: none; opacity: 0.55; }
-.cf-thread:hover .cf-thread-delete, .cf[data-touch] .cf-thread-delete { opacity: 1; }
+.cf-thread-tool { flex: none; opacity: 0.55; }
+.cf-thread:hover .cf-thread-tool, .cf[data-touch] .cf-thread-tool { opacity: 1; }
 .cf-thread-delete:hover { color: var(--danger); }
+.cf-thread-main.editing { padding: 7px 10px 9px; gap: 4px; }
+.cf-thread-name {
+  width: 100%; box-sizing: border-box; font: inherit; font-weight: 600; font-size: 14px; color: var(--text);
+  background: var(--bg); border: 1px solid var(--accent); border-radius: 8px; padding: 5px 8px; outline: none;
+}
+/* 16px on iPhone and iPad, or Safari zooms the page in on focus. */
+.cf[data-touch] .cf-thread-name { font-size: 16px; }
 .cf-group { padding: 12px 14px; margin-bottom: 10px; border-radius: 14px; background: var(--bg-2); }
 .cf-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 34px; }
 .cf-row + .cf-row { margin-top: 6px; }
@@ -414,3 +421,23 @@
   .cf-panel, .cf-backdrop, .cf-fab { transition: none !important; }
   .cf-bubble, .cf-thinking span { animation: none !important; }
 }
+
+/* The first-session tour: the part of the panel a step is about stays lit, the rest dims. */
+.cf-tour { position: absolute; inset: 0; z-index: 10; overflow: hidden; }
+.cf-tour.dim { background: rgba(12, 10, 24, 0.5); }
+.cf-tour-hole {
+  position: absolute; border-radius: 12px; pointer-events: none;
+  box-shadow: 0 0 0 2px var(--accent), 0 0 0 4000px rgba(12, 10, 24, 0.5);
+  transition: top 0.25s ease, left 0.25s ease, width 0.25s ease, height 0.25s ease;
+}
+.cf-tour-card {
+  position: absolute; left: 12px; right: 12px; max-width: 396px; margin: 0 auto;
+  background: var(--bg); color: var(--text); border-radius: 14px; padding: 13px 14px 12px; box-shadow: var(--shadow);
+}
+.cf-tour-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.cf-tour-icon { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: var(--accent-soft); color: var(--accent-text); }
+.cf-tour-count { font-size: 12px; color: var(--text-3); }
+.cf-tour-card strong { display: block; font-size: 15px; margin-bottom: 4px; }
+.cf-tour-card p { margin: 0 0 12px; color: var(--text-2); font-size: 13.5px; }
+.cf-tour-actions { display: flex; gap: 8px; align-items: center; justify-content: flex-end; }
+.cf-tour-actions .cf-link { margin-right: auto; }

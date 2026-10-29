@@ -16,7 +16,8 @@ import {
 } from "../shared/types"
 import * as Icon from "./icons"
 import { historyForModel, lastPage, pageHasChanged, textFingerprint, type Entry } from "../shared/conversation"
-import { Markdown, toPlainText } from "./markdown"
+import { Markdown } from "./markdown"
+import { answerShareText, chatShareText, toPlainText, type ShareLabels } from "../shared/share"
 import {
   extractPage,
   forgetSelection,
@@ -31,8 +32,9 @@ import {
   type SelectionInfo
 } from "./page"
 import { SettingsView } from "./Settings"
-import { deleteThread, giveConsent, hasConsent, loadSettings, loadThreads, onSettingsChanged, onThreadsChanged, saveSettings, saveThread, setActiveThread } from "./store"
+import { deleteThread, giveConsent, hasConsent, hasSeenTour, loadSettings, loadThreads, markTourSeen, onSettingsChanged, onThreadsChanged, renameThread, saveSettings, saveThread, setActiveThread } from "./store"
 import { ThreadsView } from "./Threads"
+import { Tour, tourSteps } from "./Tour"
 import { liveThreads, newThreadId, shownThread, type Thread } from "../shared/threads"
 
 export type Bus = EventTarget
@@ -166,6 +168,12 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
   const [streamMode, setStreamMode] = useState<"google" | null>(null)
   const [copied, setCopied] = useState<number | null>(null)
   const [dragY, setDragY] = useState<number | null>(null)
+  // The tour of the panel: shown once, on the first open; Settings can show it again.
+  const [tourSeen, setTourSeen] = useState(true)
+  const [touring, setTouring] = useState(false)
+  const touringRef = useRef(false)
+  touringRef.current = touring
+  const panelRef = useRef<HTMLElement>(null)
 
   // The page the panel is on now (normalized URL), followed while open for single-page apps.
   const [pageUrl, setPageUrl] = useState(pageKey())
@@ -187,6 +195,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
   useEffect(() => {
     void loadSettings().then(setSettings)
     void hasConsent().then(setConsent)
+    void hasSeenTour().then(setTourSeen)
     return onSettingsChanged(setSettings)
   }, [])
 
@@ -194,6 +203,12 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
     const next = { ...settingsRef.current, ...patch }
     setSettings(next)
     void saveSettings(next)
+  }, [])
+
+  const endTour = useCallback(() => {
+    setTouring(false)
+    setTourSeen(true)
+    void markTourSeen()
   }, [])
 
   // ------------------------------------------------------------ status
@@ -320,6 +335,13 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
     return () => document.removeEventListener("visibilitychange", onVisible)
   }, [open, refreshStatus])
 
+  // The first time the panel is open and idle, show what it can do.
+  useEffect(() => {
+    if (tourSeen || touring || !visible || view !== "chat" || streaming || pending) return
+    const timer = setTimeout(() => setTouring(true), 450)
+    return () => clearTimeout(timer)
+  }, [tourSeen, touring, visible, view, streaming, pending])
+
   // Persist the chat shown.
   useEffect(() => {
     if (!loadedRef.current) return
@@ -350,11 +372,18 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
   useEffect(() => {
     if (!open) return
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") hide()
+      if (e.key !== "Escape") return
+      if (touringRef.current) {
+        endTour()
+        return
+      }
+      // Escape in a chat's name field only cancels the renaming.
+      if ((e.composedPath()[0] as HTMLElement | undefined)?.classList?.contains("cf-thread-name")) return
+      hide()
     }
     window.addEventListener("keydown", onKey, true)
     return () => window.removeEventListener("keydown", onKey, true)
-  }, [open, hide])
+  }, [open, hide, endTour])
 
   // Keep the newest text in view while streaming.
   useEffect(() => {
@@ -560,6 +589,10 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
     })
   }, [stop, threadList])
 
+  const renameChat = useCallback((id: string, name: string) => {
+    void renameThread(id, name).then(() => loadThreads()).then(({ threads }) => setThreadList(liveThreads(threads)))
+  }, [])
+
   const removeThread = useCallback((id: string) => {
     void deleteThread(id)
     setThreadList((list) => list.filter((x) => x.id !== id))
@@ -573,34 +606,27 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
   }, [])
 
   // ------------------------------------------------------------ sharing
-  const shareFooter = (url: string) => `${t("shareSource")}: ${url}\n${t("shareMadeWith")}: ${LINKS.appStoreShare}`
+  const shareLabels = (): ShareLabels => ({ you: t("shareYou"), sources: t("sources"), source: t("shareSource"), madeWith: t("shareMadeWith") })
+
+  /**
+   * Shares text with ContextFlow's App Store link as a link of its own (apps then keep the text as
+   * text); copies both where sharing isn't available. True when it was copied.
+   */
+  const shareText = useCallback(async (text: string): Promise<boolean> => {
+    if (typeof navigator.share === "function") {
+      await navigator.share({ text, url: LINKS.appStoreShare }).catch(() => undefined)
+      return false
+    }
+    return copyText(`${text}: ${LINKS.appStoreShare}`)
+  }, [])
 
   /** Shares (or copies, where sharing isn't available) the whole conversation. */
   const shareChat = useCallback(async () => {
-    const lines: string[] = []
-    const pages = new Map<string, string>()
-    for (const m of messages) {
-      if (m.role === "user") {
-        if (m.page) pages.set(m.page.url, m.page.title)
-        lines.push(`${t("shareYou")}: ${m.label ?? m.content}`)
-      } else {
-        lines.push(`ContextFlow: ${toPlainText(m.content)}`, "")
-      }
-    }
-    const sources = [...pages].map(([url, title]) => (title ? `${title} — ${url}` : url))
-    const text = [
-      lines.join("\n").trim(),
-      "",
-      sources.length ? `${t("shareSource")}:\n${sources.join("\n")}` : `${t("shareSource")}: ${location.href}`,
-      `${t("shareMadeWith")}: ${LINKS.appStoreShare}`
-    ].join("\n")
-    if (typeof navigator.share === "function") {
-      await navigator.share({ text }).catch(() => undefined)
-    } else if (await copyText(text)) {
+    if (await shareText(chatShareText(messages, shareLabels(), location.href))) {
       setChatCopied(true)
       setTimeout(() => setChatCopied(false), 1500)
     }
-  }, [messages])
+  }, [messages, shareText])
 
   // ------------------------------------------------------------ upgrade
   const openApp = useCallback(async (target: "subscribe" | "manage") => {
@@ -707,6 +733,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
 
       {open && (
         <section
+          ref={panelRef}
           class={`cf-panel ${visible ? "in" : ""}`}
           role="dialog"
           aria-label="ContextFlow"
@@ -749,13 +776,13 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
               <button type="button" class="cf-icon" onClick={newChat} aria-label={t("newChat")} title={t("newChat")}><Icon.Plus /></button>
             )}
             {view === "chat" && (
-              <button type="button" class="cf-icon" onClick={() => setView("settings")} aria-label={t("settings")} title={t("settings")}><Icon.Gear /></button>
+              <button type="button" class="cf-icon cf-settings-button" onClick={() => setView("settings")} aria-label={t("settings")} title={t("settings")}><Icon.Gear /></button>
             )}
             <button type="button" class="cf-icon" onClick={hide} aria-label={t("close")} title={t("close")}><Icon.Close /></button>
           </header>
 
           {view === "threads" ? (
-            <ThreadsView threads={threadList} activeId={threadRef.current} onOpen={openThread} onDelete={removeThread} onNew={newChat} />
+            <ThreadsView threads={threadList} activeId={threadRef.current} onOpen={openThread} onRename={renameChat} onDelete={removeThread} onNew={newChat} />
           ) : view === "settings" ? (
             <SettingsView
               settings={settings}
@@ -768,6 +795,10 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
               onManage={() => void openApp("manage")}
               onStatusChange={() => void refreshStatus(true)}
               onOpenUrl={(url) => void sendBackground({ type: "openUrl", url })}
+              onShowTour={() => {
+                setView("chat")
+                setTouring(true)
+              }}
               onChatsDeleted={() => {
                 setMessages([])
                 setError(null)
@@ -811,7 +842,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
                           {copied === idx ? <Icon.Check /> : <Icon.Copy />} {copied === idx ? t("copied") : t("copy")}
                         </button>
                         {typeof navigator.share === "function" && (
-                          <button type="button" onClick={() => void navigator.share({ text: `${toPlainText(m.content)}\n\n${shareFooter(sourceOf(messages, idx))}` }).catch(() => undefined)}>
+                          <button type="button" onClick={() => void shareText(answerShareText(messages, idx, shareLabels(), location.href))}>
                             <Icon.Share /> {t("share")}
                           </button>
                         )}
@@ -939,6 +970,9 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
               </footer>
             </>
           )}
+          {touring && view === "chat" && panelRef.current && (
+            <Tour panel={panelRef.current} steps={tourSteps(TARGET === "safari" && settings.syncChats)} onDone={endTour} />
+          )}
         </section>
       )}
     </div>
@@ -946,12 +980,6 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
 }
 
 const runActionRef: { current: (a: Action) => void } = { current: () => undefined }
-
-/** URL of the page the answer at `index` was about (its question's page), for sharing. */
-function sourceOf(entries: Entry[], index: number): string {
-  for (let i = index; i >= 0; i--) if (entries[i].role === "user" && entries[i].page) return entries[i].page!.url
-  return location.href
-}
 
 /** Above a question: "New page: …" when it moved to another page, "Page updated" when the page changed. */
 function PageDivider({ entries, index }: { entries: Entry[]; index: number }): VNode | null {

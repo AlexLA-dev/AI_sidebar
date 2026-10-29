@@ -137,6 +137,15 @@
  "deleteChat": {
   "message": "Chat löschen"
  },
+ "renameChat": {
+  "message": "Chat umbenennen"
+ },
+ "chatName": {
+  "message": "Chatname"
+ },
+ "chatNameHint": {
+  "message": "Leer lassen, damit der Chat nach der ersten Frage heißt."
+ },
  "settings": {
   "message": "Einstellungen"
  },
@@ -472,6 +481,62 @@
  },
  "sources": {
   "message": "Quellen"
+ },
+ "tourStep": {
+  "message": "$P0$ von $P1$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "tourSkip": {
+  "message": "Überspringen"
+ },
+ "tourNext": {
+  "message": "Weiter"
+ },
+ "tourDone": {
+  "message": "Verstanden"
+ },
+ "tourShow": {
+  "message": "Tipps zeigen"
+ },
+ "tourAskTitle": {
+  "message": "Frag etwas zu dieser Seite"
+ },
+ "tourAskBody": {
+  "message": "ContextFlow liest die Seite, auf der du bist. Wähle eine Aktion wie „Zusammenfassen“ oder stell deine eigene Frage."
+ },
+ "tourSelectTitle": {
+  "message": "Nur ein Teil davon?"
+ },
+ "tourSelectBody": {
+  "message": "Markiere zuerst Text auf der Seite – dann geht es in der Antwort nur darum. Dieses Label zeigt, was ContextFlow liest."
+ },
+ "tourGoogleTitle": {
+  "message": "Aktuelle Fakten von Google"
+ },
+ "tourGoogleBody": {
+  "message": "Schalte das ein, um mit der Google-Suche zu antworten: aktuelle Informationen mit Quellen."
+ },
+ "tourChatsTitle": {
+  "message": "Deine Chats"
+ },
+ "tourChatsBody": {
+  "message": "Ein Chat geht von Seite zu Seite weiter. Mit + startest du einen neuen. In der Chatliste kannst du frühere öffnen, umbenennen oder löschen."
+ },
+ "tourChatsBodySync": {
+  "message": "Ein Chat geht von Seite zu Seite weiter – und über iCloud auf deinem iPhone, iPad und Mac. Mit + startest du einen neuen. In der Chatliste kannst du frühere öffnen, umbenennen oder löschen."
+ },
+ "tourSettingsTitle": {
+  "message": "Ganz nach deinem Geschmack"
+ },
+ "tourSettingsBody": {
+  "message": "Design und Textgröße, die ✦-Taste, ein paar Worte über dich für bessere Antworten, dein eigener API-Schlüssel und dein Tarif. Auch diese Tipps findest du hier wieder."
  },
  "welcomeTitle": {
   "message": "ContextFlow ist bereit"

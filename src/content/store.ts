@@ -1,5 +1,5 @@
 import type { Entry } from "../shared/conversation"
-import { liveThreads, newThreadId, prune, type ActiveThread, type Threads } from "../shared/threads"
+import { activity, cleanTitle, liveThreads, newThreadId, prune, type ActiveThread, type Thread, type Threads } from "../shared/threads"
 import { DEFAULT_SETTINGS, STORAGE, type Settings } from "../shared/types"
 
 const MAX_TURNS = 40
@@ -42,6 +42,14 @@ export async function hasConsent(): Promise<boolean> {
 
 export async function giveConsent(): Promise<void> {
   await set(STORAGE.consent, true)
+}
+
+export async function hasSeenTour(): Promise<boolean> {
+  return Boolean(await get<boolean>(STORAGE.tourSeen))
+}
+
+export async function markTourSeen(): Promise<void> {
+  await set(STORAGE.tourSeen, true)
 }
 
 type LegacyChats = Record<string, { t: string; u: number; m: Entry[] }>
@@ -91,7 +99,21 @@ export async function saveThread(id: string, entries: Entry[]): Promise<void> {
   // Only real changes get a new time: it decides which device's copy wins (iCloud sync),
   // and opening an empty thread doesn't store anything.
   if (stored ? JSON.stringify(stored.m) === JSON.stringify(next) : next.length === 0) return
-  await set(STORAGE.threads, prune({ ...threads, [id]: { id, u: Date.now(), m: next } }))
+  const now = Date.now()
+  const title = stored && !stored.deleted ? stored.title : undefined
+  await set(STORAGE.threads, prune({ ...threads, [id]: { id, u: now, a: now, m: next, ...(title ? { title } : {}) } }))
+}
+
+/** Names a chat (an empty name goes back to its first question); it keeps its place in the list. */
+export async function renameThread(id: string, name: string): Promise<void> {
+  const threads = (await get<Threads>(STORAGE.threads)) ?? {}
+  const stored = threads[id]
+  if (!stored || stored.deleted) return
+  const title = cleanTitle(name)
+  if (title === (stored.title ?? "")) return
+  const renamed: Thread = { ...stored, u: Date.now(), a: activity(stored), title }
+  if (!title) delete renamed.title
+  await set(STORAGE.threads, { ...threads, [id]: renamed })
 }
 
 export async function deleteThread(id: string): Promise<void> {

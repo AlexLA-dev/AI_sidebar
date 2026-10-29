@@ -137,6 +137,15 @@
  "deleteChat": {
   "message": "Supprimer la discussion"
  },
+ "renameChat": {
+  "message": "Renommer la discussion"
+ },
+ "chatName": {
+  "message": "Nom de la discussion"
+ },
+ "chatNameHint": {
+  "message": "Laissez vide pour nommer la discussion d’après sa première question."
+ },
  "settings": {
   "message": "Réglages"
  },
@@ -472,6 +481,62 @@
  },
  "sources": {
   "message": "Sources"
+ },
+ "tourStep": {
+  "message": "$P0$ sur $P1$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "tourSkip": {
+  "message": "Passer"
+ },
+ "tourNext": {
+  "message": "Suivant"
+ },
+ "tourDone": {
+  "message": "Compris"
+ },
+ "tourShow": {
+  "message": "Voir les conseils"
+ },
+ "tourAskTitle": {
+  "message": "Posez une question sur cette page"
+ },
+ "tourAskBody": {
+  "message": "ContextFlow lit la page que vous consultez. Choisissez une action comme « Résumer » ou posez votre propre question."
+ },
+ "tourSelectTitle": {
+  "message": "Juste un passage ?"
+ },
+ "tourSelectBody": {
+  "message": "Sélectionnez d’abord du texte sur la page : la réponse ne portera que sur lui. Cette étiquette indique ce que lit ContextFlow."
+ },
+ "tourGoogleTitle": {
+  "message": "Des infos à jour avec Google"
+ },
+ "tourGoogleBody": {
+  "message": "Activez-le pour répondre avec la Recherche Google : des informations récentes, avec leurs sources."
+ },
+ "tourChatsTitle": {
+  "message": "Vos discussions"
+ },
+ "tourChatsBody": {
+  "message": "Une discussion se poursuit de page en page. Commencez-en une nouvelle avec +, et ouvrez, renommez ou supprimez les précédentes dans la liste."
+ },
+ "tourChatsBodySync": {
+  "message": "Une discussion se poursuit de page en page, et sur votre iPhone, iPad et Mac via iCloud. Commencez-en une nouvelle avec +, et ouvrez, renommez ou supprimez les précédentes dans la liste."
+ },
+ "tourSettingsTitle": {
+  "message": "À votre façon"
+ },
+ "tourSettingsBody": {
+  "message": "Thème et taille du texte, le bouton ✦, quelques mots sur vous pour de meilleures réponses, votre clé d’API et votre forfait. Vous y retrouverez aussi ces conseils."
  },
  "welcomeTitle": {
   "message": "ContextFlow est prêt"

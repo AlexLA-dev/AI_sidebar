@@ -137,6 +137,15 @@
  "deleteChat": {
   "message": "Elimina chat"
  },
+ "renameChat": {
+  "message": "Rinomina chat"
+ },
+ "chatName": {
+  "message": "Nome della chat"
+ },
+ "chatNameHint": {
+  "message": "Lascia vuoto per chiamare la chat come la sua prima domanda."
+ },
  "settings": {
   "message": "Impostazioni"
  },
@@ -472,6 +481,62 @@
  },
  "sources": {
   "message": "Fonti"
+ },
+ "tourStep": {
+  "message": "$P0$ di $P1$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "tourSkip": {
+  "message": "Salta"
+ },
+ "tourNext": {
+  "message": "Avanti"
+ },
+ "tourDone": {
+  "message": "Ho capito"
+ },
+ "tourShow": {
+  "message": "Mostra i suggerimenti"
+ },
+ "tourAskTitle": {
+  "message": "Chiedi di questa pagina"
+ },
+ "tourAskBody": {
+  "message": "ContextFlow legge la pagina che stai guardando. Scegli un’azione come «Riassumi» o scrivi la tua domanda."
+ },
+ "tourSelectTitle": {
+  "message": "Solo una parte?"
+ },
+ "tourSelectBody": {
+  "message": "Seleziona prima del testo nella pagina e la risposta riguarderà solo quello. Questa etichetta mostra cosa legge ContextFlow."
+ },
+ "tourGoogleTitle": {
+  "message": "Notizie fresche da Google"
+ },
+ "tourGoogleBody": {
+  "message": "Attivalo per rispondere con la Ricerca Google: informazioni aggiornate con le fonti."
+ },
+ "tourChatsTitle": {
+  "message": "Le tue chat"
+ },
+ "tourChatsBody": {
+  "message": "Una chat prosegue da una pagina all’altra. Iniziane una nuova con + e apri, rinomina o elimina le precedenti nell’elenco delle chat."
+ },
+ "tourChatsBodySync": {
+  "message": "Una chat prosegue da una pagina all’altra e, tramite iCloud, su iPhone, iPad e Mac. Iniziane una nuova con + e apri, rinomina o elimina le precedenti nell’elenco delle chat."
+ },
+ "tourSettingsTitle": {
+  "message": "Su misura per te"
+ },
+ "tourSettingsBody": {
+  "message": "Tema e dimensione del testo, il pulsante ✦, due parole su di te per risposte migliori, la tua chiave API e il tuo piano. Qui ritrovi anche questi suggerimenti."
  },
  "welcomeTitle": {
   "message": "ContextFlow è pronto"

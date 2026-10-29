@@ -137,6 +137,15 @@
  "deleteChat": {
   "message": "Apagar conversa"
  },
+ "renameChat": {
+  "message": "Renomear conversa"
+ },
+ "chatName": {
+  "message": "Nome da conversa"
+ },
+ "chatNameHint": {
+  "message": "Deixe em branco para a conversa ter o nome da primeira pergunta."
+ },
  "settings": {
   "message": "Ajustes"
  },
@@ -472,6 +481,62 @@
  },
  "sources": {
   "message": "Fontes"
+ },
+ "tourStep": {
+  "message": "$P0$ de $P1$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "tourSkip": {
+  "message": "Pular"
+ },
+ "tourNext": {
+  "message": "Próximo"
+ },
+ "tourDone": {
+  "message": "Entendi"
+ },
+ "tourShow": {
+  "message": "Ver dicas"
+ },
+ "tourAskTitle": {
+  "message": "Pergunte sobre esta página"
+ },
+ "tourAskBody": {
+  "message": "O ContextFlow lê a página em que você está. Escolha uma ação como “Resumir” ou digite sua pergunta."
+ },
+ "tourSelectTitle": {
+  "message": "Só uma parte?"
+ },
+ "tourSelectBody": {
+  "message": "Selecione primeiro um texto na página e a resposta será só sobre ele. Este rótulo mostra o que o ContextFlow está lendo."
+ },
+ "tourGoogleTitle": {
+  "message": "Fatos atualizados do Google"
+ },
+ "tourGoogleBody": {
+  "message": "Ative para responder com a Pesquisa Google: informações atuais com fontes."
+ },
+ "tourChatsTitle": {
+  "message": "Suas conversas"
+ },
+ "tourChatsBody": {
+  "message": "A conversa continua de uma página para outra. Comece uma nova com + e abra, renomeie ou apague as anteriores na lista de conversas."
+ },
+ "tourChatsBodySync": {
+  "message": "A conversa continua de uma página para outra e, pelo iCloud, no seu iPhone, iPad e Mac. Comece uma nova com + e abra, renomeie ou apague as anteriores na lista de conversas."
+ },
+ "tourSettingsTitle": {
+  "message": "Do seu jeito"
+ },
+ "tourSettingsBody": {
+  "message": "Tema e tamanho do texto, o botão ✦, algumas palavras sobre você para respostas melhores, sua chave de API e seu plano. Estas dicas também ficam aqui."
  },
  "welcomeTitle": {
   "message": "O ContextFlow está pronto"

@@ -1,5 +1,7 @@
 Novidades do ContextFlow 2.3:
-• Conversas: mantenha várias conversas ao mesmo tempo. Comece uma nova quando quiser, encontre as anteriores na lista e continue qualquer uma em qualquer página.
+• Conversas: mantenha várias conversas ao mesmo tempo. Comece uma nova quando quiser, encontre as anteriores na lista e continue qualquer uma em qualquer página. Renomeie uma conversa para achá-la com facilidade.
 • Continue de onde parou: as conversas são sincronizadas entre iPhone, iPad e Mac pelo seu iCloud com criptografia de ponta a ponta e nunca passam pelos nossos servidores. Você pode desativar isso nos Ajustes.
 • Seu contador de respostas Pro fica atualizado em todos os dispositivos
+• Um tour rápido pelas principais funções na primeira vez que você abre o ContextFlow, e uma seção de Dicas no app para consultar quando quiser
+• Ao compartilhar uma conversa, os links e as fontes são mantidos, com um link para o ContextFlow
 • Correções e melhorias

@@ -5696,6 +5696,1990 @@
           }
         }
       }
+    },
+    "Tips": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tipps"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consejos"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Astuces"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suggerimenti"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ヒント"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "팁"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dicas"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Советы"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поради"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "技巧"
+          }
+        }
+      }
+    },
+    "More tips": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weitere Tipps"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Más consejos"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plus d’astuces"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Altri suggerimenti"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "その他のヒント"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "팁 더 보기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mais dicas"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Больше советов"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Більше порад"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更多技巧"
+          }
+        }
+      }
+    },
+    "Quick answers to “how do I…?”": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schnelle Antworten auf „Wie mache ich …?“"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Respuestas rápidas a «¿cómo hago…?»"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Des réponses rapides à « comment faire… ? »"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Risposte rapide a «come faccio a…?»"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「どうやるの？」にすぐ答えます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‘어떻게 하지?’에 대한 빠른 답"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Respostas rápidas para “como faço…?”"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Короткие ответы на вопрос «а как…?»"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Короткі відповіді на питання «а як…?»"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "快速解答“该怎么…？”"
+          }
+        }
+      }
+    },
+    "Get answers": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Antworten bekommen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obtén respuestas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obtenir des réponses"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ottieni risposte"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "答えを得る"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "답 얻기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obtenha respostas"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ответы"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відповіді"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "获取答案"
+          }
+        }
+      }
+    },
+    "Chats": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chats"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chats"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discussions"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chat"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "チャット"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "채팅"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conversas"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Чаты"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Чати"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "对话"
+          }
+        }
+      }
+    },
+    "Settings & privacy": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einstellungen & Datenschutz"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configuración y privacidad"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages et confidentialité"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impostazioni e privacy"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定とプライバシー"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설정 및 개인정보"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajustes e privacidade"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Настройки и приватность"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Налаштування й приватність"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置与隐私"
+          }
+        }
+      }
+    },
+    "Open it on any page": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auf jeder Seite öffnen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ábrelo en cualquier página"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrez-le sur n’importe quelle page"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aprilo su qualsiasi pagina"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "どのページでも開ける"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "어느 페이지에서나 열기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abra em qualquer página"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Открывается на любой странице"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відкривається на будь-якій сторінці"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在任意页面打开"
+          }
+        }
+      }
+    },
+    "Tap ✦ on the page, or open the page menu in the address bar and choose ContextFlow.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tippe auf der Seite auf ✦ – oder öffne in der Adressleiste das Seitenmenü und wähle „ContextFlow“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toca ✦ en la página, o abre el menú de la página en la barra de direcciones y elige ContextFlow."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touchez ✦ sur la page, ou ouvrez le menu de la page dans la barre d’adresse et choisissez ContextFlow."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tocca ✦ sulla pagina, oppure apri il menu della pagina nella barra degli indirizzi e scegli ContextFlow."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ページ上の✦をタップするか、アドレスバーのページメニューを開いて「ContextFlow」を選択します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페이지에서 ✦를 탭하거나, 주소 막대의 페이지 메뉴를 열고 ContextFlow를 선택하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toque em ✦ na página, ou abra o menu da página na barra de endereço e escolha ContextFlow."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Коснитесь ✦ на странице — или откройте меню страницы в адресной строке и выберите ContextFlow."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Торкніться ✦ на сторінці — або відкрийте меню сторінки в адресному рядку й виберіть ContextFlow."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "轻点页面上的 ✦，或打开地址栏中的页面菜单并选择“ContextFlow”。"
+          }
+        }
+      }
+    },
+    "Click ✦ on the page or the ContextFlow icon in the toolbar, or press Control-Shift-E.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klicke auf der Seite auf ✦ oder in der Symbolleiste auf das ContextFlow-Symbol – oder drücke Control-Shift-E."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haz clic en ✦ en la página o en el icono de ContextFlow de la barra de herramientas, o pulsa Control-Shift-E."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cliquez sur ✦ dans la page ou sur l’icône ContextFlow dans la barre d’outils, ou appuyez sur Control-Shift-E."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fai clic su ✦ nella pagina o sull’icona di ContextFlow nella barra degli strumenti, oppure premi Control-Shift-E."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ページ上の✦かツールバーのContextFlowアイコンをクリックするか、Control-Shift-Eを押します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페이지의 ✦나 도구 막대의 ContextFlow 아이콘을 클릭하거나 Control-Shift-E를 누르세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clique em ✦ na página ou no ícone do ContextFlow na barra de ferramentas, ou pressione Control-Shift-E."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нажмите ✦ на странице или значок ContextFlow на панели инструментов — или сочетание клавиш Control-Shift-E."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Натисніть ✦ на сторінці або іконку ContextFlow на панелі інструментів — чи клавіші Control-Shift-E."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点按页面上的 ✦ 或工具栏中的 ContextFlow 图标，或按下 Control-Shift-E。"
+          }
+        }
+      }
+    },
+    "One tap for the gist": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Wesentliche mit einem Tipp"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lo esencial en un toque"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’essentiel en un geste"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’essenziale con un tocco"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ワンタップで要点"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "한 번에 핵심만"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O essencial em um toque"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Суть в одно касание"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Суть одним дотиком"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一键抓住要点"
+          }
+        }
+      }
+    },
+    "Summarize, Key takeaways, Explain simply and Translate work on the whole page — no need to write a prompt.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Zusammenfassen“, „Das Wichtigste“, „Einfach erklären“ und „Übersetzen“ arbeiten mit der ganzen Seite – ganz ohne Prompt."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“Resumir”, “Ideas clave”, “Explicar sencillo” y “Traducir” trabajan con toda la página: no hace falta escribir nada."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« Résumer », « Points clés », « En termes simples » et « Traduire » portent sur toute la page — inutile d’écrire une consigne."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“Riassumi”, “Punti chiave”, “In parole semplici” e “Traduci” lavorano su tutta la pagina: non serve scrivere un prompt."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「要約」「重要ポイント」「やさしく解説」「翻訳」はページ全体が対象。プロンプトを書く必要はありません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "요약, 핵심 정리, 쉽게 설명, 번역은 페이지 전체를 대상으로 합니다. 프롬프트를 쓸 필요가 없어요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“Resumir”, “Pontos-chave”, “Explicação simples” e “Traduzir” funcionam na página inteira — sem precisar escrever um prompt."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«Кратко», «Главное», «Объясни просто» и «Перевести» работают со всей страницей — писать запрос не нужно."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«Підсумувати», «Ключові тези», «Пояснити просто» і «Перекласти» працюють з усією сторінкою — писати запит не потрібно."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“总结”“关键要点”“通俗解释”和“翻译”针对整个页面，无需自己写提示词。"
+          }
+        }
+      }
+    },
+    "Ask about a part": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nach einem Teil fragen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pregunta por una parte"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questionner un passage"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chiedi di una parte"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一部分について質問"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "일부분만 질문하기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pergunte sobre um trecho"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вопрос о фрагменте"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Питання про фрагмент"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "只问一部分"
+          }
+        }
+      }
+    },
+    "Select text on the page and choose Ask AI: the answer is about just that part. It can also explain, translate or rewrite it.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Markiere Text auf der Seite und wähle „KI fragen“: Die Antwort bezieht sich nur auf diesen Teil. Er lässt sich auch erklären, übersetzen oder umschreiben."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selecciona texto en la página y elige “Preguntar a la IA”: la respuesta trata solo de esa parte. También puedes explicarla, traducirla o reescribirla."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sélectionnez du texte sur la page et choisissez « Demander à l’IA » : la réponse ne porte que sur ce passage. Vous pouvez aussi le faire expliquer, traduire ou réécrire."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seleziona del testo nella pagina e scegli “Chiedi all’IA”: la risposta riguarda solo quella parte. Puoi anche farla spiegare, tradurre o riscrivere."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ページのテキストを選択して「AIに質問」を選ぶと、その部分についてだけ答えます。解説・翻訳・書き直しもできます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페이지에서 텍스트를 선택하고 ‘AI에게 묻기’를 고르면 그 부분에 대해서만 답합니다. 설명, 번역, 다시 쓰기도 할 수 있어요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selecione um texto na página e escolha “Perguntar à IA”: a resposta é só sobre esse trecho. Também dá para explicá-lo, traduzi-lo ou reescrevê-lo."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выделите текст на странице и выберите «Спросить ИИ» — ответ будет только об этом фрагменте. Его можно также объяснить, перевести или переписать."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Виділіть текст на сторінці й виберіть «Запитати ШІ» — відповідь буде лише про цей фрагмент. Його також можна пояснити, перекласти чи переписати."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在页面上选中文字并选择“问 AI”，回答就只针对这部分。还可以让它解释、翻译或改写。"
+          }
+        }
+      }
+    },
+    "Fresh facts from Google": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktuelle Fakten von Google"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Datos actuales de Google"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Des infos à jour avec Google"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notizie fresche da Google"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Googleで最新情報"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Google의 최신 정보"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fatos atualizados do Google"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Свежие факты из Google"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Свіжі факти з Google"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "来自 Google 的最新信息"
+          }
+        }
+      }
+    },
+    "Turn on Google next to the question field to answer with Google Search: news, prices and anything recent, with sources.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schalte neben dem Fragefeld „Google“ ein, um mit der Google-Suche zu antworten: Nachrichten, Preise und alles Aktuelle – mit Quellen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activa Google junto al campo de pregunta para responder con la Búsqueda de Google: noticias, precios y todo lo reciente, con fuentes."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activez Google à côté du champ de question pour répondre avec la Recherche Google : actualités, prix et tout ce qui est récent, avec les sources."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attiva Google accanto al campo della domanda per rispondere con la Ricerca Google: notizie, prezzi e tutto ciò che è recente, con le fonti."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "質問欄の横の「Google」をオンにすると、Google検索をもとに答えます。ニュースや価格など最新の情報を出典付きで。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "질문 입력란 옆의 Google을 켜면 Google 검색으로 답합니다. 뉴스, 가격 등 최신 정보를 출처와 함께 알려 드려요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ative o Google ao lado do campo de pergunta para responder com a Pesquisa Google: notícias, preços e tudo o que é recente, com fontes."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Включите Google рядом с полем вопроса, чтобы ответ строился на Поиске Google: новости, цены и всё свежее — со ссылками на источники."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Увімкніть Google біля поля запитання, щоб відповідь спиралася на Пошук Google: новини, ціни й усе свіже — з джерелами."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开提问框旁的 Google，即可借助 Google 搜索回答：新闻、价格等最新信息，并附上来源。"
+          }
+        }
+      }
+    },
+    "A chat follows you": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Chat geht mit"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El chat te acompaña"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La discussion vous suit"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La chat ti segue"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "チャットはついてくる"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "채팅이 따라옵니다"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A conversa vai com você"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Чат идёт за вами"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Чат іде за вами"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "对话随你而行"
+          }
+        }
+      }
+    },
+    "Keep asking as you move from page to page. ContextFlow remembers the conversation and which page each question was about.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Frag einfach weiter, während du von Seite zu Seite gehst. ContextFlow merkt sich das Gespräch und zu welcher Seite jede Frage gehörte."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sigue preguntando mientras pasas de una página a otra. ContextFlow recuerda la conversación y de qué página trataba cada pregunta."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuez à poser des questions en passant d’une page à l’autre. ContextFlow se souvient de la discussion et de la page concernée par chaque question."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continua a chiedere mentre passi da una pagina all’altra. ContextFlow ricorda la conversazione e a quale pagina si riferiva ogni domanda."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ページを移りながら質問を続けられます。ContextFlowは会話の内容と、各質問がどのページについてだったかを覚えています。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페이지를 옮겨 다니며 계속 질문하세요. ContextFlow는 대화와 각 질문이 어느 페이지에 관한 것이었는지 기억합니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue perguntando enquanto passa de uma página para outra. O ContextFlow lembra a conversa e de qual página era cada pergunta."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Спрашивайте дальше, переходя со страницы на страницу. ContextFlow помнит разговор и то, к какой странице относился каждый вопрос."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Запитуйте далі, переходячи зі сторінки на сторінку. ContextFlow пам’ятає розмову і те, до якої сторінки стосувалося кожне запитання."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在页面间切换时可以继续提问。ContextFlow 会记住对话内容，以及每个问题对应的页面。"
+          }
+        }
+      }
+    },
+    "Start fresh or go back": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neu anfangen oder zurückkehren"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empieza de cero o vuelve atrás"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repartir de zéro ou revenir"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ricomincia o torna indietro"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新しく始める・前に戻る"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "새로 시작하거나 돌아가기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comece do zero ou volte"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Новый чат или прежний"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Новий чат або попередній"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开始新对话或回到旧对话"
+          }
+        }
+      }
+    },
+    "Start a new chat with +. Earlier chats wait in the chat list: open one to pick up where you left off, rename it with the pencil, or delete it.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit + startest du einen neuen Chat. Frühere warten in der Chatliste: Öffne einen, um weiterzumachen, benenne ihn mit dem Stift um oder lösche ihn."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empieza un chat nuevo con +. Los anteriores esperan en la lista de chats: abre uno para seguir donde lo dejaste, renómbralo con el lápiz o elimínalo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Commencez une nouvelle discussion avec +. Les précédentes vous attendent dans la liste : ouvrez-en une pour reprendre où vous en étiez, renommez-la avec le crayon ou supprimez-la."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inizia una nuova chat con +. Le precedenti ti aspettano nell’elenco: aprine una per riprendere da dove eri rimasto, rinominala con la matita o eliminala."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "＋で新しいチャットを始めます。以前のチャットは一覧に残っていて、開けば続きから再開でき、鉛筆アイコンで名前を変えたり、削除したりできます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+로 새 채팅을 시작하세요. 이전 채팅은 채팅 목록에 남아 있어 열면 이어서 할 수 있고, 연필로 이름을 바꾸거나 삭제할 수 있습니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comece uma nova conversa com +. As anteriores ficam na lista de conversas: abra uma para continuar de onde parou, renomeie com o lápis ou apague."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Новый чат начинается кнопкой +. Прежние ждут в списке чатов: откройте, чтобы продолжить с того же места, переименуйте карандашом или удалите."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Новий чат починається кнопкою +. Попередні чекають у списку чатів: відкрийте, щоб продовжити з того ж місця, перейменуйте олівцем або видаліть."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点 + 开始新对话。以前的对话保存在对话列表中：打开即可接着聊，用铅笔图标重命名，或将其删除。"
+          }
+        }
+      }
+    },
+    "On all your devices": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auf all deinen Geräten"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En todos tus dispositivos"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sur tous vos appareils"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Su tutti i tuoi dispositivi"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "すべてのデバイスで"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "모든 기기에서"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Em todos os seus dispositivos"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "На всех ваших устройствах"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "На всіх ваших пристроях"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在你的所有设备上"
+          }
+        }
+      }
+    },
+    "With “Sync chats with iCloud” on, a chat started on your iPhone continues on your iPad and Mac. It's end-to-end encrypted in your iCloud.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ist „Chats über iCloud synchronisieren“ an, geht ein Chat vom iPhone auf iPad und Mac weiter. Er ist in deiner iCloud Ende-zu-Ende-verschlüsselt."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Con “Sincronizar chats con iCloud” activado, un chat que empiezas en el iPhone continúa en el iPad y el Mac. Está cifrado de extremo a extremo en tu iCloud."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avec « Synchroniser les discussions avec iCloud », une discussion commencée sur l’iPhone se poursuit sur l’iPad et le Mac. Elle est chiffrée de bout en bout dans votre iCloud."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Con “Sincronizza le chat con iCloud” attivo, una chat iniziata su iPhone continua su iPad e Mac. È cifrata end-to-end nel tuo iCloud."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「iCloudでチャットを同期」をオンにすると、iPhoneで始めたチャットをiPadやMacで続けられます。チャットはiCloud上でエンドツーエンド暗号化されます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‘iCloud로 채팅 동기화’를 켜면 iPhone에서 시작한 채팅을 iPad와 Mac에서 이어 갈 수 있습니다. 채팅은 iCloud에서 종단 간 암호화됩니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Com “Sincronizar conversas com o iCloud” ativado, uma conversa iniciada no iPhone continua no iPad e no Mac. Ela fica criptografada de ponta a ponta no seu iCloud."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Если включено «Синхронизировать чаты через iCloud», чат, начатый на iPhone, продолжится на iPad и Mac. В вашем iCloud он защищён сквозным шифрованием."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Якщо ввімкнено «Синхронізувати чати через iCloud», чат, розпочатий на iPhone, продовжиться на iPad і Mac. У вашому iCloud він захищений наскрізним шифруванням."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开启“通过 iCloud 同步对话”后，在 iPhone 上开始的对话可以在 iPad 和 Mac 上继续。对话在你的 iCloud 中端到端加密。"
+          }
+        }
+      }
+    },
+    "Share what you found": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teile, was du gefunden hast"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comparte lo que encontraste"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Partagez ce que vous avez trouvé"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Condividi ciò che hai trovato"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "見つけたことを共有"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "찾은 내용 공유하기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compartilhe o que encontrou"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поделитесь находкой"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поділіться знахідкою"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分享你的发现"
+          }
+        }
+      }
+    },
+    "Share one answer or the whole chat: the text comes with its links, its sources and a link to ContextFlow.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teile eine Antwort oder den ganzen Chat: Der Text kommt mit seinen Links, Quellen und einem Link zu ContextFlow."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comparte una respuesta o todo el chat: el texto va con sus enlaces, sus fuentes y un enlace a ContextFlow."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Partagez une réponse ou toute la discussion : le texte est accompagné de ses liens, de ses sources et d’un lien vers ContextFlow."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Condividi una risposta o l’intera chat: il testo include i suoi link, le fonti e un link a ContextFlow."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1つの回答またはチャット全体を共有できます。テキストにはリンク、出典、ContextFlowへのリンクが付きます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "답변 하나나 채팅 전체를 공유하세요. 텍스트에 링크와 출처, ContextFlow 링크가 함께 담깁니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compartilhe uma resposta ou a conversa inteira: o texto vai com seus links, suas fontes e um link para o ContextFlow."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поделитесь ответом или всем чатом: текст уйдёт со ссылками, источниками и ссылкой на ContextFlow."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поділіться відповіддю або всім чатом: текст піде з посиланнями, джерелами й посиланням на ContextFlow."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可以分享单个回答或整个对话：文字会附带其中的链接、来源以及 ContextFlow 的链接。"
+          }
+        }
+      }
+    },
+    "Tell it about you": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erzähl etwas über dich"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuéntale sobre ti"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parlez-lui de vous"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Raccontagli di te"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自分のことを伝える"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "나에 대해 알려 주기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conte sobre você"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Расскажите о себе"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Розкажіть про себе"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "介绍一下你自己"
+          }
+        }
+      }
+    },
+    "Add a line under About me — what you do, how you like answers — and ContextFlow will tailor them to you.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schreib unter „Über mich“ eine Zeile – was du machst, wie du Antworten magst – und ContextFlow passt sie an dich an."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añade una línea en “Sobre mí” —a qué te dedicas, cómo te gustan las respuestas— y ContextFlow las adaptará a ti."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajoutez une ligne dans « À propos de moi » — votre métier, le style de réponse que vous aimez — et ContextFlow s’adaptera à vous."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiungi una riga in “Su di me” — che lavoro fai, come preferisci le risposte — e ContextFlow le adatterà a te."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「自己紹介」に、仕事や好みの回答スタイルなどを一行書いておくと、ContextFlowがあなたに合わせて答えます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‘내 소개’에 하는 일이나 원하는 답변 스타일을 한 줄 적어 두면 ContextFlow가 거기에 맞춰 답합니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escreva uma linha em “Sobre mim” — o que você faz, como gosta das respostas — e o ContextFlow vai adaptá-las a você."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Напишите строчку в «Обо мне» — чем занимаетесь, какие ответы любите, — и ContextFlow подстроит их под вас."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Напишіть рядок у «Про мене» — чим займаєтеся, які відповіді любите, — і ContextFlow підлаштує їх під вас."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在“关于我”中写一句话，比如你的职业、喜欢的回答风格，ContextFlow 就会据此调整回答。"
+          }
+        }
+      }
+    },
+    "Use your own API key": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eigenen API-Schlüssel nutzen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usa tu propia clave de API"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Utilisez votre clé d’API"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usa la tua chiave API"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自分のAPIキーを使う"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "내 API 키 사용하기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use sua própria chave de API"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Свой ключ API"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Власний ключ API"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用自己的 API 密钥"
+          }
+        }
+      }
+    },
+    "With Pro or the Own key plan, paste an OpenAI or Claude key in the extension settings in Safari. Requests then go straight to that provider.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit Pro oder dem Tarif „Eigener Schlüssel“ fügst du in den Erweiterungseinstellungen in Safari einen OpenAI- oder Claude-Schlüssel ein. Anfragen gehen dann direkt an diesen Anbieter."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Con Pro o el plan Clave propia, pega una clave de OpenAI o Claude en los ajustes de la extensión en Safari. Las solicitudes irán directamente a ese proveedor."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avec Pro ou la formule Clé personnelle, collez une clé OpenAI ou Claude dans les réglages de l’extension dans Safari. Les requêtes vont alors directement chez ce fournisseur."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Con Pro o il piano Chiave propria, incolla una chiave OpenAI o Claude nelle impostazioni dell’estensione in Safari. Le richieste andranno direttamente a quel fornitore."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Proまたは「自分のキー」プランなら、Safariの拡張機能の設定にOpenAIまたはClaudeのキーを貼り付けられます。リクエストはそのプロバイダに直接送られます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro 또는 ‘내 키’ 요금제에서는 Safari의 확장 프로그램 설정에 OpenAI 또는 Claude 키를 붙여 넣을 수 있습니다. 요청은 해당 제공업체로 바로 전송됩니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Com o Pro ou o plano Chave própria, cole uma chave da OpenAI ou do Claude nos ajustes da extensão no Safari. As solicitações vão direto para esse provedor."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "С Pro или тарифом «Свой ключ» вставьте ключ OpenAI или Claude в настройках расширения в Safari. Запросы пойдут напрямую этому провайдеру."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "З Pro або тарифом «Власний ключ» вставте ключ OpenAI чи Claude в налаштуваннях розширення в Safari. Запити підуть напряму цьому провайдеру."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用 Pro 或“自有密钥”方案时，可在 Safari 的扩展设置中粘贴 OpenAI 或 Claude 密钥，请求会直接发送给该服务商。"
+          }
+        }
+      }
+    },
+    "The ✦ button, your way": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die ✦-Taste nach deinem Geschmack"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El botón ✦, a tu manera"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le bouton ✦, à votre façon"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il pulsante ✦, come vuoi tu"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ボタンを好みに"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ 버튼을 원하는 대로"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O botão ✦ do seu jeito"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Кнопка ✦ — как вам удобно"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Кнопка ✦ — як вам зручно"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按你的习惯使用 ✦ 按钮"
+          }
+        }
+      }
+    },
+    "Hide the button on a single site, or turn it off everywhere in the extension settings. ContextFlow still opens from Safari's extensions menu.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blende die Taste auf einer einzelnen Website aus oder schalte sie in den Erweiterungseinstellungen überall ab. ContextFlow öffnet sich weiterhin über das Erweiterungsmenü von Safari."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oculta el botón en un sitio concreto o desactívalo en todas partes en los ajustes de la extensión. ContextFlow seguirá abriéndose desde el menú de extensiones de Safari."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masquez le bouton sur un site précis ou désactivez-le partout dans les réglages de l’extension. ContextFlow s’ouvre toujours depuis le menu des extensions de Safari."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nascondi il pulsante su un singolo sito o disattivalo ovunque nelle impostazioni dell’estensione. ContextFlow si apre comunque dal menu delle estensioni di Safari."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "特定のサイトだけでボタンを隠したり、拡張機能の設定ですべてのサイトでオフにしたりできます。その場合もSafariの拡張機能メニューから開けます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "특정 사이트에서만 버튼을 숨기거나, 확장 프로그램 설정에서 모든 곳에서 끌 수 있습니다. 그래도 Safari의 확장 프로그램 메뉴에서 ContextFlow를 열 수 있어요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oculte o botão em um site específico ou desative-o em todos nos ajustes da extensão. O ContextFlow continua abrindo pelo menu de extensões do Safari."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Скройте кнопку на отдельном сайте или выключите её везде в настройках расширения. ContextFlow по-прежнему открывается из меню расширений Safari."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сховайте кнопку на окремому сайті або вимкніть її скрізь у налаштуваннях розширення. ContextFlow і далі відкривається з меню розширень Safari."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可以只在某个网站隐藏按钮，或在扩展设置中全部关闭。之后仍可从 Safari 的扩展菜单打开 ContextFlow。"
+          }
+        }
+      }
+    },
+    "Private by design": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privat von Anfang an"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacidad desde el diseño"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confidentiel par nature"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy fin dall’inizio"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プライバシーを第一に"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "처음부터 프라이버시 중심"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacidade desde o início"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Приватность по умолчанию"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Приватність за замовчуванням"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "隐私优先"
+          }
+        }
+      }
+    },
+    "ContextFlow reads a page only when you ask, and sends just its text to get the answer. Your chats stay on your devices and in your iCloud.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow liest eine Seite nur, wenn du fragst, und sendet nur ihren Text, um die Antwort zu bekommen. Deine Chats bleiben auf deinen Geräten und in deiner iCloud."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow lee una página solo cuando preguntas y envía únicamente su texto para obtener la respuesta. Tus chats se quedan en tus dispositivos y en tu iCloud."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow ne lit une page que lorsque vous posez une question, et n’envoie que son texte pour obtenir la réponse. Vos discussions restent sur vos appareils et dans votre iCloud."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow legge una pagina solo quando chiedi e invia solo il suo testo per ottenere la risposta. Le tue chat restano sui tuoi dispositivi e nel tuo iCloud."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlowがページを読むのは質問したときだけで、回答のために送るのはそのテキストのみです。チャットはあなたのデバイスとiCloudに保存されます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow는 질문할 때만 페이지를 읽고, 답변을 위해 그 텍스트만 보냅니다. 채팅은 내 기기와 iCloud에만 남습니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O ContextFlow lê uma página só quando você pergunta e envia apenas o texto dela para obter a resposta. Suas conversas ficam nos seus dispositivos e no seu iCloud."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow читает страницу, только когда вы спрашиваете, и отправляет лишь её текст, чтобы получить ответ. Ваши чаты остаются на ваших устройствах и в вашем iCloud."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow читає сторінку, лише коли ви запитуєте, і надсилає тільки її текст, щоб отримати відповідь. Ваші чати залишаються на ваших пристроях і у вашому iCloud."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow 只在你提问时读取页面，并且只发送页面文字来获取回答。你的对话保存在你的设备和 iCloud 中。"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

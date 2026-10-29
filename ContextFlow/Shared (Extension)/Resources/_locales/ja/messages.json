@@ -137,6 +137,15 @@
  "deleteChat": {
   "message": "チャットを削除"
  },
+ "renameChat": {
+  "message": "チャット名を変更"
+ },
+ "chatName": {
+  "message": "チャット名"
+ },
+ "chatNameHint": {
+  "message": "空欄にすると、最初の質問がチャット名になります。"
+ },
  "settings": {
   "message": "設定"
  },
@@ -472,6 +481,62 @@
  },
  "sources": {
   "message": "出典"
+ },
+ "tourStep": {
+  "message": "$P0$/$P1$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "tourSkip": {
+  "message": "スキップ"
+ },
+ "tourNext": {
+  "message": "次へ"
+ },
+ "tourDone": {
+  "message": "OK"
+ },
+ "tourShow": {
+  "message": "ヒントを表示"
+ },
+ "tourAskTitle": {
+  "message": "このページについて質問"
+ },
+ "tourAskBody": {
+  "message": "ContextFlowは開いているページを読み取ります。「要約」などのアクションを選ぶか、質問を入力してください。"
+ },
+ "tourSelectTitle": {
+  "message": "一部分だけ？"
+ },
+ "tourSelectBody": {
+  "message": "先にページのテキストを選択すると、その部分についてだけ答えます。このラベルはContextFlowが読んでいる内容を示します。"
+ },
+ "tourGoogleTitle": {
+  "message": "Googleで最新情報"
+ },
+ "tourGoogleBody": {
+  "message": "オンにすると、Google検索をもとに最新情報を出典付きで答えます。"
+ },
+ "tourChatsTitle": {
+  "message": "チャット"
+ },
+ "tourChatsBody": {
+  "message": "チャットはページを移っても続きます。＋で新しいチャットを始め、以前のチャットは一覧から開く・名前を変える・削除することができます。"
+ },
+ "tourChatsBodySync": {
+  "message": "チャットはページを移っても続き、iCloudでiPhone・iPad・Macでも続けられます。＋で新しいチャットを始め、以前のチャットは一覧から開く・名前を変える・削除することができます。"
+ },
+ "tourSettingsTitle": {
+  "message": "自分好みに"
+ },
+ "tourSettingsBody": {
+  "message": "テーマと文字サイズ、✦ボタン、より良い回答のための自己紹介、自分のAPIキー、プラン。このヒントもここからもう一度見られます。"
  },
  "welcomeTitle": {
   "message": "ContextFlowの準備ができました"

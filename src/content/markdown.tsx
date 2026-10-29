@@ -162,17 +162,3 @@ export function Markdown({ text, onCopyCode }: { text: string; onCopyCode?: (cod
 
   return <div class="md">{blocks}</div>
 }
-
-/** Plain text for copy/share: strip Markdown syntax but keep structure. */
-export function toPlainText(text: string): string {
-  return stripCitations(text)
-    .replace(/```[a-z]*\n?/gi, "")
-    .replace(/^#{1,6}\s+/gm, "")
-    .replace(/\*\*([^*]+)\*\*/g, "$1")
-    .replace(/__([^_]+)__/g, "$1")
-    .replace(/(^|\W)\*([^*\n]+)\*/g, "$1$2")
-    .replace(/`([^`]+)`/g, "$1")
-    .replace(/\[([^\]]+)\]\((https?:[^)]+)\)/g, "$1 ($2)")
-    .replace(/^\s*[-*+]\s+/gm, "• ")
-    .trim()
-}

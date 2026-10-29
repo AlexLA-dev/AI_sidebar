@@ -4,12 +4,16 @@ import { test } from "node:test"
 import type { Entry } from "../src/shared/conversation.ts"
 import {
   applyRemote,
+  cleanTitle,
   liveThreads,
   markSent,
   MAX_THREADS,
   pendingChanges,
   prune,
   shownThread,
+  threadForCloud,
+  threadFromCloud,
+  threadName,
   threadSite,
   threadSnippet,
   threadTitle,
@@ -94,4 +98,41 @@ test("shownThread follows a chat continued on another device after this one last
   // A new, still empty thread picked after the other device's answer stays.
   assert.deepEqual(shownThread(threads, { id: "new", at: 300 }), { id: "new", m: [] })
   assert.equal(shownThread(threads, { id: "new", at: 150 }).id, "phone")
+})
+
+test("a renamed chat keeps its place in the list and its name travels through iCloud", () => {
+  const threads: Threads = {
+    old: { id: "old", u: 300, a: 100, m: chat("old", "old"), title: "Trip to Rome" },
+    recent: { id: "recent", u: 200, m: chat("recent", "recent") }
+  }
+  assert.deepEqual(liveThreads(threads).map((t) => t.id), ["recent", "old"])
+  assert.equal(threadName(threads.old), "Trip to Rome")
+  assert.equal(threadName(threads.recent), "recent")
+  // Renaming an old chat on another device doesn't make this one jump to it.
+  assert.equal(shownThread(threads, { id: "recent", at: 150 }).id, "recent")
+
+  const [sent] = pendingChanges({ old: threads.old }, {})
+  assert.ok(!("deleted" in sent))
+  const back = applyRemote({}, {}, [{ id: "old", updatedAt: 300, data: (sent as { data: string }).data }], [])
+  assert.deepEqual(back.threads.old, threads.old)
+  assert.equal(cleanTitle("  Trip \n to   Rome  "), "Trip to Rome")
+  assert.ok(cleanTitle("x".repeat(200)).length <= 80)
+})
+
+test("threadForCloud fits one record; threadFromCloud reads both formats and rejects the rest", () => {
+  const m: Entry[] = [
+    { role: "user", content: "x".repeat(50), page },
+    { role: "assistant", content: "y".repeat(50) },
+    { role: "user", content: "Short", mode: "google" },
+    { role: "assistant", content: "Answer", grounding: { sources: [{ title: "S", url: "https://s.example" }], suggestions: "", queries: ["q"] } }
+  ]
+  assert.deepEqual(threadFromCloud(threadForCloud({ id: "t", u: 5, a: 5, m })), { m })
+  assert.deepEqual(threadFromCloud(threadForCloud({ id: "t", u: 5, m, title: "Name" }, 250))?.m, m.slice(2))
+  // 2.3 (56) stored just the messages.
+  assert.deepEqual(threadFromCloud(JSON.stringify(m)), { m })
+  assert.equal(threadFromCloud("not json"), null)
+  assert.equal(threadFromCloud("{}"), null)
+  assert.equal(threadFromCloud("null"), null)
+  assert.equal(threadFromCloud('{"m":[{"role":"system","content":"x"}]}'), null)
+  assert.deepEqual(threadFromCloud('{"m":[],"title":"  ","a":"x"}'), { m: [] })
 })

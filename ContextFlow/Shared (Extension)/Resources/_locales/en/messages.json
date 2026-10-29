@@ -137,6 +137,15 @@
  "deleteChat": {
   "message": "Delete chat"
  },
+ "renameChat": {
+  "message": "Rename chat"
+ },
+ "chatName": {
+  "message": "Chat name"
+ },
+ "chatNameHint": {
+  "message": "Leave it empty to name the chat after its first question."
+ },
  "settings": {
   "message": "Settings"
  },
@@ -472,6 +481,62 @@
  },
  "sources": {
   "message": "Sources"
+ },
+ "tourStep": {
+  "message": "$P0$ of $P1$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "tourSkip": {
+  "message": "Skip"
+ },
+ "tourNext": {
+  "message": "Next"
+ },
+ "tourDone": {
+  "message": "Got it"
+ },
+ "tourShow": {
+  "message": "Show tips"
+ },
+ "tourAskTitle": {
+  "message": "Ask about this page"
+ },
+ "tourAskBody": {
+  "message": "ContextFlow reads the page you're on. Pick an action like Summarize, or type your own question."
+ },
+ "tourSelectTitle": {
+  "message": "Only part of it?"
+ },
+ "tourSelectBody": {
+  "message": "Select text on the page first, and the answer is about just that. This label shows what ContextFlow reads."
+ },
+ "tourGoogleTitle": {
+  "message": "Fresh facts from Google"
+ },
+ "tourGoogleBody": {
+  "message": "Turn this on to answer with Google Search: current information with sources."
+ },
+ "tourChatsTitle": {
+  "message": "Your chats"
+ },
+ "tourChatsBody": {
+  "message": "A chat carries on from page to page. Start a new one with +, and open, rename or delete earlier ones in the chat list."
+ },
+ "tourChatsBodySync": {
+  "message": "A chat carries on from page to page, and on your iPhone, iPad and Mac through iCloud. Start a new one with +, and open, rename or delete earlier ones in the chat list."
+ },
+ "tourSettingsTitle": {
+  "message": "Make it yours"
+ },
+ "tourSettingsBody": {
+  "message": "Theme and text size, the ✦ button, a few words about you for better answers, your own API key and your plan. These tips are here too."
  },
  "welcomeTitle": {
   "message": "ContextFlow is ready"

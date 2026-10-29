@@ -1,5 +1,7 @@
 Novedades de ContextFlow 2.3:
-• Chats: ten varias conversaciones a la vez. Empieza un chat nuevo cuando quieras, encuentra los anteriores en la lista de chats y continúa cualquiera en cualquier página.
+• Chats: ten varias conversaciones a la vez. Empieza un chat nuevo cuando quieras, encuentra los anteriores en la lista de chats y continúa cualquiera en cualquier página. Cambia el nombre de un chat para encontrarlo fácilmente.
 • Sigue donde te quedaste: los chats se sincronizan entre tu iPhone, iPad y Mac a través de tu iCloud con cifrado de extremo a extremo y nunca pasan por nuestros servidores. Puedes desactivarlo en Configuración.
 • Tu contador de respuestas Pro está al día en todos tus dispositivos
+• Un breve recorrido por las funciones principales la primera vez que abres ContextFlow, y una sección de Consejos en la app para consultarla cuando quieras
+• Al compartir un chat se conservan sus enlaces y fuentes, más un enlace a ContextFlow
 • Correcciones y mejoras

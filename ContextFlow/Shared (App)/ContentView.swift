@@ -26,7 +26,7 @@ let brandGradient = LinearGradient(
 )
 let brandBlue = Color(red: 0.15, green: 0.39, blue: 0.92)
 
-// MARK: - Deep links (contextflow://subscribe, contextflow://manage, contextflow://open)
+// MARK: - Deep links (contextflow://subscribe, contextflow://manage, contextflow://tips, contextflow://open)
 
 final class DeepLinkRouter: ObservableObject {
     static let shared = DeepLinkRouter()
@@ -39,7 +39,7 @@ final class DeepLinkRouter: ObservableObject {
 }
 
 enum AppTab: Hashable {
-    case home, pro, settings
+    case home, tips, pro, settings
 }
 
 // MARK: - Root
@@ -65,7 +65,11 @@ struct ContentView: View {
         root
             .tint(brandBlue)
             .onReceive(router.$pending.compactMap { $0 }) { url in
-                tab = (url.host == "subscribe" || url.host == "manage") ? .pro : .home
+                switch url.host {
+                case "subscribe", "manage": tab = .pro
+                case "tips": tab = .tips
+                default: tab = .home
+                }
                 router.pending = nil
             }
             .task {
@@ -79,10 +83,14 @@ struct ContentView: View {
     private var root: some View {
         #if os(iOS)
         TabView(selection: $tab) {
-            NavigationView { HomeView(store: store, openPro: { tab = .pro }) }
+            NavigationView { HomeView(store: store, openPro: { tab = .pro }, openTips: { tab = .tips }) }
                 .navigationViewStyle(.stack)
                 .tabItem { Label("Get Started", systemImage: "sparkles") }
                 .tag(AppTab.home)
+            NavigationView { TipsView() }
+                .navigationViewStyle(.stack)
+                .tabItem { Label("Tips", systemImage: "lightbulb") }
+                .tag(AppTab.tips)
             NavigationView { ProView(store: store) }
                 .navigationViewStyle(.stack)
                 .tabItem { Label("Pro", systemImage: "crown") }
@@ -100,13 +108,15 @@ struct ContentView: View {
         NavigationSplitView {
             List(selection: Binding<AppTab?>(get: { tab }, set: { tab = $0 ?? .home })) {
                 Label("Get Started", systemImage: "sparkles").tag(AppTab.home)
+                Label("Tips", systemImage: "lightbulb").tag(AppTab.tips)
                 Label("Pro", systemImage: "crown").tag(AppTab.pro)
                 Label("Settings", systemImage: "gearshape").tag(AppTab.settings)
             }
             .navigationSplitViewColumnWidth(min: 170, ideal: 190)
         } detail: {
             switch tab {
-            case .home: HomeView(store: store, openPro: { tab = .pro })
+            case .home: HomeView(store: store, openPro: { tab = .pro }, openTips: { tab = .tips })
+            case .tips: TipsView()
             case .pro: ProView(store: store)
             case .settings: SettingsView()
             }
@@ -125,6 +135,7 @@ struct ContentView: View {
 struct HomeView: View {
     @ObservedObject var store: StoreKitManager
     var openPro: () -> Void
+    var openTips: () -> Void
     #if os(macOS)
     @State private var extensionEnabled: Bool?
     #endif
@@ -245,6 +256,10 @@ struct HomeView: View {
             Step(number: 3, text: "Pick Summarize, Key takeaways, Explain or Translate, or ask your own question.")
             Step(number: 4, text: "Select text on the page and click “Ask AI” to ask about just that part.")
             #endif
+            Button(action: openTips) {
+                Label("More tips", systemImage: "lightbulb")
+            }
+            .buttonStyle(.bordered)
         }
     }
 
@@ -276,6 +291,117 @@ struct HomeView: View {
     private var footer: some View {
         FooterLinks()
             .padding(.top, 4)
+    }
+}
+
+// MARK: - Tips
+
+/// What ContextFlow can do, to look up any time — in the spirit of the Tips app.
+struct TipsView: View {
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 24) {
+                Text("Quick answers to “how do I…?”")
+                    .font(.callout)
+                    .foregroundColor(.secondary)
+                ForEach(TipGroup.all.indices, id: \.self) { index in
+                    let group = TipGroup.all[index]
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text(group.title)
+                            .font(.title3.weight(.semibold))
+                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 260), spacing: 12, alignment: .top)], alignment: .leading, spacing: 12) {
+                            ForEach(group.tips.indices, id: \.self) { TipCard(tip: group.tips[$0]) }
+                        }
+                    }
+                }
+                FooterLinks()
+                    .padding(.top, 4)
+            }
+            .padding(20)
+            .frame(maxWidth: 760)
+            .frame(maxWidth: .infinity)
+        }
+        .navigationTitle("Tips")
+    }
+}
+
+struct Tip {
+    let symbol: String
+    let color: Color
+    let title: LocalizedStringKey
+    let text: LocalizedStringKey
+}
+
+struct TipGroup {
+    let title: LocalizedStringKey
+    let tips: [Tip]
+
+    private static var openTip: Tip {
+        #if os(iOS)
+        Tip(symbol: "sparkles", color: brandBlue, title: "Open it on any page",
+            text: "Tap ✦ on the page, or open the page menu in the address bar and choose ContextFlow.")
+        #else
+        Tip(symbol: "sparkles", color: brandBlue, title: "Open it on any page",
+            text: "Click ✦ on the page or the ContextFlow icon in the toolbar, or press Control-Shift-E.")
+        #endif
+    }
+
+    static let all: [TipGroup] = [
+        TipGroup(title: "Get answers", tips: [
+            openTip,
+            Tip(symbol: "list.bullet.rectangle", color: .orange, title: "One tap for the gist",
+                text: "Summarize, Key takeaways, Explain simply and Translate work on the whole page — no need to write a prompt."),
+            Tip(symbol: "text.cursor", color: .purple, title: "Ask about a part",
+                text: "Select text on the page and choose Ask AI: the answer is about just that part. It can also explain, translate or rewrite it."),
+            Tip(symbol: "magnifyingglass", color: .green, title: "Fresh facts from Google",
+                text: "Turn on Google next to the question field to answer with Google Search: news, prices and anything recent, with sources.")
+        ]),
+        TipGroup(title: "Chats", tips: [
+            Tip(symbol: "bubble.left.and.bubble.right", color: .teal, title: "A chat follows you",
+                text: "Keep asking as you move from page to page. ContextFlow remembers the conversation and which page each question was about."),
+            Tip(symbol: "square.and.pencil", color: .indigo, title: "Start fresh or go back",
+                text: "Start a new chat with +. Earlier chats wait in the chat list: open one to pick up where you left off, rename it with the pencil, or delete it."),
+            Tip(symbol: "icloud", color: .cyan, title: "On all your devices",
+                text: "With “Sync chats with iCloud” on, a chat started on your iPhone continues on your iPad and Mac. It's end-to-end encrypted in your iCloud."),
+            Tip(symbol: "square.and.arrow.up", color: .pink, title: "Share what you found",
+                text: "Share one answer or the whole chat: the text comes with its links, its sources and a link to ContextFlow.")
+        ]),
+        TipGroup(title: "Settings & privacy", tips: [
+            Tip(symbol: "person.text.rectangle", color: .mint, title: "Tell it about you",
+                text: "Add a line under About me — what you do, how you like answers — and ContextFlow will tailor them to you."),
+            Tip(symbol: "key.fill", color: .gray, title: "Use your own API key",
+                text: "With Pro or the Own key plan, paste an OpenAI or Claude key in the extension settings in Safari. Requests then go straight to that provider."),
+            Tip(symbol: "hand.tap", color: .blue, title: "The ✦ button, your way",
+                text: "Hide the button on a single site, or turn it off everywhere in the extension settings. ContextFlow still opens from Safari's extensions menu."),
+            Tip(symbol: "lock.shield", color: .brown, title: "Private by design",
+                text: "ContextFlow reads a page only when you ask, and sends just its text to get the answer. Your chats stay on your devices and in your iCloud.")
+        ])
+    ]
+}
+
+struct TipCard: View {
+    let tip: Tip
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Image(systemName: tip.symbol)
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundColor(.white)
+                .frame(width: 36, height: 36)
+                .background(RoundedRectangle(cornerRadius: 9, style: .continuous).fill(tip.color))
+                .accessibilityHidden(true)
+            Text(tip.title)
+                .font(.headline)
+            Text(tip.text)
+                .font(.callout)
+                .foregroundColor(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(maxWidth: .infinity, alignment: .topLeading)
+        .padding(16)
+        .background(Color.cardFill)
+        .cornerRadius(16)
+        .accessibilityElement(children: .combine)
     }
 }
 
@@ -502,11 +628,13 @@ struct Card<Content: View>: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
-        .background(cardBackground)
+        .background(Color.cardFill)
         .cornerRadius(16)
     }
+}
 
-    private var cardBackground: Color {
+extension Color {
+    static var cardFill: Color {
         #if os(iOS)
         Color(uiColor: .secondarySystemBackground)
         #else
