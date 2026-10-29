@@ -1,3 +1,5 @@
 Neu in ContextFlow 2.3:
-• Mach dort weiter, wo du aufgehört hast: Starte einen Chat auf dem iPhone und setze ihn auf dem iPad oder Mac fort. Der aktuelle Chat wird Ende-zu-Ende-verschlüsselt über deine iCloud synchronisiert und landet nie auf unseren Servern. In den Einstellungen kannst du das ausschalten.
+• Chats: Führe mehrere Unterhaltungen gleichzeitig. Starte jederzeit einen neuen Chat, finde frühere in der Chatliste und setze jeden davon auf jeder Seite fort.
+• Mach dort weiter, wo du aufgehört hast: Chats werden Ende-zu-Ende-verschlüsselt über deine iCloud zwischen iPhone, iPad und Mac synchronisiert und landen nie auf unseren Servern. In den Einstellungen kannst du das ausschalten.
+• Dein Pro-Antwortzähler ist auf allen Geräten aktuell
 • Fehlerbehebungen und Verbesserungen

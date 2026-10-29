@@ -15,7 +15,7 @@ import {
 } from "../shared/types"
 import { askServer, askWithOwnKey, reportOwnKeyUsage } from "./chat"
 import { callNative, type NativeEntitlement } from "./native"
-import { countValueMoment, pullConversation, syncSettings, watchConversation, watchSettings } from "./sync"
+import { countValueMoment, syncSettings, syncThreads, watchSettings, watchThreads } from "./sync"
 
 // ---------------------------------------------------------------- identity
 
@@ -69,8 +69,10 @@ function planFromProduct(productId: string | null | undefined): Plan {
 
 let statusCache: { at: number; value: StatusInfo } | null = null
 
-async function status(refresh = false): Promise<StatusInfo> {
-  if (!refresh && statusCache && Date.now() - statusCache.at < 30_000) return statusCache.value
+// refresh: also re-read the App Store subscription; fresh: skip the 30 s cache (the server counts
+// answers from all the user's devices, so the panel asks again whenever it opens).
+async function status(refresh = false, fresh = false): Promise<StatusInfo> {
+  if (!refresh && !fresh && statusCache && Date.now() - statusCache.at < 30_000) return statusCache.value
   const [id, ent, key, client] = await Promise.all([installId(), entitlement(refresh), ownKey(), clientInfo()])
   const store = ent ? { active: ent.active, productId: ent.productId, expiresAt: ent.expiresAt } : null
 
@@ -165,7 +167,7 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
       // The panel just opened: pick up settings changed in the ContextFlow app (never delays the status).
       void syncSettings().catch(() => undefined)
       ;(message.platform ? chrome.storage.local.set({ [STORAGE.platform]: message.platform }) : Promise.resolve())
-        .then(() => status(Boolean(message.refresh)))
+        .then(() => status(Boolean(message.refresh), Boolean(message.fresh)))
         .then(sendResponse, () => sendResponse(null))
       return true
     case "openApp":
@@ -185,12 +187,12 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
       if (/^https:\/\//.test(message.url)) chrome.tabs.create({ url: message.url })
       sendResponse({ ok: true })
       return false
-    case "pullConversation":
+    case "syncThreads":
       if (TARGET !== "safari") {
-        sendResponse(null)
+        sendResponse({ changed: false })
         return false
       }
-      pullConversation().then(sendResponse, () => sendResponse(null))
+      syncThreads().then((changed) => sendResponse({ changed }), () => sendResponse({ changed: false }))
       return true
     default:
       return false
@@ -252,5 +254,5 @@ chrome.runtime.onInstalled.addListener((details) => {
 
 watchSettings()
 void syncSettings().catch(() => undefined)
-// The conversation follows the user to their other Apple devices through iCloud.
-if (TARGET === "safari") watchConversation()
+// Chats follow the user to their other Apple devices through iCloud.
+if (TARGET === "safari") watchThreads()

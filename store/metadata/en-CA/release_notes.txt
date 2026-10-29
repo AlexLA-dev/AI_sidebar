@@ -1,3 +1,5 @@
 What's new in ContextFlow 2.3:
-• Pick up where you left off: start a chat on your iPhone and continue it on your iPad or Mac. The current chat syncs through your iCloud, end-to-end encrypted, and never touches our servers. You can turn this off in Settings.
+• Chats: keep several conversations at once. Start a new chat any time, find your earlier ones in the chat list and continue any of them on any page.
+• Pick up where you left off: chats sync across your iPhone, iPad and Mac through your iCloud, end-to-end encrypted, and never touch our servers. You can turn this off in Settings.
+• Your Pro answer count stays up to date across devices
 • Fixes and improvements

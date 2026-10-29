@@ -78,23 +78,28 @@ export type ErrorCode =
   | "SEARCH_UNAVAILABLE"
 
 export type BackgroundRequest =
-  | { type: "status"; refresh?: boolean; platform?: Platform }
+  | { type: "status"; refresh?: boolean; fresh?: boolean; platform?: Platform }
   | { type: "openApp"; target: "subscribe" | "manage" | "home" }
   | { type: "inject" }
   | { type: "setOwnKey"; key: string }
   | { type: "openUrl"; url: string }
-  // The panel opened: newer conversation from iCloud (Safari), or null.
-  | { type: "pullConversation" }
+  // The panel opened: sync threads with iCloud (Safari); answers { changed }.
+  | { type: "syncThreads" }
 
 export type ContentRequest = { type: "toggle" } | { type: "open"; selection?: boolean }
 
 export const STORAGE = {
   installId: "cf:installId",
   settings: "cf:settings",
-  // Per-page chats of 2.0 / 2.1; read once to seed the running conversation.
+  // Per-page chats of 2.0 / 2.1, and the single running conversation of 2.2: read once to seed the threads.
   chats: "cf:chats",
-  // The running conversation (follows the user across pages until "New chat").
   conversation: "cf:conversation",
+  // Chats as threads (Threads by id) and the one this device shows ({ id, at }).
+  threads: "cf:threads",
+  activeThread: "cf:activeThread",
+  // iCloud sync: CloudKit change token, and the time of each thread's copy in iCloud.
+  syncToken: "cf:syncToken",
+  syncedThreads: "cf:syncedThreads",
   // When the settings last changed here (ms), to merge with the app's copy.
   settingsUpdatedAt: "cf:settingsUpdatedAt",
   // Successful answers so far; the app asks for an App Store rating after a few.
@@ -118,7 +123,7 @@ export interface Settings {
   aboutMe: string
   // Model class used with the user's own key: newest Haiku / GPT mini or newest Sonnet / GPT.
   ownKeyModel: "fast" | "smart"
-  // Keep the running conversation in the user's iCloud to continue it on their other devices (Safari).
+  // Keep the chats in the user's iCloud to continue them on their other devices (Safari).
   syncChats: boolean
 }
 

@@ -1,3 +1,5 @@
 Nouveautés de ContextFlow 2.3 :
-• Reprenez là où vous vous êtes arrêté : commencez une discussion sur l’iPhone et poursuivez-la sur l’iPad ou le Mac. La discussion en cours se synchronise via votre iCloud, chiffrée de bout en bout, sans jamais passer par nos serveurs. Vous pouvez désactiver cette option dans les réglages.
+• Discussions : menez plusieurs conversations à la fois. Lancez une nouvelle discussion à tout moment, retrouvez les précédentes dans la liste et reprenez n’importe laquelle sur n’importe quelle page.
+• Reprenez là où vous vous êtes arrêté : les discussions se synchronisent entre iPhone, iPad et Mac via votre iCloud, chiffrées de bout en bout, sans jamais passer par nos serveurs. Vous pouvez désactiver cette option dans les réglages.
+• Votre compteur de réponses Pro est à jour sur tous vos appareils
 • Corrections et améliorations

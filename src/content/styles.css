@@ -364,6 +364,22 @@
 
 /* --------------------------------------------------------- settings */
 .cf-settings { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 12px 14px 18px; }
+.cf-chats-button { position: relative; }
+.cf-badge {
+  position: absolute; top: 3px; right: 2px; min-width: 15px; height: 15px; padding: 0 4px; border-radius: 8px;
+  background: var(--accent); color: #fff; font-size: 10px; font-weight: 650; line-height: 15px; text-align: center;
+}
+.cf-threads { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 8px 10px 18px; }
+.cf-thread { display: flex; align-items: center; gap: 4px; border-radius: 12px; }
+.cf-thread:hover { background: var(--bg-2); }
+.cf-thread.current { background: var(--accent-soft); }
+.cf-thread-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; padding: 10px 6px 10px 10px; text-align: left; }
+.cf-thread-title { font-weight: 600; font-size: 14px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cf-thread-snippet { font-size: 13px; color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cf-thread-meta { font-size: 11.5px; color: var(--text-3); }
+.cf-thread-delete { flex: none; opacity: 0.55; }
+.cf-thread:hover .cf-thread-delete, .cf[data-touch] .cf-thread-delete { opacity: 1; }
+.cf-thread-delete:hover { color: var(--danger); }
 .cf-group { padding: 12px 14px; margin-bottom: 10px; border-radius: 14px; background: var(--bg-2); }
 .cf-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 34px; }
 .cf-row + .cf-row { margin-top: 6px; }

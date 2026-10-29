@@ -31,7 +31,9 @@ import {
   type SelectionInfo
 } from "./page"
 import { SettingsView } from "./Settings"
-import { giveConsent, hasConsent, loadConversation, loadSettings, onSettingsChanged, saveConversation, saveSettings } from "./store"
+import { deleteThread, giveConsent, hasConsent, loadSettings, loadThreads, onSettingsChanged, onThreadsChanged, saveSettings, saveThread, setActiveThread } from "./store"
+import { ThreadsView } from "./Threads"
+import { liveThreads, newThreadId, shownThread, type Thread } from "../shared/threads"
 
 export type Bus = EventTarget
 
@@ -141,13 +143,16 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
   const touch = isTouch(platform)
   const [open, setOpen] = useState(false)
   const [visible, setVisible] = useState(false)
-  const [view, setView] = useState<"chat" | "settings">("chat")
+  const [view, setView] = useState<"chat" | "settings" | "threads">("chat")
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS)
   const [status, setStatus] = useState<StatusInfo | null>(null)
   const [usage, setUsage] = useState<Usage | null>(null)
   const [viaOwnKey, setViaOwnKey] = useState(false)
   const [consent, setConsent] = useState(true)
   const [messages, setMessages] = useState<Turn[]>([])
+  // Chats as threads: the list (newest first) and the one shown, which every page and tab continues.
+  const [threadList, setThreadList] = useState<Thread[]>([])
+  const threadRef = useRef("")
   const [partial, setPartial] = useState<string | null>(null)
   const [draft, setDraft] = useState("")
   const [error, setError] = useState<ChatError | null>(null)
@@ -193,7 +198,8 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
 
   // ------------------------------------------------------------ status
   const refreshStatus = useCallback(async (refresh = false) => {
-    const next = await sendBackground<StatusInfo>({ type: "status", refresh, platform })
+    // Fresh every time: answers on the user's other devices count against the same Pro allowance.
+    const next = await sendBackground<StatusInfo>({ type: "status", refresh, fresh: true, platform })
     if (next) {
       setStatus(next)
       setUsage(next.usage)
@@ -246,14 +252,27 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
         const list = listRef.current
         if (list) list.scrollTop = list.scrollHeight
       })
-      void loadConversation().then((entries) => {
+      void loadThreads().then(({ threads, active }) => {
         loadedRef.current = true
+        threadRef.current = active.id
+        const entries = threads[active.id]?.m ?? []
+        setThreadList(liveThreads(threads))
         setMessages(entries)
         scrollToEnd()
-        // Another device may have continued the conversation (iCloud): take it unless something was asked here meanwhile.
-        void sendBackground<Turn[] | null>({ type: "pullConversation" }).then((remote) => {
-          if (!remote || portRef.current) return
-          setMessages((current) => (current === entries ? remote : current))
+        // Other devices may have continued a chat (iCloud): show it unless something was asked here meanwhile.
+        void sendBackground<{ changed: boolean }>({ type: "syncThreads" }).then(async (result) => {
+          if (!result?.changed || portRef.current) return
+          const fresh = await loadThreads()
+          const next = shownThread(fresh.threads, fresh.active)
+          setThreadList(liveThreads(fresh.threads))
+          setMessages((current) => {
+            if (current !== entries) return current
+            if (next.id !== threadRef.current) {
+              threadRef.current = next.id
+              void setActiveThread(next.id)
+            }
+            return next.m
+          })
           scrollToEnd()
         })
       })
@@ -279,6 +298,19 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
     return () => clearInterval(timer)
   }, [open])
 
+  // While open: the chat list follows other tabs and devices, and the answer counter other devices.
+  useEffect(() => {
+    if (!open) return
+    const off = onThreadsChanged(() => void loadThreads().then(({ threads }) => setThreadList(liveThreads(threads))))
+    const timer = setInterval(() => {
+      if (document.visibilityState === "visible" && !portRef.current) void refreshStatus()
+    }, 30_000)
+    return () => {
+      off()
+      clearInterval(timer)
+    }
+  }, [open, refreshStatus])
+
   // Coming back from the ContextFlow app (e.g. after subscribing) → re-check the plan.
   useEffect(() => {
     const onVisible = () => {
@@ -288,10 +320,11 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
     return () => document.removeEventListener("visibilitychange", onVisible)
   }, [open, refreshStatus])
 
-  // Persist the running conversation.
+  // Persist the chat shown.
   useEffect(() => {
     if (!loadedRef.current) return
-    const timer = setTimeout(() => void saveConversation(messages), 300)
+    const id = threadRef.current
+    const timer = setTimeout(() => void saveThread(id, messages), 300)
     return () => clearTimeout(timer)
   }, [messages])
 
@@ -386,7 +419,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
       const next: Turn[] = [...history, grounding ? { role: "assistant", content: text, grounding } : { role: "assistant", content: text }]
       setMessages(next)
       // Right away, not on the debounced save: the user may go to another page as soon as the answer is in.
-      void saveConversation(next)
+      void saveThread(threadRef.current, next)
     }
     if (err) setError(err)
   }, [])
@@ -502,12 +535,42 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
   const askRef = useRef(ask)
   askRef.current = ask
 
+  /** Starts a new thread; the previous one stays in the list. */
   const newChat = useCallback(() => {
     stop()
+    const id = newThreadId()
+    threadRef.current = id
+    void setActiveThread(id)
     setMessages([])
     setError(null)
-    void saveConversation([])
+    setView("chat")
   }, [stop])
+
+  const openThread = useCallback((id: string) => {
+    stop()
+    const thread = threadList.find((x) => x.id === id)
+    threadRef.current = id
+    void setActiveThread(id)
+    setMessages(thread?.m ?? [])
+    setError(null)
+    setView("chat")
+    requestAnimationFrame(() => {
+      const list = listRef.current
+      if (list) list.scrollTop = list.scrollHeight
+    })
+  }, [stop, threadList])
+
+  const removeThread = useCallback((id: string) => {
+    void deleteThread(id)
+    setThreadList((list) => list.filter((x) => x.id !== id))
+    if (id === threadRef.current) {
+      const id2 = newThreadId()
+      threadRef.current = id2
+      void setActiveThread(id2)
+      setMessages([])
+      setError(null)
+    }
+  }, [])
 
   // ------------------------------------------------------------ sharing
   const shareFooter = (url: string) => `${t("shareSource")}: ${url}\n${t("shareMadeWith")}: ${LINKS.appStoreShare}`
@@ -651,14 +714,14 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
         >
           {layout === "sheet" && <div class="cf-grabber" onClick={hide} />}
           <header class="cf-header">
-            {view === "settings" ? (
+            {view !== "chat" ? (
               <button type="button" class="cf-icon" onClick={() => setView("chat")} aria-label={t("back")}><Icon.Back /></button>
             ) : (
               <span class="cf-logo"><Icon.Sparkle size={18} /></span>
             )}
             <div class="cf-title">
-              {view === "settings" ? (
-                <strong>{t("settings")}</strong>
+              {view !== "chat" ? (
+                <strong>{view === "settings" ? t("settings") : t("chatsTitle")}</strong>
               ) : (
                 <ContextChip
                   kind={contextKind}
@@ -676,7 +739,13 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
                 {chatCopied ? <Icon.Check /> : <Icon.Share />}
               </button>
             )}
-            {view === "chat" && messages.length > 0 && (
+            {view === "chat" && threadList.length > 0 && (
+              <button type="button" class="cf-icon cf-chats-button" onClick={() => setView("threads")} aria-label={t("allChats")} title={t("allChats")}>
+                <Icon.Chats />
+                <span class="cf-badge">{threadList.length}</span>
+              </button>
+            )}
+            {((view === "chat" && messages.length > 0) || view === "threads") && (
               <button type="button" class="cf-icon" onClick={newChat} aria-label={t("newChat")} title={t("newChat")}><Icon.Plus /></button>
             )}
             {view === "chat" && (
@@ -685,7 +754,9 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
             <button type="button" class="cf-icon" onClick={hide} aria-label={t("close")} title={t("close")}><Icon.Close /></button>
           </header>
 
-          {view === "settings" ? (
+          {view === "threads" ? (
+            <ThreadsView threads={threadList} activeId={threadRef.current} onOpen={openThread} onDelete={removeThread} onNew={newChat} />
+          ) : view === "settings" ? (
             <SettingsView
               settings={settings}
               status={status}
@@ -700,6 +771,10 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
               onChatsDeleted={() => {
                 setMessages([])
                 setError(null)
+                setThreadList([])
+                void loadThreads().then(({ active }) => {
+                  threadRef.current = active.id
+                })
               }}
             />
           ) : (

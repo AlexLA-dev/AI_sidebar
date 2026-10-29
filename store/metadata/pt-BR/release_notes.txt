@@ -1,3 +1,5 @@
 Novidades do ContextFlow 2.3:
-• Continue de onde parou: comece uma conversa no iPhone e continue no iPad ou no Mac. A conversa atual é sincronizada pelo seu iCloud com criptografia de ponta a ponta e nunca passa pelos nossos servidores. Você pode desativar isso nos Ajustes.
+• Conversas: mantenha várias conversas ao mesmo tempo. Comece uma nova quando quiser, encontre as anteriores na lista e continue qualquer uma em qualquer página.
+• Continue de onde parou: as conversas são sincronizadas entre iPhone, iPad e Mac pelo seu iCloud com criptografia de ponta a ponta e nunca passam pelos nossos servidores. Você pode desativar isso nos Ajustes.
+• Seu contador de respostas Pro fica atualizado em todos os dispositivos
 • Correções e melhorias

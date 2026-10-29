@@ -1,9 +1,9 @@
 // What the extension shares through the native bridge (SafariWebExtensionHandler.swift):
 // the settings, edited here or in the ContextFlow app (App Group); "moments of value" after
-// which the app may ask for an App Store rating; and the running conversation, kept in the
-// user's iCloud so it continues on their other devices.
+// which the app may ask for an App Store rating; and the chats (threads), kept in the user's
+// iCloud so they continue on their other devices.
 
-import { conversationForCloud, conversationFromCloud, type Entry } from "../shared/conversation"
+import { applyRemote, markSent, pendingChanges, type Threads } from "../shared/threads"
 import { DEFAULT_SETTINGS, STORAGE, type Settings } from "../shared/types"
 import { callNative } from "./native"
 
@@ -58,66 +58,80 @@ export async function countValueMoment(): Promise<void> {
   if (REVIEW_MOMENTS.has(count)) await callNative("reviewMoment", { count })
 }
 
-// ------------------------------------------------------------ conversation in iCloud
+// ------------------------------------------------------------ threads in iCloud
 
-interface StoredConversation {
-  u: number
-  m: Entry[]
-}
-
-interface CloudConversation {
+interface CloudSync {
   available: boolean
-  updatedAt?: number
-  data?: string
+  token?: string
+  changed?: { id: string; updatedAt: number; data: string }[]
+  deleted?: string[]
 }
 
-// The copy just written from iCloud: don't send it straight back.
-let pulledAt = 0
+let running: Promise<boolean> | null = null
+let again = false
 let pushTimer: ReturnType<typeof setTimeout> | undefined
+// The threads value this background last wrote: its own writes don't trigger another sync.
+let lastWritten = ""
 
 async function syncEnabled(): Promise<boolean> {
   const stored = (await chrome.storage.local.get(STORAGE.settings))[STORAGE.settings] as Partial<Settings> | undefined
   return stored?.syncChats ?? DEFAULT_SETTINGS.syncChats
 }
 
-async function localConversation(): Promise<StoredConversation | null> {
-  return ((await chrome.storage.local.get(STORAGE.conversation))[STORAGE.conversation] as StoredConversation | undefined) ?? null
-}
-
-async function pushConversation(conversation: StoredConversation): Promise<void> {
-  if (!(await syncEnabled())) return
-  await callNative("putConversation", { updatedAt: conversation.u, data: conversationForCloud(conversation.m) }, 10_000)
-}
-
 /**
- * The panel opened: takes the conversation from iCloud if another device changed it since,
- * and returns it; sends ours instead if it is the newer one (an earlier upload failed).
+ * Sends local thread changes to iCloud and takes the other devices' changes, in one native call.
+ * Returns whether any thread here changed. Calls overlapping a running sync run once after it.
  */
-export async function pullConversation(): Promise<Entry[] | null> {
-  if (!(await syncEnabled())) return null
-  const remote = await callNative<CloudConversation>("getConversation", {}, 8_000)
-  if (!remote?.available) return null // not in Safari, or no iCloud account
-  const local = await localConversation()
-  const remoteAt = remote.updatedAt ?? 0
-  if (local && local.u > remoteAt) {
-    void pushConversation(local)
-    return null
+export function syncThreads(): Promise<boolean> {
+  if (running) {
+    again = true
+    return running
   }
-  if (!remote.data || remoteAt <= (local?.u ?? 0)) return null
-  const entries = conversationFromCloud(remote.data)
-  if (!entries) return null
-  pulledAt = remoteAt
-  await chrome.storage.local.set({ [STORAGE.conversation]: { u: remoteAt, m: entries } })
-  return entries
+  running = (async () => {
+    let changed = false
+    // A few rounds at most, whatever happens.
+    for (let round = 0; round < 3; round++) {
+      again = false
+      changed = (await syncOnce()) || changed
+      if (!again) break
+    }
+    return changed
+  })().finally(() => {
+    running = null
+  })
+  return running
 }
 
-/** Sends the conversation to iCloud shortly after it changes here (a new answer, New chat, Delete all chats). */
-export function watchConversation(): void {
+async function syncOnce(): Promise<boolean> {
+  if (!(await syncEnabled())) return false
+  const stored = await chrome.storage.local.get([STORAGE.threads, STORAGE.syncedThreads, STORAGE.syncToken])
+  const threads = (stored[STORAGE.threads] as Threads | undefined) ?? {}
+  const synced = (stored[STORAGE.syncedThreads] as Record<string, number> | undefined) ?? {}
+  const sent = pendingChanges(threads, synced)
+  const result = await callNative<CloudSync>("syncThreads", { token: stored[STORAGE.syncToken] ?? null, changes: sent }, 20_000)
+  if (!result?.available) return false // not in Safari, no iCloud account, or offline
+
+  // Threads may have changed here while iCloud answered: apply to the current copy.
+  const now = (await chrome.storage.local.get(STORAGE.threads))[STORAGE.threads] as Threads | undefined ?? {}
+  const afterSend = markSent(now, synced, sent)
+  const merged = applyRemote(afterSend.threads, afterSend.synced, result.changed ?? [], result.deleted ?? [])
+  // Changed here during the sync, or newer here than iCloud's copy: send it right away.
+  if (pendingChanges(merged.threads, merged.synced).length > 0) again = true
+  lastWritten = JSON.stringify(merged.threads)
+  await chrome.storage.local.set({
+    [STORAGE.threads]: merged.threads,
+    [STORAGE.syncedThreads]: merged.synced,
+    [STORAGE.syncToken]: result.token ?? null
+  })
+  return merged.changed
+}
+
+/** Sends thread changes to iCloud shortly after they are saved (a new answer, a new or deleted chat). */
+export function watchThreads(): void {
   chrome.storage.onChanged.addListener((changes, area) => {
-    if (area !== "local" || !changes[STORAGE.conversation]) return
-    const conversation = changes[STORAGE.conversation].newValue as StoredConversation | undefined
-    if (!conversation || conversation.u === pulledAt) return
+    if (area !== "local" || !changes[STORAGE.threads]) return
+    if (JSON.stringify(changes[STORAGE.threads].newValue ?? {}) === lastWritten) return
     clearTimeout(pushTimer)
-    pushTimer = setTimeout(() => void pushConversation(conversation).catch(() => undefined), 800)
+    pushTimer = setTimeout(() => void syncThreads().catch(() => undefined), 800)
   })
 }

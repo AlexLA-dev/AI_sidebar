@@ -13,8 +13,8 @@ import AppKit
 ///   the extension forwards to the backend. Prefers live StoreKit data so
 ///   renewals are picked up even if the app hasn't been opened since.
 /// - `openApp` (macOS) → opens the ContextFlow app at a deep link.
-/// - `getConversation` / `putConversation` → the running conversation in the user's iCloud
-///   (see ChatSync); `available: false` when there is no iCloud account or it can't be reached.
+/// - `syncThreads` → sends the extension's chat changes to the user's iCloud and returns the other
+///   devices' changes (see ChatSync); `available: false` without an iCloud account or connection.
 /// - `ping` → health check.
 final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
 
@@ -53,33 +53,26 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         case "reviewMoment":
             SharedDefaults.shared.recordReviewMoment((message["count"] as? NSNumber)?.intValue ?? 0)
             Self.reply(context, ["success": true, "data": ["recorded": true]])
-        case "getConversation":
-            Task {
-                let result = await Self.withTimeout(seconds: 7) { try await ChatSync.fetch() }
-                switch result {
-                case .success(let snapshot?):
-                    Self.reply(context, ["success": true, "data": ["available": true, "updatedAt": snapshot.updatedAt, "data": snapshot.data]])
-                case .success(nil):
-                    Self.reply(context, ["success": true, "data": ["available": true]])
-                case .failure:
-                    Self.reply(context, ["success": true, "data": ["available": false]])
-                }
-            }
-        case "putConversation":
-            guard let data = message["data"] as? String, let updatedAt = (message["updatedAt"] as? NSNumber)?.int64Value else {
-                Self.reply(context, ["success": false, "error": "data and updatedAt required"])
-                return
+        case "syncThreads":
+            let token = message["token"] as? String
+            let changes: [ChatSync.Change] = (message["changes"] as? [[String: Any]] ?? []).compactMap { item in
+                guard let id = item["id"] as? String else { return nil }
+                if item["deleted"] as? Bool == true { return .delete(id) }
+                guard let updatedAt = (item["updatedAt"] as? NSNumber)?.int64Value, let data = item["data"] as? String else { return nil }
+                return .save(ChatSync.Snapshot(id: id, updatedAt: updatedAt, data: data))
             }
             Task {
-                let result = await Self.withTimeout(seconds: 9) {
-                    try await ChatSync.store(ChatSync.Snapshot(updatedAt: updatedAt, data: data))
-                }
-                switch result {
-                case .success(let stored):
-                    Self.reply(context, ["success": true, "data": ["available": true, "updatedAt": stored.updatedAt]])
-                case .failure:
+                let result = await Self.withTimeout(seconds: 18) { try await ChatSync.sync(token: token, changes: changes) }
+                guard case .success(let synced) = result else {
                     Self.reply(context, ["success": true, "data": ["available": false]])
+                    return
                 }
+                Self.reply(context, ["success": true, "data": [
+                    "available": true,
+                    "token": synced.token ?? NSNull(),
+                    "changed": synced.changed.map { ["id": $0.id, "updatedAt": $0.updatedAt, "data": $0.data] },
+                    "deleted": synced.deleted
+                ] as [String: Any]])
             }
         case "ping":
             let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""

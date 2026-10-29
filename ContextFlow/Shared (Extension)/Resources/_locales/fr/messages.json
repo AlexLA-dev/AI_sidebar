@@ -125,6 +125,18 @@
  "newChat": {
   "message": "Nouveau chat"
  },
+ "chatsTitle": {
+  "message": "Discussions"
+ },
+ "allChats": {
+  "message": "Toutes les discussions"
+ },
+ "chatsEmpty": {
+  "message": "Aucune discussion pour l’instant. Posez une question pour en commencer une."
+ },
+ "deleteChat": {
+  "message": "Supprimer la discussion"
+ },
  "settings": {
   "message": "Réglages"
  },

@@ -1,4 +1,5 @@
 import type { Entry } from "../shared/conversation"
+import { liveThreads, newThreadId, prune, type ActiveThread, type Threads } from "../shared/threads"
 import { DEFAULT_SETTINGS, STORAGE, type Settings } from "../shared/types"
 
 const MAX_TURNS = 40
@@ -46,30 +47,85 @@ export async function giveConsent(): Promise<void> {
 type LegacyChats = Record<string, { t: string; u: number; m: Entry[] }>
 
 /**
- * The running conversation, shared by every tab and page until the user starts a new chat.
- * The first time, it continues the most recent per-page chat of 2.0 / 2.1.
+ * The threads (chats) and the one this device shows. The first time, the running conversation of
+ * 2.2 (or the latest per-page chat of 2.0 / 2.1) becomes the first thread.
  */
-export async function loadConversation(): Promise<Entry[]> {
-  const stored = await get<{ u: number; m: Entry[] }>(STORAGE.conversation)
-  if (stored) return stored.m
-  const legacy = (await get<LegacyChats>(STORAGE.chats)) ?? {}
-  const [url, latest] = Object.entries(legacy).sort(([, a], [, b]) => b.u - a.u)[0] ?? []
-  if (!url || !latest) return []
-  // Those questions were asked on that page: keep it so later pages are told apart.
-  return latest.m.map((m) => (m.role === "user" && !m.page ? { ...m, page: { url, title: latest.t } } : m))
+export async function loadThreads(): Promise<{ threads: Threads; active: ActiveThread }> {
+  const stored = await chrome.storage.local.get([STORAGE.threads, STORAGE.activeThread]).catch(() => ({} as Record<string, unknown>))
+  const threads = (stored[STORAGE.threads] as Threads | undefined) ?? (await legacyThreads())
+  let active = stored[STORAGE.activeThread] as ActiveThread | undefined
+  if (!active) {
+    active = { id: liveThreads(threads)[0]?.id ?? newThreadId(), at: Date.now() }
+    await chrome.storage.local.set({ [STORAGE.threads]: threads, [STORAGE.activeThread]: active }).catch(() => undefined)
+  }
+  return { threads, active }
 }
 
-export async function saveConversation(entries: Entry[]): Promise<void> {
+async function legacyThreads(): Promise<Threads> {
+  const conversation = await get<{ u: number; m: Entry[] }>(STORAGE.conversation)
+  let entries = conversation?.m ?? []
+  let u = conversation?.u ?? Date.now()
+  if (!conversation) {
+    const legacy = (await get<LegacyChats>(STORAGE.chats)) ?? {}
+    const [url, latest] = Object.entries(legacy).sort(([, a], [, b]) => b.u - a.u)[0] ?? []
+    if (url && latest) {
+      // Those questions were asked on that page: keep it so later pages are told apart.
+      entries = latest.m.map((m) => (m.role === "user" && !m.page ? { ...m, page: { url, title: latest.t } } : m))
+      u = latest.u
+    }
+  }
+  if (entries.length === 0) return {}
+  const id = newThreadId()
+  return { [id]: { id, u, m: entries } }
+}
+
+/** Shows this thread on this device (a new id = a new, still empty thread). */
+export async function setActiveThread(id: string): Promise<void> {
+  await set(STORAGE.activeThread, { id, at: Date.now() })
+}
+
+export async function saveThread(id: string, entries: Entry[]): Promise<void> {
   const next = entries.slice(-MAX_TURNS)
-  const stored = await get<{ u: number; m: Entry[] }>(STORAGE.conversation)
-  // Only real changes get a new time: it decides which device's conversation is the newest (iCloud sync),
-  // and an empty panel on a new device must not replace the conversation from the others.
+  const threads = (await get<Threads>(STORAGE.threads)) ?? {}
+  const stored = threads[id]
+  // Only real changes get a new time: it decides which device's copy wins (iCloud sync),
+  // and opening an empty thread doesn't store anything.
   if (stored ? JSON.stringify(stored.m) === JSON.stringify(next) : next.length === 0) return
-  await set(STORAGE.conversation, { u: Date.now(), m: next })
+  await set(STORAGE.threads, prune({ ...threads, [id]: { id, u: Date.now(), m: next } }))
+}
+
+export async function deleteThread(id: string): Promise<void> {
+  const threads = (await get<Threads>(STORAGE.threads)) ?? {}
+  if (!threads[id]) return
+  const synced = (await get<Record<string, number>>(STORAGE.syncedThreads)) ?? {}
+  const next = { ...threads }
+  // A chat iCloud has stays as a deletion until the other devices hear about it.
+  if (id in synced) next[id] = { id, u: Date.now(), m: [], deleted: true }
+  else delete next[id]
+  await set(STORAGE.threads, next)
 }
 
 export async function deleteAllChats(): Promise<void> {
-  await chrome.storage.local.set({ [STORAGE.conversation]: { u: Date.now(), m: [] }, [STORAGE.chats]: {} }).catch(() => undefined)
+  const threads = (await get<Threads>(STORAGE.threads)) ?? {}
+  const synced = (await get<Record<string, number>>(STORAGE.syncedThreads)) ?? {}
+  const now = Date.now()
+  const gone: Threads = {}
+  for (const id of Object.keys(threads)) if (id in synced) gone[id] = { id, u: now, m: [], deleted: true }
+  await chrome.storage.local.set({ [STORAGE.threads]: gone, [STORAGE.activeThread]: { id: newThreadId(), at: now }, [STORAGE.chats]: {} }).catch(() => undefined)
+  await chrome.storage.local.remove(STORAGE.conversation).catch(() => undefined)
+}
+
+/** Calls `listener` when threads change in another tab or come from another device. */
+export function onThreadsChanged(listener: () => void): () => void {
+  const handler = (changes: Record<string, chrome.storage.StorageChange>, area: string) => {
+    if (area === "local" && (changes[STORAGE.threads] || changes[STORAGE.activeThread])) listener()
+  }
+  try {
+    chrome.storage.onChanged.addListener(handler)
+  } catch {
+    return () => undefined
+  }
+  return () => chrome.storage.onChanged.removeListener(handler)
 }
 
 export function onSettingsChanged(listener: (settings: Settings) => void): () => void {

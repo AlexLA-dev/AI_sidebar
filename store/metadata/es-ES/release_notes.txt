@@ -1,3 +1,5 @@
 Novedades de ContextFlow 2.3:
-• Sigue donde lo dejaste: empieza un chat en el iPhone y continúalo en el iPad o el Mac. El chat actual se sincroniza a través de tu iCloud con cifrado de extremo a extremo y nunca pasa por nuestros servidores. Puedes desactivarlo en Ajustes.
+• Chats: lleva varias conversaciones a la vez. Empieza un chat nuevo cuando quieras, encuentra los anteriores en la lista de chats y continúa cualquiera en cualquier página.
+• Sigue donde lo dejaste: los chats se sincronizan entre tu iPhone, iPad y Mac a través de tu iCloud con cifrado de extremo a extremo y nunca pasan por nuestros servidores. Puedes desactivarlo en Ajustes.
+• Tu contador de respuestas Pro está al día en todos tus dispositivos
 • Correcciones y mejoras

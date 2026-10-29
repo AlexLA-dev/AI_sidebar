@@ -125,6 +125,18 @@
  "newChat": {
   "message": "Новый чат"
  },
+ "chatsTitle": {
+  "message": "Чаты"
+ },
+ "allChats": {
+  "message": "Все чаты"
+ },
+ "chatsEmpty": {
+  "message": "Чатов пока нет. Задайте вопрос, чтобы начать."
+ },
+ "deleteChat": {
+  "message": "Удалить чат"
+ },
  "settings": {
   "message": "Настройки"
  },

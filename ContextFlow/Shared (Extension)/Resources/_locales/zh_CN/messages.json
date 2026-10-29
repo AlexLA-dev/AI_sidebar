@@ -125,6 +125,18 @@
  "newChat": {
   "message": "新对话"
  },
+ "chatsTitle": {
+  "message": "对话"
+ },
+ "allChats": {
+  "message": "所有对话"
+ },
+ "chatsEmpty": {
+  "message": "还没有对话。提个问题开始吧。"
+ },
+ "deleteChat": {
+  "message": "删除对话"
+ },
  "settings": {
   "message": "设置"
  },

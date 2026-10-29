@@ -125,6 +125,18 @@
  "newChat": {
   "message": "新規チャット"
  },
+ "chatsTitle": {
+  "message": "チャット"
+ },
+ "allChats": {
+  "message": "すべてのチャット"
+ },
+ "chatsEmpty": {
+  "message": "まだチャットはありません。質問して始めましょう。"
+ },
+ "deleteChat": {
+  "message": "チャットを削除"
+ },
  "settings": {
   "message": "設定"
  },
