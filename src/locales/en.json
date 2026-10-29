@@ -81,7 +81,7 @@
   "minutes": "{0} min",
 
   "consentTitle": "Before your first answer",
-  "consentBody": "To answer, ContextFlow sends your question and the text of this page (or your selection) via our server to OpenAI, or to Google for Google answers. Page content and chats are not stored on our servers; your chats stay on this device.",
+  "consentBody": "To answer, ContextFlow sends your question and the text of this page (or your selection) via our server to OpenAI, or to Google for Google answers. Page content and chats are not stored on our servers; your chats stay on your devices and, if you sync them, in your iCloud.",
   "consentAccept": "Agree and continue",
   "privacyPolicy": "Privacy Policy",
 
@@ -119,6 +119,8 @@
   "save": "Save",
   "remove": "Remove",
   "saved": "Saved",
+  "setSyncChats": "Sync chats with iCloud",
+  "setSyncChatsHint": "Continue a chat on your iPhone, iPad and Mac. The chat is end-to-end encrypted in your iCloud and never stored on our servers.",
   "deleteChats": "Delete all chats",
   "chatsDeleted": "Chats deleted",
   "support": "Support",

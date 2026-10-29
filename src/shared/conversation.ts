@@ -52,6 +52,37 @@ export function pageHasChanged(entries: Entry[], url: string, hash: string): boo
   return false
 }
 
+// A CloudKit record holds at most 1 MB; 300k characters stay under it even in 3-byte UTF-8 scripts.
+const CLOUD_MAX_CHARS = 300_000
+
+/** The conversation as stored in iCloud: JSON, dropping the oldest turns if it would not fit in one record. */
+export function conversationForCloud(entries: Entry[], maxChars = CLOUD_MAX_CHARS): string {
+  let start = 0
+  let data = JSON.stringify(entries)
+  while (data.length > maxChars && start < entries.length) {
+    start += 1
+    data = JSON.stringify(entries.slice(start))
+  }
+  return data
+}
+
+/** The conversation read back from iCloud, or null if it isn't one. */
+export function conversationFromCloud(data: string): Entry[] | null {
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(data)
+  } catch {
+    return null
+  }
+  if (!Array.isArray(parsed)) return null
+  const valid = parsed.every((e) =>
+    e !== null && typeof e === "object" &&
+    ((e as Entry).role === "user" || (e as Entry).role === "assistant") &&
+    typeof (e as Entry).content === "string"
+  )
+  return valid ? (parsed as Entry[]) : null
+}
+
 /**
  * Messages for the model: the last turns, citations stripped, and questions asked on other
  * pages marked with that page so the model knows the current page content isn't what they were about.

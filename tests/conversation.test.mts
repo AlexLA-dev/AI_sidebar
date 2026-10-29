@@ -1,7 +1,16 @@
 import assert from "node:assert/strict"
 import { test } from "node:test"
 
-import { historyForModel, lastPage, pageHasChanged, stripCitations, textFingerprint, type Entry } from "../src/shared/conversation.ts"
+import {
+  conversationForCloud,
+  conversationFromCloud,
+  historyForModel,
+  lastPage,
+  pageHasChanged,
+  stripCitations,
+  textFingerprint,
+  type Entry
+} from "../src/shared/conversation.ts"
 
 const A = { url: "https://news.example/a", title: "Article A" }
 const B = { url: "https://blog.example/b", title: "Post B" }
@@ -47,4 +56,25 @@ test("historyForModel keeps the last 12 turns", () => {
   assert.equal(out.length, 12)
   assert.equal(out[0].content, "m18")
   assert.equal(stripCitations("a[2](https://x.y/z) b"), "a b")
+})
+
+test("conversationForCloud round-trips and drops the oldest turns to fit one record", () => {
+  const entries: Entry[] = [
+    { role: "user", content: "x".repeat(50), page: A },
+    { role: "assistant", content: "y".repeat(50) },
+    { role: "user", content: "Short", mode: "google" },
+    { role: "assistant", content: "Answer", grounding: { sources: [{ title: "S", url: "https://s.example" }], suggestions: "", queries: ["q"] } }
+  ]
+  assert.deepEqual(conversationFromCloud(conversationForCloud(entries)), entries)
+  const trimmed = conversationFromCloud(conversationForCloud(entries, 200))
+  assert.deepEqual(trimmed, entries.slice(2))
+  assert.deepEqual(conversationFromCloud(conversationForCloud([])), [])
+})
+
+test("conversationFromCloud rejects anything that isn't a conversation", () => {
+  assert.equal(conversationFromCloud("not json"), null)
+  assert.equal(conversationFromCloud("{}"), null)
+  assert.equal(conversationFromCloud('[{"role":"system","content":"x"}]'), null)
+  assert.equal(conversationFromCloud('[{"role":"user"}]'), null)
+  assert.equal(conversationFromCloud("[null]"), null)
 })

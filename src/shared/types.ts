@@ -83,6 +83,8 @@ export type BackgroundRequest =
   | { type: "inject" }
   | { type: "setOwnKey"; key: string }
   | { type: "openUrl"; url: string }
+  // The panel opened: newer conversation from iCloud (Safari), or null.
+  | { type: "pullConversation" }
 
 export type ContentRequest = { type: "toggle" } | { type: "open"; selection?: boolean }
 
@@ -116,6 +118,8 @@ export interface Settings {
   aboutMe: string
   // Model class used with the user's own key: newest Haiku / GPT mini or newest Sonnet / GPT.
   ownKeyModel: "fast" | "smart"
+  // Keep the running conversation in the user's iCloud to continue it on their other devices (Safari).
+  syncChats: boolean
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -127,5 +131,6 @@ export const DEFAULT_SETTINGS: Settings = {
   textSize: "normal",
   theme: "auto",
   aboutMe: "",
-  ownKeyModel: "smart"
+  ownKeyModel: "smart",
+  syncChats: true
 }

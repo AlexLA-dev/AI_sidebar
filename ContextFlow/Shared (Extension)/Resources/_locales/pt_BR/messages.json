@@ -286,7 +286,7 @@
   "message": "Antes da sua primeira resposta"
  },
  "consentBody": {
-  "message": "Para responder, o ContextFlow envia sua pergunta e o texto desta página (ou da sua seleção) por meio do nosso servidor à OpenAI, ou ao Google nas respostas do Google. O conteúdo das páginas e as conversas não ficam armazenados em nossos servidores; suas conversas ficam neste dispositivo."
+  "message": "Para responder, o ContextFlow envia sua pergunta e o texto desta página (ou da sua seleção) por meio do nosso servidor à OpenAI, ou ao Google nas respostas do Google. O conteúdo das páginas e as conversas não ficam armazenados em nossos servidores; suas conversas ficam nos seus dispositivos e, se você sincronizar, no seu iCloud."
  },
  "consentAccept": {
   "message": "Concordar e continuar"
@@ -410,6 +410,12 @@
  },
  "saved": {
   "message": "Salvo"
+ },
+ "setSyncChats": {
+  "message": "Sincronizar conversas com o iCloud"
+ },
+ "setSyncChatsHint": {
+  "message": "Continue uma conversa no iPhone, iPad e Mac. A conversa fica no seu iCloud com criptografia de ponta a ponta e nunca é guardada nos nossos servidores."
  },
  "deleteChats": {
   "message": "Apagar todas as conversas"

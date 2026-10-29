@@ -286,7 +286,7 @@
   "message": "ご利用の前に"
  },
  "consentBody": {
-  "message": "回答するために、ContextFlowはあなたの質問とこのページ（または選択範囲）のテキストを、当社のサーバ経由でOpenAI（Googleでの回答の場合はGoogle）に送信します。ページの内容やチャットは当社のサーバに保存されず、チャットはこのデバイス上にのみ保存されます。"
+  "message": "回答するために、ContextFlowはあなたの質問とこのページ（または選択範囲）のテキストを、当社のサーバ経由でOpenAI（Googleでの回答の場合はGoogle）に送信します。ページの内容やチャットは当社のサーバに保存されず、チャットはお使いのデバイスと、同期をオンにした場合はあなたのiCloudにのみ保存されます。"
  },
  "consentAccept": {
   "message": "同意して続ける"
@@ -410,6 +410,12 @@
  },
  "saved": {
   "message": "保存しました"
+ },
+ "setSyncChats": {
+  "message": "iCloudでチャットを同期"
+ },
+ "setSyncChatsHint": {
+  "message": "iPhone、iPad、Macでチャットを続けられます。チャットはエンドツーエンドで暗号化されてiCloudに保存され、当社のサーバーには保存されません。"
  },
  "deleteChats": {
   "message": "すべてのチャットを削除"

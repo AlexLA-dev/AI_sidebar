@@ -15,7 +15,7 @@ import {
 } from "../shared/types"
 import { askServer, askWithOwnKey, reportOwnKeyUsage } from "./chat"
 import { callNative, type NativeEntitlement } from "./native"
-import { countValueMoment, syncSettings, watchSettings } from "./sync"
+import { countValueMoment, pullConversation, syncSettings, watchConversation, watchSettings } from "./sync"
 
 // ---------------------------------------------------------------- identity
 
@@ -185,6 +185,13 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
       if (/^https:\/\//.test(message.url)) chrome.tabs.create({ url: message.url })
       sendResponse({ ok: true })
       return false
+    case "pullConversation":
+      if (TARGET !== "safari") {
+        sendResponse(null)
+        return false
+      }
+      pullConversation().then(sendResponse, () => sendResponse(null))
+      return true
     default:
       return false
   }
@@ -245,3 +252,5 @@ chrome.runtime.onInstalled.addListener((details) => {
 
 watchSettings()
 void syncSettings().catch(() => undefined)
+// The conversation follows the user to their other Apple devices through iCloud.
+if (TARGET === "safari") watchConversation()

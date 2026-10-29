@@ -60,7 +60,12 @@ export async function loadConversation(): Promise<Entry[]> {
 }
 
 export async function saveConversation(entries: Entry[]): Promise<void> {
-  await set(STORAGE.conversation, { u: Date.now(), m: entries.slice(-MAX_TURNS) })
+  const next = entries.slice(-MAX_TURNS)
+  const stored = await get<{ u: number; m: Entry[] }>(STORAGE.conversation)
+  // Only real changes get a new time: it decides which device's conversation is the newest (iCloud sync),
+  // and an empty panel on a new device must not replace the conversation from the others.
+  if (stored ? JSON.stringify(stored.m) === JSON.stringify(next) : next.length === 0) return
+  await set(STORAGE.conversation, { u: Date.now(), m: next })
 }
 
 export async function deleteAllChats(): Promise<void> {

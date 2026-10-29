@@ -286,7 +286,7 @@
   "message": "Prima di iniziare"
  },
  "consentBody": {
-  "message": "Per rispondere, ContextFlow invia la tua domanda e il testo di questa pagina (o della tua selezione) tramite il nostro server a OpenAI, oppure a Google per le risposte Google. I contenuti delle pagine e le chat non vengono salvati sui nostri server; le tue chat restano su questo dispositivo."
+  "message": "Per rispondere, ContextFlow invia la tua domanda e il testo di questa pagina (o della tua selezione) tramite il nostro server a OpenAI, oppure a Google per le risposte Google. I contenuti delle pagine e le chat non vengono salvati sui nostri server; le tue chat restano sui tuoi dispositivi e, se le sincronizzi, nel tuo iCloud."
  },
  "consentAccept": {
   "message": "Accetta e continua"
@@ -410,6 +410,12 @@
  },
  "saved": {
   "message": "Salvato"
+ },
+ "setSyncChats": {
+  "message": "Sincronizza le chat con iCloud"
+ },
+ "setSyncChatsHint": {
+  "message": "Continua una chat su iPhone, iPad e Mac. La chat è cifrata end-to-end nel tuo iCloud e non viene mai salvata sui nostri server."
  },
  "deleteChats": {
   "message": "Elimina tutte le chat"

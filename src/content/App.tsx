@@ -241,13 +241,20 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
     pageUrlRef.current = key
     setPageUrl(key)
     if (!portRef.current) {
+      // Show the end of the conversation (and this page's actions under it).
+      const scrollToEnd = () => requestAnimationFrame(() => {
+        const list = listRef.current
+        if (list) list.scrollTop = list.scrollHeight
+      })
       void loadConversation().then((entries) => {
         loadedRef.current = true
         setMessages(entries)
-        // Show the end of the conversation (and this page's actions under it).
-        requestAnimationFrame(() => {
-          const list = listRef.current
-          if (list) list.scrollTop = list.scrollHeight
+        scrollToEnd()
+        // Another device may have continued the conversation (iCloud): take it unless something was asked here meanwhile.
+        void sendBackground<Turn[] | null>({ type: "pullConversation" }).then((remote) => {
+          if (!remote || portRef.current) return
+          setMessages((current) => (current === entries ? remote : current))
+          scrollToEnd()
         })
       })
     }

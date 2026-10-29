@@ -286,7 +286,7 @@
   "message": "첫 답변 전에 확인해 주세요"
  },
  "consentBody": {
-  "message": "답변을 위해 ContextFlow는 질문과 이 페이지(또는 선택한 부분)의 텍스트를 당사 서버를 거쳐 OpenAI로, Google 답변의 경우 Google로 보내요. 페이지 내용과 채팅은 당사 서버에 저장되지 않으며, 채팅은 이 기기에만 보관돼요."
+  "message": "답변을 위해 ContextFlow는 질문과 이 페이지(또는 선택한 부분)의 텍스트를 당사 서버를 거쳐 OpenAI로, Google 답변의 경우 Google로 보내요. 페이지 내용과 채팅은 당사 서버에 저장되지 않으며, 채팅은 내 기기에, 동기화를 켜면 내 iCloud에만 보관돼요."
  },
  "consentAccept": {
   "message": "동의하고 계속"
@@ -410,6 +410,12 @@
  },
  "saved": {
   "message": "저장됨"
+ },
+ "setSyncChats": {
+  "message": "iCloud로 채팅 동기화"
+ },
+ "setSyncChatsHint": {
+  "message": "iPhone, iPad, Mac에서 채팅을 이어서 할 수 있습니다. 채팅은 종단 간 암호화되어 iCloud에 저장되며 당사 서버에는 저장되지 않습니다."
  },
  "deleteChats": {
   "message": "모든 채팅 삭제"

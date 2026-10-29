@@ -286,7 +286,7 @@
   "message": "首次回答前须知"
  },
  "consentBody": {
-  "message": "为了回答问题，ContextFlow 会通过我们的服务器将你的问题和此页面（或所选内容）的文本发送给 OpenAI；使用 Google 回答时则发送给 Google。我们的服务器不会存储页面内容和对话；你的对话仅保存在此设备上。"
+  "message": "为了回答问题，ContextFlow 会通过我们的服务器将你的问题和此页面（或所选内容）的文本发送给 OpenAI；使用 Google 回答时则发送给 Google。我们的服务器不会存储页面内容和对话；你的对话仅保存在你的设备上；开启同步后也会保存在你的 iCloud 中。"
  },
  "consentAccept": {
   "message": "同意并继续"
@@ -410,6 +410,12 @@
  },
  "saved": {
   "message": "已保存"
+ },
+ "setSyncChats": {
+  "message": "通过 iCloud 同步对话"
+ },
+ "setSyncChatsHint": {
+  "message": "在 iPhone、iPad 和 Mac 上继续对话。对话以端到端加密方式存储在你的 iCloud 中，绝不会保存在我们的服务器上。"
  },
  "deleteChats": {
   "message": "删除所有对话"

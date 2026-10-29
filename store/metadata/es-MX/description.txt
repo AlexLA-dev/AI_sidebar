@@ -17,7 +17,7 @@ HECHO PARA SAFARI EN IPHONE, IPAD Y MAC
 PRIVACIDAD DESDE EL DISEÑO
 • Sin cuenta, sin registro, sin rastreo
 • Una página solo se lee cuando preguntas sobre ella
-• El texto de las páginas nunca se almacena en nuestros servidores; tus chats se quedan en tu dispositivo
+• El texto de las páginas nunca se almacena en nuestros servidores; tus chats se quedan en tus dispositivos y se sincronizan con cifrado de extremo a extremo a través de tu iCloud
 
 GRATIS Y PRO
 • Gratis: 5 respuestas todos los días

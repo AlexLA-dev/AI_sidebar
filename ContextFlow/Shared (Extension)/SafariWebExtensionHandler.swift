@@ -13,6 +13,8 @@ import AppKit
 ///   the extension forwards to the backend. Prefers live StoreKit data so
 ///   renewals are picked up even if the app hasn't been opened since.
 /// - `openApp` (macOS) → opens the ContextFlow app at a deep link.
+/// - `getConversation` / `putConversation` → the running conversation in the user's iCloud
+///   (see ChatSync); `available: false` when there is no iCloud account or it can't be reached.
 /// - `ping` → health check.
 final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
 
@@ -51,6 +53,34 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         case "reviewMoment":
             SharedDefaults.shared.recordReviewMoment((message["count"] as? NSNumber)?.intValue ?? 0)
             Self.reply(context, ["success": true, "data": ["recorded": true]])
+        case "getConversation":
+            Task {
+                let result = await Self.withTimeout(seconds: 7) { try await ChatSync.fetch() }
+                switch result {
+                case .success(let snapshot?):
+                    Self.reply(context, ["success": true, "data": ["available": true, "updatedAt": snapshot.updatedAt, "data": snapshot.data]])
+                case .success(nil):
+                    Self.reply(context, ["success": true, "data": ["available": true]])
+                case .failure:
+                    Self.reply(context, ["success": true, "data": ["available": false]])
+                }
+            }
+        case "putConversation":
+            guard let data = message["data"] as? String, let updatedAt = (message["updatedAt"] as? NSNumber)?.int64Value else {
+                Self.reply(context, ["success": false, "error": "data and updatedAt required"])
+                return
+            }
+            Task {
+                let result = await Self.withTimeout(seconds: 9) {
+                    try await ChatSync.store(ChatSync.Snapshot(updatedAt: updatedAt, data: data))
+                }
+                switch result {
+                case .success(let stored):
+                    Self.reply(context, ["success": true, "data": ["available": true, "updatedAt": stored.updatedAt]])
+                case .failure:
+                    Self.reply(context, ["success": true, "data": ["available": false]])
+                }
+            }
         case "ping":
             let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
             Self.reply(context, ["success": true, "data": ["pong": true, "version": version]])
@@ -63,6 +93,22 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         let response = NSExtensionItem()
         response.userInfo = [SFExtensionMessageKey: payload]
         context.completeRequest(returningItems: [response], completionHandler: nil)
+    }
+
+    /// Runs `work`, giving up after `seconds` (the extension waits a little longer than that).
+    private static func withTimeout<T>(seconds: Double, _ work: @escaping () async throws -> T) async -> Result<T, Error> {
+        await withTaskGroup(of: Result<T, Error>?.self) { group in
+            group.addTask {
+                do { return .success(try await work()) } catch { return .failure(error) }
+            }
+            group.addTask {
+                try? await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
+                return nil
+            }
+            let first = await group.next() ?? nil
+            group.cancelAll()
+            return first ?? .failure(CancellationError())
+        }
     }
 
     /// Live StoreKit entitlement (bounded to 2.5 s), falling back to what the app last shared.

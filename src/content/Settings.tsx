@@ -174,6 +174,15 @@ export function SettingsView(props: Props): VNode {
       </section>
 
       <section class="cf-group">
+        {TARGET === "safari" && (
+          <>
+            <label class="cf-row toggle">
+              <span class="cf-label">{t("setSyncChats")}</span>
+              <input type="checkbox" checked={settings.syncChats} onChange={(e) => onChange({ syncChats: e.currentTarget.checked })} />
+            </label>
+            <p class="cf-hint">{t("setSyncChatsHint")}</p>
+          </>
+        )}
         <button
           type="button"
           class="cf-link danger"

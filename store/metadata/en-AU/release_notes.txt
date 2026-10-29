@@ -1,7 +1,3 @@
-What's new in ContextFlow 2.2:
-• One conversation across websites: keep asking as you move between pages, until you tap New chat
-• Always up to date: ContextFlow re-reads the page each time, so new content is included
-• Share a whole chat, with a link to the source and to ContextFlow
-• Settings in the app: change appearance, buttons and more right in the ContextFlow app
-• The floating ContextFlow button is now on for Mac too
+What's new in ContextFlow 2.3:
+• Pick up where you left off: start a chat on your iPhone and continue it on your iPad or Mac. The current chat syncs through your iCloud, end-to-end encrypted, and never touches our servers. You can turn this off in Settings.
 • Fixes and improvements
