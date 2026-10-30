@@ -36,7 +36,7 @@ import { shareLabels } from "./shareLabels"
 import { deleteThread, giveConsent, hasConsent, hasSeenTour, loadSettings, loadThreads, markTourSeen, onSettingsChanged, onThreadsChanged, renameThread, saveSettings, saveThread, setActiveThread } from "./store"
 import { ThreadsView } from "./Threads"
 import { Tour, tourSteps } from "./Tour"
-import { liveThreads, newThreadId, shownThread, type Thread } from "../shared/threads"
+import { liveThreads, newThreadId, shownThread, threadTitle, type Thread } from "../shared/threads"
 
 export type Bus = EventTarget
 
@@ -609,6 +609,8 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
   // ------------------------------------------------------------ sharing
   const shareLinks = (): ShareLinks => ({ page: location.href, app: LINKS.appStoreShare })
 
+  const chatName = (): string => threadList.find((t) => t.id === threadRef.current)?.title || threadTitle(messages)
+
   /** Shares text (copies it where sharing isn't available). True when it was copied. */
   const shareText = useCallback(async (text: string): Promise<boolean> => {
     if (typeof navigator.share === "function") {
@@ -621,11 +623,11 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
 
   /** Shares (or copies, where sharing isn't available) the whole conversation. */
   const shareChat = useCallback(async () => {
-    if (await shareText(chatShareText(messages, shareLabels(chatLanguage(messages)), shareLinks()))) {
+    if (await shareText(chatShareText(messages, chatName(), shareLabels(chatLanguage(messages)), shareLinks()))) {
       setChatCopied(true)
       setTimeout(() => setChatCopied(false), 1500)
     }
-  }, [messages, shareText])
+  }, [messages, shareText, threadList])
 
   // ------------------------------------------------------------ upgrade
   const openApp = useCallback(async (target: "subscribe" | "manage") => {

@@ -2,7 +2,7 @@ import assert from "node:assert/strict"
 import { test } from "node:test"
 
 import type { Entry } from "../src/shared/conversation.ts"
-import { answerShareText, chatLanguage, chatShareText, textLanguage, toPlainText } from "../src/shared/share.ts"
+import { answerShareText, chatLanguage, chatShareText, notALink, textLanguage, toPlainText } from "../src/shared/share.ts"
 
 const labels = { you: "You", sources: "Sources", source: "Source", madeWith: "Made with ContextFlow" }
 const page = { url: "https://news.example/a", title: "Article A" }
@@ -24,8 +24,10 @@ test("toPlainText keeps links as text and drops citation numbers", () => {
   assert.equal(toPlainText("## Title\n- **one**\n- `two`"), "Title\n• one\n• two")
 })
 
-test("a shared chat is one text with its links, Google sources, pages and the app link", () => {
-  assert.equal(chatShareText(entries, labels, links("https://other.example")), [
+test("a shared chat is one text under its name with its links, Google sources, pages and the app link", () => {
+  assert.equal(chatShareText(entries, "Four-day week", labels, links("https://other.example")), [
+    "Four-day week",
+    "",
     "You: What is this about?",
     "ContextFlow: New rules start in May. See the docs: https://docs.example/rules for details.",
     "",
@@ -41,7 +43,7 @@ test("a shared chat is one text with its links, Google sources, pages and the ap
     "",
     "Made with ContextFlow: https://apps.apple.com/app/id1"
   ].join("\n"))
-  assert.match(chatShareText([{ role: "user", content: "Hi" }], labels, links("https://here.example")), /Source: https:\/\/here\.example\n\nMade with ContextFlow: https:\/\/apps/)
+  assert.match(chatShareText([{ role: "user", content: "Hi" }], "Hi", labels, links("https://here.example")), /Source: https:\/\/here\.example\n\nMade with ContextFlow: https:\/\/apps/)
 })
 
 test("a shared answer names its own page", () => {
@@ -73,4 +75,16 @@ test("the language of typed questions picks the share labels", () => {
   // A mixed chat goes by the language most of it is in.
   assert.equal(chatLanguage([...entries, { role: "user", content: "А дальше?" }]), "en")
   assert.equal(chatLanguage([...entries, { role: "user", content: "А что было дальше и почему?" }]), "ru")
+})
+
+test("shared text never parses as a URL (Heptabase would save it as one link)", () => {
+  // "You: …" is a URL with the scheme "you" to URL parsers.
+  assert.equal(URL.canParse(chatShareText(entries, "", labels, links("https://x.example"))), false)
+  assert.ok(chatShareText(entries, "", labels, links("https://x.example")).startsWith("You — What is this about?\n"))
+  assert.ok(chatShareText(entries, "Summary: rules", labels, links("https://x.example")).startsWith("Summary — rules\n\nYou: What"))
+  assert.equal(URL.canParse(answerShareText([{ role: "assistant", content: "**Summary:** fine" }], 0, labels, links("https://x.example"))), false)
+  assert.equal(notALink("Summary: fine"), "Summary — fine")
+  assert.equal(notALink("Вы: О чём статья?"), "Вы: О чём статья?")
+  assert.equal(notALink("Short answer: yes"), "Short answer: yes")
+  assert.equal(notALink("https://example.com is the site"), "https://example.com is the site")
 })

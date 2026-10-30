@@ -2,6 +2,8 @@
 // the Google sources and the pages asked about, and ends with the link to ContextFlow. It goes to the
 // share sheet as text only: given a separate link, iOS shares that page and most apps drop the text.
 // Its labels ("You", "Source"…) are in the language the questions were typed in, else the device's.
+// It never starts with "word:": apps that take text that parses as a URL as a link (Heptabase) would
+// save the whole text as one link, scheme "You".
 
 import { stripCitations, type Entry } from "./conversation.ts"
 
@@ -51,11 +53,11 @@ function pageOf(entries: Entry[], index: number): { url: string; title: string }
 /** One answer: its text and sources, the page it was about, and where it was made. */
 export function answerShareText(entries: Entry[], index: number, labels: ShareLabels, links: ShareLinks): string {
   const page = pageOf(entries, index)
-  return [answerText(entries[index], labels), "", `${labels.source}: ${page?.url ?? links.page}`, "", `${labels.madeWith}: ${links.app}`].join("\n")
+  return notALink([answerText(entries[index], labels), "", `${labels.source}: ${page?.url ?? links.page}`, "", `${labels.madeWith}: ${links.app}`].join("\n"))
 }
 
-/** The whole chat: questions and answers, every page it was about, and where it was made. */
-export function chatShareText(entries: Entry[], labels: ShareLabels, links: ShareLinks): string {
+/** The whole chat under its name: questions and answers, every page it was about, and where it was made. */
+export function chatShareText(entries: Entry[], name: string, labels: ShareLabels, links: ShareLinks): string {
   const lines: string[] = []
   const pages = new Map<string, string>()
   for (const m of entries) {
@@ -67,13 +69,19 @@ export function chatShareText(entries: Entry[], labels: ShareLabels, links: Shar
     }
   }
   const sources = [...pages].map(([url, title]) => link(title, url))
-  return [
+  return notALink([
+    ...(name ? [name, ""] : []),
     lines.join("\n").trim(),
     "",
     sources.length ? `${labels.source}:\n${sources.join("\n")}` : `${labels.source}: ${links.page}`,
     "",
     `${labels.madeWith}: ${links.app}`
-  ].join("\n")
+  ].join("\n"))
+}
+
+/** Text that doesn't parse as a URL: a leading "word:" (a URL scheme to parsers) becomes "word —". */
+export function notALink(text: string): string {
+  return text.replace(/^([a-z][a-z0-9+.-]*):(?!\/\/)/i, "$1 —")
 }
 
 // Words that mark a language written in Latin letters, and letters only it uses.
