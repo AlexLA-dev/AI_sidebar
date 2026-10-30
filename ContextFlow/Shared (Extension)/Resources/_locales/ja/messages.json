@@ -125,6 +125,27 @@
  "newChat": {
   "message": "新規チャット"
  },
+ "chatsTitle": {
+  "message": "チャット"
+ },
+ "allChats": {
+  "message": "すべてのチャット"
+ },
+ "chatsEmpty": {
+  "message": "まだチャットはありません。質問して始めましょう。"
+ },
+ "deleteChat": {
+  "message": "チャットを削除"
+ },
+ "renameChat": {
+  "message": "チャット名を変更"
+ },
+ "chatName": {
+  "message": "チャット名"
+ },
+ "chatNameHint": {
+  "message": "空欄にすると、最初の質問がチャット名になります。"
+ },
  "settings": {
   "message": "設定"
  },
@@ -286,7 +307,7 @@
   "message": "ご利用の前に"
  },
  "consentBody": {
-  "message": "回答するために、ContextFlowはあなたの質問とこのページ（または選択範囲）のテキストを、当社のサーバ経由でOpenAI（Googleでの回答の場合はGoogle）に送信します。ページの内容やチャットは当社のサーバに保存されず、チャットはこのデバイス上にのみ保存されます。"
+  "message": "回答するために、ContextFlowはあなたの質問とこのページ（または選択範囲）のテキストを、当社のサーバ経由でOpenAI（Googleでの回答の場合はGoogle）に送信します。ページの内容やチャットは当社のサーバに保存されず、チャットはお使いのデバイスと、同期をオンにした場合はあなたのiCloudにのみ保存されます。"
  },
  "consentAccept": {
   "message": "同意して続ける"
@@ -411,6 +432,12 @@
  "saved": {
   "message": "保存しました"
  },
+ "setSyncChats": {
+  "message": "iCloudでチャットを同期"
+ },
+ "setSyncChatsHint": {
+  "message": "iPhone、iPad、Macでチャットを続けられます。チャットはエンドツーエンドで暗号化されてiCloudに保存され、当社のサーバーには保存されません。"
+ },
  "deleteChats": {
   "message": "すべてのチャットを削除"
  },
@@ -455,6 +482,77 @@
  "sources": {
   "message": "出典"
  },
+ "tourStep": {
+  "message": "$P0$/$P1$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "tourSkip": {
+  "message": "スキップ"
+ },
+ "tourNext": {
+  "message": "次へ"
+ },
+ "tourDone": {
+  "message": "OK"
+ },
+ "tourShow": {
+  "message": "ヒントを表示"
+ },
+ "tourAskTitle": {
+  "message": "このページについて質問"
+ },
+ "tourAskBody": {
+  "message": "ContextFlowは開いているページを読み取ります。「要約」などのアクションを選ぶか、質問を入力してください。"
+ },
+ "tourSelectTitle": {
+  "message": "一部分だけ？"
+ },
+ "tourSelectBody": {
+  "message": "先にページのテキストを選択すると、その部分についてだけ答えます。このラベルはContextFlowが読んでいる内容を示します。"
+ },
+ "tourGoogleTitle": {
+  "message": "Googleで最新情報"
+ },
+ "tourGoogleBody": {
+  "message": "オンにすると、Google検索をもとに最新情報を出典付きで答えます。"
+ },
+ "tourChatsTitle": {
+  "message": "チャット"
+ },
+ "tourChatsBody": {
+  "message": "チャットはページを移っても続きます。＋で新しいチャットを始め、以前のチャットは一覧から開く・名前を変える・削除することができます。チャット内のページ名をタップすると、そのページに戻れます。"
+ },
+ "tourChatsBodySync": {
+  "message": "チャットはページを移っても続き、iCloudでiPhone・iPad・Macでも続けられます。＋で新しいチャットを始め、以前のチャットは一覧から開く・名前を変える・削除することができます。チャット内のページ名をタップすると、そのページに戻れます。"
+ },
+ "tourSettingsTitle": {
+  "message": "自分好みに"
+ },
+ "tourSettingsBody": {
+  "message": "テーマと文字サイズ、✦ボタン、より良い回答のための自己紹介、自分のAPIキー、プラン。このヒントもここからもう一度見られます。"
+ },
+ "tourNoteTitle": {
+  "message": "自分のメモ"
+ },
+ "tourNoteBodyTouch": {
+  "message": "このボタンを上下にスワイプすると、質問の代わりにメモを書けます。メモはページと一緒にチャットに残り、回答回数を使いません。"
+ },
+ "tourNoteBodyMouse": {
+  "message": "このボタンの上でスクロール（または長押し）すると、質問の代わりにメモを書けます。メモはページと一緒にチャットに残り、回答回数を使いません。"
+ },
+ "tourWholeTitle": {
+  "message": "チャット全体を踏まえて"
+ },
+ "tourWholeBody": {
+  "message": "質問にすべてが必要なときは「チャット全体」をオンに：すべてのメッセージ、メモ、このチャットの他のページ。オフ：直近のメッセージとこのページ。"
+ },
  "welcomeTitle": {
   "message": "ContextFlowの準備ができました"
  },
@@ -466,5 +564,121 @@
  },
  "welcomePermission": {
   "message": "何も起こらない場合は、すべてのWebサイトでContextFlowを許可してください：Safari → 機能拡張 → ContextFlow → すべてのWebサイト → 許可。"
+ },
+ "shareNote": {
+  "message": "メモ"
+ },
+ "saveNote": {
+  "message": "メモを保存"
+ },
+ "placeholderNote": {
+  "message": "メモ — このチャットに残ります"
+ },
+ "noteHintTouch": {
+  "message": "ボタンを上下にスワイプしてメモを書く"
+ },
+ "noteHintMouse": {
+  "message": "ボタンの上でスクロールしてメモを書く"
+ },
+ "wholeChat": {
+  "message": "チャット全体"
+ },
+ "wholeChatHint": {
+  "message": "チャット全体を踏まえて回答します：すべてのメッセージ、メモ、このチャットのページ。オフ：直近のメッセージと開いているページ。"
+ },
+ "openPage": {
+  "message": "このページを開く"
+ },
+ "usageFreeShort": {
+  "message": "今日 残り$P0$/$P1$回",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "usageProShort": {
+  "message": "Pro · 今週 残り$P0$/$P1$回",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "pinChat": {
+  "message": "チャットを固定"
+ },
+ "unpinChat": {
+  "message": "固定を解除"
+ },
+ "reorderChat": {
+  "message": "ドラッグして並べ替え"
+ },
+ "chatPages": {
+  "message": "このチャットのページ"
+ },
+ "chatNotes": {
+  "message": "このチャットのメモ"
+ },
+ "pages_one": {
+  "message": "$P0$ページ",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "pages_few": {
+  "message": "$P0$ページ",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "pages_many": {
+  "message": "$P0$ページ",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "pages_other": {
+  "message": "$P0$ページ",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "cancel": {
+  "message": "キャンセル"
+ },
+ "pickCount": {
+  "message": "$P0$/$P1$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "pickHint": {
+  "message": "メッセージをタップ"
+ },
+ "pickAll": {
+  "message": "すべて選択"
+ },
+ "pickNone": {
+  "message": "選択を解除"
  }
 }

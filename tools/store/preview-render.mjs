@@ -34,6 +34,7 @@ const COPY = {
     selection: ["Explain any", "selected text"],
     ask: ["Ask anything", "about the page"],
     translate: ["Translate any", "page instantly"],
+    notes: ["Keep notes", "right in the chat"],
     free: "5 free answers a day",
     nosignup: "No sign-up needed",
     host: "weeklyreview.com",
@@ -45,6 +46,7 @@ const COPY = {
     selection: ["Объяснит любой", "выделенный текст"],
     ask: ["Ответит на вопросы", "по странице"],
     translate: ["Переведёт страницу", "на русский"],
+    notes: ["Заметки", "прямо в чате"],
     free: "5 бесплатных ответов в день",
     nosignup: "Без регистрации",
     host: "delovoyobzor.ru",
@@ -54,10 +56,11 @@ const COPY = {
 const [appName, appTagline] = readFileSync(join(root, `store/metadata/${lang === "ru" ? "ru" : "en-US"}/name.txt`), "utf8").trim().split(/:\s*/)
 
 // Takes in play order; `from` trims the start (seconds within the take), each runs to its end.
+// (Translation is in the screenshots; the 30 s preview shows notes instead.)
 const SEGMENTS = [
   { take: "main", from: 0.2 },
   { take: "selection", from: 0.15 },
-  { take: "translate", from: 0, foreign: true }
+  { take: "notes", from: 0.45 }
 ]
 
 // ------------------------------------------------------------ timeline
@@ -102,6 +105,8 @@ function state(t) {
     for (const e of s.events) {
       const age = lt - e.t
       if (e.type === "tap" && age >= 0 && age < 0.55) taps.push({ x: e.x, y: e.y, o: Math.min(1, age / 0.08) * (1 - ease((age - 0.25) / 0.3)), k: 0.75 + 0.25 * ease(age / 0.2) })
+      // A swipe: the finger lands, slides `dy` and lifts.
+      if (e.type === "swipe" && age >= 0 && age < 0.8) taps.push({ x: e.x, y: e.y + e.dy * ease((age - 0.12) / 0.35), o: Math.min(1, age / 0.08) * (1 - ease((age - 0.5) / 0.3)), k: 0.9 })
     }
     // Caption: the newest segment wins. On a change the old line fades out first, then the new one rises in.
     const c = captionAt(s, lt)

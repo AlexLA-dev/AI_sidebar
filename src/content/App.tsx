@@ -15,8 +15,10 @@ import {
   type Usage
 } from "../shared/types"
 import * as Icon from "./icons"
-import { historyForModel, lastPage, pageHasChanged, textFingerprint, type Entry } from "../shared/conversation"
-import { Markdown, toPlainText } from "./markdown"
+import { historyForModel, isQuestion, lastPage, otherPages, pageHasChanged, textFingerprint, type Entry } from "../shared/conversation"
+import { Markdown } from "./markdown"
+import { MAX_OTHER_PAGES } from "../shared/prompt"
+import { answerShareText, chatLanguage, pickedShareText, toPlainText, type ShareLinks } from "../shared/share"
 import {
   extractPage,
   forgetSelection,
@@ -31,7 +33,11 @@ import {
   type SelectionInfo
 } from "./page"
 import { SettingsView } from "./Settings"
-import { giveConsent, hasConsent, loadConversation, loadSettings, onSettingsChanged, saveConversation, saveSettings } from "./store"
+import { shareLabels } from "./shareLabels"
+import { deleteThread, giveConsent, hasConsent, hasSeenTour, loadSettings, loadThreads, markTourSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, rememberPageText, renameThread, saveSettings, saveThread, setActiveThread, setNoteHintCount } from "./store"
+import { ThreadsView } from "./Threads"
+import { Tour, tourSteps } from "./Tour"
+import { chatList, newThreadId, pinAt, shownThread, threadTitle, type Thread } from "../shared/threads"
 
 export type Bus = EventTarget
 
@@ -141,15 +147,21 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
   const touch = isTouch(platform)
   const [open, setOpen] = useState(false)
   const [visible, setVisible] = useState(false)
-  const [view, setView] = useState<"chat" | "settings">("chat")
+  const [view, setView] = useState<"chat" | "settings" | "threads">("chat")
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS)
   const [status, setStatus] = useState<StatusInfo | null>(null)
   const [usage, setUsage] = useState<Usage | null>(null)
   const [viaOwnKey, setViaOwnKey] = useState(false)
   const [consent, setConsent] = useState(true)
   const [messages, setMessages] = useState<Turn[]>([])
+  // Chats as threads: the list (newest first) and the one shown, which every page and tab continues.
+  const [threadList, setThreadList] = useState<Thread[]>([])
+  const threadRef = useRef("")
   const [partial, setPartial] = useState<string | null>(null)
   const [draft, setDraft] = useState("")
+  // The send button writes a note to the chat instead of asking (switched by swiping or scrolling on it).
+  const [noteMode, setNoteMode] = useState(false)
+  const [noteHint, setNoteHint] = useState(false)
   const [error, setError] = useState<ChatError | null>(null)
   const [pending, setPending] = useState<{ text: string; label?: string; action?: string; mode?: "google" } | null>(null)
   const [selection, setSelection] = useState<SelectionInfo | null>(null)
@@ -161,11 +173,19 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
   const [streamMode, setStreamMode] = useState<"google" | null>(null)
   const [copied, setCopied] = useState<number | null>(null)
   const [dragY, setDragY] = useState<number | null>(null)
+  // The tour of the panel: shown once, on the first open; Settings can show it again.
+  const [tourSeen, setTourSeen] = useState(true)
+  const [touring, setTouring] = useState(false)
+  const touringRef = useRef(false)
+  touringRef.current = touring
+  const panelRef = useRef<HTMLElement>(null)
 
   // The page the panel is on now (normalized URL), followed while open for single-page apps.
   const [pageUrl, setPageUrl] = useState(pageKey())
   const pageUrlRef = useRef(pageUrl)
   const [chatCopied, setChatCopied] = useState(false)
+  // Choosing messages to share: the indexes picked, or null when not choosing.
+  const [picked, setPicked] = useState<Set<number> | null>(null)
   const portRef = useRef<chrome.runtime.Port | null>(null)
   const partialRef = useRef("")
   const listRef = useRef<HTMLDivElement>(null)
@@ -182,6 +202,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
   useEffect(() => {
     void loadSettings().then(setSettings)
     void hasConsent().then(setConsent)
+    void hasSeenTour().then(setTourSeen)
     return onSettingsChanged(setSettings)
   }, [])
 
@@ -191,9 +212,16 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
     void saveSettings(next)
   }, [])
 
+  const endTour = useCallback(() => {
+    setTouring(false)
+    setTourSeen(true)
+    void markTourSeen()
+  }, [])
+
   // ------------------------------------------------------------ status
   const refreshStatus = useCallback(async (refresh = false) => {
-    const next = await sendBackground<StatusInfo>({ type: "status", refresh, platform })
+    // Fresh every time: answers on the user's other devices count against the same Pro allowance.
+    const next = await sendBackground<StatusInfo>({ type: "status", refresh, fresh: true, platform })
     if (next) {
       setStatus(next)
       setUsage(next.usage)
@@ -241,13 +269,33 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
     pageUrlRef.current = key
     setPageUrl(key)
     if (!portRef.current) {
-      void loadConversation().then((entries) => {
+      // Show the end of the conversation (and this page's actions under it).
+      const scrollToEnd = () => requestAnimationFrame(() => {
+        const list = listRef.current
+        if (list) list.scrollTop = list.scrollHeight
+      })
+      void loadThreads().then(({ threads, active }) => {
         loadedRef.current = true
+        threadRef.current = active.id
+        const entries = threads[active.id]?.m ?? []
+        setThreadList(chatList(threads))
         setMessages(entries)
-        // Show the end of the conversation (and this page's actions under it).
-        requestAnimationFrame(() => {
-          const list = listRef.current
-          if (list) list.scrollTop = list.scrollHeight
+        scrollToEnd()
+        // Other devices may have continued a chat (iCloud): show it unless something was asked here meanwhile.
+        void sendBackground<{ changed: boolean }>({ type: "syncThreads" }).then(async (result) => {
+          if (!result?.changed || portRef.current) return
+          const fresh = await loadThreads()
+          const next = shownThread(fresh.threads, fresh.active)
+          setThreadList(chatList(fresh.threads))
+          setMessages((current) => {
+            if (current !== entries) return current
+            if (next.id !== threadRef.current) {
+              threadRef.current = next.id
+              void setActiveThread(next.id)
+            }
+            return next.m
+          })
+          scrollToEnd()
         })
       })
     }
@@ -272,6 +320,19 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
     return () => clearInterval(timer)
   }, [open])
 
+  // While open: the chat list follows other tabs and devices, and the answer counter other devices.
+  useEffect(() => {
+    if (!open) return
+    const off = onThreadsChanged(() => void loadThreads().then(({ threads }) => setThreadList(chatList(threads))))
+    const timer = setInterval(() => {
+      if (document.visibilityState === "visible" && !portRef.current) void refreshStatus()
+    }, 30_000)
+    return () => {
+      off()
+      clearInterval(timer)
+    }
+  }, [open, refreshStatus])
+
   // Coming back from the ContextFlow app (e.g. after subscribing) → re-check the plan.
   useEffect(() => {
     const onVisible = () => {
@@ -281,10 +342,18 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
     return () => document.removeEventListener("visibilitychange", onVisible)
   }, [open, refreshStatus])
 
-  // Persist the running conversation.
+  // The first time the panel is open and idle, show what it can do.
+  useEffect(() => {
+    if (tourSeen || touring || !visible || view !== "chat" || streaming || pending) return
+    const timer = setTimeout(() => setTouring(true), 450)
+    return () => clearTimeout(timer)
+  }, [tourSeen, touring, visible, view, streaming, pending])
+
+  // Persist the chat shown.
   useEffect(() => {
     if (!loadedRef.current) return
-    const timer = setTimeout(() => void saveConversation(messages), 300)
+    const id = threadRef.current
+    const timer = setTimeout(() => void saveThread(id, messages), 300)
     return () => clearTimeout(timer)
   }, [messages])
 
@@ -307,14 +376,27 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
     }
   }, [])
 
+  const pickedRef = useRef(picked)
+  pickedRef.current = picked
   useEffect(() => {
     if (!open) return
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") hide()
+      if (e.key !== "Escape") return
+      if (touringRef.current) {
+        endTour()
+        return
+      }
+      if (pickedRef.current) {
+        setPicked(null)
+        return
+      }
+      // Escape in a chat's name field only cancels the renaming.
+      if ((e.composedPath()[0] as HTMLElement | undefined)?.classList?.contains("cf-thread-name")) return
+      hide()
     }
     window.addEventListener("keydown", onKey, true)
     return () => window.removeEventListener("keydown", onKey, true)
-  }, [open, hide])
+  }, [open, hide, endTour])
 
   // Keep the newest text in view while streaming.
   useEffect(() => {
@@ -379,7 +461,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
       const next: Turn[] = [...history, grounding ? { role: "assistant", content: text, grounding } : { role: "assistant", content: text }]
       setMessages(next)
       // Right away, not on the debounced save: the user may go to another page as soon as the answer is in.
-      void saveConversation(next)
+      void saveThread(threadRef.current, next)
     }
     if (err) setError(err)
   }, [])
@@ -398,6 +480,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
     const hash = textFingerprint(full.text)
     const changed = pageHasChanged(base, url, hash)
     const user: Turn = { role: "user", content, label: opts.label, page: { url, title: full.title, hash } }
+    void rememberPageText(url, full.title, full.text)
     if (opts.mode) user.mode = opts.mode
     if (changed) user.pageChanged = true
     const history: Turn[] = [...base, user]
@@ -444,16 +527,39 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
     port.onDisconnect.addListener(() => {
       if (!settled && portRef.current === port) finish(history, partialRef.current, partialRef.current ? null : { code: "STREAM" })
     })
-    port.postMessage({
-      type: "ask",
-      payload: {
-        messages: historyForModel(history, url),
-        page,
-        action: opts.action,
-        mode: opts.mode
-      }
+    const wholeChat = settingsRef.current.wholeChat
+    void (wholeChat ? pageTexts(otherPages(history, url).map((p) => p.url).slice(0, MAX_OTHER_PAGES)) : Promise.resolve([])).then((pages) => {
+      if (portRef.current !== port) return // stopped meanwhile
+      port.postMessage({
+        type: "ask",
+        payload: {
+          messages: historyForModel(history, url, wholeChat),
+          page,
+          action: opts.action,
+          mode: opts.mode,
+          ...(wholeChat ? { context: "chat" as const, pages } : {})
+        }
+      })
     })
   }, [consent, messages, selection, finish])
+
+  /** Keeps a note in the chat (with the page it was written on); no AI, no allowance used. */
+  const saveNote = useCallback((text: string) => {
+    const content = text.trim()
+    if (!content || portRef.current) return
+    const url = pageKey()
+    const full = extractPage()
+    const next: Turn[] = [...messages, { role: "user", content, note: true, page: { url, title: full.title, hash: textFingerprint(full.text) } }]
+    setMessages(next)
+    void saveThread(threadRef.current, next)
+    void rememberPageText(url, full.title, full.text)
+    setDraft("")
+    if (inputRef.current) inputRef.current.style.height = "auto"
+    setError(null)
+    setNoteMode(false)
+  }, [messages])
+
+  const send = () => (noteMode ? saveNote(draft) : ask(draft, { mode: googleMode ? "google" : undefined }))
 
   const stop = useCallback(() => {
     const port = portRef.current
@@ -474,7 +580,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
   // `withoutGoogle`: ask the same question as a normal answer (e.g. after the Google limit).
   const retry = useCallback((withoutGoogle = false) => {
     const last = messages[messages.length - 1]
-    if (last?.role !== "user") return
+    if (!isQuestion(last)) return
     if (withoutGoogle) setGoogleMode(false)
     ask(last.content, { label: last.label, retry: true, mode: withoutGoogle ? undefined : last.mode })
   }, [messages, ask])
@@ -495,42 +601,181 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
   const askRef = useRef(ask)
   askRef.current = ask
 
+  /** Starts a new thread; the previous one stays in the list. */
   const newChat = useCallback(() => {
     stop()
+    const id = newThreadId()
+    threadRef.current = id
+    void setActiveThread(id)
     setMessages([])
     setError(null)
-    void saveConversation([])
+    setView("chat")
   }, [stop])
 
-  // ------------------------------------------------------------ sharing
-  const shareFooter = (url: string) => `${t("shareSource")}: ${url}\n${t("shareMadeWith")}: ${LINKS.appStoreShare}`
+  const openThread = useCallback((id: string) => {
+    stop()
+    const thread = threadList.find((x) => x.id === id)
+    threadRef.current = id
+    void setActiveThread(id)
+    setMessages(thread?.m ?? [])
+    setError(null)
+    setView("chat")
+    requestAnimationFrame(() => {
+      const list = listRef.current
+      if (list) list.scrollTop = list.scrollHeight
+    })
+  }, [stop, threadList])
 
-  /** Shares (or copies, where sharing isn't available) the whole conversation. */
-  const shareChat = useCallback(async () => {
-    const lines: string[] = []
-    const pages = new Map<string, string>()
-    for (const m of messages) {
-      if (m.role === "user") {
-        if (m.page) pages.set(m.page.url, m.page.title)
-        lines.push(`${t("shareYou")}: ${m.label ?? m.content}`)
-      } else {
-        lines.push(`ContextFlow: ${toPlainText(m.content)}`, "")
-      }
+  const renameChat = useCallback((id: string, name: string) => {
+    void renameThread(id, name).then(() => loadThreads()).then(({ threads }) => setThreadList(chatList(threads)))
+  }, [])
+
+  const removeThread = useCallback((id: string) => {
+    void deleteThread(id)
+    setThreadList((list) => list.filter((x) => x.id !== id))
+    if (id === threadRef.current) {
+      const id2 = newThreadId()
+      threadRef.current = id2
+      void setActiveThread(id2)
+      setMessages([])
+      setError(null)
     }
-    const sources = [...pages].map(([url, title]) => (title ? `${title} — ${url}` : url))
-    const text = [
-      lines.join("\n").trim(),
-      "",
-      sources.length ? `${t("shareSource")}:\n${sources.join("\n")}` : `${t("shareSource")}: ${location.href}`,
-      `${t("shareMadeWith")}: ${LINKS.appStoreShare}`
-    ].join("\n")
+  }, [])
+
+  // Pinning and reordering show at once; storage (and iCloud) follow.
+  const placeChat = useCallback((id: string, pin: number | null) => {
+    setThreadList((list) => chatList(Object.fromEntries(list.map((th) => {
+      if (th.id !== id) return [th.id, th]
+      const next = { ...th }
+      if (pin === null) delete next.pin
+      else next.pin = pin
+      return [th.id, next]
+    }))))
+    void pinThread(id, pin)
+  }, [])
+  const pinChat = useCallback((id: string, pinned: boolean) => {
+    placeChat(id, pinned ? pinAt(threadList.filter((th) => th.pin !== undefined && th.id !== id), 0) : null)
+  }, [threadList, placeChat])
+  const moveChat = useCallback((id: string, index: number) => {
+    placeChat(id, pinAt(threadList.filter((th) => th.pin !== undefined && th.id !== id), index))
+  }, [threadList, placeChat])
+
+  // ------------------------------------------------------------ notes
+  /** A page of the chat: its tab when it's open somewhere, else a new tab. */
+  const openPage = useCallback((url: string) => void sendBackground({ type: "openPage", url }), [])
+
+  // The send button flips between asking and writing a note: swipe it up or down (touch), scroll on it
+  // (trackpad, mouse wheel) or hold it. `switched` swallows the click that ends a hold.
+  const switched = useRef(false)
+  const gesture = useRef({ y: 0, moved: false, wheelAt: 0, hold: 0 })
+  const flipMode = useCallback(() => {
+    setNoteMode((on) => !on)
+    setNoteHint(false)
+    void setNoteHintCount(-1)
+  }, [])
+  const endHold = () => window.clearTimeout(gesture.current.hold)
+  const switchGestures = {
+    onTouchStart: (e: TouchEvent) => {
+      gesture.current.y = e.touches[0].clientY
+      gesture.current.moved = false
+    },
+    onTouchMove: (e: TouchEvent) => {
+      const g = gesture.current
+      if (!g.moved && Math.abs(e.touches[0].clientY - g.y) > 14) {
+        g.moved = true
+        switched.current = true
+        endHold()
+        flipMode()
+      }
+      if (g.moved) e.preventDefault()
+    },
+    onWheel: (e: WheelEvent) => {
+      if (Math.abs(e.deltaY) < 3) return
+      e.preventDefault()
+      const now = Date.now()
+      if (now - gesture.current.wheelAt > 500) flipMode()
+      gesture.current.wheelAt = now
+    },
+    onPointerDown: () => {
+      switched.current = false
+      gesture.current.hold = window.setTimeout(() => {
+        switched.current = true
+        flipMode()
+      }, 500)
+    },
+    onPointerUp: endHold,
+    onPointerLeave: endHold,
+    onPointerCancel: endHold,
+    onContextMenu: (e: Event) => e.preventDefault()
+  }
+
+  // While typing, the first few panel sessions show how to switch to a note (until it's been used once).
+  const hintAsked = useRef(false)
+  useEffect(() => {
+    if (!draft.trim() || noteMode || hintAsked.current) return
+    hintAsked.current = true
+    void noteHintCount().then((count) => {
+      if (count < 0 || count >= 3) return
+      setNoteHint(true)
+      void setNoteHintCount(count + 1)
+      window.setTimeout(() => setNoteHint(false), 8000)
+    })
+  }, [draft, noteMode])
+
+  // ------------------------------------------------------------ sharing
+  const shareLinks = (): ShareLinks => ({ page: location.href, app: LINKS.appStoreShare })
+
+  const chatName = (): string => threadList.find((t) => t.id === threadRef.current)?.title || threadTitle(messages)
+
+  /** Shares text (copies it where sharing isn't available). True when it was copied. */
+  const shareText = useCallback(async (text: string): Promise<boolean> => {
     if (typeof navigator.share === "function") {
+      // Text only: with a `url` as well, iOS shares the App Store page and the text gets lost.
       await navigator.share({ text }).catch(() => undefined)
-    } else if (await copyText(text)) {
+      return false
+    }
+    return copyText(text)
+  }, [])
+
+  /** Sharing the chat starts with every message picked: untick what shouldn't go, then share or copy. */
+  const pickMessages = useCallback(() => setPicked(new Set(messages.map((_, i) => i))), [messages])
+  const togglePicked = (index: number) => setPicked((now) => {
+    if (!now) return now
+    const next = new Set(now)
+    if (!next.delete(index)) next.add(index)
+    return next
+  })
+  // While choosing, a press anywhere on a message (links too) ticks it instead of acting.
+  const pickProps = (index: number) => picked
+    ? {
+        role: "checkbox" as const,
+        "aria-checked": picked.has(index),
+        tabIndex: 0,
+        onClickCapture: (e: Event) => { e.preventDefault(); e.stopPropagation(); togglePicked(index) },
+        onKeyDown: (e: KeyboardEvent) => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); togglePicked(index) } }
+      }
+    : {}
+  const pickedText = () => pickedShareText(messages, picked ?? new Set(), chatName(), shareLabels(chatLanguage(messages)), shareLinks())
+  /** Shares (or copies, where sharing isn't available) the picked messages. */
+  const sharePicked = useCallback(async () => {
+    if (!picked?.size) return
+    const copiedIt = await shareText(pickedText())
+    setPicked(null)
+    if (copiedIt) {
       setChatCopied(true)
       setTimeout(() => setChatCopied(false), 1500)
     }
-  }, [messages])
+  }, [picked, messages, shareText, threadList])
+  const copyPicked = useCallback(async () => {
+    if (!picked?.size) return
+    if (await copyText(pickedText())) {
+      setPicked(null)
+      setChatCopied(true)
+      setTimeout(() => setChatCopied(false), 1500)
+    }
+  }, [picked, messages, threadList])
+  // Another chat, or one that changed underneath: start choosing again.
+  useEffect(() => setPicked(null), [threadRef.current, messages.length, view])
 
   // ------------------------------------------------------------ upgrade
   const openApp = useCallback(async (target: "subscribe" | "manage") => {
@@ -574,15 +819,19 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
   const plan = status?.plan ?? "free"
   const ownKeyActive = viaOwnKey || (Boolean(status?.hasOwnKey) && plan !== "free")
 
+  // The allowance under the input: short, to share the line with "Whole chat" and Get Pro; in full on hover.
   const usageLine = useMemo(() => {
-    if (ownKeyActive) return t("usageOwnKey")
-    if (!usage) return ""
+    if (ownKeyActive) return { short: t("usageOwnKey"), full: t("usageOwnKey") }
+    if (!usage) return { short: "", full: "" }
     const left = Math.max(0, usage.limit - usage.used)
-    return plan === "pro" ? t("usagePro", left, usage.limit) : t("usageFree", left, usage.limit)
+    return plan === "pro"
+      ? { short: t("usageProShort", left, usage.limit), full: t("usagePro", left, usage.limit) }
+      : { short: t("usageFreeShort", left, usage.limit), full: t("usageFree", left, usage.limit) }
   }, [usage, plan, ownKeyActive])
 
   const theme = settings.theme === "auto" ? undefined : settings.theme
-  const lastIsUser = messages[messages.length - 1]?.role === "user"
+  // The last message is a question still without an answer (a note doesn't count).
+  const lastIsUser = isQuestion(messages[messages.length - 1])
   // The conversation was last on another page: offer this page's actions.
   const onNewPage = messages.length > 0 && Boolean(lastPage(messages)) && lastPage(messages)?.url !== pageUrl
 
@@ -637,6 +886,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
 
       {open && (
         <section
+          ref={panelRef}
           class={`cf-panel ${visible ? "in" : ""}`}
           role="dialog"
           aria-label="ContextFlow"
@@ -644,14 +894,14 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
         >
           {layout === "sheet" && <div class="cf-grabber" onClick={hide} />}
           <header class="cf-header">
-            {view === "settings" ? (
+            {view !== "chat" ? (
               <button type="button" class="cf-icon" onClick={() => setView("chat")} aria-label={t("back")}><Icon.Back /></button>
             ) : (
               <span class="cf-logo"><Icon.Sparkle size={18} /></span>
             )}
             <div class="cf-title">
-              {view === "settings" ? (
-                <strong>{t("settings")}</strong>
+              {view !== "chat" ? (
+                <strong>{view === "settings" ? t("settings") : t("chatsTitle")}</strong>
               ) : (
                 <ContextChip
                   kind={contextKind}
@@ -665,20 +915,28 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
               )}
             </div>
             {view === "chat" && messages.length > 0 && partial === null && (
-              <button type="button" class="cf-icon" onClick={() => void shareChat()} aria-label={t("shareChat")} title={chatCopied ? t("copied") : t("shareChat")}>
+              <button type="button" class="cf-icon" onClick={() => (picked ? setPicked(null) : pickMessages())} aria-pressed={Boolean(picked)} aria-label={t("shareChat")} title={chatCopied ? t("copied") : t("shareChat")}>
                 {chatCopied ? <Icon.Check /> : <Icon.Share />}
               </button>
             )}
-            {view === "chat" && messages.length > 0 && (
+            {view === "chat" && threadList.length > 0 && (
+              <button type="button" class="cf-icon cf-chats-button" onClick={() => setView("threads")} aria-label={t("allChats")} title={t("allChats")}>
+                <Icon.Chats />
+                <span class="cf-badge">{threadList.length}</span>
+              </button>
+            )}
+            {((view === "chat" && messages.length > 0) || view === "threads") && (
               <button type="button" class="cf-icon" onClick={newChat} aria-label={t("newChat")} title={t("newChat")}><Icon.Plus /></button>
             )}
             {view === "chat" && (
-              <button type="button" class="cf-icon" onClick={() => setView("settings")} aria-label={t("settings")} title={t("settings")}><Icon.Gear /></button>
+              <button type="button" class="cf-icon cf-settings-button" onClick={() => setView("settings")} aria-label={t("settings")} title={t("settings")}><Icon.Gear /></button>
             )}
             <button type="button" class="cf-icon" onClick={hide} aria-label={t("close")} title={t("close")}><Icon.Close /></button>
           </header>
 
-          {view === "settings" ? (
+          {view === "threads" ? (
+            <ThreadsView threads={threadList} activeId={threadRef.current} onOpen={openThread} onRename={renameChat} onDelete={removeThread} onNew={newChat} onPin={pinChat} onMove={moveChat} onOpenPage={openPage} />
+          ) : view === "settings" ? (
             <SettingsView
               settings={settings}
               status={status}
@@ -690,9 +948,17 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
               onManage={() => void openApp("manage")}
               onStatusChange={() => void refreshStatus(true)}
               onOpenUrl={(url) => void sendBackground({ type: "openUrl", url })}
+              onShowTour={() => {
+                setView("chat")
+                setTouring(true)
+              }}
               onChatsDeleted={() => {
                 setMessages([])
                 setError(null)
+                setThreadList([])
+                void loadThreads().then(({ active }) => {
+                  threadRef.current = active.id
+                })
               }}
             />
           ) : (
@@ -715,12 +981,16 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
 
                 {messages.map((m, idx) =>
                   m.role === "user" ? (
-                    <div class="cf-msg user" key={idx}>
-                      <PageDivider entries={messages} index={idx} />
-                      <div class="cf-bubble-user">{m.mode === "google" && <span class="cf-user-mode"><Icon.Search size={12} /></span>}{m.label ?? m.content}</div>
+                    <div class={`cf-msg user ${m.note ? "note" : ""} ${picked ? "pickable" : ""} ${picked?.has(idx) ? "picked" : ""}`} key={idx} {...pickProps(idx)}>
+                      <PageDivider entries={messages} index={idx} onOpen={openPage} />
+                      {m.note ? (
+                        <div class="cf-bubble-note"><span class="cf-note-mark" aria-label={t("shareNote")}><Icon.Pencil /></span>{m.content}</div>
+                      ) : (
+                        <div class="cf-bubble-user">{m.mode === "google" && <span class="cf-user-mode"><Icon.Search size={12} /></span>}{m.label ?? m.content}</div>
+                      )}
                     </div>
                   ) : (
-                    <div class="cf-msg ai" key={idx}>
+                    <div class={`cf-msg ai ${picked ? "pickable" : ""} ${picked?.has(idx) ? "picked" : ""}`} key={idx} {...pickProps(idx)}>
                       {m.grounding && <div class="cf-grounded"><Icon.Search size={13} /> {t("googleBadge")}</div>}
                       <Markdown text={m.content} onCopyCode={(code) => void copyText(code)} />
                       {m.grounding && <Sources grounding={m.grounding} />}
@@ -729,7 +999,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
                           {copied === idx ? <Icon.Check /> : <Icon.Copy />} {copied === idx ? t("copied") : t("copy")}
                         </button>
                         {typeof navigator.share === "function" && (
-                          <button type="button" onClick={() => void navigator.share({ text: `${toPlainText(m.content)}\n\n${shareFooter(sourceOf(messages, idx))}` }).catch(() => undefined)}>
+                          <button type="button" onClick={() => void shareText(answerShareText(messages, idx, shareLabels(chatLanguage(messages)), shareLinks()))}>
                             <Icon.Share /> {t("share")}
                           </button>
                         )}
@@ -807,55 +1077,96 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
                 )}
               </div>
 
-              <footer class="cf-composer">
-                <div class="cf-input">
+              {picked ? (
+                <footer class="cf-composer cf-pickbar">
+                  <button type="button" class="cf-icon" onClick={() => setPicked(null)} aria-label={t("cancel")} title={t("cancel")}><Icon.Close /></button>
                   <button
                     type="button"
-                    class={`cf-mode ${googleMode ? "on" : ""}`}
-                    aria-pressed={googleMode}
-                    title={t("googleModeHint")}
-                    onClick={() => setGoogleMode(!googleMode)}
+                    class="cf-pick-count"
+                    onClick={() => setPicked(picked.size === messages.length ? new Set() : new Set(messages.map((_, i) => i)))}
+                    title={t(picked.size === messages.length ? "pickNone" : "pickAll")}
                   >
-                    <Icon.Search size={14} /> {t("actGoogle")}
+                    {picked.size ? t("pickCount", picked.size, messages.length) : t("pickHint")}
                   </button>
-                  <textarea
-                    ref={inputRef}
-                    rows={1}
-                    value={draft}
-                    placeholder={t(googleMode ? "placeholderGoogle" : contextKind === "selection" ? "placeholderSelection" : contextKind === "page" ? "placeholderPage" : "placeholderNone")}
-                    enterkeyhint="send"
-                    onInput={(e) => {
-                      const el = e.currentTarget
-                      setDraft(el.value)
-                      el.style.height = "auto"
-                      el.style.height = `${Math.min(el.scrollHeight, 140)}px`
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.shiftKey && !e.isComposing) {
-                        e.preventDefault()
-                        ask(draft, { mode: googleMode ? "google" : undefined })
-                      }
-                      e.stopPropagation()
-                    }}
-                    onKeyUp={(e) => e.stopPropagation()}
-                    onKeyPress={(e) => e.stopPropagation()}
-                  />
-                  {streaming ? (
-                    <button type="button" class="cf-send stop" onClick={stop} aria-label={t("stop")} title={t("stop")}><Icon.Stop /></button>
-                  ) : (
-                    <button type="button" class="cf-send" disabled={!draft.trim()} onClick={() => ask(draft, { mode: googleMode ? "google" : undefined })} aria-label={t("send")} title={t("send")}><Icon.ArrowUp /></button>
+                  <button type="button" class="cf-secondary" disabled={!picked.size} onClick={() => void copyPicked()}><Icon.Copy /> {t("copy")}</button>
+                  {typeof navigator.share === "function" && (
+                    <button type="button" class="cf-primary" disabled={!picked.size} onClick={() => void sharePicked()}><Icon.Share /> {t("share")}</button>
                   )}
-                </div>
-                {usageLine && (
+                </footer>
+              ) : (
+                <footer class="cf-composer">
+                  {noteHint && draft.trim() && !noteMode && <div class="cf-note-hint" role="status">{t(touch ? "noteHintTouch" : "noteHintMouse")}</div>}
+                  <div class={`cf-input ${noteMode ? "note" : ""}`}>
+                    {!noteMode && (
+                      <button
+                        type="button"
+                        class={`cf-mode ${googleMode ? "on" : ""}`}
+                        aria-pressed={googleMode}
+                        title={t("googleModeHint")}
+                        onClick={() => setGoogleMode(!googleMode)}
+                      >
+                        <Icon.Search size={14} /> {t("actGoogle")}
+                      </button>
+                    )}
+                    <textarea
+                      ref={inputRef}
+                      rows={1}
+                      value={draft}
+                      placeholder={t(noteMode ? "placeholderNote" : googleMode ? "placeholderGoogle" : contextKind === "selection" ? "placeholderSelection" : contextKind === "page" ? "placeholderPage" : "placeholderNone")}
+                      enterkeyhint="send"
+                      onInput={(e) => {
+                        const el = e.currentTarget
+                        setDraft(el.value)
+                        el.style.height = "auto"
+                        el.style.height = `${Math.min(el.scrollHeight, 140)}px`
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey && !e.isComposing) {
+                          e.preventDefault()
+                          send()
+                        }
+                        e.stopPropagation()
+                      }}
+                      onKeyUp={(e) => e.stopPropagation()}
+                      onKeyPress={(e) => e.stopPropagation()}
+                    />
+                    {streaming ? (
+                      <button type="button" class="cf-send stop" onClick={stop} aria-label={t("stop")} title={t("stop")}><Icon.Stop /></button>
+                    ) : (
+                      <span class="cf-send-wrap" {...switchGestures}>
+                        <button
+                          type="button"
+                          class={`cf-send ${noteMode ? "note" : ""}`}
+                          disabled={!draft.trim()}
+                          onClick={() => {
+                            if (switched.current) switched.current = false
+                            else send()
+                          }}
+                          aria-label={t(noteMode ? "saveNote" : "send")}
+                          title={`${t(noteMode ? "saveNote" : "send")} · ${t(touch ? "noteHintTouch" : "noteHintMouse")}`}
+                        >
+                          <span class="cf-send-icon" key={noteMode ? "note" : "send"}>{noteMode ? <Icon.Pencil /> : <Icon.ArrowUp />}</span>
+                        </button>
+                      </span>
+                    )}
+                  </div>
                   <div class="cf-usage">
-                    <span>{usageLine}</span>
+                    <span class="cf-usage-text" title={usageLine.full}>{usageLine.short}</span>
+                    <label class="cf-whole" title={t("wholeChatHint")}>
+                      <input type="checkbox" role="switch" checked={settings.wholeChat} onChange={(e) => updateSettings({ wholeChat: e.currentTarget.checked })} />
+                      <span class="cf-switch" aria-hidden="true" />
+                      {t("wholeChat")}
+                    </label>
                     {plan === "free" && !ownKeyActive && TARGET === "safari" && (
                       <button type="button" class="cf-link" onClick={() => void openApp("subscribe")}>{t("getPro")}</button>
                     )}
                   </div>
-                )}
-              </footer>
+                </footer>
+              )}
             </>
+          )}
+          {touring && view === "chat" && panelRef.current && (
+            <Tour panel={panelRef.current} steps={tourSteps(TARGET === "safari" && settings.syncChats, touch)} onDone={endTour} />
           )}
         </section>
       )}
@@ -865,18 +1176,25 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
 
 const runActionRef: { current: (a: Action) => void } = { current: () => undefined }
 
-/** URL of the page the answer at `index` was about (its question's page), for sharing. */
-function sourceOf(entries: Entry[], index: number): string {
-  for (let i = index; i >= 0; i--) if (entries[i].role === "user" && entries[i].page) return entries[i].page!.url
-  return location.href
-}
-
-/** Above a question: "New page: …" when it moved to another page, "Page updated" when the page changed. */
-function PageDivider({ entries, index }: { entries: Entry[]; index: number }): VNode | null {
+/**
+ * Above a question or note: "New page: …" on the chat's first page and whenever it moved to another one
+ * (the title opens that page: its tab if it's open), "Page updated" when the page changed.
+ */
+function PageDivider({ entries, index, onOpen }: { entries: Entry[]; index: number; onOpen: (url: string) => void }): VNode | null {
   const m = entries[index]
   const previous = lastPage(entries.slice(0, index))
-  if (m.page && previous && previous.url !== m.page.url) {
-    return <div class="cf-divider"><span>{t("newPage", m.page.title || m.page.url)}</span></div>
+  if (m.page && (!previous || previous.url !== m.page.url)) {
+    const { url, title } = m.page
+    const [before, after = ""] = t("newPage", "\uE000").split("\uE000")
+    return (
+      <div class="cf-divider">
+        <span>
+          {before}
+          <a href={url} title={t("openPage")} onClick={(e) => { e.preventDefault(); onOpen(url) }}>{title || url}</a>
+          {after}
+        </span>
+      </div>
+    )
   }
   if (m.pageChanged) return <div class="cf-divider"><span>{t("pageUpdated")}</span></div>
   return null

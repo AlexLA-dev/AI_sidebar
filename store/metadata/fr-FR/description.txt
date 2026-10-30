@@ -17,7 +17,7 @@ CONÇU POUR SAFARI SUR IPHONE, IPAD ET MAC
 CONFIDENTIALITÉ DÈS LA CONCEPTION
 • Pas de compte, pas d’inscription, aucun pistage
 • Une page n’est lue que lorsque vous posez une question à son sujet
-• Le texte des pages n’est jamais stocké sur nos serveurs ; vos conversations restent sur votre appareil
+• Le texte des pages n’est jamais stocké sur nos serveurs ; vos conversations restent sur vos appareils et se synchronisent via votre iCloud, chiffrées de bout en bout
 
 GRATUIT ET PRO
 • Gratuit : 5 réponses chaque jour

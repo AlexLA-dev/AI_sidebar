@@ -125,6 +125,27 @@
  "newChat": {
   "message": "New chat"
  },
+ "chatsTitle": {
+  "message": "Chats"
+ },
+ "allChats": {
+  "message": "All chats"
+ },
+ "chatsEmpty": {
+  "message": "No chats yet. Ask something to start one."
+ },
+ "deleteChat": {
+  "message": "Delete chat"
+ },
+ "renameChat": {
+  "message": "Rename chat"
+ },
+ "chatName": {
+  "message": "Chat name"
+ },
+ "chatNameHint": {
+  "message": "Leave it empty to name the chat after its first question."
+ },
  "settings": {
   "message": "Settings"
  },
@@ -286,7 +307,7 @@
   "message": "Before your first answer"
  },
  "consentBody": {
-  "message": "To answer, ContextFlow sends your question and the text of this page (or your selection) via our server to OpenAI, or to Google for Google answers. Page content and chats are not stored on our servers; your chats stay on this device."
+  "message": "To answer, ContextFlow sends your question and the text of this page (or your selection) via our server to OpenAI, or to Google for Google answers. Page content and chats are not stored on our servers; your chats stay on your devices and, if you sync them, in your iCloud."
  },
  "consentAccept": {
   "message": "Agree and continue"
@@ -411,6 +432,12 @@
  "saved": {
   "message": "Saved"
  },
+ "setSyncChats": {
+  "message": "Sync chats with iCloud"
+ },
+ "setSyncChatsHint": {
+  "message": "Continue a chat on your iPhone, iPad and Mac. The chat is end-to-end encrypted in your iCloud and never stored on our servers."
+ },
  "deleteChats": {
   "message": "Delete all chats"
  },
@@ -455,6 +482,77 @@
  "sources": {
   "message": "Sources"
  },
+ "tourStep": {
+  "message": "$P0$ of $P1$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "tourSkip": {
+  "message": "Skip"
+ },
+ "tourNext": {
+  "message": "Next"
+ },
+ "tourDone": {
+  "message": "Got it"
+ },
+ "tourShow": {
+  "message": "Show tips"
+ },
+ "tourAskTitle": {
+  "message": "Ask about this page"
+ },
+ "tourAskBody": {
+  "message": "ContextFlow reads the page you're on. Pick an action like Summarize, or type your own question."
+ },
+ "tourSelectTitle": {
+  "message": "Only part of it?"
+ },
+ "tourSelectBody": {
+  "message": "Select text on the page first, and the answer is about just that. This label shows what ContextFlow reads."
+ },
+ "tourGoogleTitle": {
+  "message": "Fresh facts from Google"
+ },
+ "tourGoogleBody": {
+  "message": "Turn this on to answer with Google Search: current information with sources."
+ },
+ "tourChatsTitle": {
+  "message": "Your chats"
+ },
+ "tourChatsBody": {
+  "message": "A chat carries on from page to page. Start a new one with +, and open, rename or delete earlier ones in the chat list. Tap a page's name in the chat to go back to it."
+ },
+ "tourChatsBodySync": {
+  "message": "A chat carries on from page to page, and on your iPhone, iPad and Mac through iCloud. Start a new one with +, and open, rename or delete earlier ones in the chat list. Tap a page's name in the chat to go back to it."
+ },
+ "tourSettingsTitle": {
+  "message": "Make it yours"
+ },
+ "tourSettingsBody": {
+  "message": "Theme and text size, the ✦ button, a few words about you for better answers, your own API key and your plan. These tips are here too."
+ },
+ "tourNoteTitle": {
+  "message": "Notes of your own"
+ },
+ "tourNoteBodyTouch": {
+  "message": "Swipe this button up or down to write a note instead of asking. It stays in the chat with its page and uses no answers."
+ },
+ "tourNoteBodyMouse": {
+  "message": "Scroll on this button (or hold it) to write a note instead of asking. It stays in the chat with its page and uses no answers."
+ },
+ "tourWholeTitle": {
+  "message": "The whole chat in mind"
+ },
+ "tourWholeBody": {
+  "message": "Turn on Whole chat when a question needs everything: all messages, your notes and the other pages of this chat. Off, answers use the last messages and this page."
+ },
  "welcomeTitle": {
   "message": "ContextFlow is ready"
  },
@@ -466,5 +564,121 @@
  },
  "welcomePermission": {
   "message": "If nothing happens, allow ContextFlow on all websites: Safari → Extensions → ContextFlow → All Websites → Allow."
+ },
+ "shareNote": {
+  "message": "Note"
+ },
+ "saveNote": {
+  "message": "Save note"
+ },
+ "placeholderNote": {
+  "message": "Write a note — it stays in this chat"
+ },
+ "noteHintTouch": {
+  "message": "Swipe the button up or down to write a note"
+ },
+ "noteHintMouse": {
+  "message": "Scroll on the button to write a note"
+ },
+ "wholeChat": {
+  "message": "Whole chat"
+ },
+ "wholeChatHint": {
+  "message": "Answers take the whole chat into account: every message, your notes and the pages of this chat. Off: the last messages and the open page."
+ },
+ "openPage": {
+  "message": "Open this page"
+ },
+ "usageFreeShort": {
+  "message": "$P0$ of $P1$ left today",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "usageProShort": {
+  "message": "Pro · $P0$ of $P1$ this week",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "pinChat": {
+  "message": "Pin chat"
+ },
+ "unpinChat": {
+  "message": "Unpin chat"
+ },
+ "reorderChat": {
+  "message": "Drag to reorder"
+ },
+ "chatPages": {
+  "message": "Pages in this chat"
+ },
+ "chatNotes": {
+  "message": "Your notes in this chat"
+ },
+ "pages_one": {
+  "message": "$P0$ page",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "pages_few": {
+  "message": "$P0$ pages",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "pages_many": {
+  "message": "$P0$ pages",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "pages_other": {
+  "message": "$P0$ pages",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "cancel": {
+  "message": "Cancel"
+ },
+ "pickCount": {
+  "message": "$P0$ of $P1$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "pickHint": {
+  "message": "Tap messages to share"
+ },
+ "pickAll": {
+  "message": "Select all"
+ },
+ "pickNone": {
+  "message": "Deselect all"
  }
 }

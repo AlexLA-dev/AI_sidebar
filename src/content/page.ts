@@ -1,5 +1,6 @@
 import { Readability } from "@mozilla/readability"
 
+import { urlKey } from "../shared/conversation"
 import { MAX_PAGE_CHARS } from "../shared/prompt"
 import type { Platform } from "../shared/types"
 
@@ -20,16 +21,7 @@ export function isTouch(platform: Platform): boolean {
 
 /** Stable key for "the same page" (ignores hash and tracking parameters). */
 export function pageKey(): string {
-  try {
-    const url = new URL(location.href)
-    url.hash = ""
-    for (const p of [...url.searchParams.keys()]) {
-      if (/^(utm_|fbclid|gclid|yclid|mc_|ref$|ref_src)/i.test(p)) url.searchParams.delete(p)
-    }
-    return url.toString()
-  } catch {
-    return location.href
-  }
+  return urlKey(location.href)
 }
 
 export function siteName(): string {

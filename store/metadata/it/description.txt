@@ -17,7 +17,7 @@ PENSATO PER SAFARI SU IPHONE, IPAD E MAC
 PRIVACY FIN DALLA PROGETTAZIONE
 • Nessun account, nessuna registrazione, nessun tracciamento
 • Una pagina viene letta solo quando fai una domanda su di essa
-• Il testo delle pagine non viene mai salvato sui nostri server; le tue chat restano sul tuo dispositivo
+• Il testo delle pagine non viene mai salvato sui nostri server; le tue chat restano sui tuoi dispositivi e si sincronizzano tramite il tuo iCloud, cifrate end-to-end
 
 GRATIS E PRO
 • Gratis: 5 risposte ogni giorno

@@ -31,6 +31,9 @@ export interface AskPayload {
   action?: string
   // "google": answer with Google Search grounding (always through our server).
   mode?: "google"
+  // "chat": the whole conversation with the user's notes, and the text of its other pages.
+  context?: "chat"
+  pages?: Array<{ title: string; url: string; text: string }>
 }
 
 export interface GroundingSource {
@@ -78,26 +81,41 @@ export type ErrorCode =
   | "SEARCH_UNAVAILABLE"
 
 export type BackgroundRequest =
-  | { type: "status"; refresh?: boolean; platform?: Platform }
+  | { type: "status"; refresh?: boolean; fresh?: boolean; platform?: Platform }
   | { type: "openApp"; target: "subscribe" | "manage" | "home" }
   | { type: "inject" }
   | { type: "setOwnKey"; key: string }
   | { type: "openUrl"; url: string }
+  // A page of the chat: its tab if it's open, else a new tab.
+  | { type: "openPage"; url: string }
+  // The panel opened: sync threads with iCloud (Safari); answers { changed }.
+  | { type: "syncThreads" }
 
 export type ContentRequest = { type: "toggle" } | { type: "open"; selection?: boolean }
 
 export const STORAGE = {
   installId: "cf:installId",
   settings: "cf:settings",
-  // Per-page chats of 2.0 / 2.1; read once to seed the running conversation.
+  // Per-page chats of 2.0 / 2.1, and the single running conversation of 2.2: read once to seed the threads.
   chats: "cf:chats",
-  // The running conversation (follows the user across pages until "New chat").
   conversation: "cf:conversation",
+  // Chats as threads (Threads by id) and the one this device shows ({ id, at }).
+  threads: "cf:threads",
+  activeThread: "cf:activeThread",
+  // iCloud sync: CloudKit change token, and the time of each thread's copy in iCloud.
+  syncToken: "cf:syncToken",
+  syncedThreads: "cf:syncedThreads",
   // When the settings last changed here (ms), to merge with the app's copy.
   settingsUpdatedAt: "cf:settingsUpdatedAt",
   // Successful answers so far; the app asks for an App Store rating after a few.
   valueMoments: "cf:valueMoments",
   consent: "cf:consent",
+  // The first-session tour of the panel was seen (finished or skipped).
+  tourSeen: "cf:tourSeen",
+  // Recent pages' text on this device ({ [url]: { title, text, at } }) for "whole chat" answers.
+  pageTexts: "cf:pageTexts",
+  // How many times the hint about writing notes with the send button was shown, or -1 once used.
+  noteHint: "cf:noteHint",
   ownKey: "cf:ownKey",
   // Provider model lists for the own key ({ openai?: { ids, at }, anthropic?: { models, at } }).
   ownKeyModels: "cf:ownKeyModels",
@@ -116,6 +134,10 @@ export interface Settings {
   aboutMe: string
   // Model class used with the user's own key: newest Haiku / GPT mini or newest Sonnet / GPT.
   ownKeyModel: "fast" | "smart"
+  // Keep the chats in the user's iCloud to continue them on their other devices (Safari).
+  syncChats: boolean
+  // Answer with the whole chat in mind (all messages, notes, its other pages), not just the last messages.
+  wholeChat: boolean
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -127,5 +149,7 @@ export const DEFAULT_SETTINGS: Settings = {
   textSize: "normal",
   theme: "auto",
   aboutMe: "",
-  ownKeyModel: "smart"
+  ownKeyModel: "smart",
+  syncChats: true,
+  wholeChat: false
 }

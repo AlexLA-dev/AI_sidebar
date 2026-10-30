@@ -13,7 +13,8 @@ import { fileURLToPath, pathToFileURL } from "node:url"
 
 // CF_ROOT lets the script run from a folder that has Playwright installed.
 const root = process.env.CF_ROOT ?? resolve(dirname(fileURLToPath(import.meta.url)), "../..")
-const [rawArg, outArg, lang = "en"] = process.argv.slice(2)
+// set: "main" (the product page) or "notes" (the custom product page for note-takers).
+const [rawArg, outArg, lang = "en", set = "main"] = process.argv.slice(2)
 const RAW = resolve(rawArg)
 const OUT = resolve(outArg)
 const TMP = join(OUT, ".tmp")
@@ -31,11 +32,22 @@ const COPY = {
     google: ["Google answers", "with sources"],
     select: ["Select text,", "get answers"],
     chat: ["Compare pages", "in one chat"],
+    notes: ["Keep notes", "right in the chat"],
     translate: ["Translate", "foreign pages"],
+    cppHero: ["Notes on any page,", "right in Safari"],
+    cppPages: ["Every note keeps", "its page"],
+    cppRecall: ["Ask AI about all", "you've collected"],
+    cppShare: ["Send it to", "your notes app"],
+    cppGoogle: ["Fresh facts", "with sources"],
+    freeNotes: "Notes are free, no limits",
+    wholeChat: "Whole chat: notes + pages",
+    withLinks: "With links and sources",
+    backToPage: "Tap a page to go back",
     free: "5 free answers a day",
     nosignup: "No sign-up needed",
     langs: "Русский → English",
     context: "Keeps context across sites",
+    synced: "On all your devices",
     shortcut: "⌃⇧E opens the panel",
     host: "weeklyreview.com",
     host2: "techledger.com",
@@ -46,11 +58,22 @@ const COPY = {
     google: ["Ответы Google", "с источниками"],
     select: ["Выделите текст", "и спросите"],
     chat: ["Сравнит статьи", "в одном чате"],
+    notes: ["Заметки", "прямо в чате"],
     translate: ["Переведёт", "на русский"],
+    cppHero: ["Заметки на любой", "странице в Safari"],
+    cppPages: ["Каждая заметка", "помнит страницу"],
+    cppRecall: ["Спросите ИИ", "по всем заметкам"],
+    cppShare: ["Отправьте", "в свой заметочник"],
+    cppGoogle: ["Свежие факты", "с источниками"],
+    freeNotes: "Заметки — бесплатно и без лимитов",
+    wholeChat: "«Весь чат»: заметки и страницы",
+    withLinks: "Со ссылками и источниками",
+    backToPage: "Нажмите — и вы снова на странице",
     free: "5 бесплатных ответов в день",
     nosignup: "Без регистрации",
     langs: "English → Русский",
     context: "Помнит контекст между сайтами",
+    synced: "На всех ваших устройствах",
     shortcut: "⌃⇧E — открыть панель",
     host: "delovoyobzor.ru",
     host2: "tehrynok.ru",
@@ -84,6 +107,7 @@ const SETS = {
       pills: [{ text: COPY.free, icon: "✦", x: 50, y: 830 }, { text: COPY.nosignup, icon: "✓", right: 50, y: 970 }] },
     { name: "google", shot: "iphone-google", caption: COPY.google, callout: { select: SOURCES, pad: 12, mag: 1.25, maxW: 1190 } },
     { name: "select", shot: "iphone-select", caption: COPY.select, callout: { select: [".cf-bubble"], pad: 0, mag: 1.45, maxW: 1150, radius: 16 } },
+    { name: "notes", shot: "iphone-notes", caption: COPY.notes, pills: [{ text: COPY.synced, icon: "☁︎", x: 50, y: 830 }] },
     // The panel is as wide as the phone, so the table can't be magnified much: a pill instead.
     { name: "chat", shot: "iphone-chat", caption: COPY.chat, dark: true, second: true, pills: [{ text: COPY.context, icon: "↻", x: 50, y: 830 }] },
     { name: "translate", shot: "iphone-translate", caption: COPY.translate, foreign: true, pills: [{ text: COPY.langs, icon: "文", x: 50, y: 830 }] }
@@ -93,6 +117,7 @@ const SETS = {
       pills: [{ text: COPY.free, icon: "✦", x: 70, y: 2520 }, { text: COPY.nosignup, icon: "✓", x: 70, y: 2360 }] },
     { name: "google", shot: "ipad-google", caption: COPY.google, callout: { select: SOURCES, pad: 10, mag: 1.7, maxW: 1400 } },
     { name: "select", shot: "ipad-select", caption: COPY.select, callout: { select: [".cf-bubble"], pad: 0, mag: 1.8, maxW: 1300, radius: 16 } },
+    { name: "notes", shot: "ipad-notes", caption: COPY.notes, callout: { select: [".cf-bubble-note", ".cf-input"], pad: 10, mag: 1.6, maxW: 1400 } },
     { name: "chat", shot: "ipad-chat", caption: COPY.chat, dark: true, second: true, callout: { select: [".md-table"], pad: 10, mag: 1.6, maxW: 1400 } },
     { name: "translate", shot: "ipad-translate", caption: COPY.translate, foreign: true, pills: [{ text: COPY.langs, icon: "文", x: 70, y: 2520 }] }
   ],
@@ -101,8 +126,31 @@ const SETS = {
       pills: [{ text: COPY.free, icon: "✦", x: 110, y: 1400 }, { text: COPY.shortcut, icon: "⌘", x: 110, y: 1560 }] },
     { name: "google", shot: "mac-google", caption: COPY.google, callout: { select: SOURCES, pad: 10, mag: 1.9, maxW: 1250 } },
     { name: "select", shot: "mac-select", caption: COPY.select, callout: { select: [".cf-bubble"], pad: 0, mag: 2.3, maxW: 1300, radius: 12 } },
+    { name: "notes", shot: "mac-notes", caption: COPY.notes, callout: { select: [".cf-bubble-note", ".cf-input"], pad: 10, mag: 1.8, maxW: 1250 } },
     { name: "chat", shot: "mac-chat", caption: COPY.chat, dark: true, second: true, callout: { select: [".md-table"], pad: 10, mag: 1.8, maxW: 1250 } },
     { name: "translate", shot: "mac-translate", caption: COPY.translate, foreign: true, pills: [{ text: COPY.langs, icon: "文", x: 110, y: 1560 }] }
+  ]
+}
+
+// The custom product page for people who take notes while they read: notes first, then what they give.
+const NOTES_SETS = {
+  iphone: [
+    { name: "notes", shot: "iphone-notes", caption: COPY.cppHero, icon: true,
+      pills: [{ text: COPY.freeNotes, icon: "✎", x: 50, y: 830 }, { text: COPY.synced, icon: "☁︎", right: 50, y: 970 }] },
+    { name: "pages", shot: "iphone-chats", caption: COPY.cppPages, callout: { select: [".cf-pages-pop"], pad: 8, mag: 1.2, maxW: 1150 }, pills: [{ text: COPY.backToPage, icon: "↩", x: 50, y: 830 }] },
+    { name: "recall", shot: "iphone-recall", caption: COPY.cppRecall, pills: [{ text: COPY.wholeChat, icon: "◎", x: 50, y: 830 }] },
+    { name: "share", shot: "iphone-pick", caption: COPY.cppShare, callout: { select: [".cf-pickbar"], pad: 6, mag: 1.25, maxW: 1190 }, pills: [{ text: COPY.withLinks, icon: "🔗", x: 50, y: 830 }] },
+    { name: "google", shot: "iphone-google", caption: COPY.cppGoogle, callout: { select: SOURCES, pad: 12, mag: 1.25, maxW: 1190 } },
+    { name: "summary", shot: "iphone-summary", caption: COPY.summary, pills: [{ text: COPY.free, icon: "✦", x: 50, y: 830 }] }
+  ],
+  ipad: [
+    { name: "notes", shot: "ipad-notes", caption: COPY.cppHero, callout: { select: [".cf-bubble-note", ".cf-input"], pad: 10, mag: 1.6, maxW: 1400 },
+      pills: [{ text: COPY.freeNotes, icon: "✎", x: 70, y: 2360 }, { text: COPY.synced, icon: "☁︎", x: 70, y: 2520 }] },
+    { name: "pages", shot: "ipad-chats", caption: COPY.cppPages, callout: { select: [".cf-pages-pop"], pad: 8, mag: 1.6, maxW: 1400 } },
+    { name: "recall", shot: "ipad-recall", caption: COPY.cppRecall, pills: [{ text: COPY.wholeChat, icon: "◎", x: 70, y: 2520 }] },
+    { name: "share", shot: "ipad-pick", caption: COPY.cppShare, callout: { select: [".cf-pickbar"], pad: 6, mag: 1.6, maxW: 1400 } },
+    { name: "google", shot: "ipad-google", caption: COPY.cppGoogle, callout: { select: SOURCES, pad: 10, mag: 1.7, maxW: 1400 } },
+    { name: "summary", shot: "ipad-summary", caption: COPY.summary, pills: [{ text: COPY.free, icon: "✦", x: 70, y: 2520 }] }
   ]
 }
 
@@ -396,7 +444,7 @@ async function fitSize(device, specs) {
   return size
 }
 
-for (const [kind, specs] of Object.entries(SETS)) {
+for (const [kind, specs] of Object.entries(set === "notes" ? NOTES_SETS : SETS)) {
   const device = DEVICES[kind]
   const size = await fitSize(device, specs)
   const dir = join(OUT, kind)

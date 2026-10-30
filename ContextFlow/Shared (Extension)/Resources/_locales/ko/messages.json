@@ -125,6 +125,27 @@
  "newChat": {
   "message": "새 채팅"
  },
+ "chatsTitle": {
+  "message": "채팅"
+ },
+ "allChats": {
+  "message": "모든 채팅"
+ },
+ "chatsEmpty": {
+  "message": "아직 채팅이 없어요. 질문해서 시작해 보세요."
+ },
+ "deleteChat": {
+  "message": "채팅 삭제"
+ },
+ "renameChat": {
+  "message": "채팅 이름 변경"
+ },
+ "chatName": {
+  "message": "채팅 이름"
+ },
+ "chatNameHint": {
+  "message": "비워 두면 첫 질문이 채팅 이름이 됩니다."
+ },
  "settings": {
   "message": "설정"
  },
@@ -286,7 +307,7 @@
   "message": "첫 답변 전에 확인해 주세요"
  },
  "consentBody": {
-  "message": "답변을 위해 ContextFlow는 질문과 이 페이지(또는 선택한 부분)의 텍스트를 당사 서버를 거쳐 OpenAI로, Google 답변의 경우 Google로 보내요. 페이지 내용과 채팅은 당사 서버에 저장되지 않으며, 채팅은 이 기기에만 보관돼요."
+  "message": "답변을 위해 ContextFlow는 질문과 이 페이지(또는 선택한 부분)의 텍스트를 당사 서버를 거쳐 OpenAI로, Google 답변의 경우 Google로 보내요. 페이지 내용과 채팅은 당사 서버에 저장되지 않으며, 채팅은 내 기기에, 동기화를 켜면 내 iCloud에만 보관돼요."
  },
  "consentAccept": {
   "message": "동의하고 계속"
@@ -411,6 +432,12 @@
  "saved": {
   "message": "저장됨"
  },
+ "setSyncChats": {
+  "message": "iCloud로 채팅 동기화"
+ },
+ "setSyncChatsHint": {
+  "message": "iPhone, iPad, Mac에서 채팅을 이어서 할 수 있습니다. 채팅은 종단 간 암호화되어 iCloud에 저장되며 당사 서버에는 저장되지 않습니다."
+ },
  "deleteChats": {
   "message": "모든 채팅 삭제"
  },
@@ -455,6 +482,77 @@
  "sources": {
   "message": "출처"
  },
+ "tourStep": {
+  "message": "$P0$/$P1$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "tourSkip": {
+  "message": "건너뛰기"
+ },
+ "tourNext": {
+  "message": "다음"
+ },
+ "tourDone": {
+  "message": "확인"
+ },
+ "tourShow": {
+  "message": "팁 보기"
+ },
+ "tourAskTitle": {
+  "message": "이 페이지에 대해 질문하세요"
+ },
+ "tourAskBody": {
+  "message": "ContextFlow는 보고 있는 페이지를 읽습니다. ‘요약’ 같은 작업을 고르거나 직접 질문을 입력하세요."
+ },
+ "tourSelectTitle": {
+  "message": "일부분만 궁금하다면?"
+ },
+ "tourSelectBody": {
+  "message": "먼저 페이지에서 텍스트를 선택하면 그 부분에 대해서만 답합니다. 이 표시는 ContextFlow가 읽는 내용을 보여 줍니다."
+ },
+ "tourGoogleTitle": {
+  "message": "Google의 최신 정보"
+ },
+ "tourGoogleBody": {
+  "message": "켜면 Google 검색을 바탕으로 최신 정보를 출처와 함께 답합니다."
+ },
+ "tourChatsTitle": {
+  "message": "내 채팅"
+ },
+ "tourChatsBody": {
+  "message": "채팅은 페이지를 옮겨도 이어집니다. +로 새 채팅을 시작하고, 이전 채팅은 채팅 목록에서 열거나 이름을 바꾸거나 삭제할 수 있습니다. 채팅에서 페이지 이름을 탭하면 그 페이지로 돌아갑니다."
+ },
+ "tourChatsBodySync": {
+  "message": "채팅은 페이지를 옮겨도 이어지고, iCloud로 iPhone, iPad, Mac에서도 이어집니다. +로 새 채팅을 시작하고, 이전 채팅은 채팅 목록에서 열거나 이름을 바꾸거나 삭제할 수 있습니다. 채팅에서 페이지 이름을 탭하면 그 페이지로 돌아갑니다."
+ },
+ "tourSettingsTitle": {
+  "message": "나에게 맞게"
+ },
+ "tourSettingsBody": {
+  "message": "테마와 글자 크기, ✦ 버튼, 더 나은 답변을 위한 내 소개, 내 API 키와 요금제. 이 팁도 여기서 다시 볼 수 있습니다."
+ },
+ "tourNoteTitle": {
+  "message": "나만의 메모"
+ },
+ "tourNoteBodyTouch": {
+  "message": "이 버튼을 위아래로 밀면 질문 대신 메모를 쓸 수 있습니다. 메모는 페이지와 함께 채팅에 남고 답변 횟수를 쓰지 않습니다."
+ },
+ "tourNoteBodyMouse": {
+  "message": "이 버튼 위에서 스크롤하거나 길게 누르면 질문 대신 메모를 쓸 수 있습니다. 메모는 페이지와 함께 채팅에 남고 답변 횟수를 쓰지 않습니다."
+ },
+ "tourWholeTitle": {
+  "message": "채팅 전체를 고려해서"
+ },
+ "tourWholeBody": {
+  "message": "질문에 모든 내용이 필요할 때 '채팅 전체'를 켜세요: 모든 메시지, 메모, 이 채팅의 다른 페이지. 끄면: 최근 메시지와 이 페이지."
+ },
  "welcomeTitle": {
   "message": "ContextFlow가 준비됐어요"
  },
@@ -466,5 +564,121 @@
  },
  "welcomePermission": {
   "message": "아무 반응이 없으면 모든 웹 사이트에서 ContextFlow를 허용하세요: Safari → 확장 프로그램 → ContextFlow → 모든 웹 사이트 → 허용."
+ },
+ "shareNote": {
+  "message": "메모"
+ },
+ "saveNote": {
+  "message": "메모 저장"
+ },
+ "placeholderNote": {
+  "message": "메모 — 이 채팅에 남습니다"
+ },
+ "noteHintTouch": {
+  "message": "버튼을 위아래로 밀어 메모 쓰기"
+ },
+ "noteHintMouse": {
+  "message": "버튼 위에서 스크롤해 메모 쓰기"
+ },
+ "wholeChat": {
+  "message": "채팅 전체"
+ },
+ "wholeChatHint": {
+  "message": "채팅 전체를 고려해 답합니다: 모든 메시지, 메모, 이 채팅의 페이지. 끄면: 최근 메시지와 열린 페이지."
+ },
+ "openPage": {
+  "message": "이 페이지 열기"
+ },
+ "usageFreeShort": {
+  "message": "오늘 $P0$/$P1$개 남음",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "usageProShort": {
+  "message": "Pro · 이번 주 $P0$/$P1$개 남음",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "pinChat": {
+  "message": "채팅 고정"
+ },
+ "unpinChat": {
+  "message": "고정 해제"
+ },
+ "reorderChat": {
+  "message": "끌어서 순서 변경"
+ },
+ "chatPages": {
+  "message": "이 채팅의 페이지"
+ },
+ "chatNotes": {
+  "message": "이 채팅의 메모"
+ },
+ "pages_one": {
+  "message": "페이지 $P0$개",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "pages_few": {
+  "message": "페이지 $P0$개",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "pages_many": {
+  "message": "페이지 $P0$개",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "pages_other": {
+  "message": "페이지 $P0$개",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "cancel": {
+  "message": "취소"
+ },
+ "pickCount": {
+  "message": "$P0$/$P1$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "pickHint": {
+  "message": "메시지를 탭하세요"
+ },
+ "pickAll": {
+  "message": "모두 선택"
+ },
+ "pickNone": {
+  "message": "선택 해제"
  }
 }

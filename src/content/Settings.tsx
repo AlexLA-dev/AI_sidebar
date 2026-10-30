@@ -20,6 +20,7 @@ interface Props {
   onStatusChange: () => void
   onOpenUrl: (url: string) => void
   onChatsDeleted: () => void
+  onShowTour: () => void
 }
 
 function Segmented<T extends string>({ value, options, onChange }: { value: T; options: [T, string][]; onChange: (v: T) => void }): VNode {
@@ -174,6 +175,15 @@ export function SettingsView(props: Props): VNode {
       </section>
 
       <section class="cf-group">
+        {TARGET === "safari" && (
+          <>
+            <label class="cf-row toggle">
+              <span class="cf-label">{t("setSyncChats")}</span>
+              <input type="checkbox" checked={settings.syncChats} onChange={(e) => onChange({ syncChats: e.currentTarget.checked })} />
+            </label>
+            <p class="cf-hint">{t("setSyncChatsHint")}</p>
+          </>
+        )}
         <button
           type="button"
           class="cf-link danger"
@@ -188,6 +198,7 @@ export function SettingsView(props: Props): VNode {
       </section>
 
       <footer class="cf-links">
+        <button type="button" class="cf-link" onClick={props.onShowTour}>{t("tourShow")}</button>
         <button type="button" class="cf-link" onClick={() => props.onOpenUrl(LINKS.review)}>{t("rateApp")}</button>
         <button type="button" class="cf-link" onClick={() => props.onOpenUrl(LINKS.support)}>{t("support")}</button>
         <button type="button" class="cf-link" onClick={() => props.onOpenUrl(LINKS.privacy)}>{t("privacyPolicy")}</button>

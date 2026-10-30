@@ -125,6 +125,27 @@
  "newChat": {
   "message": "Nuevo chat"
  },
+ "chatsTitle": {
+  "message": "Chats"
+ },
+ "allChats": {
+  "message": "Todos los chats"
+ },
+ "chatsEmpty": {
+  "message": "Aún no hay chats. Haz una pregunta para empezar uno."
+ },
+ "deleteChat": {
+  "message": "Eliminar chat"
+ },
+ "renameChat": {
+  "message": "Renombrar chat"
+ },
+ "chatName": {
+  "message": "Nombre del chat"
+ },
+ "chatNameHint": {
+  "message": "Déjalo vacío para que el chat se llame como su primera pregunta."
+ },
  "settings": {
   "message": "Configuración"
  },
@@ -286,7 +307,7 @@
   "message": "Antes de tu primera respuesta"
  },
  "consentBody": {
-  "message": "Para responder, ContextFlow envía tu pregunta y el texto de esta página (o de tu selección) a través de nuestro servidor a OpenAI, o a Google en las respuestas de Google. El contenido de las páginas y los chats no se guardan en nuestros servidores; tus chats se quedan en este dispositivo."
+  "message": "Para responder, ContextFlow envía tu pregunta y el texto de esta página (o de tu selección) a través de nuestro servidor a OpenAI, o a Google en las respuestas de Google. El contenido de las páginas y los chats no se guardan en nuestros servidores; tus chats se quedan en tus dispositivos y, si los sincronizas, en tu iCloud."
  },
  "consentAccept": {
   "message": "Aceptar y continuar"
@@ -411,6 +432,12 @@
  "saved": {
   "message": "Guardado"
  },
+ "setSyncChats": {
+  "message": "Sincronizar chats con iCloud"
+ },
+ "setSyncChatsHint": {
+  "message": "Continúa un chat en tu iPhone, iPad y Mac. El chat se guarda con cifrado de extremo a extremo en tu iCloud y nunca en nuestros servidores."
+ },
  "deleteChats": {
   "message": "Eliminar todos los chats"
  },
@@ -455,6 +482,77 @@
  "sources": {
   "message": "Fuentes"
  },
+ "tourStep": {
+  "message": "$P0$ de $P1$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "tourSkip": {
+  "message": "Omitir"
+ },
+ "tourNext": {
+  "message": "Siguiente"
+ },
+ "tourDone": {
+  "message": "Entendido"
+ },
+ "tourShow": {
+  "message": "Ver consejos"
+ },
+ "tourAskTitle": {
+  "message": "Pregunta sobre esta página"
+ },
+ "tourAskBody": {
+  "message": "ContextFlow lee la página en la que estás. Elige una acción como «Resumir» o escribe tu propia pregunta."
+ },
+ "tourSelectTitle": {
+  "message": "¿Solo una parte?"
+ },
+ "tourSelectBody": {
+  "message": "Selecciona primero un texto de la página y la respuesta tratará solo sobre él. Esta etiqueta muestra lo que lee ContextFlow."
+ },
+ "tourGoogleTitle": {
+  "message": "Datos actuales de Google"
+ },
+ "tourGoogleBody": {
+  "message": "Actívalo para responder con la Búsqueda de Google: información actual con fuentes."
+ },
+ "tourChatsTitle": {
+  "message": "Tus chats"
+ },
+ "tourChatsBody": {
+  "message": "Un chat continúa de una página a otra. Empieza uno nuevo con + y abre, renombra o elimina los anteriores en la lista de chats. Toca el nombre de una página en el chat para volver a ella."
+ },
+ "tourChatsBodySync": {
+  "message": "Un chat continúa de una página a otra, y en tu iPhone, iPad y Mac a través de iCloud. Empieza uno nuevo con + y abre, renombra o elimina los anteriores en la lista de chats. Toca el nombre de una página en el chat para volver a ella."
+ },
+ "tourSettingsTitle": {
+  "message": "A tu manera"
+ },
+ "tourSettingsBody": {
+  "message": "Tema y tamaño del texto, el botón ✦, unas palabras sobre ti para mejores respuestas, tu propia clave de API y tu plan. Aquí también puedes volver a ver estos consejos."
+ },
+ "tourNoteTitle": {
+  "message": "Tus propias notas"
+ },
+ "tourNoteBodyTouch": {
+  "message": "Desliza este botón arriba o abajo para escribir una nota en lugar de preguntar. Se queda en el chat con su página y no gasta respuestas."
+ },
+ "tourNoteBodyMouse": {
+  "message": "Desplázate sobre este botón (o mantenlo pulsado) para escribir una nota en lugar de preguntar. Se queda en el chat con su página y no gasta respuestas."
+ },
+ "tourWholeTitle": {
+  "message": "Con todo el chat en cuenta"
+ },
+ "tourWholeBody": {
+  "message": "Activa «Todo el chat» cuando una pregunta lo necesite todo: todos los mensajes, tus notas y las otras páginas de este chat. Desactivado: los últimos mensajes y esta página."
+ },
  "welcomeTitle": {
   "message": "ContextFlow está listo"
  },
@@ -466,5 +564,121 @@
  },
  "welcomePermission": {
   "message": "Si no pasa nada, permite ContextFlow en todos los sitios web: Safari → Extensiones → ContextFlow → Todos los sitios web → Permitir."
+ },
+ "shareNote": {
+  "message": "Nota"
+ },
+ "saveNote": {
+  "message": "Guardar nota"
+ },
+ "placeholderNote": {
+  "message": "Nota: se queda en este chat"
+ },
+ "noteHintTouch": {
+  "message": "Desliza el botón arriba o abajo para escribir una nota"
+ },
+ "noteHintMouse": {
+  "message": "Desplázate sobre el botón para escribir una nota"
+ },
+ "wholeChat": {
+  "message": "Todo el chat"
+ },
+ "wholeChatHint": {
+  "message": "Las respuestas tienen en cuenta todo el chat: todos los mensajes, tus notas y las páginas de este chat. Desactivado: los últimos mensajes y la página abierta."
+ },
+ "openPage": {
+  "message": "Abrir esta página"
+ },
+ "usageFreeShort": {
+  "message": "Quedan $P0$ de $P1$ hoy",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "usageProShort": {
+  "message": "Pro · $P0$ de $P1$ esta semana",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "pinChat": {
+  "message": "Fijar chat"
+ },
+ "unpinChat": {
+  "message": "Dejar de fijar"
+ },
+ "reorderChat": {
+  "message": "Arrastra para reordenar"
+ },
+ "chatPages": {
+  "message": "Páginas de este chat"
+ },
+ "chatNotes": {
+  "message": "Tus notas en este chat"
+ },
+ "pages_one": {
+  "message": "$P0$ página",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "pages_few": {
+  "message": "$P0$ páginas",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "pages_many": {
+  "message": "$P0$ páginas",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "pages_other": {
+  "message": "$P0$ páginas",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "cancel": {
+  "message": "Cancelar"
+ },
+ "pickCount": {
+  "message": "$P0$ de $P1$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "pickHint": {
+  "message": "Toca los mensajes"
+ },
+ "pickAll": {
+  "message": "Seleccionar todo"
+ },
+ "pickNone": {
+  "message": "Quitar selección"
  }
 }

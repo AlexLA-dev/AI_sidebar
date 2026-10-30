@@ -1,7 +1,9 @@
-Novidades do ContextFlow 2.2:
-• Uma só conversa em todos os sites: continue perguntando ao mudar de página, até tocar em “Nova conversa”
-• Sempre atualizado: o ContextFlow relê a página a cada vez, para incluir o conteúdo novo
-• Compartilhe uma conversa inteira, com link para a fonte e para o ContextFlow
-• Ajustes no app: aparência, botões e mais, direto no app ContextFlow
-• O botão flutuante do ContextFlow agora também fica ativado no Mac
+Novidades do ContextFlow 2.3:
+• Notas: deslize o botão de enviar para cima ou para baixo (no Mac, role sobre ele) para escrever uma nota em vez de perguntar. A nota fica na conversa com a página, sincroniza com ela e não gasta respostas.
+• Chat inteiro: ative abaixo do campo de pergunta e a resposta leva tudo em conta: cada mensagem, suas notas e as outras páginas da conversa.
+• Conversas: mantenha várias conversas ao mesmo tempo, fixe as importantes e reordene-as arrastando, renomeie e veja todas as páginas de uma conversa — toque em uma para voltar a ela.
+• Continue de onde parou: as conversas são sincronizadas entre iPhone, iPad e Mac pelo seu iCloud com criptografia de ponta a ponta e nunca passam pelos nossos servidores. Você pode desativar isso nos Ajustes.
+• Compartilhe só o que precisa: marque as mensagens e elas vão com seus links e fontes.
+• Um tour rápido na primeira vez que você abre o ContextFlow e Dicas no app com um vídeo curto de cada função
+• Seu contador de respostas Pro fica atualizado em todos os dispositivos
 • Correções e melhorias
