@@ -178,5 +178,15 @@
   "wholeChatHint": "Antworten berücksichtigen den ganzen Chat: alle Nachrichten, deine Notizen und die Seiten dieses Chats. Aus: die letzten Nachrichten und die geöffnete Seite.",
   "openPage": "Diese Seite öffnen",
   "usageFreeShort": "Heute noch {0} von {1}",
-  "usageProShort": "Pro · noch {0} von {1} diese Woche"
+  "usageProShort": "Pro · noch {0} von {1} diese Woche",
+
+  "pinChat": "Chat anheften",
+  "unpinChat": "Chat lösen",
+  "reorderChat": "Zum Sortieren ziehen",
+  "chatPages": "Seiten in diesem Chat",
+  "chatNotes": "Deine Notizen in diesem Chat",
+  "pages_one": "{0} Seite",
+  "pages_few": "{0} Seiten",
+  "pages_many": "{0} Seiten",
+  "pages_other": "{0} Seiten"
 }

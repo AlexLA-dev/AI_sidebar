@@ -178,5 +178,15 @@
   "wholeChatHint": "Answers take the whole chat into account: every message, your notes and the pages of this chat. Off: the last messages and the open page.",
   "openPage": "Open this page",
   "usageFreeShort": "{0} of {1} left today",
-  "usageProShort": "Pro · {0} of {1} this week"
+  "usageProShort": "Pro · {0} of {1} this week",
+
+  "pinChat": "Pin chat",
+  "unpinChat": "Unpin chat",
+  "reorderChat": "Drag to reorder",
+  "chatPages": "Pages in this chat",
+  "chatNotes": "Your notes in this chat",
+  "pages_one": "{0} page",
+  "pages_few": "{0} pages",
+  "pages_many": "{0} pages",
+  "pages_other": "{0} pages"
 }

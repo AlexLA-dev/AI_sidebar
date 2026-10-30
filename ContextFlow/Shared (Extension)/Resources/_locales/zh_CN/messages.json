@@ -610,5 +610,52 @@
     "content": "$2"
    }
   }
+ },
+ "pinChat": {
+  "message": "置顶对话"
+ },
+ "unpinChat": {
+  "message": "取消置顶"
+ },
+ "reorderChat": {
+  "message": "拖动以排序"
+ },
+ "chatPages": {
+  "message": "此对话中的页面"
+ },
+ "chatNotes": {
+  "message": "此对话中的笔记"
+ },
+ "pages_one": {
+  "message": "$P0$ 个页面",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "pages_few": {
+  "message": "$P0$ 个页面",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "pages_many": {
+  "message": "$P0$ 个页面",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "pages_other": {
+  "message": "$P0$ 个页面",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
  }
 }

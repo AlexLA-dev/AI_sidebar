@@ -143,6 +143,17 @@ export async function renameThread(id: string, name: string): Promise<void> {
   await set(STORAGE.threads, { ...threads, [id]: renamed })
 }
 
+/** Pins a chat at `pin` (its place among the pinned ones) or unpins it (null); its place by activity stays. */
+export async function pinThread(id: string, pin: number | null): Promise<void> {
+  const threads = (await get<Threads>(STORAGE.threads)) ?? {}
+  const stored = threads[id]
+  if (!stored || stored.deleted) return
+  const next: Thread = { ...stored, u: Date.now(), a: activity(stored) }
+  if (pin === null) delete next.pin
+  else next.pin = pin
+  await set(STORAGE.threads, { ...threads, [id]: next })
+}
+
 export async function deleteThread(id: string): Promise<void> {
   const threads = (await get<Threads>(STORAGE.threads)) ?? {}
   if (!threads[id]) return

@@ -34,10 +34,10 @@ import {
 } from "./page"
 import { SettingsView } from "./Settings"
 import { shareLabels } from "./shareLabels"
-import { deleteThread, giveConsent, hasConsent, hasSeenTour, loadSettings, loadThreads, markTourSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, rememberPageText, renameThread, saveSettings, saveThread, setActiveThread, setNoteHintCount } from "./store"
+import { deleteThread, giveConsent, hasConsent, hasSeenTour, loadSettings, loadThreads, markTourSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, rememberPageText, renameThread, saveSettings, saveThread, setActiveThread, setNoteHintCount } from "./store"
 import { ThreadsView } from "./Threads"
 import { Tour, tourSteps } from "./Tour"
-import { liveThreads, newThreadId, shownThread, threadTitle, type Thread } from "../shared/threads"
+import { chatList, newThreadId, pinAt, shownThread, threadTitle, type Thread } from "../shared/threads"
 
 export type Bus = EventTarget
 
@@ -276,7 +276,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
         loadedRef.current = true
         threadRef.current = active.id
         const entries = threads[active.id]?.m ?? []
-        setThreadList(liveThreads(threads))
+        setThreadList(chatList(threads))
         setMessages(entries)
         scrollToEnd()
         // Other devices may have continued a chat (iCloud): show it unless something was asked here meanwhile.
@@ -284,7 +284,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
           if (!result?.changed || portRef.current) return
           const fresh = await loadThreads()
           const next = shownThread(fresh.threads, fresh.active)
-          setThreadList(liveThreads(fresh.threads))
+          setThreadList(chatList(fresh.threads))
           setMessages((current) => {
             if (current !== entries) return current
             if (next.id !== threadRef.current) {
@@ -321,7 +321,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
   // While open: the chat list follows other tabs and devices, and the answer counter other devices.
   useEffect(() => {
     if (!open) return
-    const off = onThreadsChanged(() => void loadThreads().then(({ threads }) => setThreadList(liveThreads(threads))))
+    const off = onThreadsChanged(() => void loadThreads().then(({ threads }) => setThreadList(chatList(threads))))
     const timer = setInterval(() => {
       if (document.visibilityState === "visible" && !portRef.current) void refreshStatus()
     }, 30_000)
@@ -619,7 +619,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
   }, [stop, threadList])
 
   const renameChat = useCallback((id: string, name: string) => {
-    void renameThread(id, name).then(() => loadThreads()).then(({ threads }) => setThreadList(liveThreads(threads)))
+    void renameThread(id, name).then(() => loadThreads()).then(({ threads }) => setThreadList(chatList(threads)))
   }, [])
 
   const removeThread = useCallback((id: string) => {
@@ -633,6 +633,24 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
       setError(null)
     }
   }, [])
+
+  // Pinning and reordering show at once; storage (and iCloud) follow.
+  const placeChat = useCallback((id: string, pin: number | null) => {
+    setThreadList((list) => chatList(Object.fromEntries(list.map((th) => {
+      if (th.id !== id) return [th.id, th]
+      const next = { ...th }
+      if (pin === null) delete next.pin
+      else next.pin = pin
+      return [th.id, next]
+    }))))
+    void pinThread(id, pin)
+  }, [])
+  const pinChat = useCallback((id: string, pinned: boolean) => {
+    placeChat(id, pinned ? pinAt(threadList.filter((th) => th.pin !== undefined && th.id !== id), 0) : null)
+  }, [threadList, placeChat])
+  const moveChat = useCallback((id: string, index: number) => {
+    placeChat(id, pinAt(threadList.filter((th) => th.pin !== undefined && th.id !== id), index))
+  }, [threadList, placeChat])
 
   // ------------------------------------------------------------ notes
   /** A page of the chat: its tab when it's open somewhere, else a new tab. */
@@ -877,7 +895,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
           </header>
 
           {view === "threads" ? (
-            <ThreadsView threads={threadList} activeId={threadRef.current} onOpen={openThread} onRename={renameChat} onDelete={removeThread} onNew={newChat} />
+            <ThreadsView threads={threadList} activeId={threadRef.current} onOpen={openThread} onRename={renameChat} onDelete={removeThread} onNew={newChat} onPin={pinChat} onMove={moveChat} onOpenPage={openPage} />
           ) : view === "settings" ? (
             <SettingsView
               settings={settings}

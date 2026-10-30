@@ -178,5 +178,15 @@
   "wholeChatHint": "As respostas consideram o chat inteiro: todas as mensagens, suas notas e as páginas deste chat. Desligado: as últimas mensagens e a página aberta.",
   "openPage": "Abrir esta página",
   "usageFreeShort": "Restam {0} de {1} hoje",
-  "usageProShort": "Pro · {0} de {1} nesta semana"
+  "usageProShort": "Pro · {0} de {1} nesta semana",
+
+  "pinChat": "Fixar chat",
+  "unpinChat": "Desafixar chat",
+  "reorderChat": "Arraste para reordenar",
+  "chatPages": "Páginas deste chat",
+  "chatNotes": "Suas notas neste chat",
+  "pages_one": "{0} página",
+  "pages_few": "{0} páginas",
+  "pages_many": "{0} páginas",
+  "pages_other": "{0} páginas"
 }

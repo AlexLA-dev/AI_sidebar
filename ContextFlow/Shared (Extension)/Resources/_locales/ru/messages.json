@@ -610,5 +610,52 @@
     "content": "$2"
    }
   }
+ },
+ "pinChat": {
+  "message": "Закрепить чат"
+ },
+ "unpinChat": {
+  "message": "Открепить чат"
+ },
+ "reorderChat": {
+  "message": "Перетащите, чтобы изменить порядок"
+ },
+ "chatPages": {
+  "message": "Страницы в этом чате"
+ },
+ "chatNotes": {
+  "message": "Ваши заметки в этом чате"
+ },
+ "pages_one": {
+  "message": "$P0$ страница",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "pages_few": {
+  "message": "$P0$ страницы",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "pages_many": {
+  "message": "$P0$ страниц",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "pages_other": {
+  "message": "$P0$ страницы",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
  }
 }

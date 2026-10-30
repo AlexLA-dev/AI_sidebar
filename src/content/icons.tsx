@@ -29,6 +29,14 @@ export const Trash = (): VNode => (
 export const Pencil = (): VNode => (
   <svg {...base} width={16} height={16}><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4z" /><path d="M14.5 5.5l3 3" /></svg>
 )
+export const Pin = ({ filled = false }: { filled?: boolean }): VNode => (
+  <svg {...base} width={16} height={16} fill={filled ? "currentColor" : "none"}><path d="M9 3h6l-1 6 4 4v2H6v-2l4-4z" /><path d="M12 15v6" /></svg>
+)
+export const Grip = (): VNode => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <circle cx="9" cy="6" r="1.6" /><circle cx="15" cy="6" r="1.6" /><circle cx="9" cy="12" r="1.6" /><circle cx="15" cy="12" r="1.6" /><circle cx="9" cy="18" r="1.6" /><circle cx="15" cy="18" r="1.6" />
+  </svg>
+)
 export const Doc = (): VNode => <svg {...base} width={14} height={14}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6" /></svg>
 export const Cursor = (): VNode => <svg {...base} width={14} height={14}><path d="M4 7V4h16v3M9 20h6M12 4v16" /></svg>
 export const Lock = (): VNode => <svg {...base} width={14} height={14}><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>

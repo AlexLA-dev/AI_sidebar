@@ -178,5 +178,15 @@
   "wholeChatHint": "回答会考虑整个对话：所有消息、你的笔记和此对话中的页面。关闭时：最近的消息和当前页面。",
   "openPage": "打开此页面",
   "usageFreeShort": "今日剩余 {0}/{1}",
-  "usageProShort": "Pro · 本周剩余 {0}/{1}"
+  "usageProShort": "Pro · 本周剩余 {0}/{1}",
+
+  "pinChat": "置顶对话",
+  "unpinChat": "取消置顶",
+  "reorderChat": "拖动以排序",
+  "chatPages": "此对话中的页面",
+  "chatNotes": "此对话中的笔记",
+  "pages_one": "{0} 个页面",
+  "pages_few": "{0} 个页面",
+  "pages_many": "{0} 个页面",
+  "pages_other": "{0} 个页面"
 }

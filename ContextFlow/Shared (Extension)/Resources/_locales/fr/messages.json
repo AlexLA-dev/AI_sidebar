@@ -610,5 +610,52 @@
     "content": "$2"
    }
   }
+ },
+ "pinChat": {
+  "message": "Épingler la discussion"
+ },
+ "unpinChat": {
+  "message": "Désépingler"
+ },
+ "reorderChat": {
+  "message": "Faites glisser pour réorganiser"
+ },
+ "chatPages": {
+  "message": "Pages de cette discussion"
+ },
+ "chatNotes": {
+  "message": "Vos notes dans cette discussion"
+ },
+ "pages_one": {
+  "message": "$P0$ page",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "pages_few": {
+  "message": "$P0$ pages",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "pages_many": {
+  "message": "$P0$ pages",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "pages_other": {
+  "message": "$P0$ pages",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
  }
 }

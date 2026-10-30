@@ -610,5 +610,52 @@
     "content": "$2"
    }
   }
+ },
+ "pinChat": {
+  "message": "채팅 고정"
+ },
+ "unpinChat": {
+  "message": "고정 해제"
+ },
+ "reorderChat": {
+  "message": "끌어서 순서 변경"
+ },
+ "chatPages": {
+  "message": "이 채팅의 페이지"
+ },
+ "chatNotes": {
+  "message": "이 채팅의 메모"
+ },
+ "pages_one": {
+  "message": "페이지 $P0$개",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "pages_few": {
+  "message": "페이지 $P0$개",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "pages_many": {
+  "message": "페이지 $P0$개",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "pages_other": {
+  "message": "페이지 $P0$개",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
  }
 }

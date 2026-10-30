@@ -178,5 +178,15 @@
   "wholeChatHint": "채팅 전체를 고려해 답합니다: 모든 메시지, 메모, 이 채팅의 페이지. 끄면: 최근 메시지와 열린 페이지.",
   "openPage": "이 페이지 열기",
   "usageFreeShort": "오늘 {0}/{1}개 남음",
-  "usageProShort": "Pro · 이번 주 {0}/{1}개 남음"
+  "usageProShort": "Pro · 이번 주 {0}/{1}개 남음",
+
+  "pinChat": "채팅 고정",
+  "unpinChat": "고정 해제",
+  "reorderChat": "끌어서 순서 변경",
+  "chatPages": "이 채팅의 페이지",
+  "chatNotes": "이 채팅의 메모",
+  "pages_one": "페이지 {0}개",
+  "pages_few": "페이지 {0}개",
+  "pages_many": "페이지 {0}개",
+  "pages_other": "페이지 {0}개"
 }

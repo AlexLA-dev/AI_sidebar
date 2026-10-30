@@ -416,13 +416,39 @@
   background: var(--accent); color: #fff; font-size: 10px; font-weight: 650; line-height: 15px; text-align: center;
 }
 .cf-threads { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 8px 10px 18px; }
-.cf-thread { display: flex; align-items: center; gap: 4px; border-radius: 12px; }
+.cf-thread { position: relative; display: flex; align-items: center; gap: 4px; border-radius: 12px; background: var(--bg); }
 .cf-thread:hover { background: var(--bg-2); }
 .cf-thread.current { background: var(--accent-soft); }
-.cf-thread-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; padding: 10px 6px 10px 10px; text-align: left; }
+.cf-thread-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; padding: 10px 6px 10px 10px; text-align: left; cursor: pointer; border-radius: 12px; }
+.cf-thread-main:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.cf-thread-grip + .cf-thread-main { padding-left: 2px; }
 .cf-thread-title { font-weight: 600; font-size: 14px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cf-thread-snippet { font-size: 13px; color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cf-thread-meta { font-size: 11.5px; color: var(--text-3); }
+.cf-thread-meta { display: flex; align-items: center; gap: 6px; min-width: 0; font-size: 11.5px; color: var(--text-3); white-space: nowrap; }
+.cf-thread-meta > * { flex-shrink: 0; }
+.cf-thread-meta > * + *::before { content: "·"; margin-right: 6px; color: var(--text-3); }
+.cf-thread-meta > .cf-thread-notes + *::before, .cf-thread-meta > * + .cf-pages-chip::before { content: none; }
+.cf-thread-site { flex-shrink: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.cf-thread-notes { display: inline-flex; align-items: center; gap: 2px; padding: 1px 6px 1px 4px; border-radius: 8px; background: var(--note-soft); color: var(--note-text); font-weight: 600; }
+.cf-thread-notes svg { width: 11px; height: 11px; }
+.cf-pages-chip { padding: 1px 7px; border-radius: 8px; font-size: 11.5px; font-weight: 600; color: var(--accent-text); background: var(--accent-soft) !important; }
+.cf-pages-chip[aria-expanded="true"] { color: #fff; background: var(--accent) !important; }
+.cf-pages-pop {
+  position: absolute; left: 10px; right: 10px; top: calc(100% - 6px); z-index: 5;
+  max-height: 240px; overflow-y: auto; padding: 6px;
+  border: 1px solid var(--border); border-radius: 12px; background: var(--bg);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.16);
+}
+.cf-pages-pop-title { padding: 4px 8px 6px; font-size: 11.5px; font-weight: 600; color: var(--text-3); }
+.cf-pages-item { display: flex; flex-direction: column; align-items: flex-start; width: 100%; padding: 7px 8px; border-radius: 8px; text-align: left; }
+.cf-pages-item:hover { background: var(--bg-2); }
+.cf-pages-item-title { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; font-weight: 600; color: var(--text); }
+.cf-pages-item-host { font-size: 11.5px; color: var(--text-3); }
+.cf-thread-grip { flex: none; align-self: stretch; display: flex; align-items: center; padding: 0 2px 0 8px; color: var(--text-3); cursor: grab; touch-action: none; -webkit-user-select: none; user-select: none; }
+.cf-thread-grip:focus-visible { outline: 2px solid var(--accent); border-radius: 6px; }
+.cf-thread.dragging { z-index: 4; cursor: grabbing; box-shadow: 0 10px 26px rgba(0, 0, 0, 0.18); }
+.cf-thread.making-room { transition: transform 0.18s ease; }
+.cf-thread-tool.on { color: var(--accent-text); opacity: 1; }
 .cf-thread-tool { flex: none; opacity: 0.55; }
 .cf-thread:hover .cf-thread-tool, .cf[data-touch] .cf-thread-tool { opacity: 1; }
 .cf-thread-delete:hover { color: var(--danger); }

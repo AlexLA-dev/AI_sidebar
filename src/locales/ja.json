@@ -178,5 +178,15 @@
   "wholeChatHint": "チャット全体を踏まえて回答します：すべてのメッセージ、メモ、このチャットのページ。オフ：直近のメッセージと開いているページ。",
   "openPage": "このページを開く",
   "usageFreeShort": "今日 残り{0}/{1}回",
-  "usageProShort": "Pro · 今週 残り{0}/{1}回"
+  "usageProShort": "Pro · 今週 残り{0}/{1}回",
+
+  "pinChat": "チャットを固定",
+  "unpinChat": "固定を解除",
+  "reorderChat": "ドラッグして並べ替え",
+  "chatPages": "このチャットのページ",
+  "chatNotes": "このチャットのメモ",
+  "pages_one": "{0}ページ",
+  "pages_few": "{0}ページ",
+  "pages_many": "{0}ページ",
+  "pages_other": "{0}ページ"
 }

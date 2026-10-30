@@ -4,16 +4,20 @@ import { test } from "node:test"
 import type { Entry } from "../src/shared/conversation.ts"
 import {
   applyRemote,
+  chatList,
   cleanTitle,
   liveThreads,
   markSent,
   MAX_THREADS,
   pendingChanges,
+  pinAt,
   prune,
   shownThread,
   threadForCloud,
   threadFromCloud,
   threadName,
+  threadNotes,
+  threadPages,
   threadSite,
   threadSnippet,
   threadTitle,
@@ -135,4 +139,41 @@ test("threadForCloud fits one record; threadFromCloud reads both formats and rej
   assert.equal(threadFromCloud("null"), null)
   assert.equal(threadFromCloud('{"m":[{"role":"system","content":"x"}]}'), null)
   assert.deepEqual(threadFromCloud('{"m":[],"title":"  ","a":"x"}'), { m: [] })
+})
+
+test("pinned chats come first in their order, the rest by activity", () => {
+  const q = (id: string, a: number, pin?: number) => ({ id, u: a, a, m: [{ role: "user", content: id }] as Entry[], ...(pin !== undefined ? { pin } : {}) })
+  const threads: Threads = { a: q("a", 5), b: q("b", 1, 2), c: q("c", 9), d: q("d", 3, -1) }
+  assert.deepEqual(chatList(threads).map((t) => t.id), ["d", "b", "c", "a"])
+  assert.deepEqual(liveThreads(threads).map((t) => t.id), ["c", "a", "d", "b"]) // what opens stays by activity
+  const pinned = chatList(threads).filter((t) => t.pin !== undefined)
+  assert.equal(pinAt([], 0), 0)
+  assert.equal(pinAt(pinned, 0), -2)
+  assert.equal(pinAt(pinned, 1), 0.5)
+  assert.equal(pinAt(pinned, 2), 3)
+})
+
+test("a pin goes to iCloud and back, and pinned chats are never pruned", () => {
+  const thread = { id: "x", u: 1, m: [{ role: "user", content: "Hi" }] as Entry[], pin: 1.5 }
+  assert.equal(threadFromCloud(threadForCloud(thread))?.pin, 1.5)
+  assert.equal(threadFromCloud(JSON.stringify({ m: thread.m }))?.pin, undefined)
+  const many: Threads = {}
+  for (let i = 0; i < MAX_THREADS + 5; i++) many[`t${i}`] = { id: `t${i}`, u: 100 + i, m: [{ role: "user", content: `${i}` }] }
+  many.old = { id: "old", u: 1, m: [{ role: "user", content: "old" }], pin: 0 }
+  const kept = prune(many, 999)
+  assert.equal(kept.old.deleted, undefined)
+  assert.equal(Object.values(kept).filter((t) => !t.deleted).length, MAX_THREADS)
+})
+
+test("a chat lists its pages once each and counts its notes", () => {
+  const a = { url: "https://a.example", title: "A" }
+  const b = { url: "https://b.example", title: "B" }
+  const m: Entry[] = [
+    { role: "user", content: "q1", page: a },
+    { role: "assistant", content: "x" },
+    { role: "user", content: "n", note: true, page: b },
+    { role: "user", content: "q2", page: a }
+  ]
+  assert.deepEqual(threadPages(m), [a, b])
+  assert.equal(threadNotes(m), 1)
 })

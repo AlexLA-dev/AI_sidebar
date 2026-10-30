@@ -178,5 +178,15 @@
   "wholeChatHint": "Les réponses tiennent compte de tout le chat : tous les messages, vos notes et les pages de ce chat. Désactivé : les derniers messages et la page ouverte.",
   "openPage": "Ouvrir cette page",
   "usageFreeShort": "Aujourd’hui : {0} sur {1}",
-  "usageProShort": "Pro · {0} sur {1} cette semaine"
+  "usageProShort": "Pro · {0} sur {1} cette semaine",
+
+  "pinChat": "Épingler la discussion",
+  "unpinChat": "Désépingler",
+  "reorderChat": "Faites glisser pour réorganiser",
+  "chatPages": "Pages de cette discussion",
+  "chatNotes": "Vos notes dans cette discussion",
+  "pages_one": "{0} page",
+  "pages_few": "{0} pages",
+  "pages_many": "{0} pages",
+  "pages_other": "{0} pages"
 }

@@ -9,6 +9,7 @@ export interface Thread {
   m: Entry[]
   a?: number // last message (ms): the list order; renaming changes `u` only (missing = `u`)
   title?: string // set by the user; otherwise the first question names the chat
+  pin?: number // pinned: its place among the pinned chats at the top of the list (lower first)
   deleted?: boolean // kept until iCloud knows, so the deletion reaches the other devices
 }
 
@@ -40,6 +41,32 @@ export function activity(thread: Thread): number {
 /** Threads that still exist, the last one written in first. */
 export function liveThreads(threads: Threads): Thread[] {
   return Object.values(threads).filter((t) => !t.deleted && t.m.length > 0).sort((a, b) => activity(b) - activity(a))
+}
+
+/** The list of chats: pinned ones first in their order, then the others, the last one written in first. */
+export function chatList(threads: Threads): Thread[] {
+  const live = liveThreads(threads)
+  return [...live.filter((t) => t.pin !== undefined).sort((a, b) => a.pin! - b.pin!), ...live.filter((t) => t.pin === undefined)]
+}
+
+/** The pin value that puts a chat at `index` among `pinned` (the other pinned chats, in list order). */
+export function pinAt(pinned: Thread[], index: number): number {
+  const before = pinned[index - 1]?.pin
+  const after = pinned[index]?.pin
+  if (before === undefined) return after === undefined ? 0 : after - 1
+  return after === undefined ? before + 1 : (before + after) / 2
+}
+
+/** The pages the chat was on, in the order it first came to them. */
+export function threadPages(entries: Entry[]): Array<{ url: string; title: string }> {
+  const pages = new Map<string, string>()
+  for (const e of entries) if (e.role === "user" && e.page && !pages.has(e.page.url)) pages.set(e.page.url, e.page.title)
+  return [...pages].map(([url, title]) => ({ url, title }))
+}
+
+/** How many notes the user wrote in the chat. */
+export function threadNotes(entries: Entry[]): number {
+  return entries.filter((e) => e.note).length
 }
 
 /** The chat's name: the user's, or its first question. */
@@ -86,9 +113,9 @@ function oneLine(text: string, max: number): string {
   return line.length > max ? `${line.slice(0, max - 1).trimEnd()}…` : line
 }
 
-/** Keeps the newest MAX_THREADS threads; older ones become deletions so iCloud drops them too. */
+/** Keeps pinned threads and the newest MAX_THREADS; older ones become deletions so iCloud drops them too. */
 export function prune(threads: Threads, now = Date.now()): Threads {
-  const keep = new Set(liveThreads(threads).slice(0, MAX_THREADS).map((t) => t.id))
+  const keep = new Set(chatList(threads).slice(0, MAX_THREADS).map((t) => t.id))
   const out: Threads = {}
   for (const t of Object.values(threads)) {
     if (t.deleted || keep.has(t.id) || t.m.length === 0) out[t.id] = t
@@ -118,7 +145,11 @@ export function pendingChanges(threads: Threads, synced: Record<string, number>)
  * last message, dropping the oldest messages if it would not fit.
  */
 export function threadForCloud(thread: Thread, maxChars = CLOUD_MAX_CHARS): string {
-  const meta = { ...(thread.title ? { title: thread.title } : {}), ...(thread.a !== undefined && thread.a !== thread.u ? { a: thread.a } : {}) }
+  const meta = {
+    ...(thread.title ? { title: thread.title } : {}),
+    ...(thread.a !== undefined && thread.a !== thread.u ? { a: thread.a } : {}),
+    ...(thread.pin !== undefined ? { pin: thread.pin } : {})
+  }
   let start = 0
   let data = JSON.stringify({ ...meta, m: thread.m })
   while (data.length > maxChars && start < thread.m.length) {
@@ -129,7 +160,7 @@ export function threadForCloud(thread: Thread, maxChars = CLOUD_MAX_CHARS): stri
 }
 
 /** A thread read back from iCloud (2.3 build 56 stored just the messages), or null if it isn't one. */
-export function threadFromCloud(data: string): Pick<Thread, "m" | "a" | "title"> | null {
+export function threadFromCloud(data: string): Pick<Thread, "m" | "a" | "title" | "pin"> | null {
   let parsed: unknown
   try {
     parsed = JSON.parse(data)
@@ -141,13 +172,14 @@ export function threadFromCloud(data: string): Pick<Thread, "m" | "a" | "title">
     return m && { m }
   }
   if (parsed === null || typeof parsed !== "object") return null
-  const { m: raw, a, title } = parsed as Record<string, unknown>
+  const { m: raw, a, title, pin } = parsed as Record<string, unknown>
   const m = entriesFrom(raw)
   if (!m) return null
   return {
     m,
     ...(typeof a === "number" ? { a } : {}),
-    ...(typeof title === "string" && title.trim() ? { title: cleanTitle(title) } : {})
+    ...(typeof title === "string" && title.trim() ? { title: cleanTitle(title) } : {}),
+    ...(typeof pin === "number" && Number.isFinite(pin) ? { pin } : {})
   }
 }
 
