@@ -1,3 +1,4 @@
+import AVFoundation
 import Combine
 import Foundation
 import StoreKit
@@ -330,6 +331,8 @@ struct Tip {
     let color: Color
     let title: LocalizedStringKey
     let text: LocalizedStringKey
+    // A short recording of the extension doing it (TipClips/<en|ru>/<clip>.mp4).
+    var clip: String? = nil
 }
 
 struct TipGroup {
@@ -339,7 +342,7 @@ struct TipGroup {
     private static var openTip: Tip {
         #if os(iOS)
         Tip(symbol: "sparkles", color: brandBlue, title: "Open it on any page",
-            text: "Tap ✦ on the page, or open the page menu in the address bar and choose ContextFlow.")
+            text: "Tap ✦ on the page, or open the page menu in the address bar and choose ContextFlow.", clip: "open")
         #else
         Tip(symbol: "sparkles", color: brandBlue, title: "Open it on any page",
             text: "Click ✦ on the page or the ContextFlow icon in the toolbar, or press Control-Shift-E.")
@@ -350,17 +353,21 @@ struct TipGroup {
         TipGroup(title: "Get answers", tips: [
             openTip,
             Tip(symbol: "list.bullet.rectangle", color: .orange, title: "One tap for the gist",
-                text: "Summarize, Key takeaways, Explain simply and Translate work on the whole page — no need to write a prompt."),
+                text: "Summarize, Key takeaways, Explain simply and Translate work on the whole page — no need to write a prompt.", clip: "gist"),
             Tip(symbol: "text.cursor", color: .purple, title: "Ask about a part",
-                text: "Select text on the page and choose Ask AI: the answer is about just that part. It can also explain, translate or rewrite it."),
+                text: "Select text on the page and choose Ask AI: the answer is about just that part. It can also explain, translate or rewrite it.", clip: "part"),
             Tip(symbol: "magnifyingglass", color: .green, title: "Fresh facts from Google",
-                text: "Turn on Google next to the question field to answer with Google Search: news, prices and anything recent, with sources.")
+                text: "Turn on Google next to the question field to answer with Google Search: news, prices and anything recent, with sources.", clip: "google")
         ]),
         TipGroup(title: "Chats", tips: [
             Tip(symbol: "bubble.left.and.bubble.right", color: .teal, title: "A chat follows you",
-                text: "Keep asking as you move from page to page. ContextFlow remembers the conversation and which page each question was about."),
+                text: "Keep asking as you move from page to page. ContextFlow remembers the conversation and which page each question was about. Tap a page's name in the chat to go back to it.", clip: "follows"),
+            Tip(symbol: "pencil.line", color: .orange, title: "Notes of your own",
+                text: "Swipe the send button up or down (on a Mac, scroll on it) to write a note instead of asking. It stays in the chat with its page, syncs with it and uses no answers.", clip: "notes"),
+            Tip(symbol: "rectangle.stack", color: .blue, title: "The whole chat in mind",
+                text: "Turn on Whole chat under the question field when an answer needs everything: all messages, your notes and the other pages of this chat. Off, answers use the last messages and the open page.", clip: "whole"),
             Tip(symbol: "square.and.pencil", color: .indigo, title: "Start fresh or go back",
-                text: "Start a new chat with +. Earlier chats wait in the chat list: open one to pick up where you left off, rename it with the pencil, or delete it."),
+                text: "Start a new chat with +. Earlier chats wait in the chat list: open one to pick up where you left off, rename it with the pencil, or delete it.", clip: "chats"),
             Tip(symbol: "icloud", color: .cyan, title: "On all your devices",
                 text: "With “Sync chats with iCloud” on, a chat started on your iPhone continues on your iPad and Mac. It's end-to-end encrypted in your iCloud."),
             Tip(symbol: "square.and.arrow.up", color: .pink, title: "Share what you found",
@@ -368,7 +375,7 @@ struct TipGroup {
         ]),
         TipGroup(title: "Settings & privacy", tips: [
             Tip(symbol: "person.text.rectangle", color: .mint, title: "Tell it about you",
-                text: "Add a line under About me — what you do, how you like answers — and ContextFlow will tailor them to you."),
+                text: "Add a line under About me — what you do, how you like answers — and ContextFlow will tailor them to you.", clip: "about"),
             Tip(symbol: "key.fill", color: .gray, title: "Use your own API key",
                 text: "With Pro or the Own key plan, paste an OpenAI or Claude key in the extension settings in Safari. Requests then go straight to that provider."),
             Tip(symbol: "hand.tap", color: .blue, title: "The ✦ button, your way",
@@ -384,6 +391,16 @@ struct TipCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
+            if let name = tip.clip, let url = TipClip.url(name) {
+                TipClipView(url: url)
+                    .aspectRatio(TipClip.aspect, contentMode: .fit)
+                    .frame(maxWidth: TipClip.width)
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.primary.opacity(0.08)))
+                    .frame(maxWidth: .infinity)
+                    .padding(.bottom, 4)
+                    .accessibilityHidden(true)
+            }
             Image(systemName: tip.symbol)
                 .font(.system(size: 17, weight: .semibold))
                 .foregroundColor(.white)
@@ -404,6 +421,89 @@ struct TipCard: View {
         .accessibilityElement(children: .combine)
     }
 }
+
+// MARK: - Tip clips
+
+enum TipClip {
+    static let aspect: CGFloat = 540.0 / 794.0
+    static let width: CGFloat = 270 // at most; about 400 pt tall
+
+    /// The clip recorded in the app's language: Russian, or English for every other language.
+    static func url(_ name: String) -> URL? {
+        let lang = Bundle.main.preferredLocalizations.first?.hasPrefix("ru") == true ? "ru" : "en"
+        return Bundle.main.url(forResource: name, withExtension: "mp4", subdirectory: "TipClips/\(lang)")
+    }
+}
+
+/// A muted clip that loops while it's on screen; with Reduce Motion it shows one still frame.
+struct TipClipView: View {
+    let url: URL
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @StateObject private var looping = LoopingPlayer()
+
+    var body: some View {
+        PlayerLayerView(player: looping.player)
+            .background(Color.white)
+            .onAppear { looping.start(url, still: reduceMotion) }
+            .onDisappear { looping.player.pause() }
+    }
+}
+
+final class LoopingPlayer: ObservableObject {
+    let player = AVQueuePlayer()
+    private var looper: AVPlayerLooper?
+
+    init() {
+        player.isMuted = true
+        player.preventsDisplaySleepDuringVideoPlayback = false
+    }
+
+    func start(_ url: URL, still: Bool) {
+        if looper == nil { looper = AVPlayerLooper(player: player, templateItem: AVPlayerItem(url: url)) }
+        if still {
+            // Past the fade-in, where the feature is already on screen.
+            player.pause()
+            player.seek(to: CMTime(seconds: 3.5, preferredTimescale: 600))
+        } else {
+            player.play()
+        }
+    }
+}
+
+#if os(iOS)
+struct PlayerLayerView: UIViewRepresentable {
+    let player: AVPlayer
+
+    func makeUIView(context: Context) -> PlayerUIView {
+        let view = PlayerUIView()
+        view.playerLayer.player = player
+        view.playerLayer.videoGravity = .resizeAspect
+        return view
+    }
+
+    func updateUIView(_ view: PlayerUIView, context: Context) {}
+
+    final class PlayerUIView: UIView {
+        override class var layerClass: AnyClass { AVPlayerLayer.self }
+        var playerLayer: AVPlayerLayer { layer as! AVPlayerLayer }
+    }
+}
+#else
+struct PlayerLayerView: NSViewRepresentable {
+    let player: AVPlayer
+
+    func makeNSView(context: Context) -> NSView {
+        let view = NSView()
+        let layer = AVPlayerLayer(player: player)
+        layer.videoGravity = .resizeAspect
+        view.layer = layer // layer-hosting: the player layer follows the view's size
+        view.wantsLayer = true
+        return view
+    }
+
+    func updateNSView(_ view: NSView, context: Context) {}
+}
+#endif
 
 // MARK: - Pro
 

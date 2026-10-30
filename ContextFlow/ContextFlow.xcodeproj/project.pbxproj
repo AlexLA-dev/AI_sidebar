@@ -48,6 +48,8 @@
 		CF2000000000000000000013 /* icons in Resources */ = {isa = PBXBuildFile; fileRef = CF2000000000000000000004 /* icons */; };
 		CF2000000000000000000014 /* _locales in Resources */ = {isa = PBXBuildFile; fileRef = CF2000000000000000000005 /* _locales */; };
 		CF200000000000000000001A /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = CF2000000000000000000006 /* Localizable.xcstrings */; };
+		CF2000000000000000000041 /* TipClips in Resources */ = {isa = PBXBuildFile; fileRef = CF2000000000000000000040 /* TipClips */; };
+		CF2000000000000000000042 /* TipClips in Resources */ = {isa = PBXBuildFile; fileRef = CF2000000000000000000040 /* TipClips */; };
 		CF2000000000000000000015 /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = CF2000000000000000000001 /* manifest.json */; };
 		CF2000000000000000000016 /* welcome.html in Resources */ = {isa = PBXBuildFile; fileRef = CF2000000000000000000002 /* welcome.html */; };
 		CF2000000000000000000017 /* dist in Resources */ = {isa = PBXBuildFile; fileRef = CF2000000000000000000003 /* dist */; };
@@ -139,6 +141,7 @@
 		CF2000000000000000000004 /* icons */ = {isa = PBXFileReference; lastKnownFileType = folder; name = icons; path = Resources/icons; sourceTree = "<group>"; };
 		CF2000000000000000000005 /* _locales */ = {isa = PBXFileReference; lastKnownFileType = folder; name = _locales; path = Resources/_locales; sourceTree = "<group>"; };
 		CF2000000000000000000006 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		CF2000000000000000000040 /* TipClips */ = {isa = PBXFileReference; lastKnownFileType = folder; path = TipClips; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -201,6 +204,7 @@
 				41FA27B52F41ED2000FED9FC /* ViewController.swift */,
 				41FA27B62F41ED2100FED9FC /* Assets.xcassets */,
 				CF2000000000000000000006 /* Localizable.xcstrings */,
+				CF2000000000000000000040 /* TipClips */,
 				41FA27AF2F41ED2000FED9FC /* Resources */,
 			);
 			path = "Shared (App)";
@@ -435,6 +439,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CF200000000000000000001A /* Localizable.xcstrings in Resources */,
+				CF2000000000000000000041 /* TipClips in Resources */,
 				41FA27ED2F41ED2100FED9FC /* Icon.png in Resources */,
 				41FA27C62F41ED2100FED9FC /* LaunchScreen.storyboard in Resources */,
 				41FA27EB2F41ED2100FED9FC /* Main.html in Resources */,
@@ -451,6 +456,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CF200000000000000000001B /* Localizable.xcstrings in Resources */,
+				CF2000000000000000000042 /* TipClips in Resources */,
 				41FA27EE2F41ED2100FED9FC /* Icon.png in Resources */,
 				410D889C2F41EE9800684748 /* PrivacyInfo.xcprivacy in Resources */,
 				41FA27F02F41ED2100FED9FC /* Style.css in Resources */,

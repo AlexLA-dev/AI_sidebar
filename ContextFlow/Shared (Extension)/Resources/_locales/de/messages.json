@@ -527,16 +527,31 @@
   "message": "Deine Chats"
  },
  "tourChatsBody": {
-  "message": "Ein Chat geht von Seite zu Seite weiter. Mit + startest du einen neuen. In der Chatliste kannst du frühere öffnen, umbenennen oder löschen."
+  "message": "Ein Chat geht von Seite zu Seite weiter. Mit + startest du einen neuen. In der Chatliste kannst du frühere öffnen, umbenennen oder löschen. Tippe im Chat auf den Namen einer Seite, um zu ihr zurückzukehren."
  },
  "tourChatsBodySync": {
-  "message": "Ein Chat geht von Seite zu Seite weiter – und über iCloud auf deinem iPhone, iPad und Mac. Mit + startest du einen neuen. In der Chatliste kannst du frühere öffnen, umbenennen oder löschen."
+  "message": "Ein Chat geht von Seite zu Seite weiter – und über iCloud auf deinem iPhone, iPad und Mac. Mit + startest du einen neuen. In der Chatliste kannst du frühere öffnen, umbenennen oder löschen. Tippe im Chat auf den Namen einer Seite, um zu ihr zurückzukehren."
  },
  "tourSettingsTitle": {
   "message": "Ganz nach deinem Geschmack"
  },
  "tourSettingsBody": {
   "message": "Design und Textgröße, die ✦-Taste, ein paar Worte über dich für bessere Antworten, dein eigener API-Schlüssel und dein Tarif. Auch diese Tipps findest du hier wieder."
+ },
+ "tourNoteTitle": {
+  "message": "Eigene Notizen"
+ },
+ "tourNoteBodyTouch": {
+  "message": "Wische diese Taste nach oben oder unten, um statt einer Frage eine Notiz zu schreiben. Sie bleibt mit ihrer Seite im Chat und verbraucht keine Antworten."
+ },
+ "tourNoteBodyMouse": {
+  "message": "Scrolle auf dieser Taste (oder halte sie gedrückt), um statt einer Frage eine Notiz zu schreiben. Sie bleibt mit ihrer Seite im Chat und verbraucht keine Antworten."
+ },
+ "tourWholeTitle": {
+  "message": "Der ganze Chat im Blick"
+ },
+ "tourWholeBody": {
+  "message": "Schalte „Ganzer Chat“ ein, wenn eine Frage alles braucht: alle Nachrichten, deine Notizen und die anderen Seiten dieses Chats. Aus: die letzten Nachrichten und diese Seite."
  },
  "welcomeTitle": {
   "message": "ContextFlow ist bereit"

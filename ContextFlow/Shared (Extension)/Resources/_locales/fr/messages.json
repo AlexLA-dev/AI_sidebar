@@ -527,16 +527,31 @@
   "message": "Vos discussions"
  },
  "tourChatsBody": {
-  "message": "Une discussion se poursuit de page en page. Commencez-en une nouvelle avec +, et ouvrez, renommez ou supprimez les précédentes dans la liste."
+  "message": "Une discussion se poursuit de page en page. Commencez-en une nouvelle avec +, et ouvrez, renommez ou supprimez les précédentes dans la liste. Touchez le nom d’une page dans le chat pour y revenir."
  },
  "tourChatsBodySync": {
-  "message": "Une discussion se poursuit de page en page, et sur votre iPhone, iPad et Mac via iCloud. Commencez-en une nouvelle avec +, et ouvrez, renommez ou supprimez les précédentes dans la liste."
+  "message": "Une discussion se poursuit de page en page, et sur votre iPhone, iPad et Mac via iCloud. Commencez-en une nouvelle avec +, et ouvrez, renommez ou supprimez les précédentes dans la liste. Touchez le nom d’une page dans le chat pour y revenir."
  },
  "tourSettingsTitle": {
   "message": "À votre façon"
  },
  "tourSettingsBody": {
   "message": "Thème et taille du texte, le bouton ✦, quelques mots sur vous pour de meilleures réponses, votre clé d’API et votre forfait. Vous y retrouverez aussi ces conseils."
+ },
+ "tourNoteTitle": {
+  "message": "Vos propres notes"
+ },
+ "tourNoteBodyTouch": {
+  "message": "Faites glisser ce bouton vers le haut ou le bas pour écrire une note au lieu de poser une question. Elle reste dans le chat avec sa page et ne consomme aucune réponse."
+ },
+ "tourNoteBodyMouse": {
+  "message": "Faites défiler sur ce bouton (ou maintenez-le) pour écrire une note au lieu de poser une question. Elle reste dans le chat avec sa page et ne consomme aucune réponse."
+ },
+ "tourWholeTitle": {
+  "message": "Tout le chat en tête"
+ },
+ "tourWholeBody": {
+  "message": "Activez « Tout le chat » quand une question a besoin de tout : tous les messages, vos notes et les autres pages de ce chat. Désactivé : les derniers messages et cette page."
  },
  "welcomeTitle": {
   "message": "ContextFlow est prêt"

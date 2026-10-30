@@ -527,16 +527,31 @@
   "message": "你的对话"
  },
  "tourChatsBody": {
-  "message": "对话会随你跨页面继续。点 + 开始新对话，在对话列表中打开、重命名或删除以前的对话。"
+  "message": "对话会随你跨页面继续。点 + 开始新对话，在对话列表中打开、重命名或删除以前的对话。点按对话中的页面名称即可回到该页面。"
  },
  "tourChatsBodySync": {
-  "message": "对话会随你跨页面继续，并通过 iCloud 在你的 iPhone、iPad 和 Mac 上接着聊。点 + 开始新对话，在对话列表中打开、重命名或删除以前的对话。"
+  "message": "对话会随你跨页面继续，并通过 iCloud 在你的 iPhone、iPad 和 Mac 上接着聊。点 + 开始新对话，在对话列表中打开、重命名或删除以前的对话。点按对话中的页面名称即可回到该页面。"
  },
  "tourSettingsTitle": {
   "message": "按你的习惯设置"
  },
  "tourSettingsBody": {
   "message": "主题和文字大小、✦ 按钮、用于更好回答的自我介绍、自有 API 密钥和你的套餐。这些提示也可以在这里再次查看。"
+ },
+ "tourNoteTitle": {
+  "message": "你自己的笔记"
+ },
+ "tourNoteBodyTouch": {
+  "message": "上下滑动这个按钮，就能写笔记而不是提问。笔记会连同页面留在对话中，不消耗回答次数。"
+ },
+ "tourNoteBodyMouse": {
+  "message": "在这个按钮上滚动（或按住它），就能写笔记而不是提问。笔记会连同页面留在对话中，不消耗回答次数。"
+ },
+ "tourWholeTitle": {
+  "message": "结合整个对话"
+ },
+ "tourWholeBody": {
+  "message": "当问题需要全部内容时，打开“整个对话”：所有消息、你的笔记和此对话中的其他页面。关闭时：最近的消息和当前页面。"
  },
  "welcomeTitle": {
   "message": "ContextFlow 已准备就绪"

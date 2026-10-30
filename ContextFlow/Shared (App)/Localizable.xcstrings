@@ -6721,66 +6721,322 @@
         }
       }
     },
-    "Keep asking as you move from page to page. ContextFlow remembers the conversation and which page each question was about.": {
+    "Keep asking as you move from page to page. ContextFlow remembers the conversation and which page each question was about. Tap a page's name in the chat to go back to it.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Frag einfach weiter, während du von Seite zu Seite gehst. ContextFlow merkt sich das Gespräch und zu welcher Seite jede Frage gehörte."
+            "value": "Frag einfach weiter, während du von Seite zu Seite gehst. ContextFlow merkt sich das Gespräch und zu welcher Seite jede Frage gehörte. Tippe im Chat auf den Namen einer Seite, um zu ihr zurückzukehren."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sigue preguntando mientras pasas de una página a otra. ContextFlow recuerda la conversación y de qué página trataba cada pregunta."
+            "value": "Sigue preguntando mientras pasas de una página a otra. ContextFlow recuerda la conversación y de qué página trataba cada pregunta. Toca el nombre de una página en el chat para volver a ella."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Continuez à poser des questions en passant d’une page à l’autre. ContextFlow se souvient de la discussion et de la page concernée par chaque question."
+            "value": "Continuez à poser des questions en passant d’une page à l’autre. ContextFlow se souvient de la discussion et de la page concernée par chaque question. Touchez le nom d’une page dans la discussion pour y revenir."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Continua a chiedere mentre passi da una pagina all’altra. ContextFlow ricorda la conversazione e a quale pagina si riferiva ogni domanda."
+            "value": "Continua a chiedere mentre passi da una pagina all’altra. ContextFlow ricorda la conversazione e a quale pagina si riferiva ogni domanda. Tocca il nome di una pagina nella chat per tornarci."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ページを移りながら質問を続けられます。ContextFlowは会話の内容と、各質問がどのページについてだったかを覚えています。"
+            "value": "ページを移りながら質問を続けられます。ContextFlowは会話の内容と、各質問がどのページについてだったかを覚えています。チャット内のページ名をタップすると、そのページに戻れます。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "페이지를 옮겨 다니며 계속 질문하세요. ContextFlow는 대화와 각 질문이 어느 페이지에 관한 것이었는지 기억합니다."
+            "value": "페이지를 옮겨 다니며 계속 질문하세요. ContextFlow는 대화와 각 질문이 어느 페이지에 관한 것이었는지 기억합니다. 채팅에서 페이지 이름을 탭하면 그 페이지로 돌아갑니다."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Continue perguntando enquanto passa de uma página para outra. O ContextFlow lembra a conversa e de qual página era cada pergunta."
+            "value": "Continue perguntando enquanto passa de uma página para outra. O ContextFlow lembra a conversa e de qual página era cada pergunta. Toque no nome de uma página no chat para voltar a ela."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Спрашивайте дальше, переходя со страницы на страницу. ContextFlow помнит разговор и то, к какой странице относился каждый вопрос."
+            "value": "Спрашивайте дальше, переходя со страницы на страницу. ContextFlow помнит разговор и то, к какой странице относился каждый вопрос. Нажмите на название страницы в чате, чтобы вернуться к ней."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Запитуйте далі, переходячи зі сторінки на сторінку. ContextFlow пам’ятає розмову і те, до якої сторінки стосувалося кожне запитання."
+            "value": "Запитуйте далі, переходячи зі сторінки на сторінку. ContextFlow пам’ятає розмову і те, до якої сторінки стосувалося кожне запитання. Натисніть назву сторінки в чаті, щоб повернутися до неї."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "在页面间切换时可以继续提问。ContextFlow 会记住对话内容，以及每个问题对应的页面。"
+            "value": "在页面间切换时可以继续提问。ContextFlow 会记住对话内容，以及每个问题对应的页面。点按对话中的页面名称即可回到该页面。"
+          }
+        }
+      }
+    },
+    "Notes of your own": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eigene Notizen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tus propias notas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos propres notes"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Note tutte tue"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自分のメモ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "나만의 메모"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suas próprias notas"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Свои заметки"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Власні нотатки"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你自己的笔记"
+          }
+        }
+      }
+    },
+    "Swipe the send button up or down (on a Mac, scroll on it) to write a note instead of asking. It stays in the chat with its page, syncs with it and uses no answers.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wische die Senden-Taste nach oben oder unten (auf dem Mac: scrolle auf ihr), um statt einer Frage eine Notiz zu schreiben. Sie bleibt mit ihrer Seite im Chat, wird mit ihm synchronisiert und verbraucht keine Antworten."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desliza el botón de enviar arriba o abajo (en un Mac, desplázate sobre él) para escribir una nota en lugar de preguntar. Se queda en el chat con su página, se sincroniza con él y no gasta respuestas."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Faites glisser le bouton d’envoi vers le haut ou le bas (sur Mac, faites défiler dessus) pour écrire une note au lieu de poser une question. Elle reste dans la discussion avec sa page, se synchronise avec elle et ne consomme aucune réponse."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scorri il pulsante di invio in su o in giù (su Mac, scorri sopra di esso) per scrivere una nota invece di fare una domanda. Resta nella chat con la sua pagina, si sincronizza con essa e non consuma risposte."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "送信ボタンを上下にスワイプ（Macではボタンの上でスクロール）すると、質問の代わりにメモを書けます。メモはページと一緒にチャットに残り、チャットと一緒に同期され、回答回数を使いません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "보내기 버튼을 위아래로 밀면(Mac에서는 버튼 위에서 스크롤) 질문 대신 메모를 쓸 수 있습니다. 메모는 페이지와 함께 채팅에 남고, 채팅과 함께 동기화되며, 답변 횟수를 쓰지 않습니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deslize o botão de enviar para cima ou para baixo (no Mac, role sobre ele) para escrever uma nota em vez de perguntar. Ela fica no chat com a página, sincroniza com ele e não gasta respostas."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Смахните кнопку отправки вверх или вниз (на Mac — прокрутите над ней), чтобы записать заметку вместо вопроса. Она останется в чате вместе со страницей, синхронизируется вместе с ним и не тратит ответы."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Змахніть кнопку надсилання вгору або вниз (на Mac — прокрутіть над нею), щоб записати нотатку замість запитання. Вона залишиться в чаті разом зі сторінкою, синхронізується разом із ним і не витрачає відповіді."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上下滑动发送按钮（在 Mac 上，在按钮上滚动），就能写笔记而不是提问。笔记会连同页面留在对话中，随对话同步，不消耗回答次数。"
+          }
+        }
+      }
+    },
+    "The whole chat in mind": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der ganze Chat im Blick"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Con todo el chat en cuenta"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toute la discussion en tête"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tutta la chat in mente"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "チャット全体を踏まえて"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "채팅 전체를 고려해서"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Com o chat inteiro em mente"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "С учётом всего чата"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "З урахуванням усього чату"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "结合整个对话"
+          }
+        }
+      }
+    },
+    "Turn on Whole chat under the question field when an answer needs everything: all messages, your notes and the other pages of this chat. Off, answers use the last messages and the open page.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schalte „Ganzer Chat“ unter dem Eingabefeld ein, wenn eine Antwort alles braucht: alle Nachrichten, deine Notizen und die anderen Seiten dieses Chats. Aus: die letzten Nachrichten und die geöffnete Seite."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activa «Todo el chat» bajo el campo de pregunta cuando una respuesta lo necesite todo: todos los mensajes, tus notas y las otras páginas de este chat. Desactivado: los últimos mensajes y la página abierta."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activez « Tout le chat » sous le champ de question quand une réponse a besoin de tout : tous les messages, vos notes et les autres pages de cette discussion. Désactivé : les derniers messages et la page ouverte."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attiva «Tutta la chat» sotto il campo della domanda quando una risposta ha bisogno di tutto: tutti i messaggi, le tue note e le altre pagine di questa chat. Disattivato: gli ultimi messaggi e la pagina aperta."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "回答にすべてが必要なときは、質問欄の下の「チャット全体」をオンに：すべてのメッセージ、メモ、このチャットの他のページ。オフ：直近のメッセージと開いているページ。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "답변에 모든 내용이 필요할 때 질문 칸 아래의 '채팅 전체'를 켜세요: 모든 메시지, 메모, 이 채팅의 다른 페이지. 끄면: 최근 메시지와 열린 페이지."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ative “Chat inteiro” abaixo do campo de pergunta quando uma resposta precisar de tudo: todas as mensagens, suas notas e as outras páginas deste chat. Desligado: as últimas mensagens e a página aberta."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Включите «Весь чат» под полем вопроса, когда для ответа нужно всё: все сообщения, ваши заметки и другие страницы этого чата. Выключено — учитываются последние сообщения и открытая страница."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Увімкніть «Весь чат» під полем запитання, коли для відповіді потрібне все: усі повідомлення, ваші нотатки й інші сторінки цього чату. Вимкнено — враховуються останні повідомлення й відкрита сторінка."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当回答需要全部内容时，打开问题输入框下方的“整个对话”：所有消息、你的笔记和此对话中的其他页面。关闭时：最近的消息和当前页面。"
           }
         }
       }

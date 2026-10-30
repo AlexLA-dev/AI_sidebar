@@ -527,16 +527,31 @@
   "message": "Your chats"
  },
  "tourChatsBody": {
-  "message": "A chat carries on from page to page. Start a new one with +, and open, rename or delete earlier ones in the chat list."
+  "message": "A chat carries on from page to page. Start a new one with +, and open, rename or delete earlier ones in the chat list. Tap a page's name in the chat to go back to it."
  },
  "tourChatsBodySync": {
-  "message": "A chat carries on from page to page, and on your iPhone, iPad and Mac through iCloud. Start a new one with +, and open, rename or delete earlier ones in the chat list."
+  "message": "A chat carries on from page to page, and on your iPhone, iPad and Mac through iCloud. Start a new one with +, and open, rename or delete earlier ones in the chat list. Tap a page's name in the chat to go back to it."
  },
  "tourSettingsTitle": {
   "message": "Make it yours"
  },
  "tourSettingsBody": {
   "message": "Theme and text size, the ✦ button, a few words about you for better answers, your own API key and your plan. These tips are here too."
+ },
+ "tourNoteTitle": {
+  "message": "Notes of your own"
+ },
+ "tourNoteBodyTouch": {
+  "message": "Swipe this button up or down to write a note instead of asking. It stays in the chat with its page and uses no answers."
+ },
+ "tourNoteBodyMouse": {
+  "message": "Scroll on this button (or hold it) to write a note instead of asking. It stays in the chat with its page and uses no answers."
+ },
+ "tourWholeTitle": {
+  "message": "The whole chat in mind"
+ },
+ "tourWholeBody": {
+  "message": "Turn on Whole chat when a question needs everything: all messages, your notes and the other pages of this chat. Off, answers use the last messages and this page."
  },
  "welcomeTitle": {
   "message": "ContextFlow is ready"

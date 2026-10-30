@@ -527,16 +527,31 @@
   "message": "Le tue chat"
  },
  "tourChatsBody": {
-  "message": "Una chat prosegue da una pagina all’altra. Iniziane una nuova con + e apri, rinomina o elimina le precedenti nell’elenco delle chat."
+  "message": "Una chat prosegue da una pagina all’altra. Iniziane una nuova con + e apri, rinomina o elimina le precedenti nell’elenco delle chat. Tocca il nome di una pagina nella chat per tornarci."
  },
  "tourChatsBodySync": {
-  "message": "Una chat prosegue da una pagina all’altra e, tramite iCloud, su iPhone, iPad e Mac. Iniziane una nuova con + e apri, rinomina o elimina le precedenti nell’elenco delle chat."
+  "message": "Una chat prosegue da una pagina all’altra e, tramite iCloud, su iPhone, iPad e Mac. Iniziane una nuova con + e apri, rinomina o elimina le precedenti nell’elenco delle chat. Tocca il nome di una pagina nella chat per tornarci."
  },
  "tourSettingsTitle": {
   "message": "Su misura per te"
  },
  "tourSettingsBody": {
   "message": "Tema e dimensione del testo, il pulsante ✦, due parole su di te per risposte migliori, la tua chiave API e il tuo piano. Qui ritrovi anche questi suggerimenti."
+ },
+ "tourNoteTitle": {
+  "message": "Note tutte tue"
+ },
+ "tourNoteBodyTouch": {
+  "message": "Scorri questo pulsante in su o in giù per scrivere una nota invece di fare una domanda. Resta nella chat con la sua pagina e non consuma risposte."
+ },
+ "tourNoteBodyMouse": {
+  "message": "Scorri sopra questo pulsante (o tienilo premuto) per scrivere una nota invece di fare una domanda. Resta nella chat con la sua pagina e non consuma risposte."
+ },
+ "tourWholeTitle": {
+  "message": "Tutta la chat in mente"
+ },
+ "tourWholeBody": {
+  "message": "Attiva «Tutta la chat» quando una domanda ha bisogno di tutto: tutti i messaggi, le tue note e le altre pagine di questa chat. Disattivato: gli ultimi messaggi e questa pagina."
  },
  "welcomeTitle": {
   "message": "ContextFlow è pronto"

@@ -527,16 +527,31 @@
   "message": "Suas conversas"
  },
  "tourChatsBody": {
-  "message": "A conversa continua de uma página para outra. Comece uma nova com + e abra, renomeie ou apague as anteriores na lista de conversas."
+  "message": "A conversa continua de uma página para outra. Comece uma nova com + e abra, renomeie ou apague as anteriores na lista de conversas. Toque no nome de uma página no chat para voltar a ela."
  },
  "tourChatsBodySync": {
-  "message": "A conversa continua de uma página para outra e, pelo iCloud, no seu iPhone, iPad e Mac. Comece uma nova com + e abra, renomeie ou apague as anteriores na lista de conversas."
+  "message": "A conversa continua de uma página para outra e, pelo iCloud, no seu iPhone, iPad e Mac. Comece uma nova com + e abra, renomeie ou apague as anteriores na lista de conversas. Toque no nome de uma página no chat para voltar a ela."
  },
  "tourSettingsTitle": {
   "message": "Do seu jeito"
  },
  "tourSettingsBody": {
   "message": "Tema e tamanho do texto, o botão ✦, algumas palavras sobre você para respostas melhores, sua chave de API e seu plano. Estas dicas também ficam aqui."
+ },
+ "tourNoteTitle": {
+  "message": "Suas próprias notas"
+ },
+ "tourNoteBodyTouch": {
+  "message": "Deslize este botão para cima ou para baixo para escrever uma nota em vez de perguntar. Ela fica no chat com a página e não gasta respostas."
+ },
+ "tourNoteBodyMouse": {
+  "message": "Role sobre este botão (ou mantenha-o pressionado) para escrever uma nota em vez de perguntar. Ela fica no chat com a página e não gasta respostas."
+ },
+ "tourWholeTitle": {
+  "message": "Com o chat inteiro em mente"
+ },
+ "tourWholeBody": {
+  "message": "Ative “Chat inteiro” quando uma pergunta precisar de tudo: todas as mensagens, suas notas e as outras páginas deste chat. Desligado: as últimas mensagens e esta página."
  },
  "welcomeTitle": {
   "message": "O ContextFlow está pronto"

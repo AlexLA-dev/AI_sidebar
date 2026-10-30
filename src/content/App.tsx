@@ -1090,7 +1090,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
             </>
           )}
           {touring && view === "chat" && panelRef.current && (
-            <Tour panel={panelRef.current} steps={tourSteps(TARGET === "safari" && settings.syncChats)} onDone={endTour} />
+            <Tour panel={panelRef.current} steps={tourSteps(TARGET === "safari" && settings.syncChats, touch)} onDone={endTour} />
           )}
         </section>
       )}
