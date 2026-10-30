@@ -6,6 +6,8 @@ import { answerShareText, chatShareText, toPlainText } from "../src/shared/share
 
 const labels = { you: "You", sources: "Sources", source: "Source", madeWith: "Made with ContextFlow" }
 const page = { url: "https://news.example/a", title: "Article A" }
+const app = "https://apps.apple.com/app/id1"
+const links = (here: string) => ({ page: here, app })
 const entries: Entry[] = [
   { role: "user", content: "What is this about?", page },
   { role: "assistant", content: "**New rules** start in May. See [the docs](https://docs.example/rules) for details [1](https://docs.example/rules)." },
@@ -22,8 +24,8 @@ test("toPlainText keeps links as text and drops citation numbers", () => {
   assert.equal(toPlainText("## Title\n- **one**\n- `two`"), "Title\n• one\n• two")
 })
 
-test("a shared chat is text with its links, Google sources and pages; the app link goes separately", () => {
-  assert.equal(chatShareText(entries, labels, "https://other.example"), [
+test("a shared chat is one text with its links, Google sources, pages and the app link", () => {
+  assert.equal(chatShareText(entries, labels, links("https://other.example")), [
     "You: What is this about?",
     "ContextFlow: New rules start in May. See the docs: https://docs.example/rules for details.",
     "",
@@ -36,17 +38,17 @@ test("a shared chat is text with its links, Google sources and pages; the app li
     "",
     "Source:",
     "Article A — https://news.example/a",
-    "Made with ContextFlow"
+    "Made with ContextFlow: https://apps.apple.com/app/id1"
   ].join("\n"))
-  assert.ok(!chatShareText(entries, labels, "").includes("apps.apple.com"))
+  assert.match(chatShareText([{ role: "user", content: "Hi" }], labels, links("https://here.example")), /Source: https:\/\/here\.example\nMade with ContextFlow: https:\/\/apps/)
 })
 
 test("a shared answer names its own page", () => {
-  assert.equal(answerShareText(entries, 1, labels, "https://other.example"), [
+  assert.equal(answerShareText(entries, 1, labels, links("https://other.example")), [
     "New rules start in May. See the docs: https://docs.example/rules for details.",
     "",
     "Source: https://news.example/a",
-    "Made with ContextFlow"
+    "Made with ContextFlow: https://apps.apple.com/app/id1"
   ].join("\n"))
-  assert.match(answerShareText([{ role: "assistant", content: "Hi" }], 0, labels, "https://here.example"), /Source: https:\/\/here\.example/)
+  assert.match(answerShareText([{ role: "assistant", content: "Hi" }], 0, labels, links("https://here.example")), /Source: https:\/\/here\.example/)
 })

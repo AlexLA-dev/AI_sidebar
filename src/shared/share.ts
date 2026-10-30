@@ -1,6 +1,6 @@
-// What sharing an answer or a whole chat sends: plain text that keeps the links in the answers,
-// the Google sources and the pages asked about. The link to ContextFlow goes separately (the share
-// sheet's `url`), so apps show it as a link of its own and the text as text.
+// What sharing an answer or a whole chat sends: one plain text that keeps the links in the answers,
+// the Google sources and the pages asked about, and ends with the link to ContextFlow. It goes to the
+// share sheet as text only: given a separate link, iOS shares that page and most apps drop the text.
 
 import { stripCitations, type Entry } from "./conversation.ts"
 
@@ -9,6 +9,11 @@ export interface ShareLabels {
   sources: string // a Google answer's sources
   source: string // the pages the chat was about
   madeWith: string // "Made with ContextFlow"
+}
+
+export interface ShareLinks {
+  page: string // the page open now, for an answer that wasn't about a page
+  app: string // ContextFlow in the App Store
 }
 
 /** Plain text for copy/share: Markdown syntax gone, structure and links kept. */
@@ -43,13 +48,13 @@ function pageOf(entries: Entry[], index: number): { url: string; title: string }
 }
 
 /** One answer: its text and sources, the page it was about, and where it was made. */
-export function answerShareText(entries: Entry[], index: number, labels: ShareLabels, currentUrl: string): string {
+export function answerShareText(entries: Entry[], index: number, labels: ShareLabels, links: ShareLinks): string {
   const page = pageOf(entries, index)
-  return [answerText(entries[index], labels), "", `${labels.source}: ${page?.url ?? currentUrl}`, labels.madeWith].join("\n")
+  return [answerText(entries[index], labels), "", `${labels.source}: ${page?.url ?? links.page}`, `${labels.madeWith}: ${links.app}`].join("\n")
 }
 
 /** The whole chat: questions and answers, every page it was about, and where it was made. */
-export function chatShareText(entries: Entry[], labels: ShareLabels, currentUrl: string): string {
+export function chatShareText(entries: Entry[], labels: ShareLabels, links: ShareLinks): string {
   const lines: string[] = []
   const pages = new Map<string, string>()
   for (const m of entries) {
@@ -64,7 +69,7 @@ export function chatShareText(entries: Entry[], labels: ShareLabels, currentUrl:
   return [
     lines.join("\n").trim(),
     "",
-    sources.length ? `${labels.source}:\n${sources.join("\n")}` : `${labels.source}: ${currentUrl}`,
-    labels.madeWith
+    sources.length ? `${labels.source}:\n${sources.join("\n")}` : `${labels.source}: ${links.page}`,
+    `${labels.madeWith}: ${links.app}`
   ].join("\n")
 }

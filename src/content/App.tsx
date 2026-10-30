@@ -17,7 +17,7 @@ import {
 import * as Icon from "./icons"
 import { historyForModel, lastPage, pageHasChanged, textFingerprint, type Entry } from "../shared/conversation"
 import { Markdown } from "./markdown"
-import { answerShareText, chatShareText, toPlainText, type ShareLabels } from "../shared/share"
+import { answerShareText, chatShareText, toPlainText, type ShareLabels, type ShareLinks } from "../shared/share"
 import {
   extractPage,
   forgetSelection,
@@ -608,21 +608,21 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
   // ------------------------------------------------------------ sharing
   const shareLabels = (): ShareLabels => ({ you: t("shareYou"), sources: t("sources"), source: t("shareSource"), madeWith: t("shareMadeWith") })
 
-  /**
-   * Shares text with ContextFlow's App Store link as a link of its own (apps then keep the text as
-   * text); copies both where sharing isn't available. True when it was copied.
-   */
+  const shareLinks = (): ShareLinks => ({ page: location.href, app: LINKS.appStoreShare })
+
+  /** Shares text (copies it where sharing isn't available). True when it was copied. */
   const shareText = useCallback(async (text: string): Promise<boolean> => {
     if (typeof navigator.share === "function") {
-      await navigator.share({ text, url: LINKS.appStoreShare }).catch(() => undefined)
+      // Text only: with a `url` as well, iOS shares the App Store page and the text gets lost.
+      await navigator.share({ text }).catch(() => undefined)
       return false
     }
-    return copyText(`${text}: ${LINKS.appStoreShare}`)
+    return copyText(text)
   }, [])
 
   /** Shares (or copies, where sharing isn't available) the whole conversation. */
   const shareChat = useCallback(async () => {
-    if (await shareText(chatShareText(messages, shareLabels(), location.href))) {
+    if (await shareText(chatShareText(messages, shareLabels(), shareLinks()))) {
       setChatCopied(true)
       setTimeout(() => setChatCopied(false), 1500)
     }
@@ -842,7 +842,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
                           {copied === idx ? <Icon.Check /> : <Icon.Copy />} {copied === idx ? t("copied") : t("copy")}
                         </button>
                         {typeof navigator.share === "function" && (
-                          <button type="button" onClick={() => void shareText(answerShareText(messages, idx, shareLabels(), location.href))}>
+                          <button type="button" onClick={() => void shareText(answerShareText(messages, idx, shareLabels(), shareLinks()))}>
                             <Icon.Share /> {t("share")}
                           </button>
                         )}
