@@ -17,7 +17,7 @@ import {
 import * as Icon from "./icons"
 import { historyForModel, lastPage, pageHasChanged, textFingerprint, type Entry } from "../shared/conversation"
 import { Markdown } from "./markdown"
-import { answerShareText, chatShareText, toPlainText, type ShareLabels, type ShareLinks } from "../shared/share"
+import { answerShareText, chatLanguage, chatShareText, toPlainText, type ShareLinks } from "../shared/share"
 import {
   extractPage,
   forgetSelection,
@@ -32,6 +32,7 @@ import {
   type SelectionInfo
 } from "./page"
 import { SettingsView } from "./Settings"
+import { shareLabels } from "./shareLabels"
 import { deleteThread, giveConsent, hasConsent, hasSeenTour, loadSettings, loadThreads, markTourSeen, onSettingsChanged, onThreadsChanged, renameThread, saveSettings, saveThread, setActiveThread } from "./store"
 import { ThreadsView } from "./Threads"
 import { Tour, tourSteps } from "./Tour"
@@ -606,8 +607,6 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
   }, [])
 
   // ------------------------------------------------------------ sharing
-  const shareLabels = (): ShareLabels => ({ you: t("shareYou"), sources: t("sources"), source: t("shareSource"), madeWith: t("shareMadeWith") })
-
   const shareLinks = (): ShareLinks => ({ page: location.href, app: LINKS.appStoreShare })
 
   /** Shares text (copies it where sharing isn't available). True when it was copied. */
@@ -622,7 +621,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
 
   /** Shares (or copies, where sharing isn't available) the whole conversation. */
   const shareChat = useCallback(async () => {
-    if (await shareText(chatShareText(messages, shareLabels(), shareLinks()))) {
+    if (await shareText(chatShareText(messages, shareLabels(chatLanguage(messages)), shareLinks()))) {
       setChatCopied(true)
       setTimeout(() => setChatCopied(false), 1500)
     }
@@ -842,7 +841,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
                           {copied === idx ? <Icon.Check /> : <Icon.Copy />} {copied === idx ? t("copied") : t("copy")}
                         </button>
                         {typeof navigator.share === "function" && (
-                          <button type="button" onClick={() => void shareText(answerShareText(messages, idx, shareLabels(), shareLinks()))}>
+                          <button type="button" onClick={() => void shareText(answerShareText(messages, idx, shareLabels(chatLanguage(messages)), shareLinks()))}>
                             <Icon.Share /> {t("share")}
                           </button>
                         )}

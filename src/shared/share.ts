@@ -1,6 +1,7 @@
 // What sharing an answer or a whole chat sends: one plain text that keeps the links in the answers,
 // the Google sources and the pages asked about, and ends with the link to ContextFlow. It goes to the
 // share sheet as text only: given a separate link, iOS shares that page and most apps drop the text.
+// Its labels ("You", "Source"…) are in the language the questions were typed in, else the device's.
 
 import { stripCitations, type Entry } from "./conversation.ts"
 
@@ -50,7 +51,7 @@ function pageOf(entries: Entry[], index: number): { url: string; title: string }
 /** One answer: its text and sources, the page it was about, and where it was made. */
 export function answerShareText(entries: Entry[], index: number, labels: ShareLabels, links: ShareLinks): string {
   const page = pageOf(entries, index)
-  return [answerText(entries[index], labels), "", `${labels.source}: ${page?.url ?? links.page}`, `${labels.madeWith}: ${links.app}`].join("\n")
+  return [answerText(entries[index], labels), "", `${labels.source}: ${page?.url ?? links.page}`, "", `${labels.madeWith}: ${links.app}`].join("\n")
 }
 
 /** The whole chat: questions and answers, every page it was about, and where it was made. */
@@ -70,6 +71,42 @@ export function chatShareText(entries: Entry[], labels: ShareLabels, links: Shar
     lines.join("\n").trim(),
     "",
     sources.length ? `${labels.source}:\n${sources.join("\n")}` : `${labels.source}: ${links.page}`,
+    "",
     `${labels.madeWith}: ${links.app}`
   ].join("\n")
+}
+
+// Words that mark a language written in Latin letters, and letters only it uses.
+const LATIN: Array<[string, Set<string>, RegExp]> = [
+  ["en", new Set("the is are what how why who which this that these with about does do can you your of and to in it for".split(" ")), /$^/],
+  ["de", new Set("der die das ist sind und was wie warum wer nicht ein eine einen ich du mit für auf über worum geht es den dem des".split(" ")), /[ßäöü]/],
+  ["es", new Set("el los las es son qué que cómo por y en un una del se está para con sobre trata eso esto".split(" ")), /[ñ¿¡]/],
+  ["fr", new Set("le les est sont et que quoi comment pourquoi un une des du ce cet cette il elle pour dans avec sur qui parle".split(" ")), /[œêâîôûëïç]/],
+  ["it", new Set("il lo gli è sono che cosa come perché di e un una del della per con su questo questa parla".split(" ")), /$^/],
+  ["pt_BR", new Set("o os é são que como por e um uma do da não para com sobre isso este esta fala".split(" ")), /[ãõ]/]
+]
+
+/** The language of a text, when it's clear: a locale code ("ru", "pt_BR"…). */
+export function textLanguage(text: string): string | undefined {
+  text = text.replace(/(https?:\/\/|www\.)\S+/gi, " ") // links are Latin whatever the language
+  const count = (re: RegExp) => text.match(re)?.length ?? 0
+  const scripts: Array<[string | undefined, number]> = [
+    ["ko", count(/[\uac00-\ud7af]/g)],
+    [count(/[\u3040-\u30ff]/g) ? "ja" : "zh_CN", count(/[\u3040-\u30ff\u4e00-\u9fff]/g)],
+    [/[іїєґ]|(^|[^а-яё])(що|це|ця|цей|чому|який|яка|яке)(?![а-яё])/i.test(text) ? "uk" : "ru", count(/[а-яёіїєґ]/gi)],
+    [undefined, count(/[a-zà-ÿœ]/gi)]
+  ]
+  const [script, letters] = scripts.reduce((a, b) => (b[1] > a[1] ? b : a))
+  if (letters < 3) return undefined
+  if (script) return script
+
+  const words = text.toLowerCase().match(/[a-zà-ÿœ]+/g) ?? []
+  const scores = LATIN.map(([lang, common, letter]) => [lang, words.filter((w) => common.has(w)).length + (letter.test(text.toLowerCase()) ? 2 : 0)] as const)
+  scores.sort((a, b) => b[1] - a[1])
+  return scores[0][1] >= 2 && scores[0][1] > scores[1][1] ? scores[0][0] : undefined
+}
+
+/** The language the chat's questions were typed in (quick actions don't count: they're in the device's). */
+export function chatLanguage(entries: Entry[]): string | undefined {
+  return textLanguage(entries.filter((m) => m.role === "user" && !m.label).map((m) => m.content).join("\n"))
 }
