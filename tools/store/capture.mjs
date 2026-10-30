@@ -32,9 +32,11 @@ const DEVICES = {
 
 const L = lang === "ru"
   ? { summarize: "Кратко", key: "Главное", explain: "Объясн", translate: "Перевести", google: "Google", question: "Стоит ли пробовать это стартапу из 10 человек?", compare: "Как это сравнить с прошлой статьёй?", settings: "Настройки",
-      notes: ["Выручка +1,4% — сверить с нашими цифрами за квартал", "Спросить HR про пилот с короткой пятницей", "Сравнить со статьёй про Японию"] }
+      notes: ["Выручка +1,4% — сверить с нашими цифрами за квартал", "Спросить HR про пилот с короткой пятницей", "Сравнить со статьёй про Японию"],
+      recall: "Сведи мои заметки с обеими статьями", other: "Подборка статей про удалёнку", research: "Исследование: четырёхдневка" }
   : { summarize: "Summarize", key: "Key takeaways", explain: "Explain", translate: "Translate", google: "Google", question: "Is this worth trying for a 10-person startup?", compare: "How does this compare with the previous article?", settings: "Settings",
-      notes: ["Revenue +1.4% — check against our quarter", "Ask HR about a short-Friday pilot", "Compare with the Japan article"] }
+      notes: ["Revenue +1.4% — check against our quarter", "Ask HR about a short-Friday pilot", "Compare with the Japan article"],
+      recall: "Pull my notes together with both articles", other: "Remote work reading list", research: "Research: four-day week" }
 
 const shadow = (js) => `(() => { const r = document.querySelector("contextflow-root")?.shadowRoot; return (${js})(r) })()`
 
@@ -176,6 +178,57 @@ async function notes(s) {
   await s.page.waitForTimeout(300)
 }
 
+// The custom product page for people who take notes while they read (SET=notes): a research chat over
+// two articles with notes, the answer from the whole chat, picking messages to share, the chat list.
+async function writeNote(s, text) {
+  await s.page.locator(".cf-input textarea").fill(text)
+  await s.page.waitForTimeout(600)
+  const b = await s.page.locator(".cf-send-wrap").boundingBox()
+  await s.page.mouse.move(b.x + b.width / 2, b.y + b.height / 2)
+  await s.page.mouse.wheel(0, 60)
+  await s.page.locator(".cf-send.note").click()
+  await s.page.waitForTimeout(300)
+}
+async function research(s, k) {
+  await fresh(s); await open(s); await chip(s, L.summarize); await waitAnswer(s)
+  await writeNote(s, L.notes[0]); await writeNote(s, L.notes[1])
+  await s.page.goto(ARTICLE_2); await s.page.waitForSelector("contextflow-root", { state: "attached" }); await s.page.waitForTimeout(300)
+  await open(s)
+  await writeNote(s, L.notes[2])
+  if (!(await s.page.locator(".cf-whole input").isChecked())) await s.page.locator(".cf-whole").click()
+  await s.page.locator(".cf-input textarea").fill(L.recall)
+  if (s.d.touch) await s.page.locator(".cf-send").click(); else await s.page.keyboard.press("Enter")
+  await waitAnswer(s, 2)
+  await scrollTo(s, ".cf-msg.user.note", 0)
+  await shot(s, `${k}-recall`); await rect(s, `${k}-recall`, [".cf-panel", ".cf-whole"])
+  // Pick: the notes and the last answer go, the summary and the question stay out.
+  await s.page.locator("header .cf-icon:has(path[d^='M4 12v8'])").click()
+  await s.page.waitForTimeout(300)
+  for (const i of [0, 1]) await s.page.locator(".cf-msg.pickable").nth(i).click()
+  await s.page.locator(".cf-msg.pickable").nth(5).click()
+  await scrollTo(s, ".cf-msg.user.note", 0)
+  await s.page.waitForTimeout(300)
+  await shot(s, `${k}-pick`); await rect(s, `${k}-pick`, [".cf-panel", ".cf-pickbar"])
+  await s.page.locator(".cf-pickbar .cf-icon").first().click()
+  // The chat list: this research chat (named and pinned) with its pages, under another chat.
+  await s.sw.evaluate(async ({ research, other }) => {
+    const store = await chrome.storage.local.get(["cf:threads", "cf:activeThread"])
+    const threads = store["cf:threads"]
+    const active = threads[store["cf:activeThread"].id]
+    active.title = research; active.pin = 0; active.u = Date.now()
+    const now = Date.now()
+    threads.other = { id: "other", u: now - 7200_000, a: now - 7200_000, title: other,
+      m: [{ role: "user", content: other, page: { url: "https://www.theverge.com/remote", title: "Remote" } }, { role: "assistant", content: "…" }] }
+    await chrome.storage.local.set({ "cf:threads": threads })
+  }, { research: L.research, other: L.other })
+  await s.page.waitForTimeout(400)
+  await s.page.locator(".cf-chats-button").click()
+  await s.page.waitForTimeout(400)
+  await s.page.locator(".cf-pages-chip").first().click()
+  await s.page.waitForTimeout(300)
+  await shot(s, `${k}-chats`); await rect(s, `${k}-chats`, [".cf-panel", ".cf-pages-pop", ".cf-thread"])
+}
+
 const ONLY = process.env.ONLY?.split(",")
 const want = (d) => !ONLY || ONLY.includes(d)
 
@@ -183,6 +236,11 @@ for (const name of ["iphone", "ipad", "mac"]) {
   if (!want(name)) continue
   const s = await session(name)
   const k = name
+  if (process.env.SET === "notes") {
+    if (name !== "mac") await research(s, k)
+    await s.ctx.close()
+    continue
+  }
   // 1. Summary of the page (hero)
   await fresh(s); await open(s); await chip(s, L.summarize); await waitAnswer(s); await shot(s, `${k}-summary`); await rect(s, `${k}-summary`, [".cf-panel"])
   if (k === "iphone") {

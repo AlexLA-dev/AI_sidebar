@@ -13,7 +13,8 @@ import { fileURLToPath, pathToFileURL } from "node:url"
 
 // CF_ROOT lets the script run from a folder that has Playwright installed.
 const root = process.env.CF_ROOT ?? resolve(dirname(fileURLToPath(import.meta.url)), "../..")
-const [rawArg, outArg, lang = "en"] = process.argv.slice(2)
+// set: "main" (the product page) or "notes" (the custom product page for note-takers).
+const [rawArg, outArg, lang = "en", set = "main"] = process.argv.slice(2)
 const RAW = resolve(rawArg)
 const OUT = resolve(outArg)
 const TMP = join(OUT, ".tmp")
@@ -33,6 +34,15 @@ const COPY = {
     chat: ["Compare pages", "in one chat"],
     notes: ["Keep notes", "right in the chat"],
     translate: ["Translate", "foreign pages"],
+    cppHero: ["Notes on any page,", "right in Safari"],
+    cppPages: ["Every note keeps", "its page"],
+    cppRecall: ["Ask AI about all", "you've collected"],
+    cppShare: ["Send it to", "your notes app"],
+    cppGoogle: ["Fresh facts", "with sources"],
+    freeNotes: "Notes are free, no limits",
+    wholeChat: "Whole chat: notes + pages",
+    withLinks: "With links and sources",
+    backToPage: "Tap a page to go back",
     free: "5 free answers a day",
     nosignup: "No sign-up needed",
     langs: "Русский → English",
@@ -50,6 +60,15 @@ const COPY = {
     chat: ["Сравнит статьи", "в одном чате"],
     notes: ["Заметки", "прямо в чате"],
     translate: ["Переведёт", "на русский"],
+    cppHero: ["Заметки на любой", "странице в Safari"],
+    cppPages: ["Каждая заметка", "помнит страницу"],
+    cppRecall: ["ИИ ответит по всему,", "что вы собрали"],
+    cppShare: ["Отправьте", "в свой заметочник"],
+    cppGoogle: ["Свежие факты", "с источниками"],
+    freeNotes: "Заметки — бесплатно и без лимитов",
+    wholeChat: "«Весь чат»: заметки и страницы",
+    withLinks: "Со ссылками и источниками",
+    backToPage: "Нажмите — и вы снова на странице",
     free: "5 бесплатных ответов в день",
     nosignup: "Без регистрации",
     langs: "English → Русский",
@@ -110,6 +129,28 @@ const SETS = {
     { name: "notes", shot: "mac-notes", caption: COPY.notes, callout: { select: [".cf-bubble-note", ".cf-input"], pad: 10, mag: 1.8, maxW: 1250 } },
     { name: "chat", shot: "mac-chat", caption: COPY.chat, dark: true, second: true, callout: { select: [".md-table"], pad: 10, mag: 1.8, maxW: 1250 } },
     { name: "translate", shot: "mac-translate", caption: COPY.translate, foreign: true, pills: [{ text: COPY.langs, icon: "文", x: 110, y: 1560 }] }
+  ]
+}
+
+// The custom product page for people who take notes while they read: notes first, then what they give.
+const NOTES_SETS = {
+  iphone: [
+    { name: "notes", shot: "iphone-notes", caption: COPY.cppHero, icon: true,
+      pills: [{ text: COPY.freeNotes, icon: "✎", x: 50, y: 830 }, { text: COPY.synced, icon: "☁︎", right: 50, y: 970 }] },
+    { name: "pages", shot: "iphone-chats", caption: COPY.cppPages, callout: { select: [".cf-pages-pop"], pad: 8, mag: 1.2, maxW: 1150 }, pills: [{ text: COPY.backToPage, icon: "↩", x: 50, y: 830 }] },
+    { name: "recall", shot: "iphone-recall", caption: COPY.cppRecall, pills: [{ text: COPY.wholeChat, icon: "◎", x: 50, y: 830 }] },
+    { name: "share", shot: "iphone-pick", caption: COPY.cppShare, callout: { select: [".cf-pickbar"], pad: 6, mag: 1.25, maxW: 1190 }, pills: [{ text: COPY.withLinks, icon: "🔗", x: 50, y: 830 }] },
+    { name: "google", shot: "iphone-google", caption: COPY.cppGoogle, callout: { select: SOURCES, pad: 12, mag: 1.25, maxW: 1190 } },
+    { name: "summary", shot: "iphone-summary", caption: COPY.summary, pills: [{ text: COPY.free, icon: "✦", x: 50, y: 830 }] }
+  ],
+  ipad: [
+    { name: "notes", shot: "ipad-notes", caption: COPY.cppHero, callout: { select: [".cf-bubble-note", ".cf-input"], pad: 10, mag: 1.6, maxW: 1400 },
+      pills: [{ text: COPY.freeNotes, icon: "✎", x: 70, y: 2360 }, { text: COPY.synced, icon: "☁︎", x: 70, y: 2520 }] },
+    { name: "pages", shot: "ipad-chats", caption: COPY.cppPages, callout: { select: [".cf-pages-pop"], pad: 8, mag: 1.6, maxW: 1400 } },
+    { name: "recall", shot: "ipad-recall", caption: COPY.cppRecall, pills: [{ text: COPY.wholeChat, icon: "◎", x: 70, y: 2520 }] },
+    { name: "share", shot: "ipad-pick", caption: COPY.cppShare, callout: { select: [".cf-pickbar"], pad: 6, mag: 1.6, maxW: 1400 } },
+    { name: "google", shot: "ipad-google", caption: COPY.cppGoogle, callout: { select: SOURCES, pad: 10, mag: 1.7, maxW: 1400 } },
+    { name: "summary", shot: "ipad-summary", caption: COPY.summary, pills: [{ text: COPY.free, icon: "✦", x: 70, y: 2520 }] }
   ]
 }
 
@@ -403,7 +444,7 @@ async function fitSize(device, specs) {
   return size
 }
 
-for (const [kind, specs] of Object.entries(SETS)) {
+for (const [kind, specs] of Object.entries(set === "notes" ? NOTES_SETS : SETS)) {
   const device = DEVICES[kind]
   const size = await fitSize(device, specs)
   const dir = join(OUT, kind)

@@ -15,8 +15,8 @@ const ARTICLE = lang === "ru" ? `${BASE}/article-ru` : `${BASE}/article`
 // "Translate" always targets the UI language, so it is shown on a page in the other language.
 const FOREIGN = lang === "ru" ? `${BASE}/article` : `${BASE}/article-ru`
 const L = lang === "ru"
-  ? { summarize: "Кратко", key: "Главное", explain: "Объясн", translate: "Перевести", question: "Стоит ли пробовать это стартапу из 10 человек?" }
-  : { summarize: "Summarize", key: "Key takeaways", explain: "Explain", translate: "Translate", question: "Is this worth trying for a 10-person startup?" }
+  ? { summarize: "Кратко", key: "Главное", explain: "Объясн", translate: "Перевести", question: "Стоит ли пробовать это стартапу из 10 человек?", note: "Обсудить с командой пилот с короткой пятницей" }
+  : { summarize: "Summarize", key: "Key takeaways", explain: "Explain", translate: "Translate", question: "Is this worth trying for a 10-person startup?", note: "Pitch a short-Friday pilot to the team" }
 
 const LINUX_CHROME = "/opt/pw-browsers/chromium-1194/chrome-linux/chrome"
 // macOS Chromium ignores --lang, so chrome.i18n would follow the system language. A copy of the
@@ -46,7 +46,8 @@ let [sw] = ctx.serviceWorkers()
 if (!sw) sw = await ctx.waitForEvent("serviceworker")
 await new Promise((r) => setTimeout(r, 300))
 for (const p of ctx.pages()) if (p.url().startsWith("chrome-extension://")) await p.close()
-await sw.evaluate(() => chrome.storage.local.set({ "cf:consent": true }))
+// No first-session tour or notes hint over the panel.
+await sw.evaluate(() => chrome.storage.local.set({ "cf:consent": true, "cf:tourSeen": true, "cf:noteHint": -1 }))
 const page = await ctx.newPage()
 const cdp = await ctx.newCDPSession(page)
 
@@ -66,13 +67,15 @@ cdp.on("Page.screencastFrame", ({ data, metadata, sessionId }) => {
   take.frames.push({ f, t: metadata.timestamp - take.start })
 })
 
-async function begin(name, url) {
+// `prep` runs before the screencast starts (a state to begin from, not shown).
+async function begin(name, url, prep) {
   await fetch(`${BASE}/reset`)
-  await sw.evaluate(() => chrome.storage.local.remove("cf:chats"))
+  await sw.evaluate(() => chrome.storage.local.remove(["cf:chats", "cf:threads", "cf:activeThread", "cf:pageTexts"]))
   await page.emulateMedia({ colorScheme: "light" })
   await page.goto(url)
   await page.waitForSelector("contextflow-root", { state: "attached" })
   await wait(400)
+  if (prep) await prep()
   mkdirSync(join(outDir, name), { recursive: true })
   take = { name, start: Date.now() / 1000, frames: [], events: [] }
   await cdp.send("Page.startScreencast", { format: "jpeg", quality: 92, maxWidth: 1290, maxHeight: 2400, everyNthFrame: 1 })
@@ -141,7 +144,30 @@ await openPanel()
 await tap(chip(L.explain)); await waitAnswer(1); await wait(1300)
 await end()
 
-// ------------------------------------------------ take 3: translate a foreign page
+// ------------------------------------------------ take 3: a note under the summary (swipe the send button)
+await begin("notes", ARTICLE, async () => {
+  await fab().click(); await page.locator(".cf-panel.in").waitFor(); await wait(500)
+  await chip(L.summarize).click(); await waitAnswer(1); await wait(300)
+})
+mark("caption", { key: "notes" })
+await wait(500)
+await tap(page.locator(".cf-input textarea"))
+await page.keyboard.type(L.note, { delay: 28 })
+await wait(300)
+{
+  const b = await page.locator(".cf-send-wrap").boundingBox()
+  const x = b.x + b.width / 2, y = b.y + b.height / 2
+  mark("swipe", { x, y, dy: -46 })
+  await wait(120)
+  await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x, y }] })
+  for (let i = 1; i <= 6; i++) { await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ x, y: y - i * 8 }] }); await wait(25) }
+  await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] })
+}
+await wait(800)
+await tap(page.locator(".cf-send")); await wait(1700)
+await end()
+
+// ------------------------------------------------ take 4: translate a foreign page (screenshots only)
 await begin("translate", FOREIGN)
 mark("caption", { key: "translate" })
 await wait(800)
