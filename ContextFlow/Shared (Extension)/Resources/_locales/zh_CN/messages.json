@@ -657,5 +657,28 @@
     "content": "$1"
    }
   }
+ },
+ "cancel": {
+  "message": "取消"
+ },
+ "pickCount": {
+  "message": "$P0$/$P1$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "pickHint": {
+  "message": "点按要分享的消息"
+ },
+ "pickAll": {
+  "message": "全选"
+ },
+ "pickNone": {
+  "message": "取消全选"
  }
 }

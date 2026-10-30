@@ -188,5 +188,11 @@
   "pages_one": "{0} 个页面",
   "pages_few": "{0} 个页面",
   "pages_many": "{0} 个页面",
-  "pages_other": "{0} 个页面"
+  "pages_other": "{0} 个页面",
+
+  "cancel": "取消",
+  "pickCount": "{0}/{1}",
+  "pickHint": "点按要分享的消息",
+  "pickAll": "全选",
+  "pickNone": "取消全选"
 }

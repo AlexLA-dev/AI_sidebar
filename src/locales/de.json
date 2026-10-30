@@ -188,5 +188,11 @@
   "pages_one": "{0} Seite",
   "pages_few": "{0} Seiten",
   "pages_many": "{0} Seiten",
-  "pages_other": "{0} Seiten"
+  "pages_other": "{0} Seiten",
+
+  "cancel": "Abbrechen",
+  "pickCount": "{0} von {1}",
+  "pickHint": "Nachrichten antippen",
+  "pickAll": "Alle auswählen",
+  "pickNone": "Auswahl aufheben"
 }

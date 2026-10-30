@@ -51,21 +51,35 @@ function pageOf(entries: Entry[], index: number): { url: string; title: string }
   return undefined
 }
 
+/** The messages at `picked`: one answer alone shares like an answer, anything else like a chat. */
+export function pickedShareText(entries: Entry[], picked: Set<number>, name: string, labels: ShareLabels, links: ShareLinks): string {
+  const [only] = picked
+  return picked.size === 1 && entries[only]?.role === "assistant"
+    ? answerShareText(entries, only, labels, links)
+    : chatShareText(entries, name, labels, links, picked)
+}
+
 /** One answer: its text and sources, the page it was about, and where it was made. */
 export function answerShareText(entries: Entry[], index: number, labels: ShareLabels, links: ShareLinks): string {
   const page = pageOf(entries, index)
   return notALink([answerText(entries[index], labels), "", `${labels.source}: ${page?.url ?? links.page}`, "", `${labels.madeWith}: ${links.app}`].join("\n"))
 }
 
-/** The whole chat under its name: questions and answers, every page it was about, and where it was made. */
-export function chatShareText(entries: Entry[], name: string, labels: ShareLabels, links: ShareLinks): string {
+/**
+ * The chat under its name: questions, answers and notes (all, or the indexes in `only`), the pages they
+ * were about, and where it was made.
+ */
+export function chatShareText(entries: Entry[], name: string, labels: ShareLabels, links: ShareLinks, only?: Set<number>): string {
   const lines: string[] = []
   const pages = new Map<string, string>()
-  for (const m of entries) {
+  for (const [i, m] of entries.entries()) {
+    if (only && !only.has(i)) continue
     if (m.role === "user") {
       if (m.page) pages.set(m.page.url, m.page.title)
       lines.push(m.note ? `${labels.note}: ${m.content}` : `${labels.you}: ${m.label ?? m.content}`)
     } else {
+      const page = pageOf(entries, i)
+      if (page) pages.set(page.url, page.title)
       lines.push(`ContextFlow: ${answerText(m, labels)}`, "")
     }
   }

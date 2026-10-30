@@ -188,5 +188,11 @@
   "pages_one": "{0}ページ",
   "pages_few": "{0}ページ",
   "pages_many": "{0}ページ",
-  "pages_other": "{0}ページ"
+  "pages_other": "{0}ページ",
+
+  "cancel": "キャンセル",
+  "pickCount": "{0}/{1}",
+  "pickHint": "メッセージをタップ",
+  "pickAll": "すべて選択",
+  "pickNone": "選択を解除"
 }

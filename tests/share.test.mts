@@ -2,7 +2,7 @@ import assert from "node:assert/strict"
 import { test } from "node:test"
 
 import type { Entry } from "../src/shared/conversation.ts"
-import { answerShareText, chatLanguage, chatShareText, notALink, textLanguage, toPlainText } from "../src/shared/share.ts"
+import { answerShareText, chatLanguage, chatShareText, notALink, pickedShareText, textLanguage, toPlainText } from "../src/shared/share.ts"
 
 const labels = { you: "You", note: "Note", sources: "Sources", source: "Source", madeWith: "Made with ContextFlow" }
 const page = { url: "https://news.example/a", title: "Article A" }
@@ -92,4 +92,26 @@ test("shared text never parses as a URL (Heptabase would save it as one link)", 
 test("a shared chat shows the user's notes as notes", () => {
   const chat: Entry[] = [{ role: "user", content: "Check the chart", note: true, page }, ...entries]
   assert.match(chatShareText(chat, "Chat", labels, links("https://x.example")), /^Chat\n\nNote: Check the chart\nYou: What is this about\?/)
+})
+
+test("sharing picked messages: one answer alone like an answer, anything else like a chat", () => {
+  const x = links("https://x.example")
+  assert.equal(pickedShareText(entries, new Set([1]), "Chat", labels, x), answerShareText(entries, 1, labels, x))
+  assert.equal(pickedShareText(entries, new Set([1, 3]), "Chat", labels, x), [
+    "Chat",
+    "",
+    "ContextFlow: New rules start in May. See the docs: https://docs.example/rules for details.",
+    "",
+    "ContextFlow: Reactions were mixed.",
+    "",
+    "Sources:",
+    "• Paper One — https://s1.example/x",
+    "• https://s2.example/y",
+    "",
+    "Source:",
+    "Article A — https://news.example/a",
+    "",
+    "Made with ContextFlow: https://apps.apple.com/app/id1"
+  ].join("\n"))
+  assert.match(pickedShareText([...entries, { role: "user", content: "Mine", note: true, page }], new Set([4]), "Chat", labels, x), /^Chat\n\nNote: Mine\n\nSource:\nArticle A/)
 })

@@ -31,11 +31,13 @@ const COPY = {
     google: ["Google answers", "with sources"],
     select: ["Select text,", "get answers"],
     chat: ["Compare pages", "in one chat"],
+    notes: ["Keep notes", "right in the chat"],
     translate: ["Translate", "foreign pages"],
     free: "5 free answers a day",
     nosignup: "No sign-up needed",
     langs: "Русский → English",
     context: "Keeps context across sites",
+    synced: "On all your devices",
     shortcut: "⌃⇧E opens the panel",
     host: "weeklyreview.com",
     host2: "techledger.com",
@@ -46,11 +48,13 @@ const COPY = {
     google: ["Ответы Google", "с источниками"],
     select: ["Выделите текст", "и спросите"],
     chat: ["Сравнит статьи", "в одном чате"],
+    notes: ["Заметки", "прямо в чате"],
     translate: ["Переведёт", "на русский"],
     free: "5 бесплатных ответов в день",
     nosignup: "Без регистрации",
     langs: "English → Русский",
     context: "Помнит контекст между сайтами",
+    synced: "На всех ваших устройствах",
     shortcut: "⌃⇧E — открыть панель",
     host: "delovoyobzor.ru",
     host2: "tehrynok.ru",
@@ -84,6 +88,7 @@ const SETS = {
       pills: [{ text: COPY.free, icon: "✦", x: 50, y: 830 }, { text: COPY.nosignup, icon: "✓", right: 50, y: 970 }] },
     { name: "google", shot: "iphone-google", caption: COPY.google, callout: { select: SOURCES, pad: 12, mag: 1.25, maxW: 1190 } },
     { name: "select", shot: "iphone-select", caption: COPY.select, callout: { select: [".cf-bubble"], pad: 0, mag: 1.45, maxW: 1150, radius: 16 } },
+    { name: "notes", shot: "iphone-notes", caption: COPY.notes, pills: [{ text: COPY.synced, icon: "☁︎", x: 50, y: 830 }] },
     // The panel is as wide as the phone, so the table can't be magnified much: a pill instead.
     { name: "chat", shot: "iphone-chat", caption: COPY.chat, dark: true, second: true, pills: [{ text: COPY.context, icon: "↻", x: 50, y: 830 }] },
     { name: "translate", shot: "iphone-translate", caption: COPY.translate, foreign: true, pills: [{ text: COPY.langs, icon: "文", x: 50, y: 830 }] }
@@ -93,6 +98,7 @@ const SETS = {
       pills: [{ text: COPY.free, icon: "✦", x: 70, y: 2520 }, { text: COPY.nosignup, icon: "✓", x: 70, y: 2360 }] },
     { name: "google", shot: "ipad-google", caption: COPY.google, callout: { select: SOURCES, pad: 10, mag: 1.7, maxW: 1400 } },
     { name: "select", shot: "ipad-select", caption: COPY.select, callout: { select: [".cf-bubble"], pad: 0, mag: 1.8, maxW: 1300, radius: 16 } },
+    { name: "notes", shot: "ipad-notes", caption: COPY.notes, callout: { select: [".cf-bubble-note", ".cf-input"], pad: 10, mag: 1.6, maxW: 1400 } },
     { name: "chat", shot: "ipad-chat", caption: COPY.chat, dark: true, second: true, callout: { select: [".md-table"], pad: 10, mag: 1.6, maxW: 1400 } },
     { name: "translate", shot: "ipad-translate", caption: COPY.translate, foreign: true, pills: [{ text: COPY.langs, icon: "文", x: 70, y: 2520 }] }
   ],
@@ -101,6 +107,7 @@ const SETS = {
       pills: [{ text: COPY.free, icon: "✦", x: 110, y: 1400 }, { text: COPY.shortcut, icon: "⌘", x: 110, y: 1560 }] },
     { name: "google", shot: "mac-google", caption: COPY.google, callout: { select: SOURCES, pad: 10, mag: 1.9, maxW: 1250 } },
     { name: "select", shot: "mac-select", caption: COPY.select, callout: { select: [".cf-bubble"], pad: 0, mag: 2.3, maxW: 1300, radius: 12 } },
+    { name: "notes", shot: "mac-notes", caption: COPY.notes, callout: { select: [".cf-bubble-note", ".cf-input"], pad: 10, mag: 1.8, maxW: 1250 } },
     { name: "chat", shot: "mac-chat", caption: COPY.chat, dark: true, second: true, callout: { select: [".md-table"], pad: 10, mag: 1.8, maxW: 1250 } },
     { name: "translate", shot: "mac-translate", caption: COPY.translate, foreign: true, pills: [{ text: COPY.langs, icon: "文", x: 110, y: 1560 }] }
   ]

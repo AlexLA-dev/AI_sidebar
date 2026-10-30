@@ -259,6 +259,24 @@
 }
 .cf-note-mark { display: inline-flex; vertical-align: -2px; margin-right: 6px; color: var(--note); }
 .cf-msg.ai { align-items: stretch; }
+/* Choosing messages to share: a tick on each, the ones left out faded. */
+.cf-msg.pickable { position: relative; padding-left: 32px; cursor: pointer; transition: opacity 0.15s; }
+.cf-msg.pickable:not(.picked) { opacity: 0.5; }
+.cf-msg.pickable::before {
+  content: ""; position: absolute; left: 2px; top: 4px; width: 20px; height: 20px; box-sizing: border-box;
+  border-radius: 50%; border: 2px solid var(--text-3); background: var(--bg);
+}
+.cf-msg.user.pickable::before { top: auto; bottom: 6px; }
+.cf-msg.pickable.picked::before {
+  border-color: var(--accent);
+  background: var(--accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center / 12px no-repeat;
+}
+.cf-msg.pickable:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 12px; }
+.cf-msg.pickable .cf-msg-tools { display: none; }
+.cf-pickbar { display: flex; align-items: center; gap: 8px; }
+.cf-pick-count { flex: 1; min-width: 0; text-align: left; font-size: 13.5px; font-weight: 600; color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cf-pickbar .cf-primary, .cf-pickbar .cf-secondary { flex-shrink: 0; display: inline-flex; align-items: center; gap: 5px; }
+.cf-pickbar button:disabled { opacity: 0.45; }
 .cf-grounded { display: inline-flex; align-items: center; gap: 5px; margin-bottom: 6px; font-size: 12px; font-weight: 600; color: var(--text-3); }
 .cf-sources { margin-top: 10px; }
 .cf-sources-title { font-size: 12px; font-weight: 600; color: var(--text-3); margin-bottom: 6px; }

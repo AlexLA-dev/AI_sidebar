@@ -657,5 +657,28 @@
     "content": "$1"
    }
   }
+ },
+ "cancel": {
+  "message": "Отменить"
+ },
+ "pickCount": {
+  "message": "$P0$ из $P1$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "pickHint": {
+  "message": "Отметьте сообщения"
+ },
+ "pickAll": {
+  "message": "Выбрать все"
+ },
+ "pickNone": {
+  "message": "Снять выбор"
  }
 }

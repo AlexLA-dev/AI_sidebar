@@ -657,5 +657,28 @@
     "content": "$1"
    }
   }
+ },
+ "cancel": {
+  "message": "Annulla"
+ },
+ "pickCount": {
+  "message": "$P0$ di $P1$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "pickHint": {
+  "message": "Tocca i messaggi"
+ },
+ "pickAll": {
+  "message": "Seleziona tutto"
+ },
+ "pickNone": {
+  "message": "Deseleziona tutto"
  }
 }

@@ -657,5 +657,28 @@
     "content": "$1"
    }
   }
+ },
+ "cancel": {
+  "message": "Скасувати"
+ },
+ "pickCount": {
+  "message": "$P0$ з $P1$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "pickHint": {
+  "message": "Позначте повідомлення"
+ },
+ "pickAll": {
+  "message": "Вибрати всі"
+ },
+ "pickNone": {
+  "message": "Зняти вибір"
  }
 }

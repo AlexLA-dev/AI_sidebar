@@ -18,7 +18,7 @@ import * as Icon from "./icons"
 import { historyForModel, isQuestion, lastPage, otherPages, pageHasChanged, textFingerprint, type Entry } from "../shared/conversation"
 import { Markdown } from "./markdown"
 import { MAX_OTHER_PAGES } from "../shared/prompt"
-import { answerShareText, chatLanguage, chatShareText, toPlainText, type ShareLinks } from "../shared/share"
+import { answerShareText, chatLanguage, pickedShareText, toPlainText, type ShareLinks } from "../shared/share"
 import {
   extractPage,
   forgetSelection,
@@ -184,6 +184,8 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
   const [pageUrl, setPageUrl] = useState(pageKey())
   const pageUrlRef = useRef(pageUrl)
   const [chatCopied, setChatCopied] = useState(false)
+  // Choosing messages to share: the indexes picked, or null when not choosing.
+  const [picked, setPicked] = useState<Set<number> | null>(null)
   const portRef = useRef<chrome.runtime.Port | null>(null)
   const partialRef = useRef("")
   const listRef = useRef<HTMLDivElement>(null)
@@ -374,12 +376,18 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
     }
   }, [])
 
+  const pickedRef = useRef(picked)
+  pickedRef.current = picked
   useEffect(() => {
     if (!open) return
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return
       if (touringRef.current) {
         endTour()
+        return
+      }
+      if (pickedRef.current) {
+        setPicked(null)
         return
       }
       // Escape in a chat's name field only cancels the renaming.
@@ -729,13 +737,45 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
     return copyText(text)
   }, [])
 
-  /** Shares (or copies, where sharing isn't available) the whole conversation. */
-  const shareChat = useCallback(async () => {
-    if (await shareText(chatShareText(messages, chatName(), shareLabels(chatLanguage(messages)), shareLinks()))) {
+  /** Sharing the chat starts with every message picked: untick what shouldn't go, then share or copy. */
+  const pickMessages = useCallback(() => setPicked(new Set(messages.map((_, i) => i))), [messages])
+  const togglePicked = (index: number) => setPicked((now) => {
+    if (!now) return now
+    const next = new Set(now)
+    if (!next.delete(index)) next.add(index)
+    return next
+  })
+  // While choosing, a press anywhere on a message (links too) ticks it instead of acting.
+  const pickProps = (index: number) => picked
+    ? {
+        role: "checkbox" as const,
+        "aria-checked": picked.has(index),
+        tabIndex: 0,
+        onClickCapture: (e: Event) => { e.preventDefault(); e.stopPropagation(); togglePicked(index) },
+        onKeyDown: (e: KeyboardEvent) => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); togglePicked(index) } }
+      }
+    : {}
+  const pickedText = () => pickedShareText(messages, picked ?? new Set(), chatName(), shareLabels(chatLanguage(messages)), shareLinks())
+  /** Shares (or copies, where sharing isn't available) the picked messages. */
+  const sharePicked = useCallback(async () => {
+    if (!picked?.size) return
+    const copiedIt = await shareText(pickedText())
+    setPicked(null)
+    if (copiedIt) {
       setChatCopied(true)
       setTimeout(() => setChatCopied(false), 1500)
     }
-  }, [messages, shareText, threadList])
+  }, [picked, messages, shareText, threadList])
+  const copyPicked = useCallback(async () => {
+    if (!picked?.size) return
+    if (await copyText(pickedText())) {
+      setPicked(null)
+      setChatCopied(true)
+      setTimeout(() => setChatCopied(false), 1500)
+    }
+  }, [picked, messages, threadList])
+  // Another chat, or one that changed underneath: start choosing again.
+  useEffect(() => setPicked(null), [threadRef.current, messages.length, view])
 
   // ------------------------------------------------------------ upgrade
   const openApp = useCallback(async (target: "subscribe" | "manage") => {
@@ -875,7 +915,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
               )}
             </div>
             {view === "chat" && messages.length > 0 && partial === null && (
-              <button type="button" class="cf-icon" onClick={() => void shareChat()} aria-label={t("shareChat")} title={chatCopied ? t("copied") : t("shareChat")}>
+              <button type="button" class="cf-icon" onClick={() => (picked ? setPicked(null) : pickMessages())} aria-pressed={Boolean(picked)} aria-label={t("shareChat")} title={chatCopied ? t("copied") : t("shareChat")}>
                 {chatCopied ? <Icon.Check /> : <Icon.Share />}
               </button>
             )}
@@ -941,7 +981,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
 
                 {messages.map((m, idx) =>
                   m.role === "user" ? (
-                    <div class={`cf-msg user ${m.note ? "note" : ""}`} key={idx}>
+                    <div class={`cf-msg user ${m.note ? "note" : ""} ${picked ? "pickable" : ""} ${picked?.has(idx) ? "picked" : ""}`} key={idx} {...pickProps(idx)}>
                       <PageDivider entries={messages} index={idx} onOpen={openPage} />
                       {m.note ? (
                         <div class="cf-bubble-note"><span class="cf-note-mark" aria-label={t("shareNote")}><Icon.Pencil /></span>{m.content}</div>
@@ -950,7 +990,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
                       )}
                     </div>
                   ) : (
-                    <div class="cf-msg ai" key={idx}>
+                    <div class={`cf-msg ai ${picked ? "pickable" : ""} ${picked?.has(idx) ? "picked" : ""}`} key={idx} {...pickProps(idx)}>
                       {m.grounding && <div class="cf-grounded"><Icon.Search size={13} /> {t("googleBadge")}</div>}
                       <Markdown text={m.content} onCopyCode={(code) => void copyText(code)} />
                       {m.grounding && <Sources grounding={m.grounding} />}
@@ -1037,74 +1077,92 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
                 )}
               </div>
 
-              <footer class="cf-composer">
-                {noteHint && draft.trim() && !noteMode && <div class="cf-note-hint" role="status">{t(touch ? "noteHintTouch" : "noteHintMouse")}</div>}
-                <div class={`cf-input ${noteMode ? "note" : ""}`}>
-                  {!noteMode && (
-                    <button
-                      type="button"
-                      class={`cf-mode ${googleMode ? "on" : ""}`}
-                      aria-pressed={googleMode}
-                      title={t("googleModeHint")}
-                      onClick={() => setGoogleMode(!googleMode)}
-                    >
-                      <Icon.Search size={14} /> {t("actGoogle")}
-                    </button>
+              {picked ? (
+                <footer class="cf-composer cf-pickbar">
+                  <button type="button" class="cf-icon" onClick={() => setPicked(null)} aria-label={t("cancel")} title={t("cancel")}><Icon.Close /></button>
+                  <button
+                    type="button"
+                    class="cf-pick-count"
+                    onClick={() => setPicked(picked.size === messages.length ? new Set() : new Set(messages.map((_, i) => i)))}
+                    title={t(picked.size === messages.length ? "pickNone" : "pickAll")}
+                  >
+                    {picked.size ? t("pickCount", picked.size, messages.length) : t("pickHint")}
+                  </button>
+                  <button type="button" class="cf-secondary" disabled={!picked.size} onClick={() => void copyPicked()}><Icon.Copy /> {t("copy")}</button>
+                  {typeof navigator.share === "function" && (
+                    <button type="button" class="cf-primary" disabled={!picked.size} onClick={() => void sharePicked()}><Icon.Share /> {t("share")}</button>
                   )}
-                  <textarea
-                    ref={inputRef}
-                    rows={1}
-                    value={draft}
-                    placeholder={t(noteMode ? "placeholderNote" : googleMode ? "placeholderGoogle" : contextKind === "selection" ? "placeholderSelection" : contextKind === "page" ? "placeholderPage" : "placeholderNone")}
-                    enterkeyhint="send"
-                    onInput={(e) => {
-                      const el = e.currentTarget
-                      setDraft(el.value)
-                      el.style.height = "auto"
-                      el.style.height = `${Math.min(el.scrollHeight, 140)}px`
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.shiftKey && !e.isComposing) {
-                        e.preventDefault()
-                        send()
-                      }
-                      e.stopPropagation()
-                    }}
-                    onKeyUp={(e) => e.stopPropagation()}
-                    onKeyPress={(e) => e.stopPropagation()}
-                  />
-                  {streaming ? (
-                    <button type="button" class="cf-send stop" onClick={stop} aria-label={t("stop")} title={t("stop")}><Icon.Stop /></button>
-                  ) : (
-                    <span class="cf-send-wrap" {...switchGestures}>
+                </footer>
+              ) : (
+                <footer class="cf-composer">
+                  {noteHint && draft.trim() && !noteMode && <div class="cf-note-hint" role="status">{t(touch ? "noteHintTouch" : "noteHintMouse")}</div>}
+                  <div class={`cf-input ${noteMode ? "note" : ""}`}>
+                    {!noteMode && (
                       <button
                         type="button"
-                        class={`cf-send ${noteMode ? "note" : ""}`}
-                        disabled={!draft.trim()}
-                        onClick={() => {
-                          if (switched.current) switched.current = false
-                          else send()
-                        }}
-                        aria-label={t(noteMode ? "saveNote" : "send")}
-                        title={`${t(noteMode ? "saveNote" : "send")} · ${t(touch ? "noteHintTouch" : "noteHintMouse")}`}
+                        class={`cf-mode ${googleMode ? "on" : ""}`}
+                        aria-pressed={googleMode}
+                        title={t("googleModeHint")}
+                        onClick={() => setGoogleMode(!googleMode)}
                       >
-                        <span class="cf-send-icon" key={noteMode ? "note" : "send"}>{noteMode ? <Icon.Pencil /> : <Icon.ArrowUp />}</span>
+                        <Icon.Search size={14} /> {t("actGoogle")}
                       </button>
-                    </span>
-                  )}
-                </div>
-                <div class="cf-usage">
-                  <span class="cf-usage-text" title={usageLine.full}>{usageLine.short}</span>
-                  <label class="cf-whole" title={t("wholeChatHint")}>
-                    <input type="checkbox" role="switch" checked={settings.wholeChat} onChange={(e) => updateSettings({ wholeChat: e.currentTarget.checked })} />
-                    <span class="cf-switch" aria-hidden="true" />
-                    {t("wholeChat")}
-                  </label>
-                  {plan === "free" && !ownKeyActive && TARGET === "safari" && (
-                    <button type="button" class="cf-link" onClick={() => void openApp("subscribe")}>{t("getPro")}</button>
-                  )}
-                </div>
-              </footer>
+                    )}
+                    <textarea
+                      ref={inputRef}
+                      rows={1}
+                      value={draft}
+                      placeholder={t(noteMode ? "placeholderNote" : googleMode ? "placeholderGoogle" : contextKind === "selection" ? "placeholderSelection" : contextKind === "page" ? "placeholderPage" : "placeholderNone")}
+                      enterkeyhint="send"
+                      onInput={(e) => {
+                        const el = e.currentTarget
+                        setDraft(el.value)
+                        el.style.height = "auto"
+                        el.style.height = `${Math.min(el.scrollHeight, 140)}px`
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey && !e.isComposing) {
+                          e.preventDefault()
+                          send()
+                        }
+                        e.stopPropagation()
+                      }}
+                      onKeyUp={(e) => e.stopPropagation()}
+                      onKeyPress={(e) => e.stopPropagation()}
+                    />
+                    {streaming ? (
+                      <button type="button" class="cf-send stop" onClick={stop} aria-label={t("stop")} title={t("stop")}><Icon.Stop /></button>
+                    ) : (
+                      <span class="cf-send-wrap" {...switchGestures}>
+                        <button
+                          type="button"
+                          class={`cf-send ${noteMode ? "note" : ""}`}
+                          disabled={!draft.trim()}
+                          onClick={() => {
+                            if (switched.current) switched.current = false
+                            else send()
+                          }}
+                          aria-label={t(noteMode ? "saveNote" : "send")}
+                          title={`${t(noteMode ? "saveNote" : "send")} · ${t(touch ? "noteHintTouch" : "noteHintMouse")}`}
+                        >
+                          <span class="cf-send-icon" key={noteMode ? "note" : "send"}>{noteMode ? <Icon.Pencil /> : <Icon.ArrowUp />}</span>
+                        </button>
+                      </span>
+                    )}
+                  </div>
+                  <div class="cf-usage">
+                    <span class="cf-usage-text" title={usageLine.full}>{usageLine.short}</span>
+                    <label class="cf-whole" title={t("wholeChatHint")}>
+                      <input type="checkbox" role="switch" checked={settings.wholeChat} onChange={(e) => updateSettings({ wholeChat: e.currentTarget.checked })} />
+                      <span class="cf-switch" aria-hidden="true" />
+                      {t("wholeChat")}
+                    </label>
+                    {plan === "free" && !ownKeyActive && TARGET === "safari" && (
+                      <button type="button" class="cf-link" onClick={() => void openApp("subscribe")}>{t("getPro")}</button>
+                    )}
+                  </div>
+                </footer>
+              )}
             </>
           )}
           {touring && view === "chat" && panelRef.current && (

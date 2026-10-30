@@ -188,5 +188,11 @@
   "pages_one": "페이지 {0}개",
   "pages_few": "페이지 {0}개",
   "pages_many": "페이지 {0}개",
-  "pages_other": "페이지 {0}개"
+  "pages_other": "페이지 {0}개",
+
+  "cancel": "취소",
+  "pickCount": "{0}/{1}",
+  "pickHint": "메시지를 탭하세요",
+  "pickAll": "모두 선택",
+  "pickNone": "선택 해제"
 }

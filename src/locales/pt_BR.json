@@ -188,5 +188,11 @@
   "pages_one": "{0} página",
   "pages_few": "{0} páginas",
   "pages_many": "{0} páginas",
-  "pages_other": "{0} páginas"
+  "pages_other": "{0} páginas",
+
+  "cancel": "Cancelar",
+  "pickCount": "{0} de {1}",
+  "pickHint": "Toque nas mensagens",
+  "pickAll": "Selecionar tudo",
+  "pickNone": "Limpar seleção"
 }
