@@ -549,5 +549,51 @@
  },
  "welcomePermission": {
   "message": "如果没有反应，请在所有网站上允许 ContextFlow：Safari → 扩展 → ContextFlow → 所有网站 → 允许。"
+ },
+ "shareNote": {
+  "message": "笔记"
+ },
+ "saveNote": {
+  "message": "保存笔记"
+ },
+ "placeholderNote": {
+  "message": "笔记——会保留在此对话中"
+ },
+ "noteHintTouch": {
+  "message": "上下滑动按钮即可写笔记"
+ },
+ "noteHintMouse": {
+  "message": "在按钮上滚动即可写笔记"
+ },
+ "wholeChat": {
+  "message": "整个对话"
+ },
+ "wholeChatHint": {
+  "message": "回答会考虑整个对话：所有消息、你的笔记和此对话中的页面。关闭时：最近的消息和当前页面。"
+ },
+ "openPage": {
+  "message": "打开此页面"
+ },
+ "usageFreeShort": {
+  "message": "今日剩余 $P0$/$P1$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "usageProShort": {
+  "message": "Pro · 本周剩余 $P0$/$P1$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
  }
 }

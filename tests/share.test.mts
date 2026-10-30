@@ -4,7 +4,7 @@ import { test } from "node:test"
 import type { Entry } from "../src/shared/conversation.ts"
 import { answerShareText, chatLanguage, chatShareText, notALink, textLanguage, toPlainText } from "../src/shared/share.ts"
 
-const labels = { you: "You", sources: "Sources", source: "Source", madeWith: "Made with ContextFlow" }
+const labels = { you: "You", note: "Note", sources: "Sources", source: "Source", madeWith: "Made with ContextFlow" }
 const page = { url: "https://news.example/a", title: "Article A" }
 const app = "https://apps.apple.com/app/id1"
 const links = (here: string) => ({ page: here, app })
@@ -87,4 +87,9 @@ test("shared text never parses as a URL (Heptabase would save it as one link)", 
   assert.equal(notALink("Вы: О чём статья?"), "Вы: О чём статья?")
   assert.equal(notALink("Short answer: yes"), "Short answer: yes")
   assert.equal(notALink("https://example.com is the site"), "https://example.com is the site")
+})
+
+test("a shared chat shows the user's notes as notes", () => {
+  const chat: Entry[] = [{ role: "user", content: "Check the chart", note: true, page }, ...entries]
+  assert.match(chatShareText(chat, "Chat", labels, links("https://x.example")), /^Chat\n\nNote: Check the chart\nYou: What is this about\?/)
 })

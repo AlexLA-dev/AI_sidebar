@@ -549,5 +549,51 @@
  },
  "welcomePermission": {
   "message": "If nothing happens, allow ContextFlow on all websites: Safari → Extensions → ContextFlow → All Websites → Allow."
+ },
+ "shareNote": {
+  "message": "Note"
+ },
+ "saveNote": {
+  "message": "Save note"
+ },
+ "placeholderNote": {
+  "message": "Write a note — it stays in this chat"
+ },
+ "noteHintTouch": {
+  "message": "Swipe the button up or down to write a note"
+ },
+ "noteHintMouse": {
+  "message": "Scroll on the button to write a note"
+ },
+ "wholeChat": {
+  "message": "Whole chat"
+ },
+ "wholeChatHint": {
+  "message": "Answers take the whole chat into account: every message, your notes and the pages of this chat. Off: the last messages and the open page."
+ },
+ "openPage": {
+  "message": "Open this page"
+ },
+ "usageFreeShort": {
+  "message": "$P0$ of $P1$ left today",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "usageProShort": {
+  "message": "Pro · $P0$ of $P1$ this week",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
  }
 }

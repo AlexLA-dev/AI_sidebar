@@ -162,5 +162,16 @@
   "welcomeTitle": "ContextFlow가 준비됐어요",
   "welcomeBody": "아무 웹 사이트나 열고 ✦ 버튼이나 도구 막대의 ContextFlow 아이콘을 탭하세요. 텍스트를 선택하면 그 부분에 대해서만 물어볼 수 있어요.",
   "welcomeRestricted": "Safari에서는 확장 프로그램이 이 페이지를 읽을 수 없어요. ContextFlow를 사용하려면 일반 웹 사이트를 열어 주세요.",
-  "welcomePermission": "아무 반응이 없으면 모든 웹 사이트에서 ContextFlow를 허용하세요: Safari → 확장 프로그램 → ContextFlow → 모든 웹 사이트 → 허용."
+  "welcomePermission": "아무 반응이 없으면 모든 웹 사이트에서 ContextFlow를 허용하세요: Safari → 확장 프로그램 → ContextFlow → 모든 웹 사이트 → 허용.",
+
+  "shareNote": "메모",
+  "saveNote": "메모 저장",
+  "placeholderNote": "메모 — 이 채팅에 남습니다",
+  "noteHintTouch": "버튼을 위아래로 밀어 메모 쓰기",
+  "noteHintMouse": "버튼 위에서 스크롤해 메모 쓰기",
+  "wholeChat": "채팅 전체",
+  "wholeChatHint": "채팅 전체를 고려해 답합니다: 모든 메시지, 메모, 이 채팅의 페이지. 끄면: 최근 메시지와 열린 페이지.",
+  "openPage": "이 페이지 열기",
+  "usageFreeShort": "오늘 {0}/{1}개 남음",
+  "usageProShort": "Pro · 이번 주 {0}/{1}개 남음"
 }

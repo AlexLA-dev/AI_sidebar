@@ -549,5 +549,51 @@
  },
  "welcomePermission": {
   "message": "Якщо нічого не відбувається, дозвольте ContextFlow на всіх вебсайтах: Safari → Розширення → ContextFlow → Усі вебсайти → Дозволити."
+ },
+ "shareNote": {
+  "message": "Нотатка"
+ },
+ "saveNote": {
+  "message": "Зберегти нотатку"
+ },
+ "placeholderNote": {
+  "message": "Нотатка — залишиться в цьому чаті"
+ },
+ "noteHintTouch": {
+  "message": "Змахніть кнопку вгору або вниз, щоб записати нотатку"
+ },
+ "noteHintMouse": {
+  "message": "Прокрутіть над кнопкою, щоб записати нотатку"
+ },
+ "wholeChat": {
+  "message": "Весь чат"
+ },
+ "wholeChatHint": {
+  "message": "Відповіді враховують весь чат: усі повідомлення, ваші нотатки й сторінки цього чату. Вимкнено — останні повідомлення й відкрита сторінка."
+ },
+ "openPage": {
+  "message": "Відкрити цю сторінку"
+ },
+ "usageFreeShort": {
+  "message": "$P0$ з $P1$ на сьогодні",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "usageProShort": {
+  "message": "Pro · $P0$ з $P1$ на тиждень",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
  }
 }

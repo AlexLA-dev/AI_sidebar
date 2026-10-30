@@ -162,5 +162,16 @@
   "welcomeTitle": "ContextFlow está listo",
   "welcomeBody": "Abre cualquier sitio web y toca el botón ✦ o el icono de ContextFlow en la barra de herramientas. Selecciona texto para preguntar solo sobre esa parte.",
   "welcomeRestricted": "Safari no permite que las extensiones lean esta página. Abre un sitio web normal para usar ContextFlow.",
-  "welcomePermission": "Si no pasa nada, permite ContextFlow en todos los sitios web: Safari → Extensiones → ContextFlow → Todos los sitios web → Permitir."
+  "welcomePermission": "Si no pasa nada, permite ContextFlow en todos los sitios web: Safari → Extensiones → ContextFlow → Todos los sitios web → Permitir.",
+
+  "shareNote": "Nota",
+  "saveNote": "Guardar nota",
+  "placeholderNote": "Nota: se queda en este chat",
+  "noteHintTouch": "Desliza el botón arriba o abajo para escribir una nota",
+  "noteHintMouse": "Desplázate sobre el botón para escribir una nota",
+  "wholeChat": "Todo el chat",
+  "wholeChatHint": "Las respuestas tienen en cuenta todo el chat: todos los mensajes, tus notas y las páginas de este chat. Desactivado: los últimos mensajes y la página abierta.",
+  "openPage": "Abrir esta página",
+  "usageFreeShort": "Quedan {0} de {1} hoy",
+  "usageProShort": "Pro · {0} de {1} esta semana"
 }

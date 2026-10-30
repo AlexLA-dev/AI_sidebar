@@ -1,6 +1,6 @@
 import { API_BASE } from "../shared/config"
 import { isReasoningGpt, keyProvider, newestGptModel, type ModelTier } from "../shared/models"
-import { systemPrompt } from "../shared/prompt"
+import { otherPagesOf, systemPrompt } from "../shared/prompt"
 import { sseData } from "../shared/sse"
 import { STORAGE, type AskPayload, type ErrorCode, type Grounding, type OwnKeyUsage, type Plan, type StreamEvent, type Usage } from "../shared/types"
 import { askClaude } from "./claude"
@@ -36,7 +36,8 @@ export async function askServer(req: ServerRequest, emit: Emit, signal: AbortSig
         messages: req.payload.messages,
         page: req.payload.page,
         action: req.payload.action,
-        mode: req.payload.mode
+        mode: req.payload.mode,
+        ...(req.payload.context ? { context: req.payload.context, pages: req.payload.pages ?? [] } : {})
       }),
       signal: timeout.signal
     })
@@ -119,7 +120,7 @@ export async function askWithOwnKey(
 
   const usage: OwnKeyUsage = { provider: "openai", model: "", ok: false, promptTokens: 0, completionTokens: 0 }
   const fail = (code: ErrorCode | "STOPPED") => ({ ...usage, ok: false, error: code })
-  const system = systemPrompt(payload.page, profile, locale)
+  const system = systemPrompt(payload.page, profile, locale, otherPagesOf(payload))
   const models = [...new Set([await newestGpt(key, tier, signal), ...OPENAI_FALLBACK_MODELS[tier]].filter((m): m is string => Boolean(m)))]
   let res: Response | null = null
   for (const model of models) {

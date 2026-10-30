@@ -1,4 +1,5 @@
 import { API_BASE, LINKS, PRODUCTS, TARGET, VERSION } from "../shared/config"
+import { urlKey } from "../shared/conversation"
 import { uiLanguage } from "../shared/i18n"
 import { keyProvider, OWN_KEY_PATTERN } from "../shared/models"
 import {
@@ -187,6 +188,9 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
       if (/^https:\/\//.test(message.url)) chrome.tabs.create({ url: message.url })
       sendResponse({ ok: true })
       return false
+    case "openPage":
+      openPage(message.url).finally(() => sendResponse({ ok: true }))
+      return true
     case "syncThreads":
       if (TARGET !== "safari") {
         sendResponse({ changed: false })
@@ -200,6 +204,21 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
 })
 
 // ------------------------------------------------------- toolbar / shortcut
+
+/** A page of a chat: switches to its tab when it's open (this window first), else opens it in a new tab. */
+async function openPage(url: string): Promise<void> {
+  if (!/^https?:\/\//.test(url)) return
+  const key = urlKey(url)
+  const tabs = await chrome.tabs.query({}).catch(() => [] as chrome.tabs.Tab[])
+  const open = tabs.filter((t) => t.id !== undefined && t.url && urlKey(t.url) === key)
+  const tab = open.find((t) => t.active && t.lastAccessed !== undefined) ?? open.find((t) => t.active) ?? open[0]
+  if (!tab?.id) {
+    await chrome.tabs.create({ url })
+    return
+  }
+  await chrome.tabs.update(tab.id, { active: true })
+  if (tab.windowId !== undefined) await chrome.windows?.update(tab.windowId, { focused: true }).catch(() => undefined)
+}
 
 async function toggle(tab: chrome.tabs.Tab): Promise<void> {
   if (!tab.id) return

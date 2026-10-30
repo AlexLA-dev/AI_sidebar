@@ -15,8 +15,9 @@ import {
   type Usage
 } from "../shared/types"
 import * as Icon from "./icons"
-import { historyForModel, lastPage, pageHasChanged, textFingerprint, type Entry } from "../shared/conversation"
+import { historyForModel, isQuestion, lastPage, otherPages, pageHasChanged, textFingerprint, type Entry } from "../shared/conversation"
 import { Markdown } from "./markdown"
+import { MAX_OTHER_PAGES } from "../shared/prompt"
 import { answerShareText, chatLanguage, chatShareText, toPlainText, type ShareLinks } from "../shared/share"
 import {
   extractPage,
@@ -33,7 +34,7 @@ import {
 } from "./page"
 import { SettingsView } from "./Settings"
 import { shareLabels } from "./shareLabels"
-import { deleteThread, giveConsent, hasConsent, hasSeenTour, loadSettings, loadThreads, markTourSeen, onSettingsChanged, onThreadsChanged, renameThread, saveSettings, saveThread, setActiveThread } from "./store"
+import { deleteThread, giveConsent, hasConsent, hasSeenTour, loadSettings, loadThreads, markTourSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, rememberPageText, renameThread, saveSettings, saveThread, setActiveThread, setNoteHintCount } from "./store"
 import { ThreadsView } from "./Threads"
 import { Tour, tourSteps } from "./Tour"
 import { liveThreads, newThreadId, shownThread, threadTitle, type Thread } from "../shared/threads"
@@ -158,6 +159,9 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
   const threadRef = useRef("")
   const [partial, setPartial] = useState<string | null>(null)
   const [draft, setDraft] = useState("")
+  // The send button writes a note to the chat instead of asking (switched by swiping or scrolling on it).
+  const [noteMode, setNoteMode] = useState(false)
+  const [noteHint, setNoteHint] = useState(false)
   const [error, setError] = useState<ChatError | null>(null)
   const [pending, setPending] = useState<{ text: string; label?: string; action?: string; mode?: "google" } | null>(null)
   const [selection, setSelection] = useState<SelectionInfo | null>(null)
@@ -468,6 +472,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
     const hash = textFingerprint(full.text)
     const changed = pageHasChanged(base, url, hash)
     const user: Turn = { role: "user", content, label: opts.label, page: { url, title: full.title, hash } }
+    void rememberPageText(url, full.title, full.text)
     if (opts.mode) user.mode = opts.mode
     if (changed) user.pageChanged = true
     const history: Turn[] = [...base, user]
@@ -514,16 +519,39 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
     port.onDisconnect.addListener(() => {
       if (!settled && portRef.current === port) finish(history, partialRef.current, partialRef.current ? null : { code: "STREAM" })
     })
-    port.postMessage({
-      type: "ask",
-      payload: {
-        messages: historyForModel(history, url),
-        page,
-        action: opts.action,
-        mode: opts.mode
-      }
+    const wholeChat = settingsRef.current.wholeChat
+    void (wholeChat ? pageTexts(otherPages(history, url).map((p) => p.url).slice(0, MAX_OTHER_PAGES)) : Promise.resolve([])).then((pages) => {
+      if (portRef.current !== port) return // stopped meanwhile
+      port.postMessage({
+        type: "ask",
+        payload: {
+          messages: historyForModel(history, url, wholeChat),
+          page,
+          action: opts.action,
+          mode: opts.mode,
+          ...(wholeChat ? { context: "chat" as const, pages } : {})
+        }
+      })
     })
   }, [consent, messages, selection, finish])
+
+  /** Keeps a note in the chat (with the page it was written on); no AI, no allowance used. */
+  const saveNote = useCallback((text: string) => {
+    const content = text.trim()
+    if (!content || portRef.current) return
+    const url = pageKey()
+    const full = extractPage()
+    const next: Turn[] = [...messages, { role: "user", content, note: true, page: { url, title: full.title, hash: textFingerprint(full.text) } }]
+    setMessages(next)
+    void saveThread(threadRef.current, next)
+    void rememberPageText(url, full.title, full.text)
+    setDraft("")
+    if (inputRef.current) inputRef.current.style.height = "auto"
+    setError(null)
+    setNoteMode(false)
+  }, [messages])
+
+  const send = () => (noteMode ? saveNote(draft) : ask(draft, { mode: googleMode ? "google" : undefined }))
 
   const stop = useCallback(() => {
     const port = portRef.current
@@ -544,7 +572,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
   // `withoutGoogle`: ask the same question as a normal answer (e.g. after the Google limit).
   const retry = useCallback((withoutGoogle = false) => {
     const last = messages[messages.length - 1]
-    if (last?.role !== "user") return
+    if (!isQuestion(last)) return
     if (withoutGoogle) setGoogleMode(false)
     ask(last.content, { label: last.label, retry: true, mode: withoutGoogle ? undefined : last.mode })
   }, [messages, ask])
@@ -605,6 +633,68 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
       setError(null)
     }
   }, [])
+
+  // ------------------------------------------------------------ notes
+  /** A page of the chat: its tab when it's open somewhere, else a new tab. */
+  const openPage = useCallback((url: string) => void sendBackground({ type: "openPage", url }), [])
+
+  // The send button flips between asking and writing a note: swipe it up or down (touch), scroll on it
+  // (trackpad, mouse wheel) or hold it. `switched` swallows the click that ends a hold.
+  const switched = useRef(false)
+  const gesture = useRef({ y: 0, moved: false, wheelAt: 0, hold: 0 })
+  const flipMode = useCallback(() => {
+    setNoteMode((on) => !on)
+    setNoteHint(false)
+    void setNoteHintCount(-1)
+  }, [])
+  const endHold = () => window.clearTimeout(gesture.current.hold)
+  const switchGestures = {
+    onTouchStart: (e: TouchEvent) => {
+      gesture.current.y = e.touches[0].clientY
+      gesture.current.moved = false
+    },
+    onTouchMove: (e: TouchEvent) => {
+      const g = gesture.current
+      if (!g.moved && Math.abs(e.touches[0].clientY - g.y) > 14) {
+        g.moved = true
+        switched.current = true
+        endHold()
+        flipMode()
+      }
+      if (g.moved) e.preventDefault()
+    },
+    onWheel: (e: WheelEvent) => {
+      if (Math.abs(e.deltaY) < 3) return
+      e.preventDefault()
+      const now = Date.now()
+      if (now - gesture.current.wheelAt > 500) flipMode()
+      gesture.current.wheelAt = now
+    },
+    onPointerDown: () => {
+      switched.current = false
+      gesture.current.hold = window.setTimeout(() => {
+        switched.current = true
+        flipMode()
+      }, 500)
+    },
+    onPointerUp: endHold,
+    onPointerLeave: endHold,
+    onPointerCancel: endHold,
+    onContextMenu: (e: Event) => e.preventDefault()
+  }
+
+  // While typing, the first few panel sessions show how to switch to a note (until it's been used once).
+  const hintAsked = useRef(false)
+  useEffect(() => {
+    if (!draft.trim() || noteMode || hintAsked.current) return
+    hintAsked.current = true
+    void noteHintCount().then((count) => {
+      if (count < 0 || count >= 3) return
+      setNoteHint(true)
+      void setNoteHintCount(count + 1)
+      window.setTimeout(() => setNoteHint(false), 8000)
+    })
+  }, [draft, noteMode])
 
   // ------------------------------------------------------------ sharing
   const shareLinks = (): ShareLinks => ({ page: location.href, app: LINKS.appStoreShare })
@@ -671,15 +761,19 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
   const plan = status?.plan ?? "free"
   const ownKeyActive = viaOwnKey || (Boolean(status?.hasOwnKey) && plan !== "free")
 
+  // The allowance under the input: short, to share the line with "Whole chat" and Get Pro; in full on hover.
   const usageLine = useMemo(() => {
-    if (ownKeyActive) return t("usageOwnKey")
-    if (!usage) return ""
+    if (ownKeyActive) return { short: t("usageOwnKey"), full: t("usageOwnKey") }
+    if (!usage) return { short: "", full: "" }
     const left = Math.max(0, usage.limit - usage.used)
-    return plan === "pro" ? t("usagePro", left, usage.limit) : t("usageFree", left, usage.limit)
+    return plan === "pro"
+      ? { short: t("usageProShort", left, usage.limit), full: t("usagePro", left, usage.limit) }
+      : { short: t("usageFreeShort", left, usage.limit), full: t("usageFree", left, usage.limit) }
   }, [usage, plan, ownKeyActive])
 
   const theme = settings.theme === "auto" ? undefined : settings.theme
-  const lastIsUser = messages[messages.length - 1]?.role === "user"
+  // The last message is a question still without an answer (a note doesn't count).
+  const lastIsUser = isQuestion(messages[messages.length - 1])
   // The conversation was last on another page: offer this page's actions.
   const onNewPage = messages.length > 0 && Boolean(lastPage(messages)) && lastPage(messages)?.url !== pageUrl
 
@@ -829,9 +923,13 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
 
                 {messages.map((m, idx) =>
                   m.role === "user" ? (
-                    <div class="cf-msg user" key={idx}>
-                      <PageDivider entries={messages} index={idx} />
-                      <div class="cf-bubble-user">{m.mode === "google" && <span class="cf-user-mode"><Icon.Search size={12} /></span>}{m.label ?? m.content}</div>
+                    <div class={`cf-msg user ${m.note ? "note" : ""}`} key={idx}>
+                      <PageDivider entries={messages} index={idx} onOpen={openPage} />
+                      {m.note ? (
+                        <div class="cf-bubble-note"><span class="cf-note-mark" aria-label={t("shareNote")}><Icon.Pencil /></span>{m.content}</div>
+                      ) : (
+                        <div class="cf-bubble-user">{m.mode === "google" && <span class="cf-user-mode"><Icon.Search size={12} /></span>}{m.label ?? m.content}</div>
+                      )}
                     </div>
                   ) : (
                     <div class="cf-msg ai" key={idx}>
@@ -922,21 +1020,24 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
               </div>
 
               <footer class="cf-composer">
-                <div class="cf-input">
-                  <button
-                    type="button"
-                    class={`cf-mode ${googleMode ? "on" : ""}`}
-                    aria-pressed={googleMode}
-                    title={t("googleModeHint")}
-                    onClick={() => setGoogleMode(!googleMode)}
-                  >
-                    <Icon.Search size={14} /> {t("actGoogle")}
-                  </button>
+                {noteHint && draft.trim() && !noteMode && <div class="cf-note-hint" role="status">{t(touch ? "noteHintTouch" : "noteHintMouse")}</div>}
+                <div class={`cf-input ${noteMode ? "note" : ""}`}>
+                  {!noteMode && (
+                    <button
+                      type="button"
+                      class={`cf-mode ${googleMode ? "on" : ""}`}
+                      aria-pressed={googleMode}
+                      title={t("googleModeHint")}
+                      onClick={() => setGoogleMode(!googleMode)}
+                    >
+                      <Icon.Search size={14} /> {t("actGoogle")}
+                    </button>
+                  )}
                   <textarea
                     ref={inputRef}
                     rows={1}
                     value={draft}
-                    placeholder={t(googleMode ? "placeholderGoogle" : contextKind === "selection" ? "placeholderSelection" : contextKind === "page" ? "placeholderPage" : "placeholderNone")}
+                    placeholder={t(noteMode ? "placeholderNote" : googleMode ? "placeholderGoogle" : contextKind === "selection" ? "placeholderSelection" : contextKind === "page" ? "placeholderPage" : "placeholderNone")}
                     enterkeyhint="send"
                     onInput={(e) => {
                       const el = e.currentTarget
@@ -947,7 +1048,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && !e.shiftKey && !e.isComposing) {
                         e.preventDefault()
-                        ask(draft, { mode: googleMode ? "google" : undefined })
+                        send()
                       }
                       e.stopPropagation()
                     }}
@@ -957,17 +1058,34 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
                   {streaming ? (
                     <button type="button" class="cf-send stop" onClick={stop} aria-label={t("stop")} title={t("stop")}><Icon.Stop /></button>
                   ) : (
-                    <button type="button" class="cf-send" disabled={!draft.trim()} onClick={() => ask(draft, { mode: googleMode ? "google" : undefined })} aria-label={t("send")} title={t("send")}><Icon.ArrowUp /></button>
+                    <span class="cf-send-wrap" {...switchGestures}>
+                      <button
+                        type="button"
+                        class={`cf-send ${noteMode ? "note" : ""}`}
+                        disabled={!draft.trim()}
+                        onClick={() => {
+                          if (switched.current) switched.current = false
+                          else send()
+                        }}
+                        aria-label={t(noteMode ? "saveNote" : "send")}
+                        title={`${t(noteMode ? "saveNote" : "send")} · ${t(touch ? "noteHintTouch" : "noteHintMouse")}`}
+                      >
+                        <span class="cf-send-icon" key={noteMode ? "note" : "send"}>{noteMode ? <Icon.Pencil /> : <Icon.ArrowUp />}</span>
+                      </button>
+                    </span>
                   )}
                 </div>
-                {usageLine && (
-                  <div class="cf-usage">
-                    <span>{usageLine}</span>
-                    {plan === "free" && !ownKeyActive && TARGET === "safari" && (
-                      <button type="button" class="cf-link" onClick={() => void openApp("subscribe")}>{t("getPro")}</button>
-                    )}
-                  </div>
-                )}
+                <div class="cf-usage">
+                  <span class="cf-usage-text" title={usageLine.full}>{usageLine.short}</span>
+                  <label class="cf-whole" title={t("wholeChatHint")}>
+                    <input type="checkbox" role="switch" checked={settings.wholeChat} onChange={(e) => updateSettings({ wholeChat: e.currentTarget.checked })} />
+                    <span class="cf-switch" aria-hidden="true" />
+                    {t("wholeChat")}
+                  </label>
+                  {plan === "free" && !ownKeyActive && TARGET === "safari" && (
+                    <button type="button" class="cf-link" onClick={() => void openApp("subscribe")}>{t("getPro")}</button>
+                  )}
+                </div>
               </footer>
             </>
           )}
@@ -982,12 +1100,25 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
 
 const runActionRef: { current: (a: Action) => void } = { current: () => undefined }
 
-/** Above a question: "New page: …" when it moved to another page, "Page updated" when the page changed. */
-function PageDivider({ entries, index }: { entries: Entry[]; index: number }): VNode | null {
+/**
+ * Above a question or note: "New page: …" on the chat's first page and whenever it moved to another one
+ * (the title opens that page: its tab if it's open), "Page updated" when the page changed.
+ */
+function PageDivider({ entries, index, onOpen }: { entries: Entry[]; index: number; onOpen: (url: string) => void }): VNode | null {
   const m = entries[index]
   const previous = lastPage(entries.slice(0, index))
-  if (m.page && previous && previous.url !== m.page.url) {
-    return <div class="cf-divider"><span>{t("newPage", m.page.title || m.page.url)}</span></div>
+  if (m.page && (!previous || previous.url !== m.page.url)) {
+    const { url, title } = m.page
+    const [before, after = ""] = t("newPage", "\uE000").split("\uE000")
+    return (
+      <div class="cf-divider">
+        <span>
+          {before}
+          <a href={url} title={t("openPage")} onClick={(e) => { e.preventDefault(); onOpen(url) }}>{title || url}</a>
+          {after}
+        </span>
+      </div>
+    )
   }
   if (m.pageChanged) return <div class="cf-divider"><span>{t("pageUpdated")}</span></div>
   return null

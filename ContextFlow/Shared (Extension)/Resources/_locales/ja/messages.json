@@ -549,5 +549,51 @@
  },
  "welcomePermission": {
   "message": "何も起こらない場合は、すべてのWebサイトでContextFlowを許可してください：Safari → 機能拡張 → ContextFlow → すべてのWebサイト → 許可。"
+ },
+ "shareNote": {
+  "message": "メモ"
+ },
+ "saveNote": {
+  "message": "メモを保存"
+ },
+ "placeholderNote": {
+  "message": "メモ — このチャットに残ります"
+ },
+ "noteHintTouch": {
+  "message": "ボタンを上下にスワイプしてメモを書く"
+ },
+ "noteHintMouse": {
+  "message": "ボタンの上でスクロールしてメモを書く"
+ },
+ "wholeChat": {
+  "message": "チャット全体"
+ },
+ "wholeChatHint": {
+  "message": "チャット全体を踏まえて回答します：すべてのメッセージ、メモ、このチャットのページ。オフ：直近のメッセージと開いているページ。"
+ },
+ "openPage": {
+  "message": "このページを開く"
+ },
+ "usageFreeShort": {
+  "message": "今日 残り$P0$/$P1$回",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "usageProShort": {
+  "message": "Pro · 今週 残り$P0$/$P1$回",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
  }
 }

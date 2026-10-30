@@ -4,14 +4,14 @@
 import { config } from "./config.mts"
 import { UpstreamError, type ChatMessage, type Completion, type PageContext, type StreamStats } from "./llm.mts"
 import { geminiGeneration } from "../../src/shared/models.ts"
-import { MULTI_PAGE_RULE } from "../../src/shared/prompt.ts"
+import { MULTI_PAGE_RULE, otherPagesBlock } from "../../src/shared/prompt.ts"
 import type { Grounding, GroundingSource } from "../../src/shared/types.ts"
 
 const MAX_SELECTION_CHARS = 6_000
 const MAX_PAGE_EXCERPT_CHARS = 4_000
 const MAX_SUGGESTIONS_CHARS = 30_000
 
-export function googlePrompt(page: PageContext | null, profile: string, locale: string): string {
+export function googlePrompt(page: PageContext | null, profile: string, locale: string, others: PageContext[] = []): string {
   const lines = [
     "You are ContextFlow in Google mode, an assistant inside the user's web browser (Safari).",
     "Answer like Google's AI Mode: search Google, read the results, and write one clear, well-organized answer.",
@@ -44,13 +44,21 @@ export function googlePrompt(page: PageContext | null, profile: string, locale: 
       "PAGE>>>"
     )
   }
+  lines.push(...otherPagesBlock(others))
   return lines.join("\n")
 }
 
 /** Starts a streaming Google-grounded answer. Like startCompletion, a missing model falls through to the next one. */
 export async function startGoogle(system: string, messages: ChatMessage[], models: string[], signal?: AbortSignal): Promise<Completion> {
   let lastError: UpstreamError | null = null
-  const contents = messages.map((m) => ({ role: m.role === "assistant" ? "model" : "user", parts: [{ text: m.content }] }))
+  // One turn per role change: notes come as user messages next to the question.
+  const contents: Array<{ role: string; parts: Array<{ text: string }> }> = []
+  for (const m of messages) {
+    const role = m.role === "assistant" ? "model" : "user"
+    const last = contents[contents.length - 1]
+    if (last?.role === role) last.parts.push({ text: m.content })
+    else contents.push({ role, parts: [{ text: m.content }] })
+  }
   for (const model of models) {
     const body = {
       systemInstruction: { parts: [{ text: system }] },

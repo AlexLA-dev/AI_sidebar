@@ -31,6 +31,9 @@ export interface AskPayload {
   action?: string
   // "google": answer with Google Search grounding (always through our server).
   mode?: "google"
+  // "chat": the whole conversation with the user's notes, and the text of its other pages.
+  context?: "chat"
+  pages?: Array<{ title: string; url: string; text: string }>
 }
 
 export interface GroundingSource {
@@ -83,6 +86,8 @@ export type BackgroundRequest =
   | { type: "inject" }
   | { type: "setOwnKey"; key: string }
   | { type: "openUrl"; url: string }
+  // A page of the chat: its tab if it's open, else a new tab.
+  | { type: "openPage"; url: string }
   // The panel opened: sync threads with iCloud (Safari); answers { changed }.
   | { type: "syncThreads" }
 
@@ -107,6 +112,10 @@ export const STORAGE = {
   consent: "cf:consent",
   // The first-session tour of the panel was seen (finished or skipped).
   tourSeen: "cf:tourSeen",
+  // Recent pages' text on this device ({ [url]: { title, text, at } }) for "whole chat" answers.
+  pageTexts: "cf:pageTexts",
+  // How many times the hint about writing notes with the send button was shown, or -1 once used.
+  noteHint: "cf:noteHint",
   ownKey: "cf:ownKey",
   // Provider model lists for the own key ({ openai?: { ids, at }, anthropic?: { models, at } }).
   ownKeyModels: "cf:ownKeyModels",
@@ -127,6 +136,8 @@ export interface Settings {
   ownKeyModel: "fast" | "smart"
   // Keep the chats in the user's iCloud to continue them on their other devices (Safari).
   syncChats: boolean
+  // Answer with the whole chat in mind (all messages, notes, its other pages), not just the last messages.
+  wholeChat: boolean
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -139,5 +150,6 @@ export const DEFAULT_SETTINGS: Settings = {
   theme: "auto",
   aboutMe: "",
   ownKeyModel: "smart",
-  syncChats: true
+  syncChats: true,
+  wholeChat: false
 }

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict"
 import { test } from "node:test"
 
-import { readDeltas, sanitizeMessages, sanitizePage, systemPrompt, type StreamStats } from "../netlify/shared/llm.mts"
+import { readDeltas, sanitizeMessages, sanitizeOtherPages, sanitizePage, systemPrompt, type StreamStats } from "../netlify/shared/llm.mts"
 
 test("sanitizeMessages keeps the last turns and requires a final user message", () => {
   assert.equal(sanitizeMessages([]), null)
@@ -58,4 +58,28 @@ test("the prompt says when the page changed and how multi-page conversations loo
   assert.match(prompt, /it has changed since the earlier messages/)
   assert.match(prompt, /Asked on another page/)
   assert.doesNotMatch(systemPrompt(sanitizePage({ kind: "page", title: "T", url: "u", text: "t" }), "", "en"), /has changed/)
+})
+
+test("a whole-chat request keeps the long history within a budget and the chat's other pages", () => {
+  const turns = Array.from({ length: 41 }, (_, i) => ({ role: i % 2 ? "assistant" : "user", content: `m${i} ` + "y".repeat(2_000) }))
+  assert.equal(sanitizeMessages(turns)?.length, 12)
+  const whole = sanitizeMessages(turns, true)!
+  assert.ok(whole.length > 12 && whole.length <= 41)
+  assert.ok(whole.reduce((n, m) => n + m.content.length, 0) <= 60_000)
+  assert.ok(whole[whole.length - 1].content.startsWith("m40 "))
+
+  const pages = sanitizeOtherPages([
+    { title: "One", url: "https://1.example", text: "first page ".repeat(2_000) },
+    { title: "Empty", url: "https://e.example", text: "  " },
+    { title: "Two", url: "https://2.example", text: "second" },
+    { title: "Three", url: "https://3.example", text: "third" },
+    { title: "Four", url: "https://4.example", text: "fourth" }
+  ])
+  assert.deepEqual(pages.map((p) => p.title), ["One", "Two", "Three"])
+  assert.ok(pages[0].text.length <= 8_001)
+  const prompt = systemPrompt({ kind: "page", title: "Now", url: "https://now.example", text: "current" }, "", "en", pages)
+  assert.match(prompt, /Other pages from this conversation/)
+  assert.match(prompt, /Title: Two\nURL: https:\/\/2\.example\n<<<PAGE\nsecond\nPAGE>>>/)
+  assert.match(prompt, /\[Note the user wrote …\] is a note/)
+  assert.doesNotMatch(systemPrompt(null, "", "en"), /Other pages/)
 })

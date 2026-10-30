@@ -4,7 +4,7 @@ import { config as settings } from "../shared/config.mts"
 import { consume, logEvent, maybeCleanup, refund, touchInstall, type ConsumeResult } from "../shared/db.mts"
 import { clip, ipSubject, isUuid, json, preflight, readJson, corsHeaders } from "../shared/http.mts"
 import { buildGrounding, googlePrompt, readGoogle, startGoogle, type GoogleStats } from "../shared/google.mts"
-import { readDeltas, sanitizeMessages, sanitizePage, startCompletion, systemPrompt } from "../shared/llm.mts"
+import { readDeltas, sanitizeMessages, sanitizeOtherPages, sanitizePage, startCompletion, systemPrompt } from "../shared/llm.mts"
 import { geminiModels, modelsFor } from "../shared/models.mts"
 import { blockReason, countersFor, resolveAccess, searchCountersFor, visibleUsage } from "../shared/plan.mts"
 
@@ -12,7 +12,8 @@ import { blockReason, countersFor, resolveAccess, searchCountersFor, visibleUsag
  * POST /api/v2/chat — streaming answer about the current page.
  *
  * Body: { installId, client: {version, platform, locale}, entitlement?: <StoreKit JWS>,
- *         messages: [{role, content}], page?: {kind, title, url, text}, profile?, action?, mode?: "google" }
+ *         messages: [{role, content}], page?: {kind, title, url, text}, profile?, action?, mode?: "google",
+ *         context?: "chat" (the whole conversation and notes), pages?: [{title, url, text}] (its other pages) }
  * Response: text/event-stream of `data: {"type": "meta"|"delta"|"grounding"|"done"|"error", …}` lines
  * ("grounding" only in Google mode: the final text with citations, sources and Search Suggestions),
  * or JSON {code, …} with a 4xx/5xx status when the request is refused before streaming.
@@ -25,9 +26,11 @@ export default async (req: Request, context: Context): Promise<Response> => {
   if (!body) return json({ code: "BAD_REQUEST", message: "Invalid JSON" }, 400)
   const installId = body.installId
   if (!isUuid(installId)) return json({ code: "BAD_REQUEST", message: "installId required" }, 400)
-  const messages = sanitizeMessages(body.messages)
+  const wholeChat = body.context === "chat"
+  const messages = sanitizeMessages(body.messages, wholeChat)
   if (!messages) return json({ code: "BAD_REQUEST", message: "messages required" }, 400)
   const page = sanitizePage(body.page)
+  const others = wholeChat ? sanitizeOtherPages(body.pages) : []
   const client = (body.client ?? {}) as Record<string, unknown>
   const platform = clip(client.platform, 20)
   const version = clip(client.version, 20)
@@ -59,8 +62,8 @@ export default async (req: Request, context: Context): Promise<Response> => {
   let completion
   try {
     completion = google
-      ? await startGoogle(googlePrompt(page, profile, locale), messages, await geminiModels(), req.signal)
-      : await startCompletion(systemPrompt(page, profile, locale), messages, await modelsFor(access.plan), req.signal)
+      ? await startGoogle(googlePrompt(page, profile, locale, others), messages, await geminiModels(), req.signal)
+      : await startCompletion(systemPrompt(page, profile, locale, others), messages, await modelsFor(access.plan), req.signal)
   } catch (err) {
     console.error("[cf] upstream failed:", err instanceof Error ? err.message : err)
     context.waitUntil(Promise.all([
@@ -134,6 +137,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
       page: page ? page.kind : "none",
       page_chars: page?.text.length ?? 0,
       history: messages.length,
+      ...(wholeChat ? { whole_chat: true, other_pages: others.length } : {}),
       prompt_tokens: stats.promptTokens,
       completion_tokens: stats.completionTokens,
       ms: Date.now() - started,

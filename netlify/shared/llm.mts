@@ -1,6 +1,6 @@
 import { config } from "./config.mts"
 import { isReasoningGpt } from "../../src/shared/models.ts"
-import { MAX_PAGE_CHARS, systemPrompt, type PageContext } from "../../src/shared/prompt.ts"
+import { MAX_OTHER_PAGE_CHARS, MAX_OTHER_PAGES, MAX_PAGE_CHARS, systemPrompt, type PageContext } from "../../src/shared/prompt.ts"
 
 export { systemPrompt, type PageContext }
 
@@ -11,18 +11,34 @@ export interface ChatMessage {
 
 const MAX_MESSAGE_CHARS = 6_000
 const MAX_HISTORY = 12
+// "Whole chat" (context: "chat"): the whole conversation, notes included, within a character budget.
+const MAX_CHAT_HISTORY = 120
+const MAX_CHAT_CHARS = 60_000
 
-export function sanitizeMessages(raw: unknown): ChatMessage[] | null {
+export function sanitizeMessages(raw: unknown, wholeChat = false): ChatMessage[] | null {
   if (!Array.isArray(raw) || raw.length === 0) return null
   const messages: ChatMessage[] = []
-  for (const item of raw.slice(-MAX_HISTORY)) {
+  for (const item of raw.slice(-(wholeChat ? MAX_CHAT_HISTORY : MAX_HISTORY))) {
     if (!item || typeof item !== "object") return null
     const { role, content } = item as { role?: unknown; content?: unknown }
     if ((role !== "user" && role !== "assistant") || typeof content !== "string" || !content.trim()) return null
     messages.push({ role, content: content.slice(0, MAX_MESSAGE_CHARS) })
   }
   if (messages[messages.length - 1].role !== "user") return null
+  if (wholeChat) {
+    let size = messages.reduce((n, m) => n + m.content.length, 0)
+    while (size > MAX_CHAT_CHARS && messages.length > 1) size -= messages.shift()!.content.length
+  }
   return messages
+}
+
+/** Other pages of the conversation sent with "whole chat": a few, each cut to a budget. */
+export function sanitizeOtherPages(raw: unknown): PageContext[] {
+  if (!Array.isArray(raw)) return []
+  return raw.slice(0, 10).flatMap((p) => {
+    const page = sanitizePage(p)
+    return page ? [{ ...page, kind: "page" as const, text: page.text.slice(0, MAX_OTHER_PAGE_CHARS + 1), changed: false }] : []
+  }).slice(0, MAX_OTHER_PAGES)
 }
 
 export function sanitizePage(raw: unknown): PageContext | null {

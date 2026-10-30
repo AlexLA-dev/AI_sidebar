@@ -549,5 +549,51 @@
  },
  "welcomePermission": {
   "message": "Если ничего не происходит, разрешите ContextFlow на всех сайтах: Safari → Расширения → ContextFlow → Все сайты → Разрешить."
+ },
+ "shareNote": {
+  "message": "Заметка"
+ },
+ "saveNote": {
+  "message": "Сохранить заметку"
+ },
+ "placeholderNote": {
+  "message": "Заметка — останется в этом чате"
+ },
+ "noteHintTouch": {
+  "message": "Смахните кнопку вверх или вниз, чтобы записать заметку"
+ },
+ "noteHintMouse": {
+  "message": "Прокрутите над кнопкой, чтобы записать заметку"
+ },
+ "wholeChat": {
+  "message": "Весь чат"
+ },
+ "wholeChatHint": {
+  "message": "Ответы учитывают весь чат: все сообщения, ваши заметки и страницы этого чата. Выключено — последние сообщения и открытая страница."
+ },
+ "openPage": {
+  "message": "Открыть эту страницу"
+ },
+ "usageFreeShort": {
+  "message": "$P0$ из $P1$ на сегодня",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "usageProShort": {
+  "message": "Pro · $P0$ из $P1$ на неделю",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
  }
 }

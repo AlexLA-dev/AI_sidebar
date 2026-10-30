@@ -9,6 +9,7 @@ import { stripCitations, type Entry } from "./conversation.ts"
 
 export interface ShareLabels {
   you: string // "You"
+  note: string // "Note": a note the user wrote in the chat
   sources: string // a Google answer's sources
   source: string // the pages the chat was about
   madeWith: string // "Made with ContextFlow"
@@ -63,7 +64,7 @@ export function chatShareText(entries: Entry[], name: string, labels: ShareLabel
   for (const m of entries) {
     if (m.role === "user") {
       if (m.page) pages.set(m.page.url, m.page.title)
-      lines.push(`${labels.you}: ${m.label ?? m.content}`)
+      lines.push(m.note ? `${labels.note}: ${m.content}` : `${labels.you}: ${m.label ?? m.content}`)
     } else {
       lines.push(`ContextFlow: ${answerText(m, labels)}`, "")
     }

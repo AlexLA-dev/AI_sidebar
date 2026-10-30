@@ -162,5 +162,16 @@
   "welcomeTitle": "ContextFlow 已准备就绪",
   "welcomeBody": "打开任意网站，轻点 ✦ 按钮或工具栏中的 ContextFlow 图标。选中文本即可仅就该部分提问。",
   "welcomeRestricted": "Safari 不允许扩展读取此页面。请打开普通网站来使用 ContextFlow。",
-  "welcomePermission": "如果没有反应，请在所有网站上允许 ContextFlow：Safari → 扩展 → ContextFlow → 所有网站 → 允许。"
+  "welcomePermission": "如果没有反应，请在所有网站上允许 ContextFlow：Safari → 扩展 → ContextFlow → 所有网站 → 允许。",
+
+  "shareNote": "笔记",
+  "saveNote": "保存笔记",
+  "placeholderNote": "笔记——会保留在此对话中",
+  "noteHintTouch": "上下滑动按钮即可写笔记",
+  "noteHintMouse": "在按钮上滚动即可写笔记",
+  "wholeChat": "整个对话",
+  "wholeChatHint": "回答会考虑整个对话：所有消息、你的笔记和此对话中的页面。关闭时：最近的消息和当前页面。",
+  "openPage": "打开此页面",
+  "usageFreeShort": "今日剩余 {0}/{1}",
+  "usageProShort": "Pro · 本周剩余 {0}/{1}"
 }

@@ -4,7 +4,11 @@ import { test } from "node:test"
 import {
   entriesFrom,
   historyForModel,
+  isQuestion,
   lastPage,
+  otherPages,
+  urlKey,
+  WHOLE_CHAT_CHARS,
   pageHasChanged,
   stripCitations,
   textFingerprint,
@@ -64,4 +68,41 @@ test("entriesFrom accepts only conversations", () => {
   assert.equal(entriesFrom([{ role: "system", content: "x" }]), null)
   assert.equal(entriesFrom([{ role: "user" }]), null)
   assert.equal(entriesFrom([null]), null)
+})
+
+test("notes stay out of the model's history unless the whole chat is asked for", () => {
+  const a = { url: "https://a.example/x", title: "A" }
+  const b = { url: "https://b.example/y", title: "B" }
+  const chat: Entry[] = [
+    { role: "user", content: "Remember the second chart", note: true, page: a },
+    { role: "user", content: "What is this?", page: a },
+    { role: "assistant", content: "An article." },
+    { role: "user", content: "Compare with yesterday's", note: true, page: b },
+    { role: "user", content: "And here?", page: b }
+  ]
+  assert.deepEqual(historyForModel(chat, b.url).map((m) => m.content), ["[Asked on another page: \"A\" — https://a.example/x]\nWhat is this?", "An article.", "And here?"])
+  assert.deepEqual(historyForModel(chat, b.url, true).map((m) => m.content), [
+    "[Note the user wrote on another page: \"A\" — https://a.example/x]\nRemember the second chart",
+    "[Asked on another page: \"A\" — https://a.example/x]\nWhat is this?",
+    "An article.",
+    "[Note the user wrote]\nCompare with yesterday's",
+    "And here?"
+  ])
+  assert.equal(isQuestion(chat[0]), false)
+  assert.equal(isQuestion(chat[1]), true)
+  assert.equal(isQuestion(chat[2]), false)
+  assert.deepEqual(otherPages(chat, b.url), [a])
+})
+
+test("the whole chat keeps the newest messages within its budget", () => {
+  const big = "x".repeat(WHOLE_CHAT_CHARS / 4)
+  const chat: Entry[] = Array.from({ length: 10 }, (_, i) => ({ role: i % 2 ? "assistant" : "user", content: `${i} ${big}` }) as Entry)
+  const history = historyForModel(chat, "https://a.example", true)
+  assert.ok(history.length < 10 && history.length >= 3)
+  assert.ok(history[history.length - 1].content.startsWith("9 "))
+})
+
+test("urlKey drops the hash and tracking parameters", () => {
+  assert.equal(urlKey("https://a.example/p?id=2&utm_source=x#top"), "https://a.example/p?id=2")
+  assert.equal(urlKey("not a url"), "not a url")
 })

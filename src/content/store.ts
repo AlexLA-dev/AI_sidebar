@@ -1,5 +1,6 @@
 import type { Entry } from "../shared/conversation"
 import { activity, cleanTitle, liveThreads, newThreadId, prune, type ActiveThread, type Thread, type Threads } from "../shared/threads"
+import { MAX_OTHER_PAGE_CHARS } from "../shared/prompt"
 import { DEFAULT_SETTINGS, STORAGE, type Settings } from "../shared/types"
 
 const MAX_TURNS = 40
@@ -50,6 +51,32 @@ export async function hasSeenTour(): Promise<boolean> {
 
 export async function markTourSeen(): Promise<void> {
   await set(STORAGE.tourSeen, true)
+}
+
+// The text of recent pages, on this device only, so a "whole chat" answer can include the chat's other pages.
+const MAX_PAGE_TEXTS = 30
+type PageTexts = Record<string, { title: string; text: string; at: number }>
+
+export async function rememberPageText(url: string, title: string, text: string): Promise<void> {
+  if (!text.trim()) return
+  const pages = (await get<PageTexts>(STORAGE.pageTexts)) ?? {}
+  pages[url] = { title, text: text.slice(0, MAX_OTHER_PAGE_CHARS), at: Date.now() }
+  await set(STORAGE.pageTexts, Object.fromEntries(Object.entries(pages).sort((a, b) => b[1].at - a[1].at).slice(0, MAX_PAGE_TEXTS)))
+}
+
+/** The remembered text of these pages (those this device has), in the same order. */
+export async function pageTexts(urls: string[]): Promise<Array<{ title: string; url: string; text: string }>> {
+  const pages = (await get<PageTexts>(STORAGE.pageTexts)) ?? {}
+  return urls.flatMap((url) => (pages[url] ? [{ title: pages[url].title, url, text: pages[url].text }] : []))
+}
+
+/** Times the "swipe the button for a note" hint was shown; -1 once the user has switched to notes. */
+export async function noteHintCount(): Promise<number> {
+  return (await get<number>(STORAGE.noteHint)) ?? 0
+}
+
+export async function setNoteHintCount(count: number): Promise<void> {
+  await set(STORAGE.noteHint, count)
 }
 
 type LegacyChats = Record<string, { t: string; u: number; m: Entry[] }>
@@ -134,7 +161,7 @@ export async function deleteAllChats(): Promise<void> {
   const gone: Threads = {}
   for (const id of Object.keys(threads)) if (id in synced) gone[id] = { id, u: now, m: [], deleted: true }
   await chrome.storage.local.set({ [STORAGE.threads]: gone, [STORAGE.activeThread]: { id: newThreadId(), at: now }, [STORAGE.chats]: {} }).catch(() => undefined)
-  await chrome.storage.local.remove(STORAGE.conversation).catch(() => undefined)
+  await chrome.storage.local.remove([STORAGE.conversation, STORAGE.pageTexts]).catch(() => undefined)
 }
 
 /** Calls `listener` when threads change in another tab or come from another device. */

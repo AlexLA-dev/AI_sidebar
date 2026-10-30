@@ -549,5 +549,51 @@
  },
  "welcomePermission": {
   "message": "아무 반응이 없으면 모든 웹 사이트에서 ContextFlow를 허용하세요: Safari → 확장 프로그램 → ContextFlow → 모든 웹 사이트 → 허용."
+ },
+ "shareNote": {
+  "message": "메모"
+ },
+ "saveNote": {
+  "message": "메모 저장"
+ },
+ "placeholderNote": {
+  "message": "메모 — 이 채팅에 남습니다"
+ },
+ "noteHintTouch": {
+  "message": "버튼을 위아래로 밀어 메모 쓰기"
+ },
+ "noteHintMouse": {
+  "message": "버튼 위에서 스크롤해 메모 쓰기"
+ },
+ "wholeChat": {
+  "message": "채팅 전체"
+ },
+ "wholeChatHint": {
+  "message": "채팅 전체를 고려해 답합니다: 모든 메시지, 메모, 이 채팅의 페이지. 끄면: 최근 메시지와 열린 페이지."
+ },
+ "openPage": {
+  "message": "이 페이지 열기"
+ },
+ "usageFreeShort": {
+  "message": "오늘 $P0$/$P1$개 남음",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "usageProShort": {
+  "message": "Pro · 이번 주 $P0$/$P1$개 남음",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
  }
 }
