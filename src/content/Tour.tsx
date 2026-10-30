@@ -5,8 +5,9 @@ import { t, type MessageKey } from "../shared/i18n"
 import * as Icon from "./icons"
 
 export interface TourStep {
-  // What the step points at in the panel (the first selector found); none: the card stands alone.
-  targets: string[]
+  // The parts of the panel the step lights up: per group, the first of its selectors that is shown.
+  // None found: the card stands alone.
+  targets: string[][]
   icon: VNode
   title: MessageKey
   body: MessageKey
@@ -27,27 +28,55 @@ interface Hole {
 
 const PAD = 5
 
-/** A short tour of the panel: each step lights up a part of it and says what it does. */
+function shown(panel: HTMLElement, selectors: string[]): HTMLElement | undefined {
+  for (const s of selectors) {
+    const el = panel.querySelector<HTMLElement>(s)
+    if (el && el.offsetParent !== null) return el
+  }
+  return undefined
+}
+
+function holeStyle(h: Hole) {
+  return { top: `${h.top}px`, left: `${h.left}px`, width: `${h.width}px`, height: `${h.height}px` }
+}
+
+/** A short tour of the panel: each step lights up parts of it and says what they do. */
 export function Tour({ panel, steps, onDone }: Props): VNode {
   const [index, setIndex] = useState(0)
-  const [hole, setHole] = useState<Hole | null>(null)
+  const [parts, setParts] = useState<Hole[]>([])
   const step = steps[index]
   const last = index === steps.length - 1
 
-  // Where the step's target is in the panel, kept up to date while the panel resizes.
+  // Where the step's parts are in the panel, kept up to date while it resizes or scrolls.
   useLayoutEffect(() => {
+    const targets = step.targets.map((group) => shown(panel, group)).filter((el): el is HTMLElement => el !== undefined)
+    // Quick actions under a long chat can be scrolled out of sight.
+    for (const el of targets) el.scrollIntoView({ block: "nearest" })
     const measure = () => {
-      const target = step.targets.map((s) => panel.querySelector<HTMLElement>(s)).find((el) => el && el.offsetParent !== null)
-      if (!target) return setHole(null)
       const p = panel.getBoundingClientRect()
-      const r = target.getBoundingClientRect()
-      setHole({ top: r.top - p.top - PAD, left: r.left - p.left - PAD, width: r.width + PAD * 2, height: r.height + PAD * 2 })
+      setParts(targets.map((el) => {
+        const r = el.getBoundingClientRect()
+        return { top: r.top - p.top - PAD, left: r.left - p.left - PAD, width: r.width + PAD * 2, height: r.height + PAD * 2 }
+      }))
     }
     measure()
     const observer = new ResizeObserver(measure)
     observer.observe(panel)
-    return () => observer.disconnect()
+    panel.addEventListener("scroll", measure, true)
+    return () => {
+      observer.disconnect()
+      panel.removeEventListener("scroll", measure, true)
+    }
   }, [panel, step])
+
+  // Everything lit up stays clear of the shade; each part gets its own outline.
+  const hole: Hole | null = parts.length === 0 ? null : (() => {
+    const top = Math.min(...parts.map((h) => h.top))
+    const left = Math.min(...parts.map((h) => h.left))
+    const bottom = Math.max(...parts.map((h) => h.top + h.height))
+    const right = Math.max(...parts.map((h) => h.left + h.width))
+    return { top, left, width: right - left, height: bottom - top }
+  })()
 
   useEffect(() => {
     // Typing must not reach the composer under the tour.
@@ -66,7 +95,8 @@ export function Tour({ panel, steps, onDone }: Props): VNode {
 
   return (
     <div class={`cf-tour ${hole ? "" : "dim"}`} role="dialog" aria-modal="true" aria-label={t(step.title)}>
-      {hole && <div class="cf-tour-hole" style={{ top: `${hole.top}px`, left: `${hole.left}px`, width: `${hole.width}px`, height: `${hole.height}px` }} />}
+      {hole && <div class={`cf-tour-hole ${parts.length > 1 ? "group" : ""}`} style={holeStyle(hole)} />}
+      {parts.length > 1 && parts.map((part, i) => <div key={i} class="cf-tour-ring" style={holeStyle(part)} />)}
       <div class="cf-tour-card" style={cardStyle}>
         <div class="cf-tour-head">
           <span class="cf-tour-icon">{step.icon}</span>
@@ -84,13 +114,13 @@ export function Tour({ panel, steps, onDone }: Props): VNode {
   )
 }
 
-/** The steps: asking, a selection, Google, chats and settings. */
+/** The steps: asking (quick actions and the composer), a selection, Google, chats and settings. */
 export function tourSteps(sync: boolean): TourStep[] {
   return [
-    { targets: [".cf-empty .cf-actions", ".cf-input"], icon: <Icon.Sparkle size={16} />, title: "tourAskTitle", body: "tourAskBody" },
-    { targets: [".cf-title .cf-ctx", ".cf-title"], icon: <Icon.Cursor />, title: "tourSelectTitle", body: "tourSelectBody" },
-    { targets: [".cf-mode"], icon: <Icon.Search size={14} />, title: "tourGoogleTitle", body: "tourGoogleBody" },
-    { targets: [".cf-chats-button"], icon: <Icon.Chats />, title: "tourChatsTitle", body: sync ? "tourChatsBodySync" : "tourChatsBody" },
-    { targets: [".cf-settings-button"], icon: <Icon.Gear />, title: "tourSettingsTitle", body: "tourSettingsBody" }
+    { targets: [[".cf-actions"], [".cf-input"]], icon: <Icon.Sparkle size={16} />, title: "tourAskTitle", body: "tourAskBody" },
+    { targets: [[".cf-title .cf-ctx", ".cf-title"]], icon: <Icon.Cursor />, title: "tourSelectTitle", body: "tourSelectBody" },
+    { targets: [[".cf-mode"]], icon: <Icon.Search size={14} />, title: "tourGoogleTitle", body: "tourGoogleBody" },
+    { targets: [[".cf-chats-button"]], icon: <Icon.Chats />, title: "tourChatsTitle", body: sync ? "tourChatsBodySync" : "tourChatsBody" },
+    { targets: [[".cf-settings-button"]], icon: <Icon.Gear />, title: "tourSettingsTitle", body: "tourSettingsBody" }
   ]
 }

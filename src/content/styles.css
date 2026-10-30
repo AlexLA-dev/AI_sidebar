@@ -430,6 +430,8 @@
   box-shadow: 0 0 0 2px var(--accent), 0 0 0 4000px rgba(12, 10, 24, 0.5);
   transition: top 0.25s ease, left 0.25s ease, width 0.25s ease, height 0.25s ease;
 }
+.cf-tour-hole.group { box-shadow: 0 0 0 4000px rgba(12, 10, 24, 0.5); }
+.cf-tour-ring { position: absolute; border-radius: 12px; pointer-events: none; box-shadow: 0 0 0 2px var(--accent); }
 .cf-tour-card {
   position: absolute; left: 12px; right: 12px; max-width: 396px; margin: 0 auto;
   background: var(--bg); color: var(--text); border-radius: 14px; padding: 13px 14px 12px; box-shadow: var(--shadow);
