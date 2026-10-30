@@ -1,7 +1,9 @@
 Neu in ContextFlow 2.3:
-• Chats: Führe mehrere Unterhaltungen gleichzeitig. Starte jederzeit einen neuen Chat, finde frühere in der Chatliste und setze jeden davon auf jeder Seite fort. Benenne einen Chat um, damit du ihn leicht wiederfindest.
+• Notizen: Wische die Senden-Taste nach oben oder unten (auf dem Mac: scrolle auf ihr), um statt einer Frage eine Notiz zu schreiben. Sie bleibt mit ihrer Seite im Chat, wird mit ihm synchronisiert und verbraucht keine Antworten.
+• Ganzer Chat: Schalte ihn unter dem Eingabefeld ein, und die Antwort berücksichtigt alles – jede Nachricht, deine Notizen und die anderen Seiten des Chats.
+• Chats: Führe mehrere Unterhaltungen gleichzeitig, hefte wichtige an und ordne sie per Ziehen, benenne sie um und sieh alle Seiten eines Chats – tippe auf eine, um zu ihr zurückzukehren.
 • Mach dort weiter, wo du aufgehört hast: Chats werden Ende-zu-Ende-verschlüsselt über deine iCloud zwischen iPhone, iPad und Mac synchronisiert und landen nie auf unseren Servern. In den Einstellungen kannst du das ausschalten.
+• Teile nur, was du brauchst: Markiere die Nachrichten – ihre Links und Quellen gehen mit.
+• Eine kurze Tour beim ersten Öffnen von ContextFlow und Tipps in der App mit einem kurzen Video zu jeder Funktion
 • Dein Pro-Antwortzähler ist auf allen Geräten aktuell
-• Eine kurze Tour durch die wichtigsten Funktionen beim ersten Öffnen von ContextFlow und ein Tipps-Bereich in der App zum Nachschlagen
-• Beim Teilen eines Chats bleiben Links und Quellen erhalten – plus ein Link zu ContextFlow
 • Fehlerbehebungen und Verbesserungen
