@@ -216,6 +216,9 @@ async function research(s, k) {
     const threads = store["cf:threads"]
     const active = threads[store["cf:activeThread"].id]
     active.title = research; active.pin = 0; active.u = Date.now()
+    // The made-up sites the screenshots show in the address bar, not localhost.
+    const hosts = { "/article": "weeklyreview.com", "/article-2": "techledger.com", "/article-ru": "delovoyobzor.ru", "/article-2-ru": "tehrynok.ru" }
+    for (const e of active.m) if (e.page) e.page = { ...e.page, url: `https://${hosts[new URL(e.page.url).pathname]}/four-day-week` }
     const now = Date.now()
     threads.other = { id: "other", u: now - 7200_000, a: now - 7200_000, title: other,
       m: [{ role: "user", content: other, page: { url: "https://www.theverge.com/remote", title: "Remote" } }, { role: "assistant", content: "…" }] }
