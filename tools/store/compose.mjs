@@ -13,7 +13,8 @@ import { fileURLToPath, pathToFileURL } from "node:url"
 
 // CF_ROOT lets the script run from a folder that has Playwright installed.
 const root = process.env.CF_ROOT ?? resolve(dirname(fileURLToPath(import.meta.url)), "../..")
-// set: "main" (the product page) or "notes" (the custom product page for note-takers).
+// set: "main" (the product page), "notes" (the custom product page for note-takers), or a product page
+// optimization test: "ask", "google", "chat" (each leads with another hook; iPhone and iPad only).
 const [rawArg, outArg, lang = "en", set = "main"] = process.argv.slice(2)
 const RAW = resolve(rawArg)
 const OUT = resolve(outArg)
@@ -39,6 +40,9 @@ const COPY = {
     cppRecall: ["Ask AI about all", "you've collected"],
     cppShare: ["Send it to", "your notes app"],
     cppGoogle: ["Fresh facts", "with sources"],
+    askHero: ["Ask this page", "anything"],
+    googleHero: ["Fresh answers", "from Google"],
+    chatHero: ["One chat for", "all your tabs"],
     freeNotes: "Notes are free, no limits",
     wholeChat: "Whole chat: notes + pages",
     withLinks: "With links and sources",
@@ -65,6 +69,9 @@ const COPY = {
     cppRecall: ["Спросите ИИ", "по всем заметкам"],
     cppShare: ["Отправьте", "в свой заметочник"],
     cppGoogle: ["Свежие факты", "с источниками"],
+    askHero: ["Задайте странице", "любой вопрос"],
+    googleHero: ["Свежие ответы", "из Google"],
+    chatHero: ["Один чат", "на все вкладки"],
     freeNotes: "Заметки — бесплатно и без лимитов",
     wholeChat: "«Весь чат»: заметки и страницы",
     withLinks: "Со ссылками и источниками",
@@ -152,6 +159,34 @@ const NOTES_SETS = {
     { name: "google", shot: "ipad-google", caption: COPY.cppGoogle, callout: { select: SOURCES, pad: 10, mag: 1.7, maxW: 1400 } },
     { name: "summary", shot: "ipad-summary", caption: COPY.summary, pills: [{ text: COPY.free, icon: "✦", x: 70, y: 2520 }] }
   ]
+}
+
+// Product page optimization tests: the same screens as the product page, each set led by another hook
+// (own questions about the page; fresh Google answers with sources; one chat across tabs with notes).
+const askScreen = (k) => k === "iphone"
+  ? { name: "ask", shot: "iphone-ask", caption: COPY.askHero, icon: true,
+      pills: [{ text: COPY.free, icon: "✦", x: 50, y: 830 }, { text: COPY.nosignup, icon: "✓", right: 50, y: 970 }] }
+  : { name: "ask", shot: "ipad-ask", caption: COPY.askHero,
+      pills: [{ text: COPY.free, icon: "✦", x: 70, y: 2520 }, { text: COPY.nosignup, icon: "✓", x: 70, y: 2360 }] }
+const byName = (k) => Object.fromEntries([...NOTES_SETS[k], ...SETS[k]].map((s) => [s.name, s]))
+const plain = (spec) => ({ ...spec, icon: false })
+const TEST_SETS = {
+  ask: Object.fromEntries(["iphone", "ipad"].map((k) => {
+    const n = byName(k)
+    return [k, [askScreen(k), n.select, n.google, n.chat, n.notes, plain(SETS[k][0])]]
+  })),
+  google: Object.fromEntries(["iphone", "ipad"].map((k) => {
+    const n = byName(k)
+    return [k, [{ ...n.google, caption: COPY.googleHero, icon: k === "iphone", pills: [{ text: COPY.withLinks, icon: "🔗", x: k === "iphone" ? 50 : 70, y: k === "iphone" ? 830 : 2520 }] },
+      { ...askScreen(k), caption: COPY.askHero, icon: false, pills: [] }, n.select, n.chat, n.notes, plain(SETS[k][0])]]
+  })),
+  chat: Object.fromEntries(["iphone", "ipad"].map((k) => {
+    const n = byName(k)
+    const at = k === "iphone" ? { x: 50, y: 830 } : { x: 70, y: 2520 }
+    return [k, [{ ...n.chat, caption: COPY.chatHero, icon: k === "iphone", callout: undefined,
+        pills: [{ text: COPY.context, icon: "↻", ...at }, { text: COPY.synced, icon: "☁︎", ...(k === "iphone" ? { right: 50, y: 970 } : { x: 70, y: 2360 }) }] },
+      n.notes, n.recall, { ...askScreen(k), icon: false, pills: [] }, n.google, plain(SETS[k][0])]]
+  }))
 }
 
 // ------------------------------------------------------------------- icons
@@ -444,7 +479,7 @@ async function fitSize(device, specs) {
   return size
 }
 
-for (const [kind, specs] of Object.entries(set === "notes" ? NOTES_SETS : SETS)) {
+for (const [kind, specs] of Object.entries(set === "notes" ? NOTES_SETS : TEST_SETS[set] ?? SETS)) {
   const device = DEVICES[kind]
   const size = await fitSize(device, specs)
   const dir = join(OUT, kind)

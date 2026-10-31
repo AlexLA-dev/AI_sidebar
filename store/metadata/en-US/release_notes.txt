@@ -1,9 +1,6 @@
-What's new in ContextFlow 2.3:
-• Notes: swipe the send button up or down (on a Mac, scroll on it) to write a note instead of asking. A note stays in the chat with the page it's about, syncs with it and uses no answers.
-• Whole chat: turn it on under the question field and the answer takes in everything — every message, your notes and the other pages of the chat.
-• Chats: keep several conversations at once, pin the important ones and drag them into order, rename them, and see every page a chat was on — tap one to go back to it.
-• Pick up where you left off: chats sync across your iPhone, iPad and Mac through your iCloud, end-to-end encrypted, and never touch our servers. You can turn this off in Settings.
-• Share just what you need: tick the messages to send — their links and sources go with them.
-• A short tour the first time you open ContextFlow, and Tips in the app with a short video of each feature
-• Your Pro answer count stays up to date across devices
+What's new in ContextFlow 2.4:
+• Easier setup: the app shows step by step how to switch ContextFlow on in Settings, and reminds you if setup isn't finished
+• Out of free answers? You'll see exactly when they come back, and notes stay free and unlimited in the meantime
+• Need more answers? When you run out, Pro is 50% off for the first month
+• On a Mac, the app's menus now appear in your language
 • Fixes and improvements

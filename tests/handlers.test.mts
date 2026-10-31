@@ -88,8 +88,20 @@ function sse(chunks: string[]): Response {
   return new Response(body, { headers: { "Content-Type": "text/event-stream" } })
 }
 
+// AdServices tokens the fake Apple attribution API knows (plain-text body, not JSON).
+const ADS: Record<string, { status: number; body?: Record<string, unknown> }> = {
+  "tok-ad": { status: 200, body: { attribution: true, orgId: 1222900, campaignId: 2145005369, adGroupId: 11, keywordId: 22, adId: 33, countryOrRegion: "US", conversionType: "Download", claimType: "Click", clickDate: "2026-10-31T10:00Z" } },
+  "tok-organic": { status: 200, body: { attribution: false } }
+}
+let adsCalls = 0
+
 globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
   const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url
+  if (url === "https://api-adservices.apple.com/api/v1/") {
+    adsCalls++
+    const hit = ADS[String(init?.body)] ?? { status: 404 }
+    return new Response(hit.body ? JSON.stringify(hit.body) : "", { status: hit.status, headers: { "Content-Type": "application/json" } })
+  }
   const body = init?.body ? JSON.parse(String(init.body)) : {}
   if (url.startsWith("https://db.test/rest/v1/rpc/")) {
     const fn = url.split("/rpc/")[1].split("?")[0]
@@ -451,4 +463,30 @@ test("funnel events are logged with only the allowed fields and capped per id", 
   serverConfig.eventDailyLimit = 2
   assert.equal((await send({ kind: "app_open", appId: APP })).status, 200)
   assert.equal((await send({ kind: "app_open", appId: APP })).status, 429)
+})
+
+test("an Apple Ads attribution token is resolved and only campaign ids are kept", async () => {
+  const APP = "3f2b1c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d"
+  const send = (body: Record<string, unknown>) => event(post("/api/v2/event", body), ctx())
+  const ad = await send({ kind: "app_open", appId: APP, client: { platform: "ipados", version: "2.4" }, adToken: "tok-ad" })
+  assert.deepEqual(await ad.json(), { ok: true, ads: "attributed" })
+  await new Promise((r) => setTimeout(r, 0))
+  const logged = events.find((e) => e.kind === "ads_attribution")
+  assert.deepEqual(logged?.data, { app: APP, orgId: 1222900, campaignId: 2145005369, adGroupId: 11, keywordId: 22, adId: 33, countryOrRegion: "US", conversionType: "Download", claimType: "Click", clickDate: "2026-10-31T10:00Z" })
+
+  const organic = await send({ kind: "app_open", appId: APP, adToken: "tok-organic" })
+  assert.deepEqual(await organic.json(), { ok: true, ads: "organic" })
+  assert.equal(events.filter((e) => e.kind === "ads_attribution").length, 1)
+
+  // Only "app opened" carries a token; the extension's event never triggers a lookup.
+  const calls = adsCalls
+  assert.deepEqual(await (await send({ kind: "ext_on", installId: INSTALL, adToken: "tok-ad" })).json(), { ok: true })
+  assert.equal(adsCalls, calls)
+})
+
+test("an attribution record Apple doesn't have yet is retried once, then reported as pending", async () => {
+  const { resolveAdToken } = await import("../netlify/shared/adservices.mts")
+  const calls = adsCalls
+  assert.equal(await resolveAdToken("tok-unknown", 0), "pending")
+  assert.equal(adsCalls - calls, 2)
 })

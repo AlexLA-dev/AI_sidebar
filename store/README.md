@@ -111,6 +111,7 @@ New in 2.2:
 | Identifiers → Device ID (случайный install ID для дневного лимита) | App Functionality | No | No |
 | Purchases → Purchase History (подписанная Apple транзакция для проверки подписки) | App Functionality | No | No |
 | Usage Data → Product Interaction (счётчики ответов, тип действия) | App Functionality, Analytics | No | No |
+| Usage Data → Advertising Data (с 2.4: id кампании, группы и ключа Apple Ads, если установка пришла из рекламы; AdServices, без ATT) | Analytics | No | No |
 
 ---
 

@@ -158,6 +158,14 @@ async function conversation(s) {
   await scrollTo(s, ".cf-divider", 0)
 }
 
+// The user's own question about the page, answered (the hook of the "ask" test page).
+async function ask(s) {
+  await fresh(s); await open(s)
+  await s.page.locator(".cf-input textarea").fill(L.question)
+  if (s.d.touch) await s.page.locator(".cf-send").click(); else await s.page.keyboard.press("Enter")
+  await waitAnswer(s)
+}
+
 // A summary, two notes kept under it and a third being written: the send button switched to a note.
 async function notes(s) {
   await fresh(s); await open(s); await chip(s, L.summarize); await waitAnswer(s)
@@ -244,6 +252,12 @@ for (const name of ["iphone", "ipad", "mac"]) {
     await s.ctx.close()
     continue
   }
+  // Only the own-question state (the product page tests reuse every other capture).
+  if (process.env.SET === "ask") {
+    await ask(s); await shot(s, `${k}-ask`); await rect(s, `${k}-ask`, [".cf-panel"])
+    await s.ctx.close()
+    continue
+  }
   // 1. Summary of the page (hero)
   await fresh(s); await open(s); await chip(s, L.summarize); await waitAnswer(s); await shot(s, `${k}-summary`); await rect(s, `${k}-summary`, [".cf-panel"])
   if (k === "iphone") {
@@ -274,6 +288,8 @@ for (const name of ["iphone", "ipad", "mac"]) {
   await fresh(s, { url: FOREIGN }); await open(s); await chip(s, L.translate); await waitAnswer(s); await shot(s, `${k}-translate`); await rect(s, `${k}-translate`, [".cf-panel"])
   // 6. One chat across sites (dark, for rhythm)
   await conversation(s); await shot(s, `${k}-chat`); await rect(s, `${k}-chat`, [".cf-panel", ".md-table"])
+  // 7. Own question about the page
+  await ask(s); await shot(s, `${k}-ask`); await rect(s, `${k}-ask`, [".cf-panel"])
   await s.ctx.close()
 }
 console.log("captured →", outDir)

@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Apple Ads · ContextFlow</title>
+<style>
+  :root {
+    --bg: #f5f5f7; --card: #fff; --text: #1d1d1f; --muted: #6e6e73; --line: #e5e5ea;
+    --accent: #0a84ff; --good: #1f9d55; --warn: #c27c0e; --bad: #d70015; --chip: #f0f0f3;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #000; --card: #1c1c1e; --text: #f5f5f7; --muted: #98989d; --line: #2c2c2e; --chip: #2c2c2e; --accent: #0a84ff; --good: #30d158; --warn: #ffb340; --bad: #ff453a; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif; }
+  header { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 16px 20px; position: sticky; top: 0; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(12px); z-index: 5; border-bottom: 1px solid var(--line); }
+  header h1 { font-size: 18px; margin: 0; }
+  header .sub { color: var(--muted); }
+  header .controls { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+  main { padding: 16px 20px 120px; max-width: 1280px; margin: 0 auto; }
+  button, select, input { font: inherit; color: inherit; }
+  button { border: 1px solid var(--line); background: var(--card); border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+  button:hover { border-color: var(--accent); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  button.danger { color: var(--bad); }
+  button.small { padding: 2px 8px; font-size: 12px; }
+  button:disabled { opacity: .5; cursor: default; }
+  select, input[type=text], input[type=number] { border: 1px solid var(--line); background: var(--card); border-radius: 8px; padding: 6px 8px; }
+  input.num { width: 76px; text-align: right; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 16px; }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+  .kpi .v { font-size: 22px; font-weight: 600; }
+  .kpi .l { color: var(--muted); font-size: 12px; }
+  .bar { height: 6px; background: var(--chip); border-radius: 3px; overflow: hidden; margin-top: 6px; }
+  .bar > i { display: block; height: 100%; background: var(--accent); }
+  h2 { font-size: 16px; margin: 0; }
+  h3 { font-size: 14px; margin: 16px 0 8px; color: var(--muted); font-weight: 600; }
+  .row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  .muted { color: var(--muted); }
+  .pill { font-size: 11px; padding: 2px 8px; border-radius: 10px; background: var(--chip); color: var(--muted); white-space: nowrap; }
+  .pill.on { color: var(--good); }
+  .pill.off { color: var(--warn); }
+  .scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 6px 8px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
+  th { color: var(--muted); font-weight: 500; font-size: 12px; }
+  th:first-child, td:first-child { text-align: left; white-space: normal; }
+  tr.group > td { font-weight: 600; cursor: pointer; }
+  tr.kw > td:first-child { padding-left: 24px; }
+  tr.paused > td { opacity: .5; }
+  tr.paused > td:last-child { opacity: 1; }
+  .changed { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { background: var(--chip); border-radius: 10px; padding: 2px 8px; font-size: 12px; }
+  .switch { position: relative; width: 34px; height: 20px; display: inline-block; vertical-align: middle; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .switch span { position: absolute; inset: 0; background: var(--line); border-radius: 10px; transition: .15s; cursor: pointer; }
+  .switch span::before { content: ""; position: absolute; width: 16px; height: 16px; left: 2px; top: 2px; background: #fff; border-radius: 50%; transition: .15s; }
+  .switch input:checked + span { background: var(--good); }
+  .switch input:checked + span::before { transform: translateX(14px); }
+  #changes { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: var(--card); border: 1px solid var(--accent); border-radius: 14px; padding: 10px 14px; box-shadow: 0 8px 30px rgba(0,0,0,.18); display: flex; gap: 10px; align-items: center; z-index: 10; }
+  #changes[hidden], [hidden] { display: none !important; }
+  dialog { border: 1px solid var(--line); border-radius: 14px; background: var(--card); color: var(--text); max-width: 640px; width: calc(100% - 32px); }
+  dialog::backdrop { background: rgba(0,0,0,.35); }
+  dialog ul { padding-left: 18px; }
+  dialog li.launch { color: var(--warn); font-weight: 600; }
+  .error { color: var(--bad); }
+  .note { font-size: 12px; color: var(--muted); margin-top: 8px; }
+  @media (max-width: 640px) { header, main { padding-left: 16px; padding-right: 16px; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Apple Ads</h1><span class="sub">ContextFlow · закупка</span>
+  <div class="controls">
+    <select id="period" title="Период отчёта">
+      <option value="all">С начала кампании</option>
+      <option value="today">Сегодня</option>
+      <option value="yesterday">Вчера</option>
+      <option value="7">7 дней</option>
+    </select>
+    <button id="refresh">Обновить</button>
+    <button id="stop" class="danger">Пауза всего</button>
+  </div>
+</header>
+<main>
+  <div id="status" class="card muted">Загружаю данные из Apple Ads…</div>
+  <div id="summary"></div>
+  <div id="proposals"></div>
+  <div id="campaigns"></div>
+</main>
+<div id="changes" hidden>
+  <span id="changesText"></span>
+  <button id="discard">Отменить</button>
+  <button id="review" class="primary">Проверить и применить</button>
+</div>
+<dialog id="modal"><div id="modalBody"></div></dialog>
+<script>
+"use strict"
+const $ = (id) => document.getElementById(id)
+let data = null, draft = null, original = ""
+
+// DOM helper: text always goes in as text (search terms come from Apple, i.e. from users).
+function h(tag, attrs = {}, ...kids) {
+  const el = document.createElement(tag)
+  for (const [k, v] of Object.entries(attrs)) {
+    if (v == null || v === false) continue
+    if (k.startsWith("on")) el.addEventListener(k.slice(2), v)
+    else if (k === "class") el.className = v
+    else if (k === "checked" || k === "value" || k === "disabled") el[k] = v
+    else el.setAttribute(k, v)
+  }
+  for (const kid of kids.flat()) if (kid != null && kid !== false) el.append(kid instanceof Node ? kid : String(kid))
+  return el
+}
+const usd = (x) => (x == null || Number.isNaN(x) ? "–" : `$${x.toFixed(2)}`)
+const pct = (x) => `${(x * 100).toFixed(1)}%`
+const norm = (s) => String(s ?? "").trim().toLowerCase()
+const day = (d) => d.toISOString().slice(0, 10)
+
+function metrics(row) {
+  const t = row?.totalMetrics ?? {}
+  const installs = Number(t.totalInstalls ?? t.tapInstalls ?? 0)
+  const spend = Number(t.localSpend?.amount ?? 0)
+  const taps = Number(t.taps ?? 0), impressions = Number(t.impressions ?? 0)
+  return { impressions, taps, installs, spend, ttr: impressions ? taps / impressions : 0, cpt: taps ? spend / taps : null, cpi: installs ? spend / installs : null }
+}
+const metricCells = (row) => {
+  const m = metrics(row)
+  return [h("td", {}, m.impressions), h("td", {}, m.taps), h("td", {}, pct(m.ttr)), h("td", {}, usd(m.spend)), h("td", {}, usd(m.cpt)), h("td", {}, m.installs), h("td", {}, usd(m.cpi))]
+}
+const METRIC_HEADS = ["Показы", "Тапы", "TTR", "Расход", "CPT", "Устан.", "CPI"]
+
+function periodParams() {
+  const v = $("period").value, now = new Date()
+  if (v === "today") return `?from=${day(now)}&to=${day(now)}`
+  if (v === "yesterday") { const y = new Date(now - 86400000); return `?from=${day(y)}&to=${day(y)}` }
+  if (v === "7") return `?from=${day(new Date(now - 6 * 86400000))}&to=${day(now)}`
+  return ""
+}
+
+async function api(path, body) {
+  const res = await fetch(path, body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : {})
+  const json = await res.json().catch(() => ({ error: `HTTP ${res.status}` }))
+  if (!res.ok && !json.done) throw new Error(json.error ?? `HTTP ${res.status}`)
+  return json
+}
+
+async function load() {
+  $("status").hidden = false
+  $("status").textContent = "Загружаю данные из Apple Ads…"
+  try {
+    data = await api("/api/state" + periodParams())
+    draft = structuredClone(data.plan)
+    original = JSON.stringify(draft)
+    $("status").hidden = true
+    render()
+  } catch (e) {
+    $("status").replaceChildren(h("span", { class: "error" }, `Не получилось загрузить: ${e.message}`))
+  }
+}
+
+// ---------------------------------------------------------------- lookups
+const rowOf = {
+  campaign: (c) => data.report.campaigns.find((r) => r.campaignName === c.name),
+  group: (c, g) => data.report.adGroups.find((r) => r.campaignName === c.name && (r.metadata?.name ?? r.metadata?.adGroupName) === g.name),
+  keyword: (c, g, k) => data.report.keywords.find((r) => r.campaignName === c.name && r.metadata?.adGroup?.name === g.name && norm(r.metadata?.text) === norm(k.text) && (r.metadata?.matchType ?? "EXACT") === (k.match ?? "EXACT"))
+}
+const liveCampaign = (c) => data.live.campaigns.find((x) => x.name === c.name)
+const liveGroup = (c, g) => { const lc = liveCampaign(c); return lc && data.live.adGroups.find((x) => x.campaignId === lc.id && x.name === g.name) }
+const liveKeyword = (c, g, k) => { const lg = liveGroup(c, g); return lg && data.live.keywords.find((x) => x.adGroupId === lg.id && norm(x.text) === norm(k.text) && x.matchType === (k.match ?? "EXACT")) }
+const statusPill = (live) => live ? h("span", { class: `pill ${live.displayStatus === "RUNNING" ? "on" : "off"}` }, live.displayStatus ?? live.status) : h("span", { class: "pill" }, "нет в Apple Ads")
+
+// ---------------------------------------------------------------- edits
+function changed() {
+  const n = JSON.stringify(draft) !== original
+  $("changes").hidden = !n
+  $("changesText").textContent = "Есть несохранённые изменения"
+}
+function edit(fn) { fn(); changed(); render() }
+function toggle(checked, onChange) {
+  return h("label", { class: "switch", title: checked ? "Включено" : "На паузе" }, h("input", { type: "checkbox", checked, onchange: (e) => onChange(e.target.checked) }), h("span"))
+}
+function bidInput(value, placeholder, onChange, isChanged) {
+  return h("input", { type: "number", class: `num${isChanged ? " changed" : ""}`, step: "0.05", min: "0.1", max: String(draft.guards?.maxBid ?? 10), value: value ?? "", placeholder: placeholder ?? "", onchange: (e) => onChange(e.target.value === "" ? null : Math.round(Number(e.target.value) * 100) / 100) })
+}
+const orig = () => JSON.parse(original)
+const origCampaign = (c) => orig().campaigns.find((x) => x.name === c.name)
+const origGroup = (c, g) => origCampaign(c)?.adGroups.find((x) => x.name === g.name)
+const origKeyword = (c, g, k) => origGroup(c, g)?.keywords?.find((x) => norm(x.text) === norm(k.text) && (x.match ?? "EXACT") === (k.match ?? "EXACT"))
+
+// ---------------------------------------------------------------- render
+function render() {
+  renderSummary()
+  renderProposals()
+  $("campaigns").replaceChildren(...draft.campaigns.map(renderCampaign))
+}
+
+function renderSummary() {
+  const total = draft.guards?.totalBudget ?? 50
+  const rows = data.report.campaigns
+  const sum = rows.reduce((a, r) => { const m = metrics(r); a.spend += m.spend; a.taps += m.taps; a.imp += m.impressions; a.inst += m.installs; return a }, { spend: 0, taps: 0, imp: 0, inst: 0 })
+  const end = draft.campaigns.map((c) => c.end).sort().at(-1)
+  const daysLeft = end ? Math.max(0, Math.ceil((Date.parse(`${end}T23:59:59Z`) - Date.now()) / 86400000)) : null
+  const subs = data.subs ? Object.values(data.subs).reduce((a, b) => a + b, 0) : null
+  const kpi = (v, l, extra) => h("div", { class: "kpi" }, h("div", { class: "v" }, v), h("div", { class: "l" }, l), extra)
+  $("summary").replaceChildren(h("div", { class: "card" },
+    h("div", { class: "kpis" },
+      kpi(`${usd(data.spent)} / $${total}`, "Потрачено с начала", h("div", { class: "bar" }, h("i", { style: `width:${Math.min(100, (data.spent / total) * 100)}%` }))),
+      kpi(daysLeft ?? "–", `Дней до конца (${end ?? "без даты"})`),
+      kpi(sum.imp, "Показы за период"),
+      kpi(`${sum.taps} · ${pct(sum.imp ? sum.taps / sum.imp : 0)}`, "Тапы · TTR"),
+      kpi(`${sum.inst} · ${usd(sum.inst ? sum.spend / sum.inst : null)}`, "Установки · CPI"),
+      kpi(subs ?? "с 2.4", subs == null ? "Подписки (атрибуция AdServices в 2.4)" : "Подписки из рекламы")
+    ),
+    h("div", { class: "note" }, `Период отчёта: ${data.period.from} → ${data.period.to}. Данные Apple приходят с задержкой до 3 часов.`),
+    data.pending.length ? h("div", { class: "note error" }, `План и Apple Ads расходятся: ${data.pending.join("; ")}`) : null
+  ))
+}
+
+function renderProposals() {
+  if (!data.proposals.length) return $("proposals").replaceChildren()
+  const picked = new Set(data.proposals.map((_, i) => i))
+  const label = { pause: "пауза", bid: "ставка", promote: "в exact", negative: "минус-слово" }
+  $("proposals").replaceChildren(h("div", { class: "card" },
+    h("div", { class: "row" }, h("h2", {}, "Предложения правил"), h("span", { class: "muted" }, "по данным за период")),
+    h("ul", {}, data.proposals.map((p, i) => h("li", {},
+      h("label", {}, h("input", { type: "checkbox", checked: true, onchange: (e) => e.target.checked ? picked.add(i) : picked.delete(i) }),
+        ` ${label[p.action]}: «${p.text}»${p.adGroup ? ` (${p.adGroup})` : ""}${p.to != null ? ` → $${p.to}` : ""} — `, h("span", { class: "muted" }, p.why))))),
+    h("button", { class: "primary", onclick: async () => {
+      const { plan } = await api("/api/proposals", { plan: draft, proposals: data.proposals.filter((_, i) => picked.has(i)) })
+      draft = plan; changed(); render()
+    } }, "Добавить выбранные в изменения")
+  ))
+}
+
+function renderCampaign(c) {
+  const lc = liveCampaign(c)
+  const oc = origCampaign(c)
+  const head = h("div", { class: "row" },
+    toggle(c.status === "ENABLED", (on) => edit(() => { c.status = on ? "ENABLED" : "PAUSED" })),
+    h("h2", {}, c.name), statusPill(lc),
+    h("span", { class: "muted" }, `${c.countries.join(", ")} · ${c.start} → ${c.end}`),
+    h("span", { class: "muted", style: "margin-left:auto" }, "Бюджет в день $"),
+    h("input", { type: "number", class: `num${oc && oc.dailyBudget !== c.dailyBudget ? " changed" : ""}`, step: "0.5", min: "1", value: c.dailyBudget, onchange: (e) => edit(() => { c.dailyBudget = Number(e.target.value) }) })
+  )
+  const cr = rowOf.campaign(c)
+  const totals = h("div", { class: "scroll" }, h("table", {}, h("tr", {}, h("th", {}, "Кампания"), ...METRIC_HEADS.map((t) => h("th", {}, t))), h("tr", {}, h("td", {}, "Итого"), ...metricCells(cr))))
+
+  const rows = []
+  for (const g of c.adGroups) {
+    const og = origGroup(c, g)
+    const open = renderCampaign.open?.has(`${c.name}|${g.name}`)
+    rows.push(h("tr", { class: `group${g.status === "PAUSED" ? " paused" : ""}`, onclick: (e) => { if (e.target.closest("input,label,button")) return; const s = (renderCampaign.open ??= new Set()); const key = `${c.name}|${g.name}`; s.has(key) ? s.delete(key) : s.add(key); render() } },
+      h("td", {}, `${open ? "▾" : "▸"} ${g.name} `, g.searchMatch ? h("span", { class: "pill" }, "Search Match") : null, " ", statusPill(liveGroup(c, g))),
+      h("td", {}, bidInput(g.bid, "", (v) => edit(() => { if (v != null) g.bid = v }), og && og.bid !== g.bid)),
+      h("td", {}, ""),
+      ...metricCells(rowOf.group(c, g)),
+      h("td", {}, toggle(g.status !== "PAUSED", (on) => edit(() => { g.status = on ? "ENABLED" : "PAUSED" })))
+    ))
+    if (!open) continue
+    for (const k of g.keywords ?? []) {
+      const r = rowOf.keyword(c, g, k)
+      const ok = origKeyword(c, g, k)
+      const lk = liveKeyword(c, g, k)
+      const sugg = r?.insights?.bidRecommendation?.suggestedBidAmount
+      const subs = data.subs && lk ? data.subs[lk.id] ?? 0 : null
+      rows.push(h("tr", { class: `kw${k.status === "PAUSED" ? " paused" : ""}` },
+        h("td", {}, k.match === "BROAD" ? k.text : `[${k.text}]`, subs ? h("span", { class: "pill on" }, ` ${subs} подп.`) : null, ok ? null : h("span", { class: "pill" }, "новый")),
+        h("td", {}, bidInput(k.bid, g.bid, (v) => edit(() => { if (v == null) delete k.bid; else k.bid = v }), ok && ok.bid !== k.bid)),
+        h("td", { class: "muted" }, sugg ? usd(sugg) : ""),
+        ...metricCells(r),
+        h("td", {}, toggle(k.status !== "PAUSED", (on) => edit(() => { k.status = on ? "ENABLED" : "PAUSED" })))
+      ))
+    }
+    if (!g.searchMatch) {
+      const input = h("input", { type: "text", placeholder: "новые ключи через запятую (точное соответствие)", style: "width:100%" })
+      rows.push(h("tr", { class: "kw" }, h("td", { colspan: "11" }, h("div", { class: "row" }, input, h("button", { class: "small", onclick: () => edit(() => {
+        g.keywords = g.keywords ?? []
+        for (const text of input.value.split(",").map((s) => s.trim().replace(/^\[|\]$/g, "")).filter(Boolean)) {
+          if (!g.keywords.some((x) => norm(x.text) === norm(text))) g.keywords.push({ text })
+        }
+      }) }, "Добавить")))))
+    }
+  }
+  const groups = h("div", { class: "scroll" }, h("table", {},
+    h("tr", {}, h("th", {}, "Группа / ключ"), h("th", {}, "Ставка"), h("th", {}, "Совет Apple"), ...METRIC_HEADS.map((t) => h("th", {}, t)), h("th", {}, "Вкл.")),
+    rows
+  ))
+
+  const negInput = h("input", { type: "text", placeholder: "минус-слова через запятую (широкое соответствие)" })
+  const negatives = h("div", {},
+    h("h3", {}, `Минус-слова кампании (${(c.negatives ?? []).length})`),
+    h("div", { class: "chips" }, (c.negatives ?? []).map((n) => h("span", { class: "chip" }, n.match === "EXACT" ? `[${n.text}]` : n.text))),
+    h("div", { class: "row", style: "margin-top:8px" }, negInput, h("button", { class: "small", onclick: () => edit(() => {
+      c.negatives = c.negatives ?? []
+      for (const text of negInput.value.split(",").map((s) => s.trim()).filter(Boolean)) if (!c.negatives.some((x) => norm(x.text) === norm(text))) c.negatives.push({ text })
+    }) }, "Добавить"))
+  )
+
+  const terms = data.report.searchTerms.filter((r) => r.campaignName === c.name).sort((a, b) => metrics(b).taps - metrics(a).taps || metrics(b).impressions - metrics(a).impressions).slice(0, 30)
+  const target = c.adGroups.find((g) => g.promoteTo) ?? c.adGroups.find((g) => !g.searchMatch)
+  const searchTerms = h("div", {},
+    h("h3", {}, "Поисковые запросы"),
+    terms.length ? h("div", { class: "scroll" }, h("table", {},
+      h("tr", {}, h("th", {}, "Запрос ← ключ"), ...METRIC_HEADS.map((t) => h("th", {}, t)), h("th", {}, "")),
+      terms.map((r) => {
+        const text = r.metadata?.searchTermText
+        const known = text && c.adGroups.some((g) => (g.keywords ?? []).some((k) => norm(k.text) === norm(text)))
+        const negated = text && (c.negatives ?? []).some((n) => norm(n.text) === norm(text))
+        return h("tr", {},
+          h("td", {}, text ?? h("span", { class: "muted" }, "(малый объём, Apple не показывает)"), h("span", { class: "muted" }, ` ← ${r.metadata?.keyword?.text ?? "Search Match"}`)),
+          ...metricCells(r),
+          h("td", {}, text && !known && !negated ? [
+            h("button", { class: "small", title: `Добавить в «${target?.name}»`, onclick: () => edit(() => { target.keywords = target.keywords ?? []; target.keywords.push({ text }) }) }, "+ exact"), " ",
+            h("button", { class: "small", onclick: () => edit(() => { c.negatives = c.negatives ?? []; c.negatives.push({ text, match: "EXACT" }) }) }, "− минус")
+          ] : h("span", { class: "muted" }, known ? "уже ключ" : negated ? "минус" : ""))
+        )
+      })
+    )) : h("div", { class: "muted" }, "Пока нет данных.")
+  )
+
+  return h("section", { class: "card" }, head, totals, h("h3", {}, "Группы и ключи (нажмите на группу, чтобы раскрыть)"), groups, negatives, searchTerms)
+}
+
+// ---------------------------------------------------------------- review / apply
+async function review() {
+  const body = $("modalBody")
+  body.replaceChildren(h("p", {}, "Сверяю с Apple Ads…"))
+  $("modal").showModal()
+  try {
+    const p = await api("/api/preview", { plan: draft })
+    const launch = p.ops.some((o) => o.launch)
+    const confirm = h("input", { type: "checkbox" })
+    const applyBtn = h("button", { class: "primary", disabled: Boolean(p.problems.length) || !p.ops.length, onclick: async () => {
+      if (launch && !confirm.checked) return alert("Отметьте подтверждение запуска")
+      applyBtn.disabled = true
+      body.append(h("p", {}, "Применяю…"))
+      try {
+        const r = await api("/api/apply", { plan: draft, launch: confirm.checked })
+        body.replaceChildren(h("div", {}, h("h2", {}, r.error ? "Применено частично" : "Готово"), h("ul", {}, r.done.map((d) => h("li", {}, d))), r.error ? h("p", { class: "error" }, r.error) : null, h("button", { onclick: () => { $("modal").close(); load() } }, "Закрыть")))
+      } catch (e) {
+        body.append(h("p", { class: "error" }, e.message))
+      }
+    } }, "Применить")
+    // replaceChildren() would print null as text; h() skips it.
+    body.replaceChildren(h("div", {},
+      h("h2", {}, p.ops.length ? `Изменения в Apple Ads (${p.ops.length})` : "Изменений для Apple Ads нет"),
+      h("ul", {}, p.ops.map((o) => h("li", { class: o.launch ? "launch" : "" }, o.desc))),
+      p.notes.length ? h("div", { class: "note" }, p.notes.join("; ")) : null,
+      p.problems.length ? h("div", {}, h("p", { class: "error" }, "Заблокировано защитой:"), h("ul", {}, p.problems.map((x) => h("li", { class: "error" }, x)))) : null,
+      h("p", { class: "note" }, `Бюджеты в день × дни = $${p.total.toFixed(2)} при лимите $${draft.guards?.totalBudget ?? "–"}.`),
+      launch ? h("label", {}, confirm, " Подтверждаю запуск кампании (начнёт тратить деньги)") : null,
+      h("div", { class: "row", style: "margin-top:12px;justify-content:flex-end" }, h("button", { onclick: () => $("modal").close() }, "Назад"), applyBtn)
+    ))
+  } catch (e) {
+    body.replaceChildren(h("p", { class: "error" }, e.message), h("button", { onclick: () => $("modal").close() }, "Закрыть"))
+  }
+}
+
+$("review").onclick = review
+$("discard").onclick = () => { draft = JSON.parse(original); changed(); render() }
+$("refresh").onclick = load
+$("period").onchange = load
+$("stop").onclick = async () => {
+  if (!confirm("Поставить на паузу все кампании ContextFlow в Apple Ads?")) return
+  try { const r = await api("/api/stop", {}); alert(r.paused.length ? `На паузе: ${r.paused.join(", ")}` : "Ничего не было запущено"); load() } catch (e) { alert(e.message) }
+}
+window.addEventListener("beforeunload", (e) => { if (JSON.stringify(draft) !== original) e.preventDefault() })
+load()
+</script>
+</body>
+</html>
