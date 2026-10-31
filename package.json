@@ -11,7 +11,8 @@
     "watch": "node scripts/build-extension.mjs --watch",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p netlify/tsconfig.json",
     "test": "node --test --experimental-strip-types --no-warnings 'tests/**/*.test.mts'",
-    "check": "npm run typecheck && npm test && npm run build"
+    "check": "npm run typecheck && npm test && npm run build",
+    "ads": "node tools/ads/panel.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.2.0",
