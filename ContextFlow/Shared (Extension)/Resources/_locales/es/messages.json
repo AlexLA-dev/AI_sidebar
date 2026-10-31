@@ -234,17 +234,6 @@
  "limitFreeTitle": {
   "message": "Se acabaron tus respuestas gratis de hoy"
  },
- "limitFreeBody": {
-  "message": "Tendrás nuevas respuestas gratis en $P0$. Con Pro obtienes hasta $P1$ respuestas por semana.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
- },
  "limitProTitle": {
   "message": "Límite semanal alcanzado"
  },
@@ -680,5 +669,85 @@
  },
  "pickNone": {
   "message": "Quitar selección"
+ },
+ "limitFreeBack": {
+  "message": "$P0$ respuestas gratis nuevas a las $P1$, en $P2$.",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   },
+   "p2": {
+    "content": "$3"
+   }
+  }
+ },
+ "limitFreePro": {
+  "message": "Con Pro obtienes hasta $P0$ respuestas por semana.",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "limitNotes": {
+  "message": "Las notas siguen siendo gratis y sin límite: apunta ahora lo importante y pregúntale a la IA después."
+ },
+ "writeNote": {
+  "message": "Escribir una nota"
+ },
+ "errProvider": {
+  "message": "Tu proveedor de IA respondió: $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "offerLimit": {
+  "message": "O consigue Pro con un $P0$ % de descuento el primer mes: hasta $P1$ respuestas a la semana con un modelo más inteligente. Cancela cuando quieras.",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "offerButton": {
+  "message": "Pro con un $P0$ % de descuento",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "offerShort": {
+  "message": "Pro −$P0$ %",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "offerCardTitle": {
+  "message": "¿Te quedas sin respuestas?"
+ },
+ "offerCardBody": {
+  "message": "Ya has llegado al límite diario gratuito. Pro te da hasta $P1$ respuestas a la semana con un modelo más inteligente, y el primer mes tiene un $P0$ % de descuento. Después, el precio normal; cancela cuando quieras en los ajustes del App Store.",
+  "placeholders": {
+   "p1": {
+    "content": "$2"
+   },
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "offerLater": {
+  "message": "Ahora no"
  }
 }

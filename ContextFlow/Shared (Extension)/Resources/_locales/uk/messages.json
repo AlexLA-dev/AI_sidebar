@@ -234,17 +234,6 @@
  "limitFreeTitle": {
   "message": "Безкоштовні відповіді на сьогодні вичерпано"
  },
- "limitFreeBody": {
-  "message": "Нові безкоштовні відповіді — через $P0$. З Pro ви отримуєте до $P1$ відповідей на тиждень.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
- },
  "limitProTitle": {
   "message": "Тижневий ліміт вичерпано"
  },
@@ -680,5 +669,85 @@
  },
  "pickNone": {
   "message": "Зняти вибір"
+ },
+ "limitFreeBack": {
+  "message": "$P0$ безкоштовних відповідей знову будуть о $P1$, через $P2$.",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   },
+   "p2": {
+    "content": "$3"
+   }
+  }
+ },
+ "limitFreePro": {
+  "message": "У Pro — до $P0$ відповідей на тиждень.",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "limitNotes": {
+  "message": "Нотатки залишаються безкоштовними й без ліміту: запишіть важливе зараз, а ШІ запитайте потім."
+ },
+ "writeNote": {
+  "message": "Написати нотатку"
+ },
+ "errProvider": {
+  "message": "Відповідь вашого ШІ-провайдера: $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "offerLimit": {
+  "message": "Або візьміть Pro зі знижкою $P0$% на перший місяць: до $P1$ відповідей на тиждень на розумнішій моделі. Скасувати можна будь-коли.",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "offerButton": {
+  "message": "Pro зі знижкою $P0$%",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "offerShort": {
+  "message": "Pro −$P0$%",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "offerCardTitle": {
+  "message": "Не вистачає відповідей?"
+ },
+ "offerCardBody": {
+  "message": "Ви вже впиралися в денний ліміт безкоштовних відповідей. У Pro — до $P1$ відповідей на тиждень на розумнішій моделі, а перший місяць — зі знижкою $P0$%. Далі звичайна ціна; скасувати можна будь-коли в налаштуваннях App Store.",
+  "placeholders": {
+   "p1": {
+    "content": "$2"
+   },
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "offerLater": {
+  "message": "Не зараз"
  }
 }

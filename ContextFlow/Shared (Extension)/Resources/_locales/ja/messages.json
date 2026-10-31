@@ -234,17 +234,6 @@
  "limitFreeTitle": {
   "message": "本日の無料回答の上限に達しました"
  },
- "limitFreeBody": {
-  "message": "$P0$後に新しい無料回答が利用できます。Proなら週に最大$P1$回まで回答を受け取れます。",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
- },
  "limitProTitle": {
   "message": "週の上限に達しました"
  },
@@ -680,5 +669,85 @@
  },
  "pickNone": {
   "message": "選択を解除"
+ },
+ "limitFreeBack": {
+  "message": "$P1$（$P2$後）に無料回答が$P0$回分戻ります。",
+  "placeholders": {
+   "p1": {
+    "content": "$2"
+   },
+   "p2": {
+    "content": "$3"
+   },
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "limitFreePro": {
+  "message": "Proなら週に最大$P0$回まで回答を受け取れます。",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "limitNotes": {
+  "message": "メモは無料・無制限です。大事なことを今メモして、あとでAIに聞きましょう。"
+ },
+ "writeNote": {
+  "message": "メモを書く"
+ },
+ "errProvider": {
+  "message": "AI プロバイダーからの応答：$P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "offerLimit": {
+  "message": "または、最初の 1 か月が $P0$% オフの Pro をどうぞ。より賢いモデルで週 $P1$ 件まで回答できます。いつでも解約できます。",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "offerButton": {
+  "message": "Pro を $P0$% オフで",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "offerShort": {
+  "message": "Pro −$P0$%",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "offerCardTitle": {
+  "message": "回答が足りませんか？"
+ },
+ "offerCardBody": {
+  "message": "以前、1 日の無料回答の上限に達しました。Pro ならより賢いモデルで週 $P1$ 件まで回答でき、最初の 1 か月は $P0$% オフです。その後は通常価格で、App Store の設定からいつでも解約できます。",
+  "placeholders": {
+   "p1": {
+    "content": "$2"
+   },
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "offerLater": {
+  "message": "今はしない"
  }
 }

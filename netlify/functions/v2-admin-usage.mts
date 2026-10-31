@@ -2,7 +2,7 @@ import type { Config } from "@netlify/functions"
 import { createHash, timingSafeEqual } from "node:crypto"
 
 import { config as settings } from "../shared/config.mts"
-import { usageReport } from "../shared/db.mts"
+import { setupFunnel, usageReport } from "../shared/db.mts"
 
 /**
  * GET /api/v2/admin/usage?days=30 — usage analytics for the /analytics page.
@@ -30,7 +30,12 @@ export default async (req: Request): Promise<Response> => {
 
   const days = Math.max(1, Math.min(180, Number.parseInt(new URL(req.url).searchParams.get("days") ?? "30", 10) || 30))
   try {
-    return new Response(JSON.stringify(await usageReport(days)), { headers: noStore })
+    const [report, funnel] = await Promise.all([
+      usageReport(days),
+      // Older databases have no funnel yet; the rest of the report still works.
+      setupFunnel(days).catch(() => [])
+    ])
+    return new Response(JSON.stringify({ ...report, setup_funnel: funnel }), { headers: noStore })
   } catch (err) {
     console.error("[cf] usage report failed:", err instanceof Error ? err.message : err)
     return new Response(JSON.stringify({ code: "UNAVAILABLE" }), { status: 503, headers: noStore })

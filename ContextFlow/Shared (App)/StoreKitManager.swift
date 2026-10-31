@@ -26,6 +26,8 @@ final class StoreKitManager: ObservableObject {
     private var updates: Task<Void, Never>?
 
     private init() {
+        // Before anything here writes the App Group: the app's first launch is told from an update by it.
+        _ = Activation.shared
         updates = Task.detached { [weak self] in
             for await result in StoreKit.Transaction.updates {
                 if case .verified(let transaction) = result {
@@ -72,7 +74,10 @@ final class StoreKitManager: ObservableObject {
     }
 
     func purchase(_ product: Product) async throws -> PurchaseOutcome {
-        let result = try await product.purchase()
+        // The install id travels with the transaction (appAccountToken), so the server can tell which
+        // install subscribed — still without accounts.
+        let options: Set<Product.PurchaseOption> = Activation.shared.accountToken.map { [.appAccountToken($0)] } ?? []
+        let result = try await product.purchase(options: options)
         switch result {
         case .success(let verification):
             guard case .verified(let transaction) = verification else {

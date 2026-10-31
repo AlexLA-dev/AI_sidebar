@@ -234,17 +234,6 @@
  "limitFreeTitle": {
   "message": "You've used today's free answers"
  },
- "limitFreeBody": {
-  "message": "New free answers in $P0$. Pro gives you up to $P1$ answers a week.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
- },
  "limitProTitle": {
   "message": "Weekly limit reached"
  },
@@ -680,5 +669,85 @@
  },
  "pickNone": {
   "message": "Deselect all"
+ },
+ "limitFreeBack": {
+  "message": "$P0$ new free answers at $P1$, in $P2$.",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   },
+   "p2": {
+    "content": "$3"
+   }
+  }
+ },
+ "limitFreePro": {
+  "message": "Pro gives you up to $P0$ answers a week.",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "limitNotes": {
+  "message": "Notes stay free and unlimited: write down what matters now, ask AI about it later."
+ },
+ "writeNote": {
+  "message": "Write a note"
+ },
+ "errProvider": {
+  "message": "Your AI provider replied: $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "offerLimit": {
+  "message": "Or get Pro with $P0$% off your first month: up to $P1$ answers a week on a smarter model. Cancel any time.",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "offerButton": {
+  "message": "Get Pro $P0$% off",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "offerShort": {
+  "message": "Pro −$P0$%",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "offerCardTitle": {
+  "message": "Running out of answers?"
+ },
+ "offerCardBody": {
+  "message": "You've hit the free daily limit before. Pro gives you up to $P1$ answers a week on a smarter model, and your first month is $P0$% off. Then the regular price; cancel any time in your App Store settings.",
+  "placeholders": {
+   "p1": {
+    "content": "$2"
+   },
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "offerLater": {
+  "message": "Not now"
  }
 }

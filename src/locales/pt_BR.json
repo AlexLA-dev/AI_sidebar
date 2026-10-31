@@ -76,7 +76,6 @@
   "errSearchUnavailable": "As respostas do Google não estão disponíveis agora. As respostas normais continuam funcionando.",
 
   "limitFreeTitle": "Você usou as respostas grátis de hoje",
-  "limitFreeBody": "Novas respostas grátis em {0}. Com o Pro, você tem até {1} respostas por semana.",
   "limitProTitle": "Limite semanal atingido",
   "limitProBody": "Suas respostas Pro serão renovadas em {0}.",
   "getPro": "Assinar o Pro",
@@ -194,5 +193,16 @@
   "pickCount": "{0} de {1}",
   "pickHint": "Toque nas mensagens",
   "pickAll": "Selecionar tudo",
-  "pickNone": "Limpar seleção"
+  "pickNone": "Limpar seleção",
+  "limitFreeBack": "{0} novas respostas grátis às {1}, em {2}.",
+  "limitFreePro": "Com o Pro, você tem até {0} respostas por semana.",
+  "limitNotes": "As notas continuam grátis e sem limite: anote agora o que importa e pergunte à IA depois.",
+  "writeNote": "Escrever uma nota",
+  "errProvider": "Seu provedor de IA respondeu: {0}",
+  "offerLimit": "Ou assine o Pro com {0}% de desconto no primeiro mês: até {1} respostas por semana com um modelo mais inteligente. Cancele quando quiser.",
+  "offerButton": "Pro com {0}% de desconto",
+  "offerShort": "Pro −{0}%",
+  "offerCardTitle": "Faltando respostas?",
+  "offerCardBody": "Você já atingiu o limite diário grátis. O Pro dá até {1} respostas por semana com um modelo mais inteligente, e o primeiro mês tem {0}% de desconto. Depois, o preço normal; cancele quando quiser nos ajustes da App Store.",
+  "offerLater": "Agora não"
 }

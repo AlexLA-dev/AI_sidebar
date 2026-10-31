@@ -234,17 +234,6 @@
  "limitFreeTitle": {
   "message": "Бесплатные ответы на сегодня закончились"
  },
- "limitFreeBody": {
-  "message": "Новые бесплатные ответы через $P0$. С Pro — до $P1$ ответов в неделю.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
- },
  "limitProTitle": {
   "message": "Недельный лимит исчерпан"
  },
@@ -680,5 +669,85 @@
  },
  "pickNone": {
   "message": "Снять выбор"
+ },
+ "limitFreeBack": {
+  "message": "$P0$ бесплатных ответов снова будут в $P1$, через $P2$.",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   },
+   "p2": {
+    "content": "$3"
+   }
+  }
+ },
+ "limitFreePro": {
+  "message": "В Pro — до $P0$ ответов в неделю.",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "limitNotes": {
+  "message": "Заметки остаются бесплатными и без лимита: запишите важное сейчас, а ИИ спросите потом."
+ },
+ "writeNote": {
+  "message": "Написать заметку"
+ },
+ "errProvider": {
+  "message": "Ответ вашего ИИ-провайдера: $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "offerLimit": {
+  "message": "Или возьмите Pro со скидкой $P0$% на первый месяц: до $P1$ ответов в неделю на более умной модели. Отменить можно в любой момент.",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "offerButton": {
+  "message": "Pro со скидкой $P0$%",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "offerShort": {
+  "message": "Pro −$P0$%",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "offerCardTitle": {
+  "message": "Не хватает ответов?"
+ },
+ "offerCardBody": {
+  "message": "Вы уже упирались в дневной лимит бесплатных ответов. В Pro — до $P1$ ответов в неделю на более умной модели, а первый месяц — со скидкой $P0$%. Дальше обычная цена; отменить можно в любой момент в настройках App Store.",
+  "placeholders": {
+   "p1": {
+    "content": "$2"
+   },
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "offerLater": {
+  "message": "Не сейчас"
  }
 }

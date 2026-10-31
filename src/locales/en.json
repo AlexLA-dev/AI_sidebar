@@ -76,7 +76,6 @@
   "errSearchUnavailable": "Google answers aren't available right now. Regular answers still work.",
 
   "limitFreeTitle": "You've used today's free answers",
-  "limitFreeBody": "New free answers in {0}. Pro gives you up to {1} answers a week.",
   "limitProTitle": "Weekly limit reached",
   "limitProBody": "Your Pro answers refresh in {0}.",
   "getPro": "Get Pro",
@@ -194,5 +193,16 @@
   "pickCount": "{0} of {1}",
   "pickHint": "Tap messages to share",
   "pickAll": "Select all",
-  "pickNone": "Deselect all"
+  "pickNone": "Deselect all",
+  "limitFreeBack": "{0} new free answers at {1}, in {2}.",
+  "limitFreePro": "Pro gives you up to {0} answers a week.",
+  "limitNotes": "Notes stay free and unlimited: write down what matters now, ask AI about it later.",
+  "writeNote": "Write a note",
+  "errProvider": "Your AI provider replied: {0}",
+  "offerLimit": "Or get Pro with {0}% off your first month: up to {1} answers a week on a smarter model. Cancel any time.",
+  "offerButton": "Get Pro {0}% off",
+  "offerShort": "Pro −{0}%",
+  "offerCardTitle": "Running out of answers?",
+  "offerCardBody": "You've hit the free daily limit before. Pro gives you up to {1} answers a week on a smarter model, and your first month is {0}% off. Then the regular price; cancel any time in your App Store settings.",
+  "offerLater": "Not now"
 }

@@ -2,7 +2,7 @@ import { API_BASE } from "../shared/config"
 import { isReasoningGpt, keyProvider, newestGptModel, type ModelTier } from "../shared/models"
 import { otherPagesOf, systemPrompt } from "../shared/prompt"
 import { sseData } from "../shared/sse"
-import { STORAGE, type AskPayload, type ErrorCode, type Grounding, type OwnKeyUsage, type Plan, type StreamEvent, type Usage } from "../shared/types"
+import { STORAGE, type AskPayload, type ErrorCode, type Grounding, type OwnKeyUsage, type Plan, type ProOffer, type StreamEvent, type Usage } from "../shared/types"
 import { askClaude } from "./claude"
 
 type Emit = (event: StreamEvent) => void
@@ -49,8 +49,8 @@ export async function askServer(req: ServerRequest, emit: Emit, signal: AbortSig
   clearTimeout(timer)
 
   if (!res.ok || !res.body) {
-    const body = (await res.json().catch(() => ({}))) as { code?: ErrorCode; usage?: Usage; plan?: Plan; message?: string }
-    emit({ type: "error", code: body.code ?? (res.status >= 500 ? "UPSTREAM" : "BAD_REQUEST"), usage: body.usage ?? null, plan: body.plan, message: body.message })
+    const body = (await res.json().catch(() => ({}))) as { code?: ErrorCode; usage?: Usage; plan?: Plan; message?: string; offer?: ProOffer | null }
+    emit({ type: "error", code: body.code ?? (res.status >= 500 ? "UPSTREAM" : "BAD_REQUEST"), usage: body.usage ?? null, plan: body.plan, message: body.message, offer: body.offer ?? null })
     return
   }
 

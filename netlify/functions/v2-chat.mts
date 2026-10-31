@@ -6,7 +6,7 @@ import { clip, ipSubject, isUuid, json, preflight, readJson, corsHeaders } from 
 import { buildGrounding, googlePrompt, readGoogle, startGoogle, type GoogleStats } from "../shared/google.mts"
 import { readDeltas, sanitizeMessages, sanitizeOtherPages, sanitizePage, startCompletion, systemPrompt } from "../shared/llm.mts"
 import { geminiModels, modelsFor } from "../shared/models.mts"
-import { blockReason, countersFor, resolveAccess, searchCountersFor, visibleUsage } from "../shared/plan.mts"
+import { blockReason, countersFor, proOffer, resolveAccess, searchCountersFor, visibleUsage } from "../shared/plan.mts"
 
 /**
  * POST /api/v2/chat — streaming answer about the current page.
@@ -55,7 +55,9 @@ export default async (req: Request, context: Context): Promise<Response> => {
     const reason = blockReason(quota.blocked)
     context.waitUntil(logEvent("limit", installId, { plan: access.plan, reason, platform, version, mode: google ? "google" : "chat" }))
     const code = reason === "busy" ? "BUSY" : reason === "search" ? "SEARCH_LIMIT" : "LIMIT_REACHED"
-    return json({ code, plan: access.plan, usage }, reason === "busy" ? 503 : 402)
+    // Out of free answers: the App Store offer code for Pro.
+    const offer = code === "LIMIT_REACHED" ? proOffer(access) : null
+    return json({ code, plan: access.plan, usage, offer }, reason === "busy" ? 503 : 402)
   }
 
   const profile = clip(body.profile, 1_000)

@@ -1,5 +1,6 @@
 import SafariServices
 import StoreKit
+import UserNotifications
 #if os(macOS)
 import AppKit
 #endif
@@ -16,12 +17,21 @@ import AppKit
 /// - `syncThreads` → sends the extension's chat changes to the user's iCloud and returns the other
 ///   devices' changes (see ChatSync); `available: false` without an iCloud account or connection.
 /// - `ping` → health check.
+///
+/// Every message also tells the app that the extension is switched on (and, for `getEntitlement`, which
+/// the panel sends when it opens, that it is in use), so the app can drop its setup guide and reminders.
 final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
 
     func beginRequest(with context: NSExtensionContext) {
         let item = context.inputItems.first as? NSExtensionItem
         let message = item?.userInfo?[SFExtensionMessageKey] as? [String: Any] ?? [:]
         let command = message["command"] as? String ?? ""
+        if SharedDefaults.shared.recordExtensionSeen(used: command == "getEntitlement", installId: message["installId"] as? String) {
+            // Switched on: the reminders to finish setup the app scheduled are no longer needed.
+            let center = UNUserNotificationCenter.current()
+            center.removePendingNotificationRequests(withIdentifiers: SharedDefaults.setupReminderIds)
+            center.removeDeliveredNotifications(withIdentifiers: SharedDefaults.setupReminderIds)
+        }
 
         switch command {
         case "getEntitlement":

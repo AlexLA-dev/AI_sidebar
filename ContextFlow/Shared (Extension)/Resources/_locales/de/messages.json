@@ -234,17 +234,6 @@
  "limitFreeTitle": {
   "message": "Deine Gratis-Antworten für heute sind aufgebraucht"
  },
- "limitFreeBody": {
-  "message": "Neue Gratis-Antworten in $P0$. Mit Pro bekommst du bis zu $P1$ Antworten pro Woche.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
- },
  "limitProTitle": {
   "message": "Wochenlimit erreicht"
  },
@@ -680,5 +669,85 @@
  },
  "pickNone": {
   "message": "Auswahl aufheben"
+ },
+ "limitFreeBack": {
+  "message": "$P0$ neue Gratis-Antworten um $P1$, in $P2$.",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   },
+   "p2": {
+    "content": "$3"
+   }
+  }
+ },
+ "limitFreePro": {
+  "message": "Mit Pro bekommst du bis zu $P0$ Antworten pro Woche.",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "limitNotes": {
+  "message": "Notizen bleiben gratis und unbegrenzt: Schreib jetzt auf, was zählt, und frag die KI später danach."
+ },
+ "writeNote": {
+  "message": "Notiz schreiben"
+ },
+ "errProvider": {
+  "message": "Dein KI-Anbieter meldet: $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "offerLimit": {
+  "message": "Oder hol dir Pro mit $P0$ % Rabatt im ersten Monat: bis zu $P1$ Antworten pro Woche mit einem klügeren Modell. Jederzeit kündbar.",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "offerButton": {
+  "message": "Pro mit $P0$ % Rabatt",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "offerShort": {
+  "message": "Pro −$P0$ %",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "offerCardTitle": {
+  "message": "Gehen dir die Antworten aus?"
+ },
+ "offerCardBody": {
+  "message": "Du hast das tägliche Gratis-Limit schon einmal erreicht. Mit Pro bekommst du bis zu $P1$ Antworten pro Woche mit einem klügeren Modell, und der erste Monat kostet $P0$ % weniger. Danach gilt der normale Preis; jederzeit in den App-Store-Einstellungen kündbar.",
+  "placeholders": {
+   "p1": {
+    "content": "$2"
+   },
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "offerLater": {
+  "message": "Nicht jetzt"
  }
 }

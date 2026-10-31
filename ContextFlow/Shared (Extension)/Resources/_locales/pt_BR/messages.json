@@ -234,17 +234,6 @@
  "limitFreeTitle": {
   "message": "Você usou as respostas grátis de hoje"
  },
- "limitFreeBody": {
-  "message": "Novas respostas grátis em $P0$. Com o Pro, você tem até $P1$ respostas por semana.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
- },
  "limitProTitle": {
   "message": "Limite semanal atingido"
  },
@@ -680,5 +669,85 @@
  },
  "pickNone": {
   "message": "Limpar seleção"
+ },
+ "limitFreeBack": {
+  "message": "$P0$ novas respostas grátis às $P1$, em $P2$.",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   },
+   "p2": {
+    "content": "$3"
+   }
+  }
+ },
+ "limitFreePro": {
+  "message": "Com o Pro, você tem até $P0$ respostas por semana.",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "limitNotes": {
+  "message": "As notas continuam grátis e sem limite: anote agora o que importa e pergunte à IA depois."
+ },
+ "writeNote": {
+  "message": "Escrever uma nota"
+ },
+ "errProvider": {
+  "message": "Seu provedor de IA respondeu: $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "offerLimit": {
+  "message": "Ou assine o Pro com $P0$% de desconto no primeiro mês: até $P1$ respostas por semana com um modelo mais inteligente. Cancele quando quiser.",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "offerButton": {
+  "message": "Pro com $P0$% de desconto",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "offerShort": {
+  "message": "Pro −$P0$%",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "offerCardTitle": {
+  "message": "Faltando respostas?"
+ },
+ "offerCardBody": {
+  "message": "Você já atingiu o limite diário grátis. O Pro dá até $P1$ respostas por semana com um modelo mais inteligente, e o primeiro mês tem $P0$% de desconto. Depois, o preço normal; cancele quando quiser nos ajustes da App Store.",
+  "placeholders": {
+   "p1": {
+    "content": "$2"
+   },
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "offerLater": {
+  "message": "Agora não"
  }
 }

@@ -76,7 +76,6 @@
   "errSearchUnavailable": "Google-Antworten sind gerade nicht verfügbar. Normale Antworten funktionieren weiter.",
 
   "limitFreeTitle": "Deine Gratis-Antworten für heute sind aufgebraucht",
-  "limitFreeBody": "Neue Gratis-Antworten in {0}. Mit Pro bekommst du bis zu {1} Antworten pro Woche.",
   "limitProTitle": "Wochenlimit erreicht",
   "limitProBody": "Deine Pro-Antworten werden in {0} wieder aufgefüllt.",
   "getPro": "Pro holen",
@@ -194,5 +193,16 @@
   "pickCount": "{0} von {1}",
   "pickHint": "Nachrichten antippen",
   "pickAll": "Alle auswählen",
-  "pickNone": "Auswahl aufheben"
+  "pickNone": "Auswahl aufheben",
+  "limitFreeBack": "{0} neue Gratis-Antworten um {1}, in {2}.",
+  "limitFreePro": "Mit Pro bekommst du bis zu {0} Antworten pro Woche.",
+  "limitNotes": "Notizen bleiben gratis und unbegrenzt: Schreib jetzt auf, was zählt, und frag die KI später danach.",
+  "writeNote": "Notiz schreiben",
+  "errProvider": "Dein KI-Anbieter meldet: {0}",
+  "offerLimit": "Oder hol dir Pro mit {0} % Rabatt im ersten Monat: bis zu {1} Antworten pro Woche mit einem klügeren Modell. Jederzeit kündbar.",
+  "offerButton": "Pro mit {0} % Rabatt",
+  "offerShort": "Pro −{0} %",
+  "offerCardTitle": "Gehen dir die Antworten aus?",
+  "offerCardBody": "Du hast das tägliche Gratis-Limit schon einmal erreicht. Mit Pro bekommst du bis zu {1} Antworten pro Woche mit einem klügeren Modell, und der erste Monat kostet {0} % weniger. Danach gilt der normale Preis; jederzeit in den App-Store-Einstellungen kündbar.",
+  "offerLater": "Nicht jetzt"
 }
