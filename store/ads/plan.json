@@ -1,0 +1,514 @@
+{
+  "app": {
+    "adamId": "6759115793",
+    "name": "ContextFlow: AI for Safari"
+  },
+  "currency": "USD",
+  "guards": {
+    "totalBudget": 50,
+    "maxBid": 1.5,
+    "since": "2026-10-31",
+    "rules": {
+      "targetCpi": 1.5
+    }
+  },
+  "campaigns": [
+    {
+      "name": "CF · iPad · EN · Search",
+      "status": "ENABLED",
+      "countries": [
+        "US",
+        "GB",
+        "CA",
+        "AU"
+      ],
+      "dailyBudget": 3,
+      "start": "2026-10-31",
+      "end": "2026-11-09",
+      "negatives": [
+        {
+          "text": "free"
+        },
+        {
+          "text": "pdf"
+        },
+        {
+          "text": "youtube"
+        },
+        {
+          "text": "video"
+        },
+        {
+          "text": "audio"
+        },
+        {
+          "text": "voice"
+        },
+        {
+          "text": "recorder"
+        },
+        {
+          "text": "transcribe"
+        },
+        {
+          "text": "meeting"
+        },
+        {
+          "text": "book"
+        },
+        {
+          "text": "homework"
+        },
+        {
+          "text": "math"
+        },
+        {
+          "text": "essay"
+        },
+        {
+          "text": "resume"
+        },
+        {
+          "text": "photo"
+        },
+        {
+          "text": "image"
+        },
+        {
+          "text": "keyboard"
+        },
+        {
+          "text": "vpn"
+        },
+        {
+          "text": "adblock"
+        },
+        {
+          "text": "ad blocker"
+        },
+        {
+          "text": "chatgpt"
+        },
+        {
+          "text": "gemini"
+        },
+        {
+          "text": "claude"
+        },
+        {
+          "text": "perplexity"
+        },
+        {
+          "text": "grammarly"
+        },
+        {
+          "text": "note taker"
+        }
+      ],
+      "adGroups": [
+        {
+          "name": "Safari AI · exact",
+          "bid": 1.0,
+          "devices": [
+            "IPAD"
+          ],
+          "newUsersOnly": true,
+          "promoteTo": true,
+          "productPage": "default",
+          "keywords": [
+            {
+              "text": "safari ai",
+              "bid": 1.1
+            },
+            {
+              "text": "ai for safari",
+              "bid": 1.1
+            },
+            {
+              "text": "ai safari extension",
+              "bid": 1.1
+            },
+            {
+              "text": "safari ai extension",
+              "bid": 1.1
+            },
+            {
+              "text": "safari ai assistant",
+              "bid": 1.1
+            },
+            {
+              "text": "ai assistant for safari",
+              "bid": 1.1
+            },
+            {
+              "text": "safari extension ai",
+              "bid": 1.0
+            },
+            {
+              "text": "safari summarizer",
+              "bid": 1.0
+            },
+            {
+              "text": "ai sidebar for safari",
+              "bid": 1.0
+            },
+            {
+              "text": "ai sidebar",
+              "bid": 0.9
+            },
+            {
+              "text": "ai browser extension",
+              "bid": 0.8
+            },
+            {
+              "text": "chat with webpage",
+              "bid": 0.8
+            },
+            {
+              "text": "ask ai about webpage",
+              "bid": 0.8
+            },
+            {
+              "text": "contextflow",
+              "bid": 0.5
+            }
+          ]
+        },
+        {
+          "name": "Summarize · exact",
+          "bid": 0.8,
+          "devices": [
+            "IPAD"
+          ],
+          "newUsersOnly": true,
+          "productPage": "default",
+          "keywords": [
+            {
+              "text": "ai summarizer",
+              "bid": 0.9
+            },
+            {
+              "text": "summarizer",
+              "bid": 0.8
+            },
+            {
+              "text": "summarize",
+              "bid": 0.8
+            },
+            {
+              "text": "summarize web page",
+              "bid": 0.9
+            },
+            {
+              "text": "summarize webpage",
+              "bid": 0.9
+            },
+            {
+              "text": "webpage summarizer",
+              "bid": 0.9
+            },
+            {
+              "text": "website summarizer",
+              "bid": 0.9
+            },
+            {
+              "text": "web summarizer",
+              "bid": 0.9
+            },
+            {
+              "text": "web summary",
+              "bid": 0.8
+            },
+            {
+              "text": "page summary",
+              "bid": 0.8
+            },
+            {
+              "text": "article summarizer",
+              "bid": 0.9
+            },
+            {
+              "text": "summarize article",
+              "bid": 0.9
+            },
+            {
+              "text": "summarize articles",
+              "bid": 0.9
+            },
+            {
+              "text": "ai summary",
+              "bid": 0.8
+            },
+            {
+              "text": "tldr",
+              "bid": 0.6
+            },
+            {
+              "text": "ai reader",
+              "bid": 0.6
+            },
+            {
+              "text": "translate web page",
+              "bid": 0.6
+            }
+          ]
+        },
+        {
+          "name": "Competitors · exact",
+          "bid": 0.6,
+          "devices": [
+            "IPAD"
+          ],
+          "newUsersOnly": true,
+          "productPage": "default",
+          "keywords": [
+            {
+              "text": "sider"
+            },
+            {
+              "text": "sider ai"
+            },
+            {
+              "text": "monica ai"
+            },
+            {
+              "text": "merlin ai"
+            },
+            {
+              "text": "glasp"
+            },
+            {
+              "text": "zeki ai"
+            },
+            {
+              "text": "briefy"
+            },
+            {
+              "text": "elmo ai"
+            }
+          ]
+        },
+        {
+          "name": "Discovery · Search Match",
+          "bid": 0.5,
+          "devices": [
+            "IPAD"
+          ],
+          "newUsersOnly": true,
+          "searchMatch": true,
+          "negateCampaignExact": true,
+          "productPage": "default",
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "name": "CF · iPad · DE+FR · Search",
+      "status": "ENABLED",
+      "countries": [
+        "DE",
+        "FR"
+      ],
+      "dailyBudget": 2,
+      "start": "2026-10-31",
+      "end": "2026-11-09",
+      "negatives": [
+        {
+          "text": "free"
+        },
+        {
+          "text": "kostenlos"
+        },
+        {
+          "text": "gratuit"
+        },
+        {
+          "text": "gratis"
+        },
+        {
+          "text": "pdf"
+        },
+        {
+          "text": "youtube"
+        },
+        {
+          "text": "video"
+        },
+        {
+          "text": "vidéo"
+        },
+        {
+          "text": "audio"
+        },
+        {
+          "text": "vpn"
+        },
+        {
+          "text": "adblock"
+        },
+        {
+          "text": "chatgpt"
+        },
+        {
+          "text": "gemini"
+        },
+        {
+          "text": "claude"
+        },
+        {
+          "text": "perplexity"
+        }
+      ],
+      "adGroups": [
+        {
+          "name": "Deutsch · exact",
+          "bid": 0.7,
+          "devices": [
+            "IPAD"
+          ],
+          "newUsersOnly": true,
+          "promoteTo": true,
+          "productPage": "default",
+          "keywords": [
+            {
+              "text": "ki zusammenfassung"
+            },
+            {
+              "text": "zusammenfassung"
+            },
+            {
+              "text": "zusammenfassen"
+            },
+            {
+              "text": "text zusammenfassen"
+            },
+            {
+              "text": "artikel zusammenfassen"
+            },
+            {
+              "text": "webseite zusammenfassen"
+            },
+            {
+              "text": "safari erweiterung"
+            },
+            {
+              "text": "safari ki"
+            },
+            {
+              "text": "ki für safari"
+            },
+            {
+              "text": "ki assistent"
+            },
+            {
+              "text": "ki browser"
+            },
+            {
+              "text": "webseite übersetzen"
+            }
+          ]
+        },
+        {
+          "name": "Français · exact",
+          "bid": 0.7,
+          "devices": [
+            "IPAD"
+          ],
+          "newUsersOnly": true,
+          "productPage": "default",
+          "keywords": [
+            {
+              "text": "résumé ia"
+            },
+            {
+              "text": "résumer"
+            },
+            {
+              "text": "résumer texte"
+            },
+            {
+              "text": "résumer article"
+            },
+            {
+              "text": "résumer page web"
+            },
+            {
+              "text": "extension safari"
+            },
+            {
+              "text": "ia safari"
+            },
+            {
+              "text": "safari ia"
+            },
+            {
+              "text": "assistant ia"
+            },
+            {
+              "text": "traduire page web"
+            }
+          ]
+        },
+        {
+          "name": "English · exact",
+          "bid": 0.7,
+          "devices": [
+            "IPAD"
+          ],
+          "newUsersOnly": true,
+          "productPage": "default",
+          "keywords": [
+            {
+              "text": "safari ai"
+            },
+            {
+              "text": "ai for safari"
+            },
+            {
+              "text": "ai safari extension"
+            },
+            {
+              "text": "ai summarizer"
+            },
+            {
+              "text": "summarize"
+            },
+            {
+              "text": "summarizer"
+            },
+            {
+              "text": "article summarizer"
+            },
+            {
+              "text": "web summarizer"
+            },
+            {
+              "text": "ai sidebar"
+            },
+            {
+              "text": "sider"
+            },
+            {
+              "text": "monica ai"
+            },
+            {
+              "text": "glasp"
+            }
+          ]
+        },
+        {
+          "name": "Discovery · Search Match",
+          "bid": 0.4,
+          "devices": [
+            "IPAD"
+          ],
+          "newUsersOnly": true,
+          "searchMatch": true,
+          "negateCampaignExact": true,
+          "productPage": "default",
+          "keywords": []
+        }
+      ]
+    }
+  ]
+}

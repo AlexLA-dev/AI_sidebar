@@ -1,5 +1,6 @@
 import type { Config, Context } from "@netlify/functions"
 
+import { attributionFields, resolveAdToken } from "../shared/adservices.mts"
 import { config as settings } from "../shared/config.mts"
 import { consume, logEvent } from "../shared/db.mts"
 import { clip, ipSubject, isUuid, json, preflight, readJson } from "../shared/http.mts"
@@ -13,8 +14,11 @@ const NOTIFICATIONS = new Set(["granted", "denied", "not_asked"])
 /**
  * POST /api/v2/event — anonymous funnel step between the App Store download and the first answer.
  * Body: { kind, installId?: <extension install id>, appId?: <random id of the app>,
- *         client: {version, platform, locale}, extension?: "off"|"on"|"in_use", notifications? }
+ *         client: {version, platform, locale}, extension?: "off"|"on"|"in_use", notifications?,
+ *         adToken?: <AdServices attribution token, app_open only> }
  * Nothing else is accepted: no page content, no Apple ID, no device identifiers.
+ * With adToken the answer carries ads: "attributed" | "organic" | "pending" (the app sends the
+ * token again on a later launch while it's pending).
  */
 export default async (req: Request, context: Context): Promise<Response> => {
   if (req.method === "OPTIONS") return preflight()
@@ -45,7 +49,17 @@ export default async (req: Request, context: Context): Promise<Response> => {
       ...(NOTIFICATIONS.has(notifications) ? { notifications } : {})
     })
   )
-  return json({ ok: true })
+
+  // Apple Ads attribution: which campaign / ad group / keyword brought this download, so
+  // subscriptions can be joined to keywords (rpc cf_ads_funnel).
+  const adToken = kind === "app_open" && typeof body.adToken === "string" && body.adToken.length <= 4096 ? body.adToken : null
+  if (!adToken) return json({ ok: true })
+  const attribution = await resolveAdToken(adToken)
+  if (attribution === "pending" || attribution === null) return json({ ok: true, ads: attribution ?? "pending" })
+  if (attribution.attribution) {
+    context.waitUntil(logEvent("ads_attribution", installId, { ...(appId ? { app: appId } : {}), ...attributionFields(attribution) }))
+  }
+  return json({ ok: true, ads: attribution.attribution ? "attributed" : "organic" })
 }
 
 export const config: Config = { path: "/api/v2/event" }

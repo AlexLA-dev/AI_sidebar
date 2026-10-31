@@ -3,6 +3,7 @@ import Foundation
 import SwiftUI
 import UserNotifications
 #if os(iOS)
+import AdServices
 import UIKit
 #else
 import AppKit
@@ -37,6 +38,8 @@ final class Activation: ObservableObject {
 
     private static let remindersOfferedKey = "cf_setup_reminders_offered"
     private static let openReportedKey = "cf_app_open_reported_day"
+    /// Apple Ads attribution: tries left to send the AdServices token (0 once the server has an answer).
+    private static let adsTriesKey = "cf_ads_attribution_tries"
 
     private init() {
         let launch = SharedDefaults.shared.appLaunch()
@@ -104,15 +107,38 @@ final class Activation: ObservableObject {
         ]
         body["notifications"] = await SetupReminders.permission()
         if let installId = SharedDefaults.shared.readExtensionStatus().installId { body["installId"] = installId }
+        let adToken = Self.adAttributionToken()
+        if let adToken { body["adToken"] = adToken }
         var request = URLRequest(url: URL(string: "https://aisidebar.netlify.app/api/v2/event")!)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try? JSONSerialization.data(withJSONObject: body)
         request.timeoutInterval = 15
-        if let (_, response) = try? await URLSession.shared.data(for: request),
+        if let (data, response) = try? await URLSession.shared.data(for: request),
            (response as? HTTPURLResponse)?.statusCode == 200 {
             UserDefaults.standard.set(day, forKey: Self.openReportedKey)
+            if adToken != nil {
+                let answer = (try? JSONSerialization.jsonObject(with: data) as? [String: Any])?["ads"] as? String
+                let defaults = UserDefaults.standard
+                // Apple may need a while to have the record ("pending"): try again on a later launch.
+                defaults.set(answer == nil || answer == "pending" ? defaults.integer(forKey: Self.adsTriesKey) - 1 : 0, forKey: Self.adsTriesKey)
+            }
         }
+    }
+
+    /// The AdServices token, sent with "app opened" until the server knows whether Apple Ads brought
+    /// this install (at most 5 launches). It identifies nothing by itself; Apple answers with campaign,
+    /// ad group and keyword ids, which let us see which keywords bring subscribers. No ATT needed.
+    private static func adAttributionToken() -> String? {
+        #if os(iOS)
+        let defaults = UserDefaults.standard
+        if defaults.object(forKey: adsTriesKey) == nil { defaults.set(5, forKey: adsTriesKey) }
+        guard defaults.integer(forKey: adsTriesKey) > 0 else { return nil }
+        return try? AAAttribution.attributionToken()
+        #else
+        // Apple Ads doesn't run on the Mac App Store.
+        return nil
+        #endif
     }
 
     private static var platform: String {
