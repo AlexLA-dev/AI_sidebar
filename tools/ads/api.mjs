@@ -210,6 +210,20 @@ export async function reports(live, from, to) {
   return out
 }
 
+/** Campaign name → spend yesterday (UTC), for campaigns that were already running then (pacing rule). */
+export async function lastDaySpend(live, plan) {
+  const y = new Date(Date.now() - 86400000).toISOString().slice(0, 10)
+  const started = new Set(plan.campaigns.filter((c) => c.start && c.start.slice(0, 10) <= y).map((c) => c.name))
+  if (!started.size) return {}
+  const rep = await query("/reports/apps/campaigns/query", [{ field: "id", operator: "IN", value: live.campaigns.filter((c) => started.has(c.name)).map((c) => c.id) }], { timeRange: { start: y, end: y, timeZone: "UTC" } })
+  const out = Object.fromEntries([...started].map((n) => [n, 0]))
+  for (const r of rep) {
+    const name = live.campaigns.find((c) => c.id === (r.metadata?.id ?? r.metadata?.campaignId))?.name
+    if (name) out[name] = metrics(r).spend
+  }
+  return out
+}
+
 export async function spentSince(live, from) {
   const rep = await reports(live, from, today())
   return rep.campaigns.reduce((s, r) => s + metrics(r).spend, 0)

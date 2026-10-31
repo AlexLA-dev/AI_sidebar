@@ -121,7 +121,9 @@ export function diffPlan(plan, live) {
       const patch = {}
       if (amount(lc.dailyBudget?.value) !== c.dailyBudget) patch.dailyBudget = { value: money(c.dailyBudget, cur) }
       if (!sameList(lc.targeting?.countryOrRegion?.include, c.countries)) patch.targeting = { countryOrRegion: { include: c.countries } }
-      if ((lc.endTime ?? "").slice(0, 10) !== (c.end ?? "")) patch.endTime = apiTime(c.end, true)
+      // A date-only end matches by day; an exact time ("2026-11-06T22:00:00.000", UTC) by minute.
+      const sameEnd = c.end?.includes("T") ? (lc.endTime ?? "").slice(0, 16) === c.end.slice(0, 16) : (lc.endTime ?? "").slice(0, 10) === (c.end ?? "")
+      if (!sameEnd) patch.endTime = apiTime(c.end, true)
       if (Object.keys(patch).length) ops.push({ kind: "campaign.update", id: lc.id, payload: patch, desc: `update campaign "${c.name}": ${Object.keys(patch).join(", ")}` })
     }
     const wantStatus = c.status === "ENABLED" ? "ENABLED" : "PAUSED"
@@ -243,7 +245,10 @@ export const DEFAULT_RULES = {
   lowerStep: 0.2,
   minBid: 0.2,
   // Search terms found by Search Match / broad: promote on the first install, block when they burn money.
-  negativeSpendWithoutInstall: 1.5
+  negativeSpendWithoutInstall: 1.5,
+  // Pacing: a running campaign that spent less than this share of its daily budget on the last full
+  // day gets all its bids raised by raiseStep (up to maxBid), so the budget is used by the end date.
+  underspend: 0.6
 }
 
 const round2 = (x) => Math.round(x * 100 + 1e-6) / 100
@@ -252,11 +257,21 @@ const round2 = (x) => Math.round(x * 100 + 1e-6) / 100
  * Proposes plan edits from keyword and search-term rows. Each proposal says why and what it
  * changes in plan.json; applyProposals() writes them in. `subs` maps keyword id → paid subscribers
  * (from AdServices attribution), when known: a keyword that brought a subscriber is never paused.
+ * `lastDaySpend` maps campaign name → spend on the last full day, for the pacing rule.
  */
-export function optimize(plan, { keywords = [], searchTerms = [], subs = {} }, rules = {}) {
+export function optimize(plan, { keywords = [], searchTerms = [], subs = {}, lastDaySpend = {} }, rules = {}) {
   const r = { ...DEFAULT_RULES, ...(plan.guards?.rules ?? {}), ...rules }
   const maxBid = plan.guards?.maxBid ?? Infinity
   const out = []
+  for (const c of plan.campaigns) {
+    const spent = lastDaySpend[c.name]
+    if (c.status !== "ENABLED" || spent == null || spent >= r.underspend * c.dailyBudget) continue
+    for (const g of c.adGroups) {
+      if (g.status === "PAUSED" || g.bid >= maxBid) continue
+      const to = round2(Math.min(maxBid, g.bid * (1 + r.raiseStep)))
+      out.push({ campaign: c.name, adGroup: g.name, text: g.name, match: "EXACT", action: "groupbid", from: g.bid, to, why: `campaign spent $${spent.toFixed(2)} of $${c.dailyBudget} yesterday: bids +${Math.round(r.raiseStep * 100)}% to use the budget` })
+    }
+  }
   const findKw = (campaignName, groupName, text, match) => {
     const c = plan.campaigns.find((x) => x.name === campaignName)
     const g = c?.adGroups?.find((x) => x.name === groupName)
@@ -318,6 +333,14 @@ export function applyProposals(plan, proposals) {
     }
     const g = c.adGroups.find((x) => x.name === p.adGroup)
     if (!g) continue
+    if (p.action === "groupbid") {
+      // The group bid and every keyword bid that overrides it move by the same factor.
+      const factor = p.to / p.from
+      const cap = next.guards?.maxBid ?? Infinity
+      g.bid = p.to
+      for (const k of g.keywords ?? []) if (k.bid != null) k.bid = round2(Math.min(cap, k.bid * factor))
+      continue
+    }
     g.keywords = g.keywords ?? []
     const k = g.keywords.find((x) => kwKey(x.text, x.match ?? "EXACT") === kwKey(p.text, p.match))
     if (p.action === "pause" && k) k.status = "PAUSED"

@@ -56,13 +56,14 @@ export type Rules = {
   lowerStep: number
   minBid: number
   negativeSpendWithoutInstall: number
+  underspend: number
 }
 export type Proposal = {
   campaign: string
   adGroup?: string
   text: string
   match: "EXACT" | "BROAD"
-  action: "pause" | "bid" | "promote" | "negative"
+  action: "pause" | "bid" | "promote" | "negative" | "groupbid"
   from?: number
   to?: number
   why: string
@@ -81,5 +82,5 @@ export function adGroupPayload(g: PlanAdGroup, campaignId: number, plan: Plan): 
 export function diffPlan(plan: Plan, live: Live): { ops: Op[]; notes: string[] }
 export function metrics(row: Record<string, any> | undefined): Metrics
 export const DEFAULT_RULES: Rules
-export function optimize(plan: Plan, data: { keywords?: Record<string, any>[]; searchTerms?: Record<string, any>[]; subs?: Record<string, number> }, rules?: Partial<Rules>): Proposal[]
+export function optimize(plan: Plan, data: { keywords?: Record<string, any>[]; searchTerms?: Record<string, any>[]; subs?: Record<string, number>; lastDaySpend?: Record<string, number> }, rules?: Partial<Rules>): Proposal[]
 export function applyProposals<P extends Plan>(plan: P, proposals: Proposal[]): P

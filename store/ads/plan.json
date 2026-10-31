@@ -22,9 +22,9 @@
         "CA",
         "AU"
       ],
-      "dailyBudget": 3,
+      "dailyBudget": 4.3,
       "start": "2026-10-31",
-      "end": "2026-11-09",
+      "end": "2026-11-06T22:00:00.000",
       "negatives": [
         {
           "text": "free"
@@ -309,9 +309,9 @@
         "DE",
         "FR"
       ],
-      "dailyBudget": 2,
+      "dailyBudget": 2.8,
       "start": "2026-10-31",
-      "end": "2026-11-09",
+      "end": "2026-11-06T22:00:00.000",
       "negatives": [
         {
           "text": "free"

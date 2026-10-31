@@ -222,7 +222,7 @@ function renderSummary() {
 function renderProposals() {
   if (!data.proposals.length) return $("proposals").replaceChildren()
   const picked = new Set(data.proposals.map((_, i) => i))
-  const label = { pause: "пауза", bid: "ставка", promote: "в exact", negative: "минус-слово" }
+  const label = { pause: "пауза", bid: "ставка", promote: "в exact", negative: "минус-слово", groupbid: "ставки группы" }
   $("proposals").replaceChildren(h("div", { class: "card" },
     h("div", { class: "row" }, h("h2", {}, "Предложения правил"), h("span", { class: "muted" }, "по данным за период")),
     h("ul", {}, data.proposals.map((p, i) => h("li", {},

@@ -141,3 +141,30 @@ test("client secret is an ES256 JWT Apple can verify with the uploaded public ke
   assert.equal(body.exp - body.iat, 86400 * 180)
   assert.ok(verify("sha256", Buffer.from(`${h}.${b}`), { key: publicKey, dsaEncoding: "ieee-p1363" }, Buffer.from(s, "base64url")))
 })
+
+test("pacing raises every bid of a campaign that underspent yesterday, within the cap", () => {
+  const p = structuredClone(plan)
+  p.campaigns[0].status = "ENABLED"
+  p.campaigns[1].status = "ENABLED"
+  const proposals = optimize(p, { lastDaySpend: { [p.campaigns[0].name]: 0.4, [p.campaigns[1].name]: p.campaigns[1].dailyBudget } })
+  assert.ok(proposals.every((x) => x.action === "groupbid" && x.campaign === p.campaigns[0].name))
+  assert.equal(proposals.length, p.campaigns[0].adGroups.length)
+  const next = applyProposals(p, proposals)
+  const g = next.campaigns[0].adGroups[0]
+  assert.equal(g.bid, Math.round(p.campaigns[0].adGroups[0].bid * 115) / 100)
+  const before = p.campaigns[0].adGroups[0].keywords.find((k: { bid?: number }) => k.bid != null)
+  const after = g.keywords.find((k: { text: string }) => k.text === before.text)
+  assert.ok(after.bid > before.bid && after.bid <= p.guards.maxBid)
+  assert.deepEqual(guardProblems(next).problems, [])
+})
+
+test("an exact end time is compared to the minute", () => {
+  const p = structuredClone(plan)
+  p.campaigns = [p.campaigns[0]]
+  const c = p.campaigns[0]
+  c.end = "2026-11-06T22:00:00.000"
+  const live = { ...empty, campaigns: [{ id: 1, name: c.name, status: c.status, dailyBudget: { value: { amount: String(c.dailyBudget) } }, targeting: { countryOrRegion: { include: c.countries } }, endTime: "2026-11-06T22:00:00.000" }] }
+  assert.equal(diffPlan(p, live).ops.filter((o) => o.kind === "campaign.update").length, 0)
+  live.campaigns[0].endTime = "2026-11-09T22:00:00.000"
+  assert.deepEqual(diffPlan(p, live).ops.find((o) => o.kind === "campaign.update")?.payload, { endTime: "2026-11-06T22:00:00.000" })
+})
