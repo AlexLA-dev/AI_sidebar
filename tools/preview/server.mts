@@ -4,6 +4,8 @@
 //
 //   node --experimental-strip-types tools/preview/server.mts   (port 8787)
 //   CF_API_BASE=http://localhost:8787 npm run build:chrome      (extension pointing at it)
+//   LIMITED_BEFORE=1 …                                         (every install ran out of free answers before:
+//                                                              the panel offers the Pro code)
 
 import { createServer } from "node:http"
 import { readFileSync } from "node:fs"
@@ -31,7 +33,8 @@ const rpc: Record<string, (a: any) => unknown> = {
   cf_log: () => null,
   cf_entitlement_upsert: ({ p }) => p,
   cf_entitlement_get: () => null,
-  cf_entitlement_by_token: () => null
+  cf_entitlement_by_token: () => null,
+  cf_limited_before: () => process.env.LIMITED_BEFORE === "1"
 }
 
 // Delay between streamed words; the App Store preview video slows it down to a readable pace.
@@ -138,6 +141,8 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
 
 const chat = (await import("../../netlify/functions/v2-chat.mts")).default
 const status = (await import("../../netlify/functions/v2-status.mts")).default
+const event = (await import("../../netlify/functions/v2-event.mts")).default
+const handlers: Record<string, typeof chat> = { "/api/v2/chat": chat, "/api/v2/status": status, "/api/v2/event": event }
 
 const pages: Record<string, string> = {
   "/": "article.html",
@@ -149,7 +154,7 @@ const pages: Record<string, string> = {
 
 createServer(async (req, res) => {
   const url = new URL(req.url ?? "/", "http://localhost")
-  const handler = url.pathname === "/api/v2/chat" ? chat : url.pathname === "/api/v2/status" ? status : null
+  const handler = handlers[url.pathname] ?? null
   if (handler) {
     const chunks: Buffer[] = []
     for await (const c of req) chunks.push(c as Buffer)

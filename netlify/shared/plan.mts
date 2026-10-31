@@ -1,6 +1,6 @@
 import { toEntitlement, verifyTransactionCached, type Entitlement } from "./apple.mts"
 import { config, type Plan } from "./config.mts"
-import { getEntitlement, logEvent, upsertEntitlement, type Counter } from "./db.mts"
+import { logEvent, upsertEntitlement, type Counter } from "./db.mts"
 
 export interface Access {
   plan: Plan
@@ -52,6 +52,13 @@ export async function resolveAccess(jws: unknown, installId: string | null): Pro
     return { plan: "free", entitlement: null, entitlementError: "expired" }
   }
   return { plan: entitlement.plan, entitlement: { ...entitlement, expiresAt } }
+}
+
+/** The App Store offer code shown to a free user who ran out of answers (null when switched off). */
+export function proOffer(access: Access): { code: string; discount: number } | null {
+  const code = config.proOfferCode
+  if (access.plan !== "free" || !code || code.toLowerCase() === "off") return null
+  return { code, discount: config.proOfferDiscount }
 }
 
 /** Counters a request is charged against, by plan. */

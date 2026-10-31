@@ -79,6 +79,15 @@ export async function setNoteHintCount(count: number): Promise<void> {
   await set(STORAGE.noteHint, count)
 }
 
+/** How many times the Pro offer card was shown to an install that ran out of answers before; -1 once answered. */
+export async function offerCardCount(): Promise<number> {
+  return (await get<number>(STORAGE.offerCard)) ?? 0
+}
+
+export async function setOfferCardCount(count: number): Promise<void> {
+  await set(STORAGE.offerCard, count)
+}
+
 type LegacyChats = Record<string, { t: string; u: number; m: Entry[] }>
 
 /**

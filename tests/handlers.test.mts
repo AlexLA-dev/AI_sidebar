@@ -14,7 +14,7 @@ process.env.GEMINI_API_KEY = "gemini-test"
 type Item = { subject: string; period: string; limit: number | null }
 let counters = new Map<string, number>()
 let entitlements = new Map<string, Record<string, unknown>>()
-let events: { kind: string; data: Record<string, unknown> }[] = []
+let events: { kind: string; install?: string | null; data: Record<string, unknown>; at: number }[] = []
 const OPENAI_MODELS = ["gpt-4o-mini", "gpt-4.1-mini", "gpt-5", "gpt-5-mini", "gpt-5-nano", "gpt-5.2", "gpt-5.2-mini", "gpt-5.2-pro", "gpt-5.2-2026-01-10", "o3"]
 let openai: { failModels: string[]; status?: number; listStatus?: number; answer: string; lastBody?: Record<string, unknown> } = { failModels: [], answer: "Hello world" }
 const GEMINI_MODELS = ["gemini-2.5-flash", "gemini-3.6-flash", "gemini-3.8-flash", "gemini-3.5-flash-lite", "gemini-3-flash-preview", "gemini-3.8-flash-tts", "gemini-4-argon"]
@@ -58,10 +58,11 @@ const rpc: Record<string, (args: Record<string, any>) => unknown> = {
   },
   cf_peek: ({ p_items }) => (p_items as Item[]).map((i) => ({ ...i, n: counters.get(i.subject) ?? 0 })),
   cf_touch_install: () => null,
-  cf_log: ({ p_kind, p_data }) => {
-    events.push({ kind: p_kind, data: p_data })
+  cf_log: ({ p_kind, p_install, p_data }) => {
+    events.push({ kind: p_kind, install: p_install, data: p_data, at: Date.now() })
     return null
   },
+  cf_limited_before: ({ p_install }) => limitedBefore(p_install),
   cf_entitlement_upsert: ({ p }) => {
     const prev = entitlements.get(p.original_transaction_id) ?? {}
     const row = { ...prev, ...p, revoked_at: p.revoked_at ?? prev.revoked_at ?? null }
@@ -70,7 +71,15 @@ const rpc: Record<string, (args: Record<string, any>) => unknown> = {
   },
   cf_entitlement_get: ({ p_original_transaction_id }) => entitlements.get(p_original_transaction_id) ?? null,
   cf_entitlement_by_token: () => null,
-  cf_usage_report: ({ p_days }) => ({ days: p_days, segments: [{ key: "ours", segment: "ai", requests: 3 }] })
+  cf_usage_report: ({ p_days }) => ({ days: p_days, segments: [{ key: "ours", segment: "ai", requests: 3 }] }),
+  cf_setup_funnel: () => [{ day: "2026-10-30", app_opened: 4, extension_on: 3, panel_opened: 2 }]
+}
+
+// Same rule as cf_limited_before: a free limit hit on an earlier UTC day.
+function limitedBefore(install: string) {
+  const today = Date.parse(new Date().toISOString().slice(0, 10))
+  return events.some((e) => e.kind === "limit" && e.install === install && e.data.plan === "free" &&
+    ["limit", "search"].includes(String(e.data.reason)) && e.at < today)
 }
 
 function sse(chunks: string[]): Response {
@@ -113,9 +122,10 @@ let status: (req: Request, ctx: any) => Promise<Response>
 let legacy: (req: Request, ctx: any) => Promise<Response>
 let notify: (req: Request, ctx: any) => Promise<Response>
 let usage: (req: Request, ctx: any) => Promise<Response>
+let event: (req: Request, ctx: any) => Promise<Response>
 let adminUsage: (req: Request) => Promise<Response>
 let resetModelList: () => void
-let serverConfig: { geminiKey: string; adminToken: string; ownKeyReportDailyLimit: number }
+let serverConfig: { geminiKey: string; adminToken: string; ownKeyReportDailyLimit: number; eventDailyLimit: number; proOfferCode: string }
 
 before(async () => {
   const apple = await import("../netlify/shared/apple.mts")
@@ -127,6 +137,7 @@ before(async () => {
   legacy = (await import("../netlify/functions/chat-proxy.mts")).default
   notify = (await import("../netlify/functions/appstore-verify.mts")).default
   usage = (await import("../netlify/functions/v2-usage.mts")).default
+  event = (await import("../netlify/functions/v2-event.mts")).default
   adminUsage = (await import("../netlify/functions/v2-admin-usage.mts")).default
 })
 
@@ -139,6 +150,8 @@ beforeEach(() => {
   serverConfig.geminiKey = "gemini-test"
   serverConfig.adminToken = ""
   serverConfig.ownKeyReportDailyLimit = 1000
+  serverConfig.eventDailyLimit = 30
+  serverConfig.proOfferCode = "CONTEXTFLOW50"
   resetModelList()
 })
 
@@ -278,6 +291,14 @@ test("App Store notification records a refund", async () => {
   assert.equal(bad.status, 400)
 })
 
+test("App Store notification names the offer code a subscription started with", async () => {
+  const signedTransactionInfo = signJws(transaction({ originalTransactionId: "n2", offerType: 3, offerIdentifier: "Limit hitters: first month 50% off", offerDiscountType: "PAY_AS_YOU_GO", price: 3490 }))
+  const signedPayload = signJws({ notificationType: "SUBSCRIBED", subtype: "INITIAL_BUY", notificationUUID: "u2", data: { bundleId: "com.contextflow.app", signedTransactionInfo }, signedDate: Date.now() })
+  assert.equal((await notify(post("/.netlify/functions/appstore-verify", { signedPayload }), ctx())).status, 200)
+  const logged = events.find((e) => e.kind === "appstore_notification")
+  assert.deepEqual([logged?.data.offer, logged?.data.offer_id, logged?.data.discount], [3, "Limit hitters: first month 50% off", "PAY_AS_YOU_GO"])
+})
+
 test("Google mode streams a grounded answer with citations, sources and Search Suggestions", async () => {
   const c = ctx()
   const res = await chat(ask({ mode: "google", page: { kind: "selection", title: "T", url: "https://example.com", text: "capital of France" } }), c)
@@ -381,4 +402,53 @@ test("admin usage report needs ADMIN_TOKEN", async () => {
   const body = await res.json()
   assert.equal(body.days, 180)
   assert.equal(body.segments[0].requests, 3)
+  assert.equal(body.setup_funnel[0].app_opened, 4)
+})
+
+const statusOf = async (extra: Record<string, unknown> = {}) =>
+  (await status(post("/api/v2/status", { installId: INSTALL, client: { platform: "ios" }, ...extra }), ctx())).json()
+async function hitFreeLimit() {
+  for (let i = 0; i < 6; i++) await (await chat(ask(), ctx())).text()
+  await new Promise((r) => setTimeout(r, 0))
+}
+
+test("a free install out of answers is offered the App Store code, today and on later days", async () => {
+  const fresh = await statusOf()
+  assert.deepEqual([fresh.limitedBefore, fresh.offer], [false, null])
+  await hitFreeLimit()
+  // At the limit: the 402 and today's status carry the code.
+  const limited = await chat(ask(), ctx())
+  assert.equal(limited.status, 402)
+  assert.deepEqual((await limited.json()).offer, { code: "CONTEXTFLOW50", discount: 50 })
+  assert.deepEqual([(await statusOf()).limitedBefore, (await statusOf()).offer?.code], [false, "CONTEXTFLOW50"])
+
+  // A day later, with answers back: still offered, once more, as someone who ran out before.
+  events.forEach((e) => { e.at -= 86_400_000 })
+  counters.clear()
+  const back = await statusOf()
+  assert.deepEqual([back.plan, back.limitedBefore, back.offer?.discount], ["free", true, 50])
+  // Subscribers aren't offered anything; PRO_OFFER_CODE=off stops it.
+  const sub = await statusOf({ entitlement: signJws(transaction()) })
+  assert.deepEqual([sub.limitedBefore, sub.offer], [false, null])
+  serverConfig.proOfferCode = "off"
+  assert.equal((await statusOf()).offer, null)
+})
+
+test("funnel events are logged with only the allowed fields and capped per id", async () => {
+  const APP = "3f2b1c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d"
+  const send = (body: Record<string, unknown>) => event(post("/api/v2/event", body), ctx())
+  const res = await send({ kind: "app_open", appId: APP, installId: INSTALL, client: { platform: "ios", version: "2.4", locale: "ru" }, extension: "off", notifications: "granted", page: "secret" })
+  assert.equal(res.status, 200)
+  await new Promise((r) => setTimeout(r, 0))
+  const logged = events.find((e) => e.kind === "app_open")
+  assert.equal(logged?.install, INSTALL)
+  assert.deepEqual(logged?.data, { app: APP, platform: "ios", version: "2.4", locale: "ru", extension: "off", notifications: "granted" })
+
+  assert.equal((await send({ kind: "ext_on", installId: INSTALL })).status, 200)
+  assert.equal((await send({ kind: "chat", installId: INSTALL })).status, 400)
+  assert.equal((await send({ kind: "app_open" })).status, 400)
+
+  serverConfig.eventDailyLimit = 2
+  assert.equal((await send({ kind: "app_open", appId: APP })).status, 200)
+  assert.equal((await send({ kind: "app_open", appId: APP })).status, 429)
 })

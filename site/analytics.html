@@ -375,6 +375,18 @@ function render(data) {
     el("td", {}, new Date(r.created_at).toLocaleString("ru-RU", { dateStyle: "short", timeStyle: "short" })),
     el("td", {}, date(r.expires_at))
   ))
+  // From opening the app to paying: each app or install on the day it first got there.
+  const funnelRows = (data.setup_funnel || []).filter((r) =>
+    ["app_opened", "extension_on", "panel_opened", "first_answer", "offer_redeemed", "subscribed"].some((k) => r[k] > 0)
+  ).map((r) => el("tr", {},
+    el("td", {}, new Date(r.day).toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit" })),
+    el("td", {}, r.app_opened ? `${n.format(r.app_opened)} (${n.format(r.notifications_allowed)})` : "—"),
+    el("td", {}, n.format(r.extension_on)),
+    el("td", {}, n.format(r.panel_opened)),
+    el("td", {}, n.format(r.first_answer)),
+    el("td", {}, n.format(r.offer_redeemed ?? 0)),
+    el("td", {}, n.format(r.subscribed))
+  ))
   const plans = (data.by_plan || []).map((r) => el("tr", {},
     el("td", {}, PLANS[r.plan] || r.plan),
     el("td", {}, n.format(r.requests)),
@@ -395,6 +407,9 @@ function render(data) {
       { title: "Новые", color: "var(--c2)", value: userDay("new") },
       { title: "Вернувшиеся", color: "var(--c1)", value: (d) => userDay("active")(d) - userDay("new")(d) }
     ], data.days),
+    table("Путь нового пользователя (загрузки — в App Store Connect)",
+      ["День (UTC)", "Открыли приложение (разрешили уведомления)", "Включили расширение", "Открыли панель", "Первый ответ", "Подписались по коду −50%", "Первая оплата"],
+      funnelRows, "Пока пусто: приложение и расширение сообщают об этих шагах с версии 2.4.", "num2"),
     table(`Подписки${subs.sandbox ? ` · ещё ${n.format(subs.sandbox)} в песочнице (App Review, тесты)` : ""}`,
       ["Тариф", "История (ваше время)", "Статус", "Оформлена", "Оплачена до"], subRows, "Подписок пока нет."),
     el("div", { class: "cards" }, SEGMENTS.map((s) => card(s, segments.find((r) => r.key === s.key && r.segment === s.segment)))),

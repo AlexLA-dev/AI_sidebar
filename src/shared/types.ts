@@ -10,9 +10,19 @@ export interface Usage {
   resetsAt: string
 }
 
+// The App Store offer code for Pro the server gives a free user who ran out of answers.
+export interface ProOffer {
+  code: string
+  // Percent off the first month.
+  discount: number
+}
+
 export interface StatusInfo {
   plan: Plan
   usage: Usage | null
+  // A free install that ran out of free answers on an earlier day, and the offer for it (from the server).
+  limitedBefore: boolean
+  offer: ProOffer | null
   // What the device's App Store account says (may be ahead of the server).
   store: { active: boolean; productId: string | null; expiresAt: string | null } | null
   hasOwnKey: boolean
@@ -65,7 +75,7 @@ export type StreamEvent =
   // Sent once before "done" for Google answers: the final text with citation links, and its sources.
   | { type: "grounding"; text: string; grounding: Grounding }
   | { type: "done"; usage: Usage | null }
-  | { type: "error"; code: ErrorCode; message?: string; usage?: Usage | null; plan?: Plan }
+  | { type: "error"; code: ErrorCode; message?: string; usage?: Usage | null; plan?: Plan; offer?: ProOffer | null }
 
 export type ErrorCode =
   | "LIMIT_REACHED"
@@ -116,6 +126,12 @@ export const STORAGE = {
   pageTexts: "cf:pageTexts",
   // How many times the hint about writing notes with the send button was shown, or -1 once used.
   noteHint: "cf:noteHint",
+  // false from install until the server heard that the extension was switched on (the funnel's step
+  // after "app opened"); missing for installs from before 2.4, which never report it.
+  extOnPending: "cf:extOnPending",
+  // How many times the Pro offer card for installs that ran out of free answers before was shown,
+  // or -1 once it was answered.
+  offerCard: "cf:offerCard",
   ownKey: "cf:ownKey",
   // Provider model lists for the own key ({ openai?: { ids, at }, anthropic?: { models, at } }).
   ownKeyModels: "cf:ownKeyModels",

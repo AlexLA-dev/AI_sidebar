@@ -74,7 +74,10 @@ async function handleNotification(signedPayload: string): Promise<Response> {
     price: tx.price ?? null,
     currency: tx.currency ?? null,
     storefront: tx.storefront ?? null,
-    offer: tx.offerType ?? null
+    // offer 3 is an offer code (the funnel counts redemptions by it); offer_id names the offer.
+    offer: tx.offerType ?? null,
+    offer_id: tx.offerIdentifier ?? null,
+    discount: tx.offerDiscountType ?? null
   })
   return json({ received: true })
 }

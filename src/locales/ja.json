@@ -76,7 +76,6 @@
   "errSearchUnavailable": "現在Googleでの回答は利用できません。通常の回答は引き続き使えます。",
 
   "limitFreeTitle": "本日の無料回答の上限に達しました",
-  "limitFreeBody": "{0}後に新しい無料回答が利用できます。Proなら週に最大{1}回まで回答を受け取れます。",
   "limitProTitle": "週の上限に達しました",
   "limitProBody": "Proの回答数は{0}後にリセットされます。",
   "getPro": "Proを入手",
@@ -194,5 +193,16 @@
   "pickCount": "{0}/{1}",
   "pickHint": "メッセージをタップ",
   "pickAll": "すべて選択",
-  "pickNone": "選択を解除"
+  "pickNone": "選択を解除",
+  "limitFreeBack": "{1}（{2}後）に無料回答が{0}回分戻ります。",
+  "limitFreePro": "Proなら週に最大{0}回まで回答を受け取れます。",
+  "limitNotes": "メモは無料・無制限です。大事なことを今メモして、あとでAIに聞きましょう。",
+  "writeNote": "メモを書く",
+  "errProvider": "AI プロバイダーからの応答：{0}",
+  "offerLimit": "または、最初の 1 か月が {0}% オフの Pro をどうぞ。より賢いモデルで週 {1} 件まで回答できます。いつでも解約できます。",
+  "offerButton": "Pro を {0}% オフで",
+  "offerShort": "Pro −{0}%",
+  "offerCardTitle": "回答が足りませんか？",
+  "offerCardBody": "以前、1 日の無料回答の上限に達しました。Pro ならより賢いモデルで週 {1} 件まで回答でき、最初の 1 か月は {0}% オフです。その後は通常価格で、App Store の設定からいつでも解約できます。",
+  "offerLater": "今はしない"
 }

@@ -55,7 +55,13 @@ export const config = {
   // Bearer token for GET /api/v2/admin/usage (the /analytics page). Unset = endpoint disabled.
   adminToken: (env("ADMIN_TOKEN") ?? "").trim(),
   // Own-key usage reports accepted per install per day (they only feed analytics).
-  ownKeyReportDailyLimit: int("OWN_KEY_REPORT_DAILY_LIMIT", 1000)
+  ownKeyReportDailyLimit: int("OWN_KEY_REPORT_DAILY_LIMIT", 1000),
+  // Funnel events (app opened, extension switched on) accepted per id per day.
+  eventDailyLimit: int("EVENT_DAILY_LIMIT", 30),
+  // App Store offer code for free users who ran out of answers (Pro, first month off; set up in App Store
+  // Connect on pro.monthly). PRO_OFFER_CODE=off stops offering it; PRO_OFFER_DISCOUNT is what the panel says.
+  proOfferCode: (env("PRO_OFFER_CODE") ?? "CONTEXTFLOW50").trim(),
+  proOfferDiscount: int("PRO_OFFER_DISCOUNT", 50)
 }
 
 export const PRODUCTS = {

@@ -18,6 +18,33 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         true
     }
 
+    func applicationWillFinishLaunching(_ notification: Notification) {
+        localizeMainMenu()
+    }
+
+    /// Main.storyboard's menu bar is in English only; its items take the user's language here.
+    private func localizeMainMenu() {
+        let app = "ContextFlow"
+        let titles = [
+            "About ContextFlow": String(localized: "About \(app)"),
+            "Hide ContextFlow": String(localized: "Hide \(app)"),
+            "Hide Others": String(localized: "Hide Others"),
+            "Show All": String(localized: "Show All"),
+            "Quit ContextFlow": String(localized: "Quit \(app)"),
+            "Help": String(localized: "Help"),
+            "ContextFlow Help": String(localized: "\(app) Help")
+        ]
+        func localize(_ menu: NSMenu) {
+            for item in menu.items {
+                if let title = titles[item.title] { item.title = title }
+                guard let submenu = item.submenu else { continue }
+                if let title = titles[submenu.title] { submenu.title = title }
+                localize(submenu)
+            }
+        }
+        NSApp.mainMenu.map(localize)
+    }
+
     #if DEBUG
     // `ContextFlow.app/Contents/MacOS/ContextFlow --cf-sync-selftest` saves a thread to the iCloud
     // development environment, checks it comes back with the changes, deletes it, prints the result

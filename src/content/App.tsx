@@ -2,13 +2,14 @@ import type { ComponentChildren, VNode } from "preact"
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "preact/hooks"
 
 import { LINKS, TARGET } from "../shared/config"
-import { t, type MessageKey } from "../shared/i18n"
+import { t, uiLanguage, type MessageKey } from "../shared/i18n"
 import {
   DEFAULT_SETTINGS,
   type AskPayload,
   type ErrorCode,
   type Grounding,
   type Platform,
+  type ProOffer,
   type Settings,
   type StatusInfo,
   type StreamEvent,
@@ -34,7 +35,7 @@ import {
 } from "./page"
 import { SettingsView } from "./Settings"
 import { shareLabels } from "./shareLabels"
-import { deleteThread, giveConsent, hasConsent, hasSeenTour, loadSettings, loadThreads, markTourSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, rememberPageText, renameThread, saveSettings, saveThread, setActiveThread, setNoteHintCount } from "./store"
+import { deleteThread, giveConsent, hasConsent, hasSeenTour, loadSettings, loadThreads, markTourSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, rememberPageText, renameThread, saveSettings, saveThread, setActiveThread, offerCardCount, setNoteHintCount, setOfferCardCount } from "./store"
 import { ThreadsView } from "./Threads"
 import { Tour, tourSteps } from "./Tour"
 import { chatList, newThreadId, pinAt, shownThread, threadTitle, type Thread } from "../shared/threads"
@@ -43,10 +44,15 @@ export type Bus = EventTarget
 
 type Turn = Entry
 
+// Pro's weekly allowance (PRO_WEEKLY_LIMIT on the server), quoted by the offers.
+const PRO_WEEKLY = 375
+const APP_ID = "6759115793"
+
 interface ChatError {
   code: ErrorCode
   message?: string
   usage?: Usage | null
+  offer?: ProOffer | null
 }
 
 interface Action {
@@ -121,12 +127,24 @@ function timeUntil(iso: string | undefined): string {
   return hours >= 1 ? t("hours", hours) : t("minutes", Math.max(1, Math.ceil(ms / 60_000)))
 }
 
+/** The local time of day a limit resets ("3:00 AM"). */
+function clockTime(iso: string | undefined): string {
+  const at = iso ? new Date(iso) : new Date(Date.now() + 86_400_000)
+  return new Intl.DateTimeFormat(uiLanguage(), { hour: "numeric", minute: "2-digit" }).format(at)
+}
+
+/** The App Store's sheet for an offer code, with the code filled in (on a Mac it needs macOS 15). */
+function offerUrl(code: string): string {
+  return `https://apps.apple.com/redeem?ctx=offercodes&id=${APP_ID}&code=${encodeURIComponent(code)}`
+}
+
 function errorText(error: ChatError): string {
   switch (error.code) {
     case "NETWORK":
       return t("errNetwork")
     case "BUSY":
-      return error.message || t("errBusy")
+      // A message comes only from the user's own provider (OpenAI or Anthropic), in its own words.
+      return error.message ? t("errProvider", error.message) : t("errBusy")
     case "UPSTREAM":
       return t("errUpstream")
     case "STREAM":
@@ -163,6 +181,8 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
   const [noteMode, setNoteMode] = useState(false)
   const [noteHint, setNoteHint] = useState(false)
   const [error, setError] = useState<ChatError | null>(null)
+  // The Pro offer, shown once more to an install that ran out of free answers before.
+  const [offerCard, setOfferCard] = useState(false)
   const [pending, setPending] = useState<{ text: string; label?: string; action?: string; mode?: "google" } | null>(null)
   const [selection, setSelection] = useState<SelectionInfo | null>(null)
   const [pageReadable, setPageReadable] = useState(true)
@@ -488,6 +508,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
     setDraft("")
     if (inputRef.current) inputRef.current.style.height = "auto"
     setError(null)
+    setOfferCard(false)
     setPartial("")
     setStreamMode(opts.mode ?? null)
     partialRef.current = ""
@@ -521,7 +542,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
       } else if (event.type === "error") {
         settled = true
         if (event.usage) setUsage(event.usage)
-        finish(history, partialRef.current, { code: event.code, message: event.message, usage: event.usage })
+        finish(history, partialRef.current, { code: event.code, message: event.message, usage: event.usage, offer: event.offer })
       }
     })
     port.onDisconnect.addListener(() => {
@@ -722,6 +743,24 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
     })
   }, [draft, noteMode])
 
+  // An install that ran out of free answers before is offered Pro with the first month off once more: the card
+  // shows in up to three page visits, until it's answered (asking a question just hides it for now).
+  const offerCardAsked = useRef(false)
+  useEffect(() => {
+    if (TARGET !== "safari" || !open || offerCardAsked.current || !status) return
+    if (!status.limitedBefore || !status.offer || status.plan !== "free" || status.hasOwnKey) return
+    offerCardAsked.current = true
+    void offerCardCount().then((count) => {
+      if (count < 0 || count >= 3) return
+      setOfferCard(true)
+      void setOfferCardCount(count + 1)
+    })
+  }, [open, status])
+  // It comes after the chat: bring it into view.
+  useEffect(() => {
+    if (offerCard) requestAnimationFrame(() => listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" }))
+  }, [offerCard])
+
   // ------------------------------------------------------------ sharing
   const shareLinks = (): ShareLinks => ({ page: location.href, app: LINKS.appStoreShare })
 
@@ -783,6 +822,27 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
     if (result && !result.opened && result.url) followLink(result.url)
   }, [])
 
+  // The App Store's sheet for the offer code: the discount and the price after it, then the purchase.
+  const redeemOffer = useCallback((code: string) => {
+    void sendBackground({ type: "openUrl", url: offerUrl(code) })
+  }, [])
+
+  // The offer card was answered: it isn't shown again.
+  const closeOfferCard = useCallback((code: string | null) => {
+    setOfferCard(false)
+    void setOfferCardCount(-1)
+    if (code) redeemOffer(code)
+  }, [redeemOffer])
+
+  // Out of answers: write a note instead (free and unlimited).
+  const writeNote = useCallback(() => {
+    setError(null)
+    setNoteMode(true)
+    setNoteHint(false)
+    void setNoteHintCount(-1)
+    setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 50)
+  }, [])
+
   // ------------------------------------------------------------ FAB
   const fabEnabled = settings.fab !== "off"
   const fabVisible = fabEnabled && !open && !settings.fabHiddenSites.includes(siteName())
@@ -818,6 +878,8 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
   const actions = contextKind === "selection" ? SELECTION_ACTIONS : contextKind === "page" ? PAGE_ACTIONS : []
   const plan = status?.plan ?? "free"
   const ownKeyActive = viaOwnKey || (Boolean(status?.hasOwnKey) && plan !== "free")
+  // The App Store offer code for Pro, once this install has run out of free answers (Safari only).
+  const offer = TARGET === "safari" && plan === "free" && !ownKeyActive ? error?.offer ?? status?.offer ?? null : null
 
   // The allowance under the input: short, to share the line with "Whole chat" and Get Pro; in full on hover.
   const usageLine = useMemo(() => {
@@ -1033,22 +1095,45 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
                   </div>
                 )}
 
-                {error && error.code === "LIMIT_REACHED" && (
-                  <div class="cf-card limit">
-                    <strong>{plan === "pro" ? t("limitProTitle") : t("limitFreeTitle")}</strong>
-                    <p>
-                      {plan === "pro"
-                        ? t("limitProBody", timeUntil(error.usage?.resetsAt ?? usage?.resetsAt))
-                        : t("limitFreeBody", timeUntil(error.usage?.resetsAt ?? usage?.resetsAt), 375)}
-                    </p>
-                    {plan !== "pro" && (
-                      <div class="cf-card-actions">
-                        <button type="button" class="cf-primary" onClick={() => void openApp("subscribe")}><Icon.Sparkle size={14} /> {t("getPro")}</button>
-                        <button type="button" class="cf-secondary" onClick={() => setView("settings")}>{t("useOwnKey")}</button>
-                      </div>
-                    )}
+                {offerCard && offer && !error && partial === null && (
+                  <div class="cf-card offer">
+                    <strong>{t("offerCardTitle")}</strong>
+                    <p>{t("offerCardBody", offer.discount, PRO_WEEKLY)}</p>
+                    <div class="cf-card-actions">
+                      <button type="button" class="cf-primary" onClick={() => closeOfferCard(offer.code)}><Icon.Sparkle size={14} /> {t("offerButton", offer.discount)}</button>
+                      <button type="button" class="cf-secondary" onClick={() => closeOfferCard(null)}>{t("offerLater")}</button>
+                    </div>
                   </div>
                 )}
+
+                {error && error.code === "LIMIT_REACHED" && (() => {
+                  const resetsAt = error.usage?.resetsAt ?? usage?.resetsAt
+                  const back = error.usage?.limit ?? usage?.limit ?? 5
+                  return (
+                    <div class="cf-card limit">
+                      <strong>{plan === "pro" ? t("limitProTitle") : t("limitFreeTitle")}</strong>
+                      <p>
+                        {plan === "pro"
+                          ? t("limitProBody", timeUntil(resetsAt))
+                          : `${t("limitFreeBack", back, clockTime(resetsAt), timeUntil(resetsAt))} ${offer ? t("offerLimit", offer.discount, PRO_WEEKLY) : t("limitFreePro", PRO_WEEKLY)}`}
+                      </p>
+                      <p class="cf-limit-notes">
+                        <Icon.Pencil /> {t("limitNotes")}{" "}
+                        <button type="button" class="cf-link" onClick={writeNote}>{t("writeNote")}</button>
+                      </p>
+                      {plan !== "pro" && (
+                        <div class="cf-card-actions">
+                          {offer ? (
+                            <button type="button" class="cf-primary" onClick={() => redeemOffer(offer.code)}><Icon.Sparkle size={14} /> {t("offerButton", offer.discount)}</button>
+                          ) : (
+                            <button type="button" class="cf-primary" onClick={() => void openApp("subscribe")}><Icon.Sparkle size={14} /> {t("getPro")}</button>
+                          )}
+                          <button type="button" class="cf-secondary" onClick={() => setView("settings")}>{t("useOwnKey")}</button>
+                        </div>
+                      )}
+                    </div>
+                  )
+                })()}
 
                 {error && error.code !== "LIMIT_REACHED" && (
                   <div class="cf-card error">
@@ -1158,7 +1243,11 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
                       {t("wholeChat")}
                     </label>
                     {plan === "free" && !ownKeyActive && TARGET === "safari" && (
-                      <button type="button" class="cf-link" onClick={() => void openApp("subscribe")}>{t("getPro")}</button>
+                      offer ? (
+                        <button type="button" class="cf-link" onClick={() => redeemOffer(offer.code)}>{t("offerShort", offer.discount)}</button>
+                      ) : (
+                        <button type="button" class="cf-link" onClick={() => void openApp("subscribe")}>{t("getPro")}</button>
+                      )
                     )}
                   </div>
                 </footer>

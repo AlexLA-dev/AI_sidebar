@@ -48,6 +48,7 @@ enum AppTab: Hashable {
 struct ContentView: View {
     @StateObject private var store = StoreKitManager.shared
     @StateObject private var router = DeepLinkRouter.shared
+    @StateObject private var activation = Activation.shared
     @Environment(\.requestReview) private var requestReview
     @State private var tab: AppTab = .home
 
@@ -77,6 +78,7 @@ struct ContentView: View {
                 SharedDefaults.shared.removeLegacyData()
                 await store.refreshEntitlement()
                 askForReviewIfDue()
+                await activation.launched()
             }
     }
 
@@ -84,7 +86,7 @@ struct ContentView: View {
     private var root: some View {
         #if os(iOS)
         TabView(selection: $tab) {
-            NavigationView { HomeView(store: store, openPro: { tab = .pro }, openTips: { tab = .tips }) }
+            NavigationView { HomeView(store: store, activation: activation, openPro: { tab = .pro }, openTips: { tab = .tips }) }
                 .navigationViewStyle(.stack)
                 .tabItem { Label("Get Started", systemImage: "sparkles") }
                 .tag(AppTab.home)
@@ -102,7 +104,10 @@ struct ContentView: View {
                 .tag(AppTab.settings)
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
-            Task { await store.refreshEntitlement() }
+            Task {
+                await store.refreshEntitlement()
+                await activation.launched()
+            }
             askForReviewIfDue()
         }
         #else
@@ -116,7 +121,7 @@ struct ContentView: View {
             .navigationSplitViewColumnWidth(min: 170, ideal: 190)
         } detail: {
             switch tab {
-            case .home: HomeView(store: store, openPro: { tab = .pro }, openTips: { tab = .tips })
+            case .home: HomeView(store: store, activation: activation, openPro: { tab = .pro }, openTips: { tab = .tips })
             case .tips: TipsView()
             case .pro: ProView(store: store)
             case .settings: SettingsView()
@@ -124,7 +129,10 @@ struct ContentView: View {
         }
         .frame(minWidth: 720, minHeight: 560)
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
-            Task { await store.refreshEntitlement() }
+            Task {
+                await store.refreshEntitlement()
+                await activation.launched()
+            }
             askForReviewIfDue()
         }
         #endif
@@ -135,11 +143,9 @@ struct ContentView: View {
 
 struct HomeView: View {
     @ObservedObject var store: StoreKitManager
+    @ObservedObject var activation: Activation
     var openPro: () -> Void
     var openTips: () -> Void
-    #if os(macOS)
-    @State private var extensionEnabled: Bool?
-    #endif
 
     var body: some View {
         ScrollView {
@@ -148,7 +154,7 @@ struct HomeView: View {
                 #if os(macOS)
                 macStatus
                 #else
-                setupCard
+                SetupCard(activation: activation, openSafari: openSafari)
                 #endif
                 howToCard
                 planCard
@@ -159,10 +165,6 @@ struct HomeView: View {
             .frame(maxWidth: .infinity)
         }
         .navigationTitle("ContextFlow")
-        #if os(macOS)
-        .onAppear(perform: refreshExtensionState)
-        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in refreshExtensionState() }
-        #endif
     }
 
     private var header: some View {
@@ -184,24 +186,6 @@ struct HomeView: View {
     }
 
     #if os(iOS)
-    private var setupCard: some View {
-        Card(title: "Turn on ContextFlow", systemImage: "switch.2") {
-            Step(number: 1, text: "Open the Settings app and go to Apps → Safari → Extensions.")
-            Step(number: 2, text: "Tap ContextFlow and switch it on.")
-            Step(number: 3, text: "Under Permissions, set All Websites to Allow.")
-            Button {
-                openSafari()
-            } label: {
-                Label("Open Safari", systemImage: "safari")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 6)
-            }
-            .buttonStyle(.borderedProminent)
-            .padding(.top, 4)
-        }
-    }
-
     private func openSafari() {
         // x-web-search:// always opens Safari, even when another browser is the default.
         guard let url = URL(string: "x-web-search://?ContextFlow") else { return }
@@ -215,15 +199,21 @@ struct HomeView: View {
 
     #if os(macOS)
     private var macStatus: some View {
-        Card(title: "Safari extension", systemImage: "puzzlepiece.extension") {
+        let enabled = activation.state != .off
+        return Card(title: "Safari extension", systemImage: "puzzlepiece.extension") {
             HStack(spacing: 10) {
-                Image(systemName: extensionEnabled == true ? "checkmark.circle.fill" : "exclamationmark.circle.fill")
-                    .foregroundColor(extensionEnabled == true ? .green : .orange)
+                Image(systemName: enabled ? "checkmark.circle.fill" : "exclamationmark.circle.fill")
+                    .foregroundColor(enabled ? .green : .orange)
                     .font(.title3)
-                Text(extensionEnabled == true ? LocalizedStringKey("ContextFlow is on in Safari.") : LocalizedStringKey("ContextFlow is turned off in Safari."))
+                Text(enabled ? LocalizedStringKey("ContextFlow is on in Safari.") : LocalizedStringKey("ContextFlow is turned off in Safari."))
                     .font(.body.weight(.medium))
             }
-            if extensionEnabled != true {
+            if activation.state == .on {
+                Text("Open any page and click the ContextFlow icon in the toolbar. If Safari asks, allow it on every website.")
+                    .font(.callout)
+                    .foregroundColor(.secondary)
+            }
+            if !enabled {
                 Text("Open Safari Settings → Extensions, tick ContextFlow and allow it on all websites.")
                     .font(.callout)
                     .foregroundColor(.secondary)
@@ -237,11 +227,6 @@ struct HomeView: View {
         }
     }
 
-    private func refreshExtensionState() {
-        SFSafariExtensionManager.getStateOfSafariExtension(withIdentifier: extensionBundleIdentifier) { state, _ in
-            DispatchQueue.main.async { extensionEnabled = state?.isEnabled }
-        }
-    }
     #endif
 
     private var howToCard: some View {

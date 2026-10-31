@@ -91,6 +91,10 @@ export interface AppleTransaction {
   storefront?: string
   // 1 introductory, 2 promotional, 3 offer code, 4 win-back.
   offerType?: number
+  // "FREE_TRIAL", "PAY_AS_YOU_GO" or "PAY_UP_FRONT" when an offer applies (newer transactions only).
+  offerDiscountType?: string
+  // The offer code's or promotional offer's identifier.
+  offerIdentifier?: string
 }
 
 export interface Entitlement {

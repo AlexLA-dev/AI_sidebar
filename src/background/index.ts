@@ -9,6 +9,7 @@ import {
   type BackgroundRequest,
   type Plan,
   type Platform,
+  type ProOffer,
   type Settings,
   type StatusInfo,
   type StreamEvent,
@@ -54,7 +55,9 @@ let entitlementCache: { at: number; value: NativeEntitlement | null } | null = n
 async function entitlement(force = false): Promise<NativeEntitlement | null> {
   if (TARGET !== "safari") return null
   if (!force && entitlementCache && Date.now() - entitlementCache.at < 60_000) return entitlementCache.value
-  const value = await callNative<NativeEntitlement>("getEntitlement", {}, 6000)
+  // The install id lets the app link a purchase to this install (StoreKit appAccountToken) and tells it
+  // the panel is in use, so it stops showing the setup guide.
+  const value = await callNative<NativeEntitlement>("getEntitlement", { installId: await installId() }, 6000)
   entitlementCache = { at: Date.now(), value }
   return value
 }
@@ -85,13 +88,34 @@ async function status(refresh = false, fresh = false): Promise<StatusInfo> {
       body: JSON.stringify({ installId: id, client, entitlement: ent?.active ? ent.jws : null })
     })
     if (!res.ok) throw new Error(`status ${res.status}`)
-    const body = (await res.json()) as { plan: Plan; usage: Usage | null }
-    value = { plan: body.plan, usage: body.usage, store, hasOwnKey: Boolean(key), ownKeyProvider: key ? keyProvider(key) : null, offline: false }
+    const body = (await res.json()) as { plan: Plan; usage: Usage | null; limitedBefore?: boolean; offer?: ProOffer | null }
+    value = {
+      plan: body.plan, usage: body.usage, limitedBefore: body.limitedBefore === true, offer: body.offer ?? null,
+      store, hasOwnKey: Boolean(key), ownKeyProvider: key ? keyProvider(key) : null, offline: false
+    }
   } catch {
-    value = { plan: ent?.active ? planFromProduct(ent.productId) : "free", usage: null, store, hasOwnKey: Boolean(key), ownKeyProvider: key ? keyProvider(key) : null, offline: true }
+    value = {
+      plan: ent?.active ? planFromProduct(ent.productId) : "free", usage: null, limitedBefore: false, offer: null,
+      store, hasOwnKey: Boolean(key), ownKeyProvider: key ? keyProvider(key) : null, offline: true
+    }
   }
   statusCache = { at: Date.now(), value }
   return value
+}
+
+// ------------------------------------------------------------------ funnel
+
+/** Tells the server once that this install's extension ran, i.e. was switched on in Safari. */
+async function reportSwitchedOn(): Promise<void> {
+  const stored = await chrome.storage.local.get(STORAGE.extOnPending)
+  if (stored[STORAGE.extOnPending] !== false) return
+  const [id, client] = await Promise.all([installId(), clientInfo()])
+  const res = await fetch(`${API_BASE}/api/v2/event`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ kind: "ext_on", installId: id, client })
+  })
+  if (res.ok || res.status === 400) await chrome.storage.local.remove(STORAGE.extOnPending)
 }
 
 // -------------------------------------------------------------------- chat
@@ -265,6 +289,7 @@ async function migrateFromV1(): Promise<void> {
 chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason === "install") {
     void installId()
+    void chrome.storage.local.set({ [STORAGE.extOnPending]: false }).then(reportSwitchedOn).catch(() => undefined)
     void chrome.tabs.create({ url: chrome.runtime.getURL("welcome.html") })
   } else if (details.reason === "update") {
     void migrateFromV1().catch(() => undefined)
@@ -273,5 +298,7 @@ chrome.runtime.onInstalled.addListener((details) => {
 
 watchSettings()
 void syncSettings().catch(() => undefined)
+// Offline at install time: try again whenever the background starts.
+void reportSwitchedOn().catch(() => undefined)
 // Chats follow the user to their other Apple devices through iCloud.
 if (TARGET === "safari") watchThreads()

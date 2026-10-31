@@ -6,7 +6,9 @@ import Foundation
 ///   transaction (JWS) that the extension forwards to the backend as proof of purchase;
 /// - the extension's settings, editable in either place (the newer copy wins);
 /// - "moments of value" counted by the extension, after which the app may ask
-///   for an App Store rating.
+///   for an App Store rating;
+/// - whether the extension is switched on and has been used, for the app's setup guide
+///   and its reminders to finish setup.
 /// No accounts, no personal data.
 ///
 /// This file is compiled into both the app and the extension targets
@@ -38,6 +40,11 @@ final class SharedDefaults {
     private let settingsKey = "cf_settings_v1"
     private let reviewMomentKey = "cf_review_moment_v1"
     private let reviewAskedKey = "cf_review_asked_v1"
+    private let extensionKey = "cf_extension_v1"
+    private let appKey = "cf_app_v1"
+
+    /// Local notifications the app schedules on a new install until the extension is switched on.
+    static let setupReminderIds = ["cf.setup.15m", "cf.setup.24h"]
 
     private init() {
         defaults = UserDefaults(suiteName: SharedDefaults.suiteName) ?? .standard
@@ -104,6 +111,54 @@ final class SharedDefaults {
 
     func markReviewAsked(_ count: Int) {
         defaults.set(count, forKey: reviewAskedKey)
+    }
+
+    // MARK: Setup
+
+    struct ExtensionStatus {
+        /// The extension first talked to the app: it is switched on in Safari.
+        var firstSeen: Date?
+        /// The panel first opened on a page (so Safari let it run there).
+        var firstUsed: Date?
+        /// The extension's anonymous install id (what the server counts answers by).
+        var installId: String?
+    }
+
+    /// Called by the extension's native handler on every message; `used` when the panel asks for the
+    /// subscription, which it does whenever it opens. Returns whether the extension was never seen before.
+    @discardableResult
+    func recordExtensionSeen(used: Bool, installId: String?) -> Bool {
+        let before = defaults.dictionary(forKey: extensionKey) ?? [:]
+        var stored = before
+        let now = Date().timeIntervalSince1970
+        let first = stored["firstSeen"] == nil
+        if first { stored["firstSeen"] = now }
+        if used, stored["firstUsed"] == nil { stored["firstUsed"] = now }
+        if let installId, UUID(uuidString: installId) != nil { stored["installId"] = installId.lowercased() }
+        if !(stored as NSDictionary).isEqual(to: before) { defaults.set(stored, forKey: extensionKey) }
+        return first
+    }
+
+    func readExtensionStatus() -> ExtensionStatus {
+        let stored = defaults.dictionary(forKey: extensionKey) ?? [:]
+        let date = { (key: String) in (stored[key] as? Double).map { Date(timeIntervalSince1970: $0) } }
+        var status = ExtensionStatus(firstSeen: date("firstSeen"), firstUsed: date("firstUsed"), installId: stored["installId"] as? String)
+        // Versions before 2.4 didn't record this; answers counted for the rating prompt prove use.
+        if status.firstUsed == nil, defaults.dictionary(forKey: reviewMomentKey) != nil {
+            status.firstUsed = .distantPast
+        }
+        if status.firstSeen == nil { status.firstSeen = status.firstUsed }
+        return status
+    }
+
+    /// The app's random id, made on its first launch, and whether this launch is the first one of a new
+    /// install (rather than the first after updating from a version that kept no such record).
+    func appLaunch() -> (id: String, newInstall: Bool) {
+        if let id = defaults.dictionary(forKey: appKey)?["id"] as? String { return (id, false) }
+        let updated = [entitlementKey, settingsKey, reviewMomentKey, extensionKey].contains { defaults.object(forKey: $0) != nil }
+        let id = UUID().uuidString.lowercased()
+        defaults.set(["id": id, "firstLaunch": Date().timeIntervalSince1970, "updated": updated], forKey: appKey)
+        return (id, !updated)
     }
 
     /// Version 1.x kept Supabase sessions, e-mail and the user's OpenAI key here.

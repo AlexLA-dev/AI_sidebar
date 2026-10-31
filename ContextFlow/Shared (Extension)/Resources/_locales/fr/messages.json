@@ -234,17 +234,6 @@
  "limitFreeTitle": {
   "message": "Vous avez utilisé vos réponses gratuites du jour"
  },
- "limitFreeBody": {
-  "message": "Nouvelles réponses gratuites dans $P0$. Avec Pro, profitez de jusqu’à $P1$ réponses par semaine.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
- },
  "limitProTitle": {
   "message": "Limite hebdomadaire atteinte"
  },
@@ -680,5 +669,85 @@
  },
  "pickNone": {
   "message": "Tout désélectionner"
+ },
+ "limitFreeBack": {
+  "message": "$P0$ nouvelles réponses gratuites à $P1$, dans $P2$.",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   },
+   "p2": {
+    "content": "$3"
+   }
+  }
+ },
+ "limitFreePro": {
+  "message": "Avec Pro, profitez de jusqu’à $P0$ réponses par semaine.",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "limitNotes": {
+  "message": "Les notes restent gratuites et illimitées : notez l’essentiel maintenant, interrogez l’IA plus tard."
+ },
+ "writeNote": {
+  "message": "Écrire une note"
+ },
+ "errProvider": {
+  "message": "Votre fournisseur d'IA a répondu : $P0$",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "offerLimit": {
+  "message": "Ou passez à Pro avec $P0$ % de réduction le premier mois : jusqu'à $P1$ réponses par semaine avec un modèle plus intelligent. Résiliable à tout moment.",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   },
+   "p1": {
+    "content": "$2"
+   }
+  }
+ },
+ "offerButton": {
+  "message": "Pro à −$P0$ %",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "offerShort": {
+  "message": "Pro −$P0$ %",
+  "placeholders": {
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "offerCardTitle": {
+  "message": "Plus assez de réponses ?"
+ },
+ "offerCardBody": {
+  "message": "Vous avez déjà atteint la limite quotidienne gratuite. Pro vous donne jusqu'à $P1$ réponses par semaine avec un modèle plus intelligent, et le premier mois est à −$P0$ %. Ensuite, le prix normal ; résiliable à tout moment dans les réglages de l'App Store.",
+  "placeholders": {
+   "p1": {
+    "content": "$2"
+   },
+   "p0": {
+    "content": "$1"
+   }
+  }
+ },
+ "offerLater": {
+  "message": "Pas maintenant"
  }
 }

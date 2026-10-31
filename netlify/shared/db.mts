@@ -63,8 +63,14 @@ export const getEntitlement = (originalTransactionId: string) =>
   rpc<EntitlementRow | null>("cf_entitlement_get", { p_original_transaction_id: originalTransactionId })
 export const entitlementByToken = (token: string) => rpc<EntitlementRow | null>("cf_entitlement_by_token", { p_token: token })
 
+/** The install hit the free daily limit on an earlier UTC day (cf_limited_before): the Pro offer code
+ * is shown to it once more when the panel opens. */
+export const limitedBefore = (installId: string) => rpc<boolean>("cf_limited_before", { p_install: installId })
+
 /** Usage analytics for the last `days` days (see cf_usage_report in supabase/migrations). */
 export const usageReport = (days: number) => rpc<Record<string, unknown>>("cf_usage_report", { p_days: days })
+/** New users' way from opening the app to paying, by day (cf_setup_funnel). */
+export const setupFunnel = (days: number) => rpc<Record<string, unknown>[]>("cf_setup_funnel", { p_days: days })
 
 export async function logEvent(kind: string, installId: string | null, data: Record<string, unknown>): Promise<void> {
   try {

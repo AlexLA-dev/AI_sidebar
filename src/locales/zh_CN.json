@@ -76,7 +76,6 @@
   "errSearchUnavailable": "Google 回答暂时不可用。普通回答仍可使用。",
 
   "limitFreeTitle": "今天的免费回答已用完",
-  "limitFreeBody": "{0}后可获得新的免费回答。升级 Pro，每周最多可获得 {1} 次回答。",
   "limitProTitle": "已达到每周上限",
   "limitProBody": "你的 Pro 回答次数将在 {0}后恢复。",
   "getPro": "升级 Pro",
@@ -194,5 +193,16 @@
   "pickCount": "{0}/{1}",
   "pickHint": "点按要分享的消息",
   "pickAll": "全选",
-  "pickNone": "取消全选"
+  "pickNone": "取消全选",
+  "limitFreeBack": "{1}（{2}后）将恢复 {0} 次免费回答。",
+  "limitFreePro": "升级 Pro，每周最多可获得 {0} 次回答。",
+  "limitNotes": "笔记始终免费且不限次数：现在记下重点，稍后再问 AI。",
+  "writeNote": "写笔记",
+  "errProvider": "你的 AI 服务商返回：{0}",
+  "offerLimit": "或开通 Pro，首月优惠 {0}%：使用更聪明的模型，每周最多 {1} 次回答。可随时取消。",
+  "offerButton": "Pro 首月优惠 {0}%",
+  "offerShort": "Pro −{0}%",
+  "offerCardTitle": "回答不够用？",
+  "offerCardBody": "你之前用完过每日免费回答。Pro 使用更聪明的模型，每周最多 {1} 次回答，首月优惠 {0}%。之后按原价续订，可随时在 App Store 设置中取消。",
+  "offerLater": "以后再说"
 }

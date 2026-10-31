@@ -336,6 +336,12 @@
 .cf-card strong { display: block; font-size: 14.5px; margin-bottom: 4px; }
 .cf-card p { margin: 0 0 10px; color: var(--text-2); font-size: 13.5px; }
 .cf-card.limit { background: var(--accent-soft); }
+.cf-card.offer { background: var(--accent-soft); border: 1px solid rgba(37, 99, 235, 0.25); }
+.cf-card.offer p { margin-bottom: 0; }
+/* Out of answers, notes still work: a quiet line in the note colour. */
+.cf-card p.cf-limit-notes { padding: 8px 10px; border-radius: 10px; background: var(--note-soft); color: var(--note-text); font-size: 13px; }
+.cf-limit-notes svg { display: inline-block; width: 13px; height: 13px; vertical-align: -2px; margin-right: 2px; }
+.cf-limit-notes .cf-link { color: var(--note-text) !important; font-weight: 600; text-decoration: underline; padding: 0 !important; font-size: 13px; }
 .cf-card.error p { color: var(--text); }
 .cf-card.consent { border: 1px solid var(--border); background: var(--bg); }
 .cf-card-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }

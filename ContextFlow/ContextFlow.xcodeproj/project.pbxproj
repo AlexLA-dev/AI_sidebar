@@ -14,9 +14,11 @@
 		410D88962F41EE9800684748 /* SharedDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D88932F41EE9800684748 /* SharedDefaults.swift */; };
 		410D88972F41EE9800684748 /* StoreKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D88942F41EE9800684748 /* StoreKitManager.swift */; };
 		410D88982F41EE9800684748 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D88912F41EE9800684748 /* ContentView.swift */; };
+		CF4000000000000000000002 /* Setup.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF4000000000000000000001 /* Setup.swift */; };
 		410D88992F41EE9800684748 /* SharedDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D88932F41EE9800684748 /* SharedDefaults.swift */; };
 		410D889A2F41EE9800684748 /* StoreKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D88942F41EE9800684748 /* StoreKitManager.swift */; };
 		410D889B2F41EE9800684748 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D88912F41EE9800684748 /* ContentView.swift */; };
+		CF4000000000000000000003 /* Setup.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF4000000000000000000001 /* Setup.swift */; };
 		410D889C2F41EE9800684748 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 410D88922F41EE9800684748 /* PrivacyInfo.xcprivacy */; };
 		410D889E2F41EEAA00684748 /* SharedDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D889D2F41EEAA00684748 /* SharedDefaults.swift */; };
 		410D889F2F41EEAA00684748 /* SharedDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D889D2F41EEAA00684748 /* SharedDefaults.swift */; };
@@ -105,6 +107,7 @@
 /* Begin PBXFileReference section */
 		CF3000000000000000000001 /* ChatSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatSync.swift; sourceTree = "<group>"; };
 		410D88912F41EE9800684748 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		CF4000000000000000000001 /* Setup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Setup.swift; sourceTree = "<group>"; };
 		410D88922F41EE9800684748 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		410D88932F41EE9800684748 /* SharedDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedDefaults.swift; sourceTree = "<group>"; };
 		410D88942F41EE9800684748 /* StoreKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreKitManager.swift; sourceTree = "<group>"; };
@@ -198,6 +201,7 @@
 			isa = PBXGroup;
 			children = (
 				410D88912F41EE9800684748 /* ContentView.swift */,
+				CF4000000000000000000001 /* Setup.swift */,
 				410D88922F41EE9800684748 /* PrivacyInfo.xcprivacy */,
 				410D88932F41EE9800684748 /* SharedDefaults.swift */,
 				410D88942F41EE9800684748 /* StoreKitManager.swift */,
@@ -503,6 +507,7 @@
 				410D88962F41EE9800684748 /* SharedDefaults.swift in Sources */,
 				410D88972F41EE9800684748 /* StoreKitManager.swift in Sources */,
 				410D88982F41EE9800684748 /* ContentView.swift in Sources */,
+				CF4000000000000000000002 /* Setup.swift in Sources */,
 				41FA27F32F41ED2100FED9FC /* ViewController.swift in Sources */,
 				41FA27C12F41ED2100FED9FC /* AppDelegate.swift in Sources */,
 				41FA27C32F41ED2100FED9FC /* SceneDelegate.swift in Sources */,
@@ -518,6 +523,7 @@
 				410D88992F41EE9800684748 /* SharedDefaults.swift in Sources */,
 				410D889A2F41EE9800684748 /* StoreKitManager.swift in Sources */,
 				410D889B2F41EE9800684748 /* ContentView.swift in Sources */,
+				CF4000000000000000000003 /* Setup.swift in Sources */,
 				41FA27D22F41ED2100FED9FC /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -648,7 +654,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 2.3;
+				MARKETING_VERSION = 2.4;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -706,7 +712,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 2.3;
+				MARKETING_VERSION = 2.4;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
@@ -718,7 +724,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "ContextFlow Extension (iOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 64;
+				CURRENT_PROJECT_VERSION = 65;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
@@ -730,7 +736,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 2.3;
+				MARKETING_VERSION = 2.4;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -753,7 +759,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "ContextFlow Extension (iOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 64;
+				CURRENT_PROJECT_VERSION = 65;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
@@ -765,7 +771,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 2.3;
+				MARKETING_VERSION = 2.4;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -791,7 +797,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "ContextFlow (iOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 64;
+				CURRENT_PROJECT_VERSION = 65;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS (App)/Info.plist";
@@ -806,7 +812,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.3;
+				MARKETING_VERSION = 2.4;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -833,7 +839,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "ContextFlow (iOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 64;
+				CURRENT_PROJECT_VERSION = 65;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS (App)/Info.plist";
@@ -848,7 +854,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.3;
+				MARKETING_VERSION = 2.4;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -874,7 +880,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "ContextFlow Extension (macOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 64;
+				CURRENT_PROJECT_VERSION = 65;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -889,7 +895,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 2.3;
+				MARKETING_VERSION = 2.4;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -912,7 +918,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "ContextFlow Extension (macOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 64;
+				CURRENT_PROJECT_VERSION = 65;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -927,7 +933,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 2.3;
+				MARKETING_VERSION = 2.4;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -952,7 +958,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "ContextFlow (macOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 64;
+				CURRENT_PROJECT_VERSION = 65;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -968,7 +974,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 2.3;
+				MARKETING_VERSION = 2.4;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -995,7 +1001,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "ContextFlow (macOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 64;
+				CURRENT_PROJECT_VERSION = 65;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -1011,7 +1017,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 2.3;
+				MARKETING_VERSION = 2.4;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
