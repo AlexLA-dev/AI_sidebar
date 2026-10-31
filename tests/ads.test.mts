@@ -74,6 +74,12 @@ test("a live account that matches the plan needs no changes; drift becomes updat
   }
   assert.deepEqual(diffPlan(plan, live).ops, [])
 
+  // Ad groups made in the web UI have no ad object: that is the default product page, not a change.
+  assert.deepEqual(diffPlan(plan, { ...live, ads: [] }).ops, [])
+  const custom = structuredClone(live)
+  custom.ads[0].productPage = "BetterScreenshots#1"
+  assert.deepEqual(diffPlan(plan, custom).ops.map((o) => [o.kind, o.productPage, o.pauseAdIds?.length]), [["ad.create", "default", 1]])
+
   const drift = structuredClone(live)
   drift.keywords[0].bid = { amount: "1.40" }
   drift.keywords.push({ id: 9999, adGroupId: drift.keywords[0].adGroupId, text: "stray", matchType: "EXACT", status: "ENABLED" })

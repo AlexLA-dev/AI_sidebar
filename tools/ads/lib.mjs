@@ -194,9 +194,12 @@ export function diffPlan(plan, live) {
       if (missingGroupNeg.length) ops.push({ kind: "negatives.create", campaign: c.name, adGroup: g.name, items: missingGroupNeg.map((n) => ({ text: n.text, matchType: n.match ?? "BROAD" })), desc: `add ${missingGroupNeg.length} negative(s) to ad group "${g.name}"` })
 
       // The ad: the default product page or a custom product page (by its App Store Connect name).
+      // An ad group without any enabled ad shows the default page (ad groups made in the web UI have
+      // no ad object for it), so "default" needs an ad only when a custom one has to be replaced.
       const page = g.productPage ?? "default"
       const liveAds = lg ? live.ads.filter((a) => a.adGroupId === lg.id && !a.deleted) : []
-      const current = liveAds.find((a) => a.status === "ENABLED" && a.productPage === page)
+      const enabledAds = liveAds.filter((a) => a.status === "ENABLED")
+      const current = enabledAds.find((a) => a.productPage === page) ?? (page === "default" && lg && !enabledAds.length ? "implicit" : null)
       if (!current) ops.push({ kind: "ad.create", campaign: c.name, adGroup: g.name, productPage: page, pauseAdIds: liveAds.filter((a) => a.status === "ENABLED").map((a) => a.id), desc: `ad in "${g.name}": ${page === "default" ? "default product page" : `custom product page "${page}"`}` })
     }
     for (const lg of liveGroups) if (!(c.adGroups ?? []).some((g) => g.name === lg.name) && lg.status !== "PAUSED") notes.push(`ad group "${c.name} / ${lg.name}" is live but not in the plan (left as is)`)
