@@ -115,7 +115,11 @@ async function snapshot(plan) {
   const groupIds = adGroups.map((g) => g.id)
   const inGroups = groupIds.length ? [{ field: "adGroupId", operator: "IN", value: groupIds }] : null
   const keywords = inGroups ? await query("/keywords/query", inGroups) : []
-  const negatives = inCampaigns ? dedupe([...(await query("/negative-keywords/query", inCampaigns)), ...(inGroups ? await query("/negative-keywords/query", inGroups) : [])]) : []
+  // Campaign-level negatives are the ones without an ad group; Apple wants an adGroupId condition either way.
+  // campaignId only takes EQUALS here, so one query per campaign.
+  const negatives = []
+  for (const id of ids) negatives.push(...(await query("/negative-keywords/query", [{ field: "campaignId", operator: "EQUALS", value: id }, { field: "adGroupId", operator: "IS_NULL" }])))
+  if (inGroups) negatives.push(...(await query("/negative-keywords/query", inGroups)))
   const ads = inGroups ? await query("/ads/query", inGroups) : []
   // Which product page each ad shows: creative → productPageId → the page's name in App Store Connect.
   let pages = []
@@ -208,7 +212,7 @@ async function reports(live, from, to) {
   if (!ids.length) return out
   const name = (id) => live.campaigns.find((c) => c.id === id)?.name
   const time = (tz = "UTC") => ({ timeRange: { start: from, end: to, timeZone: tz }, options: { includeRows: ["GRAND_TOTAL"] } })
-  out.campaigns = (await query("/reports/apps/campaigns/query", [{ field: "campaignId", operator: "IN", value: ids }], time())).map((r) => ({ ...r, campaignName: name(r.metadata?.id ?? r.metadata?.campaignId) }))
+  out.campaigns = (await query("/reports/apps/campaigns/query", [{ field: "id", operator: "IN", value: ids }], time())).map((r) => ({ ...r, campaignName: name(r.metadata?.id ?? r.metadata?.campaignId) }))
   for (const id of ids) {
     const f = [{ field: "campaignId", operator: "EQUALS", value: id }]
     for (const r of await query("/reports/apps/keywords/query", f, time())) out.keywords.push({ ...r, campaignName: name(id) })
@@ -319,7 +323,7 @@ async function main() {
       console.log(`${c.name}  [${c.displayStatus ?? c.status}]  $${c.dailyBudget?.value?.amount}/day  ${(c.targeting?.countryOrRegion?.include ?? []).join(",")}  ${c.startTime?.slice(0, 10)} → ${c.endTime?.slice(0, 10) ?? "∞"}  spend ${usd(metrics(r).spend)}, installs ${metrics(r).installs}`)
       for (const g of live.adGroups.filter((x) => x.campaignId === c.id)) {
         const kws = live.keywords.filter((k) => k.adGroupId === g.id)
-        console.log(`  ${g.name}  [${g.displayStatus ?? g.status}]  bid $${g.bidStrategy?.bid?.amount}${g.automatedKeywordsOptIn ? "  Search Match" : ""}  ${(g.targeting?.deviceClass?.include ?? ["all devices"]).join("+")}  ${kws.filter((k) => k.status === "ENABLED").length}/${kws.length} keywords on  ad: ${live.ads.filter((a) => a.adGroupId === g.id && a.status === "ENABLED").map((a) => a.productPage).join(", ") || "none"}`)
+        console.log(`  ${g.name}  [${g.displayStatus ?? g.status}]  bid $${g.bidStrategy?.bid?.amount}${g.automatedKeywordsOptIn ? "  Search Match" : ""}  ${(g.targeting?.deviceClass?.include ?? ["all devices"]).join("+")}  ${kws.filter((k) => k.status === "ENABLED").length}/${kws.length} keywords on  ad: ${live.ads.filter((a) => a.adGroupId === g.id && a.status === "ENABLED").map((a) => a.productPage).join(", ") || "default page"}`)
       }
     }
     return
