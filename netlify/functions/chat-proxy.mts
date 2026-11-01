@@ -70,7 +70,8 @@ export default async (req: Request, context: Context): Promise<Response> => {
 
   let completion
   try {
-    completion = await startAnswer(system.content || "You are ContextFlow, a helpful AI browser assistant.", chat, "free", req.signal)
+    // These builds told their users about OpenAI only, so they stay on it (no build: never Claude).
+    completion = await startAnswer(system.content || "You are ContextFlow, a helpful AI browser assistant.", chat, "free", null, req.signal)
   } catch (err) {
     console.error("[legacy] upstream failed:", err instanceof Error ? err.message : err)
     context.waitUntil(refund(counters).catch(() => undefined))

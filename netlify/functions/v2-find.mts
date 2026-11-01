@@ -2,7 +2,7 @@ import type { Config, Context } from "@netlify/functions"
 
 import { consume, logEvent, refund, touchInstall } from "../shared/db.mts"
 import { clip, ipSubject, isUuid, json, preflight, readJson } from "../shared/http.mts"
-import { answerCost, startAnswer, type Answer } from "../shared/answer.mts"
+import { answerCost, clientBuild, startAnswer, type Answer } from "../shared/answer.mts"
 import type { StreamStats } from "../shared/llm.mts"
 import { blockReason, countersFor, resolveAccess, visibleUsage } from "../shared/plan.mts"
 import { findPrompt, MAX_FIND_CHARS, MAX_FIND_CHATS, parseFindAnswer, sanitizeDigests } from "../../src/shared/history.ts"
@@ -31,6 +31,8 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const platform = clip(client.platform, 20)
   const version = clip(client.version, 20)
   const locale = clip(client.locale, 12)
+  // The app build (2.4 build 67 and later send it): Claude answers only builds that name it.
+  const build = clientBuild(client)
 
   const access = await resolveAccess(body.entitlement, installId)
   if (access.plan !== "pro") {
@@ -59,7 +61,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   let answer: Answer | null = null
   try {
     // The free plan's settings: picking chats needs no long writing.
-    answer = await startAnswer(findPrompt(chats, locale), [{ role: "user", content: query }], "free", req.signal)
+    answer = await startAnswer(findPrompt(chats, locale), [{ role: "user", content: query }], "free", build, req.signal)
     for await (const piece of answer.text(stats)) text += piece
   } catch (err) {
     console.error("[cf] find failed:", err instanceof Error ? err.message : err)
@@ -87,7 +89,8 @@ export default async (req: Request, context: Context): Promise<Response> => {
       completion_tokens: stats.completionTokens,
       ms: Date.now() - started,
       platform,
-      version
+      version,
+      build
     }),
     touchInstall(installId, platform, version, locale, 1).catch(() => undefined)
   ]))

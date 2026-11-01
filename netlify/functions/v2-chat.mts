@@ -4,7 +4,7 @@ import { config as settings } from "../shared/config.mts"
 import { consume, logEvent, maybeCleanup, refund, touchInstall, type ConsumeResult } from "../shared/db.mts"
 import { clip, ipSubject, isUuid, json, preflight, readJson, corsHeaders } from "../shared/http.mts"
 import { buildGrounding, googlePrompt, readGoogle, startGoogle, type GoogleStats } from "../shared/google.mts"
-import { answerCost, startAnswer, type Answer } from "../shared/answer.mts"
+import { answerCost, clientBuild, startAnswer, type Answer } from "../shared/answer.mts"
 import { sanitizeMessages, sanitizeOtherPages, sanitizePage, systemPrompt } from "../shared/llm.mts"
 import { geminiModels } from "../shared/models.mts"
 import { historyPrompt, MAX_HISTORY_CHARS, MAX_HISTORY_CHATS, sanitizeDigests } from "../../src/shared/history.ts"
@@ -41,6 +41,8 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const platform = clip(client.platform, 20)
   const version = clip(client.version, 20)
   const locale = clip(client.locale, 12)
+  // The app build (2.4 build 67 and later send it): Claude answers only builds that name it.
+  const build = clientBuild(client)
   const google = body.mode === "google" && !history
   if (google && !settings.geminiKey) return json({ code: "SEARCH_UNAVAILABLE", message: "Google search is not available right now." }, 503)
 
@@ -77,7 +79,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   let answer: Answer | null = null
   try {
     if (google) completion = await startGoogle(googlePrompt(page, profile, locale, others), messages, await geminiModels(), req.signal)
-    else answer = await startAnswer(history ? historyPrompt(chats, profile, locale) : systemPrompt(page, profile, locale, others), messages, access.plan === "pro" ? "pro" : "free", req.signal)
+    else answer = await startAnswer(history ? historyPrompt(chats, profile, locale) : systemPrompt(page, profile, locale, others), messages, access.plan === "pro" ? "pro" : "free", build, req.signal)
   } catch (err) {
     console.error("[cf] upstream failed:", err instanceof Error ? err.message : err)
     context.waitUntil(Promise.all([
@@ -162,7 +164,8 @@ export default async (req: Request, context: Context): Promise<Response> => {
       completion_tokens: stats.completionTokens,
       ms: Date.now() - started,
       platform,
-      version
+      version,
+      build
     }),
     touchInstall(installId, platform, version, locale, 1).catch(() => undefined),
     maybeCleanup()
