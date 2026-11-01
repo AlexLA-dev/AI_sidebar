@@ -67,9 +67,10 @@ test("a live account that matches the plan needs no changes; drift becomes updat
     for (const g of c.adGroups) {
       const gid = id++
       live.adGroups.push({ id: gid, campaignId: cid, name: g.name, status: "ENABLED", bidStrategy: { bid: { amount: String(g.bid) } }, automatedKeywordsOptIn: Boolean(g.searchMatch), targeting: { deviceClass: { include: g.devices }, appDownloader: { exclude: ["6759115793"] } } })
-      for (const k of g.keywords) live.keywords.push({ id: id++, adGroupId: gid, text: k.text, matchType: "EXACT", status: "ENABLED", bid: k.bid != null ? { amount: String(k.bid) } : undefined })
+      for (const k of g.keywords) live.keywords.push({ id: id++, adGroupId: gid, text: k.text, matchType: k.match ?? "EXACT", status: "ENABLED", bid: k.bid != null ? { amount: String(k.bid) } : undefined })
       live.ads.push({ id: id++, adGroupId: gid, status: "ENABLED", productPage: "default" })
-      if (g.negateCampaignExact) for (const o of c.adGroups) if (o !== g) for (const k of o.keywords) live.negatives.push({ id: id++, adGroupId: gid, text: k.text, matchType: "EXACT" })
+      for (const n of g.negatives ?? []) live.negatives.push({ id: id++, adGroupId: gid, text: n.text, matchType: "BROAD" })
+      if (g.negateCampaignExact) for (const o of c.adGroups) if (o !== g) for (const k of o.keywords) if ((k.match ?? "EXACT") === "EXACT") live.negatives.push({ id: id++, adGroupId: gid, text: k.text, matchType: "EXACT" })
     }
   }
   assert.deepEqual(diffPlan(plan, live).ops, [])
@@ -86,7 +87,15 @@ test("a live account that matches the plan needs no changes; drift becomes updat
   const { ops } = diffPlan(plan, drift)
   assert.equal(ops.length, 1)
   assert.equal(ops[0].kind, "keywords.update")
-  assert.deepEqual(ops[0].items.map((k: { text: string; bid?: { amount: string }; status?: string }) => [k.text, k.bid?.amount ?? null, k.status ?? null]), [["safari ai", "1.10", null], ["stray", null, "PAUSED"]])
+  assert.deepEqual(ops[0].items.map((k: { text: string; bid?: { amount: string }; status?: string }) => [k.text, k.bid?.amount ?? null, k.status ?? null]), [[drift.keywords[0].text, plan.campaigns[0].adGroups[0].keywords[0].bid.toFixed(2), null], ["stray", null, "PAUSED"]])
+
+  // A negative that left the plan is paused, after the groups; one that came back is switched on.
+  const neg = structuredClone(live)
+  neg.negatives.push({ id: 8888, campaignId: neg.campaigns[0].id, text: "old negative", matchType: "BROAD", status: "ENABLED" })
+  neg.negatives[0].status = "PAUSED"
+  const negOps = diffPlan(plan, neg).ops
+  assert.deepEqual(negOps.map((o) => o.kind), ["negatives.update"])
+  assert.deepEqual(negOps[0].items.map((n: { text: string; status: string }) => [n.text, n.status]), [[neg.negatives[0].text, "ENABLED"], ["old negative", "PAUSED"]])
 })
 
 const kwRow = (group: string, text: string, t: Record<string, unknown>, id = 1) => ({
@@ -109,7 +118,8 @@ test("rules pause dead keywords, raise cheap ones, promote and block search term
   const by = (t: string) => proposals.find((p: { text: string }) => p.text === t)
   assert.equal(by("safari ai")?.action, "pause")
   assert.equal(by("ai summarizer")?.action, "bid")
-  assert.equal(by("ai summarizer")?.to, 1.04)
+  const summarizer = plan.campaigns[0].adGroups[1].keywords.find((k: { text: string }) => k.text === "ai summarizer")
+  assert.equal(by("ai summarizer")?.to, Math.min(plan.guards.maxBid, Math.round(summarizer.bid * 115 + 1e-6) / 100))
   assert.equal(by("tldr")?.action, "pause")
   assert.equal(by("safari gpt sidebar")?.action, "promote")
   assert.equal(by("safari gpt sidebar")?.adGroup, "Safari AI · exact")

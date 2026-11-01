@@ -87,18 +87,6 @@
           "text": "ad blocker"
         },
         {
-          "text": "chatgpt"
-        },
-        {
-          "text": "gemini"
-        },
-        {
-          "text": "claude"
-        },
-        {
-          "text": "perplexity"
-        },
-        {
           "text": "grammarly"
         },
         {
@@ -108,7 +96,7 @@
       "adGroups": [
         {
           "name": "Safari AI · exact",
-          "bid": 1.0,
+          "bid": 1.08,
           "devices": [
             "IPAD"
           ],
@@ -118,65 +106,65 @@
           "keywords": [
             {
               "text": "safari ai",
-              "bid": 1.1
+              "bid": 1.08
             },
             {
               "text": "ai for safari",
-              "bid": 1.1
+              "bid": 1.08
             },
             {
               "text": "ai safari extension",
-              "bid": 1.1
+              "bid": 1.08
             },
             {
               "text": "safari ai extension",
-              "bid": 1.1
+              "bid": 1.08
             },
             {
               "text": "safari ai assistant",
-              "bid": 1.1
+              "bid": 1.08
             },
             {
               "text": "ai assistant for safari",
-              "bid": 1.1
+              "bid": 1.08
             },
             {
               "text": "safari extension ai",
-              "bid": 1.0
+              "bid": 1.08
             },
             {
               "text": "safari summarizer",
-              "bid": 1.0
+              "bid": 1.08
             },
             {
               "text": "ai sidebar for safari",
-              "bid": 1.0
+              "bid": 1.08
             },
             {
               "text": "ai sidebar",
-              "bid": 0.9
+              "bid": 1.08
             },
             {
               "text": "ai browser extension",
-              "bid": 0.8
+              "bid": 0.96
             },
             {
               "text": "chat with webpage",
-              "bid": 0.8
+              "bid": 0.96
             },
             {
               "text": "ask ai about webpage",
-              "bid": 0.8
+              "bid": 0.96
             },
             {
               "text": "contextflow",
-              "bid": 0.5
+              "bid": 0.6
             }
           ]
         },
         {
           "name": "Summarize · exact",
-          "bid": 0.8,
+          "bid": 0.96,
           "devices": [
             "IPAD"
           ],
@@ -185,77 +173,77 @@
           "keywords": [
             {
               "text": "ai summarizer",
-              "bid": 0.9
+              "bid": 1.08
             },
             {
               "text": "summarizer",
-              "bid": 0.8
+              "bid": 0.96
             },
             {
               "text": "summarize",
-              "bid": 0.8
+              "bid": 0.96
             },
             {
               "text": "summarize web page",
-              "bid": 0.9
+              "bid": 1.08
             },
             {
               "text": "summarize webpage",
-              "bid": 0.9
+              "bid": 1.08
             },
             {
               "text": "webpage summarizer",
-              "bid": 0.9
+              "bid": 1.08
             },
             {
               "text": "website summarizer",
-              "bid": 0.9
+              "bid": 1.08
             },
             {
               "text": "web summarizer",
-              "bid": 0.9
+              "bid": 1.08
             },
             {
               "text": "web summary",
-              "bid": 0.8
+              "bid": 0.96
             },
             {
               "text": "page summary",
-              "bid": 0.8
+              "bid": 0.96
             },
             {
               "text": "article summarizer",
-              "bid": 0.9
+              "bid": 1.08
             },
             {
               "text": "summarize article",
-              "bid": 0.9
+              "bid": 1.08
             },
             {
               "text": "summarize articles",
-              "bid": 0.9
+              "bid": 1.08
             },
             {
               "text": "ai summary",
-              "bid": 0.8
+              "bid": 0.96
             },
             {
               "text": "tldr",
-              "bid": 0.6
+              "bid": 0.72
             },
             {
               "text": "ai reader",
-              "bid": 0.6
+              "bid": 0.72
             },
             {
               "text": "translate web page",
-              "bid": 0.6
+              "bid": 0.72
             }
           ]
         },
         {
           "name": "Competitors · exact",
-          "bid": 0.6,
+          "bid": 0.72,
           "devices": [
             "IPAD"
           ],
@@ -289,8 +277,54 @@
           ]
         },
         {
+          "name": "AI · broad",
+          "bid": 1.2,
+          "devices": [
+            "IPAD"
+          ],
+          "newUsersOnly": true,
+          "negateCampaignExact": true,
+          "productPage": "default",
+          "keywords": [
+            {
+              "text": "safari extension",
+              "match": "BROAD",
+              "bid": 1.3
+            },
+            {
+              "text": "ai browser",
+              "match": "BROAD",
+              "bid": 1.3
+            },
+            {
+              "text": "ai assistant",
+              "match": "BROAD"
+            },
+            {
+              "text": "ai chat",
+              "match": "BROAD"
+            },
+            {
+              "text": "chatgpt",
+              "match": "BROAD"
+            },
+            {
+              "text": "gemini",
+              "match": "BROAD"
+            },
+            {
+              "text": "claude",
+              "match": "BROAD"
+            },
+            {
+              "text": "perplexity",
+              "match": "BROAD"
+            }
+          ]
+        },
+        {
           "name": "Discovery · Search Match",
-          "bid": 0.5,
+          "bid": 0.6,
           "devices": [
             "IPAD"
           ],
@@ -298,7 +332,21 @@
           "searchMatch": true,
           "negateCampaignExact": true,
           "productPage": "default",
-          "keywords": []
+          "keywords": [],
+          "negatives": [
+            {
+              "text": "chatgpt"
+            },
+            {
+              "text": "gemini"
+            },
+            {
+              "text": "claude"
+            },
+            {
+              "text": "perplexity"
+            }
+          ]
         }
       ]
     },
@@ -362,7 +410,7 @@
       "adGroups": [
         {
           "name": "Deutsch · exact",
-          "bid": 0.7,
+          "bid": 0.84,
           "devices": [
             "IPAD"
           ],
@@ -410,7 +458,7 @@
         },
         {
           "name": "Français · exact",
-          "bid": 0.7,
+          "bid": 0.84,
           "devices": [
             "IPAD"
           ],
@@ -451,7 +499,7 @@
         },
         {
           "name": "English · exact",
-          "bid": 0.7,
+          "bid": 0.84,
           "devices": [
             "IPAD"
           ],
@@ -498,7 +546,7 @@
         },
         {
           "name": "Discovery · Search Match",
-          "bid": 0.4,
+          "bid": 0.48,
           "devices": [
             "IPAD"
           ],

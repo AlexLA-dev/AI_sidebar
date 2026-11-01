@@ -87,10 +87,12 @@ export function adGroupTargeting(g, plan) {
   return targeting
 }
 
-export function adGroupPayload(g, campaignId, plan) {
+export function adGroupPayload(g, campaignId, plan, start, now = Date.now()) {
   return {
     campaignId: Number(campaignId),
     name: g.name,
+    // Required, and a start in the past is rejected: the campaign's start, or a minute from now.
+    startTime: start && Date.parse(`${start.slice(0, 10)}T00:00:00Z`) > now ? apiTime(start) : new Date(now + 60000).toISOString().slice(0, 23),
     pricingModel: "CPT",
     bidStrategy: { bidStrategyType: "MANUAL_CPT", bidStrategyGoal: "TAP", bid: money(g.bid, plan.currency) },
     automatedKeywordsOptIn: Boolean(g.searchMatch),
@@ -101,10 +103,28 @@ export function adGroupPayload(g, campaignId, plan) {
 
 const sameList = (a = [], b = []) => [...a].map(String).sort().join() === [...b].map(String).sort().join()
 
+/** Negatives to add, and live ones to pause (left the plan) or switch back on (returned to it). */
+function negativeChanges(want, liveNeg) {
+  const keys = new Set()
+  const create = []
+  for (const n of want) {
+    const key = kwKey(n.text, n.match ?? "BROAD")
+    if (keys.has(key)) continue
+    keys.add(key)
+    if (!liveNeg.some((x) => kwKey(x.text, x.matchType) === key)) create.push({ text: n.text, matchType: n.match ?? "BROAD" })
+  }
+  const update = []
+  for (const x of liveNeg) {
+    const status = keys.has(kwKey(x.text, x.matchType)) ? "ENABLED" : "PAUSED"
+    if ((x.status ?? "ENABLED") !== status) update.push({ id: x.id, text: x.text, status })
+  }
+  return { create, update }
+}
+
 /**
  * What has to change in Apple Ads so that it matches the plan. Live objects are matched by name
- * (campaigns, ad groups) and by text + match type (keywords). Nothing is ever deleted: a keyword
- * that left the plan is paused, and extra negatives are only reported.
+ * (campaigns, ad groups) and by text + match type (keywords, negatives). Nothing is ever deleted:
+ * a keyword or negative that left the plan is paused.
  * @returns {{ops: object[], notes: string[]}}
  */
 export function diffPlan(plan, live) {
@@ -135,13 +155,13 @@ export function diffPlan(plan, live) {
 
     const liveGroups = lc ? live.adGroups.filter((g) => g.campaignId === lc.id && !g.deleted) : []
     const liveCampaignNeg = lc ? live.negatives.filter((n) => n.campaignId === lc.id && !n.adGroupId && !n.deleted) : []
-    const missingNeg = (c.negatives ?? []).filter((n) => !liveCampaignNeg.some((x) => kwKey(x.text, x.matchType) === kwKey(n.text, n.match ?? "BROAD")))
-    if (missingNeg.length) ops.push({ kind: "negatives.create", campaign: c.name, items: missingNeg.map((n) => ({ text: n.text, matchType: n.match ?? "BROAD" })), desc: `add ${missingNeg.length} campaign negative(s) to "${c.name}": ${missingNeg.map((n) => n.text).join(", ")}` })
+    const campaignNeg = negativeChanges(c.negatives ?? [], liveCampaignNeg)
+    if (campaignNeg.create.length) ops.push({ kind: "negatives.create", campaign: c.name, items: campaignNeg.create, desc: `add ${campaignNeg.create.length} campaign negative(s) to "${c.name}": ${campaignNeg.create.map((n) => n.text).join(", ")}` })
 
     for (const g of c.adGroups ?? []) {
       const lg = liveGroups.find((x) => x.name === g.name)
       if (!lg) {
-        ops.push({ kind: "adgroup.create", campaign: c.name, adGroup: g.name, payload: adGroupPayload(g, lc?.id ?? 0, plan), desc: `create ad group "${c.name} / ${g.name}" (bid $${g.bid}${g.searchMatch ? ", Search Match" : ""}${g.devices ? ", " + g.devices.join("+") : ""})` })
+        ops.push({ kind: "adgroup.create", campaign: c.name, adGroup: g.name, payload: adGroupPayload(g, lc?.id ?? 0, plan, c.start), desc: `create ad group "${c.name} / ${g.name}" (bid $${g.bid}${g.searchMatch ? ", Search Match" : ""}${g.devices ? ", " + g.devices.join("+") : ""})` })
       } else {
         const patch = {}
         if (amount(lg.bidStrategy?.bid) !== g.bid) patch.bidStrategy = { bid: money(g.bid, cur) }
@@ -186,14 +206,9 @@ export function diffPlan(plan, live) {
         }
       }
       const liveGroupNeg = lg ? live.negatives.filter((n) => n.adGroupId === lg.id && !n.deleted) : []
-      const seen = new Set()
-      const missingGroupNeg = groupNeg.filter((n) => {
-        const key = kwKey(n.text, n.match ?? "BROAD")
-        if (seen.has(key)) return false
-        seen.add(key)
-        return !liveGroupNeg.some((x) => kwKey(x.text, x.matchType) === key)
-      })
-      if (missingGroupNeg.length) ops.push({ kind: "negatives.create", campaign: c.name, adGroup: g.name, items: missingGroupNeg.map((n) => ({ text: n.text, matchType: n.match ?? "BROAD" })), desc: `add ${missingGroupNeg.length} negative(s) to ad group "${g.name}"` })
+      const neg = negativeChanges(groupNeg, liveGroupNeg)
+      if (neg.create.length) ops.push({ kind: "negatives.create", campaign: c.name, adGroup: g.name, items: neg.create, desc: `add ${neg.create.length} negative(s) to ad group "${g.name}"` })
+      if (neg.update.length) ops.push({ kind: "negatives.update", items: neg.update, desc: `change ${neg.update.length} negative(s) in ad group "${g.name}": ${neg.update.map((n) => `${n.text} → ${n.status}`).join(", ")}` })
 
       // The ad: the default product page or a custom product page (by its App Store Connect name).
       // An ad group without any enabled ad shows the default page (ad groups made in the web UI have
@@ -201,9 +216,12 @@ export function diffPlan(plan, live) {
       const page = g.productPage ?? "default"
       const liveAds = lg ? live.ads.filter((a) => a.adGroupId === lg.id && !a.deleted) : []
       const enabledAds = liveAds.filter((a) => a.status === "ENABLED")
-      const current = enabledAds.find((a) => a.productPage === page) ?? (page === "default" && lg && !enabledAds.length ? "implicit" : null)
+      // Apple refuses ad objects in new search-results groups too, so a new group needs none either.
+      const current = enabledAds.find((a) => a.productPage === page) ?? (page === "default" && !enabledAds.length ? "implicit" : null)
       if (!current) ops.push({ kind: "ad.create", campaign: c.name, adGroup: g.name, productPage: page, pauseAdIds: liveAds.filter((a) => a.status === "ENABLED").map((a) => a.id), desc: `ad in "${g.name}": ${page === "default" ? "default product page" : `custom product page "${page}"`}` })
     }
+    // After the groups: a campaign negative moved down to an ad group is paused once its replacement exists.
+    if (campaignNeg.update.length) ops.push({ kind: "negatives.update", items: campaignNeg.update, desc: `change ${campaignNeg.update.length} campaign negative(s) in "${c.name}": ${campaignNeg.update.map((n) => `${n.text} → ${n.status}`).join(", ")}` })
     for (const lg of liveGroups) if (!(c.adGroups ?? []).some((g) => g.name === lg.name) && lg.status !== "PAUSED") notes.push(`ad group "${c.name} / ${lg.name}" is live but not in the plan (left as is)`)
   }
   const extra = live.campaigns.filter((x) => !x.deleted && x.status === "ENABLED" && !plan.campaigns.some((c) => c.name === x.name))

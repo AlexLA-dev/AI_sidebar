@@ -149,6 +149,9 @@ export async function apply(plan, ops, live, log = () => {}) {
       case "negatives.create":
         await bulk("/negative-keywords/bulk-create", op.items.map((n) => (op.adGroup ? { ...n, adGroupId: gid(op) } : { ...n, campaignId: campaignId.get(op.campaign) })))
         break
+      case "negatives.update":
+        await bulk("/negative-keywords/bulk-update", op.items.map(({ text, ...n }) => n))
+        break
       case "ad.create": {
         const adamId = String(plan.app.adamId)
         let productPageId

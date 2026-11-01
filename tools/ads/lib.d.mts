@@ -78,7 +78,7 @@ export function campaignDays(c: PlanCampaign): number
 export function guardProblems(plan: Plan): { problems: string[]; total: number }
 export function campaignPayload(c: PlanCampaign, plan: Plan, adAccountId: number | string): Record<string, any>
 export function adGroupTargeting(g: PlanAdGroup, plan: Plan): Record<string, any>
-export function adGroupPayload(g: PlanAdGroup, campaignId: number, plan: Plan): Record<string, any>
+export function adGroupPayload(g: PlanAdGroup, campaignId: number, plan: Plan, start?: string, now?: number): Record<string, any>
 export function diffPlan(plan: Plan, live: Live): { ops: Op[]; notes: string[] }
 export function metrics(row: Record<string, any> | undefined): Metrics
 export const DEFAULT_RULES: Rules
