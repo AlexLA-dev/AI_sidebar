@@ -164,6 +164,14 @@
 }
 .cf[data-layout="sheet"] .cf-panel.in { transform: none; }
 
+/* The popup on a PDF tab (Safari's PDF viewer takes no panel): the panel is the whole window. */
+.cf[data-layout="popup"] .cf-panel {
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: 100%; height: 100%;
+  box-shadow: none;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
 .cf-grabber { flex-shrink: 0; height: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 .cf-grabber::before { content: ""; width: 38px; height: 5px; border-radius: 3px; background: var(--bg-3); }
 
@@ -259,6 +267,14 @@
 }
 .cf-note-mark { display: inline-flex; vertical-align: -2px; margin-right: 6px; color: var(--note); }
 .cf-msg.ai { align-items: stretch; }
+
+/* Under a question: the video transcript or PDF it was asked with, or why one couldn't be read. */
+.cf-used-list { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; margin-top: 6px; max-width: 88%; }
+.cf-used { display: inline-flex; align-items: center; gap: 5px; max-width: 100%; padding: 3px 9px; border-radius: 999px; font-size: 11.5px; line-height: 1.35; background: var(--bg-2); color: var(--text-2); }
+.cf-used svg { flex-shrink: 0; }
+.cf-used span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cf-used.warn { background: var(--note-soft); color: var(--note-text); white-space: normal; }
+.cf-used.warn span { white-space: normal; text-align: right; }
 /* Choosing messages to share: a tick on each, the ones left out faded. */
 .cf-msg.pickable { position: relative; padding-left: 32px; cursor: pointer; transition: opacity 0.15s; }
 .cf-msg.pickable:not(.picked) { opacity: 0.5; }

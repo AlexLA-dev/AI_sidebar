@@ -16,20 +16,18 @@ import {
   type Usage
 } from "../shared/types"
 import * as Icon from "./icons"
-import { historyForModel, isQuestion, lastPage, otherPages, pageHasChanged, textFingerprint, type Entry } from "../shared/conversation"
+import { historyForModel, isQuestion, lastPage, otherPages, pageHasChanged, textFingerprint, type Entry, type SourceNote } from "../shared/conversation"
 import { Markdown } from "./markdown"
 import { MAX_OTHER_PAGES } from "../shared/prompt"
 import { answerShareText, chatLanguage, pickedShareText, toPlainText, type ShareLinks } from "../shared/share"
+import type { PageRead, PageSource } from "./context"
 import {
-  extractPage,
   forgetSelection,
   isTouch,
   MIN_SELECTION_WORDS,
-  pageKey,
   readSelection,
   recentSelection,
   rememberSelection,
-  siteName,
   trackSelection,
   type SelectionInfo
 } from "./page"
@@ -161,10 +159,14 @@ function errorText(error: ChatError): string {
   }
 }
 
-export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode {
+/**
+ * The panel. `source`: where questions get their page from (the tab's page, or the PDF a popup is about).
+ * `popup`: shown as the whole window of the toolbar popup (on a tab where Safari shows a PDF).
+ */
+export function App({ platform, bus, source, popup = false }: { platform: Platform; bus: Bus; source: PageSource; popup?: boolean }): VNode {
   const touch = isTouch(platform)
-  const [open, setOpen] = useState(false)
-  const [visible, setVisible] = useState(false)
+  const [open, setOpen] = useState(popup)
+  const [visible, setVisible] = useState(popup)
   const [view, setView] = useState<"chat" | "settings" | "threads">("chat")
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS)
   const [status, setStatus] = useState<StatusInfo | null>(null)
@@ -176,6 +178,11 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
   const [threadList, setThreadList] = useState<Thread[]>([])
   const threadRef = useRef("")
   const [partial, setPartial] = useState<string | null>(null)
+  // Before asking: a video's transcript or a PDF being read (shown instead of "Reading the page…").
+  const [reading, setReading] = useState<"video" | "pdf" | null>(null)
+  // The question being prepared (page still being read); cleared when it's sent or stopped.
+  const askToken = useRef<object | null>(null)
+  const sendRef = useRef<(base: Turn[], content: string, opts: { label?: string; action?: string; mode?: "google" }, full: PageRead, selection: SelectionInfo | null) => void>(() => undefined)
   const [draft, setDraft] = useState("")
   // The send button writes a note to the chat instead of asking (switched by swiping or scrolling on it).
   const [noteMode, setNoteMode] = useState(false)
@@ -201,7 +208,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
   const panelRef = useRef<HTMLElement>(null)
 
   // The page the panel is on now (normalized URL), followed while open for single-page apps.
-  const [pageUrl, setPageUrl] = useState(pageKey())
+  const [pageUrl, setPageUrl] = useState(() => source.key())
   const pageUrlRef = useRef(pageUrl)
   const [chatCopied, setChatCopied] = useState(false)
   // Choosing messages to share: the indexes picked, or null when not choosing.
@@ -215,8 +222,16 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
   const settingsRef = useRef(settings)
   settingsRef.current = settings
 
+  // The source learnt something new (the PDF popup: the document's title once it's read).
+  const [, setSourceSeen] = useState(0)
+  useEffect(() => {
+    const onSource = () => setSourceSeen((n) => n + 1)
+    window.addEventListener("cf-source", onSource)
+    return () => window.removeEventListener("cf-source", onSource)
+  }, [])
+
   const streaming = partial !== null
-  const layout = wide ? "side" : "sheet"
+  const layout = popup ? "popup" : wide ? "side" : "sheet"
 
   // ------------------------------------------------------------ settings
   useEffect(() => {
@@ -266,9 +281,13 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
   }, [touch])
 
   const hide = useCallback(() => {
+    if (popup) {
+      window.close()
+      return
+    }
     setVisible(false)
     setTimeout(() => setOpen(false), 220)
-  }, [])
+  }, [popup])
 
   useEffect(() => {
     const onToggle = () => (open ? hide() : show())
@@ -285,7 +304,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
   // the page as it is now, and fresh status.
   useEffect(() => {
     if (!open) return
-    const key = pageKey()
+    const key = source.key()
     pageUrlRef.current = key
     setPageUrl(key)
     if (!portRef.current) {
@@ -319,26 +338,26 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
         })
       })
     }
-    setPageReadable(Boolean(document.body && (document.body.innerText || "").trim().length > 40))
+    setPageReadable(source.readable())
     void refreshStatus()
     if (!touch) setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 250)
-  }, [open, refreshStatus, touch])
+  }, [open, refreshStatus, touch, source])
 
   // Single-page apps: follow URL changes while open (the conversation carries on).
   useEffect(() => {
     if (!open) return
     const timer = setInterval(() => {
-      const key = pageKey()
+      const key = source.key()
       if (key !== pageUrlRef.current) {
         pageUrlRef.current = key
         setPageUrl(key)
         forgetSelection()
         setSelection(null)
-        setPageReadable(Boolean(document.body && (document.body.innerText || "").trim().length > 40))
+        setPageReadable(source.readable())
       }
     }, 1500)
     return () => clearInterval(timer)
-  }, [open])
+  }, [open, source])
 
   // While open: the chat list follows other tabs and devices, and the answer counter other devices.
   useEffect(() => {
@@ -364,10 +383,10 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
 
   // The first time the panel is open and idle, show what it can do.
   useEffect(() => {
-    if (tourSeen || touring || !visible || view !== "chat" || streaming || pending) return
+    if (popup || tourSeen || touring || !visible || view !== "chat" || streaming || pending) return
     const timer = setTimeout(() => setTouring(true), 450)
     return () => clearTimeout(timer)
-  }, [tourSeen, touring, visible, view, streaming, pending])
+  }, [popup, tourSeen, touring, visible, view, streaming, pending])
 
   // Persist the chat shown.
   useEffect(() => {
@@ -474,6 +493,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
   // ------------------------------------------------------------ chat
   const finish = useCallback((history: Turn[], text: string, err: ChatError | null, grounding?: Grounding) => {
     portRef.current = null
+    askToken.current = null
     partialRef.current = ""
     setPartial(null)
     setStreamMode(null)
@@ -488,23 +508,17 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
 
   const ask = useCallback((text: string, opts: { label?: string; action?: string; retry?: boolean; mode?: "google" } = {}) => {
     const content = text.trim()
-    if (!content || portRef.current) return
+    if (!content || portRef.current || askToken.current) return
     if (!consent) {
       setPending({ text: content, label: opts.label, action: opts.action, mode: opts.mode })
       return
     }
     const base = opts.retry ? messages.slice(0, messages.length - 1) : messages
-    // The page as it is now: read fresh for every question, so new content is always in the request.
-    const url = pageKey()
-    const full = extractPage()
-    const hash = textFingerprint(full.text)
-    const changed = pageHasChanged(base, url, hash)
-    const user: Turn = { role: "user", content, label: opts.label, page: { url, title: full.title, hash } }
-    void rememberPageText(url, full.title, full.text)
-    if (opts.mode) user.mode = opts.mode
-    if (changed) user.pageChanged = true
-    const history: Turn[] = [...base, user]
-    setMessages(history)
+    const url = source.key()
+    // The question shows at once; a video's transcript or a PDF may take a few seconds to read.
+    const shown: Turn = { role: "user", content, label: opts.label, page: { url, title: source.title() } }
+    if (opts.mode) shown.mode = opts.mode
+    setMessages([...base, shown])
     setDraft("")
     if (inputRef.current) inputRef.current.style.height = "auto"
     setError(null)
@@ -512,10 +526,37 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
     setPartial("")
     setStreamMode(opts.mode ?? null)
     partialRef.current = ""
+    const token = {}
+    askToken.current = token
+    // A selection or a Google search doesn't need the transcript or the PDFs.
+    const whole = !selection && opts.mode !== "google"
+    setReading(whole ? source.pending() : null)
+    const quick = (): PageRead => ({ ...source.quick(), sources: [] })
+    // The page as it is now: read fresh for every question, so new content is always in the request.
+    const reading = whole ? source.read().catch(quick) : Promise.resolve(quick())
+    void reading.then((full) => {
+      if (askToken.current !== token) return // stopped meanwhile
+      setReading(null)
+      sendRef.current(base, content, opts, full, selection)
+    })
+  }, [consent, messages, selection, source])
+
+  /** Sends a question with the page as `full` (sources: what was read along with it) or the selection. */
+  sendRef.current = (base, content, opts, full, selection) => {
+    const url = source.key()
+    const hash = textFingerprint(full.text)
+    const changed = pageHasChanged(base, url, hash)
+    const user: Turn = { role: "user", content, label: opts.label, page: { url, title: full.title, hash } }
+    void rememberPageText(url, full.title, full.text)
+    if (opts.mode) user.mode = opts.mode
+    if (changed) user.pageChanged = true
+    if (full.sources.length) user.sources = full.sources
+    const history: Turn[] = [...base, user]
+    setMessages(history)
 
     const page: AskPayload["page"] = selection
-      ? { kind: "selection", title: document.title.slice(0, 300), url: location.href, text: selection.text }
-      : full.text ? { kind: "page", title: full.title, url: location.href, text: full.text, changed } : null
+      ? { kind: "selection", title: source.title().slice(0, 300), url: source.href(), text: selection.text }
+      : full.text ? { kind: "page", title: full.title, url: source.href(), text: full.text, changed, ...(full.media ? { media: full.media } : {}) } : null
     let port: chrome.runtime.Port
     try {
       port = chrome.runtime.connect({ name: "chat" })
@@ -526,7 +567,13 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
     portRef.current = port
     let settled = false
     let grounded: { text: string; grounding: Grounding } | null = null
-    port.onMessage.addListener((event: StreamEvent) => {
+    let lastSeq = 0
+    port.onMessage.addListener((event: StreamEvent & { seq?: number }) => {
+      // Safari can deliver a message twice (in the PDF popup): every event is numbered.
+      if (event.seq !== undefined) {
+        if (event.seq <= lastSeq) return
+        lastSeq = event.seq
+      }
       if (event.type === "meta") {
         setViaOwnKey(event.viaOwnKey)
         if (event.usage) setUsage(event.usage)
@@ -562,14 +609,14 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
         }
       })
     })
-  }, [consent, messages, selection, finish])
+  }
 
   /** Keeps a note in the chat (with the page it was written on); no AI, no allowance used. */
   const saveNote = useCallback((text: string) => {
     const content = text.trim()
-    if (!content || portRef.current) return
-    const url = pageKey()
-    const full = extractPage()
+    if (!content || portRef.current || askToken.current) return
+    const url = source.key()
+    const full = source.quick()
     const next: Turn[] = [...messages, { role: "user", content, note: true, page: { url, title: full.title, hash: textFingerprint(full.text) } }]
     setMessages(next)
     void saveThread(threadRef.current, next)
@@ -578,12 +625,21 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
     if (inputRef.current) inputRef.current.style.height = "auto"
     setError(null)
     setNoteMode(false)
-  }, [messages])
+  }, [messages, source])
 
-  const send = () => (noteMode ? saveNote(draft) : ask(draft, { mode: googleMode ? "google" : undefined }))
+  const submit = () => (noteMode ? saveNote(draft) : ask(draft, { mode: googleMode ? "google" : undefined }))
 
   const stop = useCallback(() => {
     const port = portRef.current
+    if (!port && askToken.current) {
+      // Stopped while the page was still being read: nothing was asked.
+      askToken.current = null
+      setReading(null)
+      partialRef.current = ""
+      setPartial(null)
+      setStreamMode(null)
+      return
+    }
     if (!port) return
     portRef.current = null
     try {
@@ -762,7 +818,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
   }, [offerCard])
 
   // ------------------------------------------------------------ sharing
-  const shareLinks = (): ShareLinks => ({ page: location.href, app: LINKS.appStoreShare })
+  const shareLinks = (): ShareLinks => ({ page: source.href(), app: LINKS.appStoreShare })
 
   const chatName = (): string => threadList.find((t) => t.id === threadRef.current)?.title || threadTitle(messages)
 
@@ -845,7 +901,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
 
   // ------------------------------------------------------------ FAB
   const fabEnabled = settings.fab !== "off"
-  const fabVisible = fabEnabled && !open && !settings.fabHiddenSites.includes(siteName())
+  const fabVisible = !popup && fabEnabled && !open && !settings.fabHiddenSites.includes(source.site())
   const dragRef = useRef<{ startY: number; startX: number; moved: boolean; pointer: number } | null>(null)
 
   const onFabDown = (e: PointerEvent) => {
@@ -919,7 +975,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
         </button>
       )}
 
-      {bubble?.rect && !open && (
+      {bubble?.rect && !open && !popup && (
         <SelectionBubble rect={bubble.rect} touch={touch}>
           {touch ? (
             <>
@@ -967,6 +1023,8 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
               ) : (
                 <ContextChip
                   kind={contextKind}
+                  media={source.kind()}
+                  title={source.title()}
                   words={selection?.words ?? 0}
                   text={selection?.text ?? ""}
                   onClear={() => {
@@ -1004,7 +1062,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
               status={status}
               usage={usage}
               platform={platform}
-              site={siteName()}
+              site={source.site()}
               onChange={updateSettings}
               onUpgrade={() => void openApp("subscribe")}
               onManage={() => void openApp("manage")}
@@ -1030,7 +1088,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
                   <div class="cf-empty">
                     <div class="cf-empty-icon"><Icon.Sparkle size={28} /></div>
                     <h2>{t("emptyTitle")}</h2>
-                    <p>{t(contextKind === "selection" ? "emptySelection" : contextKind === "page" ? "emptyPage" : "emptyNone")}</p>
+                    <p>{t(contextKind === "selection" ? "emptySelection" : contextKind === "page" ? (source.kind() === "video" ? "emptyVideo" : source.kind() === "pdf" ? "emptyPdf" : "emptyPage") : "emptyNone")}</p>
                     {actions.length > 0 && (
                       <div class="cf-actions">
                         {actions.map((a) => (
@@ -1050,6 +1108,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
                       ) : (
                         <div class="cf-bubble-user">{m.mode === "google" && <span class="cf-user-mode"><Icon.Search size={12} /></span>}{m.label ?? m.content}</div>
                       )}
+                      {m.sources && m.sources.length > 0 && <UsedSources notes={m.sources} />}
                     </div>
                   ) : (
                     <div class={`cf-msg ai ${picked ? "pickable" : ""} ${picked?.has(idx) ? "picked" : ""}`} key={idx} {...pickProps(idx)}>
@@ -1072,13 +1131,13 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
 
                 {partial !== null && (
                   <div class="cf-msg ai">
-                    {partial ? <Markdown text={partial} /> : <div class="cf-thinking"><span /><span /><span /> {t(streamMode === "google" ? "searching" : "thinking")}</div>}
+                    {partial ? <Markdown text={partial} /> : <div class="cf-thinking"><span /><span /><span /> {t(reading === "video" ? "readingVideo" : reading === "pdf" ? "readingPdf" : streamMode === "google" ? "searching" : "thinking")}</div>}
                   </div>
                 )}
 
                 {messages.length > 0 && partial === null && !error && actions.length > 0 && lastIsUser === false && onNewPage && (
                   <div class="cf-newpage">
-                    <div class="cf-divider"><span>{t("nowOnPage", document.title || siteName())}</span></div>
+                    <div class="cf-divider"><span>{t("nowOnPage", source.title() || source.site())}</span></div>
                     <div class="cf-actions follow">
                       {actions.slice(0, 4).map((a) => (
                         <button type="button" key={a.id} class="cf-chip small" onClick={() => runAction(a)}>{t(a.label)}</button>
@@ -1208,7 +1267,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
                       onKeyDown={(e) => {
                         if (e.key === "Enter" && !e.shiftKey && !e.isComposing) {
                           e.preventDefault()
-                          send()
+                          submit()
                         }
                         e.stopPropagation()
                       }}
@@ -1225,7 +1284,7 @@ export function App({ platform, bus }: { platform: Platform; bus: Bus }): VNode 
                           disabled={!draft.trim()}
                           onClick={() => {
                             if (switched.current) switched.current = false
-                            else send()
+                            else submit()
                           }}
                           aria-label={t(noteMode ? "saveNote" : "send")}
                           title={`${t(noteMode ? "saveNote" : "send")} · ${t(touch ? "noteHintTouch" : "noteHintMouse")}`}
@@ -1399,7 +1458,32 @@ function suggestionNodes(html: string): DocumentFragment {
   return fragment
 }
 
-function ContextChip({ kind, words, text, onClear }: { kind: "selection" | "page" | "none"; words: number; text: string; onClear: () => void }): VNode {
+/** Under a question: the video transcript or PDFs it went with, or why one couldn't be read. */
+function UsedSources({ notes }: { notes: SourceNote[] }): VNode {
+  return (
+    <div class="cf-used-list">
+      {notes.map((n, i) => {
+        if (n.ok) {
+          return (
+            <span class="cf-used" key={i} title={n.name}>
+              {n.kind === "video" ? <Icon.Play size={13} /> : <Icon.Doc />}
+              <span>{n.kind === "video" ? t("usedVideo", n.detail ?? "") : t("usedPdf", n.name, n.detail ?? "")}</span>
+            </span>
+          )
+        }
+        const key: MessageKey = n.kind === "video" ? (n.reason === "none" ? "videoNoTranscript" : "videoFailed") : n.reason === "none" ? "pdfNoText" : "pdfFailed"
+        return (
+          <span class="cf-used warn" key={i} role="note">
+            <Icon.Alert />
+            <span>{t(key, n.name)}</span>
+          </span>
+        )
+      })}
+    </div>
+  )
+}
+
+function ContextChip({ kind, media, title, words, text, onClear }: { kind: "selection" | "page" | "none"; media: "page" | "video" | "pdf"; title: string; words: number; text: string; onClear: () => void }): VNode {
   if (kind === "selection") {
     // A word or two (a long-press on iPhone) reads better as itself than as a word count.
     const short = words <= 3 && text.length <= 28
@@ -1412,7 +1496,7 @@ function ContextChip({ kind, words, text, onClear }: { kind: "selection" | "page
   }
   return (
     <span class={`cf-ctx ${kind}`}>
-      <Icon.Doc /> <span class="cf-ctx-text">{kind === "page" ? document.title || t("ctxPage") : t("ctxNone")}</span>
+      {kind === "page" && media === "video" ? <Icon.Play /> : <Icon.Doc />} <span class="cf-ctx-text">{kind === "page" ? title || t("ctxPage") : t("ctxNone")}</span>
     </span>
   )
 }

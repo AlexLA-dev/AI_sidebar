@@ -37,7 +37,8 @@ export interface ChatTurn {
 
 export interface AskPayload {
   messages: ChatTurn[]
-  page: { kind: "page" | "selection"; title: string; url: string; text: string; changed?: boolean } | null
+  // media: the text includes a video transcript or a PDF (a longer limit than a page's).
+  page: { kind: "page" | "selection"; title: string; url: string; text: string; changed?: boolean; media?: "video" | "pdf" } | null
   action?: string
   // "google": answer with Google Search grounding (always through our server).
   mode?: "google"
@@ -100,6 +101,15 @@ export type BackgroundRequest =
   | { type: "openPage"; url: string }
   // The panel opened: sync threads with iCloud (Safari); answers { changed }.
   | { type: "syncThreads" }
+  // The text of a PDF (read on the device); answers a PdfResult.
+  | { type: "pdfText"; url: string }
+  // The same for a PDF the page fetched itself (base64; behind a sign-in).
+  | { type: "pdfBytes"; url: string; data: string }
+
+/** A PDF's text, or why there is none ("none": nothing to read, e.g. scanned pages). */
+export type PdfResult =
+  | { ok: true; text: string; pages: number; title: string }
+  | { ok: false; reason: "none" | "failed"; error: string }
 
 export type ContentRequest = { type: "toggle" } | { type: "open"; selection?: boolean }
 

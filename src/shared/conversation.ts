@@ -10,6 +10,21 @@ export interface PageRef {
   hash?: string
 }
 
+/**
+ * What a question was asked with besides the page's own text: a video's transcript or captions, or a
+ * PDF (on the page, linked from it, or open in the tab). `ok: false` — it couldn't be read and the
+ * answer used what the page shows; `reason` "none" means there is nothing to read (no captions,
+ * a scanned PDF), anything else that reading it failed.
+ */
+export interface SourceNote {
+  kind: "video" | "pdf"
+  ok: boolean
+  name: string
+  // Video length ("18:40") or PDF pages ("12").
+  detail?: string
+  reason?: "none" | "failed"
+}
+
 export interface Entry extends ChatTurn {
   label?: string
   mode?: "google"
@@ -20,6 +35,8 @@ export interface Entry extends ChatTurn {
   pageChanged?: boolean
   // A note the user wrote in the chat: kept with it, never sent to the AI as a question.
   note?: boolean
+  // User turns: videos and PDFs read along with the page (shown under the question).
+  sources?: SourceNote[]
 }
 
 const MAX_HISTORY = 12

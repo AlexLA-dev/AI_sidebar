@@ -17,6 +17,8 @@ import {
 } from "../shared/types"
 import { askServer, askWithOwnKey, reportOwnKeyUsage } from "./chat"
 import { callNative, type NativeEntitlement } from "./native"
+import { isPdfUrl } from "../shared/pdf"
+import { isPdfTab, markPdfTab, openPdfPopup, pdfFromBytes, pdfText } from "./pdf"
 import { countValueMoment, syncSettings, syncThreads, watchSettings, watchThreads } from "./sync"
 
 // ---------------------------------------------------------------- identity
@@ -147,12 +149,17 @@ chrome.runtime.onConnect.addListener((port) => {
   if (port.name !== "chat") return
   const controller = new AbortController()
   port.onDisconnect.addListener(() => controller.abort())
+  // One question per port: Safari delivers a popup's message twice (two answers, two used from the allowance).
+  let asked = false
+  let seq = 0
   port.onMessage.addListener((message: { type: "ask"; payload: AskPayload }) => {
-    if (message?.type !== "ask") return
+    if (message?.type !== "ask" || asked) return
+    asked = true
     const emit = (event: StreamEvent) => {
       if (event.type === "done") void countValueMoment().catch(() => undefined)
       try {
-        port.postMessage(event)
+        // Numbered, so a page that gets a message twice can drop the copy.
+        port.postMessage({ ...event, seq: ++seq })
       } catch {
         controller.abort()
       }
@@ -215,6 +222,12 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
     case "openPage":
       openPage(message.url).finally(() => sendResponse({ ok: true }))
       return true
+    case "pdfText":
+      pdfText(message.url).then(sendResponse, () => sendResponse({ ok: false, reason: "failed", error: "background" }))
+      return true
+    case "pdfBytes":
+      pdfFromBytes(message.url, message.data).then(sendResponse, () => sendResponse({ ok: false, reason: "failed", error: "background" }))
+      return true
     case "syncThreads":
       if (TARGET !== "safari") {
         sendResponse({ changed: false })
@@ -244,18 +257,33 @@ async function openPage(url: string): Promise<void> {
   if (tab.windowId !== undefined) await chrome.windows?.update(tab.windowId, { focused: true }).catch(() => undefined)
 }
 
+/** `work`, or a rejection after `ms` (Safari never answers a message sent to a tab showing a PDF). */
+function withTimeout<T>(work: Promise<T>, ms: number): Promise<T> {
+  return Promise.race([work, new Promise<T>((_, reject) => setTimeout(() => reject(new Error("timeout")), ms))])
+}
+
 async function toggle(tab: chrome.tabs.Tab): Promise<void> {
   if (!tab.id) return
+  // Safari's PDF viewer takes no scripts: ContextFlow opens as a popup about the PDF instead.
+  if (TARGET === "safari" && tab.url && isPdfUrl(tab.url)) {
+    await openPdfPopup(tab.id)
+    return
+  }
   try {
-    await chrome.tabs.sendMessage(tab.id, { type: "toggle" })
+    await withTimeout(chrome.tabs.sendMessage(tab.id, { type: "toggle" }), 1500)
     return
   } catch {
     // No content script yet (tab opened before the extension was allowed on this site).
   }
   try {
-    await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ["dist/content.js"] })
-    await chrome.tabs.sendMessage(tab.id, { type: "open" })
+    await withTimeout(chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ["dist/content.js"] }), 3000)
+    await withTimeout(chrome.tabs.sendMessage(tab.id, { type: "open" }), 1500)
   } catch {
+    // A PDF whose address doesn't say so (arXiv's /pdf/2401.12345).
+    if (TARGET === "safari" && (await isPdfTab(tab.url))) {
+      await openPdfPopup(tab.id)
+      return
+    }
     // Browser pages, the start page, App Store pages… cannot be scripted.
     await chrome.tabs.create({ url: chrome.runtime.getURL("welcome.html?restricted=1") })
   }
@@ -263,6 +291,13 @@ async function toggle(tab: chrome.tabs.Tab): Promise<void> {
 
 chrome.action.onClicked.addListener((tab) => {
   void toggle(tab)
+})
+
+// A tab that goes to a PDF gets the PDF popup on its toolbar button (and loses it when it leaves).
+chrome.tabs.onUpdated.addListener((tabId, info, tab) => {
+  if (info.url === undefined && info.status !== "loading") return
+  void markPdfTab(tabId, info.url ?? tab.url)
+  void chrome.action.setBadgeText({ tabId, text: "" }).catch(() => undefined)
 })
 
 // Version 1.x (Plasmo) kept Supabase sessions, trial counters and the user's

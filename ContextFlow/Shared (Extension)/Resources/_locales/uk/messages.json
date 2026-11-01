@@ -15,12 +15,7 @@
   "message": "Ця сторінка"
  },
  "ctxSelection": {
-  "message": "Виділення · $P0$ сл.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Виділення · {0} сл."
  },
  "ctxNone": {
   "message": "Загальний чат"
@@ -71,12 +66,7 @@
   "message": "Поясніть цю сторінку простими словами, ніби кмітливій 12-річній дитині."
  },
  "promptTranslate": {
-  "message": "Перекладіть основний вміст цієї сторінки на мову «$P0$». Збережіть структуру й заголовки.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Перекладіть основний вміст цієї сторінки на мову «{0}». Збережіть структуру й заголовки."
  },
  "promptSelSummarize": {
   "message": "Коротко підсумуйте виділений текст."
@@ -85,12 +75,7 @@
   "message": "Поясніть виділений текст простими словами."
  },
  "promptSelTranslate": {
-  "message": "Перекладіть виділений текст на мову «$P0$».",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Перекладіть виділений текст на мову «{0}»."
  },
  "promptSelImprove": {
   "message": "Перепишіть виділений текст, щоб він був зрозумілішим і стислішим. Дайте один покращений варіант."
@@ -177,23 +162,13 @@
   "message": "Ви"
  },
  "newPage": {
-  "message": "Нова сторінка: $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Нова сторінка: {0}"
  },
  "pageUpdated": {
   "message": "Сторінка оновилася"
  },
  "nowOnPage": {
-  "message": "Зараз: $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Зараз: {0}"
  },
  "retry": {
   "message": "Повторити"
@@ -238,12 +213,7 @@
   "message": "Тижневий ліміт вичерпано"
  },
  "limitProBody": {
-  "message": "Ваші відповіді Pro оновляться через $P0$.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Ваші відповіді Pro оновляться через {0}."
  },
  "getPro": {
   "message": "Отримати Pro"
@@ -252,45 +222,19 @@
   "message": "Використати мій ключ API"
  },
  "usageFree": {
-  "message": "Сьогодні залишилося $P0$ з $P1$ безкоштовних відповідей",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "Сьогодні залишилося {0} з {1} безкоштовних відповідей"
  },
  "usagePro": {
-  "message": "Pro · Цього тижня залишилося $P0$ з $P1$ відповідей",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "Pro · Цього тижня залишилося {0} з {1} відповідей"
  },
  "usageOwnKey": {
   "message": "Використовується ваш ключ API"
  },
  "hours": {
-  "message": "$P0$ год",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} год"
  },
  "minutes": {
-  "message": "$P0$ хв",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} хв"
  },
  "consentTitle": {
   "message": "Перед першою відповіддю"
@@ -317,12 +261,7 @@
   "message": "Власний ключ"
  },
  "planRenews": {
-  "message": "Поновлення $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Поновлення {0}"
  },
  "manageSubscription": {
   "message": "Керувати підпискою"
@@ -364,20 +303,10 @@
   "message": "Кнопка ✦ відкриває ContextFlow на будь-якому сайті. Сховайте її на окремому сайті посиланням нижче або вимкніть тут."
  },
  "hideOnSite": {
-  "message": "Сховати на $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Сховати на {0}"
  },
  "showOnSite": {
-  "message": "Показувати на $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Показувати на {0}"
  },
  "setSelectionButton": {
   "message": "Кнопка під час виділення тексту"
@@ -443,12 +372,7 @@
   "message": "Оцінити ContextFlow"
  },
  "version": {
-  "message": "Версія $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Версія {0}"
  },
  "fabLabel": {
   "message": "Запитати ContextFlow"
@@ -472,15 +396,7 @@
   "message": "Джерела"
  },
  "tourStep": {
-  "message": "$P0$ з $P1$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "{0} з {1}"
  },
  "tourSkip": {
   "message": "Пропустити"
@@ -579,26 +495,10 @@
   "message": "Відкрити цю сторінку"
  },
  "usageFreeShort": {
-  "message": "$P0$ з $P1$ на сьогодні",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "{0} з {1} на сьогодні"
  },
  "usageProShort": {
-  "message": "Pro · $P0$ з $P1$ на тиждень",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "Pro · {0} з {1} на тиждень"
  },
  "pinChat": {
   "message": "Закріпити чат"
@@ -616,50 +516,22 @@
   "message": "Ваші нотатки в цьому чаті"
  },
  "pages_one": {
-  "message": "$P0$ сторінка",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} сторінка"
  },
  "pages_few": {
-  "message": "$P0$ сторінки",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} сторінки"
  },
  "pages_many": {
-  "message": "$P0$ сторінок",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} сторінок"
  },
  "pages_other": {
-  "message": "$P0$ сторінки",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} сторінки"
  },
  "cancel": {
   "message": "Скасувати"
  },
  "pickCount": {
-  "message": "$P0$ з $P1$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "{0} з {1}"
  },
  "pickHint": {
   "message": "Позначте повідомлення"
@@ -671,26 +543,10 @@
   "message": "Зняти вибір"
  },
  "limitFreeBack": {
-  "message": "$P0$ безкоштовних відповідей знову будуть о $P1$, через $P2$.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   },
-   "p2": {
-    "content": "$3"
-   }
-  }
+  "message": "{0} безкоштовних відповідей знову будуть о {1}, через {2}."
  },
  "limitFreePro": {
-  "message": "У Pro — до $P0$ відповідей на тиждень.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "У Pro — до {0} відповідей на тиждень."
  },
  "limitNotes": {
   "message": "Нотатки залишаються безкоштовними й без ліміту: запишіть важливе зараз, а ШІ запитайте потім."
@@ -699,55 +555,54 @@
   "message": "Написати нотатку"
  },
  "errProvider": {
-  "message": "Відповідь вашого ШІ-провайдера: $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Відповідь вашого ШІ-провайдера: {0}"
  },
  "offerLimit": {
-  "message": "Або візьміть Pro зі знижкою $P0$% на перший місяць: до $P1$ відповідей на тиждень на розумнішій моделі. Скасувати можна будь-коли.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "Або візьміть Pro зі знижкою {0}% на перший місяць: до {1} відповідей на тиждень на розумнішій моделі. Скасувати можна будь-коли."
  },
  "offerButton": {
-  "message": "Pro зі знижкою $P0$%",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Pro зі знижкою {0}%"
  },
  "offerShort": {
-  "message": "Pro −$P0$%",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Pro −{0}%"
  },
  "offerCardTitle": {
   "message": "Не вистачає відповідей?"
  },
  "offerCardBody": {
-  "message": "Ви вже впиралися в денний ліміт безкоштовних відповідей. У Pro — до $P1$ відповідей на тиждень на розумнішій моделі, а перший місяць — зі знижкою $P0$%. Далі звичайна ціна; скасувати можна будь-коли в налаштуваннях App Store.",
-  "placeholders": {
-   "p1": {
-    "content": "$2"
-   },
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Ви вже впиралися в денний ліміт безкоштовних відповідей. У Pro — до {1} відповідей на тиждень на розумнішій моделі, а перший місяць — зі знижкою {0}%. Далі звичайна ціна; скасувати можна будь-коли в налаштуваннях App Store."
  },
  "offerLater": {
   "message": "Не зараз"
+ },
+ "emptyVideo": {
+  "message": "Я бачу це відео і прочитаю його розшифровку. Поставте запитання або виберіть дію."
+ },
+ "emptyPdf": {
+  "message": "Я бачу цей PDF. Поставте запитання або виберіть дію."
+ },
+ "readingVideo": {
+  "message": "Читаю розшифровку відео…"
+ },
+ "readingPdf": {
+  "message": "Читаю PDF…"
+ },
+ "usedVideo": {
+  "message": "Розшифровка відео · {0}"
+ },
+ "usedPdf": {
+  "message": "{0} · {1} стор."
+ },
+ "videoNoTranscript": {
+  "message": "У цього відео немає субтитрів — відповідь за назвою та описом."
+ },
+ "videoFailed": {
+  "message": "Не вдалося отримати розшифровку цього відео — відповідь за назвою та описом."
+ },
+ "pdfNoText": {
+  "message": "У «{0}» немає тексту (скановані сторінки) — відповідь без нього."
+ },
+ "pdfFailed": {
+  "message": "Не вдалося прочитати PDF «{0}» — відповідь без нього."
  }
 }

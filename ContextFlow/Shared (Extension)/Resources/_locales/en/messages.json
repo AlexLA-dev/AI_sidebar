@@ -15,12 +15,7 @@
   "message": "This page"
  },
  "ctxSelection": {
-  "message": "Selection · $P0$ words",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Selection · {0} words"
  },
  "ctxNone": {
   "message": "General chat"
@@ -71,12 +66,7 @@
   "message": "Explain this page in simple words, as if to a smart 12-year-old."
  },
  "promptTranslate": {
-  "message": "Translate the main content of this page into $P0$. Keep the structure and headings.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Translate the main content of this page into {0}. Keep the structure and headings."
  },
  "promptSelSummarize": {
   "message": "Summarize the selected text briefly."
@@ -85,12 +75,7 @@
   "message": "Explain the selected text in simple words."
  },
  "promptSelTranslate": {
-  "message": "Translate the selected text into $P0$.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Translate the selected text into {0}."
  },
  "promptSelImprove": {
   "message": "Rewrite the selected text to be clearer and more concise. Give one improved version."
@@ -177,23 +162,13 @@
   "message": "You"
  },
  "newPage": {
-  "message": "New page: $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "New page: {0}"
  },
  "pageUpdated": {
   "message": "Page updated"
  },
  "nowOnPage": {
-  "message": "Now on: $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Now on: {0}"
  },
  "retry": {
   "message": "Retry"
@@ -238,12 +213,7 @@
   "message": "Weekly limit reached"
  },
  "limitProBody": {
-  "message": "Your Pro answers refresh in $P0$.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Your Pro answers refresh in {0}."
  },
  "getPro": {
   "message": "Get Pro"
@@ -252,45 +222,19 @@
   "message": "Use my own API key"
  },
  "usageFree": {
-  "message": "$P0$ of $P1$ free answers left today",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "{0} of {1} free answers left today"
  },
  "usagePro": {
-  "message": "Pro · $P0$ of $P1$ answers left this week",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "Pro · {0} of {1} answers left this week"
  },
  "usageOwnKey": {
   "message": "Using your own API key"
  },
  "hours": {
-  "message": "$P0$ h",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} h"
  },
  "minutes": {
-  "message": "$P0$ min",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} min"
  },
  "consentTitle": {
   "message": "Before your first answer"
@@ -317,12 +261,7 @@
   "message": "Own key"
  },
  "planRenews": {
-  "message": "Renews $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Renews {0}"
  },
  "manageSubscription": {
   "message": "Manage subscription"
@@ -364,20 +303,10 @@
   "message": "The ✦ button opens ContextFlow on any site. Hide it on a single site with the link below, or turn it off here."
  },
  "hideOnSite": {
-  "message": "Hide on $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Hide on {0}"
  },
  "showOnSite": {
-  "message": "Show on $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Show on {0}"
  },
  "setSelectionButton": {
   "message": "Button when selecting text"
@@ -443,12 +372,7 @@
   "message": "Rate ContextFlow"
  },
  "version": {
-  "message": "Version $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Version {0}"
  },
  "fabLabel": {
   "message": "Ask ContextFlow"
@@ -472,15 +396,7 @@
   "message": "Sources"
  },
  "tourStep": {
-  "message": "$P0$ of $P1$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "{0} of {1}"
  },
  "tourSkip": {
   "message": "Skip"
@@ -579,26 +495,10 @@
   "message": "Open this page"
  },
  "usageFreeShort": {
-  "message": "$P0$ of $P1$ left today",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "{0} of {1} left today"
  },
  "usageProShort": {
-  "message": "Pro · $P0$ of $P1$ this week",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "Pro · {0} of {1} this week"
  },
  "pinChat": {
   "message": "Pin chat"
@@ -616,50 +516,22 @@
   "message": "Your notes in this chat"
  },
  "pages_one": {
-  "message": "$P0$ page",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} page"
  },
  "pages_few": {
-  "message": "$P0$ pages",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} pages"
  },
  "pages_many": {
-  "message": "$P0$ pages",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} pages"
  },
  "pages_other": {
-  "message": "$P0$ pages",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} pages"
  },
  "cancel": {
   "message": "Cancel"
  },
  "pickCount": {
-  "message": "$P0$ of $P1$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "{0} of {1}"
  },
  "pickHint": {
   "message": "Tap messages to share"
@@ -671,26 +543,10 @@
   "message": "Deselect all"
  },
  "limitFreeBack": {
-  "message": "$P0$ new free answers at $P1$, in $P2$.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   },
-   "p2": {
-    "content": "$3"
-   }
-  }
+  "message": "{0} new free answers at {1}, in {2}."
  },
  "limitFreePro": {
-  "message": "Pro gives you up to $P0$ answers a week.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Pro gives you up to {0} answers a week."
  },
  "limitNotes": {
   "message": "Notes stay free and unlimited: write down what matters now, ask AI about it later."
@@ -699,55 +555,54 @@
   "message": "Write a note"
  },
  "errProvider": {
-  "message": "Your AI provider replied: $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Your AI provider replied: {0}"
  },
  "offerLimit": {
-  "message": "Or get Pro with $P0$% off your first month: up to $P1$ answers a week on a smarter model. Cancel any time.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "Or get Pro with {0}% off your first month: up to {1} answers a week on a smarter model. Cancel any time."
  },
  "offerButton": {
-  "message": "Get Pro $P0$% off",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Get Pro {0}% off"
  },
  "offerShort": {
-  "message": "Pro −$P0$%",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Pro −{0}%"
  },
  "offerCardTitle": {
   "message": "Running out of answers?"
  },
  "offerCardBody": {
-  "message": "You've hit the free daily limit before. Pro gives you up to $P1$ answers a week on a smarter model, and your first month is $P0$% off. Then the regular price; cancel any time in your App Store settings.",
-  "placeholders": {
-   "p1": {
-    "content": "$2"
-   },
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "You've hit the free daily limit before. Pro gives you up to {1} answers a week on a smarter model, and your first month is {0}% off. Then the regular price; cancel any time in your App Store settings."
  },
  "offerLater": {
   "message": "Not now"
+ },
+ "emptyVideo": {
+  "message": "I can see this video and will read its transcript. Ask a question or pick an action."
+ },
+ "emptyPdf": {
+  "message": "I can see this PDF. Ask a question or pick an action."
+ },
+ "readingVideo": {
+  "message": "Reading the video transcript…"
+ },
+ "readingPdf": {
+  "message": "Reading the PDF…"
+ },
+ "usedVideo": {
+  "message": "Video transcript · {0}"
+ },
+ "usedPdf": {
+  "message": "{0} · {1} pp."
+ },
+ "videoNoTranscript": {
+  "message": "This video has no captions: the answer uses its title and description."
+ },
+ "videoFailed": {
+  "message": "Couldn’t get this video’s transcript: the answer uses its title and description."
+ },
+ "pdfNoText": {
+  "message": "“{0}” has no text to read (scanned pages): the answer is without it."
+ },
+ "pdfFailed": {
+  "message": "Couldn’t read the PDF “{0}”: the answer is without it."
  }
 }

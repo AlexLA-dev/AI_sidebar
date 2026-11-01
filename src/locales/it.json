@@ -204,5 +204,16 @@
   "offerShort": "Pro −{0}%",
   "offerCardTitle": "Ti mancano le risposte?",
   "offerCardBody": "Hai già raggiunto il limite giornaliero gratuito. Pro ti offre fino a {1} risposte a settimana con un modello più intelligente, e il primo mese è scontato del {0}%. Poi il prezzo normale; annulli quando vuoi nelle impostazioni dell'App Store.",
-  "offerLater": "Non ora"
+  "offerLater": "Non ora",
+
+  "emptyVideo": "Vedo questo video e leggerò la sua trascrizione. Fai una domanda o scegli un’azione.",
+  "emptyPdf": "Vedo questo PDF. Fai una domanda o scegli un’azione.",
+  "readingVideo": "Sto leggendo la trascrizione…",
+  "readingPdf": "Sto leggendo il PDF…",
+  "usedVideo": "Trascrizione del video · {0}",
+  "usedPdf": "{0} · {1} pp.",
+  "videoNoTranscript": "Questo video non ha sottotitoli: la risposta usa titolo e descrizione.",
+  "videoFailed": "Impossibile ottenere la trascrizione di questo video: la risposta usa titolo e descrizione.",
+  "pdfNoText": "«{0}» non contiene testo leggibile (pagine scansionate): la risposta ne fa a meno.",
+  "pdfFailed": "Impossibile leggere il PDF «{0}»: la risposta ne fa a meno."
 }

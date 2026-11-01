@@ -16,6 +16,7 @@ import AppKit
 /// - `openApp` (macOS) → opens the ContextFlow app at a deep link.
 /// - `syncThreads` → sends the extension's chat changes to the user's iCloud and returns the other
 ///   devices' changes (see ChatSync); `available: false` without an iCloud account or connection.
+/// - `pdfText` → the text of a PDF (by address, or the bytes the extension fetched), see PdfText.
 /// - `ping` → health check.
 ///
 /// Every message also tells the app that the extension is switched on (and, for `getEntitlement`, which
@@ -83,6 +84,17 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                     "changed": synced.changed.map { ["id": $0.id, "updatedAt": $0.updatedAt, "data": $0.data] },
                     "deleted": synced.deleted
                 ] as [String: Any]])
+            }
+        case "pdfText":
+            let url = message["url"] as? String
+            let data = message["data"] as? String
+            Task {
+                let result = await Self.withTimeout(seconds: 35) { await PdfText.read(url: url, base64: data) }
+                guard case .success(let pdf) = result else {
+                    Self.reply(context, ["success": true, "data": ["ok": false, "error": "network"]])
+                    return
+                }
+                Self.reply(context, ["success": true, "data": pdf])
             }
         case "ping":
             let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""

@@ -15,12 +15,7 @@
   "message": "이 페이지"
  },
  "ctxSelection": {
-  "message": "선택 영역 · $P0$단어",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "선택 영역 · {0}단어"
  },
  "ctxNone": {
   "message": "일반 채팅"
@@ -71,12 +66,7 @@
   "message": "이 페이지를 똑똑한 12살 아이에게 설명하듯 쉬운 말로 설명해 주세요."
  },
  "promptTranslate": {
-  "message": "이 페이지의 주요 내용을 $P0$로 번역해 주세요. 구조와 제목은 그대로 유지해 주세요.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "이 페이지의 주요 내용을 {0}로 번역해 주세요. 구조와 제목은 그대로 유지해 주세요."
  },
  "promptSelSummarize": {
   "message": "선택한 텍스트를 간단히 요약해 주세요."
@@ -85,12 +75,7 @@
   "message": "선택한 텍스트를 쉬운 말로 설명해 주세요."
  },
  "promptSelTranslate": {
-  "message": "선택한 텍스트를 $P0$로 번역해 주세요.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "선택한 텍스트를 {0}로 번역해 주세요."
  },
  "promptSelImprove": {
   "message": "선택한 텍스트를 더 명확하고 간결하게 다시 써 주세요. 개선된 버전 하나만 제시해 주세요."
@@ -177,23 +162,13 @@
   "message": "나"
  },
  "newPage": {
-  "message": "새 페이지: $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "새 페이지: {0}"
  },
  "pageUpdated": {
   "message": "페이지가 업데이트됐어요"
  },
  "nowOnPage": {
-  "message": "현재: $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "현재: {0}"
  },
  "retry": {
   "message": "다시 시도"
@@ -238,12 +213,7 @@
   "message": "주간 한도에 도달했어요"
  },
  "limitProBody": {
-  "message": "Pro 답변은 $P0$ 후에 다시 채워져요.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Pro 답변은 {0} 후에 다시 채워져요."
  },
  "getPro": {
   "message": "Pro 시작하기"
@@ -252,45 +222,19 @@
   "message": "내 API 키 사용"
  },
  "usageFree": {
-  "message": "오늘 남은 무료 답변 $P0$/$P1$개",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "오늘 남은 무료 답변 {0}/{1}개"
  },
  "usagePro": {
-  "message": "Pro · 이번 주 남은 답변 $P0$/$P1$개",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "Pro · 이번 주 남은 답변 {0}/{1}개"
  },
  "usageOwnKey": {
   "message": "내 API 키 사용 중"
  },
  "hours": {
-  "message": "$P0$시간",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0}시간"
  },
  "minutes": {
-  "message": "$P0$분",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0}분"
  },
  "consentTitle": {
   "message": "첫 답변 전에 확인해 주세요"
@@ -317,12 +261,7 @@
   "message": "내 키"
  },
  "planRenews": {
-  "message": "$P0$에 갱신",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0}에 갱신"
  },
  "manageSubscription": {
   "message": "구독 관리"
@@ -364,20 +303,10 @@
   "message": "✦ 버튼으로 어느 사이트에서나 ContextFlow를 열 수 있어요. 아래 링크로 특정 사이트에서만 숨기거나 여기서 끌 수 있어요."
  },
  "hideOnSite": {
-  "message": "$P0$에서 숨기기",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0}에서 숨기기"
  },
  "showOnSite": {
-  "message": "$P0$에서 보기",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0}에서 보기"
  },
  "setSelectionButton": {
   "message": "텍스트 선택 시 버튼"
@@ -443,12 +372,7 @@
   "message": "ContextFlow 평가하기"
  },
  "version": {
-  "message": "버전 $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "버전 {0}"
  },
  "fabLabel": {
   "message": "ContextFlow에게 묻기"
@@ -472,15 +396,7 @@
   "message": "출처"
  },
  "tourStep": {
-  "message": "$P0$/$P1$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "{0}/{1}"
  },
  "tourSkip": {
   "message": "건너뛰기"
@@ -579,26 +495,10 @@
   "message": "이 페이지 열기"
  },
  "usageFreeShort": {
-  "message": "오늘 $P0$/$P1$개 남음",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "오늘 {0}/{1}개 남음"
  },
  "usageProShort": {
-  "message": "Pro · 이번 주 $P0$/$P1$개 남음",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "Pro · 이번 주 {0}/{1}개 남음"
  },
  "pinChat": {
   "message": "채팅 고정"
@@ -616,50 +516,22 @@
   "message": "이 채팅의 메모"
  },
  "pages_one": {
-  "message": "페이지 $P0$개",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "페이지 {0}개"
  },
  "pages_few": {
-  "message": "페이지 $P0$개",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "페이지 {0}개"
  },
  "pages_many": {
-  "message": "페이지 $P0$개",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "페이지 {0}개"
  },
  "pages_other": {
-  "message": "페이지 $P0$개",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "페이지 {0}개"
  },
  "cancel": {
   "message": "취소"
  },
  "pickCount": {
-  "message": "$P0$/$P1$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "{0}/{1}"
  },
  "pickHint": {
   "message": "메시지를 탭하세요"
@@ -671,26 +543,10 @@
   "message": "선택 해제"
  },
  "limitFreeBack": {
-  "message": "$P1$($P2$ 후)에 무료 답변 $P0$개가 다시 제공돼요.",
-  "placeholders": {
-   "p1": {
-    "content": "$2"
-   },
-   "p2": {
-    "content": "$3"
-   },
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{1}({2} 후)에 무료 답변 {0}개가 다시 제공돼요."
  },
  "limitFreePro": {
-  "message": "Pro를 이용하면 매주 최대 $P0$개의 답변을 받을 수 있어요.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Pro를 이용하면 매주 최대 {0}개의 답변을 받을 수 있어요."
  },
  "limitNotes": {
   "message": "메모는 무료이고 제한이 없어요. 중요한 내용을 지금 적어 두고 나중에 AI에게 물어보세요."
@@ -699,55 +555,54 @@
   "message": "메모 쓰기"
  },
  "errProvider": {
-  "message": "AI 제공업체의 응답: $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "AI 제공업체의 응답: {0}"
  },
  "offerLimit": {
-  "message": "또는 첫 달 $P0$% 할인된 Pro를 이용해 보세요. 더 똑똑한 모델로 주 $P1$회까지 답변합니다. 언제든 해지할 수 있습니다.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "또는 첫 달 {0}% 할인된 Pro를 이용해 보세요. 더 똑똑한 모델로 주 {1}회까지 답변합니다. 언제든 해지할 수 있습니다."
  },
  "offerButton": {
-  "message": "Pro $P0$% 할인",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Pro {0}% 할인"
  },
  "offerShort": {
-  "message": "Pro −$P0$%",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Pro −{0}%"
  },
  "offerCardTitle": {
   "message": "답변이 부족하신가요?"
  },
  "offerCardBody": {
-  "message": "이전에 하루 무료 답변 한도에 도달했어요. Pro는 더 똑똑한 모델로 주 $P1$회까지 답변하며, 첫 달은 $P0$% 할인됩니다. 이후에는 정가이며 App Store 설정에서 언제든 해지할 수 있습니다.",
-  "placeholders": {
-   "p1": {
-    "content": "$2"
-   },
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "이전에 하루 무료 답변 한도에 도달했어요. Pro는 더 똑똑한 모델로 주 {1}회까지 답변하며, 첫 달은 {0}% 할인됩니다. 이후에는 정가이며 App Store 설정에서 언제든 해지할 수 있습니다."
  },
  "offerLater": {
   "message": "나중에"
+ },
+ "emptyVideo": {
+  "message": "이 동영상을 보고 있어요. 자막 내용을 읽을게요. 질문하거나 작업을 선택하세요."
+ },
+ "emptyPdf": {
+  "message": "이 PDF를 보고 있어요. 질문하거나 작업을 선택하세요."
+ },
+ "readingVideo": {
+  "message": "동영상 자막을 읽는 중…"
+ },
+ "readingPdf": {
+  "message": "PDF를 읽는 중…"
+ },
+ "usedVideo": {
+  "message": "동영상 자막 · {0}"
+ },
+ "usedPdf": {
+  "message": "{0} · {1}쪽"
+ },
+ "videoNoTranscript": {
+  "message": "이 동영상에는 자막이 없어요. 제목과 설명을 바탕으로 답해요."
+ },
+ "videoFailed": {
+  "message": "이 동영상의 자막을 가져오지 못했어요. 제목과 설명을 바탕으로 답해요."
+ },
+ "pdfNoText": {
+  "message": "‘{0}’에는 읽을 수 있는 텍스트가 없어요(스캔한 페이지). 이 문서 없이 답해요."
+ },
+ "pdfFailed": {
+  "message": "PDF ‘{0}’을(를) 읽지 못했어요. 이 문서 없이 답해요."
  }
 }

@@ -15,12 +15,7 @@
   "message": "Эта страница"
  },
  "ctxSelection": {
-  "message": "Выделено · $P0$ слов",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Выделено · {0} слов"
  },
  "ctxNone": {
   "message": "Общий чат"
@@ -71,12 +66,7 @@
   "message": "Объясни эту страницу простыми словами, как умному двенадцатилетнему."
  },
  "promptTranslate": {
-  "message": "Переведи основной текст этой страницы на $P0$. Сохрани структуру и заголовки.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Переведи основной текст этой страницы на {0}. Сохрани структуру и заголовки."
  },
  "promptSelSummarize": {
   "message": "Кратко перескажи выделенный текст."
@@ -85,12 +75,7 @@
   "message": "Объясни выделенный текст простыми словами."
  },
  "promptSelTranslate": {
-  "message": "Переведи выделенный текст на $P0$.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Переведи выделенный текст на {0}."
  },
  "promptSelImprove": {
   "message": "Перепиши выделенный текст понятнее и короче. Дай один улучшенный вариант."
@@ -177,23 +162,13 @@
   "message": "Вы"
  },
  "newPage": {
-  "message": "Новая страница: $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Новая страница: {0}"
  },
  "pageUpdated": {
   "message": "Страница обновилась"
  },
  "nowOnPage": {
-  "message": "Сейчас: $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Сейчас: {0}"
  },
  "retry": {
   "message": "Повторить"
@@ -238,12 +213,7 @@
   "message": "Недельный лимит исчерпан"
  },
  "limitProBody": {
-  "message": "Ответы Pro обновятся через $P0$.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Ответы Pro обновятся через {0}."
  },
  "getPro": {
   "message": "Получить Pro"
@@ -252,45 +222,19 @@
   "message": "Свой ключ API"
  },
  "usageFree": {
-  "message": "Осталось $P0$ из $P1$ бесплатных ответов на сегодня",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "Осталось {0} из {1} бесплатных ответов на сегодня"
  },
  "usagePro": {
-  "message": "Pro · осталось $P0$ из $P1$ ответов на неделю",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "Pro · осталось {0} из {1} ответов на неделю"
  },
  "usageOwnKey": {
   "message": "Используется ваш ключ API"
  },
  "hours": {
-  "message": "$P0$ ч",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} ч"
  },
  "minutes": {
-  "message": "$P0$ мин",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} мин"
  },
  "consentTitle": {
   "message": "Перед первым ответом"
@@ -317,12 +261,7 @@
   "message": "Свой ключ"
  },
  "planRenews": {
-  "message": "Продление $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Продление {0}"
  },
  "manageSubscription": {
   "message": "Управлять подпиской"
@@ -364,20 +303,10 @@
   "message": "Кнопка ✦ открывает ContextFlow на любом сайте. Скройте её на отдельном сайте ссылкой ниже или выключите здесь."
  },
  "hideOnSite": {
-  "message": "Скрыть на $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Скрыть на {0}"
  },
  "showOnSite": {
-  "message": "Показывать на $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Показывать на {0}"
  },
  "setSelectionButton": {
   "message": "Кнопка при выделении текста"
@@ -443,12 +372,7 @@
   "message": "Оценить ContextFlow"
  },
  "version": {
-  "message": "Версия $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Версия {0}"
  },
  "fabLabel": {
   "message": "Спросить ContextFlow"
@@ -472,15 +396,7 @@
   "message": "Источники"
  },
  "tourStep": {
-  "message": "$P0$ из $P1$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "{0} из {1}"
  },
  "tourSkip": {
   "message": "Пропустить"
@@ -579,26 +495,10 @@
   "message": "Открыть эту страницу"
  },
  "usageFreeShort": {
-  "message": "$P0$ из $P1$ на сегодня",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "{0} из {1} на сегодня"
  },
  "usageProShort": {
-  "message": "Pro · $P0$ из $P1$ на неделю",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "Pro · {0} из {1} на неделю"
  },
  "pinChat": {
   "message": "Закрепить чат"
@@ -616,50 +516,22 @@
   "message": "Ваши заметки в этом чате"
  },
  "pages_one": {
-  "message": "$P0$ страница",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} страница"
  },
  "pages_few": {
-  "message": "$P0$ страницы",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} страницы"
  },
  "pages_many": {
-  "message": "$P0$ страниц",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} страниц"
  },
  "pages_other": {
-  "message": "$P0$ страницы",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} страницы"
  },
  "cancel": {
   "message": "Отменить"
  },
  "pickCount": {
-  "message": "$P0$ из $P1$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "{0} из {1}"
  },
  "pickHint": {
   "message": "Отметьте сообщения"
@@ -671,26 +543,10 @@
   "message": "Снять выбор"
  },
  "limitFreeBack": {
-  "message": "$P0$ бесплатных ответов снова будут в $P1$, через $P2$.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   },
-   "p2": {
-    "content": "$3"
-   }
-  }
+  "message": "{0} бесплатных ответов снова будут в {1}, через {2}."
  },
  "limitFreePro": {
-  "message": "В Pro — до $P0$ ответов в неделю.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "В Pro — до {0} ответов в неделю."
  },
  "limitNotes": {
   "message": "Заметки остаются бесплатными и без лимита: запишите важное сейчас, а ИИ спросите потом."
@@ -699,55 +555,54 @@
   "message": "Написать заметку"
  },
  "errProvider": {
-  "message": "Ответ вашего ИИ-провайдера: $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Ответ вашего ИИ-провайдера: {0}"
  },
  "offerLimit": {
-  "message": "Или возьмите Pro со скидкой $P0$% на первый месяц: до $P1$ ответов в неделю на более умной модели. Отменить можно в любой момент.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "Или возьмите Pro со скидкой {0}% на первый месяц: до {1} ответов в неделю на более умной модели. Отменить можно в любой момент."
  },
  "offerButton": {
-  "message": "Pro со скидкой $P0$%",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Pro со скидкой {0}%"
  },
  "offerShort": {
-  "message": "Pro −$P0$%",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Pro −{0}%"
  },
  "offerCardTitle": {
   "message": "Не хватает ответов?"
  },
  "offerCardBody": {
-  "message": "Вы уже упирались в дневной лимит бесплатных ответов. В Pro — до $P1$ ответов в неделю на более умной модели, а первый месяц — со скидкой $P0$%. Дальше обычная цена; отменить можно в любой момент в настройках App Store.",
-  "placeholders": {
-   "p1": {
-    "content": "$2"
-   },
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Вы уже упирались в дневной лимит бесплатных ответов. В Pro — до {1} ответов в неделю на более умной модели, а первый месяц — со скидкой {0}%. Дальше обычная цена; отменить можно в любой момент в настройках App Store."
  },
  "offerLater": {
   "message": "Не сейчас"
+ },
+ "emptyVideo": {
+  "message": "Я вижу это видео и прочитаю его расшифровку. Задайте вопрос или выберите действие."
+ },
+ "emptyPdf": {
+  "message": "Я вижу этот PDF. Задайте вопрос или выберите действие."
+ },
+ "readingVideo": {
+  "message": "Читаю расшифровку видео…"
+ },
+ "readingPdf": {
+  "message": "Читаю PDF…"
+ },
+ "usedVideo": {
+  "message": "Расшифровка видео · {0}"
+ },
+ "usedPdf": {
+  "message": "{0} · {1} стр."
+ },
+ "videoNoTranscript": {
+  "message": "У этого видео нет субтитров — ответ по названию и описанию."
+ },
+ "videoFailed": {
+  "message": "Не удалось получить расшифровку этого видео — ответ по названию и описанию."
+ },
+ "pdfNoText": {
+  "message": "В «{0}» нет текста (сканированные страницы) — ответ без него."
+ },
+ "pdfFailed": {
+  "message": "Не удалось прочитать PDF «{0}» — ответ без него."
  }
 }

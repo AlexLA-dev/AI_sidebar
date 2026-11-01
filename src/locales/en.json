@@ -204,5 +204,16 @@
   "offerShort": "Pro −{0}%",
   "offerCardTitle": "Running out of answers?",
   "offerCardBody": "You've hit the free daily limit before. Pro gives you up to {1} answers a week on a smarter model, and your first month is {0}% off. Then the regular price; cancel any time in your App Store settings.",
-  "offerLater": "Not now"
+  "offerLater": "Not now",
+
+  "emptyVideo": "I can see this video and will read its transcript. Ask a question or pick an action.",
+  "emptyPdf": "I can see this PDF. Ask a question or pick an action.",
+  "readingVideo": "Reading the video transcript…",
+  "readingPdf": "Reading the PDF…",
+  "usedVideo": "Video transcript · {0}",
+  "usedPdf": "{0} · {1} pp.",
+  "videoNoTranscript": "This video has no captions: the answer uses its title and description.",
+  "videoFailed": "Couldn’t get this video’s transcript: the answer uses its title and description.",
+  "pdfNoText": "“{0}” has no text to read (scanned pages): the answer is without it.",
+  "pdfFailed": "Couldn’t read the PDF “{0}”: the answer is without it."
 }

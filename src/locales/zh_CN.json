@@ -204,5 +204,16 @@
   "offerShort": "Pro −{0}%",
   "offerCardTitle": "回答不够用？",
   "offerCardBody": "你之前用完过每日免费回答。Pro 使用更聪明的模型，每周最多 {1} 次回答，首月优惠 {0}%。之后按原价续订，可随时在 App Store 设置中取消。",
-  "offerLater": "以后再说"
+  "offerLater": "以后再说",
+
+  "emptyVideo": "我能看到此视频，并会读取它的文字稿。提个问题，或选择一个操作。",
+  "emptyPdf": "我能看到此 PDF。提个问题，或选择一个操作。",
+  "readingVideo": "正在读取视频文字稿…",
+  "readingPdf": "正在读取 PDF…",
+  "usedVideo": "视频文字稿 · {0}",
+  "usedPdf": "{0} · {1} 页",
+  "videoNoTranscript": "此视频没有字幕：回答依据其标题和简介。",
+  "videoFailed": "无法获取此视频的文字稿：回答依据其标题和简介。",
+  "pdfNoText": "“{0}”没有可读取的文字（扫描页面）：回答不包含它。",
+  "pdfFailed": "无法读取 PDF“{0}”：回答不包含它。"
 }

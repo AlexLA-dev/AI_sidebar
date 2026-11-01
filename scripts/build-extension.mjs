@@ -7,7 +7,7 @@
 //   CF_API_BASE=https://…  point the build at another backend (default: production)
 //
 // Output layout (stable file names, so the Xcode project never needs edits):
-//   manifest.json  welcome.html  dist/*.js  icons/*.png  _locales/<lang>/messages.json
+//   manifest.json  welcome.html  popup.html  dist/*.js  icons/*.png  _locales/<lang>/messages.json
 
 import { context, build } from "esbuild"
 import { cpSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs"
@@ -49,7 +49,8 @@ function manifest() {
   return m
 }
 
-// _locales/<lang>/messages.json from src/locales/<lang>.json ({0} → $P0$ placeholders).
+// _locales/<lang>/messages.json from src/locales/<lang>.json. {0}, {1} stay as they are: t() fills them in
+// itself (Safari's own substitution loses the value next to some characters, e.g. “{0}”).
 function locales() {
   const dir = join(root, "src/locales")
   for (const file of readdirSync(dir).filter((f) => f.endsWith(".json"))) {
@@ -57,12 +58,8 @@ function locales() {
     const source = JSON.parse(readFileSync(join(dir, file), "utf8"))
     const messages = {}
     for (const [key, text] of Object.entries(source)) {
-      const placeholders = {}
-      const message = String(text).replace(/\{(\d)\}/g, (_, i) => {
-        placeholders[`p${i}`] = { content: `$${Number(i) + 1}` }
-        return `$P${i}$`
-      })
-      messages[key] = Object.keys(placeholders).length ? { message, placeholders } : { message }
+      // "$" starts a placeholder in messages.json; written as "$$" it is a dollar sign.
+      messages[key] = { message: String(text).replace(/\$/g, "$$$$") }
     }
     mkdirSync(join(out, "_locales", lang), { recursive: true })
     writeFileSync(join(out, "_locales", lang, "messages.json"), JSON.stringify(messages, null, 1) + "\n")
@@ -72,6 +69,7 @@ function locales() {
 function statics() {
   writeFileSync(join(out, "manifest.json"), JSON.stringify(manifest(), null, 2) + "\n")
   cpSync(join(root, "src/pages/welcome.html"), join(out, "welcome.html"))
+  cpSync(join(root, "src/pages/popup.html"), join(out, "popup.html"))
   cpSync(join(root, "extension/icons"), join(out, "icons"), { recursive: true })
   locales()
 }
@@ -81,6 +79,7 @@ const options = {
   entryPoints: {
     background: "src/background/index.ts",
     content: "src/content/index.tsx",
+    popup: "src/popup/index.tsx",
     welcome: "src/pages/welcome.ts"
   },
   outdir: join(out, "dist"),

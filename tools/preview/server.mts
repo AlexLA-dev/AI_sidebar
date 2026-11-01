@@ -149,7 +149,16 @@ const pages: Record<string, string> = {
   "/article": "article.html",
   "/article-ru": "article-ru.html",
   "/article-2": "article-2.html",
-  "/article-2-ru": "article-2-ru.html"
+  "/article-2-ru": "article-2-ru.html",
+  "/pdf-embed": "pdf-embed.html",
+  "/pdf-link": "pdf-link.html"
+}
+
+// PDFs for the PDF checks. private.pdf only with the cookie pdf-link.html sets, like a PDF behind a sign-in.
+const pdfs: Record<string, string> = {
+  "/files/report.pdf": "files/report.pdf",
+  "/files/scan.pdf": "files/scan.pdf",
+  "/files/private.pdf": "files/report.pdf"
 }
 
 createServer(async (req, res) => {
@@ -184,6 +193,16 @@ createServer(async (req, res) => {
   if (url.pathname === "/reset") {
     counters.clear()
     res.end("ok")
+    return
+  }
+  const pdf = pdfs[url.pathname]
+  if (pdf) {
+    if (url.pathname === "/files/private.pdf" && !/signed_in=1/.test(req.headers.cookie ?? "")) {
+      res.writeHead(403, { "Content-Type": "text/html" }).end("<h1>Sign in</h1>")
+      return
+    }
+    res.writeHead(200, { "Content-Type": "application/pdf" })
+    res.end(readFileSync(new URL(`./${pdf}`, import.meta.url)))
     return
   }
   const file = pages[url.pathname]

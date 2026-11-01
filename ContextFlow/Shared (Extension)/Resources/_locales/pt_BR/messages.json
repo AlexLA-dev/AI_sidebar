@@ -15,12 +15,7 @@
   "message": "Esta página"
  },
  "ctxSelection": {
-  "message": "Seleção · $P0$ palavras",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Seleção · {0} palavras"
  },
  "ctxNone": {
   "message": "Conversa geral"
@@ -71,12 +66,7 @@
   "message": "Explique esta página com palavras simples, como se fosse para uma criança esperta de 12 anos."
  },
  "promptTranslate": {
-  "message": "Traduza o conteúdo principal desta página para $P0$. Mantenha a estrutura e os títulos.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Traduza o conteúdo principal desta página para {0}. Mantenha a estrutura e os títulos."
  },
  "promptSelSummarize": {
   "message": "Resuma brevemente o texto selecionado."
@@ -85,12 +75,7 @@
   "message": "Explique o texto selecionado com palavras simples."
  },
  "promptSelTranslate": {
-  "message": "Traduza o texto selecionado para $P0$.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Traduza o texto selecionado para {0}."
  },
  "promptSelImprove": {
   "message": "Reescreva o texto selecionado para deixá-lo mais claro e conciso. Dê uma única versão melhorada."
@@ -177,23 +162,13 @@
   "message": "Você"
  },
  "newPage": {
-  "message": "Nova página: $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Nova página: {0}"
  },
  "pageUpdated": {
   "message": "Página atualizada"
  },
  "nowOnPage": {
-  "message": "Agora: $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Agora: {0}"
  },
  "retry": {
   "message": "Tentar novamente"
@@ -238,12 +213,7 @@
   "message": "Limite semanal atingido"
  },
  "limitProBody": {
-  "message": "Suas respostas Pro serão renovadas em $P0$.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Suas respostas Pro serão renovadas em {0}."
  },
  "getPro": {
   "message": "Assinar o Pro"
@@ -252,45 +222,19 @@
   "message": "Usar minha própria chave de API"
  },
  "usageFree": {
-  "message": "Restam $P0$ de $P1$ respostas grátis hoje",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "Restam {0} de {1} respostas grátis hoje"
  },
  "usagePro": {
-  "message": "Pro · Restam $P0$ de $P1$ respostas nesta semana",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "Pro · Restam {0} de {1} respostas nesta semana"
  },
  "usageOwnKey": {
   "message": "Usando sua própria chave de API"
  },
  "hours": {
-  "message": "$P0$ h",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} h"
  },
  "minutes": {
-  "message": "$P0$ min",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} min"
  },
  "consentTitle": {
   "message": "Antes da sua primeira resposta"
@@ -317,12 +261,7 @@
   "message": "Chave própria"
  },
  "planRenews": {
-  "message": "Renova em $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Renova em {0}"
  },
  "manageSubscription": {
   "message": "Gerenciar assinatura"
@@ -364,20 +303,10 @@
   "message": "O botão ✦ abre o ContextFlow em qualquer site. Oculte-o em um site pelo link abaixo ou desative-o aqui."
  },
  "hideOnSite": {
-  "message": "Ocultar em $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Ocultar em {0}"
  },
  "showOnSite": {
-  "message": "Mostrar em $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Mostrar em {0}"
  },
  "setSelectionButton": {
   "message": "Botão ao selecionar texto"
@@ -443,12 +372,7 @@
   "message": "Avaliar o ContextFlow"
  },
  "version": {
-  "message": "Versão $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Versão {0}"
  },
  "fabLabel": {
   "message": "Perguntar ao ContextFlow"
@@ -472,15 +396,7 @@
   "message": "Fontes"
  },
  "tourStep": {
-  "message": "$P0$ de $P1$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "{0} de {1}"
  },
  "tourSkip": {
   "message": "Pular"
@@ -579,26 +495,10 @@
   "message": "Abrir esta página"
  },
  "usageFreeShort": {
-  "message": "Restam $P0$ de $P1$ hoje",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "Restam {0} de {1} hoje"
  },
  "usageProShort": {
-  "message": "Pro · $P0$ de $P1$ nesta semana",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "Pro · {0} de {1} nesta semana"
  },
  "pinChat": {
   "message": "Fixar chat"
@@ -616,50 +516,22 @@
   "message": "Suas notas neste chat"
  },
  "pages_one": {
-  "message": "$P0$ página",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} página"
  },
  "pages_few": {
-  "message": "$P0$ páginas",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} páginas"
  },
  "pages_many": {
-  "message": "$P0$ páginas",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} páginas"
  },
  "pages_other": {
-  "message": "$P0$ páginas",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} páginas"
  },
  "cancel": {
   "message": "Cancelar"
  },
  "pickCount": {
-  "message": "$P0$ de $P1$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "{0} de {1}"
  },
  "pickHint": {
   "message": "Toque nas mensagens"
@@ -671,26 +543,10 @@
   "message": "Limpar seleção"
  },
  "limitFreeBack": {
-  "message": "$P0$ novas respostas grátis às $P1$, em $P2$.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   },
-   "p2": {
-    "content": "$3"
-   }
-  }
+  "message": "{0} novas respostas grátis às {1}, em {2}."
  },
  "limitFreePro": {
-  "message": "Com o Pro, você tem até $P0$ respostas por semana.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Com o Pro, você tem até {0} respostas por semana."
  },
  "limitNotes": {
   "message": "As notas continuam grátis e sem limite: anote agora o que importa e pergunte à IA depois."
@@ -699,55 +555,54 @@
   "message": "Escrever uma nota"
  },
  "errProvider": {
-  "message": "Seu provedor de IA respondeu: $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Seu provedor de IA respondeu: {0}"
  },
  "offerLimit": {
-  "message": "Ou assine o Pro com $P0$% de desconto no primeiro mês: até $P1$ respostas por semana com um modelo mais inteligente. Cancele quando quiser.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "Ou assine o Pro com {0}% de desconto no primeiro mês: até {1} respostas por semana com um modelo mais inteligente. Cancele quando quiser."
  },
  "offerButton": {
-  "message": "Pro com $P0$% de desconto",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Pro com {0}% de desconto"
  },
  "offerShort": {
-  "message": "Pro −$P0$%",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Pro −{0}%"
  },
  "offerCardTitle": {
   "message": "Faltando respostas?"
  },
  "offerCardBody": {
-  "message": "Você já atingiu o limite diário grátis. O Pro dá até $P1$ respostas por semana com um modelo mais inteligente, e o primeiro mês tem $P0$% de desconto. Depois, o preço normal; cancele quando quiser nos ajustes da App Store.",
-  "placeholders": {
-   "p1": {
-    "content": "$2"
-   },
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Você já atingiu o limite diário grátis. O Pro dá até {1} respostas por semana com um modelo mais inteligente, e o primeiro mês tem {0}% de desconto. Depois, o preço normal; cancele quando quiser nos ajustes da App Store."
  },
  "offerLater": {
   "message": "Agora não"
+ },
+ "emptyVideo": {
+  "message": "Estou vendo este vídeo e vou ler a transcrição. Faça uma pergunta ou escolha uma ação."
+ },
+ "emptyPdf": {
+  "message": "Estou vendo este PDF. Faça uma pergunta ou escolha uma ação."
+ },
+ "readingVideo": {
+  "message": "Lendo a transcrição do vídeo…"
+ },
+ "readingPdf": {
+  "message": "Lendo o PDF…"
+ },
+ "usedVideo": {
+  "message": "Transcrição do vídeo · {0}"
+ },
+ "usedPdf": {
+  "message": "{0} · {1} págs."
+ },
+ "videoNoTranscript": {
+  "message": "Este vídeo não tem legendas: a resposta usa o título e a descrição."
+ },
+ "videoFailed": {
+  "message": "Não foi possível obter a transcrição deste vídeo: a resposta usa o título e a descrição."
+ },
+ "pdfNoText": {
+  "message": "“{0}” não tem texto para ler (páginas digitalizadas): a resposta não o inclui."
+ },
+ "pdfFailed": {
+  "message": "Não foi possível ler o PDF “{0}”: a resposta não o inclui."
  }
 }

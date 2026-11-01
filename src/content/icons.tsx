@@ -43,3 +43,7 @@ export const Lock = (): VNode => <svg {...base} width={14} height={14}><rect x="
 export const Search = ({ size = 15 }: { size?: number }): VNode => (
   <svg {...base} width={size} height={size}><circle cx="11" cy="11" r="7" /><path d="m20 20-3.6-3.6" /></svg>
 )
+export const Play = ({ size = 14 }: { size?: number }): VNode => (
+  <svg {...base} width={size} height={size}><rect x="2" y="4" width="20" height="16" rx="4" /><path d="m10 9 5 3-5 3z" fill="currentColor" /></svg>
+)
+export const Alert = (): VNode => <svg {...base} width={13} height={13}><circle cx="12" cy="12" r="9" /><path d="M12 7.5v5.5M12 16.5v.01" /></svg>
