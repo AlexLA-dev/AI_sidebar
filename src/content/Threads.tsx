@@ -1,6 +1,8 @@
 import type { VNode } from "preact"
 import { useEffect, useRef, useState } from "preact/hooks"
 
+import type { FindReply } from "../shared/types"
+
 import { t, uiLanguage } from "../shared/i18n"
 import { activity, MAX_TITLE, searchThreads, threadName, threadNotes, threadPages, threadSnippet, threadTitle, type SearchHit, type Thread } from "../shared/threads"
 import * as Icon from "./icons"
@@ -16,6 +18,14 @@ interface Props {
   onPin: (id: string, pinned: boolean) => void
   onMove: (id: string, index: number) => void // to `index` among the pinned chats
   onOpenPage: (url: string) => void
+  // Pro features: "Ask your chats" (the row on top) and AI search (✦ in the search field).
+  pro: boolean
+  onAskHistory: () => void
+  onFind: (query: string) => Promise<FindReply>
+  // Without Pro: what the feature would do.
+  onUpsell: (feature: "find" | "history") => void
+  // The last AI search ran out of answers or failed: shown under the field.
+  findError: (code: string) => string
 }
 
 /** "3 pages", in the UI language's plural form. */
@@ -56,16 +66,26 @@ function Excerpt({ hit }: { hit: SearchHit }): VNode {
   return <span class="cf-search-excerpt">{parts}</span>
 }
 
-/** The search field over the list: as you type, the chats with every word, and where they matched. */
-function SearchField({ value, onChange }: { value: string; onChange: (value: string) => void }): VNode {
+/**
+ * The search field over the list: as you type, the chats with every word, and where they matched.
+ * ✦ switches to AI search (Pro): describe the chat, Enter asks.
+ */
+function SearchField({ value, onChange, ai, pro, onAi, onSubmit }: {
+  value: string
+  onChange: (value: string) => void
+  ai: boolean
+  pro: boolean
+  onAi: () => void
+  onSubmit: () => void
+}): VNode {
   return (
-    <div class="cf-search" role="search">
-      <Icon.Search size={15} />
+    <div class={`cf-search ${ai ? "ai" : ""}`} role="search">
+      {ai ? <Icon.Sparkle size={15} /> : <Icon.Search size={15} />}
       <input
         type="search"
         value={value}
-        placeholder={t("searchChats")}
-        aria-label={t("searchChats")}
+        placeholder={t(ai ? "findPlaceholder" : "searchChats")}
+        aria-label={t(ai ? "findPlaceholder" : "searchChats")}
         enterkeyhint="search"
         onInput={(e) => onChange(e.currentTarget.value)}
         onKeyDown={(e) => {
@@ -75,6 +95,10 @@ function SearchField({ value, onChange }: { value: string; onChange: (value: str
             e.preventDefault()
             onChange("")
           }
+          if (e.key === "Enter" && !e.isComposing) {
+            e.preventDefault()
+            onSubmit()
+          }
         }}
         onKeyUp={(e) => e.stopPropagation()}
         onKeyPress={(e) => e.stopPropagation()}
@@ -82,6 +106,39 @@ function SearchField({ value, onChange }: { value: string; onChange: (value: str
       {value && (
         <button type="button" class="cf-search-clear" onClick={() => onChange("")} aria-label={t("searchClear")} title={t("searchClear")}>×</button>
       )}
+      <button
+        type="button"
+        class={`cf-search-ai ${ai ? "on" : ""}`}
+        aria-pressed={ai}
+        onClick={onAi}
+        aria-label={t("findToggle")}
+        title={pro ? t("findToggle") : t("findToggleLocked")}
+      >
+        <Icon.Sparkle size={14} />
+        {!pro && <span class="cf-search-lock"><Icon.Lock /></span>}
+      </button>
+    </div>
+  )
+}
+
+/** The row on top of the list: questions about all the chats at once (Pro). */
+function AskHistoryRow({ pro, onOpen }: { pro: boolean; onOpen: () => void }): VNode {
+  return (
+    <div class="cf-thread cf-ask-history" role="listitem">
+      <div
+        class="cf-thread-main"
+        role="button"
+        tabIndex={0}
+        onClick={onOpen}
+        onKeyDown={(e) => {
+          if (e.key !== "Enter" && e.key !== " ") return
+          e.preventDefault()
+          onOpen()
+        }}
+      >
+        <span class="cf-thread-title"><Icon.Sparkle size={14} /> {t("askHistory")} {!pro && <span class="cf-pro-badge">Pro</span>}</span>
+        <span class="cf-thread-snippet">{t("askHistoryHint")}</span>
+      </div>
     </div>
   )
 }
@@ -142,8 +199,38 @@ interface Drag {
  * start a new one. Pinned chats come first and are reordered by dragging their handle; a chat that
  * was on several pages lists them (each opens its page).
  */
-export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onNew, onPin, onMove, onOpenPage }: Props): VNode {
+export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onNew, onPin, onMove, onOpenPage, pro, onAskHistory, onFind, onUpsell, findError }: Props): VNode {
   const [query, setQuery] = useState("")
+  const [ai, setAi] = useState(false)
+  // AI search: the query asked, and its answer (null while it runs).
+  const [found, setFound] = useState<{ query: string; reply: FindReply | null } | null>(null)
+  const toggleAi = () => {
+    if (!pro) {
+      onUpsell("find")
+      return
+    }
+    setAi(!ai)
+    setFound(null)
+  }
+  const runFind = () => {
+    const q = query.trim()
+    if (!ai || !q || found?.reply === null) return
+    setFound({ query: q, reply: null })
+    void onFind(q).then((reply) => setFound((now) => (now?.query === q ? { query: q, reply } : now)))
+  }
+  const search = (
+    <SearchField
+      value={query}
+      onChange={(v) => {
+        setQuery(v)
+        if (!v) setFound(null)
+      }}
+      ai={ai}
+      pro={pro}
+      onAi={toggleAi}
+      onSubmit={runFind}
+    />
+  )
   const [editing, setEditing] = useState<string | null>(null)
   const [pagesOf, setPagesOf] = useState<string | null>(null)
   const [drag, setDrag] = useState<Drag | null>(null)
@@ -174,11 +261,38 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
     )
   }
 
+  if (ai && (query.trim() || found)) {
+    const byId = new Map(threads.map((th) => [th.id, th]))
+    const reply = found?.reply
+    return (
+      <div class="cf-threads" role="list">
+        {search}
+        {!found && <p class="cf-search-none">{t("findHint")}</p>}
+        {found && !reply && <div class="cf-thinking cf-find-busy"><span /><span /><span /> {t("findBusy")}</div>}
+        {reply && !reply.ok && <p class="cf-search-none">{findError(reply.code)}</p>}
+        {reply?.ok && reply.results.length === 0 && <p class="cf-search-none">{t("searchNone", found?.query ?? "")}</p>}
+        {reply?.ok && reply.results.map(({ id, why }) => {
+          const thread = byId.get(id)
+          if (!thread) return null
+          return (
+            <div key={id} role="listitem" class={`cf-thread ${id === activeId ? "current" : ""}`}>
+              <div class="cf-thread-main" role="button" tabIndex={0} onClick={() => onOpen(id)} onKeyDown={(e) => { if (e.key === "Enter") onOpen(id) }}>
+                <span class="cf-thread-title">{threadName(thread)}</span>
+                {why && <span class="cf-search-hit cf-find-why"><Icon.Sparkle size={11} /> {why}</span>}
+                <span class="cf-thread-meta"><span class="cf-thread-when">{when(activity(thread))}</span></span>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    )
+  }
+
   if (query.trim()) {
     const results = searchThreads(threads, query)
     return (
       <div class="cf-threads" role="list">
-        <SearchField value={query} onChange={setQuery} />
+        {search}
         {results.length === 0 && <p class="cf-search-none">{t("searchNone", query.trim())}</p>}
         {results.map(({ thread, hits }) => (
           <div key={thread.id} role="listitem" class={`cf-thread ${thread.id === activeId ? "current" : ""}`}>
@@ -245,7 +359,8 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
 
   return (
     <div class="cf-threads" role="list">
-      <SearchField value={query} onChange={setQuery} />
+      {search}
+      {threads.some((th) => th.kind !== "history") && <AskHistoryRow pro={pro} onOpen={onAskHistory} />}
       {threads.map((thread, index) => {
         const pages = threadPages(thread.m)
         const notes = threadNotes(thread.m)
@@ -301,7 +416,7 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
                     onOpen(thread.id)
                   }}
                 >
-                  <span class="cf-thread-title">{threadName(thread)}</span>
+                  <span class="cf-thread-title">{thread.kind === "history" && <Icon.Sparkle size={12} />} {threadName(thread)}</span>
                   <span class="cf-thread-snippet">{threadSnippet(thread.m)}</span>
                   <span class="cf-thread-meta">
                     {notes > 0 && (

@@ -11,6 +11,7 @@ import {
   type Platform,
   type ProOffer,
   type Settings,
+  type FindReply,
   type StatusInfo,
   type StreamEvent,
   type Usage
@@ -31,12 +32,14 @@ import {
   trackSelection,
   type SelectionInfo
 } from "./page"
+import { ProUpsell } from "./ProUpsell"
 import { SettingsView } from "./Settings"
 import { shareLabels } from "./shareLabels"
 import { deleteThread, giveConsent, hasConsent, hasSeenTour, loadSettings, loadThreads, markTourSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, rememberPageText, renameThread, saveSettings, saveThread, setActiveThread, offerCardCount, setNoteHintCount, setOfferCardCount } from "./store"
 import { ThreadsView } from "./Threads"
 import { Tour, tourSteps } from "./Tour"
-import { chatList, newThreadId, pinAt, shownThread, threadTitle, type Thread } from "../shared/threads"
+import { chatDigests, chatList, newThreadId, pinAt, shownThread, threadTitle, type Thread } from "../shared/threads"
+import type { ChatDigest } from "../shared/history"
 
 export type Bus = EventTarget
 
@@ -152,6 +155,8 @@ function errorText(error: ChatError): string {
       return t("errBadKey")
     case "SEARCH_LIMIT":
       return t("errSearchLimit")
+    case "PRO_ONLY":
+      return t("errProOnly")
     case "SEARCH_UNAVAILABLE":
       return t("errSearchUnavailable")
     default:
@@ -182,7 +187,16 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [reading, setReading] = useState<"video" | "pdf" | null>(null)
   // The question being prepared (page still being read); cleared when it's sent or stopped.
   const askToken = useRef<object | null>(null)
-  const sendRef = useRef<(base: Turn[], content: string, opts: { label?: string; action?: string; mode?: "google" }, full: PageRead, selection: SelectionInfo | null) => void>(() => undefined)
+  const sendRef = useRef<(base: Turn[], content: string, opts: { label?: string; action?: string; mode?: "google" }, full: PageRead, selection: SelectionInfo | null, history?: ChatDigest[]) => void>(() => undefined)
+  // The chat shown is "Ask your chats" (Pro): questions about all the other chats, not the page.
+  const [historyMode, setHistoryMode] = useState(false)
+  const historyRef = useRef(false)
+  const setKind = (kind: Thread["kind"]) => {
+    historyRef.current = kind === "history"
+    setHistoryMode(kind === "history")
+  }
+  // What a Pro feature would do, for someone without Pro (from the ✦ search or "Ask your chats").
+  const [upsell, setUpsell] = useState<"find" | "history" | null>(null)
   const [draft, setDraft] = useState("")
   // The send button writes a note to the chat instead of asking (switched by swiping or scrolling on it).
   const [noteMode, setNoteMode] = useState(false)
@@ -316,6 +330,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       void loadThreads().then(({ threads, active }) => {
         loadedRef.current = true
         threadRef.current = active.id
+        setKind(threads[active.id]?.kind)
         const entries = threads[active.id]?.m ?? []
         setThreadList(chatList(threads))
         setMessages(entries)
@@ -334,6 +349,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               threadRef.current = next.id
               void setActiveThread(next.id)
             }
+            setKind(fresh.threads[next.id]?.kind)
             return next.m
           })
           scrollToEnd()
@@ -394,7 +410,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   useEffect(() => {
     if (!loadedRef.current) return
     const id = threadRef.current
-    const timer = setTimeout(() => void saveThread(id, messages), 300)
+    const kind = historyRef.current ? "history" : undefined
+    const timer = setTimeout(() => void saveThread(id, messages, kind), 300)
     return () => clearTimeout(timer)
   }, [messages])
 
@@ -504,7 +521,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       const next: Turn[] = [...history, grounding ? { role: "assistant", content: text, grounding } : { role: "assistant", content: text }]
       setMessages(next)
       // Right away, not on the debounced save: the user may go to another page as soon as the answer is in.
-      void saveThread(threadRef.current, next)
+      void saveThread(threadRef.current, next, historyRef.current ? "history" : undefined)
     }
     if (err) setError(err)
   }, [])
@@ -518,6 +535,25 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     }
     const base = opts.retry ? messages.slice(0, messages.length - 1) : messages
     const url = source.key()
+    if (historyRef.current) {
+      // "Ask your chats": the question goes with a digest of all the other chats, not the page.
+      setMessages([...base, { role: "user", content, label: opts.label }])
+      setDraft("")
+      if (inputRef.current) inputRef.current.style.height = "auto"
+      setError(null)
+      setPartial("")
+      setStreamMode(null)
+      partialRef.current = ""
+      const token = {}
+      askToken.current = token
+      const current = threadRef.current
+      void loadThreads().then(({ threads }) => {
+        if (askToken.current !== token) return
+        const history = chatDigests(Object.values(threads).filter((th) => th.id !== current), { perChat: 2_500, perAnswer: 500, total: 55_000 })
+        sendRef.current(base, content, { label: opts.label, action: opts.action }, { title: "", text: "", sources: [] }, null, history)
+      })
+      return
+    }
     // The question shows at once; a video's transcript or a PDF may take a few seconds to read.
     const shown: Turn = { role: "user", content, label: opts.label, page: { url, title: source.title() } }
     if (opts.mode) shown.mode = opts.mode
@@ -545,19 +581,19 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }, [consent, messages, selection, source])
 
   /** Sends a question with the page as `full` (sources: what was read along with it) or the selection. */
-  sendRef.current = (base, content, opts, full, selection) => {
+  sendRef.current = (base, content, opts, full, selection, chats) => {
     const url = source.key()
     const hash = textFingerprint(full.text)
-    const changed = pageHasChanged(base, url, hash)
-    const user: Turn = { role: "user", content, label: opts.label, page: { url, title: full.title, hash } }
-    void rememberPageText(url, full.title, full.text)
+    const changed = !chats && pageHasChanged(base, url, hash)
+    const user: Turn = chats ? { role: "user", content, label: opts.label } : { role: "user", content, label: opts.label, page: { url, title: full.title, hash } }
+    if (!chats) void rememberPageText(url, full.title, full.text)
     if (opts.mode) user.mode = opts.mode
     if (changed) user.pageChanged = true
     if (full.sources.length) user.sources = full.sources
     const history: Turn[] = [...base, user]
     setMessages(history)
 
-    const page: AskPayload["page"] = selection
+    const page: AskPayload["page"] = chats ? null : selection
       ? { kind: "selection", title: source.title().slice(0, 300), url: source.href(), text: selection.text }
       : full.text ? { kind: "page", title: full.title, url: source.href(), text: full.text, changed, ...(full.media ? { media: full.media } : {}) } : null
     let port: chrome.runtime.Port
@@ -598,6 +634,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     port.onDisconnect.addListener(() => {
       if (!settled && portRef.current === port) finish(history, partialRef.current, partialRef.current ? null : { code: "STREAM" })
     })
+    if (chats) {
+      port.postMessage({ type: "ask", payload: { messages: historyForModel(history, url), page: null, action: opts.action, context: "history" as const, history: chats } })
+      return
+    }
     const wholeChat = settingsRef.current.wholeChat
     void (wholeChat ? pageTexts(otherPages(history, url).map((p) => p.url).slice(0, MAX_OTHER_PAGES)) : Promise.resolve([])).then((pages) => {
       if (portRef.current !== port) return // stopped meanwhile
@@ -630,7 +670,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setNoteMode(false)
   }, [messages, source])
 
-  const submit = () => (noteMode ? saveNote(draft) : ask(draft, { mode: googleMode ? "google" : undefined }))
+  const submit = () => (noteMode ? saveNote(draft) : ask(draft, { mode: googleMode && !historyRef.current ? "google" : undefined }))
 
   const stop = useCallback(() => {
     const port = portRef.current
@@ -686,17 +726,47 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     stop()
     const id = newThreadId()
     threadRef.current = id
+    setKind(undefined)
     void setActiveThread(id)
     setMessages([])
     setError(null)
     setView("chat")
   }, [stop])
 
+  /** "Ask your chats" (Pro): continues today's one, else starts a new one; without Pro, says what it does. */
+  const askHistory = useCallback(() => {
+    if ((status?.plan ?? "free") !== "pro") {
+      setUpsell("history")
+      return
+    }
+    stop()
+    setUpsell(null)
+    const recent = threadList.find((th) => th.kind === "history" && Date.now() - (th.a ?? th.u) < 24 * 3600_000)
+    const id = recent?.id ?? newThreadId()
+    threadRef.current = id
+    setKind("history")
+    void setActiveThread(id)
+    setMessages(recent?.m ?? [])
+    setError(null)
+    setView("chat")
+  }, [stop, status, threadList])
+
+  /** AI search (Pro): the chats the server finds for what the user describes. */
+  const findChats = useCallback(async (query: string): Promise<FindReply> => {
+    const { threads } = await loadThreads()
+    const chats = chatDigests(Object.values(threads), { perChat: 450, perAnswer: 150, total: 38_000 })
+    const reply = (await sendBackground<FindReply>({ type: "find", query, chats })) ?? { ok: false as const, code: "NETWORK" as const }
+    if (reply.usage) setUsage(reply.usage)
+    if (!reply.ok && reply.code === "PRO_ONLY") setUpsell("find")
+    return reply
+  }, [])
+
   /** Opens a chat; `at`: the message to show (a search result), else its end. */
   const openThread = useCallback((id: string, at?: number) => {
     stop()
     const thread = threadList.find((x) => x.id === id)
     threadRef.current = id
+    setKind(thread?.kind)
     void setActiveThread(id)
     setMessages(thread?.m ?? [])
     setError(null)
@@ -725,6 +795,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (id === threadRef.current) {
       const id2 = newThreadId()
       threadRef.current = id2
+      setKind(undefined)
       void setActiveThread(id2)
       setMessages([])
       setError(null)
@@ -885,8 +956,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   useEffect(() => setPicked(null), [threadRef.current, messages.length, view])
 
   // ------------------------------------------------------------ upgrade
-  const openApp = useCallback(async (target: "subscribe" | "manage") => {
-    const result = await sendBackground<{ opened: boolean; url: string }>({ type: "openApp", target })
+  const openApp = useCallback(async (target: "subscribe" | "manage", feature?: "ai") => {
+    const result = await sendBackground<{ opened: boolean; url: string }>({ type: "openApp", target, feature })
     if (result && !result.opened && result.url) followLink(result.url)
   }, [])
 
@@ -943,7 +1014,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
   // ------------------------------------------------------------ derived
   const contextKind: "selection" | "page" | "none" = selection ? "selection" : pageReadable ? "page" : "none"
-  const actions = contextKind === "selection" ? SELECTION_ACTIONS : contextKind === "page" ? PAGE_ACTIONS : []
+  const actions = historyMode ? [] : contextKind === "selection" ? SELECTION_ACTIONS : contextKind === "page" ? PAGE_ACTIONS : []
   const plan = status?.plan ?? "free"
   const ownKeyActive = viaOwnKey || (Boolean(status?.hasOwnKey) && plan !== "free")
   // The App Store offer code for Pro, once this install has run out of free answers (Safari only).
@@ -1033,7 +1104,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               {view !== "chat" ? (
                 <strong>{view === "settings" ? t("settings") : t("chatsTitle")}</strong>
               ) : (
-                <ContextChip
+                historyMode ? (
+                  <span class="cf-ctx history"><Icon.Sparkle size={13} /> <span class="cf-ctx-text">{t("askHistory")}</span></span>
+                ) : <ContextChip
                   kind={contextKind}
                   media={source.kind()}
                   title={source.title()}
@@ -1067,7 +1140,35 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           </header>
 
           {view === "threads" ? (
-            <ThreadsView threads={threadList} activeId={threadRef.current} onOpen={openThread} onRename={renameChat} onDelete={removeThread} onNew={newChat} onPin={pinChat} onMove={moveChat} onOpenPage={openPage} />
+            <>
+              {upsell && (
+                <div class="cf-upsell-wrap">
+                  <ProUpsell
+                    feature={upsell}
+                    offer={TARGET === "safari" && plan === "free" ? status?.offer ?? null : null}
+                    onPro={() => void openApp("subscribe", "ai")}
+                    onOffer={redeemOffer}
+                    onClose={() => setUpsell(null)}
+                  />
+                </div>
+              )}
+              <ThreadsView
+                threads={threadList}
+                activeId={threadRef.current}
+                onOpen={openThread}
+                onRename={renameChat}
+                onDelete={removeThread}
+                onNew={newChat}
+                onPin={pinChat}
+                onMove={moveChat}
+                onOpenPage={openPage}
+                pro={plan === "pro"}
+                onAskHistory={askHistory}
+                onFind={findChats}
+                onUpsell={setUpsell}
+                findError={(code) => (code === "LIMIT_REACHED" ? t("limitProTitle") : errorText({ code: code as ErrorCode }))}
+              />
+            </>
           ) : view === "settings" ? (
             <SettingsView
               settings={settings}
@@ -1096,7 +1197,20 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           ) : (
             <>
               <div class="cf-messages" ref={listRef}>
-                {messages.length === 0 && partial === null && (
+                {historyMode && messages.length === 0 && partial === null && (
+                  <div class="cf-empty">
+                    <div class="cf-empty-icon"><Icon.Sparkle size={28} /></div>
+                    <h2>{t("askHistory")}</h2>
+                    <p>{t("askHistoryEmpty")}</p>
+                    <div class="cf-actions">
+                      {(["askHistoryEx1", "askHistoryEx2", "askHistoryEx3"] as const).map((key) => (
+                        <button type="button" key={key} class="cf-chip" onClick={() => ask(t(key))}>{t(key)}</button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {!historyMode && messages.length === 0 && partial === null && (
                   <div class="cf-empty">
                     <div class="cf-empty-icon"><Icon.Sparkle size={28} /></div>
                     <h2>{t("emptyTitle")}</h2>
@@ -1206,7 +1320,17 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   )
                 })()}
 
-                {error && error.code !== "LIMIT_REACHED" && (
+                {error && error.code === "PRO_ONLY" && (
+                  <ProUpsell
+                    feature="history"
+                    offer={offer}
+                    onPro={() => void openApp("subscribe", "ai")}
+                    onOffer={redeemOffer}
+                    onClose={() => setError(null)}
+                  />
+                )}
+
+                {error && error.code !== "LIMIT_REACHED" && error.code !== "PRO_ONLY" && (
                   <div class="cf-card error">
                     <p>{errorText(error)}</p>
                     <div class="cf-card-actions">
@@ -1253,7 +1377,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 <footer class="cf-composer">
                   {noteHint && draft.trim() && !noteMode && <div class="cf-note-hint" role="status">{t(touch ? "noteHintTouch" : "noteHintMouse")}</div>}
                   <div class={`cf-input ${noteMode ? "note" : ""}`}>
-                    {!noteMode && (
+                    {!noteMode && !historyMode && (
                       <button
                         type="button"
                         class={`cf-mode ${googleMode ? "on" : ""}`}
@@ -1268,7 +1392,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       ref={inputRef}
                       rows={1}
                       value={draft}
-                      placeholder={t(noteMode ? "placeholderNote" : googleMode ? "placeholderGoogle" : contextKind === "selection" ? "placeholderSelection" : contextKind === "page" ? "placeholderPage" : "placeholderNone")}
+                      placeholder={t(noteMode ? "placeholderNote" : historyMode ? "placeholderHistory" : googleMode ? "placeholderGoogle" : contextKind === "selection" ? "placeholderSelection" : contextKind === "page" ? "placeholderPage" : "placeholderNone")}
                       enterkeyhint="send"
                       onInput={(e) => {
                         const el = e.currentTarget
@@ -1308,11 +1432,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   </div>
                   <div class="cf-usage">
                     <span class="cf-usage-text" title={usageLine.full}>{usageLine.short}</span>
-                    <label class="cf-whole" title={t("wholeChatHint")}>
+                    {!historyMode && <label class="cf-whole" title={t("wholeChatHint")}>
                       <input type="checkbox" role="switch" checked={settings.wholeChat} onChange={(e) => updateSettings({ wholeChat: e.currentTarget.checked })} />
                       <span class="cf-switch" aria-hidden="true" />
                       {t("wholeChat")}
-                    </label>
+                    </label>}
                     {plan === "free" && !ownKeyActive && TARGET === "safari" && (
                       offer ? (
                         <button type="button" class="cf-link" onClick={() => redeemOffer(offer.code)}>{t("offerShort", offer.discount)}</button>

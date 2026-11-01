@@ -7,6 +7,8 @@ import {
   STORAGE,
   type AskPayload,
   type BackgroundRequest,
+  type ErrorCode,
+  type FindReply,
   type Plan,
   type Platform,
   type ProOffer,
@@ -128,8 +130,8 @@ async function runChat(payload: AskPayload, emit: (e: StreamEvent) => void, sign
   // The own-key mode is part of the Pro and "Own key" plans (on Chrome there are no plans).
   const ownKeyAllowed = TARGET === "chrome" || storePlan !== "free"
 
-  // Google answers need Google Search grounding, which only our server has.
-  if (key && ownKeyAllowed && payload.mode !== "google") {
+  // Google answers need Google Search grounding, and "Ask your chats" is a Pro feature of our server.
+  if (key && ownKeyAllowed && payload.mode !== "google" && payload.context !== "history") {
     const started = Date.now()
     const usage = await askWithOwnKey(key, payload, prefs.aboutMe, client.locale, prefs.ownKeyModel, emit, signal)
     reportOwnKeyUsage({ ...usage, ms: Date.now() - started, tier: prefs.ownKeyModel, action: payload.action }, id, client)
@@ -176,14 +178,37 @@ chrome.runtime.onConnect.addListener((port) => {
   })
 })
 
+// --------------------------------------------------------------- AI search
+
+/** AI search over the chats (Pro, /api/v2/find): the server checks the plan and charges one answer. */
+async function findChats(query: string, chats: unknown[]): Promise<FindReply> {
+  const [id, ent, client] = await Promise.all([installId(), entitlement(), clientInfo()])
+  try {
+    const res = await fetch(`${API_BASE}/api/v2/find`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ installId: id, client, entitlement: ent?.active ? ent.jws : null, query, chats }),
+      signal: AbortSignal.timeout(45_000)
+    })
+    const body = (await res.json().catch(() => ({}))) as { results?: Array<{ id: string; why: string }>; usage?: Usage | null; code?: string; offer?: ProOffer | null }
+    statusCache = null
+    if (res.ok && Array.isArray(body.results)) return { ok: true, results: body.results, usage: body.usage ?? null }
+    // An old server doesn't know the endpoint: the feature isn't there yet.
+    const code = (body.code ?? (res.status === 404 ? "UNAVAILABLE" : res.status >= 500 ? "UPSTREAM" : "BAD_REQUEST")) as ErrorCode
+    return { ok: false, code, usage: body.usage ?? null, offer: body.offer ?? null }
+  } catch {
+    return { ok: false, code: "NETWORK" }
+  }
+}
+
 // --------------------------------------------------------------- open app
 
-async function openApp(target: "subscribe" | "manage" | "home"): Promise<{ opened: boolean; url: string }> {
+async function openApp(target: "subscribe" | "manage" | "home", feature?: "ai"): Promise<{ opened: boolean; url: string }> {
   if (TARGET !== "safari") {
     await chrome.tabs.create({ url: LINKS.appStore })
     return { opened: true, url: LINKS.appStore }
   }
-  const url = target === "subscribe" ? "contextflow://subscribe?plan=pro" : target === "manage" ? "contextflow://manage" : "contextflow://open"
+  const url = target === "subscribe" ? `contextflow://subscribe?plan=pro${feature ? `&feature=${feature}` : ""}` : target === "manage" ? "contextflow://manage" : "contextflow://open"
   // macOS can launch the app from the extension; on iOS the page has to follow the link.
   const result = await callNative<{ opened?: boolean }>("openApp", { url })
   entitlementCache = null
@@ -203,7 +228,7 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
         .then(sendResponse, () => sendResponse(null))
       return true
     case "openApp":
-      openApp(message.target).then(sendResponse, () => sendResponse({ opened: false, url: "" }))
+      openApp(message.target, message.feature).then(sendResponse, () => sendResponse({ opened: false, url: "" }))
       return true
     case "setOwnKey": {
       const key = message.key.trim()
@@ -221,6 +246,9 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
       return false
     case "openPage":
       openPage(message.url).finally(() => sendResponse({ ok: true }))
+      return true
+    case "find":
+      findChats(message.query, message.chats).then(sendResponse, () => sendResponse({ ok: false, code: "NETWORK" }))
       return true
     case "pdfText":
       pdfText(message.url).then(sendResponse, () => sendResponse({ ok: false, reason: "failed", error: "background" }))

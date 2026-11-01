@@ -546,7 +546,7 @@
   "message": "{0} novas respostas grátis às {1}, em {2}."
  },
  "limitFreePro": {
-  "message": "Com o Pro, você tem até {0} respostas por semana."
+  "message": "Com o Pro, até {0} respostas por semana, busca com IA e perguntas sobre todas as suas conversas."
  },
  "limitNotes": {
   "message": "As notas continuam grátis e sem limite: anote agora o que importa e pergunte à IA depois."
@@ -613,5 +613,68 @@
  },
  "searchClear": {
   "message": "Limpar busca"
+ },
+ "askHistory": {
+  "message": "Pergunte às suas conversas"
+ },
+ "askHistoryHint": {
+  "message": "Perguntas sobre tudo o que você leu e perguntou"
+ },
+ "askHistoryEmpty": {
+  "message": "Pergunte sobre tudo o que você leu e perguntou com o ContextFlow, em todas as conversas."
+ },
+ "askHistoryEx1": {
+  "message": "O que eu li esta semana?"
+ },
+ "askHistoryEx2": {
+  "message": "Resuma minhas notas"
+ },
+ "askHistoryEx3": {
+  "message": "O que aprendi sobre IA?"
+ },
+ "placeholderHistory": {
+  "message": "Pergunte sobre suas conversas…"
+ },
+ "findToggle": {
+  "message": "Busca com IA"
+ },
+ "findToggleLocked": {
+  "message": "Busca com IA — Pro"
+ },
+ "findPlaceholder": {
+  "message": "Descreva a conversa que procura…"
+ },
+ "findHint": {
+  "message": "Descreva com suas palavras o que lembra e tecle Enter: “o artigo sobre sono e café da semana passada”."
+ },
+ "findBusy": {
+  "message": "Buscando nas suas conversas…"
+ },
+ "upsellTitle": {
+  "message": "ContextFlow Pro"
+ },
+ "upsellFindTitle": {
+  "message": "Encontre qualquer conversa pelo que você lembra"
+ },
+ "upsellHistoryTitle": {
+  "message": "Pergunte sobre tudo o que você leu"
+ },
+ "upsellFindName": {
+  "message": "Busca com IA"
+ },
+ "upsellFindText": {
+  "message": "Descreva uma conversa com suas palavras — “aquele artigo sobre sono e café da semana passada” — e a IA encontra, mesmo sem as palavras exatas."
+ },
+ "upsellHistoryName": {
+  "message": "Pergunte às suas conversas"
+ },
+ "upsellHistoryText": {
+  "message": "Perguntas sobre todas as conversas: “O que li sobre poupar para a aposentadoria?”, “Resuma minhas notas deste mês”."
+ },
+ "upsellMore": {
+  "message": "E até 375 respostas por semana com um modelo mais inteligente, no iPhone, iPad e Mac."
+ },
+ "errProOnly": {
+  "message": "Isto faz parte do Pro."
  }
 }

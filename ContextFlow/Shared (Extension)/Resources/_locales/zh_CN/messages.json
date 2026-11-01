@@ -546,7 +546,7 @@
   "message": "{1}（{2}后）将恢复 {0} 次免费回答。"
  },
  "limitFreePro": {
-  "message": "升级 Pro，每周最多可获得 {0} 次回答。"
+  "message": "Pro 每周最多 {0} 个回答，还有 AI 搜索和跨所有对话提问。"
  },
  "limitNotes": {
   "message": "笔记始终免费且不限次数：现在记下重点，稍后再问 AI。"
@@ -613,5 +613,68 @@
  },
  "searchClear": {
   "message": "清除搜索"
+ },
+ "askHistory": {
+  "message": "问问你的所有对话"
+ },
+ "askHistoryHint": {
+  "message": "关于你读过和问过的一切的问题"
+ },
+ "askHistoryEmpty": {
+  "message": "就你在 ContextFlow 中读过和问过的一切，跨所有对话提问。"
+ },
+ "askHistoryEx1": {
+  "message": "我这周读了什么？"
+ },
+ "askHistoryEx2": {
+  "message": "整理我的笔记"
+ },
+ "askHistoryEx3": {
+  "message": "我学到了哪些关于 AI 的东西？"
+ },
+ "placeholderHistory": {
+  "message": "就你的对话提问…"
+ },
+ "findToggle": {
+  "message": "AI 搜索"
+ },
+ "findToggleLocked": {
+  "message": "AI 搜索 — Pro"
+ },
+ "findPlaceholder": {
+  "message": "描述你要找的对话…"
+ },
+ "findHint": {
+  "message": "用自己的话描述你记得的内容，然后按回车：“上周那篇关于睡眠和咖啡的文章”。"
+ },
+ "findBusy": {
+  "message": "正在搜索你的对话…"
+ },
+ "upsellTitle": {
+  "message": "ContextFlow Pro"
+ },
+ "upsellFindTitle": {
+  "message": "凭记忆找到任何对话"
+ },
+ "upsellHistoryTitle": {
+  "message": "就你读过的一切提问"
+ },
+ "upsellFindName": {
+  "message": "AI 搜索"
+ },
+ "upsellFindText": {
+  "message": "用自己的话描述一个对话（“上周那篇关于睡眠和咖啡的文章”），即使没有确切字词，AI 也能找到。"
+ },
+ "upsellHistoryName": {
+  "message": "问问你的所有对话"
+ },
+ "upsellHistoryText": {
+  "message": "跨所有对话提问：“我读过哪些关于养老储蓄的内容？”“整理我这个月的笔记”。"
+ },
+ "upsellMore": {
+  "message": "另外，在更聪明的模型上每周最多 375 个回答，适用于 iPhone、iPad 和 Mac。"
+ },
+ "errProOnly": {
+  "message": "这是 Pro 功能。"
  }
 }

@@ -12,8 +12,24 @@ import SafariServices
 struct ChatsView: View {
     @ObservedObject var library: ChatLibrary
     @ObservedObject var activation: Activation
+    @ObservedObject var store = StoreKitManager.shared
     /// iOS: the setup guide (the Get Started tab is gone once there are chats).
     var openSetup: () -> Void = {}
+    /// The Pro screen (from the AI features, without Pro).
+    var openPro: () -> Void = {}
+
+    // AI search (Pro): on, the query it ran, and its answer.
+    @State private var aiSearch = false
+    @State private var finding = false
+    @State private var found: (query: String, results: Result<[ChatAI.Found], ChatAI.Failure>)?
+
+    private var isPro: Bool {
+        #if DEBUG
+        // Local checks against the Pro stand (tools/preview, PREVIEW_PLAN=pro): -CFDebugPro YES.
+        if UserDefaults.standard.bool(forKey: "CFDebugPro") { return true }
+        #endif
+        return store.entitlement.active && store.entitlement.productId != StoreKitManager.ProductID.byok
+    }
 
     @State private var renaming: ChatThread?
     @State private var newName = ""
@@ -24,7 +40,9 @@ struct ChatsView: View {
 
     var body: some View {
         List {
-            if searching {
+            if aiSearch {
+                aiResults
+            } else if searching {
                 searchResults
             } else {
                 chatList
@@ -34,7 +52,33 @@ struct ChatsView: View {
         .listStyle(.insetGrouped)
         .refreshable { await library.refreshNow() }
         #endif
-        .searchable(text: $query, prompt: Text("Search chats"))
+        .searchable(text: $query, prompt: aiSearch ? Text("Describe the chat you're looking for…") : Text("Search chats"))
+        .onSubmit(of: .search) { runFind() }
+        .onChange(of: query) { value in
+            if value.isEmpty { found = nil }
+        }
+        .toolbar {
+            ToolbarItem {
+                Button {
+                    if isPro {
+                        aiSearch.toggle()
+                        found = nil
+                    } else {
+                        openPro()
+                    }
+                } label: {
+                    HStack(spacing: 3) {
+                        Image(systemName: "sparkles")
+                        if !isPro { Image(systemName: "lock.fill").font(.caption2) }
+                    }
+                    .foregroundColor(aiSearch ? .white : brandBlue)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Capsule().fill(aiSearch ? AnyShapeStyle(brandGradient) : AnyShapeStyle(Color.clear)))
+                }
+                .accessibilityLabel(Text(isPro ? "AI search" : "AI search — Pro"))
+            }
+        }
         .overlay {
             if library.loaded && library.threads.isEmpty && !searching {
                 EmptyChats()
@@ -62,6 +106,80 @@ struct ChatsView: View {
         .onAppear { library.refresh() }
     }
 
+    private func runFind() {
+        let q = query.trimmingCharacters(in: .whitespaces)
+        guard aiSearch, !q.isEmpty, !finding else { return }
+        finding = true
+        Task {
+            do {
+                found = (q, .success(try await ChatAI.find(q, in: library.threads)))
+            } catch let failure as ChatAI.Failure {
+                found = (q, .failure(failure))
+                if failure == .proOnly { openPro() }
+            } catch {
+                found = (q, .failure(.network))
+            }
+            finding = false
+        }
+    }
+
+    /// AI search: what to type, then the chats the AI found, each with why.
+    @ViewBuilder
+    private var aiResults: some View {
+        if finding {
+            HStack(spacing: 8) {
+                ProgressView()
+                Text("Searching your chats…").foregroundColor(.secondary)
+            }
+        } else if let found {
+            switch found.results {
+            case .failure(let failure):
+                Text(failureText(failure)).foregroundColor(.secondary)
+            case .success(let results) where results.isEmpty:
+                Text("No chats found for “\(found.query)”").foregroundColor(.secondary)
+            case .success(let results):
+                ForEach(results, id: \.self) { result in
+                    if let thread = library.threads.first(where: { $0.id == result.id }) {
+                        NavigationLink(destination: destination(for: thread)) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(thread.name).font(.headline).lineLimit(1)
+                                if !result.why.isEmpty {
+                                    Label(result.why, systemImage: "sparkles")
+                                        .font(.subheadline)
+                                        .foregroundColor(brandBlue)
+                                        .lineLimit(2)
+                                }
+                                Text(thread.lastActivity, style: .relative).font(.caption).foregroundColor(.secondary)
+                            }
+                            .padding(.vertical, 4)
+                        }
+                    }
+                }
+            }
+        } else {
+            Label("Describe what you remember, in any words, and press Search: “the article about sleep and coffee from last week”.", systemImage: "sparkles")
+                .foregroundColor(.secondary)
+        }
+    }
+
+    private func failureText(_ failure: ChatAI.Failure) -> String {
+        switch failure {
+        case .proOnly: return String(localized: "This is part of Pro.")
+        case .limitReached: return String(localized: "You've used this week's Pro answers. They come back on Monday.")
+        case .busy: return String(localized: "The AI service is busy. Please try again in a moment.")
+        case .network: return String(localized: "No connection. Check the internet and try again.")
+        }
+    }
+
+    @ViewBuilder
+    private func destination(for thread: ChatThread) -> some View {
+        if thread.isHistory {
+            HistoryChatView(library: library, threadId: thread.id, openPro: openPro)
+        } else {
+            ChatDetailView(library: library, threadId: thread.id)
+        }
+    }
+
     /// Chats with every word of the query, and where they matched (each opens the chat there).
     @ViewBuilder
     private var searchResults: some View {
@@ -71,7 +189,7 @@ struct ChatsView: View {
                 .foregroundColor(.secondary)
         }
         ForEach(results) { result in
-            NavigationLink(destination: ChatDetailView(library: library, threadId: result.thread.id, scrollTo: result.hits.first?.index)) {
+            NavigationLink(destination: result.thread.isHistory ? AnyView(HistoryChatView(library: library, threadId: result.thread.id, openPro: openPro)) : AnyView(ChatDetailView(library: library, threadId: result.thread.id, scrollTo: result.hits.first?.index))) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(result.thread.name)
                         .font(.headline)
@@ -99,9 +217,19 @@ struct ChatsView: View {
             if library.cloud == .off {
                 Section { SyncOffBanner(library: library) }
             }
+            if library.threads.contains(where: { !$0.isHistory }) {
+                Section {
+                    if isPro {
+                        NavigationLink(destination: HistoryChatView(library: library, threadId: nil, openPro: openPro)) { AskHistoryRow(pro: true) }
+                    } else {
+                        Button(action: openPro) { AskHistoryRow(pro: false) }
+                            .buttonStyle(.plain)
+                    }
+                }
+            }
             Section(footer: footer) {
                 ForEach(library.threads) { thread in
-                    NavigationLink(destination: ChatDetailView(library: library, threadId: thread.id)) {
+                    NavigationLink(destination: destination(for: thread)) {
                         ChatRow(thread: thread)
                     }
                     .contextMenu { menu(for: thread) }
@@ -148,6 +276,181 @@ struct ChatsView: View {
     }
 }
 
+/// On top of the list: questions about all the chats (Pro).
+private struct AskHistoryRow: View {
+    let pro: Bool
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "sparkles")
+                .font(.title3)
+                .foregroundColor(.white)
+                .frame(width: 36, height: 36)
+                .background(RoundedRectangle(cornerRadius: 10).fill(brandGradient))
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 6) {
+                    Text("Ask your chats").font(.headline).foregroundColor(brandBlue)
+                    if !pro { ProBadge() }
+                }
+                Text("Questions about everything you've read and asked")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(.vertical, 4)
+        .contentShape(Rectangle())
+    }
+}
+
+struct ProBadge: View {
+    var body: some View {
+        Text("Pro")
+            .font(.caption2.weight(.bold))
+            .foregroundColor(.white)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(Capsule().fill(brandGradient))
+    }
+}
+
+// MARK: - Ask your chats
+
+/// "Ask your chats" (Pro): questions answered from all the other chats. Continues today's chat, or
+/// starts a new one; it's stored like any chat (and reaches Safari and the other devices).
+struct HistoryChatView: View {
+    @ObservedObject var library: ChatLibrary
+    /// The chat to continue; nil: today's, else a new one.
+    let threadId: String?
+    var openPro: () -> Void
+
+    @State private var id = UUID().uuidString.lowercased()
+    @State private var messages: [[String: String]] = []
+    @State private var draft = ""
+    @State private var streaming: String?
+    @State private var failure: ChatAI.Failure?
+    @FocusState private var focused: Bool
+
+    private static let examples = ["What did I read this week?", "Summarize my notes", "What have I learned about AI?"]
+
+    var body: some View {
+        VStack(spacing: 0) {
+            ScrollViewReader { proxy in
+                ScrollView {
+                    LazyVStack(alignment: .leading, spacing: 14) {
+                        if messages.isEmpty && streaming == nil {
+                            VStack(alignment: .leading, spacing: 12) {
+                                Label("Ask your chats", systemImage: "sparkles").font(.title3.weight(.bold)).foregroundColor(brandBlue)
+                                Text("Ask about everything you've read and asked with ContextFlow, across all your chats.")
+                                    .foregroundColor(.secondary)
+                                ForEach(Self.examples, id: \.self) { example in
+                                    Button { send(String(localized: String.LocalizationValue(example))) } label: {
+                                        Text(LocalizedStringKey(example)).padding(.horizontal, 12).padding(.vertical, 7)
+                                    }
+                                    .buttonStyle(.bordered)
+                                }
+                            }
+                        }
+                        ForEach(Array(messages.enumerated()), id: \.offset) { _, m in
+                            if m["role"] == "user" {
+                                Text(m["content"] ?? "")
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 14).padding(.vertical, 10)
+                                    .background(RoundedRectangle(cornerRadius: 18).fill(brandBlue))
+                                    .frame(maxWidth: .infinity, alignment: .trailing)
+                                    .padding(.leading, 40)
+                            } else {
+                                MarkdownView(text: m["content"] ?? "")
+                            }
+                        }
+                        if let streaming {
+                            if streaming.isEmpty {
+                                HStack(spacing: 8) { ProgressView(); Text("Reading your chats…").foregroundColor(.secondary) }
+                            } else {
+                                MarkdownView(text: streaming)
+                            }
+                        }
+                        if let failure {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text(text(for: failure)).foregroundColor(.secondary)
+                                if failure == .proOnly { Button("Get Pro", action: openPro).buttonStyle(.borderedProminent) }
+                            }
+                        }
+                        Color.clear.frame(height: 1).id("end")
+                    }
+                    .padding(16)
+                    .frame(maxWidth: 760)
+                    .frame(maxWidth: .infinity)
+                }
+                .onChange(of: streaming) { _ in proxy.scrollTo("end", anchor: .bottom) }
+                .onChange(of: messages.count) { _ in proxy.scrollTo("end", anchor: .bottom) }
+            }
+            Divider()
+            HStack(spacing: 8) {
+                TextField("Ask about your chats…", text: $draft, axis: .vertical)
+                    .lineLimit(1...5)
+                    .focused($focused)
+                    .onSubmit { send(draft) }
+                    .padding(.horizontal, 12).padding(.vertical, 9)
+                    .background(RoundedRectangle(cornerRadius: 18).fill(Color.cardFill))
+                Button { send(draft) } label: {
+                    Image(systemName: "arrow.up.circle.fill").font(.system(size: 30))
+                }
+                .disabled(draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || streaming != nil)
+                .accessibilityLabel(Text("Send"))
+            }
+            .padding(10)
+        }
+        .navigationTitle("Ask your chats")
+        #if os(iOS)
+        .navigationBarTitleDisplayMode(.inline)
+        #endif
+        .onAppear(perform: load)
+    }
+
+    private func load() {
+        let now = Date()
+        let chosen = threadId.flatMap { id in library.threads.first { $0.id == id } }
+            ?? library.threads.first { $0.isHistory && now.timeIntervalSince($0.lastActivity) < 24 * 3600 }
+        guard let chosen else { return }
+        id = chosen.id
+        messages = chosen.entries.filter { !$0.isNote }.map { ["role": $0.role, "content": $0.content] }
+    }
+
+    private func text(for failure: ChatAI.Failure) -> String {
+        switch failure {
+        case .proOnly: return String(localized: "This is part of Pro.")
+        case .limitReached: return String(localized: "You've used this week's Pro answers. They come back on Monday.")
+        case .busy: return String(localized: "The AI service is busy. Please try again in a moment.")
+        case .network: return String(localized: "No connection. Check the internet and try again.")
+        }
+    }
+
+    private func send(_ text: String) {
+        let question = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !question.isEmpty, streaming == nil else { return }
+        draft = ""
+        failure = nil
+        messages.append(["role": "user", "content": question])
+        streaming = ""
+        let others = library.threads.filter { $0.id != id }
+        let history = Array(messages.suffix(12))
+        Task {
+            do {
+                try await ChatAI.askHistory(history, chats: others) { piece in streaming = (streaming ?? "") + piece }
+                messages.append(["role": "assistant", "content": streaming ?? ""])
+                library.saveHistory(id: id, messages: messages)
+            } catch let error as ChatAI.Failure {
+                failure = error
+                if let partial = streaming, !partial.isEmpty { messages.append(["role": "assistant", "content": partial]) }
+            } catch {
+                failure = .network
+            }
+            streaming = nil
+        }
+    }
+}
+
 struct ChatRow: View {
     let thread: ChatThread
 
@@ -159,6 +462,9 @@ struct ChatRow: View {
                         .font(.caption)
                         .foregroundColor(.orange)
                         .accessibilityLabel("Pinned")
+                }
+                if thread.isHistory {
+                    Image(systemName: "sparkles").font(.caption).foregroundColor(brandBlue)
                 }
                 Text(thread.name)
                     .font(.headline)

@@ -570,3 +570,27 @@
 .cf-tour-card p { margin: 0 0 12px; color: var(--text-2); font-size: 13.5px; }
 .cf-tour-actions { display: flex; gap: 8px; align-items: center; justify-content: flex-end; }
 .cf-tour-actions .cf-link { margin-right: auto; }
+
+/* Pro: AI search in the chat search, "Ask your chats", and what they do for someone without Pro. */
+.cf-search-ai { position: relative; flex: none; width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--accent-text); background: var(--accent-soft); }
+.cf-search-ai.on { color: #fff; background: linear-gradient(135deg, var(--accent-2), var(--accent)); }
+.cf-search-lock { position: absolute; right: -3px; bottom: -3px; width: 16px; height: 16px; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: var(--bg); color: var(--text-2); box-shadow: 0 0 0 1px var(--border); }
+.cf-search-lock svg { width: 10px; height: 10px; }
+.cf-search.ai input { border-color: var(--accent); }
+.cf-find-busy { margin: 14px 8px; }
+.cf-find-why { color: var(--accent-text); }
+.cf-find-why svg { vertical-align: -1px; }
+.cf-ask-history { background: var(--accent-soft); margin-bottom: 6px; }
+.cf-ask-history:hover { background: rgba(37, 99, 235, 0.16); }
+.cf-ask-history .cf-thread-title { color: var(--accent-text); display: flex; align-items: center; gap: 5px; }
+.cf-ask-history .cf-thread-snippet { white-space: normal; }
+.cf-pro-badge { display: inline-flex; align-items: center; padding: 1px 6px; border-radius: 6px; font-size: 10.5px; font-weight: 700; letter-spacing: 0.02em; color: #fff; background: linear-gradient(135deg, var(--accent-2), var(--accent)); }
+.cf-ctx.history { background: var(--accent-soft); color: var(--accent-text); }
+.cf-upsell-wrap { flex-shrink: 0; padding: 10px 10px 0; }
+.cf-upsell { border: 1px solid rgba(37, 99, 235, 0.25); }
+.cf-upsell-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.cf-upsell-head strong { flex: 1; font-size: 14.5px; }
+.cf-upsell-icon { width: 28px; height: 28px; border-radius: 9px; display: flex; align-items: center; justify-content: center; color: #fff; background: linear-gradient(135deg, var(--accent-2), var(--accent)); }
+.cf-upsell-list { margin: 0 0 12px; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 13px; color: var(--text-2); }
+.cf-upsell-list li { display: flex; flex-direction: column; gap: 1px; }
+.cf-upsell-list strong { color: var(--text); font-size: 13px; }

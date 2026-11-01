@@ -546,7 +546,7 @@
   "message": "{0} nuove risposte gratuite alle {1}, tra {2}."
  },
  "limitFreePro": {
-  "message": "Con Pro hai fino a {0} risposte a settimana."
+  "message": "Con Pro hai fino a {0} risposte a settimana, la ricerca IA e domande su tutte le tue chat."
  },
  "limitNotes": {
   "message": "Le note restano gratuite e senza limiti: annota ora ciò che conta e chiedi all’IA più tardi."
@@ -613,5 +613,68 @@
  },
  "searchClear": {
   "message": "Cancella ricerca"
+ },
+ "askHistory": {
+  "message": "Chiedi alle tue chat"
+ },
+ "askHistoryHint": {
+  "message": "Domande su tutto ciò che hai letto e chiesto"
+ },
+ "askHistoryEmpty": {
+  "message": "Fai domande su tutto ciò che hai letto e chiesto con ContextFlow, in tutte le chat."
+ },
+ "askHistoryEx1": {
+  "message": "Cosa ho letto questa settimana?"
+ },
+ "askHistoryEx2": {
+  "message": "Riassumi le mie note"
+ },
+ "askHistoryEx3": {
+  "message": "Cosa ho imparato sull’IA?"
+ },
+ "placeholderHistory": {
+  "message": "Chiedi alle tue chat…"
+ },
+ "findToggle": {
+  "message": "Ricerca IA"
+ },
+ "findToggleLocked": {
+  "message": "Ricerca IA — Pro"
+ },
+ "findPlaceholder": {
+  "message": "Descrivi la chat che cerchi…"
+ },
+ "findHint": {
+  "message": "Descrivi con parole tue cosa ricordi e premi Invio: «l’articolo su sonno e caffè della settimana scorsa»."
+ },
+ "findBusy": {
+  "message": "Cerco nelle tue chat…"
+ },
+ "upsellTitle": {
+  "message": "ContextFlow Pro"
+ },
+ "upsellFindTitle": {
+  "message": "Trova qualsiasi chat da ciò che ricordi"
+ },
+ "upsellHistoryTitle": {
+  "message": "Chiedi di tutto ciò che hai letto"
+ },
+ "upsellFindName": {
+  "message": "Ricerca IA"
+ },
+ "upsellFindText": {
+  "message": "Descrivi una chat con parole tue — «quell’articolo su sonno e caffè della settimana scorsa» — e l’IA la trova, anche senza le parole esatte."
+ },
+ "upsellHistoryName": {
+  "message": "Chiedi alle tue chat"
+ },
+ "upsellHistoryText": {
+  "message": "Domande su tutte le chat: «Cosa ho letto sul risparmio per la pensione?», «Riassumi le note di questo mese»."
+ },
+ "upsellMore": {
+  "message": "In più fino a 375 risposte a settimana con un modello più intelligente, su iPhone, iPad e Mac."
+ },
+ "errProOnly": {
+  "message": "Questa funzione fa parte di Pro."
  }
 }

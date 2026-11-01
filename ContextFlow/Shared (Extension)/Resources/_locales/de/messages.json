@@ -546,7 +546,7 @@
   "message": "{0} neue Gratis-Antworten um {1}, in {2}."
  },
  "limitFreePro": {
-  "message": "Mit Pro bekommst du bis zu {0} Antworten pro Woche."
+  "message": "Mit Pro bekommst du bis zu {0} Antworten pro Woche, KI-Suche und Fragen über alle deine Chats."
  },
  "limitNotes": {
   "message": "Notizen bleiben gratis und unbegrenzt: Schreib jetzt auf, was zählt, und frag die KI später danach."
@@ -613,5 +613,68 @@
  },
  "searchClear": {
   "message": "Suche löschen"
+ },
+ "askHistory": {
+  "message": "Frag deine Chats"
+ },
+ "askHistoryHint": {
+  "message": "Fragen zu allem, was du gelesen und gefragt hast"
+ },
+ "askHistoryEmpty": {
+  "message": "Frag zu allem, was du mit ContextFlow gelesen und gefragt hast – über alle Chats hinweg."
+ },
+ "askHistoryEx1": {
+  "message": "Was habe ich diese Woche gelesen?"
+ },
+ "askHistoryEx2": {
+  "message": "Fasse meine Notizen zusammen"
+ },
+ "askHistoryEx3": {
+  "message": "Was habe ich über KI gelernt?"
+ },
+ "placeholderHistory": {
+  "message": "Frag zu deinen Chats …"
+ },
+ "findToggle": {
+  "message": "KI-Suche"
+ },
+ "findToggleLocked": {
+  "message": "KI-Suche – Pro"
+ },
+ "findPlaceholder": {
+  "message": "Beschreibe den gesuchten Chat …"
+ },
+ "findHint": {
+  "message": "Beschreibe in eigenen Worten, was du noch weißt, und drück Enter: „der Artikel über Schlaf und Kaffee von letzter Woche“."
+ },
+ "findBusy": {
+  "message": "Durchsuche deine Chats …"
+ },
+ "upsellTitle": {
+  "message": "ContextFlow Pro"
+ },
+ "upsellFindTitle": {
+  "message": "Finde jeden Chat über das, was du noch weißt"
+ },
+ "upsellHistoryTitle": {
+  "message": "Frag zu allem, was du gelesen hast"
+ },
+ "upsellFindName": {
+  "message": "KI-Suche"
+ },
+ "upsellFindText": {
+  "message": "Beschreibe einen Chat in eigenen Worten – „der Artikel über Schlaf und Kaffee von letzter Woche“ – und die KI findet ihn, auch ohne die genauen Wörter."
+ },
+ "upsellHistoryName": {
+  "message": "Frag deine Chats"
+ },
+ "upsellHistoryText": {
+  "message": "Fragen über alle Chats: „Was habe ich über Altersvorsorge gelesen?“, „Fasse meine Notizen dieses Monats zusammen“."
+ },
+ "upsellMore": {
+  "message": "Dazu bis zu 375 Antworten pro Woche mit einem klügeren Modell, auf iPhone, iPad und Mac."
+ },
+ "errProOnly": {
+  "message": "Das ist Teil von Pro."
  }
 }

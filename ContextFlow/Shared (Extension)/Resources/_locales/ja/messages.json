@@ -546,7 +546,7 @@
   "message": "{1}（{2}後）に無料回答が{0}回分戻ります。"
  },
  "limitFreePro": {
-  "message": "Proなら週に最大{0}回まで回答を受け取れます。"
+  "message": "Proなら週に最大{0}回の回答、AI検索、すべてのチャットへの質問が使えます。"
  },
  "limitNotes": {
   "message": "メモは無料・無制限です。大事なことを今メモして、あとでAIに聞きましょう。"
@@ -613,5 +613,68 @@
  },
  "searchClear": {
   "message": "検索をクリア"
+ },
+ "askHistory": {
+  "message": "すべてのチャットに質問"
+ },
+ "askHistoryHint": {
+  "message": "読んだことや質問したことすべてについて質問"
+ },
+ "askHistoryEmpty": {
+  "message": "ContextFlow で読んだことや質問したことについて、すべてのチャットをまとめて質問できます。"
+ },
+ "askHistoryEx1": {
+  "message": "今週は何を読んだ？"
+ },
+ "askHistoryEx2": {
+  "message": "メモをまとめて"
+ },
+ "askHistoryEx3": {
+  "message": "AIについて何を学んだ？"
+ },
+ "placeholderHistory": {
+  "message": "チャットについて質問…"
+ },
+ "findToggle": {
+  "message": "AI検索"
+ },
+ "findToggleLocked": {
+  "message": "AI検索 — Pro"
+ },
+ "findPlaceholder": {
+  "message": "探しているチャットを説明…"
+ },
+ "findHint": {
+  "message": "覚えていることを自分の言葉で書いて Enter：「先週読んだ睡眠とコーヒーの記事」。"
+ },
+ "findBusy": {
+  "message": "チャットを検索中…"
+ },
+ "upsellTitle": {
+  "message": "ContextFlow Pro"
+ },
+ "upsellFindTitle": {
+  "message": "覚えていることから、どのチャットも見つかる"
+ },
+ "upsellHistoryTitle": {
+  "message": "読んだことすべてについて質問"
+ },
+ "upsellFindName": {
+  "message": "AI検索"
+ },
+ "upsellFindText": {
+  "message": "チャットを自分の言葉で説明すると（「先週読んだ睡眠とコーヒーの記事」など）、正確な言葉がなくても AI が見つけます。"
+ },
+ "upsellHistoryName": {
+  "message": "すべてのチャットに質問"
+ },
+ "upsellHistoryText": {
+  "message": "すべてのチャットにまとめて質問：「老後の貯蓄について何を読んだ？」「今月のメモをまとめて」。"
+ },
+ "upsellMore": {
+  "message": "さらに、より賢いモデルで週375件まで回答。iPhone、iPad、Macで使えます。"
+ },
+ "errProOnly": {
+  "message": "この機能は Pro に含まれます。"
  }
 }

@@ -61,11 +61,14 @@ struct ChatThread: Identifiable, Hashable {
     let lastAt: Int64
     let pin: Double?
     let entries: [ChatEntry]
+    /// "Ask your chats" (Pro): questions about all the other chats.
+    let isHistory: Bool
 
     private struct Stored: Decodable {
         var title: String?
         var a: Int64?
         var pin: Double?
+        var k: String?
         var m: [ChatEntry]
     }
 
@@ -86,6 +89,7 @@ struct ChatThread: Identifiable, Hashable {
         title = stored.title?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty
         lastAt = stored.a ?? updatedAt
         pin = stored.pin
+        isHistory = stored.k == "history"
         entries = stored.m
     }
 
@@ -290,6 +294,25 @@ final class ChatLibrary: ObservableObject {
     }
 
     // MARK: Safari
+
+    // MARK: Ask your chats
+
+    /// Stores an "Ask your chats" chat (questions and answers only) here, for the extension and in iCloud.
+    func saveHistory(id: String, messages: [[String: String]]) {
+        let at = Int64(Date().timeIntervalSince1970 * 1000)
+        let previous = threads.first { $0.id == id }
+        var object: [String: Any] = ["k": "history", "a": at, "m": messages]
+        if let title = previous?.title { object["title"] = title }
+        if let pin = previous?.pin { object["pin"] = pin }
+        guard let json = try? JSONSerialization.data(withJSONObject: object), let data = String(data: json, encoding: .utf8) else { return }
+        let updatedAt = max(at, (previous?.updatedAt ?? 0) + 1)
+        ChatMirror.apply(saves: [id: ChatMirror.Item(updatedAt: updatedAt, data: data)])
+        ChatMirror.queue(.init(id: id, updatedAt: updatedAt, data: data, deleted: nil, at: Double(at)))
+        reload()
+        if syncOn {
+            Task { await syncCloud([.save(.init(id: id, updatedAt: updatedAt, data: data))]) }
+        }
+    }
 
     /// Opens a page of a chat in Safari (not another default browser).
     func open(_ url: String) {

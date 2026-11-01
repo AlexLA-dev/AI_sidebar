@@ -546,7 +546,7 @@
   "message": "{0} бесплатных ответов снова будут в {1}, через {2}."
  },
  "limitFreePro": {
-  "message": "В Pro — до {0} ответов в неделю."
+  "message": "В Pro — до {0} ответов в неделю, ИИ-поиск и вопросы сразу по всем чатам."
  },
  "limitNotes": {
   "message": "Заметки остаются бесплатными и без лимита: запишите важное сейчас, а ИИ спросите потом."
@@ -613,5 +613,68 @@
  },
  "searchClear": {
   "message": "Очистить поиск"
+ },
+ "askHistory": {
+  "message": "Спросить по всем чатам"
+ },
+ "askHistoryHint": {
+  "message": "Вопросы обо всём, что вы читали и спрашивали"
+ },
+ "askHistoryEmpty": {
+  "message": "Спрашивайте обо всём, что вы читали и спрашивали в ContextFlow, сразу по всем чатам."
+ },
+ "askHistoryEx1": {
+  "message": "Что я читал на этой неделе?"
+ },
+ "askHistoryEx2": {
+  "message": "Собери мои заметки"
+ },
+ "askHistoryEx3": {
+  "message": "Что я узнал об ИИ?"
+ },
+ "placeholderHistory": {
+  "message": "Спросите о своих чатах…"
+ },
+ "findToggle": {
+  "message": "ИИ-поиск"
+ },
+ "findToggleLocked": {
+  "message": "ИИ-поиск — Pro"
+ },
+ "findPlaceholder": {
+  "message": "Опишите чат, который ищете…"
+ },
+ "findHint": {
+  "message": "Опишите своими словами, что помните, и нажмите Enter: «статья про сон и кофе на прошлой неделе»."
+ },
+ "findBusy": {
+  "message": "Ищу в ваших чатах…"
+ },
+ "upsellTitle": {
+  "message": "ContextFlow Pro"
+ },
+ "upsellFindTitle": {
+  "message": "Найдите любой чат по тому, что помните"
+ },
+ "upsellHistoryTitle": {
+  "message": "Спрашивайте обо всём, что читали"
+ },
+ "upsellFindName": {
+  "message": "ИИ-поиск"
+ },
+ "upsellFindText": {
+  "message": "Опишите чат своими словами — «та статья про сон и кофе на прошлой неделе» — и ИИ найдёт его, даже без точных слов."
+ },
+ "upsellHistoryName": {
+  "message": "Вопросы по всем чатам"
+ },
+ "upsellHistoryText": {
+  "message": "Вопросы сразу по всем чатам: «Что я читал о накоплениях на пенсию?», «Собери мои заметки за месяц»."
+ },
+ "upsellMore": {
+  "message": "А ещё до 375 ответов в неделю на более умной модели — на iPhone, iPad и Mac."
+ },
+ "errProOnly": {
+  "message": "Это функция Pro."
  }
 }

@@ -6,6 +6,7 @@ import { clip, ipSubject, isUuid, json, preflight, readJson, corsHeaders } from 
 import { buildGrounding, googlePrompt, readGoogle, startGoogle, type GoogleStats } from "../shared/google.mts"
 import { readDeltas, sanitizeMessages, sanitizeOtherPages, sanitizePage, startCompletion, systemPrompt } from "../shared/llm.mts"
 import { geminiModels, modelsFor } from "../shared/models.mts"
+import { historyPrompt, MAX_HISTORY_CHARS, MAX_HISTORY_CHATS, sanitizeDigests } from "../../src/shared/history.ts"
 import { blockReason, countersFor, proOffer, resolveAccess, searchCountersFor, visibleUsage } from "../shared/plan.mts"
 
 /**
@@ -13,7 +14,8 @@ import { blockReason, countersFor, proOffer, resolveAccess, searchCountersFor, v
  *
  * Body: { installId, client: {version, platform, locale}, entitlement?: <StoreKit JWS>,
  *         messages: [{role, content}], page?: {kind, title, url, text}, profile?, action?, mode?: "google",
- *         context?: "chat" (the whole conversation and notes), pages?: [{title, url, text}] (its other pages) }
+ *         context?: "chat" (the whole conversation and notes), pages?: [{title, url, text}] (its other pages),
+ *         context?: "history" with history: [{id, title, date, text}] — "Ask your chats", Pro only (no page) }
  * Response: text/event-stream of `data: {"type": "meta"|"delta"|"grounding"|"done"|"error", …}` lines
  * ("grounding" only in Google mode: the final text with citations, sources and Search Suggestions),
  * or JSON {code, …} with a 4xx/5xx status when the request is refused before streaming.
@@ -27,18 +29,26 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const installId = body.installId
   if (!isUuid(installId)) return json({ code: "BAD_REQUEST", message: "installId required" }, 400)
   const wholeChat = body.context === "chat"
+  // "Ask your chats": answered from a digest of all the user's chats instead of a page (Pro).
+  const history = body.context === "history"
   const messages = sanitizeMessages(body.messages, wholeChat)
   if (!messages) return json({ code: "BAD_REQUEST", message: "messages required" }, 400)
-  const page = sanitizePage(body.page)
+  const page = history ? null : sanitizePage(body.page)
+  const chats = history ? sanitizeDigests(body.history, MAX_HISTORY_CHATS, MAX_HISTORY_CHARS) : []
   const others = wholeChat ? sanitizeOtherPages(body.pages) : []
   const client = (body.client ?? {}) as Record<string, unknown>
   const platform = clip(client.platform, 20)
   const version = clip(client.version, 20)
   const locale = clip(client.locale, 12)
-  const google = body.mode === "google"
+  const google = body.mode === "google" && !history
   if (google && !settings.geminiKey) return json({ code: "SEARCH_UNAVAILABLE", message: "Google search is not available right now." }, 503)
 
   const access = await resolveAccess(body.entitlement, installId)
+  // Pro features are checked here, not in the panel: nothing is charged or asked without Pro.
+  if (history && access.plan !== "pro") {
+    context.waitUntil(logEvent("pro_only", installId, { feature: "history", plan: access.plan, platform, version }))
+    return json({ code: "PRO_ONLY", plan: access.plan, feature: "history" }, 403)
+  }
   const counters = [...countersFor(access, installId, ipSubject(context.ip)), ...(google ? searchCountersFor(access, installId) : [])]
 
   let quota: ConsumeResult
@@ -65,7 +75,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   try {
     completion = google
       ? await startGoogle(googlePrompt(page, profile, locale, others), messages, await geminiModels(), req.signal)
-      : await startCompletion(systemPrompt(page, profile, locale, others), messages, await modelsFor(access.plan), req.signal)
+      : await startCompletion(history ? historyPrompt(chats, profile, locale) : systemPrompt(page, profile, locale, others), messages, await modelsFor(access.plan), req.signal)
   } catch (err) {
     console.error("[cf] upstream failed:", err instanceof Error ? err.message : err)
     context.waitUntil(Promise.all([
@@ -134,12 +144,13 @@ export default async (req: Request, context: Context): Promise<Response> => {
       plan: access.plan,
       model: completion.model,
       action: clip(body.action, 32) || null,
-      mode: google ? "google" : "chat",
+      mode: google ? "google" : history ? "history" : "chat",
       search_queries: stats.grounding?.webSearchQueries?.length ?? 0,
       page: page ? page.kind : "none",
       page_chars: page?.text.length ?? 0,
       history: messages.length,
       ...(wholeChat ? { whole_chat: true, other_pages: others.length } : {}),
+      ...(history ? { history_chats: chats.length, history_chars: chats.reduce((n, c) => n + c.text.length, 0) } : {}),
       prompt_tokens: stats.promptTokens,
       completion_tokens: stats.completionTokens,
       ms: Date.now() - started,

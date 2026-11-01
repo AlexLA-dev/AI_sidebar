@@ -546,7 +546,7 @@
   "message": "{0} new free answers at {1}, in {2}."
  },
  "limitFreePro": {
-  "message": "Pro gives you up to {0} answers a week."
+  "message": "Pro gives you up to {0} answers a week, AI search and questions across all your chats."
  },
  "limitNotes": {
   "message": "Notes stay free and unlimited: write down what matters now, ask AI about it later."
@@ -613,5 +613,68 @@
  },
  "searchClear": {
   "message": "Clear search"
+ },
+ "askHistory": {
+  "message": "Ask your chats"
+ },
+ "askHistoryHint": {
+  "message": "Questions about everything you've read and asked"
+ },
+ "askHistoryEmpty": {
+  "message": "Ask about everything you've read and asked with ContextFlow, across all your chats."
+ },
+ "askHistoryEx1": {
+  "message": "What did I read this week?"
+ },
+ "askHistoryEx2": {
+  "message": "Summarize my notes"
+ },
+ "askHistoryEx3": {
+  "message": "What have I learned about AI?"
+ },
+ "placeholderHistory": {
+  "message": "Ask about your chats…"
+ },
+ "findToggle": {
+  "message": "AI search"
+ },
+ "findToggleLocked": {
+  "message": "AI search — Pro"
+ },
+ "findPlaceholder": {
+  "message": "Describe the chat you're looking for…"
+ },
+ "findHint": {
+  "message": "Describe what you remember, in any words, and press Enter: “the article about sleep and coffee from last week”."
+ },
+ "findBusy": {
+  "message": "Searching your chats…"
+ },
+ "upsellTitle": {
+  "message": "ContextFlow Pro"
+ },
+ "upsellFindTitle": {
+  "message": "Find any chat by what you remember"
+ },
+ "upsellHistoryTitle": {
+  "message": "Ask about everything you've read"
+ },
+ "upsellFindName": {
+  "message": "AI search"
+ },
+ "upsellFindText": {
+  "message": "Describe a chat in your own words — “that article about sleep and coffee from last week” — and AI finds it, even without the exact words."
+ },
+ "upsellHistoryName": {
+  "message": "Ask your chats"
+ },
+ "upsellHistoryText": {
+  "message": "Questions across all your chats: “What have I read about saving for retirement?”, “Summarize my notes from this month”."
+ },
+ "upsellMore": {
+  "message": "Plus up to 375 answers a week on a smarter model, on iPhone, iPad and Mac."
+ },
+ "errProOnly": {
+  "message": "This is part of Pro."
  }
 }

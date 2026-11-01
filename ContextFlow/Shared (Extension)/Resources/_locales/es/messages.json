@@ -546,7 +546,7 @@
   "message": "{0} respuestas gratis nuevas a las {1}, en {2}."
  },
  "limitFreePro": {
-  "message": "Con Pro obtienes hasta {0} respuestas por semana."
+  "message": "Con Pro tienes hasta {0} respuestas a la semana, búsqueda con IA y preguntas sobre todos tus chats."
  },
  "limitNotes": {
   "message": "Las notas siguen siendo gratis y sin límite: apunta ahora lo importante y pregúntale a la IA después."
@@ -613,5 +613,68 @@
  },
  "searchClear": {
   "message": "Borrar búsqueda"
+ },
+ "askHistory": {
+  "message": "Pregunta a tus chats"
+ },
+ "askHistoryHint": {
+  "message": "Preguntas sobre todo lo que has leído y preguntado"
+ },
+ "askHistoryEmpty": {
+  "message": "Pregunta sobre todo lo que has leído y preguntado con ContextFlow, en todos tus chats."
+ },
+ "askHistoryEx1": {
+  "message": "¿Qué leí esta semana?"
+ },
+ "askHistoryEx2": {
+  "message": "Resume mis notas"
+ },
+ "askHistoryEx3": {
+  "message": "¿Qué he aprendido sobre IA?"
+ },
+ "placeholderHistory": {
+  "message": "Pregunta sobre tus chats…"
+ },
+ "findToggle": {
+  "message": "Búsqueda con IA"
+ },
+ "findToggleLocked": {
+  "message": "Búsqueda con IA — Pro"
+ },
+ "findPlaceholder": {
+  "message": "Describe el chat que buscas…"
+ },
+ "findHint": {
+  "message": "Describe con tus palabras lo que recuerdas y pulsa Intro: «el artículo sobre el sueño y el café de la semana pasada»."
+ },
+ "findBusy": {
+  "message": "Buscando en tus chats…"
+ },
+ "upsellTitle": {
+  "message": "ContextFlow Pro"
+ },
+ "upsellFindTitle": {
+  "message": "Encuentra cualquier chat por lo que recuerdas"
+ },
+ "upsellHistoryTitle": {
+  "message": "Pregunta sobre todo lo que has leído"
+ },
+ "upsellFindName": {
+  "message": "Búsqueda con IA"
+ },
+ "upsellFindText": {
+  "message": "Describe un chat con tus palabras —«ese artículo sobre el sueño y el café de la semana pasada»— y la IA lo encuentra, aunque no uses las palabras exactas."
+ },
+ "upsellHistoryName": {
+  "message": "Pregunta a tus chats"
+ },
+ "upsellHistoryText": {
+  "message": "Preguntas sobre todos tus chats: «¿Qué he leído sobre ahorrar para la jubilación?», «Resume mis notas de este mes»."
+ },
+ "upsellMore": {
+  "message": "Además, hasta 375 respuestas a la semana con un modelo más inteligente, en iPhone, iPad y Mac."
+ },
+ "errProOnly": {
+  "message": "Esto es parte de Pro."
  }
 }

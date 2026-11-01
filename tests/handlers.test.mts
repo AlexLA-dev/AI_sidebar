@@ -130,6 +130,7 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
 
 // --------------------------------------------------------------------------
 let chat: (req: Request, ctx: any) => Promise<Response>
+let find: (req: Request, ctx: any) => Promise<Response>
 let status: (req: Request, ctx: any) => Promise<Response>
 let legacy: (req: Request, ctx: any) => Promise<Response>
 let notify: (req: Request, ctx: any) => Promise<Response>
@@ -145,6 +146,7 @@ before(async () => {
   resetModelList = (await import("../netlify/shared/models.mts")).resetModelListForTests
   serverConfig = (await import("../netlify/shared/config.mts")).config
   chat = (await import("../netlify/functions/v2-chat.mts")).default
+  find = (await import("../netlify/functions/v2-find.mts")).default
   status = (await import("../netlify/functions/v2-status.mts")).default
   legacy = (await import("../netlify/functions/chat-proxy.mts")).default
   notify = (await import("../netlify/functions/appstore-verify.mts")).default
@@ -489,4 +491,91 @@ test("an attribution record Apple doesn't have yet is retried once, then reporte
   const calls = adsCalls
   assert.equal(await resolveAdToken("tok-unknown", 0), "pending")
   assert.equal(adsCalls - calls, 2)
+})
+
+
+// ---- Pro: "Ask your chats" and AI search ---------------------------------
+const HISTORY = [
+  { id: "c1", title: "Four-day week research", date: "2026-10-30T10:00:00Z", text: "Q: Is a four-day week worth it?\nA: 61 companies kept it." },
+  { id: "c2", title: "Pasta in 15 minutes", date: "2026-10-20T10:00:00Z", text: "Q: Quick dinner?\nA: Garlic and chili pasta." }
+]
+const askHistory = (extra: Record<string, unknown> = {}) => ask({ context: "history", history: HISTORY, page: null, messages: [{ role: "user", content: "What did I read about work?" }], ...extra })
+const findChats = (extra: Record<string, unknown> = {}) => post("/api/v2/find", {
+  installId: INSTALL, client: { version: "2.4.0", platform: "ios", locale: "en-US" }, query: "that article about working less", chats: HISTORY, ...extra
+})
+
+test("Ask your chats: free and own-key plans are refused before anything is charged or asked", async () => {
+  for (const entitlement of [undefined, signJws(transaction({ productId: "com.contextflow.byok.monthly", originalTransactionId: "b1" }))]) {
+    openai.lastBody = undefined
+    const c = ctx()
+    const res = await chat(askHistory({ entitlement }), c)
+    await Promise.all(c.pending)
+    assert.equal(res.status, 403)
+    const body = await res.json()
+    assert.equal(body.code, "PRO_ONLY")
+    assert.equal(body.feature, "history")
+    assert.equal(openai.lastBody, undefined, "no AI call")
+    assert.equal(counters.size, 0, "nothing charged")
+  }
+  // A free install can't get it by also asking for Google either.
+  const res = await chat(askHistory({ mode: "google" }), ctx())
+  assert.equal(res.status, 403)
+  assert.equal(gemini.lastUrl, undefined)
+})
+
+test("Ask your chats: Pro gets an answer from the chats, charged to the weekly allowance", async () => {
+  const c = ctx()
+  const ev = await events$(await chat(askHistory({ entitlement: signJws(transaction()) }), c))
+  await Promise.all(c.pending)
+  assert.equal(ev[0].plan, "pro")
+  assert.equal(ev.at(-1).type, "done")
+  const system = (openai.lastBody?.messages as Array<{ role: string; content: string }>)[0].content
+  assert.match(system, /earlier ContextFlow chats/)
+  assert.match(system, /Four-day week research/)
+  assert.doesNotMatch(system, /Some article text/)
+  assert.equal(counters.get("tx:2000000123"), 1)
+  assert.ok(events.some((e) => e.kind === "chat" && e.data.mode === "history" && e.data.history_chats === 2))
+})
+
+test("AI search: free and own-key plans get PRO_ONLY and no AI call", async () => {
+  for (const entitlement of [undefined, signJws(transaction({ productId: "com.contextflow.byok.monthly", originalTransactionId: "b2" }))]) {
+    openai.lastBody = undefined
+    const res = await find(findChats({ entitlement }), ctx())
+    assert.equal(res.status, 403)
+    assert.equal((await res.json()).code, "PRO_ONLY")
+    assert.equal(openai.lastBody, undefined)
+    assert.equal(counters.size, 0)
+  }
+})
+
+test("AI search: Pro gets matching chats (only ids it sent), one answer charged; the weekly limit applies", async () => {
+  openai.answer = '{"results": [{"id": "c1", "why": "The four-day week article"}, {"id": "zz", "why": "made up"}, {"id": "c1", "why": "again"}]}'
+  const jws = signJws(transaction())
+  const c = ctx()
+  const res = await find(findChats({ entitlement: jws }), c)
+  await Promise.all(c.pending)
+  assert.equal(res.status, 200)
+  const body = await res.json()
+  assert.deepEqual(body.results, [{ id: "c1", why: "The four-day week article" }])
+  assert.deepEqual([body.usage.used, body.usage.limit], [1, 375])
+  assert.equal(counters.get("tx:2000000123"), 1)
+  assert.match((openai.lastBody?.messages as Array<{ content: string }>)[0].content, /id=c2/)
+  assert.equal(openai.lastBody?.model, "gpt-5.2-mini", "the fast model")
+
+  counters.set("tx:2000000123", 375)
+  const limited = await find(findChats({ entitlement: jws }), ctx())
+  assert.equal(limited.status, 402)
+  assert.equal((await limited.json()).code, "LIMIT_REACHED")
+})
+
+test("AI search: a failed answer is refunded; bad requests are refused", async () => {
+  openai.status = 500
+  const c = ctx()
+  const res = await find(findChats({ entitlement: signJws(transaction()) }), c)
+  await Promise.all(c.pending)
+  assert.equal(res.status, 502)
+  assert.equal(counters.get("tx:2000000123"), 0)
+  openai.status = undefined
+  assert.equal((await find(findChats({ query: "  " }), ctx())).status, 400)
+  assert.equal((await find(findChats({ chats: [] }), ctx())).status, 400)
 })

@@ -546,7 +546,7 @@
   "message": "{0} nouvelles réponses gratuites à {1}, dans {2}."
  },
  "limitFreePro": {
-  "message": "Avec Pro, profitez de jusqu’à {0} réponses par semaine."
+  "message": "Avec Pro : jusqu’à {0} réponses par semaine, la recherche IA et des questions sur toutes vos discussions."
  },
  "limitNotes": {
   "message": "Les notes restent gratuites et illimitées : notez l’essentiel maintenant, interrogez l’IA plus tard."
@@ -613,5 +613,68 @@
  },
  "searchClear": {
   "message": "Effacer la recherche"
+ },
+ "askHistory": {
+  "message": "Interroger vos discussions"
+ },
+ "askHistoryHint": {
+  "message": "Questions sur tout ce que vous avez lu et demandé"
+ },
+ "askHistoryEmpty": {
+  "message": "Posez des questions sur tout ce que vous avez lu et demandé avec ContextFlow, dans toutes vos discussions."
+ },
+ "askHistoryEx1": {
+  "message": "Qu’ai-je lu cette semaine ?"
+ },
+ "askHistoryEx2": {
+  "message": "Résume mes notes"
+ },
+ "askHistoryEx3": {
+  "message": "Qu’ai-je appris sur l’IA ?"
+ },
+ "placeholderHistory": {
+  "message": "Posez une question sur vos discussions…"
+ },
+ "findToggle": {
+  "message": "Recherche IA"
+ },
+ "findToggleLocked": {
+  "message": "Recherche IA — Pro"
+ },
+ "findPlaceholder": {
+  "message": "Décrivez la discussion que vous cherchez…"
+ },
+ "findHint": {
+  "message": "Décrivez avec vos mots ce dont vous vous souvenez, puis Entrée : « l’article sur le sommeil et le café de la semaine dernière »."
+ },
+ "findBusy": {
+  "message": "Recherche dans vos discussions…"
+ },
+ "upsellTitle": {
+  "message": "ContextFlow Pro"
+ },
+ "upsellFindTitle": {
+  "message": "Retrouvez une discussion à partir de vos souvenirs"
+ },
+ "upsellHistoryTitle": {
+  "message": "Interrogez tout ce que vous avez lu"
+ },
+ "upsellFindName": {
+  "message": "Recherche IA"
+ },
+ "upsellFindText": {
+  "message": "Décrivez une discussion avec vos mots — « cet article sur le sommeil et le café de la semaine dernière » — et l’IA la retrouve, même sans les mots exacts."
+ },
+ "upsellHistoryName": {
+  "message": "Interroger vos discussions"
+ },
+ "upsellHistoryText": {
+  "message": "Des questions sur toutes vos discussions : « Qu’ai-je lu sur l’épargne retraite ? », « Résume mes notes du mois »."
+ },
+ "upsellMore": {
+  "message": "Et jusqu’à 375 réponses par semaine avec un modèle plus intelligent, sur iPhone, iPad et Mac."
+ },
+ "errProOnly": {
+  "message": "Cette fonction fait partie de Pro."
  }
 }

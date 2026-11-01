@@ -6,6 +6,8 @@
 //   CF_API_BASE=http://localhost:8787 npm run build:chrome      (extension pointing at it)
 //   LIMITED_BEFORE=1 …                                         (every install ran out of free answers before:
 //                                                              the panel offers the Pro code)
+//   PREVIEW_PLAN=pro …                                         (every request comes as Pro: a test-signed
+//                                                              subscription is added on the server side)
 
 import { createServer } from "node:http"
 import { readFileSync } from "node:fs"
@@ -105,6 +107,26 @@ function geminiStream(lastQuestion: string): Response {
   return new Response(stream, { headers: { "Content-Type": "text/event-stream" } })
 }
 
+function findAnswer(system: string, query: string): string {
+  const words = query.toLowerCase().split(/[^\p{L}\p{N}]+/u).filter((w) => w.length >= 4).map((w) => w.slice(0, 5))
+  const results: Array<{ id: string; why: string }> = []
+  for (const m of system.matchAll(/<<<CHAT \d+ id=(\S+)\nTitle: ([^\n]*)\n[\s\S]*?CHAT>>>/g)) {
+    const hit = words.find((w) => m[0].toLowerCase().includes(w))
+    if (hit) results.push({ id: m[1], why: `Mentions “${hit}…” — ${m[2]}` })
+  }
+  return JSON.stringify({ results: results.slice(0, 5) })
+}
+
+// "Ask your chats": a short overview built from the chats the request carried.
+function historyAnswer(system: string, question: string): string {
+  const chats = [...system.matchAll(/<<<CHAT \d+ id=\S+\nTitle: ([^\n]*)\nDate: ([^\n]*)\n(?:Pages: ([^\n(]*))?/g)]
+  const ru = /[а-яё]/i.test(question)
+  const head = ru ? `**По вашим чатам (${chats.length}):**` : `**From your chats (${chats.length}):**`
+  const lines = chats.slice(0, 5).map((m) => `- **${m[1]}** — ${(m[3] ?? "").trim() || (ru ? "без страницы" : "no page")} *(${m[2].slice(0, 10)})*`)
+  const tail = ru ? "\n\nСпросите подробнее про любой из них — я отвечу по тому, что вы читали и записали." : "\n\nAsk about any of them for details: I answer from what you read and noted."
+  return [head, ...lines].join("\n") + tail
+}
+
 const realFetch = globalThis.fetch
 globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
   const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url
@@ -121,7 +143,11 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
   if (url === "https://api.openai.com/v1/chat/completions") {
     const body = JSON.parse(String(init?.body))
     const last = body.messages[body.messages.length - 1].content as string
-    const text = answers.find(([re]) => re.test(last))?.[1] ?? answers[answers.length - 1][1]
+    const system = body.messages[0].content as string
+    // AI search: the chats that share a word (4+ letters) with the description, as JSON.
+    const findText = system.startsWith("You find chats") ? findAnswer(system, last) : null
+    const historyText = system.includes("asking about their own earlier ContextFlow chats") ? historyAnswer(system, last) : null
+    const text = findText ?? historyText ?? answers.find(([re]) => re.test(last))?.[1] ?? answers[answers.length - 1][1]
     const words = text.match(/\S+\s*|\s+/g) ?? []
     const stream = new ReadableStream({
       async start(c) {
@@ -139,10 +165,21 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
   return realFetch(input, init)
 }) as typeof fetch
 
+// PREVIEW_PLAN=pro: requests carry a subscription signed with the test chain (trusted here only).
+let proJws: string | null = null
+if (process.env.PREVIEW_PLAN === "pro") {
+  const { signJws, transaction, TEST_ROOT_FINGERPRINT } = await import("../../tests/helpers.mts")
+  // The test chain is only accepted in tests: this local stand counts as one.
+  process.env.NODE_ENV = "test"
+  ;(await import("../../netlify/shared/apple.mts")).setTrustedRootFingerprintForTests(TEST_ROOT_FINGERPRINT)
+  proJws = signJws(transaction({ expiresDate: Date.now() + 30 * 86_400_000 }))
+}
+
 const chat = (await import("../../netlify/functions/v2-chat.mts")).default
 const status = (await import("../../netlify/functions/v2-status.mts")).default
 const event = (await import("../../netlify/functions/v2-event.mts")).default
-const handlers: Record<string, typeof chat> = { "/api/v2/chat": chat, "/api/v2/status": status, "/api/v2/event": event }
+const find = (await import("../../netlify/functions/v2-find.mts")).default
+const handlers: Record<string, typeof chat> = { "/api/v2/chat": chat, "/api/v2/status": status, "/api/v2/event": event, "/api/v2/find": find }
 
 const pages: Record<string, string> = {
   "/": "article.html",
@@ -174,10 +211,18 @@ createServer(async (req, res) => {
         lastChatRequest = null
       }
     }
+    let raw = Buffer.concat(chunks)
+    if (proJws && req.method === "POST") {
+      try {
+        raw = Buffer.from(JSON.stringify({ ...JSON.parse(raw.toString("utf8")), entitlement: proJws }))
+      } catch {
+        // not JSON: as it is
+      }
+    }
     const request = new Request(`http://localhost${url.pathname}`, {
       method: req.method,
-      headers: req.headers as Record<string, string>,
-      body: req.method === "POST" ? Buffer.concat(chunks) : undefined
+      headers: { ...(req.headers as Record<string, string>), "content-length": String(raw.length) },
+      body: req.method === "POST" ? raw : undefined
     })
     const response = await handler(request, { ip: "127.0.0.1", waitUntil: () => undefined } as any)
     res.writeHead(response.status, Object.fromEntries(response.headers))

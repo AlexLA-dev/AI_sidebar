@@ -2,6 +2,7 @@
 // user starts a new one. Pure helpers shared by the content script, the background and tests.
 
 import { entriesFrom, stripCitations, type Entry } from "./conversation.ts"
+import type { ChatDigest } from "./history.ts"
 
 export interface Thread {
   id: string
@@ -10,6 +11,7 @@ export interface Thread {
   a?: number // last message (ms): the list order; renaming changes `u` only (missing = `u`)
   title?: string // set by the user; otherwise the first question names the chat
   pin?: number // pinned: its place among the pinned chats at the top of the list (lower first)
+  kind?: "history" // "Ask your chats" (Pro): questions about all the other chats, not a page
   deleted?: boolean // kept until iCloud knows, so the deletion reaches the other devices
 }
 
@@ -148,7 +150,8 @@ export function threadForCloud(thread: Thread, maxChars = CLOUD_MAX_CHARS): stri
   const meta = {
     ...(thread.title ? { title: thread.title } : {}),
     ...(thread.a !== undefined && thread.a !== thread.u ? { a: thread.a } : {}),
-    ...(thread.pin !== undefined ? { pin: thread.pin } : {})
+    ...(thread.pin !== undefined ? { pin: thread.pin } : {}),
+    ...(thread.kind ? { k: thread.kind } : {})
   }
   let start = 0
   let data = JSON.stringify({ ...meta, m: thread.m })
@@ -160,7 +163,7 @@ export function threadForCloud(thread: Thread, maxChars = CLOUD_MAX_CHARS): stri
 }
 
 /** A thread read back from iCloud (2.3 build 56 stored just the messages), or null if it isn't one. */
-export function threadFromCloud(data: string): Pick<Thread, "m" | "a" | "title" | "pin"> | null {
+export function threadFromCloud(data: string): Pick<Thread, "m" | "a" | "title" | "pin" | "kind"> | null {
   let parsed: unknown
   try {
     parsed = JSON.parse(data)
@@ -172,14 +175,15 @@ export function threadFromCloud(data: string): Pick<Thread, "m" | "a" | "title" 
     return m && { m }
   }
   if (parsed === null || typeof parsed !== "object") return null
-  const { m: raw, a, title, pin } = parsed as Record<string, unknown>
+  const { m: raw, a, title, pin, k } = parsed as Record<string, unknown>
   const m = entriesFrom(raw)
   if (!m) return null
   return {
     m,
     ...(typeof a === "number" ? { a } : {}),
     ...(typeof title === "string" && title.trim() ? { title: cleanTitle(title) } : {}),
-    ...(typeof pin === "number" && Number.isFinite(pin) ? { pin } : {})
+    ...(typeof pin === "number" && Number.isFinite(pin) ? { pin } : {}),
+    ...(k === "history" ? { kind: "history" as const } : {})
   }
 }
 
@@ -397,4 +401,34 @@ export function searchThreads(threads: Thread[], query: string, maxHits = 3): Se
     scored.push({ result: { thread, hits }, score: named * 100 + (together ? 10 : 0) })
   }
   return scored.sort((a, b) => b.score - a.score || activity(b.result.thread) - activity(a.result.thread)).map((s) => s.result)
+}
+
+// ------------------------------------------------------------ digests for the Pro features
+
+/**
+ * The chats as the model gets them for "Ask your chats" and AI search (src/shared/history.ts): newest
+ * first, "Ask your chats" chats left out, each with its pages, questions, answers and notes, cut to
+ * `perChat` characters (`perAnswer` per answer), all together at most `total`.
+ */
+export function chatDigests(threads: Thread[], opts: { perChat: number; perAnswer: number; total: number }): ChatDigest[] {
+  const out: ChatDigest[] = []
+  let size = 0
+  for (const thread of liveThreads(Object.fromEntries(threads.map((t) => [t.id, t])))) {
+    if (thread.kind === "history") continue
+    const lines: string[] = []
+    const pages = threadPages(thread.m)
+    if (pages.length) lines.push(`Pages: ${pages.map((p) => `${p.title || p.url} (${p.url})`).join("; ")}`)
+    for (const e of thread.m) {
+      const text = stripCitations(e.content).replace(/\s+/g, " ").trim()
+      if (e.note) lines.push(`Note: ${text.slice(0, opts.perAnswer)}`)
+      else if (e.role === "user") lines.push(`Q: ${(e.label ?? text).slice(0, 300)}`)
+      else lines.push(`A: ${text.slice(0, opts.perAnswer)}${text.length > opts.perAnswer ? "…" : ""}`)
+    }
+    let text = lines.join("\n").slice(0, opts.perChat)
+    if (size + text.length > opts.total) text = text.slice(0, Math.max(0, opts.total - size))
+    if (text.length < 40) break
+    size += text.length
+    out.push({ id: thread.id, title: threadName(thread), date: new Date(activity(thread)).toISOString(), text })
+  }
+  return out
 }

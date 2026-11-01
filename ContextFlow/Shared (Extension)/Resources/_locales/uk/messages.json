@@ -546,7 +546,7 @@
   "message": "{0} безкоштовних відповідей знову будуть о {1}, через {2}."
  },
  "limitFreePro": {
-  "message": "У Pro — до {0} відповідей на тиждень."
+  "message": "У Pro — до {0} відповідей на тиждень, ШІ-пошук і питання одразу про всі чати."
  },
  "limitNotes": {
   "message": "Нотатки залишаються безкоштовними й без ліміту: запишіть важливе зараз, а ШІ запитайте потім."
@@ -613,5 +613,68 @@
  },
  "searchClear": {
   "message": "Очистити пошук"
+ },
+ "askHistory": {
+  "message": "Запитати про всі чати"
+ },
+ "askHistoryHint": {
+  "message": "Питання про все, що ви читали й питали"
+ },
+ "askHistoryEmpty": {
+  "message": "Питайте про все, що ви читали й питали в ContextFlow, одразу в усіх чатах."
+ },
+ "askHistoryEx1": {
+  "message": "Що я читав цього тижня?"
+ },
+ "askHistoryEx2": {
+  "message": "Зведи мої нотатки"
+ },
+ "askHistoryEx3": {
+  "message": "Що я дізнався про ШІ?"
+ },
+ "placeholderHistory": {
+  "message": "Запитайте про свої чати…"
+ },
+ "findToggle": {
+  "message": "ШІ-пошук"
+ },
+ "findToggleLocked": {
+  "message": "ШІ-пошук — Pro"
+ },
+ "findPlaceholder": {
+  "message": "Опишіть чат, який шукаєте…"
+ },
+ "findHint": {
+  "message": "Опишіть своїми словами, що пам’ятаєте, і натисніть Enter: «стаття про сон і каву минулого тижня»."
+ },
+ "findBusy": {
+  "message": "Шукаю у ваших чатах…"
+ },
+ "upsellTitle": {
+  "message": "ContextFlow Pro"
+ },
+ "upsellFindTitle": {
+  "message": "Знайдіть будь-який чат за тим, що пам’ятаєте"
+ },
+ "upsellHistoryTitle": {
+  "message": "Питайте про все, що читали"
+ },
+ "upsellFindName": {
+  "message": "ШІ-пошук"
+ },
+ "upsellFindText": {
+  "message": "Опишіть чат своїми словами — «та стаття про сон і каву минулого тижня» — і ШІ знайде його, навіть без точних слів."
+ },
+ "upsellHistoryName": {
+  "message": "Питання про всі чати"
+ },
+ "upsellHistoryText": {
+  "message": "Питання одразу в усіх чатах: «Що я читав про заощадження на пенсію?», «Зведи мої нотатки за місяць»."
+ },
+ "upsellMore": {
+  "message": "А ще до 375 відповідей на тиждень на розумнішій моделі — на iPhone, iPad і Mac."
+ },
+ "errProOnly": {
+  "message": "Це функція Pro."
  }
 }

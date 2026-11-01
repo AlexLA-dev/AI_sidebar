@@ -104,7 +104,7 @@ struct ContentView: View {
                 settingsTab
                 tipsTab
                 proTab
-                NavigationView { ChatsView(library: chats, activation: activation, openSetup: { showingSetup = true }) }
+                NavigationView { ChatsView(library: chats, activation: activation, openSetup: { showingSetup = true }, openPro: { tab = .pro }) }
                     .navigationViewStyle(.stack)
                     .tabItem { Label("Chats", systemImage: "bubble.left.and.bubble.right") }
                     .tag(AppTab.chats)
@@ -150,7 +150,7 @@ struct ContentView: View {
         } detail: {
             switch tab {
             case .home: HomeView(store: store, activation: activation, openPro: { tab = .pro }, openTips: { tab = .tips })
-            case .chats: NavigationStack { ChatsView(library: chats, activation: activation) }
+            case .chats: NavigationStack { ChatsView(library: chats, activation: activation, openPro: { tab = .pro }) }
             case .tips: TipsView()
             case .pro: ProView(store: store)
             case .settings: SettingsView()
@@ -613,6 +613,8 @@ struct ProView: View {
 
     private var features: some View {
         VStack(alignment: .leading, spacing: 10) {
+            Feature(systemImage: "sparkles", text: "AI search: find any chat by describing it in your own words")
+            Feature(systemImage: "bubble.left.and.text.bubble.right", text: "Ask your chats: questions across everything you've read and asked")
             Feature(systemImage: "bolt.fill", text: "Up to 375 answers a week instead of 5 a day")
             Feature(systemImage: "doc.text.magnifyingglass", text: "Summaries, key takeaways, explanations and translations of any page")
             Feature(systemImage: "text.cursor", text: "Ask about selected text, rewrite it or draft a reply")

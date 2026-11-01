@@ -546,7 +546,7 @@
   "message": "{1}({2} 후)에 무료 답변 {0}개가 다시 제공돼요."
  },
  "limitFreePro": {
-  "message": "Pro를 이용하면 매주 최대 {0}개의 답변을 받을 수 있어요."
+  "message": "Pro에서는 주당 최대 {0}개 답변, AI 검색, 모든 채팅에 묻기를 쓸 수 있어요."
  },
  "limitNotes": {
   "message": "메모는 무료이고 제한이 없어요. 중요한 내용을 지금 적어 두고 나중에 AI에게 물어보세요."
@@ -613,5 +613,68 @@
  },
  "searchClear": {
   "message": "검색 지우기"
+ },
+ "askHistory": {
+  "message": "모든 채팅에 묻기"
+ },
+ "askHistoryHint": {
+  "message": "읽고 물어본 모든 것에 대한 질문"
+ },
+ "askHistoryEmpty": {
+  "message": "ContextFlow로 읽고 물어본 모든 것에 대해 모든 채팅에 한 번에 물어보세요."
+ },
+ "askHistoryEx1": {
+  "message": "이번 주에 뭘 읽었지?"
+ },
+ "askHistoryEx2": {
+  "message": "내 메모 정리해 줘"
+ },
+ "askHistoryEx3": {
+  "message": "AI에 대해 뭘 배웠지?"
+ },
+ "placeholderHistory": {
+  "message": "채팅에 대해 물어보세요…"
+ },
+ "findToggle": {
+  "message": "AI 검색"
+ },
+ "findToggleLocked": {
+  "message": "AI 검색 — Pro"
+ },
+ "findPlaceholder": {
+  "message": "찾는 채팅을 설명하세요…"
+ },
+ "findHint": {
+  "message": "기억나는 것을 내 말로 쓰고 Enter를 누르세요: ‘지난주 수면과 커피에 관한 기사’."
+ },
+ "findBusy": {
+  "message": "채팅을 검색하는 중…"
+ },
+ "upsellTitle": {
+  "message": "ContextFlow Pro"
+ },
+ "upsellFindTitle": {
+  "message": "기억나는 것으로 어떤 채팅이든 찾기"
+ },
+ "upsellHistoryTitle": {
+  "message": "읽은 모든 것에 대해 묻기"
+ },
+ "upsellFindName": {
+  "message": "AI 검색"
+ },
+ "upsellFindText": {
+  "message": "채팅을 내 말로 설명하면(‘지난주 수면과 커피에 관한 그 기사’) 정확한 단어가 없어도 AI가 찾아 줘요."
+ },
+ "upsellHistoryName": {
+  "message": "모든 채팅에 묻기"
+ },
+ "upsellHistoryText": {
+  "message": "모든 채팅에 한 번에 질문: ‘노후 자금에 대해 뭘 읽었지?’, ‘이번 달 메모 정리해 줘’."
+ },
+ "upsellMore": {
+  "message": "게다가 더 똑똑한 모델로 주당 최대 375개 답변, iPhone·iPad·Mac에서."
+ },
+ "errProOnly": {
+  "message": "Pro에 포함된 기능이에요."
  }
 }

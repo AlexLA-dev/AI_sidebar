@@ -1,3 +1,4 @@
+import type { ChatDigest } from "./history.ts"
 // Messages exchanged between the content script (UI) and the background worker.
 
 export type Plan = "free" | "pro" | "byok"
@@ -43,8 +44,10 @@ export interface AskPayload {
   // "google": answer with Google Search grounding (always through our server).
   mode?: "google"
   // "chat": the whole conversation with the user's notes, and the text of its other pages.
-  context?: "chat"
+  // "history": "Ask your chats" (Pro) — answered from a digest of all the chats, without a page.
+  context?: "chat" | "history"
   pages?: Array<{ title: string; url: string; text: string }>
+  history?: ChatDigest[]
 }
 
 export interface GroundingSource {
@@ -90,10 +93,13 @@ export type ErrorCode =
   | "BAD_REQUEST"
   | "SEARCH_LIMIT"
   | "SEARCH_UNAVAILABLE"
+  // A Pro feature asked for without Pro (AI search, "Ask your chats").
+  | "PRO_ONLY"
 
 export type BackgroundRequest =
   | { type: "status"; refresh?: boolean; fresh?: boolean; platform?: Platform }
-  | { type: "openApp"; target: "subscribe" | "manage" | "home" }
+  // feature "ai": the Pro screen opens on AI search and "Ask your chats".
+  | { type: "openApp"; target: "subscribe" | "manage" | "home"; feature?: "ai" }
   | { type: "inject" }
   | { type: "setOwnKey"; key: string }
   | { type: "openUrl"; url: string }
@@ -101,6 +107,8 @@ export type BackgroundRequest =
   | { type: "openPage"; url: string }
   // The panel opened: sync threads with iCloud (Safari); answers { changed }.
   | { type: "syncThreads" }
+  // AI search over the chats (Pro); answers a FindReply.
+  | { type: "find"; query: string; chats: ChatDigest[] }
   // The text of a PDF (read on the device); answers a PdfResult.
   | { type: "pdfText"; url: string }
   // The same for a PDF the page fetched itself (base64; behind a sign-in).
@@ -182,3 +190,8 @@ export const DEFAULT_SETTINGS: Settings = {
   syncChats: true,
   wholeChat: false
 }
+
+/** AI search's answer: the matching chats with a reason, or why there are none. */
+export type FindReply =
+  | { ok: true; results: Array<{ id: string; why: string }>; usage: Usage | null }
+  | { ok: false; code: ErrorCode; usage?: Usage | null; offer?: ProOffer | null }

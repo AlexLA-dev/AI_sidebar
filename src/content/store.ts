@@ -128,7 +128,8 @@ export async function setActiveThread(id: string): Promise<void> {
   await set(STORAGE.activeThread, { id, at: Date.now() })
 }
 
-export async function saveThread(id: string, entries: Entry[]): Promise<void> {
+/** Stores a chat's messages; `kind` marks a new "Ask your chats" chat (a chat keeps its kind). */
+export async function saveThread(id: string, entries: Entry[], kind?: "history"): Promise<void> {
   const next = entries.slice(-MAX_TURNS)
   const threads = (await get<Threads>(STORAGE.threads)) ?? {}
   const stored = threads[id]
@@ -137,7 +138,8 @@ export async function saveThread(id: string, entries: Entry[]): Promise<void> {
   if (stored ? JSON.stringify(stored.m) === JSON.stringify(next) : next.length === 0) return
   const now = Date.now()
   const title = stored && !stored.deleted ? stored.title : undefined
-  await set(STORAGE.threads, prune({ ...threads, [id]: { id, u: now, a: now, m: next, ...(title ? { title } : {}) } }))
+  const keptKind = stored && !stored.deleted ? stored.kind ?? kind : kind
+  await set(STORAGE.threads, prune({ ...threads, [id]: { id, u: now, a: now, m: next, ...(title ? { title } : {}), ...(keptKind ? { kind: keptKind } : {}) } }))
 }
 
 /** Names a chat (an empty name goes back to its first question); it keeps its place in the list. */
