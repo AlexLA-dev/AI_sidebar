@@ -32,7 +32,13 @@ enum ChatAI {
     private static func identity() -> [String: Any] {
         var body: [String: Any] = [
             "installId": (Activation.shared.accountToken ?? UUID()).uuidString.lowercased(),
-            "client": ["version": Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "", "platform": platform, "locale": Locale.current.identifier]
+            // "build" tells the server this build's consent names Anthropic (build 67 and later).
+            "client": [
+                "version": Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "",
+                "build": Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "",
+                "platform": platform,
+                "locale": Locale.current.identifier
+            ]
         ]
         if let jws = StoreKitManager.shared.entitlement.jws, StoreKitManager.shared.entitlement.active { body["entitlement"] = jws }
         return body

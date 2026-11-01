@@ -18,6 +18,8 @@ process.env.SUPABASE_URL = "https://db.local"
 process.env.SUPABASE_SERVICE_ROLE_KEY = "local"
 process.env.OPENAI_API_KEY = "local"
 if (process.env.PREVIEW_CLAUDE !== "off") process.env.ANTHROPIC_API_KEY = "local"
+// The extension in Chromium has no app build to send; CLAUDE_MIN_BUILD=67 tries the old-build path.
+process.env.CLAUDE_MIN_BUILD = process.env.CLAUDE_MIN_BUILD ?? "0"
 process.env.GEMINI_API_KEY = "local"
 process.env.FREE_DAILY_LIMIT = process.env.FREE_DAILY_LIMIT ?? "5"
 

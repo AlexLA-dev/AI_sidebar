@@ -119,7 +119,8 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             }
         case "ping":
             let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
-            Self.reply(context, ["success": true, "data": ["pong": true, "version": version]])
+            let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
+            Self.reply(context, ["success": true, "data": ["pong": true, "version": version, "build": build]])
         default:
             Self.reply(context, ["success": false, "error": "Unknown command: \(command)"])
         }

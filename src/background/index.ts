@@ -48,8 +48,22 @@ async function ownKey(): Promise<string> {
   return ((await chrome.storage.local.get(STORAGE.ownKey))[STORAGE.ownKey] as string | undefined) ?? ""
 }
 
+// The app's build number from the native side: the server answers with Claude only for builds
+// whose consent screen names Anthropic (67 and later). Asked once per worker; Chrome has none.
+let buildAsk: Promise<string> | null = null
+
+function appBuild(): Promise<string> {
+  if (TARGET !== "safari") return Promise.resolve("")
+  buildAsk ??= callNative<{ build?: string }>("ping", {}, 1500).then((data) => {
+    if (!data?.build) buildAsk = null
+    return data?.build ?? ""
+  })
+  return buildAsk
+}
+
 async function clientInfo() {
-  return { version: VERSION, platform: await platform(), locale: uiLanguage() }
+  const [build, os] = await Promise.all([appBuild(), platform()])
+  return { version: VERSION, ...(build ? { build } : {}), platform: os, locale: uiLanguage() }
 }
 
 // ---------------------------------------------------- App Store subscription

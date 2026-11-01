@@ -11,7 +11,7 @@ const FIRST_BYTE_TIMEOUT_MS = 30_000
 
 interface ServerRequest {
   installId: string
-  client: { version: string; platform: string; locale: string }
+  client: { version: string; build?: string; platform: string; locale: string }
   entitlement: string | null
   profile: string
   payload: AskPayload
@@ -198,7 +198,7 @@ export async function askWithOwnKey(
 export function reportOwnKeyUsage(
   report: OwnKeyUsage & { ms: number; tier: ModelTier; action?: string },
   installId: string,
-  client: { version: string; platform: string; locale: string }
+  client: { version: string; build?: string; platform: string; locale: string }
 ): void {
   void fetch(`${API_BASE}/api/v2/usage`, {
     method: "POST",
