@@ -12,6 +12,9 @@
 #
 # Environment variables (Netlify UI → Project configuration → Environment variables):
 #   OPENAI_API_KEY, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY   required
+#   ANTHROPIC_API_KEY   answers from Claude first, OpenAI when Claude can't (unset = OpenAI only)
+#   ANTHROPIC_MODEL_FREE / _PRO (claude-sonnet-5-5), ANTHROPIC_EFFORT_FREE (low) / _PRO (medium),
+#   ANTHROPIC_MAX_TOKENS_FREE (3000) / _PRO (8000), CLAUDE_ANSWERS=off switches Claude off
 #   OPENAI_MODEL (default "gpt-4.1-mini,gpt-4o-mini"), FREE_DAILY_LIMIT (5),
 #   FREE_IP_DAILY_LIMIT (40), FREE_GLOBAL_DAILY_LIMIT (3000), PRO_WEEKLY_LIMIT (375)
 #   APPSTORE_BUNDLE_ID (com.contextflow.app), STRIPE_WEBHOOK_SECRET

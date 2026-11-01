@@ -1,6 +1,6 @@
 import { config } from "./config.mts"
 import { isReasoningGpt } from "../../src/shared/models.ts"
-import { MAX_OTHER_PAGE_CHARS, MAX_OTHER_PAGES, MAX_PAGE_CHARS, systemPrompt, type PageContext } from "../../src/shared/prompt.ts"
+import { MAX_MEDIA_PAGE_CHARS, MAX_OTHER_PAGE_CHARS, MAX_OTHER_PAGES, MAX_PAGE_CHARS, systemPrompt, type PageContext } from "../../src/shared/prompt.ts"
 
 export { systemPrompt, type PageContext }
 
@@ -44,14 +44,18 @@ export function sanitizeOtherPages(raw: unknown): PageContext[] {
 export function sanitizePage(raw: unknown): PageContext | null {
   if (!raw || typeof raw !== "object") return null
   const p = raw as Record<string, unknown>
-  const text = typeof p.text === "string" ? p.text.slice(0, MAX_PAGE_CHARS + 1) : ""
+  const kind = p.kind === "selection" ? "selection" : "page"
+  // Video transcripts and PDFs get a longer limit than a page.
+  const media = kind === "page" && (p.media === "video" || p.media === "pdf") ? p.media : undefined
+  const text = typeof p.text === "string" ? p.text.slice(0, (media ? MAX_MEDIA_PAGE_CHARS : MAX_PAGE_CHARS) + 1) : ""
   if (!text.trim()) return null
   return {
-    kind: p.kind === "selection" ? "selection" : "page",
+    kind,
     title: typeof p.title === "string" ? p.title.slice(0, 300) : "",
     url: typeof p.url === "string" ? p.url.slice(0, 1_000) : "",
     text,
-    changed: p.changed === true
+    changed: p.changed === true,
+    ...(media ? { media } : {})
   }
 }
 

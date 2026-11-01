@@ -8,6 +8,8 @@ export interface PageContext {
   text: string
   // The page was asked about earlier in this conversation and its content has changed since.
   changed?: boolean
+  // The text includes a video's transcript or a PDF, which may be much longer than a page.
+  media?: "video" | "pdf"
 }
 
 /** How a conversation that spans pages is presented to the model (shared with Google mode). */
@@ -16,10 +18,17 @@ export const MULTI_PAGE_RULE =
   "- A user message that starts with [Note the user wrote …] is a note the user kept in this chat for themselves: use it as context, don't answer it."
 
 export const MAX_PAGE_CHARS = 24_000
+// A page with a video transcript or a PDF (about 50 minutes of speech, or a 40-page document).
+export const MAX_MEDIA_PAGE_CHARS = 100_000
 export const MAX_SELECTION_CHARS = 12_000
 // "Whole chat": the text of other pages from the conversation, sent along with the current one.
 export const MAX_OTHER_PAGES = 3
 export const MAX_OTHER_PAGE_CHARS = 8_000
+
+/** How much of a page's text the model gets. */
+export function pageLimit(page: Pick<PageContext, "kind" | "media">): number {
+  return page.kind === "selection" ? MAX_SELECTION_CHARS : page.media ? MAX_MEDIA_PAGE_CHARS : MAX_PAGE_CHARS
+}
 
 /** The chat's other pages a "whole chat" request carries (own-key path), as prompt context. */
 export function otherPagesOf(payload: { context?: string; pages?: Array<{ title: string; url: string; text: string }> }): PageContext[] {
@@ -56,7 +65,7 @@ export function systemPrompt(page: PageContext | null, profile: string, locale: 
     lines.push("", "About the user (written by them, use it to personalize answers):", profile.slice(0, 1_000))
   }
   if (page && page.text) {
-    const limit = page.kind === "selection" ? MAX_SELECTION_CHARS : MAX_PAGE_CHARS
+    const limit = pageLimit(page)
     const truncated = page.text.length > limit
     lines.push(
       "",
@@ -71,6 +80,12 @@ export function systemPrompt(page: PageContext | null, profile: string, locale: 
       page.text.slice(0, limit) + (truncated ? "\n[…content truncated…]" : ""),
       "PAGE>>>"
     )
+    if (page.media === "video" && page.kind === "page") {
+      lines.push("The page content includes the video's transcript with [m:ss] timestamps: when it helps, point to the moment in the video (e.g. \"at 4:15\").")
+    }
+    if (page.media === "pdf" && page.kind === "page") {
+      lines.push("The page content includes PDF text with [Page N] marks: when it helps, say which page something is on.")
+    }
   } else {
     lines.push("", "No page content is available (e.g. the browser blocks access to this page). Answer from general knowledge.")
   }
