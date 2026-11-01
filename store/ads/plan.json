@@ -20,14 +20,18 @@
         "US",
         "GB",
         "CA",
-        "AU"
+        "AU",
+        "IE",
+        "NZ",
+        "SG"
       ],
       "dailyBudget": 4.3,
       "start": "2026-10-31",
       "end": "2026-11-06T22:00:00.000",
       "negatives": [
         {
-          "text": "free"
+          "text": "free",
+          "match": "EXACT"
         },
         {
           "text": "pdf"
@@ -96,7 +100,7 @@
       "adGroups": [
         {
           "name": "Safari AI · exact",
-          "bid": 1.08,
+          "bid": 1.24,
           "devices": [
             "IPAD"
           ],
@@ -106,65 +110,65 @@
           "keywords": [
             {
               "text": "safari ai",
-              "bid": 1.08
+              "bid": 1.24
             },
             {
               "text": "ai for safari",
-              "bid": 1.08
+              "bid": 1.24
             },
             {
               "text": "ai safari extension",
-              "bid": 1.08
+              "bid": 1.24
             },
             {
               "text": "safari ai extension",
-              "bid": 1.08
+              "bid": 1.24
             },
             {
               "text": "safari ai assistant",
-              "bid": 1.08
+              "bid": 1.24
             },
             {
               "text": "ai assistant for safari",
-              "bid": 1.08
+              "bid": 1.24
             },
             {
               "text": "safari extension ai",
-              "bid": 1.08
+              "bid": 1.24
             },
             {
               "text": "safari summarizer",
-              "bid": 1.08
+              "bid": 1.24
             },
             {
               "text": "ai sidebar for safari",
-              "bid": 1.08
+              "bid": 1.24
             },
             {
               "text": "ai sidebar",
-              "bid": 1.08
+              "bid": 1.24
             },
             {
               "text": "ai browser extension",
-              "bid": 0.96
+              "bid": 1.1
             },
             {
               "text": "chat with webpage",
-              "bid": 0.96
+              "bid": 1.1
             },
             {
               "text": "ask ai about webpage",
-              "bid": 0.96
+              "bid": 1.1
             },
             {
               "text": "contextflow",
-              "bid": 0.6
+              "bid": 0.69
             }
           ]
         },
         {
           "name": "Summarize · exact",
-          "bid": 0.96,
+          "bid": 1.1,
           "devices": [
             "IPAD"
           ],
@@ -173,77 +177,77 @@
           "keywords": [
             {
               "text": "ai summarizer",
-              "bid": 1.08
+              "bid": 1.24
             },
             {
               "text": "summarizer",
-              "bid": 0.96
+              "bid": 1.1
             },
             {
               "text": "summarize",
-              "bid": 0.96
+              "bid": 1.1
             },
             {
               "text": "summarize web page",
-              "bid": 1.08
+              "bid": 1.24
             },
             {
               "text": "summarize webpage",
-              "bid": 1.08
+              "bid": 1.24
             },
             {
               "text": "webpage summarizer",
-              "bid": 1.08
+              "bid": 1.24
             },
             {
               "text": "website summarizer",
-              "bid": 1.08
+              "bid": 1.24
             },
             {
               "text": "web summarizer",
-              "bid": 1.08
+              "bid": 1.24
             },
             {
               "text": "web summary",
-              "bid": 0.96
+              "bid": 1.1
             },
             {
               "text": "page summary",
-              "bid": 0.96
+              "bid": 1.1
             },
             {
               "text": "article summarizer",
-              "bid": 1.08
+              "bid": 1.24
             },
             {
               "text": "summarize article",
-              "bid": 1.08
+              "bid": 1.24
             },
             {
               "text": "summarize articles",
-              "bid": 1.08
+              "bid": 1.24
             },
             {
               "text": "ai summary",
-              "bid": 0.96
+              "bid": 1.1
             },
             {
               "text": "tldr",
-              "bid": 0.72
+              "bid": 0.83
             },
             {
               "text": "ai reader",
-              "bid": 0.72
+              "bid": 0.83
             },
             {
               "text": "translate web page",
-              "bid": 0.72
+              "bid": 0.83
             }
           ]
         },
         {
           "name": "Competitors · exact",
-          "bid": 0.72,
+          "bid": 0.83,
           "devices": [
             "IPAD"
           ],
@@ -251,34 +255,42 @@
           "productPage": "default",
           "keywords": [
             {
-              "text": "sider"
+              "text": "sider",
+              "bid": 0.83
             },
             {
-              "text": "sider ai"
+              "text": "sider ai",
+              "bid": 0.83
             },
             {
-              "text": "monica ai"
+              "text": "monica ai",
+              "bid": 0.83
             },
             {
-              "text": "merlin ai"
+              "text": "merlin ai",
+              "bid": 0.83
             },
             {
-              "text": "glasp"
+              "text": "glasp",
+              "bid": 0.83
             },
             {
-              "text": "zeki ai"
+              "text": "zeki ai",
+              "bid": 0.83
             },
             {
-              "text": "briefy"
+              "text": "briefy",
+              "bid": 0.83
             },
             {
-              "text": "elmo ai"
+              "text": "elmo ai",
+              "bid": 0.83
             }
           ]
         },
         {
           "name": "AI · broad",
-          "bid": 1.2,
+          "bid": 1.38,
           "devices": [
             "IPAD"
           ],
@@ -289,42 +301,72 @@
             {
               "text": "safari extension",
               "match": "BROAD",
-              "bid": 1.3
+              "bid": 1.5
             },
             {
               "text": "ai browser",
               "match": "BROAD",
-              "bid": 1.3
+              "bid": 1.5
             },
             {
               "text": "ai assistant",
-              "match": "BROAD"
+              "match": "BROAD",
+              "bid": 1.38
             },
             {
               "text": "ai chat",
-              "match": "BROAD"
+              "match": "BROAD",
+              "bid": 1.38
             },
             {
               "text": "chatgpt",
-              "match": "BROAD"
+              "match": "BROAD",
+              "bid": 1.38
             },
             {
               "text": "gemini",
-              "match": "BROAD"
+              "match": "BROAD",
+              "bid": 1.38
             },
             {
               "text": "claude",
-              "match": "BROAD"
+              "match": "BROAD",
+              "bid": 1.38
             },
             {
               "text": "perplexity",
+              "match": "BROAD",
+              "bid": 1.38
+            },
+            {
+              "text": "summarize",
+              "match": "BROAD"
+            },
+            {
+              "text": "summarizer",
+              "match": "BROAD"
+            },
+            {
+              "text": "ai summary",
+              "match": "BROAD"
+            },
+            {
+              "text": "reader",
+              "match": "BROAD"
+            },
+            {
+              "text": "translate website",
+              "match": "BROAD"
+            },
+            {
+              "text": "web translator",
               "match": "BROAD"
             }
           ]
         },
         {
           "name": "Discovery · Search Match",
-          "bid": 0.6,
+          "bid": 1,
           "devices": [
             "IPAD"
           ],
@@ -355,23 +397,31 @@
       "status": "ENABLED",
       "countries": [
         "DE",
-        "FR"
+        "FR",
+        "AT",
+        "CH",
+        "BE",
+        "LU"
       ],
       "dailyBudget": 2.8,
       "start": "2026-10-31",
       "end": "2026-11-06T22:00:00.000",
       "negatives": [
         {
-          "text": "free"
+          "text": "free",
+          "match": "EXACT"
         },
         {
-          "text": "kostenlos"
+          "text": "kostenlos",
+          "match": "EXACT"
         },
         {
-          "text": "gratuit"
+          "text": "gratuit",
+          "match": "EXACT"
         },
         {
-          "text": "gratis"
+          "text": "gratis",
+          "match": "EXACT"
         },
         {
           "text": "pdf"
@@ -410,7 +460,7 @@
       "adGroups": [
         {
           "name": "Deutsch · exact",
-          "bid": 0.84,
+          "bid": 0.97,
           "devices": [
             "IPAD"
           ],
@@ -419,46 +469,58 @@
           "productPage": "default",
           "keywords": [
             {
-              "text": "ki zusammenfassung"
+              "text": "ki zusammenfassung",
+              "bid": 0.97
             },
             {
-              "text": "zusammenfassung"
+              "text": "zusammenfassung",
+              "bid": 0.97
             },
             {
-              "text": "zusammenfassen"
+              "text": "zusammenfassen",
+              "bid": 0.97
             },
             {
-              "text": "text zusammenfassen"
+              "text": "text zusammenfassen",
+              "bid": 0.97
             },
             {
-              "text": "artikel zusammenfassen"
+              "text": "artikel zusammenfassen",
+              "bid": 0.97
             },
             {
-              "text": "webseite zusammenfassen"
+              "text": "webseite zusammenfassen",
+              "bid": 0.97
             },
             {
-              "text": "safari erweiterung"
+              "text": "safari erweiterung",
+              "bid": 0.97
             },
             {
-              "text": "safari ki"
+              "text": "safari ki",
+              "bid": 0.97
             },
             {
-              "text": "ki für safari"
+              "text": "ki für safari",
+              "bid": 0.97
             },
             {
-              "text": "ki assistent"
+              "text": "ki assistent",
+              "bid": 0.97
             },
             {
-              "text": "ki browser"
+              "text": "ki browser",
+              "bid": 0.97
             },
             {
-              "text": "webseite übersetzen"
+              "text": "webseite übersetzen",
+              "bid": 0.97
             }
           ]
         },
         {
           "name": "Français · exact",
-          "bid": 0.84,
+          "bid": 0.97,
           "devices": [
             "IPAD"
           ],
@@ -466,40 +528,50 @@
           "productPage": "default",
           "keywords": [
             {
-              "text": "résumé ia"
+              "text": "résumé ia",
+              "bid": 0.97
             },
             {
-              "text": "résumer"
+              "text": "résumer",
+              "bid": 0.97
             },
             {
-              "text": "résumer texte"
+              "text": "résumer texte",
+              "bid": 0.97
             },
             {
-              "text": "résumer article"
+              "text": "résumer article",
+              "bid": 0.97
             },
             {
-              "text": "résumer page web"
+              "text": "résumer page web",
+              "bid": 0.97
             },
             {
-              "text": "extension safari"
+              "text": "extension safari",
+              "bid": 0.97
             },
             {
-              "text": "ia safari"
+              "text": "ia safari",
+              "bid": 0.97
             },
             {
-              "text": "safari ia"
+              "text": "safari ia",
+              "bid": 0.97
             },
             {
-              "text": "assistant ia"
+              "text": "assistant ia",
+              "bid": 0.97
             },
             {
-              "text": "traduire page web"
+              "text": "traduire page web",
+              "bid": 0.97
             }
           ]
         },
         {
           "name": "English · exact",
-          "bid": 0.84,
+          "bid": 0.97,
           "devices": [
             "IPAD"
           ],
@@ -507,46 +579,58 @@
           "productPage": "default",
           "keywords": [
             {
-              "text": "safari ai"
+              "text": "safari ai",
+              "bid": 0.97
             },
             {
-              "text": "ai for safari"
+              "text": "ai for safari",
+              "bid": 0.97
             },
             {
-              "text": "ai safari extension"
+              "text": "ai safari extension",
+              "bid": 0.97
             },
             {
-              "text": "ai summarizer"
+              "text": "ai summarizer",
+              "bid": 0.97
             },
             {
-              "text": "summarize"
+              "text": "summarize",
+              "bid": 0.97
             },
             {
-              "text": "summarizer"
+              "text": "summarizer",
+              "bid": 0.97
             },
             {
-              "text": "article summarizer"
+              "text": "article summarizer",
+              "bid": 0.97
             },
             {
-              "text": "web summarizer"
+              "text": "web summarizer",
+              "bid": 0.97
             },
             {
-              "text": "ai sidebar"
+              "text": "ai sidebar",
+              "bid": 0.97
             },
             {
-              "text": "sider"
+              "text": "sider",
+              "bid": 0.97
             },
             {
-              "text": "monica ai"
+              "text": "monica ai",
+              "bid": 0.97
             },
             {
-              "text": "glasp"
+              "text": "glasp",
+              "bid": 0.97
             }
           ]
         },
         {
           "name": "Discovery · Search Match",
-          "bid": 0.48,
+          "bid": 0.9,
           "devices": [
             "IPAD"
           ],

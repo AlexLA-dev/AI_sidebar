@@ -180,12 +180,15 @@ export function diffPlan(plan, live) {
         const match = k.match ?? "EXACT"
         const lk = liveKw.find((x) => kwKey(x.text, x.matchType) === kwKey(k.text, match))
         const status = k.status === "PAUSED" ? "PAUSED" : "ENABLED"
+        // Apple gives a new keyword the group's bid once and keeps it: a keyword without its own bid
+        // in the plan follows the group's, so raising the group raises it too.
+        const bid = k.bid ?? g.bid
         if (!lk) {
-          create.push({ text: k.text, matchType: match, status, ...(k.bid != null ? { bid: money(k.bid, cur) } : {}) })
+          create.push({ text: k.text, matchType: match, status, ...(bid != null ? { bid: money(bid, cur) } : {}) })
           continue
         }
         const patch = {}
-        if (k.bid != null && amount(lk.bid) !== k.bid) patch.bid = money(k.bid, cur)
+        if (bid != null && amount(lk.bid) !== bid) patch.bid = money(bid, cur)
         if (lk.status !== status) patch.status = status
         if (Object.keys(patch).length) update.push({ id: lk.id, text: k.text, ...patch })
       }

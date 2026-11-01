@@ -63,13 +63,13 @@ test("a live account that matches the plan needs no changes; drift becomes updat
   for (const c of plan.campaigns) {
     const cid = id++
     live.campaigns.push({ id: cid, name: c.name, status: c.status, dailyBudget: { value: { amount: String(c.dailyBudget) } }, targeting: { countryOrRegion: { include: c.countries } }, endTime: `${c.end}T23:59:59.999` })
-    for (const n of c.negatives) live.negatives.push({ id: id++, campaignId: cid, text: n.text, matchType: "BROAD" })
+    for (const n of c.negatives) live.negatives.push({ id: id++, campaignId: cid, text: n.text, matchType: n.match ?? "BROAD" })
     for (const g of c.adGroups) {
       const gid = id++
       live.adGroups.push({ id: gid, campaignId: cid, name: g.name, status: "ENABLED", bidStrategy: { bid: { amount: String(g.bid) } }, automatedKeywordsOptIn: Boolean(g.searchMatch), targeting: { deviceClass: { include: g.devices }, appDownloader: { exclude: ["6759115793"] } } })
-      for (const k of g.keywords) live.keywords.push({ id: id++, adGroupId: gid, text: k.text, matchType: k.match ?? "EXACT", status: "ENABLED", bid: k.bid != null ? { amount: String(k.bid) } : undefined })
+      for (const k of g.keywords) live.keywords.push({ id: id++, adGroupId: gid, text: k.text, matchType: k.match ?? "EXACT", status: "ENABLED", bid: { amount: String(k.bid ?? g.bid) } })
       live.ads.push({ id: id++, adGroupId: gid, status: "ENABLED", productPage: "default" })
-      for (const n of g.negatives ?? []) live.negatives.push({ id: id++, adGroupId: gid, text: n.text, matchType: "BROAD" })
+      for (const n of g.negatives ?? []) live.negatives.push({ id: id++, adGroupId: gid, text: n.text, matchType: n.match ?? "BROAD" })
       if (g.negateCampaignExact) for (const o of c.adGroups) if (o !== g) for (const k of o.keywords) if ((k.match ?? "EXACT") === "EXACT") live.negatives.push({ id: id++, adGroupId: gid, text: k.text, matchType: "EXACT" })
     }
   }
@@ -88,6 +88,15 @@ test("a live account that matches the plan needs no changes; drift becomes updat
   assert.equal(ops.length, 1)
   assert.equal(ops[0].kind, "keywords.update")
   assert.deepEqual(ops[0].items.map((k: { text: string; bid?: { amount: string }; status?: string }) => [k.text, k.bid?.amount ?? null, k.status ?? null]), [[drift.keywords[0].text, plan.campaigns[0].adGroups[0].keywords[0].bid.toFixed(2), null], ["stray", null, "PAUSED"]])
+
+  // A keyword without its own bid follows its group's bid.
+  const follow = structuredClone(plan)
+  const fg = follow.campaigns[0].adGroups.find((g: { keywords?: { bid?: number }[] }) => g.keywords?.some((k) => k.bid == null)) ?? follow.campaigns[0].adGroups[0]
+  const fk = fg.keywords.find((k: { bid?: number }) => k.bid == null) ?? fg.keywords[0]
+  delete fk.bid
+  fg.bid = 1.45
+  const followUpdates = diffPlan(follow, live).ops.filter((o) => o.kind === "keywords.update").flatMap((o) => o.items)
+  assert.ok(followUpdates.some((k: { text: string; bid?: { amount: string } }) => k.text === fk.text && k.bid?.amount === "1.45"))
 
   // A negative that left the plan is paused, after the groups; one that came back is switched on.
   const neg = structuredClone(live)
