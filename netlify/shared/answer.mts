@@ -146,14 +146,23 @@ async function startClaude(system: string, messages: ChatMessage[], tier: Tier, 
   }
 }
 
+/** The app build a request came from (`client.build`, the app's CFBundleVersion), or null. */
+export function clientBuild(client: Record<string, unknown>): number | null {
+  const match = /^\d+/.exec(String(client.build ?? "").trim())
+  return match ? Number(match[0]) : null
+}
+
 /**
  * Starts an answer: Claude with the plan's model and effort, or OpenAI when Claude can't answer
- * before its first word. Nothing reaches the user (or is charged) twice: the switch happens before
- * any text is sent. Errors after OpenAI fails too are thrown like startCompletion's.
+ * before its first word or the app build is older than CLAUDE_MIN_BUILD. Nothing reaches the user
+ * (or is charged) twice: the switch happens before any text is sent. Errors after OpenAI fails too
+ * are thrown like startCompletion's.
  */
-export async function startAnswer(system: string, messages: ChatMessage[], tier: Tier, signal?: AbortSignal): Promise<Answer> {
+export async function startAnswer(system: string, messages: ChatMessage[], tier: Tier, build: number | null, signal?: AbortSignal): Promise<Answer> {
   let fallback: string
-  if (!config.anthropicKey) fallback = "no_key"
+  // CLAUDE_MIN_BUILD=0 lets every client use Claude (the local stand: its extension has no build).
+  if (config.claudeMinBuild > 0 && (build === null || build < config.claudeMinBuild)) fallback = "old_client"
+  else if (!config.anthropicKey) fallback = "no_key"
   else if (!config.claudeEnabled) fallback = "off"
   else if (cooldown && cooldown.until > Date.now()) fallback = `cooldown_${cooldown.reason}`
   else {
