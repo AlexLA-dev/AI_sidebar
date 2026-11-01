@@ -143,6 +143,8 @@ export const STORAGE = {
   consent: "cf:consent",
   // The first-session tour of the panel was seen (finished or skipped).
   tourSeen: "cf:tourSeen",
+  // The "first time here" hints already shown (chats, video, pdf).
+  hintsSeen: "cf:hintsSeen",
   // Recent pages' text on this device ({ [url]: { title, text, at } }) for "whole chat" answers.
   pageTexts: "cf:pageTexts",
   // How many times the hint about writing notes with the send button was shown, or -1 once used.

@@ -212,6 +212,8 @@ final class ChatLibrary: ObservableObject {
 
     private init() {
         reload()
+        // Until the first refresh: not "off" when sync is on, or the Chats screen flashes the sync-off card.
+        cloud = syncOn ? .syncing : .off
     }
 
     /// iCloud sync of chats (the extension's setting, shared through the App Group; on by default).

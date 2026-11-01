@@ -414,7 +414,7 @@
   "message": "Ask about this page"
  },
  "tourAskBody": {
-  "message": "ContextFlow reads the page you're on. Pick an action like Summarize, or type your own question."
+  "message": "ContextFlow reads the page you're on, and the videos with captions and the PDFs on it. Pick an action like Summarize, or type your own question."
  },
  "tourSelectTitle": {
   "message": "Only part of it?"
@@ -703,5 +703,26 @@
  },
  "tagsButton": {
   "message": "Tag"
+ },
+ "hintGot": {
+  "message": "Got it"
+ },
+ "hintChatsTitle": {
+  "message": "Find, sort, look back"
+ },
+ "hintChatsBody": {
+  "message": "Search by words or #tag. Tag chats and answers with 🏷 and turn on Folders to group them. In Pro, ✦ finds a chat from a description, and “Ask your chats” answers from all of them."
+ },
+ "hintVideoTitle": {
+  "message": "This page has a video"
+ },
+ "hintVideoBody": {
+  "message": "Answers use its transcript and point to moments like [4:15]. Without captions, they use the title and description, and say so."
+ },
+ "hintPdfTitle": {
+  "message": "PDFs are read too"
+ },
+ "hintPdfBody": {
+  "message": "The PDFs shown or linked on this page go with your question; answers say which page they're on."
  }
 }

@@ -148,7 +148,7 @@
   "tourDone": "확인",
   "tourShow": "팁 보기",
   "tourAskTitle": "이 페이지에 대해 질문하세요",
-  "tourAskBody": "ContextFlow는 보고 있는 페이지를 읽습니다. ‘요약’ 같은 작업을 고르거나 직접 질문을 입력하세요.",
+  "tourAskBody": "ContextFlow는 보고 있는 페이지와 그 안의 자막 있는 동영상, PDF까지 읽어요. 요약 같은 작업을 고르거나 직접 질문하세요.",
   "tourSelectTitle": "일부분만 궁금하다면?",
   "tourSelectBody": "먼저 페이지에서 텍스트를 선택하면 그 부분에 대해서만 답합니다. 이 표시는 ContextFlow가 읽는 내용을 보여 줍니다.",
   "tourGoogleTitle": "Google의 최신 정보",
@@ -250,5 +250,13 @@
   "tagsGroup": "폴더",
   "tagsEdit": "태그",
   "tagsNone": "태그 없음",
-  "tagsButton": "태그"
+  "tagsButton": "태그",
+
+  "hintGot": "알겠어요",
+  "hintChatsTitle": "찾고, 정리하고, 다시 보기",
+  "hintChatsBody": "단어나 #태그로 검색하세요. 🏷로 채팅과 답변에 태그를 달고 ‘폴더’를 켜면 묶어서 볼 수 있어요. Pro에서는 ✦가 설명만으로 채팅을 찾고, ‘모든 채팅에 묻기’가 전체를 바탕으로 답해요.",
+  "hintVideoTitle": "이 페이지에 동영상이 있어요",
+  "hintVideoBody": "답변은 자막을 바탕으로 [4:15] 같은 장면을 짚어 줘요. 자막이 없으면 제목과 설명으로 답하고 그렇다고 알려 줘요.",
+  "hintPdfTitle": "PDF도 읽어요",
+  "hintPdfBody": "이 페이지에 표시되거나 링크된 PDF도 질문에 함께 보내요. 답변에 페이지를 표시해요."
 }

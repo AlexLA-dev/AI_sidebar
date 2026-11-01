@@ -414,7 +414,7 @@
   "message": "이 페이지에 대해 질문하세요"
  },
  "tourAskBody": {
-  "message": "ContextFlow는 보고 있는 페이지를 읽습니다. ‘요약’ 같은 작업을 고르거나 직접 질문을 입력하세요."
+  "message": "ContextFlow는 보고 있는 페이지와 그 안의 자막 있는 동영상, PDF까지 읽어요. 요약 같은 작업을 고르거나 직접 질문하세요."
  },
  "tourSelectTitle": {
   "message": "일부분만 궁금하다면?"
@@ -703,5 +703,26 @@
  },
  "tagsButton": {
   "message": "태그"
+ },
+ "hintGot": {
+  "message": "알겠어요"
+ },
+ "hintChatsTitle": {
+  "message": "찾고, 정리하고, 다시 보기"
+ },
+ "hintChatsBody": {
+  "message": "단어나 #태그로 검색하세요. 🏷로 채팅과 답변에 태그를 달고 ‘폴더’를 켜면 묶어서 볼 수 있어요. Pro에서는 ✦가 설명만으로 채팅을 찾고, ‘모든 채팅에 묻기’가 전체를 바탕으로 답해요."
+ },
+ "hintVideoTitle": {
+  "message": "이 페이지에 동영상이 있어요"
+ },
+ "hintVideoBody": {
+  "message": "답변은 자막을 바탕으로 [4:15] 같은 장면을 짚어 줘요. 자막이 없으면 제목과 설명으로 답하고 그렇다고 알려 줘요."
+ },
+ "hintPdfTitle": {
+  "message": "PDF도 읽어요"
+ },
+ "hintPdfBody": {
+  "message": "이 페이지에 표시되거나 링크된 PDF도 질문에 함께 보내요. 답변에 페이지를 표시해요."
  }
 }

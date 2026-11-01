@@ -148,7 +148,7 @@
   "tourDone": "Entendi",
   "tourShow": "Ver dicas",
   "tourAskTitle": "Pergunte sobre esta página",
-  "tourAskBody": "O ContextFlow lê a página em que você está. Escolha uma ação como “Resumir” ou digite sua pergunta.",
+  "tourAskBody": "O ContextFlow lê a página aberta, inclusive vídeos com legendas e PDFs nela. Escolha uma ação como Resumir ou digite sua pergunta.",
   "tourSelectTitle": "Só uma parte?",
   "tourSelectBody": "Selecione primeiro um texto na página e a resposta será só sobre ele. Este rótulo mostra o que o ContextFlow está lendo.",
   "tourGoogleTitle": "Fatos atualizados do Google",
@@ -250,5 +250,13 @@
   "tagsGroup": "Pastas",
   "tagsEdit": "Tags",
   "tagsNone": "Sem tag",
-  "tagsButton": "Tag"
+  "tagsButton": "Tag",
+
+  "hintGot": "Entendi",
+  "hintChatsTitle": "Encontrar, organizar, voltar",
+  "hintChatsBody": "Busque por palavras ou #tag. Marque conversas e respostas com 🏷 e ative Pastas para agrupá-las. No Pro, ✦ encontra uma conversa por descrição e “Pergunte às suas conversas” responde a partir de todas.",
+  "hintVideoTitle": "Esta página tem um vídeo",
+  "hintVideoBody": "As respostas usam a transcrição e indicam momentos como [4:15]. Sem legendas, usam o título e a descrição, e avisam.",
+  "hintPdfTitle": "PDFs também são lidos",
+  "hintPdfBody": "Os PDFs exibidos ou com link nesta página vão com a pergunta; as respostas indicam a página."
 }

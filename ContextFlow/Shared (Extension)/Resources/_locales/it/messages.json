@@ -414,7 +414,7 @@
   "message": "Chiedi di questa pagina"
  },
  "tourAskBody": {
-  "message": "ContextFlow legge la pagina che stai guardando. Scegli un’azione come «Riassumi» o scrivi la tua domanda."
+  "message": "ContextFlow legge la pagina aperta, anche i video con sottotitoli e i PDF che contiene. Scegli un’azione come Riassumi o scrivi la tua domanda."
  },
  "tourSelectTitle": {
   "message": "Solo una parte?"
@@ -703,5 +703,26 @@
  },
  "tagsButton": {
   "message": "Tag"
+ },
+ "hintGot": {
+  "message": "Capito"
+ },
+ "hintChatsTitle": {
+  "message": "Trova, ordina, ritrova"
+ },
+ "hintChatsBody": {
+  "message": "Cerca per parole o #tag. Aggiungi tag a chat e risposte (🏷) e attiva Cartelle per raggrupparle. Con Pro, ✦ trova una chat da una descrizione e «Chiedi alle tue chat» risponde da tutte."
+ },
+ "hintVideoTitle": {
+  "message": "In questa pagina c’è un video"
+ },
+ "hintVideoBody": {
+  "message": "Le risposte usano la sua trascrizione e indicano momenti come [4:15]. Senza sottotitoli usano titolo e descrizione, e lo dicono."
+ },
+ "hintPdfTitle": {
+  "message": "Anche i PDF vengono letti"
+ },
+ "hintPdfBody": {
+  "message": "I PDF mostrati o collegati in questa pagina vanno con la domanda; le risposte indicano la pagina."
  }
 }

@@ -148,7 +148,7 @@
   "tourDone": "知道了",
   "tourShow": "查看使用提示",
   "tourAskTitle": "就此页面提问",
-  "tourAskBody": "ContextFlow 会读取你正在浏览的页面。选择“总结”等操作，或输入你自己的问题。",
+  "tourAskBody": "ContextFlow 会读取你正在看的页面，以及页面上带字幕的视频和 PDF。选择“总结”等操作，或输入你自己的问题。",
   "tourSelectTitle": "只想问一部分？",
   "tourSelectBody": "先在页面上选中文字，回答就只针对这部分内容。这个标签显示 ContextFlow 正在读取的内容。",
   "tourGoogleTitle": "来自 Google 的最新信息",
@@ -250,5 +250,13 @@
   "tagsGroup": "文件夹",
   "tagsEdit": "标签",
   "tagsNone": "无标签",
-  "tagsButton": "标签"
+  "tagsButton": "标签",
+
+  "hintGot": "知道了",
+  "hintChatsTitle": "查找、整理、回顾",
+  "hintChatsBody": "按字词或 #标签 搜索。用 🏷 给对话和回答加标签，打开“文件夹”即可分组。Pro 中，✦ 能根据描述找到对话，“问问你的所有对话”会综合所有对话回答。",
+  "hintVideoTitle": "此页面有视频",
+  "hintVideoBody": "回答会依据其文字稿，并指出 [4:15] 这样的时间点。没有字幕时，会依据标题和简介回答并说明。",
+  "hintPdfTitle": "也会读取 PDF",
+  "hintPdfBody": "此页面显示或链接的 PDF 会随问题一起发送；回答会标明页码。"
 }

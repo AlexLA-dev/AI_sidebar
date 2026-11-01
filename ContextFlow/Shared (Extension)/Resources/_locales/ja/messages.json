@@ -414,7 +414,7 @@
   "message": "このページについて質問"
  },
  "tourAskBody": {
-  "message": "ContextFlowは開いているページを読み取ります。「要約」などのアクションを選ぶか、質問を入力してください。"
+  "message": "ContextFlow は開いているページを読み取ります。字幕付きの動画やページ上の PDF も読み取れます。「要約」などのアクションを選ぶか、質問を入力してください。"
  },
  "tourSelectTitle": {
   "message": "一部分だけ？"
@@ -703,5 +703,26 @@
  },
  "tagsButton": {
   "message": "タグ"
+ },
+ "hintGot": {
+  "message": "OK"
+ },
+ "hintChatsTitle": {
+  "message": "探す・整理する・振り返る"
+ },
+ "hintChatsBody": {
+  "message": "単語や #タグ で検索できます。🏷 でチャットや回答にタグを付け、「フォルダ」でまとめられます。Pro なら ✦ が説明からチャットを見つけ、「すべてのチャットに質問」で全体から回答します。"
+ },
+ "hintVideoTitle": {
+  "message": "このページには動画があります"
+ },
+ "hintVideoBody": {
+  "message": "回答は文字起こしをもとに、[4:15] のように場面を示します。字幕がなければタイトルと説明をもとに回答し、その旨を伝えます。"
+ },
+ "hintPdfTitle": {
+  "message": "PDF も読み取ります"
+ },
+ "hintPdfBody": {
+  "message": "このページに表示またはリンクされた PDF も質問に含めます。回答にはページ番号を示します。"
  }
 }

@@ -388,6 +388,22 @@ struct TipGroup {
     }
 
     static let all: [TipGroup] = [
+        TipGroup(title: "New in ContextFlow", tips: [
+            Tip(symbol: "play.rectangle", color: .red, title: "Ask about a video",
+                text: "On a page with a video, ContextFlow reads its transcript: ask for the gist, or what was said about something, and the answer points to the moment, like [4:15].", clip: "video"),
+            Tip(symbol: "doc.richtext", color: .orange, title: "PDFs on the page",
+                text: "PDFs shown on a page or linked from it go with your question, and answers say which page they're on. On iPad and Mac, ContextFlow in the toolbar opens on a PDF tab too."),
+            Tip(symbol: "bubble.left.and.bubble.right", color: .teal, title: "Your chats in the app",
+                text: "The Chats tab has every chat from Safari: read them, rename, pin or delete them, and tap a page to open it. “Continue in Safari” picks a chat up where you left off."),
+            Tip(symbol: "magnifyingglass", color: .green, title: "Search your chats",
+                text: "Type in the search over the chat list: every chat with those words, with the place they're in. A result opens the chat right there.", clip: "search"),
+            Tip(symbol: "tag", color: .purple, title: "Tags and folders",
+                text: "Tag a chat, an answer or a note with 🏷. Tap a tag to see only its chats, or turn on Folders to group the list by tag.", clip: "tags"),
+            Tip(symbol: "sparkles", color: brandBlue, title: "AI search (Pro)",
+                text: "Tap ✦ next to the search and describe the chat you remember — “that article about sleep and coffee” — even without the exact words.", clip: "aisearch"),
+            Tip(symbol: "text.bubble", color: .indigo, title: "Ask your chats (Pro)",
+                text: "The first row of the chat list answers from all your chats at once: “What did I read this week?”, “Summarize my notes on AI”.", clip: "history")
+        ]),
         TipGroup(title: "Get answers", tips: [
             openTip,
             Tip(symbol: "list.bullet.rectangle", color: .orange, title: "One tap for the gist",

@@ -35,6 +35,8 @@ struct ChatsView: View {
     @State private var newName = ""
     @State private var deleting: ChatThread?
     @State private var query = ""
+    /// The "first time here" hint about the Chats screen (the advanced level of the onboarding).
+    @AppStorage("cf_hint_chats_seen") private var hintSeen = false
     /// Only the chats with this tag.
     @State private var tagFilter: String?
     /// The chat whose tags are being picked.
@@ -279,6 +281,22 @@ struct ChatsView: View {
 
     @ViewBuilder
     private var chatList: some View {
+            if !hintSeen && !library.threads.isEmpty {
+                Section {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Label("Your chats from Safari", systemImage: "sparkles")
+                            .font(.headline)
+                            .foregroundColor(brandBlue)
+                        Text("Tap a chat to read it, swipe it to pin, tag or delete it, or long-press it for more. Search by words or #tag, and turn on Folders to group by tag. In Pro, ✦ finds a chat from a description.")
+                            .font(.callout)
+                            .foregroundColor(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Button("Got it") { hintSeen = true }
+                            .buttonStyle(.bordered)
+                    }
+                    .padding(.vertical, 4)
+                }
+            }
             if activation.state == .off {
                 Section { ExtensionOffBanner(openSetup: openSetup) }
             }

@@ -148,7 +148,7 @@
   "tourDone": "Got it",
   "tourShow": "Show tips",
   "tourAskTitle": "Ask about this page",
-  "tourAskBody": "ContextFlow reads the page you're on. Pick an action like Summarize, or type your own question.",
+  "tourAskBody": "ContextFlow reads the page you're on, and the videos with captions and the PDFs on it. Pick an action like Summarize, or type your own question.",
   "tourSelectTitle": "Only part of it?",
   "tourSelectBody": "Select text on the page first, and the answer is about just that. This label shows what ContextFlow reads.",
   "tourGoogleTitle": "Fresh facts from Google",
@@ -250,5 +250,13 @@
   "tagsGroup": "Folders",
   "tagsEdit": "Tags",
   "tagsNone": "No tag",
-  "tagsButton": "Tag"
+  "tagsButton": "Tag",
+
+  "hintGot": "Got it",
+  "hintChatsTitle": "Find, sort, look back",
+  "hintChatsBody": "Search by words or #tag. Tag chats and answers with 🏷 and turn on Folders to group them. In Pro, ✦ finds a chat from a description, and “Ask your chats” answers from all of them.",
+  "hintVideoTitle": "This page has a video",
+  "hintVideoBody": "Answers use its transcript and point to moments like [4:15]. Without captions, they use the title and description, and say so.",
+  "hintPdfTitle": "PDFs are read too",
+  "hintPdfBody": "The PDFs shown or linked on this page go with your question; answers say which page they're on."
 }

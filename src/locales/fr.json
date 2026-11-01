@@ -148,7 +148,7 @@
   "tourDone": "Compris",
   "tourShow": "Voir les conseils",
   "tourAskTitle": "Posez une question sur cette page",
-  "tourAskBody": "ContextFlow lit la page que vous consultez. Choisissez une action comme « Résumer » ou posez votre propre question.",
+  "tourAskBody": "ContextFlow lit la page ouverte, ainsi que les vidéos sous-titrées et les PDF qu’elle contient. Choisissez une action comme Résumer ou posez votre question.",
   "tourSelectTitle": "Juste un passage ?",
   "tourSelectBody": "Sélectionnez d’abord du texte sur la page : la réponse ne portera que sur lui. Cette étiquette indique ce que lit ContextFlow.",
   "tourGoogleTitle": "Des infos à jour avec Google",
@@ -250,5 +250,13 @@
   "tagsGroup": "Dossiers",
   "tagsEdit": "Tags",
   "tagsNone": "Sans tag",
-  "tagsButton": "Tag"
+  "tagsButton": "Tag",
+
+  "hintGot": "Compris",
+  "hintChatsTitle": "Trouver, ranger, retrouver",
+  "hintChatsBody": "Cherchez par mots ou #tag. Ajoutez des tags aux discussions et réponses (🏷) et activez Dossiers pour les regrouper. Avec Pro, ✦ retrouve une discussion à partir d’une description, et « Interroger vos discussions » répond à partir de toutes.",
+  "hintVideoTitle": "Cette page contient une vidéo",
+  "hintVideoBody": "Les réponses s’appuient sur sa transcription et indiquent des moments comme [4:15]. Sans sous-titres, elles utilisent le titre et la description, et le précisent.",
+  "hintPdfTitle": "Les PDF sont lus aussi",
+  "hintPdfBody": "Les PDF affichés ou liés sur cette page accompagnent votre question ; les réponses indiquent la page."
 }

@@ -414,7 +414,7 @@
   "message": "Posez une question sur cette page"
  },
  "tourAskBody": {
-  "message": "ContextFlow lit la page que vous consultez. Choisissez une action comme « Résumer » ou posez votre propre question."
+  "message": "ContextFlow lit la page ouverte, ainsi que les vidéos sous-titrées et les PDF qu’elle contient. Choisissez une action comme Résumer ou posez votre question."
  },
  "tourSelectTitle": {
   "message": "Juste un passage ?"
@@ -703,5 +703,26 @@
  },
  "tagsButton": {
   "message": "Tag"
+ },
+ "hintGot": {
+  "message": "Compris"
+ },
+ "hintChatsTitle": {
+  "message": "Trouver, ranger, retrouver"
+ },
+ "hintChatsBody": {
+  "message": "Cherchez par mots ou #tag. Ajoutez des tags aux discussions et réponses (🏷) et activez Dossiers pour les regrouper. Avec Pro, ✦ retrouve une discussion à partir d’une description, et « Interroger vos discussions » répond à partir de toutes."
+ },
+ "hintVideoTitle": {
+  "message": "Cette page contient une vidéo"
+ },
+ "hintVideoBody": {
+  "message": "Les réponses s’appuient sur sa transcription et indiquent des moments comme [4:15]. Sans sous-titres, elles utilisent le titre et la description, et le précisent."
+ },
+ "hintPdfTitle": {
+  "message": "Les PDF sont lus aussi"
+ },
+ "hintPdfBody": {
+  "message": "Les PDF affichés ou liés sur cette page accompagnent votre question ; les réponses indiquent la page."
  }
 }

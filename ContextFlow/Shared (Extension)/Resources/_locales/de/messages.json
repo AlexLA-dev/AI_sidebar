@@ -414,7 +414,7 @@
   "message": "Frag etwas zu dieser Seite"
  },
  "tourAskBody": {
-  "message": "ContextFlow liest die Seite, auf der du bist. Wähle eine Aktion wie „Zusammenfassen“ oder stell deine eigene Frage."
+  "message": "ContextFlow liest die Seite, auf der du bist, samt Videos mit Untertiteln und PDFs darauf. Wähle eine Aktion wie „Zusammenfassen“ oder stell deine eigene Frage."
  },
  "tourSelectTitle": {
   "message": "Nur ein Teil davon?"
@@ -703,5 +703,26 @@
  },
  "tagsButton": {
   "message": "Tag"
+ },
+ "hintGot": {
+  "message": "Verstanden"
+ },
+ "hintChatsTitle": {
+  "message": "Finden, ordnen, wiederfinden"
+ },
+ "hintChatsBody": {
+  "message": "Such nach Wörtern oder #Tag. Versieh Chats und Antworten mit Tags (🏷) und schalte „Ordner“ ein, um sie zu gruppieren. Mit Pro findet ✦ einen Chat anhand einer Beschreibung, und „Frag deine Chats“ antwortet aus allen."
+ },
+ "hintVideoTitle": {
+  "message": "Auf dieser Seite ist ein Video"
+ },
+ "hintVideoBody": {
+  "message": "Antworten nutzen sein Transkript und nennen Stellen wie [4:15]. Ohne Untertitel nutzen sie Titel und Beschreibung und sagen das."
+ },
+ "hintPdfTitle": {
+  "message": "PDFs werden auch gelesen"
+ },
+ "hintPdfBody": {
+  "message": "PDFs auf dieser Seite oder von ihr verlinkt gehen mit deiner Frage mit; Antworten nennen die Seite."
  }
 }

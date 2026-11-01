@@ -53,6 +53,23 @@ export async function markTourSeen(): Promise<void> {
   await set(STORAGE.tourSeen, true)
 }
 
+export type HintKey = "chats" | "video" | "pdf"
+
+/** The "first time here" hints already shown. */
+export async function seenHints(): Promise<HintKey[]> {
+  return (await get<HintKey[]>(STORAGE.hintsSeen)) ?? []
+}
+
+export async function markHintSeen(key: HintKey): Promise<void> {
+  const seen = await seenHints()
+  if (!seen.includes(key)) await set(STORAGE.hintsSeen, [...seen, key])
+}
+
+/** "Show tips" in Settings: the tour and the hints come back. */
+export async function resetHints(): Promise<void> {
+  await set(STORAGE.hintsSeen, [])
+}
+
 // The text of recent pages, on this device only, so a "whole chat" answer can include the chat's other pages.
 const MAX_PAGE_TEXTS = 30
 type PageTexts = Record<string, { title: string; text: string; at: number }>

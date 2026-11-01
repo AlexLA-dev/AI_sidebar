@@ -414,7 +414,7 @@
   "message": "Pregunta sobre esta página"
  },
  "tourAskBody": {
-  "message": "ContextFlow lee la página en la que estás. Elige una acción como «Resumir» o escribe tu propia pregunta."
+  "message": "ContextFlow lee la página en la que estás, y también los vídeos con subtítulos y los PDF que contiene. Elige una acción como Resumir o escribe tu pregunta."
  },
  "tourSelectTitle": {
   "message": "¿Solo una parte?"
@@ -703,5 +703,26 @@
  },
  "tagsButton": {
   "message": "Etiqueta"
+ },
+ "hintGot": {
+  "message": "Entendido"
+ },
+ "hintChatsTitle": {
+  "message": "Encontrar, ordenar, volver"
+ },
+ "hintChatsBody": {
+  "message": "Busca por palabras o #etiqueta. Etiqueta chats y respuestas con 🏷 y activa Carpetas para agruparlos. Con Pro, ✦ encuentra un chat a partir de una descripción y «Pregunta a tus chats» responde a partir de todos."
+ },
+ "hintVideoTitle": {
+  "message": "Esta página tiene un vídeo"
+ },
+ "hintVideoBody": {
+  "message": "Las respuestas usan su transcripción y señalan momentos como [4:15]. Sin subtítulos, usan el título y la descripción, y lo indican."
+ },
+ "hintPdfTitle": {
+  "message": "También se leen los PDF"
+ },
+ "hintPdfBody": {
+  "message": "Los PDF que se muestran o enlazan en esta página van con tu pregunta; las respuestas indican la página."
  }
 }

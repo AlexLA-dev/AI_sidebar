@@ -1,7 +1,9 @@
 // Records real ContextFlow UI on iPhone for the clips in the app's Tips tab (one take per tip).
 // Needs: tools/preview/server.mts on :8787 (STREAM_DELAY_MS=22 gives a readable streaming pace)
 // and a Safari build pointing at it: CF_API_BASE=http://localhost:8787 node scripts/build-extension.mjs --out=<dir>
-//   node tools/store/tips-record.mjs <extensionDir> <outDir> [lang]
+//   node tools/store/tips-record.mjs <extensionDir> <outDir> [lang] [takes]
+// The Pro takes (aisearch, history) need the stand with PREVIEW_PLAN=pro and a build pointing at it:
+//   CF_STAND=http://localhost:8788 node tools/store/tips-record.mjs <proBuild> <outDir> en aisearch,history
 // Output like preview-record.mjs: <outDir>/<take>/NNNNN.jpg + <outDir>/<take>.json { frames, events }.
 // tips-render.mjs turns the takes into the looping clips.
 import { chromium } from "playwright"
@@ -10,7 +12,7 @@ import { tmpdir } from "node:os"
 import { join } from "node:path"
 
 const [extDir, outDir, lang = "en", only = ""] = process.argv.slice(2)
-const BASE = "http://localhost:8787"
+const BASE = process.env.CF_STAND ?? "http://localhost:8787"
 const ru = lang === "ru"
 const PAGE_1 = `${BASE}/${ru ? "article-ru" : "article"}`
 const PAGE_2 = `${BASE}/${ru ? "article-2-ru" : "article-2"}`
@@ -20,14 +22,22 @@ const L = ru
       google: "Сколько компаний в Японии уже перешли на четырёхдневку?",
       note: "Проверить цифры по выгоранию в отчёте",
       compare: "А если сравнить с первой статьёй?",
-      about: "Я продакт-менеджер. Люблю короткие ответы с цифрами."
+      about: "Я продакт-менеджер. Люблю короткие ответы с цифрами.",
+      lecture: "Какой свет поглощает хлорофилл?",
+      search: "пилот",
+      tag: "Идеи", tagButton: "Тег",
+      find: "исследование про выгорание"
     }
   : {
       summarize: "Summarize", key: "Key takeaways", explain: "Explain",
       google: "How many companies in Japan have moved to a four-day week?",
       note: "Check the burnout numbers in the report",
       compare: "How does this compare with the first article?",
-      about: "I'm a product manager. I like short answers with numbers."
+      about: "I'm a product manager. I like short answers with numbers.",
+      lecture: "What light does chlorophyll absorb?",
+      search: "pilot",
+      tag: "Ideas", tagButton: "Tag",
+      find: "that study where burnout dropped"
     }
 
 // macOS Chromium ignores --lang: a copy of the build with only the wanted locale shows the UI in it.
@@ -73,14 +83,40 @@ cdp.on("Page.screencastFrame", ({ data, metadata, sessionId }) => {
   take.frames.push({ f, t: metadata.timestamp - take.start })
 })
 
-/** A fresh first session on `url` (nothing recorded yet): no chats, tour seen, consent given. */
-async function fresh(url) {
+/** A fresh first session on `url` (nothing recorded yet): no chats, tour and hints seen, consent given. */
+async function fresh(url, threads = null) {
+  // The previous take's panel must not see (and write back over) the reset storage.
+  await page.goto("about:blank")
   await fetch(`${BASE}/reset`)
-  await sw.evaluate(async () => {
+  await sw.evaluate(async (threads) => {
     await chrome.storage.local.clear()
-    await chrome.storage.local.set({ "cf:consent": true, "cf:tourSeen": true, "cf:noteHint": -1 })
-  })
+    await chrome.storage.local.set({ "cf:consent": true, "cf:tourSeen": true, "cf:noteHint": -1, "cf:hintsSeen": ["chats", "video", "pdf"] })
+    if (threads) await chrome.storage.local.set({ "cf:threads": threads, "cf:activeThread": { id: Object.keys(threads)[0], at: Date.now() } })
+  }, threads)
   await go(url)
+}
+
+/** A few earlier chats, for the search, tags and Pro takes. */
+function history() {
+  const now = Date.now()
+  const page = (url, title) => ({ url, title })
+  const q = (content, p, extra = {}) => ({ role: "user", content, page: p, ...extra })
+  const a = (content, extra = {}) => ({ role: "assistant", content, ...extra })
+  const p1 = page(PAGE_1, ru ? "Почему четырёхдневка работает — и когда нет" : "Why the four-day week works — and when it doesn't")
+  const t = (id, ago, m, extra = {}) => ({ id, u: now - ago, a: now - ago, m, ...extra })
+  return ru
+    ? {
+        a1: t("a1", 6e5, [q("Кратко", p1, { label: "Кратко" }), a("**Коротко:** 61 компания сократила неделю на 20%; выгорание упало, выручка не изменилась."), q("Стоит ли пробовать в стартапе?", p1), a("Для команды из 10 человек — да: чередуйте выходной и запустите **пилот на 3 месяца**.")], { title: "Исследование четырёхдневки", tags: ["Работа"] }),
+        a2: t("a2", 9e6, [q("Кофе после 16:00 мешает сну?", page("https://health.example/coffee", "Кофе и сон")), a("Период полувыведения кофеина — около 5 часов, так что кофе в 16:00 может сдвинуть сон.")], { tags: ["Здоровье"] }),
+        a3: t("a3", 2e7, [q("Рецепт быстрого ужина?", page("https://food.example/pasta", "Паста за 15 минут")), a("Сварите пасту, добавьте чеснок, масло и перец чили.")]),
+        a4: t("a4", 9e7, [q("Что такое пилотный проект?", page("https://pm.example/pilot", "Пилоты в продукте")), a("Небольшой запуск на ограниченной группе, чтобы проверить гипотезу до полного запуска.")], { tags: ["Работа"] })
+      }
+    : {
+        a1: t("a1", 6e5, [q("Summarize", p1, { label: "Summarize" }), a("**In short:** 61 companies cut hours by 20%; burnout fell and revenue held."), q("Is this worth trying for a startup?", p1), a("For a 10-person team, yes: rotate the day off and run a **3-month pilot**.")], { title: "Four-day week research", tags: ["Work"] }),
+        a2: t("a2", 9e6, [q("Does coffee after 4 pm hurt sleep?", page("https://health.example/coffee", "Coffee and sleep")), a("Caffeine has a half-life of about 5 hours, so a 4 pm coffee can delay sleep.")], { tags: ["Health"] }),
+        a3: t("a3", 2e7, [q("Recipe for a quick dinner?", page("https://food.example/pasta", "Pasta in 15 minutes")), a("Boil pasta, add garlic, olive oil and chili.")]),
+        a4: t("a4", 9e7, [q("What is a pilot project?", page("https://pm.example/pilot", "Pilots in product work")), a("A small launch with a limited group, to test an idea before the full rollout.")], { tags: ["Work"] })
+      }
 }
 async function go(url) {
   await page.emulateMedia({ colorScheme: "light" })
@@ -223,6 +259,64 @@ const takes = {
     await tap(page.locator(".cf-input textarea")); await type(L.compare)
     await tap(page.locator(".cf-send")); await answers(2); await wait(1700)
   },
+  async video() {
+    await fresh(`${BASE}/${ru ? "lecture-ru" : "lecture"}`)
+    await record("video")
+    await openPanel()
+    await wait(1100)
+    await tap(page.locator(".cf-input textarea")); await type(L.lecture)
+    await tap(page.locator(".cf-send")); await answers(1); await wait(1800)
+  },
+  async search() {
+    await fresh(PAGE_1, history())
+    await openPanel(false)
+    await record("search")
+    await tap(page.locator(".cf-chats-button"))
+    await wait(700)
+    await tap(page.locator(".cf-search input")); await type(L.search)
+    await wait(1000)
+    await tap(page.locator(".cf-search-hit").first())
+    await wait(1700)
+  },
+  async tags() {
+    await fresh(PAGE_1, history())
+    await openPanel(false)
+    await record("tags")
+    await tap(page.locator(".cf-msg.ai .cf-msg-tools button", { hasText: L.tagButton }).last())
+    await wait(400)
+    await type(L.tag)
+    await page.keyboard.press("Enter")
+    await wait(500)
+    await tap(page.locator(".cf-tag-editor .cf-tag-done"))
+    await wait(500)
+    await tap(page.locator(".cf-chats-button"))
+    await wait(700)
+    await tap(page.locator(".cf-tag-group"))
+    await wait(1800)
+  },
+  async aisearch() {
+    await fresh(PAGE_1, history())
+    await openPanel(false)
+    await record("aisearch")
+    await tap(page.locator(".cf-chats-button"))
+    await wait(600)
+    await tap(page.locator(".cf-search-ai"))
+    await wait(300)
+    await tap(page.locator(".cf-search input")); await type(L.find)
+    await page.keyboard.press("Enter")
+    await page.locator(".cf-find-why").first().waitFor({ timeout: 15000 })
+    await wait(1900)
+  },
+  async history() {
+    await fresh(PAGE_1, history())
+    await openPanel(false)
+    await record("history")
+    await tap(page.locator(".cf-chats-button"))
+    await wait(600)
+    await tap(page.locator(".cf-ask-history .cf-thread-main"))
+    await wait(700)
+    await tap(page.locator(".cf-empty .cf-chip").first()); await answers(1); await wait(1900)
+  },
   async about() {
     await fresh(PAGE_1)
     await openPanel(false)
@@ -239,7 +333,7 @@ const takes = {
 
 for (const [name, run] of Object.entries(takes)) {
   if (only && !only.split(",").includes(name)) continue
-  await run()
+  try { await run() } catch (e) { await page.screenshot({ path: join(outDir, `${name}-fail.png`) }); throw e }
   await end()
 }
 await ctx.close()

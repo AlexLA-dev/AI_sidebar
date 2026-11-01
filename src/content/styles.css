@@ -624,3 +624,11 @@ button.cf-tag:hover { background: rgba(var(--tag), 0.2); }
 .cf-note-tag:hover { opacity: 1; background: rgba(0, 0, 0, 0.06); }
 .cf-note-tag svg { width: 13px; height: 13px; }
 .cf-thread-title svg { display: inline-block; vertical-align: -1px; margin-right: 3px; }
+
+/* "First time here" hints. */
+.cf-hint { display: flex; align-items: flex-start; gap: 10px; margin: 4px 0 12px; padding: 11px 12px; border-radius: 14px; background: var(--accent-soft); color: var(--text); }
+.cf-hint-icon { flex: none; width: 28px; height: 28px; border-radius: 9px; display: flex; align-items: center; justify-content: center; color: #fff; background: linear-gradient(135deg, var(--accent-2), var(--accent)); }
+.cf-hint-text { flex: 1; min-width: 0; }
+.cf-hint-text strong { display: block; font-size: 13.5px; margin-bottom: 2px; }
+.cf-hint-text p { margin: 0; font-size: 12.5px; line-height: 1.45; color: var(--text-2); }
+.cf-hint-done { flex: none; align-self: center; font-size: 13px; font-weight: 600; }

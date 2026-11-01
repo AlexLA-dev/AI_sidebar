@@ -108,13 +108,17 @@ function geminiStream(lastQuestion: string): Response {
 }
 
 function findAnswer(system: string, query: string): string {
-  const words = query.toLowerCase().split(/[^\p{L}\p{N}]+/u).filter((w) => w.length >= 4).map((w) => w.slice(0, 5))
-  const results: Array<{ id: string; why: string }> = []
+  // Long words of the description (their stem: the first 5 letters); chats with most of them first,
+  // each "why" taken from the chat's first answer.
+  const words = query.toLowerCase().split(/[^\p{L}\p{N}]+/u).filter((w) => w.length >= 6).map((w) => w.slice(0, 5))
+  const scored: Array<{ id: string; why: string; n: number }> = []
   for (const m of system.matchAll(/<<<CHAT \d+ id=(\S+)\nTitle: ([^\n]*)\n[\s\S]*?CHAT>>>/g)) {
-    const hit = words.find((w) => m[0].toLowerCase().includes(w))
-    if (hit) results.push({ id: m[1], why: `Mentions “${hit}…” — ${m[2]}` })
+    const text = m[0].toLowerCase()
+    const n = words.filter((w) => text.includes(w)).length
+    const answer = /\nA: ([^\n]*)/.exec(m[0])?.[1]?.replace(/[*_]/g, "") ?? m[2]
+    if (n) scored.push({ id: m[1], why: answer.length > 90 ? `${answer.slice(0, 89)}…` : answer, n })
   }
-  return JSON.stringify({ results: results.slice(0, 5) })
+  return JSON.stringify({ results: scored.sort((a, b) => b.n - a.n).slice(0, 5).map(({ id, why }) => ({ id, why })) })
 }
 
 // "Ask your chats": a short overview built from the chats the request carried.
@@ -188,7 +192,9 @@ const pages: Record<string, string> = {
   "/article-2": "article-2.html",
   "/article-2-ru": "article-2-ru.html",
   "/pdf-embed": "pdf-embed.html",
-  "/pdf-link": "pdf-link.html"
+  "/pdf-link": "pdf-link.html",
+  "/lecture": "lecture.html",
+  "/lecture-ru": "lecture-ru.html"
 }
 
 // PDFs for the PDF checks. private.pdf only with the cookie pdf-link.html sets, like a PDF behind a sign-in.
@@ -238,6 +244,12 @@ createServer(async (req, res) => {
   if (url.pathname === "/reset") {
     counters.clear()
     res.end("ok")
+    return
+  }
+  // Captions of the lecture video (the video itself isn't needed: the panel reads the captions).
+  if (/^\/files\/lecture(-ru)?\.vtt$/.test(url.pathname)) {
+    res.writeHead(200, { "Content-Type": "text/vtt; charset=utf-8" })
+    res.end(readFileSync(new URL(`.${url.pathname}`, import.meta.url)))
     return
   }
   const pdf = pdfs[url.pathname]

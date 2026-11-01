@@ -32,9 +32,11 @@ import {
   trackSelection,
   type SelectionInfo
 } from "./page"
+import { Hint } from "./Hint"
 import { ProUpsell } from "./ProUpsell"
 import { SettingsView } from "./Settings"
 import { shareLabels } from "./shareLabels"
+import { markHintSeen, resetHints, seenHints, type HintKey } from "./store"
 import { deleteThread, giveConsent, hasConsent, hasSeenTour, loadSettings, loadThreads, markTourSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, rememberPageText, renameThread, saveSettings, saveThread, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount } from "./store"
 import { TagChip, TagEditor } from "./Tags"
 import { ThreadsView } from "./Threads"
@@ -195,6 +197,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const setKind = (kind: Thread["kind"]) => {
     historyRef.current = kind === "history"
     setHistoryMode(kind === "history")
+  }
+  // "First time here" hints still to show (null until read from storage).
+  const [hints, setHints] = useState<HintKey[] | null>(null)
+  useEffect(() => void seenHints().then(setHints), [])
+  const hintDue = (key: HintKey) => hints !== null && !hints.includes(key) && !touring && tourSeen
+  const doneHint = (key: HintKey) => {
+    setHints((seen) => [...(seen ?? []), key])
+    void markHintSeen(key)
   }
   // What a Pro feature would do, for someone without Pro (from the ✦ search or "Ask your chats").
   const [upsell, setUpsell] = useState<"find" | "history" | null>(null)
@@ -1159,6 +1169,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
           {view === "threads" ? (
             <>
+              {hintDue("chats") && threadList.length > 0 && (
+                <div class="cf-upsell-wrap">
+                  <Hint icon={<Icon.Chats />} title={t("hintChatsTitle")} onDone={() => doneHint("chats")}>{t("hintChatsBody")}</Hint>
+                </div>
+              )}
               {upsell && (
                 <div class="cf-upsell-wrap">
                   <ProUpsell
@@ -1205,6 +1220,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               onShowTour={() => {
                 setView("chat")
                 setTouring(true)
+                setHints([])
+                void resetHints()
               }}
               onChatsDeleted={() => {
                 setMessages([])
@@ -1374,6 +1391,16 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       {error.code === "BAD_KEY" && <button type="button" class="cf-secondary" onClick={() => setView("settings")}>{t("settings")}</button>}
                     </div>
                   </div>
+                )}
+
+                {!historyMode && partial === null && contextKind === "page" && source.kind() !== "page" && hintDue(source.kind() as HintKey) && (
+                  <Hint
+                    icon={source.kind() === "video" ? <Icon.Play /> : <Icon.Doc />}
+                    title={t(source.kind() === "video" ? "hintVideoTitle" : "hintPdfTitle")}
+                    onDone={() => doneHint(source.kind() as HintKey)}
+                  >
+                    {t(source.kind() === "video" ? "hintVideoBody" : "hintPdfBody")}
+                  </Hint>
                 )}
 
                 {pending && (
