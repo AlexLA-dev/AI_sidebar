@@ -65,7 +65,7 @@ How to test (iPhone / iPad):
 1. Open the ContextFlow app and follow the steps on the Home tab:
    Settings → Apps → Safari → Extensions → ContextFlow → turn on, and set "All Websites" to Allow.
 2. In Safari open any article, e.g. https://en.wikipedia.org/wiki/Safari_(web_browser)
-3. Tap the ✦ button at the bottom right of the page (or Safari's "aA"/extensions menu → ContextFlow).
+3. Tap the floating ContextFlow button at the bottom right of the page (or Safari's extensions menu → ContextFlow).
 4. Accept the one-time notice (the page text is sent for processing only when you ask), then tap "Summarize".
 5. Select any word or sentence on the page: an "Ask ContextFlow" button appears under the selection
    and opens the panel about that text. "Google" next to it answers with Google Search, with sources.

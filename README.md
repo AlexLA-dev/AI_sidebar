@@ -17,6 +17,8 @@ Safari page ──content script (shadow DOM UI)──► background worker ─�
 - **Own OpenAI key** (Pro and "Own key" plans): requests go straight from the device to OpenAI.
 - **Data**: page text is sent only when the user asks, never stored. Chats live in extension storage on the device.
 
+**Usage analytics:** see [docs/analytics.md](docs/analytics.md) (App Store Connect, Supabase views `contextflow.v_*`, Netlify, OpenAI).
+
 ## Repository
 
 | Path | What |
