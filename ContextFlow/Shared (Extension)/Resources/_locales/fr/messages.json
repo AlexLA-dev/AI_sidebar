@@ -240,7 +240,7 @@
   "message": "Avant votre première réponse"
  },
  "consentBody": {
-  "message": "Pour répondre, ContextFlow envoie votre question et le texte de cette page (ou de votre sélection) via notre serveur à OpenAI, ou à Google pour les réponses Google. Le contenu des pages et les discussions ne sont pas conservés sur nos serveurs ; vos discussions restent sur vos appareils et, si vous les synchronisez, dans votre iCloud."
+  "message": "Pour répondre, ContextFlow envoie votre question et le texte de cette page (ou de votre sélection) via notre serveur à Anthropic (Claude) ou, s'il est indisponible, à OpenAI, ou à Google pour les réponses Google. Le contenu des pages et les discussions ne sont pas conservés sur nos serveurs ; vos discussions restent sur vos appareils et, si vous les synchronisez, dans votre iCloud."
  },
  "consentAccept": {
   "message": "Accepter et continuer"
@@ -558,7 +558,7 @@
   "message": "Votre fournisseur d'IA a répondu : {0}"
  },
  "offerLimit": {
-  "message": "Ou passez à Pro avec {0} % de réduction le premier mois : jusqu'à {1} réponses par semaine avec un modèle plus intelligent. Résiliable à tout moment."
+  "message": "Ou passez à Pro avec {0} % de réduction le premier mois : jusqu'à {1} réponses par semaine, plus approfondies et détaillées. Résiliable à tout moment."
  },
  "offerButton": {
   "message": "Pro à −{0} %"
@@ -570,7 +570,7 @@
   "message": "Plus assez de réponses ?"
  },
  "offerCardBody": {
-  "message": "Vous avez déjà atteint la limite quotidienne gratuite. Pro vous donne jusqu'à {1} réponses par semaine avec un modèle plus intelligent, et le premier mois est à −{0} %. Ensuite, le prix normal ; résiliable à tout moment dans les réglages de l'App Store."
+  "message": "Vous avez déjà atteint la limite quotidienne gratuite. Pro vous donne jusqu'à {1} réponses par semaine, plus approfondies et détaillées, et le premier mois est à −{0} %. Ensuite, le prix normal ; résiliable à tout moment dans les réglages de l'App Store."
  },
  "offerLater": {
   "message": "Pas maintenant"
@@ -672,7 +672,7 @@
   "message": "Des questions sur toutes vos discussions : « Qu’ai-je lu sur l’épargne retraite ? », « Résume mes notes du mois »."
  },
  "upsellMore": {
-  "message": "Et jusqu’à 375 réponses par semaine avec un modèle plus intelligent, sur iPhone, iPad et Mac."
+  "message": "Et jusqu’à 375 réponses par semaine, plus approfondies et détaillées, sur iPhone, iPad et Mac."
  },
  "errProOnly": {
   "message": "Cette fonction fait partie de Pro."

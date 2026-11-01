@@ -4,8 +4,9 @@ import { config as settings } from "../shared/config.mts"
 import { consume, logEvent, maybeCleanup, refund, touchInstall, type ConsumeResult } from "../shared/db.mts"
 import { clip, ipSubject, isUuid, json, preflight, readJson, corsHeaders } from "../shared/http.mts"
 import { buildGrounding, googlePrompt, readGoogle, startGoogle, type GoogleStats } from "../shared/google.mts"
-import { readDeltas, sanitizeMessages, sanitizeOtherPages, sanitizePage, startCompletion, systemPrompt } from "../shared/llm.mts"
-import { geminiModels, modelsFor } from "../shared/models.mts"
+import { answerCost, startAnswer, type Answer } from "../shared/answer.mts"
+import { sanitizeMessages, sanitizeOtherPages, sanitizePage, systemPrompt } from "../shared/llm.mts"
+import { geminiModels } from "../shared/models.mts"
 import { historyPrompt, MAX_HISTORY_CHARS, MAX_HISTORY_CHATS, sanitizeDigests } from "../../src/shared/history.ts"
 import { blockReason, countersFor, proOffer, resolveAccess, searchCountersFor, visibleUsage } from "../shared/plan.mts"
 
@@ -71,11 +72,12 @@ export default async (req: Request, context: Context): Promise<Response> => {
   }
 
   const profile = clip(body.profile, 1_000)
-  let completion
+  // Google mode: Gemini with Google Search. Everything else: Claude first, OpenAI when Claude can't.
+  let completion: { model: string; body: ReadableStream<Uint8Array> } | null = null
+  let answer: Answer | null = null
   try {
-    completion = google
-      ? await startGoogle(googlePrompt(page, profile, locale, others), messages, await geminiModels(), req.signal)
-      : await startCompletion(history ? historyPrompt(chats, profile, locale) : systemPrompt(page, profile, locale, others), messages, await modelsFor(access.plan), req.signal)
+    if (google) completion = await startGoogle(googlePrompt(page, profile, locale, others), messages, await geminiModels(), req.signal)
+    else answer = await startAnswer(history ? historyPrompt(chats, profile, locale) : systemPrompt(page, profile, locale, others), messages, access.plan === "pro" ? "pro" : "free", req.signal)
   } catch (err) {
     console.error("[cf] upstream failed:", err instanceof Error ? err.message : err)
     context.waitUntil(Promise.all([
@@ -91,6 +93,8 @@ export default async (req: Request, context: Context): Promise<Response> => {
     return json({ code: "UPSTREAM", message: "The AI service is busy. Please try again in a moment." }, 502)
   }
 
+  const model = completion?.model ?? answer?.model ?? ""
+  const provider = google ? "gemini" : answer?.provider ?? "openai"
   const started = Date.now()
   const stats: GoogleStats = { promptTokens: 0, completionTokens: 0, chars: 0, grounding: null }
   const encoder = new TextEncoder()
@@ -105,14 +109,14 @@ export default async (req: Request, context: Context): Promise<Response> => {
     async start(controller) {
       let ok = false
       try {
-        send(controller, { type: "meta", plan: access.plan, usage, model: completion.model, entitlementError: access.entitlementError })
-        let answer = ""
-        for await (const text of (google ? readGoogle : readDeltas)(completion.body, stats)) {
-          answer += text
+        send(controller, { type: "meta", plan: access.plan, usage, model, entitlementError: access.entitlementError })
+        let full = ""
+        for await (const text of completion ? readGoogle(completion.body, stats) : answer!.text(stats)) {
+          full += text
           send(controller, { type: "delta", text })
         }
         ok = stats.chars > 0
-        const grounded = ok && google ? buildGrounding(answer, stats.grounding) : null
+        const grounded = ok && google ? buildGrounding(full, stats.grounding) : null
         if (grounded) send(controller, { type: "grounding", ...grounded })
         send(controller, ok ? { type: "done", usage } : { type: "error", code: "EMPTY", message: "Empty answer, please retry." })
       } catch (err) {
@@ -139,10 +143,13 @@ export default async (req: Request, context: Context): Promise<Response> => {
     logEvent("chat", installId, {
       // Analytics segments: whose key paid (ours / the user's own) and Google vs other AI.
       key: "ours",
-      provider: google ? "gemini" : "openai",
+      provider,
+      // Why OpenAI answered instead of Claude (no key, credits, rate limit, …); and Claude's cost.
+      ...(answer?.fallback ? { fallback: answer.fallback } : {}),
+      ...(answer?.provider === "anthropic" ? { cost_usd: answerCost(answer, stats) } : {}),
       ok: succeeded,
       plan: access.plan,
-      model: completion.model,
+      model,
       action: clip(body.action, 32) || null,
       mode: google ? "google" : history ? "history" : "chat",
       search_queries: stats.grounding?.webSearchQueries?.length ?? 0,

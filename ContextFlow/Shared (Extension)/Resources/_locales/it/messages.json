@@ -240,7 +240,7 @@
   "message": "Prima di iniziare"
  },
  "consentBody": {
-  "message": "Per rispondere, ContextFlow invia la tua domanda e il testo di questa pagina (o della tua selezione) tramite il nostro server a OpenAI, oppure a Google per le risposte Google. I contenuti delle pagine e le chat non vengono salvati sui nostri server; le tue chat restano sui tuoi dispositivi e, se le sincronizzi, nel tuo iCloud."
+  "message": "Per rispondere, ContextFlow invia la tua domanda e il testo di questa pagina (o della tua selezione) tramite il nostro server ad Anthropic (Claude) o, se non è disponibile, a OpenAI, oppure a Google per le risposte Google. I contenuti delle pagine e le chat non vengono salvati sui nostri server; le tue chat restano sui tuoi dispositivi e, se le sincronizzi, nel tuo iCloud."
  },
  "consentAccept": {
   "message": "Accetta e continua"
@@ -558,7 +558,7 @@
   "message": "Il tuo fornitore di IA ha risposto: {0}"
  },
  "offerLimit": {
-  "message": "Oppure passa a Pro con il {0}% di sconto sul primo mese: fino a {1} risposte a settimana con un modello più intelligente. Annulli quando vuoi."
+  "message": "Oppure passa a Pro con il {0}% di sconto sul primo mese: fino a {1} risposte a settimana, più approfondite e dettagliate. Annulli quando vuoi."
  },
  "offerButton": {
   "message": "Pro scontato del {0}%"
@@ -570,7 +570,7 @@
   "message": "Ti mancano le risposte?"
  },
  "offerCardBody": {
-  "message": "Hai già raggiunto il limite giornaliero gratuito. Pro ti offre fino a {1} risposte a settimana con un modello più intelligente, e il primo mese è scontato del {0}%. Poi il prezzo normale; annulli quando vuoi nelle impostazioni dell'App Store."
+  "message": "Hai già raggiunto il limite giornaliero gratuito. Pro ti offre fino a {1} risposte a settimana, più approfondite e dettagliate, e il primo mese è scontato del {0}%. Poi il prezzo normale; annulli quando vuoi nelle impostazioni dell'App Store."
  },
  "offerLater": {
   "message": "Non ora"
@@ -672,7 +672,7 @@
   "message": "Domande su tutte le chat: «Cosa ho letto sul risparmio per la pensione?», «Riassumi le note di questo mese»."
  },
  "upsellMore": {
-  "message": "In più fino a 375 risposte a settimana con un modello più intelligente, su iPhone, iPad e Mac."
+  "message": "In più fino a 375 risposte a settimana, più approfondite e dettagliate, su iPhone, iPad e Mac."
  },
  "errProOnly": {
   "message": "Questa funzione fa parte di Pro."

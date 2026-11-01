@@ -15,6 +15,30 @@ function int(name: string, fallback: number): number {
 export const config = {
   supabaseUrl: env("SUPABASE_URL") ?? "",
   supabaseServiceKey: env("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+  // Answers go to Claude first; OpenAI (below) answers when Claude can't: no key, CLAUDE_ANSWERS=off,
+  // an error before the first word (auth, credits, rate limit, overload, timeout) or a refusal.
+  anthropicKey: (env("ANTHROPIC_API_KEY") ?? "").trim(),
+  claudeEnabled: (env("CLAUDE_ANSWERS") ?? "on").trim() !== "off",
+  claude: {
+    free: {
+      model: env("ANTHROPIC_MODEL_FREE") ?? "claude-sonnet-5-5",
+      // "low": thinks only when a question needs it, so simple questions cost the least.
+      effort: env("ANTHROPIC_EFFORT_FREE") ?? "low",
+      maxTokens: int("ANTHROPIC_MAX_TOKENS_FREE", 3000)
+    },
+    pro: {
+      model: env("ANTHROPIC_MODEL_PRO") ?? "claude-sonnet-5-5",
+      // "medium": thinks briefly before answering, for deeper and more detailed answers.
+      effort: env("ANTHROPIC_EFFORT_PRO") ?? "medium",
+      maxTokens: int("ANTHROPIC_MAX_TOKENS_PRO", 8000)
+    }
+  },
+  // No first word from Claude by then: OpenAI answers instead.
+  claudeFirstTokenMs: int("ANTHROPIC_FIRST_TOKEN_MS", 20_000),
+  // USD per million tokens, for the spend in the logs (Claude Sonnet 5.5 list prices).
+  claudePriceIn: Number(env("ANTHROPIC_PRICE_IN") ?? 2),
+  claudePriceOut: Number(env("ANTHROPIC_PRICE_OUT") ?? 10),
+
   openaiKey: env("OPENAI_API_KEY") ?? "",
   // Model per plan. "auto:smart" / "auto:fast" pick the newest full-size / mini GPT model from
   // OpenAI's model list (refreshed every few hours); any other value pins that model id.

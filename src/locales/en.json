@@ -87,7 +87,7 @@
   "minutes": "{0} min",
 
   "consentTitle": "Before your first answer",
-  "consentBody": "To answer, ContextFlow sends your question and the text of this page (or your selection) via our server to OpenAI, or to Google for Google answers. Page content and chats are not stored on our servers; your chats stay on your devices and, if you sync them, in your iCloud.",
+  "consentBody": "To answer, ContextFlow sends your question and the text of this page (or your selection) via our server to Anthropic (Claude) or, if it's unavailable, OpenAI; Google answers go to Google. Page content and chats are not stored on our servers; your chats stay on your devices and, if you sync them, in your iCloud.",
   "consentAccept": "Agree and continue",
   "privacyPolicy": "Privacy Policy",
 
@@ -199,11 +199,11 @@
   "limitNotes": "Notes stay free and unlimited: write down what matters now, ask AI about it later.",
   "writeNote": "Write a note",
   "errProvider": "Your AI provider replied: {0}",
-  "offerLimit": "Or get Pro with {0}% off your first month: up to {1} answers a week on a smarter model. Cancel any time.",
+  "offerLimit": "Or get Pro with {0}% off your first month: up to {1} answers a week, deeper and more detailed. Cancel any time.",
   "offerButton": "Get Pro {0}% off",
   "offerShort": "Pro −{0}%",
   "offerCardTitle": "Running out of answers?",
-  "offerCardBody": "You've hit the free daily limit before. Pro gives you up to {1} answers a week on a smarter model, and your first month is {0}% off. Then the regular price; cancel any time in your App Store settings.",
+  "offerCardBody": "You've hit the free daily limit before. Pro gives you up to {1} answers a week, deeper and more detailed, and your first month is {0}% off. Then the regular price; cancel any time in your App Store settings.",
   "offerLater": "Not now",
 
   "emptyVideo": "I can see this video and will read its transcript. Ask a question or pick an action.",
@@ -239,7 +239,7 @@
   "upsellFindText": "Describe a chat in your own words — “that article about sleep and coffee from last week” — and AI finds it, even without the exact words.",
   "upsellHistoryName": "Ask your chats",
   "upsellHistoryText": "Questions across all your chats: “What have I read about saving for retirement?”, “Summarize my notes from this month”.",
-  "upsellMore": "Plus up to 375 answers a week on a smarter model, on iPhone, iPad and Mac.",
+  "upsellMore": "Plus up to 375 answers a week, deeper and more detailed, on iPhone, iPad and Mac.",
   "errProOnly": "This is part of Pro.",
 
   "tagsTitle": "Tags",

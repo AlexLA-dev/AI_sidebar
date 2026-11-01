@@ -240,7 +240,7 @@
   "message": "첫 답변 전에 확인해 주세요"
  },
  "consentBody": {
-  "message": "답변을 위해 ContextFlow는 질문과 이 페이지(또는 선택한 부분)의 텍스트를 당사 서버를 거쳐 OpenAI로, Google 답변의 경우 Google로 보내요. 페이지 내용과 채팅은 당사 서버에 저장되지 않으며, 채팅은 내 기기에, 동기화를 켜면 내 iCloud에만 보관돼요."
+  "message": "답변을 위해 ContextFlow는 질문과 이 페이지(또는 선택한 부분)의 텍스트를 당사 서버를 거쳐 Anthropic(Claude)으로, 사용할 수 없을 때는 OpenAI로, Google 답변의 경우 Google로 보내요. 페이지 내용과 채팅은 당사 서버에 저장되지 않으며, 채팅은 내 기기에, 동기화를 켜면 내 iCloud에만 보관돼요."
  },
  "consentAccept": {
   "message": "동의하고 계속"
@@ -558,7 +558,7 @@
   "message": "AI 제공업체의 응답: {0}"
  },
  "offerLimit": {
-  "message": "또는 첫 달 {0}% 할인된 Pro를 이용해 보세요. 더 똑똑한 모델로 주 {1}회까지 답변합니다. 언제든 해지할 수 있습니다."
+  "message": "또는 첫 달 {0}% 할인된 Pro를 이용해 보세요. 더 깊이 있고 자세한 답변을 주 {1}회까지 받을 수 있습니다. 언제든 해지할 수 있습니다."
  },
  "offerButton": {
   "message": "Pro {0}% 할인"
@@ -570,7 +570,7 @@
   "message": "답변이 부족하신가요?"
  },
  "offerCardBody": {
-  "message": "이전에 하루 무료 답변 한도에 도달했어요. Pro는 더 똑똑한 모델로 주 {1}회까지 답변하며, 첫 달은 {0}% 할인됩니다. 이후에는 정가이며 App Store 설정에서 언제든 해지할 수 있습니다."
+  "message": "이전에 하루 무료 답변 한도에 도달했어요. Pro는 더 깊이 있고 자세한 답변을 주 {1}회까지 제공하며, 첫 달은 {0}% 할인됩니다. 이후에는 정가이며 App Store 설정에서 언제든 해지할 수 있습니다."
  },
  "offerLater": {
   "message": "나중에"
@@ -672,7 +672,7 @@
   "message": "모든 채팅에 한 번에 질문: ‘노후 자금에 대해 뭘 읽었지?’, ‘이번 달 메모 정리해 줘’."
  },
  "upsellMore": {
-  "message": "게다가 더 똑똑한 모델로 주당 최대 375개 답변, iPhone·iPad·Mac에서."
+  "message": "게다가 더 깊이 있고 자세한 답변을 주당 최대 375개, iPhone·iPad·Mac에서."
  },
  "errProOnly": {
   "message": "Pro에 포함된 기능이에요."

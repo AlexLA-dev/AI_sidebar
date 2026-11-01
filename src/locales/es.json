@@ -87,7 +87,7 @@
   "minutes": "{0} min",
 
   "consentTitle": "Antes de tu primera respuesta",
-  "consentBody": "Para responder, ContextFlow envía tu pregunta y el texto de esta página (o de tu selección) a través de nuestro servidor a OpenAI, o a Google en las respuestas de Google. El contenido de las páginas y los chats no se guardan en nuestros servidores; tus chats se quedan en tus dispositivos y, si los sincronizas, en tu iCloud.",
+  "consentBody": "Para responder, ContextFlow envía tu pregunta y el texto de esta página (o de tu selección) a través de nuestro servidor a Anthropic (Claude) o, si no está disponible, a OpenAI, o a Google en las respuestas de Google. El contenido de las páginas y los chats no se guardan en nuestros servidores; tus chats se quedan en tus dispositivos y, si los sincronizas, en tu iCloud.",
   "consentAccept": "Aceptar y continuar",
   "privacyPolicy": "Política de privacidad",
 
@@ -199,11 +199,11 @@
   "limitNotes": "Las notas siguen siendo gratis y sin límite: apunta ahora lo importante y pregúntale a la IA después.",
   "writeNote": "Escribir una nota",
   "errProvider": "Tu proveedor de IA respondió: {0}",
-  "offerLimit": "O consigue Pro con un {0} % de descuento el primer mes: hasta {1} respuestas a la semana con un modelo más inteligente. Cancela cuando quieras.",
+  "offerLimit": "O consigue Pro con un {0} % de descuento el primer mes: hasta {1} respuestas a la semana, más profundas y detalladas. Cancela cuando quieras.",
   "offerButton": "Pro con un {0} % de descuento",
   "offerShort": "Pro −{0} %",
   "offerCardTitle": "¿Te quedas sin respuestas?",
-  "offerCardBody": "Ya has llegado al límite diario gratuito. Pro te da hasta {1} respuestas a la semana con un modelo más inteligente, y el primer mes tiene un {0} % de descuento. Después, el precio normal; cancela cuando quieras en los ajustes del App Store.",
+  "offerCardBody": "Ya has llegado al límite diario gratuito. Pro te da hasta {1} respuestas a la semana, más profundas y detalladas, y el primer mes tiene un {0} % de descuento. Después, el precio normal; cancela cuando quieras en los ajustes del App Store.",
   "offerLater": "Ahora no",
 
   "emptyVideo": "Puedo ver este vídeo y leeré su transcripción. Haz una pregunta o elige una acción.",
@@ -239,7 +239,7 @@
   "upsellFindText": "Describe un chat con tus palabras —«ese artículo sobre el sueño y el café de la semana pasada»— y la IA lo encuentra, aunque no uses las palabras exactas.",
   "upsellHistoryName": "Pregunta a tus chats",
   "upsellHistoryText": "Preguntas sobre todos tus chats: «¿Qué he leído sobre ahorrar para la jubilación?», «Resume mis notas de este mes».",
-  "upsellMore": "Además, hasta 375 respuestas a la semana con un modelo más inteligente, en iPhone, iPad y Mac.",
+  "upsellMore": "Además, hasta 375 respuestas a la semana, más profundas y detalladas, en iPhone, iPad y Mac.",
   "errProOnly": "Esto es parte de Pro.",
 
   "tagsTitle": "Etiquetas",

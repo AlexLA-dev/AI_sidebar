@@ -2,8 +2,8 @@ import type { Config, Context } from "@netlify/functions"
 
 import { consume, logEvent, refund, touchInstall } from "../shared/db.mts"
 import { clip, ipSubject, isUuid, json, preflight, readJson } from "../shared/http.mts"
-import { readDeltas, startCompletion, type StreamStats } from "../shared/llm.mts"
-import { modelsFor } from "../shared/models.mts"
+import { answerCost, startAnswer, type Answer } from "../shared/answer.mts"
+import type { StreamStats } from "../shared/llm.mts"
 import { blockReason, countersFor, resolveAccess, visibleUsage } from "../shared/plan.mts"
 import { findPrompt, MAX_FIND_CHARS, MAX_FIND_CHATS, parseFindAnswer, sanitizeDigests } from "../../src/shared/history.ts"
 
@@ -55,30 +55,31 @@ export default async (req: Request, context: Context): Promise<Response> => {
 
   const started = Date.now()
   const stats: StreamStats = { promptTokens: 0, completionTokens: 0, chars: 0 }
-  let answer = ""
-  let model = ""
+  let text = ""
+  let answer: Answer | null = null
   try {
-    // The fast model: picking chats needs no long writing.
-    const completion = await startCompletion(findPrompt(chats, locale), [{ role: "user", content: query }], await modelsFor("free"), req.signal)
-    model = completion.model
-    for await (const text of readDeltas(completion.body, stats)) answer += text
+    // The free plan's settings: picking chats needs no long writing.
+    answer = await startAnswer(findPrompt(chats, locale), [{ role: "user", content: query }], "free", req.signal)
+    for await (const piece of answer.text(stats)) text += piece
   } catch (err) {
     console.error("[cf] find failed:", err instanceof Error ? err.message : err)
     context.waitUntil(Promise.all([
       refund(counters).catch(() => undefined),
-      logEvent("upstream_error", installId, { message: err instanceof Error ? err.message.slice(0, 300) : "unknown", mode: "find", provider: "openai", platform, version })
+      logEvent("upstream_error", installId, { message: err instanceof Error ? err.message.slice(0, 300) : "unknown", mode: "find", provider: answer?.provider ?? "openai", platform, version })
     ]))
     return json({ code: "UPSTREAM", message: "The AI service is busy. Please try again in a moment." }, 502)
   }
 
-  const results = parseFindAnswer(answer, new Set(chats.map((c) => c.id)))
+  const results = parseFindAnswer(text, new Set(chats.map((c) => c.id)))
   context.waitUntil(Promise.all([
     logEvent("chat", installId, {
       key: "ours",
-      provider: "openai",
+      provider: answer.provider,
+      ...(answer.fallback ? { fallback: answer.fallback } : {}),
+      ...(answer.provider === "anthropic" ? { cost_usd: answerCost(answer, stats) } : {}),
       ok: true,
       plan: access.plan,
-      model,
+      model: answer.model,
       mode: "find",
       find_chats: chats.length,
       find_results: results.length,

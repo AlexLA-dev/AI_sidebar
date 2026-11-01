@@ -3585,66 +3585,66 @@
         }
       }
     },
-    "Up to 375 answers a week instead of 5 a day": {
+    "Up to 375 deeper, more detailed answers a week instead of 5 a day": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bis zu 375 Antworten pro Woche statt 5 pro Tag"
+            "value": "Bis zu 375 ausführlichere, gründlichere Antworten pro Woche statt 5 pro Tag"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hasta 375 respuestas por semana en lugar de 5 al día"
+            "value": "Hasta 375 respuestas más profundas y detalladas por semana en lugar de 5 al día"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jusqu’à 375 réponses par semaine au lieu de 5 par jour"
+            "value": "Jusqu’à 375 réponses plus approfondies et détaillées par semaine au lieu de 5 par jour"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fino a 375 risposte a settimana invece di 5 al giorno"
+            "value": "Fino a 375 risposte più approfondite e dettagliate a settimana invece di 5 al giorno"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "1日5回ではなく、週に最大375回"
+            "value": "1日5回ではなく、より深く詳しい回答を週に最大375回"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "하루 5개 대신 매주 최대 375개의 답변"
+            "value": "하루 5개 대신 더 깊이 있고 자세한 답변을 매주 최대 375개"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Até 375 respostas por semana em vez de 5 por dia"
+            "value": "Até 375 respostas mais aprofundadas e detalhadas por semana em vez de 5 por dia"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "До 375 ответов в неделю вместо 5 в день"
+            "value": "До 375 более глубоких и подробных ответов в неделю вместо 5 в день"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "До 375 відповідей на тиждень замість 5 на день"
+            "value": "До 375 глибших і докладніших відповідей на тиждень замість 5 на день"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "每周最多 375 次回答，而非每天 5 次"
+            "value": "每周最多 375 次更深入、更详细的回答，而非每天 5 次"
           }
         }
       }

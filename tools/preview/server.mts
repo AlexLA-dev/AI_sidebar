@@ -8,6 +8,8 @@
 //                                                              the panel offers the Pro code)
 //   PREVIEW_PLAN=pro …                                         (every request comes as Pro: a test-signed
 //                                                              subscription is added on the server side)
+//   PREVIEW_CLAUDE=credits|overloaded|refusal|off …            (answers come from a scripted Claude; these make
+//                                                              it fail that way, so OpenAI answers; off: no key)
 
 import { createServer } from "node:http"
 import { readFileSync } from "node:fs"
@@ -15,12 +17,15 @@ import { readFileSync } from "node:fs"
 process.env.SUPABASE_URL = "https://db.local"
 process.env.SUPABASE_SERVICE_ROLE_KEY = "local"
 process.env.OPENAI_API_KEY = "local"
+if (process.env.PREVIEW_CLAUDE !== "off") process.env.ANTHROPIC_API_KEY = "local"
 process.env.GEMINI_API_KEY = "local"
 process.env.FREE_DAILY_LIMIT = process.env.FREE_DAILY_LIMIT ?? "5"
 
 const counters = new Map<string, number>()
 // The last /api/v2/chat request body, for e2e checks of what the extension sends (GET /last-request).
 let lastChatRequest: unknown = null
+// The last answer's analytics event: provider, fallback reason, tokens, cost (GET /last-answer).
+let lastAnswerEvent: unknown = null
 type Item = { subject: string; limit: number | null }
 const rpc: Record<string, (a: any) => unknown> = {
   cf_consume: ({ p_items }) => {
@@ -32,7 +37,10 @@ const rpc: Record<string, (a: any) => unknown> = {
   cf_refund: () => null,
   cf_peek: ({ p_items }) => (p_items as Item[]).map((i) => ({ ...i, n: counters.get(i.subject) ?? 0 })),
   cf_touch_install: () => null,
-  cf_log: () => null,
+  cf_log: ({ p_kind, p_data }) => {
+    if (p_kind === "chat") lastAnswerEvent = p_data
+    return null
+  },
   cf_entitlement_upsert: ({ p }) => p,
   cf_entitlement_get: () => null,
   cf_entitlement_by_token: () => null,
@@ -131,6 +139,16 @@ function historyAnswer(system: string, question: string): string {
   return [head, ...lines].join("\n") + tail
 }
 
+/** The scripted answer to the last question, whichever model is asked. */
+function scripted(system: string, last: string): string {
+  // AI search: the chats that share a word (4+ letters) with the description, as JSON.
+  if (system.startsWith("You find chats")) return findAnswer(system, last)
+  if (system.includes("asking about their own earlier ContextFlow chats")) return historyAnswer(system, last)
+  return answers.find(([re]) => re.test(last))?.[1] ?? answers[answers.length - 1][1]
+}
+
+// What the server last asked Claude (model, effort, max_tokens), for checks (GET /last-claude).
+let lastClaudeRequest: unknown = null
 const realFetch = globalThis.fetch
 globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
   const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url
@@ -144,15 +162,35 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     const body = JSON.parse(String(init?.body))
     return geminiStream(body.contents[body.contents.length - 1].parts[0].text)
   }
+  if (url.startsWith("https://api.anthropic.com/v1/messages")) {
+    const body = JSON.parse(String(init?.body))
+    lastClaudeRequest = { model: body.model, max_tokens: body.max_tokens, output_config: body.output_config, thinking: body.thinking ?? null, fallbacks: body.fallbacks }
+    const fail = process.env.PREVIEW_CLAUDE
+    if (fail === "credits") return new Response(JSON.stringify({ type: "error", error: { type: "invalid_request_error", message: "Your credit balance is too low to access the Anthropic API." } }), { status: 400 })
+    if (fail === "overloaded") return new Response(JSON.stringify({ type: "error", error: { type: "overloaded_error", message: "Overloaded" } }), { status: 529 })
+    const ev = (type: string, data: Record<string, unknown> = {}) => `event: ${type}\ndata: ${JSON.stringify({ type, ...data })}\n\n`
+    const words = fail === "refusal" ? [] : scripted(body.system, body.messages[body.messages.length - 1].content).match(/\S+\s*|\s+/g) ?? []
+    const stream = new ReadableStream({
+      async start(c) {
+        const enc = new TextEncoder()
+        c.enqueue(enc.encode(ev("message_start", { message: { id: "msg_local", type: "message", role: "assistant", model: body.model, content: [], stop_reason: null, stop_sequence: null, usage: { input_tokens: 900, output_tokens: 1 } } })))
+        if (words.length) c.enqueue(enc.encode(ev("content_block_start", { index: 0, content_block: { type: "text", text: "" } })))
+        for (const w of words) {
+          c.enqueue(enc.encode(ev("content_block_delta", { index: 0, delta: { type: "text_delta", text: w } })))
+          await new Promise((r) => setTimeout(r, STREAM_DELAY_MS))
+        }
+        if (words.length) c.enqueue(enc.encode(ev("content_block_stop", { index: 0 })))
+        c.enqueue(enc.encode(ev("message_delta", { delta: { stop_reason: words.length ? "end_turn" : "refusal", stop_sequence: null }, usage: { output_tokens: 200 } }) + ev("message_stop")))
+        c.close()
+      }
+    })
+    return new Response(stream, { headers: { "Content-Type": "text/event-stream" } })
+  }
   if (url === "https://api.openai.com/v1/chat/completions") {
     const body = JSON.parse(String(init?.body))
     const last = body.messages[body.messages.length - 1].content as string
     const system = body.messages[0].content as string
-    // AI search: the chats that share a word (4+ letters) with the description, as JSON.
-    const findText = system.startsWith("You find chats") ? findAnswer(system, last) : null
-    const historyText = system.includes("asking about their own earlier ContextFlow chats") ? historyAnswer(system, last) : null
-    const text = findText ?? historyText ?? answers.find(([re]) => re.test(last))?.[1] ?? answers[answers.length - 1][1]
-    const words = text.match(/\S+\s*|\s+/g) ?? []
+    const words = scripted(system, last).match(/\S+\s*|\s+/g) ?? []
     const stream = new ReadableStream({
       async start(c) {
         const enc = new TextEncoder()
@@ -234,6 +272,16 @@ createServer(async (req, res) => {
     res.writeHead(response.status, Object.fromEntries(response.headers))
     if (response.body) for await (const c of response.body as any) res.write(c)
     res.end()
+    return
+  }
+  if (url.pathname === "/last-answer") {
+    res.writeHead(200, { "Content-Type": "application/json" })
+    res.end(JSON.stringify(lastAnswerEvent))
+    return
+  }
+  if (url.pathname === "/last-claude") {
+    res.writeHead(200, { "Content-Type": "application/json" })
+    res.end(JSON.stringify(lastClaudeRequest))
     return
   }
   if (url.pathname === "/last-request") {

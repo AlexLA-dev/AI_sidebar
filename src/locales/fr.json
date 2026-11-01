@@ -87,7 +87,7 @@
   "minutes": "{0} min",
 
   "consentTitle": "Avant votre première réponse",
-  "consentBody": "Pour répondre, ContextFlow envoie votre question et le texte de cette page (ou de votre sélection) via notre serveur à OpenAI, ou à Google pour les réponses Google. Le contenu des pages et les discussions ne sont pas conservés sur nos serveurs ; vos discussions restent sur vos appareils et, si vous les synchronisez, dans votre iCloud.",
+  "consentBody": "Pour répondre, ContextFlow envoie votre question et le texte de cette page (ou de votre sélection) via notre serveur à Anthropic (Claude) ou, s'il est indisponible, à OpenAI, ou à Google pour les réponses Google. Le contenu des pages et les discussions ne sont pas conservés sur nos serveurs ; vos discussions restent sur vos appareils et, si vous les synchronisez, dans votre iCloud.",
   "consentAccept": "Accepter et continuer",
   "privacyPolicy": "Politique de confidentialité",
 
@@ -199,11 +199,11 @@
   "limitNotes": "Les notes restent gratuites et illimitées : notez l’essentiel maintenant, interrogez l’IA plus tard.",
   "writeNote": "Écrire une note",
   "errProvider": "Votre fournisseur d'IA a répondu : {0}",
-  "offerLimit": "Ou passez à Pro avec {0} % de réduction le premier mois : jusqu'à {1} réponses par semaine avec un modèle plus intelligent. Résiliable à tout moment.",
+  "offerLimit": "Ou passez à Pro avec {0} % de réduction le premier mois : jusqu'à {1} réponses par semaine, plus approfondies et détaillées. Résiliable à tout moment.",
   "offerButton": "Pro à −{0} %",
   "offerShort": "Pro −{0} %",
   "offerCardTitle": "Plus assez de réponses ?",
-  "offerCardBody": "Vous avez déjà atteint la limite quotidienne gratuite. Pro vous donne jusqu'à {1} réponses par semaine avec un modèle plus intelligent, et le premier mois est à −{0} %. Ensuite, le prix normal ; résiliable à tout moment dans les réglages de l'App Store.",
+  "offerCardBody": "Vous avez déjà atteint la limite quotidienne gratuite. Pro vous donne jusqu'à {1} réponses par semaine, plus approfondies et détaillées, et le premier mois est à −{0} %. Ensuite, le prix normal ; résiliable à tout moment dans les réglages de l'App Store.",
   "offerLater": "Pas maintenant",
 
   "emptyVideo": "Je vois cette vidéo et je vais lire sa transcription. Posez une question ou choisissez une action.",
@@ -239,7 +239,7 @@
   "upsellFindText": "Décrivez une discussion avec vos mots — « cet article sur le sommeil et le café de la semaine dernière » — et l’IA la retrouve, même sans les mots exacts.",
   "upsellHistoryName": "Interroger vos discussions",
   "upsellHistoryText": "Des questions sur toutes vos discussions : « Qu’ai-je lu sur l’épargne retraite ? », « Résume mes notes du mois ».",
-  "upsellMore": "Et jusqu’à 375 réponses par semaine avec un modèle plus intelligent, sur iPhone, iPad et Mac.",
+  "upsellMore": "Et jusqu’à 375 réponses par semaine, plus approfondies et détaillées, sur iPhone, iPad et Mac.",
   "errProOnly": "Cette fonction fait partie de Pro.",
 
   "tagsTitle": "Tags",

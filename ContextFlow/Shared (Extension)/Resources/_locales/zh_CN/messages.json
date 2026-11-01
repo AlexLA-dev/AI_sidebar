@@ -240,7 +240,7 @@
   "message": "首次回答前须知"
  },
  "consentBody": {
-  "message": "为了回答问题，ContextFlow 会通过我们的服务器将你的问题和此页面（或所选内容）的文本发送给 OpenAI；使用 Google 回答时则发送给 Google。我们的服务器不会存储页面内容和对话；你的对话仅保存在你的设备上；开启同步后也会保存在你的 iCloud 中。"
+  "message": "为了回答问题，ContextFlow 会通过我们的服务器将你的问题和此页面（或所选内容）的文本发送给 Anthropic（Claude），不可用时发送给 OpenAI；使用 Google 回答时则发送给 Google。我们的服务器不会存储页面内容和对话；你的对话仅保存在你的设备上；开启同步后也会保存在你的 iCloud 中。"
  },
  "consentAccept": {
   "message": "同意并继续"
@@ -558,7 +558,7 @@
   "message": "你的 AI 服务商返回：{0}"
  },
  "offerLimit": {
-  "message": "或开通 Pro，首月优惠 {0}%：使用更聪明的模型，每周最多 {1} 次回答。可随时取消。"
+  "message": "或开通 Pro，首月优惠 {0}%：每周最多 {1} 次更深入、更详细的回答。可随时取消。"
  },
  "offerButton": {
   "message": "Pro 首月优惠 {0}%"
@@ -570,7 +570,7 @@
   "message": "回答不够用？"
  },
  "offerCardBody": {
-  "message": "你之前用完过每日免费回答。Pro 使用更聪明的模型，每周最多 {1} 次回答，首月优惠 {0}%。之后按原价续订，可随时在 App Store 设置中取消。"
+  "message": "你之前用完过每日免费回答。Pro 每周最多提供 {1} 次更深入、更详细的回答，首月优惠 {0}%。之后按原价续订，可随时在 App Store 设置中取消。"
  },
  "offerLater": {
   "message": "以后再说"
@@ -672,7 +672,7 @@
   "message": "跨所有对话提问：“我读过哪些关于养老储蓄的内容？”“整理我这个月的笔记”。"
  },
  "upsellMore": {
-  "message": "另外，在更聪明的模型上每周最多 375 个回答，适用于 iPhone、iPad 和 Mac。"
+  "message": "另外，每周最多 375 个更深入、更详细的回答，适用于 iPhone、iPad 和 Mac。"
  },
  "errProOnly": {
   "message": "这是 Pro 功能。"

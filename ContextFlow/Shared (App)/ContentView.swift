@@ -631,7 +631,7 @@ struct ProView: View {
         VStack(alignment: .leading, spacing: 10) {
             Feature(systemImage: "sparkles", text: "AI search: find any chat by describing it in your own words")
             Feature(systemImage: "bubble.left.and.text.bubble.right", text: "Ask your chats: questions across everything you've read and asked")
-            Feature(systemImage: "bolt.fill", text: "Up to 375 answers a week instead of 5 a day")
+            Feature(systemImage: "bolt.fill", text: "Up to 375 deeper, more detailed answers a week instead of 5 a day")
             Feature(systemImage: "doc.text.magnifyingglass", text: "Summaries, key takeaways, explanations and translations of any page")
             Feature(systemImage: "text.cursor", text: "Ask about selected text, rewrite it or draft a reply")
             Feature(systemImage: "key.fill", text: "Optional: use your own OpenAI or Claude key")

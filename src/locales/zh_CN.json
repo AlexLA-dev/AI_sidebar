@@ -87,7 +87,7 @@
   "minutes": "{0} 分钟",
 
   "consentTitle": "首次回答前须知",
-  "consentBody": "为了回答问题，ContextFlow 会通过我们的服务器将你的问题和此页面（或所选内容）的文本发送给 OpenAI；使用 Google 回答时则发送给 Google。我们的服务器不会存储页面内容和对话；你的对话仅保存在你的设备上；开启同步后也会保存在你的 iCloud 中。",
+  "consentBody": "为了回答问题，ContextFlow 会通过我们的服务器将你的问题和此页面（或所选内容）的文本发送给 Anthropic（Claude），不可用时发送给 OpenAI；使用 Google 回答时则发送给 Google。我们的服务器不会存储页面内容和对话；你的对话仅保存在你的设备上；开启同步后也会保存在你的 iCloud 中。",
   "consentAccept": "同意并继续",
   "privacyPolicy": "隐私政策",
 
@@ -199,11 +199,11 @@
   "limitNotes": "笔记始终免费且不限次数：现在记下重点，稍后再问 AI。",
   "writeNote": "写笔记",
   "errProvider": "你的 AI 服务商返回：{0}",
-  "offerLimit": "或开通 Pro，首月优惠 {0}%：使用更聪明的模型，每周最多 {1} 次回答。可随时取消。",
+  "offerLimit": "或开通 Pro，首月优惠 {0}%：每周最多 {1} 次更深入、更详细的回答。可随时取消。",
   "offerButton": "Pro 首月优惠 {0}%",
   "offerShort": "Pro −{0}%",
   "offerCardTitle": "回答不够用？",
-  "offerCardBody": "你之前用完过每日免费回答。Pro 使用更聪明的模型，每周最多 {1} 次回答，首月优惠 {0}%。之后按原价续订，可随时在 App Store 设置中取消。",
+  "offerCardBody": "你之前用完过每日免费回答。Pro 每周最多提供 {1} 次更深入、更详细的回答，首月优惠 {0}%。之后按原价续订，可随时在 App Store 设置中取消。",
   "offerLater": "以后再说",
 
   "emptyVideo": "我能看到此视频，并会读取它的文字稿。提个问题，或选择一个操作。",
@@ -239,7 +239,7 @@
   "upsellFindText": "用自己的话描述一个对话（“上周那篇关于睡眠和咖啡的文章”），即使没有确切字词，AI 也能找到。",
   "upsellHistoryName": "问问你的所有对话",
   "upsellHistoryText": "跨所有对话提问：“我读过哪些关于养老储蓄的内容？”“整理我这个月的笔记”。",
-  "upsellMore": "另外，在更聪明的模型上每周最多 375 个回答，适用于 iPhone、iPad 和 Mac。",
+  "upsellMore": "另外，每周最多 375 个更深入、更详细的回答，适用于 iPhone、iPad 和 Mac。",
   "errProOnly": "这是 Pro 功能。",
 
   "tagsTitle": "标签",

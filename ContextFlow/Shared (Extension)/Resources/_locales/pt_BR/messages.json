@@ -240,7 +240,7 @@
   "message": "Antes da sua primeira resposta"
  },
  "consentBody": {
-  "message": "Para responder, o ContextFlow envia sua pergunta e o texto desta página (ou da sua seleção) por meio do nosso servidor à OpenAI, ou ao Google nas respostas do Google. O conteúdo das páginas e as conversas não ficam armazenados em nossos servidores; suas conversas ficam nos seus dispositivos e, se você sincronizar, no seu iCloud."
+  "message": "Para responder, o ContextFlow envia sua pergunta e o texto desta página (ou da sua seleção) por meio do nosso servidor à Anthropic (Claude) ou, se ela estiver indisponível, à OpenAI, ou ao Google nas respostas do Google. O conteúdo das páginas e as conversas não ficam armazenados em nossos servidores; suas conversas ficam nos seus dispositivos e, se você sincronizar, no seu iCloud."
  },
  "consentAccept": {
   "message": "Concordar e continuar"
@@ -558,7 +558,7 @@
   "message": "Seu provedor de IA respondeu: {0}"
  },
  "offerLimit": {
-  "message": "Ou assine o Pro com {0}% de desconto no primeiro mês: até {1} respostas por semana com um modelo mais inteligente. Cancele quando quiser."
+  "message": "Ou assine o Pro com {0}% de desconto no primeiro mês: até {1} respostas por semana, mais aprofundadas e detalhadas. Cancele quando quiser."
  },
  "offerButton": {
   "message": "Pro com {0}% de desconto"
@@ -570,7 +570,7 @@
   "message": "Faltando respostas?"
  },
  "offerCardBody": {
-  "message": "Você já atingiu o limite diário grátis. O Pro dá até {1} respostas por semana com um modelo mais inteligente, e o primeiro mês tem {0}% de desconto. Depois, o preço normal; cancele quando quiser nos ajustes da App Store."
+  "message": "Você já atingiu o limite diário grátis. O Pro dá até {1} respostas por semana, mais aprofundadas e detalhadas, e o primeiro mês tem {0}% de desconto. Depois, o preço normal; cancele quando quiser nos ajustes da App Store."
  },
  "offerLater": {
   "message": "Agora não"
@@ -672,7 +672,7 @@
   "message": "Perguntas sobre todas as conversas: “O que li sobre poupar para a aposentadoria?”, “Resuma minhas notas deste mês”."
  },
  "upsellMore": {
-  "message": "E até 375 respostas por semana com um modelo mais inteligente, no iPhone, iPad e Mac."
+  "message": "E até 375 respostas por semana, mais aprofundadas e detalhadas, no iPhone, iPad e Mac."
  },
  "errProOnly": {
   "message": "Isto faz parte do Pro."
