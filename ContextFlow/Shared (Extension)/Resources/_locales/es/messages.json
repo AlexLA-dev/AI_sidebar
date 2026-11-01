@@ -676,5 +676,32 @@
  },
  "errProOnly": {
   "message": "Esto es parte de Pro."
+ },
+ "tagsTitle": {
+  "message": "Etiquetas"
+ },
+ "tagsNew": {
+  "message": "Nueva etiqueta…"
+ },
+ "tagsAdd": {
+  "message": "Añadir etiqueta"
+ },
+ "tagsDone": {
+  "message": "Listo"
+ },
+ "tagsFilter": {
+  "message": "Filtrar por etiqueta"
+ },
+ "tagsGroup": {
+  "message": "Carpetas"
+ },
+ "tagsEdit": {
+  "message": "Etiquetas"
+ },
+ "tagsNone": {
+  "message": "Sin etiqueta"
+ },
+ "tagsButton": {
+  "message": "Etiqueta"
  }
 }

@@ -240,5 +240,15 @@
   "upsellHistoryName": "Frag deine Chats",
   "upsellHistoryText": "Fragen über alle Chats: „Was habe ich über Altersvorsorge gelesen?“, „Fasse meine Notizen dieses Monats zusammen“.",
   "upsellMore": "Dazu bis zu 375 Antworten pro Woche mit einem klügeren Modell, auf iPhone, iPad und Mac.",
-  "errProOnly": "Das ist Teil von Pro."
+  "errProOnly": "Das ist Teil von Pro.",
+
+  "tagsTitle": "Tags",
+  "tagsNew": "Neuer Tag …",
+  "tagsAdd": "Tag hinzufügen",
+  "tagsDone": "Fertig",
+  "tagsFilter": "Nach Tag filtern",
+  "tagsGroup": "Ordner",
+  "tagsEdit": "Tags",
+  "tagsNone": "Ohne Tag",
+  "tagsButton": "Tag"
 }

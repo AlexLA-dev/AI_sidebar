@@ -676,5 +676,32 @@
  },
  "errProOnly": {
   "message": "Questa funzione fa parte di Pro."
+ },
+ "tagsTitle": {
+  "message": "Tag"
+ },
+ "tagsNew": {
+  "message": "Nuovo tag…"
+ },
+ "tagsAdd": {
+  "message": "Aggiungi tag"
+ },
+ "tagsDone": {
+  "message": "Fine"
+ },
+ "tagsFilter": {
+  "message": "Filtra per tag"
+ },
+ "tagsGroup": {
+  "message": "Cartelle"
+ },
+ "tagsEdit": {
+  "message": "Tag"
+ },
+ "tagsNone": {
+  "message": "Senza tag"
+ },
+ "tagsButton": {
+  "message": "Tag"
  }
 }

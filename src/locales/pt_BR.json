@@ -240,5 +240,15 @@
   "upsellHistoryName": "Pergunte às suas conversas",
   "upsellHistoryText": "Perguntas sobre todas as conversas: “O que li sobre poupar para a aposentadoria?”, “Resuma minhas notas deste mês”.",
   "upsellMore": "E até 375 respostas por semana com um modelo mais inteligente, no iPhone, iPad e Mac.",
-  "errProOnly": "Isto faz parte do Pro."
+  "errProOnly": "Isto faz parte do Pro.",
+
+  "tagsTitle": "Tags",
+  "tagsNew": "Nova tag…",
+  "tagsAdd": "Adicionar tag",
+  "tagsDone": "OK",
+  "tagsFilter": "Filtrar por tag",
+  "tagsGroup": "Pastas",
+  "tagsEdit": "Tags",
+  "tagsNone": "Sem tag",
+  "tagsButton": "Tag"
 }

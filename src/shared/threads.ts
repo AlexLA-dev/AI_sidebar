@@ -12,6 +12,7 @@ export interface Thread {
   title?: string // set by the user; otherwise the first question names the chat
   pin?: number // pinned: its place among the pinned chats at the top of the list (lower first)
   kind?: "history" // "Ask your chats" (Pro): questions about all the other chats, not a page
+  tags?: string[] // the user's tags for the chat (answers and notes have their own, on the entry)
   deleted?: boolean // kept until iCloud knows, so the deletion reaches the other devices
 }
 
@@ -115,6 +116,22 @@ function oneLine(text: string, max: number): string {
   return line.length > max ? `${line.slice(0, max - 1).trimEnd()}…` : line
 }
 
+/**
+ * The thread with new messages as of `now`: its name, pin, tags and kind stay (a deleted thread
+ * comes back as a new one). `kind` marks a new "Ask your chats" thread.
+ */
+export function withMessages(stored: Thread | undefined, id: string, m: Entry[], now: number, kind?: "history"): Thread {
+  const keep = stored && !stored.deleted ? stored : undefined
+  const keptKind = keep?.kind ?? kind
+  return {
+    id, u: now, a: now, m,
+    ...(keep?.title ? { title: keep.title } : {}),
+    ...(keep?.pin !== undefined ? { pin: keep.pin } : {}),
+    ...(keep?.tags?.length ? { tags: keep.tags } : {}),
+    ...(keptKind ? { kind: keptKind } : {})
+  }
+}
+
 /** Keeps pinned threads and the newest MAX_THREADS; older ones become deletions so iCloud drops them too. */
 export function prune(threads: Threads, now = Date.now()): Threads {
   const keep = new Set(chatList(threads).slice(0, MAX_THREADS).map((t) => t.id))
@@ -151,7 +168,8 @@ export function threadForCloud(thread: Thread, maxChars = CLOUD_MAX_CHARS): stri
     ...(thread.title ? { title: thread.title } : {}),
     ...(thread.a !== undefined && thread.a !== thread.u ? { a: thread.a } : {}),
     ...(thread.pin !== undefined ? { pin: thread.pin } : {}),
-    ...(thread.kind ? { k: thread.kind } : {})
+    ...(thread.kind ? { k: thread.kind } : {}),
+    ...(thread.tags?.length ? { tags: thread.tags } : {})
   }
   let start = 0
   let data = JSON.stringify({ ...meta, m: thread.m })
@@ -163,7 +181,7 @@ export function threadForCloud(thread: Thread, maxChars = CLOUD_MAX_CHARS): stri
 }
 
 /** A thread read back from iCloud (2.3 build 56 stored just the messages), or null if it isn't one. */
-export function threadFromCloud(data: string): Pick<Thread, "m" | "a" | "title" | "pin" | "kind"> | null {
+export function threadFromCloud(data: string): Pick<Thread, "m" | "a" | "title" | "pin" | "kind" | "tags"> | null {
   let parsed: unknown
   try {
     parsed = JSON.parse(data)
@@ -175,7 +193,7 @@ export function threadFromCloud(data: string): Pick<Thread, "m" | "a" | "title" 
     return m && { m }
   }
   if (parsed === null || typeof parsed !== "object") return null
-  const { m: raw, a, title, pin, k } = parsed as Record<string, unknown>
+  const { m: raw, a, title, pin, k, tags } = parsed as Record<string, unknown>
   const m = entriesFrom(raw)
   if (!m) return null
   return {
@@ -183,7 +201,8 @@ export function threadFromCloud(data: string): Pick<Thread, "m" | "a" | "title" 
     ...(typeof a === "number" ? { a } : {}),
     ...(typeof title === "string" && title.trim() ? { title: cleanTitle(title) } : {}),
     ...(typeof pin === "number" && Number.isFinite(pin) ? { pin } : {}),
-    ...(k === "history" ? { kind: "history" as const } : {})
+    ...(k === "history" ? { kind: "history" as const } : {}),
+    ...(Array.isArray(tags) && cleanTags(tags).length ? { tags: cleanTags(tags) } : {})
   }
 }
 
@@ -381,6 +400,8 @@ export function searchThreads(threads: Thread[], query: string, maxHits = 3): Se
     const fields: Array<{ at: number; text: string }> = [{ at: -1, text: name }]
     thread.m.forEach((e, i) => fields.push({ at: i, text: plain(e.label ? `${e.label} ${e.content}` : e.content) }))
     for (const page of threadPages(thread.m)) fields.push({ at: -2, text: `${page.title} ${page.url}` })
+    const tags = threadTags(thread)
+    if (tags.length) fields.push({ at: -3, text: tags.map((tag) => `#${tag}`).join(" ") })
     const folded = fields.map((f) => foldText(f.text))
     // Every word somewhere in the chat.
     if (!words.every((w) => folded.some((f) => f.includes(w)))) continue
@@ -431,4 +452,67 @@ export function chatDigests(threads: Thread[], opts: { perChat: number; perAnswe
     out.push({ id: thread.id, title: threadName(thread), date: new Date(activity(thread)).toISOString(), text })
   }
   return out
+}
+
+// ------------------------------------------------------------ tags
+
+export const MAX_TAG = 24
+const MAX_TAGS = 8
+
+/** A tag as typed, cleaned: no leading #, one space between words, at most MAX_TAG characters. */
+export function cleanTag(text: string): string {
+  return text.replace(/\s+/g, " ").trim().replace(/^#+\s*/, "").slice(0, MAX_TAG).trim()
+}
+
+/** Tags cleaned and without repeats (case ignored, the first spelling kept), at most MAX_TAGS. */
+export function cleanTags(raw: unknown[]): string[] {
+  const out: string[] = []
+  for (const item of raw) {
+    const tag = typeof item === "string" ? cleanTag(item) : ""
+    if (tag && !out.some((t) => t.toLowerCase() === tag.toLowerCase())) out.push(tag)
+  }
+  return out.slice(0, MAX_TAGS)
+}
+
+/** The chat's tags and those of its answers and notes, without repeats. */
+export function threadTags(thread: Thread): string[] {
+  return cleanTags([...(thread.tags ?? []), ...thread.m.flatMap((e) => e.tags ?? [])])
+}
+
+/** Every tag in use, the most used first (then by name), each with how many chats have it. */
+export function allTags(threads: Thread[]): Array<{ tag: string; count: number }> {
+  const counts = new Map<string, { tag: string; count: number }>()
+  for (const thread of threads) {
+    for (const tag of threadTags(thread)) {
+      const key = tag.toLowerCase()
+      const hit = counts.get(key)
+      if (hit) hit.count += 1
+      else counts.set(key, { tag, count: 1 })
+    }
+  }
+  return [...counts.values()].sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag))
+}
+
+/** True when the chat (or one of its answers or notes) has `tag`. */
+export function hasTag(thread: Thread, tag: string): boolean {
+  const key = tag.toLowerCase()
+  return threadTags(thread).some((t) => t.toLowerCase() === key)
+}
+
+/**
+ * The list in groups by tag, like folders: each tag in use (in allTags order) with its chats in list
+ * order, then the chats without tags. A chat with two tags is in both groups.
+ */
+export function groupByTag(threads: Thread[]): Array<{ tag: string | null; threads: Thread[] }> {
+  const groups: Array<{ tag: string | null; threads: Thread[] }> = allTags(threads).map(({ tag }) => ({ tag, threads: threads.filter((t) => hasTag(t, tag)) }))
+  const untagged = threads.filter((t) => threadTags(t).length === 0)
+  if (untagged.length) groups.push({ tag: null, threads: untagged })
+  return groups
+}
+
+/** A colour for a tag (one of 8), the same everywhere for the same name. */
+export function tagColor(tag: string): number {
+  let hash = 0
+  for (const ch of tag.toLowerCase()) hash = (hash * 31 + ch.codePointAt(0)!) >>> 0
+  return hash % 8
 }

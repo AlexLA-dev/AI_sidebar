@@ -35,6 +35,10 @@ struct ChatsView: View {
     @State private var newName = ""
     @State private var deleting: ChatThread?
     @State private var query = ""
+    /// Only the chats with this tag.
+    @State private var tagFilter: String?
+    /// The chat whose tags are being picked.
+    @State private var tagging: ChatThread?
 
     private var searching: Bool { !query.trimmingCharacters(in: .whitespaces).isEmpty }
 
@@ -104,6 +108,70 @@ struct ChatsView: View {
             Text(library.syncOn ? "It's deleted on all your devices." : "It's deleted on this device.")
         }
         .onAppear { library.refresh() }
+        .sheet(item: $tagging) { thread in
+            TagsSheet(tags: thread.ownTags, known: library.allTags) { library.setTags(thread, $0) }
+        }
+    }
+
+    private var filteredThreads: [ChatThread] {
+        guard let tagFilter, library.allTags.contains(where: { $0.caseInsensitiveCompare(tagFilter) == .orderedSame }) else { return library.threads }
+        return library.threads.filter { $0.has(tag: tagFilter) }
+    }
+
+    /// The tags in use (tap one: only its chats) and the switch to show the list as folders by tag.
+    @ViewBuilder
+    private var tagBar: some View {
+        let tags = library.allTags
+        if !tags.isEmpty {
+            Section {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 6) {
+                        Button {
+                            library.groupByTags.toggle()
+                        } label: {
+                            Label("Folders", systemImage: "folder")
+                                .font(.caption.weight(.semibold))
+                                .padding(.horizontal, 10).padding(.vertical, 5)
+                                .foregroundColor(library.groupByTags ? .white : .secondary)
+                                .background(Capsule().fill(library.groupByTags ? AnyShapeStyle(brandBlue) : AnyShapeStyle(Color.secondary.opacity(0.12))))
+                        }
+                        .buttonStyle(.plain)
+                        ForEach(tags, id: \.self) { tag in
+                            let on = tagFilter?.caseInsensitiveCompare(tag) == .orderedSame
+                            Button { tagFilter = on ? nil : tag } label: { TagChipView(tag: tag, active: on) }
+                                .buttonStyle(.plain)
+                        }
+                    }
+                    .padding(.vertical, 2)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func chatRows(_ threads: [ChatThread]) -> some View {
+        ForEach(threads) { thread in
+            NavigationLink(destination: destination(for: thread)) {
+                ChatRow(thread: thread)
+            }
+            .contextMenu { menu(for: thread) }
+            #if os(iOS)
+            .swipeActions(edge: .trailing) {
+                Button(role: .destructive) { deleting = thread } label: { Label("Delete", systemImage: "trash") }
+                    .tint(.red)
+                Button { startRename(thread) } label: { Label("Rename", systemImage: "pencil") }
+                    .tint(.gray)
+            }
+            .swipeActions(edge: .leading) {
+                Button { library.setPinned(thread, !thread.isPinned) } label: {
+                    Label(thread.isPinned ? "Unpin" : "Pin", systemImage: thread.isPinned ? "pin.slash" : "pin")
+                }
+                .tint(.orange)
+                Button { tagging = thread } label: { Label("Tags", systemImage: "tag") }
+                    .tint(brandBlue)
+            }
+            #endif
+        }
     }
 
     private func runFind() {
@@ -217,7 +285,8 @@ struct ChatsView: View {
             if library.cloud == .off {
                 Section { SyncOffBanner(library: library) }
             }
-            if library.threads.contains(where: { !$0.isHistory }) {
+            tagBar
+            if tagFilter == nil, library.threads.contains(where: { !$0.isHistory }) {
                 Section {
                     if isPro {
                         NavigationLink(destination: HistoryChatView(library: library, threadId: nil, openPro: openPro)) { AskHistoryRow(pro: true) }
@@ -227,27 +296,20 @@ struct ChatsView: View {
                     }
                 }
             }
-            Section(footer: footer) {
-                ForEach(library.threads) { thread in
-                    NavigationLink(destination: destination(for: thread)) {
-                        ChatRow(thread: thread)
+            if library.groupByTags && !library.allTags.isEmpty {
+                // Like folders: a section per tag (a chat with two tags is in both), then the chats without tags.
+                let shown = filteredThreads
+                ForEach(library.allTags.filter { tag in shown.contains { $0.has(tag: tag) } }, id: \.self) { tag in
+                    Section(header: Label("#\(tag)", systemImage: "folder")) {
+                        chatRows(shown.filter { $0.has(tag: tag) })
                     }
-                    .contextMenu { menu(for: thread) }
-                    #if os(iOS)
-                    .swipeActions(edge: .trailing) {
-                        Button(role: .destructive) { deleting = thread } label: { Label("Delete", systemImage: "trash") }
-                            .tint(.red)
-                        Button { startRename(thread) } label: { Label("Rename", systemImage: "pencil") }
-                            .tint(.gray)
-                    }
-                    .swipeActions(edge: .leading) {
-                        Button { library.setPinned(thread, !thread.isPinned) } label: {
-                            Label(thread.isPinned ? "Unpin" : "Pin", systemImage: thread.isPinned ? "pin.slash" : "pin")
-                        }
-                        .tint(.orange)
-                    }
-                    #endif
                 }
+                let untagged = shown.filter { $0.tags.isEmpty }
+                if !untagged.isEmpty {
+                    Section(header: Label("No tag", systemImage: "folder"), footer: footer) { chatRows(untagged) }
+                }
+            } else {
+                Section(footer: footer) { chatRows(filteredThreads) }
             }
     }
 
@@ -264,6 +326,7 @@ struct ChatsView: View {
             Button { library.continueInSafari(thread) } label: { Label("Continue in Safari", systemImage: "safari") }
         }
         Button { startRename(thread) } label: { Label("Rename", systemImage: "pencil") }
+        Button { tagging = thread } label: { Label("Tags", systemImage: "tag") }
         Button { library.setPinned(thread, !thread.isPinned) } label: {
             Label(thread.isPinned ? "Unpin" : "Pin", systemImage: thread.isPinned ? "pin.slash" : "pin")
         }
@@ -476,6 +539,9 @@ struct ChatRow: View {
                     .foregroundColor(.secondary)
                     .lineLimit(2)
             }
+            if !thread.tags.isEmpty {
+                TagChips(tags: thread.tags)
+            }
             HStack(spacing: 10) {
                 if thread.pages.count > 1 {
                     Label("\(thread.pages.count) pages", systemImage: "doc.on.doc")
@@ -584,6 +650,9 @@ struct ChatDetailView: View {
     let threadId: String
     /// The message to show first (a search result).
     var scrollTo: Int? = nil
+    /// The answer or note whose tags are being picked.
+    @State private var taggingEntry: TaggedEntry?
+    @State private var taggingChat = false
     @Environment(\.dismiss) private var dismiss
     @State private var renaming = false
     @State private var newName = ""
@@ -603,6 +672,11 @@ struct ChatDetailView: View {
                                 }
                                 MessageView(entry: entry)
                                     .id(index)
+                                    .contextMenu {
+                                        if !entry.isUser || entry.isNote {
+                                            Button { taggingEntry = TaggedEntry(index: index) } label: { Label("Tags", systemImage: "tag") }
+                                        }
+                                    }
                             }
                         }
                         .padding(16)
@@ -628,6 +702,7 @@ struct ChatDetailView: View {
                                 newName = thread.title ?? ""
                                 renaming = true
                             } label: { Label("Rename", systemImage: "pencil") }
+                            Button { taggingChat = true } label: { Label("Tags", systemImage: "tag") }
                             Button { library.setPinned(thread, !thread.isPinned) } label: {
                                 Label(thread.isPinned ? "Unpin" : "Pin", systemImage: thread.isPinned ? "pin.slash" : "pin")
                             }
@@ -643,6 +718,14 @@ struct ChatDetailView: View {
                     Button("Cancel", role: .cancel) {}
                 } message: {
                     Text("Leave it empty to name the chat after its first question.")
+                }
+                .sheet(item: $taggingEntry) { tagged in
+                    TagsSheet(tags: thread.entries.indices.contains(tagged.index) ? thread.entries[tagged.index].tags ?? [] : [], known: library.allTags) {
+                        library.setTags(thread, entry: tagged.index, $0)
+                    }
+                }
+                .sheet(isPresented: $taggingChat) {
+                    TagsSheet(tags: thread.ownTags, known: library.allTags) { library.setTags(thread, $0) }
                 }
                 .confirmationDialog("Delete this chat?", isPresented: $deleting, titleVisibility: .visible) {
                     Button("Delete", role: .destructive) {
@@ -707,6 +790,9 @@ private struct MessageView: View {
             .padding(12)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(RoundedRectangle(cornerRadius: 14).fill(Color.orange.opacity(0.12)))
+            .overlay(alignment: .bottomTrailing) {
+                if let tags = entry.tags, !tags.isEmpty { TagChips(tags: tags).padding(8) }
+            }
         } else if entry.isUser {
             VStack(alignment: .trailing, spacing: 6) {
                 HStack(spacing: 6) {
@@ -732,6 +818,7 @@ private struct MessageView: View {
                         .foregroundColor(.secondary)
                 }
                 MarkdownView(text: entry.content)
+                if let tags = entry.tags, !tags.isEmpty { TagChips(tags: tags) }
                 if let sources = entry.grounding?.sources, !sources.isEmpty {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Sources")
@@ -909,5 +996,111 @@ private struct TableBlock: View {
             .padding(10)
         }
         .background(RoundedRectangle(cornerRadius: 8).stroke(Color.secondary.opacity(0.25)))
+    }
+}
+
+
+// MARK: - Tags
+
+struct TaggedEntry: Identifiable {
+    let index: Int
+    var id: Int { index }
+}
+
+struct TagChipView: View {
+    let tag: String
+    var active = false
+
+    var body: some View {
+        let color = Tags.color(tag)
+        Text("#\(tag)")
+            .font(.caption.weight(.semibold))
+            .lineLimit(1)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 3)
+            .foregroundColor(active ? .white : color)
+            .background(Capsule().fill(active ? color : color.opacity(0.14)))
+    }
+}
+
+struct TagChips: View {
+    let tags: [String]
+
+    var body: some View {
+        HStack(spacing: 4) {
+            ForEach(tags, id: \.self) { TagChipView(tag: $0) }
+        }
+    }
+}
+
+/// Picks tags: those in use to switch on and off, and a field for a new one.
+struct TagsSheet: View {
+    @State var tags: [String]
+    let known: [String]
+    let onSave: ([String]) -> Void
+    @State private var draft = ""
+    @Environment(\.dismiss) private var dismiss
+
+    init(tags: [String], known: [String], onSave: @escaping ([String]) -> Void) {
+        _tags = State(initialValue: tags)
+        self.known = known
+        self.onSave = onSave
+    }
+
+    private func has(_ tag: String) -> Bool { tags.contains { $0.caseInsensitiveCompare(tag) == .orderedSame } }
+
+    var body: some View {
+        NavigationView {
+            Form {
+                Section {
+                    HStack {
+                        TextField("New tag…", text: $draft)
+                            .onSubmit(add)
+                        Button("Add", action: add)
+                            .disabled(Tags.clean(draft).isEmpty)
+                    }
+                }
+                let all = tags + known.filter { !has($0) }
+                if !all.isEmpty {
+                    Section {
+                        ForEach(all, id: \.self) { tag in
+                            Button {
+                                if has(tag) { tags.removeAll { $0.caseInsensitiveCompare(tag) == .orderedSame } } else { tags.append(tag) }
+                            } label: {
+                                HStack {
+                                    TagChipView(tag: tag)
+                                    Spacer()
+                                    if has(tag) { Image(systemName: "checkmark").foregroundColor(brandBlue) }
+                                }
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+            }
+            .navigationTitle("Tags")
+            #if os(iOS)
+            .navigationBarTitleDisplayMode(.inline)
+            #endif
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") {
+                        add()
+                        onSave(tags)
+                        dismiss()
+                    }
+                }
+                ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
+            }
+        }
+        #if os(macOS)
+        .frame(minWidth: 360, minHeight: 360)
+        #endif
+    }
+
+    private func add() {
+        let tag = Tags.clean(draft)
+        if !tag.isEmpty, !has(tag) { tags.append(tag) }
+        draft = ""
     }
 }

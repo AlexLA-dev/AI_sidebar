@@ -676,5 +676,32 @@
  },
  "errProOnly": {
   "message": "Isto faz parte do Pro."
+ },
+ "tagsTitle": {
+  "message": "Tags"
+ },
+ "tagsNew": {
+  "message": "Nova tag…"
+ },
+ "tagsAdd": {
+  "message": "Adicionar tag"
+ },
+ "tagsDone": {
+  "message": "OK"
+ },
+ "tagsFilter": {
+  "message": "Filtrar por tag"
+ },
+ "tagsGroup": {
+  "message": "Pastas"
+ },
+ "tagsEdit": {
+  "message": "Tags"
+ },
+ "tagsNone": {
+  "message": "Sem tag"
+ },
+ "tagsButton": {
+  "message": "Tag"
  }
 }

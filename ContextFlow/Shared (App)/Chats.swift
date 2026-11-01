@@ -44,6 +44,8 @@ struct ChatEntry: Decodable, Hashable {
     var pageChanged: Bool?
     var grounding: Grounding?
     var sources: [Read]?
+    /// The user's tags on an answer or a note.
+    var tags: [String]?
 
     var isUser: Bool { role == "user" }
     var isNote: Bool { note == true }
@@ -63,12 +65,15 @@ struct ChatThread: Identifiable, Hashable {
     let entries: [ChatEntry]
     /// "Ask your chats" (Pro): questions about all the other chats.
     let isHistory: Bool
+    /// The chat's own tags (answers and notes have theirs on the entry).
+    let ownTags: [String]
 
     private struct Stored: Decodable {
         var title: String?
         var a: Int64?
         var pin: Double?
         var k: String?
+        var tags: [String]?
         var m: [ChatEntry]
     }
 
@@ -90,8 +95,14 @@ struct ChatThread: Identifiable, Hashable {
         lastAt = stored.a ?? updatedAt
         pin = stored.pin
         isHistory = stored.k == "history"
+        ownTags = Tags.clean(stored.tags ?? [])
         entries = stored.m
     }
+
+    /// The chat's tags and those of its answers and notes, without repeats.
+    var tags: [String] { Tags.clean(ownTags + entries.flatMap { $0.tags ?? [] }) }
+
+    func has(tag: String) -> Bool { tags.contains { $0.caseInsensitiveCompare(tag) == .orderedSame } }
 
     var isPinned: Bool { pin != nil }
 
@@ -132,7 +143,7 @@ struct ChatThread: Identifiable, Hashable {
 
     /// The same chat with its name and pin changed, as of `updatedAt`. For each: nil keeps it,
     /// `.some(nil)` removes it, `.some(value)` sets it.
-    func edited(title: String??, pin: Double??, updatedAt: Int64) -> ChatMirror.Item? {
+    func edited(title: String??, pin: Double??, tags: [String]? = nil, entryTags: (index: Int, tags: [String])? = nil, updatedAt: Int64) -> ChatMirror.Item? {
         let parsed = try? JSONSerialization.jsonObject(with: Data(data.utf8))
         guard var object = (parsed as? [String: Any]) ?? (parsed as? [Any]).map({ ["m": $0] }) else { return nil }
         switch title {
@@ -145,7 +156,14 @@ struct ChatThread: Identifiable, Hashable {
         case .some(.none): object.removeValue(forKey: "pin")
         case .some(.some(let value)): object["pin"] = value
         }
-        // Renaming or pinning keeps the chat's place by its last message.
+        if let tags {
+            if tags.isEmpty { object.removeValue(forKey: "tags") } else { object["tags"] = tags }
+        }
+        if let entryTags, var list = object["m"] as? [[String: Any]], list.indices.contains(entryTags.index) {
+            if entryTags.tags.isEmpty { list[entryTags.index].removeValue(forKey: "tags") } else { list[entryTags.index]["tags"] = entryTags.tags }
+            object["m"] = list
+        }
+        // Renaming, pinning or tagging keeps the chat's place by its last message.
         if object["a"] == nil { object["a"] = lastAt }
         guard let json = try? JSONSerialization.data(withJSONObject: object), let text = String(data: json, encoding: .utf8) else { return nil }
         return ChatMirror.Item(updatedAt: updatedAt, data: text)
@@ -257,10 +275,10 @@ final class ChatLibrary: ObservableObject {
     private var now: Int64 { Int64(Date().timeIntervalSince1970 * 1000) }
 
     /// Stores a changed chat here, for the extension, and in iCloud.
-    private func save(_ thread: ChatThread, title: String??, pin: Double??) {
+    private func save(_ thread: ChatThread, title: String??, pin: Double??, tags: [String]? = nil, entryTags: (index: Int, tags: [String])? = nil) {
         // Always later than the copy it replaces, whatever the clocks say.
         let at = max(now, thread.updatedAt + 1)
-        guard let item = thread.edited(title: title, pin: pin, updatedAt: at) else { return }
+        guard let item = thread.edited(title: title, pin: pin, tags: tags, entryTags: entryTags, updatedAt: at) else { return }
         ChatMirror.apply(saves: [thread.id: item])
         ChatMirror.queue(.init(id: thread.id, updatedAt: item.updatedAt, data: item.data, deleted: nil, at: Double(now)))
         reload()
@@ -282,6 +300,40 @@ final class ChatLibrary: ObservableObject {
         guard pinned != thread.isPinned else { return }
         let top = threads.compactMap(\.pin).min()
         save(thread, title: nil, pin: .some(pinned ? (top.map { $0 - 1 } ?? 0) : nil))
+    }
+
+    /// The chat's own tags.
+    func setTags(_ thread: ChatThread, _ tags: [String]) {
+        let clean = Tags.clean(tags)
+        guard clean != thread.ownTags else { return }
+        save(thread, title: nil, pin: nil, tags: clean)
+    }
+
+    /// The tags of one answer or note of the chat.
+    func setTags(_ thread: ChatThread, entry index: Int, _ tags: [String]) {
+        let clean = Tags.clean(tags)
+        guard thread.entries.indices.contains(index), clean != Tags.clean(thread.entries[index].tags ?? []) else { return }
+        save(thread, title: nil, pin: nil, entryTags: (index, clean))
+    }
+
+    /// Every tag in use, the most used first.
+    var allTags: [String] {
+        var counts: [String: (tag: String, count: Int)] = [:]
+        for thread in threads {
+            for tag in thread.tags { counts[tag.lowercased(), default: (tag, 0)].count += 1 }
+        }
+        return counts.values.sorted { $0.count != $1.count ? $0.count > $1.count : $0.tag.localizedCompare($1.tag) == .orderedAscending }.map(\.tag)
+    }
+
+    /// The chat list in groups by tag, like folders (the extension's setting, shared with the app).
+    var groupByTags: Bool {
+        get { SharedDefaults.shared.readSettings()?.settings["groupByTags"] as? Bool ?? false }
+        set {
+            var stored = SharedDefaults.shared.readSettings()?.settings ?? [:]
+            stored["groupByTags"] = newValue
+            SharedDefaults.shared.writeSettings(stored, updatedAt: Date().timeIntervalSince1970 * 1000)
+            objectWillChange.send()
+        }
     }
 
     func delete(_ thread: ChatThread) {
@@ -434,5 +486,35 @@ enum ChatSearch {
             }
         }
         return out
+    }
+}
+
+// MARK: - Tags
+
+/// Tags as the extension keeps them (src/shared/threads.ts): no leading #, one space between words,
+/// at most 24 characters, no repeats whatever the case, at most 8.
+enum Tags {
+    static func clean(_ tag: String) -> String {
+        var text = tag.replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression).trimmingCharacters(in: .whitespaces)
+        while text.hasPrefix("#") { text.removeFirst() }
+        return String(text.trimmingCharacters(in: .whitespaces).prefix(24)).trimmingCharacters(in: .whitespaces)
+    }
+
+    static func clean(_ tags: [String]) -> [String] {
+        var out: [String] = []
+        for raw in tags {
+            let tag = clean(raw)
+            if !tag.isEmpty, !out.contains(where: { $0.caseInsensitiveCompare(tag) == .orderedSame }) { out.append(tag) }
+        }
+        return Array(out.prefix(8))
+    }
+
+    /// One of 8 colours, the same as in Safari for the same name.
+    static func color(_ tag: String) -> Color {
+        var hash: UInt32 = 0
+        for scalar in tag.lowercased().unicodeScalars { hash = hash &* 31 &+ scalar.value }
+        let palette: [(Double, Double, Double)] = [(37, 99, 235), (13, 148, 136), (202, 138, 4), (219, 39, 119), (124, 58, 237), (22, 163, 74), (234, 88, 12), (71, 85, 105)]
+        let c = palette[Int(hash % 8)]
+        return Color(red: c.0 / 255, green: c.1 / 255, blue: c.2 / 255)
     }
 }

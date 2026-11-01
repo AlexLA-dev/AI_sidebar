@@ -240,5 +240,15 @@
   "upsellHistoryName": "问问你的所有对话",
   "upsellHistoryText": "跨所有对话提问：“我读过哪些关于养老储蓄的内容？”“整理我这个月的笔记”。",
   "upsellMore": "另外，在更聪明的模型上每周最多 375 个回答，适用于 iPhone、iPad 和 Mac。",
-  "errProOnly": "这是 Pro 功能。"
+  "errProOnly": "这是 Pro 功能。",
+
+  "tagsTitle": "标签",
+  "tagsNew": "新标签…",
+  "tagsAdd": "添加标签",
+  "tagsDone": "完成",
+  "tagsFilter": "按标签筛选",
+  "tagsGroup": "文件夹",
+  "tagsEdit": "标签",
+  "tagsNone": "无标签",
+  "tagsButton": "标签"
 }

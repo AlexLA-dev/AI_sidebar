@@ -1,5 +1,5 @@
 import type { Entry } from "../shared/conversation"
-import { activity, cleanTitle, liveThreads, newThreadId, prune, type ActiveThread, type Thread, type Threads } from "../shared/threads"
+import { activity, cleanTitle, liveThreads, newThreadId, prune, type ActiveThread, type Thread, type Threads, cleanTags, withMessages } from "../shared/threads"
 import { MAX_OTHER_PAGE_CHARS } from "../shared/prompt"
 import { DEFAULT_SETTINGS, STORAGE, type Settings } from "../shared/types"
 
@@ -137,9 +137,7 @@ export async function saveThread(id: string, entries: Entry[], kind?: "history")
   // and opening an empty thread doesn't store anything.
   if (stored ? JSON.stringify(stored.m) === JSON.stringify(next) : next.length === 0) return
   const now = Date.now()
-  const title = stored && !stored.deleted ? stored.title : undefined
-  const keptKind = stored && !stored.deleted ? stored.kind ?? kind : kind
-  await set(STORAGE.threads, prune({ ...threads, [id]: { id, u: now, a: now, m: next, ...(title ? { title } : {}), ...(keptKind ? { kind: keptKind } : {}) } }))
+  await set(STORAGE.threads, prune({ ...threads, [id]: withMessages(stored, id, next, now, kind) }))
 }
 
 /** Names a chat (an empty name goes back to its first question); it keeps its place in the list. */
@@ -152,6 +150,19 @@ export async function renameThread(id: string, name: string): Promise<void> {
   const renamed: Thread = { ...stored, u: Date.now(), a: activity(stored), title }
   if (!title) delete renamed.title
   await set(STORAGE.threads, { ...threads, [id]: renamed })
+}
+
+/** Sets a chat's own tags; it keeps its place in the list. */
+export async function setThreadTags(id: string, tags: string[]): Promise<void> {
+  const threads = (await get<Threads>(STORAGE.threads)) ?? {}
+  const stored = threads[id]
+  if (!stored || stored.deleted) return
+  const clean = cleanTags(tags)
+  if (JSON.stringify(clean) === JSON.stringify(stored.tags ?? [])) return
+  const next: Thread = { ...stored, u: Date.now(), a: activity(stored) }
+  if (clean.length) next.tags = clean
+  else delete next.tags
+  await set(STORAGE.threads, { ...threads, [id]: next })
 }
 
 /** Pins a chat at `pin` (its place among the pinned ones) or unpins it (null); its place by activity stays. */

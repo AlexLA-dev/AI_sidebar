@@ -240,5 +240,15 @@
   "upsellHistoryName": "Вопросы по всем чатам",
   "upsellHistoryText": "Вопросы сразу по всем чатам: «Что я читал о накоплениях на пенсию?», «Собери мои заметки за месяц».",
   "upsellMore": "А ещё до 375 ответов в неделю на более умной модели — на iPhone, iPad и Mac.",
-  "errProOnly": "Это функция Pro."
+  "errProOnly": "Это функция Pro.",
+
+  "tagsTitle": "Теги",
+  "tagsNew": "Новый тег…",
+  "tagsAdd": "Добавить тег",
+  "tagsDone": "Готово",
+  "tagsFilter": "Фильтр по тегу",
+  "tagsGroup": "Папки",
+  "tagsEdit": "Теги",
+  "tagsNone": "Без тега",
+  "tagsButton": "Тег"
 }

@@ -676,5 +676,32 @@
  },
  "errProOnly": {
   "message": "Das ist Teil von Pro."
+ },
+ "tagsTitle": {
+  "message": "Tags"
+ },
+ "tagsNew": {
+  "message": "Neuer Tag …"
+ },
+ "tagsAdd": {
+  "message": "Tag hinzufügen"
+ },
+ "tagsDone": {
+  "message": "Fertig"
+ },
+ "tagsFilter": {
+  "message": "Nach Tag filtern"
+ },
+ "tagsGroup": {
+  "message": "Ordner"
+ },
+ "tagsEdit": {
+  "message": "Tags"
+ },
+ "tagsNone": {
+  "message": "Ohne Tag"
+ },
+ "tagsButton": {
+  "message": "Tag"
  }
 }

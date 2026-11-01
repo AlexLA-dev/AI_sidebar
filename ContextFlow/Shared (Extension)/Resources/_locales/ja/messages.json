@@ -676,5 +676,32 @@
  },
  "errProOnly": {
   "message": "この機能は Pro に含まれます。"
+ },
+ "tagsTitle": {
+  "message": "タグ"
+ },
+ "tagsNew": {
+  "message": "新しいタグ…"
+ },
+ "tagsAdd": {
+  "message": "タグを追加"
+ },
+ "tagsDone": {
+  "message": "完了"
+ },
+ "tagsFilter": {
+  "message": "タグで絞り込む"
+ },
+ "tagsGroup": {
+  "message": "フォルダ"
+ },
+ "tagsEdit": {
+  "message": "タグ"
+ },
+ "tagsNone": {
+  "message": "タグなし"
+ },
+ "tagsButton": {
+  "message": "タグ"
  }
 }

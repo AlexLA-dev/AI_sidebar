@@ -676,5 +676,32 @@
  },
  "errProOnly": {
   "message": "Pro에 포함된 기능이에요."
+ },
+ "tagsTitle": {
+  "message": "태그"
+ },
+ "tagsNew": {
+  "message": "새 태그…"
+ },
+ "tagsAdd": {
+  "message": "태그 추가"
+ },
+ "tagsDone": {
+  "message": "완료"
+ },
+ "tagsFilter": {
+  "message": "태그로 거르기"
+ },
+ "tagsGroup": {
+  "message": "폴더"
+ },
+ "tagsEdit": {
+  "message": "태그"
+ },
+ "tagsNone": {
+  "message": "태그 없음"
+ },
+ "tagsButton": {
+  "message": "태그"
  }
 }

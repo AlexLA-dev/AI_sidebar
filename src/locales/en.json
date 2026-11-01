@@ -240,5 +240,15 @@
   "upsellHistoryName": "Ask your chats",
   "upsellHistoryText": "Questions across all your chats: “What have I read about saving for retirement?”, “Summarize my notes from this month”.",
   "upsellMore": "Plus up to 375 answers a week on a smarter model, on iPhone, iPad and Mac.",
-  "errProOnly": "This is part of Pro."
+  "errProOnly": "This is part of Pro.",
+
+  "tagsTitle": "Tags",
+  "tagsNew": "New tag…",
+  "tagsAdd": "Add tag",
+  "tagsDone": "Done",
+  "tagsFilter": "Filter by tag",
+  "tagsGroup": "Folders",
+  "tagsEdit": "Tags",
+  "tagsNone": "No tag",
+  "tagsButton": "Tag"
 }

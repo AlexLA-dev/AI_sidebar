@@ -4,8 +4,9 @@ import { useEffect, useRef, useState } from "preact/hooks"
 import type { FindReply } from "../shared/types"
 
 import { t, uiLanguage } from "../shared/i18n"
-import { activity, MAX_TITLE, searchThreads, threadName, threadNotes, threadPages, threadSnippet, threadTitle, type SearchHit, type Thread } from "../shared/threads"
+import { activity, allTags, groupByTag, hasTag, MAX_TITLE, searchThreads, threadName, threadNotes, threadPages, threadSnippet, threadTags, threadTitle, type SearchHit, type Thread } from "../shared/threads"
 import * as Icon from "./icons"
+import { TagChip, TagEditor } from "./Tags"
 
 interface Props {
   threads: Thread[] // pinned first, then the newest
@@ -26,6 +27,11 @@ interface Props {
   onUpsell: (feature: "find" | "history") => void
   // The last AI search ran out of answers or failed: shown under the field.
   findError: (code: string) => string
+  // The chat's own tags (answers and notes are tagged in the chat).
+  onTags: (id: string, tags: string[]) => void
+  // The list in groups by tag, like folders.
+  grouped: boolean
+  onGrouped: (on: boolean) => void
 }
 
 /** "3 pages", in the UI language's plural form. */
@@ -199,8 +205,16 @@ interface Drag {
  * start a new one. Pinned chats come first and are reordered by dragging their handle; a chat that
  * was on several pages lists them (each opens its page).
  */
-export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onNew, onPin, onMove, onOpenPage, pro, onAskHistory, onFind, onUpsell, findError }: Props): VNode {
+export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onNew, onPin, onMove, onOpenPage, pro, onAskHistory, onFind, onUpsell, findError, onTags, grouped, onGrouped }: Props): VNode {
   const [query, setQuery] = useState("")
+  // Only the chats with this tag (in the list and in search results).
+  const [tagFilter, setTagFilter] = useState<string | null>(null)
+  // The chat whose tags are being picked.
+  const [tagging, setTagging] = useState<string | null>(null)
+  const tagsInUse = allTags(threads)
+  const known = tagsInUse.map((x) => x.tag)
+  const filter = tagFilter && tagsInUse.some((x) => x.tag.toLowerCase() === tagFilter.toLowerCase()) ? tagFilter : null
+  const shownThreads = filter ? threads.filter((th) => hasTag(th, filter)) : threads
   const [ai, setAi] = useState(false)
   // AI search: the query asked, and its answer (null while it runs).
   const [found, setFound] = useState<{ query: string; reply: FindReply | null } | null>(null)
@@ -230,6 +244,17 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
       onAi={toggleAi}
       onSubmit={runFind}
     />
+  )
+  // The tags in use, to show only the chats with one; and the switch to group the list by tag.
+  const tagBar = tagsInUse.length > 0 && (
+    <div class="cf-tag-bar" role="toolbar" aria-label={t("tagsFilter")}>
+      {tagsInUse.map(({ tag }) => (
+        <TagChip key={tag} tag={tag} active={filter?.toLowerCase() === tag.toLowerCase()} onClick={() => setTagFilter(filter?.toLowerCase() === tag.toLowerCase() ? null : tag)} />
+      ))}
+      <button type="button" class={`cf-tag-group ${grouped ? "on" : ""}`} aria-pressed={grouped} onClick={() => onGrouped(!grouped)} title={t("tagsGroup")}>
+        <Icon.Folder /> {t("tagsGroup")}
+      </button>
+    </div>
   )
   const [editing, setEditing] = useState<string | null>(null)
   const [pagesOf, setPagesOf] = useState<string | null>(null)
@@ -289,10 +314,11 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
   }
 
   if (query.trim()) {
-    const results = searchThreads(threads, query)
+    const results = searchThreads(shownThreads, query)
     return (
       <div class="cf-threads" role="list">
         {search}
+        {tagBar}
         {results.length === 0 && <p class="cf-search-none">{t("searchNone", query.trim())}</p>}
         {results.map(({ thread, hits }) => (
           <div key={thread.id} role="listitem" class={`cf-thread ${thread.id === activeId ? "current" : ""}`}>
@@ -357,18 +383,17 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
     return 0
   }
 
-  return (
-    <div class="cf-threads" role="list">
-      {search}
-      {threads.some((th) => th.kind !== "history") && <AskHistoryRow pro={pro} onOpen={onAskHistory} />}
-      {threads.map((thread, index) => {
+  // Pinned chats are dragged only in the plain list (not filtered, not grouped).
+  const reorder = !filter && !grouped
+  const row = (thread: Thread, index: number, group: string) => {
         const pages = threadPages(thread.m)
         const notes = threadNotes(thread.m)
         const isPinned = thread.pin !== undefined
-        const dy = shift(index)
+        const dy = reorder ? shift(index) : 0
+        const tags = threadTags(thread)
         return (
           <div
-            key={thread.id}
+            key={`${group}:${thread.id}`}
             ref={(el) => { if (el) rows.current.set(thread.id, el); else rows.current.delete(thread.id) }}
             role="listitem"
             class={`cf-thread ${thread.id === activeId ? "current" : ""} ${drag?.id === thread.id ? "dragging" : ""} ${drag && drag.id !== thread.id ? "making-room" : ""}`}
@@ -384,7 +409,7 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
               />
             ) : (
               <>
-                {isPinned && (
+                {isPinned && reorder && (
                   <span
                     class="cf-thread-grip"
                     role="button"
@@ -418,6 +443,11 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
                 >
                   <span class="cf-thread-title">{thread.kind === "history" && <Icon.Sparkle size={12} />} {threadName(thread)}</span>
                   <span class="cf-thread-snippet">{threadSnippet(thread.m)}</span>
+                  {tags.length > 0 && (
+                    <span class="cf-thread-tags">
+                      {tags.map((tag) => <TagChip key={tag} tag={tag} onClick={(e) => { e.stopPropagation(); setTagFilter(tag) }} />)}
+                    </span>
+                  )}
                   <span class="cf-thread-meta">
                     {notes > 0 && (
                       <span class="cf-thread-notes" title={t("chatNotes")} aria-label={t("chatNotes")}><Icon.Pencil />{notes}</span>
@@ -440,6 +470,9 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
                     <span class="cf-thread-when">{when(activity(thread))}</span>
                   </span>
                 </div>
+                <button type="button" class={`cf-icon cf-thread-tool ${thread.tags?.length ? "on" : ""}`} onClick={() => setTagging(tagging === thread.id ? null : thread.id)} aria-label={t("tagsEdit")} title={t("tagsEdit")}>
+                  <Icon.Tag />
+                </button>
                 <button type="button" class={`cf-icon cf-thread-tool ${isPinned ? "on" : ""}`} onClick={() => onPin(thread.id, !isPinned)} aria-pressed={isPinned} aria-label={t(isPinned ? "unpinChat" : "pinChat")} title={t(isPinned ? "unpinChat" : "pinChat")}>
                   <Icon.Pin filled={isPinned} />
                 </button>
@@ -450,6 +483,9 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
                   <Icon.Trash />
                 </button>
               </>
+            )}
+            {tagging === thread.id && (
+              <TagEditor tags={thread.tags ?? []} known={known} onChange={(next) => onTags(thread.id, next)} onClose={() => setTagging(null)} />
             )}
             {pagesOf === thread.id && (
               <div class="cf-pages-pop" ref={pop} role="menu" aria-label={t("chatPages")}>
@@ -475,7 +511,22 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
             )}
           </div>
         )
-      })}
+  }
+
+  const groups = grouped ? groupByTag(shownThreads) : null
+  return (
+    <div class="cf-threads" role="list">
+      {search}
+      {tagBar}
+      {!filter && threads.some((th) => th.kind !== "history") && <AskHistoryRow pro={pro} onOpen={onAskHistory} />}
+      {groups
+        ? groups.map((g) => (
+            <div key={g.tag ?? ""} class="cf-tag-group-section" role="group" aria-label={g.tag ?? t("tagsNone")}>
+              <div class="cf-tag-group-head"><Icon.Folder /> {g.tag ? `#${g.tag}` : t("tagsNone")} <span>{g.threads.length}</span></div>
+              {g.threads.map((thread) => row(thread, -1, g.tag ?? ""))}
+            </div>
+          ))
+        : shownThreads.map((thread, index) => row(thread, index, ""))}
     </div>
   )
 }

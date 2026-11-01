@@ -240,5 +240,15 @@
   "upsellHistoryName": "Interroger vos discussions",
   "upsellHistoryText": "Des questions sur toutes vos discussions : « Qu’ai-je lu sur l’épargne retraite ? », « Résume mes notes du mois ».",
   "upsellMore": "Et jusqu’à 375 réponses par semaine avec un modèle plus intelligent, sur iPhone, iPad et Mac.",
-  "errProOnly": "Cette fonction fait partie de Pro."
+  "errProOnly": "Cette fonction fait partie de Pro.",
+
+  "tagsTitle": "Tags",
+  "tagsNew": "Nouveau tag…",
+  "tagsAdd": "Ajouter un tag",
+  "tagsDone": "OK",
+  "tagsFilter": "Filtrer par tag",
+  "tagsGroup": "Dossiers",
+  "tagsEdit": "Tags",
+  "tagsNone": "Sans tag",
+  "tagsButton": "Tag"
 }

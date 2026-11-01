@@ -37,6 +37,8 @@ export interface Entry extends ChatTurn {
   note?: boolean
   // User turns: videos and PDFs read along with the page (shown under the question).
   sources?: SourceNote[]
+  // Answers and notes: the user's tags (a chat's own tags are on the thread).
+  tags?: string[]
 }
 
 const MAX_HISTORY = 12

@@ -240,5 +240,15 @@
   "upsellHistoryName": "모든 채팅에 묻기",
   "upsellHistoryText": "모든 채팅에 한 번에 질문: ‘노후 자금에 대해 뭘 읽었지?’, ‘이번 달 메모 정리해 줘’.",
   "upsellMore": "게다가 더 똑똑한 모델로 주당 최대 375개 답변, iPhone·iPad·Mac에서.",
-  "errProOnly": "Pro에 포함된 기능이에요."
+  "errProOnly": "Pro에 포함된 기능이에요.",
+
+  "tagsTitle": "태그",
+  "tagsNew": "새 태그…",
+  "tagsAdd": "태그 추가",
+  "tagsDone": "완료",
+  "tagsFilter": "태그로 거르기",
+  "tagsGroup": "폴더",
+  "tagsEdit": "태그",
+  "tagsNone": "태그 없음",
+  "tagsButton": "태그"
 }

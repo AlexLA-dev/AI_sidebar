@@ -5,8 +5,17 @@ import type { Entry } from "../src/shared/conversation.ts"
 import {
   applyAppChanges,
   applyRemote,
+  allTags,
   chatList,
+  cleanTag,
+  cleanTags,
   cleanTitle,
+  groupByTag,
+  hasTag,
+  MAX_TAG,
+  tagColor,
+  threadTags,
+  withMessages,
   foldText,
   liveThreads,
   markMirrored,
@@ -256,4 +265,34 @@ test("searchThreads: every word, accents and case ignored, named chats first, ex
   // A page title counts too.
   assert.deepEqual(searchThreads(threads, "news.example").map((r) => r.thread.id), ["a", "b", "c"])
   assert.deepEqual(queryWords('"capital of" France'), ["capital of", "france"])
+})
+
+test("tags: cleaned, kept through iCloud, found by search, grouped like folders", () => {
+  assert.equal(cleanTag("  ##Work   stuff "), "Work stuff")
+  assert.deepEqual(cleanTags(["Work", "work", " #AI ", "", 5, "x".repeat(40)]), ["Work", "AI", "x".repeat(MAX_TAG)])
+
+  const a: Thread = { id: "a", u: 3, a: 3, tags: ["Work"], m: [q("Plan"), { role: "assistant", content: "Do X", tags: ["Ideas"] }] }
+  const b: Thread = { id: "b", u: 2, a: 2, m: [q("Recipe"), { role: "assistant", content: "Pasta" }] }
+  const c: Thread = { id: "c", u: 1, a: 1, tags: ["work"], m: [q("Report"), { role: "assistant", content: "Fine" }] }
+  assert.deepEqual(threadTags(a), ["Work", "Ideas"])
+  assert.deepEqual(allTags([a, b, c]), [{ tag: "Work", count: 2 }, { tag: "Ideas", count: 1 }])
+  assert.ok(hasTag(c, "WORK") && !hasTag(b, "work"))
+  assert.deepEqual(groupByTag([a, b, c]).map((g) => [g.tag, g.threads.map((t) => t.id)]), [["Work", ["a", "c"]], ["Ideas", ["a"]], [null, ["b"]]])
+
+  const back = threadFromCloud(threadForCloud(a))
+  assert.deepEqual(back?.tags, ["Work"])
+  assert.deepEqual(back?.m[1].tags, ["Ideas"])
+  assert.equal(threadFromCloud(threadForCloud(b))?.tags, undefined)
+
+  assert.deepEqual(searchThreads([a, b, c], "ideas").map((r) => r.thread.id), ["a"])
+  assert.deepEqual(searchThreads([a, b, c], "#work").map((r) => r.thread.id), ["a", "c"])
+  assert.ok(tagColor("Work") === tagColor("work") && tagColor("Work") >= 0 && tagColor("Work") < 8)
+})
+
+test("withMessages: a new message keeps the chat's name, pin, tags and kind", () => {
+  const stored: Thread = { id: "a", u: 1, a: 1, title: "Mine", pin: 0, tags: ["Work"], kind: "history", m: [q("one")] }
+  const next = withMessages(stored, "a", [q("one"), q("two")], 5)
+  assert.deepEqual(next, { id: "a", u: 5, a: 5, m: [q("one"), q("two")], title: "Mine", pin: 0, tags: ["Work"], kind: "history" })
+  assert.deepEqual(withMessages({ id: "a", u: 1, m: [], deleted: true, tags: ["x"] }, "a", [q("new")], 6), { id: "a", u: 6, a: 6, m: [q("new")] })
+  assert.equal(withMessages(undefined, "b", [q("x")], 7, "history").kind, "history")
 })

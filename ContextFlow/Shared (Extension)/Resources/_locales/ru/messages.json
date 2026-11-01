@@ -676,5 +676,32 @@
  },
  "errProOnly": {
   "message": "Это функция Pro."
+ },
+ "tagsTitle": {
+  "message": "Теги"
+ },
+ "tagsNew": {
+  "message": "Новый тег…"
+ },
+ "tagsAdd": {
+  "message": "Добавить тег"
+ },
+ "tagsDone": {
+  "message": "Готово"
+ },
+ "tagsFilter": {
+  "message": "Фильтр по тегу"
+ },
+ "tagsGroup": {
+  "message": "Папки"
+ },
+ "tagsEdit": {
+  "message": "Теги"
+ },
+ "tagsNone": {
+  "message": "Без тега"
+ },
+ "tagsButton": {
+  "message": "Тег"
  }
 }

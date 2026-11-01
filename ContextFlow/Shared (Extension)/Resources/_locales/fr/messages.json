@@ -676,5 +676,32 @@
  },
  "errProOnly": {
   "message": "Cette fonction fait partie de Pro."
+ },
+ "tagsTitle": {
+  "message": "Tags"
+ },
+ "tagsNew": {
+  "message": "Nouveau tag…"
+ },
+ "tagsAdd": {
+  "message": "Ajouter un tag"
+ },
+ "tagsDone": {
+  "message": "OK"
+ },
+ "tagsFilter": {
+  "message": "Filtrer par tag"
+ },
+ "tagsGroup": {
+  "message": "Dossiers"
+ },
+ "tagsEdit": {
+  "message": "Tags"
+ },
+ "tagsNone": {
+  "message": "Sans tag"
+ },
+ "tagsButton": {
+  "message": "Tag"
  }
 }

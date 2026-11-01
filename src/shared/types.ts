@@ -173,6 +173,8 @@ export interface Settings {
   ownKeyModel: "fast" | "smart"
   // Keep the chats in the user's iCloud to continue them on their other devices (Safari).
   syncChats: boolean
+  // The chat list in groups by tag, like folders (a chat with two tags is in both).
+  groupByTags: boolean
   // Answer with the whole chat in mind (all messages, notes, its other pages), not just the last messages.
   wholeChat: boolean
 }
@@ -188,6 +190,7 @@ export const DEFAULT_SETTINGS: Settings = {
   aboutMe: "",
   ownKeyModel: "smart",
   syncChats: true,
+  groupByTags: false,
   wholeChat: false
 }
 

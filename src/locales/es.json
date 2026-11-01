@@ -240,5 +240,15 @@
   "upsellHistoryName": "Pregunta a tus chats",
   "upsellHistoryText": "Preguntas sobre todos tus chats: «¿Qué he leído sobre ahorrar para la jubilación?», «Resume mis notas de este mes».",
   "upsellMore": "Además, hasta 375 respuestas a la semana con un modelo más inteligente, en iPhone, iPad y Mac.",
-  "errProOnly": "Esto es parte de Pro."
+  "errProOnly": "Esto es parte de Pro.",
+
+  "tagsTitle": "Etiquetas",
+  "tagsNew": "Nueva etiqueta…",
+  "tagsAdd": "Añadir etiqueta",
+  "tagsDone": "Listo",
+  "tagsFilter": "Filtrar por etiqueta",
+  "tagsGroup": "Carpetas",
+  "tagsEdit": "Etiquetas",
+  "tagsNone": "Sin etiqueta",
+  "tagsButton": "Etiqueta"
 }

@@ -240,5 +240,15 @@
   "upsellHistoryName": "すべてのチャットに質問",
   "upsellHistoryText": "すべてのチャットにまとめて質問：「老後の貯蓄について何を読んだ？」「今月のメモをまとめて」。",
   "upsellMore": "さらに、より賢いモデルで週375件まで回答。iPhone、iPad、Macで使えます。",
-  "errProOnly": "この機能は Pro に含まれます。"
+  "errProOnly": "この機能は Pro に含まれます。",
+
+  "tagsTitle": "タグ",
+  "tagsNew": "新しいタグ…",
+  "tagsAdd": "タグを追加",
+  "tagsDone": "完了",
+  "tagsFilter": "タグで絞り込む",
+  "tagsGroup": "フォルダ",
+  "tagsEdit": "タグ",
+  "tagsNone": "タグなし",
+  "tagsButton": "タグ"
 }

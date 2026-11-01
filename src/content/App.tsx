@@ -35,10 +35,11 @@ import {
 import { ProUpsell } from "./ProUpsell"
 import { SettingsView } from "./Settings"
 import { shareLabels } from "./shareLabels"
-import { deleteThread, giveConsent, hasConsent, hasSeenTour, loadSettings, loadThreads, markTourSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, rememberPageText, renameThread, saveSettings, saveThread, setActiveThread, offerCardCount, setNoteHintCount, setOfferCardCount } from "./store"
+import { deleteThread, giveConsent, hasConsent, hasSeenTour, loadSettings, loadThreads, markTourSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, rememberPageText, renameThread, saveSettings, saveThread, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount } from "./store"
+import { TagChip, TagEditor } from "./Tags"
 import { ThreadsView } from "./Threads"
 import { Tour, tourSteps } from "./Tour"
-import { chatDigests, chatList, newThreadId, pinAt, shownThread, threadTitle, type Thread } from "../shared/threads"
+import { allTags, chatDigests, chatList, cleanTags, newThreadId, pinAt, shownThread, threadTitle, type Thread } from "../shared/threads"
 import type { ChatDigest } from "../shared/history"
 
 export type Bus = EventTarget
@@ -785,6 +786,23 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     }))
   }, [stop, threadList])
 
+  // Tags: of a chat (from the list), of an answer or a note (`tagging`: the message's index).
+  const [tagging, setTagging] = useState<number | null>(null)
+  const tagChat = useCallback((id: string, tags: string[]) => {
+    setThreadList((list) => list.map((th) => (th.id === id ? { ...th, tags: cleanTags(tags) } : th)))
+    void setThreadTags(id, tags)
+  }, [])
+  const tagMessage = useCallback((index: number, tags: string[]) => {
+    setMessages((list) => list.map((m, i) => {
+      if (i !== index) return m
+      const next = { ...m }
+      const clean = cleanTags(tags)
+      if (clean.length) next.tags = clean
+      else delete next.tags
+      return next
+    }))
+  }, [])
+
   const renameChat = useCallback((id: string, name: string) => {
     void renameThread(id, name).then(() => loadThreads()).then(({ threads }) => setThreadList(chatList(threads)))
   }, [])
@@ -1167,6 +1185,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 onFind={findChats}
                 onUpsell={setUpsell}
                 findError={(code) => (code === "LIMIT_REACHED" ? t("limitProTitle") : errorText({ code: code as ErrorCode }))}
+                onTags={tagChat}
+                grouped={settings.groupByTags}
+                onGrouped={(on) => updateSettings({ groupByTags: on })}
               />
             </>
           ) : view === "settings" ? (
@@ -1230,17 +1251,23 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     <div class={`cf-msg user ${m.note ? "note" : ""} ${picked ? "pickable" : ""} ${picked?.has(idx) ? "picked" : ""}`} key={idx} data-index={idx} {...pickProps(idx)}>
                       <PageDivider entries={messages} index={idx} onOpen={openPage} />
                       {m.note ? (
-                        <div class="cf-bubble-note"><span class="cf-note-mark" aria-label={t("shareNote")}><Icon.Pencil /></span>{m.content}</div>
+                        <div class="cf-bubble-note">
+                          <span class="cf-note-mark" aria-label={t("shareNote")}><Icon.Pencil /></span>{m.content}
+                          <button type="button" class="cf-note-tag" onClick={() => setTagging(tagging === idx ? null : idx)} aria-label={t("tagsEdit")} title={t("tagsEdit")}><Icon.Tag /></button>
+                        </div>
                       ) : (
                         <div class="cf-bubble-user">{m.mode === "google" && <span class="cf-user-mode"><Icon.Search size={12} /></span>}{m.label ?? m.content}</div>
                       )}
                       {m.sources && m.sources.length > 0 && <UsedSources notes={m.sources} />}
+                      {m.note && m.tags && m.tags.length > 0 && <div class="cf-msg-tags">{m.tags.map((tag) => <TagChip key={tag} tag={tag} onClick={() => setTagging(idx)} />)}</div>}
+                      {m.note && tagging === idx && <TagEditor tags={m.tags ?? []} known={allTags(threadList).map((x) => x.tag)} onChange={(next) => tagMessage(idx, next)} onClose={() => setTagging(null)} />}
                     </div>
                   ) : (
                     <div class={`cf-msg ai ${picked ? "pickable" : ""} ${picked?.has(idx) ? "picked" : ""}`} key={idx} data-index={idx} {...pickProps(idx)}>
                       {m.grounding && <div class="cf-grounded"><Icon.Search size={13} /> {t("googleBadge")}</div>}
                       <Markdown text={m.content} onCopyCode={(code) => void copyText(code)} />
                       {m.grounding && <Sources grounding={m.grounding} />}
+                      {m.tags && m.tags.length > 0 && <div class="cf-msg-tags">{m.tags.map((tag) => <TagChip key={tag} tag={tag} onClick={() => setTagging(idx)} />)}</div>}
                       <div class="cf-msg-tools">
                         <button type="button" onClick={async () => { if (await copyText(toPlainText(m.content))) { setCopied(idx); setTimeout(() => setCopied(null), 1500) } }}>
                           {copied === idx ? <Icon.Check /> : <Icon.Copy />} {copied === idx ? t("copied") : t("copy")}
@@ -1250,7 +1277,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                             <Icon.Share /> {t("share")}
                           </button>
                         )}
+                        <button type="button" onClick={() => setTagging(tagging === idx ? null : idx)} aria-expanded={tagging === idx}>
+                          <Icon.Tag /> {t("tagsButton")}
+                        </button>
                       </div>
+                      {tagging === idx && <TagEditor tags={m.tags ?? []} known={allTags(threadList).map((x) => x.tag)} onChange={(next) => tagMessage(idx, next)} onClose={() => setTagging(null)} />}
                     </div>
                   )
                 )}

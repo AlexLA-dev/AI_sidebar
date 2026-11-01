@@ -676,5 +676,32 @@
  },
  "errProOnly": {
   "message": "这是 Pro 功能。"
+ },
+ "tagsTitle": {
+  "message": "标签"
+ },
+ "tagsNew": {
+  "message": "新标签…"
+ },
+ "tagsAdd": {
+  "message": "添加标签"
+ },
+ "tagsDone": {
+  "message": "完成"
+ },
+ "tagsFilter": {
+  "message": "按标签筛选"
+ },
+ "tagsGroup": {
+  "message": "文件夹"
+ },
+ "tagsEdit": {
+  "message": "标签"
+ },
+ "tagsNone": {
+  "message": "无标签"
+ },
+ "tagsButton": {
+  "message": "标签"
  }
 }
