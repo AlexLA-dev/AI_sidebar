@@ -3,12 +3,15 @@ import { test } from "node:test"
 
 import type { Entry } from "../src/shared/conversation.ts"
 import {
+  applyAppChanges,
   applyRemote,
   chatList,
   cleanTitle,
   liveThreads,
+  markMirrored,
   markSent,
   MAX_THREADS,
+  mirrorChanges,
   pendingChanges,
   pinAt,
   prune,
@@ -21,10 +24,12 @@ import {
   threadSite,
   threadSnippet,
   threadTitle,
+  type Thread,
   type Threads
 } from "../src/shared/threads.ts"
 
 const page = { url: "https://www.news.example/a", title: "Article A" }
+const q = (content: string): Entry => ({ role: "user", content, page })
 const chat = (q: string, a: string, extra: Partial<Entry> = {}): Entry[] => [
   { role: "user", content: q, page, ...extra },
   { role: "assistant", content: a }
@@ -176,4 +181,55 @@ test("a chat lists its pages once each and counts its notes", () => {
   ]
   assert.deepEqual(threadPages(m), [a, b])
   assert.equal(threadNotes(m), 1)
+})
+
+test("mirrorChanges: every live chat newer than the app's copy, deletions of what the app has", () => {
+  const threads: Threads = {
+    a: { id: "a", u: 10, m: [q("one")] },
+    b: { id: "b", u: 20, m: [q("two")], title: "Named" },
+    c: { id: "c", u: 30, m: [], deleted: true },
+    e: { id: "e", u: 5, m: [] }
+  }
+  const out = mirrorChanges(threads, { a: 10, c: 25, gone: 3 })
+  assert.deepEqual(out.filter((x) => "deleted" in x).map((x) => x.id).sort(), ["c", "gone"])
+  const saves = out.filter((x) => !("deleted" in x)) as Array<{ id: string; updatedAt: number; data: string }>
+  assert.deepEqual(saves.map((x) => x.id), ["b"])
+  assert.equal(JSON.parse(saves[0].data).title, "Named")
+  assert.deepEqual(markMirrored({ a: 10, c: 25, gone: 3 }, out), { a: 10, b: 20 })
+})
+
+test("mirrorChanges: big chats go over several calls", () => {
+  const big = (id: string, u: number): Thread => ({ id, u, m: [q("x".repeat(5_000))] })
+  const threads: Threads = { a: big("a", 1), b: big("b", 2), c: big("c", 3) }
+  const first = mirrorChanges(threads, {}, 11_000)
+  assert.equal(first.length, 2)
+  const rest = mirrorChanges(threads, markMirrored({}, first), 11_000)
+  assert.equal(rest.length, 1)
+  assert.equal(mirrorChanges(threads, markMirrored(markMirrored({}, first), rest), 11_000).length, 0)
+})
+
+test("applyAppChanges: newer copies from the app win; deletions keep a tombstone only for iCloud's chats", () => {
+  const threads: Threads = {
+    a: { id: "a", u: 10, m: [q("one")] },
+    b: { id: "b", u: 50, m: [q("two")] },
+    c: { id: "c", u: 10, m: [q("three")] },
+    d: { id: "d", u: 10, m: [q("four")] }
+  }
+  const renamed = threadForCloud({ id: "a", u: 20, m: [q("one")], title: "Renamed", pin: 0 })
+  const stale = threadForCloud({ id: "b", u: 40, m: [q("two")], title: "Old" })
+  const { threads: next, changed } = applyAppChanges(threads, { c: 10 }, [
+    { id: "a", updatedAt: 20, data: renamed },
+    { id: "b", updatedAt: 40, data: stale },
+    { id: "c", deleted: true },
+    { id: "d", deleted: true },
+    { id: "missing", deleted: true }
+  ], 99)
+  assert.ok(changed)
+  assert.equal(next.a.title, "Renamed")
+  assert.equal(next.a.pin, 0)
+  assert.equal(next.a.u, 20)
+  assert.equal(next.b.title, undefined)
+  assert.deepEqual(next.c, { id: "c", u: 99, m: [], deleted: true })
+  assert.equal(next.d, undefined)
+  assert.equal(applyAppChanges(next, {}, [{ id: "a", updatedAt: 20, data: renamed }]).changed, false)
 })

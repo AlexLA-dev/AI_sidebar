@@ -320,11 +320,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         setThreadList(chatList(threads))
         setMessages(entries)
         scrollToEnd()
-        // Other devices may have continued a chat (iCloud): show it unless something was asked here meanwhile.
-        void sendBackground<{ changed: boolean }>({ type: "syncThreads" }).then(async (result) => {
+        // Other devices may have continued a chat (iCloud), or the ContextFlow app asked to continue one
+        // here ("Open in Safari"): show it unless something was asked here meanwhile.
+        void sendBackground<{ changed: boolean; open?: string | null }>({ type: "syncThreads" }).then(async (result) => {
           if (!result?.changed || portRef.current) return
           const fresh = await loadThreads()
-          const next = shownThread(fresh.threads, fresh.active)
+          const asked = result.open ? fresh.threads[result.open] : undefined
+          const next = asked && !asked.deleted && asked.m.length ? { id: asked.id, m: asked.m } : shownThread(fresh.threads, fresh.active)
           setThreadList(chatList(fresh.threads))
           setMessages((current) => {
             if (current !== entries) return current

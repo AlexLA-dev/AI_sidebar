@@ -19,7 +19,7 @@ import { askServer, askWithOwnKey, reportOwnKeyUsage } from "./chat"
 import { callNative, type NativeEntitlement } from "./native"
 import { isPdfUrl } from "../shared/pdf"
 import { isPdfTab, markPdfTab, openPdfPopup, pdfFromBytes, pdfText } from "./pdf"
-import { countValueMoment, syncSettings, syncThreads, watchSettings, watchThreads } from "./sync"
+import { countValueMoment, mirrorOnStart, mirrorThreads, syncSettings, syncThreads, watchSettings, watchThreads } from "./sync"
 
 // ---------------------------------------------------------------- identity
 
@@ -233,7 +233,11 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
         sendResponse({ changed: false })
         return false
       }
-      syncThreads().then((changed) => sendResponse({ changed }), () => sendResponse({ changed: false }))
+      // The app's changes and its "continue this chat" first, then iCloud.
+      mirrorThreads(true)
+        .catch(() => null)
+        .then(async (open) => ({ open, changed: await syncThreads().catch(() => false) }))
+        .then(({ open, changed }) => sendResponse({ changed: changed || Boolean(open), open }), () => sendResponse({ changed: false }))
       return true
     default:
       return false
@@ -335,5 +339,8 @@ watchSettings()
 void syncSettings().catch(() => undefined)
 // Offline at install time: try again whenever the background starts.
 void reportSwitchedOn().catch(() => undefined)
-// Chats follow the user to their other Apple devices through iCloud.
-if (TARGET === "safari") watchThreads()
+// Chats follow the user to their other Apple devices through iCloud, and to the ContextFlow app.
+if (TARGET === "safari") {
+  watchThreads()
+  setTimeout(() => void mirrorOnStart().catch(() => undefined), 1_500)
+}

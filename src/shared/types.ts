@@ -125,6 +125,9 @@ export const STORAGE = {
   // iCloud sync: CloudKit change token, and the time of each thread's copy in iCloud.
   syncToken: "cf:syncToken",
   syncedThreads: "cf:syncedThreads",
+  // The ContextFlow app's copy of the chats (App Group): the time of each thread it has.
+  mirroredThreads: "cf:mirroredThreads",
+  mirroredAt: "cf:mirroredAt",
   // When the settings last changed here (ms), to merge with the app's copy.
   settingsUpdatedAt: "cf:settingsUpdatedAt",
   // Successful answers so far; the app asks for an App Store rating after a few.

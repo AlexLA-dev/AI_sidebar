@@ -16,6 +16,7 @@ import AppKit
 /// - `openApp` (macOS) → opens the ContextFlow app at a deep link.
 /// - `syncThreads` → sends the extension's chat changes to the user's iCloud and returns the other
 ///   devices' changes (see ChatSync); `available: false` without an iCloud account or connection.
+/// - `mirrorThreads` → keeps the app's copy of the chats (see ChatMirror) and returns the app's changes.
 /// - `pdfText` → the text of a PDF (by address, or the bytes the extension fetched), see PdfText.
 /// - `ping` → health check.
 ///
@@ -85,6 +86,26 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                     "deleted": synced.deleted
                 ] as [String: Any]])
             }
+        case "mirrorThreads":
+            // The extension's chats for the app's Chats screen; the app's changes and "Open in Safari" back.
+            var saves: [String: ChatMirror.Item] = [:]
+            var deletes: [String] = []
+            for item in message["changes"] as? [[String: Any]] ?? [] {
+                guard let id = item["id"] as? String else { continue }
+                if item["deleted"] as? Bool == true {
+                    deletes.append(id)
+                } else if let updatedAt = (item["updatedAt"] as? NSNumber)?.int64Value, let data = item["data"] as? String {
+                    saves[id] = ChatMirror.Item(updatedAt: updatedAt, data: data)
+                }
+            }
+            if !saves.isEmpty || !deletes.isEmpty { ChatMirror.apply(saves: saves, deletes: deletes) }
+            if let ack = (message["ack"] as? NSNumber)?.doubleValue { ChatMirror.confirmAppChanges(upTo: ack) }
+            let pending = ChatMirror.pendingAppChanges()
+            var data: [String: Any] = ["appChanges": pending.changes.map(\.dictionary)]
+            if let at = pending.at { data["at"] = at }
+            // Only the panel opening takes the app's "continue this chat" (not a background start).
+            if message["takeOpen"] as? Bool == true, let open = ChatMirror.takeOpenRequest() { data["open"] = open }
+            Self.reply(context, ["success": true, "data": data])
         case "pdfText":
             let url = message["url"] as? String
             let data = message["data"] as? String

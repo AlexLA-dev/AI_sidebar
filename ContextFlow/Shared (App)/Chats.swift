@@ -1,0 +1,319 @@
+import Combine
+import Foundation
+#if os(iOS)
+import UIKit
+#else
+import AppKit
+#endif
+
+// MARK: - A chat, as the Safari extension writes it
+
+/// One message of a chat (src/shared/conversation.ts `Entry`). Unknown fields are ignored here and kept
+/// as they are when the app renames or pins a chat (the JSON is edited, not re-encoded).
+struct ChatEntry: Decodable, Hashable {
+    struct Page: Decodable, Hashable {
+        var url: String
+        var title: String
+    }
+
+    struct Source: Decodable, Hashable {
+        var title: String
+        var url: String
+    }
+
+    struct Grounding: Decodable, Hashable {
+        var sources: [Source]
+    }
+
+    /// A video transcript or PDF a question went with (or why it couldn't be read).
+    struct Read: Decodable, Hashable {
+        var kind: String
+        var ok: Bool
+        var name: String
+        var detail: String?
+        var reason: String?
+    }
+
+    var role: String
+    var content: String
+    var label: String?
+    var mode: String?
+    var note: Bool?
+    var page: Page?
+    var pageChanged: Bool?
+    var grounding: Grounding?
+    var sources: [Read]?
+
+    var isUser: Bool { role == "user" }
+    var isNote: Bool { note == true }
+}
+
+/// A chat (src/shared/threads.ts `Thread`), from its iCloud form `{title?, a?, pin?, m}`.
+struct ChatThread: Identifiable, Hashable {
+    let id: String
+    /// Last change (ms): the newest copy wins between devices.
+    let updatedAt: Int64
+    /// The JSON the extension and iCloud store.
+    let data: String
+    let title: String?
+    /// Last message (ms): the list order.
+    let lastAt: Int64
+    let pin: Double?
+    let entries: [ChatEntry]
+
+    private struct Stored: Decodable {
+        var title: String?
+        var a: Int64?
+        var pin: Double?
+        var m: [ChatEntry]
+    }
+
+    init?(id: String, updatedAt: Int64, data: String) {
+        guard let raw = data.data(using: .utf8) else { return nil }
+        let stored: Stored
+        if let object = try? JSONDecoder().decode(Stored.self, from: raw) {
+            stored = object
+        } else if let list = try? JSONDecoder().decode([ChatEntry].self, from: raw) {
+            // 2.3 (build 56) stored just the messages.
+            stored = Stored(m: list)
+        } else {
+            return nil
+        }
+        self.id = id
+        self.updatedAt = updatedAt
+        self.data = data
+        title = stored.title?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty
+        lastAt = stored.a ?? updatedAt
+        pin = stored.pin
+        entries = stored.m
+    }
+
+    var isPinned: Bool { pin != nil }
+
+    /// The user's name for it, or its first question (or quick action and its page).
+    var name: String {
+        if let title { return title }
+        guard let first = entries.first(where: \.isUser) else { return "" }
+        if let label = first.label {
+            return oneLine(first.page.map { "\(label) · \($0.title)" } ?? label, 80)
+        }
+        return oneLine(first.content, 80)
+    }
+
+    /// The last answer's first line.
+    var snippet: String {
+        guard let last = entries.last(where: { !$0.isUser }) ?? entries.last else { return "" }
+        let plain = last.content
+            .replacingOccurrences(of: #"\s*\[\d{1,2}\]\(https?:[^)\s]+\)"#, with: "", options: .regularExpression)
+            .replacingOccurrences(of: #"[*_`]+"#, with: "", options: .regularExpression)
+            .replacingOccurrences(of: #"[#>|]+"#, with: " ", options: .regularExpression)
+        return oneLine(plain, 140)
+    }
+
+    /// The pages the chat was on, in the order it came to them.
+    var pages: [ChatEntry.Page] {
+        var seen = Set<String>()
+        return entries.compactMap { entry in
+            guard entry.isUser, let page = entry.page, seen.insert(page.url).inserted else { return nil }
+            return page
+        }
+    }
+
+    var lastPage: ChatEntry.Page? { entries.last(where: { $0.page != nil })?.page }
+
+    var notes: Int { entries.filter(\.isNote).count }
+
+    var lastActivity: Date { Date(timeIntervalSince1970: TimeInterval(lastAt) / 1000) }
+
+    /// The same chat with its name and pin changed, as of `updatedAt`. For each: nil keeps it,
+    /// `.some(nil)` removes it, `.some(value)` sets it.
+    func edited(title: String??, pin: Double??, updatedAt: Int64) -> ChatMirror.Item? {
+        let parsed = try? JSONSerialization.jsonObject(with: Data(data.utf8))
+        guard var object = (parsed as? [String: Any]) ?? (parsed as? [Any]).map({ ["m": $0] }) else { return nil }
+        switch title {
+        case .none: break
+        case .some(.none): object.removeValue(forKey: "title")
+        case .some(.some(let value)): object["title"] = value
+        }
+        switch pin {
+        case .none: break
+        case .some(.none): object.removeValue(forKey: "pin")
+        case .some(.some(let value)): object["pin"] = value
+        }
+        // Renaming or pinning keeps the chat's place by its last message.
+        if object["a"] == nil { object["a"] = lastAt }
+        guard let json = try? JSONSerialization.data(withJSONObject: object), let text = String(data: json, encoding: .utf8) else { return nil }
+        return ChatMirror.Item(updatedAt: updatedAt, data: text)
+    }
+}
+
+func host(of url: String) -> String {
+    guard let host = URL(string: url)?.host else { return "" }
+    return host.hasPrefix("www.") ? String(host.dropFirst(4)) : host
+}
+
+private func oneLine(_ text: String, _ max: Int) -> String {
+    let line = text.replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression).trimmingCharacters(in: .whitespaces)
+    return line.count > max ? String(line.prefix(max - 1)).trimmingCharacters(in: .whitespaces) + "…" : line
+}
+
+extension String {
+    var nilIfEmpty: String? { isEmpty ? nil : self }
+}
+
+// MARK: - The chats
+
+/// The chats for the app's Chats screen: the copy the Safari extension keeps in the App Group (this
+/// device's chats, and those iCloud brought), plus, when iCloud sync is on, the newest from iCloud
+/// itself (a chat continued on the Mac shows up on the iPhone without opening Safari first).
+/// Renaming, pinning and deleting go to iCloud and to the extension (it applies them next time).
+@MainActor
+final class ChatLibrary: ObservableObject {
+    static let shared = ChatLibrary()
+
+    enum Cloud: Equatable {
+        /// Sync is switched off (here or in the extension's settings).
+        case off
+        /// No iCloud account, or iCloud isn't reachable right now.
+        case unavailable
+        case syncing
+        case ok
+    }
+
+    @Published private(set) var threads: [ChatThread] = []
+    @Published private(set) var cloud: Cloud = .off
+    @Published private(set) var loaded = false
+
+    private static let tokenKey = "cf_chats_cloud_token"
+    private var cloudTask: Task<Void, Never>?
+
+    private init() {
+        reload()
+    }
+
+    /// iCloud sync of chats (the extension's setting, shared through the App Group; on by default).
+    var syncOn: Bool {
+        SharedDefaults.shared.readSettings()?.settings["syncChats"] as? Bool ?? true
+    }
+
+    /// Re-reads the extension's copy, then asks iCloud for anything newer.
+    func refresh() {
+        reload()
+        guard syncOn else {
+            cloud = .off
+            return
+        }
+        cloudTask?.cancel()
+        cloudTask = Task { await syncCloud([]) }
+    }
+
+    /// Waits for the refresh from iCloud (pull to refresh).
+    func refreshNow() async {
+        refresh()
+        await cloudTask?.value
+    }
+
+    private func reload() {
+        let items = ChatMirror.chats()
+        threads = items.compactMap { id, item in ChatThread(id: id, updatedAt: item.updatedAt, data: item.data) }
+            .filter { !$0.entries.isEmpty }
+            .sorted(by: Self.listOrder)
+        loaded = true
+    }
+
+    /// Pinned chats first in their order, then the others, the latest first (the extension's order).
+    private static func listOrder(_ a: ChatThread, _ b: ChatThread) -> Bool {
+        switch (a.pin, b.pin) {
+        case let (x?, y?): return x < y
+        case (.some, nil): return true
+        case (nil, .some): return false
+        default: return a.lastAt > b.lastAt
+        }
+    }
+
+    private func syncCloud(_ changes: [ChatSync.Change]) async {
+        if cloud != .ok { cloud = .syncing }
+        let token = UserDefaults.standard.string(forKey: Self.tokenKey)
+        do {
+            let result = try await ChatSync.sync(token: token, changes: changes)
+            guard !Task.isCancelled else { return }
+            var saves: [String: ChatMirror.Item] = [:]
+            for snapshot in result.changed { saves[snapshot.id] = ChatMirror.Item(updatedAt: snapshot.updatedAt, data: snapshot.data) }
+            if ChatMirror.apply(saves: saves, deletes: result.deleted) { reload() }
+            UserDefaults.standard.set(result.token, forKey: Self.tokenKey)
+            cloud = .ok
+        } catch {
+            if !Task.isCancelled { cloud = .unavailable }
+        }
+    }
+
+    // MARK: Changes
+
+    private var now: Int64 { Int64(Date().timeIntervalSince1970 * 1000) }
+
+    /// Stores a changed chat here, for the extension, and in iCloud.
+    private func save(_ thread: ChatThread, title: String??, pin: Double??) {
+        // Always later than the copy it replaces, whatever the clocks say.
+        let at = max(now, thread.updatedAt + 1)
+        guard let item = thread.edited(title: title, pin: pin, updatedAt: at) else { return }
+        ChatMirror.apply(saves: [thread.id: item])
+        ChatMirror.queue(.init(id: thread.id, updatedAt: item.updatedAt, data: item.data, deleted: nil, at: Double(now)))
+        reload()
+        if syncOn {
+            Task { await syncCloud([.save(.init(id: thread.id, updatedAt: item.updatedAt, data: item.data))]) }
+        }
+    }
+
+    /// Names a chat; an empty name goes back to its first question.
+    func rename(_ thread: ChatThread, to name: String) {
+        let clean = String(name.replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression)
+            .trimmingCharacters(in: .whitespaces).prefix(80))
+        guard clean != (thread.title ?? "") else { return }
+        save(thread, title: .some(clean.nilIfEmpty), pin: nil)
+    }
+
+    /// Pins a chat at the top of the list, or unpins it.
+    func setPinned(_ thread: ChatThread, _ pinned: Bool) {
+        guard pinned != thread.isPinned else { return }
+        let top = threads.compactMap(\.pin).min()
+        save(thread, title: nil, pin: .some(pinned ? (top.map { $0 - 1 } ?? 0) : nil))
+    }
+
+    func delete(_ thread: ChatThread) {
+        ChatMirror.apply(saves: [:], deletes: [thread.id])
+        ChatMirror.queue(.init(id: thread.id, updatedAt: nil, data: nil, deleted: true, at: Double(now)))
+        reload()
+        if syncOn {
+            Task { await syncCloud([.delete(thread.id)]) }
+        }
+    }
+
+    // MARK: Safari
+
+    /// Opens a page of a chat in Safari (not another default browser).
+    func open(_ url: String) {
+        guard let link = URL(string: url), ["http", "https"].contains(link.scheme?.lowercased() ?? "") else { return }
+        #if os(iOS)
+        if #available(iOS 17, *), let safari = URL(string: "x-safari-\(url)") {
+            UIApplication.shared.open(safari) { opened in
+                if !opened { UIApplication.shared.open(link) }
+            }
+        } else {
+            UIApplication.shared.open(link)
+        }
+        #else
+        if let safari = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.apple.Safari") {
+            NSWorkspace.shared.open([link], withApplicationAt: safari, configuration: NSWorkspace.OpenConfiguration())
+        } else {
+            NSWorkspace.shared.open(link)
+        }
+        #endif
+    }
+
+    /// Opens the chat's last page in Safari and has the panel continue this chat there.
+    func continueInSafari(_ thread: ChatThread) {
+        guard let page = thread.lastPage else { return }
+        ChatMirror.requestOpen(thread.id)
+        open(page.url)
+    }
+}

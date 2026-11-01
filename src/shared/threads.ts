@@ -240,3 +240,63 @@ export function shownThread(threads: Threads, active: ActiveThread): { id: strin
   if (latest && latest.id !== active.id && activity(latest) > Math.max(active.at, own ? activity(own) : 0)) return { id: latest.id, m: latest.m }
   return { id: active.id, m: own?.m ?? [] }
 }
+
+// ------------------------------------------------------------ the copy the ContextFlow app reads
+
+/**
+ * What the app's copy of the chats (App Group, see ChatMirror.swift) lacks: threads changed since
+ * `mirrored` (the time of each thread the app has), and deletions of threads it has that are gone here.
+ * Unlike iCloud, the app gets every chat, synced or not, at most `maxChars` of data in one go.
+ */
+export function mirrorChanges(threads: Threads, mirrored: Record<string, number>, maxChars = 900_000): CloudChange[] {
+  const out: CloudChange[] = []
+  let size = 0
+  for (const id of Object.keys(mirrored)) {
+    const t = threads[id]
+    if (!t || t.deleted || t.m.length === 0) out.push({ id, deleted: true })
+  }
+  for (const t of liveThreads(threads)) {
+    if (t.u <= (mirrored[t.id] ?? 0)) continue
+    const data = threadForCloud(t)
+    if (size > 0 && size + data.length > maxChars) break
+    size += data.length
+    out.push({ id: t.id, updatedAt: t.u, data })
+  }
+  return out
+}
+
+/** After the app has `sent`: the time of each thread it now has. */
+export function markMirrored(mirrored: Record<string, number>, sent: CloudChange[]): Record<string, number> {
+  const next = { ...mirrored }
+  for (const c of sent) {
+    if ("deleted" in c) delete next[c.id]
+    else next[c.id] = c.updatedAt
+  }
+  return next
+}
+
+/**
+ * Changes made in the ContextFlow app (renamed, pinned, deleted chats): a newer copy replaces this
+ * one; a deletion keeps a tombstone for a thread iCloud has, so the other devices hear about it.
+ * Unlike applyRemote, iCloud doesn't have these yet: they go up with the next sync.
+ */
+export function applyAppChanges(threads: Threads, synced: Record<string, number>, changes: CloudChange[], now = Date.now()): { threads: Threads; changed: boolean } {
+  const next = { ...threads }
+  let changed = false
+  for (const c of changes) {
+    const local = next[c.id]
+    if ("deleted" in c) {
+      if (!local || local.deleted) continue
+      if (c.id in synced) next[c.id] = { id: c.id, u: now, m: [], deleted: true }
+      else delete next[c.id]
+      changed = true
+      continue
+    }
+    if (local && local.u >= c.updatedAt) continue
+    const app = threadFromCloud(c.data)
+    if (!app) continue
+    next[c.id] = { id: c.id, u: c.updatedAt, ...app }
+    changed = true
+  }
+  return { threads: next, changed }
+}

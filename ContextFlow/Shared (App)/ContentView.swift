@@ -40,7 +40,7 @@ final class DeepLinkRouter: ObservableObject {
 }
 
 enum AppTab: Hashable {
-    case home, tips, pro, settings
+    case home, chats, tips, pro, settings
 }
 
 // MARK: - Root
@@ -49,8 +49,14 @@ struct ContentView: View {
     @StateObject private var store = StoreKitManager.shared
     @StateObject private var router = DeepLinkRouter.shared
     @StateObject private var activation = Activation.shared
+    @StateObject private var chats = ChatLibrary.shared
     @Environment(\.requestReview) private var requestReview
-    @State private var tab: AppTab = .home
+    @State private var tab: AppTab = ChatLibrary.shared.threads.isEmpty ? .home : .chats
+    /// iOS: the setup guide, from the Chats screen (there is no Get Started tab once there are chats).
+    @State private var showingSetup = false
+
+    /// Once the user has chats, they come first: Get Started gives way to Chats.
+    private var hasChats: Bool { !chats.threads.isEmpty }
 
     /// The extension counted enough good answers since the last time: ask for an App Store rating
     /// (Apple decides whether to show it, at most 3 times a year). Never on a plain first launch.
@@ -70,40 +76,58 @@ struct ContentView: View {
                 switch url.host {
                 case "subscribe", "manage": tab = .pro
                 case "tips": tab = .tips
-                default: tab = .home
+                case "chats": tab = hasChats ? .chats : .home
+                default: tab = hasChats ? .chats : .home
                 }
                 router.pending = nil
             }
             .task {
                 SharedDefaults.shared.removeLegacyData()
+                chats.refresh()
                 await store.refreshEntitlement()
                 askForReviewIfDue()
                 await activation.launched()
+            }
+            // The first chat arrived (or the last one went): show the right first tab.
+            .onChange(of: hasChats) { has in
+                if has, tab == .home { tab = .chats }
+                if !has, tab == .chats { tab = .home }
             }
     }
 
     @ViewBuilder
     private var root: some View {
         #if os(iOS)
+        // With chats: Settings · Tips · Pro · Chats (Chats where the thumb is). Without: the setup guide first.
         TabView(selection: $tab) {
-            NavigationView { HomeView(store: store, activation: activation, openPro: { tab = .pro }, openTips: { tab = .tips }) }
-                .navigationViewStyle(.stack)
-                .tabItem { Label("Get Started", systemImage: "sparkles") }
-                .tag(AppTab.home)
-            NavigationView { TipsView() }
-                .navigationViewStyle(.stack)
-                .tabItem { Label("Tips", systemImage: "lightbulb") }
-                .tag(AppTab.tips)
-            NavigationView { ProView(store: store) }
-                .navigationViewStyle(.stack)
-                .tabItem { Label("Pro", systemImage: "crown") }
-                .tag(AppTab.pro)
-            NavigationView { SettingsView() }
-                .navigationViewStyle(.stack)
-                .tabItem { Label("Settings", systemImage: "gearshape") }
-                .tag(AppTab.settings)
+            if hasChats {
+                settingsTab
+                tipsTab
+                proTab
+                NavigationView { ChatsView(library: chats, activation: activation, openSetup: { showingSetup = true }) }
+                    .navigationViewStyle(.stack)
+                    .tabItem { Label("Chats", systemImage: "bubble.left.and.bubble.right") }
+                    .tag(AppTab.chats)
+            } else {
+                NavigationView { HomeView(store: store, activation: activation, openPro: { tab = .pro }, openTips: { tab = .tips }) }
+                    .navigationViewStyle(.stack)
+                    .tabItem { Label("Get Started", systemImage: "sparkles") }
+                    .tag(AppTab.home)
+                tipsTab
+                proTab
+                settingsTab
+            }
+        }
+        .sheet(isPresented: $showingSetup) {
+            NavigationView {
+                HomeView(store: store, activation: activation, openPro: { showingSetup = false; tab = .pro }, openTips: { showingSetup = false; tab = .tips })
+                    .toolbar {
+                        ToolbarItem(placement: .confirmationAction) { Button("Done") { showingSetup = false } }
+                    }
+            }
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+            chats.refresh()
             Task {
                 await store.refreshEntitlement()
                 await activation.launched()
@@ -112,8 +136,12 @@ struct ContentView: View {
         }
         #else
         NavigationSplitView {
-            List(selection: Binding<AppTab?>(get: { tab }, set: { tab = $0 ?? .home })) {
-                Label("Get Started", systemImage: "sparkles").tag(AppTab.home)
+            List(selection: Binding<AppTab?>(get: { tab }, set: { tab = $0 ?? (hasChats ? .chats : .home) })) {
+                if hasChats {
+                    Label("Chats", systemImage: "bubble.left.and.bubble.right").tag(AppTab.chats)
+                } else {
+                    Label("Get Started", systemImage: "sparkles").tag(AppTab.home)
+                }
                 Label("Tips", systemImage: "lightbulb").tag(AppTab.tips)
                 Label("Pro", systemImage: "crown").tag(AppTab.pro)
                 Label("Settings", systemImage: "gearshape").tag(AppTab.settings)
@@ -122,6 +150,7 @@ struct ContentView: View {
         } detail: {
             switch tab {
             case .home: HomeView(store: store, activation: activation, openPro: { tab = .pro }, openTips: { tab = .tips })
+            case .chats: NavigationStack { ChatsView(library: chats, activation: activation) }
             case .tips: TipsView()
             case .pro: ProView(store: store)
             case .settings: SettingsView()
@@ -129,6 +158,7 @@ struct ContentView: View {
         }
         .frame(minWidth: 720, minHeight: 560)
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
+            chats.refresh()
             Task {
                 await store.refreshEntitlement()
                 await activation.launched()
@@ -137,6 +167,29 @@ struct ContentView: View {
         }
         #endif
     }
+
+    #if os(iOS)
+    private var tipsTab: some View {
+        NavigationView { TipsView() }
+            .navigationViewStyle(.stack)
+            .tabItem { Label("Tips", systemImage: "lightbulb") }
+            .tag(AppTab.tips)
+    }
+
+    private var proTab: some View {
+        NavigationView { ProView(store: store) }
+            .navigationViewStyle(.stack)
+            .tabItem { Label("Pro", systemImage: "crown") }
+            .tag(AppTab.pro)
+    }
+
+    private var settingsTab: some View {
+        NavigationView { SettingsView() }
+            .navigationViewStyle(.stack)
+            .tabItem { Label("Settings", systemImage: "gearshape") }
+            .tag(AppTab.settings)
+    }
+    #endif
 }
 
 // MARK: - Home
@@ -886,6 +939,14 @@ final class ExtensionSettings: ObservableObject {
     @Published var aboutMe = "" { didSet { save() } }
     @Published var ownKeyModel = "smart" { didSet { save() } }
     @Published var hiddenSites: [String] = [] { didSet { save() } }
+    @Published var syncChats = true { didSet { save() } }
+
+    /// Switches iCloud sync of chats on or off from outside the Settings screen (the Chats screen).
+    static func setSyncChats(_ on: Bool) {
+        var stored = SharedDefaults.shared.readSettings()?.settings ?? [:]
+        stored["syncChats"] = on
+        SharedDefaults.shared.writeSettings(stored, updatedAt: Date().timeIntervalSince1970 * 1000)
+    }
 
     private var stored: [String: Any] = [:]
     private var loading = false
@@ -904,6 +965,7 @@ final class ExtensionSettings: ObservableObject {
         aboutMe = stored["aboutMe"] as? String ?? ""
         ownKeyModel = stored["ownKeyModel"] as? String ?? "smart"
         hiddenSites = stored["fabHiddenSites"] as? [String] ?? []
+        syncChats = stored["syncChats"] as? Bool ?? true
     }
 
     private func save() {
@@ -915,7 +977,10 @@ final class ExtensionSettings: ObservableObject {
         stored["aboutMe"] = String(aboutMe.prefix(1000))
         stored["ownKeyModel"] = ownKeyModel
         stored["fabHiddenSites"] = hiddenSites
+        let syncChanged = (stored["syncChats"] as? Bool ?? true) != syncChats
+        stored["syncChats"] = syncChats
         SharedDefaults.shared.writeSettings(stored, updatedAt: Date().timeIntervalSince1970 * 1000)
+        if syncChanged { ChatLibrary.shared.refresh() }
     }
 }
 
@@ -944,6 +1009,13 @@ struct SettingsView: View {
                         settings.hiddenSites = []
                     }
                 }
+            }
+
+            Section(
+                header: Text("Chats"),
+                footer: Text("Your chats continue on your iPhone, iPad and Mac signed in to the same Apple Account. They're end-to-end encrypted in iCloud: only your devices can read them.")
+            ) {
+                Toggle("Sync chats with iCloud", isOn: $settings.syncChats)
             }
 
             Section(

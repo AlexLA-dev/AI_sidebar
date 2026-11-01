@@ -3,7 +3,7 @@
 // which the app may ask for an App Store rating; and the chats (threads), kept in the user's
 // iCloud so they continue on their other devices.
 
-import { applyRemote, markSent, pendingChanges, type Threads } from "../shared/threads"
+import { applyAppChanges, applyRemote, markMirrored, markSent, mirrorChanges, pendingChanges, type CloudChange, type Threads } from "../shared/threads"
 import { DEFAULT_SETTINGS, STORAGE, type Settings } from "../shared/types"
 import { callNative } from "./native"
 
@@ -126,12 +126,83 @@ async function syncOnce(): Promise<boolean> {
   return merged.changed
 }
 
-/** Sends thread changes to iCloud shortly after they are saved (a new answer, a new or deleted chat). */
+/**
+ * Sends thread changes to iCloud shortly after they are saved (a new answer, a new or deleted chat),
+ * and every change (iCloud's too) to the ContextFlow app's copy.
+ */
 export function watchThreads(): void {
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== "local" || !changes[STORAGE.threads]) return
+    clearTimeout(mirrorTimer)
+    mirrorTimer = setTimeout(() => void mirrorThreads().catch(() => undefined), 1_200)
     if (JSON.stringify(changes[STORAGE.threads].newValue ?? {}) === lastWritten) return
     clearTimeout(pushTimer)
     pushTimer = setTimeout(() => void syncThreads().catch(() => undefined), 800)
   })
+}
+
+// ------------------------------------------------------------ the ContextFlow app's copy
+
+interface MirrorReply {
+  // Chats renamed, pinned or deleted in the app since the last call, and the time of the latest.
+  appChanges?: CloudChange[]
+  at?: number
+  // A chat the app asked to continue in Safari ("Open in Safari").
+  open?: string | null
+}
+
+let mirroring: Promise<string | null> | null = null
+let mirrorTimer: ReturnType<typeof setTimeout> | undefined
+
+/**
+ * When the background starts: a copy for the app made by an older version, or long ago (at most every
+ * 10 minutes: Safari starts the background often, and the panel and every chat change mirror anyway).
+ */
+export async function mirrorOnStart(): Promise<void> {
+  const stored = await chrome.storage.local.get(STORAGE.mirroredAt)
+  if (Date.now() - Number(stored[STORAGE.mirroredAt] ?? 0) < 10 * 60_000) return
+  await mirrorThreads()
+}
+
+/**
+ * Keeps the app's copy of the chats (App Group, read by its Chats screen) up to date, and takes the
+ * changes made there. Every chat goes, whether iCloud sync is on or not: it stays on this device.
+ * `takeOpen` (the panel opening): also returns the chat the app asked to continue, if any — only the
+ * panel takes it, so a background start doesn't use it up.
+ */
+export function mirrorThreads(takeOpen = false): Promise<string | null> {
+  if (mirroring) return takeOpen ? mirroring.then(() => mirrorThreads(true), () => mirrorThreads(true)) : mirroring
+  mirroring = mirrorOnce(takeOpen).finally(() => {
+    mirroring = null
+  })
+  return mirroring
+}
+
+async function mirrorOnce(takeOpen: boolean): Promise<string | null> {
+  let open: string | null = null
+  let ack: number | null = null
+  // Big chats go over several calls; the app's changes come with the first answer.
+  for (let round = 0; round < 20; round++) {
+    const stored = await chrome.storage.local.get([STORAGE.threads, STORAGE.mirroredThreads, STORAGE.syncedThreads])
+    const threads = (stored[STORAGE.threads] as Threads | undefined) ?? {}
+    const mirrored = (stored[STORAGE.mirroredThreads] as Record<string, number> | undefined) ?? {}
+    const sent = mirrorChanges(threads, mirrored)
+    if (round > 0 && sent.length === 0 && ack === null) break
+    const reply: MirrorReply | null = await callNative<MirrorReply>("mirrorThreads", { changes: sent, ack, takeOpen: takeOpen && round === 0 }, 10_000)
+    if (!reply) return open // not in Safari, or an app without the bridge
+    ack = null
+    open = reply.open ?? open
+    const update: Record<string, unknown> = { [STORAGE.mirroredThreads]: markMirrored(mirrored, sent), [STORAGE.mirroredAt]: Date.now() }
+    if (reply.appChanges?.length) {
+      const now = (await chrome.storage.local.get(STORAGE.threads))[STORAGE.threads] as Threads | undefined ?? {}
+      const synced = (stored[STORAGE.syncedThreads] as Record<string, number> | undefined) ?? {}
+      const applied = applyAppChanges(now, synced, reply.appChanges)
+      if (applied.changed) update[STORAGE.threads] = applied.threads
+      // Applied: the app can forget them (next call).
+      ack = reply.at ?? null
+    }
+    await chrome.storage.local.set(update)
+    if (sent.length === 0 && ack === null) break
+  }
+  return open
 }
