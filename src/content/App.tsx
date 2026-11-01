@@ -37,12 +37,13 @@ import { ProUpsell } from "./ProUpsell"
 import { SettingsView } from "./Settings"
 import { shareLabels } from "./shareLabels"
 import { markHintSeen, resetHints, seenHints, type HintKey } from "./store"
-import { deleteThread, giveConsent, hasConsent, hasSeenTour, loadSettings, loadThreads, markTourSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, rememberPageText, renameThread, saveSettings, saveThread, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount } from "./store"
+import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, loadThreads, markTourSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, rememberPageText, renameThread, saveSettings, saveThread, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount } from "./store"
 import { TagChip, TagEditor } from "./Tags"
 import { ThreadsView } from "./Threads"
 import { Tour, tourSteps } from "./Tour"
 import { allTags, chatDigests, chatList, cleanTags, newThreadId, pinAt, shownThread, threadTitle, type Thread } from "../shared/threads"
 import type { ChatDigest } from "../shared/history"
+import type { ConsentStatus } from "../shared/consent"
 
 export type Bus = EventTarget
 
@@ -142,6 +143,21 @@ function offerUrl(code: string): string {
   return `https://apps.apple.com/redeem?ctx=offercodes&id=${APP_ID}&code=${encodeURIComponent(code)}`
 }
 
+/** Before the first answer, and again when the text changed (`again`): where questions go. */
+function ConsentCard({ again, onAccept, onDecline }: { again: boolean; onAccept: () => void; onDecline: () => void }): VNode {
+  return (
+    <div class="cf-card consent">
+      <strong>{t(again ? "consentAgainTitle" : "consentTitle")}</strong>
+      <p>{t("consentBody")}</p>
+      <div class="cf-card-actions">
+        <button type="button" class="cf-primary" onClick={onAccept}>{t("consentAccept")}</button>
+        <button type="button" class="cf-link" onClick={onDecline}>{t("consentDecline")}</button>
+        <button type="button" class="cf-link" onClick={() => void sendBackground({ type: "openUrl", url: LINKS.privacy })}>{t("privacyPolicy")}</button>
+      </div>
+    </div>
+  )
+}
+
 function errorText(error: ChatError): string {
   switch (error.code) {
     case "NETWORK":
@@ -162,6 +178,8 @@ function errorText(error: ChatError): string {
       return t("errProOnly")
     case "SEARCH_UNAVAILABLE":
       return t("errSearchUnavailable")
+    case "CONSENT":
+      return t("consentNeeded")
     default:
       return t("errGeneric")
   }
@@ -180,7 +198,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [status, setStatus] = useState<StatusInfo | null>(null)
   const [usage, setUsage] = useState<Usage | null>(null)
   const [viaOwnKey, setViaOwnKey] = useState(false)
-  const [consent, setConsent] = useState(true)
+  // Asked again when it was given for an older text ("old": 2.3 and earlier named OpenAI only).
+  const [consent, setConsent] = useState<ConsentStatus>("ok")
+  const consentRef = useRef(consent)
+  consentRef.current = consent
   const [messages, setMessages] = useState<Turn[]>([])
   // Chats as threads: the list (newest first) and the one shown, which every page and tab continues.
   const [threadList, setThreadList] = useState<Thread[]>([])
@@ -215,6 +236,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [error, setError] = useState<ChatError | null>(null)
   // The Pro offer, shown once more to an install that ran out of free answers before.
   const [offerCard, setOfferCard] = useState(false)
+  const [findConsent, setFindConsent] = useState<{ resolve: (agreed: boolean) => void } | null>(null)
   const [pending, setPending] = useState<{ text: string; label?: string; action?: string; mode?: "google" } | null>(null)
   const [selection, setSelection] = useState<SelectionInfo | null>(null)
   const [pageReadable, setPageReadable] = useState(true)
@@ -261,7 +283,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // ------------------------------------------------------------ settings
   useEffect(() => {
     void loadSettings().then(setSettings)
-    void hasConsent().then(setConsent)
+    void loadConsent().then(setConsent)
     void hasSeenTour().then(setTourSeen)
     return onSettingsChanged(setSettings)
   }, [])
@@ -540,7 +562,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const ask = useCallback((text: string, opts: { label?: string; action?: string; retry?: boolean; mode?: "google" } = {}) => {
     const content = text.trim()
     if (!content || portRef.current || askToken.current) return
-    if (!consent) {
+    if (consent !== "ok") {
       setPending({ text: content, label: opts.label, action: opts.action, mode: opts.mode })
       return
     }
@@ -724,11 +746,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
   const acceptConsent = useCallback(async () => {
     await giveConsent()
-    setConsent(true)
+    setConsent("ok")
     const p = pending
     setPending(null)
     if (p) setTimeout(() => askRef.current(p.text, { label: p.label, action: p.action, mode: p.mode }), 0)
   }, [pending])
+  // "Not now": the question stays in the box, nothing is sent.
+  const declineConsent = useCallback(() => setPending(null), [])
   const askRef = useRef(ask)
   askRef.current = ask
 
@@ -764,6 +788,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
   /** AI search (Pro): the chats the server finds for what the user describes. */
   const findChats = useCallback(async (query: string): Promise<FindReply> => {
+    // Without consent to the current text the card asks first; "Not now" sends nothing.
+    if (consentRef.current !== "ok") {
+      const agreed = await new Promise<boolean>((resolve) => setFindConsent({ resolve }))
+      setFindConsent(null)
+      if (!agreed) return { ok: false, code: "CONSENT" }
+      await giveConsent()
+      setConsent("ok")
+    }
     const { threads } = await loadThreads()
     const chats = chatDigests(Object.values(threads), { perChat: 450, perAnswer: 150, total: 38_000 })
     const reply = (await sendBackground<FindReply>({ type: "find", query, chats })) ?? { ok: false as const, code: "NETWORK" as const }
@@ -1174,6 +1206,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   <Hint icon={<Icon.Chats />} title={t("hintChatsTitle")} onDone={() => doneHint("chats")}>{t("hintChatsBody")}</Hint>
                 </div>
               )}
+              {findConsent && (
+                <div class="cf-upsell-wrap">
+                  <ConsentCard again={consent === "old"} onAccept={() => findConsent.resolve(true)} onDecline={() => findConsent.resolve(false)} />
+                </div>
+              )}
               {upsell && (
                 <div class="cf-upsell-wrap">
                   <ProUpsell
@@ -1198,6 +1235,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 pro={plan === "pro"}
                 onAskHistory={askHistory}
                 onFind={findChats}
+                findWaiting={findConsent !== null}
                 onUpsell={setUpsell}
                 findError={(code) => (code === "LIMIT_REACHED" ? t("limitProTitle") : errorText({ code: code as ErrorCode }))}
                 onTags={tagChat}
@@ -1403,16 +1441,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   </Hint>
                 )}
 
-                {pending && (
-                  <div class="cf-card consent">
-                    <strong>{t("consentTitle")}</strong>
-                    <p>{t("consentBody")}</p>
-                    <div class="cf-card-actions">
-                      <button type="button" class="cf-primary" onClick={() => void acceptConsent()}>{t("consentAccept")}</button>
-                      <button type="button" class="cf-link" onClick={() => void sendBackground({ type: "openUrl", url: LINKS.privacy })}>{t("privacyPolicy")}</button>
-                    </div>
-                  </div>
-                )}
+                {pending && <ConsentCard again={consent === "old"} onAccept={() => void acceptConsent()} onDecline={declineConsent} />}
               </div>
 
               {picked ? (

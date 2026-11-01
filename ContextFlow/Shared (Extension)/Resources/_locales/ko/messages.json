@@ -240,10 +240,19 @@
   "message": "첫 답변 전에 확인해 주세요"
  },
  "consentBody": {
-  "message": "답변을 위해 ContextFlow는 질문과 이 페이지(또는 선택한 부분)의 텍스트를 당사 서버를 거쳐 Anthropic(Claude)으로, 사용할 수 없을 때는 OpenAI로, Google 답변의 경우 Google로 보내요. 페이지 내용과 채팅은 당사 서버에 저장되지 않으며, 채팅은 내 기기에, 동기화를 켜면 내 iCloud에만 보관돼요."
+  "message": "답변을 위해 ContextFlow는 질문과 이 페이지(또는 선택한 부분)의 텍스트(AI 검색과 ‘모든 채팅에 묻기’에서는 채팅 발췌)를 당사 서버를 거쳐 Anthropic(Claude)으로, 사용할 수 없을 때는 OpenAI로, Google 답변의 경우 Google로 보내요. 페이지 내용과 채팅은 당사 서버에 저장되지 않으며, 채팅은 내 기기에, 동기화를 켜면 내 iCloud에만 보관돼요."
  },
  "consentAccept": {
   "message": "동의하고 계속"
+ },
+ "consentAgainTitle": {
+  "message": "업데이트: 이제 Claude가 답변해요"
+ },
+ "consentDecline": {
+  "message": "나중에"
+ },
+ "consentNeeded": {
+  "message": "아무것도 보내지 않았어요. AI 답변을 받으려면 먼저 동의가 필요해요."
  },
  "privacyPolicy": {
   "message": "개인정보 처리방침"

@@ -22,6 +22,8 @@ struct ChatsView: View {
     @State private var aiSearch = false
     @State private var finding = false
     @State private var found: (query: String, results: Result<[ChatAI.Found], ChatAI.Failure>)?
+    /// The search waiting for the AI consent.
+    @State private var consentAsk: (() -> Void)?
 
     private var isPro: Bool {
         #if DEBUG
@@ -91,6 +93,7 @@ struct ChatsView: View {
             }
         }
         .navigationTitle("Chats")
+        .aiConsent($consentAsk)
         .alert("Rename chat", isPresented: Binding(get: { renaming != nil }, set: { if !$0 { renaming = nil } })) {
             TextField("Name", text: $newName)
             Button("Save") {
@@ -179,6 +182,10 @@ struct ChatsView: View {
     private func runFind() {
         let q = query.trimmingCharacters(in: .whitespaces)
         guard aiSearch, !q.isEmpty, !finding else { return }
+        guard AIConsent.given else {
+            consentAsk = { runFind() }
+            return
+        }
         finding = true
         Task {
             do {
@@ -238,6 +245,7 @@ struct ChatsView: View {
         case .limitReached: return String(localized: "You've used this week's Pro answers. They come back on Monday.")
         case .busy: return String(localized: "The AI service is busy. Please try again in a moment.")
         case .network: return String(localized: "No connection. Check the internet and try again.")
+        case .consent: return String(localized: "Nothing was sent: AI answers need your consent first.")
         }
     }
 
@@ -410,6 +418,8 @@ struct HistoryChatView: View {
     @State private var draft = ""
     @State private var streaming: String?
     @State private var failure: ChatAI.Failure?
+    /// The question waiting for the AI consent.
+    @State private var consentAsk: (() -> Void)?
     @FocusState private var focused: Bool
 
     private static let examples = ["What did I read this week?", "Summarize my notes", "What have I learned about AI?"]
@@ -486,6 +496,7 @@ struct HistoryChatView: View {
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
+        .aiConsent($consentAsk)
         .onAppear(perform: load)
     }
 
@@ -504,12 +515,18 @@ struct HistoryChatView: View {
         case .limitReached: return String(localized: "You've used this week's Pro answers. They come back on Monday.")
         case .busy: return String(localized: "The AI service is busy. Please try again in a moment.")
         case .network: return String(localized: "No connection. Check the internet and try again.")
+        case .consent: return String(localized: "Nothing was sent: AI answers need your consent first.")
         }
     }
 
     private func send(_ text: String) {
         let question = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !question.isEmpty, streaming == nil else { return }
+        guard AIConsent.given else {
+            // Nothing is sent before the consent; the question stays in the box.
+            consentAsk = { send(question) }
+            return
+        }
         draft = ""
         failure = nil
         messages.append(["role": "user", "content": question])
@@ -529,6 +546,37 @@ struct HistoryChatView: View {
             }
             streaming = nil
         }
+    }
+}
+
+/// Before the app's first AI request: where questions and chat excerpts go. "Agree" runs the
+/// waiting request; "Not now" sends nothing.
+private struct AIConsentAlert: ViewModifier {
+    @Binding var ask: (() -> Void)?
+    @Environment(\.openURL) private var openURL
+
+    func body(content: Content) -> some View {
+        content.alert("Before your first answer", isPresented: Binding(get: { ask != nil }, set: { if !$0 { ask = nil } })) {
+            Button("Agree and continue") {
+                AIConsent.give()
+                let run = ask
+                ask = nil
+                run?()
+            }
+            Button("Privacy Policy") {
+                ask = nil
+                openURL(Links.privacy)
+            }
+            Button("Not now", role: .cancel) { ask = nil }
+        } message: {
+            Text("To answer, ContextFlow sends your question and excerpts of your chats via our server to Anthropic (Claude) or, if it's unavailable, OpenAI. Chats are not stored on our servers: they stay on your devices and, if you sync them, in your iCloud.")
+        }
+    }
+}
+
+extension View {
+    func aiConsent(_ ask: Binding<(() -> Void)?>) -> some View {
+        modifier(AIConsentAlert(ask: ask))
     }
 }
 

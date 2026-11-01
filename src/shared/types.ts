@@ -95,6 +95,8 @@ export type ErrorCode =
   | "SEARCH_UNAVAILABLE"
   // A Pro feature asked for without Pro (AI search, "Ask your chats").
   | "PRO_ONLY"
+  // No consent for the current text yet: nothing was sent.
+  | "CONSENT"
 
 export type BackgroundRequest =
   | { type: "status"; refresh?: boolean; fresh?: boolean; platform?: Platform }

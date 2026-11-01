@@ -15181,6 +15181,326 @@
           }
         }
       }
+    },
+    "Before your first answer": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vor deiner ersten Antwort"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Antes de tu primera respuesta"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avant votre première réponse"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prima di iniziare"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ご利用の前に"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "첫 답변 전에 확인해 주세요"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Antes da sua primeira resposta"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перед первым ответом"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перед першою відповіддю"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "首次回答前须知"
+          }
+        }
+      }
+    },
+    "Agree and continue": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zustimmen und weiter"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aceptar y continuar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accepter et continuer"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accetta e continua"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "同意して続ける"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "동의하고 계속"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Concordar e continuar"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Согласен, продолжить"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Погодитися й продовжити"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "同意并继续"
+          }
+        }
+      }
+    },
+    "Not now": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nicht jetzt"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ahora no"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pas maintenant"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non ora"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "今はしない"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "나중에"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agora não"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не сейчас"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не зараз"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂不"
+          }
+        }
+      }
+    },
+    "To answer, ContextFlow sends your question and excerpts of your chats via our server to Anthropic (Claude) or, if it's unavailable, OpenAI. Chats are not stored on our servers: they stay on your devices and, if you sync them, in your iCloud.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Um zu antworten, sendet ContextFlow deine Frage und Auszüge aus deinen Chats über unseren Server an Anthropic (Claude) oder, falls Claude nicht verfügbar ist, an OpenAI. Chats werden nicht auf unseren Servern gespeichert – sie bleiben auf deinen Geräten und, wenn du sie synchronisierst, in deiner iCloud."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para responder, ContextFlow envía tu pregunta y fragmentos de tus chats a través de nuestro servidor a Anthropic (Claude) o, si no está disponible, a OpenAI. Los chats no se guardan en nuestros servidores: se quedan en tus dispositivos y, si los sincronizas, en tu iCloud."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pour répondre, ContextFlow envoie votre question et des extraits de vos discussions via notre serveur à Anthropic (Claude) ou, s'il est indisponible, à OpenAI. Les discussions ne sont pas conservées sur nos serveurs : elles restent sur vos appareils et, si vous les synchronisez, dans votre iCloud."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Per rispondere, ContextFlow invia la tua domanda ed estratti delle tue chat tramite il nostro server ad Anthropic (Claude) o, se non è disponibile, a OpenAI. Le chat non vengono salvate sui nostri server: restano sui tuoi dispositivi e, se le sincronizzi, nel tuo iCloud."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "回答するために、ContextFlowはあなたの質問とチャットの抜粋を、当社のサーバ経由でAnthropic（Claude）に、利用できない場合はOpenAIに送信します。チャットは当社のサーバに保存されず、お使いのデバイスと、同期をオンにした場合はあなたのiCloudにのみ保存されます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "답변을 위해 ContextFlow는 질문과 채팅 발췌를 당사 서버를 거쳐 Anthropic(Claude)으로, 사용할 수 없을 때는 OpenAI로 보내요. 채팅은 당사 서버에 저장되지 않으며, 내 기기에, 동기화를 켜면 내 iCloud에만 보관돼요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para responder, o ContextFlow envia sua pergunta e trechos das suas conversas por meio do nosso servidor à Anthropic (Claude) ou, se ela estiver indisponível, à OpenAI. As conversas não ficam armazenadas em nossos servidores: elas ficam nos seus dispositivos e, se você sincronizar, no seu iCloud."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Чтобы ответить, ContextFlow отправляет ваш вопрос и выдержки из ваших чатов через наш сервер в Anthropic (Claude), а если он недоступен — в OpenAI. Мы не храним чаты на своих серверах: они остаются на ваших устройствах и, если включена синхронизация, в вашем iCloud."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Щоб відповісти, ContextFlow надсилає ваше запитання й уривки з ваших чатів через наш сервер до Anthropic (Claude), а якщо він недоступний — до OpenAI. Чати не зберігаються на наших серверах: вони залишаються на ваших пристроях і, якщо ви їх синхронізуєте, у вашому iCloud."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "为了回答问题，ContextFlow 会通过我们的服务器将你的问题和对话摘录发送给 Anthropic（Claude），不可用时发送给 OpenAI。我们的服务器不会存储对话；对话仅保存在你的设备上，开启同步后也会保存在你的 iCloud 中。"
+          }
+        }
+      }
+    },
+    "Nothing was sent: AI answers need your consent first.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nichts wurde gesendet: Für KI-Antworten brauchen wir zuerst deine Zustimmung."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se envió nada: las respuestas de IA necesitan antes tu consentimiento."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rien n'a été envoyé : les réponses de l'IA nécessitent d'abord votre accord."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non è stato inviato nulla: per le risposte dell'IA serve prima il tuo consenso."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "何も送信されていません。AIの回答には先に同意が必要です。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "아무것도 보내지 않았어요. AI 답변을 받으려면 먼저 동의가 필요해요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nada foi enviado: as respostas da IA precisam do seu consentimento antes."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ничего не отправлено: для ответов ИИ нужно ваше согласие."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нічого не надіслано: для відповідей ШІ потрібна ваша згода."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未发送任何内容：AI 回答需要先获得你的同意。"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

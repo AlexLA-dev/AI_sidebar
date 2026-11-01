@@ -27,6 +27,8 @@ interface Props {
   onUpsell: (feature: "find" | "history") => void
   // The last AI search ran out of answers or failed: shown under the field.
   findError: (code: string) => string
+  /** The consent card is up: the search waits for it, nothing is sent yet. */
+  findWaiting?: boolean
   // The chat's own tags (answers and notes are tagged in the chat).
   onTags: (id: string, tags: string[]) => void
   // The list in groups by tag, like folders.
@@ -205,7 +207,7 @@ interface Drag {
  * start a new one. Pinned chats come first and are reordered by dragging their handle; a chat that
  * was on several pages lists them (each opens its page).
  */
-export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onNew, onPin, onMove, onOpenPage, pro, onAskHistory, onFind, onUpsell, findError, onTags, grouped, onGrouped }: Props): VNode {
+export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onNew, onPin, onMove, onOpenPage, pro, onAskHistory, onFind, onUpsell, findError, findWaiting, onTags, grouped, onGrouped }: Props): VNode {
   const [query, setQuery] = useState("")
   // Only the chats with this tag (in the list and in search results).
   const [tagFilter, setTagFilter] = useState<string | null>(null)
@@ -293,7 +295,7 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
       <div class="cf-threads" role="list">
         {search}
         {!found && <p class="cf-search-none">{t("findHint")}</p>}
-        {found && !reply && <div class="cf-thinking cf-find-busy"><span /><span /><span /> {t("findBusy")}</div>}
+        {found && !reply && !findWaiting && <div class="cf-thinking cf-find-busy"><span /><span /><span /> {t("findBusy")}</div>}
         {reply && !reply.ok && <p class="cf-search-none">{findError(reply.code)}</p>}
         {reply?.ok && reply.results.length === 0 && <p class="cf-search-none">{t("searchNone", found?.query ?? "")}</p>}
         {reply?.ok && reply.results.map(({ id, why }) => {

@@ -87,8 +87,11 @@
   "minutes": "{0} min",
 
   "consentTitle": "Prima di iniziare",
-  "consentBody": "Per rispondere, ContextFlow invia la tua domanda e il testo di questa pagina (o della tua selezione) tramite il nostro server ad Anthropic (Claude) o, se non è disponibile, a OpenAI, oppure a Google per le risposte Google. I contenuti delle pagine e le chat non vengono salvati sui nostri server; le tue chat restano sui tuoi dispositivi e, se le sincronizzi, nel tuo iCloud.",
+  "consentBody": "Per rispondere, ContextFlow invia la tua domanda e il testo di questa pagina (o della tua selezione; per la ricerca IA e «Chiedi alle tue chat», estratti delle tue chat) tramite il nostro server ad Anthropic (Claude) o, se non è disponibile, a OpenAI, oppure a Google per le risposte Google. I contenuti delle pagine e le chat non vengono salvati sui nostri server; le tue chat restano sui tuoi dispositivi e, se le sincronizzi, nel tuo iCloud.",
   "consentAccept": "Accetta e continua",
+  "consentAgainTitle": "Novità: ora risponde Claude",
+  "consentDecline": "Non ora",
+  "consentNeeded": "Non è stato inviato nulla: per le risposte dell'IA serve prima il tuo consenso.",
   "privacyPolicy": "Informativa sulla privacy",
 
   "setPlan": "Piano",

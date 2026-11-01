@@ -1,4 +1,5 @@
 import { API_BASE, LINKS, PRODUCTS, TARGET, VERSION } from "../shared/config"
+import { consentStatus } from "../shared/consent"
 import { urlKey } from "../shared/conversation"
 import { uiLanguage } from "../shared/i18n"
 import { keyProvider, OWN_KEY_PATTERN } from "../shared/models"
@@ -138,7 +139,13 @@ async function reportSwitchedOn(): Promise<void> {
 
 // -------------------------------------------------------------------- chat
 
+/** Nothing goes to the AI without consent to the current text (the panel asks for it first). */
+async function consented(): Promise<boolean> {
+  return consentStatus((await chrome.storage.local.get(STORAGE.consent))[STORAGE.consent]) === "ok"
+}
+
 async function runChat(payload: AskPayload, emit: (e: StreamEvent) => void, signal: AbortSignal): Promise<void> {
+  if (!(await consented())) return emit({ type: "error", code: "CONSENT" })
   const [id, ent, key, prefs, client] = await Promise.all([installId(), entitlement(), ownKey(), settings(), clientInfo()])
   const storePlan = ent?.active ? planFromProduct(ent.productId) : "free"
   // The own-key mode is part of the Pro and "Own key" plans (on Chrome there are no plans).
@@ -196,6 +203,7 @@ chrome.runtime.onConnect.addListener((port) => {
 
 /** AI search over the chats (Pro, /api/v2/find): the server checks the plan and charges one answer. */
 async function findChats(query: string, chats: unknown[]): Promise<FindReply> {
+  if (!(await consented())) return { ok: false, code: "CONSENT" }
   const [id, ent, client] = await Promise.all([installId(), entitlement(), clientInfo()])
   try {
     const res = await fetch(`${API_BASE}/api/v2/find`, {

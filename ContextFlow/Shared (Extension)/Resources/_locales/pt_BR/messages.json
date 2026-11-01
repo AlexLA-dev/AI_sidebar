@@ -240,10 +240,19 @@
   "message": "Antes da sua primeira resposta"
  },
  "consentBody": {
-  "message": "Para responder, o ContextFlow envia sua pergunta e o texto desta página (ou da sua seleção) por meio do nosso servidor à Anthropic (Claude) ou, se ela estiver indisponível, à OpenAI, ou ao Google nas respostas do Google. O conteúdo das páginas e as conversas não ficam armazenados em nossos servidores; suas conversas ficam nos seus dispositivos e, se você sincronizar, no seu iCloud."
+  "message": "Para responder, o ContextFlow envia sua pergunta e o texto desta página (ou da sua seleção; na busca com IA e em “Pergunte às suas conversas”, trechos das suas conversas) por meio do nosso servidor à Anthropic (Claude) ou, se ela estiver indisponível, à OpenAI, ou ao Google nas respostas do Google. O conteúdo das páginas e as conversas não ficam armazenados em nossos servidores; suas conversas ficam nos seus dispositivos e, se você sincronizar, no seu iCloud."
  },
  "consentAccept": {
   "message": "Concordar e continuar"
+ },
+ "consentAgainTitle": {
+  "message": "Novidade: agora quem responde é o Claude"
+ },
+ "consentDecline": {
+  "message": "Agora não"
+ },
+ "consentNeeded": {
+  "message": "Nada foi enviado: as respostas da IA precisam do seu consentimento antes."
  },
  "privacyPolicy": {
   "message": "Política de Privacidade"

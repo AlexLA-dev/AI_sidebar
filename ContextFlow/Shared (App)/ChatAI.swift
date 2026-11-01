@@ -3,6 +3,20 @@ import Foundation
 import UIKit
 #endif
 
+/// The consent to send questions and chat excerpts to the AI, asked before the app's first AI
+/// request. Version 2 names Anthropic (Claude) with OpenAI as the backup (2.4); asked again when
+/// the text changes.
+enum AIConsent {
+    static let version = 2
+    private static let key = "cf_ai_consent"
+
+    static var given: Bool { UserDefaults.standard.integer(forKey: key) >= version }
+
+    static func give() {
+        UserDefaults.standard.set(version, forKey: key)
+    }
+}
+
 /// The Pro features over all the chats, from the app (the Safari panel has the same ones):
 /// AI search (/api/v2/find) and "Ask your chats" (/api/v2/chat with context "history").
 /// The server checks the plan from the App Store transaction and charges the Pro allowance.
@@ -13,6 +27,8 @@ enum ChatAI {
         case limitReached
         case busy
         case network
+        /// No consent to the current text yet: nothing was sent.
+        case consent
     }
 
     struct Found: Hashable {
@@ -104,6 +120,7 @@ enum ChatAI {
 
     @MainActor
     static func find(_ query: String, in threads: [ChatThread]) async throws -> [Found] {
+        guard AIConsent.given else { throw Failure.consent }
         var body = identity()
         body["query"] = query
         body["chats"] = digests(threads, perChat: 450, perAnswer: 150, total: 38_000)
@@ -120,6 +137,7 @@ enum ChatAI {
     /// Streams the answer to the last question of `messages` ([{role, content}]) from the other chats.
     @MainActor
     static func askHistory(_ messages: [[String: String]], chats: [ChatThread], onText: @escaping (String) -> Void) async throws {
+        guard AIConsent.given else { throw Failure.consent }
         var body = identity()
         body["context"] = "history"
         body["messages"] = messages

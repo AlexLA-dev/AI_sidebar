@@ -1,3 +1,4 @@
+import { CONSENT_VERSION, consentStatus, type ConsentStatus } from "../shared/consent"
 import type { Entry } from "../shared/conversation"
 import { activity, cleanTitle, liveThreads, newThreadId, prune, type ActiveThread, type Thread, type Threads, cleanTags, withMessages } from "../shared/threads"
 import { MAX_OTHER_PAGE_CHARS } from "../shared/prompt"
@@ -37,12 +38,12 @@ export async function saveSettings(settings: Settings): Promise<void> {
   await chrome.storage.local.set({ [STORAGE.settings]: settings, [STORAGE.settingsUpdatedAt]: Date.now() }).catch(() => undefined)
 }
 
-export async function hasConsent(): Promise<boolean> {
-  return Boolean(await get<boolean>(STORAGE.consent))
+export async function loadConsent(): Promise<ConsentStatus> {
+  return consentStatus(await get<unknown>(STORAGE.consent))
 }
 
 export async function giveConsent(): Promise<void> {
-  await set(STORAGE.consent, true)
+  await set(STORAGE.consent, CONSENT_VERSION)
 }
 
 export async function hasSeenTour(): Promise<boolean> {

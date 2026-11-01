@@ -24,6 +24,7 @@ process.env.GEMINI_API_KEY = "local"
 process.env.FREE_DAILY_LIMIT = process.env.FREE_DAILY_LIMIT ?? "5"
 
 const counters = new Map<string, number>()
+const aiRequests: string[] = []
 // The last /api/v2/chat request body, for e2e checks of what the extension sends (GET /last-request).
 let lastChatRequest: unknown = null
 // The last answer's analytics event: provider, fallback reason, tokens, cost (GET /last-answer).
@@ -250,6 +251,7 @@ createServer(async (req, res) => {
   if (handler) {
     const chunks: Buffer[] = []
     for await (const c of req) chunks.push(c as Buffer)
+    if (url.pathname === "/api/v2/chat" || url.pathname === "/api/v2/find") aiRequests.push(url.pathname)
     if (url.pathname === "/api/v2/chat") {
       try {
         lastChatRequest = JSON.parse(Buffer.concat(chunks).toString("utf8"))
@@ -291,8 +293,15 @@ createServer(async (req, res) => {
     res.end(JSON.stringify(lastChatRequest))
     return
   }
+  // The AI requests since /reset (to check that nothing was sent without consent).
+  if (url.pathname === "/requests") {
+    res.writeHead(200, { "Content-Type": "application/json" })
+    res.end(JSON.stringify(aiRequests))
+    return
+  }
   if (url.pathname === "/reset") {
     counters.clear()
+    aiRequests.length = 0
     res.end("ok")
     return
   }

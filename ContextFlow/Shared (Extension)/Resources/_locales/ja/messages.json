@@ -240,10 +240,19 @@
   "message": "ご利用の前に"
  },
  "consentBody": {
-  "message": "回答するために、ContextFlowはあなたの質問とこのページ（または選択範囲）のテキストを、当社のサーバ経由でAnthropic（Claude）に、利用できない場合はOpenAIに（Googleでの回答の場合はGoogleに）送信します。ページの内容やチャットは当社のサーバに保存されず、チャットはお使いのデバイスと、同期をオンにした場合はあなたのiCloudにのみ保存されます。"
+  "message": "回答するために、ContextFlowはあなたの質問とこのページ（または選択範囲）のテキスト（AI検索と「すべてのチャットに質問」ではチャットの抜粋）を、当社のサーバ経由でAnthropic（Claude）に、利用できない場合はOpenAIに（Googleでの回答の場合はGoogleに）送信します。ページの内容やチャットは当社のサーバに保存されず、チャットはお使いのデバイスと、同期をオンにした場合はあなたのiCloudにのみ保存されます。"
  },
  "consentAccept": {
   "message": "同意して続ける"
+ },
+ "consentAgainTitle": {
+  "message": "更新：回答は Claude が担当するようになりました"
+ },
+ "consentDecline": {
+  "message": "今はしない"
+ },
+ "consentNeeded": {
+  "message": "何も送信されていません。AIの回答には先に同意が必要です。"
  },
  "privacyPolicy": {
   "message": "プライバシーポリシー"
