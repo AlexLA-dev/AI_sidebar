@@ -2,13 +2,14 @@ import type { VNode } from "preact"
 import { useEffect, useRef, useState } from "preact/hooks"
 
 import { t, uiLanguage } from "../shared/i18n"
-import { activity, MAX_TITLE, threadName, threadNotes, threadPages, threadSnippet, threadTitle, type Thread } from "../shared/threads"
+import { activity, MAX_TITLE, searchThreads, threadName, threadNotes, threadPages, threadSnippet, threadTitle, type SearchHit, type Thread } from "../shared/threads"
 import * as Icon from "./icons"
 
 interface Props {
   threads: Thread[] // pinned first, then the newest
   activeId: string
-  onOpen: (id: string) => void
+  // `at`: the message to show (a search result)
+  onOpen: (id: string, at?: number) => void
   onRename: (id: string, name: string) => void
   onDelete: (id: string) => void
   onNew: () => void
@@ -39,6 +40,50 @@ function when(at: number): string {
   if (minutes < 24 * 60) return rtf.format(-Math.round(minutes / 60), "hour")
   if (minutes < 7 * 24 * 60) return rtf.format(-Math.round(minutes / (24 * 60)), "day")
   return new Date(at).toLocaleDateString(uiLanguage(), { day: "numeric", month: "short" })
+}
+
+/** A search excerpt with the matched words marked. */
+function Excerpt({ hit }: { hit: SearchHit }): VNode {
+  const parts: VNode[] = []
+  let from = 0
+  hit.marks.forEach(([start, end], i) => {
+    if (start < from) return
+    if (start > from) parts.push(<span key={`t${i}`}>{hit.excerpt.slice(from, start)}</span>)
+    parts.push(<mark key={`m${i}`}>{hit.excerpt.slice(start, end)}</mark>)
+    from = end
+  })
+  parts.push(<span key="rest">{hit.excerpt.slice(from)}</span>)
+  return <span class="cf-search-excerpt">{parts}</span>
+}
+
+/** The search field over the list: as you type, the chats with every word, and where they matched. */
+function SearchField({ value, onChange }: { value: string; onChange: (value: string) => void }): VNode {
+  return (
+    <div class="cf-search" role="search">
+      <Icon.Search size={15} />
+      <input
+        type="search"
+        value={value}
+        placeholder={t("searchChats")}
+        aria-label={t("searchChats")}
+        enterkeyhint="search"
+        onInput={(e) => onChange(e.currentTarget.value)}
+        onKeyDown={(e) => {
+          // The page must not see these keys; Escape clears the search, not the panel.
+          e.stopPropagation()
+          if (e.key === "Escape" && value) {
+            e.preventDefault()
+            onChange("")
+          }
+        }}
+        onKeyUp={(e) => e.stopPropagation()}
+        onKeyPress={(e) => e.stopPropagation()}
+      />
+      {value && (
+        <button type="button" class="cf-search-clear" onClick={() => onChange("")} aria-label={t("searchClear")} title={t("searchClear")}>×</button>
+      )}
+    </div>
+  )
 }
 
 /** The chat's name in place, being edited: Enter (or leaving the field) keeps it, Escape doesn't. */
@@ -98,6 +143,7 @@ interface Drag {
  * was on several pages lists them (each opens its page).
  */
 export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onNew, onPin, onMove, onOpenPage }: Props): VNode {
+  const [query, setQuery] = useState("")
   const [editing, setEditing] = useState<string | null>(null)
   const [pagesOf, setPagesOf] = useState<string | null>(null)
   const [drag, setDrag] = useState<Drag | null>(null)
@@ -124,6 +170,46 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
           <p>{t("chatsEmpty")}</p>
           <button type="button" class="cf-primary" onClick={onNew}><Icon.Plus /> {t("newChat")}</button>
         </div>
+      </div>
+    )
+  }
+
+  if (query.trim()) {
+    const results = searchThreads(threads, query)
+    return (
+      <div class="cf-threads" role="list">
+        <SearchField value={query} onChange={setQuery} />
+        {results.length === 0 && <p class="cf-search-none">{t("searchNone", query.trim())}</p>}
+        {results.map(({ thread, hits }) => (
+          <div key={thread.id} role="listitem" class={`cf-thread ${thread.id === activeId ? "current" : ""}`}>
+            <div
+              class="cf-thread-main"
+              role="button"
+              tabIndex={0}
+              onClick={() => onOpen(thread.id, hits[0]?.at)}
+              onKeyDown={(e) => {
+                if (e.key !== "Enter" && e.key !== " ") return
+                e.preventDefault()
+                onOpen(thread.id, hits[0]?.at)
+              }}
+            >
+              <span class="cf-thread-title">{threadName(thread)}</span>
+              {hits.map((hit, i) => (
+                <span
+                  key={i}
+                  class="cf-search-hit"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onOpen(thread.id, hit.at)
+                  }}
+                >
+                  <Excerpt hit={hit} />
+                </span>
+              ))}
+              <span class="cf-thread-meta"><span class="cf-thread-when">{when(activity(thread))}</span></span>
+            </div>
+          </div>
+        ))}
       </div>
     )
   }
@@ -159,6 +245,7 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
 
   return (
     <div class="cf-threads" role="list">
+      <SearchField value={query} onChange={setQuery} />
       {threads.map((thread, index) => {
         const pages = threadPages(thread.m)
         const notes = threadNotes(thread.m)

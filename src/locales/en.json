@@ -215,5 +215,8 @@
   "videoNoTranscript": "This video has no captions: the answer uses its title and description.",
   "videoFailed": "Couldn’t get this video’s transcript: the answer uses its title and description.",
   "pdfNoText": "“{0}” has no text to read (scanned pages): the answer is without it.",
-  "pdfFailed": "Couldn’t read the PDF “{0}”: the answer is without it."
+  "pdfFailed": "Couldn’t read the PDF “{0}”: the answer is without it.",
+  "searchChats": "Search chats",
+  "searchNone": "No chats found for “{0}”",
+  "searchClear": "Clear search"
 }

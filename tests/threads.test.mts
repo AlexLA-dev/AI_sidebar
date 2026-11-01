@@ -7,6 +7,7 @@ import {
   applyRemote,
   chatList,
   cleanTitle,
+  foldText,
   liveThreads,
   markMirrored,
   markSent,
@@ -15,6 +16,8 @@ import {
   pendingChanges,
   pinAt,
   prune,
+  queryWords,
+  searchThreads,
   shownThread,
   threadForCloud,
   threadFromCloud,
@@ -232,4 +235,25 @@ test("applyAppChanges: newer copies from the app win; deletions keep a tombstone
   assert.deepEqual(next.c, { id: "c", u: 99, m: [], deleted: true })
   assert.equal(next.d, undefined)
   assert.equal(applyAppChanges(next, {}, [{ id: "a", updatedAt: 20, data: renamed }]).changed, false)
+})
+
+test("searchThreads: every word, accents and case ignored, named chats first, excerpts marked", () => {
+  const threads: Thread[] = [
+    { id: "a", u: 30, a: 30, m: [q("Что такое ёлка?"), { role: "assistant", content: "**Ёлка** — хвойное дерево, растёт в лесу." }] },
+    { id: "b", u: 20, a: 20, m: [q("Café prices in Paris"), { role: "assistant", content: "A coffee costs about 3 €." }], title: "Paris trip" },
+    { id: "c", u: 10, a: 10, m: [q("tell me about paris"), { role: "assistant", content: "Paris is the capital of France. Cafes are everywhere." }] }
+  ]
+  assert.deepEqual(searchThreads(threads, "елка").map((r) => r.thread.id), ["a"])
+  assert.deepEqual(searchThreads(threads, "PARIS").map((r) => r.thread.id), ["b", "c"])
+  assert.deepEqual(searchThreads(threads, "cafe paris").map((r) => r.thread.id), ["b", "c"])
+  assert.deepEqual(searchThreads(threads, "paris london"), [])
+  assert.deepEqual(searchThreads(threads, "   "), [])
+  const [hit] = searchThreads(threads, "хвойное").find((r) => r.thread.id === "a")!.hits
+  assert.equal(hit.at, 1)
+  assert.ok(!hit.excerpt.includes("**"))
+  const [s, e] = hit.marks[0]
+  assert.equal(foldText(hit.excerpt.slice(s, e)), "хвойное")
+  // A page title counts too.
+  assert.deepEqual(searchThreads(threads, "news.example").map((r) => r.thread.id), ["a", "b", "c"])
+  assert.deepEqual(queryWords('"capital of" France'), ["capital of", "france"])
 })

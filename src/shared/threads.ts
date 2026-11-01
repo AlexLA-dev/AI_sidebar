@@ -300,3 +300,101 @@ export function applyAppChanges(threads: Threads, synced: Record<string, number>
   }
   return { threads: next, changed }
 }
+
+// ------------------------------------------------------------ search
+
+/** Where a chat matched a search: the chat's name, a message, or a page it was on. */
+export interface SearchHit {
+  // The message (index in the chat), or -1 for the name, -2 for a page.
+  at: number
+  // A short excerpt around the first matched word, and where the words are in it.
+  excerpt: string
+  marks: Array<[number, number]>
+}
+
+export interface SearchResult {
+  thread: Thread
+  hits: SearchHit[]
+}
+
+/**
+ * Folded for matching, the same length as `text` (positions carry over to the original): lower case,
+ * Latin letters without accents (é → e), ё → е, any space a plain space.
+ */
+export function foldText(text: string): string {
+  let out = ""
+  for (const ch of text) {
+    let f = /\s/.test(ch) ? " " : ch.toLowerCase()
+    if (/[À-ɏ]/.test(f)) f = f.normalize("NFD").replace(/[̀-ͯ]/g, "")
+    if (f === "ё") f = "е"
+    out += f.length === ch.length ? f : ch
+  }
+  return out
+}
+
+/** The words of a query (quotes keep a phrase together). */
+export function queryWords(query: string): string[] {
+  const words: string[] = []
+  for (const m of foldText(query).matchAll(/"([^"]+)"|(\S+)/g)) {
+    const word = (m[1] ?? m[2]).trim()
+    if (word) words.push(word)
+  }
+  return words
+}
+
+/** An excerpt of `text` around `start`, at most `size` long, with the words in it marked. */
+function excerpt(text: string, folded: string, words: string[], start: number, size = 120): Omit<SearchHit, "at"> {
+  const from = Math.max(0, Math.min(start - Math.floor(size / 3), text.length - size))
+  const to = Math.min(text.length, from + size)
+  const lead = from > 0 ? "…" : ""
+  const piece = text.slice(from, to).replace(/\s/g, " ")
+  const marks: Array<[number, number]> = []
+  const window = folded.slice(from, to)
+  for (const word of words) {
+    let i = window.indexOf(word)
+    while (i >= 0) {
+      marks.push([lead.length + i, lead.length + i + word.length])
+      i = window.indexOf(word, i + word.length)
+    }
+  }
+  marks.sort((a, b) => a[0] - b[0])
+  return { excerpt: lead + piece + (to < text.length ? "…" : ""), marks }
+}
+
+const plain = (text: string) => stripCitations(text).replace(/[*_`#>|]+/g, "")
+
+/**
+ * Chats with every word of `query` (in its name, messages, notes or page titles together), the best
+ * first: those named after it, then those where the words meet in one message; then by recent activity.
+ * Each comes with up to `maxHits` places that matched.
+ */
+export function searchThreads(threads: Thread[], query: string, maxHits = 3): SearchResult[] {
+  const words = queryWords(query)
+  if (!words.length) return []
+  const scored: Array<{ result: SearchResult; score: number }> = []
+  for (const thread of threads) {
+    const name = threadName(thread)
+    const fields: Array<{ at: number; text: string }> = [{ at: -1, text: name }]
+    thread.m.forEach((e, i) => fields.push({ at: i, text: plain(e.label ? `${e.label} ${e.content}` : e.content) }))
+    for (const page of threadPages(thread.m)) fields.push({ at: -2, text: `${page.title} ${page.url}` })
+    const folded = fields.map((f) => foldText(f.text))
+    // Every word somewhere in the chat.
+    if (!words.every((w) => folded.some((f) => f.includes(w)))) continue
+    const hits: SearchHit[] = []
+    let named = 0
+    let together = false
+    fields.forEach((field, i) => {
+      const present = words.filter((w) => folded[i].includes(w))
+      if (!present.length) return
+      if (field.at === -1) named = present.length
+      if (present.length === words.length) together = true
+      // The first question is already the chat's name in the list.
+      if (hits.length < maxHits && field.at !== -1 && field.text.replace(/\s+/g, " ").trim() !== name) {
+        const first = Math.min(...present.map((w) => folded[i].indexOf(w)))
+        hits.push({ at: field.at, ...excerpt(field.text, folded[i], present, first) })
+      }
+    })
+    scored.push({ result: { thread, hits }, score: named * 100 + (together ? 10 : 0) })
+  }
+  return scored.sort((a, b) => b.score - a.score || activity(b.result.thread) - activity(a.result.thread)).map((s) => s.result)
+}

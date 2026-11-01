@@ -1,5 +1,6 @@
 import Combine
 import Foundation
+import SwiftUI
 #if os(iOS)
 import UIKit
 #else
@@ -315,5 +316,100 @@ final class ChatLibrary: ObservableObject {
         guard let page = thread.lastPage else { return }
         ChatMirror.requestOpen(thread.id)
         open(page.url)
+    }
+}
+
+// MARK: - Search
+
+/// Chats with every word of a query (in the name, messages, notes or page titles), as in the Safari
+/// panel (src/shared/threads.ts `searchThreads`): case and accents ignored, chats named after it first.
+enum ChatSearch {
+    struct Hit: Hashable {
+        /// The message's index in the chat, or nil for a page it was on.
+        let index: Int?
+        let excerpt: AttributedString
+    }
+
+    struct Result: Identifiable {
+        let thread: ChatThread
+        let hits: [Hit]
+        var id: String { thread.id }
+    }
+
+    private static let options: String.CompareOptions = [.caseInsensitive, .diacriticInsensitive, .widthInsensitive]
+
+    /// The query's words; quotes keep a phrase together.
+    static func words(_ query: String) -> [String] {
+        var out: [String] = []
+        let pattern = try? NSRegularExpression(pattern: #""([^"]+)"|(\S+)"#)
+        let text = query as NSString
+        for match in pattern?.matches(in: query, range: NSRange(location: 0, length: text.length)) ?? [] {
+            let range = match.range(at: 1).location != NSNotFound ? match.range(at: 1) : match.range(at: 2)
+            let word = text.substring(with: range).trimmingCharacters(in: .whitespaces)
+            if !word.isEmpty { out.append(word) }
+        }
+        return out
+    }
+
+    static func search(_ threads: [ChatThread], _ query: String, maxHits: Int = 2) -> [Result] {
+        let words = words(query)
+        guard !words.isEmpty else { return [] }
+        var scored: [(Result, Int)] = []
+        for thread in threads {
+            let name = thread.name
+            var fields: [(index: Int?, text: String)] = thread.entries.enumerated().map { index, entry in
+                (index, plain(entry.label.map { "\($0) \(entry.content)" } ?? entry.content))
+            }
+            fields += thread.pages.map { (nil, "\($0.title) \($0.url)") }
+            let all = [name] + fields.map(\.text)
+            guard words.allSatisfy({ word in all.contains { $0.range(of: word, options: options) != nil } }) else { continue }
+            let named = words.filter { name.range(of: $0, options: options) != nil }.count
+            var together = words.count == named
+            var hits: [Hit] = []
+            for field in fields {
+                let present = words.filter { field.text.range(of: $0, options: options) != nil }
+                guard !present.isEmpty else { continue }
+                if present.count == words.count { together = true }
+                // The first question is already the chat's name in the list.
+                if hits.count < maxHits, oneLine(field.text) != name {
+                    hits.append(Hit(index: field.index, excerpt: excerpt(field.text, present)))
+                }
+            }
+            scored.append((Result(thread: thread, hits: hits), named * 100 + (together ? 10 : 0)))
+        }
+        return scored.sorted { $0.1 != $1.1 ? $0.1 > $1.1 : $0.0.thread.lastAt > $1.0.thread.lastAt }.map(\.0)
+    }
+
+    private static func plain(_ text: String) -> String {
+        text.replacingOccurrences(of: #"\s*\[\d{1,2}\]\(https?:[^)\s]+\)"#, with: "", options: .regularExpression)
+            .replacingOccurrences(of: #"[*_`#>|]+"#, with: "", options: .regularExpression)
+    }
+
+    private static func oneLine(_ text: String) -> String {
+        text.replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression).trimmingCharacters(in: .whitespaces)
+    }
+
+    /// About 120 characters around the first matched word, the words highlighted.
+    private static func excerpt(_ text: String, _ words: [String], size: Int = 120) -> AttributedString {
+        let line = oneLine(text)
+        let first = words.compactMap { line.range(of: $0, options: options)?.lowerBound }.min() ?? line.startIndex
+        let offset = line.distance(from: line.startIndex, to: first)
+        let from = max(0, min(offset - size / 3, line.count - size))
+        let start = line.index(line.startIndex, offsetBy: from)
+        let end = line.index(start, offsetBy: min(size, line.distance(from: start, to: line.endIndex)))
+        var piece = (from > 0 ? "…" : "") + line[start..<end] + (end < line.endIndex ? "…" : "")
+        piece = piece.replacingOccurrences(of: "\n", with: " ")
+        var out = AttributedString(piece)
+        for word in words {
+            var search = piece.startIndex..<piece.endIndex
+            while let range = piece.range(of: word, options: options, range: search) {
+                if let lower = AttributedString.Index(range.lowerBound, within: out), let upper = AttributedString.Index(range.upperBound, within: out) {
+                    out[lower..<upper].backgroundColor = .yellow.opacity(0.35)
+                    out[lower..<upper].foregroundColor = .primary
+                }
+                search = range.upperBound..<piece.endIndex
+            }
+        }
+        return out
     }
 }

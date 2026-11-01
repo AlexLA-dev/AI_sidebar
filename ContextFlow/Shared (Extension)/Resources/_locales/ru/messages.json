@@ -604,5 +604,14 @@
  },
  "pdfFailed": {
   "message": "Не удалось прочитать PDF «{0}» — ответ без него."
+ },
+ "searchChats": {
+  "message": "Поиск по чатам"
+ },
+ "searchNone": {
+  "message": "Ничего не найдено по запросу «{0}»"
+ },
+ "searchClear": {
+  "message": "Очистить поиск"
  }
 }

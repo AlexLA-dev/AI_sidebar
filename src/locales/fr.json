@@ -215,5 +215,8 @@
   "videoNoTranscript": "Cette vidéo n’a pas de sous-titres : la réponse s’appuie sur son titre et sa description.",
   "videoFailed": "Impossible d’obtenir la transcription de cette vidéo : la réponse s’appuie sur son titre et sa description.",
   "pdfNoText": "« {0} » ne contient pas de texte lisible (pages numérisées) : la réponse s’en passe.",
-  "pdfFailed": "Impossible de lire le PDF « {0} » : la réponse s’en passe."
+  "pdfFailed": "Impossible de lire le PDF « {0} » : la réponse s’en passe.",
+  "searchChats": "Rechercher dans les discussions",
+  "searchNone": "Aucune discussion pour « {0} »",
+  "searchClear": "Effacer la recherche"
 }

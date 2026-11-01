@@ -604,5 +604,14 @@
  },
  "pdfFailed": {
   "message": "PDF ‘{0}’을(를) 읽지 못했어요. 이 문서 없이 답해요."
+ },
+ "searchChats": {
+  "message": "채팅 검색"
+ },
+ "searchNone": {
+  "message": "‘{0}’에 해당하는 채팅이 없어요"
+ },
+ "searchClear": {
+  "message": "검색 지우기"
  }
 }

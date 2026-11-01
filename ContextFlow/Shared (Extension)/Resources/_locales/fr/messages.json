@@ -604,5 +604,14 @@
  },
  "pdfFailed": {
   "message": "Impossible de lire le PDF « {0} » : la réponse s’en passe."
+ },
+ "searchChats": {
+  "message": "Rechercher dans les discussions"
+ },
+ "searchNone": {
+  "message": "Aucune discussion pour « {0} »"
+ },
+ "searchClear": {
+  "message": "Effacer la recherche"
  }
 }

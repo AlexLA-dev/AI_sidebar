@@ -215,5 +215,8 @@
   "videoNoTranscript": "Questo video non ha sottotitoli: la risposta usa titolo e descrizione.",
   "videoFailed": "Impossibile ottenere la trascrizione di questo video: la risposta usa titolo e descrizione.",
   "pdfNoText": "«{0}» non contiene testo leggibile (pagine scansionate): la risposta ne fa a meno.",
-  "pdfFailed": "Impossibile leggere il PDF «{0}»: la risposta ne fa a meno."
+  "pdfFailed": "Impossibile leggere il PDF «{0}»: la risposta ne fa a meno.",
+  "searchChats": "Cerca nelle chat",
+  "searchNone": "Nessuna chat per «{0}»",
+  "searchClear": "Cancella ricerca"
 }

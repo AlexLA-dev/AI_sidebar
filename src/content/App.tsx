@@ -431,8 +431,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         setPicked(null)
         return
       }
-      // Escape in a chat's name field only cancels the renaming.
-      if ((e.composedPath()[0] as HTMLElement | undefined)?.classList?.contains("cf-thread-name")) return
+      // Escape in a chat's name field only cancels the renaming; in the chat search, it clears the search.
+      const field = e.composedPath()[0] as HTMLInputElement | undefined
+      if (field?.classList?.contains("cf-thread-name") || (field?.closest?.(".cf-search") && field.value)) return
       hide()
     }
     window.addEventListener("keydown", onKey, true)
@@ -691,7 +692,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setView("chat")
   }, [stop])
 
-  const openThread = useCallback((id: string) => {
+  /** Opens a chat; `at`: the message to show (a search result), else its end. */
+  const openThread = useCallback((id: string, at?: number) => {
     stop()
     const thread = threadList.find((x) => x.id === id)
     threadRef.current = id
@@ -699,10 +701,18 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setMessages(thread?.m ?? [])
     setError(null)
     setView("chat")
-    requestAnimationFrame(() => {
+    requestAnimationFrame(() => requestAnimationFrame(() => {
       const list = listRef.current
-      if (list) list.scrollTop = list.scrollHeight
-    })
+      if (!list) return
+      const target = at !== undefined && at >= 0 ? list.querySelector<HTMLElement>(`[data-index="${at}"]`) : null
+      if (!target) {
+        list.scrollTop = list.scrollHeight
+        return
+      }
+      target.scrollIntoView({ block: "center" })
+      target.classList.add("found")
+      setTimeout(() => target.classList.remove("found"), 1600)
+    }))
   }, [stop, threadList])
 
   const renameChat = useCallback((id: string, name: string) => {
@@ -1103,7 +1113,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
                 {messages.map((m, idx) =>
                   m.role === "user" ? (
-                    <div class={`cf-msg user ${m.note ? "note" : ""} ${picked ? "pickable" : ""} ${picked?.has(idx) ? "picked" : ""}`} key={idx} {...pickProps(idx)}>
+                    <div class={`cf-msg user ${m.note ? "note" : ""} ${picked ? "pickable" : ""} ${picked?.has(idx) ? "picked" : ""}`} key={idx} data-index={idx} {...pickProps(idx)}>
                       <PageDivider entries={messages} index={idx} onOpen={openPage} />
                       {m.note ? (
                         <div class="cf-bubble-note"><span class="cf-note-mark" aria-label={t("shareNote")}><Icon.Pencil /></span>{m.content}</div>
@@ -1113,7 +1123,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       {m.sources && m.sources.length > 0 && <UsedSources notes={m.sources} />}
                     </div>
                   ) : (
-                    <div class={`cf-msg ai ${picked ? "pickable" : ""} ${picked?.has(idx) ? "picked" : ""}`} key={idx} {...pickProps(idx)}>
+                    <div class={`cf-msg ai ${picked ? "pickable" : ""} ${picked?.has(idx) ? "picked" : ""}`} key={idx} data-index={idx} {...pickProps(idx)}>
                       {m.grounding && <div class="cf-grounded"><Icon.Search size={13} /> {t("googleBadge")}</div>}
                       <Markdown text={m.content} onCopyCode={(code) => void copyText(code)} />
                       {m.grounding && <Sources grounding={m.grounding} />}

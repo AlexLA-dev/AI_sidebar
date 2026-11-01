@@ -604,5 +604,14 @@
  },
  "pdfFailed": {
   "message": "PDF「{0}」を読み取れませんでした。これを除いて回答します。"
+ },
+ "searchChats": {
+  "message": "チャットを検索"
+ },
+ "searchNone": {
+  "message": "「{0}」に一致するチャットはありません"
+ },
+ "searchClear": {
+  "message": "検索をクリア"
  }
 }

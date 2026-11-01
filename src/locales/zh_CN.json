@@ -215,5 +215,8 @@
   "videoNoTranscript": "此视频没有字幕：回答依据其标题和简介。",
   "videoFailed": "无法获取此视频的文字稿：回答依据其标题和简介。",
   "pdfNoText": "“{0}”没有可读取的文字（扫描页面）：回答不包含它。",
-  "pdfFailed": "无法读取 PDF“{0}”：回答不包含它。"
+  "pdfFailed": "无法读取 PDF“{0}”：回答不包含它。",
+  "searchChats": "搜索对话",
+  "searchNone": "没有找到包含“{0}”的对话",
+  "searchClear": "清除搜索"
 }

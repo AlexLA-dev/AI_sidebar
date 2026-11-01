@@ -18,9 +18,81 @@ struct ChatsView: View {
     @State private var renaming: ChatThread?
     @State private var newName = ""
     @State private var deleting: ChatThread?
+    @State private var query = ""
+
+    private var searching: Bool { !query.trimmingCharacters(in: .whitespaces).isEmpty }
 
     var body: some View {
         List {
+            if searching {
+                searchResults
+            } else {
+                chatList
+            }
+        }
+        #if os(iOS)
+        .listStyle(.insetGrouped)
+        .refreshable { await library.refreshNow() }
+        #endif
+        .searchable(text: $query, prompt: Text("Search chats"))
+        .overlay {
+            if library.loaded && library.threads.isEmpty && !searching {
+                EmptyChats()
+            }
+        }
+        .navigationTitle("Chats")
+        .alert("Rename chat", isPresented: Binding(get: { renaming != nil }, set: { if !$0 { renaming = nil } })) {
+            TextField("Name", text: $newName)
+            Button("Save") {
+                if let renaming { library.rename(renaming, to: newName) }
+                renaming = nil
+            }
+            Button("Cancel", role: .cancel) { renaming = nil }
+        } message: {
+            Text("Leave it empty to name the chat after its first question.")
+        }
+        .confirmationDialog("Delete this chat?", isPresented: Binding(get: { deleting != nil }, set: { if !$0 { deleting = nil } }), titleVisibility: .visible) {
+            Button("Delete", role: .destructive) {
+                if let deleting { library.delete(deleting) }
+                deleting = nil
+            }
+        } message: {
+            Text(library.syncOn ? "It's deleted on all your devices." : "It's deleted on this device.")
+        }
+        .onAppear { library.refresh() }
+    }
+
+    /// Chats with every word of the query, and where they matched (each opens the chat there).
+    @ViewBuilder
+    private var searchResults: some View {
+        let results = ChatSearch.search(library.threads, query)
+        if results.isEmpty {
+            Text("No chats found for “\(query.trimmingCharacters(in: .whitespaces))”")
+                .foregroundColor(.secondary)
+        }
+        ForEach(results) { result in
+            NavigationLink(destination: ChatDetailView(library: library, threadId: result.thread.id, scrollTo: result.hits.first?.index)) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(result.thread.name)
+                        .font(.headline)
+                        .lineLimit(1)
+                    ForEach(result.hits, id: \.self) { hit in
+                        Text(hit.excerpt)
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                            .lineLimit(2)
+                    }
+                    Text(result.thread.lastActivity, style: .relative)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                .padding(.vertical, 4)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var chatList: some View {
             if activation.state == .off {
                 Section { ExtensionOffBanner(openSetup: openSetup) }
             }
@@ -49,36 +121,6 @@ struct ChatsView: View {
                     #endif
                 }
             }
-        }
-        #if os(iOS)
-        .listStyle(.insetGrouped)
-        .refreshable { await library.refreshNow() }
-        #endif
-        .overlay {
-            if library.loaded && library.threads.isEmpty {
-                EmptyChats()
-            }
-        }
-        .navigationTitle("Chats")
-        .alert("Rename chat", isPresented: Binding(get: { renaming != nil }, set: { if !$0 { renaming = nil } })) {
-            TextField("Name", text: $newName)
-            Button("Save") {
-                if let renaming { library.rename(renaming, to: newName) }
-                renaming = nil
-            }
-            Button("Cancel", role: .cancel) { renaming = nil }
-        } message: {
-            Text("Leave it empty to name the chat after its first question.")
-        }
-        .confirmationDialog("Delete this chat?", isPresented: Binding(get: { deleting != nil }, set: { if !$0 { deleting = nil } }), titleVisibility: .visible) {
-            Button("Delete", role: .destructive) {
-                if let deleting { library.delete(deleting) }
-                deleting = nil
-            }
-        } message: {
-            Text(library.syncOn ? "It's deleted on all your devices." : "It's deleted on this device.")
-        }
-        .onAppear { library.refresh() }
     }
 
     @ViewBuilder
@@ -234,6 +276,8 @@ struct ExtensionOffBanner: View {
 struct ChatDetailView: View {
     @ObservedObject var library: ChatLibrary
     let threadId: String
+    /// The message to show first (a search result).
+    var scrollTo: Int? = nil
     @Environment(\.dismiss) private var dismiss
     @State private var renaming = false
     @State private var newName = ""
@@ -244,18 +288,25 @@ struct ChatDetailView: View {
     var body: some View {
         Group {
             if let thread {
-                ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 14) {
-                        ForEach(Array(thread.entries.enumerated()), id: \.offset) { index, entry in
-                            if let page = newPage(thread.entries, index) {
-                                PageDivider(page: page) { library.open(page.url) }
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        LazyVStack(alignment: .leading, spacing: 14) {
+                            ForEach(Array(thread.entries.enumerated()), id: \.offset) { index, entry in
+                                if let page = newPage(thread.entries, index) {
+                                    PageDivider(page: page) { library.open(page.url) }
+                                }
+                                MessageView(entry: entry)
+                                    .id(index)
                             }
-                            MessageView(entry: entry)
                         }
+                        .padding(16)
+                        .frame(maxWidth: 760)
+                        .frame(maxWidth: .infinity)
                     }
-                    .padding(16)
-                    .frame(maxWidth: 760)
-                    .frame(maxWidth: .infinity)
+                    .onAppear {
+                        guard let scrollTo else { return }
+                        DispatchQueue.main.async { proxy.scrollTo(scrollTo, anchor: .center) }
+                    }
                 }
                 .navigationTitle(thread.name)
                 #if os(iOS)

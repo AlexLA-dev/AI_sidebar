@@ -215,5 +215,8 @@
   "videoNoTranscript": "Este vídeo no tiene subtítulos: la respuesta usa su título y descripción.",
   "videoFailed": "No se pudo obtener la transcripción de este vídeo: la respuesta usa su título y descripción.",
   "pdfNoText": "«{0}» no tiene texto que leer (páginas escaneadas): la respuesta no lo incluye.",
-  "pdfFailed": "No se pudo leer el PDF «{0}»: la respuesta no lo incluye."
+  "pdfFailed": "No se pudo leer el PDF «{0}»: la respuesta no lo incluye.",
+  "searchChats": "Buscar en los chats",
+  "searchNone": "No hay chats con «{0}»",
+  "searchClear": "Borrar búsqueda"
 }

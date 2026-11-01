@@ -604,5 +604,14 @@
  },
  "pdfFailed": {
   "message": "No se pudo leer el PDF «{0}»: la respuesta no lo incluye."
+ },
+ "searchChats": {
+  "message": "Buscar en los chats"
+ },
+ "searchNone": {
+  "message": "No hay chats con «{0}»"
+ },
+ "searchClear": {
+  "message": "Borrar búsqueda"
  }
 }

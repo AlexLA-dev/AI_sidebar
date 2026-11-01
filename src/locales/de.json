@@ -215,5 +215,8 @@
   "videoNoTranscript": "Dieses Video hat keine Untertitel: Die Antwort stützt sich auf Titel und Beschreibung.",
   "videoFailed": "Das Transkript dieses Videos ließ sich nicht abrufen: Die Antwort stützt sich auf Titel und Beschreibung.",
   "pdfNoText": "„{0}“ enthält keinen lesbaren Text (gescannte Seiten): Die Antwort kommt ohne ihn aus.",
-  "pdfFailed": "Das PDF „{0}“ ließ sich nicht lesen: Die Antwort kommt ohne es aus."
+  "pdfFailed": "Das PDF „{0}“ ließ sich nicht lesen: Die Antwort kommt ohne es aus.",
+  "searchChats": "Chats durchsuchen",
+  "searchNone": "Keine Chats zu „{0}“ gefunden",
+  "searchClear": "Suche löschen"
 }
