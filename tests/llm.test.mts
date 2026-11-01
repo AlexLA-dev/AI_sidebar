@@ -83,3 +83,19 @@ test("a whole-chat request keeps the long history within a budget and the chat's
   assert.match(prompt, /\[Note the user wrote …\] is a note/)
   assert.doesNotMatch(systemPrompt(null, "", "en"), /Other pages/)
 })
+
+test("sanitizePage: video transcripts and PDFs keep up to the media limit; other pages don't", () => {
+  const text = "a".repeat(150_000)
+  const video = sanitizePage({ kind: "page", title: "V", url: "https://youtube.com/watch?v=x", text, media: "video" })
+  assert.equal(video?.media, "video")
+  assert.equal(video?.text.length, 100_001)
+  const page = sanitizePage({ kind: "page", title: "P", url: "https://x", text, media: "audio" })
+  assert.equal(page?.media, undefined)
+  assert.equal(page?.text.length, 24_001)
+  // A selection is a selection, whatever it was taken from.
+  const selection = sanitizePage({ kind: "selection", title: "S", url: "https://x", text, media: "pdf" })
+  assert.equal(selection?.media, undefined)
+  assert.equal(selection?.text.length, 24_001)
+  // Other pages of the chat stay short.
+  assert.equal(sanitizeOtherPages([{ title: "O", url: "https://o", text, media: "pdf" }])[0].text.length, 8_001)
+})

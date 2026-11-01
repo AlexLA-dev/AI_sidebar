@@ -21,6 +21,40 @@ const GEMINI_MODELS = ["gemini-2.5-flash", "gemini-3.6-flash", "gemini-3.8-flash
 const GEMINI = "https://generativelanguage.googleapis.com/v1beta/models"
 const REDIRECT = "https://vertexaisearch.cloud.google.com/grounding-api-redirect/"
 let gemini: { lastUrl?: string; lastBody?: Record<string, any>; lastKey?: string | null } = {}
+// The Claude API: an answer, an HTTP error, or a stream that refuses / stays empty / hangs / breaks off.
+type ClaudeFake = {
+  calls: number
+  answer: string
+  status?: number
+  errorType?: string
+  error?: string
+  mode?: "refusal" | "empty" | "hang" | "midstream"
+  lastBody?: Record<string, any>
+  lastHeaders?: Headers
+}
+let claude: ClaudeFake = { calls: 0, answer: "Hello from Claude" }
+
+function claudeStream(signal?: AbortSignal | null): Response {
+  const ev = (type: string, data: Record<string, unknown> = {}) => `event: ${type}\ndata: ${JSON.stringify({ type, ...data })}\n\n`
+  const start = ev("message_start", { message: { id: "msg_1", type: "message", role: "assistant", model: "claude-sonnet-5-5", content: [], stop_reason: null, stop_sequence: null, usage: { input_tokens: 1000, output_tokens: 1 } } })
+  const words = claude.answer.split(" ").map((w, i) => (i ? ` ${w}` : w))
+  const text = [ev("content_block_start", { index: 0, content_block: { type: "text", text: "" } }), ...words.map((w) => ev("content_block_delta", { index: 0, delta: { type: "text_delta", text: w } })), ev("content_block_stop", { index: 0 })]
+  const end = (reason: string, details: unknown = null) => [ev("message_delta", { delta: { stop_reason: reason, stop_sequence: null, stop_details: details }, usage: { output_tokens: 200 } }), ev("message_stop")]
+  const headers = { "Content-Type": "text/event-stream" }
+  if (claude.mode === "hang") {
+    return new Response(new ReadableStream({
+      start(c) {
+        c.enqueue(new TextEncoder().encode(start))
+        signal?.addEventListener("abort", () => c.error(new DOMException("aborted", "AbortError")))
+      }
+    }), { headers })
+  }
+  const frames = claude.mode === "refusal" ? [start, ...end("refusal", { type: "refusal", category: "general_harms", explanation: "declined" })]
+    : claude.mode === "empty" ? [start, ...end("end_turn")]
+    : claude.mode === "midstream" ? [start, ...text.slice(0, 3), ev("error", { error: { type: "overloaded_error", message: "Overloaded" } })]
+    : [start, ...text, ...end("end_turn")]
+  return new Response(frames.join(""), { headers })
+}
 
 function geminiStream(): Response {
   const frames = [
@@ -108,6 +142,16 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     if (!rpc[fn]) return new Response(JSON.stringify({ message: "not found" }), { status: 404 })
     return new Response(JSON.stringify(rpc[fn](body)), { headers: { "Content-Type": "application/json" } })
   }
+  if (url.startsWith("https://api.anthropic.com/v1/messages")) {
+    claude.calls++
+    claude.lastBody = body
+    claude.lastHeaders = new Headers(init?.headers)
+    if (claude.status) {
+      const error = { type: claude.errorType ?? "api_error", message: claude.error ?? "failed" }
+      return new Response(JSON.stringify({ type: "error", error }), { status: claude.status, headers: { "Content-Type": "application/json" } })
+    }
+    return claudeStream(init?.signal)
+  }
   if (url === "https://api.openai.com/v1/models") {
     if (openai.listStatus) return new Response("unavailable", { status: openai.listStatus })
     return new Response(JSON.stringify({ data: OPENAI_MODELS.map((id) => ({ id, object: "model" })) }), { headers: { "Content-Type": "application/json" } })
@@ -130,6 +174,7 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
 
 // --------------------------------------------------------------------------
 let chat: (req: Request, ctx: any) => Promise<Response>
+let find: (req: Request, ctx: any) => Promise<Response>
 let status: (req: Request, ctx: any) => Promise<Response>
 let legacy: (req: Request, ctx: any) => Promise<Response>
 let notify: (req: Request, ctx: any) => Promise<Response>
@@ -137,14 +182,20 @@ let usage: (req: Request, ctx: any) => Promise<Response>
 let event: (req: Request, ctx: any) => Promise<Response>
 let adminUsage: (req: Request) => Promise<Response>
 let resetModelList: () => void
-let serverConfig: { geminiKey: string; adminToken: string; ownKeyReportDailyLimit: number; eventDailyLimit: number; proOfferCode: string }
+let resetClaudeCooldown: () => void
+let serverConfig: {
+  geminiKey: string; adminToken: string; ownKeyReportDailyLimit: number; eventDailyLimit: number; proOfferCode: string
+  anthropicKey: string; claudeEnabled: boolean; claudeFirstTokenMs: number
+}
 
 before(async () => {
   const apple = await import("../netlify/shared/apple.mts")
   apple.setTrustedRootFingerprintForTests(TEST_ROOT_FINGERPRINT)
   resetModelList = (await import("../netlify/shared/models.mts")).resetModelListForTests
+  resetClaudeCooldown = (await import("../netlify/shared/answer.mts")).resetClaudeCooldownForTests
   serverConfig = (await import("../netlify/shared/config.mts")).config
   chat = (await import("../netlify/functions/v2-chat.mts")).default
+  find = (await import("../netlify/functions/v2-find.mts")).default
   status = (await import("../netlify/functions/v2-status.mts")).default
   legacy = (await import("../netlify/functions/chat-proxy.mts")).default
   notify = (await import("../netlify/functions/appstore-verify.mts")).default
@@ -159,6 +210,12 @@ beforeEach(() => {
   events = []
   openai = { failModels: [], answer: "Hello world" }
   gemini = {}
+  claude = { calls: 0, answer: "Hello from Claude" }
+  // Without a key the server answers with OpenAI, as before; the Claude tests set one.
+  serverConfig.anthropicKey = ""
+  serverConfig.claudeEnabled = true
+  serverConfig.claudeFirstTokenMs = 20_000
+  resetClaudeCooldown()
   serverConfig.geminiKey = "gemini-test"
   serverConfig.adminToken = ""
   serverConfig.ownKeyReportDailyLimit = 1000
@@ -489,4 +546,270 @@ test("an attribution record Apple doesn't have yet is retried once, then reporte
   const calls = adsCalls
   assert.equal(await resolveAdToken("tok-unknown", 0), "pending")
   assert.equal(adsCalls - calls, 2)
+})
+
+
+// ---- Pro: "Ask your chats" and AI search ---------------------------------
+const HISTORY = [
+  { id: "c1", title: "Four-day week research", date: "2026-10-30T10:00:00Z", text: "Q: Is a four-day week worth it?\nA: 61 companies kept it." },
+  { id: "c2", title: "Pasta in 15 minutes", date: "2026-10-20T10:00:00Z", text: "Q: Quick dinner?\nA: Garlic and chili pasta." }
+]
+const askHistory = (extra: Record<string, unknown> = {}) => ask({ context: "history", history: HISTORY, page: null, messages: [{ role: "user", content: "What did I read about work?" }], ...extra })
+const findChats = (extra: Record<string, unknown> = {}) => post("/api/v2/find", {
+  installId: INSTALL, client: { version: "2.4.0", platform: "ios", locale: "en-US" }, query: "that article about working less", chats: HISTORY, ...extra
+})
+
+test("Ask your chats: free and own-key plans are refused before anything is charged or asked", async () => {
+  for (const entitlement of [undefined, signJws(transaction({ productId: "com.contextflow.byok.monthly", originalTransactionId: "b1" }))]) {
+    openai.lastBody = undefined
+    const c = ctx()
+    const res = await chat(askHistory({ entitlement }), c)
+    await Promise.all(c.pending)
+    assert.equal(res.status, 403)
+    const body = await res.json()
+    assert.equal(body.code, "PRO_ONLY")
+    assert.equal(body.feature, "history")
+    assert.equal(openai.lastBody, undefined, "no AI call")
+    assert.equal(counters.size, 0, "nothing charged")
+  }
+  // A free install can't get it by also asking for Google either.
+  const res = await chat(askHistory({ mode: "google" }), ctx())
+  assert.equal(res.status, 403)
+  assert.equal(gemini.lastUrl, undefined)
+})
+
+test("Ask your chats: Pro gets an answer from the chats, charged to the weekly allowance", async () => {
+  const c = ctx()
+  const ev = await events$(await chat(askHistory({ entitlement: signJws(transaction()) }), c))
+  await Promise.all(c.pending)
+  assert.equal(ev[0].plan, "pro")
+  assert.equal(ev.at(-1).type, "done")
+  const system = (openai.lastBody?.messages as Array<{ role: string; content: string }>)[0].content
+  assert.match(system, /earlier ContextFlow chats/)
+  assert.match(system, /Four-day week research/)
+  assert.doesNotMatch(system, /Some article text/)
+  assert.equal(counters.get("tx:2000000123"), 1)
+  assert.ok(events.some((e) => e.kind === "chat" && e.data.mode === "history" && e.data.history_chats === 2))
+})
+
+test("AI search: free and own-key plans get PRO_ONLY and no AI call", async () => {
+  for (const entitlement of [undefined, signJws(transaction({ productId: "com.contextflow.byok.monthly", originalTransactionId: "b2" }))]) {
+    openai.lastBody = undefined
+    const res = await find(findChats({ entitlement }), ctx())
+    assert.equal(res.status, 403)
+    assert.equal((await res.json()).code, "PRO_ONLY")
+    assert.equal(openai.lastBody, undefined)
+    assert.equal(counters.size, 0)
+  }
+})
+
+test("AI search: Pro gets matching chats (only ids it sent), one answer charged; the weekly limit applies", async () => {
+  openai.answer = '{"results": [{"id": "c1", "why": "The four-day week article"}, {"id": "zz", "why": "made up"}, {"id": "c1", "why": "again"}]}'
+  const jws = signJws(transaction())
+  const c = ctx()
+  const res = await find(findChats({ entitlement: jws }), c)
+  await Promise.all(c.pending)
+  assert.equal(res.status, 200)
+  const body = await res.json()
+  assert.deepEqual(body.results, [{ id: "c1", why: "The four-day week article" }])
+  assert.deepEqual([body.usage.used, body.usage.limit], [1, 375])
+  assert.equal(counters.get("tx:2000000123"), 1)
+  assert.match((openai.lastBody?.messages as Array<{ content: string }>)[0].content, /id=c2/)
+  assert.equal(openai.lastBody?.model, "gpt-5.2-mini", "the fast model")
+
+  counters.set("tx:2000000123", 375)
+  const limited = await find(findChats({ entitlement: jws }), ctx())
+  assert.equal(limited.status, 402)
+  assert.equal((await limited.json()).code, "LIMIT_REACHED")
+})
+
+test("AI search: a failed answer is refunded; bad requests are refused", async () => {
+  openai.status = 500
+  const c = ctx()
+  const res = await find(findChats({ entitlement: signJws(transaction()) }), c)
+  await Promise.all(c.pending)
+  assert.equal(res.status, 502)
+  assert.equal(counters.get("tx:2000000123"), 0)
+  openai.status = undefined
+  assert.equal((await find(findChats({ query: "  " }), ctx())).status, 400)
+  assert.equal((await find(findChats({ chats: [] }), ctx())).status, 400)
+})
+
+// ---- Claude first, OpenAI when Claude can't --------------------------------
+const CLAUDE_KEY = "sk-ant-test"
+const deltas = (ev: Array<Record<string, any>>) => ev.filter((e) => e.type === "delta").map((e) => e.text).join("")
+const chatEvent = () => events.find((e) => e.kind === "chat")!.data
+
+async function chatOnce(req: Request) {
+  const c = ctx()
+  const res = await chat(req, c)
+  const ev = res.status === 200 ? await events$(res) : []
+  await Promise.all(c.pending)
+  return { res, ev }
+}
+
+test("Claude answers first: the free plan gets Sonnet at low effort, charged once, its spend logged", async () => {
+  serverConfig.anthropicKey = CLAUDE_KEY
+  const { ev } = await chatOnce(ask())
+  assert.equal(ev[0].model, "claude-sonnet-5-5")
+  assert.equal(deltas(ev), "Hello from Claude")
+  assert.equal(ev.at(-1).type, "done")
+  const body = claude.lastBody!
+  assert.equal(body.model, "claude-sonnet-5-5")
+  assert.deepEqual(body.output_config, { effort: "low" })
+  assert.equal(body.max_tokens, 3000)
+  assert.equal(body.thinking, undefined, "adaptive thinking, the model's default")
+  assert.equal(body.temperature, undefined)
+  assert.equal(body.fallbacks, "default")
+  assert.match(body.system, /Some article text/)
+  assert.deepEqual(body.messages, [{ role: "user", content: "Summarize" }])
+  assert.equal(claude.lastHeaders?.get("authorization"), `Bearer ${CLAUDE_KEY}`)
+  assert.match(claude.lastHeaders?.get("anthropic-beta") ?? "", /server-side-fallback-2026-07-01/)
+  assert.equal(openai.lastBody, undefined, "OpenAI not asked")
+  assert.equal(counters.get(`install:${INSTALL}`), 1)
+  const e = chatEvent()
+  assert.deepEqual([e.provider, e.plan, e.model, e.ok, e.fallback], ["anthropic", "free", "claude-sonnet-5-5", true, undefined])
+  assert.deepEqual([e.prompt_tokens, e.completion_tokens, e.cost_usd], [1000, 200, 0.004])
+})
+
+test("Claude for Pro: the same model at medium effort, with more room for the answer", async () => {
+  serverConfig.anthropicKey = CLAUDE_KEY
+  const { ev } = await chatOnce(ask({ entitlement: signJws(transaction()) }))
+  assert.equal(ev[0].plan, "pro")
+  assert.equal(deltas(ev), "Hello from Claude")
+  assert.equal(claude.lastBody?.model, "claude-sonnet-5-5")
+  assert.deepEqual(claude.lastBody?.output_config, { effort: "medium" })
+  assert.equal(claude.lastBody?.max_tokens, 8000)
+  assert.equal(chatEvent().plan, "pro")
+  assert.equal(counters.get("tx:2000000123"), 1)
+})
+
+test("OpenAI answers when Claude fails before its first word: the user gets a full answer, charged once, the reason logged", async () => {
+  const credits = "Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."
+  const cases: Array<[Partial<ClaudeFake>, string]> = [
+    [{ status: 401, errorType: "authentication_error", error: "invalid x-api-key" }, "auth"],
+    [{ status: 403, errorType: "permission_error", error: "not allowed" }, "forbidden"],
+    [{ status: 429, errorType: "rate_limit_error", error: "rate limited" }, "rate_limit"],
+    [{ status: 500, errorType: "api_error", error: "internal" }, "server"],
+    [{ status: 529, errorType: "overloaded_error", error: "Overloaded" }, "overloaded"],
+    [{ status: 400, errorType: "invalid_request_error", error: credits }, "credits"],
+    [{ mode: "refusal" }, "refusal"],
+    [{ mode: "empty" }, "empty"],
+    [{ mode: "hang" }, "timeout"]
+  ]
+  for (const [fake, reason] of cases) {
+    counters = new Map()
+    events = []
+    openai = { failModels: [], answer: "Hello world" }
+    claude = { calls: 0, answer: "Hello from Claude", ...fake }
+    resetClaudeCooldown()
+    serverConfig.anthropicKey = CLAUDE_KEY
+    serverConfig.claudeFirstTokenMs = 150
+    const { res, ev } = await chatOnce(ask())
+    assert.equal(res.status, 200, reason)
+    assert.equal(claude.calls, 1, `${reason}: Claude asked once`)
+    assert.equal(deltas(ev), "Hello world", `${reason}: the OpenAI answer, whole`)
+    assert.equal(ev.at(-1).type, "done", reason)
+    assert.equal(ev[0].model, "gpt-5.2-mini", reason)
+    assert.equal(counters.get(`install:${INSTALL}`), 1, `${reason}: charged once`)
+    const e = chatEvent()
+    assert.deepEqual([e.provider, e.fallback, e.cost_usd], ["openai", reason, undefined], reason)
+  }
+})
+
+test("after Claude runs out of credits it isn't asked again for a while", async () => {
+  serverConfig.anthropicKey = CLAUDE_KEY
+  claude.status = 400
+  claude.errorType = "invalid_request_error"
+  claude.error = "Your credit balance is too low to access the Anthropic API."
+  await chatOnce(ask())
+  events = []
+  const { ev } = await chatOnce(ask())
+  assert.equal(deltas(ev), "Hello world")
+  assert.equal(claude.calls, 1, "not asked the second time")
+  assert.equal(chatEvent().fallback, "cooldown_credits")
+
+  // Credits topped up and the pause over: Claude again.
+  resetClaudeCooldown()
+  claude.status = undefined
+  events = []
+  const again = await chatOnce(ask())
+  assert.equal(deltas(again.ev), "Hello from Claude")
+  assert.equal(chatEvent().provider, "anthropic")
+})
+
+test("Claude and OpenAI both down: UPSTREAM and nothing charged", async () => {
+  serverConfig.anthropicKey = CLAUDE_KEY
+  claude.status = 500
+  openai.status = 500
+  const { res } = await chatOnce(ask())
+  assert.equal(res.status, 502)
+  assert.equal((await res.json()).code, "UPSTREAM")
+  assert.equal(counters.get(`install:${INSTALL}`), 0)
+})
+
+test("Claude breaking off after its first words: an error and a refund, no second answer mixed in", async () => {
+  serverConfig.anthropicKey = CLAUDE_KEY
+  claude.mode = "midstream"
+  const { ev } = await chatOnce(ask())
+  assert.equal(deltas(ev), "Hello from")
+  assert.equal(ev.at(-1).type, "error")
+  assert.equal(ev.at(-1).code, "STREAM")
+  assert.equal(openai.lastBody, undefined)
+  assert.equal(counters.get(`install:${INSTALL}`), 0, "refunded")
+})
+
+test("without a key, or with CLAUDE_ANSWERS=off, OpenAI answers as before", async () => {
+  await chatOnce(ask())
+  assert.deepEqual([chatEvent().provider, chatEvent().fallback], ["openai", "no_key"])
+  events = []
+  serverConfig.anthropicKey = CLAUDE_KEY
+  serverConfig.claudeEnabled = false
+  await chatOnce(ask())
+  assert.deepEqual([chatEvent().provider, chatEvent().fallback], ["openai", "off"])
+  assert.equal(claude.calls, 0)
+})
+
+test("Ask your chats (Pro settings), AI search (free settings) and old builds go to Claude too", async () => {
+  serverConfig.anthropicKey = CLAUDE_KEY
+  const jws = signJws(transaction())
+  const { ev } = await chatOnce(askHistory({ entitlement: jws }))
+  assert.equal(deltas(ev), "Hello from Claude")
+  assert.match(claude.lastBody?.system, /earlier ContextFlow chats/)
+  assert.deepEqual(claude.lastBody?.output_config, { effort: "medium" })
+  assert.equal(chatEvent().mode, "history")
+
+  events = []
+  claude.answer = '{"results": [{"id": "c1", "why": "The four-day week article"}]}'
+  const c = ctx()
+  const res = await find(findChats({ entitlement: jws }), c)
+  await Promise.all(c.pending)
+  assert.deepEqual((await res.json()).results, [{ id: "c1", why: "The four-day week article" }])
+  assert.deepEqual(claude.lastBody?.output_config, { effort: "low" })
+  assert.match(claude.lastBody?.system, /id=c2/)
+  assert.deepEqual([chatEvent().provider, chatEvent().mode, chatEvent().cost_usd], ["anthropic", "find", 0.004])
+  assert.equal(counters.get("tx:2000000123"), 2)
+
+  claude.answer = "Hello from Claude"
+  const legacyRes = await legacy(post("/.netlify/functions/chat-proxy", {
+    anonymous: true,
+    messages: [{ role: "system", content: "You are ContextFlow" }, { role: "user", content: "hi" }]
+  }), ctx())
+  const text = await legacyRes.text()
+  assert.match(text, /data: \{"content":"Hello"\}/)
+  assert.match(text, /data: \[DONE\]/)
+  assert.equal(claude.lastBody?.system, "You are ContextFlow")
+})
+
+test("AI search falls back to OpenAI the same way", async () => {
+  serverConfig.anthropicKey = CLAUDE_KEY
+  claude.status = 429
+  claude.errorType = "rate_limit_error"
+  openai.answer = '{"results": [{"id": "c2", "why": "Pasta"}]}'
+  const c = ctx()
+  const res = await find(findChats({ entitlement: signJws(transaction()) }), c)
+  await Promise.all(c.pending)
+  assert.deepEqual((await res.json()).results, [{ id: "c2", why: "Pasta" }])
+  assert.deepEqual([chatEvent().provider, chatEvent().fallback], ["openai", "rate_limit"])
+  assert.equal(counters.get("tx:2000000123"), 1)
 })

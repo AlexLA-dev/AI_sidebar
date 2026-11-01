@@ -3,8 +3,8 @@ import type { Context } from "@netlify/functions"
 import { config } from "../shared/config.mts"
 import { consume, db, entitlementByToken, logEvent, refund, type Counter } from "../shared/db.mts"
 import { corsHeaders, ipSubject, json, preflight, readJson } from "../shared/http.mts"
-import { readDeltas, startCompletion, type StreamStats } from "../shared/llm.mts"
-import { modelsFor } from "../shared/models.mts"
+import { answerCost, startAnswer } from "../shared/answer.mts"
+import type { StreamStats } from "../shared/llm.mts"
 
 /**
  * /.netlify/functions/chat-proxy — compatibility endpoint for the extension
@@ -70,7 +70,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
 
   let completion
   try {
-    completion = await startCompletion(system.content || "You are ContextFlow, a helpful AI browser assistant.", chat, await modelsFor("free"), req.signal)
+    completion = await startAnswer(system.content || "You are ContextFlow, a helpful AI browser assistant.", chat, "free", req.signal)
   } catch (err) {
     console.error("[legacy] upstream failed:", err instanceof Error ? err.message : err)
     context.waitUntil(refund(counters).catch(() => undefined))
@@ -85,7 +85,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
       try {
-        for await (const text of readDeltas(completion.body, stats)) {
+        for await (const text of completion.text(stats)) {
           controller.enqueue(encoder.encode(`data: ${JSON.stringify({ content: text })}\n\n`))
         }
         controller.enqueue(encoder.encode("data: [DONE]\n\n"))
@@ -104,7 +104,9 @@ export default async (req: Request, context: Context): Promise<Response> => {
   })
 
   context.waitUntil(done.then(() => logEvent("chat", null, {
-    key: "ours", provider: "openai", ok: stats.chars > 0,
+    key: "ours", provider: completion.provider, ok: stats.chars > 0,
+    ...(completion.fallback ? { fallback: completion.fallback } : {}),
+    ...(completion.provider === "anthropic" ? { cost_usd: answerCost(completion, stats) } : {}),
     plan, model: completion.model, prompt_tokens: stats.promptTokens, completion_tokens: stats.completionTokens, legacy: true
   })))
 
