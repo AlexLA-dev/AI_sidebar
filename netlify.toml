@@ -1,4 +1,7 @@
-# ContextFlow backend + website (aisidebar.netlify.app)
+# ContextFlow backend + website
+#
+# The site lives at https://context-flow.app. aisidebar.netlify.app is the same Netlify site: shipped app
+# builds call its /api/... and /.netlify/functions/..., so only the pages listed at the end redirect from it.
 #
 # Static pages (site/): landing, privacy, terms, support — linked from the App Store.
 # Functions (netlify/functions/): the API used by the Safari extension.
@@ -44,3 +47,107 @@
   from = "/confirm"
   to = "/.netlify/functions/email-confirmed"
   status = 200
+
+# Pages (and only pages) move from the old host to the domain. Never add /api, /.netlify, /confirm or
+# /email-confirmed here: old builds POST to the API and open those links on aisidebar.netlify.app.
+[[redirects]]
+  from = "https://aisidebar.netlify.app/"
+  to = "https://context-flow.app/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/index.html"
+  to = "https://context-flow.app/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/support"
+  to = "https://context-flow.app/support"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/support.html"
+  to = "https://context-flow.app/support"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/privacy"
+  to = "https://context-flow.app/privacy"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/privacy.html"
+  to = "https://context-flow.app/privacy"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/terms"
+  to = "https://context-flow.app/terms"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/terms.html"
+  to = "https://context-flow.app/terms"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/analytics"
+  to = "https://context-flow.app/analytics"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/analytics.html"
+  to = "https://context-flow.app/analytics"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/safari-ai-extension-iphone"
+  to = "https://context-flow.app/safari-ai-extension-iphone"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/safari-ai-extension-iphone.html"
+  to = "https://context-flow.app/safari-ai-extension-iphone"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/notes-while-reading-safari"
+  to = "https://context-flow.app/notes-while-reading-safari"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/notes-while-reading-safari.html"
+  to = "https://context-flow.app/notes-while-reading-safari"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/safari-summary-vs-chatgpt"
+  to = "https://context-flow.app/safari-summary-vs-chatgpt"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/safari-summary-vs-chatgpt.html"
+  to = "https://context-flow.app/safari-summary-vs-chatgpt"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/sitemap.xml"
+  to = "https://context-flow.app/sitemap.xml"
+  status = 301
+  force = true
