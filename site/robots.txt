@@ -1,0 +1,15 @@
+# Search engines and AI search crawlers are welcome on every page.
+User-agent: *
+User-agent: bingbot
+User-agent: Googlebot
+User-agent: Applebot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: GPTBot
+User-agent: PerplexityBot
+User-agent: Claude-SearchBot
+Allow: /
+Disallow: /api/
+Disallow: /.netlify/
+
+Sitemap: https://context-flow.app/sitemap.xml

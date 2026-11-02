@@ -38,7 +38,14 @@
   td.hist { white-space: normal; min-width: 240px; line-height: 1.45; }
   td.hist div { white-space: nowrap; }
   td.hist time { color: var(--text-2); margin-right: 6px; }
-  .panel h3 { margin: 0 0 10px; font-size: 15px; }
+  .panel h3 { margin: 0 0 10px; font-size: 15px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+  .panel h3 .seg { font-weight: 400; }
+  .panel h4 { margin: 16px 0 6px; font-size: 13.5px; }
+  .hint { font-size: 12.5px; color: var(--text-2); margin: 8px 0 0; line-height: 1.45; }
+  .muted { color: var(--text-2); }
+  td small { display: block; color: var(--text-2); font-size: 11.5px; }
+  table.text th, table.text td { text-align: left; }
+  tr.sum td { font-weight: 600; }
   .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12.5px; color: var(--text-2); margin-bottom: 8px; }
   .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
   svg text { fill: var(--text-2); font-size: 10.5px; }
@@ -57,7 +64,8 @@
   .login button { margin-top: 10px; width: 100%; font: inherit; font-weight: 600; padding: 10px; border: 0; border-radius: 10px; background: var(--blue); color: #fff; cursor: pointer; }
   .err { color: var(--warn); font-size: 13.5px; margin-top: 10px; min-height: 1em; }
   .note { font-size: 12.5px; color: var(--text-2); margin: 14px 0 30px; }
-  @media (max-width: 760px) { .cards { grid-template-columns: 1fr; } .seg { margin-left: 0; } }
+  .card.wide { grid-column: span 2; min-width: 0; }
+  @media (max-width: 760px) { .cards { grid-template-columns: 1fr; } .card.wide { grid-column: auto; } .seg { margin-left: 0; } }
 </style>
 </head>
 <body>
@@ -93,10 +101,43 @@ const SUB_EVENT = {
   "EXPIRED": "закончилась", "GRACE_PERIOD_EXPIRED": "закончилась после сбоя оплаты",
   "REFUND": "возврат денег", "REVOKE": "доступ отозван"
 }
+// How a subscription was taken (subscription_terms). Free ones are shown apart and stay out of the counts,
+// conversion and MRR until someone pays.
+const TERMS = {
+  full: "полная цена", discount: "со скидкой по коду", trial: "пробный период", free_code: "бесплатно по коду",
+  press: "подарок, пресса", owner: "владелец (подарочный код)"
+}
+const unpaid = (s) => Boolean(s.terms) && !s.paid_from
+// USD per currency for MRR: a free daily dataset (units per 1 USD); the page works without it.
+const RATES = [
+  "https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.min.json",
+  "https://latest.currency-api.pages.dev/v1/currencies/usd.min.json"
+]
+const APPLE_CUT = 0.15
+const PLATFORMS = { ios: "iPhone", ipados: "iPad", macos: "Mac", chrome: "Chrome" }
+// App Store storefronts come as ISO alpha-3; Intl names countries by alpha-2.
+const STOREFRONTS = Object.fromEntries((
+  "AFG AF ALB AL DZA DZ AGO AO AIA AI ATG AG ARG AR ARM AM AUS AU AUT AT AZE AZ BHS BS BHR BH BRB BB BLR BY BEL BE BLZ BZ " +
+  "BEN BJ BMU BM BTN BT BOL BO BIH BA BWA BW BRA BR VGB VG BRN BN BGR BG BFA BF KHM KH CMR CM CAN CA CPV CV CYM KY TCD TD " +
+  "CHL CL CHN CN COL CO COD CD COG CG CRI CR CIV CI HRV HR CYP CY CZE CZ DNK DK DMA DM DOM DO ECU EC EGY EG SLV SV EST EE " +
+  "SWZ SZ FJI FJ FIN FI FRA FR GAB GA GMB GM GEO GE DEU DE GHA GH GRC GR GRD GD GTM GT GNB GW GUY GY HND HN HKG HK HUN HU " +
+  "ISL IS IND IN IDN ID IRQ IQ IRL IE ISR IL ITA IT JAM JM JPN JP JOR JO KAZ KZ KEN KE KOR KR XKS XK KWT KW KGZ KG LAO LA " +
+  "LVA LV LBN LB LBR LR LBY LY LTU LT LUX LU MAC MO MDG MG MWI MW MYS MY MDV MV MLI ML MLT MT MRT MR MUS MU MEX MX FSM FM " +
+  "MDA MD MNG MN MNE ME MSR MS MAR MA MOZ MZ MMR MM NAM NA NRU NR NPL NP NLD NL NZL NZ NIC NI NER NE NGA NG MKD MK NOR NO " +
+  "OMN OM PAK PK PLW PW PAN PA PNG PG PRY PY PER PE PHL PH POL PL PRT PT QAT QA ROU RO RUS RU RWA RW KNA KN LCA LC VCT VC " +
+  "STP ST SAU SA SEN SN SRB RS SYC SC SLE SL SGP SG SVK SK SVN SI SLB SB ZAF ZA ESP ES LKA LK SUR SR SWE SE CHE CH TWN TW " +
+  "TJK TJ TZA TZ THA TH TON TO TTO TT TUN TN TUR TR TKM TM TCA TC UGA UG UKR UA ARE AE GBR GB USA US URY UY UZB UZ VUT VU " +
+  "VEN VE VNM VN YEM YE ZMB ZM ZWE ZW"
+).split(" ").reduce((pairs, code, i, all) => i % 2 ? pairs : [...pairs, [code, all[i + 1]]], []))
 const n = new Intl.NumberFormat("ru-RU")
 const compact = new Intl.NumberFormat("ru-RU", { notation: "compact", maximumFractionDigits: 1 })
+const languages = new Intl.DisplayNames(["ru"], { type: "language" })
+const regions = new Intl.DisplayNames(["ru"], { type: "region" })
 const app = document.getElementById("app")
 let days = 30
+// Requests chart: by segment or by new vs returning users; conversion: by week or by day.
+let requestsBy = "segment"
+let cohortsBy = "week"
 
 function store(value) {
   try { value ? localStorage.setItem(TOKEN_KEY, value) : localStorage.removeItem(TOKEN_KEY) } catch {}
@@ -140,6 +181,7 @@ async function load() {
   const t = token()
   if (!t) return login()
   app.replaceChildren(el("p", { class: "empty", style: "padding:40px 0" }, "Загружаю…"))
+  rates ||= usdRates()
   let res
   try {
     res = await fetch(`/api/v2/admin/usage?days=${days}`, { headers: { Authorization: `Bearer ${t}` } })
@@ -149,7 +191,22 @@ async function load() {
   if (res.status === 401) { store(""); return login("Неверный токен.") }
   if (res.status === 404) return login("Аналитика выключена: задайте ADMIN_TOKEN в Netlify и передеплойте сайт.")
   if (!res.ok) return login(`Сервер ответил ${res.status}. Попробуйте позже.`)
-  render(await res.json())
+  render(await res.json(), await rates)
+}
+
+// Today's USD rates for MRR, fetched once per page; null when no source answers.
+let rates = null
+async function usdRates() {
+  for (const url of RATES) {
+    try {
+      const res = await fetch(url, { signal: AbortSignal.timeout(4000) })
+      const body = res.ok ? await res.json() : null
+      if (body?.usd) return { date: body.date, rates: body.usd }
+    } catch {
+      // try the next source
+    }
+  }
+  return null
 }
 
 const sum = (rows, field) => rows.reduce((s, r) => s + Number(r[field] || 0), 0)
@@ -197,6 +254,7 @@ function userCards(users, subs, totalDays) {
   const avg = (field) => (sum(byDay, field) / Math.max(1, span)).toLocaleString("ru-RU", { maximumFractionDigits: 1 })
   const products = subs.by_product || []
   const lost = sum(products, "expired") + sum(products, "refunded")
+  const free = Object.entries(subs.free || {}).filter(([, count]) => count > 0)
   return el("div", { class: "cards" },
     statCard({
       title: "Активные пользователи", sub: "Открыли панель или задали вопрос, по дням UTC", color: "var(--c1)",
@@ -224,7 +282,8 @@ function userCards(users, subs, totalDays) {
         sum(products, "switched") > 0 && ["Сменили тариф", n.format(sum(products, "switched"))],
         ["Автопродление выключено", n.format(sum(products, "renewal_off"))],
         sum(products, "billing_retry") > 0 && ["Не прошла оплата", n.format(sum(products, "billing_retry")), "bad"],
-        ["Закончились или возврат", n.format(lost), lost ? "bad" : ""]
+        ["Закончились или возврат", n.format(lost), lost ? "bad" : ""],
+        ...free.map(([terms, count]) => [`Бесплатно, не входит: ${TERMS[terms] || terms}`, n.format(count)])
       ]
     })
   )
@@ -233,6 +292,7 @@ function userCards(users, subs, totalDays) {
 const dayLabel = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString("ru-RU", { weekday: "short", day: "numeric", month: "long", timeZone: "UTC" })
 
 // Stacked bars per UTC day; hovering (or tapping) a day shows its numbers. series: [{ title, color, value(day) }].
+// title may hold controls next to the text.
 function chart(title, series, totalDays) {
   const keys = lastDays(totalDays)
   const totals = keys.map((d) => series.reduce((s, x) => s + x.value(d), 0))
@@ -286,7 +346,7 @@ function chart(title, series, totalDays) {
     hit.addEventListener("pointerdown", (e) => show(i, e))
     return hit
   })
-  const chartSvg = svg("svg", { viewBox: `0 0 ${W} ${H}`, width: "100%", style: "min-width:640px", role: "img", "aria-label": title }, highlight, nodes, hits)
+  const chartSvg = svg("svg", { viewBox: `0 0 ${W} ${H}`, width: "100%", style: "min-width:640px", role: "img", "aria-label": [title].flat()[0] }, highlight, nodes, hits)
   chartSvg.addEventListener("pointerleave", hide)
   panel.append(
     el("h3", {}, title),
@@ -327,8 +387,242 @@ function label(r) {
   return el("span", {}, el("span", { class: "dot", style: `background:${seg ? seg.color : "var(--text-2)"}` }), seg ? seg.title : `${r.key} · ${r.segment}`)
 }
 
-function render(data) {
+// A section that redraws itself: make(redraw) builds it, its controls call redraw.
+function live(make) {
+  const holder = el("div")
+  const draw = () => holder.replaceChildren(make(draw))
+  draw()
+  return holder
+}
+function toggle(options, current, pick) {
+  return el("div", { class: "seg" }, options.map(([value, text]) => el("button", { class: value === current ? "on" : "", onclick: () => pick(value) }, text)))
+}
+
+const NO_INSIGHTS = "Нет данных: в базе ещё нет функции cf_owner_insights (миграция 20261102120000)."
+const nameOf = (names, code) => { try { return names.of(code) || code } catch { return code } }
+const unique = (list) => [...new Set(list.filter(Boolean))]
+const pct = (part, whole) => whole ? `${(100 * part / whole).toLocaleString("ru-RU", { maximumFractionDigits: 1 })} %` : "—"
+// The extension's UI language, e.g. "ko-US": the language and the device's region setting.
+function localeParts(locale) {
+  const parts = String(locale || "").replace(/_/g, "-").split("-").filter(Boolean)
+  if (!parts.length) return [null, null]
+  const region = parts.slice(1).find((p) => /^([A-Za-z]{2}|\d{3})$/.test(p))
+  return [nameOf(languages, parts[0].toLowerCase()), region ? region.toUpperCase() : null]
+}
+function since(from, to) {
+  const min = Math.max(0, Math.round((Date.parse(to) - Date.parse(from)) / 60_000))
+  return min < 60 ? `${min} мин` : min < 48 * 60 ? `${Math.round(min / 60)} ч` : `${Math.round(min / 1440)} дн.`
+}
+
+// Device, language, country and source of one subscriber (cf_owner_insights.subscribers), as table cells.
+function subscriberCells(s) {
+  if (!s) return [el("td", {}, "—"), el("td", {}, "—"), el("td", {}, "—"), el("td", {}, "—")]
+  const installs = s.installs || []
+  const guess = s.link === "time" && el("span", { class: "muted", title: "Связано по времени: первый Pro-запрос с этого устройства пришёл через несколько минут после покупки. Новые запросы подписчиков сервер связывает с подпиской точно." }, " ≈")
+  const device = installs.length
+    ? el("td", {}, unique(installs.map((i) => PLATFORMS[i.platform] || i.platform || "?")).join(", "), guess)
+    : el("td", { class: "muted", title: "Подписка ни разу не пришла с расширения: купили, но панелью ещё не пользовались" }, "ещё не открывал")
+  const locales = installs.map((i) => localeParts(i.locale))
+  const region = unique(locales.map(([, r]) => r))[0]
+  const country = s.storefront
+    ? el("td", { title: "Страна App Store, из уведомления Apple о подписке" }, nameOf(regions, STOREFRONTS[s.storefront] || s.storefront))
+    : region
+      ? el("td", { title: "Регион в настройках устройства. Страну App Store Apple пришлёт с ближайшим продлением" }, nameOf(regions, region), el("small", {}, "регион устройства"))
+      : el("td", {}, "—")
+  const ads = s.ads
+  const source = ads
+    ? el("td", { title: `Apple Ads: кампания ${ads.campaign_id}, группа ${ads.ad_group_id}${ads.keyword_id ? `, ключ ${ads.keyword_id}` : ""}` }, "Apple Ads", el("small", {}, `кампания ${ads.campaign_id}`))
+    : s.app
+      ? el("td", { title: "Приложение 2.4 спросило Apple Ads: не из рекламы. Поиск, ChatGPT или сайт — по человеку не различить" }, "не реклама")
+      : el("td", { class: "muted", title: "Источник по человеку виден только для Apple Ads и только с приложения 2.4" }, "неизвестен")
+  return [device, el("td", {}, unique(locales.map(([l]) => l)).join(", ") || "—"), country, source]
+}
+
+// Monday of the UTC week, "YYYY-MM-DD".
+function weekOf(day) {
+  const d = new Date(`${day}T00:00:00Z`)
+  d.setUTCDate(d.getUTCDate() - (d.getUTCDay() + 6) % 7)
+  return d.toISOString().slice(0, 10)
+}
+const short = (day) => new Date(`${day}T12:00:00Z`).toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit", timeZone: "UTC" })
+
+// New users by the day or week they first opened ContextFlow, and how many of them subscribed.
+function cohortPanel(insights, redraw) {
+  const pick = (v) => { cohortsBy = v; redraw() }
+  const title = ["Конверсия новых пользователей в подписку", insights && toggle([["week", "По неделям"], ["day", "По дням"]], cohortsBy, pick)]
+  if (!insights) return table(title, [], [], NO_INSIGHTS)
+  const groups = new Map()
+  const fields = ["users", "subscribed", "ready_7", "in_7", "ready_30", "in_30"]
+  for (const r of insights.cohorts || []) {
+    const key = cohortsBy === "week" ? weekOf(r.day) : r.day
+    const g = groups.get(key) || Object.fromEntries(fields.map((f) => [f, 0]))
+    for (const f of fields) g[f] += Number(r[f] || 0)
+    groups.set(key, g)
+  }
+  const share = (part, whole) => whole ? `${n.format(part)} · ${pct(part, whole)}` : el("span", { class: "muted", title: "Ещё не прошло столько дней с первого открытия" }, "рано")
+  const row = (label, g, cls) => el("tr", { class: cls || "" },
+    el("td", {}, label),
+    el("td", {}, n.format(g.users)),
+    el("td", {}, `${n.format(g.subscribed)} · ${pct(g.subscribed, g.users)}`),
+    el("td", {}, share(g.in_7, g.ready_7)),
+    el("td", {}, share(g.in_30, g.ready_30))
+  )
+  const keys = [...groups.keys()].sort().reverse()
+  const label = (key) => cohortsBy === "week"
+    ? `${short(key)}–${short(new Date(Date.parse(`${key}T12:00:00Z`) + 6 * 86_400_000).toISOString().slice(0, 10))}`
+    : new Date(`${key}T12:00:00Z`).toLocaleDateString("ru-RU", { weekday: "short", day: "2-digit", month: "2-digit", timeZone: "UTC" })
+  const total = Object.fromEntries(fields.map((f) => [f, [...groups.values()].reduce((s, g) => s + g[f], 0)]))
+  const rows = [...keys.map((k) => row(label(k), groups.get(k))), keys.length > 1 && row(`Всего за ${insights.days} дн.`, total, "sum")].filter(Boolean)
+  const unlinked = (insights.subscribers || []).filter((s) => !s.link && !unpaid(s)).length
+  const panel = table(title, [cohortsBy === "week" ? "Неделя первого открытия" : "День первого открытия", "Новых", "Подписались (пока)", "В первые 7 дней", "В первые 30 дней"], rows, "Новых пользователей за период нет.", "num2")
+  panel.append(el("p", { class: "hint" },
+    "Новый пользователь — установка расширения в первый день, когда открыла панель (UTC). «В первые 7 / 30 дней» считается только по тем, у кого эти дни уже прошли. ",
+    unlinked ? `Ещё ${n.format(unlinked)} подписк${unlinked === 1 ? "а" : "и"} без установки (купили в приложении, панель не открывали или открыли до покупки в другой день) — в конверсию не входят.` : ""
+  ))
+  return panel
+}
+
+// Questions per day per active user, free vs paying (cf_owner_insights.per_user).
+function perUserPanel(insights) {
+  const title = "Запросов в день на пользователя"
+  if (!insights) return table(title, [], [], NO_INSIGHTS)
+  const PLAN = { free: "Бесплатный", paid: "Платный (Pro, «Свой ключ»)", gift: "Бесплатный Pro (подарки, пробные)" }
+  const avg = (a, b) => b ? (a / b).toLocaleString("ru-RU", { maximumFractionDigits: 1 }) : "—"
+  const rows = (insights.per_user || []).map((r) => el("tr", {},
+    el("td", {}, PLAN[r.plan] || r.plan),
+    el("td", {}, n.format(r.users)),
+    el("td", {}, n.format(r.user_days)),
+    el("td", {}, n.format(r.requests)),
+    el("td", {}, avg(r.requests, r.user_days)),
+    el("td", {}, avg(r.requests, r.asked_days)),
+    el("td", {}, n.format(r.max_per_day))
+  ))
+  const panel = table(title, ["Пользователь", "Пользователей", "Активных дней", "Запросов", "На активный день", "На день с вопросами", "Больше всего за день"], rows, "Пока нет активных пользователей.", "num2")
+  panel.append(el("p", { class: "hint" }, "Активный день — пользователь открыл панель или спросил что-то (по UTC). «На активный день» делит запросы на все такие дни, «на день с вопросами» — только на дни, когда он что-то спросил. Платный день — в этот день у него была подписка, бесплатный Pro — подарочный код, пробный период или бесплатный код, пока за подписку никто не платил. Кто подписался посреди периода, попадает в обе строки."))
+  return panel
+}
+
+const ASC_SOURCES = {
+  "App Store Search": "Поиск App Store", "App Store Browse": "Подборки App Store", "App Referrer": "Приложение со ссылкой",
+  "Web Referrer": "Сайт", "Institutional Purchase": "Корпоративная закупка", "Unavailable": "Не определён"
+}
+
+// Where new users come from: Apple Ads per install, the rest only as App Store Connect totals.
+function sourcesPanel(insights) {
+  const title = "Источники установок"
+  if (!insights) return table(title, [], [], NO_INSIGHTS)
+  const s = insights.sources || {}
+  const unknown = Math.max(0, (s.new_users || 0) - (s.apple_ads || 0) - (s.not_ads || 0))
+  const ours = [
+    ["Apple Ads", s.apple_ads || 0, "Apple сообщает кампанию по каждой загрузке (AdServices, приложение 2.4)"],
+    ["Не реклама: поиск App Store, ChatGPT, сайт…", s.not_ads || 0, "Приложение 2.4 спросило Apple Ads — не из рекламы. Какой именно источник, по человеку не видно"],
+    ["Неизвестно: приложение 2.4 не открывали", unknown, "Источник спрашивает только приложение 2.4 при первом открытии"]
+  ].map(([label, count, hint]) => el("tr", {}, el("td", { title: hint }, label), el("td", {}, n.format(count)), el("td", {}, pct(count, s.new_users))))
+  const campaigns = (s.campaigns || []).map((r) => el("tr", {},
+    el("td", {}, `кампания ${r.campaign_id} · группа ${r.ad_group_id}${r.keyword_id ? ` · ключ ${r.keyword_id}` : ""}`),
+    el("td", {}, n.format(r.apps)),
+    el("td", {}, n.format(r.users)),
+    el("td", {}, n.format(r.subscribed))
+  ))
+  const asc = (s.app_store_connect || []).map((r) => el("tr", {},
+    el("td", {}, `${short(r.day_from)}–${short(r.day_to)}`),
+    el("td", {}, [ASC_SOURCES[r.source] || r.source, r.detail].filter(Boolean).join(" · ")),
+    el("td", {}, r.impressions == null ? "—" : n.format(r.impressions)),
+    el("td", {}, r.page_views == null ? "—" : n.format(r.page_views)),
+    el("td", {}, n.format(r.downloads))
+  ))
+  const grid = (head, rows, cls) => el("div", { class: "tbl" }, el("table", { class: cls }, el("thead", {}, el("tr", {}, head.map((h) => el("th", {}, h)))), el("tbody", {}, rows)))
+  return el("div", { class: "panel" },
+    el("h3", {}, title),
+    grid([`Новые пользователи за ${insights.days} дн.`, "Человек", "Доля"], [...ours, el("tr", { class: "sum" }, el("td", {}, "Всего"), el("td", {}, n.format(s.new_users || 0)), el("td", {}, ""))], "num2"),
+    el("p", { class: "hint" }, "По каждому человеку Apple называет источник только для Apple Ads (приложение 2.4 спрашивает об этом при первом открытии). Поиск App Store, подборки, приложение ChatGPT и сайты видны только итогами — в App Store Connect → Аналитика → Источники, ниже."),
+    el("h4", {}, "Apple Ads по кампаниям"),
+    campaigns.length
+      ? grid(["Кампания · группа · ключ", "Открыли приложение", "Дошли до расширения", "Подписались"], campaigns, "num2")
+      : el("p", { class: "empty" }, "Пока никого из рекламы: приложение 2.4 ещё не у пользователей или реклама не приводила загрузок. Тестовая запись Apple (кампания 1234567890) не считается."),
+    el("h4", {}, "Из App Store Connect (итоги, не по людям)"),
+    asc.length
+      ? grid(["Период", "Источник", "Показы", "Просмотры страницы", "Загрузки"], asc)
+      : el("p", { class: "empty" }, "Пока пусто. Цифры из App Store Connect → Аналитика → Источники вписываются в таблицу contextflow.asc_sources (SQL-редактор Supabase или скрипт): период, источник, показы, просмотры, загрузки.")
+  )
+}
+
+function money(amount, currency) {
+  try {
+    return new Intl.NumberFormat("ru-RU", { style: "currency", currency, maximumFractionDigits: 2 }).format(amount)
+  } catch {
+    return `${n.format(amount)} ${currency}`
+  }
+}
+// An amount in a currency in USD at the day's rate; null without one.
+const toUsd = (amount, currency, fx) => {
+  if (currency === "USD") return amount
+  const rate = fx?.rates?.[String(currency).toLowerCase()]
+  return rate ? amount / rate : null
+}
+
+// What a subscription costs now (its latest transaction), with USD next to other currencies.
+function priceCell(r, fx) {
+  if (r.price == null) return el("td", {}, "—")
+  const amount = Number(r.price) / 1000
+  const usd = amount > 0 && r.currency !== "USD" && toUsd(amount, r.currency, fx)
+  return el("td", { title: r.estimated ? "Apple присылает цену с 29.10, эту подписку купили раньше: оценка по цене в США, точная цена придёт с продлением" : null },
+    `${r.estimated ? "≈ " : ""}${money(amount, r.currency)}`,
+    usd != null && usd !== false && el("small", {}, `≈ ${money(usd, "USD")}`),
+    r.estimated && el("small", {}, "оценка: цена в США"))
+}
+
+// MRR: what active paying subscribers pay a month now, and at the end of each week (cf_owner_insights.mrr), in USD.
+function mrrCards(insights, fx) {
+  if (!insights?.mrr) return el("div", { class: "panel" }, el("h3", {}, "MRR"), el("p", { class: "empty" }, "Нет данных: в базе ещё нет MRR (миграция 20261102150000)."))
+  const rows = insights.mrr
+  const week = (w) => {
+    const rs = rows.filter((r) => r.week === w)
+    const usd = (field) => rs.reduce((s, r) => s + (toUsd(Number(r[field]) / 1000, r.currency, fx) ?? 0), 0)
+    return {
+      usd: usd("amount"), off: usd("renewal_off_amount"),
+      paying: sum(rs, "paying"), free: sum(rs, "free"), estimated: sum(rs, "estimated"), renewalOff: sum(rs, "renewal_off"),
+      noRate: unique(rs.filter((r) => Number(r.amount) > 0 && toUsd(1, r.currency, fx) == null).map((r) => r.currency))
+    }
+  }
+  const thisWeek = weekOf(new Date().toISOString().slice(0, 10))
+  const now = week(thisWeek)
+  const weeks = unique(rows.map((r) => r.week)).sort().reverse()
+  const usd = (v) => money(v, "USD")
+  return el("div", { class: "cards" },
+    statCard({
+      title: "MRR", sub: "Платящие подписчики в месяц, сейчас · USD", color: "var(--c2)",
+      big: usd(now.usd), unit: "в месяц",
+      rows: [
+        [`После комиссии Apple ${APPLE_CUT * 100} %`, usd(now.usd * (1 - APPLE_CUT))],
+        ["Платящих", n.format(now.paying)],
+        ["Бесплатных по кодам и пробных", n.format(now.free)],
+        now.renewalOff > 0 && ["Выключили автопродление", `${n.format(now.renewalOff)} · ${usd(now.off)}`, "bad"],
+        now.estimated > 0 && ["Цена не записана, по цене в США", n.format(now.estimated)],
+        now.noRate.length > 0 && ["Не пересчитано, нет курса", now.noRate.join(", "), "bad"]
+      ]
+    }),
+    el("div", { class: "card wide", style: "--c:var(--c2)" },
+      el("h2", {}, "MRR по неделям"),
+      el("div", { class: "sub" }, `На конец недели (UTC), текущая — на сейчас${fx ? ` · курс на ${new Date(`${fx.date}T12:00:00Z`).toLocaleDateString("ru-RU")}` : " · курсы валют не загрузились, учтены только доллары"}`),
+      weeks.length
+        ? el("div", { class: "tbl" }, el("table", { class: "num2" },
+            el("thead", {}, el("tr", {}, ["Неделя", "MRR", "После Apple", "Платящих", "Бесплатных"].map((h) => el("th", {}, h)))),
+            el("tbody", {}, weeks.map((w) => {
+              const x = week(w)
+              return el("tr", {},
+                el("td", {}, w === thisWeek ? `${short(w)} — сейчас` : `${short(w)}–${short(new Date(Date.parse(`${w}T12:00:00Z`) + 6 * 86_400_000).toISOString().slice(0, 10))}`),
+                el("td", {}, usd(x.usd)), el("td", {}, usd(x.usd * (1 - APPLE_CUT))), el("td", {}, n.format(x.paying)), el("td", {}, n.format(x.free)))
+            }))))
+        : el("p", { class: "empty" }, "Платящих подписок пока не было."),
+      el("p", { class: "hint" }, "Цена каждой подписки — из её последней транзакции: месяц со скидкой — по фактической цене, бесплатные — 0, годовая — 1/12. Цена в App Store включает налоги (в ЕС — НДС), поэтому выплата Apple меньше, чем «после комиссии».")
+    )
+  )
+}
+
+function render(data, fx) {
   const segments = data.segments || []
+  const insights = data.insights || null
   const total = sum(segments, "requests")
   const periodButtons = [7, 30, 90, 180].map((d) => el("button", { class: d === days ? "on" : "", onclick: () => { days = d; load() } }, `${d} дн.`))
   const models = (data.by_model || []).map((r) => el("tr", {},
@@ -368,13 +662,34 @@ function render(data) {
   const userDay = (field) => (day) => Number((users.by_day || []).find((r) => r.day === day)?.[field] || 0)
   const subs = data.subscriptions || {}
   const date = (v) => v ? new Date(v).toLocaleDateString("ru-RU") : "—"
-  const subRows = (subs.list || []).map((r) => el("tr", {},
-    el("td", {}, PRODUCTS[r.product_id] || r.product_id),
-    el("td", { class: "hist" }, (r.history || []).length ? history(r.history) : "—"),
-    el("td", { class: ["expired", "refunded", "billing_retry"].includes(r.status) ? "bad" : "" }, SUB_STATUS[r.status] || r.status),
-    el("td", {}, new Date(r.created_at).toLocaleString("ru-RU", { dateStyle: "short", timeStyle: "short" })),
-    el("td", {}, date(r.expires_at))
-  ))
+  // Who subscribed: matched to the report's list by the moment the subscription was first recorded.
+  const who = new Map((insights?.subscribers || []).map((s) => [s.created_at, s]))
+  const subRow = (r) => {
+    const s = who.get(r.created_at)
+    const firstSeen = (s?.installs || []).map((i) => i.first_seen).filter(Boolean).sort()[0]
+    const terms = r.terms && [
+      TERMS[r.terms] || r.terms,
+      ["discount", "free_code"].includes(r.terms) && r.offer_id && `«${r.offer_id}»`,
+      ["trial", "free_code", "press"].includes(r.terms) && r.paid_from && `платит с ${date(r.paid_from)}`
+    ].filter(Boolean).join(" · ")
+    return el("tr", {},
+      el("td", {}, PRODUCTS[r.product_id] || r.product_id, terms && el("small", {}, terms)),
+      ...subscriberCells(s),
+      el("td", { class: "hist" }, (r.history || []).length ? history(r.history) : "—"),
+      el("td", { class: ["expired", "refunded", "billing_retry"].includes(r.status) ? "bad" : "" }, SUB_STATUS[r.status] || r.status),
+      priceCell(r, fx),
+      el("td", {}, new Date(r.created_at).toLocaleString("ru-RU", { dateStyle: "short", timeStyle: "short" }),
+        firstSeen && el("small", {}, Date.parse(firstSeen) <= Date.parse(r.created_at) ? `через ${since(firstSeen, r.created_at)} после первого открытия` : "до первого открытия панели")),
+      el("td", {}, date(r.expires_at), unpaid(r) && el("small", {}, "бесплатно"))
+    )
+  }
+  const list = subs.list || []
+  const freeRows = list.filter(unpaid).map(subRow)
+  const subRows = [
+    ...list.filter((r) => !unpaid(r)).map(subRow),
+    freeRows.length > 0 && el("tr", { class: "sum" }, el("td", { colspan: 10 }, "Бесплатные (подарки, пробные, бесплатные коды): не входят в платящих, конверсию и MRR")),
+    ...freeRows
+  ].filter(Boolean)
   // From opening the app to paying: each app or install on the day it first got there.
   const funnelRows = (data.setup_funnel || []).filter((r) =>
     ["app_opened", "extension_on", "panel_opened", "first_answer", "offer_redeemed", "subscribed"].some((k) => r[k] > 0)
@@ -402,6 +717,7 @@ function render(data) {
       el("button", { class: "link", onclick: () => load() }, "Обновить"),
       el("button", { class: "link", onclick: () => { store(""); login() } }, "Выйти")
     ),
+    mrrCards(insights, fx),
     userCards(users, subs, data.days),
     chart("Активные пользователи по дням", [
       { title: "Новые", color: "var(--c2)", value: userDay("new") },
@@ -410,20 +726,34 @@ function render(data) {
     table("Путь нового пользователя (загрузки — в App Store Connect)",
       ["День (UTC)", "Открыли приложение (разрешили уведомления)", "Включили расширение", "Открыли панель", "Первый ответ", "Подписались по коду −50%", "Первая оплата"],
       funnelRows, "Пока пусто: приложение и расширение сообщают об этих шагах с версии 2.4.", "num2"),
+    live((redraw) => cohortPanel(insights, redraw)),
     table(`Подписки${subs.sandbox ? ` · ещё ${n.format(subs.sandbox)} в песочнице (App Review, тесты)` : ""}`,
-      ["Тариф", "История (ваше время)", "Статус", "Оформлена", "Оплачена до"], subRows, "Подписок пока нет."),
+      ["Тариф", "Устройство", "Язык", "Страна", "Источник", "История (ваше время)", "Статус", "Цена сейчас", "Оформлена", "Оплачена до"], subRows, "Подписок пока нет.", "text"),
+    sourcesPanel(insights),
     el("div", { class: "cards" }, SEGMENTS.map((s) => card(s, segments.find((r) => r.key === s.key && r.segment === s.segment)))),
-    chart("Запросы по дням", SEGMENTS.map((seg) => ({
-      title: seg.title, color: seg.color,
-      value: (day) => Number((data.by_day || []).find((r) => r.day === day && r.key === seg.key && r.segment === seg.segment)?.requests || 0)
-    })), data.days),
+    live((redraw) => {
+      const age = insights?.requests_by_age
+      const pick = (v) => { requestsBy = v; redraw() }
+      const byAge = requestsBy === "age" && age
+      const ageOf = (field) => (day) => Number(age.find((r) => r.day === day)?.[field] || 0)
+      return chart(["Запросы по дням", age && toggle([["segment", "По сегментам"], ["age", "Новые и старые пользователи"]], requestsBy, pick)], byAge
+        ? [
+            { title: "Новые: в первый день", color: "var(--c2)", value: ageOf("new") },
+            { title: "Старые: установили раньше", color: "var(--c1)", value: ageOf("old") }
+          ]
+        : SEGMENTS.map((seg) => ({
+            title: seg.title, color: seg.color,
+            value: (day) => Number((data.by_day || []).find((r) => r.day === day && r.key === seg.key && r.segment === seg.segment)?.requests || 0)
+          })), data.days)
+    }),
+    perUserPanel(insights),
     table("По тарифам", ["Тариф", "Запросы", "Устройств", "Больше всего за день на устройство"], plans, "Пока нет запросов.", "num2"),
     table("По устройствам", ["Устройство", "Сегмент", "Запросы", "Устройств", "Токены вход", "Токены выход", "Поиск Google"], devices, "Пока нет запросов."),
     table("По моделям", ["Сегмент", "Модель", "Запросы", "Ошибки", "Токены вход", "Токены выход", "Поиск Google", "Ср. время"], models, "Пока нет запросов."),
     table(`Ревью: вы или App Review (${n.format(sum(review, "requests"))})`, ["Устройство", "Сегмент", "Версия", "Запросы", "Устройств", "Дни"], reviewRows, "Пока версия на ревью, запросы с неё попадают сюда, а не в цифры выше."),
     table("Упёрлись в лимит", ["Тип", "Лимит · план", "Раз"], limits, "Никто не упирался в лимиты."),
     table("Ошибки провайдеров", ["Тип", "Провайдер", "Ошибок"], errors, "Ошибок не было."),
-    el("p", { class: "note" }, `Цифры выше — только реальные пользователи. Не входят: запросы с версии, пока она на ревью (блок «Ревью»), и наши тестовые проверки (${n.format(data.excluded_tests || 0)}). Время — UTC. Пользователь — установка расширения на одном устройстве. Активные до 28.10.2026 посчитаны по вопросам, дню установки и последнему заходу, поэтому за те дни цифры занижены; с 28.10 считается каждое открытие панели. Запросы с ключом пользователя видны начиная со следующей сборки после 2.1: расширение присылает только счётчики (модель, токены, время), без ключа и текста. События старше 180 дней удаляются.`)
+    el("p", { class: "note" }, `Цифры выше — только реальные пользователи. Не входят: запросы с версии, пока она на ревью (блок «Ревью»), и наши тестовые проверки (${n.format(data.excluded_tests || 0)}). Время — UTC. Пользователь — установка расширения на одном устройстве; переустановка считается новым пользователем, а «новый» в графике запросов — это запрос в тот же день (UTC), когда установку увидели впервые. Сервер работает с 23.10.2026, поэтому все, кто пришёл с версий 1.x, в первые дни тоже выглядят новыми. Устройство и язык подписчика — из расширения, страна — из App Store; точнее страны ничего не хранится. Бесплатные подписки (подарочный код для прессы и блогеров, подписка владельца, пробный период, бесплатный код) показаны в «Подписках» отдельно и не входят в число подписок, конверсию, первую оплату, MRR и подписки из Apple Ads; такая подписка становится платящей с первой оплаты. MRR — в долларах США по сегодняшнему курсу, после комиссии Apple 15 %. В «По тарифам» Pro — все ответы Pro, бесплатные тоже. Активные до 28.10.2026 посчитаны по вопросам, дню установки и последнему заходу, поэтому за те дни цифры занижены; с 28.10 считается каждое открытие панели. Запросы с ключом пользователя видны начиная со следующей сборки после 2.1: расширение присылает только счётчики (модель, токены, время), без ключа и текста. События старше 180 дней удаляются.`)
   )
 }
 
