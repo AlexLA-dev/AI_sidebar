@@ -4,7 +4,7 @@ import { test } from "node:test"
 
 const dir = new URL("../site/", import.meta.url)
 const read = (name: string) => readFileSync(new URL(name, dir), "utf8")
-const ORIGIN = "https://aisidebar.netlify.app"
+const ORIGIN = "https://context-flow.app"
 const pages = readdirSync(dir).filter((f) => f.endsWith(".html"))
 const indexable = pages.filter((f) => !/<meta name="robots" content="noindex/.test(read(f)))
 const urlOf = (file: string) => `${ORIGIN}/${file === "index.html" ? "" : file.replace(/\.html$/, "")}`
@@ -67,6 +67,25 @@ test("links between pages lead to files that exist", () => {
     for (const [, path] of read(file).matchAll(/href="\/([a-z0-9-]*)(?:#[a-z]+)?"/g)) {
       assert.ok(existsSync(new URL(path ? `${path}.html` : "index.html", dir)), `${file} → /${path}`)
     }
+  }
+})
+
+test("the old host sends every page to the domain and never touches the API", () => {
+  const toml = readFileSync(new URL("../netlify.toml", import.meta.url), "utf8")
+  const rules = toml.split("[[redirects]]").slice(1).map((block) => Object.fromEntries([...block.matchAll(/^\s*(\w+) = "?([^"\n]*)"?$/gm)].map((m) => [m[1], m[2]])))
+  const OLD = "https://aisidebar.netlify.app"
+  const moved = rules.filter((r) => r.from.startsWith(OLD))
+  for (const r of moved) {
+    const path = r.from.slice(OLD.length)
+    assert.doesNotMatch(path, /^\/(api|\.netlify|confirm|email-confirmed)\b|\*/, r.from)
+    assert.equal(r.to, `${ORIGIN}${path.replace(/(index)?\.html$/, "")}`, r.from)
+    assert.equal(r.status, "301", r.from)
+    assert.equal(r.force, "true", r.from)
+  }
+  const paths = new Set(moved.map((r) => r.from.slice(OLD.length)))
+  for (const file of pages) {
+    const path = file === "index.html" ? "/" : `/${file.replace(/\.html$/, "")}`
+    assert.ok(paths.has(path) && paths.has(`/${file}`), `${file} isn't redirected from the old host`)
   }
 })
 

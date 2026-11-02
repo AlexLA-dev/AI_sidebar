@@ -8,7 +8,7 @@ import { dirname, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 
 const SITE = resolve(dirname(fileURLToPath(import.meta.url)), "../../site")
-const HOST = "aisidebar.netlify.app"
+const HOST = "context-flow.app"
 
 const keyFile = readdirSync(SITE).find((f) => /^[0-9a-f]{32}\.txt$/.test(f))
 if (!keyFile) throw new Error("No IndexNow key file (site/<32 hex>.txt)")

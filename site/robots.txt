@@ -12,4 +12,4 @@ Allow: /
 Disallow: /api/
 Disallow: /.netlify/
 
-Sitemap: https://aisidebar.netlify.app/sitemap.xml
+Sitemap: https://context-flow.app/sitemap.xml
