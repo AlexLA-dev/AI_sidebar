@@ -1047,3 +1047,74 @@ test("the auto-renew question's answer is logged with the plan, days left and wh
   assert.ok(!JSON.stringify(logged[0]).includes("secret"))
   assert.deepEqual([logged[1].reason, logged[1].days_left, logged[1].from], ["later", undefined, undefined])
 })
+
+test("Own key → Pro at a discount: status says so only when it's set up, and only to Own key subscribers", async () => {
+  const { generateKeyPairSync } = await import("node:crypto")
+  const cfg = serverConfig as unknown as Record<string, unknown>
+  const statusOf = async (entitlement?: string) => (await (await status(post("/api/v2/status", { installId: INSTALL, client: { version: "2.4", platform: "ios" }, entitlement }), ctx())).json())
+  const byok = signJws(transaction({ productId: "com.contextflow.byok.monthly", originalTransactionId: "2000000777" }))
+  cfg.promoOfferId = ""
+  assert.equal((await statusOf(byok)).upgradeOffer, null, "not set up")
+  cfg.promoOfferId = "byok_upgrade"
+  cfg.promoKeyId = "KEY123"
+  cfg.promoPrivateKey = generateKeyPairSync("ec", { namedCurve: "P-256" }).privateKey.export({ type: "pkcs8", format: "pem" }).toString()
+  cfg.promoDiscount = 50
+  try {
+    assert.deepEqual((await statusOf(byok)).upgradeOffer, { discount: 50 })
+    assert.equal((await statusOf(signJws(transaction()))).upgradeOffer, null, "Pro")
+    assert.equal((await statusOf()).upgradeOffer, null, "free")
+  } finally {
+    cfg.promoOfferId = ""
+  }
+})
+
+test("Own key → Pro at a discount: the server signs Apple's promotional offer for an Own key subscription only", async () => {
+  const { generateKeyPairSync, verify } = await import("node:crypto")
+  const promo = (await import("../netlify/functions/v2-promo.mts")).default as unknown as typeof event
+  const cfg = serverConfig as unknown as Record<string, unknown>
+  const { privateKey, publicKey } = generateKeyPairSync("ec", { namedCurve: "P-256" })
+  const ask = (body: Record<string, unknown>) => promo(post("/api/v2/promo", { installId: INSTALL, bundleId: "com.contextflow.app", client: { platform: "ios", version: "2.4" }, ...body }), ctx())
+  const byok = signJws(transaction({ productId: "com.contextflow.byok.monthly", originalTransactionId: "2000000777" }))
+  const token = "8f14e45f-ceea-467a-9575-cee5f2b7c2a1"
+
+  cfg.promoOfferId = ""
+  assert.equal((await ask({ entitlement: byok })).status, 404, "not set up")
+  cfg.promoOfferId = "byok_upgrade"
+  cfg.promoKeyId = "KEY123"
+  cfg.promoPrivateKey = privateKey.export({ type: "pkcs8", format: "pem" }).toString()
+  cfg.promoProductId = "com.contextflow.pro.monthly"
+  try {
+    assert.equal((await ask({ entitlement: signJws(transaction()) })).status, 403, "already Pro")
+    assert.equal((await ask({})).status, 403, "free")
+    assert.equal((await ask({ entitlement: byok, bundleId: "com.other.app" })).status, 400)
+    assert.equal((await ask({ entitlement: byok, appAccountToken: "not-a-uuid" })).status, 400)
+    events = []
+    const res = await ask({ entitlement: byok, appAccountToken: token.toUpperCase() })
+    assert.equal(res.status, 200)
+    const s = await res.json()
+    assert.deepEqual([s.offerId, s.keyId], ["byok_upgrade", "KEY123"])
+    assert.match(s.nonce, /^[0-9a-f-]{36}$/)
+    const payload = ["com.contextflow.app", "KEY123", "com.contextflow.pro.monthly", "byok_upgrade", token, s.nonce, String(s.timestamp)].join("⁣")
+    assert.ok(verify("sha256", Buffer.from(payload, "utf8"), { key: publicKey, dsaEncoding: "der" }, Buffer.from(s.signature, "base64")), "Apple's payload, signed")
+    await new Promise((r) => setTimeout(r, 0))
+    assert.ok(events.some((e) => e.kind === "byok_upsell" && e.data.action === "signed"))
+    // Without an app account token the signature covers an empty one.
+    const plain = await (await ask({ entitlement: byok })).json()
+    const plainPayload = ["com.contextflow.app", "KEY123", "com.contextflow.pro.monthly", "byok_upgrade", "", plain.nonce, String(plain.timestamp)].join("⁣")
+    assert.ok(verify("sha256", Buffer.from(plainPayload, "utf8"), { key: publicKey, dsaEncoding: "der" }, Buffer.from(plain.signature, "base64")))
+  } finally {
+    cfg.promoOfferId = ""
+  }
+})
+
+test("Own key upsell events keep only what was shown or tapped, where and from where", async () => {
+  const send = (body: Record<string, unknown>) => event(post("/api/v2/event", body), ctx())
+  events = []
+  assert.equal((await send({ kind: "byok_upsell", installId: INSTALL, action: "tap", where: "search", from: "panel", discount: true, page: "secret" })).status, 200)
+  assert.equal((await send({ kind: "byok_upsell", installId: INSTALL, action: "boom", where: "nowhere" })).status, 200)
+  await new Promise((r) => setTimeout(r, 0))
+  const logged = events.filter((e) => e.kind === "byok_upsell").map((e) => e.data)
+  assert.deepEqual([logged[0].action, logged[0].where, logged[0].from, logged[0].discount], ["tap", "search", "panel", true])
+  assert.ok(!JSON.stringify(logged[0]).includes("secret"))
+  assert.deepEqual([logged[1].action, logged[1].where], [undefined, undefined])
+})

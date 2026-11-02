@@ -6,6 +6,9 @@
 //   CF_API_BASE=http://localhost:8787 npm run build:chrome      (extension pointing at it)
 //   LIMITED_BEFORE=1 …                                         (every install ran out of free answers before:
 //                                                              the panel offers the Pro code)
+//   PREVIEW_PLAN=byok …                                        (the same with the Own key plan)
+//   PREVIEW_PROMO=1 …                                          (Own key → Pro at a discount is set up, with a
+//                                                              throwaway key: /api/v2/promo signs)
 //   PREVIEW_PLAN=pro …                                         (every request comes as Pro: a test-signed
 //                                                              subscription is added on the server side)
 //   PREVIEW_CLAUDE=credits|overloaded|refusal|off …            (answers come from a scripted Claude; these make
@@ -212,21 +215,31 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
   return realFetch(input, init)
 }) as typeof fetch
 
-// PREVIEW_PLAN=pro: requests carry a subscription signed with the test chain (trusted here only).
+// PREVIEW_PLAN=pro (or byok): requests carry a subscription signed with the test chain (trusted here only).
 let proJws: string | null = null
-if (process.env.PREVIEW_PLAN === "pro") {
+if (process.env.PREVIEW_PROMO === "1") {
+  const { generateKeyPairSync } = await import("node:crypto")
+  const { privateKey } = generateKeyPairSync("ec", { namedCurve: "P-256" })
+  process.env.PROMO_OFFER_ID = "byok_upgrade"
+  process.env.PROMO_KEY_ID = "STANDKEY01"
+  process.env.PROMO_PRIVATE_KEY = privateKey.export({ type: "pkcs8", format: "pem" }).toString()
+}
+if (process.env.PREVIEW_PLAN === "pro" || process.env.PREVIEW_PLAN === "byok") {
   const { signJws, transaction, TEST_ROOT_FINGERPRINT } = await import("../../tests/helpers.mts")
   // The test chain is only accepted in tests: this local stand counts as one.
   process.env.NODE_ENV = "test"
   ;(await import("../../netlify/shared/apple.mts")).setTrustedRootFingerprintForTests(TEST_ROOT_FINGERPRINT)
-  proJws = signJws(transaction({ expiresDate: Date.now() + 30 * 86_400_000 }))
+  proJws = signJws(transaction(process.env.PREVIEW_PLAN === "byok"
+    ? { productId: "com.contextflow.byok.monthly", originalTransactionId: "2000000777", expiresDate: Date.now() + 30 * 86_400_000 }
+    : { expiresDate: Date.now() + 30 * 86_400_000 }))
 }
 
 const chat = (await import("../../netlify/functions/v2-chat.mts")).default
 const status = (await import("../../netlify/functions/v2-status.mts")).default
 const event = (await import("../../netlify/functions/v2-event.mts")).default
 const find = (await import("../../netlify/functions/v2-find.mts")).default
-const handlers: Record<string, typeof chat> = { "/api/v2/chat": chat, "/api/v2/status": status, "/api/v2/event": event, "/api/v2/find": find }
+const promo = (await import("../../netlify/functions/v2-promo.mts")).default
+const handlers: Record<string, typeof chat> = { "/api/v2/chat": chat, "/api/v2/status": status, "/api/v2/event": event, "/api/v2/find": find, "/api/v2/promo": promo }
 
 const pages: Record<string, string> = {
   "/": "article.html",
@@ -257,7 +270,7 @@ createServer(async (req, res) => {
     if (url.pathname === "/api/v2/event") {
       try {
         const sent = JSON.parse(Buffer.concat(chunks).toString("utf8"))
-        panelEvents.push(`${sent.kind}:${sent.media ?? ""}`)
+        panelEvents.push(`${sent.kind}:${sent.media ?? sent.where ?? sent.reason ?? ""}`)
       } catch {
         // not JSON
       }
