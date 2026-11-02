@@ -19,6 +19,9 @@ export const config = {
   // an error before the first word (auth, credits, rate limit, overload, timeout) or a refusal.
   anthropicKey: (env("ANTHROPIC_API_KEY") ?? "").trim(),
   claudeEnabled: (env("CLAUDE_ANSWERS") ?? "on").trim() !== "off",
+  // Claude only answers app builds whose consent screen names Anthropic (2.4 build 67 and later);
+  // older builds, and requests without a build number, told their users about OpenAI only. 0: no check.
+  claudeMinBuild: int("CLAUDE_MIN_BUILD", 67),
   claude: {
     free: {
       model: env("ANTHROPIC_MODEL_FREE") ?? "claude-sonnet-5-5",

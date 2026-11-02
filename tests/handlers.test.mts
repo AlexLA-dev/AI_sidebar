@@ -185,7 +185,7 @@ let resetModelList: () => void
 let resetClaudeCooldown: () => void
 let serverConfig: {
   geminiKey: string; adminToken: string; ownKeyReportDailyLimit: number; eventDailyLimit: number; proOfferCode: string
-  anthropicKey: string; claudeEnabled: boolean; claudeFirstTokenMs: number
+  anthropicKey: string; claudeEnabled: boolean; claudeFirstTokenMs: number; claudeMinBuild: number
 }
 
 before(async () => {
@@ -215,6 +215,7 @@ beforeEach(() => {
   serverConfig.anthropicKey = ""
   serverConfig.claudeEnabled = true
   serverConfig.claudeFirstTokenMs = 20_000
+  serverConfig.claudeMinBuild = 67
   resetClaudeCooldown()
   serverConfig.geminiKey = "gemini-test"
   serverConfig.adminToken = ""
@@ -648,9 +649,13 @@ async function chatOnce(req: Request) {
   return { res, ev }
 }
 
+// The first app build whose consent screen names Anthropic: only these requests may go to Claude.
+const NEW_CLIENT = { version: "2.4", build: "67", platform: "ios", locale: "en-US" }
+const askNew = (extra: Record<string, unknown> = {}) => ask({ client: NEW_CLIENT, ...extra })
+
 test("Claude answers first: the free plan gets Sonnet at low effort, charged once, its spend logged", async () => {
   serverConfig.anthropicKey = CLAUDE_KEY
-  const { ev } = await chatOnce(ask())
+  const { ev } = await chatOnce(askNew())
   assert.equal(ev[0].model, "claude-sonnet-5-5")
   assert.equal(deltas(ev), "Hello from Claude")
   assert.equal(ev.at(-1).type, "done")
@@ -674,7 +679,7 @@ test("Claude answers first: the free plan gets Sonnet at low effort, charged onc
 
 test("Claude for Pro: the same model at medium effort, with more room for the answer", async () => {
   serverConfig.anthropicKey = CLAUDE_KEY
-  const { ev } = await chatOnce(ask({ entitlement: signJws(transaction()) }))
+  const { ev } = await chatOnce(askNew({ entitlement: signJws(transaction()) }))
   assert.equal(ev[0].plan, "pro")
   assert.equal(deltas(ev), "Hello from Claude")
   assert.equal(claude.lastBody?.model, "claude-sonnet-5-5")
@@ -705,7 +710,7 @@ test("OpenAI answers when Claude fails before its first word: the user gets a fu
     resetClaudeCooldown()
     serverConfig.anthropicKey = CLAUDE_KEY
     serverConfig.claudeFirstTokenMs = 150
-    const { res, ev } = await chatOnce(ask())
+    const { res, ev } = await chatOnce(askNew())
     assert.equal(res.status, 200, reason)
     assert.equal(claude.calls, 1, `${reason}: Claude asked once`)
     assert.equal(deltas(ev), "Hello world", `${reason}: the OpenAI answer, whole`)
@@ -722,9 +727,9 @@ test("after Claude runs out of credits it isn't asked again for a while", async 
   claude.status = 400
   claude.errorType = "invalid_request_error"
   claude.error = "Your credit balance is too low to access the Anthropic API."
-  await chatOnce(ask())
+  await chatOnce(askNew())
   events = []
-  const { ev } = await chatOnce(ask())
+  const { ev } = await chatOnce(askNew())
   assert.equal(deltas(ev), "Hello world")
   assert.equal(claude.calls, 1, "not asked the second time")
   assert.equal(chatEvent().fallback, "cooldown_credits")
@@ -733,7 +738,7 @@ test("after Claude runs out of credits it isn't asked again for a while", async 
   resetClaudeCooldown()
   claude.status = undefined
   events = []
-  const again = await chatOnce(ask())
+  const again = await chatOnce(askNew())
   assert.equal(deltas(again.ev), "Hello from Claude")
   assert.equal(chatEvent().provider, "anthropic")
 })
@@ -742,7 +747,7 @@ test("Claude and OpenAI both down: UPSTREAM and nothing charged", async () => {
   serverConfig.anthropicKey = CLAUDE_KEY
   claude.status = 500
   openai.status = 500
-  const { res } = await chatOnce(ask())
+  const { res } = await chatOnce(askNew())
   assert.equal(res.status, 502)
   assert.equal((await res.json()).code, "UPSTREAM")
   assert.equal(counters.get(`install:${INSTALL}`), 0)
@@ -751,7 +756,7 @@ test("Claude and OpenAI both down: UPSTREAM and nothing charged", async () => {
 test("Claude breaking off after its first words: an error and a refund, no second answer mixed in", async () => {
   serverConfig.anthropicKey = CLAUDE_KEY
   claude.mode = "midstream"
-  const { ev } = await chatOnce(ask())
+  const { ev } = await chatOnce(askNew())
   assert.equal(deltas(ev), "Hello from")
   assert.equal(ev.at(-1).type, "error")
   assert.equal(ev.at(-1).code, "STREAM")
@@ -760,20 +765,20 @@ test("Claude breaking off after its first words: an error and a refund, no secon
 })
 
 test("without a key, or with CLAUDE_ANSWERS=off, OpenAI answers as before", async () => {
-  await chatOnce(ask())
+  await chatOnce(askNew())
   assert.deepEqual([chatEvent().provider, chatEvent().fallback], ["openai", "no_key"])
   events = []
   serverConfig.anthropicKey = CLAUDE_KEY
   serverConfig.claudeEnabled = false
-  await chatOnce(ask())
+  await chatOnce(askNew())
   assert.deepEqual([chatEvent().provider, chatEvent().fallback], ["openai", "off"])
   assert.equal(claude.calls, 0)
 })
 
-test("Ask your chats (Pro settings), AI search (free settings) and old builds go to Claude too", async () => {
+test("Ask your chats (Pro settings) and AI search (free settings) go to Claude too", async () => {
   serverConfig.anthropicKey = CLAUDE_KEY
   const jws = signJws(transaction())
-  const { ev } = await chatOnce(askHistory({ entitlement: jws }))
+  const { ev } = await chatOnce(askHistory({ client: NEW_CLIENT, entitlement: jws }))
   assert.equal(deltas(ev), "Hello from Claude")
   assert.match(claude.lastBody?.system, /earlier ContextFlow chats/)
   assert.deepEqual(claude.lastBody?.output_config, { effort: "medium" })
@@ -782,23 +787,13 @@ test("Ask your chats (Pro settings), AI search (free settings) and old builds go
   events = []
   claude.answer = '{"results": [{"id": "c1", "why": "The four-day week article"}]}'
   const c = ctx()
-  const res = await find(findChats({ entitlement: jws }), c)
+  const res = await find(findChats({ client: NEW_CLIENT, entitlement: jws }), c)
   await Promise.all(c.pending)
   assert.deepEqual((await res.json()).results, [{ id: "c1", why: "The four-day week article" }])
   assert.deepEqual(claude.lastBody?.output_config, { effort: "low" })
   assert.match(claude.lastBody?.system, /id=c2/)
   assert.deepEqual([chatEvent().provider, chatEvent().mode, chatEvent().cost_usd], ["anthropic", "find", 0.004])
   assert.equal(counters.get("tx:2000000123"), 2)
-
-  claude.answer = "Hello from Claude"
-  const legacyRes = await legacy(post("/.netlify/functions/chat-proxy", {
-    anonymous: true,
-    messages: [{ role: "system", content: "You are ContextFlow" }, { role: "user", content: "hi" }]
-  }), ctx())
-  const text = await legacyRes.text()
-  assert.match(text, /data: \{"content":"Hello"\}/)
-  assert.match(text, /data: \[DONE\]/)
-  assert.equal(claude.lastBody?.system, "You are ContextFlow")
 })
 
 test("AI search falls back to OpenAI the same way", async () => {
@@ -807,9 +802,63 @@ test("AI search falls back to OpenAI the same way", async () => {
   claude.errorType = "rate_limit_error"
   openai.answer = '{"results": [{"id": "c2", "why": "Pasta"}]}'
   const c = ctx()
-  const res = await find(findChats({ entitlement: signJws(transaction()) }), c)
+  const res = await find(findChats({ client: NEW_CLIENT, entitlement: signJws(transaction()) }), c)
   await Promise.all(c.pending)
   assert.deepEqual((await res.json()).results, [{ id: "c2", why: "Pasta" }])
   assert.deepEqual([chatEvent().provider, chatEvent().fallback], ["openai", "rate_limit"])
   assert.equal(counters.get("tx:2000000123"), 1)
+})
+
+test("Claude answers only build 67 and later: older builds and requests without a build stay on OpenAI", async () => {
+  serverConfig.anthropicKey = CLAUDE_KEY
+  const cases: Array<[Record<string, unknown> | undefined, string, number | null]> = [
+    [{ version: "2.4", build: "66", platform: "ios", locale: "en-US" }, "openai", 66],
+    [{ version: "2.3", platform: "macos", locale: "en-US" }, "openai", null],
+    [{ version: "2.4.0", platform: "ios", locale: "en-US" }, "openai", null],
+    [undefined, "openai", null],
+    [{ version: "2.4", build: "67", platform: "ios", locale: "en-US" }, "anthropic", 67],
+    [{ version: "2.5", build: 70, platform: "macos", locale: "en-US" }, "anthropic", 70]
+  ]
+  for (const [client, provider, build] of cases) {
+    counters = new Map()
+    events = []
+    claude.calls = 0
+    const { ev } = await chatOnce(ask({ client }))
+    const label = JSON.stringify(client)
+    assert.equal(deltas(ev), provider === "anthropic" ? "Hello from Claude" : "Hello world", label)
+    assert.equal(claude.calls, provider === "anthropic" ? 1 : 0, `${label}: Claude asked only for new builds`)
+    const e = chatEvent()
+    assert.deepEqual([e.provider, e.fallback, e.build], [provider, provider === "anthropic" ? undefined : "old_client", build], label)
+  }
+
+  // AI search from an old build: OpenAI.
+  events = []
+  claude.calls = 0
+  openai.answer = '{"results": [{"id": "c2", "why": "Pasta"}]}'
+  const c = ctx()
+  await find(findChats({ client: { version: "2.4", build: "66", platform: "ios", locale: "en-US" }, entitlement: signJws(transaction()) }), c)
+  await Promise.all(c.pending)
+  assert.deepEqual([chatEvent().provider, chatEvent().fallback, claude.calls], ["openai", "old_client", 0])
+
+  // The legacy endpoint only serves builds from before 2.0: always OpenAI.
+  openai.answer = "Hello world"
+  const lc = ctx()
+  const legacyRes = await legacy(post("/.netlify/functions/chat-proxy", {
+    anonymous: true,
+    messages: [{ role: "system", content: "You are ContextFlow" }, { role: "user", content: "hi" }]
+  }), lc)
+  const text = await legacyRes.text()
+  await Promise.all(lc.pending)
+  assert.match(text, /data: \{"content":"Hello"\}/)
+  assert.match(text, /data: \[DONE\]/)
+  assert.equal(claude.calls, 0)
+  assert.deepEqual((openai.lastBody?.messages as Array<{ content: string }>)[0].content, "You are ContextFlow")
+
+  // CLAUDE_MIN_BUILD=0 (the local stand): no check, a request without a build goes to Claude.
+  serverConfig.claudeMinBuild = 0
+  counters = new Map()
+  events = []
+  const { ev } = await chatOnce(ask({ client: undefined }))
+  assert.equal(deltas(ev), "Hello from Claude")
+  assert.deepEqual([chatEvent().provider, chatEvent().build], ["anthropic", null])
 })
