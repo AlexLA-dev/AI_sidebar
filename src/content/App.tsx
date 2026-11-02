@@ -20,7 +20,7 @@ import * as Icon from "./icons"
 import { historyForModel, isQuestion, lastPage, otherPages, pageHasChanged, selectionNote, textFingerprint, type Entry, type SourceNote } from "../shared/conversation"
 import { Markdown } from "./markdown"
 import { MAX_OTHER_PAGES } from "../shared/prompt"
-import { answerShareText, chatLanguage, pickedShareText, toPlainText, type ShareLinks } from "../shared/share"
+import { answerShareText, chatLanguage, noteCopyText, noteShareText, pickedShareText, toPlainText, type ShareLinks } from "../shared/share"
 import type { PageRead, PageSource } from "./context"
 import {
   forgetSelection,
@@ -501,11 +501,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     return () => window.removeEventListener("keydown", onKey, true)
   }, [open, hide, endTour])
 
-  // Keep the newest text in view while streaming.
+  // Keep the newest text in view while streaming (not when a message only got tags: the chat stays put).
   useEffect(() => {
     const list = listRef.current
     if (list) list.scrollTop = list.scrollHeight
-  }, [messages, partial, error])
+  }, [messages.length, partial, error])
 
   // ------------------------------------------------------------ selection
   useEffect(() => {
@@ -928,6 +928,30 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       return next
     }))
   }, [])
+
+  /**
+   * Under an answer and under a note, the same: its tags, then Copy, Share and Tag, then the tag
+   * picker (`plain`: the text to copy, `shared`: the text to share).
+   */
+  const messageFooter = (m: Entry, idx: number, plain: () => string, shared: () => string): VNode => (
+    <>
+      {m.tags && m.tags.length > 0 && <div class="cf-msg-tags">{m.tags.map((tag) => <TagChip key={tag} tag={tag} onClick={() => setTagging(idx)} />)}</div>}
+      <div class="cf-msg-tools">
+        <button type="button" onClick={async () => { if (await copyText(plain())) { setCopied(idx); setTimeout(() => setCopied(null), 1500) } }}>
+          {copied === idx ? <Icon.Check /> : <Icon.Copy />} {copied === idx ? t("copied") : t("copy")}
+        </button>
+        {typeof navigator.share === "function" && (
+          <button type="button" onClick={() => void shareText(shared())}>
+            <Icon.Share /> {t("share")}
+          </button>
+        )}
+        <button type="button" onClick={() => setTagging(tagging === idx ? null : idx)} aria-expanded={tagging === idx}>
+          <Icon.Tag /> {t("tagsButton")}
+        </button>
+      </div>
+      {tagging === idx && <TagEditor tags={m.tags ?? []} known={allTags(threadList).map((x) => x.tag)} onChange={(next) => tagMessage(idx, next)} onClose={() => setTagging(null)} />}
+    </>
+  )
 
   const renameChat = useCallback((id: string, name: string) => {
     void renameThread(id, name).then(() => loadThreads()).then(({ threads }) => setThreadList(chatList(threads)))
@@ -1433,35 +1457,19 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       {m.note ? (
                         <div class="cf-bubble-note">
                           <span class="cf-note-mark" aria-label={t("shareNote")}><Icon.Pencil /></span>{m.content}
-                          <button type="button" class="cf-note-tag" onClick={() => setTagging(tagging === idx ? null : idx)} aria-label={t("tagsEdit")} title={t("tagsEdit")}><Icon.Tag /></button>
                         </div>
                       ) : (
                         <div class="cf-bubble-user">{m.mode === "google" && <span class="cf-user-mode"><Icon.Search size={12} /></span>}{m.label ?? m.content}</div>
                       )}
                       {m.sources && m.sources.length > 0 && <UsedSources notes={m.sources} />}
-                      {m.note && m.tags && m.tags.length > 0 && <div class="cf-msg-tags">{m.tags.map((tag) => <TagChip key={tag} tag={tag} onClick={() => setTagging(idx)} />)}</div>}
-                      {m.note && tagging === idx && <TagEditor tags={m.tags ?? []} known={allTags(threadList).map((x) => x.tag)} onChange={(next) => tagMessage(idx, next)} onClose={() => setTagging(null)} />}
+                      {m.note && messageFooter(m, idx, () => noteCopyText(m), () => noteShareText(messages, idx, shareLabels(chatLanguage(messages)), shareLinks()))}
                     </div>
                   ) : (
                     <div class={`cf-msg ai ${picked ? "pickable" : ""} ${picked?.has(idx) ? "picked" : ""}`} key={idx} data-index={idx} {...pickProps(idx)}>
                       {m.grounding && <div class="cf-grounded"><Icon.Search size={13} /> {t("googleBadge")}</div>}
                       <Markdown text={m.content} onCopyCode={(code) => void copyText(code)} />
                       {m.grounding && <Sources grounding={m.grounding} />}
-                      {m.tags && m.tags.length > 0 && <div class="cf-msg-tags">{m.tags.map((tag) => <TagChip key={tag} tag={tag} onClick={() => setTagging(idx)} />)}</div>}
-                      <div class="cf-msg-tools">
-                        <button type="button" onClick={async () => { if (await copyText(toPlainText(m.content))) { setCopied(idx); setTimeout(() => setCopied(null), 1500) } }}>
-                          {copied === idx ? <Icon.Check /> : <Icon.Copy />} {copied === idx ? t("copied") : t("copy")}
-                        </button>
-                        {typeof navigator.share === "function" && (
-                          <button type="button" onClick={() => void shareText(answerShareText(messages, idx, shareLabels(chatLanguage(messages)), shareLinks()))}>
-                            <Icon.Share /> {t("share")}
-                          </button>
-                        )}
-                        <button type="button" onClick={() => setTagging(tagging === idx ? null : idx)} aria-expanded={tagging === idx}>
-                          <Icon.Tag /> {t("tagsButton")}
-                        </button>
-                      </div>
-                      {tagging === idx && <TagEditor tags={m.tags ?? []} known={allTags(threadList).map((x) => x.tag)} onChange={(next) => tagMessage(idx, next)} onClose={() => setTagging(null)} />}
+                      {messageFooter(m, idx, () => toPlainText(m.content), () => answerShareText(messages, idx, shareLabels(chatLanguage(messages)), shareLinks()))}
                     </div>
                   )
                 )}

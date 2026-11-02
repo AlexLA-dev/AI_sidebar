@@ -847,17 +847,18 @@ private struct MessageView: View {
 
     var body: some View {
         if entry.isNote {
-            HStack(alignment: .top, spacing: 8) {
-                Image(systemName: "pencil")
-                    .foregroundColor(.orange)
-                Text(entry.content)
-                    .textSelection(.enabled)
-            }
-            .padding(12)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(RoundedRectangle(cornerRadius: 14).fill(Color.orange.opacity(0.12)))
-            .overlay(alignment: .bottomTrailing) {
-                if let tags = entry.tags, !tags.isEmpty { TagChips(tags: tags).padding(8) }
+            // Its tags under it, like an answer's (not over the text).
+            VStack(alignment: .trailing, spacing: 6) {
+                HStack(alignment: .top, spacing: 8) {
+                    Image(systemName: "pencil")
+                        .foregroundColor(.orange)
+                    Text(entry.content)
+                        .textSelection(.enabled)
+                }
+                .padding(12)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(RoundedRectangle(cornerRadius: 14).fill(Color.orange.opacity(0.12)))
+                if let tags = entry.tags, !tags.isEmpty { TagChips(tags: tags) }
             }
         } else if entry.isUser {
             VStack(alignment: .trailing, spacing: 6) {

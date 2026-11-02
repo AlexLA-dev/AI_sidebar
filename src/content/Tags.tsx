@@ -14,8 +14,25 @@ export function TagChip({ tag, active, onClick }: { tag: string; active?: boolea
 }
 
 /**
+ * Scrolls the box `el` scrolls in (the chat, the chat list) just enough to show all of `el`, its top
+ * first when it's taller than the box: under the last message it would be under the question field.
+ */
+export function revealInBox(el: HTMLElement): void {
+  let box = el.parentElement
+  while (box && !/(auto|scroll)/.test(getComputedStyle(box).overflowY)) box = box.parentElement
+  if (!box) return
+  const r = el.getBoundingClientRect()
+  const b = box.getBoundingClientRect()
+  const MARGIN = 8
+  if (r.bottom > b.bottom - MARGIN) box.scrollTop += Math.min(r.bottom - b.bottom + MARGIN, r.top - b.top - MARGIN)
+  else if (r.top < b.top + MARGIN) box.scrollTop -= b.top + MARGIN - r.top
+}
+
+/**
  * Picks the tags of a chat, an answer or a note: the tags in use as chips to switch on and off, and
- * a field for a new one (Enter adds it). Closes on Done, Escape or a press outside.
+ * a field for a new one (Enter adds it). Closes on Done, Escape or a press outside. Always all in
+ * view: it scrolls its box when it opens, when the tags change (the message's chips above it come and
+ * go) and when the keyboard takes part of the screen.
  */
 export function TagEditor({ tags, known, onChange, onClose }: {
   tags: string[]
@@ -33,6 +50,14 @@ export function TagEditor({ tags, known, onChange, onClose }: {
     if (tag && !has(tag)) onChange([...tags, tag])
     setDraft("")
   }
+
+  const reveal = () => void requestAnimationFrame(() => ref.current && revealInBox(ref.current))
+  useEffect(reveal, [tags.join("\n")])
+  useEffect(() => {
+    const vv = window.visualViewport
+    vv?.addEventListener("resize", reveal)
+    return () => vv?.removeEventListener("resize", reveal)
+  }, [])
 
   useEffect(() => {
     input.current?.focus({ preventScroll: true })

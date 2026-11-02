@@ -35,6 +35,8 @@ export interface Entry extends ChatTurn {
   pageChanged?: boolean
   // A note the user wrote in the chat: kept with it, never sent to the AI as a question.
   note?: boolean
+  // A note made from a page selection: its text starts with the selected text in quotes.
+  quote?: boolean
   // User turns: videos and PDFs read along with the page (shown under the question).
   sources?: SourceNote[]
   // Answers and notes: the user's tags (a chat's own tags are on the thread).
@@ -58,7 +60,7 @@ export function selectionNote(selected: string, comment: string, page: PageRef, 
   if (text.length > MAX_NOTE_QUOTE) text = text.slice(0, MAX_NOTE_QUOTE).trimEnd() + "…"
   const quote = quoted(text)
   const note = comment.trim()
-  return { role: "user", content: note ? `${quote}\n\n${note}` : quote, note: true, page }
+  return { role: "user", content: note ? `${quote}\n\n${note}` : quote, note: true, quote: true, page }
 }
 
 /** A question to the AI (a user turn that isn't a note). */

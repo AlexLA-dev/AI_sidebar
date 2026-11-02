@@ -112,7 +112,7 @@ test("urlKey drops the hash and tracking parameters", () => {
 test("Note by a selection: the quoted text with the page and the comment, a note (no AI, no answer)", () => {
   const page = { url: "https://weekly.example/four-day-week", title: "Four-day week", hash: "abc" }
   const note = selectionNote("  61 companies cut   hours\n\n\n\nby 20%.  ", "  check the pay part  ", page, (text) => `«${text}»`)
-  assert.deepEqual(note, { role: "user", content: "«61 companies cut hours\n\nby 20%.»\n\ncheck the pay part", note: true, page })
+  assert.deepEqual(note, { role: "user", content: "«61 companies cut hours\n\nby 20%.»\n\ncheck the pay part", note: true, quote: true, page })
   assert.equal(isQuestion(note), false)
   // Without a comment: just the quote; English quotes by default.
   assert.equal(selectionNote("Burnout fell.", "   ", page).content, "“Burnout fell.”")

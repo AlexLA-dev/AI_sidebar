@@ -633,7 +633,9 @@ button.cf-tag:hover { background: rgba(var(--tag), 0.2); }
 .cf-tag.c0 { --tag: 37, 99, 235; } .cf-tag.c1 { --tag: 13, 148, 136; } .cf-tag.c2 { --tag: 202, 138, 4; } .cf-tag.c3 { --tag: 219, 39, 119; }
 .cf-tag.c4 { --tag: 124, 58, 237; } .cf-tag.c5 { --tag: 22, 163, 74; } .cf-tag.c6 { --tag: 234, 88, 12; } .cf-tag.c7 { --tag: 71, 85, 105; }
 .cf-thread-tags, .cf-msg-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 3px; }
-.cf-msg.user .cf-msg-tags { justify-content: flex-end; }
+.cf-msg.user .cf-msg-tags, .cf-msg.user .cf-msg-tools { justify-content: flex-end; }
+/* Clear of a Google answer's sources and its search box. */
+.cf-sources + .cf-msg-tags { margin-top: 10px; }
 .cf-tag-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin: 0 2px 8px; }
 .cf-tag-group { display: inline-flex; align-items: center; gap: 4px; margin-left: auto; padding: 2px 8px; border-radius: 999px; font-size: 11.5px; font-weight: 600; color: var(--text-2); background: var(--bg-2); }
 .cf-tag-group.on { color: #fff; background: var(--accent); }
@@ -642,6 +644,7 @@ button.cf-tag:hover { background: rgba(var(--tag), 0.2); }
 .cf-tag-group-head span { margin-left: auto; font-weight: 600; color: var(--text-3); }
 .cf-tag-editor { position: relative; z-index: 5; margin: 6px 0 8px; padding: 10px 12px; border-radius: 12px; background: var(--bg); border: 1px solid var(--border); box-shadow: 0 8px 26px rgba(0, 0, 0, 0.14); display: flex; flex-direction: column; gap: 8px; }
 .cf-thread .cf-tag-editor { position: absolute; left: 10px; right: 10px; top: calc(100% - 6px); }
+.cf-msg.user .cf-tag-editor { align-self: stretch; }
 .cf-tag-editor-title { font-size: 12px; font-weight: 700; color: var(--text-2); }
 .cf-tag-list { display: flex; flex-wrap: wrap; gap: 5px; }
 .cf-tag-new { display: flex; align-items: center; gap: 6px; }
@@ -650,9 +653,6 @@ button.cf-tag:hover { background: rgba(var(--tag), 0.2); }
 .cf-tag-new input:focus { border-color: var(--accent); }
 .cf-tag-done { align-self: flex-end; font-size: 13px; }
 .cf-bubble-note { position: relative; }
-.cf-note-tag { display: inline-flex; vertical-align: middle; margin-left: 6px; padding: 2px; border-radius: 6px; color: var(--note-text); opacity: 0.6; }
-.cf-note-tag:hover { opacity: 1; background: rgba(0, 0, 0, 0.06); }
-.cf-note-tag svg { width: 13px; height: 13px; }
 .cf-thread-title svg { display: inline-block; vertical-align: -1px; margin-right: 3px; }
 
 /* "First time here" hints. */
