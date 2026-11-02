@@ -151,7 +151,7 @@
   "tourDone": "OK",
   "tourShow": "ヒントを表示",
   "tourAskTitle": "このページについて質問",
-  "tourAskBody": "ContextFlow は開いているページを読み取ります。字幕付きの動画やページ上の PDF も読み取れます。「要約」などのアクションを選ぶか、質問を入力してください。",
+  "tourAskBody": "ContextFlow は開いているページを読み取ります。Pro なら字幕付きの動画やページ上の PDF も読み取れます。「要約」などのアクションを選ぶか、質問を入力してください。",
   "tourSelectTitle": "一部分だけ？",
   "tourSelectBody": "先にページのテキストを選択すると、その部分についてだけ答えます。このラベルはContextFlowが読んでいる内容を示します。",
   "tourGoogleTitle": "Googleで最新情報",
@@ -205,7 +205,7 @@
   "pickAll": "すべて選択",
   "pickNone": "選択を解除",
   "limitFreeBack": "{1}（{2}後）に無料回答が{0}回分戻ります。",
-  "limitFreePro": "Proなら週に最大{0}回の回答、AI検索、すべてのチャットへの質問が使えます。",
+  "limitFreePro": "Proなら週に最大{0}回の回答、ページの動画とPDFの読み取り、AI検索、すべてのチャットへの質問が使えます。",
   "limitNotes": "メモは無料・無制限です。大事なことを今メモして、あとでAIに聞きましょう。",
   "writeNote": "メモを書く",
   "errProvider": "AI プロバイダーからの応答：{0}",
@@ -249,7 +249,7 @@
   "upsellFindText": "チャットを自分の言葉で説明すると（「先週読んだ睡眠とコーヒーの記事」など）、正確な言葉がなくても AI が見つけます。",
   "upsellHistoryName": "すべてのチャットに質問",
   "upsellHistoryText": "すべてのチャットにまとめて質問：「老後の貯蓄について何を読んだ？」「今月のメモをまとめて」。",
-  "upsellMore": "さらに、より深く詳しい回答を週375件まで。iPhone、iPad、Macで使えます。",
+  "upsellMore": "さらに、ページの動画とPDFの読み取り、より深く詳しい回答を週375件まで。iPhone、iPad、Macで使えます。",
   "errProOnly": "この機能は Pro に含まれます。",
 
   "tagsTitle": "タグ",
@@ -268,5 +268,14 @@
   "hintVideoTitle": "このページには動画があります",
   "hintVideoBody": "回答は文字起こしをもとに、[4:15] のように場面を示します。字幕がなければタイトルと説明をもとに回答し、その旨を伝えます。",
   "hintPdfTitle": "PDF も読み取ります",
-  "hintPdfBody": "このページに表示またはリンクされた PDF も質問に含めます。回答にはページ番号を示します。"
+  "hintPdfBody": "このページに表示またはリンクされた PDF も質問に含めます。回答にはページ番号を示します。",
+  "proSkipVideo": "このページの動画は読み取っていません。動画は Pro で読み取れます",
+  "proSkipPdf": "このページの PDF は読み取っていません。PDF は Pro で読み取れます",
+  "proSkipBoth": "このページの動画と PDF は読み取っていません。Pro で読み取れます",
+  "tryPro": "Pro を試す",
+  "emptyVideoFree": "このページには動画があります。Pro の回答は文字起こしを使い、無料の回答はページに表示された内容（タイトル、説明）を使います。",
+  "emptyPdfFree": "このページには PDF があります。Pro の回答は PDF を読み取り、無料の回答はページのテキストを使います。",
+  "hintVideoBodyFree": "Pro では文字起こしを使い、[4:15] のように場面を示します。無料の回答はタイトルと説明を使います。",
+  "hintPdfTitleFree": "このページには PDF があります",
+  "hintPdfBodyFree": "Pro はこのページに表示・リンクされた PDF を読み取り、どのページの内容かを示します。無料の回答はページのテキストを使います。"
 }

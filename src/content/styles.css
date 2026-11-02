@@ -634,6 +634,11 @@ button.cf-tag:hover { background: rgba(var(--tag), 0.2); }
 .cf-tag.c4 { --tag: 124, 58, 237; } .cf-tag.c5 { --tag: 22, 163, 74; } .cf-tag.c6 { --tag: 234, 88, 12; } .cf-tag.c7 { --tag: 71, 85, 105; }
 .cf-thread-tags, .cf-msg-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 3px; }
 .cf-msg.user .cf-msg-tags, .cf-msg.user .cf-msg-tools { justify-content: flex-end; }
+/* Under a free answer: the page's video or PDFs weren't read; "Try Pro". */
+.cf-media-skipped { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 7px; margin-top: 8px; padding: 7px 10px; border-radius: 10px; background: var(--bg-2); color: var(--text-2); font-size: 12.5px; line-height: 1.35; }
+.cf-media-skipped svg { flex: none; color: var(--text-3); }
+.cf-media-skipped span { flex: 1 1 180px; }
+.cf-media-skipped button { font-size: 12.5px; font-weight: 600; white-space: nowrap; }
 /* Clear of a Google answer's sources and its search box. */
 .cf-sources + .cf-msg-tags { margin-top: 10px; }
 .cf-tag-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin: 0 2px 8px; }

@@ -1,21 +1,25 @@
 // What a question is asked with: the page's text plus, when the page has them, a video's transcript or
-// captions and its PDFs. Reading those can take a few seconds (the panel says so meanwhile); whatever
-// can't be read is noted under the question and the answer uses the rest.
+// captions and its PDFs (Pro: for other plans they aren't read, and the question says the page has
+// them). Reading those can take a few seconds (the panel says so meanwhile); whatever can't be read is
+// noted under the question and the answer uses the rest.
 
+import type { Attachment, MediaKind } from "../shared/attachments"
 import { TARGET } from "../shared/config"
 import type { SourceNote } from "../shared/conversation"
 import { looksLikePdf, MAX_FORWARD_BYTES, toBase64 } from "../shared/pdf"
 import type { BackgroundRequest, PdfResult } from "../shared/types"
 import { hasCaptionTracks, readCaptions, type CaptionsRead } from "./captions"
-import { composeVideo, composeWithAttachments } from "./compose"
 import { extractPage, pageKey, siteName } from "./page"
 import { findPdfs, type PdfOnPage } from "./pdf"
 import { browserEnv, cachedTranscript, clock, hasTranscript, readTranscript, youtubeVideoId } from "./youtube"
 
 export interface PageRead {
   title: string
+  // The page's own text; a video's transcript and the PDFs come apart, in `attachments`.
   text: string
-  media?: "video" | "pdf"
+  attachments?: Attachment[]
+  // The page has a video or PDFs that weren't read: the plan doesn't include them.
+  skipped?: MediaKind[]
   sources: SourceNote[]
 }
 
@@ -34,8 +38,8 @@ export interface PageSource {
   pending(): "video" | "pdf" | null
   /** The page as it is now, quickly (for notes: title and a fingerprint of the text). */
   quick(): { title: string; text: string }
-  /** Everything a question goes with. */
-  read(): Promise<PageRead>
+  /** Everything a question goes with (`withMedia`: the video and PDFs too, else only noted as skipped). */
+  read(withMedia: boolean): Promise<PageRead>
 }
 
 const CAPTIONS_TIMEOUT_MS = 6_000
@@ -84,9 +88,15 @@ function videoDuration(): number | null {
   return video && Number.isFinite(video.duration) && video.duration > 0 ? video.duration * 1000 : null
 }
 
-async function readTab(readPdf: (url: string) => Promise<PdfResult | null>): Promise<PageRead> {
+async function readTab(readPdf: (url: string) => Promise<PdfResult | null>, withMedia: boolean): Promise<PageRead> {
   const page = extractPage()
   const videoId = youtubeVideoId(location.href)
+  if (!withMedia) {
+    // Not read at all: only what the page shows (a video page's title, description and comments).
+    const skipped: MediaKind[] = videoId || hasCaptionTracks(document) ? ["video"] : []
+    if (!videoId && pagePdfs().length) skipped.push("pdf")
+    return { title: page.title, text: page.text, ...(skipped.length ? { skipped } : {}), sources: [] }
+  }
   if (videoId) {
     const name = videoTitle()
     const transcript = await cachedTranscript(videoId, () => readTranscript(browserEnv(), videoId))
@@ -94,8 +104,8 @@ async function readTab(readPdf: (url: string) => Promise<PdfResult | null>): Pro
       const duration = videoDuration() ?? transcript.duration
       return {
         title: page.title,
-        text: composeVideo(name, duration, transcript.text, page.text),
-        media: "video",
+        text: page.text,
+        attachments: [{ kind: "video", lead: true, heading: `Video: ${name}\nLength: ${clock(duration)}\n\nTranscript (timestamps in [m:ss]):`, text: transcript.text }],
         sources: [{ kind: "video", ok: true, name, detail: clock(duration) }]
       }
     }
@@ -109,9 +119,8 @@ async function readTab(readPdf: (url: string) => Promise<PdfResult | null>): Pro
     }
   }
 
-  const parts: Array<{ heading: string; text: string }> = []
+  const attachments: Attachment[] = []
   const sources: SourceNote[] = []
-  let media: PageRead["media"]
   const pdfs = pagePdfs()
   // undefined: no video with captions on the page; null: there is one, but its captions couldn't be read.
   const captionsRead: Promise<CaptionsRead | null | undefined> = hasCaptionTracks(document)
@@ -123,9 +132,8 @@ async function readTab(readPdf: (url: string) => Promise<PdfResult | null>): Pro
   const [captions, pdfResults] = await Promise.all([captionsRead, Promise.all(pdfs.map((pdf) => cachedPdf(pdf.url, readPdf)))])
   if (captions) {
     const name = captions.name || page.title
-    parts.push({ heading: `Captions of the video "${name}" (timestamps in [m:ss]):`, text: captions.text })
+    attachments.push({ kind: "video", heading: `Captions of the video "${name}" (timestamps in [m:ss]):`, text: captions.text })
     sources.push({ kind: "video", ok: true, name, detail: clock(captions.duration) })
-    media = "video"
   } else if (captions === null) {
     sources.push({ kind: "video", ok: false, name: page.title, reason: "failed" })
   }
@@ -133,12 +141,9 @@ async function readTab(readPdf: (url: string) => Promise<PdfResult | null>): Pro
     const result = pdfResults[i]
     const note = pdfNote(pdf, result)
     if (note) sources.push(note)
-    if (result.ok) {
-      parts.push({ heading: `PDF "${note?.name ?? pdf.name}" (${result.pages} pages, ${pdf.url}):`, text: result.text })
-      media = media ?? "pdf"
-    }
+    if (result.ok) attachments.push({ kind: "pdf", heading: `PDF "${note?.name ?? pdf.name}" (${result.pages} pages, ${pdf.url}):`, text: result.text })
   })
-  return { title: page.title, text: composeWithAttachments(page.text, parts), ...(media ? { media } : {}), sources }
+  return { title: page.title, text: page.text, ...(attachments.length ? { attachments } : {}), sources }
 }
 
 /** The page's PDFs (read by the app extension: Safari only). */
@@ -162,7 +167,7 @@ export function tabSource(readPdf: (url: string) => Promise<PdfResult | null>): 
       return hasCaptionTracks(document) ? "video" : null
     },
     quick: extractPage,
-    read: () => readTab(readPdf)
+    read: (withMedia) => readTab(readPdf, withMedia)
   }
 }
 

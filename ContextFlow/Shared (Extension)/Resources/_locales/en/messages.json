@@ -423,7 +423,7 @@
   "message": "Ask about this page"
  },
  "tourAskBody": {
-  "message": "ContextFlow reads the page you're on, and the videos with captions and the PDFs on it. Pick an action like Summarize, or type your own question."
+  "message": "ContextFlow reads the page you're on; with Pro, also the videos with captions and the PDFs on it. Pick an action like Summarize, or type your own question."
  },
  "tourSelectTitle": {
   "message": "Only part of it?"
@@ -576,7 +576,7 @@
   "message": "{0} new free answers at {1}, in {2}."
  },
  "limitFreePro": {
-  "message": "Pro gives you up to {0} answers a week, AI search and questions across all your chats."
+  "message": "Pro gives you up to {0} answers a week, videos and PDFs on the page, AI search and questions across all your chats."
  },
  "limitNotes": {
   "message": "Notes stay free and unlimited: write down what matters now, ask AI about it later."
@@ -702,7 +702,7 @@
   "message": "Questions across all your chats: “What have I read about saving for retirement?”, “Summarize my notes from this month”."
  },
  "upsellMore": {
-  "message": "Plus up to 375 answers a week, deeper and more detailed, on iPhone, iPad and Mac."
+  "message": "Plus videos and PDFs on the page, and up to 375 answers a week, deeper and more detailed, on iPhone, iPad and Mac."
  },
  "errProOnly": {
   "message": "This is part of Pro."
@@ -754,5 +754,32 @@
  },
  "hintPdfBody": {
   "message": "The PDFs shown or linked on this page go with your question; answers say which page they're on."
+ },
+ "proSkipVideo": {
+  "message": "The video on this page was skipped — Pro reads videos"
+ },
+ "proSkipPdf": {
+  "message": "PDFs on this page were skipped — Pro reads them"
+ },
+ "proSkipBoth": {
+  "message": "Video and PDF on this page were skipped — Pro reads them"
+ },
+ "tryPro": {
+  "message": "Try Pro"
+ },
+ "emptyVideoFree": {
+  "message": "This page has a video. Pro answers use its transcript; free answers use what the page shows (title, description)."
+ },
+ "emptyPdfFree": {
+  "message": "This page has a PDF. Pro answers read it; free answers use the page's text."
+ },
+ "hintVideoBodyFree": {
+  "message": "With Pro, answers use its transcript and point to moments like [4:15]. Free answers use the title and description."
+ },
+ "hintPdfTitleFree": {
+  "message": "This page has PDFs"
+ },
+ "hintPdfBodyFree": {
+  "message": "Pro reads the PDFs shown or linked on this page and says which page an answer comes from. Free answers use the page's text."
  }
 }

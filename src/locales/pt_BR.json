@@ -151,7 +151,7 @@
   "tourDone": "Entendi",
   "tourShow": "Ver dicas",
   "tourAskTitle": "Pergunte sobre esta página",
-  "tourAskBody": "O ContextFlow lê a página aberta, inclusive vídeos com legendas e PDFs nela. Escolha uma ação como Resumir ou digite sua pergunta.",
+  "tourAskBody": "O ContextFlow lê a página aberta; com o Pro, também vídeos com legendas e PDFs nela. Escolha uma ação como Resumir ou digite sua pergunta.",
   "tourSelectTitle": "Só uma parte?",
   "tourSelectBody": "Selecione primeiro um texto na página e a resposta será só sobre ele. Este rótulo mostra o que o ContextFlow está lendo.",
   "tourGoogleTitle": "Fatos atualizados do Google",
@@ -205,7 +205,7 @@
   "pickAll": "Selecionar tudo",
   "pickNone": "Limpar seleção",
   "limitFreeBack": "{0} novas respostas grátis às {1}, em {2}.",
-  "limitFreePro": "Com o Pro, até {0} respostas por semana, busca com IA e perguntas sobre todas as suas conversas.",
+  "limitFreePro": "Com o Pro, até {0} respostas por semana, vídeos e PDFs da página, busca com IA e perguntas sobre todas as suas conversas.",
   "limitNotes": "As notas continuam grátis e sem limite: anote agora o que importa e pergunte à IA depois.",
   "writeNote": "Escrever uma nota",
   "errProvider": "Seu provedor de IA respondeu: {0}",
@@ -249,7 +249,7 @@
   "upsellFindText": "Descreva uma conversa com suas palavras — “aquele artigo sobre sono e café da semana passada” — e a IA encontra, mesmo sem as palavras exatas.",
   "upsellHistoryName": "Pergunte às suas conversas",
   "upsellHistoryText": "Perguntas sobre todas as conversas: “O que li sobre poupar para a aposentadoria?”, “Resuma minhas notas deste mês”.",
-  "upsellMore": "E até 375 respostas por semana, mais aprofundadas e detalhadas, no iPhone, iPad e Mac.",
+  "upsellMore": "E vídeos e PDFs da página, com até 375 respostas por semana, mais aprofundadas e detalhadas, no iPhone, iPad e Mac.",
   "errProOnly": "Isto faz parte do Pro.",
 
   "tagsTitle": "Tags",
@@ -268,5 +268,14 @@
   "hintVideoTitle": "Esta página tem um vídeo",
   "hintVideoBody": "As respostas usam a transcrição e indicam momentos como [4:15]. Sem legendas, usam o título e a descrição, e avisam.",
   "hintPdfTitle": "PDFs também são lidos",
-  "hintPdfBody": "Os PDFs exibidos ou com link nesta página vão com a pergunta; as respostas indicam a página."
+  "hintPdfBody": "Os PDFs exibidos ou com link nesta página vão com a pergunta; as respostas indicam a página.",
+  "proSkipVideo": "O vídeo desta página não foi considerado — o Pro lê vídeos",
+  "proSkipPdf": "Os PDFs desta página não foram considerados — o Pro lê os PDFs",
+  "proSkipBoth": "O vídeo e os PDFs desta página não foram considerados — o Pro lê os dois",
+  "tryPro": "Experimentar o Pro",
+  "emptyVideoFree": "Esta página tem um vídeo. As respostas Pro usam a transcrição; as gratuitas, o que a página mostra (título, descrição).",
+  "emptyPdfFree": "Esta página tem um PDF. As respostas Pro o leem; as gratuitas usam o texto da página.",
+  "hintVideoBodyFree": "Com o Pro, as respostas usam a transcrição e apontam momentos como [4:15]. As gratuitas usam o título e a descrição.",
+  "hintPdfTitleFree": "Esta página tem PDFs",
+  "hintPdfBodyFree": "O Pro lê os PDFs exibidos ou vinculados nesta página e diz de qual página vem cada resposta. As respostas gratuitas usam o texto da página."
 }

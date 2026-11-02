@@ -2049,70 +2049,6 @@
         }
       }
     },
-    "Pro gives you up to 375 answers a week on iPhone, iPad and Mac.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mit Pro bekommst du bis zu 375 Antworten pro Woche auf iPhone, iPad und Mac."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Con Pro obtienes hasta 375 respuestas por semana en iPhone, iPad y Mac."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Avec Pro, obtenez jusqu’à 375 réponses par semaine sur iPhone, iPad et Mac."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Con Pro hai fino a 375 risposte a settimana su iPhone, iPad e Mac."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Proなら、iPhone、iPad、Macで週に最大375回まで回答を受け取れます。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pro를 이용하면 iPhone, iPad, Mac에서 매주 최대 375개의 답변을 받을 수 있어요."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Com o Pro, você tem até 375 respostas por semana no iPhone, iPad e Mac."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "С Pro — до 375 ответов в неделю на iPhone, iPad и Mac."
-          }
-        },
-        "uk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "З Pro — до 375 відповідей на тиждень на iPhone, iPad і Mac."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "升级 Pro，在 iPhone、iPad 和 Mac 上每周最多可获得 375 次回答。"
-          }
-        }
-      }
-    },
     "Pro is active. Open Safari and tap ✦ on any page.": {
       "localizations": {
         "de": {
@@ -14094,262 +14030,6 @@
         }
       }
     },
-    "Ask about a video": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Frag zu einem Video"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pregunta sobre un vídeo"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Questions sur une vidéo"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chiedi di un video"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "動画について質問"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "동영상에 대해 묻기"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pergunte sobre um vídeo"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Вопросы о видео"
-          }
-        },
-        "uk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Питання про відео"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "询问视频内容"
-          }
-        }
-      }
-    },
-    "On a page with a video, ContextFlow reads its transcript: ask for the gist, or what was said about something, and the answer points to the moment, like [4:15].": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Auf einer Seite mit Video liest ContextFlow das Transkript: Frag nach dem Wesentlichen oder danach, was zu etwas gesagt wurde – die Antwort nennt die Stelle, etwa [4:15]."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "En una página con vídeo, ContextFlow lee su transcripción: pide lo esencial o qué se dijo sobre algo, y la respuesta señala el momento, como [4:15]."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sur une page avec une vidéo, ContextFlow lit sa transcription : demandez l’essentiel ou ce qui a été dit sur un sujet, et la réponse indique le moment, par exemple [4:15]."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "In una pagina con un video, ContextFlow legge la trascrizione: chiedi l’essenziale o cosa è stato detto su qualcosa, e la risposta indica il momento, come [4:15]."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "動画のあるページでは、ContextFlow が文字起こしを読み取ります。要点や、何について何が話されたかを質問すると、[4:15] のように場面を示して答えます。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "동영상이 있는 페이지에서 ContextFlow가 자막을 읽어요. 핵심이나 어떤 내용이 나왔는지 물으면 [4:15]처럼 장면을 짚어 답해요."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Numa página com vídeo, o ContextFlow lê a transcrição: peça o essencial ou o que foi dito sobre algo, e a resposta indica o momento, como [4:15]."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "На странице с видео ContextFlow читает его расшифровку: спросите о главном или о том, что говорили про что-то, — в ответе будет момент, например [4:15]."
-          }
-        },
-        "uk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "На сторінці з відео ContextFlow читає його розшифровку: запитайте про головне чи про те, що казали про щось, — у відповіді буде момент, наприклад [4:15]."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "在有视频的页面上，ContextFlow 会读取文字稿：询问要点或某个话题说了什么，回答会指出时间点，例如 [4:15]。"
-          }
-        }
-      }
-    },
-    "PDFs on the page": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "PDFs auf der Seite"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Los PDF de la página"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Les PDF de la page"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "I PDF della pagina"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ページ上の PDF"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "페이지의 PDF"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "PDFs na página"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "PDF на странице"
-          }
-        },
-        "uk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "PDF на сторінці"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "页面上的 PDF"
-          }
-        }
-      }
-    },
-    "PDFs shown on a page or linked from it go with your question, and answers say which page they're on. On iPad and Mac, ContextFlow in the toolbar opens on a PDF tab too.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "PDFs auf einer Seite oder von ihr verlinkt gehen mit deiner Frage mit, und Antworten nennen die Seite. Auf iPad und Mac öffnet sich ContextFlow in der Symbolleiste auch auf einem PDF-Tab."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Los PDF de una página o enlazados desde ella van con tu pregunta, y las respuestas indican la página. En iPad y Mac, ContextFlow en la barra también se abre en una pestaña con un PDF."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Les PDF affichés ou liés sur une page accompagnent votre question, et les réponses indiquent la page. Sur iPad et Mac, ContextFlow dans la barre d’outils s’ouvre aussi sur un onglet PDF."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "I PDF mostrati o collegati in una pagina vanno con la domanda, e le risposte indicano la pagina. Su iPad e Mac, ContextFlow nella barra si apre anche su una scheda PDF."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ページに表示またはリンクされた PDF も質問に含まれ、回答にはページ番号が示されます。iPad と Mac では、PDF のタブでもツールバーから ContextFlow を開けます。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "페이지에 표시되거나 링크된 PDF도 질문에 함께 가고, 답변에 페이지가 표시돼요. iPad와 Mac에서는 PDF 탭에서도 도구 막대의 ContextFlow가 열려요."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "PDFs exibidos ou com link numa página vão com a pergunta, e as respostas indicam a página. No iPad e no Mac, o ContextFlow na barra também abre numa aba de PDF."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "PDF, показанные на странице или по ссылке с неё, идут вместе с вопросом, а в ответе указаны страницы. На iPad и Mac ContextFlow в панели инструментов открывается и на вкладке с PDF."
-          }
-        },
-        "uk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "PDF, показані на сторінці або за посиланням з неї, йдуть разом із запитанням, а у відповіді вказано сторінки. На iPad і Mac ContextFlow на панелі інструментів відкривається й на вкладці з PDF."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "页面上显示或链接的 PDF 会随问题一起发送，回答会标明页码。在 iPad 和 Mac 上，在 PDF 标签页也能从工具栏打开 ContextFlow。"
-          }
-        }
-      }
-    },
     "Your chats in the app": {
       "localizations": {
         "de": {
@@ -15626,6 +15306,390 @@
           "stringUnit": {
             "state": "translated",
             "value": "在页面上选中文字后，可以直接在下方输入你的问题，或点按“笔记”把它连同页面保存到对话中。笔记不消耗回答次数。"
+          }
+        }
+      }
+    },
+    "Pro gives you up to 375 answers a week and reads videos and PDFs on the page, on iPhone, iPad and Mac.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro gibt dir bis zu 375 Antworten pro Woche und liest Videos und PDFs auf der Seite – auf iPhone, iPad und Mac."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro te da hasta 375 respuestas a la semana y lee vídeos y PDF de la página, en iPhone, iPad y Mac."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro vous donne jusqu’à 375 réponses par semaine et lit les vidéos et PDF de la page, sur iPhone, iPad et Mac."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro ti dà fino a 375 risposte a settimana e legge video e PDF della pagina, su iPhone, iPad e Mac."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro なら週に最大 375 件の回答に加え、ページの動画と PDF も読み取ります。iPhone、iPad、Mac で使えます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro는 주당 최대 375개 답변에 더해 페이지의 동영상과 PDF도 읽어요. iPhone, iPad, Mac에서."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O Pro dá até 375 respostas por semana e lê vídeos e PDFs da página, no iPhone, iPad e Mac."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro даёт до 375 ответов в неделю и читает видео и PDF на странице — на iPhone, iPad и Mac."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro дає до 375 відповідей на тиждень і читає відео та PDF на сторінці — на iPhone, iPad і Mac."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro 每周最多 375 个回答，还会读取页面上的视频和 PDF，适用于 iPhone、iPad 和 Mac。"
+          }
+        }
+      }
+    },
+    "Ask about a video (Pro)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fragen zu einem Video (Pro)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preguntar sobre un vídeo (Pro)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Interroger une vidéo (Pro)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chiedi di un video (Pro)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "動画について質問（Pro）"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "동영상에 대해 묻기 (Pro)"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pergunte sobre um vídeo (Pro)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вопросы о видео (Pro)"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Питання про відео (Pro)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "就视频提问（Pro）"
+          }
+        }
+      }
+    },
+    "With Pro, ContextFlow reads the transcript of a video on the page: ask for the gist, or what was said about something, and the answer points to the moment, like [4:15]. Free answers use the page's text.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit Pro liest ContextFlow das Transkript eines Videos auf der Seite: Frag nach dem Kern oder danach, was zu etwas gesagt wurde, und die Antwort nennt die Stelle, etwa [4:15]. Kostenlose Antworten nutzen den Text der Seite."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Con Pro, ContextFlow lee la transcripción del vídeo de la página: pide la idea principal o qué se dijo sobre algo, y la respuesta señala el momento, como [4:15]. Las respuestas gratuitas usan el texto de la página."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avec Pro, ContextFlow lit la transcription d’une vidéo de la page : demandez l’essentiel ou ce qui a été dit sur un sujet, et la réponse indique le moment, par exemple [4:15]. Les réponses gratuites utilisent le texte de la page."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Con Pro, ContextFlow legge la trascrizione del video della pagina: chiedi il succo o cosa è stato detto su qualcosa, e la risposta indica il momento, come [4:15]. Le risposte gratuite usano il testo della pagina."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro では、ページの動画の文字起こしを ContextFlow が読み取ります。要点や、ある話題について何が語られたかを聞くと、[4:15] のように場面を示して答えます。無料の回答はページのテキストを使います。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro에서는 ContextFlow가 페이지 동영상의 자막 전문을 읽어요. 요점이나 어떤 주제에 대해 한 말을 물으면 [4:15]처럼 장면을 짚어 답해요. 무료 답변은 페이지 텍스트를 써요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Com o Pro, o ContextFlow lê a transcrição do vídeo da página: peça o essencial ou o que foi dito sobre algo, e a resposta aponta o momento, como [4:15]. As respostas gratuitas usam o texto da página."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "С Pro ContextFlow читает транскрипт видео на странице: спросите суть или что говорили о чём-то, и ответ укажет момент, например [4:15]. Бесплатные ответы — по тексту страницы."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "З Pro ContextFlow читає транскрипт відео на сторінці: запитайте суть або що казали про щось, і відповідь вкаже момент, наприклад [4:15]. Безплатні відповіді — за текстом сторінки."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用 Pro 时，ContextFlow 会读取页面视频的字幕全文：询问要点或某个话题说了什么，回答会指出时间点，例如 [4:15]。免费回答只使用页面文字。"
+          }
+        }
+      }
+    },
+    "PDFs on the page (Pro)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PDFs auf der Seite (Pro)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PDF de la página (Pro)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PDF de la page (Pro)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PDF della pagina (Pro)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ページの PDF（Pro）"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페이지의 PDF (Pro)"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PDFs da página (Pro)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PDF на странице (Pro)"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PDF на сторінці (Pro)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "页面上的 PDF（Pro）"
+          }
+        }
+      }
+    },
+    "With Pro, PDFs shown on a page or linked from it go with your question, and answers say which page they're on. On iPad and Mac, ContextFlow in the toolbar opens on a PDF tab too. Free answers use the page's text.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit Pro gehen PDFs, die eine Seite zeigt oder verlinkt, mit deiner Frage mit, und Antworten nennen die Seite. Auf iPad und Mac öffnet sich ContextFlow in der Symbolleiste auch auf einem PDF-Tab. Kostenlose Antworten nutzen den Text der Seite."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Con Pro, los PDF que una página muestra o enlaza van con tu pregunta, y las respuestas dicen en qué página está cada cosa. En iPad y Mac, ContextFlow en la barra de herramientas también se abre en una pestaña con un PDF. Las respuestas gratuitas usan el texto de la página."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avec Pro, les PDF affichés ou liés sur une page accompagnent votre question, et les réponses indiquent la page. Sur iPad et Mac, ContextFlow dans la barre d’outils s’ouvre aussi sur un onglet PDF. Les réponses gratuites utilisent le texte de la page."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Con Pro, i PDF mostrati o collegati in una pagina vanno con la tua domanda e le risposte dicono in quale pagina si trova qualcosa. Su iPad e Mac, ContextFlow nella barra degli strumenti si apre anche su una scheda PDF. Le risposte gratuite usano il testo della pagina."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro では、ページに表示・リンクされた PDF も質問と一緒に送られ、回答はどのページの内容かを示します。iPad と Mac では、ツールバーの ContextFlow を PDF のタブでも開けます。無料の回答はページのテキストを使います。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro에서는 페이지에 보이거나 링크된 PDF가 질문과 함께 가고, 답변은 어느 페이지 내용인지 알려 줘요. iPad와 Mac에서는 도구 막대의 ContextFlow가 PDF 탭에서도 열려요. 무료 답변은 페이지 텍스트를 써요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Com o Pro, os PDFs exibidos ou vinculados na página vão com a sua pergunta, e as respostas dizem em que página está cada coisa. No iPad e no Mac, o ContextFlow na barra de ferramentas também abre em uma aba de PDF. As respostas gratuitas usam o texto da página."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "С Pro PDF, показанные на странице или по ссылкам с неё, уходят вместе с вопросом, а ответы называют страницу. На iPad и Mac ContextFlow открывается из панели инструментов и на вкладке с PDF. Бесплатные ответы — по тексту страницы."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "З Pro PDF, показані на сторінці або за посиланнями з неї, йдуть разом із питанням, а відповіді називають сторінку. На iPad і Mac ContextFlow відкривається з панелі інструментів і на вкладці з PDF. Безплатні відповіді — за текстом сторінки."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用 Pro 时，页面上显示或链接的 PDF 会随问题一起发送，回答会说明内容在哪一页。在 iPad 和 Mac 上，工具栏中的 ContextFlow 也能在 PDF 标签页中打开。免费回答只使用页面文字。"
+          }
+        }
+      }
+    },
+    "Videos and PDFs on the page: answers use the transcript and the documents": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Videos und PDFs auf der Seite: Antworten nutzen das Transkript und die Dokumente"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vídeos y PDF de la página: las respuestas usan la transcripción y los documentos"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vidéos et PDF de la page : les réponses utilisent la transcription et les documents"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Video e PDF della pagina: le risposte usano la trascrizione e i documenti"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ページの動画と PDF：文字起こしと文書を使って回答"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페이지의 동영상과 PDF: 자막 전문과 문서를 바탕으로 답변"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vídeos e PDFs da página: as respostas usam a transcrição e os documentos"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Видео и PDF на странице: ответы учитывают транскрипт и документы"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відео та PDF на сторінці: відповіді враховують транскрипт і документи"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "页面上的视频和 PDF：回答会使用字幕全文和文档"
           }
         }
       }

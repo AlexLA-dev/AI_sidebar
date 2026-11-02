@@ -1,6 +1,7 @@
 import type { ComponentChildren, VNode } from "preact"
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "preact/hooks"
 
+import { composePage, readsMedia, type MediaKind } from "../shared/attachments"
 import { LINKS, TARGET } from "../shared/config"
 import { t, uiLanguage, type MessageKey } from "../shared/i18n"
 import {
@@ -196,6 +197,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [view, setView] = useState<"chat" | "settings" | "threads">("chat")
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS)
   const [status, setStatus] = useState<StatusInfo | null>(null)
+  const statusRef = useRef(status)
+  statusRef.current = status
   const [usage, setUsage] = useState<Usage | null>(null)
   const [viaOwnKey, setViaOwnKey] = useState(false)
   // Asked again when it was given for an older text ("old": 2.3 and earlier named OpenAI only).
@@ -566,6 +569,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (text) {
       const next: Turn[] = [...history, grounding ? { role: "assistant", content: text, grounding } : { role: "assistant", content: text }]
       setMessages(next)
+      const skipped = skippedFor(next, next.length - 1)
+      if (skipped) void sendBackground({ type: "mediaNotice", action: "shown", media: skipped })
       // Right away, not on the debounced save: the user may go to another page as soon as the answer is in.
       void saveThread(threadRef.current, next, historyRef.current ? "history" : undefined)
     }
@@ -615,16 +620,23 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     askToken.current = token
     // A selection or a Google search doesn't need the transcript or the PDFs.
     const whole = !selection && opts.mode !== "google"
-    setReading(whole ? source.pending() : null)
     const quick = (): PageRead => ({ ...source.quick(), sources: [] })
+    // The video and PDFs are read for plans with them (Pro); otherwise the question says the page has them.
+    const plan = statusRef.current ? Promise.resolve(statusRef.current) : sendBackground<StatusInfo>({ type: "status", platform })
     // The page as it is now: read fresh for every question, so new content is always in the request.
-    const reading = whole ? source.read().catch(quick) : Promise.resolve(quick())
+    const reading = whole
+      ? plan.then((now) => {
+          const media = readsMedia(now, TARGET)
+          if (askToken.current === token) setReading(media ? source.pending() : null)
+          return source.read(media)
+        }).catch(quick)
+      : Promise.resolve(quick())
     void reading.then((full) => {
       if (askToken.current !== token) return // stopped meanwhile
       setReading(null)
       sendRef.current(base, content, opts, full, selection)
     })
-  }, [consent, messages, selection, source])
+  }, [consent, messages, platform, selection, source])
 
   /** Sends a question with the page as `full` (sources: what was read along with it) or the selection. */
   sendRef.current = (base, content, opts, full, selection, chats) => {
@@ -632,16 +644,19 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const hash = textFingerprint(full.text)
     const changed = !chats && pageHasChanged(base, url, hash)
     const user: Turn = chats ? { role: "user", content, label: opts.label } : { role: "user", content, label: opts.label, page: { url, title: full.title, hash } }
-    if (!chats) void rememberPageText(url, full.title, full.text)
+    if (!chats) void rememberPageText(url, full.title, full.attachments ? composePage(full.text, full.attachments) : full.text)
     if (opts.mode) user.mode = opts.mode
     if (changed) user.pageChanged = true
     if (full.sources.length) user.sources = full.sources
+    if (full.skipped?.length) user.skipped = full.skipped
     const history: Turn[] = [...base, user]
     setMessages(history)
 
     const page: AskPayload["page"] = chats ? null : selection
       ? { kind: "selection", title: source.title().slice(0, 300), url: source.href(), text: selection.text }
-      : full.text ? { kind: "page", title: full.title, url: source.href(), text: full.text, changed, ...(full.media ? { media: full.media } : {}) } : null
+      : full.text || full.attachments || full.skipped
+        ? { kind: "page", title: full.title, url: source.href(), text: full.text, changed, ...(full.attachments ? { attachments: full.attachments } : {}), ...(full.skipped ? { skipped: full.skipped } : {}) }
+        : null
     let port: chrome.runtime.Port
     try {
       port = chrome.runtime.connect({ name: "chat" })
@@ -1187,6 +1202,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const ownKeyActive = viaOwnKey || (Boolean(status?.hasOwnKey) && plan !== "free")
   // The App Store offer code for Pro, once this install has run out of free answers (Safari only).
   const offer = TARGET === "safari" && plan === "free" && !ownKeyActive ? error?.offer ?? status?.offer ?? null : null
+  // Videos and PDFs on the page are read for Pro (and the user's own key); free answers say they skipped them.
+  const mediaOn = readsMedia(status, TARGET)
+  const tryPro = (kinds: MediaKind[]) => {
+    void sendBackground({ type: "mediaNotice", action: "pro", media: kinds })
+    if (offer) redeemOffer(offer.code)
+    else void openApp("subscribe")
+  }
 
   // The allowance under the input: short, to share the line with "Whole chat" and Get Pro; in full on hover.
   const usageLine = useMemo(() => {
@@ -1439,7 +1461,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   <div class="cf-empty">
                     <div class="cf-empty-icon"><Icon.Sparkle size={28} /></div>
                     <h2>{t("emptyTitle")}</h2>
-                    <p>{t(contextKind === "selection" ? "emptySelection" : contextKind === "page" ? (source.kind() === "video" ? "emptyVideo" : source.kind() === "pdf" ? "emptyPdf" : "emptyPage") : "emptyNone")}</p>
+                    <p>{t(contextKind === "selection" ? "emptySelection" : contextKind === "page" ? (source.kind() === "video" ? (mediaOn ? "emptyVideo" : "emptyVideoFree") : source.kind() === "pdf" ? (mediaOn ? "emptyPdf" : "emptyPdfFree") : "emptyPage") : "emptyNone")}</p>
                     {actions.length > 0 && (
                       <div class="cf-actions">
                         {actions.map((a) => (
@@ -1469,6 +1491,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       {m.grounding && <div class="cf-grounded"><Icon.Search size={13} /> {t("googleBadge")}</div>}
                       <Markdown text={m.content} onCopyCode={(code) => void copyText(code)} />
                       {m.grounding && <Sources grounding={m.grounding} />}
+                      {!mediaOn && <MediaSkipped kinds={skippedFor(messages, idx)} onPro={tryPro} />}
                       {messageFooter(m, idx, () => toPlainText(m.content), () => answerShareText(messages, idx, shareLabels(chatLanguage(messages)), shareLinks()))}
                     </div>
                   )
@@ -1567,10 +1590,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 {!historyMode && partial === null && contextKind === "page" && source.kind() !== "page" && hintDue(source.kind() as HintKey) && (
                   <Hint
                     icon={source.kind() === "video" ? <Icon.Play /> : <Icon.Doc />}
-                    title={t(source.kind() === "video" ? "hintVideoTitle" : "hintPdfTitle")}
+                    title={t(source.kind() === "video" ? "hintVideoTitle" : mediaOn ? "hintPdfTitle" : "hintPdfTitleFree")}
                     onDone={() => doneHint(source.kind() as HintKey)}
                   >
-                    {t(source.kind() === "video" ? "hintVideoBody" : "hintPdfBody")}
+                    {/* Free answers don't read them: the hint says Pro does. */}
+                    {t(source.kind() === "video" ? (mediaOn ? "hintVideoBody" : "hintVideoBodyFree") : mediaOn ? "hintPdfBody" : "hintPdfBodyFree")}
                   </Hint>
                 )}
 
@@ -1835,6 +1859,28 @@ function suggestionNodes(html: string): DocumentFragment {
 }
 
 /** Under a question: the video transcript or PDFs it went with, or why one couldn't be read. */
+/** The video/PDF kinds the question an answer replies to didn't read (not Pro), if any. */
+function skippedFor(entries: Entry[], index: number): MediaKind[] | null {
+  for (let i = index - 1; i >= 0; i--) {
+    const m = entries[i]
+    if (m.role === "user" && !m.note) return m.skipped?.length ? m.skipped : null
+  }
+  return null
+}
+
+/** Under a free answer on a page with a video or PDFs: they weren't read, and Pro reads them. */
+function MediaSkipped({ kinds, onPro }: { kinds: MediaKind[] | null; onPro: (kinds: MediaKind[]) => void }): VNode | null {
+  if (!kinds) return null
+  const key: MessageKey = kinds.length > 1 ? "proSkipBoth" : kinds[0] === "video" ? "proSkipVideo" : "proSkipPdf"
+  return (
+    <div class="cf-media-skipped" role="note">
+      {kinds[0] === "video" ? <Icon.Play size={13} /> : <Icon.Doc />}
+      <span>{t(key)}</span>
+      <button type="button" class="cf-link" onClick={() => onPro(kinds)}>{t("tryPro")}</button>
+    </div>
+  )
+}
+
 function UsedSources({ notes }: { notes: SourceNote[] }): VNode {
   return (
     <div class="cf-used-list">

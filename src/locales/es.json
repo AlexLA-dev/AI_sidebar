@@ -151,7 +151,7 @@
   "tourDone": "Entendido",
   "tourShow": "Ver consejos",
   "tourAskTitle": "Pregunta sobre esta página",
-  "tourAskBody": "ContextFlow lee la página en la que estás, y también los vídeos con subtítulos y los PDF que contiene. Elige una acción como Resumir o escribe tu pregunta.",
+  "tourAskBody": "ContextFlow lee la página en la que estás; con Pro, también los vídeos con subtítulos y los PDF que contiene. Elige una acción como Resumir o escribe tu pregunta.",
   "tourSelectTitle": "¿Solo una parte?",
   "tourSelectBody": "Selecciona primero un texto de la página y la respuesta tratará solo sobre él. Esta etiqueta muestra lo que lee ContextFlow.",
   "tourGoogleTitle": "Datos actuales de Google",
@@ -205,7 +205,7 @@
   "pickAll": "Seleccionar todo",
   "pickNone": "Quitar selección",
   "limitFreeBack": "{0} respuestas gratis nuevas a las {1}, en {2}.",
-  "limitFreePro": "Con Pro tienes hasta {0} respuestas a la semana, búsqueda con IA y preguntas sobre todos tus chats.",
+  "limitFreePro": "Con Pro tienes hasta {0} respuestas a la semana, vídeos y PDF de la página, búsqueda con IA y preguntas sobre todos tus chats.",
   "limitNotes": "Las notas siguen siendo gratis y sin límite: apunta ahora lo importante y pregúntale a la IA después.",
   "writeNote": "Escribir una nota",
   "errProvider": "Tu proveedor de IA respondió: {0}",
@@ -249,7 +249,7 @@
   "upsellFindText": "Describe un chat con tus palabras —«ese artículo sobre el sueño y el café de la semana pasada»— y la IA lo encuentra, aunque no uses las palabras exactas.",
   "upsellHistoryName": "Pregunta a tus chats",
   "upsellHistoryText": "Preguntas sobre todos tus chats: «¿Qué he leído sobre ahorrar para la jubilación?», «Resume mis notas de este mes».",
-  "upsellMore": "Además, hasta 375 respuestas a la semana, más profundas y detalladas, en iPhone, iPad y Mac.",
+  "upsellMore": "Además, vídeos y PDF de la página y hasta 375 respuestas a la semana, más profundas y detalladas, en iPhone, iPad y Mac.",
   "errProOnly": "Esto es parte de Pro.",
 
   "tagsTitle": "Etiquetas",
@@ -268,5 +268,14 @@
   "hintVideoTitle": "Esta página tiene un vídeo",
   "hintVideoBody": "Las respuestas usan su transcripción y señalan momentos como [4:15]. Sin subtítulos, usan el título y la descripción, y lo indican.",
   "hintPdfTitle": "También se leen los PDF",
-  "hintPdfBody": "Los PDF que se muestran o enlazan en esta página van con tu pregunta; las respuestas indican la página."
+  "hintPdfBody": "Los PDF que se muestran o enlazan en esta página van con tu pregunta; las respuestas indican la página.",
+  "proSkipVideo": "El vídeo de esta página no se ha tenido en cuenta: Pro lee los vídeos",
+  "proSkipPdf": "Los PDF de esta página no se han tenido en cuenta: Pro los lee",
+  "proSkipBoth": "El vídeo y los PDF de esta página no se han tenido en cuenta: Pro los lee",
+  "tryPro": "Probar Pro",
+  "emptyVideoFree": "Esta página tiene un vídeo. Las respuestas Pro usan su transcripción; las gratuitas, lo que muestra la página (título, descripción).",
+  "emptyPdfFree": "Esta página tiene un PDF. Las respuestas Pro lo leen; las gratuitas usan el texto de la página.",
+  "hintVideoBodyFree": "Con Pro, las respuestas usan la transcripción y señalan momentos como [4:15]. Las gratuitas usan el título y la descripción.",
+  "hintPdfTitleFree": "Esta página tiene PDF",
+  "hintPdfBodyFree": "Pro lee los PDF que la página muestra o enlaza y dice de qué página sale cada respuesta. Las respuestas gratuitas usan el texto de la página."
 }

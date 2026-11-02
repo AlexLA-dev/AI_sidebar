@@ -423,7 +423,7 @@
   "message": "このページについて質問"
  },
  "tourAskBody": {
-  "message": "ContextFlow は開いているページを読み取ります。字幕付きの動画やページ上の PDF も読み取れます。「要約」などのアクションを選ぶか、質問を入力してください。"
+  "message": "ContextFlow は開いているページを読み取ります。Pro なら字幕付きの動画やページ上の PDF も読み取れます。「要約」などのアクションを選ぶか、質問を入力してください。"
  },
  "tourSelectTitle": {
   "message": "一部分だけ？"
@@ -576,7 +576,7 @@
   "message": "{1}（{2}後）に無料回答が{0}回分戻ります。"
  },
  "limitFreePro": {
-  "message": "Proなら週に最大{0}回の回答、AI検索、すべてのチャットへの質問が使えます。"
+  "message": "Proなら週に最大{0}回の回答、ページの動画とPDFの読み取り、AI検索、すべてのチャットへの質問が使えます。"
  },
  "limitNotes": {
   "message": "メモは無料・無制限です。大事なことを今メモして、あとでAIに聞きましょう。"
@@ -702,7 +702,7 @@
   "message": "すべてのチャットにまとめて質問：「老後の貯蓄について何を読んだ？」「今月のメモをまとめて」。"
  },
  "upsellMore": {
-  "message": "さらに、より深く詳しい回答を週375件まで。iPhone、iPad、Macで使えます。"
+  "message": "さらに、ページの動画とPDFの読み取り、より深く詳しい回答を週375件まで。iPhone、iPad、Macで使えます。"
  },
  "errProOnly": {
   "message": "この機能は Pro に含まれます。"
@@ -754,5 +754,32 @@
  },
  "hintPdfBody": {
   "message": "このページに表示またはリンクされた PDF も質問に含めます。回答にはページ番号を示します。"
+ },
+ "proSkipVideo": {
+  "message": "このページの動画は読み取っていません。動画は Pro で読み取れます"
+ },
+ "proSkipPdf": {
+  "message": "このページの PDF は読み取っていません。PDF は Pro で読み取れます"
+ },
+ "proSkipBoth": {
+  "message": "このページの動画と PDF は読み取っていません。Pro で読み取れます"
+ },
+ "tryPro": {
+  "message": "Pro を試す"
+ },
+ "emptyVideoFree": {
+  "message": "このページには動画があります。Pro の回答は文字起こしを使い、無料の回答はページに表示された内容（タイトル、説明）を使います。"
+ },
+ "emptyPdfFree": {
+  "message": "このページには PDF があります。Pro の回答は PDF を読み取り、無料の回答はページのテキストを使います。"
+ },
+ "hintVideoBodyFree": {
+  "message": "Pro では文字起こしを使い、[4:15] のように場面を示します。無料の回答はタイトルと説明を使います。"
+ },
+ "hintPdfTitleFree": {
+  "message": "このページには PDF があります"
+ },
+ "hintPdfBodyFree": {
+  "message": "Pro はこのページに表示・リンクされた PDF を読み取り、どのページの内容かを示します。無料の回答はページのテキストを使います。"
  }
 }

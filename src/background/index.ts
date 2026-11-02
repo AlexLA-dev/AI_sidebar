@@ -1,3 +1,4 @@
+import { mediaKinds, type MediaKind } from "../shared/attachments"
 import { API_BASE, LINKS, PRODUCTS, TARGET, VERSION } from "../shared/config"
 import { consentStatus } from "../shared/consent"
 import { urlKey } from "../shared/conversation"
@@ -137,6 +138,16 @@ async function reportSwitchedOn(): Promise<void> {
   if (res.ok || res.status === 400) await chrome.storage.local.remove(STORAGE.extOnPending)
 }
 
+/** The skipped-video/PDF line: how often free answers meet one, and how often it leads to Pro. */
+async function reportMediaNotice(action: "shown" | "pro", media: MediaKind[]): Promise<void> {
+  const [id, client] = await Promise.all([installId(), clientInfo()])
+  await fetch(`${API_BASE}/api/v2/event`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ kind: action === "pro" ? "media_notice_pro" : "media_notice", installId: id, client, media: mediaKinds(media.map((kind) => ({ kind }))).join(",") })
+  }).catch(() => undefined)
+}
+
 // -------------------------------------------------------------------- chat
 
 /** Nothing goes to the AI without consent to the current text (the panel asks for it first). */
@@ -252,6 +263,10 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
     case "openApp":
       openApp(message.target, message.feature).then(sendResponse, () => sendResponse({ opened: false, url: "" }))
       return true
+    case "mediaNotice":
+      void reportMediaNotice(message.action, message.media)
+      sendResponse({ ok: true })
+      return false
     case "setOwnKey": {
       const key = message.key.trim()
       const op = key ? chrome.storage.local.set({ [STORAGE.ownKey]: key }) : chrome.storage.local.remove(STORAGE.ownKey)

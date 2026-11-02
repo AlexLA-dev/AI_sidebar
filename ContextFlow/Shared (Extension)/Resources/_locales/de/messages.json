@@ -423,7 +423,7 @@
   "message": "Frag etwas zu dieser Seite"
  },
  "tourAskBody": {
-  "message": "ContextFlow liest die Seite, auf der du bist, samt Videos mit Untertiteln und PDFs darauf. Wähle eine Aktion wie „Zusammenfassen“ oder stell deine eigene Frage."
+  "message": "ContextFlow liest die Seite, auf der du bist – mit Pro auch Videos mit Untertiteln und PDFs darauf. Wähle eine Aktion wie „Zusammenfassen“ oder stell deine eigene Frage."
  },
  "tourSelectTitle": {
   "message": "Nur ein Teil davon?"
@@ -576,7 +576,7 @@
   "message": "{0} neue Gratis-Antworten um {1}, in {2}."
  },
  "limitFreePro": {
-  "message": "Mit Pro bekommst du bis zu {0} Antworten pro Woche, KI-Suche und Fragen über alle deine Chats."
+  "message": "Mit Pro bekommst du bis zu {0} Antworten pro Woche, Videos und PDFs auf der Seite, KI-Suche und Fragen über alle deine Chats."
  },
  "limitNotes": {
   "message": "Notizen bleiben gratis und unbegrenzt: Schreib jetzt auf, was zählt, und frag die KI später danach."
@@ -702,7 +702,7 @@
   "message": "Fragen über alle Chats: „Was habe ich über Altersvorsorge gelesen?“, „Fasse meine Notizen dieses Monats zusammen“."
  },
  "upsellMore": {
-  "message": "Dazu bis zu 375 Antworten pro Woche, ausführlicher und gründlicher, auf iPhone, iPad und Mac."
+  "message": "Dazu Videos und PDFs auf der Seite und bis zu 375 Antworten pro Woche, ausführlicher und gründlicher, auf iPhone, iPad und Mac."
  },
  "errProOnly": {
   "message": "Das ist Teil von Pro."
@@ -754,5 +754,32 @@
  },
  "hintPdfBody": {
   "message": "PDFs auf dieser Seite oder von ihr verlinkt gehen mit deiner Frage mit; Antworten nennen die Seite."
+ },
+ "proSkipVideo": {
+  "message": "Das Video auf dieser Seite wurde nicht berücksichtigt – Pro liest Videos"
+ },
+ "proSkipPdf": {
+  "message": "Die PDFs auf dieser Seite wurden nicht berücksichtigt – Pro liest sie"
+ },
+ "proSkipBoth": {
+  "message": "Video und PDFs auf dieser Seite wurden nicht berücksichtigt – Pro liest sie"
+ },
+ "tryPro": {
+  "message": "Pro testen"
+ },
+ "emptyVideoFree": {
+  "message": "Auf dieser Seite ist ein Video. Pro-Antworten nutzen sein Transkript, kostenlose Antworten das, was die Seite zeigt (Titel, Beschreibung)."
+ },
+ "emptyPdfFree": {
+  "message": "Auf dieser Seite ist ein PDF. Pro-Antworten lesen es, kostenlose Antworten nutzen den Text der Seite."
+ },
+ "hintVideoBodyFree": {
+  "message": "Mit Pro nutzen Antworten das Transkript und verweisen auf Stellen wie [4:15]. Kostenlose Antworten nutzen Titel und Beschreibung."
+ },
+ "hintPdfTitleFree": {
+  "message": "Auf dieser Seite sind PDFs"
+ },
+ "hintPdfBodyFree": {
+  "message": "Pro liest die PDFs, die die Seite zeigt oder verlinkt, und sagt, auf welcher Seite etwas steht. Kostenlose Antworten nutzen den Text der Seite."
  }
 }

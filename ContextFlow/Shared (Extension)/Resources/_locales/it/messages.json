@@ -423,7 +423,7 @@
   "message": "Chiedi di questa pagina"
  },
  "tourAskBody": {
-  "message": "ContextFlow legge la pagina aperta, anche i video con sottotitoli e i PDF che contiene. Scegli un’azione come Riassumi o scrivi la tua domanda."
+  "message": "ContextFlow legge la pagina aperta; con Pro anche i video con sottotitoli e i PDF che contiene. Scegli un’azione come Riassumi o scrivi la tua domanda."
  },
  "tourSelectTitle": {
   "message": "Solo una parte?"
@@ -576,7 +576,7 @@
   "message": "{0} nuove risposte gratuite alle {1}, tra {2}."
  },
  "limitFreePro": {
-  "message": "Con Pro hai fino a {0} risposte a settimana, la ricerca IA e domande su tutte le tue chat."
+  "message": "Con Pro hai fino a {0} risposte a settimana, video e PDF della pagina, la ricerca IA e domande su tutte le tue chat."
  },
  "limitNotes": {
   "message": "Le note restano gratuite e senza limiti: annota ora ciò che conta e chiedi all’IA più tardi."
@@ -702,7 +702,7 @@
   "message": "Domande su tutte le chat: «Cosa ho letto sul risparmio per la pensione?», «Riassumi le note di questo mese»."
  },
  "upsellMore": {
-  "message": "In più fino a 375 risposte a settimana, più approfondite e dettagliate, su iPhone, iPad e Mac."
+  "message": "In più video e PDF della pagina e fino a 375 risposte a settimana, più approfondite e dettagliate, su iPhone, iPad e Mac."
  },
  "errProOnly": {
   "message": "Questa funzione fa parte di Pro."
@@ -754,5 +754,32 @@
  },
  "hintPdfBody": {
   "message": "I PDF mostrati o collegati in questa pagina vanno con la domanda; le risposte indicano la pagina."
+ },
+ "proSkipVideo": {
+  "message": "Il video di questa pagina non è stato considerato: Pro legge i video"
+ },
+ "proSkipPdf": {
+  "message": "I PDF di questa pagina non sono stati considerati: Pro li legge"
+ },
+ "proSkipBoth": {
+  "message": "Il video e i PDF di questa pagina non sono stati considerati: Pro li legge"
+ },
+ "tryPro": {
+  "message": "Prova Pro"
+ },
+ "emptyVideoFree": {
+  "message": "In questa pagina c’è un video. Le risposte Pro usano la sua trascrizione, quelle gratuite ciò che mostra la pagina (titolo, descrizione)."
+ },
+ "emptyPdfFree": {
+  "message": "In questa pagina c’è un PDF. Le risposte Pro lo leggono, quelle gratuite usano il testo della pagina."
+ },
+ "hintVideoBodyFree": {
+  "message": "Con Pro le risposte usano la trascrizione e indicano momenti come [4:15]. Quelle gratuite usano titolo e descrizione."
+ },
+ "hintPdfTitleFree": {
+  "message": "In questa pagina ci sono PDF"
+ },
+ "hintPdfBodyFree": {
+  "message": "Pro legge i PDF mostrati o collegati in questa pagina e dice da quale pagina viene una risposta. Le risposte gratuite usano il testo della pagina."
  }
 }

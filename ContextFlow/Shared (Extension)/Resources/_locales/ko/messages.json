@@ -423,7 +423,7 @@
   "message": "이 페이지에 대해 질문하세요"
  },
  "tourAskBody": {
-  "message": "ContextFlow는 보고 있는 페이지와 그 안의 자막 있는 동영상, PDF까지 읽어요. 요약 같은 작업을 고르거나 직접 질문하세요."
+  "message": "ContextFlow는 보고 있는 페이지를 읽고, Pro에서는 그 안의 자막 있는 동영상과 PDF까지 읽어요. 요약 같은 작업을 고르거나 직접 질문하세요."
  },
  "tourSelectTitle": {
   "message": "일부분만 궁금하다면?"
@@ -576,7 +576,7 @@
   "message": "{1}({2} 후)에 무료 답변 {0}개가 다시 제공돼요."
  },
  "limitFreePro": {
-  "message": "Pro에서는 주당 최대 {0}개 답변, AI 검색, 모든 채팅에 묻기를 쓸 수 있어요."
+  "message": "Pro에서는 주당 최대 {0}개 답변, 페이지의 동영상·PDF 읽기, AI 검색, 모든 채팅에 묻기를 쓸 수 있어요."
  },
  "limitNotes": {
   "message": "메모는 무료이고 제한이 없어요. 중요한 내용을 지금 적어 두고 나중에 AI에게 물어보세요."
@@ -702,7 +702,7 @@
   "message": "모든 채팅에 한 번에 질문: ‘노후 자금에 대해 뭘 읽었지?’, ‘이번 달 메모 정리해 줘’."
  },
  "upsellMore": {
-  "message": "게다가 더 깊이 있고 자세한 답변을 주당 최대 375개, iPhone·iPad·Mac에서."
+  "message": "게다가 페이지의 동영상·PDF 읽기와 더 깊이 있고 자세한 답변을 주당 최대 375개, iPhone·iPad·Mac에서."
  },
  "errProOnly": {
   "message": "Pro에 포함된 기능이에요."
@@ -754,5 +754,32 @@
  },
  "hintPdfBody": {
   "message": "이 페이지에 표시되거나 링크된 PDF도 질문에 함께 보내요. 답변에 페이지를 표시해요."
+ },
+ "proSkipVideo": {
+  "message": "이 페이지의 동영상은 반영되지 않았어요 — 동영상은 Pro가 읽어요"
+ },
+ "proSkipPdf": {
+  "message": "이 페이지의 PDF는 반영되지 않았어요 — PDF는 Pro가 읽어요"
+ },
+ "proSkipBoth": {
+  "message": "이 페이지의 동영상과 PDF는 반영되지 않았어요 — Pro가 읽어요"
+ },
+ "tryPro": {
+  "message": "Pro 사용해 보기"
+ },
+ "emptyVideoFree": {
+  "message": "이 페이지에 동영상이 있어요. Pro 답변은 자막 전문을 쓰고, 무료 답변은 페이지에 보이는 내용(제목, 설명)을 써요."
+ },
+ "emptyPdfFree": {
+  "message": "이 페이지에 PDF가 있어요. Pro 답변은 PDF를 읽고, 무료 답변은 페이지 텍스트를 써요."
+ },
+ "hintVideoBodyFree": {
+  "message": "Pro에서는 자막 전문을 쓰고 [4:15]처럼 장면을 짚어 줘요. 무료 답변은 제목과 설명을 써요."
+ },
+ "hintPdfTitleFree": {
+  "message": "이 페이지에 PDF가 있어요"
+ },
+ "hintPdfBodyFree": {
+  "message": "Pro는 이 페이지에 보이거나 링크된 PDF를 읽고 어느 페이지 내용인지 알려 줘요. 무료 답변은 페이지 텍스트를 써요."
  }
 }

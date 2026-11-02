@@ -1,3 +1,4 @@
+import type { Attachment, MediaKind } from "./attachments.ts"
 import type { ChatDigest } from "./history.ts"
 // Messages exchanged between the content script (UI) and the background worker.
 
@@ -38,8 +39,18 @@ export interface ChatTurn {
 
 export interface AskPayload {
   messages: ChatTurn[]
-  // media: the text includes a video transcript or a PDF (a longer limit than a page's).
-  page: { kind: "page" | "selection"; title: string; url: string; text: string; changed?: boolean; media?: "video" | "pdf" } | null
+  // attachments: the video's transcript and the PDFs, apart from the text (reading them is Pro);
+  // skipped: the page has them but they weren't read (not Pro). media: the text already includes them.
+  page: {
+    kind: "page" | "selection"
+    title: string
+    url: string
+    text: string
+    changed?: boolean
+    media?: "video" | "pdf"
+    attachments?: Attachment[]
+    skipped?: MediaKind[]
+  } | null
   action?: string
   // "google": answer with Google Search grounding (always through our server).
   mode?: "google"
@@ -102,6 +113,8 @@ export type BackgroundRequest =
   | { type: "status"; refresh?: boolean; fresh?: boolean; platform?: Platform }
   // feature "ai": the Pro screen opens on AI search and "Ask your chats".
   | { type: "openApp"; target: "subscribe" | "manage" | "home"; feature?: "ai" }
+  // The line under a free answer that skipped the page's video or PDFs: shown, or its "Try Pro" tapped.
+  | { type: "mediaNotice"; action: "shown" | "pro"; media: MediaKind[] }
   | { type: "inject" }
   | { type: "setOwnKey"; key: string }
   | { type: "openUrl"; url: string }

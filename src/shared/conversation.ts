@@ -1,6 +1,7 @@
 // One running conversation that follows the user across pages (until "New chat").
 // Pure helpers shared by the content script and tests.
 
+import type { MediaKind } from "./attachments.ts"
 import type { ChatTurn, Grounding } from "./types.ts"
 
 /** The page a question was asked on: normalized URL, title and a fingerprint of its text. */
@@ -39,6 +40,8 @@ export interface Entry extends ChatTurn {
   quote?: boolean
   // User turns: videos and PDFs read along with the page (shown under the question).
   sources?: SourceNote[]
+  // User turns: the page had a video or PDFs that weren't read (not Pro); the answer gets a line about it.
+  skipped?: MediaKind[]
   // Answers and notes: the user's tags (a chat's own tags are on the thread).
   tags?: string[]
 }

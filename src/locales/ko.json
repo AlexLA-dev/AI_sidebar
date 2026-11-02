@@ -151,7 +151,7 @@
   "tourDone": "확인",
   "tourShow": "팁 보기",
   "tourAskTitle": "이 페이지에 대해 질문하세요",
-  "tourAskBody": "ContextFlow는 보고 있는 페이지와 그 안의 자막 있는 동영상, PDF까지 읽어요. 요약 같은 작업을 고르거나 직접 질문하세요.",
+  "tourAskBody": "ContextFlow는 보고 있는 페이지를 읽고, Pro에서는 그 안의 자막 있는 동영상과 PDF까지 읽어요. 요약 같은 작업을 고르거나 직접 질문하세요.",
   "tourSelectTitle": "일부분만 궁금하다면?",
   "tourSelectBody": "먼저 페이지에서 텍스트를 선택하면 그 부분에 대해서만 답합니다. 이 표시는 ContextFlow가 읽는 내용을 보여 줍니다.",
   "tourGoogleTitle": "Google의 최신 정보",
@@ -205,7 +205,7 @@
   "pickAll": "모두 선택",
   "pickNone": "선택 해제",
   "limitFreeBack": "{1}({2} 후)에 무료 답변 {0}개가 다시 제공돼요.",
-  "limitFreePro": "Pro에서는 주당 최대 {0}개 답변, AI 검색, 모든 채팅에 묻기를 쓸 수 있어요.",
+  "limitFreePro": "Pro에서는 주당 최대 {0}개 답변, 페이지의 동영상·PDF 읽기, AI 검색, 모든 채팅에 묻기를 쓸 수 있어요.",
   "limitNotes": "메모는 무료이고 제한이 없어요. 중요한 내용을 지금 적어 두고 나중에 AI에게 물어보세요.",
   "writeNote": "메모 쓰기",
   "errProvider": "AI 제공업체의 응답: {0}",
@@ -249,7 +249,7 @@
   "upsellFindText": "채팅을 내 말로 설명하면(‘지난주 수면과 커피에 관한 그 기사’) 정확한 단어가 없어도 AI가 찾아 줘요.",
   "upsellHistoryName": "모든 채팅에 묻기",
   "upsellHistoryText": "모든 채팅에 한 번에 질문: ‘노후 자금에 대해 뭘 읽었지?’, ‘이번 달 메모 정리해 줘’.",
-  "upsellMore": "게다가 더 깊이 있고 자세한 답변을 주당 최대 375개, iPhone·iPad·Mac에서.",
+  "upsellMore": "게다가 페이지의 동영상·PDF 읽기와 더 깊이 있고 자세한 답변을 주당 최대 375개, iPhone·iPad·Mac에서.",
   "errProOnly": "Pro에 포함된 기능이에요.",
 
   "tagsTitle": "태그",
@@ -268,5 +268,14 @@
   "hintVideoTitle": "이 페이지에 동영상이 있어요",
   "hintVideoBody": "답변은 자막을 바탕으로 [4:15] 같은 장면을 짚어 줘요. 자막이 없으면 제목과 설명으로 답하고 그렇다고 알려 줘요.",
   "hintPdfTitle": "PDF도 읽어요",
-  "hintPdfBody": "이 페이지에 표시되거나 링크된 PDF도 질문에 함께 보내요. 답변에 페이지를 표시해요."
+  "hintPdfBody": "이 페이지에 표시되거나 링크된 PDF도 질문에 함께 보내요. 답변에 페이지를 표시해요.",
+  "proSkipVideo": "이 페이지의 동영상은 반영되지 않았어요 — 동영상은 Pro가 읽어요",
+  "proSkipPdf": "이 페이지의 PDF는 반영되지 않았어요 — PDF는 Pro가 읽어요",
+  "proSkipBoth": "이 페이지의 동영상과 PDF는 반영되지 않았어요 — Pro가 읽어요",
+  "tryPro": "Pro 사용해 보기",
+  "emptyVideoFree": "이 페이지에 동영상이 있어요. Pro 답변은 자막 전문을 쓰고, 무료 답변은 페이지에 보이는 내용(제목, 설명)을 써요.",
+  "emptyPdfFree": "이 페이지에 PDF가 있어요. Pro 답변은 PDF를 읽고, 무료 답변은 페이지 텍스트를 써요.",
+  "hintVideoBodyFree": "Pro에서는 자막 전문을 쓰고 [4:15]처럼 장면을 짚어 줘요. 무료 답변은 제목과 설명을 써요.",
+  "hintPdfTitleFree": "이 페이지에 PDF가 있어요",
+  "hintPdfBodyFree": "Pro는 이 페이지에 보이거나 링크된 PDF를 읽고 어느 페이지 내용인지 알려 줘요. 무료 답변은 페이지 텍스트를 써요."
 }

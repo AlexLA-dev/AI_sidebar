@@ -318,7 +318,7 @@ struct HomeView: View {
             } else {
                 Text("Free: 5 answers every day.")
                     .font(.headline)
-                Text("Pro gives you up to 375 answers a week on iPhone, iPad and Mac.")
+                Text("Pro gives you up to 375 answers a week and reads videos and PDFs on the page, on iPhone, iPad and Mac.")
                     .font(.callout)
                     .foregroundColor(.secondary)
                 Button("See Pro", action: openPro)
@@ -391,10 +391,10 @@ struct TipGroup {
         TipGroup(title: "New in ContextFlow", tips: [
             Tip(symbol: "text.quote", color: .orange, title: "Ask or note a selection",
                 text: "Select text on a page: type your own question about it right under the selection, or tap Note to save it to the chat with its page. Notes use no answers."),
-            Tip(symbol: "play.rectangle", color: .red, title: "Ask about a video",
-                text: "On a page with a video, ContextFlow reads its transcript: ask for the gist, or what was said about something, and the answer points to the moment, like [4:15].", clip: "video"),
-            Tip(symbol: "doc.richtext", color: .orange, title: "PDFs on the page",
-                text: "PDFs shown on a page or linked from it go with your question, and answers say which page they're on. On iPad and Mac, ContextFlow in the toolbar opens on a PDF tab too."),
+            Tip(symbol: "play.rectangle", color: .red, title: "Ask about a video (Pro)",
+                text: "With Pro, ContextFlow reads the transcript of a video on the page: ask for the gist, or what was said about something, and the answer points to the moment, like [4:15]. Free answers use the page's text.", clip: "video"),
+            Tip(symbol: "doc.richtext", color: .orange, title: "PDFs on the page (Pro)",
+                text: "With Pro, PDFs shown on a page or linked from it go with your question, and answers say which page they're on. On iPad and Mac, ContextFlow in the toolbar opens on a PDF tab too. Free answers use the page's text."),
             Tip(symbol: "bubble.left.and.bubble.right", color: .teal, title: "Your chats in the app",
                 text: "The Chats tab has every chat from Safari: read them, rename, pin or delete them, and tap a page to open it. “Continue in Safari” picks a chat up where you left off."),
             Tip(symbol: "magnifyingglass", color: .green, title: "Search your chats",
@@ -634,6 +634,7 @@ struct ProView: View {
             Feature(systemImage: "sparkles", text: "AI search: find any chat by describing it in your own words")
             Feature(systemImage: "bubble.left.and.text.bubble.right", text: "Ask your chats: questions across everything you've read and asked")
             Feature(systemImage: "bolt.fill", text: "Up to 375 deeper, more detailed answers a week instead of 5 a day")
+            Feature(systemImage: "play.rectangle", text: "Videos and PDFs on the page: answers use the transcript and the documents")
             Feature(systemImage: "doc.text.magnifyingglass", text: "Summaries, key takeaways, explanations and translations of any page")
             Feature(systemImage: "text.cursor", text: "Ask about selected text, rewrite it or draft a reply")
             Feature(systemImage: "key.fill", text: "Optional: use your own OpenAI or Claude key")

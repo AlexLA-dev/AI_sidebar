@@ -151,7 +151,7 @@
   "tourDone": "Ho capito",
   "tourShow": "Mostra i suggerimenti",
   "tourAskTitle": "Chiedi di questa pagina",
-  "tourAskBody": "ContextFlow legge la pagina aperta, anche i video con sottotitoli e i PDF che contiene. Scegli un’azione come Riassumi o scrivi la tua domanda.",
+  "tourAskBody": "ContextFlow legge la pagina aperta; con Pro anche i video con sottotitoli e i PDF che contiene. Scegli un’azione come Riassumi o scrivi la tua domanda.",
   "tourSelectTitle": "Solo una parte?",
   "tourSelectBody": "Seleziona prima del testo nella pagina e la risposta riguarderà solo quello. Questa etichetta mostra cosa legge ContextFlow.",
   "tourGoogleTitle": "Notizie fresche da Google",
@@ -205,7 +205,7 @@
   "pickAll": "Seleziona tutto",
   "pickNone": "Deseleziona tutto",
   "limitFreeBack": "{0} nuove risposte gratuite alle {1}, tra {2}.",
-  "limitFreePro": "Con Pro hai fino a {0} risposte a settimana, la ricerca IA e domande su tutte le tue chat.",
+  "limitFreePro": "Con Pro hai fino a {0} risposte a settimana, video e PDF della pagina, la ricerca IA e domande su tutte le tue chat.",
   "limitNotes": "Le note restano gratuite e senza limiti: annota ora ciò che conta e chiedi all’IA più tardi.",
   "writeNote": "Scrivi una nota",
   "errProvider": "Il tuo fornitore di IA ha risposto: {0}",
@@ -249,7 +249,7 @@
   "upsellFindText": "Descrivi una chat con parole tue — «quell’articolo su sonno e caffè della settimana scorsa» — e l’IA la trova, anche senza le parole esatte.",
   "upsellHistoryName": "Chiedi alle tue chat",
   "upsellHistoryText": "Domande su tutte le chat: «Cosa ho letto sul risparmio per la pensione?», «Riassumi le note di questo mese».",
-  "upsellMore": "In più fino a 375 risposte a settimana, più approfondite e dettagliate, su iPhone, iPad e Mac.",
+  "upsellMore": "In più video e PDF della pagina e fino a 375 risposte a settimana, più approfondite e dettagliate, su iPhone, iPad e Mac.",
   "errProOnly": "Questa funzione fa parte di Pro.",
 
   "tagsTitle": "Tag",
@@ -268,5 +268,14 @@
   "hintVideoTitle": "In questa pagina c’è un video",
   "hintVideoBody": "Le risposte usano la sua trascrizione e indicano momenti come [4:15]. Senza sottotitoli usano titolo e descrizione, e lo dicono.",
   "hintPdfTitle": "Anche i PDF vengono letti",
-  "hintPdfBody": "I PDF mostrati o collegati in questa pagina vanno con la domanda; le risposte indicano la pagina."
+  "hintPdfBody": "I PDF mostrati o collegati in questa pagina vanno con la domanda; le risposte indicano la pagina.",
+  "proSkipVideo": "Il video di questa pagina non è stato considerato: Pro legge i video",
+  "proSkipPdf": "I PDF di questa pagina non sono stati considerati: Pro li legge",
+  "proSkipBoth": "Il video e i PDF di questa pagina non sono stati considerati: Pro li legge",
+  "tryPro": "Prova Pro",
+  "emptyVideoFree": "In questa pagina c’è un video. Le risposte Pro usano la sua trascrizione, quelle gratuite ciò che mostra la pagina (titolo, descrizione).",
+  "emptyPdfFree": "In questa pagina c’è un PDF. Le risposte Pro lo leggono, quelle gratuite usano il testo della pagina.",
+  "hintVideoBodyFree": "Con Pro le risposte usano la trascrizione e indicano momenti come [4:15]. Quelle gratuite usano titolo e descrizione.",
+  "hintPdfTitleFree": "In questa pagina ci sono PDF",
+  "hintPdfBodyFree": "Pro legge i PDF mostrati o collegati in questa pagina e dice da quale pagina viene una risposta. Le risposte gratuite usano il testo della pagina."
 }

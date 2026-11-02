@@ -7,7 +7,8 @@ import { pdfName } from "../content/pdf"
 import styles from "../content/styles.css"
 import { TARGET } from "../shared/config"
 import { urlKey } from "../shared/conversation"
-import type { PdfResult } from "../shared/types"
+import { readsMedia } from "../shared/attachments"
+import type { PdfResult, StatusInfo } from "../shared/types"
 
 // The toolbar popup on a tab where Safari shows a PDF itself (its viewer takes no extension scripts,
 // so the panel can't be put on the page): the same panel, as the popup's whole window, about that PDF.
@@ -32,14 +33,30 @@ function pdfSource(url: string): PageSource {
     kind: () => "pdf",
     pending: () => (pdf?.ok ? null : "pdf"),
     quick: () => ({ title: name(), text: pdf?.ok ? pdf.text : "" }),
-    read: async (): Promise<PageRead> => {
+    read: async (withMedia): Promise<PageRead> => {
+      // Reading PDFs is Pro: otherwise the question only says there's a PDF it didn't get.
+      if (!withMedia) return { title: name(), text: "", skipped: ["pdf"], sources: [] }
       const result = await cachedPdf(url, backgroundPdf)
       pdf = result
       return result.ok
-        ? { title: name(), text: result.text, media: "pdf", sources: [{ kind: "pdf", ok: true, name: name(), detail: String(result.pages) }] }
+        ? { title: name(), text: "", attachments: [{ kind: "pdf", heading: `PDF "${name()}" (${result.pages} pages, ${url}):`, text: result.text }], sources: [{ kind: "pdf", ok: true, name: name(), detail: String(result.pages) }] }
         : { title: name(), text: "", sources: [{ kind: "pdf", ok: false, name: name(), reason: result.reason }] }
     }
   }
+}
+
+/** The plan, as the panel gets it (null when the background doesn't answer). */
+function planStatus(): Promise<StatusInfo | null> {
+  return new Promise((resolve) => {
+    try {
+      chrome.runtime.sendMessage({ type: "status", refresh: false }, (status: StatusInfo | undefined) => {
+        void chrome.runtime.lastError
+        resolve(status ?? null)
+      })
+    } catch {
+      resolve(null)
+    }
+  })
 }
 
 /** The tab the popup is about: the one its address names, else the active one. */
@@ -56,10 +73,16 @@ async function pdfTab(): Promise<chrome.tabs.Tab | undefined> {
 async function main(): Promise<void> {
   const tab = await pdfTab()
   const url = tab?.url && /^https?:/.test(tab.url) ? tab.url : ""
-  // Start reading right away: by the time the question is typed, the PDF is ready.
+  // Start reading right away (for plans that read PDFs): by the time the question is typed, the PDF is ready.
   const source = pdfSource(url)
   // The title in the header once the PDF is read.
-  if (url) void cachedPdf(url, backgroundPdf).then(() => source.read()).then(() => window.dispatchEvent(new Event("cf-source")))
+  if (url) {
+    void planStatus().then(async (status) => {
+      if (!readsMedia(status, TARGET)) return
+      await source.read(true)
+      window.dispatchEvent(new Event("cf-source"))
+    })
+  }
 
   const platform = detectPlatform(TARGET)
   // Safari sizes the popup to its page: a popover beside the toolbar on a Mac and an iPad, a sheet on iPhone.

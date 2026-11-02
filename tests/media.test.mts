@@ -3,7 +3,7 @@ import assert from "node:assert/strict"
 import { parseHTML } from "linkedom"
 
 import { parseVtt } from "../src/content/captions.ts"
-import { composeVideo, composeWithAttachments } from "../src/content/compose.ts"
+import { composePage, pageForModel, readsMedia } from "../src/shared/attachments.ts"
 import { findPdfs, isPdfUrl, pdfName } from "../src/content/pdf.ts"
 import { clock, formatTranscript, parseClock, parseJson3, readTranscript, youtubeVideoId, type PageEnv } from "../src/content/youtube.ts"
 import { MAX_MEDIA_PAGE_CHARS, MAX_PAGE_CHARS, pageLimit, systemPrompt } from "../src/shared/prompt.ts"
@@ -224,17 +224,38 @@ test("isPdfUrl and pdfName", () => {
 })
 
 test("compose: a long transcript and PDFs stay within the media limit, the page's text kept", () => {
-  const video = composeVideo("Neural networks", 1_120_000, "x".repeat(300_000), "description ".repeat(2_000))
+  const video = composePage("description ".repeat(2_000), [{ kind: "video", lead: true, heading: "Video: Neural networks\nLength: 18:40\n\nTranscript (timestamps in [m:ss]):", text: "x".repeat(300_000) }])
   assert.ok(video.length <= MAX_MEDIA_PAGE_CHARS, String(video.length))
-  assert.match(video, /^Video: Neural networks\nLength: 18:40\n/)
+  assert.match(video, /^Video: Neural networks\nLength: 18:40\n\nTranscript \(timestamps in \[m:ss\]\):\nxxx/)
   assert.match(video, /Page text \(description, comments\):\ndescription/)
 
   const page = "p".repeat(30_000)
-  const both = composeWithAttachments(page, [{ heading: "PDF A:", text: "a".repeat(90_000) }, { heading: "PDF B:", text: "b".repeat(10_000) }])
+  const both = composePage(page, [{ kind: "pdf", heading: "PDF A:", text: "a".repeat(90_000) }, { kind: "pdf", heading: "PDF B:", text: "b".repeat(10_000) }])
   assert.ok(both.length <= MAX_MEDIA_PAGE_CHARS, String(both.length))
   assert.ok(both.startsWith("p".repeat(MAX_PAGE_CHARS)))
   assert.ok(both.includes("PDF B:\n" + "b".repeat(10_000)), "the short PDF fits whole")
-  assert.equal(composeWithAttachments("just the page", []), "just the page")
+  assert.equal(composePage("just the page", []), "just the page")
+})
+
+test("videos and PDFs go to the model only with Pro (or the user's own key); otherwise they're named as skipped", () => {
+  const page = { kind: "page" as const, title: "T", url: "https://x.example", text: "Page text", attachments: [{ kind: "pdf" as const, heading: "PDF A:", text: "pdf body" }] }
+  const pro = pageForModel(page, true)
+  assert.equal(pro.media, "pdf")
+  assert.match(pro.text, /^Page text\n\nPDF A:\npdf body/)
+  assert.equal(pro.attachments, undefined)
+  const free = pageForModel(page, false)
+  assert.deepEqual(free, { kind: "page", title: "T", url: "https://x.example", text: "Page text", skipped: ["pdf"] })
+  assert.deepEqual(pageForModel({ ...page, attachments: undefined, skipped: ["video"] }, false).skipped, ["video"])
+  assert.deepEqual(pageForModel({ ...page, attachments: undefined }, false), { kind: "page", title: "T", url: "https://x.example", text: "Page text" })
+
+  // Who reads them in the panel: Pro; the own key on a paid plan (any key on Chrome); not free, not unknown.
+  assert.equal(readsMedia({ plan: "pro", hasOwnKey: false }, "safari"), true)
+  assert.equal(readsMedia({ plan: "free", hasOwnKey: false }, "safari"), false)
+  assert.equal(readsMedia({ plan: "free", hasOwnKey: true }, "safari"), false)
+  assert.equal(readsMedia({ plan: "byok", hasOwnKey: true }, "safari"), true)
+  assert.equal(readsMedia({ plan: "byok", hasOwnKey: false }, "safari"), false)
+  assert.equal(readsMedia({ plan: "free", hasOwnKey: true }, "chrome"), true)
+  assert.equal(readsMedia(null, "safari"), false)
 })
 
 test("prompt: video and PDF pages get the longer limit and how to cite them", () => {

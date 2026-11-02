@@ -151,7 +151,7 @@
   "tourDone": "知道了",
   "tourShow": "查看使用提示",
   "tourAskTitle": "就此页面提问",
-  "tourAskBody": "ContextFlow 会读取你正在看的页面，以及页面上带字幕的视频和 PDF。选择“总结”等操作，或输入你自己的问题。",
+  "tourAskBody": "ContextFlow 会读取你正在看的页面；使用 Pro 时，还会读取页面上带字幕的视频和 PDF。选择“总结”等操作，或输入你自己的问题。",
   "tourSelectTitle": "只想问一部分？",
   "tourSelectBody": "先在页面上选中文字，回答就只针对这部分内容。这个标签显示 ContextFlow 正在读取的内容。",
   "tourGoogleTitle": "来自 Google 的最新信息",
@@ -205,7 +205,7 @@
   "pickAll": "全选",
   "pickNone": "取消全选",
   "limitFreeBack": "{1}（{2}后）将恢复 {0} 次免费回答。",
-  "limitFreePro": "Pro 每周最多 {0} 个回答，还有 AI 搜索和跨所有对话提问。",
+  "limitFreePro": "Pro 每周最多 {0} 个回答，读取页面上的视频和 PDF，还有 AI 搜索和跨所有对话提问。",
   "limitNotes": "笔记始终免费且不限次数：现在记下重点，稍后再问 AI。",
   "writeNote": "写笔记",
   "errProvider": "你的 AI 服务商返回：{0}",
@@ -249,7 +249,7 @@
   "upsellFindText": "用自己的话描述一个对话（“上周那篇关于睡眠和咖啡的文章”），即使没有确切字词，AI 也能找到。",
   "upsellHistoryName": "问问你的所有对话",
   "upsellHistoryText": "跨所有对话提问：“我读过哪些关于养老储蓄的内容？”“整理我这个月的笔记”。",
-  "upsellMore": "另外，每周最多 375 个更深入、更详细的回答，适用于 iPhone、iPad 和 Mac。",
+  "upsellMore": "另外，读取页面上的视频和 PDF，每周最多 375 个更深入、更详细的回答，适用于 iPhone、iPad 和 Mac。",
   "errProOnly": "这是 Pro 功能。",
 
   "tagsTitle": "标签",
@@ -268,5 +268,14 @@
   "hintVideoTitle": "此页面有视频",
   "hintVideoBody": "回答会依据其文字稿，并指出 [4:15] 这样的时间点。没有字幕时，会依据标题和简介回答并说明。",
   "hintPdfTitle": "也会读取 PDF",
-  "hintPdfBody": "此页面显示或链接的 PDF 会随问题一起发送；回答会标明页码。"
+  "hintPdfBody": "此页面显示或链接的 PDF 会随问题一起发送；回答会标明页码。",
+  "proSkipVideo": "未读取此页面上的视频 — Pro 会读取视频",
+  "proSkipPdf": "未读取此页面上的 PDF — Pro 会读取 PDF",
+  "proSkipBoth": "未读取此页面上的视频和 PDF — Pro 会读取它们",
+  "tryPro": "试用 Pro",
+  "emptyVideoFree": "此页面有视频。Pro 回答会使用视频字幕全文，免费回答只使用页面上显示的内容（标题、简介）。",
+  "emptyPdfFree": "此页面有 PDF。Pro 回答会读取 PDF，免费回答只使用页面文字。",
+  "hintVideoBodyFree": "使用 Pro 时，回答会根据字幕全文并指出 [4:15] 这样的时间点。免费回答使用标题和简介。",
+  "hintPdfTitleFree": "此页面有 PDF",
+  "hintPdfBodyFree": "Pro 会读取页面上显示或链接的 PDF，并说明内容来自哪一页。免费回答只使用页面文字。"
 }

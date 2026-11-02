@@ -423,7 +423,7 @@
   "message": "就此页面提问"
  },
  "tourAskBody": {
-  "message": "ContextFlow 会读取你正在看的页面，以及页面上带字幕的视频和 PDF。选择“总结”等操作，或输入你自己的问题。"
+  "message": "ContextFlow 会读取你正在看的页面；使用 Pro 时，还会读取页面上带字幕的视频和 PDF。选择“总结”等操作，或输入你自己的问题。"
  },
  "tourSelectTitle": {
   "message": "只想问一部分？"
@@ -576,7 +576,7 @@
   "message": "{1}（{2}后）将恢复 {0} 次免费回答。"
  },
  "limitFreePro": {
-  "message": "Pro 每周最多 {0} 个回答，还有 AI 搜索和跨所有对话提问。"
+  "message": "Pro 每周最多 {0} 个回答，读取页面上的视频和 PDF，还有 AI 搜索和跨所有对话提问。"
  },
  "limitNotes": {
   "message": "笔记始终免费且不限次数：现在记下重点，稍后再问 AI。"
@@ -702,7 +702,7 @@
   "message": "跨所有对话提问：“我读过哪些关于养老储蓄的内容？”“整理我这个月的笔记”。"
  },
  "upsellMore": {
-  "message": "另外，每周最多 375 个更深入、更详细的回答，适用于 iPhone、iPad 和 Mac。"
+  "message": "另外，读取页面上的视频和 PDF，每周最多 375 个更深入、更详细的回答，适用于 iPhone、iPad 和 Mac。"
  },
  "errProOnly": {
   "message": "这是 Pro 功能。"
@@ -754,5 +754,32 @@
  },
  "hintPdfBody": {
   "message": "此页面显示或链接的 PDF 会随问题一起发送；回答会标明页码。"
+ },
+ "proSkipVideo": {
+  "message": "未读取此页面上的视频 — Pro 会读取视频"
+ },
+ "proSkipPdf": {
+  "message": "未读取此页面上的 PDF — Pro 会读取 PDF"
+ },
+ "proSkipBoth": {
+  "message": "未读取此页面上的视频和 PDF — Pro 会读取它们"
+ },
+ "tryPro": {
+  "message": "试用 Pro"
+ },
+ "emptyVideoFree": {
+  "message": "此页面有视频。Pro 回答会使用视频字幕全文，免费回答只使用页面上显示的内容（标题、简介）。"
+ },
+ "emptyPdfFree": {
+  "message": "此页面有 PDF。Pro 回答会读取 PDF，免费回答只使用页面文字。"
+ },
+ "hintVideoBodyFree": {
+  "message": "使用 Pro 时，回答会根据字幕全文并指出 [4:15] 这样的时间点。免费回答使用标题和简介。"
+ },
+ "hintPdfTitleFree": {
+  "message": "此页面有 PDF"
+ },
+ "hintPdfBodyFree": {
+  "message": "Pro 会读取页面上显示或链接的 PDF，并说明内容来自哪一页。免费回答只使用页面文字。"
  }
 }

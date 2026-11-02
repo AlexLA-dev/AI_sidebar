@@ -151,7 +151,7 @@
   "tourDone": "Compris",
   "tourShow": "Voir les conseils",
   "tourAskTitle": "Posez une question sur cette page",
-  "tourAskBody": "ContextFlow lit la page ouverte, ainsi que les vidéos sous-titrées et les PDF qu’elle contient. Choisissez une action comme Résumer ou posez votre question.",
+  "tourAskBody": "ContextFlow lit la page ouverte ; avec Pro, aussi les vidéos sous-titrées et les PDF qu’elle contient. Choisissez une action comme Résumer ou posez votre question.",
   "tourSelectTitle": "Juste un passage ?",
   "tourSelectBody": "Sélectionnez d’abord du texte sur la page : la réponse ne portera que sur lui. Cette étiquette indique ce que lit ContextFlow.",
   "tourGoogleTitle": "Des infos à jour avec Google",
@@ -205,7 +205,7 @@
   "pickAll": "Tout sélectionner",
   "pickNone": "Tout désélectionner",
   "limitFreeBack": "{0} nouvelles réponses gratuites à {1}, dans {2}.",
-  "limitFreePro": "Avec Pro : jusqu’à {0} réponses par semaine, la recherche IA et des questions sur toutes vos discussions.",
+  "limitFreePro": "Avec Pro : jusqu’à {0} réponses par semaine, les vidéos et PDF de la page, la recherche IA et des questions sur toutes vos discussions.",
   "limitNotes": "Les notes restent gratuites et illimitées : notez l’essentiel maintenant, interrogez l’IA plus tard.",
   "writeNote": "Écrire une note",
   "errProvider": "Votre fournisseur d'IA a répondu : {0}",
@@ -249,7 +249,7 @@
   "upsellFindText": "Décrivez une discussion avec vos mots — « cet article sur le sommeil et le café de la semaine dernière » — et l’IA la retrouve, même sans les mots exacts.",
   "upsellHistoryName": "Interroger vos discussions",
   "upsellHistoryText": "Des questions sur toutes vos discussions : « Qu’ai-je lu sur l’épargne retraite ? », « Résume mes notes du mois ».",
-  "upsellMore": "Et jusqu’à 375 réponses par semaine, plus approfondies et détaillées, sur iPhone, iPad et Mac.",
+  "upsellMore": "Et les vidéos et PDF de la page, avec jusqu’à 375 réponses par semaine, plus approfondies et détaillées, sur iPhone, iPad et Mac.",
   "errProOnly": "Cette fonction fait partie de Pro.",
 
   "tagsTitle": "Tags",
@@ -268,5 +268,14 @@
   "hintVideoTitle": "Cette page contient une vidéo",
   "hintVideoBody": "Les réponses s’appuient sur sa transcription et indiquent des moments comme [4:15]. Sans sous-titres, elles utilisent le titre et la description, et le précisent.",
   "hintPdfTitle": "Les PDF sont lus aussi",
-  "hintPdfBody": "Les PDF affichés ou liés sur cette page accompagnent votre question ; les réponses indiquent la page."
+  "hintPdfBody": "Les PDF affichés ou liés sur cette page accompagnent votre question ; les réponses indiquent la page.",
+  "proSkipVideo": "La vidéo de cette page n’a pas été prise en compte — Pro lit les vidéos",
+  "proSkipPdf": "Les PDF de cette page n’ont pas été pris en compte — Pro les lit",
+  "proSkipBoth": "La vidéo et les PDF de cette page n’ont pas été pris en compte — Pro les lit",
+  "tryPro": "Essayer Pro",
+  "emptyVideoFree": "Cette page contient une vidéo. Les réponses Pro utilisent sa transcription, les réponses gratuites ce que montre la page (titre, description).",
+  "emptyPdfFree": "Cette page contient un PDF. Les réponses Pro le lisent, les réponses gratuites utilisent le texte de la page.",
+  "hintVideoBodyFree": "Avec Pro, les réponses utilisent la transcription et renvoient à des moments comme [4:15]. Les réponses gratuites utilisent le titre et la description.",
+  "hintPdfTitleFree": "Cette page contient des PDF",
+  "hintPdfBodyFree": "Pro lit les PDF affichés ou liés sur cette page et indique de quelle page vient une réponse. Les réponses gratuites utilisent le texte de la page."
 }
