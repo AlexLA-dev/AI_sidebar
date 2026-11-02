@@ -106,7 +106,8 @@ const rpc: Record<string, (args: Record<string, any>) => unknown> = {
   cf_entitlement_get: ({ p_original_transaction_id }) => entitlements.get(p_original_transaction_id) ?? null,
   cf_entitlement_by_token: () => null,
   cf_usage_report: ({ p_days }) => ({ days: p_days, segments: [{ key: "ours", segment: "ai", requests: 3 }] }),
-  cf_setup_funnel: () => [{ day: "2026-10-30", app_opened: 4, extension_on: 3, panel_opened: 2 }]
+  cf_setup_funnel: () => [{ day: "2026-10-30", app_opened: 4, extension_on: 3, panel_opened: 2 }],
+  cf_owner_insights: ({ p_days }) => ({ days: p_days, per_user: [{ plan: "free", users: 2, user_days: 3, asked_days: 2, requests: 4, max_per_day: 3 }] })
 }
 
 // Same rule as cf_limited_before: a free limit hit on an earlier UTC day.
@@ -306,6 +307,18 @@ test("a verified Pro transaction switches to the weekly Pro allowance", async ()
   assert.equal(counters.get(`install:${INSTALL}`), undefined)
 })
 
+test("a subscriber's answers carry the subscription id, free answers don't", async () => {
+  const paid = ctx()
+  await (await chat(ask({ entitlement: signJws(transaction()) }), paid)).text()
+  await Promise.all(paid.pending)
+  const free = ctx()
+  await (await chat(ask(), free)).text()
+  await Promise.all(free.pending)
+  const [pro, plain] = events.filter((e) => e.kind === "chat").map((e) => e.data)
+  assert.deepEqual([pro.plan, pro.otid], ["pro", "2000000123"])
+  assert.deepEqual([plain.plan, "otid" in plain], ["free", false])
+})
+
 test("forged, expired and refunded transactions fall back to free", async () => {
   const forged = await events$(await chat(ask({ entitlement: signJws(transaction(), { leaf: "rogue" }) }), ctx()))
   assert.equal(forged[0].plan, "free")
@@ -473,6 +486,21 @@ test("admin usage report needs ADMIN_TOKEN", async () => {
   assert.equal(body.days, 180)
   assert.equal(body.segments[0].requests, 3)
   assert.equal(body.setup_funnel[0].app_opened, 4)
+  assert.deepEqual([body.insights.days, body.insights.per_user[0].requests], [180, 4])
+})
+
+test("admin usage report still answers before cf_owner_insights exists", async () => {
+  serverConfig.adminToken = "admin-test"
+  const insights = rpc.cf_owner_insights
+  delete rpc.cf_owner_insights
+  try {
+    const res = await adminUsage(new Request("https://aisidebar.netlify.app/api/v2/admin/usage", { headers: { Authorization: "Bearer admin-test" } }))
+    assert.equal(res.status, 200)
+    const body = await res.json()
+    assert.deepEqual([body.segments[0].requests, body.insights], [3, null])
+  } finally {
+    rpc.cf_owner_insights = insights
+  }
 })
 
 const statusOf = async (extra: Record<string, unknown> = {}) =>
