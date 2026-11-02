@@ -277,5 +277,16 @@
   "emptyPdfFree": "This page has a PDF. Pro answers read it; free answers use the page's text.",
   "hintVideoBodyFree": "With Pro, answers use its transcript and point to moments like [4:15]. Free answers use the title and description.",
   "hintPdfTitleFree": "This page has PDFs",
-  "hintPdfBodyFree": "Pro reads the PDFs shown or linked on this page and says which page an answer comes from. Free answers use the page's text."
+  "hintPdfBodyFree": "Pro reads the PDFs shown or linked on this page and says which page an answer comes from. Free answers use the page's text.",
+
+  "renewalTitle": "Pro ends on {0}",
+  "renewalBody": "Auto-renewal is off. What was missing?",
+  "renewalPrice": "Too expensive",
+  "renewalRarely": "I don't use it enough",
+  "renewalAnswers": "Answers weren't good enough",
+  "renewalFeatures": "A feature I need is missing",
+  "renewalFreeEnough": "The free plan is enough",
+  "renewalOther": "Something else",
+  "renewalThanks": "Thanks — that helps us improve ContextFlow.",
+  "planEnds": "Ends {0}: auto-renewal is off"
 }

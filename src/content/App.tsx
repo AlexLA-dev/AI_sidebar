@@ -2,7 +2,8 @@ import type { ComponentChildren, VNode } from "preact"
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "preact/hooks"
 
 import { composePage, readsMedia, type MediaKind } from "../shared/attachments"
-import { LINKS, TARGET } from "../shared/config"
+import { LINKS, PRODUCTS, TARGET } from "../shared/config"
+import { RENEWAL_REASONS, type RenewalReason } from "../shared/renewal"
 import { t, uiLanguage, type MessageKey } from "../shared/i18n"
 import {
   DEFAULT_SETTINGS,
@@ -39,7 +40,7 @@ import { ProUpsell } from "./ProUpsell"
 import { SettingsView } from "./Settings"
 import { shareLabels } from "./shareLabels"
 import { markHintSeen, resetHints, seenHints, type HintKey } from "./store"
-import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, loadThreads, markTourSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, rememberPageText, renameThread, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount } from "./store"
+import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, loadThreads, markTourSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, rememberPageText, renameThread, renewalAskedPeriod, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount } from "./store"
 import { TagChip, TagEditor } from "./Tags"
 import { ThreadsView } from "./Threads"
 import { Tour, tourSteps } from "./Tour"
@@ -185,6 +186,11 @@ function errorText(error: ChatError): string {
     default:
       return t("errGeneric")
   }
+}
+
+// The answers to the auto-renew question, as the panel shows them.
+const RENEWAL_LABELS: Record<(typeof RENEWAL_REASONS)[number], MessageKey> = {
+  price: "renewalPrice", rarely: "renewalRarely", answers: "renewalAnswers", features: "renewalFeatures", free_enough: "renewalFreeEnough", other: "renewalOther"
 }
 
 /**
@@ -1093,6 +1099,28 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (offerCard) requestAnimationFrame(() => listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" }))
   }, [offerCard])
 
+  // A Pro user who turned auto-renew off: when Pro ends, and one question, what was missing. Once per
+  // subscription period, here or in the app (it keeps the mark for both). Nothing is offered.
+  const [renewal, setRenewal] = useState<"ask" | "thanks" | null>(null)
+  useEffect(() => {
+    const store = status?.store
+    if (TARGET !== "safari" || !open || renewal || !store?.active || store.autoRenew !== false || !store.period || store.renewalAsked) return
+    if (!(PRODUCTS.pro as readonly string[]).includes(store.productId ?? "")) return
+    void renewalAskedPeriod().then((asked) => {
+      if (asked !== store.period) setRenewal("ask")
+    })
+  }, [open, status, renewal])
+  const answerRenewal = useCallback((reason: RenewalReason) => {
+    const store = statusRef.current?.store
+    if (!store?.period) return
+    void sendBackground({ type: "renewalAnswer", reason, period: store.period, productId: store.productId, expiresAt: store.expiresAt })
+    setRenewal(reason === "later" ? null : "thanks")
+    if (reason !== "later") setTimeout(() => setRenewal(null), 4000)
+  }, [])
+  useEffect(() => {
+    if (renewal === "ask") requestAnimationFrame(() => listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" }))
+  }, [renewal])
+
   // ------------------------------------------------------------ sharing
   const shareLinks = (): ShareLinks => ({ page: source.href(), app: LINKS.appStoreShare })
 
@@ -1529,6 +1557,27 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     {actions.filter((a) => !messages.some((m) => m.label === t(a.label))).slice(0, 3).map((a) => (
                       <button type="button" key={a.id} class="cf-chip small" onClick={() => runAction(a)}>{t(a.label)}</button>
                     ))}
+                  </div>
+                )}
+
+                {renewal && !error && partial === null && (
+                  <div class={`cf-card renewal ${renewal === "thanks" ? "done" : ""}`} role="group" aria-label={t("renewalBody")}>
+                    {renewal === "thanks" ? (
+                      <p>{t("renewalThanks")}</p>
+                    ) : (
+                      <>
+                        <strong>{t("renewalTitle", status?.store?.expiresAt ? new Date(status.store.expiresAt).toLocaleDateString() : "")}</strong>
+                        <p>{t("renewalBody")}</p>
+                        <div class="cf-renewal-reasons">
+                          {RENEWAL_REASONS.map((reason) => (
+                            <button type="button" key={reason} class="cf-chip small" onClick={() => answerRenewal(reason)}>{t(RENEWAL_LABELS[reason])}</button>
+                          ))}
+                        </div>
+                        <div class="cf-card-actions">
+                          <button type="button" class="cf-link" onClick={() => answerRenewal("later")}>{t("offerLater")}</button>
+                        </div>
+                      </>
+                    )}
                   </div>
                 )}
 

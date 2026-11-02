@@ -18,6 +18,8 @@ import AppKit
 ///   devices' changes (see ChatSync); `available: false` without an iCloud account or connection.
 /// - `mirrorThreads` → keeps the app's copy of the chats (see ChatMirror) and returns the app's changes.
 /// - `pdfText` → the text of a PDF (by address, or the bytes the extension fetched), see PdfText.
+/// - `renewalAsked` → the panel asked a Pro user with auto-renew off what was missing: not again this period
+///   (the app checks the same mark).
 /// - `ping` → health check.
 ///
 /// Every message also tells the app that the extension is switched on (and, for `getEntitlement`, which
@@ -52,6 +54,10 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             // iOS extensions can't open URLs; the page follows the contextflow:// link instead.
             Self.reply(context, ["success": true, "data": ["opened": false]])
             #endif
+        case "renewalAsked":
+            // The question about turning auto-renew off was answered or put off in the panel: not again this period.
+            if let period = message["period"] as? String { SharedDefaults.shared.markRenewalAsked(period) }
+            Self.reply(context, ["success": true])
         case "getSettings":
             let stored = SharedDefaults.shared.readSettings()
             var data: [String: Any] = ["updatedAt": stored?.updatedAt ?? 0]
@@ -168,21 +174,24 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
 
     private static func liveEntitlement() async -> SharedEntitlement? {
         let products: Set<String> = ["com.contextflow.pro.monthly", "com.contextflow.pro.yearly", "com.contextflow.byok.monthly"]
-        var best: SharedEntitlement?
+        var best: (entitlement: SharedEntitlement, transaction: StoreKit.Transaction)?
         for await result in StoreKit.Transaction.currentEntitlements {
             guard case .verified(let transaction) = result,
                   products.contains(transaction.productID),
                   transaction.revocationDate == nil else { continue }
-            if (best?.expiresAt ?? .distantPast) <= (transaction.expirationDate ?? .distantPast) {
-                best = SharedEntitlement(
+            if (best?.entitlement.expiresAt ?? .distantPast) <= (transaction.expirationDate ?? .distantPast) {
+                best = (SharedEntitlement(
                     active: true,
                     productId: transaction.productID,
                     expiresAt: transaction.expirationDate,
                     jws: result.jwsRepresentation,
                     updatedAt: Date()
-                )
+                ), transaction)
             }
         }
-        return best
+        guard var entitlement = best?.entitlement, let transaction = best?.transaction else { return nil }
+        // Whether it renews: the panel asks a Pro user who turned auto-renew off what was missing.
+        entitlement.autoRenew = await SharedEntitlement.autoRenew(of: transaction)
+        return entitlement
     }
 }

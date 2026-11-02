@@ -48,6 +48,20 @@ final class StoreKitManager: ObservableObject {
     var proYearly: Product? { products.first { $0.id == ProductID.proYearly } }
     var byok: Product? { products.first { $0.id == ProductID.byok } }
 
+    /// Pro with auto-renew turned off: the subscription to ask "what was missing" about, once per period
+    /// (the app and the panel share the mark). `-CFDebugRenewalOff YES` shows it in Debug builds.
+    var renewalOff: SharedEntitlement? {
+        #if DEBUG
+        if UserDefaults.standard.bool(forKey: "CFDebugRenewalOff") {
+            // The same period all day, so "once per period" can be checked.
+            let end = Calendar.current.startOfDay(for: Date()).addingTimeInterval(12 * 86_400)
+            return SharedEntitlement(active: true, productId: ProductID.pro, expiresAt: end, jws: nil, updatedAt: Date(), autoRenew: false)
+        }
+        #endif
+        guard isPro, entitlement.autoRenew == false else { return nil }
+        return entitlement
+    }
+
     /// Pro is active (the own-key plan isn't Pro): AI search, "Ask your chats", no Pro tab in the app.
     var isPro: Bool {
         #if DEBUG
@@ -129,7 +143,8 @@ final class StoreKitManager: ObservableObject {
                 productId: best.transaction.productID,
                 expiresAt: best.transaction.expirationDate,
                 jws: best.jws,
-                updatedAt: Date()
+                updatedAt: Date(),
+                autoRenew: await SharedEntitlement.autoRenew(of: best.transaction)
             )
         } else {
             value = SharedEntitlement(active: false, productId: nil, expiresAt: nil, jws: nil, updatedAt: Date())

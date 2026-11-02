@@ -781,5 +781,35 @@
  },
  "hintPdfBodyFree": {
   "message": "Pro legge i PDF mostrati o collegati in questa pagina e dice da quale pagina viene una risposta. Le risposte gratuite usano il testo della pagina."
+ },
+ "renewalTitle": {
+  "message": "Pro termina il {0}"
+ },
+ "renewalBody": {
+  "message": "Il rinnovo automatico è disattivato. Cosa ti è mancato?"
+ },
+ "renewalPrice": {
+  "message": "Troppo caro"
+ },
+ "renewalRarely": {
+  "message": "Lo uso troppo poco"
+ },
+ "renewalAnswers": {
+  "message": "Le risposte non erano all'altezza"
+ },
+ "renewalFeatures": {
+  "message": "Manca una funzione che mi serve"
+ },
+ "renewalFreeEnough": {
+  "message": "Mi basta il piano gratuito"
+ },
+ "renewalOther": {
+  "message": "Altro"
+ },
+ "renewalThanks": {
+  "message": "Grazie, ci aiuta a migliorare ContextFlow."
+ },
+ "planEnds": {
+  "message": "Termina il {0}: rinnovo automatico disattivato"
  }
 }

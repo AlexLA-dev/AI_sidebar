@@ -781,5 +781,35 @@
  },
  "hintPdfBodyFree": {
   "message": "Pro はこのページに表示・リンクされた PDF を読み取り、どのページの内容かを示します。無料の回答はページのテキストを使います。"
+ },
+ "renewalTitle": {
+  "message": "Pro は{0}に終了します"
+ },
+ "renewalBody": {
+  "message": "自動更新がオフになっています。何が足りませんでしたか？"
+ },
+ "renewalPrice": {
+  "message": "高すぎる"
+ },
+ "renewalRarely": {
+  "message": "あまり使わない"
+ },
+ "renewalAnswers": {
+  "message": "回答の質が足りない"
+ },
+ "renewalFeatures": {
+  "message": "必要な機能がない"
+ },
+ "renewalFreeEnough": {
+  "message": "無料プランで十分"
+ },
+ "renewalOther": {
+  "message": "その他"
+ },
+ "renewalThanks": {
+  "message": "ありがとうございます。ContextFlow の改善に役立てます。"
+ },
+ "planEnds": {
+  "message": "{0}に終了：自動更新はオフ"
  }
 }

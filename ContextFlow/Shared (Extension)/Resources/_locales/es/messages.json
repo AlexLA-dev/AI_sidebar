@@ -781,5 +781,35 @@
  },
  "hintPdfBodyFree": {
   "message": "Pro lee los PDF que la página muestra o enlaza y dice de qué página sale cada respuesta. Las respuestas gratuitas usan el texto de la página."
+ },
+ "renewalTitle": {
+  "message": "Pro termina el {0}"
+ },
+ "renewalBody": {
+  "message": "La renovación automática está desactivada. ¿Qué te faltó?"
+ },
+ "renewalPrice": {
+  "message": "Demasiado caro"
+ },
+ "renewalRarely": {
+  "message": "No lo uso lo suficiente"
+ },
+ "renewalAnswers": {
+  "message": "Las respuestas no fueron lo bastante buenas"
+ },
+ "renewalFeatures": {
+  "message": "Falta una función que necesito"
+ },
+ "renewalFreeEnough": {
+  "message": "Me basta con el plan gratuito"
+ },
+ "renewalOther": {
+  "message": "Otra cosa"
+ },
+ "renewalThanks": {
+  "message": "Gracias: nos ayuda a mejorar ContextFlow."
+ },
+ "planEnds": {
+  "message": "Termina el {0}: renovación automática desactivada"
  }
 }

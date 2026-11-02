@@ -781,5 +781,35 @@
  },
  "hintPdfBodyFree": {
   "message": "Pro liest die PDFs, die die Seite zeigt oder verlinkt, und sagt, auf welcher Seite etwas steht. Kostenlose Antworten nutzen den Text der Seite."
+ },
+ "renewalTitle": {
+  "message": "Pro endet am {0}"
+ },
+ "renewalBody": {
+  "message": "Die automatische Verlängerung ist aus. Was hat dir gefehlt?"
+ },
+ "renewalPrice": {
+  "message": "Zu teuer"
+ },
+ "renewalRarely": {
+  "message": "Ich nutze es zu selten"
+ },
+ "renewalAnswers": {
+  "message": "Die Antworten waren nicht gut genug"
+ },
+ "renewalFeatures": {
+  "message": "Mir fehlt eine Funktion"
+ },
+ "renewalFreeEnough": {
+  "message": "Die Gratisversion reicht mir"
+ },
+ "renewalOther": {
+  "message": "Etwas anderes"
+ },
+ "renewalThanks": {
+  "message": "Danke – das hilft uns, ContextFlow zu verbessern."
+ },
+ "planEnds": {
+  "message": "Endet am {0}: automatische Verlängerung aus"
  }
 }

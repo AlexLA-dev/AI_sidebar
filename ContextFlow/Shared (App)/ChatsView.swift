@@ -273,6 +273,9 @@ struct ChatsView: View {
 
     @ViewBuilder
     private var chatList: some View {
+            if store.renewalOff != nil {
+                Section { RenewalQuestionCard() }
+            }
             if !hintSeen && !library.threads.isEmpty {
                 Section {
                     VStack(alignment: .leading, spacing: 8) {
@@ -532,6 +535,98 @@ extension ChatAI.Failure {
         case .busy: return String(localized: "The AI service is busy. Please try again in a moment.")
         case .network: return String(localized: "No connection. Check the internet and try again.")
         case .consent: return String(localized: "Nothing was sent: AI answers need your consent first.")
+        }
+    }
+}
+
+// MARK: - Auto-renew off
+
+/// A Pro user who turned auto-renew off: when Pro ends, and one question, what was missing (src/shared/
+/// renewal.ts). Once per subscription period, here or in the Safari panel (they share the mark). The
+/// answer goes to the server as "renewal_off"; nothing is offered.
+struct RenewalQuestionCard: View {
+    @ObservedObject var store = StoreKitManager.shared
+    @State private var asked = false
+    @State private var thanks = false
+
+    private static let reasons: [(key: String, label: LocalizedStringKey)] = [
+        ("price", "Too expensive"), ("rarely", "I don't use it enough"), ("answers", "Answers weren't good enough"),
+        ("features", "A feature I need is missing"), ("free_enough", "The free plan is enough"), ("other", "Something else")
+    ]
+
+    var body: some View {
+        if let entitlement = store.renewalOff, !asked || thanks, thanks || !SharedDefaults.shared.renewalAsked(entitlement.period) {
+            VStack(alignment: .leading, spacing: 10) {
+                if thanks {
+                    Text("Thanks — that helps us improve ContextFlow.")
+                } else {
+                    if let date = entitlement.expiresAt {
+                        Text("Pro ends on \(date, style: .date)").font(.headline)
+                    }
+                    Text("Auto-renewal is off. What was missing?")
+                        .foregroundColor(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                    ReasonFlow(reasons: Self.reasons) { answer($0, entitlement) }
+                    Button("Not now") { answer("later", entitlement) }
+                        .buttonStyle(.borderless)
+                        .font(.callout)
+                }
+            }
+            .padding(.vertical, 4)
+        }
+    }
+
+    private func answer(_ reason: String, _ entitlement: SharedEntitlement) {
+        SharedDefaults.shared.markRenewalAsked(entitlement.period)
+        asked = true
+        if reason != "later" {
+            thanks = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 4) { thanks = false }
+        }
+        Task { await ChatAI.reportRenewal(reason, entitlement) }
+    }
+}
+
+/// The answers as buttons that wrap onto the next line.
+private struct ReasonFlow: View {
+    let reasons: [(key: String, label: LocalizedStringKey)]
+    let pick: (String) -> Void
+
+    var body: some View {
+        WrapLayout(spacing: 8) {
+            ForEach(reasons, id: \.key) { reason in
+                Button { pick(reason.key) } label: { Text(reason.label).font(.callout) }
+                    .buttonStyle(.bordered)
+            }
+        }
+    }
+}
+
+/// Lays its children out in rows, wrapping when a row is full.
+private struct WrapLayout: Layout {
+    var spacing: CGFloat = 8
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let width = proposal.width ?? .infinity
+        var x: CGFloat = 0, y: CGFloat = 0, row: CGFloat = 0, widest: CGFloat = 0
+        for view in subviews {
+            let size = view.sizeThatFits(.unspecified)
+            if x > 0 && x + size.width > width { x = 0; y += row + spacing; row = 0 }
+            x += size.width + spacing
+            row = max(row, size.height)
+            widest = max(widest, x - spacing)
+        }
+        return CGSize(width: min(widest, width), height: y + row)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        var x = bounds.minX, y = bounds.minY, row: CGFloat = 0
+        for view in subviews {
+            let size = view.sizeThatFits(.unspecified)
+            if x > bounds.minX && x + size.width > bounds.maxX { x = bounds.minX; y += row + spacing; row = 0 }
+            view.place(at: CGPoint(x: x, y: y), proposal: ProposedViewSize(size))
+            x += size.width + spacing
+            row = max(row, size.height)
         }
     }
 }

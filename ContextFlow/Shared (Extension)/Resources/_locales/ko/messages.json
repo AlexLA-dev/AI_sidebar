@@ -781,5 +781,35 @@
  },
  "hintPdfBodyFree": {
   "message": "Pro는 이 페이지에 보이거나 링크된 PDF를 읽고 어느 페이지 내용인지 알려 줘요. 무료 답변은 페이지 텍스트를 써요."
+ },
+ "renewalTitle": {
+  "message": "Pro가 {0}에 종료돼요"
+ },
+ "renewalBody": {
+  "message": "자동 갱신이 꺼져 있어요. 무엇이 부족했나요?"
+ },
+ "renewalPrice": {
+  "message": "너무 비싸요"
+ },
+ "renewalRarely": {
+  "message": "자주 쓰지 않아요"
+ },
+ "renewalAnswers": {
+  "message": "답변이 만족스럽지 않아요"
+ },
+ "renewalFeatures": {
+  "message": "필요한 기능이 없어요"
+ },
+ "renewalFreeEnough": {
+  "message": "무료 플랜으로 충분해요"
+ },
+ "renewalOther": {
+  "message": "기타"
+ },
+ "renewalThanks": {
+  "message": "감사합니다. ContextFlow를 개선하는 데 도움이 돼요."
+ },
+ "planEnds": {
+  "message": "{0}에 종료: 자동 갱신 꺼짐"
  }
 }

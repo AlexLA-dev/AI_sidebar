@@ -277,5 +277,16 @@
   "emptyPdfFree": "Auf dieser Seite ist ein PDF. Pro-Antworten lesen es, kostenlose Antworten nutzen den Text der Seite.",
   "hintVideoBodyFree": "Mit Pro nutzen Antworten das Transkript und verweisen auf Stellen wie [4:15]. Kostenlose Antworten nutzen Titel und Beschreibung.",
   "hintPdfTitleFree": "Auf dieser Seite sind PDFs",
-  "hintPdfBodyFree": "Pro liest die PDFs, die die Seite zeigt oder verlinkt, und sagt, auf welcher Seite etwas steht. Kostenlose Antworten nutzen den Text der Seite."
+  "hintPdfBodyFree": "Pro liest die PDFs, die die Seite zeigt oder verlinkt, und sagt, auf welcher Seite etwas steht. Kostenlose Antworten nutzen den Text der Seite.",
+
+  "renewalTitle": "Pro endet am {0}",
+  "renewalBody": "Die automatische Verlängerung ist aus. Was hat dir gefehlt?",
+  "renewalPrice": "Zu teuer",
+  "renewalRarely": "Ich nutze es zu selten",
+  "renewalAnswers": "Die Antworten waren nicht gut genug",
+  "renewalFeatures": "Mir fehlt eine Funktion",
+  "renewalFreeEnough": "Die Gratisversion reicht mir",
+  "renewalOther": "Etwas anderes",
+  "renewalThanks": "Danke – das hilft uns, ContextFlow zu verbessern.",
+  "planEnds": "Endet am {0}: automatische Verlängerung aus"
 }

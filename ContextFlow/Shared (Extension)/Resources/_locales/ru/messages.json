@@ -781,5 +781,35 @@
  },
  "hintPdfBodyFree": {
   "message": "Pro читает PDF, показанные на странице или по ссылкам с неё, и говорит, с какой они страницы. Бесплатные ответы — только по тексту страницы."
+ },
+ "renewalTitle": {
+  "message": "Pro закончится {0}"
+ },
+ "renewalBody": {
+  "message": "Автопродление выключено. Чего не хватило?"
+ },
+ "renewalPrice": {
+  "message": "Дорого"
+ },
+ "renewalRarely": {
+  "message": "Редко пользуюсь"
+ },
+ "renewalAnswers": {
+  "message": "Ответы не устроили"
+ },
+ "renewalFeatures": {
+  "message": "Не хватает нужной функции"
+ },
+ "renewalFreeEnough": {
+  "message": "Хватает бесплатного"
+ },
+ "renewalOther": {
+  "message": "Другое"
+ },
+ "renewalThanks": {
+  "message": "Спасибо — это поможет нам сделать ContextFlow лучше."
+ },
+ "planEnds": {
+  "message": "Закончится {0}: автопродление выключено"
  }
 }

@@ -212,6 +212,11 @@ struct HomeView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 header
+                if store.renewalOff != nil {
+                    RenewalQuestionCard()
+                        .padding(16)
+                        .background(RoundedRectangle(cornerRadius: 16).fill(Color.cardFill))
+                }
                 #if os(macOS)
                 macStatus
                 #else
@@ -1113,8 +1118,13 @@ struct SettingsView: View {
                 Text(planName(store.entitlement.productId))
                 Spacer()
                 if let date = store.entitlement.expiresAt {
-                    Text("Renews \(date, style: .date)")
-                        .foregroundColor(.secondary)
+                    if store.entitlement.autoRenew == false {
+                        Text("Ends \(date, style: .date)")
+                            .foregroundColor(.secondary)
+                    } else {
+                        Text("Renews \(date, style: .date)")
+                            .foregroundColor(.secondary)
+                    }
                 }
             }
             Button("Manage Subscription") { openURL(Links.manageSubscriptions) }

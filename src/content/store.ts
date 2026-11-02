@@ -106,6 +106,11 @@ export async function setSelHintCount(count: number): Promise<void> {
   await set(STORAGE.selHint, count)
 }
 
+/** The subscription period the auto-renew question was asked in (answered or put off), on this device. */
+export async function renewalAskedPeriod(): Promise<string | null> {
+  return (await get<string>(STORAGE.renewalAsked)) ?? null
+}
+
 /** How many times the Pro offer card was shown to an install that ran out of answers before; -1 once answered. */
 export async function offerCardCount(): Promise<number> {
   return (await get<number>(STORAGE.offerCard)) ?? 0

@@ -277,5 +277,16 @@
   "emptyPdfFree": "このページには PDF があります。Pro の回答は PDF を読み取り、無料の回答はページのテキストを使います。",
   "hintVideoBodyFree": "Pro では文字起こしを使い、[4:15] のように場面を示します。無料の回答はタイトルと説明を使います。",
   "hintPdfTitleFree": "このページには PDF があります",
-  "hintPdfBodyFree": "Pro はこのページに表示・リンクされた PDF を読み取り、どのページの内容かを示します。無料の回答はページのテキストを使います。"
+  "hintPdfBodyFree": "Pro はこのページに表示・リンクされた PDF を読み取り、どのページの内容かを示します。無料の回答はページのテキストを使います。",
+
+  "renewalTitle": "Pro は{0}に終了します",
+  "renewalBody": "自動更新がオフになっています。何が足りませんでしたか？",
+  "renewalPrice": "高すぎる",
+  "renewalRarely": "あまり使わない",
+  "renewalAnswers": "回答の質が足りない",
+  "renewalFeatures": "必要な機能がない",
+  "renewalFreeEnough": "無料プランで十分",
+  "renewalOther": "その他",
+  "renewalThanks": "ありがとうございます。ContextFlow の改善に役立てます。",
+  "planEnds": "{0}に終了：自動更新はオフ"
 }

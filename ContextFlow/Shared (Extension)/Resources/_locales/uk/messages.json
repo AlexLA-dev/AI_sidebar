@@ -781,5 +781,35 @@
  },
  "hintPdfBodyFree": {
   "message": "Pro читає PDF, показані на сторінці або за посиланнями з неї, і каже, з якої вони сторінки. Безплатні відповіді — лише за текстом сторінки."
+ },
+ "renewalTitle": {
+  "message": "Pro закінчиться {0}"
+ },
+ "renewalBody": {
+  "message": "Автопродовження вимкнено. Чого бракувало?"
+ },
+ "renewalPrice": {
+  "message": "Задорого"
+ },
+ "renewalRarely": {
+  "message": "Рідко користуюся"
+ },
+ "renewalAnswers": {
+  "message": "Відповіді не влаштували"
+ },
+ "renewalFeatures": {
+  "message": "Бракує потрібної функції"
+ },
+ "renewalFreeEnough": {
+  "message": "Вистачає безкоштовного"
+ },
+ "renewalOther": {
+  "message": "Інше"
+ },
+ "renewalThanks": {
+  "message": "Дякуємо — це допоможе нам покращити ContextFlow."
+ },
+ "planEnds": {
+  "message": "Закінчиться {0}: автопродовження вимкнено"
  }
 }

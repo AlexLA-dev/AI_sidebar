@@ -143,6 +143,25 @@ enum ChatAI {
         ["turns": turns, "pages": pages, "chats": ChatLibrary.shared.threads.count]
     }
 
+    // MARK: Auto-renew off
+
+    /// The answer to "what was missing" (a Pro user turned auto-renew off), for analytics. Nothing else.
+    @MainActor
+    static func reportRenewal(_ reason: String, _ entitlement: SharedEntitlement) async {
+        var body: [String: Any] = [
+            "kind": "renewal_off",
+            "appId": Activation.shared.appId,
+            "reason": reason,
+            "product": entitlement.productId ?? "",
+            "from": "app",
+            "client": ["platform": platform, "version": Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "", "locale": Locale.current.identifier]
+        ]
+        if let installId = SharedDefaults.shared.readExtensionStatus().installId { body["installId"] = installId }
+        if let end = entitlement.expiresAt { body["days_left"] = max(0, Int(end.timeIntervalSinceNow / 86_400)) }
+        guard let request = try? request("api/v2/event", body) else { return }
+        _ = try? await URLSession.shared.data(for: request)
+    }
+
     // MARK: A chat
 
     /// How much of a chat goes with a question (src/shared/conversation.ts `WHOLE_CHAT_CHARS`).

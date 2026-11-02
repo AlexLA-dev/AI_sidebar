@@ -1,4 +1,5 @@
 import Foundation
+import StoreKit
 
 /// State shared between the ContextFlow app and its Safari extension
 /// (App Group `group.com.contextflow.shared`):
@@ -19,15 +20,39 @@ struct SharedEntitlement: Equatable {
     var expiresAt: Date?
     var jws: String?
     var updatedAt: Date
+    /// Whether the subscription renews at `expiresAt` (nil: not known).
+    var autoRenew: Bool? = nil
 
     static let none = SharedEntitlement(active: false, productId: nil, expiresAt: nil, jws: nil, updatedAt: .distantPast)
+
+    /// This subscription period: the question about turning auto-renew off is asked once in each.
+    var period: String {
+        "\(productId ?? "")|\(Int(expiresAt?.timeIntervalSince1970 ?? 0))"
+    }
 
     var dictionary: [String: Any] {
         var result: [String: Any] = ["active": active]
         if let productId { result["productId"] = productId }
         if let expiresAt { result["expiresAt"] = ISO8601DateFormatter().string(from: expiresAt) }
         if let jws { result["jws"] = jws }
+        if let autoRenew {
+            result["autoRenew"] = autoRenew
+            result["period"] = period
+            result["renewalAsked"] = SharedDefaults.shared.renewalAsked(period)
+        }
         return result
+    }
+
+    /// Whether the subscription of `transaction` renews, from StoreKit (nil when it can't tell).
+    static func autoRenew(of transaction: StoreKit.Transaction) async -> Bool? {
+        guard let group = transaction.subscriptionGroupID,
+              let statuses = try? await Product.SubscriptionInfo.status(for: group) else { return nil }
+        for status in statuses {
+            guard case .verified(let renewal) = status.renewalInfo,
+                  renewal.originalTransactionID == transaction.originalID else { continue }
+            return renewal.willAutoRenew
+        }
+        return nil
     }
 }
 
@@ -42,6 +67,7 @@ final class SharedDefaults {
     private let reviewAskedKey = "cf_review_asked_v1"
     private let extensionKey = "cf_extension_v1"
     private let appKey = "cf_app_v1"
+    private let renewalAskedKey = "cf_renewal_asked_v1"
 
     /// Local notifications the app schedules on a new install until the extension is switched on.
     static let setupReminderIds = ["cf.setup.15m", "cf.setup.24h"]
@@ -58,6 +84,7 @@ final class SharedDefaults {
         if let productId = value.productId { stored["productId"] = productId }
         if let expiresAt = value.expiresAt { stored["expiresAt"] = expiresAt.timeIntervalSince1970 }
         if let jws = value.jws { stored["jws"] = jws }
+        if let autoRenew = value.autoRenew { stored["autoRenew"] = autoRenew }
         defaults.set(stored, forKey: entitlementKey)
     }
 
@@ -73,8 +100,20 @@ final class SharedDefaults {
             productId: stored["productId"] as? String,
             expiresAt: expires,
             jws: stored["jws"] as? String,
-            updatedAt: Date(timeIntervalSince1970: stored["updatedAt"] as? Double ?? 0)
+            updatedAt: Date(timeIntervalSince1970: stored["updatedAt"] as? Double ?? 0),
+            autoRenew: stored["autoRenew"] as? Bool
         )
+    }
+
+    // MARK: The question when auto-renew is off
+
+    /// Asked (answered or put off) in the app or the panel for this subscription period.
+    func renewalAsked(_ period: String) -> Bool {
+        defaults.string(forKey: renewalAskedKey) == period
+    }
+
+    func markRenewalAsked(_ period: String) {
+        defaults.set(period, forKey: renewalAskedKey)
     }
 
     // MARK: Settings shared with the extension

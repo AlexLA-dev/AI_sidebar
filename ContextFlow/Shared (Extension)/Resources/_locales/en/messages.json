@@ -781,5 +781,35 @@
  },
  "hintPdfBodyFree": {
   "message": "Pro reads the PDFs shown or linked on this page and says which page an answer comes from. Free answers use the page's text."
+ },
+ "renewalTitle": {
+  "message": "Pro ends on {0}"
+ },
+ "renewalBody": {
+  "message": "Auto-renewal is off. What was missing?"
+ },
+ "renewalPrice": {
+  "message": "Too expensive"
+ },
+ "renewalRarely": {
+  "message": "I don't use it enough"
+ },
+ "renewalAnswers": {
+  "message": "Answers weren't good enough"
+ },
+ "renewalFeatures": {
+  "message": "A feature I need is missing"
+ },
+ "renewalFreeEnough": {
+  "message": "The free plan is enough"
+ },
+ "renewalOther": {
+  "message": "Something else"
+ },
+ "renewalThanks": {
+  "message": "Thanks — that helps us improve ContextFlow."
+ },
+ "planEnds": {
+  "message": "Ends {0}: auto-renewal is off"
  }
 }

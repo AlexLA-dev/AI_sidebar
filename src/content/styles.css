@@ -391,6 +391,9 @@
 .cf-card.error p { color: var(--text); }
 .cf-card.consent { border: 1px solid var(--border); background: var(--bg); }
 .cf-card-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.cf-card.renewal { border: 1px solid var(--border); background: var(--bg); }
+.cf-card.renewal .cf-renewal-reasons { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 8px; }
+.cf-card.renewal.done p { margin: 0; color: var(--text); }
 
 .cf-primary {
   display: inline-flex; align-items: center; gap: 6px;

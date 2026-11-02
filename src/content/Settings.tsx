@@ -70,7 +70,7 @@ export function SettingsView(props: Props): VNode {
           <div style={{ width: `${Math.min(100, (usage.used / Math.max(1, usage.limit)) * 100)}%` }} />
         </div>
       )}
-      {renews && plan !== "free" && <p class="cf-hint">{t("planRenews", renews)}</p>}
+      {renews && plan !== "free" && <p class="cf-hint">{status?.store?.autoRenew === false ? t("planEnds", renews) : t("planRenews", renews)}</p>}
       {TARGET === "safari" && (
         <div class="cf-row buttons">
           {plan === "free" ? (

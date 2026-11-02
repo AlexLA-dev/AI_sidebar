@@ -1,5 +1,6 @@
 import type { Attachment, MediaKind } from "./attachments.ts"
 import type { ChatDigest } from "./history.ts"
+import type { RenewalReason } from "./renewal.ts"
 // Messages exchanged between the content script (UI) and the background worker.
 
 export type Plan = "free" | "pro" | "byok"
@@ -26,7 +27,9 @@ export interface StatusInfo {
   limitedBefore: boolean
   offer: ProOffer | null
   // What the device's App Store account says (may be ahead of the server).
-  store: { active: boolean; productId: string | null; expiresAt: string | null } | null
+  // autoRenew: false when the user turned auto-renew off (null: not known); period and renewalAsked: the
+  // question "what was missing" is asked once per subscription period, in the app or the panel.
+  store: { active: boolean; productId: string | null; expiresAt: string | null; autoRenew: boolean | null; period: string | null; renewalAsked: boolean } | null
   hasOwnKey: boolean
   ownKeyProvider: "openai" | "anthropic" | null
   offline: boolean
@@ -124,6 +127,8 @@ export type BackgroundRequest =
   | { type: "openApp"; target: "subscribe" | "manage" | "home"; feature?: "ai" }
   // The line under a free answer that skipped the page's video or PDFs: shown, or its "Try Pro" tapped.
   | { type: "mediaNotice"; action: "shown" | "pro"; media: MediaKind[] }
+  // A Pro user with auto-renew off answered "what was missing" (or put it off): logged, not asked again this period.
+  | { type: "renewalAnswer"; reason: RenewalReason; period: string; productId: string | null; expiresAt: string | null }
   | { type: "inject" }
   | { type: "setOwnKey"; key: string }
   | { type: "openUrl"; url: string }
@@ -181,6 +186,8 @@ export const STORAGE = {
   // How many times the Pro offer card for installs that ran out of free answers before was shown,
   // or -1 once it was answered.
   offerCard: "cf:offerCard",
+  // The subscription period the auto-renew question was last asked in (also kept in the app for both).
+  renewalAsked: "cf:renewalAsked",
   ownKey: "cf:ownKey",
   // Provider model lists for the own key ({ openai?: { ids, at }, anthropic?: { models, at } }).
   ownKeyModels: "cf:ownKeyModels",

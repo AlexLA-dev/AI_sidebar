@@ -277,5 +277,16 @@
   "emptyPdfFree": "Esta página tem um PDF. As respostas Pro o leem; as gratuitas usam o texto da página.",
   "hintVideoBodyFree": "Com o Pro, as respostas usam a transcrição e apontam momentos como [4:15]. As gratuitas usam o título e a descrição.",
   "hintPdfTitleFree": "Esta página tem PDFs",
-  "hintPdfBodyFree": "O Pro lê os PDFs exibidos ou vinculados nesta página e diz de qual página vem cada resposta. As respostas gratuitas usam o texto da página."
+  "hintPdfBodyFree": "O Pro lê os PDFs exibidos ou vinculados nesta página e diz de qual página vem cada resposta. As respostas gratuitas usam o texto da página.",
+
+  "renewalTitle": "O Pro termina em {0}",
+  "renewalBody": "A renovação automática está desligada. O que faltou?",
+  "renewalPrice": "Caro demais",
+  "renewalRarely": "Uso pouco",
+  "renewalAnswers": "As respostas não foram boas o bastante",
+  "renewalFeatures": "Falta um recurso de que preciso",
+  "renewalFreeEnough": "O plano grátis me basta",
+  "renewalOther": "Outro motivo",
+  "renewalThanks": "Obrigado! Isso nos ajuda a melhorar o ContextFlow.",
+  "planEnds": "Termina em {0}: renovação automática desligada"
 }

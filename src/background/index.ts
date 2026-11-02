@@ -22,6 +22,7 @@ import {
 import { askServer, askWithOwnKey, reportOwnKeyUsage } from "./chat"
 import { callNative, type NativeEntitlement } from "./native"
 import { isPdfUrl } from "../shared/pdf"
+import { daysLeft, type RenewalReason } from "../shared/renewal"
 import { isPdfTab, markPdfTab, openPdfPopup, pdfFromBytes, pdfText } from "./pdf"
 import { countValueMoment, mirrorOnStart, mirrorThreads, syncSettings, syncThreads, watchSettings, watchThreads } from "./sync"
 
@@ -98,7 +99,9 @@ let statusCache: { at: number; value: StatusInfo } | null = null
 async function status(refresh = false, fresh = false): Promise<StatusInfo> {
   if (!refresh && !fresh && statusCache && Date.now() - statusCache.at < 30_000) return statusCache.value
   const [id, ent, key, client] = await Promise.all([installId(), entitlement(refresh), ownKey(), clientInfo()])
-  const store = ent ? { active: ent.active, productId: ent.productId, expiresAt: ent.expiresAt } : null
+  const store = ent
+    ? { active: ent.active, productId: ent.productId, expiresAt: ent.expiresAt, autoRenew: typeof ent.autoRenew === "boolean" ? ent.autoRenew : null, period: ent.period ?? null, renewalAsked: ent.renewalAsked === true }
+    : null
 
   let value: StatusInfo
   try {
@@ -145,6 +148,24 @@ async function reportMediaNotice(action: "shown" | "pro", media: MediaKind[]): P
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ kind: action === "pro" ? "media_notice_pro" : "media_notice", installId: id, client, media: mediaKinds(media.map((kind) => ({ kind }))).join(",") })
+  }).catch(() => undefined)
+}
+
+/**
+ * The answer to "what was missing" (a Pro user turned auto-renew off): the app marks the period as asked
+ * (it won't ask there either), and the answer goes to the server. Nothing is offered.
+ */
+async function reportRenewal(reason: RenewalReason, period: string, productId: string | null, expiresAt: string | null): Promise<void> {
+  await chrome.storage.local.set({ [STORAGE.renewalAsked]: period })
+  await callNative("renewalAsked", { period })
+  entitlementCache = null
+  statusCache = null
+  const [id, client] = await Promise.all([installId(), clientInfo()])
+  const days = daysLeft(expiresAt)
+  await fetch(`${API_BASE}/api/v2/event`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ kind: "renewal_off", installId: id, client, reason, product: productId ?? "", ...(days === null ? {} : { days_left: days }), from: "panel" })
   }).catch(() => undefined)
 }
 
@@ -267,6 +288,9 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
       void reportMediaNotice(message.action, message.media)
       sendResponse({ ok: true })
       return false
+    case "renewalAnswer":
+      reportRenewal(message.reason, message.period, message.productId, message.expiresAt).then(() => sendResponse({ ok: true }), () => sendResponse({ ok: false }))
+      return true
     case "setOwnKey": {
       const key = message.key.trim()
       const op = key ? chrome.storage.local.set({ [STORAGE.ownKey]: key }) : chrome.storage.local.remove(STORAGE.ownKey)

@@ -277,5 +277,16 @@
   "emptyPdfFree": "이 페이지에 PDF가 있어요. Pro 답변은 PDF를 읽고, 무료 답변은 페이지 텍스트를 써요.",
   "hintVideoBodyFree": "Pro에서는 자막 전문을 쓰고 [4:15]처럼 장면을 짚어 줘요. 무료 답변은 제목과 설명을 써요.",
   "hintPdfTitleFree": "이 페이지에 PDF가 있어요",
-  "hintPdfBodyFree": "Pro는 이 페이지에 보이거나 링크된 PDF를 읽고 어느 페이지 내용인지 알려 줘요. 무료 답변은 페이지 텍스트를 써요."
+  "hintPdfBodyFree": "Pro는 이 페이지에 보이거나 링크된 PDF를 읽고 어느 페이지 내용인지 알려 줘요. 무료 답변은 페이지 텍스트를 써요.",
+
+  "renewalTitle": "Pro가 {0}에 종료돼요",
+  "renewalBody": "자동 갱신이 꺼져 있어요. 무엇이 부족했나요?",
+  "renewalPrice": "너무 비싸요",
+  "renewalRarely": "자주 쓰지 않아요",
+  "renewalAnswers": "답변이 만족스럽지 않아요",
+  "renewalFeatures": "필요한 기능이 없어요",
+  "renewalFreeEnough": "무료 플랜으로 충분해요",
+  "renewalOther": "기타",
+  "renewalThanks": "감사합니다. ContextFlow를 개선하는 데 도움이 돼요.",
+  "planEnds": "{0}에 종료: 자동 갱신 꺼짐"
 }

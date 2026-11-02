@@ -277,5 +277,16 @@
   "emptyPdfFree": "Cette page contient un PDF. Les réponses Pro le lisent, les réponses gratuites utilisent le texte de la page.",
   "hintVideoBodyFree": "Avec Pro, les réponses utilisent la transcription et renvoient à des moments comme [4:15]. Les réponses gratuites utilisent le titre et la description.",
   "hintPdfTitleFree": "Cette page contient des PDF",
-  "hintPdfBodyFree": "Pro lit les PDF affichés ou liés sur cette page et indique de quelle page vient une réponse. Les réponses gratuites utilisent le texte de la page."
+  "hintPdfBodyFree": "Pro lit les PDF affichés ou liés sur cette page et indique de quelle page vient une réponse. Les réponses gratuites utilisent le texte de la page.",
+
+  "renewalTitle": "Pro se termine le {0}",
+  "renewalBody": "Le renouvellement automatique est désactivé. Qu'est-ce qui vous a manqué ?",
+  "renewalPrice": "Trop cher",
+  "renewalRarely": "Je ne l'utilise pas assez",
+  "renewalAnswers": "Les réponses ne me convenaient pas",
+  "renewalFeatures": "Il manque une fonction dont j'ai besoin",
+  "renewalFreeEnough": "La version gratuite me suffit",
+  "renewalOther": "Autre chose",
+  "renewalThanks": "Merci, cela nous aide à améliorer ContextFlow.",
+  "planEnds": "Se termine le {0} : renouvellement automatique désactivé"
 }
