@@ -986,3 +986,19 @@ test("the skipped video/PDF line's events keep only which media", async () => {
   await new Promise((r) => setTimeout(r, 0))
   assert.deepEqual(events.map((e) => [e.kind, e.data?.media]), [["media_notice", "video,pdf"], ["media_notice_pro", "pdf"], ["media_notice", undefined]])
 })
+
+test("the auto-renew question's answer is logged with the plan, days left and where it was asked", async () => {
+  const send = (body: Record<string, unknown>) => event(post("/api/v2/event", body), ctx())
+  events = []
+  const APP = "5b0b3c1e-2a7e-4a8f-9c55-0d6a3b2f1e77"
+  assert.equal((await send({ kind: "renewal_off", appId: APP, reason: "price", product: "com.contextflow.pro.monthly", days_left: 12, from: "app", note: "secret" })).status, 200)
+  assert.equal((await send({ kind: "renewal_off", installId: INSTALL, reason: "later", product: "com.contextflow.pro.yearly", days_left: -3, from: "safari" })).status, 200)
+  assert.equal((await send({ kind: "renewal_off", installId: INSTALL, reason: "discount please" })).status, 400)
+  assert.equal((await send({ kind: "renewal_off", installId: INSTALL })).status, 400)
+  await new Promise((r) => setTimeout(r, 0))
+  const logged = events.filter((e) => e.kind === "renewal_off").map((e) => e.data)
+  assert.equal(logged.length, 2)
+  assert.deepEqual([logged[0].reason, logged[0].product, logged[0].days_left, logged[0].from, logged[0].app], ["price", "com.contextflow.pro.monthly", 12, "app", APP])
+  assert.ok(!JSON.stringify(logged[0]).includes("secret"))
+  assert.deepEqual([logged[1].reason, logged[1].days_left, logged[1].from], ["later", undefined, undefined])
+})
