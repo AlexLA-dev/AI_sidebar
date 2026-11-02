@@ -621,6 +621,39 @@ test("Ask your chats: Pro gets an answer from the chats, charged to the weekly a
   assert.ok(events.some((e) => e.kind === "chat" && e.data.mode === "history" && e.data.history_chats === 2))
 })
 
+test("A question from the app about a saved chat: charged like an answer, the prompt says where it comes from", async () => {
+  const messages = [{ role: "user", content: "Summarize" }, { role: "assistant", content: "Revenue rose 1.4%." }, { role: "user", content: "And burnout?" }]
+  const c = ctx()
+  const ev = await events$(await chat(ask({ context: "chat", from: "app", messages, pages: [{ title: "Other", url: "https://other.example", text: "Other saved text" }] }), c))
+  await Promise.all(c.pending)
+  assert.equal(ev.at(-1).type, "done")
+  let system = (openai.lastBody?.messages as Array<{ role: string; content: string }>)[0].content
+  assert.match(system, /ContextFlow app/)
+  assert.match(system, /Saved text of the chat's last page/)
+  assert.match(system, /Some article text/)
+  assert.match(system, /Other saved text/)
+  assert.equal(counters.get(`install:${INSTALL}`), 1, "one free answer")
+  // An older chat without saved page texts.
+  await events$(await chat(ask({ context: "chat", from: "app", messages, page: null }), ctx()))
+  system = (openai.lastBody?.messages as Array<{ role: string; content: string }>)[0].content
+  assert.match(system, /wasn't saved with it/)
+  assert.doesNotMatch(system, /browser blocks access/)
+  // The app sends up to 9 other pages; the panel's "whole chat" still gets 3.
+  const pages = Array.from({ length: 10 }, (_, i) => ({ title: `Page ${i + 1}`, url: `https://p${i + 1}.example`, text: `Saved fact ${i + 1}` }))
+  await events$(await chat(ask({ context: "chat", from: "app", messages, pages }), ctx()))
+  system = (openai.lastBody?.messages as Array<{ role: string; content: string }>)[0].content
+  assert.match(system, /Saved fact 9\b/)
+  assert.doesNotMatch(system, /Saved fact 10/)
+  await events$(await chat(ask({ context: "chat", messages, pages }), ctx()))
+  system = (openai.lastBody?.messages as Array<{ role: string; content: string }>)[0].content
+  assert.match(system, /Saved fact 3\b/)
+  assert.doesNotMatch(system, /Saved fact 4/)
+  // "from" alone (not a whole-chat request) changes nothing.
+  await events$(await chat(ask({ from: "app" }), ctx()))
+  system = (openai.lastBody?.messages as Array<{ role: string; content: string }>)[0].content
+  assert.doesNotMatch(system, /ContextFlow app/)
+})
+
 test("AI search: free and own-key plans get PRO_ONLY and no AI call", async () => {
   for (const entitlement of [undefined, signJws(transaction({ productId: "com.contextflow.byok.monthly", originalTransactionId: "b2" }))]) {
     openai.lastBody = undefined

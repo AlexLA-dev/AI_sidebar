@@ -33,13 +33,13 @@ export function sanitizeMessages(raw: unknown, wholeChat = false): ChatMessage[]
   return messages
 }
 
-/** Other pages of the conversation sent with "whole chat": a few, each cut to a budget. */
-export function sanitizeOtherPages(raw: unknown): PageContext[] {
+/** Other pages of the conversation sent with "whole chat": `max` of them, each cut to a budget. */
+export function sanitizeOtherPages(raw: unknown, max = MAX_OTHER_PAGES): PageContext[] {
   if (!Array.isArray(raw)) return []
-  return raw.slice(0, 10).flatMap((p) => {
+  return raw.slice(0, max + 7).flatMap((p) => {
     const page = sanitizePage(p)
     return page ? [{ ...page, kind: "page" as const, text: page.text.slice(0, MAX_OTHER_PAGE_CHARS + 1), changed: false }] : []
-  }).slice(0, MAX_OTHER_PAGES)
+  }).slice(0, max)
 }
 
 /**
