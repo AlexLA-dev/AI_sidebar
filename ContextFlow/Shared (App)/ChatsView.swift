@@ -107,6 +107,11 @@ struct ChatsView: View {
             Text(library.syncOn ? "It's deleted on all your devices." : "It's deleted on this device.")
         }
         .onAppear { library.refresh() }
+        // An Own key subscriber: whether Pro at a discount is set up, and if it's due, the card above, once a period.
+        .task {
+            await store.refreshUpgradeOffer()
+            store.showByokOfferIfDue()
+        }
         .sheet(item: $tagging) { thread in
             TagsSheet(tags: thread.ownTags, known: library.allTags) { library.setTags(thread, $0) }
         }
@@ -275,6 +280,9 @@ struct ChatsView: View {
     private var chatList: some View {
             if store.renewalOff != nil {
                 Section { RenewalQuestionCard() }
+            }
+            if store.byokOfferVisible {
+                Section { ByokOfferCard(openPro: openPro) { store.byokOfferVisible = false } }
             }
             if !hintSeen && !library.threads.isEmpty {
                 Section {
@@ -584,6 +592,38 @@ struct RenewalQuestionCard: View {
             DispatchQueue.main.asyncAfter(deadline: .now() + 4) { thanks = false }
         }
         Task { await ChatAI.reportRenewal(reason, entitlement) }
+    }
+}
+
+// MARK: - Own key → Pro
+
+/// A day after an Own key subscriber was first refused something this period (here or in the Safari panel): Pro
+/// at the discount the server has set up. Once per period, here or in the panel (Chats decides and marks it).
+/// "See the offer" opens Pro.
+struct ByokOfferCard: View {
+    @ObservedObject var store = StoreKitManager.shared
+    var openPro: () -> Void
+    var close: () -> Void
+
+    var body: some View {
+        if let discount = store.upgradeDiscount {
+            VStack(alignment: .leading, spacing: 10) {
+                Text("Move to Pro at \(discount)% off").font(.headline)
+                Text("Pro answers without your key: up to \(375) a week, Google search, “Ask your chats” and AI search. Pro starts at once; Apple refunds the unused part of Own key.")
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                HStack(spacing: 12) {
+                    Button("See the offer") {
+                        close()
+                        openPro()
+                    }
+                    .buttonStyle(.borderedProminent)
+                    Button("Not now", action: close)
+                        .buttonStyle(.borderless)
+                }
+            }
+            .padding(.vertical, 4)
+        }
     }
 }
 

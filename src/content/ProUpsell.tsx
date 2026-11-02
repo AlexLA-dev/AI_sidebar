@@ -8,9 +8,11 @@ import * as Icon from "./icons"
  * (the ✦ in the chat search, the "Ask your chats" row, or a refused request). Get Pro opens the
  * ContextFlow app's Pro screen on these features.
  */
-export function ProUpsell({ feature, offer, onPro, onOffer, onClose }: {
+export function ProUpsell({ feature, offer, byok, onPro, onOffer, onClose }: {
   feature: "find" | "history"
   offer: { code: string; discount: number } | null
+  // An Own key subscriber: says it isn't in their plan, and upgrades (at the discount, when they have one).
+  byok?: { discount: number | null }
   onPro: () => void
   onOffer: (code: string) => void
   onClose: () => void
@@ -32,8 +34,11 @@ export function ProUpsell({ feature, offer, onPro, onOffer, onClose }: {
         ))}
         <li><span>{t("upsellMore")}</span></li>
       </ul>
+      {byok && <p class="cf-upsell-byok">{t("byokProOnly")}</p>}
       <div class="cf-card-actions">
-        {offer ? (
+        {byok ? (
+          <button type="button" class="cf-primary" onClick={onPro}><Icon.Sparkle size={14} /> {byok.discount !== null ? t("upgradeProOff", byok.discount) : t("upgradePro")}</button>
+        ) : offer ? (
           <button type="button" class="cf-primary" onClick={() => onOffer(offer.code)}><Icon.Sparkle size={14} /> {t("offerButton", offer.discount)}</button>
         ) : (
           <button type="button" class="cf-primary" onClick={onPro}><Icon.Sparkle size={14} /> {t("getPro")}</button>

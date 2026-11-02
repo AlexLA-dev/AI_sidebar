@@ -17,6 +17,7 @@ import {
   type Settings,
   type StatusInfo,
   type StreamEvent,
+  type UpsellWhere,
   type Usage
 } from "../shared/types"
 import { askServer, askWithOwnKey, reportOwnKeyUsage } from "./chat"
@@ -98,9 +99,22 @@ let statusCache: { at: number; value: StatusInfo } | null = null
 // answers from all the user's devices, so the panel asks again whenever it opens).
 async function status(refresh = false, fresh = false): Promise<StatusInfo> {
   if (!refresh && !fresh && statusCache && Date.now() - statusCache.at < 30_000) return statusCache.value
-  const [id, ent, key, client] = await Promise.all([installId(), entitlement(refresh), ownKey(), clientInfo()])
+  const [id, ent, key, client, local] = await Promise.all([
+    installId(), entitlement(refresh), ownKey(), clientInfo(),
+    chrome.storage.local.get([STORAGE.byokRefused, STORAGE.byokOfferShown])
+  ])
+  // The Own key marks: the app's (through the native side) and this device's own, for the same period.
+  const period = ent?.period ?? null
+  const refused = local[STORAGE.byokRefused] as { period?: string; at?: number } | undefined
+  const refusedHere = period && refused?.period === period && typeof refused.at === "number" ? refused.at : null
+  const refusedAt = [ent?.byokRefusedAt ?? null, refusedHere].filter((v): v is number => typeof v === "number")
   const store = ent
-    ? { active: ent.active, productId: ent.productId, expiresAt: ent.expiresAt, autoRenew: typeof ent.autoRenew === "boolean" ? ent.autoRenew : null, period: ent.period ?? null, renewalAsked: ent.renewalAsked === true }
+    ? {
+        active: ent.active, productId: ent.productId, expiresAt: ent.expiresAt,
+        autoRenew: typeof ent.autoRenew === "boolean" ? ent.autoRenew : null, period, renewalAsked: ent.renewalAsked === true,
+        byokRefusedAt: refusedAt.length ? Math.min(...refusedAt) : null,
+        byokOfferShown: ent.byokOfferShown === true || (period !== null && local[STORAGE.byokOfferShown] === period)
+      }
     : null
 
   let value: StatusInfo
@@ -111,14 +125,20 @@ async function status(refresh = false, fresh = false): Promise<StatusInfo> {
       body: JSON.stringify({ installId: id, client, entitlement: ent?.active ? ent.jws : null })
     })
     if (!res.ok) throw new Error(`status ${res.status}`)
-    const body = (await res.json()) as { plan: Plan; usage: Usage | null; limitedBefore?: boolean; offer?: ProOffer | null }
+    const body = (await res.json()) as {
+      plan: Plan; usage: Usage | null; limitedBefore?: boolean; offer?: ProOffer | null; upgradeOffer?: { discount: number } | null
+      limits?: { searchFreeDaily?: number; searchProWeekly?: number }
+    }
     value = {
       plan: body.plan, usage: body.usage, limitedBefore: body.limitedBefore === true, offer: body.offer ?? null,
+      upgradeOffer: body.upgradeOffer ?? null,
+      searchLimits: { freeDaily: body.limits?.searchFreeDaily ?? SEARCH_LIMITS.freeDaily, proWeekly: body.limits?.searchProWeekly ?? SEARCH_LIMITS.proWeekly },
       store, hasOwnKey: Boolean(key), ownKeyProvider: key ? keyProvider(key) : null, offline: false
     }
   } catch {
     value = {
       plan: ent?.active ? planFromProduct(ent.productId) : "free", usage: null, limitedBefore: false, offer: null,
+      upgradeOffer: null, searchLimits: SEARCH_LIMITS,
       store, hasOwnKey: Boolean(key), ownKeyProvider: key ? keyProvider(key) : null, offline: true
     }
   }
@@ -148,6 +168,38 @@ async function reportMediaNotice(action: "shown" | "pro", media: MediaKind[]): P
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ kind: action === "pro" ? "media_notice_pro" : "media_notice", installId: id, client, media: mediaKinds(media.map((kind) => ({ kind }))).join(",") })
+  }).catch(() => undefined)
+}
+
+// Google search allowances when the server can't be asked (free a day, Pro a week).
+const SEARCH_LIMITS = { freeDaily: 3, proWeekly: 50 }
+
+/**
+ * An Own key subscriber and Pro. "refused": the first refusal of the period starts the day after which Pro at a
+ * discount is offered (kept here and in the app, which offers it too); "shown": the discount card was shown, not
+ * again this period; "tap": Upgrade was tapped. The server gets "shown" and "tap" (refusals it logs itself).
+ */
+async function reportUpsell(action: "refused" | "shown" | "tap", where: UpsellWhere, period: string | null, discount: boolean): Promise<void> {
+  if (action === "refused") {
+    if (!period) return
+    const stored = (await chrome.storage.local.get(STORAGE.byokRefused))[STORAGE.byokRefused] as { period?: string } | undefined
+    if (stored?.period === period) return
+    const at = Date.now()
+    await chrome.storage.local.set({ [STORAGE.byokRefused]: { period, at } })
+    await callNative("byokRefused", { period, at })
+    statusCache = null
+    return
+  }
+  if (action === "shown" && period) {
+    await chrome.storage.local.set({ [STORAGE.byokOfferShown]: period })
+    await callNative("byokOfferShown", { period })
+    statusCache = null
+  }
+  const [id, client] = await Promise.all([installId(), clientInfo()])
+  await fetch(`${API_BASE}/api/v2/event`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ kind: "byok_upsell", installId: id, client, action, where, from: "panel", ...(discount ? { discount: true } : {}) })
   }).catch(() => undefined)
 }
 
@@ -288,6 +340,9 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
       void reportMediaNotice(message.action, message.media)
       sendResponse({ ok: true })
       return false
+    case "byokUpsell":
+      reportUpsell(message.action, message.where, message.period, message.discount === true).then(() => sendResponse({ ok: true }), () => sendResponse({ ok: false }))
+      return true
     case "renewalAnswer":
       reportRenewal(message.reason, message.period, message.productId, message.expiresAt).then(() => sendResponse({ ok: true }), () => sendResponse({ ok: false }))
       return true

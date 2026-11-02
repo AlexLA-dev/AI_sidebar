@@ -20,6 +20,8 @@ import AppKit
 /// - `pdfText` → the text of a PDF (by address, or the bytes the extension fetched), see PdfText.
 /// - `renewalAsked` → the panel asked a Pro user with auto-renew off what was missing: not again this period
 ///   (the app checks the same mark).
+/// - `byokRefused` / `byokOfferShown` → an Own key subscriber's first refusal of the period, and the discount shown
+///   (the app offers Pro at a discount a day after the refusal, once per period, like the panel).
 /// - `ping` → health check.
 ///
 /// Every message also tells the app that the extension is switched on (and, for `getEntitlement`, which
@@ -54,6 +56,17 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             // iOS extensions can't open URLs; the page follows the contextflow:// link instead.
             Self.reply(context, ["success": true, "data": ["opened": false]])
             #endif
+        case "byokRefused":
+            // An Own key subscriber was refused something in the panel: the first refusal of the period counts.
+            if let period = message["period"] as? String {
+                let at = (message["at"] as? Double).map { Date(timeIntervalSince1970: $0 / 1000) } ?? Date()
+                SharedDefaults.shared.markByokRefused(period, at: at)
+            }
+            Self.reply(context, ["success": true])
+        case "byokOfferShown":
+            // The panel showed Pro at a discount: not again this period, here or in the app.
+            if let period = message["period"] as? String { SharedDefaults.shared.markByokOfferShown(period) }
+            Self.reply(context, ["success": true])
         case "renewalAsked":
             // The question about turning auto-renew off was answered or put off in the panel: not again this period.
             if let period = message["period"] as? String { SharedDefaults.shared.markRenewalAsked(period) }
@@ -176,9 +189,10 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         let products: Set<String> = ["com.contextflow.pro.monthly", "com.contextflow.pro.yearly", "com.contextflow.byok.monthly"]
         var best: (entitlement: SharedEntitlement, transaction: StoreKit.Transaction)?
         for await result in StoreKit.Transaction.currentEntitlements {
+            // An Own key subscription upgraded to Pro stays listed until it ends: Pro counts from the purchase.
             guard case .verified(let transaction) = result,
                   products.contains(transaction.productID),
-                  transaction.revocationDate == nil else { continue }
+                  transaction.revocationDate == nil, !transaction.isUpgraded else { continue }
             if (best?.entitlement.expiresAt ?? .distantPast) <= (transaction.expirationDate ?? .distantPast) {
                 best = (SharedEntitlement(
                     active: true,

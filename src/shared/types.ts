@@ -26,10 +26,19 @@ export interface StatusInfo {
   // A free install that ran out of free answers on an earlier day, and the offer for it (from the server).
   limitedBefore: boolean
   offer: ProOffer | null
+  // An Own key subscriber can move to Pro at this discount (the app asks the server to sign the offer).
+  upgradeOffer: { discount: number } | null
+  // Google search allowances (free a day, Pro a week), for what the panel tells Own key subscribers.
+  searchLimits: { freeDaily: number; proWeekly: number }
   // What the device's App Store account says (may be ahead of the server).
   // autoRenew: false when the user turned auto-renew off (null: not known); period and renewalAsked: the
   // question "what was missing" is asked once per subscription period, in the app or the panel.
-  store: { active: boolean; productId: string | null; expiresAt: string | null; autoRenew: boolean | null; period: string | null; renewalAsked: boolean } | null
+  // byokRefusedAt: an Own key subscriber's first refusal (a limit, or a Pro-only feature) in this period, in the
+  // app or the panel; a day later Pro at a discount is offered, once per period (byokOfferShown).
+  store: {
+    active: boolean; productId: string | null; expiresAt: string | null; autoRenew: boolean | null; period: string | null; renewalAsked: boolean
+    byokRefusedAt: number | null; byokOfferShown: boolean
+  } | null
   hasOwnKey: boolean
   ownKeyProvider: "openai" | "anthropic" | null
   offline: boolean
@@ -66,6 +75,9 @@ export interface AskPayload {
   // /analytics to show whether the limits on them get in the way.
   stats?: ChatStats
 }
+
+/** Where an Own key subscriber met Pro: a refusal (answers, Google, a Pro-only feature), the discount card, Settings. */
+export type UpsellWhere = "limit" | "search" | "pro_only" | "offer" | "settings"
 
 export interface ChatStats {
   turns: number
@@ -127,6 +139,8 @@ export type BackgroundRequest =
   | { type: "openApp"; target: "subscribe" | "manage" | "home"; feature?: "ai" }
   // The line under a free answer that skipped the page's video or PDFs: shown, or its "Try Pro" tapped.
   | { type: "mediaNotice"; action: "shown" | "pro"; media: MediaKind[] }
+  // An Own key subscriber and Pro: a refusal (starts the day before the discount), the discount card shown, a tap.
+  | { type: "byokUpsell"; action: "refused" | "shown" | "tap"; where: UpsellWhere; period: string | null; discount?: boolean }
   // A Pro user with auto-renew off answered "what was missing" (or put it off): logged, not asked again this period.
   | { type: "renewalAnswer"; reason: RenewalReason; period: string; productId: string | null; expiresAt: string | null }
   | { type: "inject" }
@@ -188,6 +202,9 @@ export const STORAGE = {
   offerCard: "cf:offerCard",
   // The subscription period the auto-renew question was last asked in (also kept in the app for both).
   renewalAsked: "cf:renewalAsked",
+  // Own key: the first refusal in a subscription period ({period, at}) and the period the discount was shown in.
+  byokRefused: "cf:byokRefused",
+  byokOfferShown: "cf:byokOfferShown",
   ownKey: "cf:ownKey",
   // Provider model lists for the own key ({ openai?: { ids, at }, anthropic?: { models, at } }).
   ownKeyModels: "cf:ownKeyModels",

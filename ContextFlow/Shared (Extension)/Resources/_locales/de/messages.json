@@ -811,5 +811,32 @@
  },
  "planEnds": {
   "message": "Endet am {0}: automatische Verlängerung aus"
+ },
+ "upgradePro": {
+  "message": "Zu Pro wechseln"
+ },
+ "upgradeProOff": {
+  "message": "Mit {0} % Rabatt wechseln"
+ },
+ "byokLimitTitle": {
+  "message": "Die Antworten über ContextFlow für heute sind aufgebraucht"
+ },
+ "byokLimitNoKey": {
+  "message": "Dein eigener Schlüssel ist noch nicht hinzugefügt, daher laufen Antworten über ContextFlow: {0} pro Tag. Füge ihn in den Einstellungen hinzu oder wechsle zu Pro: bis zu {1} Antworten pro Woche, ohne Schlüssel."
+ },
+ "byokLimitGoogle": {
+  "message": "Im Tarif „Eigener Schlüssel“ laufen Google-Antworten über ContextFlow: {0} pro Tag. Mit Pro bekommst du bis zu {1} Antworten pro Woche."
+ },
+ "byokSearch": {
+  "message": "Im Tarif „Eigener Schlüssel“ ist die Google-Suche auf {0} pro Tag begrenzt. Mit Pro bekommst du {1} pro Woche."
+ },
+ "byokProOnly": {
+  "message": "Nicht im Tarif „Eigener Schlüssel“ enthalten."
+ },
+ "byokOfferTitle": {
+  "message": "Pro mit {0} % Rabatt"
+ },
+ "byokOfferBody": {
+  "message": "Pro antwortet ohne deinen Schlüssel: bis zu {0} Antworten pro Woche, {1} Google-Suchen pro Woche, „Frag deine Chats“ und KI-Suche. Der App Store zeigt Preis und Dauer vor dem Bezahlen. Pro startet sofort, der ungenutzte Teil deines Tarifs wird erstattet."
  }
 }

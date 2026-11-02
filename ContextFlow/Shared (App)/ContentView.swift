@@ -589,7 +589,7 @@ struct ProView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
                 hero
-                if store.entitlement.active { activeCard }
+                if store.isByok { byokCard } else if store.entitlement.active { activeCard }
                 features
                 products
                 actions
@@ -640,6 +640,57 @@ struct ProView: View {
         .padding(16)
         .background(brandGradient)
         .cornerRadius(16)
+    }
+
+    /// An Own key subscriber: what Pro adds over their key, and the upgrade (at the discount once it's due). Pro
+    /// starts at once (Pro is the higher level); Apple refunds the unused part of Own key.
+    private var byokCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("You're on Own key").font(.headline)
+            Text("What Pro adds over your own key:")
+                .foregroundColor(.secondary)
+            Feature(systemImage: "magnifyingglass", text: "Google answers: \(store.searchProWeekly) a week instead of \(store.searchFreeDaily) a day")
+            Feature(systemImage: "bubble.left.and.text.bubble.right", text: "“Ask your chats” and AI search")
+            Feature(systemImage: "text.bubble", text: "Questions in the app's chats: up to \(375) a week instead of \(5) a day")
+            Feature(systemImage: "key.slash", text: "No API key and no bills from OpenAI or Anthropic")
+            if let discount = store.upgradeDiscount, store.byokOfferDue {
+                Button { upgradeWithOffer() } label: {
+                    Group { if busyProduct == "offer" { ProgressView() } else { Text("Upgrade at \(discount)% off") } }
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+            } else if let pro = store.pro {
+                Button { buy(pro) } label: {
+                    Group { if busyProduct == pro.id { ProgressView() } else { Text("Upgrade to Pro") } }
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+            }
+            Text("Pro starts now. Apple refunds the unused part of Own key.")
+                .font(.footnote)
+                .foregroundColor(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(16)
+        .background(RoundedRectangle(cornerRadius: 16).fill(Color.cardFill))
+        .task { await store.refreshUpgradeOffer() }
+    }
+
+    private func upgradeWithOffer() {
+        busyProduct = "offer"
+        message = nil
+        Task {
+            do {
+                switch try await store.upgradeWithOffer() {
+                case .purchased: success = true
+                case .pending: message = String(localized: "Your purchase is waiting for approval.")
+                case .cancelled: break
+                }
+            } catch {
+                message = (error as? ChatAI.Failure)?.message ?? error.localizedDescription
+            }
+            busyProduct = nil
+        }
     }
 
     private var features: some View {

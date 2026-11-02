@@ -288,5 +288,15 @@
   "renewalFreeEnough": "The free plan is enough",
   "renewalOther": "Something else",
   "renewalThanks": "Thanks — that helps us improve ContextFlow.",
-  "planEnds": "Ends {0}: auto-renewal is off"
+  "planEnds": "Ends {0}: auto-renewal is off",
+
+  "upgradePro": "Upgrade to Pro",
+  "upgradeProOff": "Upgrade at {0}% off",
+  "byokLimitTitle": "Today's answers through ContextFlow are used up",
+  "byokLimitNoKey": "Your own key isn't added yet, so answers go through ContextFlow: {0} a day. Add your key in Settings, or move to Pro: up to {1} answers a week, no key needed.",
+  "byokLimitGoogle": "On the Own key plan, Google answers go through ContextFlow: {0} a day. Pro gives you up to {1} answers a week.",
+  "byokSearch": "On the Own key plan, Google search is {0} a day. Pro gives you {1} a week.",
+  "byokProOnly": "Not part of the Own key plan.",
+  "byokOfferTitle": "Move to Pro at {0}% off",
+  "byokOfferBody": "Pro answers without your key: up to {0} a week, {1} Google searches a week, “Ask your chats” and AI search. The App Store shows the price and how long it lasts before you pay. Pro starts at once, and the unused part of your current plan is refunded."
 }

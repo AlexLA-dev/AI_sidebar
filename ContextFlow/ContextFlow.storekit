@@ -72,7 +72,7 @@
           ],
           "displayPrice" : "1.99",
           "familyShareable" : false,
-          "groupNumber" : 1,
+          "groupNumber" : 2,
           "internalID" : "byok_monthly_001",
           "introductoryOffer" : null,
           "localizations" : [
@@ -90,14 +90,22 @@
         },
         {
           "adHocOffers" : [
-
+            {
+              "displayPrice" : "3.49",
+              "internalID" : "pro_byok_upgrade_001",
+              "numberOfPeriods" : 1,
+              "offerID" : "byok_upgrade",
+              "paymentMode" : "payAsYouGo",
+              "referenceName" : "Own key to Pro",
+              "subscriptionPeriod" : "P1M"
+            }
           ],
           "codeOffers" : [
 
           ],
           "displayPrice" : "6.99",
           "familyShareable" : false,
-          "groupNumber" : 2,
+          "groupNumber" : 1,
           "internalID" : "pro_monthly_001",
           "introductoryOffer" : null,
           "localizations" : [

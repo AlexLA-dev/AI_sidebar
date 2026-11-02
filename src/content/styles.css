@@ -626,6 +626,7 @@
 .cf-upsell-icon { width: 28px; height: 28px; border-radius: 9px; display: flex; align-items: center; justify-content: center; color: #fff; background: linear-gradient(135deg, var(--accent-2), var(--accent)); }
 .cf-upsell-list { margin: 0 0 12px; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 13px; color: var(--text-2); }
 .cf-upsell-list li { display: flex; flex-direction: column; gap: 1px; }
+.cf-card p.cf-upsell-byok { margin: -4px 0 12px; color: var(--text); font-size: 13px; font-weight: 500; }
 .cf-upsell-list strong { color: var(--text); font-size: 13px; }
 
 /* Tags: chips (8 colours by name), the editor, the filter bar and the groups ("folders"). */

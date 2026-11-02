@@ -288,5 +288,15 @@
   "renewalFreeEnough": "무료 플랜으로 충분해요",
   "renewalOther": "기타",
   "renewalThanks": "감사합니다. ContextFlow를 개선하는 데 도움이 돼요.",
-  "planEnds": "{0}에 종료: 자동 갱신 꺼짐"
+  "planEnds": "{0}에 종료: 자동 갱신 꺼짐",
+
+  "upgradePro": "Pro로 업그레이드",
+  "upgradeProOff": "{0}% 할인으로 업그레이드",
+  "byokLimitTitle": "오늘 ContextFlow를 통한 답변을 모두 사용했어요",
+  "byokLimitNoKey": "아직 내 키를 추가하지 않아 답변이 ContextFlow를 통해 하루 {0}개로 제공돼요. 설정에서 키를 추가하거나 Pro로 바꾸세요: 일주일에 최대 {1}개, 키 필요 없음.",
+  "byokLimitGoogle": "내 키 요금제에서는 Google 답변이 ContextFlow를 통해 하루 {0}개예요. Pro는 일주일에 최대 {1}개를 제공해요.",
+  "byokSearch": "내 키 요금제의 Google 검색은 하루 {0}회예요. Pro는 일주일에 {1}회예요.",
+  "byokProOnly": "내 키 요금제에는 포함되지 않아요.",
+  "byokOfferTitle": "Pro {0}% 할인",
+  "byokOfferBody": "Pro는 내 키 없이 답해요: 일주일에 최대 {0}개, Google 검색 일주일 {1}회, '모든 채팅에 묻기'와 AI 검색. 결제 전에 App Store가 가격과 기간을 보여줘요. Pro는 바로 시작되고 현재 요금제의 남은 기간은 환불돼요."
 }

@@ -40,6 +40,15 @@ enum ChatAI {
         let why: String
     }
 
+    /// Apple's promotional offer for one purchase, signed by the server (Own key → Pro at a discount).
+    struct PromoSignature {
+        let offerId: String
+        let keyId: String
+        let nonce: UUID
+        let signature: Data
+        let timestamp: Int
+    }
+
     /// Production; a debug build can point at a local stand: `-CFApiBase http://localhost:8788`.
     static var base: URL {
         #if DEBUG
@@ -85,7 +94,7 @@ enum ChatAI {
         let object = data.flatMap { try? JSONSerialization.jsonObject(with: $0) as? [String: Any] }
         switch object?["code"] as? String {
         case "PRO_ONLY": return .proOnly
-        case "LIMIT_REACHED": return object?["plan"] as? String == "free" ? .dailyLimit : .limitReached
+        case "LIMIT_REACHED": return object?["plan"] as? String == "pro" ? .limitReached : .dailyLimit
         case "BUSY", "UPSTREAM": return .busy
         default: return status == 403 ? .proOnly : .network
         }
@@ -132,7 +141,7 @@ enum ChatAI {
         let status = (response as? HTTPURLResponse)?.statusCode ?? 0
         guard status == 200,
               let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let results = object["results"] as? [[String: Any]] else { throw failure(status, data) }
+              let results = object["results"] as? [[String: Any]] else { throw noted(failure(status, data)) }
         return results.compactMap { r in (r["id"] as? String).map { Found(id: $0, why: r["why"] as? String ?? "") } }
     }
 
@@ -141,6 +150,44 @@ enum ChatAI {
     @MainActor
     private static func stats(turns: Int, pages: Int) -> [String: Int] {
         ["turns": turns, "pages": pages, "chats": ChatLibrary.shared.threads.count]
+    }
+
+    // MARK: Own key → Pro
+
+    /// The discount (%) Own key subscribers can move to Pro at, when the server has the offer set up, and the
+    /// Google allowances (free a day, Pro a week); nil without an answer.
+    @MainActor
+    static func upgradeStatus() async -> (discount: Int?, searchFreeDaily: Int?, searchProWeekly: Int?)? {
+        guard let request = try? request("api/v2/status", identity()),
+              let (data, response) = try? await URLSession.shared.data(for: request),
+              (response as? HTTPURLResponse)?.statusCode == 200,
+              let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return nil }
+        let limits = object["limits"] as? [String: Any]
+        return ((object["upgradeOffer"] as? [String: Any])?["discount"] as? Int, limits?["searchFreeDaily"] as? Int, limits?["searchProWeekly"] as? Int)
+    }
+
+    /// The server's signature for Pro's promotional offer (only for an active Own key subscription).
+    @MainActor
+    static func promoSignature() async throws -> PromoSignature {
+        var body = identity()
+        body["bundleId"] = Bundle.main.bundleIdentifier ?? ""
+        if let token = Activation.shared.accountToken { body["appAccountToken"] = token.uuidString.lowercased() }
+        let (data, response) = try await URLSession.shared.data(for: try request("api/v2/promo", body))
+        let status = (response as? HTTPURLResponse)?.statusCode ?? 0
+        guard status == 200,
+              let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let offerId = object["offerId"] as? String, let keyId = object["keyId"] as? String,
+              let nonce = (object["nonce"] as? String).flatMap(UUID.init(uuidString:)),
+              let signature = (object["signature"] as? String).flatMap({ Data(base64Encoded: $0) }),
+              let timestamp = object["timestamp"] as? Int else { throw failure(status, data) }
+        return PromoSignature(offerId: offerId, keyId: keyId, nonce: nonce, signature: signature, timestamp: timestamp)
+    }
+
+    /// An Own key subscriber refused something (a limit, or a Pro-only feature): a day later Pro at a discount.
+    @MainActor
+    private static func noted(_ failure: Failure) -> Failure {
+        if failure == .proOnly || failure == .dailyLimit || failure == .limitReached { StoreKitManager.shared.noteByokRefusal() }
+        return failure
     }
 
     // MARK: Auto-renew off
@@ -238,7 +285,7 @@ enum ChatAI {
         guard status == 200 else {
             var data = Data()
             for try await byte in bytes { data.append(byte) }
-            throw failure(status, data)
+            throw noted(failure(status, data))
         }
         var got = false
         for try await line in bytes.lines {
@@ -251,7 +298,7 @@ enum ChatAI {
                     onText(text)
                 }
             case "error":
-                throw (event["code"] as? String) == "LIMIT_REACHED" ? (event["plan"] as? String == "free" ? Failure.dailyLimit : Failure.limitReached) : Failure.busy
+                throw (event["code"] as? String) == "LIMIT_REACHED" ? noted(event["plan"] as? String == "pro" ? Failure.limitReached : Failure.dailyLimit) : Failure.busy
             default:
                 break
             }

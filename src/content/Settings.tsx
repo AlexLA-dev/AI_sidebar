@@ -16,6 +16,8 @@ interface Props {
   site: string
   onChange: (patch: Partial<Settings>) => void
   onUpgrade: () => void
+  // The Own key plan's button: "Upgrade to Pro", at the discount when there is one.
+  upgradeLabel?: string
   onManage: () => void
   onStatusChange: () => void
   onOpenUrl: (url: string) => void
@@ -76,7 +78,10 @@ export function SettingsView(props: Props): VNode {
           {plan === "free" ? (
             <button type="button" class="cf-primary" onClick={props.onUpgrade}><Icon.Sparkle size={14} /> {t("getPro")}</button>
           ) : (
-            <button type="button" class="cf-secondary" onClick={props.onManage}>{t("manageSubscription")}</button>
+            <>
+              {plan === "byok" && <button type="button" class="cf-primary" onClick={props.onUpgrade}><Icon.Sparkle size={14} /> {props.upgradeLabel ?? t("upgradePro")}</button>}
+              <button type="button" class="cf-secondary" onClick={props.onManage}>{t("manageSubscription")}</button>
+            </>
           )}
           {plan === "free" && <button type="button" class="cf-link" onClick={props.onManage}>{t("restorePurchases")}</button>}
         </div>

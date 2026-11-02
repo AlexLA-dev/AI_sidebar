@@ -13,6 +13,7 @@ import {
   type Platform,
   type ProOffer,
   type Settings,
+  type UpsellWhere,
   type FindReply,
   type StatusInfo,
   type StreamEvent,
@@ -54,6 +55,8 @@ type Turn = Entry
 
 // Pro's weekly allowance (PRO_WEEKLY_LIMIT on the server), quoted by the offers.
 const PRO_WEEKLY = 375
+// An Own key subscriber is offered Pro at a discount this long after the first refusal of the period.
+const BYOK_OFFER_AFTER_MS = 24 * 3600_000
 const APP_ID = "6759115793"
 
 interface ChatError {
@@ -1247,6 +1250,35 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (offer) redeemOffer(offer.code)
     else void openApp("subscribe")
   }
+  // An Own key subscriber (Safari): what Pro adds when something is refused, and a day after the first refusal of
+  // the period, Pro at a discount (the app makes the discounted purchase; the panel opens it on its Pro screen).
+  const byok = TARGET === "safari" && plan === "byok"
+  const byokRefusedAt = status?.store?.byokRefusedAt ?? null
+  const byokDiscount = byok && status?.upgradeOffer && byokRefusedAt !== null && Date.now() - byokRefusedAt >= BYOK_OFFER_AFTER_MS ? status.upgradeOffer.discount : null
+  const search = status?.searchLimits ?? { freeDaily: 3, proWeekly: 50 }
+  const upgrade = (where: UpsellWhere) => {
+    void sendBackground({ type: "byokUpsell", action: "tap", where, period: status?.store?.period ?? null, discount: byokDiscount !== null })
+    void openApp("subscribe")
+  }
+  const upgradeButton = (where: UpsellWhere): VNode => (
+    <button type="button" class="cf-primary" onClick={() => upgrade(where)}><Icon.Sparkle size={14} /> {byokDiscount !== null ? t("upgradeProOff", byokDiscount) : t("upgradePro")}</button>
+  )
+  // Each refusal of an Own key subscriber is noted; the first one of the period starts the day before the discount.
+  useEffect(() => {
+    if (!byok || !error) return
+    const where: UpsellWhere | null = error.code === "LIMIT_REACHED" ? "limit" : error.code === "SEARCH_LIMIT" ? "search" : error.code === "PRO_ONLY" ? "pro_only" : null
+    if (where) void sendBackground({ type: "byokUpsell", action: "refused", where, period: status?.store?.period ?? null })
+  }, [error])
+  useEffect(() => {
+    if (byok && upsell) void sendBackground({ type: "byokUpsell", action: "refused", where: "pro_only", period: status?.store?.period ?? null })
+  }, [upsell])
+  // The discount card: once per period, when the panel is open.
+  const [byokCard, setByokCard] = useState(false)
+  useEffect(() => {
+    if (!open || byokCard || byokDiscount === null || status?.store?.byokOfferShown) return
+    setByokCard(true)
+    void sendBackground({ type: "byokUpsell", action: "shown", where: "offer", period: status?.store?.period ?? null, discount: true })
+  }, [open, byokDiscount, status])
 
   // The allowance under the input: short, to share the line with "Whole chat" and Get Pro; in full on hover.
   const usageLine = useMemo(() => {
@@ -1425,7 +1457,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   <ProUpsell
                     feature={upsell}
                     offer={TARGET === "safari" && plan === "free" ? status?.offer ?? null : null}
-                    onPro={() => void openApp("subscribe", "ai")}
+                    byok={byok ? { discount: byokDiscount } : undefined}
+                    onPro={() => (byok ? upgrade("pro_only") : void openApp("subscribe", "ai"))}
                     onOffer={redeemOffer}
                     onClose={() => setUpsell(null)}
                   />
@@ -1460,7 +1493,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               platform={platform}
               site={source.site()}
               onChange={updateSettings}
-              onUpgrade={() => void openApp("subscribe")}
+              onUpgrade={() => (byok ? upgrade("settings") : void openApp("subscribe"))}
+              upgradeLabel={byokDiscount !== null ? t("upgradeProOff", byokDiscount) : t("upgradePro")}
               onManage={() => void openApp("manage")}
               onStatusChange={() => void refreshStatus(true)}
               onOpenUrl={(url) => void sendBackground({ type: "openUrl", url })}
@@ -1560,6 +1594,17 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   </div>
                 )}
 
+                {byokCard && byokDiscount !== null && !error && partial === null && (
+                  <div class="cf-card offer">
+                    <strong>{t("byokOfferTitle", byokDiscount)}</strong>
+                    <p>{t("byokOfferBody", PRO_WEEKLY, search.proWeekly)}</p>
+                    <div class="cf-card-actions">
+                      <button type="button" class="cf-primary" onClick={() => { setByokCard(false); upgrade("offer") }}><Icon.Sparkle size={14} /> {t("upgradeProOff", byokDiscount)}</button>
+                      <button type="button" class="cf-secondary" onClick={() => setByokCard(false)}>{t("offerLater")}</button>
+                    </div>
+                  </div>
+                )}
+
                 {renewal && !error && partial === null && (
                   <div class={`cf-card renewal ${renewal === "thanks" ? "done" : ""}`} role="group" aria-label={t("renewalBody")}>
                     {renewal === "thanks" ? (
@@ -1597,17 +1642,25 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   const back = error.usage?.limit ?? usage?.limit ?? 5
                   return (
                     <div class="cf-card limit">
-                      <strong>{plan === "pro" ? t("limitProTitle") : t("limitFreeTitle")}</strong>
+                      <strong>{plan === "pro" ? t("limitProTitle") : byok ? t("byokLimitTitle") : t("limitFreeTitle")}</strong>
                       <p>
                         {plan === "pro"
                           ? t("limitProBody", timeUntil(resetsAt))
-                          : `${t("limitFreeBack", back, clockTime(resetsAt), timeUntil(resetsAt))} ${offer ? t("offerLimit", offer.discount, PRO_WEEKLY) : t("limitFreePro", PRO_WEEKLY)}`}
+                          : byok
+                            ? `${t("limitFreeBack", back, clockTime(resetsAt), timeUntil(resetsAt))} ${status?.hasOwnKey ? t("byokLimitGoogle", back, PRO_WEEKLY) : t("byokLimitNoKey", back, PRO_WEEKLY)}`
+                            : `${t("limitFreeBack", back, clockTime(resetsAt), timeUntil(resetsAt))} ${offer ? t("offerLimit", offer.discount, PRO_WEEKLY) : t("limitFreePro", PRO_WEEKLY)}`}
                       </p>
                       <p class="cf-limit-notes">
                         <Icon.Pencil /> {t("limitNotes")}{" "}
                         <button type="button" class="cf-link" onClick={writeNote}>{t("writeNote")}</button>
                       </p>
-                      {plan !== "pro" && (
+                      {byok && (
+                        <div class="cf-card-actions">
+                          {upgradeButton("limit")}
+                          {!status?.hasOwnKey && <button type="button" class="cf-secondary" onClick={() => setView("settings")}>{t("useOwnKey")}</button>}
+                        </div>
+                      )}
+                      {plan !== "pro" && !byok && (
                         <div class="cf-card-actions">
                           {offer ? (
                             <button type="button" class="cf-primary" onClick={() => redeemOffer(offer.code)}><Icon.Sparkle size={14} /> {t("offerButton", offer.discount)}</button>
@@ -1625,7 +1678,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   <ProUpsell
                     feature="history"
                     offer={offer}
-                    onPro={() => void openApp("subscribe", "ai")}
+                    byok={byok ? { discount: byokDiscount } : undefined}
+                    onPro={() => (byok ? upgrade("pro_only") : void openApp("subscribe", "ai"))}
                     onOffer={redeemOffer}
                     onClose={() => setError(null)}
                   />
@@ -1634,7 +1688,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 {error && error.code !== "LIMIT_REACHED" && error.code !== "PRO_ONLY" && (
                   <div class="cf-card error">
                     <p>{errorText(error)}</p>
+                    {byok && error.code === "SEARCH_LIMIT" && <p>{t("byokSearch", search.freeDaily, search.proWeekly)}</p>}
                     <div class="cf-card-actions">
+                      {byok && error.code === "SEARCH_LIMIT" && upgradeButton("search")}
                       {lastIsUser && error.code !== "SEARCH_LIMIT" && error.code !== "SEARCH_UNAVAILABLE" && (
                         <button type="button" class="cf-secondary" onClick={() => retry()}><Icon.Retry /> {t("retry")}</button>
                       )}

@@ -35,10 +35,14 @@ struct SharedEntitlement: Equatable {
         if let productId { result["productId"] = productId }
         if let expiresAt { result["expiresAt"] = ISO8601DateFormatter().string(from: expiresAt) }
         if let jws { result["jws"] = jws }
+        if productId != nil { result["period"] = period }
         if let autoRenew {
             result["autoRenew"] = autoRenew
-            result["period"] = period
             result["renewalAsked"] = SharedDefaults.shared.renewalAsked(period)
+        }
+        if productId == "com.contextflow.byok.monthly" {
+            if let at = SharedDefaults.shared.byokRefusedAt(period) { result["byokRefusedAt"] = Int64(at.timeIntervalSince1970 * 1000) }
+            result["byokOfferShown"] = SharedDefaults.shared.byokOfferShown(period)
         }
         return result
     }
@@ -68,6 +72,8 @@ final class SharedDefaults {
     private let extensionKey = "cf_extension_v1"
     private let appKey = "cf_app_v1"
     private let renewalAskedKey = "cf_renewal_asked_v1"
+    private let byokRefusedKey = "cf_byok_refused_v1"
+    private let byokOfferShownKey = "cf_byok_offer_shown_v1"
 
     /// Local notifications the app schedules on a new install until the extension is switched on.
     static let setupReminderIds = ["cf.setup.15m", "cf.setup.24h"]
@@ -114,6 +120,31 @@ final class SharedDefaults {
 
     func markRenewalAsked(_ period: String) {
         defaults.set(period, forKey: renewalAskedKey)
+    }
+
+    // MARK: Own key → Pro
+
+    /// The Own key subscriber's first refusal in this period (a limit, or a Pro-only feature), in the app or the
+    /// panel: a day later Pro at a discount is offered.
+    func byokRefusedAt(_ period: String) -> Date? {
+        guard let stored = defaults.dictionary(forKey: byokRefusedKey), stored["period"] as? String == period,
+              let at = stored["at"] as? Double else { return nil }
+        return Date(timeIntervalSince1970: at)
+    }
+
+    /// Keeps the first refusal of the period.
+    func markByokRefused(_ period: String, at: Date = Date()) {
+        guard byokRefusedAt(period) == nil else { return }
+        defaults.set(["period": period, "at": at.timeIntervalSince1970], forKey: byokRefusedKey)
+    }
+
+    /// The discount was shown (in the app or the panel) in this period: not again.
+    func byokOfferShown(_ period: String) -> Bool {
+        defaults.string(forKey: byokOfferShownKey) == period
+    }
+
+    func markByokOfferShown(_ period: String) {
+        defaults.set(period, forKey: byokOfferShownKey)
     }
 
     // MARK: Settings shared with the extension

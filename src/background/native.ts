@@ -43,5 +43,8 @@ export interface NativeEntitlement {
   autoRenew?: boolean
   period?: string
   renewalAsked?: boolean
+  // Own key: the first refusal this period (ms; in the app or the panel) and whether the discount was shown.
+  byokRefusedAt?: number
+  byokOfferShown?: boolean
   jws: string | null
 }

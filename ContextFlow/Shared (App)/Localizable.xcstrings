@@ -16845,6 +16845,774 @@
           }
         }
       }
+    },
+    "You're on Own key": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du nutzt „Eigener Schlüssel“"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tienes el plan Clave propia"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous avez le forfait Clé personnelle"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hai il piano Chiave propria"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「自分のキー」プランをご利用中です"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "'내 키' 요금제를 쓰고 있어요"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Você está no plano Chave própria"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "У вас тариф «Свой ключ»"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "У вас тариф «Власний ключ»"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你正在使用“自有密钥”套餐"
+          }
+        }
+      }
+    },
+    "What Pro adds over your own key:": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Was Pro zu deinem Schlüssel hinzufügt:"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lo que Pro añade a tu propia clave:"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce que Pro ajoute à votre propre clé :"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cosa aggiunge Pro alla tua chiave:"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro で自分のキーに加わるもの："
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro가 내 키에 더해 주는 것:"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O que o Pro acrescenta à sua chave:"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Что Pro добавит к вашему ключу:"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Що Pro додасть до вашого ключа:"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro 在自有密钥之外增加的内容："
+          }
+        }
+      }
+    },
+    "Google answers: %lld a week instead of %lld a day": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Google-Antworten: %lld pro Woche statt %lld pro Tag"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Respuestas de Google: %lld a la semana en vez de %lld al día"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réponses Google : %lld par semaine au lieu de %lld par jour"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Risposte con Google: %lld a settimana invece di %lld al giorno"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Google 検索の回答：週%1$lld件（今は1日%2$lld件）"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Google 답변: 하루 %2$lld개 대신 일주일 %1$lld개"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Respostas do Google: %lld por semana em vez de %lld por dia"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ответы с Google: %lld в неделю вместо %lld в день"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відповіді з Google: %lld на тиждень замість %lld на день"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Google 回答：每周 %1$lld 次，而不是每天 %2$lld 次"
+          }
+        }
+      }
+    },
+    "“Ask your chats” and AI search": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Frag deine Chats“ und KI-Suche"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«Pregunta a tus chats» y búsqueda con IA"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« Interroger vos discussions » et recherche IA"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«Chiedi alle tue chat» e ricerca IA"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「すべてのチャットに質問」と AI検索"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "'모든 채팅에 묻기'와 AI 검색"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“Pergunte às suas conversas” e busca com IA"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«Спросить по всем чатам» и ИИ-поиск"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«Запитати про всі чати» і ШІ-пошук"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“问问你的所有对话”和 AI 搜索"
+          }
+        }
+      }
+    },
+    "Questions in the app's chats: up to %lld a week instead of %lld a day": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fragen in den Chats der App: bis zu %lld pro Woche statt %lld pro Tag"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preguntas en los chats de la app: hasta %lld a la semana en vez de %lld al día"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questions dans les discussions de l'app : jusqu'à %lld par semaine au lieu de %lld par jour"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Domande nelle chat dell'app: fino a %lld a settimana invece di %lld al giorno"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アプリのチャットでの質問：週最大%1$lld件（今は1日%2$lld件）"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "앱 채팅 질문: 하루 %2$lld개 대신 일주일 최대 %1$lld개"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perguntas nas conversas do app: até %lld por semana em vez de %lld por dia"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вопросы в чатах приложения: до %lld в неделю вместо %lld в день"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Запитання в чатах застосунку: до %lld на тиждень замість %lld на день"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App 对话中的提问：每周最多 %1$lld 次，而不是每天 %2$lld 次"
+          }
+        }
+      }
+    },
+    "No API key and no bills from OpenAI or Anthropic": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kein API-Schlüssel und keine Rechnungen von OpenAI oder Anthropic"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin clave de API ni facturas de OpenAI o Anthropic"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pas de clé API ni de factures d'OpenAI ou d'Anthropic"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nessuna chiave API e nessuna fattura da OpenAI o Anthropic"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "API キーも OpenAI や Anthropic への支払いも不要"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "API 키도, OpenAI나 Anthropic 요금도 필요 없어요"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sem chave de API e sem contas da OpenAI ou da Anthropic"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Без ключа API и без счетов от OpenAI или Anthropic"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Без ключа API і без рахунків від OpenAI чи Anthropic"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无需 API 密钥，也没有 OpenAI 或 Anthropic 的账单"
+          }
+        }
+      }
+    },
+    "Upgrade to Pro": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zu Pro wechseln"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pasar a Pro"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passer à Pro"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passa a Pro"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro にアップグレード"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro로 업그레이드"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mudar para o Pro"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перейти на Pro"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перейти на Pro"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "升级到 Pro"
+          }
+        }
+      }
+    },
+    "Upgrade at %lld%% off": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit %lld %% Rabatt wechseln"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pasar con un %lld %% de descuento"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passer à Pro avec %lld %% de réduction"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passa con il %lld%% di sconto"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld%%オフでアップグレード"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld%% 할인으로 업그레이드"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mudar com %lld%% de desconto"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перейти со скидкой %lld%%"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перейти зі знижкою %lld%%"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "以 %lld%% 折扣升级"
+          }
+        }
+      }
+    },
+    "Pro starts now. Apple refunds the unused part of Own key.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro startet sofort. Apple erstattet den ungenutzten Teil von „Eigener Schlüssel“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro empieza ya. Apple reembolsa la parte no usada de Clave propia."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro démarre tout de suite. Apple rembourse la partie non utilisée de Clé personnelle."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro inizia subito. Apple rimborsa la parte non usata di Chiave propria."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro はすぐに始まります。「自分のキー」の未使用分は Apple が返金します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro는 바로 시작돼요. '내 키'의 남은 기간은 Apple이 환불해요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O Pro começa agora. A Apple reembolsa a parte não usada do Chave própria."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro начнётся сразу. Неиспользованную часть «Своего ключа» Apple вернёт."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro почнеться одразу. Невикористану частину «Власного ключа» Apple поверне."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro 立即生效。Apple 会退还“自有密钥”未使用的部分。"
+          }
+        }
+      }
+    },
+    "Move to Pro at %lld%% off": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro mit %lld %% Rabatt"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro con un %lld %% de descuento"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro avec %lld %% de réduction"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro con il %lld%% di sconto"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro が%lld%%オフ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro %lld%% 할인"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro com %lld%% de desconto"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro со скидкой %lld%%"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro зі знижкою %lld%%"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro %lld%% 折扣"
+          }
+        }
+      }
+    },
+    "Pro answers without your key: up to %lld a week, Google search, “Ask your chats” and AI search. Pro starts at once; Apple refunds the unused part of Own key.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro antwortet ohne deinen Schlüssel: bis zu %lld pro Woche, Google-Suche, „Frag deine Chats“ und KI-Suche. Pro startet sofort; Apple erstattet den ungenutzten Teil von „Eigener Schlüssel“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro responde sin tu clave: hasta %lld a la semana, búsqueda de Google, «Pregunta a tus chats» y búsqueda con IA. Pro empieza enseguida; Apple reembolsa la parte no usada de Clave propia."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro répond sans votre clé : jusqu'à %lld réponses par semaine, recherche Google, « Interroger vos discussions » et recherche IA. Pro démarre aussitôt ; Apple rembourse la partie non utilisée de Clé personnelle."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro risponde senza la tua chiave: fino a %lld a settimana, ricerca Google, «Chiedi alle tue chat» e ricerca IA. Pro parte subito; Apple rimborsa la parte non usata di Chiave propria."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro はキーなしで回答します：週に最大%lld件、Google 検索、「すべてのチャットに質問」と AI検索。Pro はすぐに始まり、「自分のキー」の未使用分は Apple が返金します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro는 내 키 없이 답해요: 일주일에 최대 %lld개, Google 검색, '모든 채팅에 묻기'와 AI 검색. Pro는 바로 시작되고 '내 키'의 남은 기간은 Apple이 환불해요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O Pro responde sem a sua chave: até %lld por semana, busca no Google, “Pergunte às suas conversas” e busca com IA. O Pro começa na hora; a Apple reembolsa a parte não usada do Chave própria."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro отвечает без вашего ключа: до %lld ответов в неделю, поиск Google, «Спросить по всем чатам» и ИИ-поиск. Pro начнётся сразу, а неиспользованную часть «Своего ключа» Apple вернёт."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro відповідає без вашого ключа: до %lld відповідей на тиждень, пошук Google, «Запитати про всі чати» і ШІ-пошук. Pro почнеться одразу, а невикористану частину «Власного ключа» Apple поверне."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro 无需你的密钥即可回答：每周最多 %lld 次、Google 搜索、“问问你的所有对话”和 AI 搜索。Pro 立即生效，Apple 会退还“自有密钥”未使用的部分。"
+          }
+        }
+      }
+    },
+    "See the offer": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Angebot ansehen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ver la oferta"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voir l'offre"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vedi l'offerta"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オファーを見る"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "혜택 보기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ver a oferta"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Посмотреть"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Переглянути"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "查看优惠"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

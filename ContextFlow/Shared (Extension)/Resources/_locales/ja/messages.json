@@ -811,5 +811,32 @@
  },
  "planEnds": {
   "message": "{0}に終了：自動更新はオフ"
+ },
+ "upgradePro": {
+  "message": "Pro にアップグレード"
+ },
+ "upgradeProOff": {
+  "message": "{0}%オフでアップグレード"
+ },
+ "byokLimitTitle": {
+  "message": "ContextFlow 経由の本日の回答を使い切りました"
+ },
+ "byokLimitNoKey": {
+  "message": "自分のキーがまだ追加されていないため、回答は ContextFlow 経由（1日{0}件）です。設定でキーを追加するか、Pro に切り替えてください：週に最大{1}件、キー不要。"
+ },
+ "byokLimitGoogle": {
+  "message": "「自分のキー」プランでは、Google 検索の回答は ContextFlow 経由で1日{0}件です。Pro なら週に最大{1}件。"
+ },
+ "byokSearch": {
+  "message": "「自分のキー」プランの Google 検索は1日{0}回です。Pro なら週{1}回。"
+ },
+ "byokProOnly": {
+  "message": "「自分のキー」プランには含まれません。"
+ },
+ "byokOfferTitle": {
+  "message": "Pro が{0}%オフ"
+ },
+ "byokOfferBody": {
+  "message": "Pro はキーなしで回答します：週に最大{0}件、Google 検索は週{1}回、「すべてのチャットに質問」と AI検索。支払い前に App Store が価格と期間を表示します。Pro はすぐに始まり、現在のプランの未使用分は返金されます。"
  }
 }

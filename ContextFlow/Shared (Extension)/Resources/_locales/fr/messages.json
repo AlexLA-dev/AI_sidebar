@@ -811,5 +811,32 @@
  },
  "planEnds": {
   "message": "Se termine le {0} : renouvellement automatique désactivé"
+ },
+ "upgradePro": {
+  "message": "Passer à Pro"
+ },
+ "upgradeProOff": {
+  "message": "Passer à Pro avec {0} % de réduction"
+ },
+ "byokLimitTitle": {
+  "message": "Les réponses du jour via ContextFlow sont épuisées"
+ },
+ "byokLimitNoKey": {
+  "message": "Votre propre clé n'est pas encore ajoutée : les réponses passent par ContextFlow, {0} par jour. Ajoutez-la dans les réglages ou passez à Pro : jusqu'à {1} réponses par semaine, sans clé."
+ },
+ "byokLimitGoogle": {
+  "message": "Avec l'offre Clé personnelle, les réponses Google passent par ContextFlow : {0} par jour. Pro vous donne jusqu'à {1} réponses par semaine."
+ },
+ "byokSearch": {
+  "message": "Avec l'offre Clé personnelle, la recherche Google est limitée à {0} par jour. Pro vous en donne {1} par semaine."
+ },
+ "byokProOnly": {
+  "message": "Non inclus dans l'offre Clé personnelle."
+ },
+ "byokOfferTitle": {
+  "message": "Pro avec {0} % de réduction"
+ },
+ "byokOfferBody": {
+  "message": "Pro répond sans votre clé : jusqu'à {0} réponses par semaine, {1} recherches Google par semaine, « Interroger vos discussions » et la recherche IA. L'App Store affiche le prix et la durée avant le paiement. Pro démarre aussitôt et la partie non utilisée de votre offre est remboursée."
  }
 }

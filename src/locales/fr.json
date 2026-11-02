@@ -288,5 +288,15 @@
   "renewalFreeEnough": "La version gratuite me suffit",
   "renewalOther": "Autre chose",
   "renewalThanks": "Merci, cela nous aide à améliorer ContextFlow.",
-  "planEnds": "Se termine le {0} : renouvellement automatique désactivé"
+  "planEnds": "Se termine le {0} : renouvellement automatique désactivé",
+
+  "upgradePro": "Passer à Pro",
+  "upgradeProOff": "Passer à Pro avec {0} % de réduction",
+  "byokLimitTitle": "Les réponses du jour via ContextFlow sont épuisées",
+  "byokLimitNoKey": "Votre propre clé n'est pas encore ajoutée : les réponses passent par ContextFlow, {0} par jour. Ajoutez-la dans les réglages ou passez à Pro : jusqu'à {1} réponses par semaine, sans clé.",
+  "byokLimitGoogle": "Avec l'offre Clé personnelle, les réponses Google passent par ContextFlow : {0} par jour. Pro vous donne jusqu'à {1} réponses par semaine.",
+  "byokSearch": "Avec l'offre Clé personnelle, la recherche Google est limitée à {0} par jour. Pro vous en donne {1} par semaine.",
+  "byokProOnly": "Non inclus dans l'offre Clé personnelle.",
+  "byokOfferTitle": "Pro avec {0} % de réduction",
+  "byokOfferBody": "Pro répond sans votre clé : jusqu'à {0} réponses par semaine, {1} recherches Google par semaine, « Interroger vos discussions » et la recherche IA. L'App Store affiche le prix et la durée avant le paiement. Pro démarre aussitôt et la partie non utilisée de votre offre est remboursée."
 }

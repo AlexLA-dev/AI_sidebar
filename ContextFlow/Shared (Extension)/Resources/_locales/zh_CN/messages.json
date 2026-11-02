@@ -811,5 +811,32 @@
  },
  "planEnds": {
   "message": "将于{0}结束：自动续订已关闭"
+ },
+ "upgradePro": {
+  "message": "升级到 Pro"
+ },
+ "upgradeProOff": {
+  "message": "以 {0}% 折扣升级"
+ },
+ "byokLimitTitle": {
+  "message": "今天通过 ContextFlow 的回答已用完"
+ },
+ "byokLimitNoKey": {
+  "message": "你还没有添加自己的密钥，所以回答通过 ContextFlow 提供：每天 {0} 次。请在设置中添加密钥，或升级到 Pro：每周最多 {1} 次回答，无需密钥。"
+ },
+ "byokLimitGoogle": {
+  "message": "在「自有密钥」方案中，Google 回答通过 ContextFlow 提供：每天 {0} 次。Pro 每周最多 {1} 次。"
+ },
+ "byokSearch": {
+  "message": "「自有密钥」方案的 Google 搜索为每天 {0} 次。Pro 每周 {1} 次。"
+ },
+ "byokProOnly": {
+  "message": "「自有密钥」方案不包含此功能。"
+ },
+ "byokOfferTitle": {
+  "message": "Pro {0}% 折扣"
+ },
+ "byokOfferBody": {
+  "message": "Pro 无需你的密钥即可回答：每周最多 {0} 次回答、每周 {1} 次 Google 搜索、“问问你的所有对话”和 AI 搜索。付款前 App Store 会显示价格和期限。Pro 立即生效，当前方案未使用的部分会退款。"
  }
 }
