@@ -17,14 +17,18 @@ enum AIConsent {
     }
 }
 
-/// The Pro features over all the chats, from the app (the Safari panel has the same ones):
-/// AI search (/api/v2/find) and "Ask your chats" (/api/v2/chat with context "history").
-/// The server checks the plan from the App Store transaction and charges the Pro allowance.
+/// AI from the app (the Safari panel has the same): questions about one chat (/api/v2/chat with
+/// context "chat"), and the Pro features over all the chats, AI search (/api/v2/find) and "Ask your
+/// chats" (context "history"). The server checks the plan from the App Store transaction and charges
+/// the same allowance as the panel's answers.
 enum ChatAI {
     enum Failure: Error, Equatable {
         /// Not Pro (the server's word, whatever the app thinks).
         case proOnly
+        /// Pro: this week's answers are used up.
         case limitReached
+        /// Free: today's answers are used up.
+        case dailyLimit
         case busy
         case network
         /// No consent to the current text yet: nothing was sent.
@@ -78,10 +82,10 @@ enum ChatAI {
     }
 
     private static func failure(_ status: Int, _ data: Data?) -> Failure {
-        let code = data.flatMap { try? JSONSerialization.jsonObject(with: $0) as? [String: Any] }?["code"] as? String
-        switch code {
+        let object = data.flatMap { try? JSONSerialization.jsonObject(with: $0) as? [String: Any] }
+        switch object?["code"] as? String {
         case "PRO_ONLY": return .proOnly
-        case "LIMIT_REACHED": return .limitReached
+        case "LIMIT_REACHED": return object?["plan"] as? String == "free" ? .dailyLimit : .limitReached
         case "BUSY", "UPSTREAM": return .busy
         default: return status == 403 ? .proOnly : .network
         }
@@ -132,6 +136,50 @@ enum ChatAI {
         return results.compactMap { r in (r["id"] as? String).map { Found(id: $0, why: r["why"] as? String ?? "") } }
     }
 
+    // MARK: A chat
+
+    /// How much of a chat goes with a question (src/shared/conversation.ts `WHOLE_CHAT_CHARS`).
+    static let wholeChatChars = 48_000
+
+    /// "Whole chat" (src/shared/conversation.ts `historyForModel`): every message that fits, the newest
+    /// kept first, citations stripped; notes marked as notes, and questions asked on another page than
+    /// `currentUrl` marked with that page.
+    static func messages(_ entries: [ChatEntry], currentUrl: String?) -> [[String: String]] {
+        var out: [[String: String]] = []
+        var size = 0
+        for entry in entries.reversed() {
+            let text = entry.content.replacingOccurrences(of: #"[ \t]*\[\d{1,2}\]\(https?:[^)\s]+\)"#, with: "", options: .regularExpression)
+            var elsewhere = ""
+            if entry.isUser, let page = entry.page, page.url != currentUrl {
+                elsewhere = "\"\(page.title.isEmpty ? page.url : page.title)\" — \(page.url)"
+            }
+            let content: String
+            if entry.isNote {
+                content = "[Note the user wrote\(elsewhere.isEmpty ? "" : " on another page: \(elsewhere)")]\n\(text)"
+            } else {
+                content = elsewhere.isEmpty ? text : "[Asked on another page: \(elsewhere)]\n\(text)"
+            }
+            size += content.count
+            if size > wholeChatChars && !out.isEmpty { break }
+            out.insert(["role": entry.role, "content": content], at: 0)
+        }
+        return out
+    }
+
+    /// Streams the answer to `question` about the chat: everything said in it (questions, answers and
+    /// notes) and its last page. Charged like an answer in the panel (Free: 5 a day, Pro: the week's).
+    @MainActor
+    static func ask(_ question: String, in thread: ChatThread, onText: @escaping (String) -> Void) async throws {
+        guard AIConsent.given else { throw Failure.consent }
+        var body = identity()
+        body["context"] = "chat"
+        body["messages"] = messages(thread.entries, currentUrl: thread.lastPage?.url) + [["role": "user", "content": question]]
+        if let profile = SharedDefaults.shared.readSettings()?.settings["aboutMe"] as? String, !profile.isEmpty {
+            body["profile"] = String(profile.prefix(1_000))
+        }
+        try await stream(try request("api/v2/chat", body), onText: onText)
+    }
+
     // MARK: Ask your chats
 
     /// Streams the answer to the last question of `messages` ([{role, content}]) from the other chats.
@@ -142,7 +190,13 @@ enum ChatAI {
         body["context"] = "history"
         body["messages"] = messages
         body["history"] = digests(chats, perChat: 2_500, perAnswer: 500, total: 55_000)
-        let (bytes, response) = try await URLSession.shared.bytes(for: try request("api/v2/chat", body))
+        try await stream(try request("api/v2/chat", body), onText: onText)
+    }
+
+    /// Reads an answer's stream (`data: {"type": "delta" | "error" | …}` lines), passing its text on.
+    @MainActor
+    private static func stream(_ request: URLRequest, onText: @escaping (String) -> Void) async throws {
+        let (bytes, response) = try await URLSession.shared.bytes(for: request)
         let status = (response as? HTTPURLResponse)?.statusCode ?? 0
         guard status == 200 else {
             var data = Data()
@@ -160,7 +214,7 @@ enum ChatAI {
                     onText(text)
                 }
             case "error":
-                throw (event["code"] as? String) == "LIMIT_REACHED" ? Failure.limitReached : Failure.busy
+                throw (event["code"] as? String) == "LIMIT_REACHED" ? (event["plan"] as? String == "free" ? Failure.dailyLimit : Failure.limitReached) : Failure.busy
             default:
                 break
             }

@@ -168,6 +168,18 @@ struct ChatThread: Identifiable, Hashable {
         guard let json = try? JSONSerialization.data(withJSONObject: object), let text = String(data: json, encoding: .utf8) else { return nil }
         return ChatMirror.Item(updatedAt: updatedAt, data: text)
     }
+
+    /// The same chat with `entries` (src/shared/conversation.ts `Entry` objects) after its messages,
+    /// written at `updatedAt`: it moves to the top of the list like a chat continued in Safari.
+    func appending(_ entries: [[String: Any]], updatedAt: Int64) -> ChatMirror.Item? {
+        let parsed = try? JSONSerialization.jsonObject(with: Data(data.utf8))
+        guard var object = (parsed as? [String: Any]) ?? (parsed as? [Any]).map({ ["m": $0] }),
+              let list = object["m"] as? [Any] else { return nil }
+        object["m"] = list + entries
+        object["a"] = updatedAt
+        guard let json = try? JSONSerialization.data(withJSONObject: object), let text = String(data: json, encoding: .utf8) else { return nil }
+        return ChatMirror.Item(updatedAt: updatedAt, data: text)
+    }
 }
 
 func host(of url: String) -> String {
@@ -281,6 +293,17 @@ final class ChatLibrary: ObservableObject {
         // Always later than the copy it replaces, whatever the clocks say.
         let at = max(now, thread.updatedAt + 1)
         guard let item = thread.edited(title: title, pin: pin, tags: tags, entryTags: entryTags, updatedAt: at) else { return }
+        store(thread, item)
+    }
+
+    /// Adds messages at the end of a chat (a question asked in the app and its answer, or a note).
+    func append(_ thread: ChatThread, _ entries: [[String: Any]]) {
+        let current = threads.first { $0.id == thread.id } ?? thread
+        guard let item = current.appending(entries, updatedAt: max(now, current.updatedAt + 1)) else { return }
+        store(current, item)
+    }
+
+    private func store(_ thread: ChatThread, _ item: ChatMirror.Item) {
         ChatMirror.apply(saves: [thread.id: item])
         ChatMirror.queue(.init(id: thread.id, updatedAt: item.updatedAt, data: item.data, deleted: nil, at: Double(now)))
         reload()

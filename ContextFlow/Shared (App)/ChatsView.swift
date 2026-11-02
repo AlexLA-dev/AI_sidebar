@@ -205,7 +205,7 @@ struct ChatsView: View {
         } else if let found {
             switch found.results {
             case .failure(let failure):
-                Text(failureText(failure)).foregroundColor(.secondary)
+                Text(failure.message).foregroundColor(.secondary)
             case .success(let results) where results.isEmpty:
                 Text("No chats found for “\(found.query)”").foregroundColor(.secondary)
             case .success(let results):
@@ -233,22 +233,12 @@ struct ChatsView: View {
         }
     }
 
-    private func failureText(_ failure: ChatAI.Failure) -> String {
-        switch failure {
-        case .proOnly: return String(localized: "This is part of Pro.")
-        case .limitReached: return String(localized: "You've used this week's Pro answers. They come back on Monday.")
-        case .busy: return String(localized: "The AI service is busy. Please try again in a moment.")
-        case .network: return String(localized: "No connection. Check the internet and try again.")
-        case .consent: return String(localized: "Nothing was sent: AI answers need your consent first.")
-        }
-    }
-
     @ViewBuilder
     private func destination(for thread: ChatThread) -> some View {
         if thread.isHistory {
             HistoryChatView(library: library, threadId: thread.id, openPro: openPro)
         } else {
-            ChatDetailView(library: library, threadId: thread.id)
+            ChatDetailView(library: library, threadId: thread.id, openPro: openPro)
         }
     }
 
@@ -261,7 +251,7 @@ struct ChatsView: View {
                 .foregroundColor(.secondary)
         }
         ForEach(results) { result in
-            NavigationLink(destination: result.thread.isHistory ? AnyView(HistoryChatView(library: library, threadId: result.thread.id, openPro: openPro)) : AnyView(ChatDetailView(library: library, threadId: result.thread.id, scrollTo: result.hits.first?.index))) {
+            NavigationLink(destination: result.thread.isHistory ? AnyView(HistoryChatView(library: library, threadId: result.thread.id, openPro: openPro)) : AnyView(ChatDetailView(library: library, threadId: result.thread.id, scrollTo: result.hits.first?.index, openPro: openPro))) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(result.thread.name)
                         .font(.headline)
@@ -457,7 +447,7 @@ struct HistoryChatView: View {
                         }
                         if let failure {
                             VStack(alignment: .leading, spacing: 8) {
-                                Text(text(for: failure)).foregroundColor(.secondary)
+                                Text(failure.message).foregroundColor(.secondary)
                                 if failure == .proOnly { Button("Get Pro", action: openPro).buttonStyle(.borderedProminent) }
                             }
                         }
@@ -503,16 +493,6 @@ struct HistoryChatView: View {
         messages = chosen.entries.filter { !$0.isNote }.map { ["role": $0.role, "content": $0.content] }
     }
 
-    private func text(for failure: ChatAI.Failure) -> String {
-        switch failure {
-        case .proOnly: return String(localized: "This is part of Pro.")
-        case .limitReached: return String(localized: "You've used this week's Pro answers. They come back on Monday.")
-        case .busy: return String(localized: "The AI service is busy. Please try again in a moment.")
-        case .network: return String(localized: "No connection. Check the internet and try again.")
-        case .consent: return String(localized: "Nothing was sent: AI answers need your consent first.")
-        }
-    }
-
     private func send(_ text: String) {
         let question = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !question.isEmpty, streaming == nil else { return }
@@ -539,6 +519,19 @@ struct HistoryChatView: View {
                 failure = .network
             }
             streaming = nil
+        }
+    }
+}
+
+extension ChatAI.Failure {
+    var message: String {
+        switch self {
+        case .proOnly: return String(localized: "This is part of Pro.")
+        case .limitReached: return String(localized: "You've used this week's Pro answers. They come back on Monday.")
+        case .dailyLimit: return String(localized: "You've used today's 5 free answers. Pro gives you up to 375 answers a week.")
+        case .busy: return String(localized: "The AI service is busy. Please try again in a moment.")
+        case .network: return String(localized: "No connection. Check the internet and try again.")
+        case .consent: return String(localized: "Nothing was sent: AI answers need your consent first.")
         }
     }
 }
@@ -710,6 +703,18 @@ struct ChatDetailView: View {
     let threadId: String
     /// The message to show first (a search result).
     var scrollTo: Int? = nil
+    /// The Pro screen (out of free answers).
+    var openPro: () -> Void = {}
+    // A question about the chat (answered from what's in it), or a note.
+    @State private var draft = ""
+    @State private var noteMode = false
+    /// The question being answered, and the answer so far (saved to the chat once it's done).
+    @State private var asking: String?
+    @State private var streaming = ""
+    @State private var failure: ChatAI.Failure?
+    /// The question waiting for the AI consent.
+    @State private var consentAsk: (() -> Void)?
+    @FocusState private var focused: Bool
     /// The answer or note whose tags are being picked.
     @State private var taggingEntry: TaggedEntry?
     @State private var taggingChat = false
@@ -738,6 +743,21 @@ struct ChatDetailView: View {
                                         }
                                     }
                             }
+                            if let asking {
+                                MessageView(entry: ChatEntry(role: "user", content: asking))
+                                if streaming.isEmpty {
+                                    HStack(spacing: 8) { ProgressView(); Text("Reading this chat…").foregroundColor(.secondary) }
+                                } else {
+                                    MarkdownView(text: streaming)
+                                }
+                            }
+                            if let failure {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Text(failure.message).foregroundColor(.secondary)
+                                    if failure == .dailyLimit || failure == .proOnly { Button("Get Pro", action: openPro).buttonStyle(.borderedProminent) }
+                                }
+                            }
+                            Color.clear.frame(height: 1).id("end")
                         }
                         .padding(16)
                         .frame(maxWidth: 760)
@@ -747,7 +767,17 @@ struct ChatDetailView: View {
                         guard let scrollTo else { return }
                         DispatchQueue.main.async { proxy.scrollTo(scrollTo, anchor: .center) }
                     }
+                    .onChange(of: streaming) { _ in proxy.scrollTo("end", anchor: .bottom) }
+                    .onChange(of: asking) { _ in proxy.scrollTo("end", anchor: .bottom) }
+                    .onChange(of: thread.entries.count) { _ in proxy.scrollTo("end", anchor: .bottom) }
+                    .onChange(of: failure) { _ in proxy.scrollTo("end", anchor: .bottom) }
+                    // Typing a question or a note: the end of the chat, where it goes.
+                    .onChange(of: focused) { on in if on { withAnimation { proxy.scrollTo("end", anchor: .bottom) } } }
                 }
+                .safeAreaInset(edge: .bottom) {
+                    if !thread.isHistory { composer(thread) }
+                }
+                .aiConsent($consentAsk)
                 .navigationTitle(thread.name)
                 #if os(iOS)
                 .navigationBarTitleDisplayMode(.inline)
@@ -799,6 +829,80 @@ struct ChatDetailView: View {
                 Text("This chat was deleted.")
                     .foregroundColor(.secondary)
             }
+        }
+    }
+
+    /// The field under the chat: a question about it (sent to the AI), or a note (kept in the chat, no
+    /// AI). The button left of the field switches between them, as the panel's send button does.
+    private func composer(_ thread: ChatThread) -> some View {
+        VStack(spacing: 0) {
+            Divider()
+            HStack(alignment: .bottom, spacing: 8) {
+                Button {
+                    noteMode.toggle()
+                } label: {
+                    Image(systemName: noteMode ? "pencil.circle.fill" : "pencil.circle")
+                        .font(.system(size: 26))
+                        .foregroundColor(noteMode ? .orange : .secondary)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text(noteMode ? "Ask a question" : "Write a note"))
+                TextField(noteMode ? "Write a note — it stays in this chat" : "Ask about this chat…", text: $draft, axis: .vertical)
+                    .lineLimit(1...5)
+                    .focused($focused)
+                    .onSubmit { submit(thread) }
+                    .padding(.horizontal, 12).padding(.vertical, 9)
+                    .background(RoundedRectangle(cornerRadius: 18).fill(noteMode ? Color.orange.opacity(0.12) : Color.cardFill))
+                Button { submit(thread) } label: {
+                    Image(systemName: noteMode ? "checkmark.circle.fill" : "arrow.up.circle.fill")
+                        .font(.system(size: 30))
+                        .foregroundColor(noteMode ? .orange : brandBlue)
+                }
+                .buttonStyle(.plain)
+                .disabled(draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || asking != nil)
+                .accessibilityLabel(Text(noteMode ? "Save note" : "Send"))
+            }
+            .padding(10)
+            .frame(maxWidth: 760)
+            .frame(maxWidth: .infinity)
+        }
+        .background(.bar)
+    }
+
+    private func submit(_ thread: ChatThread) {
+        let text = draft.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !text.isEmpty, asking == nil else { return }
+        failure = nil
+        if noteMode {
+            // A note: kept with the chat, never sent to the AI, uses no answers.
+            library.append(thread, [["role": "user", "content": text, "note": true]])
+            draft = ""
+            noteMode = false
+            return
+        }
+        guard AIConsent.given else {
+            // Nothing is sent before the consent; the question stays in the field.
+            consentAsk = { submit(thread) }
+            return
+        }
+        draft = ""
+        asking = text
+        streaming = ""
+        Task {
+            do {
+                try await ChatAI.ask(text, in: thread) { piece in streaming += piece }
+                library.append(thread, [["role": "user", "content": text], ["role": "assistant", "content": streaming]])
+            } catch {
+                failure = error as? ChatAI.Failure ?? .network
+                if streaming.isEmpty {
+                    // Nothing came back: the question goes back to the field to try again.
+                    if draft.isEmpty { draft = text }
+                } else {
+                    library.append(thread, [["role": "user", "content": text], ["role": "assistant", "content": streaming]])
+                }
+            }
+            asking = nil
+            streaming = ""
         }
     }
 
