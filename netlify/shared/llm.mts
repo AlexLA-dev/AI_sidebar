@@ -1,5 +1,6 @@
 import { config } from "./config.mts"
 import { isReasoningGpt } from "../../src/shared/models.ts"
+import { MAX_ATTACHMENTS, mediaKinds, type Attachment, type MediaKind } from "../../src/shared/attachments.ts"
 import { MAX_MEDIA_PAGE_CHARS, MAX_OTHER_PAGE_CHARS, MAX_OTHER_PAGES, MAX_PAGE_CHARS, systemPrompt, type PageContext } from "../../src/shared/prompt.ts"
 
 export { systemPrompt, type PageContext }
@@ -41,6 +42,11 @@ export function sanitizeOtherPages(raw: unknown): PageContext[] {
   }).slice(0, MAX_OTHER_PAGES)
 }
 
+/**
+ * The page as sent. Its video transcript and PDFs come as `attachments` (2.4 build 68 and later) or
+ * already inside the text with `media` (earlier 2.4 test builds); pageForModel then keeps them for
+ * Pro and leaves them out otherwise. `skipped`: the panel didn't read them (not Pro).
+ */
 export function sanitizePage(raw: unknown): PageContext | null {
   if (!raw || typeof raw !== "object") return null
   const p = raw as Record<string, unknown>
@@ -48,15 +54,33 @@ export function sanitizePage(raw: unknown): PageContext | null {
   // Video transcripts and PDFs get a longer limit than a page.
   const media = kind === "page" && (p.media === "video" || p.media === "pdf") ? p.media : undefined
   const text = typeof p.text === "string" ? p.text.slice(0, (media ? MAX_MEDIA_PAGE_CHARS : MAX_PAGE_CHARS) + 1) : ""
-  if (!text.trim()) return null
+  const attachments = kind === "page" ? sanitizeAttachments(p.attachments) : []
+  const skipped = kind === "page" && Array.isArray(p.skipped) ? mediaKinds(p.skipped.filter(isMedia).map((k) => ({ kind: k }))) : []
+  if (!text.trim() && !attachments.length && !skipped.length) return null
   return {
     kind,
     title: typeof p.title === "string" ? p.title.slice(0, 300) : "",
     url: typeof p.url === "string" ? p.url.slice(0, 1_000) : "",
     text,
     changed: p.changed === true,
-    ...(media ? { media } : {})
+    ...(media ? { media } : {}),
+    ...(attachments.length ? { attachments } : {}),
+    ...(skipped.length ? { skipped } : {})
   }
+}
+
+function isMedia(value: unknown): value is MediaKind {
+  return value === "video" || value === "pdf"
+}
+
+function sanitizeAttachments(raw: unknown): Attachment[] {
+  if (!Array.isArray(raw)) return []
+  return raw.slice(0, MAX_ATTACHMENTS).flatMap((a): Attachment[] => {
+    if (!a || typeof a !== "object") return []
+    const { kind, heading, text, lead } = a as Record<string, unknown>
+    if (!isMedia(kind) || typeof text !== "string" || !text.trim()) return []
+    return [{ kind, heading: typeof heading === "string" ? heading.slice(0, 400) : "", text: text.slice(0, MAX_MEDIA_PAGE_CHARS), ...(lead === true ? { lead: true } : {}) }]
+  })
 }
 
 export class UpstreamError extends Error {

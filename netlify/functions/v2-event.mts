@@ -6,8 +6,10 @@ import { consume, logEvent } from "../shared/db.mts"
 import { clip, ipSubject, isUuid, json, preflight, readJson } from "../shared/http.mts"
 
 // "app_open": the ContextFlow app was opened (at most once a day per app); "ext_on": the Safari
-// extension ran for the first time, i.e. the user switched it on.
-const KINDS = new Set(["app_open", "ext_on"])
+// extension ran for the first time, i.e. the user switched it on. "media_notice": a free answer said
+// it skipped the page's video or PDFs (Pro reads them); "media_notice_pro": its "Try Pro" was tapped.
+const KINDS = new Set(["app_open", "ext_on", "media_notice", "media_notice_pro"])
+const MEDIA = new Set(["video", "pdf", "video,pdf"])
 const STATES = new Set(["off", "on", "in_use"])
 const NOTIFICATIONS = new Set(["granted", "denied", "not_asked"])
 
@@ -15,7 +17,7 @@ const NOTIFICATIONS = new Set(["granted", "denied", "not_asked"])
  * POST /api/v2/event — anonymous funnel step between the App Store download and the first answer.
  * Body: { kind, installId?: <extension install id>, appId?: <random id of the app>,
  *         client: {version, platform, locale}, extension?: "off"|"on"|"in_use", notifications?,
- *         adToken?: <AdServices attribution token, app_open only> }
+ *         adToken?: <AdServices attribution token, app_open only>, media?: "video"|"pdf"|"video,pdf" }
  * Nothing else is accepted: no page content, no Apple ID, no device identifiers.
  * With adToken the answer carries ads: "attributed" | "organic" | "pending" (the app sends the
  * token again on a later launch while it's pending).
@@ -39,6 +41,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
 
   const extension = clip(body.extension, 8)
   const notifications = clip(body.notifications, 12)
+  const media = clip(body.media, 9)
   context.waitUntil(
     logEvent(kind, installId, {
       ...(appId ? { app: appId } : {}),
@@ -46,7 +49,8 @@ export default async (req: Request, context: Context): Promise<Response> => {
       version: clip(client.version, 20),
       locale: clip(client.locale, 12),
       ...(STATES.has(extension) ? { extension } : {}),
-      ...(NOTIFICATIONS.has(notifications) ? { notifications } : {})
+      ...(NOTIFICATIONS.has(notifications) ? { notifications } : {}),
+      ...(kind.startsWith("media_notice") && MEDIA.has(media) ? { media } : {})
     })
   )
 

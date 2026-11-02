@@ -1,6 +1,8 @@
 // System prompt shared by the server (/api/v2/chat) and the extension's
 // "own OpenAI key" path, so both behave the same.
 
+import type { Attachment, MediaKind } from "./attachments.ts"
+
 export interface PageContext {
   kind: "page" | "selection"
   title: string
@@ -10,6 +12,17 @@ export interface PageContext {
   changed?: boolean
   // The text includes a video's transcript or a PDF, which may be much longer than a page.
   media?: "video" | "pdf"
+  // As sent: the transcript and PDFs apart from the text (pageForModel puts them in, or leaves them out).
+  attachments?: Attachment[]
+  // The page has a video or PDFs that weren't read (reading them is Pro): the answer must not pretend it saw them.
+  skipped?: MediaKind[]
+}
+
+/** What the answer is told about a video or PDFs on the page it didn't get. */
+export function skippedRule(skipped: MediaKind[]): string {
+  const what = skipped.length > 1 ? "a video and PDF documents" : skipped[0] === "video" ? "a video" : "PDF documents"
+  const them = skipped.length > 1 ? "the video or the PDFs" : skipped[0] === "video" ? "the video" : "the PDFs"
+  return `This page also has ${what} that you were not given (reading videos and PDFs is part of ContextFlow Pro). Answer from the page text above only. If the question is about what ${them} say and the page text doesn't cover it, say so in one short sentence and don't guess or describe ${them} as if you had seen them.`
 }
 
 /** How a conversation that spans pages is presented to the model (shared with Google mode). */
@@ -64,7 +77,7 @@ export function systemPrompt(page: PageContext | null, profile: string, locale: 
   if (profile) {
     lines.push("", "About the user (written by them, use it to personalize answers):", profile.slice(0, 1_000))
   }
-  if (page && page.text) {
+  if (page && (page.text || page.skipped?.length)) {
     const limit = pageLimit(page)
     const truncated = page.text.length > limit
     lines.push(
@@ -86,6 +99,7 @@ export function systemPrompt(page: PageContext | null, profile: string, locale: 
     if (page.media === "pdf" && page.kind === "page") {
       lines.push("The page content includes PDF text with [Page N] marks: when it helps, say which page something is on.")
     }
+    if (page.skipped?.length) lines.push(skippedRule(page.skipped))
   } else {
     lines.push("", "No page content is available (e.g. the browser blocks access to this page). Answer from general knowledge.")
   }

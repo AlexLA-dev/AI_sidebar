@@ -862,3 +862,66 @@ test("Claude answers only build 67 and later: older builds and requests without 
   assert.equal(deltas(ev), "Hello from Claude")
   assert.deepEqual([chatEvent().provider, chatEvent().build], ["anthropic", null])
 })
+
+test("videos and PDFs are Pro: for anyone else the server leaves them out, whatever the panel sent", async () => {
+  serverConfig.anthropicKey = CLAUDE_KEY
+  const transcript = "[0:05] The secret word is PINEAPPLE."
+  const pdf = "[Page 1] Revenue grew 14% in the second quarter."
+  const page = {
+    kind: "page", title: "Lecture", url: "https://example.com/lecture", text: "A lecture about neural networks.",
+    attachments: [
+      { kind: "video", heading: "Captions of the video \"Lecture\" (timestamps in [m:ss]):", text: transcript },
+      { kind: "pdf", heading: "PDF \"Slides\" (3 pages, https://example.com/slides.pdf):", text: pdf }
+    ]
+  }
+  // Free: neither the transcript nor the PDF reaches the model, which is told not to pretend it saw them.
+  events = []
+  await chatOnce(askNew({ page }))
+  const free = claude.lastBody?.system as string
+  assert.match(free, /A lecture about neural networks/)
+  assert.doesNotMatch(free, /PINEAPPLE/)
+  assert.doesNotMatch(free, /Revenue grew 14%/)
+  assert.match(free, /a video and PDF documents that you were not given/)
+  assert.deepEqual([chatEvent().skipped, chatEvent().media], ["video,pdf", undefined])
+
+  // Pro: both go in, with the media limit and the timestamp rule.
+  events = []
+  await chatOnce(askNew({ page, entitlement: signJws(transaction()) }))
+  const pro = claude.lastBody?.system as string
+  assert.match(pro, /PINEAPPLE/)
+  assert.match(pro, /Revenue grew 14%/)
+  assert.match(pro, /\[m:ss\] timestamps/)
+  assert.doesNotMatch(pro, /you were not given/)
+  assert.deepEqual([chatEvent().media, chatEvent().skipped], ["video", undefined])
+
+  // A PDF alone, free: left out and named as PDFs.
+  events = []
+  await chatOnce(askNew({ page: { ...page, attachments: [page.attachments[1]] } }))
+  assert.doesNotMatch(claude.lastBody?.system as string, /Revenue grew 14%/)
+  assert.match(claude.lastBody?.system as string, /PDF documents that you were not given/)
+  assert.equal(chatEvent().skipped, "pdf")
+
+  // A text that already carries a transcript (an earlier 2.4 test build) is cut to a page's limit for free.
+  const composed = "x".repeat(30_000) + transcript
+  await chatOnce(askNew({ page: { kind: "page", title: "V", url: "https://example.com/v", text: composed, media: "video" } }))
+  assert.doesNotMatch(claude.lastBody?.system as string, /PINEAPPLE/)
+  assert.match(claude.lastBody?.system as string, /a video that you were not given/)
+
+  // The panel skipped them itself (free): nothing to drop, the answer is still told.
+  await chatOnce(askNew({ page: { kind: "page", title: "T", url: "https://example.com", text: "Page text", skipped: ["video"] } }))
+  assert.match(claude.lastBody?.system as string, /a video that you were not given/)
+  // A PDF tab with nothing but the PDF: the request still goes, with the title and the rule.
+  const { res } = await chatOnce(askNew({ page: { kind: "page", title: "Report.pdf", url: "https://example.com/r.pdf", text: "", skipped: ["pdf"] } }))
+  assert.equal(res.status, 200)
+  assert.match(claude.lastBody?.system as string, /Title: Report\.pdf[\s\S]*PDF documents that you were not given/)
+})
+
+test("the skipped video/PDF line's events keep only which media", async () => {
+  const send = (body: Record<string, unknown>) => event(post("/api/v2/event", body), ctx())
+  events = []
+  assert.equal((await send({ kind: "media_notice", installId: INSTALL, client: { platform: "ios", version: "2.4" }, media: "video,pdf" })).status, 200)
+  assert.equal((await send({ kind: "media_notice_pro", installId: INSTALL, media: "pdf", page: "secret" })).status, 200)
+  assert.equal((await send({ kind: "media_notice", installId: INSTALL, media: "audio" })).status, 200)
+  await new Promise((r) => setTimeout(r, 0))
+  assert.deepEqual(events.map((e) => [e.kind, e.data?.media]), [["media_notice", "video,pdf"], ["media_notice_pro", "pdf"], ["media_notice", undefined]])
+})
