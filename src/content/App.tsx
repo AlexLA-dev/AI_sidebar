@@ -18,7 +18,7 @@ import {
   type Usage
 } from "../shared/types"
 import * as Icon from "./icons"
-import { historyForModel, isQuestion, lastPage, otherPages, pageHasChanged, selectionNote, textFingerprint, type Entry, type SourceNote } from "../shared/conversation"
+import { historyForModel, isQuestion, lastPage, otherPages, pageHasChanged, pageRef, savedPages, selectionNote, type Entry, type SourceNote } from "../shared/conversation"
 import { Markdown } from "./markdown"
 import { MAX_OTHER_PAGES } from "../shared/prompt"
 import { answerShareText, chatLanguage, noteCopyText, noteShareText, pickedShareText, toPlainText, type ShareLinks } from "../shared/share"
@@ -27,6 +27,7 @@ import {
   forgetSelection,
   isTouch,
   MIN_SELECTION_WORDS,
+  privateBrowsing,
   readSelection,
   recentSelection,
   rememberSelection,
@@ -192,6 +193,8 @@ function errorText(error: ChatError): string {
  */
 export function App({ platform, bus, source, popup = false }: { platform: Platform; bus: Bus; source: PageSource; popup?: boolean }): VNode {
   const touch = isTouch(platform)
+  // The page's text goes into the chat (and iCloud) only for a tab's own page, never in Private Browsing.
+  const keepsText = !popup && !privateBrowsing()
   const [open, setOpen] = useState(popup)
   const [visible, setVisible] = useState(popup)
   const [view, setView] = useState<"chat" | "settings" | "threads">("chat")
@@ -641,9 +644,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   /** Sends a question with the page as `full` (sources: what was read along with it) or the selection. */
   sendRef.current = (base, content, opts, full, selection, chats) => {
     const url = source.key()
-    const hash = textFingerprint(full.text)
-    const changed = !chats && pageHasChanged(base, url, hash)
-    const user: Turn = chats ? { role: "user", content, label: opts.label } : { role: "user", content, label: opts.label, page: { url, title: full.title, hash } }
+    const ref = pageRef(base, url, full.title, full.text, keepsText)
+    const changed = !chats && pageHasChanged(base, url, ref.hash!)
+    const user: Turn = chats ? { role: "user", content, label: opts.label } : { role: "user", content, label: opts.label, page: ref }
     if (!chats) void rememberPageText(url, full.title, full.attachments ? composePage(full.text, full.attachments) : full.text)
     if (opts.mode) user.mode = opts.mode
     if (changed) user.pageChanged = true
@@ -700,7 +703,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       return
     }
     const wholeChat = settingsRef.current.wholeChat
-    void (wholeChat ? pageTexts(otherPages(history, url).map((p) => p.url).slice(0, MAX_OTHER_PAGES)) : Promise.resolve([])).then((pages) => {
+    // The chat's other pages: this device's copy of their text, else the one saved in the chat (another device's).
+    const others = otherPages(history, url).map((p) => p.url).slice(0, MAX_OTHER_PAGES)
+    const saved = savedPages(history)
+    void (wholeChat ? pageTexts(others) : Promise.resolve([])).then((local) => {
+      const pages = wholeChat ? others.flatMap((u) => local.find((p) => p.url === u) ?? saved.find((p) => p.url === u) ?? []) : []
       if (portRef.current !== port) return // stopped meanwhile
       port.postMessage({
         type: "ask",
@@ -721,7 +728,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (!content || portRef.current || askToken.current) return
     const url = source.key()
     const full = source.quick()
-    const next: Turn[] = [...messages, { role: "user", content, note: true, page: { url, title: full.title, hash: textFingerprint(full.text) } }]
+    const next: Turn[] = [...messages, { role: "user", content, note: true, page: pageRef(messages, url, full.title, full.text, keepsText) }]
     setMessages(next)
     void saveThread(threadRef.current, next)
     void rememberPageText(url, full.title, full.text)
@@ -854,7 +861,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (!fits) await setActiveThread(id)
     const url = source.key()
     const page = source.quick()
-    const note = selectionNote(sel.text, comment, { url, title: page.title, hash: textFingerprint(page.text) }, (text) => t("noteQuote", text))
+    const note = selectionNote(sel.text, comment, pageRef(fits && current ? current.m : [], url, page.title, page.text, keepsText), (text) => t("noteQuote", text))
     await saveThread(id, [...(fits && current ? current.m : []), note])
     void rememberPageText(url, page.title, page.text)
     setNoteSaved(true)

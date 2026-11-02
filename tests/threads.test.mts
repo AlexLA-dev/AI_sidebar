@@ -296,3 +296,26 @@ test("withMessages: a new message keeps the chat's name, pin, tags and kind", ()
   assert.deepEqual(withMessages({ id: "a", u: 1, m: [], deleted: true, tags: ["x"] }, "a", [q("new")], 6), { id: "a", u: 6, a: 6, m: [q("new")] })
   assert.equal(withMessages(undefined, "b", [q("x")], 7, "history").kind, "history")
 })
+
+test("threadForCloud drops the oldest page texts before any message", () => {
+  const text = "x".repeat(3_000)
+  const m: Entry[] = [
+    { role: "user", content: "q1", page: { url: "https://a.example", title: "A", hash: "1", text } },
+    { role: "assistant", content: "a1" },
+    { role: "user", content: "q2", page: { url: "https://b.example", title: "B", hash: "2", text } },
+    { role: "assistant", content: "a2" }
+  ]
+  const fits = (max: number) => threadFromCloud(threadForCloud({ id: "t", u: 5, a: 5, m }, max))!.m
+  assert.deepEqual(fits(100_000), m)
+  // Room for one text: page A's goes, all four messages stay.
+  const one = fits(4_500)
+  assert.equal(one.length, 4)
+  assert.equal(one[0].page?.text, undefined)
+  assert.equal(one[0].page?.url, "https://a.example")
+  assert.equal(one[2].page?.text, text)
+  // No room for texts: then messages go, the oldest first.
+  const none = fits(150)
+  assert.ok(none.every((e) => !e.page?.text))
+  assert.ok(none.length < 4)
+  assert.equal(none.at(-1)?.content, "a2")
+})

@@ -9,6 +9,10 @@ export interface PageRef {
   url: string
   title: string
   hash?: string
+  // The page's readable text (Readability, as in Reading mode; never HTML), kept with the chat so the
+  // ContextFlow app can answer about it later: on the first question or note on the page, and again
+  // when the page has changed. Not from Private Browsing, videos' transcripts or PDFs.
+  text?: string
 }
 
 /**
@@ -47,6 +51,10 @@ export interface Entry extends ChatTurn {
 }
 
 const MAX_HISTORY = 12
+// Page texts kept in a chat: each cut to this, for its last few pages (an answer in the app gets the
+// chat's last page and up to MAX_OTHER_PAGES others).
+export const MAX_SAVED_PAGE_CHARS = 8_000
+export const MAX_SAVED_PAGES = 4
 // "Whole chat": every message (notes too) up to this many characters, newest kept first.
 export const WHOLE_CHAT_CHARS = 48_000
 
@@ -64,6 +72,48 @@ export function selectionNote(selected: string, comment: string, page: PageRef, 
   const quote = quoted(text)
   const note = comment.trim()
   return { role: "user", content: note ? `${quote}\n\n${note}` : quote, note: true, quote: true, page }
+}
+
+/**
+ * The page a question or note was written on, with its text when the chat doesn't have this version
+ * of it yet (`text` empty: none, e.g. Private Browsing).
+ */
+export function pageRef(entries: Entry[], url: string, title: string, text: string, keepText = true): PageRef {
+  const hash = textFingerprint(text)
+  const ref: PageRef = { url, title, hash }
+  const saved = entries.some((e) => e.page?.url === url && e.page.hash === hash && e.page.text)
+  if (keepText && text.trim() && !saved) ref.text = text.slice(0, MAX_SAVED_PAGE_CHARS)
+  return ref
+}
+
+/** The page texts kept in the chat: the latest one of each page, the most recent page first. */
+export function savedPages(entries: Entry[]): Array<{ url: string; title: string; text: string }> {
+  const out: Array<{ url: string; title: string; text: string }> = []
+  for (let i = entries.length - 1; i >= 0; i--) {
+    const page = entries[i].page
+    if (page?.text && !out.some((p) => p.url === page.url)) out.push({ url: page.url, title: page.title, text: page.text })
+  }
+  return out
+}
+
+/** The chat with only the texts `savedPages` gives for its last `max` pages; older ones are dropped. */
+export function trimSavedPages(entries: Entry[], max = MAX_SAVED_PAGES): Entry[] {
+  const kept = new Set<number>()
+  const urls = new Set<string>()
+  for (let i = entries.length - 1; i >= 0; i--) {
+    const page = entries[i].page
+    if (!page?.text || urls.has(page.url) || urls.size >= max) continue
+    urls.add(page.url)
+    kept.add(i)
+  }
+  return entries.map((e, i) => (e.page?.text && !kept.has(i) ? withoutText(e) : e))
+}
+
+/** The entry without its page's text. */
+export function withoutText(entry: Entry): Entry {
+  if (!entry.page?.text) return entry
+  const { text: _text, ...page } = entry.page
+  return { ...entry, page }
 }
 
 /** A question to the AI (a user turn that isn't a note). */

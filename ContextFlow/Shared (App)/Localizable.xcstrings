@@ -16141,6 +16141,70 @@
           }
         }
       }
+    },
+    "This chat doesn't keep its pages' text, so answers here use what's said in it.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieser Chat speichert den Text seiner Seiten nicht, daher nutzen Antworten hier, was im Chat steht."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este chat no guarda el texto de sus páginas, así que las respuestas aquí usan lo que se dijo en él."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cette discussion ne garde pas le texte de ses pages : les réponses ici s'appuient sur ce qui y a été dit."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questa chat non conserva il testo delle sue pagine, quindi qui le risposte usano ciò che è stato detto."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このチャットにはページの本文が保存されていないため、ここでの回答はチャット内のやり取りをもとにしています。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 채팅에는 페이지 본문이 저장되어 있지 않아, 여기서의 답변은 채팅에서 나눈 내용을 바탕으로 해요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta conversa não guarda o texto das páginas, então as respostas aqui usam o que foi dito nela."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В этом чате не сохранён текст страниц, поэтому ответы здесь опираются на то, что сказано в чате."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "У цьому чаті не збережено текст сторінок, тому відповіді тут спираються на те, що сказано в чаті."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这个对话没有保存网页正文，所以这里的回答基于对话中的内容。"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

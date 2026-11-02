@@ -888,17 +888,24 @@ struct ChatDetailView: View {
         draft = ""
         asking = text
         streaming = ""
+        // A chat without page texts (before 2.4, or Private Browsing) says so once, under its first answer here.
+        let noPages = thread.savedPages.isEmpty && !thread.entries.contains { $0.noPages == true }
+        let save = { (answer: String) in
+            var entry: [String: Any] = ["role": "assistant", "content": answer]
+            if noPages { entry["noPages"] = true }
+            library.append(thread, [["role": "user", "content": text], entry])
+        }
         Task {
             do {
                 try await ChatAI.ask(text, in: thread) { piece in streaming += piece }
-                library.append(thread, [["role": "user", "content": text], ["role": "assistant", "content": streaming]])
+                save(streaming)
             } catch {
                 failure = error as? ChatAI.Failure ?? .network
                 if streaming.isEmpty {
                     // Nothing came back: the question goes back to the field to try again.
                     if draft.isEmpty { draft = text }
                 } else {
-                    library.append(thread, [["role": "user", "content": text], ["role": "assistant", "content": streaming]])
+                    save(streaming)
                 }
             }
             asking = nil
@@ -983,6 +990,11 @@ private struct MessageView: View {
                         .foregroundColor(.secondary)
                 }
                 MarkdownView(text: entry.content)
+                if entry.noPages == true {
+                    Label("This chat doesn't keep its pages' text, so answers here use what's said in it.", systemImage: "info.circle")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                }
                 if let tags = entry.tags, !tags.isEmpty { TagChips(tags: tags) }
                 if let sources = entry.grounding?.sources, !sources.isEmpty {
                     VStack(alignment: .leading, spacing: 4) {

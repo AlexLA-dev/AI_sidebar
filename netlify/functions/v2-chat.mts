@@ -17,6 +17,7 @@ import { blockReason, countersFor, proOffer, resolveAccess, searchCountersFor, v
  * Body: { installId, client: {version, platform, locale}, entitlement?: <StoreKit JWS>,
  *         messages: [{role, content}], page?: {kind, title, url, text}, profile?, action?, mode?: "google",
  *         context?: "chat" (the whole conversation and notes), pages?: [{title, url, text}] (its other pages),
+ *         from?: "app" (with context "chat": asked in the ContextFlow app; page and pages are the chat's saved texts),
  *         context?: "history" with history: [{id, title, date, text}] — "Ask your chats", Pro only (no page) }
  * Response: text/event-stream of `data: {"type": "meta"|"delta"|"grounding"|"done"|"error", …}` lines
  * ("grounding" only in Google mode: the final text with citations, sources and Search Suggestions),
@@ -31,6 +32,8 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const installId = body.installId
   if (!isUuid(installId)) return json({ code: "BAD_REQUEST", message: "installId required" }, 400)
   const wholeChat = body.context === "chat"
+  // Asked in the ContextFlow app about a saved chat (its page texts, if saved), not on a page.
+  const fromApp = wholeChat && body.from === "app"
   // "Ask your chats": answered from a digest of all the user's chats instead of a page (Pro).
   const history = body.context === "history"
   const messages = sanitizeMessages(body.messages, wholeChat)
@@ -82,7 +85,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   let answer: Answer | null = null
   try {
     if (google) completion = await startGoogle(googlePrompt(page, profile, locale, others), messages, await geminiModels(), req.signal)
-    else answer = await startAnswer(history ? historyPrompt(chats, profile, locale) : systemPrompt(page, profile, locale, others), messages, access.plan === "pro" ? "pro" : "free", build, req.signal)
+    else answer = await startAnswer(history ? historyPrompt(chats, profile, locale) : systemPrompt(page, profile, locale, others, fromApp), messages, access.plan === "pro" ? "pro" : "free", build, req.signal)
   } catch (err) {
     console.error("[cf] upstream failed:", err instanceof Error ? err.message : err)
     context.waitUntil(Promise.all([

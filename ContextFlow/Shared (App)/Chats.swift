@@ -15,6 +15,9 @@ struct ChatEntry: Decodable, Hashable {
     struct Page: Decodable, Hashable {
         var url: String
         var title: String
+        /// The page's readable text, kept with the chat by the extension (2.4: the first question or note
+        /// on the page, and again when it changed; never from Private Browsing).
+        var text: String?
     }
 
     struct Source: Decodable, Hashable {
@@ -46,6 +49,8 @@ struct ChatEntry: Decodable, Hashable {
     var sources: [Read]?
     /// The user's tags on an answer or a note.
     var tags: [String]?
+    /// An answer from the app in a chat without page texts (it says so once, under this answer).
+    var noPages: Bool?
 
     var isUser: Bool { role == "user" }
     var isNote: Bool { note == true }
@@ -136,6 +141,16 @@ struct ChatThread: Identifiable, Hashable {
     }
 
     var lastPage: ChatEntry.Page? { entries.last(where: { $0.page != nil })?.page }
+
+    /// The page texts kept in the chat (src/shared/conversation.ts `savedPages`): the latest of each
+    /// page, the most recent page first.
+    var savedPages: [ChatEntry.Page] {
+        var out: [ChatEntry.Page] = []
+        for entry in entries.reversed() {
+            if let page = entry.page, page.text?.isEmpty == false, !out.contains(where: { $0.url == page.url }) { out.append(page) }
+        }
+        return out
+    }
 
     var notes: Int { entries.filter(\.isNote).count }
 

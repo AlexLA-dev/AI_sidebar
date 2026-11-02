@@ -1,7 +1,7 @@
 // Chats as threads: several conversations, each continued from any page, tab or device until the
 // user starts a new one. Pure helpers shared by the content script, the background and tests.
 
-import { entriesFrom, stripCitations, type Entry } from "./conversation.ts"
+import { entriesFrom, stripCitations, withoutText, type Entry } from "./conversation.ts"
 import type { ChatDigest } from "./history.ts"
 
 export interface Thread {
@@ -161,7 +161,7 @@ export function pendingChanges(threads: Threads, synced: Record<string, number>)
 
 /**
  * A thread as iCloud stores it: JSON with its messages and, when set, its name and the time of its
- * last message, dropping the oldest messages if it would not fit.
+ * last message. If it would not fit, the oldest page texts go first, then the oldest messages.
  */
 export function threadForCloud(thread: Thread, maxChars = CLOUD_MAX_CHARS): string {
   const meta = {
@@ -171,11 +171,12 @@ export function threadForCloud(thread: Thread, maxChars = CLOUD_MAX_CHARS): stri
     ...(thread.kind ? { k: thread.kind } : {}),
     ...(thread.tags?.length ? { tags: thread.tags } : {})
   }
-  let start = 0
-  let data = JSON.stringify({ ...meta, m: thread.m })
-  while (data.length > maxChars && start < thread.m.length) {
-    start += 1
-    data = JSON.stringify({ ...meta, m: thread.m.slice(start) })
+  let m = thread.m
+  let data = JSON.stringify({ ...meta, m })
+  while (data.length > maxChars && m.length) {
+    const oldest = m.findIndex((e) => e.page?.text)
+    m = oldest >= 0 ? m.map((e, i) => (i === oldest ? withoutText(e) : e)) : m.slice(1)
+    data = JSON.stringify({ ...meta, m })
   }
   return data
 }

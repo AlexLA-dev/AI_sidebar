@@ -1,5 +1,5 @@
 import { CONSENT_VERSION, consentStatus, type ConsentStatus } from "../shared/consent"
-import type { Entry } from "../shared/conversation"
+import { trimSavedPages, type Entry } from "../shared/conversation"
 import { activity, cleanTitle, liveThreads, newThreadId, prune, type ActiveThread, type Thread, type Threads, cleanTags, withMessages } from "../shared/threads"
 import { MAX_OTHER_PAGE_CHARS } from "../shared/prompt"
 import { DEFAULT_SETTINGS, STORAGE, type Settings } from "../shared/types"
@@ -157,7 +157,8 @@ export async function setActiveThread(id: string): Promise<void> {
 
 /** Stores a chat's messages; `kind` marks a new "Ask your chats" chat (a chat keeps its kind). */
 export async function saveThread(id: string, entries: Entry[], kind?: "history"): Promise<void> {
-  const next = entries.slice(-MAX_TURNS)
+  // Page texts for the chat's last few pages only (they go to iCloud with it).
+  const next = trimSavedPages(entries.slice(-MAX_TURNS))
   const threads = (await get<Threads>(STORAGE.threads)) ?? {}
   const stored = threads[id]
   // Only real changes get a new time: it decides which device's copy wins (iCloud sync),
