@@ -154,6 +154,8 @@ export default async (req: Request, context: Context): Promise<Response> => {
       ...(answer?.provider === "anthropic" ? { cost_usd: answerCost(answer, stats) } : {}),
       ok: succeeded,
       plan: access.plan,
+      // The subscription that paid for it: /analytics shows each subscriber's device and language.
+      ...(access.entitlement ? { otid: access.entitlement.originalTransactionId } : {}),
       model,
       action: clip(body.action, 32) || null,
       mode: google ? "google" : history ? "history" : "chat",

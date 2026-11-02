@@ -71,6 +71,9 @@ export const limitedBefore = (installId: string) => rpc<boolean>("cf_limited_bef
 export const usageReport = (days: number) => rpc<Record<string, unknown>>("cf_usage_report", { p_days: days })
 /** New users' way from opening the app to paying, by day (cf_setup_funnel). */
 export const setupFunnel = (days: number) => rpc<Record<string, unknown>[]>("cf_setup_funnel", { p_days: days })
+/** Subscribers' device, language and country, new vs returning users' requests, conversion to subscribers,
+ * requests per user per day and install sources (cf_owner_insights). */
+export const ownerInsights = (days: number) => rpc<Record<string, unknown>>("cf_owner_insights", { p_days: days })
 
 export async function logEvent(kind: string, installId: string | null, data: Record<string, unknown>): Promise<void> {
   try {
