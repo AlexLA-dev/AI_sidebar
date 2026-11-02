@@ -4,11 +4,14 @@ import { attributionFields, resolveAdToken } from "../shared/adservices.mts"
 import { config as settings } from "../shared/config.mts"
 import { consume, logEvent } from "../shared/db.mts"
 import { clip, ipSubject, isUuid, json, preflight, readJson } from "../shared/http.mts"
+import { isRenewalReason } from "../../src/shared/renewal.ts"
 
 // "app_open": the ContextFlow app was opened (at most once a day per app); "ext_on": the Safari
 // extension ran for the first time, i.e. the user switched it on. "media_notice": a free answer said
 // it skipped the page's video or PDFs (Pro reads them); "media_notice_pro": its "Try Pro" was tapped.
-const KINDS = new Set(["app_open", "ext_on", "media_notice", "media_notice_pro"])
+// "renewal_off": a Pro user who turned auto-renew off said what was missing (or put the question off).
+const KINDS = new Set(["app_open", "ext_on", "media_notice", "media_notice_pro", "renewal_off"])
+const RENEWAL_FROM = new Set(["app", "panel"])
 const MEDIA = new Set(["video", "pdf", "video,pdf"])
 const STATES = new Set(["off", "on", "in_use"])
 const NOTIFICATIONS = new Set(["granted", "denied", "not_asked"])
@@ -17,7 +20,8 @@ const NOTIFICATIONS = new Set(["granted", "denied", "not_asked"])
  * POST /api/v2/event — anonymous funnel step between the App Store download and the first answer.
  * Body: { kind, installId?: <extension install id>, appId?: <random id of the app>,
  *         client: {version, platform, locale}, extension?: "off"|"on"|"in_use", notifications?,
- *         adToken?: <AdServices attribution token, app_open only>, media?: "video"|"pdf"|"video,pdf" }
+ *         adToken?: <AdServices attribution token, app_open only>, media?: "video"|"pdf"|"video,pdf",
+ *         renewal_off: reason (src/shared/renewal.ts), product, days_left, from: "app"|"panel" }
  * Nothing else is accepted: no page content, no Apple ID, no device identifiers.
  * With adToken the answer carries ads: "attributed" | "organic" | "pending" (the app sends the
  * token again on a later launch while it's pending).
@@ -31,6 +35,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const installId = isUuid(body?.installId) ? (body?.installId as string) : null
   const appId = isUuid(body?.appId) ? (body?.appId as string) : null
   if (!body || !KINDS.has(kind) || !(installId || appId)) return json({ code: "BAD_REQUEST" }, 400)
+  if (kind === "renewal_off" && !isRenewalReason(body.reason)) return json({ code: "BAD_REQUEST" }, 400)
   const client = (body.client ?? {}) as Record<string, unknown>
 
   const quota = await consume([
@@ -50,7 +55,8 @@ export default async (req: Request, context: Context): Promise<Response> => {
       locale: clip(client.locale, 12),
       ...(STATES.has(extension) ? { extension } : {}),
       ...(NOTIFICATIONS.has(notifications) ? { notifications } : {}),
-      ...(kind.startsWith("media_notice") && MEDIA.has(media) ? { media } : {})
+      ...(kind.startsWith("media_notice") && MEDIA.has(media) ? { media } : {}),
+      ...(kind === "renewal_off" ? renewalFields(body) : {})
     })
   )
 
@@ -64,6 +70,18 @@ export default async (req: Request, context: Context): Promise<Response> => {
     context.waitUntil(logEvent("ads_attribution", installId, { ...(appId ? { app: appId } : {}), ...attributionFields(attribution) }))
   }
   return json({ ok: true, ads: attribution.attribution ? "attributed" : "organic" })
+}
+
+/** What the auto-renew question carries: the answer, the plan, days left in it, and where it was asked. */
+function renewalFields(body: Record<string, unknown>): Record<string, unknown> {
+  const days = body.days_left
+  const from = clip(body.from, 8)
+  return {
+    reason: body.reason,
+    product: clip(body.product, 64),
+    ...(typeof days === "number" && Number.isInteger(days) && days >= 0 && days <= 400 ? { days_left: days } : {}),
+    ...(RENEWAL_FROM.has(from) ? { from } : {})
+  }
 }
 
 export const config: Config = { path: "/api/v2/event" }
