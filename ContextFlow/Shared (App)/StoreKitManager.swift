@@ -48,6 +48,15 @@ final class StoreKitManager: ObservableObject {
     var proYearly: Product? { products.first { $0.id == ProductID.proYearly } }
     var byok: Product? { products.first { $0.id == ProductID.byok } }
 
+    /// Pro is active (the own-key plan isn't Pro): AI search, "Ask your chats", no Pro tab in the app.
+    var isPro: Bool {
+        #if DEBUG
+        // Local checks against the Pro stand (tools/preview, PREVIEW_PLAN=pro): -CFDebugPro YES.
+        if UserDefaults.standard.bool(forKey: "CFDebugPro") { return true }
+        #endif
+        return entitlement.active && entitlement.productId != ProductID.byok
+    }
+
     func loadProducts() async {
         isLoadingProducts = true
         defer { isLoadingProducts = false }

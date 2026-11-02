@@ -54,9 +54,15 @@ struct ContentView: View {
     @State private var tab: AppTab = ChatLibrary.shared.threads.isEmpty ? .home : .chats
     /// iOS: the setup guide, from the Chats screen (there is no Get Started tab once there are chats).
     @State private var showingSetup = false
+    /// Settings scrolls down to the plan (the extension's "Manage subscription" with Pro).
+    @State private var showPlan = false
 
     /// Once the user has chats, they come first: Get Started gives way to Chats.
     private var hasChats: Bool { !chats.threads.isEmpty }
+
+    /// With Pro there is no Pro tab: the plan is at the bottom of Settings. A purchase made on the Pro
+    /// tab keeps it until the user leaves it, so its "You're all set" isn't cut off.
+    private var showsPro: Bool { !store.isPro || tab == .pro }
 
     /// The extension counted enough good answers since the last time: ask for an App Store rating
     /// (Apple decides whether to show it, at most 3 times a year). Never on a plain first launch.
@@ -74,7 +80,9 @@ struct ContentView: View {
             .tint(brandBlue)
             .onReceive(router.$pending.compactMap { $0 }) { url in
                 switch url.host {
-                case "subscribe", "manage": tab = .pro
+                case "subscribe", "manage":
+                    tab = store.isPro ? .settings : .pro
+                    showPlan = store.isPro
                 case "tips": tab = .tips
                 case "chats": tab = hasChats ? .chats : .home
                 default: tab = hasChats ? .chats : .home
@@ -103,7 +111,7 @@ struct ContentView: View {
             if hasChats {
                 settingsTab
                 tipsTab
-                proTab
+                if showsPro { proTab }
                 NavigationView { ChatsView(library: chats, activation: activation, openSetup: { showingSetup = true }, openPro: { tab = .pro }) }
                     .navigationViewStyle(.stack)
                     .tabItem { Label("Chats", systemImage: "bubble.left.and.bubble.right") }
@@ -114,7 +122,7 @@ struct ContentView: View {
                     .tabItem { Label("Get Started", systemImage: "sparkles") }
                     .tag(AppTab.home)
                 tipsTab
-                proTab
+                if showsPro { proTab }
                 settingsTab
             }
         }
@@ -143,7 +151,7 @@ struct ContentView: View {
                     Label("Get Started", systemImage: "sparkles").tag(AppTab.home)
                 }
                 Label("Tips", systemImage: "lightbulb").tag(AppTab.tips)
-                Label("Pro", systemImage: "crown").tag(AppTab.pro)
+                if showsPro { Label("Pro", systemImage: "crown").tag(AppTab.pro) }
                 Label("Settings", systemImage: "gearshape").tag(AppTab.settings)
             }
             .navigationSplitViewColumnWidth(min: 170, ideal: 190)
@@ -153,7 +161,7 @@ struct ContentView: View {
             case .chats: NavigationStack { ChatsView(library: chats, activation: activation, openPro: { tab = .pro }) }
             case .tips: TipsView()
             case .pro: ProView(store: store)
-            case .settings: SettingsView()
+            case .settings: SettingsView(showPlan: $showPlan)
             }
         }
         .frame(minWidth: 720, minHeight: 560)
@@ -184,7 +192,7 @@ struct ContentView: View {
     }
 
     private var settingsTab: some View {
-        NavigationView { SettingsView() }
+        NavigationView { SettingsView(showPlan: $showPlan) }
             .navigationViewStyle(.stack)
             .tabItem { Label("Settings", systemImage: "gearshape") }
             .tag(AppTab.settings)
@@ -1007,8 +1015,31 @@ final class ExtensionSettings: ObservableObject {
 
 struct SettingsView: View {
     @StateObject private var settings = ExtensionSettings()
+    @ObservedObject private var store = StoreKitManager.shared
+    @Environment(\.openURL) private var openURL
+    @State private var restoring = false
+    @State private var restoreMessage: String?
+    /// Set to scroll down to the plan; cleared once it has.
+    @Binding var showPlan: Bool
 
     var body: some View {
+        ScrollViewReader { proxy in
+            form
+                .onAppear { scrollToPlan(proxy) }
+                .onChange(of: showPlan) { _ in scrollToPlan(proxy) }
+        }
+    }
+
+    private func scrollToPlan(_ proxy: ScrollViewProxy) {
+        guard showPlan else { return }
+        showPlan = false
+        guard store.isPro else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            withAnimation { proxy.scrollTo("plan", anchor: .top) }
+        }
+    }
+
+    private var form: some View {
         Form {
             Section(header: Text("Appearance")) {
                 Picker("Appearance", selection: $settings.theme) {
@@ -1060,6 +1091,9 @@ struct SettingsView: View {
             Section(footer: Text("These settings are shared with ContextFlow in Safari. A change here shows up there the next time you open ContextFlow, and the other way round.")) {
                 EmptyView()
             }
+
+            // With Pro there is no Pro tab: the plan and its subscription are managed here.
+            if store.isPro { planSection.id("plan") }
         }
         .navigationTitle("Settings")
         #if os(iOS)
@@ -1071,5 +1105,31 @@ struct SettingsView: View {
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in settings.reload() }
         #endif
         .onAppear { settings.reload() }
+    }
+
+    private var planSection: some View {
+        Section(header: Text("Your plan"), footer: restoreMessage.map { Text($0) }) {
+            HStack {
+                Text(planName(store.entitlement.productId))
+                Spacer()
+                if let date = store.entitlement.expiresAt {
+                    Text("Renews \(date, style: .date)")
+                        .foregroundColor(.secondary)
+                }
+            }
+            Button("Manage Subscription") { openURL(Links.manageSubscriptions) }
+            Button {
+                restoring = true
+                restoreMessage = nil
+                Task {
+                    let restored = await store.restore()
+                    restoring = false
+                    restoreMessage = restored ? String(localized: "Your subscription has been restored.") : String(localized: "No active subscription was found for this Apple Account.")
+                }
+            } label: {
+                if restoring { ProgressView() } else { Text("Restore Purchases") }
+            }
+            .disabled(restoring)
+        }
     }
 }

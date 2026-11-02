@@ -25,13 +25,7 @@ struct ChatsView: View {
     /// The search waiting for the AI consent.
     @State private var consentAsk: (() -> Void)?
 
-    private var isPro: Bool {
-        #if DEBUG
-        // Local checks against the Pro stand (tools/preview, PREVIEW_PLAN=pro): -CFDebugPro YES.
-        if UserDefaults.standard.bool(forKey: "CFDebugPro") { return true }
-        #endif
-        return store.entitlement.active && store.entitlement.productId != StoreKitManager.ProductID.byok
-    }
+    private var isPro: Bool { store.isPro }
 
     @State private var renaming: ChatThread?
     @State private var newName = ""
