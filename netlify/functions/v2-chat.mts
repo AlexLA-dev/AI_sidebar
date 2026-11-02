@@ -7,6 +7,7 @@ import { buildGrounding, googlePrompt, readGoogle, startGoogle, type GoogleStats
 import { answerCost, clientBuild, startAnswer, type Answer } from "../shared/answer.mts"
 import { sanitizeMessages, sanitizeOtherPages, sanitizePage, systemPrompt } from "../shared/llm.mts"
 import { geminiModels } from "../shared/models.mts"
+import { pageForModel } from "../../src/shared/attachments.ts"
 import { historyPrompt, MAX_HISTORY_CHARS, MAX_HISTORY_CHATS, sanitizeDigests } from "../../src/shared/history.ts"
 import { blockReason, countersFor, proOffer, resolveAccess, searchCountersFor, visibleUsage } from "../shared/plan.mts"
 
@@ -34,7 +35,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const history = body.context === "history"
   const messages = sanitizeMessages(body.messages, wholeChat)
   if (!messages) return json({ code: "BAD_REQUEST", message: "messages required" }, 400)
-  const page = history ? null : sanitizePage(body.page)
+  const sent = history ? null : sanitizePage(body.page)
   const chats = history ? sanitizeDigests(body.history, MAX_HISTORY_CHATS, MAX_HISTORY_CHARS) : []
   const others = wholeChat ? sanitizeOtherPages(body.pages) : []
   const client = (body.client ?? {}) as Record<string, unknown>
@@ -47,6 +48,8 @@ export default async (req: Request, context: Context): Promise<Response> => {
   if (google && !settings.geminiKey) return json({ code: "SEARCH_UNAVAILABLE", message: "Google search is not available right now." }, 503)
 
   const access = await resolveAccess(body.entitlement, installId)
+  // Video transcripts and PDFs are Pro: for anyone else they're left out here, whatever the panel sent.
+  const page = sent && pageForModel(sent, access.plan === "pro")
   // Pro features are checked here, not in the panel: nothing is charged or asked without Pro.
   if (history && access.plan !== "pro") {
     context.waitUntil(logEvent("pro_only", installId, { feature: "history", plan: access.plan, platform, version }))
@@ -157,6 +160,9 @@ export default async (req: Request, context: Context): Promise<Response> => {
       search_queries: stats.grounding?.webSearchQueries?.length ?? 0,
       page: page ? page.kind : "none",
       page_chars: page?.text.length ?? 0,
+      // A video's transcript or PDFs went with it (Pro), or the page had them and they were left out.
+      ...(page?.media ? { media: page.media } : {}),
+      ...(page?.skipped?.length ? { skipped: page.skipped.join(",") } : {}),
       history: messages.length,
       ...(wholeChat ? { whole_chat: true, other_pages: others.length } : {}),
       ...(history ? { history_chats: chats.length, history_chars: chats.reduce((n, c) => n + c.text.length, 0) } : {}),
