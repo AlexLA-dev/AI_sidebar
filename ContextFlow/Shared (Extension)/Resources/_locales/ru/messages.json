@@ -485,6 +485,27 @@
  "saveNote": {
   "message": "Сохранить заметку"
  },
+ "selQuestion": {
+  "message": "Ваш вопрос…"
+ },
+ "selNote": {
+  "message": "Заметка"
+ },
+ "selNoteTitle": {
+  "message": "Сохранить выделенное в чат заметкой (не тратит ответы)"
+ },
+ "selNoteSaved": {
+  "message": "Сохранено в чат"
+ },
+ "selNoteOpen": {
+  "message": "Открыть"
+ },
+ "selHint": {
+  "message": "Новое: напишите здесь свой вопрос о выделенном или сохраните его в чат заметкой — заметки не тратят ответы."
+ },
+ "noteQuote": {
+  "message": "«{0}»"
+ },
  "placeholderNote": {
   "message": "Заметка — останется в этом чате"
  },

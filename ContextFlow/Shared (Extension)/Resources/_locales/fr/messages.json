@@ -485,6 +485,27 @@
  "saveNote": {
   "message": "Enregistrer la note"
  },
+ "selQuestion": {
+  "message": "Votre question…"
+ },
+ "selNote": {
+  "message": "Note"
+ },
+ "selNoteTitle": {
+  "message": "Enregistrer la sélection dans le chat comme note (ne consomme aucune réponse)"
+ },
+ "selNoteSaved": {
+  "message": "Enregistré dans le chat"
+ },
+ "selNoteOpen": {
+  "message": "Ouvrir"
+ },
+ "selHint": {
+  "message": "Nouveau : posez ici votre propre question sur la sélection, ou enregistrez-la dans le chat comme note — les notes ne consomment aucune réponse."
+ },
+ "noteQuote": {
+  "message": "« {0} »"
+ },
  "placeholderNote": {
   "message": "Note — elle reste dans ce chat"
  },

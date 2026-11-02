@@ -485,6 +485,27 @@
  "saveNote": {
   "message": "메모 저장"
  },
+ "selQuestion": {
+  "message": "질문 입력…"
+ },
+ "selNote": {
+  "message": "메모"
+ },
+ "selNoteTitle": {
+  "message": "선택한 내용을 채팅에 메모로 저장 (답변 횟수를 쓰지 않음)"
+ },
+ "selNoteSaved": {
+  "message": "채팅에 저장됨"
+ },
+ "selNoteOpen": {
+  "message": "열기"
+ },
+ "selHint": {
+  "message": "새 기능: 선택한 내용에 대한 질문을 여기에 직접 입력하거나, 메모로 채팅에 저장하세요. 메모는 답변 횟수를 쓰지 않습니다."
+ },
+ "noteQuote": {
+  "message": "“{0}”"
+ },
  "placeholderNote": {
   "message": "메모 — 이 채팅에 남습니다"
  },

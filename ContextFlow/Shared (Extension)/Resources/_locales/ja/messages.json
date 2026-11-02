@@ -485,6 +485,27 @@
  "saveNote": {
   "message": "メモを保存"
  },
+ "selQuestion": {
+  "message": "質問を入力…"
+ },
+ "selNote": {
+  "message": "メモ"
+ },
+ "selNoteTitle": {
+  "message": "選択範囲をメモとしてチャットに保存（回答回数を使いません）"
+ },
+ "selNoteSaved": {
+  "message": "チャットに保存しました"
+ },
+ "selNoteOpen": {
+  "message": "開く"
+ },
+ "selHint": {
+  "message": "新機能：選択範囲についての質問をここに入力できます。メモとしてチャットに保存することもできます（メモは回答回数を使いません）。"
+ },
+ "noteQuote": {
+  "message": "「{0}」"
+ },
  "placeholderNote": {
   "message": "メモ — このチャットに残ります"
  },

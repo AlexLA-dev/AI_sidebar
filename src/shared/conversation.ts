@@ -45,6 +45,22 @@ const MAX_HISTORY = 12
 // "Whole chat": every message (notes too) up to this many characters, newest kept first.
 export const WHOLE_CHAT_CHARS = 48_000
 
+// A note made from a selection keeps at most this much of the selected text.
+export const MAX_NOTE_QUOTE = 3_000
+
+/**
+ * A note made from a page selection (the Note button by the selection): the selected text in quotes
+ * (`quoted`: in the language's quotes), then the user's comment, if any. The page goes with it, so
+ * the chat shows where it came from. No AI: it doesn't use an answer.
+ */
+export function selectionNote(selected: string, comment: string, page: PageRef, quoted = (text: string) => `“${text}”`): Entry {
+  let text = selected.replace(/[ \t]+/g, " ").replace(/ *\n */g, "\n").replace(/\n{3,}/g, "\n\n").trim()
+  if (text.length > MAX_NOTE_QUOTE) text = text.slice(0, MAX_NOTE_QUOTE).trimEnd() + "…"
+  const quote = quoted(text)
+  const note = comment.trim()
+  return { role: "user", content: note ? `${quote}\n\n${note}` : quote, note: true, page }
+}
+
 /** A question to the AI (a user turn that isn't a note). */
 export function isQuestion(entry: Entry | undefined): boolean {
   return entry?.role === "user" && !entry.note

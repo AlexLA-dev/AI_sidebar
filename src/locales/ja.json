@@ -173,6 +173,13 @@
 
   "shareNote": "メモ",
   "saveNote": "メモを保存",
+  "selQuestion": "質問を入力…",
+  "selNote": "メモ",
+  "selNoteTitle": "選択範囲をメモとしてチャットに保存（回答回数を使いません）",
+  "selNoteSaved": "チャットに保存しました",
+  "selNoteOpen": "開く",
+  "selHint": "新機能：選択範囲についての質問をここに入力できます。メモとしてチャットに保存することもできます（メモは回答回数を使いません）。",
+  "noteQuote": "「{0}」",
   "placeholderNote": "メモ — このチャットに残ります",
   "noteHintTouch": "ボタンを上下にスワイプしてメモを書く",
   "noteHintMouse": "ボタンの上でスクロールしてメモを書く",

@@ -173,6 +173,13 @@
 
   "shareNote": "메모",
   "saveNote": "메모 저장",
+  "selQuestion": "질문 입력…",
+  "selNote": "메모",
+  "selNoteTitle": "선택한 내용을 채팅에 메모로 저장 (답변 횟수를 쓰지 않음)",
+  "selNoteSaved": "채팅에 저장됨",
+  "selNoteOpen": "열기",
+  "selHint": "새 기능: 선택한 내용에 대한 질문을 여기에 직접 입력하거나, 메모로 채팅에 저장하세요. 메모는 답변 횟수를 쓰지 않습니다.",
+  "noteQuote": "“{0}”",
   "placeholderNote": "메모 — 이 채팅에 남습니다",
   "noteHintTouch": "버튼을 위아래로 밀어 메모 쓰기",
   "noteHintMouse": "버튼 위에서 스크롤해 메모 쓰기",

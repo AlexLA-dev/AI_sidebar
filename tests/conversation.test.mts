@@ -6,7 +6,9 @@ import {
   historyForModel,
   isQuestion,
   lastPage,
+  MAX_NOTE_QUOTE,
   otherPages,
+  selectionNote,
   urlKey,
   WHOLE_CHAT_CHARS,
   pageHasChanged,
@@ -105,4 +107,20 @@ test("the whole chat keeps the newest messages within its budget", () => {
 test("urlKey drops the hash and tracking parameters", () => {
   assert.equal(urlKey("https://a.example/p?id=2&utm_source=x#top"), "https://a.example/p?id=2")
   assert.equal(urlKey("not a url"), "not a url")
+})
+
+test("Note by a selection: the quoted text with the page and the comment, a note (no AI, no answer)", () => {
+  const page = { url: "https://weekly.example/four-day-week", title: "Four-day week", hash: "abc" }
+  const note = selectionNote("  61 companies cut   hours\n\n\n\nby 20%.  ", "  check the pay part  ", page, (text) => `«${text}»`)
+  assert.deepEqual(note, { role: "user", content: "«61 companies cut hours\n\nby 20%.»\n\ncheck the pay part", note: true, page })
+  assert.equal(isQuestion(note), false)
+  // Without a comment: just the quote; English quotes by default.
+  assert.equal(selectionNote("Burnout fell.", "   ", page).content, "“Burnout fell.”")
+  // A long selection is cut.
+  const long = selectionNote("word ".repeat(2_000), "", page).content
+  assert.ok(long.length <= MAX_NOTE_QUOTE + 3 && long.endsWith("…”"), String(long.length))
+  // In the chat it stays out of the questions to the model, and the page link goes with it.
+  const chat: Entry[] = [{ role: "user", content: "Summarize", page }, { role: "assistant", content: "Hours fell." }, note]
+  assert.deepEqual(historyForModel(chat, page.url).map((m) => m.content), ["Summarize", "Hours fell."])
+  assert.deepEqual(lastPage(chat), page)
 })

@@ -173,6 +173,13 @@
 
   "shareNote": "Nota",
   "saveNote": "Guardar nota",
+  "selQuestion": "Tu pregunta…",
+  "selNote": "Nota",
+  "selNoteTitle": "Guardar la selección en el chat como nota (no gasta respuestas)",
+  "selNoteSaved": "Guardado en el chat",
+  "selNoteOpen": "Abrir",
+  "selHint": "Nuevo: escribe aquí tu propia pregunta sobre la selección o guárdala en el chat como nota; las notas no gastan respuestas.",
+  "noteQuote": "«{0}»",
   "placeholderNote": "Nota: se queda en este chat",
   "noteHintTouch": "Desliza el botón arriba o abajo para escribir una nota",
   "noteHintMouse": "Desplázate sobre el botón para escribir una nota",

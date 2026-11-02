@@ -97,6 +97,15 @@ export async function setNoteHintCount(count: number): Promise<void> {
   await set(STORAGE.noteHint, count)
 }
 
+/** Page visits that showed the hint about the field and Note by a selection; -1 once one was used. */
+export async function selHintCount(): Promise<number> {
+  return (await get<number>(STORAGE.selHint)) ?? 0
+}
+
+export async function setSelHintCount(count: number): Promise<void> {
+  await set(STORAGE.selHint, count)
+}
+
 /** How many times the Pro offer card was shown to an install that ran out of answers before; -1 once answered. */
 export async function offerCardCount(): Promise<number> {
   return (await get<number>(STORAGE.offerCard)) ?? 0

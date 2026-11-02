@@ -173,6 +173,13 @@
 
   "shareNote": "Notiz",
   "saveNote": "Notiz speichern",
+  "selQuestion": "Deine Frage …",
+  "selNote": "Notiz",
+  "selNoteTitle": "Auswahl als Notiz im Chat speichern (verbraucht keine Antworten)",
+  "selNoteSaved": "Im Chat gespeichert",
+  "selNoteOpen": "Öffnen",
+  "selHint": "Neu: Stell hier deine eigene Frage zur Auswahl oder speichere sie als Notiz im Chat – Notizen verbrauchen keine Antworten.",
+  "noteQuote": "„{0}“",
   "placeholderNote": "Notiz – bleibt in diesem Chat",
   "noteHintTouch": "Wische die Taste nach oben oder unten für eine Notiz",
   "noteHintMouse": "Scrolle auf der Taste für eine Notiz",

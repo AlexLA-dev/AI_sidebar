@@ -389,6 +389,8 @@ struct TipGroup {
 
     static let all: [TipGroup] = [
         TipGroup(title: "New in ContextFlow", tips: [
+            Tip(symbol: "text.quote", color: .orange, title: "Ask or note a selection",
+                text: "Select text on a page: type your own question about it right under the selection, or tap Note to save it to the chat with its page. Notes use no answers."),
             Tip(symbol: "play.rectangle", color: .red, title: "Ask about a video",
                 text: "On a page with a video, ContextFlow reads its transcript: ask for the gist, or what was said about something, and the answer points to the moment, like [4:15].", clip: "video"),
             Tip(symbol: "doc.richtext", color: .orange, title: "PDFs on the page",

@@ -151,6 +151,8 @@ export const STORAGE = {
   pageTexts: "cf:pageTexts",
   // How many times the hint about writing notes with the send button was shown, or -1 once used.
   noteHint: "cf:noteHint",
+  // How many page visits showed the hint about the question field and Note by a selection, or -1 once used.
+  selHint: "cf:selHint",
   // false from install until the server heard that the extension was switched on (the funnel's step
   // after "app opened"); missing for installs from before 2.4, which never report it.
   extOnPending: "cf:extOnPending",

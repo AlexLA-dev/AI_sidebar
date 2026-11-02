@@ -15501,6 +15501,134 @@
           }
         }
       }
+    },
+    "Ask or note a selection": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Frage oder Notiz zur Auswahl"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pregunta o nota sobre una selección"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Question ou note sur une sélection"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Domanda o nota su una selezione"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "選択範囲に質問・メモ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "선택한 내용에 질문하거나 메모하기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pergunta ou nota sobre uma seleção"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вопрос или заметка к выделенному"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Запитання або нотатка до виділеного"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "就所选内容提问或记笔记"
+          }
+        }
+      }
+    },
+    "Select text on a page: type your own question about it right under the selection, or tap Note to save it to the chat with its page. Notes use no answers.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Markiere Text auf einer Seite: Stell direkt unter der Auswahl deine eigene Frage dazu oder tippe auf „Notiz“, um ihn mit seiner Seite im Chat zu speichern. Notizen verbrauchen keine Antworten."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selecciona texto en una página: escribe tu propia pregunta justo debajo de la selección o toca «Nota» para guardarlo en el chat con su página. Las notas no gastan respuestas."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sélectionnez du texte sur une page : posez votre propre question juste sous la sélection, ou touchez « Note » pour l’enregistrer dans le chat avec sa page. Les notes ne consomment aucune réponse."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seleziona del testo in una pagina: scrivi la tua domanda proprio sotto la selezione, oppure tocca «Nota» per salvarlo nella chat con la sua pagina. Le note non consumano risposte."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ページのテキストを選択すると、そのすぐ下に自分の質問を入力できます。「メモ」をタップすると、ページと一緒にチャットに保存されます。メモは回答回数を使いません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페이지에서 텍스트를 선택하면 바로 아래에 직접 질문을 입력할 수 있습니다. ‘메모’를 탭하면 페이지와 함께 채팅에 저장됩니다. 메모는 답변 횟수를 쓰지 않습니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selecione um texto na página: escreva sua própria pergunta logo abaixo da seleção ou toque em “Nota” para salvá-lo no chat com a página. Notas não gastam respostas."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выделите текст на странице: напишите свой вопрос о нём прямо под выделением или нажмите «Заметка», чтобы сохранить его в чат вместе со страницей. Заметки не тратят ответы."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Виділіть текст на сторінці: напишіть своє запитання про нього просто під виділенням або натисніть «Нотатка», щоб зберегти його в чат разом зі сторінкою. Нотатки не витрачають відповіді."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在页面上选中文字后，可以直接在下方输入你的问题，或点按“笔记”把它连同页面保存到对话中。笔记不消耗回答次数。"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

@@ -106,7 +106,7 @@
 .cf-bubble {
   position: fixed;
   left: 0;
-  display: flex; gap: 2px; padding: 4px;
+  display: flex; flex-direction: column; gap: 4px; padding: 4px;
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -114,14 +114,44 @@
   z-index: 3;
   animation: cf-pop 0.14s ease-out;
 }
+.cf-bubble-row { display: flex; gap: 2px; }
 .cf-bubble button { display: flex; align-items: center; gap: 5px; padding: 6px 10px; border-radius: 8px; font-size: 13px; font-weight: 500; color: var(--text-2); white-space: nowrap; }
 .cf-bubble button:hover { background: var(--bg-2); color: var(--text); }
 .cf-bubble button.primary { color: var(--accent-text); }
-/* iPhone / iPad: bigger tap targets, primary action filled. */
-.cf-bubble.touch { gap: 4px; padding: 5px; border-radius: 16px; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+/* The question field by the selection: as wide as the buttons above it, with send and Note. */
+.cf-bubble-ask { display: flex; align-items: center; gap: 4px; }
+.cf-bubble-ask input {
+  flex: 1; width: 0; min-width: 0; height: 30px; padding: 0 10px;
+  border: 1px solid var(--border); border-radius: 8px;
+  background: var(--bg-2); color: var(--text);
+  font: inherit; font-size: 13px; outline: none;
+  -webkit-user-select: text; user-select: text;
+}
+.cf-bubble-ask input:focus { border-color: var(--accent); background: var(--bg); }
+.cf-bubble-ask input::placeholder { color: var(--text-3); }
+.cf-bubble button.cf-bubble-send { flex: none; justify-content: center; width: 30px; height: 30px; padding: 0; border-radius: 50%; color: #fff; background: var(--accent); }
+.cf-bubble button.cf-bubble-send:disabled { opacity: 0.35; }
+.cf-bubble button.cf-bubble-send svg { width: 15px; height: 15px; }
+.cf-bubble button.cf-sel-note { flex: none; color: var(--note-text); }
+.cf-bubble button.cf-sel-note svg { width: 14px; height: 14px; color: var(--note); }
+/* Wraps to the width of the buttons instead of widening them. */
+.cf-bubble-hint { width: 0; min-width: 100%; padding: 0 6px 2px; font-size: 11.5px; line-height: 1.35; color: var(--text-3); }
+.cf-bubble-saved { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-left: 8px; font-size: 13px; font-weight: 500; color: var(--text); }
+.cf-bubble-saved span { display: flex; align-items: center; gap: 6px; }
+.cf-bubble-saved svg { color: var(--note); }
+/* iPhone / iPad: bigger tap targets, primary action filled; 16px text so Safari doesn't zoom into the field. */
+.cf-bubble.touch { gap: 5px; padding: 5px; border-radius: 16px; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+/* Wide enough for the field: the buttons above share the width. */
+.cf-bubble.touch { min-width: min(330px, calc(100vw - 16px)); }
+.cf-bubble.touch .cf-bubble-row { gap: 4px; }
+.cf-bubble.touch .cf-bubble-row button { flex: 1 1 auto; justify-content: center; }
 .cf-bubble.touch button { min-height: 36px; padding: 7px 12px; border-radius: 11px; font-size: 14.5px; font-weight: 600; color: var(--text); }
 .cf-bubble.touch button.primary { color: #fff !important; background: linear-gradient(135deg, #38bdf8, #2563eb) !important; }
 .cf-bubble.touch button:active { transform: scale(0.97); }
+.cf-bubble.touch .cf-bubble-ask input { height: 38px; border-radius: 11px; font-size: 16px; }
+.cf-bubble.touch button.cf-bubble-send { width: 36px; min-height: 36px; height: 36px; padding: 0; border-radius: 50%; color: #fff; }
+.cf-bubble.touch button.cf-sel-note { color: var(--note-text); }
+.cf-bubble.touch .cf-bubble-hint { font-size: 12.5px; }
 @keyframes cf-pop { from { opacity: 0; transform: translateY(-4px) scale(0.98); } to { opacity: 1; transform: none; } }
 
 /* ------------------------------------------------------------ panel */

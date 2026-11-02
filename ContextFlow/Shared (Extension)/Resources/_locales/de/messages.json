@@ -485,6 +485,27 @@
  "saveNote": {
   "message": "Notiz speichern"
  },
+ "selQuestion": {
+  "message": "Deine Frage …"
+ },
+ "selNote": {
+  "message": "Notiz"
+ },
+ "selNoteTitle": {
+  "message": "Auswahl als Notiz im Chat speichern (verbraucht keine Antworten)"
+ },
+ "selNoteSaved": {
+  "message": "Im Chat gespeichert"
+ },
+ "selNoteOpen": {
+  "message": "Öffnen"
+ },
+ "selHint": {
+  "message": "Neu: Stell hier deine eigene Frage zur Auswahl oder speichere sie als Notiz im Chat – Notizen verbrauchen keine Antworten."
+ },
+ "noteQuote": {
+  "message": "„{0}“"
+ },
  "placeholderNote": {
   "message": "Notiz – bleibt in diesem Chat"
  },

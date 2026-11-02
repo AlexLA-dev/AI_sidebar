@@ -485,6 +485,27 @@
  "saveNote": {
   "message": "保存笔记"
  },
+ "selQuestion": {
+  "message": "输入你的问题…"
+ },
+ "selNote": {
+  "message": "笔记"
+ },
+ "selNoteTitle": {
+  "message": "将所选内容作为笔记保存到对话（不消耗回答次数）"
+ },
+ "selNoteSaved": {
+  "message": "已保存到对话"
+ },
+ "selNoteOpen": {
+  "message": "打开"
+ },
+ "selHint": {
+  "message": "新功能：可以在这里输入关于所选内容的问题，或把它作为笔记保存到对话中——笔记不消耗回答次数。"
+ },
+ "noteQuote": {
+  "message": "“{0}”"
+ },
  "placeholderNote": {
   "message": "笔记——会保留在此对话中"
  },

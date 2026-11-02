@@ -17,7 +17,7 @@ import {
   type Usage
 } from "../shared/types"
 import * as Icon from "./icons"
-import { historyForModel, isQuestion, lastPage, otherPages, pageHasChanged, textFingerprint, type Entry, type SourceNote } from "../shared/conversation"
+import { historyForModel, isQuestion, lastPage, otherPages, pageHasChanged, selectionNote, textFingerprint, type Entry, type SourceNote } from "../shared/conversation"
 import { Markdown } from "./markdown"
 import { MAX_OTHER_PAGES } from "../shared/prompt"
 import { answerShareText, chatLanguage, pickedShareText, toPlainText, type ShareLinks } from "../shared/share"
@@ -37,7 +37,7 @@ import { ProUpsell } from "./ProUpsell"
 import { SettingsView } from "./Settings"
 import { shareLabels } from "./shareLabels"
 import { markHintSeen, resetHints, seenHints, type HintKey } from "./store"
-import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, loadThreads, markTourSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, rememberPageText, renameThread, saveSettings, saveThread, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount } from "./store"
+import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, loadThreads, markTourSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, rememberPageText, renameThread, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount } from "./store"
 import { TagChip, TagEditor } from "./Tags"
 import { ThreadsView } from "./Threads"
 import { Tour, tourSteps } from "./Tour"
@@ -243,6 +243,15 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [wide, setWide] = useState(() => window.innerWidth >= 700)
   const [keyboard, setKeyboard] = useState(0)
   const [bubble, setBubble] = useState<SelectionInfo | null>(null)
+  // The selection buttons' own question field, "Saved to the chat" after Note, and the first-time hint.
+  const [selDraft, setSelDraft] = useState("")
+  const [noteSaved, setNoteSaved] = useState(false)
+  const [selHint, setSelHint] = useState(false)
+  // The buttons stay while their field is being typed in or a note is being saved, though the page
+  // selection is gone (focusing the field clears it) or the page scrolls (iPhone, for the keyboard).
+  const selTyping = useRef(false)
+  const noteHold = useRef(false)
+  const bubbleHeld = () => selTyping.current || noteHold.current
   const [googleMode, setGoogleMode] = useState(false)
   const [streamMode, setStreamMode] = useState<"google" | null>(null)
   const [copied, setCopied] = useState<number | null>(null)
@@ -266,6 +275,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const loadedRef = useRef(false)
   const openedAt = useRef(0)
+  // The chat being loaded as the panel opens: a question typed by the selection waits for it.
+  const loadingRef = useRef<Promise<void>>(Promise.resolve())
   const settingsRef = useRef(settings)
   settingsRef.current = settings
 
@@ -360,7 +371,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         const list = listRef.current
         if (list) list.scrollTop = list.scrollHeight
       })
-      void loadThreads().then(({ threads, active }) => {
+      loadingRef.current = loadThreads().then(({ threads, active }) => {
         loadedRef.current = true
         threadRef.current = active.id
         setKind(threads[active.id]?.kind)
@@ -515,6 +526,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       trackSelection()
       clearTimeout(timer)
       timer = setTimeout(() => {
+        if (bubbleHeld()) return
         const sel = readSelection()
         if (open && sel && sel.words >= MIN_SELECTION_WORDS) setSelection(sel)
         if (!sel) setBubble(null)
@@ -527,6 +539,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       setTimeout(offerButton, 10)
     }
     const onScroll = () => {
+      if (bubbleHeld()) return
       setBubble(null)
       clearTimeout(scrollTimer)
       if (touch) scrollTimer = setTimeout(offerButton, 400)
@@ -767,6 +780,77 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setError(null)
     setView("chat")
   }, [stop])
+
+  // ------------------------------------------------------------ the field and Note by a selection
+  // The first time the selection buttons show on a page (three page visits, until one is used): what's new in them.
+  const selHintAsked = useRef(false)
+  useEffect(() => {
+    if (!bubble) {
+      setSelDraft("")
+      return
+    }
+    if (selHintAsked.current) return
+    selHintAsked.current = true
+    void selHintCount().then((count) => {
+      if (count < 0 || count >= 3) return
+      setSelHint(true)
+      void setSelHintCount(count + 1)
+    })
+  }, [bubble])
+
+  const selFeatureUsed = () => {
+    setSelHint(false)
+    void setSelHintCount(-1)
+  }
+
+  /** The question typed by the selection: the panel opens on the selection, with that question and its answer. */
+  const askAboutSelection = (sel: SelectionInfo, question: string) => {
+    const text = question.trim()
+    if (!text) return
+    selTyping.current = false
+    selFeatureUsed()
+    show(sel)
+    // Once the panel has rendered open and loaded its chat (not "Ask your chats": a question about
+    // the page starts a new chat there); an answer still coming in leaves the question in the field.
+    setTimeout(() => void loadingRef.current.then(() => {
+      if (historyRef.current) newChat()
+      setTimeout(() => {
+        if (portRef.current || askToken.current) setDraft(text)
+        else askRef.current(text)
+      }, 0)
+    }), 60)
+  }
+
+  /**
+   * Note by the selection: the selected text, with what's typed in the field as its comment, goes to
+   * the end of the current chat with the page. No AI, no answer used; the panel stays closed.
+   */
+  const noteSelection = async (sel: SelectionInfo, comment: string) => {
+    if (noteHold.current) return
+    noteHold.current = true
+    selFeatureUsed()
+    // An answer still coming in (the panel was closed meanwhile) is saved first: the note goes after it.
+    for (let i = 0; i < 300 && (portRef.current || askToken.current); i++) await new Promise((r) => setTimeout(r, 200))
+    const { threads, active } = await loadThreads()
+    const current = threads[active.id]
+    // Not into "Ask your chats" or a chat deleted on another device: a new chat then.
+    const fits = !current || (!current.deleted && current.kind !== "history")
+    const id = fits ? active.id : newThreadId()
+    if (!fits) await setActiveThread(id)
+    const url = source.key()
+    const page = source.quick()
+    const note = selectionNote(sel.text, comment, { url, title: page.title, hash: textFingerprint(page.text) }, (text) => t("noteQuote", text))
+    await saveThread(id, [...(fits && current ? current.m : []), note])
+    void rememberPageText(url, page.title, page.text)
+    setNoteSaved(true)
+    setTimeout(() => {
+      noteHold.current = false
+      setNoteSaved(false)
+      setBubble(null)
+      // On iPhone and iPad the system edit menu would stay over the page.
+      if (touch) document.getSelection()?.removeAllRanges()
+    }, 2200)
+  }
 
   /** "Ask your chats" (Pro): continues today's one, else starts a new one; without Pro, says what it does. */
   const askHistory = useCallback(() => {
@@ -1120,17 +1204,58 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
       {bubble?.rect && !open && !popup && (
         <SelectionBubble rect={bubble.rect} touch={touch}>
-          {touch ? (
-            <>
-              <button type="button" class="primary" {...press(() => show(bubble))}><Icon.Sparkle size={16} /> {t("fabLabel")}</button>
-              <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SEL_GOOGLE), 60) })}><Icon.Search size={15} /> {t("actGoogle")}</button>
-            </>
+          {noteSaved ? (
+            <div class="cf-bubble-saved" role="status">
+              <span><Icon.Check /> {t("selNoteSaved")}</span>
+              <button type="button" {...press(() => show())}>{t("selNoteOpen")}</button>
+            </div>
           ) : (
             <>
-              <button type="button" class="primary" {...press(() => show(bubble))}><Icon.Sparkle size={14} /> {t("selAsk")}</button>
-              <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SELECTION_ACTIONS[0]), 60) })}>{t("selExplain")}</button>
-              <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SELECTION_ACTIONS[2]), 60) })}>{t("selTranslate")}</button>
-              <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SEL_GOOGLE), 60) })}><Icon.Search size={13} /> {t("actGoogle")}</button>
+              <div class="cf-bubble-row">
+                {touch ? (
+                  <>
+                    {/* "Ask AI" on narrow screens (320 pt: iPhone mini and SE with Display Zoom), so the buttons fit. */}
+                    <button type="button" class="primary" {...press(() => show(bubble))}><Icon.Sparkle size={16} /> {t(narrowScreen() ? "selAsk" : "fabLabel")}</button>
+                    <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SEL_GOOGLE), 60) })}><Icon.Search size={15} /> {t("actGoogle")}</button>
+                  </>
+                ) : (
+                  <>
+                    <button type="button" class="primary" {...press(() => show(bubble))}><Icon.Sparkle size={14} /> {t("selAsk")}</button>
+                    <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SELECTION_ACTIONS[0]), 60) })}>{t("selExplain")}</button>
+                    <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SELECTION_ACTIONS[2]), 60) })}>{t("selTranslate")}</button>
+                    <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SEL_GOOGLE), 60) })}><Icon.Search size={13} /> {t("actGoogle")}</button>
+                  </>
+                )}
+              </div>
+              <div class="cf-bubble-ask">
+                <input
+                  type="text"
+                  value={selDraft}
+                  placeholder={t(touch ? "selQuestion" : "placeholderSelection")}
+                  aria-label={t("placeholderSelection")}
+                  enterKeyHint="send"
+                  autoComplete="off"
+                  onFocus={() => (selTyping.current = true)}
+                  onBlur={() => (selTyping.current = false)}
+                  onInput={(e) => setSelDraft(e.currentTarget.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.isComposing) {
+                      e.preventDefault()
+                      askAboutSelection(bubble, selDraft)
+                    } else if (e.key === "Escape") {
+                      selTyping.current = false
+                      setBubble(null)
+                    }
+                    e.stopPropagation()
+                  }}
+                  onKeyUp={(e) => e.stopPropagation()}
+                  onKeyPress={(e) => e.stopPropagation()}
+                />
+                {/* iPhone and iPad: send shows once there's a question, so the field has room for it. */}
+                {(!touch || selDraft.trim()) && <button type="button" class="cf-bubble-send" disabled={!selDraft.trim()} aria-label={t("send")} title={t("send")} {...press(() => askAboutSelection(bubble, selDraft))}><Icon.ArrowUp /></button>}
+                <button type="button" class="cf-sel-note" title={t("selNoteTitle")} aria-label={t("selNote")} {...press(() => void noteSelection(bubble, selDraft))}><Icon.Pencil />{!(touch && narrowScreen()) && ` ${t("selNote")}`}</button>
+              </div>
+              {selHint && <div class="cf-bubble-hint">{t("selHint")}</div>}
             </>
           )}
         </SelectionBubble>
@@ -1594,36 +1719,56 @@ function press(action: () => void) {
 }
 
 /**
- * Where the selection button goes. iPhone and iPad: below the selection (above it when there's no
- * room), clear of the selection handles and of the system edit menu, which iOS 26+ shows right
- * below the selection and older versions above it.
+ * Where the selection buttons go (`height`: theirs): below the selection, above it when there's no
+ * room, so they don't cover it. iPhone and iPad: also clear of the selection handles and of the
+ * system edit menu, which iOS 26+ shows right below the selection and older versions above it.
+ * Always within what's visible: above the keyboard while their field is typed in.
  */
-function bubbleTop(rect: DOMRect, touch: boolean): number {
+function bubbleTop(rect: DOMRect, touch: boolean, height: number): number {
   const vv = window.visualViewport
   const top0 = vv?.offsetTop ?? 0
   const bottom = top0 + (vv?.height ?? window.innerHeight)
-  const HEIGHT = 48
-  if (!touch) return Math.min(bottom - 52, rect.bottom + 8)
-  const CLEAR = 70
-  let top = rect.bottom + CLEAR
-  if (top + HEIGHT > bottom - 12) top = rect.top - CLEAR - HEIGHT
-  return Math.max(top0 + 8, Math.min(bottom - HEIGHT - 12, top))
+  const clear = touch ? 70 : 8
+  let top = rect.bottom + clear
+  if (top + height > bottom - 12 && rect.top - clear - height >= top0 + 8) top = rect.top - clear - height
+  return Math.max(top0 + 8, Math.min(bottom - height - 12, top))
+}
+
+/** 320 pt wide or less room (iPhone mini and SE with Display Zoom): the selection buttons use shorter labels. */
+function narrowScreen(): boolean {
+  return (window.visualViewport?.width ?? window.innerWidth) < 360
 }
 
 /** The buttons shown for a page selection, centered under it and kept on screen. */
 function SelectionBubble({ rect, touch, children }: { rect: DOMRect; touch: boolean; children: ComponentChildren }): VNode {
   const ref = useRef<HTMLDivElement>(null)
-  const center = rect.left + rect.width / 2
   useLayoutEffect(() => {
     const el = ref.current
     if (!el) return
+    const center = rect.left + rect.width / 2
+    const place = () => {
+      const vv = window.visualViewport
+      const min = (vv?.offsetLeft ?? 0) + 8
+      const max = min + (vv?.width ?? window.innerWidth) - 16 - el.offsetWidth
+      el.style.left = `${Math.max(min, Math.min(max, center - el.offsetWidth / 2))}px`
+      el.style.top = `${bubbleTop(rect, touch, el.offsetHeight)}px`
+    }
+    place()
+    // Its size changes ("Saved to the chat", the hint), and on iPhone the keyboard covers part of the page.
+    const resized = new ResizeObserver(place)
+    resized.observe(el)
     const vv = window.visualViewport
-    const min = (vv?.offsetLeft ?? 0) + 8
-    const max = min + (vv?.width ?? window.innerWidth) - 16 - el.offsetWidth
-    el.style.left = `${Math.max(min, Math.min(max, center - el.offsetWidth / 2))}px`
-  }, [center])
+    vv?.addEventListener("resize", place)
+    vv?.addEventListener("scroll", place)
+    return () => {
+      resized.disconnect()
+      vv?.removeEventListener("resize", place)
+      vv?.removeEventListener("scroll", place)
+    }
+  }, [rect, touch])
   return (
-    <div ref={ref} class={`cf-bubble ${touch ? "touch" : ""}`} style={{ top: `${bubbleTop(rect, touch)}px` }} onMouseDown={(e) => e.preventDefault()}>
+    // Clicks on the buttons keep the page selection; the field takes the focus.
+    <div ref={ref} class={`cf-bubble ${touch ? "touch" : ""}`} onMouseDown={(e) => (e.target as Element).closest("input") || e.preventDefault()}>
       {children}
     </div>
   )
