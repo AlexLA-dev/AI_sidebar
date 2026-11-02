@@ -51,10 +51,10 @@ export interface Entry extends ChatTurn {
 }
 
 const MAX_HISTORY = 12
-// Page texts kept in a chat: each cut to this, for its last few pages (an answer in the app gets the
-// chat's last page and up to MAX_OTHER_PAGES others).
+// Page texts kept in a chat: each cut to this (the budget the server gives a chat's other pages), for
+// its last 10 pages (an answer in the app gets the chat's last page and up to MAX_APP_OTHER_PAGES others).
 export const MAX_SAVED_PAGE_CHARS = 8_000
-export const MAX_SAVED_PAGES = 4
+export const MAX_SAVED_PAGES = 10
 // "Whole chat": every message (notes too) up to this many characters, newest kept first.
 export const WHOLE_CHAT_CHARS = 48_000
 

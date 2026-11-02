@@ -167,7 +167,7 @@ enum ChatAI {
     }
 
     /// Streams the answer to `question` about the chat: everything said in it (questions, answers and
-    /// notes) and the page texts it keeps, its last page first and up to 3 others. Charged like an
+    /// notes) and the page texts it keeps, its last page first and up to 9 others. Charged like an
     /// answer in the panel (Free: 5 a day, Pro: the week's).
     @MainActor
     static func ask(_ question: String, in thread: ChatThread, onText: @escaping (String) -> Void) async throws {
@@ -180,7 +180,7 @@ enum ChatAI {
         let page = { (p: ChatEntry.Page) -> [String: Any] in ["kind": "page", "title": p.title, "url": p.url, "text": p.text ?? ""] }
         if let main {
             body["page"] = page(main)
-            body["pages"] = saved.filter { $0.url != main.url }.prefix(3).map(page)
+            body["pages"] = saved.filter { $0.url != main.url }.prefix(9).map(page)
         }
         body["messages"] = messages(thread.entries, currentUrl: main?.url ?? thread.lastPage?.url) + [["role": "user", "content": question]]
         if let profile = SharedDefaults.shared.readSettings()?.settings["aboutMe"] as? String, !profile.isEmpty {

@@ -29,8 +29,11 @@ export type CloudChange = { id: string; updatedAt: number; data: string } | { id
 
 export const MAX_THREADS = 50
 export const MAX_TITLE = 80
-// Per thread: many threads come down in one sync, so they stay well under a CloudKit record's 1 MB.
-const CLOUD_MAX_CHARS = 120_000
+// Per thread: many threads come down in one sync, so they stay well under a CloudKit record's 1 MB
+// (room for the messages and the texts of 10 pages).
+const CLOUD_MAX_CHARS = 200_000
+// Page texts kept on this device across all chats; beyond it the older chats keep theirs only in iCloud.
+export const MAX_SAVED_TEXT_CHARS = 2_000_000
 
 export function newThreadId(): string {
   return crypto.randomUUID()
@@ -132,13 +135,25 @@ export function withMessages(stored: Thread | undefined, id: string, m: Entry[],
   }
 }
 
-/** Keeps pinned threads and the newest MAX_THREADS; older ones become deletions so iCloud drops them too. */
-export function prune(threads: Threads, now = Date.now()): Threads {
-  const keep = new Set(chatList(threads).slice(0, MAX_THREADS).map((t) => t.id))
+/**
+ * Keeps pinned threads and the newest MAX_THREADS; older ones become deletions so iCloud drops them too.
+ * Page texts stay within `maxText` characters on this device, the pinned and latest chats first.
+ */
+export function prune(threads: Threads, now = Date.now(), maxText = MAX_SAVED_TEXT_CHARS): Threads {
+  const list = chatList(threads)
+  const keep = new Set(list.slice(0, MAX_THREADS).map((t) => t.id))
   const out: Threads = {}
   for (const t of Object.values(threads)) {
     if (t.deleted || keep.has(t.id) || t.m.length === 0) out[t.id] = t
     else out[t.id] = { id: t.id, u: now, m: [], deleted: true }
+  }
+  let size = 0
+  for (const t of list) {
+    if (!keep.has(t.id)) continue
+    const text = t.m.reduce((n, e) => n + (e.page?.text?.length ?? 0), 0)
+    // Only this device's copy changes (its time stays): iCloud keeps the texts it has.
+    if (text && size + text > maxText) out[t.id] = { ...t, m: t.m.map(withoutText) }
+    else size += text
   }
   return out
 }

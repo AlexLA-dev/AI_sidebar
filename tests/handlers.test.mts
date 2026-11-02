@@ -610,6 +610,16 @@ test("A question from the app about a saved chat: charged like an answer, the pr
   system = (openai.lastBody?.messages as Array<{ role: string; content: string }>)[0].content
   assert.match(system, /wasn't saved with it/)
   assert.doesNotMatch(system, /browser blocks access/)
+  // The app sends up to 9 other pages; the panel's "whole chat" still gets 3.
+  const pages = Array.from({ length: 10 }, (_, i) => ({ title: `Page ${i + 1}`, url: `https://p${i + 1}.example`, text: `Saved fact ${i + 1}` }))
+  await events$(await chat(ask({ context: "chat", from: "app", messages, pages }), ctx()))
+  system = (openai.lastBody?.messages as Array<{ role: string; content: string }>)[0].content
+  assert.match(system, /Saved fact 9\b/)
+  assert.doesNotMatch(system, /Saved fact 10/)
+  await events$(await chat(ask({ context: "chat", messages, pages }), ctx()))
+  system = (openai.lastBody?.messages as Array<{ role: string; content: string }>)[0].content
+  assert.match(system, /Saved fact 3\b/)
+  assert.doesNotMatch(system, /Saved fact 4/)
   // "from" alone (not a whole-chat request) changes nothing.
   await events$(await chat(ask({ from: "app" }), ctx()))
   system = (openai.lastBody?.messages as Array<{ role: string; content: string }>)[0].content

@@ -319,3 +319,18 @@ test("threadForCloud drops the oldest page texts before any message", () => {
   assert.ok(none.length < 4)
   assert.equal(none.at(-1)?.content, "a2")
 })
+
+test("prune keeps page texts within the device's budget, the latest chats first", () => {
+  const chat = (id: string, a: number, chars: number): Thread => ({
+    id, u: a, a, m: [{ role: "user", content: id, page: { url: `https://${id}.example`, title: id, hash: id, text: "x".repeat(chars) } }]
+  })
+  const threads = { old: chat("old", 1, 600), mid: chat("mid", 2, 500), new: chat("new", 3, 400) }
+  const out = prune(threads, 10, 1_000)
+  assert.equal(out.new.m[0].page?.text?.length, 400)
+  assert.equal(out.mid.m[0].page?.text?.length, 500)
+  // Over the budget: the oldest chat keeps its messages and page, not the text; its time stays.
+  assert.equal(out.old.m[0].page?.text, undefined)
+  assert.equal(out.old.m[0].page?.url, "https://old.example")
+  assert.equal(out.old.u, 1)
+  assert.deepEqual(prune(threads, 10), threads)
+})

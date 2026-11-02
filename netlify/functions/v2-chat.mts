@@ -8,6 +8,7 @@ import { answerCost, clientBuild, startAnswer, type Answer } from "../shared/ans
 import { sanitizeMessages, sanitizeOtherPages, sanitizePage, systemPrompt } from "../shared/llm.mts"
 import { geminiModels } from "../shared/models.mts"
 import { pageForModel } from "../../src/shared/attachments.ts"
+import { MAX_APP_OTHER_PAGES, MAX_OTHER_PAGES } from "../../src/shared/prompt.ts"
 import { historyPrompt, MAX_HISTORY_CHARS, MAX_HISTORY_CHATS, sanitizeDigests } from "../../src/shared/history.ts"
 import { blockReason, countersFor, proOffer, resolveAccess, searchCountersFor, visibleUsage } from "../shared/plan.mts"
 
@@ -40,7 +41,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   if (!messages) return json({ code: "BAD_REQUEST", message: "messages required" }, 400)
   const sent = history ? null : sanitizePage(body.page)
   const chats = history ? sanitizeDigests(body.history, MAX_HISTORY_CHATS, MAX_HISTORY_CHARS) : []
-  const others = wholeChat ? sanitizeOtherPages(body.pages) : []
+  const others = wholeChat ? sanitizeOtherPages(body.pages, fromApp ? MAX_APP_OTHER_PAGES : MAX_OTHER_PAGES) : []
   const client = (body.client ?? {}) as Record<string, unknown>
   const platform = clip(client.platform, 20)
   const version = clip(client.version, 20)
