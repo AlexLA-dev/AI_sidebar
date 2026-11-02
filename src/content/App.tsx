@@ -43,7 +43,7 @@ import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, load
 import { TagChip, TagEditor } from "./Tags"
 import { ThreadsView } from "./Threads"
 import { Tour, tourSteps } from "./Tour"
-import { allTags, chatDigests, chatList, cleanTags, newThreadId, pinAt, shownThread, threadTitle, type Thread } from "../shared/threads"
+import { allTags, chatDigests, chatList, cleanTags, newThreadId, pinAt, shownThread, threadPages, threadTitle, type Thread } from "../shared/threads"
 import type { ChatDigest } from "../shared/history"
 import type { ConsentStatus } from "../shared/consent"
 
@@ -698,8 +698,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     port.onDisconnect.addListener(() => {
       if (!settled && portRef.current === port) finish(history, partialRef.current, partialRef.current ? null : { code: "STREAM" })
     })
+    // Sizes only, for /analytics: whether keeping 40 messages, 50 chats or a few pages gets in the way.
+    const stats = { turns: history.length, pages: threadPages(history).length, chats: threadList.length }
     if (chats) {
-      port.postMessage({ type: "ask", payload: { messages: historyForModel(history, url), page: null, action: opts.action, context: "history" as const, history: chats } })
+      port.postMessage({ type: "ask", payload: { messages: historyForModel(history, url), page: null, action: opts.action, context: "history" as const, history: chats, stats } })
       return
     }
     const wholeChat = settingsRef.current.wholeChat
@@ -716,6 +718,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           page,
           action: opts.action,
           mode: opts.mode,
+          stats,
           ...(wholeChat ? { context: "chat" as const, pages } : {})
         }
       })

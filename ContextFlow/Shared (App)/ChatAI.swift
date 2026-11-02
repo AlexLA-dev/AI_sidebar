@@ -136,6 +136,13 @@ enum ChatAI {
         return results.compactMap { r in (r["id"] as? String).map { Found(id: $0, why: r["why"] as? String ?? "") } }
     }
 
+    /// Sizes only (no text), as the panel sends them: the chat's messages and pages and this device's
+    /// chats, for /analytics to show whether keeping 40 messages or 50 chats gets in the way.
+    @MainActor
+    private static func stats(turns: Int, pages: Int) -> [String: Int] {
+        ["turns": turns, "pages": pages, "chats": ChatLibrary.shared.threads.count]
+    }
+
     // MARK: A chat
 
     /// How much of a chat goes with a question (src/shared/conversation.ts `WHOLE_CHAT_CHARS`).
@@ -183,6 +190,7 @@ enum ChatAI {
             body["pages"] = saved.filter { $0.url != main.url }.prefix(9).map(page)
         }
         body["messages"] = messages(thread.entries, currentUrl: main?.url ?? thread.lastPage?.url) + [["role": "user", "content": question]]
+        body["stats"] = stats(turns: thread.entries.count + 1, pages: thread.pages.count)
         if let profile = SharedDefaults.shared.readSettings()?.settings["aboutMe"] as? String, !profile.isEmpty {
             body["profile"] = String(profile.prefix(1_000))
         }
@@ -198,6 +206,7 @@ enum ChatAI {
         var body = identity()
         body["context"] = "history"
         body["messages"] = messages
+        body["stats"] = stats(turns: messages.count, pages: 0)
         body["history"] = digests(chats, perChat: 2_500, perAnswer: 500, total: 55_000)
         try await stream(try request("api/v2/chat", body), onText: onText)
     }
