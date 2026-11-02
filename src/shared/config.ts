@@ -6,7 +6,7 @@ export const API_BASE = __API_BASE__
 export const VERSION = __VERSION__
 export const TARGET = __TARGET__
 
-export const SITE = "https://aisidebar.netlify.app"
+export const SITE = "https://context-flow.app"
 export const LINKS = {
   privacy: `${SITE}/privacy`,
   terms: `${SITE}/terms`,

@@ -33,5 +33,5 @@ A IA pode cometer erros. Verifique informações importantes.
 
 As assinaturas são renovadas automaticamente, a menos que sejam canceladas pelo menos 24 horas antes do fim do período atual. O pagamento é cobrado na sua Conta Apple. Você pode gerenciar ou cancelar sua assinatura a qualquer momento nos ajustes da sua conta da App Store.
 
-Termos de Uso: https://aisidebar.netlify.app/terms
-Política de Privacidade: https://aisidebar.netlify.app/privacy
+Termos de Uso: https://context-flow.app/terms
+Política de Privacidade: https://context-flow.app/privacy

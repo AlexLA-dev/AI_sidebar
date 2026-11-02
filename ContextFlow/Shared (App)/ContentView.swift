@@ -13,9 +13,9 @@ import SafariServices
 // MARK: - Constants
 
 enum Links {
-    static let privacy = URL(string: "https://aisidebar.netlify.app/privacy")!
-    static let terms = URL(string: "https://aisidebar.netlify.app/terms")!
-    static let support = URL(string: "https://aisidebar.netlify.app/support")!
+    static let privacy = URL(string: "https://context-flow.app/privacy")!
+    static let terms = URL(string: "https://context-flow.app/terms")!
+    static let support = URL(string: "https://context-flow.app/support")!
     static let review = URL(string: "https://apps.apple.com/app/id6759115793?action=write-review")!
     static let manageSubscriptions = URL(string: "https://apps.apple.com/account/subscriptions")!
 }
