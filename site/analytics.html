@@ -27,7 +27,10 @@
   .card dl { display: grid; grid-template-columns: 1fr auto; gap: 3px 12px; margin: 12px 0 0; font-size: 13.5px; }
   .card dt { color: var(--text-2); }
   .card dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
-  .card .bad { color: var(--warn); }
+  .card .bad, td.bad { color: var(--warn); }
+  table.limits td.name { white-space: normal; min-width: 220px; max-width: 340px; line-height: 1.4; }
+  table.limits td.status { white-space: normal; min-width: 96px; }
+  @media (max-width: 600px) { table.limits td.name { min-width: 150px; } }
   .panel + .cards { margin-top: 14px; }
   .panel { position: relative; background: var(--bg-2); border-radius: 16px; padding: 16px 18px; margin-top: 14px; }
   .tip { position: absolute; z-index: 5; pointer-events: none; display: none; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; font-size: 12.5px; box-shadow: 0 6px 18px rgba(0,0,0,.14); white-space: nowrap; font-variant-numeric: tabular-nums; }
@@ -620,6 +623,57 @@ function mrrCards(insights, fx) {
   )
 }
 
+// Whether any limit keeps getting in users' way (cf_limits_report): per limit, what it touched and how often.
+const LIMITS = {
+  free_daily: ["Бесплатные ответы: 5 в день", "Бесплатные", "Это и есть повод купить Pro: показатель для воронки, а не поломка."],
+  ip_daily: ["Бесплатные ответы: 40 в день с одного IP", "Бесплатные", "Срабатывает, когда много людей за одним адресом (офис, VPN)."],
+  busy: ["Общий дневной потолок сервера", "Все", "Защита бюджета: при срабатывании отказывают всем."],
+  search: ["Google: 3 в день (Free), 100 в неделю (Pro)", "Все"],
+  pro_weekly: ["Pro: 375 ответов в неделю — отказ", "Pro"],
+  pro_near: ["Pro: 300+ ответов за неделю — близко к 375", "Pro", "Считаются недели подписок, а не ответы."],
+  page_cut: ["Текст страницы обрезан: 24 000 знаков (выделение 12 000, видео и PDF 100 000)", "Ответы со страницей"],
+  answer_cut: ["Ответ оборван: модель дошла до предела длины", "Все ответы"],
+  memory_window: ["Память чата: модель видит 12 последних сообщений", "Ответы без «Весь чат»", "В длинном чате ранние вопросы и ответы модель уже не видит."],
+  whole_chat_cut: ["«Весь чат»: в запрос вошли не все сообщения (48 000 знаков)", "Ответы с «Весь чат»"],
+  other_pages: ["Страницы чата: дошли не все (панель — 3, приложение — 9) или обрезаны до 8 000 знаков", "Ответы с «Весь чат» и из приложения"],
+  digest_cut: ["«Спросить по всем чатам» и ИИ-поиск: поместились не все чаты", "Эти ответы"],
+  turns_40: ["Чат длиннее 40 сообщений: старые не хранятся", "Ответы из 2.4"],
+  chats_50: ["50 чатов на устройстве: самые старые удаляются", "Ответы из 2.4"],
+  pages_10: ["У чата больше 10 страниц: тексты старых не хранятся", "Ответы из 2.4"]
+}
+const LIMIT_STATUS = { systematic: ["Мешает систематически", "bad"], occasional: ["Бывает", ""], none: ["Не было", "muted"] }
+// Shown only from ContextFlow 2.4 (it sends the chat's sizes).
+const SIZES_ONLY = ["whole_chat_cut", "turns_40", "chats_50", "pages_10"]
+
+function limitsPanel(report) {
+  const title = "Мешают ли лимиты"
+  if (!report) return null
+  const order = { systematic: 0, occasional: 1, none: 2 }
+  const rows = [...(report.rows || [])].sort((a, b) => order[a.status] - order[b.status] || (b.hits || 0) - (a.hits || 0))
+  const date = (v) => v ? new Date(`${v}T12:00:00Z`).toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit" }) : "—"
+  const body = rows.map((r) => {
+    const [name, group, hint] = LIMITS[r.key] || [r.key, r.group]
+    const refusals = r.base == null
+    const noData = !refusals && !r.base && SIZES_ONLY.includes(r.key)
+    const [status, cls] = noData ? ["Нет данных до 2.4", "muted"] : LIMIT_STATUS[r.status] || [r.status, ""]
+    return el("tr", {},
+      el("td", { class: "name" }, name, hint && el("small", {}, hint)),
+      el("td", { class: `status ${cls}` }, status),
+      el("td", {}, refusals ? `${n.format(r.hits)} отказ.` : `${n.format(r.hits)} из ${n.format(r.base)}`, !refusals && r.base > 0 && el("small", {}, pct(r.hits, r.base))),
+      el("td", {}, `${n.format(r.users)} из ${n.format(r.users_base)}`, r.users_base > 0 && el("small", {}, pct(r.users, r.users_base))),
+      el("td", {}, n.format(r.repeat_users)),
+      el("td", {}, date(r.last_day)),
+      el("td", {}, group)
+    )
+  })
+  const panel = table(`${title} · ${report.days} дн.`, ["Лимит", "Вывод", "Задело", "Пользователей", "Повторно", "Последний раз", "Кого касается"], body, "Данных пока нет.", "text limits")
+  panel.append(el("p", { class: "hint" },
+    "«Мешает систематически» — повторно (в разные дни) упираются 3+ человека или задело 10 % пользователей группы и больше (не меньше трёх человек). «Повторно» — сколько пользователей это задело в два разных дня или больше. Для отказов (лимиты ответов) «задело» — число отказов; для остального — ответы, которые лимит урезал, из ответов, которые он мог задеть. ",
+    report.flags_since ? `Точные отметки сервер ставит с ${date(report.flags_since)}, раньше — по размерам (страница, дошедшая до предела; полное окно из 12 сообщений). ` : "Пока точных отметок нет: считается по размерам (страница, дошедшая до предела; полное окно из 12 сообщений). ",
+    report.sizes_since ? `Размеры чатов присылает версия 2.4, с ${date(report.sizes_since)}.` : "Размеры чатов (40 сообщений, 50 чатов, 10 страниц) присылает версия 2.4 — до её выхода эти строки пустые."))
+  return panel
+}
+
 function render(data, fx) {
   const segments = data.segments || []
   const insights = data.insights || null
@@ -751,7 +805,7 @@ function render(data, fx) {
     table("По устройствам", ["Устройство", "Сегмент", "Запросы", "Устройств", "Токены вход", "Токены выход", "Поиск Google"], devices, "Пока нет запросов."),
     table("По моделям", ["Сегмент", "Модель", "Запросы", "Ошибки", "Токены вход", "Токены выход", "Поиск Google", "Ср. время"], models, "Пока нет запросов."),
     table(`Ревью: вы или App Review (${n.format(sum(review, "requests"))})`, ["Устройство", "Сегмент", "Версия", "Запросы", "Устройств", "Дни"], reviewRows, "Пока версия на ревью, запросы с неё попадают сюда, а не в цифры выше."),
-    table("Упёрлись в лимит", ["Тип", "Лимит · план", "Раз"], limits, "Никто не упирался в лимиты."),
+    limitsPanel(data.limits_report) || table("Упёрлись в лимит", ["Тип", "Лимит · план", "Раз"], limits, "Никто не упирался в лимиты."),
     table("Ошибки провайдеров", ["Тип", "Провайдер", "Ошибок"], errors, "Ошибок не было."),
     el("p", { class: "note" }, `Цифры выше — только реальные пользователи. Не входят: запросы с версии, пока она на ревью (блок «Ревью»), и наши тестовые проверки (${n.format(data.excluded_tests || 0)}). Время — UTC. Пользователь — установка расширения на одном устройстве; переустановка считается новым пользователем, а «новый» в графике запросов — это запрос в тот же день (UTC), когда установку увидели впервые. Сервер работает с 23.10.2026, поэтому все, кто пришёл с версий 1.x, в первые дни тоже выглядят новыми. Устройство и язык подписчика — из расширения, страна — из App Store; точнее страны ничего не хранится. Бесплатные подписки (подарочный код для прессы и блогеров, подписка владельца, пробный период, бесплатный код) показаны в «Подписках» отдельно и не входят в число подписок, конверсию, первую оплату, MRR и подписки из Apple Ads; такая подписка становится платящей с первой оплаты. MRR — в долларах США по сегодняшнему курсу, после комиссии Apple 15 %. В «По тарифам» Pro — все ответы Pro, бесплатные тоже. Активные до 28.10.2026 посчитаны по вопросам, дню установки и последнему заходу, поэтому за те дни цифры занижены; с 28.10 считается каждое открытие панели. Запросы с ключом пользователя видны начиная со следующей сборки после 2.1: расширение присылает только счётчики (модель, токены, время), без ключа и текста. События старше 180 дней удаляются.`)
   )

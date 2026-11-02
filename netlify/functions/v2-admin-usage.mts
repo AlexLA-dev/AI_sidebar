@@ -2,7 +2,7 @@ import type { Config } from "@netlify/functions"
 import { createHash, timingSafeEqual } from "node:crypto"
 
 import { config as settings } from "../shared/config.mts"
-import { ownerInsights, setupFunnel, usageReport } from "../shared/db.mts"
+import { limitsReport, ownerInsights, setupFunnel, usageReport } from "../shared/db.mts"
 
 /**
  * GET /api/v2/admin/usage?days=30 — usage analytics for the /analytics page.
@@ -30,16 +30,20 @@ export default async (req: Request): Promise<Response> => {
 
   const days = Math.max(1, Math.min(180, Number.parseInt(new URL(req.url).searchParams.get("days") ?? "30", 10) || 30))
   try {
-    const [report, funnel, insights] = await Promise.all([
+    const [report, funnel, insights, limits] = await Promise.all([
       usageReport(days),
       // Older databases have no funnel or insights yet; the rest of the report still works.
       setupFunnel(days).catch(() => []),
       ownerInsights(days).catch((err) => {
         console.error("[cf] owner insights failed:", err instanceof Error ? err.message : err)
         return null
+      }),
+      limitsReport(days).catch((err) => {
+        console.error("[cf] limits report failed:", err instanceof Error ? err.message : err)
+        return null
       })
     ])
-    return new Response(JSON.stringify({ ...report, setup_funnel: funnel, insights }), { headers: noStore })
+    return new Response(JSON.stringify({ ...report, setup_funnel: funnel, insights, limits_report: limits }), { headers: noStore })
   } catch (err) {
     console.error("[cf] usage report failed:", err instanceof Error ? err.message : err)
     return new Response(JSON.stringify({ code: "UNAVAILABLE" }), { status: 503, headers: noStore })
