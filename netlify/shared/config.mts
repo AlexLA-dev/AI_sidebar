@@ -88,7 +88,18 @@ export const config = {
   // App Store offer code for free users who ran out of answers (Pro, first month off; set up in App Store
   // Connect on pro.monthly). PRO_OFFER_CODE=off stops offering it; PRO_OFFER_DISCOUNT is what the panel says.
   proOfferCode: (env("PRO_OFFER_CODE") ?? "CONTEXTFLOW50").trim(),
-  proOfferDiscount: int("PRO_OFFER_DISCOUNT", 50)
+  proOfferDiscount: int("PRO_OFFER_DISCOUNT", 50),
+  // Own key → Pro at a discount: a promotional offer on pro.monthly (App Store Connect) that the server signs
+  // with an In-App Purchase key. Until all three are set, Own-key users are offered Pro at full price only.
+  // PROMO_DISCOUNT is what the panel and the app say (the App Store shows the real price before paying).
+  promoOfferId: (env("PROMO_OFFER_ID") ?? "").trim(),
+  promoKeyId: (env("PROMO_KEY_ID") ?? "").trim(),
+  // The key's .p8 text (PEM); newlines may come as "\n".
+  promoPrivateKey: (env("PROMO_PRIVATE_KEY") ?? "").replace(/\\n/g, "\n").trim(),
+  promoDiscount: int("PROMO_DISCOUNT", 50),
+  promoProductId: (env("PROMO_PRODUCT_ID") ?? "com.contextflow.pro.monthly").trim(),
+  // Apps that may ask for a signature (the iOS and macOS apps share one bundle id).
+  appBundleIds: (env("APP_BUNDLE_IDS") ?? "com.contextflow.app").split(",").map((s) => s.trim()).filter(Boolean)
 }
 
 export const PRODUCTS = {

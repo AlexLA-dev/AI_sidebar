@@ -10,7 +10,10 @@ import { isRenewalReason } from "../../src/shared/renewal.ts"
 // extension ran for the first time, i.e. the user switched it on. "media_notice": a free answer said
 // it skipped the page's video or PDFs (Pro reads them); "media_notice_pro": its "Try Pro" was tapped.
 // "renewal_off": a Pro user who turned auto-renew off said what was missing (or put the question off).
-const KINDS = new Set(["app_open", "ext_on", "media_notice", "media_notice_pro", "renewal_off"])
+// "byok_upsell": an Own key subscriber was shown Pro (at a refusal, or the discount a day later) or tapped it.
+const KINDS = new Set(["app_open", "ext_on", "media_notice", "media_notice_pro", "renewal_off", "byok_upsell"])
+const UPSELL_ACTIONS = new Set(["shown", "tap"])
+const UPSELL_WHERE = new Set(["limit", "search", "pro_only", "offer", "pro_screen"])
 const RENEWAL_FROM = new Set(["app", "panel"])
 const MEDIA = new Set(["video", "pdf", "video,pdf"])
 const STATES = new Set(["off", "on", "in_use"])
@@ -56,7 +59,8 @@ export default async (req: Request, context: Context): Promise<Response> => {
       ...(STATES.has(extension) ? { extension } : {}),
       ...(NOTIFICATIONS.has(notifications) ? { notifications } : {}),
       ...(kind.startsWith("media_notice") && MEDIA.has(media) ? { media } : {}),
-      ...(kind === "renewal_off" ? renewalFields(body) : {})
+      ...(kind === "renewal_off" ? renewalFields(body) : {}),
+      ...(kind === "byok_upsell" ? upsellFields(body) : {})
     })
   )
 
@@ -70,6 +74,19 @@ export default async (req: Request, context: Context): Promise<Response> => {
     context.waitUntil(logEvent("ads_attribution", installId, { ...(appId ? { app: appId } : {}), ...attributionFields(attribution) }))
   }
   return json({ ok: true, ads: attribution.attribution ? "attributed" : "organic" })
+}
+
+/** An Own key subscriber and Pro: shown or tapped, where (which refusal, the discount, the Pro screen), from where. */
+function upsellFields(body: Record<string, unknown>): Record<string, unknown> {
+  const action = clip(body.action, 8)
+  const where = clip(body.where, 12)
+  const from = clip(body.from, 8)
+  return {
+    ...(UPSELL_ACTIONS.has(action) ? { action } : {}),
+    ...(UPSELL_WHERE.has(where) ? { where } : {}),
+    ...(RENEWAL_FROM.has(from) ? { from } : {}),
+    ...(body.discount === true ? { discount: true } : {})
+  }
 }
 
 /** What the auto-renew question carries: the answer, the plan, days left in it, and where it was asked. */

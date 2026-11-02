@@ -4,6 +4,7 @@ import { config as settings } from "../shared/config.mts"
 import { limitedBefore, peek, touchInstall } from "../shared/db.mts"
 import { clip, ipSubject, isUuid, json, preflight, readJson } from "../shared/http.mts"
 import { countersFor, proOffer, resolveAccess, visibleUsage } from "../shared/plan.mts"
+import { promoConfigured } from "../shared/promo.mts"
 
 /**
  * POST /api/v2/status — plan and remaining allowance, without consuming anything.
@@ -11,6 +12,8 @@ import { countersFor, proOffer, resolveAccess, visibleUsage } from "../shared/pl
  * `limitedBefore`: a free install that ran out of free answers on an earlier day.
  * `offer`: {code, discount} — the App Store offer code for Pro, for a free install that is out of answers
  * today or was before; else null.
+ * `upgradeOffer`: {discount} — an Own key subscriber can move to Pro at a discount (a promotional offer the
+ * app gets signed by /api/v2/promo); null when it isn't set up. When to show it is the client's call.
  */
 export default async (req: Request, context: Context): Promise<Response> => {
   if (req.method === "OPTIONS") return preflight()
@@ -48,7 +51,8 @@ export default async (req: Request, context: Context): Promise<Response> => {
     usage,
     limitedBefore: limited === true,
     offer,
-    limits: { freeDaily: settings.freeDailyLimit, proWeekly: settings.proWeeklyLimit }
+    upgradeOffer: access.plan === "byok" && promoConfigured() ? { discount: settings.promoDiscount } : null,
+    limits: { freeDaily: settings.freeDailyLimit, proWeekly: settings.proWeeklyLimit, searchFreeDaily: settings.searchFreeDailyLimit, searchProWeekly: settings.searchProWeeklyLimit }
   })
 }
 
