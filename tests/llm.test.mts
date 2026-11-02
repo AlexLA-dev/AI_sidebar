@@ -30,6 +30,17 @@ test("systemPrompt fences page content and truncates selections", () => {
   assert.match(systemPrompt(null, "", "en"), /No page content/)
 })
 
+test("systemPrompt for a question from the app: the chat and its saved page, or no page text", () => {
+  const saved = systemPrompt({ kind: "page", title: "T", url: "https://t.example", text: "Saved article" }, "", "en", [], true)
+  assert.match(saved, /ContextFlow app/)
+  assert.match(saved, /Saved text of the chat's last page/)
+  assert.match(saved, /Saved article/)
+  const none = systemPrompt(null, "", "en", [], true)
+  assert.match(none, /wasn't saved with it/)
+  assert.doesNotMatch(none, /browser blocks access/)
+  assert.doesNotMatch(systemPrompt(null, "", "en"), /ContextFlow app/)
+})
+
 test("readDeltas parses OpenAI SSE including split chunks and usage", async () => {
   const frames = [
     'data: {"choices":[{"delta":{"content":"Hel"}}]}\n\ndata: {"choices":[{"delta":{"con',
