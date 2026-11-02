@@ -65,7 +65,7 @@ export function otherPagesBlock(pages: PageContext[], max = MAX_OTHER_PAGES): st
 const APP_CHAT_RULE =
   "The user is in the ContextFlow app, continuing one of their saved chats away from the browser: the conversation is that chat. Answer from it and from the saved page text, if any."
 const APP_NO_PAGES_RULE =
-  "The text of this chat's pages wasn't saved with it. Answer from the conversation; when you add general knowledge, say so. Don't say that the page text is missing: the app tells the user."
+  "The text of this chat's pages wasn't saved with it. Answer from the conversation; when you add general knowledge, say so. Don't bring up the missing page text (the app tells the user once); only when the question can't be answered without the page itself, say so in one short sentence and suggest opening the page in Safari."
 
 /** `app`: asked in the ContextFlow app about a saved chat; `page` is then the saved text of its last page. */
 export function systemPrompt(page: PageContext | null, profile: string, locale: string, others: PageContext[] = [], app = false): string {
