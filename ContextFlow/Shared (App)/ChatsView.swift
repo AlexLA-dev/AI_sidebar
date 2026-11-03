@@ -979,8 +979,6 @@ struct ChatDetailView: View {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { withAnimation { proxy.scrollTo("tags", anchor: .bottom) } }
                     }
                     .onChange(of: failure) { _ in proxy.scrollTo("end", anchor: .bottom) }
-                    // The bar after a move goes on the next action.
-                    .simultaneousGesture(TapGesture().onEnded { if undoBar != nil { withAnimation { undoBar = nil } } })
                     // Typing a question or a note: the end of the chat, where it goes.
                     .onChange(of: focused) { on in if on { withAnimation { proxy.scrollTo("end", anchor: .bottom) } } }
                 }
@@ -995,6 +993,8 @@ struct ChatDetailView: View {
                     }
                 }
                 .task(id: "\(thread.id):\(thread.entries.count):\(asking == nil):\(organizeTick)") { await suggest(thread) }
+                // The bar after a move goes on the next action: a question, a note, another suggestion, leaving the chat.
+                .onDisappear { undoBar = nil }
                 .safeAreaInset(edge: .bottom) {
                     if let picked {
                         pickBar(thread, picked, labels)
@@ -1200,6 +1200,7 @@ struct ChatDetailView: View {
     }
 
     private func takeTag(_ thread: ChatThread, _ index: Int, _ tag: String) {
+        undoBar = nil
         library.editEntries(thread) { entries in
             guard entries.indices.contains(index) else { return }
             entries[index]["tags"] = Tags.clean((entries[index]["tags"] as? [String] ?? []) + [tag])
@@ -1213,6 +1214,7 @@ struct ChatDetailView: View {
     }
 
     private func refuseTag(_ thread: ChatThread, _ index: Int, _ tag: String) {
+        undoBar = nil
         library.editEntries(thread) { entries in
             guard entries.indices.contains(index) else { return }
             var dismissed = entries[index]["dismissed"] as? [String: Any] ?? [:]
@@ -1252,6 +1254,7 @@ struct ChatDetailView: View {
     }
 
     private func refuseMove(_ thread: ChatThread, _ move: OrganizeModel.Move) {
+        undoBar = nil
         library.editEntries(thread) { entries in
             for i in move.start...move.end where entries.indices.contains(i) {
                 var dismissed = entries[i]["dismissed"] as? [String: Any] ?? [:]
