@@ -171,6 +171,8 @@ const cases: Case[] = [
     { op: "undo", source: ux, target, targetId: "t", start: 2, end: 4, now: 9_000, later: 9_500,
       changedTarget: { ...target, u: 9_200, m: [...target.m, q("New", "https://jg.example/x", 9_100)] } }
   )
+  const moved = moveEntries({ ux, t: target }, {}, "ux", 2, 4, "t", 9_000)!
+  cases.push({ op: "sweep", now: 10_000, threads: [ux, moved.threads.t] })
 }
 
 // The sweep: a stale source brought a moved block back; two moves of one block; an unrelated twin stays.
