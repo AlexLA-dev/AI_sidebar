@@ -6,14 +6,16 @@
 //
 
 import UIKit
+import UserNotifications
 
 @main
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
 
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        // Before launch ends, so a tap on a reminder that launched the app reaches us.
+        UNUserNotificationCenter.current().delegate = self
         return true
     }
 
@@ -21,4 +23,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
     }
 
+    // A reminder on a message (set here or in the panel): the app opens on that message.
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
+        guard let link = response.notification.request.content.userInfo["link"] as? String, let url = URL(string: link) else { return }
+        MessageReminders.log("opened \(link)")
+        await MainActor.run { DeepLinkRouter.shared.handle(url) }
+    }
+
+    // While the app is open, a reminder still shows as a banner.
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
+        [.banner, .sound, .list]
+    }
 }

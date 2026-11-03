@@ -1,6 +1,8 @@
 import type { ComponentChildren, VNode } from "preact"
 
 import { stripCitations } from "../shared/conversation"
+import type { Mark } from "../shared/marks"
+import { withMarks } from "./ux/marks"
 
 export { stripCitations }
 
@@ -61,7 +63,8 @@ function cells(line: string): string[] {
   return line.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map((c) => c.trim())
 }
 
-export function Markdown({ text, onCopyCode }: { text: string; onCopyCode?: (code: string) => void }): VNode {
+// `marks`: the user's highlights in this answer (2.5), drawn as <mark>.
+export function Markdown({ text, onCopyCode, marks }: { text: string; onCopyCode?: (code: string) => void; marks?: Mark[] }): VNode {
   const lines = text.replace(/\r\n?/g, "\n").split("\n")
   const blocks: VNode[] = []
   let i = 0
@@ -160,5 +163,5 @@ export function Markdown({ text, onCopyCode }: { text: string; onCopyCode?: (cod
     blocks.push(<p key={key++}>{para.flatMap((l, j) => (j ? [<br key={`b${j}`} />, ...inline(l, `p${j}`)] : inline(l, `p${j}`)))}</p>)
   }
 
-  return <div class="md">{blocks}</div>
+  return <div class="md">{marks?.length ? withMarks(blocks, marks) : blocks}</div>
 }

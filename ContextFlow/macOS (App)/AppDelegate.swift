@@ -4,9 +4,10 @@
 //
 
 import Cocoa
+import UserNotifications
 
 @main
-class AppDelegate: NSObject, NSApplicationDelegate {
+class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate {
 
     func application(_ application: NSApplication, open urls: [URL]) {
         if let url = urls.first {
@@ -20,6 +21,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationWillFinishLaunching(_ notification: Notification) {
         localizeMainMenu()
+        // Before launch ends, so a click on a reminder that launched the app reaches us.
+        UNUserNotificationCenter.current().delegate = self
+    }
+
+    // A reminder on a message (set here or in the panel): the app opens on that message.
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
+        guard let link = response.notification.request.content.userInfo["link"] as? String, let url = URL(string: link) else { return }
+        MessageReminders.log("opened \(link)")
+        await MainActor.run { DeepLinkRouter.shared.handle(url) }
+    }
+
+    // While the app is open, a reminder still shows as a banner.
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
+        [.banner, .sound, .list]
     }
 
     /// Main.storyboard's menu bar is in English only; its items take the user's language here.

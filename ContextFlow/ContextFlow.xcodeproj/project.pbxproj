@@ -29,6 +29,10 @@
 		CF8000000000000000000003 /* ChatMirror.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF8000000000000000000001 /* ChatMirror.swift */; };
 		CF8000000000000000000004 /* ChatMirror.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF8000000000000000000001 /* ChatMirror.swift */; };
 		CF8000000000000000000005 /* ChatMirror.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF8000000000000000000001 /* ChatMirror.swift */; };
+		CFC000000000000000000002 /* MessageReminders.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFC000000000000000000001 /* MessageReminders.swift */; };
+		CFC000000000000000000003 /* MessageReminders.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFC000000000000000000001 /* MessageReminders.swift */; };
+		CFC000000000000000000004 /* MessageReminders.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFC000000000000000000001 /* MessageReminders.swift */; };
+		CFC000000000000000000005 /* MessageReminders.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFC000000000000000000001 /* MessageReminders.swift */; };
 		CF5000000000000000000002 /* PdfText.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5000000000000000000001 /* PdfText.swift */; };
 		CF5000000000000000000003 /* PdfText.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5000000000000000000001 /* PdfText.swift */; };
 		CF3000000000000000000003 /* ChatSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF3000000000000000000001 /* ChatSync.swift */; };
@@ -141,6 +145,7 @@
 		CF9000000000000000000001 /* ChatAI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatAI.swift; sourceTree = "<group>"; };
 		CF7000000000000000000001 /* ChatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatsView.swift; sourceTree = "<group>"; };
 		CF8000000000000000000001 /* ChatMirror.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMirror.swift; sourceTree = "<group>"; };
+		CFC000000000000000000001 /* MessageReminders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageReminders.swift; sourceTree = "<group>"; };
 		CF4000000000000000000001 /* Setup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Setup.swift; sourceTree = "<group>"; };
 		410D88922F41EE9800684748 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		410D88932F41EE9800684748 /* SharedDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedDefaults.swift; sourceTree = "<group>"; };
@@ -270,6 +275,7 @@
 			isa = PBXGroup;
 			children = (
 				CF8000000000000000000001 /* ChatMirror.swift */,
+				CFC000000000000000000001 /* MessageReminders.swift */,
 				CF3000000000000000000001 /* ChatSync.swift */,
 				CFA100000000000000000001 /* TemplateStore.swift */,
 				CF5000000000000000000001 /* PdfText.swift */,
@@ -563,6 +569,7 @@
 				CF9000000000000000000002 /* ChatAI.swift in Sources */,
 				CF7000000000000000000002 /* ChatsView.swift in Sources */,
 				CF8000000000000000000002 /* ChatMirror.swift in Sources */,
+				CFC000000000000000000002 /* MessageReminders.swift in Sources */,
 				CF4000000000000000000002 /* Setup.swift in Sources */,
 				41FA27F32F41ED2100FED9FC /* ViewController.swift in Sources */,
 				41FA27C12F41ED2100FED9FC /* AppDelegate.swift in Sources */,
@@ -587,6 +594,7 @@
 				CF9000000000000000000003 /* ChatAI.swift in Sources */,
 				CF7000000000000000000003 /* ChatsView.swift in Sources */,
 				CF8000000000000000000003 /* ChatMirror.swift in Sources */,
+				CFC000000000000000000003 /* MessageReminders.swift in Sources */,
 				CF4000000000000000000003 /* Setup.swift in Sources */,
 				41FA27D22F41ED2100FED9FC /* AppDelegate.swift in Sources */,
 			);
@@ -601,6 +609,7 @@
 				410D889E2F41EEAA00684748 /* SharedDefaults.swift in Sources */,
 				CF5000000000000000000002 /* PdfText.swift in Sources */,
 				CF8000000000000000000004 /* ChatMirror.swift in Sources */,
+				CFC000000000000000000004 /* MessageReminders.swift in Sources */,
 				41FA27F72F41ED2100FED9FC /* SafariWebExtensionHandler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -614,6 +623,7 @@
 				410D889F2F41EEAA00684748 /* SharedDefaults.swift in Sources */,
 				CF5000000000000000000003 /* PdfText.swift in Sources */,
 				CF8000000000000000000005 /* ChatMirror.swift in Sources */,
+				CFC000000000000000000005 /* MessageReminders.swift in Sources */,
 				41FA27F82F41ED2100FED9FC /* SafariWebExtensionHandler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

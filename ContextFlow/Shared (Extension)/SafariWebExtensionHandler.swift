@@ -24,6 +24,8 @@ import AppKit
 ///   (the app checks the same mark).
 /// - `byokRefused` / `byokOfferShown` → an Own key subscriber's first refusal of the period, and the discount shown
 ///   (the app offers Pro at a discount a day after the refusal, once per period, like the panel).
+/// - `remind` / `unremind` → a reminder on an answer or a note: a local notification on this device that
+///   opens the app on the message (see MessageReminders); answers `outcome` (scheduled, denied, not-asked).
 /// - `ping` → health check.
 ///
 /// Every message also tells the app that the extension is switched on (and, for `getEntitlement`, which
@@ -156,6 +158,25 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                 }
                 Self.reply(context, ["success": true, "data": pdf])
             }
+        case "remind":
+            // A reminder on an answer or a note, set in the panel: a local notification on this device (2.5).
+            guard let chat = message["chat"] as? String, let key = message["message"] as? String,
+                  let at = (message["at"] as? NSNumber)?.doubleValue else {
+                Self.reply(context, ["success": false, "error": "remind: chat, message and at"])
+                return
+            }
+            let title = message["title"] as? String ?? "ContextFlow"
+            let body = message["body"] as? String ?? ""
+            Task {
+                let outcome = await MessageReminders.schedule(chat: chat, message: key, at: Date(timeIntervalSince1970: at / 1000),
+                                                              title: title, body: body, ask: message["ask"] as? Bool ?? false)
+                Self.reply(context, ["success": true, "data": ["outcome": outcome.rawValue]])
+            }
+        case "unremind":
+            if let chat = message["chat"] as? String, let key = message["message"] as? String {
+                MessageReminders.cancel(chat: chat, message: key)
+            }
+            Self.reply(context, ["success": true])
         case "ping":
             let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
             let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""

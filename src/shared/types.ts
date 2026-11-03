@@ -165,6 +165,9 @@ export type BackgroundRequest =
   | { type: "pdfText"; url: string }
   // The same for a PDF the page fetched itself (base64; behind a sign-in).
   | { type: "pdfBytes"; url: string; data: string }
+  // A reminder on an answer or a note (2.5): a local notification on this device (Safari); answers
+  // { outcome: "scheduled" | "denied" | "not-asked" | "failed" | "unavailable" }. `at` null: cancel it.
+  | { type: "remind"; chat: string; message: string; at: number | null; title?: string; body?: string; ask?: boolean }
 
 /** A PDF's text, or why there is none ("none": nothing to read, e.g. scanned pages). */
 export type PdfResult =
