@@ -308,6 +308,7 @@ final class OrganizeModel: ObservableObject {
 
     /// The vectors go with the chats ("Delete all chats" in Safari, or the chats gone).
     func forget() {
+        guard !vectors.v.isEmpty || !verdicts.items.isEmpty else { return }
         vectors = VectorStore(space: space, v: [:])
         verdicts = Verdicts()
         unpacked = [:]
