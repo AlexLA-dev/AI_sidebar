@@ -23,7 +23,7 @@ export interface OrganizeConfig {
   window: number
   tagWindow: number
   // Tags: the fit to the tag's examples, the margin over messages without it, how alike its examples are,
-  // and the judge's confidence; at most `maxTags` per message.
+  // and the judge's confidence; at most `maxTags` per message (one: the best, so the chat stays uncluttered).
   tagT: number
   tagD: number
   coherence: number
@@ -32,7 +32,7 @@ export interface OrganizeConfig {
   // Refused this many times in a row without one taken: no more such suggestions (in that chat; for that tag).
   rollback: number
   // "Everything in one chat?" (free, on the device): this many sites in the last 5 blocks, or this many
-  // blocks; at most once per `messHours` (in another chat each time).
+  // blocks. Once per chat at most, never again after ✕, and at least `messHours` apart.
   messSites: number
   messBlocks: number
   messHours: number
@@ -51,7 +51,7 @@ export const DEFAULT_ORGANIZE: OrganizeConfig = {
   tagD: 0.05,
   coherence: 0.3,
   judge: 0.7,
-  maxTags: 2,
+  maxTags: 1,
   rollback: 3,
   messSites: 3,
   messBlocks: 6,
