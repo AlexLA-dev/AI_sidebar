@@ -877,13 +877,27 @@ struct ChatDetailView: View {
     @State private var renaming = false
     @State private var newName = ""
     @State private var deleting = false
+    // Organizing (2.5): the chat shown ("Open" after a move switches to the other one), the suggestions for it,
+    // the bar after a move, and the cards about it.
+    @State private var shownId: String?
+    @ObservedObject private var organize = OrganizeModel.shared
+    @ObservedObject private var store = StoreKitManager.shared
+    @State private var suggestions: OrganizeModel.Suggestions?
+    @State private var undoBar: (text: String, undo: Organize.MoveUndo)?
+    @State private var messShown = false
+    @State private var tagsCard = false
+    @State private var firstWin = false
+    @State private var organizeTick = 0
+    @State private var seen = Set<String>()
 
-    private var thread: ChatThread? { library.threads.first { $0.id == threadId } }
+    private var currentId: String { shownId ?? threadId }
+    private var thread: ChatThread? { library.threads.first { $0.id == currentId } }
 
     var body: some View {
         Group {
             if let thread {
                 let labels = ShareText.labels(for: thread.entries)
+                let raw = thread.organized?.entries ?? []
                 ScrollViewReader { proxy in
                     ScrollView {
                         LazyVStack(alignment: .leading, spacing: 14) {
@@ -912,16 +926,21 @@ struct ChatDetailView: View {
                                             .frame(maxWidth: .infinity, alignment: entry.isUser ? .trailing : .leading)
                                             if tagging == index {
                                                 InlineTagEditor(tags: entry.tags ?? [], known: library.allTags) {
-                                                    library.setTags(thread, entry: index, $0)
+                                                    userTags(thread, index, $0)
                                                 } close: {
                                                     tagging = nil
                                                 }
                                                 .id("tags")
                                             }
+                                            organizeRow(thread, raw, index)
+                                                .frame(maxWidth: .infinity, alignment: entry.isUser ? .trailing : .leading)
                                         }
                                     }
                                 }
                                 .id(index)
+                            }
+                            if picked == nil, asking == nil, failure == nil {
+                                organizeCards(thread, raw)
                             }
                             if let asking {
                                 MessageView(entry: ChatEntry(role: "user", content: asking))
@@ -960,9 +979,22 @@ struct ChatDetailView: View {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { withAnimation { proxy.scrollTo("tags", anchor: .bottom) } }
                     }
                     .onChange(of: failure) { _ in proxy.scrollTo("end", anchor: .bottom) }
+                    // The bar after a move goes on the next action.
+                    .simultaneousGesture(TapGesture().onEnded { if undoBar != nil { withAnimation { undoBar = nil } } })
                     // Typing a question or a note: the end of the chat, where it goes.
                     .onChange(of: focused) { on in if on { withAnimation { proxy.scrollTo("end", anchor: .bottom) } } }
                 }
+                .overlay(alignment: .bottom) {
+                    if let bar = undoBar {
+                        UndoBar(text: bar.text, actions: [
+                            ("Undo", { undoMove(bar.undo) }),
+                            ("Open", { withAnimation { undoBar = nil; shownId = bar.undo.target } })
+                        ])
+                        .padding(.horizontal, 12)
+                        .padding(.bottom, 8)
+                    }
+                }
+                .task(id: "\(thread.id):\(thread.entries.count):\(asking == nil):\(organizeTick)") { await suggest(thread) }
                 .safeAreaInset(edge: .bottom) {
                     if let picked {
                         pickBar(thread, picked, labels)
@@ -1074,6 +1106,7 @@ struct ChatDetailView: View {
         let text = draft.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty, asking == nil else { return }
         failure = nil
+        undoBar = nil
         if noteMode {
             // A note: kept with the chat, never sent to the AI, uses no answers.
             library.append(thread, [Organize.stamped(["role": "user", "content": text, "note": true])])
@@ -1113,6 +1146,171 @@ struct ChatDetailView: View {
             }
             asking = nil
             streaming = ""
+        }
+    }
+
+    // MARK: Organizing (2.5)
+
+    /// After an answer or a note (and when the chat opens): what to suggest, if suggestions are on (Pro).
+    private func suggest(_ thread: ChatThread) async {
+        guard asking == nil, !thread.isHistory else { return }
+        await organize.refreshStatus()
+        guard organize.enabled(pro: store.isPro) else { suggestions = nil; return }
+        try? await Task.sleep(nanoseconds: 900_000_000)
+        guard !Task.isCancelled, let found = await organize.suggestions(for: thread, in: library.threads),
+              found.chat == currentId, found.length == self.thread?.entries.count else { return }
+        withAnimation(.easeOut(duration: 0.4)) { suggestions = found }
+        // Each suggestion counted once as shown.
+        if let move = found.move, !seen.contains("m\(found.chat)\(move.start)") {
+            seen.insert("m\(found.chat)\(move.start)")
+            ChatAI.reportOrganize("organize", ["action": "shown", "what": move.to == nil ? "new" : "move", "why": move.why.rawValue])
+        }
+        for (index, tag) in found.tags where !seen.contains("t\(tag.key)\(tag.tag)") {
+            seen.insert("t\(tag.key)\(tag.tag)")
+            _ = index
+            ChatAI.reportOrganize("organize", ["action": "shown", "what": "tag"])
+        }
+    }
+
+    /// The suggestions as they are now for this chat (gone once it changed, or while sharing or asking).
+    private func current(_ thread: ChatThread) -> OrganizeModel.Suggestions? {
+        guard let s = suggestions, s.chat == thread.id, s.length == thread.entries.count, picked == nil, asking == nil else { return nil }
+        return s
+    }
+
+    @ViewBuilder
+    private func organizeRow(_ thread: ChatThread, _ raw: [[String: Any]], _ index: Int) -> some View {
+        if let s = current(thread) {
+            let tag = s.tags[index].flatMap { raw.indices.contains(index) && Organize.entryKey(raw[index]) == $0.key ? $0.tag : nil }
+            let move = s.move?.end == index ? s.move : nil
+            if tag != nil || move != nil {
+                SuggestionRow(
+                    tag: tag, move: move,
+                    onTag: { if let tag { takeTag(thread, index, tag) } },
+                    onTagNo: { if let tag { refuseTag(thread, index, tag) } },
+                    onMove: { if let move { takeMove(thread, move) } },
+                    onMoveNo: { if let move { refuseMove(thread, move) } }
+                )
+            }
+        }
+    }
+
+    private func won() {
+        if organize.takeFirstWin() { withAnimation { firstWin = true } }
+    }
+
+    private func takeTag(_ thread: ChatThread, _ index: Int, _ tag: String) {
+        library.editEntries(thread) { entries in
+            guard entries.indices.contains(index) else { return }
+            entries[index]["tags"] = Tags.clean((entries[index]["tags"] as? [String] ?? []) + [tag])
+            var accepted = entries[index]["accepted"] as? [String: Any] ?? [:]
+            accepted["tags"] = Tags.clean((accepted["tags"] as? [String] ?? []) + [tag])
+            entries[index]["accepted"] = accepted
+        }
+        suggestions?.tags[index] = nil
+        ChatAI.reportOrganize("organize", ["action": "accepted", "what": "tag"])
+        won()
+    }
+
+    private func refuseTag(_ thread: ChatThread, _ index: Int, _ tag: String) {
+        library.editEntries(thread) { entries in
+            guard entries.indices.contains(index) else { return }
+            var dismissed = entries[index]["dismissed"] as? [String: Any] ?? [:]
+            dismissed["tags"] = Tags.clean((dismissed["tags"] as? [String] ?? []) + [tag])
+            entries[index]["dismissed"] = dismissed
+        }
+        suggestions?.tags[index] = nil
+        ChatAI.reportOrganize("organize", ["action": "dismissed", "what": "tag"])
+    }
+
+    private func takeMove(_ thread: ChatThread, _ move: OrganizeModel.Move) {
+        suggestions = nil
+        guard let undo = library.move(thread, move.start, move.end, to: move.to) else { return }
+        ChatAI.reportOrganize("organize", ["action": "accepted", "what": move.to == nil ? "new" : "move", "why": move.why.rawValue])
+        // The chat stays shown ("Open" goes to the other one), unless nothing is left in it.
+        if !library.threads.contains(where: { $0.id == thread.id }) { shownId = undo.target }
+        withAnimation { undoBar = (String(localized: "Moved to “\(move.toName)”"), undo) }
+        won()
+    }
+
+    private func undoMove(_ undo: Organize.MoveUndo) {
+        withAnimation { undoBar = nil }
+        library.undo(undo)
+        shownId = undo.source == threadId ? nil : undo.source
+        // Taken back: the same move isn't suggested again.
+        let keys = Set(undo.keys)
+        if let source = library.threads.first(where: { $0.id == undo.source }) {
+            library.editEntries(source) { entries in
+                for i in entries.indices where keys.contains(Organize.entryKey(entries[i])) {
+                    var dismissed = entries[i]["dismissed"] as? [String: Any] ?? [:]
+                    dismissed["move"] = true
+                    entries[i]["dismissed"] = dismissed
+                }
+            }
+        }
+        ChatAI.reportOrganize("organize", ["action": "undone", "what": undo.beforeTarget == nil ? "new" : "move"])
+    }
+
+    private func refuseMove(_ thread: ChatThread, _ move: OrganizeModel.Move) {
+        library.editEntries(thread) { entries in
+            for i in move.start...move.end where entries.indices.contains(i) {
+                var dismissed = entries[i]["dismissed"] as? [String: Any] ?? [:]
+                dismissed["move"] = true
+                entries[i]["dismissed"] = dismissed
+            }
+        }
+        suggestions?.move = nil
+        ChatAI.reportOrganize("organize", ["action": "dismissed", "what": move.to == nil ? "new" : "move", "why": move.why.rawValue])
+    }
+
+    /// Tags the user set on a message: after their third tag in all, what organizing does (without Pro, once).
+    private func userTags(_ thread: ChatThread, _ index: Int, _ tags: [String]) {
+        let known = Set(library.allTags.map { $0.lowercased() })
+        let added = Tags.clean(tags).filter { !known.contains($0.lowercased()) }.count
+        library.setTags(thread, entry: index, tags)
+        if known.count < 3, known.count + added >= 3, !store.isPro, organize.takeTagsCard() { withAnimation { tagsCard = true } }
+    }
+
+    /// Cards under the chat: turn suggestions on (Pro, off, the chat looks like it needs them), "Everything in one
+    /// chat?" (without Pro), after the third tag (without Pro), and the line after the first suggestion taken.
+    @ViewBuilder
+    private func organizeCards(_ thread: ChatThread, _ raw: [[String: Any]]) -> some View {
+        let chat = thread.organized
+        let mixed = !thread.isHistory && chat.map { Organize.looksMixed($0, organize.config) } == true
+        let blocks = Organize.pageBlocks(raw)
+        let elsewhere = blocks.count >= 2 && blocks.contains { b in
+            guard let url = b.url else { return false }
+            return library.threads.contains { other in other.id != thread.id && other.entries.contains { $0.page?.url == url } }
+        }
+        let settingOn = SharedDefaults.shared.readSettings()?.settings["organize"] as? Bool ?? false
+        if store.isPro, organize.serverOn, !settingOn, !organize.consentAnswered, mixed || elsewhere {
+            OrganizeCard(kind: .consent, primary: {
+                organize.answerConsent(true, from: "card")
+                organizeTick += 1
+            }, close: { organize.answerConsent(false, from: "card") })
+        }
+        if !store.isPro, !thread.isHistory, messShown || (mixed && organize.messCardDue(chat: thread.id)) {
+            OrganizeCard(kind: .mess, primary: {
+                ChatAI.reportOrganize("organize_promo", ["action": "tap", "where": "inchat_mess"])
+                openPro()
+            }, close: {
+                organize.closeMessCard()
+                withAnimation { messShown = false }
+            })
+            .onAppear {
+                if !messShown { messShown = true; organize.messCardShown(chat: thread.id) }
+            }
+        }
+        if tagsCard, !store.isPro {
+            OrganizeCard(kind: .tags, primary: {
+                ChatAI.reportOrganize("organize_promo", ["action": "tap", "where": "third_tag"])
+                openPro()
+            }, close: { withAnimation { tagsCard = false } })
+        }
+        if firstWin, organize.enabled(pro: store.isPro) {
+            Label("Done. From now on ContextFlow will suggest on its own.", systemImage: "sparkles")
+                .font(.footnote)
+                .foregroundColor(.secondary)
         }
     }
 

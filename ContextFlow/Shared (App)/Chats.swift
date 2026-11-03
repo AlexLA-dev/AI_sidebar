@@ -159,8 +159,10 @@ struct ChatThread: Identifiable, Hashable {
     var isPinned: Bool { pin != nil }
 
     /// The user's name for it, or its first question (or quick action and its page).
-    var name: String {
-        if let title { return title }
+    var name: String { title ?? Self.title(of: entries) }
+
+    /// A name for these messages, as a chat is named after its first question (src/shared/threads.ts `threadTitle`).
+    static func title(of entries: [ChatEntry]) -> String {
         guard let first = entries.first(where: \.isUser) else { return "" }
         if let label = first.label {
             return oneLine(first.page.map { "\(label) · \($0.title)" } ?? label, 80)
@@ -680,6 +682,17 @@ final class ChatLibrary: ObservableObject {
         let swept = Organize.sweep(threads.compactMap(\.organized), now: now)
         guard !swept.changed.isEmpty || !swept.emptied.isEmpty else { return }
         storeOrganized(saves: swept.changed, deletes: swept.emptied)
+    }
+
+    /// Changes messages of a chat as stored (organizing: a suggestion turned down, a suggested tag taken), keeping
+    /// every other field; the chat keeps its place in the list.
+    func editEntries(_ thread: ChatThread, _ change: (inout [[String: Any]]) -> Void) {
+        let current = threads.first { $0.id == thread.id } ?? thread
+        guard var organized = current.organized else { return }
+        var entries = organized.entries
+        change(&entries)
+        organized = organized.with(u: max(now, current.updatedAt + 1), a: organized.activity, m: entries)
+        storeOrganized(saves: [organized], deletes: [])
     }
 
     /// Stores organized chats here, for the extension and in iCloud, and drops the emptied ones.
