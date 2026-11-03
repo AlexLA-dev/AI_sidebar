@@ -10,6 +10,8 @@
 <style>
   :root { --c1: #2563eb; --c2: #10b981; --c3: #8b5cf6; --warn: #d92d20; }
   @media (prefers-color-scheme: dark) { :root { --c1: #60a5fa; --c2: #34d399; --c3: #a78bfa; --warn: #ff6b5e; } }
+  /* Safari on iPhone enlarges text in tables wider than the screen (the limits table went from 13 to 17 px). */
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   body { font-size: 15px; }
   .bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 6px 0 18px; }
   .bar h1 { font-size: 26px; margin: 0; letter-spacing: -0.01em; }
