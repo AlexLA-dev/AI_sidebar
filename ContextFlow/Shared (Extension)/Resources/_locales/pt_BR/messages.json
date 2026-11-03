@@ -734,6 +734,234 @@
  "tagsButton": {
   "message": "Tag"
  },
+ "qiTitle": {
+  "message": "Inserção rápida"
+ },
+ "qiButton": {
+  "message": "Inserção rápida: texto copiado, modelos, resposta do ContextFlow"
+ },
+ "qiCommand": {
+  "message": "Inserção rápida no cursor"
+ },
+ "qiSearch": {
+  "message": "Buscar um modelo"
+ },
+ "qiNewTemplate": {
+  "message": "Novo modelo"
+ },
+ "qiEditTemplate": {
+  "message": "Modelo"
+ },
+ "qiCopied": {
+  "message": "Copiados"
+ },
+ "qiClear": {
+  "message": "Limpar"
+ },
+ "qiCopiedOff": {
+  "message": "“Copiados” está desativado. Ative abaixo."
+ },
+ "qiCopiedEmpty": {
+  "message": "Copie um texto em qualquer página no Safari e ele aparece aqui."
+ },
+ "qiNothing": {
+  "message": "Nada encontrado"
+ },
+ "qiToTemplate": {
+  "message": "Transformar em modelo"
+ },
+ "qiTemplates": {
+  "message": "Modelos"
+ },
+ "qiTemplatesTitle": {
+  "message": "Modelos"
+ },
+ "qiAllTemplates": {
+  "message": "Todos os modelos"
+ },
+ "qiTemplatesEmpty": {
+  "message": "Ainda não há modelos. Toque em + ou selecione uma resposta que você escreve sempre e toque em “Modelo”."
+ },
+ "qiTemplatesIntro": {
+  "message": "Salve as respostas que você escreve de novo e de novo. O ContextFlow marca o que muda, como um nome ou uma data, e pode pegar isso da página."
+ },
+ "qiFindAi": {
+  "message": "Buscar pelo sentido"
+ },
+ "qiFinding": {
+  "message": "Buscando…"
+ },
+ "qiFromCf": {
+  "message": "Do ContextFlow"
+ },
+ "qiLastAnswer": {
+  "message": "Última resposta"
+ },
+ "qiLastNote": {
+  "message": "Última nota"
+ },
+ "qiKeepCopied": {
+  "message": "Guardar o texto copiado"
+ },
+ "qiPrivacy": {
+  "message": "O texto copiado fica só neste {0} e é apagado depois de 24 horas."
+ },
+ "qiOnIphone": {
+  "message": "iPhone"
+ },
+ "qiOnIpad": {
+  "message": "iPad"
+ },
+ "qiOnMac": {
+  "message": "Mac"
+ },
+ "qiOnDevice": {
+  "message": "dispositivo"
+ },
+ "qiDontKeepOnSite": {
+  "message": "Não guardar em {0}"
+ },
+ "qiKeepOnSite": {
+  "message": "Voltar a guardar em {0}"
+ },
+ "qiTip": {
+  "message": "Novidade: um toque insere o que você copiou em outras abas, um modelo ou a resposta do ContextFlow."
+ },
+ "qiKeyInsert": {
+  "message": "inserir"
+ },
+ "qiKeyChoose": {
+  "message": "escolher"
+ },
+ "qiKeyClose": {
+  "message": "fechar"
+ },
+ "qiBlanksMark": {
+  "message": "lacunas"
+ },
+ "qiBlanksCount": {
+  "message": "Lacunas: {0}"
+ },
+ "qiPasteManually": {
+  "message": "Copiado. Cole você mesmo no campo."
+ },
+ "qiInsert": {
+  "message": "Inserir"
+ },
+ "qiInsertIntoField": {
+  "message": "Inserir no campo"
+ },
+ "qiFillFromPage": {
+  "message": "Preencher pela página"
+ },
+ "qiFillAgain": {
+  "message": "Preencher de novo"
+ },
+ "qiFilling": {
+  "message": "Preenchendo…"
+ },
+ "qiFillHint": {
+  "message": "Digite nas lacunas, escolha em “Copiados” ou deixe o ContextFlow preenchê-las pela página."
+ },
+ "qiFillDone": {
+  "message": "Em amarelo: tirado da página. Confira antes de enviar."
+ },
+ "qiFillPartly": {
+  "message": "Em amarelo: tirado da página. Uma lacuna vazia não foi encontrada: preencha você."
+ },
+ "qiFillLeft": {
+  "message": "Preenchimentos restantes hoje: {0}."
+ },
+ "qiFillLimit": {
+  "message": "Os preenchimentos grátis de hoje acabaram. No Pro não há limite, e as lacunas também podem ser preenchidas à mão."
+ },
+ "qiFillByHand": {
+  "message": "Preencher à mão"
+ },
+ "qiFillConsent": {
+  "message": "Para preencher as lacunas, o ContextFlow envia o texto desta página e o modelo ao Claude da Anthropic. Nada é guardado."
+ },
+ "qiPickCopied": {
+  "message": "Copiados para “{0}”"
+ },
+ "qiAdapt": {
+  "message": "Ajustar à mensagem"
+ },
+ "qiAdaptLabel": {
+  "message": "Ajustar o modelo a esta página"
+ },
+ "qiAdaptPrompt": {
+  "message": "Reescreva este modelo como uma resposta que combine com a página aberta. Mantenha o sentido, o tom e o tamanho; complete o que a página informa e deixe o resto como está. Responda só com o texto da resposta.\n\nModelo:\n{0}"
+ },
+ "qiTemplateButton": {
+  "message": "Modelo"
+ },
+ "qiTemplateTitle": {
+  "message": "Título"
+ },
+ "qiTemplateText": {
+  "message": "Texto. As lacunas ficam entre chaves, como {Nome}."
+ },
+ "qiMakeBlank": {
+  "message": "Lacuna"
+ },
+ "qiBlankDefault": {
+  "message": "Lacuna"
+ },
+ "qiUnmark": {
+  "message": "voltar a ser texto normal"
+ },
+ "qiMarking": {
+  "message": "Marcando o que muda…"
+ },
+ "qiMarkAi": {
+  "message": "Marcar lacunas"
+ },
+ "qiMarkedHint": {
+  "message": "As lacunas estão marcadas. Toque em uma para que volte a ser texto normal."
+ },
+ "qiMarkedNone": {
+  "message": "Parece que nada muda aqui. Selecione uma palavra e toque em “Lacuna” para adicionar uma."
+ },
+ "qiMarkFailed": {
+  "message": "Não foi possível marcar as lacunas agora. O modelo é salvo como texto simples, e você pode adicionar lacunas à mão."
+ },
+ "qiMarkConsent": {
+  "message": "Para marcar as lacunas, o ContextFlow envia este texto ao Claude da Anthropic. Nada é guardado."
+ },
+ "qiBlankHint": {
+  "message": "As lacunas são preenchidas quando o modelo é inserido."
+ },
+ "qiKeywords": {
+  "message": "Palavras para encontrá-lo, separadas por vírgulas"
+ },
+ "qiSave": {
+  "message": "Salvar"
+ },
+ "qiDelete": {
+  "message": "Apagar"
+ },
+ "qiSetButton": {
+  "message": "Botão ao lado dos campos de texto"
+ },
+ "qiSetCopiedHint": {
+  "message": "Os 5 últimos trechos copiados em páginas. Ficam só neste dispositivo e são apagados depois de 24 horas. Nada de campos de senha ou cartão, nem na navegação privada."
+ },
+ "qiClearCopied": {
+  "message": "Limpar “Copiados”"
+ },
+ "qiCleared": {
+  "message": "Limpo"
+ },
+ "qiSetSign": {
+  "message": "Sinal em um campo"
+ },
+ "qiSetSignHint": {
+  "message": "Digite {0} e algumas palavras de um modelo em qualquer campo."
+ },
+ "qiSetShortcut": {
+  "message": "No Mac e no iPad com teclado, ⌃⇧V abre a lista."
+ },
  "hintGot": {
   "message": "Entendi"
  },
@@ -838,5 +1066,89 @@
  },
  "byokOfferBody": {
   "message": "O Pro responde sem a sua chave: até {0} respostas por semana, {1} buscas no Google por semana, “Pergunte às suas conversas” e busca com IA. A App Store mostra o preço e a duração antes de pagar. O Pro começa na hora, e a parte não usada do plano atual é reembolsada."
+ },
+ "orgSuggested": {
+  "message": "Sugestão"
+ },
+ "orgTagA11y": {
+  "message": "Tag sugerida “{0}”. Adicionar"
+ },
+ "orgNoA11y": {
+  "message": "Ignorar"
+ },
+ "orgCountOne": {
+  "message": "{0} mensagem"
+ },
+ "orgCountFew": {
+  "message": "{0} mensagens"
+ },
+ "orgCountMany": {
+  "message": "{0} mensagens"
+ },
+ "orgCountOther": {
+  "message": "{0} mensagens"
+ },
+ "orgMoveTo": {
+  "message": "{0} para “{1}”"
+ },
+ "orgSplit": {
+  "message": "Para uma nova conversa: “{0}”"
+ },
+ "orgMoveA11y": {
+  "message": "Mover {0} para a conversa “{1}”"
+ },
+ "orgSplitA11y": {
+  "message": "Mover estas mensagens para uma nova conversa, “{0}”"
+ },
+ "orgMoved": {
+  "message": "Movido para “{0}”"
+ },
+ "orgUndo": {
+  "message": "Desfazer"
+ },
+ "orgOpen": {
+  "message": "Abrir"
+ },
+ "orgFirstWin": {
+  "message": "Pronto. Daqui em diante, o ContextFlow vai sugerir sozinho."
+ },
+ "orgConsentTitle": {
+  "message": "Organizar suas conversas por assunto?"
+ },
+ "orgConsentText": {
+  "message": "O ContextFlow vai sugerir uma conversa adequada e uma das suas tags embaixo das novas respostas e notas. Para isso, o texto das suas mensagens vai para o nosso servidor e para a OpenAI e a Anthropic. Não guardamos esse texto. A OpenAI e a Anthropic não o usam para treinamento."
+ },
+ "orgTurnOn": {
+  "message": "Ativar"
+ },
+ "orgMessTitle": {
+  "message": "Tudo numa conversa só?"
+ },
+ "orgMessText": {
+  "message": "No Pro, o ContextFlow sugere o que vai para onde e coloca tags do jeito que você coloca."
+ },
+ "orgTagsTitle": {
+  "message": "O ContextFlow pode colocar tags do seu jeito"
+ },
+ "orgTagsText": {
+  "message": "No Pro, ele sugere uma das suas tags embaixo das novas respostas e notas, de acordo com onde você mesmo a coloca."
+ },
+ "orgCloseA11y": {
+  "message": "Fechar"
+ },
+ "setOrganize": {
+  "message": "Sugestões: tags e mover"
+ },
+ "setOrganizeHint": {
+  "message": "Uma conversa adequada e sua tag embaixo das novas respostas e notas. O texto das suas mensagens vai para o nosso servidor e para a OpenAI e a Anthropic. Não guardamos esse texto, e elas não o usam para treinamento."
+ },
+ "setOrganizePro": {
+  "message": "Pro: o ContextFlow sugere uma conversa adequada e sua tag embaixo das novas respostas e notas."
+ },
+ "upsellOrganizeName": {
+  "message": "Organiza por assunto"
+ },
+ "upsellOrganizeText": {
+  "message": "Sugere a conversa certa para o que você acabou de perguntar, e sua própria tag para isso."
  }
 }

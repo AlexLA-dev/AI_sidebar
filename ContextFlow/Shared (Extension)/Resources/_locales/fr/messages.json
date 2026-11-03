@@ -734,6 +734,234 @@
  "tagsButton": {
   "message": "Tag"
  },
+ "qiTitle": {
+  "message": "Insertion rapide"
+ },
+ "qiButton": {
+  "message": "Insertion rapide : texte copié, modèles, réponse de ContextFlow"
+ },
+ "qiCommand": {
+  "message": "Insertion rapide au curseur"
+ },
+ "qiSearch": {
+  "message": "Chercher un modèle"
+ },
+ "qiNewTemplate": {
+  "message": "Nouveau modèle"
+ },
+ "qiEditTemplate": {
+  "message": "Modèle"
+ },
+ "qiCopied": {
+  "message": "Copié"
+ },
+ "qiClear": {
+  "message": "Effacer"
+ },
+ "qiCopiedOff": {
+  "message": "« Copié » est désactivé. Activez-le en bas."
+ },
+ "qiCopiedEmpty": {
+  "message": "Copiez du texte sur n’importe quelle page dans Safari : il apparaît ici."
+ },
+ "qiNothing": {
+  "message": "Rien trouvé"
+ },
+ "qiToTemplate": {
+  "message": "En faire un modèle"
+ },
+ "qiTemplates": {
+  "message": "Modèles"
+ },
+ "qiTemplatesTitle": {
+  "message": "Modèles"
+ },
+ "qiAllTemplates": {
+  "message": "Tous les modèles"
+ },
+ "qiTemplatesEmpty": {
+  "message": "Aucun modèle pour l’instant. Touchez + ou sélectionnez une réponse que vous écrivez souvent, puis touchez « Modèle »."
+ },
+ "qiTemplatesIntro": {
+  "message": "Enregistrez les réponses que vous écrivez encore et encore. ContextFlow repère ce qui change, comme un nom ou une date, et peut le reprendre de la page."
+ },
+ "qiFindAi": {
+  "message": "Chercher par le sens"
+ },
+ "qiFinding": {
+  "message": "Recherche…"
+ },
+ "qiFromCf": {
+  "message": "De ContextFlow"
+ },
+ "qiLastAnswer": {
+  "message": "Dernière réponse"
+ },
+ "qiLastNote": {
+  "message": "Dernière note"
+ },
+ "qiKeepCopied": {
+  "message": "Garder le texte copié"
+ },
+ "qiPrivacy": {
+  "message": "Le texte copié reste uniquement sur cet appareil et est effacé au bout de 24 heures."
+ },
+ "qiOnIphone": {
+  "message": "iPhone"
+ },
+ "qiOnIpad": {
+  "message": "iPad"
+ },
+ "qiOnMac": {
+  "message": "Mac"
+ },
+ "qiOnDevice": {
+  "message": "appareil"
+ },
+ "qiDontKeepOnSite": {
+  "message": "Ne pas garder sur {0}"
+ },
+ "qiKeepOnSite": {
+  "message": "Garder à nouveau sur {0}"
+ },
+ "qiTip": {
+  "message": "Nouveau : touchez pour insérer ce que vous avez copié dans d’autres onglets, un modèle ou la réponse de ContextFlow."
+ },
+ "qiKeyInsert": {
+  "message": "insérer"
+ },
+ "qiKeyChoose": {
+  "message": "choisir"
+ },
+ "qiKeyClose": {
+  "message": "fermer"
+ },
+ "qiBlanksMark": {
+  "message": "champs"
+ },
+ "qiBlanksCount": {
+  "message": "Champs à remplir : {0}"
+ },
+ "qiPasteManually": {
+  "message": "Copié. Collez-le vous-même dans le champ."
+ },
+ "qiInsert": {
+  "message": "Insérer"
+ },
+ "qiInsertIntoField": {
+  "message": "Insérer dans le champ"
+ },
+ "qiFillFromPage": {
+  "message": "Remplir depuis la page"
+ },
+ "qiFillAgain": {
+  "message": "Remplir à nouveau"
+ },
+ "qiFilling": {
+  "message": "Remplissage…"
+ },
+ "qiFillHint": {
+  "message": "Saisissez les champs, choisissez dans « Copié » ou laissez ContextFlow les remplir depuis la page."
+ },
+ "qiFillDone": {
+  "message": "En jaune : repris de la page. Vérifiez avant d’envoyer."
+ },
+ "qiFillPartly": {
+  "message": "En jaune : repris de la page. Un champ vide n’a pas été trouvé : remplissez-le vous-même."
+ },
+ "qiFillLeft": {
+  "message": "Remplissages restants aujourd’hui : {0}."
+ },
+ "qiFillLimit": {
+  "message": "Les remplissages gratuits du jour sont épuisés. Avec Pro, il n’y a pas de limite, et les champs peuvent aussi être remplis à la main."
+ },
+ "qiFillByHand": {
+  "message": "Remplir à la main"
+ },
+ "qiFillConsent": {
+  "message": "Pour remplir les champs, ContextFlow envoie le texte de cette page et le modèle à Claude d’Anthropic. Rien n’est conservé."
+ },
+ "qiPickCopied": {
+  "message": "Copié pour « {0} »"
+ },
+ "qiAdapt": {
+  "message": "Adapter au message"
+ },
+ "qiAdaptLabel": {
+  "message": "Adapter le modèle à cette page"
+ },
+ "qiAdaptPrompt": {
+  "message": "Réécris ce modèle en une réponse adaptée à la page ouverte. Garde le sens, le ton et la longueur ; complète ce que la page indique et laisse le reste tel quel. Réponds uniquement par le texte de la réponse.\n\nModèle :\n{0}"
+ },
+ "qiTemplateButton": {
+  "message": "Modèle"
+ },
+ "qiTemplateTitle": {
+  "message": "Titre"
+ },
+ "qiTemplateText": {
+  "message": "Texte. Les champs à remplir entre accolades, comme {Nom}."
+ },
+ "qiMakeBlank": {
+  "message": "Champ"
+ },
+ "qiBlankDefault": {
+  "message": "Champ"
+ },
+ "qiUnmark": {
+  "message": "redevenir du texte normal"
+ },
+ "qiMarking": {
+  "message": "Repérage de ce qui change…"
+ },
+ "qiMarkAi": {
+  "message": "Repérer les champs"
+ },
+ "qiMarkedHint": {
+  "message": "Les champs sont repérés. Touchez-en un pour qu’il redevienne du texte normal."
+ },
+ "qiMarkedNone": {
+  "message": "Rien ne semble changer ici. Sélectionnez un mot et touchez « Champ » pour en ajouter un."
+ },
+ "qiMarkFailed": {
+  "message": "Impossible de repérer les champs pour l’instant. Le modèle est enregistré en texte simple, vous pouvez ajouter des champs à la main."
+ },
+ "qiMarkConsent": {
+  "message": "Pour repérer les champs, ContextFlow envoie ce texte à Claude d’Anthropic. Rien n’est conservé."
+ },
+ "qiBlankHint": {
+  "message": "Les champs sont remplis quand le modèle est inséré."
+ },
+ "qiKeywords": {
+  "message": "Mots pour le retrouver, séparés par des virgules"
+ },
+ "qiSave": {
+  "message": "Enregistrer"
+ },
+ "qiDelete": {
+  "message": "Supprimer"
+ },
+ "qiSetButton": {
+  "message": "Bouton près des champs de texte"
+ },
+ "qiSetCopiedHint": {
+  "message": "Les 5 derniers textes copiés sur des pages. Ils restent uniquement sur cet appareil et sont effacés au bout de 24 heures. Rien des champs de mot de passe ou de carte, ni en navigation privée."
+ },
+ "qiClearCopied": {
+  "message": "Effacer « Copié »"
+ },
+ "qiCleared": {
+  "message": "Effacé"
+ },
+ "qiSetSign": {
+  "message": "Signe dans un champ"
+ },
+ "qiSetSignHint": {
+  "message": "Tapez {0} et quelques mots d’un modèle dans n’importe quel champ."
+ },
+ "qiSetShortcut": {
+  "message": "Sur Mac et sur iPad avec clavier, ⌃⇧V ouvre la liste."
+ },
  "hintGot": {
   "message": "Compris"
  },
@@ -838,5 +1066,89 @@
  },
  "byokOfferBody": {
   "message": "Pro répond sans votre clé : jusqu'à {0} réponses par semaine, {1} recherches Google par semaine, « Interroger vos discussions » et la recherche IA. L'App Store affiche le prix et la durée avant le paiement. Pro démarre aussitôt et la partie non utilisée de votre offre est remboursée."
+ },
+ "orgSuggested": {
+  "message": "Suggestion"
+ },
+ "orgTagA11y": {
+  "message": "Tag suggéré « {0} ». L’ajouter"
+ },
+ "orgNoA11y": {
+  "message": "Ignorer"
+ },
+ "orgCountOne": {
+  "message": "{0} message"
+ },
+ "orgCountFew": {
+  "message": "{0} messages"
+ },
+ "orgCountMany": {
+  "message": "{0} messages"
+ },
+ "orgCountOther": {
+  "message": "{0} messages"
+ },
+ "orgMoveTo": {
+  "message": "{0} vers « {1} »"
+ },
+ "orgSplit": {
+  "message": "Vers une nouvelle discussion : « {0} »"
+ },
+ "orgMoveA11y": {
+  "message": "Déplacer {0} vers la discussion « {1} »"
+ },
+ "orgSplitA11y": {
+  "message": "Déplacer ces messages vers une nouvelle discussion, « {0} »"
+ },
+ "orgMoved": {
+  "message": "Déplacé vers « {0} »"
+ },
+ "orgUndo": {
+  "message": "Annuler"
+ },
+ "orgOpen": {
+  "message": "Ouvrir"
+ },
+ "orgFirstWin": {
+  "message": "C’est fait. Désormais, ContextFlow fera ses suggestions tout seul."
+ },
+ "orgConsentTitle": {
+  "message": "Classer vos discussions par sujet ?"
+ },
+ "orgConsentText": {
+  "message": "ContextFlow suggérera une discussion adaptée et l’un de vos tags sous les nouvelles réponses et notes. Pour cela, le texte de vos messages est envoyé à notre serveur, à OpenAI et à Anthropic. Nous ne le conservons pas. OpenAI et Anthropic ne l’utilisent pas pour l’entraînement."
+ },
+ "orgTurnOn": {
+  "message": "Activer"
+ },
+ "orgMessTitle": {
+  "message": "Tout dans une seule discussion ?"
+ },
+ "orgMessText": {
+  "message": "Avec Pro, ContextFlow suggère ce qui va où et ajoute les tags comme vous le faites."
+ },
+ "orgTagsTitle": {
+  "message": "ContextFlow peut taguer comme vous"
+ },
+ "orgTagsText": {
+  "message": "Avec Pro, il suggère l’un de vos tags sous les nouvelles réponses et notes, d’après les endroits où vous le mettez vous-même."
+ },
+ "orgCloseA11y": {
+  "message": "Fermer"
+ },
+ "setOrganize": {
+  "message": "Suggestions : tags et déplacement"
+ },
+ "setOrganizeHint": {
+  "message": "Une discussion adaptée et votre tag sous les nouvelles réponses et notes. Le texte de vos messages est envoyé à notre serveur, à OpenAI et à Anthropic. Nous ne le conservons pas, et ils ne l’utilisent pas pour l’entraînement."
+ },
+ "setOrganizePro": {
+  "message": "Pro : ContextFlow suggère une discussion adaptée et votre tag sous les nouvelles réponses et notes."
+ },
+ "upsellOrganizeName": {
+  "message": "Classe par sujet"
+ },
+ "upsellOrganizeText": {
+  "message": "Suggère la bonne discussion pour ce que vous venez de demander, et votre propre tag."
  }
 }

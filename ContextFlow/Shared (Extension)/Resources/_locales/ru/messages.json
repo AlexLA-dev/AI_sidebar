@@ -1066,5 +1066,89 @@
  },
  "byokOfferBody": {
   "message": "Pro отвечает без вашего ключа: до {0} ответов в неделю, {1} поисков Google в неделю, «Спросить по всем чатам» и ИИ-поиск. App Store покажет цену и срок скидки до оплаты. Pro начнётся сразу, а неиспользованную часть текущего тарифа вернут."
+ },
+ "orgSuggested": {
+  "message": "Подсказка"
+ },
+ "orgTagA11y": {
+  "message": "Предложенный тег «{0}». Добавить"
+ },
+ "orgNoA11y": {
+  "message": "Отклонить"
+ },
+ "orgCountOne": {
+  "message": "{0} сообщение"
+ },
+ "orgCountFew": {
+  "message": "{0} сообщения"
+ },
+ "orgCountMany": {
+  "message": "{0} сообщений"
+ },
+ "orgCountOther": {
+  "message": "{0} сообщения"
+ },
+ "orgMoveTo": {
+  "message": "{0} в «{1}»"
+ },
+ "orgSplit": {
+  "message": "Отделить в новый чат: «{0}»"
+ },
+ "orgMoveA11y": {
+  "message": "Перенести {0} в чат «{1}»"
+ },
+ "orgSplitA11y": {
+  "message": "Отделить эти сообщения в новый чат «{0}»"
+ },
+ "orgMoved": {
+  "message": "Перенесено в «{0}»"
+ },
+ "orgUndo": {
+  "message": "Отменить"
+ },
+ "orgOpen": {
+  "message": "Открыть"
+ },
+ "orgFirstWin": {
+  "message": "Готово. Дальше ContextFlow будет подсказывать сам."
+ },
+ "orgConsentTitle": {
+  "message": "Разложить чаты по темам?"
+ },
+ "orgConsentText": {
+  "message": "ContextFlow будет подсказывать подходящий чат и ваш тег под новыми ответами и заметками. Для этого текст сообщений уходит на наш сервер и к OpenAI и Anthropic. Мы его не храним. OpenAI и Anthropic не используют его для обучения."
+ },
+ "orgTurnOn": {
+  "message": "Включить"
+ },
+ "orgMessTitle": {
+  "message": "Всё в одном чате?"
+ },
+ "orgMessText": {
+  "message": "В Pro ContextFlow подскажет, что куда переложить, и поставит теги так, как ставите их вы."
+ },
+ "orgTagsTitle": {
+  "message": "ContextFlow может ставить теги так, как вы"
+ },
+ "orgTagsText": {
+  "message": "В Pro он подскажет ваш тег под новыми ответами и заметками — по тому, где вы ставили его сами."
+ },
+ "orgCloseA11y": {
+  "message": "Закрыть"
+ },
+ "setOrganize": {
+  "message": "Подсказки: теги и перенос"
+ },
+ "setOrganizeHint": {
+  "message": "Под новыми ответами и заметками — подходящий чат и ваш тег. Текст сообщений уходит на наш сервер, к OpenAI и Anthropic. Мы его не храним, они не используют его для обучения."
+ },
+ "setOrganizePro": {
+  "message": "В Pro ContextFlow подсказывает подходящий чат и ваш тег под новыми ответами и заметками."
+ },
+ "upsellOrganizeName": {
+  "message": "Сам раскладывает по темам"
+ },
+ "upsellOrganizeText": {
+  "message": "Подскажет нужный чат для того, что вы только что спросили, и ваш тег для него."
  }
 }

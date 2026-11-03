@@ -734,6 +734,234 @@
  "tagsButton": {
   "message": "Тег"
  },
+ "qiTitle": {
+  "message": "Швидка вставка"
+ },
+ "qiButton": {
+  "message": "Швидка вставка: скопійоване, шаблони, відповідь ContextFlow"
+ },
+ "qiCommand": {
+  "message": "Швидка вставка біля курсора"
+ },
+ "qiSearch": {
+  "message": "Знайти шаблон"
+ },
+ "qiNewTemplate": {
+  "message": "Новий шаблон"
+ },
+ "qiEditTemplate": {
+  "message": "Шаблон"
+ },
+ "qiCopied": {
+  "message": "Скопійоване"
+ },
+ "qiClear": {
+  "message": "Очистити"
+ },
+ "qiCopiedOff": {
+  "message": "«Скопійоване» вимкнено. Увімкніть його внизу."
+ },
+ "qiCopiedEmpty": {
+  "message": "Скопіюйте текст на будь-якій сторінці в Safari — він з’явиться тут."
+ },
+ "qiNothing": {
+  "message": "Нічого не знайшлося"
+ },
+ "qiToTemplate": {
+  "message": "Зробити шаблоном"
+ },
+ "qiTemplates": {
+  "message": "Шаблони"
+ },
+ "qiTemplatesTitle": {
+  "message": "Шаблони"
+ },
+ "qiAllTemplates": {
+  "message": "Усі шаблони"
+ },
+ "qiTemplatesEmpty": {
+  "message": "Шаблонів поки немає. Натисніть + або виділіть відповідь, яку пишете часто, і натисніть «Шаблон»."
+ },
+ "qiTemplatesIntro": {
+  "message": "Зберігайте відповіді, які пишете знову і знову. ContextFlow позначить, що в них змінюється, — ім’я, дату — і зможе взяти це зі сторінки."
+ },
+ "qiFindAi": {
+  "message": "Знайти за змістом"
+ },
+ "qiFinding": {
+  "message": "Шукаю…"
+ },
+ "qiFromCf": {
+  "message": "З ContextFlow"
+ },
+ "qiLastAnswer": {
+  "message": "Остання відповідь"
+ },
+ "qiLastNote": {
+  "message": "Остання нотатка"
+ },
+ "qiKeepCopied": {
+  "message": "Зберігати скопійоване"
+ },
+ "qiPrivacy": {
+  "message": "Скопійоване зберігається лише на цьому {0} і стирається через 24 години."
+ },
+ "qiOnIphone": {
+  "message": "iPhone"
+ },
+ "qiOnIpad": {
+  "message": "iPad"
+ },
+ "qiOnMac": {
+  "message": "Mac"
+ },
+ "qiOnDevice": {
+  "message": "пристрої"
+ },
+ "qiDontKeepOnSite": {
+  "message": "Не зберігати на {0}"
+ },
+ "qiKeepOnSite": {
+  "message": "Знову зберігати на {0}"
+ },
+ "qiTip": {
+  "message": "Нове: дотик вставить скопійоване на інших вкладках, шаблон або відповідь ContextFlow."
+ },
+ "qiKeyInsert": {
+  "message": "вставити"
+ },
+ "qiKeyChoose": {
+  "message": "вибрати"
+ },
+ "qiKeyClose": {
+  "message": "закрити"
+ },
+ "qiBlanksMark": {
+  "message": "пропуски"
+ },
+ "qiBlanksCount": {
+  "message": "Пропусків: {0}"
+ },
+ "qiPasteManually": {
+  "message": "Скопійовано. Вставте в поле вручну."
+ },
+ "qiInsert": {
+  "message": "Вставити"
+ },
+ "qiInsertIntoField": {
+  "message": "Вставити в поле"
+ },
+ "qiFillFromPage": {
+  "message": "Заповнити зі сторінки"
+ },
+ "qiFillAgain": {
+  "message": "Заповнити знову"
+ },
+ "qiFilling": {
+  "message": "Заповнюю…"
+ },
+ "qiFillHint": {
+  "message": "Впишіть пропуски, виберіть зі «Скопійованого» або дайте ContextFlow заповнити їх зі сторінки."
+ },
+ "qiFillDone": {
+  "message": "Жовтим — узято зі сторінки. Перевірте перед надсиланням."
+ },
+ "qiFillPartly": {
+  "message": "Жовтим — узято зі сторінки. Порожній пропуск не знайшовся: впишіть самі."
+ },
+ "qiFillLeft": {
+  "message": "Сьогодні залишилося заповнень: {0}."
+ },
+ "qiFillLimit": {
+  "message": "Безкоштовні заповнення на сьогодні закінчилися. У Pro ліміту немає, а вписати пропуски можна й вручну."
+ },
+ "qiFillByHand": {
+  "message": "Вписати вручну"
+ },
+ "qiFillConsent": {
+  "message": "Щоб заповнити пропуски, ContextFlow надішле текст цієї сторінки й шаблон у Claude від Anthropic. Нічого не зберігається."
+ },
+ "qiPickCopied": {
+  "message": "Скопійоване для «{0}»"
+ },
+ "qiAdapt": {
+  "message": "Підлаштувати під лист"
+ },
+ "qiAdaptLabel": {
+  "message": "Підлаштувати шаблон під цю сторінку"
+ },
+ "qiAdaptPrompt": {
+  "message": "Перепиши цей шаблон у відповідь, яка пасує до відкритої сторінки. Збережи зміст, тон і довжину; впиши те, що відомо зі сторінки, решту залиш як є. Відповідай лише текстом відповіді.\n\nШаблон:\n{0}"
+ },
+ "qiTemplateButton": {
+  "message": "Шаблон"
+ },
+ "qiTemplateTitle": {
+  "message": "Назва"
+ },
+ "qiTemplateText": {
+  "message": "Текст. Пропуски — у фігурних дужках, наприклад {Ім’я}."
+ },
+ "qiMakeBlank": {
+  "message": "Пропуск"
+ },
+ "qiBlankDefault": {
+  "message": "Пропуск"
+ },
+ "qiUnmark": {
+  "message": "зробити звичайним текстом"
+ },
+ "qiMarking": {
+  "message": "Позначаю, що змінюється…"
+ },
+ "qiMarkAi": {
+  "message": "Позначити пропуски"
+ },
+ "qiMarkedHint": {
+  "message": "Пропуски позначено. Торкніться пропуску, щоб зробити його звичайним текстом."
+ },
+ "qiMarkedNone": {
+  "message": "Схоже, тут нічого не змінюється. Виділіть слово й натисніть «Пропуск», щоб додати його."
+ },
+ "qiMarkFailed": {
+  "message": "Зараз не вдалося позначити пропуски. Шаблон збережеться простим, пропуски можна додати вручну."
+ },
+ "qiMarkConsent": {
+  "message": "Щоб позначити пропуски, ContextFlow надішле цей текст у Claude від Anthropic. Нічого не зберігається."
+ },
+ "qiBlankHint": {
+  "message": "Пропуски заповнюються під час вставлення шаблону."
+ },
+ "qiKeywords": {
+  "message": "Слова для пошуку через кому"
+ },
+ "qiSave": {
+  "message": "Зберегти"
+ },
+ "qiDelete": {
+  "message": "Видалити"
+ },
+ "qiSetButton": {
+  "message": "Кнопка біля текстових полів"
+ },
+ "qiSetCopiedHint": {
+  "message": "Останні 5 фрагментів, скопійованих на сторінках. Зберігаються лише на цьому пристрої й стираються через 24 години. Нічого з полів паролів і карток та в режимі «Приватний доступ»."
+ },
+ "qiClearCopied": {
+  "message": "Очистити «Скопійоване»"
+ },
+ "qiCleared": {
+  "message": "Очищено"
+ },
+ "qiSetSign": {
+  "message": "Знак у полі"
+ },
+ "qiSetSignHint": {
+  "message": "Наберіть {0} і кілька слів із шаблону в будь-якому полі."
+ },
+ "qiSetShortcut": {
+  "message": "На Mac і на iPad із клавіатурою список відкривається за ⌃⇧V."
+ },
  "hintGot": {
   "message": "Зрозуміло"
  },
@@ -838,5 +1066,89 @@
  },
  "byokOfferBody": {
   "message": "Pro відповідає без вашого ключа: до {0} відповідей на тиждень, {1} пошуків Google на тиждень, «Запитати про всі чати» і ШІ-пошук. App Store покаже ціну й строк знижки до оплати. Pro почнеться одразу, а невикористану частину поточного тарифу повернуть."
+ },
+ "orgSuggested": {
+  "message": "Підказка"
+ },
+ "orgTagA11y": {
+  "message": "Запропонований тег «{0}». Додати"
+ },
+ "orgNoA11y": {
+  "message": "Відхилити"
+ },
+ "orgCountOne": {
+  "message": "{0} повідомлення"
+ },
+ "orgCountFew": {
+  "message": "{0} повідомлення"
+ },
+ "orgCountMany": {
+  "message": "{0} повідомлень"
+ },
+ "orgCountOther": {
+  "message": "{0} повідомлення"
+ },
+ "orgMoveTo": {
+  "message": "{0} до «{1}»"
+ },
+ "orgSplit": {
+  "message": "Винести в новий чат: «{0}»"
+ },
+ "orgMoveA11y": {
+  "message": "Перенести {0} до чату «{1}»"
+ },
+ "orgSplitA11y": {
+  "message": "Винести ці повідомлення в новий чат «{0}»"
+ },
+ "orgMoved": {
+  "message": "Перенесено до «{0}»"
+ },
+ "orgUndo": {
+  "message": "Скасувати"
+ },
+ "orgOpen": {
+  "message": "Відкрити"
+ },
+ "orgFirstWin": {
+  "message": "Готово. Далі ContextFlow підказуватиме сам."
+ },
+ "orgConsentTitle": {
+  "message": "Розкласти чати за темами?"
+ },
+ "orgConsentText": {
+  "message": "ContextFlow підказуватиме потрібний чат і ваш тег під новими відповідями й нотатками. Для цього текст повідомлень надсилається на наш сервер і до OpenAI та Anthropic. Ми його не зберігаємо. OpenAI та Anthropic не використовують його для навчання."
+ },
+ "orgTurnOn": {
+  "message": "Увімкнути"
+ },
+ "orgMessTitle": {
+  "message": "Усе в одному чаті?"
+ },
+ "orgMessText": {
+  "message": "У Pro ContextFlow підкаже, що куди перенести, і ставитиме теги так, як ставите їх ви."
+ },
+ "orgTagsTitle": {
+  "message": "ContextFlow може ставити теги так, як ви"
+ },
+ "orgTagsText": {
+  "message": "У Pro він підкаже ваш тег під новими відповідями й нотатками — за тим, де ви ставили його самі."
+ },
+ "orgCloseA11y": {
+  "message": "Закрити"
+ },
+ "setOrganize": {
+  "message": "Підказки: теги й перенесення"
+ },
+ "setOrganizeHint": {
+  "message": "Під новими відповідями й нотатками — потрібний чат і ваш тег. Текст повідомлень надсилається на наш сервер, до OpenAI та Anthropic. Ми його не зберігаємо, вони не використовують його для навчання."
+ },
+ "setOrganizePro": {
+  "message": "У Pro ContextFlow підказує потрібний чат і ваш тег під новими відповідями й нотатками."
+ },
+ "upsellOrganizeName": {
+  "message": "Сам розкладає за темами"
+ },
+ "upsellOrganizeText": {
+  "message": "Підкаже потрібний чат для того, що ви щойно запитали, і ваш тег для нього."
  }
 }

@@ -734,6 +734,234 @@
  "tagsButton": {
   "message": "Etiqueta"
  },
+ "qiTitle": {
+  "message": "Inserción rápida"
+ },
+ "qiButton": {
+  "message": "Inserción rápida: lo copiado, plantillas, respuesta de ContextFlow"
+ },
+ "qiCommand": {
+  "message": "Inserción rápida en el cursor"
+ },
+ "qiSearch": {
+  "message": "Buscar una plantilla"
+ },
+ "qiNewTemplate": {
+  "message": "Nueva plantilla"
+ },
+ "qiEditTemplate": {
+  "message": "Plantilla"
+ },
+ "qiCopied": {
+  "message": "Copiado"
+ },
+ "qiClear": {
+  "message": "Borrar"
+ },
+ "qiCopiedOff": {
+  "message": "«Copiado» está desactivado. Actívalo abajo."
+ },
+ "qiCopiedEmpty": {
+  "message": "Copia texto en cualquier página en Safari y aparecerá aquí."
+ },
+ "qiNothing": {
+  "message": "No se encontró nada"
+ },
+ "qiToTemplate": {
+  "message": "Convertir en plantilla"
+ },
+ "qiTemplates": {
+  "message": "Plantillas"
+ },
+ "qiTemplatesTitle": {
+  "message": "Plantillas"
+ },
+ "qiAllTemplates": {
+  "message": "Todas las plantillas"
+ },
+ "qiTemplatesEmpty": {
+  "message": "Aún no hay plantillas. Toca + o selecciona una respuesta que escribas a menudo y toca «Plantilla»."
+ },
+ "qiTemplatesIntro": {
+  "message": "Guarda las respuestas que escribes una y otra vez. ContextFlow marca lo que cambia, como un nombre o una fecha, y puede tomarlo de la página."
+ },
+ "qiFindAi": {
+  "message": "Buscar por sentido"
+ },
+ "qiFinding": {
+  "message": "Buscando…"
+ },
+ "qiFromCf": {
+  "message": "De ContextFlow"
+ },
+ "qiLastAnswer": {
+  "message": "Última respuesta"
+ },
+ "qiLastNote": {
+  "message": "Última nota"
+ },
+ "qiKeepCopied": {
+  "message": "Guardar lo copiado"
+ },
+ "qiPrivacy": {
+  "message": "Lo copiado se queda solo en este {0} y se borra a las 24 horas."
+ },
+ "qiOnIphone": {
+  "message": "iPhone"
+ },
+ "qiOnIpad": {
+  "message": "iPad"
+ },
+ "qiOnMac": {
+  "message": "Mac"
+ },
+ "qiOnDevice": {
+  "message": "dispositivo"
+ },
+ "qiDontKeepOnSite": {
+  "message": "No guardar en {0}"
+ },
+ "qiKeepOnSite": {
+  "message": "Volver a guardar en {0}"
+ },
+ "qiTip": {
+  "message": "Nuevo: un toque inserta lo que copiaste en otras pestañas, una plantilla o la respuesta de ContextFlow."
+ },
+ "qiKeyInsert": {
+  "message": "insertar"
+ },
+ "qiKeyChoose": {
+  "message": "elegir"
+ },
+ "qiKeyClose": {
+  "message": "cerrar"
+ },
+ "qiBlanksMark": {
+  "message": "huecos"
+ },
+ "qiBlanksCount": {
+  "message": "Huecos: {0}"
+ },
+ "qiPasteManually": {
+  "message": "Copiado. Pégalo tú en el campo."
+ },
+ "qiInsert": {
+  "message": "Insertar"
+ },
+ "qiInsertIntoField": {
+  "message": "Insertar en el campo"
+ },
+ "qiFillFromPage": {
+  "message": "Rellenar con la página"
+ },
+ "qiFillAgain": {
+  "message": "Rellenar de nuevo"
+ },
+ "qiFilling": {
+  "message": "Rellenando…"
+ },
+ "qiFillHint": {
+  "message": "Escribe los huecos, elige de «Copiado» o deja que ContextFlow los rellene con la página."
+ },
+ "qiFillDone": {
+  "message": "En amarillo: tomado de la página. Revísalo antes de enviar."
+ },
+ "qiFillPartly": {
+  "message": "En amarillo: tomado de la página. Un hueco vacío no se encontró: rellénalo tú."
+ },
+ "qiFillLeft": {
+  "message": "Te quedan {0} rellenados hoy."
+ },
+ "qiFillLimit": {
+  "message": "Se acabaron los rellenados gratis de hoy. Con Pro no hay límite, y los huecos también se pueden rellenar a mano."
+ },
+ "qiFillByHand": {
+  "message": "Rellenar a mano"
+ },
+ "qiFillConsent": {
+  "message": "Para rellenar los huecos, ContextFlow envía el texto de esta página y la plantilla a Claude de Anthropic. No se guarda nada."
+ },
+ "qiPickCopied": {
+  "message": "Copiado para «{0}»"
+ },
+ "qiAdapt": {
+  "message": "Ajustar al mensaje"
+ },
+ "qiAdaptLabel": {
+  "message": "Ajustar la plantilla a esta página"
+ },
+ "qiAdaptPrompt": {
+  "message": "Reescribe esta plantilla como una respuesta que encaje con la página abierta. Mantén el sentido, el tono y la extensión; completa lo que dice la página y deja el resto como está. Responde solo con el texto de la respuesta.\n\nPlantilla:\n{0}"
+ },
+ "qiTemplateButton": {
+  "message": "Plantilla"
+ },
+ "qiTemplateTitle": {
+  "message": "Título"
+ },
+ "qiTemplateText": {
+  "message": "Texto. Los huecos van entre llaves, como {Nombre}."
+ },
+ "qiMakeBlank": {
+  "message": "Hueco"
+ },
+ "qiBlankDefault": {
+  "message": "Hueco"
+ },
+ "qiUnmark": {
+  "message": "volver a texto normal"
+ },
+ "qiMarking": {
+  "message": "Marcando lo que cambia…"
+ },
+ "qiMarkAi": {
+  "message": "Marcar huecos"
+ },
+ "qiMarkedHint": {
+  "message": "Los huecos están marcados. Toca uno para volver a texto normal."
+ },
+ "qiMarkedNone": {
+  "message": "Aquí no parece cambiar nada. Selecciona una palabra y toca «Hueco» para añadir uno."
+ },
+ "qiMarkFailed": {
+  "message": "Ahora no se pudieron marcar los huecos. Se guarda como texto simple y puedes añadir huecos a mano."
+ },
+ "qiMarkConsent": {
+  "message": "Para marcar los huecos, ContextFlow envía este texto a Claude de Anthropic. No se guarda nada."
+ },
+ "qiBlankHint": {
+  "message": "Los huecos se rellenan al insertar la plantilla."
+ },
+ "qiKeywords": {
+  "message": "Palabras para encontrarla, separadas por comas"
+ },
+ "qiSave": {
+  "message": "Guardar"
+ },
+ "qiDelete": {
+  "message": "Eliminar"
+ },
+ "qiSetButton": {
+  "message": "Botón junto a los campos de texto"
+ },
+ "qiSetCopiedHint": {
+  "message": "Los últimos 5 fragmentos copiados en páginas. Se quedan solo en este dispositivo y se borran a las 24 horas. Nada de campos de contraseña o tarjeta, ni en la navegación privada."
+ },
+ "qiClearCopied": {
+  "message": "Borrar «Copiado»"
+ },
+ "qiCleared": {
+  "message": "Borrado"
+ },
+ "qiSetSign": {
+  "message": "Signo en un campo"
+ },
+ "qiSetSignHint": {
+  "message": "Escribe {0} y unas palabras de una plantilla en cualquier campo."
+ },
+ "qiSetShortcut": {
+  "message": "En el Mac y en el iPad con teclado, ⌃⇧V abre la lista."
+ },
  "hintGot": {
   "message": "Entendido"
  },
@@ -838,5 +1066,89 @@
  },
  "byokOfferBody": {
   "message": "Pro responde sin tu clave: hasta {0} respuestas a la semana, {1} búsquedas de Google a la semana, «Pregunta a tus chats» y búsqueda con IA. El App Store muestra el precio y la duración antes de pagar. Pro empieza enseguida y se reembolsa la parte no usada de tu plan actual."
+ },
+ "orgSuggested": {
+  "message": "Sugerencia"
+ },
+ "orgTagA11y": {
+  "message": "Etiqueta sugerida «{0}». Añadirla"
+ },
+ "orgNoA11y": {
+  "message": "Descartar"
+ },
+ "orgCountOne": {
+  "message": "{0} mensaje"
+ },
+ "orgCountFew": {
+  "message": "{0} mensajes"
+ },
+ "orgCountMany": {
+  "message": "{0} mensajes"
+ },
+ "orgCountOther": {
+  "message": "{0} mensajes"
+ },
+ "orgMoveTo": {
+  "message": "{0} a «{1}»"
+ },
+ "orgSplit": {
+  "message": "A un chat nuevo: «{0}»"
+ },
+ "orgMoveA11y": {
+  "message": "Mover {0} al chat «{1}»"
+ },
+ "orgSplitA11y": {
+  "message": "Mover estos mensajes a un chat nuevo, «{0}»"
+ },
+ "orgMoved": {
+  "message": "Movido a «{0}»"
+ },
+ "orgUndo": {
+  "message": "Deshacer"
+ },
+ "orgOpen": {
+  "message": "Abrir"
+ },
+ "orgFirstWin": {
+  "message": "Listo. A partir de ahora ContextFlow te hará sugerencias por su cuenta."
+ },
+ "orgConsentTitle": {
+  "message": "¿Ordenar tus chats por tema?"
+ },
+ "orgConsentText": {
+  "message": "ContextFlow te sugerirá un chat adecuado y una de tus etiquetas bajo las respuestas y notas nuevas. Para ello, el texto de tus mensajes va a nuestro servidor y a OpenAI y Anthropic. No lo guardamos. OpenAI y Anthropic no lo usan para entrenar."
+ },
+ "orgTurnOn": {
+  "message": "Activar"
+ },
+ "orgMessTitle": {
+  "message": "¿Todo en un mismo chat?"
+ },
+ "orgMessText": {
+  "message": "Con Pro, ContextFlow sugiere qué va en cada sitio y pone etiquetas como lo haces tú."
+ },
+ "orgTagsTitle": {
+  "message": "ContextFlow puede etiquetar como tú"
+ },
+ "orgTagsText": {
+  "message": "Con Pro, sugiere una de tus etiquetas bajo las respuestas y notas nuevas, según dónde la pones tú."
+ },
+ "orgCloseA11y": {
+  "message": "Cerrar"
+ },
+ "setOrganize": {
+  "message": "Sugerencias: etiquetas y mover"
+ },
+ "setOrganizeHint": {
+  "message": "Un chat adecuado y tu etiqueta bajo las respuestas y notas nuevas. El texto de tus mensajes va a nuestro servidor y a OpenAI y Anthropic. No lo guardamos, y ellos no lo usan para entrenar."
+ },
+ "setOrganizePro": {
+  "message": "Pro: ContextFlow sugiere un chat adecuado y tu etiqueta bajo las respuestas y notas nuevas."
+ },
+ "upsellOrganizeName": {
+  "message": "Ordena por tema"
+ },
+ "upsellOrganizeText": {
+  "message": "Sugiere el chat adecuado para lo que acabas de preguntar, y tu propia etiqueta para ello."
  }
 }

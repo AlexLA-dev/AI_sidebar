@@ -734,6 +734,234 @@
  "tagsButton": {
   "message": "Tag"
  },
+ "qiTitle": {
+  "message": "Schnelleinfügen"
+ },
+ "qiButton": {
+  "message": "Schnelleinfügen: Kopiertes, Vorlagen, Antwort von ContextFlow"
+ },
+ "qiCommand": {
+  "message": "Schnelleinfügen am Cursor"
+ },
+ "qiSearch": {
+  "message": "Vorlage suchen"
+ },
+ "qiNewTemplate": {
+  "message": "Neue Vorlage"
+ },
+ "qiEditTemplate": {
+  "message": "Vorlage"
+ },
+ "qiCopied": {
+  "message": "Kopiert"
+ },
+ "qiClear": {
+  "message": "Leeren"
+ },
+ "qiCopiedOff": {
+  "message": "„Kopiert“ ist aus. Unten kannst du es einschalten."
+ },
+ "qiCopiedEmpty": {
+  "message": "Kopiere Text auf einer beliebigen Seite in Safari – er erscheint hier."
+ },
+ "qiNothing": {
+  "message": "Nichts gefunden"
+ },
+ "qiToTemplate": {
+  "message": "Als Vorlage sichern"
+ },
+ "qiTemplates": {
+  "message": "Vorlagen"
+ },
+ "qiTemplatesTitle": {
+  "message": "Vorlagen"
+ },
+ "qiAllTemplates": {
+  "message": "Alle Vorlagen"
+ },
+ "qiTemplatesEmpty": {
+  "message": "Noch keine Vorlagen. Tippe auf + oder markiere eine Antwort, die du oft schreibst, und tippe auf „Vorlage“."
+ },
+ "qiTemplatesIntro": {
+  "message": "Speichere Antworten, die du immer wieder schreibst. ContextFlow markiert, was sich ändert, etwa einen Namen oder ein Datum, und kann es von der Seite übernehmen."
+ },
+ "qiFindAi": {
+  "message": "Nach Bedeutung suchen"
+ },
+ "qiFinding": {
+  "message": "Suche …"
+ },
+ "qiFromCf": {
+  "message": "Aus ContextFlow"
+ },
+ "qiLastAnswer": {
+  "message": "Letzte Antwort"
+ },
+ "qiLastNote": {
+  "message": "Letzte Notiz"
+ },
+ "qiKeepCopied": {
+  "message": "Kopiertes behalten"
+ },
+ "qiPrivacy": {
+  "message": "Kopiertes bleibt nur auf diesem {0} und wird nach 24 Stunden gelöscht."
+ },
+ "qiOnIphone": {
+  "message": "iPhone"
+ },
+ "qiOnIpad": {
+  "message": "iPad"
+ },
+ "qiOnMac": {
+  "message": "Mac"
+ },
+ "qiOnDevice": {
+  "message": "Gerät"
+ },
+ "qiDontKeepOnSite": {
+  "message": "Auf {0} nicht behalten"
+ },
+ "qiKeepOnSite": {
+  "message": "Auf {0} wieder behalten"
+ },
+ "qiTip": {
+  "message": "Neu: Tippen fügt ein, was du in anderen Tabs kopiert hast, eine Vorlage oder die Antwort von ContextFlow."
+ },
+ "qiKeyInsert": {
+  "message": "einfügen"
+ },
+ "qiKeyChoose": {
+  "message": "wählen"
+ },
+ "qiKeyClose": {
+  "message": "schließen"
+ },
+ "qiBlanksMark": {
+  "message": "Lücken"
+ },
+ "qiBlanksCount": {
+  "message": "Lücken: {0}"
+ },
+ "qiPasteManually": {
+  "message": "Kopiert. Füge es selbst in das Feld ein."
+ },
+ "qiInsert": {
+  "message": "Einfügen"
+ },
+ "qiInsertIntoField": {
+  "message": "In Feld einfügen"
+ },
+ "qiFillFromPage": {
+  "message": "Von der Seite ausfüllen"
+ },
+ "qiFillAgain": {
+  "message": "Neu ausfüllen"
+ },
+ "qiFilling": {
+  "message": "Fülle aus …"
+ },
+ "qiFillHint": {
+  "message": "Fülle die Lücken aus, wähle aus „Kopiert“ oder lass ContextFlow sie von der Seite ausfüllen."
+ },
+ "qiFillDone": {
+  "message": "Gelb: von der Seite übernommen. Prüfe es vor dem Senden."
+ },
+ "qiFillPartly": {
+  "message": "Gelb: von der Seite übernommen. Eine leere Lücke wurde nicht gefunden: Fülle sie selbst aus."
+ },
+ "qiFillLeft": {
+  "message": "Heute noch {0}-mal ausfüllen."
+ },
+ "qiFillLimit": {
+  "message": "Die kostenlosen Ausfüllungen für heute sind aufgebraucht. Mit Pro gibt es kein Limit, und die Lücken lassen sich auch von Hand ausfüllen."
+ },
+ "qiFillByHand": {
+  "message": "Von Hand ausfüllen"
+ },
+ "qiFillConsent": {
+  "message": "Zum Ausfüllen sendet ContextFlow den Text dieser Seite und die Vorlage an Claude von Anthropic. Nichts wird gespeichert."
+ },
+ "qiPickCopied": {
+  "message": "Kopiertes für „{0}“"
+ },
+ "qiAdapt": {
+  "message": "An die Nachricht anpassen"
+ },
+ "qiAdaptLabel": {
+  "message": "Vorlage an diese Seite anpassen"
+ },
+ "qiAdaptPrompt": {
+  "message": "Schreib diese Vorlage zu einer Antwort um, die zur geöffneten Seite passt. Behalte Sinn, Ton und Länge; trag ein, was die Seite verrät, und lass den Rest, wie er ist. Antworte nur mit dem Text der Antwort.\n\nVorlage:\n{0}"
+ },
+ "qiTemplateButton": {
+  "message": "Vorlage"
+ },
+ "qiTemplateTitle": {
+  "message": "Titel"
+ },
+ "qiTemplateText": {
+  "message": "Text. Lücken in geschweiften Klammern, etwa {Name}."
+ },
+ "qiMakeBlank": {
+  "message": "Lücke"
+ },
+ "qiBlankDefault": {
+  "message": "Lücke"
+ },
+ "qiUnmark": {
+  "message": "wieder normaler Text"
+ },
+ "qiMarking": {
+  "message": "Markiere, was sich ändert …"
+ },
+ "qiMarkAi": {
+  "message": "Lücken markieren"
+ },
+ "qiMarkedHint": {
+  "message": "Die Lücken sind markiert. Tippe auf eine, damit sie wieder normaler Text wird."
+ },
+ "qiMarkedNone": {
+  "message": "Hier scheint sich nichts zu ändern. Markiere ein Wort und tippe auf „Lücke“, um eine hinzuzufügen."
+ },
+ "qiMarkFailed": {
+  "message": "Die Lücken ließen sich gerade nicht markieren. Die Vorlage wird als einfacher Text gespeichert, Lücken kannst du von Hand hinzufügen."
+ },
+ "qiMarkConsent": {
+  "message": "Zum Markieren der Lücken sendet ContextFlow diesen Text an Claude von Anthropic. Nichts wird gespeichert."
+ },
+ "qiBlankHint": {
+  "message": "Die Lücken werden beim Einfügen der Vorlage ausgefüllt."
+ },
+ "qiKeywords": {
+  "message": "Suchwörter, durch Kommas getrennt"
+ },
+ "qiSave": {
+  "message": "Sichern"
+ },
+ "qiDelete": {
+  "message": "Löschen"
+ },
+ "qiSetButton": {
+  "message": "Taste neben Textfeldern"
+ },
+ "qiSetCopiedHint": {
+  "message": "Die letzten 5 auf Seiten kopierten Textstücke. Sie bleiben nur auf diesem Gerät und werden nach 24 Stunden gelöscht. Nichts aus Passwort- und Kartenfeldern und nichts im privaten Surfen."
+ },
+ "qiClearCopied": {
+  "message": "„Kopiert“ leeren"
+ },
+ "qiCleared": {
+  "message": "Geleert"
+ },
+ "qiSetSign": {
+  "message": "Zeichen im Feld"
+ },
+ "qiSetSignHint": {
+  "message": "Tippe in einem beliebigen Feld {0} und ein paar Wörter einer Vorlage."
+ },
+ "qiSetShortcut": {
+  "message": "Auf dem Mac und auf dem iPad mit Tastatur öffnet ⌃⇧V die Liste."
+ },
  "hintGot": {
   "message": "Verstanden"
  },
@@ -838,5 +1066,89 @@
  },
  "byokOfferBody": {
   "message": "Pro antwortet ohne deinen Schlüssel: bis zu {0} Antworten pro Woche, {1} Google-Suchen pro Woche, „Frag deine Chats“ und KI-Suche. Der App Store zeigt Preis und Dauer vor dem Bezahlen. Pro startet sofort, der ungenutzte Teil deines Tarifs wird erstattet."
+ },
+ "orgSuggested": {
+  "message": "Vorschlag"
+ },
+ "orgTagA11y": {
+  "message": "Vorgeschlagener Tag „{0}“. Hinzufügen"
+ },
+ "orgNoA11y": {
+  "message": "Ablehnen"
+ },
+ "orgCountOne": {
+  "message": "{0} Nachricht"
+ },
+ "orgCountFew": {
+  "message": "{0} Nachrichten"
+ },
+ "orgCountMany": {
+  "message": "{0} Nachrichten"
+ },
+ "orgCountOther": {
+  "message": "{0} Nachrichten"
+ },
+ "orgMoveTo": {
+  "message": "{0} nach „{1}“"
+ },
+ "orgSplit": {
+  "message": "In einen neuen Chat: „{0}“"
+ },
+ "orgMoveA11y": {
+  "message": "{0} in den Chat „{1}“ verschieben"
+ },
+ "orgSplitA11y": {
+  "message": "Diese Nachrichten in einen neuen Chat „{0}“ verschieben"
+ },
+ "orgMoved": {
+  "message": "Nach „{0}“ verschoben"
+ },
+ "orgUndo": {
+  "message": "Widerrufen"
+ },
+ "orgOpen": {
+  "message": "Öffnen"
+ },
+ "orgFirstWin": {
+  "message": "Erledigt. Ab jetzt macht ContextFlow selbst Vorschläge."
+ },
+ "orgConsentTitle": {
+  "message": "Chats nach Themen sortieren?"
+ },
+ "orgConsentText": {
+  "message": "ContextFlow schlägt unter neuen Antworten und Notizen einen passenden Chat und einen deiner Tags vor. Dafür geht der Text deiner Nachrichten an unseren Server und an OpenAI und Anthropic. Wir speichern ihn nicht. OpenAI und Anthropic nutzen ihn nicht zum Training."
+ },
+ "orgTurnOn": {
+  "message": "Einschalten"
+ },
+ "orgMessTitle": {
+  "message": "Alles in einem Chat?"
+ },
+ "orgMessText": {
+  "message": "Mit Pro schlägt ContextFlow vor, was wohin gehört, und setzt Tags so, wie du es tust."
+ },
+ "orgTagsTitle": {
+  "message": "ContextFlow kann Tags setzen wie du"
+ },
+ "orgTagsText": {
+  "message": "Mit Pro schlägt ContextFlow unter neuen Antworten und Notizen einen deiner Tags vor – danach, wo du ihn selbst setzt."
+ },
+ "orgCloseA11y": {
+  "message": "Schließen"
+ },
+ "setOrganize": {
+  "message": "Vorschläge: Tags und Verschieben"
+ },
+ "setOrganizeHint": {
+  "message": "Ein passender Chat und dein Tag unter neuen Antworten und Notizen. Der Text deiner Nachrichten geht an unseren Server und an OpenAI und Anthropic. Wir speichern ihn nicht, und sie nutzen ihn nicht zum Training."
+ },
+ "setOrganizePro": {
+  "message": "Pro: ContextFlow schlägt unter neuen Antworten und Notizen einen passenden Chat und deinen Tag vor."
+ },
+ "upsellOrganizeName": {
+  "message": "Sortiert nach Themen"
+ },
+ "upsellOrganizeText": {
+  "message": "Schlägt den richtigen Chat für das vor, was du gerade gefragt hast, und deinen eigenen Tag dafür."
  }
 }
