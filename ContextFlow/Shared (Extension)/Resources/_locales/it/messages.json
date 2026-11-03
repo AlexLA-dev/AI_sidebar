@@ -734,6 +734,234 @@
  "tagsButton": {
   "message": "Tag"
  },
+ "qiTitle": {
+  "message": "Inserimento rapido"
+ },
+ "qiButton": {
+  "message": "Inserimento rapido: testo copiato, modelli, risposta di ContextFlow"
+ },
+ "qiCommand": {
+  "message": "Inserimento rapido al cursore"
+ },
+ "qiSearch": {
+  "message": "Cerca un modello"
+ },
+ "qiNewTemplate": {
+  "message": "Nuovo modello"
+ },
+ "qiEditTemplate": {
+  "message": "Modello"
+ },
+ "qiCopied": {
+  "message": "Copiati"
+ },
+ "qiClear": {
+  "message": "Svuota"
+ },
+ "qiCopiedOff": {
+  "message": "«Copiati» è disattivato. Attivalo qui sotto."
+ },
+ "qiCopiedEmpty": {
+  "message": "Copia un testo su qualsiasi pagina in Safari: compare qui."
+ },
+ "qiNothing": {
+  "message": "Nessun risultato"
+ },
+ "qiToTemplate": {
+  "message": "Crea un modello"
+ },
+ "qiTemplates": {
+  "message": "Modelli"
+ },
+ "qiTemplatesTitle": {
+  "message": "Modelli"
+ },
+ "qiAllTemplates": {
+  "message": "Tutti i modelli"
+ },
+ "qiTemplatesEmpty": {
+  "message": "Ancora nessun modello. Tocca + oppure seleziona una risposta che scrivi spesso e tocca «Modello»."
+ },
+ "qiTemplatesIntro": {
+  "message": "Salva le risposte che scrivi di continuo. ContextFlow segna ciò che cambia, come un nome o una data, e può prenderlo dalla pagina."
+ },
+ "qiFindAi": {
+  "message": "Cerca per significato"
+ },
+ "qiFinding": {
+  "message": "Cerco…"
+ },
+ "qiFromCf": {
+  "message": "Da ContextFlow"
+ },
+ "qiLastAnswer": {
+  "message": "Ultima risposta"
+ },
+ "qiLastNote": {
+  "message": "Ultima nota"
+ },
+ "qiKeepCopied": {
+  "message": "Conserva il testo copiato"
+ },
+ "qiPrivacy": {
+  "message": "Il testo copiato resta solo su questo {0} e viene cancellato dopo 24 ore."
+ },
+ "qiOnIphone": {
+  "message": "iPhone"
+ },
+ "qiOnIpad": {
+  "message": "iPad"
+ },
+ "qiOnMac": {
+  "message": "Mac"
+ },
+ "qiOnDevice": {
+  "message": "dispositivo"
+ },
+ "qiDontKeepOnSite": {
+  "message": "Non conservare su {0}"
+ },
+ "qiKeepOnSite": {
+  "message": "Conserva di nuovo su {0}"
+ },
+ "qiTip": {
+  "message": "Novità: un tocco inserisce ciò che hai copiato in altre schede, un modello o la risposta di ContextFlow."
+ },
+ "qiKeyInsert": {
+  "message": "inserisci"
+ },
+ "qiKeyChoose": {
+  "message": "scegli"
+ },
+ "qiKeyClose": {
+  "message": "chiudi"
+ },
+ "qiBlanksMark": {
+  "message": "spazi"
+ },
+ "qiBlanksCount": {
+  "message": "Spazi da riempire: {0}"
+ },
+ "qiPasteManually": {
+  "message": "Copiato. Incollalo tu nel campo."
+ },
+ "qiInsert": {
+  "message": "Inserisci"
+ },
+ "qiInsertIntoField": {
+  "message": "Inserisci nel campo"
+ },
+ "qiFillFromPage": {
+  "message": "Riempi dalla pagina"
+ },
+ "qiFillAgain": {
+  "message": "Riempi di nuovo"
+ },
+ "qiFilling": {
+  "message": "Riempio…"
+ },
+ "qiFillHint": {
+  "message": "Scrivi negli spazi, scegli da «Copiati» o lascia che ContextFlow li riempia dalla pagina."
+ },
+ "qiFillDone": {
+  "message": "In giallo: preso dalla pagina. Controlla prima di inviare."
+ },
+ "qiFillPartly": {
+  "message": "In giallo: preso dalla pagina. Uno spazio vuoto non è stato trovato: riempilo tu."
+ },
+ "qiFillLeft": {
+  "message": "Riempimenti rimasti oggi: {0}."
+ },
+ "qiFillLimit": {
+  "message": "I riempimenti gratuiti di oggi sono finiti. Con Pro non c’è limite, e gli spazi si possono riempire anche a mano."
+ },
+ "qiFillByHand": {
+  "message": "Riempi a mano"
+ },
+ "qiFillConsent": {
+  "message": "Per riempire gli spazi, ContextFlow invia il testo di questa pagina e il modello a Claude di Anthropic. Non viene conservato nulla."
+ },
+ "qiPickCopied": {
+  "message": "Copiati per «{0}»"
+ },
+ "qiAdapt": {
+  "message": "Adatta al messaggio"
+ },
+ "qiAdaptLabel": {
+  "message": "Adatta il modello a questa pagina"
+ },
+ "qiAdaptPrompt": {
+  "message": "Riscrivi questo modello come una risposta adatta alla pagina aperta. Mantieni senso, tono e lunghezza; completa ciò che dice la pagina e lascia il resto com’è. Rispondi solo con il testo della risposta.\n\nModello:\n{0}"
+ },
+ "qiTemplateButton": {
+  "message": "Modello"
+ },
+ "qiTemplateTitle": {
+  "message": "Titolo"
+ },
+ "qiTemplateText": {
+  "message": "Testo. Gli spazi da riempire tra graffe, come {Nome}."
+ },
+ "qiMakeBlank": {
+  "message": "Spazio"
+ },
+ "qiBlankDefault": {
+  "message": "Spazio"
+ },
+ "qiUnmark": {
+  "message": "torna testo normale"
+ },
+ "qiMarking": {
+  "message": "Segno ciò che cambia…"
+ },
+ "qiMarkAi": {
+  "message": "Segna gli spazi"
+ },
+ "qiMarkedHint": {
+  "message": "Gli spazi sono segnati. Toccane uno per farlo tornare testo normale."
+ },
+ "qiMarkedNone": {
+  "message": "Qui sembra che non cambi nulla. Seleziona una parola e tocca «Spazio» per aggiungerne uno."
+ },
+ "qiMarkFailed": {
+  "message": "Al momento non è stato possibile segnare gli spazi. Il modello viene salvato come testo semplice, puoi aggiungere gli spazi a mano."
+ },
+ "qiMarkConsent": {
+  "message": "Per segnare gli spazi, ContextFlow invia questo testo a Claude di Anthropic. Non viene conservato nulla."
+ },
+ "qiBlankHint": {
+  "message": "Gli spazi si riempiono quando inserisci il modello."
+ },
+ "qiKeywords": {
+  "message": "Parole per trovarlo, separate da virgole"
+ },
+ "qiSave": {
+  "message": "Salva"
+ },
+ "qiDelete": {
+  "message": "Elimina"
+ },
+ "qiSetButton": {
+  "message": "Pulsante accanto ai campi di testo"
+ },
+ "qiSetCopiedHint": {
+  "message": "Gli ultimi 5 testi copiati sulle pagine. Restano solo su questo dispositivo e vengono cancellati dopo 24 ore. Niente dai campi di password o carta, né in navigazione privata."
+ },
+ "qiClearCopied": {
+  "message": "Svuota «Copiati»"
+ },
+ "qiCleared": {
+  "message": "Svuotato"
+ },
+ "qiSetSign": {
+  "message": "Segno in un campo"
+ },
+ "qiSetSignHint": {
+  "message": "Digita {0} e qualche parola di un modello in qualsiasi campo."
+ },
+ "qiSetShortcut": {
+  "message": "Su Mac e su iPad con tastiera, ⌃⇧V apre l’elenco."
+ },
  "hintGot": {
   "message": "Capito"
  },

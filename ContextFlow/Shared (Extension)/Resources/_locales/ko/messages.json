@@ -734,6 +734,234 @@
  "tagsButton": {
   "message": "태그"
  },
+ "qiTitle": {
+  "message": "빠른 삽입"
+ },
+ "qiButton": {
+  "message": "빠른 삽입: 복사한 텍스트, 템플릿, ContextFlow 답변"
+ },
+ "qiCommand": {
+  "message": "커서 위치에 빠른 삽입"
+ },
+ "qiSearch": {
+  "message": "템플릿 찾기"
+ },
+ "qiNewTemplate": {
+  "message": "새 템플릿"
+ },
+ "qiEditTemplate": {
+  "message": "템플릿"
+ },
+ "qiCopied": {
+  "message": "복사한 항목"
+ },
+ "qiClear": {
+  "message": "지우기"
+ },
+ "qiCopiedOff": {
+  "message": "‘복사한 항목’이 꺼져 있습니다. 아래에서 켜세요."
+ },
+ "qiCopiedEmpty": {
+  "message": "Safari의 어느 페이지에서든 텍스트를 복사하면 여기에 나타납니다."
+ },
+ "qiNothing": {
+  "message": "찾은 항목이 없습니다"
+ },
+ "qiToTemplate": {
+  "message": "템플릿으로 만들기"
+ },
+ "qiTemplates": {
+  "message": "템플릿"
+ },
+ "qiTemplatesTitle": {
+  "message": "템플릿"
+ },
+ "qiAllTemplates": {
+  "message": "모든 템플릿"
+ },
+ "qiTemplatesEmpty": {
+  "message": "아직 템플릿이 없습니다. +를 탭하거나 자주 쓰는 답장을 선택하고 ‘템플릿’을 탭하세요."
+ },
+ "qiTemplatesIntro": {
+  "message": "반복해서 쓰는 답장을 저장하세요. ContextFlow가 이름이나 날짜처럼 바뀌는 부분을 표시하고 페이지에서 채울 수 있습니다."
+ },
+ "qiFindAi": {
+  "message": "뜻으로 찾기"
+ },
+ "qiFinding": {
+  "message": "찾는 중…"
+ },
+ "qiFromCf": {
+  "message": "ContextFlow에서"
+ },
+ "qiLastAnswer": {
+  "message": "마지막 답변"
+ },
+ "qiLastNote": {
+  "message": "마지막 메모"
+ },
+ "qiKeepCopied": {
+  "message": "복사한 텍스트 보관"
+ },
+ "qiPrivacy": {
+  "message": "복사한 텍스트는 이 {0}에만 보관되며 24시간 후 지워집니다."
+ },
+ "qiOnIphone": {
+  "message": "iPhone"
+ },
+ "qiOnIpad": {
+  "message": "iPad"
+ },
+ "qiOnMac": {
+  "message": "Mac"
+ },
+ "qiOnDevice": {
+  "message": "기기"
+ },
+ "qiDontKeepOnSite": {
+  "message": "{0}에서는 보관 안 함"
+ },
+ "qiKeepOnSite": {
+  "message": "{0}에서 다시 보관"
+ },
+ "qiTip": {
+  "message": "새 기능: 탭하면 다른 탭에서 복사한 텍스트, 템플릿, ContextFlow 답변을 넣을 수 있습니다."
+ },
+ "qiKeyInsert": {
+  "message": "삽입"
+ },
+ "qiKeyChoose": {
+  "message": "선택"
+ },
+ "qiKeyClose": {
+  "message": "닫기"
+ },
+ "qiBlanksMark": {
+  "message": "빈칸"
+ },
+ "qiBlanksCount": {
+  "message": "빈칸: {0}"
+ },
+ "qiPasteManually": {
+  "message": "복사했습니다. 필드에 직접 붙여 넣으세요."
+ },
+ "qiInsert": {
+  "message": "삽입"
+ },
+ "qiInsertIntoField": {
+  "message": "필드에 삽입"
+ },
+ "qiFillFromPage": {
+  "message": "페이지에서 채우기"
+ },
+ "qiFillAgain": {
+  "message": "다시 채우기"
+ },
+ "qiFilling": {
+  "message": "채우는 중…"
+ },
+ "qiFillHint": {
+  "message": "빈칸을 직접 입력하거나 ‘복사한 항목’에서 고르거나 ContextFlow가 페이지에서 채우게 하세요."
+ },
+ "qiFillDone": {
+  "message": "노란색: 페이지에서 가져온 내용입니다. 보내기 전에 확인하세요."
+ },
+ "qiFillPartly": {
+  "message": "노란색: 페이지에서 가져온 내용입니다. 비어 있는 칸은 찾지 못했으니 직접 채우세요."
+ },
+ "qiFillLeft": {
+  "message": "오늘 남은 채우기: {0}회"
+ },
+ "qiFillLimit": {
+  "message": "오늘의 무료 채우기를 모두 썼습니다. Pro에는 제한이 없고, 빈칸은 직접 채울 수도 있습니다."
+ },
+ "qiFillByHand": {
+  "message": "직접 채우기"
+ },
+ "qiFillConsent": {
+  "message": "빈칸을 채우기 위해 ContextFlow가 이 페이지의 텍스트와 템플릿을 Anthropic의 Claude로 보냅니다. 아무것도 저장되지 않습니다."
+ },
+ "qiPickCopied": {
+  "message": "‘{0}’에 넣을 복사한 항목"
+ },
+ "qiAdapt": {
+  "message": "메시지에 맞추기"
+ },
+ "qiAdaptLabel": {
+  "message": "템플릿을 이 페이지에 맞추기"
+ },
+ "qiAdaptPrompt": {
+  "message": "이 템플릿을 열린 페이지에 맞는 답장으로 다시 써 줘. 뜻, 어조, 길이는 유지하고 페이지에서 알 수 있는 내용은 채우고 나머지는 그대로 둬. 답장 본문만 답해 줘.\n\n템플릿:\n{0}"
+ },
+ "qiTemplateButton": {
+  "message": "템플릿"
+ },
+ "qiTemplateTitle": {
+  "message": "제목"
+ },
+ "qiTemplateText": {
+  "message": "본문. 빈칸은 {이름}처럼 중괄호로 감쌉니다."
+ },
+ "qiMakeBlank": {
+  "message": "빈칸"
+ },
+ "qiBlankDefault": {
+  "message": "빈칸"
+ },
+ "qiUnmark": {
+  "message": "일반 텍스트로 되돌리기"
+ },
+ "qiMarking": {
+  "message": "바뀌는 부분을 표시하는 중…"
+ },
+ "qiMarkAi": {
+  "message": "빈칸 표시"
+ },
+ "qiMarkedHint": {
+  "message": "빈칸을 표시했습니다. 빈칸을 탭하면 일반 텍스트로 돌아갑니다."
+ },
+ "qiMarkedNone": {
+  "message": "여기서는 바뀌는 부분이 없어 보입니다. 단어를 선택하고 ‘빈칸’을 탭해 추가하세요."
+ },
+ "qiMarkFailed": {
+  "message": "지금은 빈칸을 표시하지 못했습니다. 템플릿은 일반 텍스트로 저장되며 빈칸은 직접 추가할 수 있습니다."
+ },
+ "qiMarkConsent": {
+  "message": "빈칸을 표시하기 위해 ContextFlow가 이 텍스트를 Anthropic의 Claude로 보냅니다. 아무것도 저장되지 않습니다."
+ },
+ "qiBlankHint": {
+  "message": "빈칸은 템플릿을 삽입할 때 채웁니다."
+ },
+ "qiKeywords": {
+  "message": "찾을 때 쓸 단어(쉼표로 구분)"
+ },
+ "qiSave": {
+  "message": "저장"
+ },
+ "qiDelete": {
+  "message": "삭제"
+ },
+ "qiSetButton": {
+  "message": "텍스트 필드 옆 버튼"
+ },
+ "qiSetCopiedHint": {
+  "message": "페이지에서 복사한 최근 5개 텍스트. 이 기기에만 보관되며 24시간 후 지워집니다. 암호나 카드 필드, 개인정보 보호 브라우징에서는 보관하지 않습니다."
+ },
+ "qiClearCopied": {
+  "message": "‘복사한 항목’ 지우기"
+ },
+ "qiCleared": {
+  "message": "지웠습니다"
+ },
+ "qiSetSign": {
+  "message": "필드에서 쓰는 기호"
+ },
+ "qiSetSignHint": {
+  "message": "어느 필드에서든 {0}와 템플릿의 단어 몇 개를 입력하세요."
+ },
+ "qiSetShortcut": {
+  "message": "Mac과 키보드가 연결된 iPad에서는 ⌃⇧V로 목록이 열립니다."
+ },
  "hintGot": {
   "message": "알겠어요"
  },

@@ -734,6 +734,234 @@
  "tagsButton": {
   "message": "标签"
  },
+ "qiTitle": {
+  "message": "快速插入"
+ },
+ "qiButton": {
+  "message": "快速插入：复制的文字、模板、ContextFlow 的回答"
+ },
+ "qiCommand": {
+  "message": "在光标处快速插入"
+ },
+ "qiSearch": {
+  "message": "查找模板"
+ },
+ "qiNewTemplate": {
+  "message": "新模板"
+ },
+ "qiEditTemplate": {
+  "message": "模板"
+ },
+ "qiCopied": {
+  "message": "已复制"
+ },
+ "qiClear": {
+  "message": "清除"
+ },
+ "qiCopiedOff": {
+  "message": "“已复制”已关闭，可在下方打开。"
+ },
+ "qiCopiedEmpty": {
+  "message": "在 Safari 的任意网页上复制文字，它会出现在这里。"
+ },
+ "qiNothing": {
+  "message": "没有找到"
+ },
+ "qiToTemplate": {
+  "message": "存为模板"
+ },
+ "qiTemplates": {
+  "message": "模板"
+ },
+ "qiTemplatesTitle": {
+  "message": "模板"
+ },
+ "qiAllTemplates": {
+  "message": "全部模板"
+ },
+ "qiTemplatesEmpty": {
+  "message": "还没有模板。轻点 +，或选中一段常写的回复后轻点“模板”。"
+ },
+ "qiTemplatesIntro": {
+  "message": "把反复要写的回复存起来。ContextFlow 会标出会变的部分，比如姓名或日期，并能从网页上填好。"
+ },
+ "qiFindAi": {
+  "message": "按意思查找"
+ },
+ "qiFinding": {
+  "message": "正在查找…"
+ },
+ "qiFromCf": {
+  "message": "来自 ContextFlow"
+ },
+ "qiLastAnswer": {
+  "message": "最新回答"
+ },
+ "qiLastNote": {
+  "message": "最新笔记"
+ },
+ "qiKeepCopied": {
+  "message": "保留复制的文字"
+ },
+ "qiPrivacy": {
+  "message": "复制的文字只保存在此{0}上，24 小时后自动清除。"
+ },
+ "qiOnIphone": {
+  "message": "iPhone"
+ },
+ "qiOnIpad": {
+  "message": "iPad"
+ },
+ "qiOnMac": {
+  "message": "Mac"
+ },
+ "qiOnDevice": {
+  "message": "设备"
+ },
+ "qiDontKeepOnSite": {
+  "message": "在 {0} 不保留"
+ },
+ "qiKeepOnSite": {
+  "message": "在 {0} 重新保留"
+ },
+ "qiTip": {
+  "message": "新功能：轻点即可插入在其他标签页复制的文字、模板或 ContextFlow 的回答。"
+ },
+ "qiKeyInsert": {
+  "message": "插入"
+ },
+ "qiKeyChoose": {
+  "message": "选择"
+ },
+ "qiKeyClose": {
+  "message": "关闭"
+ },
+ "qiBlanksMark": {
+  "message": "空格"
+ },
+ "qiBlanksCount": {
+  "message": "空格：{0}"
+ },
+ "qiPasteManually": {
+  "message": "已复制，请自行粘贴到输入框。"
+ },
+ "qiInsert": {
+  "message": "插入"
+ },
+ "qiInsertIntoField": {
+  "message": "插入输入框"
+ },
+ "qiFillFromPage": {
+  "message": "从网页填写"
+ },
+ "qiFillAgain": {
+  "message": "重新填写"
+ },
+ "qiFilling": {
+  "message": "正在填写…"
+ },
+ "qiFillHint": {
+  "message": "自己填写空格、从“已复制”中选择，或让 ContextFlow 从网页上填写。"
+ },
+ "qiFillDone": {
+  "message": "黄色部分取自网页，发送前请检查。"
+ },
+ "qiFillPartly": {
+  "message": "黄色部分取自网页。空着的格没有找到，请自己填写。"
+ },
+ "qiFillLeft": {
+  "message": "今天还可填写 {0} 次。"
+ },
+ "qiFillLimit": {
+  "message": "今天的免费填写次数已用完。Pro 不限次数，空格也可以手动填写。"
+ },
+ "qiFillByHand": {
+  "message": "手动填写"
+ },
+ "qiFillConsent": {
+  "message": "为了填写空格，ContextFlow 会把此网页的文字和模板发送给 Anthropic 的 Claude。不会保存任何内容。"
+ },
+ "qiPickCopied": {
+  "message": "为“{0}”选择已复制内容"
+ },
+ "qiAdapt": {
+  "message": "按消息调整"
+ },
+ "qiAdaptLabel": {
+  "message": "按此网页调整模板"
+ },
+ "qiAdaptPrompt": {
+  "message": "把这个模板改写成适合当前网页的回复。保持意思、语气和长度；填入网页上能确定的内容，其余保持原样。只回答回复的正文。\n\n模板：\n{0}"
+ },
+ "qiTemplateButton": {
+  "message": "模板"
+ },
+ "qiTemplateTitle": {
+  "message": "标题"
+ },
+ "qiTemplateText": {
+  "message": "正文。空格用花括号表示，例如 {姓名}。"
+ },
+ "qiMakeBlank": {
+  "message": "空格"
+ },
+ "qiBlankDefault": {
+  "message": "空格"
+ },
+ "qiUnmark": {
+  "message": "恢复为普通文字"
+ },
+ "qiMarking": {
+  "message": "正在标出会变的部分…"
+ },
+ "qiMarkAi": {
+  "message": "标出空格"
+ },
+ "qiMarkedHint": {
+  "message": "已标出空格。轻点某个空格可恢复为普通文字。"
+ },
+ "qiMarkedNone": {
+  "message": "这里似乎没有会变的部分。选中一个词并轻点“空格”即可添加。"
+ },
+ "qiMarkFailed": {
+  "message": "暂时无法标出空格。模板将保存为普通文字，可以手动添加空格。"
+ },
+ "qiMarkConsent": {
+  "message": "为了标出空格，ContextFlow 会把这段文字发送给 Anthropic 的 Claude。不会保存任何内容。"
+ },
+ "qiBlankHint": {
+  "message": "插入模板时再填写空格。"
+ },
+ "qiKeywords": {
+  "message": "用于查找的词，用逗号分隔"
+ },
+ "qiSave": {
+  "message": "存储"
+ },
+ "qiDelete": {
+  "message": "删除"
+ },
+ "qiSetButton": {
+  "message": "输入框旁的按钮"
+ },
+ "qiSetCopiedHint": {
+  "message": "网页上最近复制的 5 段文字。只保存在此设备上，24 小时后清除。不保存密码或卡号输入框中的内容，无痕浏览时也不保存。"
+ },
+ "qiClearCopied": {
+  "message": "清除“已复制”"
+ },
+ "qiCleared": {
+  "message": "已清除"
+ },
+ "qiSetSign": {
+  "message": "输入框中的符号"
+ },
+ "qiSetSignHint": {
+  "message": "在任意输入框中输入 {0} 和模板中的几个词。"
+ },
+ "qiSetShortcut": {
+  "message": "在 Mac 和连接键盘的 iPad 上，按 ⌃⇧V 打开列表。"
+ },
  "hintGot": {
   "message": "知道了"
  },

@@ -734,6 +734,234 @@
  "tagsButton": {
   "message": "タグ"
  },
+ "qiTitle": {
+  "message": "クイック挿入"
+ },
+ "qiButton": {
+  "message": "クイック挿入：コピーしたテキスト、テンプレート、ContextFlowの回答"
+ },
+ "qiCommand": {
+  "message": "カーソル位置にクイック挿入"
+ },
+ "qiSearch": {
+  "message": "テンプレートを検索"
+ },
+ "qiNewTemplate": {
+  "message": "新規テンプレート"
+ },
+ "qiEditTemplate": {
+  "message": "テンプレート"
+ },
+ "qiCopied": {
+  "message": "コピー履歴"
+ },
+ "qiClear": {
+  "message": "消去"
+ },
+ "qiCopiedOff": {
+  "message": "コピー履歴はオフです。下でオンにできます。"
+ },
+ "qiCopiedEmpty": {
+  "message": "Safariのどのページでもテキストをコピーすると、ここに表示されます。"
+ },
+ "qiNothing": {
+  "message": "見つかりません"
+ },
+ "qiToTemplate": {
+  "message": "テンプレートにする"
+ },
+ "qiTemplates": {
+  "message": "テンプレート"
+ },
+ "qiTemplatesTitle": {
+  "message": "テンプレート"
+ },
+ "qiAllTemplates": {
+  "message": "すべてのテンプレート"
+ },
+ "qiTemplatesEmpty": {
+  "message": "テンプレートはまだありません。＋をタップするか、よく書く返信を選択して「テンプレート」をタップしてください。"
+ },
+ "qiTemplatesIntro": {
+  "message": "何度も書く返信を保存しましょう。ContextFlowが名前や日付など変わる部分を見つけ、ページから入力できます。"
+ },
+ "qiFindAi": {
+  "message": "意味で探す"
+ },
+ "qiFinding": {
+  "message": "検索中…"
+ },
+ "qiFromCf": {
+  "message": "ContextFlowから"
+ },
+ "qiLastAnswer": {
+  "message": "最新の回答"
+ },
+ "qiLastNote": {
+  "message": "最新のメモ"
+ },
+ "qiKeepCopied": {
+  "message": "コピーしたテキストを保存"
+ },
+ "qiPrivacy": {
+  "message": "コピーしたテキストはこの{0}にだけ保存され、24時間後に消去されます。"
+ },
+ "qiOnIphone": {
+  "message": "iPhone"
+ },
+ "qiOnIpad": {
+  "message": "iPad"
+ },
+ "qiOnMac": {
+  "message": "Mac"
+ },
+ "qiOnDevice": {
+  "message": "デバイス"
+ },
+ "qiDontKeepOnSite": {
+  "message": "{0}では保存しない"
+ },
+ "qiKeepOnSite": {
+  "message": "{0}でも再び保存"
+ },
+ "qiTip": {
+  "message": "新機能：タップすると、ほかのタブでコピーしたテキスト、テンプレート、ContextFlowの回答を挿入できます。"
+ },
+ "qiKeyInsert": {
+  "message": "挿入"
+ },
+ "qiKeyChoose": {
+  "message": "選択"
+ },
+ "qiKeyClose": {
+  "message": "閉じる"
+ },
+ "qiBlanksMark": {
+  "message": "空欄"
+ },
+ "qiBlanksCount": {
+  "message": "空欄：{0}"
+ },
+ "qiPasteManually": {
+  "message": "コピーしました。フィールドに自分でペーストしてください。"
+ },
+ "qiInsert": {
+  "message": "挿入"
+ },
+ "qiInsertIntoField": {
+  "message": "フィールドに挿入"
+ },
+ "qiFillFromPage": {
+  "message": "ページから入力"
+ },
+ "qiFillAgain": {
+  "message": "もう一度入力"
+ },
+ "qiFilling": {
+  "message": "入力中…"
+ },
+ "qiFillHint": {
+  "message": "空欄に入力するか、コピー履歴から選ぶか、ContextFlowにページから入力させてください。"
+ },
+ "qiFillDone": {
+  "message": "黄色：ページから入力した部分です。送信前に確認してください。"
+ },
+ "qiFillPartly": {
+  "message": "黄色：ページから入力した部分です。空の欄は見つかりませんでした。自分で入力してください。"
+ },
+ "qiFillLeft": {
+  "message": "今日の残り入力回数：{0}"
+ },
+ "qiFillLimit": {
+  "message": "今日の無料入力回数を使い切りました。Proなら制限はありません。空欄は手でも入力できます。"
+ },
+ "qiFillByHand": {
+  "message": "手で入力"
+ },
+ "qiFillConsent": {
+  "message": "空欄を入力するため、ContextFlowはこのページのテキストとテンプレートをAnthropicのClaudeに送信します。何も保存されません。"
+ },
+ "qiPickCopied": {
+  "message": "「{0}」にコピー履歴から"
+ },
+ "qiAdapt": {
+  "message": "メッセージに合わせる"
+ },
+ "qiAdaptLabel": {
+  "message": "テンプレートをこのページに合わせる"
+ },
+ "qiAdaptPrompt": {
+  "message": "このテンプレートを、開いているページに合う返信に書き直して。意味、トーン、長さは保ち、ページからわかることを埋め、ほかはそのままにして。返信の本文だけを答えて。\n\nテンプレート：\n{0}"
+ },
+ "qiTemplateButton": {
+  "message": "テンプレート"
+ },
+ "qiTemplateTitle": {
+  "message": "タイトル"
+ },
+ "qiTemplateText": {
+  "message": "本文。空欄は{名前}のように波かっこで囲みます。"
+ },
+ "qiMakeBlank": {
+  "message": "空欄"
+ },
+ "qiBlankDefault": {
+  "message": "空欄"
+ },
+ "qiUnmark": {
+  "message": "普通のテキストに戻す"
+ },
+ "qiMarking": {
+  "message": "変わる部分を見つけています…"
+ },
+ "qiMarkAi": {
+  "message": "空欄を見つける"
+ },
+ "qiMarkedHint": {
+  "message": "空欄を見つけました。タップすると普通のテキストに戻ります。"
+ },
+ "qiMarkedNone": {
+  "message": "変わる部分はなさそうです。単語を選択して「空欄」をタップすると追加できます。"
+ },
+ "qiMarkFailed": {
+  "message": "今は空欄を見つけられませんでした。テンプレートは普通のテキストとして保存され、空欄は手で追加できます。"
+ },
+ "qiMarkConsent": {
+  "message": "空欄を見つけるため、ContextFlowはこのテキストをAnthropicのClaudeに送信します。何も保存されません。"
+ },
+ "qiBlankHint": {
+  "message": "空欄はテンプレートを挿入するときに入力します。"
+ },
+ "qiKeywords": {
+  "message": "検索用の言葉（カンマ区切り）"
+ },
+ "qiSave": {
+  "message": "保存"
+ },
+ "qiDelete": {
+  "message": "削除"
+ },
+ "qiSetButton": {
+  "message": "テキストフィールドの横のボタン"
+ },
+ "qiSetCopiedHint": {
+  "message": "ページでコピーした最新5件のテキスト。このデバイスにだけ保存され、24時間後に消去されます。パスワードやカードの欄、プライベートブラウズでは保存しません。"
+ },
+ "qiClearCopied": {
+  "message": "コピー履歴を消去"
+ },
+ "qiCleared": {
+  "message": "消去しました"
+ },
+ "qiSetSign": {
+  "message": "フィールドでの記号"
+ },
+ "qiSetSignHint": {
+  "message": "どのフィールドでも、{0}とテンプレートの言葉をいくつか入力します。"
+ },
+ "qiSetShortcut": {
+  "message": "Macとキーボード付きiPadでは、⌃⇧Vでリストが開きます。"
+ },
  "hintGot": {
   "message": "OK"
  },
