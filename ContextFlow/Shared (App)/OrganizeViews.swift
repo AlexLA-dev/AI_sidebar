@@ -23,18 +23,16 @@ struct SuggestionRow: View {
         OrganizeFlow(spacing: 6) {
             Text("Suggested").font(.caption).foregroundColor(.secondary).frame(height: 28)
             if let tag {
-                SuggestionChip(tint: Tags.color(tag), take: onTag, refuse: onTagNo) {
+                SuggestionChip(tint: Tags.color(tag), takeLabel: Text("Suggested tag “\(tag)”. Add it"), take: onTag, refuse: onTagNo) {
                     Text("#\(tag)").font(.footnote.weight(.semibold))
                 }
-                .accessibilityLabel(Text("Suggested tag “\(tag)”. Add it"))
             }
             if let move {
-                SuggestionChip(tint: .secondary, take: onMove, refuse: onMoveNo) {
+                SuggestionChip(tint: .secondary, takeLabel: move.to == nil ? Text("Move these messages to a new chat, “\(move.toName)”") : Text("Move \(messagesCount(move.count)) to the chat “\(move.toName)”"), take: onMove, refuse: onMoveNo) {
                     (Text(Image(systemName: "arrow.turn.down.right")) + Text(" ") + moveText(move))
                         .font(.footnote)
                         .lineLimit(1)
                 }
-                .accessibilityLabel(move.to == nil ? Text("Move these messages to a new chat, “\(move.toName)”") : Text("Move \(messagesCount(move.count)) to the chat “\(move.toName)”"))
             }
         }
         .padding(.top, 2)
@@ -49,6 +47,8 @@ struct SuggestionRow: View {
 
 private struct SuggestionChip<Label: View>: View {
     let tint: Color
+    // What VoiceOver reads for taking it; the ✕ reads "Dismiss".
+    let takeLabel: Text
     let take: () -> Void
     let refuse: () -> Void
     @ViewBuilder let label: () -> Label
@@ -57,6 +57,7 @@ private struct SuggestionChip<Label: View>: View {
         HStack(spacing: 0) {
             Button(action: take) { label().foregroundColor(tint).padding(.leading, 10).padding(.trailing, 2) }
                 .buttonStyle(.plain)
+                .accessibilityLabel(takeLabel)
             Button(action: refuse) {
                 Image(systemName: "xmark").font(.caption2.weight(.semibold)).foregroundColor(.secondary).frame(width: 26, height: 28)
             }
