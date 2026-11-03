@@ -426,8 +426,24 @@ struct TipGroup {
         #endif
     }
 
+    // Quick insert (2.5): how the list opens differs, a tap on iPhone and iPad, / or ⌃⇧V with a keyboard.
+    private static var insertTip: Tip {
+        #if os(iOS)
+        Tip(symbol: "text.badge.plus", color: brandBlue, title: "Insert into any field",
+            text: "Tap a text field on a page, then the ContextFlow button by it: what you copied in other tabs, your templates and ContextFlow's last answer are one tap away. With a keyboard, type / and a few words of a template, then Tab.")
+        #else
+        Tip(symbol: "text.badge.plus", color: brandBlue, title: "Insert into any field",
+            text: "In any field on a page, type / and a few words of a template, then Tab. Control-Shift-V opens the whole list: what you copied in other tabs, your templates and ContextFlow's last answer.")
+        #endif
+    }
+
     static let all: [TipGroup] = [
         TipGroup(title: "New in ContextFlow", tips: [
+            insertTip,
+            Tip(symbol: "curlybraces", color: .orange, title: "Templates that fill themselves",
+                text: "Select a reply you send often and tap Template: ContextFlow marks the name, the date and whatever else changes. When you insert it, Fill from the page puts them in, highlighted so you can check."),
+            Tip(symbol: "doc.on.clipboard", color: .green, title: "Copied, kept for a day",
+                text: "The last 5 things you copied on pages in Safari wait in the list for 24 hours, on this device only. Nothing from password or card fields, or in Private Browsing."),
             Tip(symbol: "text.quote", color: .orange, title: "Ask or note a selection",
                 text: "Select text on a page: type your own question about it right under the selection, or tap Note to save it to the chat with its page. Notes use no answers.", clip: "select"),
             Tip(symbol: "play.rectangle", color: .red, title: "Ask about a video (Pro)",

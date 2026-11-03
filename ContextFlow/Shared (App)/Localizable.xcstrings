@@ -17742,6 +17742,454 @@
         }
       }
     },
+    "Insert into any field": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In jedes Feld einfügen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Insertar en cualquier campo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Insérer dans n’importe quel champ"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inserisci in qualsiasi campo"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "どのフィールドにも挿入"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "어떤 필드에든 삽입"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inserir em qualquer campo"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вставка в любое поле"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вставлення в будь-яке поле"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "插入任意输入框"
+          }
+        }
+      }
+    },
+    "Tap a text field on a page, then the ContextFlow button by it: what you copied in other tabs, your templates and ContextFlow's last answer are one tap away. With a keyboard, type / and a few words of a template, then Tab.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tippe auf ein Textfeld auf einer Seite und dann auf die ContextFlow-Taste daneben: Was du in anderen Tabs kopiert hast, deine Vorlagen und die letzte Antwort von ContextFlow sind einen Tipp entfernt. Mit Tastatur tippst du / und ein paar Wörter einer Vorlage, dann Tab."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toca un campo de texto de una página y luego el botón de ContextFlow que aparece al lado: lo que copiaste en otras pestañas, tus plantillas y la última respuesta de ContextFlow están a un toque. Con teclado, escribe / y unas palabras de una plantilla y pulsa Tab."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touchez un champ de texte sur une page, puis le bouton ContextFlow à côté : ce que vous avez copié dans d’autres onglets, vos modèles et la dernière réponse de ContextFlow sont à un toucher. Avec un clavier, tapez / et quelques mots d’un modèle, puis Tab."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tocca un campo di testo in una pagina, poi il pulsante ContextFlow accanto: ciò che hai copiato in altre schede, i tuoi modelli e l’ultima risposta di ContextFlow sono a un tocco. Con la tastiera, digita / e qualche parola di un modello, poi Tab."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ページのテキストフィールドをタップし、その横のContextFlowボタンをタップします。ほかのタブでコピーしたもの、テンプレート、ContextFlowの最新の回答をワンタップで挿入できます。キーボードでは、/ とテンプレートの言葉をいくつか入力してTabを押します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페이지의 텍스트 필드를 탭한 다음 옆의 ContextFlow 버튼을 탭하세요. 다른 탭에서 복사한 텍스트, 템플릿, ContextFlow의 마지막 답변을 한 번에 넣을 수 있습니다. 키보드에서는 /와 템플릿의 단어 몇 개를 입력한 뒤 Tab을 누르세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toque em um campo de texto de uma página e depois no botão do ContextFlow ao lado: o que você copiou em outras abas, seus modelos e a última resposta do ContextFlow estão a um toque. Com teclado, digite / e algumas palavras de um modelo e pressione Tab."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Коснитесь текстового поля на странице, а затем кнопки ContextFlow рядом с ним: скопированное на других вкладках, ваши шаблоны и последний ответ ContextFlow — в одно касание. С клавиатурой наберите / и пару слов из шаблона, затем Tab."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Торкніться текстового поля на сторінці, а потім кнопки ContextFlow поруч: скопійоване на інших вкладках, ваші шаблони й остання відповідь ContextFlow — в один дотик. З клавіатурою наберіть / і кілька слів із шаблону, потім Tab."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "轻点网页上的输入框，再轻点旁边的 ContextFlow 按钮：在其他标签页复制的内容、你的模板和 ContextFlow 的最新回答一触即可插入。使用键盘时，输入 / 和模板中的几个词，再按 Tab。"
+          }
+        }
+      }
+    },
+    "In any field on a page, type / and a few words of a template, then Tab. Control-Shift-V opens the whole list: what you copied in other tabs, your templates and ContextFlow's last answer.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tippe in einem beliebigen Feld auf einer Seite / und ein paar Wörter einer Vorlage, dann Tab. Control-Umschalt-V öffnet die ganze Liste: was du in anderen Tabs kopiert hast, deine Vorlagen und die letzte Antwort von ContextFlow."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En cualquier campo de una página, escribe / y unas palabras de una plantilla y pulsa Tab. Control-Mayúsculas-V abre la lista completa: lo que copiaste en otras pestañas, tus plantillas y la última respuesta de ContextFlow."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dans n’importe quel champ d’une page, tapez / et quelques mots d’un modèle, puis Tab. Contrôle-Maj-V ouvre la liste complète : ce que vous avez copié dans d’autres onglets, vos modèles et la dernière réponse de ContextFlow."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In qualsiasi campo di una pagina, digita / e qualche parola di un modello, poi Tab. Control-Maiusc-V apre l’elenco completo: ciò che hai copiato in altre schede, i tuoi modelli e l’ultima risposta di ContextFlow."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ページのどのフィールドでも、/ とテンプレートの言葉をいくつか入力してTabを押します。Control-Shift-Vでリスト全体が開きます：ほかのタブでコピーしたもの、テンプレート、ContextFlowの最新の回答。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페이지의 어느 필드에서든 /와 템플릿의 단어 몇 개를 입력한 뒤 Tab을 누르세요. Control-Shift-V를 누르면 전체 목록이 열립니다. 다른 탭에서 복사한 텍스트, 템플릿, ContextFlow의 마지막 답변이 있습니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Em qualquer campo de uma página, digite / e algumas palavras de um modelo e pressione Tab. Control-Shift-V abre a lista inteira: o que você copiou em outras abas, seus modelos e a última resposta do ContextFlow."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В любом поле на странице наберите / и пару слов из шаблона, затем Tab. Control-Shift-V открывает весь список: скопированное на других вкладках, ваши шаблоны и последний ответ ContextFlow."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "У будь-якому полі на сторінці наберіть / і кілька слів із шаблону, потім Tab. Control-Shift-V відкриває весь список: скопійоване на інших вкладках, ваші шаблони й останню відповідь ContextFlow."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在网页的任意输入框中输入 / 和模板中的几个词，再按 Tab。按 Control-Shift-V 打开完整列表：在其他标签页复制的内容、你的模板和 ContextFlow 的最新回答。"
+          }
+        }
+      }
+    },
+    "Templates that fill themselves": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vorlagen, die sich selbst ausfüllen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plantillas que se rellenan solas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Des modèles qui se remplissent seuls"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modelli che si riempiono da soli"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自動で埋まるテンプレート"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "스스로 채워지는 템플릿"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modelos que se preenchem sozinhos"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Шаблоны, которые заполняются сами"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Шаблони, що заповнюються самі"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自动填写的模板"
+          }
+        }
+      }
+    },
+    "Select a reply you send often and tap Template: ContextFlow marks the name, the date and whatever else changes. When you insert it, Fill from the page puts them in, highlighted so you can check.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Markiere eine Antwort, die du oft sendest, und tippe auf „Vorlage“: ContextFlow markiert den Namen, das Datum und alles, was sich sonst ändert. Beim Einfügen trägt „Von der Seite ausfüllen“ sie ein, hervorgehoben zum Prüfen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selecciona una respuesta que envías a menudo y toca «Plantilla»: ContextFlow marca el nombre, la fecha y todo lo que cambie. Al insertarla, «Rellenar con la página» los completa, resaltados para que los revises."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sélectionnez une réponse que vous envoyez souvent et touchez « Modèle » : ContextFlow repère le nom, la date et tout ce qui change. À l’insertion, « Remplir depuis la page » les complète, surlignés pour que vous vérifiiez."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seleziona una risposta che invii spesso e tocca «Modello»: ContextFlow segna il nome, la data e tutto ciò che cambia. Quando la inserisci, «Riempi dalla pagina» li completa, evidenziati per controllarli."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "よく送る返信を選択して「テンプレート」をタップすると、ContextFlowが名前や日付など変わる部分を見つけます。挿入時に「ページから入力」で埋まり、確認しやすいよう強調表示されます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "자주 보내는 답장을 선택하고 ‘템플릿’을 탭하세요. ContextFlow가 이름, 날짜 등 바뀌는 부분을 표시합니다. 넣을 때 ‘페이지에서 채우기’가 채워 주고, 확인하기 쉽게 강조합니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selecione uma resposta que você envia sempre e toque em “Modelo”: o ContextFlow marca o nome, a data e o que mais mudar. Ao inserir, “Preencher pela página” completa tudo, destacado para você conferir."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выделите ответ, который часто отправляете, и нажмите «Шаблон»: ContextFlow отметит имя, дату и всё, что меняется. При вставке «Заполнить со страницы» впишет их и подсветит, чтобы вы проверили."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Виділіть відповідь, яку часто надсилаєте, і натисніть «Шаблон»: ContextFlow позначить ім’я, дату й усе, що змінюється. Під час вставлення «Заповнити зі сторінки» впише їх і підсвітить, щоб ви перевірили."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选中一段常发的回复并轻点“模板”：ContextFlow 会标出姓名、日期等会变的部分。插入时，“从网页填写”会自动填好，并高亮显示方便检查。"
+          }
+        }
+      }
+    },
+    "Copied, kept for a day": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopiertes, einen Tag lang"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lo copiado, durante un día"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le texte copié, gardé une journée"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il testo copiato, per un giorno"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コピー履歴は1日保存"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "복사한 항목은 하루 동안"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiados, guardados por um dia"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Скопированное — на сутки"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Скопійоване — на добу"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "复制的内容保留一天"
+          }
+        }
+      }
+    },
+    "The last 5 things you copied on pages in Safari wait in the list for 24 hours, on this device only. Nothing from password or card fields, or in Private Browsing.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die letzten 5 Dinge, die du auf Seiten in Safari kopiert hast, warten 24 Stunden in der Liste, nur auf diesem Gerät. Nichts aus Passwort- oder Kartenfeldern und nichts im privaten Surfen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lo último que copiaste en páginas de Safari, hasta 5 elementos, espera en la lista 24 horas, solo en este dispositivo. Nada de campos de contraseña o tarjeta, ni en la navegación privada."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les 5 derniers textes copiés sur des pages dans Safari restent 24 heures dans la liste, sur cet appareil uniquement. Rien des champs de mot de passe ou de carte, ni en navigation privée."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le ultime 5 cose che hai copiato sulle pagine in Safari restano nell’elenco per 24 ore, solo su questo dispositivo. Niente dai campi di password o carta, né in navigazione privata."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safariのページでコピーした最新5件が、このデバイスにだけ24時間リストに残ります。パスワードやカードの欄、プライベートブラウズでは保存しません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safari 페이지에서 복사한 최근 5개 항목이 이 기기에서만 24시간 동안 목록에 남습니다. 암호나 카드 필드, 개인정보 보호 브라우징에서는 보관하지 않습니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "As 5 últimas coisas que você copiou em páginas no Safari ficam na lista por 24 horas, só neste dispositivo. Nada de campos de senha ou cartão, nem na navegação privada."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Последние 5 фрагментов, скопированных на страницах в Safari, ждут в списке 24 часа — только на этом устройстве. Ничего из полей паролей и карт и в режиме «Частный доступ»."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Останні 5 фрагментів, скопійованих на сторінках у Safari, чекають у списку 24 години — лише на цьому пристрої. Нічого з полів паролів і карток та в режимі «Приватний доступ»."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在 Safari 网页上最近复制的 5 项内容会在列表中保留 24 小时，只保存在此设备上。不保存密码或卡号输入框中的内容，无痕浏览时也不保存。"
+          }
+        }
+      }
+    },
     "Templates": {
       "localizations": {
         "de": {
