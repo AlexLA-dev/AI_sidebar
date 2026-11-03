@@ -74,6 +74,8 @@ export const setupFunnel = (days: number) => rpc<Record<string, unknown>[]>("cf_
 /** Subscribers' device, language and country, new vs returning users' requests, conversion to subscribers,
  * requests per user per day and install sources (cf_owner_insights). */
 export const ownerInsights = (days: number) => rpc<Record<string, unknown>>("cf_owner_insights", { p_days: days })
+/** New people's way to the first answer, one row each, by the day they first showed up (cf_onboarding). */
+export const onboarding = (days: number) => rpc<Record<string, unknown>>("cf_onboarding", { p_days: days })
 
 export async function logEvent(kind: string, installId: string | null, data: Record<string, unknown>): Promise<void> {
   try {
