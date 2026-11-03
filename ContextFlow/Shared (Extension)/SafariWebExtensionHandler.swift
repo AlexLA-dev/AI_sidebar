@@ -17,6 +17,8 @@ import AppKit
 /// - `syncThreads` → sends the extension's chat changes to the user's iCloud and returns the other
 ///   devices' changes (see ChatSync); `available: false` without an iCloud account or connection.
 /// - `mirrorThreads` → keeps the app's copy of the chats (see ChatMirror) and returns the app's changes.
+/// - `syncTemplates` → quick insert's templates: the extension's changes into the store the app shares,
+///   iCloud both ways (see TemplateStore), and the merged set back.
 /// - `pdfText` → the text of a PDF (by address, or the bytes the extension fetched), see PdfText.
 /// - `renewalAsked` → the panel asked a Pro user with auto-renew off what was missing: not again this period
 ///   (the app checks the same mark).
@@ -125,6 +127,20 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             // Only the panel opening takes the app's "continue this chat" (not a background start).
             if message["takeOpen"] as? Bool == true, let open = ChatMirror.takeOpenRequest() { data["open"] = open }
             Self.reply(context, ["success": true, "data": data])
+        case "syncTemplates":
+            // Quick insert's templates: the extension's changes into this device's store (the app sees them
+            // there), then iCloud; the merged set goes back (see TemplateStore).
+            let incoming = (message["changes"] as? [[String: Any]] ?? []).compactMap { TemplateRecord.decode($0["data"] as? String) }
+            TemplateStore.merge(incoming)
+            Task {
+                let result = await Self.withTimeout(seconds: 15) { try await TemplateSync.sync() }
+                var available = false
+                if case .success = result { available = true }
+                Self.reply(context, ["success": true, "data": [
+                    "available": available,
+                    "templates": TemplateStore.all().map { ["id": $0.id, "updatedAt": $0.updatedAt, "data": $0.json] as [String: Any] }
+                ] as [String: Any]])
+            }
         case "pdfText":
             let url = message["url"] as? String
             let data = message["data"] as? String

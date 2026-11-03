@@ -18,6 +18,9 @@ enum Links {
     static let support = URL(string: "https://context-flow.app/support")!
     static let review = URL(string: "https://apps.apple.com/app/id6759115793?action=write-review")!
     static let manageSubscriptions = URL(string: "https://apps.apple.com/account/subscriptions")!
+    // ContextFlow on X and Threads (the names aren't translated). Opens their app when it's installed.
+    static let x = URL(string: "https://x.com/ContextFlowApp")!
+    static let threads = URL(string: "https://www.threads.com/@contextflowapp")!
 }
 
 let brandGradient = LinearGradient(
@@ -40,7 +43,7 @@ final class DeepLinkRouter: ObservableObject {
 }
 
 enum AppTab: Hashable {
-    case home, chats, tips, pro, settings
+    case home, chats, templates, tips, pro, settings
 }
 
 // MARK: - Root
@@ -93,6 +96,7 @@ struct ContentView: View {
                     showPlan = store.isPro
                 case "tips": tab = .tips
                 case "chats": tab = hasChats ? .chats : .home
+                case "templates": tab = .templates
                 default: tab = hasChats ? .chats : .home
                 }
                 router.pending = nil
@@ -123,6 +127,7 @@ struct ContentView: View {
                 settingsTab
                 tipsTab
                 if showsPro { proTab }
+                templatesTab
                 NavigationView { ChatsView(library: chats, activation: activation, openSetup: { showingSetup = true }, openPro: { tab = .pro }) }
                     .navigationViewStyle(.stack)
                     .tabItem { Label("Chats", systemImage: "bubble.left.and.bubble.right") }
@@ -132,6 +137,7 @@ struct ContentView: View {
                     .navigationViewStyle(.stack)
                     .tabItem { Label("Get Started", systemImage: "sparkles") }
                     .tag(AppTab.home)
+                templatesTab
                 tipsTab
                 if showsPro { proTab }
                 settingsTab
@@ -161,6 +167,7 @@ struct ContentView: View {
                 } else {
                     Label("Get Started", systemImage: "sparkles").tag(AppTab.home)
                 }
+                Label("Templates", systemImage: "text.badge.plus").tag(AppTab.templates)
                 Label("Tips", systemImage: "lightbulb").tag(AppTab.tips)
                 if showsPro { Label("Pro", systemImage: "crown").tag(AppTab.pro) }
                 Label("Settings", systemImage: "gearshape").tag(AppTab.settings)
@@ -170,6 +177,7 @@ struct ContentView: View {
             switch tab {
             case .home: HomeView(store: store, activation: activation, openPro: { tab = .pro }, openTips: { tab = .tips })
             case .chats: NavigationStack { ChatsView(library: chats, activation: activation, openPro: { tab = .pro }) }
+            case .templates: NavigationStack { TemplatesView() }
             case .tips: TipsView()
             case .pro: ProView(store: store)
             case .settings: SettingsView(showPlan: $showPlan)
@@ -193,6 +201,13 @@ struct ContentView: View {
             .navigationViewStyle(.stack)
             .tabItem { Label("Tips", systemImage: "lightbulb") }
             .tag(AppTab.tips)
+    }
+
+    private var templatesTab: some View {
+        NavigationView { TemplatesView() }
+            .navigationViewStyle(.stack)
+            .tabItem { Label("Templates", systemImage: "text.badge.plus") }
+            .tag(AppTab.templates)
     }
 
     private var proTab: some View {
@@ -1013,6 +1028,12 @@ struct FooterLinks: View {
                 Link("Support", destination: Links.support)
                 Link("Privacy Policy", destination: Links.privacy)
                 Link("Terms of Use", destination: Links.terms)
+            }
+            .font(.footnote.weight(.medium))
+            // A row of their own: six links don't fit one line on a 375 pt iPhone.
+            HStack(spacing: 14) {
+                Link("X", destination: Links.x)
+                Link("Threads", destination: Links.threads)
             }
             .font(.footnote.weight(.medium))
             Text("Version \(version)")
