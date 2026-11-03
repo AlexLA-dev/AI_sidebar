@@ -18,6 +18,22 @@ struct ChatEntry: Decodable, Hashable {
         /// The page's readable text, kept with the chat by the extension (2.4: the first question or note
         /// on the page, and again when it changed; never from Private Browsing).
         var text: String?
+        /// When the question or note was written (ms since 1970); missing before 2.4.
+        var at: Double?
+
+        /// "1 Nov (2 days ago)": when the chat came to this page, shown by its title. Nil before 2.4.
+        func when(now: Date = Date()) -> String? {
+            guard let at else { return nil }
+            let date = Date(timeIntervalSince1970: at / 1000)
+            let calendar = Calendar.current
+            let days = max(0, calendar.dateComponents([.day], from: calendar.startOfDay(for: date), to: calendar.startOfDay(for: now)).day ?? 0)
+            let style = calendar.component(.year, from: date) == calendar.component(.year, from: now)
+                ? Date.FormatStyle.dateTime.day().month(.abbreviated)
+                : Date.FormatStyle.dateTime.day().month(.abbreviated).year()
+            let relative = RelativeDateTimeFormatter()
+            relative.dateTimeStyle = .named
+            return "\(date.formatted(style)) (\(relative.localizedString(from: DateComponents(day: -days))))"
+        }
     }
 
     struct Source: Decodable, Hashable {
@@ -43,6 +59,8 @@ struct ChatEntry: Decodable, Hashable {
     var label: String?
     var mode: String?
     var note: Bool?
+    /// A note made from a page selection: its text starts with the quote.
+    var quote: Bool?
     var page: Page?
     var pageChanged: Bool?
     var grounding: Grounding?
@@ -196,6 +214,223 @@ struct ChatThread: Identifiable, Hashable {
         return ChatMirror.Item(updatedAt: updatedAt, data: text)
     }
 }
+
+// MARK: - Copy and share (src/shared/share.ts)
+
+/// What Copy and Share give for an answer, a note or the picked messages of a chat, the same text as
+/// in the Safari panel: plain text that keeps the links in the answers, the Google sources and the
+/// pages asked about, and ends with the link to ContextFlow. Its labels ("You", "Source"…) are in the
+/// language the chat's questions were typed in, else the app's. It never starts with "word:" (apps that
+/// parse it as a URL would save it as one link).
+enum ShareText {
+    struct Labels {
+        let you, note, sources, source, madeWith: String
+    }
+
+    static let appLink = "https://apps.apple.com/app/contextflow-ai-web-assistant/id6759115793"
+
+    private static let byLanguage: [String: Labels] = [
+        "de": Labels(you: "Du", note: "Notiz", sources: "Quellen", source: "Quelle", madeWith: "Erstellt mit ContextFlow"),
+        "en": Labels(you: "You", note: "Note", sources: "Sources", source: "Source", madeWith: "Made with ContextFlow"),
+        "es": Labels(you: "Tú", note: "Nota", sources: "Fuentes", source: "Fuente", madeWith: "Hecho con ContextFlow"),
+        "fr": Labels(you: "Vous", note: "Note", sources: "Sources", source: "Source", madeWith: "Créé avec ContextFlow"),
+        "it": Labels(you: "Tu", note: "Nota", sources: "Fonti", source: "Fonte", madeWith: "Creato con ContextFlow"),
+        "ja": Labels(you: "あなた", note: "メモ", sources: "出典", source: "出典", madeWith: "ContextFlowで作成"),
+        "ko": Labels(you: "나", note: "메모", sources: "출처", source: "출처", madeWith: "ContextFlow로 작성"),
+        "pt_BR": Labels(you: "Você", note: "Nota", sources: "Fontes", source: "Fonte", madeWith: "Feito com o ContextFlow"),
+        "ru": Labels(you: "Вы", note: "Заметка", sources: "Источники", source: "Источник", madeWith: "Сделано в ContextFlow"),
+        "uk": Labels(you: "Ви", note: "Нотатка", sources: "Джерела", source: "Джерело", madeWith: "Зроблено в ContextFlow"),
+        "zh_CN": Labels(you: "你", note: "笔记", sources: "来源", source: "来源", madeWith: "由 ContextFlow 生成")
+    ]
+
+    /// The labels in the chat's language, or the app's.
+    static func labels(for entries: [ChatEntry]) -> Labels {
+        if let language = chatLanguage(entries), let labels = byLanguage[language] { return labels }
+        let app = Bundle.main.preferredLocalizations.first ?? "en"
+        let code = app == "pt-BR" ? "pt_BR" : app.hasPrefix("zh") ? "zh_CN" : String(app.prefix(2))
+        return byLanguage[code] ?? byLanguage["en"]!
+    }
+
+    /// Plain text: Markdown syntax gone, structure and links kept.
+    static func plain(_ text: String) -> String {
+        var out = replace(text, #"[ \t]*\[\d{1,2}\]\(https?:[^)\s]+\)"#, "")
+        out = replace(out, #"```[a-z]*\n?"#, "", caseless: true)
+        out = replace(out, #"(?m)^#{1,6}\s+"#, "")
+        out = replace(out, #"\*\*([^*]+)\*\*"#, "$1")
+        out = replace(out, #"__([^_]+)__"#, "$1")
+        out = replace(out, #"(^|\W)\*([^*\n]+)\*"#, "$1$2")
+        out = replace(out, #"`([^`]+)`"#, "$1")
+        // [label](url) → "label: url" (just the url when they're the same).
+        let links = try! NSRegularExpression(pattern: #"\[([^\]]+)\]\((https?:[^)]+)\)"#)
+        for match in links.matches(in: out, range: NSRange(out.startIndex..., in: out)).reversed() {
+            guard let whole = Range(match.range, in: out), let label = Range(match.range(at: 1), in: out), let url = Range(match.range(at: 2), in: out) else { continue }
+            out.replaceSubrange(whole, with: out[label] == out[url] ? String(out[url]) : "\(out[label]): \(out[url])")
+        }
+        out = replace(out, #"(?m)^\s*[-*+]\s+"#, "• ")
+        return out.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    /// One answer: its text and sources, the page it was about, and where it was made.
+    static func answer(_ entries: [ChatEntry], _ index: Int, _ labels: Labels) -> String {
+        signed(answerText(entries[index], labels), page: pageOf(entries, index), labels)
+    }
+
+    /// A note to copy: its text; one made from a selection also the page the quote is from.
+    static func noteCopy(_ entry: ChatEntry) -> String {
+        guard entry.quote == true, let page = entry.page else { return entry.content }
+        return "\(entry.content)\n\n\(link(page.title, page.url))"
+    }
+
+    /// One note: its text, the page it was written on, and where it was made.
+    static func note(_ entries: [ChatEntry], _ index: Int, _ labels: Labels) -> String {
+        signed(entries[index].content, page: pageOf(entries, index), labels)
+    }
+
+    /// The messages at `picked`: one answer alone shares like an answer, anything else like a chat.
+    static func picked(_ entries: [ChatEntry], _ picked: Set<Int>, name: String, _ labels: Labels) -> String {
+        if picked.count == 1, let only = picked.first, entries.indices.contains(only), !entries[only].isUser {
+            return answer(entries, only, labels)
+        }
+        return chat(entries, name: name, labels, only: picked)
+    }
+
+    /// The chat under its name: questions, answers and notes (all, or those in `only`), the pages they
+    /// were about, and where it was made.
+    static func chat(_ entries: [ChatEntry], name: String, _ labels: Labels, only: Set<Int>? = nil) -> String {
+        var lines: [String] = []
+        var pages: [(url: String, title: String)] = []
+        func add(_ page: ChatEntry.Page) {
+            if let i = pages.firstIndex(where: { $0.url == page.url }) { pages[i].title = page.title } else { pages.append((page.url, page.title)) }
+        }
+        for (i, entry) in entries.enumerated() where only?.contains(i) ?? true {
+            if entry.isUser {
+                if let page = entry.page { add(page) }
+                lines.append(entry.isNote ? "\(labels.note): \(entry.content)" : "\(labels.you): \(entry.label ?? entry.content)")
+            } else {
+                if let page = pageOf(entries, i) { add(page) }
+                lines += ["ContextFlow: \(answerText(entry, labels))", ""]
+            }
+        }
+        var parts = name.isEmpty ? [] : [name, ""]
+        parts.append(lines.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines))
+        if !pages.isEmpty { parts += ["", "\(labels.source):\n" + pages.map { link($0.title, $0.url) }.joined(separator: "\n")] }
+        parts += ["", "\(labels.madeWith): \(appLink)"]
+        return notALink(parts.joined(separator: "\n"))
+    }
+
+    /// The language of the chat's questions, when it's clear (quick actions don't count: they're in the
+    /// device's language).
+    static func chatLanguage(_ entries: [ChatEntry]) -> String? {
+        textLanguage(entries.filter { $0.isUser && $0.label == nil }.map(\.content).joined(separator: "\n"))
+    }
+
+    // Words that mark a language written in Latin letters, and letters only it uses.
+    private static let latin: [(String, Set<String>, String?)] = [
+        ("en", Set("the is are what how why who which this that these with about does do can you your of and to in it for".split(separator: " ").map(String.init)), nil),
+        ("de", Set("der die das ist sind und was wie warum wer nicht ein eine einen ich du mit für auf über worum geht es den dem des".split(separator: " ").map(String.init)), "[ßäöü]"),
+        ("es", Set("el los las es son qué que cómo por y en un una del se está para con sobre trata eso esto".split(separator: " ").map(String.init)), "[ñ¿¡]"),
+        ("fr", Set("le les est sont et que quoi comment pourquoi un une des du ce cet cette il elle pour dans avec sur qui parle".split(separator: " ").map(String.init)), "[œêâîôûëïç]"),
+        ("it", Set("il lo gli è sono che cosa come perché di e un una del della per con su questo questa parla".split(separator: " ").map(String.init)), nil),
+        ("pt_BR", Set("o os é são que como por e um uma do da não para com sobre isso este esta fala".split(separator: " ").map(String.init)), "[ãõ]")
+    ]
+
+    /// The language of a text, when it's clear: a locale code ("ru", "pt_BR"…).
+    static func textLanguage(_ raw: String) -> String? {
+        let text = replace(raw, #"(https?://|www\.)\S+"#, " ", caseless: true)
+        let count = { (pattern: String) in matches(text, pattern) }
+        let scripts: [(String?, Int)] = [
+            ("ko", count(#"[\uac00-\ud7af]"#)),
+            (count(#"[\u3040-\u30ff]"#) > 0 ? "ja" : "zh_CN", count(#"[\u3040-\u30ff\u4e00-\u9fff]"#)),
+            (matches(text, #"[іїєґ]|(^|[^а-яё])(що|це|ця|цей|чому|який|яка|яке)(?![а-яё])"#, caseless: true) > 0 ? "uk" : "ru", matches(text, #"[а-яёіїєґ]"#, caseless: true)),
+            (nil, matches(text, #"[a-zà-ÿœ]"#, caseless: true))
+        ]
+        let (script, letters) = scripts.dropFirst().reduce(scripts[0]) { $1.1 > $0.1 ? $1 : $0 }
+        guard letters >= 3 else { return nil }
+        if let script { return script }
+        let lower = text.lowercased()
+        let words = (try! NSRegularExpression(pattern: "[a-zà-ÿœ]+")).matches(in: lower, range: NSRange(lower.startIndex..., in: lower)).compactMap { Range($0.range, in: lower).map { String(lower[$0]) } }
+        let scores = latin.map { language, common, letters in
+            (language, words.filter { common.contains($0) }.count + (letters.map { matches(lower, $0) > 0 } == true ? 2 : 0))
+        }
+        // Stable, like the panel's sort: the first of equal scores wins.
+        let sorted = scores.enumerated().sorted { $0.element.1 != $1.element.1 ? $0.element.1 > $1.element.1 : $0.offset < $1.offset }.map(\.element)
+        return sorted[0].1 >= 2 && sorted[0].1 > sorted[1].1 ? sorted[0].0 : nil
+    }
+
+    // MARK: Parts
+
+    private static func signed(_ text: String, page: ChatEntry.Page?, _ labels: Labels) -> String {
+        var parts = [text]
+        if let page { parts += ["", "\(labels.source): \(page.url)"] }
+        parts += ["", "\(labels.madeWith): \(appLink)"]
+        return notALink(parts.joined(separator: "\n"))
+    }
+
+    /// An answer as text, with the Google sources it came with.
+    private static func answerText(_ entry: ChatEntry, _ labels: Labels) -> String {
+        let text = plain(entry.content)
+        guard let sources = entry.grounding?.sources, !sources.isEmpty else { return text }
+        return "\(text)\n\n\(labels.sources):\n" + sources.map { "• \(link($0.title, $0.url))" }.joined(separator: "\n")
+    }
+
+    /// The page the message at `index` was about (its question's page, or an earlier one).
+    private static func pageOf(_ entries: [ChatEntry], _ index: Int) -> ChatEntry.Page? {
+        entries[...index].last { $0.isUser && $0.page != nil }?.page
+    }
+
+    private static func link(_ title: String, _ url: String) -> String {
+        !title.isEmpty && title != url ? "\(title) — \(url)" : url
+    }
+
+    /// Text that doesn't parse as a URL: a leading "word:" (a URL scheme to parsers) becomes "word —".
+    static func notALink(_ text: String) -> String {
+        guard let regex = try? NSRegularExpression(pattern: #"^([a-z][a-z0-9+.-]*):(?!//)"#, options: .caseInsensitive),
+              let match = regex.firstMatch(in: text, range: NSRange(text.startIndex..., in: text)),
+              let whole = Range(match.range, in: text), let scheme = Range(match.range(at: 1), in: text) else { return text }
+        return text.replacingCharacters(in: whole, with: "\(text[scheme]) —")
+    }
+
+    private static func replace(_ text: String, _ pattern: String, _ template: String, caseless: Bool = false) -> String {
+        guard let regex = try? NSRegularExpression(pattern: pattern, options: caseless ? .caseInsensitive : []) else { return text }
+        return regex.stringByReplacingMatches(in: text, range: NSRange(text.startIndex..., in: text), withTemplate: template)
+    }
+
+    private static func matches(_ text: String, _ pattern: String, caseless: Bool = false) -> Int {
+        (try? NSRegularExpression(pattern: pattern, options: caseless ? .caseInsensitive : []))?.numberOfMatches(in: text, range: NSRange(text.startIndex..., in: text)) ?? 0
+    }
+}
+
+enum Clipboard {
+    static func copy(_ text: String) {
+        #if os(iOS)
+        UIPasteboard.general.string = text
+        #else
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(text, forType: .string)
+        #endif
+    }
+}
+
+#if os(iOS)
+/// The share sheet for text, with a call when it closes (shared or not).
+@MainActor
+enum ShareSheet {
+    static func present(_ text: String, done: @escaping () -> Void) {
+        let scene = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first { $0.activationState == .foregroundActive }
+        guard var top = scene?.windows.first(where: \.isKeyWindow)?.rootViewController else { return done() }
+        while let shown = top.presentedViewController { top = shown }
+        let sheet = UIActivityViewController(activityItems: [text], applicationActivities: nil)
+        sheet.completionWithItemsHandler = { _, _, _, _ in done() }
+        if let popover = sheet.popoverPresentationController {
+            // iPad: from the bar at the bottom.
+            popover.sourceView = top.view
+            popover.sourceRect = CGRect(x: top.view.bounds.maxX - 80, y: top.view.bounds.maxY - 40, width: 1, height: 1)
+            popover.permittedArrowDirections = .down
+        }
+        top.present(sheet, animated: true)
+    }
+}
+#endif
 
 func host(of url: String) -> String {
     guard let host = URL(string: url)?.host else { return "" }

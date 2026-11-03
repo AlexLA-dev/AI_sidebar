@@ -272,6 +272,9 @@
 .cf-divider { align-self: stretch; display: flex; align-items: center; gap: 8px; margin: 2px 0 10px; color: var(--text-3); font-size: 11.5px; font-weight: 600; }
 .cf-divider::before, .cf-divider::after { content: ""; flex: 1; height: 1px; background: var(--border); }
 .cf-divider span { max-width: 75%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cf-divider .cf-divider-page { display: flex; gap: 4px; max-width: 88%; overflow: visible; }
+.cf-divider .cf-divider-title { max-width: none; min-width: 0; }
+.cf-divider .cf-divider-when { max-width: none; flex: none; font-weight: 500; }
 .cf-divider a { color: inherit; text-decoration: underline; text-decoration-color: var(--border); text-underline-offset: 2px; }
 .cf-divider a:hover { color: var(--accent-text); text-decoration-color: currentColor; }
 .cf-newpage { margin: 4px 0 10px; }

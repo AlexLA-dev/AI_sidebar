@@ -69,6 +69,7 @@ final class SharedDefaults {
     private let settingsKey = "cf_settings_v1"
     private let reviewMomentKey = "cf_review_moment_v1"
     private let reviewAskedKey = "cf_review_asked_v1"
+    private let appAnswersKey = "cf_app_answers_v1"
     private let extensionKey = "cf_extension_v1"
     private let appKey = "cf_app_v1"
     private let renewalAskedKey = "cf_renewal_asked_v1"
@@ -181,6 +182,14 @@ final class SharedDefaults {
 
     func markReviewAsked(_ count: Int) {
         defaults.set(count, forKey: reviewAskedKey)
+    }
+
+    /// Counts an answer the app gave in a chat; true on the 3rd, 10th, 30th, 100th and 300th: a moment to
+    /// ask for a rating (the extension's answers are counted in Safari).
+    func countAppAnswer() -> Bool {
+        let count = defaults.integer(forKey: appAnswersKey) + 1
+        defaults.set(count, forKey: appAnswersKey)
+        return [3, 10, 30, 100, 300].contains(count)
     }
 
     // MARK: Setup

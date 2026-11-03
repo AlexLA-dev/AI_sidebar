@@ -10,6 +10,7 @@ import {
   MAX_SAVED_PAGE_CHARS,
   otherPages,
   pageRef,
+  pageWhen,
   savedPages,
   selectionNote,
   urlKey,
@@ -130,8 +131,9 @@ test("Note by a selection: the quoted text with the page and the comment, a note
 })
 
 test("pageRef keeps the page's text the first time and when it changed, cut to the limit", () => {
-  const first = pageRef([], A.url, A.title, "Article text")
+  const first = pageRef([], A.url, A.title, "Article text", true, 1_700_000_000_000)
   assert.equal(first.text, "Article text")
+  assert.equal(first.at, 1_700_000_000_000)
   assert.equal(first.hash, textFingerprint("Article text"))
   const chat: Entry[] = [{ role: "user", content: "q", page: first }, { role: "assistant", content: "a" }]
   // The same version again: the chat has it already.
@@ -142,6 +144,15 @@ test("pageRef keeps the page's text the first time and when it changed, cut to t
   assert.equal(pageRef([], A.url, A.title, "Article text", false).text, undefined)
   assert.equal(pageRef([], A.url, A.title, "   ").text, undefined)
   assert.equal(pageRef([], A.url, A.title, "x".repeat(20_000)).text?.length, MAX_SAVED_PAGE_CHARS)
+})
+
+test("pageWhen gives the page's date and how many days ago, in the language", () => {
+  const now = new Date(2026, 10, 3, 9, 0).getTime()
+  assert.equal(pageWhen(new Date(2026, 10, 3, 1, 0).getTime(), now, "en"), "Nov 3 (today)")
+  assert.equal(pageWhen(new Date(2026, 10, 2, 23, 50).getTime(), now, "en"), "Nov 2 (yesterday)")
+  assert.equal(pageWhen(new Date(2026, 9, 25, 12, 0).getTime(), now, "en"), "Oct 25 (9 days ago)")
+  assert.equal(pageWhen(new Date(2025, 11, 30, 12, 0).getTime(), now, "en"), "Dec 30, 2025 (308 days ago)")
+  assert.equal(pageWhen(new Date(2026, 9, 31, 12, 0).getTime(), now, "ru"), "31 окт. (3 дня назад)")
 })
 
 test("savedPages gives each page's latest text, the most recent page first", () => {

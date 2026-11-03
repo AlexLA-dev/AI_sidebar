@@ -13,6 +13,9 @@ export interface PageRef {
   // ContextFlow app can answer about it later: on the first question or note on the page, and again
   // when the page has changed. Not from Private Browsing, videos' transcripts or PDFs.
   text?: string
+  // When the question or note was written (ms): the chat shows the date by the page's title. Missing
+  // before 2.4.
+  at?: number
 }
 
 /**
@@ -78,12 +81,27 @@ export function selectionNote(selected: string, comment: string, page: PageRef, 
  * The page a question or note was written on, with its text when the chat doesn't have this version
  * of it yet (`text` empty: none, e.g. Private Browsing).
  */
-export function pageRef(entries: Entry[], url: string, title: string, text: string, keepText = true): PageRef {
+export function pageRef(entries: Entry[], url: string, title: string, text: string, keepText = true, now = Date.now()): PageRef {
   const hash = textFingerprint(text)
-  const ref: PageRef = { url, title, hash }
+  const ref: PageRef = { url, title, hash, at: now }
   const saved = entries.some((e) => e.page?.url === url && e.page.hash === hash && e.page.text)
   if (keepText && text.trim() && !saved) ref.text = text.slice(0, MAX_SAVED_PAGE_CHARS)
   return ref
+}
+
+/**
+ * When the chat came to a page, by its title: "Nov 1 (2 days ago)", "Nov 3 (today)", in `locale`; the
+ * year only when it isn't this one.
+ */
+export function pageWhen(at: number, now: number, locale: string): string {
+  const day = new Date(at)
+  const today = new Date(now)
+  const start = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()
+  // Calendar days (round: a day with a clock change is 23 or 25 hours).
+  const days = Math.max(0, Math.round((start(today) - start(day)) / 86_400_000))
+  const year = day.getFullYear() !== today.getFullYear() ? { year: "numeric" as const } : {}
+  const date = day.toLocaleDateString(locale, { day: "numeric", month: "short", ...year })
+  return `${date} (${new Intl.RelativeTimeFormat(locale, { numeric: "auto" }).format(-days, "day")})`
 }
 
 /** The page texts kept in the chat: the latest one of each page, the most recent page first. */

@@ -51,6 +51,7 @@ struct ContentView: View {
     @StateObject private var activation = Activation.shared
     @StateObject private var chats = ChatLibrary.shared
     @Environment(\.requestReview) private var requestReview
+    @Environment(\.scenePhase) private var scenePhase
     @State private var tab: AppTab = ChatLibrary.shared.threads.isEmpty ? .home : .chats
     /// iOS: the setup guide, from the Chats screen (there is no Get Started tab once there are chats).
     @State private var showingSetup = false
@@ -65,8 +66,15 @@ struct ContentView: View {
     private var showsPro: Bool { !store.isPro || tab == .pro }
 
     /// The extension counted enough good answers since the last time: ask for an App Store rating
-    /// (Apple decides whether to show it, at most 3 times a year). Never on a plain first launch.
+    /// (Apple decides whether to show it, at most 3 times a year). Never on a plain first launch. On
+    /// launch and whenever the app comes back from Safari. `-CFDebugReview YES`: every time (Debug).
     private func askForReviewIfDue() {
+        #if DEBUG
+        if UserDefaults.standard.bool(forKey: "CFDebugReview") {
+            requestReview()
+            return
+        }
+        #endif
         guard let moment = SharedDefaults.shared.pendingReviewMoment() else { return }
         SharedDefaults.shared.markReviewAsked(moment)
         Task {
@@ -95,6 +103,9 @@ struct ContentView: View {
                 await store.refreshEntitlement()
                 askForReviewIfDue()
                 await activation.launched()
+            }
+            .onChange(of: scenePhase) { phase in
+                if phase == .active { askForReviewIfDue() }
             }
             // The first chat arrived (or the last one went): show the right first tab.
             .onChange(of: hasChats) { has in

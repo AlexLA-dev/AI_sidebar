@@ -1,3 +1,4 @@
+import StoreKit
 import SwiftUI
 #if os(iOS)
 import UIKit
@@ -416,6 +417,9 @@ struct HistoryChatView: View {
     /// The question waiting for the AI consent.
     @State private var consentAsk: (() -> Void)?
     @FocusState private var focused: Bool
+    /// The answer just copied: "Copied" for a moment.
+    @State private var copied: Int?
+    @Environment(\.requestReview) private var requestReview
 
     private static let examples = ["What did I read this week?", "Summarize my notes", "What have I learned about AI?"]
 
@@ -437,7 +441,9 @@ struct HistoryChatView: View {
                                 }
                             }
                         }
-                        ForEach(Array(messages.enumerated()), id: \.offset) { _, m in
+                        let entries = messages.map { ChatEntry(role: $0["role"] ?? "", content: $0["content"] ?? "") }
+                        let labels = ShareText.labels(for: entries)
+                        ForEach(Array(messages.enumerated()), id: \.offset) { index, m in
                             if m["role"] == "user" {
                                 Text(m["content"] ?? "")
                                     .foregroundColor(.white)
@@ -446,7 +452,14 @@ struct HistoryChatView: View {
                                     .frame(maxWidth: .infinity, alignment: .trailing)
                                     .padding(.leading, 40)
                             } else {
-                                MarkdownView(text: m["content"] ?? "")
+                                VStack(alignment: .leading, spacing: 8) {
+                                    MarkdownView(text: m["content"] ?? "")
+                                    MessageTools(tags: [], copied: copied == index, shareText: ShareText.answer(entries, index, labels)) {
+                                        Clipboard.copy(ShareText.plain(m["content"] ?? ""))
+                                        copied = index
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { if copied == index { copied = nil } }
+                                    }
+                                }
                             }
                         }
                         if let streaming {
@@ -523,6 +536,7 @@ struct HistoryChatView: View {
                 try await ChatAI.askHistory(history, chats: others) { piece in streaming = (streaming ?? "") + piece }
                 messages.append(["role": "assistant", "content": streaming ?? ""])
                 library.saveHistory(id: id, messages: messages)
+                askForReviewAfterAnswer(requestReview)
             } catch let error as ChatAI.Failure {
                 failure = error
                 if let partial = streaming, !partial.isEmpty { messages.append(["role": "assistant", "content": partial]) }
@@ -850,9 +864,15 @@ struct ChatDetailView: View {
     /// The question waiting for the AI consent.
     @State private var consentAsk: (() -> Void)?
     @FocusState private var focused: Bool
-    /// The answer or note whose tags are being picked.
-    @State private var taggingEntry: TaggedEntry?
+    /// The answer or note whose tag picker is open (under it, as in the Safari panel).
+    @State private var tagging: Int?
     @State private var taggingChat = false
+    /// The answer or note just copied: "Copied" for a moment.
+    @State private var copied: Int?
+    /// Sharing the chat: the messages picked (all at first); nil when not picking.
+    @State private var picked: Set<Int>?
+    @State private var chatCopied = false
+    @Environment(\.requestReview) private var requestReview
     @Environment(\.dismiss) private var dismiss
     @State private var renaming = false
     @State private var newName = ""
@@ -863,6 +883,7 @@ struct ChatDetailView: View {
     var body: some View {
         Group {
             if let thread {
+                let labels = ShareText.labels(for: thread.entries)
                 ScrollViewReader { proxy in
                     ScrollView {
                         LazyVStack(alignment: .leading, spacing: 14) {
@@ -870,13 +891,37 @@ struct ChatDetailView: View {
                                 if let page = newPage(thread.entries, index) {
                                     PageDivider(page: page) { library.open(page.url) }
                                 }
-                                MessageView(entry: entry)
-                                    .id(index)
-                                    .contextMenu {
-                                        if !entry.isUser || entry.isNote {
-                                            Button { taggingEntry = TaggedEntry(index: index) } label: { Label("Tags", systemImage: "tag") }
+                                pickRow(index) {
+                                    VStack(alignment: entry.isUser ? .trailing : .leading, spacing: 8) {
+                                        MessageView(entry: entry)
+                                        // Under an answer and under a note: its tags, then Copy, Share and Tag
+                                        // (not while picking messages to share).
+                                        if !entry.isUser || entry.isNote, picked == nil {
+                                            MessageTools(
+                                                tags: entry.tags ?? [],
+                                                copied: copied == index,
+                                                tagging: tagging == index,
+                                                shareText: entry.isNote ? ShareText.note(thread.entries, index, labels) : ShareText.answer(thread.entries, index, labels),
+                                                copy: {
+                                                    Clipboard.copy(entry.isNote ? ShareText.noteCopy(entry) : ShareText.plain(entry.content))
+                                                    copied = index
+                                                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { if copied == index { copied = nil } }
+                                                },
+                                                tag: { withAnimation(.easeOut(duration: 0.15)) { tagging = tagging == index ? nil : index } }
+                                            )
+                                            .frame(maxWidth: .infinity, alignment: entry.isUser ? .trailing : .leading)
+                                            if tagging == index {
+                                                InlineTagEditor(tags: entry.tags ?? [], known: library.allTags) {
+                                                    library.setTags(thread, entry: index, $0)
+                                                } close: {
+                                                    tagging = nil
+                                                }
+                                                .id("tags")
+                                            }
                                         }
                                     }
+                                }
+                                .id(index)
                             }
                             if let asking {
                                 MessageView(entry: ChatEntry(role: "user", content: asking))
@@ -904,13 +949,26 @@ struct ChatDetailView: View {
                     }
                     .onChange(of: streaming) { _ in proxy.scrollTo("end", anchor: .bottom) }
                     .onChange(of: asking) { _ in proxy.scrollTo("end", anchor: .bottom) }
-                    .onChange(of: thread.entries.count) { _ in proxy.scrollTo("end", anchor: .bottom) }
+                    .onChange(of: thread.entries.count) { _ in
+                        proxy.scrollTo("end", anchor: .bottom)
+                        // Another message came: start picking again.
+                        picked = nil
+                    }
+                    // The tag picker opened: all of it in view (above the keyboard).
+                    .onChange(of: tagging) { index in
+                        guard index != nil else { return }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { withAnimation { proxy.scrollTo("tags", anchor: .bottom) } }
+                    }
                     .onChange(of: failure) { _ in proxy.scrollTo("end", anchor: .bottom) }
                     // Typing a question or a note: the end of the chat, where it goes.
                     .onChange(of: focused) { on in if on { withAnimation { proxy.scrollTo("end", anchor: .bottom) } } }
                 }
                 .safeAreaInset(edge: .bottom) {
-                    if !thread.isHistory { composer(thread) }
+                    if let picked {
+                        pickBar(thread, picked, labels)
+                    } else if !thread.isHistory {
+                        composer(thread)
+                    }
                 }
                 .aiConsent($consentAsk)
                 .navigationTitle(thread.name)
@@ -918,6 +976,17 @@ struct ChatDetailView: View {
                 .navigationBarTitleDisplayMode(.inline)
                 #endif
                 .toolbar {
+                    // Share the chat: every message picked; untick what shouldn't go, then share or copy.
+                    ToolbarItem {
+                        if !thread.entries.isEmpty, asking == nil {
+                            Button {
+                                tagging = nil
+                                picked = picked == nil ? Set(thread.entries.indices) : nil
+                            } label: {
+                                Label(chatCopied ? "Copied" : "Share chat", systemImage: chatCopied ? "checkmark" : "square.and.arrow.up")
+                            }
+                        }
+                    }
                     ToolbarItem {
                         Menu {
                             if thread.lastPage != nil {
@@ -944,11 +1013,6 @@ struct ChatDetailView: View {
                 } message: {
                     Text("Leave it empty to name the chat after its first question.")
                 }
-                .sheet(item: $taggingEntry) { tagged in
-                    TagsSheet(tags: thread.entries.indices.contains(tagged.index) ? thread.entries[tagged.index].tags ?? [] : [], known: library.allTags) {
-                        library.setTags(thread, entry: tagged.index, $0)
-                    }
-                }
                 .sheet(isPresented: $taggingChat) {
                     TagsSheet(tags: thread.ownTags, known: library.allTags) { library.setTags(thread, $0) }
                 }
@@ -972,7 +1036,8 @@ struct ChatDetailView: View {
     private func composer(_ thread: ChatThread) -> some View {
         VStack(spacing: 0) {
             Divider()
-            HStack(alignment: .bottom, spacing: 8) {
+            // The buttons stay level with the middle of the field's last line (one line: its middle).
+            HStack(alignment: .fieldLine, spacing: 8) {
                 Button {
                     noteMode.toggle()
                 } label: {
@@ -988,6 +1053,7 @@ struct ChatDetailView: View {
                     .onSubmit { submit(thread) }
                     .padding(.horizontal, 12).padding(.vertical, 9)
                     .background(RoundedRectangle(cornerRadius: 18).fill(noteMode ? Color.orange.opacity(0.12) : Color.cardFill))
+                    .alignmentGuide(.fieldLine) { $0[.bottom] - VerticalAlignment.oneLineFieldHeight / 2 }
                 Button { submit(thread) } label: {
                     Image(systemName: noteMode ? "checkmark.circle.fill" : "arrow.up.circle.fill")
                         .font(.system(size: 30))
@@ -1034,6 +1100,7 @@ struct ChatDetailView: View {
             do {
                 try await ChatAI.ask(text, in: thread) { piece in streaming += piece }
                 save(streaming)
+                askForReviewAfterAnswer(requestReview)
             } catch {
                 failure = error as? ChatAI.Failure ?? .network
                 if streaming.isEmpty {
@@ -1046,6 +1113,101 @@ struct ChatDetailView: View {
             asking = nil
             streaming = ""
         }
+    }
+
+    /// While sharing the chat, a message is a row to tick: a tap anywhere on it picks or unpicks it.
+    @ViewBuilder
+    private func pickRow<Content: View>(_ index: Int, @ViewBuilder _ content: () -> Content) -> some View {
+        if let picked {
+            let on = picked.contains(index)
+            HStack(alignment: .top, spacing: 10) {
+                Image(systemName: on ? "checkmark.circle.fill" : "circle")
+                    .font(.title3)
+                    .foregroundColor(on ? brandBlue : .secondary)
+                content()
+                    .opacity(on ? 1 : 0.5)
+                    .allowsHitTesting(false)
+            }
+            .contentShape(Rectangle())
+            .onTapGesture {
+                var next = picked
+                if next.remove(index) == nil { next.insert(index) }
+                self.picked = next
+            }
+            .accessibilityElement(children: .combine)
+            .accessibilityAddTraits(on ? [.isButton, .isSelected] : .isButton)
+        } else {
+            content()
+        }
+    }
+
+    /// In place of the field while sharing the chat: cancel, how many are picked (a tap: all or none),
+    /// Copy and Share (Copy as an icon when the words don't fit).
+    private func pickBar(_ thread: ChatThread, _ picked: Set<Int>, _ labels: ShareText.Labels) -> some View {
+        VStack(spacing: 0) {
+            Divider()
+            ViewThatFits(in: .horizontal) {
+                pickControls(thread, picked, labels, compact: false)
+                pickControls(thread, picked, labels, compact: true)
+            }
+            .padding(10)
+            .frame(maxWidth: 760)
+            .frame(maxWidth: .infinity)
+        }
+        .background(.bar)
+    }
+
+    private func pickControls(_ thread: ChatThread, _ picked: Set<Int>, _ labels: ShareText.Labels, compact: Bool) -> some View {
+        let all = picked.count == thread.entries.count
+        let text = { ShareText.picked(thread.entries, picked, name: thread.name, labels) }
+        return HStack(spacing: 10) {
+            Button { self.picked = nil } label: {
+                Image(systemName: "xmark").font(.body.weight(.semibold)).padding(6)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(Text("Cancel"))
+            Button { self.picked = all ? [] : Set(thread.entries.indices) } label: {
+                Group {
+                    if picked.isEmpty { Text("Tap messages to share") } else { Text("\(picked.count) of \(thread.entries.count)") }
+                }
+                .font(.subheadline.weight(.semibold))
+                .foregroundColor(.secondary)
+                .lineLimit(1)
+                .fixedSize(horizontal: !compact, vertical: false)
+            }
+            .buttonStyle(.plain)
+            .accessibilityHint(Text(all ? "Deselect all" : "Select all"))
+            Spacer(minLength: 0)
+            Button {
+                Clipboard.copy(text())
+                self.picked = nil
+                flashChatCopied()
+            } label: {
+                if compact {
+                    Image(systemName: "doc.on.doc").accessibilityLabel(Text("Copy"))
+                } else {
+                    Label("Copy", systemImage: "doc.on.doc").lineLimit(1).fixedSize()
+                }
+            }
+            .buttonStyle(.bordered)
+            .disabled(picked.isEmpty)
+            #if os(iOS)
+            Button {
+                ShareSheet.present(text()) { self.picked = nil }
+            } label: { Label("Share", systemImage: "square.and.arrow.up").lineLimit(1).fixedSize() }
+            .buttonStyle(.borderedProminent)
+            .disabled(picked.isEmpty)
+            #else
+            ShareLink(item: text()) { Label("Share", systemImage: "square.and.arrow.up").lineLimit(1).fixedSize() }
+                .buttonStyle(.borderedProminent)
+                .disabled(picked.isEmpty)
+            #endif
+        }
+    }
+
+    private func flashChatCopied() {
+        chatCopied = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { chatCopied = false }
     }
 
     /// The page a question or note moved the chat to (the first one, and every change after it).
@@ -1063,14 +1225,10 @@ private struct PageDivider: View {
 
     var body: some View {
         Button(action: open) {
-            HStack(spacing: 6) {
-                Image(systemName: "safari")
-                Text(page.title.isEmpty ? host(of: page.url) : page.title)
-                    .lineLimit(1)
-                    .underline()
-                Text("· \(host(of: page.url))")
-                    .lineLimit(1)
-                    .foregroundColor(.secondary)
+            // The site goes first when there's no room: the title, then the day it came there (2.4 on).
+            ViewThatFits(in: .horizontal) {
+                line(site: true)
+                line(site: false)
             }
             .font(.footnote.weight(.semibold))
             .foregroundColor(brandBlue)
@@ -1080,6 +1238,26 @@ private struct PageDivider: View {
         .buttonStyle(.plain)
         .accessibilityHint(Text("Opens the page in Safari"))
     }
+
+    private func line(site: Bool) -> some View {
+        HStack(spacing: 6) {
+            Image(systemName: "safari")
+            Text(page.title.isEmpty ? host(of: page.url) : page.title)
+                .lineLimit(1)
+                .underline()
+            if site {
+                Text("· \(host(of: page.url))")
+                    .lineLimit(1)
+                    .foregroundColor(.secondary)
+            }
+            // The day the chat came to this page, and how long ago.
+            if let when = page.when() {
+                Text(verbatim: "· \(when)")
+                    .foregroundColor(.secondary)
+                    .fixedSize()
+            }
+        }
+    }
 }
 
 private struct MessageView: View {
@@ -1087,7 +1265,6 @@ private struct MessageView: View {
 
     var body: some View {
         if entry.isNote {
-            // Its tags under it, like an answer's (not over the text).
             VStack(alignment: .trailing, spacing: 6) {
                 HStack(alignment: .top, spacing: 8) {
                     Image(systemName: "pencil")
@@ -1098,7 +1275,6 @@ private struct MessageView: View {
                 .padding(12)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(RoundedRectangle(cornerRadius: 14).fill(Color.orange.opacity(0.12)))
-                if let tags = entry.tags, !tags.isEmpty { TagChips(tags: tags) }
             }
         } else if entry.isUser {
             VStack(alignment: .trailing, spacing: 6) {
@@ -1130,7 +1306,6 @@ private struct MessageView: View {
                         .font(.footnote)
                         .foregroundColor(.secondary)
                 }
-                if let tags = entry.tags, !tags.isEmpty { TagChips(tags: tags) }
                 if let sources = entry.grounding?.sources, !sources.isEmpty {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Sources")
@@ -1314,9 +1489,165 @@ private struct TableBlock: View {
 
 // MARK: - Tags
 
-struct TaggedEntry: Identifiable {
-    let index: Int
-    var id: Int { index }
+/// Under an answer and under a note, as in the Safari panel: its tags (a tap opens the picker), then
+/// Copy, Share and Tag.
+private struct MessageTools: View {
+    let tags: [String]
+    let copied: Bool
+    var tagging = false
+    let shareText: String
+    let copy: () -> Void
+    /// Opens or closes the tag picker; nil: no tags here ("Ask your chats").
+    var tag: (() -> Void)?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            if let tag, !tags.isEmpty {
+                Button(action: tag) { TagChips(tags: tags) }
+                    .buttonStyle(.plain)
+                    .accessibilityHint(Text("Tags"))
+            }
+            HStack(spacing: 2) {
+                Button(action: copy) {
+                    Label(copied ? "Copied" : "Copy", systemImage: copied ? "checkmark" : "doc.on.doc")
+                }
+                ShareLink(item: shareText) { Label("Share", systemImage: "square.and.arrow.up") }
+                if let tag {
+                    Button(action: tag) { Label("Tag", systemImage: "tag") }
+                        .background(Capsule().fill(tagging ? Color.secondary.opacity(0.14) : .clear))
+                        .accessibilityAddTraits(tagging ? .isSelected : [])
+                }
+            }
+            .buttonStyle(MessageToolStyle())
+            .labelStyle(CompactLabelStyle())
+            .padding(.leading, -8)
+        }
+    }
+}
+
+private struct MessageToolStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.footnote)
+            .foregroundColor(.secondary)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 5)
+            .contentShape(Rectangle())
+            .opacity(configuration.isPressed ? 0.5 : 1)
+    }
+}
+
+/// Picks the tags of an answer or a note, under it (as in the Safari panel): the tags in use as chips
+/// to switch on and off, and a field for a new one (Return adds it). Each change is saved at once.
+private struct InlineTagEditor: View {
+    let tags: [String]
+    let known: [String]
+    let onChange: ([String]) -> Void
+    let close: () -> Void
+    @State private var draft = ""
+    @FocusState private var focused: Bool
+
+    init(tags: [String], known: [String], onChange: @escaping ([String]) -> Void, close: @escaping () -> Void) {
+        self.tags = tags
+        self.known = known
+        self.onChange = onChange
+        self.close = close
+    }
+
+    private func has(_ tag: String) -> Bool { tags.contains { $0.caseInsensitiveCompare(tag) == .orderedSame } }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Tags")
+                .font(.footnote.weight(.semibold))
+                .foregroundColor(.secondary)
+            let all = tags + known.filter { !has($0) }
+            if !all.isEmpty {
+                WrapLayout(spacing: 6) {
+                    ForEach(all, id: \.self) { tag in
+                        Button {
+                            onChange(has(tag) ? tags.filter { $0.caseInsensitiveCompare(tag) != .orderedSame } : tags + [tag])
+                        } label: {
+                            TagChipView(tag: tag, active: has(tag))
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityAddTraits(has(tag) ? .isSelected : [])
+                    }
+                }
+            }
+            HStack(spacing: 8) {
+                TextField("New tag…", text: $draft)
+                    .textFieldStyle(.roundedBorder)
+                    .focused($focused)
+                    .onSubmit(add)
+                    .submitLabel(.done)
+                    #if os(iOS)
+                    .textInputAutocapitalization(.never)
+                    #endif
+                Button(action: add) {
+                    Image(systemName: "plus").font(.body.weight(.semibold))
+                }
+                .buttonStyle(.plain)
+                .foregroundColor(Tags.clean(draft).isEmpty ? .secondary : brandBlue)
+                .disabled(Tags.clean(draft).isEmpty)
+                .accessibilityLabel(Text("Add"))
+            }
+            HStack {
+                Spacer()
+                Button("Done") {
+                    add()
+                    close()
+                }
+                .font(.body.weight(.semibold))
+                .buttonStyle(.plain)
+                .foregroundColor(brandBlue)
+            }
+        }
+        .padding(14)
+        .background(RoundedRectangle(cornerRadius: 14).fill(Color.cardFill))
+        .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.secondary.opacity(0.18)))
+        .onAppear { focused = true }
+    }
+
+    private func add() {
+        let tag = Tags.clean(draft)
+        if !tag.isEmpty, !has(tag) { onChange(tags + [tag]) }
+        draft = ""
+    }
+}
+
+extension VerticalAlignment {
+    private enum FieldLine: AlignmentID {
+        static func defaultValue(in d: ViewDimensions) -> CGFloat { d[VerticalAlignment.center] }
+    }
+
+    /// The middle of a text field's last line: buttons beside a field that grows stay level with it.
+    static let fieldLine = VerticalAlignment(FieldLine.self)
+
+    /// A field of one line of body text with 9 pt above and below it (the chat's question field).
+    static var oneLineFieldHeight: CGFloat {
+        #if os(iOS)
+        let font = UIFont.preferredFont(forTextStyle: .body)
+        return font.lineHeight + 18
+        #else
+        let font = NSFont.preferredFont(forTextStyle: .body)
+        return font.ascender - font.descender + font.leading + 18
+        #endif
+    }
+}
+
+/// Counts an answer the app gave in a chat; on a milestone (the 3rd, 10th, 30th… answer) asks for an
+/// App Store rating a moment after it. Apple decides whether to show it (at most 3 times a year; never
+/// in TestFlight builds).
+@MainActor
+func askForReviewAfterAnswer(_ requestReview: RequestReviewAction) {
+    guard SharedDefaults.shared.countAppAnswer() else { return }
+    // A moment from Safari waiting for the next launch counts as asked: not twice in a row.
+    if let moment = SharedDefaults.shared.pendingReviewMoment() { SharedDefaults.shared.markReviewAsked(moment) }
+    Task {
+        try? await Task.sleep(nanoseconds: 1_500_000_000)
+        requestReview()
+    }
 }
 
 struct TagChipView: View {

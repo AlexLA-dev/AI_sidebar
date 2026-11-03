@@ -20,7 +20,7 @@ import {
   type Usage
 } from "../shared/types"
 import * as Icon from "./icons"
-import { historyForModel, isQuestion, lastPage, otherPages, pageHasChanged, pageRef, savedPages, selectionNote, type Entry, type SourceNote } from "../shared/conversation"
+import { historyForModel, isQuestion, lastPage, otherPages, pageHasChanged, pageRef, pageWhen, savedPages, selectionNote, type Entry, type SourceNote } from "../shared/conversation"
 import { Markdown } from "./markdown"
 import { MAX_OTHER_PAGES } from "../shared/prompt"
 import { answerShareText, chatLanguage, noteCopyText, noteShareText, pickedShareText, toPlainText, type ShareLinks } from "../shared/share"
@@ -618,7 +618,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       return
     }
     // The question shows at once; a video's transcript or a PDF may take a few seconds to read.
-    const shown: Turn = { role: "user", content, label: opts.label, page: { url, title: source.title() } }
+    const shown: Turn = { role: "user", content, label: opts.label, page: { url, title: source.title(), at: Date.now() } }
     if (opts.mode) shown.mode = opts.mode
     setMessages([...base, shown])
     setDraft("")
@@ -1821,20 +1821,24 @@ const runActionRef: { current: (a: Action) => void } = { current: () => undefine
 
 /**
  * Above a question or note: "New page: …" on the chat's first page and whenever it moved to another one
- * (the title opens that page: its tab if it's open), "Page updated" when the page changed.
+ * (the title opens that page: its tab if it's open), with the day it came there and how long ago;
+ * "Page updated" when the page changed.
  */
 function PageDivider({ entries, index, onOpen }: { entries: Entry[]; index: number; onOpen: (url: string) => void }): VNode | null {
   const m = entries[index]
   const previous = lastPage(entries.slice(0, index))
   if (m.page && (!previous || previous.url !== m.page.url)) {
-    const { url, title } = m.page
+    const { url, title, at } = m.page
     const [before, after = ""] = t("newPage", "\uE000").split("\uE000")
     return (
       <div class="cf-divider">
-        <span>
-          {before}
-          <a href={url} title={t("openPage")} onClick={(e) => { e.preventDefault(); onOpen(url) }}>{title || url}</a>
-          {after}
+        <span class="cf-divider-page">
+          <span class="cf-divider-title">
+            {before}
+            <a href={url} title={t("openPage")} onClick={(e) => { e.preventDefault(); onOpen(url) }}>{title || url}</a>
+            {after}
+          </span>
+          {at !== undefined && <span class="cf-divider-when">· {pageWhen(at, Date.now(), uiLanguage())}</span>}
         </span>
       </div>
     )
