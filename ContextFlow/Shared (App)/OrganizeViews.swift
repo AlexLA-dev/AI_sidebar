@@ -480,7 +480,8 @@ struct OrganizeWhatsNew: View {
                 .multilineTextAlignment(.center)
                 .foregroundColor(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
-            Spacer(minLength: 0)
+            // On the iPhone the buttons sit at the bottom; in the iPad's and the Mac's sheet it all stays together.
+            if compact { Spacer(minLength: 0) }
             if pro {
                 Text("For this, the text of your messages goes to our server and to OpenAI and Anthropic. We don't keep it. OpenAI and Anthropic don't use it for training.")
                     .font(.footnote)
@@ -506,5 +507,14 @@ struct OrganizeWhatsNew: View {
         .padding(.horizontal, 24)
         .frame(maxWidth: 520)
         .onAppear { ChatAI.reportOrganize("organize_promo", ["action": "shown", "where": "whatsnew"]) }
+    }
+
+    // The iPad's sheet is compact in width too, so it goes by the device.
+    private var compact: Bool {
+        #if os(iOS)
+        return UIDevice.current.userInterfaceIdiom == .phone
+        #else
+        return false
+        #endif
     }
 }
