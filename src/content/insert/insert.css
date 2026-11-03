@@ -1,0 +1,107 @@
+/* Quick insert: the button by a field, the list (Copied, Templates, From ContextFlow), the "/" suggestions,
+   a template's preview with its blanks. Inside the panel's shadow root, with its colors (.cf variables). */
+
+/* ------------------------------------------------ the button by the field */
+.cf-qi-btn {
+  position: fixed;
+  width: 30px; height: 30px;
+  border-radius: 15px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff !important;
+  background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%) !important;
+  box-shadow: 0 3px 10px rgba(37, 99, 235, 0.38), 0 1px 2px rgba(0, 0, 0, 0.18);
+  z-index: 4;
+  touch-action: none !important;
+  user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+  animation: cf-pop 0.14s ease-out;
+}
+.cf-qi-btn:active { transform: scale(0.92); }
+/* The first time after the update: what the button does. */
+.cf-qi-tip {
+  position: fixed; z-index: 4; max-width: 240px;
+  padding: 8px 11px; border-radius: 12px;
+  background: var(--text); color: var(--bg);
+  font-size: 13px; line-height: 1.35; font-weight: 500;
+  box-shadow: var(--shadow);
+  animation: cf-pop 0.14s ease-out;
+}
+
+/* ------------------------------------------------------------- the list */
+.cf-qi {
+  position: fixed;
+  display: flex; flex-direction: column;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  z-index: 5;
+  overflow: hidden;
+  animation: cf-pop 0.14s ease-out;
+}
+.cf-qi-head { display: flex; align-items: center; gap: 6px; padding: 8px 8px 4px; }
+.cf-qi-search {
+  flex: 1; min-width: 0; height: 36px; padding: 0 10px 0 32px;
+  border: 1px solid var(--border); border-radius: 10px;
+  background: var(--bg-2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238d8a96' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.6-3.6'/%3E%3C/svg%3E") 10px center / 15px no-repeat;
+  color: var(--text); font: inherit; font-size: 16px; outline: none;
+}
+.cf-qi-search:focus { border-color: var(--accent); background-color: var(--bg); }
+.cf-qi-head button { flex: none; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 10px; color: var(--accent-text); background: var(--accent-soft); }
+.cf-qi-body { overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding: 0 0 6px; }
+.cf-qi-sec { display: flex; align-items: center; gap: 8px; padding: 10px 14px 4px; font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-3); }
+.cf-qi-sec > span { flex: 1; }
+.cf-qi-sec button { font-size: 12.5px; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--accent-text); }
+.cf-qi-row { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 44px; padding: 6px 8px 6px 14px; text-align: left; }
+.cf-qi-row:hover, .cf-qi-row.on { background: var(--bg-2); }
+.cf-qi-row.on { box-shadow: inset 3px 0 0 var(--accent); }
+.cf-qi-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.cf-qi-title { font-size: 14.5px; font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cf-qi-text { font-size: 14px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cf-qi-title + .cf-qi-text { font-size: 12.5px; color: var(--text-2); }
+.cf-qi-meta { font-size: 11.5px; color: var(--text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cf-qi-mark { flex: none; display: inline-flex; align-items: center; gap: 3px; padding: 2px 7px; border-radius: 999px; font-size: 11px; font-weight: 600; color: var(--accent-text); background: var(--accent-soft); }
+.cf-qi-act { flex: none; display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 9px; color: var(--text-3); }
+.cf-qi-act:hover { color: var(--accent-text); background: var(--accent-soft); }
+.cf-qi-empty { padding: 4px 14px 6px; font-size: 13px; color: var(--text-3); }
+.cf-qi-foot { padding: 8px 14px 10px; border-top: 1px solid var(--border); font-size: 11.5px; line-height: 1.4; color: var(--text-3); }
+.cf-qi-foot button { color: var(--accent-text); font-size: 11.5px; }
+/* A small switch: Copied on or off. */
+.cf-qi-switch { position: relative; width: 34px; height: 20px; border-radius: 10px; background: var(--bg-3); transition: background 0.15s; }
+.cf-qi-switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 8px; background: #fff; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25); transition: transform 0.15s; }
+.cf-qi-switch[aria-checked="true"] { background: var(--ok); }
+.cf-qi-switch[aria-checked="true"]::after { transform: translateX(14px); }
+/* Under the caret ("/phrase", a Mac or an iPad with a keyboard): narrower, no search field. */
+.cf-qi.suggest { width: 320px; border-radius: 12px; }
+.cf-qi.suggest .cf-qi-row { min-height: 38px; padding-top: 4px; padding-bottom: 4px; }
+.cf-qi-keys { display: flex; gap: 10px; padding: 6px 12px 8px; border-top: 1px solid var(--border); font-size: 11.5px; color: var(--text-3); }
+.cf-qi-keys kbd { font: inherit; font-weight: 650; color: var(--text-2); }
+
+/* ----------------------------------------------- a template's blanks */
+.cf-qi-fill { padding: 10px 14px 12px; display: flex; flex-direction: column; gap: 10px; }
+.cf-qi-fill-head { display: flex; align-items: center; gap: 6px; font-weight: 650; }
+.cf-qi-fill-head button { color: var(--text-3); }
+.cf-qi-fill-text { font-size: 15px; line-height: 1.6; color: var(--text); white-space: pre-wrap; max-height: 40vh; overflow-y: auto; }
+.cf-qi-blank {
+  display: inline-block; min-width: 64px; padding: 0 6px; margin: 0 1px;
+  border: 1px dashed var(--accent); border-radius: 6px;
+  background: var(--accent-soft); color: var(--accent-text);
+  font: inherit; line-height: 1.45; outline: none;
+}
+.cf-qi-blank.filled { border-style: solid; border-color: transparent; background: rgba(250, 204, 21, 0.35); color: var(--text); }
+.cf-qi-blank:focus { border-style: solid; border-color: var(--accent); background: var(--bg); }
+.cf-qi-fill-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.cf-qi-fill-row .cf-primary, .cf-qi-fill-row .cf-secondary { display: inline-flex; align-items: center; gap: 6px; }
+.cf-qi-note { font-size: 12px; color: var(--text-3); }
+
+/* ---------------------------------------------- "Paste it yourself" */
+.cf-qi-toast {
+  position: fixed; left: 50%; transform: translateX(-50%);
+  max-width: calc(100vw - 24px);
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px; border-radius: 14px;
+  background: var(--text); color: var(--bg);
+  font-size: 14px; font-weight: 500;
+  box-shadow: var(--shadow);
+  z-index: 6;
+  animation: cf-pop 0.14s ease-out;
+}
