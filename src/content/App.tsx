@@ -1672,6 +1672,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         </button>
       )}
 
+      {/* The page reminder is set: said here too (on iPhone the selection, and its buttons, are gone by now). */}
+      {remindSaved !== null && !bubble?.rect && !open && (
+        <div class={`cf-toast ${touch ? "touch" : ""}`} role="status">
+          <Bell size={14} /> {remindSaved > 0 ? t("uxRemindSaved", remindLabel(remindSaved)) : remindSaved < 0 ? t("uxRemindNotSet") : t("uxRemindNoApp")}
+        </div>
+      )}
       {remindPick && (
         <RemindSheet
           page
@@ -1702,7 +1708,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     <button type="button" class="cf-sel-icon" aria-label={t("actGoogle")} title={t("actGoogle")} {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SEL_GOOGLE), 60) })}><Icon.Search size={15} /></button>
                     {/* With the bell, Template shows only its icon below 400 pt (the row stays one line at 375 pt). */}
                     <button type="button" class="cf-sel-template" aria-label={t("qiTemplateButton")} title={t("qiTemplateButton")} {...press(() => newTemplate(bubble))}><QIcon.Template />{!compactRow() && ` ${t("qiTemplateButton")}`}</button>
-                    <button type="button" class="cf-sel-icon cf-sel-remind" aria-label={t("uxRemindPage")} title={t("uxRemindPage")} {...press(() => { selTyping.current = false; setRemindPick(bubble) })}><Bell size={16} /></button>
+                    <button type="button" class="cf-sel-icon cf-sel-remind" aria-label={t("uxRemindPage")} title={t("uxRemindPage")} {...press(() => {
+                      selTyping.current = false
+                      setRemindPick(bubble)
+                      // The system's edit menu would stay over the sheet.
+                      document.getSelection()?.removeAllRanges()
+                    })}><Bell size={16} /></button>
                   </>
                 ) : (
                   <>
