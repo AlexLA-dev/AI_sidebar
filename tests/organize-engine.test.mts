@@ -106,6 +106,9 @@ test("tags: only the user's tags with two examples or more that are alike; not i
   // The judge decides: a confident yes only, at most two.
   assert.deepEqual(judgedTags(target, [{ tag: "#work", fits: true, confidence: 0.9 }], cfg), ["work"])
   assert.deepEqual(judgedTags(target, [{ tag: "work", fits: true, confidence: 0.5 }], cfg), [])
+  // One tag per message: the best candidate the judge confirms.
+  const two = [target[0], { ...target[0], tag: "dev" }]
+  assert.deepEqual(judgedTags(two, [{ tag: "dev", fits: true, confidence: 0.95 }, { tag: "work", fits: true, confidence: 0.9 }], cfg), ["work"])
   assert.deepEqual(tagTargets(work, cfg), [1, 3, 5])
 })
 
