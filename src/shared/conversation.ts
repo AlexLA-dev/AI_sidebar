@@ -51,6 +51,81 @@ export interface Entry extends ChatTurn {
   skipped?: MediaKind[]
   // Answers and notes: the user's tags (a chat's own tags are on the thread).
   tags?: string[]
+  // 2.5: a message's id and when it was written (ms). Older messages have neither: their key comes from
+  // their content (entryKey) and their time from their page (entryTimes).
+  id?: string
+  t?: number
+  // Moved here from another chat (organizing): which one, and when (ms).
+  from?: { chat: string; at: number }
+  // Organizing suggestions the user turned down here (moving this message's block; these tags), and the
+  // suggested tags they took. Kept on the message, so they reach the other devices with the chat.
+  dismissed?: { move?: true; tags?: string[] }
+  accepted?: { tags?: string[] }
+}
+
+/** A new message's id: 12 random letters and digits. */
+export function newEntryId(): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(12))
+  return [...bytes].map((b) => "abcdefghijklmnopqrstuvwxyz0123456789"[b % 36]).join("")
+}
+
+/** A message as it's written: with an id and the time (kept when it has them). */
+export function stamped<T extends Entry>(entry: T, now = Date.now()): T {
+  return { ...entry, id: entry.id ?? newEntryId(), t: entry.t ?? now }
+}
+
+/** FNV-1a (32 bit) of the UTF-16 code units of `text`, from `seed`, as 8 hex digits. */
+function fnv(text: string, seed: number): string {
+  let hash = seed
+  for (let i = 0; i < text.length; i++) {
+    hash ^= text.charCodeAt(i)
+    hash = Math.imul(hash, 0x01000193)
+  }
+  return (hash >>> 0).toString(16).padStart(8, "0")
+}
+
+/** A 64-bit fingerprint of `text` (two FNV-1a passes), the same in the app (Organize.swift). */
+export function textKey(text: string): string {
+  return fnv(text, 0x811c9dc5) + fnv(text, 0x050c5d1f)
+}
+
+/**
+ * A message's stable key, the same on every device and in the app: its id, or for a message written
+ * before 2.5 a fingerprint of its role, text and page (with the page's time, which tells apart the same
+ * quick action asked twice on one page).
+ */
+export function entryKey(entry: Entry): string {
+  return entry.id ?? `h${textKey(`${entry.role}\u0000${entry.content}\u0000${entry.page?.url ?? ""}\u0000${entry.page?.at ?? ""}`)}`
+}
+
+/**
+ * When each message was written, to put moved messages in order: its `t`, else its page's time (2.4),
+ * else the time of the message before it; null before the first known time (older than any).
+ */
+export function entryTimes(entries: Entry[]): Array<number | null> {
+  let last: number | null = null
+  return entries.map((e) => {
+    const own = e.t ?? e.page?.at
+    if (typeof own === "number" && Number.isFinite(own)) last = own
+    return last
+  })
+}
+
+/** The messages with "Page updated" worked out again for their order (after messages moved in or out). */
+export function withPageChanges(entries: Entry[]): Entry[] {
+  const seen = new Map<string, string>()
+  return entries.map((e) => {
+    if (e.role !== "user" || !e.page) return e
+    const before = seen.get(e.page.url)
+    if (e.page.hash) seen.set(e.page.url, e.page.hash)
+    if (e.note) return e
+    const changed = before !== undefined && e.page.hash !== undefined && before !== e.page.hash
+    if (changed === Boolean(e.pageChanged)) return e
+    const next = { ...e }
+    if (changed) next.pageChanged = true
+    else delete next.pageChanged
+    return next
+  })
 }
 
 const MAX_HISTORY = 12

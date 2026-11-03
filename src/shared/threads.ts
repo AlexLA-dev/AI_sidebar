@@ -1,7 +1,7 @@
 // Chats as threads: several conversations, each continued from any page, tab or device until the
 // user starts a new one. Pure helpers shared by the content script, the background and tests.
 
-import { entriesFrom, stripCitations, withoutText, type Entry } from "./conversation.ts"
+import { entriesFrom, entryKey, entryTimes, MAX_SAVED_PAGE_CHARS, stripCitations, withoutText, withPageChanges, type Entry } from "./conversation.ts"
 import type { ChatDigest } from "./history.ts"
 
 export interface Thread {
@@ -239,12 +239,16 @@ export function markSent(threads: Threads, synced: Record<string, number>, sent:
   return { threads: nextThreads, synced: nextSynced }
 }
 
-/** Applies what iCloud reports; a local copy changed after the remote one stays (it goes up next). */
+/**
+ * Applies what iCloud reports; a local copy changed after the remote one stays (it goes up next). Then
+ * the sweep for moved messages (sweepMoved): an older copy of a chat may have brought one back.
+ */
 export function applyRemote(
   threads: Threads,
   synced: Record<string, number>,
   changed: { id: string; updatedAt: number; data: string }[],
-  deleted: string[]
+  deleted: string[],
+  now = Date.now()
 ): { threads: Threads; synced: Record<string, number>; changed: boolean } {
   const nextThreads = { ...threads }
   const nextSynced = { ...synced }
@@ -265,7 +269,8 @@ export function applyRemote(
       touched = true
     }
   }
-  return { threads: nextThreads, synced: nextSynced, changed: touched }
+  if (!touched) return { threads: nextThreads, synced: nextSynced, changed: false }
+  return { threads: sweepMoved(nextThreads, nextSynced, now).threads, synced: nextSynced, changed: true }
 }
 
 /**
@@ -315,9 +320,10 @@ export function markMirrored(mirrored: Record<string, number>, sent: CloudChange
 }
 
 /**
- * Changes made in the ContextFlow app (renamed, pinned, deleted chats): a newer copy replaces this
- * one; a deletion keeps a tombstone for a thread iCloud has, so the other devices hear about it.
- * Unlike applyRemote, iCloud doesn't have these yet: they go up with the next sync.
+ * Changes made in the ContextFlow app (renamed, pinned, deleted chats, messages moved): a newer copy
+ * replaces this one; a deletion keeps a tombstone for a thread iCloud has, so the other devices hear
+ * about it. Unlike applyRemote, iCloud doesn't have these yet: they go up with the next sync. Then the
+ * sweep for moved messages, as after iCloud.
  */
 export function applyAppChanges(threads: Threads, synced: Record<string, number>, changes: CloudChange[], now = Date.now()): { threads: Threads; changed: boolean } {
   const next = { ...threads }
@@ -337,7 +343,201 @@ export function applyAppChanges(threads: Threads, synced: Record<string, number>
     next[c.id] = { id: c.id, u: c.updatedAt, ...app }
     changed = true
   }
-  return { threads: next, changed }
+  return { threads: changed ? sweepMoved(next, synced, now).threads : next, changed }
+}
+
+// ------------------------------------------------------------ organizing: page blocks and moving them
+
+/**
+ * A run of messages on one page (`start`…`end`, inclusive): its questions and answers and the notes
+ * written there. A question or note on another page starts the next block; a note without a page is a
+ * block of its own; a question without a page (asked in the app about the chat) stays with the block
+ * before it.
+ */
+export interface PageBlock {
+  start: number
+  end: number
+  url: string | null
+}
+
+export function pageBlocks(entries: Entry[]): PageBlock[] {
+  const blocks: PageBlock[] = []
+  for (let i = 0; i < entries.length; i++) {
+    const e = entries[i]
+    const url = e.page?.url ?? null
+    const current = blocks[blocks.length - 1]
+    if (current && !(e.role === "user" && ((e.note && !url) || (url !== null && url !== current.url)))) current.end = i
+    else blocks.push({ start: i, end: i, url })
+  }
+  return blocks
+}
+
+/** What a move changed, so "Undo" can put it back. */
+export interface MoveUndo {
+  source: string
+  target: string
+  // The moved messages' keys (entryKey).
+  keys: string[]
+  // Both chats before the move (target null: the move made it) and after it (source null: deleted).
+  before: { source: Thread; target: Thread | null }
+  after: { source: Thread | null; target: Thread }
+}
+
+/** Where messages written at `time` go among `entries`: after the last turn written by then (null: before any time). */
+function insertAt(entries: Entry[], time: number | null): number {
+  const times = entryTimes(entries)
+  let at = 0
+  times.forEach((t, i) => {
+    if (t === null || (time !== null && t <= time)) at = i + 1
+  })
+  // Not between a question and its answer.
+  while (at < entries.length && entries[at].role === "assistant") at++
+  return at
+}
+
+/**
+ * The block's messages with their page's text on the first of them on each page, when the source keeps
+ * that text on another message and neither the block nor the target has it.
+ */
+function withPageText(block: Entry[], source: Entry[], target: Entry[]): Entry[] {
+  const key = (e: Entry) => `${e.page!.url}\u0000${e.page!.hash ?? ""}`
+  const has = (list: Entry[], k: string) => list.some((e) => e.page?.text && key(e) === k)
+  const done = new Set<string>()
+  return block.map((e) => {
+    if (e.role !== "user" || !e.page) return e
+    const k = key(e)
+    if (done.has(k)) return e
+    done.add(k)
+    if (has(block, k) || has(target, k)) return e
+    const text = [...source].reverse().find((x) => x.page?.text && key(x) === k)?.page?.text
+    return text ? { ...e, page: { ...e.page, text: text.slice(0, MAX_SAVED_PAGE_CHARS) } } : e
+  })
+}
+
+/** A chat without messages: gone, as a deletion for iCloud when iCloud has it. */
+function emptied(next: Threads, id: string, synced: Record<string, number>, now: number): void {
+  if (id in synced) next[id] = { id, u: Math.max(now, (next[id]?.u ?? 0) + 1), m: [], deleted: true }
+  else delete next[id]
+}
+
+/** The time a changed copy of `thread` gets: now, and always later than the copy it replaces. */
+function later(thread: Thread | undefined, now: number): number {
+  return Math.max(now, (thread?.u ?? 0) + 1)
+}
+
+/**
+ * Moves messages `start`…`end` of chat `sourceId` (a page block, or several in a row) to chat
+ * `targetId`, or to a new chat when no chat has that id. They go in among the target's messages by when
+ * they were written (after the last turn written before them), keep their ids (messages from before
+ * 2.5 get theirs now, from their content) and say where they came from (`from`). The block takes its
+ * page's text along when the source keeps it on an earlier message. The target's time of last message
+ * changes only when the block is newer; the source's becomes that of its last message left. A source
+ * left empty is deleted. Null when it can't be moved ("Ask your chats", the same chat, a wrong range).
+ */
+export function moveEntries(
+  threads: Threads,
+  synced: Record<string, number>,
+  sourceId: string,
+  start: number,
+  end: number,
+  targetId: string,
+  now = Date.now()
+): { threads: Threads; undo: MoveUndo } | null {
+  const source = threads[sourceId]
+  const stored = threads[targetId]
+  const target = stored && !stored.deleted ? stored : undefined
+  if (!source || source.deleted || source.kind === "history" || target?.kind === "history" || sourceId === targetId) return null
+  if (!Number.isInteger(start) || !Number.isInteger(end) || start < 0 || end < start || end >= source.m.length) return null
+  const times = entryTimes(source.m)
+  const into = target?.m ?? []
+  const moved = withPageText(source.m.slice(start, end + 1), source.m, into)
+    .map((e) => ({ ...e, id: entryKey(e), from: { chat: sourceId, at: now } }))
+  const rest = withPageChanges([...source.m.slice(0, start), ...source.m.slice(end + 1)])
+  const at = insertAt(into, times[start])
+  const newest = times[end]
+  const m = withPageChanges([...into.slice(0, at), ...moved, ...into.slice(at)])
+  const nextTarget: Thread = target
+    ? { ...target, u: later(stored, now), a: newest !== null && newest > activity(target) ? newest : activity(target), m }
+    : { id: targetId, u: later(stored, now), a: newest ?? activity(source), m }
+  const next: Threads = { ...threads, [targetId]: nextTarget }
+  if (rest.length) next[sourceId] = { ...source, u: later(source, now), a: entryTimes(rest).at(-1) ?? activity(source), m: rest }
+  else emptied(next, sourceId, synced, now)
+  return {
+    threads: next,
+    undo: {
+      source: sourceId,
+      target: targetId,
+      keys: moved.map((e) => e.id),
+      before: { source, target: target ?? null },
+      after: { source: next[sourceId] && !next[sourceId].deleted ? next[sourceId] : null, target: nextTarget }
+    }
+  }
+}
+
+/**
+ * Puts moved messages back. When neither chat changed since the move, both are as they were before it;
+ * otherwise the messages (by key) go from the target back among the source's by time, without `from`.
+ * A chat the move made, or emptied, is deleted or brought back.
+ */
+export function undoMove(threads: Threads, synced: Record<string, number>, undo: MoveUndo, now = Date.now()): Threads {
+  const mark = (t: Thread | null | undefined) => (t && !t.deleted ? `${t.u}:${t.m.length}` : "-")
+  const source = threads[undo.source]
+  const target = threads[undo.target]
+  const next: Threads = { ...threads }
+  if (mark(source) === mark(undo.after.source) && mark(target) === mark(undo.after.target)) {
+    next[undo.source] = { ...undo.before.source, u: later(source, now) }
+    if (undo.before.target) next[undo.target] = { ...undo.before.target, u: later(target, now) }
+    else emptied(next, undo.target, synced, now)
+    return next
+  }
+  if (!target || target.deleted) return threads
+  const keys = new Set(undo.keys)
+  const back = target.m.filter((e) => keys.has(entryKey(e))).map(({ from: _from, ...e }) => e as Entry)
+  if (!back.length) return threads
+  const left = withPageChanges(target.m.filter((e) => !keys.has(entryKey(e))))
+  // The move emptied the source: it comes back with its name, pin and tags.
+  const base: Thread = source && !source.deleted ? source : { ...undo.before.source, m: [] }
+  const at = insertAt(base.m, entryTimes(back)[0])
+  const m = withPageChanges([...base.m.slice(0, at), ...back, ...base.m.slice(at)])
+  const newest = entryTimes(back).at(-1) ?? null
+  next[undo.source] = { ...base, u: later(source, now), a: newest !== null && newest > activity(base) ? newest : activity(base), m }
+  if (left.length) next[undo.target] = { ...target, u: later(target, now), m: left }
+  else emptied(next, undo.target, synced, now)
+  return next
+}
+
+/**
+ * The sweep after changes from iCloud or the app. A moved message lives where its latest move put it:
+ * the copy in the chat it was moved from (brought back by a device that wrote that chat before it heard
+ * of the move, or by one still on 2.4) and copies left by older moves are removed. Nothing else is: a
+ * message is only removed where another copy of it says it came from. Changed chats get the time `now`
+ * (they go up to iCloud); one left empty is deleted.
+ */
+export function sweepMoved(threads: Threads, synced: Record<string, number>, now = Date.now()): { threads: Threads; changed: boolean } {
+  const latest = new Map<string, { thread: string; from: string; at: number }>()
+  const live = Object.values(threads).filter((t) => !t.deleted)
+  for (const t of live) {
+    for (const e of t.m) {
+      if (!e.from) continue
+      const key = entryKey(e)
+      const seen = latest.get(key)
+      if (!seen || e.from.at > seen.at || (e.from.at === seen.at && t.id < seen.thread)) latest.set(key, { thread: t.id, from: e.from.chat, at: e.from.at })
+    }
+  }
+  if (!latest.size) return { threads, changed: false }
+  const next: Threads = { ...threads }
+  let changed = false
+  for (const t of live) {
+    const kept = t.m.filter((e) => {
+      const move = latest.get(entryKey(e))
+      return !move || move.thread === t.id || (t.id !== move.from && !e.from)
+    })
+    if (kept.length === t.m.length) continue
+    changed = true
+    if (kept.length) next[t.id] = { ...t, u: later(t, now), a: activity(t), m: withPageChanges(kept) }
+    else emptied(next, t.id, synced, now)
+  }
+  return { threads: changed ? next : threads, changed }
 }
 
 // ------------------------------------------------------------ search
