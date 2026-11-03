@@ -76,6 +76,8 @@ export const setupFunnel = (days: number) => rpc<Record<string, unknown>[]>("cf_
 export const ownerInsights = (days: number) => rpc<Record<string, unknown>>("cf_owner_insights", { p_days: days })
 /** Whether any limit keeps getting in users' way: per limit, answers and users it touched (cf_limits_report). */
 export const limitsReport = (days: number) => rpc<Record<string, unknown>>("cf_limits_report", { p_days: days })
+/** Organizing the chats (2.5): suggestions shown, taken, turned down and undone; promotions; turning it on (cf_organize_report). */
+export const organizeReport = (days: number) => rpc<Record<string, unknown>>("cf_organize_report", { p_days: days })
 
 export async function logEvent(kind: string, installId: string | null, data: Record<string, unknown>): Promise<void> {
   try {
