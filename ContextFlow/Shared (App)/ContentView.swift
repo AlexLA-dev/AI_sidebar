@@ -414,13 +414,13 @@ struct TipGroup {
     static let all: [TipGroup] = [
         TipGroup(title: "New in ContextFlow", tips: [
             Tip(symbol: "text.quote", color: .orange, title: "Ask or note a selection",
-                text: "Select text on a page: type your own question about it right under the selection, or tap Note to save it to the chat with its page. Notes use no answers."),
+                text: "Select text on a page: type your own question about it right under the selection, or tap Note to save it to the chat with its page. Notes use no answers.", clip: "select"),
             Tip(symbol: "play.rectangle", color: .red, title: "Ask about a video (Pro)",
                 text: "With Pro, ContextFlow reads the transcript of a video on the page: ask for the gist, or what was said about something, and the answer points to the moment, like [4:15]. Free answers use the page's text.", clip: "video"),
             Tip(symbol: "doc.richtext", color: .orange, title: "PDFs on the page (Pro)",
-                text: "With Pro, PDFs shown on a page or linked from it go with your question, and answers say which page they're on. On iPad and Mac, ContextFlow in the toolbar opens on a PDF tab too. Free answers use the page's text."),
+                text: "With Pro, PDFs shown on a page or linked from it go with your question, and answers say which page they're on. On iPad and Mac, ContextFlow in the toolbar opens on a PDF tab too. Free answers use the page's text.", clip: "pdf"),
             Tip(symbol: "bubble.left.and.bubble.right", color: .teal, title: "Your chats in the app",
-                text: "The Chats tab has every chat from Safari: read them, rename, pin or delete them, and tap a page to open it. “Continue in Safari” picks a chat up where you left off."),
+                text: "The Chats tab has every chat from Safari. Ask about its pages or add a note right there, tag, copy or share any answer, or share the whole chat. “Continue in Safari” picks it up where you left off.", clip: "appchat"),
             Tip(symbol: "magnifyingglass", color: .green, title: "Search your chats",
                 text: "Type in the search over the chat list: every chat with those words, with the place they're in. A result opens the chat right there.", clip: "search"),
             Tip(symbol: "tag", color: .purple, title: "Tags and folders",

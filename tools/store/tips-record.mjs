@@ -2,8 +2,8 @@
 // Needs: tools/preview/server.mts on :8787 (STREAM_DELAY_MS=22 gives a readable streaming pace)
 // and a Safari build pointing at it: CF_API_BASE=http://localhost:8787 node scripts/build-extension.mjs --out=<dir>
 //   node tools/store/tips-record.mjs <extensionDir> <outDir> [lang] [takes]
-// The Pro takes (aisearch, history) need the stand with PREVIEW_PLAN=pro and a build pointing at it:
-//   CF_STAND=http://localhost:8788 node tools/store/tips-record.mjs <proBuild> <outDir> en aisearch,history
+// The Pro takes (aisearch, history, pdf) need the stand with PREVIEW_PLAN=pro and a build pointing at it:
+//   CF_STAND=http://localhost:8788 node tools/store/tips-record.mjs <proBuild> <outDir> en aisearch,history,pdf
 // Output like preview-record.mjs: <outDir>/<take>/NNNNN.jpg + <outDir>/<take>.json { frames, events }.
 // tips-render.mjs turns the takes into the looping clips.
 import { chromium } from "playwright"
@@ -26,7 +26,9 @@ const L = ru
       lecture: "Какой свет поглощает хлорофилл?",
       search: "пилот",
       tag: "Идеи", tagButton: "Тег",
-      find: "исследование про выгорание"
+      find: "исследование про выгорание",
+      selq: "Сколько компаний вернулись к пятидневке?",
+      pdf: "Что в отчёте про выручку?"
     }
   : {
       summarize: "Summarize", key: "Key takeaways", explain: "Explain",
@@ -37,7 +39,9 @@ const L = ru
       lecture: "What light does chlorophyll absorb?",
       search: "pilot",
       tag: "Ideas", tagButton: "Tag",
-      find: "that study where burnout dropped"
+      find: "that study where burnout dropped",
+      selq: "How many companies went back to five days?",
+      pdf: "What does the report say about revenue?"
     }
 
 // macOS Chromium ignores --lang: a copy of the build with only the wanted locale shows the UI in it.
@@ -83,14 +87,14 @@ cdp.on("Page.screencastFrame", ({ data, metadata, sessionId }) => {
   take.frames.push({ f, t: metadata.timestamp - take.start })
 })
 
-/** A fresh first session on `url` (nothing recorded yet): no chats, tour and hints seen, consent given. */
+/** A fresh first session on `url` (nothing recorded yet): no chats, tour and hints seen, consent (2.4's) given. */
 async function fresh(url, threads = null) {
   // The previous take's panel must not see (and write back over) the reset storage.
   await page.goto("about:blank")
   await fetch(`${BASE}/reset`)
   await sw.evaluate(async (threads) => {
     await chrome.storage.local.clear()
-    await chrome.storage.local.set({ "cf:consent": true, "cf:tourSeen": true, "cf:noteHint": -1, "cf:hintsSeen": ["chats", "video", "pdf"] })
+    await chrome.storage.local.set({ "cf:consent": 2, "cf:tourSeen": true, "cf:noteHint": -1, "cf:selHint": -1, "cf:hintsSeen": ["chats", "video", "pdf"] })
     if (threads) await chrome.storage.local.set({ "cf:threads": threads, "cf:activeThread": { id: Object.keys(threads)[0], at: Date.now() } })
   }, threads)
   await go(url)
@@ -175,6 +179,25 @@ async function swipeUp(locator) {
   await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] })
 }
 
+/** Selects a phrase of the n-th paragraph: from the first match of `from` to the next `until` (not included). */
+async function selectText(n, from, until, scroll = true) {
+  if (scroll) {
+    await page.evaluate((n) => document.querySelectorAll("main p")[n].scrollIntoView({ block: "center" }), n)
+    await wait(400)
+  }
+  await page.evaluate(({ n, from, until }) => {
+    const text = document.querySelectorAll("main p")[n].firstChild
+    const start = text.data.search(new RegExp(from))
+    const range = document.createRange()
+    range.setStart(text, start)
+    range.setEnd(text, text.data.indexOf(until, start))
+    getSelection().removeAllRanges()
+    getSelection().addRange(range)
+  }, { n, from, until })
+}
+/** On iPhone the tap that reaches the selection buttons also clears the page's selection. */
+const tapClears = () => page.evaluate(() => document.addEventListener("pointerdown", () => getSelection().removeAllRanges(), { capture: true, once: true }))
+
 const takes = {
   async open() {
     await fresh(PAGE_1)
@@ -246,6 +269,47 @@ const takes = {
     await swipeUp(page.locator(".cf-send-wrap"))
     await wait(700)
     await tap(page.locator(".cf-send")); await wait(1600)
+  },
+  async select() {
+    await fresh(PAGE_1)
+    await page.evaluate(() => document.querySelectorAll("main p")[0].scrollIntoView({ block: "center" }))
+    await wait(400)
+    await record("select")
+    const bubble = page.locator(".cf-bubble")
+    await selectText(0, "\\d", ",", false)
+    await bubble.waitFor()
+    await wait(700)
+    await tapClears()
+    await tap(bubble.locator(".cf-bubble-ask input")); await type(L.selq)
+    await tap(bubble.locator(".cf-bubble-send"))
+    await page.locator(".cf-panel.in").waitFor()
+    await answers(1); await wait(1500)
+    await page.locator(".cf-backdrop").click({ position: { x: 20, y: 20 } })
+    await wait(500)
+    await selectText(4, "^", ",")
+    await bubble.waitFor()
+    await wait(700)
+    await tapClears()
+    await tap(bubble.locator(".cf-sel-note"))
+    await bubble.locator(".cf-bubble-saved").waitFor()
+    await wait(900)
+    await tap(bubble.locator(".cf-bubble-saved button"))
+    await page.locator(".cf-panel.in").waitFor()
+    await wait(1700)
+  },
+  async pdf() {
+    // Chromium has no Safari app extension to read the PDF (PdfText.swift): its answer stands in.
+    await sw.evaluate(() => {
+      globalThis.browser = { runtime: { sendNativeMessage: async (_id, msg) => msg.command === "pdfText"
+        ? { success: true, data: { ok: true, pages: 3, title: "Q3 report", text: "Northwind Q3 report. Revenue rose 12% to $48.2M; subscriptions $31.5M (+18%), services $16.7M." } }
+        : { success: false } } }
+    })
+    await fresh(`${BASE}/pdf-embed`)
+    await record("pdf")
+    await openPanel()
+    await wait(800)
+    await tap(page.locator(".cf-input textarea")); await type(L.pdf)
+    await tap(page.locator(".cf-send")); await answers(1); await wait(2000)
   },
   async whole() {
     await fresh(PAGE_1)
