@@ -104,13 +104,14 @@ New in 2.2:
 
 - **Do you or your third-party partners collect data from this app?** Yes.
 - **Tracking:** No (ни для одного типа данных).
+- **С 2.5 анкету менять не нужно.** «Скопированное» не покидает устройство, а шаблоны лежат в iCloud самого пользователя (end-to-end): по определению Apple это не сбор данных разработчиком. Новые счётчики — тот же Product Interaction, ИИ-заполнение — тот же Other User Content. `PrivacyInfo.xcprivacy` (UserDefaults в App Group: CA92.1, 1C8F.1) покрывает новое хранилище шаблонов.
 
 | Тип данных | Назначение | Linked to user | Tracking |
 |---|---|---|---|
-| User Content → Other User Content (вопрос и текст страницы, отправленные для ответа; не хранятся, но обрабатываются OpenAI, а ответы с Google — Google) | App Functionality | No | No |
+| User Content → Other User Content (вопрос и текст страницы, отправленные для ответа; с 2.5 ещё текст шаблона для разметки пропусков, шаблон и текст страницы по «Заполнить со страницы», слова поиска и названия шаблонов по «Найти по смыслу»; не хранятся, обрабатываются Anthropic, при сбое OpenAI, а ответы с Google — Google) | App Functionality | No | No |
 | Identifiers → Device ID (случайный install ID для дневного лимита) | App Functionality | No | No |
 | Purchases → Purchase History (подписанная Apple транзакция для проверки подписки) | App Functionality | No | No |
-| Usage Data → Product Interaction (счётчики ответов, тип действия) | App Functionality, Analytics | No | No |
+| Usage Data → Product Interaction (счётчики ответов, тип действия; с 2.5 счётчики быстрой вставки — что и как вставлено, сколько пропусков заполнено, открыты ли X и Threads — без текста и без сайта) | App Functionality, Analytics | No | No |
 | Usage Data → Advertising Data (с 2.4: id кампании, группы и ключа Apple Ads, если установка пришла из рекламы; AdServices, без ATT) | Analytics | No | No |
 
 ---
