@@ -705,7 +705,12 @@ private struct AIConsentAlert: ViewModifier {
             }
             Button("Not now", role: .cancel) { ask = nil }
         } message: {
-            Text("To answer, ContextFlow sends your question and excerpts of your chats via our server to Anthropic (Claude) or, if it's unavailable, OpenAI. Chats are not stored on our servers: they stay on your devices and, if you sync them, in your iCloud.")
+            // With suggestions on (2.5), the text of new messages and notes goes too: said here as well.
+            if SharedDefaults.shared.readSettings()?.settings["organize"] as? Bool ?? false {
+                Text("To answer, ContextFlow sends your question and excerpts of your chats via our server to Anthropic (Claude) or, if it's unavailable, OpenAI. With suggestions on, the text of new messages and notes also goes there to find where they belong. Chats are not stored on our servers: they stay on your devices and, if you sync them, in your iCloud.")
+            } else {
+                Text("To answer, ContextFlow sends your question and excerpts of your chats via our server to Anthropic (Claude) or, if it's unavailable, OpenAI. Chats are not stored on our servers: they stay on your devices and, if you sync them, in your iCloud.")
+            }
         }
     }
 }
