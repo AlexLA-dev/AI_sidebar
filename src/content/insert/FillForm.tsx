@@ -20,7 +20,7 @@ interface Props {
   field: Field | null
   copied: CopiedItem[]
   consent: ConsentStatus
-  onConsent: () => void
+  onConsent: () => Promise<void>
   free: boolean
   onUpgrade: () => void
   onClose: () => void
@@ -56,6 +56,8 @@ export function FillForm(p: Props): VNode {
   const [note, setNote] = useState<string | null>(null)
   const [limit, setLimit] = useState(false)
   const [askConsent, setAskConsent] = useState(false)
+  // Agreed here just now (the panel's own state reaches this form a moment later).
+  const agreed = useRef(false)
 
   useLayoutEffect(() => {
     const el = ref.current
@@ -81,7 +83,7 @@ export function FillForm(p: Props): VNode {
   }
 
   const fill = async () => {
-    if (p.consent !== "ok") {
+    if (p.consent !== "ok" && !agreed.current) {
       setAskConsent(true)
       return
     }
@@ -194,9 +196,9 @@ export function FillForm(p: Props): VNode {
             <p>{t("qiFillConsent")}</p>
             <div class="cf-card-actions">
               <button type="button" class="cf-primary" onClick={() => {
-                p.onConsent()
+                agreed.current = true
                 setAskConsent(false)
-                setTimeout(() => void fill(), 0)
+                void p.onConsent().then(fill)
               }}>{t("consentAccept")}</button>
               <button type="button" class="cf-link" onClick={() => setAskConsent(false)}>{t("consentDecline")}</button>
             </div>

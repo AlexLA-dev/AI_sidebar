@@ -16,11 +16,11 @@ import { copyToClipboard, insertText, isControl, restoreCaret, textBeforeCaret, 
 import { FillForm } from "./FillForm"
 import * as QIcon from "./icons"
 import { clearCopied, countUse, keepCopied, lastReply, loadCopied, loadInsertSettings, loadTemplates, loadUse, markTipSeen, onCopied, onInsertSettings, onTemplates, report, saveInsertSettings, sendBackground, syncTemplatesNow, tipSeen, type LastReply } from "./store"
-import { rememberField, setPanelInserter } from "./target"
+import { rememberField, setButtonShown, setPanelInserter } from "./target"
 import { TemplateEditor, type EditorStart } from "./TemplateEditor"
 import { signFor, typedPhrase } from "./trigger"
 import { follow, placeByCaret, placeSheet } from "./place"
-import { pageRect, viewport, watchFields } from "./watch"
+import { caretRect, pageRect, viewport, watchFields } from "./watch"
 
 /** What the panel asks of quick insert, through the bus (the selection's "Template" button, Settings). */
 export const QI_EVENTS = { newTemplate: "qi-new-template", editTemplate: "qi-edit-template", insertTemplate: "qi-insert-template" } as const
@@ -41,7 +41,8 @@ interface Props {
   bus: EventTarget
   panelOpen: boolean
   consent: ConsentStatus
-  onConsent: () => void
+  // Resolves once the consent is stored (the background checks it before sending anything).
+  onConsent: () => Promise<void>
   free: boolean
   onUpgrade: () => void
   onOpenTemplates: () => void
@@ -108,7 +109,10 @@ export function QuickInsert(props: Props): VNode | null {
       return false
     }
     const way = await insertText(f, text, replace)
-    if (way) return true
+    if (way) {
+      if (touch) keepInView(f)
+      return true
+    }
     if (await copyToClipboard(text)) showToast(t("qiPasteManually"))
     report({ kind: "insert_manual", field: isControl(f.el) ? "control" : "editor" })
     return false
@@ -337,6 +341,9 @@ export function QuickInsert(props: Props): VNode | null {
     }
   }
 
+  useEffect(() => setButtonShown(buttonPos !== null), [buttonPos !== null])
+  useEffect(() => () => setButtonShown(false), [])
+
   // ------------------------------------------------------------ render
   const m = mode
   return (
@@ -439,6 +446,25 @@ export function QuickInsert(props: Props): VNode | null {
       )}
     </>
   )
+}
+
+/**
+ * iPhone and iPad: the focus came back to the field in code, and iOS doesn't scroll it above the keyboard
+ * as it does after a tap. Once the keyboard is up, the page scrolls so the caret's line shows.
+ */
+function keepInView(field: Field): void {
+  const bring = () => {
+    if (!field.el.isConnected) return
+    const vp = viewport(true)
+    const r = pageRect(field.el)
+    const caret = caretRect(updateCaret(field))
+    const bottom = Math.min(r.bottom, caret.bottom + 24)
+    if (bottom > vp.height - 8) window.scrollBy({ top: bottom - vp.height + 24, behavior: "smooth" })
+    else if (r.top < 8) window.scrollBy({ top: r.top - 24, behavior: "smooth" })
+  }
+  // After the keyboard's animation (and once more for a slow one).
+  setTimeout(bring, 450)
+  setTimeout(bring, 900)
 }
 
 // ------------------------------------------------------------ the first-touch tip

@@ -7,6 +7,26 @@ import type { Field } from "./field"
 
 let remembered: Field | null = null
 const listeners = new Set<() => void>()
+// The button by a field is showing: the panel's ✦ steps aside (both sit by the field's right edge).
+let buttonShown = false
+const buttonListeners = new Set<() => void>()
+
+export function setButtonShown(shown: boolean): void {
+  if (shown === buttonShown) return
+  buttonShown = shown
+  for (const listener of buttonListeners) listener()
+}
+
+export function useButtonShown(): boolean {
+  const [shown, setShown] = useState(buttonShown)
+  useEffect(() => {
+    const update = () => setShown(buttonShown)
+    buttonListeners.add(update)
+    update()
+    return () => void buttonListeners.delete(update)
+  }, [])
+  return shown
+}
 let inserter: ((text: string, what: "answer" | "note") => void) | null = null
 
 export function rememberField(field: Field | null): void {

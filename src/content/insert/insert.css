@@ -77,7 +77,7 @@
 .cf-qi-keys kbd { font: inherit; font-weight: 650; color: var(--text-2); }
 
 /* ----------------------------------------------- a template's blanks */
-.cf-qi-fill { padding: 10px 14px 12px; display: flex; flex-direction: column; gap: 10px; }
+.cf-qi-fill { padding: 10px 14px 12px; display: flex; flex-direction: column; gap: 10px; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
 .cf-qi-fill-head { display: flex; align-items: center; gap: 6px; font-weight: 650; }
 .cf-qi-fill-head button { color: var(--text-3); }
 .cf-qi-fill-text { font-size: 15px; line-height: 1.6; color: var(--text); white-space: pre-wrap; max-height: 40vh; overflow-y: auto; }

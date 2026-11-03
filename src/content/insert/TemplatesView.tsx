@@ -14,7 +14,7 @@ import { TemplateEditor, type EditorStart } from "./TemplateEditor"
 interface Props {
   touch: boolean
   consent: ConsentStatus
-  onConsent: () => void
+  onConsent: () => Promise<void>
   host: string
   // Into the field the user was typing in (the panel closes first); templates with blanks open their form.
   onInsert: (t: Template) => void

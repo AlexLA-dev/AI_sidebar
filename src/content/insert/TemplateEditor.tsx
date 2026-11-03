@@ -20,7 +20,7 @@ interface Props {
   start: EditorStart
   touch: boolean
   consent: ConsentStatus
-  onConsent: () => void
+  onConsent: () => Promise<void>
   host: string
   onDone: (saved: Template | null) => void
   // In the panel's Templates view: in place, not over the page.
@@ -40,6 +40,7 @@ export function TemplateEditor(p: Props): VNode {
   const [aiUsed, setAiUsed] = useState(false)
   const [askConsent, setAskConsent] = useState(false)
   const [note, setNote] = useState<string | null>(null)
+  const agreed = useRef(false)
 
   useLayoutEffect(() => {
     const el = ref.current
@@ -167,9 +168,9 @@ export function TemplateEditor(p: Props): VNode {
             <p>{t("qiMarkConsent")}</p>
             <div class="cf-card-actions">
               <button type="button" class="cf-primary" onClick={() => {
-                p.onConsent()
+                agreed.current = true
                 setAskConsent(false)
-                setTimeout(() => void mark(text.trim()), 0)
+                void p.onConsent().then(() => mark(text.trim()))
               }}>{t("consentAccept")}</button>
               <button type="button" class="cf-link" onClick={() => setAskConsent(false)}>{t("consentDecline")}</button>
             </div>
@@ -178,7 +179,7 @@ export function TemplateEditor(p: Props): VNode {
           <div class="cf-qi-note">
             {note ?? t("qiBlankHint")}
             {!existing && !aiUsed && text.trim() && (
-              <> <button type="button" class="cf-link" onClick={() => (p.consent === "ok" ? void mark(text.trim()) : setAskConsent(true))}><Icon.Sparkle size={12} /> {t("qiMarkAi")}</button></>
+              <> <button type="button" class="cf-link" onClick={() => (p.consent === "ok" || agreed.current ? void mark(text.trim()) : setAskConsent(true))}><Icon.Sparkle size={12} /> {t("qiMarkAi")}</button></>
             )}
           </div>
         )}

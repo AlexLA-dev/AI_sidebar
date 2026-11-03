@@ -48,7 +48,7 @@ import { Tour, tourSteps } from "./Tour"
 import { QI_EVENTS, QuickInsert } from "./insert/QuickInsert"
 import * as QIcon from "./insert/icons"
 import { keepCopied, report as reportInsert } from "./insert/store"
-import { insertFromPanel, useHasField } from "./insert/target"
+import { insertFromPanel, useButtonShown, useHasField } from "./insert/target"
 import { TemplatesView } from "./insert/TemplatesView"
 import { allTags, chatDigests, chatList, cleanTags, newThreadId, pinAt, shownThread, threadPages, threadTitle, type Thread } from "../shared/threads"
 import type { ChatDigest } from "../shared/history"
@@ -377,8 +377,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     bus.dispatchEvent(new CustomEvent(QI_EVENTS.newTemplate, { detail: { text: sel.text, from: "selection" } }))
   }
   // Consent given from quick insert's own card (to fill blanks or mark them).
-  const agreeQuietly = useCallback(() => {
-    void giveConsent()
+  const agreeQuietly = useCallback(async () => {
+    await giveConsent()
     setConsent("ok")
   }, [])
 
@@ -1255,7 +1255,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
   // ------------------------------------------------------------ FAB
   const fabEnabled = settings.fab !== "off"
-  const fabVisible = !popup && fabEnabled && !open && !settings.fabHiddenSites.includes(source.site())
+  // The ✦ steps aside while quick insert's button sits by the field being typed in.
+  const insertButtonShown = useButtonShown()
+  const fabVisible = !popup && fabEnabled && !open && !settings.fabHiddenSites.includes(source.site()) && !insertButtonShown
   const dragRef = useRef<{ startY: number; startX: number; moved: boolean; pointer: number } | null>(null)
 
   const onFabDown = (e: PointerEvent) => {
