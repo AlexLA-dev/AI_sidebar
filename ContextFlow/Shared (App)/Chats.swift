@@ -84,6 +84,10 @@ struct ChatEntry: Decodable, Hashable {
     /// Organizing suggestions turned down here (moving its block; these tags), and suggested tags taken.
     var dismissed: Dismissed?
     var accepted: Accepted?
+    /// Chat UX (2.5): the user's highlights in an answer, pinned (ms), a reminder (ChatUX.swift).
+    var marks: [ChatMark]?
+    var pinned: Double?
+    var remind: ChatRemind?
 
     struct From: Decodable, Hashable {
         var chat: String

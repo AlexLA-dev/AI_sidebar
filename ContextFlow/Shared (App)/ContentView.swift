@@ -109,6 +109,10 @@ struct ContentView: View {
                     showPlan = store.isPro
                 case "tips": tab = .tips
                 case "chats": tab = hasChats ? .chats : .home
+                // A reminder on a message (2.5): Chats opens at it.
+                case "chat":
+                    tab = .chats
+                    ChatLinks.shared.handle(url)
                 case "templates": tab = .templates
                 default: tab = hasChats ? .chats : .home
                 }

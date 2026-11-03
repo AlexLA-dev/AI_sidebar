@@ -118,7 +118,11 @@ enum ChatAI {
                     .replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression).trimmingCharacters(in: .whitespaces)
                 if entry.isNote { lines.append("Note: " + text.prefix(perAnswer)) }
                 else if entry.isUser { lines.append("Q: " + (entry.label ?? text).prefix(300)) }
-                else { lines.append("A: " + text.prefix(perAnswer) + (text.count > perAnswer ? "…" : "")) }
+                else {
+                    lines.append("A: " + text.prefix(perAnswer) + (text.count > perAnswer ? "…" : ""))
+                    // Chat UX (2.5): what the user highlighted in the answer.
+                    if let marks = entry.marks, !marks.isEmpty { lines.append("Highlighted: " + ChatMarks.line(marks)) }
+                }
             }
             var text = String(lines.joined(separator: "\n").prefix(perChat))
             if size + text.count > total { text = String(text.prefix(max(0, total - size))) }
@@ -235,7 +239,9 @@ enum ChatAI {
         var out: [[String: String]] = []
         var size = 0
         for entry in entries.reversed() {
-            let text = entry.content.replacingOccurrences(of: #"[ \t]*\[\d{1,2}\]\(https?:[^)\s]+\)"#, with: "", options: .regularExpression)
+            var text = entry.content.replacingOccurrences(of: #"[ \t]*\[\d{1,2}\]\(https?:[^)\s]+\)"#, with: "", options: .regularExpression)
+            // Chat UX (2.5): the user's highlights in an answer go as <mark>…</mark> (the rule is in the system prompt).
+            if !entry.isUser, let marks = entry.marks, !marks.isEmpty { text = ChatMarks.markedContent(text, marks) }
             var elsewhere = ""
             if entry.isUser, let page = entry.page, page.url != currentUrl {
                 elsewhere = "\"\(page.title.isEmpty ? page.url : page.title)\" — \(page.url)"
