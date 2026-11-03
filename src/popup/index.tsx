@@ -5,6 +5,7 @@ import { backgroundPdf, cachedPdf, type PageRead, type PageSource } from "../con
 import { detectPlatform, HOST_TAG } from "../content/page"
 import { pdfName } from "../content/pdf"
 import styles from "../content/styles.css"
+import organizeStyles from "../content/organize.css"
 import { TARGET } from "../shared/config"
 import { urlKey } from "../shared/conversation"
 import { readsMedia } from "../shared/attachments"
@@ -92,7 +93,7 @@ async function main(): Promise<void> {
   host.setAttribute("style", "all:initial;position:fixed;top:0;left:0;width:0;height:0;")
   const root = host.attachShadow({ mode: "open" })
   const style = document.createElement("style")
-  style.textContent = styles
+  style.textContent = styles + organizeStyles
   root.appendChild(style)
   const container = document.createElement("div")
   root.appendChild(container)

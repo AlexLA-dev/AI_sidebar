@@ -1,6 +1,6 @@
 import { CONSENT_VERSION, consentStatus, type ConsentStatus } from "../shared/consent"
 import { trimSavedPages, type Entry } from "../shared/conversation"
-import { activity, cleanTitle, liveThreads, newThreadId, prune, type ActiveThread, type Thread, type Threads, cleanTags, withMessages } from "../shared/threads"
+import { activity, cleanTitle, liveThreads, moveEntries, newThreadId, prune, undoMove, type ActiveThread, type MoveUndo, type Thread, type Threads, cleanTags, withMessages } from "../shared/threads"
 import { MAX_OTHER_PAGE_CHARS } from "../shared/prompt"
 import { DEFAULT_SETTINGS, STORAGE, type Settings } from "../shared/types"
 
@@ -227,7 +227,55 @@ export async function deleteAllChats(): Promise<void> {
   const gone: Threads = {}
   for (const id of Object.keys(threads)) if (id in synced) gone[id] = { id, u: now, m: [], deleted: true }
   await chrome.storage.local.set({ [STORAGE.threads]: gone, [STORAGE.activeThread]: { id: newThreadId(), at: now }, [STORAGE.chats]: {} }).catch(() => undefined)
-  await chrome.storage.local.remove([STORAGE.conversation, STORAGE.pageTexts]).catch(() => undefined)
+  // The messages' vectors (organizing) go with the chats.
+  await chrome.storage.local.remove([STORAGE.conversation, STORAGE.pageTexts, STORAGE.orgVectors, STORAGE.orgVerdicts]).catch(() => undefined)
+}
+
+// ------------------------------------------------------------ organizing (2.5)
+
+/**
+ * Moves messages `start`…`end` of chat `sourceId` to chat `targetId` (a new chat when there's none): see
+ * moveEntries. Returns both chats after it and what "Undo" needs, or null when it can't be moved.
+ */
+export async function moveBlock(sourceId: string, start: number, end: number, targetId: string): Promise<{ threads: Threads; undo: MoveUndo } | null> {
+  const stored = await chrome.storage.local.get([STORAGE.threads, STORAGE.syncedThreads]).catch(() => ({} as Record<string, unknown>))
+  const threads = (stored[STORAGE.threads] as Threads | undefined) ?? {}
+  const synced = (stored[STORAGE.syncedThreads] as Record<string, number> | undefined) ?? {}
+  const moved = moveEntries(threads, synced, sourceId, start, end, targetId)
+  if (!moved) return null
+  await set(STORAGE.threads, prune(moved.threads))
+  return moved
+}
+
+/** "Undo" after a move: both chats as they were (or the messages back by key when one changed since). */
+export async function undoBlockMove(undo: MoveUndo): Promise<Threads> {
+  const stored = await chrome.storage.local.get([STORAGE.threads, STORAGE.syncedThreads]).catch(() => ({} as Record<string, unknown>))
+  const threads = (stored[STORAGE.threads] as Threads | undefined) ?? {}
+  const synced = (stored[STORAGE.syncedThreads] as Record<string, number> | undefined) ?? {}
+  const next = undoMove(threads, synced, undo)
+  await set(STORAGE.threads, next)
+  return next
+}
+
+/**
+ * The cards about organizing on this device: the question to turn suggestions on (answered), "Everything in one
+ * chat?" (the chats it was shown in, when last, closed for good), the one after the third tag, the first one taken.
+ */
+export interface OrganizeCards {
+  consent?: "accepted" | "declined"
+  mess?: { chats: string[]; at: number; closed?: true }
+  thirdTag?: true
+  firstWin?: true
+}
+
+export async function organizeCards(): Promise<OrganizeCards> {
+  return (await get<OrganizeCards>(STORAGE.orgCards)) ?? {}
+}
+
+export async function setOrganizeCards(patch: Partial<OrganizeCards>): Promise<OrganizeCards> {
+  const next = { ...(await organizeCards()), ...patch }
+  await set(STORAGE.orgCards, next)
+  return next
 }
 
 /** Calls `listener` when threads change in another tab or come from another device. */

@@ -1,5 +1,6 @@
 import type { Attachment, MediaKind } from "./attachments.ts"
 import type { ChatDigest } from "./history.ts"
+import type { OrganizeConfig } from "./organize.ts"
 import type { RenewalReason } from "./renewal.ts"
 // Messages exchanged between the content script (UI) and the background worker.
 
@@ -42,6 +43,8 @@ export interface StatusInfo {
   hasOwnKey: boolean
   ownKeyProvider: "openai" | "anthropic" | null
   offline: boolean
+  // Organizing the chats (2.5): switched on on the server, the vector space and the thresholds; null offline.
+  organize: { on: boolean; space: string; config: OrganizeConfig } | null
 }
 
 export interface ChatTurn {
@@ -136,7 +139,8 @@ export type ErrorCode =
 export type BackgroundRequest =
   | { type: "status"; refresh?: boolean; fresh?: boolean; platform?: Platform }
   // feature "ai": the Pro screen opens on AI search and "Ask your chats".
-  | { type: "openApp"; target: "subscribe" | "manage" | "home"; feature?: "ai" }
+  // feature "organize": on organizing the chats (2.5).
+  | { type: "openApp"; target: "subscribe" | "manage" | "home"; feature?: "ai" | "organize" }
   // The line under a free answer that skipped the page's video or PDFs: shown, or its "Try Pro" tapped.
   | { type: "mediaNotice"; action: "shown" | "pro"; media: MediaKind[] }
   // An Own key subscriber and Pro: a refusal (starts the day before the discount), the discount card shown, a tap.
@@ -152,6 +156,11 @@ export type BackgroundRequest =
   | { type: "syncThreads" }
   // AI search over the chats (Pro); answers a FindReply.
   | { type: "find"; query: string; chats: ChatDigest[] }
+  // Organizing (2.5, Pro, with suggestions on): the suggestions for a chat now; answers an OrganizeReply.
+  | { type: "organize"; chat: string }
+  // Organizing: a suggestion shown, taken, turned down or undone; a promotion shown or tapped; suggestions
+  // switched on or declined. Counts only, never text.
+  | { type: "organizeEvent"; event: OrganizeEvent }
   // The text of a PDF (read on the device); answers a PdfResult.
   | { type: "pdfText"; url: string }
   // The same for a PDF the page fetched itself (base64; behind a sign-in).
@@ -163,6 +172,22 @@ export type PdfResult =
   | { ok: false; reason: "none" | "failed"; error: string }
 
 export type ContentRequest = { type: "toggle" } | { type: "open"; selection?: boolean }
+
+/** What organizing suggests for a chat now: a move (to a chat, or a new one) and a tag per message. */
+export type OrganizeReply =
+  | {
+      ok: true
+      move: { start: number; end: number; to: string | null; toName: string; why: "page" | "site" | "topic" | "apart"; count: number } | null
+      // A suggested tag for the message at `index` (its key, to check it's still that message).
+      tags: Array<{ index: number; key: string; tag: string }>
+    }
+  | { ok: false; code: "OFF" | "PRO_ONLY" | "NETWORK" | "LIMIT_REACHED" | "UPSTREAM" }
+
+/** Organizing events for /api/v2/event (src/background/organize.ts sends them). */
+export type OrganizeEvent =
+  | { kind: "organize"; action: "shown" | "accepted" | "dismissed" | "undone"; what: "move" | "new" | "tag"; why?: "page" | "site" | "topic" | "apart" }
+  | { kind: "organize_promo"; action: "shown" | "tap"; where: "pro_card" | "inchat_mess" | "third_tag" | "first_win" | "settings" }
+  | { kind: "organize_optin"; action: "accepted" | "declined"; from: "card" | "settings" }
 
 export const STORAGE = {
   installId: "cf:installId",
@@ -208,7 +233,12 @@ export const STORAGE = {
   ownKey: "cf:ownKey",
   // Provider model lists for the own key ({ openai?: { ids, at }, anthropic?: { models, at } }).
   ownKeyModels: "cf:ownKeyModels",
-  platform: "cf:platform"
+  platform: "cf:platform",
+  // Organizing (2.5), this device only: a vector per message ({space, v: {[entryKey]: "textKey:packed"}}),
+  // the tag checks' answers ({[hash]: tags}), and the cards about it already shown or closed.
+  orgVectors: "cf:orgVectors",
+  orgVerdicts: "cf:orgVerdicts",
+  orgCards: "cf:orgCards"
 } as const
 
 export interface Settings {
@@ -229,6 +259,9 @@ export interface Settings {
   groupByTags: boolean
   // Answer with the whole chat in mind (all messages, notes, its other pages), not just the last messages.
   wholeChat: boolean
+  // Suggestions (2.5, Pro): a better chat for a block, one of the user's tags. Off until the user turns them on:
+  // turning them on is the consent to send the messages' text for it.
+  organize: boolean
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -243,7 +276,8 @@ export const DEFAULT_SETTINGS: Settings = {
   ownKeyModel: "smart",
   syncChats: true,
   groupByTags: false,
-  wholeChat: false
+  wholeChat: false,
+  organize: false
 }
 
 /** AI search's answer: the matching chats with a reason, or why there are none. */

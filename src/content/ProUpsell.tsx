@@ -2,11 +2,12 @@ import type { VNode } from "preact"
 
 import { t } from "../shared/i18n"
 import * as Icon from "./icons"
+import { OrganizeAnimation } from "./Organize"
 
 /**
  * What AI search and "Ask your chats" do, for someone without Pro: shown when they reach for one
- * (the ✦ in the chat search, the "Ask your chats" row, or a refused request). Get Pro opens the
- * ContextFlow app's Pro screen on these features.
+ * (the ✦ in the chat search, the "Ask your chats" row, or a refused request). Organizing the chats (2.5) comes
+ * first, with its short loop. Get Pro opens the ContextFlow app's Pro screen on these features.
  */
 export function ProUpsell({ feature, offer, byok, onPro, onOffer, onClose }: {
   feature: "find" | "history"
@@ -24,6 +25,13 @@ export function ProUpsell({ feature, offer, byok, onPro, onOffer, onClose }: {
         <span class="cf-upsell-icon"><Icon.Sparkle size={18} /></span>
         <strong>{t(feature === "find" ? "upsellFindTitle" : "upsellHistoryTitle")}</strong>
         <span class="cf-pro-badge">Pro</span>
+      </div>
+      <div class="cf-upsell-organize">
+        <OrganizeAnimation />
+        <div>
+          <strong>{t("upsellOrganizeName")}</strong>
+          <span>{t("upsellOrganizeText")}</span>
+        </div>
       </div>
       <ul class="cf-upsell-list">
         {items.map((item) => (

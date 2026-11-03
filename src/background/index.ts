@@ -27,6 +27,8 @@ import { daysLeft, type RenewalReason } from "../shared/renewal"
 import { isPdfTab, markPdfTab, openPdfPopup, pdfFromBytes, pdfText } from "./pdf"
 import { countValueMoment, mirrorOnStart, mirrorThreads, syncSettings, syncThreads, watchSettings, watchThreads } from "./sync"
 import { startInsert } from "./insert"
+import { organizeChat, reportOrganize } from "./organize"
+import { organizeConfig } from "../shared/organize"
 
 // ---------------------------------------------------------------- identity
 
@@ -129,18 +131,22 @@ async function status(refresh = false, fresh = false): Promise<StatusInfo> {
     const body = (await res.json()) as {
       plan: Plan; usage: Usage | null; limitedBefore?: boolean; offer?: ProOffer | null; upgradeOffer?: { discount: number } | null
       limits?: { searchFreeDaily?: number; searchProWeekly?: number }
+      organize?: { on?: unknown; space?: unknown; config?: unknown }
     }
     value = {
       plan: body.plan, usage: body.usage, limitedBefore: body.limitedBefore === true, offer: body.offer ?? null,
       upgradeOffer: body.upgradeOffer ?? null,
       searchLimits: { freeDaily: body.limits?.searchFreeDaily ?? SEARCH_LIMITS.freeDaily, proWeekly: body.limits?.searchProWeekly ?? SEARCH_LIMITS.proWeekly },
-      store, hasOwnKey: Boolean(key), ownKeyProvider: key ? keyProvider(key) : null, offline: false
+      store, hasOwnKey: Boolean(key), ownKeyProvider: key ? keyProvider(key) : null, offline: false,
+      organize: body.organize && typeof body.organize.space === "string"
+        ? { on: body.organize.on === true, space: body.organize.space, config: organizeConfig(body.organize.config) }
+        : null
     }
   } catch {
     value = {
       plan: ent?.active ? planFromProduct(ent.productId) : "free", usage: null, limitedBefore: false, offer: null,
       upgradeOffer: null, searchLimits: SEARCH_LIMITS,
-      store, hasOwnKey: Boolean(key), ownKeyProvider: key ? keyProvider(key) : null, offline: true
+      store, hasOwnKey: Boolean(key), ownKeyProvider: key ? keyProvider(key) : null, offline: true, organize: null
     }
   }
   statusCache = { at: Date.now(), value }
@@ -310,7 +316,7 @@ async function findChats(query: string, chats: unknown[]): Promise<FindReply> {
 
 // --------------------------------------------------------------- open app
 
-async function openApp(target: "subscribe" | "manage" | "home", feature?: "ai"): Promise<{ opened: boolean; url: string }> {
+async function openApp(target: "subscribe" | "manage" | "home", feature?: "ai" | "organize"): Promise<{ opened: boolean; url: string }> {
   if (TARGET !== "safari") {
     await chrome.tabs.create({ url: LINKS.appStore })
     return { opened: true, url: LINKS.appStore }
@@ -367,6 +373,15 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
     case "find":
       findChats(message.query, message.chats).then(sendResponse, () => sendResponse({ ok: false, code: "NETWORK" }))
       return true
+    case "organize":
+      Promise.all([status(), installId(), entitlement(), clientInfo(), settings()])
+        .then(([now, id, ent, client, prefs]) => organizeChat(message.chat, { status: now, installId: id, jws: ent?.active ? ent.jws : null, client, on: prefs.organize }))
+        .then(sendResponse, () => sendResponse({ ok: false, code: "NETWORK" }))
+      return true
+    case "organizeEvent":
+      Promise.all([installId(), clientInfo()]).then(([id, client]) => reportOrganize(message.event, id, client)).catch(() => undefined)
+      sendResponse({ ok: true })
+      return false
     case "pdfText":
       pdfText(message.url).then(sendResponse, () => sendResponse({ ok: false, reason: "failed", error: "background" }))
       return true
