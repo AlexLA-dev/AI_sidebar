@@ -7,6 +7,7 @@ import { OWN_KEY_PATTERN } from "../shared/models"
 import type { Platform, Settings, StatusInfo, Usage } from "../shared/types"
 import * as Icon from "./icons"
 import { deleteAllChats } from "./store"
+import { InsertSettingsGroup } from "./insert/InsertSettings"
 
 interface Props {
   settings: Settings
@@ -23,6 +24,9 @@ interface Props {
   onOpenUrl: (url: string) => void
   onChatsDeleted: () => void
   onShowTour: () => void
+  onOpenTemplates: () => void
+  // A link to ContextFlow's X or Threads (counted, no text).
+  onSocial: (network: "x" | "threads") => void
 }
 
 function Segmented<T extends string>({ value, options, onChange }: { value: T; options: [T, string][]; onChange: (v: T) => void }): VNode {
@@ -125,6 +129,8 @@ export function SettingsView(props: Props): VNode {
         </label>
       </section>
 
+      <InsertSettingsGroup site={site} touch={props.platform === "ios" || props.platform === "ipados"} onOpenTemplates={props.onOpenTemplates} />
+
       <section class="cf-group">
         <span class="cf-label">{t("setAbout")}</span>
         <textarea
@@ -213,6 +219,8 @@ export function SettingsView(props: Props): VNode {
         <button type="button" class="cf-link" onClick={props.onShowTour}>{t("tourShow")}</button>
         <button type="button" class="cf-link" onClick={() => props.onOpenUrl(LINKS.review)}>{t("rateApp")}</button>
         <button type="button" class="cf-link" onClick={() => props.onOpenUrl(LINKS.support)}>{t("support")}</button>
+        <button type="button" class="cf-link" onClick={() => props.onSocial("x")}>X</button>
+        <button type="button" class="cf-link" onClick={() => props.onSocial("threads")}>Threads</button>
         <button type="button" class="cf-link" onClick={() => props.onOpenUrl(LINKS.privacy)}>{t("privacyPolicy")}</button>
         <button type="button" class="cf-link" onClick={() => props.onOpenUrl(LINKS.terms)}>{t("terms")}</button>
         <span class="cf-version">{t("version", VERSION)}</span>

@@ -11,6 +11,8 @@ export const LINKS = {
   privacy: `${SITE}/privacy`,
   terms: `${SITE}/terms`,
   support: `${SITE}/support`,
+  x: "https://x.com/ContextFlowApp",
+  threads: "https://www.threads.com/@contextflowapp",
   appStore: "https://apps.apple.com/app/id6759115793",
   review: "https://apps.apple.com/app/id6759115793?action=write-review",
   // Shared answers end with this link (no storefront, so it opens the reader's own App Store).

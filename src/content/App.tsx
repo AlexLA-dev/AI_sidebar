@@ -45,6 +45,11 @@ import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, load
 import { TagChip, TagEditor } from "./Tags"
 import { ThreadsView } from "./Threads"
 import { Tour, tourSteps } from "./Tour"
+import { QI_EVENTS, QuickInsert } from "./insert/QuickInsert"
+import * as QIcon from "./insert/icons"
+import { keepCopied, report as reportInsert } from "./insert/store"
+import { insertFromPanel, useHasField } from "./insert/target"
+import { TemplatesView } from "./insert/TemplatesView"
 import { allTags, chatDigests, chatList, cleanTags, newThreadId, pinAt, shownThread, threadPages, threadTitle, type Thread } from "../shared/threads"
 import type { ChatDigest } from "../shared/history"
 import type { ConsentStatus } from "../shared/consent"
@@ -206,7 +211,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const keepsText = !popup && !privateBrowsing()
   const [open, setOpen] = useState(popup)
   const [visible, setVisible] = useState(popup)
-  const [view, setView] = useState<"chat" | "settings" | "threads">("chat")
+  const [view, setView] = useState<"chat" | "settings" | "threads" | "templates">("chat")
+  // Quick insert: the page has a field the user typed in (answers and notes can go there).
+  const hasField = useHasField() && !popup
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS)
   const [status, setStatus] = useState<StatusInfo | null>(null)
   const statusRef = useRef(status)
@@ -361,6 +368,19 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setVisible(false)
     setTimeout(() => setOpen(false), 220)
   }, [popup])
+
+  // ------------------------------------------------------------ quick insert
+  // "Template" by a selection: the selected text becomes a template (the AI marks its blanks).
+  const newTemplate = (sel: SelectionInfo) => {
+    setBubble(null)
+    if (touch) document.getSelection()?.removeAllRanges()
+    bus.dispatchEvent(new CustomEvent(QI_EVENTS.newTemplate, { detail: { text: sel.text, from: "selection" } }))
+  }
+  // Consent given from quick insert's own card (to fill blanks or mark them).
+  const agreeQuietly = useCallback(() => {
+    void giveConsent()
+    setConsent("ok")
+  }, [])
 
   useEffect(() => {
     const onToggle = () => (open ? hide() : show())
@@ -649,6 +669,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       sendRef.current(base, content, opts, full, selection)
     })
   }, [consent, messages, platform, selection, source])
+
+  // "Fit to the message" from quick insert: an ordinary answer (counts like one), the template as its start.
+  const adaptTemplate = (text: string) => {
+    show()
+    setTimeout(() => ask(t("qiAdaptPrompt", text), { label: t("qiAdaptLabel") }), 120)
+  }
 
   /** Sends a question with the page as `full` (sources: what was read along with it) or the selection. */
   sendRef.current = (base, content, opts, full, selection, chats) => {
@@ -973,17 +999,35 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const messageFooter = (m: Entry, idx: number, plain: () => string, shared: () => string): VNode => (
     <>
       {m.tags && m.tags.length > 0 && <div class="cf-msg-tags">{m.tags.map((tag) => <TagChip key={tag} tag={tag} onClick={() => setTagging(idx)} />)}</div>}
-      <div class="cf-msg-tools">
-        <button type="button" onClick={async () => { if (await copyText(plain())) { setCopied(idx); setTimeout(() => setCopied(null), 1500) } }}>
+      <div class={`cf-msg-tools ${hasField ? "has-insert" : ""}`}>
+        {hasField && (
+          <button type="button" class="cf-insert" onClick={() => {
+            const text = plain()
+            hide()
+            // The panel slides away first: the field gets the caret back once it's visible again.
+            setTimeout(() => insertFromPanel(text, m.note ? "note" : "answer"), layout === "sheet" ? 240 : 0)
+          }}>
+            <QIcon.Cursor /> {t("qiInsertIntoField")}
+          </button>
+        )}
+        <button type="button" onClick={async () => {
+          const text = plain()
+          if (await copyText(text)) {
+            setCopied(idx)
+            setTimeout(() => setCopied(null), 1500)
+            // ContextFlow's own Copy goes to Copied too.
+            void keepCopied(text, "", "contextflow")
+          }
+        }}>
           {copied === idx ? <Icon.Check /> : <Icon.Copy />} {copied === idx ? t("copied") : t("copy")}
         </button>
         {typeof navigator.share === "function" && (
-          <button type="button" onClick={() => void shareText(shared())}>
-            <Icon.Share /> {t("share")}
+          <button type="button" onClick={() => void shareText(shared())} aria-label={t("share")} title={t("share")}>
+            <Icon.Share /> <span class="cf-tl">{t("share")}</span>
           </button>
         )}
-        <button type="button" onClick={() => setTagging(tagging === idx ? null : idx)} aria-expanded={tagging === idx}>
-          <Icon.Tag /> {t("tagsButton")}
+        <button type="button" onClick={() => setTagging(tagging === idx ? null : idx)} aria-expanded={tagging === idx} aria-label={t("tagsButton")} title={t("tagsButton")}>
+          <Icon.Tag /> <span class="cf-tl">{t("tagsButton")}</span>
         </button>
       </div>
       {tagging === idx && <TagEditor tags={m.tags ?? []} known={allTags(threadList).map((x) => x.tag)} onChange={(next) => tagMessage(idx, next)} onClose={() => setTagging(null)} />}
@@ -1335,7 +1379,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   <>
                     {/* "Ask AI" on narrow screens (320 pt: iPhone mini and SE with Display Zoom), so the buttons fit. */}
                     <button type="button" class="primary" {...press(() => show(bubble))}><Icon.Sparkle size={16} /> {t(narrowScreen() ? "selAsk" : "fabLabel")}</button>
-                    <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SEL_GOOGLE), 60) })}><Icon.Search size={15} /> {t("actGoogle")}</button>
+                    <button type="button" class="cf-sel-icon" aria-label={t("actGoogle")} title={t("actGoogle")} {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SEL_GOOGLE), 60) })}><Icon.Search size={15} /></button>
+                    <button type="button" class="cf-sel-template" {...press(() => newTemplate(bubble))}><QIcon.Template /> {t("qiTemplateButton")}</button>
                   </>
                 ) : (
                   <>
@@ -1343,6 +1388,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SELECTION_ACTIONS[0]), 60) })}>{t("selExplain")}</button>
                     <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SELECTION_ACTIONS[2]), 60) })}>{t("selTranslate")}</button>
                     <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SEL_GOOGLE), 60) })}><Icon.Search size={13} /> {t("actGoogle")}</button>
+                    <button type="button" class="cf-sel-template" {...press(() => newTemplate(bubble))}><QIcon.Template size={14} /> {t("qiTemplateButton")}</button>
                   </>
                 )}
               </div>
@@ -1406,7 +1452,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             )}
             <div class="cf-title">
               {view !== "chat" ? (
-                <strong>{view === "settings" ? t("settings") : t("chatsTitle")}</strong>
+                <strong>{view === "settings" ? t("settings") : view === "templates" ? t("qiTemplatesTitle") : t("chatsTitle")}</strong>
               ) : (
                 historyMode ? (
                   <span class="cf-ctx history"><Icon.Sparkle size={13} /> <span class="cf-ctx-text">{t("askHistory")}</span></span>
@@ -1488,6 +1534,17 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 onGrouped={(on) => updateSettings({ groupByTags: on })}
               />
             </>
+          ) : view === "templates" ? (
+            <TemplatesView
+              touch={touch}
+              consent={consent}
+              onConsent={agreeQuietly}
+              host={source.site()}
+              onInsert={(tpl) => {
+                hide()
+                setTimeout(() => bus.dispatchEvent(new CustomEvent(QI_EVENTS.insertTemplate, { detail: tpl })), layout === "sheet" ? 240 : 0)
+              }}
+            />
           ) : view === "settings" ? (
             <SettingsView
               settings={settings}
@@ -1501,6 +1558,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               onManage={() => void openApp("manage")}
               onStatusChange={() => void refreshStatus(true)}
               onOpenUrl={(url) => void sendBackground({ type: "openUrl", url })}
+              onOpenTemplates={() => setView("templates")}
+              onSocial={(network) => {
+                reportInsert({ kind: "social_open", network })
+                void sendBackground({ type: "openUrl", url: network === "x" ? LINKS.x : LINKS.threads })
+              }}
               onShowTour={() => {
                 setView("chat")
                 setTouring(true)
@@ -1815,6 +1877,24 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             <Tour panel={panelRef.current} steps={tourSteps(TARGET === "safari" && settings.syncChats, touch)} onDone={endTour} />
           )}
         </section>
+      )}
+
+      {!popup && (
+        <QuickInsert
+          platform={platform}
+          touch={touch}
+          bus={bus}
+          panelOpen={open}
+          consent={consent}
+          onConsent={agreeQuietly}
+          free={plan === "free" && !ownKeyActive}
+          onUpgrade={() => void openApp("subscribe")}
+          onOpenTemplates={() => {
+            show()
+            setView("templates")
+          }}
+          onAdapt={adaptTemplate}
+        />
       )}
     </div>
   )

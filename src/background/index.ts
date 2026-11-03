@@ -26,6 +26,7 @@ import { isPdfUrl } from "../shared/pdf"
 import { daysLeft, type RenewalReason } from "../shared/renewal"
 import { isPdfTab, markPdfTab, openPdfPopup, pdfFromBytes, pdfText } from "./pdf"
 import { countValueMoment, mirrorOnStart, mirrorThreads, syncSettings, syncThreads, watchSettings, watchThreads } from "./sync"
+import { startInsert } from "./insert"
 
 // ---------------------------------------------------------------- identity
 
@@ -488,3 +489,14 @@ if (TARGET === "safari") {
   watchThreads()
   setTimeout(() => void mirrorOnStart().catch(() => undefined), 1_500)
 }
+// Quick insert: templates with the app and iCloud, its AI and counters, the ⌃⇧V shortcut.
+startInsert({
+  installId,
+  entitlementJws: async () => {
+    const ent = await entitlement()
+    return ent?.active ? ent.jws : null
+  },
+  clientInfo,
+  consented,
+  statusChanged: () => (statusCache = null)
+})

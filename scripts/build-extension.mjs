@@ -42,7 +42,10 @@ function manifest() {
       { matches: ["http://*/*", "https://*/*"], js: ["dist/content.js"], run_at: "document_idle", all_frames: false }
     ],
     commands: {
-      _execute_action: { suggested_key: { default: "Ctrl+Shift+E", mac: "MacCtrl+Shift+E" }, description: "__MSG_actionTitle__" }
+      _execute_action: { suggested_key: { default: "Ctrl+Shift+E", mac: "MacCtrl+Shift+E" }, description: "__MSG_actionTitle__" },
+      // Quick insert at the caret: ⌃⇧V in Safari on Mac and iPad (Ctrl+Space is the system's on iPad).
+      // Chrome keeps Ctrl+Shift+V for pasting plain text: there the user picks a key in chrome://extensions.
+      quick_insert: { ...(target === "safari" ? { suggested_key: { default: "Ctrl+Shift+V", mac: "MacCtrl+Shift+V" } } : {}), description: "__MSG_qiCommand__" }
     }
   }
   if (target === "safari") m.browser_specific_settings = { safari: { strict_min_version: "16.4" } }
