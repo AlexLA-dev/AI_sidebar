@@ -1,4 +1,5 @@
 import type { Config, Context } from "@netlify/functions"
+import { timingSafeEqual } from "node:crypto"
 
 import { config as settings } from "../shared/config.mts"
 import { consume, logEvent, refund, type Counter } from "../shared/db.mts"
@@ -34,14 +35,20 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const platform = clip(client.platform, 20)
   const version = clip(client.version, 20)
 
-  const access = await resolveAccess(body.entitlement, installId)
-  if (access.plan !== "pro" || !access.entitlement) {
-    context.waitUntil(logEvent("pro_only", installId, { feature: "organize", plan: access.plan, platform, version }))
-    return json({ code: "PRO_ONLY", plan: access.plan, feature: "organize" }, 403)
+  let subject: string
+  if (calibrating(req, context)) {
+    subject = "eval"
+  } else {
+    const access = await resolveAccess(body.entitlement, installId)
+    if (access.plan !== "pro" || !access.entitlement) {
+      context.waitUntil(logEvent("pro_only", installId, { feature: "organize", plan: access.plan, platform, version }))
+      return json({ code: "PRO_ONLY", plan: access.plan, feature: "organize" }, 403)
+    }
+    subject = `tx:${access.entitlement.originalTransactionId}`
   }
 
   const counters: Counter[] = [
-    { subject: `organize:${op}:tx:${access.entitlement.originalTransactionId}`, period: "day", limit: op === "embed" ? settings.organize.embedDaily : settings.organize.tagsDaily },
+    { subject: `organize:${op}:${subject}`, period: "day", limit: subject === "eval" ? 20_000 : op === "embed" ? settings.organize.embedDaily : settings.organize.tagsDaily },
     { subject: "global:organize", period: "day", limit: settings.organize.globalDaily }
   ]
   const quota = await consume(counters).catch((err) => {
@@ -79,6 +86,16 @@ export default async (req: Request, context: Context): Promise<Response> => {
     ]))
     return json({ code: "UPSTREAM" }, 502)
   }
+}
+
+/** The calibration script on a deploy preview (ORGANIZE_EVAL_TOKEN set there): stands in for Pro. Never in production. */
+function calibrating(req: Request, context: Context): boolean {
+  const token = settings.organize.evalToken
+  const deploy = (context as { deploy?: { context?: string } }).deploy?.context
+  if (!token || !deploy || deploy === "production") return false
+  const sent = Buffer.from(req.headers.get("authorization") ?? "")
+  const wanted = Buffer.from(`Bearer ${token}`)
+  return sent.length === wanted.length && timingSafeEqual(sent, wanted)
 }
 
 export const config: Config = { path: "/api/v2/organize" }
