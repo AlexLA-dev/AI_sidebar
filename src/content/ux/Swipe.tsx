@@ -141,19 +141,27 @@ export function Swipe({ left, right, enabled = true, children, class: cls = "" }
     }
   }, [enabled, left, right, open])
 
-  // A tap elsewhere closes a revealed button.
+  // A tap elsewhere, or scrolling the list, closes a revealed button.
   useEffect(() => {
     if (!open) return
     const row = rowRef.current
     const root = row?.getRootNode() as ShadowRoot | Document | undefined
-    const close = (e: Event) => {
-      if (row && !row.contains(e.target as Node)) {
-        setOpen(0)
-        setDx(0)
-      }
+    const scroller = row?.closest(".cf-messages, .cf-threads, .cf-list")
+    const shut = () => {
+      setOpen(0)
+      setDx(0)
     }
-    root?.addEventListener("pointerdown", close, true)
-    return () => root?.removeEventListener("pointerdown", close, true)
+    const away = (e: Event) => {
+      if (row && !e.composedPath().includes(row)) shut()
+    }
+    root?.addEventListener("pointerdown", away, true)
+    document.addEventListener("pointerdown", away, true)
+    scroller?.addEventListener("scroll", shut, { passive: true })
+    return () => {
+      root?.removeEventListener("pointerdown", away, true)
+      document.removeEventListener("pointerdown", away, true)
+      scroller?.removeEventListener("scroll", shut)
+    }
   }, [open])
 
   const side = dx < 0 ? left : dx > 0 ? right : null

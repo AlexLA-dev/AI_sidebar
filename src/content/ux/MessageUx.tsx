@@ -1,8 +1,7 @@
-// 2.5 in the chat: reminders, the highlight button, the menu of a message and the "Deleted · Undo" bar
-// (pinned messages: PinnedBar.tsx).
+// 2.5 in the chat: reminders, the highlight button and the menu of a message (pinned messages: PinnedBar.tsx).
 
 import type { ComponentChildren, VNode } from "preact"
-import { useLayoutEffect, useRef, useState } from "preact/hooks"
+import { useEffect, useLayoutEffect, useRef, useState } from "preact/hooks"
 
 import type { Entry } from "../../shared/conversation"
 import { t } from "../../shared/i18n"
@@ -35,15 +34,15 @@ export function remindPresets(now = new Date()): Array<{ key: "uxRemindHour" | "
     d.setHours(hour, 0, 0, 0)
     return d.getTime()
   }
-  // Stage A check only: on a page opened with #cf-ux-test, "In an hour" rings in a minute.
-  const test = typeof location !== "undefined" && location.hash.includes("cf-ux-test")
   const out: Array<{ key: "uxRemindHour" | "uxRemindEvening" | "uxRemindMorning" | "uxRemindWeek"; at: number }> = [
-    { key: "uxRemindHour", at: now.getTime() + (test ? 60_000 : 3600_000) }
+    { key: "uxRemindHour", at: now.getTime() + 3600_000 }
   ]
   if (now.getHours() < 17) out.push({ key: "uxRemindEvening", at: at(0, 18) })
   out.push({ key: "uxRemindMorning", at: at(1, 9) }, { key: "uxRemindWeek", at: at(7, 9) })
   return out
 }
+
+const PRESET = { uxRemindHour: "hour", uxRemindEvening: "evening", uxRemindMorning: "morning", uxRemindWeek: "week" } as const
 
 /** "Today 18:00", "Tomorrow 9:00", "Fri 9:00", "12 Nov 9:00" in the user's language. */
 export function remindLabel(at: number, now = new Date()): string {
@@ -76,21 +75,33 @@ export function RemindChip({ at, onClick }: { at: number; onClick: () => void })
   )
 }
 
-/** "When should I remind you?": the presets, a date of one's own, and "Don't remind" for one that's set. */
-export function RemindSheet({ current, note, onPick, onCancel, onClose }: {
+/**
+ * "When should I remind you?": the presets, a date of one's own, and "Don't remind" for one that's set.
+ * In the panel it sits right above the question field (on iPhone, Safari's bar covers the panel's very
+ * bottom); `page`: over the page (the bell by a selection, with the panel closed).
+ */
+export function RemindSheet({ current, note, page = false, onPick, onCancel, onClose }: {
   current?: number
   note?: string | null
-  onPick: (at: number) => void
+  page?: boolean
+  onPick: (at: number, preset: "hour" | "evening" | "morning" | "week" | "custom") => void
   onCancel: () => void
   onClose: () => void
 }): VNode {
   const [custom, setCustom] = useState<string | null>(null)
+  const back = useRef<HTMLDivElement>(null)
+  useLayoutEffect(() => {
+    const el = back.current
+    if (!el || page) return
+    const composer = el.parentElement?.querySelector<HTMLElement>(".cf-composer")
+    el.style.bottom = composer ? `${composer.offsetHeight}px` : "0px"
+  }, [page])
   return (
-    <div class="cf-sheet-back" onClick={(e) => e.target === e.currentTarget && onClose()}>
+    <div ref={back} class={`cf-sheet-back ${page ? "page" : ""}`} onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div class="cf-sheet" role="dialog" aria-label={t("uxRemindTitle")}>
         <div class="cf-sheet-title"><Bell size={16} /> {t("uxRemindTitle")}</div>
         {remindPresets().map((p) => (
-          <button type="button" key={p.key} class="cf-sheet-row" onClick={() => onPick(p.at)}>
+          <button type="button" key={p.key} class="cf-sheet-row" onClick={() => onPick(p.at, PRESET[p.key])}>
             <span>{t(p.key)}</span>
             <span class="cf-sheet-when">{remindLabel(p.at)}</span>
           </button>
@@ -102,7 +113,7 @@ export function RemindSheet({ current, note, onPick, onCancel, onClose }: {
         ) : (
           <div class="cf-sheet-pick">
             <input type="datetime-local" value={custom} min={localInput(Date.now())} onInput={(e) => setCustom((e.target as HTMLInputElement).value)} />
-            <button type="button" class="cf-sheet-ok" disabled={!custom || new Date(custom).getTime() <= Date.now()} onClick={() => custom && onPick(new Date(custom).getTime())}>
+            <button type="button" class="cf-sheet-ok" disabled={!custom || new Date(custom).getTime() <= Date.now()} onClick={() => custom && onPick(new Date(custom).getTime(), "custom")}>
               {t("uxRemindSet")}
             </button>
           </div>
@@ -116,8 +127,9 @@ export function RemindSheet({ current, note, onPick, onCancel, onClose }: {
   )
 }
 
-/** A small menu by a message: pin, remind, delete (and on a Mac the same on right-click). */
-export function MessageMenu({ pinned, reminded, onPin, onRemind, onDelete, onClose }: {
+/** A small menu by a message: pin, remind, delete. `at`: where a right-click was (Mac), else under "…". */
+export function MessageMenu({ at, pinned, reminded, onPin, onRemind, onDelete, onClose }: {
+  at?: { x: number; y: number }
   pinned: boolean
   reminded: boolean
   onPin: () => void
@@ -125,22 +137,38 @@ export function MessageMenu({ pinned, reminded, onPin, onRemind, onDelete, onClo
   onDelete: () => void
   onClose: () => void
 }): VNode {
+  const ref = useRef<HTMLDivElement>(null)
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el || !at) return
+    const w = window.innerWidth
+    const h = window.innerHeight
+    el.style.left = `${Math.max(8, Math.min(w - el.offsetWidth - 8, at.x))}px`
+    el.style.top = `${Math.max(8, Math.min(h - el.offsetHeight - 8, at.y))}px`
+  }, [at?.x, at?.y])
+  useEffect(() => {
+    const away = (e: Event) => {
+      const path = e.composedPath()
+      // Its own "…" toggles it.
+      if (!path.includes(ref.current as EventTarget) && !path.some((el) => (el as Element).classList?.contains("cf-msg-more"))) onClose()
+    }
+    const esc = (e: KeyboardEvent) => e.key === "Escape" && onClose()
+    // After this click is done.
+    const timer = setTimeout(() => {
+      document.addEventListener("pointerdown", away, true)
+      document.addEventListener("keydown", esc, true)
+    }, 0)
+    return () => {
+      clearTimeout(timer)
+      document.removeEventListener("pointerdown", away, true)
+      document.removeEventListener("keydown", esc, true)
+    }
+  }, [onClose])
   return (
-    <div class="cf-msg-menu" role="menu" onKeyDown={(e) => e.key === "Escape" && onClose()}>
+    <div ref={ref} class={`cf-msg-menu ${at ? "at" : ""}`} role="menu">
       <button type="button" role="menuitem" onClick={onPin}><PinIcon size={15} filled={pinned} /> {t(pinned ? "uxUnpin" : "uxPin")}</button>
       <button type="button" role="menuitem" onClick={onRemind}><Bell size={15} /> {t(reminded ? "uxRemindChange" : "uxRemind")}</button>
       <button type="button" role="menuitem" class="danger" onClick={onDelete}><TrashIcon size={15} /> {t("uxDelete")}</button>
-    </div>
-  )
-}
-
-/** "Deleted · Undo" at the bottom of the panel, until the next action. */
-export function UndoBar({ text, onUndo, onDone }: { text: string; onUndo: () => void; onDone: () => void }): VNode {
-  return (
-    <div class="cf-undo" role="status">
-      <span>{text}</span>
-      <button type="button" onClick={onUndo}>{t("uxUndo")}</button>
-      <button type="button" class="cf-undo-x" aria-label={t("close")} onClick={onDone}>×</button>
     </div>
   )
 }

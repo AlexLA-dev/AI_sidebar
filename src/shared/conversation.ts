@@ -2,7 +2,7 @@
 // Pure helpers shared by the content script and tests.
 
 import type { MediaKind } from "./attachments.ts"
-import type { Mark } from "./marks.ts"
+import { markedContent, type Mark } from "./marks.ts"
 import type { ChatTurn, Grounding } from "./types.ts"
 
 /** The page a question was asked on: normalized URL, title and a fingerprint of its text. */
@@ -67,7 +67,8 @@ export interface Entry extends ChatTurn {
   // 2.5, answers and notes: pinned at the top of the chat (when, ms).
   pinned?: number
   // 2.5, answers and notes: a reminder (ms). The notification rings only on the device that set it (`dev`).
-  remind?: { at: number; dev?: string }
+  // `page`: a note made from a selection with "Remind me": the notification opens its page.
+  remind?: { at: number; dev?: string; page?: true }
 }
 
 /** A new message's id: 12 random letters and digits. */
@@ -292,8 +293,9 @@ export function entriesFrom(parsed: unknown): Entry[] | null {
  * `wholeChat`: every message that fits WHOLE_CHAT_CHARS, the user's notes marked as notes.
  */
 export function historyForModel(entries: Entry[], currentUrl: string, wholeChat = false): ChatTurn[] {
-  const turn = ({ role, content, page, note }: Entry): ChatTurn => {
-    const text = stripCitations(content)
+  const turn = ({ role, content, page, note, marks }: Entry): ChatTurn => {
+    // The user's highlights in an answer go as <mark>…</mark> (the rule is in the system prompt).
+    const text = role === "assistant" && marks?.length ? markedContent(stripCitations(content), marks) : stripCitations(content)
     const elsewhere = role === "user" && page && page.url !== currentUrl ? `"${page.title || page.url}" — ${page.url}` : ""
     if (note) return { role, content: `[Note the user wrote${elsewhere ? ` on another page: ${elsewhere}` : ""}]\n${text}` }
     return { role, content: elsewhere ? `[Asked on another page: ${elsewhere}]\n${text}` : text }

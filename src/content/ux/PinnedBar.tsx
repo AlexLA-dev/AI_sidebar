@@ -4,7 +4,8 @@
 //   oldest, the newest again).
 // - Scrolling by hand: the bar shows the pinned message nearest above what's on screen (the oldest when
 //   all of them are below).
-// - Right, with more than one: the list of all of them; a tap on one scrolls to it.
+// - Right, with more than one: the list of all of them in the chat's order (the one on the bar marked);
+//   a tap on one scrolls to it, ✕ unpins it, "Unpin all" at the bottom.
 
 import type { VNode } from "preact"
 import { useEffect, useRef, useState } from "preact/hooks"
@@ -27,10 +28,12 @@ function preview(text: string): string {
 }
 
 /** `items`: the pinned answers and notes in the chat's order (oldest first), with their index in the chat. */
-export function PinnedBar({ items, list, onOpen }: {
+export function PinnedBar({ items, list, onOpen, onUnpin, onUnpinAll }: {
   items: Array<{ index: number; entry: Entry }>
   list: { current: HTMLElement | null }
   onOpen: (index: number) => void
+  onUnpin: (index: number) => void
+  onUnpinAll: () => void
 }): VNode | null {
   // Which one the bar shows: a position in `items` (the newest at first).
   const [at, setAt] = useState(items.length - 1)
@@ -39,8 +42,11 @@ export function PinnedBar({ items, list, onOpen }: {
   const count = items.length
   const keys = items.map((x) => x.index).join(",")
 
-  // Pinned or unpinned: back to the newest.
-  useEffect(() => setAt(count - 1), [keys, count])
+  // Pinned or unpinned: back to the newest; the list closes when none is left to list.
+  useEffect(() => {
+    setAt(count - 1)
+    if (count < 2) setListOpen(false)
+  }, [keys, count])
 
   // Scrolling by hand: the pinned message nearest above the visible part.
   useEffect(() => {
@@ -99,13 +105,12 @@ export function PinnedBar({ items, list, onOpen }: {
       {listOpen && (
         <div class="cf-pinbar-list" role="menu">
           <div class="cf-pinbar-list-title">{t("uxPinnedAll")}</div>
-          {[...items].reverse().map((it) => {
-            const pos = items.indexOf(it)
-            return (
+          {items.map((it, pos) => (
+            <div key={it.index} class={`cf-pinbar-item ${pos === shown ? "on" : ""}`}>
               <button
                 type="button"
                 role="menuitem"
-                key={it.index}
+                aria-current={pos === shown ? "true" : undefined}
                 onClick={() => {
                   setListOpen(false)
                   go(pos, pos > 0 ? pos - 1 : count - 1)
@@ -114,8 +119,19 @@ export function PinnedBar({ items, list, onOpen }: {
                 {it.entry.note && <span class="cf-pinbar-note" />}
                 <span>{preview(it.entry.content)}</span>
               </button>
-            )
-          })}
+              <button type="button" class="cf-pinbar-x" aria-label={t("uxUnpin")} title={t("uxUnpin")} onClick={() => onUnpin(it.index)}>×</button>
+            </div>
+          ))}
+          <button
+            type="button"
+            class="cf-pinbar-unpin-all"
+            onClick={() => {
+              setListOpen(false)
+              onUnpinAll()
+            }}
+          >
+            {t("uxUnpinAll")}
+          </button>
         </div>
       )}
     </div>

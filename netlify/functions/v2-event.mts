@@ -24,6 +24,11 @@ const RENEWAL_FROM = new Set(["app", "panel"])
 const MEDIA = new Set(["video", "pdf", "video,pdf"])
 const STATES = new Set(["off", "on", "in_use"])
 const NOTIFICATIONS = new Set(["granted", "denied", "not_asked"])
+// Chat UX (2.5), counts only, no text: "ux_mark" a highlight in an answer added, removed, copied as bold or shared
+// with **; "ux_pin" an answer or note pinned, unpinned (one or all), or the pinned bar tapped; "ux_delete" an
+// answer, note or chat deleted (by a swipe, the menu or the hover button) or brought back; "ux_remind" a reminder
+// set (which preset), cancelled, refused by the system, or its notification opened; on a message or a page.
+const UX_KINDS = new Set(["ux_mark", "ux_pin", "ux_delete", "ux_remind"])
 
 /**
  * POST /api/v2/event — anonymous funnel step between the App Store download and the first answer.
@@ -43,14 +48,15 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const kind = clip(body?.kind, 16)
   const installId = isUuid(body?.installId) ? (body?.installId as string) : null
   const appId = isUuid(body?.appId) ? (body?.appId as string) : null
-  if (!body || !(KINDS.has(kind) || INSERT_KINDS.has(kind) || ORGANIZE_KINDS.has(kind)) || !(installId || appId)) return json({ code: "BAD_REQUEST" }, 400)
+  if (!body || !(KINDS.has(kind) || INSERT_KINDS.has(kind) || ORGANIZE_KINDS.has(kind) || UX_KINDS.has(kind)) || !(installId || appId)) return json({ code: "BAD_REQUEST" }, 400)
   if (kind === "renewal_off" && !isRenewalReason(body.reason)) return json({ code: "BAD_REQUEST" }, 400)
   const client = (body.client ?? {}) as Record<string, unknown>
 
-  // Inserts happen many times a day: their own allowance, so they never use up the funnel's.
-  const quota = await consume(INSERT_KINDS.has(kind) ? [
-    { subject: `event:insert:${appId ?? installId}`, period: "day", limit: settings.insert.eventDaily },
-    { subject: `event:insert:${ipSubject(context.ip)}`, period: "day", limit: settings.insert.eventDaily * 10 }
+  // Inserts and chat UX events happen many times a day: their own allowance, so they never use up the funnel's.
+  const busy = INSERT_KINDS.has(kind) ? "insert" : UX_KINDS.has(kind) ? "ux" : null
+  const quota = await consume(busy ? [
+    { subject: `event:${busy}:${appId ?? installId}`, period: "day", limit: settings.insert.eventDaily },
+    { subject: `event:${busy}:${ipSubject(context.ip)}`, period: "day", limit: settings.insert.eventDaily * 10 }
   ] : [
     { subject: `event:${appId ?? installId}`, period: "day", limit: settings.eventDailyLimit },
     { subject: `event:${ipSubject(context.ip)}`, period: "day", limit: settings.eventDailyLimit * 10 }
@@ -72,7 +78,8 @@ export default async (req: Request, context: Context): Promise<Response> => {
       ...(kind === "renewal_off" ? renewalFields(body) : {}),
       ...(kind === "byok_upsell" ? upsellFields(body) : {}),
       ...(INSERT_KINDS.has(kind) ? insertFields(body) : {}),
-      ...(ORGANIZE_KINDS.has(kind) ? organizeFields(kind, body) : {})
+      ...(ORGANIZE_KINDS.has(kind) ? organizeFields(kind, body) : {}),
+      ...(UX_KINDS.has(kind) ? uxFields(kind, body) : {})
     })
   )
 
@@ -140,6 +147,31 @@ function renewalFields(body: Record<string, unknown>): Record<string, unknown> {
     product: clip(body.product, 64),
     ...(typeof days === "number" && Number.isInteger(days) && days >= 0 && days <= 400 ? { days_left: days } : {}),
     ...(RENEWAL_FROM.has(from) ? { from } : {})
+  }
+}
+
+const UX_ACTIONS: Record<string, Set<string>> = {
+  ux_mark: new Set(["added", "removed", "copied", "shared"]),
+  ux_pin: new Set(["pinned", "unpinned", "unpinned_all", "bar_tap"]),
+  ux_delete: new Set(["deleted", "undone"]),
+  ux_remind: new Set(["set", "cancelled", "denied", "opened"])
+}
+const UX_WHAT = new Set(["answer", "note", "chat", "message", "page"])
+const UX_HOW = new Set(["swipe", "menu", "hover", "list", "bar"])
+const UX_PRESET = new Set(["hour", "evening", "morning", "week", "custom"])
+
+/** What a chat UX event carries: its action, on what, how, the reminder's preset, and where (app or panel). */
+function uxFields(kind: string, body: Record<string, unknown>): Record<string, unknown> {
+  const pick = (key: string, allowed: Set<string>) => {
+    const value = clip(body[key], 12)
+    return allowed.has(value) ? { [key]: value } : {}
+  }
+  return {
+    ...pick("action", UX_ACTIONS[kind]),
+    ...pick("what", UX_WHAT),
+    ...pick("how", UX_HOW),
+    ...(kind === "ux_remind" ? pick("preset", UX_PRESET) : {}),
+    ...(body.surface === "app" || body.surface === "panel" ? { surface: body.surface } : {})
   }
 }
 

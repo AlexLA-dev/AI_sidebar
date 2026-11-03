@@ -344,10 +344,21 @@ async function remind(message: Extract<BackgroundRequest, { type: "remind" }>): 
     at: message.at,
     title: message.title ?? "ContextFlow",
     body: message.body ?? "",
+    ...(message.url && /^https?:\/\//.test(message.url) ? { url: message.url } : {}),
     ask: message.ask === true
     // The system may be asking about notifications meanwhile: wait for the answer.
   }, 90_000)
   return { outcome: reply?.outcome ?? "unavailable" }
+}
+
+/** A chat UX count (2.5): kind, action and a few words from fixed lists; never text or sites. */
+async function reportUx(message: Extract<BackgroundRequest, { type: "uxEvent" }>): Promise<void> {
+  const [id, client] = await Promise.all([installId(), clientInfo()])
+  await fetch(`${API_BASE}/api/v2/event`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ kind: message.kind, installId: id, client, action: message.action, what: message.what, how: message.how, preset: message.preset, surface: "panel" })
+  }).catch(() => undefined)
 }
 
 // ---------------------------------------------------------------- messages
@@ -412,6 +423,10 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
     case "remind":
       remind(message).then(sendResponse, () => sendResponse({ outcome: "unavailable" }))
       return true
+    case "uxEvent":
+      void reportUx(message)
+      sendResponse({ ok: true })
+      return false
     case "syncThreads":
       if (TARGET !== "safari") {
         sendResponse({ changed: false })

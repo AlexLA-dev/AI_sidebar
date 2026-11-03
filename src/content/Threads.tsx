@@ -7,6 +7,8 @@ import { t, uiLanguage } from "../shared/i18n"
 import { activity, allTags, groupByTag, hasTag, MAX_TITLE, searchThreads, threadName, threadNotes, threadPages, threadSnippet, threadTags, threadTitle, type SearchHit, type Thread } from "../shared/threads"
 import * as Icon from "./icons"
 import { TagChip, TagEditor } from "./Tags"
+import { PinIcon, TrashIcon } from "./ux/MessageUx"
+import { Swipe } from "./ux/Swipe"
 
 interface Props {
   threads: Thread[] // pinned first, then the newest
@@ -34,6 +36,8 @@ interface Props {
   // The list in groups by tag, like folders.
   grouped: boolean
   onGrouped: (on: boolean) => void
+  // iPhone and iPad (2.5): swipe a chat left to delete it, right to pin it.
+  touch?: boolean
 }
 
 /** "3 pages", in the UI language's plural form. */
@@ -207,7 +211,7 @@ interface Drag {
  * start a new one. Pinned chats come first and are reordered by dragging their handle; a chat that
  * was on several pages lists them (each opens its page).
  */
-export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onNew, onPin, onMove, onOpenPage, pro, onAskHistory, onFind, onUpsell, findError, findWaiting, onTags, grouped, onGrouped }: Props): VNode {
+export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onNew, onPin, onMove, onOpenPage, pro, onAskHistory, onFind, onUpsell, findError, findWaiting, onTags, grouped, onGrouped, touch = false }: Props): VNode {
   const [query, setQuery] = useState("")
   // Only the chats with this tag (in the list and in search results).
   const [tagFilter, setTagFilter] = useState<string | null>(null)
@@ -410,7 +414,12 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
                 }}
               />
             ) : (
-              <>
+              <Swipe
+                class="cf-thread-swipe"
+                enabled={touch && !drag}
+                left={{ label: t("uxDelete"), icon: <TrashIcon />, tone: "delete", run: () => onDelete(thread.id) }}
+                right={{ label: t(isPinned ? "uxUnpin" : "uxPin"), icon: <PinIcon filled={isPinned} />, tone: "pin", run: () => onPin(thread.id, !isPinned) }}
+              >
                 {isPinned && reorder && (
                   <span
                     class="cf-thread-grip"
@@ -484,7 +493,7 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
                 <button type="button" class="cf-icon cf-thread-tool cf-thread-delete" onClick={() => onDelete(thread.id)} aria-label={t("deleteChat")} title={t("deleteChat")}>
                   <Icon.Trash />
                 </button>
-              </>
+              </Swipe>
             )}
             {tagging === thread.id && (
               <TagEditor tags={thread.tags ?? []} known={known} onChange={(next) => onTags(thread.id, next)} onClose={() => setTagging(null)} />

@@ -129,6 +129,15 @@ export function SettingsView(props: Props): VNode {
           <span class="cf-label">{t("setSelectionButton")}</span>
           <input type="checkbox" checked={settings.selectionButton} onChange={(e) => onChange({ selectionButton: e.currentTarget.checked })} />
         </label>
+        {typeof navigator.share === "function" && (
+          <>
+            <label class="cf-row toggle">
+              <span class="cf-label">{t("uxShareMarks")}</span>
+              <input type="checkbox" checked={settings.shareMarks} onChange={(e) => onChange({ shareMarks: e.currentTarget.checked })} />
+            </label>
+            <p class="cf-hint">{t("uxShareMarksHint")}</p>
+          </>
+        )}
       </section>
 
       <InsertSettingsGroup site={site} touch={props.platform === "ios" || props.platform === "ipados"} onOpenTemplates={props.onOpenTemplates} />

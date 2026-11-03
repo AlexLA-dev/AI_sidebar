@@ -60,13 +60,13 @@ mark.cf-mark {
 .cf-msg-menu button:hover { background: var(--bg-2); }
 .cf-msg-menu button.danger { color: var(--danger); }
 .cf[data-touch] .cf-msg-menu button { padding: 11px 12px; font-size: 15px; }
-/* Mac: pin and delete on hover, at the message's top right. */
-.cf-hover-tools { position: absolute; top: -6px; right: 0; display: none; gap: 2px; padding: 2px; background: var(--bg); border: 1px solid var(--border); border-radius: 9px; box-shadow: 0 2px 8px rgba(0,0,0,.08); z-index: 2; }
-.cf-hover-tools button { display: flex; padding: 5px; border-radius: 6px; color: var(--text-3); }
-.cf-hover-tools button:hover { background: var(--bg-2); color: var(--text); }
+/* Mac: pin, remind and delete in the tools row, on hover (the same as in the menu and on right-click). */
+.cf-hover-tools { display: none; gap: 1px; }
+.cf-hover-tools button { padding: 4px 6px; }
 .cf-hover-tools button.danger:hover { color: var(--danger); }
-.cf:not([data-touch]) .cf-msg:hover > .cf-swipe > .cf-swipe-body > .cf-hover-tools,
-.cf:not([data-touch]) .cf-msg:hover > .cf-hover-tools { display: flex; }
+.cf:not([data-touch]) .cf-msg:hover .cf-hover-tools,
+.cf:not([data-touch]) .cf-msg:focus-within .cf-hover-tools { display: inline-flex; }
+.cf-msg-menu.at { position: fixed; top: 0; left: 0; z-index: 6; }
 .cf-msg { position: relative; }
 
 /* ---- pinned messages at the top of the chat: one bar, as in Telegram */
@@ -93,10 +93,19 @@ mark.cf-mark {
   animation: cf-pop 0.12s ease-out;
 }
 .cf-pinbar-list-title { padding: 6px 10px 4px; font-size: 12px; font-weight: 600; color: var(--pin); }
-.cf-pinbar-list button { display: block; padding: 9px 10px; border-radius: 8px; text-align: left; font-size: 13.5px; color: var(--text); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-.cf-pinbar-list button:hover { background: var(--bg-2); }
-.cf[data-touch] .cf-pinbar-line, .cf[data-touch] .cf-pinbar-list button { font-size: 15px; }
+.cf-pinbar-item { display: flex; align-items: center; border-radius: 8px; }
+.cf-pinbar-item:hover { background: var(--bg-2); }
+.cf-pinbar-item > button:first-child { flex: 1; min-width: 0; display: block; padding: 9px 10px; text-align: left; font-size: 13.5px; color: var(--text); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.cf-pinbar-item.on > button:first-child { color: var(--pin); font-weight: 600; }
+.cf-pinbar-item.on > button:first-child::before { content: ""; display: inline-block; width: 3px; height: 12px; margin-right: 7px; vertical-align: -1px; border-radius: 2px; background: var(--pin); }
+.cf-pinbar-x { flex: none; width: 34px; height: 34px; font-size: 18px; line-height: 1; color: var(--text-3); border-radius: 8px; }
+.cf-pinbar-x:hover { color: var(--text); background: var(--bg-3); }
+.cf-pinbar-unpin-all { margin-top: 4px; padding: 9px 10px; border-top: 1px solid var(--border); border-radius: 0 0 8px 8px; text-align: left; font-size: 13.5px; color: var(--danger); }
+.cf[data-touch] .cf-pinbar-line, .cf[data-touch] .cf-pinbar-item > button:first-child, .cf[data-touch] .cf-pinbar-unpin-all { font-size: 15px; }
+.cf[data-touch] .cf-pinbar-x { width: 42px; height: 42px; }
 .cf[data-touch] .cf-pinbar-all { width: 46px; }
+.cf-msg.pin-flash { animation: cf-pin-flash 1.2s ease; border-radius: 12px; }
+@keyframes cf-pin-flash { 0%, 55% { background: color-mix(in srgb, var(--pin) 18%, transparent); box-shadow: 0 0 0 6px color-mix(in srgb, var(--pin) 18%, transparent); } 100% { background: transparent; box-shadow: 0 0 0 6px transparent; } }
 .cf-msg.pinned-msg > .cf-swipe > .cf-swipe-body::before,
 .cf-msg.pinned-msg::before { content: ""; position: absolute; left: -8px; top: 6px; width: 3px; height: 18px; border-radius: 2px; background: var(--pin); }
 
@@ -107,9 +116,11 @@ mark.cf-mark {
 }
 .cf-msg.user .cf-remind-chip { align-self: flex-end; }
 .cf-remind-chip.past { color: var(--text-3); background: var(--bg-2); }
-.cf-sheet-back { position: absolute; inset: 0; z-index: 5; display: flex; align-items: flex-end; background: rgba(0, 0, 0, 0.28); animation: cf-fade 0.15s ease; }
+.cf-sheet-back { position: absolute; left: 0; right: 0; top: 0; bottom: 0; z-index: 5; display: flex; align-items: flex-end; background: rgba(0, 0, 0, 0.28); animation: cf-fade 0.15s ease; }
+.cf-sheet-back.page { position: fixed; z-index: 2147483000; align-items: center; justify-content: center; padding: 16px; font-family: var(--font); color: var(--text); }
+.cf-sheet-back.page .cf-sheet { width: min(420px, 100%); border-radius: 16px; padding-bottom: 10px; }
 .cf-sheet {
-  width: 100%; max-height: 80%; overflow: auto; padding: 10px 10px calc(10px + env(safe-area-inset-bottom));
+  width: 100%; max-height: 100%; overflow: auto; padding: 10px;
   background: var(--bg); border-radius: 16px 16px 0 0; box-shadow: var(--shadow);
   animation: cf-up 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
@@ -126,20 +137,16 @@ mark.cf-mark {
 @keyframes cf-up { from { transform: translateY(30px); opacity: 0; } to { transform: none; opacity: 1; } }
 @keyframes cf-fade { from { opacity: 0; } to { opacity: 1; } }
 
-/* ---- "Deleted · Undo" */
-.cf-undo {
-  position: absolute; left: 12px; right: 12px; bottom: 112px; z-index: 4;
-  display: flex; align-items: center; gap: 10px; padding: 9px 8px 9px 14px;
-  background: #26252c; color: #fff; border-radius: 12px; box-shadow: var(--shadow); font-size: 13.5px;
-  animation: cf-up 0.18s ease-out;
-}
-.cf-undo span { flex: 1; }
-.cf-undo button { font-weight: 600; color: #93c5fd; padding: 4px 8px; }
-.cf-undo .cf-undo-x { color: #b6b3c0; font-size: 18px; line-height: 1; }
-
-/* ---- the bell by a selection on a page (layout check only) */
+/* ---- the bell by a selection on a page: remind me to check this page */
 .cf-bubble button.cf-sel-watch svg { color: var(--text-3); }
 
 /* Notes keep to the right; the swipe takes the whole row. */
 .cf-msg.user > .cf-swipe { align-self: stretch; }
 .cf-msg.user > .cf-swipe > .cf-swipe-body { display: flex; flex-direction: column; align-items: flex-end; }
+
+/* The undo bar on the chat list (the chat has it over its question field). */
+.cf-undo-host { position: absolute; left: 0; right: 0; bottom: 12px; height: 0; z-index: 30; }
+/* A chat in the list: the swipe takes its row (title, tools). */
+.cf-thread .cf-thread-swipe { display: flex; align-items: stretch; flex: 1; min-width: 0; }
+.cf-thread .cf-thread-swipe > .cf-swipe-body { display: flex; align-items: center; flex: 1; min-width: 0; gap: 2px; }
+.cf-thread .cf-swipe-under { bottom: 0; border-radius: 10px; }
