@@ -69,17 +69,34 @@ mark.cf-mark {
 .cf:not([data-touch]) .cf-msg:hover > .cf-hover-tools { display: flex; }
 .cf-msg { position: relative; }
 
-/* ---- pinned messages at the top of the chat */
-.cf-pinned {
-  position: sticky; top: 0; z-index: 2; margin: -4px 0 12px; padding: 6px 8px 6px 10px;
-  background: color-mix(in srgb, var(--bg) 92%, transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
-  border: 1px solid var(--border); border-left: 3px solid var(--pin); border-radius: 10px;
+/* ---- pinned messages at the top of the chat: one bar, as in Telegram */
+.cf-pinbar {
+  /* Stuck to the very top of the list, over its 14px padding, so nothing shows above it. */
+  position: sticky; top: -14px; z-index: 2; display: flex; align-items: stretch; margin: -14px -14px 12px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
 }
-.cf-pinned-head { display: flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 600; color: var(--pin); text-transform: none; }
-.cf-pinned-more { margin-left: auto; font-size: 11.5px; color: var(--text-3); padding: 0 4px; }
-.cf-pinned-row { display: flex; align-items: center; gap: 6px; width: 100%; padding: 2px 0; text-align: left; font-size: 13px; color: var(--text); }
-.cf-pinned-text { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; min-width: 0; }
-.cf-pinned-note { flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--note); }
+.cf-pinbar-main { flex: 1; min-width: 0; display: flex; align-items: stretch; gap: 9px; padding: 7px 6px 7px 8px; text-align: left; }
+.cf-pinbar-segments { flex: none; display: flex; flex-direction: column; gap: 2px; width: 2.5px; padding: 1px 0; }
+.cf-pinbar-segments span { border-radius: 2px; background: color-mix(in srgb, var(--pin) 30%, transparent); }
+.cf-pinbar-segments span.on { background: var(--pin); }
+.cf-pinbar-text { display: flex; flex-direction: column; min-width: 0; gap: 1px; }
+.cf-pinbar-label { font-size: 12px; font-weight: 600; color: var(--pin); }
+.cf-pinbar-line { display: block; font-size: 13.5px; color: var(--text); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.cf-pinbar-note { display: inline-block; flex: none; width: 6px; height: 6px; margin-right: 6px; vertical-align: 2px; border-radius: 50%; background: var(--note); }
+.cf-pinbar-all { flex: none; display: flex; align-items: center; justify-content: center; width: 40px; color: var(--text-3); }
+.cf-pinbar-all:hover, .cf-pinbar-all[aria-expanded="true"] { color: var(--pin); }
+.cf-pinbar-list {
+  position: absolute; top: calc(100% + 4px); left: 8px; right: 8px; z-index: 3; max-height: 260px; overflow: auto;
+  display: flex; flex-direction: column; padding: 4px;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow);
+  animation: cf-pop 0.12s ease-out;
+}
+.cf-pinbar-list-title { padding: 6px 10px 4px; font-size: 12px; font-weight: 600; color: var(--pin); }
+.cf-pinbar-list button { display: block; padding: 9px 10px; border-radius: 8px; text-align: left; font-size: 13.5px; color: var(--text); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.cf-pinbar-list button:hover { background: var(--bg-2); }
+.cf[data-touch] .cf-pinbar-line, .cf[data-touch] .cf-pinbar-list button { font-size: 15px; }
+.cf[data-touch] .cf-pinbar-all { width: 46px; }
 .cf-msg.pinned-msg > .cf-swipe > .cf-swipe-body::before,
 .cf-msg.pinned-msg::before { content: ""; position: absolute; left: -8px; top: 6px; width: 3px; height: 18px; border-radius: 2px; background: var(--pin); }
 

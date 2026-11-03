@@ -8,7 +8,8 @@ import type { Entry } from "../../shared/conversation"
 import { t } from "../../shared/i18n"
 import { addMark, removeMark } from "../../shared/marks"
 import { copyRich, panelRange, richHtml, selectionIn } from "./marks"
-import { Bell, FloatAt, Marker, MessageMenu, More, PinIcon, PinnedStrip, RemindChip, RemindSheet, TrashIcon, UndoBar } from "./MessageUx"
+import { Bell, FloatAt, Marker, MessageMenu, More, PinIcon, RemindChip, RemindSheet, TrashIcon, UndoBar } from "./MessageUx"
+import { PinnedBar } from "./PinnedBar"
 import { Swipe } from "./Swipe"
 
 type Setter = (update: (list: Entry[]) => Entry[]) => void
@@ -161,8 +162,9 @@ export function useMessageUx({ messages, setMessages, chatId, chatTitle, list, t
   // ---------------------------------------------------------- what App renders
   const pinnedItems = messages.map((entry, index) => ({ index, entry })).filter((x) => x.entry.pinned && (x.entry.role === "assistant" || x.entry.note))
   const strip = (
-    <PinnedStrip
+    <PinnedBar
       items={pinnedItems}
+      list={list}
       onOpen={(index) => {
         const el = list.current?.querySelector<HTMLElement>(`[data-index="${index}"]`)
         el?.scrollIntoView({ block: "center", behavior: "smooth" })
