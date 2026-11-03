@@ -122,6 +122,38 @@ test("nothing moves from or into \"Ask your chats\", to the same chat, or out of
   assert.equal(moveEntries({ s }, {}, "x", 0, 0, "t"), null)
 })
 
+test("a moved message keeps every field (chat UX's highlights, pins, reminders) and its key; undo and a new chat too", () => {
+  // Fields this code doesn't know (chat-ux-25: marks, pinned, remind) ride along untouched.
+  const ux = (extra: Record<string, unknown>) => extra as Partial<Entry>
+  const asked = q("Range in winter?", "https://car/1", 200)
+  const answer = a("About 380 km", ux({ marks: [{ s: 6, e: 12, q: "380 km" }], remind: { at: 9_000_000, dev: "iphone-1" }, tags: ["Cars"] }))
+  const pinnedNote = { ...note("check the heat pump", "https://car/1", 210), id: "note00000001", t: 210, ...ux({ pinned: 5_000 }) }
+  const source = thread("s", [q("Sofa?", "https://sofa/1", 100), a("Fits"), asked, answer, pinnedNote], { a: 210 })
+  const target = thread("t", [q("Car?", "https://car/0", 150), a("Yes")], { a: 150 })
+  const block = source.m.slice(2)
+  const same = (moved: Entry[]) => {
+    assert.deepEqual(moved.map(entryKey), block.map(entryKey))
+    assert.deepEqual(moved.map(({ id: _id, from: _from, ...rest }) => rest), block.map(({ id: _id, ...rest }) => rest))
+  }
+
+  const moved = moveEntries({ s: source, t: target }, {}, "s", 2, 4, "t", 1_000)!
+  assert.deepEqual(moved.threads.t.m.map((e) => e.content), ["Car?", "Yes", "Range in winter?", "About 380 km", "check the heat pump"])
+  same(moved.threads.t.m.slice(2))
+  // A message from before 2.5 takes its key as its id, so a reminder's link finds it by the same key.
+  assert.equal(moved.threads.t.m[2].id, entryKey(asked))
+  assert.equal(moved.threads.t.m[4].id, "note00000001")
+
+  // Undo after the target changed: the messages go back by key with every field, only `from` gone.
+  const t2 = moved.threads.t
+  const back = undoMove({ ...moved.threads, t: { ...t2, u: 1_050, m: [...t2.m, q("New", "https://car/2", 1_040), a("n")] } }, {}, moved.undo, 1_200)
+  same(back.s.m.slice(2))
+  assert.ok(back.s.m.every((e) => !e.from))
+
+  // "To a new chat".
+  const split = moveEntries({ s: source }, {}, "s", 2, 4, "fresh", 1_000)!
+  same(split.threads.fresh.m)
+})
+
 test("undo: both chats as they were when nothing changed since; else the messages go back by key", () => {
   const source = thread("s", [q("A", "https://a/1", 100), a("a"), q("B", "https://b/1", 200), a("b"), q("C", "https://a/1", 300), a("c")], { a: 300 })
   const target = thread("t", [q("T", "https://b/2", 150), a("t")], { a: 150 })

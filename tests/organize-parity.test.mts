@@ -157,6 +157,22 @@ const cases: Case[] = [
     ] } }
 ]
 
+// Chat UX's fields (highlights, pins, reminders) ride along with a move, its undo and a new chat, the same in the app.
+{
+  const ux = { id: "ux", u: 3, a: 3_000, m: [
+    q("Sofa?", "https://ikea.example/sofa", 1_000), a("Fits"),
+    q("Range in winter?", "https://car.example/1", 2_000),
+    a("About 380 km", { marks: [{ s: 6, e: 12, q: "380 km" }], remind: { at: 9_000_000, dev: "iphone-1" }, tags: ["Cars"] } as Partial<Entry>),
+    { role: "user", content: "check the heat pump", note: true, id: "note00000001", t: 2_100, pinned: 5_000, page: page("https://car.example/1", 2_100) } as Entry
+  ] } as Thread
+  cases.push(
+    { op: "move", source: ux, target, targetId: "t", start: 2, end: 4, now: 9_000 },
+    { op: "move", source: ux, targetId: "fresh", start: 2, end: 4, now: 9_000 },
+    { op: "undo", source: ux, target, targetId: "t", start: 2, end: 4, now: 9_000, later: 9_500,
+      changedTarget: { ...target, u: 9_200, m: [...target.m, q("New", "https://jg.example/x", 9_100)] } }
+  )
+}
+
 // The sweep: a stale source brought a moved block back; two moves of one block; an unrelated twin stays.
 {
   const moved = moveEntries({ s: source, t: target }, {}, "s", 5, 6, "t", 9_000)!
