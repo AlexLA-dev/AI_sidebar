@@ -544,6 +544,8 @@ final class ChatLibrary: ObservableObject {
             .filter { !$0.entries.isEmpty }
             .sorted(by: Self.listOrder)
         loaded = true
+        // No chats left ("Delete all chats" in Safari): the messages' vectors (organizing) go with them.
+        if threads.isEmpty { OrganizeModel.shared.forget() }
     }
 
     /// Pinned chats first in their order, then the others, the latest first (the extension's order).
