@@ -821,6 +821,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   useEffect(() => {
     if (!bubble) {
       setSelDraft("")
+      // The field went away with the buttons while focused (after Note): no blur comes, and a
+      // "typing" left on would hold back every later selection on the page.
+      selTyping.current = false
       return
     }
     if (selHintAsked.current) return
