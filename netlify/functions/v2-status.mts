@@ -4,6 +4,7 @@ import { config as settings } from "../shared/config.mts"
 import { limitedBefore, peek, touchInstall } from "../shared/db.mts"
 import { clip, ipSubject, isUuid, json, preflight, readJson } from "../shared/http.mts"
 import { countersFor, proOffer, resolveAccess, visibleUsage } from "../shared/plan.mts"
+import { vectorSpace } from "../shared/organize.mts"
 import { promoConfigured } from "../shared/promo.mts"
 
 /**
@@ -14,6 +15,8 @@ import { promoConfigured } from "../shared/promo.mts"
  * today or was before; else null.
  * `upgradeOffer`: {discount} — an Own key subscriber can move to Pro at a discount (a promotional offer the
  * app gets signed by /api/v2/promo); null when it isn't set up. When to show it is the client's call.
+ * `organize`: {on, space, config} — organizing the chats (2.5): switched on, the vector space to key vectors by,
+ * and the thresholds (src/shared/organize.ts), for every plan (free users see what it does).
  */
 export default async (req: Request, context: Context): Promise<Response> => {
   if (req.method === "OPTIONS") return preflight()
@@ -52,7 +55,8 @@ export default async (req: Request, context: Context): Promise<Response> => {
     limitedBefore: limited === true,
     offer,
     upgradeOffer: access.plan === "byok" && promoConfigured() ? { discount: settings.promoDiscount } : null,
-    limits: { freeDaily: settings.freeDailyLimit, proWeekly: settings.proWeeklyLimit, searchFreeDaily: settings.searchFreeDailyLimit, searchProWeekly: settings.searchProWeeklyLimit }
+    limits: { freeDaily: settings.freeDailyLimit, proWeekly: settings.proWeeklyLimit, searchFreeDaily: settings.searchFreeDailyLimit, searchProWeekly: settings.searchProWeeklyLimit },
+    organize: { on: settings.organize.enabled, space: vectorSpace(), config: settings.organize.thresholds }
   })
 }
 

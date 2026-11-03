@@ -64,7 +64,7 @@ function swift(cases: Case[]): unknown[] {
 
 // ------------------------------------------------------------ cases
 
-const page = (url: string, at?: number, extra: Record<string, unknown> = {}) => ({ url, title: url.split("/").pop(), hash: "h1", ...(at !== undefined ? { at } : {}), ...extra })
+const page = (url: string, at?: number, extra: Record<string, unknown> = {}) => ({ url, title: url.split("/").pop() ?? url, hash: "h1", ...(at !== undefined ? { at } : {}), ...extra })
 const q = (content: string, url: string, at?: number, extra: Partial<Entry> = {}): Entry => ({ role: "user", content, page: page(url, at), ...extra })
 const a = (content: string, extra: Partial<Entry> = {}): Entry => ({ role: "assistant", content, ...extra })
 
