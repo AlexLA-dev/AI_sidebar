@@ -112,7 +112,7 @@ export function TemplateEditor(p: Props): VNode {
       ? editTemplate(existing, { title, text: body, keywords: words }, now)
       : makeTemplate({ text: body, title, keywords: words, site: p.host || undefined }, now)
     await saveTemplate(saved)
-    if (!existing) report({ kind: "template_created", from: p.start.from, blanks: blanks(body).length, ai: aiUsed })
+    if (!existing) report({ kind: "insert_tpl_new", from: p.start.from, blanks: blanks(body).length, ai: aiUsed })
     p.onDone(saved)
   }
 

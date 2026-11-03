@@ -44,7 +44,7 @@ export type InsertEvent =
   | { kind: "insert_copied"; via: InsertVia }
   | { kind: "insert_template"; via: InsertVia; blanks: number; filled: "ai" | "manual" | "none" }
   | { kind: "insert_answer"; what: "answer" | "note" }
-  | { kind: "template_created"; from: "selection" | "plus" | "pin"; blanks: number; ai: boolean }
+  | { kind: "insert_tpl_new"; from: "selection" | "plus" | "pin"; blanks: number; ai: boolean }
   | { kind: "insert_fill"; blanks: number; found: number }
   | { kind: "insert_fill_edit"; blanks: number }
   | { kind: "insert_manual"; field: "control" | "editor" }

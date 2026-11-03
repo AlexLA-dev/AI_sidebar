@@ -734,6 +734,234 @@
  "tagsButton": {
   "message": "Tag"
  },
+ "qiTitle": {
+  "message": "Quick insert"
+ },
+ "qiButton": {
+  "message": "Quick insert: copied text, templates, ContextFlow's answer"
+ },
+ "qiCommand": {
+  "message": "Quick insert at the cursor"
+ },
+ "qiSearch": {
+  "message": "Find a template"
+ },
+ "qiNewTemplate": {
+  "message": "New template"
+ },
+ "qiEditTemplate": {
+  "message": "Template"
+ },
+ "qiCopied": {
+  "message": "Copied"
+ },
+ "qiClear": {
+  "message": "Clear"
+ },
+ "qiCopiedOff": {
+  "message": "Copied is off. Turn it on below."
+ },
+ "qiCopiedEmpty": {
+  "message": "Copy text on any page in Safari, and it shows up here."
+ },
+ "qiNothing": {
+  "message": "Nothing found"
+ },
+ "qiToTemplate": {
+  "message": "Make a template"
+ },
+ "qiTemplates": {
+  "message": "Templates"
+ },
+ "qiTemplatesTitle": {
+  "message": "Templates"
+ },
+ "qiAllTemplates": {
+  "message": "All templates"
+ },
+ "qiTemplatesEmpty": {
+  "message": "No templates yet. Tap + or select a reply you send often and tap Template."
+ },
+ "qiTemplatesIntro": {
+  "message": "Save the replies you write again and again. ContextFlow marks what changes, like a name or a date, and can fill it in from the page."
+ },
+ "qiFindAi": {
+  "message": "Find by meaning"
+ },
+ "qiFinding": {
+  "message": "Looking…"
+ },
+ "qiFromCf": {
+  "message": "From ContextFlow"
+ },
+ "qiLastAnswer": {
+  "message": "Last answer"
+ },
+ "qiLastNote": {
+  "message": "Last note"
+ },
+ "qiKeepCopied": {
+  "message": "Keep copied text"
+ },
+ "qiPrivacy": {
+  "message": "Copied text stays on this {0} and is erased after 24 hours."
+ },
+ "qiOnIphone": {
+  "message": "iPhone"
+ },
+ "qiOnIpad": {
+  "message": "iPad"
+ },
+ "qiOnMac": {
+  "message": "Mac"
+ },
+ "qiOnDevice": {
+  "message": "device"
+ },
+ "qiDontKeepOnSite": {
+  "message": "Don't keep on {0}"
+ },
+ "qiKeepOnSite": {
+  "message": "Keep on {0} again"
+ },
+ "qiTip": {
+  "message": "New: tap to insert what you copied in other tabs, a template or ContextFlow's answer."
+ },
+ "qiKeyInsert": {
+  "message": "insert"
+ },
+ "qiKeyChoose": {
+  "message": "choose"
+ },
+ "qiKeyClose": {
+  "message": "close"
+ },
+ "qiBlanksMark": {
+  "message": "blanks"
+ },
+ "qiBlanksCount": {
+  "message": "Blanks: {0}"
+ },
+ "qiPasteManually": {
+  "message": "Copied. Paste it into the field yourself."
+ },
+ "qiInsert": {
+  "message": "Insert"
+ },
+ "qiInsertIntoField": {
+  "message": "Insert into field"
+ },
+ "qiFillFromPage": {
+  "message": "Fill from the page"
+ },
+ "qiFillAgain": {
+  "message": "Fill again"
+ },
+ "qiFilling": {
+  "message": "Filling…"
+ },
+ "qiFillHint": {
+  "message": "Type in the blanks, pick from Copied, or let ContextFlow fill them from the page."
+ },
+ "qiFillDone": {
+  "message": "Highlighted: taken from the page. Check before sending."
+ },
+ "qiFillPartly": {
+  "message": "Highlighted: taken from the page. An empty blank wasn't found: fill it in yourself."
+ },
+ "qiFillLeft": {
+  "message": "{0} fills left today."
+ },
+ "qiFillLimit": {
+  "message": "That's all free fills for today. With Pro there's no limit, and the blanks can still be filled in by hand."
+ },
+ "qiFillByHand": {
+  "message": "Fill in by hand"
+ },
+ "qiFillConsent": {
+  "message": "To fill the blanks, ContextFlow sends this page's text and the template to Anthropic's Claude. Nothing is stored."
+ },
+ "qiPickCopied": {
+  "message": "Copied for “{0}”"
+ },
+ "qiAdapt": {
+  "message": "Fit to the message"
+ },
+ "qiAdaptLabel": {
+  "message": "Fit the template to this page"
+ },
+ "qiAdaptPrompt": {
+  "message": "Rewrite this template as a reply that fits the page I'm on. Keep its meaning, tone and length; fill in what the page tells you, and leave the rest as it is. Answer with the reply only.\n\nTemplate:\n{0}"
+ },
+ "qiTemplateButton": {
+  "message": "Template"
+ },
+ "qiTemplateTitle": {
+  "message": "Title"
+ },
+ "qiTemplateText": {
+  "message": "Text. Put blanks in braces, like {Name}."
+ },
+ "qiMakeBlank": {
+  "message": "Blank"
+ },
+ "qiBlankDefault": {
+  "message": "Blank"
+ },
+ "qiUnmark": {
+  "message": "make plain text again"
+ },
+ "qiMarking": {
+  "message": "Marking what changes…"
+ },
+ "qiMarkAi": {
+  "message": "Mark blanks"
+ },
+ "qiMarkedHint": {
+  "message": "The blanks are marked. Tap one to make it plain text again."
+ },
+ "qiMarkedNone": {
+  "message": "Nothing here looks like it changes. Select a word and tap Blank to add one."
+ },
+ "qiMarkFailed": {
+  "message": "Couldn't mark blanks now. It's saved as plain text, and blanks can be added by hand."
+ },
+ "qiMarkConsent": {
+  "message": "To mark the blanks, ContextFlow sends this text to Anthropic's Claude. Nothing is stored."
+ },
+ "qiBlankHint": {
+  "message": "Blanks are filled in when the template is inserted."
+ },
+ "qiKeywords": {
+  "message": "Words to find it by, separated by commas"
+ },
+ "qiSave": {
+  "message": "Save"
+ },
+ "qiDelete": {
+  "message": "Delete"
+ },
+ "qiSetButton": {
+  "message": "Button by text fields"
+ },
+ "qiSetCopiedHint": {
+  "message": "The last 5 pieces of text copied on pages. They stay on this device and are erased after 24 hours. Nothing from password or card fields, or in Private Browsing."
+ },
+ "qiClearCopied": {
+  "message": "Clear Copied"
+ },
+ "qiCleared": {
+  "message": "Cleared"
+ },
+ "qiSetSign": {
+  "message": "Sign in a field"
+ },
+ "qiSetSignHint": {
+  "message": "Type {0} and a few words of a template in any field."
+ },
+ "qiSetShortcut": {
+  "message": "On a Mac or an iPad with a keyboard, ⌃⇧V opens the list."
+ },
  "hintGot": {
   "message": "Got it"
  },

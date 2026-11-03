@@ -58,6 +58,13 @@
         "mac": "MacCtrl+Shift+E"
       },
       "description": "__MSG_actionTitle__"
+    },
+    "quick_insert": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+V",
+        "mac": "MacCtrl+Shift+V"
+      },
+      "description": "__MSG_qiCommand__"
     }
   },
   "browser_specific_settings": {

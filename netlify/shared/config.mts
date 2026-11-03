@@ -75,6 +75,24 @@ export const config = {
   freeIpDailyLimit: int("FREE_IP_DAILY_LIMIT", 40),
   freeGlobalDailyLimit: int("FREE_GLOBAL_DAILY_LIMIT", 3000),
   proWeeklyLimit: int("PRO_WEEKLY_LIMIT", 375),
+  // Quick insert's AI (Claude Haiku 5.5): marking a template's blanks, filling them from the page, finding a
+  // template by meaning. The owner's choice: Free fills its blanks with AI 5 times a day (apart from the 5
+  // answers), Pro and Own key without a limit; marking and search have no limit for anyone. The caps
+  // marked "safety" only stop abuse and runaway clients, nobody sees them.
+  insert: {
+    model: env("INSERT_MODEL") ?? "claude-haiku-5-5",
+    fillFreeDaily: int("INSERT_FILL_FREE_DAILY", 5),
+    // Safety: AI fills a day per paid subscription, marks and searches a day per install, and all of them a day.
+    fillPaidDaily: int("INSERT_FILL_PAID_DAILY", 1000),
+    markDaily: int("INSERT_MARK_DAILY", 300),
+    ipDaily: int("INSERT_IP_DAILY", 1000),
+    globalDaily: int("INSERT_GLOBAL_DAILY", 60_000),
+    // Quick insert's counters accepted per install a day (apart from the funnel's).
+    eventDaily: int("INSERT_EVENT_DAILY", 300),
+    // USD per million tokens, for the spend in the logs (Claude Haiku 5.5 list prices up to 100K tokens).
+    priceIn: Number(env("INSERT_PRICE_IN") ?? 0.1),
+    priceOut: Number(env("INSERT_PRICE_OUT") ?? 0.5)
+  },
   legacyIpDailyLimit: int("LEGACY_IP_DAILY_LIMIT", 10),
 
   ipPepper: env("CF_IP_PEPPER") ?? "contextflow-ip-v1",

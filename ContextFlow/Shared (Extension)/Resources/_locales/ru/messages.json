@@ -734,6 +734,234 @@
  "tagsButton": {
   "message": "Тег"
  },
+ "qiTitle": {
+  "message": "Быстрая вставка"
+ },
+ "qiButton": {
+  "message": "Быстрая вставка: скопированное, шаблоны, ответ ContextFlow"
+ },
+ "qiCommand": {
+  "message": "Быстрая вставка у курсора"
+ },
+ "qiSearch": {
+  "message": "Найти шаблон"
+ },
+ "qiNewTemplate": {
+  "message": "Новый шаблон"
+ },
+ "qiEditTemplate": {
+  "message": "Шаблон"
+ },
+ "qiCopied": {
+  "message": "Скопированное"
+ },
+ "qiClear": {
+  "message": "Очистить"
+ },
+ "qiCopiedOff": {
+  "message": "«Скопированное» выключено. Включите его внизу."
+ },
+ "qiCopiedEmpty": {
+  "message": "Скопируйте текст на любой странице в Safari — он появится здесь."
+ },
+ "qiNothing": {
+  "message": "Ничего не нашлось"
+ },
+ "qiToTemplate": {
+  "message": "Сделать шаблоном"
+ },
+ "qiTemplates": {
+  "message": "Шаблоны"
+ },
+ "qiTemplatesTitle": {
+  "message": "Шаблоны"
+ },
+ "qiAllTemplates": {
+  "message": "Все шаблоны"
+ },
+ "qiTemplatesEmpty": {
+  "message": "Шаблонов пока нет. Нажмите + или выделите ответ, который пишете часто, и нажмите «Шаблон»."
+ },
+ "qiTemplatesIntro": {
+  "message": "Сохраняйте ответы, которые пишете снова и снова. ContextFlow отметит, что в них меняется, — имя, дату — и сможет взять это со страницы."
+ },
+ "qiFindAi": {
+  "message": "Найти по смыслу"
+ },
+ "qiFinding": {
+  "message": "Ищу…"
+ },
+ "qiFromCf": {
+  "message": "Из ContextFlow"
+ },
+ "qiLastAnswer": {
+  "message": "Последний ответ"
+ },
+ "qiLastNote": {
+  "message": "Последняя заметка"
+ },
+ "qiKeepCopied": {
+  "message": "Сохранять скопированное"
+ },
+ "qiPrivacy": {
+  "message": "Скопированное хранится только на этом {0} и стирается через 24 часа."
+ },
+ "qiOnIphone": {
+  "message": "iPhone"
+ },
+ "qiOnIpad": {
+  "message": "iPad"
+ },
+ "qiOnMac": {
+  "message": "Mac"
+ },
+ "qiOnDevice": {
+  "message": "устройстве"
+ },
+ "qiDontKeepOnSite": {
+  "message": "Не сохранять на {0}"
+ },
+ "qiKeepOnSite": {
+  "message": "Снова сохранять на {0}"
+ },
+ "qiTip": {
+  "message": "Новое: касание вставит скопированное на других вкладках, шаблон или ответ ContextFlow."
+ },
+ "qiKeyInsert": {
+  "message": "вставить"
+ },
+ "qiKeyChoose": {
+  "message": "выбрать"
+ },
+ "qiKeyClose": {
+  "message": "закрыть"
+ },
+ "qiBlanksMark": {
+  "message": "пропуски"
+ },
+ "qiBlanksCount": {
+  "message": "Пропусков: {0}"
+ },
+ "qiPasteManually": {
+  "message": "Скопировано. Вставьте в поле вручную."
+ },
+ "qiInsert": {
+  "message": "Вставить"
+ },
+ "qiInsertIntoField": {
+  "message": "Вставить в поле"
+ },
+ "qiFillFromPage": {
+  "message": "Заполнить со страницы"
+ },
+ "qiFillAgain": {
+  "message": "Заполнить снова"
+ },
+ "qiFilling": {
+  "message": "Заполняю…"
+ },
+ "qiFillHint": {
+  "message": "Впишите пропуски, выберите из «Скопированного» или дайте ContextFlow заполнить их со страницы."
+ },
+ "qiFillDone": {
+  "message": "Жёлтым — взято со страницы. Проверьте перед отправкой."
+ },
+ "qiFillPartly": {
+  "message": "Жёлтым — взято со страницы. Пустой пропуск не нашёлся: впишите сами."
+ },
+ "qiFillLeft": {
+  "message": "Сегодня осталось заполнений: {0}."
+ },
+ "qiFillLimit": {
+  "message": "Бесплатные заполнения на сегодня закончились. В Pro лимита нет, а вписать пропуски можно и вручную."
+ },
+ "qiFillByHand": {
+  "message": "Вписать вручную"
+ },
+ "qiFillConsent": {
+  "message": "Чтобы заполнить пропуски, ContextFlow отправит текст этой страницы и шаблон в Claude от Anthropic. Ничего не хранится."
+ },
+ "qiPickCopied": {
+  "message": "Скопированное для «{0}»"
+ },
+ "qiAdapt": {
+  "message": "Подстроить под письмо"
+ },
+ "qiAdaptLabel": {
+  "message": "Подстроить шаблон под эту страницу"
+ },
+ "qiAdaptPrompt": {
+  "message": "Перепиши этот шаблон в ответ, который подходит к открытой странице. Сохрани смысл, тон и длину; впиши то, что известно со страницы, остальное оставь как есть. Ответь только текстом ответа.\n\nШаблон:\n{0}"
+ },
+ "qiTemplateButton": {
+  "message": "Шаблон"
+ },
+ "qiTemplateTitle": {
+  "message": "Название"
+ },
+ "qiTemplateText": {
+  "message": "Текст. Пропуски — в фигурных скобках, например {Имя}."
+ },
+ "qiMakeBlank": {
+  "message": "Пропуск"
+ },
+ "qiBlankDefault": {
+  "message": "Пропуск"
+ },
+ "qiUnmark": {
+  "message": "сделать обычным текстом"
+ },
+ "qiMarking": {
+  "message": "Отмечаю, что меняется…"
+ },
+ "qiMarkAi": {
+  "message": "Отметить пропуски"
+ },
+ "qiMarkedHint": {
+  "message": "Пропуски отмечены. Коснитесь пропуска, чтобы сделать его обычным текстом."
+ },
+ "qiMarkedNone": {
+  "message": "Похоже, здесь ничего не меняется. Выделите слово и нажмите «Пропуск», чтобы добавить его."
+ },
+ "qiMarkFailed": {
+  "message": "Сейчас не получилось отметить пропуски. Шаблон сохранится простым, пропуски можно добавить вручную."
+ },
+ "qiMarkConsent": {
+  "message": "Чтобы отметить пропуски, ContextFlow отправит этот текст в Claude от Anthropic. Ничего не хранится."
+ },
+ "qiBlankHint": {
+  "message": "Пропуски заполняются при вставке шаблона."
+ },
+ "qiKeywords": {
+  "message": "Слова для поиска через запятую"
+ },
+ "qiSave": {
+  "message": "Сохранить"
+ },
+ "qiDelete": {
+  "message": "Удалить"
+ },
+ "qiSetButton": {
+  "message": "Кнопка у текстовых полей"
+ },
+ "qiSetCopiedHint": {
+  "message": "Последние 5 фрагментов, скопированных на страницах. Хранятся только на этом устройстве и стираются через 24 часа. Ничего из полей паролей и карт и в режиме «Частный доступ»."
+ },
+ "qiClearCopied": {
+  "message": "Очистить «Скопированное»"
+ },
+ "qiCleared": {
+  "message": "Очищено"
+ },
+ "qiSetSign": {
+  "message": "Знак в поле"
+ },
+ "qiSetSignHint": {
+  "message": "Наберите {0} и пару слов из шаблона в любом поле."
+ },
+ "qiSetShortcut": {
+  "message": "На Mac и на iPad с клавиатурой список открывается по ⌃⇧V."
+ },
  "hintGot": {
   "message": "Понятно"
  },

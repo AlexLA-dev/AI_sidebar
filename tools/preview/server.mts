@@ -157,6 +157,38 @@ function scripted(system: string, last: string): string {
 
 // What the server last asked Claude (model, effort, max_tokens), for checks (GET /last-claude).
 let lastClaudeRequest: unknown = null
+// Quick insert's scripted Haiku: marks what looks like it changes (a name after a greeting, dates, times,
+// long numbers), fills blanks from the page the same way, finds templates sharing a word's start.
+const MONTHS = "января|февраля|марта|апреля|мая|июня|июля|августа|сентября|октября|ноября|декабря|January|February|March|April|May|June|July|August|September|October|November|December"
+const DAYS = "понедельник|вторник|среду|четверг|пятницу|субботу|воскресенье|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday"
+function scriptedInsert(system: string, content: string): unknown {
+  const between = (tag: string) => content.match(new RegExp(`<${tag}>\\n([\\s\\S]*?)\\n</${tag}>`))?.[1] ?? ""
+  const found = (text: string) => ({
+    name: text.match(/(?:Здравствуйте|Привет|Добрый день|Hi|Hello|Dear),?\s+([A-ZА-ЯЁ][a-zа-яё]+)/)?.[1] ?? text.match(/^([A-ZА-ЯЁ][a-zа-яё]+)(?:\s+[A-ZА-ЯЁ][a-zа-яё]+)?:/m)?.[1] ?? "",
+    date: text.match(new RegExp(`\\d{1,2}\\s+(?:${MONTHS})`))?.[0] ?? "",
+    day: text.match(new RegExp(`(?:${DAYS})`, "i"))?.[0] ?? "",
+    time: text.match(/\b\d{1,2}:\d{2}\b/)?.[0] ?? "",
+    number: text.match(/\b\d{4,}[\w-]*/)?.[0] ?? ""
+  })
+  if (system.startsWith("You turn a message")) {
+    const text = between("message")
+    const f = found(text)
+    const blanks = [["Имя", f.name], ["дата", f.date], ["день", f.day], ["время", f.time], ["номер", f.number]].filter(([, v]) => v).map(([label, value]) => ({ label, value }))
+    const words = text.replace(/[^\p{L}\s]/gu, " ").split(/\s+/).filter((w) => w.length > 4)
+    return { title: words.slice(0, 3).join(" ") || "Шаблон", keywords: words.slice(3, 5).map((w) => w.toLowerCase()), blanks }
+  }
+  if (system.startsWith("You fill the blanks")) {
+    const page = between("page")
+    const f = found(page)
+    const labels = [...content.matchAll(/"([^"]+)"/g)].map((m) => m[1])
+    const pick = (label: string) => /им|name/i.test(label) ? f.name : /дат|date/i.test(label) ? f.date : /ден|day/i.test(label) ? f.day : /врем|time/i.test(label) ? f.time : /номер|код|number|code|order/i.test(label) ? f.number : ""
+    return { values: labels.map((label) => ({ label, value: pick(label) })) }
+  }
+  const query = (content.match(/looking for: (.*)/)?.[1] ?? "").toLowerCase().split(/\s+/).filter((w) => w.length > 2).map((w) => w.slice(0, 4))
+  const ids = [...content.matchAll(/^(\S+) \| (.*)$/gm)].filter((m) => query.some((q) => m[2].toLowerCase().includes(q))).map((m) => m[1])
+  return { ids }
+}
+
 const realFetch = globalThis.fetch
 globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
   const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url
@@ -173,6 +205,15 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
   if (url.startsWith("https://api.anthropic.com/v1/messages")) {
     const body = JSON.parse(String(init?.body))
     lastClaudeRequest = { model: body.model, max_tokens: body.max_tokens, output_config: body.output_config, thinking: body.thinking ?? null, fallbacks: body.fallbacks }
+    // Quick insert (JSON answers, not streamed): a scripted Haiku that marks, fills and finds.
+    if (body.output_config?.format) {
+      const answer = scriptedInsert(String(body.system), String(body.messages[0].content))
+      return new Response(JSON.stringify({
+        id: "msg_local", type: "message", role: "assistant", model: body.model,
+        content: [{ type: "text", text: JSON.stringify(answer) }], stop_reason: "end_turn", stop_sequence: null,
+        usage: { input_tokens: 2400, output_tokens: 90 }
+      }), { headers: { "Content-Type": "application/json" } })
+    }
     const fail = process.env.PREVIEW_CLAUDE
     if (fail === "credits") return new Response(JSON.stringify({ type: "error", error: { type: "invalid_request_error", message: "Your credit balance is too low to access the Anthropic API." } }), { status: 400 })
     if (fail === "overloaded") return new Response(JSON.stringify({ type: "error", error: { type: "overloaded_error", message: "Overloaded" } }), { status: 529 })
@@ -239,7 +280,8 @@ const status = (await import("../../netlify/functions/v2-status.mts")).default
 const event = (await import("../../netlify/functions/v2-event.mts")).default
 const find = (await import("../../netlify/functions/v2-find.mts")).default
 const promo = (await import("../../netlify/functions/v2-promo.mts")).default
-const handlers: Record<string, typeof chat> = { "/api/v2/chat": chat, "/api/v2/status": status, "/api/v2/event": event, "/api/v2/find": find, "/api/v2/promo": promo }
+const insert = (await import("../../netlify/functions/v2-insert.mts")).default
+const handlers: Record<string, typeof chat> = { "/api/v2/chat": chat, "/api/v2/status": status, "/api/v2/event": event, "/api/v2/find": find, "/api/v2/promo": promo, "/api/v2/insert": insert }
 
 const pages: Record<string, string> = {
   "/": "article.html",
