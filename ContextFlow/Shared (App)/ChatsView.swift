@@ -1076,7 +1076,7 @@ struct ChatDetailView: View {
         failure = nil
         if noteMode {
             // A note: kept with the chat, never sent to the AI, uses no answers.
-            library.append(thread, [["role": "user", "content": text, "note": true]])
+            library.append(thread, [Organize.stamped(["role": "user", "content": text, "note": true])])
             draft = ""
             noteMode = false
             return
@@ -1091,10 +1091,11 @@ struct ChatDetailView: View {
         streaming = ""
         // A chat without page texts (before 2.4, or Private Browsing) says so once, under its first answer here.
         let noPages = thread.savedPages.isEmpty && !thread.entries.contains { $0.noPages == true }
+        let question = Organize.stamped(["role": "user", "content": text])
         let save = { (answer: String) in
-            var entry: [String: Any] = ["role": "assistant", "content": answer]
+            var entry: [String: Any] = Organize.stamped(["role": "assistant", "content": answer])
             if noPages { entry["noPages"] = true }
-            library.append(thread, [["role": "user", "content": text], entry])
+            library.append(thread, [question, entry])
         }
         Task {
             do {

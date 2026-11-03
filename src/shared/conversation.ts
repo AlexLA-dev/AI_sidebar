@@ -149,7 +149,7 @@ export function selectionNote(selected: string, comment: string, page: PageRef, 
   if (text.length > MAX_NOTE_QUOTE) text = text.slice(0, MAX_NOTE_QUOTE).trimEnd() + "…"
   const quote = quoted(text)
   const note = comment.trim()
-  return { role: "user", content: note ? `${quote}\n\n${note}` : quote, note: true, quote: true, page }
+  return stamped({ role: "user", content: note ? `${quote}\n\n${note}` : quote, note: true, quote: true, page }, page.at)
 }
 
 /**
