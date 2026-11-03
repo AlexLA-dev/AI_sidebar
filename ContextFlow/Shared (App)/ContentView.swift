@@ -86,9 +86,22 @@ struct ContentView: View {
         }
     }
 
+    /// What's new in 2.5 (organizing): once, to those who already have chats.
+    @State private var whatsNew = false
+
+    private func showWhatsNewIfDue() {
+        guard hasChats, !UserDefaults.standard.bool(forKey: "cf_whatsnew_organize") else { return }
+        UserDefaults.standard.set(true, forKey: "cf_whatsnew_organize")
+        whatsNew = true
+    }
+
     var body: some View {
         root
             .tint(brandBlue)
+            .sheet(isPresented: $whatsNew) {
+                OrganizeWhatsNew(pro: store.isPro, openPro: { whatsNew = false; tab = .pro }, close: { whatsNew = false })
+            }
+            .onChange(of: hasChats) { _ in showWhatsNewIfDue() }
             .onReceive(router.$pending.compactMap { $0 }) { url in
                 switch url.host {
                 case "subscribe", "manage":
@@ -104,6 +117,7 @@ struct ContentView: View {
             .task {
                 SharedDefaults.shared.removeLegacyData()
                 chats.refresh()
+                showWhatsNewIfDue()
                 await store.refreshEntitlement()
                 askForReviewIfDue()
                 await activation.launched()
@@ -178,7 +192,7 @@ struct ContentView: View {
             case .home: HomeView(store: store, activation: activation, openPro: { tab = .pro }, openTips: { tab = .tips })
             case .chats: NavigationStack { ChatsView(library: chats, activation: activation, openPro: { tab = .pro }) }
             case .templates: NavigationStack { TemplatesView() }
-            case .tips: TipsView()
+            case .tips: TipsView(openPro: { tab = .pro })
             case .pro: ProView(store: store)
             case .settings: SettingsView(showPlan: $showPlan)
             }
@@ -197,7 +211,7 @@ struct ContentView: View {
 
     #if os(iOS)
     private var tipsTab: some View {
-        NavigationView { TipsView() }
+        NavigationView { TipsView(openPro: { tab = .pro }) }
             .navigationViewStyle(.stack)
             .tabItem { Label("Tips", systemImage: "lightbulb") }
             .tag(AppTab.tips)
@@ -376,6 +390,11 @@ struct HomeView: View {
 
 /// What ContextFlow can do, to look up any time — in the spirit of the Tips app.
 struct TipsView: View {
+    /// The Pro tab (organizing tips, without Pro).
+    var openPro: () -> Void = {}
+    @ObservedObject private var store = StoreKitManager.shared
+    @ObservedObject private var organize = OrganizeModel.shared
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
@@ -388,7 +407,9 @@ struct TipsView: View {
                         Text(group.title)
                             .font(.title3.weight(.semibold))
                         LazyVGrid(columns: [GridItem(.adaptive(minimum: 260), spacing: 12, alignment: .top)], alignment: .leading, spacing: 12) {
-                            ForEach(group.tips.indices, id: \.self) { TipCard(tip: group.tips[$0]) }
+                            ForEach(group.tips.indices, id: \.self) { i in
+                                TipCard(tip: group.tips[i], action: organizeAction(group.tips[i]))
+                            }
                         }
                     }
                 }
@@ -401,6 +422,19 @@ struct TipsView: View {
         }
         .navigationTitle("Tips")
     }
+
+    /// Under the organizing tips: Turn on (Pro, suggestions off; that's the consent) or Try Pro (without Pro).
+    private func organizeAction(_ tip: Tip) -> (label: LocalizedStringKey, run: () -> Void)? {
+        guard tip.demo else { return nil }
+        if !store.isPro {
+            return ("Try Pro", {
+                ChatAI.reportOrganize("organize_promo", ["action": "tap", "where": "tip"])
+                openPro()
+            })
+        }
+        guard !(SharedDefaults.shared.readSettings()?.settings["organize"] as? Bool ?? false) else { return nil }
+        return ("Turn on", { organize.answerConsent(true, from: "tip") })
+    }
 }
 
 struct Tip {
@@ -410,6 +444,8 @@ struct Tip {
     let text: LocalizedStringKey
     // A short recording of the extension doing it (TipClips/<en|ru>/<clip>.mp4).
     var clip: String? = nil
+    // Organizing (2.5): its loop instead of a recording, and a button under it.
+    var demo = false
 }
 
 struct TipGroup {
@@ -444,6 +480,10 @@ struct TipGroup {
                 text: "Select a reply you send often and tap Template: ContextFlow marks the name, the date and whatever else changes. When you insert it, Fill from the page puts them in, highlighted so you can check."),
             Tip(symbol: "doc.on.clipboard", color: .green, title: "Copied, kept for a day",
                 text: "The last 5 things you copied on pages in Safari wait in the list for 24 hours, on this device only. Nothing from password or card fields, or in Private Browsing."),
+            Tip(symbol: "arrow.turn.down.right", color: brandBlue, title: "Where it belongs (Pro)",
+                text: "Asked about a car in the chat about a sofa? Under the answer, ContextFlow suggests the chat it belongs in, or a new one. One tap moves it there, by date; Undo puts it back.", demo: true),
+            Tip(symbol: "tag", color: .purple, title: "Your tags, suggested (Pro)",
+                text: "ContextFlow learns what your tags mean from where you put them, and suggests the right one under a new answer or note. Only your own tags, only when they fit.", demo: true),
             Tip(symbol: "text.quote", color: .orange, title: "Ask or note a selection",
                 text: "Select text on a page: type your own question about it right under the selection, or tap Note to save it to the chat with its page. Notes use no answers.", clip: "select"),
             Tip(symbol: "play.rectangle", color: .red, title: "Ask about a video (Pro)",
@@ -492,16 +532,22 @@ struct TipGroup {
             Tip(symbol: "hand.tap", color: .blue, title: "The ✦ button, your way",
                 text: "Hide the button on a single site, or turn it off everywhere in the extension settings. ContextFlow still opens from Safari's extensions menu."),
             Tip(symbol: "lock.shield", color: .brown, title: "Private by design",
-                text: "ContextFlow reads a page only when you ask, and sends just its text to get the answer. Your chats stay on your devices and in your iCloud.")
+                text: "ContextFlow reads a page only when you ask, and sends just its text to get the answer. Your chats stay on your devices and in your iCloud. With suggestions on, the text of new messages also goes to our server to find where they belong; we don't keep it.")
         ])
     ]
 }
 
 struct TipCard: View {
     let tip: Tip
+    var action: (label: LocalizedStringKey, run: () -> Void)? = nil
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
+            if tip.demo {
+                OrganizeAnimation(big: true)
+                    .frame(maxWidth: .infinity)
+                    .padding(.bottom, 4)
+            }
             if let name = tip.clip, let url = TipClip.url(name) {
                 TipClipView(url: url)
                     .aspectRatio(TipClip.aspect, contentMode: .fit)
@@ -524,12 +570,17 @@ struct TipCard: View {
                 .font(.callout)
                 .foregroundColor(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
+            if let action {
+                Button(action.label, action: action.run)
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.small)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .topLeading)
         .padding(16)
         .background(Color.cardFill)
         .cornerRadius(16)
-        .accessibilityElement(children: .combine)
+        .accessibilityElement(children: action == nil ? .combine : .contain)
     }
 }
 
@@ -632,6 +683,7 @@ struct ProView: View {
             VStack(alignment: .leading, spacing: 18) {
                 hero
                 if store.isByok { byokCard } else if store.entitlement.active { activeCard }
+                organizing
                 features
                 products
                 actions
@@ -735,8 +787,24 @@ struct ProView: View {
         }
     }
 
+    /// Organizing the chats (2.5), first: what it does, with its loop.
+    private var organizing: some View {
+        HStack(alignment: .center, spacing: 16) {
+            OrganizeAnimation(big: true)
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Sorts by topic").font(.headline)
+                Text("Suggests the right chat for what you just asked, and your own tag for it.")
+                    .font(.callout)
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .onAppear { if !store.isPro { ChatAI.reportOrganize("organize_promo", ["action": "shown", "where": "pro_screen"]) } }
+    }
+
     private var features: some View {
         VStack(alignment: .leading, spacing: 10) {
+            Feature(systemImage: "arrow.turn.down.right", text: "Sorts by topic: suggests the right chat and your own tag")
             Feature(systemImage: "sparkles", text: "AI search: find any chat by describing it in your own words")
             Feature(systemImage: "bubble.left.and.text.bubble.right", text: "Ask your chats: questions across everything you've read and asked")
             Feature(systemImage: "bolt.fill", text: "Up to 375 deeper, more detailed answers a week instead of 5 a day")
@@ -1078,6 +1146,15 @@ final class ExtensionSettings: ObservableObject {
     @Published var ownKeyModel = "smart" { didSet { save() } }
     @Published var hiddenSites: [String] = [] { didSet { save() } }
     @Published var syncChats = true { didSet { save() } }
+    /// Suggestions (2.5, Pro): a better chat for a block, one of the user's tags. Off until turned on (the consent).
+    @Published var organize = false { didSet { save() } }
+
+    /// Turns suggestions on from outside the Settings screen (the card in a chat, What's new): that's the consent.
+    static func setOrganize(_ on: Bool) {
+        var stored = SharedDefaults.shared.readSettings()?.settings ?? [:]
+        stored["organize"] = on
+        SharedDefaults.shared.writeSettings(stored, updatedAt: Date().timeIntervalSince1970 * 1000)
+    }
 
     /// Switches iCloud sync of chats on or off from outside the Settings screen (the Chats screen).
     static func setSyncChats(_ on: Bool) {
@@ -1104,6 +1181,7 @@ final class ExtensionSettings: ObservableObject {
         ownKeyModel = stored["ownKeyModel"] as? String ?? "smart"
         hiddenSites = stored["fabHiddenSites"] as? [String] ?? []
         syncChats = stored["syncChats"] as? Bool ?? true
+        organize = stored["organize"] as? Bool ?? false
     }
 
     private func save() {
@@ -1117,6 +1195,7 @@ final class ExtensionSettings: ObservableObject {
         stored["fabHiddenSites"] = hiddenSites
         let syncChanged = (stored["syncChats"] as? Bool ?? true) != syncChats
         stored["syncChats"] = syncChats
+        stored["organize"] = organize
         SharedDefaults.shared.writeSettings(stored, updatedAt: Date().timeIntervalSince1970 * 1000)
         if syncChanged { ChatLibrary.shared.refresh() }
     }
@@ -1177,6 +1256,19 @@ struct SettingsView: View {
                 footer: Text("Your chats continue on your iPhone, iPad and Mac signed in to the same Apple Account. They're end-to-end encrypted in iCloud: only your devices can read them.")
             ) {
                 Toggle("Sync chats with iCloud", isOn: $settings.syncChats)
+            }
+
+            Section(
+                header: Text("Suggestions"),
+                footer: Text(store.isPro
+                    ? "A fitting chat and your tag under new answers and notes. The text of your messages goes to our server and to OpenAI and Anthropic. We don't keep it; they don't use it for training."
+                    : "Pro: ContextFlow suggests a fitting chat and your tag under new answers and notes.")
+            ) {
+                Toggle("Suggestions: tags and moving", isOn: $settings.organize)
+                    .disabled(!store.isPro)
+                    .onChange(of: settings.organize) { on in
+                        if on { ChatAI.reportOrganize("organize_optin", ["action": "accepted", "from": "settings"]) }
+                    }
             }
 
             Section(
