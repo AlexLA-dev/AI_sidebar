@@ -645,6 +645,30 @@ const LIMIT_STATUS = { systematic: ["Мешает систематически",
 // Shown only from ContextFlow 2.4 (it sends the chat's sizes).
 const SIZES_ONLY = ["whole_chat_cut", "turns_40", "chats_50", "pages_10"]
 
+// Organizing the chats, 2.5 (cf_organize_report): suggestions shown and taken, what organizing does shown and
+// tapped, turning it on, and what /api/v2/organize cost. Nothing before the 2.5 migration.
+const ORGANIZE_WHAT = { move: "Перенос в чат", new: "Отделить в новый чат", tag: "Тег" }
+const ORGANIZE_WHY = { page: "та же страница", site: "тот же сайт", topic: "та же тема", apart: "ни к чему не подходит", "": "" }
+const ORGANIZE_WHERE = { pro_card: "Карточка Pro в панели", pro_screen: "Экран Pro", inchat_mess: "«Всё в одном чате?»", third_tag: "После третьего тега", first_win: "«Готово» после первой", settings: "Настройки", tip: "Советы", whatsnew: "«Что нового»" }
+function organizePanel(report) {
+  if (!report) return null
+  const pctOf = (a, b) => (b ? `${Math.round((a / b) * 100)} %` : "—")
+  const sugg = (report.suggestions || []).map((r) => el("tr", {},
+    el("td", {}, `${ORGANIZE_WHAT[r.what] || r.what}${r.why ? ` · ${ORGANIZE_WHY[r.why] || r.why}` : ""}`),
+    el("td", { class: "num" }, n.format(r.shown)), el("td", { class: "num" }, n.format(r.accepted)),
+    el("td", { class: "num" }, n.format(r.dismissed)), el("td", { class: "num" }, n.format(r.undone)),
+    el("td", { class: "num" }, pctOf(r.accepted - r.undone, r.shown)), el("td", { class: "num" }, n.format(r.users))))
+  const promo = (report.promo || []).map((r) => el("tr", {}, el("td", {}, ORGANIZE_WHERE[r.place] || r.place), el("td", { class: "num" }, n.format(r.shown)), el("td", { class: "num" }, n.format(r.tap)), el("td", { class: "num" }, pctOf(r.tap, r.shown))))
+  const optin = (report.optin || []).map((r) => el("tr", {}, el("td", {}, ORGANIZE_WHERE[r.place] || r.place), el("td", { class: "num" }, n.format(r.accepted)), el("td", { class: "num" }, n.format(r.declined))))
+  const api = report.api || {}
+  return el("div", {},
+    table("Подсказки: доля принятых (без отменённых)", ["Подсказка", "Показано", "Принято", "Отклонено", "Отменено", "Доля", "Устройств"], sugg, "Подсказок пока не было (2.5)."),
+    table("Как продаём подсказки", ["Где", "Показано", "Нажали", "Доля"], promo, "Пока не показывали."),
+    table("Включили подсказки", ["Где", "Включили", "Отказались"], optin, "Пока никто не отвечал."),
+    el("p", { class: "note" }, `Сервер /api/v2/organize: ${n.format(api.embed_requests || 0)} запросов эмбеддингов (${n.format(api.texts || 0)} текстов), ${n.format(api.tag_checks || 0)} проверок тегов (из них OpenAI вместо Claude — ${n.format(api.tag_checks_openai || 0)}), стоимость $${api.cost_usd ?? 0}. Без текста: только счётчики.`)
+  )
+}
+
 function limitsPanel(report) {
   const title = "Мешают ли лимиты"
   if (!report) return null
@@ -806,6 +830,7 @@ function render(data, fx) {
     table("По моделям", ["Сегмент", "Модель", "Запросы", "Ошибки", "Токены вход", "Токены выход", "Поиск Google", "Ср. время"], models, "Пока нет запросов."),
     table(`Ревью: вы или App Review (${n.format(sum(review, "requests"))})`, ["Устройство", "Сегмент", "Версия", "Запросы", "Устройств", "Дни"], reviewRows, "Пока версия на ревью, запросы с неё попадают сюда, а не в цифры выше."),
     limitsPanel(data.limits_report) || table("Упёрлись в лимит", ["Тип", "Лимит · план", "Раз"], limits, "Никто не упирался в лимиты."),
+    organizePanel(data.organize_report),
     table("Ошибки провайдеров", ["Тип", "Провайдер", "Ошибок"], errors, "Ошибок не было."),
     el("p", { class: "note" }, `Цифры выше — только реальные пользователи. Не входят: запросы с версии, пока она на ревью (блок «Ревью»), и наши тестовые проверки (${n.format(data.excluded_tests || 0)}). Время — UTC. Пользователь — установка расширения на одном устройстве; переустановка считается новым пользователем, а «новый» в графике запросов — это запрос в тот же день (UTC), когда установку увидели впервые. Сервер работает с 23.10.2026, поэтому все, кто пришёл с версий 1.x, в первые дни тоже выглядят новыми. Устройство и язык подписчика — из расширения, страна — из App Store; точнее страны ничего не хранится. Бесплатные подписки (подарочный код для прессы и блогеров, подписка владельца, пробный период, бесплатный код) показаны в «Подписках» отдельно и не входят в число подписок, конверсию, первую оплату, MRR и подписки из Apple Ads; такая подписка становится платящей с первой оплаты. MRR — в долларах США по сегодняшнему курсу, после комиссии Apple 15 %. В «По тарифам» Pro — все ответы Pro, бесплатные тоже. Активные до 28.10.2026 посчитаны по вопросам, дню установки и последнему заходу, поэтому за те дни цифры занижены; с 28.10 считается каждое открытие панели. Запросы с ключом пользователя видны начиная со следующей сборки после 2.1: расширение присылает только счётчики (модель, токены, время), без ключа и текста. События старше 180 дней удаляются.`)
   )
