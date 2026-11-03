@@ -20,8 +20,9 @@ export const Share = (): VNode => <svg {...base} width={15} height={15}><path d=
 export const Retry = (): VNode => <svg {...base} width={15} height={15}><path d="M3 12a9 9 0 1 0 3-6.7L3 8" /><path d="M3 3v5h5" /></svg>
 export const Check = (): VNode => <svg {...base} width={15} height={15}><path d="M20 6 9 17l-5-5" /></svg>
 export const Back = (): VNode => <svg {...base}><path d="M15 18l-6-6 6-6" /></svg>
+// Two speech bubbles (2.5, the owner's pick "A"), like the app's bubble.left.and.text.bubble.right.
 export const Chats = (): VNode => (
-  <svg {...base}><path d="M21 11.5a7.5 7.5 0 0 1-11 6.6L4 20l1.6-4.6A7.5 7.5 0 1 1 21 11.5z" /><path d="M8.5 10h7M8.5 13.5h4.5" /></svg>
+  <svg {...base}><path d="M14 9a2 2 0 0 1-2 2H6l-4 4V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2z" /><path d="M18 9h2a2 2 0 0 1 2 2v11l-4-4h-6a2 2 0 0 1-2-2v-1" /></svg>
 )
 export const Trash = (): VNode => (
   <svg {...base} width={16} height={16}><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6" /></svg>

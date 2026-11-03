@@ -1,5 +1,5 @@
-// 2.5 in the chat: pinned messages, reminders, the highlight button, the menu of a message and the
-// "Deleted · Undo" bar.
+// 2.5 in the chat: reminders, the highlight button, the menu of a message and the "Deleted · Undo" bar
+// (pinned messages: PinnedBar.tsx).
 
 import type { ComponentChildren, VNode } from "preact"
 import { useLayoutEffect, useRef, useState } from "preact/hooks"
@@ -74,35 +74,6 @@ export function RemindChip({ at, onClick }: { at: number; onClick: () => void })
       <Bell size={13} /> {remindLabel(at)}
     </button>
   )
-}
-
-/** The strip at the top of a chat with its pinned answers and notes; a tap scrolls to one. */
-export function PinnedStrip({ items, onOpen }: { items: Array<{ index: number; entry: Entry }>; onOpen: (index: number) => void }): VNode | null {
-  const [expanded, setExpanded] = useState(false)
-  if (!items.length) return null
-  const shown = expanded ? items : items.slice(-1)
-  return (
-    <div class="cf-pinned" role="region" aria-label={t("uxPinned")}>
-      <div class="cf-pinned-head">
-        <PinIcon size={13} filled /> {t("uxPinned")}
-        {items.length > 1 && (
-          <button type="button" class="cf-pinned-more" onClick={() => setExpanded(!expanded)}>
-            {expanded ? t("uxLess") : `+${items.length - 1}`}
-          </button>
-        )}
-      </div>
-      {shown.map(({ index, entry }) => (
-        <button type="button" key={index} class="cf-pinned-row" onClick={() => onOpen(index)}>
-          {entry.note && <span class="cf-pinned-note" />}
-          <span class="cf-pinned-text">{preview(entry.content)}</span>
-        </button>
-      ))}
-    </div>
-  )
-}
-
-function preview(text: string): string {
-  return text.replace(/[#*_`>|[\]]/g, "").replace(/\s+/g, " ").trim().slice(0, 140)
 }
 
 /** "When should I remind you?": the presets, a date of one's own, and "Don't remind" for one that's set. */
