@@ -20,7 +20,7 @@ import {
   type Usage
 } from "../shared/types"
 import * as Icon from "./icons"
-import { historyForModel, isQuestion, lastPage, otherPages, pageHasChanged, pageRef, pageWhen, savedPages, selectionNote, type Entry, type SourceNote } from "../shared/conversation"
+import { historyForModel, isQuestion, lastPage, otherPages, pageHasChanged, pageRef, pageWhen, savedPages, selectionNote, stamped, type Entry, type SourceNote } from "../shared/conversation"
 import { Markdown } from "./markdown"
 import { MAX_OTHER_PAGES } from "../shared/prompt"
 import { answerShareText, chatLanguage, noteCopyText, noteShareText, pickedShareText, toPlainText, type ShareLinks } from "../shared/share"
@@ -599,7 +599,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setPartial(null)
     setStreamMode(null)
     if (text) {
-      const next: Turn[] = [...history, grounding ? { role: "assistant", content: text, grounding } : { role: "assistant", content: text }]
+      const next: Turn[] = [...history, stamped(grounding ? { role: "assistant", content: text, grounding } : { role: "assistant", content: text })]
       setMessages(next)
       const skipped = skippedFor(next, next.length - 1)
       if (skipped) void sendBackground({ type: "mediaNotice", action: "shown", media: skipped })
@@ -620,7 +620,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const url = source.key()
     if (historyRef.current) {
       // "Ask your chats": the question goes with a digest of all the other chats, not the page.
-      setMessages([...base, { role: "user", content, label: opts.label }])
+      setMessages([...base, stamped({ role: "user", content, label: opts.label })])
       setDraft("")
       if (inputRef.current) inputRef.current.style.height = "auto"
       setError(null)
@@ -638,7 +638,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       return
     }
     // The question shows at once; a video's transcript or a PDF may take a few seconds to read.
-    const shown: Turn = { role: "user", content, label: opts.label, page: { url, title: source.title(), at: Date.now() } }
+    const shown: Turn = stamped({ role: "user", content, label: opts.label, page: { url, title: source.title(), at: Date.now() } })
     if (opts.mode) shown.mode = opts.mode
     setMessages([...base, shown])
     setDraft("")
@@ -681,7 +681,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const url = source.key()
     const ref = pageRef(base, url, full.title, full.text, keepsText)
     const changed = !chats && pageHasChanged(base, url, ref.hash!)
-    const user: Turn = chats ? { role: "user", content, label: opts.label } : { role: "user", content, label: opts.label, page: ref }
+    const user: Turn = stamped(chats ? { role: "user", content, label: opts.label } : { role: "user", content, label: opts.label, page: ref }, ref.at)
     if (!chats) void rememberPageText(url, full.title, full.attachments ? composePage(full.text, full.attachments) : full.text)
     if (opts.mode) user.mode = opts.mode
     if (changed) user.pageChanged = true
@@ -766,7 +766,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (!content || portRef.current || askToken.current) return
     const url = source.key()
     const full = source.quick()
-    const next: Turn[] = [...messages, { role: "user", content, note: true, page: pageRef(messages, url, full.title, full.text, keepsText) }]
+    const next: Turn[] = [...messages, stamped({ role: "user", content, note: true, page: pageRef(messages, url, full.title, full.text, keepsText) })]
     setMessages(next)
     void saveThread(threadRef.current, next)
     void rememberPageText(url, full.title, full.text)
@@ -800,7 +800,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     partialRef.current = ""
     setPartial(null)
     setStreamMode(null)
-    if (text) setMessages((prev) => [...prev, { role: "assistant", content: text }])
+    if (text) setMessages((prev) => [...prev, stamped({ role: "assistant", content: text })])
   }, [])
 
   // `withoutGoogle`: ask the same question as a normal answer (e.g. after the Google limit).

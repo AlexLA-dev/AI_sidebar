@@ -76,6 +76,28 @@ struct ChatEntry: Decodable, Hashable {
     var tags: [String]?
     /// An answer from the app in a chat without page texts (it says so once, under this answer).
     var noPages: Bool?
+    /// 2.5: the message's id and when it was written (ms); older messages have neither.
+    var id: String?
+    var t: Double?
+    /// Moved here from another chat (organizing): which one, and when.
+    var from: From?
+    /// Organizing suggestions turned down here (moving its block; these tags), and suggested tags taken.
+    var dismissed: Dismissed?
+    var accepted: Accepted?
+
+    struct From: Decodable, Hashable {
+        var chat: String
+        var at: Double
+    }
+
+    struct Dismissed: Decodable, Hashable {
+        var move: Bool?
+        var tags: [String]?
+    }
+
+    struct Accepted: Decodable, Hashable {
+        var tags: [String]?
+    }
 
     var isUser: Bool { role == "user" }
     var isNote: Bool { note == true }
@@ -207,6 +229,13 @@ struct ChatThread: Identifiable, Hashable {
         if object["a"] == nil { object["a"] = lastAt }
         guard let json = try? JSONSerialization.data(withJSONObject: object), let text = String(data: json, encoding: .utf8) else { return nil }
         return ChatMirror.Item(updatedAt: updatedAt, data: text)
+    }
+
+    /// The chat as Organize works on it (its stored JSON).
+    var organized: OrganizeThread? {
+        let parsed = try? JSONSerialization.jsonObject(with: Data(data.utf8))
+        guard let object = (parsed as? [String: Any]) ?? (parsed as? [Any]).map({ ["m": $0] }) else { return nil }
+        return OrganizeThread(id: id, u: updatedAt, object: object)
     }
 
     /// The same chat with `entries` (src/shared/conversation.ts `Entry` objects) after its messages,
@@ -533,7 +562,10 @@ final class ChatLibrary: ObservableObject {
             guard !Task.isCancelled else { return }
             var saves: [String: ChatMirror.Item] = [:]
             for snapshot in result.changed { saves[snapshot.id] = ChatMirror.Item(updatedAt: snapshot.updatedAt, data: snapshot.data) }
-            if ChatMirror.apply(saves: saves, deletes: result.deleted) { reload() }
+            if ChatMirror.apply(saves: saves, deletes: result.deleted) {
+                reload()
+                sweepMoved()
+            }
             UserDefaults.standard.set(result.token, forKey: Self.tokenKey)
             cloud = .ok
         } catch {
@@ -615,6 +647,55 @@ final class ChatLibrary: ObservableObject {
             stored["groupByTags"] = newValue
             SharedDefaults.shared.writeSettings(stored, updatedAt: Date().timeIntervalSince1970 * 1000)
             objectWillChange.send()
+        }
+    }
+
+    // MARK: Organizing (2.5)
+
+    /// Moves messages `start`…`end` of a chat (a page block) to another chat, or to a new one (nil), as
+    /// the Safari panel does (Organize.swift). Returns what "Undo" needs.
+    @discardableResult
+    func move(_ thread: ChatThread, _ start: Int, _ end: Int, to targetId: String?) -> Organize.MoveUndo? {
+        let current = threads.first { $0.id == thread.id } ?? thread
+        guard let source = current.organized else { return nil }
+        let target = targetId.flatMap { id in threads.first { $0.id == id } }?.organized
+        if targetId != nil, target == nil { return nil }
+        let id = targetId ?? UUID().uuidString.lowercased()
+        guard let moved = Organize.move(source: source, start: start, end: end, target: target, targetId: id, now: now) else { return nil }
+        storeOrganized(saves: [moved.target] + (moved.source.map { [$0] } ?? []), deletes: moved.source == nil ? [source.id] : [])
+        return moved.undo
+    }
+
+    /// "Undo" on the bar after a move.
+    func undo(_ undo: Organize.MoveUndo) {
+        let source = threads.first { $0.id == undo.source }?.organized
+        let target = threads.first { $0.id == undo.target }?.organized
+        guard let back = Organize.undo(undo, source: source, target: target, now: now) else { return }
+        storeOrganized(saves: [back.source] + (back.target.map { [$0] } ?? []), deletes: back.target == nil ? [undo.target] : [])
+    }
+
+    /// After iCloud brought chats: a moved message the chat it came from got back (from a device that hadn't
+    /// heard of the move, or one still on 2.4) is removed there again.
+    private func sweepMoved() {
+        let swept = Organize.sweep(threads.compactMap(\.organized), now: now)
+        guard !swept.changed.isEmpty || !swept.emptied.isEmpty else { return }
+        storeOrganized(saves: swept.changed, deletes: swept.emptied)
+    }
+
+    /// Stores organized chats here, for the extension and in iCloud, and drops the emptied ones.
+    private func storeOrganized(saves: [OrganizeThread], deletes: [String]) {
+        var items: [String: ChatMirror.Item] = [:]
+        for thread in saves {
+            guard let json = try? JSONSerialization.data(withJSONObject: thread.object), let data = String(data: json, encoding: .utf8) else { continue }
+            items[thread.id] = ChatMirror.Item(updatedAt: thread.u, data: data)
+        }
+        ChatMirror.apply(saves: items, deletes: deletes)
+        for (id, item) in items { ChatMirror.queue(.init(id: id, updatedAt: item.updatedAt, data: item.data, deleted: nil, at: Double(now))) }
+        for id in deletes { ChatMirror.queue(.init(id: id, updatedAt: nil, data: nil, deleted: true, at: Double(now))) }
+        reload()
+        if syncOn {
+            let changes = items.map { ChatSync.Change.save(.init(id: $0.key, updatedAt: $0.value.updatedAt, data: $0.value.data)) } + deletes.map { ChatSync.Change.delete($0) }
+            Task { await syncCloud(changes) }
         }
     }
 

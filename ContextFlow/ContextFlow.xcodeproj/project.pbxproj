@@ -16,9 +16,11 @@
 		CFA200000000000000000003 /* TemplatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA200000000000000000001 /* TemplatesView.swift */; };
 		CF3000000000000000000005 /* ChatSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF3000000000000000000001 /* ChatSync.swift */; };
 		CF6000000000000000000002 /* Chats.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF6000000000000000000001 /* Chats.swift */; };
+		CFB000000000000000000002 /* Organize.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFB000000000000000000001 /* Organize.swift */; };
 		CF9000000000000000000002 /* ChatAI.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9000000000000000000001 /* ChatAI.swift */; };
 		CF9000000000000000000003 /* ChatAI.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9000000000000000000001 /* ChatAI.swift */; };
 		CF6000000000000000000003 /* Chats.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF6000000000000000000001 /* Chats.swift */; };
+		CFB000000000000000000003 /* Organize.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFB000000000000000000001 /* Organize.swift */; };
 		CF7000000000000000000002 /* ChatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF7000000000000000000001 /* ChatsView.swift */; };
 		CF7000000000000000000003 /* ChatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF7000000000000000000001 /* ChatsView.swift */; };
 		CF8000000000000000000002 /* ChatMirror.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF8000000000000000000001 /* ChatMirror.swift */; };
@@ -132,6 +134,7 @@
 		CF5000000000000000000001 /* PdfText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PdfText.swift; sourceTree = "<group>"; };
 		410D88912F41EE9800684748 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		CF6000000000000000000001 /* Chats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chats.swift; sourceTree = "<group>"; };
+		CFB000000000000000000001 /* Organize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Organize.swift; sourceTree = "<group>"; };
 		CF9000000000000000000001 /* ChatAI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatAI.swift; sourceTree = "<group>"; };
 		CF7000000000000000000001 /* ChatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatsView.swift; sourceTree = "<group>"; };
 		CF8000000000000000000001 /* ChatMirror.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMirror.swift; sourceTree = "<group>"; };
@@ -231,6 +234,7 @@
 			children = (
 				CF9000000000000000000001 /* ChatAI.swift */,
 				CF6000000000000000000001 /* Chats.swift */,
+				CFB000000000000000000001 /* Organize.swift */,
 				CF7000000000000000000001 /* ChatsView.swift */,
 				CFA200000000000000000001 /* TemplatesView.swift */,
 				410D88912F41EE9800684748 /* ContentView.swift */,
@@ -550,6 +554,7 @@
 				CFA100000000000000000005 /* TemplateStore.swift in Sources */,
 				CFA200000000000000000002 /* TemplatesView.swift in Sources */,
 				CF6000000000000000000002 /* Chats.swift in Sources */,
+				CFB000000000000000000002 /* Organize.swift in Sources */,
 				CF9000000000000000000002 /* ChatAI.swift in Sources */,
 				CF7000000000000000000002 /* ChatsView.swift in Sources */,
 				CF8000000000000000000002 /* ChatMirror.swift in Sources */,
@@ -572,6 +577,7 @@
 				410D889A2F41EE9800684748 /* StoreKitManager.swift in Sources */,
 				410D889B2F41EE9800684748 /* ContentView.swift in Sources */,
 				CF6000000000000000000003 /* Chats.swift in Sources */,
+				CFB000000000000000000003 /* Organize.swift in Sources */,
 				CF9000000000000000000003 /* ChatAI.swift in Sources */,
 				CF7000000000000000000003 /* ChatsView.swift in Sources */,
 				CF8000000000000000000003 /* ChatMirror.swift in Sources */,
