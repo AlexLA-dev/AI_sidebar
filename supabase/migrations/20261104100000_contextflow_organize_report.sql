@@ -1,7 +1,10 @@
 -- Organizing the chats, 2.5 (/analytics → "Подсказки"): how the suggestions do, from counts only (no text).
 -- select public.cf_organize_report(28);  (service role; also GET /api/v2/admin/usage → organize_report)
 --
--- Over the last p_days (UTC), test devices and our own installs left out:
+-- Over the last p_days (UTC), left out: test devices, our own installs, test copies of the app (an event
+-- of theirs marked test; app events often have no install), and a version's events while it counts as ours
+-- (contextflow.in_review: from our first builds until its review ends; 2.5 needs its review_windows rows
+-- open while its builds are only on our devices):
 --   suggestions  per kind (move / new / tag) and reason (page / site / topic / apart): shown, accepted,
 --                dismissed, undone, and the installs that saw them; accepted / shown is the share taken
 --   promo        what organizing does, shown or tapped, by where (Pro card and screen, the pile card, after the
@@ -21,12 +24,18 @@ returns jsonb language sql stable security definer set search_path = '' as $$
     union
     select install_id from contextflow.own_subscriptions where install_id is not null
   ),
+  test_apps as (
+    select distinct data->>'app' as app from contextflow.events
+    where data ? 'app' and (data->>'audience' = 'test' or data->>'version' = 'dev-check')
+  ),
   ev as (
     select e.kind, e.install_id, e.data
     from contextflow.events e, d
     where e.kind in ('organize', 'organize_promo', 'organize_optin', 'organize_api')
       and e.created_at >= now() - make_interval(days => d.days)
       and (e.install_id is null or not exists (select 1 from tests t where t.install_id = e.install_id))
+      and (e.data->>'app' is null or not exists (select 1 from test_apps a where a.app = e.data->>'app'))
+      and not contextflow.in_review(e.data->>'platform', e.data->>'version', e.created_at)
   ),
   suggestions as (
     select data->>'what' as what, coalesce(data->>'why', '') as why,
