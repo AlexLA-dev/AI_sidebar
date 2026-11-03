@@ -43,7 +43,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const kind = clip(body?.kind, 16)
   const installId = isUuid(body?.installId) ? (body?.installId as string) : null
   const appId = isUuid(body?.appId) ? (body?.appId as string) : null
-  if (!body || !(KINDS.has(kind) || INSERT_KINDS.has(kind)) || !(installId || appId)) return json({ code: "BAD_REQUEST" }, 400)
+  if (!body || !(KINDS.has(kind) || INSERT_KINDS.has(kind) || ORGANIZE_KINDS.has(kind)) || !(installId || appId)) return json({ code: "BAD_REQUEST" }, 400)
   if (kind === "renewal_off" && !isRenewalReason(body.reason)) return json({ code: "BAD_REQUEST" }, 400)
   const client = (body.client ?? {}) as Record<string, unknown>
 
@@ -71,7 +71,8 @@ export default async (req: Request, context: Context): Promise<Response> => {
       ...(kind.startsWith("media_notice") && MEDIA.has(media) ? { media } : {}),
       ...(kind === "renewal_off" ? renewalFields(body) : {}),
       ...(kind === "byok_upsell" ? upsellFields(body) : {}),
-      ...(INSERT_KINDS.has(kind) ? insertFields(body) : {})
+      ...(INSERT_KINDS.has(kind) ? insertFields(body) : {}),
+      ...(ORGANIZE_KINDS.has(kind) ? organizeFields(kind, body) : {})
     })
   )
 
@@ -139,6 +140,35 @@ function renewalFields(body: Record<string, unknown>): Record<string, unknown> {
     product: clip(body.product, 64),
     ...(typeof days === "number" && Number.isInteger(days) && days >= 0 && days <= 400 ? { days_left: days } : {}),
     ...(RENEWAL_FROM.has(from) ? { from } : {})
+  }
+}
+
+// Organizing the chats (2.5), counts only: "organize" — a suggestion (a move, a new chat, a tag) shown, taken, turned
+// down or undone, and why it was made; "organize_promo" — what organizing does, shown or tapped, and where;
+// "organize_optin" — suggestions switched on or declined, and where.
+const ORGANIZE_KINDS = new Set(["organize", "organize_promo", "organize_optin"])
+const ORGANIZE_ACTIONS: Record<string, Set<string>> = {
+  organize: new Set(["shown", "accepted", "dismissed", "undone"]),
+  organize_promo: new Set(["shown", "tap"]),
+  organize_optin: new Set(["accepted", "declined"])
+}
+const ORGANIZE_WHAT = new Set(["move", "new", "tag"])
+const ORGANIZE_WHY = new Set(["page", "site", "topic", "apart"])
+const ORGANIZE_WHERE = new Set(["pro_card", "pro_screen", "inchat_mess", "third_tag", "first_win", "settings", "tip", "whatsnew"])
+const ORGANIZE_FROM = new Set(["card", "settings", "whatsnew", "tip"])
+
+/** What an organizing event carries: its action and, by kind, what was suggested and why, or where. */
+function organizeFields(kind: string, body: Record<string, unknown>): Record<string, unknown> {
+  const pick = (key: string, allowed: Set<string>) => {
+    const value = clip(body[key], 12)
+    return allowed.has(value) ? { [key]: value } : {}
+  }
+  return {
+    ...pick("action", ORGANIZE_ACTIONS[kind]),
+    ...(kind === "organize" ? { ...pick("what", ORGANIZE_WHAT), ...pick("why", ORGANIZE_WHY) } : {}),
+    ...(kind === "organize_promo" ? pick("where", ORGANIZE_WHERE) : {}),
+    ...(kind === "organize_optin" ? pick("from", ORGANIZE_FROM) : {}),
+    ...(body.surface === "app" || body.surface === "panel" ? { surface: body.surface } : {})
   }
 }
 

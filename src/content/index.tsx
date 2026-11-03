@@ -7,6 +7,7 @@ import { tabPdf, tabSource } from "./context"
 import { detectPlatform, HOST_TAG } from "./page"
 import styles from "./styles.css"
 import insertStyles from "./insert/insert.css"
+import organizeStyles from "./organize.css"
 
 // Runs on every http(s) page (and again if injected on demand). Everything we
 // render lives in a closed-off shadow root so page CSS can't break it and our
@@ -37,7 +38,7 @@ function boot(): void {
     host.setAttribute("style", "all:initial;position:fixed;top:0;left:0;width:0;height:0;z-index:2147483647;")
     const root = host.attachShadow({ mode: "open" })
     const style = document.createElement("style")
-    style.textContent = `${styles}\n${insertStyles}`
+    style.textContent = `${styles}\n${insertStyles}\n${organizeStyles}`
     root.appendChild(style)
     const container = document.createElement("div")
     root.appendChild(container)

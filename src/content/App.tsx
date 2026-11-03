@@ -37,6 +37,12 @@ import {
   type SelectionInfo
 } from "./page"
 import { Hint } from "./Hint"
+import { OrganizeCard, OrganizeRow, type OrganizeMove } from "./Organize"
+import { UndoBar } from "./UndoBar"
+import { moveBlock, organizeCards, setOrganizeCards, undoBlockMove, type OrganizeCards } from "./store"
+import { DEFAULT_ORGANIZE, looksMixed } from "../shared/organize"
+import { entryKey } from "../shared/conversation"
+import type { OrganizeEvent, OrganizeReply } from "../shared/types"
 import { ProUpsell } from "./ProUpsell"
 import { SettingsView } from "./Settings"
 import { shareLabels } from "./shareLabels"
@@ -50,7 +56,7 @@ import * as QIcon from "./insert/icons"
 import { keepCopied, report as reportInsert } from "./insert/store"
 import { insertFromPanel, useButtonShown, useHasField } from "./insert/target"
 import { TemplatesView } from "./insert/TemplatesView"
-import { allTags, chatDigests, chatList, cleanTags, newThreadId, pinAt, shownThread, threadPages, threadTitle, type Thread } from "../shared/threads"
+import { allTags, chatDigests, chatList, cleanTags, newThreadId, pageBlocks, pinAt, shownThread, threadPages, threadTitle, type MoveUndo, type Thread, type Threads } from "../shared/threads"
 import type { ChatDigest } from "../shared/history"
 import type { ConsentStatus } from "../shared/consent"
 
@@ -301,6 +307,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const loadingRef = useRef<Promise<void>>(Promise.resolve())
   const settingsRef = useRef(settings)
   settingsRef.current = settings
+  // Organizing (2.5): the bar after a move ("Moved to … · Undo · Open"), until the next action.
+  const [undoBar, setUndoBar] = useState<{ text: string; actions: Array<{ label: string; run: () => void }> } | null>(null)
 
   // The source learnt something new (the PDF popup: the document's title once it's read).
   const [, setSourceSeen] = useState(0)
@@ -612,6 +620,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const ask = useCallback((text: string, opts: { label?: string; action?: string; retry?: boolean; mode?: "google" } = {}) => {
     const content = text.trim()
     if (!content || portRef.current || askToken.current) return
+    setUndoBar(null)
     if (consent !== "ok") {
       setPending({ text: content, label: opts.label, action: opts.action, mode: opts.mode })
       return
@@ -764,6 +773,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const saveNote = useCallback((text: string) => {
     const content = text.trim()
     if (!content || portRef.current || askToken.current) return
+    setUndoBar(null)
     const url = source.key()
     const full = source.quick()
     const next: Turn[] = [...messages, stamped({ role: "user", content, note: true, page: pageRef(messages, url, full.title, full.text, keepsText) })]
@@ -832,6 +842,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   /** Starts a new thread; the previous one stays in the list. */
   const newChat = useCallback(() => {
     stop()
+    setUndoBar(null)
     const id = newThreadId()
     threadRef.current = id
     setKind(undefined)
@@ -954,6 +965,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   /** Opens a chat; `at`: the message to show (a search result), else its end. */
   const openThread = useCallback((id: string, at?: number) => {
     stop()
+    setUndoBar(null)
     const thread = threadList.find((x) => x.id === id)
     threadRef.current = id
     setKind(thread?.kind)
@@ -1030,7 +1042,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           <Icon.Tag /> <span class="cf-tl">{t("tagsButton")}</span>
         </button>
       </div>
-      {tagging === idx && <TagEditor tags={m.tags ?? []} known={allTags(threadList).map((x) => x.tag)} onChange={(next) => tagMessage(idx, next)} onClose={() => setTagging(null)} />}
+      {tagging === idx && <TagEditor tags={m.tags ?? []} known={allTags(threadList).map((x) => x.tag)} onChange={(next) => userTags(idx, next)} onClose={() => setTagging(null)} />}
+      {organizeRow(idx)}
     </>
   )
 
@@ -1227,7 +1240,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   useEffect(() => setPicked(null), [threadRef.current, messages.length, view])
 
   // ------------------------------------------------------------ upgrade
-  const openApp = useCallback(async (target: "subscribe" | "manage", feature?: "ai") => {
+  const openApp = useCallback(async (target: "subscribe" | "manage", feature?: "ai" | "organize") => {
     const result = await sendBackground<{ opened: boolean; url: string }>({ type: "openApp", target, feature })
     if (result && !result.opened && result.url) followLink(result.url)
   }, [])
@@ -1338,6 +1351,231 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       ? { short: t("usageProShort", left, usage.limit), full: t("usagePro", left, usage.limit) }
       : { short: t("usageFreeShort", left, usage.limit), full: t("usageFree", left, usage.limit) }
   }, [usage, plan, ownKeyActive])
+
+  // ------------------------------------------------------------ organizing (2.5)
+  // Suggestions for the chat shown (Pro, with suggestions on): asked once an answer or a note is in, or the chat
+  // opens. They belong to the chat as it was (its length) and go when it changes; at most one row under a message.
+  const orgCfg = status?.organize?.config ?? DEFAULT_ORGANIZE
+  const orgOn = TARGET === "safari" && plan === "pro" && Boolean(status?.organize?.on) && settings.organize
+  const [org, setOrg] = useState<{ chat: string; length: number; move: OrganizeMove | null; tags: Array<{ index: number; key: string; tag: string }> } | null>(null)
+  const [cards, setCards] = useState<OrganizeCards | null>(null)
+  // "Everything in one chat?" showing in this chat; the card after the third tag; the line after the first one taken.
+  const [messFor, setMessFor] = useState<string | null>(null)
+  const [tagsCard, setTagsCard] = useState(false)
+  const [firstWin, setFirstWin] = useState(false)
+  const orgSeen = useRef(new Set<string>())
+  const messagesRef = useRef(messages)
+  messagesRef.current = messages
+  const orgEvent = (event: OrganizeEvent) => void sendBackground({ type: "organizeEvent", event })
+  useEffect(() => {
+    if (open) void organizeCards().then(setCards)
+  }, [open])
+
+  useEffect(() => {
+    if (!open || !orgOn || streaming || historyMode || messages.length === 0) return
+    const chat = threadRef.current
+    const length = messages.length
+    // After the answer is in, without delaying it; a fade in, not a jump.
+    const timer = setTimeout(() => {
+      void sendBackground<OrganizeReply>({ type: "organize", chat }).then((reply) => {
+        if (!reply?.ok || threadRef.current !== chat || messagesRef.current.length !== length) return
+        setOrg({ chat, length, move: reply.move, tags: reply.tags })
+      })
+    }, 900)
+    return () => clearTimeout(timer)
+  }, [open, orgOn, streaming, historyMode, messages.length, threadRef.current])
+
+  const orgNow = org && orgOn && org.chat === threadRef.current && org.length === messages.length && !picked && !streaming ? org : null
+  // Each suggestion is counted once as shown.
+  useEffect(() => {
+    if (!orgNow) return
+    const seen: Array<[string, OrganizeEvent]> = []
+    if (orgNow.move && messages[orgNow.move.start]) {
+      seen.push([`m:${entryKey(messages[orgNow.move.start])}:${orgNow.move.to}`, { kind: "organize", action: "shown", what: orgNow.move.to ? "move" : "new", why: orgNow.move.why }])
+    }
+    for (const x of orgNow.tags) seen.push([`t:${x.key}:${x.tag}`, { kind: "organize", action: "shown", what: "tag" }])
+    for (const [id, event] of seen) {
+      if (orgSeen.current.has(id)) continue
+      orgSeen.current.add(id)
+      orgEvent(event)
+    }
+  }, [orgNow])
+
+  // The first suggestion taken: a line that from now on they come by themselves (once).
+  const won = () => {
+    if (!cards || cards.firstWin) return
+    setFirstWin(true)
+    void setOrganizeCards({ firstWin: true }).then(setCards)
+    orgEvent({ kind: "organize_promo", action: "shown", where: "first_win" })
+  }
+
+  const takeTag = (index: number, tag: string) => {
+    setMessages((list) => list.map((m, i) => (i !== index ? m : {
+      ...m,
+      tags: cleanTags([...(m.tags ?? []), tag]),
+      accepted: { ...m.accepted, tags: cleanTags([...(m.accepted?.tags ?? []), tag]) }
+    })))
+    setOrg((o) => o && { ...o, tags: o.tags.filter((x) => x.index !== index) })
+    orgEvent({ kind: "organize", action: "accepted", what: "tag" })
+    won()
+  }
+  const refuseTag = (index: number, tag: string) => {
+    setMessages((list) => list.map((m, i) => (i !== index ? m : { ...m, dismissed: { ...m.dismissed, tags: cleanTags([...(m.dismissed?.tags ?? []), tag]) } })))
+    setOrg((o) => o && { ...o, tags: o.tags.filter((x) => x.index !== index) })
+    orgEvent({ kind: "organize", action: "dismissed", what: "tag" })
+  }
+
+  /** Shows chat `id` as it is in `threads` (after a move or its undo). */
+  const showChat = (id: string, threads: Threads) => {
+    threadRef.current = id
+    setKind(threads[id]?.kind)
+    void setActiveThread(id)
+    setMessages(threads[id]?.m ?? [])
+    setError(null)
+    setView("chat")
+  }
+  const undoChatMove = async (undo: MoveUndo) => {
+    setUndoBar(null)
+    const threads = await undoBlockMove(undo)
+    setThreadList(chatList(threads))
+    const here = threadRef.current
+    if (here === undo.source || here === undo.target) showChat(threads[undo.source] && !threads[undo.source].deleted ? undo.source : here, threads)
+    // Taken back: the same move isn't suggested again.
+    const keys = new Set(undo.keys)
+    if (threadRef.current === undo.source) {
+      setMessages((list) => list.map((m) => (keys.has(entryKey(m)) ? { ...m, dismissed: { ...m.dismissed, move: true as const } } : m)))
+    }
+    orgEvent({ kind: "organize", action: "undone", what: undo.before.target ? "move" : "new" })
+  }
+  const takeMove = async (move: OrganizeMove) => {
+    const source = threadRef.current
+    const target = move.to ?? newThreadId()
+    setOrg(null)
+    const moved = await moveBlock(source, move.start, move.end, target)
+    if (!moved) return
+    setThreadList(chatList(moved.threads))
+    const left = moved.threads[source]
+    // The panel stays on this chat ("Open" goes to the other one), unless nothing is left in it.
+    if (left && !left.deleted) setMessages(left.m)
+    else showChat(target, moved.threads)
+    orgEvent({ kind: "organize", action: "accepted", what: move.to ? "move" : "new", why: move.why })
+    setUndoBar({
+      text: t("orgMoved", move.toName),
+      actions: [
+        { label: t("orgUndo"), run: () => void undoChatMove(moved.undo) },
+        { label: t("orgOpen"), run: () => { setUndoBar(null); void loadThreads().then(({ threads }) => showChat(target, threads)) } }
+      ]
+    })
+    won()
+  }
+  const refuseMove = (move: OrganizeMove) => {
+    setMessages((list) => list.map((m, i) => (i < move.start || i > move.end ? m : { ...m, dismissed: { ...m.dismissed, move: true as const } })))
+    setOrg((o) => o && { ...o, move: null })
+    orgEvent({ kind: "organize", action: "dismissed", what: move.to ? "move" : "new", why: move.why })
+  }
+
+  // The bar goes on the next action: a press anywhere else (a question, a note or another chat clear it too).
+  useEffect(() => {
+    if (!undoBar) return
+    const onDown = (e: PointerEvent) => {
+      if (!e.composedPath().some((el) => (el as HTMLElement).classList?.contains("cf-undo-bar"))) setUndoBar(null)
+    }
+    window.addEventListener("pointerdown", onDown, true)
+    return () => window.removeEventListener("pointerdown", onDown, true)
+  }, [undoBar])
+
+  /** The row of suggestions under the message at `idx`: its tag, and the move of the block it ends. */
+  const organizeRow = (idx: number): VNode | null => {
+    if (!orgNow) return null
+    const tag = orgNow.tags.find((x) => x.index === idx && messages[idx] && entryKey(messages[idx]) === x.key)?.tag
+    const move = orgNow.move && orgNow.move.end === idx ? orgNow.move : undefined
+    if (!tag && !move) return null
+    return (
+      <OrganizeRow
+        tag={tag}
+        move={move}
+        onTag={() => tag && takeTag(idx, tag)}
+        onTagNo={() => tag && refuseTag(idx, tag)}
+        onMove={() => move && void takeMove(move)}
+        onMoveNo={() => move && refuseMove(move)}
+      />
+    )
+  }
+
+  // Cards: turn suggestions on (Pro, off, the chat looks like it needs them), "Everything in one chat?" (without Pro),
+  // and after the third tag (without Pro). Each once; closing one is final.
+  const shownChat: Thread = { id: threadRef.current, u: 0, m: messages }
+  const chatBlocks = pageBlocks(messages)
+  const mixed = messages.length > 0 && !historyMode && looksMixed(shownChat, orgCfg)
+  const pageElsewhere = chatBlocks.length >= 2 && chatBlocks.some((b) => b.url && threadList.some((x) => x.id !== threadRef.current && x.m.some((e) => e.page?.url === b.url)))
+  // Nothing until the plan is known: a Pro user mustn't see the free card while the status loads.
+  const idle = status !== null && !status.offline && !streaming && !historyMode && !picked && !error
+  const consentCard = TARGET === "safari" && plan === "pro" && Boolean(status?.organize?.on) && !settings.organize && cards !== null && !cards.consent && idle && (mixed || pageElsewhere)
+  const promoOk = TARGET === "safari" && plan !== "pro" && cards !== null && idle
+  const messCard = promoOk && !cards?.mess?.closed && (messFor === threadRef.current ||
+    (mixed && !cards?.mess?.chats.includes(threadRef.current) && Date.now() - (cards?.mess?.at ?? 0) > orgCfg.messHours * 3_600_000))
+  useEffect(() => {
+    if (!messCard || messFor === threadRef.current) return
+    const id = threadRef.current
+    setMessFor(id)
+    void setOrganizeCards({ mess: { chats: [...(cards?.mess?.chats ?? []), id].slice(-50), at: Date.now() } }).then(setCards)
+    orgEvent({ kind: "organize_promo", action: "shown", where: "inchat_mess" })
+  }, [messCard])
+  useEffect(() => {
+    if (upsell && TARGET === "safari" && plan !== "pro") orgEvent({ kind: "organize_promo", action: "shown", where: "pro_card" })
+  }, [upsell])
+
+  /** Tags the user set on a message: after their third tag in all, what organizing does (without Pro, once). */
+  const userTags = (index: number, next: string[]) => {
+    const known = new Set(allTags(threadList).map((x) => x.tag.toLowerCase()))
+    for (const m of messages) for (const tag of m.tags ?? []) known.add(tag.toLowerCase())
+    const added = cleanTags(next).filter((tag) => !known.has(tag.toLowerCase())).length
+    tagMessage(index, next)
+    if (known.size < 3 && known.size + added >= 3 && TARGET === "safari" && plan !== "pro" && cards && !cards.thirdTag) {
+      setTagsCard(true)
+      void setOrganizeCards({ thirdTag: true }).then(setCards)
+      orgEvent({ kind: "organize_promo", action: "shown", where: "third_tag" })
+    }
+  }
+  const turnOnOrganize = (from: "card" | "settings") => {
+    updateSettings({ organize: true })
+    void setOrganizeCards({ consent: "accepted" }).then(setCards)
+    orgEvent({ kind: "organize_optin", action: "accepted", from })
+  }
+  const tryOrganizePro = (where: "inchat_mess" | "third_tag" | "settings") => {
+    orgEvent({ kind: "organize_promo", action: "tap", where })
+    if (byok) upgrade("pro_only")
+    else void openApp("subscribe", "organize")
+  }
+  const organizeCardsView = (
+    <>
+      {consentCard && (
+        <OrganizeCard
+          kind="consent"
+          onPrimary={() => turnOnOrganize("card")}
+          onClose={() => {
+            void setOrganizeCards({ consent: "declined" }).then(setCards)
+            orgEvent({ kind: "organize_optin", action: "declined", from: "card" })
+          }}
+        />
+      )}
+      {messCard && (
+        <OrganizeCard
+          kind="mess"
+          pro={byok ? (byokDiscount !== null ? t("upgradeProOff", byokDiscount) : t("upgradePro")) : undefined}
+          onPrimary={() => tryOrganizePro("inchat_mess")}
+          onClose={() => {
+            setMessFor(null)
+            void setOrganizeCards({ mess: { chats: cards?.mess?.chats ?? [], at: cards?.mess?.at ?? Date.now(), closed: true } }).then(setCards)
+          }}
+        />
+      )}
+      {tagsCard && !messCard && promoOk && (
+        <OrganizeCard kind="tags" pro={byok ? t("upgradePro") : undefined} onPrimary={() => tryOrganizePro("third_tag")} onClose={() => setTagsCard(false)} />
+      )}
+      {firstWin && orgOn && <div class="cf-org-win" role="status"><Icon.Sparkle size={13} /> {t("orgFirstWin")}</div>}
+    </>
+  )
 
   const theme = settings.theme === "auto" ? undefined : settings.theme
   // The last message is a question still without an answer (a note doesn't count).
@@ -1554,7 +1792,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               usage={usage}
               platform={platform}
               site={source.site()}
-              onChange={updateSettings}
+              onChange={(patch) => {
+                if (patch.organize === true) turnOnOrganize("settings")
+                else updateSettings(patch)
+              }}
+              onOrganizePro={() => tryOrganizePro("settings")}
               onUpgrade={() => (byok ? upgrade("settings") : void openApp("subscribe"))}
               upgradeLabel={byokDiscount !== null ? t("upgradeProOff", byokDiscount) : t("upgradePro")}
               onManage={() => void openApp("manage")}
@@ -1660,6 +1902,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     ))}
                   </div>
                 )}
+
+                {organizeCardsView}
 
                 {byokCard && byokDiscount !== null && !error && partial === null && (
                   <div class="cf-card offer">
@@ -1801,6 +2045,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 </footer>
               ) : (
                 <footer class="cf-composer">
+                  {undoBar && <UndoBar text={undoBar.text} actions={undoBar.actions} />}
                   {noteHint && draft.trim() && !noteMode && <div class="cf-note-hint" role="status">{t(touch ? "noteHintTouch" : "noteHintMouse")}</div>}
                   <div class={`cf-input ${noteMode ? "note" : ""}`}>
                     {!noteMode && !historyMode && (

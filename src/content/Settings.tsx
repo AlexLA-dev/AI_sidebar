@@ -27,6 +27,8 @@ interface Props {
   onOpenTemplates: () => void
   // A link to ContextFlow's X or Threads (counted, no text).
   onSocial: (network: "x" | "threads") => void
+  // Organizing (2.5) without Pro: what it does opens the Pro screen.
+  onOrganizePro: () => void
 }
 
 function Segmented<T extends string>({ value, options, onChange }: { value: T; options: [T, string][]; onChange: (v: T) => void }): VNode {
@@ -191,6 +193,21 @@ export function SettingsView(props: Props): VNode {
       </section>
 
       <section class="cf-group">
+        {TARGET === "safari" && (plan === "pro" ? (
+          <>
+            <label class="cf-row toggle">
+              <span class="cf-label">{t("setOrganize")}</span>
+              <input type="checkbox" checked={settings.organize} onChange={(e) => onChange({ organize: e.currentTarget.checked })} />
+            </label>
+            <p class="cf-hint">{t("setOrganizeHint")}</p>
+          </>
+        ) : (
+          <div class="cf-row cf-org-setting-pro">
+            <span class="cf-label">{t("setOrganize")} <span class="cf-pro-badge">Pro</span></span>
+            <button type="button" class="cf-link" onClick={props.onOrganizePro}>{t("getPro")}</button>
+          </div>
+        ))}
+        {TARGET === "safari" && plan !== "pro" && <p class="cf-hint">{t("setOrganizePro")}</p>}
         {TARGET === "safari" && (
           <>
             <label class="cf-row toggle">

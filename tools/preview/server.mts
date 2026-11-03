@@ -202,6 +202,18 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     const body = JSON.parse(String(init?.body))
     return geminiStream(body.contents[body.contents.length - 1].parts[0].text)
   }
+  // Organizing (2.5): vectors from the words of a text (texts sharing words are alike), so the stand's chats get
+  // suggestions without OpenAI; the tag check says yes to every candidate.
+  if (url === "https://api.openai.com/v1/embeddings") {
+    const body = JSON.parse(String(init?.body))
+    const data = (body.input as string[]).map((text, index) => ({ index, embedding: wordVector(text, body.dimensions) }))
+    return new Response(JSON.stringify({ data, usage: { total_tokens: data.length * 40 } }), { headers: { "Content-Type": "application/json" } })
+  }
+  if (url.startsWith("https://api.anthropic.com/v1/messages") && !JSON.parse(String(init?.body)).stream) {
+    const body = JSON.parse(String(init?.body))
+    const tags = [...String(body.messages[0].content).matchAll(/<examples tag="([^"]+)">/g)].map((m) => ({ tag: m[1], fits: true, confidence: 0.9 }))
+    return new Response(JSON.stringify({ id: "msg_judge", type: "message", role: "assistant", model: body.model, content: [{ type: "text", text: JSON.stringify({ tags }) }], stop_reason: "end_turn", stop_sequence: null, usage: { input_tokens: 1600, output_tokens: 40 } }), { headers: { "Content-Type": "application/json" } })
+  }
   if (url.startsWith("https://api.anthropic.com/v1/messages")) {
     const body = JSON.parse(String(init?.body))
     lastClaudeRequest = { model: body.model, max_tokens: body.max_tokens, output_config: body.output_config, thinking: body.thinking ?? null, fallbacks: body.fallbacks }
@@ -256,6 +268,19 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
   return realFetch(input, init)
 }) as typeof fetch
 
+/** A stand-in embedding: each word (its first 5 letters, lower case) adds to a few of `dims` numbers. */
+function wordVector(text: string, dims: number): number[] {
+  const v = new Array(dims).fill(0)
+  for (const word of text.toLowerCase().match(/[\p{L}\p{N}]{3,}/gu) ?? []) {
+    let hash = 2166136261
+    for (const ch of word.slice(0, 5)) hash = Math.imul(hash ^ ch.codePointAt(0)!, 16777619) >>> 0
+    v[hash % dims] += 1
+    v[(hash >>> 8) % dims] += 0.5
+  }
+  const n = Math.hypot(...v) || 1
+  return v.map((x) => x / n)
+}
+
 // PREVIEW_PLAN=pro (or byok): requests carry a subscription signed with the test chain (trusted here only).
 let proJws: string | null = null
 if (process.env.PREVIEW_PROMO === "1") {
@@ -281,7 +306,8 @@ const event = (await import("../../netlify/functions/v2-event.mts")).default
 const find = (await import("../../netlify/functions/v2-find.mts")).default
 const promo = (await import("../../netlify/functions/v2-promo.mts")).default
 const insert = (await import("../../netlify/functions/v2-insert.mts")).default
-const handlers: Record<string, typeof chat> = { "/api/v2/chat": chat, "/api/v2/status": status, "/api/v2/event": event, "/api/v2/find": find, "/api/v2/promo": promo, "/api/v2/insert": insert }
+const organize = (await import("../../netlify/functions/v2-organize.mts")).default
+const handlers: Record<string, typeof chat> = { "/api/v2/chat": chat, "/api/v2/status": status, "/api/v2/event": event, "/api/v2/find": find, "/api/v2/promo": promo, "/api/v2/insert": insert, "/api/v2/organize": organize }
 
 const pages: Record<string, string> = {
   "/": "article.html",
@@ -312,7 +338,7 @@ createServer(async (req, res) => {
     if (url.pathname === "/api/v2/event") {
       try {
         const sent = JSON.parse(Buffer.concat(chunks).toString("utf8"))
-        panelEvents.push(`${sent.kind}:${sent.media ?? sent.where ?? sent.reason ?? ""}`)
+        panelEvents.push(`${sent.kind}:${sent.media ?? sent.where ?? sent.reason ?? sent.action ?? ""}${sent.what ? `:${sent.what}` : ""}`)
       } catch {
         // not JSON
       }
