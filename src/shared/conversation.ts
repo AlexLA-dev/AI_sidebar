@@ -90,8 +90,8 @@ export function pageRef(entries: Entry[], url: string, title: string, text: stri
 }
 
 /**
- * When the chat came to a page, by its title: "Nov 1 (2 days ago)", "Nov 3 (today)", in `locale`; the
- * year only when it isn't this one.
+ * When the chat came to a page, by its title: "Nov 1 (2 days ago)", the same day "Nov 3 (3 hours
+ * ago)", in `locale`; the year only when it isn't this one.
  */
 export function pageWhen(at: number, now: number, locale: string): string {
   const day = new Date(at)
@@ -101,7 +101,17 @@ export function pageWhen(at: number, now: number, locale: string): string {
   const days = Math.max(0, Math.round((start(today) - start(day)) / 86_400_000))
   const year = day.getFullYear() !== today.getFullYear() ? { year: "numeric" as const } : {}
   const date = day.toLocaleDateString(locale, { day: "numeric", month: "short", ...year })
-  return `${date} (${new Intl.RelativeTimeFormat(locale, { numeric: "auto" }).format(-days, "day")})`
+  return `${date} (${pageAgo(days, Math.max(0, now - at), locale)})`
+}
+
+/** "2 days ago"; the same day in hours, minutes or "now" (another device's clock may run a bit ahead). */
+function pageAgo(days: number, ms: number, locale: string): string {
+  const relative = new Intl.RelativeTimeFormat(locale, { numeric: "auto" })
+  if (days > 0) return relative.format(-days, "day")
+  const minutes = Math.floor(ms / 60_000)
+  if (minutes < 1) return relative.format(0, "second")
+  if (minutes < 60) return relative.format(-minutes, "minute")
+  return relative.format(-Math.floor(minutes / 60), "hour")
 }
 
 /** The page texts kept in the chat: the latest one of each page, the most recent page first. */

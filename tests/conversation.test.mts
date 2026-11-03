@@ -148,7 +148,11 @@ test("pageRef keeps the page's text the first time and when it changed, cut to t
 
 test("pageWhen gives the page's date and how many days ago, in the language", () => {
   const now = new Date(2026, 10, 3, 9, 0).getTime()
-  assert.equal(pageWhen(new Date(2026, 10, 3, 1, 0).getTime(), now, "en"), "Nov 3 (today)")
+  assert.equal(pageWhen(new Date(2026, 10, 3, 1, 0).getTime(), now, "en"), "Nov 3 (8 hours ago)")
+  assert.equal(pageWhen(new Date(2026, 10, 3, 6, 40).getTime(), now, "ru"), "3 нояб. (2 часа назад)")
+  assert.equal(pageWhen(new Date(2026, 10, 3, 8, 55).getTime(), now, "en"), "Nov 3 (5 minutes ago)")
+  assert.equal(pageWhen(new Date(2026, 10, 3, 8, 59, 40).getTime(), now, "en"), "Nov 3 (now)")
+  assert.equal(pageWhen(new Date(2026, 10, 3, 9, 1).getTime(), now, "ru"), "3 нояб. (сейчас)")
   assert.equal(pageWhen(new Date(2026, 10, 2, 23, 50).getTime(), now, "en"), "Nov 2 (yesterday)")
   assert.equal(pageWhen(new Date(2026, 9, 25, 12, 0).getTime(), now, "en"), "Oct 25 (9 days ago)")
   assert.equal(pageWhen(new Date(2025, 11, 30, 12, 0).getTime(), now, "en"), "Dec 30, 2025 (308 days ago)")

@@ -21,7 +21,8 @@ struct ChatEntry: Decodable, Hashable {
         /// When the question or note was written (ms since 1970); missing before 2.4.
         var at: Double?
 
-        /// "1 Nov (2 days ago)": when the chat came to this page, shown by its title. Nil before 2.4.
+        /// "1 Nov (2 days ago)", the same day "3 Nov (3 hours ago)": when the chat came to this page, shown
+        /// by its title. Nil before 2.4.
         func when(now: Date = Date()) -> String? {
             guard let at else { return nil }
             let date = Date(timeIntervalSince1970: at / 1000)
@@ -32,7 +33,13 @@ struct ChatEntry: Decodable, Hashable {
                 : Date.FormatStyle.dateTime.day().month(.abbreviated).year()
             let relative = RelativeDateTimeFormatter()
             relative.dateTimeStyle = .named
-            return "\(date.formatted(style)) (\(relative.localizedString(from: DateComponents(day: -days))))"
+            // The same day in hours, minutes or "now" (another device's clock may run a bit ahead).
+            let minutes = max(0, Int(now.timeIntervalSince(date) / 60))
+            let ago = days > 0 ? DateComponents(day: -days)
+                : minutes < 1 ? DateComponents(second: 0)
+                : minutes < 60 ? DateComponents(minute: -minutes)
+                : DateComponents(hour: -(minutes / 60))
+            return "\(date.formatted(style)) (\(relative.localizedString(from: ago)))"
         }
     }
 
