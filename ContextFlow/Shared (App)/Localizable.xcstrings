@@ -19603,6 +19603,2478 @@
           }
         }
       }
+    },
+    "Suggested": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vorschlag"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sugerencia"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suggestion"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suggerimento"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提案"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "추천"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sugestão"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подсказка"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Підказка"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "建议"
+          }
+        }
+      }
+    },
+    "Suggested tag “%@”. Add it": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vorgeschlagener Tag „%@“. Hinzufügen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Etiqueta sugerida «%@». Añadirla"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tag suggéré « %@ ». L’ajouter"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tag suggerito «%@». Aggiungilo"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提案されたタグ「%@」。追加する"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "추천 태그 ‘%@’. 추가하기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tag sugerida “%@”. Adicionar"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Предложенный тег «%@». Добавить"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Запропонований тег «%@». Додати"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "建议标签“%@”。添加"
+          }
+        }
+      }
+    },
+    "Move these messages to a new chat, “%@”": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diese Nachrichten in einen neuen Chat „%@“ verschieben"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mover estos mensajes a un chat nuevo, «%@»"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Déplacer ces messages vers une nouvelle discussion, « %@ »"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sposta questi messaggi in una nuova chat, «%@»"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "これらのメッセージを新しいチャット「%@」に移動"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 메시지들을 새 채팅으로 옮기기: ‘%@’"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mover estas mensagens para uma nova conversa, “%@”"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отделить эти сообщения в новый чат «%@»"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Винести ці повідомлення в новий чат «%@»"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将这些消息移到新对话“%@”"
+          }
+        }
+      }
+    },
+    "Move %@ to the chat “%@”": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ in den Chat „%@“ verschieben"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mover %@ al chat «%@»"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Déplacer %@ vers la discussion « %@ »"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sposta %@ nella chat «%@»"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@をチャット「%@」に移動"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@를 ‘%@’ 채팅으로 옮기기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mover %@ para a conversa “%@”"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перенести %@ в чат «%@»"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перенести %@ до чату «%@»"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将 %@移到对话“%@”"
+          }
+        }
+      }
+    },
+    "To a new chat: “%@”": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In einen neuen Chat: „%@“"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A un chat nuevo: «%@»"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vers une nouvelle discussion : « %@ »"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In una nuova chat: «%@»"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新しいチャットへ：「%@」"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "새 채팅으로: ‘%@’"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para uma nova conversa: “%@”"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отделить в новый чат: «%@»"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Винести в новий чат: «%@»"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "移到新对话：“%@”"
+          }
+        }
+      }
+    },
+    "%@ to “%@”": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ nach „%@“"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ a «%@»"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ vers « %@ »"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ in «%@»"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@を「%@」へ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@를 ‘%@’에"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ para “%@”"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ в «%@»"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ до «%@»"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@移到“%@”"
+          }
+        }
+      }
+    },
+    "%lld messages": {
+      "localizations": {
+        "de": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Nachricht"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Nachrichten"
+                }
+              }
+            }
+          }
+        },
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld message"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld messages"
+                }
+              }
+            }
+          }
+        },
+        "es": {
+          "variations": {
+            "plural": {
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld mensajes"
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld mensaje"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld mensajes"
+                }
+              }
+            }
+          }
+        },
+        "fr": {
+          "variations": {
+            "plural": {
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld messages"
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld message"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld messages"
+                }
+              }
+            }
+          }
+        },
+        "it": {
+          "variations": {
+            "plural": {
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld messaggi"
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld messaggio"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld messaggi"
+                }
+              }
+            }
+          }
+        },
+        "ja": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld件のメッセージ"
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "메시지 %lld개"
+                }
+              }
+            }
+          }
+        },
+        "pt-BR": {
+          "variations": {
+            "plural": {
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld mensagens"
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld mensagem"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld mensagens"
+                }
+              }
+            }
+          }
+        },
+        "ru": {
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld сообщения"
+                }
+              },
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld сообщений"
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld сообщение"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld сообщения"
+                }
+              }
+            }
+          }
+        },
+        "uk": {
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld повідомлення"
+                }
+              },
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld повідомлень"
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld повідомлення"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld повідомлення"
+                }
+              }
+            }
+          }
+        },
+        "zh-Hans": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld 条消息"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Moved to “%@”": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nach „%@“ verschoben"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Movido a «%@»"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Déplacé vers « %@ »"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spostato in «%@»"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「%@」に移動しました"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‘%@’에 옮겼어요"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Movido para “%@”"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перенесено в «%@»"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перенесено до «%@»"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已移到“%@”"
+          }
+        }
+      }
+    },
+    "Dismiss": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ablehnen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descartar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ignorer"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ignora"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提案を閉じる"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "추천 닫기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ignorar"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отклонить"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відхилити"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "忽略"
+          }
+        }
+      }
+    },
+    "Undo": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Widerrufen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deshacer"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Annuler"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Annulla"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取り消す"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "실행 취소"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desfazer"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отменить"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Скасувати"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "撤销"
+          }
+        }
+      }
+    },
+    "Open": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öffnen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "開く"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "열기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Открыть"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відкрити"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开"
+          }
+        }
+      }
+    },
+    "Close": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schließen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cerrar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fermer"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chiudi"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "閉じる"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "닫기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fechar"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Закрыть"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Закрити"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭"
+          }
+        }
+      }
+    },
+    "Turn on": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einschalten"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activer"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attiva"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オンにする"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "켜기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ativar"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Включить"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Увімкнути"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开启"
+          }
+        }
+      }
+    },
+    "Try Pro": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro testen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Probar Pro"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Essayer Pro"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prova Pro"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro を試す"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro 사용해 보기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Experimentar o Pro"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Попробовать Pro"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Спробувати Pro"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "试用 Pro"
+          }
+        }
+      }
+    },
+    "Turn on suggestions": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vorschläge einschalten"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activar sugerencias"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activer les suggestions"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attiva i suggerimenti"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提案をオンにする"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "추천 켜기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ativar sugestões"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Включить подсказки"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Увімкнути підказки"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开启建议"
+          }
+        }
+      }
+    },
+    "Suggestions": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vorschläge"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sugerencias"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suggestions"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suggerimenti"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提案"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "추천"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sugestões"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подсказки"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Підказки"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "建议"
+          }
+        }
+      }
+    },
+    "Suggestions: tags and moving": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vorschläge: Tags und Verschieben"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sugerencias: etiquetas y mover"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suggestions : tags et déplacement"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suggerimenti: tag e spostamenti"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提案：タグと移動"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "추천: 태그와 옮기기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sugestões: tags e mover"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подсказки: теги и перенос"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Підказки: теги й перенесення"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "建议：标签和移动"
+          }
+        }
+      }
+    },
+    "Sorts by topic": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sortiert nach Themen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ordena por tema"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Classe par sujet"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ordina per argomento"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "トピックごとに整理"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "주제별로 정리"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Organiza por assunto"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сам раскладывает по темам"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сам розкладає за темами"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按主题整理"
+          }
+        }
+      }
+    },
+    "Sort your chats by topic?": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chats nach Themen sortieren?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Ordenar tus chats por tema?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Classer vos discussions par sujet ?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ordinare le chat per argomento?"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "チャットをトピックごとに整理しますか？"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "채팅을 주제별로 정리할까요?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Organizar suas conversas por assunto?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Разложить чаты по темам?"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Розкласти чати за темами?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按主题整理你的对话？"
+          }
+        }
+      }
+    },
+    "ContextFlow will suggest a fitting chat and one of your tags under new answers and notes. For this, the text of your messages goes to our server and to OpenAI and Anthropic. We don't keep it. OpenAI and Anthropic don't use it for training.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow schlägt unter neuen Antworten und Notizen einen passenden Chat und einen deiner Tags vor. Dafür geht der Text deiner Nachrichten an unseren Server und an OpenAI und Anthropic. Wir speichern ihn nicht. OpenAI und Anthropic nutzen ihn nicht zum Training."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow te sugerirá un chat adecuado y una de tus etiquetas bajo las respuestas y notas nuevas. Para ello, el texto de tus mensajes va a nuestro servidor y a OpenAI y Anthropic. No lo guardamos. OpenAI y Anthropic no lo usan para entrenar."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow suggérera une discussion adaptée et l’un de vos tags sous les nouvelles réponses et notes. Pour cela, le texte de vos messages est envoyé à notre serveur, à OpenAI et à Anthropic. Nous ne le conservons pas. OpenAI et Anthropic ne l’utilisent pas pour l’entraînement."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow suggerirà una chat adatta e uno dei tuoi tag sotto le nuove risposte e note. Per farlo, il testo dei tuoi messaggi va al nostro server e a OpenAI e Anthropic. Non lo conserviamo. OpenAI e Anthropic non lo usano per l’addestramento."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新しい回答やメモの下に、ContextFlow が合うチャットとあなたのタグを1つ提案します。そのため、メッセージのテキストが当社のサーバーと OpenAI、Anthropic に送られます。当社はこれを保存しません。OpenAI と Anthropic は学習に使いません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "새 답변과 메모 아래에 ContextFlow가 알맞은 채팅과 내 태그 하나를 추천해요. 이를 위해 메시지 텍스트가 당사 서버와 OpenAI, Anthropic으로 전송돼요. 당사는 이를 저장하지 않아요. OpenAI와 Anthropic은 이를 학습에 사용하지 않아요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O ContextFlow vai sugerir uma conversa adequada e uma das suas tags embaixo das novas respostas e notas. Para isso, o texto das suas mensagens vai para o nosso servidor e para a OpenAI e a Anthropic. Não guardamos esse texto. A OpenAI e a Anthropic não o usam para treinamento."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow будет подсказывать подходящий чат и ваш тег под новыми ответами и заметками. Для этого текст сообщений уходит на наш сервер и к OpenAI и Anthropic. Мы его не храним. OpenAI и Anthropic не используют его для обучения."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow підказуватиме потрібний чат і ваш тег під новими відповідями й нотатками. Для цього текст повідомлень надсилається на наш сервер і до OpenAI та Anthropic. Ми його не зберігаємо. OpenAI та Anthropic не використовують його для навчання."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow 会在新的回答和笔记下方建议合适的对话和你的一个标签。为此，你的消息文本会发送到我们的服务器以及 OpenAI 和 Anthropic。我们不保存这些文本。OpenAI 和 Anthropic 不会用它来训练模型。"
+          }
+        }
+      }
+    },
+    "Everything in one chat?": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alles in einem Chat?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Todo en un mismo chat?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tout dans une seule discussion ?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tutto in una sola chat?"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全部ひとつのチャットに？"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "모든 게 한 채팅에?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tudo numa conversa só?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Всё в одном чате?"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Усе в одному чаті?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全都在一个对话里？"
+          }
+        }
+      }
+    },
+    "In Pro, ContextFlow suggests what goes where and puts on tags the way you do.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit Pro schlägt ContextFlow vor, was wohin gehört, und setzt Tags so, wie du es tust."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Con Pro, ContextFlow sugiere qué va en cada sitio y pone etiquetas como lo haces tú."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avec Pro, ContextFlow suggère ce qui va où et ajoute les tags comme vous le faites."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Con Pro, ContextFlow suggerisce cosa va dove e mette i tag come fai tu."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro なら、何をどこに移すかを ContextFlow が提案し、あなたと同じようにタグを付けます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro에서는 ContextFlow가 무엇을 어디로 옮길지 추천하고, 내가 하듯이 태그를 달아요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Pro, o ContextFlow sugere o que vai para onde e coloca tags do jeito que você coloca."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В Pro ContextFlow подскажет, что куда переложить, и поставит теги так, как ставите их вы."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "У Pro ContextFlow підкаже, що куди перенести, і ставитиме теги так, як ставите їх ви."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用 Pro 时，ContextFlow 会建议什么内容该放到哪里，并像你一样加标签。"
+          }
+        }
+      }
+    },
+    "ContextFlow can tag the way you do": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow kann Tags setzen wie du"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow puede etiquetar como tú"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow peut taguer comme vous"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow può mettere i tag come fai tu"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow はあなたと同じようにタグを付けられます"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow가 나처럼 태그를 달 수 있어요"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O ContextFlow pode colocar tags do seu jeito"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow может ставить теги так, как вы"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow може ставити теги так, як ви"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow 能像你一样加标签"
+          }
+        }
+      }
+    },
+    "In Pro it suggests one of your tags under new answers and notes, from where you put it yourself.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit Pro schlägt ContextFlow unter neuen Antworten und Notizen einen deiner Tags vor – danach, wo du ihn selbst setzt."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Con Pro, sugiere una de tus etiquetas bajo las respuestas y notas nuevas, según dónde la pones tú."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avec Pro, il suggère l’un de vos tags sous les nouvelles réponses et notes, d’après les endroits où vous le mettez vous-même."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Con Pro suggerisce uno dei tuoi tag sotto le nuove risposte e note, in base a dove lo metti tu."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro なら、あなたが自分でタグを付けた場所をもとに、新しい回答やメモの下にあなたのタグを1つ提案します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro에서는 내가 직접 태그를 단 곳을 바탕으로 새 답변과 메모 아래에 내 태그 하나를 추천해요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Pro, ele sugere uma das suas tags embaixo das novas respostas e notas, de acordo com onde você mesmo a coloca."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В Pro он подскажет ваш тег под новыми ответами и заметками — по тому, где вы ставили его сами."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "У Pro він підкаже ваш тег під новими відповідями й нотатками — за тим, де ви ставили його самі."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用 Pro 时，它会根据你自己加标签的位置，在新的回答和笔记下方建议你的一个标签。"
+          }
+        }
+      }
+    },
+    "Done. From now on ContextFlow will suggest on its own.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erledigt. Ab jetzt macht ContextFlow selbst Vorschläge."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Listo. A partir de ahora ContextFlow te hará sugerencias por su cuenta."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "C’est fait. Désormais, ContextFlow fera ses suggestions tout seul."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fatto. D’ora in poi ContextFlow suggerirà da solo."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完了しました。これからは ContextFlow が自分から提案します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "완료. 이제부터 ContextFlow가 알아서 추천해요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pronto. Daqui em diante, o ContextFlow vai sugerir sozinho."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Готово. Дальше ContextFlow будет подсказывать сам."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Готово. Далі ContextFlow підказуватиме сам."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完成。从现在起，ContextFlow 会自己给出建议。"
+          }
+        }
+      }
+    },
+    "A fitting chat and your tag under new answers and notes. The text of your messages goes to our server and to OpenAI and Anthropic. We don't keep it; they don't use it for training.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein passender Chat und dein Tag unter neuen Antworten und Notizen. Der Text deiner Nachrichten geht an unseren Server und an OpenAI und Anthropic. Wir speichern ihn nicht, und sie nutzen ihn nicht zum Training."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un chat adecuado y tu etiqueta bajo las respuestas y notas nuevas. El texto de tus mensajes va a nuestro servidor y a OpenAI y Anthropic. No lo guardamos, y ellos no lo usan para entrenar."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une discussion adaptée et votre tag sous les nouvelles réponses et notes. Le texte de vos messages est envoyé à notre serveur, à OpenAI et à Anthropic. Nous ne le conservons pas, et ils ne l’utilisent pas pour l’entraînement."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Una chat adatta e il tuo tag sotto le nuove risposte e note. Il testo dei tuoi messaggi va al nostro server e a OpenAI e Anthropic. Non lo conserviamo, e loro non lo usano per l’addestramento."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新しい回答やメモの下に、合うチャットとあなたのタグを表示します。メッセージのテキストは当社のサーバーと OpenAI、Anthropic に送られます。当社は保存せず、OpenAI と Anthropic は学習に使いません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "새 답변과 메모 아래에 알맞은 채팅과 내 태그를 보여 줘요. 메시지 텍스트는 당사 서버와 OpenAI, Anthropic으로 전송돼요. 당사는 저장하지 않고, OpenAI와 Anthropic은 학습에 사용하지 않아요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uma conversa adequada e sua tag embaixo das novas respostas e notas. O texto das suas mensagens vai para o nosso servidor e para a OpenAI e a Anthropic. Não guardamos esse texto, e elas não o usam para treinamento."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Под новыми ответами и заметками — подходящий чат и ваш тег. Текст сообщений уходит на наш сервер, к OpenAI и Anthropic. Мы его не храним, они не используют его для обучения."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Під новими відповідями й нотатками — потрібний чат і ваш тег. Текст повідомлень надсилається на наш сервер, до OpenAI та Anthropic. Ми його не зберігаємо, вони не використовують його для навчання."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在新的回答和笔记下方显示合适的对话和你的标签。你的消息文本会发送到我们的服务器以及 OpenAI 和 Anthropic。我们不保存这些文本，它们也不会用它来训练模型。"
+          }
+        }
+      }
+    },
+    "Pro: ContextFlow suggests a fitting chat and your tag under new answers and notes.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro: ContextFlow schlägt unter neuen Antworten und Notizen einen passenden Chat und deinen Tag vor."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro: ContextFlow sugiere un chat adecuado y tu etiqueta bajo las respuestas y notas nuevas."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro : ContextFlow suggère une discussion adaptée et votre tag sous les nouvelles réponses et notes."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro: ContextFlow suggerisce una chat adatta e il tuo tag sotto le nuove risposte e note."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro：新しい回答やメモの下に、ContextFlow が合うチャットとあなたのタグを提案します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro: 새 답변과 메모 아래에 ContextFlow가 알맞은 채팅과 내 태그를 추천해요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro: o ContextFlow sugere uma conversa adequada e sua tag embaixo das novas respostas e notas."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В Pro ContextFlow подсказывает подходящий чат и ваш тег под новыми ответами и заметками."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "У Pro ContextFlow підказує потрібний чат і ваш тег під новими відповідями й нотатками."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro：ContextFlow 会在新的回答和笔记下方建议合适的对话和你的标签。"
+          }
+        }
+      }
+    },
+    "Where it belongs (Pro)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alles an seinem Platz (Pro)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cada cosa en su sitio (Pro)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chaque chose à sa place (Pro)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ogni cosa al suo posto (Pro)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "あるべき場所へ（Pro）"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "제자리로(Pro)"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cada coisa no seu lugar (Pro)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Всё по местам (Pro)"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Усе на своїх місцях (Pro)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "各归其位（Pro）"
+          }
+        }
+      }
+    },
+    "Asked about a car in the chat about a sofa? Under the answer, ContextFlow suggests the chat it belongs in, or a new one. One tap moves it there, by date; Undo puts it back.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Im Chat übers Sofa nach einem Auto gefragt? Unter der Antwort schlägt ContextFlow den Chat vor, in den sie gehört, oder einen neuen. Ein Tippen verschiebt sie dorthin, nach Datum einsortiert; „Widerrufen“ holt sie zurück."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Preguntaste por un coche en el chat del sofá? Bajo la respuesta, ContextFlow sugiere el chat donde va, o uno nuevo. Un toque lo mueve allí, en orden de fecha; Deshacer lo devuelve."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une question sur une voiture dans la discussion sur un canapé ? Sous la réponse, ContextFlow suggère la discussion où elle a sa place, ou une nouvelle. Touchez, et elle y est déplacée, à sa date ; Annuler la remet en place."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hai chiesto di un’auto nella chat sul divano? Sotto la risposta, ContextFlow suggerisce la chat in cui va, o una nuova. Un tocco e ci finisce, in ordine di data; Annulla la riporta indietro."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ソファのチャットで車のことを聞きましたか？回答の下に、ContextFlow がふさわしいチャットか新しいチャットを提案します。タップひとつで日付順にそこへ移り、「取り消す」で元に戻ります。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "소파 채팅에서 자동차를 물어봤나요? 답변 아래에 ContextFlow가 어울리는 채팅이나 새 채팅을 추천해요. 탭 한 번이면 날짜순으로 그곳에 옮겨지고, ‘실행 취소’로 되돌릴 수 있어요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perguntou sobre um carro na conversa sobre um sofá? Embaixo da resposta, o ContextFlow sugere a conversa certa para ela, ou uma nova. Um toque a move para lá, por data; Desfazer a traz de volta."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Спросили про машину в чате про диван? Под ответом ContextFlow подскажет чат, где ему место, или новый. Одно нажатие переносит его туда по дате, «Отменить» возвращает назад."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Запитали про машину в чаті про диван? Під відповіддю ContextFlow підкаже чат, де їй місце, або новий. Одне натискання переносить її туди за датою, «Скасувати» повертає назад."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在聊沙发的对话里问了汽车的事？ContextFlow 会在回答下方建议它该去的对话，或一个新对话。点一下就按日期移过去，“撤销”可以移回来。"
+          }
+        }
+      }
+    },
+    "Your tags, suggested (Pro)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deine Tags als Vorschlag (Pro)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tus etiquetas, sugeridas (Pro)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos tags, suggérés (Pro)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I tuoi tag, suggeriti (Pro)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "あなたのタグを提案（Pro）"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "내 태그 추천(Pro)"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suas tags, sugeridas (Pro)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подскажет ваш тег (Pro)"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Підкаже ваш тег (Pro)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "建议你的标签（Pro）"
+          }
+        }
+      }
+    },
+    "ContextFlow learns what your tags mean from where you put them, and suggests the right one under a new answer or note. Only your own tags, only when they fit.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow lernt daran, wo du deine Tags setzt, was sie bedeuten, und schlägt unter einer neuen Antwort oder Notiz den passenden vor. Nur deine eigenen Tags und nur, wenn sie passen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow aprende qué significan tus etiquetas según dónde las pones, y sugiere la adecuada bajo una respuesta o nota nueva. Solo tus propias etiquetas, solo cuando encajan."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow apprend ce que signifient vos tags d’après les endroits où vous les mettez, et suggère le bon sous une nouvelle réponse ou note. Seulement vos propres tags, seulement quand ils conviennent."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow capisce cosa significano i tuoi tag da dove li metti, e suggerisce quello giusto sotto una nuova risposta o nota. Solo i tuoi tag, solo quando calzano."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow は、あなたがタグを付けた場所からそのタグの意味を学び、新しい回答やメモの下に合うタグを提案します。あなた自身のタグだけを、合うときだけ。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow는 내가 태그를 단 곳을 보고 태그의 뜻을 배워, 새 답변이나 메모 아래에 알맞은 태그를 추천해요. 내 태그만, 어울릴 때만."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O ContextFlow aprende o que suas tags significam pelo lugar onde você as coloca, e sugere a certa embaixo de uma nova resposta ou nota. Só as suas próprias tags, só quando combinam."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow понимает, что значат ваши теги, по тому, где вы их ставите, и подсказывает нужный под новым ответом или заметкой. Только ваши теги и только когда они подходят."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow розуміє, що означають ваші теги, з того, де ви їх ставите, і підказує потрібний під новою відповіддю чи нотаткою. Лише ваші теги й лише тоді, коли вони пасують."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow 会从你加标签的位置了解每个标签的含义，并在新的回答或笔记下方建议合适的那个。只用你自己的标签，只在合适时建议。"
+          }
+        }
+      }
+    },
+    "ContextFlow reads a page only when you ask, and sends just its text to get the answer. Your chats stay on your devices and in your iCloud. With suggestions on, the text of new messages also goes to our server to find where they belong; we don't keep it.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow liest eine Seite nur, wenn du fragst, und sendet nur ihren Text, um die Antwort zu bekommen. Deine Chats bleiben auf deinen Geräten und in deiner iCloud. Mit eingeschalteten Vorschlägen geht der Text neuer Nachrichten außerdem an unseren Server, um herauszufinden, wohin sie gehören; wir speichern ihn nicht."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow lee una página solo cuando preguntas y envía únicamente su texto para obtener la respuesta. Tus chats se quedan en tus dispositivos y en tu iCloud. Con las sugerencias activadas, el texto de los mensajes nuevos también va a nuestro servidor para ver dónde encajan; no lo guardamos."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow ne lit une page que lorsque vous posez une question, et n’envoie que son texte pour obtenir la réponse. Vos discussions restent sur vos appareils et dans votre iCloud. Si les suggestions sont activées, le texte des nouveaux messages est aussi envoyé à notre serveur pour trouver leur place ; nous ne le conservons pas."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow legge una pagina solo quando chiedi e invia solo il suo testo per ottenere la risposta. Le tue chat restano sui tuoi dispositivi e nel tuo iCloud. Con i suggerimenti attivi, il testo dei nuovi messaggi va anche al nostro server per capire dove vanno; non lo conserviamo."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlowがページを読むのは質問したときだけで、回答のために送るのはそのテキストのみです。チャットはあなたのデバイスとiCloudに保存されます。提案をオンにすると、新しいメッセージのテキストも、どこに入るかを見つけるために当社のサーバーに送られます。当社は保存しません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow는 질문할 때만 페이지를 읽고, 답변을 위해 그 텍스트만 보냅니다. 채팅은 내 기기와 iCloud에만 남습니다. 추천을 켜면 새 메시지의 텍스트도 어디에 맞는지 찾기 위해 당사 서버로 전송됩니다. 당사는 이를 저장하지 않습니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O ContextFlow lê uma página só quando você pergunta e envia apenas o texto dela para obter a resposta. Suas conversas ficam nos seus dispositivos e no seu iCloud. Com as sugestões ativadas, o texto das novas mensagens também vai para o nosso servidor para encontrar o lugar delas; não guardamos esse texto."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow читает страницу, только когда вы спрашиваете, и отправляет лишь её текст, чтобы получить ответ. Ваши чаты остаются на ваших устройствах и в вашем iCloud. Если подсказки включены, текст новых сообщений также уходит на наш сервер, чтобы найти, куда они относятся; мы его не храним."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow читає сторінку, лише коли ви запитуєте, і надсилає тільки її текст, щоб отримати відповідь. Ваші чати залишаються на ваших пристроях і у вашому iCloud. Якщо підказки ввімкнено, текст нових повідомлень також надсилається на наш сервер, щоб знайти, куди вони належать; ми його не зберігаємо."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow 只在你提问时读取页面，并且只发送页面文字来获取回答。你的对话保存在你的设备和 iCloud 中。开启建议后，新消息的文本也会发送到我们的服务器，用来判断它们该放在哪里；我们不会保存这些文本。"
+          }
+        }
+      }
+    },
+    "Suggests the right chat for what you just asked, and your own tag for it.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schlägt den richtigen Chat für das vor, was du gerade gefragt hast, und deinen eigenen Tag dafür."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sugiere el chat adecuado para lo que acabas de preguntar, y tu propia etiqueta para ello."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suggère la bonne discussion pour ce que vous venez de demander, et votre propre tag."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suggerisce la chat giusta per ciò che hai appena chiesto, e il tuo tag."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "今聞いたことに合うチャットと、あなた自身のタグを提案します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "방금 물어본 내용에 맞는 채팅과 내 태그를 추천해요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sugere a conversa certa para o que você acabou de perguntar, e sua própria tag para isso."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подскажет нужный чат для того, что вы только что спросили, и ваш тег для него."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Підкаже потрібний чат для того, що ви щойно запитали, і ваш тег для нього."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "为你刚问的内容建议合适的对话，以及你自己的标签。"
+          }
+        }
+      }
+    },
+    "Sorts by topic: suggests the right chat and your own tag": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sortiert nach Themen: schlägt den richtigen Chat und deinen eigenen Tag vor"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ordena por tema: sugiere el chat adecuado y tu propia etiqueta"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Classe par sujet : suggère la bonne discussion et votre propre tag"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ordina per argomento: suggerisce la chat giusta e il tuo tag"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "トピックごとに整理：合うチャットとあなたのタグを提案"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "주제별로 정리: 알맞은 채팅과 내 태그를 추천"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Organiza por assunto: sugere a conversa certa e sua própria tag"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сам раскладывает по темам: подскажет нужный чат и ваш тег"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сам розкладає за темами: підкаже потрібний чат і ваш тег"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按主题整理：建议合适的对话和你自己的标签"
+          }
+        }
+      }
+    },
+    "Under a new answer or note, ContextFlow suggests the chat it belongs in, or a new one, and one of your own tags. One tap, and it's there.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unter einer neuen Antwort oder Notiz schlägt ContextFlow den Chat vor, in den sie gehört, oder einen neuen, und einen deiner eigenen Tags. Ein Tippen, und sie ist dort."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bajo una respuesta o nota nueva, ContextFlow sugiere el chat donde va, o uno nuevo, y una de tus propias etiquetas. Un toque y ya está allí."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sous une nouvelle réponse ou note, ContextFlow suggère la discussion où elle a sa place, ou une nouvelle, et l’un de vos propres tags. Touchez, et c’est fait."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sotto una nuova risposta o nota, ContextFlow suggerisce la chat in cui va, o una nuova, e uno dei tuoi tag. Un tocco, ed è lì."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新しい回答やメモの下に、ContextFlow がふさわしいチャットか新しいチャット、そしてあなたのタグを1つ提案します。タップひとつでそこへ移ります。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "새 답변이나 메모 아래에 ContextFlow가 어울리는 채팅이나 새 채팅, 그리고 내 태그 하나를 추천해요. 탭 한 번이면 끝이에요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Embaixo de uma nova resposta ou nota, o ContextFlow sugere a conversa certa para ela, ou uma nova, e uma das suas próprias tags. Um toque, e pronto."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Под новым ответом или заметкой ContextFlow подскажет чат, где ему место, или новый, и один из ваших тегов. Одно нажатие — и готово."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Під новою відповіддю чи нотаткою ContextFlow підкаже чат, де їй місце, або новий, і один із ваших тегів. Одне натискання — і готово."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow 会在新的回答或笔记下方建议它该去的对话或一个新对话，以及你自己的一个标签。点一下就到位。"
+          }
+        }
+      }
+    },
+    "For this, the text of your messages goes to our server and to OpenAI and Anthropic. We don't keep it. OpenAI and Anthropic don't use it for training.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dafür geht der Text deiner Nachrichten an unseren Server und an OpenAI und Anthropic. Wir speichern ihn nicht. OpenAI und Anthropic nutzen ihn nicht zum Training."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para ello, el texto de tus mensajes va a nuestro servidor y a OpenAI y Anthropic. No lo guardamos. OpenAI y Anthropic no lo usan para entrenar."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pour cela, le texte de vos messages est envoyé à notre serveur, à OpenAI et à Anthropic. Nous ne le conservons pas. OpenAI et Anthropic ne l’utilisent pas pour l’entraînement."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Per farlo, il testo dei tuoi messaggi va al nostro server e a OpenAI e Anthropic. Non lo conserviamo. OpenAI e Anthropic non lo usano per l’addestramento."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "そのため、メッセージのテキストが当社のサーバーと OpenAI、Anthropic に送られます。当社はこれを保存しません。OpenAI と Anthropic は学習に使いません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이를 위해 메시지 텍스트가 당사 서버와 OpenAI, Anthropic으로 전송돼요. 당사는 이를 저장하지 않아요. OpenAI와 Anthropic은 이를 학습에 사용하지 않아요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para isso, o texto das suas mensagens vai para o nosso servidor e para a OpenAI e a Anthropic. Não guardamos esse texto. A OpenAI e a Anthropic não o usam para treinamento."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Для этого текст сообщений уходит на наш сервер и к OpenAI и Anthropic. Мы его не храним. OpenAI и Anthropic не используют его для обучения."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Для цього текст повідомлень надсилається на наш сервер і до OpenAI та Anthropic. Ми його не зберігаємо. OpenAI та Anthropic не використовують його для навчання."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "为此，你的消息文本会发送到我们的服务器以及 OpenAI 和 Anthropic。我们不保存这些文本。OpenAI 和 Anthropic 不会用它来训练模型。"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
