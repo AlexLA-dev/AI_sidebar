@@ -152,6 +152,11 @@ test("a moved message keeps every field (chat UX's highlights, pins, reminders) 
   // "To a new chat".
   const split = moveEntries({ s: source }, {}, "s", 2, 4, "fresh", 1_000)!
   same(split.threads.fresh.m)
+
+  // The sweep after iCloud brought the old copy of the source back: the moved copies stay as they are.
+  const swept = sweepMoved({ ...moved.threads, s: source }, {}, 2_000).threads
+  assert.deepEqual(swept.s.m.map((e) => e.content), ["Sofa?", "Fits"])
+  same(swept.t.m.slice(2))
 })
 
 test("undo: both chats as they were when nothing changed since; else the messages go back by key", () => {
