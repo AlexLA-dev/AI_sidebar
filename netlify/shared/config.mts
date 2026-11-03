@@ -1,9 +1,19 @@
 // Runtime configuration. Every value can be overridden from the Netlify UI
 // (Project configuration → Environment variables) without a code change.
 
+import { organizeConfig } from "../../src/shared/organize.ts"
+
 function env(name: string): string | undefined {
   const fromNetlify = (globalThis as { Netlify?: { env: { get(k: string): string | undefined } } }).Netlify?.env.get(name)
   return fromNetlify ?? process.env[name]
+}
+
+function parsed(raw: string | undefined): unknown {
+  try {
+    return raw ? JSON.parse(raw) : undefined
+  } catch {
+    return undefined
+  }
 }
 
 function int(name: string, fallback: number): number {
@@ -117,7 +127,29 @@ export const config = {
   promoDiscount: int("PROMO_DISCOUNT", 50),
   promoProductId: (env("PROMO_PRODUCT_ID") ?? "com.contextflow.pro.monthly").trim(),
   // Apps that may ask for a signature (the iOS and macOS apps share one bundle id).
-  appBundleIds: (env("APP_BUNDLE_IDS") ?? "com.contextflow.app").split(",").map((s) => s.trim()).filter(Boolean)
+  appBundleIds: (env("APP_BUNDLE_IDS") ?? "com.contextflow.app").split(",").map((s) => s.trim()).filter(Boolean),
+
+  // Organizing the chats (2.5, Pro, by consent): /api/v2/organize turns message texts into vectors and checks
+  // tag candidates, and keeps nothing; /api/v2/status gives the panel and the app the thresholds below.
+  // ORGANIZE=off switches the suggestions off everywhere (the devices stop asking).
+  organize: {
+    enabled: (env("ORGANIZE") ?? "on").trim() !== "off",
+    embedModel: (env("ORGANIZE_EMBED_MODEL") ?? "text-embedding-3-small").trim(),
+    dims: int("ORGANIZE_DIMS", 256),
+    // The tag check: Claude Haiku 5.5, and OpenAI's smallest model when Claude can't answer.
+    judgeModel: (env("ORGANIZE_JUDGE_MODEL") ?? "claude-haiku-5-5").trim(),
+    judgeFallback: (env("ORGANIZE_JUDGE_FALLBACK") ?? "gpt-5-nano").trim(),
+    // Requests a Pro subscriber may make a day (vectors go in batches of up to 128 texts), and all together.
+    embedDaily: int("ORGANIZE_EMBED_DAILY", 150),
+    tagsDaily: int("ORGANIZE_TAGS_DAILY", 300),
+    globalDaily: int("ORGANIZE_GLOBAL_DAILY", 100_000),
+    // The quality thresholds (src/shared/organize.ts): JSON with any of them, e.g. {"moveT":0.5}.
+    thresholds: organizeConfig(parsed(env("ORGANIZE_THRESHOLDS"))),
+    // USD per million tokens, for the spend in the logs (text-embedding-3-small; Claude Haiku 5.5 up to 100K).
+    embedPrice: Number(env("ORGANIZE_EMBED_PRICE") ?? 0.02),
+    judgePriceIn: Number(env("ORGANIZE_JUDGE_PRICE_IN") ?? 0.1),
+    judgePriceOut: Number(env("ORGANIZE_JUDGE_PRICE_OUT") ?? 0.5)
+  }
 }
 
 export const PRODUCTS = {
