@@ -41,6 +41,16 @@ struct ChatsView: View {
 
     private var searching: Bool { !query.trimmingCharacters(in: .whitespaces).isEmpty }
 
+    /// A reminder's notification was tapped: the chat the message is in now, at the message (2.5).
+    @ObservedObject private var links = ChatLinks.shared
+    @State private var linked: (threadId: String, index: Int)?
+
+    private func openLinked() {
+        guard let request = links.pending, let found = library.find(messageKey: request.message, hint: request.chat) else { return }
+        links.pending = nil
+        linked = (found.thread.id, found.index)
+    }
+
     var body: some View {
         List {
             if aiSearch {
@@ -55,6 +65,14 @@ struct ChatsView: View {
         .listStyle(.insetGrouped)
         .refreshable { await library.refreshNow() }
         #endif
+        .background(
+            NavigationLink(isActive: Binding(get: { linked != nil }, set: { if !$0 { linked = nil } })) {
+                if let linked { ChatDetailView(library: library, threadId: linked.threadId, scrollTo: linked.index, openPro: openPro) }
+            } label: { EmptyView() }
+            .hidden()
+        )
+        .onReceive(links.$pending) { _ in openLinked() }
+        .onChange(of: library.threads.count) { _ in openLinked() }
         .searchable(text: $query, prompt: aiSearch ? Text("Describe the chat you're looking for…") : Text("Search chats"))
         .onSubmit(of: .search) { runFind() }
         .onChange(of: query) { value in
@@ -894,6 +912,16 @@ struct ChatDetailView: View {
     @State private var firstWin = false
     @State private var organizeTick = 0
     @State private var seen = Set<String>()
+    // Chat UX (2.5): which pinned message the bar shows (and until when scrolling doesn't move it), the message whose
+    // reminder is being set (and why it wasn't), a deleted message's Undo, the message flashing after a tap on the
+    // bar, and whether text is being selected (no swiping then).
+    @State private var pinAt = Int.max
+    @State private var pinLock = Date.distantPast
+    @State private var reminding: Int?
+    @State private var remindNote: String?
+    @State private var deleted: (text: LocalizedStringKey, threadId: String, at: Int, entries: [[String: Any]])?
+    @State private var flash: Int?
+    @State private var selecting = false
 
     private var currentId: String { shownId ?? threadId }
     private var thread: ChatThread? { library.threads.first { $0.id == currentId } }
@@ -912,7 +940,10 @@ struct ChatDetailView: View {
                                 }
                                 pickRow(index) {
                                     VStack(alignment: entry.isUser ? .trailing : .leading, spacing: 8) {
-                                        MessageView(entry: entry)
+                                        MessageView(entry: entry, onMarks: picked == nil ? { marks in setMarks(thread, index, marks) } : nil, onSelecting: { selecting = $0 })
+                                        if let remind = entry.remind, !entry.isUser || entry.isNote {
+                                            RemindChip(at: Date(timeIntervalSince1970: remind.at / 1000)) { remindNote = nil; reminding = index }
+                                        }
                                         // Under an answer and under a note: its tags, then Copy, Share and Tag
                                         // (not while picking messages to share).
                                         if !entry.isUser || entry.isNote, picked == nil {
@@ -922,11 +953,28 @@ struct ChatDetailView: View {
                                                 tagging: tagging == index,
                                                 shareText: entry.isNote ? ShareText.note(thread.entries, index, labels) : ShareText.answer(thread.entries, index, labels),
                                                 copy: {
-                                                    Clipboard.copy(entry.isNote ? ShareText.noteCopy(entry) : ShareText.plain(entry.content))
+                                                    if !entry.isNote, let marks = entry.marks, !marks.isEmpty {
+                                                        // Highlights go as bold to apps that take rich text.
+                                                        RichAnswer.copy(RichAnswer.bold(entry.content, marks: marks), plain: ShareText.plain(entry.content))
+                                                        ChatAI.reportUx("ux_mark", ["action": "copied"])
+                                                    } else {
+                                                        Clipboard.copy(entry.isNote ? ShareText.noteCopy(entry) : ShareText.plain(entry.content))
+                                                    }
                                                     copied = index
                                                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { if copied == index { copied = nil } }
                                                 },
-                                                tag: { withAnimation(.easeOut(duration: 0.15)) { tagging = tagging == index ? nil : index } }
+                                                tag: { withAnimation(.easeOut(duration: 0.15)) { tagging = tagging == index ? nil : index } },
+                                                shareRich: !entry.isNote && !(entry.marks ?? []).isEmpty ? {
+                                                    RichAnswer.share(RichAnswer.bold(entry.content, marks: entry.marks ?? []), plain: ShareText.plain(entry.content))
+                                                    ChatAI.reportUx("ux_mark", ["action": "shared"])
+                                                } : nil,
+                                                actions: MessageActions(
+                                                    pinned: entry.pinned != nil,
+                                                    reminded: entry.remind != nil,
+                                                    pin: { togglePin(thread, index, how: "menu") },
+                                                    remind: { remindNote = nil; reminding = index },
+                                                    delete: { deleteMessage(thread, index, how: "menu") }
+                                                )
                                             )
                                             .frame(maxWidth: .infinity, alignment: entry.isUser ? .trailing : .leading)
                                             if tagging == index {
@@ -942,6 +990,25 @@ struct ChatDetailView: View {
                                         }
                                     }
                                 }
+                                .background(RoundedRectangle(cornerRadius: 12).fill(Color.orange.opacity(flash == index ? 0.18 : 0)).padding(-6))
+                                .modifier(MessageSwipe(
+                                    enabled: picked == nil && !selecting && (!entry.isUser || entry.isNote),
+                                    pinned: entry.pinned != nil,
+                                    delete: { deleteMessage(thread, index, how: "swipe") },
+                                    pin: { togglePin(thread, index, how: "swipe") }
+                                ))
+                                .background(entry.pinned == nil ? nil : GeometryReader { g in
+                                    Color.clear.preference(key: PinnedTops.self, value: [index: g.frame(in: .named("chat")).minY])
+                                })
+                                #if os(macOS)
+                                .contextMenu {
+                                    if !entry.isUser || entry.isNote, picked == nil {
+                                        Button { togglePin(thread, index, how: "menu") } label: { Label(entry.pinned != nil ? "Unpin" : "Pin", systemImage: entry.pinned != nil ? "pin.slash" : "pin") }
+                                        Button { remindNote = nil; reminding = index } label: { Label(entry.remind != nil ? "Change reminder" : "Remind me", systemImage: "bell") }
+                                        Button(role: .destructive) { deleteMessage(thread, index, how: "menu") } label: { Label("Delete", systemImage: "trash") }
+                                    }
+                                }
+                                #endif
                                 .id(index)
                             }
                             if picked == nil, asking == nil, failure == nil {
@@ -967,9 +1034,35 @@ struct ChatDetailView: View {
                         .frame(maxWidth: 760)
                         .frame(maxWidth: .infinity)
                     }
+                    .coordinateSpace(name: "chat")
+                    .onPreferenceChange(PinnedTops.self) { tops in
+                        guard Date() > pinLock else { return }
+                        let pinned = pinnedItems(thread)
+                        // The nearest pinned above what's on screen (the oldest when all are below).
+                        let above = pinned.indices.last { (tops[pinned[$0].index] ?? .infinity) < 0 }
+                        let next = above ?? 0
+                        if next != pinAt { pinAt = next }
+                    }
+                    .safeAreaInset(edge: .top, spacing: 0) {
+                        let pinned = pinnedItems(thread)
+                        if !pinned.isEmpty, picked == nil {
+                            PinnedBar(items: pinned, at: Binding(get: { min(pinAt, pinned.count - 1) }, set: { pinAt = $0 }), open: { index in
+                                pinLock = Date().addingTimeInterval(1)
+                                withAnimation { proxy.scrollTo(index, anchor: .center) }
+                                flashMessage(index)
+                                ChatAI.reportUx("ux_pin", ["action": "bar_tap", "how": "bar"])
+                            }, unpin: { index in
+                                togglePin(thread, index, how: "list")
+                            }, unpinAll: {
+                                library.unpinAll(thread)
+                                ChatAI.reportUx("ux_pin", ["action": "unpinned_all", "how": "list"])
+                            })
+                        }
+                    }
                     .onAppear {
                         guard let scrollTo else { return }
                         DispatchQueue.main.async { proxy.scrollTo(scrollTo, anchor: .center) }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { flashMessage(scrollTo) }
                     }
                     .onChange(of: streaming) { _ in proxy.scrollTo("end", anchor: .bottom) }
                     .onChange(of: asking) { _ in proxy.scrollTo("end", anchor: .bottom) }
@@ -995,11 +1088,32 @@ struct ChatDetailView: View {
                         ])
                         .padding(.horizontal, 12)
                         .padding(.bottom, 8)
+                    } else if let gone = deleted {
+                        DeletedBar(text: gone.text) {
+                            withAnimation { deleted = nil }
+                            if let thread = library.threads.first(where: { $0.id == gone.threadId }) {
+                                library.restoreEntries(thread, at: gone.at, gone.entries)
+                                rescheduleReminders(thread, gone.entries)
+                            }
+                            ChatAI.reportUx("ux_delete", ["action": "undone"])
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.bottom, 8)
+                    }
+                }
+                .sheet(isPresented: Binding(get: { reminding != nil }, set: { if !$0 { reminding = nil } })) {
+                    if let index = reminding, thread.entries.indices.contains(index) {
+                        let current = thread.entries[index].remind.map { Date(timeIntervalSince1970: $0.at / 1000) }
+                        RemindSheet(current: current, note: remindNote, pick: { at, preset in
+                            Task { await setReminder(thread, index, at: at, preset: preset) }
+                        }, cancel: {
+                            Task { await setReminder(thread, index, at: nil, preset: nil) }
+                        })
                     }
                 }
                 .task(id: "\(thread.id):\(thread.entries.count):\(asking == nil):\(organizeTick)") { await suggest(thread) }
                 // The bar after a move goes on the next action: a question, a note, another suggestion, leaving the chat.
-                .onDisappear { undoBar = nil }
+                .onDisappear { undoBar = nil; deleted = nil }
                 .safeAreaInset(edge: .bottom) {
                     if let picked {
                         pickBar(thread, picked, labels)
@@ -1272,6 +1386,82 @@ struct ChatDetailView: View {
     }
 
     /// Tags the user set on a message: after their third tag in all, what organizing does (without Pro, once).
+    // MARK: Chat UX (2.5)
+
+    private func pinnedItems(_ thread: ChatThread) -> [(index: Int, entry: ChatEntry)] {
+        thread.entries.enumerated().filter { $0.element.pinned != nil && (!$0.element.isUser || $0.element.isNote) }.map { ($0.offset, $0.element) }
+    }
+
+    private func flashMessage(_ index: Int) {
+        withAnimation(.easeOut(duration: 0.2)) { flash = index }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { withAnimation(.easeIn(duration: 0.4)) { if flash == index { flash = nil } } }
+    }
+
+    private func setMarks(_ thread: ChatThread, _ index: Int, _ marks: [ChatMark]) {
+        let before = thread.entries.indices.contains(index) ? (thread.entries[index].marks ?? []).count : 0
+        library.setMarks(thread, entry: index, marks)
+        ChatAI.reportUx("ux_mark", ["action": marks.count >= before ? "added" : "removed"])
+    }
+
+    private func togglePin(_ thread: ChatThread, _ index: Int, how: String) {
+        guard thread.entries.indices.contains(index) else { return }
+        let entry = thread.entries[index]
+        let on = entry.pinned == nil
+        library.setEntryPinned(thread, entry: index, on)
+        pinAt = .max
+        ChatAI.reportUx("ux_pin", ["action": on ? "pinned" : "unpinned", "what": entry.isNote ? "note" : "answer", "how": how])
+    }
+
+    /// A note alone; an answer with its question. "Undo" on the bar brings them back.
+    private func deleteMessage(_ thread: ChatThread, _ index: Int, how: String) {
+        guard thread.entries.indices.contains(index) else { return }
+        let entry = thread.entries[index]
+        let withQuestion = !entry.isUser && index > 0 && thread.entries[index - 1].isUser && !thread.entries[index - 1].isNote
+        guard let gone = library.deleteEntries(thread, (withQuestion ? index - 1 : index)...index) else { return }
+        for raw in gone.entries where raw["remind"] != nil {
+            MessageReminders.cancel(chat: thread.id, message: Organize.entryKey(raw))
+        }
+        withAnimation { deleted = (entry.isNote ? "Note deleted" : "Answer deleted", thread.id, gone.at, gone.entries) }
+        ChatAI.reportUx("ux_delete", ["action": "deleted", "what": entry.isNote ? "note" : "answer", "how": how])
+        let shown = gone.at
+        DispatchQueue.main.asyncAfter(deadline: .now() + 8) { if deleted?.at == shown { withAnimation { deleted = nil } } }
+    }
+
+    /// Undo brought messages back: their reminders ring again (those still ahead).
+    private func rescheduleReminders(_ thread: ChatThread, _ entries: [[String: Any]]) {
+        for raw in entries {
+            guard let remind = raw["remind"] as? [String: Any], let at = (remind["at"] as? NSNumber)?.doubleValue, at > Date().timeIntervalSince1970 * 1000 else { continue }
+            let content = raw["content"] as? String ?? ""
+            Task { _ = await MessageReminders.schedule(chat: thread.id, message: Organize.entryKey(raw), at: Date(timeIntervalSince1970: at / 1000), title: thread.name, body: ReminderTimes.text(content), ask: false) }
+        }
+    }
+
+    /// Sets (or with nil cancels) a message's reminder on this device; the chat keeps the bell.
+    private func setReminder(_ thread: ChatThread, _ index: Int, at: Date?, preset: String?) async {
+        guard let raw = thread.organized?.entries, raw.indices.contains(index) else { return }
+        let entry = thread.entries[index]
+        let key = Organize.entryKey(raw[index])
+        guard let at else {
+            MessageReminders.cancel(chat: thread.id, message: key)
+            library.setRemind(thread, entry: index, nil)
+            reminding = nil
+            ChatAI.reportUx("ux_remind", ["action": "cancelled", "what": "message"])
+            return
+        }
+        let page = entry.remind?.page == true ? entry.page.flatMap { URL(string: $0.url) } : nil
+        let outcome = await MessageReminders.schedule(chat: thread.id, message: key, at: at,
+                                                      title: page != nil ? (entry.page?.title ?? thread.name) : thread.name,
+                                                      body: ReminderTimes.text(entry.content), open: page, ask: true)
+        guard outcome == .scheduled else {
+            remindNote = String(localized: "Notifications are off for ContextFlow. Turn them on in Settings → Notifications → ContextFlow.")
+            ChatAI.reportUx("ux_remind", ["action": "denied", "what": "message"])
+            return
+        }
+        library.setRemind(thread, entry: index, ChatRemind(at: at.timeIntervalSince1970 * 1000, dev: String(Activation.shared.appId.prefix(12)), page: entry.remind?.page))
+        reminding = nil
+        ChatAI.reportUx("ux_remind", ["action": "set", "what": "message", "preset": preset ?? "custom"])
+    }
+
     private func userTags(_ thread: ChatThread, _ index: Int, _ tags: [String]) {
         let known = Set(library.allTags.map { $0.lowercased() })
         let added = Tags.clean(tags).filter { !known.contains($0.lowercased()) }.count
@@ -1469,6 +1659,9 @@ private struct PageDivider: View {
 
 private struct MessageView: View {
     let entry: ChatEntry
+    /// Answers in a chat: selectable, with "Highlight" (2.5); nil: as plain Markdown (an answer coming in).
+    var onMarks: (([ChatMark]) -> Void)? = nil
+    var onSelecting: (Bool) -> Void = { _ in }
 
     var body: some View {
         if entry.isNote {
@@ -1507,7 +1700,11 @@ private struct MessageView: View {
                         .font(.caption.weight(.semibold))
                         .foregroundColor(.secondary)
                 }
-                MarkdownView(text: entry.content)
+                if let onMarks {
+                    AnswerText(text: entry.content, marks: entry.marks ?? [], onChange: onMarks, onSelecting: onSelecting)
+                } else {
+                    MarkdownView(text: entry.content)
+                }
                 if entry.noPages == true {
                     Label("This chat doesn't keep its pages' text, so answers here use what's said in it.", systemImage: "info.circle")
                         .font(.footnote)
@@ -1706,6 +1903,10 @@ private struct MessageTools: View {
     let copy: () -> Void
     /// Opens or closes the tag picker; nil: no tags here ("Ask your chats").
     var tag: (() -> Void)?
+    /// An answer with highlights: shared as rich text, the highlights in bold (2.5).
+    var shareRich: (() -> Void)? = nil
+    /// Pin, remind and delete in "…" (2.5); nil: none ("Ask your chats").
+    var actions: MessageActions? = nil
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -1718,11 +1919,25 @@ private struct MessageTools: View {
                 Button(action: copy) {
                     Label(copied ? "Copied" : "Copy", systemImage: copied ? "checkmark" : "doc.on.doc")
                 }
-                ShareLink(item: shareText) { Label("Share", systemImage: "square.and.arrow.up") }
+                if let shareRich {
+                    Button(action: shareRich) { Label("Share", systemImage: "square.and.arrow.up") }
+                } else {
+                    ShareLink(item: shareText) { Label("Share", systemImage: "square.and.arrow.up") }
+                }
                 if let tag {
                     Button(action: tag) { Label("Tag", systemImage: "tag") }
                         .background(Capsule().fill(tagging ? Color.secondary.opacity(0.14) : .clear))
                         .accessibilityAddTraits(tagging ? .isSelected : [])
+                }
+                if let actions {
+                    Menu {
+                        Button(action: actions.pin) { Label(actions.pinned ? "Unpin" : "Pin", systemImage: actions.pinned ? "pin.slash" : "pin") }
+                        Button(action: actions.remind) { Label(actions.reminded ? "Change reminder" : "Remind me", systemImage: "bell") }
+                        Button(role: .destructive, action: actions.delete) { Label("Delete", systemImage: "trash") }
+                    } label: {
+                        Label("More", systemImage: "ellipsis")
+                    }
+                    .menuIndicator(.hidden)
                 }
             }
             .buttonStyle(MessageToolStyle())
