@@ -1,8 +1,9 @@
 import Foundation
 
 // Organizing the chats (2.5), the app's side of src/shared/conversation.ts, threads.ts and organize.ts:
-// message keys and times, page blocks, moving a block to another chat with undo, and the sweep for moved
-// messages. Plain Foundation and the chats' own JSON (unknown fields are kept): the parity test
+// message keys and times, page blocks, moving a block to another chat with undo, the sweep for moved
+// messages, and the suggestion rules (a better chat for a block, or a new one; the user's own tags for an
+// answer or a note). Plain Foundation and the chats' own JSON (unknown fields are kept): the parity test
 // (tests/organize-parity.test.mts) builds this file on its own and checks it gives what the panel gives.
 
 /// A chat as stored: its id, the time of its copy (ms) and its JSON object `{title?, a?, pin?, k?, tags?, m}`.
@@ -13,6 +14,8 @@ struct OrganizeThread {
 
     var entries: [[String: Any]] { object["m"] as? [[String: Any]] ?? [] }
     var isHistory: Bool { object["k"] as? String == "history" }
+    /// Kept until iCloud knows it's gone (the panel's `deleted`).
+    var isDeleted: Bool { Organize.truthy(object["deleted"]) }
     /// When it last got a message (ms); missing means `u`.
     var activity: Double { (object["a"] as? NSNumber)?.doubleValue ?? Double(u) }
 
@@ -22,6 +25,60 @@ struct OrganizeThread {
         next["a"] = Organize.whole(a)
         return OrganizeThread(id: id, u: u, object: next)
     }
+}
+
+/// What decides a suggestion (src/shared/organize.ts `OrganizeConfig`, chat-organize-2.5.md §2); the server
+/// sends its own values in /api/v2/status. All numbers, as in JavaScript (the counts too).
+struct OrganizeConfig {
+    // Move: the block's fit to the other chat (mean of the two best block similarities), the margin over
+    // its fit to its own chat, and the fit needed when the other chat has a single block.
+    var moveT = 0.45
+    var moveD = 0.1
+    var moveT1 = 0.55
+    // Same site: the fit to the one other chat about that site.
+    var siteT = 0.35
+    // A new chat: the block fits its own chat less than this, and at least `splitMin` blocks stay in it.
+    var splitT = 0.25
+    var splitMin = 2.0
+    // How many of the chat's last blocks get move suggestions, and of its last answers and notes tag suggestions.
+    var window = 3.0
+    var tagWindow = 5.0
+    // Tags: the fit to the tag's examples, the margin over messages without it, how alike its examples are,
+    // and the judge's confidence; at most `maxTags` per message (one: the best, so the chat stays uncluttered).
+    var tagT = 0.4
+    var tagD = 0.05
+    var coherence = 0.3
+    var judge = 0.7
+    var maxTags = 1.0
+    // Refused this many times in a row without one taken: no more such suggestions (in that chat; for that tag).
+    var rollback = 3.0
+    // "Everything in one chat?" (free, on the device): this many sites in the last 5 blocks, or this many
+    // blocks. Once per chat at most, never again after ✕, and at least `messHours` apart.
+    var messSites = 3.0
+    var messBlocks = 6.0
+    var messHours = 72.0
+
+    /// The defaults (`DEFAULT_ORGANIZE`).
+    init() {}
+
+    /// Thresholds as received (the server's, or a stored copy): known numbers 0…1000 only, the rest from the
+    /// defaults (`organizeConfig`). A JSON true or false isn't a number here either.
+    init(_ raw: Any?) {
+        guard let raw = raw as? [String: Any] else { return }
+        for (name, path) in Self.fields {
+            guard let number = raw[name] as? NSNumber, CFGetTypeID(number) != CFBooleanGetTypeID() else { continue }
+            let value = number.doubleValue
+            if value.isFinite, value >= 0, value <= 1_000 { self[keyPath: path] = value }
+        }
+    }
+
+    /// The fields by their names in /status.
+    static let fields: [(name: String, path: WritableKeyPath<OrganizeConfig, Double>)] = [
+        ("moveT", \.moveT), ("moveD", \.moveD), ("moveT1", \.moveT1), ("siteT", \.siteT), ("splitT", \.splitT),
+        ("splitMin", \.splitMin), ("window", \.window), ("tagWindow", \.tagWindow), ("tagT", \.tagT), ("tagD", \.tagD),
+        ("coherence", \.coherence), ("judge", \.judge), ("maxTags", \.maxTags), ("rollback", \.rollback),
+        ("messSites", \.messSites), ("messBlocks", \.messBlocks), ("messHours", \.messHours)
+    ]
 }
 
 enum Organize {
@@ -271,5 +328,551 @@ enum Organize {
             if kept.isEmpty { emptied.append(thread.id) } else { changed.append(thread.with(u: later(thread.u, now), a: thread.activity, m: withPageChanges(kept))) }
         }
         return (changed, emptied)
+    }
+
+    // MARK: JSON as JavaScript reads it
+
+    /// JavaScript's truthiness of a JSON value.
+    static func truthy(_ value: Any?) -> Bool {
+        guard let value, !(value is NSNull) else { return false }
+        if let text = value as? String { return !text.isEmpty }
+        if let number = value as? NSNumber { return number.doubleValue != 0 && !number.doubleValue.isNaN }
+        return true
+    }
+
+    private static func content(_ entry: [String: Any]) -> String { entry["content"] as? String ?? "" }
+    private static func strings(_ value: Any?) -> [String] { value as? [String] ?? [] }
+    /// The page's title, when it has one (JavaScript's `e.page?.title ?`).
+    private static func pageTitle(_ entry: [String: Any]) -> String? { (page(entry)?["title"] as? String).flatMap { $0.isEmpty ? nil : $0 } }
+    private static func isMoveDismissed(_ entry: [String: Any]) -> Bool { truthy((entry["dismissed"] as? [String: Any])?["move"]) }
+    /// JavaScript's `toLowerCase` (Foundation's, not Swift's: it knows the Greek final sigma, as JavaScript does).
+    private static func lower(_ text: String) -> String { text.lowercased(with: nil) }
+    /// `Math.max`: NaN when either is.
+    private static func jsMax(_ a: Double, _ b: Double) -> Double { a.isNaN || b.isNaN ? .nan : max(a, b) }
+
+    /// `Math.round`: the closer whole number, a half up (toward +∞), as V8 works it out.
+    static func jsRound(_ x: Double) -> Double {
+        let up = x.rounded(.up)
+        return up - 0.5 > x ? up - 1 : up
+    }
+
+    /// The first `count` UTF-16 units of `text`, as JavaScript's `slice(0, count)`. A cut through an emoji
+    /// leaves U+FFFD here and half of the emoji in the panel (a Swift string can't hold half of one).
+    static func prefix16(_ text: String, _ count: Int) -> String {
+        text.utf16.count <= count ? text : String(decoding: Array(text.utf16.prefix(count)), as: UTF16.self)
+    }
+
+    // MARK: Texts and vectors
+
+    // A question needs this much text (or a page) to be judged; a note this much.
+    private static let minQuestion = 15
+    private static let minNote = 40
+    static let maxEmbedChars = 1_200
+
+    // JavaScript's whitespace (`\s`, and what `trim` drops), spelled out: ICU's `\s` lacks U+000B and U+FEFF,
+    // and its `\d` takes any digits, JavaScript's only 0–9.
+    private static let jsSpace = "\\t\\n\\u000B\\f\\r \\u00A0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF"
+    private static let citations = try! NSRegularExpression(pattern: "[ \\t]*\\[[0-9]{1,2}\\]\\(https?:[^)\(jsSpace)]+\\)")
+    private static let marks = try! NSRegularExpression(pattern: "[*_`#>|]+")
+    private static let spaces = try! NSRegularExpression(pattern: "[\(jsSpace)]+")
+
+    private static func replacing(_ pattern: NSRegularExpression, in text: String, with template: String) -> String {
+        pattern.stringByReplacingMatches(in: text, range: NSRange(location: 0, length: text.utf16.count), withTemplate: template)
+    }
+
+    /// A text as the rules read it: no citation links (`stripCitations`), no Markdown marks, its whitespace as
+    /// single spaces, trimmed (src/shared/organize.ts `plain`).
+    static func plain(_ text: String) -> String {
+        let bare = replacing(spaces, in: replacing(marks, in: replacing(citations, in: text, with: ""), with: " "), with: " ")
+        // Only spaces are left of the whitespace.
+        return bare.trimmingCharacters(in: CharacterSet(charactersIn: " "))
+    }
+
+    /// What a message is about, as its vector sees it: a question with its page's title (a quick action by its
+    /// name, not its fixed prompt), the start of an answer, a note with its page's title (`embedText`).
+    static func embedText(_ entry: [String: Any]) -> String {
+        let title = pageTitle(entry).map { "\n" + plain($0) } ?? ""
+        let text: String
+        if isNote(entry) {
+            text = prefix16(plain(content(entry)), 1_000) + title
+        } else if isUser(entry) {
+            let label = (entry["label"] as? String).flatMap { $0.isEmpty ? nil : $0 }
+            text = (label.map(plain) ?? prefix16(plain(content(entry)), 600)) + title
+        } else {
+            text = prefix16(plain(content(entry)), 800)
+        }
+        return prefix16(text, maxEmbedChars)
+    }
+
+    /// A vector as it travels and is kept: its numbers scaled to −127…127 (int8), base64 (`packVector`), byte
+    /// for byte as the panel packs it.
+    static func packVector(_ v: [Double]) -> String {
+        var top = 0.0
+        for x in v { top = jsMax(top, abs(x)) }
+        let bytes = v.map { x -> UInt8 in
+            // All zeros (or NaN somewhere): zeros, as JavaScript's `max ? … : 0`.
+            guard top != 0, !top.isNaN else { return 0 }
+            let scaled = jsRound((x / top) * 127)
+            return scaled.isFinite ? UInt8(truncatingIfNeeded: Int(scaled)) : 0
+        }
+        return Data(bytes).base64EncodedString()
+    }
+
+    static func packVector(_ v: [Float]) -> String { packVector(v.map(Double.init)) }
+
+    /// A packed vector back, of unit length (nil when it isn't one), as `unpackVector`.
+    static func unpackVector(_ packed: String) -> [Float]? {
+        guard let bytes = atob(packed), !bytes.isEmpty else { return nil }
+        return unit(bytes.map { Float(Int8(bitPattern: $0)) })
+    }
+
+    /// `atob`: base64 as browsers read it (spaces dropped, the padding optional, stray low bits ignored), nil
+    /// when it isn't base64.
+    static func atob(_ text: String) -> [UInt8]? {
+        var units = text.utf16.filter { ![0x09, 0x0A, 0x0C, 0x0D, 0x20].contains($0) }
+        if units.count % 4 == 0 {
+            if units.last == 0x3D { units.removeLast() }
+            if units.last == 0x3D { units.removeLast() }
+        }
+        if units.count % 4 == 1 { return nil }
+        var bytes: [UInt8] = []
+        var buffer: UInt32 = 0
+        var bits: UInt32 = 0
+        for unit in units {
+            let value: UInt16
+            switch unit {
+            case 0x41...0x5A: value = unit - 0x41
+            case 0x61...0x7A: value = unit - 0x61 + 26
+            case 0x30...0x39: value = unit - 0x30 + 52
+            case 0x2B: value = 62
+            case 0x2F: value = 63
+            default: return nil
+            }
+            buffer = (buffer << 6) | UInt32(value)
+            bits += 6
+            if bits >= 8 {
+                bits -= 8
+                bytes.append(UInt8(truncatingIfNeeded: buffer >> bits))
+            }
+        }
+        return bytes
+    }
+
+    // The numbers below are worked out as the panel works them out: a vector's numbers are kept as Float
+    // (a Float32Array there) and every sum, product and mean is taken in Double (JavaScript's numbers), so
+    // both give the same suggestions, not just close ones.
+
+    /// `v` of unit length, nil when it has none: the length in Double, each number divided in Double and
+    /// kept as Float.
+    private static func unit(_ v: [Float]) -> [Float]? {
+        var n = 0.0
+        for x in v { n += Double(x) * Double(x) }
+        n = n.squareRoot()
+        guard n != 0, !n.isNaN else { return nil }
+        return v.map { Float(Double($0) / n) }
+    }
+
+    static func dot(_ a: [Float], _ b: [Float]) -> Double {
+        var s = 0.0
+        for i in 0..<min(a.count, b.count) { s += Double(a[i]) * Double(b[i]) }
+        return s
+    }
+
+    /// The mean of the `k` best similarities of `v` to `list`, each times its weight (0 for an empty list).
+    private static func topMean(_ v: [Float], _ list: [(v: [Float], w: Double)], _ k: Int) -> Double {
+        if list.isEmpty { return 0 }
+        let sims = list.map { dot(v, $0.v) * $0.w }.sorted(by: >).prefix(k)
+        return sims.reduce(0, +) / Double(sims.count)
+    }
+
+    /// The vectors' mean, of unit length: summed as Float (a Float32Array's `+=`), then `unit`.
+    private static func mean(_ vectors: [[Float]]) -> [Float]? {
+        guard let first = vectors.first else { return nil }
+        var out = [Float](repeating: 0, count: first.count)
+        for v in vectors {
+            for i in out.indices { out[i] += i < v.count ? v[i] : .nan }
+        }
+        return unit(out)
+    }
+
+    /// The message's vector, if the device has it (by its key and text).
+    typealias VectorOf = ([String: Any]) -> [Float]?
+
+    // MARK: Blocks
+
+    /// A page block with what the rules need: its vector, whether it says enough, its time and site, and
+    /// whether someone already decided about it (it was moved here, or a move was turned down).
+    struct ScoredBlock {
+        var start: Int
+        var end: Int
+        var url: String?
+        var v: [Float]?
+        var weak: Bool
+        var t: Double?
+        var host: String
+        var settled: Bool
+        var dismissed: Bool
+    }
+
+    private static let urlCharacters = CharacterSet(charactersIn: "!#$%&'()*+,-./0123456789:;=?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]_abcdefghijklmnopqrstuvwxyz~")
+
+    /// A page's site: its host without "www." ("" for none), as `new URL(url).hostname` gives it for web pages.
+    static func hostOf(_ url: String?) -> String {
+        guard let url, !url.isEmpty else { return "" }
+        // iOS 16 takes no unencoded characters (Safari's URLs have none; a pasted one may).
+        let parsed = URL(string: url) ?? url.addingPercentEncoding(withAllowedCharacters: urlCharacters).flatMap { URL(string: $0) }
+        guard let host = parsed?.host?.lowercased() else { return "" }
+        return host.hasPrefix("www.") ? String(host.dropFirst(4)) : host
+    }
+
+    static func scoredBlocks(_ entries: [[String: Any]], _ vectorOf: VectorOf) -> [ScoredBlock] {
+        let times = entryTimes(entries)
+        return pageBlocks(entries).map { b in
+            let list = entries[b.start...b.end]
+            var signal = 0
+            for e in list where isUser(e) {
+                signal += plain(e["label"] as? String ?? content(e)).utf16.count + (pageTitle(e) != nil ? minQuestion : 0)
+            }
+            let notesOnly = list.allSatisfy(isNote)
+            return ScoredBlock(
+                start: b.start, end: b.end, url: b.url, v: mean(list.compactMap(vectorOf)),
+                weak: signal < (notesOnly ? minNote : minQuestion), t: times[b.start], host: hostOf(b.url),
+                settled: list.contains { truthy($0["from"]) }, dismissed: list.contains(where: isMoveDismissed)
+            )
+        }
+    }
+
+    // MARK: Moves
+
+    enum MoveReason: String {
+        case page, site, topic, apart
+
+        /// The strongest reason first.
+        var rank: Int {
+            switch self {
+            case .page: return 0
+            case .site: return 1
+            case .topic: return 2
+            case .apart: return 3
+            }
+        }
+    }
+
+    struct MoveSuggestion: Equatable {
+        // The messages to move (a block, or several in a row), shown under the last one.
+        var start: Int
+        var end: Int
+        // The chat to move them to; nil: a new chat.
+        var to: String?
+        // Why: the same page is in that chat, the same site, the same topic, or none fits (a new chat).
+        var why: MoveReason
+        var score: Double
+        var current: Double
+    }
+
+    /// True while move suggestions stay on in this chat: fewer than `rollback` refused since the last one taken.
+    static func movesAllowed(_ chat: OrganizeThread, _ all: [OrganizeThread], _ cfg: OrganizeConfig) -> Bool {
+        var taken = -Double.infinity
+        for thread in all {
+            for e in thread.entries {
+                guard let from = e["from"] as? [String: Any], from["chat"] as? String == chat.id else { continue }
+                taken = jsMax(taken, (from["at"] as? NSNumber)?.doubleValue ?? .nan)
+            }
+        }
+        let entries = chat.entries
+        let times = entryTimes(entries)
+        var refused = 0
+        for b in pageBlocks(entries) where entries[b.start...b.end].contains(where: isMoveDismissed) {
+            if (times[b.start] ?? 0) > taken { refused += 1 }
+        }
+        return Double(refused) < cfg.rollback
+    }
+
+    private typealias Other = (thread: OrganizeThread, blocks: [ScoredBlock])
+
+    /// The one move to suggest in `chat` now (or nil): of its last `window` blocks, those that say enough and
+    /// nobody decided about yet are checked — first whether the same page is in another chat (no vectors
+    /// needed), then the same site, then the topic; a block that fits no chat and not its own goes to a new
+    /// chat. Blocks in a row with the same place are one suggestion. The strongest reason wins (`suggestMove`).
+    static func suggestMove(_ chat: OrganizeThread, _ chats: [OrganizeThread], _ vectorOf: VectorOf, _ cfg: OrganizeConfig) -> MoveSuggestion? {
+        if chat.isHistory || chat.isDeleted { return nil }
+        let blocks = scoredBlocks(chat.entries, vectorOf)
+        guard blocks.count >= 2, movesAllowed(chat, chats, cfg) else { return nil }
+        let others: [Other] = chats
+            .filter { $0.id != chat.id && !$0.isDeleted && !$0.isHistory && !$0.entries.isEmpty }
+            .map { ($0, scoredBlocks($0.entries, vectorOf)) }
+        // `window` is a whole number (the panel stops at a fraction; here it starts at the next whole block).
+        let first = Int(max(0, Double(blocks.count) - cfg.window).rounded(.up))
+        var found: [(suggestion: MoveSuggestion, index: Int)] = []
+        for i in first..<blocks.count {
+            let b = blocks[i]
+            if b.weak || b.settled || b.dismissed { continue }
+            var rest = blocks
+            rest.remove(at: i)
+            if let pick = movePlace(b, i, blocks, rest, others, cfg) {
+                found.append((MoveSuggestion(start: b.start, end: b.end, to: pick.to, why: pick.why, score: pick.score, current: pick.current), i))
+            }
+        }
+        // Blocks in a row going to the same chat (or, for a new chat, alike) are moved together.
+        var groups: [(suggestion: MoveSuggestion, index: Int)] = []
+        for (s, index) in found {
+            if let last = groups.last, last.index + 1 == index, last.suggestion.to == s.to, last.suggestion.why == s.why,
+               s.to != nil || alike(blocks[last.index].v, blocks[index].v, cfg.moveT) {
+                var merged = last.suggestion
+                merged.end = s.end
+                merged.score = max(merged.score, s.score)
+                merged.current = min(merged.current, s.current)
+                groups[groups.count - 1] = (merged, index)
+            } else {
+                groups.append((s, index))
+            }
+        }
+        // A new chat for the chat's blocks but not everything: something stays.
+        let possible = groups.map(\.suggestion).filter { g in
+            g.to != nil || Double(blocks.filter { $0.end < g.start || $0.start > g.end }.count) >= cfg.splitMin
+        }
+        return possible.min { a, b in
+            if a.why != b.why { return a.why.rank < b.why.rank }
+            if a.score - a.current != b.score - b.current { return a.score - a.current > b.score - b.current }
+            return a.end > b.end
+        }
+    }
+
+    private static func alike(_ a: [Float]?, _ b: [Float]?, _ threshold: Double) -> Bool {
+        guard let a, let b else { return false }
+        return dot(a, b) >= threshold
+    }
+
+    private static func movePlace(
+        _ b: ScoredBlock, _ i: Int, _ blocks: [ScoredBlock], _ rest: [ScoredBlock], _ others: [Other], _ cfg: OrganizeConfig
+    ) -> (to: String?, why: MoveReason, score: Double, current: Double)? {
+        // The same page, already in another chat and not elsewhere in this one (the chat written in last;
+        // of equals, the first, as the panel's stable sort).
+        if let url = b.url, !url.isEmpty, !rest.contains(where: { $0.url == url }) {
+            var there: OrganizeThread?
+            for o in others where o.blocks.contains(where: { $0.url == url }) {
+                if there == nil || o.thread.activity > there!.activity { there = o.thread }
+            }
+            if let there { return (there.id, .page, 1, 0) }
+        }
+        guard let v = b.v else { return nil }
+        // The fit to its own chat: its blocks outside the window, else all its other blocks.
+        let outside = blocks.enumerated().filter { j, x in Double(j) < Double(blocks.count) - cfg.window && j != i && x.v != nil }.map(\.element)
+        let base = (outside.isEmpty ? rest.filter { $0.v != nil } : outside).map { (v: $0.v!, w: 1.0) }
+        let current = topMean(v, base, 2)
+        // The same site: one other chat is about it (half its blocks or more, two at least), this one isn't.
+        if !b.host.isEmpty, !rest.contains(where: { $0.host == b.host }) {
+            let about = others.filter { o in
+                let on = o.blocks.filter { $0.host == b.host }.count
+                return on >= 2 && on * 2 >= o.blocks.count
+            }
+            if about.count == 1 {
+                let vs = about[0].blocks.compactMap(\.v).map { (v: $0, w: 1.0) }
+                let score = topMean(v, vs, 2)
+                if !vs.isEmpty, score >= cfg.siteT, score >= current { return (about[0].thread.id, .site, score, current) }
+            }
+        }
+        var best: (to: String, score: Double)?
+        for o in others {
+            let vs = o.blocks.compactMap(\.v).map { (v: $0, w: 1.0) }
+            if vs.isEmpty { continue }
+            let score = topMean(v, vs, 2)
+            if score < (vs.count >= 2 ? cfg.moveT : cfg.moveT1) { continue }
+            if best == nil || score > best!.score { best = (o.thread.id, score) }
+        }
+        if let best, best.score - current >= cfg.moveD { return (best.to, .topic, best.score, current) }
+        if best == nil, !base.isEmpty, current < cfg.splitT { return (nil, .apart, 0, current) }
+        return nil
+    }
+
+    // MARK: Tags
+
+    struct TagCandidate {
+        var tag: String
+        var pos: Double
+        var neg: Double
+        var coherence: Double
+        // A few of the user's messages with this tag, for the judge.
+        var examples: [String]
+    }
+
+    /// The judge's answer about one tag.
+    struct TagVerdict {
+        var tag: String
+        var fits: Bool
+        var confidence: Double
+    }
+
+    /// Answers and notes: the messages tags go on.
+    static func isTaggable(_ entry: [String: Any]) -> Bool { entry["role"] as? String == "assistant" || isNote(entry) }
+
+    /// Tags refused on `rollback` messages since one was last taken: not suggested any more (lowercase).
+    static func refusedTags(_ chats: [OrganizeThread], _ cfg: OrganizeConfig) -> Set<String> {
+        var taken: [String: Double] = [:]
+        var refused: [String: [Double]] = [:]
+        for thread in chats {
+            let entries = thread.entries
+            let times = entryTimes(entries)
+            for (i, e) in entries.enumerated() {
+                for tag in strings((e["accepted"] as? [String: Any])?["tags"]) {
+                    taken[lower(tag)] = jsMax(taken[lower(tag)] ?? -.infinity, times[i] ?? 0)
+                }
+                for tag in strings((e["dismissed"] as? [String: Any])?["tags"]) { refused[lower(tag), default: []].append(times[i] ?? 0) }
+            }
+        }
+        var out = Set<String>()
+        for (tag, at) in refused {
+            let since = taken[tag] ?? -.infinity
+            if Double(at.filter { $0 > since }.count) >= cfg.rollback { out.insert(tag) }
+        }
+        return out
+    }
+
+    /// A message as a tag's example (its question first): what the judge reads.
+    private static func exampleText(_ entries: [[String: Any]], _ i: Int) -> String {
+        let e = entries[i]
+        var question = ""
+        if !isNote(e) {
+            for j in stride(from: i - 1, through: 0, by: -1) where isUser(entries[j]) && !isNote(entries[j]) {
+                question = prefix16(plain(entries[j]["label"] as? String ?? content(entries[j])), 120) + " → "
+                break
+            }
+        }
+        return question + prefix16(plain(content(e)), 300) + (pageTitle(e).map { " (\(plain($0)))" } ?? "")
+    }
+
+    /// The text the judge gets for the message itself.
+    static func judgeText(_ entries: [[String: Any]], _ i: Int) -> String {
+        prefix16(exampleText(entries, i), 1_500)
+    }
+
+    /// Tags to check for message `index` of `chat` (best first, at most 3): only tags the user put on at least two
+    /// other messages (their messages count fully, blocks of chats with that tag a little less), whose examples are
+    /// alike, that fit the message, and fit it better than the closest messages without the tag. Tags it (or its
+    /// chat) has, refused here, or refused too often are left out. The judge decides among them (`tagCandidates`).
+    static func tagCandidates(_ chat: OrganizeThread, _ index: Int, _ chats: [OrganizeThread], _ vectorOf: VectorOf, _ cfg: OrganizeConfig) -> [TagCandidate] {
+        let m = chat.entries
+        guard m.indices.contains(index), isTaggable(m[index]), !chat.isHistory, let v = vectorOf(m[index]) else { return [] }
+        let e = m[index]
+        let own = pageBlocks(m).first { $0.start <= index && index <= $0.end }
+        func inOwn(_ thread: OrganizeThread, _ j: Int) -> Bool { thread.id == chat.id && own.map { $0.start <= j && j <= $0.end } == true }
+        func has(_ x: [String: Any], _ key: String) -> Bool { strings(x["tags"]).contains { lower($0) == key } }
+        var skip = Set((strings(e["tags"]) + strings(chat.object["tags"]) + strings((e["dismissed"] as? [String: Any])?["tags"])).map(lower))
+        skip.formUnion(refusedTags(chats, cfg))
+        let live = chats.filter { !$0.isDeleted && !$0.isHistory }
+        // The user's tags in the order they come, each by its first spelling.
+        var keys: [String] = []
+        var spelling: [String: String] = [:]
+        for thread in live {
+            for tag in strings(thread.object["tags"]) + thread.entries.flatMap({ strings($0["tags"]) }) where spelling[lower(tag)] == nil {
+                spelling[lower(tag)] = tag
+                keys.append(lower(tag))
+            }
+        }
+        var out: [TagCandidate] = []
+        for key in keys where !skip.contains(key) {
+            var examples: [(v: [Float], w: Double, text: String)] = []
+            var tagged = Set<String>()
+            for thread in live {
+                let entries = thread.entries
+                let chatTagged = strings(thread.object["tags"]).contains { lower($0) == key }
+                if chatTagged { tagged.insert(thread.id) }
+                for (j, x) in entries.enumerated() where has(x, key) && !inOwn(thread, j) {
+                    if let xv = vectorOf(x) { examples.append((xv, 1, exampleText(entries, j))) }
+                }
+                if chatTagged && thread.id != chat.id {
+                    for b in scoredBlocks(entries, vectorOf) where !b.weak {
+                        if let bv = b.v { examples.append((bv, 0.9, exampleText(entries, b.end))) }
+                    }
+                }
+            }
+            if examples.count < 2 { continue }
+            let list = Array(examples.prefix(30))
+            var s = 0.0
+            var n = 0
+            for a in 0..<list.count {
+                for b in (a + 1)..<list.count {
+                    s += dot(list[a].v, list[b].v)
+                    n += 1
+                }
+            }
+            let coherence = n > 0 ? s / Double(n) : 0
+            if coherence < cfg.coherence { continue }
+            let pos = topMean(v, examples.map { ($0.v, $0.w) }, 3)
+            if pos < cfg.tagT { continue }
+            var negatives: [(v: [Float], w: Double)] = []
+            for thread in live where !tagged.contains(thread.id) {
+                for (j, x) in thread.entries.enumerated() where isTaggable(x) && !inOwn(thread, j) && !has(x, key) {
+                    if let xv = vectorOf(x) { negatives.append((xv, 1)) }
+                }
+            }
+            let neg = topMean(v, negatives, 3)
+            if pos - neg < cfg.tagD { continue }
+            // The closest first; equals keep their order, as in the panel's (stable) sort.
+            let ranked = examples.enumerated()
+                .map { (fit: dot(v, $0.element.v) * $0.element.w, at: $0.offset, text: $0.element.text) }
+                .sorted { $0.fit != $1.fit ? $0.fit > $1.fit : $0.at < $1.at }
+            out.append(TagCandidate(tag: spelling[key] ?? key, pos: pos, neg: neg, coherence: coherence, examples: ranked.prefix(4).map(\.text)))
+        }
+        // Equal margins go by name: the panel's `localeCompare` (the browser's language), here the device's
+        // `localizedCompare`; both give plain words the same order.
+        let sorted = out.enumerated().sorted { a, b in
+            let x = a.element, y = b.element
+            if x.pos - x.neg != y.pos - y.neg { return x.pos - x.neg > y.pos - y.neg }
+            let names = x.tag.localizedCompare(y.tag)
+            return names != .orderedSame ? names == .orderedAscending : a.offset < b.offset
+        }
+        return sorted.prefix(3).map(\.element)
+    }
+
+    /// The messages that get tag suggestions now: the chat's last `tagWindow` answers and notes.
+    static func tagTargets(_ chat: OrganizeThread, _ cfg: OrganizeConfig) -> [Int] {
+        let m = chat.entries
+        var out: [Int] = []
+        var i = m.count - 1
+        while i >= 0, Double(out.count) < cfg.tagWindow {
+            if isTaggable(m[i]) { out.insert(i, at: 0) }
+            i -= 1
+        }
+        return out
+    }
+
+    /// The judge's verdicts → the tags to show (confident yes only, at most `maxTags`, in the candidates' order).
+    static func judgedTags(_ candidates: [TagCandidate], _ verdicts: [TagVerdict], _ cfg: OrganizeConfig) -> [String] {
+        let yes = Set(verdicts.filter { $0.fits && $0.confidence >= cfg.judge }.map { verdict in
+            lower(String(String.UnicodeScalarView(verdict.tag.unicodeScalars.drop { $0 == "#" })))
+        })
+        return Array(candidates.filter { yes.contains(lower($0.tag)) }.map(\.tag).prefix(Int(cfg.maxTags)))
+    }
+
+    // MARK: "Everything in one chat?" (no AI)
+
+    /// The chat looks like a pile (for the card that shows what organizing does): many sites lately, or many blocks.
+    static func looksMixed(_ chat: OrganizeThread, _ cfg: OrganizeConfig) -> Bool {
+        if chat.isHistory { return false }
+        let blocks = pageBlocks(chat.entries)
+        if Double(blocks.count) >= cfg.messBlocks { return true }
+        let sites = Set(blocks.suffix(5).map { hostOf($0.url) }.filter { !$0.isEmpty })
+        return Double(sites.count) >= cfg.messSites
+    }
+
+    /// The messages whose vectors the device lacks: their keys and texts (to embed), the newest chats first.
+    static func missingVectors(_ chats: [OrganizeThread], has: (_ key: String, _ text: String) -> Bool, limit: Int = .max) -> [(key: String, text: String)] {
+        var out: [(key: String, text: String)] = []
+        var seen = Set<String>()
+        // The chat written in last first; of equals, the first, as the panel's stable sort.
+        let newest = chats.filter { !$0.isDeleted && !$0.isHistory }.enumerated()
+            .sorted { $0.element.activity != $1.element.activity ? $0.element.activity > $1.element.activity : $0.offset < $1.offset }
+        for (_, thread) in newest {
+            for e in thread.entries {
+                let text = embedText(e)
+                let key = entryKey(e)
+                if text.isEmpty || seen.contains(key) || has(key, text) { continue }
+                seen.insert(key)
+                out.append((key, text))
+                if out.count >= limit { return out }
+            }
+        }
+        return out
     }
 }

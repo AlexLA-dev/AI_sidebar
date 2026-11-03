@@ -21,9 +21,89 @@ func out(_ thread: OrganizeThread?) -> Any {
 
 func int(_ value: Any?) -> Int { (value as? NSNumber)?.intValue ?? 0 }
 func ms(_ value: Any?) -> Int64 { (value as? NSNumber)?.int64Value ?? 0 }
+func threads(_ raw: Any?) -> [OrganizeThread] { (raw as? [Any] ?? []).compactMap(thread) }
+
+/// The case's vectors by message key, as numbers or packed (base64): both sides use the same ones.
+func vectors(_ raw: Any?) -> Organize.VectorOf {
+    let table = raw as? [String: Any] ?? [:]
+    return { entry in
+        switch table[Organize.entryKey(entry)] {
+        case let packed as String: return Organize.unpackVector(packed)
+        case let numbers as [NSNumber]: return numbers.map { Float($0.doubleValue) }
+        default: return nil
+        }
+    }
+}
+
+/// A vector as JSON: its Float numbers as the Doubles they are (as `Array.from` a Float32Array).
+func numbers(_ v: [Float]?) -> Any { v.map { $0.map(Double.init) } ?? NSNull() }
+
+func suggestion(_ s: Organize.MoveSuggestion?) -> Any {
+    guard let s else { return NSNull() }
+    return ["start": s.start, "end": s.end, "to": s.to ?? NSNull(), "why": s.why.rawValue, "score": s.score, "current": s.current] as [String: Any]
+}
+
+func candidate(_ c: Organize.TagCandidate) -> Any {
+    ["tag": c.tag, "pos": c.pos, "neg": c.neg, "coherence": c.coherence, "examples": c.examples] as [String: Any]
+}
+
+func verdicts(_ raw: Any?) -> [Organize.TagVerdict] {
+    (raw as? [[String: Any]] ?? []).map {
+        Organize.TagVerdict(tag: $0["tag"] as? String ?? "", fits: $0["fits"] as? Bool ?? false, confidence: ($0["confidence"] as? NSNumber)?.doubleValue ?? 0)
+    }
+}
 
 func run(_ c: [String: Any]) -> Any {
+    let cfg = OrganizeConfig(c["cfg"])
     switch c["op"] as? String {
+    case "config":
+        let read = OrganizeConfig(c["raw"])
+        return Dictionary(uniqueKeysWithValues: OrganizeConfig.fields.map { ($0.name, read[keyPath: $0.path]) })
+    case "embedText":
+        return (c["m"] as? [[String: Any]] ?? []).map(Organize.embedText)
+    case "hostOf":
+        return (c["urls"] as? [Any] ?? []).map { Organize.hostOf($0 as? String) }
+    case "pack":
+        let packed = (c["vectors"] as? [[NSNumber]] ?? []).map { Organize.packVector($0.map(\.doubleValue)) }
+        return ["packed": packed, "unpacked": packed.map { numbers(Organize.unpackVector($0)) }]
+    case "unpack":
+        return (c["packed"] as? [String] ?? []).map { numbers(Organize.unpackVector($0)) }
+    case "scoredBlocks":
+        return Organize.scoredBlocks(c["m"] as? [[String: Any]] ?? [], vectors(c["vectors"])).map { b -> [String: Any] in
+            ["start": b.start, "end": b.end, "url": b.url ?? NSNull(), "v": numbers(b.v), "weak": b.weak, "t": b.t.map(Organize.whole) ?? NSNull(),
+             "host": b.host, "settled": b.settled, "dismissed": b.dismissed]
+        }
+    case "movesAllowed":
+        guard let chat = thread(c["chat"]) else { return NSNull() }
+        return Organize.movesAllowed(chat, threads(c["chats"]), cfg)
+    case "suggestMove":
+        guard let chat = thread(c["chat"]) else { return NSNull() }
+        return suggestion(Organize.suggestMove(chat, threads(c["chats"]), vectors(c["vectors"]), cfg))
+    case "tags":
+        // Each message that gets tag suggestions now: its candidates, the judge's text, and what the verdicts leave.
+        guard let chat = thread(c["chat"]) else { return NSNull() }
+        let chats = threads(c["chats"])
+        let vectorOf = vectors(c["vectors"])
+        return Organize.tagTargets(chat, cfg).map { i -> [String: Any] in
+            let candidates = Organize.tagCandidates(chat, i, chats, vectorOf, cfg)
+            return ["i": i, "judge": Organize.judgeText(chat.entries, i), "candidates": candidates.map(candidate),
+                    "judged": Organize.judgedTags(candidates, verdicts(c["verdicts"]), cfg)]
+        }
+    case "tagCandidates":
+        guard let chat = thread(c["chat"]) else { return NSNull() }
+        return Organize.tagCandidates(chat, int(c["index"]), threads(c["chats"]), vectors(c["vectors"]), cfg).map(candidate)
+    case "refusedTags":
+        return Organize.refusedTags(threads(c["chats"]), cfg).sorted()
+    case "judgedTags":
+        let candidates = (c["candidates"] as? [String] ?? []).map { Organize.TagCandidate(tag: $0, pos: 0, neg: 0, coherence: 0, examples: []) }
+        return Organize.judgedTags(candidates, verdicts(c["verdicts"]), cfg)
+    case "looksMixed":
+        guard let chat = thread(c["chat"]) else { return NSNull() }
+        return Organize.looksMixed(chat, cfg)
+    case "missingVectors":
+        let known = c["known"] as? [String: String] ?? [:]
+        return Organize.missingVectors(threads(c["chats"]), has: { known[$0] == $1 }, limit: c["max"] is NSNumber ? int(c["max"]) : .max)
+            .map { ["key": $0.key, "text": $0.text] }
     case "basics":
         let m = c["m"] as? [[String: Any]] ?? []
         return [
