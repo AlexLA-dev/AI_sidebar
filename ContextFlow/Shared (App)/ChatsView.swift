@@ -928,7 +928,7 @@ struct ChatDetailView: View {
     @State private var pinLock = Date.distantPast
     @State private var reminding: Int?
     @State private var remindNote: String?
-    @State private var deleted: (text: LocalizedStringKey, threadId: String, at: Int, entries: [[String: Any]])?
+    @State private var deleted: (text: LocalizedStringKey, thread: ChatThread, at: Int, entries: [[String: Any]])?
     @State private var flash: Int?
     @State private var selecting = false
 
@@ -1094,17 +1094,6 @@ struct ChatDetailView: View {
                         movedBar(bar)
                         .padding(.horizontal, 12)
                         .padding(.bottom, 8)
-                    } else if let gone = deleted {
-                        DeletedBar(text: gone.text) {
-                            withAnimation { deleted = nil }
-                            if let thread = library.threads.first(where: { $0.id == gone.threadId }) {
-                                library.restoreEntries(thread, at: gone.at, gone.entries)
-                                rescheduleReminders(thread, gone.entries)
-                            }
-                            ChatAI.reportUx("ux_delete", ["action": "undone"])
-                        }
-                        .padding(.horizontal, 12)
-                        .padding(.bottom, 8)
                     }
                 }
                 .sheet(isPresented: Binding(get: { reminding != nil }, set: { if !$0 { reminding = nil } })) {
@@ -1119,7 +1108,7 @@ struct ChatDetailView: View {
                 }
                 .task(id: "\(thread.id):\(thread.entries.count):\(asking == nil):\(organizeTick)") { await suggest(thread) }
                 // The bar after a move goes on the next action: a question, a note, another suggestion, leaving the chat.
-                .onDisappear { undoBar = nil; deleted = nil }
+                .onDisappear { undoBar = nil }
                 .safeAreaInset(edge: .bottom) {
                     if let picked {
                         pickBar(thread, picked, labels)
@@ -1186,6 +1175,22 @@ struct ChatDetailView: View {
                     .foregroundColor(.secondary)
             }
         }
+        // "Answer deleted · Undo" (2.5): also when that was the chat's last answer and the chat is gone with it.
+        .overlay(alignment: .bottom) {
+            if let gone = deleted, undoBar == nil {
+                DeletedBar(text: gone.text) {
+                    withAnimation { deleted = nil }
+                    let thread = library.threads.first { $0.id == gone.thread.id } ?? gone.thread
+                    library.restoreEntries(thread, at: gone.at, gone.entries)
+                    rescheduleReminders(thread, gone.entries)
+                    ChatAI.reportUx("ux_delete", ["action": "undone"])
+                }
+                .padding(.horizontal, 12)
+                .padding(.bottom, thread == nil ? 24 : 70)
+            }
+        }
+        // Leaving the chat: the bar goes (its Undo with it).
+        .onDisappear { deleted = nil }
     }
 
     /// The field under the chat: a question about it (sent to the AI), or a note (kept in the chat, no
@@ -1436,7 +1441,7 @@ struct ChatDetailView: View {
         for raw in gone.entries where raw["remind"] != nil {
             MessageReminders.cancel(chat: thread.id, message: Organize.entryKey(raw))
         }
-        withAnimation { deleted = (entry.isNote ? "Note deleted" : "Answer deleted", thread.id, gone.at, gone.entries) }
+        withAnimation { deleted = (entry.isNote ? "Note deleted" : "Answer deleted", thread, gone.at, gone.entries) }
         ChatAI.reportUx("ux_delete", ["action": "deleted", "what": entry.isNote ? "note" : "answer", "how": how])
         let shown = gone.at
         DispatchQueue.main.asyncAfter(deadline: .now() + 8) { if deleted?.at == shown { withAnimation { deleted = nil } } }

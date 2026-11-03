@@ -150,3 +150,12 @@ mark.cf-mark {
 .cf-thread .cf-thread-swipe { display: flex; align-items: stretch; flex: 1; min-width: 0; }
 .cf-thread .cf-thread-swipe > .cf-swipe-body { display: flex; align-items: center; flex: 1; min-width: 0; gap: 2px; }
 .cf-thread .cf-swipe-under { bottom: 0; border-radius: 10px; }
+
+/* "Reminder: Tomorrow 9:00" over the page after the bell by a selection. */
+.cf-toast {
+  position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%); z-index: 2147483000;
+  display: flex; align-items: center; gap: 7px; max-width: calc(100vw - 32px); padding: 10px 14px;
+  border-radius: 14px; background: #24222b; color: #fff; font: 500 13.5px/1.35 var(--font); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  animation: cf-up 0.2s ease-out;
+}
+.cf-toast.touch { font-size: 15px; bottom: 120px; }
