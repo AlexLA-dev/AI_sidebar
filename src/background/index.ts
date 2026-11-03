@@ -329,6 +329,27 @@ async function openApp(target: "subscribe" | "manage" | "home", feature?: "ai" |
   return { opened: Boolean(result?.opened), url }
 }
 
+// ---------------------------------------------------------------- reminders (2.5)
+
+/** Sets or cancels a message's reminder on this device, through the app (Safari only). */
+async function remind(message: Extract<BackgroundRequest, { type: "remind" }>): Promise<{ outcome: string }> {
+  if (TARGET !== "safari") return { outcome: "unavailable" }
+  if (message.at === null) {
+    await callNative("unremind", { chat: message.chat, message: message.message })
+    return { outcome: "cancelled" }
+  }
+  const reply = await callNative<{ outcome: string }>("remind", {
+    chat: message.chat,
+    message: message.message,
+    at: message.at,
+    title: message.title ?? "ContextFlow",
+    body: message.body ?? "",
+    ask: message.ask === true
+    // The system may be asking about notifications meanwhile: wait for the answer.
+  }, 90_000)
+  return { outcome: reply?.outcome ?? "unavailable" }
+}
+
 // ---------------------------------------------------------------- messages
 
 chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendResponse) => {
@@ -387,6 +408,9 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
       return true
     case "pdfBytes":
       pdfFromBytes(message.url, message.data).then(sendResponse, () => sendResponse({ ok: false, reason: "failed", error: "background" }))
+      return true
+    case "remind":
+      remind(message).then(sendResponse, () => sendResponse({ outcome: "unavailable" }))
       return true
     case "syncThreads":
       if (TARGET !== "safari") {

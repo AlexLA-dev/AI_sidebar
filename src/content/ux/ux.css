@@ -1,0 +1,128 @@
+/* 2.5: highlights, swipes, pinned messages, reminders. Appended to styles.css in the shadow root. */
+
+.cf { --mark: rgba(250, 204, 21, 0.38); --mark-line: rgba(202, 138, 4, 0.55); --pin: #f08c00; }
+.cf[data-theme="dark"] { --mark: rgba(250, 204, 21, 0.28); --mark-line: rgba(250, 204, 21, 0.5); --pin: #ffa94d; }
+@media (prefers-color-scheme: dark) { .cf:not([data-theme]) { --mark: rgba(250, 204, 21, 0.28); --mark-line: rgba(250, 204, 21, 0.5); --pin: #ffa94d; } }
+
+/* ---- highlights: a soft marker, like in a book */
+mark.cf-mark {
+  background: linear-gradient(transparent 12%, var(--mark) 12%, var(--mark) 92%, transparent 92%);
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 1px;
+  margin: 0 -1px;
+  cursor: pointer;
+  -webkit-box-decoration-break: clone; box-decoration-break: clone;
+}
+
+/* ---- a bubble by a selection or a highlight in an answer */
+.cf-float {
+  position: fixed; left: 0; top: 0; z-index: 4;
+  display: flex; gap: 2px; padding: 4px;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow);
+  animation: cf-pop 0.14s ease-out;
+}
+.cf-float button { display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 8px; font-size: 13px; font-weight: 500; color: var(--text); white-space: nowrap; }
+.cf-float button:hover { background: var(--bg-2); }
+.cf-float button svg { color: #ca8a04; }
+.cf-float.touch { padding: 5px; border-radius: 16px; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.cf-float.touch button { padding: 9px 14px; font-size: 15px; border-radius: 12px; }
+
+/* ---- swipes */
+.cf-swipe { position: relative; touch-action: pan-y; }
+.cf-swipe .cf-swipe-body { position: relative; background: var(--bg); will-change: transform; }
+.cf-swipe:not(.dragging) .cf-swipe-body { transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.cf-swipe pre, .cf-swipe .md-table, .cf-swipe .md-code { touch-action: auto; }
+.cf-swipe-under {
+  position: absolute; top: 0; bottom: 14px; display: flex; align-items: stretch; overflow: hidden; border-radius: 14px;
+}
+.cf-swipe-under.end { right: 0; justify-content: flex-end; }
+.cf-swipe-under.start { left: 0; justify-content: flex-start; }
+.cf-swipe-under.delete { background: var(--danger); }
+.cf-swipe-under.pin { background: var(--pin); }
+.cf-swipe-under button {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  min-width: 76px; padding: 0 10px; color: #fff; font-size: 12px; font-weight: 600;
+}
+.cf-swipe-under.full.end button { margin-right: auto; margin-left: 0; }
+.cf-swipe-under.full.start button { margin-left: auto; }
+
+/* ---- the menu of a message (… in the tools row; right-click on a Mac) */
+.cf-msg-tools { position: relative; }
+.cf-msg-menu {
+  position: absolute; z-index: 3; top: calc(100% + 4px); left: 0; min-width: 190px;
+  display: flex; flex-direction: column; padding: 4px;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow);
+  animation: cf-pop 0.12s ease-out;
+}
+.cf-msg.user .cf-msg-menu { left: auto; right: 0; }
+.cf-msg-menu button { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 8px; font-size: 13.5px; color: var(--text); text-align: left; }
+.cf-msg-menu button:hover { background: var(--bg-2); }
+.cf-msg-menu button.danger { color: var(--danger); }
+.cf[data-touch] .cf-msg-menu button { padding: 11px 12px; font-size: 15px; }
+/* Mac: pin and delete on hover, at the message's top right. */
+.cf-hover-tools { position: absolute; top: -6px; right: 0; display: none; gap: 2px; padding: 2px; background: var(--bg); border: 1px solid var(--border); border-radius: 9px; box-shadow: 0 2px 8px rgba(0,0,0,.08); z-index: 2; }
+.cf-hover-tools button { display: flex; padding: 5px; border-radius: 6px; color: var(--text-3); }
+.cf-hover-tools button:hover { background: var(--bg-2); color: var(--text); }
+.cf-hover-tools button.danger:hover { color: var(--danger); }
+.cf:not([data-touch]) .cf-msg:hover > .cf-swipe > .cf-swipe-body > .cf-hover-tools,
+.cf:not([data-touch]) .cf-msg:hover > .cf-hover-tools { display: flex; }
+.cf-msg { position: relative; }
+
+/* ---- pinned messages at the top of the chat */
+.cf-pinned {
+  position: sticky; top: 0; z-index: 2; margin: -4px 0 12px; padding: 6px 8px 6px 10px;
+  background: color-mix(in srgb, var(--bg) 92%, transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  border: 1px solid var(--border); border-left: 3px solid var(--pin); border-radius: 10px;
+}
+.cf-pinned-head { display: flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 600; color: var(--pin); text-transform: none; }
+.cf-pinned-more { margin-left: auto; font-size: 11.5px; color: var(--text-3); padding: 0 4px; }
+.cf-pinned-row { display: flex; align-items: center; gap: 6px; width: 100%; padding: 2px 0; text-align: left; font-size: 13px; color: var(--text); }
+.cf-pinned-text { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; min-width: 0; }
+.cf-pinned-note { flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--note); }
+.cf-msg.pinned-msg > .cf-swipe > .cf-swipe-body::before,
+.cf-msg.pinned-msg::before { content: ""; position: absolute; left: -8px; top: 6px; width: 3px; height: 18px; border-radius: 2px; background: var(--pin); }
+
+/* ---- reminders */
+.cf-remind-chip {
+  display: inline-flex; align-items: center; gap: 5px; align-self: flex-start; margin-top: 4px; padding: 3px 9px;
+  border-radius: 999px; font-size: 12px; font-weight: 500; color: var(--accent-text); background: var(--accent-soft);
+}
+.cf-msg.user .cf-remind-chip { align-self: flex-end; }
+.cf-remind-chip.past { color: var(--text-3); background: var(--bg-2); }
+.cf-sheet-back { position: absolute; inset: 0; z-index: 5; display: flex; align-items: flex-end; background: rgba(0, 0, 0, 0.28); animation: cf-fade 0.15s ease; }
+.cf-sheet {
+  width: 100%; max-height: 80%; overflow: auto; padding: 10px 10px calc(10px + env(safe-area-inset-bottom));
+  background: var(--bg); border-radius: 16px 16px 0 0; box-shadow: var(--shadow);
+  animation: cf-up 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.cf-sheet-title { display: flex; align-items: center; gap: 7px; padding: 6px 8px 10px; font-size: 15px; font-weight: 600; }
+.cf-sheet-row { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 12px 10px; border-radius: 10px; font-size: 15px; color: var(--text); text-align: left; }
+.cf-sheet-row:hover { background: var(--bg-2); }
+.cf-sheet-row.danger { color: var(--danger); }
+.cf-sheet-when { color: var(--text-3); font-size: 13.5px; }
+.cf-sheet-pick { display: flex; gap: 8px; padding: 6px 4px; }
+.cf-sheet-pick input { flex: 1; min-width: 0; height: 40px; padding: 0 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-2); color: var(--text); font: inherit; font-size: 16px; }
+.cf-sheet-ok { padding: 0 16px; border-radius: 10px; background: var(--accent); color: #fff; font-weight: 600; }
+.cf-sheet-ok:disabled { opacity: 0.4; }
+.cf-sheet-note { margin: 4px 10px 6px; font-size: 12.5px; color: var(--text-3); }
+@keyframes cf-up { from { transform: translateY(30px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes cf-fade { from { opacity: 0; } to { opacity: 1; } }
+
+/* ---- "Deleted · Undo" */
+.cf-undo {
+  position: absolute; left: 12px; right: 12px; bottom: 112px; z-index: 4;
+  display: flex; align-items: center; gap: 10px; padding: 9px 8px 9px 14px;
+  background: #26252c; color: #fff; border-radius: 12px; box-shadow: var(--shadow); font-size: 13.5px;
+  animation: cf-up 0.18s ease-out;
+}
+.cf-undo span { flex: 1; }
+.cf-undo button { font-weight: 600; color: #93c5fd; padding: 4px 8px; }
+.cf-undo .cf-undo-x { color: #b6b3c0; font-size: 18px; line-height: 1; }
+
+/* ---- the bell by a selection on a page (layout check only) */
+.cf-bubble button.cf-sel-watch svg { color: var(--text-3); }
+
+/* Notes keep to the right; the swipe takes the whole row. */
+.cf-msg.user > .cf-swipe { align-self: stretch; }
+.cf-msg.user > .cf-swipe > .cf-swipe-body { display: flex; flex-direction: column; align-items: flex-end; }

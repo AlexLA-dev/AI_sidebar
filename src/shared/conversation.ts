@@ -2,6 +2,7 @@
 // Pure helpers shared by the content script and tests.
 
 import type { MediaKind } from "./attachments.ts"
+import type { Mark } from "./marks.ts"
 import type { ChatTurn, Grounding } from "./types.ts"
 
 /** The page a question was asked on: normalized URL, title and a fingerprint of its text. */
@@ -61,6 +62,12 @@ export interface Entry extends ChatTurn {
   // suggested tags they took. Kept on the message, so they reach the other devices with the chat.
   dismissed?: { move?: true; tags?: string[] }
   accepted?: { tags?: string[] }
+  // 2.5, answers: what the user highlighted (sent to the model as <mark>, copied as bold).
+  marks?: Mark[]
+  // 2.5, answers and notes: pinned at the top of the chat (when, ms).
+  pinned?: number
+  // 2.5, answers and notes: a reminder (ms). The notification rings only on the device that set it (`dev`).
+  remind?: { at: number; dev?: string }
 }
 
 /** A new message's id: 12 random letters and digits. */

@@ -50,6 +50,9 @@ import { markHintSeen, resetHints, seenHints, type HintKey } from "./store"
 import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, loadThreads, markTourSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, rememberPageText, renameThread, renewalAskedPeriod, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount } from "./store"
 import { TagChip, TagEditor } from "./Tags"
 import { ThreadsView } from "./Threads"
+import { starMarks } from "../shared/marks"
+import { Bell } from "./ux/MessageUx"
+import { useMessageUx } from "./ux/useMessageUx"
 import { Tour, tourSteps } from "./Tour"
 import { QI_EVENTS, QuickInsert } from "./insert/QuickInsert"
 import * as QIcon from "./insert/icons"
@@ -301,6 +304,17 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const partialRef = useRef("")
   const listRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+  // 2.5: highlights, swipes, pinned messages, reminders (src/content/ux).
+  const ux = useMessageUx({
+    messages,
+    setMessages,
+    chatId: () => threadRef.current,
+    chatTitle: () => threadList.find((x) => x.id === threadRef.current)?.title ?? threadTitle(messages),
+    list: listRef,
+    touch,
+    open,
+    send: sendBackground
+  })
   const loadedRef = useRef(false)
   const openedAt = useRef(0)
   // The chat being loaded as the panel opens: a question typed by the selection waits for it.
@@ -1024,7 +1038,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         )}
         <button type="button" onClick={async () => {
           const text = plain()
-          if (await copyText(text)) {
+          // An answer with highlights goes as rich text too (bold), then as plain text.
+          if ((await ux.copyAnswer(idx, text)) || (await copyText(text))) {
             setCopied(idx)
             setTimeout(() => setCopied(null), 1500)
             // ContextFlow's own Copy goes to Copied too.
@@ -1034,13 +1049,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           {copied === idx ? <Icon.Check /> : <Icon.Copy />} {copied === idx ? t("copied") : t("copy")}
         </button>
         {typeof navigator.share === "function" && (
-          <button type="button" onClick={() => void shareText(shared())} aria-label={t("share")} title={t("share")}>
+          <button type="button" onClick={() => void shareText(m.marks?.length ? starMarks(shared(), m.marks) : shared())} aria-label={t("share")} title={t("share")}>
             <Icon.Share /> <span class="cf-tl">{t("share")}</span>
           </button>
         )}
         <button type="button" onClick={() => setTagging(tagging === idx ? null : idx)} aria-expanded={tagging === idx} aria-label={t("tagsButton")} title={t("tagsButton")}>
           <Icon.Tag /> <span class="cf-tl">{t("tagsButton")}</span>
         </button>
+        {ux.moreButton(m, idx)}
       </div>
       {tagging === idx && <TagEditor tags={m.tags ?? []} known={allTags(threadList).map((x) => x.tag)} onChange={(next) => userTags(idx, next)} onClose={() => setTagging(null)} />}
       {organizeRow(idx)}
@@ -1626,6 +1642,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     <button type="button" class="primary" {...press(() => show(bubble))}><Icon.Sparkle size={16} /> {t(narrowScreen() ? "selAsk" : "fabLabel")}</button>
                     <button type="button" class="cf-sel-icon" aria-label={t("actGoogle")} title={t("actGoogle")} {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SEL_GOOGLE), 60) })}><Icon.Search size={15} /></button>
                     <button type="button" class="cf-sel-template" {...press(() => newTemplate(bubble))}><QIcon.Template /> {t("qiTemplateButton")}</button>
+                    {UX_LAYOUT && <button type="button" class="cf-sel-watch" aria-label={t("uxWatch")}><Bell size={16} /></button>}
                   </>
                 ) : (
                   <>
@@ -1634,6 +1651,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SELECTION_ACTIONS[2]), 60) })}>{t("selTranslate")}</button>
                     <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SEL_GOOGLE), 60) })}><Icon.Search size={13} /> {t("actGoogle")}</button>
                     <button type="button" class="cf-sel-template" {...press(() => newTemplate(bubble))}><QIcon.Template size={14} /> {t("qiTemplateButton")}</button>
+                    {UX_LAYOUT && <button type="button" class="cf-sel-watch" aria-label={t("uxWatch")}><Bell size={14} /></button>}
                   </>
                 )}
               </div>
@@ -1829,7 +1847,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             />
           ) : (
             <>
-              <div class="cf-messages" ref={listRef}>
+              <div class="cf-messages" ref={listRef} onClick={ux.onListClick}>
+                {!picked && ux.strip}
                 {historyMode && messages.length === 0 && partial === null && (
                   <div class="cf-empty">
                     <div class="cf-empty-icon"><Icon.Sparkle size={28} /></div>
@@ -1860,12 +1879,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
                 {messages.map((m, idx) =>
                   m.role === "user" ? (
-                    <div class={`cf-msg user ${m.note ? "note" : ""} ${picked ? "pickable" : ""} ${picked?.has(idx) ? "picked" : ""}`} key={idx} data-index={idx} {...pickProps(idx)}>
+                    <div class={`cf-msg user ${m.note ? "note" : ""} ${m.pinned ? "pinned-msg" : ""} ${picked ? "pickable" : ""} ${picked?.has(idx) ? "picked" : ""}`} key={idx} data-index={idx} {...pickProps(idx)} onContextMenu={m.note && !picked ? ux.contextMenu(idx) : undefined}>
                       <PageDivider entries={messages} index={idx} onOpen={openPage} />
                       {m.note ? (
-                        <div class="cf-bubble-note">
-                          <span class="cf-note-mark" aria-label={t("shareNote")}><Icon.Pencil /></span>{m.content}
-                        </div>
+                        ux.wrap(m, idx, (
+                          <div class="cf-bubble-note">
+                            <span class="cf-note-mark" aria-label={t("shareNote")}><Icon.Pencil /></span>{m.content}
+                          </div>
+                        ))
                       ) : (
                         <div class="cf-bubble-user">{m.mode === "google" && <span class="cf-user-mode"><Icon.Search size={12} /></span>}{m.label ?? m.content}</div>
                       )}
@@ -1873,11 +1894,15 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       {m.note && messageFooter(m, idx, () => noteCopyText(m), () => noteShareText(messages, idx, shareLabels(chatLanguage(messages)), shareLinks()))}
                     </div>
                   ) : (
-                    <div class={`cf-msg ai ${picked ? "pickable" : ""} ${picked?.has(idx) ? "picked" : ""}`} key={idx} data-index={idx} {...pickProps(idx)}>
-                      {m.grounding && <div class="cf-grounded"><Icon.Search size={13} /> {t("googleBadge")}</div>}
-                      <Markdown text={m.content} onCopyCode={(code) => void copyText(code)} />
-                      {m.grounding && <Sources grounding={m.grounding} />}
-                      {!mediaOn && <MediaSkipped kinds={skippedFor(messages, idx)} onPro={tryPro} />}
+                    <div class={`cf-msg ai ${m.pinned ? "pinned-msg" : ""} ${picked ? "pickable" : ""} ${picked?.has(idx) ? "picked" : ""}`} key={idx} data-index={idx} {...pickProps(idx)} onContextMenu={picked ? undefined : ux.contextMenu(idx)}>
+                      {ux.wrap(m, idx, (
+                        <>
+                          {m.grounding && <div class="cf-grounded"><Icon.Search size={13} /> {t("googleBadge")}</div>}
+                          <Markdown text={m.content} marks={m.marks} onCopyCode={(code) => void copyText(code)} />
+                          {m.grounding && <Sources grounding={m.grounding} />}
+                          {!mediaOn && <MediaSkipped kinds={skippedFor(messages, idx)} onPro={tryPro} />}
+                        </>
+                      ))}
                       {messageFooter(m, idx, () => toPlainText(m.content), () => answerShareText(messages, idx, shareLabels(chatLanguage(messages)), shareLinks()))}
                     </div>
                   )
@@ -2128,6 +2153,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           {touring && view === "chat" && panelRef.current && (
             <Tour panel={panelRef.current} steps={tourSteps(TARGET === "safari" && settings.syncChats, touch)} onDone={endTour} />
           )}
+          {view === "chat" && !picked && ux.overlay}
         </section>
       )}
 
@@ -2153,6 +2179,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 }
 
 const runActionRef: { current: (a: Action) => void } = { current: () => undefined }
+
+// Layout check only (2.5, stage A): the page-watch bell by a selection, on a page opened with #cf-ux-layout.
+const UX_LAYOUT = typeof location !== "undefined" && location.hash.includes("cf-ux-layout")
 
 /**
  * Above a question or note: "New page: …" on the chat's first page and whenever it moved to another one
