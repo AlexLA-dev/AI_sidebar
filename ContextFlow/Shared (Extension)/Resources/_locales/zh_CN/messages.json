@@ -1066,5 +1066,89 @@
  },
  "byokOfferBody": {
   "message": "Pro 无需你的密钥即可回答：每周最多 {0} 次回答、每周 {1} 次 Google 搜索、“问问你的所有对话”和 AI 搜索。付款前 App Store 会显示价格和期限。Pro 立即生效，当前方案未使用的部分会退款。"
+ },
+ "orgSuggested": {
+  "message": "建议"
+ },
+ "orgTagA11y": {
+  "message": "建议标签“{0}”。添加"
+ },
+ "orgNoA11y": {
+  "message": "忽略"
+ },
+ "orgCountOne": {
+  "message": "{0} 条消息"
+ },
+ "orgCountFew": {
+  "message": "{0} 条消息"
+ },
+ "orgCountMany": {
+  "message": "{0} 条消息"
+ },
+ "orgCountOther": {
+  "message": "{0} 条消息"
+ },
+ "orgMoveTo": {
+  "message": "{0}移到“{1}”"
+ },
+ "orgSplit": {
+  "message": "移到新对话：“{0}”"
+ },
+ "orgMoveA11y": {
+  "message": "将 {0}移到对话“{1}”"
+ },
+ "orgSplitA11y": {
+  "message": "将这些消息移到新对话“{0}”"
+ },
+ "orgMoved": {
+  "message": "已移到“{0}”"
+ },
+ "orgUndo": {
+  "message": "撤销"
+ },
+ "orgOpen": {
+  "message": "打开"
+ },
+ "orgFirstWin": {
+  "message": "完成。从现在起，ContextFlow 会自己给出建议。"
+ },
+ "orgConsentTitle": {
+  "message": "按主题整理你的对话？"
+ },
+ "orgConsentText": {
+  "message": "ContextFlow 会在新的回答和笔记下方建议合适的对话和你的一个标签。为此，你的消息文本会发送到我们的服务器以及 OpenAI 和 Anthropic。我们不保存这些文本。OpenAI 和 Anthropic 不会用它来训练模型。"
+ },
+ "orgTurnOn": {
+  "message": "开启"
+ },
+ "orgMessTitle": {
+  "message": "全都在一个对话里？"
+ },
+ "orgMessText": {
+  "message": "使用 Pro 时，ContextFlow 会建议什么内容该放到哪里，并像你一样加标签。"
+ },
+ "orgTagsTitle": {
+  "message": "ContextFlow 能像你一样加标签"
+ },
+ "orgTagsText": {
+  "message": "使用 Pro 时，它会根据你自己加标签的位置，在新的回答和笔记下方建议你的一个标签。"
+ },
+ "orgCloseA11y": {
+  "message": "关闭"
+ },
+ "setOrganize": {
+  "message": "建议：标签和移动"
+ },
+ "setOrganizeHint": {
+  "message": "在新的回答和笔记下方显示合适的对话和你的标签。你的消息文本会发送到我们的服务器以及 OpenAI 和 Anthropic。我们不保存这些文本，它们也不会用它来训练模型。"
+ },
+ "setOrganizePro": {
+  "message": "Pro：ContextFlow 会在新的回答和笔记下方建议合适的对话和你的标签。"
+ },
+ "upsellOrganizeName": {
+  "message": "按主题整理"
+ },
+ "upsellOrganizeText": {
+  "message": "为你刚问的内容建议合适的对话，以及你自己的标签。"
  }
 }

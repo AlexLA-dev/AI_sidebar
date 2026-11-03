@@ -1066,5 +1066,89 @@
  },
  "byokOfferBody": {
   "message": "Pro responde sin tu clave: hasta {0} respuestas a la semana, {1} búsquedas de Google a la semana, «Pregunta a tus chats» y búsqueda con IA. El App Store muestra el precio y la duración antes de pagar. Pro empieza enseguida y se reembolsa la parte no usada de tu plan actual."
+ },
+ "orgSuggested": {
+  "message": "Sugerencia"
+ },
+ "orgTagA11y": {
+  "message": "Etiqueta sugerida «{0}». Añadirla"
+ },
+ "orgNoA11y": {
+  "message": "Descartar"
+ },
+ "orgCountOne": {
+  "message": "{0} mensaje"
+ },
+ "orgCountFew": {
+  "message": "{0} mensajes"
+ },
+ "orgCountMany": {
+  "message": "{0} mensajes"
+ },
+ "orgCountOther": {
+  "message": "{0} mensajes"
+ },
+ "orgMoveTo": {
+  "message": "{0} a «{1}»"
+ },
+ "orgSplit": {
+  "message": "A un chat nuevo: «{0}»"
+ },
+ "orgMoveA11y": {
+  "message": "Mover {0} al chat «{1}»"
+ },
+ "orgSplitA11y": {
+  "message": "Mover estos mensajes a un chat nuevo, «{0}»"
+ },
+ "orgMoved": {
+  "message": "Movido a «{0}»"
+ },
+ "orgUndo": {
+  "message": "Deshacer"
+ },
+ "orgOpen": {
+  "message": "Abrir"
+ },
+ "orgFirstWin": {
+  "message": "Listo. A partir de ahora ContextFlow te hará sugerencias por su cuenta."
+ },
+ "orgConsentTitle": {
+  "message": "¿Ordenar tus chats por tema?"
+ },
+ "orgConsentText": {
+  "message": "ContextFlow te sugerirá un chat adecuado y una de tus etiquetas bajo las respuestas y notas nuevas. Para ello, el texto de tus mensajes va a nuestro servidor y a OpenAI y Anthropic. No lo guardamos. OpenAI y Anthropic no lo usan para entrenar."
+ },
+ "orgTurnOn": {
+  "message": "Activar"
+ },
+ "orgMessTitle": {
+  "message": "¿Todo en un mismo chat?"
+ },
+ "orgMessText": {
+  "message": "Con Pro, ContextFlow sugiere qué va en cada sitio y pone etiquetas como lo haces tú."
+ },
+ "orgTagsTitle": {
+  "message": "ContextFlow puede etiquetar como tú"
+ },
+ "orgTagsText": {
+  "message": "Con Pro, sugiere una de tus etiquetas bajo las respuestas y notas nuevas, según dónde la pones tú."
+ },
+ "orgCloseA11y": {
+  "message": "Cerrar"
+ },
+ "setOrganize": {
+  "message": "Sugerencias: etiquetas y mover"
+ },
+ "setOrganizeHint": {
+  "message": "Un chat adecuado y tu etiqueta bajo las respuestas y notas nuevas. El texto de tus mensajes va a nuestro servidor y a OpenAI y Anthropic. No lo guardamos, y ellos no lo usan para entrenar."
+ },
+ "setOrganizePro": {
+  "message": "Pro: ContextFlow sugiere un chat adecuado y tu etiqueta bajo las respuestas y notas nuevas."
+ },
+ "upsellOrganizeName": {
+  "message": "Ordena por tema"
+ },
+ "upsellOrganizeText": {
+  "message": "Sugiere el chat adecuado para lo que acabas de preguntar, y tu propia etiqueta para ello."
  }
 }

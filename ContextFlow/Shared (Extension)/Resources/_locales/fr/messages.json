@@ -1066,5 +1066,89 @@
  },
  "byokOfferBody": {
   "message": "Pro répond sans votre clé : jusqu'à {0} réponses par semaine, {1} recherches Google par semaine, « Interroger vos discussions » et la recherche IA. L'App Store affiche le prix et la durée avant le paiement. Pro démarre aussitôt et la partie non utilisée de votre offre est remboursée."
+ },
+ "orgSuggested": {
+  "message": "Suggestion"
+ },
+ "orgTagA11y": {
+  "message": "Tag suggéré « {0} ». L’ajouter"
+ },
+ "orgNoA11y": {
+  "message": "Ignorer"
+ },
+ "orgCountOne": {
+  "message": "{0} message"
+ },
+ "orgCountFew": {
+  "message": "{0} messages"
+ },
+ "orgCountMany": {
+  "message": "{0} messages"
+ },
+ "orgCountOther": {
+  "message": "{0} messages"
+ },
+ "orgMoveTo": {
+  "message": "{0} vers « {1} »"
+ },
+ "orgSplit": {
+  "message": "Vers une nouvelle discussion : « {0} »"
+ },
+ "orgMoveA11y": {
+  "message": "Déplacer {0} vers la discussion « {1} »"
+ },
+ "orgSplitA11y": {
+  "message": "Déplacer ces messages vers une nouvelle discussion, « {0} »"
+ },
+ "orgMoved": {
+  "message": "Déplacé vers « {0} »"
+ },
+ "orgUndo": {
+  "message": "Annuler"
+ },
+ "orgOpen": {
+  "message": "Ouvrir"
+ },
+ "orgFirstWin": {
+  "message": "C’est fait. Désormais, ContextFlow fera ses suggestions tout seul."
+ },
+ "orgConsentTitle": {
+  "message": "Classer vos discussions par sujet ?"
+ },
+ "orgConsentText": {
+  "message": "ContextFlow suggérera une discussion adaptée et l’un de vos tags sous les nouvelles réponses et notes. Pour cela, le texte de vos messages est envoyé à notre serveur, à OpenAI et à Anthropic. Nous ne le conservons pas. OpenAI et Anthropic ne l’utilisent pas pour l’entraînement."
+ },
+ "orgTurnOn": {
+  "message": "Activer"
+ },
+ "orgMessTitle": {
+  "message": "Tout dans une seule discussion ?"
+ },
+ "orgMessText": {
+  "message": "Avec Pro, ContextFlow suggère ce qui va où et ajoute les tags comme vous le faites."
+ },
+ "orgTagsTitle": {
+  "message": "ContextFlow peut taguer comme vous"
+ },
+ "orgTagsText": {
+  "message": "Avec Pro, il suggère l’un de vos tags sous les nouvelles réponses et notes, d’après les endroits où vous le mettez vous-même."
+ },
+ "orgCloseA11y": {
+  "message": "Fermer"
+ },
+ "setOrganize": {
+  "message": "Suggestions : tags et déplacement"
+ },
+ "setOrganizeHint": {
+  "message": "Une discussion adaptée et votre tag sous les nouvelles réponses et notes. Le texte de vos messages est envoyé à notre serveur, à OpenAI et à Anthropic. Nous ne le conservons pas, et ils ne l’utilisent pas pour l’entraînement."
+ },
+ "setOrganizePro": {
+  "message": "Pro : ContextFlow suggère une discussion adaptée et votre tag sous les nouvelles réponses et notes."
+ },
+ "upsellOrganizeName": {
+  "message": "Classe par sujet"
+ },
+ "upsellOrganizeText": {
+  "message": "Suggère la bonne discussion pour ce que vous venez de demander, et votre propre tag."
  }
 }

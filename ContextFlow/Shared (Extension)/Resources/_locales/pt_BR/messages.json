@@ -1066,5 +1066,89 @@
  },
  "byokOfferBody": {
   "message": "O Pro responde sem a sua chave: até {0} respostas por semana, {1} buscas no Google por semana, “Pergunte às suas conversas” e busca com IA. A App Store mostra o preço e a duração antes de pagar. O Pro começa na hora, e a parte não usada do plano atual é reembolsada."
+ },
+ "orgSuggested": {
+  "message": "Sugestão"
+ },
+ "orgTagA11y": {
+  "message": "Tag sugerida “{0}”. Adicionar"
+ },
+ "orgNoA11y": {
+  "message": "Ignorar"
+ },
+ "orgCountOne": {
+  "message": "{0} mensagem"
+ },
+ "orgCountFew": {
+  "message": "{0} mensagens"
+ },
+ "orgCountMany": {
+  "message": "{0} mensagens"
+ },
+ "orgCountOther": {
+  "message": "{0} mensagens"
+ },
+ "orgMoveTo": {
+  "message": "{0} para “{1}”"
+ },
+ "orgSplit": {
+  "message": "Para uma nova conversa: “{0}”"
+ },
+ "orgMoveA11y": {
+  "message": "Mover {0} para a conversa “{1}”"
+ },
+ "orgSplitA11y": {
+  "message": "Mover estas mensagens para uma nova conversa, “{0}”"
+ },
+ "orgMoved": {
+  "message": "Movido para “{0}”"
+ },
+ "orgUndo": {
+  "message": "Desfazer"
+ },
+ "orgOpen": {
+  "message": "Abrir"
+ },
+ "orgFirstWin": {
+  "message": "Pronto. Daqui em diante, o ContextFlow vai sugerir sozinho."
+ },
+ "orgConsentTitle": {
+  "message": "Organizar suas conversas por assunto?"
+ },
+ "orgConsentText": {
+  "message": "O ContextFlow vai sugerir uma conversa adequada e uma das suas tags embaixo das novas respostas e notas. Para isso, o texto das suas mensagens vai para o nosso servidor e para a OpenAI e a Anthropic. Não guardamos esse texto. A OpenAI e a Anthropic não o usam para treinamento."
+ },
+ "orgTurnOn": {
+  "message": "Ativar"
+ },
+ "orgMessTitle": {
+  "message": "Tudo numa conversa só?"
+ },
+ "orgMessText": {
+  "message": "No Pro, o ContextFlow sugere o que vai para onde e coloca tags do jeito que você coloca."
+ },
+ "orgTagsTitle": {
+  "message": "O ContextFlow pode colocar tags do seu jeito"
+ },
+ "orgTagsText": {
+  "message": "No Pro, ele sugere uma das suas tags embaixo das novas respostas e notas, de acordo com onde você mesmo a coloca."
+ },
+ "orgCloseA11y": {
+  "message": "Fechar"
+ },
+ "setOrganize": {
+  "message": "Sugestões: tags e mover"
+ },
+ "setOrganizeHint": {
+  "message": "Uma conversa adequada e sua tag embaixo das novas respostas e notas. O texto das suas mensagens vai para o nosso servidor e para a OpenAI e a Anthropic. Não guardamos esse texto, e elas não o usam para treinamento."
+ },
+ "setOrganizePro": {
+  "message": "Pro: o ContextFlow sugere uma conversa adequada e sua tag embaixo das novas respostas e notas."
+ },
+ "upsellOrganizeName": {
+  "message": "Organiza por assunto"
+ },
+ "upsellOrganizeText": {
+  "message": "Sugere a conversa certa para o que você acabou de perguntar, e sua própria tag para isso."
  }
 }

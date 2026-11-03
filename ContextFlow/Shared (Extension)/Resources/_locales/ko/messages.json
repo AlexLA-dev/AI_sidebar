@@ -1066,5 +1066,89 @@
  },
  "byokOfferBody": {
   "message": "Pro는 내 키 없이 답해요: 일주일에 최대 {0}개, Google 검색 일주일 {1}회, '모든 채팅에 묻기'와 AI 검색. 결제 전에 App Store가 가격과 기간을 보여줘요. Pro는 바로 시작되고 현재 요금제의 남은 기간은 환불돼요."
+ },
+ "orgSuggested": {
+  "message": "추천"
+ },
+ "orgTagA11y": {
+  "message": "추천 태그 ‘{0}’. 추가하기"
+ },
+ "orgNoA11y": {
+  "message": "추천 닫기"
+ },
+ "orgCountOne": {
+  "message": "메시지 {0}개"
+ },
+ "orgCountFew": {
+  "message": "메시지 {0}개"
+ },
+ "orgCountMany": {
+  "message": "메시지 {0}개"
+ },
+ "orgCountOther": {
+  "message": "메시지 {0}개"
+ },
+ "orgMoveTo": {
+  "message": "{0}를 ‘{1}’에"
+ },
+ "orgSplit": {
+  "message": "새 채팅으로: ‘{0}’"
+ },
+ "orgMoveA11y": {
+  "message": "{0}를 ‘{1}’ 채팅으로 옮기기"
+ },
+ "orgSplitA11y": {
+  "message": "이 메시지들을 새 채팅으로 옮기기: ‘{0}’"
+ },
+ "orgMoved": {
+  "message": "‘{0}’에 옮겼어요"
+ },
+ "orgUndo": {
+  "message": "실행 취소"
+ },
+ "orgOpen": {
+  "message": "열기"
+ },
+ "orgFirstWin": {
+  "message": "완료. 이제부터 ContextFlow가 알아서 추천해요."
+ },
+ "orgConsentTitle": {
+  "message": "채팅을 주제별로 정리할까요?"
+ },
+ "orgConsentText": {
+  "message": "새 답변과 메모 아래에 ContextFlow가 알맞은 채팅과 내 태그 하나를 추천해요. 이를 위해 메시지 텍스트가 당사 서버와 OpenAI, Anthropic으로 전송돼요. 당사는 이를 저장하지 않아요. OpenAI와 Anthropic은 이를 학습에 사용하지 않아요."
+ },
+ "orgTurnOn": {
+  "message": "켜기"
+ },
+ "orgMessTitle": {
+  "message": "모든 게 한 채팅에?"
+ },
+ "orgMessText": {
+  "message": "Pro에서는 ContextFlow가 무엇을 어디로 옮길지 추천하고, 내가 하듯이 태그를 달아요."
+ },
+ "orgTagsTitle": {
+  "message": "ContextFlow가 나처럼 태그를 달 수 있어요"
+ },
+ "orgTagsText": {
+  "message": "Pro에서는 내가 직접 태그를 단 곳을 바탕으로 새 답변과 메모 아래에 내 태그 하나를 추천해요."
+ },
+ "orgCloseA11y": {
+  "message": "닫기"
+ },
+ "setOrganize": {
+  "message": "추천: 태그와 옮기기"
+ },
+ "setOrganizeHint": {
+  "message": "새 답변과 메모 아래에 알맞은 채팅과 내 태그를 보여 줘요. 메시지 텍스트는 당사 서버와 OpenAI, Anthropic으로 전송돼요. 당사는 저장하지 않고, OpenAI와 Anthropic은 학습에 사용하지 않아요."
+ },
+ "setOrganizePro": {
+  "message": "Pro: 새 답변과 메모 아래에 ContextFlow가 알맞은 채팅과 내 태그를 추천해요."
+ },
+ "upsellOrganizeName": {
+  "message": "주제별로 정리"
+ },
+ "upsellOrganizeText": {
+  "message": "방금 물어본 내용에 맞는 채팅과 내 태그를 추천해요."
  }
 }

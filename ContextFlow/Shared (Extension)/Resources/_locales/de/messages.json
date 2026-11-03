@@ -1066,5 +1066,89 @@
  },
  "byokOfferBody": {
   "message": "Pro antwortet ohne deinen Schlüssel: bis zu {0} Antworten pro Woche, {1} Google-Suchen pro Woche, „Frag deine Chats“ und KI-Suche. Der App Store zeigt Preis und Dauer vor dem Bezahlen. Pro startet sofort, der ungenutzte Teil deines Tarifs wird erstattet."
+ },
+ "orgSuggested": {
+  "message": "Vorschlag"
+ },
+ "orgTagA11y": {
+  "message": "Vorgeschlagener Tag „{0}“. Hinzufügen"
+ },
+ "orgNoA11y": {
+  "message": "Ablehnen"
+ },
+ "orgCountOne": {
+  "message": "{0} Nachricht"
+ },
+ "orgCountFew": {
+  "message": "{0} Nachrichten"
+ },
+ "orgCountMany": {
+  "message": "{0} Nachrichten"
+ },
+ "orgCountOther": {
+  "message": "{0} Nachrichten"
+ },
+ "orgMoveTo": {
+  "message": "{0} nach „{1}“"
+ },
+ "orgSplit": {
+  "message": "In einen neuen Chat: „{0}“"
+ },
+ "orgMoveA11y": {
+  "message": "{0} in den Chat „{1}“ verschieben"
+ },
+ "orgSplitA11y": {
+  "message": "Diese Nachrichten in einen neuen Chat „{0}“ verschieben"
+ },
+ "orgMoved": {
+  "message": "Nach „{0}“ verschoben"
+ },
+ "orgUndo": {
+  "message": "Widerrufen"
+ },
+ "orgOpen": {
+  "message": "Öffnen"
+ },
+ "orgFirstWin": {
+  "message": "Erledigt. Ab jetzt macht ContextFlow selbst Vorschläge."
+ },
+ "orgConsentTitle": {
+  "message": "Chats nach Themen sortieren?"
+ },
+ "orgConsentText": {
+  "message": "ContextFlow schlägt unter neuen Antworten und Notizen einen passenden Chat und einen deiner Tags vor. Dafür geht der Text deiner Nachrichten an unseren Server und an OpenAI und Anthropic. Wir speichern ihn nicht. OpenAI und Anthropic nutzen ihn nicht zum Training."
+ },
+ "orgTurnOn": {
+  "message": "Einschalten"
+ },
+ "orgMessTitle": {
+  "message": "Alles in einem Chat?"
+ },
+ "orgMessText": {
+  "message": "Mit Pro schlägt ContextFlow vor, was wohin gehört, und setzt Tags so, wie du es tust."
+ },
+ "orgTagsTitle": {
+  "message": "ContextFlow kann Tags setzen wie du"
+ },
+ "orgTagsText": {
+  "message": "Mit Pro schlägt ContextFlow unter neuen Antworten und Notizen einen deiner Tags vor – danach, wo du ihn selbst setzt."
+ },
+ "orgCloseA11y": {
+  "message": "Schließen"
+ },
+ "setOrganize": {
+  "message": "Vorschläge: Tags und Verschieben"
+ },
+ "setOrganizeHint": {
+  "message": "Ein passender Chat und dein Tag unter neuen Antworten und Notizen. Der Text deiner Nachrichten geht an unseren Server und an OpenAI und Anthropic. Wir speichern ihn nicht, und sie nutzen ihn nicht zum Training."
+ },
+ "setOrganizePro": {
+  "message": "Pro: ContextFlow schlägt unter neuen Antworten und Notizen einen passenden Chat und deinen Tag vor."
+ },
+ "upsellOrganizeName": {
+  "message": "Sortiert nach Themen"
+ },
+ "upsellOrganizeText": {
+  "message": "Schlägt den richtigen Chat für das vor, was du gerade gefragt hast, und deinen eigenen Tag dafür."
  }
 }
