@@ -952,7 +952,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       setBubble(null)
       // On iPhone and iPad the system edit menu would stay over the page.
       if (touch) document.getSelection()?.removeAllRanges()
-    }, 2200)
+    }, remindAt ? 4000 : 2200)
   }
 
   /** "Ask your chats" (Pro): continues today's one, else starts a new one; without Pro, says what it does. */
