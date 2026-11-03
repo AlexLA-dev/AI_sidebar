@@ -28,7 +28,8 @@ export function skippedRule(skipped: MediaKind[]): string {
 /** How a conversation that spans pages is presented to the model (shared with Google mode). */
 export const MULTI_PAGE_RULE =
   "- The conversation can continue across several pages. A user message that starts with [Asked on another page: …] was asked while the user was reading that page; the page content below is the page the user is on now.\n" +
-  "- A user message that starts with [Note the user wrote …] is a note the user kept in this chat for themselves: use it as context, don't answer it."
+  "- A user message that starts with [Note the user wrote …] is a note the user kept in this chat for themselves: use it as context, don't answer it.\n" +
+  "- In your earlier answers, <mark>…</mark> wraps what the user highlighted as important to them: treat it as their emphasis. Don't write <mark> yourself and don't mention the marks."
 
 export const MAX_PAGE_CHARS = 24_000
 // A page with a video transcript or a PDF (about 50 minutes of speech, or a 40-page document).

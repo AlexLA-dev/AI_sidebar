@@ -25,9 +25,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         UNUserNotificationCenter.current().delegate = self
     }
 
-    // A reminder on a message (set here or in the panel): the app opens on that message.
+    // A reminder on a message (set here or in the panel): the app opens on that message. A page reminder
+    // (the bell by a selection) opens its page in Safari; its note stays in the chat.
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
-        guard let link = response.notification.request.content.userInfo["link"] as? String, let url = URL(string: link) else { return }
+        let info = response.notification.request.content.userInfo
+        await MainActor.run { ChatAI.reportUx("ux_remind", ["action": "opened", "what": info["open"] != nil ? "page" : "message"]) }
+        if let open = info["open"] as? String, let page = URL(string: open) {
+            await MainActor.run { _ = NSWorkspace.shared.open(page) }
+            return
+        }
+        guard let link = info["link"] as? String, let url = URL(string: link) else { return }
         MessageReminders.log("opened \(link)")
         await MainActor.run { DeepLinkRouter.shared.handle(url) }
     }

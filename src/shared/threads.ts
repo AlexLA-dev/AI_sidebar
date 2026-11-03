@@ -2,6 +2,7 @@
 // user starts a new one. Pure helpers shared by the content script, the background and tests.
 
 import { entriesFrom, entryKey, entryTimes, MAX_SAVED_PAGE_CHARS, stripCitations, withoutText, withPageChanges, type Entry } from "./conversation.ts"
+import { marksLine } from "./marks.ts"
 import type { ChatDigest } from "./history.ts"
 
 export interface Thread {
@@ -659,7 +660,10 @@ export function chatDigests(threads: Thread[], opts: { perChat: number; perAnswe
       const text = stripCitations(e.content).replace(/\s+/g, " ").trim()
       if (e.note) lines.push(`Note: ${text.slice(0, opts.perAnswer)}`)
       else if (e.role === "user") lines.push(`Q: ${(e.label ?? text).slice(0, 300)}`)
-      else lines.push(`A: ${text.slice(0, opts.perAnswer)}${text.length > opts.perAnswer ? "…" : ""}`)
+      else {
+        lines.push(`A: ${text.slice(0, opts.perAnswer)}${text.length > opts.perAnswer ? "…" : ""}`)
+        if (e.marks?.length) lines.push(`Highlighted: ${marksLine(e.marks)}`)
+      }
     }
     let text = lines.join("\n").slice(0, opts.perChat)
     if (size + text.length > opts.total) text = text.slice(0, Math.max(0, opts.total - size))

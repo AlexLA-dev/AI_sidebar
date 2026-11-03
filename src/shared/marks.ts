@@ -71,3 +71,47 @@ export function starMarks(text: string, marks: Mark[] | undefined): string {
   }
   return out + rest
 }
+
+// What may stand between two shown characters in the Markdown source: spaces and line breaks, emphasis
+// and code marks, a link's brackets and address, a list bullet or number, a heading's #, a quote's >,
+// a table's |.
+const GAP = String.raw`(?:\s|[*_~\x60|>#]|\[|\]\([^)\s]*\)|(?<=\n\s*)(?:[-+•]|\d+[.)])(?=\s))*?`
+
+function sourcePattern(q: string): RegExp | null {
+  const chars = [...q.replace(/\s+/g, " ").trim()]
+  if (!chars.length) return null
+  const parts = chars.map((c) => (c === " " ? String.raw`\s+` : c.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")))
+  return new RegExp(parts.join(GAP), "g")
+}
+
+/**
+ * The answer's Markdown with the highlights wrapped in <mark>…</mark>, for the model: each highlight is
+ * found in the source by its text (Markdown signs allowed in between), the occurrence nearest to where
+ * it is in the shown text. One that can't be found is left out.
+ */
+export function markedContent(content: string, marks: Mark[] | undefined, shownLength?: number): string {
+  if (!marks?.length) return content
+  const spots: Array<{ start: number; end: number }> = []
+  for (const m of [...marks].sort((a, b) => a.s - b.s)) {
+    const pattern = sourcePattern(m.q)
+    if (!pattern) continue
+    const want = shownLength ? (m.s / shownLength) * content.length : m.s
+    let best: { start: number; end: number } | null = null
+    for (const hit of content.matchAll(pattern)) {
+      const spot = { start: hit.index, end: hit.index + hit[0].length }
+      if (spots.some((x) => spot.start < x.end && spot.end > x.start)) continue
+      if (!best || Math.abs(spot.start - want) < Math.abs(best.start - want)) best = spot
+    }
+    if (best) spots.push(best)
+  }
+  let out = content
+  for (const x of spots.sort((a, b) => b.start - a.start)) out = `${out.slice(0, x.start)}<mark>${out.slice(x.start, x.end)}</mark>${out.slice(x.end)}`
+  return out
+}
+
+/** The highlights' texts for a chat digest ("Ask your chats"): «…» · «…», at most `max` characters. */
+export function marksLine(marks: Mark[] | undefined, max = 300): string {
+  const quotes = (marks ?? []).map((m) => `«${m.q.replace(/\s+/g, " ").trim()}»`).filter((q) => q.length > 2)
+  const line = quotes.join(" · ")
+  return line.length > max ? `${line.slice(0, max - 1)}…` : line
+}

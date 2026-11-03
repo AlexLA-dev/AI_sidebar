@@ -167,7 +167,9 @@ export type BackgroundRequest =
   | { type: "pdfBytes"; url: string; data: string }
   // A reminder on an answer or a note (2.5): a local notification on this device (Safari); answers
   // { outcome: "scheduled" | "denied" | "not-asked" | "failed" | "unavailable" }. `at` null: cancel it.
-  | { type: "remind"; chat: string; message: string; at: number | null; title?: string; body?: string; ask?: boolean }
+  | { type: "remind"; chat: string; message: string; at: number | null; title?: string; body?: string; url?: string; ask?: boolean }
+  // Chat UX counts (2.5), no text: see UX_KINDS in netlify/functions/v2-event.mts.
+  | { type: "uxEvent"; kind: "ux_mark" | "ux_pin" | "ux_delete" | "ux_remind"; action: string; what?: string; how?: string; preset?: string }
 
 /** A PDF's text, or why there is none ("none": nothing to read, e.g. scanned pages). */
 export type PdfResult =
@@ -265,6 +267,8 @@ export interface Settings {
   // Suggestions (2.5, Pro): a better chat for a block, one of the user's tags. Off until the user turns them on:
   // turning them on is the consent to send the messages' text for it.
   organize: boolean
+  // Sharing an answer from the panel (text only): its highlights wrapped in **…** (2.5). Off: plain text.
+  shareMarks: boolean
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -280,7 +284,8 @@ export const DEFAULT_SETTINGS: Settings = {
   syncChats: true,
   groupByTags: false,
   wholeChat: false,
-  organize: false
+  organize: false,
+  shareMarks: false
 }
 
 /** AI search's answer: the matching chats with a reason, or why there are none. */
