@@ -143,6 +143,9 @@ export const config = {
     embedDaily: int("ORGANIZE_EMBED_DAILY", 150),
     tagsDaily: int("ORGANIZE_TAGS_DAILY", 300),
     globalDaily: int("ORGANIZE_GLOBAL_DAILY", 100_000),
+    // Calibrating the thresholds (tools/organize/calibrate.mts) on a deploy preview: this token stands in for
+    // Pro there, never in production. Set it for the Deploy Previews context only.
+    evalToken: (env("ORGANIZE_EVAL_TOKEN") ?? "").trim(),
     // The quality thresholds (src/shared/organize.ts): JSON with any of them, e.g. {"moveT":0.5}.
     thresholds: organizeConfig(parsed(env("ORGANIZE_THRESHOLDS"))),
     // USD per million tokens, for the spend in the logs (text-embedding-3-small; Claude Haiku 5.5 up to 100K).

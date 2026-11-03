@@ -207,6 +207,22 @@ test("its own daily limit, a switch, and malformed requests", async () => {
   assert.equal(counters.get("organize:embed:tx:2000000123") ?? 0, 0)
 })
 
+test("calibration: the eval token stands in for Pro on a deploy preview, never in production", async () => {
+  ;(config.organize as Record<string, unknown>).evalToken = "eval-secret"
+  const asEval = (deploy: string, token = "eval-secret") => {
+    const req = request({ op: "embed", texts: ["a"], entitlement: null })
+    const signed = new Request(req, { headers: { ...Object.fromEntries(req.headers), Authorization: `Bearer ${token}` } })
+    const c = { ...ctx(), deploy: { context: deploy, id: "d1", published: false } }
+    return organize(signed, c)
+  }
+  assert.equal((await asEval("deploy-preview")).status, 200)
+  assert.equal(counters.get("organize:embed:eval"), 1)
+  assert.equal((await asEval("production")).status, 403)
+  assert.equal((await asEval("deploy-preview", "wrong-secret")).status, 403)
+  ;(config.organize as Record<string, unknown>).evalToken = ""
+  assert.equal((await asEval("deploy-preview")).status, 403)
+})
+
 test("status gives the switch, the vector space and the thresholds (known numbers from ORGANIZE_THRESHOLDS)", async () => {
   const res = await status(new Request("https://aisidebar.netlify.app/api/v2/status", { method: "POST", body: JSON.stringify({ installId: INSTALL, client: {} }) }), ctx())
   const body = await res.json()
