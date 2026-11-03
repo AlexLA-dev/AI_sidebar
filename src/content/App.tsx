@@ -1521,6 +1521,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     void setOrganizeCards({ mess: { chats: [...(cards?.mess?.chats ?? []), id].slice(-50), at: Date.now() } }).then(setCards)
     orgEvent({ kind: "organize_promo", action: "shown", where: "inchat_mess" })
   }, [messCard])
+  // They come after the chat (once the plan is known): bring them into view, as the offer card does.
+  const chatCard = consentCard || messCard
+  useEffect(() => {
+    if (chatCard) requestAnimationFrame(() => listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" }))
+  }, [chatCard])
   useEffect(() => {
     if (upsell && TARGET === "safari" && plan !== "pro") orgEvent({ kind: "organize_promo", action: "shown", where: "pro_card" })
   }, [upsell])
