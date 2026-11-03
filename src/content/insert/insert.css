@@ -146,10 +146,14 @@
 .cf-msg-tools button { white-space: nowrap; }
 .cf-msg-tools .cf-insert { color: var(--accent-text); font-weight: 600; }
 .cf-msg-tools .cf-insert svg { color: var(--accent); }
-/* Narrow by the panel's width, not the device: with the insert button first, Share and Tag keep their icons. */
+/* Narrow by the panel's width, not the device: with the insert button first, Share and Tag keep their icons
+   and the buttons sit closer, so Insert · Copy · Share · Tag · … stay on one line at 375 pt in every language. */
 .cf-panel { container-type: inline-size; }
 @container (max-width: 460px) {
   .cf-msg-tools.has-insert .cf-tl { display: none; }
+  /* Wraps rather than runs off the panel if something more joins the row. */
+  .cf-msg-tools.has-insert { gap: 2px; flex-wrap: wrap; }
+  .cf-msg-tools.has-insert button { padding: 4px 6px; }
 }
 
 /* ------------------------------------------- "Template" by a selection */
