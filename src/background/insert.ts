@@ -5,7 +5,7 @@
 import { API_BASE, TARGET } from "../shared/config"
 import { INSERT_STORAGE, type AiFailure, type FillResult, type FindResult, type InsertEvent, type InsertRequest, type MarkResult } from "../shared/insert"
 import { applyTemplates, pendingTemplates, type Templates } from "../shared/templates"
-import type { ErrorCode, ProOffer, Usage } from "../shared/types"
+import { DEFAULT_SETTINGS, STORAGE, type ErrorCode, type ProOffer, type Settings, type Usage } from "../shared/types"
 import { callNative } from "./native"
 
 export interface InsertDeps {
@@ -59,8 +59,11 @@ async function syncOnce(): Promise<boolean> {
   const local = (stored[INSERT_STORAGE.templates] as Templates | undefined) ?? {}
   const synced = (stored[INSERT_STORAGE.syncedTemplates] as Record<string, number> | undefined) ?? {}
   const sent = pendingTemplates(local, synced)
+  // Templates go to iCloud with the same switch as the chats ("Sync chats with iCloud"); the app gets them either way.
+  const prefs = (await chrome.storage.local.get(STORAGE.settings))[STORAGE.settings] as Partial<Settings> | undefined
   const reply = await callNative<NativeTemplates>("syncTemplates", {
-    changes: sent.map((t) => ({ id: t.id, updatedAt: t.updatedAt, data: JSON.stringify(t) }))
+    changes: sent.map((t) => ({ id: t.id, updatedAt: t.updatedAt, data: JSON.stringify(t) })),
+    cloud: prefs?.syncChats ?? DEFAULT_SETTINGS.syncChats
   }, 20_000)
   if (!reply?.templates) return false // not in Safari, or an app without templates
   const remote = reply.templates.map((r) => {

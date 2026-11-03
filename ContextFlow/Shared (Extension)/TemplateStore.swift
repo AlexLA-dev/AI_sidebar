@@ -155,6 +155,11 @@ enum TemplateSync {
         CKContainer(identifier: ChatSync.containerIdentifier).privateCloudDatabase
     }
 
+    /// The extension's "Sync chats with iCloud" covers the templates too (on unless turned off).
+    static var enabled: Bool {
+        SharedDefaults.shared.readSettings()?.settings["syncChats"] as? Bool ?? true
+    }
+
     /// Sends what changed here since iCloud last had it, takes the other devices' changes into the store.
     /// Returns whether the store changed. Throws without an iCloud account or connection.
     @discardableResult

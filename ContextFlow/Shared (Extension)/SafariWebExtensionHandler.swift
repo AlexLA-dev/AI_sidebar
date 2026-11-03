@@ -132,10 +132,14 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             // there), then iCloud; the merged set goes back (see TemplateStore).
             let incoming = (message["changes"] as? [[String: Any]] ?? []).compactMap { TemplateRecord.decode($0["data"] as? String) }
             TemplateStore.merge(incoming)
+            // iCloud only with "Sync chats with iCloud" on (the extension sends the switch).
+            let cloud = message["cloud"] as? Bool ?? true
             Task {
-                let result = await Self.withTimeout(seconds: 15) { try await TemplateSync.sync() }
                 var available = false
-                if case .success = result { available = true }
+                if cloud {
+                    let result = await Self.withTimeout(seconds: 15) { try await TemplateSync.sync() }
+                    if case .success = result { available = true }
+                }
                 Self.reply(context, ["success": true, "data": [
                     "available": available,
                     "templates": TemplateStore.all().map { ["id": $0.id, "updatedAt": $0.updatedAt, "data": $0.json] as [String: Any] }

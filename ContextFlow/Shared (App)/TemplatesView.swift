@@ -23,6 +23,7 @@ final class TemplateLibrary: ObservableObject {
 
     /// iCloud both ways, then the list again (offline or without iCloud it stays on this device).
     func sync() {
+        guard TemplateSync.enabled else { return }
         Task {
             _ = try? await TemplateSync.sync()
             refresh()
