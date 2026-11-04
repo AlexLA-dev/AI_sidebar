@@ -1,6 +1,6 @@
 import { render } from "preact"
 
-import { TARGET } from "../shared/config"
+import { SHADOW_MODE, TARGET } from "../shared/config"
 import type { ContentRequest } from "../shared/types"
 import { App } from "./App"
 import { tabPdf, tabSource } from "./context"
@@ -41,7 +41,7 @@ function boot(): void {
     if (document.querySelector(HOST_TAG)) return
     const host = document.createElement(HOST_TAG)
     host.setAttribute("style", "all:initial;position:fixed;top:0;left:0;width:0;height:0;z-index:2147483647;")
-    const root = host.attachShadow({ mode: "open" })
+    const root = host.attachShadow({ mode: SHADOW_MODE })
     const style = document.createElement("style")
     style.textContent = `${styles}
 ${insertStyles}

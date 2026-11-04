@@ -1,6 +1,6 @@
 // Records real ContextFlow UI on iPhone for the clips in the app's Tips tab (one take per tip).
 // Needs: tools/preview/server.mts on :8787 (STREAM_DELAY_MS=22 gives a readable streaming pace)
-// and a Safari build pointing at it: CF_API_BASE=http://localhost:8787 node scripts/build-extension.mjs --out=<dir>
+// and a Safari build pointing at it: CF_API_BASE=http://localhost:8787 CF_OPEN_SHADOW=1 node scripts/build-extension.mjs --out=<dir>
 //   node tools/store/tips-record.mjs <extensionDir> <outDir> [lang] [takes]
 // The Pro takes (aisearch, history, pdf) need the stand with PREVIEW_PLAN=pro and a build pointing at it:
 //   CF_STAND=http://localhost:8788 node tools/store/tips-record.mjs <proBuild> <outDir> en aisearch,history,pdf

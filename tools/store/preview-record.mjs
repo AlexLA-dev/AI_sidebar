@@ -1,4 +1,5 @@
 // Records real ContextFlow UI on iPhone for the App Store app preview video.
+// The build needs CF_OPEN_SHADOW=1: these scripts read inside the panel's shadow root (production closes it).
 // Needs: tools/preview/server.mts on :8787 (STREAM_DELAY_MS=22 gives a readable streaming pace)
 // and an extension build pointing at it (see capture.mjs).
 //   node tools/store/preview-record.mjs <extensionDir> <outDir> [lang]

@@ -2,7 +2,7 @@ import { Fragment, type ComponentChildren, type VNode } from "preact"
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "preact/hooks"
 
 import { composePage, readsMedia, type MediaKind } from "../shared/attachments"
-import { LINKS, PRODUCTS, TARGET } from "../shared/config"
+import { LINKS, PRODUCTS, SHADOW_MODE, TARGET } from "../shared/config"
 import { RENEWAL_REASONS, type RenewalReason } from "../shared/renewal"
 import { t, uiLanguage, type MessageKey } from "../shared/i18n"
 import {
@@ -2606,11 +2606,13 @@ function Sources({ grounding }: { grounding: Grounding }): VNode {
 /** Google's Search Suggestions, rendered as Google provides them, in their own shadow root. */
 function SearchSuggestions({ html }: { html: string }): VNode {
   const ref = useRef<HTMLDivElement>(null)
+  // Closed like the panel's own root: kept here, since a closed root can't be read back from its host.
+  const shadow = useRef<ShadowRoot | null>(null)
   useEffect(() => {
     const host = ref.current
     if (!host) return
-    const root = host.shadowRoot ?? host.attachShadow({ mode: "open" })
-    root.replaceChildren(suggestionNodes(html))
+    shadow.current ??= host.attachShadow({ mode: SHADOW_MODE })
+    shadow.current.replaceChildren(suggestionNodes(html))
   }, [html])
   return <div class="cf-suggest" ref={ref} />
 }
