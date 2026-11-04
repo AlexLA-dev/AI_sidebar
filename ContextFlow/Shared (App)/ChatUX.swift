@@ -27,10 +27,11 @@ struct ChatMark: Codable, Hashable {
     var q: String
 }
 
-/// A reminder on a message (ms); `dev`: the device that rings.
+/// A reminder on a message (ms); `dev`: the device that rings; `page`: a page reminder (opens the page).
 struct ChatRemind: Codable, Hashable {
     var at: Double
     var dev: String?
+    var page: Bool?
 }
 
 enum ChatMarks {
@@ -189,6 +190,7 @@ extension ChatLibrary {
             if let remind {
                 var object: [String: Any] = ["at": remind.at]
                 if let dev = remind.dev { object["dev"] = dev }
+                if remind.page == true { object["page"] = true }
                 entries[index]["remind"] = object
             } else {
                 entries[index].removeValue(forKey: "remind")

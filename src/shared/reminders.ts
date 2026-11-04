@@ -26,9 +26,12 @@ export function reminderText(content: string, max = BODY_MAX): string {
 
 /**
  * The notification for a message's reminder: the chat's name and the start of the answer or note. A note made
- * on a page (a selection's Note) says that page's title instead, so it's clear what to go back to.
+ * on a page (a selection's Note) says that page's title instead, so it's clear what to go back to. A page
+ * reminder (the bell by a selection: "Remind me to come back", `remind.page`) also opens that page; any other
+ * opens the chat at the message.
  */
-export function reminderNotice(entry: Entry, chatTitle: string): { title: string; body: string } {
+export function reminderNotice(entry: Entry, chatTitle: string): { title: string; body: string; url?: string } {
   const page = entry.note && entry.page ? entry.page.title || entry.page.url : ""
-  return { title: page || chatTitle || "ContextFlow", body: reminderText(entry.content) }
+  const url = entry.remind?.page && entry.page && /^https?:\/\//.test(entry.page.url) ? entry.page.url : ""
+  return { title: page || chatTitle || "ContextFlow", body: reminderText(entry.content), ...(url ? { url } : {}) }
 }

@@ -1462,8 +1462,10 @@ struct ChatDetailView: View {
         for raw in entries {
             guard let remind = raw["remind"] as? [String: Any], let at = (remind["at"] as? NSNumber)?.doubleValue, at > Date().timeIntervalSince1970 * 1000 else { continue }
             let content = raw["content"] as? String ?? ""
-            let page = raw["note"] as? Bool == true ? (raw["page"] as? [String: Any]).flatMap { ($0["title"] as? String).flatMap(\.nilIfEmpty) ?? $0["url"] as? String } : nil
-            Task { _ = await MessageReminders.schedule(chat: thread.id, message: Organize.entryKey(raw), at: Date(timeIntervalSince1970: at / 1000), title: page ?? thread.name, body: ReminderTimes.text(content), ask: false) }
+            let page = raw["note"] as? Bool == true ? raw["page"] as? [String: Any] : nil
+            let title = page.flatMap { ($0["title"] as? String).flatMap(\.nilIfEmpty) ?? $0["url"] as? String } ?? thread.name
+            let open = remind["page"] as? Bool == true ? (page?["url"] as? String).flatMap(URL.init(string:)) : nil
+            Task { _ = await MessageReminders.schedule(chat: thread.id, message: Organize.entryKey(raw), at: Date(timeIntervalSince1970: at / 1000), title: title, body: ReminderTimes.text(content), open: open, ask: false) }
         }
     }
 
@@ -1472,25 +1474,28 @@ struct ChatDetailView: View {
         guard let raw = thread.organized?.entries, raw.indices.contains(index) else { return }
         let entry = thread.entries[index]
         let key = Organize.entryKey(raw[index])
+        let what = entry.remind?.page == true ? "page" : entry.isNote ? "note" : "answer"
         guard let at else {
             MessageReminders.cancel(chat: thread.id, message: key)
             library.setRemind(thread, entry: index, nil)
             reminding = nil
-            ChatAI.reportUx("ux_remind", ["action": "cancelled", "what": entry.isNote ? "note" : "answer"])
+            ChatAI.reportUx("ux_remind", ["action": "cancelled", "what": what])
             return
         }
-        // A note made on a page says that page's title (src/shared/reminders.ts reminderNotice).
+        // A note made on a page says that page's title; a page reminder (the bell by a selection) opens the page
+        // (src/shared/reminders.ts reminderNotice).
         let title = entry.isNote ? (entry.page.map { $0.title.isEmpty ? $0.url : $0.title } ?? thread.name) : thread.name
+        let page = entry.remind?.page == true ? entry.page.flatMap { URL(string: $0.url) } : nil
         let outcome = await MessageReminders.schedule(chat: thread.id, message: key, at: at, title: title,
-                                                      body: ReminderTimes.text(entry.content), ask: true)
+                                                      body: ReminderTimes.text(entry.content), open: page, ask: true)
         guard outcome == .scheduled else {
             remindNote = String(localized: "Notifications are off for ContextFlow. Turn them on in Settings → Notifications → ContextFlow.")
-            ChatAI.reportUx("ux_remind", ["action": "denied", "what": entry.isNote ? "note" : "answer"])
+            ChatAI.reportUx("ux_remind", ["action": "denied", "what": what])
             return
         }
-        library.setRemind(thread, entry: index, ChatRemind(at: at.timeIntervalSince1970 * 1000, dev: String(Activation.shared.appId.prefix(12))))
+        library.setRemind(thread, entry: index, ChatRemind(at: at.timeIntervalSince1970 * 1000, dev: String(Activation.shared.appId.prefix(12)), page: entry.remind?.page))
         reminding = nil
-        ChatAI.reportUx("ux_remind", ["action": "set", "what": entry.isNote ? "note" : "answer", "preset": preset ?? "custom"])
+        ChatAI.reportUx("ux_remind", ["action": "set", "what": what, "preset": preset ?? "custom"])
     }
 
     private func userTags(_ thread: ChatThread, _ index: Int, _ tags: [String]) {

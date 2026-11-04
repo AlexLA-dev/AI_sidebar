@@ -67,7 +67,8 @@ export interface Entry extends ChatTurn {
   // 2.5, answers and notes: pinned at the top of the chat (when, ms).
   pinned?: number
   // 2.5, answers and notes: a reminder (ms). The notification rings only on the device that set it (`dev`).
-  remind?: { at: number; dev?: string }
+  // `page`: a note made from a selection with "Remind me": the notification opens its page.
+  remind?: { at: number; dev?: string; page?: true }
 }
 
 /** A new message's id: 12 random letters and digits. */
