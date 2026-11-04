@@ -131,10 +131,11 @@ function siteScore(t: Template, ctx: RankContext): number {
 
 /**
  * Templates matching what's typed, best first. Every word of the query must start a word of the
- * title, the keywords or the text ("перен встр" finds "Перенос встречи"). An empty query lists them
- * in the order for this site: made here, used here most, used lately.
+ * title, the keywords or the text ("перен встр" finds "Перенос встречи"); with `names`, only the title and
+ * the keywords ("/phrase" typed in a field: a word of the text is too easy a match). An empty query lists
+ * them in the order for this site: made here, used here most, used lately.
  */
-export function searchTemplates(list: Template[], query: string, ctx: RankContext, limit = 20): Template[] {
+export function searchTemplates(list: Template[], query: string, ctx: RankContext, limit = 20, names = false): Template[] {
   const live = list.filter((t) => !t.deleted)
   const q = words(query)
   const scored: Array<{ t: Template; score: number }> = []
@@ -148,7 +149,7 @@ export function searchTemplates(list: Template[], query: string, ctx: RankContex
       for (const w of q) {
         if (title.some((x) => x.startsWith(w))) score += title[0]?.startsWith(w) ? 12 : 10
         else if (keys.some((x) => x.startsWith(w))) score += 8
-        else if (body.some((x) => x.startsWith(w))) score += 3
+        else if (!names && body.some((x) => x.startsWith(w))) score += 3
         else {
           ok = false
           break
@@ -278,3 +279,12 @@ export function applyTemplates(local: Templates, synced: Record<string, number>,
 export function liveTemplates(all: Templates): Template[] {
   return Object.values(all).filter((t) => !t.deleted).sort((a, b) => b.updatedAt - a.updatedAt)
 }
+
+/** Every word of the query starts a word of the template's title, in order of the title's words ("/ear" for
+ * "Early check-in"): a match strong enough to stand chosen in the list, so Tab takes it. */
+export function titleStarts(t: Template, query: string): boolean {
+  const q = words(query)
+  const title = words(t.title)
+  return q.length > 0 && q.every((w, i) => title[i]?.startsWith(w))
+}
+
