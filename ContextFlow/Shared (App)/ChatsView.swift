@@ -1483,7 +1483,7 @@ struct ChatDetailView: View {
     /// A chat's last messages, kept while their Undo was up: deleted now (by key, in case the chat changed since).
     private func finishDeleting() {
         guard let gone = deleted, gone.whole else { return }
-        let keys = Set(gone.entries.map(Organize.entryKey))
+        let keys = Set(gone.entries.map { Organize.entryKey($0) })
         let thread = library.threads.first { $0.id == gone.thread.id } ?? gone.thread
         library.editEntries(thread) { entries in entries.removeAll { keys.contains(Organize.entryKey($0)) } }
     }
