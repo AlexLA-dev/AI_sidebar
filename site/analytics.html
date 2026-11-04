@@ -10,6 +10,11 @@
 <style>
   :root { --c1: #2563eb; --c2: #10b981; --c3: #8b5cf6; --warn: #d92d20; }
   @media (prefers-color-scheme: dark) { :root { --c1: #60a5fa; --c2: #34d399; --c3: #a78bfa; --warn: #ff6b5e; } }
+  /* Onboarding steps, one hue: lighter = stopped earlier (an ordinal ramp checked against the panel colour). */
+  :root { --o1: #6da7ec; --o2: #3987e5; --o3: #256abf; --o4: #104281; }
+  @media (prefers-color-scheme: dark) { :root { --o1: #184f95; --o2: #2a78d6; --o3: #6da7ec; --o4: #b7d3f6; } }
+  /* Safari on iPhone enlarges text in tables wider than the screen (the limits table went from 13 to 17 px). */
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   body { font-size: 15px; }
   .bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 6px 0 18px; }
   .bar h1 { font-size: 26px; margin: 0; letter-spacing: -0.01em; }
@@ -68,7 +73,18 @@
   .err { color: var(--warn); font-size: 13.5px; margin-top: 10px; min-height: 1em; }
   .note { font-size: 12.5px; color: var(--text-2); margin: 14px 0 30px; }
   .card.wide { grid-column: span 2; min-width: 0; }
-  @media (max-width: 760px) { .cards { grid-template-columns: 1fr; } .card.wide { grid-column: auto; } .seg { margin-left: 0; } }
+  .ob-steps { display: grid; gap: 12px; }
+  .ob-step { display: grid; grid-template-columns: 180px 1fr; gap: 3px 14px; align-items: center; }
+  .ob-name { font-size: 13.5px; }
+  .ob-step.side .ob-name { padding-left: 14px; color: var(--text-2); }
+  .ob-bar { position: relative; height: 22px; margin-right: 56px; }
+  .ob-bar i { position: absolute; left: 0; top: 0; bottom: 0; min-width: 2px; border-radius: 0 4px 4px 0; }
+  .ob-step.side .ob-bar i { background: var(--text-2); opacity: .3; }
+  .ob-bar b { position: absolute; top: 50%; transform: translateY(-50%); padding-left: 8px; font-size: 13.5px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .ob-note { grid-column: 2; font-size: 12px; color: var(--text-2); line-height: 1.4; }
+  .ob-note .bad { display: block; color: var(--warn); font-weight: 600; }
+  @media (max-width: 760px) { .cards { grid-template-columns: 1fr; } .card.wide { grid-column: auto; } .seg { margin-left: 0; }
+    .ob-step { grid-template-columns: 1fr; } .ob-note { grid-column: 1; } }
 </style>
 </head>
 <body>
@@ -141,6 +157,8 @@ let days = 30
 // Requests chart: by segment or by new vs returning users; conversion: by week or by day.
 let requestsBy = "segment"
 let cohortsBy = "week"
+// Onboarding: all devices or one.
+let onboardingDevice = "all"
 
 function store(value) {
   try { value ? localStorage.setItem(TOKEN_KEY, value) : localStorage.removeItem(TOKEN_KEY) } catch {}
@@ -351,11 +369,13 @@ function chart(title, series, totalDays) {
   })
   const chartSvg = svg("svg", { viewBox: `0 0 ${W} ${H}`, width: "100%", style: "min-width:640px", role: "img", "aria-label": [title].flat()[0] }, highlight, nodes, hits)
   chartSvg.addEventListener("pointerleave", hide)
+  // Wide enough to stay readable on a phone (scrolls sideways there, starting at the latest days).
+  const scroller = el("div", { class: "tbl" }, chartSvg)
+  requestAnimationFrame(() => { scroller.scrollLeft = scroller.scrollWidth })
   panel.append(
     el("h3", {}, title),
     el("div", { class: "legend" }, series.map((s) => el("span", {}, el("i", { style: `background:${s.color}` }), s.title))),
-    // Wide enough to stay readable on a phone (scrolls sideways there).
-    el("div", { class: "tbl" }, chartSvg),
+    scroller,
     tip
   )
   return panel
@@ -483,6 +503,144 @@ function cohortPanel(insights, redraw) {
     unlinked ? `Ещё ${n.format(unlinked)} подписк${unlinked === 1 ? "а" : "и"} без установки (купили в приложении, панель не открывали или открыли до покупки в другой день) — в конверсию не входят.` : ""
   ))
   return panel
+}
+
+// Onboarding to the first answer (cf_onboarding): one row per new person with seconds from showing up to each step.
+// A person who reached a step passed the earlier ones too. "old" people (before 2.4) have only panel → answer.
+const median = (list) => {
+  const s = list.filter((v) => v != null).sort((a, b) => a - b)
+  if (!s.length) return null
+  const m = Math.floor(s.length / 2)
+  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2
+}
+function duration(sec) {
+  if (sec == null) return "—"
+  if (sec < 60) return `${Math.round(sec)} с`
+  const min = sec / 60
+  return min < 60 ? `${Math.round(min)} мин` : min < 48 * 60 ? `${Math.round(min / 60)} ч` : `${Math.round(min / 1440)} дн.`
+}
+function reached(p) {
+  const answer = p.answer != null
+  const panel = answer || p.panel != null
+  return { app: p.kind === "app", ext: p.kind !== "old" && (panel || p.ext != null), panel, answer }
+}
+// 1 opened the app and left … 4 got an answer; colours --o1…--o4 (one hue, lighter = stopped earlier).
+const furthest = (p) => { const r = reached(p); return r.answer ? 4 : r.panel ? 3 : r.ext ? 2 : 1 }
+const REVIEW_PLATFORM = { IOS: "iOS", MAC_OS: "macOS" }
+
+function onboardingPanels(ob, totalDays, redraw) {
+  const title = "Онбординг до первого ответа"
+  if (!ob) return table(title, [], [], "Нет данных: в базе ещё нет функции cf_onboarding (миграция 20261103120000).")
+  const all = ob.people || []
+  const devices = ["iPhone", "iPad", "Mac", ...(all.some((p) => p.device === "Chrome") ? ["Chrome"] : [])]
+  const people = onboardingDevice === "all" ? all : all.filter((p) => p.device === onboardingDevice)
+  const pick = (v) => { onboardingDevice = v; redraw() }
+  const count = (list, step) => list.filter((p) => reached(p)[step]).length
+
+  // The funnel of the period: people who started in the app (2.4+).
+  const app = people.filter((p) => p.kind === "app")
+  const first = app.length
+  const steps = [
+    { title: "Открыли приложение", n: first, color: "var(--o1)" },
+    { title: "Разрешили уведомления", n: app.filter((p) => p.notified).length, side: true },
+    { title: "Включили расширение", n: count(app, "ext"), color: "var(--o2)", wait: median(app.map((p) => p.ext)) },
+    { title: "Открыли панель", n: count(app, "panel"), color: "var(--o3)", wait: median(app.map((p) => p.ext != null && p.panel != null ? p.panel - p.ext : null)) },
+    { title: "Первый ответ", n: count(app, "answer"), color: "var(--o4)", wait: median(app.map((p) => p.panel != null && p.answer != null ? p.answer - p.panel : null)) }
+  ]
+  const main = steps.filter((s) => !s.side)
+  const worst = Math.max(0, ...main.slice(1).map((s, i) => main[i].n - s.n))
+  const stepRow = (s) => {
+    const i = main.indexOf(s)
+    const prev = s.side ? main[0] : main[i - 1]
+    const lost = i > 0 ? prev.n - s.n : 0
+    const share = first ? 100 * s.n / first : 0
+    const note = [
+      s.side ? `${pct(s.n, first)} открывших приложение, шаг не обязательный` : i > 0 && `${pct(s.n, prev.n)} от прошлого шага · ${pct(s.n, first)} от первого`,
+      s.wait != null && `медиана ${duration(s.wait)} после прошлого шага`
+    ].filter(Boolean).join(" · ")
+    return el("div", { class: `ob-step${s.side ? " side" : ""}` },
+      el("div", { class: "ob-name" }, s.title),
+      el("div", { class: "ob-bar" },
+        el("i", { style: `width:${share}%${s.color ? `;background:${s.color}` : ""}` }),
+        el("b", { style: `left:${share}%` }, n.format(s.n))),
+      (note || (worst && lost === worst)) && el("div", { class: "ob-note" }, note,
+        worst > 0 && lost === worst && el("span", { class: "bad" }, `Больше всего уходят здесь: −${n.format(lost)} (${pct(lost, prev.n)})`))
+    )
+  }
+  const guessed = app.filter((p) => p.link === "time").length
+  const fullFrom = people.filter((p) => p.kind !== "old").map((p) => p.day).sort()[0]
+  const reviews = ob.open_reviews || []
+  const funnel = el("div", { class: "panel" },
+    el("h3", {}, title, toggle([["all", "Все"], ...devices.map((d) => [d, d])], onboardingDevice, pick)),
+    el("p", { class: "hint", style: "margin:0 0 12px" },
+      `Новые за ${totalDays} дн., начавшие с приложения. Верх воронки — первое открытие приложения: загрузок в нашей базе нет, их смотрите в App Store Connect.`),
+    first
+      ? el("div", { class: "ob-steps" }, steps.map(stepRow))
+      : el("p", { class: "empty" }, "Пока никто не начал с приложения: первые шаги (приложение, уведомления, расширение) присылает версия 2.4."),
+    guessed > 0 && el("p", { class: "hint" }, `≈ ${n.format(guessed)} из ${n.format(first)} связаны с расширением по времени: приложение ещё не узнало id расширения.`),
+    reviews.length > 0 && el("p", { class: "hint" },
+      `На ревью: ${reviews.map((w) => `${REVIEW_PLATFORM[w.platform] || w.platform} ${w.version} с ${short(w.submitted_at.slice(0, 10))}`).join(", ")}. ` +
+      "Пока окно ревью открыто, всё с этой версии считается вашим и App Review и не входит ни в один блок. Когда версия выйдет, окно нужно закрыть.")
+  )
+
+  // Everyone new in the period, by how they started.
+  const groupRow = (label, list, cls) => el("tr", { class: cls || "" },
+    el("td", {}, label),
+    el("td", {}, n.format(list.length)),
+    el("td", {}, list.some((p) => p.kind !== "old") ? n.format(count(list, "ext")) : "—"),
+    el("td", {}, n.format(count(list, "panel"))),
+    el("td", {}, n.format(count(list, "answer"))),
+    el("td", {}, pct(count(list, "answer"), list.length)),
+    el("td", {}, duration(median(list.map((p) => p.answer))))
+  )
+  const groups = [
+    ["Начали в приложении (2.4)", app],
+    ["Начали с расширения", people.filter((p) => p.kind === "ext")],
+    ["Сразу с панели (до 2.4)", people.filter((p) => p.kind === "old")]
+  ].filter(([, list]) => list.length)
+  const groupTable = table("Все новые за период: с чего начали",
+    ["Начали", "Людей", "Расширение", "Панель", "Ответ", "Дошли до ответа", "Медиана до ответа"],
+    [...groups.map(([label, list]) => groupRow(label, list)), groups.length > 1 && groupRow("Всего", people, "sum")].filter(Boolean),
+    "Новых людей за период нет.", "num2")
+  groupTable.append(el("p", { class: "hint" },
+    "«С расширения» — включили расширение, не открыв приложение раньше (или открытие не удалось с ним связать). " +
+    "«Сразу с панели» — люди до 2.4, когда первые шаги ещё не присылались, и редкие установки 2.4, чьи первые шаги до нас не дошли: у них только панель → ответ, поэтому в воронку выше они не входят. " +
+    "Медиана до ответа — от первого появления."))
+
+  // By day: how far each day's new people got, then the same as a table.
+  const onDay = (k) => (d) => people.filter((p) => p.day === d && furthest(p) === k).length
+  const byDay = chart("Новые люди по дням: докуда дошли", [
+    { title: "Дошли до ответа", color: "var(--o4)", value: onDay(4) },
+    { title: "Открыли панель, без ответа", color: "var(--o3)", value: onDay(3) },
+    { title: "Включили расширение, без панели", color: "var(--o2)", value: onDay(2) },
+    { title: "Открыли приложение и ушли", color: "var(--o1)", value: onDay(1) }
+  ], totalDays)
+  const dayRow = (label, list, cls) => {
+    const fresh = list.filter((p) => p.kind !== "old")
+    const old = list.filter((p) => p.kind === "old")
+    const step = (k) => fresh.length ? n.format(count(fresh, k)) : "—"
+    return el("tr", { class: cls || "" },
+      el("td", {}, label),
+      el("td", {}, n.format(list.length)),
+      el("td", {}, `${n.format(count(list, "answer"))} · ${pct(count(list, "answer"), list.length)}`),
+      el("td", {}, fresh.length ? `${n.format(count(fresh, "app"))} (${n.format(fresh.filter((p) => p.notified).length)})` : "—"),
+      el("td", {}, step("ext")),
+      el("td", {}, step("panel")),
+      el("td", {}, step("answer")),
+      el("td", {}, old.length ? `${n.format(old.length)} → ${n.format(count(old, "answer"))}` : "—")
+    )
+  }
+  const daysWith = unique(people.map((p) => p.day)).sort().reverse()
+  const dayTable = table("Онбординг по дням",
+    ["День (UTC)", "Новых", "Дошли до ответа", "2.4: приложение (уведомления)", "Расширение", "Панель", "Ответ", "До 2.4: панель → ответ"],
+    [daysWith.length > 1 && dayRow(`За ${totalDays} дн.`, people, "sum"), ...daysWith.map((d) => dayRow(short(d), people.filter((p) => p.day === d)))].filter(Boolean),
+    "Новых людей за период нет.", "num2")
+  dayTable.append(el("p", { class: "hint" },
+    fullFrom
+      ? `Шаги до панели (приложение, уведомления, расширение) — с ${short(fullFrom)}, раньше их не присылали; люди до 2.4 — в отдельной колонке, чтобы не было ложного провала. `
+      : "Шаги до панели (приложение, уведомления, расширение) пока не пришли ни от кого: их присылает версия 2.4. ",
+    "День — когда человека впервые увидели (UTC). Приложение и расширение одного человека связаны по id расширения, а пока приложение его не знает — по времени: ближайшее включение расширения на том же типе устройства в пределах 3 дней. Без тестов и App Review."))
+  return el("div", {}, funnel, groupTable, byDay, dayTable)
 }
 
 // Questions per day per active user, free vs paying (cf_owner_insights.per_user).
@@ -744,15 +902,9 @@ function render(data, fx) {
     freeRows.length > 0 && el("tr", { class: "sum" }, el("td", { colspan: 10 }, "Бесплатные (подарки, пробные, бесплатные коды): не входят в платящих, конверсию и MRR")),
     ...freeRows
   ].filter(Boolean)
-  // From opening the app to paying: each app or install on the day it first got there.
-  const funnelRows = (data.setup_funnel || []).filter((r) =>
-    ["app_opened", "extension_on", "panel_opened", "first_answer", "offer_redeemed", "subscribed"].some((k) => r[k] > 0)
-  ).map((r) => el("tr", {},
+  // Paying, by the day it happened (the steps before are in the onboarding block).
+  const funnelRows = (data.setup_funnel || []).filter((r) => r.offer_redeemed > 0 || r.subscribed > 0).map((r) => el("tr", {},
     el("td", {}, new Date(r.day).toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit" })),
-    el("td", {}, r.app_opened ? `${n.format(r.app_opened)} (${n.format(r.notifications_allowed)})` : "—"),
-    el("td", {}, n.format(r.extension_on)),
-    el("td", {}, n.format(r.panel_opened)),
-    el("td", {}, n.format(r.first_answer)),
     el("td", {}, n.format(r.offer_redeemed ?? 0)),
     el("td", {}, n.format(r.subscribed))
   ))
@@ -777,9 +929,9 @@ function render(data, fx) {
       { title: "Новые", color: "var(--c2)", value: userDay("new") },
       { title: "Вернувшиеся", color: "var(--c1)", value: (d) => userDay("active")(d) - userDay("new")(d) }
     ], data.days),
-    table("Путь нового пользователя (загрузки — в App Store Connect)",
-      ["День (UTC)", "Открыли приложение (разрешили уведомления)", "Включили расширение", "Открыли панель", "Первый ответ", "Подписались по коду −50%", "Первая оплата"],
-      funnelRows, "Пока пусто: приложение и расширение сообщают об этих шагах с версии 2.4.", "num2"),
+    live((redraw) => onboardingPanels(data.onboarding, data.days, redraw)),
+    table("Код −50% и первая оплата по дням", ["День (UTC)", "Подписались по коду −50%", "Первая оплата"],
+      funnelRows, "За период никто не подписался по коду и не оплатил.", "num2"),
     live((redraw) => cohortPanel(insights, redraw)),
     table(`Подписки${subs.sandbox ? ` · ещё ${n.format(subs.sandbox)} в песочнице (App Review, тесты)` : ""}`,
       ["Тариф", "Устройство", "Язык", "Страна", "Источник", "История (ваше время)", "Статус", "Цена сейчас", "Оформлена", "Оплачена до"], subRows, "Подписок пока нет.", "text"),
