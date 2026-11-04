@@ -34,8 +34,8 @@
   "promptGoogle": "Cerca su Google le informazioni più recenti sul tema di questa pagina e dammi una panoramica.",
   "promptSelGoogle": "Cerca su Google il testo selezionato: che cos’è, con i fatti principali.",
 
-  "placeholderPage": "Chiedi qualcosa su questa pagina…",
-  "placeholderSelection": "Chiedi qualcosa sulla selezione…",
+  "placeholderPage": "Chiedi sulla pagina…",
+  "placeholderSelection": "Chiedi sulla selezione…",
   "placeholderNone": "Chiedi qualsiasi cosa…",
   "placeholderGoogle": "Chiedi a Google…",
   "send": "Invia",

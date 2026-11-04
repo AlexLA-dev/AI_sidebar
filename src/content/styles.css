@@ -451,6 +451,11 @@
 }
 .cf:not([data-touch]) .cf-input textarea { font-size: var(--fs); }
 .cf-input textarea::placeholder { color: var(--text-3); }
+/* A hint longer than the field (a future translation, a narrow screen) stays on one line and ends in "…".
+   Both rules are needed: WebKit takes the ellipsis from ::placeholder, Chromium from the empty field.
+   Typed text still wraps. */
+.cf-input textarea:placeholder-shown,
+.cf-input textarea::placeholder { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cf-send {
   width: 32px; height: 32px; border-radius: 16px;
   display: flex; align-items: center; justify-content: center;
