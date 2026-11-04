@@ -12,6 +12,7 @@ import { hasMarks, MAX_APP_OTHER_PAGES, MAX_OTHER_PAGES } from "../../src/shared
 import { historyPrompt, MAX_HISTORY_CHARS, MAX_HISTORY_CHATS, sanitizeDigests } from "../../src/shared/history.ts"
 import { blockReason, countersFor, proOffer, resolveAccess, searchCountersFor, visibleUsage } from "../shared/plan.mts"
 import { chatSize, digestCut, limitsHit } from "../shared/limits.mts"
+import { pageBucket, pageChars, requestWeight } from "../shared/weight.mts"
 
 /**
  * POST /api/v2/chat — streaming answer about the current page.
@@ -62,7 +63,13 @@ export default async (req: Request, context: Context): Promise<Response> => {
     context.waitUntil(logEvent("pro_only", installId, { feature: "history", plan: access.plan, platform, version }))
     return json({ code: "PRO_ONLY", plan: access.plan, feature: "history" }, 403)
   }
-  const counters = [...countersFor(access, installId, ipSubject(context.ip)), ...(google ? searchCountersFor(access, installId) : [])]
+  // A long page counts as several answers, charged in full or not at all (weight.mts); Google mode and
+  // "Ask your chats" as one.
+  const weight = google || history ? 1 : requestWeight(page, messages)
+  const counters = [
+    ...countersFor(access, installId, ipSubject(context.ip)).map((c) => (weight > 1 ? { ...c, amount: weight } : c)),
+    ...(google ? searchCountersFor(access, installId) : [])
+  ]
 
   let quota: ConsumeResult
   try {
@@ -76,11 +83,12 @@ export default async (req: Request, context: Context): Promise<Response> => {
 
   if (!quota.allowed) {
     const reason = blockReason(quota.blocked)
-    context.waitUntil(logEvent("limit", installId, { plan: access.plan, reason, platform, version, mode: google ? "google" : "chat" }))
+    context.waitUntil(logEvent("limit", installId, { plan: access.plan, reason, platform, version, mode: google ? "google" : "chat", ...(weight > 1 ? { weight } : {}) }))
     const code = reason === "busy" ? "BUSY" : reason === "search" ? "SEARCH_LIMIT" : "LIMIT_REACHED"
     // Out of free answers: the App Store offer code for Pro.
     const offer = code === "LIMIT_REACHED" ? proOffer(access) : null
-    return json({ code, plan: access.plan, usage, offer }, reason === "busy" ? 503 : 402)
+    // weight: the page is long and the answers left don't cover it (the panel says so).
+    return json({ code, plan: access.plan, usage, offer, ...(weight > 1 ? { weight } : {}) }, reason === "busy" ? 503 : 402)
   }
 
   const profile = clip(body.profile, 1_000)
@@ -179,6 +187,9 @@ export default async (req: Request, context: Context): Promise<Response> => {
       ...limitsHit({ sent, page, sentMessages: Array.isArray(body.messages) ? body.messages.length : 0, messages: messages.length, others, answerCut: stats.cut === true }),
       ...(history && digestCut(body.history, chats, MAX_HISTORY_CHARS) ? { digest_cut: true } : {}),
       ...chatSize(body.stats),
+      // How many answers it counted as, and the page's length, to set against cost_usd (2.5).
+      weight,
+      ...(page?.kind === "page" ? { page_bucket: pageBucket(pageChars(page)) } : {}),
       prompt_tokens: stats.promptTokens,
       ...(stats.cacheWriteTokens ? { cache_write_tokens: stats.cacheWriteTokens } : {}),
       ...(stats.cacheReadTokens ? { cache_read_tokens: stats.cacheReadTokens } : {}),

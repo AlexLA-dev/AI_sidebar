@@ -34,12 +34,13 @@ const panelEvents: string[] = []
 let lastChatRequest: unknown = null
 // The last answer's analytics event: provider, fallback reason, tokens, cost (GET /last-answer).
 let lastAnswerEvent: unknown = null
-type Item = { subject: string; limit: number | null }
+type Item = { subject: string; limit: number | null; amount?: number }
 const rpc: Record<string, (a: any) => unknown> = {
   cf_consume: ({ p_items }) => {
     const items = p_items as Item[]
-    const blocked = items.find((i) => i.limit !== null && (counters.get(i.subject) ?? 0) >= i.limit)
-    if (!blocked) items.forEach((i) => counters.set(i.subject, (counters.get(i.subject) ?? 0) + 1))
+    // As cf_consume: an item counts as its amount (a long page), allowed only when all of it fits.
+    const blocked = items.find((i) => i.limit !== null && (counters.get(i.subject) ?? 0) + (i.amount ?? 1) > i.limit)
+    if (!blocked) items.forEach((i) => counters.set(i.subject, (counters.get(i.subject) ?? 0) + (i.amount ?? 1)))
     return { allowed: !blocked, blocked: blocked?.subject ?? null, counters: items.map((i) => ({ ...i, n: counters.get(i.subject) ?? 0 })) }
   },
   cf_refund: () => null,

@@ -34,6 +34,7 @@ function pdfSource(url: string): PageSource {
     kind: () => "pdf",
     pending: () => (pdf?.ok ? null : "pdf"),
     quick: () => ({ title: name(), text: pdf?.ok ? pdf.text : "" }),
+    length: () => (pdf?.ok ? pdf.text.length : 0),
     read: async (withMedia): Promise<PageRead> => {
       // Reading PDFs is Pro: otherwise the question only says there's a PDF it didn't get.
       if (!withMedia) return { title: name(), text: "", skipped: ["pdf"], sources: [] }

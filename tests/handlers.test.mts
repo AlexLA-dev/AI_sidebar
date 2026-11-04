@@ -11,7 +11,7 @@ process.env.FREE_DAILY_LIMIT = "5"
 process.env.GEMINI_API_KEY = "gemini-test"
 
 // ---- in-memory stand-in for the cf_* RPCs --------------------------------
-type Item = { subject: string; period: string; limit: number | null }
+type Item = { subject: string; period: string; limit: number | null; amount?: number }
 let counters = new Map<string, number>()
 let entitlements = new Map<string, Record<string, unknown>>()
 let events: { kind: string; install?: string | null; data: Record<string, unknown>; at: number }[] = []
@@ -87,12 +87,13 @@ function geminiStream(): Response {
 const rpc: Record<string, (args: Record<string, any>) => unknown> = {
   cf_consume: ({ p_items }) => {
     const items = p_items as Item[]
-    const blocked = items.find((i) => i.limit !== null && (counters.get(i.subject) ?? 0) >= i.limit)
-    if (!blocked) items.forEach((i) => counters.set(i.subject, (counters.get(i.subject) ?? 0) + 1))
+    // As cf_consume: an item counts as its amount (a long page), allowed only when all of it fits.
+    const blocked = items.find((i) => i.limit !== null && (counters.get(i.subject) ?? 0) + (i.amount ?? 1) > i.limit)
+    if (!blocked) items.forEach((i) => counters.set(i.subject, (counters.get(i.subject) ?? 0) + (i.amount ?? 1)))
     return { allowed: !blocked, blocked: blocked?.subject ?? null, counters: items.map((i) => ({ ...i, n: counters.get(i.subject) ?? 0 })) }
   },
   cf_refund: ({ p_items }) => {
-    for (const i of p_items as Item[]) counters.set(i.subject, Math.max(0, (counters.get(i.subject) ?? 0) - 1))
+    for (const i of p_items as Item[]) counters.set(i.subject, Math.max(0, (counters.get(i.subject) ?? 0) - (i.amount ?? 1)))
     return null
   },
   cf_peek: ({ p_items }) => (p_items as Item[]).map((i) => ({ ...i, n: counters.get(i.subject) ?? 0 })),
@@ -194,7 +195,7 @@ let resetModelList: () => void
 let resetClaudeCooldown: () => void
 let serverConfig: {
   geminiKey: string; adminToken: string; ownKeyReportDailyLimit: number; eventDailyLimit: number; proOfferCode: string
-  anthropicKey: string; claudeEnabled: boolean; claudeFirstTokenMs: number; claudeMinBuild: number
+  anthropicKey: string; claudeEnabled: boolean; claudeFirstTokenMs: number; claudeMinBuild: number; freeDailyLimit: number
 }
 
 before(async () => {
@@ -1135,10 +1136,75 @@ test("Own key upsell events keep only what was shown or tapped, where and from w
 })
 
 
+// ---------------------------------------------------------------- long pages count as several answers (2.5)
+const longPage = (chars: number) => ({ kind: "page", title: "Long", url: "https://example.com/long", text: "a".repeat(chars) })
+
+test("a long page counts as several answers: 200 000 characters as one, 200 001 as two, and the counter shows it", async () => {
+  serverConfig.anthropicKey = CLAUDE_KEY
+  const first = await chatOnce(askNew({ page: longPage(200_000) }))
+  assert.equal(counters.get(`install:${INSTALL}`), 1)
+  assert.deepEqual([chatEvent().weight, chatEvent().page_bucket], [1, "200k"])
+  events = []
+  const second = await chatOnce(askNew({ page: longPage(200_001) }))
+  assert.equal(counters.get(`install:${INSTALL}`), 3)
+  assert.deepEqual([chatEvent().weight, chatEvent().page_bucket], [2, "400k"])
+  // The allowance the panel shows comes from the counters: one, then three used.
+  assert.deepEqual([first.ev[0].usage.used, second.ev[0].usage.used], [1, 3])
+  // A follow-up on the same page counts the same (FOLLOW_UP_WEIGHT "page", the owner's rule now).
+  counters.clear()
+  events = []
+  await chatOnce(askNew({ page: longPage(400_001), messages: [{ role: "user", content: "Summarize" }, { role: "assistant", content: "It's long." }, { role: "user", content: "And the end?" }] }))
+  assert.equal(counters.get(`install:${INSTALL}`), 3)
+  assert.equal(chatEvent().weight, 3)
+})
+
+test("a long page with fewer answers left than it counts as: not sent, nothing charged, the weight told", async () => {
+  serverConfig.anthropicKey = CLAUDE_KEY
+  counters.set(`install:${INSTALL}`, 4)
+  const { res } = await chatOnce(askNew({ page: longPage(600_001) }))
+  assert.equal(res.status, 402)
+  const body = await res.json()
+  assert.deepEqual([body.code, body.weight, body.usage.used, body.usage.limit], ["LIMIT_REACHED", 4, 4, 5])
+  assert.equal(counters.get(`install:${INSTALL}`), 4)
+  assert.equal(claude.calls, 0, "Claude not asked")
+  assert.equal(events.find((e) => e.kind === "limit")?.data.weight, 4)
+  // One answer left still covers a short page.
+  const short = await chatOnce(askNew())
+  assert.equal(short.res.status, 200)
+  assert.equal(counters.get(`install:${INSTALL}`), 5)
+})
+
+test("a long page's weight is given back in full when the answer fails", async () => {
+  openai.failModels = ["gpt-5.2-mini", "gpt-5-mini", "gpt-4.1-mini", "gpt-5.2", "gpt-5"]
+  const { res } = await chatOnce(askNew({ page: longPage(400_001) }))
+  assert.notEqual(res.status, 200)
+  assert.equal(counters.get(`install:${INSTALL}`) ?? 0, 0)
+})
+
 test("a whole page goes through: a request of a few MB is taken, the model gets all of it", async () => {
   serverConfig.anthropicKey = CLAUDE_KEY
-  const page = { kind: "page", title: "Long", url: "https://example.com/long", text: "a".repeat(2_500_000) }
-  const { res } = await chatOnce(askNew({ page }))
-  assert.equal(res.status, 200)
-  assert.ok(systemText(claude.lastBody).includes(page.text))
+  serverConfig.freeDailyLimit = 50
+  try {
+    const { res } = await chatOnce(askNew({ page: longPage(2_500_000) }))
+    assert.equal(res.status, 200)
+    assert.ok(systemText(claude.lastBody).includes("a".repeat(2_500_000)))
+    assert.equal(counters.get(`install:${INSTALL}`), 13)
+  } finally {
+    serverConfig.freeDailyLimit = 5
+  }
+})
+
+test("a 2.4 panel's page (cut at 24 000 characters) counts as one", async () => {
+  await chatOnce(ask({ page: longPage(24_000) }))
+  assert.equal(counters.get(`install:${INSTALL}`), 1)
+  assert.deepEqual([chatEvent().weight, chatEvent().page_bucket], [1, "24k"])
+})
+
+test("an answer with the user's own key is only reported: the answer limit isn't touched, whatever the page", async () => {
+  const c = ctx()
+  const res = await usage(post("/api/v2/usage", { installId: INSTALL, client: NEW_CLIENT, usage: { provider: "anthropic", model: "claude-sonnet-5-5", ok: true, promptTokens: 400_000, completionTokens: 300, ms: 9000, tier: "smart" } }), c)
+  await Promise.all(c.pending)
+  assert.equal(res.status, 204)
+  assert.equal(counters.get(`install:${INSTALL}`), undefined)
+  assert.equal(events.find((e) => e.kind === "chat")?.data.weight, undefined)
 })

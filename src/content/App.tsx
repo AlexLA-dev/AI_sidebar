@@ -23,6 +23,7 @@ import * as Icon from "./icons"
 import { historyForModel, isQuestion, lastPage, otherPages, pageHasChanged, pageRef, pageWhen, savedPages, selectionNote, stamped, type Entry, type SourceNote } from "../shared/conversation"
 import { Markdown } from "./markdown"
 import { MAX_OTHER_PAGES, MAX_PAGE_CHARS } from "../shared/prompt"
+import { answerWeight } from "../shared/pagefit"
 import { answerShareText, chatLanguage, noteCopyText, noteShareText, pickedShareText, toPlainText, type ShareLinks } from "../shared/share"
 import type { PageRead, PageSource } from "./context"
 import {
@@ -78,6 +79,8 @@ interface ChatError {
   message?: string
   usage?: Usage | null
   offer?: ProOffer | null
+  // The page is long: an answer about it counts as this many, more than are left (2.5).
+  weight?: number
 }
 
 interface Action {
@@ -758,7 +761,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       } else if (event.type === "error") {
         settled = true
         if (event.usage) setUsage(event.usage)
-        finish(history, partialRef.current, { code: event.code, message: event.message, usage: event.usage, offer: event.offer })
+        finish(history, partialRef.current, { code: event.code, message: event.message, usage: event.usage, offer: event.offer, weight: event.weight })
       }
     })
     port.onDisconnect.addListener(() => {
@@ -1407,6 +1410,20 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setByokCard(true)
     void sendBackground({ type: "byokUpsell", action: "shown", where: "offer", period: status?.store?.period ?? null, discount: true })
   }, [open, byokDiscount, status])
+
+  // A long page counts as several answers (2.5; the server decides, from what it sends): said by the field before
+  // the question goes, for the page itself (a selection, Google mode and "Ask your chats" count as one; with the
+  // user's own key nothing is counted). Measured when the panel opens and after each answer.
+  const [pageWeight, setPageWeight] = useState(1)
+  useEffect(() => {
+    if (!open) return
+    try {
+      setPageWeight(answerWeight(source.length()))
+    } catch {
+      setPageWeight(1)
+    }
+  }, [open, messages.length, source])
+  const weightNote = pageWeight > 1 && contextKind === "page" && !googleMode && !historyMode && !noteMode && !ownKeyActive
 
   // The allowance under the input: short, to share the line with "Whole chat" and Get Pro; in full on hover.
   const usageLine = useMemo(() => {
@@ -2058,10 +2075,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 {error && error.code === "LIMIT_REACHED" && (() => {
                   const resetsAt = error.usage?.resetsAt ?? usage?.resetsAt
                   const back = error.usage?.limit ?? usage?.limit ?? 5
+                  // A long page: some answers are left, but fewer than it counts as (2.5).
+                  const left = Math.max(0, (error.usage?.limit ?? 0) - (error.usage?.used ?? 0))
+                  const long = (error.weight ?? 1) > 1 && left > 0
                   return (
                     <div class="cf-card limit">
-                      <strong>{plan === "pro" ? t("limitProTitle") : byok ? t("byokLimitTitle") : t("limitFreeTitle")}</strong>
+                      <strong>{long ? t("limitLongTitle") : plan === "pro" ? t("limitProTitle") : byok ? t("byokLimitTitle") : t("limitFreeTitle")}</strong>
                       <p>
+                        {long && `${t("limitLongBody", error.weight!, left)} `}
                         {plan === "pro"
                           ? t("limitProBody", timeUntil(resetsAt))
                           : byok
@@ -2154,6 +2175,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 <footer class="cf-composer">
                   {undoBar && <UndoBar text={undoBar.text} actions={undoBar.actions} />}
                   {noteHint && draft.trim() && !noteMode && <div class="cf-note-hint" role="status">{t(touch ? "noteHintTouch" : "noteHintMouse")}</div>}
+                  {weightNote && <div class="cf-weight-note" title={t("longPageWeightHint", pageWeight)}>{t("longPageWeight", pageWeight)}</div>}
                   <div class={`cf-input ${noteMode ? "note" : ""}`}>
                     {!noteMode && !historyMode && (
                       <button
