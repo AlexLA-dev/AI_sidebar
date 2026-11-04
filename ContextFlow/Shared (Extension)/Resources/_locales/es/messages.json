@@ -90,10 +90,10 @@
   "message": "Busca en Google el texto seleccionado: qué es, con los datos clave."
  },
  "placeholderPage": {
-  "message": "Pregunta sobre esta página…"
+  "message": "Pregunta sobre la página…"
  },
  "placeholderSelection": {
-  "message": "Pregunta sobre la selección…"
+  "message": "Pregunta por la selección…"
  },
  "placeholderNone": {
   "message": "Pregunta lo que quieras…"
@@ -200,6 +200,9 @@
  "uxPinnedAll": {
   "message": "Todos los fijados"
  },
+ "uxWatch": {
+  "message": "Seguir los cambios"
+ },
  "uxMore": {
   "message": "Más"
  },
@@ -247,21 +250,6 @@
  },
  "uxTomorrow": {
   "message": "Mañana"
- },
- "uxRemindPage": {
-  "message": "Recordarme revisarlo"
- },
- "uxRemindCheck": {
-  "message": "Revisar: {0}"
- },
- "uxRemindSaved": {
-  "message": "Recordatorio: {0}"
- },
- "uxRemindNotSet": {
-  "message": "Guardado en el chat. Para el recordatorio, permite las notificaciones de ContextFlow."
- },
- "uxRemindNoApp": {
-  "message": "Guardado en el chat. Para los recordatorios necesitas la app ContextFlow en este dispositivo."
  },
  "uxUnpinAll": {
   "message": "Dejar de fijar todos"

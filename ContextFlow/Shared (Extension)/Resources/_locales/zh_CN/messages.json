@@ -200,6 +200,9 @@
  "uxPinnedAll": {
   "message": "所有置顶"
  },
+ "uxWatch": {
+  "message": "跟踪变化"
+ },
  "uxMore": {
   "message": "更多"
  },
@@ -247,21 +250,6 @@
  },
  "uxTomorrow": {
   "message": "明天"
- },
- "uxRemindPage": {
-  "message": "提醒我查看这里"
- },
- "uxRemindCheck": {
-  "message": "查看：{0}"
- },
- "uxRemindSaved": {
-  "message": "提醒：{0}"
- },
- "uxRemindNotSet": {
-  "message": "已保存到对话。如需提醒，请允许 ContextFlow 发送通知。"
- },
- "uxRemindNoApp": {
-  "message": "已保存到对话。提醒功能需要此设备上装有 ContextFlow App。"
  },
  "uxUnpinAll": {
   "message": "全部取消置顶"

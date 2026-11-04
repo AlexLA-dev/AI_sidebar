@@ -90,7 +90,7 @@
   "message": "Найди в Google выделенный текст: что это, и главные факты."
  },
  "placeholderPage": {
-  "message": "Спросите об этой странице…"
+  "message": "Спросите о странице…"
  },
  "placeholderSelection": {
   "message": "Спросите о выделенном…"
@@ -200,6 +200,9 @@
  "uxPinnedAll": {
   "message": "Все закреплённые"
  },
+ "uxWatch": {
+  "message": "Следить за изменениями"
+ },
  "uxMore": {
   "message": "Ещё"
  },
@@ -247,21 +250,6 @@
  },
  "uxTomorrow": {
   "message": "Завтра"
- },
- "uxRemindPage": {
-  "message": "Напомнить проверить"
- },
- "uxRemindCheck": {
-  "message": "Проверить: {0}"
- },
- "uxRemindSaved": {
-  "message": "Напоминание: {0}"
- },
- "uxRemindNotSet": {
-  "message": "Сохранено в чат. Для напоминания разрешите уведомления ContextFlow."
- },
- "uxRemindNoApp": {
-  "message": "Сохранено в чат. Для напоминаний нужно приложение ContextFlow на этом устройстве."
  },
  "uxUnpinAll": {
   "message": "Открепить все"

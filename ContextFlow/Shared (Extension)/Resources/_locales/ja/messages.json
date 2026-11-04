@@ -200,6 +200,9 @@
  "uxPinnedAll": {
   "message": "固定一覧"
  },
+ "uxWatch": {
+  "message": "変更を追跡"
+ },
  "uxMore": {
   "message": "その他"
  },
@@ -247,21 +250,6 @@
  },
  "uxTomorrow": {
   "message": "明日"
- },
- "uxRemindPage": {
-  "message": "あとで確認するようリマインド"
- },
- "uxRemindCheck": {
-  "message": "確認：{0}"
- },
- "uxRemindSaved": {
-  "message": "リマインド：{0}"
- },
- "uxRemindNotSet": {
-  "message": "チャットに保存しました。リマインドするには、ContextFlowの通知を許可してください。"
- },
- "uxRemindNoApp": {
-  "message": "チャットに保存しました。リマインドには、このデバイスにContextFlowアプリが必要です。"
  },
  "uxUnpinAll": {
   "message": "すべて固定を解除"

@@ -200,6 +200,9 @@
  "uxPinnedAll": {
   "message": "모든 고정 항목"
  },
+ "uxWatch": {
+  "message": "변경 사항 추적"
+ },
  "uxMore": {
   "message": "더 보기"
  },
@@ -247,21 +250,6 @@
  },
  "uxTomorrow": {
   "message": "내일"
- },
- "uxRemindPage": {
-  "message": "확인하라고 알려 주기"
- },
- "uxRemindCheck": {
-  "message": "확인: {0}"
- },
- "uxRemindSaved": {
-  "message": "리마인더: {0}"
- },
- "uxRemindNotSet": {
-  "message": "채팅에 저장됨. 리마인더를 받으려면 ContextFlow 알림을 허용하세요."
- },
- "uxRemindNoApp": {
-  "message": "채팅에 저장됨. 리마인더를 쓰려면 이 기기에 ContextFlow 앱이 있어야 해요."
  },
  "uxUnpinAll": {
   "message": "모두 고정 해제"

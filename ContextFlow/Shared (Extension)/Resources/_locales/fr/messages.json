@@ -90,13 +90,13 @@
   "message": "Recherche le texte sélectionné sur Google : de quoi s’agit-il, avec les faits essentiels."
  },
  "placeholderPage": {
-  "message": "Posez une question sur cette page…"
+  "message": "Question sur la page…"
  },
  "placeholderSelection": {
-  "message": "Posez une question sur la sélection…"
+  "message": "Question sur la sélection…"
  },
  "placeholderNone": {
-  "message": "Demandez ce que vous voulez…"
+  "message": "Demandez n’importe quoi…"
  },
  "placeholderGoogle": {
   "message": "Demander à Google…"
@@ -200,6 +200,9 @@
  "uxPinnedAll": {
   "message": "Tous les épinglés"
  },
+ "uxWatch": {
+  "message": "Suivre les changements"
+ },
  "uxMore": {
   "message": "Plus"
  },
@@ -247,21 +250,6 @@
  },
  "uxTomorrow": {
   "message": "Demain"
- },
- "uxRemindPage": {
-  "message": "Me rappeler de vérifier"
- },
- "uxRemindCheck": {
-  "message": "À vérifier : {0}"
- },
- "uxRemindSaved": {
-  "message": "Rappel : {0}"
- },
- "uxRemindNotSet": {
-  "message": "Enregistré dans le chat. Pour le rappel, autorisez les notifications de ContextFlow."
- },
- "uxRemindNoApp": {
-  "message": "Enregistré dans le chat. Pour les rappels, il faut l’app ContextFlow sur cet appareil."
  },
  "uxUnpinAll": {
   "message": "Tout désépingler"

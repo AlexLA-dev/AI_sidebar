@@ -90,7 +90,7 @@
   "message": "Знайди в Google виділений текст: що це, і головні факти."
  },
  "placeholderPage": {
-  "message": "Запитайте про цю сторінку…"
+  "message": "Запитайте про сторінку…"
  },
  "placeholderSelection": {
   "message": "Запитайте про виділене…"
@@ -200,6 +200,9 @@
  "uxPinnedAll": {
   "message": "Усі закріплені"
  },
+ "uxWatch": {
+  "message": "Стежити за змінами"
+ },
  "uxMore": {
   "message": "Ще"
  },
@@ -247,21 +250,6 @@
  },
  "uxTomorrow": {
   "message": "Завтра"
- },
- "uxRemindPage": {
-  "message": "Нагадати перевірити"
- },
- "uxRemindCheck": {
-  "message": "Перевірити: {0}"
- },
- "uxRemindSaved": {
-  "message": "Нагадування: {0}"
- },
- "uxRemindNotSet": {
-  "message": "Збережено в чат. Для нагадування дозвольте сповіщення ContextFlow."
- },
- "uxRemindNoApp": {
-  "message": "Збережено в чат. Для нагадувань потрібен застосунок ContextFlow на цьому пристрої."
  },
  "uxUnpinAll": {
   "message": "Відкріпити всі"

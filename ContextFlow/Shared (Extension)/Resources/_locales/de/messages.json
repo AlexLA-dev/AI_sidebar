@@ -200,6 +200,9 @@
  "uxPinnedAll": {
   "message": "Alle angehefteten"
  },
+ "uxWatch": {
+  "message": "Auf Änderungen achten"
+ },
  "uxMore": {
   "message": "Mehr"
  },
@@ -247,21 +250,6 @@
  },
  "uxTomorrow": {
   "message": "Morgen"
- },
- "uxRemindPage": {
-  "message": "Erinnere mich, das zu prüfen"
- },
- "uxRemindCheck": {
-  "message": "Prüfen: {0}"
- },
- "uxRemindSaved": {
-  "message": "Erinnerung: {0}"
- },
- "uxRemindNotSet": {
-  "message": "Im Chat gespeichert. Für die Erinnerung erlaube Mitteilungen von ContextFlow."
- },
- "uxRemindNoApp": {
-  "message": "Im Chat gespeichert. Für Erinnerungen brauchst du die ContextFlow-App auf diesem Gerät."
  },
  "uxUnpinAll": {
   "message": "Alle lösen"
