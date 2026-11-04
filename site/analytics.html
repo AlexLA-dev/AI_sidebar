@@ -8,8 +8,8 @@
 <link rel="icon" href="/icon.png" />
 <link rel="stylesheet" href="/style.css" />
 <style>
-  :root { --c1: #2563eb; --c2: #10b981; --c3: #8b5cf6; --warn: #d92d20; }
-  @media (prefers-color-scheme: dark) { :root { --c1: #60a5fa; --c2: #34d399; --c3: #a78bfa; --warn: #ff6b5e; } }
+  :root { --c1: #2563eb; --c2: #10b981; --c3: #8b5cf6; --c4: #d97706; --warn: #d92d20; }
+  @media (prefers-color-scheme: dark) { :root { --c1: #60a5fa; --c2: #34d399; --c3: #a78bfa; --c4: #fbbf24; --warn: #ff6b5e; } }
   /* Onboarding steps, one hue: lighter = stopped earlier (an ordinal ramp checked against the panel colour). */
   :root { --o1: #6da7ec; --o2: #3987e5; --o3: #256abf; --o4: #104281; }
   @media (prefers-color-scheme: dark) { :root { --o1: #184f95; --o2: #2a78d6; --o3: #6da7ec; --o4: #b7d3f6; } }
@@ -56,6 +56,11 @@
   tr.sum td { font-weight: 600; }
   .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12.5px; color: var(--text-2); margin-bottom: 8px; }
   .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+  .legend .lg { border: 0; background: none; font: inherit; color: inherit; padding: 2px 0; cursor: pointer; }
+  .legend .lg.off { opacity: .45; text-decoration: line-through; }
+  .legend i.ln { width: 16px; height: 0; border-radius: 0; border-top: 2px solid; vertical-align: 3px; }
+  .legend i.ln.dash { border-top-style: dashed; }
+  svg text.axis { font-size: 11px; font-weight: 600; }
   svg text { fill: var(--text-2); font-size: 10.5px; }
   .tbl { overflow-x: auto; }
   table { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums; }
@@ -314,70 +319,112 @@ const dayLabel = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString("ru-RU", {
 
 // Stacked bars per UTC day; hovering (or tapping) a day shows its numbers. series: [{ title, color, value(day) }].
 // title may hold controls next to the text.
-function chart(title, series, totalDays) {
+// Series hidden by a click on the legend, per chart (kept while the page is open).
+const hiddenSeries = new Map()
+// A round top for an axis, so its middle line is a whole number.
+const niceMax = (v) => v <= 2 ? 2 : v <= 10 ? Math.ceil(v / 2) * 2 : Math.ceil(v / 10) * 10
+
+// Stacked bars by day on the left axis; series with axis "right" are lines on their own right axis. A click on a
+// legend item hides that series (another click brings it back); an axis with nothing left on it disappears.
+// opts: leftLabel, rightLabel (axis captions), note (a line under the chart).
+function chart(title, series, totalDays, opts = {}) {
+  const name = [title].flat()[0]
+  const hidden = hiddenSeries.get(name) || new Set()
+  hiddenSeries.set(name, hidden)
   const keys = lastDays(totalDays)
-  const totals = keys.map((d) => series.reduce((s, x) => s + x.value(d), 0))
-  const max = Math.max(1, ...totals)
-  const W = 900, H = 210, L = 34, B = 22, T = 8
-  const bw = (W - L) / keys.length
-  const nodes = []
-  for (const f of [0, 0.5, 1]) {
-    const y = T + (H - T - B) * (1 - f)
-    nodes.push(svg("line", { x1: L, x2: W, y1: y, y2: y, stroke: "currentColor", "stroke-opacity": "0.12" }))
-    nodes.push(svg("text", { x: L - 6, y: y + 3, "text-anchor": "end" }, n.format(Math.round(max * f))))
-  }
-  keys.forEach((d, i) => {
-    let y = H - B
-    const x = L + i * bw + bw * 0.15
-    for (const s of series) {
-      const v = s.value(d)
-      if (!v) continue
-      const h = (H - T - B) * (v / max)
-      y -= h
-      nodes.push(svg("rect", { x, y, width: Math.max(1, bw * 0.7), height: h, rx: 2, fill: s.color }))
-    }
-    const every = Math.ceil(keys.length / 10)
-    if (i % every === 0 || i === keys.length - 1) nodes.push(svg("text", { x: L + i * bw + bw / 2, y: H - 6, "text-anchor": "middle" }, d.slice(5).replace("-", ".")))
-  })
+  const hasRight = series.some((s) => s.axis === "right")
+  const W = 900, H = 228, L = 38, R = hasRight ? 38 : 0, B = 22, T = opts.leftLabel || opts.rightLabel ? 26 : 8
+  const bw = (W - L - R) / keys.length
   const tip = el("div", { class: "tip" })
   const panel = el("div", { class: "panel" })
-  const highlight = svg("rect", { x: 0, y: T, width: bw, height: H - T - B, rx: 3, fill: "currentColor", "fill-opacity": "0.07", visibility: "hidden" })
-  const show = (i, e) => {
-    highlight.setAttribute("x", L + i * bw)
-    highlight.setAttribute("visibility", "visible")
-    tip.replaceChildren(...[
-      el("b", {}, dayLabel(keys[i])),
-      ...series.map((s) => el("div", { class: "row" }, el("span", {}, el("span", { class: "dot", style: `background:${s.color}` }), s.title), el("span", {}, n.format(s.value(keys[i]))))),
-      series.length > 1 && el("div", { class: "row total" }, el("span", {}, "Всего"), el("span", {}, n.format(totals[i])))
-    ].filter(Boolean))
-    tip.style.display = "block"
-    const box = panel.getBoundingClientRect()
-    const left = e.clientX - box.left + 14
-    tip.style.left = `${Math.max(8, Math.min(left, box.width - tip.offsetWidth - 8))}px`
-    tip.style.top = `${Math.max(8, e.clientY - box.top - tip.offsetHeight - 12)}px`
+  const scroller = el("div", { class: "tbl" })
+  const legend = el("div", { class: "legend" })
+
+  const draw = () => {
+    const shown = series.filter((s) => !hidden.has(s.title))
+    const bars = shown.filter((s) => s.axis !== "right")
+    const lines = shown.filter((s) => s.axis === "right")
+    const totals = keys.map((d) => bars.reduce((t, x) => t + x.value(d), 0))
+    const max = niceMax(Math.max(0, ...totals))
+    const rmax = niceMax(Math.max(0, ...lines.flatMap((s) => keys.map((d) => s.value(d)))))
+    const yOf = (v, top) => T + (H - T - B) * (1 - v / top)
+    const nodes = []
+    for (const f of [0, 0.5, 1]) {
+      const y = T + (H - T - B) * (1 - f)
+      nodes.push(svg("line", { x1: L, x2: W - R, y1: y, y2: y, stroke: "currentColor", "stroke-opacity": "0.12" }))
+      if (bars.length) nodes.push(svg("text", { x: L - 6, y: y + 3, "text-anchor": "end" }, n.format(max * f)))
+      if (lines.length) nodes.push(svg("text", { x: W - R + 6, y: y + 3, "text-anchor": "start" }, n.format(rmax * f)))
+    }
+    if (bars.length && opts.leftLabel) nodes.push(svg("text", { x: 2, y: 12, "text-anchor": "start", class: "axis" }, opts.leftLabel))
+    if (lines.length && opts.rightLabel) nodes.push(svg("text", { x: W - 2, y: 12, "text-anchor": "end", class: "axis" }, opts.rightLabel))
+    keys.forEach((d, i) => {
+      let y = H - B
+      const x = L + i * bw + bw * 0.15
+      for (const s of bars) {
+        const v = s.value(d)
+        if (!v) continue
+        const h = (H - T - B) * (v / max)
+        y -= h
+        nodes.push(svg("rect", { x, y, width: Math.max(1, bw * 0.7), height: h, rx: 2, fill: s.color }))
+      }
+      const every = Math.ceil(keys.length / 10)
+      if (i % every === 0 || i === keys.length - 1) nodes.push(svg("text", { x: L + i * bw + bw / 2, y: H - 6, "text-anchor": "middle" }, d.slice(5).replace("-", ".")))
+    })
+    for (const s of lines) {
+      const pts = keys.map((d, i) => [L + i * bw + bw / 2, yOf(s.value(d), rmax)])
+      nodes.push(svg("path", {
+        d: pts.map(([x, y], i) => `${i ? "L" : "M"}${x.toFixed(1)},${y.toFixed(1)}`).join(""),
+        fill: "none", stroke: s.color, "stroke-width": 2, "stroke-linejoin": "round", ...(s.dash ? { "stroke-dasharray": "5 4" } : {})
+      }))
+      keys.forEach((d, i) => {
+        if (s.value(d)) nodes.push(svg("circle", { cx: pts[i][0], cy: pts[i][1], r: 4, fill: s.color, stroke: "var(--bg)", "stroke-width": 2 }))
+      })
+    }
+    const highlight = svg("rect", { x: 0, y: T, width: bw, height: H - T - B, rx: 3, fill: "currentColor", "fill-opacity": "0.07", visibility: "hidden" })
+    const show = (i, e) => {
+      highlight.setAttribute("x", L + i * bw)
+      highlight.setAttribute("visibility", "visible")
+      tip.replaceChildren(...[
+        el("b", {}, dayLabel(keys[i])),
+        ...bars.map((s) => el("div", { class: "row" }, el("span", {}, el("span", { class: "dot", style: `background:${s.color}` }), s.title), el("span", {}, n.format(s.value(keys[i]))))),
+        bars.length > 1 && el("div", { class: "row total" }, el("span", {}, "Всего"), el("span", {}, n.format(totals[i]))),
+        ...lines.map((s) => el("div", { class: `row${s === lines[0] && bars.length ? " total" : ""}` }, el("span", {}, el("span", { class: "dot", style: `background:${s.color}` }), s.title), el("span", {}, n.format(s.value(keys[i])))))
+      ].filter(Boolean))
+      tip.style.display = "block"
+      const box = panel.getBoundingClientRect()
+      const left = e.clientX - box.left + 14
+      tip.style.left = `${Math.max(8, Math.min(left, box.width - tip.offsetWidth - 8))}px`
+      tip.style.top = `${Math.max(8, e.clientY - box.top - tip.offsetHeight - 12)}px`
+    }
+    const hide = () => {
+      tip.style.display = "none"
+      highlight.setAttribute("visibility", "hidden")
+    }
+    // A transparent column per day catches the pointer over its whole height, not just the bar.
+    const hits = shown.length ? keys.map((_, i) => {
+      const hit = svg("rect", { x: L + i * bw, y: T, width: bw, height: H - T - B, fill: "transparent" })
+      hit.addEventListener("pointermove", (e) => show(i, e))
+      hit.addEventListener("pointerdown", (e) => show(i, e))
+      return hit
+    }) : []
+    const chartSvg = svg("svg", { viewBox: `0 0 ${W} ${H}`, width: "100%", style: "min-width:640px", role: "img", "aria-label": name }, highlight, nodes, hits)
+    chartSvg.addEventListener("pointerleave", hide)
+    const at = scroller.scrollLeft
+    scroller.replaceChildren(chartSvg)
+    hide()
+    if (at) scroller.scrollLeft = at
+    legend.replaceChildren(...series.map((s) => el("button", {
+      class: `lg${hidden.has(s.title) ? " off" : ""}`, type: "button", "aria-pressed": hidden.has(s.title) ? "false" : "true",
+      title: [s.hint, hidden.has(s.title) ? "Нажмите, чтобы показать" : "Нажмите, чтобы скрыть"].filter(Boolean).join("\n"),
+      onclick: () => { hidden.has(s.title) ? hidden.delete(s.title) : hidden.add(s.title); draw() }
+    }, s.axis === "right"
+      ? el("i", { class: `ln${s.dash ? " dash" : ""}`, style: `border-color:${s.color}` })
+      : el("i", { style: `background:${s.color}` }), s.title)))
   }
-  const hide = () => {
-    tip.style.display = "none"
-    highlight.setAttribute("visibility", "hidden")
-  }
-  // A transparent column per day catches the pointer over its whole height, not just the bar.
-  const hits = keys.map((_, i) => {
-    const hit = svg("rect", { x: L + i * bw, y: T, width: bw, height: H - T - B, fill: "transparent" })
-    hit.addEventListener("pointermove", (e) => show(i, e))
-    hit.addEventListener("pointerdown", (e) => show(i, e))
-    return hit
-  })
-  const chartSvg = svg("svg", { viewBox: `0 0 ${W} ${H}`, width: "100%", style: "min-width:640px", role: "img", "aria-label": [title].flat()[0] }, highlight, nodes, hits)
-  chartSvg.addEventListener("pointerleave", hide)
+  draw()
   // Wide enough to stay readable on a phone (scrolls sideways there, starting at the latest days).
-  const scroller = el("div", { class: "tbl" }, chartSvg)
   requestAnimationFrame(() => { scroller.scrollLeft = scroller.scrollWidth })
-  panel.append(
-    el("h3", {}, title),
-    el("div", { class: "legend" }, series.map((s) => el("span", {}, el("i", { style: `background:${s.color}` }), s.title))),
-    scroller,
-    tip
-  )
+  panel.append(el("h3", {}, title), legend, scroller, opts.note && el("p", { class: "hint" }, opts.note), tip)
   return panel
 }
 
@@ -421,6 +468,8 @@ function toggle(options, current, pick) {
   return el("div", { class: "seg" }, options.map(([value, text]) => el("button", { class: value === current ? "on" : "", onclick: () => pick(value) }, text)))
 }
 
+const LIMIT_D0 = "«Упёрлись в лимит в d0» — из новых этого дня, сколько в тот же день (d0, по UTC) получили отказ: бесплатные ответы на сегодня кончились (обычные или Google)."
+const PRO_BOUGHT = "«Новые подписки Pro» — сколько Pro (месяц или год) куплено в этот день, по первой оплате: пробный период и бесплатный код — в день первой оплаты; продления, «Свой ключ» и наша подписка не считаются. Это все покупки дня, а не только новых этого дня."
 const NO_INSIGHTS = "Нет данных: в базе ещё нет функции cf_owner_insights (миграция 20261102120000)."
 const nameOf = (names, code) => { try { return names.of(code) || code } catch { return code } }
 const unique = (list) => [...new Set(list.filter(Boolean))]
@@ -872,6 +921,9 @@ function render(data, fx) {
     el("td", {}, r.segment === "google" ? "Google" : "ИИ"), el("td", {}, r.provider), el("td", {}, n.format(r.errors))))
   const users = data.users || {}
   const userDay = (field) => (day) => Number((users.by_day || []).find((r) => r.day === day)?.[field] || 0)
+  // cf_new_user_outcomes: of each day's new users, how many ran out of free answers that day; Pro bought that day.
+  const outcomes = data.new_outcomes
+  const outcomeDay = (field) => (day) => Number((outcomes || []).find((r) => r.day === day)?.[field] || 0)
   const subs = data.subscriptions || {}
   const date = (v) => v ? new Date(v).toLocaleDateString("ru-RU") : "—"
   // Who subscribed: matched to the report's list by the moment the subscription was first recorded.
@@ -926,9 +978,19 @@ function render(data, fx) {
     mrrCards(insights, fx),
     userCards(users, subs, data.days),
     chart("Активные пользователи по дням", [
-      { title: "Новые", color: "var(--c2)", value: userDay("new") },
-      { title: "Вернувшиеся", color: "var(--c1)", value: (d) => userDay("active")(d) - userDay("new")(d) }
-    ], data.days),
+      { title: "Новые", color: "var(--c2)", value: userDay("new"), hint: "Впервые открыли панель или спросили в этот день (UTC)" },
+      { title: "Вернувшиеся", color: "var(--c1)", value: (d) => userDay("active")(d) - userDay("new")(d), hint: "Были и раньше" },
+      ...(outcomes ? [
+        { title: "Упёрлись в лимит в d0", color: "var(--c4)", axis: "right", dash: true, value: outcomeDay("limit_d0"), hint: LIMIT_D0 },
+        { title: "Новые подписки Pro", color: "var(--c3)", axis: "right", value: outcomeDay("pro_bought"), hint: PRO_BOUGHT }
+      ] : [])
+    ], data.days, {
+      leftLabel: "Люди: новые и вернувшиеся",
+      rightLabel: outcomes ? "Люди: лимит в d0 · подписки" : undefined,
+      note: outcomes
+        ? `Правая ось. ${LIMIT_D0} ${PRO_BOUGHT} Нажмите на название в легенде, чтобы скрыть линию или столбики.`
+        : "Лимит в d0 и подписки появятся после миграции 20261104150000 (функция cf_new_user_outcomes)."
+    }),
     live((redraw) => onboardingPanels(data.onboarding, data.days, redraw)),
     table("Код −50% и первая оплата по дням", ["День (UTC)", "Подписались по коду −50%", "Первая оплата"],
       funnelRows, "За период никто не подписался по коду и не оплатил.", "num2"),

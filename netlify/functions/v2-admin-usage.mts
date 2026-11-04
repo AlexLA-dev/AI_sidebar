@@ -2,7 +2,7 @@ import type { Config } from "@netlify/functions"
 import { createHash, timingSafeEqual } from "node:crypto"
 
 import { config as settings } from "../shared/config.mts"
-import { limitsReport, onboarding, ownerInsights, setupFunnel, usageReport } from "../shared/db.mts"
+import { limitsReport, newUserOutcomes, onboarding, ownerInsights, setupFunnel, usageReport } from "../shared/db.mts"
 
 /**
  * GET /api/v2/admin/usage?days=30 — usage analytics for the /analytics page.
@@ -30,7 +30,7 @@ export default async (req: Request): Promise<Response> => {
 
   const days = Math.max(1, Math.min(180, Number.parseInt(new URL(req.url).searchParams.get("days") ?? "30", 10) || 30))
   try {
-    const [report, funnel, insights, limits, steps] = await Promise.all([
+    const [report, funnel, insights, limits, steps, outcomes] = await Promise.all([
       usageReport(days),
       // Older databases have no funnel or insights yet; the rest of the report still works.
       setupFunnel(days).catch(() => []),
@@ -45,9 +45,13 @@ export default async (req: Request): Promise<Response> => {
       onboarding(days).catch((err) => {
         console.error("[cf] onboarding failed:", err instanceof Error ? err.message : err)
         return null
+      }),
+      newUserOutcomes(days).catch((err) => {
+        console.error("[cf] new user outcomes failed:", err instanceof Error ? err.message : err)
+        return null
       })
     ])
-    return new Response(JSON.stringify({ ...report, setup_funnel: funnel, insights, limits_report: limits, onboarding: steps }), { headers: noStore })
+    return new Response(JSON.stringify({ ...report, setup_funnel: funnel, insights, limits_report: limits, onboarding: steps, new_outcomes: outcomes }), { headers: noStore })
   } catch (err) {
     console.error("[cf] usage report failed:", err instanceof Error ? err.message : err)
     return new Response(JSON.stringify({ code: "UNAVAILABLE" }), { status: 503, headers: noStore })

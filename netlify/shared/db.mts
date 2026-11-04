@@ -78,6 +78,8 @@ export const ownerInsights = (days: number) => rpc<Record<string, unknown>>("cf_
 export const limitsReport = (days: number) => rpc<Record<string, unknown>>("cf_limits_report", { p_days: days })
 /** New people's way to the first answer, one row each, by the day they first showed up (cf_onboarding). */
 export const onboarding = (days: number) => rpc<Record<string, unknown>>("cf_onboarding", { p_days: days })
+/** By day: new users, how many of them ran out of free answers that day, Pro bought (cf_new_user_outcomes). */
+export const newUserOutcomes = (days: number) => rpc<Record<string, unknown>[]>("cf_new_user_outcomes", { p_days: days })
 
 export async function logEvent(kind: string, installId: string | null, data: Record<string, unknown>): Promise<void> {
   try {
