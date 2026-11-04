@@ -7,20 +7,16 @@
 // - a mostly vertical move: the list scrolls as usual (`touch-action: pan-y` keeps vertical scrolling
 //   with the browser and gives us the sideways moves);
 // - a touch while text is selected in the panel (the user is adjusting the selection).
+//
+// 2.5 (75), the owner's notes: the row follows the finger without re-rendering (the gesture lives in this
+// closure and moves the row's style directly), so a render in the middle of a swipe can't drop it and leave the
+// row stuck half-way; the icon sits in the part of the row on screen (a long answer's middle can be off it).
 
 import type { ComponentChildren, VNode } from "preact"
-import { useEffect, useRef, useState } from "preact/hooks"
+import { useEffect, useRef } from "preact/hooks"
 
 import { listenAround } from "../around"
-
-// Safari's Back and Forward from the screen's edge start within ~20 pt of it.
-export const EDGE_GUARD = 28
-// The move that decides: sideways when it's this far and clearly more sideways than down.
-const DECIDE = 10
-// Let go past this share of the row: the action happens; past OPEN_AT: the button stays out to tap.
-const COMMIT_SHARE = 0.42
-const OPEN_AT = 64
-const BUTTON_WIDTH = 76
+import { BUTTON_WIDTH, COMMIT_SHARE, DECIDE, EDGE_GUARD, SHORT, swipeEnd, swipeOffset, visibleSlice } from "./swipeMath"
 
 export interface SwipeAction {
   label: string
@@ -51,17 +47,65 @@ export function Swipe({ left, right, enabled = true, children, class: cls = "" }
 }): VNode {
   const rowRef = useRef<HTMLDivElement>(null)
   const bodyRef = useRef<HTMLDivElement>(null)
-  // Revealed and left open: -1 the delete button, 1 the pin button.
-  const [open, setOpen] = useState<-1 | 0 | 1>(0)
-  const [dx, setDx] = useState(0)
-  const [dragging, setDragging] = useState(false)
+  const startRef = useRef<HTMLDivElement>(null)
+  const endRef = useRef<HTMLDivElement>(null)
+  // The actions as of the last render, read when the gesture ends (the row may re-render meanwhile).
+  const actions = useRef({ left, right })
+  actions.current = { left, right }
+  // Puts the row back in place (a button tapped).
+  const shut = useRef<() => void>(() => {})
 
   useEffect(() => {
     const row = rowRef.current
     if (!row || !enabled) return
     let start: { x: number; y: number; id: number; base: number } | null = null
-    let decided: "x" | "y" | null = null
-    let moved = 0
+    let decided = false
+    // Where the row is (px), and the button left out: -1 delete, 1 pin.
+    let at = 0
+    let open: -1 | 0 | 1 = 0
+    let stopAround: (() => void) | null = null
+    const scroller = () => row.closest<HTMLElement>(".cf-messages, .cf-threads, .cf-list")
+    const sides = () => ({ left: Boolean(actions.current.left), right: Boolean(actions.current.right) })
+
+    const place = (dx: number) => {
+      at = dx
+      const body = bodyRef.current
+      if (body) body.style.transform = dx ? `translate3d(${dx}px, 0, 0)` : ""
+      const under = dx < 0 ? endRef.current : dx > 0 ? startRef.current : null
+      for (const u of [startRef.current, endRef.current]) {
+        if (!u) continue
+        u.style.width = u === under ? `${Math.abs(dx)}px` : "0px"
+        u.toggleAttribute("data-full", u === under && Math.abs(dx) >= row.clientWidth * COMMIT_SHARE)
+      }
+      row.toggleAttribute("data-moved", dx !== 0)
+    }
+    // The icon where the row is on screen: a long answer's middle may be above or below it.
+    const fit = () => {
+      const view = scroller()?.getBoundingClientRect() ?? { top: 0, bottom: window.innerHeight }
+      const slice = visibleSlice(row.getBoundingClientRect(), view)
+      for (const u of [startRef.current, endRef.current]) {
+        const button = u?.firstElementChild as HTMLElement | null
+        if (!button) continue
+        button.style.top = `${slice.top}px`
+        button.style.height = `${slice.height}px`
+      }
+      row.toggleAttribute("data-short", slice.height < SHORT)
+    }
+    const onScroll = () => setOpen(0)
+    const setOpen = (side: -1 | 0 | 1) => {
+      open = side
+      place(side * BUTTON_WIDTH)
+      stopAround?.()
+      stopAround = null
+      scroller()?.removeEventListener("scroll", onScroll)
+      if (!side) return
+      // A tap elsewhere, or scrolling the list, puts it back.
+      stopAround = listenAround(row, "pointerdown", (_, path) => {
+        if (!path.includes(row)) setOpen(0)
+      })
+      scroller()?.addEventListener("scroll", onScroll, { passive: true })
+    }
+    shut.current = () => setOpen(0)
 
     const down = (e: PointerEvent) => {
       if (e.pointerType === "mouse" || start) return
@@ -70,9 +114,8 @@ export function Swipe({ left, right, enabled = true, children, class: cls = "" }
       if (ownsSideways(e.target as Element, row)) return
       const sel = document.getSelection()
       if (sel && !sel.isCollapsed && row.contains(sel.anchorNode)) return
-      start = { x: e.clientX, y: e.clientY, id: e.pointerId, base: open === -1 ? -BUTTON_WIDTH : open === 1 ? BUTTON_WIDTH : 0 }
-      decided = null
-      moved = start.base
+      start = { x: e.clientX, y: e.clientY, id: e.pointerId, base: open * BUTTON_WIDTH }
+      decided = false
     }
     const move = (e: PointerEvent) => {
       if (!start || e.pointerId !== start.id) return
@@ -84,104 +127,75 @@ export function Swipe({ left, right, enabled = true, children, class: cls = "" }
           return
         }
         if (Math.abs(mx) < DECIDE || Math.abs(mx) < Math.abs(my) * 1.5) return
-        decided = "x"
-        setDragging(true)
+        decided = true
+        fit()
+        row.setAttribute("data-dragging", "")
         try { row.setPointerCapture(e.pointerId) } catch { /* the pointer is gone */ }
       }
-      let next = start.base + mx
-      // Only the sides that have an action; past the row's width it resists.
-      if (!left && next < 0) next = 0
-      if (!right && next > 0) next = 0
-      const limit = row.clientWidth
-      if (Math.abs(next) > limit * 0.75) next = Math.sign(next) * (limit * 0.75 + (Math.abs(next) - limit * 0.75) * 0.25)
-      moved = next
-      setDx(next)
+      place(swipeOffset(start.base, mx, row.clientWidth, sides()))
     }
-    const up = (e: PointerEvent) => {
+    const end = (e: PointerEvent, cancelled: boolean) => {
       if (!start || e.pointerId !== start.id) return
-      const wasSwipe = decided === "x"
+      const wasSwipe = decided
       start = null
-      decided = null
-      setDragging(false)
+      decided = false
+      row.removeAttribute("data-dragging")
       if (!wasSwipe) return
-      const width = row.clientWidth
-      if (moved <= -width * COMMIT_SHARE && left) {
-        setDx(0)
+      if (cancelled) {
+        setOpen(open)
+        return
+      }
+      const outcome = swipeEnd(at, row.clientWidth, sides())
+      if (outcome === "left" || outcome === "right") {
         setOpen(0)
-        left.run()
-      } else if (moved >= width * COMMIT_SHARE && right) {
-        setDx(0)
-        setOpen(0)
-        right.run()
-      } else if (moved <= -OPEN_AT && left) {
-        setOpen(-1)
-        setDx(-BUTTON_WIDTH)
-      } else if (moved >= OPEN_AT && right) {
-        setOpen(1)
-        setDx(BUTTON_WIDTH)
+        actions.current[outcome]?.run()
       } else {
-        setOpen(0)
-        setDx(0)
+        setOpen(outcome)
       }
     }
-    const cancel = (e: PointerEvent) => {
-      if (!start || e.pointerId !== start.id) return
-      start = null
-      decided = null
-      setDragging(false)
-      setDx(open === -1 ? -BUTTON_WIDTH : open === 1 ? BUTTON_WIDTH : 0)
-    }
+    const up = (e: PointerEvent) => end(e, false)
+    const cancel = (e: PointerEvent) => end(e, true)
     row.addEventListener("pointerdown", down)
     row.addEventListener("pointermove", move)
     row.addEventListener("pointerup", up)
     row.addEventListener("pointercancel", cancel)
+    // The capture lost without an up or a cancel (the row re-mounted, the page took the touch): as a cancel.
+    row.addEventListener("lostpointercapture", cancel)
     return () => {
       row.removeEventListener("pointerdown", down)
       row.removeEventListener("pointermove", move)
       row.removeEventListener("pointerup", up)
       row.removeEventListener("pointercancel", cancel)
+      row.removeEventListener("lostpointercapture", cancel)
+      stopAround?.()
+      scroller()?.removeEventListener("scroll", onScroll)
+      row.removeAttribute("data-dragging")
+      place(0)
+      shut.current = () => {}
     }
-  }, [enabled, left, right, open])
+  }, [enabled])
 
-  // A tap elsewhere, or scrolling the list, closes a revealed button.
-  useEffect(() => {
-    if (!open) return
-    const row = rowRef.current
-    const scroller = row?.closest(".cf-messages, .cf-threads, .cf-list")
-    const shut = () => {
-      setOpen(0)
-      setDx(0)
-    }
-    const stop = row ? listenAround(row, "pointerdown", (_, path) => !path.includes(row) && shut()) : () => {}
-    scroller?.addEventListener("scroll", shut, { passive: true })
-    return () => {
-      stop()
-      scroller?.removeEventListener("scroll", shut)
-    }
-  }, [open])
-
-  const side = dx < 0 ? left : dx > 0 ? right : null
-  const full = rowRef.current ? Math.abs(dx) >= rowRef.current.clientWidth * COMMIT_SHARE : false
+  const under = (action: SwipeAction, edge: "start" | "end", ref: typeof startRef) => (
+    <div ref={ref} class={`cf-swipe-under ${action.tone} ${edge}`}>
+      <button
+        type="button"
+        tabIndex={-1}
+        aria-hidden="true"
+        onClick={() => {
+          shut.current()
+          ;(edge === "end" ? actions.current.left : actions.current.right)?.run()
+        }}
+      >
+        {action.icon}
+        <span>{action.label}</span>
+      </button>
+    </div>
+  )
   return (
-    <div ref={rowRef} class={`cf-swipe ${cls} ${dragging ? "dragging" : ""} ${dx ? "moved" : ""}`}>
-      {side && (
-        <div class={`cf-swipe-under ${side.tone} ${dx < 0 ? "end" : "start"} ${full ? "full" : ""}`} style={{ width: `${Math.abs(dx)}px` }}>
-          <button
-            type="button"
-            tabIndex={-1}
-            aria-hidden="true"
-            onClick={() => {
-              setOpen(0)
-              setDx(0)
-              side.run()
-            }}
-          >
-            {side.icon}
-            <span>{side.label}</span>
-          </button>
-        </div>
-      )}
-      <div ref={bodyRef} class="cf-swipe-body" style={dx ? { transform: `translateX(${dx}px)` } : undefined}>
+    <div ref={rowRef} class={`cf-swipe ${cls}`}>
+      {enabled && right && under(right, "start", startRef)}
+      {enabled && left && under(left, "end", endRef)}
+      <div ref={bodyRef} class="cf-swipe-body">
         {children}
       </div>
     </div>

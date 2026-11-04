@@ -13,6 +13,8 @@
 //                                                              subscription is added on the server side)
 //   PREVIEW_CLAUDE=credits|overloaded|refusal|off …            (answers come from a scripted Claude; these make
 //                                                              it fail that way, so OpenAI answers; off: no key)
+//   FIRST_WORD_DELAY_MS=4000 …                                 (an answer's first word comes that late: time to
+//                                                              stop the question before any of its answer)
 
 import { createServer } from "node:http"
 import { readFileSync } from "node:fs"
@@ -58,6 +60,8 @@ const rpc: Record<string, (a: any) => unknown> = {
 
 // Delay between streamed words; the App Store preview video slows it down to a readable pace.
 const STREAM_DELAY_MS = Number(process.env.STREAM_DELAY_MS ?? 8)
+// Before an answer's first word (0 by default): time to stop a question before any of its answer comes.
+const FIRST_WORD_DELAY_MS = Number(process.env.FIRST_WORD_DELAY_MS ?? 0)
 
 const answers: [RegExp, string][] = JSON.parse(readFileSync(new URL("./answers.json", import.meta.url), "utf8")).map(
   ([re, text]: [string, string]) => [new RegExp(re, "i"), text]
@@ -261,6 +265,7 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
       async start(c) {
         const enc = new TextEncoder()
         c.enqueue(enc.encode(ev("message_start", { message: { id: "msg_local", type: "message", role: "assistant", model: body.model, content: [], stop_reason: null, stop_sequence: null, usage: { input_tokens: 900, output_tokens: 1 } } })))
+        if (FIRST_WORD_DELAY_MS) await new Promise((r) => setTimeout(r, FIRST_WORD_DELAY_MS))
         if (words.length) c.enqueue(enc.encode(ev("content_block_start", { index: 0, content_block: { type: "text", text: "" } })))
         for (const w of words) {
           c.enqueue(enc.encode(ev("content_block_delta", { index: 0, delta: { type: "text_delta", text: w } })))
@@ -281,6 +286,7 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     const stream = new ReadableStream({
       async start(c) {
         const enc = new TextEncoder()
+        if (FIRST_WORD_DELAY_MS) await new Promise((r) => setTimeout(r, FIRST_WORD_DELAY_MS))
         for (const w of words) {
           c.enqueue(enc.encode(`data: ${JSON.stringify({ choices: [{ delta: { content: w } }] })}\n\n`))
           await new Promise((r) => setTimeout(r, STREAM_DELAY_MS))

@@ -56,7 +56,9 @@ import { starMarks } from "../shared/marks"
 import { Bell, More, remindLabel, RemindSheet } from "./ux/MessageUx"
 import { PageMenu } from "./ux/PageMenu"
 import { bubbleActions, laterSections, laterSources, pageRange, setLaterOpener, type BubbleContext, type LaterContext, type LaterItem } from "./ux/later"
+import { reminderOf, reminderRows, withReminderAt } from "./ux/reminderList"
 import { RemindersSheet } from "./ux/RemindersSheet"
+import { restoredDraft, withoutStopped } from "./ux/stopped"
 import { scheduleReminder, thisDevice, useMessageUx } from "./ux/useMessageUx"
 import { Tour, tourSteps } from "./Tour"
 import { QI_EVENTS, QuickInsert } from "./insert/QuickInsert"
@@ -839,7 +841,35 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
   const submit = () => (noteMode ? saveNote(draft) : ask(draft, { mode: googleMode && !historyRef.current ? "google" : undefined }))
 
-  const stop = useCallback(() => {
+  // The chat and the field as they are now, for stop() (2.5 (75)).
+  const nowRef = useRef({ messages, draft })
+  nowRef.current = { messages, draft }
+  /**
+   * A question stopped before any of its answer came (2.5 (75), the owner's notes) leaves no question without an
+   * answer, and no chat that only had it (stopped.ts); `restore` (the stop button): its text goes back to the field.
+   */
+  const dropStopped = (restore: boolean) => {
+    const { kept, question } = withoutStopped(nowRef.current.messages)
+    if (!question) return
+    const id = threadRef.current
+    setMessages(kept)
+    if (kept.length) void saveThread(id, kept, historyRef.current ? "history" : undefined)
+    else void deleteThread(id)
+    const back = restore ? restoredDraft(question, nowRef.current.draft) : null
+    if (back === null) return
+    setDraft(back)
+    requestAnimationFrame(() => {
+      const el = inputRef.current
+      if (!el) return
+      el.style.height = "auto"
+      el.style.height = `${Math.min(el.scrollHeight, 140)}px`
+    })
+  }
+  const dropStoppedRef = useRef(dropStopped)
+  dropStoppedRef.current = dropStopped
+
+  // `fromButton`: the stop button (the question comes back to the field); else a new or another chat is opening.
+  const stop = useCallback((fromButton = false) => {
     const port = portRef.current
     if (!port && askToken.current) {
       // Stopped while the page was still being read: nothing was asked.
@@ -848,10 +878,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       partialRef.current = ""
       setPartial(null)
       setStreamMode(null)
+      dropStoppedRef.current(fromButton)
       return
     }
     if (!port) return
     portRef.current = null
+    // The next question can go (it waited for this one to finish).
+    askToken.current = null
     try {
       port.disconnect()
     } catch {
@@ -862,6 +895,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setPartial(null)
     setStreamMode(null)
     if (text) setMessages((prev) => [...prev, stamped({ role: "assistant", content: text })])
+    else dropStoppedRef.current(fromButton)
   }, [])
 
   // `withoutGoogle`: ask the same question as a normal answer (e.g. after the Google limit).
@@ -1496,28 +1530,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   /** The reminders still to ring in every chat (the soonest first), then watching's rows (later.ts). */
   const laterItems = async (): Promise<LaterItem[]> => {
     const [{ threads }, dev] = await Promise.all([loadThreads(), thisDevice()])
-    const now = Date.now()
-    const reminders: LaterItem[] = []
-    for (const [chat, thread] of Object.entries(threads)) {
-      if (thread.deleted) continue
-      for (const m of thread.m) {
-        if (!m.remind || m.remind.at <= now) continue
-        const page = m.note ? m.page : undefined
-        // It rings on the device that set it (`dev`); one without it was set before 2.5's marks.
-        const here = !m.remind.dev || m.remind.dev === dev
-        reminders.push({
-          id: `remind:${chat}:${entryKey(m)}`,
-          kind: "remind",
-          title: page ? page.title || page.url : thread.title || threadTitle(thread.m),
-          ...(m.remind.page && page ? { url: page.url } : {}),
-          status: here ? remindLabel(m.remind.at) : t("uxOnAnotherDevice", remindLabel(m.remind.at)),
-          sortAt: m.remind.at,
-          here
-        })
-      }
-    }
+    const reminders = reminderRows(threads, dev, Date.now(), (at) => remindLabel(at), (label) => t("uxOnAnotherDevice", label))
     const watches = (await Promise.all(laterSources().map((s) => s.items().catch(() => [] as LaterItem[])))).flat()
-    return [...reminders.sort((a, b) => a.sortAt - b.sortAt), ...watches.sort((a, b) => b.sortAt - a.sortAt)]
+    return [...reminders, ...watches.sort((a, b) => b.sortAt - a.sortAt)]
   }
   const openReminders = (via: "menu" | "link") => {
     setLaterList(null)
@@ -1561,6 +1576,27 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const items = await laterItems()
     setLaterList(items)
     setLaterCount(items.length)
+  }
+  /** A reminder's new time, from the list (2.5 (75)): it rings on this device. Null once set, else why it isn't. */
+  const rescheduleLaterItem = async (item: LaterItem, at: number, preset: string): Promise<string | null> => {
+    const ref = reminderOf(item)
+    const thread = ref ? (await loadThreads()).threads[ref.chat] : undefined
+    const entry = ref && thread?.m.find((m) => entryKey(m) === ref.key)
+    if (!ref || !thread || !entry) return null
+    const what = entry.remind?.page ? "page" : entry.note ? "note" : "answer"
+    const outcome = await scheduleReminder(sendBackground, ref.chat, entry, at, thread.title || threadTitle(thread.m))
+    if (outcome !== "scheduled") {
+      if (outcome === "denied") void sendBackground({ type: "uxEvent", kind: "ux_remind", action: "denied", what })
+      return t(outcome === "denied" ? "uxRemindOff" : "uxRemindNone")
+    }
+    const dev = await thisDevice()
+    await saveThread(ref.chat, withReminderAt(thread.m, ref.key, at, dev))
+    if (threadRef.current === ref.chat) setMessages((list) => withReminderAt(list, ref.key, at, dev))
+    void sendBackground({ type: "uxEvent", kind: "ux_remind", action: "set", what, how: "list", preset })
+    const items = await laterItems()
+    setLaterList(items)
+    setLaterCount(items.length)
+    return null
   }
   // The actions added to the selection bubble, after Template (watching's eye); none for plain text.
   const bubbleExtras: VNode[] = bubble?.rect && !open && !popup
@@ -2397,7 +2433,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       onKeyPress={(e) => e.stopPropagation()}
                     />
                     {streaming ? (
-                      <button type="button" class="cf-send stop" onClick={stop} aria-label={t("stop")} title={t("stop")}><Icon.Stop /></button>
+                      <button type="button" class="cf-send stop" onClick={() => stop(true)} aria-label={t("stop")} title={t("stop")}><Icon.Stop /></button>
                     ) : (
                       <span class="cf-send-wrap" {...switchGestures}>
                         <button
@@ -2441,7 +2477,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           {view === "chat" && !picked && ux.overlay}
           {view === "chat" && later && laterSheet(false)}
           {view === "chat" && remindersOpen && (
-            <RemindersSheet items={laterList} onOpen={openLaterItem} onCancel={(item) => void cancelLaterItem(item)} onClose={() => setRemindersOpen(false)} />
+            <RemindersSheet items={laterList} onOpen={openLaterItem} onCancel={(item) => void cancelLaterItem(item)} onReschedule={rescheduleLaterItem} onClose={() => setRemindersOpen(false)} />
           )}
         </section>
       )}
