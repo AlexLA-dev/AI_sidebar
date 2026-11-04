@@ -7,7 +7,7 @@ import type { Field } from "./field"
 
 let remembered: Field | null = null
 const listeners = new Set<() => void>()
-// The button by a field is showing: the panel's ✦ steps aside (both sit by the field's right edge).
+// The button by a field sits where the panel's ✦ is: the ✦ steps aside.
 let buttonShown = false
 const buttonListeners = new Set<() => void>()
 

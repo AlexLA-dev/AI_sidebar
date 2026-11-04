@@ -51,6 +51,9 @@ interface Props {
 }
 
 
+// Where the ✦ was when last seen: while it steps aside it isn't on the page to measure.
+let lastFab: DOMRect | null = null
+
 export function QuickInsert(props: Props): VNode | null {
   const { touch } = props
   const [settings, setSettings] = useState<InsertSettings>(DEFAULT_INSERT_SETTINGS)
@@ -339,7 +342,17 @@ export function QuickInsert(props: Props): VNode | null {
     if (spot) buttonPos = { top: spot.top + vp.dy, left: spot.left + vp.dx }
   }
 
-  useEffect(() => setButtonShown(buttonPos !== null), [buttonPos !== null])
+  // The ✦ steps aside only when the button would sit on it (it used to hide at every field, and blinked).
+  const buttonEl = useRef<HTMLButtonElement>(null)
+  useLayoutEffect(() => {
+    const el = buttonEl.current
+    if (!el || !buttonPos) return setButtonShown(false)
+    const fab = (el.getRootNode() as ShadowRoot).querySelector(".cf-fab")
+    if (fab) lastFab = fab.getBoundingClientRect()
+    const b = el.getBoundingClientRect()
+    const f = lastFab
+    setButtonShown(Boolean(f && b.left < f.right + 8 && b.right > f.left - 8 && b.top < f.bottom + 8 && b.bottom > f.top - 8))
+  }, [buttonPos?.top, buttonPos?.left])
   useEffect(() => () => setButtonShown(false), [])
 
   // ------------------------------------------------------------ render
@@ -348,6 +361,7 @@ export function QuickInsert(props: Props): VNode | null {
     <>
       {buttonPos && (
         <button
+          ref={buttonEl}
           type="button"
           class="cf-qi-btn"
           style={{ top: `${buttonPos.top}px`, left: `${buttonPos.left}px` }}
