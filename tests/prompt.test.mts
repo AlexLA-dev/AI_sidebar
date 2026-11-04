@@ -25,3 +25,10 @@ test("the rule is in the cached part, the same for a page whether or not the cha
   assert.equal(spanning, alone)
   assert.ok(!restAlone.includes("essay") && restSpanning.includes("essay"))
 })
+
+test("a question about an earlier page is answered about that page, not the one open now; unclear means asking", () => {
+  // 2.5: asked who wrote "the essay we discussed" on a 9to5Mac article, the model named the article's author.
+  const [head] = systemPromptParts(tabs, "", "en")
+  assert.match(head, /names or clearly means an earlier page \(its title, "the essay", "that article", what it was about\), answer about that page from the earlier messages, never from the page open now/)
+  assert.match(head, /If it isn't clear which page the user means, ask in one short sentence/)
+})

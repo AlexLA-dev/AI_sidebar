@@ -29,11 +29,14 @@ export function skippedRule(skipped: MediaKind[]): string {
 /**
  * How a conversation that spans pages is presented to the model (shared with Google mode). The second line keeps
  * the model from taking back its answers about an earlier page (2.5: after a move to another page it "corrected"
- * a right answer about the page before, because the quote in it wasn't on the page it had now).
+ * a right answer about the page before, because the quote in it wasn't on the page it had now); the third keeps a
+ * question about the earlier page from being answered from the page open now (asked who wrote "the essay", it
+ * named the author of the article on screen).
  */
 export const MULTI_PAGE_RULE =
   "- The conversation can continue across several pages. A user message that starts with [Asked on another page: …] was asked while the user was reading that page; the page content below is the page the user is on now.\n" +
   "- Your earlier answers to questions asked on another page were written from that page's text, which you are not given now. Trust them: don't correct, doubt or take them back because that text isn't here, and don't comment on them unless the user asks. If the user asks about that page and the earlier messages don't hold the answer, say in one short sentence that you'd need that page open to answer from it, and don't guess.\n" +
+  "- When the user's message names or clearly means an earlier page (its title, \"the essay\", \"that article\", what it was about), answer about that page from the earlier messages, never from the page open now. If it isn't clear which page the user means, ask in one short sentence.\n" +
   "- A user message that starts with [Note the user wrote …] is a note the user kept in this chat for themselves: use it as context, don't answer it."
 
 /** 2.5: the user's highlights in earlier answers. Only when the conversation has them, so older clients get the same prompt. */
