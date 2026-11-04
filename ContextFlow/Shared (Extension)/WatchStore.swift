@@ -73,12 +73,19 @@ enum WatchStore {
         case ok
         // Notifications are off for ContextFlow: the panel says so and how to turn them on.
         case denied
-        // Never asked: only the app can show the system question.
+        // Never asked (the question wasn't shown or was dismissed).
         case notAsked = "not-asked"
     }
 
-    static func permission() async -> Permission {
-        switch await UNUserNotificationCenter.current().notificationSettings().authorizationStatus {
+    /// `ask`: on "Watch", the system question is shown right there in Safari, as for a reminder.
+    static func permission(ask: Bool = false) async -> Permission {
+        let center = UNUserNotificationCenter.current()
+        var status = await center.notificationSettings().authorizationStatus
+        if status == .notDetermined, ask {
+            _ = try? await center.requestAuthorization(options: [.alert, .sound])
+            status = await center.notificationSettings().authorizationStatus
+        }
+        switch status {
         case .authorized, .provisional, .ephemeral: return .ok
         case .notDetermined: return .notAsked
         default: return .denied
