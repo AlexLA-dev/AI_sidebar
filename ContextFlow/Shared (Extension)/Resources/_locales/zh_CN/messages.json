@@ -891,7 +891,7 @@
   "message": "快速插入"
  },
  "qiButton": {
-  "message": "快速插入：复制的文字、模板、ContextFlow 的回答"
+  "message": "快速插入：复制的文字、模板、对话中的回答"
  },
  "qiCommand": {
   "message": "在光标处快速插入"
@@ -936,7 +936,7 @@
   "message": "还没有模板。轻点 +，或选中一段常写的回复后轻点“模板”。"
  },
  "qiTemplatesIntro": {
-  "message": "把反复要写的回复存起来。ContextFlow 会标出会变的部分，比如姓名或日期，并能从网页上填好。"
+  "message": "把反复要写的回复存起来。我会标出会变的部分，比如姓名或日期，并能从网页上填好。"
  },
  "qiFindAi": {
   "message": "按意思查找"
@@ -945,7 +945,7 @@
   "message": "正在查找…"
  },
  "qiFromCf": {
-  "message": "来自 ContextFlow"
+  "message": "来自对话"
  },
  "qiLastAnswer": {
   "message": "最新回答"
@@ -971,6 +971,9 @@
  "qiOnDevice": {
   "message": "设备"
  },
+ "qiHideButtonOnSite": {
+  "message": "在 {0} 上隐藏按钮"
+ },
  "qiDontKeepOnSite": {
   "message": "在 {0} 不保留"
  },
@@ -978,7 +981,7 @@
   "message": "在 {0} 重新保留"
  },
  "qiTip": {
-  "message": "新功能：轻点即可插入在其他标签页复制的文字、模板或 ContextFlow 的回答。"
+  "message": "新功能：轻点即可插入在其他标签页复制的文字、模板或我的回答。"
  },
  "qiKeyInsert": {
   "message": "插入"
@@ -1014,7 +1017,7 @@
   "message": "正在填写…"
  },
  "qiFillHint": {
-  "message": "自己填写空格、从“已复制”中选择，或让 ContextFlow 从网页上填写。"
+  "message": "自己填写空格、从“已复制”中选择，或由我从网页上填写。"
  },
  "qiFillDone": {
   "message": "黄色部分取自网页，发送前请检查。"
@@ -1303,5 +1306,116 @@
  },
  "upsellOrganizeText": {
   "message": "为你刚问的内容建议合适的对话，以及你自己的标签。"
+ },
+ "watchEye": {
+  "message": "关注变化"
+ },
+ "watchSection": {
+  "message": "变化时通知我"
+ },
+ "watchWhen": {
+  "message": "何时通知"
+ },
+ "watchCondPrice": {
+  "message": "价格变化时（现在 {0}）"
+ },
+ "watchCondBack": {
+  "message": "重新有货时"
+ },
+ "watchCondStock": {
+  "message": "库存变化时（现在 {0}）"
+ },
+ "watchCondDate": {
+  "message": "日期变化时（现在 {0}）"
+ },
+ "watchCondStatus": {
+  "message": "状态变化时（现在 {0}）"
+ },
+ "watchCondPage": {
+  "message": "页面出现新内容时"
+ },
+ "watchHonest": {
+  "message": "你使用 Safari 时我会检查"
+ },
+ "watchStart": {
+  "message": "关注"
+ },
+ "watchChecking": {
+  "message": "正在查看页面…"
+ },
+ "watchSet": {
+  "message": "已关注，变化时通知你。"
+ },
+ "watchSetLive": {
+  "message": "已关注。这个网站只在你打开页面时显示，届时我会检查。"
+ },
+ "watchUnreadable": {
+  "message": "这个网站不允许在后台检查。我可以在你打开页面时检查，或提醒你去看看。"
+ },
+ "watchRemindInstead": {
+  "message": "提醒我去看"
+ },
+ "watchLiveOk": {
+  "message": "打开页面时检查"
+ },
+ "watchFull": {
+  "message": "你已经关注了 {0} 个页面。请先在“提醒”里停止一个。"
+ },
+ "watchFullFree": {
+  "message": "免费版最多同时关注 {0} 个页面，Pro 最多 {1} 个。"
+ },
+ "watchMore": {
+  "message": "Pro 可关注更多"
+ },
+ "watchFailed": {
+  "message": "没有成功，请稍后再试。"
+ },
+ "watchRow": {
+  "message": "关注中：{0} · {1}检查"
+ },
+ "watchRowNew": {
+  "message": "关注中：{0}"
+ },
+ "watchRowLive": {
+  "message": "关注中：{0} · 打开页面时检查"
+ },
+ "watchRowMet": {
+  "message": "已变化：{0} · {1}"
+ },
+ "watchRowMetNow": {
+  "message": "已变化：{0}，现在 {1} · {2}"
+ },
+ "watchStop": {
+  "message": "停止关注"
+ },
+ "watchStopped": {
+  "message": "已停止关注"
+ },
+ "watchLabelPrice": {
+  "message": "价格"
+ },
+ "watchLabelStock": {
+  "message": "库存"
+ },
+ "watchLabelDate": {
+  "message": "日期"
+ },
+ "watchLabelStatus": {
+  "message": "状态"
+ },
+ "watchLabelPage": {
+  "message": "页面"
+ },
+ "watchInStock": {
+  "message": "有货"
+ },
+ "watchOutOfStock": {
+  "message": "缺货"
+ },
+ "watchChanged": {
+  "message": "已变化：{0}"
+ },
+ "watchChangedBody": {
+  "message": "现在：{0}"
  }
 }

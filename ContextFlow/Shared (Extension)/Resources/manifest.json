@@ -32,6 +32,7 @@
     "storage",
     "activeTab",
     "scripting",
+    "alarms",
     "nativeMessaging"
   ],
   "host_permissions": [

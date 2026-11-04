@@ -891,7 +891,7 @@
   "message": "빠른 삽입"
  },
  "qiButton": {
-  "message": "빠른 삽입: 복사한 텍스트, 템플릿, ContextFlow 답변"
+  "message": "빠른 삽입: 복사한 텍스트, 템플릿, 채팅 답변"
  },
  "qiCommand": {
   "message": "커서 위치에 빠른 삽입"
@@ -936,7 +936,7 @@
   "message": "아직 템플릿이 없습니다. +를 탭하거나 자주 쓰는 답장을 선택하고 ‘템플릿’을 탭하세요."
  },
  "qiTemplatesIntro": {
-  "message": "반복해서 쓰는 답장을 저장하세요. ContextFlow가 이름이나 날짜처럼 바뀌는 부분을 표시하고 페이지에서 채울 수 있습니다."
+  "message": "반복해서 쓰는 답장을 저장하세요. 이름이나 날짜처럼 바뀌는 부분을 제가 표시하고 페이지에서 채울 수 있어요."
  },
  "qiFindAi": {
   "message": "뜻으로 찾기"
@@ -945,7 +945,7 @@
   "message": "찾는 중…"
  },
  "qiFromCf": {
-  "message": "ContextFlow에서"
+  "message": "채팅에서"
  },
  "qiLastAnswer": {
   "message": "마지막 답변"
@@ -971,6 +971,9 @@
  "qiOnDevice": {
   "message": "기기"
  },
+ "qiHideButtonOnSite": {
+  "message": "{0}에서 버튼 숨기기"
+ },
  "qiDontKeepOnSite": {
   "message": "{0}에서는 보관 안 함"
  },
@@ -978,7 +981,7 @@
   "message": "{0}에서 다시 보관"
  },
  "qiTip": {
-  "message": "새 기능: 탭하면 다른 탭에서 복사한 텍스트, 템플릿, ContextFlow 답변을 넣을 수 있습니다."
+  "message": "새 기능: 탭하면 다른 탭에서 복사한 텍스트, 템플릿, 제 답변을 넣을 수 있어요."
  },
  "qiKeyInsert": {
   "message": "삽입"
@@ -1014,7 +1017,7 @@
   "message": "채우는 중…"
  },
  "qiFillHint": {
-  "message": "빈칸을 직접 입력하거나 ‘복사한 항목’에서 고르거나 ContextFlow가 페이지에서 채우게 하세요."
+  "message": "빈칸을 직접 입력하거나 ‘복사한 항목’에서 고르세요. 페이지에서 제가 채울 수도 있어요."
  },
  "qiFillDone": {
   "message": "노란색: 페이지에서 가져온 내용입니다. 보내기 전에 확인하세요."
@@ -1303,5 +1306,116 @@
  },
  "upsellOrganizeText": {
   "message": "방금 물어본 내용에 맞는 채팅과 내 태그를 추천해요."
+ },
+ "watchEye": {
+  "message": "변경 알림 받기"
+ },
+ "watchSection": {
+  "message": "바뀌면 알려 주기"
+ },
+ "watchWhen": {
+  "message": "알려 줄 때"
+ },
+ "watchCondPrice": {
+  "message": "가격이 바뀌면 (지금 {0})"
+ },
+ "watchCondBack": {
+  "message": "재입고되면"
+ },
+ "watchCondStock": {
+  "message": "재고 상태가 바뀌면 (지금 {0})"
+ },
+ "watchCondDate": {
+  "message": "날짜가 바뀌면 (지금 {0})"
+ },
+ "watchCondStatus": {
+  "message": "상태가 바뀌면 (지금 {0})"
+ },
+ "watchCondPage": {
+  "message": "페이지에 새 내용이 생기면"
+ },
+ "watchHonest": {
+  "message": "Safari를 쓰는 동안 확인해요"
+ },
+ "watchStart": {
+  "message": "알림 받기"
+ },
+ "watchChecking": {
+  "message": "페이지를 보는 중…"
+ },
+ "watchSet": {
+  "message": "지켜볼게요. 바뀌면 알려 드릴게요."
+ },
+ "watchSetLive": {
+  "message": "지켜볼게요. 이 사이트는 페이지를 열 때만 보여 줘서, 그때 확인할게요."
+ },
+ "watchUnreadable": {
+  "message": "이 사이트는 백그라운드에서 확인할 수 없어요. 페이지를 열 때 확인하거나, 보러 가라고 알려 드릴 수 있어요."
+ },
+ "watchRemindInstead": {
+  "message": "보러 가라고 알려 주기"
+ },
+ "watchLiveOk": {
+  "message": "페이지를 열 때 확인"
+ },
+ "watchFull": {
+  "message": "이미 {0}개를 지켜보고 있어요. 먼저 '알림'에서 하나를 멈춰 주세요."
+ },
+ "watchFullFree": {
+  "message": "무료로는 페이지 {0}개까지 동시에 지켜볼 수 있어요. Pro는 {1}개까지."
+ },
+ "watchMore": {
+  "message": "Pro로 더 많이"
+ },
+ "watchFailed": {
+  "message": "잘 안 됐어요. 잠시 후 다시 시도해 주세요."
+ },
+ "watchRow": {
+  "message": "지켜보는 중: {0} · {1} 확인"
+ },
+ "watchRowNew": {
+  "message": "지켜보는 중: {0}"
+ },
+ "watchRowLive": {
+  "message": "지켜보는 중: {0} · 페이지를 열 때 확인"
+ },
+ "watchRowMet": {
+  "message": "바뀜: {0} · {1}"
+ },
+ "watchRowMetNow": {
+  "message": "바뀜: {0}, 지금 {1} · {2}"
+ },
+ "watchStop": {
+  "message": "알림 그만 받기"
+ },
+ "watchStopped": {
+  "message": "알림을 멈췄어요"
+ },
+ "watchLabelPrice": {
+  "message": "가격"
+ },
+ "watchLabelStock": {
+  "message": "재고"
+ },
+ "watchLabelDate": {
+  "message": "날짜"
+ },
+ "watchLabelStatus": {
+  "message": "상태"
+ },
+ "watchLabelPage": {
+  "message": "페이지"
+ },
+ "watchInStock": {
+  "message": "재고 있음"
+ },
+ "watchOutOfStock": {
+  "message": "품절"
+ },
+ "watchChanged": {
+  "message": "바뀜: {0}"
+ },
+ "watchChangedBody": {
+  "message": "지금: {0}"
  }
 }

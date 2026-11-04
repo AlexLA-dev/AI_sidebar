@@ -891,7 +891,7 @@
   "message": "クイック挿入"
  },
  "qiButton": {
-  "message": "クイック挿入：コピーしたテキスト、テンプレート、ContextFlowの回答"
+  "message": "クイック挿入：コピーしたテキスト、テンプレート、チャットの回答"
  },
  "qiCommand": {
   "message": "カーソル位置にクイック挿入"
@@ -936,7 +936,7 @@
   "message": "テンプレートはまだありません。＋をタップするか、よく書く返信を選択して「テンプレート」をタップしてください。"
  },
  "qiTemplatesIntro": {
-  "message": "何度も書く返信を保存しましょう。ContextFlowが名前や日付など変わる部分を見つけ、ページから入力できます。"
+  "message": "何度も書く返信を保存しましょう。名前や日付など変わる部分を見つけて、ページから入力できます。"
  },
  "qiFindAi": {
   "message": "意味で探す"
@@ -945,7 +945,7 @@
   "message": "検索中…"
  },
  "qiFromCf": {
-  "message": "ContextFlowから"
+  "message": "チャットから"
  },
  "qiLastAnswer": {
   "message": "最新の回答"
@@ -971,6 +971,9 @@
  "qiOnDevice": {
   "message": "デバイス"
  },
+ "qiHideButtonOnSite": {
+  "message": "{0} ではボタンを隠す"
+ },
  "qiDontKeepOnSite": {
   "message": "{0}では保存しない"
  },
@@ -978,7 +981,7 @@
   "message": "{0}でも再び保存"
  },
  "qiTip": {
-  "message": "新機能：タップすると、ほかのタブでコピーしたテキスト、テンプレート、ContextFlowの回答を挿入できます。"
+  "message": "新機能：タップすると、ほかのタブでコピーしたテキスト、テンプレート、チャットの回答を挿入できます。"
  },
  "qiKeyInsert": {
   "message": "挿入"
@@ -1014,7 +1017,7 @@
   "message": "入力中…"
  },
  "qiFillHint": {
-  "message": "空欄に入力するか、コピー履歴から選ぶか、ContextFlowにページから入力させてください。"
+  "message": "空欄に入力するか、コピー履歴から選んでください。ページから入力することもできます。"
  },
  "qiFillDone": {
   "message": "黄色：ページから入力した部分です。送信前に確認してください。"
@@ -1303,5 +1306,116 @@
  },
  "upsellOrganizeText": {
   "message": "今聞いたことに合うチャットと、あなた自身のタグを提案します。"
+ },
+ "watchEye": {
+  "message": "変更を見守る"
+ },
+ "watchSection": {
+  "message": "変わったら知らせる"
+ },
+ "watchWhen": {
+  "message": "知らせるタイミング"
+ },
+ "watchCondPrice": {
+  "message": "価格が変わったら（現在 {0}）"
+ },
+ "watchCondBack": {
+  "message": "再入荷したら"
+ },
+ "watchCondStock": {
+  "message": "在庫状況が変わったら（現在 {0}）"
+ },
+ "watchCondDate": {
+  "message": "日付が変わったら（現在 {0}）"
+ },
+ "watchCondStatus": {
+  "message": "ステータスが変わったら（現在 {0}）"
+ },
+ "watchCondPage": {
+  "message": "ページに新しい内容が出たら"
+ },
+ "watchHonest": {
+  "message": "Safari を使っている間に確認します"
+ },
+ "watchStart": {
+  "message": "見守る"
+ },
+ "watchChecking": {
+  "message": "ページを確認中…"
+ },
+ "watchSet": {
+  "message": "見守ります。変わったらお知らせします。"
+ },
+ "watchSetLive": {
+  "message": "見守ります。このサイトはページを開いたときだけ表示するので、そのときに確認します。"
+ },
+ "watchUnreadable": {
+  "message": "このサイトはバックグラウンドで確認できません。ページを開いたときに確認するか、見に行くようリマインドできます。"
+ },
+ "watchRemindInstead": {
+  "message": "見に行くようリマインド"
+ },
+ "watchLiveOk": {
+  "message": "ページを開いたときに確認"
+ },
+ "watchFull": {
+  "message": "すでに {0} 件を見守っています。先に「リマインダー」で1件止めてください。"
+ },
+ "watchFullFree": {
+  "message": "無料プランで同時に見守れるのは {0} ページまでです。Pro なら {1} ページまで。"
+ },
+ "watchMore": {
+  "message": "Pro でもっと"
+ },
+ "watchFailed": {
+  "message": "うまくいきませんでした。少ししてからもう一度お試しください。"
+ },
+ "watchRow": {
+  "message": "見守り中: {0} · {1}に確認"
+ },
+ "watchRowNew": {
+  "message": "見守り中: {0}"
+ },
+ "watchRowLive": {
+  "message": "見守り中: {0} · ページを開いたときに確認"
+ },
+ "watchRowMet": {
+  "message": "変更あり: {0} · {1}"
+ },
+ "watchRowMetNow": {
+  "message": "変更あり: {0}、現在 {1} · {2}"
+ },
+ "watchStop": {
+  "message": "見守りをやめる"
+ },
+ "watchStopped": {
+  "message": "見守りをやめました"
+ },
+ "watchLabelPrice": {
+  "message": "価格"
+ },
+ "watchLabelStock": {
+  "message": "在庫"
+ },
+ "watchLabelDate": {
+  "message": "日付"
+ },
+ "watchLabelStatus": {
+  "message": "ステータス"
+ },
+ "watchLabelPage": {
+  "message": "ページ"
+ },
+ "watchInStock": {
+  "message": "在庫あり"
+ },
+ "watchOutOfStock": {
+  "message": "在庫切れ"
+ },
+ "watchChanged": {
+  "message": "変更あり: {0}"
+ },
+ "watchChangedBody": {
+  "message": "現在: {0}"
  }
 }
