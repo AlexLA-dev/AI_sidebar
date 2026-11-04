@@ -54,14 +54,21 @@ test("starMarks wraps highlights in ** for sharing; marksLine lists them for dig
 test("the model gets an answer's highlights as <mark>; Ask your chats gets a Highlighted line", async () => {
   const { historyForModel } = await import("../src/shared/conversation.ts")
   const { chatDigests } = await import("../src/shared/threads.ts")
-  const { MULTI_PAGE_RULE } = await import("../src/shared/prompt.ts")
+  const { hasMarks, systemPrompt } = await import("../src/shared/prompt.ts")
+  const { historyPrompt } = await import("../src/shared/history.ts")
   const entries = [
     { role: "user" as const, content: "Summarize", page: { url: "https://a.example/p", title: "A" } },
     { role: "assistant" as const, content: "Teams cut **long meetings** first.", marks: [{ s: 10, e: 23, q: "long meetings" }] }
   ]
   const turns = historyForModel(entries, "https://a.example/p")
   assert.equal(turns[1].content, "Teams cut **<mark>long meetings</mark>** first.")
-  assert.match(MULTI_PAGE_RULE, /<mark>/)
+  // The rule about <mark> comes only with highlights: 2.3 and 2.4 clients get the same prompt as before.
+  assert.ok(hasMarks(turns))
+  assert.ok(!hasMarks(historyForModel([entries[0], { ...entries[1], marks: undefined }], "https://a.example/p")))
+  assert.match(systemPrompt(null, "", "en", [], false, true), /<mark>/)
+  assert.doesNotMatch(systemPrompt(null, "", "en"), /<mark>/)
   const [digest] = chatDigests([{ id: "c1", u: 1, a: 1, m: entries }], { perChat: 2000, perAnswer: 400, total: 4000 })
   assert.match(digest.text, /\nHighlighted: «long meetings»/)
+  assert.match(historyPrompt([digest], "", "en"), /A "Highlighted:" line/)
+  assert.doesNotMatch(historyPrompt([{ ...digest, text: "Q: hi\nA: hello" }], "", "en"), /Highlighted/)
 })
