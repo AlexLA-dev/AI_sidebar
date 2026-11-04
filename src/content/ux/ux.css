@@ -184,17 +184,15 @@ mark.cf-mark-last { border-top-right-radius: 2px; border-bottom-right-radius: 2p
 .cf-later-row.remind, .cf-later-row.remind .cf-later-open { align-items: flex-start; }
 .cf-later-row.remind .cf-later-icon { margin-top: 2px; }
 .cf-later-row.remind .cf-later-cancel { margin-top: 4px; }
-.cf-later-row.remind .cf-later-title,
-.cf-later-question,
-.cf-later-body {
-  white-space: normal; overflow-wrap: anywhere; overflow: hidden;
-  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
-}
+.cf-later-row.remind .cf-later-title, .cf-later-question, .cf-later-body { white-space: normal; overflow-wrap: anywhere; }
 .cf-later-question { font-size: 13px; font-weight: 600; color: var(--text-2); }
-.cf-later-body { font-size: 13.5px; line-height: 1.4; color: var(--text-2); -webkit-line-clamp: 3; }
-.cf-later-item.open .cf-later-title,
-.cf-later-item.open .cf-later-question,
-.cf-later-item.open .cf-later-body { display: block; -webkit-line-clamp: unset; overflow: visible; }
+.cf-later-body { font-size: 13.5px; line-height: 1.4; color: var(--text-2); }
+/* Closed: a few lines. Only closed rows get the clamp (iOS Safari kept it on an opened one when it was reset). */
+.cf-later-item:not(.open) .cf-later-title,
+.cf-later-item:not(.open) .cf-later-question,
+.cf-later-item:not(.open) .cf-later-body { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.cf-later-item:not(.open) .cf-later-body { -webkit-line-clamp: 3; }
+.cf-later-item.open .cf-later-title { overflow: visible; text-overflow: clip; }
 .cf-later-item.open .cf-later-body { white-space: pre-line; }
 .cf[data-touch] .cf-later-body { font-size: 14.5px; }
 .cf-later-actions { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 8px 10px 33px; }
