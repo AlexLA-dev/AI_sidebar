@@ -108,7 +108,8 @@ const rpc: Record<string, (args: Record<string, any>) => unknown> = {
   cf_usage_report: ({ p_days }) => ({ days: p_days, segments: [{ key: "ours", segment: "ai", requests: 3 }] }),
   cf_setup_funnel: () => [{ day: "2026-10-30", app_opened: 4, extension_on: 3, panel_opened: 2 }],
   cf_owner_insights: ({ p_days }) => ({ days: p_days, per_user: [{ plan: "free", users: 2, user_days: 3, asked_days: 2, requests: 4, max_per_day: 3 }] }),
-  cf_onboarding: () => ({ people: [{ day: "2026-11-01", device: "iPhone", kind: "app", ext: 300, panel: 420, answer: 540 }], open_reviews: [] })
+  cf_onboarding: () => ({ people: [{ day: "2026-11-01", device: "iPhone", kind: "app", ext: 300, panel: 420, answer: 540 }], open_reviews: [] }),
+  cf_new_user_outcomes: () => [{ day: "2026-11-02", new: 12, limit_d0: 3, pro_bought: 2 }]
 }
 
 // Same rule as cf_limited_before: a free limit hit on an earlier UTC day.
@@ -489,22 +490,20 @@ test("admin usage report needs ADMIN_TOKEN", async () => {
   assert.equal(body.setup_funnel[0].app_opened, 4)
   assert.deepEqual([body.insights.days, body.insights.per_user[0].requests], [180, 4])
   assert.equal(body.onboarding.people[0].answer, 540)
+  assert.deepEqual(body.new_outcomes[0], { day: "2026-11-02", new: 12, limit_d0: 3, pro_bought: 2 })
 })
 
-test("admin usage report still answers before cf_owner_insights and cf_onboarding exist", async () => {
+test("admin usage report still answers before cf_owner_insights, cf_onboarding and cf_new_user_outcomes exist", async () => {
   serverConfig.adminToken = "admin-test"
-  const insights = rpc.cf_owner_insights
-  const steps = rpc.cf_onboarding
-  delete rpc.cf_owner_insights
-  delete rpc.cf_onboarding
+  const saved = { ...rpc }
+  for (const fn of ["cf_owner_insights", "cf_onboarding", "cf_new_user_outcomes"]) delete rpc[fn]
   try {
     const res = await adminUsage(new Request("https://aisidebar.netlify.app/api/v2/admin/usage", { headers: { Authorization: "Bearer admin-test" } }))
     assert.equal(res.status, 200)
     const body = await res.json()
-    assert.deepEqual([body.segments[0].requests, body.insights, body.onboarding], [3, null, null])
+    assert.deepEqual([body.segments[0].requests, body.insights, body.onboarding, body.new_outcomes], [3, null, null, null])
   } finally {
-    rpc.cf_owner_insights = insights
-    rpc.cf_onboarding = steps
+    Object.assign(rpc, saved)
   }
 })
 
