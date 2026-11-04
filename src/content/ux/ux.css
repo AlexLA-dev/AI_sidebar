@@ -133,6 +133,8 @@ mark.cf-mark {
 }
 /* "Come back later" (2.5): the window's name over its parts (Remind; watching's under it). */
 .cf-sheet-head { padding: 4px 10px 2px; font-size: 12.5px; font-weight: 600; color: var(--text-3); }
+/* Remind brought into view by a section under it (a page that can't be watched): a short flash. */
+.cf-sheet-title.flash { border-radius: 10px; animation: cf-pin-flash 1.2s ease-out; }
 .cf-sheet-title { display: flex; align-items: center; gap: 7px; padding: 6px 8px 10px; font-size: 15px; font-weight: 600; }
 .cf-sheet-row { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 12px 10px; border-radius: 10px; font-size: 15px; color: var(--text); text-align: left; }
 .cf-sheet-row:hover { background: var(--bg-2); }

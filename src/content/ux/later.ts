@@ -15,6 +15,8 @@ export interface LaterContext {
   // The selection's range on the page, taken when the window opened (before the focus went to the window).
   range: Range | null
   close(): void
+  // Brings Remind (at the window's top) into view and flashes it: a page that can't be watched offers it instead.
+  remind(): void
 }
 
 /** A selection on the page, for the bubble's actions. */
@@ -38,11 +40,18 @@ export interface LaterItem {
   here?: boolean // a reminder: it rings on this device
 }
 
+/** Rows for a "Reminders" list in the panel (watching's): listed, and stopped from the list. */
+export interface LaterSource {
+  items(): Promise<LaterItem[]>
+  cancel(id: string): Promise<void>
+}
+
 type Section = (ctx: LaterContext) => VNode | null
 type BubbleAction = (ctx: BubbleContext) => VNode | null
 
 const sections = new Map<string, Section>()
 const bubbleActionsById = new Map<string, BubbleAction>()
+const sourcesById = new Map<string, LaterSource>()
 let opener: ((from?: { selection: string | null; range: Range | null }) => void) | null = null
 
 /** A section under Remind in the window (watching: "Tell me when it changes"); null renders nothing. */
@@ -61,6 +70,15 @@ export function addBubbleAction(id: string, render: BubbleAction): void {
 
 export function bubbleActions(): BubbleAction[] {
   return [...bubbleActionsById.values()]
+}
+
+/** Rows for the panel's "Reminders" list, besides the reminders in the chats (watching's). */
+export function addLaterSource(id: string, source: LaterSource): void {
+  sourcesById.set(id, source)
+}
+
+export function laterSources(): LaterSource[] {
+  return [...sourcesById.values()]
 }
 
 /** Opens the window (Remind first), e.g. when a page can't be watched: over the page when the panel is closed. */

@@ -1209,21 +1209,21 @@ test("an answer with the user's own key is only reported: the answer limit isn't
   assert.equal(events.find((e) => e.kind === "chat")?.data.weight, undefined)
 })
 
-test("Come back later and watching events keep only their lists' values and counts, never an address or text", async () => {
+test("Come back later events keep only their lists' values and counts, never an address or text", async () => {
   const send = (body: Record<string, unknown>) => event(post("/api/v2/event", body), ctx())
   events = []
   await send({ kind: "ux_menu", installId: INSTALL, action: "later" })
   await send({ kind: "ux_later", installId: INSTALL, action: "opened", n_remind: 3, n_watch: 2, surface: "app", text: "secret" })
-  await send({ kind: "ux_watch", installId: INSTALL, action: "met", what: "price", how: "bubble", site: "shop", via: "bg", n: 4, url: "https://shop.example/secret" })
-  await send({ kind: "ux_watch", installId: INSTALL, action: "boom", site: "example.com", via: "cloud", n: 1.5 })
+  await send({ kind: "ux_later", installId: INSTALL, action: "opened", n_remind: "2", n_watch: 1.5 })
+  // Watching counts its own through the analytics registry: not here.
+  assert.equal((await send({ kind: "ux_watch", installId: INSTALL, action: "met" })).status, 400)
   await send({ kind: "ux_remind", installId: INSTALL, action: "set", what: "page", how: "later", preset: "evening" })
   await new Promise((r) => setTimeout(r, 0))
   const by = (kind: string) => events.filter((e) => e.kind === kind).map((e) => e.data)
   assert.equal(by("ux_menu")[0].action, "later")
   assert.deepEqual([by("ux_later")[0].n_remind, by("ux_later")[0].n_watch, by("ux_later")[0].surface], [3, 2, "app"])
-  const [met, bad] = by("ux_watch")
-  assert.deepEqual([met.action, met.what, met.how, met.site, met.via, met.n], ["met", "price", "bubble", "shop", "bg", 4])
-  assert.deepEqual([bad.action, bad.site, bad.via, bad.n], [undefined, undefined, undefined, undefined])
+  // The app sends counts as strings; a count that isn't a whole number is left out.
+  assert.deepEqual([by("ux_later")[1].n_remind, by("ux_later")[1].n_watch], [2, undefined])
   assert.deepEqual([by("ux_remind")[0].how, by("ux_remind")[0].preset], ["later", "evening"])
   assert.ok(!JSON.stringify(events).includes("secret"))
 })
