@@ -55,7 +55,8 @@ import { ThreadsView } from "./Threads"
 import { starMarks } from "../shared/marks"
 import { Bell, More, remindLabel, RemindSheet } from "./ux/MessageUx"
 import { PageMenu } from "./ux/PageMenu"
-import { bubbleActions, laterSections, pageRange, setLaterOpener, type BubbleContext, type LaterContext } from "./ux/later"
+import { bubbleActions, laterSections, laterSources, pageRange, setLaterOpener, type BubbleContext, type LaterContext, type LaterItem } from "./ux/later"
+import { RemindersSheet } from "./ux/RemindersSheet"
 import { scheduleReminder, thisDevice, useMessageUx } from "./ux/useMessageUx"
 import { Tour, tourSteps } from "./Tour"
 import { QI_EVENTS, QuickInsert } from "./insert/QuickInsert"
@@ -335,6 +336,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // "Come back later" (the header's "…", or watching offering a reminder instead, later.ts): what was selected then.
   const [later, setLater] = useState<{ selection: SelectionInfo | null; range: Range | null } | null>(null)
   const [laterFlash, setLaterFlash] = useState(0)
+  // "Reminders" (the header's "…", "All reminders" in the window): open, its rows (null while loading), how many.
+  const [remindersOpen, setRemindersOpen] = useState(false)
+  const [laterList, setLaterList] = useState<LaterItem[] | null>(null)
+  const [laterCount, setLaterCount] = useState(0)
   useEffect(() => {
     setLaterOpener((from) => setLater({
       selection: from?.selection ? { text: from.selection, words: from.selection.split(/\s+/).filter(Boolean).length, rect: null, at: Date.now() } : null,
@@ -1478,8 +1483,83 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         onClose={() => setLater(null)}
       >
         {laterSections().map((render, i) => <Fragment key={i}>{render(ctx)}</Fragment>)}
+        {!page && (
+          <button type="button" class="cf-sheet-link" onClick={() => {
+            setLater(null)
+            openReminders("link")
+          }}>{t("uxAllReminders")}</button>
+        )}
       </RemindSheet>
     )
+  }
+  /** The reminders still to ring in every chat (the soonest first), then watching's rows (later.ts). */
+  const laterItems = async (): Promise<LaterItem[]> => {
+    const [{ threads }, dev] = await Promise.all([loadThreads(), thisDevice()])
+    const now = Date.now()
+    const reminders: LaterItem[] = []
+    for (const [chat, thread] of Object.entries(threads)) {
+      if (thread.deleted) continue
+      for (const m of thread.m) {
+        if (!m.remind || m.remind.at <= now) continue
+        const page = m.note ? m.page : undefined
+        // It rings on the device that set it (`dev`); one without it was set before 2.5's marks.
+        const here = !m.remind.dev || m.remind.dev === dev
+        reminders.push({
+          id: `remind:${chat}:${entryKey(m)}`,
+          kind: "remind",
+          title: page ? page.title || page.url : thread.title || threadTitle(thread.m),
+          ...(m.remind.page && page ? { url: page.url } : {}),
+          status: here ? remindLabel(m.remind.at) : t("uxOnAnotherDevice", remindLabel(m.remind.at)),
+          sortAt: m.remind.at,
+          here
+        })
+      }
+    }
+    const watches = (await Promise.all(laterSources().map((s) => s.items().catch(() => [] as LaterItem[])))).flat()
+    return [...reminders.sort((a, b) => a.sortAt - b.sortAt), ...watches.sort((a, b) => b.sortAt - a.sortAt)]
+  }
+  const openReminders = (via: "menu" | "link") => {
+    setLaterList(null)
+    setRemindersOpen(true)
+    void laterItems().then((items) => {
+      setLaterList(items)
+      setLaterCount(items.length)
+      void sendBackground({ type: "useEvent", f: "later", a: "list", via, reminders: String(items.filter((i) => i.kind === "remind").length), watches: String(items.filter((i) => i.kind === "watch").length) })
+    }).catch(() => setLaterList([]))
+  }
+  /** A page reminder or a watch opens its page in a new tab; a reminder on an answer or a note, its chat at it. */
+  const openLaterItem = (item: LaterItem) => {
+    if (item.url) {
+      window.open(item.url, "_blank", "noopener")
+      return
+    }
+    const [, chat, key] = item.id.split(":")
+    const at = threadList.find((x) => x.id === chat)?.m.findIndex((m) => entryKey(m) === key) ?? -1
+    setRemindersOpen(false)
+    openThread(chat, at >= 0 ? at : undefined)
+  }
+  const cancelLaterItem = async (item: LaterItem) => {
+    if (item.kind === "remind") {
+      const [, chat, key] = item.id.split(":")
+      const list = (await loadThreads()).threads[chat]?.m
+      const entry = list?.find((m) => entryKey(m) === key)
+      if (list && entry) {
+        void scheduleReminder(sendBackground, chat, entry, null, "")
+        const next = list.map((m) => {
+          if (entryKey(m) !== key) return m
+          const { remind: _, ...rest } = m
+          return rest
+        })
+        await saveThread(chat, next)
+        if (threadRef.current === chat) setMessages(next)
+        void sendBackground({ type: "uxEvent", kind: "ux_remind", action: "cancelled", what: entry.remind?.page ? "page" : entry.note ? "note" : "answer", how: "list" })
+      }
+    } else {
+      for (const source of laterSources()) await source.cancel(item.id).catch(() => undefined)
+    }
+    const items = await laterItems()
+    setLaterList(items)
+    setLaterCount(items.length)
   }
   // The actions added to the selection bubble, after Template (watching's eye); none for plain text.
   const bubbleExtras: VNode[] = bubble?.rect && !open && !popup
@@ -1891,19 +1971,29 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               <span class="cf-page-more-wrap">
                 <button type="button" class="cf-icon cf-page-more" aria-haspopup="menu" aria-expanded={pageMenu} aria-label={t("uxMore")} title={t("uxMore")} onClick={() => {
                   // Opened, and which item: to see whether Settings is still found a tap further.
-                  if (!pageMenu) void sendBackground({ type: "uxEvent", kind: "ux_menu", action: "opened" })
+                  if (!pageMenu) {
+                    void sendBackground({ type: "useEvent", f: "menu", a: "open" })
+                    void laterItems().then((items) => setLaterCount(items.length)).catch(() => setLaterCount(0))
+                  }
                   setPageMenu(!pageMenu)
                 }}><More size={18} /></button>
                 {pageMenu && (
                   <PageMenu
                     onLater={() => {
                       setPageMenu(false)
-                      void sendBackground({ type: "uxEvent", kind: "ux_menu", action: "later" })
+                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "later" })
+                      void sendBackground({ type: "useEvent", f: "later", a: "open", via: "menu" })
                       setLater({ selection, range: pageRange(HOST_TAG) })
+                    }}
+                    reminders={laterCount}
+                    onReminders={() => {
+                      setPageMenu(false)
+                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "reminders" })
+                      openReminders("menu")
                     }}
                     onSettings={() => {
                       setPageMenu(false)
-                      void sendBackground({ type: "uxEvent", kind: "ux_menu", action: "settings" })
+                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "settings" })
                       setView("settings")
                     }}
                     onClose={() => setPageMenu(false)}
@@ -2324,6 +2414,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           )}
           {view === "chat" && !picked && ux.overlay}
           {view === "chat" && later && laterSheet(false)}
+          {view === "chat" && remindersOpen && (
+            <RemindersSheet items={laterList} onOpen={openLaterItem} onCancel={(item) => void cancelLaterItem(item)} onClose={() => setRemindersOpen(false)} />
+          )}
         </section>
       )}
 

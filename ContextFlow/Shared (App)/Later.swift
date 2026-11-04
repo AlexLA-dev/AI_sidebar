@@ -155,7 +155,10 @@ struct RemindersView: View {
             }
             .task {
                 await reload()
-                ChatAI.reportUx("ux_later", ["action": "opened", "n_remind": String(items.filter { $0.kind == .remind }.count), "n_watch": String(items.filter { $0.kind == .watch }.count)])
+                // A step for the feature counters (the "use" kind, src/shared/usage.ts): how many of each it held.
+                ChatAI.reportOrganize("use", ["f": "later", "a": "open", "via": "tab", "s": "app",
+                                              "reminders": String(items.filter { $0.kind == .remind }.count),
+                                              "watches": String(items.filter { $0.kind == .watch }.count)])
             }
             .refreshable { await reload() }
         }

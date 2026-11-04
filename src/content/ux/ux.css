@@ -135,6 +135,23 @@ mark.cf-mark {
 .cf-sheet-head { padding: 4px 10px 2px; font-size: 12.5px; font-weight: 600; color: var(--text-3); }
 /* Remind brought into view by a section under it (a page that can't be watched): a short flash. */
 .cf-sheet-title.flash { border-radius: 10px; animation: cf-pin-flash 1.2s ease-out; }
+/* "All reminders" at the window's end: quiet. */
+.cf-sheet-link { display: block; width: 100%; margin-top: 4px; padding: 10px; font-size: 13px; color: var(--text-3); text-align: center; }
+.cf-sheet-link:hover { color: var(--accent); }
+/* "Reminders" (2.5): a row per bell or eye, ✕ to cancel; grey when it rings on another device. */
+.cf-later-row { display: flex; align-items: center; gap: 4px; border-radius: 10px; }
+.cf-later-row:hover { background: var(--bg-2); }
+.cf-later-open { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 9px 8px; text-align: left; color: var(--text); }
+.cf-later-icon { flex-shrink: 0; display: flex; color: var(--accent); }
+.cf-later-row.elsewhere .cf-later-icon { color: var(--text-3); }
+.cf-later-text { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.cf-later-title { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cf-later-status { font-size: 12.5px; color: var(--text-3); }
+.cf-later-cancel { flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%; color: var(--text-3); font-size: 14px; }
+.cf-later-cancel:hover { background: var(--bg-3); color: var(--danger); }
+.cf-later-empty { display: flex; flex-direction: column; gap: 4px; padding: 12px 10px 14px; font-size: 13px; color: var(--text-3); text-align: center; }
+.cf-later-empty strong { color: var(--text); font-size: 14px; }
+.cf[data-touch] .cf-later-title { font-size: 15px; }
 .cf-sheet-title { display: flex; align-items: center; gap: 7px; padding: 6px 8px 10px; font-size: 15px; font-weight: 600; }
 .cf-sheet-row { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 12px 10px; border-radius: 10px; font-size: 15px; color: var(--text); text-align: left; }
 .cf-sheet-row:hover { background: var(--bg-2); }

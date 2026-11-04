@@ -28,10 +28,9 @@ const NOTIFICATIONS = new Set(["granted", "denied", "not_asked"])
 // with **; "ux_pin" an answer or note pinned, unpinned (one or all), or the pinned bar tapped; "ux_delete" an
 // answer, note or chat deleted (by a swipe, the menu or the hover button) or brought back; "ux_remind" a reminder
 // set (which preset), cancelled, refused by the system, or its notification opened; on an answer, a note or a
-// page ("Come back later"); "ux_menu" the panel header's "…" opened, and which item was picked; "ux_later" the
-// "Reminders" list opened, with how many reminders and watches were in it (watching counts its own through the
-// analytics registry).
-const UX_KINDS = new Set(["ux_mark", "ux_pin", "ux_delete", "ux_remind", "ux_menu", "ux_later"])
+// page ("Come back later"). The header's "…", the "Come back later" window and "Reminders", and watching are
+// steps of the analytics registry's "use" kind (src/shared/usage.ts, PR #32): f "menu", "later", "watch".
+const UX_KINDS = new Set(["ux_mark", "ux_pin", "ux_delete", "ux_remind"])
 
 /**
  * POST /api/v2/event — anonymous funnel step between the App Store download and the first answer.
@@ -157,9 +156,7 @@ const UX_ACTIONS: Record<string, Set<string>> = {
   ux_mark: new Set(["added", "removed", "copied", "shared"]),
   ux_pin: new Set(["pinned", "unpinned", "unpinned_all", "bar_tap"]),
   ux_delete: new Set(["deleted", "undone"]),
-  ux_remind: new Set(["set", "cancelled", "denied", "opened"]),
-  ux_menu: new Set(["opened", "later", "settings"]),
-  ux_later: new Set(["opened"])
+  ux_remind: new Set(["set", "cancelled", "denied", "opened"])
 }
 const UX_WHAT = new Set(["answer", "note", "chat", "page"])
 const UX_HOW = new Set(["swipe", "menu", "hover", "list", "bar", "later"])
@@ -171,18 +168,11 @@ function uxFields(kind: string, body: Record<string, unknown>): Record<string, u
     const value = clip(body[key], 12)
     return allowed.has(value) ? { [key]: value } : {}
   }
-  // A count (items in the list): a whole number up to 10 000 (the app sends its fields as strings).
-  const count = (key: string) => {
-    const raw = body[key]
-    const value = typeof raw === "string" && /^\d{1,5}$/.test(raw) ? Number(raw) : raw
-    return typeof value === "number" && Number.isInteger(value) && value >= 0 && value <= 10_000 ? { [key]: value } : {}
-  }
   return {
     ...pick("action", UX_ACTIONS[kind]),
     ...pick("what", UX_WHAT),
     ...pick("how", UX_HOW),
     ...(kind === "ux_remind" ? pick("preset", UX_PRESET) : {}),
-    ...(kind === "ux_later" ? { ...count("n_remind"), ...count("n_watch") } : {}),
     ...(body.surface === "app" || body.surface === "panel" ? { surface: body.surface } : {})
   }
 }
