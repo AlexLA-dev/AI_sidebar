@@ -4,7 +4,7 @@
 
 import { cloneElement, isValidElement, type ComponentChildren, type VNode } from "preact"
 
-import { placeMarks, type Mark } from "../../shared/marks"
+import { markPieces, placeMarks, type Mark } from "../../shared/marks"
 
 type Child = ComponentChildren
 
@@ -33,14 +33,12 @@ export function withMarks(children: Child, marks: Mark[] | undefined): Child {
       at += text.length
       const parts: Child[] = []
       let cut = 0
-      placed.forEach((m, i) => {
-        const s = Math.max(m.s, from) - from
-        const e = Math.min(m.e, at) - from
-        if (e <= s) return
+      for (const { i, s, e, first, last } of markPieces(placed, from, at)) {
         if (s > cut) parts.push(text.slice(cut, s))
-        parts.push(<mark class="cf-mark" data-mark={i} key={`m${from}-${i}`}>{text.slice(s, e)}</mark>)
+        const edges = `${first ? " cf-mark-first" : ""}${last ? " cf-mark-last" : ""}`
+        parts.push(<mark class={`cf-mark${edges}`} data-mark={i} key={`m${from}-${i}`}>{text.slice(s, e)}</mark>)
         cut = e
-      })
+      }
       if (!parts.length) return text
       if (cut < text.length) parts.push(text.slice(cut))
       return parts

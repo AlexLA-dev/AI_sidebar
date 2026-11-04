@@ -30,6 +30,25 @@ export function addMark(marks: Mark[] | undefined, s: number, e: number, text: s
   return [...kept, merged].sort((a, b) => a.s - b.s).slice(0, MAX_MARKS)
 }
 
+/**
+ * The pieces of the highlights `placed` (placeMarks) in one text node holding the answer's text from `from` to `to`:
+ * where each piece starts and ends in the node, and whether its highlight starts (`first`) or ends (`last`) there.
+ * A highlight across bold text or a link is several pieces side by side; only its outer ends are rounded, and the
+ * pieces don't overlap (2.5 (75): overlapping pieces showed darker yellow stripes where they met).
+ */
+export function markPieces(placed: Mark[], from: number, to: number): Array<{ i: number; s: number; e: number; first: boolean; last: boolean }> {
+  const out: Array<{ i: number; s: number; e: number; first: boolean; last: boolean }> = []
+  let cut = 0
+  placed.forEach((m, i) => {
+    const s = Math.max(m.s, from, from + cut) - from
+    const e = Math.min(m.e, to) - from
+    if (e <= s) return
+    out.push({ i, s, e, first: m.s >= from, last: m.e <= to })
+    cut = e
+  })
+  return out
+}
+
 export function removeMark(marks: Mark[] | undefined, index: number): Mark[] {
   return (marks ?? []).filter((_, i) => i !== index)
 }

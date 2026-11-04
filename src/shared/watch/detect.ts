@@ -6,11 +6,40 @@ export type WatchWhat = "price" | "stock" | "date" | "status"
 
 const MAX_LEN = 80
 
-// Symbols and codes that sit right by a number.
-const CURRENCY =
-  String.raw`(?:US\$|R\$|C\$|A\$|HK\$|NZ\$|[$€£¥₩₽₴₹₺₪฿₫]|zł|Kč|CHF|EUR|USD|GBP|JPY|KRW|CNY|RMB|RUB|UAH|BRL|PLN|SEK|NOK|DKK|CAD|AUD|INR|TRY|руб\.?|р\.|грн\.?|円|元|원)`
+// Symbols and words that sit right by a number, in any case ("40 usd" on some shops).
+const SYMBOLS =
+  String.raw`US\$|R\$|C\$|A\$|HK\$|NZ\$|S\$|NT\$|MX\$|[$€£¥₩₽₴₹₺₪฿₫₸₾₼₱]|zł|Kč|kr\.?|lei|лв\.?|руб\.?|р\.|грн\.?|円|元|원`
+// The codes shops also write in small letters, which are never words.
+const SMALL_CODES = "usd|eur|gbp|chf|jpy|cny|rmb|rub|uah|pln|sek|nok|dkk|czk|huf|brl|inr|krw|aud|cad|nzd|sgd|hkd|mxn"
+// ISO 4217 codes, in capitals only: in small letters some are words ("try 3", "mad 10"); ALL, CUP, SOS and TOP
+// stay out ("TOP 10", "ALL 40 ITEMS" in headlines).
+const CODES = [
+  "AED", "AFN", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN", "BAM", "BBD", "BDT", "BGN", "BHD", "BIF", "BMD",
+  "BND", "BOB", "BRL", "BSD", "BTN", "BWP", "BYN", "BZD", "CAD", "CDF", "CHF", "CLP", "CNY", "COP", "CRC", "CVE",
+  "CZK", "DJF", "DKK", "DOP", "DZD", "EGP", "ERN", "ETB", "EUR", "FJD", "FKP", "GBP", "GEL", "GHS", "GIP", "GMD", "GNF",
+  "GTQ", "GYD", "HKD", "HNL", "HTG", "HUF", "IDR", "ILS", "INR", "IQD", "IRR", "ISK", "JMD", "JOD", "JPY", "KES", "KGS",
+  "KHR", "KMF", "KPW", "KRW", "KWD", "KYD", "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LYD", "MAD", "MDL", "MGA", "MKD",
+  "MMK", "MNT", "MOP", "MRU", "MUR", "MVR", "MWK", "MXN", "MYR", "MZN", "NAD", "NGN", "NIO", "NOK", "NPR", "NZD", "OMR",
+  "PAB", "PEN", "PGK", "PHP", "PKR", "PLN", "PYG", "QAR", "RMB", "RON", "RSD", "RUB", "RWF", "SAR", "SBD", "SCR", "SDG",
+  "SEK", "SGD", "SHP", "SLE", "SRD", "SSP", "STN", "SYP", "SZL", "THB", "TJS", "TMT", "TND", "TRY", "TTD",
+  "TWD", "TZS", "UAH", "UGX", "USD", "UYU", "UZS", "VES", "VND", "VUV", "WST", "XAF", "XCD", "XOF", "XPF", "YER", "ZAR",
+  "ZMW", "ZWL"
+].join("|")
 const NUMBER = String.raw`\d{1,3}(?:[ \u00a0\u202f.,']\d{3})+(?:[.,]\d{1,2})?|\d+(?:[.,]\d{1,2})?`
-const PRICE = new RegExp(String.raw`(?:${CURRENCY}\s?(?:${NUMBER}))|(?:(?:${NUMBER})\s?${CURRENCY})`, "iu")
+// A price is a number with a currency right before or after it ("USD 40", "40 EUR", "CHF 12.–"), not inside a word.
+const priceSource = (cur: string) =>
+  String.raw`(?:(?<![\p{L}])(?:${cur})\s?(?:${NUMBER})(?:\.[-–—])?)|(?:(?:${NUMBER})(?:\.[-–—])?\s?(?:${cur})(?![\p{L}]))`
+// Two patterns: symbols and small-letter codes in any case, ISO codes in capitals only (no inline case flags: older
+// Safari lacks them).
+const PRICE_ANY = new RegExp(priceSource(`${SYMBOLS}|${SMALL_CODES}`), "iu")
+const PRICE_CODE = new RegExp(priceSource(CODES), "u")
+const PRICE = { test: (s: string) => PRICE_ANY.test(s) || PRICE_CODE.test(s) }
+
+/** Every price in a text, in order (both patterns). */
+function prices(text: string): string[] {
+  const found = [...text.matchAll(new RegExp(PRICE_ANY.source, "giu")), ...text.matchAll(new RegExp(PRICE_CODE.source, "gu"))]
+  return found.sort((a, b) => (a.index ?? 0) - (b.index ?? 0)).map((m) => m[0].trim())
+}
 
 // Stock: phrases a shop shows by its buy button. Lower case; "#" stands for a number ("only 3 left").
 const STOCK_WORDS = [
@@ -188,15 +217,17 @@ export function isOutOfStock(value: string): boolean {
   return STOCK_OUT.test(value.replace(/([a-z])([A-Z])/g, "$1 $2")) || /OutOfStock|SoldOut|Discontinued/i.test(value)
 }
 
-const patternOf = (what: WatchWhat) => (what === "price" ? PRICE : what === "stock" ? STOCK : what === "date" ? DATE : STATUS)
+const patternOf = (what: Exclude<WatchWhat, "price">) => (what === "stock" ? STOCK : what === "date" ? DATE : STATUS)
 
 /** The first value of that kind in a piece of text: the price, the stock phrase, the date. */
 export function firstValue(what: WatchWhat, text: string): string | null {
+  if (what === "price") return prices(text)[0] ?? null
   return patternOf(what).exec(text)?.[0]?.trim() ?? null
 }
 
 /** The last value of that kind in a piece of text. */
 export function lastValue(what: WatchWhat, text: string): string | null {
+  if (what === "price") return prices(text).at(-1) ?? null
   const all = [...text.matchAll(new RegExp(patternOf(what).source, "giu"))]
   return all.length ? all[all.length - 1][0].trim() : null
 }
@@ -288,9 +319,23 @@ const STATUS_CONTEXT = phrases([
  * paragraph or row. Null keeps the bubble as it is.
  */
 export function eyeFor(selection: string, around: string, eventMarkup = false): WatchWhat | null {
-  const what = detectWatchable(selection)
+  const what = detectWatchable(selection) ?? (priceAround(selection, around) ? "price" : null)
   const near = `${selection} ${around}`.replace(/\s+/g, " ")
   if (what === "date") return eventMarkup || EVENT_WORDS.test(near) ? "date" : null
   if (what === "status") return STATUS_CONTEXT.test(near) ? "status" : null
   return what
+}
+
+/**
+ * A bare number selected next to its currency: a tap on "40" in "USD 40" or "40 EUR" selects only the number (the
+ * code is a word of its own; "$40" comes whole). The price as the page writes it, from the selection's paragraph or
+ * row; null when the number has no currency right by it.
+ */
+export function priceAround(selection: string, around: string): string | null {
+  const sel = selection.replace(/\s+/g, " ").trim()
+  if (!/^\d[\d \u00a0\u202f.,']*$/.test(sel) || sel.length > 20) return null
+  const text = around.replace(/\s+/g, " ")
+  const digits = sel.replace(/\D/g, "")
+  for (const price of prices(text)) if (price.replace(/\D/g, "") === digits && price.includes(sel)) return price
+  return null
 }

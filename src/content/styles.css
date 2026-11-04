@@ -152,7 +152,9 @@
 /* iPhone / iPad: bigger tap targets, primary action filled; 16px text so Safari doesn't zoom into the field. */
 .cf-bubble.touch { gap: 5px; padding: 5px; border-radius: 16px; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 /* Wide enough for the field: the buttons above share the width. */
-.cf-bubble.touch { min-width: min(330px, calc(100vw - 16px)); }
+.cf-bubble.touch { min-width: min(330px, calc(100vw - 16px)); max-width: calc(100vw - 16px); }
+.cf-bubble.touch .cf-bubble-row { min-width: 0; overflow: hidden; }
+.cf-bubble.tight .cf-sel-template .cf-sel-l { display: none; }
 .cf-bubble.touch .cf-bubble-row { gap: 4px; }
 .cf-bubble.touch .cf-bubble-row button { flex: 1 1 auto; justify-content: center; }
 .cf-bubble.touch button { min-height: 36px; padding: 7px 12px; border-radius: 11px; font-size: 14.5px; font-weight: 600; color: var(--text); }

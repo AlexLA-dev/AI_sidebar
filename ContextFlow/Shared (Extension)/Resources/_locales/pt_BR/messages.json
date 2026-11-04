@@ -212,6 +212,9 @@
  "uxMoreNote": {
   "message": "Mais: nota"
  },
+ "uxMoreChat": {
+  "message": "Mais: conversa"
+ },
  "uxLater": {
   "message": "Voltar mais tarde…"
  },
@@ -244,6 +247,9 @@
  },
  "uxRemindChange": {
   "message": "Mudar lembrete"
+ },
+ "uxRemindOpen": {
+  "message": "Abrir"
  },
  "uxRemindTitle": {
   "message": "Quando devo lembrar você?"
@@ -1340,6 +1346,18 @@
  "watchStart": {
   "message": "Acompanhar"
  },
+ "watchSave": {
+  "message": "Salvar"
+ },
+ "watchTipEye": {
+  "message": "O olho: vou verificar esse valor e aviso quando ele mudar. Toque para configurar."
+ },
+ "watchTipBell": {
+  "message": "O sino: lembro você de voltar a esta página na hora que escolher."
+ },
+ "watchTipWatch": {
+  "message": "O olho: aviso quando algo mudar aqui: um preço, o estoque, um status."
+ },
  "watchChecking": {
   "message": "Olhando a página…"
  },
@@ -1375,6 +1393,9 @@
  },
  "watchRowNew": {
   "message": "Acompanhando: {0}"
+ },
+ "watchRowNow": {
+  "message": "agora {0}"
  },
  "watchRowLive": {
   "message": "Acompanhando: {0} · verifico quando você abrir a página"

@@ -38,6 +38,8 @@ struct WatchSource: LaterSource {
         relative.unitsStyle = .short
         return WatchStore.entries().map { w in
             let label = w.label.isEmpty ? w.title : w.label
+            // While watching: what it waits for and the value now (the owner, build 75: "what price did I set?").
+            let waits = (w.line?.isEmpty == false ? w.line : nil) ?? label
             let status: String
             if let met = w.metAt {
                 let when = relative.localizedString(for: Date(timeIntervalSince1970: met / 1000), relativeTo: Date())
@@ -47,12 +49,12 @@ struct WatchSource: LaterSource {
                     status = String(localized: "Changed: \(label) · \(when)")
                 }
             } else if w.mode == "live" {
-                status = String(localized: "Watching: \(label) · I'll check when you open the page")
+                status = String(localized: "Watching: \(waits) · I'll check when you open the page")
             } else if w.checkedAt > 0 {
                 let when = relative.localizedString(for: Date(timeIntervalSince1970: w.checkedAt / 1000), relativeTo: Date())
-                status = String(localized: "Watching: \(label) · checked \(when)")
+                status = String(localized: "Watching: \(waits) · checked \(when)")
             } else {
-                status = String(localized: "Watching: \(label)")
+                status = String(localized: "Watching: \(waits)")
             }
             return LaterItem(id: "watch:\(w.id)", kind: .watch, title: w.title.isEmpty ? label : w.title, url: URL(string: w.url),
                              status: status, sortAt: Date(timeIntervalSince1970: (w.metAt ?? w.checkedAt) / 1000))

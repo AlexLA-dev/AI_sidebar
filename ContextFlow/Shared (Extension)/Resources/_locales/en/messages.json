@@ -212,6 +212,9 @@
  "uxMoreNote": {
   "message": "More: note"
  },
+ "uxMoreChat": {
+  "message": "More: chat"
+ },
  "uxLater": {
   "message": "Come back later…"
  },
@@ -244,6 +247,9 @@
  },
  "uxRemindChange": {
   "message": "Change reminder"
+ },
+ "uxRemindOpen": {
+  "message": "Open"
  },
  "uxRemindTitle": {
   "message": "When should I remind you?"
@@ -1340,6 +1346,18 @@
  "watchStart": {
   "message": "Watch"
  },
+ "watchSave": {
+  "message": "Save"
+ },
+ "watchTipEye": {
+  "message": "The eye: I'll keep checking this and tell you when it changes. Tap it to set it up."
+ },
+ "watchTipBell": {
+  "message": "The bell: I'll bring you back to this page at a time you pick."
+ },
+ "watchTipWatch": {
+  "message": "The eye: I'll tell you when something here changes: a price, stock, a status."
+ },
  "watchChecking": {
   "message": "Looking at the page…"
  },
@@ -1375,6 +1393,9 @@
  },
  "watchRowNew": {
   "message": "Watching: {0}"
+ },
+ "watchRowNow": {
+  "message": "now {0}"
  },
  "watchRowLive": {
   "message": "Watching: {0} · I'll check when you open the page"

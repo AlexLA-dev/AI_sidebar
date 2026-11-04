@@ -172,8 +172,9 @@ struct RemindersView: View {
                 .frame(width: 22)
             VStack(alignment: .leading, spacing: 2) {
                 Text(item.title).lineLimit(1)
-                // Two lines: "Today 15:41 · on another device" doesn't fit one at 375 pt in every language.
-                Text(item.status).font(.subheadline).foregroundColor(.secondary).lineLimit(2)
+                // All of it, wrapped (2.5 (75)): a watch's status can be long, and "Today 15:41 · on another device"
+                // doesn't fit one line at 375 pt in every language.
+                Text(item.status).font(.subheadline).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
             }
             Spacer(minLength: 0)
         }

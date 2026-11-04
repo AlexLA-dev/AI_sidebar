@@ -13,6 +13,8 @@
 //                                                              subscription is added on the server side)
 //   PREVIEW_CLAUDE=credits|overloaded|refusal|off …            (answers come from a scripted Claude; these make
 //                                                              it fail that way, so OpenAI answers; off: no key)
+//   FIRST_WORD_DELAY_MS=4000 …                                 (an answer's first word comes that late: time to
+//                                                              stop the question before any of its answer)
 
 import { createServer } from "node:http"
 import { readFileSync } from "node:fs"
@@ -58,6 +60,8 @@ const rpc: Record<string, (a: any) => unknown> = {
 
 // Delay between streamed words; the App Store preview video slows it down to a readable pace.
 const STREAM_DELAY_MS = Number(process.env.STREAM_DELAY_MS ?? 8)
+// Before an answer's first word (0 by default): time to stop a question before any of its answer comes.
+const FIRST_WORD_DELAY_MS = Number(process.env.FIRST_WORD_DELAY_MS ?? 0)
 
 const answers: [RegExp, string][] = JSON.parse(readFileSync(new URL("./answers.json", import.meta.url), "utf8")).map(
   ([re, text]: [string, string]) => [new RegExp(re, "i"), text]
@@ -261,6 +265,7 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
       async start(c) {
         const enc = new TextEncoder()
         c.enqueue(enc.encode(ev("message_start", { message: { id: "msg_local", type: "message", role: "assistant", model: body.model, content: [], stop_reason: null, stop_sequence: null, usage: { input_tokens: 900, output_tokens: 1 } } })))
+        if (FIRST_WORD_DELAY_MS) await new Promise((r) => setTimeout(r, FIRST_WORD_DELAY_MS))
         if (words.length) c.enqueue(enc.encode(ev("content_block_start", { index: 0, content_block: { type: "text", text: "" } })))
         for (const w of words) {
           c.enqueue(enc.encode(ev("content_block_delta", { index: 0, delta: { type: "text_delta", text: w } })))
@@ -281,6 +286,7 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     const stream = new ReadableStream({
       async start(c) {
         const enc = new TextEncoder()
+        if (FIRST_WORD_DELAY_MS) await new Promise((r) => setTimeout(r, FIRST_WORD_DELAY_MS))
         for (const w of words) {
           c.enqueue(enc.encode(`data: ${JSON.stringify({ choices: [{ delta: { content: w } }] })}\n\n`))
           await new Promise((r) => setTimeout(r, STREAM_DELAY_MS))
@@ -410,7 +416,7 @@ createServer(async (req, res) => {
   // The audit's pages (2.5): fields whose site keeps its own buttons inside them (a search like Amazon's, a
   // comment's Send), and a news story with a publication date, a "shipped" in its text and an event's date.
   // ?sel=<id> selects that element, as a finger would.
-  if (url.pathname === "/fields" || url.pathname === "/news") {
+  if (url.pathname === "/fields" || url.pathname === "/news" || url.pathname === "/prices") {
     const sel = `<script>const id = new URLSearchParams(location.search).get("sel"); if (id) setTimeout(() => getSelection().selectAllChildren(document.getElementById(id)), 600)</script>`
     const fields = `<h1>Fields</h1>
 <form role="search" style="position:relative;margin:24px 0"><input id="search" name="q" placeholder="Search" style="width:100%;box-sizing:border-box;height:44px;font-size:17px;padding:0 56px 0 12px">
@@ -425,9 +431,18 @@ createServer(async (req, res) => {
 <p>The company <span id="shipped">shipped</span> its first phone in 2007 and the line still sells for <span id="price">$1,299</span>.</p>
 <p>Tickets go on sale <span id="sale">12 December</span> at 10:00 for the anniversary event.</p>
 <p>Order #4471 · <span id="status">Shipped</span></p>`
+    // Prices with a code instead of a symbol (the owner, build 75); "n1" is the number alone, as a tap selects it.
+    const prices = `<h1>Prices</h1>
+<p>Monthly plan. Price: USD <span id="n1">40</span> per month, billed yearly.</p>
+<p id="eur">40 EUR</p>
+<p id="rub">1 299 RUB</p>
+<p id="chf">CHF 12.50</p>
+<p>A paragraph to select for the bubble's place: the four-day week kept revenue flat in most trials while cutting burnout, and the teams that cut meetings first gained the most. <span id="long">Most teams halved their recurring meetings and kept them under thirty minutes.</span></p>`
+    const page = url.pathname === "/fields" ? fields : url.pathname === "/news" ? news : prices
+    const name = url.pathname === "/fields" ? "Fields" : url.pathname === "/news" ? "News" : "Prices"
     res.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" })
-    res.end(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${url.pathname === "/fields" ? "Fields" : "News"} · Test</title>
-<style>body{font:18px -apple-system,sans-serif;margin:24px 16px;line-height:1.5}</style></head><body>${url.pathname === "/fields" ? fields : news}${sel}</body></html>`)
+    res.end(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${name} · Test</title>
+<style>body{font:18px -apple-system,sans-serif;margin:24px 16px;line-height:1.5}</style></head><body>${page}${sel}</body></html>`)
     return
   }
   if (url.pathname === "/shop-js") {

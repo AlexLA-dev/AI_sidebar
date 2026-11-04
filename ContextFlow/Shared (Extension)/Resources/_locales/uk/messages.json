@@ -212,6 +212,9 @@
  "uxMoreNote": {
   "message": "Ще: нотатка"
  },
+ "uxMoreChat": {
+  "message": "Ще: чат"
+ },
  "uxLater": {
   "message": "Повернутися пізніше…"
  },
@@ -244,6 +247,9 @@
  },
  "uxRemindChange": {
   "message": "Змінити нагадування"
+ },
+ "uxRemindOpen": {
+  "message": "Відкрити"
  },
  "uxRemindTitle": {
   "message": "Коли нагадати?"
@@ -1340,6 +1346,18 @@
  "watchStart": {
   "message": "Стежити"
  },
+ "watchSave": {
+  "message": "Зберегти"
+ },
+ "watchTipEye": {
+  "message": "Око: перевірятиму це значення й повідомлю, коли воно зміниться. Натисніть, щоб налаштувати."
+ },
+ "watchTipBell": {
+  "message": "Дзвіночок: нагадаю повернутися до сторінки у вибраний час."
+ },
+ "watchTipWatch": {
+  "message": "Око: повідомлю, коли тут щось зміниться: ціна, наявність, статус."
+ },
  "watchChecking": {
   "message": "Дивлюся сторінку…"
  },
@@ -1375,6 +1393,9 @@
  },
  "watchRowNew": {
   "message": "Стежу: {0}"
+ },
+ "watchRowNow": {
+  "message": "зараз {0}"
  },
  "watchRowLive": {
   "message": "Стежу: {0} · перевірю, коли відкриєте сторінку"

@@ -38,12 +38,20 @@ export interface LaterItem {
   status: string // ready to show, in the user's language: "Tomorrow 9:00" / "Watching: size 42 · checked an hour ago"
   sortAt: number // a reminder: when it rings; a watch: its last check
   here?: boolean // a reminder: it rings on this device
+  // A reminder (2.5 (75)): when it rings, what it's about (a note's text, an answer's start) and the question
+  // answered; shown in full when its row is opened, where the time can be changed.
+  at?: number
+  text?: string
+  question?: string
 }
 
 /** Rows for a "Reminders" list in the panel (watching's): listed, and stopped from the list. */
 export interface LaterSource {
   items(): Promise<LaterItem[]>
   cancel(id: string): Promise<void>
+  // Opens a row itself (watching's own window for a watch): true when it did, and the list does nothing more.
+  // `done`: the row changed there (new words, stopped), the list reads its rows again.
+  open?(item: LaterItem, done?: () => void): boolean
 }
 
 type Section = (ctx: LaterContext) => VNode | null
