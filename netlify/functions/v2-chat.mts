@@ -8,7 +8,7 @@ import { answerCost, clientBuild, startAnswer, type Answer } from "../shared/ans
 import { sanitizeMessages, sanitizeOtherPages, sanitizePage, systemPrompt } from "../shared/llm.mts"
 import { geminiModels } from "../shared/models.mts"
 import { pageForModel } from "../../src/shared/attachments.ts"
-import { MAX_APP_OTHER_PAGES, MAX_OTHER_PAGES } from "../../src/shared/prompt.ts"
+import { hasMarks, MAX_APP_OTHER_PAGES, MAX_OTHER_PAGES } from "../../src/shared/prompt.ts"
 import { historyPrompt, MAX_HISTORY_CHARS, MAX_HISTORY_CHATS, sanitizeDigests } from "../../src/shared/history.ts"
 import { blockReason, countersFor, proOffer, resolveAccess, searchCountersFor, visibleUsage } from "../shared/plan.mts"
 import { chatSize, digestCut, limitsHit } from "../shared/limits.mts"
@@ -87,8 +87,8 @@ export default async (req: Request, context: Context): Promise<Response> => {
   let completion: { model: string; body: ReadableStream<Uint8Array> } | null = null
   let answer: Answer | null = null
   try {
-    if (google) completion = await startGoogle(googlePrompt(page, profile, locale, others), messages, await geminiModels(), req.signal)
-    else answer = await startAnswer(history ? historyPrompt(chats, profile, locale) : systemPrompt(page, profile, locale, others, fromApp), messages, access.plan === "pro" ? "pro" : "free", build, req.signal)
+    if (google) completion = await startGoogle(googlePrompt(page, profile, locale, others, hasMarks(messages)), messages, await geminiModels(), req.signal)
+    else answer = await startAnswer(history ? historyPrompt(chats, profile, locale) : systemPrompt(page, profile, locale, others, fromApp, hasMarks(messages)), messages, access.plan === "pro" ? "pro" : "free", build, req.signal)
   } catch (err) {
     console.error("[cf] upstream failed:", err instanceof Error ? err.message : err)
     context.waitUntil(Promise.all([
