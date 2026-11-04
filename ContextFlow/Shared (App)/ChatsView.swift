@@ -89,9 +89,9 @@ struct ChatsView: View {
             if value.isEmpty { found = nil }
         }
         .toolbar {
-            // "Reminders" (2.5): the bells and what's watched, together.
+            // "Reminders" (2.5): the bells and what's watched, together, so a neutral list (the bell is Remind's).
             ToolbarItem(placement: .navigation) {
-                Button { showingReminders = true } label: { Image(systemName: "bell") }
+                Button { showingReminders = true } label: { Image(systemName: "list.bullet") }
                     .accessibilityLabel(Text("Reminders"))
             }
             ToolbarItem {

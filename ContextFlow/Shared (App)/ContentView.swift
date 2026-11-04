@@ -1150,6 +1150,9 @@ final class ExtensionSettings: ObservableObject {
     @Published var ownKeyModel = "smart" { didSet { save() } }
     @Published var hiddenSites: [String] = [] { didSet { save() } }
     @Published var syncChats = true { didSet { save() } }
+    /// Quick insert (2.5): the button by text fields (iPhone and iPad) and keeping copied text; both on by default.
+    @Published var insertButton = true { didSet { save() } }
+    @Published var keepCopied = true { didSet { save() } }
     /// Suggestions (2.5, Pro): a better chat for a block, one of the user's tags. Off until turned on (the consent).
     @Published var organize = false { didSet { save() } }
 
@@ -1185,6 +1188,8 @@ final class ExtensionSettings: ObservableObject {
         ownKeyModel = stored["ownKeyModel"] as? String ?? "smart"
         hiddenSites = stored["fabHiddenSites"] as? [String] ?? []
         syncChats = stored["syncChats"] as? Bool ?? true
+        insertButton = stored["insertButton"] as? Bool ?? true
+        keepCopied = stored["keepCopied"] as? Bool ?? true
         organize = stored["organize"] as? Bool ?? false
     }
 
@@ -1199,6 +1204,8 @@ final class ExtensionSettings: ObservableObject {
         stored["fabHiddenSites"] = hiddenSites
         let syncChanged = (stored["syncChats"] as? Bool ?? true) != syncChats
         stored["syncChats"] = syncChats
+        stored["insertButton"] = insertButton
+        stored["keepCopied"] = keepCopied
         stored["organize"] = organize
         SharedDefaults.shared.writeSettings(stored, updatedAt: Date().timeIntervalSince1970 * 1000)
         if syncChanged { ChatLibrary.shared.refresh() }
@@ -1245,7 +1252,10 @@ struct SettingsView: View {
                 }
             }
 
-            Section(header: Text("On web pages")) {
+            Section(
+                header: Text("On web pages"),
+                footer: Text("The last 5 pieces of text copied on pages. They stay on this device and are erased after 24 hours. Nothing from password or card fields, or in Private Browsing.")
+            ) {
                 Toggle("Floating ✦ button", isOn: $settings.floatingButton)
                 Toggle("Button when selecting text", isOn: $settings.selectionButton)
                 if !settings.hiddenSites.isEmpty {
@@ -1253,6 +1263,11 @@ struct SettingsView: View {
                         settings.hiddenSites = []
                     }
                 }
+                // Quick insert's settings (2.5 rules): the button shows by fields on touch screens only, as in the panel.
+                #if os(iOS)
+                Toggle("Button by text fields", isOn: $settings.insertButton)
+                #endif
+                Toggle("Keep copied text", isOn: $settings.keepCopied)
             }
 
             Section(
