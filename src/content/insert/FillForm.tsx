@@ -77,7 +77,16 @@ export function FillForm(p: Props): VNode {
     }
   }
 
+  // A blank left empty went in as nothing ("Hi , thanks…"): the first one lights up and takes the caret instead.
+  // Pressing Insert again with it still empty puts the text in as it is (some blanks are meant to stay empty).
+  const [missing, setMissing] = useState<string | null>(null)
   const insert = () => {
+    const empty = labels.find((l) => !values[l]?.trim())
+    if (empty && missing !== empty) {
+      setMissing(empty)
+      inputs.current[empty]?.focus({ preventScroll: true })
+      return
+    }
     const text = fillBlanks(p.template.text, values)
     p.onInsert(text, byAi.size > 0 ? "ai" : Object.values(values).some((v) => v.trim()) ? "manual" : "none", labels.length)
   }
@@ -154,7 +163,7 @@ export function FillForm(p: Props): VNode {
             ) : (
               <input
                 ref={(el) => { inputs.current[part.blank] = el }}
-                class={`cf-qi-blank ${byAi.has(part.blank) && values[part.blank] ? "filled" : ""}`}
+                class={`cf-qi-blank ${byAi.has(part.blank) && values[part.blank] ? "filled" : ""} ${missing === part.blank && !values[part.blank]?.trim() ? "missing" : ""}`}
                 value={values[part.blank] ?? ""}
                 placeholder={part.blank}
                 aria-label={part.blank}
