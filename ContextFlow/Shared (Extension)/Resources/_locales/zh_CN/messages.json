@@ -959,6 +959,9 @@
  "qiOnDevice": {
   "message": "设备"
  },
+ "qiHideButtonOnSite": {
+  "message": "在 {0} 上隐藏按钮"
+ },
  "qiDontKeepOnSite": {
   "message": "在 {0} 不保留"
  },

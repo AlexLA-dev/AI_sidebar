@@ -959,6 +959,9 @@
  "qiOnDevice": {
   "message": "устройстве"
  },
+ "qiHideButtonOnSite": {
+  "message": "Скрыть кнопку на {0}"
+ },
  "qiDontKeepOnSite": {
   "message": "Не сохранять на {0}"
  },
@@ -1026,7 +1029,7 @@
   "message": "Скопированное для «{0}»"
  },
  "qiAdapt": {
-  "message": "Подстроить под письмо"
+  "message": "Подстроить под сообщение"
  },
  "qiAdaptLabel": {
   "message": "Подстроить шаблон под эту страницу"

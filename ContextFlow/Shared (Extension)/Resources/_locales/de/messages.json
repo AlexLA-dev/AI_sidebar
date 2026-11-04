@@ -959,6 +959,9 @@
  "qiOnDevice": {
   "message": "Gerät"
  },
+ "qiHideButtonOnSite": {
+  "message": "Taste auf {0} ausblenden"
+ },
  "qiDontKeepOnSite": {
   "message": "Auf {0} nicht behalten"
  },
@@ -1077,7 +1080,7 @@
   "message": "Suchwörter, durch Kommas getrennt"
  },
  "qiSave": {
-  "message": "Sichern"
+  "message": "Speichern"
  },
  "qiDelete": {
   "message": "Löschen"
@@ -1320,7 +1323,7 @@
   "message": "wenn auf der Seite etwas Neues steht"
  },
  "watchHonest": {
-  "message": "Ich prüfe, solange Sie Safari nutzen"
+  "message": "Ich prüfe, solange du Safari nutzt"
  },
  "watchStart": {
   "message": "Beobachten"
@@ -1332,10 +1335,10 @@
   "message": "Ich behalte es im Blick und melde mich bei einer Änderung."
  },
  "watchSetLive": {
-  "message": "Ich behalte es im Blick. Diese Seite zeigt es nur, wenn Sie sie öffnen – dann prüfe ich."
+  "message": "Ich behalte es im Blick. Diese Seite zeigt es nur, wenn du sie öffnest – dann prüfe ich."
  },
  "watchUnreadable": {
-  "message": "Diese Seite lässt sich nicht im Hintergrund prüfen. Ich kann prüfen, wenn Sie sie öffnen, oder Sie erinnern, nachzusehen."
+  "message": "Diese Seite lässt sich nicht im Hintergrund prüfen. Ich kann prüfen, wenn du sie öffnest, oder dich erinnern, nachzusehen."
  },
  "watchRemindInstead": {
   "message": "Ans Nachsehen erinnern"
@@ -1344,22 +1347,22 @@
   "message": "Prüfen, wenn ich sie öffne"
  },
  "watchFull": {
-  "message": "Sie beobachten schon {0} Seiten. Beenden Sie zuerst eine unter „Erinnerungen“."
+  "message": "Du beobachtest schon {0} Seiten. Beende zuerst eine unter „Erinnerungen“."
  },
  "watchFullFree": {
-  "message": "Kostenlos beobachten Sie bis zu {0} Seiten gleichzeitig. Mit Pro bis zu {1}."
+  "message": "Kostenlos beobachtest du bis zu {0} Seiten gleichzeitig. Mit Pro bis zu {1}."
  },
  "watchMore": {
   "message": "Mehr mit Pro"
  },
  "watchFailed": {
-  "message": "Das hat nicht geklappt. Versuchen Sie es gleich noch einmal."
+  "message": "Das hat nicht geklappt. Versuch es gleich noch einmal."
  },
  "watchNotifyOff": {
-  "message": "Mitteilungen für ContextFlow sind aus. Schalten Sie sie in den Einstellungen ein, um von der Änderung zu erfahren."
+  "message": "Mitteilungen für ContextFlow sind aus. Schalte sie in den Einstellungen ein, um von der Änderung zu erfahren."
  },
  "watchNotifyAsk": {
-  "message": "Öffnen Sie die ContextFlow-App: Sie fragt, ob sie Mitteilungen senden darf – dann melde ich die Änderung."
+  "message": "Öffne die ContextFlow-App: sie fragt, ob sie Mitteilungen senden darf – dann melde ich die Änderung."
  },
  "watchRow": {
   "message": "Beobachte: {0} · geprüft {1}"
@@ -1368,7 +1371,7 @@
   "message": "Beobachte: {0}"
  },
  "watchRowLive": {
-  "message": "Beobachte: {0} · ich prüfe, wenn Sie die Seite öffnen"
+  "message": "Beobachte: {0} · ich prüfe, wenn du die Seite öffnest"
  },
  "watchRowMet": {
   "message": "Geändert: {0} · {1}"

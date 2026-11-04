@@ -959,6 +959,9 @@
  "qiOnDevice": {
   "message": "device"
  },
+ "qiHideButtonOnSite": {
+  "message": "Hide the button on {0}"
+ },
  "qiDontKeepOnSite": {
   "message": "Don't keep on {0}"
  },

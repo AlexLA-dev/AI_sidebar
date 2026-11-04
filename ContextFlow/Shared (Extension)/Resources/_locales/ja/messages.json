@@ -959,6 +959,9 @@
  "qiOnDevice": {
   "message": "デバイス"
  },
+ "qiHideButtonOnSite": {
+  "message": "{0} ではボタンを隠す"
+ },
  "qiDontKeepOnSite": {
   "message": "{0}では保存しない"
  },
