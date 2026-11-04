@@ -576,10 +576,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         setPicked(null)
         return
       }
-      // Escape in a chat's name field only cancels the renaming; in the chat search, it clears the search. The
-      // focused field from the panel's own root: with the root closed, the window sees only its host.
-      const root = panelRef.current?.getRootNode()
-      const field = (root instanceof ShadowRoot ? root.activeElement : e.composedPath()[0]) as HTMLInputElement | null | undefined
+      // Escape in a chat's name field only cancels the renaming; in the chat search, it clears the search. (The
+      // focused field from our root: from the window, a closed root shows only its host.)
+      const field = (panelRef.current?.getRootNode() as ShadowRoot | Document | undefined)?.activeElement as HTMLInputElement | null | undefined
       if (field?.classList?.contains("cf-thread-name") || (field?.closest?.(".cf-search") && field.value)) return
       hide()
     }
