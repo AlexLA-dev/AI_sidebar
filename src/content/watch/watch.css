@@ -1,6 +1,7 @@
 /* Page watch (2.5): "Notify me when it changes" in the "Come back later…" window, and the eye by a selection. */
-.cf-watch { display: flex; flex-direction: column; gap: 8px; padding: 12px 0 4px; border-top: 1px solid var(--border); }
-.cf-watch-h { margin: 0; font-size: 15px; font-weight: 600; color: var(--text); }
+/* Inset like Remind's rows above; the title (chat UX's .cf-sheet-title, with the eye) lines up with the bell's. */
+.cf-watch { display: flex; flex-direction: column; gap: 8px; padding: 12px 10px 4px; border-top: 1px solid var(--border); }
+.cf-watch .cf-watch-h { margin: 0 -2px; padding-bottom: 4px; }
 .cf-watch-l { font-size: 12px; color: var(--text-3); }
 .cf-watch-cond {
   width: 100%; box-sizing: border-box; padding: 9px 11px; border: 1px solid var(--border); border-radius: 10px;
