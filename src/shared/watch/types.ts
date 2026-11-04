@@ -24,6 +24,8 @@ export interface Watch {
   host: string
   title: string
   what: WatchKind
+  // What is watched, a few words for the list ("Size 42", "Price of the mug").
+  label: string
   // The person's own words: "when size 42 is back".
   condition: string
   source: WatchSource

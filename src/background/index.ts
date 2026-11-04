@@ -27,6 +27,7 @@ import { daysLeft, type RenewalReason } from "../shared/renewal"
 import { isPdfTab, markPdfTab, openPdfPopup, pdfFromBytes, pdfText } from "./pdf"
 import { countValueMoment, mirrorOnStart, mirrorThreads, syncSettings, syncThreads, watchSettings, watchThreads } from "./sync"
 import { startInsert } from "./insert"
+import { startWatch } from "./watch"
 import { organizeChat, reportOrganize } from "./organize"
 import { organizeConfig } from "../shared/organize"
 
@@ -568,3 +569,5 @@ startInsert({
   consented,
   statusChanged: () => (statusCache = null)
 })
+// Page watch (2.5): the checks run here while Safari runs; the AI plans a watch and reads a change.
+startWatch({ installId, clientInfo, consented })
