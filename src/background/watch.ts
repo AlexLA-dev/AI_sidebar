@@ -185,8 +185,9 @@ async function save(draft: WatchDraft, prepared: WatchPrepared & { value?: strin
   void report({ a: "create", via: how, what: w.what, site: w.site, mode: w.mode })
   await ensureAlarm()
   void syncApp()
-  // Whether "Changed: …" can show here: only the app can ask about notifications the first time.
-  const allowed = TARGET === "safari" ? (await callNative<{ outcome?: string }>("watch_permission", {}, 4_000))?.outcome : "ok"
+  // Whether "Changed: …" can show here: asked right now in Safari the first time, as for a reminder (the system
+  // may be asking meanwhile: wait for the answer).
+  const allowed = TARGET === "safari" ? (await callNative<{ outcome?: string }>("watch_permission", { ask: true }, 90_000))?.outcome : "ok"
   return { ok: true, id: w.id, notify: allowed ?? "ok" }
 }
 

@@ -194,7 +194,8 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                 Self.reply(context, ["success": true, "data": ["outcome": outcome.rawValue]])
             }
         case "watch_permission":
-            Task { Self.reply(context, ["success": true, "data": ["outcome": await WatchStore.permission().rawValue]]) }
+            let ask = message["ask"] as? Bool ?? false
+            Task { Self.reply(context, ["success": true, "data": ["outcome": await WatchStore.permission(ask: ask).rawValue]]) }
         case "watch_sync":
             // This device's watches for the app's list; back, the ones stopped in the app.
             let stopped = WatchStore.sync(message["watches"] as? [[String: Any]] ?? [])

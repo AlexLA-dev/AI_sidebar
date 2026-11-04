@@ -95,9 +95,18 @@ const STATUS_WORDS = [
 const CJK = /[\u3040-\u30ff\u3400-\u9fff\uac00-\ud7af]/
 const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/#/g, "\\d+")
 
-// Whole phrases: in scripts with spaces, not inside a longer word; Chinese, Japanese and Korean words anywhere.
+// A Russian or Ukrainian word of five letters or more is matched by its stem with any short ending
+// ("заявление" → "заявлени…": "заявления", "заявлением"); shorter ones ("до") as they are.
+function withEndings(word: string): string {
+  const last = word.split(" ").pop() ?? word
+  if (!/^[\u0400-\u04ff]{5,}$/.test(last)) return escape(word)
+  return escape(word.replace(/[аяеёиыоуюьйії]$/u, "")) + "\\p{L}{0,3}"
+}
+
+// Whole phrases: in scripts with spaces, not inside a longer word (Russian and Ukrainian words with their endings:
+// "заявление" also finds "заявления"); Chinese, Japanese and Korean words anywhere.
 function phrases(list: string[]): RegExp {
-  const spaced = list.filter((w) => !CJK.test(w)).map(escape)
+  const spaced = list.filter((w) => !CJK.test(w)).map(withEndings)
   const dense = list.filter((w) => CJK.test(w)).map(escape)
   const parts = [`(?<![\\p{L}\\p{N}])(?:${spaced.join("|")})(?![\\p{L}\\p{N}])`]
   if (dense.length) parts.push(`(?:${dense.join("|")})`)
@@ -204,4 +213,84 @@ export function detectWatchable(selection: string): WatchWhat | null {
   if (n <= 8 && (DATE.test(text) || shortDate(text))) return "date"
   if (n <= 5 && STATUS.test(text)) return "status"
   return null
+}
+
+// When the eye shows by itself (the bubble), a date and a status need more than their own words: the date an
+// article was published or a lone "shipped" in a story aren't something to watch (the director's audit, 27).
+
+// Words of an event around a date: something opens, starts, sells or closes then.
+const EVENT_WORDS = phrases([
+  // en
+  "open", "opens", "opening", "registration", "register", "sign up", "on sale", "sale", "sales", "tickets",
+  "deadline", "due", "until", "till", "closes", "booking", "appointment", "slot", "starts", "begins", "release",
+  "launch", "available from", "pre-order", "preorder", "restock", "expires", "apply by", "doors",
+  // ru
+  "открытие", "открывается", "откроется", "регистрация", "запись", "продажа", "продажи", "старт", "начало", "до",
+  "дедлайн", "срок", "билеты", "бронирование", "приём", "прием", "выход", "релиз", "предзаказ", "поступление",
+  "истекает",
+  // uk
+  "відкриття", "реєстрація", "запис", "продаж", "початок", "дедлайн", "термін", "квитки", "бронювання", "прийом",
+  "вихід", "передзамовлення",
+  // de
+  "eröffnung", "öffnet", "anmeldung", "registrierung", "verkauf", "vorverkauf", "tickets", "frist", "bis",
+  "termin", "buchung", "start", "beginn", "erscheint", "vorbestellung",
+  // fr
+  "ouverture", "ouvre", "inscription", "inscriptions", "vente", "billets", "date limite", "jusqu'au", "avant le",
+  "réservation", "rendez-vous", "début", "sortie", "précommande",
+  // es
+  "apertura", "abre", "inscripción", "inscripciones", "registro", "venta", "entradas", "boletos", "fecha límite",
+  "hasta", "reserva", "cita", "comienzo", "inicio", "lanzamiento", "preventa",
+  // it
+  "apre", "iscrizione", "registrazione", "vendita", "biglietti", "scadenza", "entro", "fino al", "prenotazione",
+  "appuntamento", "inizio", "uscita", "preordine",
+  // pt
+  "abertura", "inscrição", "venda", "ingressos", "bilhetes", "prazo", "até", "agendamento", "início",
+  "lançamento", "pré-venda",
+  // ja, ko, zh
+  "開始", "受付", "申込", "予約", "発売", "販売", "締切", "期限", "まで", "チケット", "開催", "公開",
+  "시작", "접수", "신청", "예약", "판매", "발매", "마감", "까지", "티켓", "오픈", "출시",
+  "开始", "报名", "预约", "预订", "发售", "开售", "截止", "门票", "上市", "开放", "之前"
+])
+
+// What a status is about: an order, a parcel, a flight, an application.
+const STATUS_CONTEXT = phrases([
+  // en
+  "order", "delivery", "shipment", "package", "parcel", "tracking", "flight", "application", "case", "visa",
+  "booking", "reservation", "claim", "request", "refund", "payment", "passport", "appointment",
+  // ru
+  "заказ", "заказа", "доставка", "доставки", "посылка", "посылки", "отправление", "трек", "рейс", "заявка",
+  "заявки", "заявление", "дело", "виза", "бронь", "бронирование", "обращение", "возврат", "платёж", "оплата",
+  "паспорт",
+  // uk
+  "замовлення", "посилка", "відправлення", "заява", "справа", "віза", "звернення", "повернення",
+  // de
+  "bestellung", "lieferung", "sendung", "paket", "flug", "antrag", "bewerbung", "visum", "buchung", "reservierung",
+  "anfrage", "erstattung", "zahlung",
+  // fr
+  "commande", "livraison", "colis", "envoi", "vol", "demande", "candidature", "dossier", "remboursement",
+  "paiement", "passeport",
+  // es
+  "pedido", "envío", "entrega", "paquete", "vuelo", "solicitud", "caso", "visado", "reembolso", "pago", "pasaporte",
+  // it
+  "ordine", "consegna", "spedizione", "pacco", "volo", "domanda", "richiesta", "pratica", "visto", "rimborso",
+  "pagamento", "passaporto",
+  // pt
+  "encomenda", "pacote", "voo", "solicitação", "processo", "pagamento", "passaporte",
+  // ja, ko, zh
+  "注文", "配送", "配達", "荷物", "申請", "返金", "支払", "ビザ", "パスポート",
+  "주문", "배송", "택배", "항공편", "환불", "결제", "비자", "여권",
+  "订单", "快递", "包裹", "航班", "申请", "退款", "付款", "签证", "护照"
+])
+
+/**
+ * The eye by a selection: a price or stock as before; a date only with words of an event next to it (or an event
+ * in the page's markup), a status only next to what it's the status of. `around`: the text of the selection's
+ * paragraph or row. Null keeps the bubble as it is.
+ */
+export function eyeFor(selection: string, around: string, eventMarkup = false): WatchWhat | null {
+  const what = detectWatchable(selection)
+  const near = `${selection} ${around}`.replace(/\s+/g, " ")
+  if (what === "date") return eventMarkup || EVENT_WORDS.test(near) ? "date" : null
+  if (what === "status") return STATUS_CONTEXT.test(near) ? "status" : null
+  return what
 }

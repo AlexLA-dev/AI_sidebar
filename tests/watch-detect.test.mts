@@ -63,3 +63,25 @@ test("a price wins over the words around it", () => {
   assert.equal(detectWatchable("In stock · $129"), "price")
   assert.equal(detectWatchable("Sold out — 49,99 €"), "price")
 })
+
+import { eyeFor } from "../src/shared/watch/detect.ts"
+
+test("the eye on a date only with an event by it; on a status only by what it's the status of (the audit, 27)", () => {
+  // A news page: the article's date, "shipped" in a story.
+  assert.equal(eyeFor("3 November 2026", "By Anna Lee · 3 November 2026 · 4 min read"), null)
+  assert.equal(eyeFor("12 December", "The meeting happened on 12 December at 10:00."), null)
+  assert.equal(eyeFor("shipped", "The company shipped its first phone in 2007."), null)
+  // Things worth watching.
+  assert.equal(eyeFor("12 December", "Tickets go on sale 12 December at 10:00"), "date")
+  assert.equal(eyeFor("15 января", "Регистрация открывается 15 января"), "date")
+  assert.equal(eyeFor("04.11", "Запись до 04.11"), "date")
+  assert.equal(eyeFor("12. März", "Anmeldung bis 12. März"), "date")
+  assert.equal(eyeFor("3 November 2026", "", true), "date", "an Event in the page's markup")
+  assert.equal(eyeFor("Shipped", "Order #1234 · Shipped"), "status")
+  assert.equal(eyeFor("На рассмотрении", "Статус заявления: На рассмотрении"), "status")
+  assert.equal(eyeFor("配送中", "注文番号 123 配送中"), "status")
+  // Prices and stock as before.
+  assert.equal(eyeFor("$1,299", "A story about a $1,299 laptop"), "price")
+  assert.equal(eyeFor("Sold out", ""), "stock")
+  assert.equal(eyeFor("the quick brown fox", "the quick brown fox jumps"), null)
+})
