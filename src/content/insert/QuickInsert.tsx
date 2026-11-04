@@ -10,7 +10,7 @@ import { blanks, searchTemplates, type Template, type TemplateUse } from "../../
 import type { Platform } from "../../shared/types"
 import type { ConsentStatus } from "../../shared/consent"
 import * as Icon from "../icons"
-import { privateBrowsing } from "../page"
+import { HOST_TAG, privateBrowsing } from "../page"
 import { copiedText } from "./capture"
 import { copyToClipboard, insertText, isControl, restoreCaret, textBeforeCaret, updateCaret, type Field } from "./field"
 import { FillForm } from "./FillForm"
@@ -18,6 +18,7 @@ import * as QIcon from "./icons"
 import { clearCopied, countUse, keepCopied, lastReply, loadCopied, loadInsertSettings, loadTemplates, loadUse, markTipSeen, onCopied, onInsertSettings, onTemplates, report, saveInsertSettings, sendBackground, syncTemplatesNow, tipSeen, type LastReply } from "./store"
 import { rememberField, setButtonShown, setPanelInserter } from "./target"
 import { TemplateEditor, type EditorStart } from "./TemplateEditor"
+import { BUTTON, buttonSpot, noButtonField, pagePointFree } from "./spot"
 import { signFor, typedPhrase } from "./trigger"
 import { follow, placeByCaret, placeSheet } from "./place"
 import { caretRect, pageRect, viewport, watchFields } from "./watch"
@@ -49,7 +50,6 @@ interface Props {
   onAdapt: (text: string) => void
 }
 
-const BUTTON = 30
 
 export function QuickInsert(props: Props): VNode | null {
   const { touch } = props
@@ -332,13 +332,11 @@ export function QuickInsert(props: Props): VNode | null {
 
   const vp = viewport(touch)
   let buttonPos: { top: number; left: number } | null = null
-  if (showButton && field) {
+  // Outside the field, where nothing of the site's lies underneath (spot.ts); none on searches and codes.
+  if (showButton && field && !noButtonField(field.el)) {
     const r = pageRect(field.el)
-    const visible = r.bottom > 0 && r.top < vp.height && r.width >= 120
-    if (visible) {
-      const top = r.height < BUTTON + 12 ? r.top + (r.height - BUTTON) / 2 : Math.max(r.top + 6, Math.min(r.bottom, vp.height) - 6 - BUTTON)
-      buttonPos = { top: top + vp.dy, left: Math.min(r.right, vp.width) - BUTTON - 6 + vp.dx }
-    }
+    const spot = r.width >= 120 ? buttonSpot(r, vp, pagePointFree(document.querySelector(HOST_TAG))) : null
+    if (spot) buttonPos = { top: spot.top + vp.dy, left: spot.left + vp.dx }
   }
 
   useEffect(() => setButtonShown(buttonPos !== null), [buttonPos !== null])
