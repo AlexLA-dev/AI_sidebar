@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs"
 import { test } from "node:test"
 
 import { applyProposals, clientSecret, diffPlan, guardProblems, optimize } from "../tools/ads/lib.mjs"
+import type { Plan } from "../tools/ads/lib.mjs"
 
 const plan = JSON.parse(readFileSync(new URL("../store/ads/plan.json", import.meta.url), "utf8"))
 type Rows = Record<string, any>[]
@@ -146,6 +147,44 @@ test("a keyword that brought a subscriber is never paused", () => {
   const keywords = [kwRow("Safari AI · exact", "safari ai", { impressions: 200, taps: 14, spend: 9, totalInstalls: 0 }, 77)]
   const proposals = optimize(plan, { keywords, subs: { 77: 1 } })
   assert.notEqual(proposals[0]?.action, "pause")
+})
+
+test("stage 1 pauses groups people skip or that don't convert, holds the rest and never moves bids", () => {
+  const names = ["skip", "flop", "pass", "unclear", "young", "paid"]
+  const wave: Plan = {
+    app: plan.app,
+    guards: { maxBid: 1.5, rules: { underspend: 1 } },
+    campaigns: [{ name: "Wave", status: "ENABLED", countries: ["US"], dailyBudget: 5, start: "2026-11-10", end: "2026-11-20",
+      adGroups: names.map((name) => ({ name, bid: 1, stage: 1, keywords: [{ text: `${name} kw` }] })) }]
+  }
+  const groupRow = (name: string, t: Record<string, unknown>) => ({ campaignName: "Wave", metadata: { name }, totalMetrics: { localSpend: { amount: String(t.spend ?? 0) }, ...t } })
+  const adGroups = [
+    groupRow("skip", { impressions: 320, taps: 5, spend: 4, totalInstalls: 1 }),
+    groupRow("flop", { impressions: 400, taps: 22, spend: 18, totalInstalls: 2 }),
+    groupRow("pass", { impressions: 300, taps: 20, spend: 10, totalInstalls: 8 }),
+    groupRow("unclear", { impressions: 350, taps: 14, spend: 9, totalInstalls: 5 }),
+    groupRow("young", { impressions: 120, taps: 6, spend: 4, totalInstalls: 2 }),
+    groupRow("paid", { impressions: 300, taps: 21, spend: 15, totalInstalls: 1 })
+  ]
+  // Cheap installs that would raise a bid anywhere else.
+  const keywords = [
+    { campaignName: "Wave", metadata: { id: 98, text: "pass kw", matchType: "EXACT", adGroup: { name: "pass" } }, totalMetrics: { impressions: 300, taps: 20, totalInstalls: 8, localSpend: { amount: "10" } } },
+    { campaignName: "Wave", metadata: { id: 99, text: "paid kw", matchType: "EXACT", adGroup: { name: "paid" } }, totalMetrics: { impressions: 300, taps: 21, totalInstalls: 1, localSpend: { amount: "15" } } }
+  ]
+  const proposals = optimize(wave, { adGroups, keywords, subs: { 99: 1 }, lastDaySpend: { Wave: 0 } })
+  const of = (g: string) => proposals.filter((p) => p.adGroup === g)
+  assert.deepEqual(of("skip").map((p) => p.action), ["grouppause"])
+  assert.deepEqual(of("flop").map((p) => p.action), ["grouppause"])
+  assert.deepEqual(of("pass").map((p) => [p.action, p.stage]), [["hold", "passed"]])
+  assert.deepEqual(of("unclear").map((p) => [p.action, p.stage]), [["hold", "unclear"]])
+  assert.deepEqual(of("young"), [])
+  assert.deepEqual(of("paid").map((p) => p.action), ["hold"], "a group that brought a subscriber is never paused")
+  assert.ok(proposals.every((p) => p.action !== "bid" && p.action !== "groupbid"))
+
+  const next = applyProposals(wave, proposals)
+  const status = Object.fromEntries(next.campaigns[0].adGroups.map((g) => [g.name, g.status ?? "ENABLED"]))
+  assert.deepEqual(status, { skip: "PAUSED", flop: "PAUSED", pass: "ENABLED", unclear: "ENABLED", young: "ENABLED", paid: "ENABLED" })
+  assert.ok(next.campaigns[0].adGroups.every((g) => g.bid === 1 && (g.keywords ?? []).every((k) => k.bid == null)))
 })
 
 test("client secret is an ES256 JWT Apple can verify with the uploaded public key", () => {
