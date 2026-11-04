@@ -4,7 +4,7 @@
 import { addCopied, COPIED_TTL_MS, liveCopied, oneTimeCode, siteExcluded, siteKey, type CopiedItem } from "../../shared/copied"
 import { DEFAULT_INSERT_SETTINGS, INSERT_STORAGE, type InsertEvent, type InsertSettings } from "../../shared/insert"
 import { liveTemplates, noteUse, tombstone, type Template, type Templates, type TemplateUse } from "../../shared/templates"
-import { STORAGE } from "../../shared/types"
+import { DEFAULT_SETTINGS, STORAGE, type Settings } from "../../shared/types"
 import type { Threads } from "../../shared/threads"
 import { toPlainText } from "../../shared/share"
 
@@ -55,18 +55,33 @@ export function report(event: InsertEvent): void {
 
 // ------------------------------------------------------------ settings
 
+// The button by fields and keeping what's copied are switches in the app too: they live in the settings shared
+// with it (insertButton, keepCopied; the background keeps them in step with the App Group's cf_settings_v1, the
+// newer copy wins). The sign and the per-site lists stay here.
 export async function loadInsertSettings(): Promise<InsertSettings> {
-  return { ...DEFAULT_INSERT_SETTINGS, ...(await get<Partial<InsertSettings>>(INSERT_STORAGE.settings)) }
+  const [own, shared] = await Promise.all([get<Partial<InsertSettings>>(INSERT_STORAGE.settings), get<Partial<Settings>>(STORAGE.settings)])
+  const next = { ...DEFAULT_INSERT_SETTINGS, ...own }
+  if (typeof shared?.insertButton === "boolean") next.button = shared.insertButton
+  if (typeof shared?.keepCopied === "boolean") next.copied = shared.keepCopied
+  return next
 }
 
 export async function saveInsertSettings(patch: Partial<InsertSettings>): Promise<InsertSettings> {
   const next = { ...(await loadInsertSettings()), ...patch }
-  await set({ [INSERT_STORAGE.settings]: next })
+  const writes: Record<string, unknown> = { [INSERT_STORAGE.settings]: next }
+  if ("button" in patch || "copied" in patch) {
+    const shared = { ...DEFAULT_SETTINGS, ...(await get<Partial<Settings>>(STORAGE.settings)), insertButton: next.button, keepCopied: next.copied }
+    // The time lets the background send them to the app (as the panel's own settings do).
+    Object.assign(writes, { [STORAGE.settings]: shared, [STORAGE.settingsUpdatedAt]: Date.now() })
+  }
+  await set(writes)
   return next
 }
 
 export function onInsertSettings(listener: (s: InsertSettings) => void): () => void {
-  return onKey(INSERT_STORAGE.settings, () => void loadInsertSettings().then(listener))
+  const reload = () => void loadInsertSettings().then(listener)
+  const stops = [onKey(INSERT_STORAGE.settings, reload), onKey(STORAGE.settings, reload)]
+  return () => stops.forEach((stop) => stop())
 }
 
 // ------------------------------------------------------------ Copied
