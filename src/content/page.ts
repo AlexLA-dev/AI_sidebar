@@ -121,10 +121,10 @@ export function privateBrowsing(): boolean {
 
 /**
  * Readable text of the page (Readability for articles, cleaned body text otherwise), with its folded sections
- * unfolded (see unfold.ts).
+ * unfolded (see unfold.ts), up to `max` characters: a question reads all of it (readTab).
  * Read fresh every time: pages load more content after the first look (feeds, SPAs, live updates).
  */
-export function extractPage(): { title: string; text: string } {
+export function extractPage(max = MAX_PAGE_CHARS): { title: string; text: string } {
   let title = document.title
   let text = ""
   try {
@@ -143,5 +143,5 @@ export function extractPage(): { title: string; text: string } {
   const description = document.querySelector<HTMLMetaElement>('meta[name="description"],meta[property="og:description"]')?.content
   text = cleanText(text)
   if (text.length < 200 && description) text = `${description}\n\n${text}`.trim()
-  return { title: title.slice(0, 300), text: text.slice(0, MAX_PAGE_CHARS) }
+  return { title: title.slice(0, 300), text: text.slice(0, max) }
 }

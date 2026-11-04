@@ -24,7 +24,8 @@ test("sanitizePage ignores empty pages and clips text", () => {
 test("systemPrompt fences page content and truncates selections", () => {
   const prompt = systemPrompt({ kind: "selection", title: "T", url: "u", text: "b".repeat(20_000) }, "I am a designer", "ru-RU")
   assert.match(prompt, /<<<PAGE/)
-  assert.match(prompt, /content truncated/)
+  assert.match(prompt, /\n\[…\]\nPAGE>>>/)
+  assert.match(prompt, /don't say that the text is cut off/)
   assert.match(prompt, /I am a designer/)
   assert.match(prompt, /untrusted data/)
   assert.match(systemPrompt(null, "", "en"), /No page content/)
@@ -103,14 +104,14 @@ test("a whole-chat request keeps the long history within a budget and the chat's
   assert.doesNotMatch(systemPrompt(null, "", "en"), /Other pages/)
 })
 
-test("sanitizePage: video transcripts and PDFs keep up to the media limit; other pages don't", () => {
+test("sanitizePage: video transcripts and PDFs keep up to the media limit; a page comes whole (2.5)", () => {
   const text = "a".repeat(150_000)
   const video = sanitizePage({ kind: "page", title: "V", url: "https://youtube.com/watch?v=x", text, media: "video" })
   assert.equal(video?.media, "video")
   assert.equal(video?.text.length, 100_001)
   const page = sanitizePage({ kind: "page", title: "P", url: "https://x", text, media: "audio" })
   assert.equal(page?.media, undefined)
-  assert.equal(page?.text.length, 24_001)
+  assert.equal(page?.text.length, 150_000)
   // A selection is a selection, whatever it was taken from.
   const selection = sanitizePage({ kind: "selection", title: "S", url: "https://x", text, media: "pdf" })
   assert.equal(selection?.media, undefined)

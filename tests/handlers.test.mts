@@ -34,6 +34,11 @@ type ClaudeFake = {
 }
 let claude: ClaudeFake = { calls: 0, answer: "Hello from Claude" }
 
+/** Claude's system prompt as one text (2.5 sends it as blocks: the cached rules and page, then the rest). */
+function systemText(body: Record<string, any> | undefined): string {
+  return Array.isArray(body?.system) ? body.system.map((b: { text: string }) => b.text).join("\n") : body?.system
+}
+
 function claudeStream(signal?: AbortSignal | null): Response {
   const ev = (type: string, data: Record<string, unknown> = {}) => `event: ${type}\ndata: ${JSON.stringify({ type, ...data })}\n\n`
   const start = ev("message_start", { message: { id: "msg_1", type: "message", role: "assistant", model: "claude-sonnet-5-5", content: [], stop_reason: null, stop_sequence: null, usage: { input_tokens: 1000, output_tokens: 1 } } })
@@ -777,7 +782,12 @@ test("Claude answers first: the free plan gets Sonnet at low effort, charged onc
   assert.equal(body.thinking, undefined, "adaptive thinking, the model's default")
   assert.equal(body.temperature, undefined)
   assert.equal(body.fallbacks, "default")
-  assert.match(body.system, /Some article text/)
+  assert.match(systemText(body), /Some article text/)
+  // The rules and the page in the first block, cached; the time after it (2.5).
+  assert.deepEqual(body.system[0].cache_control, { type: "ephemeral" })
+  assert.match(body.system[0].text, /Some article text/)
+  assert.doesNotMatch(body.system[0].text, /Current time/)
+  assert.match(body.system.at(-1).text, /Current time/)
   assert.deepEqual(body.messages, [{ role: "user", content: "Summarize" }])
   assert.equal(claude.lastHeaders?.get("authorization"), `Bearer ${CLAUDE_KEY}`)
   assert.match(claude.lastHeaders?.get("anthropic-beta") ?? "", /server-side-fallback-2026-07-01/)
@@ -891,7 +901,7 @@ test("Ask your chats (Pro settings) and AI search (free settings) go to Claude t
   const jws = signJws(transaction())
   const { ev } = await chatOnce(askHistory({ client: NEW_CLIENT, entitlement: jws }))
   assert.equal(deltas(ev), "Hello from Claude")
-  assert.match(claude.lastBody?.system, /earlier ContextFlow chats/)
+  assert.match(systemText(claude.lastBody), /earlier ContextFlow chats/)
   assert.deepEqual(claude.lastBody?.output_config, { effort: "medium" })
   assert.equal(chatEvent().mode, "history")
 
@@ -902,7 +912,7 @@ test("Ask your chats (Pro settings) and AI search (free settings) go to Claude t
   await Promise.all(c.pending)
   assert.deepEqual((await res.json()).results, [{ id: "c1", why: "The four-day week article" }])
   assert.deepEqual(claude.lastBody?.output_config, { effort: "low" })
-  assert.match(claude.lastBody?.system, /id=c2/)
+  assert.match(systemText(claude.lastBody), /id=c2/)
   assert.deepEqual([chatEvent().provider, chatEvent().mode, chatEvent().cost_usd], ["anthropic", "find", 0.004])
   assert.equal(counters.get("tx:2000000123"), 2)
 })
@@ -988,7 +998,7 @@ test("videos and PDFs are Pro: for anyone else the server leaves them out, whate
   // Free: neither the transcript nor the PDF reaches the model, which is told not to pretend it saw them.
   events = []
   await chatOnce(askNew({ page }))
-  const free = claude.lastBody?.system as string
+  const free = systemText(claude.lastBody)
   assert.match(free, /A lecture about neural networks/)
   assert.doesNotMatch(free, /PINEAPPLE/)
   assert.doesNotMatch(free, /Revenue grew 14%/)
@@ -998,7 +1008,7 @@ test("videos and PDFs are Pro: for anyone else the server leaves them out, whate
   // Pro: both go in, with the media limit and the timestamp rule.
   events = []
   await chatOnce(askNew({ page, entitlement: signJws(transaction()) }))
-  const pro = claude.lastBody?.system as string
+  const pro = systemText(claude.lastBody)
   assert.match(pro, /PINEAPPLE/)
   assert.match(pro, /Revenue grew 14%/)
   assert.match(pro, /\[m:ss\] timestamps/)
@@ -1008,23 +1018,23 @@ test("videos and PDFs are Pro: for anyone else the server leaves them out, whate
   // A PDF alone, free: left out and named as PDFs.
   events = []
   await chatOnce(askNew({ page: { ...page, attachments: [page.attachments[1]] } }))
-  assert.doesNotMatch(claude.lastBody?.system as string, /Revenue grew 14%/)
-  assert.match(claude.lastBody?.system as string, /PDF documents that you were not given/)
+  assert.doesNotMatch(systemText(claude.lastBody), /Revenue grew 14%/)
+  assert.match(systemText(claude.lastBody), /PDF documents that you were not given/)
   assert.equal(chatEvent().skipped, "pdf")
 
   // A text that already carries a transcript (an earlier 2.4 test build) is cut to a page's limit for free.
   const composed = "x".repeat(30_000) + transcript
   await chatOnce(askNew({ page: { kind: "page", title: "V", url: "https://example.com/v", text: composed, media: "video" } }))
-  assert.doesNotMatch(claude.lastBody?.system as string, /PINEAPPLE/)
-  assert.match(claude.lastBody?.system as string, /a video that you were not given/)
+  assert.doesNotMatch(systemText(claude.lastBody), /PINEAPPLE/)
+  assert.match(systemText(claude.lastBody), /a video that you were not given/)
 
   // The panel skipped them itself (free): nothing to drop, the answer is still told.
   await chatOnce(askNew({ page: { kind: "page", title: "T", url: "https://example.com", text: "Page text", skipped: ["video"] } }))
-  assert.match(claude.lastBody?.system as string, /a video that you were not given/)
+  assert.match(systemText(claude.lastBody), /a video that you were not given/)
   // A PDF tab with nothing but the PDF: the request still goes, with the title and the rule.
   const { res } = await chatOnce(askNew({ page: { kind: "page", title: "Report.pdf", url: "https://example.com/r.pdf", text: "", skipped: ["pdf"] } }))
   assert.equal(res.status, 200)
-  assert.match(claude.lastBody?.system as string, /Title: Report\.pdf[\s\S]*PDF documents that you were not given/)
+  assert.match(systemText(claude.lastBody), /Title: Report\.pdf[\s\S]*PDF documents that you were not given/)
 })
 
 test("the skipped video/PDF line's events keep only which media", async () => {

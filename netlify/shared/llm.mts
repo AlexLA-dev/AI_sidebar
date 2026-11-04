@@ -1,9 +1,9 @@
 import { config } from "./config.mts"
 import { isReasoningGpt } from "../../src/shared/models.ts"
 import { MAX_ATTACHMENTS, mediaKinds, type Attachment, type MediaKind } from "../../src/shared/attachments.ts"
-import { MAX_MEDIA_PAGE_CHARS, MAX_OTHER_PAGE_CHARS, MAX_OTHER_PAGES, MAX_PAGE_CHARS, systemPrompt, type PageContext } from "../../src/shared/prompt.ts"
+import { MAX_MEDIA_PAGE_CHARS, MAX_OTHER_PAGE_CHARS, MAX_OTHER_PAGES, MAX_PAGE_CHARS, systemPrompt, systemPromptParts, type PageContext } from "../../src/shared/prompt.ts"
 
-export { systemPrompt, type PageContext }
+export { systemPrompt, systemPromptParts, type PageContext }
 
 export interface ChatMessage {
   role: "user" | "assistant"
@@ -53,7 +53,9 @@ export function sanitizePage(raw: unknown): PageContext | null {
   const kind = p.kind === "selection" ? "selection" : "page"
   // Video transcripts and PDFs get a longer limit than a page.
   const media = kind === "page" && (p.media === "video" || p.media === "pdf") ? p.media : undefined
-  const text = typeof p.text === "string" ? p.text.slice(0, (media ? MAX_MEDIA_PAGE_CHARS : MAX_PAGE_CHARS) + 1) : ""
+  // A page comes whole (2.5; the request's 6 MB bounds it), a selection and a page with its media inside within their limits.
+  const limit = media ? MAX_MEDIA_PAGE_CHARS : kind === "selection" ? MAX_PAGE_CHARS : Infinity
+  const text = typeof p.text === "string" ? p.text.slice(0, limit + 1) : ""
   const attachments = kind === "page" ? sanitizeAttachments(p.attachments) : []
   const skipped = kind === "page" && Array.isArray(p.skipped) ? mediaKinds(p.skipped.filter(isMedia).map((k) => ({ kind: k }))) : []
   if (!text.trim() && !attachments.length && !skipped.length) return null
@@ -138,7 +140,10 @@ export async function startCompletion(system: string, messages: ChatMessage[], m
 }
 
 export interface StreamStats {
+  // All of the prompt's tokens; of them, written to and read from Claude's cache (2.5: the page is cached).
   promptTokens: number
+  cacheWriteTokens?: number
+  cacheReadTokens?: number
   completionTokens: number
   chars: number
   // The model stopped at its length limit (the answer is cut off).
