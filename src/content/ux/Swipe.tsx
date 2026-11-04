@@ -10,6 +10,7 @@
 
 import type { ComponentChildren, VNode } from "preact"
 import { useEffect, useRef, useState } from "preact/hooks"
+import { onTapAway } from "./away"
 
 // Safari's Back and Forward from the screen's edge start within ~20 pt of it.
 export const EDGE_GUARD = 28
@@ -145,21 +146,16 @@ export function Swipe({ left, right, enabled = true, children, class: cls = "" }
   useEffect(() => {
     if (!open) return
     const row = rowRef.current
-    const root = row?.getRootNode() as ShadowRoot | Document | undefined
-    const scroller = row?.closest(".cf-messages, .cf-threads, .cf-list")
+    if (!row) return
+    const scroller = row.closest(".cf-messages, .cf-threads, .cf-list")
     const shut = () => {
       setOpen(0)
       setDx(0)
     }
-    const away = (e: Event) => {
-      if (row && !e.composedPath().includes(row)) shut()
-    }
-    root?.addEventListener("pointerdown", away, true)
-    document.addEventListener("pointerdown", away, true)
+    const off = onTapAway(row, (path) => path.includes(row), shut)
     scroller?.addEventListener("scroll", shut, { passive: true })
     return () => {
-      root?.removeEventListener("pointerdown", away, true)
-      document.removeEventListener("pointerdown", away, true)
+      off()
       scroller?.removeEventListener("scroll", shut)
     }
   }, [open])
