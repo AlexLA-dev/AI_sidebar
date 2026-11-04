@@ -209,6 +209,27 @@
  "uxLaterTitle": {
   "message": "Tornare più tardi"
  },
+ "uxReminders": {
+  "message": "Promemoria"
+ },
+ "uxRemindersN": {
+  "message": "Promemoria · {0}"
+ },
+ "uxAllReminders": {
+  "message": "Tutti i promemoria"
+ },
+ "uxNoReminders": {
+  "message": "Nessun promemoria"
+ },
+ "uxNoRemindersHint": {
+  "message": "Impostane uno su una risposta o una nota, o qui: … → Tornare più tardi."
+ },
+ "uxOnAnotherDevice": {
+  "message": "{0} · su un altro dispositivo"
+ },
+ "uxStop": {
+  "message": "Interrompi"
+ },
  "uxRemind": {
   "message": "Ricordamelo"
  },

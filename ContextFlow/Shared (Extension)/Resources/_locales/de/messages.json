@@ -209,6 +209,27 @@
  "uxLaterTitle": {
   "message": "Später zurückkommen"
  },
+ "uxReminders": {
+  "message": "Erinnerungen"
+ },
+ "uxRemindersN": {
+  "message": "Erinnerungen · {0}"
+ },
+ "uxAllReminders": {
+  "message": "Alle Erinnerungen"
+ },
+ "uxNoReminders": {
+  "message": "Keine Erinnerungen"
+ },
+ "uxNoRemindersHint": {
+  "message": "Setze eine an einer Antwort oder Notiz oder hier: … → Später zurückkommen."
+ },
+ "uxOnAnotherDevice": {
+  "message": "{0} · auf einem anderen Gerät"
+ },
+ "uxStop": {
+  "message": "Stoppen"
+ },
  "uxRemind": {
   "message": "Erinnern"
  },

@@ -209,6 +209,27 @@
  "uxLaterTitle": {
   "message": "나중에 다시 보기"
  },
+ "uxReminders": {
+  "message": "리마인더"
+ },
+ "uxRemindersN": {
+  "message": "리마인더 · {0}"
+ },
+ "uxAllReminders": {
+  "message": "모든 리마인더"
+ },
+ "uxNoReminders": {
+  "message": "리마인더가 없습니다"
+ },
+ "uxNoRemindersHint": {
+  "message": "답변이나 메모, 또는 여기에서 설정하세요: … → 나중에 다시 보기."
+ },
+ "uxOnAnotherDevice": {
+  "message": "{0} · 다른 기기"
+ },
+ "uxStop": {
+  "message": "중지"
+ },
  "uxRemind": {
   "message": "리마인더 설정"
  },

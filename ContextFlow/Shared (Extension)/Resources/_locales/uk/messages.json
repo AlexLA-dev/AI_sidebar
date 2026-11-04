@@ -209,6 +209,27 @@
  "uxLaterTitle": {
   "message": "Повернутися пізніше"
  },
+ "uxReminders": {
+  "message": "Нагадування"
+ },
+ "uxRemindersN": {
+  "message": "Нагадування · {0}"
+ },
+ "uxAllReminders": {
+  "message": "Усі нагадування"
+ },
+ "uxNoReminders": {
+  "message": "Нагадувань немає"
+ },
+ "uxNoRemindersHint": {
+  "message": "Поставте його біля відповіді чи нотатки або тут: … → Повернутися пізніше."
+ },
+ "uxOnAnotherDevice": {
+  "message": "{0} · на іншому пристрої"
+ },
+ "uxStop": {
+  "message": "Зупинити"
+ },
  "uxRemind": {
   "message": "Нагадати"
  },

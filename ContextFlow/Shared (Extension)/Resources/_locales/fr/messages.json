@@ -209,6 +209,27 @@
  "uxLaterTitle": {
   "message": "Revenir plus tard"
  },
+ "uxReminders": {
+  "message": "Rappels"
+ },
+ "uxRemindersN": {
+  "message": "Rappels · {0}"
+ },
+ "uxAllReminders": {
+  "message": "Tous les rappels"
+ },
+ "uxNoReminders": {
+  "message": "Aucun rappel"
+ },
+ "uxNoRemindersHint": {
+  "message": "Ajoutez-en un sur une réponse ou une note, ou ici : … → Revenir plus tard."
+ },
+ "uxOnAnotherDevice": {
+  "message": "{0} · sur un autre appareil"
+ },
+ "uxStop": {
+  "message": "Arrêter"
+ },
  "uxRemind": {
   "message": "Me le rappeler"
  },

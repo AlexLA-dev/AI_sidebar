@@ -209,6 +209,27 @@
  "uxLaterTitle": {
   "message": "Voltar mais tarde"
  },
+ "uxReminders": {
+  "message": "Lembretes"
+ },
+ "uxRemindersN": {
+  "message": "Lembretes · {0}"
+ },
+ "uxAllReminders": {
+  "message": "Todos os lembretes"
+ },
+ "uxNoReminders": {
+  "message": "Nenhum lembrete"
+ },
+ "uxNoRemindersHint": {
+  "message": "Defina um em uma resposta ou nota, ou aqui: … → Voltar mais tarde."
+ },
+ "uxOnAnotherDevice": {
+  "message": "{0} · em outro dispositivo"
+ },
+ "uxStop": {
+  "message": "Parar"
+ },
  "uxRemind": {
   "message": "Me lembrar"
  },

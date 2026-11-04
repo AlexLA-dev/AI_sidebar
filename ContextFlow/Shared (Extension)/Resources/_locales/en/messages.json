@@ -209,6 +209,27 @@
  "uxLaterTitle": {
   "message": "Come back later"
  },
+ "uxReminders": {
+  "message": "Reminders"
+ },
+ "uxRemindersN": {
+  "message": "Reminders · {0}"
+ },
+ "uxAllReminders": {
+  "message": "All reminders"
+ },
+ "uxNoReminders": {
+  "message": "No reminders"
+ },
+ "uxNoRemindersHint": {
+  "message": "Set one on an answer or a note, or here: … → Come back later."
+ },
+ "uxOnAnotherDevice": {
+  "message": "{0} · on another device"
+ },
+ "uxStop": {
+  "message": "Stop"
+ },
  "uxRemind": {
   "message": "Remind me"
  },

@@ -209,6 +209,27 @@
  "uxLaterTitle": {
   "message": "稍后再看"
  },
+ "uxReminders": {
+  "message": "提醒"
+ },
+ "uxRemindersN": {
+  "message": "提醒 · {0}"
+ },
+ "uxAllReminders": {
+  "message": "全部提醒"
+ },
+ "uxNoReminders": {
+  "message": "没有提醒"
+ },
+ "uxNoRemindersHint": {
+  "message": "可以在回答或笔记上设置，或在这里：… → 稍后再看。"
+ },
+ "uxOnAnotherDevice": {
+  "message": "{0} · 在另一台设备上"
+ },
+ "uxStop": {
+  "message": "停止"
+ },
  "uxRemind": {
   "message": "提醒我"
  },

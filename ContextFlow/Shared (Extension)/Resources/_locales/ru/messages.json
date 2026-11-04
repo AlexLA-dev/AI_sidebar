@@ -209,6 +209,27 @@
  "uxLaterTitle": {
   "message": "Вернуться позже"
  },
+ "uxReminders": {
+  "message": "Напоминания"
+ },
+ "uxRemindersN": {
+  "message": "Напоминания · {0}"
+ },
+ "uxAllReminders": {
+  "message": "Все напоминания"
+ },
+ "uxNoReminders": {
+  "message": "Напоминаний нет"
+ },
+ "uxNoRemindersHint": {
+  "message": "Поставьте его у ответа или заметки или здесь: … → Вернуться позже."
+ },
+ "uxOnAnotherDevice": {
+  "message": "{0} · на другом устройстве"
+ },
+ "uxStop": {
+  "message": "Остановить"
+ },
  "uxRemind": {
   "message": "Напомнить"
  },

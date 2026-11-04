@@ -209,6 +209,27 @@
  "uxLaterTitle": {
   "message": "あとで戻る"
  },
+ "uxReminders": {
+  "message": "リマインダー"
+ },
+ "uxRemindersN": {
+  "message": "リマインダー · {0}"
+ },
+ "uxAllReminders": {
+  "message": "すべてのリマインダー"
+ },
+ "uxNoReminders": {
+  "message": "リマインダーはありません"
+ },
+ "uxNoRemindersHint": {
+  "message": "回答やメモ、またはここで設定できます：… → あとで戻る。"
+ },
+ "uxOnAnotherDevice": {
+  "message": "{0} · 別のデバイス"
+ },
+ "uxStop": {
+  "message": "停止"
+ },
  "uxRemind": {
   "message": "リマインド"
  },
