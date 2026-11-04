@@ -167,6 +167,111 @@
  "pageUpdated": {
   "message": "페이지가 업데이트됐어요"
  },
+ "uxMark": {
+  "message": "하이라이트"
+ },
+ "uxUnmark": {
+  "message": "하이라이트 제거"
+ },
+ "uxDelete": {
+  "message": "삭제"
+ },
+ "uxPin": {
+  "message": "고정"
+ },
+ "uxUnpin": {
+  "message": "고정 해제"
+ },
+ "uxDeletedAnswer": {
+  "message": "답변 삭제됨"
+ },
+ "uxDeletedNote": {
+  "message": "메모 삭제됨"
+ },
+ "uxDeletedChat": {
+  "message": "채팅 삭제됨"
+ },
+ "uxPinned": {
+  "message": "고정됨"
+ },
+ "uxPinnedN": {
+  "message": "고정됨 #{0}"
+ },
+ "uxPinnedAll": {
+  "message": "모든 고정 항목"
+ },
+ "uxMore": {
+  "message": "더 보기"
+ },
+ "uxRemind": {
+  "message": "리마인더 설정"
+ },
+ "uxRemindChange": {
+  "message": "리마인더 변경"
+ },
+ "uxRemindTitle": {
+  "message": "언제 알려 드릴까요?"
+ },
+ "uxRemindHour": {
+  "message": "1시간 후"
+ },
+ "uxRemindEvening": {
+  "message": "오늘 저녁"
+ },
+ "uxRemindMorning": {
+  "message": "내일 아침"
+ },
+ "uxRemindWeek": {
+  "message": "1주일 후"
+ },
+ "uxRemindPick": {
+  "message": "날짜 선택"
+ },
+ "uxRemindSet": {
+  "message": "리마인더 설정"
+ },
+ "uxRemindCancel": {
+  "message": "리마인더 해제"
+ },
+ "uxRemindOff": {
+  "message": "ContextFlow 알림이 꺼져 있어요. 설정 → 알림 → ContextFlow에서 켜세요."
+ },
+ "uxRemindAsk": {
+  "message": "ContextFlow 앱을 한 번 열어 알림을 허용한 다음 리마인더를 다시 설정하세요."
+ },
+ "uxRemindNone": {
+  "message": "리마인더를 쓰려면 이 기기에 ContextFlow 앱이 있어야 해요."
+ },
+ "uxToday": {
+  "message": "오늘"
+ },
+ "uxTomorrow": {
+  "message": "내일"
+ },
+ "uxRemindPage": {
+  "message": "확인하라고 알려 주기"
+ },
+ "uxRemindCheck": {
+  "message": "확인: {0}"
+ },
+ "uxRemindSaved": {
+  "message": "리마인더: {0}"
+ },
+ "uxRemindNotSet": {
+  "message": "채팅에 저장됨. 리마인더를 받으려면 ContextFlow 알림을 허용하세요."
+ },
+ "uxRemindNoApp": {
+  "message": "채팅에 저장됨. 리마인더를 쓰려면 이 기기에 ContextFlow 앱이 있어야 해요."
+ },
+ "uxUnpinAll": {
+  "message": "모두 고정 해제"
+ },
+ "uxShareMarks": {
+  "message": "공유할 때 하이라이트를 **굵게**"
+ },
+ "uxShareMarksHint": {
+  "message": "Telegram, Notion, Slack에서는 굵게, 메시지와 메모에서는 별표가 그대로 보여요. '복사'는 항상 굵게 유지해요."
+ },
  "nowOnPage": {
   "message": "현재: {0}"
  },

@@ -167,6 +167,111 @@
  "pageUpdated": {
   "message": "Страница обновилась"
  },
+ "uxMark": {
+  "message": "Выделить"
+ },
+ "uxUnmark": {
+  "message": "Снять выделение"
+ },
+ "uxDelete": {
+  "message": "Удалить"
+ },
+ "uxPin": {
+  "message": "Закрепить"
+ },
+ "uxUnpin": {
+  "message": "Открепить"
+ },
+ "uxDeletedAnswer": {
+  "message": "Ответ удалён"
+ },
+ "uxDeletedNote": {
+  "message": "Заметка удалена"
+ },
+ "uxDeletedChat": {
+  "message": "Чат удалён"
+ },
+ "uxPinned": {
+  "message": "Закреплено"
+ },
+ "uxPinnedN": {
+  "message": "Закреплено #{0}"
+ },
+ "uxPinnedAll": {
+  "message": "Все закреплённые"
+ },
+ "uxMore": {
+  "message": "Ещё"
+ },
+ "uxRemind": {
+  "message": "Напомнить"
+ },
+ "uxRemindChange": {
+  "message": "Изменить напоминание"
+ },
+ "uxRemindTitle": {
+  "message": "Когда напомнить?"
+ },
+ "uxRemindHour": {
+  "message": "Через час"
+ },
+ "uxRemindEvening": {
+  "message": "Сегодня вечером"
+ },
+ "uxRemindMorning": {
+  "message": "Завтра утром"
+ },
+ "uxRemindWeek": {
+  "message": "Через неделю"
+ },
+ "uxRemindPick": {
+  "message": "Выбрать дату"
+ },
+ "uxRemindSet": {
+  "message": "Напомнить"
+ },
+ "uxRemindCancel": {
+  "message": "Не напоминать"
+ },
+ "uxRemindOff": {
+  "message": "Уведомления для ContextFlow выключены. Включите их в Настройках → Уведомления → ContextFlow."
+ },
+ "uxRemindAsk": {
+  "message": "Откройте приложение ContextFlow, разрешите уведомления и поставьте напоминание ещё раз."
+ },
+ "uxRemindNone": {
+  "message": "Для напоминаний нужно приложение ContextFlow на этом устройстве."
+ },
+ "uxToday": {
+  "message": "Сегодня"
+ },
+ "uxTomorrow": {
+  "message": "Завтра"
+ },
+ "uxRemindPage": {
+  "message": "Напомнить проверить"
+ },
+ "uxRemindCheck": {
+  "message": "Проверить: {0}"
+ },
+ "uxRemindSaved": {
+  "message": "Напоминание: {0}"
+ },
+ "uxRemindNotSet": {
+  "message": "Сохранено в чат. Для напоминания разрешите уведомления ContextFlow."
+ },
+ "uxRemindNoApp": {
+  "message": "Сохранено в чат. Для напоминаний нужно приложение ContextFlow на этом устройстве."
+ },
+ "uxUnpinAll": {
+  "message": "Открепить все"
+ },
+ "uxShareMarks": {
+  "message": "Выделенное в «Поделиться» — **жирным**"
+ },
+ "uxShareMarksHint": {
+  "message": "Telegram, Notion и Slack покажут жирным, а Сообщения и Заметки — со звёздочками. «Копировать» всегда сохраняет жирный."
+ },
  "nowOnPage": {
   "message": "Сейчас: {0}"
  },

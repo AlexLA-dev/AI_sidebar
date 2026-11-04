@@ -167,6 +167,111 @@
  "pageUpdated": {
   "message": "Página atualizada"
  },
+ "uxMark": {
+  "message": "Destacar"
+ },
+ "uxUnmark": {
+  "message": "Remover destaque"
+ },
+ "uxDelete": {
+  "message": "Apagar"
+ },
+ "uxPin": {
+  "message": "Fixar"
+ },
+ "uxUnpin": {
+  "message": "Desafixar"
+ },
+ "uxDeletedAnswer": {
+  "message": "Resposta apagada"
+ },
+ "uxDeletedNote": {
+  "message": "Nota apagada"
+ },
+ "uxDeletedChat": {
+  "message": "Conversa apagada"
+ },
+ "uxPinned": {
+  "message": "Fixada"
+ },
+ "uxPinnedN": {
+  "message": "Fixada #{0}"
+ },
+ "uxPinnedAll": {
+  "message": "Todas as fixadas"
+ },
+ "uxMore": {
+  "message": "Mais"
+ },
+ "uxRemind": {
+  "message": "Me lembrar"
+ },
+ "uxRemindChange": {
+  "message": "Mudar lembrete"
+ },
+ "uxRemindTitle": {
+  "message": "Quando devo lembrar você?"
+ },
+ "uxRemindHour": {
+  "message": "Em uma hora"
+ },
+ "uxRemindEvening": {
+  "message": "Hoje à noite"
+ },
+ "uxRemindMorning": {
+  "message": "Amanhã de manhã"
+ },
+ "uxRemindWeek": {
+  "message": "Em uma semana"
+ },
+ "uxRemindPick": {
+  "message": "Escolher data"
+ },
+ "uxRemindSet": {
+  "message": "Lembrar"
+ },
+ "uxRemindCancel": {
+  "message": "Não lembrar"
+ },
+ "uxRemindOff": {
+  "message": "As notificações do ContextFlow estão desativadas. Ative em Ajustes → Notificações → ContextFlow."
+ },
+ "uxRemindAsk": {
+  "message": "Abra o app ContextFlow uma vez, permita as notificações e crie o lembrete de novo."
+ },
+ "uxRemindNone": {
+  "message": "Para os lembretes, você precisa do app ContextFlow neste dispositivo."
+ },
+ "uxToday": {
+  "message": "Hoje"
+ },
+ "uxTomorrow": {
+  "message": "Amanhã"
+ },
+ "uxRemindPage": {
+  "message": "Me lembrar de conferir"
+ },
+ "uxRemindCheck": {
+  "message": "Conferir: {0}"
+ },
+ "uxRemindSaved": {
+  "message": "Lembrete: {0}"
+ },
+ "uxRemindNotSet": {
+  "message": "Salvo no chat. Para o lembrete, permita as notificações do ContextFlow."
+ },
+ "uxRemindNoApp": {
+  "message": "Salvo no chat. Para os lembretes, você precisa do app ContextFlow neste dispositivo."
+ },
+ "uxUnpinAll": {
+  "message": "Desafixar todas"
+ },
+ "uxShareMarks": {
+  "message": "Destaques em **negrito** no texto compartilhado"
+ },
+ "uxShareMarksHint": {
+  "message": "Telegram, Notion e Slack mostram em negrito; Mensagens e Notas mostram os asteriscos. “Copiar” sempre mantém o negrito."
+ },
  "nowOnPage": {
   "message": "Agora: {0}"
  },

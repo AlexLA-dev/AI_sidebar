@@ -167,6 +167,111 @@
  "pageUpdated": {
   "message": "Page updated"
  },
+ "uxMark": {
+  "message": "Highlight"
+ },
+ "uxUnmark": {
+  "message": "Remove highlight"
+ },
+ "uxDelete": {
+  "message": "Delete"
+ },
+ "uxPin": {
+  "message": "Pin"
+ },
+ "uxUnpin": {
+  "message": "Unpin"
+ },
+ "uxDeletedAnswer": {
+  "message": "Answer deleted"
+ },
+ "uxDeletedNote": {
+  "message": "Note deleted"
+ },
+ "uxDeletedChat": {
+  "message": "Chat deleted"
+ },
+ "uxPinned": {
+  "message": "Pinned"
+ },
+ "uxPinnedN": {
+  "message": "Pinned #{0}"
+ },
+ "uxPinnedAll": {
+  "message": "All pinned"
+ },
+ "uxMore": {
+  "message": "More"
+ },
+ "uxRemind": {
+  "message": "Remind me"
+ },
+ "uxRemindChange": {
+  "message": "Change reminder"
+ },
+ "uxRemindTitle": {
+  "message": "When should I remind you?"
+ },
+ "uxRemindHour": {
+  "message": "In an hour"
+ },
+ "uxRemindEvening": {
+  "message": "This evening"
+ },
+ "uxRemindMorning": {
+  "message": "Tomorrow morning"
+ },
+ "uxRemindWeek": {
+  "message": "In a week"
+ },
+ "uxRemindPick": {
+  "message": "Pick a date"
+ },
+ "uxRemindSet": {
+  "message": "Remind"
+ },
+ "uxRemindCancel": {
+  "message": "Don't remind"
+ },
+ "uxRemindOff": {
+  "message": "Notifications are off for ContextFlow. Turn them on in Settings → Notifications → ContextFlow."
+ },
+ "uxRemindAsk": {
+  "message": "Open the ContextFlow app once and allow notifications, then set the reminder again."
+ },
+ "uxRemindNone": {
+  "message": "Reminders need the ContextFlow app on this device."
+ },
+ "uxToday": {
+  "message": "Today"
+ },
+ "uxTomorrow": {
+  "message": "Tomorrow"
+ },
+ "uxRemindPage": {
+  "message": "Remind me to check this"
+ },
+ "uxRemindCheck": {
+  "message": "Check: {0}"
+ },
+ "uxRemindSaved": {
+  "message": "Reminder: {0}"
+ },
+ "uxRemindNotSet": {
+  "message": "Saved to the chat. For the reminder, allow ContextFlow's notifications."
+ },
+ "uxRemindNoApp": {
+  "message": "Saved to the chat. Reminders need the ContextFlow app on this device."
+ },
+ "uxUnpinAll": {
+  "message": "Unpin all"
+ },
+ "uxShareMarks": {
+  "message": "Highlights in shared text as **bold**"
+ },
+ "uxShareMarksHint": {
+  "message": "Telegram, Notion and Slack show them in bold; Messages and Notes show the asterisks. Copy always keeps the bold."
+ },
  "nowOnPage": {
   "message": "Now on: {0}"
  },

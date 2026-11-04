@@ -167,6 +167,111 @@
  "pageUpdated": {
   "message": "Seite aktualisiert"
  },
+ "uxMark": {
+  "message": "Markieren"
+ },
+ "uxUnmark": {
+  "message": "Markierung entfernen"
+ },
+ "uxDelete": {
+  "message": "Löschen"
+ },
+ "uxPin": {
+  "message": "Anheften"
+ },
+ "uxUnpin": {
+  "message": "Lösen"
+ },
+ "uxDeletedAnswer": {
+  "message": "Antwort gelöscht"
+ },
+ "uxDeletedNote": {
+  "message": "Notiz gelöscht"
+ },
+ "uxDeletedChat": {
+  "message": "Chat gelöscht"
+ },
+ "uxPinned": {
+  "message": "Angeheftet"
+ },
+ "uxPinnedN": {
+  "message": "Angeheftet #{0}"
+ },
+ "uxPinnedAll": {
+  "message": "Alle angehefteten"
+ },
+ "uxMore": {
+  "message": "Mehr"
+ },
+ "uxRemind": {
+  "message": "Erinnern"
+ },
+ "uxRemindChange": {
+  "message": "Erinnerung ändern"
+ },
+ "uxRemindTitle": {
+  "message": "Wann soll ich dich erinnern?"
+ },
+ "uxRemindHour": {
+  "message": "In einer Stunde"
+ },
+ "uxRemindEvening": {
+  "message": "Heute Abend"
+ },
+ "uxRemindMorning": {
+  "message": "Morgen früh"
+ },
+ "uxRemindWeek": {
+  "message": "In einer Woche"
+ },
+ "uxRemindPick": {
+  "message": "Datum wählen"
+ },
+ "uxRemindSet": {
+  "message": "Erinnern"
+ },
+ "uxRemindCancel": {
+  "message": "Nicht erinnern"
+ },
+ "uxRemindOff": {
+  "message": "Mitteilungen für ContextFlow sind aus. Schalte sie ein unter Einstellungen → Mitteilungen → ContextFlow."
+ },
+ "uxRemindAsk": {
+  "message": "Öffne einmal die ContextFlow-App, erlaube Mitteilungen und stell die Erinnerung dann noch mal ein."
+ },
+ "uxRemindNone": {
+  "message": "Für Erinnerungen brauchst du die ContextFlow-App auf diesem Gerät."
+ },
+ "uxToday": {
+  "message": "Heute"
+ },
+ "uxTomorrow": {
+  "message": "Morgen"
+ },
+ "uxRemindPage": {
+  "message": "Erinnere mich, das zu prüfen"
+ },
+ "uxRemindCheck": {
+  "message": "Prüfen: {0}"
+ },
+ "uxRemindSaved": {
+  "message": "Erinnerung: {0}"
+ },
+ "uxRemindNotSet": {
+  "message": "Im Chat gespeichert. Für die Erinnerung erlaube Mitteilungen von ContextFlow."
+ },
+ "uxRemindNoApp": {
+  "message": "Im Chat gespeichert. Für Erinnerungen brauchst du die ContextFlow-App auf diesem Gerät."
+ },
+ "uxUnpinAll": {
+  "message": "Alle lösen"
+ },
+ "uxShareMarks": {
+  "message": "Markiertes beim Teilen als **fett**"
+ },
+ "uxShareMarksHint": {
+  "message": "Telegram, Notion und Slack zeigen es fett, Nachrichten und Notizen mit Sternchen. Beim Kopieren bleibt es immer fett."
+ },
  "nowOnPage": {
   "message": "Jetzt: {0}"
  },

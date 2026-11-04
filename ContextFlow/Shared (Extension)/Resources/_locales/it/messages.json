@@ -167,6 +167,111 @@
  "pageUpdated": {
   "message": "Pagina aggiornata"
  },
+ "uxMark": {
+  "message": "Evidenzia"
+ },
+ "uxUnmark": {
+  "message": "Rimuovi evidenziazione"
+ },
+ "uxDelete": {
+  "message": "Elimina"
+ },
+ "uxPin": {
+  "message": "Fissa"
+ },
+ "uxUnpin": {
+  "message": "Sblocca"
+ },
+ "uxDeletedAnswer": {
+  "message": "Risposta eliminata"
+ },
+ "uxDeletedNote": {
+  "message": "Nota eliminata"
+ },
+ "uxDeletedChat": {
+  "message": "Chat eliminata"
+ },
+ "uxPinned": {
+  "message": "Fissata"
+ },
+ "uxPinnedN": {
+  "message": "Fissata #{0}"
+ },
+ "uxPinnedAll": {
+  "message": "Tutte le fissate"
+ },
+ "uxMore": {
+  "message": "Altro"
+ },
+ "uxRemind": {
+  "message": "Ricordamelo"
+ },
+ "uxRemindChange": {
+  "message": "Modifica promemoria"
+ },
+ "uxRemindTitle": {
+  "message": "Quando te lo ricordo?"
+ },
+ "uxRemindHour": {
+  "message": "Tra un’ora"
+ },
+ "uxRemindEvening": {
+  "message": "Stasera"
+ },
+ "uxRemindMorning": {
+  "message": "Domani mattina"
+ },
+ "uxRemindWeek": {
+  "message": "Tra una settimana"
+ },
+ "uxRemindPick": {
+  "message": "Scegli una data"
+ },
+ "uxRemindSet": {
+  "message": "Ricorda"
+ },
+ "uxRemindCancel": {
+  "message": "Non ricordare"
+ },
+ "uxRemindOff": {
+  "message": "Le notifiche di ContextFlow sono disattivate. Attivale in Impostazioni → Notifiche → ContextFlow."
+ },
+ "uxRemindAsk": {
+  "message": "Apri una volta l’app ContextFlow e consenti le notifiche, poi imposta di nuovo il promemoria."
+ },
+ "uxRemindNone": {
+  "message": "Per i promemoria serve l’app ContextFlow su questo dispositivo."
+ },
+ "uxToday": {
+  "message": "Oggi"
+ },
+ "uxTomorrow": {
+  "message": "Domani"
+ },
+ "uxRemindPage": {
+  "message": "Ricordami di controllare"
+ },
+ "uxRemindCheck": {
+  "message": "Da controllare: {0}"
+ },
+ "uxRemindSaved": {
+  "message": "Promemoria: {0}"
+ },
+ "uxRemindNotSet": {
+  "message": "Salvato nella chat. Per il promemoria, consenti le notifiche di ContextFlow."
+ },
+ "uxRemindNoApp": {
+  "message": "Salvato nella chat. Per i promemoria serve l’app ContextFlow su questo dispositivo."
+ },
+ "uxUnpinAll": {
+  "message": "Sblocca tutte"
+ },
+ "uxShareMarks": {
+  "message": "Evidenziazioni in **grassetto** nel testo condiviso"
+ },
+ "uxShareMarksHint": {
+  "message": "Telegram, Notion e Slack le mostrano in grassetto; Messaggi e Note mostrano gli asterischi. «Copia» mantiene sempre il grassetto."
+ },
  "nowOnPage": {
   "message": "Ora: {0}"
  },

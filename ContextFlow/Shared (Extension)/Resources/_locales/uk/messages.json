@@ -167,6 +167,111 @@
  "pageUpdated": {
   "message": "Сторінка оновилася"
  },
+ "uxMark": {
+  "message": "Виділити"
+ },
+ "uxUnmark": {
+  "message": "Зняти виділення"
+ },
+ "uxDelete": {
+  "message": "Видалити"
+ },
+ "uxPin": {
+  "message": "Закріпити"
+ },
+ "uxUnpin": {
+  "message": "Відкріпити"
+ },
+ "uxDeletedAnswer": {
+  "message": "Відповідь видалено"
+ },
+ "uxDeletedNote": {
+  "message": "Нотатку видалено"
+ },
+ "uxDeletedChat": {
+  "message": "Чат видалено"
+ },
+ "uxPinned": {
+  "message": "Закріплено"
+ },
+ "uxPinnedN": {
+  "message": "Закріплено #{0}"
+ },
+ "uxPinnedAll": {
+  "message": "Усі закріплені"
+ },
+ "uxMore": {
+  "message": "Ще"
+ },
+ "uxRemind": {
+  "message": "Нагадати"
+ },
+ "uxRemindChange": {
+  "message": "Змінити нагадування"
+ },
+ "uxRemindTitle": {
+  "message": "Коли нагадати?"
+ },
+ "uxRemindHour": {
+  "message": "За годину"
+ },
+ "uxRemindEvening": {
+  "message": "Сьогодні ввечері"
+ },
+ "uxRemindMorning": {
+  "message": "Завтра вранці"
+ },
+ "uxRemindWeek": {
+  "message": "За тиждень"
+ },
+ "uxRemindPick": {
+  "message": "Вибрати дату"
+ },
+ "uxRemindSet": {
+  "message": "Нагадати"
+ },
+ "uxRemindCancel": {
+  "message": "Не нагадувати"
+ },
+ "uxRemindOff": {
+  "message": "Сповіщення для ContextFlow вимкнено. Увімкніть їх: Параметри → Сповіщення → ContextFlow."
+ },
+ "uxRemindAsk": {
+  "message": "Відкрийте застосунок ContextFlow, дозвольте сповіщення й поставте нагадування ще раз."
+ },
+ "uxRemindNone": {
+  "message": "Для нагадувань потрібен застосунок ContextFlow на цьому пристрої."
+ },
+ "uxToday": {
+  "message": "Сьогодні"
+ },
+ "uxTomorrow": {
+  "message": "Завтра"
+ },
+ "uxRemindPage": {
+  "message": "Нагадати перевірити"
+ },
+ "uxRemindCheck": {
+  "message": "Перевірити: {0}"
+ },
+ "uxRemindSaved": {
+  "message": "Нагадування: {0}"
+ },
+ "uxRemindNotSet": {
+  "message": "Збережено в чат. Для нагадування дозвольте сповіщення ContextFlow."
+ },
+ "uxRemindNoApp": {
+  "message": "Збережено в чат. Для нагадувань потрібен застосунок ContextFlow на цьому пристрої."
+ },
+ "uxUnpinAll": {
+  "message": "Відкріпити всі"
+ },
+ "uxShareMarks": {
+  "message": "Виділене в «Поширити» — **жирним**"
+ },
+ "uxShareMarksHint": {
+  "message": "Telegram, Notion і Slack покажуть жирним, а Повідомлення й Нотатки — із зірочками. «Скопіювати» завжди зберігає жирний."
+ },
  "nowOnPage": {
   "message": "Зараз: {0}"
  },
