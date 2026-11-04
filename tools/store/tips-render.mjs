@@ -53,9 +53,12 @@ for (const file of readdirSync(REC).filter((f) => f.endsWith(".json")).sort()) {
   let graph = `[0:v]fps=${FPS},crop=${430 * SCALE}:${(800 - TOP) * SCALE}:0:${TOP * SCALE},scale=${W}:${H}:flags=lanczos,setsar=1[v0]`
   marks.forEach((e, i) => {
     const a = (e.t - t0).toFixed(3)
-    const yExpr = e.type === "swipe" ? `'${y(e.y)}+${(e.dy * K).toFixed(1)}*min(1,max(0,(t-${a})/0.35))'` : y(e.y)
+    // A swipe moves the finger along dy (the send button) or dx (a message, sideways).
+    const along = (base, d) => (d ? `'${base}+${(d * K).toFixed(1)}*min(1,max(0,(t-${a})/0.35))'` : base)
+    const xExpr = e.type === "swipe" ? along(x(e.x), e.dx) : x(e.x)
+    const yExpr = e.type === "swipe" ? along(y(e.y), e.dy) : y(e.y)
     const until = (e.t - t0 + (e.type === "swipe" ? 0.6 : 0.45)).toFixed(3)
-    graph += `;[v${i}][1:v]overlay=x=${x(e.x)}:y=${yExpr}:eval=frame:enable='between(t,${a},${until})'[v${i + 1}]`
+    graph += `;[v${i}][1:v]overlay=x=${xExpr}:y=${yExpr}:eval=frame:enable='between(t,${a},${until})'[v${i + 1}]`
   })
   graph += `;[v${marks.length}]fade=t=in:st=0:d=${FADE}:color=white,fade=t=out:st=${(end - FADE).toFixed(3)}:d=${FADE}:color=white,format=yuv420p[out]`
 

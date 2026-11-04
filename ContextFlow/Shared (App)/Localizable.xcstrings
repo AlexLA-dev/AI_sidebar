@@ -24577,6 +24577,774 @@
           }
         }
       }
+    },
+    "Swipe to pin or delete": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wischen zum Anheften oder Löschen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desliza para fijar o eliminar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Balayez pour épingler ou supprimer"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scorri per fissare o eliminare"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "スワイプで固定・削除"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "밀어서 고정하거나 삭제"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deslize para fixar ou apagar"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Смахните, чтобы закрепить или удалить"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Змахніть, щоб закріпити або видалити"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "滑动即可置顶或删除"
+          }
+        }
+      }
+    },
+    "Swipe an answer or a note to the right to pin it, to the left to delete it. Changed your mind? Undo brings it back.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wisch eine Antwort oder Notiz nach rechts, um sie anzuheften, nach links, um sie zu löschen. Doch anders entschieden? „Widerrufen“ holt sie zurück."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desliza una respuesta o una nota a la derecha para fijarla, a la izquierda para eliminarla. ¿Cambiaste de idea? «Deshacer» la recupera."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Balayez une réponse ou une note vers la droite pour l’épingler, vers la gauche pour la supprimer. Vous changez d’avis ? « Annuler » la remet en place."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scorri una risposta o una nota verso destra per fissarla, verso sinistra per eliminarla. Ci hai ripensato? «Annulla» la rimette al suo posto."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "回答やメモを右にスワイプすると固定、左にスワイプすると削除。気が変わったら「取り消す」で元に戻せます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "답변이나 메모를 오른쪽으로 밀면 고정, 왼쪽으로 밀면 삭제돼요. 마음이 바뀌었다면 ‘실행 취소’로 되돌릴 수 있어요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deslize uma resposta ou nota para a direita para fixar, para a esquerda para apagar. Mudou de ideia? “Desfazer” traz de volta."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Смахните ответ или заметку вправо — закрепить, влево — удалить. Передумали? «Отменить» вернёт на место."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Змахніть відповідь або нотатку праворуч — закріпити, ліворуч — видалити. Передумали? «Скасувати» поверне на місце."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将回答或笔记向右滑动可置顶，向左滑动可删除。改变主意了？轻点“撤销”即可恢复。"
+          }
+        }
+      }
+    },
+    "Pin or delete with a click": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anheften oder löschen per Klick"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fijar o eliminar con un clic"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Épingler ou supprimer d’un clic"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fissare o eliminare con un clic"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "クリックで固定・削除"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "클릭 한 번으로 고정하거나 삭제"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fixar ou apagar com um clique"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Закрепить или удалить одним щелчком"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Закріпити або видалити одним клацанням"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "单击即可置顶或删除"
+          }
+        }
+      }
+    },
+    "Point at an answer or a note: Pin, Remind me and Delete show beside it, and a right-click opens the same menu. Changed your mind? Undo brings it back.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeig auf eine Antwort oder Notiz: Daneben erscheinen „Anheften“, „Erinnern“ und „Löschen“, ein Rechtsklick öffnet dasselbe Menü. Doch anders entschieden? „Widerrufen“ holt sie zurück."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Señala una respuesta o una nota: al lado aparecen «Fijar», «Recordarme» y «Eliminar», y el clic derecho abre el mismo menú. ¿Cambiaste de idea? «Deshacer» la recupera."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pointez une réponse ou une note : « Épingler », « Me le rappeler » et « Supprimer » s’affichent à côté, et un clic droit ouvre le même menu. Vous changez d’avis ? « Annuler » la remet en place."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Punta una risposta o una nota: accanto compaiono «Fissa», «Ricordamelo» ed «Elimina», e il clic destro apre lo stesso menu. Ci hai ripensato? «Annulla» la rimette al suo posto."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "回答やメモにポインタを合わせると、横に「固定」「リマインド」「削除」が表示されます。右クリックでも同じメニューが開きます。気が変わったら「取り消す」で元に戻せます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "답변이나 메모에 포인터를 올리면 옆에 ‘고정’, ‘리마인더 설정’, ‘삭제’가 나타나고, 오른쪽 클릭으로도 같은 메뉴가 열려요. 마음이 바뀌었다면 ‘실행 취소’로 되돌릴 수 있어요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aponte para uma resposta ou nota: “Fixar”, “Me lembrar” e “Apagar” aparecem ao lado, e o clique direito abre o mesmo menu. Mudou de ideia? “Desfazer” traz de volta."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Наведите указатель на ответ или заметку: рядом появятся «Закрепить», «Напомнить» и «Удалить», а правый щелчок открывает то же меню. Передумали? «Отменить» вернёт на место."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Наведіть вказівник на відповідь або нотатку: поруч з’являться «Закріпити», «Нагадати» і «Видалити», а клацання правою кнопкою відкриває те саме меню. Передумали? «Скасувати» поверне на місце."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将指针移到回答或笔记上，旁边会出现“置顶”“提醒我”和“删除”，右键点按也会打开同一菜单。改变主意了？点按“撤销”即可恢复。"
+          }
+        }
+      }
+    },
+    "Know when a price drops": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wissen, wann der Preis fällt"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entérate cuando baje un precio"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sachez quand un prix baisse"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sapere quando un prezzo scende"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "値下がりを知らせる"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가격이 내리면 알림"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saiba quando um preço cair"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Узнайте, когда цена упадёт"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Дізнайтеся, коли ціна впаде"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "降价时通知你"
+          }
+        }
+      }
+    },
+    "Select a price, a stock status or a date on a page and tap the eye. ContextFlow checks the page while you use Safari and tells you when it changes, or drops below the price you name. Up to 5 at a time, 20 with Pro.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Markiere auf einer Seite einen Preis, die Verfügbarkeit oder ein Datum und tippe auf das Auge. ContextFlow prüft die Seite, während du Safari nutzt, und meldet sich, wenn sich etwas ändert oder der Preis unter deinen Wunschpreis fällt. Bis zu 5 gleichzeitig, mit Pro 20."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selecciona un precio, la disponibilidad o una fecha en una página y toca el ojo. ContextFlow revisa la página mientras usas Safari y te avisa cuando cambia o cuando el precio baja del que indiques. Hasta 5 a la vez, 20 con Pro."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sélectionnez un prix, une disponibilité ou une date sur une page et touchez l’œil. ContextFlow vérifie la page pendant que vous utilisez Safari et vous prévient quand cela change, ou quand le prix passe sous celui que vous indiquez. Jusqu’à 5 à la fois, 20 avec Pro."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seleziona un prezzo, la disponibilità o una data su una pagina e tocca l’occhio. ContextFlow controlla la pagina mentre usi Safari e ti avvisa quando cambia, o quando il prezzo scende sotto quello che indichi. Fino a 5 alla volta, 20 con Pro."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ページ上の価格、在庫状況、日付を選択して目のアイコンをタップ。Safari を使っている間に ContextFlow がページを確認し、変わったときや、指定した価格を下回ったときにお知らせします。同時に5件まで、Pro なら20件まで。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페이지에서 가격, 재고 상태, 날짜를 선택하고 눈 아이콘을 탭하세요. Safari를 쓰는 동안 ContextFlow가 페이지를 확인하고, 바뀌거나 정한 가격 아래로 내려가면 알려 드려요. 한 번에 5개까지, Pro는 20개까지예요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selecione um preço, a disponibilidade ou uma data numa página e toque no olho. O ContextFlow verifica a página enquanto você usa o Safari e avisa quando ela mudar ou quando o preço ficar abaixo do que você definir. Até 5 de uma vez, 20 com o Pro."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выделите на странице цену, наличие или дату и нажмите на глаз. ContextFlow проверяет страницу, пока вы пользуетесь Safari, и сообщит, когда значение изменится или цена опустится ниже названной вами. До 5 одновременно, с Pro — 20."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Виділіть на сторінці ціну, наявність або дату й натисніть на око. ContextFlow перевіряє сторінку, поки ви користуєтеся Safari, і повідомить, коли значення зміниться або ціна опуститься нижче за названу вами. До 5 одночасно, з Pro — 20."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在网页上选中价格、库存状态或日期，然后轻点眼睛图标。你使用 Safari 时，ContextFlow 会检查该网页，发生变化或价格低于你设定的值时通知你。最多同时 5 个，Pro 可达 20 个。"
+          }
+        }
+      }
+    },
+    "Come back later": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Später zurückkommen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volver más tarde"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revenir plus tard"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tornare più tardi"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "あとで戻る"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "나중에 다시 보기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voltar mais tarde"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вернуться позже"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Повернутися пізніше"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "稍后再看"
+          }
+        }
+      }
+    },
+    "Reading something you want to finish later? Tap … at the top of the panel, then Come back later…, and pick a time: the reminder opens this page. Answers and notes have Remind me in their … menu.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du liest etwas, das du später zu Ende lesen willst? Tippe oben im Panel auf „…“, dann auf „Später zurückkommen…“ und wähle eine Zeit: Die Erinnerung öffnet diese Seite. Antworten und Notizen haben „Erinnern“ in ihrem Menü „…“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Lees algo que quieres terminar luego? Toca «…» arriba del panel, luego «Volver más tarde…» y elige una hora: el recordatorio abre esta página. Las respuestas y las notas tienen «Recordarme» en su menú «…»."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous lisez quelque chose à finir plus tard ? Touchez « … » en haut du panneau, puis « Revenir plus tard… », et choisissez une heure : le rappel ouvre cette page. Les réponses et les notes ont « Me le rappeler » dans leur menu « … »."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stai leggendo qualcosa da finire più tardi? Tocca «…» in alto nel pannello, poi «Tornare più tardi…» e scegli un orario: il promemoria apre questa pagina. Risposte e note hanno «Ricordamelo» nel loro menu «…»."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "あとで読み終えたいページは、パネル上部の「…」から「あとで戻る…」をタップして時間を選ぶだけ。リマインダーがこのページを開きます。回答やメモの「…」メニューにも「リマインド」があります。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "나중에 마저 읽고 싶은 글인가요? 패널 위쪽의 ‘…’을 탭하고 ‘나중에 다시 보기…’에서 시간을 고르세요. 리마인더가 이 페이지를 열어 줘요. 답변과 메모의 ‘…’ 메뉴에도 ‘리마인더 설정’이 있어요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lendo algo que quer terminar depois? Toque em “…” no topo do painel, depois em “Voltar mais tarde…” e escolha um horário: o lembrete abre esta página. Respostas e notas têm “Me lembrar” no menu “…”."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Читаете то, что хотите дочитать потом? Нажмите «…» вверху панели, затем «Вернуться позже…» и выберите время: напоминание откроет эту страницу. У ответов и заметок «Напомнить» есть в их меню «…»."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Читаєте те, що хочете дочитати потім? Натисніть «…» угорі панелі, потім «Повернутися пізніше…» й виберіть час: нагадування відкриє цю сторінку. У відповідей і нотаток «Нагадати» є в їхньому меню «…»."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在读的内容想稍后读完？轻点面板顶部的“…”，再轻点“稍后再看…”并选择时间：提醒会打开这个网页。回答和笔记的“…”菜单里也有“提醒我”。"
+          }
+        }
+      }
+    },
+    "Highlight what matters": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Wichtige hervorheben"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resalta lo importante"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Surlignez l’essentiel"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Evidenzia ciò che conta"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "大事なところをハイライト"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "중요한 부분에 하이라이트"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Destaque o que importa"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отметьте главное"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Позначте головне"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "高亮重点"
+          }
+        }
+      }
+    },
+    "Select a line in an answer and tap Highlight: it stays marked, like with a pen. Later answers in that chat take your highlights into account, and Copy keeps them in bold.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Markiere eine Zeile in einer Antwort und tippe auf „Hervorheben“: Sie bleibt markiert wie mit einem Textmarker. Spätere Antworten in diesem Chat berücksichtigen deine Hervorhebungen, und „Kopieren“ übernimmt sie fett."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selecciona una línea de una respuesta y toca «Resaltar»: queda marcada como con un rotulador. Las siguientes respuestas de ese chat tienen en cuenta lo resaltado, y «Copiar» lo conserva en negrita."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sélectionnez une ligne dans une réponse et touchez « Surligner » : elle reste marquée, comme au surligneur. Les réponses suivantes de cette discussion en tiennent compte, et « Copier » les garde en gras."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seleziona una riga in una risposta e tocca «Evidenzia»: resta segnata come con un evidenziatore. Le risposte successive in quella chat ne tengono conto, e «Copia» le mantiene in grassetto."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "回答の一行を選択して「ハイライト」をタップすると、マーカーのように印が残ります。そのチャットのこの先の回答はハイライトを踏まえ、「コピー」すると太字で残ります。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "답변에서 한 줄을 선택하고 ‘하이라이트’를 탭하면 형광펜처럼 표시가 남아요. 그 채팅의 다음 답변은 하이라이트를 반영하고, ‘복사’하면 굵은 글씨로 남아요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selecione uma linha numa resposta e toque em “Destacar”: ela fica marcada, como com marca-texto. As próximas respostas nessa conversa levam seus destaques em conta, e “Copiar” os mantém em negrito."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выделите строку в ответе и нажмите «Отметить»: она останется отмеченной, как маркером. Следующие ответы в этом чате учитывают ваши отметки, а «Копировать» передаёт их жирным."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Виділіть рядок у відповіді й натисніть «Позначити»: він залишиться позначеним, як маркером. Наступні відповіді в цьому чаті враховують ваші позначки, а «Скопіювати» передає їх жирним."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在回答中选中一行并轻点“高亮”，它会像用荧光笔划过一样留下标记。这个对话之后的回答会参考你的高亮，“复制”时高亮内容保留为粗体。"
+          }
+        }
+      }
+    },
+    "Pinned at the top": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Angeheftet ganz oben"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fijado arriba"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Épinglé en haut"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fissate in alto"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "固定したものは上に"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "고정한 항목은 맨 위에"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fixadas no topo"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Закреплённые — наверху"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Закріплені — угорі"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "置顶内容在最上方"
+          }
+        }
+      }
+    },
+    "Pin an answer or a note and it waits in the bar at the top of the chat. Tap the bar to jump to it, tap again for the next one.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hefte eine Antwort oder Notiz an, dann wartet sie in der Leiste oben im Chat. Tippe auf die Leiste, um dorthin zu springen, noch einmal für die nächste."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fija una respuesta o una nota y te espera en la barra de arriba del chat. Toca la barra para ir a ella y otra vez para ir a la siguiente."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Épinglez une réponse ou une note : elle vous attend dans la barre en haut de la discussion. Touchez la barre pour y aller, encore une fois pour la suivante."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fissa una risposta o una nota e ti aspetta nella barra in cima alla chat. Tocca la barra per andarci, toccala ancora per la successiva."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "回答やメモを固定すると、チャット上部のバーに表示されます。バーをタップするとその場所へ、もう一度タップすると次の固定へ移動します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "답변이나 메모를 고정하면 채팅 맨 위 막대에 표시돼요. 막대를 탭하면 그 위치로, 다시 탭하면 다음 항목으로 이동해요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fixe uma resposta ou nota e ela fica na barra no topo da conversa. Toque na barra para ir até ela, toque de novo para a próxima."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Закрепите ответ или заметку, и они будут ждать в полосе вверху чата. Нажмите на полосу, чтобы перейти к сообщению, ещё раз — к следующему."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Закріпіть відповідь або нотатку, і вони чекатимуть у смузі вгорі чату. Натисніть на смугу, щоб перейти до повідомлення, ще раз — до наступного."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "置顶回答或笔记后，它会出现在对话顶部的栏中。轻点该栏即可跳转过去，再轻点一次跳到下一条。"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

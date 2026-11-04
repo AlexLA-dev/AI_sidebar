@@ -429,7 +429,7 @@ struct TipsView: View {
 
     /// Under the organizing tips: Turn on (Pro, suggestions off; that's the consent) or Try Pro (without Pro).
     private func organizeAction(_ tip: Tip) -> (label: LocalizedStringKey, run: () -> Void)? {
-        guard tip.demo else { return nil }
+        guard tip.organize else { return nil }
         if !store.isPro {
             return ("Try Pro", {
                 ChatAI.reportOrganize("organize_promo", ["action": "tap", "where": "tip"])
@@ -448,8 +448,8 @@ struct Tip {
     let text: LocalizedStringKey
     // A short recording of the extension doing it (TipClips/<en|ru>/<clip>.mp4).
     var clip: String? = nil
-    // Organizing (2.5): its loop instead of a recording, and a button under it.
-    var demo = false
+    // Organizing (2.5): Turn on or Try Pro under it.
+    var organize = false
 }
 
 struct TipGroup {
@@ -466,14 +466,39 @@ struct TipGroup {
         #endif
     }
 
-    // Quick insert (2.5): how the list opens differs, a tap on iPhone and iPad, / or ⌃⇧V with a keyboard.
+    // Quick insert (2.5): how the list opens differs, a tap on iPhone and iPad, / or ⌃⇧V with a keyboard. The clips
+    // show the button by the field, which a Mac doesn't have.
     private static var insertTip: Tip {
         #if os(iOS)
         Tip(symbol: "text.badge.plus", color: brandBlue, title: "Insert into any field",
-            text: "Tap a text field on a page, then the ContextFlow button by it: what you copied in other tabs, your templates and ContextFlow's last answer are one tap away. With a keyboard, type / and a few words of a template, then Tab.")
+            text: "Tap a text field on a page, then the ContextFlow button by it: what you copied in other tabs, your templates and ContextFlow's last answer are one tap away. With a keyboard, type / and a few words of a template, then Tab.", clip: "insert")
         #else
         Tip(symbol: "text.badge.plus", color: brandBlue, title: "Insert into any field",
             text: "In any field on a page, type / and a few words of a template, then Tab. Control-Shift-V opens the whole list: what you copied in other tabs, your templates and ContextFlow's last answer.")
+        #endif
+    }
+
+    private static var copiedTip: Tip {
+        Tip(symbol: "doc.on.clipboard", color: .green, title: "Copied, kept for a day",
+            text: "The last 5 things you copied on pages in Safari wait in the list for 24 hours, on this device only. Nothing from password or card fields, or in Private Browsing.", clip: iOSClip("copied"))
+    }
+
+    // Swipes are touch only: on a Mac the same actions show on hover and on a right-click.
+    private static var swipeTip: Tip {
+        #if os(iOS)
+        Tip(symbol: "hand.draw", color: .blue, title: "Swipe to pin or delete",
+            text: "Swipe an answer or a note to the right to pin it, to the left to delete it. Changed your mind? Undo brings it back.", clip: "swipes")
+        #else
+        Tip(symbol: "cursorarrow.rays", color: .blue, title: "Pin or delete with a click",
+            text: "Point at an answer or a note: Pin, Remind me and Delete show beside it, and a right-click opens the same menu. Changed your mind? Undo brings it back.")
+        #endif
+    }
+
+    private static func iOSClip(_ name: String) -> String? {
+        #if os(iOS)
+        name
+        #else
+        nil
         #endif
     }
 
@@ -481,29 +506,21 @@ struct TipGroup {
         TipGroup(title: "New in ContextFlow", tips: [
             insertTip,
             Tip(symbol: "curlybraces", color: .orange, title: "Templates that fill themselves",
-                text: "Select a reply you send often and tap Template: ContextFlow marks the name, the date and whatever else changes. When you insert it, Fill from the page puts them in, highlighted so you can check."),
-            Tip(symbol: "doc.on.clipboard", color: .green, title: "Copied, kept for a day",
-                text: "The last 5 things you copied on pages in Safari wait in the list for 24 hours, on this device only. Nothing from password or card fields, or in Private Browsing."),
+                text: "Select a reply you send often and tap Template: ContextFlow marks the name, the date and whatever else changes. When you insert it, Fill from the page puts them in, highlighted so you can check.", clip: "fill"),
+            copiedTip,
+            Tip(symbol: "eye", color: .green, title: "Know when a price drops",
+                text: "Select a price, a stock status or a date on a page and tap the eye. ContextFlow checks the page while you use Safari and tells you when it changes, or drops below the price you name. Up to 5 at a time, 20 with Pro.", clip: "watch"),
+            Tip(symbol: "bell", color: .orange, title: "Come back later",
+                text: "Reading something you want to finish later? Tap … at the top of the panel, then Come back later…, and pick a time: the reminder opens this page. Answers and notes have Remind me in their … menu.", clip: "later"),
+            Tip(symbol: "highlighter", color: .yellow, title: "Highlight what matters",
+                text: "Select a line in an answer and tap Highlight: it stays marked, like with a pen. Later answers in that chat take your highlights into account, and Copy keeps them in bold.", clip: "highlight"),
+            Tip(symbol: "pin", color: .purple, title: "Pinned at the top",
+                text: "Pin an answer or a note and it waits in the bar at the top of the chat. Tap the bar to jump to it, tap again for the next one.", clip: "pinned"),
+            swipeTip,
             Tip(symbol: "arrow.turn.down.right", color: brandBlue, title: "Where it belongs (Pro)",
-                text: "Asked about a car in the chat about a sofa? Under the answer, ContextFlow suggests the chat it belongs in, or a new one. One tap moves it there, by date; Undo puts it back.", demo: true),
+                text: "Asked about a car in the chat about a sofa? Under the answer, ContextFlow suggests the chat it belongs in, or a new one. One tap moves it there, by date; Undo puts it back.", clip: "organize", organize: true),
             Tip(symbol: "tag", color: .purple, title: "Your tags, suggested (Pro)",
-                text: "ContextFlow learns what your tags mean from where you put them, and suggests the right one under a new answer or note. Only your own tags, only when they fit.", demo: true),
-            Tip(symbol: "text.quote", color: .orange, title: "Ask or note a selection",
-                text: "Select text on a page: type your own question about it right under the selection, or tap Note to save it to the chat with its page. Notes use no answers.", clip: "select"),
-            Tip(symbol: "play.rectangle", color: .red, title: "Ask about a video (Pro)",
-                text: "With Pro, ContextFlow reads the transcript of a video on the page: ask for the gist, or what was said about something, and the answer points to the moment, like [4:15]. Free answers use the page's text.", clip: "video"),
-            Tip(symbol: "doc.richtext", color: .orange, title: "PDFs on the page (Pro)",
-                text: "With Pro, PDFs shown on a page or linked from it go with your question, and answers say which page they're on. On iPad and Mac, ContextFlow in the toolbar opens on a PDF tab too. Free answers use the page's text.", clip: "pdf"),
-            Tip(symbol: "bubble.left.and.bubble.right", color: .teal, title: "Your chats in the app",
-                text: "The Chats tab has every chat from Safari. Ask about its pages or add a note right there, tag, copy or share any answer, or share the whole chat. “Continue in Safari” picks it up where you left off.", clip: "appchat"),
-            Tip(symbol: "magnifyingglass", color: .green, title: "Search your chats",
-                text: "Type in the search over the chat list: every chat with those words, with the place they're in. A result opens the chat right there.", clip: "search"),
-            Tip(symbol: "tag", color: .purple, title: "Tags and folders",
-                text: "Tag a chat, an answer or a note with 🏷. Tap a tag to see only its chats, or turn on Folders to group the list by tag.", clip: "tags"),
-            Tip(symbol: "sparkles", color: brandBlue, title: "AI search (Pro)",
-                text: "Tap ✦ next to the search and describe the chat you remember — “that article about sleep and coffee” — even without the exact words.", clip: "aisearch"),
-            Tip(symbol: "text.bubble", color: .indigo, title: "Ask your chats (Pro)",
-                text: "The first row of the chat list answers from all your chats at once: “What did I read this week?”, “Summarize my notes on AI”.", clip: "history")
+                text: "ContextFlow learns what your tags mean from where you put them, and suggests the right one under a new answer or note. Only your own tags, only when they fit.", clip: "suggested-tags", organize: true)
         ]),
         TipGroup(title: "Get answers", tips: [
             openTip,
@@ -511,8 +528,14 @@ struct TipGroup {
                 text: "Summarize, Key takeaways, Explain simply and Translate work on the whole page — no need to write a prompt.", clip: "gist"),
             Tip(symbol: "text.cursor", color: .purple, title: "Ask about a part",
                 text: "Select text on the page and choose Ask AI: the answer is about just that part. It can also explain, translate or rewrite it.", clip: "part"),
+            Tip(symbol: "text.quote", color: .orange, title: "Ask or note a selection",
+                text: "Select text on a page: type your own question about it right under the selection, or tap Note to save it to the chat with its page. Notes use no answers.", clip: "select"),
             Tip(symbol: "magnifyingglass", color: .green, title: "Fresh facts from Google",
-                text: "Turn on Google next to the question field to answer with Google Search: news, prices and anything recent, with sources.", clip: "google")
+                text: "Turn on Google next to the question field to answer with Google Search: news, prices and anything recent, with sources.", clip: "google"),
+            Tip(symbol: "play.rectangle", color: .red, title: "Ask about a video (Pro)",
+                text: "With Pro, ContextFlow reads the transcript of a video on the page: ask for the gist, or what was said about something, and the answer points to the moment, like [4:15]. Free answers use the page's text.", clip: "video"),
+            Tip(symbol: "doc.richtext", color: .orange, title: "PDFs on the page (Pro)",
+                text: "With Pro, PDFs shown on a page or linked from it go with your question, and answers say which page they're on. On iPad and Mac, ContextFlow in the toolbar opens on a PDF tab too. Free answers use the page's text.", clip: "pdf")
         ]),
         TipGroup(title: "Chats", tips: [
             Tip(symbol: "bubble.left.and.bubble.right", color: .teal, title: "A chat follows you",
@@ -523,6 +546,16 @@ struct TipGroup {
                 text: "Turn on Whole chat under the question field when an answer needs everything: all messages, your notes and the other pages of this chat. Off, answers use the last messages and the open page.", clip: "whole"),
             Tip(symbol: "square.and.pencil", color: .indigo, title: "Start fresh or go back",
                 text: "Start a new chat with +. Earlier chats wait in the chat list: open one to pick up where you left off, rename it with the pencil, or delete it.", clip: "chats"),
+            Tip(symbol: "magnifyingglass", color: .green, title: "Search your chats",
+                text: "Type in the search over the chat list: every chat with those words, with the place they're in. A result opens the chat right there.", clip: "search"),
+            Tip(symbol: "tag", color: .purple, title: "Tags and folders",
+                text: "Tag a chat, an answer or a note with 🏷. Tap a tag to see only its chats, or turn on Folders to group the list by tag.", clip: "tags"),
+            Tip(symbol: "sparkles", color: brandBlue, title: "AI search (Pro)",
+                text: "Tap ✦ next to the search and describe the chat you remember — “that article about sleep and coffee” — even without the exact words.", clip: "aisearch"),
+            Tip(symbol: "text.bubble", color: .indigo, title: "Ask your chats (Pro)",
+                text: "The first row of the chat list answers from all your chats at once: “What did I read this week?”, “Summarize my notes on AI”.", clip: "history"),
+            Tip(symbol: "bubble.left.and.bubble.right", color: .teal, title: "Your chats in the app",
+                text: "The Chats tab has every chat from Safari. Ask about its pages or add a note right there, tag, copy or share any answer, or share the whole chat. “Continue in Safari” picks it up where you left off.", clip: "appchat"),
             Tip(symbol: "icloud", color: .cyan, title: "On all your devices",
                 text: "With “Sync chats with iCloud” on, a chat started on your iPhone continues on your iPad and Mac. It's end-to-end encrypted in your iCloud."),
             Tip(symbol: "square.and.arrow.up", color: .pink, title: "Share what you found",
@@ -547,11 +580,6 @@ struct TipCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            if tip.demo {
-                OrganizeAnimation(big: true)
-                    .frame(maxWidth: .infinity)
-                    .padding(.bottom, 4)
-            }
             if let name = tip.clip, let url = TipClip.url(name) {
                 TipClipView(url: url)
                     .aspectRatio(TipClip.aspect, contentMode: .fit)
