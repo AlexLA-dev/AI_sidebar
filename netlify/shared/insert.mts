@@ -153,16 +153,27 @@ export class InsertAiError extends Error {
   }
 }
 
-const SETTINGS: Record<InsertAction, { system: string; schema: Record<string, unknown>; maxTokens: number; timeoutMs: number }> = {
+const SETTINGS: Record<InsertAction, HaikuTask> = {
   mark: { system: MARK_SYSTEM, schema: MARK_SCHEMA, maxTokens: 2000, timeoutMs: 20_000 },
   fill: { system: FILL_SYSTEM, schema: FILL_SCHEMA, maxTokens: 2000, timeoutMs: 22_000 },
   find: { system: FIND_SYSTEM, schema: FIND_SCHEMA, maxTokens: 400, timeoutMs: 15_000 }
 }
 
 /** One short request to Claude Haiku: JSON in the action's shape back (structured output). */
-export async function askClaude(action: InsertAction, content: string, signal?: AbortSignal): Promise<AiCall> {
+export function askClaude(action: InsertAction, content: string, signal?: AbortSignal): Promise<AiCall> {
+  return askHaiku(SETTINGS[action], content, signal)
+}
+
+export interface HaikuTask {
+  system: string
+  schema: Record<string, unknown>
+  maxTokens: number
+  timeoutMs: number
+}
+
+/** A short task for Claude Haiku (quick insert, page watch): JSON in the task's shape back. */
+export async function askHaiku(s: HaikuTask, content: string, signal?: AbortSignal): Promise<AiCall> {
   if (!config.anthropicKey) throw new InsertAiError("no_key", "no Anthropic key")
-  const s = SETTINGS[action]
   // The address is pinned (no environment variable can send the key elsewhere); one retry for a hiccup.
   const client = new Anthropic({ apiKey: config.anthropicKey, baseURL: "https://api.anthropic.com", maxRetries: 1, timeout: s.timeoutMs })
   let response: Anthropic.Message

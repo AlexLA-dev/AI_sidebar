@@ -103,6 +103,14 @@ export const config = {
     priceIn: Number(env("INSERT_PRICE_IN") ?? 0.1),
     priceOut: Number(env("INSERT_PRICE_OUT") ?? 0.5)
   },
+  // Page watch's AI (2.5, the same Haiku as quick insert, INSERT_MODEL): a plan when a watch is made, a judge
+  // after a change. The owner's choice: not counted against answers; these caps only stop runaway clients.
+  watch: {
+    planDaily: int("WATCH_PLAN_DAILY", 100),
+    judgeDaily: int("WATCH_JUDGE_DAILY", 30),
+    ipDaily: int("WATCH_IP_DAILY", 1000),
+    globalDaily: int("WATCH_GLOBAL_DAILY", 40_000)
+  },
   legacyIpDailyLimit: int("LEGACY_IP_DAILY_LIMIT", 10),
 
   ipPepper: env("CF_IP_PEPPER") ?? "contextflow-ip-v1",
