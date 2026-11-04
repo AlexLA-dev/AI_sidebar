@@ -167,6 +167,147 @@
  "pageUpdated": {
   "message": "Page updated"
  },
+ "uxMark": {
+  "message": "Highlight"
+ },
+ "uxUnmark": {
+  "message": "Remove highlight"
+ },
+ "uxDelete": {
+  "message": "Delete"
+ },
+ "uxPin": {
+  "message": "Pin"
+ },
+ "uxUnpin": {
+  "message": "Unpin"
+ },
+ "uxDeletedAnswer": {
+  "message": "Answer deleted"
+ },
+ "uxDeletedNote": {
+  "message": "Note deleted"
+ },
+ "uxDeletedChat": {
+  "message": "Chat deleted"
+ },
+ "uxPinned": {
+  "message": "Pinned"
+ },
+ "uxPinnedN": {
+  "message": "Pinned #{0}"
+ },
+ "uxPinnedAll": {
+  "message": "All pinned"
+ },
+ "uxMore": {
+  "message": "More"
+ },
+ "uxMorePage": {
+  "message": "More: page"
+ },
+ "uxMoreAnswer": {
+  "message": "More: answer"
+ },
+ "uxMoreNote": {
+  "message": "More: note"
+ },
+ "uxLater": {
+  "message": "Come back later…"
+ },
+ "uxLaterTitle": {
+  "message": "Come back later"
+ },
+ "uxReminders": {
+  "message": "Reminders"
+ },
+ "uxRemindersN": {
+  "message": "Reminders · {0}"
+ },
+ "uxAllReminders": {
+  "message": "All reminders"
+ },
+ "uxNoReminders": {
+  "message": "No reminders"
+ },
+ "uxNoRemindersHint": {
+  "message": "Set one on an answer or a note, or here: … → Come back later."
+ },
+ "uxOnAnotherDevice": {
+  "message": "{0} · on another device"
+ },
+ "uxStop": {
+  "message": "Stop"
+ },
+ "uxRemind": {
+  "message": "Remind me"
+ },
+ "uxRemindChange": {
+  "message": "Change reminder"
+ },
+ "uxRemindTitle": {
+  "message": "When should I remind you?"
+ },
+ "uxRemindAsked": {
+  "message": "You asked to be reminded: {0}"
+ },
+ "uxRemindHour": {
+  "message": "In an hour"
+ },
+ "uxRemindEvening": {
+  "message": "This evening"
+ },
+ "uxRemindMorning": {
+  "message": "Tomorrow morning"
+ },
+ "uxRemindWeek": {
+  "message": "In a week"
+ },
+ "uxRemindPick": {
+  "message": "Pick a date"
+ },
+ "uxRemindSet": {
+  "message": "Remind"
+ },
+ "uxRemindCancel": {
+  "message": "Don't remind"
+ },
+ "uxRemindOff": {
+  "message": "Notifications are off for ContextFlow. Turn them on in Settings → Notifications → ContextFlow."
+ },
+ "uxRemindAsk": {
+  "message": "Open the ContextFlow app once and allow notifications, then set the reminder again."
+ },
+ "uxRemindNone": {
+  "message": "Reminders need the ContextFlow app on this device."
+ },
+ "uxToday": {
+  "message": "Today"
+ },
+ "uxTomorrow": {
+  "message": "Tomorrow"
+ },
+ "uxRemindSaved": {
+  "message": "Reminder: {0}"
+ },
+ "uxRemindNotSet": {
+  "message": "Saved to the chat. Notifications are off for ContextFlow. Turn them on in Settings → Notifications → ContextFlow."
+ },
+ "uxRemindNoApp": {
+  "message": "Saved to the chat. Reminders need the ContextFlow app on this device."
+ },
+ "uxUnpinAll": {
+  "message": "Unpin all"
+ },
+ "setShareGroup": {
+  "message": "Share and copy"
+ },
+ "uxShareMarks": {
+  "message": "Highlights in shared text as **bold**"
+ },
+ "uxShareMarksHint": {
+  "message": "Telegram, Notion and Slack show them in bold; Messages and Notes show the asterisks. Copy always keeps the bold."
+ },
  "nowOnPage": {
   "message": "Now on: {0}"
  },
@@ -214,6 +355,18 @@
  },
  "limitProBody": {
   "message": "Your Pro answers refresh in {0}."
+ },
+ "longPageWeight": {
+  "message": "Long page: answer ×{0}"
+ },
+ "longPageWeightHint": {
+  "message": "This page is long: an answer about it counts as {0} answers of your limit."
+ },
+ "limitLongTitle": {
+  "message": "This page is long"
+ },
+ "limitLongBody": {
+  "message": "An answer about it counts as {0}, and you have {1} left."
  },
  "getPro": {
   "message": "Get Pro"

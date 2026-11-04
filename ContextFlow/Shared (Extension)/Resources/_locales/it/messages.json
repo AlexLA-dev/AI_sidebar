@@ -90,10 +90,10 @@
   "message": "Cerca su Google il testo selezionato: che cos’è, con i fatti principali."
  },
  "placeholderPage": {
-  "message": "Chiedi qualcosa su questa pagina…"
+  "message": "Chiedi sulla pagina…"
  },
  "placeholderSelection": {
-  "message": "Chiedi qualcosa sulla selezione…"
+  "message": "Chiedi sulla selezione…"
  },
  "placeholderNone": {
   "message": "Chiedi qualsiasi cosa…"
@@ -167,6 +167,147 @@
  "pageUpdated": {
   "message": "Pagina aggiornata"
  },
+ "uxMark": {
+  "message": "Evidenzia"
+ },
+ "uxUnmark": {
+  "message": "Rimuovi evidenziazione"
+ },
+ "uxDelete": {
+  "message": "Elimina"
+ },
+ "uxPin": {
+  "message": "Fissa"
+ },
+ "uxUnpin": {
+  "message": "Sblocca"
+ },
+ "uxDeletedAnswer": {
+  "message": "Risposta eliminata"
+ },
+ "uxDeletedNote": {
+  "message": "Nota eliminata"
+ },
+ "uxDeletedChat": {
+  "message": "Chat eliminata"
+ },
+ "uxPinned": {
+  "message": "Fissata"
+ },
+ "uxPinnedN": {
+  "message": "Fissata #{0}"
+ },
+ "uxPinnedAll": {
+  "message": "Tutte le fissate"
+ },
+ "uxMore": {
+  "message": "Altro"
+ },
+ "uxMorePage": {
+  "message": "Altro: pagina"
+ },
+ "uxMoreAnswer": {
+  "message": "Altro: risposta"
+ },
+ "uxMoreNote": {
+  "message": "Altro: nota"
+ },
+ "uxLater": {
+  "message": "Tornare più tardi…"
+ },
+ "uxLaterTitle": {
+  "message": "Tornare più tardi"
+ },
+ "uxReminders": {
+  "message": "Promemoria"
+ },
+ "uxRemindersN": {
+  "message": "Promemoria · {0}"
+ },
+ "uxAllReminders": {
+  "message": "Tutti i promemoria"
+ },
+ "uxNoReminders": {
+  "message": "Nessun promemoria"
+ },
+ "uxNoRemindersHint": {
+  "message": "Impostane uno su una risposta o una nota, o qui: … → Tornare più tardi."
+ },
+ "uxOnAnotherDevice": {
+  "message": "{0} · su un altro dispositivo"
+ },
+ "uxStop": {
+  "message": "Interrompi"
+ },
+ "uxRemind": {
+  "message": "Ricordamelo"
+ },
+ "uxRemindChange": {
+  "message": "Modifica promemoria"
+ },
+ "uxRemindTitle": {
+  "message": "Quando te lo ricordo?"
+ },
+ "uxRemindAsked": {
+  "message": "Mi hai chiesto di ricordartelo: {0}"
+ },
+ "uxRemindHour": {
+  "message": "Tra un’ora"
+ },
+ "uxRemindEvening": {
+  "message": "Stasera"
+ },
+ "uxRemindMorning": {
+  "message": "Domani mattina"
+ },
+ "uxRemindWeek": {
+  "message": "Tra una settimana"
+ },
+ "uxRemindPick": {
+  "message": "Scegli una data"
+ },
+ "uxRemindSet": {
+  "message": "Ricorda"
+ },
+ "uxRemindCancel": {
+  "message": "Non ricordare"
+ },
+ "uxRemindOff": {
+  "message": "Le notifiche di ContextFlow sono disattivate. Attivale in Impostazioni → Notifiche → ContextFlow."
+ },
+ "uxRemindAsk": {
+  "message": "Apri una volta l’app ContextFlow e consenti le notifiche, poi imposta di nuovo il promemoria."
+ },
+ "uxRemindNone": {
+  "message": "Per i promemoria serve l’app ContextFlow su questo dispositivo."
+ },
+ "uxToday": {
+  "message": "Oggi"
+ },
+ "uxTomorrow": {
+  "message": "Domani"
+ },
+ "uxRemindSaved": {
+  "message": "Promemoria: {0}"
+ },
+ "uxRemindNotSet": {
+  "message": "Salvato nella chat. Le notifiche di ContextFlow sono disattivate. Attivale in Impostazioni → Notifiche → ContextFlow."
+ },
+ "uxRemindNoApp": {
+  "message": "Salvato nella chat. Per i promemoria serve l’app ContextFlow su questo dispositivo."
+ },
+ "uxUnpinAll": {
+  "message": "Sblocca tutte"
+ },
+ "setShareGroup": {
+  "message": "Condivisione e copia"
+ },
+ "uxShareMarks": {
+  "message": "Evidenziazioni in **grassetto** nel testo condiviso"
+ },
+ "uxShareMarksHint": {
+  "message": "Telegram, Notion e Slack le mostrano in grassetto; Messaggi e Note mostrano gli asterischi. «Copia» mantiene sempre il grassetto."
+ },
  "nowOnPage": {
   "message": "Ora: {0}"
  },
@@ -214,6 +355,18 @@
  },
  "limitProBody": {
   "message": "Le tue risposte Pro si rinnovano tra {0}."
+ },
+ "longPageWeight": {
+  "message": "Pagina lunga: risposta ×{0}"
+ },
+ "longPageWeightHint": {
+  "message": "Questa pagina è lunga: una risposta su di essa conta ×{0} nel tuo limite."
+ },
+ "limitLongTitle": {
+  "message": "Questa pagina è lunga"
+ },
+ "limitLongBody": {
+  "message": "Una risposta su questa pagina vale {0}, e te ne restano {1}."
  },
  "getPro": {
   "message": "Passa a Pro"

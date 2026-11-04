@@ -167,6 +167,147 @@
  "pageUpdated": {
   "message": "페이지가 업데이트됐어요"
  },
+ "uxMark": {
+  "message": "하이라이트"
+ },
+ "uxUnmark": {
+  "message": "하이라이트 제거"
+ },
+ "uxDelete": {
+  "message": "삭제"
+ },
+ "uxPin": {
+  "message": "고정"
+ },
+ "uxUnpin": {
+  "message": "고정 해제"
+ },
+ "uxDeletedAnswer": {
+  "message": "답변 삭제됨"
+ },
+ "uxDeletedNote": {
+  "message": "메모 삭제됨"
+ },
+ "uxDeletedChat": {
+  "message": "채팅 삭제됨"
+ },
+ "uxPinned": {
+  "message": "고정됨"
+ },
+ "uxPinnedN": {
+  "message": "고정됨 #{0}"
+ },
+ "uxPinnedAll": {
+  "message": "모든 고정 항목"
+ },
+ "uxMore": {
+  "message": "더 보기"
+ },
+ "uxMorePage": {
+  "message": "더 보기: 페이지"
+ },
+ "uxMoreAnswer": {
+  "message": "더 보기: 답변"
+ },
+ "uxMoreNote": {
+  "message": "더 보기: 메모"
+ },
+ "uxLater": {
+  "message": "나중에 다시 보기…"
+ },
+ "uxLaterTitle": {
+  "message": "나중에 다시 보기"
+ },
+ "uxReminders": {
+  "message": "리마인더"
+ },
+ "uxRemindersN": {
+  "message": "리마인더 · {0}"
+ },
+ "uxAllReminders": {
+  "message": "모든 리마인더"
+ },
+ "uxNoReminders": {
+  "message": "리마인더가 없습니다"
+ },
+ "uxNoRemindersHint": {
+  "message": "답변이나 메모, 또는 여기에서 설정하세요: … → 나중에 다시 보기."
+ },
+ "uxOnAnotherDevice": {
+  "message": "{0} · 다른 기기"
+ },
+ "uxStop": {
+  "message": "중지"
+ },
+ "uxRemind": {
+  "message": "리마인더 설정"
+ },
+ "uxRemindChange": {
+  "message": "리마인더 변경"
+ },
+ "uxRemindTitle": {
+  "message": "언제 알려 드릴까요?"
+ },
+ "uxRemindAsked": {
+  "message": "알려 달라고 하셨던 내용: {0}"
+ },
+ "uxRemindHour": {
+  "message": "1시간 후"
+ },
+ "uxRemindEvening": {
+  "message": "오늘 저녁"
+ },
+ "uxRemindMorning": {
+  "message": "내일 아침"
+ },
+ "uxRemindWeek": {
+  "message": "1주일 후"
+ },
+ "uxRemindPick": {
+  "message": "날짜 선택"
+ },
+ "uxRemindSet": {
+  "message": "리마인더 설정"
+ },
+ "uxRemindCancel": {
+  "message": "리마인더 해제"
+ },
+ "uxRemindOff": {
+  "message": "ContextFlow 알림이 꺼져 있어요. 설정 → 알림 → ContextFlow에서 켜세요."
+ },
+ "uxRemindAsk": {
+  "message": "ContextFlow 앱을 한 번 열어 알림을 허용한 다음 리마인더를 다시 설정하세요."
+ },
+ "uxRemindNone": {
+  "message": "리마인더를 쓰려면 이 기기에 ContextFlow 앱이 있어야 해요."
+ },
+ "uxToday": {
+  "message": "오늘"
+ },
+ "uxTomorrow": {
+  "message": "내일"
+ },
+ "uxRemindSaved": {
+  "message": "리마인더: {0}"
+ },
+ "uxRemindNotSet": {
+  "message": "채팅에 저장됨. ContextFlow 알림이 꺼져 있어요. 설정 → 알림 → ContextFlow에서 켜세요."
+ },
+ "uxRemindNoApp": {
+  "message": "채팅에 저장됨. 리마인더를 쓰려면 이 기기에 ContextFlow 앱이 있어야 해요."
+ },
+ "uxUnpinAll": {
+  "message": "모두 고정 해제"
+ },
+ "setShareGroup": {
+  "message": "공유 및 복사"
+ },
+ "uxShareMarks": {
+  "message": "공유할 때 하이라이트를 **굵게**"
+ },
+ "uxShareMarksHint": {
+  "message": "Telegram, Notion, Slack에서는 굵게, 메시지와 메모에서는 별표가 그대로 보여요. '복사'는 항상 굵게 유지해요."
+ },
  "nowOnPage": {
   "message": "현재: {0}"
  },
@@ -214,6 +355,18 @@
  },
  "limitProBody": {
   "message": "Pro 답변은 {0} 후에 다시 채워져요."
+ },
+ "longPageWeight": {
+  "message": "긴 페이지: 답변 ×{0}"
+ },
+ "longPageWeightHint": {
+  "message": "이 페이지는 깁니다: 이 페이지에 대한 답변은 한도에서 ×{0}로 계산됩니다."
+ },
+ "limitLongTitle": {
+  "message": "이 페이지는 깁니다"
+ },
+ "limitLongBody": {
+  "message": "이 페이지에 대한 답변은 {0}회로 계산되며, 남은 횟수는 {1}회입니다."
  },
  "getPro": {
   "message": "Pro 시작하기"

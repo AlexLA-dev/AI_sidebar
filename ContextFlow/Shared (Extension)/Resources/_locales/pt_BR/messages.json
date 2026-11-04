@@ -90,7 +90,7 @@
   "message": "Pesquise no Google o texto selecionado: o que é, com os fatos principais."
  },
  "placeholderPage": {
-  "message": "Pergunte sobre esta página…"
+  "message": "Pergunte sobre a página…"
  },
  "placeholderSelection": {
   "message": "Pergunte sobre a seleção…"
@@ -167,6 +167,147 @@
  "pageUpdated": {
   "message": "Página atualizada"
  },
+ "uxMark": {
+  "message": "Destacar"
+ },
+ "uxUnmark": {
+  "message": "Remover destaque"
+ },
+ "uxDelete": {
+  "message": "Apagar"
+ },
+ "uxPin": {
+  "message": "Fixar"
+ },
+ "uxUnpin": {
+  "message": "Desafixar"
+ },
+ "uxDeletedAnswer": {
+  "message": "Resposta apagada"
+ },
+ "uxDeletedNote": {
+  "message": "Nota apagada"
+ },
+ "uxDeletedChat": {
+  "message": "Conversa apagada"
+ },
+ "uxPinned": {
+  "message": "Fixada"
+ },
+ "uxPinnedN": {
+  "message": "Fixada #{0}"
+ },
+ "uxPinnedAll": {
+  "message": "Todas as fixadas"
+ },
+ "uxMore": {
+  "message": "Mais"
+ },
+ "uxMorePage": {
+  "message": "Mais: página"
+ },
+ "uxMoreAnswer": {
+  "message": "Mais: resposta"
+ },
+ "uxMoreNote": {
+  "message": "Mais: nota"
+ },
+ "uxLater": {
+  "message": "Voltar mais tarde…"
+ },
+ "uxLaterTitle": {
+  "message": "Voltar mais tarde"
+ },
+ "uxReminders": {
+  "message": "Lembretes"
+ },
+ "uxRemindersN": {
+  "message": "Lembretes · {0}"
+ },
+ "uxAllReminders": {
+  "message": "Todos os lembretes"
+ },
+ "uxNoReminders": {
+  "message": "Nenhum lembrete"
+ },
+ "uxNoRemindersHint": {
+  "message": "Defina um em uma resposta ou nota, ou aqui: … → Voltar mais tarde."
+ },
+ "uxOnAnotherDevice": {
+  "message": "{0} · em outro dispositivo"
+ },
+ "uxStop": {
+  "message": "Parar"
+ },
+ "uxRemind": {
+  "message": "Me lembrar"
+ },
+ "uxRemindChange": {
+  "message": "Mudar lembrete"
+ },
+ "uxRemindTitle": {
+  "message": "Quando devo lembrar você?"
+ },
+ "uxRemindAsked": {
+  "message": "Você pediu para lembrar: {0}"
+ },
+ "uxRemindHour": {
+  "message": "Em uma hora"
+ },
+ "uxRemindEvening": {
+  "message": "Hoje à noite"
+ },
+ "uxRemindMorning": {
+  "message": "Amanhã de manhã"
+ },
+ "uxRemindWeek": {
+  "message": "Em uma semana"
+ },
+ "uxRemindPick": {
+  "message": "Escolher data"
+ },
+ "uxRemindSet": {
+  "message": "Lembrar"
+ },
+ "uxRemindCancel": {
+  "message": "Não lembrar"
+ },
+ "uxRemindOff": {
+  "message": "As notificações do ContextFlow estão desativadas. Ative em Ajustes → Notificações → ContextFlow."
+ },
+ "uxRemindAsk": {
+  "message": "Abra o app ContextFlow uma vez, permita as notificações e crie o lembrete de novo."
+ },
+ "uxRemindNone": {
+  "message": "Para os lembretes, você precisa do app ContextFlow neste dispositivo."
+ },
+ "uxToday": {
+  "message": "Hoje"
+ },
+ "uxTomorrow": {
+  "message": "Amanhã"
+ },
+ "uxRemindSaved": {
+  "message": "Lembrete: {0}"
+ },
+ "uxRemindNotSet": {
+  "message": "Salvo no chat. As notificações do ContextFlow estão desativadas. Ative em Ajustes → Notificações → ContextFlow."
+ },
+ "uxRemindNoApp": {
+  "message": "Salvo no chat. Para os lembretes, você precisa do app ContextFlow neste dispositivo."
+ },
+ "uxUnpinAll": {
+  "message": "Desafixar todas"
+ },
+ "setShareGroup": {
+  "message": "Compartilhar e copiar"
+ },
+ "uxShareMarks": {
+  "message": "Destaques em **negrito** no texto compartilhado"
+ },
+ "uxShareMarksHint": {
+  "message": "Telegram, Notion e Slack mostram em negrito; Mensagens e Notas mostram os asteriscos. “Copiar” sempre mantém o negrito."
+ },
  "nowOnPage": {
   "message": "Agora: {0}"
  },
@@ -214,6 +355,18 @@
  },
  "limitProBody": {
   "message": "Suas respostas Pro serão renovadas em {0}."
+ },
+ "longPageWeight": {
+  "message": "Página longa: resposta ×{0}"
+ },
+ "longPageWeightHint": {
+  "message": "Esta página é longa: uma resposta sobre ela conta ×{0} no seu limite."
+ },
+ "limitLongTitle": {
+  "message": "Esta página é longa"
+ },
+ "limitLongBody": {
+  "message": "Uma resposta sobre ela conta como {0}, e você tem {1} restantes."
  },
  "getPro": {
   "message": "Assinar o Pro"

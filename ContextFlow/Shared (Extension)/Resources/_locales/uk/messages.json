@@ -90,7 +90,7 @@
   "message": "Знайди в Google виділений текст: що це, і головні факти."
  },
  "placeholderPage": {
-  "message": "Запитайте про цю сторінку…"
+  "message": "Запитайте про сторінку…"
  },
  "placeholderSelection": {
   "message": "Запитайте про виділене…"
@@ -167,6 +167,147 @@
  "pageUpdated": {
   "message": "Сторінка оновилася"
  },
+ "uxMark": {
+  "message": "Позначити"
+ },
+ "uxUnmark": {
+  "message": "Зняти позначку"
+ },
+ "uxDelete": {
+  "message": "Видалити"
+ },
+ "uxPin": {
+  "message": "Закріпити"
+ },
+ "uxUnpin": {
+  "message": "Відкріпити"
+ },
+ "uxDeletedAnswer": {
+  "message": "Відповідь видалено"
+ },
+ "uxDeletedNote": {
+  "message": "Нотатку видалено"
+ },
+ "uxDeletedChat": {
+  "message": "Чат видалено"
+ },
+ "uxPinned": {
+  "message": "Закріплено"
+ },
+ "uxPinnedN": {
+  "message": "Закріплено #{0}"
+ },
+ "uxPinnedAll": {
+  "message": "Усі закріплені"
+ },
+ "uxMore": {
+  "message": "Ще"
+ },
+ "uxMorePage": {
+  "message": "Ще: сторінка"
+ },
+ "uxMoreAnswer": {
+  "message": "Ще: відповідь"
+ },
+ "uxMoreNote": {
+  "message": "Ще: нотатка"
+ },
+ "uxLater": {
+  "message": "Повернутися пізніше…"
+ },
+ "uxLaterTitle": {
+  "message": "Повернутися пізніше"
+ },
+ "uxReminders": {
+  "message": "Нагадування"
+ },
+ "uxRemindersN": {
+  "message": "Нагадування · {0}"
+ },
+ "uxAllReminders": {
+  "message": "Усі нагадування"
+ },
+ "uxNoReminders": {
+  "message": "Нагадувань немає"
+ },
+ "uxNoRemindersHint": {
+  "message": "Поставте його біля відповіді чи нотатки або тут: … → Повернутися пізніше."
+ },
+ "uxOnAnotherDevice": {
+  "message": "{0} · на іншому пристрої"
+ },
+ "uxStop": {
+  "message": "Зупинити"
+ },
+ "uxRemind": {
+  "message": "Нагадати"
+ },
+ "uxRemindChange": {
+  "message": "Змінити нагадування"
+ },
+ "uxRemindTitle": {
+  "message": "Коли нагадати?"
+ },
+ "uxRemindAsked": {
+  "message": "Ви просили нагадати: {0}"
+ },
+ "uxRemindHour": {
+  "message": "За годину"
+ },
+ "uxRemindEvening": {
+  "message": "Сьогодні ввечері"
+ },
+ "uxRemindMorning": {
+  "message": "Завтра вранці"
+ },
+ "uxRemindWeek": {
+  "message": "За тиждень"
+ },
+ "uxRemindPick": {
+  "message": "Вибрати дату"
+ },
+ "uxRemindSet": {
+  "message": "Нагадати"
+ },
+ "uxRemindCancel": {
+  "message": "Не нагадувати"
+ },
+ "uxRemindOff": {
+  "message": "Сповіщення для ContextFlow вимкнено. Увімкніть їх: Параметри → Сповіщення → ContextFlow."
+ },
+ "uxRemindAsk": {
+  "message": "Відкрийте застосунок ContextFlow, дозвольте сповіщення й поставте нагадування ще раз."
+ },
+ "uxRemindNone": {
+  "message": "Для нагадувань потрібен застосунок ContextFlow на цьому пристрої."
+ },
+ "uxToday": {
+  "message": "Сьогодні"
+ },
+ "uxTomorrow": {
+  "message": "Завтра"
+ },
+ "uxRemindSaved": {
+  "message": "Нагадування: {0}"
+ },
+ "uxRemindNotSet": {
+  "message": "Збережено в чат. Сповіщення для ContextFlow вимкнено. Увімкніть їх: Параметри → Сповіщення → ContextFlow."
+ },
+ "uxRemindNoApp": {
+  "message": "Збережено в чат. Для нагадувань потрібен застосунок ContextFlow на цьому пристрої."
+ },
+ "uxUnpinAll": {
+  "message": "Відкріпити всі"
+ },
+ "setShareGroup": {
+  "message": "Поширення й копіювання"
+ },
+ "uxShareMarks": {
+  "message": "Позначене в «Поширити» — **жирним**"
+ },
+ "uxShareMarksHint": {
+  "message": "Telegram, Notion і Slack покажуть жирним, а Повідомлення й Нотатки — із зірочками. «Скопіювати» завжди зберігає жирний."
+ },
  "nowOnPage": {
   "message": "Зараз: {0}"
  },
@@ -214,6 +355,18 @@
  },
  "limitProBody": {
   "message": "Ваші відповіді Pro оновляться через {0}."
+ },
+ "longPageWeight": {
+  "message": "Довга сторінка: відповідь ×{0}"
+ },
+ "longPageWeightHint": {
+  "message": "Сторінка довга: відповідь по ній списується з ліміту ×{0}."
+ },
+ "limitLongTitle": {
+  "message": "Сторінка довга"
+ },
+ "limitLongBody": {
+  "message": "Відповідь по ній рахується за {0}, а у вас залишилося {1}."
  },
  "getPro": {
   "message": "Отримати Pro"

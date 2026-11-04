@@ -90,13 +90,13 @@
   "message": "Recherche le texte sélectionné sur Google : de quoi s’agit-il, avec les faits essentiels."
  },
  "placeholderPage": {
-  "message": "Posez une question sur cette page…"
+  "message": "Question sur la page…"
  },
  "placeholderSelection": {
-  "message": "Posez une question sur la sélection…"
+  "message": "Question sur la sélection…"
  },
  "placeholderNone": {
-  "message": "Demandez ce que vous voulez…"
+  "message": "Demandez n’importe quoi…"
  },
  "placeholderGoogle": {
   "message": "Demander à Google…"
@@ -167,6 +167,147 @@
  "pageUpdated": {
   "message": "Page mise à jour"
  },
+ "uxMark": {
+  "message": "Surligner"
+ },
+ "uxUnmark": {
+  "message": "Retirer le surlignage"
+ },
+ "uxDelete": {
+  "message": "Supprimer"
+ },
+ "uxPin": {
+  "message": "Épingler"
+ },
+ "uxUnpin": {
+  "message": "Désépingler"
+ },
+ "uxDeletedAnswer": {
+  "message": "Réponse supprimée"
+ },
+ "uxDeletedNote": {
+  "message": "Note supprimée"
+ },
+ "uxDeletedChat": {
+  "message": "Discussion supprimée"
+ },
+ "uxPinned": {
+  "message": "Épinglé"
+ },
+ "uxPinnedN": {
+  "message": "Épinglé #{0}"
+ },
+ "uxPinnedAll": {
+  "message": "Tous les épinglés"
+ },
+ "uxMore": {
+  "message": "Plus"
+ },
+ "uxMorePage": {
+  "message": "Plus : page"
+ },
+ "uxMoreAnswer": {
+  "message": "Plus : réponse"
+ },
+ "uxMoreNote": {
+  "message": "Plus : note"
+ },
+ "uxLater": {
+  "message": "Revenir plus tard…"
+ },
+ "uxLaterTitle": {
+  "message": "Revenir plus tard"
+ },
+ "uxReminders": {
+  "message": "Rappels"
+ },
+ "uxRemindersN": {
+  "message": "Rappels · {0}"
+ },
+ "uxAllReminders": {
+  "message": "Tous les rappels"
+ },
+ "uxNoReminders": {
+  "message": "Aucun rappel"
+ },
+ "uxNoRemindersHint": {
+  "message": "Ajoutez-en un sur une réponse ou une note, ou ici : … → Revenir plus tard."
+ },
+ "uxOnAnotherDevice": {
+  "message": "{0} · sur un autre appareil"
+ },
+ "uxStop": {
+  "message": "Arrêter"
+ },
+ "uxRemind": {
+  "message": "Me le rappeler"
+ },
+ "uxRemindChange": {
+  "message": "Modifier le rappel"
+ },
+ "uxRemindTitle": {
+  "message": "Quand dois-je vous le rappeler ?"
+ },
+ "uxRemindAsked": {
+  "message": "Vous avez demandé un rappel : {0}"
+ },
+ "uxRemindHour": {
+  "message": "Dans une heure"
+ },
+ "uxRemindEvening": {
+  "message": "Ce soir"
+ },
+ "uxRemindMorning": {
+  "message": "Demain matin"
+ },
+ "uxRemindWeek": {
+  "message": "Dans une semaine"
+ },
+ "uxRemindPick": {
+  "message": "Choisir une date"
+ },
+ "uxRemindSet": {
+  "message": "Rappeler"
+ },
+ "uxRemindCancel": {
+  "message": "Ne pas rappeler"
+ },
+ "uxRemindOff": {
+  "message": "Les notifications de ContextFlow sont désactivées. Activez-les dans Réglages → Notifications → ContextFlow."
+ },
+ "uxRemindAsk": {
+  "message": "Ouvrez une fois l’app ContextFlow et autorisez les notifications, puis programmez à nouveau le rappel."
+ },
+ "uxRemindNone": {
+  "message": "Pour les rappels, il faut l’app ContextFlow sur cet appareil."
+ },
+ "uxToday": {
+  "message": "Aujourd’hui"
+ },
+ "uxTomorrow": {
+  "message": "Demain"
+ },
+ "uxRemindSaved": {
+  "message": "Rappel : {0}"
+ },
+ "uxRemindNotSet": {
+  "message": "Enregistré dans le chat. Les notifications de ContextFlow sont désactivées. Activez-les dans Réglages → Notifications → ContextFlow."
+ },
+ "uxRemindNoApp": {
+  "message": "Enregistré dans le chat. Pour les rappels, il faut l’app ContextFlow sur cet appareil."
+ },
+ "uxUnpinAll": {
+  "message": "Tout désépingler"
+ },
+ "setShareGroup": {
+  "message": "Partage et copie"
+ },
+ "uxShareMarks": {
+  "message": "Surlignages en **gras** dans le texte partagé"
+ },
+ "uxShareMarksHint": {
+  "message": "Telegram, Notion et Slack les affichent en gras ; Messages et Notes montrent les astérisques. « Copier » garde toujours le gras."
+ },
  "nowOnPage": {
   "message": "Maintenant : {0}"
  },
@@ -214,6 +355,18 @@
  },
  "limitProBody": {
   "message": "Vos réponses Pro se renouvellent dans {0}."
+ },
+ "longPageWeight": {
+  "message": "Page longue : réponse ×{0}"
+ },
+ "longPageWeightHint": {
+  "message": "Cette page est longue : une réponse à son sujet compte ×{0} dans votre limite."
+ },
+ "limitLongTitle": {
+  "message": "Cette page est longue"
+ },
+ "limitLongBody": {
+  "message": "Une réponse à son sujet compte pour {0}, et il vous en reste {1}."
  },
  "getPro": {
   "message": "Passer à Pro"

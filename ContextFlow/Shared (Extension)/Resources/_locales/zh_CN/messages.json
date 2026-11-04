@@ -167,6 +167,147 @@
  "pageUpdated": {
   "message": "页面已更新"
  },
+ "uxMark": {
+  "message": "高亮"
+ },
+ "uxUnmark": {
+  "message": "取消高亮"
+ },
+ "uxDelete": {
+  "message": "删除"
+ },
+ "uxPin": {
+  "message": "置顶"
+ },
+ "uxUnpin": {
+  "message": "取消置顶"
+ },
+ "uxDeletedAnswer": {
+  "message": "回答已删除"
+ },
+ "uxDeletedNote": {
+  "message": "笔记已删除"
+ },
+ "uxDeletedChat": {
+  "message": "对话已删除"
+ },
+ "uxPinned": {
+  "message": "已置顶"
+ },
+ "uxPinnedN": {
+  "message": "已置顶 #{0}"
+ },
+ "uxPinnedAll": {
+  "message": "所有置顶"
+ },
+ "uxMore": {
+  "message": "更多"
+ },
+ "uxMorePage": {
+  "message": "更多：页面"
+ },
+ "uxMoreAnswer": {
+  "message": "更多：回答"
+ },
+ "uxMoreNote": {
+  "message": "更多：笔记"
+ },
+ "uxLater": {
+  "message": "稍后再看…"
+ },
+ "uxLaterTitle": {
+  "message": "稍后再看"
+ },
+ "uxReminders": {
+  "message": "提醒"
+ },
+ "uxRemindersN": {
+  "message": "提醒 · {0}"
+ },
+ "uxAllReminders": {
+  "message": "全部提醒"
+ },
+ "uxNoReminders": {
+  "message": "没有提醒"
+ },
+ "uxNoRemindersHint": {
+  "message": "可以在回答或笔记上设置，或在这里：… → 稍后再看。"
+ },
+ "uxOnAnotherDevice": {
+  "message": "{0} · 在另一台设备上"
+ },
+ "uxStop": {
+  "message": "停止"
+ },
+ "uxRemind": {
+  "message": "提醒我"
+ },
+ "uxRemindChange": {
+  "message": "更改提醒"
+ },
+ "uxRemindTitle": {
+  "message": "什么时候提醒你？"
+ },
+ "uxRemindAsked": {
+  "message": "你让我提醒你：{0}"
+ },
+ "uxRemindHour": {
+  "message": "1 小时后"
+ },
+ "uxRemindEvening": {
+  "message": "今晚"
+ },
+ "uxRemindMorning": {
+  "message": "明天早上"
+ },
+ "uxRemindWeek": {
+  "message": "1 周后"
+ },
+ "uxRemindPick": {
+  "message": "选择日期"
+ },
+ "uxRemindSet": {
+  "message": "提醒"
+ },
+ "uxRemindCancel": {
+  "message": "不提醒"
+ },
+ "uxRemindOff": {
+  "message": "ContextFlow 的通知已关闭。请在这里打开：设置 → 通知 → ContextFlow。"
+ },
+ "uxRemindAsk": {
+  "message": "请打开一次 ContextFlow App 并允许通知，然后重新设置提醒。"
+ },
+ "uxRemindNone": {
+  "message": "提醒功能需要此设备上装有 ContextFlow App。"
+ },
+ "uxToday": {
+  "message": "今天"
+ },
+ "uxTomorrow": {
+  "message": "明天"
+ },
+ "uxRemindSaved": {
+  "message": "提醒：{0}"
+ },
+ "uxRemindNotSet": {
+  "message": "已保存到对话。ContextFlow 的通知已关闭。请在这里打开：设置 → 通知 → ContextFlow。"
+ },
+ "uxRemindNoApp": {
+  "message": "已保存到对话。提醒功能需要此设备上装有 ContextFlow App。"
+ },
+ "uxUnpinAll": {
+  "message": "全部取消置顶"
+ },
+ "setShareGroup": {
+  "message": "分享与复制"
+ },
+ "uxShareMarks": {
+  "message": "分享时把高亮内容设为**粗体**"
+ },
+ "uxShareMarksHint": {
+  "message": "Telegram、Notion 和 Slack 会显示为粗体，信息和备忘录会显示星号。“复制”始终保留粗体。"
+ },
  "nowOnPage": {
   "message": "当前：{0}"
  },
@@ -214,6 +355,18 @@
  },
  "limitProBody": {
   "message": "你的 Pro 回答次数将在 {0}后恢复。"
+ },
+ "longPageWeight": {
+  "message": "长页面：回答 ×{0}"
+ },
+ "longPageWeightHint": {
+  "message": "这个页面很长：关于它的回答按 ×{0} 计入额度。"
+ },
+ "limitLongTitle": {
+  "message": "这个页面很长"
+ },
+ "limitLongBody": {
+  "message": "关于它的回答按 {0} 次计算，你还剩 {1} 次。"
  },
  "getPro": {
   "message": "升级 Pro"

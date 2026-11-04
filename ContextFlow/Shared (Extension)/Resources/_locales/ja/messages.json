@@ -167,6 +167,147 @@
  "pageUpdated": {
   "message": "ページが更新されました"
  },
+ "uxMark": {
+  "message": "ハイライト"
+ },
+ "uxUnmark": {
+  "message": "ハイライトを削除"
+ },
+ "uxDelete": {
+  "message": "削除"
+ },
+ "uxPin": {
+  "message": "固定"
+ },
+ "uxUnpin": {
+  "message": "固定を解除"
+ },
+ "uxDeletedAnswer": {
+  "message": "回答を削除しました"
+ },
+ "uxDeletedNote": {
+  "message": "メモを削除しました"
+ },
+ "uxDeletedChat": {
+  "message": "チャットを削除しました"
+ },
+ "uxPinned": {
+  "message": "固定済み"
+ },
+ "uxPinnedN": {
+  "message": "固定済み #{0}"
+ },
+ "uxPinnedAll": {
+  "message": "固定一覧"
+ },
+ "uxMore": {
+  "message": "その他"
+ },
+ "uxMorePage": {
+  "message": "その他：ページ"
+ },
+ "uxMoreAnswer": {
+  "message": "その他：回答"
+ },
+ "uxMoreNote": {
+  "message": "その他：メモ"
+ },
+ "uxLater": {
+  "message": "あとで戻る…"
+ },
+ "uxLaterTitle": {
+  "message": "あとで戻る"
+ },
+ "uxReminders": {
+  "message": "リマインダー"
+ },
+ "uxRemindersN": {
+  "message": "リマインダー · {0}"
+ },
+ "uxAllReminders": {
+  "message": "すべてのリマインダー"
+ },
+ "uxNoReminders": {
+  "message": "リマインダーはありません"
+ },
+ "uxNoRemindersHint": {
+  "message": "回答やメモ、またはここで設定できます：… → あとで戻る。"
+ },
+ "uxOnAnotherDevice": {
+  "message": "{0} · 別のデバイス"
+ },
+ "uxStop": {
+  "message": "停止"
+ },
+ "uxRemind": {
+  "message": "リマインド"
+ },
+ "uxRemindChange": {
+  "message": "リマインドを変更"
+ },
+ "uxRemindTitle": {
+  "message": "いつリマインドしますか？"
+ },
+ "uxRemindAsked": {
+  "message": "リマインドのご依頼：{0}"
+ },
+ "uxRemindHour": {
+  "message": "1時間後"
+ },
+ "uxRemindEvening": {
+  "message": "今日の夕方"
+ },
+ "uxRemindMorning": {
+  "message": "明日の朝"
+ },
+ "uxRemindWeek": {
+  "message": "1週間後"
+ },
+ "uxRemindPick": {
+  "message": "日時を選ぶ"
+ },
+ "uxRemindSet": {
+  "message": "リマインドする"
+ },
+ "uxRemindCancel": {
+  "message": "リマインドしない"
+ },
+ "uxRemindOff": {
+  "message": "ContextFlowの通知がオフになっています。設定 → 通知 → ContextFlow でオンにしてください。"
+ },
+ "uxRemindAsk": {
+  "message": "ContextFlowアプリを一度開いて通知を許可してから、もう一度リマインドを設定してください。"
+ },
+ "uxRemindNone": {
+  "message": "リマインドには、このデバイスにContextFlowアプリが必要です。"
+ },
+ "uxToday": {
+  "message": "今日"
+ },
+ "uxTomorrow": {
+  "message": "明日"
+ },
+ "uxRemindSaved": {
+  "message": "リマインド：{0}"
+ },
+ "uxRemindNotSet": {
+  "message": "チャットに保存しました。ContextFlowの通知がオフになっています。設定 → 通知 → ContextFlow でオンにしてください。"
+ },
+ "uxRemindNoApp": {
+  "message": "チャットに保存しました。リマインドには、このデバイスにContextFlowアプリが必要です。"
+ },
+ "uxUnpinAll": {
+  "message": "すべて固定を解除"
+ },
+ "setShareGroup": {
+  "message": "共有とコピー"
+ },
+ "uxShareMarks": {
+  "message": "共有するテキストのハイライトを**太字**に"
+ },
+ "uxShareMarksHint": {
+  "message": "Telegram、Notion、Slackでは太字、メッセージとメモではアスタリスク付きで表示されます。「コピー」では常に太字のままです。"
+ },
  "nowOnPage": {
   "message": "現在: {0}"
  },
@@ -214,6 +355,18 @@
  },
  "limitProBody": {
   "message": "Proの回答数は{0}後にリセットされます。"
+ },
+ "longPageWeight": {
+  "message": "長いページ：回答 ×{0}"
+ },
+ "longPageWeightHint": {
+  "message": "このページは長文です：回答は上限から ×{0} として数えられます。"
+ },
+ "limitLongTitle": {
+  "message": "このページは長文です"
+ },
+ "limitLongBody": {
+  "message": "このページへの回答は{0}回分として数えられ、残りは{1}回です。"
  },
  "getPro": {
   "message": "Proを入手"

@@ -167,6 +167,147 @@
  "pageUpdated": {
   "message": "Seite aktualisiert"
  },
+ "uxMark": {
+  "message": "Hervorheben"
+ },
+ "uxUnmark": {
+  "message": "Hervorhebung entfernen"
+ },
+ "uxDelete": {
+  "message": "Löschen"
+ },
+ "uxPin": {
+  "message": "Anheften"
+ },
+ "uxUnpin": {
+  "message": "Lösen"
+ },
+ "uxDeletedAnswer": {
+  "message": "Antwort gelöscht"
+ },
+ "uxDeletedNote": {
+  "message": "Notiz gelöscht"
+ },
+ "uxDeletedChat": {
+  "message": "Chat gelöscht"
+ },
+ "uxPinned": {
+  "message": "Angeheftet"
+ },
+ "uxPinnedN": {
+  "message": "Angeheftet #{0}"
+ },
+ "uxPinnedAll": {
+  "message": "Alle angehefteten"
+ },
+ "uxMore": {
+  "message": "Mehr"
+ },
+ "uxMorePage": {
+  "message": "Mehr: Seite"
+ },
+ "uxMoreAnswer": {
+  "message": "Mehr: Antwort"
+ },
+ "uxMoreNote": {
+  "message": "Mehr: Notiz"
+ },
+ "uxLater": {
+  "message": "Später zurückkommen…"
+ },
+ "uxLaterTitle": {
+  "message": "Später zurückkommen"
+ },
+ "uxReminders": {
+  "message": "Erinnerungen"
+ },
+ "uxRemindersN": {
+  "message": "Erinnerungen · {0}"
+ },
+ "uxAllReminders": {
+  "message": "Alle Erinnerungen"
+ },
+ "uxNoReminders": {
+  "message": "Keine Erinnerungen"
+ },
+ "uxNoRemindersHint": {
+  "message": "Setze eine an einer Antwort oder Notiz oder hier: … → Später zurückkommen."
+ },
+ "uxOnAnotherDevice": {
+  "message": "{0} · auf einem anderen Gerät"
+ },
+ "uxStop": {
+  "message": "Stoppen"
+ },
+ "uxRemind": {
+  "message": "Erinnern"
+ },
+ "uxRemindChange": {
+  "message": "Erinnerung ändern"
+ },
+ "uxRemindTitle": {
+  "message": "Wann soll ich dich erinnern?"
+ },
+ "uxRemindAsked": {
+  "message": "Du wolltest erinnert werden: {0}"
+ },
+ "uxRemindHour": {
+  "message": "In einer Stunde"
+ },
+ "uxRemindEvening": {
+  "message": "Heute Abend"
+ },
+ "uxRemindMorning": {
+  "message": "Morgen früh"
+ },
+ "uxRemindWeek": {
+  "message": "In einer Woche"
+ },
+ "uxRemindPick": {
+  "message": "Datum wählen"
+ },
+ "uxRemindSet": {
+  "message": "Erinnern"
+ },
+ "uxRemindCancel": {
+  "message": "Nicht erinnern"
+ },
+ "uxRemindOff": {
+  "message": "Mitteilungen für ContextFlow sind aus. Schalte sie ein unter Einstellungen → Mitteilungen → ContextFlow."
+ },
+ "uxRemindAsk": {
+  "message": "Öffne einmal die ContextFlow-App, erlaube Mitteilungen und stell die Erinnerung dann noch mal ein."
+ },
+ "uxRemindNone": {
+  "message": "Für Erinnerungen brauchst du die ContextFlow-App auf diesem Gerät."
+ },
+ "uxToday": {
+  "message": "Heute"
+ },
+ "uxTomorrow": {
+  "message": "Morgen"
+ },
+ "uxRemindSaved": {
+  "message": "Erinnerung: {0}"
+ },
+ "uxRemindNotSet": {
+  "message": "Im Chat gespeichert. Mitteilungen für ContextFlow sind aus. Schalte sie ein unter Einstellungen → Mitteilungen → ContextFlow."
+ },
+ "uxRemindNoApp": {
+  "message": "Im Chat gespeichert. Für Erinnerungen brauchst du die ContextFlow-App auf diesem Gerät."
+ },
+ "uxUnpinAll": {
+  "message": "Alle lösen"
+ },
+ "setShareGroup": {
+  "message": "Teilen und Kopieren"
+ },
+ "uxShareMarks": {
+  "message": "Hervorgehobenes beim Teilen als **fett**"
+ },
+ "uxShareMarksHint": {
+  "message": "Telegram, Notion und Slack zeigen es fett, Nachrichten und Notizen mit Sternchen. Beim Kopieren bleibt es immer fett."
+ },
  "nowOnPage": {
   "message": "Jetzt: {0}"
  },
@@ -214,6 +355,18 @@
  },
  "limitProBody": {
   "message": "Deine Pro-Antworten werden in {0} wieder aufgefüllt."
+ },
+ "longPageWeight": {
+  "message": "Lange Seite: Antwort ×{0}"
+ },
+ "longPageWeightHint": {
+  "message": "Diese Seite ist lang: Eine Antwort dazu zählt im Limit ×{0}."
+ },
+ "limitLongTitle": {
+  "message": "Diese Seite ist lang"
+ },
+ "limitLongBody": {
+  "message": "Eine Antwort dazu zählt als {0}, und du hast noch {1}."
  },
  "getPro": {
   "message": "Pro holen"
