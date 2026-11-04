@@ -931,6 +931,10 @@ struct ChatDetailView: View {
     @ObservedObject private var store = StoreKitManager.shared
     @State private var suggestions: OrganizeModel.Suggestions?
     @State private var undoBar: (text: String, undo: Organize.MoveUndo)?
+    // When that bar came, when it goes and where the chat was scrolled to (a class: scrolling doesn't redraw), and
+    // whether a pointer holds it.
+    @State private var undoBarClock = MovedBarClock()
+    @State private var undoBarHeld = false
     @State private var messShown = false
     @State private var tagsCard = false
     @State private var firstWin = false
@@ -1058,8 +1062,13 @@ struct ChatDetailView: View {
                         .padding(16)
                         .frame(maxWidth: 760)
                         .frame(maxWidth: .infinity)
+                        // Where the chat is scrolled to: the bar after a move goes once the person scrolls on.
+                        .background(GeometryReader { g in
+                            Color.clear.preference(key: ChatScrollTop.self, value: g.frame(in: .named("chat")).minY)
+                        })
                     }
                     .coordinateSpace(name: "chat")
+                    .onPreferenceChange(ChatScrollTop.self) { y in chatScrolled(y) }
                     .onPreferenceChange(PinnedTops.self) { tops in
                         guard Date() > pinLock else { return }
                         let pinned = pinnedItems(thread)
@@ -1110,6 +1119,19 @@ struct ChatDetailView: View {
                         movedBar(bar)
                         .padding(.horizontal, 12)
                         .padding(.bottom, 8)
+                        // A pointer resting on it (Mac, iPad) holds it; it goes a moment after the pointer leaves.
+                        .onHover { on in
+                            if !on { undoBarClock.until = max(undoBarClock.until, Date().addingTimeInterval(UndoClock.afterHold)) }
+                            undoBarHeld = on
+                        }
+                        // Its seconds (UndoClock), then it goes.
+                        .task(id: "\(undoBarClock.tick):\(undoBarHeld)") {
+                            guard !undoBarHeld else { return }
+                            let left = undoBarClock.until.timeIntervalSinceNow
+                            if left > 0 { try? await Task.sleep(nanoseconds: UInt64(left * 1_000_000_000)) }
+                            guard !Task.isCancelled else { return }
+                            withAnimation { undoBar = nil }
+                        }
                     }
                 }
                 .sheet(isPresented: Binding(get: { reminding != nil }, set: { if !$0 { reminding = nil } })) {
@@ -1380,8 +1402,21 @@ struct ChatDetailView: View {
         ChatAI.reportOrganize("organize", ["action": "accepted", "what": move.to == nil ? "new" : "move", "why": move.why.rawValue])
         // The chat stays shown ("Open" goes to the other one), unless nothing is left in it.
         if !library.threads.contains(where: { $0.id == thread.id }) { shownId = undo.target }
+        undoBarClock.start()
+        undoBarHeld = false
         withAnimation { undoBar = (String(localized: "Moved to “\(move.toName)”"), undo) }
         won()
+    }
+
+    /// The chat scrolled (its top at `y`): the bar after a move goes once the person scrolls on, though not in its
+    /// first seconds (that's also when the chat scrolls to its end by itself after the move).
+    private func chatScrolled(_ y: CGFloat) {
+        guard undoBar != nil, !undoBarHeld else { return }
+        guard Date().timeIntervalSince(undoBarClock.shownAt) >= UndoClock.grace, let from = undoBarClock.y else {
+            undoBarClock.y = y
+            return
+        }
+        if abs(y - from) > 40 { withAnimation { undoBar = nil } }
     }
 
     /// The bar after a move: Undo, and Open unless nothing was left here (the other chat is shown already).
@@ -1446,6 +1481,7 @@ struct ChatDetailView: View {
         guard thread.entries.indices.contains(index) else { return }
         let entry = thread.entries[index]
         let on = entry.pinned == nil
+        undoBar = nil
         library.setEntryPinned(thread, entry: index, on)
         pinAt = .max
         ChatAI.reportUx("ux_pin", ["action": on ? "pinned" : "unpinned", "what": entry.isNote ? "note" : "answer", "how": how])
@@ -1469,6 +1505,8 @@ struct ChatDetailView: View {
         for raw in gone.entries where raw["remind"] != nil {
             MessageReminders.cancel(chat: thread.id, message: Organize.entryKey(raw))
         }
+        // The bar after a move gives way: its own bar shows only without it.
+        undoBar = nil
         withAnimation { deleted = (entry.isNote ? "Note deleted" : "Answer deleted", thread, gone.at, gone.entries, whole) }
         ChatAI.reportUx("ux_delete", ["action": "deleted", "what": entry.isNote ? "note" : "answer", "how": how])
         let shown = gone.at

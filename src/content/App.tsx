@@ -41,6 +41,7 @@ import {
 import { Hint } from "./Hint"
 import { OrganizeCard, OrganizeRow, panelSelectionStart, type OrganizeMove } from "./Organize"
 import { UndoBar } from "./UndoBar"
+import { barDeadline, deadlineAfterHold, goesOnWork, type BarKind } from "./undoClock"
 import { moveBlock, organizeCards, setOrganizeCards, undoBlockMove, type OrganizeCards } from "./store"
 import { DEFAULT_ORGANIZE, looksMixed } from "../shared/organize"
 import { entryKey } from "../shared/conversation"
@@ -319,8 +320,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const loadingRef = useRef<Promise<void>>(Promise.resolve())
   const settingsRef = useRef(settings)
   settingsRef.current = settings
-  // Organizing (2.5): the bar after a move ("Moved to … · Undo · Open"), until the next action.
-  const [undoBar, setUndoBar] = useState<{ text: string; actions: Array<{ label: string; run: () => void }> } | null>(null)
+  // Organizing (2.5): the bar after a move ("Moved to … · Undo · Open", kind "move"), and after a delete; how long
+  // each stays is in undoClock.ts.
+  const [undoBar, setUndoBar] = useState<{ text: string; actions: Array<{ label: string; run: () => void }>; kind?: BarKind } | null>(null)
   // 2.5: highlights, swipes, pinned messages, reminders (src/content/ux); a deleted message's Undo is on the same bar.
   const ux = useMessageUx({
     messages,
@@ -1730,6 +1732,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     orgEvent({ kind: "organize", action: "accepted", what: move.to ? "move" : "new", why: move.why })
     setUndoBar({
       text: t("orgMoved", move.toName),
+      kind: "move",
       actions: [
         { label: t("orgUndo"), run: () => void undoChatMove(moved.undo) },
         ...(stays ? [{ label: t("orgOpen"), run: () => { setUndoBar(null); void loadThreads().then(({ threads }) => showChat(target, threads)) } }] : [])
@@ -1743,14 +1746,49 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     orgEvent({ kind: "organize", action: "dismissed", what: move.to ? "move" : "new", why: move.why })
   }
 
-  // The bar lives its seconds, then goes; before that only an action takes it: a question, a note, another chat, a
-  // new bar or its own buttons (they clear it there). Touching or scrolling the chat leaves it (2.5: a scroll used
-  // to take the Undo away).
+  // The bar lives its seconds (undoClock.ts), then goes; before that an action takes it: a question, a note, another
+  // chat, a new bar or its own buttons (they clear it there). After a delete, touching or scrolling the chat leaves
+  // it (2.5: a scroll used to take the Undo away). The bar after a move also goes on a scroll or a swipe, past its
+  // first seconds. A pointer resting on the bar holds it.
+  const barShownAt = useRef(0)
+  const barUntil = useRef(0)
+  const [barHeld, setBarHeld] = useState(false)
   useEffect(() => {
+    setBarHeld(false)
     if (!undoBar) return
-    const timer = setTimeout(() => setUndoBar(null), UNDO_BAR_MS)
-    return () => clearTimeout(timer)
+    barShownAt.current = Date.now()
+    barUntil.current = barDeadline(undoBar.kind ?? "undo", barShownAt.current)
   }, [undoBar])
+  useEffect(() => {
+    if (!undoBar || barHeld) return
+    const timer = setTimeout(() => setUndoBar(null), Math.max(0, barUntil.current - Date.now()))
+    return () => clearTimeout(timer)
+  }, [undoBar, barHeld])
+  const holdBar = useCallback((on: boolean) => {
+    if (!on) barUntil.current = deadlineAfterHold(barUntil.current, Date.now())
+    setBarHeld(on)
+  }, [])
+  useEffect(() => {
+    const list = listRef.current
+    const kind = undoBar?.kind
+    if (kind !== "move" || !list) return
+    const goes = () => { if (goesOnWork(kind, barShownAt.current, Date.now())) setUndoBar(null) }
+    // A finger that moves (a scroll or a swipe), not a tap.
+    let from: { x: number; y: number } | null = null
+    const start = (e: TouchEvent) => { const p = e.touches[0]; from = p ? { x: p.clientX, y: p.clientY } : null }
+    const move = (e: TouchEvent) => {
+      const p = e.touches[0]
+      if (from && p && Math.hypot(p.clientX - from.x, p.clientY - from.y) > 12) goes()
+    }
+    list.addEventListener("wheel", goes, { passive: true })
+    list.addEventListener("touchstart", start, { passive: true })
+    list.addEventListener("touchmove", move, { passive: true })
+    return () => {
+      list.removeEventListener("wheel", goes)
+      list.removeEventListener("touchstart", start)
+      list.removeEventListener("touchmove", move)
+    }
+  }, [undoBar, view, open])
 
   // The message with text selected in it: its suggestions step aside for the Highlight bubble by the selection.
   const [selectingIdx, setSelectingIdx] = useState<number | null>(null)
@@ -2113,7 +2151,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 onGrouped={(on) => updateSettings({ groupByTags: on })}
                 touch={touch}
               />
-              <div class="cf-undo-host">{undoBar && <UndoBar text={undoBar.text} actions={undoBar.actions} />}</div>
+              <div class="cf-undo-host">{undoBar && <UndoBar text={undoBar.text} actions={undoBar.actions} onHold={holdBar} />}</div>
             </>
           ) : view === "templates" ? (
             <TemplatesView
@@ -2397,7 +2435,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 </footer>
               ) : (
                 <footer class="cf-composer">
-                  {undoBar && <UndoBar text={undoBar.text} actions={undoBar.actions} />}
+                  {undoBar && <UndoBar text={undoBar.text} actions={undoBar.actions} onHold={holdBar} />}
                   {noteHint && draft.trim() && !noteMode && <div class="cf-note-hint" role="status">{t(touch ? "noteHintTouch" : "noteHintMouse")}</div>}
                   {weightNote && <div class="cf-weight-note" title={t("longPageWeightHint", pageWeight)}>{t("longPageWeight", pageWeight)}</div>}
                   <div class={`cf-input ${noteMode ? "note" : ""}`}>
@@ -2506,9 +2544,6 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 }
 
 const runActionRef: { current: (a: Action) => void } = { current: () => undefined }
-
-// How long "… · Undo" stays (the app's bar too, ChatsView).
-const UNDO_BAR_MS = 8_000
 
 /** Below 400 pt the selection buttons' top row keeps only "Ask ContextFlow" with its words; the rest are icons. */
 function compactRow(): boolean {
