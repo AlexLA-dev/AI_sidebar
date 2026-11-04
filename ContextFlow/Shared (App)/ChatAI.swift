@@ -49,12 +49,14 @@ enum ChatAI {
         let timestamp: Int
     }
 
-    /// Production; a debug build can point at a local stand: `-CFApiBase http://localhost:8788`.
+    /// TestFlight 2.5 (75) only, branch claude/release-2.5-tf (never merged): the Netlify deploy of PR #37,
+    /// which has the 2.5 server code that production doesn't have yet. Production is https://aisidebar.netlify.app.
+    /// A debug build can point at a local stand: `-CFApiBase http://localhost:8788`.
     static var base: URL {
         #if DEBUG
         if let custom = UserDefaults.standard.string(forKey: "CFApiBase"), let url = URL(string: custom) { return url }
         #endif
-        return URL(string: "https://aisidebar.netlify.app")!
+        return URL(string: "https://6aeb33811339fa524f47e3aa--aisidebar.netlify.app")!
     }
 
     @MainActor

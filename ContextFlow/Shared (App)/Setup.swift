@@ -109,7 +109,7 @@ final class Activation: ObservableObject {
         if let installId = SharedDefaults.shared.readExtensionStatus().installId { body["installId"] = installId }
         let adToken = Self.adAttributionToken()
         if let adToken { body["adToken"] = adToken }
-        var request = URLRequest(url: URL(string: "https://aisidebar.netlify.app/api/v2/event")!)
+        var request = URLRequest(url: ChatAI.base.appendingPathComponent("api/v2/event")) // TestFlight 2.5: the preview, like ChatAI
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try? JSONSerialization.data(withJSONObject: body)
