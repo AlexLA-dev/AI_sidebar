@@ -3,6 +3,7 @@ import { render } from "preact"
 import { TARGET } from "../shared/config"
 import type { ContentRequest } from "../shared/types"
 import { App } from "./App"
+import { tabPdf, tabSource } from "./context"
 import { detectPlatform, HOST_TAG } from "./page"
 import styles from "./styles.css"
 
@@ -40,7 +41,7 @@ function boot(): void {
     const container = document.createElement("div")
     root.appendChild(container)
     document.documentElement.appendChild(host)
-    render(<App platform={detectPlatform(TARGET)} bus={bus} />, container)
+    render(<App platform={detectPlatform(TARGET)} bus={bus} source={tabSource(tabPdf)} />, container)
 
     // Some sites rebuild <html> children; put the host back if it gets removed.
     new MutationObserver(() => {

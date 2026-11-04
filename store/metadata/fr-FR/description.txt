@@ -33,5 +33,5 @@ L’IA peut faire des erreurs. Vérifiez les informations importantes.
 
 Les abonnements sont renouvelés automatiquement, sauf s’ils sont annulés au moins 24 heures avant la fin de la période en cours. Le paiement est débité sur votre compte Apple. Vous pouvez gérer ou annuler votre abonnement à tout moment dans les réglages de votre compte App Store.
 
-Conditions d’utilisation : https://aisidebar.netlify.app/terms
-Politique de confidentialité : https://aisidebar.netlify.app/privacy
+Conditions d’utilisation : https://context-flow.app/terms
+Politique de confidentialité : https://context-flow.app/privacy

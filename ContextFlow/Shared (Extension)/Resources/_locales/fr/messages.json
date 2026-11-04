@@ -15,12 +15,7 @@
   "message": "Cette page"
  },
  "ctxSelection": {
-  "message": "Sélection · $P0$ mots",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Sélection · {0} mots"
  },
  "ctxNone": {
   "message": "Discussion libre"
@@ -71,12 +66,7 @@
   "message": "Expliquez cette page avec des mots simples, comme à un enfant de 12 ans très éveillé."
  },
  "promptTranslate": {
-  "message": "Traduisez le contenu principal de cette page en $P0$. Conservez la structure et les titres.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Traduisez le contenu principal de cette page en {0}. Conservez la structure et les titres."
  },
  "promptSelSummarize": {
   "message": "Résumez brièvement le texte sélectionné."
@@ -85,12 +75,7 @@
   "message": "Expliquez le texte sélectionné avec des mots simples."
  },
  "promptSelTranslate": {
-  "message": "Traduisez le texte sélectionné en $P0$.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Traduisez le texte sélectionné en {0}."
  },
  "promptSelImprove": {
   "message": "Réécrivez le texte sélectionné pour le rendre plus clair et plus concis. Proposez une seule version améliorée."
@@ -177,23 +162,13 @@
   "message": "Vous"
  },
  "newPage": {
-  "message": "Nouvelle page : $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Nouvelle page : {0}"
  },
  "pageUpdated": {
   "message": "Page mise à jour"
  },
  "nowOnPage": {
-  "message": "Maintenant : $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Maintenant : {0}"
  },
  "retry": {
   "message": "Réessayer"
@@ -238,12 +213,7 @@
   "message": "Limite hebdomadaire atteinte"
  },
  "limitProBody": {
-  "message": "Vos réponses Pro se renouvellent dans $P0$.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Vos réponses Pro se renouvellent dans {0}."
  },
  "getPro": {
   "message": "Passer à Pro"
@@ -252,54 +222,37 @@
   "message": "Utiliser ma propre clé d’API"
  },
  "usageFree": {
-  "message": "Réponses gratuites restantes aujourd’hui : $P0$ sur $P1$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "Réponses gratuites restantes aujourd’hui : {0} sur {1}"
  },
  "usagePro": {
-  "message": "Pro · Réponses restantes cette semaine : $P0$ sur $P1$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "Pro · Réponses restantes cette semaine : {0} sur {1}"
  },
  "usageOwnKey": {
   "message": "Votre propre clé d’API est utilisée"
  },
  "hours": {
-  "message": "$P0$ h",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} h"
  },
  "minutes": {
-  "message": "$P0$ min",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} min"
  },
  "consentTitle": {
   "message": "Avant votre première réponse"
  },
  "consentBody": {
-  "message": "Pour répondre, ContextFlow envoie votre question et le texte de cette page (ou de votre sélection) via notre serveur à OpenAI, ou à Google pour les réponses Google. Le contenu des pages et les discussions ne sont pas conservés sur nos serveurs ; vos discussions restent sur vos appareils et, si vous les synchronisez, dans votre iCloud."
+  "message": "Pour répondre, ContextFlow envoie votre question et le texte de cette page (ou de votre sélection ; pour la recherche IA et « Interroger vos discussions », des extraits de vos discussions) via notre serveur à Anthropic (Claude) ou, s'il est indisponible, à OpenAI, ou à Google pour les réponses Google. Le contenu des pages et les discussions ne sont pas conservés sur nos serveurs ; vos discussions restent sur vos appareils et, si vous les synchronisez, dans votre iCloud."
  },
  "consentAccept": {
   "message": "Accepter et continuer"
+ },
+ "consentAgainTitle": {
+  "message": "Nouveau : les réponses viennent désormais de Claude"
+ },
+ "consentDecline": {
+  "message": "Pas maintenant"
+ },
+ "consentNeeded": {
+  "message": "Rien n'a été envoyé : les réponses de l'IA nécessitent d'abord votre accord."
  },
  "privacyPolicy": {
   "message": "Politique de confidentialité"
@@ -317,12 +270,7 @@
   "message": "Clé personnelle"
  },
  "planRenews": {
-  "message": "Renouvellement le $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Renouvellement le {0}"
  },
  "manageSubscription": {
   "message": "Gérer l’abonnement"
@@ -364,20 +312,10 @@
   "message": "Le bouton ✦ ouvre ContextFlow sur n’importe quel site. Masquez-le sur un site avec le lien ci-dessous ou désactivez-le ici."
  },
  "hideOnSite": {
-  "message": "Masquer sur $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Masquer sur {0}"
  },
  "showOnSite": {
-  "message": "Afficher sur $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Afficher sur {0}"
  },
  "setSelectionButton": {
   "message": "Bouton lors de la sélection de texte"
@@ -443,12 +381,7 @@
   "message": "Noter ContextFlow"
  },
  "version": {
-  "message": "Version $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Version {0}"
  },
  "fabLabel": {
   "message": "Demander à ContextFlow"
@@ -472,15 +405,7 @@
   "message": "Sources"
  },
  "tourStep": {
-  "message": "$P0$ sur $P1$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "{0} sur {1}"
  },
  "tourSkip": {
   "message": "Passer"
@@ -498,7 +423,7 @@
   "message": "Posez une question sur cette page"
  },
  "tourAskBody": {
-  "message": "ContextFlow lit la page que vous consultez. Choisissez une action comme « Résumer » ou posez votre propre question."
+  "message": "ContextFlow lit la page ouverte ; avec Pro, aussi les vidéos sous-titrées et les PDF qu’elle contient. Choisissez une action comme Résumer ou posez votre question."
  },
  "tourSelectTitle": {
   "message": "Juste un passage ?"
@@ -560,6 +485,27 @@
  "saveNote": {
   "message": "Enregistrer la note"
  },
+ "selQuestion": {
+  "message": "Votre question…"
+ },
+ "selNote": {
+  "message": "Note"
+ },
+ "selNoteTitle": {
+  "message": "Enregistrer la sélection dans le chat comme note (ne consomme aucune réponse)"
+ },
+ "selNoteSaved": {
+  "message": "Enregistré dans le chat"
+ },
+ "selNoteOpen": {
+  "message": "Ouvrir"
+ },
+ "selHint": {
+  "message": "Nouveau : posez ici votre propre question sur la sélection, ou enregistrez-la dans le chat comme note — les notes ne consomment aucune réponse."
+ },
+ "noteQuote": {
+  "message": "« {0} »"
+ },
  "placeholderNote": {
   "message": "Note — elle reste dans ce chat"
  },
@@ -579,26 +525,10 @@
   "message": "Ouvrir cette page"
  },
  "usageFreeShort": {
-  "message": "Aujourd’hui : $P0$ sur $P1$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "Aujourd’hui : {0} sur {1}"
  },
  "usageProShort": {
-  "message": "Pro · $P0$ sur $P1$ cette semaine",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "Pro · {0} sur {1} cette semaine"
  },
  "pinChat": {
   "message": "Épingler la discussion"
@@ -616,50 +546,22 @@
   "message": "Vos notes dans cette discussion"
  },
  "pages_one": {
-  "message": "$P0$ page",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} page"
  },
  "pages_few": {
-  "message": "$P0$ pages",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} pages"
  },
  "pages_many": {
-  "message": "$P0$ pages",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} pages"
  },
  "pages_other": {
-  "message": "$P0$ pages",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} pages"
  },
  "cancel": {
   "message": "Annuler"
  },
  "pickCount": {
-  "message": "$P0$ sur $P1$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "{0} sur {1}"
  },
  "pickHint": {
   "message": "Touchez les messages"
@@ -671,26 +573,10 @@
   "message": "Tout désélectionner"
  },
  "limitFreeBack": {
-  "message": "$P0$ nouvelles réponses gratuites à $P1$, dans $P2$.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   },
-   "p2": {
-    "content": "$3"
-   }
-  }
+  "message": "{0} nouvelles réponses gratuites à {1}, dans {2}."
  },
  "limitFreePro": {
-  "message": "Avec Pro, profitez de jusqu’à $P0$ réponses par semaine.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Avec Pro : jusqu’à {0} réponses par semaine, les vidéos et PDF de la page, la recherche IA et des questions sur toutes vos discussions."
  },
  "limitNotes": {
   "message": "Les notes restent gratuites et illimitées : notez l’essentiel maintenant, interrogez l’IA plus tard."
@@ -699,55 +585,258 @@
   "message": "Écrire une note"
  },
  "errProvider": {
-  "message": "Votre fournisseur d'IA a répondu : $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Votre fournisseur d'IA a répondu : {0}"
  },
  "offerLimit": {
-  "message": "Ou passez à Pro avec $P0$ % de réduction le premier mois : jusqu'à $P1$ réponses par semaine avec un modèle plus intelligent. Résiliable à tout moment.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "Ou passez à Pro avec {0} % de réduction le premier mois : jusqu'à {1} réponses par semaine, plus approfondies et détaillées. Résiliable à tout moment."
  },
  "offerButton": {
-  "message": "Pro à −$P0$ %",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Pro à −{0} %"
  },
  "offerShort": {
-  "message": "Pro −$P0$ %",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Pro −{0} %"
  },
  "offerCardTitle": {
   "message": "Plus assez de réponses ?"
  },
  "offerCardBody": {
-  "message": "Vous avez déjà atteint la limite quotidienne gratuite. Pro vous donne jusqu'à $P1$ réponses par semaine avec un modèle plus intelligent, et le premier mois est à −$P0$ %. Ensuite, le prix normal ; résiliable à tout moment dans les réglages de l'App Store.",
-  "placeholders": {
-   "p1": {
-    "content": "$2"
-   },
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Vous avez déjà atteint la limite quotidienne gratuite. Pro vous donne jusqu'à {1} réponses par semaine, plus approfondies et détaillées, et le premier mois est à −{0} %. Ensuite, le prix normal ; résiliable à tout moment dans les réglages de l'App Store."
  },
  "offerLater": {
   "message": "Pas maintenant"
+ },
+ "emptyVideo": {
+  "message": "Je vois cette vidéo et je vais lire sa transcription. Posez une question ou choisissez une action."
+ },
+ "emptyPdf": {
+  "message": "Je vois ce PDF. Posez une question ou choisissez une action."
+ },
+ "readingVideo": {
+  "message": "Lecture de la transcription…"
+ },
+ "readingPdf": {
+  "message": "Lecture du PDF…"
+ },
+ "usedVideo": {
+  "message": "Transcription de la vidéo · {0}"
+ },
+ "usedPdf": {
+  "message": "{0} · {1} p."
+ },
+ "videoNoTranscript": {
+  "message": "Cette vidéo n’a pas de sous-titres : la réponse s’appuie sur son titre et sa description."
+ },
+ "videoFailed": {
+  "message": "Impossible d’obtenir la transcription de cette vidéo : la réponse s’appuie sur son titre et sa description."
+ },
+ "pdfNoText": {
+  "message": "« {0} » ne contient pas de texte lisible (pages numérisées) : la réponse s’en passe."
+ },
+ "pdfFailed": {
+  "message": "Impossible de lire le PDF « {0} » : la réponse s’en passe."
+ },
+ "searchChats": {
+  "message": "Rechercher dans les discussions"
+ },
+ "searchNone": {
+  "message": "Aucune discussion pour « {0} »"
+ },
+ "searchClear": {
+  "message": "Effacer la recherche"
+ },
+ "askHistory": {
+  "message": "Interroger vos discussions"
+ },
+ "askHistoryHint": {
+  "message": "Questions sur tout ce que vous avez lu et demandé"
+ },
+ "askHistoryEmpty": {
+  "message": "Posez des questions sur tout ce que vous avez lu et demandé avec ContextFlow, dans toutes vos discussions."
+ },
+ "askHistoryEx1": {
+  "message": "Qu’ai-je lu cette semaine ?"
+ },
+ "askHistoryEx2": {
+  "message": "Résume mes notes"
+ },
+ "askHistoryEx3": {
+  "message": "Qu’ai-je appris sur l’IA ?"
+ },
+ "placeholderHistory": {
+  "message": "Posez une question sur vos discussions…"
+ },
+ "findToggle": {
+  "message": "Recherche IA"
+ },
+ "findToggleLocked": {
+  "message": "Recherche IA — Pro"
+ },
+ "findPlaceholder": {
+  "message": "Décrivez la discussion que vous cherchez…"
+ },
+ "findHint": {
+  "message": "Décrivez avec vos mots ce dont vous vous souvenez, puis Entrée : « l’article sur le sommeil et le café de la semaine dernière »."
+ },
+ "findBusy": {
+  "message": "Recherche dans vos discussions…"
+ },
+ "upsellTitle": {
+  "message": "ContextFlow Pro"
+ },
+ "upsellFindTitle": {
+  "message": "Retrouvez une discussion à partir de vos souvenirs"
+ },
+ "upsellHistoryTitle": {
+  "message": "Interrogez tout ce que vous avez lu"
+ },
+ "upsellFindName": {
+  "message": "Recherche IA"
+ },
+ "upsellFindText": {
+  "message": "Décrivez une discussion avec vos mots — « cet article sur le sommeil et le café de la semaine dernière » — et l’IA la retrouve, même sans les mots exacts."
+ },
+ "upsellHistoryName": {
+  "message": "Interroger vos discussions"
+ },
+ "upsellHistoryText": {
+  "message": "Des questions sur toutes vos discussions : « Qu’ai-je lu sur l’épargne retraite ? », « Résume mes notes du mois »."
+ },
+ "upsellMore": {
+  "message": "Et les vidéos et PDF de la page, avec jusqu’à 375 réponses par semaine, plus approfondies et détaillées, sur iPhone, iPad et Mac."
+ },
+ "errProOnly": {
+  "message": "Cette fonction fait partie de Pro."
+ },
+ "tagsTitle": {
+  "message": "Tags"
+ },
+ "tagsNew": {
+  "message": "Nouveau tag…"
+ },
+ "tagsAdd": {
+  "message": "Ajouter un tag"
+ },
+ "tagsDone": {
+  "message": "OK"
+ },
+ "tagsFilter": {
+  "message": "Filtrer par tag"
+ },
+ "tagsGroup": {
+  "message": "Dossiers"
+ },
+ "tagsEdit": {
+  "message": "Tags"
+ },
+ "tagsNone": {
+  "message": "Sans tag"
+ },
+ "tagsButton": {
+  "message": "Tag"
+ },
+ "hintGot": {
+  "message": "Compris"
+ },
+ "hintChatsTitle": {
+  "message": "Trouver, ranger, retrouver"
+ },
+ "hintChatsBody": {
+  "message": "Cherchez par mots ou #tag. Ajoutez des tags aux discussions et réponses (🏷) et activez Dossiers pour les regrouper. Avec Pro, ✦ retrouve une discussion à partir d’une description, et « Interroger vos discussions » répond à partir de toutes."
+ },
+ "hintVideoTitle": {
+  "message": "Cette page contient une vidéo"
+ },
+ "hintVideoBody": {
+  "message": "Les réponses s’appuient sur sa transcription et indiquent des moments comme [4:15]. Sans sous-titres, elles utilisent le titre et la description, et le précisent."
+ },
+ "hintPdfTitle": {
+  "message": "Les PDF sont lus aussi"
+ },
+ "hintPdfBody": {
+  "message": "Les PDF affichés ou liés sur cette page accompagnent votre question ; les réponses indiquent la page."
+ },
+ "proSkipVideo": {
+  "message": "La vidéo de cette page n’a pas été prise en compte — Pro lit les vidéos"
+ },
+ "proSkipPdf": {
+  "message": "Les PDF de cette page n’ont pas été pris en compte — Pro les lit"
+ },
+ "proSkipBoth": {
+  "message": "La vidéo et les PDF de cette page n’ont pas été pris en compte — Pro les lit"
+ },
+ "tryPro": {
+  "message": "Essayer Pro"
+ },
+ "emptyVideoFree": {
+  "message": "Cette page contient une vidéo. Les réponses Pro utilisent sa transcription, les réponses gratuites ce que montre la page (titre, description)."
+ },
+ "emptyPdfFree": {
+  "message": "Cette page contient un PDF. Les réponses Pro le lisent, les réponses gratuites utilisent le texte de la page."
+ },
+ "hintVideoBodyFree": {
+  "message": "Avec Pro, les réponses utilisent la transcription et renvoient à des moments comme [4:15]. Les réponses gratuites utilisent le titre et la description."
+ },
+ "hintPdfTitleFree": {
+  "message": "Cette page contient des PDF"
+ },
+ "hintPdfBodyFree": {
+  "message": "Pro lit les PDF affichés ou liés sur cette page et indique de quelle page vient une réponse. Les réponses gratuites utilisent le texte de la page."
+ },
+ "renewalTitle": {
+  "message": "Pro se termine le {0}"
+ },
+ "renewalBody": {
+  "message": "Le renouvellement automatique est désactivé. Qu'est-ce qui vous a manqué ?"
+ },
+ "renewalPrice": {
+  "message": "Trop cher"
+ },
+ "renewalRarely": {
+  "message": "Je ne l'utilise pas assez"
+ },
+ "renewalAnswers": {
+  "message": "Les réponses ne me convenaient pas"
+ },
+ "renewalFeatures": {
+  "message": "Il manque une fonction dont j'ai besoin"
+ },
+ "renewalFreeEnough": {
+  "message": "La version gratuite me suffit"
+ },
+ "renewalOther": {
+  "message": "Autre chose"
+ },
+ "renewalThanks": {
+  "message": "Merci, cela nous aide à améliorer ContextFlow."
+ },
+ "planEnds": {
+  "message": "Se termine le {0} : renouvellement automatique désactivé"
+ },
+ "upgradePro": {
+  "message": "Passer à Pro"
+ },
+ "upgradeProOff": {
+  "message": "Passer à Pro avec {0} % de réduction"
+ },
+ "byokLimitTitle": {
+  "message": "Les réponses du jour via ContextFlow sont épuisées"
+ },
+ "byokLimitNoKey": {
+  "message": "Votre propre clé n'est pas encore ajoutée : les réponses passent par ContextFlow, {0} par jour. Ajoutez-la dans les réglages ou passez à Pro : jusqu'à {1} réponses par semaine, sans clé."
+ },
+ "byokLimitGoogle": {
+  "message": "Avec l'offre Clé personnelle, les réponses Google passent par ContextFlow : {0} par jour. Pro vous donne jusqu'à {1} réponses par semaine."
+ },
+ "byokSearch": {
+  "message": "Avec l'offre Clé personnelle, la recherche Google est limitée à {0} par jour. Pro vous en donne {1} par semaine."
+ },
+ "byokProOnly": {
+  "message": "Non inclus dans l'offre Clé personnelle."
+ },
+ "byokOfferTitle": {
+  "message": "Pro avec {0} % de réduction"
+ },
+ "byokOfferBody": {
+  "message": "Pro répond sans votre clé : jusqu'à {0} réponses par semaine, {1} recherches Google par semaine, « Interroger vos discussions » et la recherche IA. L'App Store affiche le prix et la durée avant le paiement. Pro démarre aussitôt et la partie non utilisée de votre offre est remboursée."
  }
 }

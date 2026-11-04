@@ -2,7 +2,7 @@ import assert from "node:assert/strict"
 import { test } from "node:test"
 
 import type { Entry } from "../src/shared/conversation.ts"
-import { answerShareText, chatLanguage, chatShareText, notALink, pickedShareText, textLanguage, toPlainText } from "../src/shared/share.ts"
+import { answerShareText, chatLanguage, chatShareText, notALink, noteCopyText, noteShareText, pickedShareText, textLanguage, toPlainText } from "../src/shared/share.ts"
 
 const labels = { you: "You", note: "Note", sources: "Sources", source: "Source", madeWith: "Made with ContextFlow" }
 const page = { url: "https://news.example/a", title: "Article A" }
@@ -114,4 +114,16 @@ test("sharing picked messages: one answer alone like an answer, anything else li
     "Made with ContextFlow: https://apps.apple.com/app/id1"
   ].join("\n"))
   assert.match(pickedShareText([...entries, { role: "user", content: "Mine", note: true, page }], new Set([4]), "Chat", labels, x), /^Chat\n\nNote: Mine\n\nSource:\nArticle A/)
+})
+
+test("a note copies its text; one made from a selection also the page the quote is from", () => {
+  assert.equal(noteCopyText({ role: "user", content: "Check the chart", note: true, page }), "Check the chart")
+  assert.equal(noteCopyText({ role: "user", content: "“New rules start in May.”\n\nAsk legal", note: true, quote: true, page }), "“New rules start in May.”\n\nAsk legal\n\nArticle A — https://news.example/a")
+})
+
+test("a note shares like an answer: its text, its page and where it was made, as text only", () => {
+  const chat: Entry[] = [...entries, { role: "user", content: "Summary: check the May rules", note: true, page: { url: "https://news.example/b", title: "B" } }]
+  const text = noteShareText(chat, 4, labels, links("https://x.example"))
+  assert.equal(text, ["Summary — check the May rules", "", "Source: https://news.example/b", "", `Made with ContextFlow: ${app}`].join("\n"))
+  assert.equal(URL.canParse(text), false)
 })

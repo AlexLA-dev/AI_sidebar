@@ -108,6 +108,15 @@ function fallbackText(): string {
   return clone.innerText || clone.textContent || ""
 }
 
+/** The tab is in Private Browsing (an incognito window). */
+export function privateBrowsing(): boolean {
+  try {
+    return chrome.extension?.inIncognitoContext === true
+  } catch {
+    return false
+  }
+}
+
 /**
  * Readable text of the page (Readability for articles, cleaned body text otherwise).
  * Read fresh every time: pages load more content after the first look (feeds, SPAs, live updates).

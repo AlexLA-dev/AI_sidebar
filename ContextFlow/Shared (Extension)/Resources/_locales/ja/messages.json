@@ -15,12 +15,7 @@
   "message": "このページ"
  },
  "ctxSelection": {
-  "message": "選択範囲 · $P0$語",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "選択範囲 · {0}語"
  },
  "ctxNone": {
   "message": "フリーチャット"
@@ -71,12 +66,7 @@
   "message": "このページの内容を、賢い12歳の子どもにもわかるように、やさしい言葉で説明してください。"
  },
  "promptTranslate": {
-  "message": "このページの主な内容を$P0$に翻訳してください。構成と見出しはそのまま残してください。",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "このページの主な内容を{0}に翻訳してください。構成と見出しはそのまま残してください。"
  },
  "promptSelSummarize": {
   "message": "選択したテキストを簡潔に要約してください。"
@@ -85,12 +75,7 @@
   "message": "選択したテキストをやさしい言葉で説明してください。"
  },
  "promptSelTranslate": {
-  "message": "選択したテキストを$P0$に翻訳してください。",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "選択したテキストを{0}に翻訳してください。"
  },
  "promptSelImprove": {
   "message": "選択したテキストを、より明確で簡潔な文章に書き直してください。改善案は1つだけ示してください。"
@@ -177,23 +162,13 @@
   "message": "あなた"
  },
  "newPage": {
-  "message": "新しいページ: $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "新しいページ: {0}"
  },
  "pageUpdated": {
   "message": "ページが更新されました"
  },
  "nowOnPage": {
-  "message": "現在: $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "現在: {0}"
  },
  "retry": {
   "message": "再試行"
@@ -238,12 +213,7 @@
   "message": "週の上限に達しました"
  },
  "limitProBody": {
-  "message": "Proの回答数は$P0$後にリセットされます。",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Proの回答数は{0}後にリセットされます。"
  },
  "getPro": {
   "message": "Proを入手"
@@ -252,54 +222,37 @@
   "message": "自分のAPIキーを使う"
  },
  "usageFree": {
-  "message": "今日の無料回答：残り$P0$/$P1$回",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "今日の無料回答：残り{0}/{1}回"
  },
  "usagePro": {
-  "message": "Pro · 今週の回答：残り$P0$/$P1$回",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "Pro · 今週の回答：残り{0}/{1}回"
  },
  "usageOwnKey": {
   "message": "自分のAPIキーを使用中"
  },
  "hours": {
-  "message": "$P0$時間",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0}時間"
  },
  "minutes": {
-  "message": "$P0$分",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0}分"
  },
  "consentTitle": {
   "message": "ご利用の前に"
  },
  "consentBody": {
-  "message": "回答するために、ContextFlowはあなたの質問とこのページ（または選択範囲）のテキストを、当社のサーバ経由でOpenAI（Googleでの回答の場合はGoogle）に送信します。ページの内容やチャットは当社のサーバに保存されず、チャットはお使いのデバイスと、同期をオンにした場合はあなたのiCloudにのみ保存されます。"
+  "message": "回答するために、ContextFlowはあなたの質問とこのページ（または選択範囲）のテキスト（AI検索と「すべてのチャットに質問」ではチャットの抜粋）を、当社のサーバ経由でAnthropic（Claude）に、利用できない場合はOpenAIに（Googleでの回答の場合はGoogleに）送信します。ページの内容やチャットは当社のサーバに保存されず、チャットはお使いのデバイスと、同期をオンにした場合はあなたのiCloudにのみ保存されます。"
  },
  "consentAccept": {
   "message": "同意して続ける"
+ },
+ "consentAgainTitle": {
+  "message": "更新：回答は Claude が担当するようになりました"
+ },
+ "consentDecline": {
+  "message": "今はしない"
+ },
+ "consentNeeded": {
+  "message": "何も送信されていません。AIの回答には先に同意が必要です。"
  },
  "privacyPolicy": {
   "message": "プライバシーポリシー"
@@ -317,12 +270,7 @@
   "message": "自分のキー"
  },
  "planRenews": {
-  "message": "$P0$に更新",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0}に更新"
  },
  "manageSubscription": {
   "message": "サブスクリプションを管理"
@@ -364,20 +312,10 @@
   "message": "✦ボタンでどのサイトでもContextFlowを開けます。下のリンクで特定のサイトだけ非表示にするか、ここでオフにできます。"
  },
  "hideOnSite": {
-  "message": "$P0$で非表示",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0}で非表示"
  },
  "showOnSite": {
-  "message": "$P0$で表示",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0}で表示"
  },
  "setSelectionButton": {
   "message": "テキスト選択時のボタン"
@@ -443,12 +381,7 @@
   "message": "ContextFlowを評価"
  },
  "version": {
-  "message": "バージョン $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "バージョン {0}"
  },
  "fabLabel": {
   "message": "ContextFlowに質問"
@@ -472,15 +405,7 @@
   "message": "出典"
  },
  "tourStep": {
-  "message": "$P0$/$P1$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "{0}/{1}"
  },
  "tourSkip": {
   "message": "スキップ"
@@ -498,7 +423,7 @@
   "message": "このページについて質問"
  },
  "tourAskBody": {
-  "message": "ContextFlowは開いているページを読み取ります。「要約」などのアクションを選ぶか、質問を入力してください。"
+  "message": "ContextFlow は開いているページを読み取ります。Pro なら字幕付きの動画やページ上の PDF も読み取れます。「要約」などのアクションを選ぶか、質問を入力してください。"
  },
  "tourSelectTitle": {
   "message": "一部分だけ？"
@@ -560,6 +485,27 @@
  "saveNote": {
   "message": "メモを保存"
  },
+ "selQuestion": {
+  "message": "質問を入力…"
+ },
+ "selNote": {
+  "message": "メモ"
+ },
+ "selNoteTitle": {
+  "message": "選択範囲をメモとしてチャットに保存（回答回数を使いません）"
+ },
+ "selNoteSaved": {
+  "message": "チャットに保存しました"
+ },
+ "selNoteOpen": {
+  "message": "開く"
+ },
+ "selHint": {
+  "message": "新機能：選択範囲についての質問をここに入力できます。メモとしてチャットに保存することもできます（メモは回答回数を使いません）。"
+ },
+ "noteQuote": {
+  "message": "「{0}」"
+ },
  "placeholderNote": {
   "message": "メモ — このチャットに残ります"
  },
@@ -579,26 +525,10 @@
   "message": "このページを開く"
  },
  "usageFreeShort": {
-  "message": "今日 残り$P0$/$P1$回",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "今日 残り{0}/{1}回"
  },
  "usageProShort": {
-  "message": "Pro · 今週 残り$P0$/$P1$回",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "Pro · 今週 残り{0}/{1}回"
  },
  "pinChat": {
   "message": "チャットを固定"
@@ -616,50 +546,22 @@
   "message": "このチャットのメモ"
  },
  "pages_one": {
-  "message": "$P0$ページ",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0}ページ"
  },
  "pages_few": {
-  "message": "$P0$ページ",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0}ページ"
  },
  "pages_many": {
-  "message": "$P0$ページ",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0}ページ"
  },
  "pages_other": {
-  "message": "$P0$ページ",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0}ページ"
  },
  "cancel": {
   "message": "キャンセル"
  },
  "pickCount": {
-  "message": "$P0$/$P1$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "{0}/{1}"
  },
  "pickHint": {
   "message": "メッセージをタップ"
@@ -671,26 +573,10 @@
   "message": "選択を解除"
  },
  "limitFreeBack": {
-  "message": "$P1$（$P2$後）に無料回答が$P0$回分戻ります。",
-  "placeholders": {
-   "p1": {
-    "content": "$2"
-   },
-   "p2": {
-    "content": "$3"
-   },
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{1}（{2}後）に無料回答が{0}回分戻ります。"
  },
  "limitFreePro": {
-  "message": "Proなら週に最大$P0$回まで回答を受け取れます。",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Proなら週に最大{0}回の回答、ページの動画とPDFの読み取り、AI検索、すべてのチャットへの質問が使えます。"
  },
  "limitNotes": {
   "message": "メモは無料・無制限です。大事なことを今メモして、あとでAIに聞きましょう。"
@@ -699,55 +585,258 @@
   "message": "メモを書く"
  },
  "errProvider": {
-  "message": "AI プロバイダーからの応答：$P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "AI プロバイダーからの応答：{0}"
  },
  "offerLimit": {
-  "message": "または、最初の 1 か月が $P0$% オフの Pro をどうぞ。より賢いモデルで週 $P1$ 件まで回答できます。いつでも解約できます。",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "または、最初の 1 か月が {0}% オフの Pro をどうぞ。より深く詳しい回答を週 {1} 件まで受け取れます。いつでも解約できます。"
  },
  "offerButton": {
-  "message": "Pro を $P0$% オフで",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Pro を {0}% オフで"
  },
  "offerShort": {
-  "message": "Pro −$P0$%",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Pro −{0}%"
  },
  "offerCardTitle": {
   "message": "回答が足りませんか？"
  },
  "offerCardBody": {
-  "message": "以前、1 日の無料回答の上限に達しました。Pro ならより賢いモデルで週 $P1$ 件まで回答でき、最初の 1 か月は $P0$% オフです。その後は通常価格で、App Store の設定からいつでも解約できます。",
-  "placeholders": {
-   "p1": {
-    "content": "$2"
-   },
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "以前、1 日の無料回答の上限に達しました。Pro ならより深く詳しい回答を週 {1} 件まで受け取れ、最初の 1 か月は {0}% オフです。その後は通常価格で、App Store の設定からいつでも解約できます。"
  },
  "offerLater": {
   "message": "今はしない"
+ },
+ "emptyVideo": {
+  "message": "この動画を確認できます。文字起こしを読み取ります。質問するか、アクションを選んでください。"
+ },
+ "emptyPdf": {
+  "message": "このPDFを確認できます。質問するか、アクションを選んでください。"
+ },
+ "readingVideo": {
+  "message": "動画の文字起こしを読んでいます…"
+ },
+ "readingPdf": {
+  "message": "PDFを読んでいます…"
+ },
+ "usedVideo": {
+  "message": "動画の文字起こし · {0}"
+ },
+ "usedPdf": {
+  "message": "{0} · {1}ページ"
+ },
+ "videoNoTranscript": {
+  "message": "この動画には字幕がありません。タイトルと説明をもとに回答します。"
+ },
+ "videoFailed": {
+  "message": "この動画の文字起こしを取得できませんでした。タイトルと説明をもとに回答します。"
+ },
+ "pdfNoText": {
+  "message": "「{0}」には読み取れるテキストがありません（スキャン画像）。これを除いて回答します。"
+ },
+ "pdfFailed": {
+  "message": "PDF「{0}」を読み取れませんでした。これを除いて回答します。"
+ },
+ "searchChats": {
+  "message": "チャットを検索"
+ },
+ "searchNone": {
+  "message": "「{0}」に一致するチャットはありません"
+ },
+ "searchClear": {
+  "message": "検索をクリア"
+ },
+ "askHistory": {
+  "message": "すべてのチャットに質問"
+ },
+ "askHistoryHint": {
+  "message": "読んだことや質問したことすべてについて質問"
+ },
+ "askHistoryEmpty": {
+  "message": "ContextFlow で読んだことや質問したことについて、すべてのチャットをまとめて質問できます。"
+ },
+ "askHistoryEx1": {
+  "message": "今週は何を読んだ？"
+ },
+ "askHistoryEx2": {
+  "message": "メモをまとめて"
+ },
+ "askHistoryEx3": {
+  "message": "AIについて何を学んだ？"
+ },
+ "placeholderHistory": {
+  "message": "チャットについて質問…"
+ },
+ "findToggle": {
+  "message": "AI検索"
+ },
+ "findToggleLocked": {
+  "message": "AI検索 — Pro"
+ },
+ "findPlaceholder": {
+  "message": "探しているチャットを説明…"
+ },
+ "findHint": {
+  "message": "覚えていることを自分の言葉で書いて Enter：「先週読んだ睡眠とコーヒーの記事」。"
+ },
+ "findBusy": {
+  "message": "チャットを検索中…"
+ },
+ "upsellTitle": {
+  "message": "ContextFlow Pro"
+ },
+ "upsellFindTitle": {
+  "message": "覚えていることから、どのチャットも見つかる"
+ },
+ "upsellHistoryTitle": {
+  "message": "読んだことすべてについて質問"
+ },
+ "upsellFindName": {
+  "message": "AI検索"
+ },
+ "upsellFindText": {
+  "message": "チャットを自分の言葉で説明すると（「先週読んだ睡眠とコーヒーの記事」など）、正確な言葉がなくても AI が見つけます。"
+ },
+ "upsellHistoryName": {
+  "message": "すべてのチャットに質問"
+ },
+ "upsellHistoryText": {
+  "message": "すべてのチャットにまとめて質問：「老後の貯蓄について何を読んだ？」「今月のメモをまとめて」。"
+ },
+ "upsellMore": {
+  "message": "さらに、ページの動画とPDFの読み取り、より深く詳しい回答を週375件まで。iPhone、iPad、Macで使えます。"
+ },
+ "errProOnly": {
+  "message": "この機能は Pro に含まれます。"
+ },
+ "tagsTitle": {
+  "message": "タグ"
+ },
+ "tagsNew": {
+  "message": "新しいタグ…"
+ },
+ "tagsAdd": {
+  "message": "タグを追加"
+ },
+ "tagsDone": {
+  "message": "完了"
+ },
+ "tagsFilter": {
+  "message": "タグで絞り込む"
+ },
+ "tagsGroup": {
+  "message": "フォルダ"
+ },
+ "tagsEdit": {
+  "message": "タグ"
+ },
+ "tagsNone": {
+  "message": "タグなし"
+ },
+ "tagsButton": {
+  "message": "タグ"
+ },
+ "hintGot": {
+  "message": "OK"
+ },
+ "hintChatsTitle": {
+  "message": "探す・整理する・振り返る"
+ },
+ "hintChatsBody": {
+  "message": "単語や #タグ で検索できます。🏷 でチャットや回答にタグを付け、「フォルダ」でまとめられます。Pro なら ✦ が説明からチャットを見つけ、「すべてのチャットに質問」で全体から回答します。"
+ },
+ "hintVideoTitle": {
+  "message": "このページには動画があります"
+ },
+ "hintVideoBody": {
+  "message": "回答は文字起こしをもとに、[4:15] のように場面を示します。字幕がなければタイトルと説明をもとに回答し、その旨を伝えます。"
+ },
+ "hintPdfTitle": {
+  "message": "PDF も読み取ります"
+ },
+ "hintPdfBody": {
+  "message": "このページに表示またはリンクされた PDF も質問に含めます。回答にはページ番号を示します。"
+ },
+ "proSkipVideo": {
+  "message": "このページの動画は読み取っていません。動画は Pro で読み取れます"
+ },
+ "proSkipPdf": {
+  "message": "このページの PDF は読み取っていません。PDF は Pro で読み取れます"
+ },
+ "proSkipBoth": {
+  "message": "このページの動画と PDF は読み取っていません。Pro で読み取れます"
+ },
+ "tryPro": {
+  "message": "Pro を試す"
+ },
+ "emptyVideoFree": {
+  "message": "このページには動画があります。Pro の回答は文字起こしを使い、無料の回答はページに表示された内容（タイトル、説明）を使います。"
+ },
+ "emptyPdfFree": {
+  "message": "このページには PDF があります。Pro の回答は PDF を読み取り、無料の回答はページのテキストを使います。"
+ },
+ "hintVideoBodyFree": {
+  "message": "Pro では文字起こしを使い、[4:15] のように場面を示します。無料の回答はタイトルと説明を使います。"
+ },
+ "hintPdfTitleFree": {
+  "message": "このページには PDF があります"
+ },
+ "hintPdfBodyFree": {
+  "message": "Pro はこのページに表示・リンクされた PDF を読み取り、どのページの内容かを示します。無料の回答はページのテキストを使います。"
+ },
+ "renewalTitle": {
+  "message": "Pro は{0}に終了します"
+ },
+ "renewalBody": {
+  "message": "自動更新がオフになっています。何が足りませんでしたか？"
+ },
+ "renewalPrice": {
+  "message": "高すぎる"
+ },
+ "renewalRarely": {
+  "message": "あまり使わない"
+ },
+ "renewalAnswers": {
+  "message": "回答の質が足りない"
+ },
+ "renewalFeatures": {
+  "message": "必要な機能がない"
+ },
+ "renewalFreeEnough": {
+  "message": "無料プランで十分"
+ },
+ "renewalOther": {
+  "message": "その他"
+ },
+ "renewalThanks": {
+  "message": "ありがとうございます。ContextFlow の改善に役立てます。"
+ },
+ "planEnds": {
+  "message": "{0}に終了：自動更新はオフ"
+ },
+ "upgradePro": {
+  "message": "Pro にアップグレード"
+ },
+ "upgradeProOff": {
+  "message": "{0}%オフでアップグレード"
+ },
+ "byokLimitTitle": {
+  "message": "ContextFlow 経由の本日の回答を使い切りました"
+ },
+ "byokLimitNoKey": {
+  "message": "自分のキーがまだ追加されていないため、回答は ContextFlow 経由（1日{0}件）です。設定でキーを追加するか、Pro に切り替えてください：週に最大{1}件、キー不要。"
+ },
+ "byokLimitGoogle": {
+  "message": "「自分のキー」プランでは、Google 検索の回答は ContextFlow 経由で1日{0}件です。Pro なら週に最大{1}件。"
+ },
+ "byokSearch": {
+  "message": "「自分のキー」プランの Google 検索は1日{0}回です。Pro なら週{1}回。"
+ },
+ "byokProOnly": {
+  "message": "「自分のキー」プランには含まれません。"
+ },
+ "byokOfferTitle": {
+  "message": "Pro が{0}%オフ"
+ },
+ "byokOfferBody": {
+  "message": "Pro はキーなしで回答します：週に最大{0}件、Google 検索は週{1}回、「すべてのチャットに質問」と AI検索。支払い前に App Store が価格と期間を表示します。Pro はすぐに始まり、現在のプランの未使用分は返金されます。"
  }
 }

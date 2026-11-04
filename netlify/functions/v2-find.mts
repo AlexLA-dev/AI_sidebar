@@ -6,6 +6,7 @@ import { answerCost, clientBuild, startAnswer, type Answer } from "../shared/ans
 import type { StreamStats } from "../shared/llm.mts"
 import { blockReason, countersFor, resolveAccess, visibleUsage } from "../shared/plan.mts"
 import { findPrompt, MAX_FIND_CHARS, MAX_FIND_CHATS, parseFindAnswer, sanitizeDigests } from "../../src/shared/history.ts"
+import { chatSize, digestCut, LIMITS_VERSION } from "../shared/limits.mts"
 import { uiFields } from "../../src/shared/usage.ts"
 
 /**
@@ -88,6 +89,10 @@ export default async (req: Request, context: Context): Promise<Response> => {
       mode: "find",
       find_chats: chats.length,
       find_results: results.length,
+      // The chats didn't all fit (cf_limits_report), and how many the device has (2.4).
+      limits_v: LIMITS_VERSION,
+      ...(digestCut(body.chats, chats, MAX_FIND_CHARS) ? { digest_cut: true } : {}),
+      ...chatSize(body.stats),
       prompt_tokens: stats.promptTokens,
       completion_tokens: stats.completionTokens,
       ms: Date.now() - started,

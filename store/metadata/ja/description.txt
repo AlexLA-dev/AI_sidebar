@@ -33,5 +33,5 @@ AIは間違えることがあります。重要な情報は確認してくださ
 
 サブスクリプションは、現在の期間が終了する24時間以上前にキャンセルしない限り、自動的に更新されます。お支払いはApple アカウントに請求されます。サブスクリプションの管理やキャンセルは、App Storeのアカウント設定からいつでも行えます。
 
-利用規約：https://aisidebar.netlify.app/terms
-プライバシーポリシー：https://aisidebar.netlify.app/privacy
+利用規約：https://context-flow.app/terms
+プライバシーポリシー：https://context-flow.app/privacy

@@ -1,5 +1,6 @@
 import { API_BASE } from "../shared/config"
 import { isReasoningGpt, keyProvider, newestGptModel, type ModelTier } from "../shared/models"
+import { pageForModel } from "../shared/attachments"
 import { otherPagesOf, systemPrompt } from "../shared/prompt"
 import { sseData } from "../shared/sse"
 import { STORAGE, type AskPayload, type ErrorCode, type Grounding, type OwnKeyUsage, type Plan, type ProOffer, type StreamEvent, type Usage } from "../shared/types"
@@ -11,7 +12,7 @@ const FIRST_BYTE_TIMEOUT_MS = 30_000
 
 interface ServerRequest {
   installId: string
-  client: { version: string; platform: string; locale: string }
+  client: { version: string; build?: string; platform: string; locale: string }
   entitlement: string | null
   profile: string
   payload: AskPayload
@@ -37,7 +38,9 @@ export async function askServer(req: ServerRequest, emit: Emit, signal: AbortSig
         page: req.payload.page,
         action: req.payload.action,
         mode: req.payload.mode,
-        ...(req.payload.context ? { context: req.payload.context, pages: req.payload.pages ?? [] } : {})
+        ...(req.payload.context === "chat" ? { context: "chat", pages: req.payload.pages ?? [] } : {}),
+        ...(req.payload.context === "history" ? { context: "history", history: req.payload.history ?? [] } : {}),
+        ...(req.payload.stats ? { stats: req.payload.stats } : {})
       }),
       signal: timeout.signal
     })
@@ -120,7 +123,8 @@ export async function askWithOwnKey(
 
   const usage: OwnKeyUsage = { provider: "openai", model: "", ok: false, promptTokens: 0, completionTokens: 0 }
   const fail = (code: ErrorCode | "STOPPED") => ({ ...usage, ok: false, error: code })
-  const system = systemPrompt(payload.page, profile, locale, otherPagesOf(payload))
+  // The user's own key: what the panel read (it reads videos and PDFs only for plans with them) goes in.
+  const system = systemPrompt(payload.page && pageForModel(payload.page, true), profile, locale, otherPagesOf(payload))
   const models = [...new Set([await newestGpt(key, tier, signal), ...OPENAI_FALLBACK_MODELS[tier]].filter((m): m is string => Boolean(m)))]
   let res: Response | null = null
   for (const model of models) {
@@ -197,7 +201,7 @@ export async function askWithOwnKey(
 export function reportOwnKeyUsage(
   report: OwnKeyUsage & { ms: number; tier: ModelTier; action?: string },
   installId: string,
-  client: { version: string; platform: string; locale: string }
+  client: { version: string; build?: string; platform: string; locale: string }
 ): void {
   void fetch(`${API_BASE}/api/v2/usage`, {
     method: "POST",

@@ -106,7 +106,7 @@
 .cf-bubble {
   position: fixed;
   left: 0;
-  display: flex; gap: 2px; padding: 4px;
+  display: flex; flex-direction: column; gap: 4px; padding: 4px;
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -114,14 +114,44 @@
   z-index: 3;
   animation: cf-pop 0.14s ease-out;
 }
+.cf-bubble-row { display: flex; gap: 2px; }
 .cf-bubble button { display: flex; align-items: center; gap: 5px; padding: 6px 10px; border-radius: 8px; font-size: 13px; font-weight: 500; color: var(--text-2); white-space: nowrap; }
 .cf-bubble button:hover { background: var(--bg-2); color: var(--text); }
 .cf-bubble button.primary { color: var(--accent-text); }
-/* iPhone / iPad: bigger tap targets, primary action filled. */
-.cf-bubble.touch { gap: 4px; padding: 5px; border-radius: 16px; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+/* The question field by the selection: as wide as the buttons above it, with send and Note. */
+.cf-bubble-ask { display: flex; align-items: center; gap: 4px; }
+.cf-bubble-ask input {
+  flex: 1; width: 0; min-width: 0; height: 30px; padding: 0 10px;
+  border: 1px solid var(--border); border-radius: 8px;
+  background: var(--bg-2); color: var(--text);
+  font: inherit; font-size: 13px; outline: none;
+  -webkit-user-select: text; user-select: text;
+}
+.cf-bubble-ask input:focus { border-color: var(--accent); background: var(--bg); }
+.cf-bubble-ask input::placeholder { color: var(--text-3); }
+.cf-bubble button.cf-bubble-send { flex: none; justify-content: center; width: 30px; height: 30px; padding: 0; border-radius: 50%; color: #fff; background: var(--accent); }
+.cf-bubble button.cf-bubble-send:disabled { opacity: 0.35; }
+.cf-bubble button.cf-bubble-send svg { width: 15px; height: 15px; }
+.cf-bubble button.cf-sel-note { flex: none; color: var(--note-text); }
+.cf-bubble button.cf-sel-note svg { width: 14px; height: 14px; color: var(--note); }
+/* Wraps to the width of the buttons instead of widening them. */
+.cf-bubble-hint { width: 0; min-width: 100%; padding: 0 6px 2px; font-size: 11.5px; line-height: 1.35; color: var(--text-3); }
+.cf-bubble-saved { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-left: 8px; font-size: 13px; font-weight: 500; color: var(--text); }
+.cf-bubble-saved span { display: flex; align-items: center; gap: 6px; }
+.cf-bubble-saved svg { color: var(--note); }
+/* iPhone / iPad: bigger tap targets, primary action filled; 16px text so Safari doesn't zoom into the field. */
+.cf-bubble.touch { gap: 5px; padding: 5px; border-radius: 16px; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+/* Wide enough for the field: the buttons above share the width. */
+.cf-bubble.touch { min-width: min(330px, calc(100vw - 16px)); }
+.cf-bubble.touch .cf-bubble-row { gap: 4px; }
+.cf-bubble.touch .cf-bubble-row button { flex: 1 1 auto; justify-content: center; }
 .cf-bubble.touch button { min-height: 36px; padding: 7px 12px; border-radius: 11px; font-size: 14.5px; font-weight: 600; color: var(--text); }
 .cf-bubble.touch button.primary { color: #fff !important; background: linear-gradient(135deg, #38bdf8, #2563eb) !important; }
 .cf-bubble.touch button:active { transform: scale(0.97); }
+.cf-bubble.touch .cf-bubble-ask input { height: 38px; border-radius: 11px; font-size: 16px; }
+.cf-bubble.touch button.cf-bubble-send { width: 36px; min-height: 36px; height: 36px; padding: 0; border-radius: 50%; color: #fff; }
+.cf-bubble.touch button.cf-sel-note { color: var(--note-text); }
+.cf-bubble.touch .cf-bubble-hint { font-size: 12.5px; }
 @keyframes cf-pop { from { opacity: 0; transform: translateY(-4px) scale(0.98); } to { opacity: 1; transform: none; } }
 
 /* ------------------------------------------------------------ panel */
@@ -163,6 +193,14 @@
   transform: translateY(100%);
 }
 .cf[data-layout="sheet"] .cf-panel.in { transform: none; }
+
+/* The popup on a PDF tab (Safari's PDF viewer takes no panel): the panel is the whole window. */
+.cf[data-layout="popup"] .cf-panel {
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: 100%; height: 100%;
+  box-shadow: none;
+  padding-bottom: env(safe-area-inset-bottom);
+}
 
 .cf-grabber { flex-shrink: 0; height: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 .cf-grabber::before { content: ""; width: 38px; height: 5px; border-radius: 3px; background: var(--bg-3); }
@@ -234,6 +272,9 @@
 .cf-divider { align-self: stretch; display: flex; align-items: center; gap: 8px; margin: 2px 0 10px; color: var(--text-3); font-size: 11.5px; font-weight: 600; }
 .cf-divider::before, .cf-divider::after { content: ""; flex: 1; height: 1px; background: var(--border); }
 .cf-divider span { max-width: 75%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cf-divider .cf-divider-page { display: flex; gap: 4px; max-width: 88%; overflow: visible; }
+.cf-divider .cf-divider-title { max-width: none; min-width: 0; }
+.cf-divider .cf-divider-when { max-width: none; flex: none; font-weight: 500; }
 .cf-divider a { color: inherit; text-decoration: underline; text-decoration-color: var(--border); text-underline-offset: 2px; }
 .cf-divider a:hover { color: var(--accent-text); text-decoration-color: currentColor; }
 .cf-newpage { margin: 4px 0 10px; }
@@ -259,6 +300,14 @@
 }
 .cf-note-mark { display: inline-flex; vertical-align: -2px; margin-right: 6px; color: var(--note); }
 .cf-msg.ai { align-items: stretch; }
+
+/* Under a question: the video transcript or PDF it was asked with, or why one couldn't be read. */
+.cf-used-list { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; margin-top: 6px; max-width: 88%; }
+.cf-used { display: inline-flex; align-items: center; gap: 5px; max-width: 100%; padding: 3px 9px; border-radius: 999px; font-size: 11.5px; line-height: 1.35; background: var(--bg-2); color: var(--text-2); }
+.cf-used svg { flex-shrink: 0; }
+.cf-used span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cf-used.warn { background: var(--note-soft); color: var(--note-text); white-space: normal; }
+.cf-used.warn span { white-space: normal; text-align: right; }
 /* Choosing messages to share: a tick on each, the ones left out faded. */
 .cf-msg.pickable { position: relative; padding-left: 32px; cursor: pointer; transition: opacity 0.15s; }
 .cf-msg.pickable:not(.picked) { opacity: 0.5; }
@@ -345,6 +394,9 @@
 .cf-card.error p { color: var(--text); }
 .cf-card.consent { border: 1px solid var(--border); background: var(--bg); }
 .cf-card-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.cf-card.renewal { border: 1px solid var(--border); background: var(--bg); }
+.cf-card.renewal .cf-renewal-reasons { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 8px; }
+.cf-card.renewal.done p { margin: 0; color: var(--text); }
 
 .cf-primary {
   display: inline-flex; align-items: center; gap: 6px;
@@ -440,6 +492,21 @@
   background: var(--accent); color: #fff; font-size: 10px; font-weight: 650; line-height: 15px; text-align: center;
 }
 .cf-threads { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 8px 10px 18px; }
+
+/* Search over the chat list. */
+.cf-search { position: sticky; top: -8px; z-index: 3; display: flex; align-items: center; gap: 6px; margin: -8px -10px 6px; padding: 10px 14px 8px; background: var(--bg); color: var(--text-3); }
+.cf-search input { flex: 1; min-width: 0; height: 34px; padding: 0 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-2); color: var(--text); font: inherit; font-size: 14px; outline: none; -webkit-appearance: none; appearance: none; }
+.cf-search input::-webkit-search-cancel-button { display: none; }
+.cf-search input:focus { border-color: var(--accent); background: var(--bg); }
+.cf[data-touch] .cf-search input { font-size: 16px; }
+.cf-search-clear { width: 24px; height: 24px; border-radius: 12px; font-size: 18px; line-height: 22px; color: var(--text-3); }
+.cf-search-clear:hover { background: var(--bg-2); color: var(--text-2); }
+.cf-search-none { margin: 18px 8px; color: var(--text-3); font-size: 13px; text-align: center; }
+.cf-search-hit { display: block; font-size: 12.5px; line-height: 1.4; color: var(--text-2); padding: 3px 6px; margin: 1px -6px; border-radius: 8px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.cf-search-hit:hover { background: var(--bg-3); }
+.cf-search-excerpt mark { background: rgba(250, 204, 21, 0.45); color: inherit; border-radius: 3px; padding: 0 1px; }
+.cf-msg.found { animation: cf-found 1.6s ease; }
+@keyframes cf-found { 0%, 40% { background: rgba(250, 204, 21, 0.28); } 100% { background: transparent; } }
 .cf-thread { position: relative; display: flex; align-items: center; gap: 4px; border-radius: 12px; background: var(--bg); }
 .cf-thread:hover { background: var(--bg-2); }
 .cf-thread.current { background: var(--accent-soft); }
@@ -539,3 +606,71 @@
 .cf-tour-card p { margin: 0 0 12px; color: var(--text-2); font-size: 13.5px; }
 .cf-tour-actions { display: flex; gap: 8px; align-items: center; justify-content: flex-end; }
 .cf-tour-actions .cf-link { margin-right: auto; }
+
+/* Pro: AI search in the chat search, "Ask your chats", and what they do for someone without Pro. */
+.cf-search-ai { position: relative; flex: none; width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--accent-text); background: var(--accent-soft); }
+.cf-search-ai.on { color: #fff; background: linear-gradient(135deg, var(--accent-2), var(--accent)); }
+.cf-search-lock { position: absolute; right: -3px; bottom: -3px; width: 16px; height: 16px; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: var(--bg); color: var(--text-2); box-shadow: 0 0 0 1px var(--border); }
+.cf-search-lock svg { width: 10px; height: 10px; }
+.cf-search.ai input { border-color: var(--accent); }
+.cf-find-busy { margin: 14px 8px; }
+.cf-find-why { color: var(--accent-text); }
+.cf-find-why svg { vertical-align: -1px; }
+.cf-ask-history { background: var(--accent-soft); margin-bottom: 6px; }
+.cf-ask-history:hover { background: rgba(37, 99, 235, 0.16); }
+.cf-ask-history .cf-thread-title { color: var(--accent-text); display: flex; align-items: center; gap: 5px; }
+.cf-ask-history .cf-thread-snippet { white-space: normal; }
+.cf-pro-badge { display: inline-flex; align-items: center; padding: 1px 6px; border-radius: 6px; font-size: 10.5px; font-weight: 700; letter-spacing: 0.02em; color: #fff; background: linear-gradient(135deg, var(--accent-2), var(--accent)); }
+.cf-ctx.history { background: var(--accent-soft); color: var(--accent-text); }
+.cf-upsell-wrap { flex-shrink: 0; padding: 10px 10px 0; }
+.cf-upsell { border: 1px solid rgba(37, 99, 235, 0.25); }
+.cf-upsell-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.cf-upsell-head strong { flex: 1; font-size: 14.5px; }
+.cf-upsell-icon { width: 28px; height: 28px; border-radius: 9px; display: flex; align-items: center; justify-content: center; color: #fff; background: linear-gradient(135deg, var(--accent-2), var(--accent)); }
+.cf-upsell-list { margin: 0 0 12px; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 13px; color: var(--text-2); }
+.cf-upsell-list li { display: flex; flex-direction: column; gap: 1px; }
+.cf-card p.cf-upsell-byok { margin: -4px 0 12px; color: var(--text); font-size: 13px; font-weight: 500; }
+.cf-upsell-list strong { color: var(--text); font-size: 13px; }
+
+/* Tags: chips (8 colours by name), the editor, the filter bar and the groups ("folders"). */
+.cf-tag { display: inline-flex; align-items: center; max-width: 100%; padding: 1px 7px; border-radius: 999px; font-size: 11.5px; font-weight: 600; line-height: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border: 1px solid transparent; --tag: 37, 99, 235; background: rgba(var(--tag), 0.12); color: rgb(var(--tag)); }
+button.cf-tag { cursor: pointer; }
+button.cf-tag:hover { background: rgba(var(--tag), 0.2); }
+.cf-tag.active { background: rgb(var(--tag)); color: #fff; }
+.cf-tag.c0 { --tag: 37, 99, 235; } .cf-tag.c1 { --tag: 13, 148, 136; } .cf-tag.c2 { --tag: 202, 138, 4; } .cf-tag.c3 { --tag: 219, 39, 119; }
+.cf-tag.c4 { --tag: 124, 58, 237; } .cf-tag.c5 { --tag: 22, 163, 74; } .cf-tag.c6 { --tag: 234, 88, 12; } .cf-tag.c7 { --tag: 71, 85, 105; }
+.cf-thread-tags, .cf-msg-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 3px; }
+.cf-msg.user .cf-msg-tags, .cf-msg.user .cf-msg-tools { justify-content: flex-end; }
+/* Under a free answer: the page's video or PDFs weren't read; "Try Pro". */
+.cf-media-skipped { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 7px; margin-top: 8px; padding: 7px 10px; border-radius: 10px; background: var(--bg-2); color: var(--text-2); font-size: 12.5px; line-height: 1.35; }
+.cf-media-skipped svg { flex: none; color: var(--text-3); }
+.cf-media-skipped span { flex: 1 1 180px; }
+.cf-media-skipped button { font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+/* Clear of a Google answer's sources and its search box. */
+.cf-sources + .cf-msg-tags { margin-top: 10px; }
+.cf-tag-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin: 0 2px 8px; }
+.cf-tag-group { display: inline-flex; align-items: center; gap: 4px; margin-left: auto; padding: 2px 8px; border-radius: 999px; font-size: 11.5px; font-weight: 600; color: var(--text-2); background: var(--bg-2); }
+.cf-tag-group.on { color: #fff; background: var(--accent); }
+.cf-tag-group-section { margin-bottom: 8px; }
+.cf-tag-group-head { display: flex; align-items: center; gap: 6px; padding: 6px 10px 4px; font-size: 12px; font-weight: 700; color: var(--text-2); }
+.cf-tag-group-head span { margin-left: auto; font-weight: 600; color: var(--text-3); }
+.cf-tag-editor { position: relative; z-index: 5; margin: 6px 0 8px; padding: 10px 12px; border-radius: 12px; background: var(--bg); border: 1px solid var(--border); box-shadow: 0 8px 26px rgba(0, 0, 0, 0.14); display: flex; flex-direction: column; gap: 8px; }
+.cf-thread .cf-tag-editor { position: absolute; left: 10px; right: 10px; top: calc(100% - 6px); }
+.cf-msg.user .cf-tag-editor { align-self: stretch; }
+.cf-tag-editor-title { font-size: 12px; font-weight: 700; color: var(--text-2); }
+.cf-tag-list { display: flex; flex-wrap: wrap; gap: 5px; }
+.cf-tag-new { display: flex; align-items: center; gap: 6px; }
+.cf-tag-new input { flex: 1; min-width: 0; height: 32px; padding: 0 10px; border-radius: 9px; border: 1px solid var(--border); background: var(--bg-2); color: var(--text); font: inherit; font-size: 13.5px; outline: none; }
+.cf[data-touch] .cf-tag-new input { font-size: 16px; }
+.cf-tag-new input:focus { border-color: var(--accent); }
+.cf-tag-done { align-self: flex-end; font-size: 13px; }
+.cf-bubble-note { position: relative; }
+.cf-thread-title svg { display: inline-block; vertical-align: -1px; margin-right: 3px; }
+
+/* "First time here" hints. */
+.cf-hint { display: flex; align-items: flex-start; gap: 10px; margin: 4px 0 12px; padding: 11px 12px; border-radius: 14px; background: var(--accent-soft); color: var(--text); }
+.cf-hint-icon { flex: none; width: 28px; height: 28px; border-radius: 9px; display: flex; align-items: center; justify-content: center; color: #fff; background: linear-gradient(135deg, var(--accent-2), var(--accent)); }
+.cf-hint-text { flex: 1; min-width: 0; }
+.cf-hint-text strong { display: block; font-size: 13.5px; margin-bottom: 2px; }
+.cf-hint-text p { margin: 0; font-size: 12.5px; line-height: 1.45; color: var(--text-2); }
+.cf-hint-done { flex: none; align-self: center; font-size: 13px; font-weight: 600; }

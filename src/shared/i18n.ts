@@ -6,13 +6,14 @@ export type MessageKey = keyof typeof en
 // picks the user's language). English is bundled as a fallback for contexts
 // where chrome.i18n is unavailable (tests, preview harness).
 export function t(key: MessageKey, ...subs: Array<string | number>): string {
+  let message: string = en[key]
   try {
-    const message = chrome.i18n?.getMessage(key, subs.map(String))
-    if (message) return message
+    message = chrome.i18n?.getMessage(key) || message
   } catch {
-    // fall through
+    // English
   }
-  return en[key].replace(/\{(\d)\}/g, (_, i: string) => String(subs[Number(i)] ?? ""))
+  // {0}, {1}: filled in here, not by the browser (Safari's substitution drops values next to “ ” « »).
+  return message.replace(/\{(\d)\}/g, (_, i: string) => String(subs[Number(i)] ?? ""))
 }
 
 export function uiLanguage(): string {

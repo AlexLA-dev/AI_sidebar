@@ -87,10 +87,12 @@ export function adGroupTargeting(g, plan) {
   return targeting
 }
 
-export function adGroupPayload(g, campaignId, plan) {
+export function adGroupPayload(g, campaignId, plan, start, now = Date.now()) {
   return {
     campaignId: Number(campaignId),
     name: g.name,
+    // Required, and a start in the past is rejected: the campaign's start, or a minute from now.
+    startTime: start && Date.parse(`${start.slice(0, 10)}T00:00:00Z`) > now ? apiTime(start) : new Date(now + 60000).toISOString().slice(0, 23),
     pricingModel: "CPT",
     bidStrategy: { bidStrategyType: "MANUAL_CPT", bidStrategyGoal: "TAP", bid: money(g.bid, plan.currency) },
     automatedKeywordsOptIn: Boolean(g.searchMatch),
@@ -101,10 +103,28 @@ export function adGroupPayload(g, campaignId, plan) {
 
 const sameList = (a = [], b = []) => [...a].map(String).sort().join() === [...b].map(String).sort().join()
 
+/** Negatives to add, and live ones to pause (left the plan) or switch back on (returned to it). */
+function negativeChanges(want, liveNeg) {
+  const keys = new Set()
+  const create = []
+  for (const n of want) {
+    const key = kwKey(n.text, n.match ?? "BROAD")
+    if (keys.has(key)) continue
+    keys.add(key)
+    if (!liveNeg.some((x) => kwKey(x.text, x.matchType) === key)) create.push({ text: n.text, matchType: n.match ?? "BROAD" })
+  }
+  const update = []
+  for (const x of liveNeg) {
+    const status = keys.has(kwKey(x.text, x.matchType)) ? "ENABLED" : "PAUSED"
+    if ((x.status ?? "ENABLED") !== status) update.push({ id: x.id, text: x.text, status })
+  }
+  return { create, update }
+}
+
 /**
  * What has to change in Apple Ads so that it matches the plan. Live objects are matched by name
- * (campaigns, ad groups) and by text + match type (keywords). Nothing is ever deleted: a keyword
- * that left the plan is paused, and extra negatives are only reported.
+ * (campaigns, ad groups) and by text + match type (keywords, negatives). Nothing is ever deleted:
+ * a keyword or negative that left the plan is paused.
  * @returns {{ops: object[], notes: string[]}}
  */
 export function diffPlan(plan, live) {
@@ -121,7 +141,9 @@ export function diffPlan(plan, live) {
       const patch = {}
       if (amount(lc.dailyBudget?.value) !== c.dailyBudget) patch.dailyBudget = { value: money(c.dailyBudget, cur) }
       if (!sameList(lc.targeting?.countryOrRegion?.include, c.countries)) patch.targeting = { countryOrRegion: { include: c.countries } }
-      if ((lc.endTime ?? "").slice(0, 10) !== (c.end ?? "")) patch.endTime = apiTime(c.end, true)
+      // A date-only end matches by day; an exact time ("2026-11-06T22:00:00.000", UTC) by minute.
+      const sameEnd = c.end?.includes("T") ? (lc.endTime ?? "").slice(0, 16) === c.end.slice(0, 16) : (lc.endTime ?? "").slice(0, 10) === (c.end ?? "")
+      if (!sameEnd) patch.endTime = apiTime(c.end, true)
       if (Object.keys(patch).length) ops.push({ kind: "campaign.update", id: lc.id, payload: patch, desc: `update campaign "${c.name}": ${Object.keys(patch).join(", ")}` })
     }
     const wantStatus = c.status === "ENABLED" ? "ENABLED" : "PAUSED"
@@ -133,13 +155,13 @@ export function diffPlan(plan, live) {
 
     const liveGroups = lc ? live.adGroups.filter((g) => g.campaignId === lc.id && !g.deleted) : []
     const liveCampaignNeg = lc ? live.negatives.filter((n) => n.campaignId === lc.id && !n.adGroupId && !n.deleted) : []
-    const missingNeg = (c.negatives ?? []).filter((n) => !liveCampaignNeg.some((x) => kwKey(x.text, x.matchType) === kwKey(n.text, n.match ?? "BROAD")))
-    if (missingNeg.length) ops.push({ kind: "negatives.create", campaign: c.name, items: missingNeg.map((n) => ({ text: n.text, matchType: n.match ?? "BROAD" })), desc: `add ${missingNeg.length} campaign negative(s) to "${c.name}": ${missingNeg.map((n) => n.text).join(", ")}` })
+    const campaignNeg = negativeChanges(c.negatives ?? [], liveCampaignNeg)
+    if (campaignNeg.create.length) ops.push({ kind: "negatives.create", campaign: c.name, items: campaignNeg.create, desc: `add ${campaignNeg.create.length} campaign negative(s) to "${c.name}": ${campaignNeg.create.map((n) => n.text).join(", ")}` })
 
     for (const g of c.adGroups ?? []) {
       const lg = liveGroups.find((x) => x.name === g.name)
       if (!lg) {
-        ops.push({ kind: "adgroup.create", campaign: c.name, adGroup: g.name, payload: adGroupPayload(g, lc?.id ?? 0, plan), desc: `create ad group "${c.name} / ${g.name}" (bid $${g.bid}${g.searchMatch ? ", Search Match" : ""}${g.devices ? ", " + g.devices.join("+") : ""})` })
+        ops.push({ kind: "adgroup.create", campaign: c.name, adGroup: g.name, payload: adGroupPayload(g, lc?.id ?? 0, plan, c.start), desc: `create ad group "${c.name} / ${g.name}" (bid $${g.bid}${g.searchMatch ? ", Search Match" : ""}${g.devices ? ", " + g.devices.join("+") : ""})` })
       } else {
         const patch = {}
         if (amount(lg.bidStrategy?.bid) !== g.bid) patch.bidStrategy = { bid: money(g.bid, cur) }
@@ -158,12 +180,15 @@ export function diffPlan(plan, live) {
         const match = k.match ?? "EXACT"
         const lk = liveKw.find((x) => kwKey(x.text, x.matchType) === kwKey(k.text, match))
         const status = k.status === "PAUSED" ? "PAUSED" : "ENABLED"
+        // Apple gives a new keyword the group's bid once and keeps it: a keyword without its own bid
+        // in the plan follows the group's, so raising the group raises it too.
+        const bid = k.bid ?? g.bid
         if (!lk) {
-          create.push({ text: k.text, matchType: match, status, ...(k.bid != null ? { bid: money(k.bid, cur) } : {}) })
+          create.push({ text: k.text, matchType: match, status, ...(bid != null ? { bid: money(bid, cur) } : {}) })
           continue
         }
         const patch = {}
-        if (k.bid != null && amount(lk.bid) !== k.bid) patch.bid = money(k.bid, cur)
+        if (bid != null && amount(lk.bid) !== bid) patch.bid = money(bid, cur)
         if (lk.status !== status) patch.status = status
         if (Object.keys(patch).length) update.push({ id: lk.id, text: k.text, ...patch })
       }
@@ -184,14 +209,9 @@ export function diffPlan(plan, live) {
         }
       }
       const liveGroupNeg = lg ? live.negatives.filter((n) => n.adGroupId === lg.id && !n.deleted) : []
-      const seen = new Set()
-      const missingGroupNeg = groupNeg.filter((n) => {
-        const key = kwKey(n.text, n.match ?? "BROAD")
-        if (seen.has(key)) return false
-        seen.add(key)
-        return !liveGroupNeg.some((x) => kwKey(x.text, x.matchType) === key)
-      })
-      if (missingGroupNeg.length) ops.push({ kind: "negatives.create", campaign: c.name, adGroup: g.name, items: missingGroupNeg.map((n) => ({ text: n.text, matchType: n.match ?? "BROAD" })), desc: `add ${missingGroupNeg.length} negative(s) to ad group "${g.name}"` })
+      const neg = negativeChanges(groupNeg, liveGroupNeg)
+      if (neg.create.length) ops.push({ kind: "negatives.create", campaign: c.name, adGroup: g.name, items: neg.create, desc: `add ${neg.create.length} negative(s) to ad group "${g.name}"` })
+      if (neg.update.length) ops.push({ kind: "negatives.update", items: neg.update, desc: `change ${neg.update.length} negative(s) in ad group "${g.name}": ${neg.update.map((n) => `${n.text} → ${n.status}`).join(", ")}` })
 
       // The ad: the default product page or a custom product page (by its App Store Connect name).
       // An ad group without any enabled ad shows the default page (ad groups made in the web UI have
@@ -199,9 +219,12 @@ export function diffPlan(plan, live) {
       const page = g.productPage ?? "default"
       const liveAds = lg ? live.ads.filter((a) => a.adGroupId === lg.id && !a.deleted) : []
       const enabledAds = liveAds.filter((a) => a.status === "ENABLED")
-      const current = enabledAds.find((a) => a.productPage === page) ?? (page === "default" && lg && !enabledAds.length ? "implicit" : null)
+      // Apple refuses ad objects in new search-results groups too, so a new group needs none either.
+      const current = enabledAds.find((a) => a.productPage === page) ?? (page === "default" && !enabledAds.length ? "implicit" : null)
       if (!current) ops.push({ kind: "ad.create", campaign: c.name, adGroup: g.name, productPage: page, pauseAdIds: liveAds.filter((a) => a.status === "ENABLED").map((a) => a.id), desc: `ad in "${g.name}": ${page === "default" ? "default product page" : `custom product page "${page}"`}` })
     }
+    // After the groups: a campaign negative moved down to an ad group is paused once its replacement exists.
+    if (campaignNeg.update.length) ops.push({ kind: "negatives.update", items: campaignNeg.update, desc: `change ${campaignNeg.update.length} campaign negative(s) in "${c.name}": ${campaignNeg.update.map((n) => `${n.text} → ${n.status}`).join(", ")}` })
     for (const lg of liveGroups) if (!(c.adGroups ?? []).some((g) => g.name === lg.name) && lg.status !== "PAUSED") notes.push(`ad group "${c.name} / ${lg.name}" is live but not in the plan (left as is)`)
   }
   const extra = live.campaigns.filter((x) => !x.deleted && x.status === "ENABLED" && !plan.campaigns.some((c) => c.name === x.name))
@@ -243,7 +266,10 @@ export const DEFAULT_RULES = {
   lowerStep: 0.2,
   minBid: 0.2,
   // Search terms found by Search Match / broad: promote on the first install, block when they burn money.
-  negativeSpendWithoutInstall: 1.5
+  negativeSpendWithoutInstall: 1.5,
+  // Pacing: a running campaign that spent less than this share of its daily budget on the last full
+  // day gets all its bids raised by raiseStep (up to maxBid), so the budget is used by the end date.
+  underspend: 0.6
 }
 
 const round2 = (x) => Math.round(x * 100 + 1e-6) / 100
@@ -252,11 +278,21 @@ const round2 = (x) => Math.round(x * 100 + 1e-6) / 100
  * Proposes plan edits from keyword and search-term rows. Each proposal says why and what it
  * changes in plan.json; applyProposals() writes them in. `subs` maps keyword id → paid subscribers
  * (from AdServices attribution), when known: a keyword that brought a subscriber is never paused.
+ * `lastDaySpend` maps campaign name → spend on the last full day, for the pacing rule.
  */
-export function optimize(plan, { keywords = [], searchTerms = [], subs = {} }, rules = {}) {
+export function optimize(plan, { keywords = [], searchTerms = [], subs = {}, lastDaySpend = {} }, rules = {}) {
   const r = { ...DEFAULT_RULES, ...(plan.guards?.rules ?? {}), ...rules }
   const maxBid = plan.guards?.maxBid ?? Infinity
   const out = []
+  for (const c of plan.campaigns) {
+    const spent = lastDaySpend[c.name]
+    if (c.status !== "ENABLED" || spent == null || spent >= r.underspend * c.dailyBudget) continue
+    for (const g of c.adGroups) {
+      if (g.status === "PAUSED" || g.bid >= maxBid) continue
+      const to = round2(Math.min(maxBid, g.bid * (1 + r.raiseStep)))
+      out.push({ campaign: c.name, adGroup: g.name, text: g.name, match: "EXACT", action: "groupbid", from: g.bid, to, why: `campaign spent $${spent.toFixed(2)} of $${c.dailyBudget} yesterday: bids +${Math.round(r.raiseStep * 100)}% to use the budget` })
+    }
+  }
   const findKw = (campaignName, groupName, text, match) => {
     const c = plan.campaigns.find((x) => x.name === campaignName)
     const g = c?.adGroups?.find((x) => x.name === groupName)
@@ -318,6 +354,14 @@ export function applyProposals(plan, proposals) {
     }
     const g = c.adGroups.find((x) => x.name === p.adGroup)
     if (!g) continue
+    if (p.action === "groupbid") {
+      // The group bid and every keyword bid that overrides it move by the same factor.
+      const factor = p.to / p.from
+      const cap = next.guards?.maxBid ?? Infinity
+      g.bid = p.to
+      for (const k of g.keywords ?? []) if (k.bid != null) k.bid = round2(Math.min(cap, k.bid * factor))
+      continue
+    }
     g.keywords = g.keywords ?? []
     const k = g.keywords.find((x) => kwKey(x.text, x.match ?? "EXACT") === kwKey(p.text, p.match))
     if (p.action === "pause" && k) k.status = "PAUSED"

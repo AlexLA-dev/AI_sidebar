@@ -65,6 +65,17 @@ export function answerShareText(entries: Entry[], index: number, labels: ShareLa
   return notALink([answerText(entries[index], labels), "", `${labels.source}: ${page?.url ?? links.page}`, "", `${labels.madeWith}: ${links.app}`].join("\n"))
 }
 
+/** A note to copy: its text; one made from a selection also the page the quote is from. */
+export function noteCopyText(entry: Entry): string {
+  return entry.quote && entry.page ? `${entry.content}\n\n${link(entry.page.title, entry.page.url)}` : entry.content
+}
+
+/** One note: its text, the page it was written on, and where it was made (like an answer). */
+export function noteShareText(entries: Entry[], index: number, labels: ShareLabels, links: ShareLinks): string {
+  const page = pageOf(entries, index)
+  return notALink([entries[index].content, "", `${labels.source}: ${page?.url ?? links.page}`, "", `${labels.madeWith}: ${links.app}`].join("\n"))
+}
+
 /**
  * The chat under its name: questions, answers and notes (all, or the indexes in `only`), the pages they
  * were about, and where it was made.

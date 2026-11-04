@@ -1,6 +1,7 @@
 // One running conversation that follows the user across pages (until "New chat").
 // Pure helpers shared by the content script and tests.
 
+import type { MediaKind } from "./attachments.ts"
 import type { ChatTurn, Grounding } from "./types.ts"
 
 /** The page a question was asked on: normalized URL, title and a fingerprint of its text. */
@@ -8,6 +9,28 @@ export interface PageRef {
   url: string
   title: string
   hash?: string
+  // The page's readable text (Readability, as in Reading mode; never HTML), kept with the chat so the
+  // ContextFlow app can answer about it later: on the first question or note on the page, and again
+  // when the page has changed. Not from Private Browsing, videos' transcripts or PDFs.
+  text?: string
+  // When the question or note was written (ms): the chat shows the date by the page's title. Missing
+  // before 2.4.
+  at?: number
+}
+
+/**
+ * What a question was asked with besides the page's own text: a video's transcript or captions, or a
+ * PDF (on the page, linked from it, or open in the tab). `ok: false` — it couldn't be read and the
+ * answer used what the page shows; `reason` "none" means there is nothing to read (no captions,
+ * a scanned PDF), anything else that reading it failed.
+ */
+export interface SourceNote {
+  kind: "video" | "pdf"
+  ok: boolean
+  name: string
+  // Video length ("18:40") or PDF pages ("12").
+  detail?: string
+  reason?: "none" | "failed"
 }
 
 export interface Entry extends ChatTurn {
@@ -20,11 +43,106 @@ export interface Entry extends ChatTurn {
   pageChanged?: boolean
   // A note the user wrote in the chat: kept with it, never sent to the AI as a question.
   note?: boolean
+  // A note made from a page selection: its text starts with the selected text in quotes.
+  quote?: boolean
+  // User turns: videos and PDFs read along with the page (shown under the question).
+  sources?: SourceNote[]
+  // User turns: the page had a video or PDFs that weren't read (not Pro); the answer gets a line about it.
+  skipped?: MediaKind[]
+  // Answers and notes: the user's tags (a chat's own tags are on the thread).
+  tags?: string[]
 }
 
 const MAX_HISTORY = 12
+// Page texts kept in a chat: each cut to this (the budget the server gives a chat's other pages), for
+// its last 10 pages (an answer in the app gets the chat's last page and up to MAX_APP_OTHER_PAGES others).
+export const MAX_SAVED_PAGE_CHARS = 8_000
+export const MAX_SAVED_PAGES = 10
 // "Whole chat": every message (notes too) up to this many characters, newest kept first.
 export const WHOLE_CHAT_CHARS = 48_000
+
+// A note made from a selection keeps at most this much of the selected text.
+export const MAX_NOTE_QUOTE = 3_000
+
+/**
+ * A note made from a page selection (the Note button by the selection): the selected text in quotes
+ * (`quoted`: in the language's quotes), then the user's comment, if any. The page goes with it, so
+ * the chat shows where it came from. No AI: it doesn't use an answer.
+ */
+export function selectionNote(selected: string, comment: string, page: PageRef, quoted = (text: string) => `“${text}”`): Entry {
+  let text = selected.replace(/[ \t]+/g, " ").replace(/ *\n */g, "\n").replace(/\n{3,}/g, "\n\n").trim()
+  if (text.length > MAX_NOTE_QUOTE) text = text.slice(0, MAX_NOTE_QUOTE).trimEnd() + "…"
+  const quote = quoted(text)
+  const note = comment.trim()
+  return { role: "user", content: note ? `${quote}\n\n${note}` : quote, note: true, quote: true, page }
+}
+
+/**
+ * The page a question or note was written on, with its text when the chat doesn't have this version
+ * of it yet (`text` empty: none, e.g. Private Browsing).
+ */
+export function pageRef(entries: Entry[], url: string, title: string, text: string, keepText = true, now = Date.now()): PageRef {
+  const hash = textFingerprint(text)
+  const ref: PageRef = { url, title, hash, at: now }
+  const saved = entries.some((e) => e.page?.url === url && e.page.hash === hash && e.page.text)
+  if (keepText && text.trim() && !saved) ref.text = text.slice(0, MAX_SAVED_PAGE_CHARS)
+  return ref
+}
+
+/**
+ * When the chat came to a page, by its title: "Nov 1 (2 days ago)", the same day "Nov 3 (3 hours
+ * ago)", in `locale`; the year only when it isn't this one.
+ */
+export function pageWhen(at: number, now: number, locale: string): string {
+  const day = new Date(at)
+  const today = new Date(now)
+  const start = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()
+  // Calendar days (round: a day with a clock change is 23 or 25 hours).
+  const days = Math.max(0, Math.round((start(today) - start(day)) / 86_400_000))
+  const year = day.getFullYear() !== today.getFullYear() ? { year: "numeric" as const } : {}
+  const date = day.toLocaleDateString(locale, { day: "numeric", month: "short", ...year })
+  return `${date} (${pageAgo(days, Math.max(0, now - at), locale)})`
+}
+
+/** "2 days ago"; the same day in hours, minutes or "now" (another device's clock may run a bit ahead). */
+function pageAgo(days: number, ms: number, locale: string): string {
+  const relative = new Intl.RelativeTimeFormat(locale, { numeric: "auto" })
+  if (days > 0) return relative.format(-days, "day")
+  const minutes = Math.floor(ms / 60_000)
+  if (minutes < 1) return relative.format(0, "second")
+  if (minutes < 60) return relative.format(-minutes, "minute")
+  return relative.format(-Math.floor(minutes / 60), "hour")
+}
+
+/** The page texts kept in the chat: the latest one of each page, the most recent page first. */
+export function savedPages(entries: Entry[]): Array<{ url: string; title: string; text: string }> {
+  const out: Array<{ url: string; title: string; text: string }> = []
+  for (let i = entries.length - 1; i >= 0; i--) {
+    const page = entries[i].page
+    if (page?.text && !out.some((p) => p.url === page.url)) out.push({ url: page.url, title: page.title, text: page.text })
+  }
+  return out
+}
+
+/** The chat with only the texts `savedPages` gives for its last `max` pages; older ones are dropped. */
+export function trimSavedPages(entries: Entry[], max = MAX_SAVED_PAGES): Entry[] {
+  const kept = new Set<number>()
+  const urls = new Set<string>()
+  for (let i = entries.length - 1; i >= 0; i--) {
+    const page = entries[i].page
+    if (!page?.text || urls.has(page.url) || urls.size >= max) continue
+    urls.add(page.url)
+    kept.add(i)
+  }
+  return entries.map((e, i) => (e.page?.text && !kept.has(i) ? withoutText(e) : e))
+}
+
+/** The entry without its page's text. */
+export function withoutText(entry: Entry): Entry {
+  if (!entry.page?.text) return entry
+  const { text: _text, ...page } = entry.page
+  return { ...entry, page }
+}
 
 /** A question to the AI (a user turn that isn't a note). */
 export function isQuestion(entry: Entry | undefined): boolean {

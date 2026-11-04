@@ -101,7 +101,11 @@ export const config = {
   promoDiscount: int("PROMO_DISCOUNT", 50),
   promoProductId: (env("PROMO_PRODUCT_ID") ?? "com.contextflow.pro.monthly").trim(),
   // Apps that may ask for a signature (the iOS and macOS apps share one bundle id).
-  appBundleIds: (env("APP_BUNDLE_IDS") ?? "com.contextflow.app").split(",").map((s) => s.trim()).filter(Boolean)
+  appBundleIds: (env("APP_BUNDLE_IDS") ?? "com.contextflow.app").split(",").map((s) => s.trim()).filter(Boolean),
+
+  // Site counter (/api/v2/site): visits and App Store taps accepted per address per day, and in all per day.
+  siteDailyLimit: int("SITE_DAILY_LIMIT", 300),
+  siteGlobalDailyLimit: int("SITE_GLOBAL_DAILY_LIMIT", 20000)
 }
 
 export const PRODUCTS = {

@@ -33,5 +33,5 @@ La IA puede cometer errores. Comprueba la información importante.
 
 Las suscripciones se renuevan automáticamente salvo que se cancelen al menos 24 horas antes del final del periodo actual. El pago se cargará en tu Cuenta de Apple. Puedes gestionar o cancelar tu suscripción en cualquier momento en los ajustes de tu cuenta del App Store.
 
-Términos de uso: https://aisidebar.netlify.app/terms
-Política de privacidad: https://aisidebar.netlify.app/privacy
+Términos de uso: https://context-flow.app/terms
+Política de privacidad: https://context-flow.app/privacy

@@ -141,6 +141,8 @@ export interface StreamStats {
   promptTokens: number
   completionTokens: number
   chars: number
+  // The model stopped at its length limit (the answer is cut off).
+  cut?: boolean
 }
 
 /** Parses OpenAI's SSE stream and yields text deltas; fills `stats` at the end. */
@@ -161,7 +163,7 @@ export async function* readDeltas(body: ReadableStream<Uint8Array>, stats: Strea
         const data = line.slice(5).trim()
         if (data === "[DONE]") return
         let chunk: {
-          choices?: { delta?: { content?: string } }[]
+          choices?: { delta?: { content?: string }; finish_reason?: string | null }[]
           usage?: { prompt_tokens?: number; completion_tokens?: number }
         }
         try {
@@ -173,6 +175,7 @@ export async function* readDeltas(body: ReadableStream<Uint8Array>, stats: Strea
           stats.promptTokens = chunk.usage.prompt_tokens ?? 0
           stats.completionTokens = chunk.usage.completion_tokens ?? 0
         }
+        if (chunk.choices?.[0]?.finish_reason === "length") stats.cut = true
         const delta = chunk.choices?.[0]?.delta?.content
         if (delta) {
           stats.chars += delta.length

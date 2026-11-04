@@ -137,6 +137,7 @@ async function startClaude(system: string, messages: ChatMessage[], tier: Tier, 
       } finally {
         stats.promptTokens = promptTokens
         stats.completionTokens = completionTokens
+        if (stopReason === "max_tokens") stats.cut = true
         signal?.removeEventListener("abort", stop)
         abort.abort()
         // Spend per plan in the function log: shows how fast the Claude credits go.

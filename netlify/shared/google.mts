@@ -114,7 +114,7 @@ export async function* readGoogle(body: ReadableStream<Uint8Array>, stats: Googl
         if (!line.startsWith("data:")) continue
         let chunk: {
           error?: { message?: string }
-          candidates?: { content?: { parts?: { text?: string; thought?: boolean }[] }; groundingMetadata?: GroundingMetadata }[]
+          candidates?: { content?: { parts?: { text?: string; thought?: boolean }[] }; groundingMetadata?: GroundingMetadata; finishReason?: string }[]
           usageMetadata?: { promptTokenCount?: number; candidatesTokenCount?: number; thoughtsTokenCount?: number }
         }
         try {
@@ -129,6 +129,7 @@ export async function* readGoogle(body: ReadableStream<Uint8Array>, stats: Googl
         }
         const candidate = chunk.candidates?.[0]
         if (candidate?.groundingMetadata) stats.grounding = { ...stats.grounding, ...candidate.groundingMetadata }
+        if (candidate?.finishReason === "MAX_TOKENS") stats.cut = true
         for (const part of candidate?.content?.parts ?? []) {
           if (part.thought || !part.text) continue
           stats.chars += part.text.length

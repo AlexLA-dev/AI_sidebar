@@ -16,6 +16,12 @@ import AppKit
 /// - `openApp` (macOS) → opens the ContextFlow app at a deep link.
 /// - `syncThreads` → sends the extension's chat changes to the user's iCloud and returns the other
 ///   devices' changes (see ChatSync); `available: false` without an iCloud account or connection.
+/// - `mirrorThreads` → keeps the app's copy of the chats (see ChatMirror) and returns the app's changes.
+/// - `pdfText` → the text of a PDF (by address, or the bytes the extension fetched), see PdfText.
+/// - `renewalAsked` → the panel asked a Pro user with auto-renew off what was missing: not again this period
+///   (the app checks the same mark).
+/// - `byokRefused` / `byokOfferShown` → an Own key subscriber's first refusal of the period, and the discount shown
+///   (the app offers Pro at a discount a day after the refusal, once per period, like the panel).
 /// - `ping` → health check.
 ///
 /// Every message also tells the app that the extension is switched on (and, for `getEntitlement`, which
@@ -50,6 +56,21 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             // iOS extensions can't open URLs; the page follows the contextflow:// link instead.
             Self.reply(context, ["success": true, "data": ["opened": false]])
             #endif
+        case "byokRefused":
+            // An Own key subscriber was refused something in the panel: the first refusal of the period counts.
+            if let period = message["period"] as? String {
+                let at = (message["at"] as? Double).map { Date(timeIntervalSince1970: $0 / 1000) } ?? Date()
+                SharedDefaults.shared.markByokRefused(period, at: at)
+            }
+            Self.reply(context, ["success": true])
+        case "byokOfferShown":
+            // The panel showed Pro at a discount: not again this period, here or in the app.
+            if let period = message["period"] as? String { SharedDefaults.shared.markByokOfferShown(period) }
+            Self.reply(context, ["success": true])
+        case "renewalAsked":
+            // The question about turning auto-renew off was answered or put off in the panel: not again this period.
+            if let period = message["period"] as? String { SharedDefaults.shared.markRenewalAsked(period) }
+            Self.reply(context, ["success": true])
         case "getSettings":
             let stored = SharedDefaults.shared.readSettings()
             var data: [String: Any] = ["updatedAt": stored?.updatedAt ?? 0]
@@ -84,9 +105,41 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                     "deleted": synced.deleted
                 ] as [String: Any]])
             }
+        case "mirrorThreads":
+            // The extension's chats for the app's Chats screen; the app's changes and "Open in Safari" back.
+            var saves: [String: ChatMirror.Item] = [:]
+            var deletes: [String] = []
+            for item in message["changes"] as? [[String: Any]] ?? [] {
+                guard let id = item["id"] as? String else { continue }
+                if item["deleted"] as? Bool == true {
+                    deletes.append(id)
+                } else if let updatedAt = (item["updatedAt"] as? NSNumber)?.int64Value, let data = item["data"] as? String {
+                    saves[id] = ChatMirror.Item(updatedAt: updatedAt, data: data)
+                }
+            }
+            if !saves.isEmpty || !deletes.isEmpty { ChatMirror.apply(saves: saves, deletes: deletes) }
+            if let ack = (message["ack"] as? NSNumber)?.doubleValue { ChatMirror.confirmAppChanges(upTo: ack) }
+            let pending = ChatMirror.pendingAppChanges()
+            var data: [String: Any] = ["appChanges": pending.changes.map(\.dictionary)]
+            if let at = pending.at { data["at"] = at }
+            // Only the panel opening takes the app's "continue this chat" (not a background start).
+            if message["takeOpen"] as? Bool == true, let open = ChatMirror.takeOpenRequest() { data["open"] = open }
+            Self.reply(context, ["success": true, "data": data])
+        case "pdfText":
+            let url = message["url"] as? String
+            let data = message["data"] as? String
+            Task {
+                let result = await Self.withTimeout(seconds: 35) { await PdfText.read(url: url, base64: data) }
+                guard case .success(let pdf) = result else {
+                    Self.reply(context, ["success": true, "data": ["ok": false, "error": "network"]])
+                    return
+                }
+                Self.reply(context, ["success": true, "data": pdf])
+            }
         case "ping":
             let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
-            Self.reply(context, ["success": true, "data": ["pong": true, "version": version]])
+            let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
+            Self.reply(context, ["success": true, "data": ["pong": true, "version": version, "build": build]])
         default:
             Self.reply(context, ["success": false, "error": "Unknown command: \(command)"])
         }
@@ -134,21 +187,25 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
 
     private static func liveEntitlement() async -> SharedEntitlement? {
         let products: Set<String> = ["com.contextflow.pro.monthly", "com.contextflow.pro.yearly", "com.contextflow.byok.monthly"]
-        var best: SharedEntitlement?
+        var best: (entitlement: SharedEntitlement, transaction: StoreKit.Transaction)?
         for await result in StoreKit.Transaction.currentEntitlements {
+            // An Own key subscription upgraded to Pro stays listed until it ends: Pro counts from the purchase.
             guard case .verified(let transaction) = result,
                   products.contains(transaction.productID),
-                  transaction.revocationDate == nil else { continue }
-            if (best?.expiresAt ?? .distantPast) <= (transaction.expirationDate ?? .distantPast) {
-                best = SharedEntitlement(
+                  transaction.revocationDate == nil, !transaction.isUpgraded else { continue }
+            if (best?.entitlement.expiresAt ?? .distantPast) <= (transaction.expirationDate ?? .distantPast) {
+                best = (SharedEntitlement(
                     active: true,
                     productId: transaction.productID,
                     expiresAt: transaction.expirationDate,
                     jws: result.jwsRepresentation,
                     updatedAt: Date()
-                )
+                ), transaction)
             }
         }
-        return best
+        guard var entitlement = best?.entitlement, let transaction = best?.transaction else { return nil }
+        // Whether it renews: the panel asks a Pro user who turned auto-renew off what was missing.
+        entitlement.autoRenew = await SharedEntitlement.autoRenew(of: transaction)
+        return entitlement
     }
 }

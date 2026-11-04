@@ -74,8 +74,12 @@ export const setupFunnel = (days: number) => rpc<Record<string, unknown>[]>("cf_
 /** Subscribers' device, language and country, new vs returning users' requests, conversion to subscribers,
  * requests per user per day and install sources (cf_owner_insights). */
 export const ownerInsights = (days: number) => rpc<Record<string, unknown>>("cf_owner_insights", { p_days: days })
+/** Whether any limit keeps getting in users' way: per limit, answers and users it touched (cf_limits_report). */
+export const limitsReport = (days: number) => rpc<Record<string, unknown>>("cf_limits_report", { p_days: days })
 /** New people's way to the first answer, one row each, by the day they first showed up (cf_onboarding). */
 export const onboarding = (days: number) => rpc<Record<string, unknown>>("cf_onboarding", { p_days: days })
+/** By day: new users, how many of them ran out of free answers that day, Pro bought (cf_new_user_outcomes). */
+export const newUserOutcomes = (days: number) => rpc<Record<string, unknown>[]>("cf_new_user_outcomes", { p_days: days })
 /** Per feature: people, where they came from, what they did next; sessions (cf_features). `base` says who could
  * have used each feature (src/shared/usage.ts). */
 export const features = (days: number, base: Record<string, unknown>) =>

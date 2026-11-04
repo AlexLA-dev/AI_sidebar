@@ -2,7 +2,7 @@ import type { Config } from "@netlify/functions"
 import { createHash, timingSafeEqual } from "node:crypto"
 
 import { config as settings } from "../shared/config.mts"
-import { featureFunnels, features, onboarding, ownerInsights, setupFunnel, usageReport } from "../shared/db.mts"
+import { featureFunnels, features, limitsReport, newUserOutcomes, onboarding, ownerInsights, setupFunnel, usageReport } from "../shared/db.mts"
 import { featureBase } from "../../src/shared/usage.ts"
 
 /**
@@ -35,17 +35,20 @@ export default async (req: Request): Promise<Response> => {
       console.error(`[cf] ${what} failed:`, err instanceof Error ? err.message : err)
       return null
     }
-    const [report, funnel, insights, steps, used, funnels] = await Promise.all([
+    const [report, funnel, insights, limits, steps, outcomes, used, funnels] = await Promise.all([
       usageReport(days),
       // Older databases have no funnel or insights yet; the rest of the report still works.
       setupFunnel(days).catch(() => []),
       ownerInsights(days).catch(missing("owner insights")),
+      limitsReport(days).catch(missing("limits report")),
       onboarding(days).catch(missing("onboarding")),
+      newUserOutcomes(days).catch(missing("new user outcomes")),
       features(days, featureBase()).catch(missing("features")),
       featureFunnels(days).catch(missing("feature funnels"))
     ])
     return new Response(JSON.stringify({
-      ...report, setup_funnel: funnel, insights, onboarding: steps, features: used, feature_funnels: funnels
+      ...report, setup_funnel: funnel, insights, limits_report: limits, onboarding: steps, new_outcomes: outcomes,
+      features: used, feature_funnels: funnels
     }), { headers: noStore })
   } catch (err) {
     console.error("[cf] usage report failed:", err instanceof Error ? err.message : err)

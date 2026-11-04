@@ -1,5 +1,6 @@
-import type { Entry } from "../shared/conversation"
-import { activity, cleanTitle, liveThreads, newThreadId, prune, type ActiveThread, type Thread, type Threads } from "../shared/threads"
+import { CONSENT_VERSION, consentStatus, type ConsentStatus } from "../shared/consent"
+import { trimSavedPages, type Entry } from "../shared/conversation"
+import { activity, cleanTitle, liveThreads, newThreadId, prune, type ActiveThread, type Thread, type Threads, cleanTags, withMessages } from "../shared/threads"
 import { MAX_OTHER_PAGE_CHARS } from "../shared/prompt"
 import { DEFAULT_SETTINGS, STORAGE, type Settings } from "../shared/types"
 
@@ -37,12 +38,12 @@ export async function saveSettings(settings: Settings): Promise<void> {
   await chrome.storage.local.set({ [STORAGE.settings]: settings, [STORAGE.settingsUpdatedAt]: Date.now() }).catch(() => undefined)
 }
 
-export async function hasConsent(): Promise<boolean> {
-  return Boolean(await get<boolean>(STORAGE.consent))
+export async function loadConsent(): Promise<ConsentStatus> {
+  return consentStatus(await get<unknown>(STORAGE.consent))
 }
 
 export async function giveConsent(): Promise<void> {
-  await set(STORAGE.consent, true)
+  await set(STORAGE.consent, CONSENT_VERSION)
 }
 
 export async function hasSeenTour(): Promise<boolean> {
@@ -51,6 +52,23 @@ export async function hasSeenTour(): Promise<boolean> {
 
 export async function markTourSeen(): Promise<void> {
   await set(STORAGE.tourSeen, true)
+}
+
+export type HintKey = "chats" | "video" | "pdf"
+
+/** The "first time here" hints already shown. */
+export async function seenHints(): Promise<HintKey[]> {
+  return (await get<HintKey[]>(STORAGE.hintsSeen)) ?? []
+}
+
+export async function markHintSeen(key: HintKey): Promise<void> {
+  const seen = await seenHints()
+  if (!seen.includes(key)) await set(STORAGE.hintsSeen, [...seen, key])
+}
+
+/** "Show tips" in Settings: the tour and the hints come back. */
+export async function resetHints(): Promise<void> {
+  await set(STORAGE.hintsSeen, [])
 }
 
 // The text of recent pages, on this device only, so a "whole chat" answer can include the chat's other pages.
@@ -77,6 +95,20 @@ export async function noteHintCount(): Promise<number> {
 
 export async function setNoteHintCount(count: number): Promise<void> {
   await set(STORAGE.noteHint, count)
+}
+
+/** Page visits that showed the hint about the field and Note by a selection; -1 once one was used. */
+export async function selHintCount(): Promise<number> {
+  return (await get<number>(STORAGE.selHint)) ?? 0
+}
+
+export async function setSelHintCount(count: number): Promise<void> {
+  await set(STORAGE.selHint, count)
+}
+
+/** The subscription period the auto-renew question was asked in (answered or put off), on this device. */
+export async function renewalAskedPeriod(): Promise<string | null> {
+  return (await get<string>(STORAGE.renewalAsked)) ?? null
 }
 
 /** How many times the Pro offer card was shown to an install that ran out of answers before; -1 once answered. */
@@ -128,16 +160,17 @@ export async function setActiveThread(id: string): Promise<void> {
   await set(STORAGE.activeThread, { id, at: Date.now() })
 }
 
-export async function saveThread(id: string, entries: Entry[]): Promise<void> {
-  const next = entries.slice(-MAX_TURNS)
+/** Stores a chat's messages; `kind` marks a new "Ask your chats" chat (a chat keeps its kind). */
+export async function saveThread(id: string, entries: Entry[], kind?: "history"): Promise<void> {
+  // Page texts for the chat's last few pages only (they go to iCloud with it).
+  const next = trimSavedPages(entries.slice(-MAX_TURNS))
   const threads = (await get<Threads>(STORAGE.threads)) ?? {}
   const stored = threads[id]
   // Only real changes get a new time: it decides which device's copy wins (iCloud sync),
   // and opening an empty thread doesn't store anything.
   if (stored ? JSON.stringify(stored.m) === JSON.stringify(next) : next.length === 0) return
   const now = Date.now()
-  const title = stored && !stored.deleted ? stored.title : undefined
-  await set(STORAGE.threads, prune({ ...threads, [id]: { id, u: now, a: now, m: next, ...(title ? { title } : {}) } }))
+  await set(STORAGE.threads, prune({ ...threads, [id]: withMessages(stored, id, next, now, kind) }))
 }
 
 /** Names a chat (an empty name goes back to its first question); it keeps its place in the list. */
@@ -150,6 +183,19 @@ export async function renameThread(id: string, name: string): Promise<void> {
   const renamed: Thread = { ...stored, u: Date.now(), a: activity(stored), title }
   if (!title) delete renamed.title
   await set(STORAGE.threads, { ...threads, [id]: renamed })
+}
+
+/** Sets a chat's own tags; it keeps its place in the list. */
+export async function setThreadTags(id: string, tags: string[]): Promise<void> {
+  const threads = (await get<Threads>(STORAGE.threads)) ?? {}
+  const stored = threads[id]
+  if (!stored || stored.deleted) return
+  const clean = cleanTags(tags)
+  if (JSON.stringify(clean) === JSON.stringify(stored.tags ?? [])) return
+  const next: Thread = { ...stored, u: Date.now(), a: activity(stored) }
+  if (clean.length) next.tags = clean
+  else delete next.tags
+  await set(STORAGE.threads, { ...threads, [id]: next })
 }
 
 /** Pins a chat at `pin` (its place among the pinned ones) or unpins it (null); its place by activity stays. */

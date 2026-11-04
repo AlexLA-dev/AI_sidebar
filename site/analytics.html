@@ -8,8 +8,8 @@
 <link rel="icon" href="/icon.png" />
 <link rel="stylesheet" href="/style.css" />
 <style>
-  :root { --c1: #2563eb; --c2: #10b981; --c3: #8b5cf6; --warn: #d92d20; }
-  @media (prefers-color-scheme: dark) { :root { --c1: #60a5fa; --c2: #34d399; --c3: #a78bfa; --warn: #ff6b5e; } }
+  :root { --c1: #2563eb; --c2: #10b981; --c3: #8b5cf6; --c4: #d97706; --warn: #d92d20; }
+  @media (prefers-color-scheme: dark) { :root { --c1: #60a5fa; --c2: #34d399; --c3: #a78bfa; --c4: #fbbf24; --warn: #ff6b5e; } }
   /* Onboarding steps, one hue: lighter = stopped earlier (an ordinal ramp checked against the panel colour). */
   :root { --o1: #6da7ec; --o2: #3987e5; --o3: #256abf; --o4: #104281; }
   @media (prefers-color-scheme: dark) { :root { --o1: #184f95; --o2: #2a78d6; --o3: #6da7ec; --o4: #b7d3f6; } }
@@ -32,7 +32,10 @@
   .card dl { display: grid; grid-template-columns: 1fr auto; gap: 3px 12px; margin: 12px 0 0; font-size: 13.5px; }
   .card dt { color: var(--text-2); }
   .card dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
-  .card .bad { color: var(--warn); }
+  .card .bad, td.bad { color: var(--warn); }
+  table.limits td.name { white-space: normal; min-width: 220px; max-width: 340px; line-height: 1.4; }
+  table.limits td.status { white-space: normal; min-width: 96px; }
+  @media (max-width: 600px) { table.limits td.name { min-width: 150px; } }
   .panel + .cards { margin-top: 14px; }
   .panel { position: relative; background: var(--bg-2); border-radius: 16px; padding: 16px 18px; margin-top: 14px; }
   .tip { position: absolute; z-index: 5; pointer-events: none; display: none; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; font-size: 12.5px; box-shadow: 0 6px 18px rgba(0,0,0,.14); white-space: nowrap; font-variant-numeric: tabular-nums; }
@@ -53,6 +56,11 @@
   tr.sum td { font-weight: 600; }
   .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12.5px; color: var(--text-2); margin-bottom: 8px; }
   .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+  .legend .lg { border: 0; background: none; font: inherit; color: inherit; padding: 2px 0; cursor: pointer; }
+  .legend .lg.off { opacity: .45; text-decoration: line-through; }
+  .legend i.ln { width: 16px; height: 0; border-radius: 0; border-top: 2px solid; vertical-align: 3px; }
+  .legend i.ln.dash { border-top-style: dashed; }
+  svg text.axis { font-size: 11px; font-weight: 600; }
   svg text { fill: var(--text-2); font-size: 10.5px; }
   .tbl { overflow-x: auto; }
   table { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums; }
@@ -324,70 +332,112 @@ const dayLabel = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString("ru-RU", {
 
 // Stacked bars per UTC day; hovering (or tapping) a day shows its numbers. series: [{ title, color, value(day) }].
 // title may hold controls next to the text.
-function chart(title, series, totalDays) {
+// Series hidden by a click on the legend, per chart (kept while the page is open).
+const hiddenSeries = new Map()
+// A round top for an axis, so its middle line is a whole number.
+const niceMax = (v) => v <= 2 ? 2 : v <= 10 ? Math.ceil(v / 2) * 2 : Math.ceil(v / 10) * 10
+
+// Stacked bars by day on the left axis; series with axis "right" are lines on their own right axis. A click on a
+// legend item hides that series (another click brings it back); an axis with nothing left on it disappears.
+// opts: leftLabel, rightLabel (axis captions), note (a line under the chart).
+function chart(title, series, totalDays, opts = {}) {
+  const name = [title].flat()[0]
+  const hidden = hiddenSeries.get(name) || new Set()
+  hiddenSeries.set(name, hidden)
   const keys = lastDays(totalDays)
-  const totals = keys.map((d) => series.reduce((s, x) => s + x.value(d), 0))
-  const max = Math.max(1, ...totals)
-  const W = 900, H = 210, L = 34, B = 22, T = 8
-  const bw = (W - L) / keys.length
-  const nodes = []
-  for (const f of [0, 0.5, 1]) {
-    const y = T + (H - T - B) * (1 - f)
-    nodes.push(svg("line", { x1: L, x2: W, y1: y, y2: y, stroke: "currentColor", "stroke-opacity": "0.12" }))
-    nodes.push(svg("text", { x: L - 6, y: y + 3, "text-anchor": "end" }, n.format(Math.round(max * f))))
-  }
-  keys.forEach((d, i) => {
-    let y = H - B
-    const x = L + i * bw + bw * 0.15
-    for (const s of series) {
-      const v = s.value(d)
-      if (!v) continue
-      const h = (H - T - B) * (v / max)
-      y -= h
-      nodes.push(svg("rect", { x, y, width: Math.max(1, bw * 0.7), height: h, rx: 2, fill: s.color }))
-    }
-    const every = Math.ceil(keys.length / 10)
-    if (i % every === 0 || i === keys.length - 1) nodes.push(svg("text", { x: L + i * bw + bw / 2, y: H - 6, "text-anchor": "middle" }, d.slice(5).replace("-", ".")))
-  })
+  const hasRight = series.some((s) => s.axis === "right")
+  const W = 900, H = 228, L = 38, R = hasRight ? 38 : 0, B = 22, T = opts.leftLabel || opts.rightLabel ? 26 : 8
+  const bw = (W - L - R) / keys.length
   const tip = el("div", { class: "tip" })
   const panel = el("div", { class: "panel" })
-  const highlight = svg("rect", { x: 0, y: T, width: bw, height: H - T - B, rx: 3, fill: "currentColor", "fill-opacity": "0.07", visibility: "hidden" })
-  const show = (i, e) => {
-    highlight.setAttribute("x", L + i * bw)
-    highlight.setAttribute("visibility", "visible")
-    tip.replaceChildren(...[
-      el("b", {}, dayLabel(keys[i])),
-      ...series.map((s) => el("div", { class: "row" }, el("span", {}, el("span", { class: "dot", style: `background:${s.color}` }), s.title), el("span", {}, n.format(s.value(keys[i]))))),
-      series.length > 1 && el("div", { class: "row total" }, el("span", {}, "Всего"), el("span", {}, n.format(totals[i])))
-    ].filter(Boolean))
-    tip.style.display = "block"
-    const box = panel.getBoundingClientRect()
-    const left = e.clientX - box.left + 14
-    tip.style.left = `${Math.max(8, Math.min(left, box.width - tip.offsetWidth - 8))}px`
-    tip.style.top = `${Math.max(8, e.clientY - box.top - tip.offsetHeight - 12)}px`
+  const scroller = el("div", { class: "tbl" })
+  const legend = el("div", { class: "legend" })
+
+  const draw = () => {
+    const shown = series.filter((s) => !hidden.has(s.title))
+    const bars = shown.filter((s) => s.axis !== "right")
+    const lines = shown.filter((s) => s.axis === "right")
+    const totals = keys.map((d) => bars.reduce((t, x) => t + x.value(d), 0))
+    const max = niceMax(Math.max(0, ...totals))
+    const rmax = niceMax(Math.max(0, ...lines.flatMap((s) => keys.map((d) => s.value(d)))))
+    const yOf = (v, top) => T + (H - T - B) * (1 - v / top)
+    const nodes = []
+    for (const f of [0, 0.5, 1]) {
+      const y = T + (H - T - B) * (1 - f)
+      nodes.push(svg("line", { x1: L, x2: W - R, y1: y, y2: y, stroke: "currentColor", "stroke-opacity": "0.12" }))
+      if (bars.length) nodes.push(svg("text", { x: L - 6, y: y + 3, "text-anchor": "end" }, n.format(max * f)))
+      if (lines.length) nodes.push(svg("text", { x: W - R + 6, y: y + 3, "text-anchor": "start" }, n.format(rmax * f)))
+    }
+    if (bars.length && opts.leftLabel) nodes.push(svg("text", { x: 2, y: 12, "text-anchor": "start", class: "axis" }, opts.leftLabel))
+    if (lines.length && opts.rightLabel) nodes.push(svg("text", { x: W - 2, y: 12, "text-anchor": "end", class: "axis" }, opts.rightLabel))
+    keys.forEach((d, i) => {
+      let y = H - B
+      const x = L + i * bw + bw * 0.15
+      for (const s of bars) {
+        const v = s.value(d)
+        if (!v) continue
+        const h = (H - T - B) * (v / max)
+        y -= h
+        nodes.push(svg("rect", { x, y, width: Math.max(1, bw * 0.7), height: h, rx: 2, fill: s.color }))
+      }
+      const every = Math.ceil(keys.length / 10)
+      if (i % every === 0 || i === keys.length - 1) nodes.push(svg("text", { x: L + i * bw + bw / 2, y: H - 6, "text-anchor": "middle" }, d.slice(5).replace("-", ".")))
+    })
+    for (const s of lines) {
+      const pts = keys.map((d, i) => [L + i * bw + bw / 2, yOf(s.value(d), rmax)])
+      nodes.push(svg("path", {
+        d: pts.map(([x, y], i) => `${i ? "L" : "M"}${x.toFixed(1)},${y.toFixed(1)}`).join(""),
+        fill: "none", stroke: s.color, "stroke-width": 2, "stroke-linejoin": "round", ...(s.dash ? { "stroke-dasharray": "5 4" } : {})
+      }))
+      keys.forEach((d, i) => {
+        if (s.value(d)) nodes.push(svg("circle", { cx: pts[i][0], cy: pts[i][1], r: 4, fill: s.color, stroke: "var(--bg)", "stroke-width": 2 }))
+      })
+    }
+    const highlight = svg("rect", { x: 0, y: T, width: bw, height: H - T - B, rx: 3, fill: "currentColor", "fill-opacity": "0.07", visibility: "hidden" })
+    const show = (i, e) => {
+      highlight.setAttribute("x", L + i * bw)
+      highlight.setAttribute("visibility", "visible")
+      tip.replaceChildren(...[
+        el("b", {}, dayLabel(keys[i])),
+        ...bars.map((s) => el("div", { class: "row" }, el("span", {}, el("span", { class: "dot", style: `background:${s.color}` }), s.title), el("span", {}, n.format(s.value(keys[i]))))),
+        bars.length > 1 && el("div", { class: "row total" }, el("span", {}, "Всего"), el("span", {}, n.format(totals[i]))),
+        ...lines.map((s) => el("div", { class: `row${s === lines[0] && bars.length ? " total" : ""}` }, el("span", {}, el("span", { class: "dot", style: `background:${s.color}` }), s.title), el("span", {}, n.format(s.value(keys[i])))))
+      ].filter(Boolean))
+      tip.style.display = "block"
+      const box = panel.getBoundingClientRect()
+      const left = e.clientX - box.left + 14
+      tip.style.left = `${Math.max(8, Math.min(left, box.width - tip.offsetWidth - 8))}px`
+      tip.style.top = `${Math.max(8, e.clientY - box.top - tip.offsetHeight - 12)}px`
+    }
+    const hide = () => {
+      tip.style.display = "none"
+      highlight.setAttribute("visibility", "hidden")
+    }
+    // A transparent column per day catches the pointer over its whole height, not just the bar.
+    const hits = shown.length ? keys.map((_, i) => {
+      const hit = svg("rect", { x: L + i * bw, y: T, width: bw, height: H - T - B, fill: "transparent" })
+      hit.addEventListener("pointermove", (e) => show(i, e))
+      hit.addEventListener("pointerdown", (e) => show(i, e))
+      return hit
+    }) : []
+    const chartSvg = svg("svg", { viewBox: `0 0 ${W} ${H}`, width: "100%", style: "min-width:640px", role: "img", "aria-label": name }, highlight, nodes, hits)
+    chartSvg.addEventListener("pointerleave", hide)
+    const at = scroller.scrollLeft
+    scroller.replaceChildren(chartSvg)
+    hide()
+    if (at) scroller.scrollLeft = at
+    legend.replaceChildren(...series.map((s) => el("button", {
+      class: `lg${hidden.has(s.title) ? " off" : ""}`, type: "button", "aria-pressed": hidden.has(s.title) ? "false" : "true",
+      title: [s.hint, hidden.has(s.title) ? "Нажмите, чтобы показать" : "Нажмите, чтобы скрыть"].filter(Boolean).join("\n"),
+      onclick: () => { hidden.has(s.title) ? hidden.delete(s.title) : hidden.add(s.title); draw() }
+    }, s.axis === "right"
+      ? el("i", { class: `ln${s.dash ? " dash" : ""}`, style: `border-color:${s.color}` })
+      : el("i", { style: `background:${s.color}` }), s.title)))
   }
-  const hide = () => {
-    tip.style.display = "none"
-    highlight.setAttribute("visibility", "hidden")
-  }
-  // A transparent column per day catches the pointer over its whole height, not just the bar.
-  const hits = keys.map((_, i) => {
-    const hit = svg("rect", { x: L + i * bw, y: T, width: bw, height: H - T - B, fill: "transparent" })
-    hit.addEventListener("pointermove", (e) => show(i, e))
-    hit.addEventListener("pointerdown", (e) => show(i, e))
-    return hit
-  })
-  const chartSvg = svg("svg", { viewBox: `0 0 ${W} ${H}`, width: "100%", style: "min-width:640px", role: "img", "aria-label": [title].flat()[0] }, highlight, nodes, hits)
-  chartSvg.addEventListener("pointerleave", hide)
+  draw()
   // Wide enough to stay readable on a phone (scrolls sideways there, starting at the latest days).
-  const scroller = el("div", { class: "tbl" }, chartSvg)
   requestAnimationFrame(() => { scroller.scrollLeft = scroller.scrollWidth })
-  panel.append(
-    el("h3", {}, title),
-    el("div", { class: "legend" }, series.map((s) => el("span", {}, el("i", { style: `background:${s.color}` }), s.title))),
-    scroller,
-    tip
-  )
+  panel.append(el("h3", {}, title), legend, scroller, opts.note && el("p", { class: "hint" }, opts.note), tip)
   return panel
 }
 
@@ -431,6 +481,8 @@ function toggle(options, current, pick) {
   return el("div", { class: "seg" }, options.map(([value, text]) => el("button", { class: value === current ? "on" : "", onclick: () => pick(value) }, text)))
 }
 
+const LIMIT_D0 = "«Упёрлись в лимит в d0» — из новых этого дня, сколько в тот же день (d0, по UTC) получили отказ: бесплатные ответы на сегодня кончились (обычные или Google)."
+const PRO_BOUGHT = "«Новые подписки Pro» — сколько Pro (месяц или год) куплено в этот день, по первой оплате: пробный период и бесплатный код — в день первой оплаты; продления, «Свой ключ» и наша подписка не считаются. Это все покупки дня, а не только новых этого дня."
 const NO_INSIGHTS = "Нет данных: в базе ещё нет функции cf_owner_insights (миграция 20261102120000)."
 const nameOf = (names, code) => { try { return names.of(code) || code } catch { return code } }
 const unique = (list) => [...new Set(list.filter(Boolean))]
@@ -926,6 +978,57 @@ function mrrCards(insights, fx) {
   )
 }
 
+// Whether any limit keeps getting in users' way (cf_limits_report): per limit, what it touched and how often.
+const LIMITS = {
+  free_daily: ["Бесплатные ответы: 5 в день", "Бесплатные", "Это и есть повод купить Pro: показатель для воронки, а не поломка."],
+  ip_daily: ["Бесплатные ответы: 40 в день с одного IP", "Бесплатные", "Срабатывает, когда много людей за одним адресом (офис, VPN)."],
+  busy: ["Общий дневной потолок сервера", "Все", "Защита бюджета: при срабатывании отказывают всем."],
+  search: ["Google: 3 в день (Free), 100 в неделю (Pro)", "Все"],
+  pro_weekly: ["Pro: 375 ответов в неделю — отказ", "Pro"],
+  pro_near: ["Pro: 300+ ответов за неделю — близко к 375", "Pro", "Считаются недели подписок, а не ответы."],
+  page_cut: ["Текст страницы обрезан: 24 000 знаков (выделение 12 000, видео и PDF 100 000)", "Ответы со страницей"],
+  answer_cut: ["Ответ оборван: модель дошла до предела длины", "Все ответы"],
+  memory_window: ["Память чата: модель видит 12 последних сообщений", "Ответы без «Весь чат»", "В длинном чате ранние вопросы и ответы модель уже не видит."],
+  whole_chat_cut: ["«Весь чат»: в запрос вошли не все сообщения (48 000 знаков)", "Ответы с «Весь чат»"],
+  other_pages: ["Страницы чата: дошли не все (панель — 3, приложение — 9) или обрезаны до 8 000 знаков", "Ответы с «Весь чат» и из приложения"],
+  digest_cut: ["«Спросить по всем чатам» и ИИ-поиск: поместились не все чаты", "Эти ответы"],
+  turns_40: ["Чат длиннее 40 сообщений: старые не хранятся", "Ответы из 2.4"],
+  chats_50: ["50 чатов на устройстве: самые старые удаляются", "Ответы из 2.4"],
+  pages_10: ["У чата больше 10 страниц: тексты старых не хранятся", "Ответы из 2.4"]
+}
+const LIMIT_STATUS = { systematic: ["Мешает систематически", "bad"], occasional: ["Бывает", ""], none: ["Не было", "muted"] }
+// Shown only from ContextFlow 2.4 (it sends the chat's sizes).
+const SIZES_ONLY = ["whole_chat_cut", "turns_40", "chats_50", "pages_10"]
+
+function limitsPanel(report) {
+  const title = "Мешают ли лимиты"
+  if (!report) return null
+  const order = { systematic: 0, occasional: 1, none: 2 }
+  const rows = [...(report.rows || [])].sort((a, b) => order[a.status] - order[b.status] || (b.hits || 0) - (a.hits || 0))
+  const date = (v) => v ? new Date(`${v}T12:00:00Z`).toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit" }) : "—"
+  const body = rows.map((r) => {
+    const [name, group, hint] = LIMITS[r.key] || [r.key, r.group]
+    const refusals = r.base == null
+    const noData = !refusals && !r.base && SIZES_ONLY.includes(r.key)
+    const [status, cls] = noData ? ["Нет данных до 2.4", "muted"] : LIMIT_STATUS[r.status] || [r.status, ""]
+    return el("tr", {},
+      el("td", { class: "name" }, name, hint && el("small", {}, hint)),
+      el("td", { class: `status ${cls}` }, status),
+      el("td", {}, refusals ? `${n.format(r.hits)} отказ.` : `${n.format(r.hits)} из ${n.format(r.base)}`, !refusals && r.base > 0 && el("small", {}, pct(r.hits, r.base))),
+      el("td", {}, `${n.format(r.users)} из ${n.format(r.users_base)}`, r.users_base > 0 && el("small", {}, pct(r.users, r.users_base))),
+      el("td", {}, n.format(r.repeat_users)),
+      el("td", {}, date(r.last_day)),
+      el("td", {}, group)
+    )
+  })
+  const panel = table(`${title} · ${report.days} дн.`, ["Лимит", "Вывод", "Задело", "Пользователей", "Повторно", "Последний раз", "Кого касается"], body, "Данных пока нет.", "text limits")
+  panel.append(el("p", { class: "hint" },
+    "«Мешает систематически» — повторно (в разные дни) упираются 3+ человека или задело 10 % пользователей группы и больше (не меньше трёх человек). «Повторно» — сколько пользователей это задело в два разных дня или больше. Для отказов (лимиты ответов) «задело» — число отказов; для остального — ответы, которые лимит урезал, из ответов, которые он мог задеть. ",
+    report.flags_since ? `Точные отметки сервер ставит с ${date(report.flags_since)}, раньше — по размерам (страница, дошедшая до предела; полное окно из 12 сообщений). ` : "Пока точных отметок нет: считается по размерам (страница, дошедшая до предела; полное окно из 12 сообщений). ",
+    report.sizes_since ? `Размеры чатов присылает версия 2.4, с ${date(report.sizes_since)}.` : "Размеры чатов (40 сообщений, 50 чатов, 10 страниц) присылает версия 2.4 — до её выхода эти строки пустые."))
+  return panel
+}
+
 function render(data, fx) {
   const segments = data.segments || []
   const insights = data.insights || null
@@ -966,6 +1069,9 @@ function render(data, fx) {
     el("td", {}, r.segment === "google" ? "Google" : "ИИ"), el("td", {}, r.provider), el("td", {}, n.format(r.errors))))
   const users = data.users || {}
   const userDay = (field) => (day) => Number((users.by_day || []).find((r) => r.day === day)?.[field] || 0)
+  // cf_new_user_outcomes: of each day's new users, how many ran out of free answers that day; Pro bought that day.
+  const outcomes = data.new_outcomes
+  const outcomeDay = (field) => (day) => Number((outcomes || []).find((r) => r.day === day)?.[field] || 0)
   const subs = data.subscriptions || {}
   const date = (v) => v ? new Date(v).toLocaleDateString("ru-RU") : "—"
   // Who subscribed: matched to the report's list by the moment the subscription was first recorded.
@@ -1020,9 +1126,19 @@ function render(data, fx) {
     mrrCards(insights, fx),
     userCards(users, subs, data.days),
     chart("Активные пользователи по дням", [
-      { title: "Новые", color: "var(--c2)", value: userDay("new") },
-      { title: "Вернувшиеся", color: "var(--c1)", value: (d) => userDay("active")(d) - userDay("new")(d) }
-    ], data.days),
+      { title: "Новые", color: "var(--c2)", value: userDay("new"), hint: "Впервые открыли панель или спросили в этот день (UTC)" },
+      { title: "Вернувшиеся", color: "var(--c1)", value: (d) => userDay("active")(d) - userDay("new")(d), hint: "Были и раньше" },
+      ...(outcomes ? [
+        { title: "Упёрлись в лимит в d0", color: "var(--c4)", axis: "right", dash: true, value: outcomeDay("limit_d0"), hint: LIMIT_D0 },
+        { title: "Новые подписки Pro", color: "var(--c3)", axis: "right", value: outcomeDay("pro_bought"), hint: PRO_BOUGHT }
+      ] : [])
+    ], data.days, {
+      leftLabel: "Люди: новые и вернувшиеся",
+      rightLabel: outcomes ? "Люди: лимит в d0 · подписки" : undefined,
+      note: outcomes
+        ? `Правая ось. ${LIMIT_D0} ${PRO_BOUGHT} Нажмите на название в легенде, чтобы скрыть линию или столбики.`
+        : "Лимит в d0 и подписки появятся после миграции 20261104150000 (функция cf_new_user_outcomes)."
+    }),
     live((redraw) => onboardingPanels(data.onboarding, data.days, redraw)),
     live((redraw) => featuresPanel(data.features, data.days, redraw)),
     funnelsPanel(data.feature_funnels),
@@ -1054,7 +1170,7 @@ function render(data, fx) {
     table("По устройствам", ["Устройство", "Сегмент", "Запросы", "Устройств", "Токены вход", "Токены выход", "Поиск Google"], devices, "Пока нет запросов."),
     table("По моделям", ["Сегмент", "Модель", "Запросы", "Ошибки", "Токены вход", "Токены выход", "Поиск Google", "Ср. время"], models, "Пока нет запросов."),
     table(`Ревью: вы или App Review (${n.format(sum(review, "requests"))})`, ["Устройство", "Сегмент", "Версия", "Запросы", "Устройств", "Дни"], reviewRows, "Пока версия на ревью, запросы с неё попадают сюда, а не в цифры выше."),
-    table("Упёрлись в лимит", ["Тип", "Лимит · план", "Раз"], limits, "Никто не упирался в лимиты."),
+    limitsPanel(data.limits_report) || table("Упёрлись в лимит", ["Тип", "Лимит · план", "Раз"], limits, "Никто не упирался в лимиты."),
     table("Ошибки провайдеров", ["Тип", "Провайдер", "Ошибок"], errors, "Ошибок не было."),
     el("p", { class: "note" }, `Цифры выше — только реальные пользователи. Не входят: запросы с версии, пока она на ревью (блок «Ревью»), и наши тестовые проверки (${n.format(data.excluded_tests || 0)}). Время — UTC. Пользователь — установка расширения на одном устройстве; переустановка считается новым пользователем, а «новый» в графике запросов — это запрос в тот же день (UTC), когда установку увидели впервые. Сервер работает с 23.10.2026, поэтому все, кто пришёл с версий 1.x, в первые дни тоже выглядят новыми. Устройство и язык подписчика — из расширения, страна — из App Store; точнее страны ничего не хранится. Бесплатные подписки (подарочный код для прессы и блогеров, подписка владельца, пробный период, бесплатный код) показаны в «Подписках» отдельно и не входят в число подписок, конверсию, первую оплату, MRR и подписки из Apple Ads; такая подписка становится платящей с первой оплаты. MRR — в долларах США по сегодняшнему курсу, после комиссии Apple 15 %. В «По тарифам» Pro — все ответы Pro, бесплатные тоже. Активные до 28.10.2026 посчитаны по вопросам, дню установки и последнему заходу, поэтому за те дни цифры занижены; с 28.10 считается каждое открытие панели. Запросы с ключом пользователя видны начиная со следующей сборки после 2.1: расширение присылает только счётчики (модель, токены, время), без ключа и текста. События старше 180 дней удаляются.`)
   )

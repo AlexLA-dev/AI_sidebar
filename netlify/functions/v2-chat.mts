@@ -12,6 +12,7 @@ import { MAX_APP_OTHER_PAGES, MAX_OTHER_PAGES } from "../../src/shared/prompt.ts
 import { uiFields } from "../../src/shared/usage.ts"
 import { historyPrompt, MAX_HISTORY_CHARS, MAX_HISTORY_CHATS, sanitizeDigests } from "../../src/shared/history.ts"
 import { blockReason, countersFor, proOffer, resolveAccess, searchCountersFor, visibleUsage } from "../shared/plan.mts"
+import { chatSize, digestCut, limitsHit } from "../shared/limits.mts"
 
 /**
  * POST /api/v2/chat — streaming answer about the current page.
@@ -20,6 +21,7 @@ import { blockReason, countersFor, proOffer, resolveAccess, searchCountersFor, v
  *         messages: [{role, content}], page?: {kind, title, url, text}, profile?, action?, mode?: "google",
  *         context?: "chat" (the whole conversation and notes), pages?: [{title, url, text}] (its other pages),
  *         from?: "app" (with context "chat": asked in the ContextFlow app; page and pages are the chat's saved texts),
+ *         stats?: {turns, pages, chats} (2.4: the chat's messages and pages and the device's chats, for /analytics),
  *         context?: "history" with history: [{id, title, date, text}] — "Ask your chats", Pro only (no page) }
  * Response: text/event-stream of `data: {"type": "meta"|"delta"|"grounding"|"done"|"error", …}` lines
  * ("grounding" only in Google mode: the final text with citations, sources and Search Suggestions),
@@ -180,6 +182,10 @@ export default async (req: Request, context: Context): Promise<Response> => {
       history: messages.length,
       ...(wholeChat ? { whole_chat: true, other_pages: others.length } : {}),
       ...(history ? { history_chats: chats.length, history_chars: chats.reduce((n, c) => n + c.text.length, 0) } : {}),
+      // The limits it ran into (cf_limits_report), and how big the user's chat is (2.4).
+      ...limitsHit({ sent, page, sentMessages: Array.isArray(body.messages) ? body.messages.length : 0, messages: messages.length, others, answerCut: stats.cut === true }),
+      ...(history && digestCut(body.history, chats, MAX_HISTORY_CHARS) ? { digest_cut: true } : {}),
+      ...chatSize(body.stats),
       prompt_tokens: stats.promptTokens,
       completion_tokens: stats.completionTokens,
       ms: Date.now() - started,

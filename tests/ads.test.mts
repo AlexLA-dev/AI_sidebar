@@ -63,13 +63,14 @@ test("a live account that matches the plan needs no changes; drift becomes updat
   for (const c of plan.campaigns) {
     const cid = id++
     live.campaigns.push({ id: cid, name: c.name, status: c.status, dailyBudget: { value: { amount: String(c.dailyBudget) } }, targeting: { countryOrRegion: { include: c.countries } }, endTime: `${c.end}T23:59:59.999` })
-    for (const n of c.negatives) live.negatives.push({ id: id++, campaignId: cid, text: n.text, matchType: "BROAD" })
+    for (const n of c.negatives) live.negatives.push({ id: id++, campaignId: cid, text: n.text, matchType: n.match ?? "BROAD" })
     for (const g of c.adGroups) {
       const gid = id++
       live.adGroups.push({ id: gid, campaignId: cid, name: g.name, status: "ENABLED", bidStrategy: { bid: { amount: String(g.bid) } }, automatedKeywordsOptIn: Boolean(g.searchMatch), targeting: { deviceClass: { include: g.devices }, appDownloader: { exclude: ["6759115793"] } } })
-      for (const k of g.keywords) live.keywords.push({ id: id++, adGroupId: gid, text: k.text, matchType: "EXACT", status: "ENABLED", bid: k.bid != null ? { amount: String(k.bid) } : undefined })
+      for (const k of g.keywords) live.keywords.push({ id: id++, adGroupId: gid, text: k.text, matchType: k.match ?? "EXACT", status: "ENABLED", bid: { amount: String(k.bid ?? g.bid) } })
       live.ads.push({ id: id++, adGroupId: gid, status: "ENABLED", productPage: "default" })
-      if (g.negateCampaignExact) for (const o of c.adGroups) if (o !== g) for (const k of o.keywords) live.negatives.push({ id: id++, adGroupId: gid, text: k.text, matchType: "EXACT" })
+      for (const n of g.negatives ?? []) live.negatives.push({ id: id++, adGroupId: gid, text: n.text, matchType: n.match ?? "BROAD" })
+      if (g.negateCampaignExact) for (const o of c.adGroups) if (o !== g) for (const k of o.keywords) if ((k.match ?? "EXACT") === "EXACT") live.negatives.push({ id: id++, adGroupId: gid, text: k.text, matchType: "EXACT" })
     }
   }
   assert.deepEqual(diffPlan(plan, live).ops, [])
@@ -86,7 +87,24 @@ test("a live account that matches the plan needs no changes; drift becomes updat
   const { ops } = diffPlan(plan, drift)
   assert.equal(ops.length, 1)
   assert.equal(ops[0].kind, "keywords.update")
-  assert.deepEqual(ops[0].items.map((k: { text: string; bid?: { amount: string }; status?: string }) => [k.text, k.bid?.amount ?? null, k.status ?? null]), [["safari ai", "1.10", null], ["stray", null, "PAUSED"]])
+  assert.deepEqual(ops[0].items.map((k: { text: string; bid?: { amount: string }; status?: string }) => [k.text, k.bid?.amount ?? null, k.status ?? null]), [[drift.keywords[0].text, plan.campaigns[0].adGroups[0].keywords[0].bid.toFixed(2), null], ["stray", null, "PAUSED"]])
+
+  // A keyword without its own bid follows its group's bid.
+  const follow = structuredClone(plan)
+  const fg = follow.campaigns[0].adGroups.find((g: { keywords?: { bid?: number }[] }) => g.keywords?.some((k) => k.bid == null)) ?? follow.campaigns[0].adGroups[0]
+  const fk = fg.keywords.find((k: { bid?: number }) => k.bid == null) ?? fg.keywords[0]
+  delete fk.bid
+  fg.bid = 1.45
+  const followUpdates = diffPlan(follow, live).ops.filter((o) => o.kind === "keywords.update").flatMap((o) => o.items)
+  assert.ok(followUpdates.some((k: { text: string; bid?: { amount: string } }) => k.text === fk.text && k.bid?.amount === "1.45"))
+
+  // A negative that left the plan is paused, after the groups; one that came back is switched on.
+  const neg = structuredClone(live)
+  neg.negatives.push({ id: 8888, campaignId: neg.campaigns[0].id, text: "old negative", matchType: "BROAD", status: "ENABLED" })
+  neg.negatives[0].status = "PAUSED"
+  const negOps = diffPlan(plan, neg).ops
+  assert.deepEqual(negOps.map((o) => o.kind), ["negatives.update"])
+  assert.deepEqual(negOps[0].items.map((n: { text: string; status: string }) => [n.text, n.status]), [[neg.negatives[0].text, "ENABLED"], ["old negative", "PAUSED"]])
 })
 
 const kwRow = (group: string, text: string, t: Record<string, unknown>, id = 1) => ({
@@ -109,7 +127,8 @@ test("rules pause dead keywords, raise cheap ones, promote and block search term
   const by = (t: string) => proposals.find((p: { text: string }) => p.text === t)
   assert.equal(by("safari ai")?.action, "pause")
   assert.equal(by("ai summarizer")?.action, "bid")
-  assert.equal(by("ai summarizer")?.to, 1.04)
+  const summarizer = plan.campaigns[0].adGroups[1].keywords.find((k: { text: string }) => k.text === "ai summarizer")
+  assert.equal(by("ai summarizer")?.to, Math.min(plan.guards.maxBid, Math.round(summarizer.bid * 115 + 1e-6) / 100))
   assert.equal(by("tldr")?.action, "pause")
   assert.equal(by("safari gpt sidebar")?.action, "promote")
   assert.equal(by("safari gpt sidebar")?.adGroup, "Safari AI · exact")
@@ -140,4 +159,31 @@ test("client secret is an ES256 JWT Apple can verify with the uploaded public ke
   assert.equal(body.iss, "SEARCHADS.t")
   assert.equal(body.exp - body.iat, 86400 * 180)
   assert.ok(verify("sha256", Buffer.from(`${h}.${b}`), { key: publicKey, dsaEncoding: "ieee-p1363" }, Buffer.from(s, "base64url")))
+})
+
+test("pacing raises every bid of a campaign that underspent yesterday, within the cap", () => {
+  const p = structuredClone(plan)
+  p.campaigns[0].status = "ENABLED"
+  p.campaigns[1].status = "ENABLED"
+  const proposals = optimize(p, { lastDaySpend: { [p.campaigns[0].name]: 0.4, [p.campaigns[1].name]: p.campaigns[1].dailyBudget } })
+  assert.ok(proposals.every((x) => x.action === "groupbid" && x.campaign === p.campaigns[0].name))
+  assert.equal(proposals.length, p.campaigns[0].adGroups.length)
+  const next = applyProposals(p, proposals)
+  const g = next.campaigns[0].adGroups[0]
+  assert.equal(g.bid, Math.round(p.campaigns[0].adGroups[0].bid * 115) / 100)
+  const before = p.campaigns[0].adGroups[0].keywords.find((k: { bid?: number }) => k.bid != null)
+  const after = g.keywords.find((k: { text: string }) => k.text === before.text)
+  assert.ok(after.bid > before.bid && after.bid <= p.guards.maxBid)
+  assert.deepEqual(guardProblems(next).problems, [])
+})
+
+test("an exact end time is compared to the minute", () => {
+  const p = structuredClone(plan)
+  p.campaigns = [p.campaigns[0]]
+  const c = p.campaigns[0]
+  c.end = "2026-11-06T22:00:00.000"
+  const live = { ...empty, campaigns: [{ id: 1, name: c.name, status: c.status, dailyBudget: { value: { amount: String(c.dailyBudget) } }, targeting: { countryOrRegion: { include: c.countries } }, endTime: "2026-11-06T22:00:00.000" }] }
+  assert.equal(diffPlan(p, live).ops.filter((o) => o.kind === "campaign.update").length, 0)
+  live.campaigns[0].endTime = "2026-11-09T22:00:00.000"
+  assert.deepEqual(diffPlan(p, live).ops.find((o) => o.kind === "campaign.update")?.payload, { endTime: "2026-11-06T22:00:00.000" })
 })
