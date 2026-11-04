@@ -480,6 +480,13 @@
   "watchRowMet": "Змінилося: {0} · {1}",
   "watchStop": "Перестати стежити",
   "watchStopped": "Більше не стежу",
+  "watchLabelPrice": "Ціна",
+  "watchLabelStock": "Наявність",
+  "watchLabelDate": "Дата",
+  "watchLabelStatus": "Статус",
+  "watchLabelPage": "Сторінка",
+  "watchInStock": "в наявності",
+  "watchOutOfStock": "немає в наявності",
   "watchChanged": "Змінилося: {0}",
   "watchChangedBody": "Зараз: {0}"
 }

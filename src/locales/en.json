@@ -480,6 +480,13 @@
   "watchRowMet": "Changed: {0} · {1}",
   "watchStop": "Stop watching",
   "watchStopped": "Stopped watching",
+  "watchLabelPrice": "Price",
+  "watchLabelStock": "Availability",
+  "watchLabelDate": "Date",
+  "watchLabelStatus": "Status",
+  "watchLabelPage": "The page",
+  "watchInStock": "in stock",
+  "watchOutOfStock": "out of stock",
   "watchChanged": "Changed: {0}",
   "watchChangedBody": "Now: {0}"
 }

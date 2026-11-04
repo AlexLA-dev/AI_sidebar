@@ -57,3 +57,24 @@ export function fallbackRule(what: WatchKind, value: string, condition: string):
   if (what === "stock" && isOutOfStock(value)) return { kind: "in-stock" }
   return { kind: "change" }
 }
+
+/**
+ * A value as a person reads it, for the notification and the list: a price from a page's markup ("34.50 EUR")
+ * in their language's currency format, schema.org stock in words; text as the page wrote it.
+ */
+export function shownValue(value: string, lang: string, words: { inStock: string; outOfStock: string }): string {
+  const v = value.trim()
+  const money = /^(\d+(?:\.\d+)?)\s([A-Z]{3})$/.exec(v)
+  if (money) {
+    try {
+      return new Intl.NumberFormat(lang, { style: "currency", currency: money[2] }).format(Number(money[1]))
+    } catch {
+      return v
+    }
+  }
+  if (/^(InStock|OutOfStock|SoldOut|PreOrder|BackOrder|Discontinued|LimitedAvailability|InStoreOnly|OnlineOnly)$/i.test(v)) {
+    return isOutOfStock(v) ? words.outOfStock : words.inStock
+  }
+  return v
+}
+

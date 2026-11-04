@@ -480,6 +480,13 @@
   "watchRowMet": "変更あり: {0} · {1}",
   "watchStop": "見守りをやめる",
   "watchStopped": "見守りをやめました",
+  "watchLabelPrice": "価格",
+  "watchLabelStock": "在庫",
+  "watchLabelDate": "日付",
+  "watchLabelStatus": "ステータス",
+  "watchLabelPage": "ページ",
+  "watchInStock": "在庫あり",
+  "watchOutOfStock": "在庫切れ",
   "watchChanged": "変更あり: {0}",
   "watchChangedBody": "現在: {0}"
 }

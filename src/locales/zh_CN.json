@@ -480,6 +480,13 @@
   "watchRowMet": "已变化：{0} · {1}",
   "watchStop": "停止关注",
   "watchStopped": "已停止关注",
+  "watchLabelPrice": "价格",
+  "watchLabelStock": "库存",
+  "watchLabelDate": "日期",
+  "watchLabelStatus": "状态",
+  "watchLabelPage": "页面",
+  "watchInStock": "有货",
+  "watchOutOfStock": "缺货",
   "watchChanged": "已变化：{0}",
   "watchChangedBody": "现在：{0}"
 }

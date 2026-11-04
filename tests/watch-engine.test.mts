@@ -152,7 +152,8 @@ test("a watch: planned once, read by the background, checked by the alarm, met o
   await round()
   const notice = native.find((m) => m.command === "watch_notify")!
   assert.equal(notice.title, "Changed: Mug price")
-  assert.equal(notice.body, "Now: 89 EUR")
+  // A price from the markup reads as the person's currency format, not "89 EUR".
+  assert.equal(notice.body, "Now: €89.00")
   assert.equal(notice.url, URL_A)
   assert.ok(watches()[0].metAt)
   assert.equal(aiCalls.filter((c) => c.action === "judge").length, 0, "a threshold needs no AI")

@@ -203,7 +203,7 @@ function scriptedWatch(system: string, content: string): unknown {
       what: !selection ? "page" : price ? "price" : /stock|sold|налич/i.test(selection) ? "stock" : "status",
       source: !selection ? "page" : price && content.includes("- ld-price:") ? "ld-price" : "text",
       rule: price && n && /below|under|ниже|меньше|дешевле/i.test(words) ? { kind: "below", n } : { kind: "change" },
-      label: selection.slice(0, 30) || "Page",
+      label: !selection ? "The page" : price ? "Price" : /stock|sold|налич/i.test(selection) ? "Availability" : "Status",
       site: /shop|localhost/.test(content) ? "shop" : "other"
     }
   }
