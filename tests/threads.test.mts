@@ -4,6 +4,7 @@ import { test } from "node:test"
 import type { Entry } from "../src/shared/conversation.ts"
 import {
   applyAppChanges,
+  newThreadId,
   applyRemote,
   allTags,
   chatList,
@@ -333,4 +334,19 @@ test("prune keeps page texts within the device's budget, the latest chats first"
   assert.equal(out.old.m[0].page?.url, "https://old.example")
   assert.equal(out.old.u, 1)
   assert.deepEqual(prune(threads, 10), threads)
+})
+
+test("a chat's id on a plain-http page, where crypto.randomUUID is missing: the same kind of UUID, from getRandomValues", () => {
+  const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
+  assert.match(newThreadId(), uuid)
+  // An insecure context: no randomUUID (the panel runs in the page's context).
+  Object.defineProperty(globalThis.crypto, "randomUUID", { value: undefined, configurable: true })
+  try {
+    const ids = Array.from({ length: 1000 }, () => newThreadId())
+    for (const id of ids) assert.match(id, uuid)
+    assert.equal(new Set(ids).size, ids.length)
+  } finally {
+    delete (globalThis.crypto as { randomUUID?: unknown }).randomUUID
+  }
+  assert.equal(typeof crypto.randomUUID, "function")
 })
