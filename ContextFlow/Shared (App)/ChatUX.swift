@@ -326,19 +326,24 @@ enum AnswerBlocks {
             if intent.contains(.stronglyEmphasized) { traits.insert(.traitBold) }
             if intent.contains(.emphasized) { traits.insert(.traitItalic) }
             if !traits.isEmpty, let d = font.fontDescriptor.withSymbolicTraits(traits) { runFont = UIFont(descriptor: d, size: font.pointSize) }
-            if intent.contains(.code) { runFont = .monospacedSystemFont(ofSize: font.pointSize * 0.92, weight: .regular) }
+            if intent.contains(.code) { runFont = .monospacedSystemFont(ofSize: font.pointSize, weight: .regular) }
             #else
             var traits: NSFontDescriptor.SymbolicTraits = []
             if intent.contains(.stronglyEmphasized) { traits.insert(.bold) }
             if intent.contains(.emphasized) { traits.insert(.italic) }
             if !traits.isEmpty { runFont = NSFont(descriptor: font.fontDescriptor.withSymbolicTraits(traits), size: font.pointSize) ?? font }
-            if intent.contains(.code) { runFont = .monospacedSystemFont(ofSize: font.pointSize * 0.92, weight: .regular) }
+            if intent.contains(.code) { runFont = .monospacedSystemFont(ofSize: font.pointSize, weight: .regular) }
             #endif
             var attributes: [NSAttributedString.Key: Any] = [.font: runFont, .foregroundColor: textColor]
             if let link = run.link { attributes[.link] = link }
             out.append(NSAttributedString(string: text, attributes: attributes))
         }
         return out
+    }
+
+    /// `style` at an exact weight, as SwiftUI's `.title3.weight(.bold)` (a bold trait on a title style is semibold).
+    static func font(_ style: PlatformFont.TextStyle, weight: PlatformFont.Weight) -> PlatformFont {
+        PlatformFont.systemFont(ofSize: PlatformFont.preferredFont(forTextStyle: style).pointSize, weight: weight)
     }
 
     static func font(_ style: PlatformFont.TextStyle, bold: Bool = false) -> PlatformFont {
@@ -363,6 +368,7 @@ struct AnswerText: View {
     let marks: [ChatMark]
     var onChange: ([ChatMark]) -> Void
     var onSelecting: (Bool) -> Void = { _ in }
+    @Environment(\.displayScale) private var displayScale
 
     private struct Laid {
         let block: AnswerBlocks.Block
@@ -381,7 +387,7 @@ struct AnswerText: View {
             var plain: String
             switch block {
             case .heading(let t, let level):
-                attributed = AnswerBlocks.inline(t, font: AnswerBlocks.font(level <= 2 ? .title3 : .headline, bold: true))
+                attributed = AnswerBlocks.inline(t, font: level <= 2 ? AnswerBlocks.font(.title3, weight: .bold) : AnswerBlocks.font(.headline, bold: true))
                 plain = attributed!.string
             case .paragraph(let t):
                 attributed = AnswerBlocks.inline(t, font: AnswerBlocks.font(.body))
@@ -471,6 +477,10 @@ struct AnswerText: View {
                 let s = shownOffset(item, range.location), e = shownOffset(item, range.location + range.length)
                 onChange(placed.filter { !($0.s < max(e, s + 1) && $0.e > s) })
             }, onSelecting: onSelecting)
+            #if os(iOS)
+            // Drawn where SwiftUI's Text drew it (layout unchanged).
+            .offset(y: SelectableText.baselineShift(drawn, scale: displayScale))
+            #endif
         }
     }
 }
@@ -515,7 +525,9 @@ struct SelectableText: UIViewRepresentable {
     func makeCoordinator() -> Coordinator { Coordinator(self) }
 
     func makeUIView(context: Context) -> UITextView {
-        let view = UITextView()
+        // TextKit 1: it puts a line's gap under the line, as SwiftUI's Text does, and draws every line even when
+        // the last one's gap is cut off (TextKit 2 drops a line that doesn't fit whole).
+        let view = UITextView(usingTextLayoutManager: false)
         view.isEditable = false
         view.isSelectable = true
         view.isScrollEnabled = false
@@ -537,7 +549,37 @@ struct SelectableText: UIViewRepresentable {
     func sizeThatFits(_ proposal: ProposedViewSize, uiView: UITextView, context: Context) -> CGSize? {
         let width = proposal.width ?? 320
         let size = uiView.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude))
-        return CGSize(width: width, height: ceil(size.height))
+        // TextKit gives the last line its line gap too; SwiftUI's Text (the answer before 2.5) ends at the font's
+        // line height. Without the gap the answer keeps the same height and spacing.
+        var height = size.height
+        if text.length > 0, let font = text.attribute(.font, at: text.length - 1, effectiveRange: nil) as? UIFont,
+           let pitch = Self.lastLinePitch(uiView), pitch > font.lineHeight {
+            height -= pitch - font.lineHeight
+        }
+        let scale = max(uiView.traitCollection.displayScale, 1)
+        return CGSize(width: width, height: ceil(height * scale) / scale)
+    }
+
+    /// How far up to draw the text so its lines sit where SwiftUI's Text put them: both put the first baseline at
+    /// the font's ascender on a whole pixel, SwiftUI rounding down and TextKit up (a pixel apart unless it's whole).
+    static func baselineShift(_ text: NSAttributedString, scale: CGFloat) -> CGFloat {
+        guard text.length > 0, let font = text.attribute(.font, at: 0, effectiveRange: nil) as? UIFont else { return 0 }
+        let s = max(scale, 1), ascender = font.ascender * s
+        return (ascender.rounded(.down) - ascender.rounded(.up)) / s
+    }
+
+    /// The height TextKit gives the text's last line, with its line gap.
+    private static func lastLinePitch(_ view: UITextView) -> CGFloat? {
+        if let layout = view.textLayoutManager {
+            var pitch: CGFloat?
+            layout.enumerateTextLayoutFragments(from: layout.documentRange.endLocation, options: [.reverse, .ensuresLayout]) { fragment in
+                pitch = fragment.textLineFragments.last?.typographicBounds.height
+                return false
+            }
+            return pitch
+        }
+        let glyphs = view.layoutManager.numberOfGlyphs
+        return glyphs > 0 ? view.layoutManager.lineFragmentRect(forGlyphAt: glyphs - 1, effectiveRange: nil).height : nil
     }
 
     final class Coordinator: NSObject, UITextViewDelegate {
@@ -893,9 +935,10 @@ struct MessageSwipe: ViewModifier {
     @State private var decided: Bool?
     @State private var width: CGFloat = 320
 
+    @ViewBuilder
     func body(content: Content) -> some View {
         #if os(iOS)
-        content
+        let swiped = content
             .background(GeometryReader { geo in Color.clear.onAppear { width = geo.size.width }.onChange(of: geo.size.width) { width = $0 } })
             .offset(x: dx)
             .background(alignment: dx < 0 ? .trailing : .leading) {
@@ -909,13 +952,26 @@ struct MessageSwipe: ViewModifier {
                     .frame(width: abs(dx))
                 }
             }
-            .simultaneousGesture(drag, including: enabled ? .all : .subviews)
+        if #available(iOS 18.0, *) {
+            // From iOS 18 a SwiftUI drag here, even a simultaneous one, keeps the chat from scrolling: a UIKit pan
+            // that starts only when the finger goes sideways leaves every vertical drag to the scroll view.
+            swiped.gesture(SidewaysPan(enabled: enabled, changed: { x in
+                dx = max(-width * 0.8, min(width * 0.8, x))
+            }, ended: { x in
+                let share = x / max(width, 1)
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) { dx = 0 }
+                if share <= -0.42 { delete() } else if share >= 0.42 { pin() }
+            }))
+        } else {
+            swiped.simultaneousGesture(drag, including: enabled ? .all : .subviews)
+        }
         #else
         content
         #endif
     }
 
     #if os(iOS)
+    /// Before iOS 18: a SwiftUI drag next to the scroll view's own.
     private var drag: some Gesture {
         DragGesture(minimumDistance: 14)
             .onChanged { value in
@@ -938,6 +994,60 @@ struct MessageSwipe: ViewModifier {
     }
     #endif
 }
+
+#if os(iOS)
+/// A message's swipe as a UIKit pan (iOS 18 and later). It starts only for a mostly sideways drag, not from the
+/// screen's edge (the system's Back) and not on code or a table that scrolls sideways; scroll views wait for it
+/// to give up, so a vertical drag anywhere on a message scrolls the chat.
+@available(iOS 18.0, *)
+private struct SidewaysPan: UIGestureRecognizerRepresentable {
+    var enabled: Bool
+    var changed: (CGFloat) -> Void
+    var ended: (CGFloat) -> Void
+
+    func makeCoordinator(converter: CoordinateSpaceConverter) -> Coordinator { Coordinator() }
+
+    func makeUIGestureRecognizer(context: Context) -> UIPanGestureRecognizer {
+        let pan = UIPanGestureRecognizer()
+        pan.delegate = context.coordinator
+        pan.isEnabled = enabled
+        return pan
+    }
+
+    func updateUIGestureRecognizer(_ recognizer: UIPanGestureRecognizer, context: Context) {
+        recognizer.isEnabled = enabled
+    }
+
+    func handleUIGestureRecognizerAction(_ recognizer: UIPanGestureRecognizer, context: Context) {
+        let x = recognizer.translation(in: nil).x
+        switch recognizer.state {
+        case .changed: changed(x)
+        case .ended: ended(x)
+        case .cancelled, .failed: ended(0)
+        default: break
+        }
+    }
+
+    final class Coordinator: NSObject, UIGestureRecognizerDelegate {
+        func gestureRecognizerShouldBegin(_ recognizer: UIGestureRecognizer) -> Bool {
+            guard let pan = recognizer as? UIPanGestureRecognizer, let view = pan.view else { return false }
+            let velocity = pan.velocity(in: nil)
+            guard abs(velocity.x) > abs(velocity.y) * 1.6 else { return false }
+            guard pan.location(in: nil).x - pan.translation(in: nil).x > 28 else { return false }
+            var hit = view.hitTest(pan.location(in: view), with: nil)
+            while let v = hit, v !== view {
+                if let scroll = v as? UIScrollView, scroll.isScrollEnabled, scroll.contentSize.width > scroll.bounds.width + 1 { return false }
+                hit = v.superview
+            }
+            return true
+        }
+
+        func gestureRecognizer(_ recognizer: UIGestureRecognizer, shouldBeRequiredToFailBy other: UIGestureRecognizer) -> Bool {
+            other is UIPanGestureRecognizer && other.view is UIScrollView
+        }
+    }
+}
+#endif
 
 // MARK: - Small pieces for the chat
 
