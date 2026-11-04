@@ -1859,10 +1859,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 {touch ? (
                   <>
                     {/* "Ask AI" on narrow screens (320 pt: iPhone mini and SE with Display Zoom), so the buttons fit. */}
-                    <button type="button" class="primary" {...press(() => show(bubble))}><Icon.Sparkle size={16} /> {t(narrowScreen() ? "selAsk" : "fabLabel")}</button>
+                    <button type="button" class="primary" {...press(() => show(bubble))}><Icon.Sparkle size={16} /> {t(narrowScreen() || (bubbleExtras.length > 0 && compactRow()) ? "selAsk" : "fabLabel")}</button>
                     <button type="button" class="cf-sel-icon" aria-label={t("actGoogle")} title={t("actGoogle")} {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SEL_GOOGLE), 60) })}><Icon.Search size={15} /></button>
-                    {/* With an action after it (watching's eye), Template shows only its icon below 400 pt (one line at 375 pt). */}
-                    <button type="button" class="cf-sel-template" aria-label={t("qiTemplateButton")} title={t("qiTemplateButton")} {...press(() => newTemplate(bubble))}><QIcon.Template />{!(bubbleExtras.length && compactRow()) && ` ${t("qiTemplateButton")}`}</button>
+                    {/* Template keeps its word next to watching's eye (the audit, 27): below 400 pt "Ask ContextFlow" is the one that shortens. */}
+                    <button type="button" class="cf-sel-template" aria-label={t("qiTemplateButton")} title={t("qiTemplateButton")} {...press(() => newTemplate(bubble))}><QIcon.Template /> {t("qiTemplateButton")}</button>
                     {bubbleExtras}
                   </>
                 ) : (

@@ -407,6 +407,29 @@ createServer(async (req, res) => {
     res.end()
     return
   }
+  // The audit's pages (2.5): fields whose site keeps its own buttons inside them (a search like Amazon's, a
+  // comment's Send), and a news story with a publication date, a "shipped" in its text and an event's date.
+  // ?sel=<id> selects that element, as a finger would.
+  if (url.pathname === "/fields" || url.pathname === "/news") {
+    const sel = `<script>const id = new URLSearchParams(location.search).get("sel"); if (id) setTimeout(() => getSelection().selectAllChildren(document.getElementById(id)), 600)</script>`
+    const fields = `<h1>Fields</h1>
+<form role="search" style="position:relative;margin:24px 0"><input id="search" name="q" placeholder="Search" style="width:100%;box-sizing:border-box;height:44px;font-size:17px;padding:0 56px 0 12px">
+<button id="go" style="position:absolute;right:0;top:0;width:48px;height:44px;background:#f90;border:0">Go</button></form>
+<p>Leave a comment</p>
+<div style="position:relative"><textarea id="comment" rows="4" style="width:100%;box-sizing:border-box;font-size:17px;padding:10px 70px 10px 10px"></textarea>
+<button id="send" style="position:absolute;right:8px;bottom:12px;height:32px">Send</button></div>
+<p style="margin-top:40px">Your name</p><input id="name" type="text" style="width:100%;box-sizing:border-box;height:40px;font-size:17px">
+<p>Email</p><input id="email" type="email" style="width:100%;box-sizing:border-box;height:40px;font-size:17px">`
+    const news = `<p class="meta">By Anna Lee · <span id="pubdate">3 November 2026</span> · 4 min read</p>
+<h1>The phone that started it all</h1>
+<p>The company <span id="shipped">shipped</span> its first phone in 2007 and the line still sells for <span id="price">$1,299</span>.</p>
+<p>Tickets go on sale <span id="sale">12 December</span> at 10:00 for the anniversary event.</p>
+<p>Order #4471 · <span id="status">Shipped</span></p>`
+    res.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" })
+    res.end(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${url.pathname === "/fields" ? "Fields" : "News"} · Test</title>
+<style>body{font:18px -apple-system,sans-serif;margin:24px 16px;line-height:1.5}</style></head><body>${url.pathname === "/fields" ? fields : news}${sel}</body></html>`)
+    return
+  }
   if (url.pathname === "/shop-js") {
     res.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" })
     res.end(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Lamp · Test shop</title>
