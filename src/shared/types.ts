@@ -1,4 +1,5 @@
 import type { Attachment, MediaKind } from "./attachments.ts"
+import { COPIED_DEFAULT_ON } from "./copied.ts"
 import type { ChatDigest } from "./history.ts"
 import type { OrganizeConfig } from "./organize.ts"
 import type { RenewalReason } from "./renewal.ts"
@@ -272,6 +273,10 @@ export interface Settings {
   organize: boolean
   // Sharing an answer from the panel (text only): its highlights wrapped in **…** (2.5). Off: plain text.
   shareMarks: boolean
+  // Quick insert's two switches, shown in the app too ("On web pages"): the button by fields (iPhone and iPad)
+  // and keeping what's copied on pages for its list. Its other settings stay on this device (cf:insert).
+  insertButton: boolean
+  keepCopied: boolean
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -288,7 +293,9 @@ export const DEFAULT_SETTINGS: Settings = {
   groupByTags: false,
   wholeChat: false,
   organize: false,
-  shareMarks: false
+  shareMarks: false,
+  insertButton: true,
+  keepCopied: COPIED_DEFAULT_ON
 }
 
 /** AI search's answer: the matching chats with a reason, or why there are none. */
