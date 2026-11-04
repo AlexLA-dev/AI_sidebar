@@ -4,6 +4,8 @@
 .cf-org { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; animation: cf-org-in .45s ease-out both; }
 .cf-msg.user .cf-org { justify-content: flex-end; }
 .cf-msg.pickable .cf-org { display: none; }
+/* Text selected in the message: the row keeps its place but steps aside for the bubble by the selection. */
+.cf-org.quiet { visibility: hidden; }
 @keyframes cf-org-in { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
 .cf-org-label { font-size: 11.5px; color: var(--text-3); margin-right: 2px; }
 .cf-org-chip { --tag: 93, 90, 102; display: inline-flex; align-items: center; max-width: 100%; height: 26px; border-radius: 999px; border: 1px dashed rgba(var(--tag), 0.55); background: rgba(var(--tag), 0.05); color: rgb(var(--tag)); opacity: 0.92; }

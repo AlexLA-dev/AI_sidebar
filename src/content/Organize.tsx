@@ -30,19 +30,45 @@ const Arrow = (): VNode => (
 )
 
 /**
+ * Where a selection in the panel starts (null: none, or outside the panel). Safari reports a selection in a shadow
+ * root on its host; `getComposedRanges` (Safari 17+) gives the real one.
+ */
+export function panelSelectionStart(root: ShadowRoot): Node | null {
+  type Composed = Selection & { getComposedRanges?: (...args: unknown[]) => StaticRange[] }
+  const sel = document.getSelection() as Composed | null
+  if (!sel || !sel.rangeCount) return null
+  let range: AbstractRange | undefined
+  if (typeof sel.getComposedRanges === "function") {
+    try {
+      range = sel.getComposedRanges({ shadowRoots: [root] })[0]
+    } catch {
+      try {
+        range = sel.getComposedRanges(root)[0]
+      } catch {
+        range = undefined
+      }
+    }
+  }
+  range ??= sel.getRangeAt(0)
+  return !range.collapsed && root.contains(range.startContainer) ? range.startContainer : null
+}
+
+/**
  * Under an answer or a note: what organizing suggests for it, dashed — one of the user's tags (a tap adds it) and,
  * under a block's last message, a better chat or a new one (a tap moves the block); ✕ turns either down.
  */
-export function OrganizeRow({ tag, move, onTag, onTagNo, onMove, onMoveNo }: {
+export function OrganizeRow({ tag, move, quiet, onTag, onTagNo, onMove, onMoveNo }: {
   tag?: string
   move?: OrganizeMove
+  // Text in this message is selected: the row steps aside (keeping its place) for the bubble by the selection.
+  quiet?: boolean
   onTag: () => void
   onTagNo: () => void
   onMove: () => void
   onMoveNo: () => void
 }): VNode {
   return (
-    <div class="cf-org" role="group" aria-label={t("orgSuggested")}>
+    <div class={`cf-org${quiet ? " quiet" : ""}`} role="group" aria-label={t("orgSuggested")}>
       <span class="cf-org-label">{t("orgSuggested")}</span>
       {tag && (
         <span class={`cf-org-chip c${tagColor(tag)}`}>

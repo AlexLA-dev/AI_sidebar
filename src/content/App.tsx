@@ -37,7 +37,7 @@ import {
   type SelectionInfo
 } from "./page"
 import { Hint } from "./Hint"
-import { OrganizeCard, OrganizeRow, type OrganizeMove } from "./Organize"
+import { OrganizeCard, OrganizeRow, panelSelectionStart, type OrganizeMove } from "./Organize"
 import { UndoBar } from "./UndoBar"
 import { moveBlock, organizeCards, setOrganizeCards, undoBlockMove, type OrganizeCards } from "./store"
 import { DEFAULT_ORGANIZE, looksMixed } from "../shared/organize"
@@ -1486,6 +1486,29 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     return () => window.removeEventListener("pointerdown", onDown, true)
   }, [undoBar])
 
+  // The message with text selected in it: its suggestions step aside for the Highlight bubble by the selection.
+  const [selectingIdx, setSelectingIdx] = useState<number | null>(null)
+  useEffect(() => {
+    if (!open) return
+    let timer: ReturnType<typeof setTimeout> | undefined
+    const onChange = () => {
+      clearTimeout(timer)
+      timer = setTimeout(() => {
+        const list = listRef.current
+        const root = list?.getRootNode()
+        const node = root instanceof ShadowRoot ? panelSelectionStart(root) : null
+        const msg = (node instanceof Element ? node : node?.parentElement)?.closest<HTMLElement>(".cf-msg")
+        const idx = msg && list?.contains(msg) ? Number(msg.dataset.index) : NaN
+        setSelectingIdx(Number.isInteger(idx) ? idx : null)
+      }, 150)
+    }
+    document.addEventListener("selectionchange", onChange)
+    return () => {
+      clearTimeout(timer)
+      document.removeEventListener("selectionchange", onChange)
+    }
+  }, [open])
+
   /** The row of suggestions under the message at `idx`: its tag, and the move of the block it ends. */
   const organizeRow = (idx: number): VNode | null => {
     if (!orgNow) return null
@@ -1496,6 +1519,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       <OrganizeRow
         tag={tag}
         move={move}
+        quiet={idx === selectingIdx}
         onTag={() => tag && takeTag(idx, tag)}
         onTagNo={() => tag && refuseTag(idx, tag)}
         onMove={() => move && void takeMove(move)}
