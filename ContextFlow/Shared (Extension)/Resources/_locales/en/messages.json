@@ -200,9 +200,6 @@
  "uxPinnedAll": {
   "message": "All pinned"
  },
- "uxWatch": {
-  "message": "Watch for changes"
- },
  "uxMore": {
   "message": "More"
  },
@@ -250,6 +247,18 @@
  },
  "uxTomorrow": {
   "message": "Tomorrow"
+ },
+ "uxRemindPage": {
+  "message": "Remind me to come back"
+ },
+ "uxRemindSaved": {
+  "message": "Reminder: {0}"
+ },
+ "uxRemindNotSet": {
+  "message": "Saved to the chat. For the reminder, allow ContextFlow's notifications."
+ },
+ "uxRemindNoApp": {
+  "message": "Saved to the chat. Reminders need the ContextFlow app on this device."
  },
  "uxUnpinAll": {
   "message": "Unpin all"

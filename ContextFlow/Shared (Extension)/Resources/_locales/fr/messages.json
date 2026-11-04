@@ -200,9 +200,6 @@
  "uxPinnedAll": {
   "message": "Tous les épinglés"
  },
- "uxWatch": {
-  "message": "Suivre les changements"
- },
  "uxMore": {
   "message": "Plus"
  },
@@ -250,6 +247,18 @@
  },
  "uxTomorrow": {
   "message": "Demain"
+ },
+ "uxRemindPage": {
+  "message": "Me rappeler d’y revenir"
+ },
+ "uxRemindSaved": {
+  "message": "Rappel : {0}"
+ },
+ "uxRemindNotSet": {
+  "message": "Enregistré dans le chat. Pour le rappel, autorisez les notifications de ContextFlow."
+ },
+ "uxRemindNoApp": {
+  "message": "Enregistré dans le chat. Pour les rappels, il faut l’app ContextFlow sur cet appareil."
  },
  "uxUnpinAll": {
   "message": "Tout désépingler"
