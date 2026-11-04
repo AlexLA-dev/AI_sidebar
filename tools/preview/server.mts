@@ -337,7 +337,8 @@ const watch = (await import("../../netlify/functions/v2-watch.mts")).default
 const handlers: Record<string, typeof chat> = { "/api/v2/chat": chat, "/api/v2/status": status, "/api/v2/event": event, "/api/v2/find": find, "/api/v2/promo": promo, "/api/v2/insert": insert, "/api/v2/organize": organize, "/api/v2/watch": watch }
 
 // Page watch's test shop (2.5): /shop shows a mug whose price and stock /shop-set changes
-// (/shop-set?price=39&stock=OutOfStock), /shop-blocked answers 403 like a bot check.
+// (/shop-set?price=39&stock=OutOfStock), /shop-js draws the price with a script (the background sees none, the
+// open page does), /shop-blocked answers 403 like a bot check.
 const shop = { price: "49.85", stock: "InStock" }
 const shopPage = () => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Mug · Test shop</title><script type="application/ld+json">${JSON.stringify({ "@context": "https://schema.org", "@type": "Product", name: "Mug", offers: { "@type": "Offer", price: shop.price, priceCurrency: "EUR", availability: `https://schema.org/${shop.stock}` } })}</script>
@@ -403,6 +404,14 @@ createServer(async (req, res) => {
     res.writeHead(response.status, Object.fromEntries(response.headers))
     if (response.body) for await (const c of response.body as any) res.write(c)
     res.end()
+    return
+  }
+  if (url.pathname === "/shop-js") {
+    res.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" })
+    res.end(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Lamp · Test shop</title>
+<style>body{font:18px -apple-system,sans-serif;margin:24px;line-height:1.5}b{font-size:28px}</style></head>
+<body><h1>Desk lamp</h1><p>A small brass lamp.</p><p id="p">…</p><p>Free delivery over 50 €.</p>
+<script>setTimeout(() => { document.getElementById("p").innerHTML = "Price <b>${shop.price.replace(".", ",")} €</b>" }, 300)</script></body></html>`)
     return
   }
   if (url.pathname === "/shop" || url.pathname === "/shop-blocked") {
