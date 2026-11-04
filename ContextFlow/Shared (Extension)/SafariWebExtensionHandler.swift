@@ -26,6 +26,9 @@ import AppKit
 ///   (the app offers Pro at a discount a day after the refusal, once per period, like the panel).
 /// - `remind` / `unremind` → a reminder on an answer or a note: a local notification on this device that
 ///   opens the app on the message (see MessageReminders); answers `outcome` (scheduled, denied, not-asked).
+/// - `watch_notify` / `watch_permission` / `watch_sync` → page watch: the local notification when a watch's
+///   condition came true, whether notifications are allowed, this device's watches for the app's list (back:
+///   the ones stopped in the app), see WatchStore.
 /// - `ping` → health check.
 ///
 /// Every message also tells the app that the extension is switched on (and, for `getEntitlement`, which
@@ -178,6 +181,24 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                 MessageReminders.cancel(chat: chat, message: key)
             }
             Self.reply(context, ["success": true])
+        case "watch_notify":
+            // Page watch (2.5): a watch's condition came true; "Changed: …" right away (WatchStore).
+            guard let id = message["id"] as? String else {
+                Self.reply(context, ["success": false, "error": "watch_notify: id"])
+                return
+            }
+            let page = (message["url"] as? String).flatMap(URL.init(string:))
+            Task {
+                let outcome = await WatchStore.notify(id: id, title: message["title"] as? String ?? "ContextFlow",
+                                                      body: message["body"] as? String ?? "", open: page)
+                Self.reply(context, ["success": true, "data": ["outcome": outcome.rawValue]])
+            }
+        case "watch_permission":
+            Task { Self.reply(context, ["success": true, "data": ["outcome": await WatchStore.permission().rawValue]]) }
+        case "watch_sync":
+            // This device's watches for the app's list; back, the ones stopped in the app.
+            let stopped = WatchStore.sync(message["watches"] as? [[String: Any]] ?? [])
+            Self.reply(context, ["success": true, "data": ["cancelled": stopped]])
         case "ping":
             let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
             let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""

@@ -9,6 +9,7 @@ import styles from "./styles.css"
 import insertStyles from "./insert/insert.css"
 import organizeStyles from "./organize.css"
 import uxStyles from "./ux/ux.css"
+import { startLiveWatch } from "./watch/live"
 
 // Runs on every http(s) page (and again if injected on demand). Everything we
 // render lives in a closed-off shadow root so page CSS can't break it and our
@@ -57,6 +58,8 @@ ${uxStyles}`
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", mount, { once: true })
   else mount()
+  // A watched page the person opened is checked from here (2.5).
+  if (TARGET === "safari") startLiveWatch()
 }
 
 try {

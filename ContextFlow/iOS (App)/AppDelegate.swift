@@ -27,6 +27,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     // (the bell by a selection) opens its page in Safari; its note stays in the chat.
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
         let info = response.notification.request.content.userInfo
+        // Page watch: "Changed: …" opens its page (WatchOpen).
+        if info["watch"] != nil {
+            await MainActor.run { WatchOpen.handle(info) }
+            return
+        }
         await MainActor.run { ChatAI.reportUx("ux_remind", info["open"] != nil ? ["action": "opened", "what": "page"] : ["action": "opened"]) }
         if let open = info["open"] as? String, let page = URL(string: open) {
             await MainActor.run { UIApplication.shared.open(page) }
