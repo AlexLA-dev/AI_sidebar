@@ -336,6 +336,7 @@
   "qiOnIpad": "iPad",
   "qiOnMac": "Mac",
   "qiOnDevice": "设备",
+  "qiHideButtonOnSite": "在 {0} 上隐藏按钮",
   "qiDontKeepOnSite": "在 {0} 不保留",
   "qiKeepOnSite": "在 {0} 重新保留",
   "qiTip": "新功能：轻点即可插入在其他标签页复制的文字、模板或 ContextFlow 的回答。",

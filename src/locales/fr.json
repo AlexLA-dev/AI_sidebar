@@ -336,6 +336,7 @@
   "qiOnIpad": "iPad",
   "qiOnMac": "Mac",
   "qiOnDevice": "appareil",
+  "qiHideButtonOnSite": "Masquer le bouton sur {0}",
   "qiDontKeepOnSite": "Ne pas garder sur {0}",
   "qiKeepOnSite": "Garder à nouveau sur {0}",
   "qiTip": "Nouveau : touchez pour insérer ce que vous avez copié dans d’autres onglets, un modèle ou la réponse de ContextFlow.",

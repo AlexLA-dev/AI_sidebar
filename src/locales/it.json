@@ -336,6 +336,7 @@
   "qiOnIpad": "iPad",
   "qiOnMac": "Mac",
   "qiOnDevice": "dispositivo",
+  "qiHideButtonOnSite": "Nascondi il pulsante su {0}",
   "qiDontKeepOnSite": "Non conservare su {0}",
   "qiKeepOnSite": "Conserva di nuovo su {0}",
   "qiTip": "Novità: un tocco inserisce ciò che hai copiato in altre schede, un modello o la risposta di ContextFlow.",

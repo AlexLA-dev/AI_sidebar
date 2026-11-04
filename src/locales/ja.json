@@ -336,6 +336,7 @@
   "qiOnIpad": "iPad",
   "qiOnMac": "Mac",
   "qiOnDevice": "デバイス",
+  "qiHideButtonOnSite": "{0} ではボタンを隠す",
   "qiDontKeepOnSite": "{0}では保存しない",
   "qiKeepOnSite": "{0}でも再び保存",
   "qiTip": "新機能：タップすると、ほかのタブでコピーしたテキスト、テンプレート、ContextFlowの回答を挿入できます。",

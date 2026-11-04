@@ -401,6 +401,7 @@ export function QuickInsert(props: Props): VNode | null {
       {m?.kind === "list" && (
         <InsertList
           at={m.at}
+          via={m.via}
           platform={props.platform}
           touch={touch}
           field={fieldRef.current}
@@ -552,6 +553,8 @@ function TemplateRow({ tpl }: { tpl: Template }): VNode {
 
 interface ListProps {
   at: "sheet" | "caret"
+  // Opened from the button by the field: the list offers to hide that button on this site.
+  via: InsertVia
   platform: Platform
   touch: boolean
   field: Field | null
@@ -751,6 +754,18 @@ function InsertList(p: ListProps): VNode {
             <button type="button" onClick={() => p.onSettings({ copiedOffSites: off ? p.settings.copiedOffSites.filter((s) => s !== p.host) : [...p.settings.copiedOffSites, p.host] })}>
               {off ? t("qiKeepOnSite", p.host) : t("qiDontKeepOnSite", p.host)}
             </button>
+          )}
+          {/* Where the button gets in the way, it's taken away right here (not only in Settings). */}
+          {p.via === "button" && p.host && (
+            <>
+              {" · "}
+              <button type="button" onClick={() => {
+                p.onSettings({ buttonOffSites: [...p.settings.buttonOffSites.filter((x) => x !== p.host), p.host].slice(-200) })
+                p.onClose()
+              }}>
+                {t("qiHideButtonOnSite", p.host)}
+              </button>
+            </>
           )}
         </div>
       </div>
