@@ -473,7 +473,7 @@
   "watchMore": "Mehr mit Pro",
   "watchFailed": "Das hat nicht geklappt. Versuchen Sie es gleich noch einmal.",
   "watchNotifyOff": "Mitteilungen für ContextFlow sind aus. Schalten Sie sie in den Einstellungen ein, um von der Änderung zu erfahren.",
-  "watchNotifyAsk": "Öffnen Sie einmal die ContextFlow-App und erlauben Sie Mitteilungen, damit ich Ihnen die Änderung melden kann.",
+  "watchNotifyAsk": "Öffnen Sie die ContextFlow-App: Sie fragt, ob sie Mitteilungen senden darf – dann melde ich die Änderung.",
   "watchRow": "Beobachte: {0} · geprüft {1}",
   "watchRowNew": "Beobachte: {0}",
   "watchRowLive": "Beobachte: {0} · ich prüfe, wenn Sie die Seite öffnen",

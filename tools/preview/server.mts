@@ -338,13 +338,14 @@ const handlers: Record<string, typeof chat> = { "/api/v2/chat": chat, "/api/v2/s
 
 // Page watch's test shop (2.5): /shop shows a mug whose price and stock /shop-set changes
 // (/shop-set?price=39&stock=OutOfStock), /shop-js draws the price with a script (the background sees none, the
-// open page does), /shop-blocked answers 403 like a bot check.
+// open page does), /shop-blocked answers 403 like a bot check. ?sel=1 selects the price, as a finger would.
 const shop = { price: "49.85", stock: "InStock" }
 const shopPage = () => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Mug · Test shop</title><script type="application/ld+json">${JSON.stringify({ "@context": "https://schema.org", "@type": "Product", name: "Mug", offers: { "@type": "Offer", price: shop.price, priceCurrency: "EUR", availability: `https://schema.org/${shop.stock}` } })}</script>
 <style>body{font:18px -apple-system,sans-serif;margin:24px;line-height:1.5}b{font-size:28px}</style></head>
 <body><h1>Handmade mug</h1><p>A blue ceramic mug, 350 ml.</p><p>Price <b>${shop.price.replace(".", ",")} €</b></p>
-<p>${shop.stock === "InStock" ? "In stock" : "Sold out"}</p><p>Free delivery over 50 €.</p></body></html>`
+<p>${shop.stock === "InStock" ? "In stock" : "Sold out"}</p><p>Free delivery over 50 €.</p>
+<script>if (location.search.includes("sel=1")) setTimeout(() => getSelection().selectAllChildren(document.querySelector("b")), 600)</script></body></html>`
 
 const pages: Record<string, string> = {
   "/": "article.html",
@@ -411,7 +412,8 @@ createServer(async (req, res) => {
     res.end(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Lamp · Test shop</title>
 <style>body{font:18px -apple-system,sans-serif;margin:24px;line-height:1.5}b{font-size:28px}</style></head>
 <body><h1>Desk lamp</h1><p>A small brass lamp.</p><p id="p">…</p><p>Free delivery over 50 €.</p>
-<script>setTimeout(() => { document.getElementById("p").innerHTML = "Price <b>${shop.price.replace(".", ",")} €</b>" }, 300)</script></body></html>`)
+<script>setTimeout(() => { document.getElementById("p").innerHTML = "Price <b>${shop.price.replace(".", ",")} €</b>" }, 300)
+if (location.search.includes("sel=1")) setTimeout(() => getSelection().selectAllChildren(document.querySelector("b")), 900)</script></body></html>`)
     return
   }
   if (url.pathname === "/shop" || url.pathname === "/shop-blocked") {
