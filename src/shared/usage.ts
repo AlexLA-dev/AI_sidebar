@@ -90,6 +90,10 @@ export const FEATURES: Record<string, Feature> = {
   open_app: { since: "2.0", on: "ext", actions: ["tap"], fields: { what: ["subscribe", "manage", "open"] } },
   qi_list: { since: "2.5", on: "ext", actions: ["open"], via: ["button", "shortcut", "slash"] },
   templates: { since: "2.5", actions: ["view", "edit", "delete", "copy"] },
+  // The panel header's "…" (opened, an item picked) and "Come back later": its window in the panel, the
+  // "Reminders" list in the app, with how many reminders and watches it held.
+  menu: { since: "2.5", on: "ext", actions: ["open", "pick"], fields: { what: ["later", "settings"] } },
+  later: { since: "2.5", actions: ["open"], via: ["menu", "tab"], fields: { reminders: "int", watches: "int" } },
   watch: {
     since: "2.5", actions: ["create", "alert", "stop", "error", "daily"],
     via: ["bubble", "later", "panel", "app", "notif", "list", "auto"],
@@ -127,6 +131,8 @@ const has = (list: readonly string[] | undefined, value: unknown): value is stri
   typeof value === "string" && !!list?.includes(value)
 const whole = (value: unknown, max: number): value is number =>
   typeof value === "number" && Number.isInteger(value) && value >= 0 && value <= max
+// The app sends its event fields as strings ("3").
+const count = (value: unknown): unknown => typeof value === "string" && /^\d{1,4}$/.test(value) ? Number(value) : value
 
 /** "chat.open" when both halves are in the registry. */
 export function isStep(value: unknown): value is string {
@@ -160,7 +166,7 @@ export function useFields(body: Record<string, unknown>): Record<string, unknown
   const out: Record<string, unknown> = { f, a: body.a }
   if (has(spec.via, body.via)) out.via = body.via
   for (const [name, allowed] of Object.entries(spec.fields ?? {})) {
-    const value = body[name]
+    const value = allowed === "int" ? count(body[name]) : body[name]
     if (allowed === "int" ? whole(value, 9999) : has(allowed, value)) out[name] = value
   }
   return out
