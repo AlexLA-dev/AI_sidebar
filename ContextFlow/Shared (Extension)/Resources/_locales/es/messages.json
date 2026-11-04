@@ -1110,13 +1110,13 @@
   "message": "Abrir"
  },
  "orgFirstWin": {
-  "message": "Listo. A partir de ahora ContextFlow te hará sugerencias por su cuenta."
+  "message": "Listo. A partir de ahora te haré sugerencias por mi cuenta."
  },
  "orgConsentTitle": {
   "message": "¿Ordenar tus chats por tema?"
  },
  "orgConsentText": {
-  "message": "ContextFlow te sugerirá un chat adecuado y una de tus etiquetas bajo las respuestas y notas nuevas. Para ello, el texto de tus mensajes va a nuestro servidor y a OpenAI y Anthropic. No lo guardamos. OpenAI y Anthropic no lo usan para entrenar."
+  "message": "Te sugeriré un chat adecuado y una de tus etiquetas bajo las respuestas y notas nuevas. Para ello, el texto de tus mensajes va a nuestro servidor y a OpenAI y Anthropic. No lo guardamos. OpenAI y Anthropic no lo usan para entrenar."
  },
  "orgTurnOn": {
   "message": "Activar"
@@ -1125,13 +1125,13 @@
   "message": "¿Todo en un mismo chat?"
  },
  "orgMessText": {
-  "message": "Con Pro, ContextFlow sugiere qué va en cada sitio y pone etiquetas como lo haces tú."
+  "message": "Con Pro, te sugiero qué va en cada sitio y pongo etiquetas como lo haces tú."
  },
  "orgTagsTitle": {
-  "message": "ContextFlow puede etiquetar como tú"
+  "message": "Puedo etiquetar como tú"
  },
  "orgTagsText": {
-  "message": "Con Pro, sugiere una de tus etiquetas bajo las respuestas y notas nuevas, según dónde la pones tú."
+  "message": "Con Pro, te sugiero una de tus etiquetas bajo las respuestas y notas nuevas, según dónde la pones tú."
  },
  "orgCloseA11y": {
   "message": "Cerrar"

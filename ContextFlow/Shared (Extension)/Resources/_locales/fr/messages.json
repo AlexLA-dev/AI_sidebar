@@ -1110,13 +1110,13 @@
   "message": "Ouvrir"
  },
  "orgFirstWin": {
-  "message": "C’est fait. Désormais, ContextFlow fera ses suggestions tout seul."
+  "message": "C’est fait. Désormais, je ferai mes suggestions de moi-même."
  },
  "orgConsentTitle": {
   "message": "Classer vos discussions par sujet ?"
  },
  "orgConsentText": {
-  "message": "ContextFlow suggérera une discussion adaptée et l’un de vos tags sous les nouvelles réponses et notes. Pour cela, le texte de vos messages est envoyé à notre serveur, à OpenAI et à Anthropic. Nous ne le conservons pas. OpenAI et Anthropic ne l’utilisent pas pour l’entraînement."
+  "message": "Je suggérerai une discussion adaptée et l’un de vos tags sous les nouvelles réponses et notes. Pour cela, le texte de vos messages est envoyé à notre serveur, à OpenAI et à Anthropic. Nous ne le conservons pas. OpenAI et Anthropic ne l’utilisent pas pour l’entraînement."
  },
  "orgTurnOn": {
   "message": "Activer"
@@ -1125,13 +1125,13 @@
   "message": "Tout dans une seule discussion ?"
  },
  "orgMessText": {
-  "message": "Avec Pro, ContextFlow suggère ce qui va où et ajoute les tags comme vous le faites."
+  "message": "Avec Pro, je suggère ce qui va où et j’ajoute les tags comme vous le faites."
  },
  "orgTagsTitle": {
-  "message": "ContextFlow peut taguer comme vous"
+  "message": "Je peux taguer comme vous"
  },
  "orgTagsText": {
-  "message": "Avec Pro, il suggère l’un de vos tags sous les nouvelles réponses et notes, d’après les endroits où vous le mettez vous-même."
+  "message": "Avec Pro, je suggère l’un de vos tags sous les nouvelles réponses et notes, d’après les endroits où vous le mettez vous-même."
  },
  "orgCloseA11y": {
   "message": "Fermer"

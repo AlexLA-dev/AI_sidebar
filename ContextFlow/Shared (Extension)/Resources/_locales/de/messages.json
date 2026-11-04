@@ -1089,7 +1089,7 @@
   "message": "{0} Nachrichten"
  },
  "orgMoveTo": {
-  "message": "{0} nach „{1}“"
+  "message": "{0} in „{1}“"
  },
  "orgSplit": {
   "message": "In einen neuen Chat: „{0}“"
@@ -1101,7 +1101,7 @@
   "message": "Diese Nachrichten in einen neuen Chat „{0}“ verschieben"
  },
  "orgMoved": {
-  "message": "Nach „{0}“ verschoben"
+  "message": "In „{0}“ verschoben"
  },
  "orgUndo": {
   "message": "Widerrufen"
@@ -1110,13 +1110,13 @@
   "message": "Öffnen"
  },
  "orgFirstWin": {
-  "message": "Erledigt. Ab jetzt macht ContextFlow selbst Vorschläge."
+  "message": "Erledigt. Ab jetzt mache ich von selbst Vorschläge."
  },
  "orgConsentTitle": {
   "message": "Chats nach Themen sortieren?"
  },
  "orgConsentText": {
-  "message": "ContextFlow schlägt unter neuen Antworten und Notizen einen passenden Chat und einen deiner Tags vor. Dafür geht der Text deiner Nachrichten an unseren Server und an OpenAI und Anthropic. Wir speichern ihn nicht. OpenAI und Anthropic nutzen ihn nicht zum Training."
+  "message": "Ich schlage unter neuen Antworten und Notizen einen passenden Chat und einen deiner Tags vor. Dafür geht der Text deiner Nachrichten an unseren Server und an OpenAI und Anthropic. Wir speichern ihn nicht. OpenAI und Anthropic nutzen ihn nicht zum Training."
  },
  "orgTurnOn": {
   "message": "Einschalten"
@@ -1125,13 +1125,13 @@
   "message": "Alles in einem Chat?"
  },
  "orgMessText": {
-  "message": "Mit Pro schlägt ContextFlow vor, was wohin gehört, und setzt Tags so, wie du es tust."
+  "message": "Mit Pro schlage ich vor, was wohin gehört, und setze Tags so, wie du es tust."
  },
  "orgTagsTitle": {
-  "message": "ContextFlow kann Tags setzen wie du"
+  "message": "Ich kann Tags setzen wie du"
  },
  "orgTagsText": {
-  "message": "Mit Pro schlägt ContextFlow unter neuen Antworten und Notizen einen deiner Tags vor – danach, wo du ihn selbst setzt."
+  "message": "Mit Pro schlage ich unter neuen Antworten und Notizen einen deiner Tags vor – danach, wo du ihn selbst setzt."
  },
  "orgCloseA11y": {
   "message": "Schließen"

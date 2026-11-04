@@ -1110,13 +1110,13 @@
   "message": "開く"
  },
  "orgFirstWin": {
-  "message": "完了しました。これからは ContextFlow が自分から提案します。"
+  "message": "完了しました。これからは自分から提案します。"
  },
  "orgConsentTitle": {
   "message": "チャットをトピックごとに整理しますか？"
  },
  "orgConsentText": {
-  "message": "新しい回答やメモの下に、ContextFlow が合うチャットとあなたのタグを1つ提案します。そのため、メッセージのテキストが当社のサーバーと OpenAI、Anthropic に送られます。当社はこれを保存しません。OpenAI と Anthropic は学習に使いません。"
+  "message": "新しい回答やメモの下に、合うチャットとあなたのタグを1つ提案します。そのため、メッセージのテキストが当社のサーバーと OpenAI、Anthropic に送られます。当社はこれを保存しません。OpenAI と Anthropic は学習に使いません。"
  },
  "orgTurnOn": {
   "message": "オンにする"
@@ -1125,10 +1125,10 @@
   "message": "全部ひとつのチャットに？"
  },
  "orgMessText": {
-  "message": "Pro なら、何をどこに移すかを ContextFlow が提案し、あなたと同じようにタグを付けます。"
+  "message": "Pro なら、何をどこに移すかを提案し、あなたと同じようにタグを付けます。"
  },
  "orgTagsTitle": {
-  "message": "ContextFlow はあなたと同じようにタグを付けられます"
+  "message": "あなたと同じようにタグを付けられます"
  },
  "orgTagsText": {
   "message": "Pro なら、あなたが自分でタグを付けた場所をもとに、新しい回答やメモの下にあなたのタグを1つ提案します。"

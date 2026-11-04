@@ -1110,13 +1110,13 @@
   "message": "열기"
  },
  "orgFirstWin": {
-  "message": "완료. 이제부터 ContextFlow가 알아서 추천해요."
+  "message": "완료. 이제부터 알아서 추천할게요."
  },
  "orgConsentTitle": {
   "message": "채팅을 주제별로 정리할까요?"
  },
  "orgConsentText": {
-  "message": "새 답변과 메모 아래에 ContextFlow가 알맞은 채팅과 내 태그 하나를 추천해요. 이를 위해 메시지 텍스트가 당사 서버와 OpenAI, Anthropic으로 전송돼요. 당사는 이를 저장하지 않아요. OpenAI와 Anthropic은 이를 학습에 사용하지 않아요."
+  "message": "새 답변과 메모 아래에 알맞은 채팅과 내 태그 하나를 추천할게요. 이를 위해 메시지 텍스트가 당사 서버와 OpenAI, Anthropic으로 전송돼요. 당사는 이를 저장하지 않아요. OpenAI와 Anthropic은 이를 학습에 사용하지 않아요."
  },
  "orgTurnOn": {
   "message": "켜기"
@@ -1125,10 +1125,10 @@
   "message": "모든 게 한 채팅에?"
  },
  "orgMessText": {
-  "message": "Pro에서는 ContextFlow가 무엇을 어디로 옮길지 추천하고, 내가 하듯이 태그를 달아요."
+  "message": "Pro에서는 무엇을 어디로 옮길지 추천하고, 내가 하듯이 태그를 달아 드려요."
  },
  "orgTagsTitle": {
-  "message": "ContextFlow가 나처럼 태그를 달 수 있어요"
+  "message": "내 방식대로 태그를 달아 드릴 수 있어요"
  },
  "orgTagsText": {
   "message": "Pro에서는 내가 직접 태그를 단 곳을 바탕으로 새 답변과 메모 아래에 내 태그 하나를 추천해요."

@@ -1110,13 +1110,13 @@
   "message": "Apri"
  },
  "orgFirstWin": {
-  "message": "Fatto. D’ora in poi ContextFlow suggerirà da solo."
+  "message": "Fatto. D’ora in poi ti farò suggerimenti senza che tu lo chieda."
  },
  "orgConsentTitle": {
   "message": "Ordinare le chat per argomento?"
  },
  "orgConsentText": {
-  "message": "ContextFlow suggerirà una chat adatta e uno dei tuoi tag sotto le nuove risposte e note. Per farlo, il testo dei tuoi messaggi va al nostro server e a OpenAI e Anthropic. Non lo conserviamo. OpenAI e Anthropic non lo usano per l’addestramento."
+  "message": "Ti suggerirò una chat adatta e uno dei tuoi tag sotto le nuove risposte e note. Per farlo, il testo dei tuoi messaggi va al nostro server e a OpenAI e Anthropic. Non lo conserviamo. OpenAI e Anthropic non lo usano per l’addestramento."
  },
  "orgTurnOn": {
   "message": "Attiva"
@@ -1125,13 +1125,13 @@
   "message": "Tutto in una sola chat?"
  },
  "orgMessText": {
-  "message": "Con Pro, ContextFlow suggerisce cosa va dove e mette i tag come fai tu."
+  "message": "Con Pro, ti suggerisco cosa va dove e metto i tag come fai tu."
  },
  "orgTagsTitle": {
-  "message": "ContextFlow può mettere i tag come fai tu"
+  "message": "Posso mettere i tag come fai tu"
  },
  "orgTagsText": {
-  "message": "Con Pro suggerisce uno dei tuoi tag sotto le nuove risposte e note, in base a dove lo metti tu."
+  "message": "Con Pro ti suggerisco uno dei tuoi tag sotto le nuove risposte e note, in base a dove lo metti tu."
  },
  "orgCloseA11y": {
   "message": "Chiudi"

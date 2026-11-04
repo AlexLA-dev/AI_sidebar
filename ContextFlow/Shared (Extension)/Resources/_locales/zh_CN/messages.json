@@ -1110,13 +1110,13 @@
   "message": "打开"
  },
  "orgFirstWin": {
-  "message": "完成。从现在起，ContextFlow 会自己给出建议。"
+  "message": "完成。从现在起，我会主动给出建议。"
  },
  "orgConsentTitle": {
   "message": "按主题整理你的对话？"
  },
  "orgConsentText": {
-  "message": "ContextFlow 会在新的回答和笔记下方建议合适的对话和你的一个标签。为此，你的消息文本会发送到我们的服务器以及 OpenAI 和 Anthropic。我们不保存这些文本。OpenAI 和 Anthropic 不会用它来训练模型。"
+  "message": "我会在新的回答和笔记下方建议合适的对话和你的一个标签。为此，你的消息文本会发送到我们的服务器以及 OpenAI 和 Anthropic。我们不保存这些文本。OpenAI 和 Anthropic 不会用它来训练模型。"
  },
  "orgTurnOn": {
   "message": "开启"
@@ -1125,13 +1125,13 @@
   "message": "全都在一个对话里？"
  },
  "orgMessText": {
-  "message": "使用 Pro 时，ContextFlow 会建议什么内容该放到哪里，并像你一样加标签。"
+  "message": "使用 Pro 时，我会建议什么内容该放到哪里，并像你一样加标签。"
  },
  "orgTagsTitle": {
-  "message": "ContextFlow 能像你一样加标签"
+  "message": "我能像你一样加标签"
  },
  "orgTagsText": {
-  "message": "使用 Pro 时，它会根据你自己加标签的位置，在新的回答和笔记下方建议你的一个标签。"
+  "message": "使用 Pro 时，我会根据你自己加标签的位置，在新的回答和笔记下方建议你的一个标签。"
  },
  "orgCloseA11y": {
   "message": "关闭"
