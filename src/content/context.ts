@@ -6,6 +6,7 @@
 import type { Attachment, MediaKind } from "../shared/attachments"
 import { TARGET } from "../shared/config"
 import type { SourceNote } from "../shared/conversation"
+import { fitBodyBytes } from "../shared/pagefit"
 import { looksLikePdf, MAX_FORWARD_BYTES, toBase64 } from "../shared/pdf"
 import type { BackgroundRequest, PdfResult } from "../shared/types"
 import { hasCaptionTracks, readCaptions, type CaptionsRead } from "./captions"
@@ -89,7 +90,9 @@ function videoDuration(): number | null {
 }
 
 async function readTab(readPdf: (url: string) => Promise<PdfResult | null>, withMedia: boolean): Promise<PageRead> {
-  const page = extractPage()
+  // All of the page (2.5), within the request's size limit (pagefit.ts).
+  const read = extractPage(Infinity)
+  const page = { ...read, text: fitBodyBytes(read.text) }
   const videoId = youtubeVideoId(location.href)
   if (!withMedia) {
     // Not read at all: only what the page shows (a video page's title, description and comments).

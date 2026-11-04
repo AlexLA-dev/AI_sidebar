@@ -258,16 +258,17 @@ test("videos and PDFs go to the model only with Pro (or the user's own key); oth
   assert.equal(readsMedia(null, "safari"), false)
 })
 
-test("prompt: video and PDF pages get the longer limit and how to cite them", () => {
-  assert.equal(pageLimit({ kind: "page" }), MAX_PAGE_CHARS)
-  assert.equal(pageLimit({ kind: "page", media: "video" }), MAX_MEDIA_PAGE_CHARS)
+test("prompt: a page goes whole (2.5), video and PDF pages say how to cite them", () => {
+  // Pages within their tokens (pagefit.ts); a transcript and PDFs keep their own limit in composePage.
+  assert.equal(pageLimit({ kind: "page" }), Infinity)
+  assert.equal(pageLimit({ kind: "page", media: "video" }), Infinity)
   assert.equal(pageLimit({ kind: "selection", media: "pdf" }), 12_000)
   const text = "t".repeat(60_000)
   const video = systemPrompt({ kind: "page", title: "V", url: "https://youtube.com/watch?v=x", text, media: "video" }, "", "en")
-  assert.ok(video.includes(text) && !video.includes("content truncated"))
+  assert.ok(video.includes(text) && !/\n\[…\]\nPAGE>>>/.test(video) && !/cut off/.test(video))
   assert.match(video, /\[m:ss\] timestamps/)
   const plain = systemPrompt({ kind: "page", title: "P", url: "https://example.com", text }, "", "en")
-  assert.match(plain, /content truncated/)
+  assert.ok(plain.includes(text) && !/\n\[…\]\nPAGE>>>/.test(plain) && !/cut off/.test(plain))
   assert.doesNotMatch(plain, /timestamps/)
   const pdf = systemPrompt({ kind: "page", title: "D", url: "https://example.com/d.pdf", text: "[Page 1]\nHi", media: "pdf" }, "", "en")
   assert.match(pdf, /\[Page N\] marks/)

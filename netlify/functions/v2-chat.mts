@@ -5,7 +5,7 @@ import { consume, logEvent, maybeCleanup, refund, touchInstall, type ConsumeResu
 import { clip, ipSubject, isUuid, json, preflight, readJson, corsHeaders } from "../shared/http.mts"
 import { buildGrounding, googlePrompt, readGoogle, startGoogle, type GoogleStats } from "../shared/google.mts"
 import { answerCost, clientBuild, startAnswer, type Answer } from "../shared/answer.mts"
-import { sanitizeMessages, sanitizeOtherPages, sanitizePage, systemPrompt } from "../shared/llm.mts"
+import { sanitizeMessages, sanitizeOtherPages, sanitizePage, systemPromptParts } from "../shared/llm.mts"
 import { geminiModels } from "../shared/models.mts"
 import { pageForModel } from "../../src/shared/attachments.ts"
 import { hasMarks, MAX_APP_OTHER_PAGES, MAX_OTHER_PAGES } from "../../src/shared/prompt.ts"
@@ -88,7 +88,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   let answer: Answer | null = null
   try {
     if (google) completion = await startGoogle(googlePrompt(page, profile, locale, others, hasMarks(messages)), messages, await geminiModels(), req.signal)
-    else answer = await startAnswer(history ? historyPrompt(chats, profile, locale) : systemPrompt(page, profile, locale, others, fromApp, hasMarks(messages)), messages, access.plan === "pro" ? "pro" : "free", build, req.signal)
+    else answer = await startAnswer(history ? historyPrompt(chats, profile, locale) : (tokens) => systemPromptParts(page, profile, locale, others, fromApp, hasMarks(messages), tokens), messages, access.plan === "pro" ? "pro" : "free", build, req.signal)
   } catch (err) {
     console.error("[cf] upstream failed:", err instanceof Error ? err.message : err)
     context.waitUntil(Promise.all([
@@ -179,6 +179,8 @@ export default async (req: Request, context: Context): Promise<Response> => {
       ...(history && digestCut(body.history, chats, MAX_HISTORY_CHARS) ? { digest_cut: true } : {}),
       ...chatSize(body.stats),
       prompt_tokens: stats.promptTokens,
+      ...(stats.cacheWriteTokens ? { cache_write_tokens: stats.cacheWriteTokens } : {}),
+      ...(stats.cacheReadTokens ? { cache_read_tokens: stats.cacheReadTokens } : {}),
       completion_tokens: stats.completionTokens,
       ms: Date.now() - started,
       platform,

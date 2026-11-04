@@ -2,7 +2,7 @@ import Anthropic from "@anthropic-ai/sdk"
 
 import { newestClaudeModel, type ModelTier } from "../shared/models"
 import { pageForModel } from "../shared/attachments"
-import { hasMarks, otherPagesOf, systemPrompt } from "../shared/prompt"
+import { hasMarks, otherPagesOf, systemPromptParts } from "../shared/prompt"
 import { STORAGE, type AskPayload, type OwnKeyUsage, type StreamEvent } from "../shared/types"
 
 type Emit = (event: StreamEvent) => void
@@ -52,11 +52,16 @@ export async function askClaude(
   const newest = await newestModel(client, tier)
   const candidates = [...new Set([newest, FALLBACK_MODEL[tier]])]
 
+  // The rules and the page cached (2.5): the user's follow-ups on the page cost them a tenth for those.
+  const [cached, rest] = systemPromptParts(payload.page && pageForModel(payload.page, true), profile, locale, otherPagesOf(payload), false, hasMarks(payload.messages))
   for (const [i, model] of candidates.entries()) {
     const params = {
       model,
       max_tokens: 16000,
-      system: systemPrompt(payload.page && pageForModel(payload.page, true), profile, locale, otherPagesOf(payload), false, hasMarks(payload.messages)),
+      system: [
+        { type: "text" as const, text: cached, cache_control: { type: "ephemeral" as const } },
+        ...(rest ? [{ type: "text" as const, text: rest }] : [])
+      ],
       messages: payload.messages,
       // Short answers about a page: low effort keeps thinking brief and the reply quick.
       output_config: { effort: "low" as const }

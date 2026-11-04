@@ -22,7 +22,7 @@ import {
 import * as Icon from "./icons"
 import { historyForModel, isQuestion, lastPage, otherPages, pageHasChanged, pageRef, pageWhen, savedPages, selectionNote, stamped, type Entry, type SourceNote } from "../shared/conversation"
 import { Markdown } from "./markdown"
-import { MAX_OTHER_PAGES } from "../shared/prompt"
+import { MAX_OTHER_PAGES, MAX_PAGE_CHARS } from "../shared/prompt"
 import { answerShareText, chatLanguage, noteCopyText, noteShareText, pickedShareText, toPlainText, type ShareLinks } from "../shared/share"
 import type { PageRead, PageSource } from "./context"
 import {
@@ -707,10 +707,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   /** Sends a question with the page as `full` (sources: what was read along with it) or the selection. */
   sendRef.current = (base, content, opts, full, selection, chats) => {
     const url = source.key()
-    const ref = pageRef(base, url, full.title, full.text, keepsText)
+    // The model gets all of the page (2.5); its fingerprint and the saved text are still its first
+    // MAX_PAGE_CHARS, so a chat's "the page has changed" and the app's saved page stay as they were.
+    const start = full.text.slice(0, MAX_PAGE_CHARS)
+    const ref = pageRef(base, url, full.title, start, keepsText)
     const changed = !chats && pageHasChanged(base, url, ref.hash!)
     const user: Turn = stamped(chats ? { role: "user", content, label: opts.label } : { role: "user", content, label: opts.label, page: ref }, ref.at)
-    if (!chats) void rememberPageText(url, full.title, full.attachments ? composePage(full.text, full.attachments) : full.text)
+    if (!chats) void rememberPageText(url, full.title, full.attachments ? composePage(start, full.attachments) : start)
     if (opts.mode) user.mode = opts.mode
     if (changed) user.pageChanged = true
     if (full.sources.length) user.sources = full.sources
