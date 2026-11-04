@@ -2,7 +2,8 @@ import type { Config } from "@netlify/functions"
 import { createHash, timingSafeEqual } from "node:crypto"
 
 import { config as settings } from "../shared/config.mts"
-import { onboarding, ownerInsights, setupFunnel, usageReport } from "../shared/db.mts"
+import { featureFunnels, features, onboarding, ownerInsights, setupFunnel, usageReport } from "../shared/db.mts"
+import { featureBase } from "../../src/shared/usage.ts"
 
 /**
  * GET /api/v2/admin/usage?days=30 — usage analytics for the /analytics page.
@@ -30,20 +31,22 @@ export default async (req: Request): Promise<Response> => {
 
   const days = Math.max(1, Math.min(180, Number.parseInt(new URL(req.url).searchParams.get("days") ?? "30", 10) || 30))
   try {
-    const [report, funnel, insights, steps] = await Promise.all([
+    const missing = (what: string) => (err: unknown) => {
+      console.error(`[cf] ${what} failed:`, err instanceof Error ? err.message : err)
+      return null
+    }
+    const [report, funnel, insights, steps, used, funnels] = await Promise.all([
       usageReport(days),
       // Older databases have no funnel or insights yet; the rest of the report still works.
       setupFunnel(days).catch(() => []),
-      ownerInsights(days).catch((err) => {
-        console.error("[cf] owner insights failed:", err instanceof Error ? err.message : err)
-        return null
-      }),
-      onboarding(days).catch((err) => {
-        console.error("[cf] onboarding failed:", err instanceof Error ? err.message : err)
-        return null
-      })
+      ownerInsights(days).catch(missing("owner insights")),
+      onboarding(days).catch(missing("onboarding")),
+      features(days, featureBase()).catch(missing("features")),
+      featureFunnels(days).catch(missing("feature funnels"))
     ])
-    return new Response(JSON.stringify({ ...report, setup_funnel: funnel, insights, onboarding: steps }), { headers: noStore })
+    return new Response(JSON.stringify({
+      ...report, setup_funnel: funnel, insights, onboarding: steps, features: used, feature_funnels: funnels
+    }), { headers: noStore })
   } catch (err) {
     console.error("[cf] usage report failed:", err instanceof Error ? err.message : err)
     return new Response(JSON.stringify({ code: "UNAVAILABLE" }), { status: 503, headers: noStore })
