@@ -235,8 +235,11 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     const data = (body.input as string[]).map((text, index) => ({ index, embedding: wordVector(text, body.dimensions) }))
     return new Response(JSON.stringify({ data, usage: { total_tokens: data.length * 40 } }), { headers: { "Content-Type": "application/json" } })
   }
-  // Organizing's tag check: not streamed, and without quick insert's and page watch's JSON format.
-  if (url.startsWith("https://api.anthropic.com/v1/messages") && !JSON.parse(String(init?.body)).stream && !JSON.parse(String(init?.body)).output_config?.format) {
+  // Organizing's tag check: not streamed; it asks for a JSON format too (netlify/shared/organize.mts TAG_SCHEMA),
+  // so it is told from quick insert's and page watch's by its system prompt.
+  const judging = (b: { stream?: boolean; system?: unknown; output_config?: { format?: unknown } }) =>
+    !b.stream && (!b.output_config?.format || String(b.system).startsWith("You help a person keep their own tags"))
+  if (url.startsWith("https://api.anthropic.com/v1/messages") && judging(JSON.parse(String(init?.body)))) {
     const body = JSON.parse(String(init?.body))
     const tags = [...String(body.messages[0].content).matchAll(/<examples tag="([^"]+)">/g)].map((m) => ({ tag: m[1], fits: true, confidence: 0.9 }))
     return new Response(JSON.stringify({ id: "msg_judge", type: "message", role: "assistant", model: body.model, content: [{ type: "text", text: JSON.stringify({ tags }) }], stop_reason: "end_turn", stop_sequence: null, usage: { input_tokens: 1600, output_tokens: 40 } }), { headers: { "Content-Type": "application/json" } })
@@ -362,7 +365,14 @@ const pages: Record<string, string> = {
   "/pdf-embed": "pdf-embed.html",
   "/pdf-link": "pdf-link.html",
   "/lecture": "lecture.html",
-  "/lecture-ru": "lecture-ru.html"
+  "/lecture-ru": "lecture-ru.html",
+  // The Tips takes of 2.5 (tools/store/tips-record.mjs): a message to answer, an order with a number to copy, a price.
+  "/inbox": "inbox.html",
+  "/inbox-ru": "inbox-ru.html",
+  "/order": "order.html",
+  "/order-ru": "order-ru.html",
+  "/product": "product.html",
+  "/product-ru": "product-ru.html"
 }
 
 // PDFs for the PDF checks. private.pdf only with the cookie pdf-link.html sets, like a PDF behind a sign-in.
