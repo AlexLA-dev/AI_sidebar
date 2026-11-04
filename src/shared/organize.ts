@@ -38,18 +38,20 @@ export interface OrganizeConfig {
   messHours: number
 }
 
+// Calibrated on a deploy preview (tools/organize/calibrate.mts, 37 chats in en/ru/ko, text-embedding-3-small:256):
+// moves 95% right, 1 suggestion in 33 coherent chats; tags 100% right, none of the "later"-like ones.
 export const DEFAULT_ORGANIZE: OrganizeConfig = {
-  moveT: 0.45,
+  moveT: 0.55,
   moveD: 0.1,
-  moveT1: 0.55,
+  moveT1: 0.65,
   siteT: 0.35,
   splitT: 0.25,
   splitMin: 2,
   window: 3,
   tagWindow: 5,
-  tagT: 0.4,
-  tagD: 0.05,
-  coherence: 0.3,
+  tagT: 0.3,
+  tagD: 0,
+  coherence: 0.2,
   judge: 0.7,
   maxTags: 1,
   rollback: 3,

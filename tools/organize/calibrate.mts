@@ -254,7 +254,7 @@ const pct = (x: number, n: number) => (n ? `${Math.round((x / n) * 100)}%` : "â€
 const moveGrid: Array<{ cfg: Partial<OrganizeConfig>; run: MoveRun; precision: number; recall: number; falseRate: number }> = []
 for (const moveT of [0.35, 0.4, 0.45, 0.5, 0.55, 0.6]) {
   for (const moveD of [0, 0.05, 0.1, 0.15]) {
-    for (const splitT of [0.15, 0.2, 0.25, 0.3]) {
+    for (const splitT of [0.15, 0.2, 0.25, 0.3, 0.35]) {
       const cfg = { ...DEFAULT_ORGANIZE, moveT, moveD, moveT1: moveT + 0.1, splitT }
       const run = runMoves(cfg)
       const shown = run.right + run.wrong + run.apartRight + run.apartWrong + run.piles.shown + run.falseMoves
@@ -267,15 +267,15 @@ const goodMoves = moveGrid.filter((g) => g.precision >= 0.8 && g.falseRate <= 0.
 const bestMove = goodMoves[0] ?? [...moveGrid].sort((a, b) => b.precision - a.precision || b.recall - a.recall)[0]
 
 const tagGrid: Array<{ cfg: Partial<OrganizeConfig>; run: Awaited<ReturnType<typeof runTags>>; precision: number; recall: number }> = []
-for (const tagT of [0.3, 0.35, 0.4, 0.45, 0.5]) {
+for (const tagT of [0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5]) {
   for (const tagD of [0, 0.03, 0.05, 0.1]) {
-    for (const coherence of [0.2, 0.3, 0.4]) {
+    for (const coherence of [0.1, 0.15, 0.2, 0.3, 0.4]) {
       const cfg = { ...DEFAULT_ORGANIZE, tagT, tagD, coherence }
       const run = await runTags(cfg)
       tagGrid.push({ cfg: { tagT, tagD, coherence }, run, precision: run.suggested ? run.right / run.suggested : 0, recall: run.right / (run.cases || 1) })
     }
   }
-  process.stdout.write(`\rTag grid ${tagGrid.length}/60`)
+  process.stdout.write(`\rTag grid ${tagGrid.length}/140`)
 }
 process.stdout.write("\n")
 writeFileSync(cachePath, JSON.stringify(cache))

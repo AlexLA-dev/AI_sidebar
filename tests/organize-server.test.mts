@@ -229,6 +229,6 @@ test("status gives the switch, the vector space and the thresholds (known number
   assert.equal(body.organize.on, true)
   assert.equal(body.organize.space, "text-embedding-3-small:256")
   assert.equal(body.organize.config.moveT, 0.5)
-  assert.equal(body.organize.config.tagT, 0.4)
+  assert.equal(body.organize.config.tagT, 0.3)
   assert.equal(body.organize.config.bogus, undefined)
 })

@@ -32,9 +32,9 @@ struct OrganizeThread {
 struct OrganizeConfig {
     // Move: the block's fit to the other chat (mean of the two best block similarities), the margin over
     // its fit to its own chat, and the fit needed when the other chat has a single block.
-    var moveT = 0.45
+    var moveT = 0.55
     var moveD = 0.1
-    var moveT1 = 0.55
+    var moveT1 = 0.65
     // Same site: the fit to the one other chat about that site.
     var siteT = 0.35
     // A new chat: the block fits its own chat less than this, and at least `splitMin` blocks stay in it.
@@ -45,9 +45,9 @@ struct OrganizeConfig {
     var tagWindow = 5.0
     // Tags: the fit to the tag's examples, the margin over messages without it, how alike its examples are,
     // and the judge's confidence; at most `maxTags` per message (one: the best, so the chat stays uncluttered).
-    var tagT = 0.4
-    var tagD = 0.05
-    var coherence = 0.3
+    var tagT = 0.3
+    var tagD = 0.0
+    var coherence = 0.2
     var judge = 0.7
     var maxTags = 1.0
     // Refused this many times in a row without one taken: no more such suggestions (in that chat; for that tag).
