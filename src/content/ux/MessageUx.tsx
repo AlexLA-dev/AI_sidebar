@@ -77,13 +77,11 @@ export function RemindChip({ at, onClick }: { at: number; onClick: () => void })
 
 /**
  * "When should I remind you?": the presets, a date of one's own, and "Don't remind" for one that's set.
- * In the panel it sits right above the question field (on iPhone, Safari's bar covers the panel's very
- * bottom); `page`: over the page (the bell by a selection, with the panel closed).
+ * It sits right above the question field (on iPhone, Safari's bar covers the panel's very bottom).
  */
-export function RemindSheet({ current, note, page = false, onPick, onCancel, onClose }: {
+export function RemindSheet({ current, note, onPick, onCancel, onClose }: {
   current?: number
   note?: string | null
-  page?: boolean
   onPick: (at: number, preset: "hour" | "evening" | "morning" | "week" | "custom") => void
   onCancel: () => void
   onClose: () => void
@@ -92,12 +90,12 @@ export function RemindSheet({ current, note, page = false, onPick, onCancel, onC
   const back = useRef<HTMLDivElement>(null)
   useLayoutEffect(() => {
     const el = back.current
-    if (!el || page) return
+    if (!el) return
     const composer = el.parentElement?.querySelector<HTMLElement>(".cf-composer")
     el.style.bottom = composer ? `${composer.offsetHeight}px` : "0px"
-  }, [page])
+  }, [])
   return (
-    <div ref={back} class={`cf-sheet-back ${page ? "page" : ""}`} onClick={(e) => e.target === e.currentTarget && onClose()}>
+    <div ref={back} class="cf-sheet-back" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div class="cf-sheet" role="dialog" aria-label={t("uxRemindTitle")}>
         <div class="cf-sheet-title"><Bell size={16} /> {t("uxRemindTitle")}</div>
         {remindPresets().map((p) => (
