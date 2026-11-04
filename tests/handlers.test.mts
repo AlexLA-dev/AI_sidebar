@@ -1133,3 +1133,12 @@ test("Own key upsell events keep only what was shown or tapped, where and from w
   assert.ok(!JSON.stringify(logged[0]).includes("secret"))
   assert.deepEqual([logged[1].action, logged[1].where], [undefined, undefined])
 })
+
+
+test("a whole page goes through: a request of a few MB is taken, the model gets all of it", async () => {
+  serverConfig.anthropicKey = CLAUDE_KEY
+  const page = { kind: "page", title: "Long", url: "https://example.com/long", text: "a".repeat(2_500_000) }
+  const { res } = await chatOnce(askNew({ page }))
+  assert.equal(res.status, 200)
+  assert.ok(systemText(claude.lastBody).includes(page.text))
+})

@@ -30,7 +30,8 @@ export default async (req: Request, context: Context): Promise<Response> => {
   if (req.method === "OPTIONS") return preflight()
   if (req.method !== "POST") return json({ code: "METHOD" }, 405)
 
-  const body = await readJson(req, 300_000)
+  // A page comes whole (2.5): up to the function's request limit, 6 MB (the panel keeps the page to 4 MB of it).
+  const body = await readJson(req, 6_000_000)
   if (!body) return json({ code: "BAD_REQUEST", message: "Invalid JSON" }, 400)
   const installId = body.installId
   if (!isUuid(installId)) return json({ code: "BAD_REQUEST", message: "installId required" }, 400)
