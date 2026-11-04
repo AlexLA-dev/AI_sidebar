@@ -100,8 +100,40 @@ struct OrganizeFlow: Layout {
     }
 }
 
+/// How long the bar after a move stays, in seconds, as in the panel (src/content/undoClock.ts): `move` (shorter than
+/// the 8 after a delete: the chat stays open and people read on), and earlier once the person scrolls on or swipes,
+/// though not in its first `grace` (the Undo is never gone before there was time to tap it). A pointer resting on it
+/// holds it, and it goes `afterHold` after the pointer leaves.
+enum UndoClock {
+    static let move: TimeInterval = 5
+    static let grace: TimeInterval = 2
+    static let afterHold: TimeInterval = 1.5
+}
+
+/// That bar's times. A class: where the chat is scrolled to changes on every frame of a scroll, and that redraws nothing.
+final class MovedBarClock {
+    private(set) var tick = 0
+    private(set) var shownAt = Date.distantPast
+    var until = Date.distantPast
+    var y: CGFloat?
+
+    func start() {
+        tick += 1
+        shownAt = Date()
+        until = shownAt.addingTimeInterval(UndoClock.move)
+        y = nil
+    }
+}
+
+/// Where the chat's messages start in its scroll view ("chat"): it changes as the chat scrolls.
+struct ChatScrollTop: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = nextValue() }
+}
+
 /// The bar over the question field after something that can be taken back ("Moved to “Trips” · Undo · Open"), in the
-/// one look of bars (SnackBar). It only draws: whoever shows it takes it away on the next action.
+/// one look of bars (SnackBar). It only draws: whoever shows it takes it away after its seconds (UndoClock) or on the
+/// next action.
 struct UndoBar: View {
     let text: String
     let actions: [(label: LocalizedStringKey, run: () -> Void)]
