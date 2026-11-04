@@ -1100,7 +1100,7 @@ test("feature steps: only registry features, actions and values are kept, with t
   assert.equal((await send({ kind: "use", f: "settings", a: "change", key: "my notes", val: "hello" })).status, 200)
   assert.equal((await send({ kind: "use", f: "tour", a: "step", step: 3, n: 0, prev: "nonsense.step", sid: "not-a-uuid", s: "desktop" })).status, 200)
   // The app sends its fields as strings.
-  assert.equal((await send({ kind: "use", f: "later", a: "open", via: "tab", reminders: "3", watches: "12345", s: "app" })).status, 200)
+  assert.equal((await send({ kind: "use", f: "later", a: "list", via: "link", reminders: "3", watches: "12345", s: "panel" })).status, 200)
   // Not in the registry, an action the feature doesn't have, or a feature with its own kind: refused.
   assert.equal((await send({ kind: "use", f: "spyware", a: "open" })).status, 400)
   assert.equal((await send({ kind: "use", f: "chat", a: "delete_everything" })).status, 400)
@@ -1108,7 +1108,7 @@ test("feature steps: only registry features, actions and values are kept, with t
   await new Promise((r) => setTimeout(r, 0))
   const logged = events.filter((e) => e.kind === "use").map((e) => e.data)
   assert.equal(logged.length, 5)
-  assert.deepEqual([logged[4].reminders, logged[4].watches, logged[4].via], [3, undefined, "tab"])
+  assert.deepEqual([logged[4].a, logged[4].reminders, logged[4].watches, logged[4].via], ["list", 3, undefined, "link"])
   assert.deepEqual(logged[0], { platform: "ios", version: "2.5.0", locale: "en-US", build: 71, f: "chat", a: "open", via: "search", sid: SID, n: 5, prev: "search.run", dt: 7, s: "panel" })
   assert.deepEqual([logged[1].key, logged[1].val, logged[1].dt], ["theme", "on", 3600])
   assert.deepEqual([logged[2].key, logged[2].val], [undefined, undefined])

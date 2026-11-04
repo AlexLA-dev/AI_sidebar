@@ -90,10 +90,11 @@ export const FEATURES: Record<string, Feature> = {
   open_app: { since: "2.0", on: "ext", actions: ["tap"], fields: { what: ["subscribe", "manage", "open"] } },
   qi_list: { since: "2.5", on: "ext", actions: ["open"], via: ["button", "shortcut", "slash"] },
   templates: { since: "2.5", actions: ["view", "edit", "delete", "copy"] },
-  // The panel header's "…" (opened, an item picked) and "Come back later": its window in the panel, the
-  // "Reminders" list in the app, with how many reminders and watches it held.
-  menu: { since: "2.5", on: "ext", actions: ["open", "pick"], fields: { what: ["later", "settings"] } },
-  later: { since: "2.5", actions: ["open"], via: ["menu", "tab"], fields: { reminders: "int", watches: "int" } },
+  // The panel header's "…" (opened, an item picked) and "Come back later": its window in the panel ("open"),
+  // the "Reminders" list in the panel ("list": from the menu or the window's "All reminders" link) and in the
+  // app ("open" from its tab), with how many reminders and watches the list held.
+  menu: { since: "2.5", on: "ext", actions: ["open", "pick"], fields: { what: ["later", "reminders", "settings"] } },
+  later: { since: "2.5", actions: ["open", "list"], via: ["menu", "link", "tab"], fields: { reminders: "int", watches: "int" } },
   watch: {
     since: "2.5", actions: ["create", "alert", "stop", "error", "daily"],
     via: ["bubble", "later", "panel", "app", "notif", "list", "auto"],
