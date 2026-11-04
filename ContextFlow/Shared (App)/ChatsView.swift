@@ -212,7 +212,7 @@ struct ChatsView: View {
                 Button { library.setPinned(thread, !thread.isPinned) } label: {
                     Label(thread.isPinned ? "Unpin" : "Pin", systemImage: thread.isPinned ? "pin.slash" : "pin")
                 }
-                .tint(.orange)
+                .tint(.purple)
                 Button { tagging = thread } label: { Label("Tags", systemImage: "tag") }
                     .tint(brandBlue)
             }
@@ -771,7 +771,7 @@ struct ChatRow: View {
                 if thread.isPinned {
                     Image(systemName: "pin.fill")
                         .font(.caption)
-                        .foregroundColor(.orange)
+                        .foregroundColor(.purple)
                         .accessibilityLabel("Pinned")
                 }
                 if thread.isHistory {
@@ -1014,7 +1014,7 @@ struct ChatDetailView: View {
                                         }
                                     }
                                 }
-                                .background(RoundedRectangle(cornerRadius: 12).fill(Color.orange.opacity(flash == index ? 0.18 : 0)).padding(-6))
+                                .background(RoundedRectangle(cornerRadius: 12).fill(Color.purple.opacity(flash == index ? 0.18 : 0)).padding(-6))
                                 .modifier(MessageSwipe(
                                     enabled: picked == nil && !selecting && (!entry.isUser || entry.isNote),
                                     pinned: entry.pinned != nil,

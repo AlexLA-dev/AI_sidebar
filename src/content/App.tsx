@@ -1704,14 +1704,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     orgEvent({ kind: "organize", action: "dismissed", what: move.to ? "move" : "new", why: move.why })
   }
 
-  // The bar goes on the next action: a press anywhere else (a question, a note or another chat clear it too).
+  // The bar lives its seconds, then goes; before that only an action takes it: a question, a note, another chat, a
+  // new bar or its own buttons (they clear it there). Touching or scrolling the chat leaves it (2.5: a scroll used
+  // to take the Undo away).
   useEffect(() => {
     if (!undoBar) return
-    const onDown = (e: PointerEvent) => {
-      if (!e.composedPath().some((el) => (el as HTMLElement).classList?.contains("cf-undo-bar"))) setUndoBar(null)
-    }
-    window.addEventListener("pointerdown", onDown, true)
-    return () => window.removeEventListener("pointerdown", onDown, true)
+    const timer = setTimeout(() => setUndoBar(null), UNDO_BAR_MS)
+    return () => clearTimeout(timer)
   }, [undoBar])
 
   // The message with text selected in it: its suggestions step aside for the Highlight bubble by the selection.
@@ -1866,7 +1865,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
       {/* The page reminder is set: said here too (on iPhone the selection, and its buttons, are gone by now). */}
       {remindSaved !== null && !bubble?.rect && !open && (
-        <div class={`cf-toast ${touch ? "touch" : ""}`} role="status">
+        <div class="cf-toast cf-snack" role="status" style={{ top: `${(window.visualViewport?.offsetTop ?? 0) + (window.visualViewport?.height ?? window.innerHeight) - 64}px` }}>
           <Bell size={14} /> {remindSaved > 0 ? t("uxRemindSaved", remindLabel(remindSaved)) : remindSaved < 0 ? t("uxRemindNotSet") : t("uxRemindNoApp")}
         </div>
       )}
@@ -1995,7 +1994,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             )}
             {view === "chat" && (
               <span class="cf-page-more-wrap">
-                <button type="button" class="cf-icon cf-page-more" aria-haspopup="menu" aria-expanded={pageMenu} aria-label={t("uxMore")} title={t("uxMore")} onClick={() => {
+                <button type="button" class="cf-icon cf-page-more" aria-haspopup="menu" aria-expanded={pageMenu} aria-label={t("uxMorePage")} title={t("uxMorePage")} onClick={() => {
                   // Opened, and which item: to see whether Settings is still found a tap further.
                   if (!pageMenu) {
                     void sendBackground({ type: "useEvent", f: "menu", a: "open" })
@@ -2468,6 +2467,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 }
 
 const runActionRef: { current: (a: Action) => void } = { current: () => undefined }
+
+// How long "… · Undo" stays (the app's bar too, ChatsView).
+const UNDO_BAR_MS = 8_000
 
 /** Below 400 pt the selection buttons' top row keeps only "Ask ContextFlow" with its words; the rest are icons. */
 function compactRow(): boolean {

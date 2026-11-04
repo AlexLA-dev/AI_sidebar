@@ -250,7 +250,7 @@ export function useMessageUx({ messages, setMessages, chatId, chatTitle, list, t
           <button type="button" class="danger" title={t("uxDelete")} aria-label={t("uxDelete")} onClick={() => remove(idx, "hover")}><TrashIcon size={14} /></button>
         </span>
       )}
-      <button type="button" class="cf-msg-more" aria-label={t("uxMore")} title={t("uxMore")} aria-expanded={menu?.idx === idx && menu.x === undefined} onClick={() => setMenu(menu?.idx === idx ? null : { idx })}>
+      <button type="button" class="cf-msg-more" aria-label={t(m.note ? "uxMoreNote" : "uxMoreAnswer")} title={t(m.note ? "uxMoreNote" : "uxMoreAnswer")} aria-expanded={menu?.idx === idx && menu.x === undefined} onClick={() => setMenu(menu?.idx === idx ? null : { idx })}>
         <More />
       </button>
       {menu?.idx === idx && menu.x === undefined && menuFor(m, idx)}

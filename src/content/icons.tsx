@@ -15,6 +15,8 @@ export const Gear = (): VNode => (
 export const Plus = (): VNode => <svg {...base}><path d="M12 5v14M5 12h14" /></svg>
 // "Reminders" in the header's "…" (2.5).
 export const List = (): VNode => <svg {...base}><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01" /></svg>
+// "Come back later" (2.5): a neutral clock; the bell is Remind alone, the eye watching alone.
+export const Clock = (): VNode => <svg {...base}><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
 export const ArrowUp = (): VNode => <svg {...base} stroke-width={2.4}><path d="M12 19V5M5 12l7-7 7 7" /></svg>
 export const Stop = (): VNode => <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="3" /></svg>
 export const Copy = (): VNode => <svg {...base} width={15} height={15}><rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></svg>
