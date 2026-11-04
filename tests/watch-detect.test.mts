@@ -1,7 +1,7 @@
 import assert from "node:assert/strict"
 import { test } from "node:test"
 
-import { detectWatchable } from "../src/shared/watch/detect.ts"
+import { detectWatchable, eyeFor, firstValue, lastValue, priceAround } from "../src/shared/watch/detect.ts"
 
 const all = (what: string, list: string[]) => {
   for (const s of list) assert.equal(detectWatchable(s), what, s)
@@ -64,7 +64,6 @@ test("a price wins over the words around it", () => {
   assert.equal(detectWatchable("Sold out — 49,99 €"), "price")
 })
 
-import { eyeFor } from "../src/shared/watch/detect.ts"
 
 test("the eye on a date only with an event by it; on a status only by what it's the status of (the audit, 27)", () => {
   // A news page: the article's date, "shipped" in a story.
@@ -84,4 +83,31 @@ test("the eye on a date only with an event by it; on a status only by what it's 
   assert.equal(eyeFor("$1,299", "A story about a $1,299 laptop"), "price")
   assert.equal(eyeFor("Sold out", ""), "stock")
   assert.equal(eyeFor("the quick brown fox", "the quick brown fox jumps"), null)
+})
+
+test("prices with a currency code, before or after the number (the owner, build 75)", () => {
+  all("price", [
+    "USD 40", "40 EUR", "1 299 RUB", "CHF 12.50", "CHF 12.–", "EUR 1.299,00", "GBP 9.99", "JPY 3,000", "40 usd", "40,00 EUR",
+    "RUB 1 299,50", "CZK 250", "250 Kč", "MXN 120", "AED 50", "SGD 18.90", "PLN 99", "HUF 4 990", "KZT 15 000",
+    "199 kr", "1 299 RUB", "USD 40", "Price: USD 40", "40 EUR/month"
+  ])
+})
+
+test("codes that are words, models and units are not prices", () => {
+  for (const s of ["all 40 items", "Try 3 times", "top 10", "TOP 10", "ALL 40 ITEMS", "RTX 4090", "6 ft", "iPhone 15", "USB 3.0", "ISO 9001", "chapter 12", "3 krona"]) {
+    assert.equal(detectWatchable(s), null, s)
+  }
+})
+
+test("a number selected next to its code: the eye shows and watches the whole price", () => {
+  // On iPhone a tap on "40" in "USD 40" selects the number only; "$40" comes whole.
+  assert.equal(eyeFor("40", "Price: USD 40 per month"), "price")
+  assert.equal(priceAround("40", "Price: USD 40 per month"), "USD 40")
+  assert.equal(priceAround("1 299", "Итого 1 299 RUB"), "1 299 RUB")
+  assert.equal(priceAround("12.50", "CHF 12.50 / Stk."), "CHF 12.50")
+  // The same digits elsewhere, or no currency by them: no eye.
+  assert.equal(priceAround("40", "We have 40 items and USD 99"), null)
+  assert.equal(eyeFor("40", "We have 40 items"), null)
+  assert.equal(firstValue("price", "Was USD 55, now USD 40"), "USD 55")
+  assert.equal(lastValue("price", "Was USD 55, now USD 40"), "USD 40")
 })

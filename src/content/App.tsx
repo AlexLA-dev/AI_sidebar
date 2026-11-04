@@ -1884,11 +1884,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               <div class="cf-bubble-row">
                 {touch ? (
                   <>
-                    {/* "Ask AI" on narrow screens (320 pt: iPhone mini and SE with Display Zoom), so the buttons fit. */}
-                    <button type="button" class="primary" {...press(() => show(bubble))}><Icon.Sparkle size={16} /> {t(narrowScreen() || (bubbleExtras.length > 0 && compactRow()) ? "selAsk" : "fabLabel")}</button>
-                    <button type="button" class="cf-sel-icon" aria-label={t("actGoogle")} title={t("actGoogle")} {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SEL_GOOGLE), 60) })}><Icon.Search size={15} /></button>
-                    {/* Template keeps its word next to watching's eye (the audit, 27): below 400 pt "Ask ContextFlow" is the one that shortens. */}
-                    <button type="button" class="cf-sel-template" aria-label={t("qiTemplateButton")} title={t("qiTemplateButton")} {...press(() => newTemplate(bubble))}><QIcon.Template /> {t("qiTemplateButton")}</button>
+                    {/* "Ask AI" always (the owner, build 75: shorter and clearer than "Ask ContextFlow"), and Google by its word. */}
+                    <button type="button" class="primary" {...press(() => show(bubble))}><Icon.Sparkle size={16} /> {t("selAsk")}</button>
+                    <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SEL_GOOGLE), 60) })}>{t("actGoogle")}</button>
+                    <button type="button" class="cf-sel-template" aria-label={t("qiTemplateButton")} title={t("qiTemplateButton")} {...press(() => newTemplate(bubble))}><QIcon.Template /> <span class="cf-sel-l">{t("qiTemplateButton")}</span></button>
                     {bubbleExtras}
                   </>
                 ) : (
@@ -2472,11 +2471,6 @@ const runActionRef: { current: (a: Action) => void } = { current: () => undefine
 // How long "… · Undo" stays (the app's bar too, ChatsView).
 const UNDO_BAR_MS = 8_000
 
-/** Below 400 pt the selection buttons' top row keeps only "Ask ContextFlow" with its words; the rest are icons. */
-function compactRow(): boolean {
-  return (window.visualViewport?.width ?? window.innerWidth) < 400
-}
-
 /**
  * Above a question or note: "New page: …" on the chat's first page and whenever it moved to another one
  * (the title opens that page: its tab if it's open), with the day it came there and how long ago;
@@ -2530,16 +2524,25 @@ function press(action: () => void) {
 /**
  * Where the selection buttons go (`height`: theirs): below the selection, above it when there's no
  * room, so they don't cover it. iPhone and iPad: also clear of the selection handles and of the
- * system edit menu, which iOS 26+ shows right below the selection and older versions above it.
+ * system edit menu, which iOS 26+ shows right below the selection and above it when there's no room
+ * below (older versions the other way round); the buttons keep the menu's whole height away on either
+ * side, so they never meet it (the owner, build 75: "the menu lies over the bubble"). Mac: a right-click
+ * menu opens down from the pointer, so then they go above the selection (`up`).
  * Always within what's visible: above the keyboard while their field is typed in.
  */
-function bubbleTop(rect: DOMRect, touch: boolean, height: number): number {
+function bubbleTop(rect: DOMRect, touch: boolean, height: number, up = false): number {
   const vv = window.visualViewport
   const top0 = vv?.offsetTop ?? 0
   const bottom = top0 + (vv?.height ?? window.innerHeight)
-  const clear = touch ? 70 : 8
-  let top = rect.bottom + clear
-  if (top + height > bottom - 12 && rect.top - clear - height >= top0 + 8) top = rect.top - clear - height
+  // The edit menu: about 16 pt from the selection, 44 pt tall (more with larger text); plus air.
+  const clear = touch ? 88 : 8
+  const below = rect.bottom + clear
+  const above = rect.top - clear - height
+  const fitsBelow = below + height <= bottom - 12
+  const fitsAbove = above >= top0 + 8
+  let top = (up ? fitsAbove || !fitsBelow : !fitsBelow && fitsAbove) ? above : below
+  // Neither side has room (a long selection, the keyboard up): the side with more of it, at the screen's edge.
+  if (!fitsBelow && !fitsAbove) top = rect.top - top0 > bottom - rect.bottom ? top0 + 8 : bottom - height - 12
   return Math.max(top0 + 8, Math.min(bottom - height - 12, top))
 }
 
@@ -2551,6 +2554,14 @@ function narrowScreen(): boolean {
 /** The buttons shown for a page selection, centered under it and kept on screen. */
 function SelectionBubble({ rect, touch, children }: { rect: DOMRect; touch: boolean; children: ComponentChildren }): VNode {
   const ref = useRef<HTMLDivElement>(null)
+  // Mac: a right-click on the page opens the system menu down from the pointer; the buttons go above the selection.
+  const [up, setUp] = useState(false)
+  useEffect(() => {
+    if (touch) return
+    const menu = () => setUp(true)
+    document.addEventListener("contextmenu", menu, true)
+    return () => document.removeEventListener("contextmenu", menu, true)
+  }, [touch])
   useLayoutEffect(() => {
     const el = ref.current
     if (!el) return
@@ -2559,9 +2570,13 @@ function SelectionBubble({ rect, touch, children }: { rect: DOMRect; touch: bool
       const vv = window.visualViewport
       const min = (vv?.offsetLeft ?? 0) + 8
       const max = min + (vv?.width ?? window.innerWidth) - 16 - el.offsetWidth
+      // A row that doesn't fit the screen (longer words, the eye) keeps Template's icon only; once, not back and forth.
+      const row = el.querySelector(".cf-bubble-row")
+      if (row && row.scrollWidth > row.clientWidth + 1) el.classList.add("tight")
       el.style.left = `${Math.max(min, Math.min(max, center - el.offsetWidth / 2))}px`
-      el.style.top = `${bubbleTop(rect, touch, el.offsetHeight)}px`
+      el.style.top = `${bubbleTop(rect, touch, el.offsetHeight, up)}px`
     }
+    el.classList.remove("tight")
     place()
     // Its size changes ("Saved to the chat", the hint), and on iPhone the keyboard covers part of the page.
     const resized = new ResizeObserver(place)
@@ -2574,7 +2589,7 @@ function SelectionBubble({ rect, touch, children }: { rect: DOMRect; touch: bool
       vv?.removeEventListener("resize", place)
       vv?.removeEventListener("scroll", place)
     }
-  }, [rect, touch])
+  }, [rect, touch, up])
   return (
     // Clicks on the buttons keep the page selection; the field takes the focus.
     <div ref={ref} class={`cf-bubble ${touch ? "touch" : ""}`} onMouseDown={(e) => (e.target as Element).closest("input") || e.preventDefault()}>

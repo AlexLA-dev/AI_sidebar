@@ -14,6 +14,7 @@ import { urlKey } from "../shared/conversation"
 import { t, uiLanguage } from "../shared/i18n"
 import { fallbackRule, sameValue, shownValue, verdict } from "../shared/watch/compare"
 import { readPage, readValue } from "../shared/watch/extract"
+import { conditionLine } from "../shared/watch/line"
 import {
   siteOf, WATCH_LIMIT, type WatchDraft, type WatchHow, type WatchPrepared, type WatchRequest, type WatchSpec, type WatchStep
 } from "../shared/watch/messages"
@@ -202,6 +203,34 @@ async function cancel(id: string, via: "panel" | "list" | "app"): Promise<void> 
   void syncApp()
 }
 
+/**
+ * New words for what a watch waits for (the list, the owner on build 75: "the condition can be changed"). The AI
+ * plans the rule again from them (or the device's rules); the value and where it's read stay, the checks go on, and
+ * a watch that had fired waits again. The new words count as the person's own: the list shows them as they are.
+ */
+async function edit(id: string, condition: string): Promise<{ ok: boolean; watch?: Watch }> {
+  const words = condition.replace(/\s+/g, " ").trim().slice(0, 300)
+  const w = (await load()).find((x) => x.id === id)
+  if (!w || !words) return { ok: false }
+  const planned = await ask("plan", { condition: words, selection: w.what === "page" ? "" : shown(w.value), around: "", title: w.title, host: w.host, candidates: {} })
+  // The plan may read the value another way; this watch keeps its own reading (what and source), only the rule moves.
+  const rule = planned?.what === w.what && planned?.rule ? planned.rule : fallbackRule(w.what, w.value, words)
+  const edited = await update((list) => {
+    const x = list.find((y) => y.id === id)
+    if (!x) return null
+    x.condition = words
+    x.rule = rule
+    if (planned?.label && planned.what === w.what) x.label = planned.label
+    delete x.metAt
+    delete x.metValue
+    return { ...x }
+  })
+  if (!edited) return { ok: false }
+  await ensureAlarm()
+  void syncApp()
+  return { ok: true, watch: edited }
+}
+
 // ------------------------------------------------------------ checking
 
 /** One round: the pages that are due, oldest check first, until the round's time is up. */
@@ -340,7 +369,7 @@ async function syncApp(): Promise<void> {
   const list = await load()
   const reply = await callNative<{ cancelled?: string[] }>("watch_sync", {
     watches: list.map((w) => ({
-      id: w.id, title: w.title, url: w.url, label: w.label, condition: w.condition, what: w.what,
+      id: w.id, title: w.title, url: w.url, label: w.label, condition: w.condition, line: conditionLine(w), what: w.what,
       mode: w.mode, checkedAt: w.checkedAt, ...(w.metAt ? { metAt: w.metAt, metValue: w.what === "page" ? "" : shown(w.metValue ?? "") } : {})
     }))
   }, 6_000)
@@ -410,6 +439,9 @@ export function startWatch(d: WatchDeps): void {
         return true
       case "watchCancel":
         cancel(message.id, message.via).then(() => sendResponse({ ok: true }), () => sendResponse({ ok: false }))
+        return true
+      case "watchEdit":
+        edit(message.id, message.condition).then(sendResponse, () => sendResponse({ ok: false }))
         return true
       case "watchForUrl":
         forUrl(message.url).then(sendResponse, () => sendResponse([]))

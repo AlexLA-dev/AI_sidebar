@@ -2,9 +2,10 @@
 // each with its status in the person's language. ✕ stops one (the list asks every source; others' ids pass by).
 
 import { t, uiLanguage } from "../../shared/i18n"
-import { shownValue } from "../../shared/watch/compare"
+import { conditionLine, shown } from "../../shared/watch/line"
 import type { Watch } from "../../shared/watch/types"
 import type { LaterItem, LaterSource } from "../ux/later"
+import { openWatchEdit } from "./WatchSheet"
 
 const PREFIX = "watch:"
 
@@ -22,23 +23,39 @@ export function ago(at: number, now = Date.now(), lang = uiLanguage()): string {
 
 export function watchRow(w: Watch, now = Date.now()): LaterItem {
   const label = w.label || w.title || w.host
-  const shown = (v: string) => shownValue(v, uiLanguage(), { inStock: t("watchInStock"), outOfStock: t("watchOutOfStock") })
+  // While watching: what it waits for and the value now, whole (the owner, build 75: "I can't see what price I set").
+  const line = conditionLine(w)
   let status: string
   if (w.metAt) {
     status = w.metValue && w.what !== "page"
       ? t("watchRowMetNow", label, shown(w.metValue), ago(w.metAt, now))
       : t("watchRowMet", label, ago(w.metAt, now))
   } else if (w.mode === "live") {
-    status = t("watchRowLive", label)
+    status = t("watchRowLive", line)
   } else if (w.checks > 0) {
-    status = t("watchRow", label, ago(w.checkedAt, now))
+    status = t("watchRow", line, ago(w.checkedAt, now))
   } else {
-    status = t("watchRowNew", label)
+    status = t("watchRowNew", line)
   }
   return { id: `${PREFIX}${w.id}`, kind: "watch", title: w.title || w.host, url: w.url, status, sortAt: w.metAt ?? w.checkedAt }
 }
 
-export const watchSource: LaterSource = {
+/**
+ * The list's source. `open`: a watch's row opens watching's own window (its words whole, the value now, change the
+ * words, stop it) instead of the page; true when the row was a watch. `done` refreshes the list after a change.
+ * The list calls it once chat UX's Reminders asks its sources first (LaterSource.open, to be added there).
+ */
+export const watchSource: LaterSource & { open(item: LaterItem, done?: () => void): boolean } = {
+  open(item, done) {
+    if (!item.id.startsWith(PREFIX)) return false
+    const id = item.id.slice(PREFIX.length)
+    void (chrome.runtime.sendMessage({ type: "watchList" }) as Promise<Watch[]>).then((list) => {
+      const w = Array.isArray(list) ? list.find((x) => x.id === id) : undefined
+      if (w) openWatchEdit(w, () => done?.())
+      else if (item.url) window.open(item.url, "_blank", "noopener")
+    }, () => undefined)
+    return true
+  },
   async items() {
     const list = (await chrome.runtime.sendMessage({ type: "watchList" }).catch(() => [])) as Watch[]
     return Array.isArray(list) ? list.map((w) => watchRow(w)) : []

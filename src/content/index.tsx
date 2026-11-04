@@ -5,6 +5,7 @@ import type { ContentRequest } from "../shared/types"
 import { App } from "./App"
 import { tabPdf, tabSource } from "./context"
 import { detectPlatform, HOST_TAG } from "./page"
+import { setPanelRoot } from "./root"
 import styles from "./styles.css"
 import insertStyles from "./insert/insert.css"
 import organizeStyles from "./organize.css"
@@ -42,6 +43,7 @@ function boot(): void {
     const host = document.createElement(HOST_TAG)
     host.setAttribute("style", "all:initial;position:fixed;top:0;left:0;width:0;height:0;z-index:2147483647;")
     const root = host.attachShadow({ mode: SHADOW_MODE })
+    setPanelRoot(root)
     const style = document.createElement("style")
     style.textContent = `${styles}
 ${insertStyles}

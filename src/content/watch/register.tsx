@@ -1,17 +1,17 @@
 // Page watch (2.5) in the panel, through chat UX's registries (ux/later.ts): the section "Notify me when it
 // changes" under Remind in "Come back later…", the eye in the selection bubble (only for a price, stock, a date
 // or a status), and this device's watches in "Reminders". Safari only: the checks and the notification need the app.
+// The eye opens watching alone (WatchSheet): the owner's notes on build 75, the eye and the bell aren't one menu.
 
 import { TARGET } from "../../shared/config"
 import { t } from "../../shared/i18n"
-import { eyeFor } from "../../shared/watch/detect"
-import { addBubbleAction, addLaterSection, addLaterSource, openLater } from "../ux/later"
+import { eyeFor, priceAround } from "../../shared/watch/detect"
+import { addBubbleAction, addLaterSection, addLaterSource } from "../ux/later"
 import { Eye } from "./icons"
 import { watchSource } from "./list"
+import { EyeTip, LaterTip } from "./tips"
 import { WatchSection } from "./WatchSection"
-
-// The window opened from the eye: its section counts the watch as made from the bubble.
-let fromEye = false
+import { openWatchSheet } from "./WatchSheet"
 
 /** The selection's paragraph or row: what a date or a status is read with (its own words aren't enough). */
 function aroundOf(range: Range | null): string {
@@ -52,16 +52,20 @@ const press = (action: () => void) => ({
 })
 
 if (TARGET === "safari") {
-  addLaterSection("watch", (ctx) => {
-    const how = fromEye ? "bubble" : "later"
-    fromEye = false
-    return <WatchSection key={`${ctx.url}|${ctx.selection ?? ""}`} url={ctx.url} title={ctx.title} selection={ctx.selection} how={how} close={ctx.close} remind={ctx.remind} />
-  })
+  addLaterSection("watch", (ctx) => (
+    <>
+      <LaterTip />
+      <WatchSection key={`${ctx.url}|${ctx.selection ?? ""}`} url={ctx.url} title={ctx.title} selection={ctx.selection} how="later" close={ctx.close} remind={ctx.remind} />
+    </>
+  ))
 
   addLaterSource("watch", watchSource)
 
   addBubbleAction("watch", (ctx) => {
-    if (!eyeFor(ctx.selection, aroundOf(ctx.range), eventMarkup())) return null
+    const around = aroundOf(ctx.range)
+    if (!eyeFor(ctx.selection, around, eventMarkup())) return null
+    // A tap on "40" in "USD 40" selects only the number: the eye watches the price as the page writes it.
+    const value = priceAround(ctx.selection, around) ?? ctx.selection
     return (
       <button
         type="button"
@@ -69,13 +73,15 @@ if (TARGET === "safari") {
         aria-label={t("watchEye")}
         title={t("watchEye")}
         {...press(() => {
-          fromEye = true
-          openLater({ selection: ctx.selection, range: ctx.range })
+          openWatchSheet({ url: ctx.url, title: ctx.title, selection: value, how: "bubble" })
+          // The page's selection goes, and with it the system's edit menu that would stay over the window.
+          document.getSelection()?.removeAllRanges()
           ctx.close()
         })}
       >
         <Eye size={16} />
         <span class="cf-sel-watch-l">{t("watchStart")}</span>
+        <EyeTip />
       </button>
     )
   })
