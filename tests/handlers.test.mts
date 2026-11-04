@@ -16,7 +16,7 @@ let counters = new Map<string, number>()
 let entitlements = new Map<string, Record<string, unknown>>()
 let events: { kind: string; install?: string | null; data: Record<string, unknown>; at: number }[] = []
 const OPENAI_MODELS = ["gpt-4o-mini", "gpt-4.1-mini", "gpt-5", "gpt-5-mini", "gpt-5-nano", "gpt-5.2", "gpt-5.2-mini", "gpt-5.2-pro", "gpt-5.2-2026-01-10", "o3"]
-let openai: { failModels: string[]; status?: number; listStatus?: number; answer: string; lastBody?: Record<string, unknown> } = { failModels: [], answer: "Hello world" }
+let openai: { failModels: string[]; status?: number; listStatus?: number; answer: string; finish?: string; lastBody?: Record<string, unknown> } = { failModels: [], answer: "Hello world" }
 const GEMINI_MODELS = ["gemini-2.5-flash", "gemini-3.6-flash", "gemini-3.8-flash", "gemini-3.5-flash-lite", "gemini-3-flash-preview", "gemini-3.8-flash-tts", "gemini-4-argon"]
 const GEMINI = "https://generativelanguage.googleapis.com/v1beta/models"
 const REDIRECT = "https://vertexaisearch.cloud.google.com/grounding-api-redirect/"
@@ -108,6 +108,7 @@ const rpc: Record<string, (args: Record<string, any>) => unknown> = {
   cf_usage_report: ({ p_days }) => ({ days: p_days, segments: [{ key: "ours", segment: "ai", requests: 3 }] }),
   cf_setup_funnel: () => [{ day: "2026-10-30", app_opened: 4, extension_on: 3, panel_opened: 2 }],
   cf_owner_insights: ({ p_days }) => ({ days: p_days, per_user: [{ plan: "free", users: 2, user_days: 3, asked_days: 2, requests: 4, max_per_day: 3 }] }),
+  cf_limits_report: ({ p_days }) => ({ days: p_days, rows: [{ key: "memory_window", hits: 74, base: 311, status: "systematic" }] }),
   cf_onboarding: () => ({ people: [{ day: "2026-11-01", device: "iPhone", kind: "app", ext: 300, panel: 420, answer: 540 }], open_reviews: [] }),
   cf_new_user_outcomes: () => [{ day: "2026-11-02", new: 12, limit_d0: 3, pro_bought: 2 }]
 }
@@ -119,8 +120,9 @@ function limitedBefore(install: string) {
     ["limit", "search"].includes(String(e.data.reason)) && e.at < today)
 }
 
-function sse(chunks: string[]): Response {
+function sse(chunks: string[], finish?: string): Response {
   const body = chunks.map((c) => `data: ${JSON.stringify({ choices: [{ delta: { content: c } }] })}\n\n`).join("") +
+    (finish ? `data: ${JSON.stringify({ choices: [{ delta: {}, finish_reason: finish }] })}\n\n` : "") +
     `data: ${JSON.stringify({ choices: [], usage: { prompt_tokens: 100, completion_tokens: 5 } })}\n\ndata: [DONE]\n\n`
   return new Response(body, { headers: { "Content-Type": "text/event-stream" } })
 }
@@ -163,7 +165,7 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     openai.lastBody = body
     if (openai.failModels.includes(body.model)) return new Response(`{"error":{"message":"The model ${body.model} does not exist"}}`, { status: 404 })
     if (openai.status) return new Response("overloaded", { status: openai.status })
-    return sse(openai.answer.split(" ").map((w, i) => (i ? ` ${w}` : w)))
+    return sse(openai.answer.split(" ").map((w, i) => (i ? ` ${w}` : w)), openai.finish)
   }
   if (url === `${GEMINI}?pageSize=1000`) {
     return new Response(JSON.stringify({ models: GEMINI_MODELS.map((id) => ({ name: `models/${id}`, supportedGenerationMethods: ["generateContent", "countTokens"] })) }), { headers: { "Content-Type": "application/json" } })
@@ -444,6 +446,48 @@ test("answer events record the analytics segment: our key, provider, Google or n
   assert.deepEqual([google.key, google.provider, google.mode, google.ok], ["ours", "gemini", "google", true])
 })
 
+test("answer events mark the limits they ran into and the chat's size (2.4)", async () => {
+  const one = async (body: Record<string, unknown>) => {
+    events.length = 0
+    counters.clear()
+    const c = ctx()
+    await (await chat(ask(body), c)).text()
+    await Promise.all(c.pending)
+    return events.find((e) => e.kind === "chat")!.data
+  }
+  // Nothing in the way: only the mark that the event carries the flags.
+  const plain = await one({})
+  assert.equal(plain.limits_v, 1)
+  assert.ok(!["page_cut", "history_cut", "other_pages_cut", "answer_cut", "chat_turns"].some((k) => k in plain))
+  // A page at its limit (the panel cuts it there), and a selection at its own.
+  assert.equal((await one({ page: { kind: "page", title: "T", url: "https://x.example", text: "a".repeat(24_000) } })).page_cut, true)
+  assert.equal((await one({ page: { kind: "selection", title: "T", url: "https://x.example", text: "a".repeat(12_000) } })).page_cut, true)
+  assert.equal((await one({ page: { kind: "page", title: "T", url: "https://x.example", text: "a".repeat(23_999) } })).page_cut, undefined)
+  // The server keeps the last 12 messages of a usual chat.
+  const long = Array.from({ length: 15 }, (_, i) => ({ role: i % 2 ? "assistant" : "user", content: `m${i}` }))
+  assert.equal((await one({ messages: long })).history_cut, true)
+  // "Whole chat": another page at the 8,000-character limit.
+  const whole = await one({ context: "chat", messages: [{ role: "user", content: "q" }], pages: [{ title: "O", url: "https://o.example", text: "b".repeat(8_000) }, { title: "P", url: "https://p.example", text: "short" }] })
+  assert.equal(whole.other_pages_cut, 1)
+  // The chat's size from 2.4; anything that isn't a whole number is dropped.
+  const sized = await one({ stats: { turns: 45, pages: 3, chats: 50 } })
+  assert.deepEqual([sized.chat_turns, sized.chat_pages, sized.chats], [45, 3, 50])
+  const junk = await one({ stats: { turns: -1, pages: "3", chats: 1.5 } })
+  assert.ok(!["chat_turns", "chat_pages", "chats"].some((k) => k in junk))
+  // The answer stopped at its length limit.
+  openai.finish = "length"
+  assert.equal((await one({})).answer_cut, true)
+  openai.finish = undefined
+})
+
+test("Ask your chats marks a digest that didn't fit", async () => {
+  const many = Array.from({ length: 70 }, (_, i) => ({ id: `c${i}`, title: `Chat ${i}`, date: "2026-10-30T10:00:00Z", text: "Q: something\nA: an answer" }))
+  const c = ctx()
+  await (await chat(askHistory({ entitlement: signJws(transaction()), history: many }), c)).text()
+  await Promise.all(c.pending)
+  assert.equal(events.find((e) => e.kind === "chat")!.data.digest_cut, true)
+})
+
 const report = (extra: Record<string, unknown> = {}) => post("/api/v2/usage", {
   installId: INSTALL,
   client: { version: "2.1.1", platform: "ios", locale: "en-US" },
@@ -489,19 +533,20 @@ test("admin usage report needs ADMIN_TOKEN", async () => {
   assert.equal(body.segments[0].requests, 3)
   assert.equal(body.setup_funnel[0].app_opened, 4)
   assert.deepEqual([body.insights.days, body.insights.per_user[0].requests], [180, 4])
+  assert.deepEqual([body.limits_report.days, body.limits_report.rows[0].key], [180, "memory_window"])
   assert.equal(body.onboarding.people[0].answer, 540)
   assert.deepEqual(body.new_outcomes[0], { day: "2026-11-02", new: 12, limit_d0: 3, pro_bought: 2 })
 })
 
-test("admin usage report still answers before cf_owner_insights, cf_onboarding and cf_new_user_outcomes exist", async () => {
+test("admin usage report still answers before cf_owner_insights, cf_limits_report, cf_onboarding and cf_new_user_outcomes exist", async () => {
   serverConfig.adminToken = "admin-test"
   const saved = { ...rpc }
-  for (const fn of ["cf_owner_insights", "cf_onboarding", "cf_new_user_outcomes"]) delete rpc[fn]
+  for (const fn of ["cf_owner_insights", "cf_limits_report", "cf_onboarding", "cf_new_user_outcomes"]) delete rpc[fn]
   try {
     const res = await adminUsage(new Request("https://aisidebar.netlify.app/api/v2/admin/usage", { headers: { Authorization: "Bearer admin-test" } }))
     assert.equal(res.status, 200)
     const body = await res.json()
-    assert.deepEqual([body.segments[0].requests, body.insights, body.onboarding, body.new_outcomes], [3, null, null, null])
+    assert.deepEqual([body.segments[0].requests, body.insights, body.limits_report, body.onboarding, body.new_outcomes], [3, null, null, null, null])
   } finally {
     Object.assign(rpc, saved)
   }

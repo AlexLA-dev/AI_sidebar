@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk"
 
 import { newestClaudeModel, type ModelTier } from "../shared/models"
+import { pageForModel } from "../shared/attachments"
 import { otherPagesOf, systemPrompt } from "../shared/prompt"
 import { STORAGE, type AskPayload, type OwnKeyUsage, type StreamEvent } from "../shared/types"
 
@@ -55,7 +56,7 @@ export async function askClaude(
     const params = {
       model,
       max_tokens: 16000,
-      system: systemPrompt(payload.page, profile, locale, otherPagesOf(payload)),
+      system: systemPrompt(payload.page && pageForModel(payload.page, true), profile, locale, otherPagesOf(payload)),
       messages: payload.messages,
       // Short answers about a page: low effort keeps thinking brief and the reply quick.
       output_config: { effort: "low" as const }

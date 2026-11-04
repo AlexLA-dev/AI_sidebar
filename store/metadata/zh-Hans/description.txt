@@ -33,5 +33,5 @@ AI 可能会出错。请核实重要信息。
 
 除非在当前订阅期结束前至少 24 小时取消，否则订阅将自动续订。费用将通过你的 Apple 账户收取。你可以随时在 App Store 账户设置中管理或取消订阅。
 
-使用条款：https://aisidebar.netlify.app/terms
-隐私政策：https://aisidebar.netlify.app/privacy
+使用条款：https://context-flow.app/terms
+隐私政策：https://context-flow.app/privacy

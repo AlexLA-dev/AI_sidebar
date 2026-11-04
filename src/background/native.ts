@@ -38,5 +38,13 @@ export interface NativeEntitlement {
   active: boolean
   productId: string | null
   expiresAt: string | null
+  // Whether it renews (2.4; missing: not known), this subscription period, and whether the question about
+  // turning auto-renew off was asked in this period already (in the app or the panel).
+  autoRenew?: boolean
+  period?: string
+  renewalAsked?: boolean
+  // Own key: the first refusal this period (ms; in the app or the panel) and whether the discount was shown.
+  byokRefusedAt?: number
+  byokOfferShown?: boolean
   jws: string | null
 }

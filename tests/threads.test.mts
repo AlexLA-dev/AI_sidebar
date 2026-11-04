@@ -3,15 +3,30 @@ import { test } from "node:test"
 
 import type { Entry } from "../src/shared/conversation.ts"
 import {
+  applyAppChanges,
   applyRemote,
+  allTags,
   chatList,
+  cleanTag,
+  cleanTags,
   cleanTitle,
+  groupByTag,
+  hasTag,
+  MAX_TAG,
+  tagColor,
+  threadTags,
+  withMessages,
+  foldText,
   liveThreads,
+  markMirrored,
   markSent,
   MAX_THREADS,
+  mirrorChanges,
   pendingChanges,
   pinAt,
   prune,
+  queryWords,
+  searchThreads,
   shownThread,
   threadForCloud,
   threadFromCloud,
@@ -21,10 +36,12 @@ import {
   threadSite,
   threadSnippet,
   threadTitle,
+  type Thread,
   type Threads
 } from "../src/shared/threads.ts"
 
 const page = { url: "https://www.news.example/a", title: "Article A" }
+const q = (content: string): Entry => ({ role: "user", content, page })
 const chat = (q: string, a: string, extra: Partial<Entry> = {}): Entry[] => [
   { role: "user", content: q, page, ...extra },
   { role: "assistant", content: a }
@@ -176,4 +193,144 @@ test("a chat lists its pages once each and counts its notes", () => {
   ]
   assert.deepEqual(threadPages(m), [a, b])
   assert.equal(threadNotes(m), 1)
+})
+
+test("mirrorChanges: every live chat newer than the app's copy, deletions of what the app has", () => {
+  const threads: Threads = {
+    a: { id: "a", u: 10, m: [q("one")] },
+    b: { id: "b", u: 20, m: [q("two")], title: "Named" },
+    c: { id: "c", u: 30, m: [], deleted: true },
+    e: { id: "e", u: 5, m: [] }
+  }
+  const out = mirrorChanges(threads, { a: 10, c: 25, gone: 3 })
+  assert.deepEqual(out.filter((x) => "deleted" in x).map((x) => x.id).sort(), ["c", "gone"])
+  const saves = out.filter((x) => !("deleted" in x)) as Array<{ id: string; updatedAt: number; data: string }>
+  assert.deepEqual(saves.map((x) => x.id), ["b"])
+  assert.equal(JSON.parse(saves[0].data).title, "Named")
+  assert.deepEqual(markMirrored({ a: 10, c: 25, gone: 3 }, out), { a: 10, b: 20 })
+})
+
+test("mirrorChanges: big chats go over several calls", () => {
+  const big = (id: string, u: number): Thread => ({ id, u, m: [q("x".repeat(5_000))] })
+  const threads: Threads = { a: big("a", 1), b: big("b", 2), c: big("c", 3) }
+  const first = mirrorChanges(threads, {}, 11_000)
+  assert.equal(first.length, 2)
+  const rest = mirrorChanges(threads, markMirrored({}, first), 11_000)
+  assert.equal(rest.length, 1)
+  assert.equal(mirrorChanges(threads, markMirrored(markMirrored({}, first), rest), 11_000).length, 0)
+})
+
+test("applyAppChanges: newer copies from the app win; deletions keep a tombstone only for iCloud's chats", () => {
+  const threads: Threads = {
+    a: { id: "a", u: 10, m: [q("one")] },
+    b: { id: "b", u: 50, m: [q("two")] },
+    c: { id: "c", u: 10, m: [q("three")] },
+    d: { id: "d", u: 10, m: [q("four")] }
+  }
+  const renamed = threadForCloud({ id: "a", u: 20, m: [q("one")], title: "Renamed", pin: 0 })
+  const stale = threadForCloud({ id: "b", u: 40, m: [q("two")], title: "Old" })
+  const { threads: next, changed } = applyAppChanges(threads, { c: 10 }, [
+    { id: "a", updatedAt: 20, data: renamed },
+    { id: "b", updatedAt: 40, data: stale },
+    { id: "c", deleted: true },
+    { id: "d", deleted: true },
+    { id: "missing", deleted: true }
+  ], 99)
+  assert.ok(changed)
+  assert.equal(next.a.title, "Renamed")
+  assert.equal(next.a.pin, 0)
+  assert.equal(next.a.u, 20)
+  assert.equal(next.b.title, undefined)
+  assert.deepEqual(next.c, { id: "c", u: 99, m: [], deleted: true })
+  assert.equal(next.d, undefined)
+  assert.equal(applyAppChanges(next, {}, [{ id: "a", updatedAt: 20, data: renamed }]).changed, false)
+})
+
+test("searchThreads: every word, accents and case ignored, named chats first, excerpts marked", () => {
+  const threads: Thread[] = [
+    { id: "a", u: 30, a: 30, m: [q("Что такое ёлка?"), { role: "assistant", content: "**Ёлка** — хвойное дерево, растёт в лесу." }] },
+    { id: "b", u: 20, a: 20, m: [q("Café prices in Paris"), { role: "assistant", content: "A coffee costs about 3 €." }], title: "Paris trip" },
+    { id: "c", u: 10, a: 10, m: [q("tell me about paris"), { role: "assistant", content: "Paris is the capital of France. Cafes are everywhere." }] }
+  ]
+  assert.deepEqual(searchThreads(threads, "елка").map((r) => r.thread.id), ["a"])
+  assert.deepEqual(searchThreads(threads, "PARIS").map((r) => r.thread.id), ["b", "c"])
+  assert.deepEqual(searchThreads(threads, "cafe paris").map((r) => r.thread.id), ["b", "c"])
+  assert.deepEqual(searchThreads(threads, "paris london"), [])
+  assert.deepEqual(searchThreads(threads, "   "), [])
+  const [hit] = searchThreads(threads, "хвойное").find((r) => r.thread.id === "a")!.hits
+  assert.equal(hit.at, 1)
+  assert.ok(!hit.excerpt.includes("**"))
+  const [s, e] = hit.marks[0]
+  assert.equal(foldText(hit.excerpt.slice(s, e)), "хвойное")
+  // A page title counts too.
+  assert.deepEqual(searchThreads(threads, "news.example").map((r) => r.thread.id), ["a", "b", "c"])
+  assert.deepEqual(queryWords('"capital of" France'), ["capital of", "france"])
+})
+
+test("tags: cleaned, kept through iCloud, found by search, grouped like folders", () => {
+  assert.equal(cleanTag("  ##Work   stuff "), "Work stuff")
+  assert.deepEqual(cleanTags(["Work", "work", " #AI ", "", 5, "x".repeat(40)]), ["Work", "AI", "x".repeat(MAX_TAG)])
+
+  const a: Thread = { id: "a", u: 3, a: 3, tags: ["Work"], m: [q("Plan"), { role: "assistant", content: "Do X", tags: ["Ideas"] }] }
+  const b: Thread = { id: "b", u: 2, a: 2, m: [q("Recipe"), { role: "assistant", content: "Pasta" }] }
+  const c: Thread = { id: "c", u: 1, a: 1, tags: ["work"], m: [q("Report"), { role: "assistant", content: "Fine" }] }
+  assert.deepEqual(threadTags(a), ["Work", "Ideas"])
+  assert.deepEqual(allTags([a, b, c]), [{ tag: "Work", count: 2 }, { tag: "Ideas", count: 1 }])
+  assert.ok(hasTag(c, "WORK") && !hasTag(b, "work"))
+  assert.deepEqual(groupByTag([a, b, c]).map((g) => [g.tag, g.threads.map((t) => t.id)]), [["Work", ["a", "c"]], ["Ideas", ["a"]], [null, ["b"]]])
+
+  const back = threadFromCloud(threadForCloud(a))
+  assert.deepEqual(back?.tags, ["Work"])
+  assert.deepEqual(back?.m[1].tags, ["Ideas"])
+  assert.equal(threadFromCloud(threadForCloud(b))?.tags, undefined)
+
+  assert.deepEqual(searchThreads([a, b, c], "ideas").map((r) => r.thread.id), ["a"])
+  assert.deepEqual(searchThreads([a, b, c], "#work").map((r) => r.thread.id), ["a", "c"])
+  assert.ok(tagColor("Work") === tagColor("work") && tagColor("Work") >= 0 && tagColor("Work") < 8)
+})
+
+test("withMessages: a new message keeps the chat's name, pin, tags and kind", () => {
+  const stored: Thread = { id: "a", u: 1, a: 1, title: "Mine", pin: 0, tags: ["Work"], kind: "history", m: [q("one")] }
+  const next = withMessages(stored, "a", [q("one"), q("two")], 5)
+  assert.deepEqual(next, { id: "a", u: 5, a: 5, m: [q("one"), q("two")], title: "Mine", pin: 0, tags: ["Work"], kind: "history" })
+  assert.deepEqual(withMessages({ id: "a", u: 1, m: [], deleted: true, tags: ["x"] }, "a", [q("new")], 6), { id: "a", u: 6, a: 6, m: [q("new")] })
+  assert.equal(withMessages(undefined, "b", [q("x")], 7, "history").kind, "history")
+})
+
+test("threadForCloud drops the oldest page texts before any message", () => {
+  const text = "x".repeat(3_000)
+  const m: Entry[] = [
+    { role: "user", content: "q1", page: { url: "https://a.example", title: "A", hash: "1", text } },
+    { role: "assistant", content: "a1" },
+    { role: "user", content: "q2", page: { url: "https://b.example", title: "B", hash: "2", text } },
+    { role: "assistant", content: "a2" }
+  ]
+  const fits = (max: number) => threadFromCloud(threadForCloud({ id: "t", u: 5, a: 5, m }, max))!.m
+  assert.deepEqual(fits(100_000), m)
+  // Room for one text: page A's goes, all four messages stay.
+  const one = fits(4_500)
+  assert.equal(one.length, 4)
+  assert.equal(one[0].page?.text, undefined)
+  assert.equal(one[0].page?.url, "https://a.example")
+  assert.equal(one[2].page?.text, text)
+  // No room for texts: then messages go, the oldest first.
+  const none = fits(150)
+  assert.ok(none.every((e) => !e.page?.text))
+  assert.ok(none.length < 4)
+  assert.equal(none.at(-1)?.content, "a2")
+})
+
+test("prune keeps page texts within the device's budget, the latest chats first", () => {
+  const chat = (id: string, a: number, chars: number): Thread => ({
+    id, u: a, a, m: [{ role: "user", content: id, page: { url: `https://${id}.example`, title: id, hash: id, text: "x".repeat(chars) } }]
+  })
+  const threads = { old: chat("old", 1, 600), mid: chat("mid", 2, 500), new: chat("new", 3, 400) }
+  const out = prune(threads, 10, 1_000)
+  assert.equal(out.new.m[0].page?.text?.length, 400)
+  assert.equal(out.mid.m[0].page?.text?.length, 500)
+  // Over the budget: the oldest chat keeps its messages and page, not the text; its time stays.
+  assert.equal(out.old.m[0].page?.text, undefined)
+  assert.equal(out.old.m[0].page?.url, "https://old.example")
+  assert.equal(out.old.u, 1)
+  assert.deepEqual(prune(threads, 10), threads)
 })

@@ -1,7 +1,8 @@
 // Chats as threads: several conversations, each continued from any page, tab or device until the
 // user starts a new one. Pure helpers shared by the content script, the background and tests.
 
-import { entriesFrom, stripCitations, type Entry } from "./conversation.ts"
+import { entriesFrom, stripCitations, withoutText, type Entry } from "./conversation.ts"
+import type { ChatDigest } from "./history.ts"
 
 export interface Thread {
   id: string
@@ -10,6 +11,8 @@ export interface Thread {
   a?: number // last message (ms): the list order; renaming changes `u` only (missing = `u`)
   title?: string // set by the user; otherwise the first question names the chat
   pin?: number // pinned: its place among the pinned chats at the top of the list (lower first)
+  kind?: "history" // "Ask your chats" (Pro): questions about all the other chats, not a page
+  tags?: string[] // the user's tags for the chat (answers and notes have their own, on the entry)
   deleted?: boolean // kept until iCloud knows, so the deletion reaches the other devices
 }
 
@@ -26,8 +29,11 @@ export type CloudChange = { id: string; updatedAt: number; data: string } | { id
 
 export const MAX_THREADS = 50
 export const MAX_TITLE = 80
-// Per thread: many threads come down in one sync, so they stay well under a CloudKit record's 1 MB.
-const CLOUD_MAX_CHARS = 120_000
+// Per thread: many threads come down in one sync, so they stay well under a CloudKit record's 1 MB
+// (room for the messages and the texts of 10 pages).
+const CLOUD_MAX_CHARS = 200_000
+// Page texts kept on this device across all chats; beyond it the older chats keep theirs only in iCloud.
+export const MAX_SAVED_TEXT_CHARS = 2_000_000
 
 export function newThreadId(): string {
   return crypto.randomUUID()
@@ -113,13 +119,41 @@ function oneLine(text: string, max: number): string {
   return line.length > max ? `${line.slice(0, max - 1).trimEnd()}…` : line
 }
 
-/** Keeps pinned threads and the newest MAX_THREADS; older ones become deletions so iCloud drops them too. */
-export function prune(threads: Threads, now = Date.now()): Threads {
-  const keep = new Set(chatList(threads).slice(0, MAX_THREADS).map((t) => t.id))
+/**
+ * The thread with new messages as of `now`: its name, pin, tags and kind stay (a deleted thread
+ * comes back as a new one). `kind` marks a new "Ask your chats" thread.
+ */
+export function withMessages(stored: Thread | undefined, id: string, m: Entry[], now: number, kind?: "history"): Thread {
+  const keep = stored && !stored.deleted ? stored : undefined
+  const keptKind = keep?.kind ?? kind
+  return {
+    id, u: now, a: now, m,
+    ...(keep?.title ? { title: keep.title } : {}),
+    ...(keep?.pin !== undefined ? { pin: keep.pin } : {}),
+    ...(keep?.tags?.length ? { tags: keep.tags } : {}),
+    ...(keptKind ? { kind: keptKind } : {})
+  }
+}
+
+/**
+ * Keeps pinned threads and the newest MAX_THREADS; older ones become deletions so iCloud drops them too.
+ * Page texts stay within `maxText` characters on this device, the pinned and latest chats first.
+ */
+export function prune(threads: Threads, now = Date.now(), maxText = MAX_SAVED_TEXT_CHARS): Threads {
+  const list = chatList(threads)
+  const keep = new Set(list.slice(0, MAX_THREADS).map((t) => t.id))
   const out: Threads = {}
   for (const t of Object.values(threads)) {
     if (t.deleted || keep.has(t.id) || t.m.length === 0) out[t.id] = t
     else out[t.id] = { id: t.id, u: now, m: [], deleted: true }
+  }
+  let size = 0
+  for (const t of list) {
+    if (!keep.has(t.id)) continue
+    const text = t.m.reduce((n, e) => n + (e.page?.text?.length ?? 0), 0)
+    // Only this device's copy changes (its time stays): iCloud keeps the texts it has.
+    if (text && size + text > maxText) out[t.id] = { ...t, m: t.m.map(withoutText) }
+    else size += text
   }
   return out
 }
@@ -142,25 +176,28 @@ export function pendingChanges(threads: Threads, synced: Record<string, number>)
 
 /**
  * A thread as iCloud stores it: JSON with its messages and, when set, its name and the time of its
- * last message, dropping the oldest messages if it would not fit.
+ * last message. If it would not fit, the oldest page texts go first, then the oldest messages.
  */
 export function threadForCloud(thread: Thread, maxChars = CLOUD_MAX_CHARS): string {
   const meta = {
     ...(thread.title ? { title: thread.title } : {}),
     ...(thread.a !== undefined && thread.a !== thread.u ? { a: thread.a } : {}),
-    ...(thread.pin !== undefined ? { pin: thread.pin } : {})
+    ...(thread.pin !== undefined ? { pin: thread.pin } : {}),
+    ...(thread.kind ? { k: thread.kind } : {}),
+    ...(thread.tags?.length ? { tags: thread.tags } : {})
   }
-  let start = 0
-  let data = JSON.stringify({ ...meta, m: thread.m })
-  while (data.length > maxChars && start < thread.m.length) {
-    start += 1
-    data = JSON.stringify({ ...meta, m: thread.m.slice(start) })
+  let m = thread.m
+  let data = JSON.stringify({ ...meta, m })
+  while (data.length > maxChars && m.length) {
+    const oldest = m.findIndex((e) => e.page?.text)
+    m = oldest >= 0 ? m.map((e, i) => (i === oldest ? withoutText(e) : e)) : m.slice(1)
+    data = JSON.stringify({ ...meta, m })
   }
   return data
 }
 
 /** A thread read back from iCloud (2.3 build 56 stored just the messages), or null if it isn't one. */
-export function threadFromCloud(data: string): Pick<Thread, "m" | "a" | "title" | "pin"> | null {
+export function threadFromCloud(data: string): Pick<Thread, "m" | "a" | "title" | "pin" | "kind" | "tags"> | null {
   let parsed: unknown
   try {
     parsed = JSON.parse(data)
@@ -172,14 +209,16 @@ export function threadFromCloud(data: string): Pick<Thread, "m" | "a" | "title" 
     return m && { m }
   }
   if (parsed === null || typeof parsed !== "object") return null
-  const { m: raw, a, title, pin } = parsed as Record<string, unknown>
+  const { m: raw, a, title, pin, k, tags } = parsed as Record<string, unknown>
   const m = entriesFrom(raw)
   if (!m) return null
   return {
     m,
     ...(typeof a === "number" ? { a } : {}),
     ...(typeof title === "string" && title.trim() ? { title: cleanTitle(title) } : {}),
-    ...(typeof pin === "number" && Number.isFinite(pin) ? { pin } : {})
+    ...(typeof pin === "number" && Number.isFinite(pin) ? { pin } : {}),
+    ...(k === "history" ? { kind: "history" as const } : {}),
+    ...(Array.isArray(tags) && cleanTags(tags).length ? { tags: cleanTags(tags) } : {})
   }
 }
 
@@ -239,4 +278,257 @@ export function shownThread(threads: Threads, active: ActiveThread): { id: strin
   const latest = liveThreads(threads)[0]
   if (latest && latest.id !== active.id && activity(latest) > Math.max(active.at, own ? activity(own) : 0)) return { id: latest.id, m: latest.m }
   return { id: active.id, m: own?.m ?? [] }
+}
+
+// ------------------------------------------------------------ the copy the ContextFlow app reads
+
+/**
+ * What the app's copy of the chats (App Group, see ChatMirror.swift) lacks: threads changed since
+ * `mirrored` (the time of each thread the app has), and deletions of threads it has that are gone here.
+ * Unlike iCloud, the app gets every chat, synced or not, at most `maxChars` of data in one go.
+ */
+export function mirrorChanges(threads: Threads, mirrored: Record<string, number>, maxChars = 900_000): CloudChange[] {
+  const out: CloudChange[] = []
+  let size = 0
+  for (const id of Object.keys(mirrored)) {
+    const t = threads[id]
+    if (!t || t.deleted || t.m.length === 0) out.push({ id, deleted: true })
+  }
+  for (const t of liveThreads(threads)) {
+    if (t.u <= (mirrored[t.id] ?? 0)) continue
+    const data = threadForCloud(t)
+    if (size > 0 && size + data.length > maxChars) break
+    size += data.length
+    out.push({ id: t.id, updatedAt: t.u, data })
+  }
+  return out
+}
+
+/** After the app has `sent`: the time of each thread it now has. */
+export function markMirrored(mirrored: Record<string, number>, sent: CloudChange[]): Record<string, number> {
+  const next = { ...mirrored }
+  for (const c of sent) {
+    if ("deleted" in c) delete next[c.id]
+    else next[c.id] = c.updatedAt
+  }
+  return next
+}
+
+/**
+ * Changes made in the ContextFlow app (renamed, pinned, deleted chats): a newer copy replaces this
+ * one; a deletion keeps a tombstone for a thread iCloud has, so the other devices hear about it.
+ * Unlike applyRemote, iCloud doesn't have these yet: they go up with the next sync.
+ */
+export function applyAppChanges(threads: Threads, synced: Record<string, number>, changes: CloudChange[], now = Date.now()): { threads: Threads; changed: boolean } {
+  const next = { ...threads }
+  let changed = false
+  for (const c of changes) {
+    const local = next[c.id]
+    if ("deleted" in c) {
+      if (!local || local.deleted) continue
+      if (c.id in synced) next[c.id] = { id: c.id, u: now, m: [], deleted: true }
+      else delete next[c.id]
+      changed = true
+      continue
+    }
+    if (local && local.u >= c.updatedAt) continue
+    const app = threadFromCloud(c.data)
+    if (!app) continue
+    next[c.id] = { id: c.id, u: c.updatedAt, ...app }
+    changed = true
+  }
+  return { threads: next, changed }
+}
+
+// ------------------------------------------------------------ search
+
+/** Where a chat matched a search: the chat's name, a message, or a page it was on. */
+export interface SearchHit {
+  // The message (index in the chat), or -1 for the name, -2 for a page.
+  at: number
+  // A short excerpt around the first matched word, and where the words are in it.
+  excerpt: string
+  marks: Array<[number, number]>
+}
+
+export interface SearchResult {
+  thread: Thread
+  hits: SearchHit[]
+}
+
+/**
+ * Folded for matching, the same length as `text` (positions carry over to the original): lower case,
+ * Latin letters without accents (é → e), ё → е, any space a plain space.
+ */
+export function foldText(text: string): string {
+  let out = ""
+  for (const ch of text) {
+    let f = /\s/.test(ch) ? " " : ch.toLowerCase()
+    if (/[À-ɏ]/.test(f)) f = f.normalize("NFD").replace(/[̀-ͯ]/g, "")
+    if (f === "ё") f = "е"
+    out += f.length === ch.length ? f : ch
+  }
+  return out
+}
+
+/** The words of a query (quotes keep a phrase together). */
+export function queryWords(query: string): string[] {
+  const words: string[] = []
+  for (const m of foldText(query).matchAll(/"([^"]+)"|(\S+)/g)) {
+    const word = (m[1] ?? m[2]).trim()
+    if (word) words.push(word)
+  }
+  return words
+}
+
+/** An excerpt of `text` around `start`, at most `size` long, with the words in it marked. */
+function excerpt(text: string, folded: string, words: string[], start: number, size = 120): Omit<SearchHit, "at"> {
+  const from = Math.max(0, Math.min(start - Math.floor(size / 3), text.length - size))
+  const to = Math.min(text.length, from + size)
+  const lead = from > 0 ? "…" : ""
+  const piece = text.slice(from, to).replace(/\s/g, " ")
+  const marks: Array<[number, number]> = []
+  const window = folded.slice(from, to)
+  for (const word of words) {
+    let i = window.indexOf(word)
+    while (i >= 0) {
+      marks.push([lead.length + i, lead.length + i + word.length])
+      i = window.indexOf(word, i + word.length)
+    }
+  }
+  marks.sort((a, b) => a[0] - b[0])
+  return { excerpt: lead + piece + (to < text.length ? "…" : ""), marks }
+}
+
+const plain = (text: string) => stripCitations(text).replace(/[*_`#>|]+/g, "")
+
+/**
+ * Chats with every word of `query` (in its name, messages, notes or page titles together), the best
+ * first: those named after it, then those where the words meet in one message; then by recent activity.
+ * Each comes with up to `maxHits` places that matched.
+ */
+export function searchThreads(threads: Thread[], query: string, maxHits = 3): SearchResult[] {
+  const words = queryWords(query)
+  if (!words.length) return []
+  const scored: Array<{ result: SearchResult; score: number }> = []
+  for (const thread of threads) {
+    const name = threadName(thread)
+    const fields: Array<{ at: number; text: string }> = [{ at: -1, text: name }]
+    thread.m.forEach((e, i) => fields.push({ at: i, text: plain(e.label ? `${e.label} ${e.content}` : e.content) }))
+    for (const page of threadPages(thread.m)) fields.push({ at: -2, text: `${page.title} ${page.url}` })
+    const tags = threadTags(thread)
+    if (tags.length) fields.push({ at: -3, text: tags.map((tag) => `#${tag}`).join(" ") })
+    const folded = fields.map((f) => foldText(f.text))
+    // Every word somewhere in the chat.
+    if (!words.every((w) => folded.some((f) => f.includes(w)))) continue
+    const hits: SearchHit[] = []
+    let named = 0
+    let together = false
+    fields.forEach((field, i) => {
+      const present = words.filter((w) => folded[i].includes(w))
+      if (!present.length) return
+      if (field.at === -1) named = present.length
+      if (present.length === words.length) together = true
+      // The first question is already the chat's name in the list.
+      if (hits.length < maxHits && field.at !== -1 && field.text.replace(/\s+/g, " ").trim() !== name) {
+        const first = Math.min(...present.map((w) => folded[i].indexOf(w)))
+        hits.push({ at: field.at, ...excerpt(field.text, folded[i], present, first) })
+      }
+    })
+    scored.push({ result: { thread, hits }, score: named * 100 + (together ? 10 : 0) })
+  }
+  return scored.sort((a, b) => b.score - a.score || activity(b.result.thread) - activity(a.result.thread)).map((s) => s.result)
+}
+
+// ------------------------------------------------------------ digests for the Pro features
+
+/**
+ * The chats as the model gets them for "Ask your chats" and AI search (src/shared/history.ts): newest
+ * first, "Ask your chats" chats left out, each with its pages, questions, answers and notes, cut to
+ * `perChat` characters (`perAnswer` per answer), all together at most `total`.
+ */
+export function chatDigests(threads: Thread[], opts: { perChat: number; perAnswer: number; total: number }): ChatDigest[] {
+  const out: ChatDigest[] = []
+  let size = 0
+  for (const thread of liveThreads(Object.fromEntries(threads.map((t) => [t.id, t])))) {
+    if (thread.kind === "history") continue
+    const lines: string[] = []
+    const pages = threadPages(thread.m)
+    if (pages.length) lines.push(`Pages: ${pages.map((p) => `${p.title || p.url} (${p.url})`).join("; ")}`)
+    for (const e of thread.m) {
+      const text = stripCitations(e.content).replace(/\s+/g, " ").trim()
+      if (e.note) lines.push(`Note: ${text.slice(0, opts.perAnswer)}`)
+      else if (e.role === "user") lines.push(`Q: ${(e.label ?? text).slice(0, 300)}`)
+      else lines.push(`A: ${text.slice(0, opts.perAnswer)}${text.length > opts.perAnswer ? "…" : ""}`)
+    }
+    let text = lines.join("\n").slice(0, opts.perChat)
+    if (size + text.length > opts.total) text = text.slice(0, Math.max(0, opts.total - size))
+    if (text.length < 40) break
+    size += text.length
+    out.push({ id: thread.id, title: threadName(thread), date: new Date(activity(thread)).toISOString(), text })
+  }
+  return out
+}
+
+// ------------------------------------------------------------ tags
+
+export const MAX_TAG = 24
+const MAX_TAGS = 8
+
+/** A tag as typed, cleaned: no leading #, one space between words, at most MAX_TAG characters. */
+export function cleanTag(text: string): string {
+  return text.replace(/\s+/g, " ").trim().replace(/^#+\s*/, "").slice(0, MAX_TAG).trim()
+}
+
+/** Tags cleaned and without repeats (case ignored, the first spelling kept), at most MAX_TAGS. */
+export function cleanTags(raw: unknown[]): string[] {
+  const out: string[] = []
+  for (const item of raw) {
+    const tag = typeof item === "string" ? cleanTag(item) : ""
+    if (tag && !out.some((t) => t.toLowerCase() === tag.toLowerCase())) out.push(tag)
+  }
+  return out.slice(0, MAX_TAGS)
+}
+
+/** The chat's tags and those of its answers and notes, without repeats. */
+export function threadTags(thread: Thread): string[] {
+  return cleanTags([...(thread.tags ?? []), ...thread.m.flatMap((e) => e.tags ?? [])])
+}
+
+/** Every tag in use, the most used first (then by name), each with how many chats have it. */
+export function allTags(threads: Thread[]): Array<{ tag: string; count: number }> {
+  const counts = new Map<string, { tag: string; count: number }>()
+  for (const thread of threads) {
+    for (const tag of threadTags(thread)) {
+      const key = tag.toLowerCase()
+      const hit = counts.get(key)
+      if (hit) hit.count += 1
+      else counts.set(key, { tag, count: 1 })
+    }
+  }
+  return [...counts.values()].sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag))
+}
+
+/** True when the chat (or one of its answers or notes) has `tag`. */
+export function hasTag(thread: Thread, tag: string): boolean {
+  const key = tag.toLowerCase()
+  return threadTags(thread).some((t) => t.toLowerCase() === key)
+}
+
+/**
+ * The list in groups by tag, like folders: each tag in use (in allTags order) with its chats in list
+ * order, then the chats without tags. A chat with two tags is in both groups.
+ */
+export function groupByTag(threads: Thread[]): Array<{ tag: string | null; threads: Thread[] }> {
+  const groups: Array<{ tag: string | null; threads: Thread[] }> = allTags(threads).map(({ tag }) => ({ tag, threads: threads.filter((t) => hasTag(t, tag)) }))
+  const untagged = threads.filter((t) => threadTags(t).length === 0)
+  if (untagged.length) groups.push({ tag: null, threads: untagged })
+  return groups
+}
+
+/** A colour for a tag (one of 8), the same everywhere for the same name. */
+export function tagColor(tag: string): number {
+  let hash = 0
+  for (const ch of tag.toLowerCase()) hash = (hash * 31 + ch.codePointAt(0)!) >>> 0
+  return hash % 8
 }

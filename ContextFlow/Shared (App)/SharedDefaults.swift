@@ -1,4 +1,5 @@
 import Foundation
+import StoreKit
 
 /// State shared between the ContextFlow app and its Safari extension
 /// (App Group `group.com.contextflow.shared`):
@@ -19,15 +20,43 @@ struct SharedEntitlement: Equatable {
     var expiresAt: Date?
     var jws: String?
     var updatedAt: Date
+    /// Whether the subscription renews at `expiresAt` (nil: not known).
+    var autoRenew: Bool? = nil
 
     static let none = SharedEntitlement(active: false, productId: nil, expiresAt: nil, jws: nil, updatedAt: .distantPast)
+
+    /// This subscription period: the question about turning auto-renew off is asked once in each.
+    var period: String {
+        "\(productId ?? "")|\(Int(expiresAt?.timeIntervalSince1970 ?? 0))"
+    }
 
     var dictionary: [String: Any] {
         var result: [String: Any] = ["active": active]
         if let productId { result["productId"] = productId }
         if let expiresAt { result["expiresAt"] = ISO8601DateFormatter().string(from: expiresAt) }
         if let jws { result["jws"] = jws }
+        if productId != nil { result["period"] = period }
+        if let autoRenew {
+            result["autoRenew"] = autoRenew
+            result["renewalAsked"] = SharedDefaults.shared.renewalAsked(period)
+        }
+        if productId == "com.contextflow.byok.monthly" {
+            if let at = SharedDefaults.shared.byokRefusedAt(period) { result["byokRefusedAt"] = Int64(at.timeIntervalSince1970 * 1000) }
+            result["byokOfferShown"] = SharedDefaults.shared.byokOfferShown(period)
+        }
         return result
+    }
+
+    /// Whether the subscription of `transaction` renews, from StoreKit (nil when it can't tell).
+    static func autoRenew(of transaction: StoreKit.Transaction) async -> Bool? {
+        guard let group = transaction.subscriptionGroupID,
+              let statuses = try? await Product.SubscriptionInfo.status(for: group) else { return nil }
+        for status in statuses {
+            guard case .verified(let renewal) = status.renewalInfo,
+                  renewal.originalTransactionID == transaction.originalID else { continue }
+            return renewal.willAutoRenew
+        }
+        return nil
     }
 }
 
@@ -40,8 +69,12 @@ final class SharedDefaults {
     private let settingsKey = "cf_settings_v1"
     private let reviewMomentKey = "cf_review_moment_v1"
     private let reviewAskedKey = "cf_review_asked_v1"
+    private let appAnswersKey = "cf_app_answers_v1"
     private let extensionKey = "cf_extension_v1"
     private let appKey = "cf_app_v1"
+    private let renewalAskedKey = "cf_renewal_asked_v1"
+    private let byokRefusedKey = "cf_byok_refused_v1"
+    private let byokOfferShownKey = "cf_byok_offer_shown_v1"
 
     /// Local notifications the app schedules on a new install until the extension is switched on.
     static let setupReminderIds = ["cf.setup.15m", "cf.setup.24h"]
@@ -58,6 +91,7 @@ final class SharedDefaults {
         if let productId = value.productId { stored["productId"] = productId }
         if let expiresAt = value.expiresAt { stored["expiresAt"] = expiresAt.timeIntervalSince1970 }
         if let jws = value.jws { stored["jws"] = jws }
+        if let autoRenew = value.autoRenew { stored["autoRenew"] = autoRenew }
         defaults.set(stored, forKey: entitlementKey)
     }
 
@@ -73,8 +107,45 @@ final class SharedDefaults {
             productId: stored["productId"] as? String,
             expiresAt: expires,
             jws: stored["jws"] as? String,
-            updatedAt: Date(timeIntervalSince1970: stored["updatedAt"] as? Double ?? 0)
+            updatedAt: Date(timeIntervalSince1970: stored["updatedAt"] as? Double ?? 0),
+            autoRenew: stored["autoRenew"] as? Bool
         )
+    }
+
+    // MARK: The question when auto-renew is off
+
+    /// Asked (answered or put off) in the app or the panel for this subscription period.
+    func renewalAsked(_ period: String) -> Bool {
+        defaults.string(forKey: renewalAskedKey) == period
+    }
+
+    func markRenewalAsked(_ period: String) {
+        defaults.set(period, forKey: renewalAskedKey)
+    }
+
+    // MARK: Own key → Pro
+
+    /// The Own key subscriber's first refusal in this period (a limit, or a Pro-only feature), in the app or the
+    /// panel: a day later Pro at a discount is offered.
+    func byokRefusedAt(_ period: String) -> Date? {
+        guard let stored = defaults.dictionary(forKey: byokRefusedKey), stored["period"] as? String == period,
+              let at = stored["at"] as? Double else { return nil }
+        return Date(timeIntervalSince1970: at)
+    }
+
+    /// Keeps the first refusal of the period.
+    func markByokRefused(_ period: String, at: Date = Date()) {
+        guard byokRefusedAt(period) == nil else { return }
+        defaults.set(["period": period, "at": at.timeIntervalSince1970], forKey: byokRefusedKey)
+    }
+
+    /// The discount was shown (in the app or the panel) in this period: not again.
+    func byokOfferShown(_ period: String) -> Bool {
+        defaults.string(forKey: byokOfferShownKey) == period
+    }
+
+    func markByokOfferShown(_ period: String) {
+        defaults.set(period, forKey: byokOfferShownKey)
     }
 
     // MARK: Settings shared with the extension
@@ -111,6 +182,14 @@ final class SharedDefaults {
 
     func markReviewAsked(_ count: Int) {
         defaults.set(count, forKey: reviewAskedKey)
+    }
+
+    /// Counts an answer the app gave in a chat; true on the 3rd, 10th, 30th, 100th and 300th: a moment to
+    /// ask for a rating (the extension's answers are counted in Safari).
+    func countAppAnswer() -> Bool {
+        let count = defaults.integer(forKey: appAnswersKey) + 1
+        defaults.set(count, forKey: appAnswersKey)
+        return [3, 10, 30, 100, 300].contains(count)
     }
 
     // MARK: Setup

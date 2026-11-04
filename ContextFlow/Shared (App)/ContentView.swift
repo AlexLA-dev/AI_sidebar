@@ -13,9 +13,9 @@ import SafariServices
 // MARK: - Constants
 
 enum Links {
-    static let privacy = URL(string: "https://aisidebar.netlify.app/privacy")!
-    static let terms = URL(string: "https://aisidebar.netlify.app/terms")!
-    static let support = URL(string: "https://aisidebar.netlify.app/support")!
+    static let privacy = URL(string: "https://context-flow.app/privacy")!
+    static let terms = URL(string: "https://context-flow.app/terms")!
+    static let support = URL(string: "https://context-flow.app/support")!
     static let review = URL(string: "https://apps.apple.com/app/id6759115793?action=write-review")!
     static let manageSubscriptions = URL(string: "https://apps.apple.com/account/subscriptions")!
 }
@@ -40,7 +40,7 @@ final class DeepLinkRouter: ObservableObject {
 }
 
 enum AppTab: Hashable {
-    case home, tips, pro, settings
+    case home, chats, tips, pro, settings
 }
 
 // MARK: - Root
@@ -49,12 +49,32 @@ struct ContentView: View {
     @StateObject private var store = StoreKitManager.shared
     @StateObject private var router = DeepLinkRouter.shared
     @StateObject private var activation = Activation.shared
+    @StateObject private var chats = ChatLibrary.shared
     @Environment(\.requestReview) private var requestReview
-    @State private var tab: AppTab = .home
+    @Environment(\.scenePhase) private var scenePhase
+    @State private var tab: AppTab = ChatLibrary.shared.threads.isEmpty ? .home : .chats
+    /// iOS: the setup guide, from the Chats screen (there is no Get Started tab once there are chats).
+    @State private var showingSetup = false
+    /// Settings scrolls down to the plan (the extension's "Manage subscription" with Pro).
+    @State private var showPlan = false
+
+    /// Once the user has chats, they come first: Get Started gives way to Chats.
+    private var hasChats: Bool { !chats.threads.isEmpty }
+
+    /// With Pro there is no Pro tab: the plan is at the bottom of Settings. A purchase made on the Pro
+    /// tab keeps it until the user leaves it, so its "You're all set" isn't cut off.
+    private var showsPro: Bool { !store.isPro || tab == .pro }
 
     /// The extension counted enough good answers since the last time: ask for an App Store rating
-    /// (Apple decides whether to show it, at most 3 times a year). Never on a plain first launch.
+    /// (Apple decides whether to show it, at most 3 times a year). Never on a plain first launch. On
+    /// launch and whenever the app comes back from Safari. `-CFDebugReview YES`: every time (Debug).
     private func askForReviewIfDue() {
+        #if DEBUG
+        if UserDefaults.standard.bool(forKey: "CFDebugReview") {
+            requestReview()
+            return
+        }
+        #endif
         guard let moment = SharedDefaults.shared.pendingReviewMoment() else { return }
         SharedDefaults.shared.markReviewAsked(moment)
         Task {
@@ -68,42 +88,65 @@ struct ContentView: View {
             .tint(brandBlue)
             .onReceive(router.$pending.compactMap { $0 }) { url in
                 switch url.host {
-                case "subscribe", "manage": tab = .pro
+                case "subscribe", "manage":
+                    tab = store.isPro ? .settings : .pro
+                    showPlan = store.isPro
                 case "tips": tab = .tips
-                default: tab = .home
+                case "chats": tab = hasChats ? .chats : .home
+                default: tab = hasChats ? .chats : .home
                 }
                 router.pending = nil
             }
             .task {
                 SharedDefaults.shared.removeLegacyData()
+                chats.refresh()
                 await store.refreshEntitlement()
                 askForReviewIfDue()
                 await activation.launched()
+            }
+            .onChange(of: scenePhase) { phase in
+                if phase == .active { askForReviewIfDue() }
+            }
+            // The first chat arrived (or the last one went): show the right first tab.
+            .onChange(of: hasChats) { has in
+                if has, tab == .home { tab = .chats }
+                if !has, tab == .chats { tab = .home }
             }
     }
 
     @ViewBuilder
     private var root: some View {
         #if os(iOS)
+        // With chats: Settings · Tips · Pro · Chats (Chats where the thumb is). Without: the setup guide first.
         TabView(selection: $tab) {
-            NavigationView { HomeView(store: store, activation: activation, openPro: { tab = .pro }, openTips: { tab = .tips }) }
-                .navigationViewStyle(.stack)
-                .tabItem { Label("Get Started", systemImage: "sparkles") }
-                .tag(AppTab.home)
-            NavigationView { TipsView() }
-                .navigationViewStyle(.stack)
-                .tabItem { Label("Tips", systemImage: "lightbulb") }
-                .tag(AppTab.tips)
-            NavigationView { ProView(store: store) }
-                .navigationViewStyle(.stack)
-                .tabItem { Label("Pro", systemImage: "crown") }
-                .tag(AppTab.pro)
-            NavigationView { SettingsView() }
-                .navigationViewStyle(.stack)
-                .tabItem { Label("Settings", systemImage: "gearshape") }
-                .tag(AppTab.settings)
+            if hasChats {
+                settingsTab
+                tipsTab
+                if showsPro { proTab }
+                NavigationView { ChatsView(library: chats, activation: activation, openSetup: { showingSetup = true }, openPro: { tab = .pro }) }
+                    .navigationViewStyle(.stack)
+                    .tabItem { Label("Chats", systemImage: "bubble.left.and.bubble.right") }
+                    .tag(AppTab.chats)
+            } else {
+                NavigationView { HomeView(store: store, activation: activation, openPro: { tab = .pro }, openTips: { tab = .tips }) }
+                    .navigationViewStyle(.stack)
+                    .tabItem { Label("Get Started", systemImage: "sparkles") }
+                    .tag(AppTab.home)
+                tipsTab
+                if showsPro { proTab }
+                settingsTab
+            }
+        }
+        .sheet(isPresented: $showingSetup) {
+            NavigationView {
+                HomeView(store: store, activation: activation, openPro: { showingSetup = false; tab = .pro }, openTips: { showingSetup = false; tab = .tips })
+                    .toolbar {
+                        ToolbarItem(placement: .confirmationAction) { Button("Done") { showingSetup = false } }
+                    }
+            }
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+            chats.refresh()
             Task {
                 await store.refreshEntitlement()
                 await activation.launched()
@@ -112,23 +155,29 @@ struct ContentView: View {
         }
         #else
         NavigationSplitView {
-            List(selection: Binding<AppTab?>(get: { tab }, set: { tab = $0 ?? .home })) {
-                Label("Get Started", systemImage: "sparkles").tag(AppTab.home)
+            List(selection: Binding<AppTab?>(get: { tab }, set: { tab = $0 ?? (hasChats ? .chats : .home) })) {
+                if hasChats {
+                    Label("Chats", systemImage: "bubble.left.and.bubble.right").tag(AppTab.chats)
+                } else {
+                    Label("Get Started", systemImage: "sparkles").tag(AppTab.home)
+                }
                 Label("Tips", systemImage: "lightbulb").tag(AppTab.tips)
-                Label("Pro", systemImage: "crown").tag(AppTab.pro)
+                if showsPro { Label("Pro", systemImage: "crown").tag(AppTab.pro) }
                 Label("Settings", systemImage: "gearshape").tag(AppTab.settings)
             }
             .navigationSplitViewColumnWidth(min: 170, ideal: 190)
         } detail: {
             switch tab {
             case .home: HomeView(store: store, activation: activation, openPro: { tab = .pro }, openTips: { tab = .tips })
+            case .chats: NavigationStack { ChatsView(library: chats, activation: activation, openPro: { tab = .pro }) }
             case .tips: TipsView()
             case .pro: ProView(store: store)
-            case .settings: SettingsView()
+            case .settings: SettingsView(showPlan: $showPlan)
             }
         }
         .frame(minWidth: 720, minHeight: 560)
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
+            chats.refresh()
             Task {
                 await store.refreshEntitlement()
                 await activation.launched()
@@ -137,6 +186,29 @@ struct ContentView: View {
         }
         #endif
     }
+
+    #if os(iOS)
+    private var tipsTab: some View {
+        NavigationView { TipsView() }
+            .navigationViewStyle(.stack)
+            .tabItem { Label("Tips", systemImage: "lightbulb") }
+            .tag(AppTab.tips)
+    }
+
+    private var proTab: some View {
+        NavigationView { ProView(store: store) }
+            .navigationViewStyle(.stack)
+            .tabItem { Label("Pro", systemImage: "crown") }
+            .tag(AppTab.pro)
+    }
+
+    private var settingsTab: some View {
+        NavigationView { SettingsView(showPlan: $showPlan) }
+            .navigationViewStyle(.stack)
+            .tabItem { Label("Settings", systemImage: "gearshape") }
+            .tag(AppTab.settings)
+    }
+    #endif
 }
 
 // MARK: - Home
@@ -151,6 +223,11 @@ struct HomeView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 header
+                if store.renewalOff != nil {
+                    RenewalQuestionCard()
+                        .padding(16)
+                        .background(RoundedRectangle(cornerRadius: 16).fill(Color.cardFill))
+                }
                 #if os(macOS)
                 macStatus
                 #else
@@ -265,7 +342,7 @@ struct HomeView: View {
             } else {
                 Text("Free: 5 answers every day.")
                     .font(.headline)
-                Text("Pro gives you up to 375 answers a week on iPhone, iPad and Mac.")
+                Text("Pro gives you up to 375 answers a week and reads videos and PDFs on the page, on iPhone, iPad and Mac.")
                     .font(.callout)
                     .foregroundColor(.secondary)
                 Button("See Pro", action: openPro)
@@ -335,6 +412,24 @@ struct TipGroup {
     }
 
     static let all: [TipGroup] = [
+        TipGroup(title: "New in ContextFlow", tips: [
+            Tip(symbol: "text.quote", color: .orange, title: "Ask or note a selection",
+                text: "Select text on a page: type your own question about it right under the selection, or tap Note to save it to the chat with its page. Notes use no answers.", clip: "select"),
+            Tip(symbol: "play.rectangle", color: .red, title: "Ask about a video (Pro)",
+                text: "With Pro, ContextFlow reads the transcript of a video on the page: ask for the gist, or what was said about something, and the answer points to the moment, like [4:15]. Free answers use the page's text.", clip: "video"),
+            Tip(symbol: "doc.richtext", color: .orange, title: "PDFs on the page (Pro)",
+                text: "With Pro, PDFs shown on a page or linked from it go with your question, and answers say which page they're on. On iPad and Mac, ContextFlow in the toolbar opens on a PDF tab too. Free answers use the page's text.", clip: "pdf"),
+            Tip(symbol: "bubble.left.and.bubble.right", color: .teal, title: "Your chats in the app",
+                text: "The Chats tab has every chat from Safari. Ask about its pages or add a note right there, tag, copy or share any answer, or share the whole chat. “Continue in Safari” picks it up where you left off.", clip: "appchat"),
+            Tip(symbol: "magnifyingglass", color: .green, title: "Search your chats",
+                text: "Type in the search over the chat list: every chat with those words, with the place they're in. A result opens the chat right there.", clip: "search"),
+            Tip(symbol: "tag", color: .purple, title: "Tags and folders",
+                text: "Tag a chat, an answer or a note with 🏷. Tap a tag to see only its chats, or turn on Folders to group the list by tag.", clip: "tags"),
+            Tip(symbol: "sparkles", color: brandBlue, title: "AI search (Pro)",
+                text: "Tap ✦ next to the search and describe the chat you remember — “that article about sleep and coffee” — even without the exact words.", clip: "aisearch"),
+            Tip(symbol: "text.bubble", color: .indigo, title: "Ask your chats (Pro)",
+                text: "The first row of the chat list answers from all your chats at once: “What did I read this week?”, “Summarize my notes on AI”.", clip: "history")
+        ]),
         TipGroup(title: "Get answers", tips: [
             openTip,
             Tip(symbol: "list.bullet.rectangle", color: .orange, title: "One tap for the gist",
@@ -505,7 +600,7 @@ struct ProView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
                 hero
-                if store.entitlement.active { activeCard }
+                if store.isByok { byokCard } else if store.entitlement.active { activeCard }
                 features
                 products
                 actions
@@ -558,9 +653,63 @@ struct ProView: View {
         .cornerRadius(16)
     }
 
+    /// An Own key subscriber: what Pro adds over their key, and the upgrade (at the discount once it's due). Pro
+    /// starts at once (Pro is the higher level); Apple refunds the unused part of Own key.
+    private var byokCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("You're on Own key").font(.headline)
+            Text("What Pro adds over your own key:")
+                .foregroundColor(.secondary)
+            Feature(systemImage: "magnifyingglass", text: "Google answers: \(store.searchProWeekly) a week instead of \(store.searchFreeDaily) a day")
+            Feature(systemImage: "bubble.left.and.text.bubble.right", text: "“Ask your chats” and AI search")
+            Feature(systemImage: "text.bubble", text: "Questions in the app's chats: up to \(375) a week instead of \(5) a day")
+            Feature(systemImage: "key.slash", text: "No API key and no bills from OpenAI or Anthropic")
+            if let discount = store.upgradeDiscount, store.byokOfferDue {
+                Button { upgradeWithOffer() } label: {
+                    Group { if busyProduct == "offer" { ProgressView() } else { Text("Upgrade at \(discount)% off") } }
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+            } else if let pro = store.pro {
+                Button { buy(pro) } label: {
+                    Group { if busyProduct == pro.id { ProgressView() } else { Text("Upgrade to Pro") } }
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+            }
+            Text("Pro starts now. Apple refunds the unused part of Own key.")
+                .font(.footnote)
+                .foregroundColor(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(16)
+        .background(RoundedRectangle(cornerRadius: 16).fill(Color.cardFill))
+        .task { await store.refreshUpgradeOffer() }
+    }
+
+    private func upgradeWithOffer() {
+        busyProduct = "offer"
+        message = nil
+        Task {
+            do {
+                switch try await store.upgradeWithOffer() {
+                case .purchased: success = true
+                case .pending: message = String(localized: "Your purchase is waiting for approval.")
+                case .cancelled: break
+                }
+            } catch {
+                message = (error as? ChatAI.Failure)?.message ?? error.localizedDescription
+            }
+            busyProduct = nil
+        }
+    }
+
     private var features: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Feature(systemImage: "bolt.fill", text: "Up to 375 answers a week instead of 5 a day")
+            Feature(systemImage: "sparkles", text: "AI search: find any chat by describing it in your own words")
+            Feature(systemImage: "bubble.left.and.text.bubble.right", text: "Ask your chats: questions across everything you've read and asked")
+            Feature(systemImage: "bolt.fill", text: "Up to 375 deeper, more detailed answers a week instead of 5 a day")
+            Feature(systemImage: "play.rectangle", text: "Videos and PDFs on the page: answers use the transcript and the documents")
             Feature(systemImage: "doc.text.magnifyingglass", text: "Summaries, key takeaways, explanations and translations of any page")
             Feature(systemImage: "text.cursor", text: "Ask about selected text, rewrite it or draft a reply")
             Feature(systemImage: "key.fill", text: "Optional: use your own OpenAI or Claude key")
@@ -886,6 +1035,14 @@ final class ExtensionSettings: ObservableObject {
     @Published var aboutMe = "" { didSet { save() } }
     @Published var ownKeyModel = "smart" { didSet { save() } }
     @Published var hiddenSites: [String] = [] { didSet { save() } }
+    @Published var syncChats = true { didSet { save() } }
+
+    /// Switches iCloud sync of chats on or off from outside the Settings screen (the Chats screen).
+    static func setSyncChats(_ on: Bool) {
+        var stored = SharedDefaults.shared.readSettings()?.settings ?? [:]
+        stored["syncChats"] = on
+        SharedDefaults.shared.writeSettings(stored, updatedAt: Date().timeIntervalSince1970 * 1000)
+    }
 
     private var stored: [String: Any] = [:]
     private var loading = false
@@ -904,6 +1061,7 @@ final class ExtensionSettings: ObservableObject {
         aboutMe = stored["aboutMe"] as? String ?? ""
         ownKeyModel = stored["ownKeyModel"] as? String ?? "smart"
         hiddenSites = stored["fabHiddenSites"] as? [String] ?? []
+        syncChats = stored["syncChats"] as? Bool ?? true
     }
 
     private func save() {
@@ -915,14 +1073,40 @@ final class ExtensionSettings: ObservableObject {
         stored["aboutMe"] = String(aboutMe.prefix(1000))
         stored["ownKeyModel"] = ownKeyModel
         stored["fabHiddenSites"] = hiddenSites
+        let syncChanged = (stored["syncChats"] as? Bool ?? true) != syncChats
+        stored["syncChats"] = syncChats
         SharedDefaults.shared.writeSettings(stored, updatedAt: Date().timeIntervalSince1970 * 1000)
+        if syncChanged { ChatLibrary.shared.refresh() }
     }
 }
 
 struct SettingsView: View {
     @StateObject private var settings = ExtensionSettings()
+    @ObservedObject private var store = StoreKitManager.shared
+    @Environment(\.openURL) private var openURL
+    @State private var restoring = false
+    @State private var restoreMessage: String?
+    /// Set to scroll down to the plan; cleared once it has.
+    @Binding var showPlan: Bool
 
     var body: some View {
+        ScrollViewReader { proxy in
+            form
+                .onAppear { scrollToPlan(proxy) }
+                .onChange(of: showPlan) { _ in scrollToPlan(proxy) }
+        }
+    }
+
+    private func scrollToPlan(_ proxy: ScrollViewProxy) {
+        guard showPlan else { return }
+        showPlan = false
+        guard store.isPro else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            withAnimation { proxy.scrollTo("plan", anchor: .top) }
+        }
+    }
+
+    private var form: some View {
         Form {
             Section(header: Text("Appearance")) {
                 Picker("Appearance", selection: $settings.theme) {
@@ -947,6 +1131,13 @@ struct SettingsView: View {
             }
 
             Section(
+                header: Text("Chats"),
+                footer: Text("Your chats continue on your iPhone, iPad and Mac signed in to the same Apple Account. They're end-to-end encrypted in iCloud: only your devices can read them.")
+            ) {
+                Toggle("Sync chats with iCloud", isOn: $settings.syncChats)
+            }
+
+            Section(
                 header: Text("About me"),
                 footer: Text("Optional. Helps tailor answers, e.g. “I'm a product designer, keep it short”.")
             ) {
@@ -967,6 +1158,9 @@ struct SettingsView: View {
             Section(footer: Text("These settings are shared with ContextFlow in Safari. A change here shows up there the next time you open ContextFlow, and the other way round.")) {
                 EmptyView()
             }
+
+            // With Pro there is no Pro tab: the plan and its subscription are managed here.
+            if store.isPro { planSection.id("plan") }
         }
         .navigationTitle("Settings")
         #if os(iOS)
@@ -978,5 +1172,36 @@ struct SettingsView: View {
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in settings.reload() }
         #endif
         .onAppear { settings.reload() }
+    }
+
+    private var planSection: some View {
+        Section(header: Text("Your plan"), footer: restoreMessage.map { Text($0) }) {
+            HStack {
+                Text(planName(store.entitlement.productId))
+                Spacer()
+                if let date = store.entitlement.expiresAt {
+                    if store.entitlement.autoRenew == false {
+                        Text("Ends \(date, style: .date)")
+                            .foregroundColor(.secondary)
+                    } else {
+                        Text("Renews \(date, style: .date)")
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+            Button("Manage Subscription") { openURL(Links.manageSubscriptions) }
+            Button {
+                restoring = true
+                restoreMessage = nil
+                Task {
+                    let restored = await store.restore()
+                    restoring = false
+                    restoreMessage = restored ? String(localized: "Your subscription has been restored.") : String(localized: "No active subscription was found for this Apple Account.")
+                }
+            } label: {
+                if restoring { ProgressView() } else { Text("Restore Purchases") }
+            }
+            .disabled(restoring)
+        }
     }
 }

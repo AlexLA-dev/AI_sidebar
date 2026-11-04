@@ -12,7 +12,7 @@
 
 ## Статус
 
-- 31.10.2026 обе кампании созданы через веб-интерфейс Apple Ads и запущены. EN — id 2145005369, DE+FR — id 2145006557. Показы идут с 31.10 00:00 до 10.11 00:00 по часовому поясу аккаунта (Asia/Nicosia).
+- 31.10.2026 обе кампании созданы через веб-интерфейс Apple Ads и запущены. EN — id 2145005369, DE+FR — id 2145006557. Показы идут с 31.10 до 07.11 00:00 по часовому поясу аккаунта (Asia/Nicosia): 31.10 владелец решил потратить $50 за неделю.
 - API подключён через пользователя alexander.lubchenko@gmail.com (роль API Account Manager), учётные данные лежат в `~/.appleads`. `plan` подтверждает, что Apple Ads совпадает с планом.
 - Подписчиков по ключам покажет атрибуция AdServices в 2.4 (`cf_ads_funnel`). До её выхода — только установки из отчётов Apple Ads.
 
@@ -20,12 +20,15 @@
 
 | Кампания | Страны | Бюджет | Группы |
 |---|---|---|---|
-| CF · iPad · EN · Search | US, GB, CA, AU | $3/день | Safari AI, Summarize, Competitors (exact) + Discovery (Search Match) |
-| CF · iPad · DE+FR · Search | DE, FR | $2/день | Deutsch, Français, English (exact) + Discovery |
+| CF · iPad · EN · Search | US, GB, CA, AU, IE, NZ, SG | $4.30/день | Safari AI, Summarize, Competitors (exact), AI · broad (broad) + Discovery (Search Match) |
+| CF · iPad · DE+FR · Search | DE, FR, AT, CH, BE, LU | $2.80/день | Deutsch, Français, English (exact) + Discovery |
 
-- Только iPad, только новые пользователи. Без возраста и пола: эти настройки отключают атрибуцию AdServices.
-- 10 дней × $5 = $50. Конец кампании — жёсткий потолок: Apple не тратит больше «дни × дневной бюджет».
+- Только iPad, только новые пользователи. Без возраста и пола: с ними Apple показывает рекламу только тем, у кого включена персонализированная реклама, и охват сильно падает.
+- 7 дней × $7.10 = $49.70. Конец кампании — жёсткий потолок: Apple не тратит больше «дни × дневной бюджет».
 - Discovery находит новые запросы. Всё, что уже есть в exact-группах, в нём заминусовано.
+- AI · broad добавлена 01.11: за первые сутки точные ключи на iPad дали 2 показа. Широкое соответствие по популярным AI-запросам (chatgpt, ai chat, ai assistant, gemini, claude, perplexity, ai browser, safari extension), exact-ключи других групп в ней заминусованы. Бренды chatgpt/gemini/claude/perplexity поэтому сняты с минус-слов кампании и оставлены минусами только в Discovery.
+- 01.11 по итогам ресёрча: free / kostenlos / gratuit / gratis переведены в exact-минусы (broad отрезал «free ai summarizer» и т. п.), в AI · broad добавлены категорийные запросы (summarize, summarizer, ai summary, reader, translate website, web translator), Discovery поднят до $1.00 (EN) и $0.90 (DE+FR), страны расширены теми же языками: IE, NZ, SG и AT, CH, BE, LU.
+- У ключа без своей ставки в плане ставка равна ставке группы: Apple сама её не подтягивает, поэтому `apply` выставляет её явно.
 
 ## Панель
 
@@ -71,7 +74,7 @@ node tools/ads/asa.mjs stop --yes           # всё на паузу
 | TTR ниже 2.5% после 300 показов | ключ на паузу |
 | CPI ≤ $1.50 или ключ привёл подписчика | ставка +15% (не выше $1.50) |
 | CPI больше $3 | ставка −20% |
-| Запрос из Discovery дал установку | добавить exact-ключом |
-| Запрос из Discovery потратил $1.50 без установок | минус-слово |
+| Запрос из Discovery или broad дал установку | добавить exact-ключом |
+| Запрос из Discovery или broad потратил $1.50 без установок | минус-слово |
 
 Ключ, который привёл подписчика, на паузу не ставится. Подписчики по ключам берутся из Supabase (`cf_ads_funnel`), если в приложении есть атрибуция AdServices.

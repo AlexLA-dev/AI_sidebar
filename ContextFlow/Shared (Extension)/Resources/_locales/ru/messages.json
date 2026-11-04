@@ -15,12 +15,7 @@
   "message": "Эта страница"
  },
  "ctxSelection": {
-  "message": "Выделено · $P0$ слов",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Выделено · {0} слов"
  },
  "ctxNone": {
   "message": "Общий чат"
@@ -71,12 +66,7 @@
   "message": "Объясни эту страницу простыми словами, как умному двенадцатилетнему."
  },
  "promptTranslate": {
-  "message": "Переведи основной текст этой страницы на $P0$. Сохрани структуру и заголовки.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Переведи основной текст этой страницы на {0}. Сохрани структуру и заголовки."
  },
  "promptSelSummarize": {
   "message": "Кратко перескажи выделенный текст."
@@ -85,12 +75,7 @@
   "message": "Объясни выделенный текст простыми словами."
  },
  "promptSelTranslate": {
-  "message": "Переведи выделенный текст на $P0$.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Переведи выделенный текст на {0}."
  },
  "promptSelImprove": {
   "message": "Перепиши выделенный текст понятнее и короче. Дай один улучшенный вариант."
@@ -177,23 +162,13 @@
   "message": "Вы"
  },
  "newPage": {
-  "message": "Новая страница: $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Новая страница: {0}"
  },
  "pageUpdated": {
   "message": "Страница обновилась"
  },
  "nowOnPage": {
-  "message": "Сейчас: $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Сейчас: {0}"
  },
  "retry": {
   "message": "Повторить"
@@ -238,12 +213,7 @@
   "message": "Недельный лимит исчерпан"
  },
  "limitProBody": {
-  "message": "Ответы Pro обновятся через $P0$.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Ответы Pro обновятся через {0}."
  },
  "getPro": {
   "message": "Получить Pro"
@@ -252,54 +222,37 @@
   "message": "Свой ключ API"
  },
  "usageFree": {
-  "message": "Осталось $P0$ из $P1$ бесплатных ответов на сегодня",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "Осталось {0} из {1} бесплатных ответов на сегодня"
  },
  "usagePro": {
-  "message": "Pro · осталось $P0$ из $P1$ ответов на неделю",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "Pro · осталось {0} из {1} ответов на неделю"
  },
  "usageOwnKey": {
   "message": "Используется ваш ключ API"
  },
  "hours": {
-  "message": "$P0$ ч",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} ч"
  },
  "minutes": {
-  "message": "$P0$ мин",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} мин"
  },
  "consentTitle": {
   "message": "Перед первым ответом"
  },
  "consentBody": {
-  "message": "Чтобы ответить, ContextFlow отправляет ваш вопрос и текст этой страницы (или выделенный фрагмент) через наш сервер в OpenAI, а для ответов с Google — в Google. Мы не храним содержимое страниц и переписку на своих серверах — чаты остаются на ваших устройствах и, если включена синхронизация, в вашем iCloud."
+  "message": "Чтобы ответить, ContextFlow отправляет ваш вопрос и текст этой страницы (или выделенный фрагмент; для ИИ-поиска и «Вопросов по всем чатам» — выдержки из ваших чатов) через наш сервер в Anthropic (Claude), а если он недоступен — в OpenAI; для ответов с Google — в Google. Мы не храним содержимое страниц и переписку на своих серверах — чаты остаются на ваших устройствах и, если включена синхронизация, в вашем iCloud."
  },
  "consentAccept": {
   "message": "Согласен, продолжить"
+ },
+ "consentAgainTitle": {
+  "message": "Обновление: теперь отвечает Claude"
+ },
+ "consentDecline": {
+  "message": "Не сейчас"
+ },
+ "consentNeeded": {
+  "message": "Ничего не отправлено: для ответов ИИ нужно ваше согласие."
  },
  "privacyPolicy": {
   "message": "Политика конфиденциальности"
@@ -317,12 +270,7 @@
   "message": "Свой ключ"
  },
  "planRenews": {
-  "message": "Продление $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Продление {0}"
  },
  "manageSubscription": {
   "message": "Управлять подпиской"
@@ -364,20 +312,10 @@
   "message": "Кнопка ✦ открывает ContextFlow на любом сайте. Скройте её на отдельном сайте ссылкой ниже или выключите здесь."
  },
  "hideOnSite": {
-  "message": "Скрыть на $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Скрыть на {0}"
  },
  "showOnSite": {
-  "message": "Показывать на $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Показывать на {0}"
  },
  "setSelectionButton": {
   "message": "Кнопка при выделении текста"
@@ -443,12 +381,7 @@
   "message": "Оценить ContextFlow"
  },
  "version": {
-  "message": "Версия $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Версия {0}"
  },
  "fabLabel": {
   "message": "Спросить ContextFlow"
@@ -472,15 +405,7 @@
   "message": "Источники"
  },
  "tourStep": {
-  "message": "$P0$ из $P1$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "{0} из {1}"
  },
  "tourSkip": {
   "message": "Пропустить"
@@ -498,7 +423,7 @@
   "message": "Спросите об этой странице"
  },
  "tourAskBody": {
-  "message": "ContextFlow читает открытую страницу. Выберите действие, например «Кратко», или задайте свой вопрос."
+  "message": "ContextFlow читает открытую страницу, а с Pro — ещё и видео с субтитрами и PDF на ней. Выберите действие, например «Кратко», или задайте свой вопрос."
  },
  "tourSelectTitle": {
   "message": "Нужна только часть?"
@@ -560,6 +485,27 @@
  "saveNote": {
   "message": "Сохранить заметку"
  },
+ "selQuestion": {
+  "message": "Ваш вопрос…"
+ },
+ "selNote": {
+  "message": "Заметка"
+ },
+ "selNoteTitle": {
+  "message": "Сохранить выделенное в чат заметкой (не тратит ответы)"
+ },
+ "selNoteSaved": {
+  "message": "Сохранено в чат"
+ },
+ "selNoteOpen": {
+  "message": "Открыть"
+ },
+ "selHint": {
+  "message": "Новое: напишите здесь свой вопрос о выделенном или сохраните его в чат заметкой — заметки не тратят ответы."
+ },
+ "noteQuote": {
+  "message": "«{0}»"
+ },
  "placeholderNote": {
   "message": "Заметка — останется в этом чате"
  },
@@ -579,26 +525,10 @@
   "message": "Открыть эту страницу"
  },
  "usageFreeShort": {
-  "message": "$P0$ из $P1$ на сегодня",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "{0} из {1} на сегодня"
  },
  "usageProShort": {
-  "message": "Pro · $P0$ из $P1$ на неделю",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "Pro · {0} из {1} на неделю"
  },
  "pinChat": {
   "message": "Закрепить чат"
@@ -616,50 +546,22 @@
   "message": "Ваши заметки в этом чате"
  },
  "pages_one": {
-  "message": "$P0$ страница",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} страница"
  },
  "pages_few": {
-  "message": "$P0$ страницы",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} страницы"
  },
  "pages_many": {
-  "message": "$P0$ страниц",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} страниц"
  },
  "pages_other": {
-  "message": "$P0$ страницы",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} страницы"
  },
  "cancel": {
   "message": "Отменить"
  },
  "pickCount": {
-  "message": "$P0$ из $P1$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "{0} из {1}"
  },
  "pickHint": {
   "message": "Отметьте сообщения"
@@ -671,26 +573,10 @@
   "message": "Снять выбор"
  },
  "limitFreeBack": {
-  "message": "$P0$ бесплатных ответов снова будут в $P1$, через $P2$.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   },
-   "p2": {
-    "content": "$3"
-   }
-  }
+  "message": "{0} бесплатных ответов снова будут в {1}, через {2}."
  },
  "limitFreePro": {
-  "message": "В Pro — до $P0$ ответов в неделю.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "В Pro — до {0} ответов в неделю, видео и PDF на странице, ИИ-поиск и вопросы сразу по всем чатам."
  },
  "limitNotes": {
   "message": "Заметки остаются бесплатными и без лимита: запишите важное сейчас, а ИИ спросите потом."
@@ -699,55 +585,258 @@
   "message": "Написать заметку"
  },
  "errProvider": {
-  "message": "Ответ вашего ИИ-провайдера: $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Ответ вашего ИИ-провайдера: {0}"
  },
  "offerLimit": {
-  "message": "Или возьмите Pro со скидкой $P0$% на первый месяц: до $P1$ ответов в неделю на более умной модели. Отменить можно в любой момент.",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "Или возьмите Pro со скидкой {0}% на первый месяц: до {1} ответов в неделю, более глубоких и подробных. Отменить можно в любой момент."
  },
  "offerButton": {
-  "message": "Pro со скидкой $P0$%",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Pro со скидкой {0}%"
  },
  "offerShort": {
-  "message": "Pro −$P0$%",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Pro −{0}%"
  },
  "offerCardTitle": {
   "message": "Не хватает ответов?"
  },
  "offerCardBody": {
-  "message": "Вы уже упирались в дневной лимит бесплатных ответов. В Pro — до $P1$ ответов в неделю на более умной модели, а первый месяц — со скидкой $P0$%. Дальше обычная цена; отменить можно в любой момент в настройках App Store.",
-  "placeholders": {
-   "p1": {
-    "content": "$2"
-   },
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Вы уже упирались в дневной лимит бесплатных ответов. В Pro — до {1} ответов в неделю, более глубоких и подробных, а первый месяц — со скидкой {0}%. Дальше обычная цена; отменить можно в любой момент в настройках App Store."
  },
  "offerLater": {
   "message": "Не сейчас"
+ },
+ "emptyVideo": {
+  "message": "Я вижу это видео и прочитаю его расшифровку. Задайте вопрос или выберите действие."
+ },
+ "emptyPdf": {
+  "message": "Я вижу этот PDF. Задайте вопрос или выберите действие."
+ },
+ "readingVideo": {
+  "message": "Читаю расшифровку видео…"
+ },
+ "readingPdf": {
+  "message": "Читаю PDF…"
+ },
+ "usedVideo": {
+  "message": "Расшифровка видео · {0}"
+ },
+ "usedPdf": {
+  "message": "{0} · {1} стр."
+ },
+ "videoNoTranscript": {
+  "message": "У этого видео нет субтитров — ответ по названию и описанию."
+ },
+ "videoFailed": {
+  "message": "Не удалось получить расшифровку этого видео — ответ по названию и описанию."
+ },
+ "pdfNoText": {
+  "message": "В «{0}» нет текста (сканированные страницы) — ответ без него."
+ },
+ "pdfFailed": {
+  "message": "Не удалось прочитать PDF «{0}» — ответ без него."
+ },
+ "searchChats": {
+  "message": "Поиск по чатам"
+ },
+ "searchNone": {
+  "message": "Ничего не найдено по запросу «{0}»"
+ },
+ "searchClear": {
+  "message": "Очистить поиск"
+ },
+ "askHistory": {
+  "message": "Спросить по всем чатам"
+ },
+ "askHistoryHint": {
+  "message": "Вопросы обо всём, что вы читали и спрашивали"
+ },
+ "askHistoryEmpty": {
+  "message": "Спрашивайте обо всём, что вы читали и спрашивали в ContextFlow, сразу по всем чатам."
+ },
+ "askHistoryEx1": {
+  "message": "Что я читал на этой неделе?"
+ },
+ "askHistoryEx2": {
+  "message": "Собери мои заметки"
+ },
+ "askHistoryEx3": {
+  "message": "Что я узнал об ИИ?"
+ },
+ "placeholderHistory": {
+  "message": "Спросите о своих чатах…"
+ },
+ "findToggle": {
+  "message": "ИИ-поиск"
+ },
+ "findToggleLocked": {
+  "message": "ИИ-поиск — Pro"
+ },
+ "findPlaceholder": {
+  "message": "Опишите чат, который ищете…"
+ },
+ "findHint": {
+  "message": "Опишите своими словами, что помните, и нажмите Enter: «статья про сон и кофе на прошлой неделе»."
+ },
+ "findBusy": {
+  "message": "Ищу в ваших чатах…"
+ },
+ "upsellTitle": {
+  "message": "ContextFlow Pro"
+ },
+ "upsellFindTitle": {
+  "message": "Найдите любой чат по тому, что помните"
+ },
+ "upsellHistoryTitle": {
+  "message": "Спрашивайте обо всём, что читали"
+ },
+ "upsellFindName": {
+  "message": "ИИ-поиск"
+ },
+ "upsellFindText": {
+  "message": "Опишите чат своими словами — «та статья про сон и кофе на прошлой неделе» — и ИИ найдёт его, даже без точных слов."
+ },
+ "upsellHistoryName": {
+  "message": "Вопросы по всем чатам"
+ },
+ "upsellHistoryText": {
+  "message": "Вопросы сразу по всем чатам: «Что я читал о накоплениях на пенсию?», «Собери мои заметки за месяц»."
+ },
+ "upsellMore": {
+  "message": "А ещё видео и PDF на странице и до 375 более глубоких и подробных ответов в неделю — на iPhone, iPad и Mac."
+ },
+ "errProOnly": {
+  "message": "Это функция Pro."
+ },
+ "tagsTitle": {
+  "message": "Теги"
+ },
+ "tagsNew": {
+  "message": "Новый тег…"
+ },
+ "tagsAdd": {
+  "message": "Добавить тег"
+ },
+ "tagsDone": {
+  "message": "Готово"
+ },
+ "tagsFilter": {
+  "message": "Фильтр по тегу"
+ },
+ "tagsGroup": {
+  "message": "Папки"
+ },
+ "tagsEdit": {
+  "message": "Теги"
+ },
+ "tagsNone": {
+  "message": "Без тега"
+ },
+ "tagsButton": {
+  "message": "Тег"
+ },
+ "hintGot": {
+  "message": "Понятно"
+ },
+ "hintChatsTitle": {
+  "message": "Найти, разложить, вернуться"
+ },
+ "hintChatsBody": {
+  "message": "Ищите по словам или #тегу. Ставьте теги на чаты и ответы (🏷) и включите «Папки», чтобы сгруппировать. В Pro ✦ найдёт чат по описанию, а «Спросить по всем чатам» ответит по всем сразу."
+ },
+ "hintVideoTitle": {
+  "message": "На странице есть видео"
+ },
+ "hintVideoBody": {
+  "message": "Ответы опираются на его расшифровку и указывают моменты вроде [4:15]. Если субтитров нет — отвечаю по названию и описанию и говорю об этом."
+ },
+ "hintPdfTitle": {
+  "message": "PDF тоже читаются"
+ },
+ "hintPdfBody": {
+  "message": "PDF, показанные или найденные по ссылке на этой странице, идут с вопросом; в ответе указаны страницы."
+ },
+ "proSkipVideo": {
+  "message": "Видео на этой странице не учтено — его читает Pro"
+ },
+ "proSkipPdf": {
+  "message": "PDF на этой странице не учтены — их читает Pro"
+ },
+ "proSkipBoth": {
+  "message": "Видео и PDF на этой странице не учтены — их читает Pro"
+ },
+ "tryPro": {
+  "message": "Попробовать Pro"
+ },
+ "emptyVideoFree": {
+  "message": "На странице есть видео. Ответы Pro учитывают его транскрипт, бесплатные — то, что видно на странице (название, описание)."
+ },
+ "emptyPdfFree": {
+  "message": "На странице есть PDF. Ответы Pro читают его, бесплатные — только текст страницы."
+ },
+ "hintVideoBodyFree": {
+  "message": "С Pro ответы учитывают транскрипт и указывают моменты вроде [4:15]. Бесплатные ответы — по названию и описанию."
+ },
+ "hintPdfTitleFree": {
+  "message": "На странице есть PDF"
+ },
+ "hintPdfBodyFree": {
+  "message": "Pro читает PDF, показанные на странице или по ссылкам с неё, и говорит, с какой они страницы. Бесплатные ответы — только по тексту страницы."
+ },
+ "renewalTitle": {
+  "message": "Pro закончится {0}"
+ },
+ "renewalBody": {
+  "message": "Автопродление выключено. Чего не хватило?"
+ },
+ "renewalPrice": {
+  "message": "Дорого"
+ },
+ "renewalRarely": {
+  "message": "Редко пользуюсь"
+ },
+ "renewalAnswers": {
+  "message": "Ответы не устроили"
+ },
+ "renewalFeatures": {
+  "message": "Не хватает нужной функции"
+ },
+ "renewalFreeEnough": {
+  "message": "Хватает бесплатного"
+ },
+ "renewalOther": {
+  "message": "Другое"
+ },
+ "renewalThanks": {
+  "message": "Спасибо — это поможет нам сделать ContextFlow лучше."
+ },
+ "planEnds": {
+  "message": "Закончится {0}: автопродление выключено"
+ },
+ "upgradePro": {
+  "message": "Перейти на Pro"
+ },
+ "upgradeProOff": {
+  "message": "Перейти со скидкой {0}%"
+ },
+ "byokLimitTitle": {
+  "message": "Ответы через ContextFlow на сегодня закончились"
+ },
+ "byokLimitNoKey": {
+  "message": "Свой ключ ещё не добавлен, поэтому ответы идут через ContextFlow: {0} в день. Добавьте ключ в настройках или перейдите на Pro: до {1} ответов в неделю, ключ не нужен."
+ },
+ "byokLimitGoogle": {
+  "message": "На тарифе «Свой ключ» ответы с Google идут через ContextFlow: {0} в день. В Pro — до {1} ответов в неделю."
+ },
+ "byokSearch": {
+  "message": "На тарифе «Свой ключ» поиск Google — {0} в день. В Pro — {1} в неделю."
+ },
+ "byokProOnly": {
+  "message": "Не входит в тариф «Свой ключ»."
+ },
+ "byokOfferTitle": {
+  "message": "Pro со скидкой {0}%"
+ },
+ "byokOfferBody": {
+  "message": "Pro отвечает без вашего ключа: до {0} ответов в неделю, {1} поисков Google в неделю, «Спросить по всем чатам» и ИИ-поиск. App Store покажет цену и срок скидки до оплаты. Pro начнётся сразу, а неиспользованную часть текущего тарифа вернут."
  }
 }

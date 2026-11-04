@@ -8,7 +8,7 @@ import { createServer } from "node:http"
 import { dirname, join, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 
-import { apply, readJson, reports, snapshot, spentSince, stopAll, subscribersByKeyword, today } from "./api.mjs"
+import { apply, lastDaySpend, readJson, reports, snapshot, spentSince, stopAll, subscribersByKeyword, today } from "./api.mjs"
 import { applyProposals, diffPlan, guardProblems, optimize } from "./lib.mjs"
 
 const here = dirname(fileURLToPath(import.meta.url))
@@ -46,7 +46,7 @@ async function state(from, to) {
     subs: funnel?.subs ?? null,
     spent,
     pending: diffPlan(plan, live).ops.map((o) => o.desc),
-    proposals: optimize(plan, { keywords: rep.keywords, searchTerms: rep.searchTerms, subs: funnel?.subs ?? {} }),
+    proposals: optimize(plan, { keywords: rep.keywords, searchTerms: rep.searchTerms, subs: funnel?.subs ?? {}, lastDaySpend: await lastDaySpend(live, plan) }),
     period: { from: from ?? since(plan), to: to ?? today() }
   }
 }

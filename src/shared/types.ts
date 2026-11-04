@@ -1,3 +1,6 @@
+import type { Attachment, MediaKind } from "./attachments.ts"
+import type { ChatDigest } from "./history.ts"
+import type { RenewalReason } from "./renewal.ts"
 // Messages exchanged between the content script (UI) and the background worker.
 
 export type Plan = "free" | "pro" | "byok"
@@ -23,8 +26,19 @@ export interface StatusInfo {
   // A free install that ran out of free answers on an earlier day, and the offer for it (from the server).
   limitedBefore: boolean
   offer: ProOffer | null
+  // An Own key subscriber can move to Pro at this discount (the app asks the server to sign the offer).
+  upgradeOffer: { discount: number } | null
+  // Google search allowances (free a day, Pro a week), for what the panel tells Own key subscribers.
+  searchLimits: { freeDaily: number; proWeekly: number }
   // What the device's App Store account says (may be ahead of the server).
-  store: { active: boolean; productId: string | null; expiresAt: string | null } | null
+  // autoRenew: false when the user turned auto-renew off (null: not known); period and renewalAsked: the
+  // question "what was missing" is asked once per subscription period, in the app or the panel.
+  // byokRefusedAt: an Own key subscriber's first refusal (a limit, or a Pro-only feature) in this period, in the
+  // app or the panel; a day later Pro at a discount is offered, once per period (byokOfferShown).
+  store: {
+    active: boolean; productId: string | null; expiresAt: string | null; autoRenew: boolean | null; period: string | null; renewalAsked: boolean
+    byokRefusedAt: number | null; byokOfferShown: boolean
+  } | null
   hasOwnKey: boolean
   ownKeyProvider: "openai" | "anthropic" | null
   offline: boolean
@@ -37,13 +51,38 @@ export interface ChatTurn {
 
 export interface AskPayload {
   messages: ChatTurn[]
-  page: { kind: "page" | "selection"; title: string; url: string; text: string; changed?: boolean } | null
+  // attachments: the video's transcript and the PDFs, apart from the text (reading them is Pro);
+  // skipped: the page has them but they weren't read (not Pro). media: the text already includes them.
+  page: {
+    kind: "page" | "selection"
+    title: string
+    url: string
+    text: string
+    changed?: boolean
+    media?: "video" | "pdf"
+    attachments?: Attachment[]
+    skipped?: MediaKind[]
+  } | null
   action?: string
   // "google": answer with Google Search grounding (always through our server).
   mode?: "google"
   // "chat": the whole conversation with the user's notes, and the text of its other pages.
-  context?: "chat"
+  // "history": "Ask your chats" (Pro) — answered from a digest of all the chats, without a page.
+  context?: "chat" | "history"
   pages?: Array<{ title: string; url: string; text: string }>
+  history?: ChatDigest[]
+  // How big the chat is (its messages and pages) and how many chats this device keeps: no text, for
+  // /analytics to show whether the limits on them get in the way.
+  stats?: ChatStats
+}
+
+/** Where an Own key subscriber met Pro: a refusal (answers, Google, a Pro-only feature), the discount card, Settings. */
+export type UpsellWhere = "limit" | "search" | "pro_only" | "offer" | "settings"
+
+export interface ChatStats {
+  turns: number
+  pages: number
+  chats: number
 }
 
 export interface GroundingSource {
@@ -89,10 +128,21 @@ export type ErrorCode =
   | "BAD_REQUEST"
   | "SEARCH_LIMIT"
   | "SEARCH_UNAVAILABLE"
+  // A Pro feature asked for without Pro (AI search, "Ask your chats").
+  | "PRO_ONLY"
+  // No consent for the current text yet: nothing was sent.
+  | "CONSENT"
 
 export type BackgroundRequest =
   | { type: "status"; refresh?: boolean; fresh?: boolean; platform?: Platform }
-  | { type: "openApp"; target: "subscribe" | "manage" | "home" }
+  // feature "ai": the Pro screen opens on AI search and "Ask your chats".
+  | { type: "openApp"; target: "subscribe" | "manage" | "home"; feature?: "ai" }
+  // The line under a free answer that skipped the page's video or PDFs: shown, or its "Try Pro" tapped.
+  | { type: "mediaNotice"; action: "shown" | "pro"; media: MediaKind[] }
+  // An Own key subscriber and Pro: a refusal (starts the day before the discount), the discount card shown, a tap.
+  | { type: "byokUpsell"; action: "refused" | "shown" | "tap"; where: UpsellWhere; period: string | null; discount?: boolean }
+  // A Pro user with auto-renew off answered "what was missing" (or put it off): logged, not asked again this period.
+  | { type: "renewalAnswer"; reason: RenewalReason; period: string; productId: string | null; expiresAt: string | null }
   | { type: "inject" }
   | { type: "setOwnKey"; key: string }
   | { type: "openUrl"; url: string }
@@ -100,6 +150,17 @@ export type BackgroundRequest =
   | { type: "openPage"; url: string }
   // The panel opened: sync threads with iCloud (Safari); answers { changed }.
   | { type: "syncThreads" }
+  // AI search over the chats (Pro); answers a FindReply.
+  | { type: "find"; query: string; chats: ChatDigest[] }
+  // The text of a PDF (read on the device); answers a PdfResult.
+  | { type: "pdfText"; url: string }
+  // The same for a PDF the page fetched itself (base64; behind a sign-in).
+  | { type: "pdfBytes"; url: string; data: string }
+
+/** A PDF's text, or why there is none ("none": nothing to read, e.g. scanned pages). */
+export type PdfResult =
+  | { ok: true; text: string; pages: number; title: string }
+  | { ok: false; reason: "none" | "failed"; error: string }
 
 export type ContentRequest = { type: "toggle" } | { type: "open"; selection?: boolean }
 
@@ -115,6 +176,9 @@ export const STORAGE = {
   // iCloud sync: CloudKit change token, and the time of each thread's copy in iCloud.
   syncToken: "cf:syncToken",
   syncedThreads: "cf:syncedThreads",
+  // The ContextFlow app's copy of the chats (App Group): the time of each thread it has.
+  mirroredThreads: "cf:mirroredThreads",
+  mirroredAt: "cf:mirroredAt",
   // When the settings last changed here (ms), to merge with the app's copy.
   settingsUpdatedAt: "cf:settingsUpdatedAt",
   // Successful answers so far; the app asks for an App Store rating after a few.
@@ -122,16 +186,25 @@ export const STORAGE = {
   consent: "cf:consent",
   // The first-session tour of the panel was seen (finished or skipped).
   tourSeen: "cf:tourSeen",
+  // The "first time here" hints already shown (chats, video, pdf).
+  hintsSeen: "cf:hintsSeen",
   // Recent pages' text on this device ({ [url]: { title, text, at } }) for "whole chat" answers.
   pageTexts: "cf:pageTexts",
   // How many times the hint about writing notes with the send button was shown, or -1 once used.
   noteHint: "cf:noteHint",
+  // How many page visits showed the hint about the question field and Note by a selection, or -1 once used.
+  selHint: "cf:selHint",
   // false from install until the server heard that the extension was switched on (the funnel's step
   // after "app opened"); missing for installs from before 2.4, which never report it.
   extOnPending: "cf:extOnPending",
   // How many times the Pro offer card for installs that ran out of free answers before was shown,
   // or -1 once it was answered.
   offerCard: "cf:offerCard",
+  // The subscription period the auto-renew question was last asked in (also kept in the app for both).
+  renewalAsked: "cf:renewalAsked",
+  // Own key: the first refusal in a subscription period ({period, at}) and the period the discount was shown in.
+  byokRefused: "cf:byokRefused",
+  byokOfferShown: "cf:byokOfferShown",
   ownKey: "cf:ownKey",
   // Provider model lists for the own key ({ openai?: { ids, at }, anthropic?: { models, at } }).
   ownKeyModels: "cf:ownKeyModels",
@@ -152,6 +225,8 @@ export interface Settings {
   ownKeyModel: "fast" | "smart"
   // Keep the chats in the user's iCloud to continue them on their other devices (Safari).
   syncChats: boolean
+  // The chat list in groups by tag, like folders (a chat with two tags is in both).
+  groupByTags: boolean
   // Answer with the whole chat in mind (all messages, notes, its other pages), not just the last messages.
   wholeChat: boolean
 }
@@ -167,5 +242,11 @@ export const DEFAULT_SETTINGS: Settings = {
   aboutMe: "",
   ownKeyModel: "smart",
   syncChats: true,
+  groupByTags: false,
   wholeChat: false
 }
+
+/** AI search's answer: the matching chats with a reason, or why there are none. */
+export type FindReply =
+  | { ok: true; results: Array<{ id: string; why: string }>; usage: Usage | null }
+  | { ok: false; code: ErrorCode; usage?: Usage | null; offer?: ProOffer | null }

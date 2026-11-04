@@ -8,6 +8,19 @@
 
 /* Begin PBXBuildFile section */
 		CF3000000000000000000002 /* ChatSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF3000000000000000000001 /* ChatSync.swift */; };
+		CF3000000000000000000005 /* ChatSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF3000000000000000000001 /* ChatSync.swift */; };
+		CF6000000000000000000002 /* Chats.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF6000000000000000000001 /* Chats.swift */; };
+		CF9000000000000000000002 /* ChatAI.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9000000000000000000001 /* ChatAI.swift */; };
+		CF9000000000000000000003 /* ChatAI.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9000000000000000000001 /* ChatAI.swift */; };
+		CF6000000000000000000003 /* Chats.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF6000000000000000000001 /* Chats.swift */; };
+		CF7000000000000000000002 /* ChatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF7000000000000000000001 /* ChatsView.swift */; };
+		CF7000000000000000000003 /* ChatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF7000000000000000000001 /* ChatsView.swift */; };
+		CF8000000000000000000002 /* ChatMirror.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF8000000000000000000001 /* ChatMirror.swift */; };
+		CF8000000000000000000003 /* ChatMirror.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF8000000000000000000001 /* ChatMirror.swift */; };
+		CF8000000000000000000004 /* ChatMirror.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF8000000000000000000001 /* ChatMirror.swift */; };
+		CF8000000000000000000005 /* ChatMirror.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF8000000000000000000001 /* ChatMirror.swift */; };
+		CF5000000000000000000002 /* PdfText.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5000000000000000000001 /* PdfText.swift */; };
+		CF5000000000000000000003 /* PdfText.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5000000000000000000001 /* PdfText.swift */; };
 		CF3000000000000000000003 /* ChatSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF3000000000000000000001 /* ChatSync.swift */; };
 		CF3000000000000000000004 /* ChatSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF3000000000000000000001 /* ChatSync.swift */; };
 		410D88952F41EE9800684748 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 410D88922F41EE9800684748 /* PrivacyInfo.xcprivacy */; };
@@ -46,6 +59,7 @@
 		41FA27F82F41ED2100FED9FC /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41FA27B82F41ED2100FED9FC /* SafariWebExtensionHandler.swift */; };
 		CF2000000000000000000010 /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = CF2000000000000000000001 /* manifest.json */; };
 		CF2000000000000000000011 /* welcome.html in Resources */ = {isa = PBXBuildFile; fileRef = CF2000000000000000000002 /* welcome.html */; };
+		CF2000000000000000000021 /* popup.html in Resources */ = {isa = PBXBuildFile; fileRef = CF2000000000000000000020 /* popup.html */; };
 		CF2000000000000000000012 /* dist in Resources */ = {isa = PBXBuildFile; fileRef = CF2000000000000000000003 /* dist */; };
 		CF2000000000000000000013 /* icons in Resources */ = {isa = PBXBuildFile; fileRef = CF2000000000000000000004 /* icons */; };
 		CF2000000000000000000014 /* _locales in Resources */ = {isa = PBXBuildFile; fileRef = CF2000000000000000000005 /* _locales */; };
@@ -54,6 +68,7 @@
 		CF2000000000000000000042 /* TipClips in Resources */ = {isa = PBXBuildFile; fileRef = CF2000000000000000000040 /* TipClips */; };
 		CF2000000000000000000015 /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = CF2000000000000000000001 /* manifest.json */; };
 		CF2000000000000000000016 /* welcome.html in Resources */ = {isa = PBXBuildFile; fileRef = CF2000000000000000000002 /* welcome.html */; };
+		CF2000000000000000000022 /* popup.html in Resources */ = {isa = PBXBuildFile; fileRef = CF2000000000000000000020 /* popup.html */; };
 		CF2000000000000000000017 /* dist in Resources */ = {isa = PBXBuildFile; fileRef = CF2000000000000000000003 /* dist */; };
 		CF2000000000000000000018 /* icons in Resources */ = {isa = PBXBuildFile; fileRef = CF2000000000000000000004 /* icons */; };
 		CF2000000000000000000019 /* _locales in Resources */ = {isa = PBXBuildFile; fileRef = CF2000000000000000000005 /* _locales */; };
@@ -106,7 +121,12 @@
 
 /* Begin PBXFileReference section */
 		CF3000000000000000000001 /* ChatSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatSync.swift; sourceTree = "<group>"; };
+		CF5000000000000000000001 /* PdfText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PdfText.swift; sourceTree = "<group>"; };
 		410D88912F41EE9800684748 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		CF6000000000000000000001 /* Chats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chats.swift; sourceTree = "<group>"; };
+		CF9000000000000000000001 /* ChatAI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatAI.swift; sourceTree = "<group>"; };
+		CF7000000000000000000001 /* ChatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatsView.swift; sourceTree = "<group>"; };
+		CF8000000000000000000001 /* ChatMirror.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMirror.swift; sourceTree = "<group>"; };
 		CF4000000000000000000001 /* Setup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Setup.swift; sourceTree = "<group>"; };
 		410D88922F41EE9800684748 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		410D88932F41EE9800684748 /* SharedDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedDefaults.swift; sourceTree = "<group>"; };
@@ -140,6 +160,7 @@
 		41FA27EA2F41ED2100FED9FC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CF2000000000000000000001 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.json; path = Resources/manifest.json; sourceTree = "<group>"; };
 		CF2000000000000000000002 /* welcome.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = welcome.html; path = Resources/welcome.html; sourceTree = "<group>"; };
+		CF2000000000000000000020 /* popup.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = popup.html; path = Resources/popup.html; sourceTree = "<group>"; };
 		CF2000000000000000000003 /* dist */ = {isa = PBXFileReference; lastKnownFileType = folder; name = dist; path = Resources/dist; sourceTree = "<group>"; };
 		CF2000000000000000000004 /* icons */ = {isa = PBXFileReference; lastKnownFileType = folder; name = icons; path = Resources/icons; sourceTree = "<group>"; };
 		CF2000000000000000000005 /* _locales */ = {isa = PBXFileReference; lastKnownFileType = folder; name = _locales; path = Resources/_locales; sourceTree = "<group>"; };
@@ -200,6 +221,9 @@
 		41FA27AE2F41ED2000FED9FC /* Shared (App) */ = {
 			isa = PBXGroup;
 			children = (
+				CF9000000000000000000001 /* ChatAI.swift */,
+				CF6000000000000000000001 /* Chats.swift */,
+				CF7000000000000000000001 /* ChatsView.swift */,
 				410D88912F41EE9800684748 /* ContentView.swift */,
 				CF4000000000000000000001 /* Setup.swift */,
 				410D88922F41EE9800684748 /* PrivacyInfo.xcprivacy */,
@@ -228,7 +252,9 @@
 		41FA27B72F41ED2100FED9FC /* Shared (Extension) */ = {
 			isa = PBXGroup;
 			children = (
+				CF8000000000000000000001 /* ChatMirror.swift */,
 				CF3000000000000000000001 /* ChatSync.swift */,
+				CF5000000000000000000001 /* PdfText.swift */,
 				410D889D2F41EEAA00684748 /* SharedDefaults.swift */,
 				41FA28092F41ED2200FED9FC /* Resources */,
 				41FA27B82F41ED2100FED9FC /* SafariWebExtensionHandler.swift */,
@@ -290,6 +316,7 @@
 			children = (
 				CF2000000000000000000001 /* manifest.json */,
 				CF2000000000000000000002 /* welcome.html */,
+				CF2000000000000000000020 /* popup.html */,
 				CF2000000000000000000003 /* dist */,
 				CF2000000000000000000004 /* icons */,
 				CF2000000000000000000005 /* _locales */,
@@ -478,6 +505,7 @@
 				CF2000000000000000000030 /* PrivacyInfo.xcprivacy in Resources */,
 				CF2000000000000000000010 /* manifest.json in Resources */,
 				CF2000000000000000000011 /* welcome.html in Resources */,
+				CF2000000000000000000021 /* popup.html in Resources */,
 				CF2000000000000000000012 /* dist in Resources */,
 				CF2000000000000000000013 /* icons in Resources */,
 				CF2000000000000000000014 /* _locales in Resources */,
@@ -491,6 +519,7 @@
 				CF2000000000000000000031 /* PrivacyInfo.xcprivacy in Resources */,
 				CF2000000000000000000015 /* manifest.json in Resources */,
 				CF2000000000000000000016 /* welcome.html in Resources */,
+				CF2000000000000000000022 /* popup.html in Resources */,
 				CF2000000000000000000017 /* dist in Resources */,
 				CF2000000000000000000018 /* icons in Resources */,
 				CF2000000000000000000019 /* _locales in Resources */,
@@ -507,6 +536,11 @@
 				410D88962F41EE9800684748 /* SharedDefaults.swift in Sources */,
 				410D88972F41EE9800684748 /* StoreKitManager.swift in Sources */,
 				410D88982F41EE9800684748 /* ContentView.swift in Sources */,
+				CF3000000000000000000005 /* ChatSync.swift in Sources */,
+				CF6000000000000000000002 /* Chats.swift in Sources */,
+				CF9000000000000000000002 /* ChatAI.swift in Sources */,
+				CF7000000000000000000002 /* ChatsView.swift in Sources */,
+				CF8000000000000000000002 /* ChatMirror.swift in Sources */,
 				CF4000000000000000000002 /* Setup.swift in Sources */,
 				41FA27F32F41ED2100FED9FC /* ViewController.swift in Sources */,
 				41FA27C12F41ED2100FED9FC /* AppDelegate.swift in Sources */,
@@ -523,6 +557,10 @@
 				410D88992F41EE9800684748 /* SharedDefaults.swift in Sources */,
 				410D889A2F41EE9800684748 /* StoreKitManager.swift in Sources */,
 				410D889B2F41EE9800684748 /* ContentView.swift in Sources */,
+				CF6000000000000000000003 /* Chats.swift in Sources */,
+				CF9000000000000000000003 /* ChatAI.swift in Sources */,
+				CF7000000000000000000003 /* ChatsView.swift in Sources */,
+				CF8000000000000000000003 /* ChatMirror.swift in Sources */,
 				CF4000000000000000000003 /* Setup.swift in Sources */,
 				41FA27D22F41ED2100FED9FC /* AppDelegate.swift in Sources */,
 			);
@@ -534,6 +572,8 @@
 			files = (
 				CF3000000000000000000002 /* ChatSync.swift in Sources */,
 				410D889E2F41EEAA00684748 /* SharedDefaults.swift in Sources */,
+				CF5000000000000000000002 /* PdfText.swift in Sources */,
+				CF8000000000000000000004 /* ChatMirror.swift in Sources */,
 				41FA27F72F41ED2100FED9FC /* SafariWebExtensionHandler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -544,6 +584,8 @@
 			files = (
 				CF3000000000000000000003 /* ChatSync.swift in Sources */,
 				410D889F2F41EEAA00684748 /* SharedDefaults.swift in Sources */,
+				CF5000000000000000000003 /* PdfText.swift in Sources */,
+				CF8000000000000000000005 /* ChatMirror.swift in Sources */,
 				41FA27F82F41ED2100FED9FC /* SafariWebExtensionHandler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -883,6 +925,7 @@
 				CURRENT_PROJECT_VERSION = 66;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				ENABLE_APP_SANDBOX = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -921,6 +964,7 @@
 				CURRENT_PROJECT_VERSION = 66;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				ENABLE_APP_SANDBOX = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;

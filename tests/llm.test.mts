@@ -61,6 +61,14 @@ test("readDeltas parses OpenAI SSE including split chunks and usage", async () =
   assert.deepEqual(stats, { promptTokens: 11, completionTokens: 2, chars: 5 })
 })
 
+test("readDeltas notes an answer that stopped at its length limit", async () => {
+  const frames = ['data: {"choices":[{"delta":{"content":"Cut"}}]}\n\n', 'data: {"choices":[{"delta":{},"finish_reason":"length"}]}\n\n', "data: [DONE]\n\n"]
+  const body = new ReadableStream<Uint8Array>({ start(c) { for (const f of frames) c.enqueue(new TextEncoder().encode(f)); c.close() } })
+  const stats: StreamStats = { promptTokens: 0, completionTokens: 0, chars: 0 }
+  for await (const _ of readDeltas(body, stats)) { /* read it all */ }
+  assert.equal(stats.cut, true)
+})
+
 test("the prompt says when the page changed and how multi-page conversations look", () => {
   const changed = sanitizePage({ kind: "page", title: "T", url: "https://x", text: "New text", changed: true })
   assert.equal(changed?.changed, true)

@@ -33,5 +33,5 @@ AI는 실수할 수 있어요. 중요한 정보는 확인하세요.
 
 구독은 현재 기간이 끝나기 최소 24시간 전에 취소하지 않으면 자동으로 갱신돼요. 결제 금액은 Apple 계정으로 청구돼요. 구독은 App Store 계정 설정에서 언제든지 관리하거나 취소할 수 있어요.
 
-이용 약관: https://aisidebar.netlify.app/terms
-개인정보 처리방침: https://aisidebar.netlify.app/privacy
+이용 약관: https://context-flow.app/terms
+개인정보 처리방침: https://context-flow.app/privacy

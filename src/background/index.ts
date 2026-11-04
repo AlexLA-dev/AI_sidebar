@@ -1,4 +1,6 @@
+import { mediaKinds, type MediaKind } from "../shared/attachments"
 import { API_BASE, LINKS, PRODUCTS, TARGET, VERSION } from "../shared/config"
+import { consentStatus } from "../shared/consent"
 import { urlKey } from "../shared/conversation"
 import { uiLanguage } from "../shared/i18n"
 import { keyProvider, OWN_KEY_PATTERN } from "../shared/models"
@@ -7,17 +9,23 @@ import {
   STORAGE,
   type AskPayload,
   type BackgroundRequest,
+  type ErrorCode,
+  type FindReply,
   type Plan,
   type Platform,
   type ProOffer,
   type Settings,
   type StatusInfo,
   type StreamEvent,
+  type UpsellWhere,
   type Usage
 } from "../shared/types"
 import { askServer, askWithOwnKey, reportOwnKeyUsage } from "./chat"
 import { callNative, type NativeEntitlement } from "./native"
-import { countValueMoment, syncSettings, syncThreads, watchSettings, watchThreads } from "./sync"
+import { isPdfUrl } from "../shared/pdf"
+import { daysLeft, type RenewalReason } from "../shared/renewal"
+import { isPdfTab, markPdfTab, openPdfPopup, pdfFromBytes, pdfText } from "./pdf"
+import { countValueMoment, mirrorOnStart, mirrorThreads, syncSettings, syncThreads, watchSettings, watchThreads } from "./sync"
 
 // ---------------------------------------------------------------- identity
 
@@ -44,8 +52,22 @@ async function ownKey(): Promise<string> {
   return ((await chrome.storage.local.get(STORAGE.ownKey))[STORAGE.ownKey] as string | undefined) ?? ""
 }
 
+// The app's build number from the native side: the server answers with Claude only for builds
+// whose consent screen names Anthropic (67 and later). Asked once per worker; Chrome has none.
+let buildAsk: Promise<string> | null = null
+
+function appBuild(): Promise<string> {
+  if (TARGET !== "safari") return Promise.resolve("")
+  buildAsk ??= callNative<{ build?: string }>("ping", {}, 1500).then((data) => {
+    if (!data?.build) buildAsk = null
+    return data?.build ?? ""
+  })
+  return buildAsk
+}
+
 async function clientInfo() {
-  return { version: VERSION, platform: await platform(), locale: uiLanguage() }
+  const [build, os] = await Promise.all([appBuild(), platform()])
+  return { version: VERSION, ...(build ? { build } : {}), platform: os, locale: uiLanguage() }
 }
 
 // ---------------------------------------------------- App Store subscription
@@ -77,8 +99,23 @@ let statusCache: { at: number; value: StatusInfo } | null = null
 // answers from all the user's devices, so the panel asks again whenever it opens).
 async function status(refresh = false, fresh = false): Promise<StatusInfo> {
   if (!refresh && !fresh && statusCache && Date.now() - statusCache.at < 30_000) return statusCache.value
-  const [id, ent, key, client] = await Promise.all([installId(), entitlement(refresh), ownKey(), clientInfo()])
-  const store = ent ? { active: ent.active, productId: ent.productId, expiresAt: ent.expiresAt } : null
+  const [id, ent, key, client, local] = await Promise.all([
+    installId(), entitlement(refresh), ownKey(), clientInfo(),
+    chrome.storage.local.get([STORAGE.byokRefused, STORAGE.byokOfferShown])
+  ])
+  // The Own key marks: the app's (through the native side) and this device's own, for the same period.
+  const period = ent?.period ?? null
+  const refused = local[STORAGE.byokRefused] as { period?: string; at?: number } | undefined
+  const refusedHere = period && refused?.period === period && typeof refused.at === "number" ? refused.at : null
+  const refusedAt = [ent?.byokRefusedAt ?? null, refusedHere].filter((v): v is number => typeof v === "number")
+  const store = ent
+    ? {
+        active: ent.active, productId: ent.productId, expiresAt: ent.expiresAt,
+        autoRenew: typeof ent.autoRenew === "boolean" ? ent.autoRenew : null, period, renewalAsked: ent.renewalAsked === true,
+        byokRefusedAt: refusedAt.length ? Math.min(...refusedAt) : null,
+        byokOfferShown: ent.byokOfferShown === true || (period !== null && local[STORAGE.byokOfferShown] === period)
+      }
+    : null
 
   let value: StatusInfo
   try {
@@ -88,14 +125,20 @@ async function status(refresh = false, fresh = false): Promise<StatusInfo> {
       body: JSON.stringify({ installId: id, client, entitlement: ent?.active ? ent.jws : null })
     })
     if (!res.ok) throw new Error(`status ${res.status}`)
-    const body = (await res.json()) as { plan: Plan; usage: Usage | null; limitedBefore?: boolean; offer?: ProOffer | null }
+    const body = (await res.json()) as {
+      plan: Plan; usage: Usage | null; limitedBefore?: boolean; offer?: ProOffer | null; upgradeOffer?: { discount: number } | null
+      limits?: { searchFreeDaily?: number; searchProWeekly?: number }
+    }
     value = {
       plan: body.plan, usage: body.usage, limitedBefore: body.limitedBefore === true, offer: body.offer ?? null,
+      upgradeOffer: body.upgradeOffer ?? null,
+      searchLimits: { freeDaily: body.limits?.searchFreeDaily ?? SEARCH_LIMITS.freeDaily, proWeekly: body.limits?.searchProWeekly ?? SEARCH_LIMITS.proWeekly },
       store, hasOwnKey: Boolean(key), ownKeyProvider: key ? keyProvider(key) : null, offline: false
     }
   } catch {
     value = {
       plan: ent?.active ? planFromProduct(ent.productId) : "free", usage: null, limitedBefore: false, offer: null,
+      upgradeOffer: null, searchLimits: SEARCH_LIMITS,
       store, hasOwnKey: Boolean(key), ownKeyProvider: key ? keyProvider(key) : null, offline: true
     }
   }
@@ -118,16 +161,82 @@ async function reportSwitchedOn(): Promise<void> {
   if (res.ok || res.status === 400) await chrome.storage.local.remove(STORAGE.extOnPending)
 }
 
+/** The skipped-video/PDF line: how often free answers meet one, and how often it leads to Pro. */
+async function reportMediaNotice(action: "shown" | "pro", media: MediaKind[]): Promise<void> {
+  const [id, client] = await Promise.all([installId(), clientInfo()])
+  await fetch(`${API_BASE}/api/v2/event`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ kind: action === "pro" ? "media_notice_pro" : "media_notice", installId: id, client, media: mediaKinds(media.map((kind) => ({ kind }))).join(",") })
+  }).catch(() => undefined)
+}
+
+// Google search allowances when the server can't be asked (free a day, Pro a week).
+const SEARCH_LIMITS = { freeDaily: 3, proWeekly: 50 }
+
+/**
+ * An Own key subscriber and Pro. "refused": the first refusal of the period starts the day after which Pro at a
+ * discount is offered (kept here and in the app, which offers it too); "shown": the discount card was shown, not
+ * again this period; "tap": Upgrade was tapped. The server gets "shown" and "tap" (refusals it logs itself).
+ */
+async function reportUpsell(action: "refused" | "shown" | "tap", where: UpsellWhere, period: string | null, discount: boolean): Promise<void> {
+  if (action === "refused") {
+    if (!period) return
+    const stored = (await chrome.storage.local.get(STORAGE.byokRefused))[STORAGE.byokRefused] as { period?: string } | undefined
+    if (stored?.period === period) return
+    const at = Date.now()
+    await chrome.storage.local.set({ [STORAGE.byokRefused]: { period, at } })
+    await callNative("byokRefused", { period, at })
+    statusCache = null
+    return
+  }
+  if (action === "shown" && period) {
+    await chrome.storage.local.set({ [STORAGE.byokOfferShown]: period })
+    await callNative("byokOfferShown", { period })
+    statusCache = null
+  }
+  const [id, client] = await Promise.all([installId(), clientInfo()])
+  await fetch(`${API_BASE}/api/v2/event`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ kind: "byok_upsell", installId: id, client, action, where, from: "panel", ...(discount ? { discount: true } : {}) })
+  }).catch(() => undefined)
+}
+
+/**
+ * The answer to "what was missing" (a Pro user turned auto-renew off): the app marks the period as asked
+ * (it won't ask there either), and the answer goes to the server. Nothing is offered.
+ */
+async function reportRenewal(reason: RenewalReason, period: string, productId: string | null, expiresAt: string | null): Promise<void> {
+  await chrome.storage.local.set({ [STORAGE.renewalAsked]: period })
+  await callNative("renewalAsked", { period })
+  entitlementCache = null
+  statusCache = null
+  const [id, client] = await Promise.all([installId(), clientInfo()])
+  const days = daysLeft(expiresAt)
+  await fetch(`${API_BASE}/api/v2/event`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ kind: "renewal_off", installId: id, client, reason, product: productId ?? "", ...(days === null ? {} : { days_left: days }), from: "panel" })
+  }).catch(() => undefined)
+}
+
 // -------------------------------------------------------------------- chat
 
+/** Nothing goes to the AI without consent to the current text (the panel asks for it first). */
+async function consented(): Promise<boolean> {
+  return consentStatus((await chrome.storage.local.get(STORAGE.consent))[STORAGE.consent]) === "ok"
+}
+
 async function runChat(payload: AskPayload, emit: (e: StreamEvent) => void, signal: AbortSignal): Promise<void> {
+  if (!(await consented())) return emit({ type: "error", code: "CONSENT" })
   const [id, ent, key, prefs, client] = await Promise.all([installId(), entitlement(), ownKey(), settings(), clientInfo()])
   const storePlan = ent?.active ? planFromProduct(ent.productId) : "free"
   // The own-key mode is part of the Pro and "Own key" plans (on Chrome there are no plans).
   const ownKeyAllowed = TARGET === "chrome" || storePlan !== "free"
 
-  // Google answers need Google Search grounding, which only our server has.
-  if (key && ownKeyAllowed && payload.mode !== "google") {
+  // Google answers need Google Search grounding, and "Ask your chats" is a Pro feature of our server.
+  if (key && ownKeyAllowed && payload.mode !== "google" && payload.context !== "history") {
     const started = Date.now()
     const usage = await askWithOwnKey(key, payload, prefs.aboutMe, client.locale, prefs.ownKeyModel, emit, signal)
     reportOwnKeyUsage({ ...usage, ms: Date.now() - started, tier: prefs.ownKeyModel, action: payload.action }, id, client)
@@ -147,12 +256,17 @@ chrome.runtime.onConnect.addListener((port) => {
   if (port.name !== "chat") return
   const controller = new AbortController()
   port.onDisconnect.addListener(() => controller.abort())
+  // One question per port: Safari delivers a popup's message twice (two answers, two used from the allowance).
+  let asked = false
+  let seq = 0
   port.onMessage.addListener((message: { type: "ask"; payload: AskPayload }) => {
-    if (message?.type !== "ask") return
+    if (message?.type !== "ask" || asked) return
+    asked = true
     const emit = (event: StreamEvent) => {
       if (event.type === "done") void countValueMoment().catch(() => undefined)
       try {
-        port.postMessage(event)
+        // Numbered, so a page that gets a message twice can drop the copy.
+        port.postMessage({ ...event, seq: ++seq })
       } catch {
         controller.abort()
       }
@@ -169,14 +283,38 @@ chrome.runtime.onConnect.addListener((port) => {
   })
 })
 
+// --------------------------------------------------------------- AI search
+
+/** AI search over the chats (Pro, /api/v2/find): the server checks the plan and charges one answer. */
+async function findChats(query: string, chats: unknown[]): Promise<FindReply> {
+  if (!(await consented())) return { ok: false, code: "CONSENT" }
+  const [id, ent, client] = await Promise.all([installId(), entitlement(), clientInfo()])
+  try {
+    const res = await fetch(`${API_BASE}/api/v2/find`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ installId: id, client, entitlement: ent?.active ? ent.jws : null, query, chats }),
+      signal: AbortSignal.timeout(45_000)
+    })
+    const body = (await res.json().catch(() => ({}))) as { results?: Array<{ id: string; why: string }>; usage?: Usage | null; code?: string; offer?: ProOffer | null }
+    statusCache = null
+    if (res.ok && Array.isArray(body.results)) return { ok: true, results: body.results, usage: body.usage ?? null }
+    // An old server doesn't know the endpoint: the feature isn't there yet.
+    const code = (body.code ?? (res.status === 404 ? "UNAVAILABLE" : res.status >= 500 ? "UPSTREAM" : "BAD_REQUEST")) as ErrorCode
+    return { ok: false, code, usage: body.usage ?? null, offer: body.offer ?? null }
+  } catch {
+    return { ok: false, code: "NETWORK" }
+  }
+}
+
 // --------------------------------------------------------------- open app
 
-async function openApp(target: "subscribe" | "manage" | "home"): Promise<{ opened: boolean; url: string }> {
+async function openApp(target: "subscribe" | "manage" | "home", feature?: "ai"): Promise<{ opened: boolean; url: string }> {
   if (TARGET !== "safari") {
     await chrome.tabs.create({ url: LINKS.appStore })
     return { opened: true, url: LINKS.appStore }
   }
-  const url = target === "subscribe" ? "contextflow://subscribe?plan=pro" : target === "manage" ? "contextflow://manage" : "contextflow://open"
+  const url = target === "subscribe" ? `contextflow://subscribe?plan=pro${feature ? `&feature=${feature}` : ""}` : target === "manage" ? "contextflow://manage" : "contextflow://open"
   // macOS can launch the app from the extension; on iOS the page has to follow the link.
   const result = await callNative<{ opened?: boolean }>("openApp", { url })
   entitlementCache = null
@@ -196,7 +334,17 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
         .then(sendResponse, () => sendResponse(null))
       return true
     case "openApp":
-      openApp(message.target).then(sendResponse, () => sendResponse({ opened: false, url: "" }))
+      openApp(message.target, message.feature).then(sendResponse, () => sendResponse({ opened: false, url: "" }))
+      return true
+    case "mediaNotice":
+      void reportMediaNotice(message.action, message.media)
+      sendResponse({ ok: true })
+      return false
+    case "byokUpsell":
+      reportUpsell(message.action, message.where, message.period, message.discount === true).then(() => sendResponse({ ok: true }), () => sendResponse({ ok: false }))
+      return true
+    case "renewalAnswer":
+      reportRenewal(message.reason, message.period, message.productId, message.expiresAt).then(() => sendResponse({ ok: true }), () => sendResponse({ ok: false }))
       return true
     case "setOwnKey": {
       const key = message.key.trim()
@@ -215,12 +363,25 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
     case "openPage":
       openPage(message.url).finally(() => sendResponse({ ok: true }))
       return true
+    case "find":
+      findChats(message.query, message.chats).then(sendResponse, () => sendResponse({ ok: false, code: "NETWORK" }))
+      return true
+    case "pdfText":
+      pdfText(message.url).then(sendResponse, () => sendResponse({ ok: false, reason: "failed", error: "background" }))
+      return true
+    case "pdfBytes":
+      pdfFromBytes(message.url, message.data).then(sendResponse, () => sendResponse({ ok: false, reason: "failed", error: "background" }))
+      return true
     case "syncThreads":
       if (TARGET !== "safari") {
         sendResponse({ changed: false })
         return false
       }
-      syncThreads().then((changed) => sendResponse({ changed }), () => sendResponse({ changed: false }))
+      // The app's changes and its "continue this chat" first, then iCloud.
+      mirrorThreads(true)
+        .catch(() => null)
+        .then(async (open) => ({ open, changed: await syncThreads().catch(() => false) }))
+        .then(({ open, changed }) => sendResponse({ changed: changed || Boolean(open), open }), () => sendResponse({ changed: false }))
       return true
     default:
       return false
@@ -244,18 +405,33 @@ async function openPage(url: string): Promise<void> {
   if (tab.windowId !== undefined) await chrome.windows?.update(tab.windowId, { focused: true }).catch(() => undefined)
 }
 
+/** `work`, or a rejection after `ms` (Safari never answers a message sent to a tab showing a PDF). */
+function withTimeout<T>(work: Promise<T>, ms: number): Promise<T> {
+  return Promise.race([work, new Promise<T>((_, reject) => setTimeout(() => reject(new Error("timeout")), ms))])
+}
+
 async function toggle(tab: chrome.tabs.Tab): Promise<void> {
   if (!tab.id) return
+  // Safari's PDF viewer takes no scripts: ContextFlow opens as a popup about the PDF instead.
+  if (TARGET === "safari" && tab.url && isPdfUrl(tab.url)) {
+    await openPdfPopup(tab.id)
+    return
+  }
   try {
-    await chrome.tabs.sendMessage(tab.id, { type: "toggle" })
+    await withTimeout(chrome.tabs.sendMessage(tab.id, { type: "toggle" }), 1500)
     return
   } catch {
     // No content script yet (tab opened before the extension was allowed on this site).
   }
   try {
-    await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ["dist/content.js"] })
-    await chrome.tabs.sendMessage(tab.id, { type: "open" })
+    await withTimeout(chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ["dist/content.js"] }), 3000)
+    await withTimeout(chrome.tabs.sendMessage(tab.id, { type: "open" }), 1500)
   } catch {
+    // A PDF whose address doesn't say so (arXiv's /pdf/2401.12345).
+    if (TARGET === "safari" && (await isPdfTab(tab.url))) {
+      await openPdfPopup(tab.id)
+      return
+    }
     // Browser pages, the start page, App Store pages… cannot be scripted.
     await chrome.tabs.create({ url: chrome.runtime.getURL("welcome.html?restricted=1") })
   }
@@ -263,6 +439,13 @@ async function toggle(tab: chrome.tabs.Tab): Promise<void> {
 
 chrome.action.onClicked.addListener((tab) => {
   void toggle(tab)
+})
+
+// A tab that goes to a PDF gets the PDF popup on its toolbar button (and loses it when it leaves).
+chrome.tabs.onUpdated.addListener((tabId, info, tab) => {
+  if (info.url === undefined && info.status !== "loading") return
+  void markPdfTab(tabId, info.url ?? tab.url)
+  void chrome.action.setBadgeText({ tabId, text: "" }).catch(() => undefined)
 })
 
 // Version 1.x (Plasmo) kept Supabase sessions, trial counters and the user's
@@ -300,5 +483,8 @@ watchSettings()
 void syncSettings().catch(() => undefined)
 // Offline at install time: try again whenever the background starts.
 void reportSwitchedOn().catch(() => undefined)
-// Chats follow the user to their other Apple devices through iCloud.
-if (TARGET === "safari") watchThreads()
+// Chats follow the user to their other Apple devices through iCloud, and to the ContextFlow app.
+if (TARGET === "safari") {
+  watchThreads()
+  setTimeout(() => void mirrorOnStart().catch(() => undefined), 1_500)
+}

@@ -16,6 +16,8 @@ interface Props {
   site: string
   onChange: (patch: Partial<Settings>) => void
   onUpgrade: () => void
+  // The Own key plan's button: "Upgrade to Pro", at the discount when there is one.
+  upgradeLabel?: string
   onManage: () => void
   onStatusChange: () => void
   onOpenUrl: (url: string) => void
@@ -58,30 +60,38 @@ export function SettingsView(props: Props): VNode {
   const renews = status?.store?.expiresAt ? new Date(status.store.expiresAt).toLocaleDateString() : null
   const planName = plan === "pro" ? t("planPro") : plan === "byok" ? t("planByok") : t("planFree")
 
+  // The plan comes first until there is Pro; with Pro it's managed at the very bottom.
+  const planGroup = (
+    <section class="cf-group">
+      <div class="cf-row">
+        <span class="cf-label">{t("setPlan")}</span>
+        <span class={`cf-plan ${plan}`}>{planName}</span>
+      </div>
+      {usage && plan !== "byok" && (
+        <div class="cf-meter" aria-hidden="true">
+          <div style={{ width: `${Math.min(100, (usage.used / Math.max(1, usage.limit)) * 100)}%` }} />
+        </div>
+      )}
+      {renews && plan !== "free" && <p class="cf-hint">{status?.store?.autoRenew === false ? t("planEnds", renews) : t("planRenews", renews)}</p>}
+      {TARGET === "safari" && (
+        <div class="cf-row buttons">
+          {plan === "free" ? (
+            <button type="button" class="cf-primary" onClick={props.onUpgrade}><Icon.Sparkle size={14} /> {t("getPro")}</button>
+          ) : (
+            <>
+              {plan === "byok" && <button type="button" class="cf-primary" onClick={props.onUpgrade}><Icon.Sparkle size={14} /> {props.upgradeLabel ?? t("upgradePro")}</button>}
+              <button type="button" class="cf-secondary" onClick={props.onManage}>{t("manageSubscription")}</button>
+            </>
+          )}
+          {plan === "free" && <button type="button" class="cf-link" onClick={props.onManage}>{t("restorePurchases")}</button>}
+        </div>
+      )}
+    </section>
+  )
+
   return (
     <div class="cf-settings">
-      <section class="cf-group">
-        <div class="cf-row">
-          <span class="cf-label">{t("setPlan")}</span>
-          <span class={`cf-plan ${plan}`}>{planName}</span>
-        </div>
-        {usage && plan !== "byok" && (
-          <div class="cf-meter" aria-hidden="true">
-            <div style={{ width: `${Math.min(100, (usage.used / Math.max(1, usage.limit)) * 100)}%` }} />
-          </div>
-        )}
-        {renews && plan !== "free" && <p class="cf-hint">{t("planRenews", renews)}</p>}
-        {TARGET === "safari" && (
-          <div class="cf-row buttons">
-            {plan === "free" ? (
-              <button type="button" class="cf-primary" onClick={props.onUpgrade}><Icon.Sparkle size={14} /> {t("getPro")}</button>
-            ) : (
-              <button type="button" class="cf-secondary" onClick={props.onManage}>{t("manageSubscription")}</button>
-            )}
-            {plan === "free" && <button type="button" class="cf-link" onClick={props.onManage}>{t("restorePurchases")}</button>}
-          </div>
-        )}
-      </section>
+      {plan !== "pro" && planGroup}
 
       <section class="cf-group">
         <div class="cf-row">
@@ -196,6 +206,8 @@ export function SettingsView(props: Props): VNode {
           {chatsDeleted ? t("chatsDeleted") : t("deleteChats")}
         </button>
       </section>
+
+      {plan === "pro" && planGroup}
 
       <footer class="cf-links">
         <button type="button" class="cf-link" onClick={props.onShowTour}>{t("tourShow")}</button>

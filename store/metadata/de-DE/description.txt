@@ -33,5 +33,5 @@ KI kann Fehler machen. Überprüfe wichtige Informationen.
 
 Abonnements verlängern sich automatisch, sofern sie nicht mindestens 24 Stunden vor Ende des aktuellen Zeitraums gekündigt werden. Die Zahlung wird deinem Apple Account belastet. Du kannst dein Abonnement jederzeit in den Einstellungen deines App Store-Accounts verwalten oder kündigen.
 
-Nutzungsbedingungen: https://aisidebar.netlify.app/terms
-Datenschutzrichtlinie: https://aisidebar.netlify.app/privacy
+Nutzungsbedingungen: https://context-flow.app/terms
+Datenschutzrichtlinie: https://context-flow.app/privacy

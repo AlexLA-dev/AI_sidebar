@@ -33,5 +33,5 @@ AI can make mistakes. Check important information.
 
 Subscriptions renew automatically unless cancelled at least 24 hours before the end of the current period. Payment is charged to your Apple Account. You can manage or cancel your subscription at any time in your App Store account settings.
 
-Terms of Use: https://aisidebar.netlify.app/terms
-Privacy Policy: https://aisidebar.netlify.app/privacy
+Terms of Use: https://context-flow.app/terms
+Privacy Policy: https://context-flow.app/privacy

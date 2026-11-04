@@ -15,12 +15,7 @@
   "message": "此页面"
  },
  "ctxSelection": {
-  "message": "所选内容 · $P0$ 个词",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "所选内容 · {0} 个词"
  },
  "ctxNone": {
   "message": "自由对话"
@@ -71,12 +66,7 @@
   "message": "请用简单易懂的话解释此页面，就像讲给一个聪明的 12 岁孩子听。"
  },
  "promptTranslate": {
-  "message": "请将此页面的主要内容翻译成$P0$，并保留原有的结构和标题。",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "请将此页面的主要内容翻译成{0}，并保留原有的结构和标题。"
  },
  "promptSelSummarize": {
   "message": "请简要总结所选文本。"
@@ -85,12 +75,7 @@
   "message": "请用简单易懂的话解释所选文本。"
  },
  "promptSelTranslate": {
-  "message": "请将所选文本翻译成$P0$。",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "请将所选文本翻译成{0}。"
  },
  "promptSelImprove": {
   "message": "请改写所选文本，使其更清晰、更简洁。只给出一个改进后的版本。"
@@ -177,23 +162,13 @@
   "message": "你"
  },
  "newPage": {
-  "message": "新页面：$P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "新页面：{0}"
  },
  "pageUpdated": {
   "message": "页面已更新"
  },
  "nowOnPage": {
-  "message": "当前：$P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "当前：{0}"
  },
  "retry": {
   "message": "重试"
@@ -238,12 +213,7 @@
   "message": "已达到每周上限"
  },
  "limitProBody": {
-  "message": "你的 Pro 回答次数将在 $P0$后恢复。",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "你的 Pro 回答次数将在 {0}后恢复。"
  },
  "getPro": {
   "message": "升级 Pro"
@@ -252,54 +222,37 @@
   "message": "使用我的 API 密钥"
  },
  "usageFree": {
-  "message": "今日剩余免费回答：$P0$/$P1$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "今日剩余免费回答：{0}/{1}"
  },
  "usagePro": {
-  "message": "Pro · 本周剩余回答：$P0$/$P1$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "Pro · 本周剩余回答：{0}/{1}"
  },
  "usageOwnKey": {
   "message": "正在使用你的 API 密钥"
  },
  "hours": {
-  "message": "$P0$ 小时",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} 小时"
  },
  "minutes": {
-  "message": "$P0$ 分钟",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} 分钟"
  },
  "consentTitle": {
   "message": "首次回答前须知"
  },
  "consentBody": {
-  "message": "为了回答问题，ContextFlow 会通过我们的服务器将你的问题和此页面（或所选内容）的文本发送给 OpenAI；使用 Google 回答时则发送给 Google。我们的服务器不会存储页面内容和对话；你的对话仅保存在你的设备上；开启同步后也会保存在你的 iCloud 中。"
+  "message": "为了回答问题，ContextFlow 会通过我们的服务器将你的问题和此页面（或所选内容）的文本（使用 AI 搜索和“问问你的所有对话”时为你的对话摘录）发送给 Anthropic（Claude），不可用时发送给 OpenAI；使用 Google 回答时则发送给 Google。我们的服务器不会存储页面内容和对话；你的对话仅保存在你的设备上；开启同步后也会保存在你的 iCloud 中。"
  },
  "consentAccept": {
   "message": "同意并继续"
+ },
+ "consentAgainTitle": {
+  "message": "更新：现在由 Claude 回答"
+ },
+ "consentDecline": {
+  "message": "暂不"
+ },
+ "consentNeeded": {
+  "message": "未发送任何内容：AI 回答需要先获得你的同意。"
  },
  "privacyPolicy": {
   "message": "隐私政策"
@@ -317,12 +270,7 @@
   "message": "自有密钥"
  },
  "planRenews": {
-  "message": "续订日期：$P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "续订日期：{0}"
  },
  "manageSubscription": {
   "message": "管理订阅"
@@ -364,20 +312,10 @@
   "message": "✦ 按钮可在任何网站上打开 ContextFlow。可通过下方链接在单个网站上隐藏，或在此处关闭。"
  },
  "hideOnSite": {
-  "message": "在 $P0$ 上隐藏",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "在 {0} 上隐藏"
  },
  "showOnSite": {
-  "message": "在 $P0$ 上显示",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "在 {0} 上显示"
  },
  "setSelectionButton": {
   "message": "选中文本时显示按钮"
@@ -443,12 +381,7 @@
   "message": "给 ContextFlow 评分"
  },
  "version": {
-  "message": "版本 $P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "版本 {0}"
  },
  "fabLabel": {
   "message": "询问 ContextFlow"
@@ -472,15 +405,7 @@
   "message": "来源"
  },
  "tourStep": {
-  "message": "$P0$/$P1$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "{0}/{1}"
  },
  "tourSkip": {
   "message": "跳过"
@@ -498,7 +423,7 @@
   "message": "就此页面提问"
  },
  "tourAskBody": {
-  "message": "ContextFlow 会读取你正在浏览的页面。选择“总结”等操作，或输入你自己的问题。"
+  "message": "ContextFlow 会读取你正在看的页面；使用 Pro 时，还会读取页面上带字幕的视频和 PDF。选择“总结”等操作，或输入你自己的问题。"
  },
  "tourSelectTitle": {
   "message": "只想问一部分？"
@@ -560,6 +485,27 @@
  "saveNote": {
   "message": "保存笔记"
  },
+ "selQuestion": {
+  "message": "输入你的问题…"
+ },
+ "selNote": {
+  "message": "笔记"
+ },
+ "selNoteTitle": {
+  "message": "将所选内容作为笔记保存到对话（不消耗回答次数）"
+ },
+ "selNoteSaved": {
+  "message": "已保存到对话"
+ },
+ "selNoteOpen": {
+  "message": "打开"
+ },
+ "selHint": {
+  "message": "新功能：可以在这里输入关于所选内容的问题，或把它作为笔记保存到对话中——笔记不消耗回答次数。"
+ },
+ "noteQuote": {
+  "message": "“{0}”"
+ },
  "placeholderNote": {
   "message": "笔记——会保留在此对话中"
  },
@@ -579,26 +525,10 @@
   "message": "打开此页面"
  },
  "usageFreeShort": {
-  "message": "今日剩余 $P0$/$P1$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "今日剩余 {0}/{1}"
  },
  "usageProShort": {
-  "message": "Pro · 本周剩余 $P0$/$P1$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "Pro · 本周剩余 {0}/{1}"
  },
  "pinChat": {
   "message": "置顶对话"
@@ -616,50 +546,22 @@
   "message": "此对话中的笔记"
  },
  "pages_one": {
-  "message": "$P0$ 个页面",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} 个页面"
  },
  "pages_few": {
-  "message": "$P0$ 个页面",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} 个页面"
  },
  "pages_many": {
-  "message": "$P0$ 个页面",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} 个页面"
  },
  "pages_other": {
-  "message": "$P0$ 个页面",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{0} 个页面"
  },
  "cancel": {
   "message": "取消"
  },
  "pickCount": {
-  "message": "$P0$/$P1$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "{0}/{1}"
  },
  "pickHint": {
   "message": "点按要分享的消息"
@@ -671,26 +573,10 @@
   "message": "取消全选"
  },
  "limitFreeBack": {
-  "message": "$P1$（$P2$后）将恢复 $P0$ 次免费回答。",
-  "placeholders": {
-   "p1": {
-    "content": "$2"
-   },
-   "p2": {
-    "content": "$3"
-   },
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "{1}（{2}后）将恢复 {0} 次免费回答。"
  },
  "limitFreePro": {
-  "message": "升级 Pro，每周最多可获得 $P0$ 次回答。",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Pro 每周最多 {0} 个回答，读取页面上的视频和 PDF，还有 AI 搜索和跨所有对话提问。"
  },
  "limitNotes": {
   "message": "笔记始终免费且不限次数：现在记下重点，稍后再问 AI。"
@@ -699,55 +585,258 @@
   "message": "写笔记"
  },
  "errProvider": {
-  "message": "你的 AI 服务商返回：$P0$",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "你的 AI 服务商返回：{0}"
  },
  "offerLimit": {
-  "message": "或开通 Pro，首月优惠 $P0$%：使用更聪明的模型，每周最多 $P1$ 次回答。可随时取消。",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   },
-   "p1": {
-    "content": "$2"
-   }
-  }
+  "message": "或开通 Pro，首月优惠 {0}%：每周最多 {1} 次更深入、更详细的回答。可随时取消。"
  },
  "offerButton": {
-  "message": "Pro 首月优惠 $P0$%",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Pro 首月优惠 {0}%"
  },
  "offerShort": {
-  "message": "Pro −$P0$%",
-  "placeholders": {
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "Pro −{0}%"
  },
  "offerCardTitle": {
   "message": "回答不够用？"
  },
  "offerCardBody": {
-  "message": "你之前用完过每日免费回答。Pro 使用更聪明的模型，每周最多 $P1$ 次回答，首月优惠 $P0$%。之后按原价续订，可随时在 App Store 设置中取消。",
-  "placeholders": {
-   "p1": {
-    "content": "$2"
-   },
-   "p0": {
-    "content": "$1"
-   }
-  }
+  "message": "你之前用完过每日免费回答。Pro 每周最多提供 {1} 次更深入、更详细的回答，首月优惠 {0}%。之后按原价续订，可随时在 App Store 设置中取消。"
  },
  "offerLater": {
   "message": "以后再说"
+ },
+ "emptyVideo": {
+  "message": "我能看到此视频，并会读取它的文字稿。提个问题，或选择一个操作。"
+ },
+ "emptyPdf": {
+  "message": "我能看到此 PDF。提个问题，或选择一个操作。"
+ },
+ "readingVideo": {
+  "message": "正在读取视频文字稿…"
+ },
+ "readingPdf": {
+  "message": "正在读取 PDF…"
+ },
+ "usedVideo": {
+  "message": "视频文字稿 · {0}"
+ },
+ "usedPdf": {
+  "message": "{0} · {1} 页"
+ },
+ "videoNoTranscript": {
+  "message": "此视频没有字幕：回答依据其标题和简介。"
+ },
+ "videoFailed": {
+  "message": "无法获取此视频的文字稿：回答依据其标题和简介。"
+ },
+ "pdfNoText": {
+  "message": "“{0}”没有可读取的文字（扫描页面）：回答不包含它。"
+ },
+ "pdfFailed": {
+  "message": "无法读取 PDF“{0}”：回答不包含它。"
+ },
+ "searchChats": {
+  "message": "搜索对话"
+ },
+ "searchNone": {
+  "message": "没有找到包含“{0}”的对话"
+ },
+ "searchClear": {
+  "message": "清除搜索"
+ },
+ "askHistory": {
+  "message": "问问你的所有对话"
+ },
+ "askHistoryHint": {
+  "message": "关于你读过和问过的一切的问题"
+ },
+ "askHistoryEmpty": {
+  "message": "就你在 ContextFlow 中读过和问过的一切，跨所有对话提问。"
+ },
+ "askHistoryEx1": {
+  "message": "我这周读了什么？"
+ },
+ "askHistoryEx2": {
+  "message": "整理我的笔记"
+ },
+ "askHistoryEx3": {
+  "message": "我学到了哪些关于 AI 的东西？"
+ },
+ "placeholderHistory": {
+  "message": "就你的对话提问…"
+ },
+ "findToggle": {
+  "message": "AI 搜索"
+ },
+ "findToggleLocked": {
+  "message": "AI 搜索 — Pro"
+ },
+ "findPlaceholder": {
+  "message": "描述你要找的对话…"
+ },
+ "findHint": {
+  "message": "用自己的话描述你记得的内容，然后按回车：“上周那篇关于睡眠和咖啡的文章”。"
+ },
+ "findBusy": {
+  "message": "正在搜索你的对话…"
+ },
+ "upsellTitle": {
+  "message": "ContextFlow Pro"
+ },
+ "upsellFindTitle": {
+  "message": "凭记忆找到任何对话"
+ },
+ "upsellHistoryTitle": {
+  "message": "就你读过的一切提问"
+ },
+ "upsellFindName": {
+  "message": "AI 搜索"
+ },
+ "upsellFindText": {
+  "message": "用自己的话描述一个对话（“上周那篇关于睡眠和咖啡的文章”），即使没有确切字词，AI 也能找到。"
+ },
+ "upsellHistoryName": {
+  "message": "问问你的所有对话"
+ },
+ "upsellHistoryText": {
+  "message": "跨所有对话提问：“我读过哪些关于养老储蓄的内容？”“整理我这个月的笔记”。"
+ },
+ "upsellMore": {
+  "message": "另外，读取页面上的视频和 PDF，每周最多 375 个更深入、更详细的回答，适用于 iPhone、iPad 和 Mac。"
+ },
+ "errProOnly": {
+  "message": "这是 Pro 功能。"
+ },
+ "tagsTitle": {
+  "message": "标签"
+ },
+ "tagsNew": {
+  "message": "新标签…"
+ },
+ "tagsAdd": {
+  "message": "添加标签"
+ },
+ "tagsDone": {
+  "message": "完成"
+ },
+ "tagsFilter": {
+  "message": "按标签筛选"
+ },
+ "tagsGroup": {
+  "message": "文件夹"
+ },
+ "tagsEdit": {
+  "message": "标签"
+ },
+ "tagsNone": {
+  "message": "无标签"
+ },
+ "tagsButton": {
+  "message": "标签"
+ },
+ "hintGot": {
+  "message": "知道了"
+ },
+ "hintChatsTitle": {
+  "message": "查找、整理、回顾"
+ },
+ "hintChatsBody": {
+  "message": "按字词或 #标签 搜索。用 🏷 给对话和回答加标签，打开“文件夹”即可分组。Pro 中，✦ 能根据描述找到对话，“问问你的所有对话”会综合所有对话回答。"
+ },
+ "hintVideoTitle": {
+  "message": "此页面有视频"
+ },
+ "hintVideoBody": {
+  "message": "回答会依据其文字稿，并指出 [4:15] 这样的时间点。没有字幕时，会依据标题和简介回答并说明。"
+ },
+ "hintPdfTitle": {
+  "message": "也会读取 PDF"
+ },
+ "hintPdfBody": {
+  "message": "此页面显示或链接的 PDF 会随问题一起发送；回答会标明页码。"
+ },
+ "proSkipVideo": {
+  "message": "未读取此页面上的视频 — Pro 会读取视频"
+ },
+ "proSkipPdf": {
+  "message": "未读取此页面上的 PDF — Pro 会读取 PDF"
+ },
+ "proSkipBoth": {
+  "message": "未读取此页面上的视频和 PDF — Pro 会读取它们"
+ },
+ "tryPro": {
+  "message": "试用 Pro"
+ },
+ "emptyVideoFree": {
+  "message": "此页面有视频。Pro 回答会使用视频字幕全文，免费回答只使用页面上显示的内容（标题、简介）。"
+ },
+ "emptyPdfFree": {
+  "message": "此页面有 PDF。Pro 回答会读取 PDF，免费回答只使用页面文字。"
+ },
+ "hintVideoBodyFree": {
+  "message": "使用 Pro 时，回答会根据字幕全文并指出 [4:15] 这样的时间点。免费回答使用标题和简介。"
+ },
+ "hintPdfTitleFree": {
+  "message": "此页面有 PDF"
+ },
+ "hintPdfBodyFree": {
+  "message": "Pro 会读取页面上显示或链接的 PDF，并说明内容来自哪一页。免费回答只使用页面文字。"
+ },
+ "renewalTitle": {
+  "message": "Pro 将于{0}结束"
+ },
+ "renewalBody": {
+  "message": "自动续订已关闭。缺少了什么？"
+ },
+ "renewalPrice": {
+  "message": "太贵了"
+ },
+ "renewalRarely": {
+  "message": "用得不多"
+ },
+ "renewalAnswers": {
+  "message": "回答不够好"
+ },
+ "renewalFeatures": {
+  "message": "缺少我需要的功能"
+ },
+ "renewalFreeEnough": {
+  "message": "免费版就够用"
+ },
+ "renewalOther": {
+  "message": "其他原因"
+ },
+ "renewalThanks": {
+  "message": "谢谢，这能帮助我们改进 ContextFlow。"
+ },
+ "planEnds": {
+  "message": "将于{0}结束：自动续订已关闭"
+ },
+ "upgradePro": {
+  "message": "升级到 Pro"
+ },
+ "upgradeProOff": {
+  "message": "以 {0}% 折扣升级"
+ },
+ "byokLimitTitle": {
+  "message": "今天通过 ContextFlow 的回答已用完"
+ },
+ "byokLimitNoKey": {
+  "message": "你还没有添加自己的密钥，所以回答通过 ContextFlow 提供：每天 {0} 次。请在设置中添加密钥，或升级到 Pro：每周最多 {1} 次回答，无需密钥。"
+ },
+ "byokLimitGoogle": {
+  "message": "在「自有密钥」方案中，Google 回答通过 ContextFlow 提供：每天 {0} 次。Pro 每周最多 {1} 次。"
+ },
+ "byokSearch": {
+  "message": "「自有密钥」方案的 Google 搜索为每天 {0} 次。Pro 每周 {1} 次。"
+ },
+ "byokProOnly": {
+  "message": "「自有密钥」方案不包含此功能。"
+ },
+ "byokOfferTitle": {
+  "message": "Pro {0}% 折扣"
+ },
+ "byokOfferBody": {
+  "message": "Pro 无需你的密钥即可回答：每周最多 {0} 次回答、每周 {1} 次 Google 搜索、“问问你的所有对话”和 AI 搜索。付款前 App Store 会显示价格和期限。Pro 立即生效，当前方案未使用的部分会退款。"
  }
 }
