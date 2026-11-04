@@ -42,6 +42,8 @@ export type WatchRequest =
   | { type: "watchSave"; draft: WatchDraft; prepared: WatchPrepared; how: WatchHow; live: boolean }
   | { type: "watchList" }
   | { type: "watchCancel"; id: string; via: "panel" | "list" }
+  // New words for what a watch waits for, from the list: the rule is planned again; what's read stays.
+  | { type: "watchEdit"; id: string; condition: string }
   // The page the person has open: which watches it has, then the values read from it.
   | { type: "watchForUrl"; url: string }
   | { type: "watchLive"; url: string; values: Record<string, string | null>; text?: string }

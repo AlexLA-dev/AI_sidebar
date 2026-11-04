@@ -416,7 +416,7 @@ createServer(async (req, res) => {
   // The audit's pages (2.5): fields whose site keeps its own buttons inside them (a search like Amazon's, a
   // comment's Send), and a news story with a publication date, a "shipped" in its text and an event's date.
   // ?sel=<id> selects that element, as a finger would.
-  if (url.pathname === "/fields" || url.pathname === "/news") {
+  if (url.pathname === "/fields" || url.pathname === "/news" || url.pathname === "/prices") {
     const sel = `<script>const id = new URLSearchParams(location.search).get("sel"); if (id) setTimeout(() => getSelection().selectAllChildren(document.getElementById(id)), 600)</script>`
     const fields = `<h1>Fields</h1>
 <form role="search" style="position:relative;margin:24px 0"><input id="search" name="q" placeholder="Search" style="width:100%;box-sizing:border-box;height:44px;font-size:17px;padding:0 56px 0 12px">
@@ -431,9 +431,18 @@ createServer(async (req, res) => {
 <p>The company <span id="shipped">shipped</span> its first phone in 2007 and the line still sells for <span id="price">$1,299</span>.</p>
 <p>Tickets go on sale <span id="sale">12 December</span> at 10:00 for the anniversary event.</p>
 <p>Order #4471 · <span id="status">Shipped</span></p>`
+    // Prices with a code instead of a symbol (the owner, build 75); "n1" is the number alone, as a tap selects it.
+    const prices = `<h1>Prices</h1>
+<p>Monthly plan. Price: USD <span id="n1">40</span> per month, billed yearly.</p>
+<p id="eur">40 EUR</p>
+<p id="rub">1 299 RUB</p>
+<p id="chf">CHF 12.50</p>
+<p>A paragraph to select for the bubble's place: the four-day week kept revenue flat in most trials while cutting burnout, and the teams that cut meetings first gained the most. <span id="long">Most teams halved their recurring meetings and kept them under thirty minutes.</span></p>`
+    const page = url.pathname === "/fields" ? fields : url.pathname === "/news" ? news : prices
+    const name = url.pathname === "/fields" ? "Fields" : url.pathname === "/news" ? "News" : "Prices"
     res.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" })
-    res.end(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${url.pathname === "/fields" ? "Fields" : "News"} · Test</title>
-<style>body{font:18px -apple-system,sans-serif;margin:24px 16px;line-height:1.5}</style></head><body>${url.pathname === "/fields" ? fields : news}${sel}</body></html>`)
+    res.end(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${name} · Test</title>
+<style>body{font:18px -apple-system,sans-serif;margin:24px 16px;line-height:1.5}</style></head><body>${page}${sel}</body></html>`)
     return
   }
   if (url.pathname === "/shop-js") {

@@ -31,6 +31,13 @@ type State =
 
 const send = <T,>(message: unknown) => chrome.runtime.sendMessage(message) as Promise<T>
 
+/** A field as tall as its words (a few lines at most, then it scrolls). */
+export function grow(el: HTMLTextAreaElement | null): void {
+  if (!el) return
+  el.style.height = "auto"
+  el.style.height = `${Math.min(el.scrollHeight + 2, 132)}px`
+}
+
 export function WatchSection(p: WatchSectionProps) {
   // Read once, when the window opens: the page may change under the person while they type.
   const draft = useMemo(() => draftFor(p.url, p.title, p.selection), [p.url, p.selection])
@@ -63,15 +70,24 @@ export function WatchSection(p: WatchSectionProps) {
       {(state.at === "edit" || state.at === "checking" || state.at === "failed" || state.at === "full") && (
         <>
           <label class="cf-watch-l" for="cf-watch-cond">{t("watchWhen")}</label>
-          <input
+          {/* Whole, on as many lines as it takes (the owner, build 75: a cut line hid the price set). */}
+          <textarea
             id="cf-watch-cond"
             class="cf-watch-cond"
+            rows={2}
             value={condition}
             maxLength={300}
             disabled={state.at === "checking"}
-            onInput={(e) => setCondition(e.currentTarget.value)}
+            ref={grow}
+            onInput={(e) => {
+              setCondition(e.currentTarget.value)
+              grow(e.currentTarget)
+            }}
             onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.isComposing && condition.trim()) void start()
+              if (e.key === "Enter" && !e.shiftKey && !e.isComposing && condition.trim()) {
+                e.preventDefault()
+                void start()
+              }
             }}
           />
           <p class="cf-watch-note">{t("watchHonest")}</p>

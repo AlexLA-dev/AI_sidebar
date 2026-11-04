@@ -1346,6 +1346,18 @@
  "watchStart": {
   "message": "見守る"
  },
+ "watchSave": {
+  "message": "保存"
+ },
+ "watchTipEye": {
+  "message": "目のアイコン：この値を確認し、変わったらお知らせします。タップして設定します。"
+ },
+ "watchTipBell": {
+  "message": "ベル：選んだ時間に、このページへ戻るようお知らせします。"
+ },
+ "watchTipWatch": {
+  "message": "目：価格、在庫、ステータスなど、ここで何かが変わったらお知らせします。"
+ },
  "watchChecking": {
   "message": "ページを確認中…"
  },
@@ -1381,6 +1393,9 @@
  },
  "watchRowNew": {
   "message": "見守り中: {0}"
+ },
+ "watchRowNow": {
+  "message": "現在 {0}"
  },
  "watchRowLive": {
   "message": "見守り中: {0} · ページを開いたときに確認"

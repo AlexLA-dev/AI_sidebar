@@ -1346,6 +1346,18 @@
  "watchStart": {
   "message": "Surveiller"
  },
+ "watchSave": {
+  "message": "Enregistrer"
+ },
+ "watchTipEye": {
+  "message": "L’œil : je vérifie cette valeur et je vous préviens quand elle change. Touchez-le pour le régler."
+ },
+ "watchTipBell": {
+  "message": "La cloche : je vous rappelle de revenir sur cette page à l’heure choisie."
+ },
+ "watchTipWatch": {
+  "message": "L’œil : je vous préviens quand quelque chose change ici : un prix, le stock, un statut."
+ },
  "watchChecking": {
   "message": "Je regarde la page…"
  },
@@ -1381,6 +1393,9 @@
  },
  "watchRowNew": {
   "message": "Surveillé : {0}"
+ },
+ "watchRowNow": {
+  "message": "maintenant {0}"
  },
  "watchRowLive": {
   "message": "Surveillé : {0} · je vérifie quand vous ouvrez la page"
