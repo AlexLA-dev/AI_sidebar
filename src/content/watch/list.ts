@@ -42,12 +42,12 @@ export function watchRow(w: Watch, now = Date.now()): LaterItem {
 
 /**
  * The list's source. `open`: a watch's row opens watching's own window (its words whole, the value now, change the
- * words, stop it) instead of the page; true when the row was a watch. `done` refreshes the list after a change.
- * The list calls it once chat UX's Reminders asks its sources first (LaterSource.open, to be added there).
+ * words, stop it) instead of the page; true only for a watch's row (a reminder's "Open" goes the list's own way).
+ * `done` reads the list's rows again after a change.
  */
-export const watchSource: LaterSource & { open(item: LaterItem, done?: () => void): boolean } = {
+export const watchSource: LaterSource = {
   open(item, done) {
-    if (!item.id.startsWith(PREFIX)) return false
+    if (item.kind !== "watch" || !item.id.startsWith(PREFIX)) return false
     const id = item.id.slice(PREFIX.length)
     void (chrome.runtime.sendMessage({ type: "watchList" }) as Promise<Watch[]>).then((list) => {
       const w = Array.isArray(list) ? list.find((x) => x.id === id) : undefined

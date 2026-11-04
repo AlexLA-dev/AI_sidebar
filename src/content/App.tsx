@@ -1549,7 +1549,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   /** A page reminder or a watch opens its page in a new tab; a reminder on an answer or a note, its chat at it. */
   const openLaterItem = (item: LaterItem) => {
     // A source that opens its own rows (watching's window).
-    if (laterSources().some((s) => s.open?.(item))) return
+    const reread = () => void laterItems().then((items) => {
+      setLaterList(items)
+      setLaterCount(items.length)
+    }, () => undefined)
+    if (laterSources().some((s) => s.open?.(item, reread))) return
     if (item.url) {
       window.open(item.url, "_blank", "noopener")
       return
@@ -1937,7 +1941,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SELECTION_ACTIONS[0]), 60) })}>{t("selExplain")}</button>
                     <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SELECTION_ACTIONS[2]), 60) })}>{t("selTranslate")}</button>
                     <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SEL_GOOGLE), 60) })}><Icon.Search size={13} /> {t("actGoogle")}</button>
-                    <button type="button" class="cf-sel-template" {...press(() => newTemplate(bubble))}><QIcon.Template size={14} /> {t("qiTemplateButton")}</button>
+                    <button type="button" class="cf-sel-template" aria-label={t("qiTemplateButton")} title={t("qiTemplateButton")} {...press(() => newTemplate(bubble))}><QIcon.Template size={14} /> <span class="cf-sel-l">{t("qiTemplateButton")}</span></button>
                     {bubbleExtras}
                   </>
                 )}

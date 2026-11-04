@@ -52,9 +52,19 @@ test("what it waits for, whole, with the value now (the owner, build 75: the pri
   assert.equal(mod.watchRow(w({ what: "page", label: "The page", condition: "when something new appears on the page", value: "x:1" }), NOW).status, "Watching: when something new appears on the page · checked 5 minutes ago")
 })
 
-test("a watch's row opens watching's window, not the page; other rows aren't its own", () => {
-  assert.equal(mod.watchSource.open({ id: "remind:c1:k1", kind: "remind", title: "Chat", status: "", sortAt: 0 }), false)
+test("a watch's row opens watching's window, not the page; every other row goes the list's own way", () => {
+  // The list asks its sources first for every row, a reminder's "Open" too (chat UX's openLaterItem).
+  const others = [
+    { id: "remind:c1:k1", kind: "remind", title: "Chat", status: "", sortAt: 0 },
+    { id: "remind:c1:k1", kind: "remind", title: "Chat", url: "https://news.example/a", status: "", sortAt: 0 },
+    { id: "watch:a1", kind: "remind", title: "Odd", status: "", sortAt: 0 },
+    { id: "page:https://x", kind: "watch", title: "Odd", status: "", sortAt: 0 }
+  ]
+  for (const item of others) assert.equal(mod.watchSource.open(item, () => undefined), false, item.id)
+  const before = sent.length
   assert.equal(mod.watchSource.open({ id: "watch:a1", kind: "watch", title: "Mug", status: "", sortAt: 0 }), true)
+  assert.equal(sent.at(-1)?.type, "watchList", "it reads the watch to show it")
+  assert.ok(sent.length > before)
 })
 
 test("a row in the list's shape: an id of its own, the page, the last check for the order", () => {

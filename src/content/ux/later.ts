@@ -50,7 +50,8 @@ export interface LaterSource {
   items(): Promise<LaterItem[]>
   cancel(id: string): Promise<void>
   // Opens a row itself (watching's own window for a watch): true when it did, and the list does nothing more.
-  open?(item: LaterItem): boolean
+  // `done`: the row changed there (new words, stopped), the list reads its rows again.
+  open?(item: LaterItem, done?: () => void): boolean
 }
 
 type Section = (ctx: LaterContext) => VNode | null
