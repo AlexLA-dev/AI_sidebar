@@ -1340,6 +1340,18 @@
  "watchStart": {
   "message": "알림 받기"
  },
+ "watchSave": {
+  "message": "저장"
+ },
+ "watchTipEye": {
+  "message": "눈 아이콘: 이 값을 확인하다가 바뀌면 알려 드릴게요. 탭해서 설정하세요."
+ },
+ "watchTipBell": {
+  "message": "종: 고른 시간에 이 페이지로 돌아오라고 알려 드려요."
+ },
+ "watchTipWatch": {
+  "message": "눈: 가격, 재고, 상태 등 여기서 무언가 바뀌면 알려 드릴게요."
+ },
  "watchChecking": {
   "message": "페이지를 보는 중…"
  },
@@ -1375,6 +1387,9 @@
  },
  "watchRowNew": {
   "message": "지켜보는 중: {0}"
+ },
+ "watchRowNow": {
+  "message": "지금 {0}"
  },
  "watchRowLive": {
   "message": "지켜보는 중: {0} · 페이지를 열 때 확인"

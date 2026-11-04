@@ -1340,6 +1340,18 @@
  "watchStart": {
   "message": "Segui"
  },
+ "watchSave": {
+  "message": "Salva"
+ },
+ "watchTipEye": {
+  "message": "L’occhio: controllo questo valore e ti avviso quando cambia. Toccalo per impostarlo."
+ },
+ "watchTipBell": {
+  "message": "La campanella: ti ricordo di tornare a questa pagina all’ora che scegli."
+ },
+ "watchTipWatch": {
+  "message": "L’occhio: ti avviso quando qui cambia qualcosa: un prezzo, la disponibilità, uno stato."
+ },
  "watchChecking": {
   "message": "Guardo la pagina…"
  },
@@ -1375,6 +1387,9 @@
  },
  "watchRowNew": {
   "message": "Seguo: {0}"
+ },
+ "watchRowNow": {
+  "message": "ora {0}"
  },
  "watchRowLive": {
   "message": "Seguo: {0} · controllo quando apri la pagina"

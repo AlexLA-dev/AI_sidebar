@@ -1340,6 +1340,18 @@
  "watchStart": {
   "message": "Vigilar"
  },
+ "watchSave": {
+  "message": "Guardar"
+ },
+ "watchTipEye": {
+  "message": "El ojo: revisaré este valor y te avisaré cuando cambie. Tócalo para configurarlo."
+ },
+ "watchTipBell": {
+  "message": "La campana: te recordaré volver a esta página a la hora que elijas."
+ },
+ "watchTipWatch": {
+  "message": "El ojo: te aviso cuando algo cambie aquí: un precio, la disponibilidad, un estado."
+ },
  "watchChecking": {
   "message": "Miro la página…"
  },
@@ -1375,6 +1387,9 @@
  },
  "watchRowNew": {
   "message": "Vigilando: {0}"
+ },
+ "watchRowNow": {
+  "message": "ahora {0}"
  },
  "watchRowLive": {
   "message": "Vigilando: {0} · lo compruebo cuando abras la página"

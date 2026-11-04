@@ -1340,6 +1340,18 @@
  "watchStart": {
   "message": "关注"
  },
+ "watchSave": {
+  "message": "保存"
+ },
+ "watchTipEye": {
+  "message": "眼睛：我会持续检查这个值，变化时通知你。轻点即可设置。"
+ },
+ "watchTipBell": {
+  "message": "铃铛：在你选的时间提醒你回到这个页面。"
+ },
+ "watchTipWatch": {
+  "message": "眼睛：这里有变化时我会通知你，比如价格、库存或状态。"
+ },
  "watchChecking": {
   "message": "正在查看页面…"
  },
@@ -1375,6 +1387,9 @@
  },
  "watchRowNew": {
   "message": "关注中：{0}"
+ },
+ "watchRowNow": {
+  "message": "现在 {0}"
  },
  "watchRowLive": {
   "message": "关注中：{0} · 打开页面时检查"

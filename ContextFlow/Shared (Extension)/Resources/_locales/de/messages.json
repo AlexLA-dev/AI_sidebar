@@ -1340,6 +1340,18 @@
  "watchStart": {
   "message": "Beobachten"
  },
+ "watchSave": {
+  "message": "Speichern"
+ },
+ "watchTipEye": {
+  "message": "Das Auge: Ich prüfe diesen Wert und sage dir Bescheid, wenn er sich ändert. Tippe darauf, um es einzurichten."
+ },
+ "watchTipBell": {
+  "message": "Die Glocke: Ich erinnere dich zur gewählten Zeit an diese Seite."
+ },
+ "watchTipWatch": {
+  "message": "Das Auge: Ich sage dir Bescheid, wenn sich hier etwas ändert: ein Preis, die Verfügbarkeit, ein Status."
+ },
  "watchChecking": {
   "message": "Ich sehe mir die Seite an…"
  },
@@ -1375,6 +1387,9 @@
  },
  "watchRowNew": {
   "message": "Beobachte: {0}"
+ },
+ "watchRowNow": {
+  "message": "jetzt {0}"
  },
  "watchRowLive": {
   "message": "Beobachte: {0} · ich prüfe, wenn du die Seite öffnest"
