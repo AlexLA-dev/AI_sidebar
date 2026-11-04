@@ -5,7 +5,7 @@
 // - A watch from the list: what it waits for, whole, the value now; the words can be changed, the watch stopped.
 
 import { render, type ComponentChildren, type VNode } from "preact"
-import { useEffect, useState } from "preact/hooks"
+import { useEffect, useRef, useState } from "preact/hooks"
 
 import { t } from "../../shared/i18n"
 import { conditionLine, shown } from "../../shared/watch/line"
@@ -96,7 +96,11 @@ function WatchEdit({ watch, close, changed }: { watch: Watch; close(): void; cha
     changed()
     close()
   }
+  // One stop, however many times the button is pressed while it goes.
+  const stopping = useRef(false)
   const stop = async () => {
+    if (stopping.current) return
+    stopping.current = true
     await send({ type: "watchCancel", id: w.id, via: "list" }).catch(() => undefined)
     changed()
     close()
