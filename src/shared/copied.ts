@@ -13,7 +13,7 @@ export interface CopiedItem {
 export const COPIED_SLOTS = 5
 export const COPIED_TTL_MS = 24 * 3600_000
 
-// The owner's open decision: Copied is on until the user turns it off (one switch in the list and in Settings).
+// The owner's decision: Copied is on until the user turns it off (one switch in the list and in Settings).
 export const COPIED_DEFAULT_ON = true
 
 /** What's still fresh, newest first. */
