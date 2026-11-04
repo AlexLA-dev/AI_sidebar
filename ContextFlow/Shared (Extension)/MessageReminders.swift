@@ -8,8 +8,7 @@ import os
 /// set, from the panel (through the extension's native handler) or in the app. No server. The chat
 /// keeps only the mark (`remind` on the message), so every device shows the bell but only this one rings.
 /// Tapping the notification opens the app on that message: `contextflow://chat?id=<chat>&m=<message key>`
-/// (the key is the message's `entryKey`; the app looks for it in every chat, as messages can move). A page
-/// reminder (the bell by a selection) opens its page in Safari instead (`open`).
+/// (the key is the message's `entryKey`; the app looks for it in every chat, as messages can move).
 enum MessageReminders {
     static let prefix = "cf.remind."
 
@@ -34,7 +33,7 @@ enum MessageReminders {
 
     /// Sets (or moves) the reminder for a message. `ask`: may show the system question about notifications
     /// (the app; the extension can't).
-    static func schedule(chat: String, message: String, at: Date, title: String, body: String, open page: URL? = nil, ask: Bool) async -> Outcome {
+    static func schedule(chat: String, message: String, at: Date, title: String, body: String, ask: Bool) async -> Outcome {
         let center = UNUserNotificationCenter.current()
         var status = await center.notificationSettings().authorizationStatus
         if status == .notDetermined {
@@ -48,10 +47,7 @@ enum MessageReminders {
         content.body = body
         content.sound = .default
         content.threadIdentifier = "cf.remind.\(chat)"
-        var info: [String: Any] = [:]
-        if let url = link(chat: chat, message: message) { info["link"] = url.absoluteString }
-        if let page, page.scheme == "https" || page.scheme == "http" { info["open"] = page.absoluteString }
-        content.userInfo = info
+        if let url = link(chat: chat, message: message) { content.userInfo = ["link": url.absoluteString] }
         let when = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute, .second], from: at)
         let request = UNNotificationRequest(identifier: identifier(chat: chat, message: message), content: content,
                                             trigger: UNCalendarNotificationTrigger(dateMatching: when, repeats: false))

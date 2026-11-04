@@ -167,10 +167,9 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             }
             let title = message["title"] as? String ?? "ContextFlow"
             let body = message["body"] as? String ?? ""
-            let page = (message["url"] as? String).flatMap(URL.init(string:))
             Task {
                 let outcome = await MessageReminders.schedule(chat: chat, message: key, at: Date(timeIntervalSince1970: at / 1000),
-                                                              title: title, body: body, open: page, ask: message["ask"] as? Bool ?? false)
+                                                              title: title, body: body, ask: message["ask"] as? Bool ?? false)
                 Self.reply(context, ["success": true, "data": ["outcome": outcome.rawValue]])
             }
         case "unremind":

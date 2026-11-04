@@ -9,9 +9,9 @@ test("a reminder's text has no Markdown, tables, list signs or citations", () =>
   assert.equal(reminderText("x".repeat(300)).length, 160)
 })
 
-test("a page reminder says Check: <the quote> under the page's title and opens the page", () => {
-  const note = { role: "user" as const, content: "«Revenue rose 1.4%»\n\nlook again on Friday", note: true, quote: true, page: { url: "https://shop.example/p", title: "Lamp" }, remind: { at: 1, page: true as const } }
-  assert.deepEqual(reminderNotice(note, "Chat", (q) => `Check: ${q}`), { title: "Lamp", body: "Check: Revenue rose 1.4%", url: "https://shop.example/p" })
-  const answer = { role: "assistant" as const, content: "**Fewer meetings** came first.", remind: { at: 1 } }
-  assert.deepEqual(reminderNotice(answer, "Four-day week", (q) => q), { title: "Four-day week", body: "Fewer meetings came first." })
+test("a reminder on a note made on a page is titled with the page; on an answer, with the chat", () => {
+  const note = { role: "user" as const, content: "«Revenue rose 1.4%»\n\nlook again on Friday", note: true, quote: true, page: { url: "https://shop.example/p", title: "Lamp" } }
+  assert.deepEqual(reminderNotice(note, "Chat"), { title: "Lamp", body: "«Revenue rose 1.4%» look again on Friday" })
+  const answer = { role: "assistant" as const, content: "**Fewer meetings** came first." }
+  assert.deepEqual(reminderNotice(answer, "Four-day week"), { title: "Four-day week", body: "Fewer meetings came first." })
 })

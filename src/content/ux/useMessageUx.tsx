@@ -38,7 +38,7 @@ function deletedRange(messages: Entry[], idx: number): [number, number] {
 
 /** This device, for a reminder's `dev`: the notification rings only where it was set. */
 let deviceId: string | null = null
-export async function thisDevice(): Promise<string | undefined> {
+async function thisDevice(): Promise<string | undefined> {
   if (deviceId) return deviceId
   try {
     const got = await chrome.storage.local.get(STORAGE.installId)
@@ -54,8 +54,8 @@ export async function thisDevice(): Promise<string | undefined> {
  * may first ask about notifications: the answer waits for that.
  */
 export async function scheduleReminder(send: Options["send"], chat: string, entry: Entry, at: number | null, chatTitle: string): Promise<string> {
-  const notice = reminderNotice(entry, chatTitle, (quote) => t("uxRemindCheck", quote))
-  const reply = await send<{ outcome: string }>({ type: "remind", chat, message: entryKey(entry), at, title: notice.title, body: notice.body, url: notice.url, ask: true })
+  const notice = reminderNotice(entry, chatTitle)
+  const reply = await send<{ outcome: string }>({ type: "remind", chat, message: entryKey(entry), at, title: notice.title, body: notice.body, ask: true })
   return reply?.outcome ?? "unavailable"
 }
 
@@ -176,7 +176,7 @@ export function useMessageUx({ messages, setMessages, chatId, chatTitle, list, t
     if (!m) return
     const outcome = await scheduleReminder(send, chatId(), m, at, chatTitle())
     if (at !== null && outcome !== "scheduled") {
-      if (outcome === "denied") void send({ type: "uxEvent", kind: "ux_remind", action: "denied", what: m.remind?.page ? "page" : "message" })
+      if (outcome === "denied") void send({ type: "uxEvent", kind: "ux_remind", action: "denied", what: m.note ? "note" : "answer" })
       // No notification on this device: say why; the mark isn't kept.
       setReminding({ idx, note: t(outcome === "denied" ? "uxRemindOff" : "uxRemindNone") })
       return
@@ -185,11 +185,11 @@ export function useMessageUx({ messages, setMessages, chatId, chatTitle, list, t
     update(idx, (x) => {
       const next = { ...x }
       if (at === null) delete next.remind
-      else next.remind = { ...(x.remind?.page ? { page: true as const } : {}), at, ...(dev ? { dev } : {}) }
+      else next.remind = { at, ...(dev ? { dev } : {}) }
       return next
     })
     setReminding(null)
-    void send({ type: "uxEvent", kind: "ux_remind", action: at === null ? "cancelled" : "set", what: m.remind?.page ? "page" : "message", ...(preset ? { preset } : {}) })
+    void send({ type: "uxEvent", kind: "ux_remind", action: at === null ? "cancelled" : "set", what: m.note ? "note" : "answer", ...(preset ? { preset } : {}) })
   }, [chatId, chatTitle, send, update])
 
   // ---------------------------------------------------------- copy with the highlights

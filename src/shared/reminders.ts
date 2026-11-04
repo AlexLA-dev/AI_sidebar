@@ -25,14 +25,10 @@ export function reminderText(content: string, max = BODY_MAX): string {
 }
 
 /**
- * The notification for a message's reminder. A page reminder (a note made from a selection with "Remind
- * me", `remind.page`) says "Check: <the quote>" under the page's title and opens the page; any other
- * says the chat's name and the start of the answer or note, and opens the chat at it.
+ * The notification for a message's reminder: the chat's name and the start of the answer or note. A note made
+ * on a page (a selection's Note) says that page's title instead, so it's clear what to go back to.
  */
-export function reminderNotice(entry: Entry, chatTitle: string, checkLabel: (quote: string) => string): { title: string; body: string; url?: string } {
-  if (entry.remind?.page && entry.page?.url) {
-    const quote = entry.content.split("\n\n")[0].replace(/^[«“"„]|[»”"“]$/g, "")
-    return { title: entry.page.title || entry.page.url, body: checkLabel(reminderText(quote, 120)), url: entry.page.url }
-  }
-  return { title: chatTitle || "ContextFlow", body: reminderText(entry.content) }
+export function reminderNotice(entry: Entry, chatTitle: string): { title: string; body: string } {
+  const page = entry.note && entry.page ? entry.page.title || entry.page.url : ""
+  return { title: page || chatTitle || "ContextFlow", body: reminderText(entry.content) }
 }

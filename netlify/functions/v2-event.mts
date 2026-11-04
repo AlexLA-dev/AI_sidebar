@@ -27,7 +27,7 @@ const NOTIFICATIONS = new Set(["granted", "denied", "not_asked"])
 // Chat UX (2.5), counts only, no text: "ux_mark" a highlight in an answer added, removed, copied as bold or shared
 // with **; "ux_pin" an answer or note pinned, unpinned (one or all), or the pinned bar tapped; "ux_delete" an
 // answer, note or chat deleted (by a swipe, the menu or the hover button) or brought back; "ux_remind" a reminder
-// set (which preset), cancelled, refused by the system, or its notification opened; on a message or a page.
+// on an answer or a note set (which preset), cancelled, refused by the system, or its notification opened.
 const UX_KINDS = new Set(["ux_mark", "ux_pin", "ux_delete", "ux_remind"])
 
 /**
@@ -156,7 +156,7 @@ const UX_ACTIONS: Record<string, Set<string>> = {
   ux_delete: new Set(["deleted", "undone"]),
   ux_remind: new Set(["set", "cancelled", "denied", "opened"])
 }
-const UX_WHAT = new Set(["answer", "note", "chat", "message", "page"])
+const UX_WHAT = new Set(["answer", "note", "chat"])
 const UX_HOW = new Set(["swipe", "menu", "hover", "list", "bar"])
 const UX_PRESET = new Set(["hour", "evening", "morning", "week", "custom"])
 
