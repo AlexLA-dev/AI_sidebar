@@ -74,12 +74,13 @@ struct ChatsView: View {
         .listStyle(.insetGrouped)
         .refreshable { await library.refreshNow() }
         #endif
-        .background(
-            NavigationLink(isActive: Binding(get: { linked != nil }, set: { if !$0 { linked = nil } })) {
-                if let linked { ChatDetailView(library: library, threadId: linked.threadId, scrollTo: linked.index, openPro: openPro) }
-            } label: { EmptyView() }
-            .hidden()
-        )
+        // In the stack with the rows' ChatRoute links; a fresh screen for each link (a tap while one is open).
+        .navigationDestination(isPresented: Binding(get: { linked != nil }, set: { if !$0 { linked = nil } })) {
+            if let linked {
+                ChatDetailView(library: library, threadId: linked.threadId, scrollTo: linked.index, openPro: openPro)
+                    .id("\(linked.threadId)#\(linked.index)")
+            }
+        }
         .onReceive(links.$pending) { _ in openLinked() }
         .onChange(of: library.threads.count) { _ in openLinked() }
         .searchable(text: $query, prompt: aiSearch ? Text("Describe the chat you're looking for…") : Text("Search chats"))
