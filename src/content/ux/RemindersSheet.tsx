@@ -79,7 +79,11 @@ export function RemindersSheet({ items, onOpen, onCancel, onReschedule, onClose 
     <>
       <div ref={back} class="cf-sheet-back" onClick={(e) => e.target === e.currentTarget && onClose()}>
         <div class="cf-sheet cf-later-list" role="dialog" aria-label={t("uxReminders")}>
-          <div class="cf-sheet-title"><Icon.List /> {t("uxReminders")}</div>
+          <div class="cf-sheet-title">
+            <Icon.List /> {t("uxReminders")}
+            {/* A long list fills a small screen: it closes here too (2.5 (75)). */}
+            <button type="button" class="cf-icon cf-sheet-close" onClick={onClose} aria-label={t("close")} title={t("close")}><Icon.Close /></button>
+          </div>
           {items?.map((item) => (item.kind === "remind" ? remindRow(item) : watchRow(item)))}
           {items && !items.length && (
             <div class="cf-later-empty">

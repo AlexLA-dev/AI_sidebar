@@ -177,6 +177,9 @@ mark.cf-mark-last { border-top-right-radius: 2px; border-bottom-right-radius: 2p
 .cf[data-touch] .cf-later-title { font-size: 15px; }
 /* A reminder (2.5 (75)): what it's about, wrapped (a few lines; all of it once opened), and its actions when open. */
 .cf-later-item { border-radius: 10px; }
+/* The list never covers the whole chat: a strip stays above it to tap away, and ✕ closes it. */
+.cf-sheet.cf-later-list { max-height: calc(100% - 56px); }
+.cf-sheet-close { margin-left: auto; width: 34px; height: 34px; color: var(--text-3); }
 .cf-later-item.open { background: var(--bg-2); }
 .cf-later-row.remind, .cf-later-row.remind .cf-later-open { align-items: flex-start; }
 .cf-later-row.remind .cf-later-icon { margin-top: 2px; }
