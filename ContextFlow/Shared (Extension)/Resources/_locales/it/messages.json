@@ -1335,7 +1335,10 @@
   "message": "Fatto. Questo sito lo mostra solo quando apri la pagina, quindi controllo allora."
  },
  "watchUnreadable": {
-  "message": "Questo sito non si lascia controllare in background. Posso controllare quando apri la pagina, oppure scegli «{0}» qui sopra e guarda tu."
+  "message": "Questo sito non si lascia controllare in background. Posso controllare quando apri la pagina o ricordarti di guardare."
+ },
+ "watchRemindInstead": {
+  "message": "Ricordami di guardare"
  },
  "watchLiveOk": {
   "message": "Controlla quando apro la pagina"
@@ -1369,6 +1372,9 @@
  },
  "watchRowMet": {
   "message": "Cambiato: {0} · {1}"
+ },
+ "watchRowMetNow": {
+  "message": "Cambiato: {0}, ora {1} · {2}"
  },
  "watchStop": {
   "message": "Smetti di seguire"

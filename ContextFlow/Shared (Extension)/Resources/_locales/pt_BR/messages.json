@@ -1335,7 +1335,10 @@
   "message": "Pronto. Este site só mostra isso quando você abre a página, então verifico nessa hora."
  },
  "watchUnreadable": {
-  "message": "Este site não deixa verificar em segundo plano. Posso verificar quando você abrir a página, ou escolha “{0}” acima e veja você mesmo."
+  "message": "Este site não deixa verificar em segundo plano. Posso verificar quando você abrir a página ou lembrar você de olhar."
+ },
+ "watchRemindInstead": {
+  "message": "Lembrar de olhar"
  },
  "watchLiveOk": {
   "message": "Verificar quando eu abrir a página"
@@ -1369,6 +1372,9 @@
  },
  "watchRowMet": {
   "message": "Mudou: {0} · {1}"
+ },
+ "watchRowMetNow": {
+  "message": "Mudou: {0}, agora {1} · {2}"
  },
  "watchStop": {
   "message": "Parar de acompanhar"

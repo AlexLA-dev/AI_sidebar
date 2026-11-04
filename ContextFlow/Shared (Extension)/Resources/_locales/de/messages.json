@@ -1335,7 +1335,10 @@
   "message": "Ich behalte es im Blick. Diese Seite zeigt es nur, wenn Sie sie öffnen – dann prüfe ich."
  },
  "watchUnreadable": {
-  "message": "Diese Seite lässt sich nicht im Hintergrund prüfen. Ich kann prüfen, wenn Sie sie öffnen – oder wählen Sie oben „{0}“ und sehen selbst nach."
+  "message": "Diese Seite lässt sich nicht im Hintergrund prüfen. Ich kann prüfen, wenn Sie sie öffnen, oder Sie erinnern, nachzusehen."
+ },
+ "watchRemindInstead": {
+  "message": "Ans Nachsehen erinnern"
  },
  "watchLiveOk": {
   "message": "Prüfen, wenn ich sie öffne"
@@ -1369,6 +1372,9 @@
  },
  "watchRowMet": {
   "message": "Geändert: {0} · {1}"
+ },
+ "watchRowMetNow": {
+  "message": "Geändert: {0}, jetzt {1} · {2}"
  },
  "watchStop": {
   "message": "Nicht mehr beobachten"

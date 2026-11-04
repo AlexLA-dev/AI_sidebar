@@ -1335,7 +1335,10 @@
   "message": "已关注。这个网站只在你打开页面时显示，届时我会检查。"
  },
  "watchUnreadable": {
-  "message": "这个网站不允许在后台检查。我可以在你打开页面时检查，或者选择上方的“{0}”，自己去看看。"
+  "message": "这个网站不允许在后台检查。我可以在你打开页面时检查，或提醒你去看看。"
+ },
+ "watchRemindInstead": {
+  "message": "提醒我去看"
  },
  "watchLiveOk": {
   "message": "打开页面时检查"
@@ -1369,6 +1372,9 @@
  },
  "watchRowMet": {
   "message": "已变化：{0} · {1}"
+ },
+ "watchRowMetNow": {
+  "message": "已变化：{0}，现在 {1} · {2}"
  },
  "watchStop": {
   "message": "停止关注"

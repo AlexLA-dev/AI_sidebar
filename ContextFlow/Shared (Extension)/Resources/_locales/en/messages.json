@@ -1335,7 +1335,10 @@
   "message": "Watching. This site only shows it when you open the page, so I'll check then."
  },
  "watchUnreadable": {
-  "message": "This site doesn't let me check it in the background. I can check when you open the page, or use “{0}” above and look yourself."
+  "message": "This site doesn't let me check it in the background. I can check when you open the page, or remind you to look."
+ },
+ "watchRemindInstead": {
+  "message": "Remind me to look"
  },
  "watchLiveOk": {
   "message": "Check when I open the page"
@@ -1369,6 +1372,9 @@
  },
  "watchRowMet": {
   "message": "Changed: {0} · {1}"
+ },
+ "watchRowMetNow": {
+  "message": "Changed: {0}, now {1} · {2}"
  },
  "watchStop": {
   "message": "Stop watching"
