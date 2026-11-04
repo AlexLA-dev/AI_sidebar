@@ -1052,6 +1052,11 @@ struct FooterLinks: View {
                 Link("Threads", destination: Links.threads)
             }
             .font(.footnote.weight(.medium))
+            // Counted (social_open: which network only), then opened as usual.
+            .environment(\.openURL, OpenURLAction { url in
+                Task { await ChatAI.reportSocial(url == Links.x ? "x" : "threads") }
+                return .systemAction
+            })
             Text("Version \(version)")
                 .font(.caption)
                 .foregroundColor(.secondary)

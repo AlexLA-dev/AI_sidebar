@@ -209,6 +209,20 @@ enum ChatAI {
         _ = try? await URLSession.shared.data(for: request)
     }
 
+    /// A tap on ContextFlow's X or Threads in the app's footer, for analytics: which network. Nothing else.
+    @MainActor
+    static func reportSocial(_ network: String) async {
+        var body: [String: Any] = [
+            "kind": "social_open",
+            "appId": Activation.shared.appId,
+            "network": network,
+            "client": ["platform": platform, "version": Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "", "locale": Locale.current.identifier]
+        ]
+        if let installId = SharedDefaults.shared.readExtensionStatus().installId { body["installId"] = installId }
+        guard let request = try? request("api/v2/event", body) else { return }
+        _ = try? await URLSession.shared.data(for: request)
+    }
+
     // MARK: A chat
 
     /// How much of a chat goes with a question (src/shared/conversation.ts `WHOLE_CHAT_CHARS`).
