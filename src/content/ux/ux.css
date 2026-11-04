@@ -66,6 +66,9 @@ mark.cf-mark {
 .cf-hover-tools button.danger:hover { color: var(--danger); }
 .cf:not([data-touch]) .cf-msg:hover .cf-hover-tools,
 .cf:not([data-touch]) .cf-msg:focus-within .cf-hover-tools { display: inline-flex; }
+/* "…" holds the same three: while they show, it steps aside, so the row stays one line in every language. */
+.cf:not([data-touch]) .cf-msg:hover .cf-msg-more,
+.cf:not([data-touch]) .cf-msg:focus-within .cf-msg-more { display: none; }
 .cf-msg-menu.at { position: fixed; top: 0; left: 0; z-index: 6; }
 .cf-msg { position: relative; }
 
