@@ -212,6 +212,9 @@
  "uxMoreNote": {
   "message": "더 보기: 메모"
  },
+ "uxMoreChat": {
+  "message": "더 보기: 채팅"
+ },
  "uxLater": {
   "message": "나중에 다시 보기…"
  },
@@ -244,6 +247,9 @@
  },
  "uxRemindChange": {
   "message": "리마인더 변경"
+ },
+ "uxRemindOpen": {
+  "message": "열기"
  },
  "uxRemindTitle": {
   "message": "언제 알려 드릴까요?"

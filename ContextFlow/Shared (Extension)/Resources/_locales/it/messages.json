@@ -212,6 +212,9 @@
  "uxMoreNote": {
   "message": "Altro: nota"
  },
+ "uxMoreChat": {
+  "message": "Altro: chat"
+ },
  "uxLater": {
   "message": "Tornare più tardi…"
  },
@@ -244,6 +247,9 @@
  },
  "uxRemindChange": {
   "message": "Modifica promemoria"
+ },
+ "uxRemindOpen": {
+  "message": "Apri"
  },
  "uxRemindTitle": {
   "message": "Quando te lo ricordo?"

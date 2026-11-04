@@ -212,6 +212,9 @@
  "uxMoreNote": {
   "message": "Plus : note"
  },
+ "uxMoreChat": {
+  "message": "Plus : discussion"
+ },
  "uxLater": {
   "message": "Revenir plus tard…"
  },
@@ -244,6 +247,9 @@
  },
  "uxRemindChange": {
   "message": "Modifier le rappel"
+ },
+ "uxRemindOpen": {
+  "message": "Ouvrir"
  },
  "uxRemindTitle": {
   "message": "Quand dois-je vous le rappeler ?"

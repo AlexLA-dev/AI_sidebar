@@ -212,6 +212,9 @@
  "uxMoreNote": {
   "message": "更多：笔记"
  },
+ "uxMoreChat": {
+  "message": "更多：对话"
+ },
  "uxLater": {
   "message": "稍后再看…"
  },
@@ -244,6 +247,9 @@
  },
  "uxRemindChange": {
   "message": "更改提醒"
+ },
+ "uxRemindOpen": {
+  "message": "打开"
  },
  "uxRemindTitle": {
   "message": "什么时候提醒你？"
