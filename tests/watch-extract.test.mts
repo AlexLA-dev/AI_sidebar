@@ -1,7 +1,7 @@
 import assert from "node:assert/strict"
 import { test } from "node:test"
 
-import { fallbackRule, sameValue, verdict } from "../src/shared/watch/compare.ts"
+import { fallbackRule, sameValue, shownValue, verdict } from "../src/shared/watch/compare.ts"
 import { isOutOfStock } from "../src/shared/watch/detect.ts"
 import { digest, locate, pageText, parseNumber, pickSource, readPage, readValue, structured } from "../src/shared/watch/extract.ts"
 
@@ -97,3 +97,13 @@ test("without the AI, the plain cases still get a rule", () => {
   assert.deepEqual(fallbackRule("stock", "Ausverkauft", "wenn wieder da"), { kind: "in-stock" })
   assert.deepEqual(fallbackRule("date", "12 March", "when the date moves"), { kind: "change" })
 })
+
+test("values as a person reads them: markup prices in their currency format, stock in words", () => {
+  const words = { inStock: "в наличии", outOfStock: "нет в наличии" }
+  assert.equal(shownValue("34.50 EUR", "ru", words), "34,50\u00a0€")
+  assert.equal(shownValue("129 USD", "en", words), "$129.00")
+  assert.equal(shownValue("OutOfStock", "ru", words), "нет в наличии")
+  assert.equal(shownValue("InStock", "ru", words), "в наличии")
+  assert.equal(shownValue("Size 42: sold out", "en", words), "Size 42: sold out")
+})
+

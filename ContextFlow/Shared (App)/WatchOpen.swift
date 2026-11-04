@@ -56,7 +56,11 @@ struct WatchSource: LaterSource {
             let status: String
             if let met = w.metAt {
                 let when = relative.localizedString(for: Date(timeIntervalSince1970: met / 1000), relativeTo: Date())
-                status = String(localized: "Changed: \(label) · \(when)")
+                if let value = w.metValue, !value.isEmpty {
+                    status = String(localized: "Changed: \(label), now \(value) · \(when)")
+                } else {
+                    status = String(localized: "Changed: \(label) · \(when)")
+                }
             } else if w.mode == "live" {
                 status = String(localized: "Watching: \(label) · I'll check when you open the page")
             } else if w.checkedAt > 0 {

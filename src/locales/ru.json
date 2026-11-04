@@ -484,6 +484,13 @@
   "watchRowMet": "Изменилось: {0} · {1}",
   "watchStop": "Перестать следить",
   "watchStopped": "Больше не слежу",
+  "watchLabelPrice": "Цена",
+  "watchLabelStock": "Наличие",
+  "watchLabelDate": "Дата",
+  "watchLabelStatus": "Статус",
+  "watchLabelPage": "Страница",
+  "watchInStock": "в наличии",
+  "watchOutOfStock": "нет в наличии",
   "watchChanged": "Изменилось: {0}",
   "watchChangedBody": "Сейчас: {0}"
 }

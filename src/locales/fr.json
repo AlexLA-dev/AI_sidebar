@@ -484,6 +484,13 @@
   "watchRowMet": "Changé : {0} · {1}",
   "watchStop": "Arrêter de surveiller",
   "watchStopped": "Surveillance arrêtée",
+  "watchLabelPrice": "Prix",
+  "watchLabelStock": "Disponibilité",
+  "watchLabelDate": "Date",
+  "watchLabelStatus": "Statut",
+  "watchLabelPage": "La page",
+  "watchInStock": "en stock",
+  "watchOutOfStock": "en rupture de stock",
   "watchChanged": "Changé : {0}",
   "watchChangedBody": "Maintenant : {0}"
 }

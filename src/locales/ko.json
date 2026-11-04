@@ -484,6 +484,13 @@
   "watchRowMet": "바뀜: {0} · {1}",
   "watchStop": "알림 그만 받기",
   "watchStopped": "알림을 멈췄어요",
+  "watchLabelPrice": "가격",
+  "watchLabelStock": "재고",
+  "watchLabelDate": "날짜",
+  "watchLabelStatus": "상태",
+  "watchLabelPage": "페이지",
+  "watchInStock": "재고 있음",
+  "watchOutOfStock": "품절",
   "watchChanged": "바뀜: {0}",
   "watchChangedBody": "지금: {0}"
 }

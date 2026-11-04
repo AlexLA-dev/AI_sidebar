@@ -11,8 +11,8 @@
 
 import { API_BASE, TARGET } from "../shared/config"
 import { urlKey } from "../shared/conversation"
-import { t } from "../shared/i18n"
-import { fallbackRule, sameValue, verdict } from "../shared/watch/compare"
+import { t, uiLanguage } from "../shared/i18n"
+import { fallbackRule, sameValue, shownValue, verdict } from "../shared/watch/compare"
 import { readPage, readValue } from "../shared/watch/extract"
 import {
   siteOf, WATCH_LIMIT, type WatchDraft, type WatchHow, type WatchPrepared, type WatchRequest, type WatchSpec, type WatchStep
@@ -134,10 +134,13 @@ function localSource(draft: WatchDraft): Watch["source"] {
   return "text"
 }
 
+/** What's watched, when the AI didn't name it: the kind of value ("Price"), not the value itself. */
 function labelOf(draft: WatchDraft): string {
-  const s = draft.selection.replace(/\s+/g, " ").trim()
-  return s.length > 40 ? `${s.slice(0, 39)}…` : s || draft.title.slice(0, 40)
+  const kind = { price: "watchLabelPrice", stock: "watchLabelStock", date: "watchLabelDate", status: "watchLabelStatus", page: "watchLabelPage" } as const
+  return t(kind[draft.what])
 }
+
+const shown = (value: string) => shownValue(value, uiLanguage(), { inStock: t("watchInStock"), outOfStock: t("watchOutOfStock") })
 
 const hostOf = (url: string) => {
   try {
@@ -305,7 +308,7 @@ async function notify(w: Watch, value: string, line: string): Promise<void> {
   await callNative("watch_notify", {
     id: w.id,
     title: t("watchChanged", label),
-    body: line || t("watchChangedBody", w.what === "page" ? w.title : value),
+    body: line || t("watchChangedBody", w.what === "page" ? w.title : shown(value)),
     url: w.url
   }, 10_000)
   void syncApp()
@@ -337,7 +340,7 @@ async function syncApp(): Promise<void> {
   const reply = await callNative<{ cancelled?: string[] }>("watch_sync", {
     watches: list.map((w) => ({
       id: w.id, title: w.title, url: w.url, label: w.label, condition: w.condition, what: w.what,
-      mode: w.mode, checkedAt: w.checkedAt, ...(w.metAt ? { metAt: w.metAt, metValue: w.metValue ?? "" } : {})
+      mode: w.mode, checkedAt: w.checkedAt, ...(w.metAt ? { metAt: w.metAt, metValue: w.what === "page" ? "" : shown(w.metValue ?? "") } : {})
     }))
   }, 6_000)
   for (const id of reply?.cancelled ?? []) await cancel(id, "app")
