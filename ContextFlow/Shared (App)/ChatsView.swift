@@ -1331,7 +1331,7 @@ struct ChatDetailView: View {
             }, close: { withAnimation { tagsCard = false } })
         }
         if firstWin, organize.enabled(pro: store.isPro) {
-            Label("Done. From now on ContextFlow will suggest on its own.", systemImage: "sparkles")
+            Label("Done. From now on I'll suggest on my own.", systemImage: "sparkles")
                 .font(.footnote)
                 .foregroundColor(.secondary)
         }

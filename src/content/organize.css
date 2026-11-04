@@ -11,7 +11,7 @@
 .cf-org-chip.c4 { --tag: 124, 58, 237; } .cf-org-chip.c5 { --tag: 22, 163, 74; } .cf-org-chip.c6 { --tag: 234, 88, 12; } .cf-org-chip.c7 { --tag: 71, 85, 105; }
 .cf-org-chip.move { color: var(--text-2); }
 .cf-org-chip.move b { color: var(--text); font-weight: 600; }
-.cf-org-take { display: inline-flex; align-items: center; gap: 4px; min-width: 0; height: 100%; padding: 0 2px 0 10px; border-radius: 999px 0 0 999px; font-size: 12.5px; font-weight: 600; color: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cf-org-take { display: inline-flex; align-items: center; gap: 4px; min-width: 0; height: 100%; padding: 0 2px 0 10px; border-radius: 999px 0 0 999px; font-size: 12px; font-weight: 600; color: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cf-org-chip.move .cf-org-take { font-weight: 500; }
 .cf-org-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .cf-org-take:hover { background: rgba(var(--tag), 0.08); }

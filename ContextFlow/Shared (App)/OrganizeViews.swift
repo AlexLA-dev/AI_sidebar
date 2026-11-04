@@ -213,15 +213,15 @@ struct OrganizeCard: View {
         switch kind {
         case .consent: return "Sort your chats by topic?"
         case .mess: return "Everything in one chat?"
-        case .tags: return "ContextFlow can tag the way you do"
+        case .tags: return "I can tag the way you do"
         }
     }
 
     private var text: LocalizedStringKey {
         switch kind {
-        case .consent: return "ContextFlow will suggest a fitting chat and one of your tags under new answers and notes. For this, the text of your messages goes to our server and to OpenAI and Anthropic. We don't keep it. OpenAI and Anthropic don't use it for training."
-        case .mess: return "In Pro, ContextFlow suggests what goes where and puts on tags the way you do."
-        case .tags: return "In Pro it suggests one of your tags under new answers and notes, from where you put it yourself."
+        case .consent: return "I'll suggest a fitting chat and one of your tags under new answers and notes. For this, the text of your messages goes to our server and to OpenAI and Anthropic. We don't keep it. OpenAI and Anthropic don't use it for training."
+        case .mess: return "In Pro, I suggest what goes where and put on tags the way you do."
+        case .tags: return "In Pro I suggest one of your tags under new answers and notes, from where you put it yourself."
         }
     }
 }

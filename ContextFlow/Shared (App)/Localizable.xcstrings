@@ -19929,7 +19929,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ nach „%@“"
+            "value": "%@ in „%@“"
           }
         },
         "es": {
@@ -20225,7 +20225,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nach „%@“ verschoben"
+            "value": "In „%@“ verschoben"
           }
         },
         "es": {
@@ -20988,66 +20988,66 @@
         }
       }
     },
-    "ContextFlow will suggest a fitting chat and one of your tags under new answers and notes. For this, the text of your messages goes to our server and to OpenAI and Anthropic. We don't keep it. OpenAI and Anthropic don't use it for training.": {
+    "I'll suggest a fitting chat and one of your tags under new answers and notes. For this, the text of your messages goes to our server and to OpenAI and Anthropic. We don't keep it. OpenAI and Anthropic don't use it for training.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "ContextFlow schlägt unter neuen Antworten und Notizen einen passenden Chat und einen deiner Tags vor. Dafür geht der Text deiner Nachrichten an unseren Server und an OpenAI und Anthropic. Wir speichern ihn nicht. OpenAI und Anthropic nutzen ihn nicht zum Training."
+            "value": "Ich schlage unter neuen Antworten und Notizen einen passenden Chat und einen deiner Tags vor. Dafür geht der Text deiner Nachrichten an unseren Server und an OpenAI und Anthropic. Wir speichern ihn nicht. OpenAI und Anthropic nutzen ihn nicht zum Training."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "ContextFlow te sugerirá un chat adecuado y una de tus etiquetas bajo las respuestas y notas nuevas. Para ello, el texto de tus mensajes va a nuestro servidor y a OpenAI y Anthropic. No lo guardamos. OpenAI y Anthropic no lo usan para entrenar."
+            "value": "Te sugeriré un chat adecuado y una de tus etiquetas bajo las respuestas y notas nuevas. Para ello, el texto de tus mensajes va a nuestro servidor y a OpenAI y Anthropic. No lo guardamos. OpenAI y Anthropic no lo usan para entrenar."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "ContextFlow suggérera une discussion adaptée et l’un de vos tags sous les nouvelles réponses et notes. Pour cela, le texte de vos messages est envoyé à notre serveur, à OpenAI et à Anthropic. Nous ne le conservons pas. OpenAI et Anthropic ne l’utilisent pas pour l’entraînement."
+            "value": "Je suggérerai une discussion adaptée et l’un de vos tags sous les nouvelles réponses et notes. Pour cela, le texte de vos messages est envoyé à notre serveur, à OpenAI et à Anthropic. Nous ne le conservons pas. OpenAI et Anthropic ne l’utilisent pas pour l’entraînement."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "ContextFlow suggerirà una chat adatta e uno dei tuoi tag sotto le nuove risposte e note. Per farlo, il testo dei tuoi messaggi va al nostro server e a OpenAI e Anthropic. Non lo conserviamo. OpenAI e Anthropic non lo usano per l’addestramento."
+            "value": "Ti suggerirò una chat adatta e uno dei tuoi tag sotto le nuove risposte e note. Per farlo, il testo dei tuoi messaggi va al nostro server e a OpenAI e Anthropic. Non lo conserviamo. OpenAI e Anthropic non lo usano per l’addestramento."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "新しい回答やメモの下に、ContextFlow が合うチャットとあなたのタグを1つ提案します。そのため、メッセージのテキストが当社のサーバーと OpenAI、Anthropic に送られます。当社はこれを保存しません。OpenAI と Anthropic は学習に使いません。"
+            "value": "新しい回答やメモの下に、合うチャットとあなたのタグを1つ提案します。そのため、メッセージのテキストが当社のサーバーと OpenAI、Anthropic に送られます。当社はこれを保存しません。OpenAI と Anthropic は学習に使いません。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "새 답변과 메모 아래에 ContextFlow가 알맞은 채팅과 내 태그 하나를 추천해요. 이를 위해 메시지 텍스트가 당사 서버와 OpenAI, Anthropic으로 전송돼요. 당사는 이를 저장하지 않아요. OpenAI와 Anthropic은 이를 학습에 사용하지 않아요."
+            "value": "새 답변과 메모 아래에 알맞은 채팅과 내 태그 하나를 추천할게요. 이를 위해 메시지 텍스트가 당사 서버와 OpenAI, Anthropic으로 전송돼요. 당사는 이를 저장하지 않아요. OpenAI와 Anthropic은 이를 학습에 사용하지 않아요."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "O ContextFlow vai sugerir uma conversa adequada e uma das suas tags embaixo das novas respostas e notas. Para isso, o texto das suas mensagens vai para o nosso servidor e para a OpenAI e a Anthropic. Não guardamos esse texto. A OpenAI e a Anthropic não o usam para treinamento."
+            "value": "Vou sugerir uma conversa adequada e uma das suas tags embaixo das novas respostas e notas. Para isso, o texto das suas mensagens vai para o nosso servidor e para a OpenAI e a Anthropic. Não guardamos esse texto. A OpenAI e a Anthropic não o usam para treinamento."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "ContextFlow будет подсказывать подходящий чат и ваш тег под новыми ответами и заметками. Для этого текст сообщений уходит на наш сервер и к OpenAI и Anthropic. Мы его не храним. OpenAI и Anthropic не используют его для обучения."
+            "value": "Буду подсказывать подходящий чат и ваш тег под новыми ответами и заметками. Для этого текст сообщений уходит на наш сервер и к OpenAI и Anthropic. Мы его не храним. OpenAI и Anthropic не используют его для обучения."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "ContextFlow підказуватиме потрібний чат і ваш тег під новими відповідями й нотатками. Для цього текст повідомлень надсилається на наш сервер і до OpenAI та Anthropic. Ми його не зберігаємо. OpenAI та Anthropic не використовують його для навчання."
+            "value": "Підказуватиму потрібний чат і ваш тег під новими відповідями й нотатками. Для цього текст повідомлень надсилається на наш сервер і до OpenAI та Anthropic. Ми його не зберігаємо. OpenAI та Anthropic не використовують його для навчання."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "ContextFlow 会在新的回答和笔记下方建议合适的对话和你的一个标签。为此，你的消息文本会发送到我们的服务器以及 OpenAI 和 Anthropic。我们不保存这些文本。OpenAI 和 Anthropic 不会用它来训练模型。"
+            "value": "我会在新的回答和笔记下方建议合适的对话和你的一个标签。为此，你的消息文本会发送到我们的服务器以及 OpenAI 和 Anthropic。我们不保存这些文本。OpenAI 和 Anthropic 不会用它来训练模型。"
           }
         }
       }
@@ -21116,158 +21116,158 @@
         }
       }
     },
-    "In Pro, ContextFlow suggests what goes where and puts on tags the way you do.": {
+    "In Pro, I suggest what goes where and put on tags the way you do.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mit Pro schlägt ContextFlow vor, was wohin gehört, und setzt Tags so, wie du es tust."
+            "value": "Mit Pro schlage ich vor, was wohin gehört, und setze Tags so, wie du es tust."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Con Pro, ContextFlow sugiere qué va en cada sitio y pone etiquetas como lo haces tú."
+            "value": "Con Pro, te sugiero qué va en cada sitio y pongo etiquetas como lo haces tú."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Avec Pro, ContextFlow suggère ce qui va où et ajoute les tags comme vous le faites."
+            "value": "Avec Pro, je suggère ce qui va où et j’ajoute les tags comme vous le faites."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Con Pro, ContextFlow suggerisce cosa va dove e mette i tag come fai tu."
+            "value": "Con Pro, ti suggerisco cosa va dove e metto i tag come fai tu."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pro なら、何をどこに移すかを ContextFlow が提案し、あなたと同じようにタグを付けます。"
+            "value": "Pro なら、何をどこに移すかを提案し、あなたと同じようにタグを付けます。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pro에서는 ContextFlow가 무엇을 어디로 옮길지 추천하고, 내가 하듯이 태그를 달아요."
+            "value": "Pro에서는 무엇을 어디로 옮길지 추천하고, 내가 하듯이 태그를 달아 드려요."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "No Pro, o ContextFlow sugere o que vai para onde e coloca tags do jeito que você coloca."
+            "value": "No Pro, eu sugiro o que vai para onde e coloco tags do jeito que você coloca."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "В Pro ContextFlow подскажет, что куда переложить, и поставит теги так, как ставите их вы."
+            "value": "В Pro подскажу, что куда переложить, и поставлю теги так, как ставите их вы."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "У Pro ContextFlow підкаже, що куди перенести, і ставитиме теги так, як ставите їх ви."
+            "value": "У Pro підкажу, що куди перенести, і ставитиму теги так, як ставите їх ви."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "使用 Pro 时，ContextFlow 会建议什么内容该放到哪里，并像你一样加标签。"
+            "value": "使用 Pro 时，我会建议什么内容该放到哪里，并像你一样加标签。"
           }
         }
       }
     },
-    "ContextFlow can tag the way you do": {
+    "I can tag the way you do": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "ContextFlow kann Tags setzen wie du"
+            "value": "Ich kann Tags setzen wie du"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "ContextFlow puede etiquetar como tú"
+            "value": "Puedo etiquetar como tú"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "ContextFlow peut taguer comme vous"
+            "value": "Je peux taguer comme vous"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "ContextFlow può mettere i tag come fai tu"
+            "value": "Posso mettere i tag come fai tu"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ContextFlow はあなたと同じようにタグを付けられます"
+            "value": "あなたと同じようにタグを付けられます"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "ContextFlow가 나처럼 태그를 달 수 있어요"
+            "value": "내 방식대로 태그를 달아 드릴 수 있어요"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "O ContextFlow pode colocar tags do seu jeito"
+            "value": "Posso colocar tags do seu jeito"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "ContextFlow может ставить теги так, как вы"
+            "value": "Могу ставить теги так, как вы"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "ContextFlow може ставити теги так, як ви"
+            "value": "Можу ставити теги так, як ви"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "ContextFlow 能像你一样加标签"
+            "value": "我能像你一样加标签"
           }
         }
       }
     },
-    "In Pro it suggests one of your tags under new answers and notes, from where you put it yourself.": {
+    "In Pro I suggest one of your tags under new answers and notes, from where you put it yourself.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mit Pro schlägt ContextFlow unter neuen Antworten und Notizen einen deiner Tags vor – danach, wo du ihn selbst setzt."
+            "value": "Mit Pro schlage ich unter neuen Antworten und Notizen einen deiner Tags vor – danach, wo du ihn selbst setzt."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Con Pro, sugiere una de tus etiquetas bajo las respuestas y notas nuevas, según dónde la pones tú."
+            "value": "Con Pro, te sugiero una de tus etiquetas bajo las respuestas y notas nuevas, según dónde la pones tú."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Avec Pro, il suggère l’un de vos tags sous les nouvelles réponses et notes, d’après les endroits où vous le mettez vous-même."
+            "value": "Avec Pro, je suggère l’un de vos tags sous les nouvelles réponses et notes, d’après les endroits où vous le mettez vous-même."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Con Pro suggerisce uno dei tuoi tag sotto le nuove risposte e note, in base a dove lo metti tu."
+            "value": "Con Pro ti suggerisco uno dei tuoi tag sotto le nuove risposte e note, in base a dove lo metti tu."
           }
         },
         "ja": {
@@ -21285,89 +21285,89 @@
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "No Pro, ele sugere uma das suas tags embaixo das novas respostas e notas, de acordo com onde você mesmo a coloca."
+            "value": "No Pro, eu sugiro uma das suas tags embaixo das novas respostas e notas, de acordo com onde você mesmo a coloca."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "В Pro он подскажет ваш тег под новыми ответами и заметками — по тому, где вы ставили его сами."
+            "value": "В Pro подскажу ваш тег под новыми ответами и заметками — по тому, где вы ставили его сами."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "У Pro він підкаже ваш тег під новими відповідями й нотатками — за тим, де ви ставили його самі."
+            "value": "У Pro підкажу ваш тег під новими відповідями й нотатками — за тим, де ви ставили його самі."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "使用 Pro 时，它会根据你自己加标签的位置，在新的回答和笔记下方建议你的一个标签。"
+            "value": "使用 Pro 时，我会根据你自己加标签的位置，在新的回答和笔记下方建议你的一个标签。"
           }
         }
       }
     },
-    "Done. From now on ContextFlow will suggest on its own.": {
+    "Done. From now on I'll suggest on my own.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Erledigt. Ab jetzt macht ContextFlow selbst Vorschläge."
+            "value": "Erledigt. Ab jetzt mache ich von selbst Vorschläge."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Listo. A partir de ahora ContextFlow te hará sugerencias por su cuenta."
+            "value": "Listo. A partir de ahora te haré sugerencias por mi cuenta."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "C’est fait. Désormais, ContextFlow fera ses suggestions tout seul."
+            "value": "C’est fait. Désormais, je ferai mes suggestions de moi-même."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fatto. D’ora in poi ContextFlow suggerirà da solo."
+            "value": "Fatto. D’ora in poi ti farò suggerimenti senza che tu lo chieda."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "完了しました。これからは ContextFlow が自分から提案します。"
+            "value": "完了しました。これからは自分から提案します。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "완료. 이제부터 ContextFlow가 알아서 추천해요."
+            "value": "완료. 이제부터 알아서 추천할게요."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pronto. Daqui em diante, o ContextFlow vai sugerir sozinho."
+            "value": "Pronto. Daqui em diante, vou sugerir por conta própria."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Готово. Дальше ContextFlow будет подсказывать сам."
+            "value": "Готово. Дальше буду подсказывать, не дожидаясь просьбы."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Готово. Далі ContextFlow підказуватиме сам."
+            "value": "Готово. Далі підказуватиму, не чекаючи прохання."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "完成。从现在起，ContextFlow 会自己给出建议。"
+            "value": "完成。从现在起，我会主动给出建议。"
           }
         }
       }
