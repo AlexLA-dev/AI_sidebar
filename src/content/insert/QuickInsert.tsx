@@ -528,13 +528,14 @@ function Suggest({ field, touch, items, chosen, onPick }: { field: Field; touch:
     <div ref={ref} class="cf-qi suggest" role="listbox" aria-label={t("qiTemplates")} onPointerDown={(e) => e.preventDefault()}>
       <div class="cf-qi-body" style={{ paddingTop: "4px" }}>
         {items.map((tpl, i) => (
-          <button type="button" role="option" aria-selected={i === chosen} class={`cf-qi-row ${i === chosen || (chosen < 0 && i === 0) ? "on" : ""}`} onClick={() => onPick(tpl)}>
+          // Lit only when chosen: Tab takes the lit one, and nothing when none is (Tab then moves on as usual).
+          <button type="button" role="option" aria-selected={i === chosen} class={`cf-qi-row ${i === chosen ? "on" : ""}`} onClick={() => onPick(tpl)}>
             <TemplateRow tpl={tpl} />
           </button>
         ))}
       </div>
       <div class="cf-qi-keys">
-        <span><kbd>Tab</kbd> {t("qiKeyInsert")}</span>
+        {chosen >= 0 && <span><kbd>Tab</kbd> {t("qiKeyInsert")}</span>}
         <span><kbd>↑↓</kbd> {t("qiKeyChoose")}</span>
         <span><kbd>Esc</kbd> {t("qiKeyClose")}</span>
       </div>
