@@ -357,7 +357,11 @@ async function reportUx(message: Extract<BackgroundRequest, { type: "uxEvent" }>
   await fetch(`${API_BASE}/api/v2/event`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ kind: message.kind, installId: id, client, action: message.action, what: message.what, how: message.how, preset: message.preset, surface: "panel" })
+    // The server keeps only what its lists allow (uxFields in v2-event): counts and categories, never text or addresses.
+    body: JSON.stringify({
+      kind: message.kind, installId: id, client, action: message.action, what: message.what, how: message.how, preset: message.preset,
+      site: message.site, via: message.via, n: message.n, n_remind: message.n_remind, n_watch: message.n_watch, surface: "panel"
+    })
   }).catch(() => undefined)
 }
 

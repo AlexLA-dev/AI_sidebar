@@ -1,4 +1,4 @@
-import type { ComponentChildren, VNode } from "preact"
+import { Fragment, type ComponentChildren, type VNode } from "preact"
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "preact/hooks"
 
 import { composePage, readsMedia, type MediaKind } from "../shared/attachments"
@@ -28,6 +28,7 @@ import { answerShareText, chatLanguage, noteCopyText, noteShareText, pickedShare
 import type { PageRead, PageSource } from "./context"
 import {
   forgetSelection,
+  HOST_TAG,
   isTouch,
   MIN_SELECTION_WORDS,
   privateBrowsing,
@@ -52,7 +53,9 @@ import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, load
 import { TagChip, TagEditor } from "./Tags"
 import { ThreadsView } from "./Threads"
 import { starMarks } from "../shared/marks"
-import { Bell, remindLabel, RemindSheet } from "./ux/MessageUx"
+import { Bell, More, remindLabel, RemindSheet } from "./ux/MessageUx"
+import { PageMenu } from "./ux/PageMenu"
+import { bubbleActions, laterSections, pageRange, setLaterOpener, type BubbleContext, type LaterContext } from "./ux/later"
 import { scheduleReminder, thisDevice, useMessageUx } from "./ux/useMessageUx"
 import { Tour, tourSteps } from "./Tour"
 import { QI_EVENTS, QuickInsert } from "./insert/QuickInsert"
@@ -329,7 +332,17 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   })
   // The bell by a selection: "Remind me to come back" (a note with the quote and the page, and a reminder that
   // opens the page).
-  const [remindPick, setRemindPick] = useState<SelectionInfo | null>(null)
+  // "Come back later" (the header's "…", or watching offering a reminder instead, later.ts): what was selected then.
+  const [later, setLater] = useState<{ selection: SelectionInfo | null; range: Range | null } | null>(null)
+  useEffect(() => {
+    setLaterOpener((from) => setLater({
+      selection: from?.selection ? { text: from.selection, words: from.selection.split(/\s+/).filter(Boolean).length, rect: null, at: Date.now() } : null,
+      range: from?.range ?? null
+    }))
+    return () => setLaterOpener(null)
+  }, [])
+  // The header's "…" (where Settings was): "Come back later…" and Settings (2.5).
+  const [pageMenu, setPageMenu] = useState(false)
   const [remindSaved, setRemindSaved] = useState<number | null>(null)
 
   // The source learnt something new (the PDF popup: the document's title once it's read).
@@ -930,11 +943,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
    * Note by the selection: the selected text, with what's typed in the field as its comment, goes to
    * the end of the current chat with the page. No AI, no answer used; the panel stays closed.
    */
-  /** `remindAt`: the bell's "Remind me": the note gets a reminder that opens its page (2.5). */
-  const noteSelection = async (sel: SelectionInfo, comment: string, remindAt?: number, remindPreset?: string) => {
+  /**
+   * `remindAt`: "Come back later" → Remind (2.5): the note gets a reminder that opens its page. Without a selection
+   * the note is the page itself (its title).
+   */
+  const noteSelection = async (sel: SelectionInfo | null, comment: string, remindAt?: number, remindPreset?: string) => {
     if (noteHold.current) return
     noteHold.current = true
-    selFeatureUsed()
+    if (sel) selFeatureUsed()
     // An answer still coming in (the panel was closed meanwhile) is saved first: the note goes after it.
     for (let i = 0; i < 300 && (portRef.current || askToken.current); i++) await new Promise((r) => setTimeout(r, 200))
     const { threads, active } = await loadThreads()
@@ -945,7 +961,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (!fits) await setActiveThread(id)
     const url = source.key()
     const page = source.quick()
-    let note: Entry = selectionNote(sel.text, comment, pageRef(fits && current ? current.m : [], url, page.title, page.text, keepsText), (text) => t("noteQuote", text))
+    const ref = pageRef(fits && current ? current.m : [], url, page.title, page.text, keepsText)
+    let note: Entry = sel ? selectionNote(sel.text, comment, ref, (text) => t("noteQuote", text)) : stamped({ role: "user", content: page.title || source.href(), note: true, page: ref }, ref.at)
     if (remindAt) {
       // Set on this device first: the note keeps the bell only when the notification is really set.
       const outcome = await scheduleReminder(sendBackground, id, { ...note, remind: { at: remindAt, page: true } }, remindAt, "")
@@ -953,9 +970,15 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       if (outcome === "scheduled") note = { ...note, remind: { at: remindAt, page: true, ...(dev ? { dev } : {}) } }
       // A time when set; -1 when notifications are off for ContextFlow; 0 when there's no app to set it.
       setRemindSaved(outcome === "scheduled" ? remindAt : outcome === "denied" ? -1 : 0)
-      void sendBackground({ type: "uxEvent", kind: "ux_remind", action: outcome === "scheduled" ? "set" : outcome === "denied" ? "denied" : "cancelled", what: "page", ...(remindPreset ? { preset: remindPreset } : {}) })
+      void sendBackground({ type: "uxEvent", kind: "ux_remind", action: outcome === "scheduled" ? "set" : outcome === "denied" ? "denied" : "cancelled", what: "page", how: "later", ...(remindPreset ? { preset: remindPreset } : {}) })
     }
-    await saveThread(id, [...(fits && current ? current.m : []), note])
+    const list = [...(fits && current ? current.m : []), note]
+    await saveThread(id, list)
+    // The panel open ("Come back later" from its "…"): the note shows in the chat at once.
+    if (open) {
+      threadRef.current = id
+      setMessages(list)
+    }
     void rememberPageText(url, page.title, page.text)
     setNoteSaved(true)
     setTimeout(() => {
@@ -1431,6 +1454,36 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }, [open, messages.length, source])
   const weightNote = pageWeight > 1 && contextKind === "page" && !googleMode && !historyMode && !noteMode && !ownKeyActive
 
+  // ------------------------------------------------------------ "Come back later" (2.5, later.ts)
+  /** The window: Remind (this evening, tomorrow morning, in a week, a date of one's own), then the sections added there. */
+  const laterSheet = (page: boolean): VNode => {
+    const from = later!
+    const ctx: LaterContext = { url: source.href(), key: source.key(), title: source.title(), selection: from.selection?.text ?? null, range: from.range, close: () => setLater(null) }
+    return (
+      <RemindSheet
+        page={page}
+        later
+        title={t("uxLaterTitle")}
+        onPick={(at, preset) => {
+          setLater(null)
+          void noteSelection(from.selection, "", at, preset)
+        }}
+        onCancel={() => setLater(null)}
+        onClose={() => setLater(null)}
+      >
+        {laterSections().map((render, i) => <Fragment key={i}>{render(ctx)}</Fragment>)}
+      </RemindSheet>
+    )
+  }
+  // The actions added to the selection bubble, after Template (watching's eye); none for plain text.
+  const bubbleExtras: VNode[] = bubble?.rect && !open && !popup
+    ? bubbleActions().flatMap((render, i) => {
+        const ctx: BubbleContext = { url: source.href(), key: source.key(), title: source.title(), selection: bubble.text, range: pageRange(HOST_TAG), close: () => setBubble(null) }
+        const node = render(ctx)
+        return node ? [<Fragment key={i}>{node}</Fragment>] : []
+      })
+    : []
+
   // The allowance under the input: short, to share the line with "Whole chat" and Get Pro; in full on hover.
   const usageLine = useMemo(() => {
     if (ownKeyActive) return { short: t("usageOwnKey"), full: t("usageOwnKey") }
@@ -1731,18 +1784,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           <Bell size={14} /> {remindSaved > 0 ? t("uxRemindSaved", remindLabel(remindSaved)) : remindSaved < 0 ? t("uxRemindNotSet") : t("uxRemindNoApp")}
         </div>
       )}
-      {remindPick && (
-        <RemindSheet
-          page
-          onPick={(at, preset) => {
-            const sel = remindPick
-            setRemindPick(null)
-            void noteSelection(sel, selDraft, at, preset)
-          }}
-          onCancel={() => setRemindPick(null)}
-          onClose={() => setRemindPick(null)}
-        />
-      )}
+      {later && !open && laterSheet(true)}
 
       {bubble?.rect && !open && !popup && (
         <SelectionBubble rect={bubble.rect} touch={touch}>
@@ -1759,14 +1801,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     {/* "Ask AI" on narrow screens (320 pt: iPhone mini and SE with Display Zoom), so the buttons fit. */}
                     <button type="button" class="primary" {...press(() => show(bubble))}><Icon.Sparkle size={16} /> {t(narrowScreen() ? "selAsk" : "fabLabel")}</button>
                     <button type="button" class="cf-sel-icon" aria-label={t("actGoogle")} title={t("actGoogle")} {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SEL_GOOGLE), 60) })}><Icon.Search size={15} /></button>
-                    {/* With the bell, Template shows only its icon below 400 pt (the row stays one line at 375 pt). */}
-                    <button type="button" class="cf-sel-template" aria-label={t("qiTemplateButton")} title={t("qiTemplateButton")} {...press(() => newTemplate(bubble))}><QIcon.Template />{!compactRow() && ` ${t("qiTemplateButton")}`}</button>
-                    <button type="button" class="cf-sel-icon cf-sel-remind" aria-label={t("uxRemindPage")} title={t("uxRemindPage")} {...press(() => {
-                      selTyping.current = false
-                      setRemindPick(bubble)
-                      // The system's edit menu would stay over the sheet.
-                      document.getSelection()?.removeAllRanges()
-                    })}><Bell size={16} /></button>
+                    {/* With an action after it (watching's eye), Template shows only its icon below 400 pt (one line at 375 pt). */}
+                    <button type="button" class="cf-sel-template" aria-label={t("qiTemplateButton")} title={t("qiTemplateButton")} {...press(() => newTemplate(bubble))}><QIcon.Template />{!(bubbleExtras.length && compactRow()) && ` ${t("qiTemplateButton")}`}</button>
+                    {bubbleExtras}
                   </>
                 ) : (
                   <>
@@ -1775,7 +1812,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SELECTION_ACTIONS[2]), 60) })}>{t("selTranslate")}</button>
                     <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SEL_GOOGLE), 60) })}><Icon.Search size={13} /> {t("actGoogle")}</button>
                     <button type="button" class="cf-sel-template" {...press(() => newTemplate(bubble))}><QIcon.Template size={14} /> {t("qiTemplateButton")}</button>
-                    <button type="button" class="cf-sel-remind" aria-label={t("uxRemindPage")} title={t("uxRemindPage")} {...press(() => setRemindPick(bubble))}><Bell size={14} /></button>
+                    {bubbleExtras}
                   </>
                 )}
               </div>
@@ -1871,7 +1908,28 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               <button type="button" class="cf-icon" onClick={newChat} aria-label={t("newChat")} title={t("newChat")}><Icon.Plus /></button>
             )}
             {view === "chat" && (
-              <button type="button" class="cf-icon cf-settings-button" onClick={() => setView("settings")} aria-label={t("settings")} title={t("settings")}><Icon.Gear /></button>
+              <span class="cf-page-more-wrap">
+                <button type="button" class="cf-icon cf-page-more" aria-haspopup="menu" aria-expanded={pageMenu} aria-label={t("uxMore")} title={t("uxMore")} onClick={() => {
+                  // Opened, and which item: to see whether Settings is still found a tap further.
+                  if (!pageMenu) void sendBackground({ type: "uxEvent", kind: "ux_menu", action: "opened" })
+                  setPageMenu(!pageMenu)
+                }}><More size={18} /></button>
+                {pageMenu && (
+                  <PageMenu
+                    onLater={() => {
+                      setPageMenu(false)
+                      void sendBackground({ type: "uxEvent", kind: "ux_menu", action: "later" })
+                      setLater({ selection, range: pageRange(HOST_TAG) })
+                    }}
+                    onSettings={() => {
+                      setPageMenu(false)
+                      void sendBackground({ type: "uxEvent", kind: "ux_menu", action: "settings" })
+                      setView("settings")
+                    }}
+                    onClose={() => setPageMenu(false)}
+                  />
+                )}
+              </span>
             )}
             <button type="button" class="cf-icon" onClick={hide} aria-label={t("close")} title={t("close")}><Icon.Close /></button>
           </header>
@@ -2285,6 +2343,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             <Tour panel={panelRef.current} steps={tourSteps(TARGET === "safari" && settings.syncChats, touch)} onDone={endTour} />
           )}
           {view === "chat" && !picked && ux.overlay}
+          {view === "chat" && later && laterSheet(false)}
         </section>
       )}
 

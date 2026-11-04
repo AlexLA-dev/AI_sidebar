@@ -28,8 +28,11 @@ const NOTIFICATIONS = new Set(["granted", "denied", "not_asked"])
 // with **; "ux_pin" an answer or note pinned, unpinned (one or all), or the pinned bar tapped; "ux_delete" an
 // answer, note or chat deleted (by a swipe, the menu or the hover button) or brought back; "ux_remind" a reminder
 // set (which preset), cancelled, refused by the system, or its notification opened; on an answer, a note or a
-// page (the bell by a selection).
-const UX_KINDS = new Set(["ux_mark", "ux_pin", "ux_delete", "ux_remind"])
+// page ("Come back later"); "ux_menu" the panel header's "…" opened, and which item was picked; "ux_later" the
+// "Reminders" list opened, with how many reminders and watches were in it; "ux_watch" (watching, its own branch)
+// a watch set, checked (a daily summary), changed, met, opened, cancelled, failed or a page that can't be read,
+// on what, how, the kind of site (never its address), and which side checked it.
+const UX_KINDS = new Set(["ux_mark", "ux_pin", "ux_delete", "ux_remind", "ux_menu", "ux_later", "ux_watch"])
 
 /**
  * POST /api/v2/event — anonymous funnel step between the App Store download and the first answer.
@@ -155,10 +158,15 @@ const UX_ACTIONS: Record<string, Set<string>> = {
   ux_mark: new Set(["added", "removed", "copied", "shared"]),
   ux_pin: new Set(["pinned", "unpinned", "unpinned_all", "bar_tap"]),
   ux_delete: new Set(["deleted", "undone"]),
-  ux_remind: new Set(["set", "cancelled", "denied", "opened"])
+  ux_remind: new Set(["set", "cancelled", "denied", "opened"]),
+  ux_menu: new Set(["opened", "later", "settings"]),
+  ux_later: new Set(["opened"]),
+  ux_watch: new Set(["set", "checked", "changed", "met", "opened", "cancelled", "failed", "unreadable"])
 }
-const UX_WHAT = new Set(["answer", "note", "chat", "page"])
-const UX_HOW = new Set(["swipe", "menu", "hover", "list", "bar"])
+const UX_WHAT = new Set(["answer", "note", "chat", "page", "price", "stock", "date", "status"])
+const UX_HOW = new Set(["swipe", "menu", "hover", "list", "bar", "later", "bubble"])
+const UX_SITE = new Set(["shop", "jobs", "news", "gov", "tickets", "other"])
+const UX_VIA = new Set(["bg", "live"])
 const UX_PRESET = new Set(["hour", "evening", "morning", "week", "custom"])
 
 /** What a chat UX event carries: its action, on what, how, the reminder's preset, and where (app or panel). */
@@ -167,11 +175,19 @@ function uxFields(kind: string, body: Record<string, unknown>): Record<string, u
     const value = clip(body[key], 12)
     return allowed.has(value) ? { [key]: value } : {}
   }
+  // A count (checks in a day, items in the list): a whole number up to 10 000 (the app sends its fields as strings).
+  const count = (key: string) => {
+    const raw = body[key]
+    const value = typeof raw === "string" && /^\d{1,5}$/.test(raw) ? Number(raw) : raw
+    return typeof value === "number" && Number.isInteger(value) && value >= 0 && value <= 10_000 ? { [key]: value } : {}
+  }
   return {
     ...pick("action", UX_ACTIONS[kind]),
     ...pick("what", UX_WHAT),
     ...pick("how", UX_HOW),
     ...(kind === "ux_remind" ? pick("preset", UX_PRESET) : {}),
+    ...(kind === "ux_watch" ? { ...pick("site", UX_SITE), ...pick("via", UX_VIA), ...count("n") } : {}),
+    ...(kind === "ux_later" ? { ...count("n_remind"), ...count("n_watch") } : {}),
     ...(body.surface === "app" || body.surface === "panel" ? { surface: body.surface } : {})
   }
 }

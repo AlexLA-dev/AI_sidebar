@@ -80,10 +80,14 @@ export function RemindChip({ at, onClick }: { at: number; onClick: () => void })
  * In the panel it sits right above the question field (on iPhone, Safari's bar covers the panel's very
  * bottom); `page`: over the page (the bell by a selection, with the panel closed).
  */
-export function RemindSheet({ current, note, page = false, onPick, onCancel, onClose }: {
+export function RemindSheet({ current, note, page = false, title, later = false, children, onPick, onCancel, onClose }: {
   current?: number
   note?: string | null
   page?: boolean
+  // "Come back later" (later.ts): the window's title over Remind, no "in an hour", and the sections added there.
+  title?: string
+  later?: boolean
+  children?: ComponentChildren
   onPick: (at: number, preset: "hour" | "evening" | "morning" | "week" | "custom") => void
   onCancel: () => void
   onClose: () => void
@@ -98,9 +102,10 @@ export function RemindSheet({ current, note, page = false, onPick, onCancel, onC
   }, [page])
   return (
     <div ref={back} class={`cf-sheet-back ${page ? "page" : ""}`} onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div class="cf-sheet" role="dialog" aria-label={t("uxRemindTitle")}>
-        <div class="cf-sheet-title"><Bell size={16} /> {t("uxRemindTitle")}</div>
-        {remindPresets().map((p) => (
+      <div class="cf-sheet" role="dialog" aria-label={title ?? t("uxRemindTitle")}>
+        {title && <div class="cf-sheet-head">{title}</div>}
+        <div class="cf-sheet-title"><Bell size={16} /> {t(later ? "uxRemind" : "uxRemindTitle")}</div>
+        {remindPresets().filter((p) => !later || p.key !== "uxRemindHour").map((p) => (
           <button type="button" key={p.key} class="cf-sheet-row" onClick={() => onPick(p.at, PRESET[p.key])}>
             <span>{t(p.key)}</span>
             <span class="cf-sheet-when">{remindLabel(p.at)}</span>
@@ -122,6 +127,7 @@ export function RemindSheet({ current, note, page = false, onPick, onCancel, onC
           <button type="button" class="cf-sheet-row danger" onClick={onCancel}>{t("uxRemindCancel")}</button>
         )}
         {note && <p class="cf-sheet-note">{note}</p>}
+        {children}
       </div>
     </div>
   )

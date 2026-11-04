@@ -59,7 +59,7 @@ function remindWhat(m: Entry): "page" | "note" | "answer" {
  * may first ask about notifications: the answer waits for that.
  */
 export async function scheduleReminder(send: Options["send"], chat: string, entry: Entry, at: number | null, chatTitle: string): Promise<string> {
-  const notice = reminderNotice(entry, chatTitle)
+  const notice = reminderNotice(entry, chatTitle, (text) => t("uxRemindAsked", text))
   const reply = await send<{ outcome: string }>({ type: "remind", chat, message: entryKey(entry), at, title: notice.title, body: notice.body, url: notice.url, ask: true })
   return reply?.outcome ?? "unavailable"
 }

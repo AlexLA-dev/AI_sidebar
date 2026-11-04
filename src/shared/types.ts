@@ -170,7 +170,7 @@ export type BackgroundRequest =
   // { outcome: "scheduled" | "denied" | "not-asked" | "failed" | "unavailable" }. `at` null: cancel it.
   | { type: "remind"; chat: string; message: string; at: number | null; title?: string; body?: string; url?: string; ask?: boolean }
   // Chat UX counts (2.5), no text: see UX_KINDS in netlify/functions/v2-event.mts.
-  | { type: "uxEvent"; kind: "ux_mark" | "ux_pin" | "ux_delete" | "ux_remind"; action: string; what?: string; how?: string; preset?: string }
+  | { type: "uxEvent"; kind: "ux_mark" | "ux_pin" | "ux_delete" | "ux_remind" | "ux_menu" | "ux_later" | "ux_watch"; action: string; what?: string; how?: string; preset?: string; site?: string; via?: string; n?: number; n_remind?: number; n_watch?: number; surface?: "app" | "panel" }
 
 /** A PDF's text, or why there is none ("none": nothing to read, e.g. scanned pages). */
 export type PdfResult =
