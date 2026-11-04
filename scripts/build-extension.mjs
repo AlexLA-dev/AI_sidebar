@@ -36,7 +36,8 @@ function manifest() {
       default_icon: { 16: "icons/icon-16.png", 19: "icons/icon-19.png", 32: "icons/icon-32.png", 38: "icons/icon-38.png", 48: "icons/icon-48.png" }
     },
     background: { service_worker: "dist/background.js" },
-    permissions: ["storage", "activeTab", "scripting", ...(target === "safari" ? ["nativeMessaging"] : [])],
+    // alarms: page watch's checks while Safari runs (2.5).
+    permissions: ["storage", "activeTab", "scripting", "alarms", ...(target === "safari" ? ["nativeMessaging"] : [])],
     host_permissions: ["http://*/*", "https://*/*"],
     content_scripts: [
       { matches: ["http://*/*", "https://*/*"], js: ["dist/content.js"], run_at: "document_idle", all_frames: false }
