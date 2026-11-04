@@ -317,6 +317,18 @@
  "limitProBody": {
   "message": "Tus respuestas Pro se renuevan en {0}."
  },
+ "longPageWeight": {
+  "message": "Página larga: respuesta ×{0}"
+ },
+ "longPageWeightHint": {
+  "message": "Esta página es larga: una respuesta sobre ella cuenta ×{0} en tu límite."
+ },
+ "limitLongTitle": {
+  "message": "Esta página es larga"
+ },
+ "limitLongBody": {
+  "message": "Una respuesta sobre ella cuenta como {0}, y te quedan {1}."
+ },
  "getPro": {
   "message": "Obtener Pro"
  },

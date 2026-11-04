@@ -317,6 +317,18 @@
  "limitProBody": {
   "message": "Ответы Pro обновятся через {0}."
  },
+ "longPageWeight": {
+  "message": "Длинная страница: ответ ×{0}"
+ },
+ "longPageWeightHint": {
+  "message": "Страница длинная: ответ по ней списывается из лимита ×{0}."
+ },
+ "limitLongTitle": {
+  "message": "Страница длинная"
+ },
+ "limitLongBody": {
+  "message": "Ответ по ней считается за {0}, а у вас осталось {1}."
+ },
  "getPro": {
   "message": "Получить Pro"
  },

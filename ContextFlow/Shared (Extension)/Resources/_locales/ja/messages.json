@@ -317,6 +317,18 @@
  "limitProBody": {
   "message": "Proの回答数は{0}後にリセットされます。"
  },
+ "longPageWeight": {
+  "message": "長いページ：回答 ×{0}"
+ },
+ "longPageWeightHint": {
+  "message": "このページは長文です：回答は上限から ×{0} として数えられます。"
+ },
+ "limitLongTitle": {
+  "message": "このページは長文です"
+ },
+ "limitLongBody": {
+  "message": "このページへの回答は{0}回分として数えられ、残りは{1}回です。"
+ },
  "getPro": {
   "message": "Proを入手"
  },

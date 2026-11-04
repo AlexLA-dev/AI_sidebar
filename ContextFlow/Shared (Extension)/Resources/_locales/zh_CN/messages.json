@@ -317,6 +317,18 @@
  "limitProBody": {
   "message": "你的 Pro 回答次数将在 {0}后恢复。"
  },
+ "longPageWeight": {
+  "message": "长页面：回答 ×{0}"
+ },
+ "longPageWeightHint": {
+  "message": "这个页面很长：关于它的回答按 ×{0} 计入额度。"
+ },
+ "limitLongTitle": {
+  "message": "这个页面很长"
+ },
+ "limitLongBody": {
+  "message": "关于它的回答按 {0} 次计算，你还剩 {1} 次。"
+ },
  "getPro": {
   "message": "升级 Pro"
  },

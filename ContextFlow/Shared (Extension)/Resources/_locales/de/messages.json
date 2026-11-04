@@ -317,6 +317,18 @@
  "limitProBody": {
   "message": "Deine Pro-Antworten werden in {0} wieder aufgefüllt."
  },
+ "longPageWeight": {
+  "message": "Lange Seite: Antwort ×{0}"
+ },
+ "longPageWeightHint": {
+  "message": "Diese Seite ist lang: Eine Antwort dazu zählt im Limit ×{0}."
+ },
+ "limitLongTitle": {
+  "message": "Diese Seite ist lang"
+ },
+ "limitLongBody": {
+  "message": "Eine Antwort dazu zählt als {0}, und du hast noch {1}."
+ },
  "getPro": {
   "message": "Pro holen"
  },

@@ -317,6 +317,18 @@
  "limitProBody": {
   "message": "Your Pro answers refresh in {0}."
  },
+ "longPageWeight": {
+  "message": "Long page: answer ×{0}"
+ },
+ "longPageWeightHint": {
+  "message": "This page is long: an answer about it counts as {0} answers of your limit."
+ },
+ "limitLongTitle": {
+  "message": "This page is long"
+ },
+ "limitLongBody": {
+  "message": "An answer about it counts as {0}, and you have {1} left."
+ },
  "getPro": {
   "message": "Get Pro"
  },

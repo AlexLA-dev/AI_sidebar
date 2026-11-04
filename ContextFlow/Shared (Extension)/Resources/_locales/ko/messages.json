@@ -317,6 +317,18 @@
  "limitProBody": {
   "message": "Pro 답변은 {0} 후에 다시 채워져요."
  },
+ "longPageWeight": {
+  "message": "긴 페이지: 답변 ×{0}"
+ },
+ "longPageWeightHint": {
+  "message": "이 페이지는 깁니다: 이 페이지에 대한 답변은 한도에서 ×{0}로 계산됩니다."
+ },
+ "limitLongTitle": {
+  "message": "이 페이지는 깁니다"
+ },
+ "limitLongBody": {
+  "message": "이 페이지에 대한 답변은 {0}회로 계산되며, 남은 횟수는 {1}회입니다."
+ },
  "getPro": {
   "message": "Pro 시작하기"
  },
