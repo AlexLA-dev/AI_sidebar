@@ -78,6 +78,9 @@
 
 /* ----------------------------------------------- a template's blanks */
 .cf-qi-fill { padding: 10px 14px 12px; display: flex; flex-direction: column; gap: 10px; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+/* Its parts keep their height and the form scrolls (on an iPhone SE the title and the words were squeezed to
+   a sliver, letters cut off). */
+.cf-qi-fill > * { flex: none; }
 .cf-qi-fill-head { display: flex; align-items: center; gap: 6px; font-weight: 650; }
 .cf-qi-fill-head button { color: var(--text-3); }
 .cf-qi-fill-text { font-size: 15px; line-height: 1.6; color: var(--text); white-space: pre-wrap; max-height: 40vh; overflow-y: auto; }
