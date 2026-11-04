@@ -203,6 +203,15 @@
  "uxMore": {
   "message": "Plus"
  },
+ "uxMorePage": {
+  "message": "Plus : page"
+ },
+ "uxMoreAnswer": {
+  "message": "Plus : réponse"
+ },
+ "uxMoreNote": {
+  "message": "Plus : note"
+ },
  "uxLater": {
   "message": "Revenir plus tard…"
  },
@@ -282,13 +291,16 @@
   "message": "Rappel : {0}"
  },
  "uxRemindNotSet": {
-  "message": "Enregistré dans le chat. Pour le rappel, autorisez les notifications de ContextFlow."
+  "message": "Enregistré dans le chat. Les notifications de ContextFlow sont désactivées. Activez-les dans Réglages → Notifications → ContextFlow."
  },
  "uxRemindNoApp": {
   "message": "Enregistré dans le chat. Pour les rappels, il faut l’app ContextFlow sur cet appareil."
  },
  "uxUnpinAll": {
   "message": "Tout désépingler"
+ },
+ "setShareGroup": {
+  "message": "Partage et copie"
  },
  "uxShareMarks": {
   "message": "Surlignages en **gras** dans le texte partagé"
@@ -959,9 +971,6 @@
  "qiOnDevice": {
   "message": "appareil"
  },
- "qiHideButtonOnSite": {
-  "message": "Masquer le bouton sur {0}"
- },
  "qiDontKeepOnSite": {
   "message": "Ne pas garder sur {0}"
  },
@@ -1294,122 +1303,5 @@
  },
  "upsellOrganizeText": {
   "message": "Suggère la bonne discussion pour ce que vous venez de demander, et votre propre tag."
- },
- "watchEye": {
-  "message": "Surveiller les changements"
- },
- "watchSection": {
-  "message": "Me prévenir quand ça change"
- },
- "watchWhen": {
-  "message": "Quand vous prévenir"
- },
- "watchCondPrice": {
-  "message": "quand le prix change (actuellement {0})"
- },
- "watchCondBack": {
-  "message": "quand ce sera de nouveau en stock"
- },
- "watchCondStock": {
-  "message": "quand la disponibilité change (actuellement {0})"
- },
- "watchCondDate": {
-  "message": "quand la date change (actuellement {0})"
- },
- "watchCondStatus": {
-  "message": "quand le statut change (actuellement {0})"
- },
- "watchCondPage": {
-  "message": "quand quelque chose de nouveau apparaît sur la page"
- },
- "watchHonest": {
-  "message": "Je vérifie pendant que vous utilisez Safari"
- },
- "watchStart": {
-  "message": "Surveiller"
- },
- "watchChecking": {
-  "message": "Je regarde la page…"
- },
- "watchSet": {
-  "message": "C'est noté. Je vous préviens quand ça change."
- },
- "watchSetLive": {
-  "message": "C'est noté. Ce site ne l'affiche que lorsque vous ouvrez la page : je vérifierai à ce moment-là."
- },
- "watchUnreadable": {
-  "message": "Ce site ne se laisse pas vérifier en arrière-plan. Je peux vérifier quand vous ouvrez la page, ou vous rappeler d'y jeter un œil."
- },
- "watchRemindInstead": {
-  "message": "Me rappeler d'y jeter un œil"
- },
- "watchLiveOk": {
-  "message": "Vérifier quand j'ouvre la page"
- },
- "watchFull": {
-  "message": "Vous surveillez déjà {0} pages. Arrêtez-en une dans Rappels d'abord."
- },
- "watchFullFree": {
-  "message": "En version gratuite, vous surveillez {0} pages à la fois. Avec Pro, jusqu'à {1}."
- },
- "watchMore": {
-  "message": "Plus avec Pro"
- },
- "watchFailed": {
-  "message": "Ça n'a pas marché. Réessayez dans un instant."
- },
- "watchNotifyOff": {
-  "message": "Les notifications de ContextFlow sont désactivées. Activez-les dans Réglages pour être prévenu."
- },
- "watchNotifyAsk": {
-  "message": "Ouvrez l'app ContextFlow : elle vous demandera si elle peut envoyer des notifications, pour que je vous prévienne du changement."
- },
- "watchRow": {
-  "message": "Surveillé : {0} · vérifié {1}"
- },
- "watchRowNew": {
-  "message": "Surveillé : {0}"
- },
- "watchRowLive": {
-  "message": "Surveillé : {0} · je vérifie quand vous ouvrez la page"
- },
- "watchRowMet": {
-  "message": "Changé : {0} · {1}"
- },
- "watchRowMetNow": {
-  "message": "Changé : {0}, maintenant {1} · {2}"
- },
- "watchStop": {
-  "message": "Arrêter de surveiller"
- },
- "watchStopped": {
-  "message": "Surveillance arrêtée"
- },
- "watchLabelPrice": {
-  "message": "Prix"
- },
- "watchLabelStock": {
-  "message": "Disponibilité"
- },
- "watchLabelDate": {
-  "message": "Date"
- },
- "watchLabelStatus": {
-  "message": "Statut"
- },
- "watchLabelPage": {
-  "message": "La page"
- },
- "watchInStock": {
-  "message": "en stock"
- },
- "watchOutOfStock": {
-  "message": "en rupture de stock"
- },
- "watchChanged": {
-  "message": "Changé : {0}"
- },
- "watchChangedBody": {
-  "message": "Maintenant : {0}"
  }
 }

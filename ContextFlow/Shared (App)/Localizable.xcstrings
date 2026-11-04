@@ -22470,7 +22470,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Markieren"
+            "value": "Hervorheben"
           }
         },
         "es": {
@@ -22512,13 +22512,13 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Выделить"
+            "value": "Отметить"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Виділити"
+            "value": "Позначити"
           }
         },
         "zh-Hans": {
@@ -22534,7 +22534,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Markierung entfernen"
+            "value": "Hervorhebung entfernen"
           }
         },
         "es": {
@@ -22576,13 +22576,13 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Снять выделение"
+            "value": "Снять отметку"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Зняти виділення"
+            "value": "Зняти позначку"
           }
         },
         "zh-Hans": {
@@ -23856,7 +23856,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Уведомления для ContextFlow выключены. Включите их в Настройках → Уведомления → ContextFlow."
+            "value": "Уведомления для ContextFlow выключены. Включите их: Настройки → Уведомления → ContextFlow."
           }
         },
         "uk": {

@@ -7,7 +7,6 @@ import { useEffect, useRef } from "preact/hooks"
 
 import { t } from "../../shared/i18n"
 import { listenAround } from "../around"
-import { Bell } from "./MessageUx"
 import * as Icon from "../icons"
 
 export function PageMenu({ reminders, onLater, onReminders, onSettings, onClose }: {
@@ -38,7 +37,7 @@ export function PageMenu({ reminders, onLater, onReminders, onSettings, onClose 
   }, [onClose])
   return (
     <div ref={ref} class="cf-msg-menu cf-page-menu" role="menu">
-      <button type="button" role="menuitem" onClick={onLater}><Bell size={15} /> {t("uxLater")}</button>
+      <button type="button" role="menuitem" onClick={onLater}><Icon.Clock /> {t("uxLater")}</button>
       <button type="button" role="menuitem" onClick={onReminders}><Icon.List /> {reminders > 0 ? t("uxRemindersN", reminders) : t("uxReminders")}</button>
       <button type="button" role="menuitem" onClick={onSettings}><Icon.Gear /> {t("settings")}</button>
     </div>

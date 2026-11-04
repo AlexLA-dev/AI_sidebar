@@ -168,10 +168,10 @@
   "message": "Seite aktualisiert"
  },
  "uxMark": {
-  "message": "Markieren"
+  "message": "Hervorheben"
  },
  "uxUnmark": {
-  "message": "Markierung entfernen"
+  "message": "Hervorhebung entfernen"
  },
  "uxDelete": {
   "message": "Löschen"
@@ -202,6 +202,15 @@
  },
  "uxMore": {
   "message": "Mehr"
+ },
+ "uxMorePage": {
+  "message": "Mehr: Seite"
+ },
+ "uxMoreAnswer": {
+  "message": "Mehr: Antwort"
+ },
+ "uxMoreNote": {
+  "message": "Mehr: Notiz"
  },
  "uxLater": {
   "message": "Später zurückkommen…"
@@ -282,7 +291,7 @@
   "message": "Erinnerung: {0}"
  },
  "uxRemindNotSet": {
-  "message": "Im Chat gespeichert. Für die Erinnerung erlaube Mitteilungen von ContextFlow."
+  "message": "Im Chat gespeichert. Mitteilungen für ContextFlow sind aus. Schalte sie ein unter Einstellungen → Mitteilungen → ContextFlow."
  },
  "uxRemindNoApp": {
   "message": "Im Chat gespeichert. Für Erinnerungen brauchst du die ContextFlow-App auf diesem Gerät."
@@ -290,8 +299,11 @@
  "uxUnpinAll": {
   "message": "Alle lösen"
  },
+ "setShareGroup": {
+  "message": "Teilen und Kopieren"
+ },
  "uxShareMarks": {
-  "message": "Markiertes beim Teilen als **fett**"
+  "message": "Hervorgehobenes beim Teilen als **fett**"
  },
  "uxShareMarksHint": {
   "message": "Telegram, Notion und Slack zeigen es fett, Nachrichten und Notizen mit Sternchen. Beim Kopieren bleibt es immer fett."
@@ -959,9 +971,6 @@
  "qiOnDevice": {
   "message": "Gerät"
  },
- "qiHideButtonOnSite": {
-  "message": "Taste auf {0} ausblenden"
- },
  "qiDontKeepOnSite": {
   "message": "Auf {0} nicht behalten"
  },
@@ -1080,7 +1089,7 @@
   "message": "Suchwörter, durch Kommas getrennt"
  },
  "qiSave": {
-  "message": "Speichern"
+  "message": "Sichern"
  },
  "qiDelete": {
   "message": "Löschen"
@@ -1294,122 +1303,5 @@
  },
  "upsellOrganizeText": {
   "message": "Schlägt den richtigen Chat für das vor, was du gerade gefragt hast, und deinen eigenen Tag dafür."
- },
- "watchEye": {
-  "message": "Auf Änderungen achten"
- },
- "watchSection": {
-  "message": "Melden, wenn es sich ändert"
- },
- "watchWhen": {
-  "message": "Wann melden"
- },
- "watchCondPrice": {
-  "message": "wenn sich der Preis ändert (jetzt {0})"
- },
- "watchCondBack": {
-  "message": "wenn es wieder lieferbar ist"
- },
- "watchCondStock": {
-  "message": "wenn sich die Verfügbarkeit ändert (jetzt {0})"
- },
- "watchCondDate": {
-  "message": "wenn sich das Datum ändert (jetzt {0})"
- },
- "watchCondStatus": {
-  "message": "wenn sich der Status ändert (jetzt {0})"
- },
- "watchCondPage": {
-  "message": "wenn auf der Seite etwas Neues steht"
- },
- "watchHonest": {
-  "message": "Ich prüfe, solange du Safari nutzt"
- },
- "watchStart": {
-  "message": "Beobachten"
- },
- "watchChecking": {
-  "message": "Ich sehe mir die Seite an…"
- },
- "watchSet": {
-  "message": "Ich behalte es im Blick und melde mich bei einer Änderung."
- },
- "watchSetLive": {
-  "message": "Ich behalte es im Blick. Diese Seite zeigt es nur, wenn du sie öffnest – dann prüfe ich."
- },
- "watchUnreadable": {
-  "message": "Diese Seite lässt sich nicht im Hintergrund prüfen. Ich kann prüfen, wenn du sie öffnest, oder dich erinnern, nachzusehen."
- },
- "watchRemindInstead": {
-  "message": "Ans Nachsehen erinnern"
- },
- "watchLiveOk": {
-  "message": "Prüfen, wenn ich sie öffne"
- },
- "watchFull": {
-  "message": "Du beobachtest schon {0} Seiten. Beende zuerst eine unter „Erinnerungen“."
- },
- "watchFullFree": {
-  "message": "Kostenlos beobachtest du bis zu {0} Seiten gleichzeitig. Mit Pro bis zu {1}."
- },
- "watchMore": {
-  "message": "Mehr mit Pro"
- },
- "watchFailed": {
-  "message": "Das hat nicht geklappt. Versuch es gleich noch einmal."
- },
- "watchNotifyOff": {
-  "message": "Mitteilungen für ContextFlow sind aus. Schalte sie in den Einstellungen ein, um von der Änderung zu erfahren."
- },
- "watchNotifyAsk": {
-  "message": "Öffne die ContextFlow-App: sie fragt, ob sie Mitteilungen senden darf – dann melde ich die Änderung."
- },
- "watchRow": {
-  "message": "Beobachte: {0} · geprüft {1}"
- },
- "watchRowNew": {
-  "message": "Beobachte: {0}"
- },
- "watchRowLive": {
-  "message": "Beobachte: {0} · ich prüfe, wenn du die Seite öffnest"
- },
- "watchRowMet": {
-  "message": "Geändert: {0} · {1}"
- },
- "watchRowMetNow": {
-  "message": "Geändert: {0}, jetzt {1} · {2}"
- },
- "watchStop": {
-  "message": "Nicht mehr beobachten"
- },
- "watchStopped": {
-  "message": "Beobachtung beendet"
- },
- "watchLabelPrice": {
-  "message": "Preis"
- },
- "watchLabelStock": {
-  "message": "Verfügbarkeit"
- },
- "watchLabelDate": {
-  "message": "Datum"
- },
- "watchLabelStatus": {
-  "message": "Status"
- },
- "watchLabelPage": {
-  "message": "Die Seite"
- },
- "watchInStock": {
-  "message": "auf Lager"
- },
- "watchOutOfStock": {
-  "message": "nicht auf Lager"
- },
- "watchChanged": {
-  "message": "Geändert: {0}"
- },
- "watchChangedBody": {
-  "message": "Jetzt: {0}"
  }
 }

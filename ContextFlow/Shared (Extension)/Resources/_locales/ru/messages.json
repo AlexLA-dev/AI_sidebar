@@ -168,10 +168,10 @@
   "message": "Страница обновилась"
  },
  "uxMark": {
-  "message": "Выделить"
+  "message": "Отметить"
  },
  "uxUnmark": {
-  "message": "Снять выделение"
+  "message": "Снять отметку"
  },
  "uxDelete": {
   "message": "Удалить"
@@ -202,6 +202,15 @@
  },
  "uxMore": {
   "message": "Ещё"
+ },
+ "uxMorePage": {
+  "message": "Ещё: страница"
+ },
+ "uxMoreAnswer": {
+  "message": "Ещё: ответ"
+ },
+ "uxMoreNote": {
+  "message": "Ещё: заметка"
  },
  "uxLater": {
   "message": "Вернуться позже…"
@@ -264,7 +273,7 @@
   "message": "Не напоминать"
  },
  "uxRemindOff": {
-  "message": "Уведомления для ContextFlow выключены. Включите их в Настройках → Уведомления → ContextFlow."
+  "message": "Уведомления для ContextFlow выключены. Включите их: Настройки → Уведомления → ContextFlow."
  },
  "uxRemindAsk": {
   "message": "Откройте приложение ContextFlow, разрешите уведомления и поставьте напоминание ещё раз."
@@ -282,7 +291,7 @@
   "message": "Напоминание: {0}"
  },
  "uxRemindNotSet": {
-  "message": "Сохранено в чат. Для напоминания разрешите уведомления ContextFlow."
+  "message": "Сохранено в чат. Уведомления для ContextFlow выключены. Включите их: Настройки → Уведомления → ContextFlow."
  },
  "uxRemindNoApp": {
   "message": "Сохранено в чат. Для напоминаний нужно приложение ContextFlow на этом устройстве."
@@ -290,8 +299,11 @@
  "uxUnpinAll": {
   "message": "Открепить все"
  },
+ "setShareGroup": {
+  "message": "Поделиться и копирование"
+ },
  "uxShareMarks": {
-  "message": "Выделенное в «Поделиться» — **жирным**"
+  "message": "Отмеченное в «Поделиться» — **жирным**"
  },
  "uxShareMarksHint": {
   "message": "Telegram, Notion и Slack покажут жирным, а Сообщения и Заметки — со звёздочками. «Копировать» всегда сохраняет жирный."
@@ -959,9 +971,6 @@
  "qiOnDevice": {
   "message": "устройстве"
  },
- "qiHideButtonOnSite": {
-  "message": "Скрыть кнопку на {0}"
- },
  "qiDontKeepOnSite": {
   "message": "Не сохранять на {0}"
  },
@@ -1029,7 +1038,7 @@
   "message": "Скопированное для «{0}»"
  },
  "qiAdapt": {
-  "message": "Подстроить под сообщение"
+  "message": "Подстроить под письмо"
  },
  "qiAdaptLabel": {
   "message": "Подстроить шаблон под эту страницу"
@@ -1294,122 +1303,5 @@
  },
  "upsellOrganizeText": {
   "message": "Подскажет нужный чат для того, что вы только что спросили, и ваш тег для него."
- },
- "watchEye": {
-  "message": "Следить за изменением"
- },
- "watchSection": {
-  "message": "Сообщить, когда изменится"
- },
- "watchWhen": {
-  "message": "Когда сообщить"
- },
- "watchCondPrice": {
-  "message": "когда изменится цена (сейчас {0})"
- },
- "watchCondBack": {
-  "message": "когда снова появится в наличии"
- },
- "watchCondStock": {
-  "message": "когда изменится наличие (сейчас {0})"
- },
- "watchCondDate": {
-  "message": "когда изменится дата (сейчас {0})"
- },
- "watchCondStatus": {
-  "message": "когда изменится статус (сейчас {0})"
- },
- "watchCondPage": {
-  "message": "когда на странице появится новое"
- },
- "watchHonest": {
-  "message": "Проверяю, пока вы пользуетесь Safari"
- },
- "watchStart": {
-  "message": "Следить"
- },
- "watchChecking": {
-  "message": "Смотрю страницу…"
- },
- "watchSet": {
-  "message": "Слежу. Сообщу, когда изменится."
- },
- "watchSetLive": {
-  "message": "Слежу. Этот сайт показывает это, только когда вы открываете страницу, — тогда и проверю."
- },
- "watchUnreadable": {
-  "message": "Этот сайт не даёт проверять его в фоне. Могу проверять, когда вы откроете страницу, или напомнить заглянуть."
- },
- "watchRemindInstead": {
-  "message": "Напомнить заглянуть"
- },
- "watchLiveOk": {
-  "message": "Проверять, когда открою страницу"
- },
- "watchFull": {
-  "message": "Уже {0} слежений. Сначала остановите одно в «Напоминаниях»."
- },
- "watchFullFree": {
-  "message": "Бесплатно можно следить за {0} страницами сразу. В Pro — до {1}."
- },
- "watchMore": {
-  "message": "Больше в Pro"
- },
- "watchFailed": {
-  "message": "Не получилось. Попробуйте чуть позже."
- },
- "watchNotifyOff": {
-  "message": "Уведомления ContextFlow выключены. Включите их в Настройках, чтобы узнать об изменении."
- },
- "watchNotifyAsk": {
-  "message": "Откройте приложение ContextFlow: оно спросит, можно ли присылать уведомления, — тогда я сообщу об изменении."
- },
- "watchRow": {
-  "message": "Слежу: {0} · проверено {1}"
- },
- "watchRowNew": {
-  "message": "Слежу: {0}"
- },
- "watchRowLive": {
-  "message": "Слежу: {0} · проверю, когда откроете страницу"
- },
- "watchRowMet": {
-  "message": "Изменилось: {0} · {1}"
- },
- "watchRowMetNow": {
-  "message": "Изменилось: {0}, сейчас {1} · {2}"
- },
- "watchStop": {
-  "message": "Перестать следить"
- },
- "watchStopped": {
-  "message": "Больше не слежу"
- },
- "watchLabelPrice": {
-  "message": "Цена"
- },
- "watchLabelStock": {
-  "message": "Наличие"
- },
- "watchLabelDate": {
-  "message": "Дата"
- },
- "watchLabelStatus": {
-  "message": "Статус"
- },
- "watchLabelPage": {
-  "message": "Страница"
- },
- "watchInStock": {
-  "message": "в наличии"
- },
- "watchOutOfStock": {
-  "message": "нет в наличии"
- },
- "watchChanged": {
-  "message": "Изменилось: {0}"
- },
- "watchChangedBody": {
-  "message": "Сейчас: {0}"
  }
 }

@@ -203,6 +203,15 @@
  "uxMore": {
   "message": "Más"
  },
+ "uxMorePage": {
+  "message": "Más: página"
+ },
+ "uxMoreAnswer": {
+  "message": "Más: respuesta"
+ },
+ "uxMoreNote": {
+  "message": "Más: nota"
+ },
  "uxLater": {
   "message": "Volver más tarde…"
  },
@@ -282,13 +291,16 @@
   "message": "Recordatorio: {0}"
  },
  "uxRemindNotSet": {
-  "message": "Guardado en el chat. Para el recordatorio, permite las notificaciones de ContextFlow."
+  "message": "Guardado en el chat. Las notificaciones de ContextFlow están desactivadas. Actívalas en Ajustes → Notificaciones → ContextFlow."
  },
  "uxRemindNoApp": {
   "message": "Guardado en el chat. Para los recordatorios necesitas la app ContextFlow en este dispositivo."
  },
  "uxUnpinAll": {
   "message": "Dejar de fijar todos"
+ },
+ "setShareGroup": {
+  "message": "Compartir y copiar"
  },
  "uxShareMarks": {
   "message": "Lo resaltado, en **negrita** al compartir"
@@ -959,9 +971,6 @@
  "qiOnDevice": {
   "message": "dispositivo"
  },
- "qiHideButtonOnSite": {
-  "message": "Ocultar el botón en {0}"
- },
  "qiDontKeepOnSite": {
   "message": "No guardar en {0}"
  },
@@ -1294,122 +1303,5 @@
  },
  "upsellOrganizeText": {
   "message": "Sugiere el chat adecuado para lo que acabas de preguntar, y tu propia etiqueta para ello."
- },
- "watchEye": {
-  "message": "Avisarme de cambios"
- },
- "watchSection": {
-  "message": "Avisarme cuando cambie"
- },
- "watchWhen": {
-  "message": "Cuándo avisarte"
- },
- "watchCondPrice": {
-  "message": "cuando cambie el precio (ahora {0})"
- },
- "watchCondBack": {
-  "message": "cuando vuelva a estar disponible"
- },
- "watchCondStock": {
-  "message": "cuando cambie la disponibilidad (ahora {0})"
- },
- "watchCondDate": {
-  "message": "cuando cambie la fecha (ahora {0})"
- },
- "watchCondStatus": {
-  "message": "cuando cambie el estado (ahora {0})"
- },
- "watchCondPage": {
-  "message": "cuando aparezca algo nuevo en la página"
- },
- "watchHonest": {
-  "message": "Lo compruebo mientras usas Safari"
- },
- "watchStart": {
-  "message": "Vigilar"
- },
- "watchChecking": {
-  "message": "Miro la página…"
- },
- "watchSet": {
-  "message": "Hecho. Te aviso cuando cambie."
- },
- "watchSetLive": {
-  "message": "Hecho. Este sitio solo lo muestra cuando abres la página, así que lo compruebo entonces."
- },
- "watchUnreadable": {
-  "message": "Este sitio no deja comprobarlo en segundo plano. Puedo comprobarlo cuando abras la página o recordarte que mires."
- },
- "watchRemindInstead": {
-  "message": "Recordarme que mire"
- },
- "watchLiveOk": {
-  "message": "Comprobar cuando abra la página"
- },
- "watchFull": {
-  "message": "Ya vigilas {0} páginas. Detén una en Recordatorios primero."
- },
- "watchFullFree": {
-  "message": "Gratis puedes vigilar {0} páginas a la vez. Con Pro, hasta {1}."
- },
- "watchMore": {
-  "message": "Más con Pro"
- },
- "watchFailed": {
-  "message": "No ha funcionado. Inténtalo de nuevo en un momento."
- },
- "watchNotifyOff": {
-  "message": "Las notificaciones de ContextFlow están desactivadas. Actívalas en Ajustes para enterarte del cambio."
- },
- "watchNotifyAsk": {
-  "message": "Abre la app ContextFlow: te preguntará si puede enviar notificaciones, y así te aviso del cambio."
- },
- "watchRow": {
-  "message": "Vigilando: {0} · comprobado {1}"
- },
- "watchRowNew": {
-  "message": "Vigilando: {0}"
- },
- "watchRowLive": {
-  "message": "Vigilando: {0} · lo compruebo cuando abras la página"
- },
- "watchRowMet": {
-  "message": "Cambió: {0} · {1}"
- },
- "watchRowMetNow": {
-  "message": "Cambió: {0}, ahora {1} · {2}"
- },
- "watchStop": {
-  "message": "Dejar de vigilar"
- },
- "watchStopped": {
-  "message": "Ya no lo vigilo"
- },
- "watchLabelPrice": {
-  "message": "Precio"
- },
- "watchLabelStock": {
-  "message": "Disponibilidad"
- },
- "watchLabelDate": {
-  "message": "Fecha"
- },
- "watchLabelStatus": {
-  "message": "Estado"
- },
- "watchLabelPage": {
-  "message": "La página"
- },
- "watchInStock": {
-  "message": "disponible"
- },
- "watchOutOfStock": {
-  "message": "agotado"
- },
- "watchChanged": {
-  "message": "Cambió: {0}"
- },
- "watchChangedBody": {
-  "message": "Ahora: {0}"
  }
 }

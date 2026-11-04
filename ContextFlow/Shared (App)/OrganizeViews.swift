@@ -100,23 +100,20 @@ struct OrganizeFlow: Layout {
     }
 }
 
-/// The dark bar over the question field after something that can be taken back ("Moved to “Trips” · Undo · Open").
-/// It only draws: whoever shows it takes it away on the next action.
+/// The bar over the question field after something that can be taken back ("Moved to “Trips” · Undo · Open"), in the
+/// one look of bars (SnackBar). It only draws: whoever shows it takes it away on the next action.
 struct UndoBar: View {
     let text: String
     let actions: [(label: LocalizedStringKey, run: () -> Void)]
 
     var body: some View {
         HStack(spacing: 4) {
-            Text(text).font(.subheadline).foregroundColor(.white).frame(maxWidth: .infinity, alignment: .leading)
+            Text(text).font(.subheadline).frame(maxWidth: .infinity, alignment: .leading)
             ForEach(actions.indices, id: \.self) { i in
                 Button(actions[i].label, action: actions[i].run).font(.subheadline.weight(.semibold)).padding(.horizontal, 6)
             }
         }
-        .tint(Color(red: 0.58, green: 0.77, blue: 0.99))
-        .padding(.vertical, 11).padding(.leading, 14).padding(.trailing, 6)
-        .background(RoundedRectangle(cornerRadius: 14).fill(Color(red: 0.14, green: 0.13, blue: 0.17)))
-        .shadow(color: .black.opacity(0.25), radius: 10, y: 4)
+        .modifier(SnackBar())
         .frame(maxWidth: 560)
         .accessibilityElement(children: .contain)
         .transition(.move(edge: .bottom).combined(with: .opacity))

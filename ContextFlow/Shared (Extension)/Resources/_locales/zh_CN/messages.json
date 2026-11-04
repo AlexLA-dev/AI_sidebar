@@ -203,6 +203,15 @@
  "uxMore": {
   "message": "更多"
  },
+ "uxMorePage": {
+  "message": "更多：页面"
+ },
+ "uxMoreAnswer": {
+  "message": "更多：回答"
+ },
+ "uxMoreNote": {
+  "message": "更多：笔记"
+ },
  "uxLater": {
   "message": "稍后再看…"
  },
@@ -282,13 +291,16 @@
   "message": "提醒：{0}"
  },
  "uxRemindNotSet": {
-  "message": "已保存到对话。如需提醒，请允许 ContextFlow 发送通知。"
+  "message": "已保存到对话。ContextFlow 的通知已关闭。请在这里打开：设置 → 通知 → ContextFlow。"
  },
  "uxRemindNoApp": {
   "message": "已保存到对话。提醒功能需要此设备上装有 ContextFlow App。"
  },
  "uxUnpinAll": {
   "message": "全部取消置顶"
+ },
+ "setShareGroup": {
+  "message": "分享与复制"
  },
  "uxShareMarks": {
   "message": "分享时把高亮内容设为**粗体**"
@@ -959,9 +971,6 @@
  "qiOnDevice": {
   "message": "设备"
  },
- "qiHideButtonOnSite": {
-  "message": "在 {0} 上隐藏按钮"
- },
  "qiDontKeepOnSite": {
   "message": "在 {0} 不保留"
  },
@@ -1294,122 +1303,5 @@
  },
  "upsellOrganizeText": {
   "message": "为你刚问的内容建议合适的对话，以及你自己的标签。"
- },
- "watchEye": {
-  "message": "关注变化"
- },
- "watchSection": {
-  "message": "变化时通知我"
- },
- "watchWhen": {
-  "message": "何时通知"
- },
- "watchCondPrice": {
-  "message": "价格变化时（现在 {0}）"
- },
- "watchCondBack": {
-  "message": "重新有货时"
- },
- "watchCondStock": {
-  "message": "库存变化时（现在 {0}）"
- },
- "watchCondDate": {
-  "message": "日期变化时（现在 {0}）"
- },
- "watchCondStatus": {
-  "message": "状态变化时（现在 {0}）"
- },
- "watchCondPage": {
-  "message": "页面出现新内容时"
- },
- "watchHonest": {
-  "message": "你使用 Safari 时我会检查"
- },
- "watchStart": {
-  "message": "关注"
- },
- "watchChecking": {
-  "message": "正在查看页面…"
- },
- "watchSet": {
-  "message": "已关注，变化时通知你。"
- },
- "watchSetLive": {
-  "message": "已关注。这个网站只在你打开页面时显示，届时我会检查。"
- },
- "watchUnreadable": {
-  "message": "这个网站不允许在后台检查。我可以在你打开页面时检查，或提醒你去看看。"
- },
- "watchRemindInstead": {
-  "message": "提醒我去看"
- },
- "watchLiveOk": {
-  "message": "打开页面时检查"
- },
- "watchFull": {
-  "message": "你已经关注了 {0} 个页面。请先在“提醒”里停止一个。"
- },
- "watchFullFree": {
-  "message": "免费版最多同时关注 {0} 个页面，Pro 最多 {1} 个。"
- },
- "watchMore": {
-  "message": "Pro 可关注更多"
- },
- "watchFailed": {
-  "message": "没有成功，请稍后再试。"
- },
- "watchNotifyOff": {
-  "message": "ContextFlow 的通知已关闭。请在设置中打开，以便得知变化。"
- },
- "watchNotifyAsk": {
-  "message": "请打开 ContextFlow App：它会询问能否发送通知，允许后我就能告诉你变化。"
- },
- "watchRow": {
-  "message": "关注中：{0} · {1}检查"
- },
- "watchRowNew": {
-  "message": "关注中：{0}"
- },
- "watchRowLive": {
-  "message": "关注中：{0} · 打开页面时检查"
- },
- "watchRowMet": {
-  "message": "已变化：{0} · {1}"
- },
- "watchRowMetNow": {
-  "message": "已变化：{0}，现在 {1} · {2}"
- },
- "watchStop": {
-  "message": "停止关注"
- },
- "watchStopped": {
-  "message": "已停止关注"
- },
- "watchLabelPrice": {
-  "message": "价格"
- },
- "watchLabelStock": {
-  "message": "库存"
- },
- "watchLabelDate": {
-  "message": "日期"
- },
- "watchLabelStatus": {
-  "message": "状态"
- },
- "watchLabelPage": {
-  "message": "页面"
- },
- "watchInStock": {
-  "message": "有货"
- },
- "watchOutOfStock": {
-  "message": "缺货"
- },
- "watchChanged": {
-  "message": "已变化：{0}"
- },
- "watchChangedBody": {
-  "message": "现在：{0}"
  }
 }

@@ -6,6 +6,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "preact/hooks"
 import type { Entry } from "../../shared/conversation"
 import { t } from "../../shared/i18n"
 import { listenAround } from "../around"
+import { Clock } from "../icons"
 
 const base = { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", "stroke-width": 2, "stroke-linecap": "round", "stroke-linejoin": "round", "aria-hidden": "true" } as const
 
@@ -106,16 +107,11 @@ export function RemindSheet({ current, note, page = false, title, later = false,
     void el.offsetWidth
     el.classList.add("flash")
   }, [flash])
-  useLayoutEffect(() => {
-    const el = back.current
-    if (!el || page) return
-    const composer = el.parentElement?.querySelector<HTMLElement>(".cf-composer")
-    el.style.bottom = composer ? `${composer.offsetHeight}px` : "0px"
-  }, [page])
+  useAboveComposer(back, !page)
   return (
     <div ref={back} class={`cf-sheet-back ${page ? "page" : ""}`} onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div class="cf-sheet" role="dialog" aria-label={title ?? t("uxRemindTitle")}>
-        {title && <div class="cf-sheet-head">{title}</div>}
+        {title && <div class="cf-sheet-head"><Clock /> {title}</div>}
         <div ref={remindTitle} class="cf-sheet-title"><Bell size={16} /> {t(later ? "uxRemind" : "uxRemindTitle")}</div>
         {remindPresets().filter((p) => !later || p.key !== "uxRemindHour").map((p) => (
           <button type="button" key={p.key} class="cf-sheet-row" onClick={() => onPick(p.at, PRESET[p.key])}>
@@ -130,7 +126,7 @@ export function RemindSheet({ current, note, page = false, title, later = false,
         ) : (
           <div class="cf-sheet-pick">
             <input type="datetime-local" value={custom} min={localInput(Date.now())} onInput={(e) => setCustom((e.target as HTMLInputElement).value)} />
-            <button type="button" class="cf-sheet-ok" disabled={!custom || new Date(custom).getTime() <= Date.now()} onClick={() => custom && onPick(new Date(custom).getTime(), "custom")}>
+            <button type="button" class="cf-primary cf-sheet-ok" disabled={!custom || new Date(custom).getTime() <= Date.now()} onClick={() => custom && onPick(new Date(custom).getTime(), "custom")}>
               {t("uxRemindSet")}
             </button>
           </div>
@@ -145,7 +141,30 @@ export function RemindSheet({ current, note, page = false, title, later = false,
   )
 }
 
-/** A small menu by a message: pin, remind, delete. `at`: where a right-click was (Mac), else under "…". */
+/**
+ * A sheet in the panel ends where the question field starts (on iPhone, Safari's bar covers the panel's very
+ * bottom), and follows it when the field grows (a longer question, a note under it) while the sheet is open.
+ */
+export function useAboveComposer(back: { current: HTMLElement | null }, enabled = true): void {
+  useLayoutEffect(() => {
+    const el = back.current
+    if (!el || !enabled) return
+    const composer = el.parentElement?.querySelector<HTMLElement>(".cf-composer")
+    const place = () => {
+      el.style.bottom = composer ? `${composer.offsetHeight}px` : "0px"
+    }
+    place()
+    if (!composer || typeof ResizeObserver === "undefined") return
+    const watch = new ResizeObserver(place)
+    watch.observe(composer)
+    return () => watch.disconnect()
+  }, [enabled])
+}
+
+/**
+ * A small menu by a message: pin, remind, delete. `at`: where a right-click was (Mac), else under "…", or over it
+ * when the chat has no room below (the last answer, right above the question field).
+ */
 export function MessageMenu({ at, pinned, reminded, onPin, onRemind, onDelete, onClose }: {
   at?: { x: number; y: number }
   pinned: boolean
@@ -158,7 +177,19 @@ export function MessageMenu({ at, pinned, reminded, onPin, onRemind, onDelete, o
   const ref = useRef<HTMLDivElement>(null)
   useLayoutEffect(() => {
     const el = ref.current
-    if (!el || !at) return
+    if (!el) return
+    if (!at) {
+      const list = el.closest(".cf-messages")?.getBoundingClientRect()
+      const anchor = el.parentElement?.getBoundingClientRect()
+      const box = el.getBoundingClientRect()
+      const floor = list?.bottom ?? window.innerHeight
+      const ceiling = list?.top ?? 0
+      if (anchor && box.bottom > floor - 4) {
+        const above = anchor.top - ceiling - 4
+        el.classList.toggle("up", above >= box.height || above > floor - anchor.bottom)
+      }
+      return
+    }
     const w = window.innerWidth
     const h = window.innerHeight
     el.style.left = `${Math.max(8, Math.min(w - el.offsetWidth - 8, at.x))}px`
