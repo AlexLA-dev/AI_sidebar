@@ -114,6 +114,20 @@ test("a render in the middle of a swipe doesn't drop it: letting go past the sha
   assert.ok(!row.hasAttribute("data-dragging"))
 })
 
+test("taking the touch from the text under the finger (iOS: a lostpointercapture bubbling up) doesn't end the swipe", async () => {
+  // On iPhone the swipe stopped dead: the text's lost capture, bubbling to the row, was taken for the row's.
+  const { row, text, body, calls } = await mounted()
+  pointer(text, "pointerdown", 200)
+  pointer(text, "pointermove", 180)
+  pointer(text, "lostpointercapture", 180)
+  pointer(row, "pointermove", 100)
+  assert.match(body.style.transform, /translate3d\(-100px/)
+  // The row's own capture lost (the page took the touch): back in place.
+  pointer(row, "lostpointercapture", 100)
+  assert.equal(body.style.transform, "")
+  assert.deepEqual(calls, [])
+})
+
 test("a short swipe leaves the button out; a scroll taking the touch puts the row back, never half-way", async () => {
   const { row, text, body, calls, app } = await mounted()
   pointer(text, "pointerdown", 100)

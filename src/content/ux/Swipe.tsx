@@ -155,18 +155,23 @@ export function Swipe({ left, right, enabled = true, children, class: cls = "" }
     }
     const up = (e: PointerEvent) => end(e, false)
     const cancel = (e: PointerEvent) => end(e, true)
+    // Only the row's own capture: taking it from the text under the finger (a touch's implicit capture) fires a
+    // lostpointercapture there that bubbles up here, and that one is the swipe starting, not ending.
+    const lost = (e: PointerEvent) => {
+      if (e.target === row) end(e, true)
+    }
     row.addEventListener("pointerdown", down)
     row.addEventListener("pointermove", move)
     row.addEventListener("pointerup", up)
     row.addEventListener("pointercancel", cancel)
     // The capture lost without an up or a cancel (the row re-mounted, the page took the touch): as a cancel.
-    row.addEventListener("lostpointercapture", cancel)
+    row.addEventListener("lostpointercapture", lost)
     return () => {
       row.removeEventListener("pointerdown", down)
       row.removeEventListener("pointermove", move)
       row.removeEventListener("pointerup", up)
       row.removeEventListener("pointercancel", cancel)
-      row.removeEventListener("lostpointercapture", cancel)
+      row.removeEventListener("lostpointercapture", lost)
       stopAround?.()
       scroller()?.removeEventListener("scroll", onScroll)
       row.removeAttribute("data-dragging")
