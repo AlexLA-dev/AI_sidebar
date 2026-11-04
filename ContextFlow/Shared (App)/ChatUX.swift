@@ -742,7 +742,7 @@ struct PinnedBar: View {
                 HStack(alignment: .center, spacing: 9) {
                     segments(count, shown)
                     VStack(alignment: .leading, spacing: 1) {
-                        (count > 1 ? Text("Pinned #\(shown + 1)") : Text("Pinned")).font(.caption.weight(.semibold)).foregroundColor(.orange)
+                        (count > 1 ? Text("Pinned #\(shown + 1)") : Text("Pinned message")).font(.caption.weight(.semibold)).foregroundColor(.orange)
                         Text(ReminderTimes.text(current.entry.content, max: 140)).font(.subheadline).foregroundColor(.primary).lineLimit(1)
                     }
                     Spacer(minLength: 0)
@@ -751,7 +751,7 @@ struct PinnedBar: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .accessibilityLabel(count > 1 ? Text("Pinned #\(shown + 1)") : Text("Pinned"))
+            .accessibilityLabel(count > 1 ? Text("Pinned #\(shown + 1)") : Text("Pinned message"))
             .accessibilityValue(Text(ReminderTimes.text(current.entry.content)))
             if count > 1 {
                 Button { listing = true } label: {
