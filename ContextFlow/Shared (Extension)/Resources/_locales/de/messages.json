@@ -1291,5 +1291,116 @@
  },
  "upsellOrganizeText": {
   "message": "Schlägt den richtigen Chat für das vor, was du gerade gefragt hast, und deinen eigenen Tag dafür."
+ },
+ "watchEye": {
+  "message": "Auf Änderungen achten"
+ },
+ "watchSection": {
+  "message": "Melden, wenn es sich ändert"
+ },
+ "watchWhen": {
+  "message": "Wann melden"
+ },
+ "watchCondPrice": {
+  "message": "wenn sich der Preis ändert (jetzt {0})"
+ },
+ "watchCondBack": {
+  "message": "wenn es wieder lieferbar ist"
+ },
+ "watchCondStock": {
+  "message": "wenn sich die Verfügbarkeit ändert (jetzt {0})"
+ },
+ "watchCondDate": {
+  "message": "wenn sich das Datum ändert (jetzt {0})"
+ },
+ "watchCondStatus": {
+  "message": "wenn sich der Status ändert (jetzt {0})"
+ },
+ "watchCondPage": {
+  "message": "wenn auf der Seite etwas Neues steht"
+ },
+ "watchHonest": {
+  "message": "Ich prüfe, solange Sie Safari nutzen"
+ },
+ "watchStart": {
+  "message": "Beobachten"
+ },
+ "watchChecking": {
+  "message": "Ich sehe mir die Seite an…"
+ },
+ "watchSet": {
+  "message": "Ich behalte es im Blick und melde mich bei einer Änderung."
+ },
+ "watchSetLive": {
+  "message": "Ich behalte es im Blick. Diese Seite zeigt es nur, wenn Sie sie öffnen – dann prüfe ich."
+ },
+ "watchUnreadable": {
+  "message": "Diese Seite lässt sich nicht im Hintergrund prüfen. Ich kann prüfen, wenn Sie sie öffnen – oder wählen Sie oben „{0}“ und sehen selbst nach."
+ },
+ "watchLiveOk": {
+  "message": "Prüfen, wenn ich sie öffne"
+ },
+ "watchFull": {
+  "message": "Sie beobachten schon {0} Seiten. Beenden Sie zuerst eine unter „Erinnerungen“."
+ },
+ "watchFullFree": {
+  "message": "Kostenlos beobachten Sie bis zu {0} Seiten gleichzeitig. Mit Pro bis zu {1}."
+ },
+ "watchMore": {
+  "message": "Mehr mit Pro"
+ },
+ "watchFailed": {
+  "message": "Das hat nicht geklappt. Versuchen Sie es gleich noch einmal."
+ },
+ "watchNotifyOff": {
+  "message": "Mitteilungen für ContextFlow sind aus. Schalten Sie sie in den Einstellungen ein, um von der Änderung zu erfahren."
+ },
+ "watchNotifyAsk": {
+  "message": "Öffnen Sie die ContextFlow-App: Sie fragt, ob sie Mitteilungen senden darf – dann melde ich die Änderung."
+ },
+ "watchRow": {
+  "message": "Beobachte: {0} · geprüft {1}"
+ },
+ "watchRowNew": {
+  "message": "Beobachte: {0}"
+ },
+ "watchRowLive": {
+  "message": "Beobachte: {0} · ich prüfe, wenn Sie die Seite öffnen"
+ },
+ "watchRowMet": {
+  "message": "Geändert: {0} · {1}"
+ },
+ "watchStop": {
+  "message": "Nicht mehr beobachten"
+ },
+ "watchStopped": {
+  "message": "Beobachtung beendet"
+ },
+ "watchLabelPrice": {
+  "message": "Preis"
+ },
+ "watchLabelStock": {
+  "message": "Verfügbarkeit"
+ },
+ "watchLabelDate": {
+  "message": "Datum"
+ },
+ "watchLabelStatus": {
+  "message": "Status"
+ },
+ "watchLabelPage": {
+  "message": "Die Seite"
+ },
+ "watchInStock": {
+  "message": "auf Lager"
+ },
+ "watchOutOfStock": {
+  "message": "nicht auf Lager"
+ },
+ "watchChanged": {
+  "message": "Geändert: {0}"
+ },
+ "watchChangedBody": {
+  "message": "Jetzt: {0}"
  }
 }

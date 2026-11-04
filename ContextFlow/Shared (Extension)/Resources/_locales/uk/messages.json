@@ -1291,5 +1291,116 @@
  },
  "upsellOrganizeText": {
   "message": "Підкаже потрібний чат для того, що ви щойно запитали, і ваш тег для нього."
+ },
+ "watchEye": {
+  "message": "Стежити за зміною"
+ },
+ "watchSection": {
+  "message": "Повідомити, коли зміниться"
+ },
+ "watchWhen": {
+  "message": "Коли повідомити"
+ },
+ "watchCondPrice": {
+  "message": "коли зміниться ціна (зараз {0})"
+ },
+ "watchCondBack": {
+  "message": "коли знову з’явиться в наявності"
+ },
+ "watchCondStock": {
+  "message": "коли зміниться наявність (зараз {0})"
+ },
+ "watchCondDate": {
+  "message": "коли зміниться дата (зараз {0})"
+ },
+ "watchCondStatus": {
+  "message": "коли зміниться статус (зараз {0})"
+ },
+ "watchCondPage": {
+  "message": "коли на сторінці з’явиться нове"
+ },
+ "watchHonest": {
+  "message": "Перевіряю, поки ви користуєтеся Safari"
+ },
+ "watchStart": {
+  "message": "Стежити"
+ },
+ "watchChecking": {
+  "message": "Дивлюся сторінку…"
+ },
+ "watchSet": {
+  "message": "Стежу. Повідомлю, коли зміниться."
+ },
+ "watchSetLive": {
+  "message": "Стежу. Цей сайт показує це, лише коли ви відкриваєте сторінку, — тоді й перевірю."
+ },
+ "watchUnreadable": {
+  "message": "Цей сайт не дає перевіряти його у фоні. Можу перевіряти, коли ви відкриєте сторінку, — або виберіть «{0}» вище й зазирніть самі."
+ },
+ "watchLiveOk": {
+  "message": "Перевіряти, коли відкрию сторінку"
+ },
+ "watchFull": {
+  "message": "Уже {0} стежень. Спершу зупиніть одне в «Нагадуваннях»."
+ },
+ "watchFullFree": {
+  "message": "Безкоштовно можна стежити за {0} сторінками одночасно. У Pro — до {1}."
+ },
+ "watchMore": {
+  "message": "Більше в Pro"
+ },
+ "watchFailed": {
+  "message": "Не вийшло. Спробуйте трохи згодом."
+ },
+ "watchNotifyOff": {
+  "message": "Сповіщення ContextFlow вимкнено. Увімкніть їх у Параметрах, щоб дізнатися про зміну."
+ },
+ "watchNotifyAsk": {
+  "message": "Відкрийте застосунок ContextFlow: він спитає, чи можна надсилати сповіщення, — тоді я повідомлю про зміну."
+ },
+ "watchRow": {
+  "message": "Стежу: {0} · перевірено {1}"
+ },
+ "watchRowNew": {
+  "message": "Стежу: {0}"
+ },
+ "watchRowLive": {
+  "message": "Стежу: {0} · перевірю, коли відкриєте сторінку"
+ },
+ "watchRowMet": {
+  "message": "Змінилося: {0} · {1}"
+ },
+ "watchStop": {
+  "message": "Перестати стежити"
+ },
+ "watchStopped": {
+  "message": "Більше не стежу"
+ },
+ "watchLabelPrice": {
+  "message": "Ціна"
+ },
+ "watchLabelStock": {
+  "message": "Наявність"
+ },
+ "watchLabelDate": {
+  "message": "Дата"
+ },
+ "watchLabelStatus": {
+  "message": "Статус"
+ },
+ "watchLabelPage": {
+  "message": "Сторінка"
+ },
+ "watchInStock": {
+  "message": "в наявності"
+ },
+ "watchOutOfStock": {
+  "message": "немає в наявності"
+ },
+ "watchChanged": {
+  "message": "Змінилося: {0}"
+ },
+ "watchChangedBody": {
+  "message": "Зараз: {0}"
  }
 }

@@ -1291,5 +1291,116 @@
  },
  "upsellOrganizeText": {
   "message": "Suggests the right chat for what you just asked, and your own tag for it."
+ },
+ "watchEye": {
+  "message": "Watch for changes"
+ },
+ "watchSection": {
+  "message": "Notify me when it changes"
+ },
+ "watchWhen": {
+  "message": "When to tell you"
+ },
+ "watchCondPrice": {
+  "message": "when the price changes (now {0})"
+ },
+ "watchCondBack": {
+  "message": "when it's back in stock"
+ },
+ "watchCondStock": {
+  "message": "when availability changes (now {0})"
+ },
+ "watchCondDate": {
+  "message": "when the date changes (now {0})"
+ },
+ "watchCondStatus": {
+  "message": "when the status changes (now {0})"
+ },
+ "watchCondPage": {
+  "message": "when something new appears on the page"
+ },
+ "watchHonest": {
+  "message": "I check while you're using Safari"
+ },
+ "watchStart": {
+  "message": "Watch"
+ },
+ "watchChecking": {
+  "message": "Looking at the page…"
+ },
+ "watchSet": {
+  "message": "Watching. I'll tell you when it changes."
+ },
+ "watchSetLive": {
+  "message": "Watching. This site only shows it when you open the page, so I'll check then."
+ },
+ "watchUnreadable": {
+  "message": "This site doesn't let me check it in the background. I can check when you open the page, or use “{0}” above and look yourself."
+ },
+ "watchLiveOk": {
+  "message": "Check when I open the page"
+ },
+ "watchFull": {
+  "message": "You're already watching {0} pages. Stop one in Reminders first."
+ },
+ "watchFullFree": {
+  "message": "On Free you can watch {0} pages at once. Pro watches up to {1}."
+ },
+ "watchMore": {
+  "message": "More with Pro"
+ },
+ "watchFailed": {
+  "message": "That didn't work. Try again in a moment."
+ },
+ "watchNotifyOff": {
+  "message": "Notifications are off for ContextFlow. Turn them on in Settings to hear about the change."
+ },
+ "watchNotifyAsk": {
+  "message": "Open the ContextFlow app: it will ask whether it may send notifications, so I can tell you about the change."
+ },
+ "watchRow": {
+  "message": "Watching: {0} · checked {1}"
+ },
+ "watchRowNew": {
+  "message": "Watching: {0}"
+ },
+ "watchRowLive": {
+  "message": "Watching: {0} · I'll check when you open the page"
+ },
+ "watchRowMet": {
+  "message": "Changed: {0} · {1}"
+ },
+ "watchStop": {
+  "message": "Stop watching"
+ },
+ "watchStopped": {
+  "message": "Stopped watching"
+ },
+ "watchLabelPrice": {
+  "message": "Price"
+ },
+ "watchLabelStock": {
+  "message": "Availability"
+ },
+ "watchLabelDate": {
+  "message": "Date"
+ },
+ "watchLabelStatus": {
+  "message": "Status"
+ },
+ "watchLabelPage": {
+  "message": "The page"
+ },
+ "watchInStock": {
+  "message": "in stock"
+ },
+ "watchOutOfStock": {
+  "message": "out of stock"
+ },
+ "watchChanged": {
+  "message": "Changed: {0}"
+ },
+ "watchChangedBody": {
+  "message": "Now: {0}"
  }
 }

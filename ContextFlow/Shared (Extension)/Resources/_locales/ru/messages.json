@@ -1291,5 +1291,116 @@
  },
  "upsellOrganizeText": {
   "message": "Подскажет нужный чат для того, что вы только что спросили, и ваш тег для него."
+ },
+ "watchEye": {
+  "message": "Следить за изменением"
+ },
+ "watchSection": {
+  "message": "Сообщить, когда изменится"
+ },
+ "watchWhen": {
+  "message": "Когда сообщить"
+ },
+ "watchCondPrice": {
+  "message": "когда изменится цена (сейчас {0})"
+ },
+ "watchCondBack": {
+  "message": "когда снова появится в наличии"
+ },
+ "watchCondStock": {
+  "message": "когда изменится наличие (сейчас {0})"
+ },
+ "watchCondDate": {
+  "message": "когда изменится дата (сейчас {0})"
+ },
+ "watchCondStatus": {
+  "message": "когда изменится статус (сейчас {0})"
+ },
+ "watchCondPage": {
+  "message": "когда на странице появится новое"
+ },
+ "watchHonest": {
+  "message": "Проверяю, пока вы пользуетесь Safari"
+ },
+ "watchStart": {
+  "message": "Следить"
+ },
+ "watchChecking": {
+  "message": "Смотрю страницу…"
+ },
+ "watchSet": {
+  "message": "Слежу. Сообщу, когда изменится."
+ },
+ "watchSetLive": {
+  "message": "Слежу. Этот сайт показывает это, только когда вы открываете страницу, — тогда и проверю."
+ },
+ "watchUnreadable": {
+  "message": "Этот сайт не даёт проверять его в фоне. Могу проверять, когда вы откроете страницу, — или выберите «{0}» выше и загляните сами."
+ },
+ "watchLiveOk": {
+  "message": "Проверять, когда открою страницу"
+ },
+ "watchFull": {
+  "message": "Уже {0} слежений. Сначала остановите одно в «Напоминаниях»."
+ },
+ "watchFullFree": {
+  "message": "Бесплатно можно следить за {0} страницами сразу. В Pro — до {1}."
+ },
+ "watchMore": {
+  "message": "Больше в Pro"
+ },
+ "watchFailed": {
+  "message": "Не получилось. Попробуйте чуть позже."
+ },
+ "watchNotifyOff": {
+  "message": "Уведомления ContextFlow выключены. Включите их в Настройках, чтобы узнать об изменении."
+ },
+ "watchNotifyAsk": {
+  "message": "Откройте приложение ContextFlow: оно спросит, можно ли присылать уведомления, — тогда я сообщу об изменении."
+ },
+ "watchRow": {
+  "message": "Слежу: {0} · проверено {1}"
+ },
+ "watchRowNew": {
+  "message": "Слежу: {0}"
+ },
+ "watchRowLive": {
+  "message": "Слежу: {0} · проверю, когда откроете страницу"
+ },
+ "watchRowMet": {
+  "message": "Изменилось: {0} · {1}"
+ },
+ "watchStop": {
+  "message": "Перестать следить"
+ },
+ "watchStopped": {
+  "message": "Больше не слежу"
+ },
+ "watchLabelPrice": {
+  "message": "Цена"
+ },
+ "watchLabelStock": {
+  "message": "Наличие"
+ },
+ "watchLabelDate": {
+  "message": "Дата"
+ },
+ "watchLabelStatus": {
+  "message": "Статус"
+ },
+ "watchLabelPage": {
+  "message": "Страница"
+ },
+ "watchInStock": {
+  "message": "в наличии"
+ },
+ "watchOutOfStock": {
+  "message": "нет в наличии"
+ },
+ "watchChanged": {
+  "message": "Изменилось: {0}"
+ },
+ "watchChangedBody": {
+  "message": "Сейчас: {0}"
  }
 }
