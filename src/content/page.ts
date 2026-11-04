@@ -3,6 +3,7 @@ import { Readability } from "@mozilla/readability"
 import { urlKey } from "../shared/conversation"
 import { MAX_PAGE_CHARS } from "../shared/prompt"
 import type { Platform } from "../shared/types"
+import { unfoldCollapsed } from "./unfold"
 
 export const HOST_TAG = "contextflow-root"
 
@@ -102,6 +103,7 @@ function cleanText(text: string): string {
 function fallbackText(): string {
   const clone = document.body?.cloneNode(true) as HTMLElement | undefined
   if (!clone) return ""
+  unfoldCollapsed(clone)
   clone.querySelectorAll(
     `script,style,noscript,template,svg,canvas,iframe,nav,footer,aside,[role=navigation],[role=banner],[role=contentinfo],[aria-hidden=true],${HOST_TAG}`
   ).forEach((el) => el.remove())
@@ -118,7 +120,8 @@ export function privateBrowsing(): boolean {
 }
 
 /**
- * Readable text of the page (Readability for articles, cleaned body text otherwise).
+ * Readable text of the page (Readability for articles, cleaned body text otherwise), with its folded sections
+ * unfolded (see unfold.ts).
  * Read fresh every time: pages load more content after the first look (feeds, SPAs, live updates).
  */
 export function extractPage(): { title: string; text: string } {
@@ -127,6 +130,7 @@ export function extractPage(): { title: string; text: string } {
   try {
     const doc = document.cloneNode(true) as Document
     doc.querySelectorAll(HOST_TAG).forEach((el) => el.remove())
+    unfoldCollapsed(doc)
     const article = new Readability(doc, { charThreshold: 300 }).parse()
     if (article?.textContent && article.textContent.trim().length > 400) {
       text = article.textContent
