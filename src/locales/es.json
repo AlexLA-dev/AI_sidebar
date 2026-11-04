@@ -470,6 +470,8 @@
   "watchLiveOk": "Comprobar cuando abra la página",
   "watchRemindInstead": "Recordarme que mire",
   "watchFull": "Ya vigilas {0} páginas. Detén una en Recordatorios primero.",
+  "watchFullFree": "Gratis puedes vigilar {0} páginas a la vez. Con Pro, hasta {1}.",
+  "watchMore": "Más con Pro",
   "watchFailed": "No ha funcionado. Inténtalo de nuevo en un momento.",
   "watchNotifyOff": "Las notificaciones de ContextFlow están desactivadas. Actívalas en Ajustes para enterarte del cambio.",
   "watchNotifyAsk": "Abre la app ContextFlow una vez y permite las notificaciones para que pueda avisarte del cambio.",

@@ -470,6 +470,8 @@
   "watchLiveOk": "Controlla quando apro la pagina",
   "watchRemindInstead": "Ricordami di guardare",
   "watchFull": "Segui già {0} pagine. Prima interrompine una in Promemoria.",
+  "watchFullFree": "Gratis puoi seguire {0} pagine alla volta. Con Pro fino a {1}.",
+  "watchMore": "Di più con Pro",
   "watchFailed": "Non ha funzionato. Riprova tra poco.",
   "watchNotifyOff": "Le notifiche di ContextFlow sono disattivate. Attivale in Impostazioni per sapere della modifica.",
   "watchNotifyAsk": "Apri una volta l'app ContextFlow e consenti le notifiche, così posso avvisarti della modifica.",

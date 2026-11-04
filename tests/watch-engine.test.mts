@@ -54,6 +54,7 @@ let plan: Record<string, unknown> | null = null
 let judge: Record<string, unknown> | null = null
 let aiCalls: Array<Record<string, any>> = []
 let events: Array<Record<string, any>> = []
+let paid = false
 
 globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
   const url = String(input)
@@ -105,7 +106,7 @@ before(async () => {
     define: { __API_BASE__: '"https://api.test"', __VERSION__: '"2.5.0"', __TARGET__: '"safari"' }
   })
   const mod = await import(pathToFileURL(out).href)
-  mod.startWatch({ installId: async () => "8d7b3f2e-1c4a-4e9b-9f0a-2b6c7d8e9f01", clientInfo: async () => ({ version: "2.5.0", platform: "ios", build: "80" }), consented: async () => true })
+  mod.startWatch({ installId: async () => "8d7b3f2e-1c4a-4e9b-9f0a-2b6c7d8e9f01", clientInfo: async () => ({ version: "2.5.0", platform: "ios", build: "80" }), consented: async () => true, paid: async () => paid })
 })
 
 beforeEach(() => {
@@ -121,7 +122,7 @@ beforeEach(() => {
 })
 
 test("a watch: planned once, read by the background, checked by the alarm, met once", async () => {
-  const prepared = await send({ type: "watchPrepare", draft: draft() })
+  const prepared = await send({ type: "watchPrepare", draft: draft(), how: "bubble" })
   assert.equal(prepared.readable, true)
   assert.equal(prepared.value, "129 EUR")
   assert.equal(prepared.local, false)
@@ -131,7 +132,9 @@ test("a watch: planned once, read by the background, checked by the alarm, met o
   assert.ok(alarms.has("cf-watch"), "the alarm is set")
   await tick()
   assert.ok(native.some((m) => m.command === "watch_sync"), "the app gets the list")
-  assert.deepEqual(events.filter((e) => e.action === "set").map((e) => [e.kind, e.what, e.how, e.site, e.via]), [["ux_watch", "price", "bubble", "shop", "bg"]])
+  // The analytics registry's step: "use", f "watch" (no address, no text, no value).
+  assert.deepEqual(events.filter((e) => e.a === "create").map((e) => [e.kind, e.f, e.via, e.what, e.site, e.mode]), [["use", "watch", "bubble", "price", "shop", "bg"]])
+  assert.ok(!JSON.stringify(events).includes("shop.example") && !JSON.stringify(events).includes("129"))
 
   // Same price: nothing but the time of the check.
   await round()
@@ -153,7 +156,7 @@ test("a watch: planned once, read by the background, checked by the alarm, met o
   assert.equal(notice.url, URL_A)
   assert.ok(watches()[0].metAt)
   assert.equal(aiCalls.filter((c) => c.action === "judge").length, 0, "a threshold needs no AI")
-  assert.ok(events.some((e) => e.action === "met" && e.via === "bg"))
+  assert.ok(events.some((e) => e.f === "watch" && e.a === "alert" && e.mode === "bg"))
   const count = native.length
   pages[URL_A] = shop("79")
   await round()
@@ -163,10 +166,10 @@ test("a watch: planned once, read by the background, checked by the alarm, met o
 
 test("a site the background can't read: said so, counted, and checked on the open page", async () => {
   pages[URL_A] = "403 Access Denied"
-  const prepared = await send({ type: "watchPrepare", draft: draft() })
+  const prepared = await send({ type: "watchPrepare", draft: draft(), how: "bubble" })
   assert.equal(prepared.readable, false)
   await tick()
-  assert.ok(events.some((e) => e.action === "unreadable" && e.site === "shop"))
+  assert.ok(events.some((e) => e.a === "error" && e.reason === "blocked" && e.via === "bubble" && e.site === "shop"))
   await send({ type: "watchSave", draft: draft(), prepared, how: "later", live: true })
   assert.equal(watches()[0].mode, "live")
   // The background leaves it alone…
@@ -177,14 +180,14 @@ test("a site the background can't read: said so, counted, and checked on the ope
   assert.equal(specs.length, 1)
   await send({ type: "watchLive", url: URL_A, values: { [specs[0].id]: "95 €" } })
   assert.ok(native.some((m) => m.command === "watch_notify" && m.body === "Now: 95 €"))
-  assert.ok(events.some((e) => e.action === "met" && e.via === "live"))
+  assert.ok(events.some((e) => e.a === "alert" && e.mode === "live"))
 })
 
 test("the person's own words: the AI reads them only after a change", async () => {
   plan = { what: "stock", source: "ld-stock", rule: { kind: "ask" }, label: "Size 42", site: "shop" }
   pages[URL_A] = shop("129", "OutOfStock")
   const d = draft({ selection: "Sold out", what: "stock", condition: "when size 42 is back", value: "Sold out" })
-  const prepared = await send({ type: "watchPrepare", draft: d })
+  const prepared = await send({ type: "watchPrepare", draft: d, how: "later" })
   await send({ type: "watchSave", draft: d, prepared, how: "later", live: false })
   await round()
   assert.equal(aiCalls.filter((c) => c.action === "judge").length, 0, "nothing changed, nothing asked")
@@ -200,13 +203,13 @@ test("the person's own words: the AI reads them only after a change", async () =
 
 test("no AI reachable: the device's own rules plan it; an unanswered judge asks again next time", async () => {
   plan = null
-  const prepared = await send({ type: "watchPrepare", draft: draft() })
+  const prepared = await send({ type: "watchPrepare", draft: draft(), how: "bubble" })
   assert.equal(prepared.local, true)
   assert.deepEqual(prepared.rule, { kind: "below", n: 100 })
   plan = { what: "status", source: "text", rule: { kind: "ask" }, label: "Visa", site: "gov" }
   const d = draft({ url: "https://gov.example/case", selection: "Pending", what: "status", condition: "when it's approved", before: "Status: ", after: " Updated", value: "Pending" })
   pages["https://gov.example/case"] = "<body>Case Status: Pending Updated today</body>"
-  const p2 = await send({ type: "watchPrepare", draft: d })
+  const p2 = await send({ type: "watchPrepare", draft: d, how: "later" })
   assert.equal(p2.readable, true)
   await send({ type: "watchSave", draft: d, prepared: p2, how: "bubble", live: false })
   pages["https://gov.example/case"] = "<body>Case Status: Approved Updated today</body>"
@@ -220,14 +223,14 @@ test("no AI reachable: the device's own rules plan it; an unanswered judge asks 
 })
 
 test("stopped in the app: gone here on the next exchange; Safari's start sets the alarm again", async () => {
-  const prepared = await send({ type: "watchPrepare", draft: draft() })
+  const prepared = await send({ type: "watchPrepare", draft: draft(), how: "bubble" })
   const saved = await send({ type: "watchSave", draft: draft(), prepared, how: "bubble", live: false })
   alarms.clear()
   nativeReply = { watch_sync: { cancelled: [saved.id] } }
   startup!()
   for (let i = 0; i < 20; i++) await tick()
   assert.ok(!watches().some((w) => w.id === saved.id), "stopped in the app")
-  assert.ok(events.some((e) => e.action === "cancelled"))
+  assert.ok(events.some((e) => e.a === "stop" && e.via === "app"))
   // With a watch left, the alarm is back.
   nativeReply = {}
   await send({ type: "watchSave", draft: draft(), prepared, how: "bubble", live: false })
@@ -237,8 +240,36 @@ test("stopped in the app: gone here on the next exchange; Safari's start sets th
   assert.ok(alarms.has("cf-watch"))
 })
 
-test("at most 20 watches checking at once", async () => {
-  const prepared = await send({ type: "watchPrepare", draft: draft() })
-  for (let i = 0; i < 20; i++) assert.equal((await send({ type: "watchSave", draft: draft(), prepared, how: "bubble", live: false })).ok, true)
-  assert.deepEqual(await send({ type: "watchSave", draft: draft(), prepared, how: "bubble", live: false }), { ok: false, full: true })
+test("the owner's limit: 5 watches at once on Free, 20 on Pro", async () => {
+  const prepared = await send({ type: "watchPrepare", draft: draft(), how: "bubble" })
+  const save = () => send({ type: "watchSave", draft: draft(), prepared, how: "bubble", live: false })
+  for (let i = 0; i < 5; i++) assert.equal((await save()).ok, true)
+  assert.deepEqual(await save(), { ok: false, full: true, limit: 5, paid: false })
+  paid = true
+  for (let i = 0; i < 15; i++) assert.equal((await save()).ok, true)
+  assert.deepEqual(await save(), { ok: false, full: true, limit: 20, paid: true })
+  paid = false
+})
+
+test("once a day: how many checks and how many watches were checking, by mode", async () => {
+  const prepared = await send({ type: "watchPrepare", draft: draft(), how: "bubble" })
+  await send({ type: "watchSave", draft: draft(), prepared, how: "bubble", live: false })
+  await round()
+  await round()
+  const tally = store["cf:watchTally"] as { day: string; bg: number }
+  assert.equal(tally.bg, 2)
+  // The next day's first round sends yesterday's count.
+  store["cf:watchTally"] = { ...tally, day: "2026-01-01" }
+  await round()
+  const daily = events.filter((e) => e.a === "daily")
+  assert.deepEqual(daily.map((e) => [e.mode, e.checks, e.active]), [["bg", 2, 1]])
+})
+
+test("a page that's gone is told apart from one that turns the background away", async () => {
+  const prepared = await send({ type: "watchPrepare", draft: draft(), how: "bubble" })
+  await send({ type: "watchSave", draft: draft(), prepared, how: "bubble", live: false })
+  delete pages[URL_A]
+  for (let i = 0; i < 3; i++) await round()
+  assert.equal(watches()[0].mode, "live")
+  assert.ok(events.some((e) => e.a === "error" && e.reason === "gone" && e.mode === "bg"))
 })

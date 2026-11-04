@@ -470,6 +470,8 @@
   "watchLiveOk": "ページを開いたときに確認",
   "watchRemindInstead": "見に行くようリマインド",
   "watchFull": "すでに {0} 件を見守っています。先に「リマインダー」で1件止めてください。",
+  "watchFullFree": "無料プランで同時に見守れるのは {0} ページまでです。Pro なら {1} ページまで。",
+  "watchMore": "Pro でもっと",
   "watchFailed": "うまくいきませんでした。少ししてからもう一度お試しください。",
   "watchNotifyOff": "ContextFlow の通知がオフです。変更を知るには設定で通知をオンにしてください。",
   "watchNotifyAsk": "変更をお知らせできるよう、ContextFlow アプリを一度開いて通知を許可してください。",
