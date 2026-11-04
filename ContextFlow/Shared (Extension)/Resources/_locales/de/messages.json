@@ -168,10 +168,10 @@
   "message": "Seite aktualisiert"
  },
  "uxMark": {
-  "message": "Markieren"
+  "message": "Hervorheben"
  },
  "uxUnmark": {
-  "message": "Markierung entfernen"
+  "message": "Hervorhebung entfernen"
  },
  "uxDelete": {
   "message": "Löschen"
@@ -202,6 +202,15 @@
  },
  "uxMore": {
   "message": "Mehr"
+ },
+ "uxMorePage": {
+  "message": "Mehr: Seite"
+ },
+ "uxMoreAnswer": {
+  "message": "Mehr: Antwort"
+ },
+ "uxMoreNote": {
+  "message": "Mehr: Notiz"
  },
  "uxLater": {
   "message": "Später zurückkommen…"
@@ -282,7 +291,7 @@
   "message": "Erinnerung: {0}"
  },
  "uxRemindNotSet": {
-  "message": "Im Chat gespeichert. Für die Erinnerung erlaube Mitteilungen von ContextFlow."
+  "message": "Im Chat gespeichert. Mitteilungen für ContextFlow sind aus. Schalte sie ein unter Einstellungen → Mitteilungen → ContextFlow."
  },
  "uxRemindNoApp": {
   "message": "Im Chat gespeichert. Für Erinnerungen brauchst du die ContextFlow-App auf diesem Gerät."
@@ -290,8 +299,11 @@
  "uxUnpinAll": {
   "message": "Alle lösen"
  },
+ "setShareGroup": {
+  "message": "Teilen und Kopieren"
+ },
  "uxShareMarks": {
-  "message": "Markiertes beim Teilen als **fett**"
+  "message": "Hervorgehobenes beim Teilen als **fett**"
  },
  "uxShareMarksHint": {
   "message": "Telegram, Notion und Slack zeigen es fett, Nachrichten und Notizen mit Sternchen. Beim Kopieren bleibt es immer fett."

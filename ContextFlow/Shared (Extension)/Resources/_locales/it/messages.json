@@ -203,6 +203,15 @@
  "uxMore": {
   "message": "Altro"
  },
+ "uxMorePage": {
+  "message": "Altro: pagina"
+ },
+ "uxMoreAnswer": {
+  "message": "Altro: risposta"
+ },
+ "uxMoreNote": {
+  "message": "Altro: nota"
+ },
  "uxLater": {
   "message": "Tornare più tardi…"
  },
@@ -282,13 +291,16 @@
   "message": "Promemoria: {0}"
  },
  "uxRemindNotSet": {
-  "message": "Salvato nella chat. Per il promemoria, consenti le notifiche di ContextFlow."
+  "message": "Salvato nella chat. Le notifiche di ContextFlow sono disattivate. Attivale in Impostazioni → Notifiche → ContextFlow."
  },
  "uxRemindNoApp": {
   "message": "Salvato nella chat. Per i promemoria serve l’app ContextFlow su questo dispositivo."
  },
  "uxUnpinAll": {
   "message": "Sblocca tutte"
+ },
+ "setShareGroup": {
+  "message": "Condivisione e copia"
  },
  "uxShareMarks": {
   "message": "Evidenziazioni in **grassetto** nel testo condiviso"

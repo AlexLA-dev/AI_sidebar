@@ -203,6 +203,15 @@
  "uxMore": {
   "message": "More"
  },
+ "uxMorePage": {
+  "message": "More: page"
+ },
+ "uxMoreAnswer": {
+  "message": "More: answer"
+ },
+ "uxMoreNote": {
+  "message": "More: note"
+ },
  "uxLater": {
   "message": "Come back later…"
  },
@@ -282,13 +291,16 @@
   "message": "Reminder: {0}"
  },
  "uxRemindNotSet": {
-  "message": "Saved to the chat. For the reminder, allow ContextFlow's notifications."
+  "message": "Saved to the chat. Notifications are off for ContextFlow. Turn them on in Settings → Notifications → ContextFlow."
  },
  "uxRemindNoApp": {
   "message": "Saved to the chat. Reminders need the ContextFlow app on this device."
  },
  "uxUnpinAll": {
   "message": "Unpin all"
+ },
+ "setShareGroup": {
+  "message": "Share and copy"
  },
  "uxShareMarks": {
   "message": "Highlights in shared text as **bold**"

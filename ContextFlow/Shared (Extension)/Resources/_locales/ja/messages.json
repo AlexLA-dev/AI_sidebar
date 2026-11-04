@@ -203,6 +203,15 @@
  "uxMore": {
   "message": "その他"
  },
+ "uxMorePage": {
+  "message": "その他：ページ"
+ },
+ "uxMoreAnswer": {
+  "message": "その他：回答"
+ },
+ "uxMoreNote": {
+  "message": "その他：メモ"
+ },
  "uxLater": {
   "message": "あとで戻る…"
  },
@@ -282,13 +291,16 @@
   "message": "リマインド：{0}"
  },
  "uxRemindNotSet": {
-  "message": "チャットに保存しました。リマインドするには、ContextFlowの通知を許可してください。"
+  "message": "チャットに保存しました。ContextFlowの通知がオフになっています。設定 → 通知 → ContextFlow でオンにしてください。"
  },
  "uxRemindNoApp": {
   "message": "チャットに保存しました。リマインドには、このデバイスにContextFlowアプリが必要です。"
  },
  "uxUnpinAll": {
   "message": "すべて固定を解除"
+ },
+ "setShareGroup": {
+  "message": "共有とコピー"
  },
  "uxShareMarks": {
   "message": "共有するテキストのハイライトを**太字**に"

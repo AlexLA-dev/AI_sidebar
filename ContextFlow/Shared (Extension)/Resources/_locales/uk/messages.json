@@ -168,10 +168,10 @@
   "message": "Сторінка оновилася"
  },
  "uxMark": {
-  "message": "Виділити"
+  "message": "Позначити"
  },
  "uxUnmark": {
-  "message": "Зняти виділення"
+  "message": "Зняти позначку"
  },
  "uxDelete": {
   "message": "Видалити"
@@ -202,6 +202,15 @@
  },
  "uxMore": {
   "message": "Ще"
+ },
+ "uxMorePage": {
+  "message": "Ще: сторінка"
+ },
+ "uxMoreAnswer": {
+  "message": "Ще: відповідь"
+ },
+ "uxMoreNote": {
+  "message": "Ще: нотатка"
  },
  "uxLater": {
   "message": "Повернутися пізніше…"
@@ -282,7 +291,7 @@
   "message": "Нагадування: {0}"
  },
  "uxRemindNotSet": {
-  "message": "Збережено в чат. Для нагадування дозвольте сповіщення ContextFlow."
+  "message": "Збережено в чат. Сповіщення для ContextFlow вимкнено. Увімкніть їх: Параметри → Сповіщення → ContextFlow."
  },
  "uxRemindNoApp": {
   "message": "Збережено в чат. Для нагадувань потрібен застосунок ContextFlow на цьому пристрої."
@@ -290,8 +299,11 @@
  "uxUnpinAll": {
   "message": "Відкріпити всі"
  },
+ "setShareGroup": {
+  "message": "Поширення й копіювання"
+ },
  "uxShareMarks": {
-  "message": "Виділене в «Поширити» — **жирним**"
+  "message": "Позначене в «Поширити» — **жирним**"
  },
  "uxShareMarksHint": {
   "message": "Telegram, Notion і Slack покажуть жирним, а Повідомлення й Нотатки — із зірочками. «Скопіювати» завжди зберігає жирний."

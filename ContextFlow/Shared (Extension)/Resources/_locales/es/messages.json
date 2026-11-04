@@ -203,6 +203,15 @@
  "uxMore": {
   "message": "Más"
  },
+ "uxMorePage": {
+  "message": "Más: página"
+ },
+ "uxMoreAnswer": {
+  "message": "Más: respuesta"
+ },
+ "uxMoreNote": {
+  "message": "Más: nota"
+ },
  "uxLater": {
   "message": "Volver más tarde…"
  },
@@ -282,13 +291,16 @@
   "message": "Recordatorio: {0}"
  },
  "uxRemindNotSet": {
-  "message": "Guardado en el chat. Para el recordatorio, permite las notificaciones de ContextFlow."
+  "message": "Guardado en el chat. Las notificaciones de ContextFlow están desactivadas. Actívalas en Ajustes → Notificaciones → ContextFlow."
  },
  "uxRemindNoApp": {
   "message": "Guardado en el chat. Para los recordatorios necesitas la app ContextFlow en este dispositivo."
  },
  "uxUnpinAll": {
   "message": "Dejar de fijar todos"
+ },
+ "setShareGroup": {
+  "message": "Compartir y copiar"
  },
  "uxShareMarks": {
   "message": "Lo resaltado, en **negrita** al compartir"

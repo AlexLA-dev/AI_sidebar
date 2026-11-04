@@ -203,6 +203,15 @@
  "uxMore": {
   "message": "Plus"
  },
+ "uxMorePage": {
+  "message": "Plus : page"
+ },
+ "uxMoreAnswer": {
+  "message": "Plus : réponse"
+ },
+ "uxMoreNote": {
+  "message": "Plus : note"
+ },
  "uxLater": {
   "message": "Revenir plus tard…"
  },
@@ -282,13 +291,16 @@
   "message": "Rappel : {0}"
  },
  "uxRemindNotSet": {
-  "message": "Enregistré dans le chat. Pour le rappel, autorisez les notifications de ContextFlow."
+  "message": "Enregistré dans le chat. Les notifications de ContextFlow sont désactivées. Activez-les dans Réglages → Notifications → ContextFlow."
  },
  "uxRemindNoApp": {
   "message": "Enregistré dans le chat. Pour les rappels, il faut l’app ContextFlow sur cet appareil."
  },
  "uxUnpinAll": {
   "message": "Tout désépingler"
+ },
+ "setShareGroup": {
+  "message": "Partage et copie"
  },
  "uxShareMarks": {
   "message": "Surlignages en **gras** dans le texte partagé"

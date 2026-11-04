@@ -203,6 +203,15 @@
  "uxMore": {
   "message": "更多"
  },
+ "uxMorePage": {
+  "message": "更多：页面"
+ },
+ "uxMoreAnswer": {
+  "message": "更多：回答"
+ },
+ "uxMoreNote": {
+  "message": "更多：笔记"
+ },
  "uxLater": {
   "message": "稍后再看…"
  },
@@ -282,13 +291,16 @@
   "message": "提醒：{0}"
  },
  "uxRemindNotSet": {
-  "message": "已保存到对话。如需提醒，请允许 ContextFlow 发送通知。"
+  "message": "已保存到对话。ContextFlow 的通知已关闭。请在这里打开：设置 → 通知 → ContextFlow。"
  },
  "uxRemindNoApp": {
   "message": "已保存到对话。提醒功能需要此设备上装有 ContextFlow App。"
  },
  "uxUnpinAll": {
   "message": "全部取消置顶"
+ },
+ "setShareGroup": {
+  "message": "分享与复制"
  },
  "uxShareMarks": {
   "message": "分享时把高亮内容设为**粗体**"
