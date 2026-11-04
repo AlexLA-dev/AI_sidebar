@@ -569,7 +569,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // Keep the newest text in view while streaming (not when a message only got tags: the chat stays put).
   useEffect(() => {
     const list = listRef.current
-    if (list) list.scrollTop = list.scrollHeight
+    if (!list) return
+    list.scrollTop = list.scrollHeight
+    // The limit's card taller than the view (a long page's, in some languages): its title in view, not its end.
+    const card = error ? list.querySelector<HTMLElement>(".cf-card.limit") : null
+    if (card && card.offsetHeight > list.clientHeight - 16) {
+      list.scrollTop += card.getBoundingClientRect().top - list.getBoundingClientRect().top - 8
+    }
   }, [messages.length, partial, error])
 
   // ------------------------------------------------------------ selection
