@@ -22,3 +22,8 @@ test("a page reminder (the bell by a selection) says the note under the page's t
   const odd = { ...page, page: { url: "javascript:alert(1)", title: "x" } }
   assert.equal(reminderNotice(odd, "Chat").url, undefined)
 })
+
+test("the notification's body says it was asked for (2.5): \"You asked to be reminded: …\"", () => {
+  const answer = { role: "assistant" as const, content: "**Fewer meetings** came first.", remind: { at: 1 } }
+  assert.equal(reminderNotice(answer, "Four-day week", (t) => `You asked to be reminded: ${t}`).body, "You asked to be reminded: Fewer meetings came first.")
+})

@@ -136,6 +136,11 @@ enum ReminderTimes {
         return "\(date.formatted(.dateTime.day().month(.abbreviated))) \(time)"
     }
 
+    /// The notification's body (2.5): "You asked to be reminded: …" (the bell is about time; watching's says "Changed: …").
+    static func asked(_ content: String) -> String {
+        String(localized: "You asked to be reminded: \(text(content))")
+    }
+
     /// A message's text for the notification: plain words, no Markdown, tables or list signs (src/shared/reminders.ts).
     static func text(_ content: String, max: Int = 160) -> String {
         var t = content.replacingOccurrences(of: #"[ \t]*\[\d{1,2}\]\(https?:[^)\s]+\)"#, with: "", options: .regularExpression)
