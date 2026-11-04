@@ -1,13 +1,14 @@
 // Page watch (2.5): "Notify me when it changes" in the "Come back later…" window (the window is chat UX's;
 // this is its second part). The condition in the person's own words, started from the selection, an honest
 // line about when the checks run, and, for a site the background can't read, the choice to check when the
-// page is opened or to use Remind (the window's first part, above this one).
+// page is opened or to be reminded instead (the window's first part, ctx.remind()).
 
 import { useEffect, useMemo, useRef, useState } from "preact/hooks"
 
 import { t } from "../../shared/i18n"
 import { WATCH_LIMIT, type WatchHow, type WatchPrepared } from "../../shared/watch/messages"
 import { draftFor } from "./draft"
+import { Eye } from "./icons"
 
 export interface WatchSectionProps {
   url: string
@@ -15,6 +16,8 @@ export interface WatchSectionProps {
   selection: string | null
   how: WatchHow
   close(): void
+  // "Remind me to look" for a site the background can't read: chat UX's part of the same window.
+  remind?: () => void
 }
 
 type State =
@@ -55,7 +58,8 @@ export function WatchSection(p: WatchSectionProps) {
 
   return (
     <section class="cf-watch" aria-label={t("watchSection")}>
-      <h3 class="cf-watch-h">{t("watchSection")}</h3>
+      {/* The eye beside the title, as the bell beside Remind: the same class and size. */}
+      <div class="cf-sheet-title cf-watch-h"><Eye size={16} /> {t("watchSection")}</div>
       {(state.at === "edit" || state.at === "checking" || state.at === "failed" || state.at === "full") && (
         <>
           <label class="cf-watch-l" for="cf-watch-cond">{t("watchWhen")}</label>
@@ -87,9 +91,10 @@ export function WatchSection(p: WatchSectionProps) {
       )}
       {state.at === "unreadable" && (
         <>
-          <p class="cf-watch-msg">{t("watchUnreadable", t("uxRemind"))}</p>
+          <p class="cf-watch-msg">{t("watchUnreadable")}</p>
           <div class="cf-watch-row">
             <button type="button" class="cf-watch-go" onClick={() => void save(state.prepared, true)}>{t("watchLiveOk")}</button>
+            {p.remind && <button type="button" class="cf-watch-alt" onClick={p.remind}>{t("watchRemindInstead")}</button>}
           </div>
         </>
       )}
