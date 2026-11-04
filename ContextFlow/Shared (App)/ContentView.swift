@@ -142,8 +142,8 @@ struct ContentView: View {
                 tipsTab
                 if showsPro { proTab }
                 templatesTab
-                NavigationView { ChatsView(library: chats, activation: activation, openSetup: { showingSetup = true }, openPro: { tab = .pro }) }
-                    .navigationViewStyle(.stack)
+                // A stack: chats open by value, so a chat's screen stays when its row moves (see ChatRoute).
+                NavigationStack { ChatsView(library: chats, activation: activation, openSetup: { showingSetup = true }, openPro: { tab = .pro }) }
                     .tabItem { Label("Chats", systemImage: "bubble.left.and.bubble.right") }
                     .tag(AppTab.chats)
             } else {

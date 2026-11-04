@@ -1455,15 +1455,17 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (!moved) return
     setThreadList(chatList(moved.threads))
     const left = moved.threads[source]
-    // The panel stays on this chat ("Open" goes to the other one), unless nothing is left in it.
-    if (left && !left.deleted) setMessages(left.m)
+    // The panel stays on this chat ("Open" goes to the other one), unless nothing is left in it: then it's
+    // the other one already, without "Open".
+    const stays = left && !left.deleted ? left : null
+    if (stays) setMessages(stays.m)
     else showChat(target, moved.threads)
     orgEvent({ kind: "organize", action: "accepted", what: move.to ? "move" : "new", why: move.why })
     setUndoBar({
       text: t("orgMoved", move.toName),
       actions: [
         { label: t("orgUndo"), run: () => void undoChatMove(moved.undo) },
-        { label: t("orgOpen"), run: () => { setUndoBar(null); void loadThreads().then(({ threads }) => showChat(target, threads)) } }
+        ...(stays ? [{ label: t("orgOpen"), run: () => { setUndoBar(null); void loadThreads().then(({ threads }) => showChat(target, threads)) } }] : [])
       ]
     })
     won()

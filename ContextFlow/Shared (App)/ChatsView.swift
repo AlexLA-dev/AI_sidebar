@@ -9,6 +9,14 @@ import SafariServices
 
 // MARK: - The list
 
+/// A chat opened from the list, by value: its screen stays when its row moves or goes (a move to another chat
+/// reorders the list), which a link holding the screen itself didn't survive on iPhone.
+struct ChatRoute: Hashable {
+    let id: String
+    var history = false
+    var scrollTo: Int?
+}
+
 /// The chats from Safari: each with its pages, which open in Safari.
 struct ChatsView: View {
     @ObservedObject var library: ChatLibrary
@@ -88,6 +96,7 @@ struct ChatsView: View {
             }
         }
         .navigationTitle("Chats")
+        .navigationDestination(for: ChatRoute.self) { destination(for: $0) }
         .aiConsent($consentAsk)
         .alert("Rename chat", isPresented: Binding(get: { renaming != nil }, set: { if !$0 { renaming = nil } })) {
             TextField("Name", text: $newName)
@@ -156,7 +165,7 @@ struct ChatsView: View {
     @ViewBuilder
     private func chatRows(_ threads: [ChatThread]) -> some View {
         ForEach(threads) { thread in
-            NavigationLink(destination: destination(for: thread)) {
+            NavigationLink(value: ChatRoute(id: thread.id, history: thread.isHistory)) {
                 ChatRow(thread: thread)
             }
             .contextMenu { menu(for: thread) }
@@ -217,7 +226,7 @@ struct ChatsView: View {
             case .success(let results):
                 ForEach(results, id: \.self) { result in
                     if let thread = library.threads.first(where: { $0.id == result.id }) {
-                        NavigationLink(destination: destination(for: thread)) {
+                        NavigationLink(value: ChatRoute(id: thread.id, history: thread.isHistory)) {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(thread.name).font(.headline).lineLimit(1)
                                 if !result.why.isEmpty {
@@ -240,11 +249,11 @@ struct ChatsView: View {
     }
 
     @ViewBuilder
-    private func destination(for thread: ChatThread) -> some View {
-        if thread.isHistory {
-            HistoryChatView(library: library, threadId: thread.id, openPro: openPro)
+    private func destination(for route: ChatRoute) -> some View {
+        if route.history {
+            HistoryChatView(library: library, threadId: route.id, openPro: openPro)
         } else {
-            ChatDetailView(library: library, threadId: thread.id, openPro: openPro)
+            ChatDetailView(library: library, threadId: route.id, scrollTo: route.scrollTo, openPro: openPro)
         }
     }
 
@@ -257,7 +266,7 @@ struct ChatsView: View {
                 .foregroundColor(.secondary)
         }
         ForEach(results) { result in
-            NavigationLink(destination: result.thread.isHistory ? AnyView(HistoryChatView(library: library, threadId: result.thread.id, openPro: openPro)) : AnyView(ChatDetailView(library: library, threadId: result.thread.id, scrollTo: result.hits.first?.index, openPro: openPro))) {
+            NavigationLink(value: ChatRoute(id: result.thread.id, history: result.thread.isHistory, scrollTo: result.thread.isHistory ? nil : result.hits.first?.index)) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(result.thread.name)
                         .font(.headline)
@@ -989,10 +998,7 @@ struct ChatDetailView: View {
                 }
                 .overlay(alignment: .bottom) {
                     if let bar = undoBar {
-                        UndoBar(text: bar.text, actions: [
-                            ("Undo", { undoMove(bar.undo) }),
-                            ("Open", { withAnimation { undoBar = nil; shownId = bar.undo.target } })
-                        ])
+                        movedBar(bar)
                         .padding(.horizontal, 12)
                         .padding(.bottom, 8)
                     }
@@ -1238,6 +1244,15 @@ struct ChatDetailView: View {
         if !library.threads.contains(where: { $0.id == thread.id }) { shownId = undo.target }
         withAnimation { undoBar = (String(localized: "Moved to “\(move.toName)”"), undo) }
         won()
+    }
+
+    /// The bar after a move: Undo, and Open unless nothing was left here (the other chat is shown already).
+    private func movedBar(_ bar: (text: String, undo: Organize.MoveUndo)) -> some View {
+        var actions: [(label: LocalizedStringKey, run: () -> Void)] = [("Undo", { undoMove(bar.undo) })]
+        if currentId != bar.undo.target {
+            actions.append(("Open", { withAnimation { undoBar = nil; shownId = bar.undo.target } }))
+        }
+        return UndoBar(text: bar.text, actions: actions)
     }
 
     private func undoMove(_ undo: Organize.MoveUndo) {
