@@ -38,7 +38,7 @@ function deletedRange(messages: Entry[], idx: number): [number, number] {
 
 /** This device, for a reminder's `dev`: the notification rings only where it was set. */
 let deviceId: string | null = null
-async function thisDevice(): Promise<string | undefined> {
+export async function thisDevice(): Promise<string | undefined> {
   if (deviceId) return deviceId
   try {
     const got = await chrome.storage.local.get(STORAGE.installId)
@@ -49,13 +49,18 @@ async function thisDevice(): Promise<string | undefined> {
   return deviceId ?? undefined
 }
 
+/** What a reminder is on, for ux_remind: a page (the bell by a selection), a note or an answer. */
+function remindWhat(m: Entry): "page" | "note" | "answer" {
+  return m.remind?.page ? "page" : m.note ? "note" : "answer"
+}
+
 /**
  * Asks the extension to set (or, with `at` null, cancel) a message's reminder on this device. The system
  * may first ask about notifications: the answer waits for that.
  */
 export async function scheduleReminder(send: Options["send"], chat: string, entry: Entry, at: number | null, chatTitle: string): Promise<string> {
   const notice = reminderNotice(entry, chatTitle)
-  const reply = await send<{ outcome: string }>({ type: "remind", chat, message: entryKey(entry), at, title: notice.title, body: notice.body, ask: true })
+  const reply = await send<{ outcome: string }>({ type: "remind", chat, message: entryKey(entry), at, title: notice.title, body: notice.body, url: notice.url, ask: true })
   return reply?.outcome ?? "unavailable"
 }
 
@@ -176,7 +181,7 @@ export function useMessageUx({ messages, setMessages, chatId, chatTitle, list, t
     if (!m) return
     const outcome = await scheduleReminder(send, chatId(), m, at, chatTitle())
     if (at !== null && outcome !== "scheduled") {
-      if (outcome === "denied") void send({ type: "uxEvent", kind: "ux_remind", action: "denied", what: m.note ? "note" : "answer" })
+      if (outcome === "denied") void send({ type: "uxEvent", kind: "ux_remind", action: "denied", what: remindWhat(m) })
       // No notification on this device: say why; the mark isn't kept.
       setReminding({ idx, note: t(outcome === "denied" ? "uxRemindOff" : "uxRemindNone") })
       return
@@ -185,11 +190,11 @@ export function useMessageUx({ messages, setMessages, chatId, chatTitle, list, t
     update(idx, (x) => {
       const next = { ...x }
       if (at === null) delete next.remind
-      else next.remind = { at, ...(dev ? { dev } : {}) }
+      else next.remind = { ...(x.remind?.page ? { page: true as const } : {}), at, ...(dev ? { dev } : {}) }
       return next
     })
     setReminding(null)
-    void send({ type: "uxEvent", kind: "ux_remind", action: at === null ? "cancelled" : "set", what: m.note ? "note" : "answer", ...(preset ? { preset } : {}) })
+    void send({ type: "uxEvent", kind: "ux_remind", action: at === null ? "cancelled" : "set", what: remindWhat(m), ...(preset ? { preset } : {}) })
   }, [chatId, chatTitle, send, update])
 
   // ---------------------------------------------------------- copy with the highlights

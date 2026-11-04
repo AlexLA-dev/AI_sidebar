@@ -23,14 +23,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         return UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
     }
 
-    // A reminder on a message (set here or in the panel): the app opens on that message.
+    // A reminder on a message (set here or in the panel): the app opens on that message. A page reminder
+    // (the bell by a selection) opens its page in Safari; its note stays in the chat.
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
-        guard let link = response.notification.request.content.userInfo["link"] as? String, let url = URL(string: link) else { return }
-        MessageReminders.log("opened \(link)")
-        await MainActor.run {
-            ChatAI.reportUx("ux_remind", ["action": "opened"])
-            DeepLinkRouter.shared.handle(url)
+        let info = response.notification.request.content.userInfo
+        await MainActor.run { ChatAI.reportUx("ux_remind", info["open"] != nil ? ["action": "opened", "what": "page"] : ["action": "opened"]) }
+        if let open = info["open"] as? String, let page = URL(string: open) {
+            await MainActor.run { UIApplication.shared.open(page) }
+            return
         }
+        guard let link = info["link"] as? String, let url = URL(string: link) else { return }
+        MessageReminders.log("opened \(link)")
+        await MainActor.run { DeepLinkRouter.shared.handle(url) }
     }
 
     // While the app is open, a reminder still shows as a banner.

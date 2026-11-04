@@ -51,8 +51,8 @@ import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, load
 import { TagChip, TagEditor } from "./Tags"
 import { ThreadsView } from "./Threads"
 import { starMarks } from "../shared/marks"
-import { Bell } from "./ux/MessageUx"
-import { useMessageUx } from "./ux/useMessageUx"
+import { Bell, remindLabel, RemindSheet } from "./ux/MessageUx"
+import { scheduleReminder, thisDevice, useMessageUx } from "./ux/useMessageUx"
 import { Tour, tourSteps } from "./Tour"
 import { QI_EVENTS, QuickInsert } from "./insert/QuickInsert"
 import * as QIcon from "./insert/icons"
@@ -324,6 +324,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     send: sendBackground,
     showUndo: (text, undo) => setUndoBar({ text, actions: [{ label: t("orgUndo"), run: () => { setUndoBar(null); undo() } }] })
   })
+  // The bell by a selection: "Remind me to come back" (a note with the quote and the page, and a reminder that
+  // opens the page).
+  const [remindPick, setRemindPick] = useState<SelectionInfo | null>(null)
+  const [remindSaved, setRemindSaved] = useState<number | null>(null)
 
   // The source learnt something new (the PDF popup: the document's title once it's read).
   const [, setSourceSeen] = useState(0)
@@ -914,7 +918,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
    * Note by the selection: the selected text, with what's typed in the field as its comment, goes to
    * the end of the current chat with the page. No AI, no answer used; the panel stays closed.
    */
-  const noteSelection = async (sel: SelectionInfo, comment: string) => {
+  /** `remindAt`: the bell's "Remind me": the note gets a reminder that opens its page (2.5). */
+  const noteSelection = async (sel: SelectionInfo, comment: string, remindAt?: number, remindPreset?: string) => {
     if (noteHold.current) return
     noteHold.current = true
     selFeatureUsed()
@@ -928,17 +933,27 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (!fits) await setActiveThread(id)
     const url = source.key()
     const page = source.quick()
-    const note = selectionNote(sel.text, comment, pageRef(fits && current ? current.m : [], url, page.title, page.text, keepsText), (text) => t("noteQuote", text))
+    let note: Entry = selectionNote(sel.text, comment, pageRef(fits && current ? current.m : [], url, page.title, page.text, keepsText), (text) => t("noteQuote", text))
+    if (remindAt) {
+      // Set on this device first: the note keeps the bell only when the notification is really set.
+      const outcome = await scheduleReminder(sendBackground, id, { ...note, remind: { at: remindAt, page: true } }, remindAt, "")
+      const dev = await thisDevice()
+      if (outcome === "scheduled") note = { ...note, remind: { at: remindAt, page: true, ...(dev ? { dev } : {}) } }
+      // A time when set; -1 when notifications are off for ContextFlow; 0 when there's no app to set it.
+      setRemindSaved(outcome === "scheduled" ? remindAt : outcome === "denied" ? -1 : 0)
+      void sendBackground({ type: "uxEvent", kind: "ux_remind", action: outcome === "scheduled" ? "set" : outcome === "denied" ? "denied" : "cancelled", what: "page", ...(remindPreset ? { preset: remindPreset } : {}) })
+    }
     await saveThread(id, [...(fits && current ? current.m : []), note])
     void rememberPageText(url, page.title, page.text)
     setNoteSaved(true)
     setTimeout(() => {
       noteHold.current = false
       setNoteSaved(false)
+      setRemindSaved(null)
       setBubble(null)
       // On iPhone and iPad the system edit menu would stay over the page.
       if (touch) document.getSelection()?.removeAllRanges()
-    }, 2200)
+    }, remindAt ? 4000 : 2200)
   }
 
   /** "Ask your chats" (Pro): continues today's one, else starts a new one; without Pro, says what it does. */
@@ -1684,11 +1699,30 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         </button>
       )}
 
+      {/* The page reminder is set: said here too (on iPhone the selection, and its buttons, are gone by now). */}
+      {remindSaved !== null && !bubble?.rect && !open && (
+        <div class={`cf-toast ${touch ? "touch" : ""}`} role="status">
+          <Bell size={14} /> {remindSaved > 0 ? t("uxRemindSaved", remindLabel(remindSaved)) : remindSaved < 0 ? t("uxRemindNotSet") : t("uxRemindNoApp")}
+        </div>
+      )}
+      {remindPick && (
+        <RemindSheet
+          page
+          onPick={(at, preset) => {
+            const sel = remindPick
+            setRemindPick(null)
+            void noteSelection(sel, selDraft, at, preset)
+          }}
+          onCancel={() => setRemindPick(null)}
+          onClose={() => setRemindPick(null)}
+        />
+      )}
+
       {bubble?.rect && !open && !popup && (
         <SelectionBubble rect={bubble.rect} touch={touch}>
           {noteSaved ? (
             <div class="cf-bubble-saved" role="status">
-              <span><Icon.Check /> {t("selNoteSaved")}</span>
+              <span><Icon.Check /> {remindSaved === null ? t("selNoteSaved") : remindSaved > 0 ? t("uxRemindSaved", remindLabel(remindSaved)) : remindSaved < 0 ? t("uxRemindNotSet") : t("uxRemindNoApp")}</span>
               <button type="button" {...press(() => show())}>{t("selNoteOpen")}</button>
             </div>
           ) : (
@@ -1699,8 +1733,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     {/* "Ask AI" on narrow screens (320 pt: iPhone mini and SE with Display Zoom), so the buttons fit. */}
                     <button type="button" class="primary" {...press(() => show(bubble))}><Icon.Sparkle size={16} /> {t(narrowScreen() ? "selAsk" : "fabLabel")}</button>
                     <button type="button" class="cf-sel-icon" aria-label={t("actGoogle")} title={t("actGoogle")} {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SEL_GOOGLE), 60) })}><Icon.Search size={15} /></button>
-                    <button type="button" class="cf-sel-template" {...press(() => newTemplate(bubble))}><QIcon.Template /> {t("qiTemplateButton")}</button>
-                    {UX_LAYOUT && <button type="button" class="cf-sel-watch" aria-label={t("uxWatch")}><Bell size={16} /></button>}
+                    {/* With the bell, Template shows only its icon below 400 pt (the row stays one line at 375 pt). */}
+                    <button type="button" class="cf-sel-template" aria-label={t("qiTemplateButton")} title={t("qiTemplateButton")} {...press(() => newTemplate(bubble))}><QIcon.Template />{!compactRow() && ` ${t("qiTemplateButton")}`}</button>
+                    <button type="button" class="cf-sel-icon cf-sel-remind" aria-label={t("uxRemindPage")} title={t("uxRemindPage")} {...press(() => {
+                      selTyping.current = false
+                      setRemindPick(bubble)
+                      // The system's edit menu would stay over the sheet.
+                      document.getSelection()?.removeAllRanges()
+                    })}><Bell size={16} /></button>
                   </>
                 ) : (
                   <>
@@ -1709,7 +1749,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SELECTION_ACTIONS[2]), 60) })}>{t("selTranslate")}</button>
                     <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SEL_GOOGLE), 60) })}><Icon.Search size={13} /> {t("actGoogle")}</button>
                     <button type="button" class="cf-sel-template" {...press(() => newTemplate(bubble))}><QIcon.Template size={14} /> {t("qiTemplateButton")}</button>
-                    {UX_LAYOUT && <button type="button" class="cf-sel-watch" aria-label={t("uxWatch")}><Bell size={14} /></button>}
+                    <button type="button" class="cf-sel-remind" aria-label={t("uxRemindPage")} title={t("uxRemindPage")} {...press(() => setRemindPick(bubble))}><Bell size={14} /></button>
                   </>
                 )}
               </div>
@@ -2240,9 +2280,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
 const runActionRef: { current: (a: Action) => void } = { current: () => undefined }
 
-// Layout only (2.5): the page-watch bell by a selection, on a page opened with #cf-ux-layout, until the owner
-// decides on page watching.
-const UX_LAYOUT = typeof location !== "undefined" && location.hash.includes("cf-ux-layout")
+/** Below 400 pt the selection buttons' top row keeps only "Ask ContextFlow" with its words; the rest are icons. */
+function compactRow(): boolean {
+  return (window.visualViewport?.width ?? window.innerWidth) < 400
+}
 
 /**
  * Above a question or note: "New page: …" on the chat's first page and whenever it moved to another one

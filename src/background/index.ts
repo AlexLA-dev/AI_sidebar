@@ -344,6 +344,7 @@ async function remind(message: Extract<BackgroundRequest, { type: "remind" }>): 
     at: message.at,
     title: message.title ?? "ContextFlow",
     body: message.body ?? "",
+    ...(message.url && /^https?:\/\//.test(message.url) ? { url: message.url } : {}),
     ask: message.ask === true
     // The system may be asking about notifications meanwhile: wait for the answer.
   }, 90_000)
