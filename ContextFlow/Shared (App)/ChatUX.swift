@@ -315,7 +315,7 @@ enum AnswerBlocks {
         let out = NSMutableAttributedString()
         let options = AttributedString.MarkdownParsingOptions(interpretedSyntax: .inlineOnlyPreservingWhitespace)
         guard let parsed = try? AttributedString(markdown: markdown, options: options) else {
-            return NSMutableAttributedString(string: markdown, attributes: [.font: font, .foregroundColor: textColor])
+            return NSMutableAttributedString(string: markdown, attributes: [.font: font, .foregroundColor: textColor, .paragraphStyle: lines])
         }
         for run in parsed.runs {
             let text = String(parsed[run.range].characters)
@@ -334,12 +334,19 @@ enum AnswerBlocks {
             if !traits.isEmpty { runFont = NSFont(descriptor: font.fontDescriptor.withSymbolicTraits(traits), size: font.pointSize) ?? font }
             if intent.contains(.code) { runFont = .monospacedSystemFont(ofSize: font.pointSize, weight: .regular) }
             #endif
-            var attributes: [NSAttributedString.Key: Any] = [.font: runFont, .foregroundColor: textColor]
+            var attributes: [NSAttributedString.Key: Any] = [.font: runFont, .foregroundColor: textColor, .paragraphStyle: lines]
             if let link = run.link { attributes[.link] = link }
             out.append(NSAttributedString(string: text, attributes: attributes))
         }
         return out
     }
+
+    /// Lines broken as SwiftUI's Text breaks them: no single word left alone on the last line.
+    private static let lines: NSParagraphStyle = {
+        let style = NSMutableParagraphStyle()
+        style.lineBreakStrategy = .standard
+        return style
+    }()
 
     /// `style` at an exact weight, as SwiftUI's `.title3.weight(.bold)` (a bold trait on a title style is semibold).
     static func font(_ style: PlatformFont.TextStyle, weight: PlatformFont.Weight) -> PlatformFont {
