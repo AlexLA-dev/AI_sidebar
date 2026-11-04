@@ -20,10 +20,11 @@
 .cf-org-x:hover { color: var(--text-2); background: rgba(var(--tag), 0.08); }
 
 /* The undo bar: over the question field, until the next action. */
-.cf-undo-bar { position: absolute; left: 12px; right: 12px; bottom: calc(100% + 8px); z-index: 30; display: flex; align-items: center; gap: 2px; padding: 9px 6px 9px 14px; border-radius: 14px; background: #24222b; color: #fff; font-size: 13px; line-height: 1.35; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25); animation: cf-org-in .3s ease-out both; }
+/* Its colors are .cf-snack's (styles.css): one look for toasts and bars, in both themes. */
+.cf-undo-bar { position: absolute; left: 12px; right: 12px; bottom: calc(100% + 8px); z-index: 30; display: flex; align-items: center; gap: 2px; padding: 9px 6px 9px 14px; font-size: 13px; animation: cf-org-in .3s ease-out both; }
 .cf-undo-bar span { flex: 1; min-width: 0; }
-.cf-undo-bar button { flex: none; padding: 6px 9px; border-radius: 8px; color: #93c5fd; font-weight: 600; font-size: 13px; }
-.cf-undo-bar button:hover { background: rgba(255, 255, 255, 0.08); }
+.cf-undo-bar button { flex: none; padding: 6px 9px; border-radius: 8px; font-size: 13px; }
+.cf-undo-bar button:hover { background: color-mix(in srgb, var(--snack-text) 10%, transparent); }
 
 /* The cards: turning suggestions on (Pro), and what they do (without Pro). */
 .cf-org-card { position: relative; margin-top: 10px; background: var(--accent-soft); animation: cf-org-in .45s ease-out both; }

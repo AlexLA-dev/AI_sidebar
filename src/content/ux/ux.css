@@ -1,8 +1,8 @@
 /* 2.5: highlights, swipes, pinned messages, reminders. Appended to styles.css in the shadow root. */
 
-.cf { --mark: rgba(250, 204, 21, 0.38); --mark-line: rgba(202, 138, 4, 0.55); --pin: #f08c00; }
-.cf[data-theme="dark"] { --mark: rgba(250, 204, 21, 0.28); --mark-line: rgba(250, 204, 21, 0.5); --pin: #ffa94d; }
-@media (prefers-color-scheme: dark) { .cf:not([data-theme]) { --mark: rgba(250, 204, 21, 0.28); --mark-line: rgba(250, 204, 21, 0.5); --pin: #ffa94d; } }
+.cf { --mark: rgba(250, 204, 21, 0.38); --mark-line: rgba(202, 138, 4, 0.55); --pin: #7c3aed; }
+.cf[data-theme="dark"] { --mark: rgba(250, 204, 21, 0.28); --mark-line: rgba(250, 204, 21, 0.5); --pin: #a78bfa; }
+@media (prefers-color-scheme: dark) { .cf:not([data-theme]) { --mark: rgba(250, 204, 21, 0.28); --mark-line: rgba(250, 204, 21, 0.5); --pin: #a78bfa; } }
 
 /* ---- highlights: a soft marker, like in a book */
 mark.cf-mark {
@@ -39,7 +39,7 @@ mark.cf-mark {
 .cf-swipe-under.end { right: 0; justify-content: flex-end; }
 .cf-swipe-under.start { left: 0; justify-content: flex-start; }
 .cf-swipe-under.delete { background: var(--danger); }
-.cf-swipe-under.pin { background: var(--pin); }
+.cf-swipe-under.pin { background: #7c3aed; }
 .cf-swipe-under button {
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
   min-width: 76px; padding: 0 10px; color: #fff; font-size: 12px; font-weight: 600;
@@ -56,6 +56,9 @@ mark.cf-mark {
   animation: cf-pop 0.12s ease-out;
 }
 .cf-msg.user .cf-msg-menu { left: auto; right: 0; }
+/* No room below in the chat (the last answer, over the question field): over "…". */
+.cf-msg-menu.up { top: auto; bottom: calc(100% + 4px); animation-name: cf-pop-up; }
+@keyframes cf-pop-up { from { opacity: 0; transform: translateY(4px) scale(0.98); } to { opacity: 1; transform: none; } }
 .cf-msg-menu button { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 8px; font-size: 13.5px; color: var(--text); text-align: left; }
 .cf-msg-menu button:hover { background: var(--bg-2); }
 .cf-msg-menu button.danger { color: var(--danger); }
@@ -72,7 +75,8 @@ mark.cf-mark {
 .cf-msg-menu.at { position: fixed; top: 0; left: 0; z-index: 6; }
 /* The header's "…" (2.5): its menu under it, at the panel's right edge. */
 .cf-page-more-wrap { position: relative; display: flex; }
-.cf-page-menu { left: auto; right: 0; z-index: 6; }
+.cf-page-menu { left: auto; right: 0; z-index: 6; width: max-content; min-width: 220px; max-width: calc(100vw - 24px); }
+.cf-page-menu button { white-space: nowrap; }
 .cf-page-menu svg { width: 15px; height: 15px; flex-shrink: 0; }
 .cf-msg { position: relative; }
 
@@ -119,8 +123,9 @@ mark.cf-mark {
 /* ---- reminders */
 .cf-remind-chip {
   display: inline-flex; align-items: center; gap: 5px; align-self: flex-start; margin-top: 4px; padding: 3px 9px;
-  border-radius: 999px; font-size: 12px; font-weight: 500; color: var(--accent-text); background: var(--accent-soft);
+  border-radius: 999px; font-size: 12px; font-weight: 600; line-height: 16px; color: var(--accent-text); background: var(--accent-soft);
 }
+.cf-msg .cf-tag { padding: 2px 8px; font-size: 12px; line-height: 16px; }
 .cf-msg.user .cf-remind-chip { align-self: flex-end; }
 .cf-remind-chip.past { color: var(--text-3); background: var(--bg-2); }
 .cf-sheet-back { position: absolute; left: 0; right: 0; top: 0; bottom: 0; z-index: 5; display: flex; align-items: flex-end; background: rgba(0, 0, 0, 0.28); animation: cf-fade 0.15s ease; }
@@ -132,7 +137,15 @@ mark.cf-mark {
   animation: cf-up 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 /* "Come back later" (2.5): the window's name over its parts (Remind; watching's under it). */
-.cf-sheet-head { padding: 4px 10px 2px; font-size: 12.5px; font-weight: 600; color: var(--text-3); }
+.cf-sheet-head { display: flex; align-items: center; gap: 6px; padding: 4px 10px 2px; font-size: 12.5px; font-weight: 600; color: var(--text-3); }
+.cf-sheet-head svg { width: 14px; height: 14px; flex-shrink: 0; }
+.cf-sheet-title svg { flex-shrink: 0; }
+/* A section's main buttons (watching's "Watch"): they stay at the sheet's bottom, over the question field, while
+   the rest scrolls under them. */
+.cf-sheet-actions {
+  position: sticky; bottom: -10px; z-index: 1; display: flex; flex-wrap: wrap; gap: 8px;
+  margin: 4px -10px -10px; padding: 10px; background: var(--bg); box-shadow: 0 -1px 0 var(--border);
+}
 /* Remind brought into view by a section under it (a page that can't be watched): a short flash. */
 .cf-sheet-title.flash { border-radius: 10px; animation: cf-pin-flash 1.2s ease-out; }
 /* "All reminders" at the window's end: quiet. */
@@ -159,8 +172,8 @@ mark.cf-mark {
 .cf-sheet-when { color: var(--text-3); font-size: 13.5px; }
 .cf-sheet-pick { display: flex; gap: 8px; padding: 6px 4px; }
 .cf-sheet-pick input { flex: 1; min-width: 0; height: 40px; padding: 0 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-2); color: var(--text); font: inherit; font-size: 16px; }
-.cf-sheet-ok { padding: 0 16px; border-radius: 10px; background: var(--accent); color: #fff; font-weight: 600; }
-.cf-sheet-ok:disabled { opacity: 0.4; }
+.cf-sheet-ok { justify-content: center; }
+.cf-sheet-ok:disabled { opacity: 0.4; box-shadow: none; }
 .cf-sheet-note { margin: 4px 10px 6px; font-size: 12.5px; color: var(--text-3); }
 @keyframes cf-up { from { transform: translateY(30px); opacity: 0; } to { transform: none; opacity: 1; } }
 @keyframes cf-fade { from { opacity: 0; } to { opacity: 1; } }
@@ -176,11 +189,10 @@ mark.cf-mark {
 .cf-thread .cf-thread-swipe > .cf-swipe-body { display: flex; align-items: center; flex: 1; min-width: 0; gap: 2px; }
 .cf-thread .cf-swipe-under { bottom: 0; border-radius: 10px; }
 
-/* "Reminder: Tomorrow 9:00" over the page after the bell by a selection. */
+/* "Reminder: Tomorrow 9:00" over the page ("Come back later" with the panel closed): .cf-snack's look, at quick
+   insert's toast's height (64 px above the bottom of what's visible, set from visualViewport). */
 .cf-toast {
-  position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%); z-index: 2147483000;
-  display: flex; align-items: center; gap: 7px; max-width: calc(100vw - 32px); padding: 10px 14px;
-  border-radius: 14px; background: #24222b; color: #fff; font: 500 13.5px/1.35 var(--font); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-  animation: cf-up 0.2s ease-out;
+  position: fixed; left: 50%; transform: translateX(-50%); z-index: 2147483000;
+  display: flex; align-items: center; gap: 7px; max-width: calc(100vw - 24px); padding: 10px 14px;
+  font-family: var(--font); animation: cf-fade 0.15s ease-out;
 }
-.cf-toast.touch { font-size: 15px; bottom: 120px; }

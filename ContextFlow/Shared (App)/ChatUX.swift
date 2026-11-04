@@ -796,7 +796,7 @@ struct PinnedBar: View {
                 HStack(alignment: .center, spacing: 9) {
                     segments(count, shown)
                     VStack(alignment: .leading, spacing: 1) {
-                        (count > 1 ? Text("Pinned #\(shown + 1)") : Text("Pinned message")).font(.caption.weight(.semibold)).foregroundColor(.orange)
+                        (count > 1 ? Text("Pinned #\(shown + 1)") : Text("Pinned message")).font(.caption.weight(.semibold)).foregroundColor(.purple)
                         Text(ReminderTimes.text(current.entry.content, max: 140)).font(.subheadline).foregroundColor(.primary).lineLimit(1)
                     }
                     Spacer(minLength: 0)
@@ -826,7 +826,7 @@ struct PinnedBar: View {
         let visible = Array(first..<min(count, first + 4))
         return VStack(spacing: 2) {
             ForEach(visible, id: \.self) { pos in
-                Capsule().fill(Color.orange.opacity(pos == shown ? 1 : 0.3)).frame(width: 2.5)
+                Capsule().fill(Color.purple.opacity(pos == shown ? 1 : 0.3)).frame(width: 2.5)
             }
         }
         .frame(height: 34)
@@ -834,7 +834,7 @@ struct PinnedBar: View {
 
     private func list(_ shown: Int) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("All pinned").font(.caption.weight(.semibold)).foregroundColor(.orange).padding(.horizontal, 14).padding(.vertical, 8)
+            Text("All pinned").font(.caption.weight(.semibold)).foregroundColor(.purple).padding(.horizontal, 14).padding(.vertical, 8)
             ForEach(Array(items.enumerated()), id: \.offset) { pos, item in
                 HStack {
                     Button {
@@ -844,7 +844,7 @@ struct PinnedBar: View {
                     } label: {
                         Text(ReminderTimes.text(item.entry.content, max: 120)).lineLimit(1)
                             .fontWeight(pos == shown ? .semibold : .regular)
-                            .foregroundColor(pos == shown ? .orange : .primary)
+                            .foregroundColor(pos == shown ? .purple : .primary)
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     .buttonStyle(.plain)
@@ -958,7 +958,7 @@ struct MessageSwipe: ViewModifier {
             .background(alignment: dx < 0 ? .trailing : .leading) {
                 if dx != 0 {
                     ZStack(alignment: dx < 0 ? .trailing : .leading) {
-                        RoundedRectangle(cornerRadius: 14).fill(dx < 0 ? Color.red : Color.orange)
+                        RoundedRectangle(cornerRadius: 14).fill(dx < 0 ? Color.red : Color.purple)
                         Label(dx < 0 ? "Delete" : (pinned ? "Unpin" : "Pin"), systemImage: dx < 0 ? "trash" : (pinned ? "pin.slash" : "pin"))
                             .labelStyle(.iconOnly).foregroundColor(.white).font(.title3)
                             .frame(width: 64)
@@ -1089,14 +1089,27 @@ struct DeletedBar: View {
 
     var body: some View {
         HStack(spacing: 4) {
-            Text(text).font(.subheadline).foregroundColor(.white).frame(maxWidth: .infinity, alignment: .leading)
+            Text(text).font(.subheadline).frame(maxWidth: .infinity, alignment: .leading)
             Button("Undo", action: undo).font(.subheadline.weight(.semibold)).padding(.horizontal, 6)
         }
-        .tint(Color(red: 0.58, green: 0.77, blue: 0.99))
-        .padding(.vertical, 11).padding(.leading, 14).padding(.trailing, 6)
-        .background(RoundedRectangle(cornerRadius: 14).fill(Color(red: 0.14, green: 0.13, blue: 0.17)))
-        .shadow(color: .black.opacity(0.25), radius: 10, y: 4)
+        .modifier(SnackBar())
         .frame(maxWidth: 560)
         .transition(.move(edge: .bottom).combined(with: .opacity))
+    }
+}
+
+/// One look for "… · Undo" bars (2.5, the panel's .cf-snack): the inverse of the screen, dark in light appearance
+/// and light in dark, its text and action at 4.5:1 or more.
+struct SnackBar: ViewModifier {
+    @Environment(\.colorScheme) private var scheme
+
+    func body(content: Content) -> some View {
+        let dark = scheme == .dark
+        content
+            .foregroundColor(dark ? Color(red: 0.09, green: 0.08, blue: 0.11) : .white)
+            .tint(dark ? Color(red: 0.11, green: 0.31, blue: 0.85) : Color(red: 0.58, green: 0.77, blue: 0.99))
+            .padding(.vertical, 11).padding(.leading, 14).padding(.trailing, 6)
+            .background(RoundedRectangle(cornerRadius: 14).fill(dark ? Color(red: 0.925, green: 0.922, blue: 0.949) : Color(red: 0.14, green: 0.13, blue: 0.17)))
+            .shadow(color: .black.opacity(0.25), radius: 10, y: 4)
     }
 }
