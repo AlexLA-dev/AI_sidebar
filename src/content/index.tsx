@@ -10,6 +10,9 @@ import insertStyles from "./insert/insert.css"
 import organizeStyles from "./organize.css"
 import uxStyles from "./ux/ux.css"
 import { startLiveWatch } from "./watch/live"
+// Page watch's section and eye, added to chat UX's window and bubble (2.5).
+import "./watch/register"
+import watchStyles from "./watch/watch.css"
 
 // Runs on every http(s) page (and again if injected on demand). Everything we
 // render lives in a closed-off shadow root so page CSS can't break it and our
@@ -43,7 +46,8 @@ function boot(): void {
     style.textContent = `${styles}
 ${insertStyles}
 ${organizeStyles}
-${uxStyles}`
+${uxStyles}
+${watchStyles}`
     root.appendChild(style)
     const container = document.createElement("div")
     root.appendChild(container)

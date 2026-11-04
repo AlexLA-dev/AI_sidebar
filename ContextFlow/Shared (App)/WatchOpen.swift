@@ -22,3 +22,34 @@ enum WatchOpen {
         #endif
     }
 }
+
+/// This device's watches in "Reminders" (chat UX's list): "Watching: … · checked …", or "Changed: …" once the
+/// condition came true. A tap opens the page; Stop goes back to the extension on its next exchange.
+struct WatchSource: LaterSource {
+    func items() async -> [LaterItem] {
+        let relative = RelativeDateTimeFormatter()
+        relative.unitsStyle = .short
+        return WatchStore.entries().map { w in
+            let label = w.label.isEmpty ? w.title : w.label
+            let status: String
+            if let met = w.metAt {
+                let when = relative.localizedString(for: Date(timeIntervalSince1970: met / 1000), relativeTo: Date())
+                status = String(localized: "Changed: \(label) · \(when)")
+            } else if w.mode == "live" {
+                status = String(localized: "Watching: \(label) · I'll check when you open the page")
+            } else if w.checkedAt > 0 {
+                let when = relative.localizedString(for: Date(timeIntervalSince1970: w.checkedAt / 1000), relativeTo: Date())
+                status = String(localized: "Watching: \(label) · checked \(when)")
+            } else {
+                status = String(localized: "Watching: \(label)")
+            }
+            return LaterItem(id: "watch:\(w.id)", kind: .watch, title: w.title.isEmpty ? label : w.title, url: URL(string: w.url),
+                             status: status, sortAt: Date(timeIntervalSince1970: (w.metAt ?? w.checkedAt) / 1000))
+        }
+    }
+
+    func cancel(_ id: String) async {
+        let watch = id.hasPrefix("watch:") ? String(id.dropFirst("watch:".count)) : id
+        WatchStore.stop(watch)
+    }
+}

@@ -1,7 +1,7 @@
 // Page watch (2.5): "Notify me when it changes" in the "Come back later…" window (the window is chat UX's;
 // this is its second part). The condition in the person's own words, started from the selection, an honest
 // line about when the checks run, and, for a site the background can't read, the choice to check when the
-// page is opened or to be reminded instead.
+// page is opened or to use Remind (the window's first part, above this one).
 
 import { useEffect, useMemo, useRef, useState } from "preact/hooks"
 
@@ -15,8 +15,6 @@ export interface WatchSectionProps {
   selection: string | null
   how: WatchHow
   close(): void
-  // "Remind me to look" for a site the background can't read: chat UX's part of the same window.
-  remind?: () => void
 }
 
 type State =
@@ -34,12 +32,14 @@ export function WatchSection(p: WatchSectionProps) {
   // Read once, when the window opens: the page may change under the person while they type.
   const draft = useMemo(() => draftFor(p.url, p.title, p.selection), [p.url, p.selection])
   const [condition, setCondition] = useState(draft.condition)
+  // Where the window was opened from, as it was when it opened (the window may render again meanwhile).
+  const [how] = useState(p.how)
   const [state, setState] = useState<State>({ at: "edit" })
   const closing = useRef<ReturnType<typeof setTimeout>>()
   useEffect(() => () => clearTimeout(closing.current), [])
 
   const save = async (prepared: WatchPrepared, live: boolean) => {
-    const reply = await send<{ ok: boolean; full?: boolean; limit?: number; paid?: boolean; notify?: string }>({ type: "watchSave", draft: { ...draft, condition }, prepared, how: p.how, live }).catch(() => null)
+    const reply = await send<{ ok: boolean; full?: boolean; limit?: number; paid?: boolean; notify?: string }>({ type: "watchSave", draft: { ...draft, condition }, prepared, how, live }).catch(() => null)
     if (!reply?.ok) return setState(reply?.full ? { at: "full", limit: reply.limit ?? 5, paid: reply.paid === true } : { at: "failed" })
     setState({ at: "set", live, notify: reply.notify ?? "ok" })
     if ((reply.notify ?? "ok") === "ok") closing.current = setTimeout(p.close, 1800)
@@ -47,7 +47,7 @@ export function WatchSection(p: WatchSectionProps) {
 
   const start = async () => {
     setState({ at: "checking" })
-    const prepared = await send<WatchPrepared & { ok?: boolean }>({ type: "watchPrepare", draft: { ...draft, condition }, how: p.how }).catch(() => null)
+    const prepared = await send<WatchPrepared & { ok?: boolean }>({ type: "watchPrepare", draft: { ...draft, condition }, how }).catch(() => null)
     if (!prepared?.ok) return setState({ at: "failed" })
     if (!prepared.readable) return setState({ at: "unreadable", prepared })
     await save(prepared, false)
@@ -87,10 +87,9 @@ export function WatchSection(p: WatchSectionProps) {
       )}
       {state.at === "unreadable" && (
         <>
-          <p class="cf-watch-msg">{t("watchUnreadable")}</p>
+          <p class="cf-watch-msg">{t("watchUnreadable", t("uxRemind"))}</p>
           <div class="cf-watch-row">
             <button type="button" class="cf-watch-go" onClick={() => void save(state.prepared, true)}>{t("watchLiveOk")}</button>
-            {p.remind && <button type="button" class="cf-watch-alt" onClick={p.remind}>{t("watchRemindInstead")}</button>}
           </div>
         </>
       )}
