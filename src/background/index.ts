@@ -357,11 +357,17 @@ async function reportUx(message: Extract<BackgroundRequest, { type: "uxEvent" }>
   await fetch(`${API_BASE}/api/v2/event`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    // The server keeps only what its lists allow (uxFields in v2-event): counts and categories, never text or addresses.
-    body: JSON.stringify({
-      kind: message.kind, installId: id, client, action: message.action, what: message.what, how: message.how, preset: message.preset,
-      n_remind: message.n_remind, n_watch: message.n_watch, surface: "panel"
-    })
+    body: JSON.stringify({ kind: message.kind, installId: id, client, action: message.action, what: message.what, how: message.how, preset: message.preset, surface: "panel" })
+  }).catch(() => undefined)
+}
+
+/** A step for the feature counters ("use", f and a, src/shared/usage.ts): the panel's, named values only. */
+async function reportUse(message: Extract<BackgroundRequest, { type: "useEvent" }>): Promise<void> {
+  const [id, client] = await Promise.all([installId(), clientInfo()])
+  await fetch(`${API_BASE}/api/v2/event`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ kind: "use", installId: id, client, f: message.f, a: message.a, what: message.what, via: message.via, reminders: message.reminders, watches: message.watches, s: "panel" })
   }).catch(() => undefined)
 }
 
@@ -429,6 +435,10 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
       return true
     case "uxEvent":
       void reportUx(message)
+      sendResponse({ ok: true })
+      return false
+    case "useEvent":
+      void reportUse(message)
       sendResponse({ ok: true })
       return false
     case "syncThreads":

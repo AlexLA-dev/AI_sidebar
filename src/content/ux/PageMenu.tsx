@@ -1,5 +1,6 @@
 // The panel header's "…" (2.5, the director's layout): where Settings was. "Come back later…" (a reminder on this
-// page; watching it joins there later) and Settings; more actions on the page go here too.
+// page; watching it joins there), "Reminders" (with how many are active) and Settings; more actions on the page go
+// here too.
 
 import type { VNode } from "preact"
 import { useEffect, useRef } from "preact/hooks"
@@ -8,7 +9,13 @@ import { t } from "../../shared/i18n"
 import { Bell } from "./MessageUx"
 import * as Icon from "../icons"
 
-export function PageMenu({ onLater, onSettings, onClose }: { onLater: () => void; onSettings: () => void; onClose: () => void }): VNode {
+export function PageMenu({ reminders, onLater, onReminders, onSettings, onClose }: {
+  reminders: number
+  onLater: () => void
+  onReminders: () => void
+  onSettings: () => void
+  onClose: () => void
+}): VNode {
   const ref = useRef<HTMLDivElement>(null)
   useEffect(() => {
     const away = (e: Event) => {
@@ -31,6 +38,7 @@ export function PageMenu({ onLater, onSettings, onClose }: { onLater: () => void
   return (
     <div ref={ref} class="cf-msg-menu cf-page-menu" role="menu">
       <button type="button" role="menuitem" onClick={onLater}><Bell size={15} /> {t("uxLater")}</button>
+      <button type="button" role="menuitem" onClick={onReminders}><Icon.List /> {reminders > 0 ? t("uxRemindersN", reminders) : t("uxReminders")}</button>
       <button type="button" role="menuitem" onClick={onSettings}><Icon.Gear /> {t("settings")}</button>
     </div>
   )

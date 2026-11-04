@@ -1209,21 +1209,14 @@ test("an answer with the user's own key is only reported: the answer limit isn't
   assert.equal(events.find((e) => e.kind === "chat")?.data.weight, undefined)
 })
 
-test("Come back later events keep only their lists' values and counts, never an address or text", async () => {
+test("a page reminder from \"Come back later\" is counted as how: later; the menu, the window and watching aren't ux_* kinds", async () => {
   const send = (body: Record<string, unknown>) => event(post("/api/v2/event", body), ctx())
   events = []
-  await send({ kind: "ux_menu", installId: INSTALL, action: "later" })
-  await send({ kind: "ux_later", installId: INSTALL, action: "opened", n_remind: 3, n_watch: 2, surface: "app", text: "secret" })
-  await send({ kind: "ux_later", installId: INSTALL, action: "opened", n_remind: "2", n_watch: 1.5 })
-  // Watching counts its own through the analytics registry: not here.
-  assert.equal((await send({ kind: "ux_watch", installId: INSTALL, action: "met" })).status, 400)
-  await send({ kind: "ux_remind", installId: INSTALL, action: "set", what: "page", how: "later", preset: "evening" })
+  await send({ kind: "ux_remind", installId: INSTALL, action: "set", what: "page", how: "later", preset: "evening", text: "secret" })
   await new Promise((r) => setTimeout(r, 0))
-  const by = (kind: string) => events.filter((e) => e.kind === kind).map((e) => e.data)
-  assert.equal(by("ux_menu")[0].action, "later")
-  assert.deepEqual([by("ux_later")[0].n_remind, by("ux_later")[0].n_watch, by("ux_later")[0].surface], [3, 2, "app"])
-  // The app sends counts as strings; a count that isn't a whole number is left out.
-  assert.deepEqual([by("ux_later")[1].n_remind, by("ux_later")[1].n_watch], [2, undefined])
-  assert.deepEqual([by("ux_remind")[0].how, by("ux_remind")[0].preset], ["later", "evening"])
+  const remind = events.find((e) => e.kind === "ux_remind")!.data
+  assert.deepEqual([remind.how, remind.preset], ["later", "evening"])
   assert.ok(!JSON.stringify(events).includes("secret"))
+  // The analytics registry's "use" kind counts them (PR #32).
+  for (const kind of ["ux_menu", "ux_later", "ux_watch"]) assert.equal((await send({ kind, installId: INSTALL, action: "opened" })).status, 400)
 })
