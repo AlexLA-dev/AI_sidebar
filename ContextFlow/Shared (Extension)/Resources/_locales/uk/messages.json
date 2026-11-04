@@ -203,6 +203,12 @@
  "uxMore": {
   "message": "Ще"
  },
+ "uxLater": {
+  "message": "Повернутися пізніше…"
+ },
+ "uxLaterTitle": {
+  "message": "Повернутися пізніше"
+ },
  "uxRemind": {
   "message": "Нагадати"
  },
@@ -211,6 +217,9 @@
  },
  "uxRemindTitle": {
   "message": "Коли нагадати?"
+ },
+ "uxRemindAsked": {
+  "message": "Ви просили нагадати: {0}"
  },
  "uxRemindHour": {
   "message": "За годину"
@@ -247,9 +256,6 @@
  },
  "uxTomorrow": {
   "message": "Завтра"
- },
- "uxRemindPage": {
-  "message": "Нагадати повернутися"
  },
  "uxRemindSaved": {
   "message": "Нагадування: {0}"

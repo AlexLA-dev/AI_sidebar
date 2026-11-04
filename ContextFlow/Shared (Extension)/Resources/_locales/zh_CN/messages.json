@@ -203,6 +203,12 @@
  "uxMore": {
   "message": "更多"
  },
+ "uxLater": {
+  "message": "稍后再看…"
+ },
+ "uxLaterTitle": {
+  "message": "稍后再看"
+ },
  "uxRemind": {
   "message": "提醒我"
  },
@@ -211,6 +217,9 @@
  },
  "uxRemindTitle": {
   "message": "什么时候提醒你？"
+ },
+ "uxRemindAsked": {
+  "message": "你让我提醒你：{0}"
  },
  "uxRemindHour": {
   "message": "1 小时后"
@@ -247,9 +256,6 @@
  },
  "uxTomorrow": {
   "message": "明天"
- },
- "uxRemindPage": {
-  "message": "提醒我回到这里"
  },
  "uxRemindSaved": {
   "message": "提醒：{0}"

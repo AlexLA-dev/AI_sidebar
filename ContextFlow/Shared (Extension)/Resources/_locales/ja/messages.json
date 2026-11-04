@@ -203,6 +203,12 @@
  "uxMore": {
   "message": "その他"
  },
+ "uxLater": {
+  "message": "あとで戻る…"
+ },
+ "uxLaterTitle": {
+  "message": "あとで戻る"
+ },
  "uxRemind": {
   "message": "リマインド"
  },
@@ -211,6 +217,9 @@
  },
  "uxRemindTitle": {
   "message": "いつリマインドしますか？"
+ },
+ "uxRemindAsked": {
+  "message": "リマインドのご依頼：{0}"
  },
  "uxRemindHour": {
   "message": "1時間後"
@@ -247,9 +256,6 @@
  },
  "uxTomorrow": {
   "message": "明日"
- },
- "uxRemindPage": {
-  "message": "ここに戻るようリマインド"
  },
  "uxRemindSaved": {
   "message": "リマインド：{0}"

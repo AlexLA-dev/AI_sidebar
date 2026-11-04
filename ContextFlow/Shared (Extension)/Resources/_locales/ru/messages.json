@@ -203,6 +203,12 @@
  "uxMore": {
   "message": "Ещё"
  },
+ "uxLater": {
+  "message": "Вернуться позже…"
+ },
+ "uxLaterTitle": {
+  "message": "Вернуться позже"
+ },
  "uxRemind": {
   "message": "Напомнить"
  },
@@ -211,6 +217,9 @@
  },
  "uxRemindTitle": {
   "message": "Когда напомнить?"
+ },
+ "uxRemindAsked": {
+  "message": "Вы просили напомнить: {0}"
  },
  "uxRemindHour": {
   "message": "Через час"
@@ -247,9 +256,6 @@
  },
  "uxTomorrow": {
   "message": "Завтра"
- },
- "uxRemindPage": {
-  "message": "Напомнить вернуться"
  },
  "uxRemindSaved": {
   "message": "Напоминание: {0}"

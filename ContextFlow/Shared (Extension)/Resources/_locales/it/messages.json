@@ -203,6 +203,12 @@
  "uxMore": {
   "message": "Altro"
  },
+ "uxLater": {
+  "message": "Tornare più tardi…"
+ },
+ "uxLaterTitle": {
+  "message": "Tornare più tardi"
+ },
  "uxRemind": {
   "message": "Ricordamelo"
  },
@@ -211,6 +217,9 @@
  },
  "uxRemindTitle": {
   "message": "Quando te lo ricordo?"
+ },
+ "uxRemindAsked": {
+  "message": "Mi hai chiesto di ricordartelo: {0}"
  },
  "uxRemindHour": {
   "message": "Tra un’ora"
@@ -247,9 +256,6 @@
  },
  "uxTomorrow": {
   "message": "Domani"
- },
- "uxRemindPage": {
-  "message": "Ricordami di tornarci"
  },
  "uxRemindSaved": {
   "message": "Promemoria: {0}"

@@ -203,6 +203,12 @@
  "uxMore": {
   "message": "More"
  },
+ "uxLater": {
+  "message": "Come back later…"
+ },
+ "uxLaterTitle": {
+  "message": "Come back later"
+ },
  "uxRemind": {
   "message": "Remind me"
  },
@@ -211,6 +217,9 @@
  },
  "uxRemindTitle": {
   "message": "When should I remind you?"
+ },
+ "uxRemindAsked": {
+  "message": "You asked to be reminded: {0}"
  },
  "uxRemindHour": {
   "message": "In an hour"
@@ -247,9 +256,6 @@
  },
  "uxTomorrow": {
   "message": "Tomorrow"
- },
- "uxRemindPage": {
-  "message": "Remind me to come back"
  },
  "uxRemindSaved": {
   "message": "Reminder: {0}"
