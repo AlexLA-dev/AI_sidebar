@@ -45,3 +45,61 @@ test("sites with their own / menu use //", () => {
   assert.equal(typedPhrase("///thx", "//"), null)
   assert.deepEqual(typedPhrase(";;thx", ";;"), { phrase: "thx", length: 5 })
 })
+
+// The director's 2.5 audit: "/" on ordinary typing.
+import { codeField, phraseWorthLooking } from "../src/content/insert/trigger.ts"
+import { searchTemplates, titleStarts } from "../src/shared/templates.ts"
+import { parseHTML } from "linkedom"
+
+const worth = (before: string) => {
+  const typed = typedPhrase(before, "/")
+  return Boolean(typed && typed.phrase && phraseWorthLooking(typed.phrase, before))
+}
+
+test("ordinary typing with a slash doesn't look anything up", () => {
+  assert.equal(worth("/* see the docs"), false)
+  assert.equal(worth("Totally a great idea /s"), false)
+  assert.equal(worth("cd /u"), false)
+  assert.equal(worth("cd /us"), false)
+  assert.equal(worth("sudo vim /etc"), false)
+  assert.equal(worth("git add -A /src"), false)
+  assert.equal(worth("Hi /1x"), false)
+  // A phrase of two letters or more, after ordinary words, still does.
+  assert.equal(worth("Hi /th"), true)
+  assert.equal(worth("/перен"), true)
+  assert.equal(worth("Line\n/wifi"), true)
+  assert.equal(worth("/会议"), true)
+})
+
+test("code editors and code blocks: a slash is code", () => {
+  const { document } = parseHTML(`<div class="cm-editor"><div id="a" contenteditable="true"></div></div><pre><code id="b"></code></pre><textarea id="c"></textarea>`)
+  assert.equal(codeField(document.getElementById("a")!), true)
+  assert.equal(codeField(document.getElementById("b")!), true)
+  assert.equal(codeField(document.getElementById("c")!), false)
+})
+
+test("more sites with their own / menu: GitHub, GitLab, WordPress, Teams", () => {
+  for (const host of ["github.com", "gitlab.com", "gitlab.acme.org", "wordpress.com", "teams.microsoft.com"]) assert.equal(siteHasSlashMenu(host), true, host)
+  assert.equal(siteHasSlashMenu("blog.acme.org", "/wp-admin/post.php"), true)
+  assert.equal(signFor("blog.acme.org", "/", "/wp-admin/post-new.php"), "//")
+  assert.equal(signFor("blog.acme.org", "/", "/2026/11/hello"), "/")
+})
+
+const tpl = (id: string, title: string, keywords: string[], text: string) =>
+  ({ id, title, keywords, text, createdAt: 1, updatedAt: 1 }) as any
+const LIST = [tpl("a", "Thanks for your order", ["shipping"], "Hi {Name}, thanks! It ships on {date}."), tpl("b", "Early check-in", ["hotel"], "Sure, see you at {time}.")]
+const ctx = { host: "x.com", use: {}, now: 2 }
+
+test("a typed phrase finds templates by title and keywords, not by a word of their text", () => {
+  assert.deepEqual(searchTemplates(LIST, "see", ctx, 5, true).map((t) => t.id), [])
+  assert.deepEqual(searchTemplates(LIST, "see", ctx, 5).map((t) => t.id), ["b"], "the list's own search still reads the text")
+  assert.deepEqual(searchTemplates(LIST, "ship", ctx, 5, true).map((t) => t.id), ["a"])
+  assert.deepEqual(searchTemplates(LIST, "ear", ctx, 5, true).map((t) => t.id), ["b"])
+})
+
+test("a phrase that starts the title stands chosen (Tab takes it); a keyword match doesn't", () => {
+  assert.equal(titleStarts(LIST[1], "ear"), true)
+  assert.equal(titleStarts(LIST[1], "early ch"), true)
+  assert.equal(titleStarts(LIST[0], "ship"), false)
+  assert.equal(titleStarts(LIST[0], ""), false)
+})

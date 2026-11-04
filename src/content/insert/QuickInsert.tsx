@@ -6,7 +6,7 @@ import { siteExcluded, siteKey } from "../../shared/copied"
 import { t } from "../../shared/i18n"
 import type { InsertSettings, InsertVia } from "../../shared/insert"
 import { DEFAULT_INSERT_SETTINGS, type FindResult, type AiFailure } from "../../shared/insert"
-import { blanks, searchTemplates, type Template, type TemplateUse } from "../../shared/templates"
+import { blanks, searchTemplates, titleStarts, type Template, type TemplateUse } from "../../shared/templates"
 import type { Platform } from "../../shared/types"
 import type { ConsentStatus } from "../../shared/consent"
 import * as Icon from "../icons"
@@ -19,7 +19,7 @@ import { clearCopied, countUse, keepCopied, lastReply, loadCopied, loadInsertSet
 import { rememberField, setButtonShown, setPanelInserter } from "./target"
 import { TemplateEditor, type EditorStart } from "./TemplateEditor"
 import { BUTTON, buttonSpot, noButtonField, pagePointFree } from "./spot"
-import { signFor, typedPhrase } from "./trigger"
+import { codeField, phraseWorthLooking, signFor, siteMenuOpen, typedPhrase } from "./trigger"
 import { follow, placeByCaret, placeSheet } from "./place"
 import { caretRect, pageRect, viewport, watchFields } from "./watch"
 
@@ -173,9 +173,10 @@ export function QuickInsert(props: Props): VNode | null {
 
   const lookForPhrase = (f: Field) => {
     const current = updateCaret(f)
-    const typed = typedPhrase(textBeforeCaret(current), signFor(location.hostname, settingsRef.current.sign))
+    const before = textBeforeCaret(current)
+    const typed = codeField(f.el) ? null : typedPhrase(before, signFor(location.hostname, settingsRef.current.sign, location.pathname))
     const m = modeRef.current
-    if (!typed) {
+    if (!typed || (typed.phrase && !phraseWorthLooking(typed.phrase, before))) {
       dismissed.current = null
       if (m?.kind === "suggest") setMode(null)
       return
@@ -184,12 +185,19 @@ export function QuickInsert(props: Props): VNode | null {
     // Esc closed it for this phrase: not again until a new sign is typed.
     const start = textBeforeCaret(current).length - typed.length
     if (dismissed.current === start) return
-    const items = typed.phrase ? searchTemplates(templatesRef.current, typed.phrase, { host, use: useLive.current, now: Date.now() }, 5) : []
-    if (!items.length) {
+    const items = typed.phrase ? searchTemplates(templatesRef.current, typed.phrase, { host, use: useLive.current, now: Date.now() }, 5, true) : []
+    // The site opened its own menu at the caret (its "/" commands, an autocomplete): ours steps back.
+    if (!items.length || siteMenuOpen(f)) {
       if (m?.kind === "suggest") setMode(null)
       return
     }
-    setMode({ kind: "suggest", phrase: typed.phrase, length: typed.length, items, chosen: -1 })
+    // The first one stands chosen only when the phrase starts its title: then Tab takes it; otherwise Tab
+    // moves on to the next field as usual.
+    setMode({ kind: "suggest", phrase: typed.phrase, length: typed.length, items, chosen: titleStarts(items[0], typed.phrase) ? 0 : -1 })
+    // A site's menu may open a moment after the sign: look again then.
+    setTimeout(() => {
+      if (modeRef.current?.kind === "suggest" && siteMenuOpen(f)) setMode(null)
+    }, 200)
   }
 
   // The list's keys come before the page's editor: arrows, Tab, Enter (only when chosen), Esc.
@@ -205,9 +213,9 @@ export function QuickInsert(props: Props): VNode | null {
       const n = m.items.length
       const chosen = e.key === "ArrowDown" ? (m.chosen + 1) % n : (m.chosen - 1 + n) % n
       setMode({ ...m, chosen })
-    } else if (e.key === "Tab" && !e.shiftKey) {
+    } else if (e.key === "Tab" && !e.shiftKey && m.chosen >= 0) {
       stop()
-      insertTemplate(m.items[Math.max(0, m.chosen)], "slash", m.length)
+      insertTemplate(m.items[m.chosen], "slash", m.length)
     } else if (e.key === "Enter" && m.chosen >= 0) {
       stop()
       insertTemplate(m.items[m.chosen], "slash", m.length)
