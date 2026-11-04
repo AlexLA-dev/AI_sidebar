@@ -550,7 +550,8 @@ function TemplateRow({ tpl }: { tpl: Template }): VNode {
         <span class="cf-qi-title">{tpl.title}</span>
         <span class="cf-qi-text">{tpl.text.replace(/\s+/g, " ")}</span>
       </span>
-      {count > 0 && <span class="cf-qi-mark"><Icon.Sparkle size={11} /> {t("qiBlanksMark")}</span>}
+      {/* Blanks aren't AI's: braces, not the ✦ that marks AI in the product. */}
+      {count > 0 && <span class="cf-qi-mark">{"{ }"} {t("qiBlanksMark")}</span>}
     </>
   )
 }

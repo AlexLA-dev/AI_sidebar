@@ -376,7 +376,7 @@
   "qiMarkConsent": "Zum Markieren der Lücken sendet ContextFlow diesen Text an Claude von Anthropic. Nichts wird gespeichert.",
   "qiBlankHint": "Die Lücken werden beim Einfügen der Vorlage ausgefüllt.",
   "qiKeywords": "Suchwörter, durch Kommas getrennt",
-  "qiSave": "Sichern",
+  "qiSave": "Speichern",
   "qiDelete": "Löschen",
   "qiSetButton": "Taste neben Textfeldern",
   "qiSetCopiedHint": "Die letzten 5 auf Seiten kopierten Textstücke. Sie bleiben nur auf diesem Gerät und werden nach 24 Stunden gelöscht. Nichts aus Passwort- und Kartenfeldern und nichts im privaten Surfen.",
