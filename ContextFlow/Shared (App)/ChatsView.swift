@@ -1457,8 +1457,8 @@ struct ChatDetailView: View {
         let entry = thread.entries[index]
         let withQuestion = !entry.isUser && index > 0 && thread.entries[index - 1].isUser && !thread.entries[index - 1].isNote
         let range = (withQuestion ? index - 1 : index)...index
-        // The chat's last messages: deleted now, the chat would go with them and its row in the list would close
-        // this screen, Undo and all. So they're hidden here and deleted once the bar goes or the chat is left.
+        // The chat's last messages: deleted now, the chat would go with them, Undo and all. So they're hidden here
+        // and deleted once the bar goes (then back to the list, as after "Delete chat") or the chat is left.
         let whole = range.lowerBound == 0 && range.upperBound == thread.entries.count - 1
         let gone: (at: Int, entries: [[String: Any]])
         if whole, let raw = thread.organized?.entries, raw.indices.contains(range.upperBound) {
@@ -1473,9 +1473,10 @@ struct ChatDetailView: View {
         ChatAI.reportUx("ux_delete", ["action": "deleted", "what": entry.isNote ? "note" : "answer", "how": how])
         let shown = gone.at
         DispatchQueue.main.asyncAfter(deadline: .now() + 8) {
-            guard deleted?.at == shown else { return }
+            guard let gone = deleted, gone.at == shown else { return }
             finishDeleting()
             withAnimation { deleted = nil }
+            if gone.whole { dismiss() }
         }
     }
 
