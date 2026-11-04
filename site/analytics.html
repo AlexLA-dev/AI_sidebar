@@ -935,7 +935,7 @@ function render(data, fx) {
       rightLabel: outcomes ? "Люди: лимит в d0 · подписки" : undefined,
       note: outcomes
         ? `Правая ось. ${LIMIT_D0} ${PRO_BOUGHT} Нажмите на название в легенде, чтобы скрыть линию или столбики.`
-        : "Лимит в d0 и подписки появятся после миграции 20261104140000 (функция cf_new_user_outcomes)."
+        : "Лимит в d0 и подписки появятся после миграции 20261104150000 (функция cf_new_user_outcomes)."
     }),
     live((redraw) => onboardingPanels(data.onboarding, data.days, redraw)),
     table("Код −50% и первая оплата по дням", ["День (UTC)", "Подписались по коду −50%", "Первая оплата"],
