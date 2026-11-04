@@ -2551,7 +2551,6 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
 const runActionRef: { current: (a: Action) => void } = { current: () => undefined }
 
-
 /**
  * Above a question or note: "New page: …" on the chat's first page and whenever it moved to another one
  * (the title opens that page: its tab if it's open), with the day it came there and how long ago;
