@@ -18,15 +18,18 @@ export function ThreadMenu({ pinned, onPin, onRename, onTags, onDelete, onClose 
   onClose: () => void
 }): VNode {
   const ref = useRef<HTMLDivElement>(null)
-  // Under "…", or over it when the list has no room below (the last chats).
+  // Under "…"; over it when it doesn't fit below but does above (the last chats); else under it, with the list
+  // scrolled to show it (over it, the list's header would cover its first items).
   useLayoutEffect(() => {
     const el = ref.current
-    if (!el) return
+    const anchor = el?.parentElement?.getBoundingClientRect()
+    if (!el || !anchor) return
     const list = el.closest(".cf-threads")?.getBoundingClientRect()
-    const anchor = el.parentElement?.getBoundingClientRect()
-    const box = el.getBoundingClientRect()
-    const floor = list?.bottom ?? window.innerHeight
-    if (anchor && box.bottom > floor - 4) el.classList.add("up")
+    const height = el.getBoundingClientRect().height
+    const below = (list?.bottom ?? window.innerHeight) - anchor.bottom - 8
+    const above = anchor.top - (list?.top ?? 0) - 8
+    if (height > below && height <= above) el.classList.add("up")
+    else if (height > below) el.scrollIntoView({ block: "nearest" })
   }, [])
   useEffect(() => {
     const away = (_: Event, path: EventTarget[]) => {
