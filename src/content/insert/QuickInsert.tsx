@@ -468,7 +468,7 @@ export function QuickInsert(props: Props): VNode | null {
       )}
 
       {toast && (
-        <div class="cf-qi-toast" role="status" style={{ top: `${vp.dy + vp.height - 64}px` }}>
+        <div class="cf-qi-toast cf-snack" role="status" style={{ top: `${vp.dy + vp.height - 64}px` }}>
           <Icon.Copy /> {toast}
         </div>
       )}
@@ -512,7 +512,7 @@ function Tip({ at, fieldTop, onClose }: { at: { top: number; left: number }; fie
     })
   }, [at.top, at.left, fieldTop])
   return (
-    <div ref={ref} class="cf-qi-tip" role="status" style={{ top: `${pos.top}px`, left: `${pos.left}px` }} onClick={onClose}>
+    <div ref={ref} class="cf-qi-tip cf-snack" role="status" style={{ top: `${pos.top}px`, left: `${pos.left}px` }} onClick={onClose}>
       {t("qiTip")}
     </div>
   )
@@ -718,7 +718,7 @@ function InsertList(p: ListProps): VNode {
               <span class="cf-qi-text">{c.text.replace(/\s+/g, " ")}</span>
               <span class="cf-qi-meta">{c.host || "ContextFlow"} · {ago(c.at)}</span>
             </span>
-            <button type="button" class="cf-qi-act" aria-label={t("qiToTemplate")} title={t("qiToTemplate")} onClick={(e) => { e.stopPropagation(); p.onPin(c) }}><QIcon.Pin /></button>
+            <button type="button" class="cf-qi-act" aria-label={t("qiToTemplate")} title={t("qiToTemplate")} onClick={(e) => { e.stopPropagation(); p.onPin(c) }}><QIcon.Template /></button>
           </div>
         ))}
 

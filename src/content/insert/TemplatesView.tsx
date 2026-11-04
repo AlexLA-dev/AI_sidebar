@@ -73,7 +73,7 @@ export function TemplatesView(p: Props): VNode {
                 <button type="button" class="cf-qi-act" aria-label={t("qiInsertIntoField")} title={t("qiInsertIntoField")} onClick={(e) => {
                   e.stopPropagation()
                   p.onInsert(tpl)
-                }}><QIcon.Cursor /></button>
+                }}><QIcon.Insert size={15} /></button>
               )}
             </div>
           ))}

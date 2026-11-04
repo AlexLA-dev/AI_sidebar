@@ -76,33 +76,38 @@ export function WatchSection(p: WatchSectionProps) {
           />
           <p class="cf-watch-note">{t("watchHonest")}</p>
           {state.at === "failed" && <p class="cf-watch-msg">{t("watchFailed")}</p>}
-          {state.at === "full" && (
-            <>
-              <p class="cf-watch-msg">{state.paid ? t("watchFull", state.limit) : t("watchFullFree", state.limit, WATCH_LIMIT.paid)}</p>
-              {!state.paid && (
-                <button type="button" class="cf-watch-alt" onClick={() => void send({ type: "openApp", target: "subscribe" })}>{t("watchMore")}</button>
-              )}
-            </>
+          {state.at === "full" && <p class="cf-watch-msg">{state.paid ? t("watchFull", state.limit) : t("watchFullFree", state.limit, WATCH_LIMIT.paid)}</p>}
+          {/* The section's main button stays in view over the question field (chat UX's sheet row). With every
+              watch taken, Pro is the way on (Free) or there's nothing to press (Pro). */}
+          {state.at === "full" ? (
+            !state.paid && (
+              <div class="cf-sheet-actions">
+                <button type="button" class="cf-primary" onClick={() => void send({ type: "openApp", target: "subscribe" })}>{t("watchMore")}</button>
+              </div>
+            )
+          ) : (
+            <div class="cf-sheet-actions">
+              <button type="button" class="cf-primary" disabled={state.at === "checking" || !condition.trim()} onClick={() => void start()}>
+                {state.at === "checking" ? t("watchChecking") : t("watchStart")}
+              </button>
+            </div>
           )}
-          <button type="button" class="cf-watch-go" disabled={state.at === "checking" || !condition.trim()} onClick={() => void start()}>
-            {state.at === "checking" ? t("watchChecking") : t("watchStart")}
-          </button>
         </>
       )}
       {state.at === "unreadable" && (
         <>
           <p class="cf-watch-msg">{t("watchUnreadable")}</p>
-          <div class="cf-watch-row">
-            <button type="button" class="cf-watch-go" onClick={() => void save(state.prepared, true)}>{t("watchLiveOk")}</button>
-            {p.remind && <button type="button" class="cf-watch-alt" onClick={p.remind}>{t("watchRemindInstead")}</button>}
+          <div class="cf-sheet-actions">
+            <button type="button" class="cf-primary" onClick={() => void save(state.prepared, true)}>{t("watchLiveOk")}</button>
+            {p.remind && <button type="button" class="cf-secondary" onClick={p.remind}>{t("watchRemindInstead")}</button>}
           </div>
         </>
       )}
       {state.at === "set" && (
         <>
           <p class="cf-watch-msg cf-watch-ok">{t(state.live ? "watchSetLive" : "watchSet")}</p>
-          {state.notify === "denied" && <p class="cf-watch-note">{t("watchNotifyOff")}</p>}
-          {state.notify === "not-asked" && <p class="cf-watch-note">{t("watchNotifyAsk")}</p>}
+          {/* Asked in Safari at "Watch", as Remind asks; turned off: the one text Remind shows too. */}
+          {state.notify === "denied" && <p class="cf-watch-note">{t("uxRemindOff")}</p>}
         </>
       )}
     </section>
