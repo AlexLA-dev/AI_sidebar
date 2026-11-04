@@ -80,13 +80,15 @@ export function RemindChip({ at, onClick }: { at: number; onClick: () => void })
  * In the panel it sits right above the question field (on iPhone, Safari's bar covers the panel's very
  * bottom); `page`: over the page (the bell by a selection, with the panel closed).
  */
-export function RemindSheet({ current, note, page = false, title, later = false, children, onPick, onCancel, onClose }: {
+export function RemindSheet({ current, note, page = false, title, later = false, flash = 0, children, onPick, onCancel, onClose }: {
   current?: number
   note?: string | null
   page?: boolean
   // "Come back later" (later.ts): the window's title over Remind, no "in an hour", and the sections added there.
   title?: string
   later?: boolean
+  // Changes when Remind should come into view and flash (LaterContext.remind).
+  flash?: number
   children?: ComponentChildren
   onPick: (at: number, preset: "hour" | "evening" | "morning" | "week" | "custom") => void
   onCancel: () => void
@@ -94,6 +96,15 @@ export function RemindSheet({ current, note, page = false, title, later = false,
 }): VNode {
   const [custom, setCustom] = useState<string | null>(null)
   const back = useRef<HTMLDivElement>(null)
+  const remindTitle = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const el = remindTitle.current
+    if (!flash || !el) return
+    el.scrollIntoView({ block: "nearest", behavior: "smooth" })
+    el.classList.remove("flash")
+    void el.offsetWidth
+    el.classList.add("flash")
+  }, [flash])
   useLayoutEffect(() => {
     const el = back.current
     if (!el || page) return
@@ -104,7 +115,7 @@ export function RemindSheet({ current, note, page = false, title, later = false,
     <div ref={back} class={`cf-sheet-back ${page ? "page" : ""}`} onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div class="cf-sheet" role="dialog" aria-label={title ?? t("uxRemindTitle")}>
         {title && <div class="cf-sheet-head">{title}</div>}
-        <div class="cf-sheet-title"><Bell size={16} /> {t(later ? "uxRemind" : "uxRemindTitle")}</div>
+        <div ref={remindTitle} class="cf-sheet-title"><Bell size={16} /> {t(later ? "uxRemind" : "uxRemindTitle")}</div>
         {remindPresets().filter((p) => !later || p.key !== "uxRemindHour").map((p) => (
           <button type="button" key={p.key} class="cf-sheet-row" onClick={() => onPick(p.at, PRESET[p.key])}>
             <span>{t(p.key)}</span>

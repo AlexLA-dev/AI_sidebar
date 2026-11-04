@@ -334,6 +334,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // opens the page).
   // "Come back later" (the header's "…", or watching offering a reminder instead, later.ts): what was selected then.
   const [later, setLater] = useState<{ selection: SelectionInfo | null; range: Range | null } | null>(null)
+  const [laterFlash, setLaterFlash] = useState(0)
   useEffect(() => {
     setLaterOpener((from) => setLater({
       selection: from?.selection ? { text: from.selection, words: from.selection.split(/\s+/).filter(Boolean).length, rect: null, at: Date.now() } : null,
@@ -1458,11 +1459,16 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   /** The window: Remind (this evening, tomorrow morning, in a week, a date of one's own), then the sections added there. */
   const laterSheet = (page: boolean): VNode => {
     const from = later!
-    const ctx: LaterContext = { url: source.href(), key: source.key(), title: source.title(), selection: from.selection?.text ?? null, range: from.range, close: () => setLater(null) }
+    const ctx: LaterContext = {
+      url: source.href(), key: source.key(), title: source.title(), selection: from.selection?.text ?? null, range: from.range,
+      close: () => setLater(null),
+      remind: () => setLaterFlash((n) => n + 1)
+    }
     return (
       <RemindSheet
         page={page}
         later
+        flash={laterFlash}
         title={t("uxLaterTitle")}
         onPick={(at, preset) => {
           setLater(null)
