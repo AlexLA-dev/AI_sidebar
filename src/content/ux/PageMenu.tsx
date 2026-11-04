@@ -7,6 +7,7 @@ import { useEffect, useRef } from "preact/hooks"
 
 import { t } from "../../shared/i18n"
 import * as Icon from "../icons"
+import { onTapAway, throughClass } from "./away"
 
 export function PageMenu({ reminders, onLater, onReminders, onSettings, onClose }: {
   reminders: number
@@ -17,20 +18,18 @@ export function PageMenu({ reminders, onLater, onReminders, onSettings, onClose 
 }): VNode {
   const ref = useRef<HTMLDivElement>(null)
   useEffect(() => {
-    const away = (e: Event) => {
-      const path = e.composedPath()
-      // Its own "…" toggles it.
-      if (!path.includes(ref.current as EventTarget) && !path.some((el) => (el as Element).classList?.contains("cf-page-more"))) onClose()
-    }
+    const el = ref.current
+    if (!el) return
     const esc = (e: KeyboardEvent) => e.key === "Escape" && onClose()
-    // After this click is done.
+    let off = (): void => undefined
+    // After this click is done; its own "…" toggles it.
     const timer = setTimeout(() => {
-      document.addEventListener("pointerdown", away, true)
+      off = onTapAway(el, (path) => path.includes(el) || throughClass(path, "cf-page-more"), onClose)
       document.addEventListener("keydown", esc, true)
     }, 0)
     return () => {
       clearTimeout(timer)
-      document.removeEventListener("pointerdown", away, true)
+      off()
       document.removeEventListener("keydown", esc, true)
     }
   }, [onClose])
