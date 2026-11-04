@@ -130,7 +130,7 @@ struct RemindersView: View {
             .overlay {
                 if loaded && items.isEmpty {
                     VStack(spacing: 8) {
-                        Image(systemName: "bell").font(.largeTitle).foregroundColor(.secondary)
+                        Image(systemName: "list.bullet").font(.largeTitle).foregroundColor(.secondary)
                         Text("No reminders").font(.headline)
                         Text("Set one on an answer or a note, or on a page in Safari: … → Come back later.")
                             .font(.subheadline).foregroundColor(.secondary).multilineTextAlignment(.center)

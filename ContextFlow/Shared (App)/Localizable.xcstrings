@@ -257,6 +257,70 @@
         }
       }
     },
+    "Button by text fields": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Taste neben Textfeldern"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Botón junto a los campos de texto"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bouton près des champs de texte"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pulsante accanto ai campi di testo"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "テキストフィールドの横のボタン"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "텍스트 필드 옆 버튼"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Botão ao lado dos campos de texto"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Кнопка у текстовых полей"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Кнопка біля текстових полів"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "输入框旁的按钮"
+          }
+        }
+      }
+    },
     "Click the ContextFlow icon in the toolbar or press Control-Shift-E.": {
       "localizations": {
         "de": {
@@ -893,6 +957,70 @@
           "stringUnit": {
             "state": "translated",
             "value": "使用方法"
+          }
+        }
+      }
+    },
+    "Keep copied text": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopiertes behalten"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guardar lo copiado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Garder le texte copié"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conserva il testo copiato"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コピーしたテキストを保存"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "복사한 텍스트 보관"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guardar o texto copiado"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сохранять скопированное"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Зберігати скопійоване"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保留复制的文字"
           }
         }
       }
@@ -3325,6 +3453,70 @@
           "stringUnit": {
             "state": "translated",
             "value": "App Store 无法验证此次购买。请重试。"
+          }
+        }
+      }
+    },
+    "The last 5 pieces of text copied on pages. They stay on this device and are erased after 24 hours. Nothing from password or card fields, or in Private Browsing.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die letzten 5 auf Seiten kopierten Textstücke. Sie bleiben nur auf diesem Gerät und werden nach 24 Stunden gelöscht. Nichts aus Passwort- und Kartenfeldern und nichts im privaten Surfen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los últimos 5 fragmentos copiados en páginas. Se quedan solo en este dispositivo y se borran a las 24 horas. Nada de campos de contraseña o tarjeta, ni en la navegación privada."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les 5 derniers textes copiés sur des pages. Ils restent uniquement sur cet appareil et sont effacés au bout de 24 heures. Rien des champs de mot de passe ou de carte, ni en navigation privée."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gli ultimi 5 testi copiati sulle pagine. Restano solo su questo dispositivo e vengono cancellati dopo 24 ore. Niente dai campi di password o carta, né in navigazione privata."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ページでコピーした最新5件のテキスト。このデバイスにだけ保存され、24時間後に消去されます。パスワードやカードの欄、プライベートブラウズでは保存しません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페이지에서 복사한 최근 5개 텍스트. 이 기기에만 보관되며 24시간 후 지워집니다. 암호나 카드 필드, 개인정보 보호 브라우징에서는 보관하지 않습니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os 5 últimos trechos copiados em páginas. Ficam só neste dispositivo e são apagados depois de 24 horas. Nada de campos de senha ou cartão, nem na navegação privada."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Последние 5 фрагментов, скопированных на страницах. Хранятся только на этом устройстве и стираются через 24 часа. Ничего из полей паролей и карт и в режиме «Частный доступ»."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Останні 5 фрагментів, скопійованих на сторінках. Зберігаються лише на цьому пристрої й стираються через 24 години. Нічого з полів паролів і карток та в режимі «Приватний доступ»."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "网页上最近复制的 5 段文字。只保存在此设备上，24 小时后清除。不保存密码或卡号输入框中的内容，无痕浏览时也不保存。"
           }
         }
       }
