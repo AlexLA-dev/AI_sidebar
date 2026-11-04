@@ -340,6 +340,7 @@
   "qiOnIpad": "iPad",
   "qiOnMac": "Mac",
   "qiOnDevice": "устройстве",
+  "qiHideButtonOnSite": "Скрыть кнопку на {0}",
   "qiDontKeepOnSite": "Не сохранять на {0}",
   "qiKeepOnSite": "Снова сохранять на {0}",
   "qiTip": "Новое: касание вставит скопированное на других вкладках, шаблон или ответ ContextFlow.",

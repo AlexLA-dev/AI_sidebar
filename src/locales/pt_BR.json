@@ -340,6 +340,7 @@
   "qiOnIpad": "iPad",
   "qiOnMac": "Mac",
   "qiOnDevice": "dispositivo",
+  "qiHideButtonOnSite": "Ocultar o botão em {0}",
   "qiDontKeepOnSite": "Não guardar em {0}",
   "qiKeepOnSite": "Voltar a guardar em {0}",
   "qiTip": "Novidade: um toque insere o que você copiou em outras abas, um modelo ou a resposta do ContextFlow.",

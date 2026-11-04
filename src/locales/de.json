@@ -340,6 +340,7 @@
   "qiOnIpad": "iPad",
   "qiOnMac": "Mac",
   "qiOnDevice": "Gerät",
+  "qiHideButtonOnSite": "Taste auf {0} ausblenden",
   "qiDontKeepOnSite": "Auf {0} nicht behalten",
   "qiKeepOnSite": "Auf {0} wieder behalten",
   "qiTip": "Neu: Tippen fügt ein, was du in anderen Tabs kopiert hast, eine Vorlage oder die Antwort von ContextFlow.",

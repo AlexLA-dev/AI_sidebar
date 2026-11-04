@@ -340,6 +340,7 @@
   "qiOnIpad": "iPad",
   "qiOnMac": "Mac",
   "qiOnDevice": "пристрої",
+  "qiHideButtonOnSite": "Сховати кнопку на {0}",
   "qiDontKeepOnSite": "Не зберігати на {0}",
   "qiKeepOnSite": "Знову зберігати на {0}",
   "qiTip": "Нове: дотик вставить скопійоване на інших вкладках, шаблон або відповідь ContextFlow.",

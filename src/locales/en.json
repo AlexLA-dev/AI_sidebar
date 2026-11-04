@@ -340,6 +340,7 @@
   "qiOnIpad": "iPad",
   "qiOnMac": "Mac",
   "qiOnDevice": "device",
+  "qiHideButtonOnSite": "Hide the button on {0}",
   "qiDontKeepOnSite": "Don't keep on {0}",
   "qiKeepOnSite": "Keep on {0} again",
   "qiTip": "New: tap to insert what you copied in other tabs, a template or ContextFlow's answer.",
