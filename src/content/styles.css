@@ -479,6 +479,8 @@
 @keyframes cf-hint { from { transform: translateY(4px); opacity: 0; } to { transform: none; opacity: 1; } }
 .cf-send:disabled { background: var(--bg-3) !important; color: var(--text-3) !important; opacity: 1; }
 .cf-usage { display: flex; align-items: center; gap: 10px; padding: 6px 4px 0; font-size: 12px; color: var(--text-3); }
+/* "Long page: answer ×3" by the field (2.5): one line, before the question goes. */
+.cf-weight-note { padding: 0 4px 6px; font-size: 12px; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cf-usage-text { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cf-whole { flex-shrink: 0; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; cursor: pointer; color: var(--text-2); -webkit-user-select: none; user-select: none; }
 .cf-whole input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }

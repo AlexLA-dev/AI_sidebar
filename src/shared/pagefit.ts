@@ -66,3 +66,14 @@ export function fitBodyBytes(text: string, maxBytes = MAX_PAGE_BODY_BYTES): stri
   }
   return out
 }
+
+/**
+ * How many answers a question counts as (the owner's rule, 2.5): one for every WEIGHT_CHARS characters the model
+ * gets about the page (with its PDFs and video transcript), at least one. The server decides (weight.mts); the
+ * panel shows the same number by its field before the question is sent.
+ */
+export const WEIGHT_CHARS = 200_000
+
+export function answerWeight(chars: number): number {
+  return Math.max(1, Math.ceil(chars / WEIGHT_CHARS))
+}

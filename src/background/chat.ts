@@ -53,8 +53,8 @@ export async function askServer(req: ServerRequest, emit: Emit, signal: AbortSig
   clearTimeout(timer)
 
   if (!res.ok || !res.body) {
-    const body = (await res.json().catch(() => ({}))) as { code?: ErrorCode; usage?: Usage; plan?: Plan; message?: string; offer?: ProOffer | null }
-    emit({ type: "error", code: body.code ?? (res.status >= 500 ? "UPSTREAM" : "BAD_REQUEST"), usage: body.usage ?? null, plan: body.plan, message: body.message, offer: body.offer ?? null })
+    const body = (await res.json().catch(() => ({}))) as { code?: ErrorCode; usage?: Usage; plan?: Plan; message?: string; offer?: ProOffer | null; weight?: number }
+    emit({ type: "error", code: body.code ?? (res.status >= 500 ? "UPSTREAM" : "BAD_REQUEST"), usage: body.usage ?? null, plan: body.plan, message: body.message, offer: body.offer ?? null, ...(typeof body.weight === "number" ? { weight: body.weight } : {}) })
     return
   }
 

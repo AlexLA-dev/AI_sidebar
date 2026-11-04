@@ -21,6 +21,8 @@ export interface Counter {
   subject: string
   period: "day" | "week"
   limit: number | null
+  // How many answers this one counts as (a long page, weight.mts); 1 when absent.
+  amount?: number
 }
 
 export interface CounterState extends Counter {

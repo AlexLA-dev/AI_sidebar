@@ -39,6 +39,8 @@ export interface PageSource {
   pending(): "video" | "pdf" | null
   /** The page as it is now, quickly (for notes: title and a fingerprint of the text). */
   quick(): { title: string; text: string }
+  /** How long the text a question would send is (a long page counts as several answers, 2.5). */
+  length(): number
   /** Everything a question goes with (`withMedia`: the video and PDFs too, else only noted as skipped). */
   read(withMedia: boolean): Promise<PageRead>
 }
@@ -170,6 +172,7 @@ export function tabSource(readPdf: (url: string) => Promise<PdfResult | null>): 
       return hasCaptionTracks(document) ? "video" : null
     },
     quick: extractPage,
+    length: () => fitBodyBytes(extractPage(Infinity).text).length,
     read: (withMedia) => readTab(readPdf, withMedia)
   }
 }

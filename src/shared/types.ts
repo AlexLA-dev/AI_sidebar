@@ -117,7 +117,8 @@ export type StreamEvent =
   // Sent once before "done" for Google answers: the final text with citation links, and its sources.
   | { type: "grounding"; text: string; grounding: Grounding }
   | { type: "done"; usage: Usage | null }
-  | { type: "error"; code: ErrorCode; message?: string; usage?: Usage | null; plan?: Plan; offer?: ProOffer | null }
+  // weight: the page is long and the answers left don't cover it (2.5).
+  | { type: "error"; code: ErrorCode; message?: string; usage?: Usage | null; plan?: Plan; offer?: ProOffer | null; weight?: number }
 
 export type ErrorCode =
   | "LIMIT_REACHED"
