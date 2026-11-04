@@ -1,0 +1,103 @@
+import Foundation
+import UserNotifications
+
+/// Page watch (2.5). The extension checks pages while Safari runs (src/background/watch.ts) and keeps its
+/// watches; this side has two jobs:
+/// - the notification when a watch's condition comes true: a local one, right away, on this device (no
+///   server, no push), id `cf.watch.<id>`, `userInfo["watch"]` and `["open"]` (the page);
+/// - a copy of this device's watches for the app's list of reminders. A watch stopped in the app is gone from
+///   the list at once and from the extension on its next exchange (`sync` hands the stops back).
+/// Compiled into the app and the extension (App Group `group.com.contextflow.shared`).
+struct WatchEntry: Codable, Equatable, Identifiable {
+    var id: String
+    var title: String
+    var url: String
+    /// What is watched, a few words ("Size 42").
+    var label: String
+    var condition: String
+    var what: String
+    /// "bg": the extension checks it in the background; "live": when the page is opened.
+    var mode: String
+    /// The last check (ms since 1970).
+    var checkedAt: Double
+    /// When the condition came true (ms), and the value then.
+    var metAt: Double?
+    var metValue: String?
+}
+
+enum WatchStore {
+    static let prefix = "cf.watch."
+    private static let listKey = "cf.watches"
+    private static let stoppedKey = "cf.watchesStopped"
+    private static var defaults: UserDefaults { UserDefaults(suiteName: "group.com.contextflow.shared") ?? .standard }
+
+    // MARK: The list
+
+    /// The extension's watches now; back to it, the ones stopped in the app since its last exchange.
+    static func sync(_ raw: [[String: Any]]) -> [String] {
+        let stopped = defaults.stringArray(forKey: stoppedKey) ?? []
+        let entries = raw.compactMap(entry).filter { !stopped.contains($0.id) }
+        if let data = try? JSONEncoder().encode(entries) { defaults.set(data, forKey: listKey) }
+        defaults.removeObject(forKey: stoppedKey)
+        return stopped
+    }
+
+    static func entries() -> [WatchEntry] {
+        guard let data = defaults.data(forKey: listKey) else { return [] }
+        return (try? JSONDecoder().decode([WatchEntry].self, from: data)) ?? []
+    }
+
+    /// Stopped in the app.
+    static func stop(_ id: String) {
+        var stopped = defaults.stringArray(forKey: stoppedKey) ?? []
+        if !stopped.contains(id) { stopped.append(id) }
+        defaults.set(stopped, forKey: stoppedKey)
+        if let data = try? JSONEncoder().encode(entries().filter { $0.id != id }) { defaults.set(data, forKey: listKey) }
+        UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [prefix + id])
+    }
+
+    private static func entry(_ d: [String: Any]) -> WatchEntry? {
+        guard let id = d["id"] as? String, let url = d["url"] as? String else { return nil }
+        func ms(_ v: Any?) -> Double? { (v as? NSNumber)?.doubleValue }
+        return WatchEntry(
+            id: id, title: d["title"] as? String ?? "", url: url, label: d["label"] as? String ?? "",
+            condition: d["condition"] as? String ?? "", what: d["what"] as? String ?? "page",
+            mode: d["mode"] as? String ?? "bg", checkedAt: ms(d["checkedAt"]) ?? 0,
+            metAt: ms(d["metAt"]), metValue: d["metValue"] as? String
+        )
+    }
+
+    // MARK: The notification
+
+    enum Permission: String {
+        case ok
+        // Notifications are off for ContextFlow: the panel says so and how to turn them on.
+        case denied
+        // Never asked: only the app can show the system question.
+        case notAsked = "not-asked"
+    }
+
+    static func permission() async -> Permission {
+        switch await UNUserNotificationCenter.current().notificationSettings().authorizationStatus {
+        case .authorized, .provisional, .ephemeral: return .ok
+        case .notDetermined: return .notAsked
+        default: return .denied
+        }
+    }
+
+    /// "Changed: …", shown right away.
+    static func notify(id: String, title: String, body: String, open page: URL?) async -> Permission {
+        let allowed = await permission()
+        guard allowed == .ok else { return allowed }
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = body
+        content.sound = .default
+        content.threadIdentifier = "cf.watch"
+        var info: [String: Any] = ["watch": id]
+        if let page, page.scheme == "https" || page.scheme == "http" { info["open"] = page.absoluteString }
+        content.userInfo = info
+        try? await UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: prefix + id, content: content, trigger: nil))
+        return .ok
+    }
+}

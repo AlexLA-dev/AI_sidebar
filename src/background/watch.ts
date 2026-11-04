@@ -142,7 +142,7 @@ const hostOf = (url: string) => {
   }
 }
 
-async function save(draft: WatchDraft, prepared: WatchPrepared & { value?: string | null }, how: "bubble" | "later"): Promise<{ ok: boolean; id?: string; full?: boolean }> {
+async function save(draft: WatchDraft, prepared: WatchPrepared & { value?: string | null }, how: "bubble" | "later"): Promise<{ ok: boolean; id?: string; full?: boolean; notify?: string }> {
   const now = Date.now()
   const w: Watch = {
     id: crypto.randomUUID(),
@@ -175,7 +175,9 @@ async function save(draft: WatchDraft, prepared: WatchPrepared & { value?: strin
   void report({ action: "set", what: w.what, how, site: w.site, via: w.mode })
   await ensureAlarm()
   void syncApp()
-  return { ok: true, id: w.id }
+  // Whether "Changed: …" can show here: only the app can ask about notifications the first time.
+  const allowed = TARGET === "safari" ? (await callNative<{ outcome?: string }>("watch_permission", {}, 4_000))?.outcome : "ok"
+  return { ok: true, id: w.id, notify: allowed ?? "ok" }
 }
 
 async function cancel(id: string): Promise<void> {
