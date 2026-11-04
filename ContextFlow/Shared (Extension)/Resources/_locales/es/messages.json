@@ -212,6 +212,9 @@
  "uxMoreNote": {
   "message": "Más: nota"
  },
+ "uxMoreChat": {
+  "message": "Más: chat"
+ },
  "uxLater": {
   "message": "Volver más tarde…"
  },
@@ -244,6 +247,9 @@
  },
  "uxRemindChange": {
   "message": "Cambiar recordatorio"
+ },
+ "uxRemindOpen": {
+  "message": "Abrir"
  },
  "uxRemindTitle": {
   "message": "¿Cuándo te lo recuerdo?"

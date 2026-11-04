@@ -212,6 +212,9 @@
  "uxMoreNote": {
   "message": "その他：メモ"
  },
+ "uxMoreChat": {
+  "message": "その他：チャット"
+ },
  "uxLater": {
   "message": "あとで戻る…"
  },
@@ -244,6 +247,9 @@
  },
  "uxRemindChange": {
   "message": "リマインドを変更"
+ },
+ "uxRemindOpen": {
+  "message": "開く"
  },
  "uxRemindTitle": {
   "message": "いつリマインドしますか？"

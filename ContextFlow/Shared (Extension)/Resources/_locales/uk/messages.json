@@ -212,6 +212,9 @@
  "uxMoreNote": {
   "message": "Ще: нотатка"
  },
+ "uxMoreChat": {
+  "message": "Ще: чат"
+ },
  "uxLater": {
   "message": "Повернутися пізніше…"
  },
@@ -244,6 +247,9 @@
  },
  "uxRemindChange": {
   "message": "Змінити нагадування"
+ },
+ "uxRemindOpen": {
+  "message": "Відкрити"
  },
  "uxRemindTitle": {
   "message": "Коли нагадати?"

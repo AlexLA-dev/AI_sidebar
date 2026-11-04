@@ -1,7 +1,8 @@
 import { test } from "node:test"
 import assert from "node:assert/strict"
+import { readFileSync } from "node:fs"
 
-import { addMark, markedContent, marksLine, placeMarks, removeMark, starMarks } from "../src/shared/marks.ts"
+import { addMark, markedContent, markPieces, marksLine, placeMarks, removeMark, starMarks } from "../src/shared/marks.ts"
 
 test("addMark merges overlapping and touching highlights, keeps them in order", () => {
   const text = "Teams cut long meetings and kept their output."
@@ -71,4 +72,24 @@ test("the model gets an answer's highlights as <mark>; Ask your chats gets a Hig
   assert.match(digest.text, /\nHighlighted: «long meetings»/)
   assert.match(historyPrompt([digest], "", "en"), /A "Highlighted:" line/)
   assert.doesNotMatch(historyPrompt([{ ...digest, text: "Q: hi\nA: hello" }], "", "en"), /Highlighted/)
+})
+
+test("markPieces: a highlight across bold text or a link is pieces side by side, rounded only at its ends", () => {
+  // 2.5 (75): the pieces overlapped by their padding, and the overlap showed as darker yellow stripes.
+  // "a " | "different way" (bold) | " of work" — one highlight from 0 to 22.
+  const placed = [{ s: 0, e: 22, q: "a different way of work" }]
+  assert.deepEqual(markPieces(placed, 0, 2), [{ i: 0, s: 0, e: 2, first: true, last: false }])
+  assert.deepEqual(markPieces(placed, 2, 15), [{ i: 0, s: 0, e: 13, first: false, last: false }])
+  assert.deepEqual(markPieces(placed, 15, 30), [{ i: 0, s: 0, e: 7, first: false, last: true }])
+  // Two highlights in one text node, and nothing outside them.
+  assert.deepEqual(markPieces([{ s: 2, e: 4, q: "xx" }, { s: 6, e: 9, q: "yyy" }], 0, 10).map(({ s, e, first, last }) => [s, e, first, last]), [[2, 4, true, true], [6, 9, true, true]])
+  assert.deepEqual(markPieces(placed, 30, 40), [])
+})
+
+test("the highlight's style has no padding or overlap between its pieces", () => {
+  const css = readFileSync(new URL("../src/content/ux/ux.css", import.meta.url), "utf8")
+  const rule = /mark\.cf-mark \{([^}]*)\}/.exec(css)?.[1] ?? ""
+  assert.match(rule, /padding: 0;/)
+  assert.match(rule, /margin: 0;/)
+  assert.doesNotMatch(rule, /margin: 0 -1px/)
 })

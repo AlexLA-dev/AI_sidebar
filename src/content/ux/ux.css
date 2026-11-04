@@ -4,16 +4,18 @@
 .cf[data-theme="dark"] { --mark: rgba(250, 204, 21, 0.28); --mark-line: rgba(250, 204, 21, 0.5); --pin: #a78bfa; }
 @media (prefers-color-scheme: dark) { .cf:not([data-theme]) { --mark: rgba(250, 204, 21, 0.28); --mark-line: rgba(250, 204, 21, 0.5); --pin: #a78bfa; } }
 
-/* ---- highlights: a soft marker, like in a book */
+/* ---- highlights: a soft marker, like in a book. A highlight across bold text or a link is several <mark>s side by
+   side: no padding or overlap between them (2.5 (75): the overlap showed as darker stripes), rounded at its ends. */
 mark.cf-mark {
   background: linear-gradient(transparent 12%, var(--mark) 12%, var(--mark) 92%, transparent 92%);
   color: inherit;
-  border-radius: 2px;
-  padding: 0 1px;
-  margin: 0 -1px;
+  padding: 0;
+  margin: 0;
+  border-radius: 0;
   cursor: pointer;
-  -webkit-box-decoration-break: clone; box-decoration-break: clone;
 }
+mark.cf-mark-first { border-top-left-radius: 2px; border-bottom-left-radius: 2px; }
+mark.cf-mark-last { border-top-right-radius: 2px; border-bottom-right-radius: 2px; }
 
 /* ---- a bubble by a selection or a highlight in an answer */
 .cf-float {
@@ -28,24 +30,32 @@ mark.cf-mark {
 .cf-float.touch { padding: 5px; border-radius: 16px; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 .cf-float.touch button { padding: 9px 14px; font-size: 15px; border-radius: 12px; }
 
-/* ---- swipes */
+/* ---- swipes (Swipe.tsx moves the row and sets data-dragging, data-full, data-short while the finger is down) */
 .cf-swipe { position: relative; touch-action: pan-y; }
-.cf-swipe .cf-swipe-body { position: relative; background: var(--bg); will-change: transform; }
-.cf-swipe:not(.dragging) .cf-swipe-body { transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.cf-swipe > .cf-swipe-body { position: relative; background: var(--bg); }
+.cf-swipe[data-dragging] > .cf-swipe-body { will-change: transform; }
+.cf-swipe:not([data-dragging]) > .cf-swipe-body { transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1); }
 .cf-swipe pre, .cf-swipe .md-table, .cf-swipe .md-code { touch-action: auto; }
-.cf-swipe-under {
-  position: absolute; top: 0; bottom: 14px; display: flex; align-items: stretch; overflow: hidden; border-radius: 14px;
-}
-.cf-swipe-under.end { right: 0; justify-content: flex-end; }
-.cf-swipe-under.start { left: 0; justify-content: flex-start; }
+/* What's under the row, as tall as it: the colour, and the icon and its word where the row is on screen. */
+.cf-swipe-under { position: absolute; top: 0; bottom: 0; width: 0; overflow: hidden; border-radius: 14px; }
+.cf-swipe:not([data-dragging]) > .cf-swipe-under { transition: width 0.22s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.cf-swipe-under.end { right: 0; }
+.cf-swipe-under.start { left: 0; }
 .cf-swipe-under.delete { background: var(--danger); }
 .cf-swipe-under.pin { background: #7c3aed; }
 .cf-swipe-under button {
+  position: absolute; top: 0; height: 100%; width: 76px;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
-  min-width: 76px; padding: 0 10px; color: #fff; font-size: 12px; font-weight: 600;
+  color: #fff; font-size: 12px; font-weight: 600; white-space: nowrap;
 }
-.cf-swipe-under.full.end button { margin-right: auto; margin-left: 0; }
-.cf-swipe-under.full.start button { margin-left: auto; }
+.cf-swipe-under.end button { right: 0; }
+.cf-swipe-under.start button { left: 0; }
+/* Past the point where letting go acts: the icon follows the row's edge. */
+.cf-swipe-under.end[data-full] button { right: auto; left: 0; }
+.cf-swipe-under.start[data-full] button { left: auto; right: 0; }
+/* A row of one line: the icon and its word side by side. */
+.cf-swipe[data-short] .cf-swipe-under button { flex-direction: row; gap: 5px; width: auto; min-width: 76px; padding: 0 12px; }
+.cf-swipe[data-short] .cf-swipe-under button svg { width: 15px; height: 15px; }
 
 /* ---- the menu of a message (… in the tools row; right-click on a Mac) */
 .cf-msg-tools { position: relative; }
@@ -165,6 +175,30 @@ mark.cf-mark {
 .cf-later-empty { display: flex; flex-direction: column; gap: 4px; padding: 12px 10px 14px; font-size: 13px; color: var(--text-3); text-align: center; }
 .cf-later-empty strong { color: var(--text); font-size: 14px; }
 .cf[data-touch] .cf-later-title { font-size: 15px; }
+/* A reminder (2.5 (75)): what it's about, wrapped (a few lines; all of it once opened), and its actions when open. */
+.cf-later-item { border-radius: 10px; }
+/* The list never covers the whole chat: a strip stays above it to tap away, and ✕ closes it. */
+.cf-sheet.cf-later-list { max-height: calc(100% - 56px); }
+.cf-sheet-close { margin-left: auto; width: 34px; height: 34px; color: var(--text-3); }
+.cf-later-item.open { background: var(--bg-2); }
+.cf-later-row.remind, .cf-later-row.remind .cf-later-open { align-items: flex-start; }
+.cf-later-row.remind .cf-later-icon { margin-top: 2px; }
+.cf-later-row.remind .cf-later-cancel { margin-top: 4px; }
+.cf-later-row.remind .cf-later-title, .cf-later-question, .cf-later-body { white-space: normal; overflow-wrap: anywhere; }
+.cf-later-question { font-size: 13px; font-weight: 600; color: var(--text-2); }
+.cf-later-body { font-size: 13.5px; line-height: 1.4; color: var(--text-2); }
+/* Closed: a few lines. Only closed rows get the clamp (iOS Safari kept it on an opened one when it was reset). */
+.cf-later-item:not(.open) .cf-later-title,
+.cf-later-item:not(.open) .cf-later-question,
+.cf-later-item:not(.open) .cf-later-body { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.cf-later-item:not(.open) .cf-later-body { -webkit-line-clamp: 3; }
+.cf-later-item.open .cf-later-title { overflow: visible; text-overflow: clip; }
+.cf-later-item.open .cf-later-body { white-space: pre-line; }
+.cf[data-touch] .cf-later-body { font-size: 14.5px; }
+.cf-later-actions { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 8px 10px 33px; }
+.cf-later-actions .cf-chip { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; }
+.cf-later-actions .cf-chip.danger { color: var(--danger); }
+.cf-later-actions .cf-chip svg { flex-shrink: 0; }
 .cf-sheet-title { display: flex; align-items: center; gap: 7px; padding: 6px 8px 10px; font-size: 15px; font-weight: 600; }
 .cf-sheet-row { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 12px 10px; border-radius: 10px; font-size: 15px; color: var(--text); text-align: left; }
 .cf-sheet-row:hover { background: var(--bg-2); }
@@ -187,7 +221,15 @@ mark.cf-mark {
 /* A chat in the list: the swipe takes its row (title, tools). */
 .cf-thread .cf-thread-swipe { display: flex; align-items: stretch; flex: 1; min-width: 0; }
 .cf-thread .cf-thread-swipe > .cf-swipe-body { display: flex; align-items: center; flex: 1; min-width: 0; gap: 2px; }
-.cf-thread .cf-swipe-under { bottom: 0; border-radius: 10px; }
+.cf-thread .cf-swipe-under { border-radius: 10px; }
+/* Touch: one "…" on the row (ThreadMenu.tsx), its menu under it at the row's right edge. */
+.cf-thread-more-wrap { position: relative; display: flex; align-self: center; }
+.cf-thread-more { width: 40px; height: 40px; }
+.cf-thread-menu { left: auto; right: 0; z-index: 6; width: max-content; min-width: 200px; max-width: calc(100vw - 24px); }
+.cf-thread-menu button { white-space: nowrap; }
+.cf-thread-menu svg { width: 15px; height: 15px; flex-shrink: 0; }
+/* A row moved by a swipe never makes the list scroll sideways (2.5 (75): a scroll bar showed under the panel). */
+.cf-messages, .cf-threads { overflow-x: hidden; }
 
 /* "Reminder: Tomorrow 9:00" over the page ("Come back later" with the panel closed): .cf-snack's look, at quick
    insert's toast's height (64 px above the bottom of what's visible, set from visualViewport). */
