@@ -1091,7 +1091,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             // The panel slides away first: the field gets the caret back once it's visible again.
             setTimeout(() => insertFromPanel(text, m.note ? "note" : "answer"), layout === "sheet" ? 240 : 0)
           }}>
-            <QIcon.Cursor /> {t("qiInsertIntoField")}
+            <QIcon.Insert size={15} /> {t("qiInsertIntoField")}
           </button>
         )}
         <button type="button" onClick={async () => {

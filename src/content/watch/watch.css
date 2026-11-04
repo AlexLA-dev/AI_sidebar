@@ -11,14 +11,7 @@
 .cf-watch-note { margin: 0; font-size: 12px; line-height: 1.4; color: var(--text-3); }
 .cf-watch-msg { margin: 0; font-size: 13px; line-height: 1.45; color: var(--text); }
 .cf-watch-ok { color: var(--ok); }
-.cf-watch-row { display: flex; flex-wrap: wrap; gap: 8px; }
-.cf-watch-go, .cf-watch-alt {
-  align-self: flex-start; min-height: 36px; padding: 8px 14px; border-radius: 10px; border: 0;
-  font: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
-}
-.cf-watch-go { background: var(--accent); color: #fff; }
-.cf-watch-go:disabled { opacity: 0.5; cursor: default; }
-.cf-watch-alt { background: var(--accent-soft); color: var(--accent-text); }
+.cf-watch .cf-primary:disabled { opacity: 0.5; cursor: default; }
 /* The eye after Template: an icon on touch screens (the row stays one line), with a word on Mac. */
 .cf-bubble button.cf-sel-watch { color: var(--accent-text); }
 .cf-bubble button.cf-sel-watch svg { color: var(--accent); }
