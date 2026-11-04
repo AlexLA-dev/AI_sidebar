@@ -1,0 +1,20 @@
+/* Page watch (2.5): "Notify me when it changes" in the "Come back later…" window, and the eye by a selection. */
+.cf-watch { display: flex; flex-direction: column; gap: 8px; padding: 12px 0 4px; border-top: 1px solid var(--border); }
+.cf-watch-h { margin: 0; font-size: 15px; font-weight: 600; color: var(--text); }
+.cf-watch-l { font-size: 12px; color: var(--text-3); }
+.cf-watch-cond {
+  width: 100%; box-sizing: border-box; padding: 9px 11px; border: 1px solid var(--border); border-radius: 10px;
+  background: var(--bg-2); color: var(--text); font: inherit; font-size: 16px; outline: none;
+}
+.cf-watch-cond:focus { border-color: var(--accent); }
+.cf-watch-note { margin: 0; font-size: 12px; line-height: 1.4; color: var(--text-3); }
+.cf-watch-msg { margin: 0; font-size: 13px; line-height: 1.45; color: var(--text); }
+.cf-watch-ok { color: var(--ok); }
+.cf-watch-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.cf-watch-go, .cf-watch-alt {
+  align-self: flex-start; min-height: 36px; padding: 8px 14px; border-radius: 10px; border: 0;
+  font: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+}
+.cf-watch-go { background: var(--accent); color: #fff; }
+.cf-watch-go:disabled { opacity: 0.5; cursor: default; }
+.cf-watch-alt { background: var(--accent-soft); color: var(--accent-text); }

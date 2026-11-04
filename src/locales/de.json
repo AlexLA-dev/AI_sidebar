@@ -472,6 +472,7 @@
   "watchFull": "Sie beobachten schon {0} Seiten. Beenden Sie zuerst eine unter „Erinnerungen“.",
   "watchFailed": "Das hat nicht geklappt. Versuchen Sie es gleich noch einmal.",
   "watchNotifyOff": "Mitteilungen für ContextFlow sind aus. Schalten Sie sie in den Einstellungen ein, um von der Änderung zu erfahren.",
+  "watchNotifyAsk": "Öffnen Sie einmal die ContextFlow-App und erlauben Sie Mitteilungen, damit ich Ihnen die Änderung melden kann.",
   "watchRow": "Beobachte: {0} · geprüft {1}",
   "watchRowNew": "Beobachte: {0}",
   "watchRowLive": "Beobachte: {0} · ich prüfe, wenn Sie die Seite öffnen",
