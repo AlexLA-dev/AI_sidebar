@@ -34,8 +34,8 @@
   "promptGoogle": "Busca en Google la información más reciente sobre el tema de esta página y dame un resumen general.",
   "promptSelGoogle": "Busca en Google el texto seleccionado: qué es, con los datos clave.",
 
-  "placeholderPage": "Pregunta sobre esta página…",
-  "placeholderSelection": "Pregunta sobre la selección…",
+  "placeholderPage": "Pregunta sobre la página…",
+  "placeholderSelection": "Pregunta por la selección…",
   "placeholderNone": "Pregunta lo que quieras…",
   "placeholderGoogle": "Pregunta a Google…",
   "send": "Enviar",

@@ -34,9 +34,9 @@
   "promptGoogle": "Recherche sur Google les dernières informations sur le sujet de cette page et donne-moi une vue d’ensemble.",
   "promptSelGoogle": "Recherche le texte sélectionné sur Google : de quoi s’agit-il, avec les faits essentiels.",
 
-  "placeholderPage": "Posez une question sur cette page…",
-  "placeholderSelection": "Posez une question sur la sélection…",
-  "placeholderNone": "Demandez ce que vous voulez…",
+  "placeholderPage": "Question sur la page…",
+  "placeholderSelection": "Question sur la sélection…",
+  "placeholderNone": "Demandez n’importe quoi…",
   "placeholderGoogle": "Demander à Google…",
   "send": "Envoyer",
   "stop": "Arrêter",
