@@ -5,32 +5,13 @@
 
 import { TARGET } from "../../shared/config"
 import { t } from "../../shared/i18n"
-import { eyeFor, priceAround } from "../../shared/watch/detect"
 import { addBubbleAction, addLaterSection, addLaterSource } from "../ux/later"
+import { watchableAt } from "./at"
 import { Eye } from "./icons"
 import { watchSource } from "./list"
 import { EyeTip, LaterTip } from "./tips"
 import { WatchSection } from "./WatchSection"
 import { openWatchSheet } from "./WatchSheet"
-
-/** The selection's paragraph or row: what a date or a status is read with (its own words aren't enough). */
-function aroundOf(range: Range | null): string {
-  const node = range?.commonAncestorContainer ?? null
-  const el = node ? (node instanceof Element ? node : node.parentElement) : null
-  const block = el?.closest("p,li,td,th,dd,dt,tr,h1,h2,h3,h4,h5,h6,figcaption,label,section,article,div") ?? null
-  return (block?.textContent ?? "").replace(/\s+/g, " ").slice(0, 400)
-}
-
-// An event in the page's own markup (schema.org Event, an Offer that starts selling then): a date there counts.
-let markupFor = ""
-let markup = false
-function eventMarkup(): boolean {
-  if (markupFor === location.href) return markup
-  markupFor = location.href
-  markup = Array.from(document.querySelectorAll('script[type="application/ld+json"]')).some((s) =>
-    /"@type"\s*:\s*"(?:\w*Event|Festival)"|"(?:availabilityStarts|validFrom|startDate)"/.test(s.textContent ?? ""))
-  return markup
-}
 
 // Acts on pointerup, as the bubble's own buttons do: on iPhone the tap also clears the selection and the
 // click may never come; a keyboard still sends a click.
@@ -62,10 +43,9 @@ if (TARGET === "safari") {
   addLaterSource("watch", watchSource)
 
   addBubbleAction("watch", (ctx) => {
-    const around = aroundOf(ctx.range)
-    if (!eyeFor(ctx.selection, around, eventMarkup())) return null
     // A tap on "40" in "USD 40" selects only the number: the eye watches the price as the page writes it.
-    const value = priceAround(ctx.selection, around) ?? ctx.selection
+    const value = watchableAt(ctx.selection, ctx.range)?.value
+    if (!value) return null
     return (
       <button
         type="button"

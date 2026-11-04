@@ -56,6 +56,7 @@ import { starMarks } from "../shared/marks"
 import { Bell, More, remindLabel, RemindSheet } from "./ux/MessageUx"
 import { PageMenu } from "./ux/PageMenu"
 import { bubbleActions, laterSections, laterSources, pageRange, setLaterOpener, type BubbleContext, type LaterContext, type LaterItem } from "./ux/later"
+import { watchableAt } from "./watch/at"
 import { RemindersSheet } from "./ux/RemindersSheet"
 import { scheduleReminder, thisDevice, useMessageUx } from "./ux/useMessageUx"
 import { Tour, tourSteps } from "./Tour"
@@ -610,7 +611,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       const vv = window.visualViewport
       const top = vv?.offsetTop ?? 0
       const onScreen = Boolean(sel?.rect && sel.rect.bottom > top && sel.rect.top < top + (vv?.height ?? window.innerHeight))
-      setBubble(sel && onScreen && sel.words >= (touch ? MIN_SELECTION_WORDS : 3) ? sel : null)
+      // On a Mac a price or a status is a word or two: the bubble shows for it too, with watching's eye (Safari).
+      const enough = sel && (sel.words >= (touch ? MIN_SELECTION_WORDS : 3) || (TARGET === "safari" && Boolean(watchableAt(sel.text, pageRange(HOST_TAG)))))
+      setBubble(sel && onScreen && enough ? sel : null)
     }
     const onSelectionChange = () => {
       // Remember it right away: tapping our button on iPhone clears the selection.
