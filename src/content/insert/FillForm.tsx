@@ -160,7 +160,7 @@ export function FillForm(p: Props): VNode {
                 aria-label={part.blank}
                 size={Math.max(4, Math.min(40, (values[part.blank] || part.blank).length + 1))}
                 autoComplete="off"
-                onFocus={() => setPicking(values[part.blank]?.trim() ? null : part.blank)}
+                onFocus={(e) => setPicking(e.currentTarget.value.trim() ? null : part.blank)}
                 onInput={(e) => {
                   set(part.blank, e.currentTarget.value)
                   setPicking(e.currentTarget.value.trim() ? null : part.blank)
@@ -178,11 +178,16 @@ export function FillForm(p: Props): VNode {
             <div class="cf-qi-sec"><span>{t("qiPickCopied", picking)}</span></div>
             {copied.map((c) => (
               <button type="button" class="cf-qi-row" onClick={() => {
-                set(picking, c.text)
-                const i = labels.indexOf(picking)
+                const label = picking
+                set(label, c.text)
                 setPicking(null)
-                const next = labels.slice(i + 1).find((l) => !values[l]?.trim())
-                setTimeout(() => (next ? inputs.current[next]?.focus() : undefined), 0)
+                const el = inputs.current[label]
+                if (el) el.value = c.text
+                // In the tap itself (iOS raises the keyboard only then): the next empty blank, or, with a
+                // keyboard in use, this one again so Enter inserts.
+                const next = labels.slice(labels.indexOf(label) + 1).find((l) => !values[l]?.trim())
+                if (next) inputs.current[next]?.focus()
+                else if (!p.sheet || !p.touch) el?.focus()
               }}>
                 <span class="cf-qi-main"><span class="cf-qi-text">{c.text.replace(/\s+/g, " ")}</span></span>
               </button>
