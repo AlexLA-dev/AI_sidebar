@@ -5,6 +5,7 @@
 //   node scripts/build-extension.mjs --target=chrome → Chrome, written to build/chrome
 //   --watch  rebuild on change      --out=<dir>  custom output directory
 //   CF_API_BASE=https://…  point the build at another backend (default: production)
+//   CF_WATCH_EVERY_S=60    page watch checks a page every minute (test builds; default 15 minutes)
 //
 // Output layout (stable file names, so the Xcode project never needs edits):
 //   manifest.json  welcome.html  popup.html  dist/*.js  icons/*.png  _locales/<lang>/messages.json
@@ -100,6 +101,8 @@ const options = {
     __API_BASE__: JSON.stringify(apiBase),
     __VERSION__: JSON.stringify(pkg.version),
     __TARGET__: JSON.stringify(target),
+    // Page watch: how often a page is checked, in seconds (15 minutes; test builds: CF_WATCH_EVERY_S=60).
+    __WATCH_EVERY_S__: String(Number(process.env.CF_WATCH_EVERY_S) || 900),
     "process.env.NODE_ENV": JSON.stringify("production")
   },
   logLevel: "info"

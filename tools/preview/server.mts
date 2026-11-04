@@ -190,6 +190,27 @@ function scriptedInsert(system: string, content: string): unknown {
   return { ids }
 }
 
+// Page watch's scripted Haiku: the price from the page's markup when it's there, a threshold when the words
+// have a number ("below 40"), any change otherwise; after a change, met unless the words say a number it isn't under.
+function scriptedWatch(system: string, content: string): unknown {
+  const words = content.match(/in their words: (.*)/)?.[1] ?? ""
+  const between = (tag: string) => content.match(new RegExp(`<${tag}>\\n([\\s\\S]*?)\\n</${tag}>`))?.[1] ?? ""
+  if (system.startsWith("Someone on a web page")) {
+    const selection = between("selection")
+    const price = /\d/.test(selection) && /[€$£¥₽]/.test(selection)
+    const n = Number(words.match(/(\d+(?:[.,]\d+)?)/)?.[1]?.replace(",", "."))
+    return {
+      what: !selection ? "page" : price ? "price" : /stock|sold|налич/i.test(selection) ? "stock" : "status",
+      source: !selection ? "page" : price && content.includes("- ld-price:") ? "ld-price" : "text",
+      rule: price && n && /below|under|ниже|меньше|дешевле/i.test(words) ? { kind: "below", n } : { kind: "change" },
+      label: selection.slice(0, 30) || "Page",
+      site: /shop|localhost/.test(content) ? "shop" : "other"
+    }
+  }
+  const now = between("now")
+  return { met: true, line: `Now: ${now}` }
+}
+
 const realFetch = globalThis.fetch
 globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
   const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url
@@ -210,7 +231,8 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     const data = (body.input as string[]).map((text, index) => ({ index, embedding: wordVector(text, body.dimensions) }))
     return new Response(JSON.stringify({ data, usage: { total_tokens: data.length * 40 } }), { headers: { "Content-Type": "application/json" } })
   }
-  if (url.startsWith("https://api.anthropic.com/v1/messages") && !JSON.parse(String(init?.body)).stream) {
+  // Organizing's tag check: not streamed, and without quick insert's and page watch's JSON format.
+  if (url.startsWith("https://api.anthropic.com/v1/messages") && !JSON.parse(String(init?.body)).stream && !JSON.parse(String(init?.body)).output_config?.format) {
     const body = JSON.parse(String(init?.body))
     const tags = [...String(body.messages[0].content).matchAll(/<examples tag="([^"]+)">/g)].map((m) => ({ tag: m[1], fits: true, confidence: 0.9 }))
     return new Response(JSON.stringify({ id: "msg_judge", type: "message", role: "assistant", model: body.model, content: [{ type: "text", text: JSON.stringify({ tags }) }], stop_reason: "end_turn", stop_sequence: null, usage: { input_tokens: 1600, output_tokens: 40 } }), { headers: { "Content-Type": "application/json" } })
@@ -218,9 +240,12 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
   if (url.startsWith("https://api.anthropic.com/v1/messages")) {
     const body = JSON.parse(String(init?.body))
     lastClaudeRequest = { model: body.model, max_tokens: body.max_tokens, output_config: body.output_config, thinking: body.thinking ?? null, fallbacks: body.fallbacks }
-    // Quick insert (JSON answers, not streamed): a scripted Haiku that marks, fills and finds.
+    // Quick insert and page watch (JSON answers, not streamed): a scripted Haiku.
     if (body.output_config?.format) {
-      const answer = scriptedInsert(String(body.system), String(body.messages[0].content))
+      const system = String(body.system)
+      const answer = system.startsWith("Someone on a web page") || system.startsWith("A value someone watches")
+        ? scriptedWatch(system, String(body.messages[0].content))
+        : scriptedInsert(system, String(body.messages[0].content))
       return new Response(JSON.stringify({
         id: "msg_local", type: "message", role: "assistant", model: body.model,
         content: [{ type: "text", text: JSON.stringify(answer) }], stop_reason: "end_turn", stop_sequence: null,
@@ -308,7 +333,17 @@ const find = (await import("../../netlify/functions/v2-find.mts")).default
 const promo = (await import("../../netlify/functions/v2-promo.mts")).default
 const insert = (await import("../../netlify/functions/v2-insert.mts")).default
 const organize = (await import("../../netlify/functions/v2-organize.mts")).default
-const handlers: Record<string, typeof chat> = { "/api/v2/chat": chat, "/api/v2/status": status, "/api/v2/event": event, "/api/v2/find": find, "/api/v2/promo": promo, "/api/v2/insert": insert, "/api/v2/organize": organize }
+const watch = (await import("../../netlify/functions/v2-watch.mts")).default
+const handlers: Record<string, typeof chat> = { "/api/v2/chat": chat, "/api/v2/status": status, "/api/v2/event": event, "/api/v2/find": find, "/api/v2/promo": promo, "/api/v2/insert": insert, "/api/v2/organize": organize, "/api/v2/watch": watch }
+
+// Page watch's test shop (2.5): /shop shows a mug whose price and stock /shop-set changes
+// (/shop-set?price=39&stock=OutOfStock), /shop-blocked answers 403 like a bot check.
+const shop = { price: "49.85", stock: "InStock" }
+const shopPage = () => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mug · Test shop</title><script type="application/ld+json">${JSON.stringify({ "@context": "https://schema.org", "@type": "Product", name: "Mug", offers: { "@type": "Offer", price: shop.price, priceCurrency: "EUR", availability: `https://schema.org/${shop.stock}` } })}</script>
+<style>body{font:18px -apple-system,sans-serif;margin:24px;line-height:1.5}b{font-size:28px}</style></head>
+<body><h1>Handmade mug</h1><p>A blue ceramic mug, 350 ml.</p><p>Price <b>${shop.price.replace(".", ",")} €</b></p>
+<p>${shop.stock === "InStock" ? "In stock" : "Sold out"}</p><p>Free delivery over 50 €.</p></body></html>`
 
 const pages: Record<string, string> = {
   "/": "article.html",
@@ -368,6 +403,18 @@ createServer(async (req, res) => {
     res.writeHead(response.status, Object.fromEntries(response.headers))
     if (response.body) for await (const c of response.body as any) res.write(c)
     res.end()
+    return
+  }
+  if (url.pathname === "/shop" || url.pathname === "/shop-blocked") {
+    res.writeHead(url.pathname === "/shop" ? 200 : 403, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" })
+    res.end(url.pathname === "/shop" ? shopPage() : "<!doctype html><title>Access denied</title><h1>Access denied</h1>")
+    return
+  }
+  if (url.pathname === "/shop-set") {
+    shop.price = url.searchParams.get("price") ?? shop.price
+    shop.stock = url.searchParams.get("stock") ?? shop.stock
+    res.writeHead(200, { "Content-Type": "application/json" })
+    res.end(JSON.stringify(shop))
     return
   }
   if (url.pathname === "/last-answer") {
