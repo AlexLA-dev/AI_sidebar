@@ -39,6 +39,12 @@ test("an open root needs a local stand: never with the production API", () => {
   assert.deepEqual([...new Set(attach(readFileSync(join(out, "dist/content.js"), "utf8")))], ["open"])
 })
 
+test("presses and keys read their path through listenAround: from the page, a closed root shows only its host", () => {
+  // A menu that closed on a press of its own item (the click then fell through to the page) was the first sign.
+  const files = execFileSync("grep", ["-rln", "composedPath", "src"], { cwd: root, encoding: "utf8" }).trim().split("\n")
+  assert.deepEqual(files, ["src/content/around.ts"])
+})
+
 test("every shadow root in the code takes its mode from SHADOW_MODE", () => {
   const files = execFileSync("grep", ["-rln", "attachShadow", "src"], { cwd: root, encoding: "utf8" }).trim().split("\n")
   for (const file of files) {

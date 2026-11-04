@@ -19,6 +19,7 @@ import {
   type StreamEvent,
   type Usage
 } from "../shared/types"
+import { listenAround } from "./around"
 import * as Icon from "./icons"
 import { historyForModel, isQuestion, lastPage, otherPages, pageHasChanged, pageRef, pageWhen, savedPages, selectionNote, stamped, type Entry, type SourceNote } from "../shared/conversation"
 import { Markdown } from "./markdown"
@@ -576,8 +577,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         setPicked(null)
         return
       }
-      // Escape in a chat's name field only cancels the renaming; in the chat search, it clears the search.
-      const field = e.composedPath()[0] as HTMLInputElement | undefined
+      // Escape in a chat's name field only cancels the renaming; in the chat search, it clears the search. (The
+      // focused field from our root: from the window, a closed root shows only its host.)
+      const field = (panelRef.current?.getRootNode() as ShadowRoot | Document | undefined)?.activeElement as HTMLInputElement | null | undefined
       if (field?.classList?.contains("cf-thread-name") || (field?.closest?.(".cf-search") && field.value)) return
       hide()
     }
@@ -1705,11 +1707,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // The bar goes on the next action: a press anywhere else (a question, a note or another chat clear it too).
   useEffect(() => {
     if (!undoBar) return
-    const onDown = (e: PointerEvent) => {
-      if (!e.composedPath().some((el) => (el as HTMLElement).classList?.contains("cf-undo-bar"))) setUndoBar(null)
-    }
-    window.addEventListener("pointerdown", onDown, true)
-    return () => window.removeEventListener("pointerdown", onDown, true)
+    const panel = panelRef.current
+    if (!panel) return
+    return listenAround(panel, "pointerdown", (_, path) => {
+      if (!path.some((el) => (el as HTMLElement).classList?.contains("cf-undo-bar"))) setUndoBar(null)
+    }, window)
   }, [undoBar])
 
   /** The row of suggestions under the message at `idx`: its tag, and the move of the block it ends. */

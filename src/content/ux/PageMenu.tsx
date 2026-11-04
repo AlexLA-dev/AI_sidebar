@@ -6,6 +6,7 @@ import type { VNode } from "preact"
 import { useEffect, useRef } from "preact/hooks"
 
 import { t } from "../../shared/i18n"
+import { listenAround } from "../around"
 import { Bell } from "./MessageUx"
 import * as Icon from "../icons"
 
@@ -18,20 +19,20 @@ export function PageMenu({ reminders, onLater, onReminders, onSettings, onClose 
 }): VNode {
   const ref = useRef<HTMLDivElement>(null)
   useEffect(() => {
-    const away = (e: Event) => {
-      const path = e.composedPath()
+    const away = (_: Event, path: EventTarget[]) => {
       // Its own "…" toggles it.
       if (!path.includes(ref.current as EventTarget) && !path.some((el) => (el as Element).classList?.contains("cf-page-more"))) onClose()
     }
     const esc = (e: KeyboardEvent) => e.key === "Escape" && onClose()
+    let stop = () => {}
     // After this click is done.
     const timer = setTimeout(() => {
-      document.addEventListener("pointerdown", away, true)
+      if (ref.current) stop = listenAround(ref.current, "pointerdown", away)
       document.addEventListener("keydown", esc, true)
     }, 0)
     return () => {
       clearTimeout(timer)
-      document.removeEventListener("pointerdown", away, true)
+      stop()
       document.removeEventListener("keydown", esc, true)
     }
   }, [onClose])

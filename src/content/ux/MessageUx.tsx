@@ -5,6 +5,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "preact/hooks"
 
 import type { Entry } from "../../shared/conversation"
 import { t } from "../../shared/i18n"
+import { listenAround } from "../around"
 
 const base = { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", "stroke-width": 2, "stroke-linecap": "round", "stroke-linejoin": "round", "aria-hidden": "true" } as const
 
@@ -164,20 +165,20 @@ export function MessageMenu({ at, pinned, reminded, onPin, onRemind, onDelete, o
     el.style.top = `${Math.max(8, Math.min(h - el.offsetHeight - 8, at.y))}px`
   }, [at?.x, at?.y])
   useEffect(() => {
-    const away = (e: Event) => {
-      const path = e.composedPath()
+    const away = (_: Event, path: EventTarget[]) => {
       // Its own "…" toggles it.
       if (!path.includes(ref.current as EventTarget) && !path.some((el) => (el as Element).classList?.contains("cf-msg-more"))) onClose()
     }
     const esc = (e: KeyboardEvent) => e.key === "Escape" && onClose()
+    let stop = () => {}
     // After this click is done.
     const timer = setTimeout(() => {
-      document.addEventListener("pointerdown", away, true)
+      if (ref.current) stop = listenAround(ref.current, "pointerdown", away)
       document.addEventListener("keydown", esc, true)
     }, 0)
     return () => {
       clearTimeout(timer)
-      document.removeEventListener("pointerdown", away, true)
+      stop()
       document.removeEventListener("keydown", esc, true)
     }
   }, [onClose])

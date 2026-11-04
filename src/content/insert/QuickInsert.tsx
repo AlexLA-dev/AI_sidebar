@@ -9,6 +9,7 @@ import { DEFAULT_INSERT_SETTINGS, type FindResult, type AiFailure } from "../../
 import { blanks, searchTemplates, titleStarts, type Template, type TemplateUse } from "../../shared/templates"
 import type { Platform } from "../../shared/types"
 import type { ConsentStatus } from "../../shared/consent"
+import { listenAround } from "../around"
 import * as Icon from "../icons"
 import { HOST_TAG, privateBrowsing } from "../page"
 import { copiedText } from "./capture"
@@ -632,14 +633,14 @@ function InsertList(p: ListProps): VNode {
   }, [p.at])
   // A tap outside closes it.
   useEffect(() => {
-    const away = (e: PointerEvent) => {
-      const path = e.composedPath()
-      if (ref.current && !path.includes(ref.current)) p.onClose()
-    }
-    const timer = setTimeout(() => document.addEventListener("pointerdown", away, true), 50)
+    let stop = () => {}
+    const timer = setTimeout(() => {
+      const box = ref.current
+      if (box) stop = listenAround(box, "pointerdown", (_, path) => !path.includes(box) && p.onClose())
+    }, 50)
     return () => {
       clearTimeout(timer)
-      document.removeEventListener("pointerdown", away, true)
+      stop()
     }
   }, [p.onClose])
 
