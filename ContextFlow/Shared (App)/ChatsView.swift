@@ -928,7 +928,8 @@ struct ChatDetailView: View {
     @State private var pinLock = Date.distantPast
     @State private var reminding: Int?
     @State private var remindNote: String?
-    @State private var deleted: (text: LocalizedStringKey, thread: ChatThread, at: Int, entries: [[String: Any]])?
+    // `whole`: they were the chat's last messages, still kept until the bar goes (see deleteMessage).
+    @State private var deleted: (text: LocalizedStringKey, thread: ChatThread, at: Int, entries: [[String: Any]], whole: Bool)?
     @State private var flash: Int?
     @State private var selecting = false
 
@@ -937,7 +938,7 @@ struct ChatDetailView: View {
 
     var body: some View {
         Group {
-            if let thread {
+            if let thread, deleted?.whole != true {
                 let labels = ShareText.labels(for: thread.entries)
                 let raw = thread.organized?.entries ?? []
                 ScrollViewReader { proxy in
@@ -1181,16 +1182,19 @@ struct ChatDetailView: View {
                 DeletedBar(text: gone.text) {
                     withAnimation { deleted = nil }
                     let thread = library.threads.first { $0.id == gone.thread.id } ?? gone.thread
-                    library.restoreEntries(thread, at: gone.at, gone.entries)
+                    if !gone.whole { library.restoreEntries(thread, at: gone.at, gone.entries) }
                     rescheduleReminders(thread, gone.entries)
                     ChatAI.reportUx("ux_delete", ["action": "undone"])
                 }
                 .padding(.horizontal, 12)
-                .padding(.bottom, thread == nil ? 24 : 70)
+                .padding(.bottom, thread == nil || gone.whole ? 24 : 70)
             }
         }
         // Leaving the chat: the bar goes (its Undo with it).
-        .onDisappear { deleted = nil }
+        .onDisappear {
+            finishDeleting()
+            deleted = nil
+        }
     }
 
     /// The field under the chat: a question about it (sent to the AI), or a note (kept in the chat, no
@@ -1437,14 +1441,35 @@ struct ChatDetailView: View {
         guard thread.entries.indices.contains(index) else { return }
         let entry = thread.entries[index]
         let withQuestion = !entry.isUser && index > 0 && thread.entries[index - 1].isUser && !thread.entries[index - 1].isNote
-        guard let gone = library.deleteEntries(thread, (withQuestion ? index - 1 : index)...index) else { return }
+        let range = (withQuestion ? index - 1 : index)...index
+        // The chat's last messages: deleted now, the chat would go with them and its row in the list would close
+        // this screen, Undo and all. So they're hidden here and deleted once the bar goes or the chat is left.
+        let whole = range.lowerBound == 0 && range.upperBound == thread.entries.count - 1
+        let gone: (at: Int, entries: [[String: Any]])
+        if whole, let raw = thread.organized?.entries, raw.indices.contains(range.upperBound) {
+            gone = (range.lowerBound, Array(raw[range]))
+        } else if let done = library.deleteEntries(thread, range) {
+            gone = done
+        } else { return }
         for raw in gone.entries where raw["remind"] != nil {
             MessageReminders.cancel(chat: thread.id, message: Organize.entryKey(raw))
         }
-        withAnimation { deleted = (entry.isNote ? "Note deleted" : "Answer deleted", thread, gone.at, gone.entries) }
+        withAnimation { deleted = (entry.isNote ? "Note deleted" : "Answer deleted", thread, gone.at, gone.entries, whole) }
         ChatAI.reportUx("ux_delete", ["action": "deleted", "what": entry.isNote ? "note" : "answer", "how": how])
         let shown = gone.at
-        DispatchQueue.main.asyncAfter(deadline: .now() + 8) { if deleted?.at == shown { withAnimation { deleted = nil } } }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 8) {
+            guard deleted?.at == shown else { return }
+            finishDeleting()
+            withAnimation { deleted = nil }
+        }
+    }
+
+    /// A chat's last messages, kept while their Undo was up: deleted now (by key, in case the chat changed since).
+    private func finishDeleting() {
+        guard let gone = deleted, gone.whole else { return }
+        let keys = Set(gone.entries.map(Organize.entryKey))
+        let thread = library.threads.first { $0.id == gone.thread.id } ?? gone.thread
+        library.editEntries(thread) { entries in entries.removeAll { keys.contains(Organize.entryKey($0)) } }
     }
 
     /// Undo brought messages back: their reminders ring again (those still ahead).
