@@ -38,26 +38,34 @@ export interface WatchPrepared {
 }
 
 export type WatchRequest =
-  | { type: "watchPrepare"; draft: WatchDraft }
+  | { type: "watchPrepare"; draft: WatchDraft; how: WatchHow }
   | { type: "watchSave"; draft: WatchDraft; prepared: WatchPrepared; how: WatchHow; live: boolean }
   | { type: "watchList" }
-  | { type: "watchCancel"; id: string; how?: "panel" | "list" }
+  | { type: "watchCancel"; id: string; via: "panel" | "list" }
   // The page the person has open: which watches it has, then the values read from it.
   | { type: "watchForUrl"; url: string }
   | { type: "watchLive"; url: string; values: Record<string, string | null>; text?: string }
-  | { type: "watchEvent"; event: WatchEvent }
 
+/** Where a watch was made: the eye by a selection, or "Come back later…". */
 export type WatchHow = "bubble" | "later"
 
-/** A page watch count (no text, no address): `ux_watch` with fixed words. */
-export interface WatchEvent {
-  action: "set" | "checked" | "changed" | "met" | "opened" | "cancelled" | "failed" | "unreadable"
+/**
+ * A page watch step for the counters: the "use" kind with f "watch", in the analytics registry's words
+ * (src/shared/usage.ts on claude/usage-events, feature-map.md §1.5). No address, no text, no value.
+ */
+export interface WatchStep {
+  a: "create" | "alert" | "stop" | "error" | "daily"
+  via?: WatchHow | "panel" | "app" | "notif" | "list" | "auto"
   what?: WatchKind
-  how?: WatchHow
   site?: WatchSite
-  via?: "bg" | "live"
-  n?: number
+  mode?: "bg" | "live"
+  reason?: "blocked" | "login" | "gone"
+  checks?: number
+  active?: number
 }
+
+/** How many watches can check at once: the owner's limit, Free and paid. */
+export const WATCH_LIMIT = { free: 5, paid: 20 } as const
 
 /** The watches of one page, for the live read: where each value sits. */
 export type WatchSpec = Pick<Watch, "id" | "what" | "source" | "before" | "after">

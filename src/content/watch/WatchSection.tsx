@@ -6,8 +6,7 @@
 import { useEffect, useMemo, useRef, useState } from "preact/hooks"
 
 import { t } from "../../shared/i18n"
-import type { WatchHow, WatchPrepared } from "../../shared/watch/messages"
-import { WATCH_MAX } from "../../shared/watch/types"
+import { WATCH_LIMIT, type WatchHow, type WatchPrepared } from "../../shared/watch/messages"
 import { draftFor } from "./draft"
 
 export interface WatchSectionProps {
@@ -25,7 +24,8 @@ type State =
   | { at: "checking" }
   | { at: "unreadable"; prepared: WatchPrepared }
   | { at: "set"; live: boolean; notify: string }
-  | { at: "full" }
+  // The owner's limit: Free 5 at once, Pro 20.
+  | { at: "full"; limit: number; paid: boolean }
   | { at: "failed" }
 
 const send = <T,>(message: unknown) => chrome.runtime.sendMessage(message) as Promise<T>
@@ -39,15 +39,15 @@ export function WatchSection(p: WatchSectionProps) {
   useEffect(() => () => clearTimeout(closing.current), [])
 
   const save = async (prepared: WatchPrepared, live: boolean) => {
-    const reply = await send<{ ok: boolean; full?: boolean; notify?: string }>({ type: "watchSave", draft: { ...draft, condition }, prepared, how: p.how, live }).catch(() => null)
-    if (!reply?.ok) return setState(reply?.full ? { at: "full" } : { at: "failed" })
+    const reply = await send<{ ok: boolean; full?: boolean; limit?: number; paid?: boolean; notify?: string }>({ type: "watchSave", draft: { ...draft, condition }, prepared, how: p.how, live }).catch(() => null)
+    if (!reply?.ok) return setState(reply?.full ? { at: "full", limit: reply.limit ?? 5, paid: reply.paid === true } : { at: "failed" })
     setState({ at: "set", live, notify: reply.notify ?? "ok" })
     if ((reply.notify ?? "ok") === "ok") closing.current = setTimeout(p.close, 1800)
   }
 
   const start = async () => {
     setState({ at: "checking" })
-    const prepared = await send<WatchPrepared & { ok?: boolean }>({ type: "watchPrepare", draft: { ...draft, condition } }).catch(() => null)
+    const prepared = await send<WatchPrepared & { ok?: boolean }>({ type: "watchPrepare", draft: { ...draft, condition }, how: p.how }).catch(() => null)
     if (!prepared?.ok) return setState({ at: "failed" })
     if (!prepared.readable) return setState({ at: "unreadable", prepared })
     await save(prepared, false)
@@ -72,7 +72,14 @@ export function WatchSection(p: WatchSectionProps) {
           />
           <p class="cf-watch-note">{t("watchHonest")}</p>
           {state.at === "failed" && <p class="cf-watch-msg">{t("watchFailed")}</p>}
-          {state.at === "full" && <p class="cf-watch-msg">{t("watchFull", WATCH_MAX)}</p>}
+          {state.at === "full" && (
+            <>
+              <p class="cf-watch-msg">{state.paid ? t("watchFull", state.limit) : t("watchFullFree", state.limit, WATCH_LIMIT.paid)}</p>
+              {!state.paid && (
+                <button type="button" class="cf-watch-alt" onClick={() => void send({ type: "openApp", target: "subscribe" })}>{t("watchMore")}</button>
+              )}
+            </>
+          )}
           <button type="button" class="cf-watch-go" disabled={state.at === "checking" || !condition.trim()} onClick={() => void start()}>
             {state.at === "checking" ? t("watchChecking") : t("watchStart")}
           </button>

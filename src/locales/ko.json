@@ -474,6 +474,8 @@
   "watchLiveOk": "페이지를 열 때 확인",
   "watchRemindInstead": "보러 가라고 알려 주기",
   "watchFull": "이미 {0}개를 지켜보고 있어요. 먼저 '알림'에서 하나를 멈춰 주세요.",
+  "watchFullFree": "무료로는 페이지 {0}개까지 동시에 지켜볼 수 있어요. Pro는 {1}개까지.",
+  "watchMore": "Pro로 더 많이",
   "watchFailed": "잘 안 됐어요. 잠시 후 다시 시도해 주세요.",
   "watchNotifyOff": "ContextFlow 알림이 꺼져 있어요. 변경 소식을 받으려면 설정에서 켜 주세요.",
   "watchNotifyAsk": "변경을 알려 드릴 수 있도록 ContextFlow 앱을 한 번 열고 알림을 허용해 주세요.",

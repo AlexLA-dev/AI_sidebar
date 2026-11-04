@@ -55,8 +55,6 @@ export const WATCH_STORAGE = {
   tally: "cf:watchTally"
 } as const
 
-/** At most this many watches checking at once. */
-export const WATCH_MAX = 20
 /** A page is checked at most this often. */
 export const WATCH_EVERY_MS = 15 * 60_000
 /** The background lives about 30 s after it wakes; a round stops well before. */

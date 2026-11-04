@@ -474,6 +474,8 @@
   "watchLiveOk": "Check when I open the page",
   "watchRemindInstead": "Remind me to look",
   "watchFull": "You're already watching {0} pages. Stop one in Reminders first.",
+  "watchFullFree": "On Free you can watch {0} pages at once. Pro watches up to {1}.",
+  "watchMore": "More with Pro",
   "watchFailed": "That didn't work. Try again in a moment.",
   "watchNotifyOff": "Notifications are off for ContextFlow. Turn them on in Settings to hear about the change.",
   "watchNotifyAsk": "Open the ContextFlow app once and allow notifications, so I can tell you about the change.",

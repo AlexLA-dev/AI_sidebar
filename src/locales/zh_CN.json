@@ -474,6 +474,8 @@
   "watchLiveOk": "打开页面时检查",
   "watchRemindInstead": "提醒我去看",
   "watchFull": "你已经关注了 {0} 个页面。请先在“提醒”里停止一个。",
+  "watchFullFree": "免费版最多同时关注 {0} 个页面，Pro 最多 {1} 个。",
+  "watchMore": "Pro 可关注更多",
   "watchFailed": "没有成功，请稍后再试。",
   "watchNotifyOff": "ContextFlow 的通知已关闭。请在设置中打开，以便得知变化。",
   "watchNotifyAsk": "请打开一次 ContextFlow App 并允许通知，这样我才能告诉你变化。",

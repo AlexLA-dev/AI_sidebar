@@ -570,4 +570,12 @@ startInsert({
   statusChanged: () => (statusCache = null)
 })
 // Page watch (2.5): the checks run here while Safari runs; the AI plans a watch and reads a change.
-startWatch({ installId, clientInfo, consented })
+startWatch({
+  installId,
+  clientInfo,
+  consented,
+  paid: async () => {
+    const ent = await entitlement()
+    return Boolean(ent?.active) && planFromProduct(ent?.productId) !== "free"
+  }
+})
