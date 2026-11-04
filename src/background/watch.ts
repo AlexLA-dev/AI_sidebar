@@ -386,7 +386,8 @@ async function ensureAlarm(): Promise<void> {
     await chrome.alarms.clear(ALARM)
     return
   }
-  if (!(await chrome.alarms.get(ALARM))) chrome.alarms.create(ALARM, { periodInMinutes: 5 })
+  // Every 5 minutes (each page is due every 15); a test build that checks more often wakes every minute.
+  if (!(await chrome.alarms.get(ALARM))) chrome.alarms.create(ALARM, { periodInMinutes: WATCH_EVERY_MS < 300_000 ? 1 : 5 })
 }
 
 export function startWatch(d: WatchDeps): void {

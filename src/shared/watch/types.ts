@@ -55,8 +55,10 @@ export const WATCH_STORAGE = {
   tally: "cf:watchTally"
 } as const
 
-/** A page is checked at most this often. */
-export const WATCH_EVERY_MS = 15 * 60_000
+declare const __WATCH_EVERY_S__: number | undefined
+
+/** A page is checked at most this often: 15 minutes (a test build sets less, CF_WATCH_EVERY_S). */
+export const WATCH_EVERY_MS = (typeof __WATCH_EVERY_S__ === "number" ? __WATCH_EVERY_S__ : 900) * 1000
 /** The background lives about 30 s after it wakes; a round stops well before. */
 export const WATCH_ROUND_MS = 22_000
 /** After this many reads that found nothing, the background gives the page to the live path. */
