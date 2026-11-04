@@ -891,7 +891,7 @@
   "message": "Inserción rápida"
  },
  "qiButton": {
-  "message": "Inserción rápida: lo copiado, plantillas, respuesta de ContextFlow"
+  "message": "Inserción rápida: lo copiado, plantillas, respuestas del chat"
  },
  "qiCommand": {
   "message": "Inserción rápida en el cursor"
@@ -936,7 +936,7 @@
   "message": "Aún no hay plantillas. Toca + o selecciona una respuesta que escribas a menudo y toca «Plantilla»."
  },
  "qiTemplatesIntro": {
-  "message": "Guarda las respuestas que escribes una y otra vez. ContextFlow marca lo que cambia, como un nombre o una fecha, y puede tomarlo de la página."
+  "message": "Guarda las respuestas que escribes una y otra vez. Marco lo que cambia, como un nombre o una fecha, y puedo tomarlo de la página."
  },
  "qiFindAi": {
   "message": "Buscar por sentido"
@@ -945,7 +945,7 @@
   "message": "Buscando…"
  },
  "qiFromCf": {
-  "message": "De ContextFlow"
+  "message": "Del chat"
  },
  "qiLastAnswer": {
   "message": "Última respuesta"
@@ -971,6 +971,9 @@
  "qiOnDevice": {
   "message": "dispositivo"
  },
+ "qiHideButtonOnSite": {
+  "message": "Ocultar el botón en {0}"
+ },
  "qiDontKeepOnSite": {
   "message": "No guardar en {0}"
  },
@@ -978,7 +981,7 @@
   "message": "Volver a guardar en {0}"
  },
  "qiTip": {
-  "message": "Nuevo: un toque inserta lo que copiaste en otras pestañas, una plantilla o la respuesta de ContextFlow."
+  "message": "Nuevo: un toque inserta lo que copiaste en otras pestañas, una plantilla o mi respuesta."
  },
  "qiKeyInsert": {
   "message": "insertar"
@@ -1014,7 +1017,7 @@
   "message": "Rellenando…"
  },
  "qiFillHint": {
-  "message": "Escribe los huecos, elige de «Copiado» o deja que ContextFlow los rellene con la página."
+  "message": "Escribe los huecos, elige de «Copiado» o los relleno yo con la página."
  },
  "qiFillDone": {
   "message": "En amarillo: tomado de la página. Revísalo antes de enviar."
@@ -1303,5 +1306,116 @@
  },
  "upsellOrganizeText": {
   "message": "Sugiere el chat adecuado para lo que acabas de preguntar, y tu propia etiqueta para ello."
+ },
+ "watchEye": {
+  "message": "Avisarme de cambios"
+ },
+ "watchSection": {
+  "message": "Avisarme cuando cambie"
+ },
+ "watchWhen": {
+  "message": "Cuándo avisarte"
+ },
+ "watchCondPrice": {
+  "message": "cuando cambie el precio (ahora {0})"
+ },
+ "watchCondBack": {
+  "message": "cuando vuelva a estar disponible"
+ },
+ "watchCondStock": {
+  "message": "cuando cambie la disponibilidad (ahora {0})"
+ },
+ "watchCondDate": {
+  "message": "cuando cambie la fecha (ahora {0})"
+ },
+ "watchCondStatus": {
+  "message": "cuando cambie el estado (ahora {0})"
+ },
+ "watchCondPage": {
+  "message": "cuando aparezca algo nuevo en la página"
+ },
+ "watchHonest": {
+  "message": "Lo compruebo mientras usas Safari"
+ },
+ "watchStart": {
+  "message": "Vigilar"
+ },
+ "watchChecking": {
+  "message": "Miro la página…"
+ },
+ "watchSet": {
+  "message": "Hecho. Te aviso cuando cambie."
+ },
+ "watchSetLive": {
+  "message": "Hecho. Este sitio solo lo muestra cuando abres la página, así que lo compruebo entonces."
+ },
+ "watchUnreadable": {
+  "message": "Este sitio no deja comprobarlo en segundo plano. Puedo comprobarlo cuando abras la página o recordarte que mires."
+ },
+ "watchRemindInstead": {
+  "message": "Recordarme que mire"
+ },
+ "watchLiveOk": {
+  "message": "Comprobar cuando abra la página"
+ },
+ "watchFull": {
+  "message": "Ya vigilas {0} páginas. Detén una en Recordatorios primero."
+ },
+ "watchFullFree": {
+  "message": "Gratis puedes vigilar {0} páginas a la vez. Con Pro, hasta {1}."
+ },
+ "watchMore": {
+  "message": "Más con Pro"
+ },
+ "watchFailed": {
+  "message": "No ha funcionado. Inténtalo de nuevo en un momento."
+ },
+ "watchRow": {
+  "message": "Vigilando: {0} · comprobado {1}"
+ },
+ "watchRowNew": {
+  "message": "Vigilando: {0}"
+ },
+ "watchRowLive": {
+  "message": "Vigilando: {0} · lo compruebo cuando abras la página"
+ },
+ "watchRowMet": {
+  "message": "Cambió: {0} · {1}"
+ },
+ "watchRowMetNow": {
+  "message": "Cambió: {0}, ahora {1} · {2}"
+ },
+ "watchStop": {
+  "message": "Dejar de vigilar"
+ },
+ "watchStopped": {
+  "message": "Ya no lo vigilo"
+ },
+ "watchLabelPrice": {
+  "message": "Precio"
+ },
+ "watchLabelStock": {
+  "message": "Disponibilidad"
+ },
+ "watchLabelDate": {
+  "message": "Fecha"
+ },
+ "watchLabelStatus": {
+  "message": "Estado"
+ },
+ "watchLabelPage": {
+  "message": "La página"
+ },
+ "watchInStock": {
+  "message": "disponible"
+ },
+ "watchOutOfStock": {
+  "message": "agotado"
+ },
+ "watchChanged": {
+  "message": "Cambió: {0}"
+ },
+ "watchChangedBody": {
+  "message": "Ahora: {0}"
  }
 }

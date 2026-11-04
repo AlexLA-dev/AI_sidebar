@@ -891,7 +891,7 @@
   "message": "Schnelleinfügen"
  },
  "qiButton": {
-  "message": "Schnelleinfügen: Kopiertes, Vorlagen, Antwort von ContextFlow"
+  "message": "Schnelleinfügen: Kopiertes, Vorlagen, Antworten aus dem Chat"
  },
  "qiCommand": {
   "message": "Schnelleinfügen am Cursor"
@@ -936,7 +936,7 @@
   "message": "Noch keine Vorlagen. Tippe auf + oder markiere eine Antwort, die du oft schreibst, und tippe auf „Vorlage“."
  },
  "qiTemplatesIntro": {
-  "message": "Speichere Antworten, die du immer wieder schreibst. ContextFlow markiert, was sich ändert, etwa einen Namen oder ein Datum, und kann es von der Seite übernehmen."
+  "message": "Speichere Antworten, die du immer wieder schreibst. Ich markiere, was sich ändert, etwa einen Namen oder ein Datum, und kann es von der Seite übernehmen."
  },
  "qiFindAi": {
   "message": "Nach Bedeutung suchen"
@@ -945,7 +945,7 @@
   "message": "Suche …"
  },
  "qiFromCf": {
-  "message": "Aus ContextFlow"
+  "message": "Aus dem Chat"
  },
  "qiLastAnswer": {
   "message": "Letzte Antwort"
@@ -971,6 +971,9 @@
  "qiOnDevice": {
   "message": "Gerät"
  },
+ "qiHideButtonOnSite": {
+  "message": "Taste auf {0} ausblenden"
+ },
  "qiDontKeepOnSite": {
   "message": "Auf {0} nicht behalten"
  },
@@ -978,7 +981,7 @@
   "message": "Auf {0} wieder behalten"
  },
  "qiTip": {
-  "message": "Neu: Tippen fügt ein, was du in anderen Tabs kopiert hast, eine Vorlage oder die Antwort von ContextFlow."
+  "message": "Neu: Tippen fügt ein, was du in anderen Tabs kopiert hast, eine Vorlage oder meine Antwort."
  },
  "qiKeyInsert": {
   "message": "einfügen"
@@ -1014,7 +1017,7 @@
   "message": "Fülle aus …"
  },
  "qiFillHint": {
-  "message": "Fülle die Lücken aus, wähle aus „Kopiert“ oder lass ContextFlow sie von der Seite ausfüllen."
+  "message": "Fülle die Lücken aus, wähle aus „Kopiert“ oder ich fülle sie von der Seite aus."
  },
  "qiFillDone": {
   "message": "Gelb: von der Seite übernommen. Prüfe es vor dem Senden."
@@ -1089,7 +1092,7 @@
   "message": "Suchwörter, durch Kommas getrennt"
  },
  "qiSave": {
-  "message": "Sichern"
+  "message": "Speichern"
  },
  "qiDelete": {
   "message": "Löschen"
@@ -1303,5 +1306,116 @@
  },
  "upsellOrganizeText": {
   "message": "Schlägt den richtigen Chat für das vor, was du gerade gefragt hast, und deinen eigenen Tag dafür."
+ },
+ "watchEye": {
+  "message": "Auf Änderungen achten"
+ },
+ "watchSection": {
+  "message": "Melden, wenn es sich ändert"
+ },
+ "watchWhen": {
+  "message": "Wann melden"
+ },
+ "watchCondPrice": {
+  "message": "wenn sich der Preis ändert (jetzt {0})"
+ },
+ "watchCondBack": {
+  "message": "wenn es wieder lieferbar ist"
+ },
+ "watchCondStock": {
+  "message": "wenn sich die Verfügbarkeit ändert (jetzt {0})"
+ },
+ "watchCondDate": {
+  "message": "wenn sich das Datum ändert (jetzt {0})"
+ },
+ "watchCondStatus": {
+  "message": "wenn sich der Status ändert (jetzt {0})"
+ },
+ "watchCondPage": {
+  "message": "wenn auf der Seite etwas Neues steht"
+ },
+ "watchHonest": {
+  "message": "Ich prüfe, solange du Safari nutzt"
+ },
+ "watchStart": {
+  "message": "Beobachten"
+ },
+ "watchChecking": {
+  "message": "Ich sehe mir die Seite an…"
+ },
+ "watchSet": {
+  "message": "Ich behalte es im Blick und melde mich bei einer Änderung."
+ },
+ "watchSetLive": {
+  "message": "Ich behalte es im Blick. Diese Seite zeigt es nur, wenn du sie öffnest – dann prüfe ich."
+ },
+ "watchUnreadable": {
+  "message": "Diese Seite lässt sich nicht im Hintergrund prüfen. Ich kann prüfen, wenn du sie öffnest, oder dich erinnern, nachzusehen."
+ },
+ "watchRemindInstead": {
+  "message": "Ans Nachsehen erinnern"
+ },
+ "watchLiveOk": {
+  "message": "Prüfen, wenn ich sie öffne"
+ },
+ "watchFull": {
+  "message": "Du beobachtest schon {0} Seiten. Beende zuerst eine unter „Erinnerungen“."
+ },
+ "watchFullFree": {
+  "message": "Kostenlos beobachtest du bis zu {0} Seiten gleichzeitig. Mit Pro bis zu {1}."
+ },
+ "watchMore": {
+  "message": "Mehr mit Pro"
+ },
+ "watchFailed": {
+  "message": "Das hat nicht geklappt. Versuch es gleich noch einmal."
+ },
+ "watchRow": {
+  "message": "Beobachte: {0} · geprüft {1}"
+ },
+ "watchRowNew": {
+  "message": "Beobachte: {0}"
+ },
+ "watchRowLive": {
+  "message": "Beobachte: {0} · ich prüfe, wenn du die Seite öffnest"
+ },
+ "watchRowMet": {
+  "message": "Geändert: {0} · {1}"
+ },
+ "watchRowMetNow": {
+  "message": "Geändert: {0}, jetzt {1} · {2}"
+ },
+ "watchStop": {
+  "message": "Nicht mehr beobachten"
+ },
+ "watchStopped": {
+  "message": "Beobachtung beendet"
+ },
+ "watchLabelPrice": {
+  "message": "Preis"
+ },
+ "watchLabelStock": {
+  "message": "Verfügbarkeit"
+ },
+ "watchLabelDate": {
+  "message": "Datum"
+ },
+ "watchLabelStatus": {
+  "message": "Status"
+ },
+ "watchLabelPage": {
+  "message": "Die Seite"
+ },
+ "watchInStock": {
+  "message": "auf Lager"
+ },
+ "watchOutOfStock": {
+  "message": "nicht auf Lager"
+ },
+ "watchChanged": {
+  "message": "Geändert: {0}"
+ },
+ "watchChangedBody": {
+  "message": "Jetzt: {0}"
  }
 }
