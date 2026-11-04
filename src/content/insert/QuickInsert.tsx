@@ -135,7 +135,13 @@ export function QuickInsert(props: Props): VNode | null {
   // "Insert into the field" under the panel's answers and notes.
   useEffect(() => {
     setPanelInserter((text, what) => {
-      void insertNow(text).then((ok) => ok && report({ kind: "insert_answer", what }))
+      // After text that's already there, not glued to it ("…ships on.Yes, the KIVIK…"): a space, or a new
+      // line for several lines in a field that takes them.
+      const f = fieldRef.current
+      const before = f && f.el.isConnected ? textBeforeCaret(updateCaret(f)) : ""
+      const multiline = f ? !isControl(f.el) || f.el.tagName.toUpperCase() === "TEXTAREA" : false
+      const gap = before && !/\s$/.test(before) ? (multiline && text.includes("\n") ? "\n" : " ") : ""
+      void insertNow(gap + text).then((ok) => ok && report({ kind: "insert_answer", what }))
     })
     return () => setPanelInserter(null)
   }, [insertNow])

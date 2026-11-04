@@ -40,3 +40,11 @@ export function siteExcluded(host: string, excluded: string[]): boolean {
   const h = siteKey(host)
   return excluded.some((e) => h === e || h.endsWith(`.${e}`))
 }
+
+/** A one-time code (4 to 8 digits, maybe split by spaces or dashes: "482913", "482 913"): never kept, it would
+ * show for a day on every site. */
+export function oneTimeCode(text: string): boolean {
+  // Split once at most: "2026-11-04" is a date, "+7 495 123-45-67" a phone.
+  return /^\d+(?:[\s-]\d+)?$/.test(text.trim()) && /^\d{4,8}$/.test(text.trim().replace(/[\s-]/g, ""))
+}
+

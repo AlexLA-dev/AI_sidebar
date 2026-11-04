@@ -115,3 +115,9 @@ test("copied: five slots, a day, the same text moves up, exclusions by site", ()
   assert.equal(siteExcluded("www.mail.bank.com", ["bank.com"]), true)
   assert.equal(siteExcluded("notbank.com", ["bank.com"]), false)
 })
+
+test("one-time codes are never kept in Copied (the audit, 20)", async () => {
+  const { oneTimeCode } = await import("../src/shared/copied.ts")
+  for (const s of ["482913", "4829", "48291374", "482 913", "482-913", " 1234 "]) assert.equal(oneTimeCode(s), true, s)
+  for (const s of ["123", "123456789", "Order 482913", "+7 495 123-45-67", "12.50", "2026-11-04"]) assert.equal(oneTimeCode(s), false, s)
+})

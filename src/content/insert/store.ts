@@ -1,7 +1,7 @@
 // Quick insert's storage on this device: its settings, Copied, the templates (the background keeps them
 // in step with the app and iCloud), how often each was used where, and the last answer or note.
 
-import { addCopied, COPIED_TTL_MS, liveCopied, siteExcluded, siteKey, type CopiedItem } from "../../shared/copied"
+import { addCopied, COPIED_TTL_MS, liveCopied, oneTimeCode, siteExcluded, siteKey, type CopiedItem } from "../../shared/copied"
 import { DEFAULT_INSERT_SETTINGS, INSERT_STORAGE, type InsertEvent, type InsertSettings } from "../../shared/insert"
 import { liveTemplates, noteUse, tombstone, type Template, type Templates, type TemplateUse } from "../../shared/templates"
 import { STORAGE } from "../../shared/types"
@@ -78,7 +78,7 @@ export async function loadCopied(): Promise<CopiedItem[]> {
 /** Keeps a copy (from a page or ContextFlow's Copy) unless Copied is off here or everywhere. */
 export async function keepCopied(text: string, host: string, from: CopiedItem["from"]): Promise<void> {
   const settings = await loadInsertSettings()
-  if (!settings.copied || (host && siteExcluded(host, settings.copiedOffSites))) return
+  if (!settings.copied || (host && siteExcluded(host, settings.copiedOffSites)) || oneTimeCode(text)) return
   const list = (await get<CopiedItem[]>(INSERT_STORAGE.copied)) ?? []
   await set({ [INSERT_STORAGE.copied]: addCopied(list, { text, host: host ? siteKey(host) : "", at: Date.now(), from }, Date.now()) })
 }

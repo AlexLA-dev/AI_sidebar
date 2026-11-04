@@ -92,6 +92,8 @@
 }
 .cf-qi-blank.filled { border-style: solid; border-color: transparent; background: rgba(250, 204, 21, 0.35); color: var(--text); }
 .cf-qi-blank:focus { border-style: solid; border-color: var(--accent); background: var(--bg); }
+/* Insert was pressed with this blank empty: it asks to be filled first. */
+.cf-qi-blank.missing { border-style: solid; border-color: var(--danger); }
 .cf-qi-fill-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .cf-qi-fill-row .cf-primary, .cf-qi-fill-row .cf-secondary { display: inline-flex; align-items: center; gap: 6px; }
 .cf-qi-note { font-size: 12px; color: var(--text-3); }
