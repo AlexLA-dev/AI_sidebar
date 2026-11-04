@@ -48,7 +48,8 @@
 .cf-qi-search:focus { border-color: var(--accent); background-color: var(--bg); }
 .cf-qi-head button { flex: none; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 10px; color: var(--accent-text); background: var(--accent-soft); }
 .cf-qi-body { overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding: 0 0 6px; }
-.cf-qi-sec { display: flex; align-items: center; gap: 8px; padding: 10px 14px 4px; font-size: 11.5px; font-weight: 650; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-3); }
+/* Section titles in ordinary case, as "Pinned" and "Hint" elsewhere in the panel. */
+.cf-qi-sec { display: flex; align-items: center; gap: 8px; padding: 10px 14px 4px; font-size: 12.5px; font-weight: 650; color: var(--text-3); }
 .cf-qi-sec > span { flex: 1; }
 .cf-qi-sec button { font-size: 12.5px; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--accent-text); }
 .cf-qi-row { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 44px; padding: 6px 8px 6px 14px; text-align: left; }
