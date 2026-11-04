@@ -36,8 +36,17 @@ const CLOUD_MAX_CHARS = 200_000
 // Page texts kept on this device across all chats; beyond it the older chats keep theirs only in iCloud.
 export const MAX_SAVED_TEXT_CHARS = 2_000_000
 
+/**
+ * A new chat's id: a random (version 4) UUID. crypto.randomUUID exists only in a secure context, and the panel runs in
+ * the page's: on a plain-http site it's missing, so the same kind of id is made from crypto.getRandomValues.
+ */
 export function newThreadId(): string {
-  return crypto.randomUUID()
+  if (typeof crypto.randomUUID === "function") return crypto.randomUUID()
+  const b = crypto.getRandomValues(new Uint8Array(16))
+  b[6] = (b[6] & 0x0f) | 0x40
+  b[8] = (b[8] & 0x3f) | 0x80
+  const h = Array.from(b, (x) => x.toString(16).padStart(2, "0")).join("")
+  return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`
 }
 
 /** When the thread last got a message. */
