@@ -476,6 +476,7 @@
   "watchFull": "Ya vigilas {0} páginas. Detén una en Recordatorios primero.",
   "watchFailed": "No ha funcionado. Inténtalo de nuevo en un momento.",
   "watchNotifyOff": "Las notificaciones de ContextFlow están desactivadas. Actívalas en Ajustes para enterarte del cambio.",
+  "watchNotifyAsk": "Abre la app ContextFlow una vez y permite las notificaciones para que pueda avisarte del cambio.",
   "watchRow": "Vigilando: {0} · comprobado {1}",
   "watchRowNew": "Vigilando: {0}",
   "watchRowLive": "Vigilando: {0} · lo compruebo cuando abras la página",

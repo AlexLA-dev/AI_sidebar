@@ -476,6 +476,7 @@
   "watchFull": "You're already watching {0} pages. Stop one in Reminders first.",
   "watchFailed": "That didn't work. Try again in a moment.",
   "watchNotifyOff": "Notifications are off for ContextFlow. Turn them on in Settings to hear about the change.",
+  "watchNotifyAsk": "Open the ContextFlow app once and allow notifications, so I can tell you about the change.",
   "watchRow": "Watching: {0} · checked {1}",
   "watchRowNew": "Watching: {0}",
   "watchRowLive": "Watching: {0} · I'll check when you open the page",

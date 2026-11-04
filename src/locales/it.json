@@ -476,6 +476,7 @@
   "watchFull": "Segui già {0} pagine. Prima interrompine una in Promemoria.",
   "watchFailed": "Non ha funzionato. Riprova tra poco.",
   "watchNotifyOff": "Le notifiche di ContextFlow sono disattivate. Attivale in Impostazioni per sapere della modifica.",
+  "watchNotifyAsk": "Apri una volta l'app ContextFlow e consenti le notifiche, così posso avvisarti della modifica.",
   "watchRow": "Seguo: {0} · controllato {1}",
   "watchRowNew": "Seguo: {0}",
   "watchRowLive": "Seguo: {0} · controllo quando apri la pagina",
