@@ -477,7 +477,7 @@
   "watchMore": "Pro로 더 많이",
   "watchFailed": "잘 안 됐어요. 잠시 후 다시 시도해 주세요.",
   "watchNotifyOff": "ContextFlow 알림이 꺼져 있어요. 변경 소식을 받으려면 설정에서 켜 주세요.",
-  "watchNotifyAsk": "변경을 알려 드릴 수 있도록 ContextFlow 앱을 한 번 열고 알림을 허용해 주세요.",
+  "watchNotifyAsk": "ContextFlow 앱을 열어 주세요. 알림을 보내도 되는지 물어보니, 허용하면 변경을 알려 드릴게요.",
   "watchRow": "지켜보는 중: {0} · {1} 확인",
   "watchRowNew": "지켜보는 중: {0}",
   "watchRowLive": "지켜보는 중: {0} · 페이지를 열 때 확인",

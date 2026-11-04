@@ -477,7 +477,7 @@
   "watchMore": "Pro でもっと",
   "watchFailed": "うまくいきませんでした。少ししてからもう一度お試しください。",
   "watchNotifyOff": "ContextFlow の通知がオフです。変更を知るには設定で通知をオンにしてください。",
-  "watchNotifyAsk": "変更をお知らせできるよう、ContextFlow アプリを一度開いて通知を許可してください。",
+  "watchNotifyAsk": "ContextFlow アプリを開いてください。通知を送ってよいか尋ねるので、許可すると変更をお知らせできます。",
   "watchRow": "見守り中: {0} · {1}に確認",
   "watchRowNew": "見守り中: {0}",
   "watchRowLive": "見守り中: {0} · ページを開いたときに確認",

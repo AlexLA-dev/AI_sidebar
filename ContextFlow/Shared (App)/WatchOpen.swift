@@ -1,4 +1,5 @@
 import Foundation
+import UserNotifications
 #if os(iOS)
 import UIKit
 #else
@@ -9,6 +10,27 @@ import AppKit
 /// analytics registry's words (`use`: `notif.tap what=watch`, then `page_open via=watch`; no page, no text).
 /// The watches themselves live in the extension (see WatchStore).
 enum WatchOpen {
+    /// At launch: the watches join Reminders, and the app asks about notifications when the panel needed it
+    /// (watches waiting on this device and the question never asked: an extension can't ask it).
+    @MainActor
+    static func start() {
+        LaterCenter.shared.register(WatchSource())
+        #if os(iOS)
+        let active = UIApplication.didBecomeActiveNotification
+        #else
+        let active = NSApplication.didBecomeActiveNotification
+        #endif
+        NotificationCenter.default.addObserver(forName: active, object: nil, queue: .main) { _ in
+            Task { await askIfWatching() }
+        }
+        Task { await askIfWatching() }
+    }
+
+    private static func askIfWatching() async {
+        guard WatchStore.entries().contains(where: { $0.metAt == nil }), await WatchStore.permission() == .notAsked else { return }
+        _ = try? await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound])
+    }
+
     @MainActor
     static func handle(_ info: [AnyHashable: Any]) {
         guard info["watch"] is String else { return }

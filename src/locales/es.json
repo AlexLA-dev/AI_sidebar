@@ -477,7 +477,7 @@
   "watchMore": "Más con Pro",
   "watchFailed": "No ha funcionado. Inténtalo de nuevo en un momento.",
   "watchNotifyOff": "Las notificaciones de ContextFlow están desactivadas. Actívalas en Ajustes para enterarte del cambio.",
-  "watchNotifyAsk": "Abre la app ContextFlow una vez y permite las notificaciones para que pueda avisarte del cambio.",
+  "watchNotifyAsk": "Abre la app ContextFlow: te preguntará si puede enviar notificaciones, y así te aviso del cambio.",
   "watchRow": "Vigilando: {0} · comprobado {1}",
   "watchRowNew": "Vigilando: {0}",
   "watchRowLive": "Vigilando: {0} · lo compruebo cuando abras la página",
