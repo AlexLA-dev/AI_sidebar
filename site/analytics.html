@@ -70,6 +70,17 @@
   th { color: var(--text-2); font-weight: 600; }
   .dot { display: inline-block; width: 8px; height: 8px; border-radius: 4px; margin-right: 6px; }
   .empty { color: var(--text-2); font-size: 13px; }
+  tr.feat { cursor: pointer; }
+  tr.feat:hover td { background: var(--bg-2); }
+  tr.detail td { white-space: normal; text-align: left; background: var(--bg-2); padding: 10px 12px; max-width: 0; }
+  table.wrap td:nth-child(-n+2) { white-space: normal; min-width: 130px; }
+  table.feats td:first-child, table.feats td:nth-last-child(-n+2) { white-space: normal; min-width: 110px; }
+  table.paths td:first-child { white-space: normal; text-align: left; }
+  .fd { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px 18px; font-size: 12.5px; }
+  .fd b { display: block; color: var(--text-2); font-weight: 600; margin-bottom: 3px; }
+  .fd span { display: block; line-height: 1.5; }
+  /* On a phone the table scrolls sideways; a feature's details stay in view, in one column. */
+  @media (max-width: 760px) { .fd { grid-template-columns: 1fr; position: sticky; left: 0; width: calc(100vw - 88px); } }
   .login { max-width: 420px; margin: 60px auto; background: var(--bg-2); border-radius: 18px; padding: 22px; }
   .login h1 { font-size: 22px; margin: 0 0 6px; }
   .login p { color: var(--text-2); font-size: 14px; margin: 0 0 14px; }
@@ -164,6 +175,8 @@ let requestsBy = "segment"
 let cohortsBy = "week"
 // Onboarding: all devices or one.
 let onboardingDevice = "all"
+let featureShow = "all"
+let featureOpen = null
 
 function store(value) {
   try { value ? localStorage.setItem(TOKEN_KEY, value) : localStorage.removeItem(TOKEN_KEY) } catch {}
@@ -692,6 +705,141 @@ function onboardingPanels(ob, totalDays, redraw) {
   return el("div", {}, funnel, groupTable, byDay, dayTable)
 }
 
+
+// «Функции» (cf_features, cf_feature_funnels): steps under the names in src/shared/usage.ts.
+const FEATURE_RU = {
+  panel: "Панель", ask: "Ответ на вопрос", ai_search: "ИИ-поиск по чатам", ask_chats: "«Спросить свои чаты»",
+  consent: "Согласие на ИИ", note: "Заметки", bubble: "Кнопки у выделения", fab: "Кнопка ✦", msg: "Копировать / поделиться ответом",
+  share_chat: "Поделиться чатом", page_open: "Открыть страницу из чата", chats: "Список чатов", chat: "Чат: открыть, переименовать, закрепить",
+  search: "Поиск по чатам", tags: "Теги и папки", settings: "Настройки", upsell: "Предложения Pro", offer: "Карточка −50 %",
+  paywall: "Экран Pro и покупка", renewal: "Вопрос о продлении", tour: "Тур", hint: "Подсказки", tab: "Вкладки приложения",
+  tips: "Советы", setup: "Настройка расширения", notif: "Нажатия на уведомления", app: "Открытие приложения",
+  open_app: "Из панели в приложение", qi_list: "Быстрая вставка: список", templates: "Шаблоны", watch: "Слежение за страницей",
+  rate: "Просьба оценки", ext: "Расширение включено", limit: "Упёрлись в лимит", social: "Ссылки X и Threads",
+  insert: "Быстрая вставка", mark: "Выделения в ответах", pin: "Закрепления", delete: "Удаление и отмена", remind: "Напоминания",
+  organize: "Систематизация чатов", menu: "Меню «…» в панели", later: "«Вернуться позже» и напоминания"
+}
+const ACTION_RU = {
+  open: "открыли", close: "закрыли", answer: "ответ", error: "ошибка", shown: "показали", tap: "нажали", blocked: "отказ: только Pro",
+  hit: "лимит", accepted: "согласились", declined: "отказались", saved: "сохранили", copy: "скопировали", share: "поделились",
+  run: "искали", change: "изменили", on: "включили", new: "новый", rename: "переименовали", pin: "закрепили", unpin: "открепили",
+  continue: "продолжили в Safari", plan: "выбрали план", buy_ok: "купили", buy_cancel: "отменили покупку", buy_fail: "покупка не прошла",
+  buy_pending: "покупка ждёт", restore: "восстановили", manage: "управление", set: "поставили", opened: "открыли по уведомлению",
+  deleted: "удалили", undone: "отменили", added: "добавили", removed: "убрали", copied: "из Скопированного", template: "шаблон",
+  tpl_new: "создали шаблон", fill: "ИИ заполнил", fill_edit: "поправили после ИИ", manual: "вставили вручную", dismissed: "отклонили",
+  stop: "остановили", retry: "повторили", source: "открыли источник", create: "создали", alert: "сработало", step: "шаг",
+  start: "начали", done: "закончили", skip: "пропустили", view: "открыли", edit: "изменили", delete: "удалили", play: "смотрели ролик",
+  ask: "спросили", action: "быстрое действие", question: "вопрос в поле", note: "заметка", remind: "напомнить", drag: "перетащили",
+  hide_site: "скрыли на сайте", optin_accepted: "включили подсказки", optin_declined: "не включили подсказки",
+  pick: "выбрали пункт", daily: "сводка за день", list: "открыли список"
+}
+const VIA_RU = {
+  toolbar: "кнопка Safari", shortcut: "сочетание клавиш", fab: "кнопка ✦", bubble: "кнопки у выделения", composer: "поле вопроса",
+  chip: "чип действия", followup: "чип после ответа", newpage: "«Теперь на странице»", list: "список", search: "поиск",
+  deeplink: "ссылка", usage_line: "строка «осталось»", limit: "карточка лимита", pro_only: "отказ: только Pro", media: "видео и PDF",
+  pro_card: "карточка Pro", settings: "настройки", button: "кнопка у поля", slash: "«/»", reminder: "напоминание",
+  chat: "чат", google: "Google", find: "ИИ-поиск", app: "приложение", panel: "панель", remind: "напоминание", watch: "слежение",
+  menu: "меню «…»", link: "ссылка «Все напоминания»", tab: "вкладка приложения"
+}
+const stepName = (step) => {
+  if (step === "start") return "начало сессии"
+  if (step === "end") return "конец сессии"
+  const [f, a] = String(step).split(".")
+  return `${FEATURE_RU[f] || f}: ${ACTION_RU[a] || a}`
+}
+const listOf = (items, name) => items?.length
+  ? items.map((x) => `${name(x)} — ${n.format(x.n ?? x.people)}`).join(" · ")
+  : "—"
+
+function featureDetail(x) {
+  const totalCame = (x.came_from || []).reduce((t, c) => t + c.n, 0)
+  const totalWent = (x.went_to || []).reduce((t, c) => t + c.n, 0)
+  const part = (label, text) => el("div", {}, el("b", {}, label), el("span", {}, text))
+  return el("div", { class: "fd" },
+    part("Действия", Object.entries(x.actions || {}).sort((a, b) => b[1] - a[1]).map(([a, c]) => `${ACTION_RU[a] || a} ${n.format(c)}`).join(" · ") || "—"),
+    part("Откуда пришли (внутри сессии)", (x.came_from || []).map((c) => `${stepName(c.step)} ${pct(c.n, totalCame)}`).join(" · ") || "—"),
+    part("Что сделали дальше", (x.went_to || []).map((c) => `${stepName(c.step)} ${pct(c.n, totalWent)}`).join(" · ") || "—"),
+    part("Входы", listOf(x.ways, (w) => VIA_RU[w.via] || w.via)),
+    part("Где", Object.entries(x.surfaces || {}).map(([k, v]) => `${{ panel: "панель", page: "страница", popup: "окно PDF", app: "приложение", notif: "уведомление", unknown: "не указано" }[k] || k} ${n.format(v)}`).join(" · ") || "—"),
+    part("Устройства", Object.entries(x.devices || {}).map(([k, v]) => `${k === "unknown" ? "не указано" : k} ${n.format(v)}`).join(" · ") || "—"),
+    part("По неделям (с понедельника)", (x.weeks || []).map((w) => `${short(w.week)} — ${n.format(w.people)}`).join(" · ") || "—")
+  )
+}
+
+function featuresPanel(rep, totalDays, redraw) {
+  const title = "Функции: кто пользуется"
+  if (!rep) return table(title, [], [], "Нет данных: в базе ещё нет функции cf_features (миграция 20261104120000).")
+  const all = rep.features || []
+  // Nobody (or one person) used it, while at least 20 people could have.
+  const dead = all.filter((x) => x.base >= 20 && x.people <= 1)
+  const shown = featureShow === "used" ? all.filter((x) => x.people > 0) : featureShow === "dead" ? dead : all
+  const pick = (v) => { featureShow = v; featureOpen = null; redraw() }
+  const rows = shown.flatMap((x) => {
+    const open = featureOpen === x.f
+    const row = el("tr", { class: "feat", onclick: () => { featureOpen = open ? null : x.f; redraw() } },
+      el("td", {}, `${open ? "▾" : "▸"} ${FEATURE_RU[x.f] || x.f}`),
+      el("td", {}, n.format(x.people)),
+      el("td", {}, n.format(x.people_7d)),
+      el("td", { class: x.base ? "" : "muted" }, x.base ? pct(x.people, x.base) : x.since ? `видно с ${x.since}` : "—"),
+      el("td", {}, n.format(x.repeat)),
+      el("td", {}, x.ways?.[0] ? VIA_RU[x.ways[0].via] || x.ways[0].via : "—"),
+      el("td", {}, x.went_to?.[0] ? stepName(x.went_to[0].step) : "—")
+    )
+    return open ? [row, el("tr", { class: "detail" }, el("td", { colspan: 7 }, featureDetail(x)))] : [row]
+  })
+  const panel = table([title, toggle([["all", "Все"], ["used", "Используют"], ["dead", `Не используют (${dead.length})`]], featureShow, pick)],
+    ["Функция", "Людей", "За 7 дн.", "Из тех, у кого есть", "2+ недели", "Главный вход", "Чаще всего дальше"], rows,
+    featureShow === "dead" ? "Таких функций нет: у каждой, которой могли пользоваться 20+ человек, есть хотя бы двое." : "Пока нет шагов.", "num2 feats")
+  panel.append(el("p", { class: "hint" },
+    `Люди за ${totalDays} дн. (активных за период — ${n.format(rep.active || 0)}). «Из тех, у кого есть» — доля от активных на версиях, где функция есть и уже присылает шаги (у большинства функций это 2.5), там, где она есть: в Safari или в приложении. «2+ недели» — пользовались в двух и больше разных неделях. «Не используют» — функции, которыми за период пользовались не больше одного человека из 20 и больше, у кого она есть. ` +
+    "Отдельные функции видны с 2.5: старые версии присылают только ответы, лимиты, отказы «только Pro», предложения Pro, вопрос о продлении, открытие приложения и включение расширения. " +
+    "Нажмите на строку — откуда пришли, что сделали дальше, входы, устройства и недели. Без тестов, App Review и предпросмотров."))
+  return panel
+}
+
+const FUNNEL_RU = {
+  consent: "Согласие на ИИ → ответ", purchase: "Предложение Pro → покупка", quick_insert: "Список быстрой вставки → вставили",
+  templates: "Создали шаблон → вставили", reminders: "Напоминание → вернулись в чат", organize: "Систематизация: показали → приняли",
+  watch: "Слежение → сработало → открыли"
+}
+function funnelsPanel(funnels) {
+  const title = "Воронки функций"
+  if (!funnels) return table(title, [], [], "Нет данных: в базе ещё нет функции cf_feature_funnels (миграция 20261104120000).")
+  const stepLabel = (step) => {
+    const [base, ...extra] = String(step).split(" ")
+    const [f, acts] = base.split(".")
+    return `${FEATURE_RU[f] || f}: ${acts.split("|").map((a) => ACTION_RU[a] || a).join(" / ")}${extra.length ? ` (${extra.map((v) => VIA_RU[v] || v).join(", ")})` : ""}`
+  }
+  const rows = funnels.flatMap((fu) => {
+    const first = fu.steps[0]?.people || 0
+    return fu.steps.map((st, i) => el("tr", { class: i === 0 ? "sum" : "" },
+      el("td", {}, i === 0 ? FUNNEL_RU[fu.funnel] || fu.funnel : ""),
+      el("td", {}, stepLabel(st.step)),
+      el("td", {}, n.format(st.people)),
+      el("td", {}, i === 0 ? "" : pct(st.people, first)),
+      el("td", {}, i === 0 ? "" : duration(st.median_secs))
+    ))
+  })
+  const panel = table(title, ["Воронка", "Шаг", "Людей", "От первого шага", "Медиана от прошлого"], rows, "Пока нет шагов.", "wrap")
+  panel.append(el("p", { class: "hint" },
+    "Человек считается на шаге, если сделал его после предыдущего, в любой сессии и на любом устройстве: приложение считается вместе с расширением, как только приложение узнало его id. Шаги, кроме ответов и предложений Pro, начнут приходить с 2.5."))
+  return panel
+}
+
+function sessionsPanel(rep) {
+  const title = "Сессии и пути"
+  const s = rep?.sessions
+  if (!s || !s.count) return table(title, [], [], "Сессий пока нет: шаги с номером сессии присылает версия 2.5.")
+  const rows = (s.paths || []).map((p) => el("tr", {},
+    el("td", {}, p.path.map(stepName).join(" → ")),
+    el("td", {}, n.format(p.n))
+  ))
+  const panel = table(`${title}: ${n.format(s.count)} · медиана ${n.format(Math.round(s.median_steps || 0))} шагов, ${duration(s.median_secs)}`,
+    ["Первые пять шагов", "Сессий"], rows, "Сессий пока нет.", "num2 paths")
+  panel.append(el("p", { class: "hint" }, "Сессия — шаги на одном устройстве без перерыва больше 30 минут. Её id случайный и меняется каждый раз; по нему видно только порядок шагов."))
+  return panel
+}
+
 // Questions per day per active user, free vs paying (cf_owner_insights.per_user).
 function perUserPanel(insights) {
   const title = "Запросов в день на пользователя"
@@ -992,6 +1140,9 @@ function render(data, fx) {
         : "Лимит в d0 и подписки появятся после миграции 20261104150000 (функция cf_new_user_outcomes)."
     }),
     live((redraw) => onboardingPanels(data.onboarding, data.days, redraw)),
+    live((redraw) => featuresPanel(data.features, data.days, redraw)),
+    funnelsPanel(data.feature_funnels),
+    sessionsPanel(data.features),
     table("Код −50% и первая оплата по дням", ["День (UTC)", "Подписались по коду −50%", "Первая оплата"],
       funnelRows, "За период никто не подписался по коду и не оплатил.", "num2"),
     live((redraw) => cohortPanel(insights, redraw)),

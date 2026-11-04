@@ -80,13 +80,31 @@ export const limitsReport = (days: number) => rpc<Record<string, unknown>>("cf_l
 export const onboarding = (days: number) => rpc<Record<string, unknown>>("cf_onboarding", { p_days: days })
 /** By day: new users, how many of them ran out of free answers that day, Pro bought (cf_new_user_outcomes). */
 export const newUserOutcomes = (days: number) => rpc<Record<string, unknown>[]>("cf_new_user_outcomes", { p_days: days })
+/** Per feature: people, where they came from, what they did next; sessions (cf_features). `base` says who could
+ * have used each feature (src/shared/usage.ts). */
+export const features = (days: number, base: Record<string, unknown>) =>
+  rpc<Record<string, unknown>>("cf_features", { p_days: days, p_base: base })
+/** Feature funnels: who reached each step after the one before (cf_feature_funnels). */
+export const featureFunnels = (days: number) => rpc<Record<string, unknown>[]>("cf_feature_funnels", { p_days: days })
 
 export async function logEvent(kind: string, installId: string | null, data: Record<string, unknown>): Promise<void> {
   try {
-    await rpc<null>("cf_log", { p_kind: kind, p_install: installId, p_data: data })
+    await rpc<null>("cf_log", { p_kind: kind, p_install: installId, p_data: { ...data, ...testMark(data) } })
   } catch (err) {
     console.error("[cf] log failed:", err instanceof Error ? err.message : err)
   }
+}
+
+// Deploy previews, branch deploys and `netlify dev` write to the same database as production, and so do
+// our own scripts ("dev-check", "calibrate"): such rows are marked as tests, which every report leaves out
+// (with the install or app they came from).
+const OUR_VERSIONS = new Set(["dev-check", "calibrate"])
+
+function testMark(data: Record<string, unknown>): Record<string, unknown> {
+  const deploy = (globalThis as { Netlify?: { context?: { deploy?: { context?: string } } | null } }).Netlify?.context?.deploy?.context ??
+    process.env.CONTEXT
+  if (deploy && deploy !== "production") return { audience: "test", deploy: deploy.slice(0, 20) }
+  return OUR_VERSIONS.has(String(data.version ?? "")) ? { audience: "test" } : {}
 }
 
 // Retention cleanup is optional (the function needs a one-time owner approval

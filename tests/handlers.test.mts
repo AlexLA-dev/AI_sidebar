@@ -110,7 +110,9 @@ const rpc: Record<string, (args: Record<string, any>) => unknown> = {
   cf_owner_insights: ({ p_days }) => ({ days: p_days, per_user: [{ plan: "free", users: 2, user_days: 3, asked_days: 2, requests: 4, max_per_day: 3 }] }),
   cf_limits_report: ({ p_days }) => ({ days: p_days, rows: [{ key: "memory_window", hits: 74, base: 311, status: "systematic" }] }),
   cf_onboarding: () => ({ people: [{ day: "2026-11-01", device: "iPhone", kind: "app", ext: 300, panel: 420, answer: 540 }], open_reviews: [] }),
-  cf_new_user_outcomes: () => [{ day: "2026-11-02", new: 12, limit_d0: 3, pro_bought: 2 }]
+  cf_new_user_outcomes: () => [{ day: "2026-11-02", new: 12, limit_d0: 3, pro_bought: 2 }],
+  cf_features: ({ p_days, p_base }) => ({ days: p_days, active: 2, features: [{ f: "ask", base: 2, people: 2 }], base: p_base }),
+  cf_feature_funnels: () => [{ funnel: "purchase", steps: [{ k: 1, step: "upsell.shown", people: 1 }] }]
 }
 
 // Same rule as cf_limited_before: a free limit hit on an earlier UTC day.
@@ -189,7 +191,7 @@ let adminUsage: (req: Request) => Promise<Response>
 let resetModelList: () => void
 let resetClaudeCooldown: () => void
 let serverConfig: {
-  geminiKey: string; adminToken: string; ownKeyReportDailyLimit: number; eventDailyLimit: number; proOfferCode: string
+  geminiKey: string; adminToken: string; ownKeyReportDailyLimit: number; eventDailyLimit: number; useEventDailyLimit: number; proOfferCode: string
   anthropicKey: string; claudeEnabled: boolean; claudeFirstTokenMs: number; claudeMinBuild: number
 }
 
@@ -226,6 +228,7 @@ beforeEach(() => {
   serverConfig.adminToken = ""
   serverConfig.ownKeyReportDailyLimit = 1000
   serverConfig.eventDailyLimit = 30
+  serverConfig.useEventDailyLimit = 1000
   serverConfig.proOfferCode = "CONTEXTFLOW50"
   resetModelList()
 })
@@ -536,17 +539,22 @@ test("admin usage report needs ADMIN_TOKEN", async () => {
   assert.deepEqual([body.limits_report.days, body.limits_report.rows[0].key], [180, "memory_window"])
   assert.equal(body.onboarding.people[0].answer, 540)
   assert.deepEqual(body.new_outcomes[0], { day: "2026-11-02", new: 12, limit_d0: 3, pro_bought: 2 })
+  assert.deepEqual([body.features.features[0].f, body.features.base.paywall, body.features.base.panel.on], ["ask", { since: "2.5", on: "app" }, "ext"])
+  assert.equal(body.feature_funnels[0].funnel, "purchase")
 })
 
-test("admin usage report still answers before cf_owner_insights, cf_limits_report, cf_onboarding and cf_new_user_outcomes exist", async () => {
+test("admin usage report still answers before cf_owner_insights, cf_limits_report, cf_onboarding, cf_new_user_outcomes and the feature reports exist", async () => {
   serverConfig.adminToken = "admin-test"
   const saved = { ...rpc }
-  for (const fn of ["cf_owner_insights", "cf_limits_report", "cf_onboarding", "cf_new_user_outcomes"]) delete rpc[fn]
+  for (const fn of ["cf_owner_insights", "cf_limits_report", "cf_onboarding", "cf_new_user_outcomes", "cf_features", "cf_feature_funnels"]) delete rpc[fn]
   try {
     const res = await adminUsage(new Request("https://aisidebar.netlify.app/api/v2/admin/usage", { headers: { Authorization: "Bearer admin-test" } }))
     assert.equal(res.status, 200)
     const body = await res.json()
-    assert.deepEqual([body.segments[0].requests, body.insights, body.limits_report, body.onboarding, body.new_outcomes], [3, null, null, null, null])
+    assert.deepEqual(
+      [body.segments[0].requests, body.insights, body.limits_report, body.onboarding, body.new_outcomes, body.features, body.feature_funnels],
+      [3, null, null, null, null, null, null]
+    )
   } finally {
     Object.assign(rpc, saved)
   }
@@ -1121,4 +1129,126 @@ test("Own key upsell events keep only what was shown or tapped, where and from w
   assert.deepEqual([logged[0].action, logged[0].where, logged[0].from, logged[0].discount], ["tap", "search", "panel", true])
   assert.ok(!JSON.stringify(logged[0]).includes("secret"))
   assert.deepEqual([logged[1].action, logged[1].where], [undefined, undefined])
+})
+
+test("Own key upsell from Settings keeps where it was tapped", async () => {
+  events = []
+  assert.equal((await event(post("/api/v2/event", { kind: "byok_upsell", installId: INSTALL, action: "tap", where: "settings", from: "panel" }), ctx())).status, 200)
+  await new Promise((r) => setTimeout(r, 0))
+  assert.equal(events.find((e) => e.kind === "byok_upsell")?.data.where, "settings")
+})
+
+const SID = "5b0a1c2d-3e4f-4a5b-8c6d-7e8f9a0b1c2d"
+const PSID = "6c1b2d3e-4f5a-4b6c-9d7e-8f9a0b1c2d3e"
+const APP_ID = "3f2b1c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d"
+
+test("feature steps: only registry features, actions and values are kept, with the session they belong to", async () => {
+  const send = (body: Record<string, unknown>) => event(post("/api/v2/event", { installId: INSTALL, client: { platform: "ios", version: "2.5.0", locale: "en-US", build: "71" }, ...body }), ctx())
+  events = []
+  assert.equal((await send({ kind: "use", f: "chat", a: "open", via: "search", sid: SID, n: 5, prev: "search.run", dt: 7.4, s: "panel", page: "https://secret.example", title: "secret" })).status, 200)
+  assert.equal((await send({ kind: "use", f: "settings", a: "change", key: "theme", val: "on", sid: SID, n: 6, prev: "chat.open", dt: 99999 })).status, 200)
+  assert.equal((await send({ kind: "use", f: "settings", a: "change", key: "my notes", val: "hello" })).status, 200)
+  assert.equal((await send({ kind: "use", f: "tour", a: "step", step: 3, n: 0, prev: "nonsense.step", sid: "not-a-uuid", s: "desktop" })).status, 200)
+  // The app sends its fields as strings.
+  assert.equal((await send({ kind: "use", f: "later", a: "list", via: "link", reminders: "3", watches: "12345", s: "panel" })).status, 200)
+  // Not in the registry, an action the feature doesn't have, or a feature with its own kind: refused.
+  assert.equal((await send({ kind: "use", f: "spyware", a: "open" })).status, 400)
+  assert.equal((await send({ kind: "use", f: "chat", a: "delete_everything" })).status, 400)
+  assert.equal((await send({ kind: "use", f: "insert", a: "copied" })).status, 400)
+  await new Promise((r) => setTimeout(r, 0))
+  const logged = events.filter((e) => e.kind === "use").map((e) => e.data)
+  assert.equal(logged.length, 5)
+  assert.deepEqual([logged[4].a, logged[4].reminders, logged[4].watches, logged[4].via], ["list", 3, undefined, "link"])
+  assert.deepEqual(logged[0], { platform: "ios", version: "2.5.0", locale: "en-US", build: 71, f: "chat", a: "open", via: "search", sid: SID, n: 5, prev: "search.run", dt: 7, s: "panel" })
+  assert.deepEqual([logged[1].key, logged[1].val, logged[1].dt], ["theme", "on", 3600])
+  assert.deepEqual([logged[2].key, logged[2].val], [undefined, undefined])
+  assert.deepEqual([logged[3].step, logged[3].n, logged[3].prev, logged[3].sid, logged[3].s], [3, undefined, undefined, undefined, undefined])
+  assert.ok(!JSON.stringify(events).includes("secret"))
+})
+
+test("feature steps in a batch: each kept or left out on its own, one request counted, the app's session linked", async () => {
+  events = []
+  const body = {
+    appId: APP_ID, installId: INSTALL, audience: "test",
+    client: { platform: "ios", version: "2.5", locale: "en" },
+    batch: [
+      { kind: "use", f: "paywall", a: "shown", via: "deeplink", sid: SID, n: 1, psid: PSID, s: "app" },
+      { kind: "use", f: "paywall", a: "plan", plan: "yearly", sid: SID, n: 2, prev: "paywall.shown", dt: 3 },
+      { kind: "use", f: "nope", a: "x" },
+      { kind: "chat", ok: true },
+      "garbage",
+      { kind: "renewal_off", reason: "price", product: "com.contextflow.pro.monthly", from: "app", sid: SID, n: 3 }
+    ]
+  }
+  const res = await event(post("/api/v2/event", body), ctx())
+  assert.equal(res.status, 200)
+  assert.deepEqual(await res.json(), { ok: true, kept: 3, left_out: 3 })
+  await new Promise((r) => setTimeout(r, 0))
+  assert.deepEqual(events.map((e) => [e.kind, e.data.f ?? e.data.reason, e.data.n]), [["use", "paywall", 1], ["use", "paywall", 2], ["renewal_off", "price", 3]])
+  assert.ok(events.every((e) => e.install === INSTALL && e.data.app === APP_ID && e.data.audience === "test"))
+  assert.equal(events[0].data.psid, PSID)
+  // A batch with a funnel kind counts against the small allowance, once.
+  assert.equal(counters.get(`event:${APP_ID}`), 1)
+  // Nothing allowed in it: refused.
+  assert.equal((await event(post("/api/v2/event", { installId: INSTALL, batch: [{ kind: "x" }] }), ctx())).status, 400)
+  assert.equal((await event(post("/api/v2/event", { installId: INSTALL, batch: [] }), ctx())).status, 400)
+  // At most 25 steps are read.
+  events = []
+  const many = Array.from({ length: 40 }, (_, i) => ({ kind: "use", f: "panel", a: "open", n: i + 1 }))
+  assert.deepEqual(await (await event(post("/api/v2/event", { installId: INSTALL, batch: many }), ctx())).json(), { ok: true, kept: 25, left_out: 0 })
+})
+
+test("feature steps have their own daily allowance, apart from the funnel events", async () => {
+  const send = (body: Record<string, unknown>) => event(post("/api/v2/event", { installId: INSTALL, ...body }), ctx())
+  serverConfig.eventDailyLimit = 1
+  serverConfig.useEventDailyLimit = 2
+  assert.equal((await send({ kind: "ext_on" })).status, 200)
+  assert.equal((await send({ kind: "ext_on" })).status, 429)
+  assert.equal((await send({ kind: "use", f: "panel", a: "open" })).status, 200)
+  assert.equal((await send({ batch: [{ kind: "use", f: "panel", a: "close" }, { kind: "use", f: "chats", a: "open" }] })).status, 200)
+  assert.equal((await send({ kind: "use", f: "panel", a: "open" })).status, 429)
+  assert.equal(counters.get(`event:use:${INSTALL}`), 2)
+})
+
+test("answers, refusals and AI searches carry the session step they were; app questions say so", async () => {
+  const c = ctx()
+  await events$(await chat(ask({ ui: { sid: SID, n: 3, prev: "bubble.question", dt: 2, s: "page", via: "bubble", junk: "secret" } }), c))
+  await Promise.all(c.pending)
+  const answered = events.find((e) => e.kind === "chat")?.data
+  assert.deepEqual([answered?.sid, answered?.n, answered?.prev, answered?.dt, answered?.s, answered?.via], [SID, 3, "bubble.question", 2, "page", "bubble"])
+  assert.ok(!JSON.stringify(answered).includes("secret"))
+
+  events = []
+  const fromApp = ctx()
+  await events$(await chat(ask({ context: "chat", from: "app", messages: [{ role: "user", content: "And?" }] }), fromApp))
+  await Promise.all(fromApp.pending)
+  assert.equal(events.find((e) => e.kind === "chat")?.data.s, "app")
+
+  events = []
+  const refused = ctx()
+  await chat(askHistory({ ui: { sid: SID, n: 9, via: "chip" }, client: { platform: "ios", version: "2.5.0", audience: "test" } }), refused)
+  await Promise.all(refused.pending)
+  const pro = events.find((e) => e.kind === "pro_only")?.data
+  assert.deepEqual([pro?.sid, pro?.n, pro?.via, pro?.audience], [SID, 9, undefined, "test"], "Ask your chats has no ways in of its own")
+
+  events = []
+  const search = ctx()
+  await find(post("/api/v2/find", { installId: INSTALL, query: "q", chats: [{ id: "c1", title: "T", text: "x" }], ui: { sid: SID, n: 4, prev: "ai_search.on" } }), search)
+  await Promise.all(search.pending)
+  assert.deepEqual([events[0]?.kind, events[0]?.data.sid, events[0]?.data.prev], ["pro_only", SID, "ai_search.on"])
+})
+
+test("rows written by a deploy preview or our own scripts are marked as tests", async () => {
+  const send = (body: Record<string, unknown>) => event(post("/api/v2/event", { installId: INSTALL, ...body }), ctx())
+  events = []
+  process.env.CONTEXT = "deploy-preview"
+  try {
+    await send({ kind: "ext_on", client: { version: "2.5.0" } })
+  } finally {
+    delete process.env.CONTEXT
+  }
+  await send({ kind: "ext_on", client: { version: "calibrate" } })
+  await send({ kind: "ext_on", client: { version: "2.5.0" } })
+  await new Promise((r) => setTimeout(r, 0))
+  assert.deepEqual(events.map((e) => [e.data.audience, e.data.deploy]), [["test", "deploy-preview"], ["test", undefined], [undefined, undefined]])
 })
