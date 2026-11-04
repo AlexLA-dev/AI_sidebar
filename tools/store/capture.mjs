@@ -1,4 +1,5 @@
 // Captures real ContextFlow UI states for App Store screenshots.
+// The build needs CF_OPEN_SHADOW=1: these scripts read inside the panel's shadow root (production closes it).
 // Needs: tools/preview/server.mts running on :8787 and an extension build pointing at it.
 //   node tools/store/capture.mjs <extensionDir> <outDir> [lang]
 import { chromium } from "playwright"

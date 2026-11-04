@@ -1,5 +1,7 @@
 // End-to-end check of the extension in Chromium against tools/preview/server.mts.
 // Usage: node tools/preview/e2e.mjs <extensionDir> <outDir>   (needs `playwright`)
+// The build must leave the panel's shadow root open for these checks (production closes it):
+//   CF_API_BASE=http://localhost:8787 CF_OPEN_SHADOW=1 node scripts/build-extension.mjs --out=<extensionDir>
 import { chromium } from "playwright"
 import { mkdirSync } from "node:fs"
 

@@ -6,6 +6,7 @@
 //   --watch  rebuild on change      --out=<dir>  custom output directory
 //   CF_API_BASE=https://…  point the build at another backend (default: production)
 //   CF_WATCH_EVERY_S=60    page watch checks a page every minute (test builds; default 15 minutes)
+//   CF_OPEN_SHADOW=1       the panel's shadow root left open for Playwright checks (test builds only)
 //
 // Output layout (stable file names, so the Xcode project never needs edits):
 //   manifest.json  welcome.html  popup.html  dist/*.js  icons/*.png  _locales/<lang>/messages.json
@@ -21,6 +22,10 @@ const target = args.target === "chrome" ? "chrome" : "safari"
 const out = resolve(root, typeof args.out === "string" ? args.out : target === "safari" ? "ContextFlow/Shared (Extension)/Resources" : "build/chrome")
 const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8"))
 const apiBase = process.env.CF_API_BASE || "https://aisidebar.netlify.app"
+// Test builds only: the panel's shadow root left open, so Playwright checks can read inside it. Production keeps
+// it closed (no page script can read the panel: Copied, the chats, the answers), and the two never meet.
+const openShadow = process.env.CF_OPEN_SHADOW === "1"
+if (openShadow && apiBase === "https://aisidebar.netlify.app") throw new Error("CF_OPEN_SHADOW=1 is for test builds (set CF_API_BASE to a local stand)")
 
 function manifest() {
   const icons = Object.fromEntries([16, 32, 48, 64, 96, 128, 256, 512].map((s) => [String(s), `icons/icon-${s}.png`]))
@@ -101,6 +106,7 @@ const options = {
     __API_BASE__: JSON.stringify(apiBase),
     __VERSION__: JSON.stringify(pkg.version),
     __TARGET__: JSON.stringify(target),
+    __SHADOW_MODE__: JSON.stringify(openShadow ? "open" : "closed"),
     // Page watch: how often a page is checked, in seconds (15 minutes; test builds: CF_WATCH_EVERY_S=60).
     __WATCH_EVERY_S__: String(Number(process.env.CF_WATCH_EVERY_S) || 900),
     "process.env.NODE_ENV": JSON.stringify("production")
