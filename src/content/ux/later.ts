@@ -49,6 +49,8 @@ export interface LaterItem {
 export interface LaterSource {
   items(): Promise<LaterItem[]>
   cancel(id: string): Promise<void>
+  // Opens a row itself (watching's own window for a watch): true when it did, and the list does nothing more.
+  open?(item: LaterItem): boolean
 }
 
 type Section = (ctx: LaterContext) => VNode | null

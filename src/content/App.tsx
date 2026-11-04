@@ -1545,6 +1545,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }
   /** A page reminder or a watch opens its page in a new tab; a reminder on an answer or a note, its chat at it. */
   const openLaterItem = (item: LaterItem) => {
+    // A source that opens its own rows (watching's window).
+    if (laterSources().some((s) => s.open?.(item))) return
     if (item.url) {
       window.open(item.url, "_blank", "noopener")
       return
