@@ -437,7 +437,8 @@ function chart(title, series, totalDays, opts = {}) {
   draw()
   // Wide enough to stay readable on a phone (scrolls sideways there, starting at the latest days).
   requestAnimationFrame(() => { scroller.scrollLeft = scroller.scrollWidth })
-  panel.append(el("h3", {}, title), legend, scroller, opts.note && el("p", { class: "hint" }, opts.note), tip)
+  // append() writes undefined out as text: add the note only when there is one.
+  panel.append(el("h3", {}, title), legend, scroller, ...(opts.note ? [el("p", { class: "hint" }, opts.note)] : []), tip)
   return panel
 }
 
