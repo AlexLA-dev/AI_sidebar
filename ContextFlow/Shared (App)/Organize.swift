@@ -66,10 +66,16 @@ struct OrganizeConfig {
     init(_ raw: Any?) {
         guard let raw = raw as? [String: Any] else { return }
         for (name, path) in Self.fields {
-            guard let number = raw[name] as? NSNumber, CFGetTypeID(number) != CFBooleanGetTypeID() else { continue }
+            guard let number = raw[name] as? NSNumber, !Self.isBoolean(number) else { continue }
             let value = number.doubleValue
             if value.isFinite, value >= 0, value <= 1_000 { self[keyPath: path] = value }
         }
+    }
+
+    /// A JSON true or false comes as a boolean NSNumber, of type "c" (char), which no JSON number has. Not
+    /// CFGetTypeID: the parity test builds this file on Linux too, where CoreFoundation's functions aren't there.
+    private static func isBoolean(_ number: NSNumber) -> Bool {
+        String(cString: number.objCType) == "c"
     }
 
     /// The fields by their names in /status.
