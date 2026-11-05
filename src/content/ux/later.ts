@@ -1,8 +1,9 @@
-// "Come back later" (2.5, the owner's "remind or watch"): the bell is about time ("I know when"), the eye about a
-// change ("I don't know when"), never mixed. This file is where the two meet without knowing each other: the window
-// "Come back later…" (the header's "…") shows Remind (LaterSheet) and, under it, the sections added here; the
-// selection bubble shows, after Template, the actions added here. Watching (its own branch on top of this one)
-// adds its section and its eye from its own files; nothing here or in App.tsx changes for it.
+// Reminders and watching (2.5, the owner's "remind or watch"): the bell is about time ("I know when"), the eye about
+// a change ("I don't know when"), never mixed. 2.5 (77), the director's split: two words and two icons everywhere,
+// never in one list: "Reminders" (the bell) and "Watching" (the eye), each its own list in the header's "…".
+// This file is where the two meet without knowing each other: the selection bubble shows, after the bell, the
+// actions added here (watching's eye); the lists ask the sources added here for their rows. Watching adds its
+// eye and its rows from its own files.
 
 import type { VNode } from "preact"
 
@@ -29,7 +30,7 @@ export interface BubbleContext {
   close(): void
 }
 
-/** A row in the "Reminders" list: a reminder (the bell) or something watched (the eye). */
+/** A row in the "Reminders" list (a reminder, the bell) or in "Watching" (something watched, the eye). */
 export interface LaterItem {
   id: string // "remind:<chat>:<message key>" | "watch:<id>"
   kind: "remind" | "watch"
@@ -45,8 +46,10 @@ export interface LaterItem {
   question?: string
 }
 
-/** Rows for a "Reminders" list in the panel (watching's): listed, and stopped from the list. */
+/** Rows for a list in the panel (watching's, in "Watching"): listed, and stopped from the list. */
 export interface LaterSource {
+  // What its rows are: the header's "…" shows that list (watching's: only where watching works, in Safari).
+  kind?: LaterItem["kind"]
   items(): Promise<LaterItem[]>
   cancel(id: string): Promise<void>
   // Opens a row itself (watching's own window for a watch): true when it did, and the list does nothing more.
@@ -62,7 +65,7 @@ const bubbleActionsById = new Map<string, BubbleAction>()
 const sourcesById = new Map<string, LaterSource>()
 let opener: ((from?: { selection: string | null; range: Range | null }) => void) | null = null
 
-/** A section under Remind in the window (watching: "Tell me when it changes"); null renders nothing. */
+/** A section under Remind in "Remind me about this page" (none since 2.5 (77): the window is time only). */
 export function addLaterSection(id: string, render: Section): void {
   sections.set(id, render)
 }
@@ -71,7 +74,7 @@ export function laterSections(): Section[] {
   return [...sections.values()]
 }
 
-/** An action in the selection bubble, after Template (watching: the eye on a price, stock, a date or a status). */
+/** An action in the selection bubble, after the bell (watching: the eye on a price, stock, a date or a status). */
 export function addBubbleAction(id: string, render: BubbleAction): void {
   bubbleActionsById.set(id, render)
 }
@@ -80,16 +83,21 @@ export function bubbleActions(): BubbleAction[] {
   return [...bubbleActionsById.values()]
 }
 
-/** Rows for the panel's "Reminders" list, besides the reminders in the chats (watching's). */
+/** Rows for the panel's lists, besides the reminders in the chats (watching's, in "Watching"). */
 export function addLaterSource(id: string, source: LaterSource): void {
   sourcesById.set(id, source)
+}
+
+/** Whether the panel has a list of `kind`: reminders always; watching where a source gives its rows. */
+export function listsKind(kind: LaterItem["kind"]): boolean {
+  return kind === "remind" || [...sourcesById.values()].some((s) => s.kind === kind)
 }
 
 export function laterSources(): LaterSource[] {
   return [...sourcesById.values()]
 }
 
-/** Opens the window (Remind first), e.g. when a page can't be watched: over the page when the panel is closed. */
+/** Opens "Remind me about this page", e.g. when a page can't be watched: over the page when the panel is closed. */
 export function openLater(from?: { selection: string | null; range: Range | null }): void {
   opener?.(from)
 }

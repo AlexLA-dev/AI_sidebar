@@ -262,8 +262,8 @@ enum Organize {
         let m = withPageChanges(Array(into[..<at]) + moved + Array(into[at...]))
         let nextTarget: OrganizeThread
         if let target {
-            let a = newest.map { $0 > target.activity ? $0 : target.activity } ?? target.activity
-            nextTarget = target.with(u: later(target.u, now), a: a, m: m)
+            // The chat the block goes to keeps its place in the list (2.5 (77): a move isn't a new message).
+            nextTarget = target.with(u: later(target.u, now), a: target.activity, m: m)
         } else {
             nextTarget = OrganizeThread(id: targetId, u: now, object: [:]).with(u: now, a: newest ?? source.activity, m: m)
         }

@@ -1,0 +1,154 @@
+// Reminders and watching apart (2.5 (77), the owner: "Watching isn't the same as Reminders, I wouldn't have looked
+// for it there"). The director's split: two words and two icons everywhere, never one list. The header's "…" has
+// "Remind me about this page…", "Reminders · N", "Watching · N" (where watching works) and Settings; each list
+// shows its own rows and, empty, says where its own are set.
+import assert from "node:assert/strict"
+import { mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs"
+import { tmpdir } from "node:os"
+import { join } from "node:path"
+import { before, test } from "node:test"
+import { pathToFileURL } from "node:url"
+
+import { build } from "esbuild"
+import { parseHTML } from "linkedom"
+
+const locales = new URL("../src/locales/", import.meta.url)
+const en = JSON.parse(readFileSync(new URL("en.json", locales), "utf8")) as Record<string, string>
+
+test("every language has both lists' words, and none still sends watching to Reminders", () => {
+  for (const file of readdirSync(locales).filter((f) => f.endsWith(".json"))) {
+    const s = JSON.parse(readFileSync(new URL(file, locales), "utf8")) as Record<string, string>
+    for (const key of ["uxWatching", "uxWatchingN", "uxNoWatching", "uxNoWatchingHint", "uxLater", "uxLaterTitle", "uxReminders", "uxRemindersN"]) {
+      assert.ok(s[key]?.trim(), `${file}: ${key}`)
+    }
+    assert.match(s.uxWatchingN, /\{0\}/, file)
+    // "You're already watching 5 pages. Stop one in …": the watching list, not Reminders.
+    const watching = s.uxWatching.slice(0, Math.min(5, s.uxWatching.length))
+    assert.ok(s.watchFull.includes(watching), `${file}: watchFull names ${s.uxWatching}`)
+    assert.ok(!s.watchFull.includes(s.uxReminders), `${file}: watchFull doesn't name ${s.uxReminders}`)
+    // The empty Reminders list points to the "…" item by its new name.
+    assert.ok(s.uxNoRemindersHint.includes(s.uxLaterTitle), `${file}: uxNoRemindersHint names ${s.uxLaterTitle}`)
+    assert.equal(s.uxLater.replace(/…$/, ""), s.uxLaterTitle, file)
+    assert.ok(!("watchTipEye" in s), `${file}: one tip for the bell and the eye now`)
+  }
+})
+
+// ------------------------------------------------------------ the lists and the "…", rendered
+
+let ui: any
+let dom: any
+before(async () => {
+  dom = parseHTML("<!doctype html><html><body><div id=\"root\"></div></body></html>")
+  Object.assign(globalThis, { window: dom.window, document: dom.document, Node: dom.window.Node, Element: dom.window.Element, ShadowRoot: dom.window.ShadowRoot })
+  dom.window.innerWidth = 375
+  dom.window.innerHeight = 700
+  dom.document.getSelection = () => null
+  const dir = mkdtempSync(join(tmpdir(), "cf-later-split-"))
+  const src = (p: string) => JSON.stringify(new URL(`../src/content/${p}`, import.meta.url).pathname)
+  writeFileSync(join(dir, "entry.ts"), `
+    import { h, render } from "preact"
+    import { RemindersSheet } from ${src("ux/RemindersSheet.tsx")}
+    import { PageMenu } from ${src("ux/PageMenu.tsx")}
+    import { SelIconsTip } from ${src("ux/SelTip.tsx")}
+    export function list(container: Element, kind: "remind" | "watch", items: unknown[]) {
+      render(h(RemindersSheet, { kind, items, onOpen() {}, onCancel() {}, onReschedule: async () => null, onClose() {} } as never), container)
+    }
+    export function tip(container: Element, watching: boolean) {
+      render(h("div", { class: "cf-bubble touch" }, h(SelIconsTip, { watching })), container)
+    }
+    export function menu(container: Element, reminders: number, watches: number | null) {
+      render(h(PageMenu, { reminders, watches, onLater() {}, onReminders() {}, onWatching() {}, onSettings() {}, onClose() {} }), container)
+    }
+  `)
+  const out = join(dir, "entry.mjs")
+  await build({
+    entryPoints: [join(dir, "entry.ts")], bundle: true, format: "esm", platform: "neutral", outfile: out, logLevel: "silent",
+    jsx: "automatic", jsxImportSource: "preact", nodePaths: [new URL("../node_modules", import.meta.url).pathname],
+    loader: { ".css": "empty" }
+  })
+  ui = await import(pathToFileURL(out).href)
+})
+
+const rows = [
+  { id: "remind:c1:k1", kind: "remind", title: "Car chat", status: "Tomorrow 9:00", sortAt: 2, at: 2, text: "Check the range" },
+  { id: "watch:w1", kind: "watch", title: "Shop", url: "https://shop.example/x", status: "Watching: price · checked a minute ago", sortAt: 1 }
+]
+// A container of its own each time (Preact keeps what it rendered into one).
+const root = () => {
+  const el = dom.document.createElement("div")
+  dom.document.body.appendChild(el)
+  return el
+}
+const text = (el: Element) => (el.textContent ?? "").replace(/\s+/g, " ")
+
+test("Reminders shows the bells only; Watching the eyes only", () => {
+  const r = root()
+  ui.list(r, "remind", rows)
+  assert.match(text(r.querySelector(".cf-sheet-title")), new RegExp(en.uxReminders))
+  assert.equal(r.querySelectorAll(".cf-later-item").length, 1)
+  assert.ok(text(r).includes("Car chat"))
+  assert.ok(!text(r).includes("Shop"))
+
+  const w = root()
+  ui.list(w, "watch", rows)
+  assert.match(text(w.querySelector(".cf-sheet-title")), new RegExp(en.uxWatching))
+  assert.equal(w.querySelectorAll(".cf-later-row").length, 1)
+  assert.ok(text(w).includes("Shop"))
+  assert.ok(!text(w).includes("Car chat"))
+})
+
+test("an empty list says where its own are set", () => {
+  const r = root()
+  ui.list(r, "remind", rows.filter((x) => x.kind === "watch"))
+  assert.ok(text(r).includes(en.uxNoReminders))
+  assert.ok(text(r).includes(en.uxNoRemindersHint))
+  const w = root()
+  ui.list(w, "watch", rows.filter((x) => x.kind === "remind"))
+  assert.ok(text(w).includes(en.uxNoWatching))
+  assert.ok(text(w).includes("Select a price, stock or a date and tap the eye."))
+})
+
+test("the header's \"…\": Remind me about this page, Reminders · N, Watching · N where watching works, Settings", () => {
+  const safari = root()
+  ui.menu(safari, 2, 3)
+  assert.deepEqual([...safari.querySelectorAll("[role=menuitem]")].map((b: Element) => text(b).trim()), [
+    en.uxLater, en.uxRemindersN.replace("{0}", "2"), en.uxWatchingN.replace("{0}", "3"), en.settings
+  ])
+  const chrome = root()
+  ui.menu(chrome, 0, null)
+  assert.deepEqual([...chrome.querySelectorAll("[role=menuitem]")].map((b: Element) => text(b).trim()), [en.uxLater, en.uxReminders, en.settings])
+})
+
+test("the bubble's tip: once, one for both icons (the eye's line where watching works)", async () => {
+  const store: Record<string, unknown> = {}
+  Object.assign(globalThis, { chrome: { storage: { local: {
+    get: async (key: string) => (key in store ? { [key]: store[key] } : {}),
+    set: async (values: Record<string, unknown>) => void Object.assign(store, values)
+  } } } })
+  const wait = () => new Promise((r) => setTimeout(r, 120))
+  const first = root()
+  ui.tip(first, true)
+  await wait()
+  const lines = [...first.querySelectorAll(".cf-sel-tip span")].map((el: Element) => text(el).trim())
+  assert.deepEqual(lines, [en.watchTipBell, en.watchTipWatch])
+  // The next bubble: no tip.
+  const second = root()
+  ui.tip(second, true)
+  await wait()
+  assert.equal(second.querySelector(".cf-sel-tip"), null)
+  // Where there's no watching (not Safari): the bell's line only.
+  for (const key of Object.keys(store)) delete store[key]
+  const plain = root()
+  ui.tip(plain, false)
+  await wait()
+  assert.deepEqual([...plain.querySelectorAll(".cf-sel-tip span")].map((el: Element) => text(el).trim()), [en.watchTipBell])
+})
+
+test("the bubble: the bell on every selection, before watching's eye, in both rows (touch and Mac)", () => {
+  const app = readFileSync(new URL("../src/content/App.tsx", import.meta.url), "utf8")
+  assert.equal(app.match(/\{remindButton\(bubble\)\}\n\s*\{bubbleExtras\}/g)?.length, 2)
+  const css = readFileSync(new URL("../src/content/ux/ux.css", import.meta.url), "utf8")
+  // On touch screens an icon (the row stays one line); the tip is out of the bubble's flow.
+  assert.match(css, /\.cf-bubble\.touch \.cf-sel-remind-l \{ display: none; \}/)
+  assert.match(css, /\.cf-bubble \.cf-sel-tip \{\n\s*position: absolute;/)
+})

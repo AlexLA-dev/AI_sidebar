@@ -24322,70 +24322,6 @@
         }
       }
     },
-    "Set one on an answer or a note, or on a page in Safari: … → Come back later.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Setze eine an einer Antwort oder Notiz oder auf einer Seite in Safari: … → Später zurückkommen."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pon uno en una respuesta o una nota, o en una página de Safari: … → Volver más tarde."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ajoutez-en un sur une réponse ou une note, ou sur une page dans Safari : … → Revenir plus tard."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Impostane uno su una risposta o una nota, o su una pagina in Safari: … → Tornare più tardi."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "回答やメモ、またはSafariのページで設定できます：… → あとで戻る。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "답변이나 메모, 또는 Safari의 페이지에서 설정하세요: … → 나중에 다시 보기."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Defina um em uma resposta ou nota, ou em uma página no Safari: … → Voltar mais tarde."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Поставьте его у ответа или заметки или на странице в Safari: … → Вернуться позже."
-          }
-        },
-        "uk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Поставте його біля відповіді чи нотатки або на сторінці в Safari: … → Повернутися пізніше."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "可以在回答或笔记上设置，或在 Safari 的页面上：… → 稍后再看。"
-          }
-        }
-      }
-    },
     "Change time": {
       "localizations": {
         "de": {
@@ -24962,134 +24898,6 @@
         }
       }
     },
-    "Come back later": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Später zurückkommen"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Volver más tarde"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Revenir plus tard"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tornare più tardi"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "あとで戻る"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "나중에 다시 보기"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Voltar mais tarde"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Вернуться позже"
-          }
-        },
-        "uk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Повернутися пізніше"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "稍后再看"
-          }
-        }
-      }
-    },
-    "Reading something you want to finish later? Tap … at the top of the panel, then Come back later…, and pick a time: the reminder opens this page. Answers and notes have Remind me in their … menu.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Du liest etwas, das du später zu Ende lesen willst? Tippe oben im Panel auf „…“, dann auf „Später zurückkommen…“ und wähle eine Zeit: Die Erinnerung öffnet diese Seite. Antworten und Notizen haben „Erinnern“ in ihrem Menü „…“."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "¿Lees algo que quieres terminar luego? Toca «…» arriba del panel, luego «Volver más tarde…» y elige una hora: el recordatorio abre esta página. Las respuestas y las notas tienen «Recordarme» en su menú «…»."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vous lisez quelque chose à finir plus tard ? Touchez « … » en haut du panneau, puis « Revenir plus tard… », et choisissez une heure : le rappel ouvre cette page. Les réponses et les notes ont « Me le rappeler » dans leur menu « … »."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stai leggendo qualcosa da finire più tardi? Tocca «…» in alto nel pannello, poi «Tornare più tardi…» e scegli un orario: il promemoria apre questa pagina. Risposte e note hanno «Ricordamelo» nel loro menu «…»."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "あとで読み終えたいページは、パネル上部の「…」から「あとで戻る…」をタップして時間を選ぶだけ。リマインダーがこのページを開きます。回答やメモの「…」メニューにも「リマインド」があります。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "나중에 마저 읽고 싶은 글인가요? 패널 위쪽의 ‘…’을 탭하고 ‘나중에 다시 보기…’에서 시간을 고르세요. 리마인더가 이 페이지를 열어 줘요. 답변과 메모의 ‘…’ 메뉴에도 ‘리마인더 설정’이 있어요."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lendo algo que quer terminar depois? Toque em “…” no topo do painel, depois em “Voltar mais tarde…” e escolha um horário: o lembrete abre esta página. Respostas e notas têm “Me lembrar” no menu “…”."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Читаете то, что хотите дочитать потом? Нажмите «…» вверху панели, затем «Вернуться позже…» и выберите время: напоминание откроет эту страницу. У ответов и заметок «Напомнить» есть в их меню «…»."
-          }
-        },
-        "uk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Читаєте те, що хочете дочитати потім? Натисніть «…» угорі панелі, потім «Повернутися пізніше…» й виберіть час: нагадування відкриє цю сторінку. У відповідей і нотаток «Нагадати» є в їхньому меню «…»."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "在读的内容想稍后读完？轻点面板顶部的“…”，再轻点“稍后再看…”并选择时间：提醒会打开这个网页。回答和笔记的“…”菜单里也有“提醒我”。"
-          }
-        }
-      }
-    },
     "Highlight what matters": {
       "localizations": {
         "de": {
@@ -25342,6 +25150,454 @@
           "stringUnit": {
             "state": "translated",
             "value": "置顶回答或笔记后，它会出现在对话顶部的栏中。轻点该栏即可跳转过去，再轻点一次跳到下一条。"
+          }
+        }
+      }
+    },
+    "In Safari, select a price, stock or a date and tap the eye.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Markiere in Safari einen Preis, die Verfügbarkeit oder ein Datum und tippe auf das Auge."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En Safari, selecciona un precio, la disponibilidad o una fecha y toca el ojo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dans Safari, sélectionnez un prix, le stock ou une date et touchez l’œil."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Safari, seleziona un prezzo, la disponibilità o una data e tocca l’occhio."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safari で価格、在庫、日付を選択して目をタップしてください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safari에서 가격, 재고, 날짜를 선택하고 눈을 탭하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Safari, selecione um preço, a disponibilidade ou uma data e toque no olho."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В Safari выделите цену, наличие или дату и нажмите глаз."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "У Safari виділіть ціну, наявність або дату й натисніть око."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在 Safari 中选中价格、库存或日期，然后点眼睛。"
+          }
+        }
+      }
+    },
+    "Nothing watched": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Beobachtungen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No vigilas nada"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucune surveillance"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non segui niente"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "見守りはありません"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "지켜보는 항목이 없습니다"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nada acompanhado"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Слежений нет"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Стежень немає"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "没有关注"
+          }
+        }
+      }
+    },
+    "Reading something you want to finish later? Select a line and tap the bell, or tap … at the top of the panel, then Remind me about this page…, and pick a time: the reminder opens this page. Answers and notes have Remind me in their … menu.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du liest etwas, das du später zu Ende lesen willst? Markiere eine Zeile und tippe auf die Glocke, oder tippe oben im Panel auf „…“, dann auf „An diese Seite erinnern…“, und wähle eine Zeit: Die Erinnerung öffnet diese Seite. Antworten und Notizen haben „Erinnern“ in ihrem Menü „…“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Lees algo que quieres terminar luego? Selecciona una línea y toca la campana, o toca «…» arriba del panel, luego «Recordarme esta página…», y elige una hora: el recordatorio abre esta página. Las respuestas y las notas tienen «Recordarme» en su menú «…»."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous lisez quelque chose à finir plus tard ? Sélectionnez une ligne et touchez la cloche, ou touchez « … » en haut du panneau, puis « Me rappeler cette page… », et choisissez une heure : le rappel ouvre cette page. Les réponses et les notes ont « Me le rappeler » dans leur menu « … »."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stai leggendo qualcosa da finire più tardi? Seleziona una riga e tocca la campanella, oppure tocca «…» in alto nel pannello, poi «Ricordami questa pagina…», e scegli un orario: il promemoria apre questa pagina. Risposte e note hanno «Ricordamelo» nel loro menu «…»."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "あとで読み終えたいページは、1行を選択してベルをタップするか、パネル上部の「…」から「このページをリマインド…」をタップして時間を選ぶだけ。リマインダーがこのページを開きます。回答やメモの「…」メニューにも「リマインド」があります。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "나중에 마저 읽고 싶은 글인가요? 한 줄을 선택하고 종을 탭하거나, 패널 위쪽의 ‘…’을 탭하고 ‘이 페이지 리마인더 설정…’에서 시간을 고르세요. 리마인더가 이 페이지를 열어 줘요. 답변과 메모의 ‘…’ 메뉴에도 ‘리마인더 설정’이 있어요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lendo algo que quer terminar depois? Selecione uma linha e toque no sino, ou toque em “…” no topo do painel, depois em “Me lembrar desta página…”, e escolha um horário: o lembrete abre esta página. Respostas e notas têm “Me lembrar” no menu “…”."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Читаете то, что хотите дочитать потом? Выделите строку и нажмите колокольчик или нажмите «…» вверху панели, затем «Напомнить об этой странице…», и выберите время: напоминание откроет эту страницу. У ответов и заметок «Напомнить» есть в их меню «…»."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Читаєте те, що хочете дочитати потім? Виділіть рядок і натисніть дзвіночок або натисніть «…» угорі панелі, потім «Нагадати про цю сторінку…», і виберіть час: нагадування відкриє цю сторінку. У відповідей і нотаток «Нагадати» є в їхньому меню «…»."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在读的内容想稍后读完？选中一行后轻点铃铛，或轻点面板顶部的“…”，再轻点“提醒我看这个页面…”并选择时间：提醒会打开这个网页。回答和笔记的“…”菜单里也有“提醒我”。"
+          }
+        }
+      }
+    },
+    "Remind me about this page": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An diese Seite erinnern"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recordarme esta página"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Me rappeler cette page"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ricordami questa pagina"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このページをリマインド"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 페이지 리마인더 설정"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Me lembrar desta página"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Напомнить об этой странице"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нагадати про цю сторінку"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提醒我看这个页面"
+          }
+        }
+      }
+    },
+    "Set one on an answer or a note, with the bell by selected text in Safari, or on a page: … → Remind me about this page.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Setze eine an einer Antwort oder Notiz, in Safari mit der Glocke an markiertem Text oder auf einer Seite: … → An diese Seite erinnern."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pon uno en una respuesta o una nota, en Safari con la campana junto al texto seleccionado, o en una página: … → Recordarme esta página."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajoutez-en un sur une réponse ou une note, dans Safari avec la cloche près d’un texte sélectionné, ou sur une page : … → Me rappeler cette page."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impostane uno su una risposta o una nota, in Safari con la campanella sul testo selezionato, o su una pagina: … → Ricordami questa pagina."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "回答やメモで、Safari で選択したテキストのベルで、またはページで設定できます：… → このページをリマインド。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "답변이나 메모에서, Safari에서 선택한 텍스트의 종으로, 또는 페이지에서 설정하세요: … → 이 페이지 리마인더 설정."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Defina um em uma resposta ou nota, no Safari com o sino no texto selecionado, ou em uma página: … → Me lembrar desta página."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поставьте его у ответа или заметки, в Safari колокольчиком у выделенного текста или на странице: … → Напомнить об этой странице."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поставте його біля відповіді чи нотатки, у Safari дзвіночком біля виділеного тексту або на сторінці: … → Нагадати про цю сторінку."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可以在回答或笔记上设置，在 Safari 中用选中文字旁的铃铛，或在网页上：… → 提醒我看这个页面。"
+          }
+        }
+      }
+    },
+    "Stop watching": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nicht mehr beobachten"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dejar de vigilar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrêter de surveiller"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Smetti di seguire"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "見守りをやめる"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "알림 그만 받기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parar de acompanhar"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перестать следить"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перестати стежити"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "停止关注"
+          }
+        }
+      }
+    },
+    "Watching": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beobachtungen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vigilando"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Surveillances"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seguiti"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "見守り"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "지켜보기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acompanhamentos"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Слежения"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Стеження"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关注"
           }
         }
       }

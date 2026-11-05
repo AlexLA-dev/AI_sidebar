@@ -1,13 +1,17 @@
 import SwiftUI
 
-// "Come back later" in the app (2.5, the owner's "remind or watch"): the bell is about time ("I know when"), the
-// eye about a change ("I don't know when"), never mixed. "Reminders" lists both: the reminders in the chats (here)
-// and what's watched (watching's branch registers its source with LaterCenter, one line in its AppDelegate).
-// The same shape as src/content/ux/later.ts.
+// Reminders and watching in the app (2.5, the owner's "remind or watch"): the bell is about time ("I know when"),
+// the eye about a change ("I don't know when"), never mixed. 2.5 (77), the director's split: two words and two
+// icons everywhere, never one list: "Reminders" (the bell) holds the reminders in the chats (here), "Watching" (the
+// eye) what's watched (watching registers its source with LaterCenter, one line in its AppDelegate). The same
+// shape as src/content/ux/later.ts.
 
-/// A row in "Reminders": a reminder (the bell) or something watched (the eye).
+/// A row in "Reminders" (a reminder, the bell) or in "Watching" (something watched, the eye).
 struct LaterItem: Identifiable, Hashable {
-    enum Kind: String { case remind, watch }
+    enum Kind: String, Identifiable {
+        case remind, watch
+        var id: String { rawValue }
+    }
     /// "remind:<chat>:<message key>" | "watch:<id>"
     let id: String
     let kind: Kind
@@ -22,8 +26,10 @@ struct LaterItem: Identifiable, Hashable {
     var here = true
 }
 
-/// Rows that aren't reminders in the chats (watching): listed, and stopped from the list.
+/// Rows that aren't reminders in the chats (watching's, in "Watching"): listed, and stopped from the list.
 protocol LaterSource {
+    /// What its rows are: the Chats screen shows that list (watching's eye).
+    var kind: LaterItem.Kind { get }
     func items() async -> [LaterItem]
     func cancel(_ id: String) async
 }
@@ -35,6 +41,11 @@ final class LaterCenter {
 
     func register(_ source: LaterSource) {
         sources.append(source)
+    }
+
+    /// Whether there's a list of `kind`: reminders always; watching once its source is in.
+    func lists(_ kind: LaterItem.Kind) -> Bool {
+        kind == .remind || sources.contains { $0.kind == kind }
     }
 }
 
@@ -55,7 +66,7 @@ extension ChatLibrary {
             ChatAI.reportUx("ux_remind", event.merging(["action": "cancelled"]) { $1 })
             return true
         }
-        // A note made on a page says that page's title; a page reminder ("Come back later") opens the page
+        // A note made on a page says that page's title; a page reminder ("Remind me about this page") opens the page
         // (src/shared/reminders.ts reminderNotice).
         let title = entry.isNote ? (entry.page.map { $0.title.isEmpty ? $0.url : $0.title } ?? thread.name) : thread.name
         let page = entry.remind?.page == true ? entry.page.flatMap { URL(string: $0.url) } : nil
@@ -99,10 +110,12 @@ extension ChatLibrary {
 
 // MARK: - The list
 
-/// "Reminders": the bells and the eyes together, the soonest first, each with its status; a tap opens what it's
-/// about, a swipe cancels it, and a reminder's time can be changed.
+/// "Reminders" (the bells, the soonest first) or "Watching" (the eyes, the latest checked first), each row with its
+/// status; a tap opens what it's about, a swipe cancels it, and a reminder's time can be changed. Empty, each says
+/// where its own are set.
 struct RemindersView: View {
     @ObservedObject var library: ChatLibrary
+    var kind: LaterItem.Kind = .remind
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
     @State private var items: [LaterItem] = []
@@ -118,27 +131,33 @@ struct RemindersView: View {
                         .buttonStyle(.plain)
                         .swipeActions(edge: .trailing) {
                             Button(role: .destructive) { Task { await cancel(item) } } label: {
-                                Label(item.kind == .remind ? "Don't remind" : "Stop", systemImage: item.kind == .remind ? "bell.slash" : "eye.slash")
+                                Label(item.kind == .remind ? "Don't remind" : "Stop watching", systemImage: item.kind == .remind ? "bell.slash" : "eye.slash")
                             }
                         }
                         .contextMenu {
                             if item.kind == .remind { Button("Change time") { changing = item } }
-                            Button(item.kind == .remind ? "Don't remind" : "Stop", role: .destructive) { Task { await cancel(item) } }
+                            Button(item.kind == .remind ? "Don't remind" : "Stop watching", role: .destructive) { Task { await cancel(item) } }
                         }
                 }
             }
             .overlay {
                 if loaded && items.isEmpty {
                     VStack(spacing: 8) {
-                        Image(systemName: "list.bullet").font(.largeTitle).foregroundColor(.secondary)
-                        Text("No reminders").font(.headline)
-                        Text("Set one on an answer or a note, or on a page in Safari: … → Come back later.")
-                            .font(.subheadline).foregroundColor(.secondary).multilineTextAlignment(.center)
+                        Image(systemName: kind == .remind ? "bell" : "eye").font(.largeTitle).foregroundColor(.secondary)
+                        if kind == .remind {
+                            Text("No reminders").font(.headline)
+                            Text("Set one on an answer or a note, with the bell by selected text in Safari, or on a page: … → Remind me about this page.")
+                                .font(.subheadline).foregroundColor(.secondary).multilineTextAlignment(.center)
+                        } else {
+                            Text("Nothing watched").font(.headline)
+                            Text("In Safari, select a price, stock or a date and tap the eye.")
+                                .font(.subheadline).foregroundColor(.secondary).multilineTextAlignment(.center)
+                        }
                     }
                     .padding(32)
                 }
             }
-            .navigationTitle("Reminders")
+            .navigationTitle(kind == .remind ? "Reminders" : "Watching")
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif
@@ -156,9 +175,9 @@ struct RemindersView: View {
             .task {
                 await reload()
                 // A step for the feature counters (the "use" kind, src/shared/usage.ts): how many of each it held.
-                ChatAI.reportOrganize("use", ["f": "later", "a": "open", "via": "tab", "s": "app",
-                                              "reminders": String(items.filter { $0.kind == .remind }.count),
-                                              "watches": String(items.filter { $0.kind == .watch }.count)])
+                ChatAI.reportOrganize("use", ["f": "later", "a": "open", "via": "tab", "s": "app", "what": kind.rawValue,
+                                              "reminders": String(kind == .remind ? items.count : 0),
+                                              "watches": String(kind == .watch ? items.count : 0)])
             }
             .refreshable { await reload() }
         }
@@ -183,11 +202,15 @@ struct RemindersView: View {
     }
 
     private func reload() async {
-        let pending = await MessageReminders.pending()
-        var all = library.reminderItems(pending: pending)
-        for source in LaterCenter.shared.sources { all += await source.items() }
-        // Reminders the soonest first; watches after them, the latest checked first.
-        items = all.filter { $0.kind == .remind }.sorted { $0.sortAt < $1.sortAt } + all.filter { $0.kind == .watch }.sorted { $0.sortAt > $1.sortAt }
+        if kind == .remind {
+            // The soonest first.
+            items = library.reminderItems(pending: await MessageReminders.pending()).sorted { $0.sortAt < $1.sortAt }
+        } else {
+            // The latest checked first.
+            var all: [LaterItem] = []
+            for source in LaterCenter.shared.sources where source.kind == kind { all += await source.items() }
+            items = all.filter { $0.kind == kind }.sorted { $0.sortAt > $1.sortAt }
+        }
         loaded = true
     }
 

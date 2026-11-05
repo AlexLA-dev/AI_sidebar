@@ -1,4 +1,4 @@
-/* Page watch (2.5): "Notify me when it changes" in the "Come back later…" window, and the eye by a selection. */
+/* Page watch (2.5): its window (the eye by a selection, or a row in "Watching"), and the eye in the bubble. */
 /* Inset like Remind's rows above; the title (chat UX's .cf-sheet-title, with the eye) lines up with the bell's. */
 .cf-watch { display: flex; flex-direction: column; gap: 8px; padding: 12px 10px 4px; border-top: 1px solid var(--border); }
 .cf-watch .cf-watch-h { margin: 0 -10px; padding-bottom: 4px; }
@@ -21,15 +21,3 @@ textarea.cf-watch-cond { display: block; resize: none; line-height: 1.35; min-he
 .cf-bubble.touch .cf-bubble-row button.cf-sel-watch { flex: none; padding-left: 10px; padding-right: 10px; }
 /* The eye's own window (WatchSheet): watching alone, so no line over its title. */
 .cf-watch-sheet .cf-watch { padding-top: 4px; border-top: 0; }
-/* What the eye does, once, by the eye in the bubble (.cf-snack's look): under the bubble, or over it near the bottom. */
-.cf-bubble .cf-watch-tip {
-  position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 1; display: block;
-  padding: 9px 12px; white-space: normal; text-align: left; font-size: 13px; font-weight: 500; line-height: 1.35;
-  pointer-events: none; animation: cf-fade 0.15s ease-out;
-}
-.cf-bubble .cf-watch-tip.up { top: auto; bottom: calc(100% + 6px); }
-.cf-bubble.touch .cf-sel-watch .cf-watch-tip { display: block; }
-/* The bell and the eye, once, between Remind and watching in "Come back later…". */
-.cf-watch-later-tip { display: flex; flex-direction: column; gap: 4px; margin: 6px 2px 2px; padding: 9px 11px; border-radius: 10px; background: var(--accent-soft); font-size: 12.5px; line-height: 1.4; color: var(--text); }
-.cf-watch-later-tip span { display: flex; align-items: flex-start; gap: 6px; }
-.cf-watch-later-tip svg { flex: none; margin-top: 2px; color: var(--accent); }
