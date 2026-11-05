@@ -10,8 +10,9 @@
   - ?layout=overlay: the messages window at the bottom right, inside #interop-outlet's open shadow root (the desktop
     layout iPad Safari gets): the list above, the reply box (msg-form__contenteditable) with "Maximize compose field" at
     its top right, the footer below it with the attach buttons and Send at its right;
-  - ?layout=page (default): the /messaging page of a phone, in the document: a header, the thread, a read receipt
-    under the last message at the right, the reply bar fixed at the bottom with Send beside the box.
+  - ?layout=page (default): the /messaging page of a phone, in the document: a header, the thread opened at its
+    latest message, a read receipt under it, suggested replies (chips) right above the reply bar, the bar fixed at
+    the bottom with Send beside the box: nothing free around the box. ?chips=0 without the suggested replies.
   window.stand.reply: the reply box; window.stand.sent(): whether Send is on.
 -->
 <style>
@@ -34,13 +35,16 @@
   .bar .msg-form__send-button { height: 36px; border: 0; background: none; color: #0a66c2; font-weight: 600 }
   .bar .msg-form__send-button:disabled { color: #aaa }
   .msg-form__contenteditable p { margin: 0 }
+  .msg-s-smart-replies { position: fixed; left: 0; right: 0; bottom: 52px; display: flex; gap: 8px; padding: 6px 10px; overflow: hidden; background: #fff; white-space: nowrap }
+  .msg-s-smart-replies button { flex: none; height: 32px; padding: 0 14px; border-radius: 16px; border: 1px solid #0a66c2; background: #fff; color: #0a66c2; font-size: 15px }
 </style>
 </head>
 <body>
 <div id="page" hidden>
   <div class="page-head"><button aria-label="Back">‹</button><span class="avatar"></span><b>Ben Ortiz</b><button aria-label="More">⋯</button></div>
   <div class="msg-s-message-list" id="page-list"></div>
-  <div style="height:80px"></div>
+  <div style="height:104px"></div>
+  <div class="msg-s-smart-replies" id="replies" role="list" aria-label="Suggested replies"><button type="button">Sounds good!</button><button type="button">Thanks, see you then</button><button type="button">Will do 👍</button></div>
   <form class="msg-form bar" onsubmit="return false">
     <button type="button" class="plus" aria-label="Attach">+</button>
     <div class="msg-form__contenteditable" id="page-reply" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Write a message…"><p><br></p></div>
@@ -56,6 +60,10 @@
 const params = new URLSearchParams(location.search)
 const layout = params.get("layout") === "overlay" ? "overlay" : "page"
 const thread = [
+  ["Ben Ortiz", "Mon", "Hi! Anna said you moved your weekly sync to Thursdays and halved it. Mind if I ask how that went?"],
+  ["You", "Mon", "Sure, happy to share. It took a few weeks to settle, but people like it."],
+  ["Ben Ortiz", "Mon", "Did you drop any meetings completely, or just shorten them?"],
+  ["You", "Tue", "Both. Status updates went async, the rest got 25 minutes instead of an hour."],
   ["Ben Ortiz", "10:02", "Thanks for the intro! When are you free next week? I'd love to hear how your team handles the weekly sync."],
   ["You", "10:05", "Tuesday works. What time suits you?"],
   ["Ben Ortiz", "10:07", "Great — could you send me the agenda and the address before then?"]
@@ -72,6 +80,9 @@ if (layout === "page") {
   reply.addEventListener("input", () => { send.disabled = !reply.innerText.trim() })
   window.stand.reply = reply
   window.stand.sent = () => !send.disabled
+  if (params.get("chips") === "0") document.getElementById("replies").remove()
+  // A conversation opens at its latest message, right above the reply bar.
+  addEventListener("load", () => scrollTo(0, document.documentElement.scrollHeight))
 } else {
   document.getElementById("overlay-page").hidden = false
   const root = document.getElementById("interop-outlet").attachShadow({ mode: "open" })
