@@ -509,7 +509,5 @@
   "watchInStock": "재고 있음",
   "watchOutOfStock": "품절",
   "watchChanged": "바뀜: {0}",
-  "watchChangedBody": "지금: {0}",
-
-  "tipsVideos": "동영상과 함께 보기: ContextFlow 앱 → {0}"
+  "watchChangedBody": "지금: {0}"
 }

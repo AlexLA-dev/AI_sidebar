@@ -1,10 +1,11 @@
 // The panel's Tips (2.5 (78), the owner's note: mirror the app's Tips in the extension). "…" in the header → Tips:
 // the app's blocks, texts and Pro badges (tips/data.ts), each block folding like the app's, which ones are open
-// kept on this device. No clips, so the extension stays light: the first line sends to the app's Tips, where they
-// play (a link where the panel can open the app).
+// kept on this device. 2.5 (81): an open block's title stays at the top while its cards scroll (tips.css), and the
+// cards play the app's clips, the web versions from the extension's own files (dist/clips), each loaded only once
+// its card is on screen.
 
 import type { VNode } from "preact"
-import { useEffect, useRef, useState } from "preact/hooks"
+import { useEffect, useMemo, useRef, useState } from "preact/hooks"
 
 import { t } from "../../shared/i18n"
 import * as Icon from "../icons"
@@ -33,9 +34,82 @@ export function tipsLabel(): string | null {
   return data ? say(data.heading) : null
 }
 
-/** Which blocks are open, kept on this device: the first ("Get started") until one is opened or closed. */
-function useOpenBlocks(first: string): [string[], (id: string) => void] {
+function stillOnly(): boolean {
+  try {
+    return matchMedia("(prefers-reduced-motion: reduce)").matches
+  } catch {
+    return false
+  }
+}
+
+/** How a clip starts: prepared when the sheet opens ("auto" the first, "metadata" the next two), or not at all (null). */
+type Load = "auto" | "metadata" | null
+
+/**
+ * A card's clip, read from the extension's own files (on the device, no network). The loading rule (2.5 (81), the
+ * owner): nothing before Tips opens; on opening, only the first three clips of the open block are prepared; any other
+ * clip loads once its card is on screen in an open block, or on a tap; closing Tips lets go of every clip. Muted and
+ * looping like the app's, paused off screen; with Reduce Motion, one still frame (the app's, at 3.5 s).
+ */
+function TipClip({ name, lang, load }: { name: string; lang: string; load: Load }): VNode {
+  const ref = useRef<HTMLVideoElement>(null)
+  const still = stillOnly()
+  const [shown, setShown] = useState(load !== null)
+  const play = (video: HTMLVideoElement) => {
+    if (!still && video.getAttribute("src")) void video.play?.()?.catch(() => undefined)
+  }
+  useEffect(() => {
+    const video = ref.current
+    if (!video) return
+    let seen: IntersectionObserver | null = null
+    if (typeof IntersectionObserver !== "undefined") {
+      seen = new IntersectionObserver(([entry]) => {
+        if (entry?.isIntersecting) {
+          setShown(true)
+          play(video)
+        } else {
+          video.pause?.()
+        }
+      }, { root: video.closest(".cf-sheet"), threshold: 0.2 })
+      seen.observe(video)
+    }
+    return () => {
+      seen?.disconnect()
+      // Tips closed (or the block folded): the clip is let go.
+      video.pause?.()
+      video.removeAttribute("src")
+      video.load?.()
+    }
+  }, [])
+  // Prepared ones wait on the still frame until they're seen; the first and the ones loaded on screen play at once.
+  const waits = still || load === "metadata"
+  const src = shown ? `${chrome.runtime.getURL(`dist/clips/${lang}/${name}.mp4`)}${waits ? "#t=3.5" : ""}` : undefined
+  return (
+    <video
+      ref={ref}
+      class="cf-tip-clip"
+      muted
+      loop
+      playsinline
+      autoplay={shown && !waits}
+      preload={load ?? (shown ? "auto" : "none")}
+      aria-hidden="true"
+      src={src}
+      onClick={(e) => {
+        setShown(true)
+        play(e.currentTarget)
+      }}
+    />
+  )
+}
+
+/**
+ * Which blocks are open, kept on this device: the first ("Get started") until one is opened or closed. `ready` once
+ * that's read: no card (and no clip) shows before, so a block left folded never starts loading.
+ */
+function useOpenBlocks(first: string): [string[], (id: string) => void, boolean] {
   const [open, setOpen] = useState<string[]>([first])
+  const [ready, setReady] = useState(false)
   useEffect(() => {
     let alive = true
     void (async () => {
@@ -45,6 +119,7 @@ function useOpenBlocks(first: string): [string[], (id: string) => void] {
       } catch {
         // No storage: the first block open.
       }
+      if (alive) setReady(true)
     })()
     return () => {
       alive = false
@@ -59,13 +134,14 @@ function useOpenBlocks(first: string): [string[], (id: string) => void] {
       // Kept while the sheet is open.
     }
   }
-  return [open, toggle]
+  return [open, toggle, ready]
 }
 
-function TipCard({ tip, mac }: { tip: TipEntry; mac: boolean }): VNode {
-  const { title, text } = forDevice(tip, mac)
+function TipCard({ tip, mac, lang, load = null }: { tip: TipEntry; mac: boolean; lang: string; load?: Load }): VNode {
+  const { title, text, clip } = forDevice(tip, mac)
   return (
     <div class="cf-tip">
+      {clip && <TipClip name={clip} lang={lang} load={load} />}
       <div class="cf-tip-title">
         {say(title)}
         {tip.pro && <span class="cf-pro-badge">Pro</span>}
@@ -75,15 +151,23 @@ function TipCard({ tip, mac }: { tip: TipEntry; mac: boolean }): VNode {
   )
 }
 
-/** `mac`: a Mac's words (no touch); `onOpenApp`: the app can be opened from here (Safari), else the line is text. */
-export function TipsSheet({ mac, onOpenApp, onClose }: { mac: boolean; onOpenApp?: () => void; onClose: () => void }): VNode | null {
+/** `mac`: a Mac's words and clips (no touch). */
+export function TipsSheet({ mac, onClose }: { mac: boolean; onClose: () => void }): VNode | null {
   const data = tipsData()
   const back = useRef<HTMLDivElement>(null)
   useAboveComposer(back)
-  const [open, toggle] = useOpenBlocks(data?.groups[0]?.id ?? "")
+  const [open, toggle, ready] = useOpenBlocks(data?.groups[0]?.id ?? "")
+  // Prepared as Tips opens: the first three clips of the block(s) open then, in order (the first plays).
+  const prepared = useMemo(() => {
+    const load = new Map<string, Load>()
+    if (!data || !ready) return load
+    const clips = data.groups.filter((g) => open.includes(g.id)).flatMap((g) => g.tips).filter((tip) => forDevice(tip, mac).clip)
+    clips.slice(0, 3).forEach((tip, i) => load.set(tip.title.key, i === 0 ? "auto" : "metadata"))
+    return load
+  }, [ready])
   if (!data) return null
   const heading = say(data.heading)
-  const videos = t("tipsVideos", heading)
+  const lang = say(data.clipLang) === "ru" ? "ru" : "en"
   return (
     <div ref={back} class="cf-sheet-back" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div class="cf-sheet cf-tips" role="dialog" aria-label={heading}>
@@ -92,13 +176,8 @@ export function TipsSheet({ mac, onOpenApp, onClose }: { mac: boolean; onOpenApp
           <button type="button" class="cf-icon cf-sheet-close" onClick={onClose} aria-label={t("close")} title={t("close")}><Icon.Close /></button>
         </div>
         <p class="cf-tips-intro">{say(data.intro)}</p>
-        {onOpenApp ? (
-          <button type="button" class="cf-link cf-tips-app" onClick={onOpenApp}>{videos}</button>
-        ) : (
-          <p class="cf-tips-app">{videos}</p>
-        )}
         {/* The whole app's, before the blocks, as in the app. */}
-        <TipCard tip={data.lead} mac={mac} />
+        <TipCard tip={data.lead} mac={mac} lang={lang} />
         {data.groups.map((group) => {
           const isOpen = open.includes(group.id)
           return (
@@ -108,9 +187,9 @@ export function TipsSheet({ mac, onOpenApp, onClose }: { mac: boolean; onOpenApp
                 {!isOpen && <span class="cf-tips-count">{group.tips.length}</span>}
                 <Chevron />
               </button>
-              {isOpen && (
+              {isOpen && ready && (
                 <div class="cf-tips-cards">
-                  {group.tips.map((tip) => <TipCard key={tip.title.key} tip={tip} mac={mac} />)}
+                  {group.tips.map((tip) => <TipCard key={tip.title.key} tip={tip} mac={mac} lang={lang} load={prepared.get(tip.title.key) ?? null} />)}
                 </div>
               )}
             </section>

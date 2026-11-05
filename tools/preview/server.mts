@@ -379,8 +379,16 @@ const pages: Record<string, string> = {
   "/messaging": "messaging.html",
   // A site that switches sections without loading a page (the owner, 2.5 (78): LinkedIn's feed → post → messages).
   "/spa/messaging": "spa.html",
-  "/spa/feed": "spa.html"
+  "/spa/feed": "spa.html",
+  // The article under a strict Content-Security-Policy for media and images, like GitHub's or LinkedIn's: the Tips
+  // sheet's clips are the extension's own files and must still play (2.5 (81)).
+  "/strict": "article.html",
+  "/strict-ru": "article-ru.html"
 }
+
+// Pages served with a strict policy for media and images (nothing from another origin, not even blob: or data:).
+const strict = new Set(["/strict", "/strict-ru"])
+const STRICT_CSP = "media-src 'self'; img-src 'self'"
 
 // PDFs for the PDF checks. private.pdf only with the cookie pdf-link.html sets, like a PDF behind a sign-in.
 const pdfs: Record<string, string> = {
@@ -537,6 +545,6 @@ if (location.search.includes("sel=1")) setTimeout(() => getSelection().selectAll
     res.writeHead(404).end("not found")
     return
   }
-  res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" })
+  res.writeHead(200, { "Content-Type": "text/html; charset=utf-8", ...(strict.has(url.pathname) ? { "Content-Security-Policy": STRICT_CSP } : {}) })
   res.end(readFileSync(new URL(`./${file}`, import.meta.url)))
 }).listen(Number(process.env.PORT ?? 8787), () => console.log("preview on http://localhost:" + (process.env.PORT ?? 8787)))

@@ -142,7 +142,7 @@ export type BackgroundRequest =
   | { type: "status"; refresh?: boolean; fresh?: boolean; platform?: Platform }
   // feature "ai": the Pro screen opens on AI search and "Ask your chats".
   // feature "organize": on organizing the chats (2.5).
-  | { type: "openApp"; target: "subscribe" | "manage" | "home" | "tips"; feature?: "ai" | "organize" }
+  | { type: "openApp"; target: "subscribe" | "manage" | "home"; feature?: "ai" | "organize" }
   // The line under a free answer that skipped the page's video or PDFs: shown, or its "Try Pro" tapped.
   | { type: "mediaNotice"; action: "shown" | "pro"; media: MediaKind[] }
   // An Own key subscriber and Pro: a refusal (starts the day before the discount), the discount card shown, a tap.

@@ -8070,66 +8070,66 @@
         }
       }
     },
-    "Hide the button on a single site, or turn it off everywhere in the extension settings. ContextFlow still opens from Safari's extensions menu.": {
+    "Covering something on the page? Drag ✦ up or down along the edge, or to the other side: it stays where you leave it. You can also hide it on a single site, or turn it off everywhere in the extension settings. ContextFlow still opens from Safari's extensions menu.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Blende die Taste auf einer einzelnen Website aus oder schalte sie in den Erweiterungseinstellungen überall ab. ContextFlow öffnet sich weiterhin über das Erweiterungsmenü von Safari."
+            "value": "Verdeckt ✦ etwas auf der Seite? Zieh die Taste am Rand nach oben oder unten oder auf die andere Seite – sie bleibt dort, wo du sie loslässt. Du kannst sie auch auf einer einzelnen Website ausblenden oder in den Erweiterungseinstellungen überall abschalten. ContextFlow öffnet sich weiterhin über das Erweiterungsmenü von Safari."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Oculta el botón en un sitio concreto o desactívalo en todas partes en los ajustes de la extensión. ContextFlow seguirá abriéndose desde el menú de extensiones de Safari."
+            "value": "¿✦ tapa algo de la página? Arrástralo hacia arriba o hacia abajo por el borde, o al otro lado: se queda donde lo sueltes. También puedes ocultarlo en un sitio concreto o desactivarlo en todas partes en los ajustes de la extensión. ContextFlow seguirá abriéndose desde el menú de extensiones de Safari."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Masquez le bouton sur un site précis ou désactivez-le partout dans les réglages de l’extension. ContextFlow s’ouvre toujours depuis le menu des extensions de Safari."
+            "value": "✦ cache quelque chose sur la page ? Faites-le glisser vers le haut ou le bas le long du bord, ou de l’autre côté : il reste là où vous le lâchez. Vous pouvez aussi le masquer sur un site précis ou le désactiver partout dans les réglages de l’extension. ContextFlow s’ouvre toujours depuis le menu des extensions de Safari."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nascondi il pulsante su un singolo sito o disattivalo ovunque nelle impostazioni dell’estensione. ContextFlow si apre comunque dal menu delle estensioni di Safari."
+            "value": "✦ copre qualcosa nella pagina? Trascinalo in su o in giù lungo il bordo, o dall’altro lato: resta dove lo lasci. Puoi anche nasconderlo su un singolo sito o disattivarlo ovunque nelle impostazioni dell’estensione. ContextFlow si apre comunque dal menu delle estensioni di Safari."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "特定のサイトだけでボタンを隠したり、拡張機能の設定ですべてのサイトでオフにしたりできます。その場合もSafariの拡張機能メニューから開けます。"
+            "value": "✦ がページの内容を隠しているときは、端に沿って上下にドラッグするか、反対側へ動かせます。置いた場所はそのまま覚えています。特定のサイトだけで隠したり、拡張機能の設定ですべてのサイトでオフにしたりもできます。その場合もSafariの拡張機能メニューから開けます。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "특정 사이트에서만 버튼을 숨기거나, 확장 프로그램 설정에서 모든 곳에서 끌 수 있습니다. 그래도 Safari의 확장 프로그램 메뉴에서 ContextFlow를 열 수 있어요."
+            "value": "✦ 버튼이 페이지 내용을 가리나요? 가장자리를 따라 위아래로 끌거나 반대쪽으로 옮기세요. 놓은 자리에 그대로 있습니다. 특정 사이트에서만 숨기거나, 확장 프로그램 설정에서 모든 곳에서 끌 수도 있습니다. 그래도 Safari의 확장 프로그램 메뉴에서 ContextFlow를 열 수 있어요."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Oculte o botão em um site específico ou desative-o em todos nos ajustes da extensão. O ContextFlow continua abrindo pelo menu de extensões do Safari."
+            "value": "O ✦ está cobrindo algo na página? Arraste-o para cima ou para baixo pela borda, ou para o outro lado: ele fica onde você soltar. Você também pode ocultá-lo em um site específico ou desativá-lo em todos nos ajustes da extensão. O ContextFlow continua abrindo pelo menu de extensões do Safari."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Скройте кнопку на отдельном сайте или выключите её везде в настройках расширения. ContextFlow по-прежнему открывается из меню расширений Safari."
+            "value": "✦ что-то закрывает на странице? Перетащите кнопку вверх или вниз вдоль края или на другую сторону — она останется там, где вы её отпустите. Ещё её можно скрыть на отдельном сайте или выключить везде в настройках расширения. ContextFlow по-прежнему открывается из меню расширений Safari."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Сховайте кнопку на окремому сайті або вимкніть її скрізь у налаштуваннях розширення. ContextFlow і далі відкривається з меню розширень Safari."
+            "value": "✦ щось закриває на сторінці? Перетягніть кнопку вгору чи вниз уздовж краю або на інший бік — вона залишиться там, де ви її відпустите. Ще її можна сховати на окремому сайті або вимкнути скрізь у налаштуваннях розширення. ContextFlow і далі відкривається з меню розширень Safari."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "可以只在某个网站隐藏按钮，或在扩展设置中全部关闭。之后仍可从 Safari 的扩展菜单打开 ContextFlow。"
+            "value": "✦ 挡住了页面上的内容？沿着边缘上下拖动它，或拖到另一侧，它会停在你松手的位置。也可以只在某个网站隐藏按钮，或在扩展设置中全部关闭。之后仍可从 Safari 的扩展菜单打开 ContextFlow。"
           }
         }
       }
@@ -25090,70 +25090,6 @@
         }
       }
     },
-    "Every day": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Jeden Tag"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cada día"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Au quotidien"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ogni giorno"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "毎日の使い方"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "매일 쓰는 기능"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No dia a dia"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Каждый день"
-          }
-        },
-        "uk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Щодня"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "日常使用"
-          }
-        }
-      }
-    },
     "Quick insert": {
       "localizations": {
         "de": {
@@ -25854,6 +25790,70 @@
           "stringUnit": {
             "state": "translated",
             "value": "已折叠"
+          }
+        }
+      }
+    },
+    "Deeper work": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiefer einsteigen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ir más a fondo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aller plus loin"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Andare a fondo"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "じっくり深掘り"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "더 깊이 파고들기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ir mais a fundo"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вникать глубже"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Глибше в матеріал"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "深入钻研"
           }
         }
       }
