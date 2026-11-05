@@ -13,6 +13,7 @@ import { ConsentCard } from "../Consent"
 import { listenAround } from "../around"
 import * as Icon from "../icons"
 import { HOST_TAG, privateBrowsing } from "../page"
+import { panelRoot } from "../root"
 import { copiedText } from "./capture"
 import { activeIn, copyToClipboard, insertText, isControl, restoreCaret, textBeforeCaret, updateCaret, type Field } from "./field"
 import { FillForm } from "./FillForm"
@@ -49,7 +50,7 @@ interface Props {
   free: boolean
   onUpgrade: () => void
   onOpenTemplates: () => void
-  onAdapt: (text: string) => void
+  onAdapt: (text: string, conversation: string | null) => void
 }
 
 
@@ -361,7 +362,8 @@ export function QuickInsert(props: Props): VNode | null {
   // Outside the field, where nothing of the site's lies underneath (spot.ts); none on searches and codes.
   if (showButton && field && !noButtonField(field.el)) {
     const r = pageRect(field.el)
-    const host = document.querySelector(HOST_TAG)
+    // Our host, wherever it is (inside a site's modal window while one is open: topLayer.ts).
+    const host = panelRoot()?.host ?? document.querySelector(HOST_TAG)
     // Outside first (the corners, then along the edges); with no room around a multi-line field (a chat's reply
     // box), inside its corner, off its text and caret. Not inside a frame's field (its text is in the frame's place).
     const inside = multiLineField(field.el) && field.el.ownerDocument === document
@@ -460,9 +462,9 @@ export function QuickInsert(props: Props): VNode | null {
           free={props.free}
           onUpgrade={props.onUpgrade}
           onClose={() => closeTo(m.via !== "button")}
-          onAdapt={(text) => {
+          onAdapt={(text, conversation) => {
             setMode(null)
-            props.onAdapt(text)
+            props.onAdapt(text, conversation)
           }}
           onInsert={(text, filled, count) => {
             void insertNow(text, m.replace).then((ok) => ok && report({ kind: "insert_template", via: m.via, blanks: count, filled }))

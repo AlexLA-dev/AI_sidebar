@@ -8,6 +8,8 @@ import { render, type ComponentChildren, type VNode } from "preact"
 import { useEffect, useRef, useState } from "preact/hooks"
 
 import { t } from "../../shared/i18n"
+import { ConsentCard } from "../Consent"
+import { giveConsent, loadConsent } from "../store"
 import { conditionLine, shown } from "../../shared/watch/line"
 import type { WatchHow } from "../../shared/watch/messages"
 import type { Watch } from "../../shared/watch/types"
@@ -94,8 +96,11 @@ const send = <T,>(message: unknown) => chrome.runtime.sendMessage(message) as Pr
 function WatchEdit({ watch, close, changed }: { watch: Watch; close(): void; changed(): void }): VNode {
   const [w, setW] = useState(watch)
   const [words, setWords] = useState(watch.condition)
-  const [state, setState] = useState<"edit" | "saving" | "failed">("edit")
+  const [state, setState] = useState<"edit" | "saving" | "failed" | "consent" | "consent-again">("edit")
   const save = async () => {
+    // New words go to the AI: without the consent, the one card here first.
+    const consent = await loadConsent()
+    if (consent !== "ok") return setState(consent === "old" ? "consent-again" : "consent")
     setState("saving")
     const reply = await send<{ ok: boolean; watch?: Watch }>({ type: "watchEdit", id: w.id, condition: words }).catch(() => null)
     if (!reply?.ok || !reply.watch) return setState("failed")
@@ -126,6 +131,9 @@ function WatchEdit({ watch, close, changed }: { watch: Watch; close(): void; cha
           grow(e.currentTarget)
         }} />
         {state === "failed" && <p class="cf-watch-msg">{t("watchFailed")}</p>}
+        {(state === "consent" || state === "consent-again") && (
+          <ConsentCard again={state === "consent-again"} onAccept={() => void giveConsent().then(save)} onDecline={() => setState("edit")} />
+        )}
         <div class="cf-sheet-actions">
           <button type="button" class="cf-primary" disabled={!dirty || state === "saving"} onClick={() => void save()}>
             {state === "saving" ? t("watchChecking") : t("watchSave")}

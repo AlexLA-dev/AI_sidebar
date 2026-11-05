@@ -738,9 +738,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }, [consent, messages, platform, selection, source])
 
   // "Fit to the message" from quick insert: an ordinary answer (counts like one), the template as its start.
-  const adaptTemplate = (text: string) => {
+  // Quick insert's rewrite: the whole template for this page, with the conversation around the field when there's one
+  // (2.5 (81): not a name from the list of other conversations).
+  const adaptTemplate = (text: string, conversation: string | null) => {
     show()
-    setTimeout(() => ask(t("qiAdaptPrompt", text), { label: t("qiAdaptLabel") }), 120)
+    const prompt = t("qiAdaptPrompt", text) + (conversation ? `\n\n${t("qiAdaptConversation", conversation)}` : "")
+    setTimeout(() => ask(prompt, { label: t(conversation ? "qiAdaptChat" : "qiAdaptLabel") }), 120)
   }
 
   /** Sends a question with the page as `full` (sources: what was read along with it) or the selection. */
