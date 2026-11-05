@@ -57,3 +57,21 @@ footer a { color: var(--text-2); }
 a.tile { display: block; color: var(--text); text-decoration: none; }
 a.tile:hover h3 { color: var(--blue); }
 @media (max-width: 760px) { .hero { grid-template-columns: 1fr; padding-top: 10px; } .hero h1 { font-size: 38px; } .grid, .plans { grid-template-columns: 1fr; } nav .links { display: none; } }
+/* Features (/features): the app's Tips, by block, with clips of the real panel. */
+.feat-head { padding: 20px 0 0; }
+.feat-head h1 { font-size: 44px; line-height: 1.1; letter-spacing: -0.02em; margin: 10px 0 12px; }
+.feat-head .lede { font-size: 19px; color: var(--text-2); margin: 0 0 18px; max-width: 720px; }
+.jump { display: flex; flex-wrap: wrap; gap: 8px; }
+.jump a { border: 1px solid var(--border); border-radius: 999px; padding: 6px 13px; font-size: 14px; color: var(--text); text-decoration: none; }
+.jump a:hover { border-color: var(--blue); color: var(--blue); }
+section[id] { scroll-margin-top: 12px; }
+.block-lede { color: var(--text-2); margin: -12px 0 20px; }
+.feats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; align-items: start; }
+.feat { background: var(--bg-2); border-radius: 18px; padding: 18px; }
+.feat .clip { display: block; width: 100%; max-width: 260px; aspect-ratio: 540 / 794; margin: 0 auto 14px; border-radius: 12px; background: #fff; border: 1px solid var(--border); object-fit: cover; }
+.feat h3 { margin: 0 0 6px; font-size: 18px; }
+.feat p { margin: 0; color: var(--text-2); font-size: 15px; }
+.pro-badge { display: inline-block; vertical-align: 2px; margin-left: 4px; padding: 1px 7px; border-radius: 999px; font-size: 11px; font-weight: 700; line-height: 1.5; letter-spacing: 0.02em; color: #fff; background: linear-gradient(135deg, var(--blue-2), var(--blue)); }
+.more { margin-top: 18px; }
+@media (max-width: 900px) { .feats { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .feats { grid-template-columns: 1fr; } .feat-head h1 { font-size: 34px; } }

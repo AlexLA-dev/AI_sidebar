@@ -21,7 +21,7 @@ test("every App Store button is a campaign link with its own short label", () =>
       labels.add(m[1])
     }
   }
-  assert.deepEqual([...labels].sort(), ["page_compare", "page_notes", "page_safari_ai", "site_footer", "site_hero", "site_pricing"])
+  assert.deepEqual([...labels].sort(), ["page_compare", "page_features", "page_notes", "page_safari_ai", "site_footer", "site_hero", "site_pricing"])
 })
 
 test("the Smart App Banner carries the campaign and provider tokens on every indexable page", () => {
@@ -62,10 +62,12 @@ test("the IndexNow key file holds its own name", () => {
   assert.equal(read(key), key.replace(/\.txt$/, ""))
 })
 
-test("links between pages lead to files that exist", () => {
+test("links between pages lead to files that exist, and to sections that exist", () => {
   for (const file of pages) {
-    for (const [, path] of read(file).matchAll(/href="\/([a-z0-9-]*)(?:#[a-z]+)?"/g)) {
-      assert.ok(existsSync(new URL(path ? `${path}.html` : "index.html", dir)), `${file} → /${path}`)
+    for (const [, path, section] of read(file).matchAll(/href="\/([a-z0-9-]*)(?:#([a-z-]+))?"/g)) {
+      const target = path ? `${path}.html` : "index.html"
+      assert.ok(existsSync(new URL(target, dir)), `${file} → /${path}`)
+      if (section) assert.ok(read(target).includes(` id="${section}"`), `${file} → /${path}#${section}`)
     }
   }
 })
