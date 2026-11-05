@@ -504,5 +504,7 @@
   "watchInStock": "в наявності",
   "watchOutOfStock": "немає в наявності",
   "watchChanged": "Змінилося: {0}",
-  "watchChangedBody": "Зараз: {0}"
+  "watchChangedBody": "Зараз: {0}",
+
+  "tipsVideos": "З відео — у застосунку ContextFlow → {0}"
 }

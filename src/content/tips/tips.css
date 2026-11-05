@@ -1,0 +1,18 @@
+/* The panel's Tips sheet (2.5 (78)): the app's Tips, each block folding, no clips. */
+.cf-sheet.cf-tips { max-height: calc(100% - 56px); padding-bottom: 14px; }
+.cf-tips-intro { margin: -4px 8px 2px; font-size: 13px; color: var(--text-3); }
+.cf-tips-app { display: block; margin: 0 8px 10px; text-align: left; }
+.cf .cf-link.cf-tips-app { padding: 2px 0 !important; }
+p.cf-tips-app { font-size: 13px; color: var(--text-3); }
+.cf-tip { margin: 0 4px 8px; padding: 10px 12px; border-radius: 12px; background: var(--bg-2); }
+.cf-tip-title { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 14px; font-weight: 600; color: var(--text); }
+.cf-tip-text { margin: 4px 0 0; font-size: 13px; line-height: 1.45; color: var(--text-2); }
+.cf[data-touch] .cf-tip-title { font-size: 15px; }
+.cf[data-touch] .cf-tip-text { font-size: 14.5px; }
+.cf-tips-block { border-top: 1px solid var(--border); }
+.cf-tips-head { display: flex; align-items: center; gap: 8px; width: 100%; padding: 12px 8px !important; font-size: 15px; font-weight: 600; text-align: left; }
+.cf-tips-count { font-size: 13px; font-weight: 600; color: var(--text-3); }
+.cf-tips-chev { margin-left: auto; flex-shrink: 0; color: var(--text-3); transition: transform 0.15s ease; }
+.cf-tips-block.open .cf-tips-chev { transform: rotate(90deg); }
+.cf-tips-cards { padding-bottom: 4px; }
+@media (prefers-reduced-motion: reduce) { .cf-tips-chev { transition: none; } }

@@ -504,5 +504,7 @@
   "watchInStock": "有货",
   "watchOutOfStock": "缺货",
   "watchChanged": "已变化：{0}",
-  "watchChangedBody": "现在：{0}"
+  "watchChangedBody": "现在：{0}",
+
+  "tipsVideos": "带视频的版本：ContextFlow App → {0}"
 }
