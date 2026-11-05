@@ -1,5 +1,7 @@
 // Swipe a row (an answer, a note, a chat in the list) left to delete it and right to pin it, as in Mail
-// and Messages on iPhone. Touch only: on a Mac the same actions are buttons on hover and in the menu.
+// and Messages on iPhone. iPhone and iPad: a finger, or two fingers on a trackpad (2.5 (78), the owner: an iPad's
+// Magic Keyboard did nothing; its pointer is a mouse, its two-finger scroll comes as wheel events). On a Mac the same
+// actions are buttons on hover, the right-click menu and "…".
 //
 // What the swipe leaves alone:
 // - a touch that starts near the screen's edge: that's Safari's own Back and Forward;
@@ -11,12 +13,15 @@
 // 2.5 (75), the owner's notes: the row follows the finger without re-rendering (the gesture lives in this
 // closure and moves the row's style directly), so a render in the middle of a swipe can't drop it and leave the
 // row stuck half-way; the icon sits in the part of the row on screen (a long answer's middle can be off it).
+//
+// 2.5 (78): the row slides as a card (a message's body reaches past its text in the panel's colour, ux.css), and the
+// colour under it stops a gap short of the card, rounded, as in Mail.
 
 import type { ComponentChildren, VNode } from "preact"
 import { useEffect, useRef } from "preact/hooks"
 
 import { listenAround } from "../around"
-import { BUTTON_WIDTH, COMMIT_SHARE, DECIDE, EDGE_GUARD, SHORT, swipeEnd, swipeOffset, visibleSlice } from "./swipeMath"
+import { COMMIT_SHARE, DECIDE, EDGE_GUARD, openOffset, SHORT, swipeEnd, swipeOffset, underWidth, visibleSlice, WHEEL_IDLE, wheelStep } from "./swipeMath"
 
 export interface SwipeAction {
   label: string
@@ -66,15 +71,18 @@ export function Swipe({ left, right, enabled = true, children, class: cls = "" }
     let stopAround: (() => void) | null = null
     const scroller = () => row.closest<HTMLElement>(".cf-messages, .cf-threads, .cf-list")
     const sides = () => ({ left: Boolean(actions.current.left), right: Boolean(actions.current.right) })
+    // How far the row's card reaches past the row (a message's margin around its text; a chat's row: none).
+    const edge = () => Math.max(0, -(bodyRef.current?.offsetLeft ?? 0))
 
     const place = (dx: number) => {
       at = dx
       const body = bodyRef.current
       if (body) body.style.transform = dx ? `translate3d(${dx}px, 0, 0)` : ""
       const under = dx < 0 ? endRef.current : dx > 0 ? startRef.current : null
+      const width = underWidth(dx, edge())
       for (const u of [startRef.current, endRef.current]) {
         if (!u) continue
-        u.style.width = u === under ? `${Math.abs(dx)}px` : "0px"
+        u.style.width = u === under ? `${width}px` : "0px"
         u.toggleAttribute("data-full", u === under && Math.abs(dx) >= row.clientWidth * COMMIT_SHARE)
       }
       row.toggleAttribute("data-moved", dx !== 0)
@@ -94,7 +102,7 @@ export function Swipe({ left, right, enabled = true, children, class: cls = "" }
     const onScroll = () => setOpen(0)
     const setOpen = (side: -1 | 0 | 1) => {
       open = side
-      place(side * BUTTON_WIDTH)
+      place(side * openOffset(edge()))
       stopAround?.()
       stopAround = null
       scroller()?.removeEventListener("scroll", onScroll)
@@ -114,7 +122,7 @@ export function Swipe({ left, right, enabled = true, children, class: cls = "" }
       if (ownsSideways(e.target as Element, row)) return
       const sel = document.getSelection()
       if (sel && !sel.isCollapsed && row.contains(sel.anchorNode)) return
-      start = { x: e.clientX, y: e.clientY, id: e.pointerId, base: open * BUTTON_WIDTH }
+      start = { x: e.clientX, y: e.clientY, id: e.pointerId, base: open * openOffset(edge()) }
       decided = false
     }
     const move = (e: PointerEvent) => {
@@ -145,6 +153,10 @@ export function Swipe({ left, right, enabled = true, children, class: cls = "" }
         setOpen(open)
         return
       }
+      settle()
+    }
+    // Let go where the row is: the action, its button left out, or back in place.
+    const settle = () => {
       const outcome = swipeEnd(at, row.clientWidth, sides())
       if (outcome === "left" || outcome === "right") {
         setOpen(0)
@@ -152,6 +164,46 @@ export function Swipe({ left, right, enabled = true, children, class: cls = "" }
       } else {
         setOpen(outcome)
       }
+    }
+
+    // Two fingers on a trackpad: sideways wheel events move the row as a finger does, the same way decided (a
+    // mostly vertical scroll is the list's, to its end); it's let go when the events stop.
+    let wheel: { x: number; y: number; base: number; decided: boolean; dropped: boolean } | null = null
+    let wheelTimer: ReturnType<typeof setTimeout> | undefined
+    const wheelDone = () => {
+      const was = wheel
+      wheel = null
+      if (!was?.decided) return
+      row.removeAttribute("data-dragging")
+      settle()
+    }
+    const onWheel = (e: WheelEvent) => {
+      if (e.ctrlKey || start) return // a pinch (zoom), or a finger already on the row
+      if (!wheel) {
+        if (ownsSideways(e.target as Element, row)) return
+        const sel = document.getSelection()
+        if (sel && !sel.isCollapsed && row.contains(sel.anchorNode)) return
+        wheel = { x: 0, y: 0, base: open * openOffset(edge()), decided: false, dropped: false }
+      }
+      clearTimeout(wheelTimer)
+      wheelTimer = setTimeout(wheelDone, WHEEL_IDLE)
+      if (wheel.dropped) return
+      const step = wheelStep({ deltaX: e.deltaX, deltaY: e.deltaY, deltaMode: e.deltaMode, inverted: (e as WheelEvent & { webkitDirectionInvertedFromDevice?: boolean }).webkitDirectionInvertedFromDevice }, row.clientWidth)
+      wheel.x += step.x
+      wheel.y += step.y
+      // Sideways: not Safari's Back and Forward, not the page.
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) e.preventDefault()
+      if (!wheel.decided) {
+        if (Math.abs(wheel.y) > DECIDE && Math.abs(wheel.y) >= Math.abs(wheel.x)) {
+          wheel.dropped = true
+          return
+        }
+        if (Math.abs(wheel.x) < DECIDE || Math.abs(wheel.x) < Math.abs(wheel.y) * 1.5) return
+        wheel.decided = true
+        fit()
+        row.setAttribute("data-dragging", "")
+      }
+      place(swipeOffset(wheel.base, wheel.x, row.clientWidth, sides()))
     }
     const up = (e: PointerEvent) => end(e, false)
     const cancel = (e: PointerEvent) => end(e, true)
@@ -166,7 +218,10 @@ export function Swipe({ left, right, enabled = true, children, class: cls = "" }
     row.addEventListener("pointercancel", cancel)
     // The capture lost without an up or a cancel (the row re-mounted, the page took the touch): as a cancel.
     row.addEventListener("lostpointercapture", lost)
+    row.addEventListener("wheel", onWheel, { passive: false })
     return () => {
+      row.removeEventListener("wheel", onWheel)
+      clearTimeout(wheelTimer)
       row.removeEventListener("pointerdown", down)
       row.removeEventListener("pointermove", move)
       row.removeEventListener("pointerup", up)
@@ -197,7 +252,7 @@ export function Swipe({ left, right, enabled = true, children, class: cls = "" }
     </div>
   )
   return (
-    <div ref={rowRef} class={`cf-swipe ${cls}`}>
+    <div ref={rowRef} class={`cf-swipe ${enabled ? "on" : ""} ${cls}`}>
       {enabled && right && under(right, "start", startRef)}
       {enabled && left && under(left, "end", endRef)}
       <div ref={bodyRef} class="cf-swipe-body">
