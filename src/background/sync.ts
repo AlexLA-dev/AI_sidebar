@@ -3,6 +3,7 @@
 // which the app may ask for an App Store rating; and the chats (threads), kept in the user's
 // iCloud so they continue on their other devices.
 
+import { sortedJson } from "../shared/stored"
 import { applyAppChanges, applyRemote, markMirrored, markSent, mirrorChanges, pendingChanges, type CloudChange, type Threads } from "../shared/threads"
 import { DEFAULT_SETTINGS, STORAGE, type Settings } from "../shared/types"
 import { callNative } from "./native"
@@ -70,7 +71,10 @@ interface CloudSync {
 let running: Promise<boolean> | null = null
 let again = false
 let pushTimer: ReturnType<typeof setTimeout> | undefined
-// The threads value this background last wrote: its own writes don't trigger another sync.
+// The threads value this background last wrote (sortedJson: Safari hands it back with its keys in its own order): its
+// own writes don't trigger another sync. Compared as written, Safari's copy never matched, and every sync's own write
+// started the next one, every second or so, for as long as Safari ran; the open chat list was redrawn each time, and
+// chats with the same time traded places (2.5 (77)).
 let lastWritten = ""
 
 async function syncEnabled(): Promise<boolean> {
@@ -117,7 +121,7 @@ async function syncOnce(): Promise<boolean> {
   const merged = applyRemote(afterSend.threads, afterSend.synced, result.changed ?? [], result.deleted ?? [])
   // Changed here during the sync, or newer here than iCloud's copy: send it right away.
   if (pendingChanges(merged.threads, merged.synced).length > 0) again = true
-  lastWritten = JSON.stringify(merged.threads)
+  lastWritten = sortedJson(merged.threads)
   await chrome.storage.local.set({
     [STORAGE.threads]: merged.threads,
     [STORAGE.syncedThreads]: merged.synced,
@@ -135,7 +139,7 @@ export function watchThreads(): void {
     if (area !== "local" || !changes[STORAGE.threads]) return
     clearTimeout(mirrorTimer)
     mirrorTimer = setTimeout(() => void mirrorThreads().catch(() => undefined), 1_200)
-    if (JSON.stringify(changes[STORAGE.threads].newValue ?? {}) === lastWritten) return
+    if (sortedJson(changes[STORAGE.threads].newValue ?? {}) === lastWritten) return
     clearTimeout(pushTimer)
     pushTimer = setTimeout(() => void syncThreads().catch(() => undefined), 800)
   })
