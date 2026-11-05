@@ -4,6 +4,8 @@
 // corner, else beside it, else below it, at the first spot where nothing of the page lies underneath. When
 // there's no such spot, there's no button: "/" and ⌃⇧V still open the list.
 
+import { closestComposed, shadowRootsOf } from "./shadow.ts"
+
 /** The button's size and the gap it keeps from the field. */
 export const BUTTON = 30
 const GAP = 4
@@ -55,9 +57,9 @@ const ITSELF = "input,textarea,[contenteditable=''],[contenteditable='true'],[ro
 export function pagePointFree(host: Element | null): Probe {
   return (x, y) => {
     const els = document.elementsFromPoint(x, y).filter((el) => el !== host && !host?.contains(el))
-    const top = els[0]
+    const top = els[0] ? innermostAt(els[0], x, y) : undefined
     if (!top || top === document.documentElement || top === document.body) return true
-    if (top.closest(CONTROL) || top.closest(MEDIA) || top.matches(ITSELF)) return false
+    if (closestComposed(top, CONTROL) || closestComposed(top, MEDIA) || top.matches(ITSELF)) return false
     // Text right under the point: covering it hides what someone reads (a label, a hint, a price).
     for (const node of Array.from(top.childNodes)) {
       if (node.nodeType !== Node.TEXT_NODE || !node.textContent?.trim()) continue
@@ -69,6 +71,20 @@ export function pagePointFree(host: Element | null): Probe {
     }
     return true
   }
+}
+
+type PointScope = ShadowRoot & { elementsFromPoint?: (x: number, y: number) => Element[] }
+
+/** What's at a point inside open shadow roots: the document finds their host only. */
+function innermostAt(top: Element, x: number, y: number): Element {
+  let el = top
+  for (let n = 0; n < 16; n++) {
+    const root = el.shadowRoot as PointScope | null
+    const inner = root?.elementsFromPoint?.(x, y).find((e) => e !== el && root.contains(e))
+    if (!inner) break
+    el = inner
+  }
+  return el
 }
 
 const SEARCH_WORDS = /search|query|\bq\b|поиск|найти|пошук|suche|suchen|recherche|rechercher|buscar|búsqueda|cerca|ricerca|pesquis|busca|検索|검색|搜索/i
@@ -87,7 +103,10 @@ export function noButtonField(el: Element): boolean {
     if (el.getAttribute("enterkeyhint") === "search") return true
   }
   const role = el.getAttribute("role") ?? ""
-  if (role === "searchbox" || el.closest("[role=search],search,form[action*=search i],form[role=search]")) return true
+  if (role === "searchbox" || closestComposed(el, "[role=search],search,form[action*=search i],form[role=search]")) return true
+  // A search component of a design system, the field inside its own root (Reddit's faceplate-search-input; not
+  // a research-notes editor).
+  if (shadowRootsOf(el).some((root) => /(^|-)search(-|$)/i.test(root.host.tagName))) return true
   const named = `${el.getAttribute("name") ?? ""} ${el.id} ${el.getAttribute("aria-label") ?? ""} ${el.getAttribute("placeholder") ?? ""}`
   return el.tagName.toUpperCase() === "INPUT" && SEARCH_WORDS.test(named)
 }
