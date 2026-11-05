@@ -4,6 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "preact/hooks"
 import type { ConsentStatus } from "../../shared/consent"
 import { t } from "../../shared/i18n"
 import { ConsentCard } from "../Consent"
+import { loadConsent } from "../store"
 import type { AiFailure, MarkResult } from "../../shared/insert"
 import { blanks, editTemplate, makeTemplate, markBlanks, MAX_TEMPLATE_CHARS, type Template } from "../../shared/templates"
 import * as Icon from "../icons"
@@ -60,9 +61,9 @@ export function TemplateEditor(p: Props): VNode {
       })
       return
     }
-    // A selected or copied text: the AI marks what changes from time to time (only with the consent; without it,
-    // nothing is asked until "Mark with AI").
-    if (p.start.text.trim() && p.consent === "ok") void mark(p.start.text.trim())
+    // A selected or copied text: the AI marks what changes from time to time. Without the consent the card shows here
+    // at once (2.5 (81), the owner: it wasn't clear why nothing was marked until the panel was opened).
+    if (p.start.text.trim()) void loadConsent().then((c) => (c === "ok" ? mark(p.start.text.trim()) : setAskConsent(true)))
   }, [])
 
   const mark = async (source: string) => {
