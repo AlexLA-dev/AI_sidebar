@@ -414,7 +414,7 @@
   "message": "Antes de o ContextFlow usar IA"
  },
  "consentBody": {
-  "message": "Você dá uma vez e vale para toda a IA do ContextFlow. Cada recurso envia só o que precisa, quando você o usa, por meio do nosso servidor à Anthropic (Claude):"
+  "message": "Você dá uma vez e vale para todos os recursos de IA. Cada um envia só o que precisa, quando você o usa, por meio do nosso servidor à Anthropic (Claude). Nada fica guardado em nossos servidores, e os provedores não treinam modelos com isso."
  },
  "consentAnswers": {
   "message": "Respostas: sua pergunta, o texto da página ou a sua seleção e o seu “Sobre mim”, se você escreveu. Se o Claude estiver indisponível, a OpenAI responde; as respostas do Google vão para o Google."
@@ -432,7 +432,10 @@
   "message": "Sugestões (Pro, só depois que você as ativar): o texto de novas perguntas, respostas e notas, para a OpenAI compará-los e para o Claude verificar uma tag."
  },
  "consentStored": {
-  "message": "Nada disso fica guardado em nossos servidores, e os provedores não treinam modelos com isso. Suas conversas ficam nos seus dispositivos e, se você sincronizar, no seu iCloud."
+  "message": "Suas conversas ficam nos seus dispositivos e, se você sincronizar, no seu iCloud."
+ },
+ "consentWhat": {
+  "message": "O que é enviado exatamente"
  },
  "consentAccept": {
   "message": "Concordar e continuar"

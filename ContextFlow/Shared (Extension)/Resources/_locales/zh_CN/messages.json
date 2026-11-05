@@ -414,7 +414,7 @@
   "message": "ContextFlow 使用 AI 之前"
  },
  "consentBody": {
-  "message": "这项同意只需给出一次，适用于 ContextFlow 的所有 AI 功能。每个功能只在你使用时，通过我们的服务器把所需内容发送给 Anthropic（Claude）："
+  "message": "这项同意只需给出一次，适用于所有 AI 功能。每个功能只在你使用时，通过我们的服务器把所需内容发送给 Anthropic（Claude）。我们的服务器不保存任何内容，服务商也不会用它来训练模型。"
  },
  "consentAnswers": {
   "message": "回答：你的问题、页面文本或所选内容，以及你填写的“关于我”。Claude 不可用时由 OpenAI 回答；Google 回答发送给 Google。"
@@ -432,7 +432,10 @@
   "message": "建议（Pro，仅在你开启后）：新问题、回答和笔记的文本，发送给 OpenAI 用于比较，发送给 Claude 用于核对标签。"
  },
  "consentStored": {
-  "message": "这些内容都不会保存在我们的服务器上，服务商也不会用它来训练模型。你的对话保存在你的设备上；开启同步后也会保存在你的 iCloud 中。"
+  "message": "你的对话保存在你的设备上；开启同步后也会保存在你的 iCloud 中。"
+ },
+ "consentWhat": {
+  "message": "具体发送哪些内容"
  },
  "consentAccept": {
   "message": "同意并继续"

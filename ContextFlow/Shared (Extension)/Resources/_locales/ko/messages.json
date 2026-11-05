@@ -414,7 +414,7 @@
   "message": "ContextFlow가 AI를 사용하기 전에"
  },
  "consentBody": {
-  "message": "이 동의는 한 번만 하면 ContextFlow의 모든 AI 기능에 적용돼요. 각 기능은 사용할 때 필요한 것만 당사 서버를 거쳐 Anthropic(Claude)으로 보내요:"
+  "message": "이 동의는 한 번만 하면 모든 AI 기능에 적용돼요. 각 기능은 사용할 때 필요한 것만 당사 서버를 거쳐 Anthropic(Claude)으로 보내요. 당사 서버에는 아무것도 저장되지 않으며, 제공업체는 이를 학습에 사용하지 않아요."
  },
  "consentAnswers": {
   "message": "답변: 질문, 페이지 텍스트나 선택한 부분, 그리고 작성했다면 ‘내 소개’. Claude를 사용할 수 없으면 OpenAI가 답하고, Google 답변은 Google로 가요."
@@ -432,7 +432,10 @@
   "message": "추천(Pro, 켰을 때만): 새 질문, 답변, 메모의 텍스트. 비교를 위해 OpenAI로, 태그 확인을 위해 Claude로 가요."
  },
  "consentStored": {
-  "message": "이 중 어떤 것도 당사 서버에 저장되지 않으며, 제공업체는 이를 학습에 사용하지 않아요. 채팅은 내 기기에, 동기화를 켜면 내 iCloud에 보관돼요."
+  "message": "채팅은 내 기기에, 동기화를 켜면 내 iCloud에 보관돼요."
+ },
+ "consentWhat": {
+  "message": "정확히 무엇이 전송되나요"
  },
  "consentAccept": {
   "message": "동의하고 계속"

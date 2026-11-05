@@ -414,7 +414,7 @@
   "message": "Bevor ContextFlow KI nutzt"
  },
  "consentBody": {
-  "message": "Du gibst sie einmal, und sie gilt für alle KI-Funktionen von ContextFlow. Jede sendet nur, was sie braucht, und nur, wenn du sie nutzt, über unseren Server an Anthropic (Claude):"
+  "message": "Du gibst sie einmal, und sie gilt für alle KI-Funktionen. Jede sendet nur, was sie braucht, und nur, wenn du sie nutzt, über unseren Server an Anthropic (Claude). Auf unseren Servern wird nichts gespeichert, und die Anbieter trainieren nicht damit."
  },
  "consentAnswers": {
   "message": "Antworten: deine Frage, der Text der Seite oder deine Auswahl und dein „Über mich“, falls du es ausgefüllt hast. Ist Claude nicht verfügbar, antwortet OpenAI; Google-Antworten gehen an Google."
@@ -432,7 +432,10 @@
   "message": "Vorschläge (Pro, erst wenn du sie einschaltest): der Text neuer Fragen, Antworten und Notizen – an OpenAI, um sie zu vergleichen, und an Claude, um einen Tag zu prüfen."
  },
  "consentStored": {
-  "message": "Nichts davon wird auf unseren Servern gespeichert, und die Anbieter trainieren nicht damit. Deine Chats bleiben auf deinen Geräten und, wenn du sie synchronisierst, in deiner iCloud."
+  "message": "Deine Chats bleiben auf deinen Geräten und, wenn du sie synchronisierst, in deiner iCloud."
+ },
+ "consentWhat": {
+  "message": "Was genau gesendet wird"
  },
  "consentAccept": {
   "message": "Zustimmen und weiter"
