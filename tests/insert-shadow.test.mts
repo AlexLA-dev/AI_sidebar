@@ -261,6 +261,26 @@ test("a site drawing its sections anew: new roots found by a press, the old ones
   back.host.remove()
 })
 
+test("a section's new host is listened to as it comes, its nested roots too, before any press or focus of the page's", async () => {
+  document.getSelection = () => null
+  const seen: string[] = []
+  const stop = W.watchFields({ focus: (f: any) => seen.push(`focus:${f.el.id}`), blur: () => seen.push("blur"), input: () => undefined, keydown: () => undefined, copy: () => undefined })
+  // Drawn in one go, as a section is: the host already has its root and a component two roots deep.
+  const host = document.createElement("div")
+  const root = host.attachShadow({ mode: "open" })
+  root.innerHTML = `<div id="list" tabindex="-1"></div><cf-thread id="thread"></cf-thread>`
+  const inner = root.getElementById("thread").attachShadow({ mode: "open" })
+  inner.innerHTML = `<div id="nested-reply" contenteditable="true"><p></p></div>`
+  document.body.appendChild(host)
+  await new Promise((r) => setTimeout(r, 0))
+  // The focus moves inside the nested root (only that root hears it): heard, though nothing pressed there.
+  focus([[document, host], [root, root.getElementById("thread")], [inner, inner.getElementById("nested-reply")]])
+  inner.getElementById("nested-reply").dispatchEvent(new window.Event("focusin", { bubbles: true }))
+  assert.deepEqual(seen, ["focus:nested-reply"])
+  stop()
+  host.remove()
+})
+
 test("no button on a search inside a component's root, or inside a search form around the host", () => {
   const search = document.createElement("cf-search-box")
   document.body.appendChild(search)

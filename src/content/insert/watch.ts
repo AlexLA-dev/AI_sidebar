@@ -8,8 +8,9 @@
 //
 // Sites that switch sections without loading a page (the owner on 2.5 (78), LinkedIn: feed → Start post → back to
 // the messages, and the button was gone until a refresh) draw new hosts and roots, and drop the old ones with the
-// focus in them (WebKit sends no blur then). So the roots are found again on every press and focus (the event's
-// path names each open root it crosses, whether met before or not), a root whose host left the page is let go,
+// focus in them (WebKit sends no blur then). So the roots are found as their hosts come (and the iframes in them,
+// which no press or focus of the page's reaches), and again on every press and focus (the event's path names each
+// open root it crosses, whether met before or not), a root whose host left the page is let go,
 // the field followed is let go when it leaves the page, and a field that has the focus though no focus was heard
 // for it (it got it before its root was known) is taken up at the next caret move.
 
@@ -97,12 +98,12 @@ export function watchFields(h: WatchHandlers): () => void {
     }
   }
 
-  /** A shadow root: the focus moving inside it, and the iframes in it. Not our own panel's (open in test builds). */
+  /** A shadow root: the focus moving inside it, the iframes and the roots in it. Not our own panel's (open in test builds). */
   const trackRoot = (root: ShadowRoot) => {
     if (roots.has(root) || isOwnHost(root.host)) return
     root.addEventListener("focusin", onFocus, true)
     root.addEventListener("focusout", onBlur, true)
-    root.querySelectorAll("iframe").forEach((f) => watchFrame(f as HTMLIFrameElement))
+    for (const el of Array.from(root.querySelectorAll("*"))) found(el)
     const added = new MutationObserver(changed)
     added.observe(root, { childList: true, subtree: true })
     roots.set(root, () => {
@@ -182,13 +183,20 @@ export function watchFields(h: WatchHandlers): () => void {
     frame.addEventListener("load", attach)
   }
 
-  /** The page or a root changed: new iframes are watched, the field and the roots that left are let go. */
+  /** An iframe is watched, an open root listened to (a section's new host: its frames too, which no press reaches). */
+  function found(el: Element): void {
+    if (el.tagName === "IFRAME") watchFrame(el as HTMLIFrameElement)
+    else if (el.shadowRoot) trackRoot(el.shadowRoot)
+  }
+
+  /** The page or a root changed: new iframes and roots are watched, the field and the roots that left are let go. */
   function changed(records: MutationRecord[]): void {
     for (const r of records) {
       for (const n of Array.from(r.addedNodes)) {
         const el = n as Element
-        if (el.tagName === "IFRAME") watchFrame(el as HTMLIFrameElement)
-        else if (el.querySelectorAll) el.querySelectorAll("iframe").forEach((f) => watchFrame(f as HTMLIFrameElement))
+        if (!el.querySelectorAll) continue
+        found(el)
+        for (const inner of Array.from(el.querySelectorAll("*"))) found(inner)
       }
     }
     if (!records.some((r) => r.removedNodes.length)) return
@@ -198,7 +206,7 @@ export function watchFields(h: WatchHandlers): () => void {
   }
 
   track(document)
-  document.querySelectorAll("iframe").forEach((f) => watchFrame(f as HTMLIFrameElement))
+  for (const el of Array.from(document.querySelectorAll("*"))) found(el)
   const frames = new MutationObserver(changed)
   frames.observe(document.documentElement, { childList: true, subtree: true })
 

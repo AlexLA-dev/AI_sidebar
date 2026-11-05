@@ -18,8 +18,9 @@
   - the feed: "Start post" opens a post window in the outlet's root with a backdrop and a Quill-like editor in
     14 px type (smaller than 16 px: iOS zooms in when it gets the focus, and stays zoomed after it closes);
   - the messages: the thread and the reply box at the bottom; ?msg=page (default) in the document, as the
-    /messaging page; ?msg=outlet inside the outlet's root, as the messages window; ?autofocus=1: the section puts
-    the focus in the reply box itself, as sites do when a thread opens.
+    /messaging page; ?msg=outlet inside the outlet's root, as the messages window (with ?frame=1 the box is in a
+    same-origin iframe there); ?autofocus=1: the section puts the focus in the reply box itself, as sites do when a
+    thread opens.
   ?diag=1: a line with the zoom, the reply box's place and quick insert's button (the button only in an open-root
   test build). window.stand: go(path), reply(), outletRoot().
 -->
@@ -40,7 +41,7 @@
   .msg-form__contenteditable { flex: 1; min-height: 22px; max-height: 120px; overflow: auto; background: #f3f2ef; border-radius: 18px; padding: 7px 12px; outline: none; font-size: 16px }
   .msg-form__contenteditable p { margin: 0 }
   .msg-form__send-button { height: 36px; border: 0; background: none; color: #0a66c2; font-weight: 600; font-size: 16px }
-  #diag { position: fixed; left: 4px; top: 52px; z-index: 9; font: 11px ui-monospace, monospace; background: #ffffe0e8; padding: 2px 4px; pointer-events: none; white-space: pre }
+  #diag { position: fixed; left: 4px; top: 52px; z-index: 2147483646; font: 11px ui-monospace, monospace; background: #ffffe0e8; padding: 2px 4px; pointer-events: none; white-space: pre }
 </style>
 </head>
 <body>
@@ -54,6 +55,7 @@ const params = new URLSearchParams(location.search)
 const keepOutlet = params.get("outlet") === "keep"
 const msgInOutlet = params.get("msg") === "outlet"
 const autofocus = params.get("autofocus") === "1"
+const inFrame = params.get("frame") === "1"
 const app = document.getElementById("app")
 let outlet = document.getElementById("interop-outlet")
 let outletRoot = outlet.attachShadow({ mode: "open" })
@@ -129,6 +131,16 @@ function messaging() {
 <form onsubmit="return false"><div class="msg-form__contenteditable" id="reply" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Write a message…"><p><br></p></div>
 <button type="submit" class="msg-form__send-button">Send</button></form></aside>`)
     reply = root.getElementById("reply")
+    if (inFrame) {
+      // The box inside a same-origin frame in the window's root: no focus or press in it reaches the page.
+      const frame = document.createElement("iframe")
+      frame.title = "Write a message"
+      frame.style.cssText = "flex:1;height:60px;border:0;border-radius:8px;background:#f4f2ee"
+      frame.srcdoc = `<!doctype html><meta name="viewport" content="width=device-width, initial-scale=1"><style>body{margin:0;font:16px -apple-system,system-ui,sans-serif}div{min-height:44px;padding:8px 10px;outline:none;line-height:1.4}p{margin:0}</style><div id="reply" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Write a message…"><p><br></p></div>`
+      reply.replaceWith(frame)
+      reply = null
+      frame.addEventListener("load", () => { reply = frame.contentDocument.getElementById("reply") })
+    }
   } else {
     app.innerHTML = `<div class="msg-s-message-list">${events}</div>
 <form class="msg-form" onsubmit="return false"><button type="button" class="plus" aria-label="Attach">+</button>
@@ -166,12 +178,25 @@ if (params.get("diag") === "1") {
   const diag = document.getElementById("diag")
   diag.hidden = false
   const round = (n) => Math.round(n)
+  // What lies at a point, through the open roots (the outlet's).
+  const at = (x, y) => {
+    let el = document.elementsFromPoint(x, y).find((e) => e.tagName !== "CONTEXTFLOW-ROOT" && e.id !== "diag")
+    for (let n = 0; el?.shadowRoot && n < 4; n++) el = el.shadowRoot.elementFromPoint?.(x, y) ?? el
+    return el ? (el.id || el.tagName.toLowerCase()) : "-"
+  }
+  const box = (r) => (r ? `${round(r.left)},${round(r.top)} ${round(r.width)}×${round(r.height)}` : "-")
+  // The line keeps to the visible part of the page when it's zoomed in (it's drawn at the zoomed-in scale's inverse).
+  diag.style.transformOrigin = "0 0"
   setInterval(() => {
     const vv = visualViewport
     const r = reply?.isConnected ? reply.getBoundingClientRect() : null
+    const close = outletRoot.getElementById?.("close-post")?.getBoundingClientRect()
     const btn = document.querySelector("contextflow-root")?.shadowRoot?.querySelector(".cf-qi-btn")?.getBoundingClientRect()
-    diag.textContent = `zoom ${vv.scale.toFixed(2)} vv ${round(vv.offsetLeft)},${round(vv.offsetTop)} ${round(vv.width)}×${round(vv.height)}
-reply ${r ? `${round(r.left)},${round(r.top)} ${round(r.width)}×${round(r.height)}` : "-"}  button ${btn ? `${round(btn.left)},${round(btn.top)}` : "none"}`
+    const mid = (b) => (b ? at(b.left + b.width / 2, b.top + b.height / 2) : "-")
+    diag.style.transform = `translate(${vv.offsetLeft}px, ${vv.offsetTop}px) scale(${1 / vv.scale})`
+    diag.textContent = `zoom ${vv.scale.toFixed(2)} vv ${round(vv.offsetLeft)},${round(vv.offsetTop)} ${round(vv.width)}×${round(vv.height)} scroll ${round(scrollX)},${round(scrollY)}
+reply ${box(r)}  close ${box(close)} at its middle: ${mid(close)}
+button ${box(btn)} under it: ${mid(btn)}`
   }, 300)
 }
 </script>
