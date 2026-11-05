@@ -1080,13 +1080,22 @@
   "message": "Copiati per «{0}»"
  },
  "qiAdapt": {
-  "message": "Adatta al messaggio"
+  "message": "Riscrivi per questa pagina"
+ },
+ "qiAdaptChat": {
+  "message": "Riscrivi per questa chat"
+ },
+ "qiAdaptHint": {
+  "message": "«Riempi dalla pagina» riempie solo gli spazi. «Riscrivi» cambia tutto il testo con l’IA e lo mostra nel pannello."
  },
  "qiAdaptLabel": {
-  "message": "Adatta il modello a questa pagina"
+  "message": "Riscrivi il modello per questa pagina"
  },
  "qiAdaptPrompt": {
   "message": "Riscrivi questo modello come una risposta adatta alla pagina aperta. Mantieni senso, tono e lunghezza; completa ciò che dice la pagina e lascia il resto com’è. Rispondi solo con il testo della risposta.\n\nModello:\n{0}"
+ },
+ "qiAdaptConversation": {
+  "message": "Questa è la conversazione in cui rispondo. Scrivi la risposta alla persona che ne fa parte:\n{0}"
  },
  "qiTemplateButton": {
   "message": "Modello"

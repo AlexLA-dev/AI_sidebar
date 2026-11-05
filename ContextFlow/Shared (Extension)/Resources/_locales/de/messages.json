@@ -1080,13 +1080,22 @@
   "message": "Kopiertes für „{0}“"
  },
  "qiAdapt": {
-  "message": "An die Nachricht anpassen"
+  "message": "Für diese Seite umschreiben"
+ },
+ "qiAdaptChat": {
+  "message": "Für diesen Chat umschreiben"
+ },
+ "qiAdaptHint": {
+  "message": "„Von der Seite ausfüllen“ füllt nur die Lücken. „Umschreiben“ ändert den ganzen Text mit KI und zeigt ihn im Panel."
  },
  "qiAdaptLabel": {
-  "message": "Vorlage an diese Seite anpassen"
+  "message": "Vorlage für diese Seite umschreiben"
  },
  "qiAdaptPrompt": {
   "message": "Schreib diese Vorlage zu einer Antwort um, die zur geöffneten Seite passt. Behalte Sinn, Ton und Länge; trag ein, was die Seite verrät, und lass den Rest, wie er ist. Antworte nur mit dem Text der Antwort.\n\nVorlage:\n{0}"
+ },
+ "qiAdaptConversation": {
+  "message": "Das ist der Chat, in dem ich antworte. Schreib die Antwort an die Person darin:\n{0}"
  },
  "qiTemplateButton": {
   "message": "Vorlage"

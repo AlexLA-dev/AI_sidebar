@@ -1080,13 +1080,22 @@
   "message": "为“{0}”选择已复制内容"
  },
  "qiAdapt": {
-  "message": "按消息调整"
+  "message": "按此网页改写"
+ },
+ "qiAdaptChat": {
+  "message": "按此对话改写"
+ },
+ "qiAdaptHint": {
+  "message": "“从网页填写”只填空格。“改写”用 AI 改写整段文字，并显示在面板中。"
  },
  "qiAdaptLabel": {
-  "message": "按此网页调整模板"
+  "message": "按此网页改写模板"
  },
  "qiAdaptPrompt": {
   "message": "把这个模板改写成适合当前网页的回复。保持意思、语气和长度；填入网页上能确定的内容，其余保持原样。只回答回复的正文。\n\n模板：\n{0}"
+ },
+ "qiAdaptConversation": {
+  "message": "这是我正在回复的对话。请写一条回复给其中的对方：\n{0}"
  },
  "qiTemplateButton": {
   "message": "模板"

@@ -1080,13 +1080,22 @@
   "message": "Copiados para “{0}”"
  },
  "qiAdapt": {
-  "message": "Ajustar à mensagem"
+  "message": "Reescrever para esta página"
+ },
+ "qiAdaptChat": {
+  "message": "Reescrever para esta conversa"
+ },
+ "qiAdaptHint": {
+  "message": "“Preencher pela página” preenche só as lacunas. “Reescrever” muda o texto todo com IA e mostra no painel."
  },
  "qiAdaptLabel": {
-  "message": "Ajustar o modelo a esta página"
+  "message": "Reescrever o modelo para esta página"
  },
  "qiAdaptPrompt": {
   "message": "Reescreva este modelo como uma resposta que combine com a página aberta. Mantenha o sentido, o tom e o tamanho; complete o que a página informa e deixe o resto como está. Responda só com o texto da resposta.\n\nModelo:\n{0}"
+ },
+ "qiAdaptConversation": {
+  "message": "Esta é a conversa em que estou respondendo. Escreva a resposta para a pessoa dela:\n{0}"
  },
  "qiTemplateButton": {
   "message": "Modelo"
