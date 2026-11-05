@@ -115,7 +115,7 @@ async function fresh(url, threads = null, extra = {}) {
     await chrome.storage.local.set({
       "cf:consent": 2, "cf:tourSeen": true, "cf:noteHint": -1, "cf:selHint": -1, "cf:hintsSeen": ["chats", "video", "pdf"],
       // 2.5's first-time tips (the eye, the bell, the button by a field) are for real first times, not the clips.
-      "cf:watchTips": { eye: true, later: true }, "cf:insertTipSeen": true,
+      "cf:watchTips": { eye: true, later: true }, "cf:selIconsTip": true, "cf:insertTipSeen": true,
       // Organizing's cards for Free ("Everything in one chat?", after the third tag) have their own clips.
       "cf:orgCards": { thirdTag: true, mess: { chats: [], at: 0, closed: true } },
       ...extra
