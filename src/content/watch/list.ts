@@ -1,5 +1,6 @@
-// Page watch (2.5) in the panel's "Reminders" list (chat UX's, through addLaterSource): this device's watches,
-// each with its status in the person's language. ✕ stops one (the list asks every source; others' ids pass by).
+// Page watch (2.5) in the panel's "Watching" list (chat UX's, through addLaterSource; 2.5 (77): its own list, not
+// "Reminders"): this device's watches, each with its status in the person's language. ✕ stops one (the list asks
+// every source; others' ids pass by).
 
 import { t, uiLanguage } from "../../shared/i18n"
 import { conditionLine, shown } from "../../shared/watch/line"
@@ -46,6 +47,7 @@ export function watchRow(w: Watch, now = Date.now()): LaterItem {
  * `done` reads the list's rows again after a change.
  */
 export const watchSource: LaterSource = {
+  kind: "watch",
   open(item, done) {
     if (item.kind !== "watch" || !item.id.startsWith(PREFIX)) return false
     const id = item.id.slice(PREFIX.length)

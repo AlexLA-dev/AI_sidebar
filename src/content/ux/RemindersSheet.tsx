@@ -1,8 +1,10 @@
-// "Reminders" in the panel (2.5, the header's "…" and "All reminders" in "Come back later"): the bells in the
-// chats and what's watched (watching's rows, addLaterSource in later.ts), each with its status. A watch: a tap opens
-// its page, ✕ stops it. Watching runs in Safari, so it can be seen and stopped here without the app.
-// A reminder (2.5 (75), the owner's notes): the row says what it's about (its chat or page, a note's text, an
-// answer's question and start), wrapped, not cut; a tap opens it in full with "Change reminder", "Open" and "Delete".
+// The panel's two lists (2.5 (77), the director's split: two words, two icons, never one list), from the header's "…":
+// - "Reminders" (the bell; also "All reminders" in "Remind me about this page"): the bells in the chats. A row says
+//   what it's about (its chat or page, a note's text, an answer's question and start), wrapped, not cut; a tap opens
+//   it in full with "Change reminder", "Open" and "Delete" (2.5 (75), the owner's notes).
+// - "Watching" (the eye; Safari): what's watched (watching's rows, addLaterSource in later.ts), each with its status.
+//   A tap opens it in watching's window, ✕ stops it: seen and stopped here without the app.
+// Empty, each says where its own are set.
 
 import type { VNode } from "preact"
 import { useRef, useState } from "preact/hooks"
@@ -12,14 +14,9 @@ import * as Icon from "../icons"
 import type { LaterItem } from "./later"
 import { Bell, RemindSheet, TrashIcon, useAboveComposer } from "./MessageUx"
 
-const Eye = ({ size = 16 }: { size?: number }): VNode => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-    <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" /><circle cx="12" cy="12" r="3" />
-  </svg>
-)
-
-export function RemindersSheet({ items, onOpen, onCancel, onReschedule, onClose }: {
-  // null while loading.
+export function RemindersSheet({ kind, items, onOpen, onCancel, onReschedule, onClose }: {
+  kind: LaterItem["kind"]
+  // This list's rows (null while loading).
   items: LaterItem[] | null
   onOpen: (item: LaterItem) => void
   onCancel: (item: LaterItem) => void
@@ -36,7 +33,7 @@ export function RemindersSheet({ items, onOpen, onCancel, onReschedule, onClose 
   const watchRow = (item: LaterItem) => (
     <div key={item.id} class="cf-later-row">
       <button type="button" class="cf-later-open" onClick={() => onOpen(item)}>
-        <span class="cf-later-icon"><Eye size={15} /></span>
+        <span class="cf-later-icon"><Icon.Eye size={15} /></span>
         <span class="cf-later-text">
           <span class="cf-later-title">{item.title}</span>
           <span class="cf-later-status">{item.status}</span>
@@ -75,20 +72,22 @@ export function RemindersSheet({ items, onOpen, onCancel, onReschedule, onClose 
     )
   }
 
+  const watching = kind === "watch"
+  const name = t(watching ? "uxWatching" : "uxReminders")
   return (
     <>
       <div ref={back} class="cf-sheet-back" onClick={(e) => e.target === e.currentTarget && onClose()}>
-        <div class="cf-sheet cf-later-list" role="dialog" aria-label={t("uxReminders")}>
+        <div class={`cf-sheet cf-later-list ${kind}`} role="dialog" aria-label={name}>
           <div class="cf-sheet-title">
-            <Icon.List /> {t("uxReminders")}
+            {watching ? <Icon.Eye size={16} /> : <Bell size={16} />} {name}
             {/* A long list fills a small screen: it closes here too (2.5 (75)). */}
             <button type="button" class="cf-icon cf-sheet-close" onClick={onClose} aria-label={t("close")} title={t("close")}><Icon.Close /></button>
           </div>
-          {items?.map((item) => (item.kind === "remind" ? remindRow(item) : watchRow(item)))}
-          {items && !items.length && (
+          {items?.filter((item) => item.kind === kind).map((item) => (watching ? watchRow(item) : remindRow(item)))}
+          {items && !items.some((item) => item.kind === kind) && (
             <div class="cf-later-empty">
-              <strong>{t("uxNoReminders")}</strong>
-              <span>{t("uxNoRemindersHint")}</span>
+              <strong>{t(watching ? "uxNoWatching" : "uxNoReminders")}</strong>
+              <span>{t(watching ? "uxNoWatchingHint" : "uxNoRemindersHint")}</span>
             </div>
           )}
         </div>

@@ -52,7 +52,15 @@ struct ChatsView: View {
     /// A reminder's notification was tapped: the chat the message is in now, at the message (2.5).
     @ObservedObject private var links = ChatLinks.shared
     @State private var linked: (threadId: String, index: Int)?
-    @State private var showingReminders = false
+    // "Reminders" or "Watching" (2.5 (77): two lists, never one), from the Chats toolbar.
+    @State private var showingList: LaterItem.Kind?
+
+    #if DEBUG
+    private func showListAtLaunch() {
+        if UserDefaults.standard.bool(forKey: "CFShowReminders") { showingList = .remind }
+        else if UserDefaults.standard.bool(forKey: "CFShowWatching") { showingList = .watch }
+    }
+    #endif
 
     private func openLinked() {
         guard let request = links.pending, let found = library.find(messageKey: request.message, hint: request.chat) else { return }
@@ -89,10 +97,18 @@ struct ChatsView: View {
             if value.isEmpty { found = nil }
         }
         .toolbar {
-            // "Reminders" (2.5): the bells and what's watched, together, so a neutral list (the bell is Remind's).
+            // "Reminders" (the bell) and "Watching" (the eye, once watching is in): the director's split, 2.5 (77).
             ToolbarItem(placement: .navigation) {
-                Button { showingReminders = true } label: { Image(systemName: "list.bullet") }
+                Button { showingList = .remind } label: { Image(systemName: "bell") }
                     .accessibilityLabel(Text("Reminders"))
+                    .help(Text("Reminders"))
+            }
+            if LaterCenter.shared.lists(.watch) {
+                ToolbarItem(placement: .navigation) {
+                    Button { showingList = .watch } label: { Image(systemName: "eye") }
+                        .accessibilityLabel(Text("Watching"))
+                        .help(Text("Watching"))
+                }
             }
             ToolbarItem {
                 Button {
@@ -122,12 +138,13 @@ struct ChatsView: View {
         }
         .navigationTitle("Chats")
         .navigationDestination(for: ChatRoute.self) { destination(for: $0) }
-        .sheet(isPresented: $showingReminders) { RemindersView(library: library) }
+        .sheet(item: $showingList) { kind in RemindersView(library: library, kind: kind) }
         #if DEBUG
-        // Local checks without taps: -CFShowReminders YES opens "Reminders" once the chats are in.
-        .onAppear { if library.loaded, UserDefaults.standard.bool(forKey: "CFShowReminders") { showingReminders = true } }
+        // Local checks without taps: -CFShowReminders YES opens "Reminders", -CFShowWatching YES "Watching", once the
+        // chats are in.
+        .onAppear { if library.loaded { showListAtLaunch() } }
         .onChange(of: library.loaded) { loaded in
-            if loaded, UserDefaults.standard.bool(forKey: "CFShowReminders") { showingReminders = true }
+            if loaded { showListAtLaunch() }
         }
         #endif
         .aiConsent($consentAsk)

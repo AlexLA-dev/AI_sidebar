@@ -1,7 +1,7 @@
 // Chats as threads: several conversations, each continued from any page, tab or device until the
 // user starts a new one. Pure helpers shared by the content script, the background and tests.
 
-import { entriesFrom, entryKey, entryTimes, MAX_SAVED_PAGE_CHARS, stripCitations, withoutText, withPageChanges, type Entry } from "./conversation.ts"
+import { entriesFrom, entryKey, entryTimes, MAX_SAVED_PAGE_CHARS, stripCitations, trimSavedPages, withoutText, withPageChanges, type Entry } from "./conversation.ts"
 import { marksLine } from "./marks.ts"
 import type { ChatDigest } from "./history.ts"
 
@@ -30,6 +30,8 @@ export type CloudChange = { id: string; updatedAt: number; data: string } | { id
 
 export const MAX_THREADS = 50
 export const MAX_TITLE = 80
+// Messages kept per chat when the panel saves it.
+export const MAX_TURNS = 40
 // Per thread: many threads come down in one sync, so they stay well under a CloudKit record's 1 MB
 // (room for the messages and the texts of 10 pages).
 const CLOUD_MAX_CHARS = 200_000
@@ -130,19 +132,47 @@ function oneLine(text: string, max: number): string {
 }
 
 /**
+ * When the chat last got a message once its messages are `m` (2.5 (77), the owner's note: two chats kept swapping
+ * places). Only a question, an answer or a note that's new here (by key) moves it up, to when it was written;
+ * a highlight, a pin, a reminder, a tag, an organizing hint, a message deleted or put back keep its place.
+ */
+export function activityAfter(stored: Thread | undefined, m: Entry[], now: number): number {
+  if (!stored || stored.deleted || stored.m.length === 0) return now
+  const had = new Set(stored.m.map(entryKey))
+  let a = activity(stored)
+  for (const e of m) if (!had.has(entryKey(e))) a = Math.max(a, e.t ?? now)
+  return a
+}
+
+/**
  * The thread with new messages as of `now`: its name, pin, tags and kind stay (a deleted thread
- * comes back as a new one). `kind` marks a new "Ask your chats" thread.
+ * comes back as a new one), and its place in the list moves only for a new message (activityAfter).
+ * `kind` marks a new "Ask your chats" thread.
  */
 export function withMessages(stored: Thread | undefined, id: string, m: Entry[], now: number, kind?: "history"): Thread {
   const keep = stored && !stored.deleted ? stored : undefined
   const keptKind = keep?.kind ?? kind
   return {
-    id, u: now, a: now, m,
+    id, u: now, a: activityAfter(keep, m, now), m,
     ...(keep?.title ? { title: keep.title } : {}),
     ...(keep?.pin !== undefined ? { pin: keep.pin } : {}),
     ...(keep?.tags?.length ? { tags: keep.tags } : {}),
     ...(keptKind ? { kind: keptKind } : {})
   }
+}
+
+/**
+ * What saving the panel's messages of a chat stores, or null when there's nothing to store: its last MAX_TURNS
+ * messages, page texts for its last few pages (they go to iCloud with it). Messages as they were read (a chat
+ * opened, or brought by iCloud or the app) aren't stored again: trimming them would give the chat a new copy, and
+ * drop a long chat's first messages, with nothing done here.
+ */
+export function savedThread(stored: Thread | undefined, id: string, entries: Entry[], now: number, kind?: "history"): Thread | null {
+  if (stored && !stored.deleted && JSON.stringify(stored.m) === JSON.stringify(entries)) return null
+  const next = trimSavedPages(entries.slice(-MAX_TURNS))
+  // Opening an empty thread doesn't store anything.
+  if (stored ? JSON.stringify(stored.m) === JSON.stringify(next) : next.length === 0) return null
+  return withMessages(stored, id, next, now, kind)
 }
 
 /**
@@ -440,8 +470,8 @@ function later(thread: Thread | undefined, now: number): number {
  * `targetId`, or to a new chat when no chat has that id. They go in among the target's messages by when
  * they were written (after the last turn written before them), keep their ids (messages from before
  * 2.5 get theirs now, from their content) and say where they came from (`from`). The block takes its
- * page's text along when the source keeps it on an earlier message. The target's time of last message
- * changes only when the block is newer; the source's becomes that of its last message left. A source
+ * page's text along when the source keeps it on an earlier message. The target keeps its time of last message
+ * (its place in the list); the source's becomes that of its last message left. A source
  * left empty is deleted. Null when it can't be moved ("Ask your chats", the same chat, a wrong range).
  */
 export function moveEntries(
@@ -466,8 +496,10 @@ export function moveEntries(
   const at = insertAt(into, times[start])
   const newest = times[end]
   const m = withPageChanges([...into.slice(0, at), ...moved, ...into.slice(at)])
+  // A chat the block goes to keeps its place in the list (2.5 (77): a move isn't a new message); a new one goes
+  // where the block's last message was.
   const nextTarget: Thread = target
-    ? { ...target, u: later(stored, now), a: newest !== null && newest > activity(target) ? newest : activity(target), m }
+    ? { ...target, u: later(stored, now), a: activity(target), m }
     : { id: targetId, u: later(stored, now), a: newest ?? activity(source), m }
   const next: Threads = { ...threads, [targetId]: nextTarget }
   if (rest.length) next[sourceId] = { ...source, u: later(source, now), a: entryTimes(rest).at(-1) ?? activity(source), m: rest }

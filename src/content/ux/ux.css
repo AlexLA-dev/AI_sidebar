@@ -146,10 +146,28 @@ mark.cf-mark-last { border-top-right-radius: 2px; border-bottom-right-radius: 2p
   background: var(--bg); border-radius: 16px 16px 0 0; box-shadow: var(--shadow);
   animation: cf-up 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
-/* "Come back later" (2.5): the window's name over its parts (Remind; watching's under it). */
-.cf-sheet-head { display: flex; align-items: center; gap: 6px; padding: 4px 10px 2px; font-size: 12.5px; font-weight: 600; color: var(--text-3); }
-.cf-sheet-head svg { width: 14px; height: 14px; flex-shrink: 0; }
 .cf-sheet-title svg { flex-shrink: 0; }
+/* "Remind me" from a selection: what the note will start with, under the title (3 lines at most). */
+.cf-sheet-quote {
+  margin: -2px 10px 6px; font-size: 13px; line-height: 1.4; color: var(--text-2); font-style: italic;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+/* The bell in the selection bubble (2.5 (77)), before the eye: an icon on touch screens (the row stays one line,
+   "Ask AI" and Google keep their words), with a word on Mac. */
+.cf-bubble button.cf-sel-remind { color: var(--accent-text); }
+.cf-bubble button.cf-sel-remind svg { color: var(--accent); }
+.cf-bubble:not(.touch) button.cf-sel-remind { gap: 4px; }
+.cf-bubble.touch .cf-sel-remind-l { display: none; }
+/* What the bell and the eye do, once (SelTip, .cf-snack's look): under the bubble, or over it near the bottom;
+   out of the bubble's flow, so the bubble keeps its size and place. */
+.cf-bubble .cf-sel-tip {
+  position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 1; display: flex; flex-direction: column; gap: 6px;
+  padding: 9px 12px; white-space: normal; text-align: left; font-size: 13px; font-weight: 500; line-height: 1.35;
+  pointer-events: none; animation: cf-fade 0.15s ease-out;
+}
+.cf-bubble .cf-sel-tip.up { top: auto; bottom: calc(100% + 6px); }
+.cf-bubble .cf-sel-tip span { display: flex; align-items: flex-start; gap: 6px; }
+.cf-bubble .cf-sel-tip svg { flex: none; margin-top: 2px; }
 /* A section's main buttons (watching's "Watch"): they stay at the sheet's bottom, over the question field, while
    the rest scrolls under them. */
 .cf-sheet-actions {
@@ -161,7 +179,8 @@ mark.cf-mark-last { border-top-right-radius: 2px; border-bottom-right-radius: 2p
 /* "All reminders" at the window's end: quiet. */
 .cf-sheet-link { display: block; width: 100%; margin-top: 4px; padding: 10px; font-size: 13px; color: var(--text-3); text-align: center; }
 .cf-sheet-link:hover { color: var(--accent); }
-/* "Reminders" (2.5): a row per bell or eye, ✕ to cancel; grey when it rings on another device. */
+/* "Reminders" and "Watching" (2.5; two lists since 2.5 (77)): a row per bell or eye, ✕ to cancel; grey when it
+   rings on another device. */
 .cf-later-row { display: flex; align-items: center; gap: 4px; border-radius: 10px; }
 .cf-later-row:hover { background: var(--bg-2); }
 .cf-later-open { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 9px 8px; text-align: left; color: var(--text); }

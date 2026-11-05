@@ -56,10 +56,11 @@ import { ThreadsView } from "./Threads"
 import { starMarks } from "../shared/marks"
 import { Bell, More, remindLabel, RemindSheet } from "./ux/MessageUx"
 import { PageMenu } from "./ux/PageMenu"
-import { bubbleActions, laterSections, laterSources, pageRange, setLaterOpener, type BubbleContext, type LaterContext, type LaterItem } from "./ux/later"
+import { bubbleActions, laterSections, laterSources, listsKind, pageRange, pageWatcher, setLaterOpener, type BubbleContext, type LaterContext, type LaterItem } from "./ux/later"
 import { reminderOf, reminderRows, withReminderAt } from "./ux/reminderList"
 import { watchableAt } from "./watch/at"
 import { RemindersSheet } from "./ux/RemindersSheet"
+import { SelIconsTip } from "./ux/SelTip"
 import { restoredDraft, withoutStopped } from "./ux/stopped"
 import { scheduleReminder, thisDevice, useMessageUx } from "./ux/useMessageUx"
 import { Tour, tourSteps } from "./Tour"
@@ -338,13 +339,15 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   })
   // The bell by a selection: "Remind me to come back" (a note with the quote and the page, and a reminder that
   // opens the page).
-  // "Come back later" (the header's "…", or watching offering a reminder instead, later.ts): what was selected then.
+  // "Remind me about this page" (the header's "…", or watching offering a reminder instead, later.ts): what was
+  // selected then.
   const [later, setLater] = useState<{ selection: SelectionInfo | null; range: Range | null } | null>(null)
   const [laterFlash, setLaterFlash] = useState(0)
-  // "Reminders" (the header's "…", "All reminders" in the window): open, its rows (null while loading), how many.
-  const [remindersOpen, setRemindersOpen] = useState(false)
+  // "Reminders" and "Watching" (the header's "…"; "All reminders" in the window; 2.5 (77): two lists, never one):
+  // which one is open, the rows (null while loading), and how many of each for the "…".
+  const [listOpen, setListOpen] = useState<LaterItem["kind"] | null>(null)
   const [laterList, setLaterList] = useState<LaterItem[] | null>(null)
-  const [laterCount, setLaterCount] = useState(0)
+  const [laterCount, setLaterCount] = useState({ remind: 0, watch: 0 })
   useEffect(() => {
     setLaterOpener((from) => setLater({
       selection: from?.selection ? { text: from.selection, words: from.selection.split(/\s+/).filter(Boolean).length, rect: null, at: Date.now() } : null,
@@ -352,7 +355,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     }))
     return () => setLaterOpener(null)
   }, [])
-  // The header's "…" (where Settings was): "Come back later…" and Settings (2.5).
+  // The header's "…" (where Settings was): "Remind me about this page…", the two lists and Settings (2.5).
   const [pageMenu, setPageMenu] = useState(false)
   const [remindSaved, setRemindSaved] = useState<number | null>(null)
 
@@ -1500,8 +1503,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }, [open, messages.length, source])
   const weightNote = pageWeight > 1 && contextKind === "page" && !googleMode && !historyMode && !noteMode && !ownKeyActive
 
-  // ------------------------------------------------------------ "Come back later" (2.5, later.ts)
-  /** The window: Remind (this evening, tomorrow morning, in a week, a date of one's own), then the sections added there. */
+  // ------------------------------------------------------------ "Remind me about this page" (2.5, later.ts)
+  /** The window: when (this evening, tomorrow morning, in a week, a date of one's own); 2.5 (77): time only. */
   const laterSheet = (page: boolean): VNode => {
     const from = later!
     const ctx: LaterContext = {
@@ -1514,7 +1517,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         page={page}
         later
         flash={laterFlash}
-        title={t("uxLaterTitle")}
+        title={t(from.selection ? "uxRemind" : "uxLaterTitle")}
+        quote={from.selection?.text}
         onPick={(at, preset) => {
           setLater(null)
           void noteSelection(from.selection, "", at, preset)
@@ -1526,26 +1530,28 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         {!page && (
           <button type="button" class="cf-sheet-link" onClick={() => {
             setLater(null)
-            openReminders("link")
+            openReminders("link", "remind")
           }}>{t("uxAllReminders")}</button>
         )}
       </RemindSheet>
     )
   }
-  /** The reminders still to ring in every chat (the soonest first), then watching's rows (later.ts). */
+  /** The reminders still to ring in every chat (the soonest first), then watching's rows (later.ts); each list shows its own. */
   const laterItems = async (): Promise<LaterItem[]> => {
     const [{ threads }, dev] = await Promise.all([loadThreads(), thisDevice()])
     const reminders = reminderRows(threads, dev, Date.now(), (at) => remindLabel(at), (label) => t("uxOnAnotherDevice", label))
     const watches = (await Promise.all(laterSources().map((s) => s.items().catch(() => [] as LaterItem[])))).flat()
     return [...reminders, ...watches.sort((a, b) => b.sortAt - a.sortAt)]
   }
-  const openReminders = (via: "menu" | "link") => {
+  const countOf = (items: LaterItem[]) => ({ remind: items.filter((i) => i.kind === "remind").length, watch: items.filter((i) => i.kind === "watch").length })
+  const openReminders = (via: "menu" | "link", kind: LaterItem["kind"]) => {
     setLaterList(null)
-    setRemindersOpen(true)
+    setListOpen(kind)
     void laterItems().then((items) => {
       setLaterList(items)
-      setLaterCount(items.length)
-      void sendBackground({ type: "useEvent", f: "later", a: "list", via, reminders: String(items.filter((i) => i.kind === "remind").length), watches: String(items.filter((i) => i.kind === "watch").length) })
+      const n = countOf(items)
+      setLaterCount(n)
+      void sendBackground({ type: "useEvent", f: "later", a: "list", what: kind, via, reminders: String(n.remind), watches: String(n.watch) })
     }).catch(() => setLaterList([]))
   }
   /** A page reminder or a watch opens its page in a new tab; a reminder on an answer or a note, its chat at it. */
@@ -1553,7 +1559,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     // A source that opens its own rows (watching's window).
     const reread = () => void laterItems().then((items) => {
       setLaterList(items)
-      setLaterCount(items.length)
+      setLaterCount(countOf(items))
     }, () => undefined)
     if (laterSources().some((s) => s.open?.(item, reread))) return
     if (item.url) {
@@ -1562,7 +1568,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     }
     const [, chat, key] = item.id.split(":")
     const at = threadList.find((x) => x.id === chat)?.m.findIndex((m) => entryKey(m) === key) ?? -1
-    setRemindersOpen(false)
+    setListOpen(null)
     openThread(chat, at >= 0 ? at : undefined)
   }
   const cancelLaterItem = async (item: LaterItem) => {
@@ -1586,7 +1592,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     }
     const items = await laterItems()
     setLaterList(items)
-    setLaterCount(items.length)
+    setLaterCount(countOf(items))
   }
   /** A reminder's new time, from the list (2.5 (75)): it rings on this device. Null once set, else why it isn't. */
   const rescheduleLaterItem = async (item: LaterItem, at: number, preset: string): Promise<string | null> => {
@@ -1606,10 +1612,31 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     void sendBackground({ type: "uxEvent", kind: "ux_remind", action: "set", what, how: "list", preset })
     const items = await laterItems()
     setLaterList(items)
-    setLaterCount(items.length)
+    setLaterCount(countOf(items))
     return null
   }
-  // The actions added to the selection bubble, after Template (watching's eye); none for plain text.
+  // The bell in the selection bubble (2.5 (77), the owner: "how do I add Remind me on the page itself?"), on any
+  // selection, before the eye: the same "Remind me" window as the header's "…", with the quote; the note keeps the
+  // quote and the page, the reminder opens it.
+  const remindButton = (sel: SelectionInfo) => (
+    <button
+      type="button"
+      class="cf-sel-icon cf-sel-remind"
+      aria-label={t("uxRemind")}
+      title={t("uxRemind")}
+      {...press(() => {
+        void sendBackground({ type: "useEvent", f: "later", a: "open", via: "bubble" })
+        setLater({ selection: sel, range: pageRange(HOST_TAG) })
+        // The page's selection goes, and with it the system's edit menu that would stay over the window.
+        document.getSelection()?.removeAllRanges()
+        setBubble(null)
+      })}
+    >
+      <Bell size={touch ? 16 : 14} />
+      <span class="cf-sel-remind-l">{t("uxRemind")}</span>
+    </button>
+  )
+  // The actions added to the selection bubble, after the bell (watching's eye); none for plain text.
   const bubbleExtras: VNode[] = bubble?.rect && !open && !popup
     ? bubbleActions().flatMap((render, i) => {
         const ctx: BubbleContext = { url: source.href(), key: source.key(), title: source.title(), selection: bubble.text, range: pageRange(HOST_TAG), close: () => setBubble(null) }
@@ -1971,6 +1998,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     <button type="button" class="primary" {...press(() => show(bubble))}><Icon.Sparkle size={16} /> {t("selAsk")}</button>
                     <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SEL_GOOGLE), 60) })}>{t("actGoogle")}</button>
                     <button type="button" class="cf-sel-template" aria-label={t("qiTemplateButton")} title={t("qiTemplateButton")} {...press(() => newTemplate(bubble))}><QIcon.Template /> <span class="cf-sel-l">{t("qiTemplateButton")}</span></button>
+                    {remindButton(bubble)}
                     {bubbleExtras}
                   </>
                 ) : (
@@ -1980,6 +2008,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SELECTION_ACTIONS[2]), 60) })}>{t("selTranslate")}</button>
                     <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SEL_GOOGLE), 60) })}><Icon.Search size={13} /> {t("actGoogle")}</button>
                     <button type="button" class="cf-sel-template" aria-label={t("qiTemplateButton")} title={t("qiTemplateButton")} {...press(() => newTemplate(bubble))}><QIcon.Template size={14} /> <span class="cf-sel-l">{t("qiTemplateButton")}</span></button>
+                    {remindButton(bubble)}
                     {bubbleExtras}
                   </>
                 )}
@@ -2013,6 +2042,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 <button type="button" class="cf-sel-note" title={t("selNoteTitle")} aria-label={t("selNote")} {...press(() => void noteSelection(bubble, selDraft))}><Icon.Pencil />{!(touch && narrowScreen()) && ` ${t("selNote")}`}</button>
               </div>
               {selHint && <div class="cf-bubble-hint">{t("selHint")}</div>}
+              {!selHint && <SelIconsTip watching={listsKind("watch")} />}
             </>
           )}
         </SelectionBubble>
@@ -2081,7 +2111,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   // Opened, and which item: to see whether Settings is still found a tap further.
                   if (!pageMenu) {
                     void sendBackground({ type: "useEvent", f: "menu", a: "open" })
-                    void laterItems().then((items) => setLaterCount(items.length)).catch(() => setLaterCount(0))
+                    void laterItems().then((items) => setLaterCount(countOf(items))).catch(() => setLaterCount({ remind: 0, watch: 0 }))
                   }
                   setPageMenu(!pageMenu)
                 }}><More size={18} /></button>
@@ -2093,11 +2123,22 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       void sendBackground({ type: "useEvent", f: "later", a: "open", via: "menu" })
                       setLater({ selection, range: pageRange(HOST_TAG) })
                     }}
-                    reminders={laterCount}
+                    onWatchPage={listsKind("watch") && pageWatcher() ? () => {
+                      setPageMenu(false)
+                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "watch_page" })
+                      pageWatcher()?.({ url: source.href(), title: source.title() })
+                    } : undefined}
+                    reminders={laterCount.remind}
+                    watches={listsKind("watch") ? laterCount.watch : null}
                     onReminders={() => {
                       setPageMenu(false)
                       void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "reminders" })
-                      openReminders("menu")
+                      openReminders("menu", "remind")
+                    }}
+                    onWatching={() => {
+                      setPageMenu(false)
+                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "watching" })
+                      openReminders("menu", "watch")
                     }}
                     onSettings={() => {
                       setPageMenu(false)
@@ -2522,8 +2563,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           )}
           {view === "chat" && !picked && ux.overlay}
           {view === "chat" && later && laterSheet(false)}
-          {view === "chat" && remindersOpen && (
-            <RemindersSheet items={laterList} onOpen={openLaterItem} onCancel={(item) => void cancelLaterItem(item)} onReschedule={rescheduleLaterItem} onClose={() => setRemindersOpen(false)} />
+          {view === "chat" && listOpen && (
+            <RemindersSheet kind={listOpen} items={laterList} onOpen={openLaterItem} onCancel={(item) => void cancelLaterItem(item)} onReschedule={rescheduleLaterItem} onClose={() => setListOpen(null)} />
           )}
         </section>
       )}

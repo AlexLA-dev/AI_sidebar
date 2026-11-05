@@ -23,7 +23,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         localizeMainMenu()
         // Before launch ends, so a click on a reminder that launched the app reaches us.
         UNUserNotificationCenter.current().delegate = self
-        // Page watch: this device's watches in Reminders, and the notification question when they need it.
+        // Page watch: this device's watches in Watching, and the notification question when they need it.
         WatchOpen.start()
     }
 

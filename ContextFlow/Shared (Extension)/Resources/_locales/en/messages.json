@@ -216,16 +216,25 @@
   "message": "More: chat"
  },
  "uxLater": {
-  "message": "Come back later…"
+  "message": "Remind me about this page…"
  },
  "uxLaterTitle": {
-  "message": "Come back later"
+  "message": "Remind me about this page"
+ },
+ "uxWatchPage": {
+  "message": "Watch this page…"
  },
  "uxReminders": {
   "message": "Reminders"
  },
  "uxRemindersN": {
   "message": "Reminders · {0}"
+ },
+ "uxWatching": {
+  "message": "Watching"
+ },
+ "uxWatchingN": {
+  "message": "Watching · {0}"
  },
  "uxAllReminders": {
   "message": "All reminders"
@@ -234,7 +243,13 @@
   "message": "No reminders"
  },
  "uxNoRemindersHint": {
-  "message": "Set one on an answer or a note, or here: … → Come back later."
+  "message": "Set one on an answer or a note, with the bell by selected text, or here: … → Remind me about this page."
+ },
+ "uxNoWatching": {
+  "message": "Nothing watched"
+ },
+ "uxNoWatchingHint": {
+  "message": "Select a price, stock or a date and tap the eye. For the whole page: … → Watch this page."
  },
  "uxOnAnotherDevice": {
   "message": "{0} · on another device"
@@ -1349,9 +1364,6 @@
  "watchSave": {
   "message": "Save"
  },
- "watchTipEye": {
-  "message": "The eye: I'll keep checking this and tell you when it changes. Tap it to set it up."
- },
  "watchTipBell": {
   "message": "The bell: I'll bring you back to this page at a time you pick."
  },
@@ -1377,7 +1389,7 @@
   "message": "Check when I open the page"
  },
  "watchFull": {
-  "message": "You're already watching {0} pages. Stop one in Reminders first."
+  "message": "You're already watching {0} pages. Stop one in Watching first."
  },
  "watchFullFree": {
   "message": "On Free you can watch {0} pages at once. Pro watches up to {1}."

@@ -216,16 +216,25 @@
   "message": "Mehr: Chat"
  },
  "uxLater": {
-  "message": "Später zurückkommen…"
+  "message": "An diese Seite erinnern…"
  },
  "uxLaterTitle": {
-  "message": "Später zurückkommen"
+  "message": "An diese Seite erinnern"
+ },
+ "uxWatchPage": {
+  "message": "Diese Seite beobachten…"
  },
  "uxReminders": {
   "message": "Erinnerungen"
  },
  "uxRemindersN": {
   "message": "Erinnerungen · {0}"
+ },
+ "uxWatching": {
+  "message": "Beobachtungen"
+ },
+ "uxWatchingN": {
+  "message": "Beobachtungen · {0}"
  },
  "uxAllReminders": {
   "message": "Alle Erinnerungen"
@@ -234,7 +243,13 @@
   "message": "Keine Erinnerungen"
  },
  "uxNoRemindersHint": {
-  "message": "Setze eine an einer Antwort oder Notiz oder hier: … → Später zurückkommen."
+  "message": "Setze eine an einer Antwort oder Notiz, mit der Glocke an markiertem Text oder hier: … → An diese Seite erinnern."
+ },
+ "uxNoWatching": {
+  "message": "Keine Beobachtungen"
+ },
+ "uxNoWatchingHint": {
+  "message": "Markiere einen Preis, die Verfügbarkeit oder ein Datum und tippe auf das Auge. Für die ganze Seite: … → Diese Seite beobachten."
  },
  "uxOnAnotherDevice": {
   "message": "{0} · auf einem anderen Gerät"
@@ -1349,9 +1364,6 @@
  "watchSave": {
   "message": "Speichern"
  },
- "watchTipEye": {
-  "message": "Das Auge: Ich prüfe diesen Wert und sage dir Bescheid, wenn er sich ändert. Tippe darauf, um es einzurichten."
- },
  "watchTipBell": {
   "message": "Die Glocke: Ich erinnere dich zur gewählten Zeit an diese Seite."
  },
@@ -1377,7 +1389,7 @@
   "message": "Prüfen, wenn ich sie öffne"
  },
  "watchFull": {
-  "message": "Du beobachtest schon {0} Seiten. Beende zuerst eine unter „Erinnerungen“."
+  "message": "Du beobachtest schon {0} Seiten. Beende zuerst eine unter „Beobachtungen“."
  },
  "watchFullFree": {
   "message": "Kostenlos beobachtest du bis zu {0} Seiten gleichzeitig. Mit Pro bis zu {1}."
