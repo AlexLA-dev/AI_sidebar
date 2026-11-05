@@ -1,6 +1,7 @@
-// The panel header's "…" (2.5, the director's layout): where Settings was. "Come back later…" (a reminder on this
-// page; watching it joins there), "Reminders" (with how many are active) and Settings; more actions on the page go
-// here too.
+// The panel header's "…" (2.5, the director's layout): where Settings was. 2.5 (77), the director's split of
+// reminders and watching (two words, two icons, never one list): "Remind me about this page…" (the bell; time
+// only), "Watch this page…" (the eye; the whole page, where watching works), "Reminders · N" (the bell),
+// "Watching · N" (the eye; where watching works) and Settings.
 
 import type { VNode } from "preact"
 import { useEffect, useRef } from "preact/hooks"
@@ -8,11 +9,17 @@ import { useEffect, useRef } from "preact/hooks"
 import { t } from "../../shared/i18n"
 import { listenAround } from "../around"
 import * as Icon from "../icons"
+import { Bell } from "./MessageUx"
 
-export function PageMenu({ reminders, onLater, onReminders, onSettings, onClose }: {
+export function PageMenu({ reminders, watches, onLater, onWatchPage, onReminders, onWatching, onSettings, onClose }: {
   reminders: number
+  // null: no watching here (not Safari).
+  watches: number | null
   onLater: () => void
+  // Absent: no watching here.
+  onWatchPage?: () => void
   onReminders: () => void
+  onWatching: () => void
   onSettings: () => void
   onClose: () => void
 }): VNode {
@@ -37,8 +44,12 @@ export function PageMenu({ reminders, onLater, onReminders, onSettings, onClose 
   }, [onClose])
   return (
     <div ref={ref} class="cf-msg-menu cf-page-menu" role="menu">
-      <button type="button" role="menuitem" onClick={onLater}><Icon.Clock /> {t("uxLater")}</button>
-      <button type="button" role="menuitem" onClick={onReminders}><Icon.List /> {reminders > 0 ? t("uxRemindersN", reminders) : t("uxReminders")}</button>
+      <button type="button" role="menuitem" onClick={onLater}><Bell size={16} /> {t("uxLater")}</button>
+      {onWatchPage && <button type="button" role="menuitem" onClick={onWatchPage}><Icon.Eye size={16} /> {t("uxWatchPage")}</button>}
+      <button type="button" role="menuitem" onClick={onReminders}><Bell size={16} /> {reminders > 0 ? t("uxRemindersN", reminders) : t("uxReminders")}</button>
+      {watches !== null && (
+        <button type="button" role="menuitem" onClick={onWatching}><Icon.Eye size={16} /> {watches > 0 ? t("uxWatchingN", watches) : t("uxWatching")}</button>
+      )}
       <button type="button" role="menuitem" onClick={onSettings}><Icon.Gear /> {t("settings")}</button>
     </div>
   )

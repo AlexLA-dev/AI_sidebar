@@ -216,16 +216,25 @@
   "message": "Más: chat"
  },
  "uxLater": {
-  "message": "Volver más tarde…"
+  "message": "Recordarme esta página…"
  },
  "uxLaterTitle": {
-  "message": "Volver más tarde"
+  "message": "Recordarme esta página"
+ },
+ "uxWatchPage": {
+  "message": "Vigilar esta página…"
  },
  "uxReminders": {
   "message": "Recordatorios"
  },
  "uxRemindersN": {
   "message": "Recordatorios · {0}"
+ },
+ "uxWatching": {
+  "message": "Vigilando"
+ },
+ "uxWatchingN": {
+  "message": "Vigilando · {0}"
  },
  "uxAllReminders": {
   "message": "Todos los recordatorios"
@@ -234,7 +243,13 @@
   "message": "No hay recordatorios"
  },
  "uxNoRemindersHint": {
-  "message": "Pon uno en una respuesta o una nota, o aquí: … → Volver más tarde."
+  "message": "Pon uno en una respuesta o una nota, con la campana junto al texto seleccionado, o aquí: … → Recordarme esta página."
+ },
+ "uxNoWatching": {
+  "message": "No vigilas nada"
+ },
+ "uxNoWatchingHint": {
+  "message": "Selecciona un precio, la disponibilidad o una fecha y toca el ojo. Para toda la página: … → Vigilar esta página."
  },
  "uxOnAnotherDevice": {
   "message": "{0} · en otro dispositivo"
@@ -1349,9 +1364,6 @@
  "watchSave": {
   "message": "Guardar"
  },
- "watchTipEye": {
-  "message": "El ojo: revisaré este valor y te avisaré cuando cambie. Tócalo para configurarlo."
- },
  "watchTipBell": {
   "message": "La campana: te recordaré volver a esta página a la hora que elijas."
  },
@@ -1377,7 +1389,7 @@
   "message": "Comprobar cuando abra la página"
  },
  "watchFull": {
-  "message": "Ya vigilas {0} páginas. Detén una en Recordatorios primero."
+  "message": "Ya vigilas {0} páginas. Detén una en Vigilando primero."
  },
  "watchFullFree": {
   "message": "Gratis puedes vigilar {0} páginas a la vez. Con Pro, hasta {1}."

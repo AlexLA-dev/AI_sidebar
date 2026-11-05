@@ -1,16 +1,16 @@
-// Page watch (2.5) in the panel, through chat UX's registries (ux/later.ts): the section "Notify me when it
-// changes" under Remind in "Come back later…", the eye in the selection bubble (only for a price, stock, a date
-// or a status), and this device's watches in "Reminders". Safari only: the checks and the notification need the app.
-// The eye opens watching alone (WatchSheet): the owner's notes on build 75, the eye and the bell aren't one menu.
+// Page watch (2.5) in the panel, through chat UX's registries (ux/later.ts): the eye in the selection bubble (only
+// for a price, stock, a date or a status), after the bell, "Watch this page…" in the header's "…" (the whole page),
+// and this device's watches in "Watching" (the header's "…"). Safari only: the checks and the notification need the
+// app. The eye and "Watch this page…" open watching alone (WatchSheet).
+// 2.5 (77), the director's split: reminders and watching are never one list or one window, so "Remind me about
+// this page" has no watching section any more; one tip in the bubble says what the bell and the eye do.
 
 import { TARGET } from "../../shared/config"
 import { t } from "../../shared/i18n"
-import { addBubbleAction, addLaterSection, addLaterSource } from "../ux/later"
+import { addBubbleAction, addLaterSource, openLater, setPageWatch } from "../ux/later"
 import { watchableAt } from "./at"
 import { Eye } from "./icons"
 import { watchSource } from "./list"
-import { EyeTip, LaterTip } from "./tips"
-import { WatchSection } from "./WatchSection"
 import { openWatchSheet } from "./WatchSheet"
 
 // Acts on pointerup, as the bubble's own buttons do: on iPhone the tap also clears the selection and the
@@ -33,14 +33,11 @@ const press = (action: () => void) => ({
 })
 
 if (TARGET === "safari") {
-  addLaterSection("watch", (ctx) => (
-    <>
-      <LaterTip />
-      <WatchSection key={`${ctx.url}|${ctx.selection ?? ""}`} url={ctx.url} title={ctx.title} selection={ctx.selection} how="later" close={ctx.close} remind={ctx.remind} />
-    </>
-  ))
-
   addLaterSource("watch", watchSource)
+
+  // The whole page ("when something new appears on the page"), the limit and a page that can't be watched as before;
+  // such a page offers "Remind me to look", which opens "Remind me about this page".
+  setPageWatch((page) => openWatchSheet({ url: page.url, title: page.title, selection: null, how: "later", remind: () => openLater() }))
 
   addBubbleAction("watch", (ctx) => {
     // A tap on "40" in "USD 40" selects only the number: the eye watches the price as the page writes it.
@@ -61,7 +58,6 @@ if (TARGET === "safari") {
       >
         <Eye size={16} />
         <span class="cf-sel-watch-l">{t("watchStart")}</span>
-        <EyeTip />
       </button>
     )
   })

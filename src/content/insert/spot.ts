@@ -1,8 +1,13 @@
 // Where the button by a field goes (iPhone and iPad): never inside the field, never over anything of the
 // site's. Sites keep their own buttons at a field's right edge (search, ×, the microphone, Send), and a
 // single-line field's end is where the caret is; so the button sits outside the field, above its top-right
-// corner, else beside it, else below it, at the first spot where nothing of the page lies underneath. When
-// there's no such spot, there's no button: "/" and ⌃⇧V still open the list.
+// corner, else beside it, else below it, at the first spot where nothing of the page lies underneath. A chat's
+// reply box has all three taken (a read receipt or the last message over its corner, "expand" beside it, Send
+// under it: the owner on 2.5 (77), LinkedIn's messages), so then the spots go on along its top edge and its
+// bottom edge, leftwards from the corner. When there's no such spot, there's no button: "/" and ⌃⇧V still open
+// the list.
+
+import { closestComposed, shadowRootsOf } from "./shadow.ts"
 
 /** The button's size and the gap it keeps from the field. */
 export const BUTTON = 30
@@ -16,18 +21,24 @@ export type Probe = (x: number, y: number) => boolean
 
 /**
  * The button's top-left corner (viewport coordinates), or null. Tried in order: above the field's top-right
- * corner, to its right, below its bottom-right corner; each must be inside the view and free at its centre
+ * corner, to its right, below its bottom-right corner; then along the field's top edge and its bottom edge,
+ * leftwards from the corner a button's width at a time. Each must be inside the view and free at its centre
  * and its four corners.
  */
 export function buttonSpot(field: Rect, view: Box, free: Probe): { top: number; left: number } | null {
   if (field.bottom <= 0 || field.top >= view.height) return null
   const right = Math.min(field.right, view.width - GAP)
   const middle = field.top + Math.min(field.height, 44) / 2 - BUTTON / 2
+  const above = field.top - GAP - BUTTON
+  const below = field.bottom + GAP
   const spots = [
-    { top: field.top - GAP - BUTTON, left: right - BUTTON },
+    { top: above, left: right - BUTTON },
     { top: middle, left: field.right + GAP },
-    { top: field.bottom + GAP, left: right - BUTTON }
+    { top: below, left: right - BUTTON }
   ]
+  const lefts: number[] = []
+  for (let left = right - 2 * BUTTON; left >= Math.max(GAP, field.left); left -= BUTTON) lefts.push(left)
+  for (const top of [above, below]) for (const left of lefts) spots.push({ top, left })
   for (const s of spots) {
     if (s.top < GAP || s.left < GAP || s.top + BUTTON > view.height - GAP || s.left + BUTTON > view.width - GAP) continue
     const points = [
@@ -55,9 +66,9 @@ const ITSELF = "input,textarea,[contenteditable=''],[contenteditable='true'],[ro
 export function pagePointFree(host: Element | null): Probe {
   return (x, y) => {
     const els = document.elementsFromPoint(x, y).filter((el) => el !== host && !host?.contains(el))
-    const top = els[0]
+    const top = els[0] ? innermostAt(els[0], x, y) : undefined
     if (!top || top === document.documentElement || top === document.body) return true
-    if (top.closest(CONTROL) || top.closest(MEDIA) || top.matches(ITSELF)) return false
+    if (closestComposed(top, CONTROL) || closestComposed(top, MEDIA) || top.matches(ITSELF)) return false
     // Text right under the point: covering it hides what someone reads (a label, a hint, a price).
     for (const node of Array.from(top.childNodes)) {
       if (node.nodeType !== Node.TEXT_NODE || !node.textContent?.trim()) continue
@@ -69,6 +80,20 @@ export function pagePointFree(host: Element | null): Probe {
     }
     return true
   }
+}
+
+type PointScope = ShadowRoot & { elementsFromPoint?: (x: number, y: number) => Element[] }
+
+/** What's at a point inside open shadow roots: the document finds their host only. */
+function innermostAt(top: Element, x: number, y: number): Element {
+  let el = top
+  for (let n = 0; n < 16; n++) {
+    const root = el.shadowRoot as PointScope | null
+    const inner = root?.elementsFromPoint?.(x, y).find((e) => e !== el && root.contains(e))
+    if (!inner) break
+    el = inner
+  }
+  return el
 }
 
 const SEARCH_WORDS = /search|query|\bq\b|поиск|найти|пошук|suche|suchen|recherche|rechercher|buscar|búsqueda|cerca|ricerca|pesquis|busca|検索|검색|搜索/i
@@ -87,7 +112,10 @@ export function noButtonField(el: Element): boolean {
     if (el.getAttribute("enterkeyhint") === "search") return true
   }
   const role = el.getAttribute("role") ?? ""
-  if (role === "searchbox" || el.closest("[role=search],search,form[action*=search i],form[role=search]")) return true
+  if (role === "searchbox" || closestComposed(el, "[role=search],search,form[action*=search i],form[role=search]")) return true
+  // A search component of a design system, the field inside its own root (Reddit's faceplate-search-input; not
+  // a research-notes editor).
+  if (shadowRootsOf(el).some((root) => /(^|-)search(-|$)/i.test(root.host.tagName))) return true
   const named = `${el.getAttribute("name") ?? ""} ${el.id} ${el.getAttribute("aria-label") ?? ""} ${el.getAttribute("placeholder") ?? ""}`
   return el.tagName.toUpperCase() === "INPUT" && SEARCH_WORDS.test(named)
 }
