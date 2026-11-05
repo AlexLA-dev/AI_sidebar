@@ -12,7 +12,9 @@ export const INSERT_STORAGE = {
   syncedTemplates: "cf:syncedTemplates",
   templateUse: "cf:templateUse",
   // The first-touch tip by a field was shown (after the update).
-  tipSeen: "cf:insertTipSeen"
+  tipSeen: "cf:insertTipSeen",
+  // The line under the fill form's buttons, telling "Fill again" from the rewrite, was shown (2.5 (81)).
+  rewriteHintSeen: "cf:insertRewriteHintSeen"
 } as const
 
 export interface InsertSettings {

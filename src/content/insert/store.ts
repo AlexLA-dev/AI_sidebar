@@ -164,6 +164,14 @@ export async function markTipSeen(): Promise<void> {
   await set({ [INSERT_STORAGE.tipSeen]: true })
 }
 
+export async function rewriteHintSeen(): Promise<boolean> {
+  return Boolean(await get<boolean>(INSERT_STORAGE.rewriteHintSeen))
+}
+
+export async function markRewriteHintSeen(): Promise<void> {
+  await set({ [INSERT_STORAGE.rewriteHintSeen]: true })
+}
+
 // ------------------------------------------------------------ From ContextFlow
 
 export interface LastReply {

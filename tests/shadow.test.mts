@@ -28,7 +28,8 @@ test("a production build attaches only closed shadow roots (the panel, the popup
   assert.ok(attach(content).length >= 2, "the panel's root and the suggestions' root")
   assert.ok(attach(popup).length >= 1)
   for (const mode of [...attach(content), ...attach(popup)]) assert.equal(mode, "closed")
-  for (const file of readdirSync(join(out, "dist"))) {
+  // The scripts (dist/clips holds the Tips clips, 2.5 (81)).
+  for (const file of readdirSync(join(out, "dist")).filter((f) => f.endsWith(".js"))) {
     assert.doesNotMatch(readFileSync(join(out, "dist", file), "utf8"), /mode:"open"/, file)
   }
 })

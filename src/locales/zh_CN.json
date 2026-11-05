@@ -376,9 +376,12 @@
   "qiFillLimit": "今天的免费填写次数已用完。Pro 不限次数，空格也可以手动填写。",
   "qiFillByHand": "手动填写",
   "qiPickCopied": "为“{0}”选择已复制内容",
-  "qiAdapt": "按消息调整",
-  "qiAdaptLabel": "按此网页调整模板",
+  "qiAdapt": "按此网页改写",
+  "qiAdaptChat": "按此对话改写",
+  "qiAdaptHint": "“从网页填写”只填空格。“改写”用 AI 改写整段文字，并显示在面板中。",
+  "qiAdaptLabel": "按此网页改写模板",
   "qiAdaptPrompt": "把这个模板改写成适合当前网页的回复。保持意思、语气和长度；填入网页上能确定的内容，其余保持原样。只回答回复的正文。\n\n模板：\n{0}",
+  "qiAdaptConversation": "这是我正在回复的对话。请写一条回复给其中的对方：\n{0}",
   "qiTemplateButton": "模板",
   "qiTemplateTitle": "标题",
   "qiTemplateText": "正文。空格用花括号表示，例如 {姓名}。",
@@ -509,7 +512,5 @@
   "watchInStock": "有货",
   "watchOutOfStock": "缺货",
   "watchChanged": "已变化：{0}",
-  "watchChangedBody": "现在：{0}",
-
-  "tipsVideos": "带视频的版本：ContextFlow App → {0}"
+  "watchChangedBody": "现在：{0}"
 }

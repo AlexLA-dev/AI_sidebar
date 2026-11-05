@@ -376,9 +376,12 @@
   "qiFillLimit": "今日の無料入力回数を使い切りました。Proなら制限はありません。空欄は手でも入力できます。",
   "qiFillByHand": "手で入力",
   "qiPickCopied": "「{0}」にコピー履歴から",
-  "qiAdapt": "メッセージに合わせる",
-  "qiAdaptLabel": "テンプレートをこのページに合わせる",
+  "qiAdapt": "このページ向けに書き直す",
+  "qiAdaptChat": "このチャット向けに書き直す",
+  "qiAdaptHint": "「ページから入力」は空欄だけを埋めます。「書き直す」は AI で文章全体を書き換え、パネルに表示します。",
+  "qiAdaptLabel": "テンプレートをこのページ向けに書き直す",
   "qiAdaptPrompt": "このテンプレートを、開いているページに合う返信に書き直して。意味、トーン、長さは保ち、ページからわかることを埋め、ほかはそのままにして。返信の本文だけを答えて。\n\nテンプレート：\n{0}",
+  "qiAdaptConversation": "これは私が返信しているチャットです。その相手への返信として書いてください：\n{0}",
   "qiTemplateButton": "テンプレート",
   "qiTemplateTitle": "タイトル",
   "qiTemplateText": "本文。空欄は{名前}のように波かっこで囲みます。",
@@ -509,7 +512,5 @@
   "watchInStock": "在庫あり",
   "watchOutOfStock": "在庫切れ",
   "watchChanged": "変更あり: {0}",
-  "watchChangedBody": "現在: {0}",
-
-  "tipsVideos": "動画付きはContextFlowアプリ → {0}"
+  "watchChangedBody": "現在: {0}"
 }

@@ -376,9 +376,12 @@
   "qiFillLimit": "Se acabaron los rellenados gratis de hoy. Con Pro no hay límite, y los huecos también se pueden rellenar a mano.",
   "qiFillByHand": "Rellenar a mano",
   "qiPickCopied": "Copiado para «{0}»",
-  "qiAdapt": "Ajustar al mensaje",
-  "qiAdaptLabel": "Ajustar la plantilla a esta página",
+  "qiAdapt": "Reescribir para esta página",
+  "qiAdaptChat": "Reescribir para este chat",
+  "qiAdaptHint": "«Rellenar con la página» solo rellena los huecos. «Reescribir» cambia todo el texto con IA y lo muestra en el panel.",
+  "qiAdaptLabel": "Reescribir la plantilla para esta página",
   "qiAdaptPrompt": "Reescribe esta plantilla como una respuesta que encaje con la página abierta. Mantén el sentido, el tono y la extensión; completa lo que dice la página y deja el resto como está. Responde solo con el texto de la respuesta.\n\nPlantilla:\n{0}",
+  "qiAdaptConversation": "Esta es la conversación en la que respondo. Escribe la respuesta a la persona de ella:\n{0}",
   "qiTemplateButton": "Plantilla",
   "qiTemplateTitle": "Título",
   "qiTemplateText": "Texto. Los huecos van entre llaves, como {Nombre}.",
@@ -509,7 +512,5 @@
   "watchInStock": "disponible",
   "watchOutOfStock": "agotado",
   "watchChanged": "Cambió: {0}",
-  "watchChangedBody": "Ahora: {0}",
-
-  "tipsVideos": "Con vídeos: en la app ContextFlow → {0}"
+  "watchChangedBody": "Ahora: {0}"
 }

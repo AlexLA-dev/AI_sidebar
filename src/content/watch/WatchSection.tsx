@@ -7,6 +7,8 @@ import { useEffect, useMemo, useRef, useState } from "preact/hooks"
 
 import { t } from "../../shared/i18n"
 import { WATCH_LIMIT, type WatchHow, type WatchPrepared } from "../../shared/watch/messages"
+import { ConsentCard } from "../Consent"
+import { giveConsent, loadConsent } from "../store"
 import { draftFor } from "./draft"
 import { Eye } from "./icons"
 
@@ -28,6 +30,9 @@ type State =
   // The owner's limit: Free 5 at once, Pro 20.
   | { at: "full"; limit: number; paid: boolean }
   | { at: "failed" }
+  // The AI reads the words: without the consent, the one card here first (2.5 (81): never a silent watch whose words
+  // nobody reads).
+  | { at: "consent"; again: boolean }
 
 const send = <T,>(message: unknown) => chrome.runtime.sendMessage(message) as Promise<T>
 
@@ -56,6 +61,8 @@ export function WatchSection(p: WatchSectionProps) {
   }
 
   const start = async () => {
+    const consent = await loadConsent()
+    if (consent !== "ok") return setState({ at: "consent", again: consent === "old" })
     setState({ at: "checking" })
     const prepared = await send<WatchPrepared & { ok?: boolean }>({ type: "watchPrepare", draft: { ...draft, condition }, how }).catch(() => null)
     if (!prepared?.ok) return setState({ at: "failed" })
@@ -67,7 +74,7 @@ export function WatchSection(p: WatchSectionProps) {
     <section class="cf-watch" aria-label={t("watchSection")}>
       {/* The eye beside the title, as the bell beside Remind: the same class and size. */}
       <div class="cf-sheet-title cf-watch-h"><Eye size={16} /> {t("watchSection")}</div>
-      {(state.at === "edit" || state.at === "checking" || state.at === "failed" || state.at === "full") && (
+      {(state.at === "edit" || state.at === "checking" || state.at === "failed" || state.at === "full" || state.at === "consent") && (
         <>
           <label class="cf-watch-l" for="cf-watch-cond">{t("watchWhen")}</label>
           {/* Whole, on as many lines as it takes (the owner, build 75: a cut line hid the price set). */}
@@ -95,7 +102,9 @@ export function WatchSection(p: WatchSectionProps) {
           {state.at === "full" && <p class="cf-watch-msg">{state.paid ? t("watchFull", state.limit) : t("watchFullFree", state.limit, WATCH_LIMIT.paid)}</p>}
           {/* The section's main button stays in view over the question field (chat UX's sheet row). With every
               watch taken, Pro is the way on (Free) or there's nothing to press (Pro). */}
-          {state.at === "full" ? (
+          {state.at === "consent" ? (
+            <ConsentCard again={state.again} onAccept={() => void giveConsent().then(start)} onDecline={() => setState({ at: "edit" })} />
+          ) : state.at === "full" ? (
             !state.paid && (
               <div class="cf-sheet-actions">
                 <button type="button" class="cf-primary" onClick={() => void send({ type: "openApp", target: "subscribe" })}>{t("watchMore")}</button>

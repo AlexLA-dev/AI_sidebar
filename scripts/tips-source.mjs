@@ -1,9 +1,11 @@
 // The app's Tips, for the extension's Tips sheet (2.5 (78), the owner's note: the same Tips in the extension).
 // One source: the blocks, their order, the cards and the Pro badges come from TipGroup in ContentView.swift, the
 // translations from Localizable.xcstrings. The extension build reads both, so the sheet can't drift from the app:
-//   tipsData(root)            → { heading, intro, lead, groups } in English, each text with its message key
+//   tipsData(root)            → { heading, intro, clipLang, lead, groups } in English, each text with its message key
 //   tipsMessages(root, data, lang) → { key: text } in an extension language (src/locales/<lang>.json's name)
-// A text that differs on a Mac (#if os(iOS) … #else … #endif in a helper) comes in both; the sheet picks one.
+//   tipClips(data)            → the clips the cards show (TipClips/<en|ru>/<name>.mp4 in the app)
+// A text or a clip that differs on a Mac (#if os(iOS) … #else … #endif in a helper, iOSClip("…")) comes in both;
+// the sheet picks one.
 
 import { createHash } from "node:crypto"
 import { readFileSync } from "node:fs"
@@ -16,6 +18,8 @@ export const CATALOG_LANG = { de: "de", es: "es", fr: "fr", it: "it", ja: "ja", 
 // The screen's own words, outside TipGroup.
 const HEADING = "Tips"
 const INTRO = "Quick answers to “how do I…?”"
+// The clips' language, as the app picks it: Russian, or English for every other language.
+const CLIP_LANG = "tip_clips"
 
 /** A message key for a text: the same English text, the same key (chrome.i18n allows [A-Za-z0-9_]). */
 export const tipKey = (en) => "tip_" + createHash("sha1").update(en).digest("hex").slice(0, 10)
@@ -80,7 +84,16 @@ function literal(value, where) {
   return m[1].replace(/\\(.)/g, (_, c) => ({ n: "\n", t: "\t" })[c] ?? c)
 }
 
-/** `Tip(symbol: …, title: "…", text: "…", …, pro: true)` → { title, text, pro }. */
+/** A Tip's clip on iOS and on a Mac: `clip: "x"` both, `clip: iOSClip("x")` iOS only, none without. */
+function clipArg(value) {
+  if (value === undefined) return { ios: null, mac: null }
+  const only = /^iOSClip\("([\w-]+)"\)$/.exec(value)
+  if (only) return { ios: only[1], mac: null }
+  const name = literal(value, "a Tip's clip")
+  return { ios: name, mac: name }
+}
+
+/** `Tip(symbol: …, title: "…", text: "…", clip: …, pro: true)` → { title, text, clip: { ios, mac }, pro }. */
 function tipCall(src) {
   const open = src.indexOf("Tip(")
   if (open < 0) throw new Error(`tips: no Tip(…) in ${src.slice(0, 60)}`)
@@ -88,7 +101,7 @@ function tipCall(src) {
     const at = a.indexOf(":")
     return [a.slice(0, at).trim(), a.slice(at + 1).trim()]
   }))
-  return { title: literal(args.title, "a Tip's title"), text: literal(args.text, "a Tip's text"), pro: args.pro === "true" }
+  return { title: literal(args.title, "a Tip's title"), text: literal(args.text, "a Tip's text"), clip: clipArg(args.clip), pro: args.pro === "true" }
 }
 
 /** A tip on iOS and on a Mac: one Tip(…), or `#if os(iOS) Tip(…) #else Tip(…) #endif`. */
@@ -96,14 +109,20 @@ function tipBody(body) {
   const m = /#if os\(iOS\)([\s\S]*?)#else([\s\S]*?)#endif/.exec(body)
   if (!m) {
     const t = tipCall(body)
-    return { ios: t, mac: t }
+    return { ios: { ...t, clip: t.clip.ios }, mac: { ...t, clip: t.clip.mac } }
   }
-  return { ios: tipCall(m[1]), mac: tipCall(m[2]) }
+  const ios = tipCall(m[1])
+  const mac = tipCall(m[2])
+  return { ios: { ...ios, clip: ios.clip.ios }, mac: { ...mac, clip: mac.clip.mac } }
 }
 
 function entry({ ios, mac }) {
   const e = { title: text(ios.title), text: text(ios.text) }
-  if (ios.title !== mac.title || ios.text !== mac.text) e.mac = { title: text(mac.title), text: text(mac.text) }
+  if (ios.clip) e.clip = ios.clip
+  if (ios.title !== mac.title || ios.text !== mac.text || ios.clip !== mac.clip) {
+    e.mac = { title: text(mac.title), text: text(mac.text) }
+    if (mac.clip) e.mac.clip = mac.clip
+  }
   if (ios.pro || mac.pro) e.pro = true
   return e
 }
@@ -144,7 +163,19 @@ export function tipsData(root) {
     if (!items.length) throw new Error("tips: an empty block")
     return { id: literal(arg("id"), "a block's id"), title: text(literal(arg("title"), "a block's title")), tips: items }
   })
-  return { heading: text(HEADING), intro: text(INTRO), lead: entry(lead), groups }
+  return { heading: text(HEADING), intro: text(INTRO), clipLang: { key: CLIP_LANG, en: "en" }, lead: entry(lead), groups }
+}
+
+/** Every clip a card shows, on iOS or on a Mac, once. */
+export function tipClips(data) {
+  const names = new Set()
+  const add = (e) => {
+    if (e.clip) names.add(e.clip)
+    if (e.mac?.clip) names.add(e.mac.clip)
+  }
+  add(data.lead)
+  for (const g of data.groups) g.tips.forEach(add)
+  return [...names].sort()
 }
 
 // ---------------------------------------------------------------- translations
@@ -168,8 +199,10 @@ export function tipTexts(data) {
 export function tipsMessages(root, data, lang) {
   const catalog = JSON.parse(readFileSync(join(root, CATALOG), "utf8")).strings
   const code = CATALOG_LANG[lang]
-  return Object.fromEntries(tipTexts(data).map((t) => {
+  const texts = Object.fromEntries(tipTexts(data).map((t) => {
     const unit = catalog[t.en]?.localizations?.[code ?? "en"]?.stringUnit
     return [t.key, unit?.state === "translated" && unit.value ? unit.value : t.en]
   }))
+  // The clips' folder for this language, chosen through chrome.i18n like every text (so the two never disagree).
+  return { ...texts, [CLIP_LANG]: lang === "ru" ? "ru" : "en" }
 }

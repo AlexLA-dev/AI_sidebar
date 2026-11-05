@@ -376,9 +376,12 @@
   "qiFillLimit": "That's all free fills for today. With Pro there's no limit, and the blanks can still be filled in by hand.",
   "qiFillByHand": "Fill in by hand",
   "qiPickCopied": "Copied for “{0}”",
-  "qiAdapt": "Fit to the message",
-  "qiAdaptLabel": "Fit the template to this page",
+  "qiAdapt": "Rewrite for this page",
+  "qiAdaptChat": "Rewrite for this chat",
+  "qiAdaptHint": "“Fill from the page” fills in only the blanks. “Rewrite” changes the whole text with AI and shows it in the panel.",
+  "qiAdaptLabel": "Rewrite the template for this page",
   "qiAdaptPrompt": "Rewrite this template as a reply that fits the page I'm on. Keep its meaning, tone and length; fill in what the page tells you, and leave the rest as it is. Answer with the reply only.\n\nTemplate:\n{0}",
+  "qiAdaptConversation": "This is the conversation I'm replying in. Write the reply to the person in it:\n{0}",
   "qiTemplateButton": "Template",
   "qiTemplateTitle": "Title",
   "qiTemplateText": "Text. Put blanks in braces, like {Name}.",
@@ -509,7 +512,5 @@
   "watchInStock": "in stock",
   "watchOutOfStock": "out of stock",
   "watchChanged": "Changed: {0}",
-  "watchChangedBody": "Now: {0}",
-
-  "tipsVideos": "With videos: in the ContextFlow app → {0}"
+  "watchChangedBody": "Now: {0}"
 }

@@ -1080,13 +1080,22 @@
   "message": "Copié pour « {0} »"
  },
  "qiAdapt": {
-  "message": "Adapter au message"
+  "message": "Réécrire pour cette page"
+ },
+ "qiAdaptChat": {
+  "message": "Réécrire pour cette discussion"
+ },
+ "qiAdaptHint": {
+  "message": "« Remplir depuis la page » ne remplit que les champs. « Réécrire » change tout le texte avec l’IA et l’affiche dans le panneau."
  },
  "qiAdaptLabel": {
-  "message": "Adapter le modèle à cette page"
+  "message": "Réécrire le modèle pour cette page"
  },
  "qiAdaptPrompt": {
   "message": "Réécris ce modèle en une réponse adaptée à la page ouverte. Garde le sens, le ton et la longueur ; complète ce que la page indique et laisse le reste tel quel. Réponds uniquement par le texte de la réponse.\n\nModèle :\n{0}"
+ },
+ "qiAdaptConversation": {
+  "message": "Voici la discussion dans laquelle je réponds. Écris la réponse à la personne qui y participe :\n{0}"
  },
  "qiTemplateButton": {
   "message": "Modèle"
@@ -1466,9 +1475,6 @@
  "watchChangedBody": {
   "message": "Maintenant : {0}"
  },
- "tipsVideos": {
-  "message": "Avec des vidéos : dans l’app ContextFlow → {0}"
- },
  "tip_4cf1b54b00": {
   "message": "Astuces"
  },
@@ -1523,8 +1529,8 @@
  "tip_d7c7b7b55d": {
   "message": "Activez Google à côté du champ de question pour répondre avec la Recherche Google : actualités, prix et tout ce qui est récent, avec les sources."
  },
- "tip_3b2eb51310": {
-  "message": "Au quotidien"
+ "tip_da5f7b74b1": {
+  "message": "Aller plus loin"
  },
  "tip_6ba198cbff": {
   "message": "Vos propres notes"
@@ -1682,8 +1688,8 @@
  "tip_10400d6345": {
   "message": "Le bouton ✦, à votre façon"
  },
- "tip_7487ba7345": {
-  "message": "Masquez le bouton sur un site précis ou désactivez-le partout dans les réglages de l’extension. ContextFlow s’ouvre toujours depuis le menu des extensions de Safari."
+ "tip_4c60874441": {
+  "message": "✦ cache quelque chose sur la page ? Faites-le glisser vers le haut ou le bas le long du bord, ou de l’autre côté : il reste là où vous le lâchez. Vous pouvez aussi le masquer sur un site précis ou le désactiver partout dans les réglages de l’extension. ContextFlow s’ouvre toujours depuis le menu des extensions de Safari."
  },
  "tip_8a727e1bbe": {
   "message": "Utilisez votre clé d’API"
@@ -1696,5 +1702,8 @@
  },
  "tip_241d3ad076": {
   "message": "ContextFlow ne lit une page que lorsque vous posez une question, et n’envoie que son texte pour obtenir la réponse. Vos discussions restent sur vos appareils et dans votre iCloud. Si les suggestions sont activées, le texte des nouveaux messages est aussi envoyé à notre serveur pour trouver leur place ; nous ne le conservons pas."
+ },
+ "tip_clips": {
+  "message": "en"
  }
 }

@@ -376,9 +376,12 @@
   "qiFillLimit": "Les remplissages gratuits du jour sont épuisés. Avec Pro, il n’y a pas de limite, et les champs peuvent aussi être remplis à la main.",
   "qiFillByHand": "Remplir à la main",
   "qiPickCopied": "Copié pour « {0} »",
-  "qiAdapt": "Adapter au message",
-  "qiAdaptLabel": "Adapter le modèle à cette page",
+  "qiAdapt": "Réécrire pour cette page",
+  "qiAdaptChat": "Réécrire pour cette discussion",
+  "qiAdaptHint": "« Remplir depuis la page » ne remplit que les champs. « Réécrire » change tout le texte avec l’IA et l’affiche dans le panneau.",
+  "qiAdaptLabel": "Réécrire le modèle pour cette page",
   "qiAdaptPrompt": "Réécris ce modèle en une réponse adaptée à la page ouverte. Garde le sens, le ton et la longueur ; complète ce que la page indique et laisse le reste tel quel. Réponds uniquement par le texte de la réponse.\n\nModèle :\n{0}",
+  "qiAdaptConversation": "Voici la discussion dans laquelle je réponds. Écris la réponse à la personne qui y participe :\n{0}",
   "qiTemplateButton": "Modèle",
   "qiTemplateTitle": "Titre",
   "qiTemplateText": "Texte. Les champs à remplir entre accolades, comme {Nom}.",
@@ -509,7 +512,5 @@
   "watchInStock": "en stock",
   "watchOutOfStock": "en rupture de stock",
   "watchChanged": "Changé : {0}",
-  "watchChangedBody": "Maintenant : {0}",
-
-  "tipsVideos": "Avec des vidéos : dans l’app ContextFlow → {0}"
+  "watchChangedBody": "Maintenant : {0}"
 }

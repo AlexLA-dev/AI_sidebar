@@ -1080,13 +1080,22 @@
   "message": "Copied for “{0}”"
  },
  "qiAdapt": {
-  "message": "Fit to the message"
+  "message": "Rewrite for this page"
+ },
+ "qiAdaptChat": {
+  "message": "Rewrite for this chat"
+ },
+ "qiAdaptHint": {
+  "message": "“Fill from the page” fills in only the blanks. “Rewrite” changes the whole text with AI and shows it in the panel."
  },
  "qiAdaptLabel": {
-  "message": "Fit the template to this page"
+  "message": "Rewrite the template for this page"
  },
  "qiAdaptPrompt": {
   "message": "Rewrite this template as a reply that fits the page I'm on. Keep its meaning, tone and length; fill in what the page tells you, and leave the rest as it is. Answer with the reply only.\n\nTemplate:\n{0}"
+ },
+ "qiAdaptConversation": {
+  "message": "This is the conversation I'm replying in. Write the reply to the person in it:\n{0}"
  },
  "qiTemplateButton": {
   "message": "Template"
@@ -1466,9 +1475,6 @@
  "watchChangedBody": {
   "message": "Now: {0}"
  },
- "tipsVideos": {
-  "message": "With videos: in the ContextFlow app → {0}"
- },
  "tip_4cf1b54b00": {
   "message": "Tips"
  },
@@ -1523,8 +1529,8 @@
  "tip_d7c7b7b55d": {
   "message": "Turn on Google next to the question field to answer with Google Search: news, prices and anything recent, with sources."
  },
- "tip_3b2eb51310": {
-  "message": "Every day"
+ "tip_da5f7b74b1": {
+  "message": "Deeper work"
  },
  "tip_6ba198cbff": {
   "message": "Notes of your own"
@@ -1682,8 +1688,8 @@
  "tip_10400d6345": {
   "message": "The ✦ button, your way"
  },
- "tip_7487ba7345": {
-  "message": "Hide the button on a single site, or turn it off everywhere in the extension settings. ContextFlow still opens from Safari's extensions menu."
+ "tip_4c60874441": {
+  "message": "Covering something on the page? Drag ✦ up or down along the edge, or to the other side: it stays where you leave it. You can also hide it on a single site, or turn it off everywhere in the extension settings. ContextFlow still opens from Safari's extensions menu."
  },
  "tip_8a727e1bbe": {
   "message": "Use your own API key"
@@ -1696,5 +1702,8 @@
  },
  "tip_241d3ad076": {
   "message": "ContextFlow reads a page only when you ask, and sends just its text to get the answer. Your chats stay on your devices and in your iCloud. With suggestions on, the text of new messages also goes to our server to find where they belong; we don't keep it."
+ },
+ "tip_clips": {
+  "message": "en"
  }
 }

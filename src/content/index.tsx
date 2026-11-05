@@ -6,6 +6,7 @@ import { App } from "./App"
 import { tabPdf, tabSource } from "./context"
 import { detectPlatform, HOST_TAG } from "./page"
 import { setPanelRoot } from "./root"
+import { keepOverTopLayer } from "./topLayer"
 import styles from "./styles.css"
 import insertStyles from "./insert/insert.css"
 import organizeStyles from "./organize.css"
@@ -62,6 +63,8 @@ ${tipsStyles}`
     new MutationObserver(() => {
       if (!host.isConnected) document.documentElement.appendChild(host)
     }).observe(document.documentElement, { childList: true })
+    // Over a site's window in the top layer (a modal dialog, a popover): inside it while the person works there.
+    keepOverTopLayer(host)
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", mount, { once: true })

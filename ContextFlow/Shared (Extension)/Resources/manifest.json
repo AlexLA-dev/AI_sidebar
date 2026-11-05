@@ -52,6 +52,18 @@
       "all_frames": false
     }
   ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "dist/clips/en/*",
+        "dist/clips/ru/*"
+      ],
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ]
+    }
+  ],
   "commands": {
     "_execute_action": {
       "suggested_key": {

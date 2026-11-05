@@ -376,9 +376,12 @@
   "qiFillLimit": "Die kostenlosen Ausfüllungen für heute sind aufgebraucht. Mit Pro gibt es kein Limit, und die Lücken lassen sich auch von Hand ausfüllen.",
   "qiFillByHand": "Von Hand ausfüllen",
   "qiPickCopied": "Kopiertes für „{0}“",
-  "qiAdapt": "An die Nachricht anpassen",
-  "qiAdaptLabel": "Vorlage an diese Seite anpassen",
+  "qiAdapt": "Für diese Seite umschreiben",
+  "qiAdaptChat": "Für diesen Chat umschreiben",
+  "qiAdaptHint": "„Von der Seite ausfüllen“ füllt nur die Lücken. „Umschreiben“ ändert den ganzen Text mit KI und zeigt ihn im Panel.",
+  "qiAdaptLabel": "Vorlage für diese Seite umschreiben",
   "qiAdaptPrompt": "Schreib diese Vorlage zu einer Antwort um, die zur geöffneten Seite passt. Behalte Sinn, Ton und Länge; trag ein, was die Seite verrät, und lass den Rest, wie er ist. Antworte nur mit dem Text der Antwort.\n\nVorlage:\n{0}",
+  "qiAdaptConversation": "Das ist der Chat, in dem ich antworte. Schreib die Antwort an die Person darin:\n{0}",
   "qiTemplateButton": "Vorlage",
   "qiTemplateTitle": "Titel",
   "qiTemplateText": "Text. Lücken in geschweiften Klammern, etwa {Name}.",
@@ -509,7 +512,5 @@
   "watchInStock": "auf Lager",
   "watchOutOfStock": "nicht auf Lager",
   "watchChanged": "Geändert: {0}",
-  "watchChangedBody": "Jetzt: {0}",
-
-  "tipsVideos": "Mit Videos: in der ContextFlow-App → {0}"
+  "watchChangedBody": "Jetzt: {0}"
 }

@@ -376,9 +376,12 @@
   "qiFillLimit": "I riempimenti gratuiti di oggi sono finiti. Con Pro non c’è limite, e gli spazi si possono riempire anche a mano.",
   "qiFillByHand": "Riempi a mano",
   "qiPickCopied": "Copiati per «{0}»",
-  "qiAdapt": "Adatta al messaggio",
-  "qiAdaptLabel": "Adatta il modello a questa pagina",
+  "qiAdapt": "Riscrivi per questa pagina",
+  "qiAdaptChat": "Riscrivi per questa chat",
+  "qiAdaptHint": "«Riempi dalla pagina» riempie solo gli spazi. «Riscrivi» cambia tutto il testo con l’IA e lo mostra nel pannello.",
+  "qiAdaptLabel": "Riscrivi il modello per questa pagina",
   "qiAdaptPrompt": "Riscrivi questo modello come una risposta adatta alla pagina aperta. Mantieni senso, tono e lunghezza; completa ciò che dice la pagina e lascia il resto com’è. Rispondi solo con il testo della risposta.\n\nModello:\n{0}",
+  "qiAdaptConversation": "Questa è la conversazione in cui rispondo. Scrivi la risposta alla persona che ne fa parte:\n{0}",
   "qiTemplateButton": "Modello",
   "qiTemplateTitle": "Titolo",
   "qiTemplateText": "Testo. Gli spazi da riempire tra graffe, come {Nome}.",
@@ -509,7 +512,5 @@
   "watchInStock": "disponibile",
   "watchOutOfStock": "esaurito",
   "watchChanged": "Cambiato: {0}",
-  "watchChangedBody": "Ora: {0}",
-
-  "tipsVideos": "Con i video: nell’app ContextFlow → {0}"
+  "watchChangedBody": "Ora: {0}"
 }
