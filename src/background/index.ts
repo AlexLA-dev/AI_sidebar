@@ -417,8 +417,9 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
       findChats(message.query, message.chats).then(sendResponse, () => sendResponse({ ok: false, code: "NETWORK" }))
       return true
     case "organize":
-      Promise.all([status(), installId(), entitlement(), clientInfo(), settings()])
-        .then(([now, id, ent, client, prefs]) => organizeChat(message.chat, { status: now, installId: id, jws: ent?.active ? ent.jws : null, client, on: prefs.organize }))
+      // Suggestions send text to the AI: only with the one consent too (it lists them), not the switch alone.
+      Promise.all([status(), installId(), entitlement(), clientInfo(), settings(), consented()])
+        .then(([now, id, ent, client, prefs, agreed]) => organizeChat(message.chat, { status: now, installId: id, jws: ent?.active ? ent.jws : null, client, on: prefs.organize && agreed }))
         .then(sendResponse, () => sendResponse({ ok: false, code: "NETWORK" }))
       return true
     case "organizeEvent":
