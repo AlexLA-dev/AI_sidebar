@@ -96,3 +96,65 @@ test("a tab hears a consent given in another tab", async () => {
   assert.equal(listeners.length, 0)
   delete (globalThis as any).chrome
 })
+
+// The director, after 78: the card two screens long before the first answer costs activation. Folded at first: the
+// title, the short text and the buttons; what each feature sends under "What exactly is sent".
+test("the card is compact: folded at first, what each feature sends unfolds and folds again", async () => {
+  const { parseHTML } = await import("linkedom")
+  const { window, document } = parseHTML(`<!doctype html><html><body><div id="at"></div></body></html>`)
+  Object.assign(globalThis as any, { window, document, Node: window.Node, Element: window.Element, HTMLElement: window.HTMLElement })
+  const opened: string[] = []
+  ;(globalThis as any).chrome = { i18n: { getMessage: () => "" }, runtime: { sendMessage: (m: any, cb?: () => void) => { opened.push(m.url); cb?.() }, lastError: undefined } }
+  const dir = mkdtempSync(join(tmpdir(), "cf-consent-card-"))
+  const out = join(dir, "card.mjs")
+  await build({
+    stdin: { contents: `export { ConsentCard, CONSENT_ITEMS } from "./src/content/Consent"; export { h, render } from "preact"`, resolveDir: root, loader: "ts" },
+    bundle: true, format: "esm", platform: "neutral", outfile: out, logLevel: "silent", jsx: "automatic", jsxImportSource: "preact",
+    loader: { ".tsx": "tsx" }, mainFields: ["module", "main"], define: { __API_BASE__: '"https://api.test"', __VERSION__: '"2.5.0"', __TARGET__: '"safari"' }
+  })
+  const C = await import(pathToFileURL(out).href)
+  const en = Object.fromEntries(locales)["en"]
+  const seen: string[] = []
+  const at: any = document.getElementById("at")
+  C.render(C.h(C.ConsentCard, { again: false, onAccept: () => seen.push("accept"), onDecline: () => seen.push("decline") }), at)
+  const tick = () => new Promise((r) => setTimeout(r, 0))
+  await tick()
+  const text = () => at.textContent as string
+  const more = (): any => at.querySelector(".cf-consent-more")
+
+  // Folded: the title, the short text, both buttons, the toggle and the policy; none of the list.
+  assert.match(text(), new RegExp(en.consentTitle))
+  assert.ok(text().includes(en.consentBody))
+  for (const label of [en.consentAccept, en.consentDecline, en.consentWhat, en.privacyPolicy]) assert.ok(text().includes(label), label)
+  assert.equal(more().getAttribute("aria-expanded"), "false")
+  assert.equal(at.querySelectorAll(".cf-consent-list li").length, 0)
+  for (const key of C.CONSENT_ITEMS) assert.ok(!text().includes(en[key]), `${key} folded away`)
+
+  // Unfolded: every feature's line and where the chats stay.
+  more().dispatchEvent(new window.Event("click", { bubbles: true }))
+  await tick()
+  assert.equal(more().getAttribute("aria-expanded"), "true")
+  assert.equal(at.querySelector(".cf-consent-details").id, more().getAttribute("aria-controls"))
+  assert.deepEqual([...at.querySelectorAll(".cf-consent-list li")].map((li: any) => li.textContent), C.CONSENT_ITEMS.map((k: string) => en[k]))
+  assert.ok(text().includes(en.consentStored))
+
+  // Folded again; the buttons answer either way.
+  more().dispatchEvent(new window.Event("click", { bubbles: true }))
+  await tick()
+  assert.equal(at.querySelectorAll(".cf-consent-list li").length, 0)
+  at.querySelector(".cf-primary").dispatchEvent(new window.Event("click", { bubbles: true }))
+  at.querySelector(".cf-card-actions .cf-link").dispatchEvent(new window.Event("click", { bubbles: true }))
+  at.querySelector(".cf-consent-policy").dispatchEvent(new window.Event("click", { bubbles: true }))
+  assert.deepEqual(seen, ["accept", "decline"])
+  assert.equal(opened.length, 1, "the privacy policy")
+  C.render(null, at)
+  delete (globalThis as any).chrome
+})
+
+test("the short text stays short in every language (the folded card fits on an iPhone with the question box)", () => {
+  for (const [lang, s] of locales) {
+    assert.ok(s.consentBody.length <= 260, `${lang}: ${s.consentBody.length} characters`)
+    assert.ok(s.consentWhat.length <= 32, `${lang}: consentWhat`)
+    assert.doesNotMatch(s.consentStored, /OpenAI|Anthropic/, `${lang}: the stored line no longer repeats the body`)
+  }
+})

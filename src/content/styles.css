@@ -405,8 +405,18 @@
 .cf-limit-notes .cf-link { color: var(--note-text) !important; font-weight: 600; text-decoration: underline; padding: 0 !important; font-size: 13px; }
 .cf-card.error p { color: var(--text); }
 .cf-card.consent { border: 1px solid var(--border); background: var(--bg); }
-/* The one consent (Consent.tsx): what each AI feature sends, a short line each. */
-.cf-consent-list { margin: 0 0 10px; padding-left: 18px; color: var(--text-2); font-size: 13px; line-height: 1.4; }
+/* The one consent (Consent.tsx), compact: the buttons in view at once; what each AI feature sends folds out below. */
+.cf-card.consent .cf-card-actions { margin-bottom: 4px; }
+.cf-card.consent .cf-link.cf-consent-policy { display: block; padding: 6px 0 0; font-size: 13px; }
+.cf-consent-more {
+  display: flex; align-items: center; gap: 4px; padding: 6px 0; border: 0; background: none;
+  color: var(--text-2); font: inherit; font-size: 13px; cursor: pointer;
+}
+.cf-consent-more svg { transition: transform 0.15s ease; }
+.cf-consent-more.open svg { transform: rotate(180deg); }
+.cf-consent-details { margin: 2px 0 4px; }
+.cf-consent-details p { margin: 0; font-size: 13px; }
+.cf-consent-list { margin: 0 0 8px; padding-left: 18px; color: var(--text-2); font-size: 13px; line-height: 1.4; }
 .cf-consent-list li { margin: 0 0 4px; }
 .cf-card-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .cf-card.renewal { border: 1px solid var(--border); background: var(--bg); }
