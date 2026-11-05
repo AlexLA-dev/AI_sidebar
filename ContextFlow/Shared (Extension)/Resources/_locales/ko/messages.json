@@ -216,16 +216,22 @@
   "message": "더 보기: 채팅"
  },
  "uxLater": {
-  "message": "나중에 다시 보기…"
+  "message": "이 페이지 리마인더 설정…"
  },
  "uxLaterTitle": {
-  "message": "나중에 다시 보기"
+  "message": "이 페이지 리마인더 설정"
  },
  "uxReminders": {
   "message": "리마인더"
  },
  "uxRemindersN": {
   "message": "리마인더 · {0}"
+ },
+ "uxWatching": {
+  "message": "지켜보기"
+ },
+ "uxWatchingN": {
+  "message": "지켜보기 · {0}"
  },
  "uxAllReminders": {
   "message": "모든 리마인더"
@@ -234,7 +240,13 @@
   "message": "리마인더가 없습니다"
  },
  "uxNoRemindersHint": {
-  "message": "답변이나 메모, 또는 여기에서 설정하세요: … → 나중에 다시 보기."
+  "message": "답변이나 메모에서, 선택한 텍스트의 종으로, 또는 여기에서 설정하세요: … → 이 페이지 리마인더 설정."
+ },
+ "uxNoWatching": {
+  "message": "지켜보는 항목이 없습니다"
+ },
+ "uxNoWatchingHint": {
+  "message": "가격, 재고, 날짜를 선택하고 눈을 탭하세요."
  },
  "uxOnAnotherDevice": {
   "message": "{0} · 다른 기기"
@@ -1349,9 +1361,6 @@
  "watchSave": {
   "message": "저장"
  },
- "watchTipEye": {
-  "message": "눈 아이콘: 이 값을 확인하다가 바뀌면 알려 드릴게요. 탭해서 설정하세요."
- },
  "watchTipBell": {
   "message": "종: 고른 시간에 이 페이지로 돌아오라고 알려 드려요."
  },
@@ -1377,7 +1386,7 @@
   "message": "페이지를 열 때 확인"
  },
  "watchFull": {
-  "message": "이미 {0}개를 지켜보고 있어요. 먼저 '알림'에서 하나를 멈춰 주세요."
+  "message": "이미 {0}개를 지켜보고 있어요. 먼저 '지켜보기'에서 하나를 멈춰 주세요."
  },
  "watchFullFree": {
   "message": "무료로는 페이지 {0}개까지 동시에 지켜볼 수 있어요. Pro는 {1}개까지."

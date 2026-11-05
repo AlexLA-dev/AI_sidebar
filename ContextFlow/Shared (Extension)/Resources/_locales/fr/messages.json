@@ -216,16 +216,22 @@
   "message": "Plus : discussion"
  },
  "uxLater": {
-  "message": "Revenir plus tard…"
+  "message": "Me rappeler cette page…"
  },
  "uxLaterTitle": {
-  "message": "Revenir plus tard"
+  "message": "Me rappeler cette page"
  },
  "uxReminders": {
   "message": "Rappels"
  },
  "uxRemindersN": {
   "message": "Rappels · {0}"
+ },
+ "uxWatching": {
+  "message": "Surveillances"
+ },
+ "uxWatchingN": {
+  "message": "Surveillances · {0}"
  },
  "uxAllReminders": {
   "message": "Tous les rappels"
@@ -234,7 +240,13 @@
   "message": "Aucun rappel"
  },
  "uxNoRemindersHint": {
-  "message": "Ajoutez-en un sur une réponse ou une note, ou ici : … → Revenir plus tard."
+  "message": "Ajoutez-en un sur une réponse ou une note, avec la cloche près d’un texte sélectionné, ou ici : … → Me rappeler cette page."
+ },
+ "uxNoWatching": {
+  "message": "Aucune surveillance"
+ },
+ "uxNoWatchingHint": {
+  "message": "Sélectionnez un prix, le stock ou une date et touchez l’œil."
  },
  "uxOnAnotherDevice": {
   "message": "{0} · sur un autre appareil"
@@ -1349,9 +1361,6 @@
  "watchSave": {
   "message": "Enregistrer"
  },
- "watchTipEye": {
-  "message": "L’œil : je vérifie cette valeur et je vous préviens quand elle change. Touchez-le pour le régler."
- },
  "watchTipBell": {
   "message": "La cloche : je vous rappelle de revenir sur cette page à l’heure choisie."
  },
@@ -1377,7 +1386,7 @@
   "message": "Vérifier quand j'ouvre la page"
  },
  "watchFull": {
-  "message": "Vous surveillez déjà {0} pages. Arrêtez-en une dans Rappels d'abord."
+  "message": "Vous surveillez déjà {0} pages. Arrêtez-en une dans Surveillances d'abord."
  },
  "watchFullFree": {
   "message": "En version gratuite, vous surveillez {0} pages à la fois. Avec Pro, jusqu'à {1}."

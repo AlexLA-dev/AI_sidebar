@@ -216,16 +216,22 @@
   "message": "その他：チャット"
  },
  "uxLater": {
-  "message": "あとで戻る…"
+  "message": "このページをリマインド…"
  },
  "uxLaterTitle": {
-  "message": "あとで戻る"
+  "message": "このページをリマインド"
  },
  "uxReminders": {
   "message": "リマインダー"
  },
  "uxRemindersN": {
   "message": "リマインダー · {0}"
+ },
+ "uxWatching": {
+  "message": "見守り"
+ },
+ "uxWatchingN": {
+  "message": "見守り · {0}"
  },
  "uxAllReminders": {
   "message": "すべてのリマインダー"
@@ -234,7 +240,13 @@
   "message": "リマインダーはありません"
  },
  "uxNoRemindersHint": {
-  "message": "回答やメモ、またはここで設定できます：… → あとで戻る。"
+  "message": "回答やメモで、選択したテキストのベルで、またはここで設定できます：… → このページをリマインド。"
+ },
+ "uxNoWatching": {
+  "message": "見守りはありません"
+ },
+ "uxNoWatchingHint": {
+  "message": "価格、在庫、日付を選択して目をタップしてください。"
  },
  "uxOnAnotherDevice": {
   "message": "{0} · 別のデバイス"
@@ -1349,9 +1361,6 @@
  "watchSave": {
   "message": "保存"
  },
- "watchTipEye": {
-  "message": "目のアイコン：この値を確認し、変わったらお知らせします。タップして設定します。"
- },
  "watchTipBell": {
   "message": "ベル：選んだ時間に、このページへ戻るようお知らせします。"
  },
@@ -1377,7 +1386,7 @@
   "message": "ページを開いたときに確認"
  },
  "watchFull": {
-  "message": "すでに {0} 件を見守っています。先に「リマインダー」で1件止めてください。"
+  "message": "すでに {0} 件を見守っています。先に「見守り」で1件止めてください。"
  },
  "watchFullFree": {
   "message": "無料プランで同時に見守れるのは {0} ページまでです。Pro なら {1} ページまで。"

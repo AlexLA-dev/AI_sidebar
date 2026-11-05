@@ -216,16 +216,22 @@
   "message": "Mais: conversa"
  },
  "uxLater": {
-  "message": "Voltar mais tarde…"
+  "message": "Me lembrar desta página…"
  },
  "uxLaterTitle": {
-  "message": "Voltar mais tarde"
+  "message": "Me lembrar desta página"
  },
  "uxReminders": {
   "message": "Lembretes"
  },
  "uxRemindersN": {
   "message": "Lembretes · {0}"
+ },
+ "uxWatching": {
+  "message": "Acompanhamentos"
+ },
+ "uxWatchingN": {
+  "message": "Acompanhamentos · {0}"
  },
  "uxAllReminders": {
   "message": "Todos os lembretes"
@@ -234,7 +240,13 @@
   "message": "Nenhum lembrete"
  },
  "uxNoRemindersHint": {
-  "message": "Defina um em uma resposta ou nota, ou aqui: … → Voltar mais tarde."
+  "message": "Defina um em uma resposta ou nota, com o sino no texto selecionado, ou aqui: … → Me lembrar desta página."
+ },
+ "uxNoWatching": {
+  "message": "Nada acompanhado"
+ },
+ "uxNoWatchingHint": {
+  "message": "Selecione um preço, a disponibilidade ou uma data e toque no olho."
  },
  "uxOnAnotherDevice": {
   "message": "{0} · em outro dispositivo"
@@ -1349,9 +1361,6 @@
  "watchSave": {
   "message": "Salvar"
  },
- "watchTipEye": {
-  "message": "O olho: vou verificar esse valor e aviso quando ele mudar. Toque para configurar."
- },
  "watchTipBell": {
   "message": "O sino: lembro você de voltar a esta página na hora que escolher."
  },
@@ -1377,7 +1386,7 @@
   "message": "Verificar quando eu abrir a página"
  },
  "watchFull": {
-  "message": "Você já acompanha {0} páginas. Pare uma em Lembretes primeiro."
+  "message": "Você já acompanha {0} páginas. Pare uma em Acompanhamentos primeiro."
  },
  "watchFullFree": {
   "message": "No plano grátis você acompanha {0} páginas ao mesmo tempo. No Pro, até {1}."
