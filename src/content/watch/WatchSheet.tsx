@@ -19,9 +19,11 @@ import { grow, WatchSection } from "./WatchSection"
 export interface WatchSheetProps {
   url: string
   title: string
-  // The value to watch: the selection, or the price around a selected number ("USD 40").
-  selection: string
+  // The value to watch: the selection, or the price around a selected number ("USD 40"); null: the whole page.
+  selection: string | null
   how: WatchHow
+  // A page the background can't read: "Remind me to look" (the whole page's window, from the header's "…").
+  remind?: () => void
 }
 
 let layer: HTMLDivElement | null = null
@@ -46,12 +48,18 @@ function show(make: (close: () => void) => VNode): void {
   render(make(close), target)
 }
 
-/** The eye's window: watching alone. */
+/**
+ * Watching alone: the eye's window (a value), or the whole page's ("Watch this page…" in the header's "…"). The eye
+ * passes no `remind`: a site the background can't read offers checking when the page is open, not a reminder; the
+ * whole page offers "Remind me to look" too, as its section did in "Come back later".
+ */
 export function openWatchSheet(p: WatchSheetProps): void {
-  // No `remind`: a site the background can't read offers checking when the page is open, not a reminder.
   show((close) => (
     <Sheet label={t("watchSection")} close={close}>
-      <WatchSection url={p.url} title={p.title} selection={p.selection} how={p.how} close={close} />
+      <WatchSection url={p.url} title={p.title} selection={p.selection} how={p.how} close={close} remind={p.remind && (() => {
+        close()
+        p.remind?.()
+      })} />
     </Sheet>
   ))
 }

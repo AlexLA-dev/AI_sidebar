@@ -23874,70 +23874,6 @@
         }
       }
     },
-    "Set one on an answer or a note, or on a page in Safari: … → Come back later.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Setze eine an einer Antwort oder Notiz oder auf einer Seite in Safari: … → Später zurückkommen."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pon uno en una respuesta o una nota, o en una página de Safari: … → Volver más tarde."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ajoutez-en un sur une réponse ou une note, ou sur une page dans Safari : … → Revenir plus tard."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Impostane uno su una risposta o una nota, o su una pagina in Safari: … → Tornare più tardi."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "回答やメモ、またはSafariのページで設定できます：… → あとで戻る。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "답변이나 메모, 또는 Safari의 페이지에서 설정하세요: … → 나중에 다시 보기."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Defina um em uma resposta ou nota, ou em uma página no Safari: … → Voltar mais tarde."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Поставьте его у ответа или заметки или на странице в Safari: … → Вернуться позже."
-          }
-        },
-        "uk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Поставте його біля відповіді чи нотатки або на сторінці в Safari: … → Повернутися пізніше."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "可以在回答或笔记上设置，或在 Safari 的页面上：… → 稍后再看。"
-          }
-        }
-      }
-    },
     "Change time": {
       "localizations": {
         "de": {
@@ -24706,6 +24642,454 @@
         }
       }
     },
+    "In Safari, select a price, stock or a date and tap the eye. For the whole page: … → Watch this page.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Markiere in Safari einen Preis, die Verfügbarkeit oder ein Datum und tippe auf das Auge. Für die ganze Seite: … → Diese Seite beobachten."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En Safari, selecciona un precio, la disponibilidad o una fecha y toca el ojo. Para toda la página: … → Vigilar esta página."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dans Safari, sélectionnez un prix, le stock ou une date et touchez l’œil. Pour toute la page : … → Surveiller cette page."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Safari, seleziona un prezzo, la disponibilità o una data e tocca l’occhio. Per tutta la pagina: … → Segui questa pagina."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safari で価格、在庫、日付を選択して目をタップしてください。ページ全体なら：… → このページを見守る。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safari에서 가격, 재고, 날짜를 선택하고 눈을 탭하세요. 페이지 전체는: … → 이 페이지 지켜보기."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Safari, selecione um preço, a disponibilidade ou uma data e toque no olho. Para a página toda: … → Acompanhar esta página."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В Safari выделите цену, наличие или дату и нажмите глаз. Вся страница: … → Следить за этой страницей."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "У Safari виділіть ціну, наявність або дату й натисніть око. Уся сторінка: … → Стежити за цією сторінкою."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在 Safari 中选中价格、库存或日期，然后点眼睛。整个页面：… → 关注这个页面。"
+          }
+        }
+      }
+    },
+    "Nothing watched": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Beobachtungen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No vigilas nada"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucune surveillance"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non segui niente"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "見守りはありません"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "지켜보는 항목이 없습니다"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nada acompanhado"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Слежений нет"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Стежень немає"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "没有关注"
+          }
+        }
+      }
+    },
+    "Reading something you want to finish later? Select a line and tap the bell, or tap … at the top of the panel, then Remind me about this page…, and pick a time: the reminder opens this page. Answers and notes have Remind me in their … menu.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du liest etwas, das du später zu Ende lesen willst? Markiere eine Zeile und tippe auf die Glocke, oder tippe oben im Panel auf „…“, dann auf „An diese Seite erinnern…“, und wähle eine Zeit: Die Erinnerung öffnet diese Seite. Antworten und Notizen haben „Erinnern“ in ihrem Menü „…“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Lees algo que quieres terminar luego? Selecciona una línea y toca la campana, o toca «…» arriba del panel, luego «Recordarme esta página…», y elige una hora: el recordatorio abre esta página. Las respuestas y las notas tienen «Recordarme» en su menú «…»."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous lisez quelque chose à finir plus tard ? Sélectionnez une ligne et touchez la cloche, ou touchez « … » en haut du panneau, puis « Me rappeler cette page… », et choisissez une heure : le rappel ouvre cette page. Les réponses et les notes ont « Me le rappeler » dans leur menu « … »."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stai leggendo qualcosa da finire più tardi? Seleziona una riga e tocca la campanella, oppure tocca «…» in alto nel pannello, poi «Ricordami questa pagina…», e scegli un orario: il promemoria apre questa pagina. Risposte e note hanno «Ricordamelo» nel loro menu «…»."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "あとで読み終えたいページは、1行を選択してベルをタップするか、パネル上部の「…」から「このページをリマインド…」をタップして時間を選ぶだけ。リマインダーがこのページを開きます。回答やメモの「…」メニューにも「リマインド」があります。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "나중에 마저 읽고 싶은 글인가요? 한 줄을 선택하고 종을 탭하거나, 패널 위쪽의 ‘…’을 탭하고 ‘이 페이지 리마인더 설정…’에서 시간을 고르세요. 리마인더가 이 페이지를 열어 줘요. 답변과 메모의 ‘…’ 메뉴에도 ‘리마인더 설정’이 있어요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lendo algo que quer terminar depois? Selecione uma linha e toque no sino, ou toque em “…” no topo do painel, depois em “Me lembrar desta página…”, e escolha um horário: o lembrete abre esta página. Respostas e notas têm “Me lembrar” no menu “…”."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Читаете то, что хотите дочитать потом? Выделите строку и нажмите колокольчик или нажмите «…» вверху панели, затем «Напомнить об этой странице…», и выберите время: напоминание откроет эту страницу. У ответов и заметок «Напомнить» есть в их меню «…»."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Читаєте те, що хочете дочитати потім? Виділіть рядок і натисніть дзвіночок або натисніть «…» угорі панелі, потім «Нагадати про цю сторінку…», і виберіть час: нагадування відкриє цю сторінку. У відповідей і нотаток «Нагадати» є в їхньому меню «…»."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在读的内容想稍后读完？选中一行后轻点铃铛，或轻点面板顶部的“…”，再轻点“提醒我看这个页面…”并选择时间：提醒会打开这个网页。回答和笔记的“…”菜单里也有“提醒我”。"
+          }
+        }
+      }
+    },
+    "Remind me about this page": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An diese Seite erinnern"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recordarme esta página"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Me rappeler cette page"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ricordami questa pagina"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このページをリマインド"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 페이지 리마인더 설정"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Me lembrar desta página"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Напомнить об этой странице"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нагадати про цю сторінку"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提醒我看这个页面"
+          }
+        }
+      }
+    },
+    "Set one on an answer or a note, with the bell by selected text in Safari, or on a page: … → Remind me about this page.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Setze eine an einer Antwort oder Notiz, in Safari mit der Glocke an markiertem Text oder auf einer Seite: … → An diese Seite erinnern."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pon uno en una respuesta o una nota, en Safari con la campana junto al texto seleccionado, o en una página: … → Recordarme esta página."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajoutez-en un sur une réponse ou une note, dans Safari avec la cloche près d’un texte sélectionné, ou sur une page : … → Me rappeler cette page."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impostane uno su una risposta o una nota, in Safari con la campanella sul testo selezionato, o su una pagina: … → Ricordami questa pagina."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "回答やメモで、Safari で選択したテキストのベルで、またはページで設定できます：… → このページをリマインド。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "답변이나 메모에서, Safari에서 선택한 텍스트의 종으로, 또는 페이지에서 설정하세요: … → 이 페이지 리마인더 설정."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Defina um em uma resposta ou nota, no Safari com o sino no texto selecionado, ou em uma página: … → Me lembrar desta página."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поставьте его у ответа или заметки, в Safari колокольчиком у выделенного текста или на странице: … → Напомнить об этой странице."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поставте його біля відповіді чи нотатки, у Safari дзвіночком біля виділеного тексту або на сторінці: … → Нагадати про цю сторінку."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可以在回答或笔记上设置，在 Safari 中用选中文字旁的铃铛，或在网页上：… → 提醒我看这个页面。"
+          }
+        }
+      }
+    },
+    "Stop watching": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nicht mehr beobachten"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dejar de vigilar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrêter de surveiller"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Smetti di seguire"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "見守りをやめる"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "알림 그만 받기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parar de acompanhar"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перестать следить"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перестати стежити"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "停止关注"
+          }
+        }
+      }
+    },
+    "Watching": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beobachtungen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vigilando"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Surveillances"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seguiti"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "見守り"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "지켜보기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acompanhamentos"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Слежения"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Стеження"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关注"
+          }
+        }
+      }
+    },
     "Get started": {
       "localizations": {
         "de": {
@@ -25282,194 +25666,66 @@
         }
       }
     },
-    "Come back at the right time": {
+    "Select a price, a stock status or a date on a page and tap the eye. For the whole page, choose Watch this page… in the … menu at the top of the panel. ContextFlow checks the page while you use Safari and tells you when it changes, or drops below the price you name. Up to 5 at a time, 20 with Pro.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zur richtigen Zeit zurückkommen"
+            "value": "Markiere auf einer Seite einen Preis, die Verfügbarkeit oder ein Datum und tippe auf das Auge. Für die ganze Seite wählst du „Diese Seite beobachten…“ im Menü „…“ oben im Panel. ContextFlow prüft die Seite, während du Safari nutzt, und meldet sich, wenn sich etwas ändert oder der Preis unter deinen Wunschpreis fällt. Bis zu 5 gleichzeitig, mit Pro 20."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Volver en el momento justo"
+            "value": "Selecciona un precio, la disponibilidad o una fecha en una página y toca el ojo. Para toda la página, elige «Vigilar esta página…» en el menú «…» arriba del panel. ContextFlow revisa la página mientras usas Safari y te avisa cuando cambia o cuando el precio baja del que indiques. Hasta 5 a la vez, 20 con Pro."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Revenir au bon moment"
+            "value": "Sélectionnez un prix, une disponibilité ou une date sur une page et touchez l’œil. Pour toute la page, choisissez « Surveiller cette page… » dans le menu « … » en haut du panneau. ContextFlow vérifie la page pendant que vous utilisez Safari et vous prévient quand cela change, ou quand le prix passe sous celui que vous indiquez. Jusqu’à 5 à la fois, 20 avec Pro."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tornare al momento giusto"
+            "value": "Seleziona un prezzo, la disponibilità o una data su una pagina e tocca l’occhio. Per tutta la pagina, scegli «Segui questa pagina…» nel menu «…» in alto nel pannello. ContextFlow controlla la pagina mentre usi Safari e ti avvisa quando cambia, o quando il prezzo scende sotto quello che indichi. Fino a 5 alla volta, 20 con Pro."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ちょうどいい時に戻る"
+            "value": "ページ上の価格、在庫状況、日付を選択して目のアイコンをタップ。ページ全体なら、パネル上部の「…」メニューから「このページを見守る…」を選びます。Safari を使っている間に ContextFlow がページを確認し、変わったときや、指定した価格を下回ったときにお知らせします。同時に5件まで、Pro なら20件まで。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "원하는 때에 다시 보기"
+            "value": "페이지에서 가격, 재고 상태, 날짜를 선택하고 눈 아이콘을 탭하세요. 페이지 전체라면 패널 위쪽 ‘…’ 메뉴에서 ‘이 페이지 지켜보기…’를 고르세요. Safari를 쓰는 동안 ContextFlow가 페이지를 확인하고, 바뀌거나 정한 가격 아래로 내려가면 알려 드려요. 한 번에 5개까지, Pro는 20개까지예요."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Voltar na hora certa"
+            "value": "Selecione um preço, a disponibilidade ou uma data numa página e toque no olho. Para a página inteira, escolha “Acompanhar esta página…” no menu “…” no topo do painel. O ContextFlow verifica a página enquanto você usa o Safari e avisa quando ela mudar ou quando o preço ficar abaixo do que você definir. Até 5 de uma vez, 20 com o Pro."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Вернуться в нужное время"
+            "value": "Выделите на странице цену, наличие или дату и нажмите на глаз. Чтобы следить за всей страницей, выберите «Следить за этой страницей…» в меню «…» вверху панели. ContextFlow проверяет страницу, пока вы пользуетесь Safari, и сообщит, когда значение изменится или цена опустится ниже названной вами. До 5 одновременно, с Pro — 20."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Повернутися в потрібний час"
+            "value": "Виділіть на сторінці ціну, наявність або дату й натисніть на око. Щоб стежити за всією сторінкою, виберіть «Стежити за цією сторінкою…» у меню «…» угорі панелі. ContextFlow перевіряє сторінку, поки ви користуєтеся Safari, і повідомить, коли значення зміниться або ціна опуститься нижче за названу вами. До 5 одночасно, з Pro — 20."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "在合适的时间回来"
-          }
-        }
-      }
-    },
-    "Want to finish reading later? Tap … at the top of the panel, then Remind me about this page…, and pick a time: the reminder opens this page. To come back to one line, select it and tap the bell. Answers and notes have Remind me in their … menu. All your reminders are in Reminders, in the panel's … menu and in the app.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Du willst etwas später zu Ende lesen? Tippe oben im Panel auf „…“, dann auf „An diese Seite erinnern…“ und wähle eine Zeit: Die Erinnerung öffnet diese Seite. Um zu einer einzelnen Zeile zurückzukommen, markiere sie und tippe auf die Glocke. Antworten und Notizen haben „Erinnern“ in ihrem Menü „…“. Alle Erinnerungen findest du unter „Erinnerungen“, im Menü „…“ des Panels und in der App."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "¿Quieres terminar de leer algo luego? Toca «…» arriba del panel, luego «Recordarme esta página…» y elige una hora: el recordatorio abre esta página. Para volver a una sola línea, selecciónala y toca la campana. Las respuestas y las notas tienen «Recordarme» en su menú «…». Todos tus recordatorios están en «Recordatorios», en el menú «…» del panel y en la app."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vous voulez finir une lecture plus tard ? Touchez « … » en haut du panneau, puis « Me rappeler cette page… », et choisissez une heure : le rappel ouvre cette page. Pour revenir à une seule ligne, sélectionnez-la et touchez la cloche. Les réponses et les notes ont « Me le rappeler » dans leur menu « … ». Tous vos rappels sont dans « Rappels », dans le menu « … » du panneau et dans l’app."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vuoi finire di leggere più tardi? Tocca «…» in alto nel pannello, poi «Ricordami questa pagina…» e scegli un orario: il promemoria apre questa pagina. Per tornare a una sola riga, selezionala e tocca la campanella. Risposte e note hanno «Ricordamelo» nel loro menu «…». Tutti i promemoria sono in «Promemoria», nel menu «…» del pannello e nell’app."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "あとで読み終えたいページは、パネル上部の「…」から「このページをリマインド…」をタップして時間を選ぶだけ。リマインダーがこのページを開きます。1行だけに戻りたいときは、その行を選択してベルをタップ。回答やメモの「…」メニューにも「リマインド」があります。リマインダーはすべて、パネルの「…」メニューとアプリの「リマインダー」にあります。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "나중에 마저 읽고 싶은 글인가요? 패널 위쪽의 ‘…’을 탭하고 ‘이 페이지 리마인더…’에서 시간을 고르세요. 리마인더가 이 페이지를 열어 줘요. 한 줄로만 돌아가고 싶다면 그 줄을 선택하고 종을 탭하세요. 답변과 메모의 ‘…’ 메뉴에도 ‘리마인더 설정’이 있어요. 모든 리마인더는 패널의 ‘…’ 메뉴와 앱의 ‘리마인더’에 있어요."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Quer terminar de ler depois? Toque em “…” no topo do painel, depois em “Me lembrar desta página…” e escolha um horário: o lembrete abre esta página. Para voltar a uma linha só, selecione-a e toque no sino. Respostas e notas têm “Me lembrar” no menu “…”. Todos os lembretes ficam em “Lembretes”, no menu “…” do painel e no app."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Хотите дочитать потом? Нажмите «…» вверху панели, затем «Напомнить об этой странице…» и выберите время: напоминание откроет эту страницу. Чтобы вернуться к одной строке, выделите её и нажмите колокольчик. У ответов и заметок «Напомнить» есть в их меню «…». Все напоминания — в «Напоминаниях»: в меню «…» панели и в приложении."
-          }
-        },
-        "uk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Хочете дочитати потім? Натисніть «…» угорі панелі, потім «Нагадати про цю сторінку…» й виберіть час: нагадування відкриє цю сторінку. Щоб повернутися до одного рядка, виділіть його й натисніть дзвіночок. У відповідей і нотаток «Нагадати» є в їхньому меню «…». Усі нагадування — у «Нагадуваннях»: у меню «…» панелі й у застосунку."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "在读的内容想稍后读完？轻点面板顶部的“…”，再轻点“提醒我看这个页面…”并选择时间：提醒会打开这个网页。想回到某一行，选中它再轻点铃铛。回答和笔记的“…”菜单里也有“提醒我”。所有提醒都在面板“…”菜单和 App 的“提醒”里。"
-          }
-        }
-      }
-    },
-    "Select a price, a stock status or a date on a page and tap the eye. ContextFlow checks the page while you use Safari and tells you when it changes, or drops below the price you name. Everything you watch is in Watching, in the panel's … menu and in the app. Up to 5 at a time, 20 with Pro.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Markiere auf einer Seite einen Preis, die Verfügbarkeit oder ein Datum und tippe auf das Auge. ContextFlow prüft die Seite, während du Safari nutzt, und meldet sich, wenn sich etwas ändert oder der Preis unter deinen Wunschpreis fällt. Alles, was du beobachtest, steht unter „Beobachtet“, im Menü „…“ des Panels und in der App. Bis zu 5 gleichzeitig, mit Pro 20."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Selecciona un precio, la disponibilidad o una fecha en una página y toca el ojo. ContextFlow revisa la página mientras usas Safari y te avisa cuando cambia o cuando el precio baja del que indiques. Todo lo que vigilas está en «Vigilando», en el menú «…» del panel y en la app. Hasta 5 a la vez, 20 con Pro."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sélectionnez un prix, une disponibilité ou une date sur une page et touchez l’œil. ContextFlow vérifie la page pendant que vous utilisez Safari et vous prévient quand cela change, ou quand le prix passe sous celui que vous indiquez. Tout ce que vous surveillez est dans « Surveillances », dans le menu « … » du panneau et dans l’app. Jusqu’à 5 à la fois, 20 avec Pro."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Seleziona un prezzo, la disponibilità o una data su una pagina e tocca l’occhio. ContextFlow controlla la pagina mentre usi Safari e ti avvisa quando cambia, o quando il prezzo scende sotto quello che indichi. Tutto ciò che segui è in «Seguiti», nel menu «…» del pannello e nell’app. Fino a 5 alla volta, 20 con Pro."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ページ上の価格、在庫状況、日付を選択して目のアイコンをタップ。Safari を使っている間に ContextFlow がページを確認し、変わったときや、指定した価格を下回ったときにお知らせします。見守っているものはすべて、パネルの「…」メニューとアプリの「見守り中」にあります。同時に5件まで、Pro なら20件まで。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "페이지에서 가격, 재고 상태, 날짜를 선택하고 눈 아이콘을 탭하세요. Safari를 쓰는 동안 ContextFlow가 페이지를 확인하고, 바뀌거나 정한 가격 아래로 내려가면 알려 드려요. 지켜보는 항목은 모두 패널의 ‘…’ 메뉴와 앱의 ‘변경 알림’에 있어요. 한 번에 5개까지, Pro는 20개까지예요."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Selecione um preço, a disponibilidade ou uma data numa página e toque no olho. O ContextFlow verifica a página enquanto você usa o Safari e avisa quando ela mudar ou quando o preço ficar abaixo do que você definir. Tudo o que você acompanha fica em “Acompanhando”, no menu “…” do painel e no app. Até 5 de uma vez, 20 com o Pro."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Выделите на странице цену, наличие или дату и нажмите на глаз. ContextFlow проверяет страницу, пока вы пользуетесь Safari, и сообщит, когда значение изменится или цена опустится ниже названной вами. Всё, за чем вы следите, — в «Слежениях»: в меню «…» панели и в приложении. До 5 одновременно, с Pro — 20."
-          }
-        },
-        "uk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Виділіть на сторінці ціну, наявність або дату й натисніть на око. ContextFlow перевіряє сторінку, поки ви користуєтеся Safari, і повідомить, коли значення зміниться або ціна опуститься нижче за названу вами. Усе, за чим ви стежите, — у «Стеженнях»: у меню «…» панелі й у застосунку. До 5 одночасно, з Pro — 20."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "在网页上选中价格、库存状态或日期，然后轻点眼睛图标。你使用 Safari 时，ContextFlow 会检查该网页，发生变化或价格低于你设定的值时通知你。你关注的内容都在面板“…”菜单和 App 的“关注”里。最多同时 5 个，Pro 可达 20 个。"
+            "value": "在网页上选中价格、库存状态或日期，然后轻点眼睛图标。要关注整个网页，在面板顶部的“…”菜单中选择“关注这个页面…”。你使用 Safari 时，ContextFlow 会检查该网页，发生变化或价格低于你设定的值时通知你。最多同时 5 个，Pro 可达 20 个。"
           }
         }
       }

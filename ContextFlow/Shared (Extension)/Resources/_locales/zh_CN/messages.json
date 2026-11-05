@@ -216,16 +216,25 @@
   "message": "更多：对话"
  },
  "uxLater": {
-  "message": "稍后再看…"
+  "message": "提醒我看这个页面…"
  },
  "uxLaterTitle": {
-  "message": "稍后再看"
+  "message": "提醒我看这个页面"
+ },
+ "uxWatchPage": {
+  "message": "关注这个页面…"
  },
  "uxReminders": {
   "message": "提醒"
  },
  "uxRemindersN": {
   "message": "提醒 · {0}"
+ },
+ "uxWatching": {
+  "message": "关注"
+ },
+ "uxWatchingN": {
+  "message": "关注 · {0}"
  },
  "uxAllReminders": {
   "message": "全部提醒"
@@ -234,7 +243,13 @@
   "message": "没有提醒"
  },
  "uxNoRemindersHint": {
-  "message": "可以在回答或笔记上设置，或在这里：… → 稍后再看。"
+  "message": "可以在回答或笔记上设置，用选中文字旁的铃铛，或在这里：… → 提醒我看这个页面。"
+ },
+ "uxNoWatching": {
+  "message": "没有关注"
+ },
+ "uxNoWatchingHint": {
+  "message": "选中价格、库存或日期，然后点眼睛。整个页面：… → 关注这个页面。"
  },
  "uxOnAnotherDevice": {
   "message": "{0} · 在另一台设备上"
@@ -1349,9 +1364,6 @@
  "watchSave": {
   "message": "保存"
  },
- "watchTipEye": {
-  "message": "眼睛：我会持续检查这个值，变化时通知你。轻点即可设置。"
- },
  "watchTipBell": {
   "message": "铃铛：在你选的时间提醒你回到这个页面。"
  },
@@ -1377,7 +1389,7 @@
   "message": "打开页面时检查"
  },
  "watchFull": {
-  "message": "你已经关注了 {0} 个页面。请先在“提醒”里停止一个。"
+  "message": "你已经关注了 {0} 个页面。请先在“关注”里停止一个。"
  },
  "watchFullFree": {
   "message": "免费版最多同时关注 {0} 个页面，Pro 最多 {1} 个。"

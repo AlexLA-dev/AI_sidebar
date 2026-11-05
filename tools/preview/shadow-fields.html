@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shadow fields · Test</title>
+<!--
+  Quick insert's stand for fields inside open shadow roots (the owner on 2.5 (77): the button and the insert
+  didn't work on LinkedIn). Built like the sites, not copied from them:
+  - #interop-outlet: a host with an open shadow root holding a "new post" window with a Quill-like editor
+    (.ql-editor, its own copy of the text kept from the DOM) and a message box (msg-form__contenteditable,
+    whose Send wakes up on input), a nested host with its own root (a composer), and fields that never get
+    the button: a search in a search component, an email, a one-time code, a card number, a password;
+  - the same Quill-like editor outside shadow DOM (a feed's comment box), and with ?bar a phone layout's comment
+    bar fixed at the bottom of the screen.
+  window.stand.models: what each editor holds, for the checks.
+-->
+<style>
+  body { font: 17px -apple-system, system-ui, sans-serif; margin: 16px; line-height: 1.45; background: #f4f2ee; color: #191919 }
+  .card { background: #fff; border-radius: 10px; padding: 12px; margin: 16px 0; box-shadow: 0 0 0 1px #0001 }
+  .actions { display: flex; gap: 8px; margin: 8px 0 }
+  .actions button { flex: 1; height: 36px; border: 0; background: #eee; border-radius: 6px; font-size: 15px }
+  .comments-comment-box { position: relative; border: 1px solid #8c8c8c; border-radius: 20px; padding: 6px 48px 6px 12px }
+  .comments-comment-box .emoji { position: absolute; right: 8px; top: 6px; width: 32px; height: 32px; border: 0; background: none; font-size: 18px }
+  .ql-editor { min-height: 24px; outline: none; white-space: pre-wrap }
+  .ql-editor p { margin: 0 }
+  .ql-editor.ql-blank::before { content: attr(data-placeholder); color: #888; position: absolute; pointer-events: none }
+  .open-post { width: 100%; height: 44px; border-radius: 22px; border: 1px solid #8c8c8c; background: #fff; text-align: left; padding: 0 16px; font-size: 16px; color: #555 }
+</style>
+</head>
+<body>
+<h1>Shadow fields</h1>
+
+<section class="card" id="plain">
+  <p><b>Anna Lee</b> · 2nd</p>
+  <p>We moved our weekly sync to Thursdays and halved its length. Has anyone tried a no-meeting Friday?</p>
+  <div class="actions"><button>Like</button><button>Comment</button><button>Repost</button></div>
+  <div class="comments-comment-box">
+    <div class="ql-container">
+      <div class="ql-editor ql-blank" id="plain-editor" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Add a comment…" data-placeholder="Add a comment…"><p><br></p></div>
+    </div>
+    <button class="emoji" aria-label="Emoji">😀</button>
+  </div>
+  <p style="font-size:14px;color:#666">Most relevant ▾</p>
+</section>
+
+<section class="card">
+  <button class="open-post" id="open-post">Start a post</button>
+</section>
+
+<p>The new post window and the message box below are inside an open shadow root (#interop-outlet).</p>
+<div id="interop-outlet"></div>
+<div style="height:60vh"></div>
+
+<!-- ?bar: a phone layout's comment bar fixed at the bottom, its Post button inside it (no shadow DOM). -->
+<div id="bar" style="position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid #ddd;padding:8px 12px;display:none;gap:8px;align-items:center">
+  <div class="ql-editor ql-blank" id="bar-editor" contenteditable="true" role="textbox" aria-label="Leave your thoughts here…" data-placeholder="Leave your thoughts here…" style="flex:1;border:1px solid #8c8c8c;border-radius:18px;padding:6px 12px"><p><br></p></div>
+  <button style="height:32px;border:0;background:none;color:#0a66c2;font-weight:600">Post</button>
+</div>
+
+<script>
+// A Quill-like editor: paragraphs in .ql-editor, its own copy of the text following the DOM (Quill's scroll
+// updates on mutations), its own paste (Quill's clipboard module: preventDefault, text into its lines, the
+// selection read from the editor's root node, as a Quill working inside a shadow root has to).
+class MiniQuill {
+  constructor(root, name) {
+    this.root = root
+    this.name = name
+    this.text = ""
+    this.pastes = 0
+    new MutationObserver(() => this.update()).observe(root, { childList: true, subtree: true, characterData: true })
+    root.addEventListener("paste", (e) => this.onPaste(e))
+    this.update()
+  }
+  update() {
+    const lines = Array.from(this.root.children).map((p) => p.textContent)
+    this.text = lines.join("\n").replace(/​/g, "")
+    this.root.classList.toggle("ql-blank", !this.text.trim())
+  }
+  range() {
+    const scope = this.root.getRootNode()
+    const sel = document.getSelection()
+    if (scope !== document) {
+      if (typeof scope.getSelection === "function") {
+        const own = scope.getSelection()
+        if (own && own.rangeCount) return own.getRangeAt(0)
+      }
+      if (sel && typeof sel.getComposedRanges === "function") {
+        const roots = []
+        for (let r = scope; r && r !== document; r = r.host.getRootNode()) roots.push(r)
+        let ranges = []
+        try { ranges = sel.getComposedRanges({ shadowRoots: roots }) } catch { ranges = [] }
+        if (!ranges.length || !this.root.contains(ranges[0].startContainer)) {
+          try { ranges = sel.getComposedRanges(...roots) } catch { ranges = [] }
+        }
+        const s = ranges[0]
+        if (s && this.root.contains(s.startContainer)) {
+          const r = document.createRange()
+          r.setStart(s.startContainer, s.startOffset)
+          r.setEnd(s.endContainer, s.endOffset)
+          return r
+        }
+      }
+    }
+    return sel && sel.rangeCount && this.root.contains(sel.getRangeAt(0).startContainer) ? sel.getRangeAt(0) : null
+  }
+  onPaste(e) {
+    e.preventDefault()
+    this.pastes++
+    const text = (e.clipboardData && e.clipboardData.getData("text/plain")) || ""
+    let range = this.range()
+    if (!range) {
+      // No selection to be found: the end of the last line.
+      range = document.createRange()
+      range.selectNodeContents(this.root.lastElementChild || this.root)
+      range.collapse(false)
+    }
+    range.deleteContents()
+    const lines = text.split("\n")
+    let p = range.startContainer.nodeType === 1 ? range.startContainer : range.startContainer.parentElement
+    p = p.closest("p") || this.root.lastElementChild
+    for (const br of Array.from(p.querySelectorAll("br"))) br.remove()
+    const first = document.createTextNode(lines[0])
+    range.insertNode(first)
+    let last = first
+    for (const line of lines.slice(1)) {
+      const next = document.createElement("p")
+      next.textContent = line
+      p.after(next)
+      p = next
+      last = next.firstChild || next
+    }
+    const caret = document.createRange()
+    caret.setStart(last, last.nodeType === 3 ? last.length : 0)
+    caret.collapse(true)
+    const sel = document.getSelection()
+    sel.removeAllRanges()
+    sel.addRange(caret)
+  }
+}
+
+const models = {}
+window.stand = { models }
+
+models.plain = new MiniQuill(document.getElementById("plain-editor"), "plain")
+models.bar = new MiniQuill(document.getElementById("bar-editor"), "bar")
+if (new URLSearchParams(location.search).has("bar")) document.getElementById("bar").style.display = "flex"
+
+// The outlet: an open shadow root with the page's own windows in it.
+const outlet = document.getElementById("interop-outlet")
+const root = outlet.attachShadow({ mode: "open" })
+root.innerHTML = `
+<style>
+  :host { all: initial; font: 17px -apple-system, system-ui, sans-serif; color: #191919 }
+  .back { position: fixed; inset: 0; background: #0006; display: none; z-index: 10 }
+  .back.open { display: block }
+  .share-box { position: fixed; left: 50%; top: 8%; transform: translateX(-50%); width: min(552px, calc(100vw - 16px)); background: #fff; border-radius: 10px; z-index: 11; display: none; flex-direction: column; max-height: 84vh }
+  .share-box.open { display: flex }
+  .head { display: flex; align-items: center; padding: 12px 12px 12px 16px; border-bottom: 1px solid #eee }
+  .head h2 { flex: 1; margin: 0; font-size: 18px }
+  .head .close { width: 40px; height: 40px; border: 0; background: none; font-size: 22px }
+  .ql-container { padding: 12px 16px; min-height: 160px }
+  .ql-editor { min-height: 140px; outline: none; white-space: pre-wrap; line-height: 1.45 }
+  .ql-editor p { margin: 0 }
+  .ql-editor.ql-blank::before { content: attr(data-placeholder); color: #888; position: absolute; pointer-events: none }
+  .tools { display: flex; gap: 6px; padding: 8px 12px; border-top: 1px solid #eee; align-items: center }
+  .tools button { width: 40px; height: 40px; border: 0; background: #f3f3f3; border-radius: 20px }
+  .tools .post { margin-left: auto; width: auto; padding: 0 18px; background: #0a66c2; color: #fff; font-weight: 600 }
+  .tools .post:disabled { background: #ccc }
+  .msg { margin: 0 0 16px; background: #fff; border-radius: 10px; box-shadow: 0 0 0 1px #0001; padding: 12px }
+  .msg-form__contenteditable { min-height: 60px; border-radius: 8px; background: #f3f2ef; padding: 10px 12px; outline: none }
+  .msg-form__contenteditable p { margin: 0 }
+  .msg .row { display: flex; justify-content: flex-end; margin-top: 8px }
+  .msg .send { height: 32px; padding: 0 16px; border-radius: 16px; border: 0; background: #0a66c2; color: #fff }
+  .msg .send:disabled { background: #ccc }
+  .fields { background: #fff; border-radius: 10px; box-shadow: 0 0 0 1px #0001; padding: 12px; margin: 0 0 16px }
+  .fields input { display: block; width: 100%; box-sizing: border-box; height: 40px; font-size: 17px; margin: 4px 0 12px }
+  label { font-size: 15px; color: #444 }
+</style>
+<div class="msg" id="msg">
+  <b>Messaging</b> · Ben Ortiz
+  <p style="margin:6px 0">Thanks for the intro! When are you free next week?</p>
+  <div class="msg-form__contenteditable" id="msg-editor" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Write a message…"><p><br></p></div>
+  <div class="row"><button class="send" id="msg-send" disabled>Send</button></div>
+</div>
+<div class="fields">
+  <cf-search-box></cf-search-box>
+  <form id="pay" onsubmit="return false">
+    <label>Email <input id="s-email" type="email" autocomplete="email"></label>
+    <label>Code from SMS <input id="s-otp" type="text" autocomplete="one-time-code" inputmode="numeric"></label>
+    <label>Card number <input id="s-card" type="text" autocomplete="cc-number"></label>
+    <label>Password <input id="s-pass" type="password"></label>
+  </form>
+  <label>Headline <input id="s-headline" type="text"></label>
+</div>
+<cf-composer></cf-composer>
+<div class="back" id="back"></div>
+<div class="share-box" id="share-box" role="dialog" aria-label="Create a post">
+  <div class="head"><h2>Create a post</h2><button class="close" id="close" aria-label="Dismiss">×</button></div>
+  <div class="ql-container">
+    <div class="ql-editor ql-blank" id="post-editor" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Text editor for creating content" data-placeholder="What do you want to talk about?"><p><br></p></div>
+  </div>
+  <div class="tools"><button aria-label="Add a photo">🖼</button><button aria-label="Add an emoji">😀</button><button class="post" id="post" disabled>Post</button></div>
+</div>`
+
+// A search component with its own root, like the sites' design systems: no button there.
+customElements.define("cf-search-box", class extends HTMLElement {
+  connectedCallback() {
+    if (this.shadowRoot) return
+    this.attachShadow({ mode: "open" }).innerHTML = `<label style="font-size:15px;color:#444">Search <input id="s-search" type="text" name="q" placeholder="Search" style="display:block;width:100%;box-sizing:border-box;height:40px;font-size:17px;margin:4px 0 12px"></label>`
+  }
+})
+// A composer two roots deep (a component inside the outlet's root): a plain contenteditable.
+customElements.define("cf-composer", class extends HTMLElement {
+  connectedCallback() {
+    if (this.shadowRoot) return
+    this.attachShadow({ mode: "open" }).innerHTML = `<div style="background:#fff;border-radius:10px;box-shadow:0 0 0 1px #0001;padding:12px"><b>Reply</b>
+<div id="deep-editor" contenteditable="true" role="textbox" aria-multiline="true" style="min-height:60px;margin-top:6px;border:1px solid #bbb;border-radius:8px;padding:8px;outline:none"><p style="margin:0"><br></p></div></div>`
+    const el = this.shadowRoot.getElementById("deep-editor")
+    models.deep = { root: el, get text() { return el.innerText.replace(/​/g, "").trim() } }
+  }
+})
+
+models.post = new MiniQuill(root.getElementById("post-editor"), "post")
+const postButton = root.getElementById("post")
+root.getElementById("post-editor").addEventListener("input", () => { postButton.disabled = !models.post.text.trim() })
+
+// The message box keeps its text from input events (Send wakes up on them), like an editor of its own.
+const msg = root.getElementById("msg-editor")
+const send = root.getElementById("msg-send")
+models.msg = { root: msg, text: "", inputs: 0 }
+msg.addEventListener("input", () => {
+  models.msg.inputs++
+  models.msg.text = msg.innerText.replace(/​/g, "").trim()
+  send.disabled = !models.msg.text
+})
+
+const open = (on) => {
+  root.getElementById("back").classList.toggle("open", on)
+  root.getElementById("share-box").classList.toggle("open", on)
+  if (on) setTimeout(() => root.getElementById("post-editor").focus(), 50)
+}
+document.getElementById("open-post").addEventListener("click", () => open(true))
+root.getElementById("close").addEventListener("click", () => open(false))
+root.getElementById("back").addEventListener("click", () => open(false))
+if (new URLSearchParams(location.search).has("post")) open(true)
+</script>
+</body>
+</html>

@@ -4,6 +4,13 @@
 // and asks to paste it by hand.
 //
 // Elements may come from a same-origin iframe (TinyMCE, CKEditor 4), so nothing here uses instanceof.
+//
+// Fields may sit inside open shadow roots (LinkedIn's #interop-outlet, Reddit's components, Salesforce): the
+// document sees only their host, as its activeElement, as a focus event's target, and as where its selection
+// is (Chrome and WebKit move it out to the host). The field, its focus and its caret are looked for inside.
+
+import { HOST_TAG } from "../page"
+import { shadowRootOf, shadowRootsOf } from "./shadow"
 
 /** input types that hold plain text a template can go into. */
 const TEXT_INPUTS = new Set(["", "text", "search", "email", "url", "tel"])
@@ -26,6 +33,75 @@ function tag(el: Element): string {
 
 export function isControl(el: Element): el is HTMLInputElement | HTMLTextAreaElement {
   return tag(el) === "TEXTAREA" || tag(el) === "INPUT"
+}
+
+// ------------------------------------------------------------ shadow roots
+
+/** Our own panel's host: its shadow root is closed in the builds people get, open in test builds. */
+export function isOwnHost(node: unknown): boolean {
+  return typeof (node as Element | null)?.tagName === "string" && (node as Element).tagName.toLowerCase() === HOST_TAG
+}
+
+/** The focused element of `doc`, inside open shadow roots too (the document's activeElement is their host). */
+export function activeIn(doc: Document | ShadowRoot): Element | null {
+  let el = doc.activeElement
+  for (let n = 0; el && !isOwnHost(el) && el.shadowRoot?.activeElement && n < 32; n++) el = el.shadowRoot.activeElement
+  return el
+}
+
+/**
+ * The element a focus or input event is about. Coming out of an open shadow root its target is the root's
+ * host: the element inside that has the focus. (Not the event's path: from the page, a closed root such as
+ * ours shows only its host; presses and keys read paths through around.ts.)
+ */
+export function focusedTarget(e: Event): Element | null {
+  const target = e.target as Element | null
+  if (!target || typeof target.tagName !== "string") return null
+  if (isOwnHost(target) || !target.shadowRoot) return target
+  return activeIn(target.shadowRoot) ?? target
+}
+
+/** The event comes from our own panel (from the page its target is the panel's host). */
+export function fromOwnUi(e: Event): boolean {
+  const target = e.target as Element | null
+  return Boolean(target?.closest?.(HOST_TAG))
+}
+
+type ComposedSelection = Selection & {
+  getComposedRanges?: (...args: unknown[]) => StaticRange[]
+}
+
+/**
+ * The selection inside `el` when `el` is in a shadow root: the root's own (Chrome), else the composed ranges
+ * (Safari 17 and later, Chrome 137 and later; Safari 17 took the roots as arguments, the standard takes them
+ * in a dictionary), else the document's when a browser leaves it inside (Firefox).
+ */
+export function rangeIn(el: Element): Range | null {
+  const doc = el.ownerDocument
+  const sel = doc.getSelection() as ComposedSelection | null
+  const inside = (r: AbstractRange | null | undefined): r is AbstractRange => Boolean(r && el.contains(r.startContainer))
+  const roots = shadowRootsOf(el)
+  if (roots.length) {
+    const own = (roots[0] as ShadowRoot & { getSelection?: () => Selection | null }).getSelection?.()
+    if (own && own.rangeCount > 0 && inside(own.getRangeAt(0))) return own.getRangeAt(0).cloneRange()
+    if (sel?.getComposedRanges) {
+      for (const call of [() => sel.getComposedRanges!({ shadowRoots: roots }), () => sel.getComposedRanges!(...roots)]) {
+        let found: StaticRange | undefined
+        try {
+          found = call()[0]
+        } catch {
+          found = undefined
+        }
+        if (!inside(found)) continue
+        const range = doc.createRange()
+        range.setStart(found.startContainer, found.startOffset)
+        range.setEnd(found.endContainer, found.endOffset)
+        return range
+      }
+    }
+  }
+  if (sel && sel.rangeCount > 0 && inside(sel.getRangeAt(0))) return sel.getRangeAt(0).cloneRange()
+  return null
 }
 
 /** A card number, a security code and the like (autocomplete "cc-…", or named so). */
@@ -82,15 +158,14 @@ export function readField(el: FieldElement): Field {
     }
     return { el, control: true, start, end, range: null }
   }
-  const sel = el.ownerDocument.getSelection()
-  const range = sel && sel.rangeCount > 0 && el.contains(sel.getRangeAt(0).startContainer) ? sel.getRangeAt(0).cloneRange() : null
-  return { el, control: false, start: 0, end: 0, range }
+  return { el, control: false, start: 0, end: 0, range: rangeIn(el) }
 }
 
-/** The field has the focus (in an iframe, the iframe has it too). */
+/** The field has the focus (in an iframe, the iframe has it too; in a shadow root, its host has it). */
 export function hasFocus(el: FieldElement): boolean {
   const doc = el.ownerDocument
-  return doc.hasFocus() && (doc.activeElement === el || el.contains(doc.activeElement))
+  const active = activeIn(doc)
+  return doc.hasFocus() && (active === el || el.contains(active))
 }
 
 /** The caret is still in the field: keep the latest position. */
@@ -140,9 +215,21 @@ export function restoreCaret(field: Field): void {
     return
   }
   const sel = doc.getSelection()
-  if (sel && field.range) {
-    sel.removeAllRanges()
-    sel.addRange(field.range)
+  const range = field.range
+  if (!sel || !range) return
+  sel.removeAllRanges()
+  try {
+    sel.addRange(range)
+  } catch {
+    // below
+  }
+  // A field in a shadow root: where a browser won't take the range as it is, the ends are given one by one.
+  if (!rangeIn(el) && shadowRootOf(el)) {
+    try {
+      sel.setBaseAndExtent(range.startContainer, range.startOffset, range.endContainer, range.endOffset)
+    } catch {
+      // the focus keeps the browser's own caret
+    }
   }
 }
 
@@ -212,7 +299,9 @@ function dispatchPaste(field: Field, text: string): void {
   const win = doc.defaultView ?? window
   const data = new win.DataTransfer()
   data.setData("text/plain", text)
-  const target = (doc.getSelection()?.anchorNode?.parentElement ?? field.el) as HTMLElement
+  // Where the caret is (inside the field; the document's selection may point at a shadow root's host).
+  const at = rangeIn(field.el)?.startContainer ?? null
+  const target = ((at && (at.nodeType === 1 ? at : at.parentElement)) ?? field.el) as HTMLElement
   target.dispatchEvent(new win.ClipboardEvent("paste", { clipboardData: data, bubbles: true, cancelable: true, composed: true }))
 }
 

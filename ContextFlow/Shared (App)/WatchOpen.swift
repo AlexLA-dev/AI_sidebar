@@ -9,7 +9,7 @@ import AppKit
 /// analytics registry's words (`use`: `notif.tap what=watch`, then `page_open via=watch`; no page, no text).
 /// The watches themselves live in the extension (see WatchStore).
 enum WatchOpen {
-    /// At launch: the watches join Reminders. Notifications are asked about in Safari at "Watch", by the
+    /// At launch: the watches join the app as "Watching". Notifications are asked about in Safari at "Watch", by the
     /// extension's handler, as Remind asks (one path: the app doesn't ask on its own).
     @MainActor
     static func start() {
@@ -30,9 +30,12 @@ enum WatchOpen {
     }
 }
 
-/// This device's watches in "Reminders" (chat UX's list): "Watching: … · checked …", or "Changed: …" once the
-/// condition came true. A tap opens the page; Stop goes back to the extension on its next exchange.
+/// This device's watches in "Watching" (chat UX's list; 2.5 (77): its own list, not "Reminders"): "Watching: … ·
+/// checked …", or "Changed: …" once the condition came true. A tap opens the page; Stop goes back to the extension
+/// on its next exchange.
 struct WatchSource: LaterSource {
+    var kind: LaterItem.Kind { .watch }
+
     func items() async -> [LaterItem] {
         let relative = RelativeDateTimeFormatter()
         relative.unitsStyle = .short

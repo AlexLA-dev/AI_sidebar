@@ -6,6 +6,8 @@
 // - sites with their own "/" menu (Notion, Slack, GitHub, WordPress…) use "//", and when a site's own menu opens
 //   at the caret anyway, ours steps back (the caller checks); the sign can be changed in Settings.
 
+import { closestComposed, shadowRootsOf } from "./shadow.ts"
+
 /** Sites whose editor has its own "/" menu: the sign is doubled there. */
 export const SLASH_MENU_SITES = [
   "notion.so", "notion.site", "slack.com", "docs.google.com", "discord.com", "linear.app",
@@ -46,7 +48,7 @@ export function phraseWorthLooking(phrase: string, before: string): boolean {
 
 /** A code editor or a code block: "/" there is code, not a phrase. */
 export function codeField(el: Element): boolean {
-  return Boolean(el.closest("pre,code,.cm-editor,.CodeMirror,.monaco-editor,.ace_editor,[data-language],[class*='code-editor'],[class*='CodeEditor']"))
+  return Boolean(closestComposed(el, "pre,code,.cm-editor,.CodeMirror,.monaco-editor,.ace_editor,[data-language],[class*='code-editor'],[class*='CodeEditor']"))
 }
 
 export interface Typed {
@@ -81,10 +83,12 @@ export function typedPhrase(before: string, sign: string): Typed | null {
  */
 export function siteMenuOpen(field: { el: Element }): boolean {
   const el = field.el
-  if (el.getAttribute("aria-expanded") === "true" || el.closest("[role=combobox][aria-expanded='true']")) return true
+  if (el.getAttribute("aria-expanded") === "true" || closestComposed(el, "[role=combobox][aria-expanded='true']")) return true
   const doc = el.ownerDocument
   const r = el.getBoundingClientRect()
-  for (const menu of Array.from(doc.querySelectorAll("[role=listbox],[role=menu]"))) {
+  // The page, and the shadow roots the field is in (a site's menu there is drawn next to its field).
+  const menus = [doc, ...shadowRootsOf(el)].flatMap((scope) => Array.from(scope.querySelectorAll("[role=listbox],[role=menu]")))
+  for (const menu of menus) {
     const b = menu.getBoundingClientRect()
     if (!b.width || !b.height) continue
     const style = doc.defaultView?.getComputedStyle(menu)

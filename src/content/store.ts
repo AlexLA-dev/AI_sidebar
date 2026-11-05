@@ -1,10 +1,9 @@
 import { CONSENT_VERSION, consentStatus, type ConsentStatus } from "../shared/consent"
-import { trimSavedPages, type Entry } from "../shared/conversation"
-import { activity, cleanTitle, liveThreads, moveEntries, newThreadId, prune, undoMove, type ActiveThread, type MoveUndo, type Thread, type Threads, cleanTags, withMessages } from "../shared/threads"
+import type { Entry } from "../shared/conversation"
+import { activity, cleanTitle, liveThreads, moveEntries, newThreadId, prune, savedThread, undoMove, type ActiveThread, type MoveUndo, type Thread, type Threads, cleanTags } from "../shared/threads"
 import { MAX_OTHER_PAGE_CHARS } from "../shared/prompt"
 import { DEFAULT_SETTINGS, STORAGE, type Settings } from "../shared/types"
 
-const MAX_TURNS = 40
 
 async function get<T>(key: string): Promise<T | undefined> {
   try {
@@ -162,15 +161,10 @@ export async function setActiveThread(id: string): Promise<void> {
 
 /** Stores a chat's messages; `kind` marks a new "Ask your chats" chat (a chat keeps its kind). */
 export async function saveThread(id: string, entries: Entry[], kind?: "history"): Promise<void> {
-  // Page texts for the chat's last few pages only (they go to iCloud with it).
-  const next = trimSavedPages(entries.slice(-MAX_TURNS))
   const threads = (await get<Threads>(STORAGE.threads)) ?? {}
-  const stored = threads[id]
-  // Only real changes get a new time: it decides which device's copy wins (iCloud sync),
-  // and opening an empty thread doesn't store anything.
-  if (stored ? JSON.stringify(stored.m) === JSON.stringify(next) : next.length === 0) return
-  const now = Date.now()
-  await set(STORAGE.threads, prune({ ...threads, [id]: withMessages(stored, id, next, now, kind) }))
+  // Only real changes get a new time: it decides which device's copy wins (iCloud sync).
+  const next = savedThread(threads[id], id, entries, Date.now(), kind)
+  if (next) await set(STORAGE.threads, prune({ ...threads, [id]: next }))
 }
 
 /** Names a chat (an empty name goes back to its first question); it keeps its place in the list. */

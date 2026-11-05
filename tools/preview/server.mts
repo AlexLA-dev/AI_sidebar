@@ -372,7 +372,9 @@ const pages: Record<string, string> = {
   "/order": "order.html",
   "/order-ru": "order-ru.html",
   "/product": "product.html",
-  "/product-ru": "product-ru.html"
+  "/product-ru": "product-ru.html",
+  // Quick insert's fields inside open shadow roots, and the same editor outside them (the owner, 2.5 (77): LinkedIn).
+  "/shadow-fields": "shadow-fields.html"
 }
 
 // PDFs for the PDF checks. private.pdf only with the cookie pdf-link.html sets, like a PDF behind a sign-in.

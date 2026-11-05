@@ -498,13 +498,13 @@ struct TipGroup {
 
     // Reminders and watching are two lists (2.5): the bell is about time, the eye about a change on the page.
     private static var remindTip: Tip {
-        Tip(symbol: "bell", color: .orange, title: "Come back at the right time",
-            text: "Want to finish reading later? Tap … at the top of the panel, then Remind me about this page…, and pick a time: the reminder opens this page. To come back to one line, select it and tap the bell. Answers and notes have Remind me in their … menu. All your reminders are in Reminders, in the panel's … menu and in the app.", clip: "later")
+        Tip(symbol: "bell", color: .orange, title: "Remind me about this page",
+            text: "Reading something you want to finish later? Select a line and tap the bell, or tap … at the top of the panel, then Remind me about this page…, and pick a time: the reminder opens this page. Answers and notes have Remind me in their … menu.", clip: "later")
     }
 
     private static var watchTip: Tip {
         Tip(symbol: "eye", color: .green, title: "Know when a price drops",
-            text: "Select a price, a stock status or a date on a page and tap the eye. ContextFlow checks the page while you use Safari and tells you when it changes, or drops below the price you name. Everything you watch is in Watching, in the panel's … menu and in the app. Up to 5 at a time, 20 with Pro.", clip: "watch")
+            text: "Select a price, a stock status or a date on a page and tap the eye. For the whole page, choose Watch this page… in the … menu at the top of the panel. ContextFlow checks the page while you use Safari and tells you when it changes, or drops below the price you name. Up to 5 at a time, 20 with Pro.", clip: "watch")
     }
 
     private static func iOSClip(_ name: String) -> String? {

@@ -16,7 +16,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Before launch ends, so a tap on a reminder that launched the app reaches us.
         UNUserNotificationCenter.current().delegate = self
-        // Page watch: this device's watches in Reminders, and the notification question when they need it.
+        // Page watch: this device's watches in Watching, and the notification question when they need it.
         WatchOpen.start()
         return true
     }

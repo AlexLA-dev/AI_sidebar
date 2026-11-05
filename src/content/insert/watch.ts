@@ -1,9 +1,13 @@
 // Follows the field the user types in, on the page and in same-origin iframes (TinyMCE, CKEditor 4:
 // WebKit sends no focusin up when the focus goes into a frame, so the frames are watched themselves),
 // and where things go on screen: the caret, the field, the visible part of the page.
+//
+// Fields in open shadow roots (LinkedIn, Reddit, Salesforce): a focus event reaches the document with the
+// root's host as its target, so the field is the element inside that has the focus; and when the focus moves
+// inside one root, the document hears nothing at all, so each root met on the way is listened to as well.
 
-import { editableAt, readField, updateCaret, isControl, type Field } from "./field"
-import { HOST_TAG } from "../page"
+import { activeIn, editableAt, focusedTarget, fromOwnUi, hasFocus, readField, updateCaret, isControl, type Field } from "./field"
+import { shadowRootsOf } from "./shadow"
 
 export interface WatchHandlers {
   focus(field: Field): void
@@ -19,33 +23,64 @@ export interface WatchHandlers {
 /** Starts watching; returns the function that stops it. */
 export function watchFields(h: WatchHandlers): () => void {
   const stops: Array<() => void> = []
-  const watched = new WeakSet<Document>()
+  const watched = new WeakSet<Document | ShadowRoot>()
+  // A focus event heard both by the document and by a root on its way counts once.
+  const heard = new WeakSet<Event>()
   let field: Field | null = null
   let blurTimer: ReturnType<typeof setTimeout> | undefined
+
+  const onFocus = (e: Event) => {
+    if (heard.has(e)) return
+    heard.add(e)
+    if (fromOwnUi(e)) return
+    const target = focusedTarget(e)
+    for (const root of target ? shadowRootsOf(target) : []) trackRoot(root)
+    const el = editableAt(target)
+    if (!el) return
+    clearTimeout(blurTimer)
+    field = readField(el)
+    h.focus(field)
+  }
+  const onBlur = (e: Event) => {
+    if (heard.has(e)) return
+    heard.add(e)
+    clearTimeout(blurTimer)
+    blurTimer = setTimeout(() => {
+      if (field && !fieldHasFocus(field)) h.blur()
+    }, 120)
+  }
+
+  /** A shadow root: the focus moving inside it, and the iframes in it. */
+  const trackRoot = (root: ShadowRoot) => {
+    if (watched.has(root)) return
+    watched.add(root)
+    root.addEventListener("focusin", onFocus, true)
+    root.addEventListener("focusout", onBlur, true)
+    root.querySelectorAll("iframe").forEach((f) => watchFrame(f as HTMLIFrameElement))
+    const added = new MutationObserver(framesAdded)
+    added.observe(root, { childList: true, subtree: true })
+    stops.push(() => {
+      root.removeEventListener("focusin", onFocus, true)
+      root.removeEventListener("focusout", onBlur, true)
+      added.disconnect()
+    })
+  }
 
   const track = (doc: Document) => {
     if (watched.has(doc)) return
     watched.add(doc)
     const win = doc.defaultView
-    const onFocus = (e: Event) => {
-      const target = e.target as Element | null
-      if (target?.closest?.(HOST_TAG)) return
-      const el = editableAt(target)
-      if (!el) return
-      clearTimeout(blurTimer)
-      field = readField(el)
-      h.focus(field)
-    }
-    const onBlur = () => {
-      clearTimeout(blurTimer)
-      blurTimer = setTimeout(() => {
-        if (field && !fieldHasFocus(field)) h.blur()
-      }, 120)
-    }
     const onMove = () => {
       if (field && field.el.ownerDocument === doc) field = updateCaret(field)
     }
     const onInput = (e: Event) => {
+      // Typing in another field than the one followed (its focus wasn't heard): that one from now on.
+      const typed = fromOwnUi(e) ? null : editableAt(focusedTarget(e))
+      if (typed && typed !== field?.el) {
+        clearTimeout(blurTimer)
+        field = readField(typed)
+        h.focus(field)
+      }
       if (!field || field.el.ownerDocument !== doc) return
       field = updateCaret(field)
       h.input(field, (e as InputEvent).isComposing === true)
@@ -91,9 +126,7 @@ export function watchFields(h: WatchHandlers): () => void {
     frame.addEventListener("load", attach)
   }
 
-  track(document)
-  document.querySelectorAll("iframe").forEach((f) => watchFrame(f as HTMLIFrameElement))
-  const frames = new MutationObserver((records) => {
+  function framesAdded(records: MutationRecord[]): void {
     for (const r of records) {
       for (const n of Array.from(r.addedNodes)) {
         const el = n as Element
@@ -101,11 +134,16 @@ export function watchFields(h: WatchHandlers): () => void {
         else if (el.querySelectorAll) el.querySelectorAll("iframe").forEach((f) => watchFrame(f as HTMLIFrameElement))
       }
     }
-  })
+  }
+
+  track(document)
+  document.querySelectorAll("iframe").forEach((f) => watchFrame(f as HTMLIFrameElement))
+  const frames = new MutationObserver(framesAdded)
   frames.observe(document.documentElement, { childList: true, subtree: true })
 
   // A field already focused when the panel started (the page autofocuses its editor).
   const active = deepActive()
+  for (const root of active ? shadowRootsOf(active) : []) trackRoot(root)
   const el = editableAt(active)
   if (el) {
     field = readField(el)
@@ -119,14 +157,14 @@ export function watchFields(h: WatchHandlers): () => void {
   }
 }
 
-/** The focused element, inside a same-origin iframe if the focus is there. */
+/** The focused element, inside a same-origin iframe or an open shadow root if the focus is there. */
 export function deepActive(): Element | null {
-  let el: Element | null = document.activeElement
+  let el: Element | null = activeIn(document)
   while (el && el.tagName === "IFRAME") {
     try {
       const inner = (el as HTMLIFrameElement).contentDocument
       if (!inner) break
-      el = inner.activeElement
+      el = activeIn(inner)
     } catch {
       break
     }
@@ -135,9 +173,7 @@ export function deepActive(): Element | null {
 }
 
 export function fieldHasFocus(field: Field): boolean {
-  const doc = field.el.ownerDocument
-  if (!doc.hasFocus()) return false
-  return doc.activeElement === field.el || field.el.contains(doc.activeElement)
+  return hasFocus(field.el)
 }
 
 // ------------------------------------------------------------ where things are
