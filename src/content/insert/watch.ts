@@ -220,6 +220,65 @@ function offsetByFrame(el: Element, rect: DOMRect): DOMRect {
   return new DOMRect(rect.left + top.left - own.left, rect.top + top.top - own.top, rect.width, rect.height)
 }
 
+type Box4 = { left: number; top: number; right: number; bottom: number }
+
+/**
+ * Where the field's text is (viewport rects, the field's own document): each line's text, the pictures and
+ * widgets in an editor, and the caret. The button inside a field keeps off them.
+ */
+export function fieldText(field: Field): Box4[] {
+  const el = field.el
+  const out: Box4[] = []
+  const add = (r: DOMRect) => {
+    if (r.width || r.height) out.push({ left: r.left, top: r.top, right: r.right, bottom: r.bottom })
+  }
+  if (isControl(el)) {
+    for (const r of controlTextRects(el as HTMLTextAreaElement)) add(r)
+  } else {
+    const doc = el.ownerDocument
+    const range = doc.createRange()
+    const walker = doc.createTreeWalker(el, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT)
+    let n = 0
+    for (let node = walker.nextNode(); node && n < 4000; node = walker.nextNode(), n++) {
+      if (node.nodeType === 3) {
+        if (!node.textContent?.trim()) continue
+        range.selectNodeContents(node)
+        for (const r of Array.from(range.getClientRects())) add(r)
+      } else if ((node as Element).matches("img,video,canvas,svg,iframe,[contenteditable=false]")) {
+        add((node as Element).getBoundingClientRect())
+      }
+    }
+  }
+  if (hasFocus(el)) add(caretRect(field))
+  return out
+}
+
+/** The text of an input or textarea, line by line: a hidden copy of the field, measured, put over the field. */
+function controlTextRects(el: HTMLInputElement | HTMLTextAreaElement): DOMRect[] {
+  if (!el.value.trim()) return []
+  const doc = el.ownerDocument
+  const style = doc.defaultView!.getComputedStyle(el)
+  const mirror = doc.createElement("div")
+  for (const key of MIRROR_STYLES) (mirror.style as unknown as Record<string, string>)[key] = style[key as keyof CSSStyleDeclaration] as string
+  const multi = el.tagName.toUpperCase() === "TEXTAREA"
+  mirror.style.position = "absolute"
+  mirror.style.visibility = "hidden"
+  mirror.style.top = "0"
+  mirror.style.left = "-9999px"
+  mirror.style.whiteSpace = multi ? "pre-wrap" : "pre"
+  mirror.style.overflowWrap = multi ? "break-word" : "normal"
+  const text = doc.createTextNode(el.value)
+  mirror.appendChild(text)
+  doc.body.appendChild(mirror)
+  const range = doc.createRange()
+  range.selectNodeContents(text)
+  const m = mirror.getBoundingClientRect()
+  const r = el.getBoundingClientRect()
+  const rects = Array.from(range.getClientRects()).map((t) => new DOMRect(r.left + t.left - m.left - el.scrollLeft, r.top + t.top - m.top - el.scrollTop, t.width, t.height))
+  mirror.remove()
+  return rects
+}
+
 const MIRROR_STYLES = [
   "boxSizing", "width", "paddingTop", "paddingRight", "paddingBottom", "paddingLeft", "borderTopWidth", "borderRightWidth", "borderBottomWidth",
   "borderLeftWidth", "fontFamily", "fontSize", "fontWeight", "fontStyle", "letterSpacing", "lineHeight", "textTransform", "wordSpacing", "textIndent", "tabSize"

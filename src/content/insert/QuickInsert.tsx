@@ -19,10 +19,10 @@ import * as QIcon from "./icons"
 import { clearCopied, countUse, keepCopied, lastReply, loadCopied, loadInsertSettings, loadTemplates, loadUse, markTipSeen, onCopied, onInsertSettings, onTemplates, report, saveInsertSettings, sendBackground, syncTemplatesNow, tipSeen, type LastReply } from "./store"
 import { rememberField, setButtonShown, setPanelInserter } from "./target"
 import { TemplateEditor, type EditorStart } from "./TemplateEditor"
-import { BUTTON, buttonSpot, noButtonField, pagePointFree } from "./spot"
+import { BUTTON, buttonSpot, cornerSpot, fieldPointFree, multiLineField, noButtonField, pagePointFree } from "./spot"
 import { codeField, phraseWorthLooking, signFor, siteMenuOpen, typedPhrase } from "./trigger"
 import { follow, placeByCaret, placeSheet } from "./place"
-import { caretRect, pageRect, viewport, watchFields } from "./watch"
+import { caretRect, fieldText, pageRect, viewport, watchFields } from "./watch"
 
 /** What the panel asks of quick insert, through the bus (the selection's "Template" button, Settings). */
 export const QI_EVENTS = { newTemplate: "qi-new-template", editTemplate: "qi-edit-template", insertTemplate: "qi-insert-template" } as const
@@ -83,6 +83,7 @@ export function QuickInsert(props: Props): VNode | null {
   const sign = signFor(location.hostname, settings.sign)
   const dismissed = useRef<number | null>(null)
   const suggestTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  const placeFrame = useRef(0)
 
   // ------------------------------------------------------------ data
   useEffect(() => {
@@ -163,6 +164,11 @@ export function QuickInsert(props: Props): VNode | null {
       },
       input(f, composing) {
         fieldRef.current = f
+        // The button in a field's corner goes when the text reaches it, and comes back when it leaves.
+        if (!placeFrame.current) placeFrame.current = requestAnimationFrame(() => {
+          placeFrame.current = 0
+          setTick((n) => n + 1)
+        })
         if (composing) return
         // Korean on iOS replaces the syllable as it grows (delete + insert): look a moment later.
         clearTimeout(suggestTimer.current)
@@ -354,7 +360,13 @@ export function QuickInsert(props: Props): VNode | null {
   // Outside the field, where nothing of the site's lies underneath (spot.ts); none on searches and codes.
   if (showButton && field && !noButtonField(field.el)) {
     const r = pageRect(field.el)
-    const spot = r.width >= 120 ? buttonSpot(r, vp, pagePointFree(document.querySelector(HOST_TAG))) : null
+    const host = document.querySelector(HOST_TAG)
+    let spot = r.width >= 120 ? buttonSpot(r, vp, pagePointFree(host)) : null
+    // No room around a multi-line field (a chat's reply box: the last message above, Send beside, the keyboard
+    // below): inside its corner, off its text and caret. Not in a frame's field (its text is in the frame's place).
+    if (!spot && r.width >= 120 && multiLineField(field.el) && field.el.ownerDocument === document) {
+      spot = cornerSpot(r, vp, fieldPointFree(field.el, host), fieldText(updateCaret(field)))
+    }
     if (spot) buttonPos = { top: spot.top + vp.dy, left: spot.left + vp.dx }
   }
 
