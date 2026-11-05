@@ -159,6 +159,24 @@
   force = true
 
 [[redirects]]
+  from = "https://aisidebar.netlify.app/cases"
+  to = "https://context-flow.app/cases"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/cases.html"
+  to = "https://context-flow.app/cases"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/cases/*"
+  to = "https://context-flow.app/cases/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "https://aisidebar.netlify.app/sitemap.xml"
   to = "https://context-flow.app/sitemap.xml"
   status = 301
