@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SPA · Test</title>
+<!--
+  Quick insert's stand for a site that switches sections without loading a page (the owner on 2.5 (78), LinkedIn:
+  "loaded from scratch, the button works, also after a refresh; switch to the feed inside LinkedIn, try Start post
+  and go back to the messages, and it doesn't show any more, only after a refresh"). Built like such a site, not
+  copied from one:
+  - /spa/messaging and /spa/feed are one page: the links change the address with history.pushState and draw the
+    section again, Back and Forward (popstate) too; nothing loads;
+  - each section is drawn anew: the old one goes, a focused field with it (WebKit sends no blur then);
+  - #interop-outlet: a host with an open shadow root for what the section puts there (the post window, the
+    messages window). ?outlet=swap (default): a new host and a new root at each switch; ?outlet=keep: the same
+    root, its content replaced;
+  - the feed: "Start post" opens a post window in the outlet's root with a backdrop and a Quill-like editor in
+    14 px type (smaller than 16 px: iOS zooms in when it gets the focus, and stays zoomed after it closes);
+  - the messages: the thread and the reply box at the bottom; ?msg=page (default) in the document, as the
+    /messaging page; ?msg=outlet inside the outlet's root, as the messages window; ?autofocus=1: the section puts
+    the focus in the reply box itself, as sites do when a thread opens.
+  ?diag=1: a line with the zoom, the reply box's place and quick insert's button (the button only in an open-root
+  test build). window.stand: go(path), reply(), outletRoot().
+-->
+<style>
+  body { font: 16px -apple-system, system-ui, sans-serif; margin: 0; background: #f4f2ee; color: #191919 }
+  nav { position: sticky; top: 0; z-index: 3; display: flex; gap: 4px; background: #fff; border-bottom: 1px solid #ddd; padding: 6px 8px }
+  nav a { flex: 1; text-align: center; padding: 8px 0; color: #444; text-decoration: none; border-radius: 6px; font-size: 15px }
+  nav a.on { color: #0a66c2; font-weight: 600; background: #eef3f8 }
+  main { padding: 0 0 120px }
+  .card { background: #fff; border-radius: 10px; padding: 12px; margin: 12px; box-shadow: 0 0 0 1px #0001 }
+  .start { width: 100%; height: 44px; border-radius: 22px; border: 1px solid #8c8c8c; background: #fff; text-align: left; padding: 0 16px; font-size: 16px; color: #555 }
+  .msg-s-event { display: flex; gap: 8px; margin: 12px }
+  .msg-s-event p { margin: 2px 0 0; line-height: 1.4 }
+  .avatar { width: 32px; height: 32px; border-radius: 16px; background: #c7d7ea; flex: none }
+  .meta { font-size: 13px; color: #666 }
+  .msg-form { position: fixed; left: 0; right: 0; bottom: 0; display: flex; align-items: flex-end; gap: 8px; padding: 8px 10px; background: #fff; border-top: 1px solid #e8e8e8 }
+  .msg-form .plus { width: 36px; height: 36px; border-radius: 18px; border: 0; background: #eef3f8; font-size: 20px }
+  .msg-form__contenteditable { flex: 1; min-height: 22px; max-height: 120px; overflow: auto; background: #f3f2ef; border-radius: 18px; padding: 7px 12px; outline: none; font-size: 16px }
+  .msg-form__contenteditable p { margin: 0 }
+  .msg-form__send-button { height: 36px; border: 0; background: none; color: #0a66c2; font-weight: 600; font-size: 16px }
+  #diag { position: fixed; left: 4px; top: 52px; z-index: 9; font: 11px ui-monospace, monospace; background: #ffffe0e8; padding: 2px 4px; pointer-events: none; white-space: pre }
+</style>
+</head>
+<body>
+<nav><a href="/spa/feed" data-nav id="to-feed">Home</a><a href="/spa/messaging" data-nav id="to-messaging">Messaging</a></nav>
+<main id="app"></main>
+<div id="interop-outlet"></div>
+<div id="diag" hidden></div>
+
+<script>
+const params = new URLSearchParams(location.search)
+const keepOutlet = params.get("outlet") === "keep"
+const msgInOutlet = params.get("msg") === "outlet"
+const autofocus = params.get("autofocus") === "1"
+const app = document.getElementById("app")
+let outlet = document.getElementById("interop-outlet")
+let outletRoot = outlet.attachShadow({ mode: "open" })
+
+const outletStyle = `<style>
+  :host { all: initial; font: 16px -apple-system, system-ui, sans-serif; color: #191919 }
+  .backdrop { position: fixed; inset: 0; background: #0006; z-index: 10 }
+  .share-box { position: fixed; left: 8px; right: 8px; top: 64px; background: #fff; border-radius: 10px; z-index: 11; padding: 12px; box-shadow: 0 4px 16px #0004 }
+  .share-box header { display: flex; align-items: center; justify-content: space-between; font-weight: 600 }
+  .share-box header button { width: 36px; height: 36px; border: 0; background: none; font-size: 20px }
+  .ql-editor { min-height: 140px; outline: none; font-size: 14px; line-height: 1.4; white-space: pre-wrap; margin: 8px 0 }
+  .ql-editor p { margin: 0 }
+  .share-box footer { display: flex; justify-content: flex-end }
+  .share-box footer button { height: 32px; padding: 0 16px; border-radius: 16px; border: 0; background: #0a66c2; color: #fff; font-weight: 600 }
+  aside { position: fixed; left: 8px; right: 8px; bottom: 0; height: 60vh; background: #fff; border-radius: 10px 10px 0 0; box-shadow: 0 0 0 1px #0002, 0 4px 16px #0003; display: flex; flex-direction: column; z-index: 5 }
+  aside .list { flex: 1; overflow: auto; padding: 0 12px }
+  aside .list p { margin: 12px 0; line-height: 1.4 }
+  aside form { display: flex; align-items: flex-end; gap: 6px; padding: 8px; border-top: 1px solid #e8e8e8 }
+  .msg-form__contenteditable { flex: 1; min-height: 44px; max-height: 120px; overflow: auto; background: #f4f2ee; border-radius: 8px; padding: 8px 10px; outline: none; font-size: 16px; line-height: 1.4 }
+  .msg-form__contenteditable p { margin: 0 }
+  .msg-form__send-button { height: 32px; padding: 0 14px; border-radius: 16px; border: 0; background: #0a66c2; color: #fff; font-weight: 600 }
+</style>`
+
+/** The outlet for a new section: a new host and root (swap), or the same root emptied (keep). */
+function freshOutlet() {
+  if (keepOutlet) {
+    outletRoot.innerHTML = outletStyle
+    return outletRoot
+  }
+  const host = document.createElement("div")
+  host.id = "interop-outlet"
+  outlet.replaceWith(host)
+  outlet = host
+  outletRoot = host.attachShadow({ mode: "open" })
+  outletRoot.innerHTML = outletStyle
+  return outletRoot
+}
+
+const thread = [
+  ["Ben Ortiz", "10:02", "Thanks for the intro! When are you free next week? I'd love to hear how your team handles the weekly sync."],
+  ["You", "10:05", "Tuesday works. What time suits you?"],
+  ["Ben Ortiz", "10:07", "Great — could you send me the agenda and the address before then?"]
+]
+const events = thread.map(([who, at, text]) => `<div class="msg-s-event"><span class="avatar"></span><div><b>${who}</b> <span class="meta">${at}</span><p>${text}</p></div></div>`).join("")
+let reply = null
+
+function feed() {
+  const root = freshOutlet()
+  app.innerHTML = `<section class="card"><button class="start" id="start-post" type="button">Start a post</button></section>
+${["We moved our weekly sync to Thursdays.", "Hiring: a product designer in Lisbon.", "What I learned from a year of async standups."].map((t) => `<section class="card"><p><b>Anna Lee</b> · 2nd</p><p>${t}</p></section>`).join("")}`
+  document.getElementById("start-post").addEventListener("click", () => {
+    const box = document.createElement("div")
+    box.innerHTML = `<div class="backdrop"></div><div class="share-box" role="dialog" aria-label="Create a post">
+<header><span>Create a post</span><button type="button" id="close-post" aria-label="Dismiss">×</button></header>
+<div class="ql-editor" id="post-editor" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Text editor for creating content"><p><br></p></div>
+<footer><button type="button" id="post-done">Post</button></footer></div>`
+    root.appendChild(box)
+    const close = () => box.remove()
+    root.getElementById("close-post").addEventListener("click", close)
+    root.getElementById("post-done").addEventListener("click", close)
+    box.querySelector(".backdrop").addEventListener("click", close)
+  })
+  reply = null
+}
+
+function messaging() {
+  const root = freshOutlet()
+  if (msgInOutlet) {
+    app.innerHTML = `<section class="card"><p>Messages open in the window below.</p></section>`
+    const box = document.createElement("div")
+    root.appendChild(box)
+    box.innerHTML = (`<aside aria-label="Messaging"><div class="list">${thread.map(([who, , text]) => `<p><b>${who}</b><br>${text}</p>`).join("")}</div>
+<form onsubmit="return false"><div class="msg-form__contenteditable" id="reply" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Write a message…"><p><br></p></div>
+<button type="submit" class="msg-form__send-button">Send</button></form></aside>`)
+    reply = root.getElementById("reply")
+  } else {
+    app.innerHTML = `<div class="msg-s-message-list">${events}</div>
+<form class="msg-form" onsubmit="return false"><button type="button" class="plus" aria-label="Attach">+</button>
+<div class="msg-form__contenteditable" id="reply" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Write a message…"><p><br></p></div>
+<button type="submit" class="msg-form__send-button">Send</button></form>`
+    reply = document.getElementById("reply")
+  }
+  if (autofocus) setTimeout(() => reply?.focus(), 50)
+}
+
+function draw() {
+  const path = location.pathname.replace(/\/+$/, "")
+  const section = path.endsWith("/feed") ? "feed" : "messaging"
+  for (const a of document.querySelectorAll("nav a")) a.classList.toggle("on", a.id === `to-${section}`)
+  if (section === "feed") feed()
+  else messaging()
+}
+
+function go(path) {
+  history.pushState({}, "", path + location.search)
+  draw()
+}
+document.querySelector("nav").addEventListener("click", (e) => {
+  const a = e.target.closest("a[data-nav]")
+  if (!a) return
+  e.preventDefault()
+  go(a.getAttribute("href"))
+})
+addEventListener("popstate", draw)
+draw()
+
+window.stand = { go, reply: () => reply, outletRoot: () => outletRoot }
+
+if (params.get("diag") === "1") {
+  const diag = document.getElementById("diag")
+  diag.hidden = false
+  const round = (n) => Math.round(n)
+  setInterval(() => {
+    const vv = visualViewport
+    const r = reply?.isConnected ? reply.getBoundingClientRect() : null
+    const btn = document.querySelector("contextflow-root")?.shadowRoot?.querySelector(".cf-qi-btn")?.getBoundingClientRect()
+    diag.textContent = `zoom ${vv.scale.toFixed(2)} vv ${round(vv.offsetLeft)},${round(vv.offsetTop)} ${round(vv.width)}×${round(vv.height)}
+reply ${r ? `${round(r.left)},${round(r.top)} ${round(r.width)}×${round(r.height)}` : "-"}  button ${btn ? `${round(btn.left)},${round(btn.top)}` : "none"}`
+  }, 300)
+}
+</script>
+</body>
+</html>
