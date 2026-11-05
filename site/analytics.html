@@ -69,6 +69,7 @@
   .legend i.ln.dash { border-top-style: dashed; }
   svg text.axis { font-size: 11px; font-weight: 600; }
   svg text { fill: var(--text-2); font-size: 10.5px; }
+  svg text.mark { fill: var(--text); font-weight: 600; paint-order: stroke; stroke: var(--bg-2); stroke-width: 3px; stroke-linejoin: round; }
   .tbl { overflow-x: auto; }
   table { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums; }
   th, td { text-align: right; padding: 7px 8px; border-bottom: 1px solid var(--border); white-space: nowrap; }
@@ -344,17 +345,61 @@ const hiddenSeries = new Map()
 // A round top for an axis, so its middle line is a whole number.
 const niceMax = (v) => v <= 2 ? 2 : v <= 10 ? Math.ceil(v / 2) * 2 : Math.ceil(v / 10) * 10
 
+// The days App Review approved a version, for the dashed lines on the daily charts: [{ day, frac, label, tips }].
+// One line per UTC day, at the first approval that day (frac: how far into the day); a version approved on iOS and
+// macOS the same day gets one label without the platform.
+const MARKS = "Апрув версии"
+function releaseMarks(releases) {
+  const byDay = new Map()
+  for (const r of releases || []) {
+    const at = new Date(r?.approved_at ?? NaN)
+    if (Number.isNaN(at.getTime())) continue
+    const day = at.toISOString().slice(0, 10)
+    byDay.set(day, [...(byDay.get(day) || []), { ...r, at }])
+  }
+  return [...byDay].map(([day, list]) => {
+    list.sort((a, b) => a.at - b.at)
+    const label = [...new Set(list.map((r) => r.version))].map((v) => {
+      const on = list.filter((r) => r.version === v)
+      return on.length > 1 ? v : `${REVIEW_PLATFORM[on[0].platform] || on[0].platform} ${v}`
+    }).join(" · ")
+    const tips = list.map((r) => [`${REVIEW_PLATFORM[r.platform] || r.platform} ${r.version}`, r.at.toISOString().slice(11, 16)])
+    return { day, frac: (list[0].at - Date.parse(`${day}T00:00:00Z`)) / 864e5, label, tips }
+  })
+}
+
+// Labels of the version lines in up to 3 rows above the plot, newest first: each goes in the first row where it doesn't
+// run into the label after it; one that fits nowhere is left out (its line and the tooltip still show it), so on a
+// long period the latest versions keep their labels.
+function placeMarks(marks, xOf, right) {
+  const starts = []
+  return marks.map((m) => ({ ...m, x: xOf(m) })).sort((a, b) => b.x - a.x).map((m) => {
+    const w = m.label.length * 6.3
+    const flip = m.x + 3 + w > right
+    const from = flip ? m.x - 3 - w : m.x + 3
+    let row = starts.findIndex((start) => from + w + 6 < start)
+    if (row < 0 && starts.length < 3) row = starts.length
+    if (row >= 0) starts[row] = from
+    return { ...m, flip, row }
+  }).reverse()
+}
+
 // Stacked bars by day on the left axis; series with axis "right" are lines on their own right axis. A click on a
 // legend item hides that series (another click brings it back); an axis with nothing left on it disappears.
-// opts: leftLabel, rightLabel (axis captions), note (a line under the chart).
+// opts: leftLabel, rightLabel (axis captions), note (a line under the chart), marks (releaseMarks: dashed version lines).
 function chart(title, series, totalDays, opts = {}) {
   const name = [title].flat()[0]
   const hidden = hiddenSeries.get(name) || new Set()
   hiddenSeries.set(name, hidden)
   const keys = lastDays(totalDays)
   const hasRight = series.some((s) => s.axis === "right")
-  const W = 900, H = 228, L = 38, R = hasRight ? 38 : 0, B = 22, T = opts.leftLabel || opts.rightLabel ? 26 : 8
+  const W = 900, L = 38, R = hasRight ? 38 : 0, B = 22, T0 = opts.leftLabel || opts.rightLabel ? 26 : 8
   const bw = (W - L - R) / keys.length
+  const placed = placeMarks((opts.marks || []).filter((m) => keys.includes(m.day)), (m) => L + (keys.indexOf(m.day) + m.frac) * bw, W - R)
+  // The version labels get their own band above the plot, which stays the same height (also when they're hidden).
+  const rows = placed.length ? Math.max(1, ...placed.map((m) => m.row + 1)) : 0
+  const band = rows ? rows * 13 + 4 : 0
+  const H = 228 + band, T = T0 + band
   const tip = el("div", { class: "tip" })
   const panel = el("div", { class: "panel" })
   const scroller = el("div", { class: "tbl" })
@@ -400,6 +445,16 @@ function chart(title, series, totalDays, opts = {}) {
         if (s.value(d)) nodes.push(svg("circle", { cx: pts[i][0], cy: pts[i][1], r: 4, fill: s.color, stroke: "var(--bg)", "stroke-width": 2 }))
       })
     }
+    const marks = hidden.has(MARKS) ? [] : placed
+    for (const m of marks) {
+      nodes.push(svg("line", {
+        x1: m.x, x2: m.x, y1: m.row >= 0 ? T0 + m.row * 13 + 1 : T, y2: H - B,
+        stroke: "currentColor", "stroke-opacity": "0.6", "stroke-width": 1.25, "stroke-dasharray": "4 3"
+      }))
+    }
+    for (const m of marks) {
+      if (m.row >= 0) nodes.push(svg("text", { x: m.flip ? m.x - 3 : m.x + 3, y: T0 + m.row * 13 + 10, "text-anchor": m.flip ? "end" : "start", class: "mark" }, m.label))
+    }
     const highlight = svg("rect", { x: 0, y: T, width: bw, height: H - T - B, rx: 3, fill: "currentColor", "fill-opacity": "0.07", visibility: "hidden" })
     const show = (i, e) => {
       highlight.setAttribute("x", L + i * bw)
@@ -408,7 +463,9 @@ function chart(title, series, totalDays, opts = {}) {
         el("b", {}, dayLabel(keys[i])),
         ...bars.map((s) => el("div", { class: "row" }, el("span", {}, el("span", { class: "dot", style: `background:${s.color}` }), s.title), el("span", {}, n.format(s.value(keys[i]))))),
         bars.length > 1 && el("div", { class: "row total" }, el("span", {}, "Всего"), el("span", {}, n.format(totals[i]))),
-        ...lines.map((s) => el("div", { class: `row${s === lines[0] && bars.length ? " total" : ""}` }, el("span", {}, el("span", { class: "dot", style: `background:${s.color}` }), s.title), el("span", {}, n.format(s.value(keys[i])))))
+        ...lines.map((s) => el("div", { class: `row${s === lines[0] && bars.length ? " total" : ""}` }, el("span", {}, el("span", { class: "dot", style: `background:${s.color}` }), s.title), el("span", {}, n.format(s.value(keys[i]))))),
+        ...marks.filter((m) => m.day === keys[i]).flatMap((m) => m.tips).map(([what, time], k) =>
+          el("div", { class: `row${k === 0 ? " total" : ""}` }, el("span", {}, `Апрув ${what}`), el("span", {}, `${time} UTC`)))
       ].filter(Boolean))
       tip.style.display = "block"
       const box = panel.getBoundingClientRect()
@@ -439,7 +496,12 @@ function chart(title, series, totalDays, opts = {}) {
       onclick: () => { hidden.has(s.title) ? hidden.delete(s.title) : hidden.add(s.title); draw() }
     }, s.axis === "right"
       ? el("i", { class: `ln${s.dash ? " dash" : ""}`, style: `border-color:${s.color}` })
-      : el("i", { style: `background:${s.color}` }), s.title)))
+      : el("i", { style: `background:${s.color}` }), s.title)),
+    ...(placed.length ? [el("button", {
+      class: `lg${hidden.has(MARKS) ? " off" : ""}`, type: "button", "aria-pressed": hidden.has(MARKS) ? "false" : "true",
+      title: ["Пунктир — момент, когда App Review одобрил версию (UTC). Наведите на день, чтобы увидеть время.", hidden.has(MARKS) ? "Нажмите, чтобы показать" : "Нажмите, чтобы скрыть"].join("\n"),
+      onclick: () => { hidden.has(MARKS) ? hidden.delete(MARKS) : hidden.add(MARKS); draw() }
+    }, el("i", { class: "ln dash", style: "border-color:var(--text-2)" }), MARKS)] : []))
   }
   draw()
   // Wide enough to stay readable on a phone (scrolls sideways there, starting at the latest days).
@@ -1140,6 +1202,7 @@ function render(data, fx) {
   const userDay = (field) => (day) => Number((users.by_day || []).find((r) => r.day === day)?.[field] || 0)
   // cf_new_user_outcomes: of each day's new users, how many ran out of free answers that day; Pro bought that day.
   const outcomes = data.new_outcomes
+  const marks = releaseMarks(data.releases)
   // cf_after_limit.paying: paying installs' last day, found by the moment the install was first seen (cf_owner_insights
   // gives its subscribers' installs the same moment).
   const second = (at) => Math.floor(Date.parse(at) / 1000)
@@ -1218,9 +1281,15 @@ function render(data, fx) {
     ], data.days, {
       leftLabel: "Люди: новые и вернувшиеся",
       rightLabel: outcomes ? "Люди: лимит в d0 · подписки" : undefined,
-      note: outcomes
-        ? `Правая ось. ${LIMIT_D0} ${PRO_BOUGHT} Нажмите на название в легенде, чтобы скрыть линию или столбики.`
-        : "Лимит в d0 и подписки появятся после миграции 20261104150000 (функция cf_new_user_outcomes)."
+      marks,
+      note: [
+        outcomes
+          ? `Правая ось. ${LIMIT_D0} ${PRO_BOUGHT} Нажмите на название в легенде, чтобы скрыть линию или столбики.`
+          : "Лимит в d0 и подписки появятся после миграции 20261104150000 (функция cf_new_user_outcomes).",
+        data.releases
+          ? "Пунктир — апрув версии в App Review (по UTC); одна версия на iOS и macOS в один день подписана без платформы."
+          : "Пунктир с версиями появится после миграции 20261105130000 (функция cf_releases)."
+      ].join(" ")
     }),
     live((redraw) => onboardingPanels(data.onboarding, data.days, redraw)),
     afterLimitPanel(data.after_limit),
@@ -1247,7 +1316,7 @@ function render(data, fx) {
         : SEGMENTS.map((seg) => ({
             title: seg.title, color: seg.color,
             value: (day) => Number((data.by_day || []).find((r) => r.day === day && r.key === seg.key && r.segment === seg.segment)?.requests || 0)
-          })), data.days)
+          })), data.days, { marks })
     }),
     perUserPanel(insights),
     table("По тарифам", ["Тариф", "Запросы", "Устройств", "Больше всего за день на устройство"], plans, "Пока нет запросов.", "num2"),

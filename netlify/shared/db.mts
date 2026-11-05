@@ -89,6 +89,9 @@ export const featureFunnels = (days: number) => rpc<Record<string, unknown>[]>("
 /** People who ran out of free answers and what they did next; paying installs and their last day (cf_after_limit). */
 export const afterLimit = (days: number) => rpc<Record<string, unknown>>("cf_after_limit", { p_days: days })
 
+/** When App Review approved each app version, for the version lines on the daily charts (cf_releases). */
+export const releases = () => rpc<Array<Record<string, unknown>>>("cf_releases", {})
+
 export async function logEvent(kind: string, installId: string | null, data: Record<string, unknown>): Promise<void> {
   try {
     await rpc<null>("cf_log", { p_kind: kind, p_install: installId, p_data: { ...data, ...testMark(data) } })
