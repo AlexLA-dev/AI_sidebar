@@ -3,6 +3,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "preact/hooks"
 
 import type { ConsentStatus } from "../../shared/consent"
 import { t } from "../../shared/i18n"
+import { ConsentCard } from "../Consent"
 import type { AiFailure, MarkResult } from "../../shared/insert"
 import { blanks, editTemplate, makeTemplate, markBlanks, MAX_TEMPLATE_CHARS, type Template } from "../../shared/templates"
 import * as Icon from "../icons"
@@ -40,7 +41,6 @@ export function TemplateEditor(p: Props): VNode {
   const [aiUsed, setAiUsed] = useState(false)
   const [askConsent, setAskConsent] = useState(false)
   const [note, setNote] = useState<string | null>(null)
-  const agreed = useRef(false)
 
   useLayoutEffect(() => {
     const el = ref.current
@@ -60,7 +60,8 @@ export function TemplateEditor(p: Props): VNode {
       })
       return
     }
-    // A selected or copied text: the AI marks what changes from time to time (only with consent).
+    // A selected or copied text: the AI marks what changes from time to time (only with the consent; without it,
+    // nothing is asked until "Mark with AI").
     if (p.start.text.trim() && p.consent === "ok") void mark(p.start.text.trim())
   }, [])
 
@@ -70,7 +71,7 @@ export function TemplateEditor(p: Props): VNode {
     const reply = await sendBackground<MarkResult | AiFailure>({ type: "qiMark", text: source.slice(0, MAX_TEMPLATE_CHARS) })
     setMarking(false)
     if (!reply || !reply.ok) {
-      // Offline or busy: it's saved as plain text, blanks can be added by hand.
+      // No consent yet: the one card. Offline or busy: it's saved as plain text, blanks can be added by hand.
       if (reply?.code === "CONSENT") setAskConsent(true)
       else setNote(t("qiMarkFailed"))
       return
@@ -163,23 +164,15 @@ export function TemplateEditor(p: Props): VNode {
         {marking ? (
           <div class="cf-qi-note"><Icon.Sparkle size={12} /> {t("qiMarking")}</div>
         ) : askConsent ? (
-          <div class="cf-card consent">
-            <strong>{t("consentTitle")}</strong>
-            <p>{t("qiMarkConsent")}</p>
-            <div class="cf-card-actions">
-              <button type="button" class="cf-primary" onClick={() => {
-                agreed.current = true
-                setAskConsent(false)
-                void p.onConsent().then(() => mark(text.trim()))
-              }}>{t("consentAccept")}</button>
-              <button type="button" class="cf-link" onClick={() => setAskConsent(false)}>{t("consentDecline")}</button>
-            </div>
-          </div>
+          <ConsentCard again={p.consent === "old"} onAccept={() => {
+            setAskConsent(false)
+            void p.onConsent().then(() => mark(text.trim()))
+          }} onDecline={() => setAskConsent(false)} />
         ) : (
           <div class="cf-qi-note">
             {note ?? t("qiBlankHint")}
             {!existing && !aiUsed && text.trim() && (
-              <> <button type="button" class="cf-link" onClick={() => (p.consent === "ok" || agreed.current ? void mark(text.trim()) : setAskConsent(true))}><Icon.Sparkle size={12} /> {t("qiMarkAi")}</button></>
+              <> <button type="button" class="cf-link" onClick={() => void mark(text.trim())}><Icon.Sparkle size={12} /> {t("qiMarkAi")}</button></>
             )}
           </div>
         )}

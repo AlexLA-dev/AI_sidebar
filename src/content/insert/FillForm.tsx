@@ -4,6 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "preact/hooks"
 import type { ConsentStatus } from "../../shared/consent"
 import type { CopiedItem } from "../../shared/copied"
 import { t } from "../../shared/i18n"
+import { ConsentCard } from "../Consent"
 import type { AiFailure, FillResult } from "../../shared/insert"
 import { blanks, fillBlanks, textParts, type Template } from "../../shared/templates"
 import * as Icon from "../icons"
@@ -56,8 +57,6 @@ export function FillForm(p: Props): VNode {
   const [note, setNote] = useState<string | null>(null)
   const [limit, setLimit] = useState(false)
   const [askConsent, setAskConsent] = useState(false)
-  // Agreed here just now (the panel's own state reaches this form a moment later).
-  const agreed = useRef(false)
 
   useLayoutEffect(() => {
     const el = ref.current
@@ -91,11 +90,9 @@ export function FillForm(p: Props): VNode {
     p.onInsert(text, byAi.size > 0 ? "ai" : Object.values(values).some((v) => v.trim()) ? "manual" : "none", labels.length)
   }
 
+  // The background knows the consent (this tab's copy can be behind): without it nothing is sent, and the one card
+  // shows here.
   const fill = async () => {
-    if (p.consent !== "ok" && !agreed.current) {
-      setAskConsent(true)
-      return
-    }
     setBusy(true)
     setNote(null)
     const page = extractPage()
@@ -205,18 +202,10 @@ export function FillForm(p: Props): VNode {
         )}
 
         {askConsent ? (
-          <div class="cf-card consent">
-            <strong>{t("consentTitle")}</strong>
-            <p>{t("qiFillConsent")}</p>
-            <div class="cf-card-actions">
-              <button type="button" class="cf-primary" onClick={() => {
-                agreed.current = true
-                setAskConsent(false)
-                void p.onConsent().then(fill)
-              }}>{t("consentAccept")}</button>
-              <button type="button" class="cf-link" onClick={() => setAskConsent(false)}>{t("consentDecline")}</button>
-            </div>
-          </div>
+          <ConsentCard again={p.consent === "old"} onAccept={() => {
+            setAskConsent(false)
+            void p.onConsent().then(fill)
+          }} onDecline={() => setAskConsent(false)} />
         ) : limit ? (
           <div class="cf-card">
             <p>{t("qiFillLimit")}</p>

@@ -376,7 +376,10 @@ const pages: Record<string, string> = {
   // Quick insert's fields inside open shadow roots, and the same editor outside them (the owner, 2.5 (77): LinkedIn).
   "/shadow-fields": "shadow-fields.html",
   // The reply box of private messages (the owner, 2.5 (77): "it was in chats"): ?layout=page|overlay.
-  "/messaging": "messaging.html"
+  "/messaging": "messaging.html",
+  // A site that switches sections without loading a page (the owner, 2.5 (78): LinkedIn's feed → post → messages).
+  "/spa/messaging": "spa.html",
+  "/spa/feed": "spa.html"
 }
 
 // PDFs for the PDF checks. private.pdf only with the cookie pdf-link.html sets, like a PDF behind a sign-in.

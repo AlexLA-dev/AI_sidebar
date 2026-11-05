@@ -50,7 +50,7 @@ import { ProUpsell } from "./ProUpsell"
 import { SettingsView } from "./Settings"
 import { shareLabels } from "./shareLabels"
 import { markHintSeen, resetHints, seenHints, type HintKey } from "./store"
-import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, loadThreads, markTourSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, rememberPageText, renameThread, renewalAskedPeriod, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount } from "./store"
+import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, onConsentChanged, loadThreads, markTourSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, rememberPageText, renameThread, renewalAskedPeriod, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount } from "./store"
 import { TagChip, TagEditor } from "./Tags"
 import { ThreadsView } from "./Threads"
 import { starMarks } from "../shared/marks"
@@ -65,6 +65,7 @@ import { shadowSelection, trackPointer } from "./selectionShadow"
 import { restoredDraft, withoutStopped } from "./ux/stopped"
 import { scheduleReminder, thisDevice, useMessageUx } from "./ux/useMessageUx"
 import { Tour, tourSteps } from "./Tour"
+import { ConsentCard } from "./Consent"
 import { QI_EVENTS, QuickInsert } from "./insert/QuickInsert"
 import * as QIcon from "./insert/icons"
 import { keepCopied, report as reportInsert } from "./insert/store"
@@ -174,21 +175,6 @@ function clockTime(iso: string | undefined): string {
 /** The App Store's sheet for an offer code, with the code filled in (on a Mac it needs macOS 15). */
 function offerUrl(code: string): string {
   return `https://apps.apple.com/redeem?ctx=offercodes&id=${APP_ID}&code=${encodeURIComponent(code)}`
-}
-
-/** Before the first answer, and again when the text changed (`again`): where questions go. */
-function ConsentCard({ again, onAccept, onDecline }: { again: boolean; onAccept: () => void; onDecline: () => void }): VNode {
-  return (
-    <div class="cf-card consent">
-      <strong>{t(again ? "consentAgainTitle" : "consentTitle")}</strong>
-      <p>{t("consentBody")}</p>
-      <div class="cf-card-actions">
-        <button type="button" class="cf-primary" onClick={onAccept}>{t("consentAccept")}</button>
-        <button type="button" class="cf-link" onClick={onDecline}>{t("consentDecline")}</button>
-        <button type="button" class="cf-link" onClick={() => void sendBackground({ type: "openUrl", url: LINKS.privacy })}>{t("privacyPolicy")}</button>
-      </div>
-    </div>
-  )
 }
 
 function errorText(error: ChatError): string {
@@ -376,7 +362,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     void loadSettings().then(setSettings)
     void loadConsent().then(setConsent)
     void hasSeenTour().then(setTourSeen)
-    return onSettingsChanged(setSettings)
+    // Given in another tab: this one knows at once (2.5 (78): its template editor asked again).
+    const stopConsent = onConsentChanged(setConsent)
+    const stopSettings = onSettingsChanged(setSettings)
+    return () => {
+      stopConsent()
+      stopSettings()
+    }
   }, [])
 
   const updateSettings = useCallback((patch: Partial<Settings>) => {

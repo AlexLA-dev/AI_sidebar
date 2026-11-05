@@ -99,8 +99,8 @@ export function OrganizeAnimation(): VNode {
 }
 
 /**
- * Cards about organizing, under the chat's last message: "consent" — Pro, suggestions off: turn them on (what goes
- * where is said here; turning them on is the consent); "mess" — not Pro, the chat looks like a pile; "tags" — not
+ * Cards about organizing, under the chat's last message: "consent" — Pro, suggestions off: a switch to turn them on
+ * (what they send is in the one AI consent, Consent.tsx, not here); "mess" — not Pro, the chat looks like a pile; "tags" — not
  * Pro, after the third tag. Each is shown once; ✕ (or Not now) closes it for good.
  */
 export function OrganizeCard({ kind, pro, onPrimary, onClose }: {
