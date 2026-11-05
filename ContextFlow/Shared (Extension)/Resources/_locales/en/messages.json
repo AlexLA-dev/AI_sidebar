@@ -411,16 +411,34 @@
   "message": "{0} min"
  },
  "consentTitle": {
-  "message": "Before your first answer"
+  "message": "Before ContextFlow uses AI"
  },
  "consentBody": {
-  "message": "To answer, ContextFlow sends your question and the text of this page (or your selection; for AI search and “Ask your chats”, excerpts of your chats) via our server to Anthropic (Claude) or, if it's unavailable, OpenAI; Google answers go to Google. Page content and chats are not stored on our servers; your chats stay on your devices and, if you sync them, in your iCloud."
+  "message": "You give it once, and it covers all of ContextFlow's AI. Each feature sends only what it needs, when you use it, through our server to Anthropic (Claude):"
+ },
+ "consentAnswers": {
+  "message": "Answers: your question, the page's text or your selection, and your “About me” if you wrote one. If Claude is unavailable, OpenAI answers; Google answers go to Google."
+ },
+ "consentChats": {
+  "message": "“Ask your chats” and AI search (Pro): short excerpts of your chats."
+ },
+ "consentTemplates": {
+  "message": "Templates: their text, to mark the blanks; the page's text for “Fill from the page”; your words and the templates' titles for “Find by meaning”."
+ },
+ "consentWatch": {
+  "message": "Watching a page: what you selected, your words for when to tell you, the text around it and the page's title; later, the old and the new value."
+ },
+ "consentSuggest": {
+  "message": "Suggestions (Pro, only once you turn them on): the text of new questions, answers and notes, to OpenAI to compare them and to Claude to check a tag."
+ },
+ "consentStored": {
+  "message": "None of it is kept on our servers, and the providers don't train on it. Your chats stay on your devices and, if you sync them, in your iCloud."
  },
  "consentAccept": {
   "message": "Agree and continue"
  },
  "consentAgainTitle": {
-  "message": "Updated: answers now come from Claude"
+  "message": "Updated: one consent for all AI features"
  },
  "consentDecline": {
   "message": "Not now"
@@ -1055,9 +1073,6 @@
  "qiFillByHand": {
   "message": "Fill in by hand"
  },
- "qiFillConsent": {
-  "message": "To fill the blanks, ContextFlow sends this page's text and the template to Anthropic's Claude. Nothing is stored."
- },
  "qiPickCopied": {
   "message": "Copied for “{0}”"
  },
@@ -1102,9 +1117,6 @@
  },
  "qiMarkFailed": {
   "message": "Couldn't mark blanks now. It's saved as plain text, and blanks can be added by hand."
- },
- "qiMarkConsent": {
-  "message": "To mark the blanks, ContextFlow sends this text to Anthropic's Claude. Nothing is stored."
  },
  "qiBlankHint": {
   "message": "Blanks are filled in when the template is inserted."
@@ -1293,7 +1305,7 @@
   "message": "Sort your chats by topic?"
  },
  "orgConsentText": {
-  "message": "I'll suggest a fitting chat and one of your tags under new answers and notes. For this, the text of your messages goes to our server and to OpenAI and Anthropic. We don't keep it. OpenAI and Anthropic don't use it for training."
+  "message": "I'll suggest a fitting chat and one of your tags under new answers and notes. You can turn this off in Settings."
  },
  "orgTurnOn": {
   "message": "Turn on"

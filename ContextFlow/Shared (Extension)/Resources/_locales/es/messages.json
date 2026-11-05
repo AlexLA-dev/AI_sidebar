@@ -411,16 +411,34 @@
   "message": "{0} min"
  },
  "consentTitle": {
-  "message": "Antes de tu primera respuesta"
+  "message": "Antes de que ContextFlow use la IA"
  },
  "consentBody": {
-  "message": "Para responder, ContextFlow envía tu pregunta y el texto de esta página (o de tu selección; en la búsqueda con IA y «Pregunta a tus chats», fragmentos de tus chats) a través de nuestro servidor a Anthropic (Claude) o, si no está disponible, a OpenAI, o a Google en las respuestas de Google. El contenido de las páginas y los chats no se guardan en nuestros servidores; tus chats se quedan en tus dispositivos y, si los sincronizas, en tu iCloud."
+  "message": "Lo das una vez y vale para toda la IA de ContextFlow. Cada función envía solo lo que necesita, cuando la usas, a través de nuestro servidor a Anthropic (Claude):"
+ },
+ "consentAnswers": {
+  "message": "Respuestas: tu pregunta, el texto de la página o tu selección, y tu «Sobre mí» si lo escribiste. Si Claude no está disponible, responde OpenAI; las respuestas de Google van a Google."
+ },
+ "consentChats": {
+  "message": "«Pregunta a tus chats» y la búsqueda con IA (Pro): fragmentos breves de tus chats."
+ },
+ "consentTemplates": {
+  "message": "Plantillas: su texto, para marcar los huecos; el texto de la página para «Rellenar con la página»; tus palabras y los títulos de las plantillas para «Buscar por sentido»."
+ },
+ "consentWatch": {
+  "message": "Vigilar una página: lo que seleccionaste, tus palabras sobre cuándo avisarte, el texto de alrededor y el título de la página; después, el valor anterior y el nuevo."
+ },
+ "consentSuggest": {
+  "message": "Sugerencias (Pro, solo cuando las activas): el texto de las preguntas, respuestas y notas nuevas, a OpenAI para compararlas y a Claude para comprobar una etiqueta."
+ },
+ "consentStored": {
+  "message": "Nada de esto se guarda en nuestros servidores y los proveedores no entrenan con ello. Tus chats se quedan en tus dispositivos y, si los sincronizas, en tu iCloud."
  },
  "consentAccept": {
   "message": "Aceptar y continuar"
  },
  "consentAgainTitle": {
-  "message": "Novedad: ahora responde Claude"
+  "message": "Novedad: un solo consentimiento para todas las funciones de IA"
  },
  "consentDecline": {
   "message": "Ahora no"
@@ -1055,9 +1073,6 @@
  "qiFillByHand": {
   "message": "Rellenar a mano"
  },
- "qiFillConsent": {
-  "message": "Para rellenar los huecos, ContextFlow envía el texto de esta página y la plantilla a Claude de Anthropic. No se guarda nada."
- },
  "qiPickCopied": {
   "message": "Copiado para «{0}»"
  },
@@ -1102,9 +1117,6 @@
  },
  "qiMarkFailed": {
   "message": "Ahora no se pudieron marcar los huecos. Se guarda como texto simple y puedes añadir huecos a mano."
- },
- "qiMarkConsent": {
-  "message": "Para marcar los huecos, ContextFlow envía este texto a Claude de Anthropic. No se guarda nada."
  },
  "qiBlankHint": {
   "message": "Los huecos se rellenan al insertar la plantilla."
@@ -1293,7 +1305,7 @@
   "message": "¿Ordenar tus chats por tema?"
  },
  "orgConsentText": {
-  "message": "Te sugeriré un chat adecuado y una de tus etiquetas bajo las respuestas y notas nuevas. Para ello, el texto de tus mensajes va a nuestro servidor y a OpenAI y Anthropic. No lo guardamos. OpenAI y Anthropic no lo usan para entrenar."
+  "message": "Te sugeriré un chat adecuado y una de tus etiquetas bajo las respuestas y notas nuevas. Puedes desactivarlo en Configuración."
  },
  "orgTurnOn": {
   "message": "Activar"

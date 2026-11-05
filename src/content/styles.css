@@ -405,6 +405,9 @@
 .cf-limit-notes .cf-link { color: var(--note-text) !important; font-weight: 600; text-decoration: underline; padding: 0 !important; font-size: 13px; }
 .cf-card.error p { color: var(--text); }
 .cf-card.consent { border: 1px solid var(--border); background: var(--bg); }
+/* The one consent (Consent.tsx): what each AI feature sends, a short line each. */
+.cf-consent-list { margin: 0 0 10px; padding-left: 18px; color: var(--text-2); font-size: 13px; line-height: 1.4; }
+.cf-consent-list li { margin: 0 0 4px; }
 .cf-card-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .cf-card.renewal { border: 1px solid var(--border); background: var(--bg); }
 .cf-card.renewal .cf-renewal-reasons { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 8px; }

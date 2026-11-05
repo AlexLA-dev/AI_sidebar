@@ -45,6 +45,22 @@ export async function giveConsent(): Promise<void> {
   await set(STORAGE.consent, CONSENT_VERSION)
 }
 
+/**
+ * Calls `listener` when the consent changes in another tab (each tab read it once when its page loaded: a consent
+ * given in one tab's panel left the tabs opened before it asking again, the template editor among them).
+ */
+export function onConsentChanged(listener: (status: ConsentStatus) => void): () => void {
+  const handler = (changes: Record<string, chrome.storage.StorageChange>, area: string) => {
+    if (area === "local" && changes[STORAGE.consent]) listener(consentStatus(changes[STORAGE.consent].newValue))
+  }
+  try {
+    chrome.storage.onChanged.addListener(handler)
+  } catch {
+    return () => undefined
+  }
+  return () => chrome.storage.onChanged.removeListener(handler)
+}
+
 export async function hasSeenTour(): Promise<boolean> {
   return Boolean(await get<boolean>(STORAGE.tourSeen))
 }

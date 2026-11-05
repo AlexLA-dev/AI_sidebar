@@ -25,7 +25,7 @@ let document: any
 
 before(async () => {
   ;({ window, document } = parseHTML(`<!doctype html><html><body><p id="page">Page</p><div id="outlet"></div><form role="search"><cf-box id="wrapped"></cf-box></form></body></html>`))
-  Object.assign(globalThis as any, { window, document, Node: window.Node, Element: window.Element, HTMLElement: window.HTMLElement, MutationObserver: window.MutationObserver })
+  Object.assign(globalThis as any, { window, document, Node: window.Node, Element: window.Element, HTMLElement: window.HTMLElement, ShadowRoot: window.ShadowRoot, MutationObserver: window.MutationObserver })
   const dir = mkdtempSync(join(tmpdir(), "cf-insert-shadow-"))
   const out = join(dir, "field.mjs")
   await build({
@@ -175,6 +175,110 @@ test("watching: a focus coming out of a root, then the focus moving inside it (t
   assert.equal(seen.at(-1), "blur")
   stop()
   o.host.remove()
+})
+
+// The owner on 2.5 (78), LinkedIn: loaded from scratch the button worked; after the feed, Start post and back to the
+// messages inside the site, it didn't, until a refresh. A site that switches sections draws new hosts and roots and
+// drops the old ones with the focus in them (WebKit sends no blur then). The stand: tools/preview/spa.html; in
+// real engines: ~/ContextFlow-work/quick-insert-25/shadow/spaui.mjs and Safari.
+test("a site drawing its sections anew: new roots found by a press, the old ones and the field that went let go", async () => {
+  document.getSelection = () => null
+  const seen: string[] = []
+  const stop = W.watchFields({ focus: (f: any) => seen.push(`focus:${f.el.id}`), blur: () => seen.push("blur"), input: () => undefined, keydown: () => undefined, copy: () => undefined })
+  const tick = (ms = 0) => new Promise((r) => setTimeout(r, ms))
+  /** A section's outlet: a new host with its own open root. */
+  const section = (html: string) => {
+    const host = document.createElement("div")
+    host.className = "interop-outlet"
+    document.body.appendChild(host)
+    const root = host.attachShadow({ mode: "open" })
+    root.innerHTML = html
+    return { host, root, at: (id: string) => root.getElementById(id) }
+  }
+  /** A press as a browser reports it at the document: its path names each open root it crossed. */
+  const press = (path: any[]) => {
+    const e = new window.Event("pointerdown", { bubbles: true })
+    e.composedPath = () => [...path, document.body, document.documentElement, document, window]
+    document.dispatchEvent(e)
+  }
+
+  // The messages, loaded from scratch: the reply box gets the focus, heard at the document from the host.
+  const messages = section(`<div id="reply" contenteditable="true"><p></p></div>`)
+  focus([[document, messages.host], [messages.root, messages.at("reply")]])
+  messages.host.dispatchEvent(new window.Event("focusin", { bubbles: true }))
+  assert.deepEqual(seen, ["focus:reply"])
+
+  // To the feed: the messages go with the focus in them, and no blur comes. The field is let go all the same.
+  const oldReply = messages.at("reply")
+  messages.host.remove()
+  focus([[document, document.body], [messages.root, null]])
+  await tick()
+  assert.deepEqual(seen, ["focus:reply", "blur"], "the field that left the page is no field")
+  // Its root is let go: what happens in it isn't heard any more.
+  await tick(350)
+  oldReply.dispatchEvent(new window.Event("focusin", { bubbles: true }))
+  assert.deepEqual(seen, ["focus:reply", "blur"])
+
+  // The post window in a new root: a press on its frame first (the focus lands on the dialog, never heard as a
+  // field), then the editor in the same root: only the root hears that move, and it's listened to since the press.
+  const post = section(`<div id="dialog" tabindex="-1"><div id="editor" contenteditable="true"><p></p></div></div>`)
+  press([post.at("dialog"), post.root, post.host])
+  focus([[document, post.host], [post.root, post.at("editor")]])
+  post.at("editor").dispatchEvent(new window.Event("focusin", { bubbles: true }))
+  assert.equal(seen.at(-1), "focus:editor", "a root met only by a press is listened to")
+
+  // Back to the messages: a new reply box that the site focuses itself, before any root of it was known (no focus
+  // heard for it). It's taken up at the next caret move.
+  post.host.remove()
+  await tick()
+  const back = section(`<div id="reply2" contenteditable="true"><p></p></div><input id="pass2" type="password">`)
+  focus([[document, back.host], [back.root, back.at("reply2")]])
+  document.dispatchEvent(new window.Event("selectionchange", { bubbles: true }))
+  assert.equal(seen.at(-1), "focus:reply2", "the focused reply box is the field")
+  const count = seen.length
+  document.dispatchEvent(new window.Event("selectionchange", { bubbles: true }))
+  assert.equal(seen.length, count, "told once")
+  // A password that has the focus is never taken up.
+  focus([[document, back.host], [back.root, back.at("pass2")]])
+  document.dispatchEvent(new window.Event("selectionchange", { bubbles: true }))
+  assert.equal(seen.at(-1), "focus:reply2")
+
+  // Our own panel's root (open in test builds) is never listened to, even when a press goes through it.
+  const own = document.createElement("contextflow-root")
+  document.documentElement.appendChild(own)
+  const ownRoot = own.attachShadow({ mode: "open" })
+  ownRoot.innerHTML = `<textarea id="ask"></textarea>`
+  press([ownRoot.getElementById("ask"), ownRoot, own])
+  ownRoot.getElementById("ask").dispatchEvent(new window.Event("focusin", { bubbles: true }))
+  assert.equal(seen.at(-1), "focus:reply2")
+  own.remove()
+
+  stop()
+  // Stopped: nothing is heard.
+  back.at("reply2").dispatchEvent(new window.Event("focusin", { bubbles: true }))
+  press([back.at("reply2"), back.root, back.host])
+  assert.equal(seen.at(-1), "focus:reply2")
+  back.host.remove()
+})
+
+test("a section's new host is listened to as it comes, its nested roots too, before any press or focus of the page's", async () => {
+  document.getSelection = () => null
+  const seen: string[] = []
+  const stop = W.watchFields({ focus: (f: any) => seen.push(`focus:${f.el.id}`), blur: () => seen.push("blur"), input: () => undefined, keydown: () => undefined, copy: () => undefined })
+  // Drawn in one go, as a section is: the host already has its root and a component two roots deep.
+  const host = document.createElement("div")
+  const root = host.attachShadow({ mode: "open" })
+  root.innerHTML = `<div id="list" tabindex="-1"></div><cf-thread id="thread"></cf-thread>`
+  const inner = root.getElementById("thread").attachShadow({ mode: "open" })
+  inner.innerHTML = `<div id="nested-reply" contenteditable="true"><p></p></div>`
+  document.body.appendChild(host)
+  await new Promise((r) => setTimeout(r, 0))
+  // The focus moves inside the nested root (only that root hears it): heard, though nothing pressed there.
+  focus([[document, host], [root, root.getElementById("thread")], [inner, inner.getElementById("nested-reply")]])
+  inner.getElementById("nested-reply").dispatchEvent(new window.Event("focusin", { bubbles: true }))
+  assert.deepEqual(seen, ["focus:nested-reply"])
+  stop()
+  host.remove()
 })
 
 test("no button on a search inside a component's root, or inside a search form around the host", () => {

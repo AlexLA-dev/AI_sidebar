@@ -9,6 +9,7 @@ import { DEFAULT_INSERT_SETTINGS, type FindResult, type AiFailure } from "../../
 import { blanks, searchTemplates, titleStarts, type Template, type TemplateUse } from "../../shared/templates"
 import type { Platform } from "../../shared/types"
 import type { ConsentStatus } from "../../shared/consent"
+import { ConsentCard } from "../Consent"
 import { listenAround } from "../around"
 import * as Icon from "../icons"
 import { HOST_TAG, privateBrowsing } from "../page"
@@ -431,6 +432,7 @@ export function QuickInsert(props: Props): VNode | null {
           host={host}
           settings={settings}
           consent={props.consent}
+          onConsent={props.onConsent}
           onClose={() => closeTo(m.at === "caret")}
           onCopied={(c) => void insertNow(c.text).then((ok) => ok && report({ kind: "insert_copied", via: m.via }))}
           onTemplate={(tpl) => insertTemplate(tpl, m.via)}
@@ -586,6 +588,7 @@ interface ListProps {
   host: string
   settings: InsertSettings
   consent: ConsentStatus
+  onConsent: () => Promise<void>
   onClose: () => void
   onCopied: (c: CopiedItem) => void
   onTemplate: (t: Template) => void
@@ -612,6 +615,8 @@ function InsertList(p: ListProps): VNode {
   const [chosen, setChosen] = useState(0)
   const [aiIds, setAiIds] = useState<string[] | null>(null)
   const [aiBusy, setAiBusy] = useState(false)
+  // "Find by meaning" without the consent yet: the one card (the same as the panel's), then the search.
+  const [askConsent, setAskConsent] = useState(false)
   const [, setTick] = useState(0)
   useEffect(() => void lastReply().then(setReply), [])
 
@@ -671,6 +676,7 @@ function InsertList(p: ListProps): VNode {
       templates: p.templates.map((x) => ({ id: x.id, title: x.title, keywords: x.keywords }))
     })
     setAiBusy(false)
+    if (reply && !reply.ok && reply.code === "CONSENT") return setAskConsent(true)
     setAiIds(reply && reply.ok ? reply.ids : [])
   }
 
@@ -745,10 +751,16 @@ function InsertList(p: ListProps): VNode {
         {templates.length === 0 && (
           <div class="cf-qi-empty">
             {p.templates.length === 0 ? t("qiTemplatesEmpty") : aiIds ? t("qiNothing") : q ? t("qiNothing") : ""}
-            {q && !aiIds && p.templates.length > 0 && (
+            {q && !aiIds && p.templates.length > 0 && !askConsent && (
               <div style={{ marginTop: "6px" }}>
                 <button type="button" class="cf-secondary" disabled={aiBusy} onClick={() => void askAi()}><Icon.Sparkle size={13} /> {aiBusy ? t("qiFinding") : t("qiFindAi")}</button>
               </div>
+            )}
+            {askConsent && (
+              <ConsentCard again={p.consent === "old"} onAccept={() => {
+                setAskConsent(false)
+                void p.onConsent().then(askAi)
+              }} onDecline={() => setAskConsent(false)} />
             )}
           </div>
         )}

@@ -5,8 +5,17 @@
 // Fields in open shadow roots (LinkedIn, Reddit, Salesforce): a focus event reaches the document with the
 // root's host as its target, so the field is the element inside that has the focus; and when the focus moves
 // inside one root, the document hears nothing at all, so each root met on the way is listened to as well.
+//
+// Sites that switch sections without loading a page (the owner on 2.5 (78), LinkedIn: feed → Start post → back to
+// the messages, and the button was gone until a refresh) draw new hosts and roots, and drop the old ones with the
+// focus in them (WebKit sends no blur then). So the roots are found as their hosts come (and the iframes in them,
+// which no press or focus of the page's reaches), and again on every press and focus (the event's path names each
+// open root it crosses, whether met before or not), a root whose host left the page is let go,
+// the field followed is let go when it leaves the page, and a field that has the focus though no focus was heard
+// for it (it got it before its root was known) is taken up at the next caret move.
 
-import { activeIn, editableAt, focusedTarget, fromOwnUi, hasFocus, readField, updateCaret, isControl, type Field } from "./field"
+import { listenAround } from "../around"
+import { activeIn, editableAt, focusedTarget, fromOwnUi, hasFocus, isOwnHost, readField, updateCaret, isControl, type Field } from "./field"
 import { shadowRootsOf } from "./shadow"
 
 export interface WatchHandlers {
@@ -23,11 +32,44 @@ export interface WatchHandlers {
 /** Starts watching; returns the function that stops it. */
 export function watchFields(h: WatchHandlers): () => void {
   const stops: Array<() => void> = []
-  const watched = new WeakSet<Document | ShadowRoot>()
+  const docs = new WeakSet<Document>()
+  // The open roots listened to, each with what stops listening to it.
+  const roots = new Map<ShadowRoot, () => void>()
   // A focus event heard both by the document and by a root on its way counts once.
   const heard = new WeakSet<Event>()
   let field: Field | null = null
+  // Whether the handlers were told of `field` (focus) and not since that it went (blur).
+  let told = false
   let blurTimer: ReturnType<typeof setTimeout> | undefined
+  let pruneTimer: ReturnType<typeof setTimeout> | undefined
+
+  const tell = (f: Field) => {
+    clearTimeout(blurTimer)
+    // Its roots are listened to (the focus moving on inside them, and the field leaving them).
+    for (const root of shadowRootsOf(f.el)) trackRoot(root)
+    field = f
+    told = true
+    h.focus(f)
+  }
+  const untell = () => {
+    told = false
+    h.blur()
+  }
+
+  /** The field followed left the page with the focus in it (WebKit sends no blur then): no field now. */
+  const dropGone = () => {
+    if (!field || field.el.isConnected) return
+    field = null
+    clearTimeout(blurTimer)
+    if (told) untell()
+  }
+
+  /** The focused field when its focus wasn't heard (it got it before its root was known): followed from now. */
+  const takeFocused = () => {
+    const el = editableAt(deepActive())
+    if (!el || (el === field?.el && told) || !hasFocus(el)) return
+    tell(readField(el))
+  }
 
   const onFocus = (e: Event) => {
     if (heard.has(e)) return
@@ -37,50 +79,62 @@ export function watchFields(h: WatchHandlers): () => void {
     for (const root of target ? shadowRootsOf(target) : []) trackRoot(root)
     const el = editableAt(target)
     if (!el) return
-    clearTimeout(blurTimer)
-    field = readField(el)
-    h.focus(field)
+    tell(readField(el))
   }
   const onBlur = (e: Event) => {
     if (heard.has(e)) return
     heard.add(e)
     clearTimeout(blurTimer)
     blurTimer = setTimeout(() => {
-      if (field && !fieldHasFocus(field)) h.blur()
+      if (field && !fieldHasFocus(field)) untell()
     }, 120)
   }
 
-  /** A shadow root: the focus moving inside it, and the iframes in it. */
+  /** The open roots an event went through (its path): each is listened to, met before or not. */
+  const trackPath = (path: EventTarget[]) => {
+    for (const node of path) {
+      const n = node as Partial<ShadowRoot>
+      if (n.nodeType === 11 && n.host) trackRoot(node as ShadowRoot)
+    }
+  }
+
+  /** A shadow root: the focus moving inside it, the iframes and the roots in it. Not our own panel's (open in test builds). */
   const trackRoot = (root: ShadowRoot) => {
-    if (watched.has(root)) return
-    watched.add(root)
+    if (roots.has(root) || isOwnHost(root.host)) return
     root.addEventListener("focusin", onFocus, true)
     root.addEventListener("focusout", onBlur, true)
-    root.querySelectorAll("iframe").forEach((f) => watchFrame(f as HTMLIFrameElement))
-    const added = new MutationObserver(framesAdded)
+    for (const el of Array.from(root.querySelectorAll("*"))) found(el)
+    const added = new MutationObserver(changed)
     added.observe(root, { childList: true, subtree: true })
-    stops.push(() => {
+    roots.set(root, () => {
       root.removeEventListener("focusin", onFocus, true)
       root.removeEventListener("focusout", onBlur, true)
       added.disconnect()
     })
   }
 
+  /** Roots whose host left the page are let go (a site drawing its section anew makes new ones). */
+  const prune = () => {
+    for (const [root, stop] of roots) {
+      if (root.host.isConnected) continue
+      stop()
+      roots.delete(root)
+    }
+  }
+
   const track = (doc: Document) => {
-    if (watched.has(doc)) return
-    watched.add(doc)
+    if (docs.has(doc)) return
+    docs.add(doc)
     const win = doc.defaultView
     const onMove = () => {
+      dropGone()
+      takeFocused()
       if (field && field.el.ownerDocument === doc) field = updateCaret(field)
     }
     const onInput = (e: Event) => {
       // Typing in another field than the one followed (its focus wasn't heard): that one from now on.
       const typed = fromOwnUi(e) ? null : editableAt(focusedTarget(e))
-      if (typed && typed !== field?.el) {
-        clearTimeout(blurTimer)
-        field = readField(typed)
-        h.focus(field)
-      }
+      if (typed && (typed !== field?.el || !told)) tell(readField(typed))
       if (!field || field.el.ownerDocument !== doc) return
       field = updateCaret(field)
       h.input(field, (e as InputEvent).isComposing === true)
@@ -93,6 +147,9 @@ export function watchFields(h: WatchHandlers): () => void {
     const onKey = (e: KeyboardEvent) => h.keydown(e)
     const onCopyCapture = (e: Event) => h.copy(e as ClipboardEvent, doc, "capture")
     const onCopyBubble = (e: Event) => h.copy(e as ClipboardEvent, doc, "bubble")
+    // A press or a focus names in its path every open root it crosses: listened to before the focus is handled.
+    stops.push(listenAround(doc, "pointerdown", (_, path) => trackPath(path), doc))
+    stops.push(listenAround(doc, "focusin", (_, path) => trackPath(path), doc))
     doc.addEventListener("focusin", onFocus, true)
     doc.addEventListener("focusout", onBlur, true)
     for (const type of ["keyup", "selectionchange", "mouseup", "touchend"]) doc.addEventListener(type, onMove, true)
@@ -126,34 +183,46 @@ export function watchFields(h: WatchHandlers): () => void {
     frame.addEventListener("load", attach)
   }
 
-  function framesAdded(records: MutationRecord[]): void {
+  /** An iframe is watched, an open root listened to (a section's new host: its frames too, which no press reaches). */
+  function found(el: Element): void {
+    if (el.tagName === "IFRAME") watchFrame(el as HTMLIFrameElement)
+    else if (el.shadowRoot) trackRoot(el.shadowRoot)
+  }
+
+  /** The page or a root changed: new iframes and roots are watched, the field and the roots that left are let go. */
+  function changed(records: MutationRecord[]): void {
     for (const r of records) {
       for (const n of Array.from(r.addedNodes)) {
         const el = n as Element
-        if (el.tagName === "IFRAME") watchFrame(el as HTMLIFrameElement)
-        else if (el.querySelectorAll) el.querySelectorAll("iframe").forEach((f) => watchFrame(f as HTMLIFrameElement))
+        if (!el.querySelectorAll) continue
+        found(el)
+        for (const inner of Array.from(el.querySelectorAll("*"))) found(inner)
       }
     }
+    if (!records.some((r) => r.removedNodes.length)) return
+    dropGone()
+    clearTimeout(pruneTimer)
+    pruneTimer = setTimeout(prune, 300)
   }
 
   track(document)
-  document.querySelectorAll("iframe").forEach((f) => watchFrame(f as HTMLIFrameElement))
-  const frames = new MutationObserver(framesAdded)
+  for (const el of Array.from(document.querySelectorAll("*"))) found(el)
+  const frames = new MutationObserver(changed)
   frames.observe(document.documentElement, { childList: true, subtree: true })
 
   // A field already focused when the panel started (the page autofocuses its editor).
   const active = deepActive()
   for (const root of active ? shadowRootsOf(active) : []) trackRoot(root)
   const el = editableAt(active)
-  if (el) {
-    field = readField(el)
-    h.focus(field)
-  }
+  if (el) tell(readField(el))
 
   return () => {
     frames.disconnect()
     clearTimeout(blurTimer)
+    clearTimeout(pruneTimer)
     for (const stop of stops) stop()
+    for (const stop of roots.values()) stop()
+    roots.clear()
   }
 }
 
