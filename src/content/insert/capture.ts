@@ -2,14 +2,17 @@
 // when it must never be kept: a password or card field, a form with one, Private Browsing (checked by
 // the caller), a site the user excluded.
 
-import { isControl, sensitiveField, sensitiveForm } from "./field"
+import { activeIn, fromOwnUi, isControl, sensitiveField, sensitiveForm } from "./field"
 
 /** Longest fragment kept; longer copies are cut (the list shows the start, the insert has it all). */
 export const MAX_COPIED = 20_000
 
-/** The element the copy came from: the focused field, or where the page selection starts. */
+/**
+ * The element the copy came from: the focused field (inside an open shadow root too: the document's
+ * activeElement is its host), or where the page selection starts.
+ */
 function copySource(doc: Document): Element | null {
-  const active = doc.activeElement
+  const active = activeIn(doc)
   if (active && isControl(active)) return active
   const node = doc.getSelection()?.anchorNode ?? null
   return node ? (node.nodeType === 1 ? (node as Element) : node.parentElement) : active
@@ -20,6 +23,7 @@ function copySource(doc: Document): Element | null {
  * a page that sets its own text (a "copy code" button, Google Docs) is taken at its word.
  */
 export function copiedText(e: ClipboardEvent, doc: Document = document): string | null {
+  if (fromOwnUi(e)) return null
   const source = copySource(doc)
   if (source && (sensitiveField(source) || sensitiveForm(source))) return null
   if (source?.closest("contextflow-root")) return null

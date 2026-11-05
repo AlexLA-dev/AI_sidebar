@@ -13,7 +13,7 @@ import { listenAround } from "../around"
 import * as Icon from "../icons"
 import { HOST_TAG, privateBrowsing } from "../page"
 import { copiedText } from "./capture"
-import { copyToClipboard, insertText, isControl, restoreCaret, textBeforeCaret, updateCaret, type Field } from "./field"
+import { activeIn, copyToClipboard, insertText, isControl, restoreCaret, textBeforeCaret, updateCaret, type Field } from "./field"
 import { FillForm } from "./FillForm"
 import * as QIcon from "./icons"
 import { clearCopied, countUse, keepCopied, lastReply, loadCopied, loadInsertSettings, loadTemplates, loadUse, markTipSeen, onCopied, onInsertSettings, onTemplates, report, saveInsertSettings, sendBackground, syncTemplatesNow, tipSeen, type LastReply } from "./store"
@@ -262,7 +262,8 @@ export function QuickInsert(props: Props): VNode | null {
     if (f) fieldRef.current = updateCaret(f)
     if (at === "sheet" && f) {
       // The keyboard goes away and the list takes its room; the caret is kept for the insert.
-      const active = f.el.ownerDocument.activeElement as HTMLElement | null
+      // The focused element itself, not the host of the shadow root it's in (that blur does nothing).
+      const active = activeIn(f.el.ownerDocument) as HTMLElement | null
       active?.blur?.()
     }
     setMode({ kind: "list", at, via })
