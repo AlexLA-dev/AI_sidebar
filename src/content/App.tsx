@@ -50,7 +50,7 @@ import { ProUpsell } from "./ProUpsell"
 import { SettingsView } from "./Settings"
 import { shareLabels } from "./shareLabels"
 import { markHintSeen, resetHints, seenHints, type HintKey } from "./store"
-import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, loadThreads, markTourSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, rememberPageText, renameThread, renewalAskedPeriod, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount } from "./store"
+import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, onConsentChanged, loadThreads, markTourSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, rememberPageText, renameThread, renewalAskedPeriod, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount } from "./store"
 import { TagChip, TagEditor } from "./Tags"
 import { ThreadsView } from "./Threads"
 import { starMarks } from "../shared/marks"
@@ -60,11 +60,13 @@ import { bubbleActions, laterSections, laterSources, listsKind, pageRange, pageW
 import { reminderOf, reminderRows, withReminderAt } from "./ux/reminderList"
 import { watchableAt } from "./watch/at"
 import { RemindersSheet } from "./ux/RemindersSheet"
+import { TipsSheet } from "./tips/TipsSheet"
 import { SelIconsTip } from "./ux/SelTip"
 import { shadowSelection, trackPointer } from "./selectionShadow"
 import { restoredDraft, withoutStopped } from "./ux/stopped"
 import { scheduleReminder, thisDevice, useMessageUx } from "./ux/useMessageUx"
 import { Tour, tourSteps } from "./Tour"
+import { ConsentCard } from "./Consent"
 import { QI_EVENTS, QuickInsert } from "./insert/QuickInsert"
 import * as QIcon from "./insert/icons"
 import { keepCopied, report as reportInsert } from "./insert/store"
@@ -174,21 +176,6 @@ function clockTime(iso: string | undefined): string {
 /** The App Store's sheet for an offer code, with the code filled in (on a Mac it needs macOS 15). */
 function offerUrl(code: string): string {
   return `https://apps.apple.com/redeem?ctx=offercodes&id=${APP_ID}&code=${encodeURIComponent(code)}`
-}
-
-/** Before the first answer, and again when the text changed (`again`): where questions go. */
-function ConsentCard({ again, onAccept, onDecline }: { again: boolean; onAccept: () => void; onDecline: () => void }): VNode {
-  return (
-    <div class="cf-card consent">
-      <strong>{t(again ? "consentAgainTitle" : "consentTitle")}</strong>
-      <p>{t("consentBody")}</p>
-      <div class="cf-card-actions">
-        <button type="button" class="cf-primary" onClick={onAccept}>{t("consentAccept")}</button>
-        <button type="button" class="cf-link" onClick={onDecline}>{t("consentDecline")}</button>
-        <button type="button" class="cf-link" onClick={() => void sendBackground({ type: "openUrl", url: LINKS.privacy })}>{t("privacyPolicy")}</button>
-      </div>
-    </div>
-  )
 }
 
 function errorText(error: ChatError): string {
@@ -358,6 +345,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }, [])
   // The header's "…" (where Settings was): "Remind me about this page…", the two lists and Settings (2.5).
   const [pageMenu, setPageMenu] = useState(false)
+  // "…" → Tips: the app's Tips in a sheet (2.5 (78)).
+  const [tipsOpen, setTipsOpen] = useState(false)
   const [remindSaved, setRemindSaved] = useState<number | null>(null)
 
   // The source learnt something new (the PDF popup: the document's title once it's read).
@@ -376,7 +365,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     void loadSettings().then(setSettings)
     void loadConsent().then(setConsent)
     void hasSeenTour().then(setTourSeen)
-    return onSettingsChanged(setSettings)
+    // Given in another tab: this one knows at once (2.5 (78): its template editor asked again).
+    const stopConsent = onConsentChanged(setConsent)
+    const stopSettings = onSettingsChanged(setSettings)
+    return () => {
+      stopConsent()
+      stopSettings()
+    }
   }, [])
 
   const updateSettings = useCallback((patch: Partial<Settings>) => {
@@ -1392,7 +1387,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   useEffect(() => setPicked(null), [threadRef.current, messages.length, view])
 
   // ------------------------------------------------------------ upgrade
-  const openApp = useCallback(async (target: "subscribe" | "manage", feature?: "ai" | "organize") => {
+  const openApp = useCallback(async (target: "subscribe" | "manage" | "tips", feature?: "ai" | "organize") => {
     const result = await sendBackground<{ opened: boolean; url: string }>({ type: "openApp", target, feature })
     if (result && !result.opened && result.url) followLink(result.url)
   }, [])
@@ -2145,6 +2140,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "watching" })
                       openReminders("menu", "watch")
                     }}
+                    onTips={() => {
+                      setPageMenu(false)
+                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "tips" })
+                      setTipsOpen(true)
+                    }}
                     onSettings={() => {
                       setPageMenu(false)
                       void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "settings" })
@@ -2570,6 +2570,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           {view === "chat" && later && laterSheet(false)}
           {view === "chat" && listOpen && (
             <RemindersSheet kind={listOpen} items={laterList} onOpen={openLaterItem} onCancel={(item) => void cancelLaterItem(item)} onReschedule={rescheduleLaterItem} onClose={() => setListOpen(null)} />
+          )}
+          {view === "chat" && tipsOpen && (
+            <TipsSheet mac={!touch} onOpenApp={TARGET === "safari" ? () => void openApp("tips") : undefined} onClose={() => setTipsOpen(false)} />
           )}
         </section>
       )}

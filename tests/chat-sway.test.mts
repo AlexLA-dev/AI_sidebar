@@ -3,18 +3,21 @@
 // background took its own write, read back that way, for a change made elsewhere and synced again, and again, every
 // second or so; each round stored the chats in the other order, and two chats with the same time traded places in
 // the list, whose order then came from the keys. Now the list orders chats with the same time by id, and the
-// background knows its own write in whatever order Safari returns it.
+// background knows its own write in whatever order Safari returns it: the chats', the templates', and the settings it
+// takes from the app.
 import assert from "node:assert/strict"
 import { mkdtempSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
-import { after, before, test } from "node:test"
+import { before, test } from "node:test"
 import { pathToFileURL } from "node:url"
 
 import { build } from "esbuild"
 
 import { makeTemplate } from "../src/shared/templates.ts"
 import { chatList, liveThreads, type Thread, type Threads } from "../src/shared/threads.ts"
+import { DEFAULT_SETTINGS } from "../src/shared/types.ts"
+import { fakeClock, fakeTimers } from "./fake-clock.mts"
 
 const T = 1_800_000_000_000
 const H = 3_600_000
@@ -58,11 +61,13 @@ const store = new Map<string, string>()
 const listeners: Array<(changes: Record<string, { newValue?: unknown; oldValue?: unknown }>, area: string) => void> = []
 const calls: string[] = []
 let templatesReply: unknown[] = []
-// After the tests the app stops answering: a background still syncing over and over (the old code) stops too.
-let closed = false
-after(() => {
-  closed = true
-})
+// The app's copy of the settings (getSettings).
+let appSettings: { settings: Record<string, unknown>; updatedAt: number } = { settings: {}, updatedAt: 0 }
+// The background's timers (a sync shortly after a change, the app's copy, quick insert's first sync) on a fake clock:
+// `settle` moves it on, so a busy machine can't change what a test sees, and the old code's endless syncing ends with
+// the test.
+const clock = fakeClock()
+;(globalThis as any).__syncClock = clock
 
 before(async () => {
   const read = (key: string) => (store.has(key) ? reordered(JSON.parse(store.get(key)!)) : undefined)
@@ -94,23 +99,20 @@ before(async () => {
     runtime: {
       async sendNativeMessage(_: string, message: { command: string }) {
         calls.push(message.command)
-        await new Promise((r) => setTimeout(r, 2))
-        if (closed) return { success: false }
         if (message.command === "syncThreads") return { success: true, data: { available: true, token: "t", changed: [], deleted: [] } }
         if (message.command === "syncTemplates") return { success: true, data: { templates: templatesReply } }
+        if (message.command === "getSettings") return { success: true, data: appSettings }
         return { success: true, data: {} }
       }
     }
   }
-  // The background's own timers, a hundred times faster.
-  ;(globalThis as any).__fastTimeout = (fn: () => void, ms = 0) => setTimeout(fn, Math.ceil(ms / 100))
   const dir = mkdtempSync(join(tmpdir(), "cf-chat-sway-"))
   const out = join(dir, "sync.mjs")
   await build({
-    stdin: { contents: `export { watchThreads } from "./src/background/sync"; export { startInsert } from "./src/background/insert"`, resolveDir: new URL("..", import.meta.url).pathname, loader: "ts" },
+    stdin: { contents: `export { syncSettings, watchSettings, watchThreads } from "./src/background/sync"; export { startInsert } from "./src/background/insert"`, resolveDir: new URL("..", import.meta.url).pathname, loader: "ts" },
     bundle: true, format: "esm", platform: "neutral", outfile: out, logLevel: "silent", mainFields: ["module", "main"],
     define: {
-      setTimeout: "globalThis.__fastTimeout",
+      ...fakeTimers("__syncClock"),
       __API_BASE__: JSON.stringify("http://localhost"),
       __TARGET__: JSON.stringify("safari"),
       __VERSION__: JSON.stringify("2.5.0"),
@@ -121,7 +123,8 @@ before(async () => {
   S = await import(pathToFileURL(out).href)
 })
 
-const settle = () => new Promise((r) => setTimeout(r, 400))
+/** The background's time moves on 3 s (the fake clock): past its sync and copy timers, and quick insert's first sync. */
+const settle = () => clock.advance(3_000)
 const count = (command: string) => calls.filter((c) => c === command).length
 
 test("the background syncs once after a change, not on its own write read back in Safari's key order", async () => {
@@ -150,4 +153,16 @@ test("the same for quick insert's templates (the app answers every sync with its
   calls.length = 0
   await settle()
   assert.equal(count("syncTemplates"), 0, "and then nothing more")
+})
+
+test("settings changed in the app are taken once, not sent straight back to it", async () => {
+  // This device's copy, and a newer one from the ContextFlow app (the button moved to the left).
+  await (globalThis as any).chrome.storage.local.set({ "cf:settings": DEFAULT_SETTINGS, "cf:settingsUpdatedAt": T })
+  appSettings = { settings: { ...DEFAULT_SETTINGS, fabSide: "left" }, updatedAt: T + 10 }
+  S.watchSettings()
+  calls.length = 0
+  await S.syncSettings()
+  await settle()
+  assert.equal(count("getSettings"), 1, "taken from the app")
+  assert.equal(count("setSettings"), 0, "and not sent back to it as a change made here")
 })

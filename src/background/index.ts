@@ -317,12 +317,13 @@ async function findChats(query: string, chats: unknown[]): Promise<FindReply> {
 
 // --------------------------------------------------------------- open app
 
-async function openApp(target: "subscribe" | "manage" | "home", feature?: "ai" | "organize"): Promise<{ opened: boolean; url: string }> {
+async function openApp(target: "subscribe" | "manage" | "home" | "tips", feature?: "ai" | "organize"): Promise<{ opened: boolean; url: string }> {
   if (TARGET !== "safari") {
     await chrome.tabs.create({ url: LINKS.appStore })
     return { opened: true, url: LINKS.appStore }
   }
-  const url = target === "subscribe" ? `contextflow://subscribe?plan=pro${feature ? `&feature=${feature}` : ""}` : target === "manage" ? "contextflow://manage" : "contextflow://open"
+  // tips: the app's Tips, with their clips (the panel's Tips sheet, 2.5 (78)).
+  const url = target === "subscribe" ? `contextflow://subscribe?plan=pro${feature ? `&feature=${feature}` : ""}` : target === "manage" ? "contextflow://manage" : target === "tips" ? "contextflow://tips" : "contextflow://open"
   // macOS can launch the app from the extension; on iOS the page has to follow the link.
   const result = await callNative<{ opened?: boolean }>("openApp", { url })
   entitlementCache = null
@@ -417,8 +418,9 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
       findChats(message.query, message.chats).then(sendResponse, () => sendResponse({ ok: false, code: "NETWORK" }))
       return true
     case "organize":
-      Promise.all([status(), installId(), entitlement(), clientInfo(), settings()])
-        .then(([now, id, ent, client, prefs]) => organizeChat(message.chat, { status: now, installId: id, jws: ent?.active ? ent.jws : null, client, on: prefs.organize }))
+      // Suggestions send text to the AI: only with the one consent too (it lists them), not the switch alone.
+      Promise.all([status(), installId(), entitlement(), clientInfo(), settings(), consented()])
+        .then(([now, id, ent, client, prefs, agreed]) => organizeChat(message.chat, { status: now, installId: id, jws: ent?.active ? ent.jws : null, client, on: prefs.organize && agreed }))
         .then(sendResponse, () => sendResponse({ ok: false, code: "NETWORK" }))
       return true
     case "organizeEvent":

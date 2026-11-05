@@ -393,38 +393,59 @@ struct HomeView: View {
 // MARK: - Tips
 
 /// What ContextFlow can do, to look up any time — in the spirit of the Tips app.
+///
+/// The extension's Tips sheet shows the same blocks and texts, read from here and from Localizable.xcstrings when
+/// the extension is built (scripts/tips-source.mjs): keep `TipGroup` in this shape — `Tip(…)` with string literals,
+/// `#if os(iOS)` for what differs on a Mac.
 struct TipsView: View {
     /// The Pro tab (organizing tips, without Pro).
     var openPro: () -> Void = {}
     @ObservedObject private var store = StoreKitManager.shared
     @ObservedObject private var organize = OrganizeModel.shared
+    // The blocks open, by id (2.5 (78), the owner's note: the big blocks fold). "Get started" until one is opened or
+    // closed, then as left.
+    @AppStorage("tipsOpenBlocks") private var openBlocks = TipGroup.all[0].id
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .leading, spacing: 16) {
                 Text("Quick answers to “how do I…?”")
                     .font(.callout)
                     .foregroundColor(.secondary)
-                ForEach(TipGroup.all.indices, id: \.self) { index in
-                    let group = TipGroup.all[index]
+                // The whole app's, before the blocks (the owner's note).
+                TipCard(tip: TipGroup.lead)
+                ForEach(TipGroup.all, id: \.id) { group in
+                    let open = isOpen(group)
                     VStack(alignment: .leading, spacing: 12) {
-                        Text(group.title)
-                            .font(.title3.weight(.semibold))
-                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 260), spacing: 12, alignment: .top)], alignment: .leading, spacing: 12) {
-                            ForEach(group.tips.indices, id: \.self) { i in
-                                TipCard(tip: group.tips[i], action: organizeAction(group.tips[i]))
+                        TipBlockHeader(title: group.title, count: group.tips.count, open: open) { toggle(group) }
+                        if open {
+                            LazyVGrid(columns: [GridItem(.adaptive(minimum: 260), spacing: 12, alignment: .top)], alignment: .leading, spacing: 12) {
+                                ForEach(group.tips.indices, id: \.self) { i in
+                                    TipCard(tip: group.tips[i], action: organizeAction(group.tips[i]))
+                                }
                             }
+                            .padding(.bottom, 8)
                         }
                     }
                 }
                 FooterLinks()
-                    .padding(.top, 4)
+                    .padding(.top, 8)
             }
             .padding(20)
             .frame(maxWidth: 760)
             .frame(maxWidth: .infinity)
         }
         .navigationTitle("Tips")
+    }
+
+    private func isOpen(_ group: TipGroup) -> Bool {
+        openBlocks.split(separator: ",").contains(Substring(group.id))
+    }
+
+    private func toggle(_ group: TipGroup) {
+        var ids = openBlocks.split(separator: ",").map(String.init)
+        if let i = ids.firstIndex(of: group.id) { ids.remove(at: i) } else { ids.append(group.id) }
+        withAnimation(.easeInOut(duration: 0.2)) { openBlocks = ids.joined(separator: ",") }
     }
 
     /// Under the organizing tips: Turn on (Pro, suggestions off; that's the consent) or Try Pro (without Pro).
@@ -455,8 +476,14 @@ struct Tip {
 }
 
 struct TipGroup {
+    // Stable, whatever the title says: which blocks are open is kept by it (and the site's sections use the same).
+    let id: String
     let title: LocalizedStringKey
     let tips: [Tip]
+
+    // Chats on every device: the whole app's, so it stands before the blocks (2.5 (78), the owner's note).
+    static let lead = Tip(symbol: "icloud", color: .cyan, title: "On all your devices",
+                          text: "With “Sync chats with iCloud” on, a chat started on your iPhone continues on your iPad and Mac. It's end-to-end encrypted in your iCloud.")
 
     private static var openTip: Tip {
         #if os(iOS)
@@ -517,7 +544,7 @@ struct TipGroup {
 
     // Blocks by what the person wants to do, simple to advanced within each; Pro cards carry the badge.
     static let all: [TipGroup] = [
-        TipGroup(title: "Get started", tips: [
+        TipGroup(id: "get-started", title: "Get started", tips: [
             openTip,
             Tip(symbol: "list.bullet.rectangle", color: .orange, title: "One tap for the gist",
                 text: "Summarize, Key takeaways, Explain simply and Translate work on the whole page — no need to write a prompt.", clip: "gist"),
@@ -530,7 +557,7 @@ struct TipGroup {
             Tip(symbol: "magnifyingglass", color: .green, title: "Fresh facts from Google",
                 text: "Turn on Google next to the question field to answer with Google Search: news, prices and anything recent, with sources.", clip: "google")
         ]),
-        TipGroup(title: "Every day", tips: [
+        TipGroup(id: "every-day", title: "Every day", tips: [
             Tip(symbol: "pencil.line", color: .orange, title: "Notes of your own",
                 text: "Swipe the send button up or down (on a Mac, scroll on it) to write a note instead of asking. It stays in the chat with its page, syncs with it and uses no answers.", clip: "notes"),
             Tip(symbol: "highlighter", color: .yellow, title: "Highlight what matters",
@@ -545,17 +572,17 @@ struct TipGroup {
             Tip(symbol: "doc.richtext", color: .orange, title: "PDFs on the page",
                 text: "With Pro, PDFs shown on a page or linked from it go with your question, and answers say which page they're on. On iPad and Mac, ContextFlow in the toolbar opens on a PDF tab too. Free answers use the page's text.", clip: "pdf", pro: true)
         ]),
-        TipGroup(title: "Quick insert", tips: [
+        TipGroup(id: "quick-insert", title: "Quick insert", tips: [
             insertTip,
             copiedTip,
             Tip(symbol: "curlybraces", color: .orange, title: "Templates that fill themselves",
                 text: "Select a reply you send often and tap Template: ContextFlow marks the name, the date and whatever else changes. When you insert it, Fill from the page puts them in, highlighted so you can check.", clip: "fill")
         ]),
-        TipGroup(title: "Watch and remind", tips: [
+        TipGroup(id: "watch-and-remind", title: "Watch and remind", tips: [
             remindTip,
             watchTip
         ]),
-        TipGroup(title: "Chats in order", tips: [
+        TipGroup(id: "chats-in-order", title: "Chats in order", tips: [
             Tip(symbol: "square.and.pencil", color: .indigo, title: "Start fresh or go back",
                 text: "Start a new chat with +. Earlier chats wait in the chat list: open one to pick up where you left off, rename it with the pencil, or delete it.", clip: "chats"),
             Tip(symbol: "magnifyingglass", color: .green, title: "Search your chats",
@@ -566,8 +593,6 @@ struct TipGroup {
                 text: "Share one answer or the whole chat: the text comes with its links, its sources and a link to ContextFlow."),
             Tip(symbol: "bubble.left.and.bubble.right", color: .teal, title: "Your chats in the app",
                 text: "The Chats tab has every chat from Safari. Ask about its pages or add a note right there, tag, copy or share any answer, or share the whole chat. “Continue in Safari” picks it up where you left off.", clip: "appchat"),
-            Tip(symbol: "icloud", color: .cyan, title: "On all your devices",
-                text: "With “Sync chats with iCloud” on, a chat started on your iPhone continues on your iPad and Mac. It's end-to-end encrypted in your iCloud."),
             Tip(symbol: "sparkles", color: brandBlue, title: "AI search",
                 text: "Tap ✦ next to the search and describe the chat you remember — “that article about sleep and coffee” — even without the exact words.", clip: "aisearch", pro: true),
             Tip(symbol: "text.bubble", color: .indigo, title: "Ask your chats",
@@ -577,7 +602,7 @@ struct TipGroup {
             Tip(symbol: "tag", color: .purple, title: "Your tags, suggested",
                 text: "ContextFlow learns what your tags mean from where you put them, and suggests the right one under a new answer or note. Only your own tags, only when they fit.", clip: "suggested-tags", organize: true, pro: true)
         ]),
-        TipGroup(title: "Settings & privacy", tips: [
+        TipGroup(id: "privacy-and-personalization", title: "Privacy & personalization", tips: [
             Tip(symbol: "person.text.rectangle", color: .mint, title: "Tell it about you",
                 text: "Add a line under About me — what you do, how you like answers — and ContextFlow will tailor them to you.", clip: "about"),
             Tip(symbol: "hand.tap", color: .blue, title: "The ✦ button, your way",
@@ -632,6 +657,41 @@ struct TipCard: View {
         .background(Color.cardFill)
         .cornerRadius(16)
         .accessibilityElement(children: action == nil ? .combine : .contain)
+    }
+}
+
+/// A block's title: a tap opens or folds it; folded, it says how many tips are inside.
+struct TipBlockHeader: View {
+    let title: LocalizedStringKey
+    let count: Int
+    let open: Bool
+    let toggle: () -> Void
+
+    var body: some View {
+        Button(action: toggle) {
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Text(title)
+                    .font(.title3.weight(.semibold))
+                    .foregroundColor(.primary)
+                if !open {
+                    Text(verbatim: String(count))
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundColor(.secondary)
+                }
+                Spacer(minLength: 8)
+                Image(systemName: "chevron.right")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundColor(.secondary)
+                    .rotationEffect(.degrees(open ? 90 : 0))
+            }
+            .padding(.vertical, 6)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text(title))
+        .accessibilityValue(Text(open ? "Expanded" : "Collapsed"))
+        .accessibilityAddTraits([.isHeader, .isButton])
     }
 }
 

@@ -16,6 +16,8 @@ import { cpSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } f
 import { dirname, join, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 
+import { tipsData, tipsMessages } from "./tips-source.mjs"
+
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..")
 const args = Object.fromEntries(process.argv.slice(2).map((a) => a.replace(/^--/, "").split("=")).map(([k, v]) => [k, v ?? true]))
 const target = args.target === "chrome" ? "chrome" : "safari"
@@ -26,6 +28,8 @@ const apiBase = process.env.CF_API_BASE || "https://aisidebar.netlify.app"
 // it closed (no page script can read the panel: Copied, the chats, the answers), and the two never meet.
 const openShadow = process.env.CF_OPEN_SHADOW === "1"
 if (openShadow && apiBase === "https://aisidebar.netlify.app") throw new Error("CF_OPEN_SHADOW=1 is for test builds (set CF_API_BASE to a local stand)")
+// The panel's Tips sheet: the app's Tips (ContentView.swift), its texts in every language from the app's catalog.
+const tips = tipsData(root)
 
 function manifest() {
   const icons = Object.fromEntries([16, 32, 48, 64, 96, 128, 256, 512].map((s) => [String(s), `icons/icon-${s}.png`]))
@@ -59,13 +63,14 @@ function manifest() {
   return m
 }
 
-// _locales/<lang>/messages.json from src/locales/<lang>.json. {0}, {1} stay as they are: t() fills them in
-// itself (Safari's own substitution loses the value next to some characters, e.g. “{0}”).
+// _locales/<lang>/messages.json from src/locales/<lang>.json, plus the Tips texts (tip_…) from the app's catalog.
+// {0}, {1} stay as they are: t() fills them in itself (Safari's own substitution loses the value next to some
+// characters, e.g. “{0}”).
 function locales() {
   const dir = join(root, "src/locales")
   for (const file of readdirSync(dir).filter((f) => f.endsWith(".json"))) {
     const lang = file.replace(/\.json$/, "")
-    const source = JSON.parse(readFileSync(join(dir, file), "utf8"))
+    const source = { ...JSON.parse(readFileSync(join(dir, file), "utf8")), ...tipsMessages(root, tips, lang) }
     const messages = {}
     for (const [key, text] of Object.entries(source)) {
       // "$" starts a placeholder in messages.json; written as "$$" it is a dollar sign.
@@ -107,6 +112,7 @@ const options = {
     __VERSION__: JSON.stringify(pkg.version),
     __TARGET__: JSON.stringify(target),
     __SHADOW_MODE__: JSON.stringify(openShadow ? "open" : "closed"),
+    __TIPS__: JSON.stringify(tips),
     // Page watch: how often a page is checked, in seconds (15 minutes; test builds: CF_WATCH_EVERY_S=60).
     __WATCH_EVERY_S__: String(Number(process.env.CF_WATCH_EVERY_S) || 900),
     "process.env.NODE_ENV": JSON.stringify("production")

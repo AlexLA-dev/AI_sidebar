@@ -13,7 +13,8 @@ interface SharedSettings {
   updatedAt: number
 }
 
-// Settings just written from the app's copy: don't send them straight back.
+// Settings just written from the app's copy, as sortedJson (Safari hands them back with their keys in its own order):
+// don't send them straight back.
 let lastApplied = ""
 
 async function localSettings(): Promise<{ settings: Settings | null; updatedAt: number }> {
@@ -31,7 +32,7 @@ export async function syncSettings(): Promise<void> {
   const local = await localSettings()
   if (remote.settings && remote.updatedAt > local.updatedAt) {
     const settings = { ...DEFAULT_SETTINGS, ...local.settings, ...remote.settings }
-    lastApplied = JSON.stringify(settings)
+    lastApplied = sortedJson(settings)
     await chrome.storage.local.set({ [STORAGE.settings]: settings, [STORAGE.settingsUpdatedAt]: remote.updatedAt })
   } else if (local.settings && local.updatedAt > remote.updatedAt) {
     await callNative("setSettings", { settings: local.settings, updatedAt: local.updatedAt })
@@ -43,7 +44,7 @@ export function watchSettings(): void {
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== "local" || !changes[STORAGE.settings]) return
     const settings = changes[STORAGE.settings].newValue as Settings | undefined
-    if (!settings || JSON.stringify(settings) === lastApplied) return
+    if (!settings || sortedJson(settings) === lastApplied) return
     const updatedAt = Number(changes[STORAGE.settingsUpdatedAt]?.newValue ?? Date.now())
     void callNative("setSettings", { settings, updatedAt })
   })

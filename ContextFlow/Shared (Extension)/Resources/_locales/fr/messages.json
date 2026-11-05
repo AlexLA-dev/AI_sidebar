@@ -411,16 +411,37 @@
   "message": "{0} min"
  },
  "consentTitle": {
-  "message": "Avant votre première réponse"
+  "message": "Avant que ContextFlow utilise l’IA"
  },
  "consentBody": {
-  "message": "Pour répondre, ContextFlow envoie votre question et le texte de cette page (ou de votre sélection ; pour la recherche IA et « Interroger vos discussions », des extraits de vos discussions) via notre serveur à Anthropic (Claude) ou, s'il est indisponible, à OpenAI, ou à Google pour les réponses Google. Le contenu des pages et les discussions ne sont pas conservés sur nos serveurs ; vos discussions restent sur vos appareils et, si vous les synchronisez, dans votre iCloud."
+  "message": "Donné une fois, cet accord vaut pour toutes les fonctions d’IA. Chacune n’envoie que ce dont elle a besoin, quand vous l’utilisez, via notre serveur à Anthropic (Claude). Rien n’est conservé sur nos serveurs ni utilisé pour l’entraînement."
+ },
+ "consentAnswers": {
+  "message": "Réponses : votre question, le texte de la page ou votre sélection, et votre « À propos de moi » si vous l’avez rempli. Si Claude est indisponible, OpenAI répond ; les réponses Google vont à Google."
+ },
+ "consentChats": {
+  "message": "« Interroger vos discussions » et la recherche IA (Pro) : de courts extraits de vos discussions."
+ },
+ "consentTemplates": {
+  "message": "Modèles : leur texte, pour repérer les champs ; le texte de la page pour « Remplir depuis la page » ; vos mots et les titres des modèles pour « Chercher par le sens »."
+ },
+ "consentWatch": {
+  "message": "Surveiller une page : ce que vous avez sélectionné, vos mots pour dire quand prévenir, le texte autour et le titre de la page ; ensuite, l’ancienne et la nouvelle valeur."
+ },
+ "consentSuggest": {
+  "message": "Suggestions (Pro, seulement une fois activées) : le texte des nouvelles questions, réponses et notes, à OpenAI pour les comparer et à Claude pour vérifier un tag."
+ },
+ "consentStored": {
+  "message": "Vos discussions restent sur vos appareils et, si vous les synchronisez, dans votre iCloud."
+ },
+ "consentWhat": {
+  "message": "Ce qui est envoyé exactement"
  },
  "consentAccept": {
   "message": "Accepter et continuer"
  },
  "consentAgainTitle": {
-  "message": "Nouveau : les réponses viennent désormais de Claude"
+  "message": "Nouveau : un seul accord pour toutes les fonctions d’IA"
  },
  "consentDecline": {
   "message": "Pas maintenant"
@@ -1055,9 +1076,6 @@
  "qiFillByHand": {
   "message": "Remplir à la main"
  },
- "qiFillConsent": {
-  "message": "Pour remplir les champs, ContextFlow envoie le texte de cette page et le modèle à Claude d’Anthropic. Rien n’est conservé."
- },
  "qiPickCopied": {
   "message": "Copié pour « {0} »"
  },
@@ -1102,9 +1120,6 @@
  },
  "qiMarkFailed": {
   "message": "Impossible de repérer les champs pour l’instant. Le modèle est enregistré en texte simple, vous pouvez ajouter des champs à la main."
- },
- "qiMarkConsent": {
-  "message": "Pour repérer les champs, ContextFlow envoie ce texte à Claude d’Anthropic. Rien n’est conservé."
  },
  "qiBlankHint": {
   "message": "Les champs sont remplis quand le modèle est inséré."
@@ -1293,7 +1308,7 @@
   "message": "Classer vos discussions par sujet ?"
  },
  "orgConsentText": {
-  "message": "Je suggérerai une discussion adaptée et l’un de vos tags sous les nouvelles réponses et notes. Pour cela, le texte de vos messages est envoyé à notre serveur, à OpenAI et à Anthropic. Nous ne le conservons pas. OpenAI et Anthropic ne l’utilisent pas pour l’entraînement."
+  "message": "Je suggérerai une discussion adaptée et l’un de vos tags sous les nouvelles réponses et notes. Vous pouvez désactiver cela dans les Réglages."
  },
  "orgTurnOn": {
   "message": "Activer"
@@ -1450,5 +1465,236 @@
  },
  "watchChangedBody": {
   "message": "Maintenant : {0}"
+ },
+ "tipsVideos": {
+  "message": "Avec des vidéos : dans l’app ContextFlow → {0}"
+ },
+ "tip_4cf1b54b00": {
+  "message": "Astuces"
+ },
+ "tip_245f060c21": {
+  "message": "Des réponses rapides à « comment faire… ? »"
+ },
+ "tip_89895fd68f": {
+  "message": "Sur tous vos appareils"
+ },
+ "tip_9efc5dc7c2": {
+  "message": "Avec « Synchroniser les discussions avec iCloud », une discussion commencée sur l’iPhone se poursuit sur l’iPad et le Mac. Elle est chiffrée de bout en bout dans votre iCloud."
+ },
+ "tip_90e40d5043": {
+  "message": "Pour commencer"
+ },
+ "tip_ad4199fa48": {
+  "message": "Ouvrez-le sur n’importe quelle page"
+ },
+ "tip_79a4dbe893": {
+  "message": "Touchez ✦ sur la page, ou ouvrez le menu de la page dans la barre d’adresse et choisissez ContextFlow."
+ },
+ "tip_4acd9995ac": {
+  "message": "Cliquez sur ✦ dans la page ou sur l’icône ContextFlow dans la barre d’outils, ou appuyez sur Control-Shift-E."
+ },
+ "tip_2749afe54a": {
+  "message": "L’essentiel en un geste"
+ },
+ "tip_487a14e710": {
+  "message": "« Résumer », « Points clés », « En termes simples » et « Traduire » portent sur toute la page — inutile d’écrire une consigne."
+ },
+ "tip_d22c90dac1": {
+  "message": "Questionner un passage"
+ },
+ "tip_328a1070b8": {
+  "message": "Sélectionnez du texte sur la page et choisissez « Demander à l’IA » : la réponse ne porte que sur ce passage. Vous pouvez aussi le faire expliquer, traduire ou réécrire."
+ },
+ "tip_ca7dfa36cb": {
+  "message": "Question ou note sur une sélection"
+ },
+ "tip_fa1cdf5479": {
+  "message": "Sélectionnez du texte sur une page : posez votre propre question juste sous la sélection, ou touchez « Note » pour l’enregistrer dans le chat avec sa page. Les notes ne consomment aucune réponse."
+ },
+ "tip_9000896590": {
+  "message": "La discussion vous suit"
+ },
+ "tip_c76058fe4b": {
+  "message": "Continuez à poser des questions en passant d’une page à l’autre. ContextFlow se souvient de la discussion et de la page concernée par chaque question. Touchez le nom d’une page dans la discussion pour y revenir."
+ },
+ "tip_e5dff10006": {
+  "message": "Des infos à jour avec Google"
+ },
+ "tip_d7c7b7b55d": {
+  "message": "Activez Google à côté du champ de question pour répondre avec la Recherche Google : actualités, prix et tout ce qui est récent, avec les sources."
+ },
+ "tip_3b2eb51310": {
+  "message": "Au quotidien"
+ },
+ "tip_6ba198cbff": {
+  "message": "Vos propres notes"
+ },
+ "tip_6a92f6c633": {
+  "message": "Faites glisser le bouton d’envoi vers le haut ou le bas (sur Mac, faites défiler dessus) pour écrire une note au lieu de poser une question. Elle reste dans la discussion avec sa page, se synchronise avec elle et ne consomme aucune réponse."
+ },
+ "tip_654fb12e51": {
+  "message": "Surlignez l’essentiel"
+ },
+ "tip_33115b31e1": {
+  "message": "Sélectionnez une ligne dans une réponse et touchez « Surligner » : elle reste marquée, comme au surligneur. Les réponses suivantes de cette discussion en tiennent compte, et « Copier » les garde en gras."
+ },
+ "tip_b4e4a2a85e": {
+  "message": "Épinglé en haut"
+ },
+ "tip_4d33a9d9e4": {
+  "message": "Épinglez une réponse ou une note : elle vous attend dans la barre en haut de la discussion. Touchez la barre pour y aller, encore une fois pour la suivante."
+ },
+ "tip_b7be002204": {
+  "message": "Balayez pour épingler ou supprimer"
+ },
+ "tip_104ac1e6e8": {
+  "message": "Balayez une réponse ou une note vers la droite pour l’épingler, vers la gauche pour la supprimer. Vous changez d’avis ? « Annuler » la remet en place."
+ },
+ "tip_c047d28229": {
+  "message": "Épingler ou supprimer d’un clic"
+ },
+ "tip_dcfe357b68": {
+  "message": "Pointez une réponse ou une note : « Épingler », « Me le rappeler » et « Supprimer » s’affichent à côté, et un clic droit ouvre le même menu. Vous changez d’avis ? « Annuler » la remet en place."
+ },
+ "tip_e012ef5f59": {
+  "message": "Toute la discussion en tête"
+ },
+ "tip_3a70cee32e": {
+  "message": "Activez « Tout le chat » sous le champ de question quand une réponse a besoin de tout : tous les messages, vos notes et les autres pages de cette discussion. Désactivé : les derniers messages et la page ouverte."
+ },
+ "tip_ca29a1f4ed": {
+  "message": "Interroger une vidéo"
+ },
+ "tip_d6be4709b7": {
+  "message": "Avec Pro, ContextFlow lit la transcription d’une vidéo de la page : demandez l’essentiel ou ce qui a été dit sur un sujet, et la réponse indique le moment, par exemple [4:15]. Les réponses gratuites utilisent le texte de la page."
+ },
+ "tip_5c5bca8a9e": {
+  "message": "PDF de la page"
+ },
+ "tip_ff32d2c483": {
+  "message": "Avec Pro, les PDF affichés ou liés sur une page accompagnent votre question, et les réponses indiquent la page. Sur iPad et Mac, ContextFlow dans la barre d’outils s’ouvre aussi sur un onglet PDF. Les réponses gratuites utilisent le texte de la page."
+ },
+ "tip_328ee8ddce": {
+  "message": "Insertion rapide"
+ },
+ "tip_ff7c853b85": {
+  "message": "Insérer dans n’importe quel champ"
+ },
+ "tip_038e87000b": {
+  "message": "Touchez un champ de texte sur une page, puis le bouton ContextFlow à côté : ce que vous avez copié dans d’autres onglets, vos modèles et la dernière réponse de ContextFlow sont à un toucher. Avec un clavier, tapez / et quelques mots d’un modèle, puis Tab."
+ },
+ "tip_a8e1d14e5b": {
+  "message": "Dans n’importe quel champ d’une page, tapez / et quelques mots d’un modèle, puis Tab. Contrôle-Maj-V ouvre la liste complète : ce que vous avez copié dans d’autres onglets, vos modèles et la dernière réponse de ContextFlow."
+ },
+ "tip_451fa9ccb6": {
+  "message": "Le texte copié, gardé une journée"
+ },
+ "tip_8ddcf05a7e": {
+  "message": "Les 5 derniers textes copiés sur des pages dans Safari restent 24 heures dans la liste, sur cet appareil uniquement. Rien des champs de mot de passe ou de carte, ni en navigation privée."
+ },
+ "tip_cf63db6cc6": {
+  "message": "Des modèles qui se remplissent seuls"
+ },
+ "tip_6dd86048c4": {
+  "message": "Sélectionnez une réponse que vous envoyez souvent et touchez « Modèle » : ContextFlow repère le nom, la date et tout ce qui change. À l’insertion, « Remplir depuis la page » les complète, surlignés pour que vous vérifiiez."
+ },
+ "tip_f09b3558e2": {
+  "message": "Surveiller et rappeler"
+ },
+ "tip_d0d8d1355c": {
+  "message": "Me rappeler cette page"
+ },
+ "tip_b5d4d7711a": {
+  "message": "Vous lisez quelque chose à finir plus tard ? Sélectionnez une ligne et touchez la cloche, ou touchez « … » en haut du panneau, puis « Me rappeler cette page… », et choisissez une heure : le rappel ouvre cette page. Les réponses et les notes ont « Me le rappeler » dans leur menu « … »."
+ },
+ "tip_74c328b672": {
+  "message": "Sachez quand un prix baisse"
+ },
+ "tip_45c2496345": {
+  "message": "Sélectionnez un prix, une disponibilité ou une date sur une page et touchez l’œil. Pour toute la page, choisissez « Surveiller cette page… » dans le menu « … » en haut du panneau. ContextFlow vérifie la page pendant que vous utilisez Safari et vous prévient quand cela change, ou quand le prix passe sous celui que vous indiquez. Jusqu’à 5 à la fois, 20 avec Pro."
+ },
+ "tip_0daede04f6": {
+  "message": "Des discussions bien rangées"
+ },
+ "tip_ec2cf96f53": {
+  "message": "Repartir de zéro ou revenir"
+ },
+ "tip_623811ea30": {
+  "message": "Commencez une nouvelle discussion avec +. Les précédentes vous attendent dans la liste : ouvrez-en une pour reprendre où vous en étiez, renommez-la avec le crayon ou supprimez-la."
+ },
+ "tip_c4b432e2e9": {
+  "message": "Cherchez dans vos discussions"
+ },
+ "tip_eff80bffda": {
+  "message": "Tapez dans la recherche au-dessus de la liste : toutes les discussions avec ces mots, et l’endroit où ils figurent. Un résultat ouvre la discussion à cet endroit."
+ },
+ "tip_2e4668f650": {
+  "message": "Tags et dossiers"
+ },
+ "tip_6b5bdf707f": {
+  "message": "Ajoutez un tag à une discussion, une réponse ou une note avec 🏷. Touchez un tag pour ne voir que ses discussions, ou activez Dossiers pour regrouper la liste par tag."
+ },
+ "tip_752fb307f2": {
+  "message": "Partagez ce que vous avez trouvé"
+ },
+ "tip_aa15b6c2c0": {
+  "message": "Partagez une réponse ou toute la discussion : le texte est accompagné de ses liens, de ses sources et d’un lien vers ContextFlow."
+ },
+ "tip_76f2924bba": {
+  "message": "Vos discussions dans l’app"
+ },
+ "tip_969cf52d0b": {
+  "message": "L’onglet Discussions contient toutes les discussions de Safari. Posez une question sur leurs pages ou ajoutez une note sur place ; étiquetez, copiez ou partagez une réponse, ou toute la discussion. « Continuer dans Safari » la reprend là où vous l’avez laissée."
+ },
+ "tip_4721064b09": {
+  "message": "Recherche IA"
+ },
+ "tip_52a09ac884": {
+  "message": "Touchez ✦ à côté de la recherche et décrivez la discussion dont vous vous souvenez — « l’article sur le sommeil et le café » — même sans les mots exacts."
+ },
+ "tip_068fa58797": {
+  "message": "Interroger vos discussions"
+ },
+ "tip_8a40be768f": {
+  "message": "La première ligne de la liste répond à partir de toutes vos discussions : « Qu’ai-je lu cette semaine ? », « Résume mes notes sur l’IA »."
+ },
+ "tip_4257aee15a": {
+  "message": "Chaque chose à sa place"
+ },
+ "tip_c61e2edab3": {
+  "message": "Une question sur une voiture dans la discussion sur un canapé ? Sous la réponse, ContextFlow suggère la discussion où elle a sa place, ou une nouvelle. Touchez, et elle y est déplacée, à sa date ; Annuler la remet en place."
+ },
+ "tip_3f9f46cd12": {
+  "message": "Vos tags, suggérés"
+ },
+ "tip_69a0bac728": {
+  "message": "ContextFlow apprend ce que signifient vos tags d’après les endroits où vous les mettez, et suggère le bon sous une nouvelle réponse ou note. Seulement vos propres tags, seulement quand ils conviennent."
+ },
+ "tip_3208aa35ac": {
+  "message": "Confidentialité et personnalisation"
+ },
+ "tip_1e1a2fad4e": {
+  "message": "Parlez-lui de vous"
+ },
+ "tip_e2d1d4abd0": {
+  "message": "Ajoutez une ligne dans « À propos de moi » — votre métier, le style de réponse que vous aimez — et ContextFlow s’adaptera à vous."
+ },
+ "tip_10400d6345": {
+  "message": "Le bouton ✦, à votre façon"
+ },
+ "tip_7487ba7345": {
+  "message": "Masquez le bouton sur un site précis ou désactivez-le partout dans les réglages de l’extension. ContextFlow s’ouvre toujours depuis le menu des extensions de Safari."
+ },
+ "tip_8a727e1bbe": {
+  "message": "Utilisez votre clé d’API"
+ },
+ "tip_d84a0778d4": {
+  "message": "Avec Pro ou la formule Clé personnelle, collez une clé OpenAI ou Claude dans les réglages de l’extension dans Safari. Les requêtes vont alors directement chez ce fournisseur."
+ },
+ "tip_3aaa9fd1f2": {
+  "message": "Confidentiel par nature"
+ },
+ "tip_241d3ad076": {
+  "message": "ContextFlow ne lit une page que lorsque vous posez une question, et n’envoie que son texte pour obtenir la réponse. Vos discussions restent sur vos appareils et dans votre iCloud. Si les suggestions sont activées, le texte des nouveaux messages est aussi envoyé à notre serveur pour trouver leur place ; nous ne le conservons pas."
  }
 }

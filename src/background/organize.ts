@@ -14,7 +14,7 @@ interface Context {
   installId: string
   jws: string | null
   client: Record<string, unknown>
-  // The user turned suggestions on (the consent to send messages' text for them).
+  // Suggestions are on, and the one AI consent (which lists them) is given.
   on: boolean
 }
 
