@@ -1462,5 +1462,236 @@
  },
  "watchChangedBody": {
   "message": "Now: {0}"
+ },
+ "tipsVideos": {
+  "message": "With videos: in the ContextFlow app → {0}"
+ },
+ "tip_4cf1b54b00": {
+  "message": "Tips"
+ },
+ "tip_245f060c21": {
+  "message": "Quick answers to “how do I…?”"
+ },
+ "tip_89895fd68f": {
+  "message": "On all your devices"
+ },
+ "tip_9efc5dc7c2": {
+  "message": "With “Sync chats with iCloud” on, a chat started on your iPhone continues on your iPad and Mac. It's end-to-end encrypted in your iCloud."
+ },
+ "tip_90e40d5043": {
+  "message": "Get started"
+ },
+ "tip_ad4199fa48": {
+  "message": "Open it on any page"
+ },
+ "tip_79a4dbe893": {
+  "message": "Tap ✦ on the page, or open the page menu in the address bar and choose ContextFlow."
+ },
+ "tip_4acd9995ac": {
+  "message": "Click ✦ on the page or the ContextFlow icon in the toolbar, or press Control-Shift-E."
+ },
+ "tip_2749afe54a": {
+  "message": "One tap for the gist"
+ },
+ "tip_487a14e710": {
+  "message": "Summarize, Key takeaways, Explain simply and Translate work on the whole page — no need to write a prompt."
+ },
+ "tip_d22c90dac1": {
+  "message": "Ask about a part"
+ },
+ "tip_328a1070b8": {
+  "message": "Select text on the page and choose Ask AI: the answer is about just that part. It can also explain, translate or rewrite it."
+ },
+ "tip_ca7dfa36cb": {
+  "message": "Ask or note a selection"
+ },
+ "tip_fa1cdf5479": {
+  "message": "Select text on a page: type your own question about it right under the selection, or tap Note to save it to the chat with its page. Notes use no answers."
+ },
+ "tip_9000896590": {
+  "message": "A chat follows you"
+ },
+ "tip_c76058fe4b": {
+  "message": "Keep asking as you move from page to page. ContextFlow remembers the conversation and which page each question was about. Tap a page's name in the chat to go back to it."
+ },
+ "tip_e5dff10006": {
+  "message": "Fresh facts from Google"
+ },
+ "tip_d7c7b7b55d": {
+  "message": "Turn on Google next to the question field to answer with Google Search: news, prices and anything recent, with sources."
+ },
+ "tip_3b2eb51310": {
+  "message": "Every day"
+ },
+ "tip_6ba198cbff": {
+  "message": "Notes of your own"
+ },
+ "tip_6a92f6c633": {
+  "message": "Swipe the send button up or down (on a Mac, scroll on it) to write a note instead of asking. It stays in the chat with its page, syncs with it and uses no answers."
+ },
+ "tip_654fb12e51": {
+  "message": "Highlight what matters"
+ },
+ "tip_33115b31e1": {
+  "message": "Select a line in an answer and tap Highlight: it stays marked, like with a pen. Later answers in that chat take your highlights into account, and Copy keeps them in bold."
+ },
+ "tip_b4e4a2a85e": {
+  "message": "Pinned at the top"
+ },
+ "tip_4d33a9d9e4": {
+  "message": "Pin an answer or a note and it waits in the bar at the top of the chat. Tap the bar to jump to it, tap again for the next one."
+ },
+ "tip_b7be002204": {
+  "message": "Swipe to pin or delete"
+ },
+ "tip_104ac1e6e8": {
+  "message": "Swipe an answer or a note to the right to pin it, to the left to delete it. Changed your mind? Undo brings it back."
+ },
+ "tip_c047d28229": {
+  "message": "Pin or delete with a click"
+ },
+ "tip_dcfe357b68": {
+  "message": "Point at an answer or a note: Pin, Remind me and Delete show beside it, and a right-click opens the same menu. Changed your mind? Undo brings it back."
+ },
+ "tip_e012ef5f59": {
+  "message": "The whole chat in mind"
+ },
+ "tip_3a70cee32e": {
+  "message": "Turn on Whole chat under the question field when an answer needs everything: all messages, your notes and the other pages of this chat. Off, answers use the last messages and the open page."
+ },
+ "tip_ca29a1f4ed": {
+  "message": "Ask about a video"
+ },
+ "tip_d6be4709b7": {
+  "message": "With Pro, ContextFlow reads the transcript of a video on the page: ask for the gist, or what was said about something, and the answer points to the moment, like [4:15]. Free answers use the page's text."
+ },
+ "tip_5c5bca8a9e": {
+  "message": "PDFs on the page"
+ },
+ "tip_ff32d2c483": {
+  "message": "With Pro, PDFs shown on a page or linked from it go with your question, and answers say which page they're on. On iPad and Mac, ContextFlow in the toolbar opens on a PDF tab too. Free answers use the page's text."
+ },
+ "tip_328ee8ddce": {
+  "message": "Quick insert"
+ },
+ "tip_ff7c853b85": {
+  "message": "Insert into any field"
+ },
+ "tip_038e87000b": {
+  "message": "Tap a text field on a page, then the ContextFlow button by it: what you copied in other tabs, your templates and ContextFlow's last answer are one tap away. With a keyboard, type / and a few words of a template, then Tab."
+ },
+ "tip_a8e1d14e5b": {
+  "message": "In any field on a page, type / and a few words of a template, then Tab. Control-Shift-V opens the whole list: what you copied in other tabs, your templates and ContextFlow's last answer."
+ },
+ "tip_451fa9ccb6": {
+  "message": "Copied, kept for a day"
+ },
+ "tip_8ddcf05a7e": {
+  "message": "The last 5 things you copied on pages in Safari wait in the list for 24 hours, on this device only. Nothing from password or card fields, or in Private Browsing."
+ },
+ "tip_cf63db6cc6": {
+  "message": "Templates that fill themselves"
+ },
+ "tip_6dd86048c4": {
+  "message": "Select a reply you send often and tap Template: ContextFlow marks the name, the date and whatever else changes. When you insert it, Fill from the page puts them in, highlighted so you can check."
+ },
+ "tip_f09b3558e2": {
+  "message": "Watch and remind"
+ },
+ "tip_d0d8d1355c": {
+  "message": "Remind me about this page"
+ },
+ "tip_b5d4d7711a": {
+  "message": "Reading something you want to finish later? Select a line and tap the bell, or tap … at the top of the panel, then Remind me about this page…, and pick a time: the reminder opens this page. Answers and notes have Remind me in their … menu."
+ },
+ "tip_74c328b672": {
+  "message": "Know when a price drops"
+ },
+ "tip_45c2496345": {
+  "message": "Select a price, a stock status or a date on a page and tap the eye. For the whole page, choose Watch this page… in the … menu at the top of the panel. ContextFlow checks the page while you use Safari and tells you when it changes, or drops below the price you name. Up to 5 at a time, 20 with Pro."
+ },
+ "tip_0daede04f6": {
+  "message": "Chats in order"
+ },
+ "tip_ec2cf96f53": {
+  "message": "Start fresh or go back"
+ },
+ "tip_623811ea30": {
+  "message": "Start a new chat with +. Earlier chats wait in the chat list: open one to pick up where you left off, rename it with the pencil, or delete it."
+ },
+ "tip_c4b432e2e9": {
+  "message": "Search your chats"
+ },
+ "tip_eff80bffda": {
+  "message": "Type in the search over the chat list: every chat with those words, with the place they're in. A result opens the chat right there."
+ },
+ "tip_2e4668f650": {
+  "message": "Tags and folders"
+ },
+ "tip_6b5bdf707f": {
+  "message": "Tag a chat, an answer or a note with 🏷. Tap a tag to see only its chats, or turn on Folders to group the list by tag."
+ },
+ "tip_752fb307f2": {
+  "message": "Share what you found"
+ },
+ "tip_aa15b6c2c0": {
+  "message": "Share one answer or the whole chat: the text comes with its links, its sources and a link to ContextFlow."
+ },
+ "tip_76f2924bba": {
+  "message": "Your chats in the app"
+ },
+ "tip_969cf52d0b": {
+  "message": "The Chats tab has every chat from Safari. Ask about its pages or add a note right there, tag, copy or share any answer, or share the whole chat. “Continue in Safari” picks it up where you left off."
+ },
+ "tip_4721064b09": {
+  "message": "AI search"
+ },
+ "tip_52a09ac884": {
+  "message": "Tap ✦ next to the search and describe the chat you remember — “that article about sleep and coffee” — even without the exact words."
+ },
+ "tip_068fa58797": {
+  "message": "Ask your chats"
+ },
+ "tip_8a40be768f": {
+  "message": "The first row of the chat list answers from all your chats at once: “What did I read this week?”, “Summarize my notes on AI”."
+ },
+ "tip_4257aee15a": {
+  "message": "Where it belongs"
+ },
+ "tip_c61e2edab3": {
+  "message": "Asked about a car in the chat about a sofa? Under the answer, ContextFlow suggests the chat it belongs in, or a new one. One tap moves it there, by date; Undo puts it back."
+ },
+ "tip_3f9f46cd12": {
+  "message": "Your tags, suggested"
+ },
+ "tip_69a0bac728": {
+  "message": "ContextFlow learns what your tags mean from where you put them, and suggests the right one under a new answer or note. Only your own tags, only when they fit."
+ },
+ "tip_3208aa35ac": {
+  "message": "Privacy & personalization"
+ },
+ "tip_1e1a2fad4e": {
+  "message": "Tell it about you"
+ },
+ "tip_e2d1d4abd0": {
+  "message": "Add a line under About me — what you do, how you like answers — and ContextFlow will tailor them to you."
+ },
+ "tip_10400d6345": {
+  "message": "The ✦ button, your way"
+ },
+ "tip_7487ba7345": {
+  "message": "Hide the button on a single site, or turn it off everywhere in the extension settings. ContextFlow still opens from Safari's extensions menu."
+ },
+ "tip_8a727e1bbe": {
+  "message": "Use your own API key"
+ },
+ "tip_d84a0778d4": {
+  "message": "With Pro or the Own key plan, paste an OpenAI or Claude key in the extension settings in Safari. Requests then go straight to that provider."
+ },
+ "tip_3aaa9fd1f2": {
+  "message": "Private by design"
+ },
+ "tip_241d3ad076": {
+  "message": "ContextFlow reads a page only when you ask, and sends just its text to get the answer. Your chats stay on your devices and in your iCloud. With suggestions on, the text of new messages also goes to our server to find where they belong; we don't keep it."
  }
 }

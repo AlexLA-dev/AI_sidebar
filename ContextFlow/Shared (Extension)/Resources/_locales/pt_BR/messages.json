@@ -1462,5 +1462,236 @@
  },
  "watchChangedBody": {
   "message": "Agora: {0}"
+ },
+ "tipsVideos": {
+  "message": "Com vídeos: no app ContextFlow → {0}"
+ },
+ "tip_4cf1b54b00": {
+  "message": "Dicas"
+ },
+ "tip_245f060c21": {
+  "message": "Respostas rápidas para “como faço…?”"
+ },
+ "tip_89895fd68f": {
+  "message": "Em todos os seus dispositivos"
+ },
+ "tip_9efc5dc7c2": {
+  "message": "Com “Sincronizar conversas com o iCloud” ativado, uma conversa iniciada no iPhone continua no iPad e no Mac. Ela fica criptografada de ponta a ponta no seu iCloud."
+ },
+ "tip_90e40d5043": {
+  "message": "Para começar"
+ },
+ "tip_ad4199fa48": {
+  "message": "Abra em qualquer página"
+ },
+ "tip_79a4dbe893": {
+  "message": "Toque em ✦ na página, ou abra o menu da página na barra de endereço e escolha ContextFlow."
+ },
+ "tip_4acd9995ac": {
+  "message": "Clique em ✦ na página ou no ícone do ContextFlow na barra de ferramentas, ou pressione Control-Shift-E."
+ },
+ "tip_2749afe54a": {
+  "message": "O essencial em um toque"
+ },
+ "tip_487a14e710": {
+  "message": "“Resumir”, “Pontos-chave”, “Explicação simples” e “Traduzir” funcionam na página inteira — sem precisar escrever um prompt."
+ },
+ "tip_d22c90dac1": {
+  "message": "Pergunte sobre um trecho"
+ },
+ "tip_328a1070b8": {
+  "message": "Selecione um texto na página e escolha “Perguntar à IA”: a resposta é só sobre esse trecho. Também dá para explicá-lo, traduzi-lo ou reescrevê-lo."
+ },
+ "tip_ca7dfa36cb": {
+  "message": "Pergunta ou nota sobre uma seleção"
+ },
+ "tip_fa1cdf5479": {
+  "message": "Selecione um texto na página: escreva sua própria pergunta logo abaixo da seleção ou toque em “Nota” para salvá-lo no chat com a página. Notas não gastam respostas."
+ },
+ "tip_9000896590": {
+  "message": "A conversa vai com você"
+ },
+ "tip_c76058fe4b": {
+  "message": "Continue perguntando enquanto passa de uma página para outra. O ContextFlow lembra a conversa e de qual página era cada pergunta. Toque no nome de uma página no chat para voltar a ela."
+ },
+ "tip_e5dff10006": {
+  "message": "Fatos atualizados do Google"
+ },
+ "tip_d7c7b7b55d": {
+  "message": "Ative o Google ao lado do campo de pergunta para responder com a Pesquisa Google: notícias, preços e tudo o que é recente, com fontes."
+ },
+ "tip_3b2eb51310": {
+  "message": "No dia a dia"
+ },
+ "tip_6ba198cbff": {
+  "message": "Suas próprias notas"
+ },
+ "tip_6a92f6c633": {
+  "message": "Deslize o botão de enviar para cima ou para baixo (no Mac, role sobre ele) para escrever uma nota em vez de perguntar. Ela fica no chat com a página, sincroniza com ele e não gasta respostas."
+ },
+ "tip_654fb12e51": {
+  "message": "Destaque o que importa"
+ },
+ "tip_33115b31e1": {
+  "message": "Selecione uma linha numa resposta e toque em “Destacar”: ela fica marcada, como com marca-texto. As próximas respostas nessa conversa levam seus destaques em conta, e “Copiar” os mantém em negrito."
+ },
+ "tip_b4e4a2a85e": {
+  "message": "Fixadas no topo"
+ },
+ "tip_4d33a9d9e4": {
+  "message": "Fixe uma resposta ou nota e ela fica na barra no topo da conversa. Toque na barra para ir até ela, toque de novo para a próxima."
+ },
+ "tip_b7be002204": {
+  "message": "Deslize para fixar ou apagar"
+ },
+ "tip_104ac1e6e8": {
+  "message": "Deslize uma resposta ou nota para a direita para fixar, para a esquerda para apagar. Mudou de ideia? “Desfazer” traz de volta."
+ },
+ "tip_c047d28229": {
+  "message": "Fixar ou apagar com um clique"
+ },
+ "tip_dcfe357b68": {
+  "message": "Aponte para uma resposta ou nota: “Fixar”, “Me lembrar” e “Apagar” aparecem ao lado, e o clique direito abre o mesmo menu. Mudou de ideia? “Desfazer” traz de volta."
+ },
+ "tip_e012ef5f59": {
+  "message": "Com o chat inteiro em mente"
+ },
+ "tip_3a70cee32e": {
+  "message": "Ative “Chat inteiro” abaixo do campo de pergunta quando uma resposta precisar de tudo: todas as mensagens, suas notas e as outras páginas deste chat. Desligado: as últimas mensagens e a página aberta."
+ },
+ "tip_ca29a1f4ed": {
+  "message": "Pergunte sobre um vídeo"
+ },
+ "tip_d6be4709b7": {
+  "message": "Com o Pro, o ContextFlow lê a transcrição do vídeo da página: peça o essencial ou o que foi dito sobre algo, e a resposta aponta o momento, como [4:15]. As respostas gratuitas usam o texto da página."
+ },
+ "tip_5c5bca8a9e": {
+  "message": "PDFs da página"
+ },
+ "tip_ff32d2c483": {
+  "message": "Com o Pro, os PDFs exibidos ou vinculados na página vão com a sua pergunta, e as respostas dizem em que página está cada coisa. No iPad e no Mac, o ContextFlow na barra de ferramentas também abre em uma aba de PDF. As respostas gratuitas usam o texto da página."
+ },
+ "tip_328ee8ddce": {
+  "message": "Inserção rápida"
+ },
+ "tip_ff7c853b85": {
+  "message": "Inserir em qualquer campo"
+ },
+ "tip_038e87000b": {
+  "message": "Toque em um campo de texto de uma página e depois no botão do ContextFlow ao lado: o que você copiou em outras abas, seus modelos e a última resposta do ContextFlow estão a um toque. Com teclado, digite / e algumas palavras de um modelo e pressione Tab."
+ },
+ "tip_a8e1d14e5b": {
+  "message": "Em qualquer campo de uma página, digite / e algumas palavras de um modelo e pressione Tab. Control-Shift-V abre a lista inteira: o que você copiou em outras abas, seus modelos e a última resposta do ContextFlow."
+ },
+ "tip_451fa9ccb6": {
+  "message": "Copiados, guardados por um dia"
+ },
+ "tip_8ddcf05a7e": {
+  "message": "As 5 últimas coisas que você copiou em páginas no Safari ficam na lista por 24 horas, só neste dispositivo. Nada de campos de senha ou cartão, nem na navegação privada."
+ },
+ "tip_cf63db6cc6": {
+  "message": "Modelos que se preenchem sozinhos"
+ },
+ "tip_6dd86048c4": {
+  "message": "Selecione uma resposta que você envia sempre e toque em “Modelo”: o ContextFlow marca o nome, a data e o que mais mudar. Ao inserir, “Preencher pela página” completa tudo, destacado para você conferir."
+ },
+ "tip_f09b3558e2": {
+  "message": "Acompanhar e lembrar"
+ },
+ "tip_d0d8d1355c": {
+  "message": "Me lembrar desta página"
+ },
+ "tip_b5d4d7711a": {
+  "message": "Lendo algo que quer terminar depois? Selecione uma linha e toque no sino, ou toque em “…” no topo do painel, depois em “Me lembrar desta página…”, e escolha um horário: o lembrete abre esta página. Respostas e notas têm “Me lembrar” no menu “…”."
+ },
+ "tip_74c328b672": {
+  "message": "Saiba quando um preço cair"
+ },
+ "tip_45c2496345": {
+  "message": "Selecione um preço, a disponibilidade ou uma data numa página e toque no olho. Para a página inteira, escolha “Acompanhar esta página…” no menu “…” no topo do painel. O ContextFlow verifica a página enquanto você usa o Safari e avisa quando ela mudar ou quando o preço ficar abaixo do que você definir. Até 5 de uma vez, 20 com o Pro."
+ },
+ "tip_0daede04f6": {
+  "message": "Conversas em ordem"
+ },
+ "tip_ec2cf96f53": {
+  "message": "Comece do zero ou volte"
+ },
+ "tip_623811ea30": {
+  "message": "Comece uma nova conversa com +. As anteriores ficam na lista de conversas: abra uma para continuar de onde parou, renomeie com o lápis ou apague."
+ },
+ "tip_c4b432e2e9": {
+  "message": "Busque nas suas conversas"
+ },
+ "tip_eff80bffda": {
+  "message": "Digite na busca acima da lista: todas as conversas com essas palavras e onde elas estão. Um resultado abre a conversa ali mesmo."
+ },
+ "tip_2e4668f650": {
+  "message": "Tags e pastas"
+ },
+ "tip_6b5bdf707f": {
+  "message": "Marque uma conversa, uma resposta ou uma nota com 🏷. Toque numa tag para ver só as conversas dela, ou ative Pastas para agrupar por tag."
+ },
+ "tip_752fb307f2": {
+  "message": "Compartilhe o que encontrou"
+ },
+ "tip_aa15b6c2c0": {
+  "message": "Compartilhe uma resposta ou a conversa inteira: o texto vai com seus links, suas fontes e um link para o ContextFlow."
+ },
+ "tip_76f2924bba": {
+  "message": "Suas conversas no app"
+ },
+ "tip_969cf52d0b": {
+  "message": "A aba Conversas tem todas as conversas do Safari. Pergunte sobre as páginas ou adicione uma nota ali mesmo; marque, copie ou compartilhe qualquer resposta, ou a conversa inteira. “Continuar no Safari” retoma de onde parou."
+ },
+ "tip_4721064b09": {
+  "message": "Busca com IA"
+ },
+ "tip_52a09ac884": {
+  "message": "Toque em ✦ ao lado da busca e descreva a conversa de que se lembra — “aquele artigo sobre sono e café” — mesmo sem as palavras exatas."
+ },
+ "tip_068fa58797": {
+  "message": "Pergunte às suas conversas"
+ },
+ "tip_8a40be768f": {
+  "message": "A primeira linha da lista responde a partir de todas as conversas: “O que li esta semana?”, “Resuma minhas notas sobre IA”."
+ },
+ "tip_4257aee15a": {
+  "message": "Cada coisa no seu lugar"
+ },
+ "tip_c61e2edab3": {
+  "message": "Perguntou sobre um carro na conversa sobre um sofá? Embaixo da resposta, o ContextFlow sugere a conversa certa para ela, ou uma nova. Um toque a move para lá, por data; Desfazer a traz de volta."
+ },
+ "tip_3f9f46cd12": {
+  "message": "Suas tags, sugeridas"
+ },
+ "tip_69a0bac728": {
+  "message": "O ContextFlow aprende o que suas tags significam pelo lugar onde você as coloca, e sugere a certa embaixo de uma nova resposta ou nota. Só as suas próprias tags, só quando combinam."
+ },
+ "tip_3208aa35ac": {
+  "message": "Privacidade e personalização"
+ },
+ "tip_1e1a2fad4e": {
+  "message": "Conte sobre você"
+ },
+ "tip_e2d1d4abd0": {
+  "message": "Escreva uma linha em “Sobre mim” — o que você faz, como gosta das respostas — e o ContextFlow vai adaptá-las a você."
+ },
+ "tip_10400d6345": {
+  "message": "O botão ✦ do seu jeito"
+ },
+ "tip_7487ba7345": {
+  "message": "Oculte o botão em um site específico ou desative-o em todos nos ajustes da extensão. O ContextFlow continua abrindo pelo menu de extensões do Safari."
+ },
+ "tip_8a727e1bbe": {
+  "message": "Use sua própria chave de API"
+ },
+ "tip_d84a0778d4": {
+  "message": "Com o Pro ou o plano Chave própria, cole uma chave da OpenAI ou do Claude nos ajustes da extensão no Safari. As solicitações vão direto para esse provedor."
+ },
+ "tip_3aaa9fd1f2": {
+  "message": "Privacidade desde o início"
+ },
+ "tip_241d3ad076": {
+  "message": "O ContextFlow lê uma página só quando você pergunta e envia apenas o texto dela para obter a resposta. Suas conversas ficam nos seus dispositivos e no seu iCloud. Com as sugestões ativadas, o texto das novas mensagens também vai para o nosso servidor para encontrar o lugar delas; não guardamos esse texto."
  }
 }

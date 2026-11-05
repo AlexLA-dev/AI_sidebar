@@ -65,6 +65,8 @@ a.tile:hover h3 { color: var(--blue); }
 .jump a { border: 1px solid var(--border); border-radius: 999px; padding: 6px 13px; font-size: 14px; color: var(--text); text-decoration: none; }
 .jump a:hover { border-color: var(--blue); color: var(--blue); }
 section[id] { scroll-margin-top: 12px; }
+/* "On all your devices": the whole app's, before the blocks (as in the app's Tips). */
+.feat-lead { max-width: 720px; margin: 28px 0 0; border: 1px solid var(--border); }
 .block-lede { color: var(--text-2); margin: -12px 0 20px; }
 .feats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; align-items: start; }
 .feat { background: var(--bg-2); border-radius: 18px; padding: 18px; }

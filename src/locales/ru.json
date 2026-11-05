@@ -508,5 +508,7 @@
   "watchInStock": "в наличии",
   "watchOutOfStock": "нет в наличии",
   "watchChanged": "Изменилось: {0}",
-  "watchChangedBody": "Сейчас: {0}"
+  "watchChangedBody": "Сейчас: {0}",
+
+  "tipsVideos": "С видео — в приложении ContextFlow → {0}"
 }

@@ -60,6 +60,7 @@ import { bubbleActions, laterSections, laterSources, listsKind, pageRange, pageW
 import { reminderOf, reminderRows, withReminderAt } from "./ux/reminderList"
 import { watchableAt } from "./watch/at"
 import { RemindersSheet } from "./ux/RemindersSheet"
+import { TipsSheet } from "./tips/TipsSheet"
 import { SelIconsTip } from "./ux/SelTip"
 import { shadowSelection, trackPointer } from "./selectionShadow"
 import { restoredDraft, withoutStopped } from "./ux/stopped"
@@ -344,6 +345,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }, [])
   // The header's "…" (where Settings was): "Remind me about this page…", the two lists and Settings (2.5).
   const [pageMenu, setPageMenu] = useState(false)
+  // "…" → Tips: the app's Tips in a sheet (2.5 (78)).
+  const [tipsOpen, setTipsOpen] = useState(false)
   const [remindSaved, setRemindSaved] = useState<number | null>(null)
 
   // The source learnt something new (the PDF popup: the document's title once it's read).
@@ -1384,7 +1387,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   useEffect(() => setPicked(null), [threadRef.current, messages.length, view])
 
   // ------------------------------------------------------------ upgrade
-  const openApp = useCallback(async (target: "subscribe" | "manage", feature?: "ai" | "organize") => {
+  const openApp = useCallback(async (target: "subscribe" | "manage" | "tips", feature?: "ai" | "organize") => {
     const result = await sendBackground<{ opened: boolean; url: string }>({ type: "openApp", target, feature })
     if (result && !result.opened && result.url) followLink(result.url)
   }, [])
@@ -2137,6 +2140,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "watching" })
                       openReminders("menu", "watch")
                     }}
+                    onTips={() => {
+                      setPageMenu(false)
+                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "tips" })
+                      setTipsOpen(true)
+                    }}
                     onSettings={() => {
                       setPageMenu(false)
                       void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "settings" })
@@ -2562,6 +2570,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           {view === "chat" && later && laterSheet(false)}
           {view === "chat" && listOpen && (
             <RemindersSheet kind={listOpen} items={laterList} onOpen={openLaterItem} onCancel={(item) => void cancelLaterItem(item)} onReschedule={rescheduleLaterItem} onClose={() => setListOpen(null)} />
+          )}
+          {view === "chat" && tipsOpen && (
+            <TipsSheet mac={!touch} onOpenApp={TARGET === "safari" ? () => void openApp("tips") : undefined} onClose={() => setTipsOpen(false)} />
           )}
         </section>
       )}

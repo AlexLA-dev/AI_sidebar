@@ -508,5 +508,7 @@
   "watchInStock": "in stock",
   "watchOutOfStock": "out of stock",
   "watchChanged": "Changed: {0}",
-  "watchChangedBody": "Now: {0}"
+  "watchChangedBody": "Now: {0}",
+
+  "tipsVideos": "With videos: in the ContextFlow app → {0}"
 }

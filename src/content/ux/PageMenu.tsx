@@ -1,7 +1,8 @@
 // The panel header's "…" (2.5, the director's layout): where Settings was. 2.5 (77), the director's split of
 // reminders and watching (two words, two icons, never one list): "Remind me about this page…" (the bell; time
 // only), "Watch this page…" (the eye; the whole page, where watching works), "Reminders · N" (the bell),
-// "Watching · N" (the eye; where watching works) and Settings.
+// "Watching · N" (the eye; where watching works) and Settings. 2.5 (78), the owner's note: Tips (the app's Tips,
+// tips/TipsSheet) before Settings.
 
 import type { VNode } from "preact"
 import { useEffect, useRef } from "preact/hooks"
@@ -9,9 +10,10 @@ import { useEffect, useRef } from "preact/hooks"
 import { t } from "../../shared/i18n"
 import { listenAround } from "../around"
 import * as Icon from "../icons"
+import { tipsLabel, TipsIcon } from "../tips/TipsSheet"
 import { Bell } from "./MessageUx"
 
-export function PageMenu({ reminders, watches, onLater, onWatchPage, onReminders, onWatching, onSettings, onClose }: {
+export function PageMenu({ reminders, watches, onLater, onWatchPage, onReminders, onWatching, onTips, onSettings, onClose }: {
   reminders: number
   // null: no watching here (not Safari).
   watches: number | null
@@ -20,6 +22,8 @@ export function PageMenu({ reminders, watches, onLater, onWatchPage, onReminders
   onWatchPage?: () => void
   onReminders: () => void
   onWatching: () => void
+  // Absent (or a build without Tips): no Tips item.
+  onTips?: () => void
   onSettings: () => void
   onClose: () => void
 }): VNode {
@@ -42,6 +46,7 @@ export function PageMenu({ reminders, watches, onLater, onWatchPage, onReminders
       document.removeEventListener("keydown", esc, true)
     }
   }, [onClose])
+  const tips = onTips && tipsLabel()
   return (
     <div ref={ref} class="cf-msg-menu cf-page-menu" role="menu">
       <button type="button" role="menuitem" onClick={onLater}><Bell size={16} /> {t("uxLater")}</button>
@@ -50,6 +55,7 @@ export function PageMenu({ reminders, watches, onLater, onWatchPage, onReminders
       {watches !== null && (
         <button type="button" role="menuitem" onClick={onWatching}><Icon.Eye size={16} /> {watches > 0 ? t("uxWatchingN", watches) : t("uxWatching")}</button>
       )}
+      {tips && <button type="button" role="menuitem" onClick={onTips}><TipsIcon size={16} /> {tips}</button>}
       <button type="button" role="menuitem" onClick={onSettings}><Icon.Gear /> {t("settings")}</button>
     </div>
   )
