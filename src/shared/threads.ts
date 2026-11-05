@@ -56,15 +56,24 @@ export function activity(thread: Thread): number {
   return thread.a ?? thread.u
 }
 
-/** Threads that still exist, the last one written in first. */
+/** By id: chats that are otherwise equal keep one order (see liveThreads). */
+function byId(a: Thread, b: Thread): number {
+  return a.id < b.id ? -1 : a.id > b.id ? 1 : 0
+}
+
+/**
+ * Threads that still exist, the last one written in first; with the same time, by id. The order the threads come in
+ * must not matter: Safari hands them back from storage in its own (2.5 (77): two chats with the same time traded
+ * places in the open list every time the chats were stored again).
+ */
 export function liveThreads(threads: Threads): Thread[] {
-  return Object.values(threads).filter((t) => !t.deleted && t.m.length > 0).sort((a, b) => activity(b) - activity(a))
+  return Object.values(threads).filter((t) => !t.deleted && t.m.length > 0).sort((a, b) => activity(b) - activity(a) || byId(a, b))
 }
 
 /** The list of chats: pinned ones first in their order, then the others, the last one written in first. */
 export function chatList(threads: Threads): Thread[] {
   const live = liveThreads(threads)
-  return [...live.filter((t) => t.pin !== undefined).sort((a, b) => a.pin! - b.pin!), ...live.filter((t) => t.pin === undefined)]
+  return [...live.filter((t) => t.pin !== undefined).sort((a, b) => a.pin! - b.pin! || byId(a, b)), ...live.filter((t) => t.pin === undefined)]
 }
 
 /** The pin value that puts a chat at `index` among `pinned` (the other pinned chats, in list order). */

@@ -4,6 +4,7 @@
 
 import { API_BASE, TARGET } from "../shared/config"
 import { INSERT_STORAGE, type AiFailure, type FillResult, type FindResult, type InsertEvent, type InsertRequest, type MarkResult } from "../shared/insert"
+import { sortedJson } from "../shared/stored"
 import { applyTemplates, pendingTemplates, type Templates } from "../shared/templates"
 import { DEFAULT_SETTINGS, STORAGE, type ErrorCode, type ProOffer, type Settings, type Usage } from "../shared/types"
 import { callNative } from "./native"
@@ -30,7 +31,8 @@ interface NativeTemplates {
 let syncing: Promise<boolean> | null = null
 let syncAgain = false
 let pushTimer: ReturnType<typeof setTimeout> | undefined
-// The templates value this background last wrote: its own writes don't start another sync.
+// The templates value this background last wrote, as sortedJson (Safari hands it back with its keys in its own order):
+// its own writes don't start another sync.
 let lastWritten = ""
 
 /** Sends this device's template changes to the app (which keeps them in iCloud) and takes everyone else's. */
@@ -77,7 +79,7 @@ async function syncOnce(): Promise<boolean> {
   const now = ((await chrome.storage.local.get(INSERT_STORAGE.templates))[INSERT_STORAGE.templates] as Templates | undefined) ?? {}
   const merged = applyTemplates(now, synced, remote, Date.now())
   if (pendingTemplates(merged.templates, merged.synced).length > 0) syncAgain = true
-  lastWritten = JSON.stringify(merged.templates)
+  lastWritten = sortedJson(merged.templates)
   await chrome.storage.local.set({ [INSERT_STORAGE.templates]: merged.templates, [INSERT_STORAGE.syncedTemplates]: merged.synced })
   return merged.changed
 }
@@ -164,7 +166,7 @@ export function startInsert(d: InsertDeps): void {
   // Saved or deleted in the panel: to the app and iCloud shortly after.
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== "local" || !changes[INSERT_STORAGE.templates]) return
-    if (JSON.stringify(changes[INSERT_STORAGE.templates].newValue ?? {}) === lastWritten) return
+    if (sortedJson(changes[INSERT_STORAGE.templates].newValue ?? {}) === lastWritten) return
     clearTimeout(pushTimer)
     pushTimer = setTimeout(() => void syncTemplates().catch(() => undefined), 800)
   })
