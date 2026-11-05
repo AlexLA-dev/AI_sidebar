@@ -1387,7 +1387,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   useEffect(() => setPicked(null), [threadRef.current, messages.length, view])
 
   // ------------------------------------------------------------ upgrade
-  const openApp = useCallback(async (target: "subscribe" | "manage" | "tips", feature?: "ai" | "organize") => {
+  const openApp = useCallback(async (target: "subscribe" | "manage", feature?: "ai" | "organize") => {
     const result = await sendBackground<{ opened: boolean; url: string }>({ type: "openApp", target, feature })
     if (result && !result.opened && result.url) followLink(result.url)
   }, [])
@@ -2572,7 +2572,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             <RemindersSheet kind={listOpen} items={laterList} onOpen={openLaterItem} onCancel={(item) => void cancelLaterItem(item)} onReschedule={rescheduleLaterItem} onClose={() => setListOpen(null)} />
           )}
           {view === "chat" && tipsOpen && (
-            <TipsSheet mac={!touch} onOpenApp={TARGET === "safari" ? () => void openApp("tips") : undefined} onClose={() => setTipsOpen(false)} />
+            <TipsSheet mac={!touch} onClose={() => setTipsOpen(false)} />
           )}
         </section>
       )}

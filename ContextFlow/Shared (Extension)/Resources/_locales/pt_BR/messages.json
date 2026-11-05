@@ -1466,9 +1466,6 @@
  "watchChangedBody": {
   "message": "Agora: {0}"
  },
- "tipsVideos": {
-  "message": "Com vídeos: no app ContextFlow → {0}"
- },
  "tip_4cf1b54b00": {
   "message": "Dicas"
  },
@@ -1523,8 +1520,8 @@
  "tip_d7c7b7b55d": {
   "message": "Ative o Google ao lado do campo de pergunta para responder com a Pesquisa Google: notícias, preços e tudo o que é recente, com fontes."
  },
- "tip_3b2eb51310": {
-  "message": "No dia a dia"
+ "tip_da5f7b74b1": {
+  "message": "Ir mais a fundo"
  },
  "tip_6ba198cbff": {
   "message": "Suas próprias notas"
@@ -1682,8 +1679,8 @@
  "tip_10400d6345": {
   "message": "O botão ✦ do seu jeito"
  },
- "tip_7487ba7345": {
-  "message": "Oculte o botão em um site específico ou desative-o em todos nos ajustes da extensão. O ContextFlow continua abrindo pelo menu de extensões do Safari."
+ "tip_4c60874441": {
+  "message": "O ✦ está cobrindo algo na página? Arraste-o para cima ou para baixo pela borda, ou para o outro lado: ele fica onde você soltar. Você também pode ocultá-lo em um site específico ou desativá-lo em todos nos ajustes da extensão. O ContextFlow continua abrindo pelo menu de extensões do Safari."
  },
  "tip_8a727e1bbe": {
   "message": "Use sua própria chave de API"
@@ -1696,5 +1693,8 @@
  },
  "tip_241d3ad076": {
   "message": "O ContextFlow lê uma página só quando você pergunta e envia apenas o texto dela para obter a resposta. Suas conversas ficam nos seus dispositivos e no seu iCloud. Com as sugestões ativadas, o texto das novas mensagens também vai para o nosso servidor para encontrar o lugar delas; não guardamos esse texto."
+ },
+ "tip_clips": {
+  "message": "en"
  }
 }

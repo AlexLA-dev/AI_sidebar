@@ -317,13 +317,12 @@ async function findChats(query: string, chats: unknown[]): Promise<FindReply> {
 
 // --------------------------------------------------------------- open app
 
-async function openApp(target: "subscribe" | "manage" | "home" | "tips", feature?: "ai" | "organize"): Promise<{ opened: boolean; url: string }> {
+async function openApp(target: "subscribe" | "manage" | "home", feature?: "ai" | "organize"): Promise<{ opened: boolean; url: string }> {
   if (TARGET !== "safari") {
     await chrome.tabs.create({ url: LINKS.appStore })
     return { opened: true, url: LINKS.appStore }
   }
-  // tips: the app's Tips, with their clips (the panel's Tips sheet, 2.5 (78)).
-  const url = target === "subscribe" ? `contextflow://subscribe?plan=pro${feature ? `&feature=${feature}` : ""}` : target === "manage" ? "contextflow://manage" : target === "tips" ? "contextflow://tips" : "contextflow://open"
+  const url = target === "subscribe" ? `contextflow://subscribe?plan=pro${feature ? `&feature=${feature}` : ""}` : target === "manage" ? "contextflow://manage" : "contextflow://open"
   // macOS can launch the app from the extension; on iOS the page has to follow the link.
   const result = await callNative<{ opened?: boolean }>("openApp", { url })
   entitlementCache = null

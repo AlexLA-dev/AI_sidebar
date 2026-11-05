@@ -4,9 +4,13 @@
 // step by hand: change a tip in the app and the next extension build has it.
 
 export type TipText = { key: string; en: string }
-export type TipEntry = { title: TipText; text: TipText; mac?: { title: TipText; text: TipText }; pro?: true }
+// `clip`: the app's clip for the card (dist/clips/<en|ru>/<clip>.mp4 and .jpg, the web versions); `mac` where a Mac's
+// words or clip differ (none where the app shows none).
+export type TipShown = { title: TipText; text: TipText; clip?: string }
+export type TipEntry = TipShown & { mac?: TipShown; pro?: true }
 export type TipBlock = { id: string; title: TipText; tips: TipEntry[] }
-export type TipsData = { heading: TipText; intro: TipText; lead: TipEntry; groups: TipBlock[] }
+// clipLang: "ru" or "en" in the panel's language, as the app picks its clips.
+export type TipsData = { heading: TipText; intro: TipText; clipLang: TipText; lead: TipEntry; groups: TipBlock[] }
 
 declare const __TIPS__: TipsData | undefined
 
@@ -24,7 +28,7 @@ export function say(text: TipText): string {
   }
 }
 
-/** A tip as written for this device: a Mac's own words where they differ (no swipes, a toolbar icon, ⌃⇧V). */
-export function forDevice(tip: TipEntry, mac: boolean): { title: TipText; text: TipText } {
+/** A tip as written for this device: a Mac's own words and clip where they differ (no swipes, a toolbar icon, ⌃⇧V). */
+export function forDevice(tip: TipEntry, mac: boolean): TipShown {
   return mac && tip.mac ? tip.mac : tip
 }

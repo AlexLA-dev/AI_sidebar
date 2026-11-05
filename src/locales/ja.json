@@ -509,7 +509,5 @@
   "watchInStock": "在庫あり",
   "watchOutOfStock": "在庫切れ",
   "watchChanged": "変更あり: {0}",
-  "watchChangedBody": "現在: {0}",
-
-  "tipsVideos": "動画付きはContextFlowアプリ → {0}"
+  "watchChangedBody": "現在: {0}"
 }

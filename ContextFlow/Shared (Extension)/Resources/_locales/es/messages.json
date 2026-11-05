@@ -1466,9 +1466,6 @@
  "watchChangedBody": {
   "message": "Ahora: {0}"
  },
- "tipsVideos": {
-  "message": "Con vídeos: en la app ContextFlow → {0}"
- },
  "tip_4cf1b54b00": {
   "message": "Consejos"
  },
@@ -1523,8 +1520,8 @@
  "tip_d7c7b7b55d": {
   "message": "Activa Google junto al campo de pregunta para responder con la Búsqueda de Google: noticias, precios y todo lo reciente, con fuentes."
  },
- "tip_3b2eb51310": {
-  "message": "Cada día"
+ "tip_da5f7b74b1": {
+  "message": "Ir más a fondo"
  },
  "tip_6ba198cbff": {
   "message": "Tus propias notas"
@@ -1682,8 +1679,8 @@
  "tip_10400d6345": {
   "message": "El botón ✦, a tu manera"
  },
- "tip_7487ba7345": {
-  "message": "Oculta el botón en un sitio concreto o desactívalo en todas partes en los ajustes de la extensión. ContextFlow seguirá abriéndose desde el menú de extensiones de Safari."
+ "tip_4c60874441": {
+  "message": "¿✦ tapa algo de la página? Arrástralo hacia arriba o hacia abajo por el borde, o al otro lado: se queda donde lo sueltes. También puedes ocultarlo en un sitio concreto o desactivarlo en todas partes en los ajustes de la extensión. ContextFlow seguirá abriéndose desde el menú de extensiones de Safari."
  },
  "tip_8a727e1bbe": {
   "message": "Usa tu propia clave de API"
@@ -1696,5 +1693,8 @@
  },
  "tip_241d3ad076": {
   "message": "ContextFlow lee una página solo cuando preguntas y envía únicamente su texto para obtener la respuesta. Tus chats se quedan en tus dispositivos y en tu iCloud. Con las sugerencias activadas, el texto de los mensajes nuevos también va a nuestro servidor para ver dónde encajan; no lo guardamos."
+ },
+ "tip_clips": {
+  "message": "en"
  }
 }

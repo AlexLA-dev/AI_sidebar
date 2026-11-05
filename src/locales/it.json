@@ -509,7 +509,5 @@
   "watchInStock": "disponibile",
   "watchOutOfStock": "esaurito",
   "watchChanged": "Cambiato: {0}",
-  "watchChangedBody": "Ora: {0}",
-
-  "tipsVideos": "Con i video: nell’app ContextFlow → {0}"
+  "watchChangedBody": "Ora: {0}"
 }
