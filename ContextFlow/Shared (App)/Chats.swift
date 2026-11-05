@@ -552,13 +552,14 @@ final class ChatLibrary: ObservableObject {
         if threads.isEmpty { OrganizeModel.shared.forget() }
     }
 
-    /// Pinned chats first in their order, then the others, the latest first (the extension's order).
+    /// Pinned chats first in their order, then the others, the latest first (the extension's order); the same pin or
+    /// time, by id: the chats come from a dictionary, in no set order, and the list mustn't change between reloads.
     private static func listOrder(_ a: ChatThread, _ b: ChatThread) -> Bool {
         switch (a.pin, b.pin) {
-        case let (x?, y?): return x < y
+        case let (x?, y?): return x != y ? x < y : a.id < b.id
         case (.some, nil): return true
         case (nil, .some): return false
-        default: return a.lastAt > b.lastAt
+        default: return a.lastAt != b.lastAt ? a.lastAt > b.lastAt : a.id < b.id
         }
     }
 
