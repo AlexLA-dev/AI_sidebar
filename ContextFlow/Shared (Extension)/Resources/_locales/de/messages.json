@@ -221,6 +221,9 @@
  "uxLaterTitle": {
   "message": "An diese Seite erinnern"
  },
+ "uxWatchPage": {
+  "message": "Diese Seite beobachten…"
+ },
  "uxReminders": {
   "message": "Erinnerungen"
  },
@@ -246,7 +249,7 @@
   "message": "Keine Beobachtungen"
  },
  "uxNoWatchingHint": {
-  "message": "Markiere einen Preis, die Verfügbarkeit oder ein Datum und tippe auf das Auge."
+  "message": "Markiere einen Preis, die Verfügbarkeit oder ein Datum und tippe auf das Auge. Für die ganze Seite: … → Diese Seite beobachten."
  },
  "uxOnAnotherDevice": {
   "message": "{0} · auf einem anderen Gerät"

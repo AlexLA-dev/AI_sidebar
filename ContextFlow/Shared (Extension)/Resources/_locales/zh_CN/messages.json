@@ -221,6 +221,9 @@
  "uxLaterTitle": {
   "message": "提醒我看这个页面"
  },
+ "uxWatchPage": {
+  "message": "关注这个页面…"
+ },
  "uxReminders": {
   "message": "提醒"
  },
@@ -246,7 +249,7 @@
   "message": "没有关注"
  },
  "uxNoWatchingHint": {
-  "message": "选中价格、库存或日期，然后点眼睛。"
+  "message": "选中价格、库存或日期，然后点眼睛。整个页面：… → 关注这个页面。"
  },
  "uxOnAnotherDevice": {
   "message": "{0} · 在另一台设备上"

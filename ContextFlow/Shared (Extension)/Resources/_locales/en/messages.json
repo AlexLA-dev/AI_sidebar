@@ -221,6 +221,9 @@
  "uxLaterTitle": {
   "message": "Remind me about this page"
  },
+ "uxWatchPage": {
+  "message": "Watch this page…"
+ },
  "uxReminders": {
   "message": "Reminders"
  },
@@ -246,7 +249,7 @@
   "message": "Nothing watched"
  },
  "uxNoWatchingHint": {
-  "message": "Select a price, stock or a date and tap the eye."
+  "message": "Select a price, stock or a date and tap the eye. For the whole page: … → Watch this page."
  },
  "uxOnAnotherDevice": {
   "message": "{0} · on another device"

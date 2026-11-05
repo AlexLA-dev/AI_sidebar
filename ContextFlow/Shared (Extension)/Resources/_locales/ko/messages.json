@@ -221,6 +221,9 @@
  "uxLaterTitle": {
   "message": "이 페이지 리마인더 설정"
  },
+ "uxWatchPage": {
+  "message": "이 페이지 지켜보기…"
+ },
  "uxReminders": {
   "message": "리마인더"
  },
@@ -246,7 +249,7 @@
   "message": "지켜보는 항목이 없습니다"
  },
  "uxNoWatchingHint": {
-  "message": "가격, 재고, 날짜를 선택하고 눈을 탭하세요."
+  "message": "가격, 재고, 날짜를 선택하고 눈을 탭하세요. 페이지 전체는: … → 이 페이지 지켜보기."
  },
  "uxOnAnotherDevice": {
   "message": "{0} · 다른 기기"

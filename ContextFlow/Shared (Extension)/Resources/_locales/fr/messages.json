@@ -221,6 +221,9 @@
  "uxLaterTitle": {
   "message": "Me rappeler cette page"
  },
+ "uxWatchPage": {
+  "message": "Surveiller cette page…"
+ },
  "uxReminders": {
   "message": "Rappels"
  },
@@ -246,7 +249,7 @@
   "message": "Aucune surveillance"
  },
  "uxNoWatchingHint": {
-  "message": "Sélectionnez un prix, le stock ou une date et touchez l’œil."
+  "message": "Sélectionnez un prix, le stock ou une date et touchez l’œil. Pour toute la page : … → Surveiller cette page."
  },
  "uxOnAnotherDevice": {
   "message": "{0} · sur un autre appareil"

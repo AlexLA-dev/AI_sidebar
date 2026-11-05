@@ -221,6 +221,9 @@
  "uxLaterTitle": {
   "message": "このページをリマインド"
  },
+ "uxWatchPage": {
+  "message": "このページを見守る…"
+ },
  "uxReminders": {
   "message": "リマインダー"
  },
@@ -246,7 +249,7 @@
   "message": "見守りはありません"
  },
  "uxNoWatchingHint": {
-  "message": "価格、在庫、日付を選択して目をタップしてください。"
+  "message": "価格、在庫、日付を選択して目をタップしてください。ページ全体なら：… → このページを見守る。"
  },
  "uxOnAnotherDevice": {
   "message": "{0} · 別のデバイス"

@@ -221,6 +221,9 @@
  "uxLaterTitle": {
   "message": "Me lembrar desta página"
  },
+ "uxWatchPage": {
+  "message": "Acompanhar esta página…"
+ },
  "uxReminders": {
   "message": "Lembretes"
  },
@@ -246,7 +249,7 @@
   "message": "Nada acompanhado"
  },
  "uxNoWatchingHint": {
-  "message": "Selecione um preço, a disponibilidade ou uma data e toque no olho."
+  "message": "Selecione um preço, a disponibilidade ou uma data e toque no olho. Para a página toda: … → Acompanhar esta página."
  },
  "uxOnAnotherDevice": {
   "message": "{0} · em outro dispositivo"

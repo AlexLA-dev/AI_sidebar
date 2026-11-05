@@ -221,6 +221,9 @@
  "uxLaterTitle": {
   "message": "Recordarme esta página"
  },
+ "uxWatchPage": {
+  "message": "Vigilar esta página…"
+ },
  "uxReminders": {
   "message": "Recordatorios"
  },
@@ -246,7 +249,7 @@
   "message": "No vigilas nada"
  },
  "uxNoWatchingHint": {
-  "message": "Selecciona un precio, la disponibilidad o una fecha y toca el ojo."
+  "message": "Selecciona un precio, la disponibilidad o una fecha y toca el ojo. Para toda la página: … → Vigilar esta página."
  },
  "uxOnAnotherDevice": {
   "message": "{0} · en otro dispositivo"
