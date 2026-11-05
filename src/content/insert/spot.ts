@@ -4,8 +4,11 @@
 // corner, else beside it, else below it, at the first spot where nothing of the page lies underneath. A chat's
 // reply box has all three taken (a read receipt or the last message over its corner, "expand" beside it, Send
 // under it: the owner on 2.5 (77), LinkedIn's messages), so then the spots go on along its top edge and its
-// bottom edge, leftwards from the corner. When there's no such spot, there's no button: "/" and ⌃⇧V still open
-// the list.
+// bottom edge, leftwards from the corner. When those are all taken too (the suggested replies above, the keyboard
+// below), a multi-line field gets the button inside its visible bottom-right corner, as Grammarly's sits (the
+// director's decision: the last place tried), never over the caret, the text or anything of the site's in it;
+// when the text reaches the corner, the button goes. A single-line input never gets it inside. When there's no
+// spot at all, there's no button: "/" and ⌃⇧V still open the list.
 
 import { closestComposed, shadowRootsOf } from "./shadow.ts"
 
@@ -53,6 +56,59 @@ export function buttonSpot(field: Rect, view: Box, free: Probe): { top: number; 
   return null
 }
 
+/** How far the button keeps from the field's edges inside it, and from the text and the caret. */
+const INSET = 4
+const CLEAR = 4
+
+/** A multi-line field: a textarea, or an editor (contenteditable) that isn't marked single-line. */
+export function multiLineField(el: Element): boolean {
+  const tag = el.tagName.toUpperCase()
+  if (tag === "TEXTAREA") return true
+  if (tag === "INPUT") return false
+  return el.getAttribute("aria-multiline") !== "false"
+}
+
+const meets = (a: Rect | { left: number; top: number; right: number; bottom: number }, b: { left: number; top: number; right: number; bottom: number }) =>
+  a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top
+
+/**
+ * The button inside a multi-line field, at the bottom-right corner of the part of it in view; or null when the
+ * field is too small for it, when the text or the caret (`text`, viewport rects) come near that corner, or when
+ * something of the site's lies there.
+ */
+export function cornerSpot(field: Rect, view: Box, free: Probe, text: Array<{ left: number; top: number; right: number; bottom: number }>): { top: number; left: number } | null {
+  const bottom = Math.min(field.bottom, view.height - GAP)
+  const right = Math.min(field.right, view.width - GAP)
+  // A reply box one line tall (a phone's chat) takes it in the middle of its height; shorter than that, none.
+  const inset = Math.min(INSET, (bottom - Math.max(field.top, GAP) - BUTTON) / 2)
+  if (inset < 2) return null
+  const s = { top: bottom - inset - BUTTON, left: right - INSET - BUTTON }
+  if (s.left < Math.max(field.left + INSET, GAP)) return null
+  const zone = { left: s.left - CLEAR, top: s.top - CLEAR, right: s.left + BUTTON + CLEAR, bottom: s.top + BUTTON + CLEAR }
+  if (text.some((r) => meets(r, zone))) return null
+  const points = [
+    [s.left + BUTTON / 2, s.top + BUTTON / 2],
+    [s.left + 2, s.top + 2],
+    [s.left + BUTTON - 2, s.top + 2],
+    [s.left + 2, s.top + BUTTON - 2],
+    [s.left + BUTTON - 2, s.top + BUTTON - 2]
+  ]
+  return points.every(([x, y]) => free(x, y)) ? s : null
+}
+
+/**
+ * Where the button goes, in the order settled on 2.5 (77): outside the field (above its corner, beside it, below
+ * it, then along its top edge and its bottom edge), and only then inside a multi-line field's corner (`inside`,
+ * null for a one-line input). The text is measured only when it comes to that.
+ */
+export function buttonPlace(field: Rect, view: Box, outside: Probe, inside: { free: Probe; text: () => Array<{ left: number; top: number; right: number; bottom: number }> } | null): { top: number; left: number; inside: boolean } | null {
+  const out = buttonSpot(field, view, outside)
+  if (out) return { ...out, inside: false }
+  if (!inside) return null
+  const corner = cornerSpot(field, view, inside.free, inside.text())
+  return corner ? { ...corner, inside: true } : null
+}
+
 // A control anywhere up the tree (the icon inside a button); the rest only when it's the element itself (a
 // focusable container or a page-wide click handler doesn't make every point taken).
 const CONTROL = "a,button,label,summary,select,[role=button],[role=link],[role=menuitem],[role=tab],[role=option],[role=switch],[role=checkbox],[role=radio],[role=slider]"
@@ -77,6 +133,23 @@ export function pagePointFree(host: Element | null): Probe {
       for (const r of Array.from(range.getClientRects())) {
         if (x >= r.left - 2 && x <= r.right + 2 && y >= r.top - 2 && y <= r.bottom + 2) return false
       }
+    }
+    return true
+  }
+}
+
+/**
+ * A point inside the field with only the field there: its own surface, not a control, a picture or a widget of the
+ * site's inside it, and not something of the site's lying over it. (Its text is checked apart, by its rects.)
+ */
+export function fieldPointFree(field: Element, host: Element | null): Probe {
+  return (x, y) => {
+    const els = document.elementsFromPoint(x, y).filter((el) => el !== host && !host?.contains(el))
+    const top = els[0] ? innermostAt(els[0], x, y) : undefined
+    if (!top || (top !== field && !field.contains(top))) return false
+    // Only what's inside the field counts (a label around a textarea doesn't make it taken).
+    for (let el: Element | null = top; el && el !== field; el = el.parentElement) {
+      if (el.matches(CONTROL) || el.matches(MEDIA) || el.matches("[contenteditable=false]")) return false
     }
     return true
   }
