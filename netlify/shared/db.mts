@@ -86,6 +86,11 @@ export const features = (days: number, base: Record<string, unknown>) =>
   rpc<Record<string, unknown>>("cf_features", { p_days: days, p_base: base })
 /** Feature funnels: who reached each step after the one before (cf_feature_funnels). */
 export const featureFunnels = (days: number) => rpc<Record<string, unknown>[]>("cf_feature_funnels", { p_days: days })
+/** People who ran out of free answers and what they did next; paying installs and their last day (cf_after_limit). */
+export const afterLimit = (days: number) => rpc<Record<string, unknown>>("cf_after_limit", { p_days: days })
+
+/** When App Review approved each app version, for the version lines on the daily charts (cf_releases). */
+export const releases = () => rpc<Array<Record<string, unknown>>>("cf_releases", {})
 
 export async function logEvent(kind: string, installId: string | null, data: Record<string, unknown>): Promise<void> {
   try {

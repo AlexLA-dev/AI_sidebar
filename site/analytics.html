@@ -37,6 +37,13 @@
   table.limits td.status { white-space: normal; min-width: 96px; }
   @media (max-width: 600px) { table.limits td.name { min-width: 150px; } }
   .panel + .cards { margin-top: 14px; }
+  .al-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 0 0 12px; }
+  .al-stats div { background: var(--bg); border-radius: 12px; padding: 10px 12px; }
+  .al-stats b { display: block; font-size: 24px; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+  .al-stats span { display: block; font-size: 12.5px; color: var(--text-2); line-height: 1.35; }
+  .al-stats span:first-of-type { color: var(--text); font-weight: 600; }
+  @media (max-width: 760px) { .al-stats { grid-template-columns: 1fr 1fr; } }
+  table.al td:last-child { white-space: normal; min-width: 200px; line-height: 1.4; }
   .panel { position: relative; background: var(--bg-2); border-radius: 16px; padding: 16px 18px; margin-top: 14px; }
   .tip { position: absolute; z-index: 5; pointer-events: none; display: none; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; font-size: 12.5px; box-shadow: 0 6px 18px rgba(0,0,0,.14); white-space: nowrap; font-variant-numeric: tabular-nums; }
   .tip b { display: block; margin-bottom: 4px; }
@@ -62,6 +69,7 @@
   .legend i.ln.dash { border-top-style: dashed; }
   svg text.axis { font-size: 11px; font-weight: 600; }
   svg text { fill: var(--text-2); font-size: 10.5px; }
+  svg text.mark { fill: var(--text); font-weight: 600; paint-order: stroke; stroke: var(--bg-2); stroke-width: 3px; stroke-linejoin: round; }
   .tbl { overflow-x: auto; }
   table { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums; }
   th, td { text-align: right; padding: 7px 8px; border-bottom: 1px solid var(--border); white-space: nowrap; }
@@ -337,17 +345,61 @@ const hiddenSeries = new Map()
 // A round top for an axis, so its middle line is a whole number.
 const niceMax = (v) => v <= 2 ? 2 : v <= 10 ? Math.ceil(v / 2) * 2 : Math.ceil(v / 10) * 10
 
+// The days App Review approved a version, for the dashed lines on the daily charts: [{ day, frac, label, tips }].
+// One line per UTC day, at the first approval that day (frac: how far into the day); a version approved on iOS and
+// macOS the same day gets one label without the platform.
+const MARKS = "Апрув версии"
+function releaseMarks(releases) {
+  const byDay = new Map()
+  for (const r of releases || []) {
+    const at = new Date(r?.approved_at ?? NaN)
+    if (Number.isNaN(at.getTime())) continue
+    const day = at.toISOString().slice(0, 10)
+    byDay.set(day, [...(byDay.get(day) || []), { ...r, at }])
+  }
+  return [...byDay].map(([day, list]) => {
+    list.sort((a, b) => a.at - b.at)
+    const label = [...new Set(list.map((r) => r.version))].map((v) => {
+      const on = list.filter((r) => r.version === v)
+      return on.length > 1 ? v : `${REVIEW_PLATFORM[on[0].platform] || on[0].platform} ${v}`
+    }).join(" · ")
+    const tips = list.map((r) => [`${REVIEW_PLATFORM[r.platform] || r.platform} ${r.version}`, r.at.toISOString().slice(11, 16)])
+    return { day, frac: (list[0].at - Date.parse(`${day}T00:00:00Z`)) / 864e5, label, tips }
+  })
+}
+
+// Labels of the version lines in up to 3 rows above the plot, newest first: each goes in the first row where it doesn't
+// run into the label after it; one that fits nowhere is left out (its line and the tooltip still show it), so on a
+// long period the latest versions keep their labels.
+function placeMarks(marks, xOf, right) {
+  const starts = []
+  return marks.map((m) => ({ ...m, x: xOf(m) })).sort((a, b) => b.x - a.x).map((m) => {
+    const w = m.label.length * 6.3
+    const flip = m.x + 3 + w > right
+    const from = flip ? m.x - 3 - w : m.x + 3
+    let row = starts.findIndex((start) => from + w + 6 < start)
+    if (row < 0 && starts.length < 3) row = starts.length
+    if (row >= 0) starts[row] = from
+    return { ...m, flip, row }
+  }).reverse()
+}
+
 // Stacked bars by day on the left axis; series with axis "right" are lines on their own right axis. A click on a
 // legend item hides that series (another click brings it back); an axis with nothing left on it disappears.
-// opts: leftLabel, rightLabel (axis captions), note (a line under the chart).
+// opts: leftLabel, rightLabel (axis captions), note (a line under the chart), marks (releaseMarks: dashed version lines).
 function chart(title, series, totalDays, opts = {}) {
   const name = [title].flat()[0]
   const hidden = hiddenSeries.get(name) || new Set()
   hiddenSeries.set(name, hidden)
   const keys = lastDays(totalDays)
   const hasRight = series.some((s) => s.axis === "right")
-  const W = 900, H = 228, L = 38, R = hasRight ? 38 : 0, B = 22, T = opts.leftLabel || opts.rightLabel ? 26 : 8
+  const W = 900, L = 38, R = hasRight ? 38 : 0, B = 22, T0 = opts.leftLabel || opts.rightLabel ? 26 : 8
   const bw = (W - L - R) / keys.length
+  const placed = placeMarks((opts.marks || []).filter((m) => keys.includes(m.day)), (m) => L + (keys.indexOf(m.day) + m.frac) * bw, W - R)
+  // The version labels get their own band above the plot, which stays the same height (also when they're hidden).
+  const rows = placed.length ? Math.max(1, ...placed.map((m) => m.row + 1)) : 0
+  const band = rows ? rows * 13 + 4 : 0
+  const H = 228 + band, T = T0 + band
   const tip = el("div", { class: "tip" })
   const panel = el("div", { class: "panel" })
   const scroller = el("div", { class: "tbl" })
@@ -393,6 +445,16 @@ function chart(title, series, totalDays, opts = {}) {
         if (s.value(d)) nodes.push(svg("circle", { cx: pts[i][0], cy: pts[i][1], r: 4, fill: s.color, stroke: "var(--bg)", "stroke-width": 2 }))
       })
     }
+    const marks = hidden.has(MARKS) ? [] : placed
+    for (const m of marks) {
+      nodes.push(svg("line", {
+        x1: m.x, x2: m.x, y1: m.row >= 0 ? T0 + m.row * 13 + 1 : T, y2: H - B,
+        stroke: "currentColor", "stroke-opacity": "0.6", "stroke-width": 1.25, "stroke-dasharray": "4 3"
+      }))
+    }
+    for (const m of marks) {
+      if (m.row >= 0) nodes.push(svg("text", { x: m.flip ? m.x - 3 : m.x + 3, y: T0 + m.row * 13 + 10, "text-anchor": m.flip ? "end" : "start", class: "mark" }, m.label))
+    }
     const highlight = svg("rect", { x: 0, y: T, width: bw, height: H - T - B, rx: 3, fill: "currentColor", "fill-opacity": "0.07", visibility: "hidden" })
     const show = (i, e) => {
       highlight.setAttribute("x", L + i * bw)
@@ -401,7 +463,9 @@ function chart(title, series, totalDays, opts = {}) {
         el("b", {}, dayLabel(keys[i])),
         ...bars.map((s) => el("div", { class: "row" }, el("span", {}, el("span", { class: "dot", style: `background:${s.color}` }), s.title), el("span", {}, n.format(s.value(keys[i]))))),
         bars.length > 1 && el("div", { class: "row total" }, el("span", {}, "Всего"), el("span", {}, n.format(totals[i]))),
-        ...lines.map((s) => el("div", { class: `row${s === lines[0] && bars.length ? " total" : ""}` }, el("span", {}, el("span", { class: "dot", style: `background:${s.color}` }), s.title), el("span", {}, n.format(s.value(keys[i])))))
+        ...lines.map((s) => el("div", { class: `row${s === lines[0] && bars.length ? " total" : ""}` }, el("span", {}, el("span", { class: "dot", style: `background:${s.color}` }), s.title), el("span", {}, n.format(s.value(keys[i]))))),
+        ...marks.filter((m) => m.day === keys[i]).flatMap((m) => m.tips).map(([what, time], k) =>
+          el("div", { class: `row${k === 0 ? " total" : ""}` }, el("span", {}, `Апрув ${what}`), el("span", {}, `${time} UTC`)))
       ].filter(Boolean))
       tip.style.display = "block"
       const box = panel.getBoundingClientRect()
@@ -432,7 +496,12 @@ function chart(title, series, totalDays, opts = {}) {
       onclick: () => { hidden.has(s.title) ? hidden.delete(s.title) : hidden.add(s.title); draw() }
     }, s.axis === "right"
       ? el("i", { class: `ln${s.dash ? " dash" : ""}`, style: `border-color:${s.color}` })
-      : el("i", { style: `background:${s.color}` }), s.title)))
+      : el("i", { style: `background:${s.color}` }), s.title)),
+    ...(placed.length ? [el("button", {
+      class: `lg${hidden.has(MARKS) ? " off" : ""}`, type: "button", "aria-pressed": hidden.has(MARKS) ? "false" : "true",
+      title: ["Пунктир — момент, когда App Review одобрил версию (UTC). Наведите на день, чтобы увидеть время.", hidden.has(MARKS) ? "Нажмите, чтобы показать" : "Нажмите, чтобы скрыть"].join("\n"),
+      onclick: () => { hidden.has(MARKS) ? hidden.delete(MARKS) : hidden.add(MARKS); draw() }
+    }, el("i", { class: "ln dash", style: "border-color:var(--text-2)" }), MARKS)] : []))
   }
   draw()
   // Wide enough to stay readable on a phone (scrolls sideways there, starting at the latest days).
@@ -979,6 +1048,67 @@ function mrrCards(insights, fx) {
   )
 }
 
+// After the limit (cf_after_limit): who ran out of free answers, what came next. "Ready" = ran out before today (UTC).
+const AL_REASON = { limit: "ответы на день", search: "ответы Google на день" }
+const dayDiff = (from, to) => Math.round((Date.parse(`${to}T12:00:00Z`) - Date.parse(`${from}T12:00:00Z`)) / 86_400_000)
+function agoText(day, today) {
+  const d = dayDiff(day, today)
+  return d <= 0 ? "сегодня" : d === 1 ? "вчера" : `${n.format(d)} дн. назад`
+}
+function afterLimitPanel(after) {
+  const title = "После лимита: что было дальше"
+  if (!after) return table(title, [], [], "Нет данных: в базе ещё нет функции cf_after_limit (миграция 20261105120000).")
+  const people = after.people || []
+  const today = after.today
+  const bought = people.filter((p) => p.paid_after != null)
+  const rest = people.filter((p) => p.paid_after == null)
+  const early = rest.filter((p) => p.day === today)
+  const ready = rest.filter((p) => p.day !== today)
+  const back = ready.filter((p) => p.back_days > 0)
+  const gone = ready.filter((p) => p.back_days === 0)
+  const firstDay = people.filter((p) => p.first_day === p.day).length
+  const stat = (big, label, sub) => el("div", {}, el("b", {}, big), el("span", {}, label), sub && el("span", {}, sub))
+  const stats = el("div", { class: "al-stats" },
+    stat(n.format(people.length), "Упёрлись в бесплатный лимит", `в первый же день: ${n.format(firstDay)}`),
+    stat(n.format(bought.length), "Купили подписку", bought.length ? `${pct(bought.length, people.length)} · медиана через ${duration(median(bought.map((p) => p.paid_after)))}` : null),
+    stat(n.format(back.length), "Не купили, но вернулись", `спрашивали снова: ${n.format(back.filter((p) => p.asked_days > 0).length)}`),
+    stat(n.format(gone.length), "Не купили и больше не приходили", early.length ? `упёрлись сегодня, рано судить: ${n.format(early.length)}` : null)
+  )
+  const rows = people.map((p) => {
+    const nth = p.first_day ? dayDiff(p.first_day, p.day) + 1 : null
+    const next = p.paid_after != null
+      ? el("td", {}, el("b", {}, `Купил подписку через ${duration(p.paid_after)}`),
+          el("small", {}, p.back_days > 0 ? `потом в панели ${n.format(p.back_days)} дн. · последний раз ${short(p.last_day)}` : "в другие дни в панель не заходил"))
+      : p.day === today
+        ? el("td", { class: "muted" }, "сегодня, рано судить")
+        : p.back_days > 0
+          ? el("td", {}, `Возвращался: ${n.format(p.back_days)} дн.`,
+              el("small", {}, [p.asked_days > 0 ? `спрашивал ${n.format(p.asked_days)} дн.` : "открывал, но не спрашивал", p.hit_days > 0 && `снова лимит ${n.format(p.hit_days)} дн.`, `последний раз ${short(p.last_day)}`].filter(Boolean).join(" · ")))
+          : el("td", { class: "bad" }, "Больше не приходил")
+    return el("tr", {},
+      el("td", {}, new Date(p.at).toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", timeZone: "UTC" }),
+        nth && el("small", {}, nth === 1 ? "в первый день" : `на ${n.format(nth)}-й день`)),
+      el("td", {}, [PLATFORMS[p.platform] || p.platform || "?", p.version].filter(Boolean).join(" · "),
+        p.offer && el("small", {}, "с кодом −50 %")),
+      el("td", {}, (p.reasons || []).map((r) => AL_REASON[r] || r).join(" + ")),
+      el("td", {}, `${n.format(p.before)} ${p.before === 1 ? "ответ" : p.before >= 2 && p.before <= 4 ? "ответа" : "ответов"}${p.secs != null ? ` · ${duration(p.secs)}` : ""}`,
+        p.google_before > 0 && el("small", {}, `из них Google: ${n.format(p.google_before)}`)),
+      next
+    )
+  })
+  const panel = el("div", { class: "panel" },
+    el("h3", {}, title),
+    people.length
+      ? [stats, el("div", { class: "tbl" }, el("table", { class: "text al" },
+          el("thead", {}, el("tr", {}, ["Упёрся (UTC)", "Устройство · версия", "Какой лимит", "До лимита", "Что потом"].map((h) => el("th", {}, h)))),
+          el("tbody", {}, rows)))]
+      : el("p", { class: "empty" }, `За ${after.days} дн. никто не упирался в бесплатный лимит.`),
+    el("p", { class: "hint" },
+      `Один человек — одна установка расширения, по первому отказу за ${after.days} дн. Лимит — «ответы на день» (все бесплатные ответы) или «ответы Google на день» (свой потолок у ответов Google; они же тратят и общие). «До лимита» — бесплатные ответы в тот день до отказа и сколько прошло от первого ответа дня. «Купил подписку» — первый платный ответ (Pro или «Свой ключ») после отказа или подписка Pro, которую приложение 2.4 привязало к этой установке; подарки и бесплатные коды не считаются. «Вернулся» — открывал панель в другие дни после дня отказа. Код −50 % на первый месяц показывают только версии 2.4 и новее. Видел ли человек экран оплаты, станет видно с версии 2.5. Последний день подписчиков — в столбце «Последний раз» таблицы «Подписки».`)
+  )
+  return panel
+}
+
 // Whether any limit keeps getting in users' way (cf_limits_report): per limit, what it touched and how often.
 const LIMITS = {
   free_daily: ["Бесплатные ответы: 5 в день", "Бесплатные", "Это и есть повод купить Pro: показатель для воронки, а не поломка."],
@@ -1072,6 +1202,20 @@ function render(data, fx) {
   const userDay = (field) => (day) => Number((users.by_day || []).find((r) => r.day === day)?.[field] || 0)
   // cf_new_user_outcomes: of each day's new users, how many ran out of free answers that day; Pro bought that day.
   const outcomes = data.new_outcomes
+  const marks = releaseMarks(data.releases)
+  // cf_after_limit.paying: paying installs' last day, found by the moment the install was first seen (cf_owner_insights
+  // gives its subscribers' installs the same moment).
+  const second = (at) => Math.floor(Date.parse(at) / 1000)
+  const usedBy = new Map((data.after_limit?.paying || []).map((p) => [second(p.first_seen), p]))
+  const lastUse = (s) => {
+    if (!data.after_limit) return el("td", { class: "muted" }, "—")
+    const seen = (s?.installs || []).map((i) => i.first_seen && usedBy.get(second(i.first_seen))).filter(Boolean)
+    const last = seen.map((p) => p.last_day).filter(Boolean).sort().at(-1)
+    if (!last) return el("td", { class: "muted", title: "Платных ответов с расширения не было, или подписка не связана с устройством" }, "—")
+    const paidDays = Math.max(...seen.map((p) => Number(p.paid_days || 0)))
+    return el("td", { title: "Последний день (UTC), когда открывали панель или спрашивали" }, short(last),
+      el("small", {}, `${agoText(last, data.after_limit.today)} · дней с платными ответами: ${n.format(paidDays)}`))
+  }
   const outcomeDay = (field) => (day) => Number((outcomes || []).find((r) => r.day === day)?.[field] || 0)
   const subs = data.subscriptions || {}
   const date = (v) => v ? new Date(v).toLocaleDateString("ru-RU") : "—"
@@ -1093,14 +1237,15 @@ function render(data, fx) {
       priceCell(r, fx),
       el("td", {}, new Date(r.created_at).toLocaleString("ru-RU", { dateStyle: "short", timeStyle: "short" }),
         firstSeen && el("small", {}, Date.parse(firstSeen) <= Date.parse(r.created_at) ? `через ${since(firstSeen, r.created_at)} после первого открытия` : "до первого открытия панели")),
-      el("td", {}, date(r.expires_at), unpaid(r) && el("small", {}, "бесплатно"))
+      el("td", {}, date(r.expires_at), unpaid(r) && el("small", {}, "бесплатно")),
+      unpaid(r) ? el("td", { class: "muted" }, "—") : lastUse(s)
     )
   }
   const list = subs.list || []
   const freeRows = list.filter(unpaid).map(subRow)
   const subRows = [
     ...list.filter((r) => !unpaid(r)).map(subRow),
-    freeRows.length > 0 && el("tr", { class: "sum" }, el("td", { colspan: 10 }, "Бесплатные (подарки, пробные, бесплатные коды): не входят в платящих, конверсию и MRR")),
+    freeRows.length > 0 && el("tr", { class: "sum" }, el("td", { colspan: 11 }, "Бесплатные (подарки, пробные, бесплатные коды): не входят в платящих, конверсию и MRR")),
     ...freeRows
   ].filter(Boolean)
   // Paying, by the day it happened (the steps before are in the onboarding block).
@@ -1136,11 +1281,18 @@ function render(data, fx) {
     ], data.days, {
       leftLabel: "Люди: новые и вернувшиеся",
       rightLabel: outcomes ? "Люди: лимит в d0 · подписки" : undefined,
-      note: outcomes
-        ? `Правая ось. ${LIMIT_D0} ${PRO_BOUGHT} Нажмите на название в легенде, чтобы скрыть линию или столбики.`
-        : "Лимит в d0 и подписки появятся после миграции 20261104150000 (функция cf_new_user_outcomes)."
+      marks,
+      note: [
+        outcomes
+          ? `Правая ось. ${LIMIT_D0} ${PRO_BOUGHT} Нажмите на название в легенде, чтобы скрыть линию или столбики.`
+          : "Лимит в d0 и подписки появятся после миграции 20261104150000 (функция cf_new_user_outcomes).",
+        data.releases
+          ? "Пунктир — апрув версии в App Review (по UTC); одна версия на iOS и macOS в один день подписана без платформы."
+          : "Пунктир с версиями появится после миграции 20261105130000 (функция cf_releases)."
+      ].join(" ")
     }),
     live((redraw) => onboardingPanels(data.onboarding, data.days, redraw)),
+    afterLimitPanel(data.after_limit),
     live((redraw) => featuresPanel(data.features, data.days, redraw)),
     funnelsPanel(data.feature_funnels),
     sessionsPanel(data.features),
@@ -1148,7 +1300,7 @@ function render(data, fx) {
       funnelRows, "За период никто не подписался по коду и не оплатил.", "num2"),
     live((redraw) => cohortPanel(insights, redraw)),
     table(`Подписки${subs.sandbox ? ` · ещё ${n.format(subs.sandbox)} в песочнице (App Review, тесты)` : ""}`,
-      ["Тариф", "Устройство", "Язык", "Страна", "Источник", "История (ваше время)", "Статус", "Цена сейчас", "Оформлена", "Оплачена до"], subRows, "Подписок пока нет.", "text"),
+      ["Тариф", "Устройство", "Язык", "Страна", "Источник", "История (ваше время)", "Статус", "Цена сейчас", "Оформлена", "Оплачена до", "Последний раз"], subRows, "Подписок пока нет.", "text"),
     sourcesPanel(insights),
     el("div", { class: "cards" }, SEGMENTS.map((s) => card(s, segments.find((r) => r.key === s.key && r.segment === s.segment)))),
     live((redraw) => {
@@ -1164,7 +1316,7 @@ function render(data, fx) {
         : SEGMENTS.map((seg) => ({
             title: seg.title, color: seg.color,
             value: (day) => Number((data.by_day || []).find((r) => r.day === day && r.key === seg.key && r.segment === seg.segment)?.requests || 0)
-          })), data.days)
+          })), data.days, { marks })
     }),
     perUserPanel(insights),
     table("По тарифам", ["Тариф", "Запросы", "Устройств", "Больше всего за день на устройство"], plans, "Пока нет запросов.", "num2"),

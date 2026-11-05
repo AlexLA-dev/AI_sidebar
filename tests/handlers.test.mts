@@ -112,7 +112,9 @@ const rpc: Record<string, (args: Record<string, any>) => unknown> = {
   cf_onboarding: () => ({ people: [{ day: "2026-11-01", device: "iPhone", kind: "app", ext: 300, panel: 420, answer: 540 }], open_reviews: [] }),
   cf_new_user_outcomes: () => [{ day: "2026-11-02", new: 12, limit_d0: 3, pro_bought: 2 }],
   cf_features: ({ p_days, p_base }) => ({ days: p_days, active: 2, features: [{ f: "ask", base: 2, people: 2 }], base: p_base }),
-  cf_feature_funnels: () => [{ funnel: "purchase", steps: [{ k: 1, step: "upsell.shown", people: 1 }] }]
+  cf_feature_funnels: () => [{ funnel: "purchase", steps: [{ k: 1, step: "upsell.shown", people: 1 }] }],
+  cf_after_limit: () => ({ days: 7, today: "2026-11-05", people: [{ day: "2026-11-04", before: 5, paid_after: null, back_days: 1 }], paying: [] }),
+  cf_releases: () => [{ platform: "IOS", version: "2.4", approved_at: "2026-11-04T14:59:19Z" }]
 }
 
 // Same rule as cf_limited_before: a free limit hit on an earlier UTC day.
@@ -541,19 +543,21 @@ test("admin usage report needs ADMIN_TOKEN", async () => {
   assert.deepEqual(body.new_outcomes[0], { day: "2026-11-02", new: 12, limit_d0: 3, pro_bought: 2 })
   assert.deepEqual([body.features.features[0].f, body.features.base.paywall, body.features.base.panel.on], ["ask", { since: "2.5", on: "app" }, "ext"])
   assert.equal(body.feature_funnels[0].funnel, "purchase")
+  assert.deepEqual([body.after_limit.people[0].before, body.after_limit.paying], [5, []])
+  assert.deepEqual(body.releases, [{ platform: "IOS", version: "2.4", approved_at: "2026-11-04T14:59:19Z" }])
 })
 
-test("admin usage report still answers before cf_owner_insights, cf_limits_report, cf_onboarding, cf_new_user_outcomes and the feature reports exist", async () => {
+test("admin usage report still answers before cf_owner_insights, cf_limits_report, cf_onboarding, cf_new_user_outcomes, the feature reports, cf_after_limit and cf_releases exist", async () => {
   serverConfig.adminToken = "admin-test"
   const saved = { ...rpc }
-  for (const fn of ["cf_owner_insights", "cf_limits_report", "cf_onboarding", "cf_new_user_outcomes", "cf_features", "cf_feature_funnels"]) delete rpc[fn]
+  for (const fn of ["cf_owner_insights", "cf_limits_report", "cf_onboarding", "cf_new_user_outcomes", "cf_features", "cf_feature_funnels", "cf_after_limit", "cf_releases"]) delete rpc[fn]
   try {
     const res = await adminUsage(new Request("https://aisidebar.netlify.app/api/v2/admin/usage", { headers: { Authorization: "Bearer admin-test" } }))
     assert.equal(res.status, 200)
     const body = await res.json()
     assert.deepEqual(
-      [body.segments[0].requests, body.insights, body.limits_report, body.onboarding, body.new_outcomes, body.features, body.feature_funnels],
-      [3, null, null, null, null, null, null]
+      [body.segments[0].requests, body.insights, body.limits_report, body.onboarding, body.new_outcomes, body.features, body.feature_funnels, body.after_limit, body.releases],
+      [3, null, null, null, null, null, null, null, null]
     )
   } finally {
     Object.assign(rpc, saved)
