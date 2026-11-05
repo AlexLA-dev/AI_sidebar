@@ -1,6 +1,7 @@
 // Swipes on a chat in the list and on a message (2.5 (75), the owner's notes): they followed the finger badly and got
 // stuck, since a render in the middle of a swipe re-attached the row's listeners and dropped the gesture; and a long
-// answer's icon was off screen. The numbers, then the real Swipe in a DOM, re-rendered mid-swipe.
+// answer's icon was off screen. The numbers, then the real Swipe in a DOM, re-rendered mid-swipe. 2.5 (78): two
+// fingers on an iPad's trackpad (wheel events) swipe too, and the colour stops a gap short of the row's card.
 import assert from "node:assert/strict"
 import { mkdtempSync, readFileSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
@@ -11,7 +12,7 @@ import { pathToFileURL } from "node:url"
 import { build } from "esbuild"
 import { parseHTML } from "linkedom"
 
-import { BUTTON_WIDTH, COMMIT_SHARE, OPEN_AT, swipeEnd, swipeOffset, visibleSlice } from "../src/content/ux/swipeMath.ts"
+import { BUTTON_WIDTH, COMMIT_SHARE, GAP, OPEN_AT, openOffset, swipeEnd, swipeOffset, underWidth, visibleSlice, WHEEL_IDLE, wheelStep } from "../src/content/ux/swipeMath.ts"
 
 const both = { left: true, right: true }
 
@@ -38,6 +39,26 @@ test("the icon goes where the row is on screen: a long answer's middle can be ab
   assert.deepEqual(visibleSlice({ top: 100, bottom: 160 }, { top: 0, bottom: 600 }), { top: 0, height: 60 })
   // A row starting below the list's top, running off its bottom.
   assert.deepEqual(visibleSlice({ top: 400, bottom: 1400 }, { top: 0, bottom: 600 }), { top: 0, height: 200 })
+})
+
+test("the colour stops a gap short of the card; with the button out, all of the button shows", () => {
+  // A chat's row (its card is the row): the gap only.
+  assert.equal(underWidth(-140, 0), 140 - GAP)
+  assert.equal(underWidth(5, 0), 0)
+  // A message: its card reaches 12 px past the text, then the gap.
+  assert.equal(underWidth(100, 12), 100 - 12 - GAP)
+  assert.equal(underWidth(openOffset(12), 12), BUTTON_WIDTH)
+  assert.equal(underWidth(openOffset(0), 0), BUTTON_WIDTH)
+})
+
+test("a trackpad's scroll as a finger: the row follows the fingers", () => {
+  // Natural scrolling (the default): fingers to the left scroll the content right (deltaX > 0); the row goes left.
+  assert.deepEqual(wheelStep({ deltaX: 12, deltaY: 0, deltaMode: 0, inverted: true }, 300), { x: -12, y: -0 })
+  assert.deepEqual(wheelStep({ deltaX: 12, deltaY: 0, deltaMode: 0 }, 300), { x: -12, y: -0 })
+  // Natural scrolling off: the deltas are the fingers' way.
+  assert.deepEqual(wheelStep({ deltaX: 12, deltaY: 3, deltaMode: 0, inverted: false }, 300), { x: 12, y: 3 })
+  // Lines and pages.
+  assert.equal(wheelStep({ deltaX: 2, deltaY: 0, deltaMode: 1 }, 300).x, -32)
 })
 
 // ------------------------------------------------------------ the real Swipe, in a DOM
@@ -106,7 +127,7 @@ test("a render in the middle of a swipe doesn't drop it: letting go past the sha
   await wait(150) // long enough for any effect to run again
   pointer(row, "pointermove", 60)
   assert.match(body.style.transform, /translate3d\(-140px/)
-  assert.equal(row.querySelector(".cf-swipe-under.end").style.width, "140px")
+  assert.equal(row.querySelector(".cf-swipe-under.end").style.width, `${140 - GAP}px`)
   assert.ok(row.hasAttribute("data-dragging"))
   pointer(row, "pointerup", 60)
   assert.deepEqual(calls, ["delete"])
@@ -137,12 +158,13 @@ test("a short swipe leaves the button out; a scroll taking the touch puts the ro
   await wait(150)
   pointer(row, "pointerup", 190)
   assert.deepEqual(calls, [])
-  assert.match(body.style.transform, new RegExp(`translate3d\\(${BUTTON_WIDTH}px`))
+  assert.match(body.style.transform, new RegExp(`translate3d\\(${openOffset(0)}px`))
+  assert.equal(row.querySelector(".cf-swipe-under.start").style.width, `${BUTTON_WIDTH}px`)
   // The next swipe starts from the button; the browser takes it for a scroll.
   pointer(text, "pointerdown", 150)
   pointer(text, "pointermove", 130)
   pointer(row, "pointercancel", 130)
-  assert.match(body.style.transform, new RegExp(`translate3d\\(${BUTTON_WIDTH}px`))
+  assert.match(body.style.transform, new RegExp(`translate3d\\(${openOffset(0)}px`))
   assert.ok(!row.hasAttribute("data-dragging"))
 })
 
@@ -156,8 +178,69 @@ test("the icon of a long answer sits in the part on screen", async () => {
   pointer(row, "pointercancel", 150)
 })
 
-test("the styles: the colour as tall as the row, and a moved row never scrolls the list sideways", () => {
+/** Two fingers on a trackpad: wheel events (deltaX/deltaY), and whether the row took them from the page. */
+const wheel = (el: Element, deltaX: number, deltaY = 0) => {
+  const e = new dom.window.Event("wheel", { bubbles: true, cancelable: true })
+  let prevented = false
+  Object.assign(e, { deltaX, deltaY, deltaMode: 0, ctrlKey: false, preventDefault: () => { prevented = true } })
+  el.dispatchEvent(e)
+  return prevented
+}
+
+test("two fingers on a trackpad swipe as a finger: past the share it deletes, short of it the button stays out", async () => {
+  const { row, text, body, calls } = await mounted()
+  // Fingers to the left (natural scrolling: deltaX > 0), 20 px a step, the row following.
+  for (let i = 0; i < 4; i++) assert.ok(wheel(text, 20), "a sideways scroll is the row's, not Safari's Back")
+  assert.match(body.style.transform, /translate3d\(-80px/)
+  assert.ok(row.hasAttribute("data-dragging"))
+  for (let i = 0; i < 3; i++) wheel(text, 20)
+  // Nothing marks the fingers lifting: the row is let go when the events stop.
+  await wait(WHEEL_IDLE + 60)
+  assert.deepEqual(calls, ["delete"], `past ${COMMIT_SHARE} of the row`)
+  assert.equal(body.style.transform, "")
+  assert.ok(!row.hasAttribute("data-dragging"))
+  // To the right, short of the share: the pin button stays out, then a tap elsewhere would put it back.
+  for (let i = 0; i < 4; i++) wheel(text, -20)
+  await wait(WHEEL_IDLE + 60)
+  assert.deepEqual(calls, ["delete"])
+  assert.match(body.style.transform, new RegExp(`translate3d\\(${openOffset(0)}px`))
+  // Scrolling the list puts it back.
+  dom.document.querySelector(".cf-messages").dispatchEvent(new dom.window.Event("scroll"))
+  assert.equal(body.style.transform, "")
+})
+
+test("a trackpad's vertical scroll stays the list's, to its end, even if it drifts sideways", async () => {
+  const { text, body, calls } = await mounted()
+  assert.equal(wheel(text, 0, 30), false, "not taken from the list")
+  // The same gesture drifting sideways later on: still the list's.
+  wheel(text, 15, 2)
+  wheel(text, 25, 0)
+  assert.ok(!body.style.transform, "the row didn't move")
+  await wait(WHEEL_IDLE + 60)
+  // A new gesture, sideways: the row's.
+  for (let i = 0; i < 3; i++) wheel(text, 20)
+  assert.match(body.style.transform, /translate3d\(-60px/)
+  await wait(WHEEL_IDLE + 60)
+  assert.deepEqual(calls, [])
+})
+
+test("a message's card: the colour starts past its margin and the gap; the button out shows whole", async () => {
+  const { row, text, body } = await mounted()
+  // The body reaches 12 px past the text on each side (ux.css, .cf-msg > .cf-swipe.on > .cf-swipe-body).
+  Object.defineProperty(body, "offsetLeft", { value: -12, configurable: true })
+  pointer(text, "pointerdown", 100)
+  pointer(text, "pointermove", 120)
+  pointer(row, "pointermove", 200)
+  assert.equal(row.querySelector(".cf-swipe-under.start").style.width, `${100 - 12 - GAP}px`)
+  pointer(row, "pointerup", 200)
+  assert.match(body.style.transform, new RegExp(`translate3d\\(${openOffset(12)}px`))
+  assert.equal(row.querySelector(".cf-swipe-under.start").style.width, `${BUTTON_WIDTH}px`)
+})
+
+test("the styles: the colour as tall as the row, rounded; a message's card; a moved row never scrolls the list sideways", () => {
   const css = readFileSync(new URL("../src/content/ux/ux.css", import.meta.url), "utf8")
-  assert.match(css, /\.cf-swipe-under \{[^}]*top: 0; bottom: 0;/)
+  assert.match(css, /\.cf-swipe-under \{[^}]*top: 0; bottom: 0;[^}]*border-radius: 14px;/)
+  assert.match(css, /\.cf-msg > \.cf-swipe\.on > \.cf-swipe-body \{ margin: 0 -12px; padding: 0 12px;/)
+  assert.match(css, /\.cf-swipe > \.cf-swipe-body \{[^}]*background: var\(--bg\);/)
   assert.match(css, /\.cf-messages, \.cf-threads \{ overflow-x: hidden; \}/)
 })
