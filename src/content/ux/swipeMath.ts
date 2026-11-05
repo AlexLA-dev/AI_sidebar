@@ -8,6 +8,10 @@ export const DECIDE = 10
 export const COMMIT_SHARE = 0.42
 export const OPEN_AT = 64
 export const BUTTON_WIDTH = 76
+// Between the colour under the row and the row's edge (2.5 (78), the owner: the colour stood right against the text).
+export const GAP = 8
+// Two fingers on a trackpad: the gesture is over when wheel events stop coming this long (nothing marks the lift).
+export const WHEEL_IDLE = 150
 // Shorter than this on screen: the icon and its word side by side.
 export const SHORT = 52
 
@@ -43,4 +47,27 @@ export function visibleSlice(row: { top: number; bottom: number }, view: { top: 
   const top = Math.max(0, Math.max(row.top, view.top) - row.top)
   const bottom = Math.min(row.bottom, view.bottom) - row.top
   return { top, height: Math.max(0, bottom - top) }
+}
+
+/**
+ * How wide the colour under the row is when the row has moved `dx`: `edge` is how far the row's card reaches past
+ * the row on that side (a message's panel-coloured margin around its text), then a gap.
+ */
+export function underWidth(dx: number, edge: number): number {
+  return Math.max(0, Math.abs(dx) - edge - GAP)
+}
+
+/** Where the row stays with its button out: the button's full width shows between the gap and the edge. */
+export function openOffset(edge: number): number {
+  return BUTTON_WIDTH + edge + GAP
+}
+
+/**
+ * A trackpad's sideways scroll as a finger's move: the row follows the fingers (deltas are the content's way,
+ * the other way round unless the system's natural scrolling is off).
+ */
+export function wheelStep(e: { deltaX: number; deltaY: number; deltaMode: number; inverted?: boolean }, width: number): { x: number; y: number } {
+  const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? width : 1
+  const sign = e.inverted === false ? 1 : -1
+  return { x: sign * e.deltaX * unit, y: sign * e.deltaY * unit }
 }
