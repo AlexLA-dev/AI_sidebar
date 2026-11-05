@@ -743,7 +743,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const adaptTemplate = (text: string, conversation: string | null) => {
     show()
     const prompt = t("qiAdaptPrompt", text) + (conversation ? `\n\n${t("qiAdaptConversation", conversation)}` : "")
-    setTimeout(() => ask(prompt, { label: t("qiAdaptLabel") }), 120)
+    setTimeout(() => ask(prompt, { label: t(conversation ? "qiAdaptChat" : "qiAdaptLabel") }), 120)
   }
 
   /** Sends a question with the page as `full` (sources: what was read along with it) or the selection. */
