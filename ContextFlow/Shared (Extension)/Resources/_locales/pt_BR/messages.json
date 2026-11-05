@@ -411,16 +411,34 @@
   "message": "{0} min"
  },
  "consentTitle": {
-  "message": "Antes da sua primeira resposta"
+  "message": "Antes de o ContextFlow usar IA"
  },
  "consentBody": {
-  "message": "Para responder, o ContextFlow envia sua pergunta e o texto desta página (ou da sua seleção; na busca com IA e em “Pergunte às suas conversas”, trechos das suas conversas) por meio do nosso servidor à Anthropic (Claude) ou, se ela estiver indisponível, à OpenAI, ou ao Google nas respostas do Google. O conteúdo das páginas e as conversas não ficam armazenados em nossos servidores; suas conversas ficam nos seus dispositivos e, se você sincronizar, no seu iCloud."
+  "message": "Você dá uma vez e vale para toda a IA do ContextFlow. Cada recurso envia só o que precisa, quando você o usa, por meio do nosso servidor à Anthropic (Claude):"
+ },
+ "consentAnswers": {
+  "message": "Respostas: sua pergunta, o texto da página ou a sua seleção e o seu “Sobre mim”, se você escreveu. Se o Claude estiver indisponível, a OpenAI responde; as respostas do Google vão para o Google."
+ },
+ "consentChats": {
+  "message": "“Pergunte às suas conversas” e a busca com IA (Pro): trechos curtos das suas conversas."
+ },
+ "consentTemplates": {
+  "message": "Modelos: o texto deles, para marcar as lacunas; o texto da página para “Preencher pela página”; suas palavras e os títulos dos modelos para “Buscar pelo sentido”."
+ },
+ "consentWatch": {
+  "message": "Acompanhar uma página: o que você selecionou, suas palavras sobre quando avisar, o texto em volta e o título da página; depois, o valor antigo e o novo."
+ },
+ "consentSuggest": {
+  "message": "Sugestões (Pro, só depois que você as ativar): o texto de novas perguntas, respostas e notas, para a OpenAI compará-los e para o Claude verificar uma tag."
+ },
+ "consentStored": {
+  "message": "Nada disso fica guardado em nossos servidores, e os provedores não treinam modelos com isso. Suas conversas ficam nos seus dispositivos e, se você sincronizar, no seu iCloud."
  },
  "consentAccept": {
   "message": "Concordar e continuar"
  },
  "consentAgainTitle": {
-  "message": "Novidade: agora quem responde é o Claude"
+  "message": "Novidade: um só consentimento para todos os recursos de IA"
  },
  "consentDecline": {
   "message": "Agora não"
@@ -1055,9 +1073,6 @@
  "qiFillByHand": {
   "message": "Preencher à mão"
  },
- "qiFillConsent": {
-  "message": "Para preencher as lacunas, o ContextFlow envia o texto desta página e o modelo ao Claude da Anthropic. Nada é guardado."
- },
  "qiPickCopied": {
   "message": "Copiados para “{0}”"
  },
@@ -1102,9 +1117,6 @@
  },
  "qiMarkFailed": {
   "message": "Não foi possível marcar as lacunas agora. O modelo é salvo como texto simples, e você pode adicionar lacunas à mão."
- },
- "qiMarkConsent": {
-  "message": "Para marcar as lacunas, o ContextFlow envia este texto ao Claude da Anthropic. Nada é guardado."
  },
  "qiBlankHint": {
   "message": "As lacunas são preenchidas quando o modelo é inserido."
@@ -1293,7 +1305,7 @@
   "message": "Organizar suas conversas por assunto?"
  },
  "orgConsentText": {
-  "message": "Vou sugerir uma conversa adequada e uma das suas tags embaixo das novas respostas e notas. Para isso, o texto das suas mensagens vai para o nosso servidor e para a OpenAI e a Anthropic. Não guardamos esse texto. A OpenAI e a Anthropic não o usam para treinamento."
+  "message": "Vou sugerir uma conversa adequada e uma das suas tags embaixo das novas respostas e notas. Dá para desativar nos Ajustes."
  },
  "orgTurnOn": {
   "message": "Ativar"

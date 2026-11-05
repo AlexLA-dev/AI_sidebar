@@ -411,16 +411,34 @@
   "message": "{0} min"
  },
  "consentTitle": {
-  "message": "Avant votre première réponse"
+  "message": "Avant que ContextFlow utilise l’IA"
  },
  "consentBody": {
-  "message": "Pour répondre, ContextFlow envoie votre question et le texte de cette page (ou de votre sélection ; pour la recherche IA et « Interroger vos discussions », des extraits de vos discussions) via notre serveur à Anthropic (Claude) ou, s'il est indisponible, à OpenAI, ou à Google pour les réponses Google. Le contenu des pages et les discussions ne sont pas conservés sur nos serveurs ; vos discussions restent sur vos appareils et, si vous les synchronisez, dans votre iCloud."
+  "message": "Donné une fois, cet accord vaut pour toute l’IA de ContextFlow. Chaque fonction n’envoie que ce dont elle a besoin, quand vous l’utilisez, via notre serveur à Anthropic (Claude) :"
+ },
+ "consentAnswers": {
+  "message": "Réponses : votre question, le texte de la page ou votre sélection, et votre « À propos de moi » si vous l’avez rempli. Si Claude est indisponible, OpenAI répond ; les réponses Google vont à Google."
+ },
+ "consentChats": {
+  "message": "« Interroger vos discussions » et la recherche IA (Pro) : de courts extraits de vos discussions."
+ },
+ "consentTemplates": {
+  "message": "Modèles : leur texte, pour repérer les champs ; le texte de la page pour « Remplir depuis la page » ; vos mots et les titres des modèles pour « Chercher par le sens »."
+ },
+ "consentWatch": {
+  "message": "Surveiller une page : ce que vous avez sélectionné, vos mots pour dire quand prévenir, le texte autour et le titre de la page ; ensuite, l’ancienne et la nouvelle valeur."
+ },
+ "consentSuggest": {
+  "message": "Suggestions (Pro, seulement une fois activées) : le texte des nouvelles questions, réponses et notes, à OpenAI pour les comparer et à Claude pour vérifier un tag."
+ },
+ "consentStored": {
+  "message": "Rien de tout cela n’est conservé sur nos serveurs, et les fournisseurs ne s’en servent pas pour l’entraînement. Vos discussions restent sur vos appareils et, si vous les synchronisez, dans votre iCloud."
  },
  "consentAccept": {
   "message": "Accepter et continuer"
  },
  "consentAgainTitle": {
-  "message": "Nouveau : les réponses viennent désormais de Claude"
+  "message": "Nouveau : un seul accord pour toutes les fonctions d’IA"
  },
  "consentDecline": {
   "message": "Pas maintenant"
@@ -1055,9 +1073,6 @@
  "qiFillByHand": {
   "message": "Remplir à la main"
  },
- "qiFillConsent": {
-  "message": "Pour remplir les champs, ContextFlow envoie le texte de cette page et le modèle à Claude d’Anthropic. Rien n’est conservé."
- },
  "qiPickCopied": {
   "message": "Copié pour « {0} »"
  },
@@ -1102,9 +1117,6 @@
  },
  "qiMarkFailed": {
   "message": "Impossible de repérer les champs pour l’instant. Le modèle est enregistré en texte simple, vous pouvez ajouter des champs à la main."
- },
- "qiMarkConsent": {
-  "message": "Pour repérer les champs, ContextFlow envoie ce texte à Claude d’Anthropic. Rien n’est conservé."
  },
  "qiBlankHint": {
   "message": "Les champs sont remplis quand le modèle est inséré."
@@ -1293,7 +1305,7 @@
   "message": "Classer vos discussions par sujet ?"
  },
  "orgConsentText": {
-  "message": "Je suggérerai une discussion adaptée et l’un de vos tags sous les nouvelles réponses et notes. Pour cela, le texte de vos messages est envoyé à notre serveur, à OpenAI et à Anthropic. Nous ne le conservons pas. OpenAI et Anthropic ne l’utilisent pas pour l’entraînement."
+  "message": "Je suggérerai une discussion adaptée et l’un de vos tags sous les nouvelles réponses et notes. Vous pouvez désactiver cela dans les Réglages."
  },
  "orgTurnOn": {
   "message": "Activer"
