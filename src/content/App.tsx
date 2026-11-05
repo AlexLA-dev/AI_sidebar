@@ -61,6 +61,7 @@ import { reminderOf, reminderRows, withReminderAt } from "./ux/reminderList"
 import { watchableAt } from "./watch/at"
 import { RemindersSheet } from "./ux/RemindersSheet"
 import { SelIconsTip } from "./ux/SelTip"
+import { shadowSelection, trackPointer } from "./selectionShadow"
 import { restoredDraft, withoutStopped } from "./ux/stopped"
 import { scheduleReminder, thisDevice, useMessageUx } from "./ux/useMessageUx"
 import { Tour, tourSteps } from "./Tour"
@@ -607,6 +608,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }, [messages.length, partial, error])
 
   // ------------------------------------------------------------ selection
+  /** The page's selection as a range: in the page, or inside a site's open shadow root (LinkedIn's messages). */
+  const selectedRange = (): Range | null => shadowSelection(HOST_TAG) ?? pageRange(HOST_TAG)
+  // Where the pointer goes down, inside the sites' open shadow roots too: a selection there is read in that root.
+  useEffect(() => trackPointer(), [])
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout> | undefined
     let scrollTimer: ReturnType<typeof setTimeout> | undefined
@@ -619,7 +624,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       const top = vv?.offsetTop ?? 0
       const onScreen = Boolean(sel?.rect && sel.rect.bottom > top && sel.rect.top < top + (vv?.height ?? window.innerHeight))
       // On a Mac a price or a status is a word or two: the bubble shows for it too, with watching's eye (Safari).
-      const enough = sel && (sel.words >= (touch ? MIN_SELECTION_WORDS : 3) || (TARGET === "safari" && Boolean(watchableAt(sel.text, pageRange(HOST_TAG)))))
+      const enough = sel && (sel.words >= (touch ? MIN_SELECTION_WORDS : 3) || (TARGET === "safari" && Boolean(watchableAt(sel.text, selectedRange()))))
       setBubble(sel && onScreen && enough ? sel : null)
     }
     const onSelectionChange = () => {
@@ -1626,7 +1631,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       title={t("uxRemind")}
       {...press(() => {
         void sendBackground({ type: "useEvent", f: "later", a: "open", via: "bubble" })
-        setLater({ selection: sel, range: pageRange(HOST_TAG) })
+        setLater({ selection: sel, range: selectedRange() })
         // The page's selection goes, and with it the system's edit menu that would stay over the window.
         document.getSelection()?.removeAllRanges()
         setBubble(null)
@@ -1639,7 +1644,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // The actions added to the selection bubble, after the bell (watching's eye); none for plain text.
   const bubbleExtras: VNode[] = bubble?.rect && !open && !popup
     ? bubbleActions().flatMap((render, i) => {
-        const ctx: BubbleContext = { url: source.href(), key: source.key(), title: source.title(), selection: bubble.text, range: pageRange(HOST_TAG), close: () => setBubble(null) }
+        const ctx: BubbleContext = { url: source.href(), key: source.key(), title: source.title(), selection: bubble.text, range: selectedRange(), close: () => setBubble(null) }
         const node = render(ctx)
         return node ? [<Fragment key={i}>{node}</Fragment>] : []
       })
@@ -2121,7 +2126,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       setPageMenu(false)
                       void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "later" })
                       void sendBackground({ type: "useEvent", f: "later", a: "open", via: "menu" })
-                      setLater({ selection, range: pageRange(HOST_TAG) })
+                      setLater({ selection, range: selectedRange() })
                     }}
                     onWatchPage={listsKind("watch") && pageWatcher() ? () => {
                       setPageMenu(false)

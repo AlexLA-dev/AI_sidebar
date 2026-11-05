@@ -3,6 +3,7 @@ import { Readability } from "@mozilla/readability"
 import { urlKey } from "../shared/conversation"
 import { MAX_PAGE_CHARS } from "../shared/prompt"
 import type { Platform } from "../shared/types"
+import { shadowSelection } from "./selectionShadow"
 import { unfoldCollapsed } from "./unfold"
 
 export const HOST_TAG = "contextflow-root"
@@ -49,18 +50,27 @@ function countWords(text: string): number {
   return text.split(/\s+/).filter(Boolean).length + Math.round(cjk / 2)
 }
 
-/** Current page selection (outside our own UI), or null. */
+/**
+ * Current page selection (outside our own UI), or null: in the page, or inside a site's open shadow root (LinkedIn's
+ * messages, selectionShadow.ts), where the document doesn't see it.
+ */
 export function readSelection(): SelectionInfo | null {
+  const inner = shadowSelection(HOST_TAG)
+  if (inner) return selectionInfo(inner.toString(), () => inner.getBoundingClientRect())
   const sel = document.getSelection()
   if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return null
   const anchor = sel.anchorNode
   const anchorEl = anchor instanceof Element ? anchor : anchor?.parentElement
   if (anchorEl?.closest(HOST_TAG)) return null
-  const text = sel.toString().replace(/\s+\n/g, "\n").trim()
+  return selectionInfo(sel.toString(), () => sel.getRangeAt(0).getBoundingClientRect())
+}
+
+function selectionInfo(raw: string, box: () => DOMRect): SelectionInfo | null {
+  const text = raw.replace(/\s+\n/g, "\n").trim()
   if (text.length < 2) return null
   let rect: DOMRect | null = null
   try {
-    rect = sel.getRangeAt(0).getBoundingClientRect()
+    rect = box()
   } catch {
     rect = null
   }
