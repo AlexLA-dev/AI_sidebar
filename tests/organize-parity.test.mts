@@ -17,6 +17,10 @@ import { moveEntries, pageBlocks, sweepMoved, undoMove, type Thread, type Thread
 
 const root = new URL("..", import.meta.url).pathname
 const swiftc = spawnSync("which", ["swiftc"]).status === 0
+// The app runs on Apple's Foundation. Linux's (swift-corelibs) has no CoreFoundation functions in scope and reads
+// some JSON numbers a bit off (a rounding tie lands on the other side), so there the test would compare the panel
+// with a runtime the app never uses. It runs on a Mac (npm run check), not on the Linux CI runner.
+const skip = process.platform !== "darwin" ? "the app's Foundation is Apple's: run on a Mac" : !swiftc && "no swiftc here"
 
 type Case = Record<string, unknown> & { op: string }
 type Verdict = { tag: string; fits: boolean; confidence: number }
@@ -427,7 +431,7 @@ suggestions.push(
 )
 cases.push(...suggestions.map(withVectors))
 
-test("organizing gives the same results in the panel and in the app", { skip: !swiftc && "no swiftc here" }, () => {
+test("organizing gives the same results in the panel and in the app", { skip }, () => {
   // The cases reach every kind of move suggestion, and tags the judge confirms, or the parity would say little.
   const whys = new Set(cases.filter((c) => c.op === "suggestMove").map((c) => (js(c) as { why: string } | null)?.why ?? "none"))
   assert.deepEqual([...whys].sort(), ["apart", "none", "page", "site", "topic"])
