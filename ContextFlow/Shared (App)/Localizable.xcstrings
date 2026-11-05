@@ -25154,66 +25154,66 @@
         }
       }
     },
-    "In Safari, select a price, stock or a date and tap the eye.": {
+    "In Safari, select a price, stock or a date and tap the eye. For the whole page: … → Watch this page.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Markiere in Safari einen Preis, die Verfügbarkeit oder ein Datum und tippe auf das Auge."
+            "value": "Markiere in Safari einen Preis, die Verfügbarkeit oder ein Datum und tippe auf das Auge. Für die ganze Seite: … → Diese Seite beobachten."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "En Safari, selecciona un precio, la disponibilidad o una fecha y toca el ojo."
+            "value": "En Safari, selecciona un precio, la disponibilidad o una fecha y toca el ojo. Para toda la página: … → Vigilar esta página."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dans Safari, sélectionnez un prix, le stock ou une date et touchez l’œil."
+            "value": "Dans Safari, sélectionnez un prix, le stock ou une date et touchez l’œil. Pour toute la page : … → Surveiller cette page."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "In Safari, seleziona un prezzo, la disponibilità o una data e tocca l’occhio."
+            "value": "In Safari, seleziona un prezzo, la disponibilità o una data e tocca l’occhio. Per tutta la pagina: … → Segui questa pagina."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Safari で価格、在庫、日付を選択して目をタップしてください。"
+            "value": "Safari で価格、在庫、日付を選択して目をタップしてください。ページ全体なら：… → このページを見守る。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Safari에서 가격, 재고, 날짜를 선택하고 눈을 탭하세요."
+            "value": "Safari에서 가격, 재고, 날짜를 선택하고 눈을 탭하세요. 페이지 전체는: … → 이 페이지 지켜보기."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "No Safari, selecione um preço, a disponibilidade ou uma data e toque no olho."
+            "value": "No Safari, selecione um preço, a disponibilidade ou uma data e toque no olho. Para a página toda: … → Acompanhar esta página."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "В Safari выделите цену, наличие или дату и нажмите глаз."
+            "value": "В Safari выделите цену, наличие или дату и нажмите глаз. Вся страница: … → Следить за этой страницей."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "У Safari виділіть ціну, наявність або дату й натисніть око."
+            "value": "У Safari виділіть ціну, наявність або дату й натисніть око. Уся сторінка: … → Стежити за цією сторінкою."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "在 Safari 中选中价格、库存或日期，然后点眼睛。"
+            "value": "在 Safari 中选中价格、库存或日期，然后点眼睛。整个页面：… → 关注这个页面。"
           }
         }
       }

@@ -18,7 +18,7 @@ const en = JSON.parse(readFileSync(new URL("en.json", locales), "utf8")) as Reco
 test("every language has both lists' words, and none still sends watching to Reminders", () => {
   for (const file of readdirSync(locales).filter((f) => f.endsWith(".json"))) {
     const s = JSON.parse(readFileSync(new URL(file, locales), "utf8")) as Record<string, string>
-    for (const key of ["uxWatching", "uxWatchingN", "uxNoWatching", "uxNoWatchingHint", "uxLater", "uxLaterTitle", "uxReminders", "uxRemindersN"]) {
+    for (const key of ["uxWatching", "uxWatchingN", "uxNoWatching", "uxNoWatchingHint", "uxLater", "uxLaterTitle", "uxWatchPage", "uxReminders", "uxRemindersN"]) {
       assert.ok(s[key]?.trim(), `${file}: ${key}`)
     }
     assert.match(s.uxWatchingN, /\{0\}/, file)
@@ -29,6 +29,8 @@ test("every language has both lists' words, and none still sends watching to Rem
     // The empty Reminders list points to the "…" item by its new name.
     assert.ok(s.uxNoRemindersHint.includes(s.uxLaterTitle), `${file}: uxNoRemindersHint names ${s.uxLaterTitle}`)
     assert.equal(s.uxLater.replace(/…$/, ""), s.uxLaterTitle, file)
+    // The empty Watching list names both ways: the eye on a value, and "… → Watch this page" (the director, 2.5 (77)).
+    assert.ok(s.uxNoWatchingHint.includes(s.uxWatchPage.replace(/…$/, "")), `${file}: uxNoWatchingHint names ${s.uxWatchPage}`)
     assert.ok(!("watchTipEye" in s), `${file}: one tip for the bell and the eye now`)
   }
 })
@@ -56,8 +58,8 @@ before(async () => {
     export function tip(container: Element, watching: boolean) {
       render(h("div", { class: "cf-bubble touch" }, h(SelIconsTip, { watching })), container)
     }
-    export function menu(container: Element, reminders: number, watches: number | null) {
-      render(h(PageMenu, { reminders, watches, onLater() {}, onReminders() {}, onWatching() {}, onSettings() {}, onClose() {} }), container)
+    export function menu(container: Element, reminders: number, watches: number | null, watchPage?: () => void) {
+      render(h(PageMenu, { reminders, watches, onLater() {}, onWatchPage: watchPage, onReminders() {}, onWatching() {}, onSettings() {}, onClose() {} }), container)
     }
   `)
   const out = join(dir, "entry.mjs")
@@ -105,15 +107,20 @@ test("an empty list says where its own are set", () => {
   const w = root()
   ui.list(w, "watch", rows.filter((x) => x.kind === "remind"))
   assert.ok(text(w).includes(en.uxNoWatching))
-  assert.ok(text(w).includes("Select a price, stock or a date and tap the eye."))
+  assert.ok(text(w).includes("Select a price, stock or a date and tap the eye. For the whole page: … → Watch this page."))
 })
 
-test("the header's \"…\": Remind me about this page, Reminders · N, Watching · N where watching works, Settings", () => {
+test("the header's \"…\": Remind me about this page, Watch this page, Reminders · N, Watching · N where watching works, Settings", () => {
   const safari = root()
-  ui.menu(safari, 2, 3)
-  assert.deepEqual([...safari.querySelectorAll("[role=menuitem]")].map((b: Element) => text(b).trim()), [
-    en.uxLater, en.uxRemindersN.replace("{0}", "2"), en.uxWatchingN.replace("{0}", "3"), en.settings
+  let watched = 0
+  ui.menu(safari, 2, 3, () => watched++)
+  const items = [...safari.querySelectorAll("[role=menuitem]")] as Element[]
+  assert.deepEqual(items.map((b) => text(b).trim()), [
+    en.uxLater, en.uxWatchPage, en.uxRemindersN.replace("{0}", "2"), en.uxWatchingN.replace("{0}", "3"), en.settings
   ])
+  // "Watch this page…" opens watching's window for the whole page.
+  ;(items[1] as HTMLElement).dispatchEvent(new dom.window.Event("click", { bubbles: true }))
+  assert.equal(watched, 1)
   const chrome = root()
   ui.menu(chrome, 0, null)
   assert.deepEqual([...chrome.querySelectorAll("[role=menuitem]")].map((b: Element) => text(b).trim()), [en.uxLater, en.uxReminders, en.settings])
@@ -151,4 +158,12 @@ test("the bubble: the bell on every selection, before watching's eye, in both ro
   // On touch screens an icon (the row stays one line); the tip is out of the bubble's flow.
   assert.match(css, /\.cf-bubble\.touch \.cf-sel-remind-l \{ display: none; \}/)
   assert.match(css, /\.cf-bubble \.cf-sel-tip \{\n\s*position: absolute;/)
+})
+
+test("\"Watch this page…\": the whole page in watching's window, a page that can't be watched offers a reminder", () => {
+  const reg = readFileSync(new URL("../src/content/watch/register.tsx", import.meta.url), "utf8")
+  assert.match(reg, /setPageWatch\(\(page\) => openWatchSheet\(\{ url: page\.url, title: page\.title, selection: null, how: "later", remind: \(\) => openLater\(\) \}\)\)/)
+  const app = readFileSync(new URL("../src/content/App.tsx", import.meta.url), "utf8")
+  // Only where watching works, as "Watching · N".
+  assert.match(app, /onWatchPage=\{listsKind\("watch"\) && pageWatcher\(\) \?/)
 })

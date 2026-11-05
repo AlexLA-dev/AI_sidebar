@@ -150,7 +150,7 @@ struct RemindersView: View {
                                 .font(.subheadline).foregroundColor(.secondary).multilineTextAlignment(.center)
                         } else {
                             Text("Nothing watched").font(.headline)
-                            Text("In Safari, select a price, stock or a date and tap the eye.")
+                            Text("In Safari, select a price, stock or a date and tap the eye. For the whole page: … → Watch this page.")
                                 .font(.subheadline).foregroundColor(.secondary).multilineTextAlignment(.center)
                         }
                     }

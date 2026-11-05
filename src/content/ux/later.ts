@@ -64,6 +64,7 @@ const sections = new Map<string, Section>()
 const bubbleActionsById = new Map<string, BubbleAction>()
 const sourcesById = new Map<string, LaterSource>()
 let opener: ((from?: { selection: string | null; range: Range | null }) => void) | null = null
+let pageWatch: ((page: { url: string; title: string }) => void) | null = null
 
 /** A section under Remind in "Remind me about this page" (none since 2.5 (77): the window is time only). */
 export function addLaterSection(id: string, render: Section): void {
@@ -86,6 +87,18 @@ export function bubbleActions(): BubbleAction[] {
 /** Rows for the panel's lists, besides the reminders in the chats (watching's, in "Watching"). */
 export function addLaterSource(id: string, source: LaterSource): void {
   sourcesById.set(id, source)
+}
+
+/**
+ * "Watch this page…" in the header's "…" (2.5 (77), the director: the whole-page watch keeps a way in): watching
+ * says how to open its window for the whole page; the item shows only once it has.
+ */
+export function setPageWatch(open: typeof pageWatch): void {
+  pageWatch = open
+}
+
+export function pageWatcher(): typeof pageWatch {
+  return pageWatch
 }
 
 /** Whether the panel has a list of `kind`: reminders always; watching where a source gives its rows. */

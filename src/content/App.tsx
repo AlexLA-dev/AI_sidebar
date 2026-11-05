@@ -56,7 +56,7 @@ import { ThreadsView } from "./Threads"
 import { starMarks } from "../shared/marks"
 import { Bell, More, remindLabel, RemindSheet } from "./ux/MessageUx"
 import { PageMenu } from "./ux/PageMenu"
-import { bubbleActions, laterSections, laterSources, listsKind, pageRange, setLaterOpener, type BubbleContext, type LaterContext, type LaterItem } from "./ux/later"
+import { bubbleActions, laterSections, laterSources, listsKind, pageRange, pageWatcher, setLaterOpener, type BubbleContext, type LaterContext, type LaterItem } from "./ux/later"
 import { reminderOf, reminderRows, withReminderAt } from "./ux/reminderList"
 import { watchableAt } from "./watch/at"
 import { RemindersSheet } from "./ux/RemindersSheet"
@@ -2123,6 +2123,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       void sendBackground({ type: "useEvent", f: "later", a: "open", via: "menu" })
                       setLater({ selection, range: pageRange(HOST_TAG) })
                     }}
+                    onWatchPage={listsKind("watch") && pageWatcher() ? () => {
+                      setPageMenu(false)
+                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "watch_page" })
+                      pageWatcher()?.({ url: source.href(), title: source.title() })
+                    } : undefined}
                     reminders={laterCount.remind}
                     watches={listsKind("watch") ? laterCount.watch : null}
                     onReminders={() => {
