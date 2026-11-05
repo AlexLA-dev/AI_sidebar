@@ -144,7 +144,7 @@ test("the card is compact: folded at first, what each feature sends unfolds and 
   assert.equal(at.querySelectorAll(".cf-consent-list li").length, 0)
   at.querySelector(".cf-primary").dispatchEvent(new window.Event("click", { bubbles: true }))
   at.querySelector(".cf-card-actions .cf-link").dispatchEvent(new window.Event("click", { bubbles: true }))
-  at.querySelector(".cf-consent-foot .cf-link").dispatchEvent(new window.Event("click", { bubbles: true }))
+  at.querySelector(".cf-consent-policy").dispatchEvent(new window.Event("click", { bubbles: true }))
   assert.deepEqual(seen, ["accept", "decline"])
   assert.equal(opened.length, 1, "the privacy policy")
   C.render(null, at)

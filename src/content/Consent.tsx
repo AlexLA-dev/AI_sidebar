@@ -53,12 +53,9 @@ export function ConsentCard({ again, onAccept, onDecline }: { again: boolean; on
         <button type="button" class="cf-primary" onClick={onAccept}>{t("consentAccept")}</button>
         <button type="button" class="cf-link" onClick={onDecline}>{t("consentDecline")}</button>
       </div>
-      <div class="cf-consent-foot">
-        <button type="button" class={`cf-consent-more ${open ? "open" : ""}`} aria-expanded={open} aria-controls={listId} onClick={() => setOpen(!open)}>
-          {t("consentWhat")} <Chevron />
-        </button>
-        <button type="button" class="cf-link" onClick={() => void sendBackground({ type: "openUrl", url: LINKS.privacy })}>{t("privacyPolicy")}</button>
-      </div>
+      <button type="button" class={`cf-consent-more ${open ? "open" : ""}`} aria-expanded={open} aria-controls={listId} onClick={() => setOpen(!open)}>
+        {t("consentWhat")} <Chevron />
+      </button>
       {open && (
         <div id={listId} class="cf-consent-details">
           <ul class="cf-consent-list">
@@ -67,6 +64,7 @@ export function ConsentCard({ again, onAccept, onDecline }: { again: boolean; on
           <p>{t("consentStored")}</p>
         </div>
       )}
+      <button type="button" class="cf-link cf-consent-policy" onClick={() => void sendBackground({ type: "openUrl", url: LINKS.privacy })}>{t("privacyPolicy")}</button>
     </div>
   )
 }
