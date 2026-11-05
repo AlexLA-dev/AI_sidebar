@@ -1,8 +1,11 @@
 // Where the button by a field goes (iPhone and iPad): never inside the field, never over anything of the
 // site's. Sites keep their own buttons at a field's right edge (search, ×, the microphone, Send), and a
 // single-line field's end is where the caret is; so the button sits outside the field, above its top-right
-// corner, else beside it, else below it, at the first spot where nothing of the page lies underneath. When
-// there's no such spot, there's no button: "/" and ⌃⇧V still open the list.
+// corner, else beside it, else below it, at the first spot where nothing of the page lies underneath. A chat's
+// reply box has all three taken (a read receipt or the last message over its corner, "expand" beside it, Send
+// under it: the owner on 2.5 (77), LinkedIn's messages), so then the spots go on along its top edge and its
+// bottom edge, leftwards from the corner. When there's no such spot, there's no button: "/" and ⌃⇧V still open
+// the list.
 
 import { closestComposed, shadowRootsOf } from "./shadow.ts"
 
@@ -18,18 +21,24 @@ export type Probe = (x: number, y: number) => boolean
 
 /**
  * The button's top-left corner (viewport coordinates), or null. Tried in order: above the field's top-right
- * corner, to its right, below its bottom-right corner; each must be inside the view and free at its centre
+ * corner, to its right, below its bottom-right corner; then along the field's top edge and its bottom edge,
+ * leftwards from the corner a button's width at a time. Each must be inside the view and free at its centre
  * and its four corners.
  */
 export function buttonSpot(field: Rect, view: Box, free: Probe): { top: number; left: number } | null {
   if (field.bottom <= 0 || field.top >= view.height) return null
   const right = Math.min(field.right, view.width - GAP)
   const middle = field.top + Math.min(field.height, 44) / 2 - BUTTON / 2
+  const above = field.top - GAP - BUTTON
+  const below = field.bottom + GAP
   const spots = [
-    { top: field.top - GAP - BUTTON, left: right - BUTTON },
+    { top: above, left: right - BUTTON },
     { top: middle, left: field.right + GAP },
-    { top: field.bottom + GAP, left: right - BUTTON }
+    { top: below, left: right - BUTTON }
   ]
+  const lefts: number[] = []
+  for (let left = right - 2 * BUTTON; left >= Math.max(GAP, field.left); left -= BUTTON) lefts.push(left)
+  for (const top of [above, below]) for (const left of lefts) spots.push({ top, left })
   for (const s of spots) {
     if (s.top < GAP || s.left < GAP || s.top + BUTTON > view.height - GAP || s.left + BUTTON > view.width - GAP) continue
     const points = [

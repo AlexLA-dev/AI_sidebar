@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Messaging · Test</title>
+<!--
+  Quick insert's stand for a reply in private messages (the owner on 2.5 (77): "it was in chats, I tried to answer
+  private messages; the button didn't show at all"). Built like LinkedIn's messaging, not copied from it:
+  - ?layout=overlay: the messages window at the bottom right, inside #interop-outlet's open shadow root (the desktop
+    layout iPad Safari gets): the list above, the reply box (msg-form__contenteditable) with "Maximize compose field" at
+    its top right, the footer below it with the attach buttons and Send at its right;
+  - ?layout=page (default): the /messaging page of a phone, in the document: a header, the thread, a read receipt
+    under the last message at the right, the reply bar fixed at the bottom with Send beside the box.
+  window.stand.reply: the reply box; window.stand.sent(): whether Send is on.
+-->
+<style>
+  body { font: 16px -apple-system, system-ui, sans-serif; margin: 0; background: #fff; color: #191919 }
+  .page-head { position: sticky; top: 0; display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-bottom: 1px solid #e8e8e8; background: #fff; z-index: 2 }
+  .page-head button { border: 0; background: none; font-size: 20px; width: 36px; height: 36px }
+  .page-head b { flex: 1 }
+  .avatar { width: 32px; height: 32px; border-radius: 16px; background: #c7d7ea; flex: none }
+  .msg-s-message-list { padding: 8px 12px 12px }
+  .msg-s-event { display: flex; gap: 8px; margin: 12px 0 }
+  .msg-s-event p { margin: 2px 0 0; line-height: 1.4 }
+  .msg-s-event .meta { font-size: 13px; color: #666 }
+  .seen { display: flex; justify-content: flex-end; margin: 4px 0 }
+  .seen img, .seen span { width: 16px; height: 16px; border-radius: 8px; background: #8aa9cf; display: inline-block }
+  .feed { padding: 16px; color: #444 }
+  .msg-form { background: #fff; border-top: 1px solid #e8e8e8 }
+  .bar { position: fixed; left: 0; right: 0; bottom: 0; display: flex; align-items: flex-end; gap: 8px; padding: 8px 10px; }
+  .bar .plus { width: 36px; height: 36px; border-radius: 18px; border: 0; background: #eef3f8; font-size: 20px }
+  .bar .msg-form__contenteditable { flex: 1; min-height: 22px; max-height: 120px; overflow: auto; background: #f3f2ef; border-radius: 18px; padding: 7px 12px; outline: none }
+  .bar .msg-form__send-button { height: 36px; border: 0; background: none; color: #0a66c2; font-weight: 600 }
+  .bar .msg-form__send-button:disabled { color: #aaa }
+  .msg-form__contenteditable p { margin: 0 }
+</style>
+</head>
+<body>
+<div id="page" hidden>
+  <div class="page-head"><button aria-label="Back">‹</button><span class="avatar"></span><b>Ben Ortiz</b><button aria-label="More">⋯</button></div>
+  <div class="msg-s-message-list" id="page-list"></div>
+  <div style="height:80px"></div>
+  <form class="msg-form bar" onsubmit="return false">
+    <button type="button" class="plus" aria-label="Attach">+</button>
+    <div class="msg-form__contenteditable" id="page-reply" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Write a message…"><p><br></p></div>
+    <button type="submit" class="msg-form__send-button" id="page-send" disabled>Send</button>
+  </form>
+</div>
+<div id="overlay-page" hidden>
+  <div class="feed"><h1>Feed</h1><p>Posts from the people you follow show here. The messages window sits at the bottom right.</p><div style="height:120vh"></div></div>
+</div>
+<div id="interop-outlet"></div>
+
+<script>
+const params = new URLSearchParams(location.search)
+const layout = params.get("layout") === "overlay" ? "overlay" : "page"
+const thread = [
+  ["Ben Ortiz", "10:02", "Thanks for the intro! When are you free next week? I'd love to hear how your team handles the weekly sync."],
+  ["You", "10:05", "Tuesday works. What time suits you?"],
+  ["Ben Ortiz", "10:07", "Great — could you send me the agenda and the address before then?"]
+]
+const listHtml = thread.map(([who, at, text]) => `<div class="msg-s-event"><span class="avatar"></span><div><b>${who}</b> <span class="meta">${at}</span><p>${text}</p></div></div>`).join("") +
+  `<div class="seen"><span class="msg-s-event-with-indicator__seen-receipt" role="img" aria-label="Seen by Ben Ortiz"></span></div>`
+window.stand = {}
+
+if (layout === "page") {
+  document.getElementById("page").hidden = false
+  document.getElementById("page-list").innerHTML = listHtml
+  const reply = document.getElementById("page-reply")
+  const send = document.getElementById("page-send")
+  reply.addEventListener("input", () => { send.disabled = !reply.innerText.trim() })
+  window.stand.reply = reply
+  window.stand.sent = () => !send.disabled
+} else {
+  document.getElementById("overlay-page").hidden = false
+  const root = document.getElementById("interop-outlet").attachShadow({ mode: "open" })
+  root.innerHTML = `<style>
+  :host { all: initial; font: 14px -apple-system, system-ui, sans-serif; color: #191919 }
+  aside { position: fixed; right: 16px; bottom: 0; width: min(400px, calc(100vw - 32px)); height: min(520px, 80vh); background: #fff; border-radius: 10px 10px 0 0; box-shadow: 0 0 0 1px #0002, 0 4px 16px #0003; display: flex; flex-direction: column; z-index: 5 }
+  header { display: flex; align-items: center; gap: 8px; padding: 8px 8px 8px 12px; border-bottom: 1px solid #e8e8e8 }
+  header b { flex: 1 }
+  header button { width: 32px; height: 32px; border: 0; background: none; font-size: 16px }
+  .avatar { width: 32px; height: 32px; border-radius: 16px; background: #c7d7ea; flex: none }
+  .msg-s-message-list { flex: 1; overflow: auto; padding: 0 12px }
+  .msg-s-event { display: flex; gap: 8px; margin: 12px 0 }
+  .msg-s-event p { margin: 2px 0 0; line-height: 1.4 }
+  .meta { font-size: 12px; color: #666 }
+  .seen { display: flex; justify-content: flex-end; margin: 4px 0 }
+  .seen span { width: 16px; height: 16px; border-radius: 8px; background: #8aa9cf; display: inline-block }
+  .msg-form { border-top: 1px solid #e8e8e8 }
+  .msg-form__msg-content-container { display: flex; padding: 8px 4px 0 12px; background: #f4f2ee; margin: 8px; border-radius: 8px }
+  .msg-form__contenteditable { flex: 1; min-height: 64px; max-height: 160px; overflow: auto; outline: none; line-height: 1.4; padding-bottom: 8px }
+  .msg-form__contenteditable p { margin: 0 }
+  .msg-form__expand-btn button { width: 32px; height: 32px; border: 0; background: none; font-size: 15px }
+  .msg-form__footer { display: flex; align-items: center; padding: 4px 8px 8px }
+  .msg-form__footer .left { display: flex; gap: 2px; flex: 1 }
+  .msg-form__footer .left button { width: 32px; height: 32px; border: 0; background: none; font-size: 16px }
+  .msg-form__send-button { height: 28px; padding: 0 14px; border-radius: 14px; border: 0; background: #0a66c2; color: #fff; font-weight: 600 }
+  .msg-form__send-button:disabled { background: #ccc }
+  .msg-form__send-toggle { width: 28px; height: 28px; border: 0; background: none }
+</style>
+<aside class="msg-overlay-conversation-bubble" aria-label="Messaging">
+  <header><span class="avatar"></span><b>Ben Ortiz</b><button aria-label="Open the options">⋯</button><button aria-label="Minimize">–</button><button aria-label="Close your conversation">×</button></header>
+  <div class="msg-s-message-list">${listHtml}</div>
+  <form class="msg-form" onsubmit="return false">
+    <div class="msg-form__msg-content-container">
+      <div class="msg-form__contenteditable" id="overlay-reply" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Write a message…"><p><br></p></div>
+      <div class="msg-form__expand-btn"><button type="button" aria-label="Maximize compose field">⤢</button></div>
+    </div>
+    <footer class="msg-form__footer">
+      <div class="left"><button type="button" aria-label="Attach an image">🖼</button><button type="button" aria-label="Attach a file">📎</button><button type="button" aria-label="Open GIF Keyboard">GIF</button><button type="button" aria-label="Open Emoji Keyboard">😀</button></div>
+      <button type="submit" class="msg-form__send-button" id="overlay-send" disabled>Send</button>
+      <button type="button" class="msg-form__send-toggle" aria-label="Open send options">⋯</button>
+    </footer>
+  </form>
+</aside>`
+  const reply = root.getElementById("overlay-reply")
+  const send = root.getElementById("overlay-send")
+  reply.addEventListener("input", () => { send.disabled = !reply.innerText.trim() })
+  window.stand.reply = reply
+  window.stand.sent = () => !send.disabled
+}
+</script>
+</body>
+</html>
