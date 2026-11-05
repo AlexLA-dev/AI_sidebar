@@ -246,6 +246,8 @@ mark.cf-mark-last { border-top-right-radius: 2px; border-bottom-right-radius: 2p
 .cf-thread .cf-thread-swipe { display: flex; align-items: stretch; flex: 1; min-width: 0; }
 .cf-thread .cf-thread-swipe > .cf-swipe-body { display: flex; align-items: center; flex: 1; min-width: 0; gap: 2px; }
 .cf-thread .cf-swipe-under { border-radius: 10px; }
+/* A chat moved by a swipe: the gap by its colour shows the panel, not the row's highlight (the current chat, hover). */
+.cf-thread:has(.cf-swipe[data-moved]) { background: var(--bg); }
 /* Touch: one "…" on the row (ThreadMenu.tsx), its menu under it at the row's right edge. */
 .cf-thread-more-wrap { position: relative; display: flex; align-self: center; }
 .cf-thread-more { width: 40px; height: 40px; }

@@ -243,4 +243,6 @@ test("the styles: the colour as tall as the row, rounded; a message's card; a mo
   assert.match(css, /\.cf-msg > \.cf-swipe\.on > \.cf-swipe-body \{ margin: 0 -12px; padding: 0 12px;/)
   assert.match(css, /\.cf-swipe > \.cf-swipe-body \{[^}]*background: var\(--bg\);/)
   assert.match(css, /\.cf-messages, \.cf-threads \{ overflow-x: hidden; \}/)
+  // A moved chat: its row's highlight (the current chat) doesn't show in the gap.
+  assert.match(css, /\.cf-thread:has\(\.cf-swipe\[data-moved\]\) \{ background: var\(--bg\); \}/)
 })
