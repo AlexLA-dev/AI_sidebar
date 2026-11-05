@@ -12,6 +12,8 @@ import { pathToFileURL } from "node:url"
 import { build } from "esbuild"
 import { parseHTML } from "linkedom"
 
+import { fakeClock, fakeTimers } from "./fake-clock.mts"
+
 const locales = new URL("../src/locales/", import.meta.url)
 const en = JSON.parse(readFileSync(new URL("en.json", locales), "utf8")) as Record<string, string>
 
@@ -39,6 +41,10 @@ test("every language has both lists' words, and none still sends watching to Rem
 
 let ui: any
 let dom: any
+// The components' timers (Preact's effects) on a fake clock: a test moves it on, so a busy machine can't change
+// what it sees.
+const clock = fakeClock()
+;(globalThis as any).__laterClock = clock
 before(async () => {
   dom = parseHTML("<!doctype html><html><body><div id=\"root\"></div></body></html>")
   Object.assign(globalThis, { window: dom.window, document: dom.document, Node: dom.window.Node, Element: dom.window.Element, ShadowRoot: dom.window.ShadowRoot })
@@ -66,7 +72,8 @@ before(async () => {
   await build({
     entryPoints: [join(dir, "entry.ts")], bundle: true, format: "esm", platform: "neutral", outfile: out, logLevel: "silent",
     jsx: "automatic", jsxImportSource: "preact", nodePaths: [new URL("../node_modules", import.meta.url).pathname],
-    loader: { ".css": "empty" }
+    loader: { ".css": "empty" },
+    define: fakeTimers("__laterClock")
   })
   ui = await import(pathToFileURL(out).href)
 })
@@ -132,7 +139,8 @@ test("the bubble's tip: once, one for both icons (the eye's line where watching 
     get: async (key: string) => (key in store ? { [key]: store[key] } : {}),
     set: async (values: Record<string, unknown>) => void Object.assign(store, values)
   } } } })
-  const wait = () => new Promise((r) => setTimeout(r, 120))
+  // The tip's effect (the fake clock), then its storage and render.
+  const wait = () => clock.advance(120)
   const first = root()
   ui.tip(first, true)
   await wait()

@@ -12,6 +12,7 @@ import { pathToFileURL } from "node:url"
 import { build } from "esbuild"
 import { parseHTML } from "linkedom"
 
+import { fakeClock, fakeTimers } from "./fake-clock.mts"
 import { BUTTON_WIDTH, COMMIT_SHARE, GAP, OPEN_AT, openOffset, swipeEnd, swipeOffset, underWidth, visibleSlice, WHEEL_IDLE, wheelStep } from "../src/content/ux/swipeMath.ts"
 
 const both = { left: true, right: true }
@@ -65,6 +66,10 @@ test("a trackpad's scroll as a finger: the row follows the fingers", () => {
 
 let harness: any
 let dom: any
+// The component's timers (a trackpad's swipe let go when its events stop, Preact's effects) on a fake clock: a
+// test moves it on (`wait`), so a busy machine can't change what the test sees.
+const clock = fakeClock()
+;(globalThis as any).__swipeClock = clock
 before(async () => {
   dom = parseHTML("<!doctype html><html><body><div class=\"cf-messages\"><div id=\"root\"></div></div></body></html>")
   Object.assign(globalThis, { window: dom.window, document: dom.document, ShadowRoot: dom.window.ShadowRoot, Node: dom.window.Node, Element: dom.window.Element })
@@ -94,12 +99,14 @@ before(async () => {
   const out = join(dir, "entry.mjs")
   await build({
     entryPoints: [join(dir, "entry.ts")], bundle: true, format: "esm", platform: "neutral", outfile: out, logLevel: "silent",
-    jsx: "automatic", jsxImportSource: "preact", nodePaths: [new URL("../node_modules", import.meta.url).pathname]
+    jsx: "automatic", jsxImportSource: "preact", nodePaths: [new URL("../node_modules", import.meta.url).pathname],
+    define: fakeTimers("__swipeClock")
   })
   harness = await import(pathToFileURL(out).href)
 })
 
-const wait = (ms: number) => new Promise((r) => setTimeout(r, ms))
+/** The component's time moves on `ms` (the fake clock): its timers due by then fire, in order. */
+const wait = (ms: number) => clock.advance(ms)
 const pointer = (el: Element, type: string, x: number, y = 50) => {
   const e = new dom.window.Event(type, { bubbles: true })
   Object.assign(e, { clientX: x, clientY: y, pointerId: 1, pointerType: "touch" })
