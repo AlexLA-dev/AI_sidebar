@@ -21,7 +21,7 @@ import type { ComponentChildren, VNode } from "preact"
 import { useEffect, useRef } from "preact/hooks"
 
 import { listenAround } from "../around"
-import { COMMIT_SHARE, DECIDE, EDGE_GUARD, openOffset, SHORT, swipeEnd, swipeOffset, underWidth, visibleSlice, WHEEL_IDLE, wheelStep } from "./swipeMath"
+import { COMMIT_SHARE, DECIDE, EDGE_GUARD, type Lift, openOffset, SHORT, swipeEnd, swipeOffset, underWidth, visibleSlice, wheelAgain, WHEEL_GAIN, WHEEL_IDLE, wheelLifted, wheelStep } from "./swipeMath"
 
 export interface SwipeAction {
   label: string
@@ -166,33 +166,47 @@ export function Swipe({ left, right, enabled = true, children, class: cls = "" }
       }
     }
 
-    // Two fingers on a trackpad: sideways wheel events move the row as a finger does, the same way decided (a
-    // mostly vertical scroll is the list's, to its end); it's let go when the events stop.
-    let wheel: { x: number; y: number; base: number; decided: boolean; dropped: boolean } | null = null
+    // Two fingers on a trackpad: sideways wheel events move the row as a finger does (at WHEEL_GAIN), the same way
+    // decided (a mostly vertical scroll is the list's, to its end). It's let go when the fingers lift (the steps
+    // only shrink then: swipeMath.ts) or when the events stop; what's left of the scroll after that is swallowed.
+    // 2.5 (82), the owner: the row ran ahead of the fingers and drifted on instead of settling on Pin, Delete or
+    // back in place.
+    let wheel: { x: number; y: number; base: number; decided: boolean; dropped: boolean; lift: Lift; settled: boolean; last: number } | null = null
     let wheelTimer: ReturnType<typeof setTimeout> | undefined
     const wheelDone = () => {
       const was = wheel
       wheel = null
-      if (!was?.decided) return
+      if (!was?.decided || was.settled) return
       row.removeAttribute("data-dragging")
       settle()
     }
     const onWheel = (e: WheelEvent) => {
       if (e.ctrlKey || start) return // a pinch (zoom), or a finger already on the row
+      const step = wheelStep({ deltaX: e.deltaX, deltaY: e.deltaY, deltaMode: e.deltaMode, inverted: (e as WheelEvent & { webkitDirectionInvertedFromDevice?: boolean }).webkitDirectionInvertedFromDevice }, row.clientWidth)
+      const sideways = Math.abs(e.deltaX) > Math.abs(e.deltaY)
+      if (wheel?.settled) {
+        if (!wheelAgain(wheel.last, step.x)) {
+          wheel.last = Math.abs(step.x)
+          clearTimeout(wheelTimer)
+          wheelTimer = setTimeout(wheelDone, WHEEL_IDLE)
+          if (sideways) e.preventDefault()
+          return
+        }
+        wheel = null
+      }
       if (!wheel) {
         if (ownsSideways(e.target as Element, row)) return
         const sel = document.getSelection()
         if (sel && !sel.isCollapsed && row.contains(sel.anchorNode)) return
-        wheel = { x: 0, y: 0, base: open * openOffset(edge()), decided: false, dropped: false }
+        wheel = { x: 0, y: 0, base: open * openOffset(edge()), decided: false, dropped: false, lift: { peak: 0, slow: 0 }, settled: false, last: 0 }
       }
       clearTimeout(wheelTimer)
       wheelTimer = setTimeout(wheelDone, WHEEL_IDLE)
       if (wheel.dropped) return
-      const step = wheelStep({ deltaX: e.deltaX, deltaY: e.deltaY, deltaMode: e.deltaMode, inverted: (e as WheelEvent & { webkitDirectionInvertedFromDevice?: boolean }).webkitDirectionInvertedFromDevice }, row.clientWidth)
       wheel.x += step.x
       wheel.y += step.y
       // Sideways: not Safari's Back and Forward, not the page.
-      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) e.preventDefault()
+      if (sideways) e.preventDefault()
       if (!wheel.decided) {
         if (Math.abs(wheel.y) > DECIDE && Math.abs(wheel.y) >= Math.abs(wheel.x)) {
           wheel.dropped = true
@@ -203,7 +217,13 @@ export function Swipe({ left, right, enabled = true, children, class: cls = "" }
         fit()
         row.setAttribute("data-dragging", "")
       }
-      place(swipeOffset(wheel.base, wheel.x, row.clientWidth, sides()))
+      place(swipeOffset(wheel.base, wheel.x * WHEEL_GAIN, row.clientWidth, sides()))
+      if (wheelLifted(wheel.lift, step.x)) {
+        wheel.settled = true
+        wheel.last = Math.abs(step.x)
+        row.removeAttribute("data-dragging")
+        settle()
+      }
     }
     const up = (e: PointerEvent) => end(e, false)
     const cancel = (e: PointerEvent) => end(e, true)

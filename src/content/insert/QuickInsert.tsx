@@ -21,7 +21,7 @@ import * as QIcon from "./icons"
 import { clearCopied, countUse, keepCopied, lastReply, loadCopied, loadInsertSettings, loadTemplates, loadUse, markTipSeen, onCopied, onInsertSettings, onTemplates, report, saveInsertSettings, sendBackground, syncTemplatesNow, tipSeen, type LastReply } from "./store"
 import { rememberField, setButtonShown, setPanelInserter } from "./target"
 import { TemplateEditor, type EditorStart } from "./TemplateEditor"
-import { BUTTON, buttonPlace, fieldPointFree, multiLineField, noButtonField, pagePointFree } from "./spot"
+import { BUTTON, buttonPlace, fieldPointFree, multiLineField, nearRect, noButtonField, pagePointFree, PANEL_CLEAR, type Probe } from "./spot"
 import { codeField, phraseWorthLooking, signFor, siteMenuOpen, typedPhrase } from "./trigger"
 import { follow, placeByCaret, placeSheet } from "./place"
 import { caretRect, fieldText, pageRect, viewport, watchFields } from "./watch"
@@ -44,6 +44,9 @@ interface Props {
   touch: boolean
   bus: EventTarget
   panelOpen: boolean
+  // The panel open beside the page on its chat list (iPad): the button shows by a page's field all the same, clear
+  // of the panel (2.5 (82), the owner). Not on iPhone: there the panel is a sheet and a tap on the page closes it.
+  panelAside: boolean
   consent: ConsentStatus
   // Resolves once the consent is stored (the background checks it before sending anything).
   onConsent: () => Promise<void>
@@ -319,7 +322,7 @@ export function QuickInsert(props: Props): VNode | null {
 
   // ------------------------------------------------------------ the button by the field
   const buttonAllowed = touch && settings.button && !siteExcluded(location.hostname, settings.buttonOffSites)
-  const showButton = Boolean(buttonAllowed && field && !mode && !props.panelOpen)
+  const showButton = Boolean(buttonAllowed && field && !mode && (!props.panelOpen || props.panelAside))
   useEffect(() => {
     if (!showButton || tipChecked.current) return
     tipChecked.current = true
@@ -364,12 +367,15 @@ export function QuickInsert(props: Props): VNode | null {
     const r = pageRect(field.el)
     // Our host, wherever it is (inside a site's modal window while one is open: topLayer.ts).
     const host = panelRoot()?.host ?? document.querySelector(HOST_TAG)
+    // With the panel open beside the page: nowhere over it, nor right against it.
+    const panel = props.panelOpen ? panelRoot()?.querySelector(".cf-panel")?.getBoundingClientRect() : undefined
+    const clear = (probe: Probe): Probe => panel ? (x, y) => !nearRect(panel, x, y, PANEL_CLEAR) && probe(x, y) : probe
     // Outside first (the corners, then along the edges); with no room around a multi-line field (a chat's reply
     // box), inside its corner, off its text and caret. Not inside a frame's field (its text is in the frame's place).
     const inside = multiLineField(field.el) && field.el.ownerDocument === document
-      ? { free: fieldPointFree(field.el, host), text: () => fieldText(updateCaret(field)) }
+      ? { free: clear(fieldPointFree(field.el, host)), text: () => fieldText(updateCaret(field)) }
       : null
-    const spot = r.width >= 120 ? buttonPlace(r, vp, pagePointFree(host), inside) : null
+    const spot = r.width >= 120 ? buttonPlace(r, vp, clear(pagePointFree(host)), inside) : null
     if (spot) buttonPos = { top: spot.top + vp.dy, left: spot.left + vp.dx }
   }
 
