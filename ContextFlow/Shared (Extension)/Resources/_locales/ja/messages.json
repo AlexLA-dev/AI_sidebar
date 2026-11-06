@@ -191,6 +191,39 @@
  "uxDeletedChat": {
   "message": "チャットを削除しました"
  },
+ "trashTitle": {
+  "message": "最近削除した項目"
+ },
+ "trashRow": {
+  "message": "最近削除した項目 · {0}"
+ },
+ "trashNote": {
+  "message": "チャットはここに30日間保存されます。その後、完全に削除されます。"
+ },
+ "trashRestore": {
+  "message": "復元"
+ },
+ "trashDeleteNow": {
+  "message": "今すぐ削除"
+ },
+ "trashDeleteAll": {
+  "message": "すべて削除"
+ },
+ "trashDeleteAllAsk": {
+  "message": "「最近削除した項目」のチャットをすべて完全に削除しますか？この操作は取り消せません。"
+ },
+ "trashDays_one": {
+  "message": "{0}日"
+ },
+ "trashDays_few": {
+  "message": "{0}日"
+ },
+ "trashDays_many": {
+  "message": "{0}日"
+ },
+ "trashDays_other": {
+  "message": "{0}日"
+ },
  "uxPinned": {
   "message": "固定済み"
  },
@@ -1080,13 +1113,22 @@
   "message": "「{0}」にコピー履歴から"
  },
  "qiAdapt": {
-  "message": "メッセージに合わせる"
+  "message": "このページ向けに書き直す"
+ },
+ "qiAdaptChat": {
+  "message": "このチャット向けに書き直す"
+ },
+ "qiAdaptHint": {
+  "message": "「ページから入力」は空欄だけを埋めます。「書き直す」は AI で文章全体を書き換え、パネルに表示します。"
  },
  "qiAdaptLabel": {
-  "message": "テンプレートをこのページに合わせる"
+  "message": "テンプレートをこのページ向けに書き直す"
  },
  "qiAdaptPrompt": {
   "message": "このテンプレートを、開いているページに合う返信に書き直して。意味、トーン、長さは保ち、ページからわかることを埋め、ほかはそのままにして。返信の本文だけを答えて。\n\nテンプレート：\n{0}"
+ },
+ "qiAdaptConversation": {
+  "message": "これは私が返信しているチャットです。その相手への返信として書いてください：\n{0}"
  },
  "qiTemplateButton": {
   "message": "テンプレート"
@@ -1466,9 +1508,6 @@
  "watchChangedBody": {
   "message": "現在: {0}"
  },
- "tipsVideos": {
-  "message": "動画付きはContextFlowアプリ → {0}"
- },
  "tip_4cf1b54b00": {
   "message": "ヒント"
  },
@@ -1523,8 +1562,8 @@
  "tip_d7c7b7b55d": {
   "message": "質問欄の横の「Google」をオンにすると、Google検索をもとに答えます。ニュースや価格など最新の情報を出典付きで。"
  },
- "tip_3b2eb51310": {
-  "message": "毎日の使い方"
+ "tip_da5f7b74b1": {
+  "message": "じっくり深掘り"
  },
  "tip_6ba198cbff": {
   "message": "自分のメモ"
@@ -1682,8 +1721,8 @@
  "tip_10400d6345": {
   "message": "✦ボタンを好みに"
  },
- "tip_7487ba7345": {
-  "message": "特定のサイトだけでボタンを隠したり、拡張機能の設定ですべてのサイトでオフにしたりできます。その場合もSafariの拡張機能メニューから開けます。"
+ "tip_4c60874441": {
+  "message": "✦ がページの内容を隠しているときは、端に沿って上下にドラッグするか、反対側へ動かせます。置いた場所はそのまま覚えています。特定のサイトだけで隠したり、拡張機能の設定ですべてのサイトでオフにしたりもできます。その場合もSafariの拡張機能メニューから開けます。"
  },
  "tip_8a727e1bbe": {
   "message": "自分のAPIキーを使う"
@@ -1696,5 +1735,8 @@
  },
  "tip_241d3ad076": {
   "message": "ContextFlowがページを読むのは質問したときだけで、回答のために送るのはそのテキストのみです。チャットはあなたのデバイスとiCloudに保存されます。提案をオンにすると、新しいメッセージのテキストも、どこに入るかを見つけるために当社のサーバーに送られます。当社は保存しません。"
+ },
+ "tip_clips": {
+  "message": "en"
  }
 }

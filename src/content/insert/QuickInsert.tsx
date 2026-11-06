@@ -13,6 +13,7 @@ import { ConsentCard } from "../Consent"
 import { listenAround } from "../around"
 import * as Icon from "../icons"
 import { HOST_TAG, privateBrowsing } from "../page"
+import { panelRoot } from "../root"
 import { copiedText } from "./capture"
 import { activeIn, copyToClipboard, insertText, isControl, restoreCaret, textBeforeCaret, updateCaret, type Field } from "./field"
 import { FillForm } from "./FillForm"
@@ -20,9 +21,9 @@ import * as QIcon from "./icons"
 import { clearCopied, countUse, keepCopied, lastReply, loadCopied, loadInsertSettings, loadTemplates, loadUse, markTipSeen, onCopied, onInsertSettings, onTemplates, report, saveInsertSettings, sendBackground, syncTemplatesNow, tipSeen, type LastReply } from "./store"
 import { rememberField, setButtonShown, setPanelInserter } from "./target"
 import { TemplateEditor, type EditorStart } from "./TemplateEditor"
-import { BUTTON, buttonPlace, fieldPointFree, multiLineField, noButtonField, pagePointFree } from "./spot"
+import { BUTTON, buttonPlace, fieldPointFree, multiLineField, nearRect, noButtonField, pagePointFree, PANEL_CLEAR, type Probe } from "./spot"
 import { codeField, phraseWorthLooking, signFor, siteMenuOpen, typedPhrase } from "./trigger"
-import { follow, placeByCaret, placeSheet } from "./place"
+import { follow, placeBeside, placeByCaret, placeSheet } from "./place"
 import { caretRect, fieldText, pageRect, viewport, watchFields } from "./watch"
 
 /** What the panel asks of quick insert, through the bus (the selection's "Template" button, Settings). */
@@ -43,13 +44,17 @@ interface Props {
   touch: boolean
   bus: EventTarget
   panelOpen: boolean
+  // The panel open beside the page (iPad): the button shows by a page's field all the same, clear of the panel (2.5
+  // (82), the owner, with the chat list open; 2.5 (84): with a chat open too). Not on iPhone: there the panel is a
+  // sheet and a tap on the page closes it.
+  panelAside: boolean
   consent: ConsentStatus
   // Resolves once the consent is stored (the background checks it before sending anything).
   onConsent: () => Promise<void>
   free: boolean
   onUpgrade: () => void
   onOpenTemplates: () => void
-  onAdapt: (text: string) => void
+  onAdapt: (text: string, conversation: string | null) => void
 }
 
 
@@ -318,7 +323,7 @@ export function QuickInsert(props: Props): VNode | null {
 
   // ------------------------------------------------------------ the button by the field
   const buttonAllowed = touch && settings.button && !siteExcluded(location.hostname, settings.buttonOffSites)
-  const showButton = Boolean(buttonAllowed && field && !mode && !props.panelOpen)
+  const showButton = Boolean(buttonAllowed && field && !mode && (!props.panelOpen || props.panelAside))
   useEffect(() => {
     if (!showButton || tipChecked.current) return
     tipChecked.current = true
@@ -361,13 +366,21 @@ export function QuickInsert(props: Props): VNode | null {
   // Outside the field, where nothing of the site's lies underneath (spot.ts); none on searches and codes.
   if (showButton && field && !noButtonField(field.el)) {
     const r = pageRect(field.el)
-    const host = document.querySelector(HOST_TAG)
+    // Our host, wherever it is (inside a site's modal window while one is open: topLayer.ts).
+    const host = panelRoot()?.host ?? document.querySelector(HOST_TAG)
+    // With the panel open beside the page: nowhere over it, nor right against it.
+    const panel = props.panelOpen ? panelRoot()?.querySelector(".cf-panel")?.getBoundingClientRect() : undefined
+    const clear = (probe: Probe): Probe => panel ? (x, y) => !nearRect(panel, x, y, PANEL_CLEAR) && probe(x, y) : probe
     // Outside first (the corners, then along the edges); with no room around a multi-line field (a chat's reply
-    // box), inside its corner, off its text and caret. Not inside a frame's field (its text is in the frame's place).
-    const inside = multiLineField(field.el) && field.el.ownerDocument === document
-      ? { free: fieldPointFree(field.el, host), text: () => fieldText(updateCaret(field)) }
+    // box), inside its corner, off its text and caret. A frame's field too: its text is where it is in the frame, so
+    // it's moved by the frame's place on the page.
+    const own = field.el.getBoundingClientRect()
+    const dx = r.left - own.left
+    const dy = r.top - own.top
+    const inside = multiLineField(field.el)
+      ? { free: clear(fieldPointFree(field.el, host)), text: () => fieldText(updateCaret(field)).map((b) => ({ left: b.left + dx, right: b.right + dx, top: b.top + dy, bottom: b.bottom + dy })) }
       : null
-    const spot = r.width >= 120 ? buttonPlace(r, vp, pagePointFree(host), inside) : null
+    const spot = r.width >= 120 ? buttonPlace(r, vp, clear(pagePointFree(host)), inside) : null
     if (spot) buttonPos = { top: spot.top + vp.dy, left: spot.left + vp.dx }
   }
 
@@ -460,9 +473,9 @@ export function QuickInsert(props: Props): VNode | null {
           free={props.free}
           onUpgrade={props.onUpgrade}
           onClose={() => closeTo(m.via !== "button")}
-          onAdapt={(text) => {
+          onAdapt={(text, conversation) => {
             setMode(null)
-            props.onAdapt(text)
+            props.onAdapt(text, conversation)
           }}
           onInsert={(text, filled, count) => {
             void insertNow(text, m.replace).then((ok) => ok && report({ kind: "insert_template", via: m.via, blanks: count, filled }))
@@ -633,11 +646,13 @@ function InsertList(p: ListProps): VNode {
   useEffect(() => setChosen(0), [query, aiIds])
   useEffect(() => setAiIds(null), [query])
 
-  // Placed: a sheet over the bottom of what's visible, or under the caret; again when the keyboard moves.
+  // Placed: beside the field where there's room, else a sheet over the bottom of what's visible, or under the caret;
+  // again when the keyboard moves.
   useLayoutEffect(() => {
     const el = ref.current
     if (!el) return
     return follow(el, () => {
+      if (placeBeside(el, p.field, p.touch, 360, 460)) return
       if (p.at === "sheet") placeSheet(el, p.touch)
       else {
         el.style.maxHeight = `${Math.min(460, viewport(p.touch).height - 16)}px`
@@ -721,6 +736,8 @@ function InsertList(p: ListProps): VNode {
           onKeyPress={(e) => e.stopPropagation()}
         />
         <button type="button" aria-label={t("qiNewTemplate")} title={t("qiNewTemplate")} onClick={p.onNew}><Icon.Plus /></button>
+        {/* 2.5 (84), the owner: how it closes wasn't clear (a tap outside, Esc). */}
+        <button type="button" class="cf-qi-x" aria-label={t("close")} title={t("close")} onClick={p.onClose}><Icon.Close /></button>
       </div>
       <div class="cf-qi-body">
         <div class="cf-qi-sec">

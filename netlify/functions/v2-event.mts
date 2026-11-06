@@ -5,25 +5,23 @@ import { config as settings } from "../shared/config.mts"
 import { consume, logEvent } from "../shared/db.mts"
 import { clip, ipSubject, isUuid, json, preflight, readJson } from "../shared/http.mts"
 import { isRenewalReason } from "../../src/shared/renewal.ts"
+import { sessionFields, useFields } from "../../src/shared/usage.ts"
 
 // "app_open": the ContextFlow app was opened (at most once a day per app); "ext_on": the Safari
 // extension ran for the first time, i.e. the user switched it on. "media_notice": a free answer said
 // it skipped the page's video or PDFs (Pro reads them); "media_notice_pro": its "Try Pro" was tapped.
 // "renewal_off": a Pro user who turned auto-renew off said what was missing (or put the question off).
 // "byok_upsell": an Own key subscriber was shown Pro (at a refusal, or the discount a day later) or tapped it.
+// These few a day per id share one small allowance; everything else ("use": a step in a feature, see
+// src/shared/usage.ts) has its own, larger one.
 const KINDS = new Set(["app_open", "ext_on", "media_notice", "media_notice_pro", "renewal_off", "byok_upsell"])
+const STEP_KINDS = new Set(["use"])
 // Quick insert (2.5), counts only, no text and no sites: "insert_copied" / "insert_template" / "insert_answer"
 // something went into a field (how the list was opened, the template's blanks and how they were filled);
 // "insert_tpl_new" a template was made (from a selection, Copied or +; blanks, marked by AI or not);
 // "insert_fill" the AI filled blanks (how many of how many), "insert_fill_edit" one was changed after;
 // "insert_manual" a field didn't take the text (copied for a paste by hand); "social_open" a link to X or Threads.
 const INSERT_KINDS = new Set(["insert_copied", "insert_template", "insert_answer", "insert_tpl_new", "insert_fill", "insert_fill_edit", "insert_manual", "social_open"])
-const UPSELL_ACTIONS = new Set(["shown", "tap"])
-const UPSELL_WHERE = new Set(["limit", "search", "pro_only", "offer", "pro_screen"])
-const RENEWAL_FROM = new Set(["app", "panel"])
-const MEDIA = new Set(["video", "pdf", "video,pdf"])
-const STATES = new Set(["off", "on", "in_use"])
-const NOTIFICATIONS = new Set(["granted", "denied", "not_asked"])
 // Chat UX (2.5), counts only, no text: "ux_mark" a highlight in an answer added, removed, copied as bold or shared
 // with **; "ux_pin" an answer or note pinned, unpinned (one or all), or the pinned bar tapped; "ux_delete" an
 // answer, note or chat deleted (by a swipe, the menu or the hover button) or brought back; "ux_remind" a reminder
@@ -31,13 +29,26 @@ const NOTIFICATIONS = new Set(["granted", "denied", "not_asked"])
 // page ("Come back later"). The header's "…", the "Come back later" window and "Reminders", and watching are
 // steps of the analytics registry's "use" kind (src/shared/usage.ts, PR #32): f "menu", "later", "watch".
 const UX_KINDS = new Set(["ux_mark", "ux_pin", "ux_delete", "ux_remind"])
+const UPSELL_ACTIONS = new Set(["shown", "tap"])
+const UPSELL_WHERE = new Set(["limit", "search", "pro_only", "offer", "pro_screen", "settings"])
+const RENEWAL_FROM = new Set(["app", "panel"])
+const MEDIA = new Set(["video", "pdf", "video,pdf"])
+const STATES = new Set(["off", "on", "in_use"])
+const NOTIFICATIONS = new Set(["granted", "denied", "not_asked"])
 
 /**
- * POST /api/v2/event — anonymous funnel step between the App Store download and the first answer.
+ * POST /api/v2/event — anonymous counts: funnel steps between the App Store download and the first answer,
+ * and which features people use, in what order.
  * Body: { kind, installId?: <extension install id>, appId?: <random id of the app>,
- *         client: {version, platform, locale}, extension?: "off"|"on"|"in_use", notifications?,
+ *         client: {version, build?, platform, locale}, audience?: "test" (debug and TestFlight builds),
+ *         extension?: "off"|"on"|"in_use", notifications?,
  *         adToken?: <AdServices attribution token, app_open only>, media?: "video"|"pdf"|"video,pdf",
- *         renewal_off: reason (src/shared/renewal.ts), product, days_left, from: "app"|"panel" }
+ *         renewal_off: reason (src/shared/renewal.ts), product, days_left, from: "app"|"panel",
+ *         use: f, a, via?, …the feature's own fields (src/shared/usage.ts),
+ *         insert_*, social_open, organize*, ux_*: their counts (below), never text or sites,
+ *         any kind: sid, n, prev, dt, s, psid (the session the step belongs to) }
+ * or { batch: [{kind, …}, …up to 25], installId?, appId?, client, audience? } — steps sent together;
+ * a step that isn't allowed is left out, the rest are kept.
  * Nothing else is accepted: no page content, no Apple ID, no device identifiers.
  * With adToken the answer carries ads: "attributed" | "organic" | "pending" (the app sends the
  * token again on a later launch while it's pending).
@@ -46,48 +57,46 @@ export default async (req: Request, context: Context): Promise<Response> => {
   if (req.method === "OPTIONS") return preflight()
   if (req.method !== "POST") return json({ code: "METHOD" }, 405)
 
-  const body = await readJson(req, 10_000)
-  const kind = clip(body?.kind, 16)
+  const body = await readJson(req, 20_000)
   const installId = isUuid(body?.installId) ? (body?.installId as string) : null
   const appId = isUuid(body?.appId) ? (body?.appId as string) : null
-  if (!body || !(KINDS.has(kind) || INSERT_KINDS.has(kind) || ORGANIZE_KINDS.has(kind) || UX_KINDS.has(kind)) || !(installId || appId)) return json({ code: "BAD_REQUEST" }, 400)
-  if (kind === "renewal_off" && !isRenewalReason(body.reason)) return json({ code: "BAD_REQUEST" }, 400)
+  if (!body || !(installId || appId)) return json({ code: "BAD_REQUEST" }, 400)
+  const batch = Array.isArray(body.batch)
+  const items = batch ? (body.batch as unknown[]).slice(0, MAX_BATCH) : [body]
   const client = (body.client ?? {}) as Record<string, unknown>
+  // The app build (CFBundleVersion), read as /api/v2/chat reads it: it tells builds apart when the version doesn't.
+  const build = /^\d{1,6}/.exec(String(client.build ?? "").trim())
+  const shared = {
+    ...(appId ? { app: appId } : {}),
+    platform: clip(client.platform, 20),
+    version: clip(client.version, 20),
+    locale: clip(client.locale, 12),
+    ...(build ? { build: Number(build[0]) } : {}),
+    ...(body.audience === "test" || client.audience === "test" ? { audience: "test" } : {})
+  }
+  const steps = items.map((item) => step(item, shared)).filter((s): s is Step => s !== null)
+  if (!steps.length) return json({ code: "BAD_REQUEST" }, 400)
 
-  // Inserts and chat UX events happen many times a day: their own allowance, so they never use up the funnel's.
-  const busy = INSERT_KINDS.has(kind) ? "insert" : UX_KINDS.has(kind) ? "ux" : null
-  const quota = await consume(busy ? [
-    { subject: `event:${busy}:${appId ?? installId}`, period: "day", limit: settings.insert.eventDaily },
-    { subject: `event:${busy}:${ipSubject(context.ip)}`, period: "day", limit: settings.insert.eventDaily * 10 }
-  ] : [
-    { subject: `event:${appId ?? installId}`, period: "day", limit: settings.eventDailyLimit },
-    { subject: `event:${ipSubject(context.ip)}`, period: "day", limit: settings.eventDailyLimit * 10 }
+  // One request counts once, however many steps it carries: in the funnel's small allowance when it has a funnel
+  // step; inserts and chat UX (2.5, many times a day) in their own, so they never use up the funnel's; the rest
+  // (feature steps, organizing) in the larger one for use.
+  const has = (kinds: Set<string>) => steps.some((s) => kinds.has(s.kind))
+  const funnel = has(KINDS)
+  const busy = funnel ? null : has(INSERT_KINDS) ? "insert" : has(UX_KINDS) ? "ux" : null
+  const limit = funnel ? settings.eventDailyLimit : busy ? settings.insert.eventDaily : settings.useEventDailyLimit
+  const bucket = funnel ? "event" : busy ? `event:${busy}` : "event:use"
+  const quota = await consume([
+    { subject: `${bucket}:${appId ?? installId}`, period: "day", limit },
+    { subject: `${bucket}:${ipSubject(context.ip)}`, period: "day", limit: limit * 10 }
   ]).catch(() => null)
   if (quota && !quota.allowed) return json({ code: "LIMIT_REACHED" }, 429)
 
-  const extension = clip(body.extension, 8)
-  const notifications = clip(body.notifications, 12)
-  const media = clip(body.media, 9)
-  context.waitUntil(
-    logEvent(kind, installId, {
-      ...(appId ? { app: appId } : {}),
-      platform: clip(client.platform, 20),
-      version: clip(client.version, 20),
-      locale: clip(client.locale, 12),
-      ...(STATES.has(extension) ? { extension } : {}),
-      ...(NOTIFICATIONS.has(notifications) ? { notifications } : {}),
-      ...(kind.startsWith("media_notice") && MEDIA.has(media) ? { media } : {}),
-      ...(kind === "renewal_off" ? renewalFields(body) : {}),
-      ...(kind === "byok_upsell" ? upsellFields(body) : {}),
-      ...(INSERT_KINDS.has(kind) ? insertFields(body) : {}),
-      ...(ORGANIZE_KINDS.has(kind) ? organizeFields(kind, body) : {}),
-      ...(UX_KINDS.has(kind) ? uxFields(kind, body) : {})
-    })
-  )
+  context.waitUntil(Promise.all(steps.map((s) => logEvent(s.kind, installId, s.data))))
+  if (batch) return json({ ok: true, kept: steps.length, left_out: items.length - steps.length })
 
   // Apple Ads attribution: which campaign / ad group / keyword brought this download, so
   // subscriptions can be joined to keywords (rpc cf_ads_funnel).
-  const adToken = kind === "app_open" && typeof body.adToken === "string" && body.adToken.length <= 4096 ? body.adToken : null
+  const adToken = body.kind === "app_open" && typeof body.adToken === "string" && body.adToken.length <= 4096 ? body.adToken : null
   if (!adToken) return json({ ok: true })
   const attribution = await resolveAdToken(adToken)
   if (attribution === "pending" || attribution === null) return json({ ok: true, ads: attribution ?? "pending" })
@@ -95,6 +104,43 @@ export default async (req: Request, context: Context): Promise<Response> => {
     context.waitUntil(logEvent("ads_attribution", installId, { ...(appId ? { app: appId } : {}), ...attributionFields(attribution) }))
   }
   return json({ ok: true, ads: attribution.attribution ? "attributed" : "organic" })
+}
+
+const MAX_BATCH = 25
+
+interface Step {
+  kind: string
+  data: Record<string, unknown>
+}
+
+/** One event as it will be logged, or null when its kind or its required fields aren't allowed. */
+function step(raw: unknown, shared: Record<string, unknown>): Step | null {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null
+  const item = raw as Record<string, unknown>
+  const kind = clip(item.kind, 16)
+  if (!KINDS.has(kind) && !STEP_KINDS.has(kind) && !INSERT_KINDS.has(kind) && !ORGANIZE_KINDS.has(kind) && !UX_KINDS.has(kind)) return null
+  if (kind === "renewal_off" && !isRenewalReason(item.reason)) return null
+  const use = kind === "use" ? useFields(item) : null
+  if (kind === "use" && !use) return null
+  const extension = clip(item.extension, 8)
+  const notifications = clip(item.notifications, 12)
+  const media = clip(item.media, 9)
+  return {
+    kind,
+    data: {
+      ...shared,
+      ...(STATES.has(extension) ? { extension } : {}),
+      ...(NOTIFICATIONS.has(notifications) ? { notifications } : {}),
+      ...(kind.startsWith("media_notice") && MEDIA.has(media) ? { media } : {}),
+      ...(kind === "renewal_off" ? renewalFields(item) : {}),
+      ...(kind === "byok_upsell" ? upsellFields(item) : {}),
+      ...(INSERT_KINDS.has(kind) ? insertFields(item) : {}),
+      ...(ORGANIZE_KINDS.has(kind) ? organizeFields(kind, item) : {}),
+      ...(UX_KINDS.has(kind) ? uxFields(kind, item) : {}),
+      ...use,
+      ...sessionFields(item)
+    }
+  }
 }
 
 const INSERT_VIA = new Set(["button", "slash", "shortcut", "panel"])

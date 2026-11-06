@@ -191,6 +191,39 @@
  "uxDeletedChat": {
   "message": "对话已删除"
  },
+ "trashTitle": {
+  "message": "最近删除"
+ },
+ "trashRow": {
+  "message": "最近删除 · {0}"
+ },
+ "trashNote": {
+  "message": "对话会在这里保留 30 天，之后将被永久删除。"
+ },
+ "trashRestore": {
+  "message": "恢复"
+ },
+ "trashDeleteNow": {
+  "message": "立即删除"
+ },
+ "trashDeleteAll": {
+  "message": "全部删除"
+ },
+ "trashDeleteAllAsk": {
+  "message": "要永久删除“最近删除”中的所有对话吗？此操作无法撤销。"
+ },
+ "trashDays_one": {
+  "message": "{0} 天"
+ },
+ "trashDays_few": {
+  "message": "{0} 天"
+ },
+ "trashDays_many": {
+  "message": "{0} 天"
+ },
+ "trashDays_other": {
+  "message": "{0} 天"
+ },
  "uxPinned": {
   "message": "已置顶"
  },
@@ -1080,13 +1113,22 @@
   "message": "为“{0}”选择已复制内容"
  },
  "qiAdapt": {
-  "message": "按消息调整"
+  "message": "按此网页改写"
+ },
+ "qiAdaptChat": {
+  "message": "按此对话改写"
+ },
+ "qiAdaptHint": {
+  "message": "“从网页填写”只填空格。“改写”用 AI 改写整段文字，并显示在面板中。"
  },
  "qiAdaptLabel": {
-  "message": "按此网页调整模板"
+  "message": "按此网页改写模板"
  },
  "qiAdaptPrompt": {
   "message": "把这个模板改写成适合当前网页的回复。保持意思、语气和长度；填入网页上能确定的内容，其余保持原样。只回答回复的正文。\n\n模板：\n{0}"
+ },
+ "qiAdaptConversation": {
+  "message": "这是我正在回复的对话。请写一条回复给其中的对方：\n{0}"
  },
  "qiTemplateButton": {
   "message": "模板"
@@ -1466,9 +1508,6 @@
  "watchChangedBody": {
   "message": "现在：{0}"
  },
- "tipsVideos": {
-  "message": "带视频的版本：ContextFlow App → {0}"
- },
  "tip_4cf1b54b00": {
   "message": "技巧"
  },
@@ -1523,8 +1562,8 @@
  "tip_d7c7b7b55d": {
   "message": "打开提问框旁的 Google，即可借助 Google 搜索回答：新闻、价格等最新信息，并附上来源。"
  },
- "tip_3b2eb51310": {
-  "message": "日常使用"
+ "tip_da5f7b74b1": {
+  "message": "深入钻研"
  },
  "tip_6ba198cbff": {
   "message": "你自己的笔记"
@@ -1682,8 +1721,8 @@
  "tip_10400d6345": {
   "message": "按你的习惯使用 ✦ 按钮"
  },
- "tip_7487ba7345": {
-  "message": "可以只在某个网站隐藏按钮，或在扩展设置中全部关闭。之后仍可从 Safari 的扩展菜单打开 ContextFlow。"
+ "tip_4c60874441": {
+  "message": "✦ 挡住了页面上的内容？沿着边缘上下拖动它，或拖到另一侧，它会停在你松手的位置。也可以只在某个网站隐藏按钮，或在扩展设置中全部关闭。之后仍可从 Safari 的扩展菜单打开 ContextFlow。"
  },
  "tip_8a727e1bbe": {
   "message": "使用自己的 API 密钥"
@@ -1696,5 +1735,8 @@
  },
  "tip_241d3ad076": {
   "message": "ContextFlow 只在你提问时读取页面，并且只发送页面文字来获取回答。你的对话保存在你的设备和 iCloud 中。开启建议后，新消息的文本也会发送到我们的服务器，用来判断它们该放在哪里；我们不会保存这些文本。"
+ },
+ "tip_clips": {
+  "message": "en"
  }
 }

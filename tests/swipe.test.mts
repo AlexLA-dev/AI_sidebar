@@ -13,7 +13,7 @@ import { build } from "esbuild"
 import { parseHTML } from "linkedom"
 
 import { fakeClock, fakeTimers } from "./fake-clock.mts"
-import { BUTTON_WIDTH, COMMIT_SHARE, GAP, OPEN_AT, openOffset, swipeEnd, swipeOffset, underWidth, visibleSlice, WHEEL_IDLE, wheelStep } from "../src/content/ux/swipeMath.ts"
+import { BUTTON_WIDTH, COMMIT_SHARE, GAP, LIFT_STEPS, OPEN_AT, openOffset, swipeEnd, swipeOffset, underWidth, visibleSlice, wheelAgain, WHEEL_GAIN, WHEEL_IDLE, wheelLifted, WHEEL_STEP_MAX, wheelStep } from "../src/content/ux/swipeMath.ts"
 
 const both = { left: true, right: true }
 
@@ -53,13 +53,39 @@ test("the colour stops a gap short of the card; with the button out, all of the 
 })
 
 test("a trackpad's scroll as a finger: the row follows the fingers", () => {
-  // Natural scrolling (the default): fingers to the left scroll the content right (deltaX > 0); the row goes left.
-  assert.deepEqual(wheelStep({ deltaX: 12, deltaY: 0, deltaMode: 0, inverted: true }, 300), { x: -12, y: -0 })
-  assert.deepEqual(wheelStep({ deltaX: 12, deltaY: 0, deltaMode: 0 }, 300), { x: -12, y: -0 })
-  // Natural scrolling off: the deltas are the fingers' way.
-  assert.deepEqual(wheelStep({ deltaX: 12, deltaY: 3, deltaMode: 0, inverted: false }, 300), { x: 12, y: 3 })
+  // 2.5 (82), the owner: read as a Mac reads them, the row went against the fingers on an iPad. Now a deltaX the
+  // fingers' way moves the row that way; with natural scrolling reported off, the other way round.
+  assert.deepEqual(wheelStep({ deltaX: -12, deltaY: 0, deltaMode: 0, inverted: true }, 300), { x: -12, y: 0 })
+  assert.deepEqual(wheelStep({ deltaX: -12, deltaY: 0, deltaMode: 0 }, 300), { x: -12, y: 0 })
+  assert.deepEqual(wheelStep({ deltaX: 12, deltaY: 3, deltaMode: 0, inverted: false }, 300), { x: -12, y: -3 })
   // Lines and pages.
-  assert.equal(wheelStep({ deltaX: 2, deltaY: 0, deltaMode: 1 }, 300).x, -32)
+  assert.equal(wheelStep({ deltaX: 2, deltaY: 0, deltaMode: 1 }, 300).x, 32)
+})
+
+test("the fingers lifted: the scroll only shrinking step by step after them; moving again: a bigger step, or back", () => {
+  const lift = { peak: 0, slow: 0, prev: 0 }
+  // Small steps at the start (the fingers setting off) and steady ones aren't a lift.
+  for (const s of [1, 2, 3, 20, 20, 20]) assert.equal(wheelLifted(lift, s), false)
+  // Slowing to aim at a spot, unevenly, then going on: not a lift (2.5 (83): the row stopped listening).
+  for (const s of [6, 4, 5, 3, 4, 18]) assert.equal(wheelLifted(lift, s), false)
+  // The momentum running out, each step no bigger than the one before: lifted on the LIFT_STEPS-th under the share.
+  const tail = [12, 8, 5, 5, 3, 2]
+  const at = tail.findIndex((s) => wheelLifted(lift, -s))
+  assert.equal(at, 2 + LIFT_STEPS - 1)
+  // A slow gesture all the way (never fast): only the events stopping lets it go.
+  const slow = { peak: 0, slow: 0, prev: 0 }
+  for (const s of [2, 3, 1, 1, 1, 1]) assert.equal(wheelLifted(slow, s), false)
+  // After the lift: the scroll running out isn't the fingers; a bigger step or one back the other way is.
+  assert.equal(wheelAgain(-3, -2), false)
+  assert.equal(wheelAgain(-3, -3), false)
+  assert.equal(wheelAgain(-3, -5), true)
+  assert.equal(wheelAgain(-3, 2), true, "back the other way")
+  assert.equal(wheelAgain(-3, 1), false, "jitter")
+})
+
+test("a flick's burst counts as WHEEL_STEP_MAX at most", () => {
+  assert.equal(wheelStep({ deltaX: -120, deltaY: 0, deltaMode: 0 }, 300).x, -WHEEL_STEP_MAX)
+  assert.equal(wheelStep({ deltaX: 3, deltaY: 0, deltaMode: 1 }, 300).x, WHEEL_STEP_MAX)
 })
 
 // ------------------------------------------------------------ the real Swipe, in a DOM
@@ -196,18 +222,18 @@ const wheel = (el: Element, deltaX: number, deltaY = 0) => {
 
 test("two fingers on a trackpad swipe as a finger: past the share it deletes, short of it the button stays out", async () => {
   const { row, text, body, calls } = await mounted()
-  // Fingers to the left (natural scrolling: deltaX > 0), 20 px a step, the row following.
-  for (let i = 0; i < 4; i++) assert.ok(wheel(text, 20), "a sideways scroll is the row's, not Safari's Back")
-  assert.match(body.style.transform, /translate3d\(-80px/)
+  // Fingers to the left, 20 px a step, the row following at half their pace (WHEEL_GAIN).
+  for (let i = 0; i < 4; i++) assert.ok(wheel(text, -20), "a sideways scroll is the row's, not Safari's Back")
+  assert.match(body.style.transform, new RegExp(`translate3d\\(${-80 * WHEEL_GAIN}px`))
   assert.ok(row.hasAttribute("data-dragging"))
-  for (let i = 0; i < 3; i++) wheel(text, 20)
+  for (let i = 0; i < 10; i++) wheel(text, -20)
   // Nothing marks the fingers lifting: the row is let go when the events stop.
   await wait(WHEEL_IDLE + 60)
   assert.deepEqual(calls, ["delete"], `past ${COMMIT_SHARE} of the row`)
   assert.equal(body.style.transform, "")
   assert.ok(!row.hasAttribute("data-dragging"))
   // To the right, short of the share: the pin button stays out, then a tap elsewhere would put it back.
-  for (let i = 0; i < 4; i++) wheel(text, -20)
+  for (let i = 0; i < 8; i++) wheel(text, 20)
   await wait(WHEEL_IDLE + 60)
   assert.deepEqual(calls, ["delete"])
   assert.match(body.style.transform, new RegExp(`translate3d\\(${openOffset(0)}px`))
@@ -220,13 +246,35 @@ test("a trackpad's vertical scroll stays the list's, to its end, even if it drif
   const { text, body, calls } = await mounted()
   assert.equal(wheel(text, 0, 30), false, "not taken from the list")
   // The same gesture drifting sideways later on: still the list's.
-  wheel(text, 15, 2)
-  wheel(text, 25, 0)
+  wheel(text, -15, 2)
+  wheel(text, -25, 0)
   assert.ok(!body.style.transform, "the row didn't move")
   await wait(WHEEL_IDLE + 60)
   // A new gesture, sideways: the row's.
-  for (let i = 0; i < 3; i++) wheel(text, 20)
-  assert.match(body.style.transform, /translate3d\(-60px/)
+  for (let i = 0; i < 3; i++) wheel(text, -20)
+  assert.match(body.style.transform, new RegExp(`translate3d\\(${-60 * WHEEL_GAIN}px`))
+  await wait(WHEEL_IDLE + 60)
+  assert.deepEqual(calls, [])
+})
+
+test("the fingers lift mid-swipe: the row settles on its button at once, and the scroll left after them is swallowed", async () => {
+  const { row, text, body, calls } = await mounted()
+  // Fast to the left (2.5 (82), the owner: the row drifted on with the scroll after the fingers and never settled).
+  for (let i = 0; i < 5; i++) wheel(text, -30)
+  for (const s of [-20, -12, -8, -5]) wheel(text, s)
+  assert.ok(row.hasAttribute("data-dragging"), "still the fingers")
+  wheel(text, -3)
+  // Lifted: the delete button out, no waiting for the scroll to run out.
+  assert.ok(!row.hasAttribute("data-dragging"))
+  assert.match(body.style.transform, new RegExp(`translate3d\\(${-openOffset(0)}px`))
+  for (const s of [-2, -2, -1, -1]) assert.ok(wheel(text, s), "the rest of the scroll isn't Safari's Back")
+  assert.match(body.style.transform, new RegExp(`translate3d\\(${-openOffset(0)}px`), "and doesn't move the row")
+  await wait(WHEEL_IDLE + 60)
+  assert.deepEqual(calls, [])
+  assert.match(body.style.transform, new RegExp(`translate3d\\(${-openOffset(0)}px`))
+  // A short flick to the right from there: back in place.
+  for (const s of [10, 25, 25, 12, 6, 3, 2]) wheel(text, s)
+  assert.equal(body.style.transform, "")
   await wait(WHEEL_IDLE + 60)
   assert.deepEqual(calls, [])
 })

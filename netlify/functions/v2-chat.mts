@@ -9,6 +9,7 @@ import { sanitizeMessages, sanitizeOtherPages, sanitizePage, systemPromptParts }
 import { geminiModels } from "../shared/models.mts"
 import { pageForModel } from "../../src/shared/attachments.ts"
 import { hasMarks, MAX_APP_OTHER_PAGES, MAX_OTHER_PAGES } from "../../src/shared/prompt.ts"
+import { uiFields } from "../../src/shared/usage.ts"
 import { historyPrompt, MAX_HISTORY_CHARS, MAX_HISTORY_CHATS, sanitizeDigests } from "../../src/shared/history.ts"
 import { blockReason, countersFor, proOffer, resolveAccess, searchCountersFor, visibleUsage } from "../shared/plan.mts"
 import { chatSize, digestCut, limitsHit } from "../shared/limits.mts"
@@ -53,6 +54,13 @@ export default async (req: Request, context: Context): Promise<Response> => {
   // The app build (2.4 build 67 and later send it): Claude answers only builds that name it.
   const build = clientBuild(client)
   const google = body.mode === "google" && !history
+  // The step this answer is in the user's session (where it was asked, the step before), for /analytics;
+  // a question from the app says so even from builds that don't send it.
+  const step = {
+    ...(fromApp ? { s: "app" } : {}),
+    ...uiFields(body.ui, history ? "ask_chats" : "ask"),
+    ...(client.audience === "test" ? { audience: "test" } : {})
+  }
   if (google && !settings.geminiKey) return json({ code: "SEARCH_UNAVAILABLE", message: "Google search is not available right now." }, 503)
 
   const access = await resolveAccess(body.entitlement, installId)
@@ -60,7 +68,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const page = sent && pageForModel(sent, access.plan === "pro")
   // Pro features are checked here, not in the panel: nothing is charged or asked without Pro.
   if (history && access.plan !== "pro") {
-    context.waitUntil(logEvent("pro_only", installId, { feature: "history", plan: access.plan, platform, version }))
+    context.waitUntil(logEvent("pro_only", installId, { feature: "history", plan: access.plan, platform, version, ...step }))
     return json({ code: "PRO_ONLY", plan: access.plan, feature: "history" }, 403)
   }
   // A long page counts as several answers, charged in full or not at all (weight.mts); Google mode and
@@ -83,7 +91,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
 
   if (!quota.allowed) {
     const reason = blockReason(quota.blocked)
-    context.waitUntil(logEvent("limit", installId, { plan: access.plan, reason, platform, version, mode: google ? "google" : "chat", ...(weight > 1 ? { weight } : {}) }))
+    context.waitUntil(logEvent("limit", installId, { plan: access.plan, reason, platform, version, mode: google ? "google" : "chat", ...(weight > 1 ? { weight } : {}), ...step }))
     const code = reason === "busy" ? "BUSY" : reason === "search" ? "SEARCH_LIMIT" : "LIMIT_REACHED"
     // Out of free answers: the App Store offer code for Pro.
     const offer = code === "LIMIT_REACHED" ? proOffer(access) : null
@@ -197,7 +205,8 @@ export default async (req: Request, context: Context): Promise<Response> => {
       ms: Date.now() - started,
       platform,
       version,
-      build
+      build,
+      ...step
     }),
     touchInstall(installId, platform, version, locale, 1).catch(() => undefined),
     maybeCleanup()

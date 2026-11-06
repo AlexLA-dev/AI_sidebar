@@ -191,6 +191,39 @@
  "uxDeletedChat": {
   "message": "Chat gelöscht"
  },
+ "trashTitle": {
+  "message": "Zuletzt gelöscht"
+ },
+ "trashRow": {
+  "message": "Zuletzt gelöscht · {0}"
+ },
+ "trashNote": {
+  "message": "Chats sind hier 30 Tage lang verfügbar. Danach werden sie endgültig gelöscht."
+ },
+ "trashRestore": {
+  "message": "Wiederherstellen"
+ },
+ "trashDeleteNow": {
+  "message": "Jetzt löschen"
+ },
+ "trashDeleteAll": {
+  "message": "Alle löschen"
+ },
+ "trashDeleteAllAsk": {
+  "message": "Alle Chats in „Zuletzt gelöscht“ endgültig löschen? Dies kann nicht widerrufen werden."
+ },
+ "trashDays_one": {
+  "message": "{0} Tag"
+ },
+ "trashDays_few": {
+  "message": "{0} Tage"
+ },
+ "trashDays_many": {
+  "message": "{0} Tage"
+ },
+ "trashDays_other": {
+  "message": "{0} Tage"
+ },
  "uxPinned": {
   "message": "Angeheftet"
  },
@@ -1080,13 +1113,22 @@
   "message": "Kopiertes für „{0}“"
  },
  "qiAdapt": {
-  "message": "An die Nachricht anpassen"
+  "message": "Für diese Seite umschreiben"
+ },
+ "qiAdaptChat": {
+  "message": "Für diesen Chat umschreiben"
+ },
+ "qiAdaptHint": {
+  "message": "„Von der Seite ausfüllen“ füllt nur die Lücken. „Umschreiben“ ändert den ganzen Text mit KI und zeigt ihn im Panel."
  },
  "qiAdaptLabel": {
-  "message": "Vorlage an diese Seite anpassen"
+  "message": "Vorlage für diese Seite umschreiben"
  },
  "qiAdaptPrompt": {
   "message": "Schreib diese Vorlage zu einer Antwort um, die zur geöffneten Seite passt. Behalte Sinn, Ton und Länge; trag ein, was die Seite verrät, und lass den Rest, wie er ist. Antworte nur mit dem Text der Antwort.\n\nVorlage:\n{0}"
+ },
+ "qiAdaptConversation": {
+  "message": "Das ist der Chat, in dem ich antworte. Schreib die Antwort an die Person darin:\n{0}"
  },
  "qiTemplateButton": {
   "message": "Vorlage"
@@ -1466,9 +1508,6 @@
  "watchChangedBody": {
   "message": "Jetzt: {0}"
  },
- "tipsVideos": {
-  "message": "Mit Videos: in der ContextFlow-App → {0}"
- },
  "tip_4cf1b54b00": {
   "message": "Tipps"
  },
@@ -1523,8 +1562,8 @@
  "tip_d7c7b7b55d": {
   "message": "Schalte neben dem Fragefeld „Google“ ein, um mit der Google-Suche zu antworten: Nachrichten, Preise und alles Aktuelle – mit Quellen."
  },
- "tip_3b2eb51310": {
-  "message": "Jeden Tag"
+ "tip_da5f7b74b1": {
+  "message": "Tiefer einsteigen"
  },
  "tip_6ba198cbff": {
   "message": "Eigene Notizen"
@@ -1682,8 +1721,8 @@
  "tip_10400d6345": {
   "message": "Die ✦-Taste nach deinem Geschmack"
  },
- "tip_7487ba7345": {
-  "message": "Blende die Taste auf einer einzelnen Website aus oder schalte sie in den Erweiterungseinstellungen überall ab. ContextFlow öffnet sich weiterhin über das Erweiterungsmenü von Safari."
+ "tip_4c60874441": {
+  "message": "Verdeckt ✦ etwas auf der Seite? Zieh die Taste am Rand nach oben oder unten oder auf die andere Seite – sie bleibt dort, wo du sie loslässt. Du kannst sie auch auf einer einzelnen Website ausblenden oder in den Erweiterungseinstellungen überall abschalten. ContextFlow öffnet sich weiterhin über das Erweiterungsmenü von Safari."
  },
  "tip_8a727e1bbe": {
   "message": "Eigenen API-Schlüssel nutzen"
@@ -1696,5 +1735,8 @@
  },
  "tip_241d3ad076": {
   "message": "ContextFlow liest eine Seite nur, wenn du fragst, und sendet nur ihren Text, um die Antwort zu bekommen. Deine Chats bleiben auf deinen Geräten und in deiner iCloud. Mit eingeschalteten Vorschlägen geht der Text neuer Nachrichten außerdem an unseren Server, um herauszufinden, wohin sie gehören; wir speichern ihn nicht."
+ },
+ "tip_clips": {
+  "message": "en"
  }
 }

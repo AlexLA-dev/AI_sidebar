@@ -15,6 +15,10 @@ export interface Thread {
   kind?: "history" // "Ask your chats" (Pro): questions about all the other chats, not a page
   tags?: string[] // the user's tags for the chat (answers and notes have their own, on the entry)
   deleted?: boolean // kept until iCloud knows, so the deletion reaches the other devices
+  trashed?: number // in Recently Deleted since then (ms): hidden everywhere, deleted for good TRASH_DAYS later
+  // Fields of the iCloud copy this version doesn't know (a newer version wrote them): kept as they came, so they go
+  // back with the chat instead of being dropped on the next save.
+  x?: Record<string, unknown>
 }
 
 export type Threads = Record<string, Thread>
@@ -62,12 +66,73 @@ function byId(a: Thread, b: Thread): number {
 }
 
 /**
- * Threads that still exist, the last one written in first; with the same time, by id. The order the threads come in
- * must not matter: Safari hands them back from storage in its own (2.5 (77): two chats with the same time traded
- * places in the open list every time the chats were stored again).
+ * Threads that still exist, those in Recently Deleted too, the last one written in first; with the same time, by id.
+ * The order the threads come in must not matter: Safari hands them back from storage in its own (2.5 (77): two chats
+ * with the same time traded places in the open list every time the chats were stored again).
  */
-export function liveThreads(threads: Threads): Thread[] {
+export function storedThreads(threads: Threads): Thread[] {
   return Object.values(threads).filter((t) => !t.deleted && t.m.length > 0).sort((a, b) => activity(b) - activity(a) || byId(a, b))
+}
+
+/** The chats the user has: stored, and not in Recently Deleted. Everything the panel lists, searches or asks uses these. */
+export function liveThreads(threads: Threads): Thread[] {
+  return storedThreads(threads).filter((t) => t.trashed === undefined)
+}
+
+// ------------------------------------------------------------ Recently Deleted (2.5)
+// 2.5 (83), the owner: «надо сделать … Trash, где до 30 дней пусть хранятся удаленные чаты». A chat the user deletes
+// goes to Recently Deleted (`trashed`, its time bumped like any edit, so iCloud takes it to the other devices) and is
+// deleted for good TRASH_DAYS later, by whichever device sees it first, through the usual deletion (a tombstone for a
+// chat iCloud has). Deleting all chats in Settings still deletes them at once.
+
+export const TRASH_DAYS = 30
+const DAY = 86_400_000
+
+/** The chats in Recently Deleted, the last one deleted first. */
+export function trashedThreads(threads: Threads): Thread[] {
+  return storedThreads(threads).filter((t) => t.trashed !== undefined).sort((a, b) => b.trashed! - a.trashed! || byId(a, b))
+}
+
+/** Days until a chat in Recently Deleted is deleted for good: 30 just after, never less than 1 while it's there. */
+export function trashDaysLeft(thread: Thread, now = Date.now()): number {
+  if (thread.trashed === undefined) return TRASH_DAYS
+  return Math.min(TRASH_DAYS, Math.max(1, Math.ceil((thread.trashed + TRASH_DAYS * DAY - now) / DAY)))
+}
+
+/**
+ * Moves a chat to Recently Deleted, or null when there's none to move. Its place by last message stays (`a` is set:
+ * a missing `a` means `u`, and `u` changes), so it comes back where it was.
+ */
+export function trashThread(threads: Threads, id: string, now = Date.now()): Threads | null {
+  const t = threads[id]
+  if (!t || t.deleted || t.trashed !== undefined || t.m.length === 0) return null
+  return { ...threads, [id]: { ...t, u: later(t, now), a: activity(t), trashed: now } }
+}
+
+/**
+ * Brings a chat back from Recently Deleted, or null when it isn't there. It goes back to its place by its last real
+ * message, not to the top (the owner hates chats jumping: 2.5 (77)); its name, pin, tags and messages are as they were.
+ */
+export function restoreThread(threads: Threads, id: string, now = Date.now()): Threads | null {
+  const t = threads[id]
+  if (!t || t.deleted || t.trashed === undefined) return null
+  const { trashed: _trashed, ...rest } = t
+  return { ...threads, [id]: { ...rest, u: later(t, now), a: activity(t) } }
+}
+
+/**
+ * Deletes chats in Recently Deleted for good: those there TRASH_DAYS or longer, and `ids` (Delete Now, Delete All)
+ * whatever their age. The usual deletion: a tombstone for a chat iCloud has, so it goes on the other devices too.
+ */
+export function purgeTrash(threads: Threads, synced: Record<string, number>, now = Date.now(), ids: string[] = []): { threads: Threads; purged: string[] } {
+  const asked = new Set(ids)
+  const purged = Object.values(threads)
+    .filter((t) => !t.deleted && t.trashed !== undefined && (asked.has(t.id) || now - t.trashed >= TRASH_DAYS * DAY))
+    .map((t) => t.id)
+  if (!purged.length) return { threads, purged }
+  const next = { ...threads }
+  for (const id of purged) emptied(next, id, synced, now)
+  return { threads: next, purged }
 }
 
 /** The list of chats: pinned ones first in their order, then the others, the last one written in first. */
@@ -156,7 +221,8 @@ export function activityAfter(stored: Thread | undefined, m: Entry[], now: numbe
 /**
  * The thread with new messages as of `now`: its name, pin, tags and kind stay (a deleted thread
  * comes back as a new one), and its place in the list moves only for a new message (activityAfter).
- * `kind` marks a new "Ask your chats" thread.
+ * `kind` marks a new "Ask your chats" thread. A chat written in while in Recently Deleted (still open here when
+ * another device deleted it) comes back out of it, as when an older version writes it.
  */
 export function withMessages(stored: Thread | undefined, id: string, m: Entry[], now: number, kind?: "history"): Thread {
   const keep = stored && !stored.deleted ? stored : undefined
@@ -166,7 +232,8 @@ export function withMessages(stored: Thread | undefined, id: string, m: Entry[],
     ...(keep?.title ? { title: keep.title } : {}),
     ...(keep?.pin !== undefined ? { pin: keep.pin } : {}),
     ...(keep?.tags?.length ? { tags: keep.tags } : {}),
-    ...(keptKind ? { kind: keptKind } : {})
+    ...(keptKind ? { kind: keptKind } : {}),
+    ...(keep?.x ? { x: keep.x } : {})
   }
 }
 
@@ -186,18 +253,22 @@ export function savedThread(stored: Thread | undefined, id: string, entries: Ent
 
 /**
  * Keeps pinned threads and the newest MAX_THREADS; older ones become deletions so iCloud drops them too.
- * Page texts stay within `maxText` characters on this device, the pinned and latest chats first.
+ * Chats in Recently Deleted stay, outside that count: they go by themselves (purgeTrash).
+ * Page texts stay within `maxText` characters on this device, the pinned and latest chats first, Recently
+ * Deleted's last.
  */
 export function prune(threads: Threads, now = Date.now(), maxText = MAX_SAVED_TEXT_CHARS): Threads {
   const list = chatList(threads)
   const keep = new Set(list.slice(0, MAX_THREADS).map((t) => t.id))
+  const trash = trashedThreads(threads)
+  for (const t of trash) keep.add(t.id)
   const out: Threads = {}
   for (const t of Object.values(threads)) {
     if (t.deleted || keep.has(t.id) || t.m.length === 0) out[t.id] = t
     else out[t.id] = { id: t.id, u: now, m: [], deleted: true }
   }
   let size = 0
-  for (const t of list) {
+  for (const t of [...list, ...trash]) {
     if (!keep.has(t.id)) continue
     const text = t.m.reduce((n, e) => n + (e.page?.text?.length ?? 0), 0)
     // Only this device's copy changes (its time stays): iCloud keeps the texts it has.
@@ -226,14 +297,17 @@ export function pendingChanges(threads: Threads, synced: Record<string, number>)
 /**
  * A thread as iCloud stores it: JSON with its messages and, when set, its name and the time of its
  * last message. If it would not fit, the oldest page texts go first, then the oldest messages.
+ * The fields a newer version wrote that this one doesn't know (`x`) go back as they came.
  */
 export function threadForCloud(thread: Thread, maxChars = CLOUD_MAX_CHARS): string {
   const meta = {
+    ...thread.x,
     ...(thread.title ? { title: thread.title } : {}),
     ...(thread.a !== undefined && thread.a !== thread.u ? { a: thread.a } : {}),
     ...(thread.pin !== undefined ? { pin: thread.pin } : {}),
     ...(thread.kind ? { k: thread.kind } : {}),
-    ...(thread.tags?.length ? { tags: thread.tags } : {})
+    ...(thread.tags?.length ? { tags: thread.tags } : {}),
+    ...(thread.trashed !== undefined ? { trashed: thread.trashed } : {})
   }
   let m = thread.m
   let data = JSON.stringify({ ...meta, m })
@@ -245,8 +319,14 @@ export function threadForCloud(thread: Thread, maxChars = CLOUD_MAX_CHARS): stri
   return data
 }
 
-/** A thread read back from iCloud (2.3 build 56 stored just the messages), or null if it isn't one. */
-export function threadFromCloud(data: string): Pick<Thread, "m" | "a" | "title" | "pin" | "kind" | "tags"> | null {
+// The fields of a thread's iCloud JSON this version reads; any other is kept in `x` as it came.
+const CLOUD_FIELDS = new Set(["m", "a", "title", "pin", "k", "tags", "trashed"])
+
+/**
+ * A thread read back from iCloud (2.3 build 56 stored just the messages), or null if it isn't one. Fields it doesn't
+ * know are kept (`x`): 2.4 dropped those it didn't know, and saving such a chat there takes it out of Recently Deleted.
+ */
+export function threadFromCloud(data: string): Pick<Thread, "m" | "a" | "title" | "pin" | "kind" | "tags" | "trashed" | "x"> | null {
   let parsed: unknown
   try {
     parsed = JSON.parse(data)
@@ -258,16 +338,19 @@ export function threadFromCloud(data: string): Pick<Thread, "m" | "a" | "title" 
     return m && { m }
   }
   if (parsed === null || typeof parsed !== "object") return null
-  const { m: raw, a, title, pin, k, tags } = parsed as Record<string, unknown>
+  const { m: raw, a, title, pin, k, tags, trashed } = parsed as Record<string, unknown>
   const m = entriesFrom(raw)
   if (!m) return null
+  const unknown = Object.entries(parsed).filter(([key]) => !CLOUD_FIELDS.has(key))
   return {
     m,
     ...(typeof a === "number" ? { a } : {}),
     ...(typeof title === "string" && title.trim() ? { title: cleanTitle(title) } : {}),
     ...(typeof pin === "number" && Number.isFinite(pin) ? { pin } : {}),
     ...(k === "history" ? { kind: "history" as const } : {}),
-    ...(Array.isArray(tags) && cleanTags(tags).length ? { tags: cleanTags(tags) } : {})
+    ...(Array.isArray(tags) && cleanTags(tags).length ? { tags: cleanTags(tags) } : {}),
+    ...(typeof trashed === "number" && Number.isFinite(trashed) ? { trashed } : {}),
+    ...(unknown.length ? { x: Object.fromEntries(unknown) } : {})
   }
 }
 
@@ -328,9 +411,12 @@ export function applyRemote(
  */
 export function shownThread(threads: Threads, active: ActiveThread): { id: string; m: Entry[] } {
   const current = threads[active.id]
-  const own = current && !current.deleted ? current : undefined
+  const own = current && !current.deleted && current.trashed === undefined ? current : undefined
   const latest = liveThreads(threads)[0]
   if (latest && latest.id !== active.id && activity(latest) > Math.max(active.at, own ? activity(own) : 0)) return { id: latest.id, m: latest.m }
+  // The chat picked here went to Recently Deleted (on another device): a new chat, not that one's id, which the next
+  // question would write over.
+  if (current?.trashed !== undefined && !current.deleted) return { id: newThreadId(), m: [] }
   return { id: active.id, m: own?.m ?? [] }
 }
 
@@ -339,7 +425,8 @@ export function shownThread(threads: Threads, active: ActiveThread): { id: strin
 /**
  * What the app's copy of the chats (App Group, see ChatMirror.swift) lacks: threads changed since
  * `mirrored` (the time of each thread the app has), and deletions of threads it has that are gone here.
- * Unlike iCloud, the app gets every chat, synced or not, at most `maxChars` of data in one go.
+ * Unlike iCloud, the app gets every chat, synced or not, at most `maxChars` of data in one go; those in Recently
+ * Deleted too, for its own Recently Deleted.
  */
 export function mirrorChanges(threads: Threads, mirrored: Record<string, number>, maxChars = 900_000): CloudChange[] {
   const out: CloudChange[] = []
@@ -348,7 +435,7 @@ export function mirrorChanges(threads: Threads, mirrored: Record<string, number>
     const t = threads[id]
     if (!t || t.deleted || t.m.length === 0) out.push({ id, deleted: true })
   }
-  for (const t of liveThreads(threads)) {
+  for (const t of storedThreads(threads)) {
     if (t.u <= (mirrored[t.id] ?? 0)) continue
     const data = threadForCloud(t)
     if (size > 0 && size + data.length > maxChars) break
@@ -496,6 +583,8 @@ export function moveEntries(
   const stored = threads[targetId]
   const target = stored && !stored.deleted ? stored : undefined
   if (!source || source.deleted || source.kind === "history" || target?.kind === "history" || sourceId === targetId) return null
+  // Not from or into a chat in Recently Deleted.
+  if (source.trashed !== undefined || target?.trashed !== undefined) return null
   if (!Number.isInteger(start) || !Number.isInteger(end) || start < 0 || end < start || end >= source.m.length) return null
   const times = entryTimes(source.m)
   const into = target?.m ?? []

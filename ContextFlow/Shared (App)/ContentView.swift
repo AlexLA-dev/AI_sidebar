@@ -55,14 +55,15 @@ struct ContentView: View {
     @StateObject private var chats = ChatLibrary.shared
     @Environment(\.requestReview) private var requestReview
     @Environment(\.scenePhase) private var scenePhase
-    @State private var tab: AppTab = ChatLibrary.shared.threads.isEmpty ? .home : .chats
+    @State private var tab: AppTab = ChatLibrary.shared.threads.isEmpty && ChatLibrary.shared.trashed.isEmpty ? .home : .chats
     /// iOS: the setup guide, from the Chats screen (there is no Get Started tab once there are chats).
     @State private var showingSetup = false
     /// Settings scrolls down to the plan (the extension's "Manage subscription" with Pro).
     @State private var showPlan = false
 
     /// Once the user has chats, they come first: Get Started gives way to Chats.
-    private var hasChats: Bool { !chats.threads.isEmpty }
+    /// Chats in Recently Deleted count: the Chats screen is the way to them (2.5 (83)).
+    private var hasChats: Bool { !chats.threads.isEmpty || !chats.trashed.isEmpty }
 
     /// With Pro there is no Pro tab: the plan is at the bottom of Settings. A purchase made on the Pro
     /// tab keeps it until the user leaves it, so its "You're all set" isn't cut off.
@@ -408,7 +409,9 @@ struct TipsView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
+            // An open block's title stays at the top while its cards scroll under it, until the next block's takes
+            // its place (2.5 (81), the owner's note).
+            LazyVStack(alignment: .leading, spacing: 16, pinnedViews: [.sectionHeaders]) {
                 Text("Quick answers to “how do I…?”")
                     .font(.callout)
                     .foregroundColor(.secondary)
@@ -416,8 +419,7 @@ struct TipsView: View {
                 TipCard(tip: TipGroup.lead)
                 ForEach(TipGroup.all, id: \.id) { group in
                     let open = isOpen(group)
-                    VStack(alignment: .leading, spacing: 12) {
-                        TipBlockHeader(title: group.title, count: group.tips.count, open: open) { toggle(group) }
+                    Section {
                         if open {
                             LazyVGrid(columns: [GridItem(.adaptive(minimum: 260), spacing: 12, alignment: .top)], alignment: .leading, spacing: 12) {
                                 ForEach(group.tips.indices, id: \.self) { i in
@@ -426,6 +428,9 @@ struct TipsView: View {
                             }
                             .padding(.bottom, 8)
                         }
+                    } header: {
+                        TipBlockHeader(title: group.title, count: group.tips.count, open: open) { toggle(group) }
+                            .background(.background)
                     }
                 }
                 FooterLinks()
@@ -557,7 +562,7 @@ struct TipGroup {
             Tip(symbol: "magnifyingglass", color: .green, title: "Fresh facts from Google",
                 text: "Turn on Google next to the question field to answer with Google Search: news, prices and anything recent, with sources.", clip: "google")
         ]),
-        TipGroup(id: "every-day", title: "Every day", tips: [
+        TipGroup(id: "deeper-work", title: "Deeper work", tips: [
             Tip(symbol: "pencil.line", color: .orange, title: "Notes of your own",
                 text: "Swipe the send button up or down (on a Mac, scroll on it) to write a note instead of asking. It stays in the chat with its page, syncs with it and uses no answers.", clip: "notes"),
             Tip(symbol: "highlighter", color: .yellow, title: "Highlight what matters",
@@ -590,7 +595,7 @@ struct TipGroup {
             Tip(symbol: "tag", color: .purple, title: "Tags and folders",
                 text: "Tag a chat, an answer or a note with 🏷. Tap a tag to see only its chats, or turn on Folders to group the list by tag.", clip: "tags"),
             Tip(symbol: "square.and.arrow.up", color: .pink, title: "Share what you found",
-                text: "Share one answer or the whole chat: the text comes with its links, its sources and a link to ContextFlow."),
+                text: "Share one answer or the whole chat: the text comes with its links, its sources and a link to ContextFlow.", clip: "share"),
             Tip(symbol: "bubble.left.and.bubble.right", color: .teal, title: "Your chats in the app",
                 text: "The Chats tab has every chat from Safari. Ask about its pages or add a note right there, tag, copy or share any answer, or share the whole chat. “Continue in Safari” picks it up where you left off.", clip: "appchat"),
             Tip(symbol: "sparkles", color: brandBlue, title: "AI search",
@@ -606,7 +611,7 @@ struct TipGroup {
             Tip(symbol: "person.text.rectangle", color: .mint, title: "Tell it about you",
                 text: "Add a line under About me — what you do, how you like answers — and ContextFlow will tailor them to you.", clip: "about"),
             Tip(symbol: "hand.tap", color: .blue, title: "The ✦ button, your way",
-                text: "Hide the button on a single site, or turn it off everywhere in the extension settings. ContextFlow still opens from Safari's extensions menu."),
+                text: "Covering something on the page? Drag ✦ up or down along the edge, or to the other side: it stays where you leave it. You can also hide it on a single site, or turn it off everywhere in the extension settings. ContextFlow still opens from Safari's extensions menu.", clip: "button"),
             Tip(symbol: "key.fill", color: .gray, title: "Use your own API key",
                 text: "With Pro or the Own key plan, paste an OpenAI or Claude key in the extension settings in Safari. Requests then go straight to that provider."),
             Tip(symbol: "lock.shield", color: .brown, title: "Private by design",

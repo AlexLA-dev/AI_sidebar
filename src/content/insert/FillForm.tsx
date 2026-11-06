@@ -1,5 +1,5 @@
 import type { VNode } from "preact"
-import { useEffect, useLayoutEffect, useRef, useState } from "preact/hooks"
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "preact/hooks"
 
 import type { ConsentStatus } from "../../shared/consent"
 import type { CopiedItem } from "../../shared/copied"
@@ -9,9 +9,11 @@ import type { AiFailure, FillResult } from "../../shared/insert"
 import { blanks, fillBlanks, textParts, type Template } from "../../shared/templates"
 import * as Icon from "../icons"
 import { extractPage } from "../page"
+import { loadConsent } from "../store"
+import { conversationAround, conversationText } from "./conversation"
 import type { Field } from "./field"
-import { follow, placeByCaret, placeSheet } from "./place"
-import { report, sendBackground } from "./store"
+import { follow, placeBeside, placeByCaret, placeSheet } from "./place"
+import { markRewriteHintSeen, report, rewriteHintSeen, sendBackground } from "./store"
 
 interface Props {
   template: Template
@@ -25,7 +27,8 @@ interface Props {
   free: boolean
   onUpgrade: () => void
   onClose: () => void
-  onAdapt: (text: string) => void
+  // The whole text rewritten by the panel's AI for this page (`conversation`: the one around the field, when there's one).
+  onAdapt: (text: string, conversation: string | null) => void
   onInsert: (text: string, filled: "ai" | "manual" | "none", blanks: number) => void
 }
 
@@ -56,12 +59,25 @@ export function FillForm(p: Props): VNode {
   const [busy, setBusy] = useState(false)
   const [note, setNote] = useState<string | null>(null)
   const [limit, setLimit] = useState(false)
-  const [askConsent, setAskConsent] = useState(false)
+  // What waits for the consent: filling the blanks, or the rewrite. The card shows right here, not in the panel.
+  const [askConsent, setAskConsent] = useState<null | "fill" | "rewrite">(null)
+  // The conversation the field replies in (LinkedIn's messages): what the AI reads instead of the whole page, whose
+  // list of other conversations gave it the wrong name (the owner, 2.5 (81)).
+  const conversation = useMemo(() => (p.field ? conversationAround(p.field.el) : null), [])
+  // "Fill again" vs the rewrite, said once under the buttons the first time the form shows.
+  const [rewriteHint, setRewriteHint] = useState(false)
+  useEffect(() => {
+    void rewriteHintSeen().then((seen) => {
+      if (seen) return
+      setRewriteHint(true)
+      void markRewriteHintSeen()
+    })
+  }, [])
 
   useLayoutEffect(() => {
     const el = ref.current
     if (!el) return
-    return follow(el, () => (p.sheet ? placeSheet(el, p.touch) : placeByCaret(el, p.field, p.touch, 420)))
+    return follow(el, () => placeBeside(el, p.field, p.touch, 420, 620) || (p.sheet ? placeSheet(el, p.touch) : placeByCaret(el, p.field, p.touch, 420)))
   })
   // The first blank takes the caret (on iPhone that brings the keyboard back up for it).
   useEffect(() => {
@@ -95,7 +111,7 @@ export function FillForm(p: Props): VNode {
   const fill = async () => {
     setBusy(true)
     setNote(null)
-    const page = extractPage()
+    const page = conversation ? { title: conversation.title || document.title, text: conversationText(conversation) } : extractPage()
     const reply = await sendBackground<FillResult | AiFailure>({
       type: "qiFill",
       text: p.template.text,
@@ -107,7 +123,7 @@ export function FillForm(p: Props): VNode {
     if (!reply || !reply.ok) {
       const code = reply?.code ?? "NETWORK"
       if (code === "FILL_LIMIT") setLimit(true)
-      else if (code === "CONSENT") setAskConsent(true)
+      else if (code === "CONSENT") setAskConsent("fill")
       else setNote(code === "NETWORK" ? t("errNetwork") : t("errUpstream"))
       return
     }
@@ -131,6 +147,13 @@ export function FillForm(p: Props): VNode {
     if (empty) setTimeout(() => inputs.current[empty]?.focus({ preventScroll: true }), 0)
   }
 
+  // The rewrite goes to the panel's AI: without the consent, the card shows here first (the panel isn't opened for it).
+  const rewrite = () => p.onAdapt(fillBlanks(p.template.text, values), conversation ? conversationText(conversation) : null)
+  const tryRewrite = async () => {
+    if ((await loadConsent()) !== "ok") return setAskConsent("rewrite")
+    rewrite()
+  }
+
   const onKeyDown = (e: KeyboardEvent, label: string) => {
     e.stopPropagation()
     if (e.key === "Escape") {
@@ -149,9 +172,10 @@ export function FillForm(p: Props): VNode {
   return (
     <div ref={ref} class={`cf-qi ${p.sheet ? "" : "suggest"}`} role="dialog" aria-label={p.template.title} onPointerDown={(e) => !(e.target as Element).closest("input") && e.preventDefault()}>
       <div class="cf-qi-fill">
+        {/* It closes (the arrow it had read as "back to the list"): a cross at the end, as the list's (2.5 (84), the owner). */}
         <div class="cf-qi-fill-head">
-          <button type="button" aria-label={t("back")} onClick={p.onClose}><Icon.Back /></button>
           <span>{p.template.title}</span>
+          <button type="button" class="cf-qi-x" aria-label={t("close")} title={t("close")} onClick={p.onClose}><Icon.Close /></button>
         </div>
         <div class="cf-qi-fill-text">
           {parts.map((part) =>
@@ -203,9 +227,10 @@ export function FillForm(p: Props): VNode {
 
         {askConsent ? (
           <ConsentCard again={p.consent === "old"} onAccept={() => {
-            setAskConsent(false)
-            void p.onConsent().then(fill)
-          }} onDecline={() => setAskConsent(false)} />
+            const then = askConsent
+            setAskConsent(null)
+            void p.onConsent().then(() => (then === "fill" ? fill() : rewrite()))
+          }} onDecline={() => setAskConsent(null)} />
         ) : limit ? (
           <div class="cf-card">
             <p>{t("qiFillLimit")}</p>
@@ -221,8 +246,9 @@ export function FillForm(p: Props): VNode {
           <button type="button" class="cf-secondary" disabled={busy} onClick={() => void fill()}>
             <Icon.Sparkle size={14} /> {busy ? t("qiFilling") : byAi.size ? t("qiFillAgain") : t("qiFillFromPage")}
           </button>
-          <button type="button" class="cf-link" onClick={() => p.onAdapt(fillBlanks(p.template.text, values))}>{t("qiAdapt")}</button>
+          <button type="button" class="cf-link" title={t("qiAdaptHint")} onClick={() => void tryRewrite()}>{t(conversation ? "qiAdaptChat" : "qiAdapt")}</button>
         </div>
+        {rewriteHint && <div class="cf-qi-note">{t("qiAdaptHint")}</div>}
         <div class="cf-qi-note">{note ?? t("qiFillHint")}</div>
       </div>
     </div>

@@ -15,6 +15,9 @@ import { closestComposed, shadowRootsOf } from "./shadow.ts"
 /** The button's size and the gap it keeps from the field. */
 export const BUTTON = 30
 const GAP = 4
+// Off the screen's left edge by this much: there Safari takes the touch for its swipe back, and the tap never reached
+// the button (2.5 (84), the owner on an iPhone: the button at the reply box's left end did nothing).
+export const LEFT_EDGE = 24
 
 export interface Rect { top: number; left: number; right: number; bottom: number; width: number; height: number }
 export interface Box { width: number; height: number }
@@ -40,10 +43,10 @@ export function buttonSpot(field: Rect, view: Box, free: Probe): { top: number; 
     { top: below, left: right - BUTTON }
   ]
   const lefts: number[] = []
-  for (let left = right - 2 * BUTTON; left >= Math.max(GAP, field.left); left -= BUTTON) lefts.push(left)
+  for (let left = right - 2 * BUTTON; left >= Math.max(LEFT_EDGE, field.left); left -= BUTTON) lefts.push(left)
   for (const top of [above, below]) for (const left of lefts) spots.push({ top, left })
   for (const s of spots) {
-    if (s.top < GAP || s.left < GAP || s.top + BUTTON > view.height - GAP || s.left + BUTTON > view.width - GAP) continue
+    if (s.top < GAP || s.left < LEFT_EDGE || s.top + BUTTON > view.height - GAP || s.left + BUTTON > view.width - GAP) continue
     const points = [
       [s.left + BUTTON / 2, s.top + BUTTON / 2],
       [s.left + 2, s.top + 2],
@@ -68,6 +71,14 @@ export function multiLineField(el: Element): boolean {
   return el.getAttribute("aria-multiline") !== "false"
 }
 
+/** How far the button keeps from our panel when it's open beside the page (QuickInsert). */
+export const PANEL_CLEAR = 8
+
+/** Whether a point is inside `r` or within `margin` of it. */
+export function nearRect(r: { left: number; top: number; right: number; bottom: number }, x: number, y: number, margin: number): boolean {
+  return x > r.left - margin && x < r.right + margin && y > r.top - margin && y < r.bottom + margin
+}
+
 const meets = (a: Rect | { left: number; top: number; right: number; bottom: number }, b: { left: number; top: number; right: number; bottom: number }) =>
   a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top
 
@@ -83,7 +94,7 @@ export function cornerSpot(field: Rect, view: Box, free: Probe, text: Array<{ le
   const inset = Math.min(INSET, (bottom - Math.max(field.top, GAP) - BUTTON) / 2)
   if (inset < 2) return null
   const s = { top: bottom - inset - BUTTON, left: right - INSET - BUTTON }
-  if (s.left < Math.max(field.left + INSET, GAP)) return null
+  if (s.left < Math.max(field.left + INSET, LEFT_EDGE)) return null
   const zone = { left: s.left - CLEAR, top: s.top - CLEAR, right: s.left + BUTTON + CLEAR, bottom: s.top + BUTTON + CLEAR }
   if (text.some((r) => meets(r, zone))) return null
   const points = [
@@ -117,21 +128,24 @@ const ITSELF = "input,textarea,[contenteditable=''],[contenteditable='true'],[ro
 
 /**
  * A page point with nothing of the site's under it: no control, link, picture or frame, and no text of the
- * element there. Our own elements (the panel's host) don't count.
+ * element there. Our own elements (the panel's host) don't count. A same-origin frame is looked into: what's at
+ * that point in it counts (2.5 (83), the owner: LinkedIn's messages, opened from the feed, are drawn in a frame the
+ * size of the page, and every point over it counted as taken, so the button by the reply box never came).
  */
 export function pagePointFree(host: Element | null): Probe {
   return (x, y) => {
-    const els = document.elementsFromPoint(x, y).filter((el) => el !== host && !host?.contains(el))
-    const top = els[0] ? innermostAt(els[0], x, y) : undefined
-    if (!top || top === document.documentElement || top === document.body) return true
+    const hit = hitAt(x, y, host)
+    const top = hit?.el
+    const doc = top?.ownerDocument
+    if (!top || !doc || top === doc.documentElement || top === doc.body) return true
     if (closestComposed(top, CONTROL) || closestComposed(top, MEDIA) || top.matches(ITSELF)) return false
     // Text right under the point: covering it hides what someone reads (a label, a hint, a price).
     for (const node of Array.from(top.childNodes)) {
       if (node.nodeType !== Node.TEXT_NODE || !node.textContent?.trim()) continue
-      const range = document.createRange()
+      const range = doc.createRange()
       range.selectNodeContents(node)
       for (const r of Array.from(range.getClientRects())) {
-        if (x >= r.left - 2 && x <= r.right + 2 && y >= r.top - 2 && y <= r.bottom + 2) return false
+        if (hit.x >= r.left - 2 && hit.x <= r.right + 2 && hit.y >= r.top - 2 && hit.y <= r.bottom + 2) return false
       }
     }
     return true
@@ -144,8 +158,7 @@ export function pagePointFree(host: Element | null): Probe {
  */
 export function fieldPointFree(field: Element, host: Element | null): Probe {
   return (x, y) => {
-    const els = document.elementsFromPoint(x, y).filter((el) => el !== host && !host?.contains(el))
-    const top = els[0] ? innermostAt(els[0], x, y) : undefined
+    const top = hitAt(x, y, host)?.el
     if (!top || (top !== field && !field.contains(top))) return false
     // Only what's inside the field counts (a label around a textarea doesn't make it taken).
     for (let el: Element | null = top; el && el !== field; el = el.parentElement) {
@@ -156,6 +169,35 @@ export function fieldPointFree(field: Element, host: Element | null): Probe {
 }
 
 type PointScope = ShadowRoot & { elementsFromPoint?: (x: number, y: number) => Element[] }
+
+/** A frame's document when it's the page's own origin (an ad's about:blank too), else null. */
+function frameDocument(frame: HTMLIFrameElement): Document | null {
+  try {
+    return frame.contentDocument
+  } catch {
+    return null
+  }
+}
+
+/**
+ * What's at a page point (viewport coordinates of the top page, our host left out), through open shadow roots and
+ * into same-origin frames; with the point in that element's own document.
+ */
+function hitAt(x: number, y: number, host: Element | null): { el: Element; x: number; y: number } | null {
+  let doc: Document = document
+  for (let n = 0; n < 4; n++) {
+    const els = doc.elementsFromPoint(x, y).filter((el) => el !== host && !host?.contains(el))
+    if (!els[0]) return null
+    const el = innermostAt(els[0], x, y)
+    const inner = el.tagName === "IFRAME" ? frameDocument(el as HTMLIFrameElement) : null
+    if (!inner) return { el, x, y }
+    const r = el.getBoundingClientRect()
+    x -= r.left + el.clientLeft
+    y -= r.top + el.clientTop
+    doc = inner
+  }
+  return null
+}
 
 /** What's at a point inside open shadow roots: the document finds their host only. */
 function innermostAt(top: Element, x: number, y: number): Element {
@@ -191,4 +233,36 @@ export function noButtonField(el: Element): boolean {
   if (shadowRootsOf(el).some((root) => /(^|-)search(-|$)/i.test(root.host.tagName))) return true
   const named = `${el.getAttribute("name") ?? ""} ${el.id} ${el.getAttribute("aria-label") ?? ""} ${el.getAttribute("placeholder") ?? ""}`
   return el.tagName.toUpperCase() === "INPUT" && SEARCH_WORDS.test(named)
+}
+
+// ------------------------------------------------------------ quick insert's windows (place.ts)
+
+type Edges = { left: number; top: number; right: number; bottom: number }
+
+const SIDE_GAP = 8
+// The narrowest a window beside the field gets; narrower, it goes by the caret or as a sheet.
+export const SIDE_MIN = 300
+
+/**
+ * A window for a field, beside it rather than over it (2.5 (83), the owner: over a chat's reply box it hid the box;
+ * beside it where there's room, else over the field as before, never over the conversation above it). Right of the
+ * field first, then left, its bottom level with the field's (kept on screen); never on `avoid` (our panel open beside
+ * the page) nor right against it. Null when neither side has room for SIDE_MIN.
+ */
+export function besideSpot(field: Edges, view: { width: number; height: number }, width: number, height: number, avoid: Edges | null): { left: number; top: number; width: number } | null {
+  if (field.bottom <= SIDE_GAP || field.top >= view.height - SIDE_GAP) return null
+  const top = Math.max(SIDE_GAP, Math.min(field.bottom, view.height - SIDE_GAP) - height)
+  const bottom = top + height
+  const clear = (left: number, right: number) =>
+    !avoid || right <= avoid.left - SIDE_GAP || left >= avoid.right + SIDE_GAP || bottom <= avoid.top || top >= avoid.bottom
+  // The room on each side: up to the screen's edge, or to the panel when it's on that side, level with the window.
+  const level = Boolean(avoid && avoid.top < bottom && avoid.bottom > top)
+  const rightEnd = level && avoid!.left >= field.right ? Math.min(view.width - SIDE_GAP, avoid!.left - SIDE_GAP) : view.width - SIDE_GAP
+  const leftEnd = level && avoid!.right <= field.left ? Math.max(SIDE_GAP, avoid!.right + SIDE_GAP) : SIDE_GAP
+  const right = { left: field.right + SIDE_GAP, width: Math.min(width, rightEnd - field.right - SIDE_GAP) }
+  if (right.width >= SIDE_MIN && clear(right.left, right.left + right.width)) return { top, ...right }
+  const w = Math.min(width, field.left - SIDE_GAP - leftEnd)
+  const left = { left: field.left - SIDE_GAP - w, width: w }
+  if (left.width >= SIDE_MIN && clear(left.left, left.left + left.width)) return { top, ...left }
+  return null
 }

@@ -64,6 +64,9 @@ function localizedExtension() {
   writeFileSync(join(dir, "manifest.json"), JSON.stringify({ ...manifest, default_locale: lang }, null, 2))
   return dir
 }
+// The build's own words (aria labels the takes look for), in the take's language.
+const messages = JSON.parse(readFileSync(join(extDir, "_locales", ru ? "ru" : "en", "messages.json"), "utf8"))
+const msg = (key) => messages[key].message
 const LINUX_CHROME = "/opt/pw-browsers/chromium-1194/chrome-linux/chrome"
 const ext = localizedExtension()
 const ctx = await chromium.launchPersistentContext("", {
@@ -113,7 +116,8 @@ async function fresh(url, threads = null, extra = {}) {
     } } }
     await chrome.storage.local.clear()
     await chrome.storage.local.set({
-      "cf:consent": 2, "cf:tourSeen": true, "cf:noteHint": -1, "cf:selHint": -1, "cf:hintsSeen": ["chats", "video", "pdf"],
+      // The one AI consent (2.5 (78): version 3) given.
+      "cf:consent": 3, "cf:tourSeen": true, "cf:noteHint": -1, "cf:selHint": -1, "cf:hintsSeen": ["chats", "video", "pdf"],
       // 2.5's first-time tips (the eye, the bell, the button by a field) are for real first times, not the clips.
       "cf:watchTips": { eye: true, later: true }, "cf:selIconsTip": true, "cf:insertTipSeen": true,
       // Organizing's cards for Free ("Everything in one chat?", after the third tag) have their own clips.
@@ -148,9 +152,10 @@ function history() {
       }
 }
 /** One chat on the first article: a long answer to highlight, a note, a few more turns (`pins`: which to pin). */
-function chat({ pins = [] } = {}) {
+// `url`: the page's address in the chat (the share take's text shows it: a site's, not the stand's).
+function chat({ pins = [], url = PAGE_1 } = {}) {
   const now = Date.now()
-  const p1 = { url: PAGE_1, title: ru ? "Почему четырёхдневка работает — и когда нет" : "Why the four-day week works — and when it doesn't" }
+  const p1 = { url, title: ru ? "Почему четырёхдневка работает — и когда нет" : "Why the four-day week works — and when it doesn't" }
   const m = ru
     ? [
         { role: "user", content: "Кратко", label: "Кратко", page: p1 },
@@ -550,6 +555,67 @@ const takes = {
     await wait(400)
     await tap(field); await type(L.about)
     await wait(1200)
+  },
+
+  // Share what you found (2.5 (81), the owner: no clip yet): the chat's share button picks every message, the note
+  // is left out, Copy; in a mail reply the text comes as it is, with the page's link and ContextFlow's.
+  async share() {
+    await fresh(PAGE_1, chat({ url: ru ? "https://delovoy-obzor.example/chetyrekhdnevka" : "https://weekly-review.example/four-day-week" }), { "cf:settings": { insertButton: false } })
+    await ctx.grantPermissions(["clipboard-read", "clipboard-write"], { origin: BASE })
+    await openPanel(false)
+    await record("share")
+    await wait(600)
+    await touch(page.locator(`.cf-icon[aria-label="${msg("shareChat")}"]`))
+    await page.locator(".cf-pickbar").waitFor()
+    await wait(1000)
+    await touch(page.locator(".cf-msg.note.picked").first())
+    await wait(800)
+    await touch(page.locator(".cf-pickbar .cf-secondary"))
+    await wait(900)
+    const text = await page.evaluate(() => navigator.clipboard.readText())
+    await go(INBOX)
+    await page.evaluate(() => document.getElementById("reply").scrollIntoView({ block: "center" }))
+    await wait(500)
+    await touch(page.locator("#reply"))
+    await wait(400)
+    await page.evaluate((t) => document.execCommand("insertText", false, t), text)
+    await page.evaluate(() => { const r = document.getElementById("reply"); r.style.height = "250px"; r.scrollTop = 0 })
+    await wait(1300)
+    // Down to its end: the pages it was about, with their links, and ContextFlow's.
+    for (let i = 1; i <= 14; i++) {
+      await page.evaluate((f) => { const r = document.getElementById("reply"); r.scrollTop = (r.scrollHeight - r.clientHeight) * f }, i / 14)
+      await wait(70)
+    }
+    await wait(2000)
+  },
+  // The ✦ button, your way (2.5 (81), the owner: "the round button can be moved up and down if it covers something"):
+  // the site's own chat pill sits under ✦; a drag up uncovers it, and ✦ stays where it was left.
+  async button() {
+    await fresh(PAGE_1)
+    const fab = page.locator(".cf-fab")
+    const b = await fab.boundingBox()
+    // A site's corner widget where ✦ sits (a help chat, as on many shops): ✦ covers its end.
+    await page.evaluate(({ y, label }) => {
+      const pill = document.createElement("a")
+      pill.href = "#"
+      pill.textContent = label
+      pill.setAttribute("style", `position:fixed;right:12px;top:${y - 22}px;height:44px;padding:0 18px;display:flex;align-items:center;gap:8px;border-radius:22px;background:#111827;color:#fff;font:600 15px -apple-system,system-ui,sans-serif;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.25);z-index:2147483000`)
+      document.body.appendChild(pill)
+    }, { y: b.y + b.height / 2, label: ru ? "💬 Чат с поддержкой" : "💬 Chat with support" })
+    await record("button")
+    await wait(1300)
+    const x = b.x + b.width / 2, y = b.y + b.height / 2, dy = -230
+    mark("swipe", { x, y, dx: 0, dy })
+    await wait(160)
+    await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x, y }] })
+    const steps = 22
+    for (let i = 1; i <= steps; i++) {
+      await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ x, y: y + (dy * i) / steps }] })
+      await wait(30)
+    }
+    await wait(80)
+    await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] })
+    await wait(2000)
   },
 
   // ------------------------------------------------------------------ 2.5
