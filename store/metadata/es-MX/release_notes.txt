@@ -1,6 +1,14 @@
-Novedades de ContextFlow 2.4:
-• Configuración más fácil: la app te muestra paso a paso cómo activar ContextFlow en Configuración y te lo recuerda si no terminaste
-• ¿Sin respuestas gratis? Ahora ves exactamente cuándo regresan, y las notas siguen siendo gratis e ilimitadas
-• ¿Necesitas más respuestas? Cuando se acaben las gratis, Pro tiene 50 % de descuento el primer mes
-• En la Mac, los menús de la app ahora aparecen en tu idioma
-• Correcciones y mejoras
+Novedades de ContextFlow 2.5:
+• ¿Escribes las mismas respuestas una y otra vez? Guarda una como plantilla. ContextFlow marca lo que cambia, como un nombre o una fecha, y lo rellena con la página o la conversación abierta cuando la insertas. Revísalo y envíalo. En Gratis tienes algunos rellenados al día; con Pro, sin límite
+• Toca un campo de texto y a su lado aparece el botón flotante de ContextFlow: lo que copiaste en Safari, tus plantillas y la última respuesta, a un toque. También funciona en los mensajes de las redes sociales y en las ventanas que se abren sobre la página
+• Lo copiado se queda en tu dispositivo durante 24 horas. No se guarda nada de los campos de contraseñas ni de tarjetas
+• Las respuestas y las notas tienen un botón nuevo: “Insertar en el campo”
+• En la Mac o en un iPad con teclado, escribe / y unas palabras de una plantilla en cualquier campo y presiona Tab. Control-Shift-V abre la lista completa
+• ¿Esperas a que baje un precio o a que algo vuelva a estar disponible? Selecciona el precio o la línea de disponibilidad y toca el ojo. ContextFlow lo revisa mientras usas Safari y te envía una notificación cuando cambie. Para toda la página: … → “Vigilar esta página”
+• ¿Quieres volver a una página más tarde? Selecciona una línea y toca la campana, o ve a … → “Recordarme esta página”, y elige cuándo. También puedes poner un recordatorio en cualquier respuesta o nota
+• Selecciona una línea de una respuesta y toca “Resaltar”. Las siguientes respuestas de ese chat toman en cuenta lo que resaltaste
+• En iPhone y iPad, desliza una respuesta o una nota hacia la derecha para fijarla y hacia la izquierda para eliminarla. Las fijadas quedan en una barra hasta arriba del chat
+• ¿Eliminaste un chat por error? Se queda 30 días en “Eliminados recientemente”
+• Con Pro, ContextFlow puede sugerir a qué chat va una respuesta o nota nueva, y una de tus etiquetas para ella. Esto lo activas tú
+• Los Consejos ahora están agrupados por tarea, con videos cortos, en la app y en el panel
+• Correcciones y mejoras: los chats ya no cambian de lugar en la lista

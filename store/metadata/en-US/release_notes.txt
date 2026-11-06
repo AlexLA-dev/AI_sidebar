@@ -1,6 +1,14 @@
-What's new in ContextFlow 2.4:
-• Easier setup: the app shows step by step how to switch ContextFlow on in Settings, and reminds you if setup isn't finished
-• Out of free answers? You'll see exactly when they come back, and notes stay free and unlimited in the meantime
-• Need more answers? When you run out, Pro is 50% off for the first month
-• On a Mac, the app's menus now appear in your language
-• Fixes and improvements
+What's new in ContextFlow 2.5:
+• Writing the same replies again and again? Save one as a template. ContextFlow marks what changes, like a name or a date, and fills it in from the page or the open conversation when you insert it. Check it, then send. Free includes a few fills a day; Pro has no limit
+• Tap a text field and the floating ContextFlow button appears next to it: what you copied in Safari, your templates and the last answer are one tap away. It also works in messages on social sites and in windows that open over the page
+• Copied text stays on your device for 24 hours. Nothing is kept from password or card fields
+• Answers and notes have a new button: Insert into field
+• On a Mac or an iPad with a keyboard, type / and a few words of a template in any field, then press Tab. Control-Shift-V opens the whole list
+• Waiting for a price to drop or an item to come back in stock? Select the price or the stock line and tap the eye. ContextFlow checks while you use Safari and sends a notification when it changes. For the whole page: … → Watch this page
+• Want to come back to a page later? Select a line and tap the bell, or choose … → Remind me about this page, then pick a time. Any answer or note can remind you too
+• Select a line in an answer and tap Highlight. Later answers in that chat take your highlights into account
+• On iPhone and iPad, swipe an answer or a note right to pin it, left to delete it. Pinned ones sit in a bar at the top of the chat
+• Deleted a chat by mistake? It stays in Recently Deleted for 30 days
+• With Pro, ContextFlow can suggest which chat a new answer or note belongs in, and one of your own tags for it. You turn this on yourself
+• Tips are now grouped by task, with short clips, in the app and in the panel
+• Fixes and improvements: chats no longer swap places in the list

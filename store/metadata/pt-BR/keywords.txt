@@ -1,1 +1,1 @@
-resumo,resumir,tradutor,extensão,assistente,chat,artigo,explicar,estudar,pesquisa,navegador,texto
+resumir,tradutor,traduzir,extensão,assistente,chat,artigo,explicar,estudar,pesquisa,navegador,texto

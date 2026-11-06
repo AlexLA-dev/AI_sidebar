@@ -1,1 +1,1 @@
-riassunto,sintesi,traduttore,estensione,assistente,chat,articolo,spiegare,studio,browser,appunti,web
+riassunto,sintesi,traduttore,traduci,estensione,assistente,chat,articolo,spiegare,studio,browser,web
