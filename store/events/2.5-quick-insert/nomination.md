@@ -23,7 +23,7 @@ Version 2.5 adds Quick Insert. Tap a text field in Safari and a small ContextFlo
 
 Who it's for: people who answer the same questions in Safari every day, like shop owners replying to buyers, freelancers, and people who keep an eye on prices.
 
-Why it matters: template tools for the browser mostly run on desktop computers. In Safari on iPad and iPhone nothing inserted right by the field. Priority: high, this is our main update.
+Why it matters: template tools for the browser mostly run on desktop computers. In Safari on iPad and iPhone nothing inserted right by the field.
 
 ## Helpful details (445/500)
 
