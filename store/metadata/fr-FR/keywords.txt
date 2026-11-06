@@ -1,1 +1,1 @@
-résumer,synthèse,traducteur,extension,assistant,chat,lecteur,article,expliquer,recherche,navigateur
+résumer,synthèse,traducteur,traduire,extension,assistant,chat,article,expliquer,recherche,navigateur

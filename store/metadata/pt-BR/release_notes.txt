@@ -1,6 +1,12 @@
 Novidades do ContextFlow 2.4:
+• Todas as suas conversas no app, no iPhone, iPad e Mac: busque nelas, faça uma pergunta sobre qualquer conversa ou adicione uma nota a ela
+• Tags: marque conversas, respostas e notas com tags, depois filtre por tag ou agrupe as conversas em pastas. Funciona no Safari e no app
+• Embaixo de cada resposta e nota: Copiar, Compartilhar e as tags dela. Em “Compartilhar conversa” você escolhe quais mensagens enviar
+• Cada página da conversa agora mostra o dia em que você esteve nela
+• Selecionou um texto? Faça sua própria pergunta sobre ele ou guarde-o como nota na conversa
+• Com o Pro, o ContextFlow agora também lê vídeos e PDFs da página, a Busca com IA encontra uma conversa pela sua descrição e “Pergunte às suas conversas” responde com base em todas elas. Sem o Pro, a resposta usa o texto da página e avisa quando pulou um vídeo ou PDF
 • Configuração mais fácil: o app mostra passo a passo como ativar o ContextFlow em Ajustes e lembra você se a configuração não terminar
-• Acabaram as respostas grátis? Agora você vê exatamente quando elas voltam, e as notas continuam grátis e ilimitadas
-• Precisa de mais respostas? Quando as grátis acabarem, o Pro tem 50% de desconto no primeiro mês
+• Acabaram as respostas grátis? Você vê exatamente quando elas voltam, as notas continuam grátis e ilimitadas, e o Pro tem 50% de desconto no primeiro mês
+• Usa sua própria chave de API? Agora dá para mudar para o Pro direto no app
 • No Mac, os menus do app agora aparecem no seu idioma
 • Correções e melhorias

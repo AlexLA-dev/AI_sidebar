@@ -1,33 +1,48 @@
-ContextFlow puts an AI assistant right inside Safari. Summarise long articles, pull out the key facts, explain anything in plain words or translate the whole page — without copying, pasting or switching apps.
+Stop pasting articles into a chatbot. Ask AI about any page and take notes as you read, without leaving Safari. The chat follows you from page to page, and the same chat is on your iPhone, iPad and Mac. Summarise, pull out the key facts or translate the whole page without copying or switching apps.
 
 WHAT YOU CAN DO
-• Summarise any article, report, thread or product page in seconds
+• Summarise any article, review, thread or product page in seconds
 • Get the key takeaways, numbers and dates at a glance
 • Ask your own questions: “What's the catch?”, “Is this worth buying?”, “What should I do next?”
 • Explain jargon and complex topics in simple words
 • Translate pages into your language
-• Select text to explain it, improve your writing or draft a reply
+• Select text to ask your own question about just that part, or keep it as a note
+• Google answers: fresh facts from Google Search, with numbered sources you can open
+
+NOTES AND CHATS
+• Notes: swipe the send button up or down (on a Mac, scroll over it) to write a note instead of asking. It stays in the chat next to its page and uses no answers
+• One chat follows you from site to site until you start a new one, and each page in it shows the day you were there
+• Whole chat: switch it on, and the answer takes in every message, your notes and all the pages of the chat
+• Tags: tag chats, answers and notes, then filter by tag or group chats into folders
+• Search your chats by any word, in Safari and in the app
+• Pin the important chats, rename them and see every page a chat was on — tap one to go back to it
+• Copy, share or tag any answer or note. Share a whole chat or tick just the messages you need; their links and sources go with them
+
+ALL YOUR CHATS IN THE APP
+• The ContextFlow app on iPhone, iPad and Mac has every chat from Safari
+• Read any chat, ask a question about it or add a note, then carry on in Safari
+• Chats sync between your iPhone, iPad and Mac through iCloud
 
 MADE FOR SAFARI ON IPHONE, IPAD AND MAC
-• iPhone and iPad: tap the floating ContextFlow button on any page
-• Mac: a sidebar that opens from the toolbar or with Control-Shift-E
-• Each page keeps its own conversation, so you can come back later
-• Light and dark mode, available in 11 languages
+• iPhone and iPad: tap the floating ContextFlow button on any page, or Ask AI on selected text
+• Mac: a sidebar that opens from the toolbar, the floating button or Control-Shift-E
+• A short tour on first launch, and Tips in the app with a short video for each feature
+• Light and dark mode, adjustable text size, available in 11 languages
 
 PRIVATE BY DESIGN
 • No account, no sign-up, no tracking
 • A page is read only when you ask about it
-• Page text is never stored on our servers; your chats stay on your devices and sync through your iCloud, end-to-end encrypted
+• Page text is never stored on our servers; your chats stay on your devices and sync through your iCloud, end-to-end encrypted. You can turn sync off in Settings
 
 FREE AND PRO
-• Free: 5 answers every day
-• Pro: up to 375 answers a week on all your Apple devices
+• Free: answers every day, no sign-up. They use the text of the page; if the page has a video or a PDF, the answer tells you it skipped it. When your answers run out, you'll see exactly when new ones arrive, and notes stay free and unlimited
+• Pro: plenty of answers, deeper and more detailed, questions about videos and PDFs on the page, AI search that finds a chat from your own description, and “Ask your chats” that answers from all of them — on all your Apple devices
 • Own key: unlimited answers with your own OpenAI or Claude API key
 
 GET STARTED IN A MINUTE
-1. Open the ContextFlow app and follow the steps to turn the extension on in Safari.
-2. Open any website and tap the ContextFlow button (on Mac, click the ContextFlow icon in the toolbar).
-3. Pick Summarise, Key takeaways, Explain or Translate — or just ask.
+1. Open the ContextFlow app: it shows you step by step how to turn the extension on in Safari.
+2. Open any website and tap the ContextFlow button (on a Mac, click the ContextFlow icon in the toolbar).
+3. Pick Summarise, Key takeaways, Explain simply or Translate — or just ask.
 
 AI can make mistakes. Check important information.
 

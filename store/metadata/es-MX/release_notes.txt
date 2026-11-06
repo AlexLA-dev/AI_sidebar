@@ -1,6 +1,12 @@
 Novedades de ContextFlow 2.4:
+• Todos tus chats en la app, en iPhone, iPad y Mac: búscalos, haz una pregunta sobre cualquier chat o agrégale una nota
+• Etiquetas: etiqueta chats, respuestas y notas, filtra por etiqueta o agrupa los chats en carpetas. Funciona en Safari y en la app
+• Debajo de cada respuesta y nota: Copiar, Compartir y sus etiquetas. Con “Compartir chat” eliges qué mensajes enviar
+• Cada página del chat ahora muestra el día en que estuviste en ella
+• ¿Seleccionaste texto? Haz tu propia pregunta sobre él o guárdalo como nota en el chat
+• Con Pro, ContextFlow ahora también lee los videos y PDF de la página, la búsqueda con IA encuentra un chat a partir de tu descripción y “Pregunta a tus chats” responde a partir de todos ellos. Sin Pro, la respuesta se basa en el texto de la página y te avisa si omitió un video o un PDF
 • Configuración más fácil: la app te muestra paso a paso cómo activar ContextFlow en Configuración y te lo recuerda si no terminaste
-• ¿Sin respuestas gratis? Ahora ves exactamente cuándo regresan, y las notas siguen siendo gratis e ilimitadas
-• ¿Necesitas más respuestas? Cuando se acaben las gratis, Pro tiene 50 % de descuento el primer mes
+• ¿Sin respuestas gratis? Ves exactamente cuándo regresan, las notas siguen siendo gratis e ilimitadas, y Pro tiene 50 % de descuento el primer mes
+• ¿Usas tu propia clave de API? Ahora puedes pasar a Pro directamente desde la app
 • En la Mac, los menús de la app ahora aparecen en tu idioma
 • Correcciones y mejoras

@@ -1,33 +1,45 @@
-ContextFlow bringt einen KI-Assistenten direkt in Safari. Fasse lange Artikel zusammen, hol dir die wichtigsten Fakten, lass dir alles in einfachen Worten erklären oder übersetze die ganze Seite – ohne Kopieren, Einfügen oder App-Wechsel.
+Schluss damit, Artikel in einen Chatbot zu kopieren. Frag die KI zu jeder Seite und mach beim Lesen Notizen, ohne Safari zu verlassen. Der Chat folgt dir von Seite zu Seite und ist derselbe auf iPhone, iPad und Mac. Fasse Artikel zusammen, hol dir die wichtigsten Fakten oder übersetze die ganze Seite, ohne Kopieren oder App-Wechsel.
 
 DAS KANNST DU DAMIT MACHEN
-• Artikel, Berichte, Threads und Produktseiten in Sekunden zusammenfassen
+• Artikel, Testberichte, Threads und Produktseiten in Sekunden zusammenfassen
 • Die wichtigsten Erkenntnisse, Zahlen und Datumsangaben auf einen Blick sehen
 • Eigene Fragen stellen: „Wo ist der Haken?“, „Lohnt sich der Kauf?“, „Was sollte ich als Nächstes tun?“
 • Fachbegriffe und komplexe Themen in einfachen Worten erklären lassen
 • Seiten in deine Sprache übersetzen
-• Text markieren, um ihn erklären zu lassen, deine Formulierungen zu verbessern oder eine Antwort zu entwerfen
+• Text markieren, um nur dazu eine eigene Frage zu stellen oder ihn als Notiz zu behalten
+• Google-Antworten: aktuelle Fakten aus der Google-Suche mit nummerierten Quellen zum Öffnen
+
+NOTIZEN UND CHATS
+• Notizen: Wisch die Senden-Taste nach oben oder unten (auf dem Mac: darüber scrollen), um statt einer Frage eine Notiz zu schreiben. Sie bleibt im Chat neben ihrer Seite und verbraucht keine Antworten
+• Ein Chat folgt dir von Website zu Website, bis du einen neuen beginnst; jede Seite darin zeigt den Tag deines Besuchs
+• Ganzer Chat: Schalte ihn ein, und die Antwort berücksichtigt alle Nachrichten, deine Notizen und alle Seiten des Chats
+• Tags: Tagge Chats, Antworten und Notizen, filtere nach Tag oder sortiere Chats in Ordner
+• Durchsuche deine Chats nach jedem Wort, in Safari und in der App
+• Kopiere, teile oder tagge jede Antwort und Notiz. Teile einen ganzen Chat oder nur die nötigen Nachrichten – Links und Quellen gehen mit
+
+ALLE DEINE CHATS IN DER APP
+• Die ContextFlow-App auf iPhone, iPad und Mac hat jeden Chat aus Safari
+• Lies einen Chat, frag etwas dazu oder füg eine Notiz hinzu und mach in Safari weiter
+• Chats werden über iCloud zwischen iPhone, iPad und Mac synchronisiert
 
 GEMACHT FÜR SAFARI AUF IPHONE, IPAD UND MAC
-• iPhone und iPad: Tippe auf jeder Seite auf die schwebende ContextFlow-Taste
-• Mac: eine Seitenleiste, die du über die Symbolleiste oder mit Control-Shift-E öffnest
-• Jede Seite behält ihre eigene Unterhaltung, sodass du später weitermachen kannst
-• Heller und dunkler Modus, verfügbar in 11 Sprachen
+• iPhone und iPad: Tippe auf jeder Seite auf die schwebende ContextFlow-Taste oder bei markiertem Text auf „KI fragen“
+• Mac: eine Seitenleiste, die du über die Symbolleiste, die schwebende Taste oder mit Control-Shift-E öffnest
+• Heller und dunkler Modus, anpassbare Textgröße, verfügbar in 11 Sprachen
 
 DATENSCHUTZ VON ANFANG AN
 • Kein Konto, keine Registrierung, kein Tracking
 • Eine Seite wird nur gelesen, wenn du danach fragst
-• Seitentexte werden nie auf unseren Servern gespeichert; deine Chats bleiben auf deinen Geräten und werden Ende-zu-Ende-verschlüsselt über deine iCloud synchronisiert
+• Seitentexte werden nie auf unseren Servern gespeichert; deine Chats bleiben auf deinen Geräten und werden Ende-zu-Ende-verschlüsselt über deine iCloud synchronisiert. Die Synchronisierung lässt sich in den Einstellungen ausschalten
 
 KOSTENLOS UND PRO
-• Kostenlos: 5 Antworten pro Tag
-• Pro: bis zu 375 Antworten pro Woche auf all deinen Apple-Geräten
+• Kostenlos: Antworten jeden Tag, ohne Registrierung, aus dem Text der Seite; ein Video oder PDF wird übersprungen, und die Antwort sagt es dir. Sind sie aufgebraucht, siehst du genau, wann neue kommen – Notizen bleiben gratis und unbegrenzt
+• Pro: viele Antworten, tiefer und ausführlicher, Fragen zu Videos und PDFs auf der Seite, KI-Suche, die einen Chat nach deiner Beschreibung findet, und „Frag deine Chats“ mit Antworten aus allen Chats – auf all deinen Apple-Geräten
 • Eigener Schlüssel: unbegrenzte Antworten mit deinem eigenen OpenAI- oder Claude-API-Schlüssel
 
 IN EINER MINUTE STARTKLAR
-1. Öffne die ContextFlow-App und folge den Schritten, um die Erweiterung in Safari zu aktivieren.
+1. Öffne die ContextFlow-App: Sie zeigt dir Schritt für Schritt, wie du die Erweiterung in Safari aktivierst.
 2. Öffne eine beliebige Website und tippe auf die ContextFlow-Taste (auf dem Mac klickst du in der Symbolleiste auf das ContextFlow-Symbol).
-3. Wähle „Zusammenfassen“, „Das Wichtigste“, „Einfach erklären“ oder „Übersetzen“ – oder frag einfach.
 
 KI kann Fehler machen. Überprüfe wichtige Informationen.
 
