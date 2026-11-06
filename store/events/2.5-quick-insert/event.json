@@ -1,0 +1,101 @@
+{
+  "reference_name": "2.5 Major Update: Quick Insert in Safari",
+  "badge": "Major Update",
+  "purpose": "Appropriate for All Users",
+  "priority": "High",
+  "in_app_purchase_required": false,
+  "deep_link": null,
+  "primary_language": "en-US",
+  "territories": "all",
+  "start": "when 2.5 is out on the App Store",
+  "end": "31 days after the start (Apple's maximum)",
+  "publish_start": "the same as the start (the feature has to be out before the event shows)",
+  "media": {
+    "en-US": {
+      "card": "en-US/event-card-1920x1080.png",
+      "details": "en-US/event-details-1080x1920.png"
+    },
+    "ru": {
+      "card": "ru/event-card-1920x1080.png",
+      "details": "ru/event-details-1080x1920.png"
+    },
+    "other locales": "en-US media"
+  },
+  "localizations": {
+    "en-US": {
+      "name": "Quick Insert in Safari",
+      "short": "Templates and recent copies by any text field",
+      "long": "New in ContextFlow 2.5: templates fill in names and dates from the page, and what you copied waits by every field."
+    },
+    "en-GB": {
+      "name": "Quick Insert in Safari",
+      "short": "Templates and recent copies by any text field",
+      "long": "New in ContextFlow 2.5: templates fill in names and dates from the page, and what you copied waits by every field."
+    },
+    "en-AU": {
+      "name": "Quick Insert in Safari",
+      "short": "Templates and recent copies by any text field",
+      "long": "New in ContextFlow 2.5: templates fill in names and dates from the page, and what you copied waits by every field."
+    },
+    "en-CA": {
+      "name": "Quick Insert in Safari",
+      "short": "Templates and recent copies by any text field",
+      "long": "New in ContextFlow 2.5: templates fill in names and dates from the page, and what you copied waits by every field."
+    },
+    "ru": {
+      "name": "Быстрая вставка в Safari",
+      "short": "Шаблоны и скопированное у любого поля",
+      "long": "Новое в ContextFlow 2.5: шаблон сам впишет имя и дату со страницы, а скопированное ждёт у любого поля."
+    },
+    "uk": {
+      "name": "Швидка вставка в Safari",
+      "short": "Шаблони і скопійоване біля будь-якого поля",
+      "long": "Нове в ContextFlow 2.5: шаблон сам впише ім’я і дату зі сторінки, а скопійоване чекає біля будь-якого поля."
+    },
+    "de-DE": {
+      "name": "Schnelleinfügen in Safari",
+      "short": "Vorlagen und Kopiertes an jedem Textfeld",
+      "long": "Neu in ContextFlow 2.5: Vorlagen tragen Namen und Datum von der Seite ein, Kopiertes wartet an jedem Feld."
+    },
+    "fr-FR": {
+      "name": "Insertion rapide dans Safari",
+      "short": "Modèles et copies récentes près de chaque champ",
+      "long": "Nouveau dans ContextFlow 2.5 : les modèles reprennent noms et dates de la page, vos copies attendent à chaque champ."
+    },
+    "es-ES": {
+      "name": "Inserción rápida en Safari",
+      "short": "Plantillas y lo copiado junto a cada campo",
+      "long": "Novedad en ContextFlow 2.5: las plantillas rellenan nombres y fechas con la página, y lo copiado espera en cada campo."
+    },
+    "es-MX": {
+      "name": "Inserción rápida en Safari",
+      "short": "Plantillas y lo copiado junto a cada campo",
+      "long": "Novedad en ContextFlow 2.5: las plantillas rellenan nombres y fechas con la página, y lo copiado espera en cada campo."
+    },
+    "it": {
+      "name": "Inserimento rapido in Safari",
+      "short": "Modelli e testi copiati accanto a ogni campo",
+      "long": "Novità di ContextFlow 2.5: i modelli inseriscono nomi e date dalla pagina e i testi copiati sono pronti in ogni campo."
+    },
+    "pt-BR": {
+      "name": "Inserção rápida no Safari",
+      "short": "Modelos e textos copiados ao lado de cada campo",
+      "long": "Novidade no ContextFlow 2.5: modelos preenchem nomes e datas pela página, e o que você copiou fica em cada campo."
+    },
+    "ja": {
+      "name": "Safari でクイック挿入",
+      "short": "どの入力欄にもテンプレートとコピー履歴",
+      "long": "ContextFlow 2.5 の新機能：テンプレートが名前や日付をページから入力し、コピーしたテキストもどの入力欄にもすぐ挿入できます。"
+    },
+    "ko": {
+      "name": "Safari에서 빠른 삽입",
+      "short": "모든 입력란 옆에 템플릿과 복사한 항목",
+      "long": "ContextFlow 2.5 새 기능: 템플릿이 페이지에서 이름과 날짜를 채우고, 복사한 항목은 어느 입력란에나 바로 넣을 수 있습니다."
+    },
+    "zh-Hans": {
+      "name": "Safari 快速插入",
+      "short": "任何输入框旁都有模板和已复制内容",
+      "long": "ContextFlow 2.5 新功能：模板从网页填写姓名和日期，复制过的内容在任何输入框旁一点即可插入。"
+    }
+  }
+}
