@@ -7,6 +7,7 @@ import type { StreamStats } from "../shared/llm.mts"
 import { blockReason, countersFor, resolveAccess, visibleUsage } from "../shared/plan.mts"
 import { findPrompt, MAX_FIND_CHARS, MAX_FIND_CHATS, parseFindAnswer, sanitizeDigests } from "../../src/shared/history.ts"
 import { chatSize, digestCut, LIMITS_VERSION } from "../shared/limits.mts"
+import { uiFields } from "../../src/shared/usage.ts"
 
 /**
  * POST /api/v2/find — AI search over the user's chats (Pro): the chats that match what the user
@@ -34,10 +35,12 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const locale = clip(client.locale, 12)
   // The app build (2.4 build 67 and later send it): Claude answers only builds that name it.
   const build = clientBuild(client)
+  // The step this search is in the user's session (where, the step before), for /analytics.
+  const step = { ...uiFields(body.ui, "ai_search"), ...(client.audience === "test" ? { audience: "test" } : {}) }
 
   const access = await resolveAccess(body.entitlement, installId)
   if (access.plan !== "pro") {
-    context.waitUntil(logEvent("pro_only", installId, { feature: "find", plan: access.plan, platform, version }))
+    context.waitUntil(logEvent("pro_only", installId, { feature: "find", plan: access.plan, platform, version, ...step }))
     return json({ code: "PRO_ONLY", plan: access.plan, feature: "find" }, 403)
   }
 
@@ -52,7 +55,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const usage = visibleUsage(access, quota.counters)
   if (!quota.allowed) {
     const reason = blockReason(quota.blocked)
-    context.waitUntil(logEvent("limit", installId, { plan: access.plan, reason, platform, version, mode: "find" }))
+    context.waitUntil(logEvent("limit", installId, { plan: access.plan, reason, platform, version, mode: "find", ...step }))
     return json({ code: reason === "busy" ? "BUSY" : "LIMIT_REACHED", plan: access.plan, usage }, reason === "busy" ? 503 : 402)
   }
 
@@ -95,7 +98,8 @@ export default async (req: Request, context: Context): Promise<Response> => {
       ms: Date.now() - started,
       platform,
       version,
-      build
+      build,
+      ...step
     }),
     touchInstall(installId, platform, version, locale, 1).catch(() => undefined)
   ]))

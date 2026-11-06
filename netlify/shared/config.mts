@@ -121,6 +121,8 @@ export const config = {
   ownKeyReportDailyLimit: int("OWN_KEY_REPORT_DAILY_LIMIT", 1000),
   // Funnel events (app opened, extension switched on) accepted per id per day.
   eventDailyLimit: int("EVENT_DAILY_LIMIT", 30),
+  // Requests with feature steps ("use", one step or a batch of up to 25) accepted per id per day.
+  useEventDailyLimit: int("USE_EVENT_DAILY", 1000),
   // App Store offer code for free users who ran out of answers (Pro, first month off; set up in App Store
   // Connect on pro.monthly). PRO_OFFER_CODE=off stops offering it; PRO_OFFER_DISCOUNT is what the panel says.
   proOfferCode: (env("PRO_OFFER_CODE") ?? "CONTEXTFLOW50").trim(),
@@ -160,7 +162,10 @@ export const config = {
     embedPrice: Number(env("ORGANIZE_EMBED_PRICE") ?? 0.02),
     judgePriceIn: Number(env("ORGANIZE_JUDGE_PRICE_IN") ?? 0.1),
     judgePriceOut: Number(env("ORGANIZE_JUDGE_PRICE_OUT") ?? 0.5)
-  }
+  },
+  // Site counter (/api/v2/site): visits and App Store taps accepted per address per day, and in all per day.
+  siteDailyLimit: int("SITE_DAILY_LIMIT", 300),
+  siteGlobalDailyLimit: int("SITE_GLOBAL_DAILY_LIMIT", 20000)
 }
 
 export const PRODUCTS = {

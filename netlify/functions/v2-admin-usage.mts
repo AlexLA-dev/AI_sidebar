@@ -2,7 +2,8 @@ import type { Config } from "@netlify/functions"
 import { createHash, timingSafeEqual } from "node:crypto"
 
 import { config as settings } from "../shared/config.mts"
-import { limitsReport, organizeReport, ownerInsights, setupFunnel, usageReport } from "../shared/db.mts"
+import { afterLimit, featureFunnels, features, limitsReport, newUserOutcomes, onboarding, organizeReport, ownerInsights, releases, setupFunnel, usageReport } from "../shared/db.mts"
+import { featureBase } from "../../src/shared/usage.ts"
 
 /**
  * GET /api/v2/admin/usage?days=30 — usage analytics for the /analytics page.
@@ -30,22 +31,29 @@ export default async (req: Request): Promise<Response> => {
 
   const days = Math.max(1, Math.min(180, Number.parseInt(new URL(req.url).searchParams.get("days") ?? "30", 10) || 30))
   try {
-    const [report, funnel, insights, limits, organize] = await Promise.all([
+    const missing = (what: string) => (err: unknown) => {
+      console.error(`[cf] ${what} failed:`, err instanceof Error ? err.message : err)
+      return null
+    }
+    const [report, funnel, insights, limits, steps, outcomes, used, funnels, after, shipped, organize] = await Promise.all([
       usageReport(days),
       // Older databases have no funnel or insights yet; the rest of the report still works.
       setupFunnel(days).catch(() => []),
-      ownerInsights(days).catch((err) => {
-        console.error("[cf] owner insights failed:", err instanceof Error ? err.message : err)
-        return null
-      }),
-      limitsReport(days).catch((err) => {
-        console.error("[cf] limits report failed:", err instanceof Error ? err.message : err)
-        return null
-      }),
+      ownerInsights(days).catch(missing("owner insights")),
+      limitsReport(days).catch(missing("limits report")),
+      onboarding(days).catch(missing("onboarding")),
+      newUserOutcomes(days).catch(missing("new user outcomes")),
+      features(days, featureBase()).catch(missing("features")),
+      featureFunnels(days).catch(missing("feature funnels")),
+      afterLimit(days).catch(missing("after limit")),
+      releases().catch(missing("releases")),
       // Before its migration (2.5) there's none: the page leaves the block out.
       organizeReport(days).catch(() => null)
     ])
-    return new Response(JSON.stringify({ ...report, setup_funnel: funnel, insights, limits_report: limits, organize_report: organize }), { headers: noStore })
+    return new Response(JSON.stringify({
+      ...report, setup_funnel: funnel, insights, limits_report: limits, onboarding: steps, new_outcomes: outcomes,
+      features: used, feature_funnels: funnels, after_limit: after, releases: shipped, organize_report: organize
+    }), { headers: noStore })
   } catch (err) {
     console.error("[cf] usage report failed:", err instanceof Error ? err.message : err)
     return new Response(JSON.stringify({ code: "UNAVAILABLE" }), { status: 503, headers: noStore })
