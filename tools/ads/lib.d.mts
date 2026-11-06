@@ -12,6 +12,8 @@ export type PlanAdGroup = {
   searchMatch?: boolean
   negateCampaignExact?: boolean
   promoteTo?: boolean
+  /** Use-case test stage (1): the stage 1 rule decides pause or hold; the group's bids never move. */
+  stage?: 1
   productPage?: string
   daypart?: number[]
   keywords?: PlanKeyword[]
@@ -57,13 +59,20 @@ export type Rules = {
   minBid: number
   negativeSpendWithoutInstall: number
   underspend: number
+  stageImpressions: number
+  stageTaps: number
+  stageMaxInstalls: number
+  stagePassTtr: number
+  stagePassTapInstall: number
 }
 export type Proposal = {
   campaign: string
   adGroup?: string
   text: string
   match: "EXACT" | "BROAD"
-  action: "pause" | "bid" | "promote" | "negative" | "groupbid"
+  action: "pause" | "bid" | "promote" | "negative" | "groupbid" | "grouppause" | "hold"
+  /** For a "hold" of a stage 1 group: whether it passed or landed between the thresholds. */
+  stage?: "passed" | "unclear"
   from?: number
   to?: number
   why: string
@@ -82,5 +91,5 @@ export function adGroupPayload(g: PlanAdGroup, campaignId: number, plan: Plan, s
 export function diffPlan(plan: Plan, live: Live): { ops: Op[]; notes: string[] }
 export function metrics(row: Record<string, any> | undefined): Metrics
 export const DEFAULT_RULES: Rules
-export function optimize(plan: Plan, data: { keywords?: Record<string, any>[]; searchTerms?: Record<string, any>[]; subs?: Record<string, number>; lastDaySpend?: Record<string, number> }, rules?: Partial<Rules>): Proposal[]
+export function optimize(plan: Plan, data: { keywords?: Record<string, any>[]; searchTerms?: Record<string, any>[]; adGroups?: Record<string, any>[]; subs?: Record<string, number>; lastDaySpend?: Record<string, number> }, rules?: Partial<Rules>): Proposal[]
 export function applyProposals<P extends Plan>(plan: P, proposals: Proposal[]): P
