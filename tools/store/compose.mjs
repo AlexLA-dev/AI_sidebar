@@ -43,6 +43,34 @@ const COPY = {
     askHero: ["Ask this page", "anything"],
     googleHero: ["Fresh answers", "from Google"],
     chatHero: ["One chat for", "all your tabs"],
+    hero: ["Summarize any", "page in Safari"],
+    follows: ["One chat follows", "you page to page"],
+    sync: ["One chat on", "iPhone, iPad, Mac"],
+    selAsk: ["Select text, ask", "or save a note"],
+    appChat: ["All your chats,", "in the app too"],
+    find: ["Find any chat", "by word or tag"],
+    pro: ["Pro: ask about", "videos and PDFs"],
+    cppPdf: ["Pro: ask about", "PDFs in Safari"],
+    shopAsk: ["Worth buying?", "Ask before you pay"],
+    shopReviews: ["What the reviews", "really say"],
+    shopSel: ["Select a spec,", "ask why it matters"],
+    fill: ["Templates fill in", "names and dates"],
+    watch: ["Know when the", "price changes"],
+    copied: ["Paste what you", "copied, anywhere"],
+    remind: ["Remind me about", "this page"],
+    pins: ["Pin and highlight", "what matters"],
+    organize: ["Pro: suggests", "where it belongs"],
+    qiButton: "The ContextFlow button by any field",
+    qiShortcut: "⌃⇧V in any field",
+    erased: "Erased after 24 hours",
+    alsoStock: "Also stock and dates",
+    mailHost: "mail.northwind.studio",
+    shop25Host: "soundhouse.store",
+    shopHost: "soundhaus.com",
+    reportHost: "northwind.com",
+    syncedIcloud: "Synced through iCloud",
+    askChat: "Ask or add a note",
+    transcript: "Answers from the transcript",
     freeNotes: "Notes are free, no limits",
     wholeChat: "Whole chat: notes + pages",
     withLinks: "With links and sources",
@@ -72,6 +100,34 @@ const COPY = {
     askHero: ["Задайте странице", "любой вопрос"],
     googleHero: ["Свежие ответы", "из Google"],
     chatHero: ["Один чат", "на все вкладки"],
+    hero: ["Пересказ страницы", "прямо в Safari"],
+    follows: ["Чат идёт с вами", "по всем сайтам"],
+    sync: ["Один чат на всех", "ваших устройствах"],
+    selAsk: ["Выделите текст:", "вопрос или заметка"],
+    appChat: ["Все чаты —", "и в приложении"],
+    find: ["Найдёте любой чат", "по слову или тегу"],
+    pro: ["Pro: вопросы", "к видео и PDF"],
+    cppPdf: ["Pro: вопросы", "к PDF в Safari"],
+    shopAsk: ["Стоит ли брать?", "Спросите до покупки"],
+    shopReviews: ["Что на самом деле", "пишут в отзывах"],
+    shopSel: ["Выделите характеристику", "и спросите"],
+    fill: ["Шаблон сам впишет", "имя и дату"],
+    watch: ["Узнаете, когда", "изменится цена"],
+    copied: ["Скопированное —", "в любое поле"],
+    remind: ["Напомнит", "об этой странице"],
+    pins: ["Закрепите и", "отметьте главное"],
+    organize: ["Pro: подскажет,", "куда это отнести"],
+    qiButton: "Кнопка ContextFlow у любого поля",
+    qiShortcut: "⌃⇧V в любом поле",
+    erased: "Стирается через 24 часа",
+    alsoStock: "А ещё наличие и даты",
+    mailHost: "mail.sevveter.studio",
+    shop25Host: "zvukodom.store",
+    shopHost: "zvukodom.ru",
+    reportHost: "norvind.ru",
+    syncedIcloud: "Синхронизация через iCloud",
+    askChat: "Вопрос или заметка к чату",
+    transcript: "Ответ по расшифровке видео",
     freeNotes: "Заметки — бесплатно и без лимитов",
     wholeChat: "«Весь чат»: заметки и страницы",
     withLinks: "Со ссылками и источниками",
@@ -87,6 +143,16 @@ const COPY = {
     foreignHost: "weeklyreview.com"
   }
 }[lang]
+
+// The day on the iPad's status bar: the captures' page dates show today too.
+const TODAY = (() => {
+  const d = new Date()
+  if (lang === "ru") {
+    const s = d.toLocaleDateString("ru-RU", { weekday: "short", day: "numeric", month: "short" }).replace(",", "")
+    return s[0].toUpperCase() + s.slice(1)
+  }
+  return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }).replace(",", "")
+})()
 
 // ----------------------------------------------------------------- devices
 
@@ -108,7 +174,81 @@ const GEO = {
 // Call-outs magnify the element that proves the caption: `select` lists the
 // elements (their union is shown), `mag` the magnification over the device.
 const SOURCES = [".cf-sources-title", ".cf-source-list"]
-const SETS = {
+// The 2.4 product page: Safari first, the chat that follows you, the same chat on every device, then
+// a selection, notes, the chats in the app, search and tags, Pro (videos and PDFs), Google.
+// `app` shots are the ContextFlow app in the simulator; `trio` shows each device's notes capture together.
+const TRIO = (k) => ({ name: "devices", trio: { mac: "mac-notes", ipad: "ipad-notes", iphone: "iphone-notes" }, caption: COPY.sync,
+  pills: [{ text: COPY.syncedIcloud, icon: "☁︎", ...{ iphone: { x: 50, y: 560 }, ipad: { x: 70, y: 470 }, mac: { x: 110, y: 270 } }[k] }] })
+// The 2.5 product page (10 screens, the same on every device): reading, replies and shopping first (the three
+// the search results show), then copied text, reminders, the selection, pins and highlights, the same chat on every
+// device, and the two Pro screens. Each caption is what the screen under it shows.
+const SETS_25 = Object.fromEntries(["iphone", "ipad", "mac"].map((k) => {
+  const P = { iphone: { x: 50, y: 830, x2: { right: 50, y: 970 } }, ipad: { x: 70, y: 2360, x2: { x: 70, y: 2520 } }, mac: { x: 110, y: 1400, x2: { x: 110, y: 1560 } } }[k]
+  const at = { x: P.x, y: P.y }
+  const mag = (phone, pad, mac) => ({ iphone: phone, ipad: pad, mac }[k])
+  return [k, [
+    { name: "summary", shot: `${k}-summary`, caption: COPY.hero, icon: k === "iphone",
+      pills: [{ text: COPY.nosignup, icon: "✓", ...at }, { text: k === "mac" ? COPY.shortcut : COPY.freeNotes, icon: k === "mac" ? "⌘" : "✎", ...P.x2 }] },
+    { name: "fill", shot: `${k}-fill`, caption: COPY.fill, host: COPY.mailHost,
+      callout: { select: [".cf-qi-fill-text", ".cf-qi-fill-row"], pad: 10, mag: mag(1.25, 1.6, 1.8), maxW: mag(1190, 1400, 1250) } },
+    { name: "watch", shot: `${k}-watch`, caption: COPY.watch, host: COPY.shop25Host,
+      callout: { select: [".cf-later-text"], pad: 16, mag: mag(1.45, 1.8, 2.0), maxW: mag(1190, 1400, 1250) },
+      pills: [{ text: COPY.alsoStock, icon: "👁", ...at }] },
+    { name: "copied", shot: `${k}-copied`, caption: COPY.copied, host: COPY.mailHost,
+      // A Mac has no button by the field: the list opens with ⌃⇧V.
+      pills: [k === "mac" ? { text: COPY.qiShortcut, icon: "⌨", ...at } : { text: COPY.qiButton, icon: "✦", ...at }, { text: COPY.erased, icon: "⏱", ...P.x2 }] },
+    { name: "remind", shot: `${k}-remind`, caption: COPY.remind,
+      callout: { select: [".cf-sheet"], pad: 6, mag: mag(1.15, 1.5, 1.7), maxW: mag(1190, 1400, 1250) } },
+    { name: "select", shot: `${k}-selask`, caption: COPY.selAsk, callout: { select: [".cf-bubble"], pad: 0, mag: mag(1.4, 1.7, 2.1), maxW: mag(1150, 1300, 1300), radius: mag(16, 16, 12) } },
+    { name: "pins", shot: `${k}-pins`, caption: COPY.pins },
+    TRIO(k),
+    { name: "organize", shot: `${k}-organize`, caption: COPY.organize, second: true,
+      callout: { select: [".cf-org"], pad: 10, mag: mag(1.3, 1.7, 1.9), maxW: mag(1190, 1400, 1250) } },
+    { name: "pro", shot: `${k}-video`, caption: COPY.pro, callout: { select: [".cf-used"], pad: 6, mag: mag(2.2, 2.6, 2.6), maxW: mag(760, 900, 900), radius: 14 } }
+  ]]
+}))
+const SETS = SETS_25
+
+const SETS_24 = {
+  iphone: [
+    { name: "summary", shot: "iphone-summary", caption: COPY.hero, icon: true,
+      pills: [{ text: COPY.nosignup, icon: "✓", x: 50, y: 830 }, { text: COPY.freeNotes, icon: "✎", right: 50, y: 970 }] },
+    { name: "follows", shot: "iphone-chat", caption: COPY.follows, dark: true, second: true, pills: [{ text: COPY.context, icon: "↻", x: 50, y: 830 }] },
+    TRIO("iphone"),
+    { name: "select", shot: "iphone-selask", caption: COPY.selAsk, callout: { select: [".cf-bubble"], pad: 0, mag: 1.4, maxW: 1150, radius: 16 } },
+    { name: "notes", shot: "iphone-notes", caption: COPY.notes, pills: [{ text: COPY.freeNotes, icon: "✎", x: 50, y: 830 }] },
+    { name: "app", shot: "iphone-app-chat", app: true, caption: COPY.appChat },
+    { name: "find", shot: "iphone-app-list", app: true, caption: COPY.find },
+    { name: "pro", shot: "iphone-video", caption: COPY.pro, callout: { select: [".cf-used"], pad: 6, mag: 2.2, maxW: 760, radius: 14 } },
+    { name: "google", shot: "iphone-google", caption: COPY.google, callout: { select: SOURCES, pad: 12, mag: 1.25, maxW: 1190 } }
+  ],
+  ipad: [
+    { name: "summary", shot: "ipad-summary", caption: COPY.hero,
+      pills: [{ text: COPY.nosignup, icon: "✓", x: 70, y: 2360 }, { text: COPY.freeNotes, icon: "✎", x: 70, y: 2520 }] },
+    { name: "follows", shot: "ipad-chat", caption: COPY.follows, dark: true, second: true, callout: { select: [".md-table"], pad: 10, mag: 1.6, maxW: 1400 } },
+    TRIO("ipad"),
+    { name: "select", shot: "ipad-selask", caption: COPY.selAsk, callout: { select: [".cf-bubble"], pad: 0, mag: 1.7, maxW: 1300, radius: 16 } },
+    { name: "notes", shot: "ipad-notes", caption: COPY.notes, callout: { select: [".cf-bubble-note", ".cf-input"], pad: 10, mag: 1.6, maxW: 1400 } },
+    { name: "app", shot: "ipad-app-chat", app: true, caption: COPY.appChat },
+    { name: "find", shot: "ipad-list", caption: COPY.find, callout: { select: [".cf-search", ".cf-tag-bar"], pad: 10, mag: 1.6, maxW: 1400 } },
+    { name: "pro", shot: "ipad-video", caption: COPY.pro, callout: { select: [".cf-used"], pad: 6, mag: 2.6, maxW: 900, radius: 14 } },
+    { name: "google", shot: "ipad-google", caption: COPY.google, callout: { select: SOURCES, pad: 10, mag: 1.7, maxW: 1400 } }
+  ],
+  mac: [
+    { name: "summary", shot: "mac-summary", caption: COPY.hero,
+      pills: [{ text: COPY.nosignup, icon: "✓", x: 110, y: 1400 }, { text: COPY.shortcut, icon: "⌘", x: 110, y: 1560 }] },
+    { name: "follows", shot: "mac-chat", caption: COPY.follows, dark: true, second: true, callout: { select: [".md-table"], pad: 10, mag: 1.8, maxW: 1250 } },
+    TRIO("mac"),
+    { name: "select", shot: "mac-selask", caption: COPY.selAsk, callout: { select: [".cf-bubble"], pad: 0, mag: 2.1, maxW: 1300, radius: 12 } },
+    { name: "notes", shot: "mac-notes", caption: COPY.notes, callout: { select: [".cf-bubble-note", ".cf-input"], pad: 10, mag: 1.8, maxW: 1250 } },
+    { name: "find", shot: "mac-list", caption: COPY.find, callout: { select: [".cf-search", ".cf-tag-bar"], pad: 10, mag: 1.8, maxW: 1250 } },
+    { name: "pro", shot: "mac-video", caption: COPY.pro, callout: { select: [".cf-used"], pad: 6, mag: 2.6, maxW: 900, radius: 14 } },
+    { name: "google", shot: "mac-google", caption: COPY.google, callout: { select: SOURCES, pad: 10, mag: 1.9, maxW: 1250 } }
+  ]
+}
+
+// The 2.3 product page, which the custom product page and the page tests below are built from.
+const SETS_23 = {
   iphone: [
     { name: "summary", shot: "iphone-summary", caption: COPY.summary, icon: true,
       pills: [{ text: COPY.free, icon: "✦", x: 50, y: 830 }, { text: COPY.nosignup, icon: "✓", right: 50, y: 970 }] },
@@ -168,26 +308,47 @@ const askScreen = (k) => k === "iphone"
       pills: [{ text: COPY.free, icon: "✦", x: 50, y: 830 }, { text: COPY.nosignup, icon: "✓", right: 50, y: 970 }] }
   : { name: "ask", shot: "ipad-ask", caption: COPY.askHero,
       pills: [{ text: COPY.free, icon: "✦", x: 70, y: 2520 }, { text: COPY.nosignup, icon: "✓", x: 70, y: 2360 }] }
-const byName = (k) => Object.fromEntries([...NOTES_SETS[k], ...SETS[k]].map((s) => [s.name, s]))
+const byName = (k) => Object.fromEntries([...NOTES_SETS[k], ...SETS_23[k]].map((s) => [s.name, s]))
 const plain = (spec) => ({ ...spec, icon: false })
+// A page test on the 2.4 page: the same screens, led by the own-question hook (the treatment of the 2.3 test, on the new UI).
+const ask24 = (k) => k === "iphone"
+  ? { name: "ask", shot: "iphone-ask", caption: COPY.askHero, icon: true,
+      pills: [{ text: COPY.nosignup, icon: "✓", x: 50, y: 830 }, { text: COPY.freeNotes, icon: "✎", right: 50, y: 970 }] }
+  : { name: "ask", shot: "ipad-ask", caption: COPY.askHero,
+      pills: [{ text: COPY.nosignup, icon: "✓", x: 70, y: 2360 }, { text: COPY.freeNotes, icon: "✎", x: 70, y: 2520 }] }
 const TEST_SETS = {
+  ask24: Object.fromEntries(["iphone", "ipad"].map((k) => [k, [ask24(k), ...SETS_24[k].slice(1)]])),
   ask: Object.fromEntries(["iphone", "ipad"].map((k) => {
     const n = byName(k)
-    return [k, [askScreen(k), n.select, n.google, n.chat, n.notes, plain(SETS[k][0])]]
+    return [k, [askScreen(k), n.select, n.google, n.chat, n.notes, plain(SETS_23[k][0])]]
   })),
   google: Object.fromEntries(["iphone", "ipad"].map((k) => {
     const n = byName(k)
     return [k, [{ ...n.google, caption: COPY.googleHero, icon: k === "iphone", pills: [{ text: COPY.withLinks, icon: "🔗", x: k === "iphone" ? 50 : 70, y: k === "iphone" ? 830 : 2520 }] },
-      { ...askScreen(k), caption: COPY.askHero, icon: false, pills: [] }, n.select, n.chat, n.notes, plain(SETS[k][0])]]
+      { ...askScreen(k), caption: COPY.askHero, icon: false, pills: [] }, n.select, n.chat, n.notes, plain(SETS_23[k][0])]]
   })),
   chat: Object.fromEntries(["iphone", "ipad"].map((k) => {
     const n = byName(k)
     const at = k === "iphone" ? { x: 50, y: 830 } : { x: 70, y: 2520 }
     return [k, [{ ...n.chat, caption: COPY.chatHero, icon: k === "iphone", callout: undefined,
         pills: [{ text: COPY.context, icon: "↻", ...at }, { text: COPY.synced, icon: "☁︎", ...(k === "iphone" ? { right: 50, y: 970 } : { x: 70, y: 2360 }) }] },
-      n.notes, n.recall, { ...askScreen(k), icon: false, pills: [] }, n.google, plain(SETS[k][0])]]
+      n.notes, n.recall, { ...askScreen(k), icon: false, pills: [] }, n.google, plain(SETS_23[k][0])]]
   }))
 }
+
+// Custom product pages for Apple Ads groups: the new screens only (the PDF report, and the product page with
+// reviews). The pages put them next to 2.4 screens and set one caption size per page.
+const CPP_SETS = Object.fromEntries(["iphone", "ipad"].map((k) => {
+  const phone = k === "iphone"
+  return [k, [
+    { name: "pdf", shot: `${k}-pdf`, caption: COPY.cppPdf, host: COPY.reportHost, callout: { select: [".cf-used"], pad: 6, mag: phone ? 2.2 : 2.6, maxW: phone ? 760 : 900, radius: 14 } },
+    { name: "shop-ask", shot: `${k}-shop-ask`, caption: COPY.shopAsk, host: COPY.shopHost, icon: phone },
+    { name: "shop-reviews", shot: `${k}-shop-reviews`, caption: COPY.shopReviews, host: COPY.shopHost,
+      ...(phone ? {} : { callout: { select: [".md-table"], pad: 10, mag: 1.6, maxW: 1400 } }) },
+    { name: "shop-select", shot: `${k}-shop-select`, caption: COPY.shopSel, host: COPY.shopHost,
+      callout: { select: [".cf-bubble"], pad: 0, mag: phone ? 1.4 : 1.7, maxW: phone ? 1150 : 1300, radius: 16 } }
+  ]]
+}))
 
 // ------------------------------------------------------------------- icons
 
@@ -262,9 +423,9 @@ function pills(list = [], dark, scale = 1) {
 }
 
 // iPhone 6.9" at @3x: 1290 × 2796 screen; scaled into the slot.
-function iphone(shot, dark, host) {
+function iphone(shot, dark, host, g = GEO.iphone) {
   const fg = dark ? "#fff" : "#000"
-  const { scale, x, y } = GEO.iphone
+  const { scale, x, y } = g
   const bezel = 30
   return `
   <div class="phone" style="left:${x - bezel}px;top:${y - bezel}px;width:${1290 * scale + bezel * 2}px;height:${2796 * scale + bezel * 2}px">
@@ -286,15 +447,15 @@ function iphone(shot, dark, host) {
 }
 
 // iPad 13" at @2x: 2064 × 2752 screen (status 48 + toolbar 124 + page 2580).
-function ipad(shot, dark, host) {
+function ipad(shot, dark, host, g = GEO.ipad) {
   const fg = dark ? "#f2f2f7" : "#1c1c1e"
-  const { scale, x, y } = GEO.ipad
+  const { scale, x, y } = g
   const bezel = 44
   return `
   <div class="tablet" style="left:${x - bezel}px;top:${y - bezel}px;width:${2064 * scale + bezel * 2}px;height:${2752 * scale + bezel * 2}px">
     <div class="tablet-screen" style="width:2064px;height:2752px;transform:scale(${scale})">
       <div class="ipad-top ${dark ? "dark" : ""}">
-        <div class="st" style="color:${fg}"><b>9:41</b>&nbsp;&nbsp;${lang === "ru" ? "Пт 23 окт." : "Fri Oct 23"}<span class="ic">${svg.wifi(fg)}${svg.battery(fg)}</span></div>
+        <div class="st" style="color:${fg}"><b>9:41</b>&nbsp;&nbsp;${TODAY}<span class="ic">${svg.wifi(fg)}${svg.battery(fg)}</span></div>
         <div class="tb">
           <div class="grp"><i>${svg.sidebar(fg)}</i><i>${svg.back(fg)}</i><i class="dim">${svg.fwd(fg)}</i></div>
           <div class="url"><i>${svg.lock(fg)}</i><span>${host}</span></div>
@@ -309,9 +470,9 @@ function ipad(shot, dark, host) {
 // Safari window on macOS at @2x: 2360 × (104 toolbar + 1520 page).
 const MAC_W = 2360
 const MAC_H = 1520
-function macWindow(shot, dark, host) {
+function macWindow(shot, dark, host, g = GEO.mac) {
   const fg = dark ? "#e5e5ea" : "#3a3a3c"
-  const { scale, x, y } = GEO.mac
+  const { scale, x, y } = g
   return `
   <div class="win ${dark ? "dark" : ""}" style="left:${x}px;top:${y}px;width:${MAC_W}px;height:${MAC_H + 104}px;transform:scale(${scale})">
     <div class="mac-tb">
@@ -322,6 +483,46 @@ function macWindow(shot, dark, host) {
     </div>
     <img class="web" src="${file(join(RAW, shot + ".png"))}" style="top:104px;width:${MAC_W}px;height:${MAC_H}px">
   </div>`
+}
+
+// The ContextFlow app as the simulator shows it (1320 × 2868 on the 6.9" iPhone, 2064 × 2752 on the
+// 13" iPad), status bar included; the iPad's status bar date is redrawn in the page's language.
+function appScreen(kind, shot) {
+  const src = file(join(RAW, shot + ".png"))
+  if (kind === "iphone") {
+    const { scale, x, y } = GEO.iphone
+    const bezel = 30
+    return `
+  <div class="phone" style="left:${x - bezel}px;top:${y - bezel}px;width:${1290 * scale + bezel * 2}px;height:${2796 * scale + bezel * 2}px">
+    <div class="phone-screen" style="width:1290px;height:2796px;transform:scale(${scale})">
+      <img class="web" src="${src}" style="top:0;width:1290px;height:${Math.round((2868 * 1290) / 1320)}px">
+    </div>
+  </div>`
+  }
+  const { scale, x, y } = GEO.ipad
+  const bezel = 44
+  const date = lang === "en" ? "" : `<div class="app-st"><b>9:41</b>&nbsp;&nbsp;${TODAY}</div>`
+  return `
+  <div class="tablet" style="left:${x - bezel}px;top:${y - bezel}px;width:${2064 * scale + bezel * 2}px;height:${2752 * scale + bezel * 2}px">
+    <div class="tablet-screen" style="width:2064px;height:2752px;transform:scale(${scale})">
+      <img class="web" src="${src}" style="top:0;width:2064px;height:2752px">${date}
+    </div>
+  </div>`
+}
+
+// The same chat on the three devices: Mac behind, iPad and iPhone in front (portrait canvases),
+// or the three in a row with the Mac in the middle (the Mac's landscape canvas).
+const TRIO_AT = {
+  iphone: { mac: [36, 690, 0.53], ipad: [24, 1430, 0.42], iphone: [770, 1640, 0.37] },
+  ipad: { mac: [160, 640, 0.74], ipad: [110, 1500, 0.4], iphone: [1340, 1430, 0.42] },
+  mac: { mac: [560, 400, 0.74], ipad: [120, 560, 0.4], iphone: [2240, 650, 0.37] }
+}
+function trio(kind, shots) {
+  const at = TRIO_AT[kind]
+  const wrap = (k, html, w, h) => `<div style="position:absolute;left:${at[k][0]}px;top:${at[k][1]}px;width:${w}px;height:${h}px;transform:scale(${at[k][2]});transform-origin:0 0;z-index:${k === "mac" ? 1 : k === "ipad" ? 2 : 3}">${html}</div>`
+  return wrap("mac", macWindow(shots.mac, false, COPY.host, { scale: 1, x: 0, y: 0 }), MAC_W, MAC_H + 104)
+    + wrap("ipad", ipad(shots.ipad, false, COPY.host, { scale: 1, x: 44, y: 44 }), 2064 + 88, 2752 + 88)
+    + wrap("iphone", iphone(shots.iphone, false, COPY.host, { scale: 1, x: 30, y: 30 }), 1290 + 60, 2796 + 60)
 }
 
 // Magnified copy of the elements that prove the caption, centred over where they
@@ -417,18 +618,21 @@ body.dark .tablet { box-shadow: 0 0 0 5px #4a4c55, 0 0 0 8px #22232a, 0 80px 180
 .mac-tb .url { position: absolute; left: 50%; width: 900px; margin-left: -450px; height: 64px; border-radius: 16px; background: #e8e8ea; display: flex; align-items: center; justify-content: center; gap: 12px; font: 500 30px Inter, sans-serif; color: #2c2c2e; }
 .win.dark .mac-tb .url { background: #3a3a3d; color: #f2f2f7; }
 
+.app-st { position: absolute; top: 0; left: 0; width: 640px; height: 50px; padding: 8px 0 0 44px; background: #f2f2f7; font: 500 30px Inter, sans-serif; color: #000; }
 .zoom { position: absolute; z-index: 4; border-radius: 40px; overflow: hidden; background: #fff; box-shadow: 0 0 0 3px rgba(37,99,235,.18), 0 40px 90px rgba(20, 45, 110, .30), 0 8px 24px rgba(20, 45, 110, .14); }
 .zoom.on-dark { background: #1c1c1e; box-shadow: 0 0 0 3px rgba(147,197,253,.35), 0 40px 100px rgba(0,0,0,.55), 0 0 90px rgba(59,130,246,.35); }
 `
 
 function page(device, count, index, spec, size) {
   const dark = Boolean(spec.dark)
-  const host = spec.foreign ? COPY.foreignHost : spec.second ? COPY.host2 : COPY.host
+  const host = spec.host ?? (spec.foreign ? COPY.foreignHost : spec.second ? COPY.host2 : COPY.host)
   let body = panorama(device, count, index, dark)
   body += caption(device, spec.caption, dark, size)
   if (spec.icon) body += `<img class="appicon" src="${APP_ICON}" style="top:70px;width:132px;height:132px">`
   const kind = Object.keys(DEVICES).find((k) => DEVICES[k] === device)
-  if (kind === "iphone") body += iphone(spec.shot, dark, host)
+  if (spec.trio) body += trio(kind, spec.trio)
+  else if (spec.app) body += appScreen(kind, spec.shot)
+  else if (kind === "iphone") body += iphone(spec.shot, dark, host)
   else if (kind === "ipad") body += ipad(spec.shot, dark, host)
   else body += macWindow(spec.shot, dark, host)
   if (spec.callout) body += callout(kind, spec.shot, spec.callout, dark)
@@ -465,7 +669,7 @@ async function fitSize(device, specs) {
   const size = await p.evaluate(async ({ lines, max, base, one }) => {
     await document.fonts.load(`800 100px "Inter Display"`)
     const span = document.createElement("span")
-    span.style.cssText = `font-family:"Inter Display";font-weight:800;letter-spacing:-0.015em;white-space:nowrap;position:absolute`
+    span.style.cssText = `font-family:"Inter Display",Inter,sans-serif;font-weight:800;letter-spacing:-0.015em;white-space:nowrap;position:absolute`
     document.body.appendChild(span)
     let s = base
     for (; s > 40; s -= 2) {
@@ -479,7 +683,7 @@ async function fitSize(device, specs) {
   return size
 }
 
-for (const [kind, specs] of Object.entries(set === "notes" ? NOTES_SETS : TEST_SETS[set] ?? SETS)) {
+for (const [kind, specs] of Object.entries(set === "notes" ? NOTES_SETS : set === "cpp" ? CPP_SETS : TEST_SETS[set] ?? SETS)) {
   const device = DEVICES[kind]
   const size = await fitSize(device, specs)
   const dir = join(OUT, kind)
