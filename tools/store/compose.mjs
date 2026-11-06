@@ -60,6 +60,8 @@ const COPY = {
     remind: ["Remind me about", "this page"],
     pins: ["Pin and highlight", "what matters"],
     organize: ["Pro: suggests", "where it belongs"],
+    organize25: ["Suggests where", "it belongs"],
+    videos25: ["Ask about", "videos and PDFs"],
     qiButton: "The ContextFlow button by any field",
     qiShortcut: "⌃⇧V in any field",
     erased: "Erased after 24 hours",
@@ -117,6 +119,8 @@ const COPY = {
     remind: ["Напомнит", "об этой странице"],
     pins: ["Закрепите и", "отметьте главное"],
     organize: ["Pro: подскажет,", "куда это отнести"],
+    organize25: ["Подскажет, куда", "это отнести"],
+    videos25: ["Вопросы", "к видео и PDF"],
     qiButton: "Кнопка ContextFlow у любого поля",
     qiShortcut: "⌃⇧V в любом поле",
     erased: "Стирается через 24 часа",
@@ -179,10 +183,10 @@ const SOURCES = [".cf-sources-title", ".cf-source-list"]
 // `app` shots are the ContextFlow app in the simulator; `trio` shows each device's notes capture together.
 const TRIO = (k) => ({ name: "devices", trio: { mac: "mac-notes", ipad: "ipad-notes", iphone: "iphone-notes" }, caption: COPY.sync,
   pills: [{ text: COPY.syncedIcloud, icon: "☁︎", ...{ iphone: { x: 50, y: 560 }, ipad: { x: 70, y: 470 }, mac: { x: 110, y: 270 } }[k] }] })
-// The 2.5 product page (10 screens, the same on every device): reading, replies and shopping first (the three
-// the search results show), then copied text, reminders, the selection, pins and highlights, the same chat on every
-// device, and the two Pro screens. Each caption is what the screen under it shows.
-// Shot 04's plaques on iPhone and iPad: under the field and its button, above the list (tuned to the captures).
+// The 2.5 product page (10 screens, the same on every device), in the owner's order: the most popular first, then
+// the most impressive new features, then depth (the first three are what search results show). No Pro on the
+// shots (the owner): no "Pro:" in captions, the panel's "Get Pro" hidden. Each caption is what its screen shows.
+// Shot 05's plaques on iPhone and iPad: under the field and its button, above the list (tuned to the captures).
 const COPIED_PILLS = {
   iphone: [{ text: COPY.qiButton, icon: "✦", right: 50, y: 1300 }, { text: COPY.erased, icon: "⏱", right: 50, y: 1440 }],
   ipad: [{ text: COPY.qiButton, icon: "✦", right: 360, y: 1250 }, { text: COPY.erased, icon: "⏱", right: 360, y: 1420 }]
@@ -199,6 +203,7 @@ const SETS_25 = Object.fromEntries(["iphone", "ipad", "mac"].map((k) => {
     { name: "watch", shot: `${k}-watch`, caption: COPY.watch, host: COPY.shop25Host,
       callout: { select: [".cf-later-text"], pad: 16, mag: mag(1.45, 1.8, 2.0), maxW: mag(1190, 1400, 1250) },
       pills: [{ text: COPY.alsoStock, icon: "👁", ...at }] },
+    { name: "select", shot: `${k}-selask`, caption: COPY.selAsk, callout: { select: [".cf-bubble"], pad: 0, mag: mag(1.4, 1.7, 2.1), maxW: mag(1150, 1300, 1300), radius: mag(16, 16, 12) } },
     // iPhone and iPad: the button by the field hides while its list is open, so a card over the field shows the
     // capture from the moment before (the field and the button), and the plaques sit in the free space between the
     // field and the list. A Mac has no button by the field: the list opens with ⌃⇧V.
@@ -210,12 +215,11 @@ const SETS_25 = Object.fromEntries(["iphone", "ipad", "mac"].map((k) => {
           pills: COPIED_PILLS[k] },
     { name: "remind", shot: `${k}-remind`, caption: COPY.remind,
       callout: { select: [".cf-sheet"], pad: 6, mag: mag(1.15, 1.5, 1.7), maxW: mag(1190, 1400, 1250) } },
-    { name: "select", shot: `${k}-selask`, caption: COPY.selAsk, callout: { select: [".cf-bubble"], pad: 0, mag: mag(1.4, 1.7, 2.1), maxW: mag(1150, 1300, 1300), radius: mag(16, 16, 12) } },
     { name: "pins", shot: `${k}-pins`, caption: COPY.pins },
-    TRIO(k),
-    { name: "organize", shot: `${k}-organize`, caption: COPY.organize, second: true,
+    { name: "videos", shot: `${k}-video`, caption: COPY.videos25, callout: { select: [".cf-used"], pad: 6, mag: mag(2.2, 2.6, 2.6), maxW: mag(760, 900, 900), radius: 14 } },
+    { name: "organize", shot: `${k}-organize`, caption: COPY.organize25, second: true,
       callout: { select: [".cf-org"], pad: 10, mag: mag(1.3, 1.7, 1.9), maxW: mag(1190, 1400, 1250) } },
-    { name: "pro", shot: `${k}-video`, caption: COPY.pro, callout: { select: [".cf-used"], pad: 6, mag: mag(2.2, 2.6, 2.6), maxW: mag(760, 900, 900), radius: 14 } }
+    TRIO(k)
   ]]
 }))
 const SETS = SETS_25

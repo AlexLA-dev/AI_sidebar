@@ -124,7 +124,8 @@ async function go(s, url) {
   await s.page.waitForSelector("contextflow-root", { state: "attached" })
   await s.page.waitForTimeout(300)
   // The free-answers count under the field names the daily number, which the store page doesn't.
-  if (process.env.KEEP_USAGE !== "1") await s.page.evaluate(shadow(`(r) => { const st = document.createElement("style"); st.textContent = ".cf-usage-text { visibility: hidden }"; r.appendChild(st) }`))
+  // No Pro on the 2.5 shots either (the owner): the footer's "Get Pro" (or an offer) is hidden too.
+  if (process.env.KEEP_USAGE !== "1") await s.page.evaluate(shadow(`(r) => { const st = document.createElement("style"); st.textContent = ".cf-usage-text, .cf-usage .cf-link { visibility: hidden }"; r.appendChild(st) }`))
 }
 
 async function open(s) {
