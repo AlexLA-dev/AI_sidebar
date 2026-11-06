@@ -10,9 +10,10 @@
 <style>
   :root { --c1: #2563eb; --c2: #10b981; --c3: #8b5cf6; --c4: #d97706; --warn: #d92d20; }
   @media (prefers-color-scheme: dark) { :root { --c1: #60a5fa; --c2: #34d399; --c3: #a78bfa; --c4: #fbbf24; --warn: #ff6b5e; } }
-  /* Onboarding steps, one hue: lighter = stopped earlier (an ordinal ramp checked against the panel colour). */
-  :root { --o1: #6da7ec; --o2: #3987e5; --o3: #256abf; --o4: #104281; }
-  @media (prefers-color-scheme: dark) { :root { --o1: #184f95; --o2: #2a78d6; --o3: #6da7ec; --o4: #b7d3f6; } }
+  /* Onboarding steps to the subscription, one hue: lighter = stopped earlier. Six even OKLCH lightness steps
+     (hue 258; light 0.82 → 0.35, dark 0.40 → 0.90), so neighbours differ alike on either panel colour. */
+  :root { --o1: #a4c6f8; --o2: #74a6ef; --o3: #4b88e2; --o4: #306dc4; --o5: #21539c; --o6: #15396d; }
+  @media (prefers-color-scheme: dark) { :root { --o1: #1d4682; --o2: #2a61b1; --o3: #427fd8; --o4: #6ea0e8; --o5: #9ec0f2; --o6: #cedff9; } }
   /* Safari on iPhone enlarges text in tables wider than the screen (the limits table went from 13 to 17 px). */
   html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   body { font-size: 15px; }
@@ -44,6 +45,11 @@
   .al-stats span:first-of-type { color: var(--text); font-weight: 600; }
   @media (max-width: 760px) { .al-stats { grid-template-columns: 1fr 1fr; } }
   table.al td:last-child { white-space: normal; min-width: 200px; line-height: 1.4; }
+  .al-split { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; margin: 0 0 12px; }
+  /* min-width: 0 lets a grid cell shrink below its table, which then scrolls inside .tbl instead of widening the page. */
+  .al-split > div { min-width: 0; }
+  .al-split h4 { margin: 0 0 4px; font-size: 13px; color: var(--text-2); font-weight: 600; }
+  @media (max-width: 760px) { .al-split { grid-template-columns: 1fr; gap: 12px; } }
   .panel { position: relative; background: var(--bg-2); border-radius: 16px; padding: 16px 18px; margin-top: 14px; }
   .tip { position: absolute; z-index: 5; pointer-events: none; display: none; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; font-size: 12.5px; box-shadow: 0 6px 18px rgba(0,0,0,.14); white-space: nowrap; font-variant-numeric: tabular-nums; }
   .tip b { display: block; margin-bottom: 4px; }
@@ -107,6 +113,7 @@
   .ob-bar b { position: absolute; top: 50%; transform: translateY(-50%); padding-left: 8px; font-size: 13.5px; font-variant-numeric: tabular-nums; white-space: nowrap; }
   .ob-note { grid-column: 2; font-size: 12px; color: var(--text-2); line-height: 1.4; }
   .ob-note .bad { display: block; color: var(--warn); font-weight: 600; }
+  .ob-sep { font-size: 12px; font-weight: 600; color: var(--text-2); border-top: 1px solid var(--border); padding-top: 10px; }
   @media (max-width: 760px) { .cards { grid-template-columns: 1fr; } .card.wide { grid-column: auto; } .seg { margin-left: 0; }
     .ob-step { grid-template-columns: 1fr; } .ob-note { grid-column: 1; } }
 </style>
@@ -651,22 +658,30 @@ function duration(sec) {
   const min = sec / 60
   return min < 60 ? `${Math.round(min)} мин` : min < 48 * 60 ? `${Math.round(min / 60)} ч` : `${Math.round(min / 1440)} дн.`
 }
+// After the first answer, the free limit and the subscription don't imply each other: some buy before the limit.
 function reached(p) {
   const answer = p.answer != null
   const panel = answer || p.panel != null
-  return { app: p.kind === "app", ext: p.kind !== "old" && (panel || p.ext != null), panel, answer }
+  return { app: p.kind === "app", ext: p.kind !== "old" && (panel || p.ext != null), panel, answer, limit: p.limit != null, paid: p.paid != null }
 }
-// 1 opened the app and left … 4 got an answer; colours --o1…--o4 (one hue, lighter = stopped earlier).
-const furthest = (p) => { const r = reached(p); return r.answer ? 4 : r.panel ? 3 : r.ext ? 2 : 1 }
+// 1 opened the app and left … 4 got an answer, 5 ran into the free limit, 6 bought; colours --o1…--o6 (one hue,
+// lighter = stopped earlier).
+const furthest = (p) => { const r = reached(p); return r.paid ? 6 : r.limit ? 5 : r.answer ? 4 : r.panel ? 3 : r.ext ? 2 : 1 }
+// Bought after the free limit / before it (or without ever running into it).
+const paidAfterLimit = (p) => p.paid != null && p.limit != null && p.paid >= p.limit
+const paidBeforeLimit = (p) => p.paid != null && !paidAfterLimit(p)
 const REVIEW_PLATFORM = { IOS: "iOS", MAC_OS: "macOS" }
 
 function onboardingPanels(ob, totalDays, redraw) {
-  const title = "Онбординг до первого ответа"
+  const title = "Онбординг: до первого ответа, лимита и подписки"
   if (!ob) return table(title, [], [], "Нет данных: в базе ещё нет функции cf_onboarding (миграция 20261103120000).")
   const all = ob.people || []
   const devices = ["iPhone", "iPad", "Mac", ...(all.some((p) => p.device === "Chrome") ? ["Chrome"] : [])]
   const people = onboardingDevice === "all" ? all : all.filter((p) => p.device === onboardingDevice)
   const pick = (v) => { onboardingDevice = v; redraw() }
+  // The limit and the subscription come with migration 20261106120000; before it the rows have no such fields.
+  const toPaid = all.some((p) => "paid" in p)
+  const NO_PAID = "Шаги «лимит» и «подписка» появятся после миграции 20261106120000 (cf_onboarding)."
   const count = (list, step) => list.filter((p) => reached(p)[step]).length
 
   // The funnel of the period: people who started in the app (2.4+).
@@ -679,6 +694,22 @@ function onboardingPanels(ob, totalDays, redraw) {
     { title: "Открыли панель", n: count(app, "panel"), color: "var(--o3)", wait: median(app.map((p) => p.ext != null && p.panel != null ? p.panel - p.ext : null)) },
     { title: "Первый ответ", n: count(app, "answer"), color: "var(--o4)", wait: median(app.map((p) => p.panel != null && p.answer != null ? p.answer - p.panel : null)) }
   ]
+  // After the first answer: not a funnel any more (a subscription can come before the limit), so each step is
+  // shown against the people who got an answer, and "where most leave" stays with the onboarding steps.
+  const answered = steps[steps.length - 1].n
+  const limited = app.filter((p) => p.limit != null)
+  const paid = app.filter((p) => p.paid != null)
+  const afterLimit = paid.filter(paidAfterLimit).length
+  const later = [
+    { title: "Упёрлись в лимит", n: limited.length, color: "var(--o5)", after: true,
+      note: [`${pct(limited.length, answered)} получивших ответ`,
+        limited.length && `медиана ${duration(median(limited.map((p) => p.answer != null ? p.limit - p.answer : null)))} после первого ответа`] },
+    { title: "Оформили подписку", n: paid.length, color: "var(--o6)", after: true,
+      note: [`${pct(paid.length, first)} открывших приложение`,
+        limited.length && `после лимита ${n.format(afterLimit)} из ${n.format(limited.length)} упёршихся (${pct(afterLimit, limited.length)})`,
+        paid.length - afterLimit > 0 && `до лимита или без него: ${n.format(paid.length - afterLimit)}`,
+        paid.length && `медиана ${duration(median(paid.map((p) => p.paid)))} от открытия приложения`] }
+  ]
   const main = steps.filter((s) => !s.side)
   const worst = Math.max(0, ...main.slice(1).map((s, i) => main[i].n - s.n))
   const stepRow = (s) => {
@@ -686,10 +717,10 @@ function onboardingPanels(ob, totalDays, redraw) {
     const prev = s.side ? main[0] : main[i - 1]
     const lost = i > 0 ? prev.n - s.n : 0
     const share = first ? 100 * s.n / first : 0
-    const note = [
+    const note = (s.after ? s.note : [
       s.side ? `${pct(s.n, first)} открывших приложение, шаг не обязательный` : i > 0 && `${pct(s.n, prev.n)} от прошлого шага · ${pct(s.n, first)} от первого`,
       s.wait != null && `медиана ${duration(s.wait)} после прошлого шага`
-    ].filter(Boolean).join(" · ")
+    ]).filter(Boolean).join(" · ")
     return el("div", { class: `ob-step${s.side ? " side" : ""}` },
       el("div", { class: "ob-name" }, s.title),
       el("div", { class: "ob-bar" },
@@ -707,8 +738,13 @@ function onboardingPanels(ob, totalDays, redraw) {
     el("p", { class: "hint", style: "margin:0 0 12px" },
       `Новые за ${totalDays} дн., начавшие с приложения. Верх воронки — первое открытие приложения: загрузок в нашей базе нет, их смотрите в App Store Connect.`),
     first
-      ? el("div", { class: "ob-steps" }, steps.map(stepRow))
+      ? el("div", { class: "ob-steps" }, steps.map(stepRow), el("div", { class: "ob-sep" }, "После первого ответа"),
+          toPaid ? later.map(stepRow) : el("p", { class: "empty", style: "margin:0" }, NO_PAID))
       : el("p", { class: "empty" }, "Пока никто не начал с приложения: первые шаги (приложение, уведомления, расширение) присылает версия 2.4."),
+    first > 0 && toPaid && el("p", { class: "hint" },
+      "«Упёрлись в лимит» — первый отказ бесплатного лимита: ответы на день или ответы Google на день. " +
+      "«Оформили подписку» — Pro или «Свой ключ», купленные на этом устройстве (пробный период и коды — если потом оплачены); подписка, купленная на другом устройстве, не считается. " +
+      "Подписку можно купить и до лимита, поэтому эти два шага — от получивших ответ и от открывших приложение, а не друг от друга. Новые последних дней ещё могут до них дойти."),
     guessed > 0 && el("p", { class: "hint" }, `≈ ${n.format(guessed)} из ${n.format(first)} связаны с расширением по времени: приложение ещё не узнало id расширения.`),
     reviews.length > 0 && el("p", { class: "hint" },
       `На ревью: ${reviews.map((w) => `${REVIEW_PLATFORM[w.platform] || w.platform} ${w.version} с ${short(w.submitted_at.slice(0, 10))}`).join(", ")}. ` +
@@ -723,7 +759,12 @@ function onboardingPanels(ob, totalDays, redraw) {
     el("td", {}, n.format(count(list, "panel"))),
     el("td", {}, n.format(count(list, "answer"))),
     el("td", {}, pct(count(list, "answer"), list.length)),
-    el("td", {}, duration(median(list.map((p) => p.answer))))
+    el("td", {}, duration(median(list.map((p) => p.answer)))),
+    toPaid ? el("td", {}, `${n.format(count(list, "limit"))} · ${pct(count(list, "limit"), list.length)}`) : el("td", { class: "muted", title: NO_PAID }, "—"),
+    toPaid
+      ? el("td", {}, `${n.format(count(list, "paid"))} · ${pct(count(list, "paid"), list.length)}`,
+          count(list, "paid") > 0 && el("small", {}, `после лимита: ${n.format(list.filter(paidAfterLimit).length)}`))
+      : el("td", { class: "muted", title: NO_PAID }, "—")
   )
   const groups = [
     ["Начали в приложении (2.4)", app],
@@ -731,18 +772,22 @@ function onboardingPanels(ob, totalDays, redraw) {
     ["Сразу с панели (до 2.4)", people.filter((p) => p.kind === "old")]
   ].filter(([, list]) => list.length)
   const groupTable = table("Все новые за период: с чего начали",
-    ["Начали", "Людей", "Расширение", "Панель", "Ответ", "Дошли до ответа", "Медиана до ответа"],
+    ["Начали", "Людей", "Расширение", "Панель", "Ответ", "Дошли до ответа", "Медиана до ответа", "Упёрлись в лимит", "Подписка"],
     [...groups.map(([label, list]) => groupRow(label, list)), groups.length > 1 && groupRow("Всего", people, "sum")].filter(Boolean),
     "Новых людей за период нет.", "num2")
   groupTable.append(el("p", { class: "hint" },
     "«С расширения» — включили расширение, не открыв приложение раньше (или открытие не удалось с ним связать). " +
     "«Сразу с панели» — люди до 2.4, когда первые шаги ещё не присылались, и редкие установки 2.4, чьи первые шаги до нас не дошли: у них только панель → ответ, поэтому в воронку выше они не входят. " +
-    "Медиана до ответа — от первого появления."))
+    "Медиана до ответа — от первого появления. Лимит и подписка — доля от всех людей строки."))
 
   // By day: how far each day's new people got, then the same as a table.
   const onDay = (k) => (d) => people.filter((p) => p.day === d && furthest(p) === k).length
   const byDay = chart("Новые люди по дням: докуда дошли", [
-    { title: "Дошли до ответа", color: "var(--o4)", value: onDay(4) },
+    ...(toPaid ? [
+      { title: "Оформили подписку", color: "var(--o6)", value: onDay(6) },
+      { title: "Упёрлись в лимит, без подписки", color: "var(--o5)", value: onDay(5) }
+    ] : []),
+    { title: toPaid ? "Получили ответ, до лимита не дошли" : "Дошли до ответа", color: "var(--o4)", value: onDay(4) },
     { title: "Открыли панель, без ответа", color: "var(--o3)", value: onDay(3) },
     { title: "Включили расширение, без панели", color: "var(--o2)", value: onDay(2) },
     { title: "Открыли приложение и ушли", color: "var(--o1)", value: onDay(1) }
@@ -759,19 +804,22 @@ function onboardingPanels(ob, totalDays, redraw) {
       el("td", {}, step("ext")),
       el("td", {}, step("panel")),
       el("td", {}, step("answer")),
-      el("td", {}, old.length ? `${n.format(old.length)} → ${n.format(count(old, "answer"))}` : "—")
+      el("td", {}, old.length ? `${n.format(old.length)} → ${n.format(count(old, "answer"))}` : "—"),
+      el("td", {}, toPaid ? n.format(count(list, "limit")) : "—"),
+      el("td", {}, toPaid ? n.format(count(list, "paid")) : "—")
     )
   }
   const daysWith = unique(people.map((p) => p.day)).sort().reverse()
   const dayTable = table("Онбординг по дням",
-    ["День (UTC)", "Новых", "Дошли до ответа", "2.4: приложение (уведомления)", "Расширение", "Панель", "Ответ", "До 2.4: панель → ответ"],
+    ["День (UTC)", "Новых", "Дошли до ответа", "2.4: приложение (уведомления)", "Расширение", "Панель", "Ответ", "До 2.4: панель → ответ", "Упёрлись в лимит", "Подписка"],
     [daysWith.length > 1 && dayRow(`За ${totalDays} дн.`, people, "sum"), ...daysWith.map((d) => dayRow(short(d), people.filter((p) => p.day === d)))].filter(Boolean),
     "Новых людей за период нет.", "num2")
   dayTable.append(el("p", { class: "hint" },
     fullFrom
       ? `Шаги до панели (приложение, уведомления, расширение) — с ${short(fullFrom)}, раньше их не присылали; люди до 2.4 — в отдельной колонке, чтобы не было ложного провала. `
       : "Шаги до панели (приложение, уведомления, расширение) пока не пришли ни от кого: их присылает версия 2.4. ",
-    "День — когда человека впервые увидели (UTC). Приложение и расширение одного человека связаны по id расширения, а пока приложение его не знает — по времени: ближайшее включение расширения на том же типе устройства в пределах 3 дней. Без тестов и App Review."))
+    "День — когда человека впервые увидели (UTC). Приложение и расширение одного человека связаны по id расширения, а пока приложение его не знает — по времени: ближайшее включение расширения на том же типе устройства в пределах 3 дней. " +
+    "«Упёрлись в лимит» и «Подписка» — у всех новых этого дня, в тот же или любой следующий день. Без тестов и App Review."))
   return el("div", {}, funnel, groupTable, byDay, dayTable)
 }
 
@@ -1067,6 +1115,31 @@ function afterLimitPanel(after) {
   const back = ready.filter((p) => p.back_days > 0)
   const gone = ready.filter((p) => p.back_days === 0)
   const firstDay = people.filter((p) => p.first_day === p.day).length
+  // Device and country (the device's region setting, from the UI language "uk-UA"); "locale" comes with
+  // migration 20261106120000.
+  const withLocale = people.some((p) => "locale" in p)
+  const regionOf = (p) => localeParts(p.locale)[1]
+  const split = (title, keyOf, nameOfKey) => {
+    const groups = new Map()
+    for (const p of people) { const k = keyOf(p) || "?"; groups.set(k, [...(groups.get(k) || []), p]) }
+    const rows = [...groups].sort((a, b) => b[1].length - a[1].length || String(a[0]).localeCompare(String(b[0]))).map(([k, list]) => {
+      const ready = list.filter((p) => p.paid_after == null && p.day !== today)
+      return el("tr", {},
+        el("td", {}, k === "?" ? "не указано" : nameOfKey(k)),
+        el("td", {}, n.format(list.length)),
+        el("td", {}, n.format(list.filter((p) => p.paid_after != null).length)),
+        el("td", {}, n.format(ready.filter((p) => p.back_days > 0).length)),
+        el("td", {}, n.format(ready.filter((p) => p.back_days === 0).length)))
+    })
+    return el("div", {}, el("h4", {}, title), el("div", { class: "tbl" }, el("table", { class: "num2" },
+      el("thead", {}, el("tr", {}, [title === "По устройствам" ? "Устройство" : "Страна", "Упёрлись", "Купили", "Вернулись", "Ушли"].map((h) => el("th", {}, h)))),
+      el("tbody", {}, rows))))
+  }
+  const splits = el("div", { class: "al-split" },
+    split("По устройствам", (p) => p.platform, (k) => PLATFORMS[k] || k),
+    withLocale
+      ? split("По странам", regionOf, (k) => nameOf(regions, k))
+      : el("div", {}, el("h4", {}, "По странам"), el("p", { class: "empty" }, "Страны появятся после миграции 20261106120000 (cf_after_limit).")))
   const stat = (big, label, sub) => el("div", {}, el("b", {}, big), el("span", {}, label), sub && el("span", {}, sub))
   const stats = el("div", { class: "al-stats" },
     stat(n.format(people.length), "Упёрлись в бесплатный лимит", `в первый же день: ${n.format(firstDay)}`),
@@ -1090,6 +1163,12 @@ function afterLimitPanel(after) {
         nth && el("small", {}, nth === 1 ? "в первый день" : `на ${n.format(nth)}-й день`)),
       el("td", {}, [PLATFORMS[p.platform] || p.platform || "?", p.version].filter(Boolean).join(" · "),
         p.offer && el("small", {}, "с кодом −50 %")),
+      (() => {
+        if (!withLocale) return el("td", { class: "muted" }, "—")
+        const [lang, region] = localeParts(p.locale)
+        return el("td", { title: p.locale ? `Язык системы и регион в настройках устройства: ${p.locale}` : "" },
+          region ? nameOf(regions, region) : "—", lang && el("small", {}, lang))
+      })(),
       el("td", {}, (p.reasons || []).map((r) => AL_REASON[r] || r).join(" + ")),
       el("td", {}, `${n.format(p.before)} ${p.before === 1 ? "ответ" : p.before >= 2 && p.before <= 4 ? "ответа" : "ответов"}${p.secs != null ? ` · ${duration(p.secs)}` : ""}`,
         p.google_before > 0 && el("small", {}, `из них Google: ${n.format(p.google_before)}`)),
@@ -1099,12 +1178,12 @@ function afterLimitPanel(after) {
   const panel = el("div", { class: "panel" },
     el("h3", {}, title),
     people.length
-      ? [stats, el("div", { class: "tbl" }, el("table", { class: "text al" },
-          el("thead", {}, el("tr", {}, ["Упёрся (UTC)", "Устройство · версия", "Какой лимит", "До лимита", "Что потом"].map((h) => el("th", {}, h)))),
+      ? [stats, splits, el("div", { class: "tbl" }, el("table", { class: "text al" },
+          el("thead", {}, el("tr", {}, ["Упёрся (UTC)", "Устройство · версия", "Страна · язык", "Какой лимит", "До лимита", "Что потом"].map((h) => el("th", {}, h)))),
           el("tbody", {}, rows)))]
       : el("p", { class: "empty" }, `За ${after.days} дн. никто не упирался в бесплатный лимит.`),
     el("p", { class: "hint" },
-      `Один человек — одна установка расширения, по первому отказу за ${after.days} дн. Лимит — «ответы на день» (все бесплатные ответы) или «ответы Google на день» (свой потолок у ответов Google; они же тратят и общие). «До лимита» — бесплатные ответы в тот день до отказа и сколько прошло от первого ответа дня. «Купил подписку» — первый платный ответ (Pro или «Свой ключ») после отказа или подписка Pro, которую приложение 2.4 привязало к этой установке; подарки и бесплатные коды не считаются. «Вернулся» — открывал панель в другие дни после дня отказа. Код −50 % на первый месяц показывают только версии 2.4 и новее. Видел ли человек экран оплаты, станет видно с версии 2.5. Последний день подписчиков — в столбце «Последний раз» таблицы «Подписки».`)
+      `Один человек — одна установка расширения, по первому отказу за ${after.days} дн. Лимит — «ответы на день» (все бесплатные ответы) или «ответы Google на день» (свой потолок у ответов Google; они же тратят и общие). «До лимита» — бесплатные ответы в тот день до отказа и сколько прошло от первого ответа дня. «Купил подписку» — подписка Pro или «Свой ключ», купленная на этом устройстве после отказа (пробный период и коды — если потом оплачены); подписка с другого устройства не считается. Страна — регион в настройках устройства (из языка системы, например uk-UA — Украина), не страна App Store. «Вернулись» и «Ушли» в сводках — без купивших и без упёршихся сегодня. «Вернулся» — открывал панель в другие дни после дня отказа. Код −50 % на первый месяц показывают только версии 2.4 и новее. Видел ли человек экран оплаты, станет видно с версии 2.5. Последний день подписчиков — в столбце «Последний раз» таблицы «Подписки».`)
   )
   return panel
 }
