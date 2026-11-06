@@ -1,15 +1,14 @@
-# Подзаголовок и ключевые слова 2.5: предложение, не финал
+# Подзаголовок и ключевые слова 2.5
 
-Решает владелец, это открытый вопрос на доске «ContextFlow · Штаб». Директор спросит его вместе с подачей 2.5.
-Пока решения нет, в `store/metadata/<locale>/subtitle.txt` и `keywords.txt` остаются значения 2.4, как они стоят в App Store Connect.
+Владелец согласился с этим предложением, директор передал его «да». Тексты перенесены в `store/metadata/<locale>/subtitle.txt` и `keywords.txt` (en-US, en-CA, en-GB, en-AU, ru). Ниже — почему они такие.
 
 Источник: cpp-plan.md §5 (заметки store-pages): ключевые слова сведены с кластерами Apple Ads G1–G6.
 
 | Локаль | Подзаголовок | Ключевые слова |
 |---|---|---|
-| en-US, en-CA | Summarize & ask any web page (было «Summarize, ask & take notes») | `subtitle/`, `keywords/` |
-| en-GB, en-AU | Summarise & ask any web page (было «Summarise, ask & take notes») | то же, с `summariser` |
-| ru | без изменений: «Пересказ, вопросы, заметки» | `keywords/ru.txt` |
+| en-US, en-CA | Summarize & ask any web page (было «Summarize, ask & take notes») | summarizer,webpage,article,tldr,extension,pdf,notes,shopping,clipboard,history,price,tracker,stock |
+| en-GB, en-AU | Summarise & ask any web page (было «Summarise, ask & take notes») | то же, с summariser вместо summarizer |
+| ru | без изменений: «Пересказ, вопросы, заметки» | нейросеть,расширение,статьи,страницы,сайта,pdf,покупок,буфер,обмена,отслеживание,трекер,цен,цены |
 | остальные 10 | без изменений | без изменений |
 
 Что даёт:
