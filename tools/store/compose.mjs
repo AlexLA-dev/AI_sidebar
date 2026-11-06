@@ -700,7 +700,16 @@ async function fitSize(device, specs) {
   return size
 }
 
-for (const [kind, specs] of Object.entries(set === "notes" ? NOTES_SETS : set === "cpp" ? CPP_SETS : TEST_SETS[set] ?? SETS)) {
+// The 2.5 In-App Event (Major Update «Quick Insert in Safari»): the same screens without captions or plaques (Apple
+// asks for no text over event media). event.py crops them to the event card (16:9, the Mac's template) and the
+// event details page (9:16, the iPhone's field with its button and the Copied list).
+const EVENT_SETS = {
+  mac: [{ name: "card", shot: "mac-fill", caption: ["", ""], host: COPY.mailHost }],
+  iphone: [{ name: "details", shot: "iphone-copied", caption: ["", ""], host: COPY.mailHost,
+    callout: { from: "iphone-copiedbtn", select: ["@#reply", ".cf-qi-btn"], pad: 14, mag: 1.04, maxW: 1230, radius: 14 } }]
+}
+
+for (const [kind, specs] of Object.entries(set === "event" ? EVENT_SETS : set === "notes" ? NOTES_SETS : set === "cpp" ? CPP_SETS : TEST_SETS[set] ?? SETS)) {
   const device = DEVICES[kind]
   const size = await fitSize(device, specs)
   const dir = join(OUT, kind)
