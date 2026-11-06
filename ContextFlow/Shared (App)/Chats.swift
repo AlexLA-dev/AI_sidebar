@@ -123,6 +123,9 @@ struct ChatThread: Identifiable, Hashable {
     let isHistory: Bool
     /// The chat's own tags (answers and notes have theirs on the entry).
     let ownTags: [String]
+    /// In Recently Deleted since then (ms), or nil (src/shared/threads.ts `trashed`, 2.5 (83)): hidden everywhere,
+    /// deleted for good `ChatLibrary.trashDays` later.
+    let trashedAt: Int64?
 
     private struct Stored: Decodable {
         var title: String?
@@ -130,6 +133,7 @@ struct ChatThread: Identifiable, Hashable {
         var pin: Double?
         var k: String?
         var tags: [String]?
+        var trashed: Double?
         var m: [ChatEntry]
     }
 
@@ -152,7 +156,17 @@ struct ChatThread: Identifiable, Hashable {
         pin = stored.pin
         isHistory = stored.k == "history"
         ownTags = Tags.clean(stored.tags ?? [])
+        trashedAt = stored.trashed.flatMap { $0.isFinite && abs($0) < 9e15 ? Int64($0) : nil }
         entries = stored.m
+    }
+
+    var isTrashed: Bool { trashedAt != nil }
+
+    /// Days until it's deleted for good, in Recently Deleted: 30 just after, never less than 1 while it's there.
+    func daysLeft(now: Date = Date()) -> Int {
+        guard let trashedAt else { return ChatLibrary.trashDays }
+        let left = Double(trashedAt) + Double(ChatLibrary.trashDays) * 86_400_000 - now.timeIntervalSince1970 * 1000
+        return min(ChatLibrary.trashDays, max(1, Int((left / 86_400_000).rounded(.up))))
     }
 
     /// The chat's tags and those of its answers and notes, without repeats.
@@ -210,8 +224,9 @@ struct ChatThread: Identifiable, Hashable {
     var lastActivity: Date { Date(timeIntervalSince1970: TimeInterval(lastAt) / 1000) }
 
     /// The same chat with its name and pin changed, as of `updatedAt`. For each: nil keeps it,
-    /// `.some(nil)` removes it, `.some(value)` sets it.
-    func edited(title: String??, pin: Double??, tags: [String]? = nil, entryTags: (index: Int, tags: [String])? = nil, updatedAt: Int64) -> ChatMirror.Item? {
+    /// `.some(nil)` removes it, `.some(value)` sets it. `trashed` the same: in Recently Deleted since then, or out of it.
+    /// Every other field stays as it is in the JSON, those this version doesn't know too.
+    func edited(title: String??, pin: Double??, tags: [String]? = nil, entryTags: (index: Int, tags: [String])? = nil, trashed: Int64?? = nil, updatedAt: Int64) -> ChatMirror.Item? {
         let parsed = try? JSONSerialization.jsonObject(with: Data(data.utf8))
         guard var object = (parsed as? [String: Any]) ?? (parsed as? [Any]).map({ ["m": $0] }) else { return nil }
         switch title {
@@ -231,7 +246,12 @@ struct ChatThread: Identifiable, Hashable {
             if entryTags.tags.isEmpty { list[entryTags.index].removeValue(forKey: "tags") } else { list[entryTags.index]["tags"] = entryTags.tags }
             object["m"] = list
         }
-        // Renaming, pinning or tagging keeps the chat's place by its last message.
+        switch trashed {
+        case .none: break
+        case .some(.none): object.removeValue(forKey: "trashed")
+        case .some(.some(let value)): object["trashed"] = value
+        }
+        // Renaming, pinning, tagging, deleting or restoring keeps the chat's place by its last message.
         if object["a"] == nil { object["a"] = lastAt }
         guard let json = try? JSONSerialization.data(withJSONObject: object), let text = String(data: json, encoding: .utf8) else { return nil }
         return ChatMirror.Item(updatedAt: updatedAt, data: text)
@@ -252,6 +272,8 @@ struct ChatThread: Identifiable, Hashable {
               let list = object["m"] as? [Any] else { return nil }
         object["m"] = list + entries
         object["a"] = updatedAt
+        // Written in: out of Recently Deleted, as in the Safari panel (src/shared/threads.ts withMessages).
+        object.removeValue(forKey: "trashed")
         guard let json = try? JSONSerialization.data(withJSONObject: object), let text = String(data: json, encoding: .utf8) else { return nil }
         return ChatMirror.Item(updatedAt: updatedAt, data: text)
     }
@@ -507,9 +529,15 @@ final class ChatLibrary: ObservableObject {
         case ok
     }
 
+    /// The chats the user has: not in Recently Deleted. The list, search, Ask your chats, tags and reminders use these.
     @Published private(set) var threads: [ChatThread] = []
+    /// Recently Deleted (2.5 (83)), the last one deleted first.
+    @Published private(set) var trashed: [ChatThread] = []
     @Published private(set) var cloud: Cloud = .off
     @Published private(set) var loaded = false
+
+    /// How long a deleted chat stays in Recently Deleted (src/shared/threads.ts TRASH_DAYS).
+    static let trashDays = 30
 
     private static let tokenKey = "cf_chats_cloud_token"
     private var cloudTask: Task<Void, Never>?
@@ -544,12 +572,17 @@ final class ChatLibrary: ObservableObject {
 
     private func reload() {
         let items = ChatMirror.chats()
-        threads = items.compactMap { id, item in ChatThread(id: id, updatedAt: item.updatedAt, data: item.data) }
+        let all = items.compactMap { id, item in ChatThread(id: id, updatedAt: item.updatedAt, data: item.data) }
             .filter { !$0.entries.isEmpty }
-            .sorted(by: Self.listOrder)
+        threads = all.filter { !$0.isTrashed }.sorted(by: Self.listOrder)
+        trashed = all.filter(\.isTrashed).sorted { a, b in a.trashedAt != b.trashedAt ? a.trashedAt! > b.trashedAt! : a.id < b.id }
         loaded = true
         // No chats left ("Delete all chats" in Safari): the messages' vectors (organizing) go with them.
-        if threads.isEmpty { OrganizeModel.shared.forget() }
+        if threads.isEmpty && trashed.isEmpty { OrganizeModel.shared.forget() }
+        // 30 days in Recently Deleted: deleted for good, as on any device that sees it first.
+        let cutoff = now - Int64(Self.trashDays) * 86_400_000
+        let expired = trashed.filter { $0.trashedAt! <= cutoff }
+        if !expired.isEmpty { deleteNow(expired) }
     }
 
     /// Pinned chats first in their order, then the others, the latest first (the extension's order); the same pin or
@@ -686,7 +719,8 @@ final class ChatLibrary: ObservableObject {
     /// After iCloud brought chats: a moved message the chat it came from got back (from a device that hadn't
     /// heard of the move, or one still on 2.4) is removed there again.
     private func sweepMoved() {
-        let swept = Organize.sweep(threads.compactMap(\.organized), now: now)
+        // Recently Deleted's chats too: one may hold a stale copy of a moved message.
+        let swept = Organize.sweep((threads + trashed).compactMap(\.organized), now: now)
         guard !swept.changed.isEmpty || !swept.emptied.isEmpty else { return }
         storeOrganized(saves: swept.changed, deletes: swept.emptied)
     }
@@ -719,12 +753,39 @@ final class ChatLibrary: ObservableObject {
         }
     }
 
-    func delete(_ thread: ChatThread) {
-        ChatMirror.apply(saves: [:], deletes: [thread.id])
-        ChatMirror.queue(.init(id: thread.id, updatedAt: nil, data: nil, deleted: true, at: Double(now)))
+    // MARK: Recently Deleted (2.5 (83), the owner: «надо сделать … Trash, где до 30 дней пусть хранятся удаленные чаты»)
+
+    /// Deleting a chat (a swipe, its menu, Delete in the chat) moves it to Recently Deleted: `trashed` in its JSON, its
+    /// time bumped like any edit, so the extension and iCloud take it to the other devices. Its place by last message
+    /// stays; its reminders here are off until it's restored.
+    func trash(_ thread: ChatThread) {
+        let current = threads.first { $0.id == thread.id } ?? thread
+        guard !current.isTrashed else { return }
+        let at = max(now, current.updatedAt + 1)
+        guard let item = current.edited(title: nil, pin: nil, trashed: .some(at), updatedAt: at) else { return }
+        pauseReminders(current)
+        store(current, item)
+    }
+
+    /// Back from Recently Deleted, to its place by its last real message (not to the top: the owner hates chats
+    /// jumping), its reminders set here on again.
+    func restore(_ thread: ChatThread) {
+        let current = trashed.first { $0.id == thread.id } ?? thread
+        guard current.isTrashed, let item = current.edited(title: nil, pin: nil, trashed: .some(nil), updatedAt: max(now, current.updatedAt + 1)) else { return }
+        store(current, item)
+        if let back = threads.first(where: { $0.id == current.id }) { resumeReminders(back) }
+    }
+
+    /// Delete Now, Delete All, and 30 days in Recently Deleted: deleted for good, here, for the extension and in
+    /// iCloud (the usual deletion, as "Delete" was before 2.5 (83)).
+    func deleteNow(_ gone: [ChatThread]) {
+        guard !gone.isEmpty else { return }
+        let ids = gone.map(\.id)
+        ChatMirror.apply(saves: [:], deletes: ids)
+        for id in ids { ChatMirror.queue(.init(id: id, updatedAt: nil, data: nil, deleted: true, at: Double(now))) }
         reload()
         if syncOn {
-            Task { await syncCloud([.delete(thread.id)]) }
+            Task { await syncCloud(ids.map { .delete($0) }) }
         }
     }
 
@@ -736,9 +797,12 @@ final class ChatLibrary: ObservableObject {
     func saveHistory(id: String, messages: [[String: String]]) {
         let at = Int64(Date().timeIntervalSince1970 * 1000)
         let previous = threads.first { $0.id == id }
-        var object: [String: Any] = ["k": "history", "a": at, "m": messages]
-        if let title = previous?.title { object["title"] = title }
-        if let pin = previous?.pin { object["pin"] = pin }
+        // The stored JSON with the new messages: its name, pin, tags and the fields a newer version wrote stay.
+        var object = previous.flatMap { (try? JSONSerialization.jsonObject(with: Data($0.data.utf8))) as? [String: Any] } ?? [:]
+        object["k"] = "history"
+        object["a"] = at
+        object["m"] = messages
+        object.removeValue(forKey: "trashed")
         guard let json = try? JSONSerialization.data(withJSONObject: object), let data = String(data: json, encoding: .utf8) else { return }
         let updatedAt = max(at, (previous?.updatedAt ?? 0) + 1)
         ChatMirror.apply(saves: [id: ChatMirror.Item(updatedAt: updatedAt, data: data)])

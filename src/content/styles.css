@@ -656,6 +656,21 @@
 .cf-ask-history:hover { background: rgba(37, 99, 235, 0.16); }
 .cf-ask-history .cf-thread-title { color: var(--accent-text); display: flex; align-items: center; gap: 5px; }
 .cf-ask-history .cf-thread-snippet { white-space: normal; }
+
+/* Recently Deleted (2.5 (83)): its row at the end of the chat list, and its screen. */
+.cf-trash-row { margin-top: 6px; }
+.cf-trash-row .cf-thread-title { display: flex; align-items: center; gap: 6px; color: var(--text-2); }
+.cf-trash-row .cf-thread-title svg { margin: 0; color: var(--text-3); }
+.cf-trash-head { display: flex; align-items: flex-start; gap: 12px; padding: 4px 6px 10px; }
+.cf-trash-note { flex: 1; margin: 0; font-size: 12.5px; line-height: 1.4; color: var(--text-3); }
+.cf-trash-head .cf-link { flex: none; }
+.cf-trash-confirm { margin: 0 4px 10px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg-2); }
+.cf-trash-confirm p { margin: 0 0 8px; font-size: 13px; color: var(--text); }
+.cf-trash-item:hover { background: var(--bg); }
+.cf-trash-item .cf-thread-main { cursor: default; }
+.cf-trash-actions { flex: none; display: flex; gap: 6px; padding-right: 6px; }
+.cf-trash-actions .cf-secondary, .cf-trash-confirm .cf-secondary { padding: 6px 10px; font-size: 12.5px; }
+.cf-secondary.danger { color: var(--danger) !important; }
 .cf-pro-badge { display: inline-flex; align-items: center; padding: 1px 6px; border-radius: 6px; font-size: 10.5px; font-weight: 700; letter-spacing: 0.02em; color: #fff; background: linear-gradient(135deg, var(--accent-2), var(--accent)); }
 .cf-ctx.history { background: var(--accent-soft); color: var(--accent-text); }
 .cf-upsell-wrap { flex-shrink: 0; padding: 10px 10px 0; }
