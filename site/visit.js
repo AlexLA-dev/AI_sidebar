@@ -20,7 +20,12 @@
     "/safari-summary-vs-chatgpt": "compare",
     "/support": "support",
     "/privacy": "privacy",
-    "/terms": "terms"
+    "/terms": "terms",
+    "/cases": "cases",
+    "/cases/replies-and-forms": "case_fill",
+    "/cases/studying": "case_study",
+    "/cases/shopping": "case_shop",
+    "/cases/planning": "case_plan"
   }
   const OWN = /(^|\.)(context-flow\.app|aisidebar\.netlify\.app)$/
   // A referrer's host or a utm_source value → the source; the first match wins (Gemini before Google).
