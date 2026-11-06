@@ -50,9 +50,10 @@ import { ProUpsell } from "./ProUpsell"
 import { SettingsView } from "./Settings"
 import { shareLabels } from "./shareLabels"
 import { markHintSeen, resetHints, seenHints, type HintKey } from "./store"
-import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, onConsentChanged, loadThreads, markTourSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, rememberPageText, renameThread, renewalAskedPeriod, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount } from "./store"
+import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, onConsentChanged, loadThreads, markTourSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, purgeChats, rememberPageText, renameThread, renewalAskedPeriod, restoreChat, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount, trashChat } from "./store"
 import { TagChip, TagEditor } from "./Tags"
 import { ThreadsView } from "./Threads"
+import { TrashView } from "./Trash"
 import { starMarks } from "../shared/marks"
 import { Bell, More, remindLabel, RemindSheet } from "./ux/MessageUx"
 import { PageMenu } from "./ux/PageMenu"
@@ -72,7 +73,7 @@ import * as QIcon from "./insert/icons"
 import { keepCopied, report as reportInsert } from "./insert/store"
 import { insertFromPanel, useButtonShown, useHasField } from "./insert/target"
 import { TemplatesView } from "./insert/TemplatesView"
-import { allTags, chatDigests, chatList, cleanTags, newThreadId, pageBlocks, pinAt, shownThread, threadPages, threadTitle, type MoveUndo, type Thread, type Threads } from "../shared/threads"
+import { allTags, chatDigests, chatList, cleanTags, newThreadId, pageBlocks, pinAt, shownThread, threadPages, threadTitle, trashedThreads, type MoveUndo, type Thread, type Threads } from "../shared/threads"
 import type { ChatDigest } from "../shared/history"
 import type { ConsentStatus } from "../shared/consent"
 
@@ -220,7 +221,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const keepsText = !popup && !privateBrowsing()
   const [open, setOpen] = useState(popup)
   const [visible, setVisible] = useState(popup)
-  const [view, setView] = useState<"chat" | "settings" | "threads" | "templates">("chat")
+  // "trash": Recently Deleted, opened from the end of the chat list (its back goes to the list).
+  const [view, setView] = useState<"chat" | "settings" | "threads" | "templates" | "trash">("chat")
   // Quick insert: the page has a field the user typed in (answers and notes can go there).
   const hasField = useHasField() && !popup
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS)
@@ -236,6 +238,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [messages, setMessages] = useState<Turn[]>([])
   // Chats as threads: the list (newest first) and the one shown, which every page and tab continues.
   const [threadList, setThreadList] = useState<Thread[]>([])
+  // Recently Deleted (2.5 (83)): the chats there, the last one deleted first.
+  const [trashList, setTrashList] = useState<Thread[]>([])
+  /** Both lists as they are in `threads`. */
+  const showLists = (threads: Threads) => {
+    setThreadList(chatList(threads))
+    setTrashList(trashedThreads(threads))
+  }
   const threadRef = useRef("")
   const [partial, setPartial] = useState<string | null>(null)
   // Before asking: a video's transcript or a PDF being read (shown instead of "Reading the page…").
@@ -464,7 +473,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         threadRef.current = active.id
         setKind(threads[active.id]?.kind)
         const entries = threads[active.id]?.m ?? []
-        setThreadList(chatList(threads))
+        showLists(threads)
         setMessages(entries)
         scrollToEnd()
         // Other devices may have continued a chat (iCloud), or the ContextFlow app asked to continue one
@@ -474,7 +483,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           const fresh = await loadThreads()
           const asked = result.open ? fresh.threads[result.open] : undefined
           const next = asked && !asked.deleted && asked.m.length ? { id: asked.id, m: asked.m } : shownThread(fresh.threads, fresh.active)
-          setThreadList(chatList(fresh.threads))
+          showLists(fresh.threads)
           setMessages((current) => {
             if (current !== entries) return current
             if (next.id !== threadRef.current) {
@@ -512,7 +521,16 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // While open: the chat list follows other tabs and devices, and the answer counter other devices.
   useEffect(() => {
     if (!open) return
-    const off = onThreadsChanged(() => void loadThreads().then(({ threads }) => setThreadList(chatList(threads))))
+    const off = onThreadsChanged(() => void loadThreads().then(({ threads, active }) => {
+      showLists(threads)
+      // The chat shown went to Recently Deleted in another tab or on another device: it goes from here too, as when
+      // it's deleted here (not while an answer is coming in).
+      if (threads[threadRef.current]?.trashed === undefined || portRef.current || askToken.current) return
+      threadRef.current = active.id
+      setKind(threads[active.id]?.kind)
+      setMessages(threads[active.id]?.m ?? [])
+      setError(null)
+    }))
     const timer = setInterval(() => {
       if (document.visibilityState === "visible" && !portRef.current) void refreshStatus()
     }, 30_000)
@@ -537,6 +555,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const timer = setTimeout(() => setTouring(true), 450)
     return () => clearTimeout(timer)
   }, [popup, tourSeen, touring, visible, view, streaming, pending])
+
+  // Recently Deleted emptied (everything restored or deleted, here or elsewhere): back to the list, where its row goes too.
+  useEffect(() => {
+    if (view === "trash" && trashList.length === 0) setView("threads")
+  }, [view, trashList])
 
   // Persist the chat shown.
   useEffect(() => {
@@ -1172,11 +1195,27 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   )
 
   const renameChat = useCallback((id: string, name: string) => {
-    void renameThread(id, name).then(() => loadThreads()).then(({ threads }) => setThreadList(chatList(threads)))
+    void renameThread(id, name).then(() => loadThreads()).then(({ threads }) => showLists(threads))
   }, [])
 
+  /**
+   * A chat's reminders on this device: off while it's in Recently Deleted, on again once it's back (those still ahead
+   * that were set here).
+   */
+  const chatReminders = async (thread: Thread, on: boolean) => {
+    const dev = on ? await thisDevice() : undefined
+    for (const m of thread.m) {
+      if (!m.remind) continue
+      if (!on) void scheduleReminder(sendBackground, thread.id, m, null, "")
+      else if (m.remind.at > Date.now() && (!m.remind.dev || m.remind.dev === dev)) void scheduleReminder(sendBackground, thread.id, m, m.remind.at, thread.title || threadTitle(thread.m))
+    }
+  }
+
+  // The last move to Recently Deleted being stored: Undo right after a delete waits for it, or it would find nothing to
+  // restore and the delete would land after it.
+  const trashing = useRef<Promise<unknown>>(Promise.resolve())
+  /** A chat the user deleted goes to Recently Deleted (2.5 (83)); shown here, a new chat takes its place. */
   const removeThread = useCallback((id: string) => {
-    void deleteThread(id)
     setThreadList((list) => list.filter((x) => x.id !== id))
     if (id === threadRef.current) {
       const id2 = newThreadId()
@@ -1186,9 +1225,34 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       setMessages([])
       setError(null)
     }
+    const done = trashChat(id).then(async (gone) => {
+      if (gone) void chatReminders(gone, false)
+      const { threads } = await loadThreads()
+      showLists(threads)
+    })
+    trashing.current = done.catch(() => undefined)
   }, [])
 
-  /** A chat deleted from the list (its trash button or a swipe), with "Chat deleted · Undo" (2.5). */
+  /** Back from Recently Deleted (its Restore, or Undo after a delete): to its place in the list, its reminders on again. */
+  const restoreFromTrash = (id: string, how: "bar" | "list") => {
+    void trashing.current.then(() => restoreChat(id)).then(async (back) => {
+      if (back) void chatReminders(back, true)
+      const { threads } = await loadThreads()
+      showLists(threads)
+      if (back) void sendBackground({ type: "uxEvent", kind: "ux_delete", action: "undone", what: "chat", how })
+    })
+  }
+
+  /** Delete Now (one chat) and Delete All (`ids`: every chat there) in Recently Deleted: gone for good. */
+  const purgeFromTrash = (ids: string[]) => {
+    setTrashList((list) => list.filter((x) => !ids.includes(x.id)))
+    void purgeChats(ids).then(showLists)
+  }
+
+  /**
+   * A chat deleted from the list (its trash button, a swipe or "…"), with "Chat deleted · Undo" (2.5); Undo brings it
+   * back from Recently Deleted.
+   */
   const deleteChatWithUndo = useCallback((id: string) => {
     const gone = threadList.find((x) => x.id === id)
     removeThread(id)
@@ -1200,15 +1264,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         label: t("orgUndo"),
         run: () => {
           setUndoBar(null)
-          void (async () => {
-            await saveThread(gone.id, gone.m, gone.kind)
-            if (gone.title) await renameThread(gone.id, gone.title)
-            if (gone.tags?.length) await setThreadTags(gone.id, gone.tags)
-            if (gone.pin) await pinThread(gone.id, gone.pin)
-            const { threads } = await loadThreads()
-            setThreadList(chatList(threads))
-            void sendBackground({ type: "uxEvent", kind: "ux_delete", action: "undone", what: "chat" })
-          })()
+          restoreFromTrash(gone.id, "bar")
         }
       }]
     })
@@ -1743,7 +1799,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const undoChatMove = async (undo: MoveUndo) => {
     setUndoBar(null)
     const threads = await undoBlockMove(undo)
-    setThreadList(chatList(threads))
+    showLists(threads)
     const here = threadRef.current
     if (here === undo.source || here === undo.target) showChat(threads[undo.source] && !threads[undo.source].deleted ? undo.source : here, threads)
     // Taken back: the same move isn't suggested again.
@@ -1759,7 +1815,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setOrg(null)
     const moved = await moveBlock(source, move.start, move.end, target)
     if (!moved) return
-    setThreadList(chatList(moved.threads))
+    showLists(moved.threads)
     const left = moved.threads[source]
     // The panel stays on this chat ("Open" goes to the other one), unless nothing is left in it: then it's
     // the other one already, without "Open".
@@ -2071,13 +2127,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           {layout === "sheet" && <div class="cf-grabber" onClick={hide} />}
           <header class="cf-header">
             {view !== "chat" ? (
-              <button type="button" class="cf-icon" onClick={() => setView("chat")} aria-label={t("back")}><Icon.Back /></button>
+              <button type="button" class="cf-icon" onClick={() => setView(view === "trash" ? "threads" : "chat")} aria-label={t("back")}><Icon.Back /></button>
             ) : (
               <span class="cf-logo"><Icon.Sparkle size={18} /></span>
             )}
             <div class="cf-title">
               {view !== "chat" ? (
-                <strong>{view === "settings" ? t("settings") : view === "templates" ? t("qiTemplatesTitle") : t("chatsTitle")}</strong>
+                <strong>{view === "settings" ? t("settings") : view === "templates" ? t("qiTemplatesTitle") : view === "trash" ? t("trashTitle") : t("chatsTitle")}</strong>
               ) : (
                 historyMode ? (
                   <span class="cf-ctx history"><Icon.Sparkle size={13} /> <span class="cf-ctx-text">{t("askHistory")}</span></span>
@@ -2099,10 +2155,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 {chatCopied ? <Icon.Check /> : <Icon.Share />}
               </button>
             )}
-            {view === "chat" && threadList.length > 0 && (
+            {/* With every chat in Recently Deleted, still the way to it. */}
+            {view === "chat" && (threadList.length > 0 || trashList.length > 0) && (
               <button type="button" class="cf-icon cf-chats-button" onClick={() => setView("threads")} aria-label={t("allChats")} title={t("allChats")}>
                 <Icon.Chats />
-                <span class="cf-badge">{threadList.length}</span>
+                {threadList.length > 0 && <span class="cf-badge">{threadList.length}</span>}
               </button>
             )}
             {((view === "chat" && messages.length > 0) || view === "threads") && (
@@ -2205,9 +2262,21 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 grouped={settings.groupByTags}
                 onGrouped={(on) => updateSettings({ groupByTags: on })}
                 touch={touch}
+                trashCount={trashList.length}
+                onOpenTrash={() => {
+                  setUndoBar(null)
+                  setView("trash")
+                }}
               />
               <div class="cf-undo-host">{undoBar && <UndoBar text={undoBar.text} actions={undoBar.actions} onHold={holdBar} />}</div>
             </>
+          ) : view === "trash" ? (
+            <TrashView
+              threads={trashList}
+              onRestore={(id) => restoreFromTrash(id, "list")}
+              onDelete={(id) => purgeFromTrash([id])}
+              onDeleteAll={() => purgeFromTrash(trashList.map((th) => th.id))}
+            />
           ) : view === "templates" ? (
             <TemplatesView
               touch={touch}
@@ -2251,6 +2320,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 setMessages([])
                 setError(null)
                 setThreadList([])
+                setTrashList([])
                 void loadThreads().then(({ active }) => {
                   threadRef.current = active.id
                 })
@@ -2586,7 +2656,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           touch={touch}
           bus={bus}
           panelOpen={open}
-          panelAside={open && view === "threads" && layout === "side"}
+          panelAside={open && (view === "threads" || view === "trash") && layout === "side"}
           consent={consent}
           onConsent={agreeQuietly}
           free={plan === "free" && !ownKeyActive}

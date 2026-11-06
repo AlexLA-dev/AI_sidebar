@@ -132,7 +132,8 @@ struct ChatsView: View {
             }
         }
         .overlay {
-            if library.loaded && library.threads.isEmpty && !searching {
+            // With chats in Recently Deleted, its row is the list.
+            if library.loaded && library.threads.isEmpty && library.trashed.isEmpty && !searching {
                 EmptyChats()
             }
         }
@@ -160,11 +161,11 @@ struct ChatsView: View {
         }
         .confirmationDialog("Delete this chat?", isPresented: Binding(get: { deleting != nil }, set: { if !$0 { deleting = nil } }), titleVisibility: .visible) {
             Button("Delete", role: .destructive) {
-                if let deleting { library.delete(deleting) }
+                if let deleting { library.trash(deleting) }
                 deleting = nil
             }
         } message: {
-            Text(library.syncOn ? "It's deleted on all your devices." : "It's deleted on this device.")
+            Text("You can restore it from Recently Deleted for 30 days.")
         }
         .onAppear { library.refresh() }
         // An Own key subscriber: whether Pro at a discount is set up, and if it's due, the card above, once a period.
@@ -392,6 +393,18 @@ struct ChatsView: View {
             } else {
                 Section(footer: footer) { chatRows(filteredThreads) }
             }
+            // Recently Deleted (2.5 (83)): at the end of the list, while it has chats.
+            if tagFilter == nil && !library.trashed.isEmpty {
+                Section {
+                    NavigationLink(destination: RecentlyDeletedView(library: library)) {
+                        HStack {
+                            Label("Recently Deleted", systemImage: "trash")
+                            Spacer(minLength: 8)
+                            Text(verbatim: String(library.trashed.count)).foregroundColor(.secondary).monospacedDigit()
+                        }
+                    }
+                }
+            }
     }
 
     @ViewBuilder
@@ -417,6 +430,71 @@ struct ChatsView: View {
     private func startRename(_ thread: ChatThread) {
         newName = thread.title ?? ""
         renaming = thread
+    }
+}
+
+/// Recently Deleted (2.5 (83), the owner: «надо сделать … Trash, где до 30 дней пусть хранятся удаленные чаты»): the
+/// chats deleted here, in Safari or on another device, kept 30 days, the last one deleted first. Each can be restored
+/// (to its old place in the list) or deleted now; Delete All asks first. As in Apple's apps, they aren't opened here.
+struct RecentlyDeletedView: View {
+    @ObservedObject var library: ChatLibrary
+    @State private var confirmAll = false
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        List {
+            Section {
+                ForEach(library.trashed) { thread in
+                    VStack(alignment: .leading, spacing: 8) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(thread.name).font(.headline).lineLimit(1)
+                            Text("\(thread.daysLeft()) days").font(.caption).foregroundColor(.secondary)
+                        }
+                        HStack(spacing: 10) {
+                            Button("Restore") { library.restore(thread) }
+                            Button("Delete Now", role: .destructive) { library.deleteNow([thread]) }
+                        }
+                        .buttonStyle(.bordered)
+                        .controlSize(.small)
+                    }
+                    .padding(.vertical, 4)
+                    .contextMenu {
+                        Button { library.restore(thread) } label: { Label("Restore", systemImage: "arrow.uturn.backward") }
+                        Button(role: .destructive) { library.deleteNow([thread]) } label: { Label("Delete Now", systemImage: "trash") }
+                    }
+                    #if os(iOS)
+                    .swipeActions(edge: .trailing) {
+                        Button(role: .destructive) { library.deleteNow([thread]) } label: { Label("Delete Now", systemImage: "trash") }
+                    }
+                    .swipeActions(edge: .leading) {
+                        Button { library.restore(thread) } label: { Label("Restore", systemImage: "arrow.uturn.backward") }
+                            .tint(brandBlue)
+                    }
+                    #endif
+                }
+            } footer: {
+                Text("Chats are available here for 30 days. After that time, they will be permanently deleted.")
+            }
+        }
+        #if os(iOS)
+        .listStyle(.insetGrouped)
+        #endif
+        .navigationTitle("Recently Deleted")
+        .toolbar {
+            ToolbarItem {
+                Button("Delete All", role: .destructive) { confirmAll = true }
+                    .disabled(library.trashed.isEmpty)
+            }
+        }
+        .confirmationDialog("Delete all chats in Recently Deleted?", isPresented: $confirmAll, titleVisibility: .visible) {
+            Button("Delete All", role: .destructive) { library.deleteNow(library.trashed) }
+        } message: {
+            Text("This action can't be undone.")
+        }
+        // Emptied (everything restored or deleted, here or elsewhere): back to the list, where its row goes too.
+        .onChange(of: library.trashed.isEmpty) { empty in
+            if empty { dismiss() }
+        }
     }
 }
 
@@ -1219,11 +1297,11 @@ struct ChatDetailView: View {
                 }
                 .confirmationDialog("Delete this chat?", isPresented: $deleting, titleVisibility: .visible) {
                     Button("Delete", role: .destructive) {
-                        library.delete(thread)
+                        library.trash(thread)
                         dismiss()
                     }
                 } message: {
-                    Text(library.syncOn ? "It's deleted on all your devices." : "It's deleted on this device.")
+                    Text("You can restore it from Recently Deleted for 30 days.")
                 }
             } else {
                 Text("This chat was deleted.")

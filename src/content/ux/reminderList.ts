@@ -28,7 +28,8 @@ export function reminderText(m: Entry[], idx: number): { text?: string; question
 export function reminderRows(threads: Threads, dev: string | undefined, now: number, when: (at: number) => string, elsewhere: (label: string) => string): LaterItem[] {
   const out: LaterItem[] = []
   for (const [chat, thread] of Object.entries(threads)) {
-    if (thread.deleted) continue
+    // A chat in Recently Deleted has its reminders off (they ring again if it's restored).
+    if (thread.deleted || thread.trashed !== undefined) continue
     thread.m.forEach((m, idx) => {
       if (!m.remind || m.remind.at <= now) return
       const page = m.note ? m.page : undefined

@@ -55,14 +55,15 @@ struct ContentView: View {
     @StateObject private var chats = ChatLibrary.shared
     @Environment(\.requestReview) private var requestReview
     @Environment(\.scenePhase) private var scenePhase
-    @State private var tab: AppTab = ChatLibrary.shared.threads.isEmpty ? .home : .chats
+    @State private var tab: AppTab = ChatLibrary.shared.threads.isEmpty && ChatLibrary.shared.trashed.isEmpty ? .home : .chats
     /// iOS: the setup guide, from the Chats screen (there is no Get Started tab once there are chats).
     @State private var showingSetup = false
     /// Settings scrolls down to the plan (the extension's "Manage subscription" with Pro).
     @State private var showPlan = false
 
     /// Once the user has chats, they come first: Get Started gives way to Chats.
-    private var hasChats: Bool { !chats.threads.isEmpty }
+    /// Chats in Recently Deleted count: the Chats screen is the way to them (2.5 (83)).
+    private var hasChats: Bool { !chats.threads.isEmpty || !chats.trashed.isEmpty }
 
     /// With Pro there is no Pro tab: the plan is at the bottom of Settings. A purchase made on the Pro
     /// tab keeps it until the user leaves it, so its "You're all set" isn't cut off.

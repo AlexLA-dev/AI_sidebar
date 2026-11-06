@@ -13,7 +13,7 @@ import { build } from "esbuild"
 import { parseHTML } from "linkedom"
 
 import { fakeClock, fakeTimers } from "./fake-clock.mts"
-import { BUTTON_WIDTH, COMMIT_SHARE, GAP, LIFT_STEPS, OPEN_AT, openOffset, swipeEnd, swipeOffset, underWidth, visibleSlice, wheelAgain, WHEEL_GAIN, WHEEL_IDLE, wheelLifted, wheelStep } from "../src/content/ux/swipeMath.ts"
+import { BUTTON_WIDTH, COMMIT_SHARE, GAP, LIFT_STEPS, OPEN_AT, openOffset, swipeEnd, swipeOffset, underWidth, visibleSlice, wheelAgain, WHEEL_GAIN, WHEEL_IDLE, wheelLifted, WHEEL_STEP_MAX, wheelStep } from "../src/content/ux/swipeMath.ts"
 
 const both = { left: true, right: true }
 
@@ -62,23 +62,30 @@ test("a trackpad's scroll as a finger: the row follows the fingers", () => {
   assert.equal(wheelStep({ deltaX: 2, deltaY: 0, deltaMode: 1 }, 300).x, 32)
 })
 
-test("the fingers lifted: the scroll only slowing down after them; moving again: a step past twice the last", () => {
-  const lift = { peak: 0, slow: 0 }
+test("the fingers lifted: the scroll only shrinking step by step after them; moving again: a bigger step, or back", () => {
+  const lift = { peak: 0, slow: 0, prev: 0 }
   // Small steps at the start (the fingers setting off) and steady ones aren't a lift.
   for (const s of [1, 2, 3, 20, 20, 20]) assert.equal(wheelLifted(lift, s), false)
-  // Slowing to aim at a spot, then going on: not yet.
-  assert.equal(wheelLifted(lift, 6), false)
-  assert.equal(wheelLifted(lift, 18), false)
-  // The momentum running out: lifted on the LIFT_STEPS-th step in a row under the share.
-  const tail = [12, 8, 5, 3, 2]
+  // Slowing to aim at a spot, unevenly, then going on: not a lift (2.5 (83): the row stopped listening).
+  for (const s of [6, 4, 5, 3, 4, 18]) assert.equal(wheelLifted(lift, s), false)
+  // The momentum running out, each step no bigger than the one before: lifted on the LIFT_STEPS-th under the share.
+  const tail = [12, 8, 5, 5, 3, 2]
   const at = tail.findIndex((s) => wheelLifted(lift, -s))
   assert.equal(at, 2 + LIFT_STEPS - 1)
   // A slow gesture all the way (never fast): only the events stopping lets it go.
-  const slow = { peak: 0, slow: 0 }
+  const slow = { peak: 0, slow: 0, prev: 0 }
   for (const s of [2, 3, 1, 1, 1, 1]) assert.equal(wheelLifted(slow, s), false)
-  assert.equal(wheelAgain(3, 2), false)
-  assert.equal(wheelAgain(3, 7), true)
-  assert.equal(wheelAgain(1, 3), false, "the tail's jitter")
+  // After the lift: the scroll running out isn't the fingers; a bigger step or one back the other way is.
+  assert.equal(wheelAgain(-3, -2), false)
+  assert.equal(wheelAgain(-3, -3), false)
+  assert.equal(wheelAgain(-3, -5), true)
+  assert.equal(wheelAgain(-3, 2), true, "back the other way")
+  assert.equal(wheelAgain(-3, 1), false, "jitter")
+})
+
+test("a flick's burst counts as WHEEL_STEP_MAX at most", () => {
+  assert.equal(wheelStep({ deltaX: -120, deltaY: 0, deltaMode: 0 }, 300).x, -WHEEL_STEP_MAX)
+  assert.equal(wheelStep({ deltaX: 3, deltaY: 0, deltaMode: 1 }, 300).x, WHEEL_STEP_MAX)
 })
 
 // ------------------------------------------------------------ the real Swipe, in a DOM

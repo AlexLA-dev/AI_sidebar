@@ -170,7 +170,8 @@ export function Swipe({ left, right, enabled = true, children, class: cls = "" }
     // decided (a mostly vertical scroll is the list's, to its end). It's let go when the fingers lift (the steps
     // only shrink then: swipeMath.ts) or when the events stop; what's left of the scroll after that is swallowed.
     // 2.5 (82), the owner: the row ran ahead of the fingers and drifted on instead of settling on Pin, Delete or
-    // back in place.
+    // back in place. 2.5 (83): "now hyper, now not listening": a flick's burst is capped (WHEEL_STEP_MAX), a lift is
+    // only the steps shrinking one after another, and after it any step bigger than the last, or back, moves the row.
     let wheel: { x: number; y: number; base: number; decided: boolean; dropped: boolean; lift: Lift; settled: boolean; last: number } | null = null
     let wheelTimer: ReturnType<typeof setTimeout> | undefined
     const wheelDone = () => {
@@ -186,7 +187,7 @@ export function Swipe({ left, right, enabled = true, children, class: cls = "" }
       const sideways = Math.abs(e.deltaX) > Math.abs(e.deltaY)
       if (wheel?.settled) {
         if (!wheelAgain(wheel.last, step.x)) {
-          wheel.last = Math.abs(step.x)
+          if (step.x) wheel.last = step.x
           clearTimeout(wheelTimer)
           wheelTimer = setTimeout(wheelDone, WHEEL_IDLE)
           if (sideways) e.preventDefault()
@@ -198,7 +199,7 @@ export function Swipe({ left, right, enabled = true, children, class: cls = "" }
         if (ownsSideways(e.target as Element, row)) return
         const sel = document.getSelection()
         if (sel && !sel.isCollapsed && row.contains(sel.anchorNode)) return
-        wheel = { x: 0, y: 0, base: open * openOffset(edge()), decided: false, dropped: false, lift: { peak: 0, slow: 0 }, settled: false, last: 0 }
+        wheel = { x: 0, y: 0, base: open * openOffset(edge()), decided: false, dropped: false, lift: { peak: 0, slow: 0, prev: 0 }, settled: false, last: 0 }
       }
       clearTimeout(wheelTimer)
       wheelTimer = setTimeout(wheelDone, WHEEL_IDLE)
@@ -220,7 +221,7 @@ export function Swipe({ left, right, enabled = true, children, class: cls = "" }
       place(swipeOffset(wheel.base, wheel.x * WHEEL_GAIN, row.clientWidth, sides()))
       if (wheelLifted(wheel.lift, step.x)) {
         wheel.settled = true
-        wheel.last = Math.abs(step.x)
+        wheel.last = step.x
         row.removeAttribute("data-dragging")
         settle()
       }

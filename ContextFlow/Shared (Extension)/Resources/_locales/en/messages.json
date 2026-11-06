@@ -191,6 +191,39 @@
  "uxDeletedChat": {
   "message": "Chat deleted"
  },
+ "trashTitle": {
+  "message": "Recently Deleted"
+ },
+ "trashRow": {
+  "message": "Recently Deleted · {0}"
+ },
+ "trashNote": {
+  "message": "Chats are available here for 30 days. After that time, they will be permanently deleted."
+ },
+ "trashRestore": {
+  "message": "Restore"
+ },
+ "trashDeleteNow": {
+  "message": "Delete Now"
+ },
+ "trashDeleteAll": {
+  "message": "Delete All"
+ },
+ "trashDeleteAllAsk": {
+  "message": "Permanently delete every chat in Recently Deleted? This action can't be undone."
+ },
+ "trashDays_one": {
+  "message": "{0} day"
+ },
+ "trashDays_few": {
+  "message": "{0} days"
+ },
+ "trashDays_many": {
+  "message": "{0} days"
+ },
+ "trashDays_other": {
+  "message": "{0} days"
+ },
  "uxPinned": {
   "message": "Pinned"
  },

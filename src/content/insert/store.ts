@@ -183,7 +183,8 @@ export interface LastReply {
 /** The latest answer or note in the user's chats (the newest chat first). */
 export async function lastReply(): Promise<LastReply | null> {
   const threads = (await get<Threads>(STORAGE.threads)) ?? {}
-  const list = Object.values(threads).filter((t) => !t.deleted && t.m?.length).sort((a, b) => (b.a ?? b.u) - (a.a ?? a.u))
+  // Not from a chat in Recently Deleted (2.5 (83)).
+  const list = Object.values(threads).filter((t) => !t.deleted && t.trashed === undefined && t.m?.length).sort((a, b) => (b.a ?? b.u) - (a.a ?? a.u))
   for (const t of list.slice(0, 3)) {
     for (let i = t.m.length - 1; i >= 0; i--) {
       const m = t.m[i]
