@@ -91,7 +91,7 @@ async function session(name) {
   await new Promise((r) => setTimeout(r, 300))
   for (const p of ctx.pages()) if (p.url().startsWith("chrome-extension://")) await p.close()
   const page = await ctx.newPage()
-  return { ctx, sw, page, d }
+  return { ctx, sw, page, d, k: name }
 }
 
 // A clean first session: no chats; no consent card, tour or first-time hints (they would cover the panel);
@@ -150,12 +150,13 @@ async function chip(s, label) {
 
 const shot = (s, file) => s.page.screenshot({ path: `${outDir}/${file}.png` })
 
-// Saves the CSS-pixel rectangles of elements (the last match of each, inside the panel) for zoomed call-outs.
+// Saves the CSS-pixel rectangles of elements (the last match of each, inside the panel; "@…" on the page itself)
+// for zoomed call-outs.
 async function rect(s, file, selectors) {
   const rects = await s.page.evaluate((sels) => {
     const root = document.querySelector("contextflow-root").shadowRoot
     return Object.fromEntries(sels.map((sel) => {
-      const els = root.querySelectorAll(sel)
+      const els = sel.startsWith("@") ? document.querySelectorAll(sel.slice(1)) : root.querySelectorAll(sel)
       const b = els[els.length - 1]?.getBoundingClientRect()
       return [sel, b ? { x: b.x, y: b.y, width: b.width, height: b.height } : null]
     }))
@@ -431,16 +432,19 @@ async function insertMenu(s, copied) {
   await s.page.evaluate((top) => {
     document.body.style.paddingBottom = "900px"
     const r = document.getElementById("reply")
-    // Copied on iPhone: the box at the top with a little room above it (the store page's plaques sit there, not
-    // over the letter). Elsewhere the box in the middle, the letter above it in view.
+    // Copied on iPhone and iPad: the box at the top, its list under it, free page below for the store page's
+    // plaques. Elsewhere the box in the middle, the letter above it in view.
     r.scrollIntoView({ block: top ? "start" : "center" })
     window.scrollBy(0, top ? -12 : 60)
-  }, copied && s.d.touch && s.d.viewport.width < 600)
+  }, copied && s.d.touch)
   await s.page.waitForTimeout(300)
   await press(s, s.page.locator("#reply"))
   if (s.d.touch) {
     await s.page.locator(".cf-qi-btn").waitFor()
     await s.page.waitForTimeout(400)
+    // The button hides once its list is open: the moment before, the field with the button by it, for the
+    // store page's card over the field (Copied, iPhone and iPad).
+    if (copied) { await shot(s, `${s.k}-copiedbtn`); await rect(s, `${s.k}-copiedbtn`, ["@#reply", ".cf-qi-btn"]) }
     await press(s, s.page.locator(".cf-qi-btn"))
   } else {
     // A Mac has no button by the field: ⌃⇧V (the manifest's quick_insert command) opens the list at the caret.

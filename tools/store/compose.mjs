@@ -182,6 +182,11 @@ const TRIO = (k) => ({ name: "devices", trio: { mac: "mac-notes", ipad: "ipad-no
 // The 2.5 product page (10 screens, the same on every device): reading, replies and shopping first (the three
 // the search results show), then copied text, reminders, the selection, pins and highlights, the same chat on every
 // device, and the two Pro screens. Each caption is what the screen under it shows.
+// Shot 04's plaques on iPhone and iPad: under the field and its button, above the list (tuned to the captures).
+const COPIED_PILLS = {
+  iphone: [{ text: COPY.qiButton, icon: "✦", right: 50, y: 1300 }, { text: COPY.erased, icon: "⏱", right: 50, y: 1440 }],
+  ipad: [{ text: COPY.qiButton, icon: "✦", right: 360, y: 1250 }, { text: COPY.erased, icon: "⏱", right: 360, y: 1420 }]
+}
 const SETS_25 = Object.fromEntries(["iphone", "ipad", "mac"].map((k) => {
   const P = { iphone: { x: 50, y: 830, x2: { right: 50, y: 970 } }, ipad: { x: 70, y: 2360, x2: { x: 70, y: 2520 } }, mac: { x: 110, y: 1400, x2: { x: 110, y: 1560 } } }[k]
   const at = { x: P.x, y: P.y }
@@ -194,9 +199,15 @@ const SETS_25 = Object.fromEntries(["iphone", "ipad", "mac"].map((k) => {
     { name: "watch", shot: `${k}-watch`, caption: COPY.watch, host: COPY.shop25Host,
       callout: { select: [".cf-later-text"], pad: 16, mag: mag(1.45, 1.8, 2.0), maxW: mag(1190, 1400, 1250) },
       pills: [{ text: COPY.alsoStock, icon: "👁", ...at }] },
-    { name: "copied", shot: `${k}-copied`, caption: COPY.copied, host: COPY.mailHost,
-      // A Mac has no button by the field: the list opens with ⌃⇧V.
-      pills: [k === "mac" ? { text: COPY.qiShortcut, icon: "⌨", ...at } : { text: COPY.qiButton, icon: "✦", ...at }, { text: COPY.erased, icon: "⏱", ...P.x2 }] },
+    // iPhone and iPad: the button by the field hides while its list is open, so a card over the field shows the
+    // capture from the moment before (the field and the button), and the plaques sit in the free space between the
+    // field and the list. A Mac has no button by the field: the list opens with ⌃⇧V.
+    k === "mac"
+      ? { name: "copied", shot: `${k}-copied`, caption: COPY.copied, host: COPY.mailHost,
+          pills: [{ text: COPY.qiShortcut, icon: "⌨", ...at }, { text: COPY.erased, icon: "⏱", ...P.x2 }] }
+      : { name: "copied", shot: `${k}-copied`, caption: COPY.copied, host: COPY.mailHost,
+          callout: { from: `${k}-copiedbtn`, select: ["@#reply", ".cf-qi-btn"], pad: 14, mag: mag(1.04, 1.03), maxW: mag(1230, 1900), radius: 14 },
+          pills: COPIED_PILLS[k] },
     { name: "remind", shot: `${k}-remind`, caption: COPY.remind,
       callout: { select: [".cf-sheet"], pad: 6, mag: mag(1.15, 1.5, 1.7), maxW: mag(1190, 1400, 1250) } },
     { name: "select", shot: `${k}-selask`, caption: COPY.selAsk, callout: { select: [".cf-bubble"], pad: 0, mag: mag(1.4, 1.7, 2.1), maxW: mag(1150, 1300, 1300), radius: mag(16, 16, 12) } },
@@ -528,6 +539,8 @@ function trio(kind, shots) {
 // Magnified copy of the elements that prove the caption, centred over where they
 // sit on the device (cropped from the same capture).
 function callout(kind, shot, spec, dark) {
+  // `from`: another capture of the same scene (a moment earlier), cropped at the same place on the screen.
+  shot = spec.from ?? shot
   const meta = JSON.parse(readFileSync(join(RAW, shot + ".json"), "utf8"))
   const rects = spec.select.map((sel) => meta[sel]).filter(Boolean)
   if (rects.length === 0) throw new Error(`${shot}: none of ${spec.select.join(", ")} was captured`)
