@@ -4,7 +4,7 @@
   "purpose": "Appropriate for All Users",
   "priority": "High",
   "in_app_purchase_required": false,
-  "deep_link": null,
+  "deep_link": "contextflow://templates",
   "primary_language": "en-US",
   "territories": "all",
   "start": "when 2.5 is out on the App Store",

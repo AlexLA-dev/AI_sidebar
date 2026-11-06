@@ -12,7 +12,7 @@
 | Purpose | Appropriate for All Users |
 | Priority | High (других событий нет) |
 | In-App Purchase required | No: быстрая вставка есть и бесплатно |
-| Deep link | нет: «Open» открывает приложение на главном экране |
+| Deep link | contextflow://templates: «Open» открывает вкладку «Шаблоны» (Apple требует ссылку при подаче) |
 | Primary language | en-US |
 | Страны | все |
 | Начало | когда 2.5 выйдет в App Store |
