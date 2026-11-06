@@ -4,7 +4,7 @@
 // iCloud so they continue on their other devices.
 
 import { sortedJson } from "../shared/stored"
-import { applyAppChanges, applyRemote, markMirrored, markSent, mirrorChanges, pendingChanges, type CloudChange, type Threads } from "../shared/threads"
+import { applyAppChanges, applyRemote, markMirrored, markSent, mirrorChanges, pendingChanges, purgeTrash, type CloudChange, type Threads } from "../shared/threads"
 import { DEFAULT_SETTINGS, STORAGE, type Settings } from "../shared/types"
 import { callNative } from "./native"
 
@@ -110,14 +110,17 @@ export function syncThreads(): Promise<boolean> {
 async function syncOnce(): Promise<boolean> {
   if (!(await syncEnabled())) return false
   const stored = await chrome.storage.local.get([STORAGE.threads, STORAGE.syncedThreads, STORAGE.syncToken])
-  const threads = (stored[STORAGE.threads] as Threads | undefined) ?? {}
   const synced = (stored[STORAGE.syncedThreads] as Record<string, number> | undefined) ?? {}
+  // Chats in Recently Deleted for 30 days go for good, their deletions with this sync (2.5 (83)).
+  const at = Date.now()
+  const threads = purgeTrash((stored[STORAGE.threads] as Threads | undefined) ?? {}, synced, at).threads
   const sent = pendingChanges(threads, synced)
   const result = await callNative<CloudSync>("syncThreads", { token: stored[STORAGE.syncToken] ?? null, changes: sent }, 20_000)
   if (!result?.available) return false // not in Safari, no iCloud account, or offline
 
-  // Threads may have changed here while iCloud answered: apply to the current copy.
-  const now = (await chrome.storage.local.get(STORAGE.threads))[STORAGE.threads] as Threads | undefined ?? {}
+  // Threads may have changed here while iCloud answered: apply to the current copy (purged the same way, so the
+  // deletions just sent are forgotten, not sent again as chats).
+  const now = purgeTrash((await chrome.storage.local.get(STORAGE.threads))[STORAGE.threads] as Threads | undefined ?? {}, synced, at).threads
   const afterSend = markSent(now, synced, sent)
   const merged = applyRemote(afterSend.threads, afterSend.synced, result.changed ?? [], result.deleted ?? [])
   // Changed here during the sync, or newer here than iCloud's copy: send it right away.

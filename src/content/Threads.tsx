@@ -39,6 +39,9 @@ interface Props {
   onGrouped: (on: boolean) => void
   // iPhone and iPad (2.5): swipe a chat left to delete it, right to pin it.
   touch?: boolean
+  // Recently Deleted (2.5 (83)): how many chats are there (its row ends the list when there are some), and opening it.
+  trashCount?: number
+  onOpenTrash?: () => void
 }
 
 /** "3 pages", in the UI language's plural form. */
@@ -156,6 +159,27 @@ function AskHistoryRow({ pro, onOpen }: { pro: boolean; onOpen: () => void }): V
   )
 }
 
+/** The row at the end of the list: Recently Deleted and how many chats are there (2.5 (83)). */
+function TrashRow({ count, onOpen }: { count: number; onOpen: () => void }): VNode {
+  return (
+    <div class="cf-thread cf-trash-row" role="listitem">
+      <div
+        class="cf-thread-main"
+        role="button"
+        tabIndex={0}
+        onClick={onOpen}
+        onKeyDown={(e) => {
+          if (e.key !== "Enter" && e.key !== " ") return
+          e.preventDefault()
+          onOpen()
+        }}
+      >
+        <span class="cf-thread-title"><Icon.Trash /> {t("trashRow", count)}</span>
+      </div>
+    </div>
+  )
+}
+
 /** The chat's name in place, being edited: Enter (or leaving the field) keeps it, Escape doesn't. */
 function NameField({ thread, onDone }: { thread: Thread; onDone: (name: string | null) => void }): VNode {
   const ref = useRef<HTMLInputElement>(null)
@@ -212,7 +236,7 @@ interface Drag {
  * start a new one. Pinned chats come first and are reordered by dragging their handle; a chat that
  * was on several pages lists them (each opens its page).
  */
-export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onNew, onPin, onMove, onOpenPage, pro, onAskHistory, onFind, onUpsell, findError, findWaiting, onTags, grouped, onGrouped, touch = false }: Props): VNode {
+export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onNew, onPin, onMove, onOpenPage, pro, onAskHistory, onFind, onUpsell, findError, findWaiting, onTags, grouped, onGrouped, touch = false, trashCount = 0, onOpenTrash }: Props): VNode {
   const [query, setQuery] = useState("")
   // Only the chats with this tag (in the list and in search results).
   const [tagFilter, setTagFilter] = useState<string | null>(null)
@@ -284,6 +308,8 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
     return () => root.removeEventListener("pointerdown", close, true)
   }, [pagesOf])
 
+  const trashRow = trashCount > 0 && onOpenTrash && <TrashRow count={trashCount} onOpen={onOpenTrash} />
+
   if (threads.length === 0) {
     return (
       <div class="cf-threads">
@@ -292,6 +318,7 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
           <p>{t("chatsEmpty")}</p>
           <button type="button" class="cf-primary" onClick={onNew}><Icon.Plus /> {t("newChat")}</button>
         </div>
+        {trashRow && <div role="list">{trashRow}</div>}
       </div>
     )
   }
@@ -561,6 +588,7 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
             </div>
           ))
         : shownThreads.map((thread, index) => row(thread, index, ""))}
+      {!filter && trashRow}
     </div>
   )
 }
