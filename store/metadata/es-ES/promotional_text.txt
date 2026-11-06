@@ -1,1 +1,1 @@
-Nuevo: todos los chats en la app, con búsqueda y etiquetas. Selecciona texto en Safari para preguntar o guardarlo como nota. Con Pro, pregunta también por vídeos y PDF.
+Nuevo: plantillas que rellenan nombres y fechas, lo que has copiado a un toque en cualquier campo y un aviso cuando cambia un precio.

@@ -1,1 +1,1 @@
-New: every chat in the app, with search and tags. Select text to ask about it or keep it as a note, right in Safari. With Pro, ask about videos and PDFs too.
+New: templates that fill in names and dates, what you copied in any field, and a notification when a price changes.

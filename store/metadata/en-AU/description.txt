@@ -1,42 +1,43 @@
-Stop pasting articles into a chatbot. Ask AI about any page and take notes as you read, without leaving Safari. The chat follows you from page to page, and the same chat is on your iPhone, iPad and Mac. Summarise, pull out the key facts or translate the whole page without copying or switching apps.
+Stop pasting articles into a chatbot. Ask AI about any page, reply with templates that fill themselves and get a notification when a price changes, without leaving Safari. The chat follows you from page to page, and the same chat is on your iPhone, iPad and Mac.
+
+NEW IN 2.5
+• Templates for the replies you write again and again: ContextFlow fills in the name and the date from the page or the open conversation. Check it, then send
+• Tap a text field and the floating ContextFlow button appears next to it: what you copied in Safari, your templates and the last answer are one tap away. Copied text stays on your device for 24 hours
+• Waiting for a price to drop or an item to come back in stock? Select it and tap the eye: ContextFlow checks while you use Safari and tells you when it changes
+• Want to come back to a page later? Tap the bell and pick a time
+• Highlight the lines that matter in an answer, and pin answers to the top of the chat
+• Deleted a chat by mistake? It stays in Recently Deleted for 30 days
 
 WHAT YOU CAN DO
-• Summarise any article, review, thread or product page in seconds
-• Get the key takeaways, numbers and dates at a glance
-• Ask your own questions: “What's the catch?”, “Is this worth buying?”, “What should I do next?”
-• Explain jargon and complex topics in simple words
-• Translate pages into your language
-• Select text to ask your own question about just that part, or keep it as a note
-• Google answers: fresh facts from Google Search, with numbered sources you can open
+• Summarise any article, review, thread or product page, or pull out the key facts
+• Ask your own questions: “What's the catch?”, “Is this worth buying?”
+• Explain jargon in simple words, or translate the page into your language
+• Select text to ask about just that part, or keep it as a note
+• Google answers: fresh facts from Google Search, with sources you can open
 
 NOTES AND CHATS
-• Notes: swipe the send button up or down (on a Mac, scroll over it) to write a note instead of asking. It stays in the chat next to its page and uses no answers
-• One chat follows you from site to site until you start a new one, and each page in it shows the day you were there
-• Whole chat: switch it on, and the answer takes in every message, your notes and all the pages of the chat
-• Tags: tag chats, answers and notes, then filter by tag or group chats into folders
-• Search your chats by any word, in Safari and in the app
-• Pin the important chats, rename them and see every page a chat was on — tap one to go back to it
-• Copy, share or tag any answer or note. Share a whole chat or tick just the messages you need; their links and sources go with them
+• Notes: swipe the send button up or down (on a Mac, scroll over it) to write a note instead of asking. Notes use no answers
+• Whole chat: the answer takes in every message, your notes and all the pages of the chat
+• Tags, folders and search across your chats
+• Copy, share or tag any answer or note, or share the whole chat
 
 ALL YOUR CHATS IN THE APP
-• The ContextFlow app on iPhone, iPad and Mac has every chat from Safari
-• Read any chat, ask a question about it or add a note, then carry on in Safari
-• Chats sync between your iPhone, iPad and Mac through iCloud
+• The ContextFlow app on iPhone, iPad and Mac has every chat from Safari: read it, ask about it or add a note
+• Chats and templates sync between your devices through iCloud
 
 MADE FOR SAFARI ON IPHONE, IPAD AND MAC
 • iPhone and iPad: tap the floating ContextFlow button on any page, or Ask AI on selected text
 • Mac: a sidebar that opens from the toolbar, the floating button or Control-Shift-E
-• A short tour on first launch, and Tips in the app with a short video for each feature
-• Light and dark mode, adjustable text size, available in 11 languages
+• Tips with short clips, light and dark mode, 11 languages
 
 PRIVATE BY DESIGN
 • No account, no sign-up, no tracking
-• A page is read only when you ask about it
-• Page text is never stored on our servers; your chats stay on your devices and sync through your iCloud, end-to-end encrypted. You can turn sync off in Settings
+• A page is read only when you ask about it or watch it
+• Page text is never stored on our servers; your chats stay on your devices and sync through your iCloud, end-to-end encrypted
 
 FREE AND PRO
-• Free: answers every day, no sign-up. They use the text of the page; if the page has a video or a PDF, the answer tells you it skipped it. When your answers run out, you'll see exactly when new ones arrive, and notes stay free and unlimited
-• Pro: plenty of answers, deeper and more detailed, questions about videos and PDFs on the page, AI search that finds a chat from your own description, and “Ask your chats” that answers from all of them — on all your Apple devices
+• Free: answers every day, a few template fills a day, and notes with no limit. Answers use the text of the page; if it has a video or a PDF, the answer says it skipped it
+• Pro: plenty of answers, deeper and more detailed, questions about videos and PDFs, template fills with no limit, more pages watched at once, suggestions that sort new answers and notes into your chats and tags, AI search and “Ask your chats”
 • Own key: unlimited answers with your own OpenAI or Claude API key
 
 GET STARTED IN A MINUTE

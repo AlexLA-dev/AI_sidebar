@@ -1,12 +1,14 @@
-Novedades de ContextFlow 2.4:
-• Todos tus chats en la app, en iPhone, iPad y Mac: búscalos, haz una pregunta sobre cualquier chat o añádele una nota
-• Etiquetas: etiqueta chats, respuestas y notas, filtra por etiqueta o agrupa los chats en carpetas. Funciona en Safari y en la app
-• Bajo cada respuesta y nota: Copiar, Compartir y sus etiquetas. Con «Compartir chat» eliges qué mensajes enviar
-• Cada página del chat muestra ahora el día en que estuviste en ella
-• ¿Has seleccionado texto? Haz tu propia pregunta sobre él o guárdalo como nota en el chat
-• Con Pro, ContextFlow ahora también lee los vídeos y PDF de la página, la búsqueda con IA encuentra un chat a partir de tu descripción y «Pregunta a tus chats» responde a partir de todos ellos. Sin Pro, la respuesta se basa en el texto de la página y te avisa si ha omitido un vídeo o un PDF
-• Configuración más fácil: la app te muestra paso a paso cómo activar ContextFlow en Ajustes y te lo recuerda si no has terminado
-• ¿Sin respuestas gratis? Ves exactamente cuándo vuelven, las notas siguen siendo gratis e ilimitadas, y Pro tiene un 50 % de descuento el primer mes
-• ¿Usas tu propia clave de API? Ahora puedes pasar a Pro directamente desde la app
-• En el Mac, los menús de la app ahora aparecen en tu idioma
-• Correcciones y mejoras
+Novedades de ContextFlow 2.5:
+• ¿Escribes las mismas respuestas una y otra vez? Guarda una como plantilla. ContextFlow marca lo que cambia, como un nombre o una fecha, y lo rellena con la página o la conversación abierta al insertarla. Revísalo y envíalo. En Gratis tienes unos cuantos rellenados al día; con Pro, sin límite
+• Toca un campo de texto y a su lado aparece el botón flotante de ContextFlow: lo que has copiado en Safari, tus plantillas y la última respuesta, a un toque. También funciona en los mensajes de las redes sociales y en las ventanas que se abren sobre la página
+• Lo copiado se queda en tu dispositivo durante 24 horas. No se guarda nada de los campos de contraseñas ni de tarjetas
+• Las respuestas y las notas tienen un botón nuevo: «Insertar en el campo»
+• En el Mac o en el iPad con teclado, escribe / y unas palabras de una plantilla en cualquier campo y pulsa Tab. Control-Shift-V abre la lista completa
+• ¿Esperas a que baje un precio o a que algo vuelva a estar disponible? Selecciona el precio o la línea de disponibilidad y toca el ojo. ContextFlow lo comprueba mientras usas Safari y te envía una notificación cuando cambie. Para toda la página: … → «Vigilar esta página»
+• ¿Quieres volver a una página más tarde? Selecciona una línea y toca la campana, o ve a … → «Recordarme esta página», y elige cuándo. También puedes poner un recordatorio en cualquier respuesta o nota
+• Selecciona una línea de una respuesta y toca «Resaltar». Las siguientes respuestas de ese chat tienen en cuenta lo que has resaltado
+• En el iPhone y el iPad, desliza una respuesta o una nota a la derecha para fijarla y a la izquierda para eliminarla. Las fijadas quedan en una barra arriba del chat
+• ¿Has eliminado un chat por error? Se queda 30 días en «Eliminados recientemente»
+• Con Pro, ContextFlow puede sugerir a qué chat va una respuesta o nota nueva, y una de tus etiquetas para ella. Esto lo activas tú
+• Los Consejos ahora están agrupados por tarea, con vídeos cortos, en la app y en el panel
+• Correcciones y mejoras: los chats ya no cambian de sitio en la lista

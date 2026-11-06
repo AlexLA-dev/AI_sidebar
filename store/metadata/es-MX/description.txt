@@ -1,46 +1,48 @@
-Olvídate de pegar artículos en un chatbot. Pregúntale a la IA sobre cualquier página y toma notas mientras lees, sin salir de Safari. El chat te sigue de página en página, y es el mismo en tu iPhone, iPad y Mac. Resume, extrae los datos clave o traduce la página completa, sin copiar ni cambiar de app.
+Olvídate de pegar artículos en un chatbot. Pregúntale a la IA sobre cualquier página, responde con plantillas que se rellenan solas y recibe un aviso cuando cambie un precio, sin salir de Safari. El chat te sigue de página en página, y es el mismo en iPhone, iPad y Mac.
+
+NOVEDADES DE LA 2.5
+• Plantillas para las respuestas que escribes seguido: ContextFlow rellena el nombre y la fecha con la página o la conversación abierta. Revísalo y envíalo
+• Toca un campo de texto y a su lado aparece el botón flotante de ContextFlow: lo que copiaste en Safari, tus plantillas y la última respuesta, a un toque. Lo copiado se queda en tu dispositivo 24 horas
+• ¿Esperas a que baje un precio o a que algo vuelva a estar disponible? Selecciónalo y toca el ojo: ContextFlow lo revisa mientras usas Safari y te avisa cuando cambie
+• ¿Quieres volver a una página más tarde? Toca la campana y elige cuándo
+• Resalta las líneas importantes de una respuesta y fija respuestas arriba del chat
+• ¿Eliminaste un chat por error? Se queda 30 días en “Eliminados recientemente”
 
 QUÉ PUEDES HACER
-• Resumir cualquier artículo, reseña, hilo o página de producto en segundos
-• Ver de un vistazo las ideas clave, las cifras y las fechas
-• Hacer tus propias preguntas: “¿Cuál es la trampa?”, “¿Vale la pena comprarlo?”, “¿Qué debo hacer ahora?”
-• Explicar términos técnicos y temas complejos con palabras sencillas
-• Traducir páginas a tu idioma
-• Seleccionar texto para hacer tu propia pregunta solo sobre esa parte, o guardarlo como nota
-• Respuestas de Google: datos actuales de la Búsqueda de Google, con fuentes numeradas que puedes abrir
+• Resumir cualquier artículo, reseña, hilo o página de producto, o extraer los datos clave
+• Hacer tus propias preguntas: “¿Cuál es la trampa?”, “¿Vale la pena comprarlo?”
+• Explicar tecnicismos con palabras sencillas o traducir la página a tu idioma
+• Seleccionar texto para preguntar solo sobre esa parte, o guardarlo como nota
+• Respuestas de Google: datos actuales de la Búsqueda de Google, con fuentes que puedes abrir
 
 NOTAS Y CHATS
-• Notas: desliza el botón de enviar hacia arriba o hacia abajo (en la Mac, desplázate sobre él) para escribir una nota en lugar de preguntar. Se queda en el chat junto a su página y no gasta respuestas
-• Un mismo chat te sigue de un sitio a otro hasta que empiezas uno nuevo, y cada página muestra el día de tu visita
-• Todo el chat: actívalo y la respuesta toma en cuenta todos los mensajes, tus notas y todas las páginas del chat
-• Etiquetas: etiqueta chats, respuestas y notas, filtra por etiqueta o agrupa los chats en carpetas
-• Busca en tus chats cualquier palabra, en Safari y en la app
-• Copia, comparte o etiqueta cualquier respuesta o nota. Comparte un chat completo o solo los mensajes que necesitas; sus enlaces y fuentes van con ellos
+• Notas: desliza el botón de enviar arriba o abajo (en la Mac, desplázate sobre él) para escribir una nota en vez de preguntar. Las notas no gastan respuestas
+• Todo el chat: la respuesta toma en cuenta cada mensaje, tus notas y todas las páginas del chat
+• Etiquetas, carpetas y búsqueda en tus chats
+• Copia, comparte o etiqueta cualquier respuesta o nota, o comparte el chat completo
 
 TODOS TUS CHATS EN LA APP
-• La app ContextFlow en tu iPhone, iPad y Mac tiene todos los chats de Safari
-• Lee un chat, pregunta sobre él o agrega una nota, y continúa en Safari
-• Los chats se sincronizan entre tu iPhone, iPad y Mac con iCloud
+• La app ContextFlow para iPhone, iPad y Mac tiene todos los chats de Safari: léelos, pregunta sobre ellos o agrega una nota
+• Chats y plantillas se sincronizan entre tus dispositivos con iCloud
 
 HECHO PARA SAFARI EN IPHONE, IPAD Y MAC
 • iPhone y iPad: toca el botón flotante de ContextFlow en cualquier página, o “Preguntar a la IA” sobre el texto seleccionado
 • Mac: una barra lateral que se abre desde la barra de herramientas, el botón flotante o con Control-Shift-E
-• Un recorrido breve la primera vez y Consejos en la app con un video corto de cada función
-• Modo claro y oscuro, tamaño de texto ajustable, disponible en 11 idiomas
+• Consejos con videos cortos, modo claro y oscuro, 11 idiomas
 
 PRIVACIDAD DESDE EL DISEÑO
 • Sin cuenta, sin registro, sin rastreo
-• Una página solo se lee cuando preguntas sobre ella
-• El texto de las páginas nunca se almacena en nuestros servidores; tus chats se quedan en tus dispositivos y se sincronizan con cifrado de extremo a extremo a través de tu iCloud. Puedes desactivar la sincronización en Configuración
+• Una página solo se lee cuando preguntas sobre ella o la vigilas
+• El texto de las páginas nunca se guarda en nuestros servidores; tus chats se quedan en tus dispositivos y se sincronizan por tu iCloud con cifrado de extremo a extremo
 
 GRATIS Y PRO
-• Gratis: respuestas todos los días, sin registro. Usan el texto de la página; si hay un video o un PDF, la respuesta te avisa que lo omitió. Cuando se terminan, ves exactamente cuándo llegan las nuevas, y las notas siguen siendo gratis y sin límite
-• Pro: muchas respuestas, más profundas y detalladas, preguntas sobre videos y PDF de la página, búsqueda con IA que encuentra un chat por tu descripción y “Pregunta a tus chats”, que responde con todos ellos, en todos tus dispositivos Apple
-• Clave propia: respuestas ilimitadas con tu propia clave de API de OpenAI o Claude
+• Gratis: respuestas cada día, algunos rellenados de plantillas al día y notas sin límite. Las respuestas usan el texto de la página; si hay un video o un PDF, te avisan que lo omitieron
+• Pro: muchas respuestas, más profundas y detalladas, preguntas sobre videos y PDF, rellenado de plantillas sin límite, más páginas vigiladas a la vez, sugerencias que acomodan respuestas y notas nuevas en tus chats y etiquetas, búsqueda con IA y “Pregunta a tus chats”
+• Clave propia: respuestas ilimitadas con tu clave de API de OpenAI o Claude
 
 EMPIEZA EN UN MINUTO
 1. Abre la app ContextFlow: te muestra paso a paso cómo activar la extensión en Safari.
-2. Abre cualquier sitio web y toca el botón de ContextFlow (en la Mac, haz clic en el ícono de ContextFlow en la barra de herramientas).
+2. Abre cualquier sitio y toca el botón de ContextFlow (en la Mac, haz clic en su ícono en la barra de herramientas).
 
 La IA puede cometer errores. Verifica la información importante.
 

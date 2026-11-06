@@ -1,12 +1,14 @@
-Novidades do ContextFlow 2.4:
-• Todas as suas conversas no app, no iPhone, iPad e Mac: busque nelas, faça uma pergunta sobre qualquer conversa ou adicione uma nota a ela
-• Tags: marque conversas, respostas e notas com tags, depois filtre por tag ou agrupe as conversas em pastas. Funciona no Safari e no app
-• Embaixo de cada resposta e nota: Copiar, Compartilhar e as tags dela. Em “Compartilhar conversa” você escolhe quais mensagens enviar
-• Cada página da conversa agora mostra o dia em que você esteve nela
-• Selecionou um texto? Faça sua própria pergunta sobre ele ou guarde-o como nota na conversa
-• Com o Pro, o ContextFlow agora também lê vídeos e PDFs da página, a Busca com IA encontra uma conversa pela sua descrição e “Pergunte às suas conversas” responde com base em todas elas. Sem o Pro, a resposta usa o texto da página e avisa quando pulou um vídeo ou PDF
-• Configuração mais fácil: o app mostra passo a passo como ativar o ContextFlow em Ajustes e lembra você se a configuração não terminar
-• Acabaram as respostas grátis? Você vê exatamente quando elas voltam, as notas continuam grátis e ilimitadas, e o Pro tem 50% de desconto no primeiro mês
-• Usa sua própria chave de API? Agora dá para mudar para o Pro direto no app
-• No Mac, os menus do app agora aparecem no seu idioma
-• Correções e melhorias
+Novidades do ContextFlow 2.5:
+• Escreve as mesmas respostas toda hora? Salve uma como modelo. O ContextFlow marca o que muda, como um nome ou uma data, e preenche isso pela página ou pela conversa aberta quando você insere o modelo. Confira e envie. No Grátis há alguns preenchimentos por dia; no Pro, sem limite
+• Toque em um campo de texto e o botão flutuante do ContextFlow aparece ao lado: o que você copiou no Safari, seus modelos e a última resposta ficam a um toque. Também funciona em mensagens nas redes sociais e em janelas que abrem sobre a página
+• O texto copiado fica no seu dispositivo por 24 horas. Nada é guardado de campos de senha ou de cartão
+• Respostas e notas têm um botão novo: “Inserir no campo”
+• No Mac ou no iPad com teclado, digite / e algumas palavras de um modelo em qualquer campo e pressione Tab. Control-Shift-V abre a lista toda
+• Esperando um preço baixar ou um produto voltar ao estoque? Selecione o preço ou a linha do estoque e toque no olho. O ContextFlow verifica enquanto você usa o Safari e manda uma notificação quando mudar. Para a página toda: … → “Acompanhar esta página”
+• Quer voltar a uma página mais tarde? Selecione uma linha e toque no sino, ou vá em … → “Me lembrar desta página” e escolha quando. Qualquer resposta ou nota também pode lembrar você
+• Selecione uma linha em uma resposta e toque em “Destacar”. As próximas respostas nessa conversa levam seus destaques em conta
+• No iPhone e no iPad, deslize uma resposta ou nota para a direita para fixá-la e para a esquerda para apagá-la. As fixadas ficam em uma barra no topo da conversa
+• Apagou uma conversa sem querer? Ela fica 30 dias em “Apagados Recentemente”
+• Com o Pro, o ContextFlow pode sugerir em qual conversa uma nova resposta ou nota deve ficar e uma das suas tags para ela. Você mesmo ativa isso
+• As dicas agora estão agrupadas por tarefa, com vídeos curtos, no app e no painel
+• Correções e melhorias: as conversas não trocam mais de lugar na lista
