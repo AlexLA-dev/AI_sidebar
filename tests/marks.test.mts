@@ -1,0 +1,95 @@
+import { test } from "node:test"
+import assert from "node:assert/strict"
+import { readFileSync } from "node:fs"
+
+import { addMark, markedContent, markPieces, marksLine, placeMarks, removeMark, starMarks } from "../src/shared/marks.ts"
+
+test("addMark merges overlapping and touching highlights, keeps them in order", () => {
+  const text = "Teams cut long meetings and kept their output."
+  let marks = addMark([], 10, 23, text)
+  assert.deepEqual(marks, [{ s: 10, e: 23, q: "long meetings" }])
+  marks = addMark(marks, 0, 5, text)
+  marks = addMark(marks, 20, 30, text)
+  assert.deepEqual(marks.map((m) => m.q), ["Teams", "long meetings and ke"])
+  assert.deepEqual(removeMark(marks, 0).map((m) => m.q), ["long meetings and ke"])
+  assert.deepEqual(addMark(marks, 5, 5, text), marks)
+})
+
+test("placeMarks keeps highlights that fit and finds moved ones by their text", () => {
+  const before = { s: 6, e: 10, q: "week" }
+  assert.deepEqual(placeMarks([before], "A one week trial"), [{ s: 6, e: 10, q: "week" }])
+  assert.deepEqual(placeMarks([before], "A short four-day week trial"), [{ s: 17, e: 21, q: "week" }])
+  assert.deepEqual(placeMarks([{ s: 0, e: 4, q: "gone" }], "nothing here"), [])
+})
+
+test("markedContent wraps highlights in the Markdown source, across bold, links and list items", () => {
+  const md = "**In short:** a four-day week kept revenue flat.\n\n- **61 companies** cut hours by 20%\n- Read [the study](https://example.com/s) first"
+  assert.equal(markedContent(md, [{ s: 0, e: 0, q: "four-day week kept" }]), "**In short:** a <mark>four-day week kept</mark> revenue flat.\n\n- **61 companies** cut hours by 20%\n- Read [the study](https://example.com/s) first")
+  // Across the bold's closing marks.
+  assert.match(markedContent(md, [{ s: 0, e: 0, q: "61 companies cut hours" }]), /<mark>61 companies\*\* cut hours<\/mark>/)
+  // A link: its label is what's shown.
+  assert.match(markedContent(md, [{ s: 0, e: 0, q: "the study first" }]), /\[<mark>the study\]\(https:\/\/example\.com\/s\) first<\/mark>/)
+  // From one list item into the next (the shown text has no break there).
+  assert.match(markedContent(md, [{ s: 0, e: 0, q: "by 20%Read" }]), /<mark>by 20%\n- Read<\/mark>/)
+  // Not found: left out.
+  assert.equal(markedContent(md, [{ s: 0, e: 0, q: "not in the answer" }]), md)
+  assert.equal(markedContent(md, []), md)
+})
+
+test("markedContent picks the occurrence nearest to where the highlight is shown", () => {
+  const md = "week one, then week two, then week three"
+  const shown = md.length
+  assert.equal(markedContent(md, [{ s: 31, e: 35, q: "week" }], shown), "week one, then week two, then <mark>week</mark> three")
+  assert.equal(markedContent(md, [{ s: 0, e: 4, q: "week" }], shown), "<mark>week</mark> one, then week two, then week three")
+  // Two highlights of the same word don't take the same spot.
+  assert.equal(markedContent(md, [{ s: 0, e: 4, q: "week" }, { s: 15, e: 19, q: "week" }], shown), "<mark>week</mark> one, then <mark>week</mark> two, then week three")
+})
+
+test("starMarks wraps highlights in ** for sharing; marksLine lists them for digests", () => {
+  assert.equal(starMarks("In short: the week works.", [{ s: 3, e: 8, q: "short" }]), "In **short**: the week works.")
+  assert.equal(starMarks("No match", [{ s: 0, e: 3, q: "xyz" }]), "No match")
+  assert.equal(marksLine([{ s: 0, e: 1, q: "fewer  meetings" }, { s: 2, e: 3, q: "focus" }]), "«fewer meetings» · «focus»")
+  assert.equal(marksLine([{ s: 0, e: 1, q: "x".repeat(400) }], 20).length, 20)
+})
+
+test("the model gets an answer's highlights as <mark>; Ask your chats gets a Highlighted line", async () => {
+  const { historyForModel } = await import("../src/shared/conversation.ts")
+  const { chatDigests } = await import("../src/shared/threads.ts")
+  const { hasMarks, systemPrompt } = await import("../src/shared/prompt.ts")
+  const { historyPrompt } = await import("../src/shared/history.ts")
+  const entries = [
+    { role: "user" as const, content: "Summarize", page: { url: "https://a.example/p", title: "A" } },
+    { role: "assistant" as const, content: "Teams cut **long meetings** first.", marks: [{ s: 10, e: 23, q: "long meetings" }] }
+  ]
+  const turns = historyForModel(entries, "https://a.example/p")
+  assert.equal(turns[1].content, "Teams cut **<mark>long meetings</mark>** first.")
+  // The rule about <mark> comes only with highlights: 2.3 and 2.4 clients get the same prompt as before.
+  assert.ok(hasMarks(turns))
+  assert.ok(!hasMarks(historyForModel([entries[0], { ...entries[1], marks: undefined }], "https://a.example/p")))
+  assert.match(systemPrompt(null, "", "en", [], false, true), /<mark>/)
+  assert.doesNotMatch(systemPrompt(null, "", "en"), /<mark>/)
+  const [digest] = chatDigests([{ id: "c1", u: 1, a: 1, m: entries }], { perChat: 2000, perAnswer: 400, total: 4000 })
+  assert.match(digest.text, /\nHighlighted: «long meetings»/)
+  assert.match(historyPrompt([digest], "", "en"), /A "Highlighted:" line/)
+  assert.doesNotMatch(historyPrompt([{ ...digest, text: "Q: hi\nA: hello" }], "", "en"), /Highlighted/)
+})
+
+test("markPieces: a highlight across bold text or a link is pieces side by side, rounded only at its ends", () => {
+  // 2.5 (75): the pieces overlapped by their padding, and the overlap showed as darker yellow stripes.
+  // "a " | "different way" (bold) | " of work" — one highlight from 0 to 22.
+  const placed = [{ s: 0, e: 22, q: "a different way of work" }]
+  assert.deepEqual(markPieces(placed, 0, 2), [{ i: 0, s: 0, e: 2, first: true, last: false }])
+  assert.deepEqual(markPieces(placed, 2, 15), [{ i: 0, s: 0, e: 13, first: false, last: false }])
+  assert.deepEqual(markPieces(placed, 15, 30), [{ i: 0, s: 0, e: 7, first: false, last: true }])
+  // Two highlights in one text node, and nothing outside them.
+  assert.deepEqual(markPieces([{ s: 2, e: 4, q: "xx" }, { s: 6, e: 9, q: "yyy" }], 0, 10).map(({ s, e, first, last }) => [s, e, first, last]), [[2, 4, true, true], [6, 9, true, true]])
+  assert.deepEqual(markPieces(placed, 30, 40), [])
+})
+
+test("the highlight's style has no padding or overlap between its pieces", () => {
+  const css = readFileSync(new URL("../src/content/ux/ux.css", import.meta.url), "utf8")
+  const rule = /mark\.cf-mark \{([^}]*)\}/.exec(css)?.[1] ?? ""
+  assert.match(rule, /padding: 0;/)
+  assert.match(rule, /margin: 0;/)
+  assert.doesNotMatch(rule, /margin: 0 -1px/)
+})

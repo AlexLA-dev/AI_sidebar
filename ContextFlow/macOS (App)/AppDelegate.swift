@@ -4,9 +4,10 @@
 //
 
 import Cocoa
+import UserNotifications
 
 @main
-class AppDelegate: NSObject, NSApplicationDelegate {
+class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate {
 
     func application(_ application: NSApplication, open urls: [URL]) {
         if let url = urls.first {
@@ -20,6 +21,34 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationWillFinishLaunching(_ notification: Notification) {
         localizeMainMenu()
+        // Before launch ends, so a click on a reminder that launched the app reaches us.
+        UNUserNotificationCenter.current().delegate = self
+        // Page watch: this device's watches in Watching, and the notification question when they need it.
+        WatchOpen.start()
+    }
+
+    // A reminder on a message (set here or in the panel): the app opens on that message. A page reminder
+    // (the bell by a selection) opens its page in Safari; its note stays in the chat.
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
+        let info = response.notification.request.content.userInfo
+        // Page watch: "Changed: …" opens its page (WatchOpen).
+        if info["watch"] != nil {
+            await MainActor.run { WatchOpen.handle(info) }
+            return
+        }
+        await MainActor.run { ChatAI.reportUx("ux_remind", info["open"] != nil ? ["action": "opened", "what": "page"] : ["action": "opened"]) }
+        if let open = info["open"] as? String, let page = URL(string: open) {
+            await MainActor.run { _ = NSWorkspace.shared.open(page) }
+            return
+        }
+        guard let link = info["link"] as? String, let url = URL(string: link) else { return }
+        MessageReminders.log("opened \(link)")
+        await MainActor.run { DeepLinkRouter.shared.handle(url) }
+    }
+
+    // While the app is open, a reminder still shows as a banner.
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
+        [.banner, .sound, .list]
     }
 
     /// Main.storyboard's menu bar is in English only; its items take the user's language here.

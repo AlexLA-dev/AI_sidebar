@@ -1,0 +1,445 @@
+// The panel and the app organize chats the same way: the same cases through src/shared (JS) and through
+// ContextFlow/Shared (App)/Organize.swift (built here with tests/organize-parity/main.swift) give the same
+// results. Skipped where there's no Swift compiler.
+import assert from "node:assert/strict"
+import { execFileSync, spawnSync } from "node:child_process"
+import { mkdtempSync } from "node:fs"
+import { tmpdir } from "node:os"
+import { join } from "node:path"
+import { test } from "node:test"
+
+import { entryKey, entryTimes, withPageChanges, type Entry } from "../src/shared/conversation.ts"
+import {
+  embedText, hostOf, judgedTags, judgeText, looksMixed, missingVectors, movesAllowed, organizeConfig, packVector, refusedTags, scoredBlocks,
+  suggestMove, tagCandidates, tagTargets, unpackVector, type TagCandidate, type VectorOf
+} from "../src/shared/organize.ts"
+import { moveEntries, pageBlocks, sweepMoved, undoMove, type Thread, type Threads } from "../src/shared/threads.ts"
+
+const root = new URL("..", import.meta.url).pathname
+const swiftc = spawnSync("which", ["swiftc"]).status === 0
+// The app runs on Apple's Foundation. Linux's (swift-corelibs) has no CoreFoundation functions in scope and reads
+// some JSON numbers a bit off (a rounding tie lands on the other side), so there the test would compare the panel
+// with a runtime the app never uses. It runs on a Mac (npm run check), not on the Linux CI runner.
+const skip = process.platform !== "darwin" ? "the app's Foundation is Apple's: run on a Mac" : !swiftc && "no swiftc here"
+
+type Case = Record<string, unknown> & { op: string }
+type Verdict = { tag: string; fits: boolean; confidence: number }
+
+/** A thread as both sides print it: its id, time and stored fields, or null when it's gone. */
+function shown(t: Thread | undefined | null): unknown {
+  if (!t || t.deleted) return null
+  const { kind, deleted: _deleted, ...rest } = t
+  return { ...rest, ...(kind ? { k: kind } : {}) }
+}
+
+/** The case's vectors by message key, as numbers or packed (base64): both sides use the same ones. */
+const vectorsOf = (table: unknown): VectorOf => (e) => {
+  const x = (table as Record<string, number[] | string>)[entryKey(e)]
+  return x === undefined ? null : typeof x === "string" ? unpackVector(x) : Float32Array.from(x)
+}
+const numbers = (v: Float32Array | null) => (v ? Array.from(v) : null)
+
+function js(c: Case): unknown {
+  const cfg = organizeConfig(c.cfg)
+  const chat = c.chat as Thread
+  const chats = c.chats as Thread[]
+  switch (c.op) {
+    case "config":
+      return organizeConfig(c.raw)
+    case "embedText":
+      return (c.m as Entry[]).map(embedText)
+    case "hostOf":
+      return (c.urls as Array<string | null>).map(hostOf)
+    case "pack": {
+      const packed = (c.vectors as number[][]).map((v) => packVector(v))
+      return { packed, unpacked: packed.map((p) => numbers(unpackVector(p))) }
+    }
+    case "unpack":
+      return (c.packed as string[]).map((p) => numbers(unpackVector(p)))
+    case "scoredBlocks":
+      return scoredBlocks(c.m as Entry[], vectorsOf(c.vectors)).map((b) => ({ ...b, v: numbers(b.v) }))
+    case "movesAllowed":
+      return movesAllowed(chat, chats, cfg)
+    case "suggestMove":
+      return suggestMove(chat, chats, vectorsOf(c.vectors), cfg)
+    case "tags": {
+      const vectorOf = vectorsOf(c.vectors)
+      return tagTargets(chat, cfg).map((i) => {
+        const candidates = tagCandidates(chat, i, chats, vectorOf, cfg)
+        return { i, judge: judgeText(chat.m, i), candidates, judged: judgedTags(candidates, (c.verdicts ?? []) as Verdict[], cfg) }
+      })
+    }
+    case "tagCandidates":
+      return tagCandidates(chat, c.index as number, chats, vectorsOf(c.vectors), cfg)
+    case "refusedTags":
+      return [...refusedTags(chats, cfg)].sort()
+    case "judgedTags": {
+      const candidates: TagCandidate[] = (c.candidates as string[]).map((tag) => ({ tag, pos: 0, neg: 0, coherence: 0, examples: [] }))
+      return judgedTags(candidates, c.verdicts as Verdict[], cfg)
+    }
+    case "looksMixed":
+      return looksMixed(chat, cfg)
+    case "missingVectors": {
+      const known = c.known as Record<string, string>
+      return missingVectors(chats, (key, text) => known[key] === text, (c.max as number | undefined) ?? Infinity)
+    }
+    case "basics": {
+      const m = c.m as Entry[]
+      return { keys: m.map(entryKey), times: entryTimes(m), blocks: pageBlocks(m), pageChanges: withPageChanges(m).map((e) => e.pageChanged === true) }
+    }
+    case "move":
+    case "undo": {
+      const source = c.source as Thread
+      const target = c.target as Thread | undefined
+      const threads: Threads = { [source.id]: source, ...(target ? { [target.id]: target } : {}) }
+      const moved = moveEntries(threads, {}, source.id, c.start as number, c.end as number, c.targetId as string, c.now as number)
+      if (!moved) return null
+      if (c.op === "move") return { source: shown(moved.threads[source.id]), target: shown(moved.threads[c.targetId as string]) }
+      const current = { ...moved.threads }
+      if ("changedSource" in c) current[source.id] = c.changedSource as Thread
+      if ("changedTarget" in c) current[c.targetId as string] = c.changedTarget as Thread
+      const back = undoMove(current, {}, moved.undo, c.later as number)
+      if (back === current) return null
+      return { source: shown(back[source.id]), target: shown(back[c.targetId as string]) }
+    }
+    case "sweep": {
+      const list = c.threads as Thread[]
+      const before = Object.fromEntries(list.map((t) => [t.id, t]))
+      const swept = sweepMoved(before, {}, c.now as number).threads
+      const changed = list.filter((t) => swept[t.id] && swept[t.id] !== t).map((t) => shown(swept[t.id]))
+      return { changed, emptied: list.filter((t) => !swept[t.id]).map((t) => t.id).sort() }
+    }
+  }
+  return null
+}
+
+function swift(cases: Case[]): unknown[] {
+  const dir = mkdtempSync(join(tmpdir(), "cf-organize-"))
+  const bin = join(dir, "organize")
+  execFileSync("swiftc", ["-O", join(root, "ContextFlow/Shared (App)/Organize.swift"), join(root, "tests/organize-parity/main.swift"), "-o", bin], { stdio: "pipe" })
+  return JSON.parse(execFileSync(bin, { input: JSON.stringify(cases) }).toString())
+}
+
+// ------------------------------------------------------------ cases
+
+const page = (url: string, at?: number, extra: Record<string, unknown> = {}) => ({ url, title: url.split("/").pop() ?? url, hash: "h1", ...(at !== undefined ? { at } : {}), ...extra })
+const q = (content: string, url: string, at?: number, extra: Partial<Entry> = {}): Entry => ({ role: "user", content, page: page(url, at), ...extra })
+const a = (content: string, extra: Partial<Entry> = {}): Entry => ({ role: "assistant", content, ...extra })
+
+const mixed: Entry[] = [
+  q("Старый вопрос без времени", "https://a.example/1"), a("ответ"),
+  q("Sofa sizes?", "https://ikea.example/sofa", 1_000, { page: page("https://ikea.example/sofa", 1_000, { text: "Sofa page text — 200 cm", hash: "s1" }) }), a("200 cm", { t: 1_010 }),
+  { role: "user", content: "Заметка 메모", note: true, page: page("https://ikea.example/sofa", 1_020, { hash: "s1" }) },
+  q("Flights to Tokyo?", "https://air.example/tokyo", 2_000, { id: "abc123def456", t: 2_000 }), a("From 600 €", { id: "zzz000yyy111", t: 2_100, tags: ["travel"] }),
+  { role: "user", content: "loose note", note: true },
+  { role: "user", content: "about the chat" }, a("app answer"),
+  q("Sofa again", "https://ikea.example/sofa", 3_000, { page: page("https://ikea.example/sofa", 3_000, { hash: "s2" }), pageChanged: true }), a("grey"),
+  q("😀 emoji question", "https://e.example/😀", 4_000), a("ok")
+]
+
+const target: Thread = { id: "t", u: 5, a: 2_500, title: "Japan", tags: ["travel"], m: [
+  q("Kyoto temples?", "https://jg.example/kyoto", 1_500), a("Fushimi Inari", { t: 1_600 }),
+  q("JR pass?", "https://jg.example/jr", 2_500), a("Not worth it")
+] }
+const source: Thread = { id: "s", u: 7, a: 4_000, pin: 2, m: mixed }
+
+const cases: Case[] = [
+  { op: "basics", m: mixed },
+  { op: "basics", m: target.m },
+  { op: "move", source, target, targetId: "t", start: 5, end: 6, now: 9_000 },
+  { op: "move", source, target, targetId: "t", start: 10, end: 11, now: 9_000 },
+  { op: "move", source, target, targetId: "t", start: 0, end: 1, now: 9_000 },
+  { op: "move", source, targetId: "fresh", start: 12, end: 13, now: 9_000 },
+  { op: "move", source: { id: "one", u: 1, m: [q("Only", "https://o.example/1", 10), a("x")] }, targetId: "t2", start: 0, end: 1, now: 9_000 },
+  { op: "move", source: { id: "h", u: 1, k: "history", kind: "history", m: [{ role: "user", content: "what did I read?" }, a("x")] } as unknown as Thread, target, targetId: "t", start: 0, end: 1, now: 9_000 },
+  { op: "undo", source, target, targetId: "t", start: 5, end: 6, now: 9_000, later: 9_500 },
+  { op: "undo", source, target, targetId: "t", start: 5, end: 6, now: 9_000, later: 9_500,
+    changedTarget: { ...target, u: 9_200, m: [...target.m, q("New", "https://jg.example/x", 9_100)] } },
+  { op: "undo", source: { id: "one", u: 1, title: "Car", m: [q("Only", "https://o.example/1", 10), a("x")] }, targetId: "t2", start: 0, end: 1, now: 9_000, later: 9_500,
+    changedSource: null, changedTarget: { id: "t2", u: 9_300, a: 10, m: [
+      { ...q("Only", "https://o.example/1", 10), id: entryKey(q("Only", "https://o.example/1", 10)), from: { chat: "one", at: 9_000 } }, { ...a("x"), id: entryKey(a("x")), from: { chat: "one", at: 9_000 } }, q("More", "https://o.example/2", 9_200)
+    ] } }
+]
+
+// Chat UX's fields (highlights, pins, reminders) ride along with a move, its undo and a new chat, the same in the app.
+{
+  const ux = { id: "ux", u: 3, a: 3_000, m: [
+    q("Sofa?", "https://ikea.example/sofa", 1_000), a("Fits"),
+    q("Range in winter?", "https://car.example/1", 2_000),
+    a("About 380 km", { marks: [{ s: 6, e: 12, q: "380 km" }], remind: { at: 9_000_000, dev: "iphone-1" }, tags: ["Cars"] } as Partial<Entry>),
+    { role: "user", content: "check the heat pump", note: true, id: "note00000001", t: 2_100, pinned: 5_000, page: page("https://car.example/1", 2_100) } as Entry
+  ] } as Thread
+  cases.push(
+    { op: "move", source: ux, target, targetId: "t", start: 2, end: 4, now: 9_000 },
+    { op: "move", source: ux, targetId: "fresh", start: 2, end: 4, now: 9_000 },
+    { op: "undo", source: ux, target, targetId: "t", start: 2, end: 4, now: 9_000, later: 9_500,
+      changedTarget: { ...target, u: 9_200, m: [...target.m, q("New", "https://jg.example/x", 9_100)] } }
+  )
+  const moved = moveEntries({ ux, t: target }, {}, "ux", 2, 4, "t", 9_000)!
+  cases.push({ op: "sweep", now: 10_000, threads: [ux, moved.threads.t] })
+}
+
+// The sweep: a stale source brought a moved block back; two moves of one block; an unrelated twin stays.
+{
+  const moved = moveEntries({ s: source, t: target }, {}, "s", 5, 6, "t", 9_000)!
+  const second = moveEntries({ s: source, t: target, u2: { id: "u2", u: 3, m: [q("Other", "https://x.example/1", 100), a("y")] } }, {}, "s", 5, 6, "u2", 9_100)!
+  const twin: Thread = { id: "r", u: 2, m: [mixed[0], mixed[1]] }
+  cases.push({ op: "sweep", now: 10_000, threads: [source, moved.threads.t, second.threads.u2, twin] })
+  cases.push({ op: "sweep", now: 10_000, threads: [source, target] })
+}
+
+// ------------------------------------------------------------ suggestions
+
+// Vectors by topic, as in tests/organize-engine.test.mts: a topic's direction, a little of the message's own
+// and some noise, so messages on one topic are alike and on different ones aren't, and no sum comes out round.
+const DIMS = 64
+const axes = new Map<string, number>()
+let seed = 42
+const noise = () => (seed = (seed * 16_807) % 2_147_483_647) / 2_147_483_647 - 0.5
+function vectorFor(topic: string): number[] {
+  if (!axes.has(topic)) axes.set(topic, axes.size)
+  const axis = axes.get(topic)!
+  const v = new Float32Array(DIMS)
+  for (let i = 0; i < DIMS; i++) v[i] = noise() * 0.12
+  v[axis % DIMS] += 1
+  v[(axis + 7 + (seed % 5)) % DIMS] += 0.45
+  let n = 0
+  for (const x of v) n += x * x
+  return Array.from(v.map((x) => x / Math.sqrt(n)))
+}
+
+// Every message's vector by its key: numbers, or packed as the device keeps them. Each case carries its own.
+const table: Record<string, number[] | string> = {}
+let clock = 1_000_000
+let count = 0
+function qa(topic: string, url: string, extra: { tags?: string[]; question?: string; packed?: boolean; vector?: number[] } = {}): Entry[] {
+  count++
+  clock += 1_000
+  const question: Entry = { role: "user", content: extra.question ?? `${topic} question ${count} about something long enough`, page: { url, title: `${topic} page`, at: clock }, id: `q${count}`, t: clock }
+  const answer: Entry = { role: "assistant", content: `${topic} answer ${count} with details`, id: `a${count}`, t: clock + 10, ...(extra.tags ? { tags: extra.tags } : {}) }
+  for (const e of [question, answer]) {
+    const v = extra.vector ?? vectorFor(topic)
+    table[e.id!] = extra.packed ? packVector(v) : v
+  }
+  return [question, answer]
+}
+/** A question and its answer from before 2.5: no ids (keys from their text), a time from the page or none. */
+function old(topic: string, url: string, at?: number): Entry[] {
+  count++
+  const list: Entry[] = [
+    { role: "user", content: `${topic} old question ${count}, from before`, page: { url, title: `${topic} page`, ...(at !== undefined ? { at } : {}) } },
+    { role: "assistant", content: `${topic} old answer ${count}` }
+  ]
+  for (const e of list) table[entryKey(e)] = vectorFor(topic)
+  return list
+}
+const thread = (id: string, m: Entry[], extra: Partial<Thread> = {}): Thread => ({ id, u: 1, m, ...extra })
+// "Ask your chats": `kind` in the panel, `k` as stored.
+const history = (t: Thread) => ({ ...t, kind: "history", k: "history" }) as Thread
+const no = (list: Entry[]) => list.map((e) => ({ ...e, dismissed: { move: true as const } }))
+const movedIn = (list: Entry[], from: string, at: number) => list.map((e) => ({ ...e, from: { chat: from, at } }))
+const react = () => [...qa("react", "https://react.example/1"), ...qa("react", "https://react.example/2"), ...qa("react", "https://react.example/3")]
+
+/** The case with the vectors of its messages (unless it brings its own). */
+function withVectors(c: Case): Case {
+  if (c.vectors) return c
+  const keys = new Set<string>()
+  for (const t of [c.chat, ...((c.chats as Thread[] | undefined) ?? [])] as Array<Thread | undefined>) for (const e of t?.m ?? []) keys.add(entryKey(e))
+  for (const e of (c.m as Entry[] | undefined) ?? []) keys.add(entryKey(e))
+  return { ...c, vectors: Object.fromEntries([...keys].filter((k) => Object.hasOwn(table, k)).map((k) => [k, table[k]])) }
+}
+
+const japan = thread("japan", [...qa("japan", "https://jg.example/1"), ...qa("japan", "https://jg.example/2"), ...qa("japan", "https://jg.example/3")], { a: 5_000_000 })
+const bread = thread("bread", [...qa("bread", "https://bread.example/1"), ...qa("bread", "https://bread.example/2")])
+const suggestions: Case[] = []
+const move = (chat: Thread, chats: Thread[], extra: Record<string, unknown> = {}) => suggestions.push({ op: "suggestMove", chat, chats, ...extra })
+
+// Another chat's topic; a coherent chat gets nothing; stricter thresholds; a smaller window; deleted chats.
+const pile = thread("pile", [...react(), ...qa("japan", "https://travel-blog.example/9")])
+move(pile, [pile, japan, bread])
+move(japan, [pile, japan, bread])
+move(pile, [pile, japan, bread], { cfg: { moveT: 0.95, moveT1: 0.99 } })
+move(pile, [pile, japan, bread], { cfg: { moveD: 0.95 } })
+move(pile, [pile, japan, bread], { cfg: { window: 1, moveT: 0.5 } })
+move({ ...pile, deleted: true }, [pile, japan, bread])
+move(pile, [pile, { ...japan, deleted: true }, bread])
+move(history(pile), [japan, bread])
+// The same page in another chat, without vectors: of two such chats the one written in last, of equals the first.
+const pages = thread("pages", [...qa("sofa", "https://ikea.example/sofa"), ...qa("misc", "https://x.example/1"), ...qa("japan", "https://jg.example/2", { question: "Different words entirely, same page" })])
+const laterJapan = thread("later", qa("japan", "https://jg.example/2"), { a: 9_000_000 })
+move(pages, [pages, japan], { vectors: {} })
+move(pages, [pages, japan, laterJapan], { vectors: {} })
+move(pages, [pages, laterJapan, { ...japan, a: 9_000_000 }], { vectors: {} })
+move(thread("twice", [...qa("japan", "https://jg.example/2"), ...qa("misc", "https://x.example/2"), ...qa("japan", "https://jg.example/2")]), [japan])
+// Blocks in a row to one chat are one suggestion; other windows; two blocks to two chats (same sites, then topics): the bigger margin.
+const two = thread("two", [...react(), ...qa("japan", "https://jg.example/7"), ...qa("japan", "https://jg.example/8")])
+move(two, [two, japan, bread])
+move(two, [two, japan, bread], { cfg: { window: 1 } })
+move(two, [two, japan, bread], { cfg: { window: 5 } })
+const split = thread("split", [...react(), ...qa("bread", "https://bread.example/9"), ...qa("japan", "https://jg.example/9")])
+move(split, [split, japan, bread])
+const split2 = thread("split2", [...react(), ...qa("bread", "https://bread-blog.example/9"), ...qa("japan", "https://travel.example/9")])
+move(split2, [split2, japan, bread])
+// A new chat: alike blocks in a row together, others apart; only when something stays.
+const cars = thread("cars", [...react(), ...qa("cars", "https://car.example/1")])
+move(cars, [cars, japan, bread])
+move(cars, [cars, japan, bread], { cfg: { splitMin: 4 } })
+move(thread("cars2", [...react(), ...qa("cars", "https://car.example/1"), ...qa("cars", "https://car.example/2")]), [japan, bread])
+move(thread("mixed2", [...react(), ...qa("cars", "https://car.example/3"), ...qa("garden", "https://garden.example/1")]), [japan, bread])
+move(thread("small", [...qa("react", "https://react.example/1"), ...qa("cars", "https://car.example/4")]), [japan])
+// The same site: one other chat is about it ("www." aside); two such chats: the topic decides.
+const ikea = thread("ikea", [...qa("sofa", "https://ikea.example/a"), ...qa("sofa", "https://ikea.example/b"), ...qa("lamp", "https://lamps.example/1")])
+const ikea2 = thread("ikea2", [...qa("sofa", "https://ikea.example/c"), ...qa("sofa", "https://ikea.example/d")])
+const site = thread("site", [...react(), ...qa("sofa", "https://www.ikea.example/new-sofa")])
+move(site, [site, ikea, japan])
+move(site, [site, ikea, ikea2, japan])
+move(site, [site, ikea, japan], { cfg: { siteT: 0.99 } })
+// Short questions, moved-in and turned-down blocks get nothing.
+const thanks: Entry[] = [{ role: "user", content: "ok thanks", id: "ok", t: 1_999_999 }, { role: "assistant", content: "You're welcome", id: "ok2", t: 1_999_999 }]
+table.ok = vectorFor("japan")
+table.ok2 = vectorFor("japan")
+move(thread("thanks", [...qa("react", "https://react.example/1"), ...qa("react", "https://react.example/2"), ...thanks]), [japan])
+move(thread("moved", [...qa("react", "https://react.example/1"), ...qa("react", "https://react.example/2"), ...movedIn(qa("japan", "https://jg.example/5"), "x", 1)]), [japan])
+move(thread("refused", [...qa("react", "https://react.example/1"), ...qa("react", "https://react.example/2"), ...no(qa("japan", "https://jg.example/6"))]), [japan])
+// Three refused, none taken: moves are off in this chat; one taken after them puts them back on.
+const tired = thread("tired", [...qa("react", "https://react.example/1"), ...no(qa("a", "https://a.example/1")), ...no(qa("b", "https://b.example/1")), ...no(qa("c", "https://c.example/1")), ...qa("japan", "https://jg.example/10")])
+const taken = thread("taken", movedIn(qa("d", "https://d.example/1"), "tired", 10_000_000))
+move(tired, [tired, japan])
+move(tired, [tired, japan, taken])
+suggestions.push(
+  { op: "movesAllowed", chat: tired, chats: [tired] },
+  { op: "movesAllowed", chat: tired, chats: [tired, taken] },
+  { op: "movesAllowed", chat: tired, chats: [tired], cfg: { rollback: 4 } }
+)
+// Notes: a short one says too little, a long one enough; a note without a page is a block of its own.
+const notes = thread("notes", [
+  ...react(),
+  { role: "user", content: "Kyoto: book the ryokan early, two nights, ask about the onsen", note: true, page: { url: "https://jg-notes.example/k", title: "Ryokan" }, id: "n1", t: 2_000_000 },
+  { role: "user", content: "short note", note: true, page: { url: "https://jg-notes.example/k2", title: "x" }, id: "n2", t: 2_000_100 },
+  { role: "user", content: "a loose note about japan rail passes and their prices", note: true, id: "n3", t: 2_000_200 }
+])
+for (const id of ["n1", "n2", "n3"]) table[id] = vectorFor("japan")
+move(notes, [notes, japan])
+// From before 2.5 (keys from the text, times from the page or none); packed vectors, as the device keeps them.
+const olden = thread("olden", [...old("react", "https://react.example/1", 500), ...old("react", "https://react.example/2"), ...old("react", "https://react.example/3", 700), ...old("japan", "https://travel-blog.example/1")])
+move(olden, [olden, japan])
+const packedJapan = thread("pj", [...qa("japan", "https://pj.example/1", { packed: true }), ...qa("japan", "https://pj.example/2", { packed: true })])
+const packedPile = thread("pp", [...react(), ...qa("japan", "https://pp.example/9", { packed: true })])
+move(packedPile, [packedPile, packedJapan])
+suggestions.push({ op: "scoredBlocks", m: [...notes.m, ...thanks, ...movedIn(qa("x", "https://x.example/9"), "y", 5), ...no(qa("x", "https://x.example/9")), ...olden.m] }, { op: "scoredBlocks", m: mixed })
+
+// Tags: the user's tags with two examples or more that are alike; not on messages (or chats) that have them.
+const work = thread("work", [...qa("work", "https://w.example/1", { tags: ["work"] }), ...qa("work", "https://w.example/2", { tags: ["Work"] }), ...qa("work", "https://w.example/3")])
+const misc = thread("misc", [...qa("bread", "https://b.example/1", { tags: ["later"] }), ...qa("japan", "https://j.example/1", { tags: ["later"] }), ...qa("cars", "https://c.example/1", { tags: ["later"] })])
+const once = thread("once", [...qa("garden", "https://g.example/1", { tags: ["garden"] }), ...qa("garden", "https://g.example/2")])
+const all = [work, misc, once, japan, bread]
+const yesWork = [{ tag: "#work", fits: true, confidence: 0.9 }]
+for (const t of [work, misc, once]) suggestions.push({ op: "tags", chat: t, chats: all, verdicts: yesWork })
+// Several tags on the same messages: equal margins go by name, three at most; the judge leaves one (or two).
+const office = thread("office", [...qa("work", "https://o.example/1", { tags: ["Work", "office", "dev", "job"] }), ...qa("work", "https://o.example/2", { tags: ["work", "office", "dev", "job"] }), ...qa("work", "https://o.example/3")])
+const verdicts = [{ tag: "#office", fits: true, confidence: 0.9 }, { tag: "dev", fits: false, confidence: 0.99 }, { tag: "JOB", fits: true, confidence: 0.69 }]
+suggestions.push({ op: "tags", chat: office, chats: [office, japan, bread], verdicts }, { op: "tags", chat: office, chats: [office, japan, bread], verdicts, cfg: { maxTags: 2, judge: 0.6 } })
+// A chat's tags: its blocks are examples (a little less); close messages without it outweigh them; its own chat gets none.
+const trip = thread("trip", [...qa("japan", "https://trip.example/1"), ...qa("japan", "https://trip.example/2")], { tags: ["Japan trip"] })
+const plan = thread("plan", [...qa("bread", "https://bread.example/7"), ...qa("japan", "https://plan.example/1")])
+suggestions.push(
+  { op: "tags", chat: plan, chats: [plan, trip, bread], verdicts: [{ tag: "japan trip", fits: true, confidence: 0.8 }] },
+  { op: "tags", chat: plan, chats: [plan, trip, japan, bread] },
+  { op: "tags", chat: { ...plan, tags: ["japan TRIP"] }, chats: [plan, trip, bread] }
+)
+// Refused: on three messages without one taken; one taken after them; on the message itself.
+const refuse = (tag: string) => (e: Entry) => (e.role === "assistant" ? { ...e, dismissed: { tags: [tag] } } : e)
+const tiredTags = thread("tt", [...qa("x", "https://x.example/1").map(refuse("work")), ...qa("x", "https://x.example/2").map(refuse("work")), ...qa("x", "https://x.example/3").map(refuse("Work"))])
+const tookWork = thread("yes", qa("x", "https://x.example/4").map((e) => (e.role === "assistant" ? { ...e, t: 99_999_999, accepted: { tags: ["work"] } } : e)))
+suggestions.push(
+  { op: "refusedTags", chats: [tiredTags] },
+  { op: "refusedTags", chats: [tiredTags, tookWork] },
+  { op: "refusedTags", chats: [tiredTags], cfg: { rollback: 4 } },
+  { op: "tags", chat: work, chats: [...all, tiredTags], verdicts: yesWork },
+  { op: "tags", chat: work, chats: [...all, tiredTags, tookWork], verdicts: yesWork }
+)
+const refusedHere = thread("work", work.m.map((e, i) => (i === 5 ? { ...e, dismissed: { tags: ["WORK"] } } : e)))
+suggestions.push({ op: "tags", chat: refusedHere, chats: [refusedHere, misc, once, japan, bread] })
+// Examples alike to the message by the same amount keep their order; notes get tags too.
+const same = vectorFor("tea")
+const tea = thread("tea", [
+  ...[1, 2, 3, 4, 5].flatMap((i) => qa("tea", `https://tea.example/${i}`, { tags: ["tea"], vector: same })),
+  { role: "user", content: "Sencha vs gyokuro: steep gyokuro cooler, around 60 degrees, and longer", note: true, page: { url: "https://tea.example/6", title: "Tea notes" }, id: "tn", t: 3_000_000 }
+])
+table.tn = vectorFor("tea")
+suggestions.push({ op: "tags", chat: tea, chats: [tea, japan, bread] })
+// No tags for a question, a message past the end, or in "Ask your chats"; deleted chats' and "Ask your chats"' tags don't count.
+const gone = thread("gone", [...qa("work", "https://gone.example/1", { tags: ["gone"] }), ...qa("work", "https://gone.example/2", { tags: ["gone"] })], { deleted: true })
+const asked = history(thread("asked", [...qa("work", "https://asked.example/1", { tags: ["asked"] }), ...qa("work", "https://asked.example/2", { tags: ["asked"] })]))
+suggestions.push(
+  { op: "tagCandidates", chat: work, index: 4, chats: all },
+  { op: "tagCandidates", chat: work, index: 99, chats: all },
+  { op: "tagCandidates", chat: history(work), index: 5, chats: all },
+  { op: "tagCandidates", chat: work, index: 5, chats: [...all, gone, asked] },
+  { op: "tagCandidates", chat: work, index: 5, chats: [...all, { ...gone, deleted: false }] }
+)
+suggestions.push(
+  { op: "judgedTags", candidates: ["Work", "dev", "Дом"], verdicts: [{ tag: "##work", fits: true, confidence: 0.7 }, { tag: "дом", fits: true, confidence: 0.95 }, { tag: "dev", fits: true, confidence: 0.2 }], cfg: { maxTags: 3 } },
+  { op: "judgedTags", candidates: ["Work", "dev"], verdicts: [{ tag: "work", fits: true, confidence: 0.99 }, { tag: "dev", fits: true, confidence: 0.99 }] },
+  { op: "judgedTags", candidates: ["Work", "dev", "x"], verdicts: [{ tag: "x", fits: true, confidence: 1 }, { tag: "dev", fits: true, confidence: 0.99 }, { tag: "WORK", fits: true, confidence: 0.99 }], cfg: { maxTags: 2.5 } }
+)
+
+// "Everything in one chat?": many sites lately, or many blocks.
+const sites = thread("s", [...qa("a", "https://a.com/1"), ...qa("b", "https://www.b.com/1"), ...qa("c", "https://c.com/1")])
+const many = thread("many", [1, 2, 3, 4, 5, 6].flatMap((i) => qa("a", `https://same.example/${i}`)))
+suggestions.push(
+  { op: "looksMixed", chat: sites },
+  { op: "looksMixed", chat: sites, cfg: { messSites: 4 } },
+  { op: "looksMixed", chat: japan },
+  { op: "looksMixed", chat: history(sites) },
+  { op: "looksMixed", chat: many },
+  { op: "looksMixed", chat: many, cfg: { messBlocks: 7 } },
+  { op: "looksMixed", chat: thread("w", [...qa("a", "https://www.a.com/1"), ...qa("a", "https://a.com/2"), ...qa("b", "https://b.com/1"), { role: "user", content: "loose", note: true }, ...qa("c", "about:blank")]) }
+)
+
+// The messages to embed: the newest chats first (of equals, the first), each key once, none it has.
+const m1 = thread("m1", [...qa("a", "https://m.example/1"), { role: "assistant", content: "" }, ...old("a", "https://m.example/2", 10)], { a: 100 })
+const m2 = thread("m2", [...qa("b", "https://m.example/3"), m1.m[0]], { a: 200 })
+const m3 = thread("m3", qa("c", "https://m.example/4"), { a: 200 })
+const known = { [entryKey(m1.m[1])]: embedText(m1.m[1]), [entryKey(m2.m[0])]: "an older text" }
+suggestions.push(
+  { op: "missingVectors", chats: [m1, m2, m3, gone, asked], known },
+  { op: "missingVectors", chats: [m1, m2, m3], known: {}, max: 3 }
+)
+
+// Texts, sites, packed vectors and thresholds.
+const long = (n: number, s: string) => s.repeat(Math.ceil(n / s.length)).slice(0, n)
+const tie = (n: number) => (2 * n + 1) / 254
+suggestions.push(
+  { op: "embedText", m: [
+    { role: "user", content: "Summarize this page in five points, plain words…", label: "Summarize", page: { url: "u", title: "Kyoto temples" } },
+    { role: "assistant", content: "**Bold** [1](https://a.b/c) text" },
+    { role: "assistant", content: "Ответ [12](https://ru.example/x) и   [123](https://x.example/y) — `код` > цитата | таблица\t\tконец" },
+    { role: "user", content: "그 페이지에서 가장 중요한 점은? 　 다음 줄﻿끝\v", page: { url: "https://ko.example/1", title: "  **한국어** 제목 # " } },
+    { role: "user", content: `😀 emoji first, then ${long(700, "текст 한글 words ")}`, page: { url: "https://e.example/1", title: "" } },
+    { role: "user", content: "", label: "", page: { url: "https://e.example/2", title: "Only the title" } },
+    { role: "user", content: `Заметка ${long(1_100, "длинная заметка ")}`, note: true, page: { url: "https://n.example/1", title: long(300, "Заголовок ") } },
+    { role: "assistant", content: long(900, "Long answer with [3](http://cite.example/a) a citation. ") },
+    { role: "user", content: "[1](https://no-close.example/a b) [1]( https://space.example) \t [7](https://ok.example/a)tail" },
+    { role: "user", content: "   ", note: true },
+    { role: "assistant", content: "_*_ ### >>> |||" }
+  ] },
+  { op: "hostOf", urls: ["https://jg/1", "https://www.Example.COM:8080/a?b#c", "https://user:pw@www.host.com/", "http://192.168.0.1/x", "https://sub.www.example.com/", "u", "", null, "about:blank", "mailto:a@b.com", "file:///Users/x", "https://e.example/😀"] },
+  { op: "pack", vectors: [vectorFor("pack"), [1, tie(5), -tie(5), tie(60), -tie(60), 0, -0.0001, 0.25, -1], [0, 0, 0], [0.5, -0.25, 2, -3e-8, 1e-300], Array.from({ length: 256 }, (_, i) => Math.sin(i))] },
+  { op: "unpack", packed: ["%%%", "", "AAAA", "AQID", " AQ ID\n", "AQI", "AQ", "A", "AQ==", "AQ=", "AQ===", "AR==", "/+8=", "gIGC", packVector(vectorFor("pack"))] },
+  ...[{ moveT: 0.6, window: "5", nope: 1 }, { moveT: true, judge: false }, { moveT: -1, moveD: 1_001, moveT1: 1_000, siteT: 0 }, { splitMin: 2.5, maxTags: 0 }, null, [], "x", 5].map((raw) => ({ op: "config", raw }))
+)
+cases.push(...suggestions.map(withVectors))
+
+test("organizing gives the same results in the panel and in the app", { skip }, () => {
+  // The cases reach every kind of move suggestion, and tags the judge confirms, or the parity would say little.
+  const whys = new Set(cases.filter((c) => c.op === "suggestMove").map((c) => (js(c) as { why: string } | null)?.why ?? "none"))
+  assert.deepEqual([...whys].sort(), ["apart", "none", "page", "site", "topic"])
+  assert.ok(cases.some((c) => c.op === "tags" && (js(c) as Array<{ candidates: unknown[]; judged: string[] }>).some((t) => t.candidates.length === 3 && t.judged.length > 0)))
+  const fromSwift = swift(cases)
+  cases.forEach((c, i) => {
+    // Through JSON, as the app reads and writes it.
+    const fromJs = JSON.parse(JSON.stringify(js(c)))
+    assert.deepEqual(fromSwift[i], fromJs, `case ${i} (${c.op})`)
+  })
+})

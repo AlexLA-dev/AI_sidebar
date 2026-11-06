@@ -6,11 +6,18 @@ export const API_BASE = __API_BASE__
 export const VERSION = __VERSION__
 export const TARGET = __TARGET__
 
+declare const __SHADOW_MODE__: ShadowRootMode | undefined
+/** The panel's shadow roots are closed: no page script can read what's in them (Copied, the chats, the answers).
+ * Only a test build (CF_OPEN_SHADOW=1, never with the production API) leaves them open for its checks. */
+export const SHADOW_MODE: ShadowRootMode = typeof __SHADOW_MODE__ === "string" ? __SHADOW_MODE__ : "closed"
+
 export const SITE = "https://context-flow.app"
 export const LINKS = {
   privacy: `${SITE}/privacy`,
   terms: `${SITE}/terms`,
   support: `${SITE}/support`,
+  x: "https://x.com/ContextFlowApp",
+  threads: "https://www.threads.com/@contextflowapp",
   appStore: "https://apps.apple.com/app/id6759115793",
   review: "https://apps.apple.com/app/id6759115793?action=write-review",
   // Shared answers end with this link (no storefront, so it opens the reader's own App Store).

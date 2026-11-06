@@ -3,6 +3,8 @@ import { Readability } from "@mozilla/readability"
 import { urlKey } from "../shared/conversation"
 import { MAX_PAGE_CHARS } from "../shared/prompt"
 import type { Platform } from "../shared/types"
+import { shadowSelection } from "./selectionShadow"
+import { unfoldCollapsed } from "./unfold"
 
 export const HOST_TAG = "contextflow-root"
 
@@ -48,18 +50,27 @@ function countWords(text: string): number {
   return text.split(/\s+/).filter(Boolean).length + Math.round(cjk / 2)
 }
 
-/** Current page selection (outside our own UI), or null. */
+/**
+ * Current page selection (outside our own UI), or null: in the page, or inside a site's open shadow root (LinkedIn's
+ * messages, selectionShadow.ts), where the document doesn't see it.
+ */
 export function readSelection(): SelectionInfo | null {
+  const inner = shadowSelection(HOST_TAG)
+  if (inner) return selectionInfo(inner.toString(), () => inner.getBoundingClientRect())
   const sel = document.getSelection()
   if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return null
   const anchor = sel.anchorNode
   const anchorEl = anchor instanceof Element ? anchor : anchor?.parentElement
   if (anchorEl?.closest(HOST_TAG)) return null
-  const text = sel.toString().replace(/\s+\n/g, "\n").trim()
+  return selectionInfo(sel.toString(), () => sel.getRangeAt(0).getBoundingClientRect())
+}
+
+function selectionInfo(raw: string, box: () => DOMRect): SelectionInfo | null {
+  const text = raw.replace(/\s+\n/g, "\n").trim()
   if (text.length < 2) return null
   let rect: DOMRect | null = null
   try {
-    rect = sel.getRangeAt(0).getBoundingClientRect()
+    rect = box()
   } catch {
     rect = null
   }
@@ -102,6 +113,7 @@ function cleanText(text: string): string {
 function fallbackText(): string {
   const clone = document.body?.cloneNode(true) as HTMLElement | undefined
   if (!clone) return ""
+  unfoldCollapsed(clone)
   clone.querySelectorAll(
     `script,style,noscript,template,svg,canvas,iframe,nav,footer,aside,[role=navigation],[role=banner],[role=contentinfo],[aria-hidden=true],${HOST_TAG}`
   ).forEach((el) => el.remove())
@@ -118,15 +130,17 @@ export function privateBrowsing(): boolean {
 }
 
 /**
- * Readable text of the page (Readability for articles, cleaned body text otherwise).
+ * Readable text of the page (Readability for articles, cleaned body text otherwise), with its folded sections
+ * unfolded (see unfold.ts), up to `max` characters: a question reads all of it (readTab).
  * Read fresh every time: pages load more content after the first look (feeds, SPAs, live updates).
  */
-export function extractPage(): { title: string; text: string } {
+export function extractPage(max = MAX_PAGE_CHARS): { title: string; text: string } {
   let title = document.title
   let text = ""
   try {
     const doc = document.cloneNode(true) as Document
     doc.querySelectorAll(HOST_TAG).forEach((el) => el.remove())
+    unfoldCollapsed(doc)
     const article = new Readability(doc, { charThreshold: 300 }).parse()
     if (article?.textContent && article.textContent.trim().length > 400) {
       text = article.textContent
@@ -139,5 +153,5 @@ export function extractPage(): { title: string; text: string } {
   const description = document.querySelector<HTMLMetaElement>('meta[name="description"],meta[property="og:description"]')?.content
   text = cleanText(text)
   if (text.length < 200 && description) text = `${description}\n\n${text}`.trim()
-  return { title: title.slice(0, 300), text: text.slice(0, MAX_PAGE_CHARS) }
+  return { title: title.slice(0, 300), text: text.slice(0, max) }
 }

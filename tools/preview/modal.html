@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Modal · Test</title>
+<!--
+  Quick insert's stand for a window shown over everything (the owner on 2.5 (81), LinkedIn on an iPad: "Start post"
+  opens over the dimmed feed, there's no button by its field, and after such windows the button and the selection
+  bubble seem gone until a reload). Built like such windows, not copied from one:
+  - "Start a post": a <dialog> opened with showModal(): the browser's top layer (above any z-index, with a backdrop)
+    and everything outside it inert; a Quill-like editor in it, × and Post close it;
+  - "Start a post (outlet)": the same dialog inside #interop-outlet's open shadow root;
+  - "Popover": a popover="manual" panel with an editor, shown with showPopover() (top layer, not inert);
+  - the page itself: a paragraph to select and a comment box, to check after a window closed.
+  ?remove=1: the dialog is taken off the page as it closes (a site that tears its window down);
+  ?transform=1: the dialog is placed with a transform (it holds fixed boxes then);
+  ?inert=1: the site marks every other child of <html> and of <body> inert while its window is open, and on close
+  gives back only those of <body> (so a host at the end of <html> would stay inert).
+  window.stand: open(kind), close(), editor().
+-->
+<style>
+  body { font: 17px -apple-system, system-ui, sans-serif; margin: 16px; line-height: 1.45; background: #f4f2ee; color: #191919 }
+  .card { background: #fff; border-radius: 10px; padding: 12px; margin: 16px 0; box-shadow: 0 0 0 1px #0001 }
+  .start { width: 100%; height: 44px; border-radius: 22px; border: 1px solid #8c8c8c; background: #fff; text-align: left; padding: 0 16px; font-size: 16px; color: #555; margin: 4px 0 }
+  textarea { width: 100%; box-sizing: border-box; font: inherit; padding: 8px }
+  dialog, .pop { width: min(560px, calc(100vw - 32px)); border: 0; border-radius: 12px; padding: 16px; box-shadow: 0 8px 32px #0005 }
+  dialog::backdrop { background: #000a }
+  dialog header, .pop header { display: flex; justify-content: space-between; align-items: center; font-weight: 600 }
+  dialog header button, .pop header button { width: 36px; height: 36px; border: 0; background: none; font-size: 22px }
+  .ql-editor { min-height: 140px; outline: none; font-size: 16px; line-height: 1.4; margin: 8px 0; white-space: pre-wrap }
+  .ql-editor p { margin: 0 }
+  footer { display: flex; justify-content: flex-end }
+  footer button { height: 32px; padding: 0 16px; border-radius: 16px; border: 0; background: #0a66c2; color: #fff; font-weight: 600 }
+  .moved { transform: translateY(20px) }
+</style>
+</head>
+<body>
+<h1>Feed</h1>
+<section class="card">
+  <button class="start" id="open-dialog" type="button">Start a post</button>
+  <button class="start" id="open-outlet" type="button">Start a post (outlet)</button>
+  <button class="start" id="open-popover" type="button">Popover</button>
+</section>
+<section class="card">
+  <p id="para">We moved our weekly sync to Thursdays and halved its length. Has anyone tried a no-meeting Friday?</p>
+  <p>Leave a comment</p>
+  <textarea id="comment" rows="3" placeholder="Add a comment…"></textarea>
+</section>
+<div id="interop-outlet"></div>
+<div style="height:40vh"></div>
+
+<script>
+const params = new URLSearchParams(location.search)
+const editorHtml = (id) => `<header><span>Create a post</span><button type="button" class="x" aria-label="Dismiss">×</button></header>
+<div class="ql-editor" id="${id}" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Text editor for creating content" data-placeholder="Share your thoughts…"><p><br></p></div>
+<footer><button type="button" class="post">Post</button></footer>`
+let current = null
+let hidden = []
+
+function hidePage(except) {
+  if (!params.has("inert")) return
+  hidden = []
+  for (const el of [...document.documentElement.children, ...document.body.children]) {
+    if (el === document.head || el === document.body || el.contains(except) || el.inert) continue
+    el.inert = true
+    hidden.push(el)
+  }
+}
+function showPage() {
+  // The site's slip: only <body>'s children get their inert taken away.
+  for (const el of hidden) if (el.parentNode === document.body) el.inert = false
+  hidden = []
+}
+
+function makeDialog(scope, id) {
+  const d = document.createElement("dialog")
+  if (params.has("transform")) d.className = "moved"
+  d.innerHTML = editorHtml(id)
+  scope.appendChild(d)
+  const done = () => d.close()
+  d.querySelector(".x").addEventListener("click", done)
+  d.querySelector(".post").addEventListener("click", done)
+  d.addEventListener("close", () => {
+    showPage()
+    if (params.has("remove")) d.remove()
+    current = null
+  })
+  return d
+}
+
+function open(kind) {
+  if (kind === "popover") {
+    const pop = document.createElement("div")
+    pop.className = "pop"
+    pop.setAttribute("popover", "manual")
+    pop.innerHTML = editorHtml("pop-editor")
+    document.body.appendChild(pop)
+    const done = () => { pop.hidePopover(); pop.remove(); current = null }
+    pop.querySelector(".x").addEventListener("click", done)
+    pop.querySelector(".post").addEventListener("click", done)
+    pop.showPopover()
+    current = { el: pop, editor: pop.querySelector(".ql-editor"), close: done }
+    return
+  }
+  let scope = document.body
+  if (kind === "outlet") {
+    const host = document.getElementById("interop-outlet")
+    scope = host.shadowRoot ?? host.attachShadow({ mode: "open" })
+    if (!scope.querySelector("style")) scope.innerHTML = `<style>${document.querySelector("style").textContent}</style>`
+  }
+  const d = makeDialog(scope, kind === "outlet" ? "outlet-editor" : "post-editor")
+  hidePage(kind === "outlet" ? document.getElementById("interop-outlet") : d)
+  d.showModal()
+  current = { el: d, editor: d.querySelector(".ql-editor"), close: () => d.close() }
+}
+
+document.getElementById("open-dialog").addEventListener("click", () => open("dialog"))
+document.getElementById("open-outlet").addEventListener("click", () => open("outlet"))
+document.getElementById("open-popover").addEventListener("click", () => open("popover"))
+window.stand = { open, close: () => current?.close(), editor: () => current?.editor ?? null }
+</script>
+</body>
+</html>

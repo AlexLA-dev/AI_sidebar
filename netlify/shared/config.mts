@@ -1,9 +1,19 @@
 // Runtime configuration. Every value can be overridden from the Netlify UI
 // (Project configuration → Environment variables) without a code change.
 
+import { organizeConfig } from "../../src/shared/organize.ts"
+
 function env(name: string): string | undefined {
   const fromNetlify = (globalThis as { Netlify?: { env: { get(k: string): string | undefined } } }).Netlify?.env.get(name)
   return fromNetlify ?? process.env[name]
+}
+
+function parsed(raw: string | undefined): unknown {
+  try {
+    return raw ? JSON.parse(raw) : undefined
+  } catch {
+    return undefined
+  }
 }
 
 function int(name: string, fallback: number): number {
@@ -75,6 +85,32 @@ export const config = {
   freeIpDailyLimit: int("FREE_IP_DAILY_LIMIT", 40),
   freeGlobalDailyLimit: int("FREE_GLOBAL_DAILY_LIMIT", 3000),
   proWeeklyLimit: int("PRO_WEEKLY_LIMIT", 375),
+  // Quick insert's AI (Claude Haiku 5.5): marking a template's blanks, filling them from the page, finding a
+  // template by meaning. The owner's choice: Free fills its blanks with AI 5 times a day (apart from the 5
+  // answers), Pro and Own key without a limit; marking and search have no limit for anyone. The caps
+  // marked "safety" only stop abuse and runaway clients, nobody sees them.
+  insert: {
+    model: env("INSERT_MODEL") ?? "claude-haiku-5-5",
+    fillFreeDaily: int("INSERT_FILL_FREE_DAILY", 5),
+    // Safety: AI fills a day per paid subscription, marks and searches a day per install, and all of them a day.
+    fillPaidDaily: int("INSERT_FILL_PAID_DAILY", 1000),
+    markDaily: int("INSERT_MARK_DAILY", 300),
+    ipDaily: int("INSERT_IP_DAILY", 1000),
+    globalDaily: int("INSERT_GLOBAL_DAILY", 60_000),
+    // Quick insert's counters accepted per install a day (apart from the funnel's).
+    eventDaily: int("INSERT_EVENT_DAILY", 300),
+    // USD per million tokens, for the spend in the logs (Claude Haiku 5.5 list prices up to 100K tokens).
+    priceIn: Number(env("INSERT_PRICE_IN") ?? 0.1),
+    priceOut: Number(env("INSERT_PRICE_OUT") ?? 0.5)
+  },
+  // Page watch's AI (2.5, the same Haiku as quick insert, INSERT_MODEL): a plan when a watch is made, a judge
+  // after a change. The owner's choice: not counted against answers; these caps only stop runaway clients.
+  watch: {
+    planDaily: int("WATCH_PLAN_DAILY", 100),
+    judgeDaily: int("WATCH_JUDGE_DAILY", 30),
+    ipDaily: int("WATCH_IP_DAILY", 1000),
+    globalDaily: int("WATCH_GLOBAL_DAILY", 40_000)
+  },
   legacyIpDailyLimit: int("LEGACY_IP_DAILY_LIMIT", 10),
 
   ipPepper: env("CF_IP_PEPPER") ?? "contextflow-ip-v1",
@@ -103,6 +139,30 @@ export const config = {
   // Apps that may ask for a signature (the iOS and macOS apps share one bundle id).
   appBundleIds: (env("APP_BUNDLE_IDS") ?? "com.contextflow.app").split(",").map((s) => s.trim()).filter(Boolean),
 
+  // Organizing the chats (2.5, Pro, by consent): /api/v2/organize turns message texts into vectors and checks
+  // tag candidates, and keeps nothing; /api/v2/status gives the panel and the app the thresholds below.
+  // ORGANIZE=off switches the suggestions off everywhere (the devices stop asking).
+  organize: {
+    enabled: (env("ORGANIZE") ?? "on").trim() !== "off",
+    embedModel: (env("ORGANIZE_EMBED_MODEL") ?? "text-embedding-3-small").trim(),
+    dims: int("ORGANIZE_DIMS", 256),
+    // The tag check: Claude Haiku 5.5, and OpenAI's smallest model when Claude can't answer.
+    judgeModel: (env("ORGANIZE_JUDGE_MODEL") ?? "claude-haiku-5-5").trim(),
+    judgeFallback: (env("ORGANIZE_JUDGE_FALLBACK") ?? "gpt-5-nano").trim(),
+    // Requests a Pro subscriber may make a day (vectors go in batches of up to 128 texts), and all together.
+    embedDaily: int("ORGANIZE_EMBED_DAILY", 150),
+    tagsDaily: int("ORGANIZE_TAGS_DAILY", 300),
+    globalDaily: int("ORGANIZE_GLOBAL_DAILY", 100_000),
+    // Calibrating the thresholds (tools/organize/calibrate.mts) on a deploy preview: this token stands in for
+    // Pro there, never in production. Set it for the Deploy Previews context only.
+    evalToken: (env("ORGANIZE_EVAL_TOKEN") ?? "").trim(),
+    // The quality thresholds (src/shared/organize.ts): JSON with any of them, e.g. {"moveT":0.5}.
+    thresholds: organizeConfig(parsed(env("ORGANIZE_THRESHOLDS"))),
+    // USD per million tokens, for the spend in the logs (text-embedding-3-small; Claude Haiku 5.5 up to 100K).
+    embedPrice: Number(env("ORGANIZE_EMBED_PRICE") ?? 0.02),
+    judgePriceIn: Number(env("ORGANIZE_JUDGE_PRICE_IN") ?? 0.1),
+    judgePriceOut: Number(env("ORGANIZE_JUDGE_PRICE_OUT") ?? 0.5)
+  },
   // Site counter (/api/v2/site): visits and App Store taps accepted per address per day, and in all per day.
   siteDailyLimit: int("SITE_DAILY_LIMIT", 300),
   siteGlobalDailyLimit: int("SITE_GLOBAL_DAILY_LIMIT", 20000)

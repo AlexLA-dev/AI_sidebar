@@ -26,6 +26,10 @@ import { isPdfUrl } from "../shared/pdf"
 import { daysLeft, type RenewalReason } from "../shared/renewal"
 import { isPdfTab, markPdfTab, openPdfPopup, pdfFromBytes, pdfText } from "./pdf"
 import { countValueMoment, mirrorOnStart, mirrorThreads, syncSettings, syncThreads, watchSettings, watchThreads } from "./sync"
+import { startInsert } from "./insert"
+import { startWatch } from "./watch"
+import { organizeChat, reportOrganize } from "./organize"
+import { organizeConfig } from "../shared/organize"
 
 // ---------------------------------------------------------------- identity
 
@@ -128,18 +132,22 @@ async function status(refresh = false, fresh = false): Promise<StatusInfo> {
     const body = (await res.json()) as {
       plan: Plan; usage: Usage | null; limitedBefore?: boolean; offer?: ProOffer | null; upgradeOffer?: { discount: number } | null
       limits?: { searchFreeDaily?: number; searchProWeekly?: number }
+      organize?: { on?: unknown; space?: unknown; config?: unknown }
     }
     value = {
       plan: body.plan, usage: body.usage, limitedBefore: body.limitedBefore === true, offer: body.offer ?? null,
       upgradeOffer: body.upgradeOffer ?? null,
       searchLimits: { freeDaily: body.limits?.searchFreeDaily ?? SEARCH_LIMITS.freeDaily, proWeekly: body.limits?.searchProWeekly ?? SEARCH_LIMITS.proWeekly },
-      store, hasOwnKey: Boolean(key), ownKeyProvider: key ? keyProvider(key) : null, offline: false
+      store, hasOwnKey: Boolean(key), ownKeyProvider: key ? keyProvider(key) : null, offline: false,
+      organize: body.organize && typeof body.organize.space === "string"
+        ? { on: body.organize.on === true, space: body.organize.space, config: organizeConfig(body.organize.config) }
+        : null
     }
   } catch {
     value = {
       plan: ent?.active ? planFromProduct(ent.productId) : "free", usage: null, limitedBefore: false, offer: null,
       upgradeOffer: null, searchLimits: SEARCH_LIMITS,
-      store, hasOwnKey: Boolean(key), ownKeyProvider: key ? keyProvider(key) : null, offline: true
+      store, hasOwnKey: Boolean(key), ownKeyProvider: key ? keyProvider(key) : null, offline: true, organize: null
     }
   }
   statusCache = { at: Date.now(), value }
@@ -309,7 +317,7 @@ async function findChats(query: string, chats: unknown[]): Promise<FindReply> {
 
 // --------------------------------------------------------------- open app
 
-async function openApp(target: "subscribe" | "manage" | "home", feature?: "ai"): Promise<{ opened: boolean; url: string }> {
+async function openApp(target: "subscribe" | "manage" | "home", feature?: "ai" | "organize"): Promise<{ opened: boolean; url: string }> {
   if (TARGET !== "safari") {
     await chrome.tabs.create({ url: LINKS.appStore })
     return { opened: true, url: LINKS.appStore }
@@ -320,6 +328,48 @@ async function openApp(target: "subscribe" | "manage" | "home", feature?: "ai"):
   entitlementCache = null
   statusCache = null
   return { opened: Boolean(result?.opened), url }
+}
+
+// ---------------------------------------------------------------- reminders (2.5)
+
+/** Sets or cancels a message's reminder on this device, through the app (Safari only). */
+async function remind(message: Extract<BackgroundRequest, { type: "remind" }>): Promise<{ outcome: string }> {
+  if (TARGET !== "safari") return { outcome: "unavailable" }
+  if (message.at === null) {
+    await callNative("unremind", { chat: message.chat, message: message.message })
+    return { outcome: "cancelled" }
+  }
+  const reply = await callNative<{ outcome: string }>("remind", {
+    chat: message.chat,
+    message: message.message,
+    at: message.at,
+    title: message.title ?? "ContextFlow",
+    body: message.body ?? "",
+    ...(message.url && /^https?:\/\//.test(message.url) ? { url: message.url } : {}),
+    ask: message.ask === true
+    // The system may be asking about notifications meanwhile: wait for the answer.
+  }, 90_000)
+  return { outcome: reply?.outcome ?? "unavailable" }
+}
+
+/** A chat UX count (2.5): kind, action and a few words from fixed lists; never text or sites. */
+async function reportUx(message: Extract<BackgroundRequest, { type: "uxEvent" }>): Promise<void> {
+  const [id, client] = await Promise.all([installId(), clientInfo()])
+  await fetch(`${API_BASE}/api/v2/event`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ kind: message.kind, installId: id, client, action: message.action, what: message.what, how: message.how, preset: message.preset, surface: "panel" })
+  }).catch(() => undefined)
+}
+
+/** A step for the feature counters ("use", f and a, src/shared/usage.ts): the panel's, named values only. */
+async function reportUse(message: Extract<BackgroundRequest, { type: "useEvent" }>): Promise<void> {
+  const [id, client] = await Promise.all([installId(), clientInfo()])
+  await fetch(`${API_BASE}/api/v2/event`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ kind: "use", installId: id, client, f: message.f, a: message.a, what: message.what, via: message.via, reminders: message.reminders, watches: message.watches, s: "panel" })
+  }).catch(() => undefined)
 }
 
 // ---------------------------------------------------------------- messages
@@ -366,12 +416,33 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
     case "find":
       findChats(message.query, message.chats).then(sendResponse, () => sendResponse({ ok: false, code: "NETWORK" }))
       return true
+    case "organize":
+      // Suggestions send text to the AI: only with the one consent too (it lists them), not the switch alone.
+      Promise.all([status(), installId(), entitlement(), clientInfo(), settings(), consented()])
+        .then(([now, id, ent, client, prefs, agreed]) => organizeChat(message.chat, { status: now, installId: id, jws: ent?.active ? ent.jws : null, client, on: prefs.organize && agreed }))
+        .then(sendResponse, () => sendResponse({ ok: false, code: "NETWORK" }))
+      return true
+    case "organizeEvent":
+      Promise.all([installId(), clientInfo()]).then(([id, client]) => reportOrganize(message.event, id, client)).catch(() => undefined)
+      sendResponse({ ok: true })
+      return false
     case "pdfText":
       pdfText(message.url).then(sendResponse, () => sendResponse({ ok: false, reason: "failed", error: "background" }))
       return true
     case "pdfBytes":
       pdfFromBytes(message.url, message.data).then(sendResponse, () => sendResponse({ ok: false, reason: "failed", error: "background" }))
       return true
+    case "remind":
+      remind(message).then(sendResponse, () => sendResponse({ outcome: "unavailable" }))
+      return true
+    case "uxEvent":
+      void reportUx(message)
+      sendResponse({ ok: true })
+      return false
+    case "useEvent":
+      void reportUse(message)
+      sendResponse({ ok: true })
+      return false
     case "syncThreads":
       if (TARGET !== "safari") {
         sendResponse({ changed: false })
@@ -488,3 +559,24 @@ if (TARGET === "safari") {
   watchThreads()
   setTimeout(() => void mirrorOnStart().catch(() => undefined), 1_500)
 }
+// Quick insert: templates with the app and iCloud, its AI and counters, the ⌃⇧V shortcut.
+startInsert({
+  installId,
+  entitlementJws: async () => {
+    const ent = await entitlement()
+    return ent?.active ? ent.jws : null
+  },
+  clientInfo,
+  consented,
+  statusChanged: () => (statusCache = null)
+})
+// Page watch (2.5): the checks run here while Safari runs; the AI plans a watch and reads a change.
+startWatch({
+  installId,
+  clientInfo,
+  consented,
+  paid: async () => {
+    const ent = await entitlement()
+    return Boolean(ent?.active) && planFromProduct(ent?.productId) !== "free"
+  }
+})

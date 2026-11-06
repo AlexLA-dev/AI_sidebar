@@ -1,11 +1,21 @@
 import { render } from "preact"
 
-import { TARGET } from "../shared/config"
+import { SHADOW_MODE, TARGET } from "../shared/config"
 import type { ContentRequest } from "../shared/types"
 import { App } from "./App"
 import { tabPdf, tabSource } from "./context"
 import { detectPlatform, HOST_TAG } from "./page"
+import { setPanelRoot } from "./root"
+import { keepOverTopLayer } from "./topLayer"
 import styles from "./styles.css"
+import insertStyles from "./insert/insert.css"
+import organizeStyles from "./organize.css"
+import uxStyles from "./ux/ux.css"
+import { startLiveWatch } from "./watch/live"
+// Page watch's section and eye, added to chat UX's window and bubble (2.5).
+import "./watch/register"
+import watchStyles from "./watch/watch.css"
+import tipsStyles from "./tips/tips.css"
 
 // Runs on every http(s) page (and again if injected on demand). Everything we
 // render lives in a closed-off shadow root so page CSS can't break it and our
@@ -34,9 +44,15 @@ function boot(): void {
     if (document.querySelector(HOST_TAG)) return
     const host = document.createElement(HOST_TAG)
     host.setAttribute("style", "all:initial;position:fixed;top:0;left:0;width:0;height:0;z-index:2147483647;")
-    const root = host.attachShadow({ mode: "open" })
+    const root = host.attachShadow({ mode: SHADOW_MODE })
+    setPanelRoot(root)
     const style = document.createElement("style")
-    style.textContent = styles
+    style.textContent = `${styles}
+${insertStyles}
+${organizeStyles}
+${uxStyles}
+${watchStyles}
+${tipsStyles}`
     root.appendChild(style)
     const container = document.createElement("div")
     root.appendChild(container)
@@ -47,10 +63,14 @@ function boot(): void {
     new MutationObserver(() => {
       if (!host.isConnected) document.documentElement.appendChild(host)
     }).observe(document.documentElement, { childList: true })
+    // Over a site's window in the top layer (a modal dialog, a popover): inside it while the person works there.
+    keepOverTopLayer(host)
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", mount, { once: true })
   else mount()
+  // A watched page the person opened is checked from here (2.5).
+  if (TARGET === "safari") startLiveWatch()
 }
 
 try {

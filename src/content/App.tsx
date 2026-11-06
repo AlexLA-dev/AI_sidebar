@@ -1,8 +1,8 @@
-import type { ComponentChildren, VNode } from "preact"
+import { Fragment, type ComponentChildren, type VNode } from "preact"
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "preact/hooks"
 
 import { composePage, readsMedia, type MediaKind } from "../shared/attachments"
-import { LINKS, PRODUCTS, TARGET } from "../shared/config"
+import { LINKS, PRODUCTS, SHADOW_MODE, TARGET } from "../shared/config"
 import { RENEWAL_REASONS, type RenewalReason } from "../shared/renewal"
 import { t, uiLanguage, type MessageKey } from "../shared/i18n"
 import {
@@ -20,13 +20,15 @@ import {
   type Usage
 } from "../shared/types"
 import * as Icon from "./icons"
-import { historyForModel, isQuestion, lastPage, otherPages, pageHasChanged, pageRef, pageWhen, savedPages, selectionNote, type Entry, type SourceNote } from "../shared/conversation"
+import { historyForModel, isQuestion, lastPage, otherPages, pageHasChanged, pageRef, pageWhen, savedPages, selectionNote, stamped, type Entry, type SourceNote } from "../shared/conversation"
 import { Markdown } from "./markdown"
-import { MAX_OTHER_PAGES } from "../shared/prompt"
+import { MAX_OTHER_PAGES, MAX_PAGE_CHARS } from "../shared/prompt"
+import { answerWeight } from "../shared/pagefit"
 import { answerShareText, chatLanguage, noteCopyText, noteShareText, pickedShareText, toPlainText, type ShareLinks } from "../shared/share"
 import type { PageRead, PageSource } from "./context"
 import {
   forgetSelection,
+  HOST_TAG,
   isTouch,
   MIN_SELECTION_WORDS,
   privateBrowsing,
@@ -37,15 +39,41 @@ import {
   type SelectionInfo
 } from "./page"
 import { Hint } from "./Hint"
+import { OrganizeCard, OrganizeRow, panelSelectionStart, type OrganizeMove } from "./Organize"
+import { UndoBar } from "./UndoBar"
+import { barDeadline, deadlineAfterHold, goesOnWork, type BarKind } from "./undoClock"
+import { moveBlock, organizeCards, setOrganizeCards, undoBlockMove, type OrganizeCards } from "./store"
+import { DEFAULT_ORGANIZE, looksMixed } from "../shared/organize"
+import { entryKey } from "../shared/conversation"
+import type { OrganizeEvent, OrganizeReply } from "../shared/types"
 import { ProUpsell } from "./ProUpsell"
 import { SettingsView } from "./Settings"
 import { shareLabels } from "./shareLabels"
 import { markHintSeen, resetHints, seenHints, type HintKey } from "./store"
-import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, loadThreads, markTourSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, rememberPageText, renameThread, renewalAskedPeriod, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount } from "./store"
+import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, onConsentChanged, loadThreads, markTourSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, purgeChats, rememberPageText, renameThread, renewalAskedPeriod, restoreChat, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount, trashChat } from "./store"
 import { TagChip, TagEditor } from "./Tags"
 import { ThreadsView } from "./Threads"
+import { TrashView } from "./Trash"
+import { starMarks } from "../shared/marks"
+import { Bell, More, remindLabel, RemindSheet } from "./ux/MessageUx"
+import { PageMenu } from "./ux/PageMenu"
+import { bubbleActions, laterSections, laterSources, listsKind, pageRange, pageWatcher, setLaterOpener, type BubbleContext, type LaterContext, type LaterItem } from "./ux/later"
+import { reminderOf, reminderRows, withReminderAt } from "./ux/reminderList"
+import { watchableAt } from "./watch/at"
+import { RemindersSheet } from "./ux/RemindersSheet"
+import { TipsSheet } from "./tips/TipsSheet"
+import { SelIconsTip } from "./ux/SelTip"
+import { shadowSelection, trackPointer } from "./selectionShadow"
+import { restoredDraft, withoutStopped } from "./ux/stopped"
+import { scheduleReminder, thisDevice, useMessageUx } from "./ux/useMessageUx"
 import { Tour, tourSteps } from "./Tour"
-import { allTags, chatDigests, chatList, cleanTags, newThreadId, pinAt, shownThread, threadPages, threadTitle, type Thread } from "../shared/threads"
+import { ConsentCard } from "./Consent"
+import { QI_EVENTS, QuickInsert } from "./insert/QuickInsert"
+import * as QIcon from "./insert/icons"
+import { keepCopied, report as reportInsert } from "./insert/store"
+import { insertFromPanel, useButtonShown, useHasField } from "./insert/target"
+import { TemplatesView } from "./insert/TemplatesView"
+import { allTags, chatDigests, chatList, cleanTags, newThreadId, pageBlocks, pinAt, shownThread, threadPages, threadTitle, trashedThreads, type MoveUndo, type Thread, type Threads } from "../shared/threads"
 import type { ChatDigest } from "../shared/history"
 import type { ConsentStatus } from "../shared/consent"
 
@@ -64,6 +92,8 @@ interface ChatError {
   message?: string
   usage?: Usage | null
   offer?: ProOffer | null
+  // The page is long: an answer about it counts as this many, more than are left (2.5).
+  weight?: number
 }
 
 interface Action {
@@ -149,21 +179,6 @@ function offerUrl(code: string): string {
   return `https://apps.apple.com/redeem?ctx=offercodes&id=${APP_ID}&code=${encodeURIComponent(code)}`
 }
 
-/** Before the first answer, and again when the text changed (`again`): where questions go. */
-function ConsentCard({ again, onAccept, onDecline }: { again: boolean; onAccept: () => void; onDecline: () => void }): VNode {
-  return (
-    <div class="cf-card consent">
-      <strong>{t(again ? "consentAgainTitle" : "consentTitle")}</strong>
-      <p>{t("consentBody")}</p>
-      <div class="cf-card-actions">
-        <button type="button" class="cf-primary" onClick={onAccept}>{t("consentAccept")}</button>
-        <button type="button" class="cf-link" onClick={onDecline}>{t("consentDecline")}</button>
-        <button type="button" class="cf-link" onClick={() => void sendBackground({ type: "openUrl", url: LINKS.privacy })}>{t("privacyPolicy")}</button>
-      </div>
-    </div>
-  )
-}
-
 function errorText(error: ChatError): string {
   switch (error.code) {
     case "NETWORK":
@@ -206,7 +221,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const keepsText = !popup && !privateBrowsing()
   const [open, setOpen] = useState(popup)
   const [visible, setVisible] = useState(popup)
-  const [view, setView] = useState<"chat" | "settings" | "threads">("chat")
+  // "trash": Recently Deleted, opened from the end of the chat list (its back goes to the list).
+  const [view, setView] = useState<"chat" | "settings" | "threads" | "templates" | "trash">("chat")
+  // Quick insert: the page has a field the user typed in (answers and notes can go there).
+  const hasField = useHasField() && !popup
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS)
   const [status, setStatus] = useState<StatusInfo | null>(null)
   const statusRef = useRef(status)
@@ -220,6 +238,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [messages, setMessages] = useState<Turn[]>([])
   // Chats as threads: the list (newest first) and the one shown, which every page and tab continues.
   const [threadList, setThreadList] = useState<Thread[]>([])
+  // Recently Deleted (2.5 (83)): the chats there, the last one deleted first.
+  const [trashList, setTrashList] = useState<Thread[]>([])
+  /** Both lists as they are in `threads`. */
+  const showLists = (threads: Threads) => {
+    setThreadList(chatList(threads))
+    setTrashList(trashedThreads(threads))
+  }
   const threadRef = useRef("")
   const [partial, setPartial] = useState<string | null>(null)
   // Before asking: a video's transcript or a PDF being read (shown instead of "Reading the page…").
@@ -294,6 +319,44 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const loadingRef = useRef<Promise<void>>(Promise.resolve())
   const settingsRef = useRef(settings)
   settingsRef.current = settings
+  // Organizing (2.5): the bar after a move ("Moved to … · Undo · Open", kind "move"), and after a delete; how long
+  // each stays is in undoClock.ts.
+  const [undoBar, setUndoBar] = useState<{ text: string; actions: Array<{ label: string; run: () => void }>; kind?: BarKind } | null>(null)
+  // 2.5: highlights, swipes, pinned messages, reminders (src/content/ux); a deleted message's Undo is on the same bar.
+  const ux = useMessageUx({
+    messages,
+    setMessages,
+    chatId: () => threadRef.current,
+    chatTitle: () => threadList.find((x) => x.id === threadRef.current)?.title ?? threadTitle(messages),
+    list: listRef,
+    touch,
+    open,
+    send: sendBackground,
+    showUndo: (text, undo) => setUndoBar({ text, actions: [{ label: t("orgUndo"), run: () => { setUndoBar(null); undo() } }] })
+  })
+  // The bell by a selection: "Remind me to come back" (a note with the quote and the page, and a reminder that
+  // opens the page).
+  // "Remind me about this page" (the header's "…", or watching offering a reminder instead, later.ts): what was
+  // selected then.
+  const [later, setLater] = useState<{ selection: SelectionInfo | null; range: Range | null } | null>(null)
+  const [laterFlash, setLaterFlash] = useState(0)
+  // "Reminders" and "Watching" (the header's "…"; "All reminders" in the window; 2.5 (77): two lists, never one):
+  // which one is open, the rows (null while loading), and how many of each for the "…".
+  const [listOpen, setListOpen] = useState<LaterItem["kind"] | null>(null)
+  const [laterList, setLaterList] = useState<LaterItem[] | null>(null)
+  const [laterCount, setLaterCount] = useState({ remind: 0, watch: 0 })
+  useEffect(() => {
+    setLaterOpener((from) => setLater({
+      selection: from?.selection ? { text: from.selection, words: from.selection.split(/\s+/).filter(Boolean).length, rect: null, at: Date.now() } : null,
+      range: from?.range ?? null
+    }))
+    return () => setLaterOpener(null)
+  }, [])
+  // The header's "…" (where Settings was): "Remind me about this page…", the two lists and Settings (2.5).
+  const [pageMenu, setPageMenu] = useState(false)
+  // "…" → Tips: the app's Tips in a sheet (2.5 (78)).
+  const [tipsOpen, setTipsOpen] = useState(false)
+  const [remindSaved, setRemindSaved] = useState<number | null>(null)
 
   // The source learnt something new (the PDF popup: the document's title once it's read).
   const [, setSourceSeen] = useState(0)
@@ -311,7 +374,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     void loadSettings().then(setSettings)
     void loadConsent().then(setConsent)
     void hasSeenTour().then(setTourSeen)
-    return onSettingsChanged(setSettings)
+    // Given in another tab: this one knows at once (2.5 (78): its template editor asked again).
+    const stopConsent = onConsentChanged(setConsent)
+    const stopSettings = onSettingsChanged(setSettings)
+    return () => {
+      stopConsent()
+      stopSettings()
+    }
   }, [])
 
   const updateSettings = useCallback((patch: Partial<Settings>) => {
@@ -362,6 +431,19 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setTimeout(() => setOpen(false), 220)
   }, [popup])
 
+  // ------------------------------------------------------------ quick insert
+  // "Template" by a selection: the selected text becomes a template (the AI marks its blanks).
+  const newTemplate = (sel: SelectionInfo) => {
+    setBubble(null)
+    if (touch) document.getSelection()?.removeAllRanges()
+    bus.dispatchEvent(new CustomEvent(QI_EVENTS.newTemplate, { detail: { text: sel.text, from: "selection" } }))
+  }
+  // Consent given from quick insert's own card (to fill blanks or mark them).
+  const agreeQuietly = useCallback(async () => {
+    await giveConsent()
+    setConsent("ok")
+  }, [])
+
   useEffect(() => {
     const onToggle = () => (open ? hide() : show())
     const onOpen = () => show()
@@ -391,7 +473,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         threadRef.current = active.id
         setKind(threads[active.id]?.kind)
         const entries = threads[active.id]?.m ?? []
-        setThreadList(chatList(threads))
+        showLists(threads)
         setMessages(entries)
         scrollToEnd()
         // Other devices may have continued a chat (iCloud), or the ContextFlow app asked to continue one
@@ -401,7 +483,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           const fresh = await loadThreads()
           const asked = result.open ? fresh.threads[result.open] : undefined
           const next = asked && !asked.deleted && asked.m.length ? { id: asked.id, m: asked.m } : shownThread(fresh.threads, fresh.active)
-          setThreadList(chatList(fresh.threads))
+          showLists(fresh.threads)
           setMessages((current) => {
             if (current !== entries) return current
             if (next.id !== threadRef.current) {
@@ -439,7 +521,16 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // While open: the chat list follows other tabs and devices, and the answer counter other devices.
   useEffect(() => {
     if (!open) return
-    const off = onThreadsChanged(() => void loadThreads().then(({ threads }) => setThreadList(chatList(threads))))
+    const off = onThreadsChanged(() => void loadThreads().then(({ threads, active }) => {
+      showLists(threads)
+      // The chat shown went to Recently Deleted in another tab or on another device: it goes from here too, as when
+      // it's deleted here (not while an answer is coming in).
+      if (threads[threadRef.current]?.trashed === undefined || portRef.current || askToken.current) return
+      threadRef.current = active.id
+      setKind(threads[active.id]?.kind)
+      setMessages(threads[active.id]?.m ?? [])
+      setError(null)
+    }))
     const timer = setInterval(() => {
       if (document.visibilityState === "visible" && !portRef.current) void refreshStatus()
     }, 30_000)
@@ -464,6 +555,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const timer = setTimeout(() => setTouring(true), 450)
     return () => clearTimeout(timer)
   }, [popup, tourSeen, touring, visible, view, streaming, pending])
+
+  // Recently Deleted emptied (everything restored or deleted, here or elsewhere): back to the list, where its row goes too.
+  useEffect(() => {
+    if (view === "trash" && trashList.length === 0) setView("threads")
+  }, [view, trashList])
 
   // Persist the chat shown.
   useEffect(() => {
@@ -507,8 +603,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         setPicked(null)
         return
       }
-      // Escape in a chat's name field only cancels the renaming; in the chat search, it clears the search.
-      const field = e.composedPath()[0] as HTMLInputElement | undefined
+      // Escape in a chat's name field only cancels the renaming; in the chat search, it clears the search. (The
+      // focused field from our root: from the window, a closed root shows only its host.)
+      const field = (panelRef.current?.getRootNode() as ShadowRoot | Document | undefined)?.activeElement as HTMLInputElement | null | undefined
       if (field?.classList?.contains("cf-thread-name") || (field?.closest?.(".cf-search") && field.value)) return
       hide()
     }
@@ -519,10 +616,20 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // Keep the newest text in view while streaming (not when a message only got tags: the chat stays put).
   useEffect(() => {
     const list = listRef.current
-    if (list) list.scrollTop = list.scrollHeight
+    if (!list) return
+    list.scrollTop = list.scrollHeight
+    // The limit's card taller than the view (a long page's, in some languages): its title in view, not its end.
+    const card = error ? list.querySelector<HTMLElement>(".cf-card.limit") : null
+    if (card && card.offsetHeight > list.clientHeight - 16) {
+      list.scrollTop += card.getBoundingClientRect().top - list.getBoundingClientRect().top - 8
+    }
   }, [messages.length, partial, error])
 
   // ------------------------------------------------------------ selection
+  /** The page's selection as a range: in the page, or inside a site's open shadow root (LinkedIn's messages). */
+  const selectedRange = (): Range | null => shadowSelection(HOST_TAG) ?? pageRange(HOST_TAG)
+  // Where the pointer goes down, inside the sites' open shadow roots too: a selection there is read in that root.
+  useEffect(() => trackPointer(), [])
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout> | undefined
     let scrollTimer: ReturnType<typeof setTimeout> | undefined
@@ -534,7 +641,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       const vv = window.visualViewport
       const top = vv?.offsetTop ?? 0
       const onScreen = Boolean(sel?.rect && sel.rect.bottom > top && sel.rect.top < top + (vv?.height ?? window.innerHeight))
-      setBubble(sel && onScreen && sel.words >= (touch ? MIN_SELECTION_WORDS : 3) ? sel : null)
+      // On a Mac a price or a status is a word or two: the bubble shows for it too, with watching's eye (Safari).
+      const enough = sel && (sel.words >= (touch ? MIN_SELECTION_WORDS : 3) || (TARGET === "safari" && Boolean(watchableAt(sel.text, selectedRange()))))
+      setBubble(sel && onScreen && enough ? sel : null)
     }
     const onSelectionChange = () => {
       // Remember it right away: tapping our button on iPhone clears the selection.
@@ -579,7 +688,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setPartial(null)
     setStreamMode(null)
     if (text) {
-      const next: Turn[] = [...history, grounding ? { role: "assistant", content: text, grounding } : { role: "assistant", content: text }]
+      const next: Turn[] = [...history, stamped(grounding ? { role: "assistant", content: text, grounding } : { role: "assistant", content: text })]
       setMessages(next)
       const skipped = skippedFor(next, next.length - 1)
       if (skipped) void sendBackground({ type: "mediaNotice", action: "shown", media: skipped })
@@ -592,6 +701,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const ask = useCallback((text: string, opts: { label?: string; action?: string; retry?: boolean; mode?: "google" } = {}) => {
     const content = text.trim()
     if (!content || portRef.current || askToken.current) return
+    setUndoBar(null)
     if (consent !== "ok") {
       setPending({ text: content, label: opts.label, action: opts.action, mode: opts.mode })
       return
@@ -600,7 +710,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const url = source.key()
     if (historyRef.current) {
       // "Ask your chats": the question goes with a digest of all the other chats, not the page.
-      setMessages([...base, { role: "user", content, label: opts.label }])
+      setMessages([...base, stamped({ role: "user", content, label: opts.label })])
       setDraft("")
       if (inputRef.current) inputRef.current.style.height = "auto"
       setError(null)
@@ -618,7 +728,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       return
     }
     // The question shows at once; a video's transcript or a PDF may take a few seconds to read.
-    const shown: Turn = { role: "user", content, label: opts.label, page: { url, title: source.title(), at: Date.now() } }
+    const shown: Turn = stamped({ role: "user", content, label: opts.label, page: { url, title: source.title(), at: Date.now() } })
     if (opts.mode) shown.mode = opts.mode
     setMessages([...base, shown])
     setDraft("")
@@ -650,13 +760,25 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     })
   }, [consent, messages, platform, selection, source])
 
+  // "Fit to the message" from quick insert: an ordinary answer (counts like one), the template as its start.
+  // Quick insert's rewrite: the whole template for this page, with the conversation around the field when there's one
+  // (2.5 (81): not a name from the list of other conversations).
+  const adaptTemplate = (text: string, conversation: string | null) => {
+    show()
+    const prompt = t("qiAdaptPrompt", text) + (conversation ? `\n\n${t("qiAdaptConversation", conversation)}` : "")
+    setTimeout(() => ask(prompt, { label: t(conversation ? "qiAdaptChat" : "qiAdaptLabel") }), 120)
+  }
+
   /** Sends a question with the page as `full` (sources: what was read along with it) or the selection. */
   sendRef.current = (base, content, opts, full, selection, chats) => {
     const url = source.key()
-    const ref = pageRef(base, url, full.title, full.text, keepsText)
+    // The model gets all of the page (2.5); its fingerprint and the saved text are still its first
+    // MAX_PAGE_CHARS, so a chat's "the page has changed" and the app's saved page stay as they were.
+    const start = full.text.slice(0, MAX_PAGE_CHARS)
+    const ref = pageRef(base, url, full.title, start, keepsText)
     const changed = !chats && pageHasChanged(base, url, ref.hash!)
-    const user: Turn = chats ? { role: "user", content, label: opts.label } : { role: "user", content, label: opts.label, page: ref }
-    if (!chats) void rememberPageText(url, full.title, full.attachments ? composePage(full.text, full.attachments) : full.text)
+    const user: Turn = stamped(chats ? { role: "user", content, label: opts.label } : { role: "user", content, label: opts.label, page: ref }, ref.at)
+    if (!chats) void rememberPageText(url, full.title, full.attachments ? composePage(start, full.attachments) : start)
     if (opts.mode) user.mode = opts.mode
     if (changed) user.pageChanged = true
     if (full.sources.length) user.sources = full.sources
@@ -701,7 +823,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       } else if (event.type === "error") {
         settled = true
         if (event.usage) setUsage(event.usage)
-        finish(history, partialRef.current, { code: event.code, message: event.message, usage: event.usage, offer: event.offer })
+        finish(history, partialRef.current, { code: event.code, message: event.message, usage: event.usage, offer: event.offer, weight: event.weight })
       }
     })
     port.onDisconnect.addListener(() => {
@@ -738,9 +860,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const saveNote = useCallback((text: string) => {
     const content = text.trim()
     if (!content || portRef.current || askToken.current) return
+    setUndoBar(null)
     const url = source.key()
     const full = source.quick()
-    const next: Turn[] = [...messages, { role: "user", content, note: true, page: pageRef(messages, url, full.title, full.text, keepsText) }]
+    const next: Turn[] = [...messages, stamped({ role: "user", content, note: true, page: pageRef(messages, url, full.title, full.text, keepsText) })]
     setMessages(next)
     void saveThread(threadRef.current, next)
     void rememberPageText(url, full.title, full.text)
@@ -752,7 +875,35 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
   const submit = () => (noteMode ? saveNote(draft) : ask(draft, { mode: googleMode && !historyRef.current ? "google" : undefined }))
 
-  const stop = useCallback(() => {
+  // The chat and the field as they are now, for stop() (2.5 (75)).
+  const nowRef = useRef({ messages, draft })
+  nowRef.current = { messages, draft }
+  /**
+   * A question stopped before any of its answer came (2.5 (75), the owner's notes) leaves no question without an
+   * answer, and no chat that only had it (stopped.ts); `restore` (the stop button): its text goes back to the field.
+   */
+  const dropStopped = (restore: boolean) => {
+    const { kept, question } = withoutStopped(nowRef.current.messages)
+    if (!question) return
+    const id = threadRef.current
+    setMessages(kept)
+    if (kept.length) void saveThread(id, kept, historyRef.current ? "history" : undefined)
+    else void deleteThread(id)
+    const back = restore ? restoredDraft(question, nowRef.current.draft) : null
+    if (back === null) return
+    setDraft(back)
+    requestAnimationFrame(() => {
+      const el = inputRef.current
+      if (!el) return
+      el.style.height = "auto"
+      el.style.height = `${Math.min(el.scrollHeight, 140)}px`
+    })
+  }
+  const dropStoppedRef = useRef(dropStopped)
+  dropStoppedRef.current = dropStopped
+
+  // `fromButton`: the stop button (the question comes back to the field); else a new or another chat is opening.
+  const stop = useCallback((fromButton = false) => {
     const port = portRef.current
     if (!port && askToken.current) {
       // Stopped while the page was still being read: nothing was asked.
@@ -761,10 +912,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       partialRef.current = ""
       setPartial(null)
       setStreamMode(null)
+      dropStoppedRef.current(fromButton)
       return
     }
     if (!port) return
     portRef.current = null
+    // The next question can go (it waited for this one to finish).
+    askToken.current = null
     try {
       port.disconnect()
     } catch {
@@ -774,7 +928,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     partialRef.current = ""
     setPartial(null)
     setStreamMode(null)
-    if (text) setMessages((prev) => [...prev, { role: "assistant", content: text }])
+    if (text) setMessages((prev) => [...prev, stamped({ role: "assistant", content: text })])
+    else dropStoppedRef.current(fromButton)
   }, [])
 
   // `withoutGoogle`: ask the same question as a normal answer (e.g. after the Google limit).
@@ -806,6 +961,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   /** Starts a new thread; the previous one stays in the list. */
   const newChat = useCallback(() => {
     stop()
+    setUndoBar(null)
     const id = newThreadId()
     threadRef.current = id
     setKind(undefined)
@@ -862,10 +1018,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
    * Note by the selection: the selected text, with what's typed in the field as its comment, goes to
    * the end of the current chat with the page. No AI, no answer used; the panel stays closed.
    */
-  const noteSelection = async (sel: SelectionInfo, comment: string) => {
+  /**
+   * `remindAt`: "Come back later" → Remind (2.5): the note gets a reminder that opens its page. Without a selection
+   * the note is the page itself (its title).
+   */
+  const noteSelection = async (sel: SelectionInfo | null, comment: string, remindAt?: number, remindPreset?: string) => {
     if (noteHold.current) return
     noteHold.current = true
-    selFeatureUsed()
+    if (sel) selFeatureUsed()
     // An answer still coming in (the panel was closed meanwhile) is saved first: the note goes after it.
     for (let i = 0; i < 300 && (portRef.current || askToken.current); i++) await new Promise((r) => setTimeout(r, 200))
     const { threads, active } = await loadThreads()
@@ -876,17 +1036,34 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (!fits) await setActiveThread(id)
     const url = source.key()
     const page = source.quick()
-    const note = selectionNote(sel.text, comment, pageRef(fits && current ? current.m : [], url, page.title, page.text, keepsText), (text) => t("noteQuote", text))
-    await saveThread(id, [...(fits && current ? current.m : []), note])
+    const ref = pageRef(fits && current ? current.m : [], url, page.title, page.text, keepsText)
+    let note: Entry = sel ? selectionNote(sel.text, comment, ref, (text) => t("noteQuote", text)) : stamped({ role: "user", content: page.title || source.href(), note: true, page: ref }, ref.at)
+    if (remindAt) {
+      // Set on this device first: the note keeps the bell only when the notification is really set.
+      const outcome = await scheduleReminder(sendBackground, id, { ...note, remind: { at: remindAt, page: true } }, remindAt, "")
+      const dev = await thisDevice()
+      if (outcome === "scheduled") note = { ...note, remind: { at: remindAt, page: true, ...(dev ? { dev } : {}) } }
+      // A time when set; -1 when notifications are off for ContextFlow; 0 when there's no app to set it.
+      setRemindSaved(outcome === "scheduled" ? remindAt : outcome === "denied" ? -1 : 0)
+      void sendBackground({ type: "uxEvent", kind: "ux_remind", action: outcome === "scheduled" ? "set" : outcome === "denied" ? "denied" : "cancelled", what: "page", how: "later", ...(remindPreset ? { preset: remindPreset } : {}) })
+    }
+    const list = [...(fits && current ? current.m : []), note]
+    await saveThread(id, list)
+    // The panel open ("Come back later" from its "…"): the note shows in the chat at once.
+    if (open) {
+      threadRef.current = id
+      setMessages(list)
+    }
     void rememberPageText(url, page.title, page.text)
     setNoteSaved(true)
     setTimeout(() => {
       noteHold.current = false
       setNoteSaved(false)
+      setRemindSaved(null)
       setBubble(null)
       // On iPhone and iPad the system edit menu would stay over the page.
       if (touch) document.getSelection()?.removeAllRanges()
-    }, 2200)
+    }, remindAt ? 4000 : 2200)
   }
 
   /** "Ask your chats" (Pro): continues today's one, else starts a new one; without Pro, says what it does. */
@@ -928,6 +1105,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   /** Opens a chat; `at`: the message to show (a search result), else its end. */
   const openThread = useCallback((id: string, at?: number) => {
     stop()
+    setUndoBar(null)
     const thread = threadList.find((x) => x.id === id)
     threadRef.current = id
     setKind(thread?.kind)
@@ -973,29 +1151,71 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const messageFooter = (m: Entry, idx: number, plain: () => string, shared: () => string): VNode => (
     <>
       {m.tags && m.tags.length > 0 && <div class="cf-msg-tags">{m.tags.map((tag) => <TagChip key={tag} tag={tag} onClick={() => setTagging(idx)} />)}</div>}
-      <div class="cf-msg-tools">
-        <button type="button" onClick={async () => { if (await copyText(plain())) { setCopied(idx); setTimeout(() => setCopied(null), 1500) } }}>
+      <div class={`cf-msg-tools ${hasField ? "has-insert" : ""}`}>
+        {hasField && (
+          <button type="button" class="cf-insert" onClick={() => {
+            const text = plain()
+            hide()
+            // The panel slides away first: the field gets the caret back once it's visible again.
+            setTimeout(() => insertFromPanel(text, m.note ? "note" : "answer"), layout === "sheet" ? 240 : 0)
+          }}>
+            <QIcon.Insert size={15} /> {t("qiInsertIntoField")}
+          </button>
+        )}
+        <button type="button" onClick={async () => {
+          const text = plain()
+          // An answer with highlights goes as rich text too (bold), then as plain text.
+          if ((await ux.copyAnswer(idx, text)) || (await copyText(text))) {
+            setCopied(idx)
+            setTimeout(() => setCopied(null), 1500)
+            // ContextFlow's own Copy goes to Copied too.
+            void keepCopied(text, "", "contextflow")
+          }
+        }}>
           {copied === idx ? <Icon.Check /> : <Icon.Copy />} {copied === idx ? t("copied") : t("copy")}
         </button>
         {typeof navigator.share === "function" && (
-          <button type="button" onClick={() => void shareText(shared())}>
-            <Icon.Share /> {t("share")}
+          <button type="button" onClick={() => {
+            // Highlights as **…** only with the setting on (Messages and Notes show the asterisks).
+            const stars = Boolean(m.marks?.length && settingsRef.current.shareMarks)
+            if (stars) void sendBackground({ type: "uxEvent", kind: "ux_mark", action: "shared" })
+            void shareText(stars ? starMarks(shared(), m.marks) : shared())
+          }} aria-label={t("share")} title={t("share")}>
+            <Icon.Share /> <span class="cf-tl">{t("share")}</span>
           </button>
         )}
-        <button type="button" onClick={() => setTagging(tagging === idx ? null : idx)} aria-expanded={tagging === idx}>
-          <Icon.Tag /> {t("tagsButton")}
+        <button type="button" onClick={() => setTagging(tagging === idx ? null : idx)} aria-expanded={tagging === idx} aria-label={t("tagsButton")} title={t("tagsButton")}>
+          <Icon.Tag /> <span class="cf-tl">{t("tagsButton")}</span>
         </button>
+        {ux.moreButton(m, idx)}
       </div>
-      {tagging === idx && <TagEditor tags={m.tags ?? []} known={allTags(threadList).map((x) => x.tag)} onChange={(next) => tagMessage(idx, next)} onClose={() => setTagging(null)} />}
+      {tagging === idx && <TagEditor tags={m.tags ?? []} known={allTags(threadList).map((x) => x.tag)} onChange={(next) => userTags(idx, next)} onClose={() => setTagging(null)} />}
+      {organizeRow(idx)}
     </>
   )
 
   const renameChat = useCallback((id: string, name: string) => {
-    void renameThread(id, name).then(() => loadThreads()).then(({ threads }) => setThreadList(chatList(threads)))
+    void renameThread(id, name).then(() => loadThreads()).then(({ threads }) => showLists(threads))
   }, [])
 
+  /**
+   * A chat's reminders on this device: off while it's in Recently Deleted, on again once it's back (those still ahead
+   * that were set here).
+   */
+  const chatReminders = async (thread: Thread, on: boolean) => {
+    const dev = on ? await thisDevice() : undefined
+    for (const m of thread.m) {
+      if (!m.remind) continue
+      if (!on) void scheduleReminder(sendBackground, thread.id, m, null, "")
+      else if (m.remind.at > Date.now() && (!m.remind.dev || m.remind.dev === dev)) void scheduleReminder(sendBackground, thread.id, m, m.remind.at, thread.title || threadTitle(thread.m))
+    }
+  }
+
+  // The last move to Recently Deleted being stored: Undo right after a delete waits for it, or it would find nothing to
+  // restore and the delete would land after it.
+  const trashing = useRef<Promise<unknown>>(Promise.resolve())
+  /** A chat the user deleted goes to Recently Deleted (2.5 (83)); shown here, a new chat takes its place. */
   const removeThread = useCallback((id: string) => {
-    void deleteThread(id)
     setThreadList((list) => list.filter((x) => x.id !== id))
     if (id === threadRef.current) {
       const id2 = newThreadId()
@@ -1005,7 +1225,50 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       setMessages([])
       setError(null)
     }
+    const done = trashChat(id).then(async (gone) => {
+      if (gone) void chatReminders(gone, false)
+      const { threads } = await loadThreads()
+      showLists(threads)
+    })
+    trashing.current = done.catch(() => undefined)
   }, [])
+
+  /** Back from Recently Deleted (its Restore, or Undo after a delete): to its place in the list, its reminders on again. */
+  const restoreFromTrash = (id: string, how: "bar" | "list") => {
+    void trashing.current.then(() => restoreChat(id)).then(async (back) => {
+      if (back) void chatReminders(back, true)
+      const { threads } = await loadThreads()
+      showLists(threads)
+      if (back) void sendBackground({ type: "uxEvent", kind: "ux_delete", action: "undone", what: "chat", how })
+    })
+  }
+
+  /** Delete Now (one chat) and Delete All (`ids`: every chat there) in Recently Deleted: gone for good. */
+  const purgeFromTrash = (ids: string[]) => {
+    setTrashList((list) => list.filter((x) => !ids.includes(x.id)))
+    void purgeChats(ids).then(showLists)
+  }
+
+  /**
+   * A chat deleted from the list (its trash button, a swipe or "…"), with "Chat deleted · Undo" (2.5); Undo brings it
+   * back from Recently Deleted.
+   */
+  const deleteChatWithUndo = useCallback((id: string) => {
+    const gone = threadList.find((x) => x.id === id)
+    removeThread(id)
+    if (!gone) return
+    void sendBackground({ type: "uxEvent", kind: "ux_delete", action: "deleted", what: "chat", how: touch ? "swipe" : "list" })
+    setUndoBar({
+      text: t("uxDeletedChat"),
+      actions: [{
+        label: t("orgUndo"),
+        run: () => {
+          setUndoBar(null)
+          restoreFromTrash(gone.id, "bar")
+        }
+      }]
+    })
+  }, [threadList, removeThread, touch])
 
   // Pinning and reordering show at once; storage (and iCloud) follow.
   const placeChat = useCallback((id: string, pin: number | null) => {
@@ -1183,7 +1446,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   useEffect(() => setPicked(null), [threadRef.current, messages.length, view])
 
   // ------------------------------------------------------------ upgrade
-  const openApp = useCallback(async (target: "subscribe" | "manage", feature?: "ai") => {
+  const openApp = useCallback(async (target: "subscribe" | "manage", feature?: "ai" | "organize") => {
     const result = await sendBackground<{ opened: boolean; url: string }>({ type: "openApp", target, feature })
     if (result && !result.opened && result.url) followLink(result.url)
   }, [])
@@ -1211,7 +1474,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
   // ------------------------------------------------------------ FAB
   const fabEnabled = settings.fab !== "off"
-  const fabVisible = !popup && fabEnabled && !open && !settings.fabHiddenSites.includes(source.site())
+  // The ✦ steps aside while quick insert's button sits by the field being typed in.
+  const insertButtonShown = useButtonShown()
+  const fabVisible = !popup && fabEnabled && !open && !settings.fabHiddenSites.includes(source.site()) && !insertButtonShown
   const dragRef = useRef<{ startY: number; startX: number; moved: boolean; pointer: number } | null>(null)
 
   const onFabDown = (e: PointerEvent) => {
@@ -1283,6 +1548,162 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     void sendBackground({ type: "byokUpsell", action: "shown", where: "offer", period: status?.store?.period ?? null, discount: true })
   }, [open, byokDiscount, status])
 
+  // A long page counts as several answers (2.5; the server decides, from what it sends): said by the field before
+  // the question goes, for the page itself (a selection, Google mode and "Ask your chats" count as one; with the
+  // user's own key nothing is counted). Measured when the panel opens and after each answer.
+  const [pageWeight, setPageWeight] = useState(1)
+  useEffect(() => {
+    if (!open) return
+    try {
+      setPageWeight(answerWeight(source.length()))
+    } catch {
+      setPageWeight(1)
+    }
+  }, [open, messages.length, source])
+  const weightNote = pageWeight > 1 && contextKind === "page" && !googleMode && !historyMode && !noteMode && !ownKeyActive
+
+  // ------------------------------------------------------------ "Remind me about this page" (2.5, later.ts)
+  /** The window: when (this evening, tomorrow morning, in a week, a date of one's own); 2.5 (77): time only. */
+  const laterSheet = (page: boolean): VNode => {
+    const from = later!
+    const ctx: LaterContext = {
+      url: source.href(), key: source.key(), title: source.title(), selection: from.selection?.text ?? null, range: from.range,
+      close: () => setLater(null),
+      remind: () => setLaterFlash((n) => n + 1)
+    }
+    return (
+      <RemindSheet
+        page={page}
+        later
+        flash={laterFlash}
+        title={t(from.selection ? "uxRemind" : "uxLaterTitle")}
+        quote={from.selection?.text}
+        onPick={(at, preset) => {
+          setLater(null)
+          void noteSelection(from.selection, "", at, preset)
+        }}
+        onCancel={() => setLater(null)}
+        onClose={() => setLater(null)}
+      >
+        {laterSections().map((render, i) => <Fragment key={i}>{render(ctx)}</Fragment>)}
+        {!page && (
+          <button type="button" class="cf-sheet-link" onClick={() => {
+            setLater(null)
+            openReminders("link", "remind")
+          }}>{t("uxAllReminders")}</button>
+        )}
+      </RemindSheet>
+    )
+  }
+  /** The reminders still to ring in every chat (the soonest first), then watching's rows (later.ts); each list shows its own. */
+  const laterItems = async (): Promise<LaterItem[]> => {
+    const [{ threads }, dev] = await Promise.all([loadThreads(), thisDevice()])
+    const reminders = reminderRows(threads, dev, Date.now(), (at) => remindLabel(at), (label) => t("uxOnAnotherDevice", label))
+    const watches = (await Promise.all(laterSources().map((s) => s.items().catch(() => [] as LaterItem[])))).flat()
+    return [...reminders, ...watches.sort((a, b) => b.sortAt - a.sortAt)]
+  }
+  const countOf = (items: LaterItem[]) => ({ remind: items.filter((i) => i.kind === "remind").length, watch: items.filter((i) => i.kind === "watch").length })
+  const openReminders = (via: "menu" | "link", kind: LaterItem["kind"]) => {
+    setLaterList(null)
+    setListOpen(kind)
+    void laterItems().then((items) => {
+      setLaterList(items)
+      const n = countOf(items)
+      setLaterCount(n)
+      void sendBackground({ type: "useEvent", f: "later", a: "list", what: kind, via, reminders: String(n.remind), watches: String(n.watch) })
+    }).catch(() => setLaterList([]))
+  }
+  /** A page reminder or a watch opens its page in a new tab; a reminder on an answer or a note, its chat at it. */
+  const openLaterItem = (item: LaterItem) => {
+    // A source that opens its own rows (watching's window).
+    const reread = () => void laterItems().then((items) => {
+      setLaterList(items)
+      setLaterCount(countOf(items))
+    }, () => undefined)
+    if (laterSources().some((s) => s.open?.(item, reread))) return
+    if (item.url) {
+      window.open(item.url, "_blank", "noopener")
+      return
+    }
+    const [, chat, key] = item.id.split(":")
+    const at = threadList.find((x) => x.id === chat)?.m.findIndex((m) => entryKey(m) === key) ?? -1
+    setListOpen(null)
+    openThread(chat, at >= 0 ? at : undefined)
+  }
+  const cancelLaterItem = async (item: LaterItem) => {
+    if (item.kind === "remind") {
+      const [, chat, key] = item.id.split(":")
+      const list = (await loadThreads()).threads[chat]?.m
+      const entry = list?.find((m) => entryKey(m) === key)
+      if (list && entry) {
+        void scheduleReminder(sendBackground, chat, entry, null, "")
+        const next = list.map((m) => {
+          if (entryKey(m) !== key) return m
+          const { remind: _, ...rest } = m
+          return rest
+        })
+        await saveThread(chat, next)
+        if (threadRef.current === chat) setMessages(next)
+        void sendBackground({ type: "uxEvent", kind: "ux_remind", action: "cancelled", what: entry.remind?.page ? "page" : entry.note ? "note" : "answer", how: "list" })
+      }
+    } else {
+      for (const source of laterSources()) await source.cancel(item.id).catch(() => undefined)
+    }
+    const items = await laterItems()
+    setLaterList(items)
+    setLaterCount(countOf(items))
+  }
+  /** A reminder's new time, from the list (2.5 (75)): it rings on this device. Null once set, else why it isn't. */
+  const rescheduleLaterItem = async (item: LaterItem, at: number, preset: string): Promise<string | null> => {
+    const ref = reminderOf(item)
+    const thread = ref ? (await loadThreads()).threads[ref.chat] : undefined
+    const entry = ref && thread?.m.find((m) => entryKey(m) === ref.key)
+    if (!ref || !thread || !entry) return null
+    const what = entry.remind?.page ? "page" : entry.note ? "note" : "answer"
+    const outcome = await scheduleReminder(sendBackground, ref.chat, entry, at, thread.title || threadTitle(thread.m))
+    if (outcome !== "scheduled") {
+      if (outcome === "denied") void sendBackground({ type: "uxEvent", kind: "ux_remind", action: "denied", what })
+      return t(outcome === "denied" ? "uxRemindOff" : "uxRemindNone")
+    }
+    const dev = await thisDevice()
+    await saveThread(ref.chat, withReminderAt(thread.m, ref.key, at, dev))
+    if (threadRef.current === ref.chat) setMessages((list) => withReminderAt(list, ref.key, at, dev))
+    void sendBackground({ type: "uxEvent", kind: "ux_remind", action: "set", what, how: "list", preset })
+    const items = await laterItems()
+    setLaterList(items)
+    setLaterCount(countOf(items))
+    return null
+  }
+  // The bell in the selection bubble (2.5 (77), the owner: "how do I add Remind me on the page itself?"), on any
+  // selection, before the eye: the same "Remind me" window as the header's "…", with the quote; the note keeps the
+  // quote and the page, the reminder opens it.
+  const remindButton = (sel: SelectionInfo) => (
+    <button
+      type="button"
+      class="cf-sel-icon cf-sel-remind"
+      aria-label={t("uxRemind")}
+      title={t("uxRemind")}
+      {...press(() => {
+        void sendBackground({ type: "useEvent", f: "later", a: "open", via: "bubble" })
+        setLater({ selection: sel, range: selectedRange() })
+        // The page's selection goes, and with it the system's edit menu that would stay over the window.
+        document.getSelection()?.removeAllRanges()
+        setBubble(null)
+      })}
+    >
+      <Bell size={touch ? 16 : 14} />
+      <span class="cf-sel-remind-l">{t("uxRemind")}</span>
+    </button>
+  )
+  // The actions added to the selection bubble, after the bell (watching's eye); none for plain text.
+  const bubbleExtras: VNode[] = bubble?.rect && !open && !popup
+    ? bubbleActions().flatMap((render, i) => {
+        const ctx: BubbleContext = { url: source.href(), key: source.key(), title: source.title(), selection: bubble.text, range: selectedRange(), close: () => setBubble(null) }
+        const node = render(ctx)
+        return node ? [<Fragment key={i}>{node}</Fragment>] : []
+      })
+    : []
+
   // The allowance under the input: short, to share the line with "Whole chat" and Get Pro; in full on hover.
   const usageLine = useMemo(() => {
     if (ownKeyActive) return { short: t("usageOwnKey"), full: t("usageOwnKey") }
@@ -1292,6 +1713,297 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       ? { short: t("usageProShort", left, usage.limit), full: t("usagePro", left, usage.limit) }
       : { short: t("usageFreeShort", left, usage.limit), full: t("usageFree", left, usage.limit) }
   }, [usage, plan, ownKeyActive])
+
+  // ------------------------------------------------------------ organizing (2.5)
+  // Suggestions for the chat shown (Pro, with suggestions on): asked once an answer or a note is in, or the chat
+  // opens. They belong to the chat as it was (its length) and go when it changes; at most one row under a message.
+  const orgCfg = status?.organize?.config ?? DEFAULT_ORGANIZE
+  const orgOn = TARGET === "safari" && plan === "pro" && Boolean(status?.organize?.on) && settings.organize
+  const [org, setOrg] = useState<{ chat: string; length: number; move: OrganizeMove | null; tags: Array<{ index: number; key: string; tag: string }> } | null>(null)
+  const [cards, setCards] = useState<OrganizeCards | null>(null)
+  // "Everything in one chat?" showing in this chat; the card after the third tag; the line after the first one taken.
+  const [messFor, setMessFor] = useState<string | null>(null)
+  const [tagsCard, setTagsCard] = useState(false)
+  const [firstWin, setFirstWin] = useState(false)
+  const orgSeen = useRef(new Set<string>())
+  const messagesRef = useRef(messages)
+  messagesRef.current = messages
+  const orgEvent = (event: OrganizeEvent) => void sendBackground({ type: "organizeEvent", event })
+  useEffect(() => {
+    if (open) void organizeCards().then(setCards)
+  }, [open])
+
+  useEffect(() => {
+    if (!open || !orgOn || streaming || historyMode || messages.length === 0) return
+    const chat = threadRef.current
+    const length = messages.length
+    // After the answer is in, without delaying it; a fade in, not a jump.
+    const timer = setTimeout(() => {
+      void sendBackground<OrganizeReply>({ type: "organize", chat }).then((reply) => {
+        if (!reply?.ok || threadRef.current !== chat || messagesRef.current.length !== length) return
+        setOrg({ chat, length, move: reply.move, tags: reply.tags })
+      })
+    }, 900)
+    return () => clearTimeout(timer)
+  }, [open, orgOn, streaming, historyMode, messages.length, threadRef.current])
+
+  const orgNow = org && orgOn && org.chat === threadRef.current && org.length === messages.length && !picked && !streaming ? org : null
+  // Each suggestion is counted once as shown.
+  useEffect(() => {
+    if (!orgNow) return
+    const seen: Array<[string, OrganizeEvent]> = []
+    if (orgNow.move && messages[orgNow.move.start]) {
+      seen.push([`m:${entryKey(messages[orgNow.move.start])}:${orgNow.move.to}`, { kind: "organize", action: "shown", what: orgNow.move.to ? "move" : "new", why: orgNow.move.why }])
+    }
+    for (const x of orgNow.tags) seen.push([`t:${x.key}:${x.tag}`, { kind: "organize", action: "shown", what: "tag" }])
+    for (const [id, event] of seen) {
+      if (orgSeen.current.has(id)) continue
+      orgSeen.current.add(id)
+      orgEvent(event)
+    }
+  }, [orgNow])
+
+  // The first suggestion taken: a line that from now on they come by themselves (once).
+  const won = () => {
+    if (!cards || cards.firstWin) return
+    setFirstWin(true)
+    void setOrganizeCards({ firstWin: true }).then(setCards)
+    orgEvent({ kind: "organize_promo", action: "shown", where: "first_win" })
+  }
+
+  const takeTag = (index: number, tag: string) => {
+    setMessages((list) => list.map((m, i) => (i !== index ? m : {
+      ...m,
+      tags: cleanTags([...(m.tags ?? []), tag]),
+      accepted: { ...m.accepted, tags: cleanTags([...(m.accepted?.tags ?? []), tag]) }
+    })))
+    setOrg((o) => o && { ...o, tags: o.tags.filter((x) => x.index !== index) })
+    orgEvent({ kind: "organize", action: "accepted", what: "tag" })
+    won()
+  }
+  const refuseTag = (index: number, tag: string) => {
+    setMessages((list) => list.map((m, i) => (i !== index ? m : { ...m, dismissed: { ...m.dismissed, tags: cleanTags([...(m.dismissed?.tags ?? []), tag]) } })))
+    setOrg((o) => o && { ...o, tags: o.tags.filter((x) => x.index !== index) })
+    orgEvent({ kind: "organize", action: "dismissed", what: "tag" })
+  }
+
+  /** Shows chat `id` as it is in `threads` (after a move or its undo). */
+  const showChat = (id: string, threads: Threads) => {
+    threadRef.current = id
+    setKind(threads[id]?.kind)
+    void setActiveThread(id)
+    setMessages(threads[id]?.m ?? [])
+    setError(null)
+    setView("chat")
+  }
+  const undoChatMove = async (undo: MoveUndo) => {
+    setUndoBar(null)
+    const threads = await undoBlockMove(undo)
+    showLists(threads)
+    const here = threadRef.current
+    if (here === undo.source || here === undo.target) showChat(threads[undo.source] && !threads[undo.source].deleted ? undo.source : here, threads)
+    // Taken back: the same move isn't suggested again.
+    const keys = new Set(undo.keys)
+    if (threadRef.current === undo.source) {
+      setMessages((list) => list.map((m) => (keys.has(entryKey(m)) ? { ...m, dismissed: { ...m.dismissed, move: true as const } } : m)))
+    }
+    orgEvent({ kind: "organize", action: "undone", what: undo.before.target ? "move" : "new" })
+  }
+  const takeMove = async (move: OrganizeMove) => {
+    const source = threadRef.current
+    const target = move.to ?? newThreadId()
+    setOrg(null)
+    const moved = await moveBlock(source, move.start, move.end, target)
+    if (!moved) return
+    showLists(moved.threads)
+    const left = moved.threads[source]
+    // The panel stays on this chat ("Open" goes to the other one), unless nothing is left in it: then it's
+    // the other one already, without "Open".
+    const stays = left && !left.deleted ? left : null
+    if (stays) setMessages(stays.m)
+    else showChat(target, moved.threads)
+    orgEvent({ kind: "organize", action: "accepted", what: move.to ? "move" : "new", why: move.why })
+    setUndoBar({
+      text: t("orgMoved", move.toName),
+      kind: "move",
+      actions: [
+        { label: t("orgUndo"), run: () => void undoChatMove(moved.undo) },
+        ...(stays ? [{ label: t("orgOpen"), run: () => { setUndoBar(null); void loadThreads().then(({ threads }) => showChat(target, threads)) } }] : [])
+      ]
+    })
+    won()
+  }
+  const refuseMove = (move: OrganizeMove) => {
+    setMessages((list) => list.map((m, i) => (i < move.start || i > move.end ? m : { ...m, dismissed: { ...m.dismissed, move: true as const } })))
+    setOrg((o) => o && { ...o, move: null })
+    orgEvent({ kind: "organize", action: "dismissed", what: move.to ? "move" : "new", why: move.why })
+  }
+
+  // The bar lives its seconds (undoClock.ts), then goes; before that an action takes it: a question, a note, another
+  // chat, a new bar or its own buttons (they clear it there). After a delete, touching or scrolling the chat leaves
+  // it (2.5: a scroll used to take the Undo away). The bar after a move also goes on a scroll or a swipe, past its
+  // first seconds. A pointer resting on the bar holds it.
+  const barShownAt = useRef(0)
+  const barUntil = useRef(0)
+  const [barHeld, setBarHeld] = useState(false)
+  useEffect(() => {
+    setBarHeld(false)
+    if (!undoBar) return
+    barShownAt.current = Date.now()
+    barUntil.current = barDeadline(undoBar.kind ?? "undo", barShownAt.current)
+  }, [undoBar])
+  useEffect(() => {
+    if (!undoBar || barHeld) return
+    const timer = setTimeout(() => setUndoBar(null), Math.max(0, barUntil.current - Date.now()))
+    return () => clearTimeout(timer)
+  }, [undoBar, barHeld])
+  const holdBar = useCallback((on: boolean) => {
+    if (!on) barUntil.current = deadlineAfterHold(barUntil.current, Date.now())
+    setBarHeld(on)
+  }, [])
+  useEffect(() => {
+    const list = listRef.current
+    const kind = undoBar?.kind
+    if (kind !== "move" || !list) return
+    const goes = () => { if (goesOnWork(kind, barShownAt.current, Date.now())) setUndoBar(null) }
+    // A finger that moves (a scroll or a swipe), not a tap.
+    let from: { x: number; y: number } | null = null
+    const start = (e: TouchEvent) => { const p = e.touches[0]; from = p ? { x: p.clientX, y: p.clientY } : null }
+    const move = (e: TouchEvent) => {
+      const p = e.touches[0]
+      if (from && p && Math.hypot(p.clientX - from.x, p.clientY - from.y) > 12) goes()
+    }
+    list.addEventListener("wheel", goes, { passive: true })
+    list.addEventListener("touchstart", start, { passive: true })
+    list.addEventListener("touchmove", move, { passive: true })
+    return () => {
+      list.removeEventListener("wheel", goes)
+      list.removeEventListener("touchstart", start)
+      list.removeEventListener("touchmove", move)
+    }
+  }, [undoBar, view, open])
+
+  // The message with text selected in it: its suggestions step aside for the Highlight bubble by the selection.
+  const [selectingIdx, setSelectingIdx] = useState<number | null>(null)
+  useEffect(() => {
+    if (!open) return
+    let timer: ReturnType<typeof setTimeout> | undefined
+    const onChange = () => {
+      clearTimeout(timer)
+      timer = setTimeout(() => {
+        const list = listRef.current
+        const root = list?.getRootNode()
+        const node = root instanceof ShadowRoot ? panelSelectionStart(root) : null
+        const msg = (node instanceof Element ? node : node?.parentElement)?.closest<HTMLElement>(".cf-msg")
+        const idx = msg && list?.contains(msg) ? Number(msg.dataset.index) : NaN
+        setSelectingIdx(Number.isInteger(idx) ? idx : null)
+      }, 150)
+    }
+    document.addEventListener("selectionchange", onChange)
+    return () => {
+      clearTimeout(timer)
+      document.removeEventListener("selectionchange", onChange)
+    }
+  }, [open])
+
+  /** The row of suggestions under the message at `idx`: its tag, and the move of the block it ends. */
+  const organizeRow = (idx: number): VNode | null => {
+    if (!orgNow) return null
+    const tag = orgNow.tags.find((x) => x.index === idx && messages[idx] && entryKey(messages[idx]) === x.key)?.tag
+    const move = orgNow.move && orgNow.move.end === idx ? orgNow.move : undefined
+    if (!tag && !move) return null
+    return (
+      <OrganizeRow
+        tag={tag}
+        move={move}
+        quiet={idx === selectingIdx}
+        onTag={() => tag && takeTag(idx, tag)}
+        onTagNo={() => tag && refuseTag(idx, tag)}
+        onMove={() => move && void takeMove(move)}
+        onMoveNo={() => move && refuseMove(move)}
+      />
+    )
+  }
+
+  // Cards: turn suggestions on (Pro, off, the chat looks like it needs them), "Everything in one chat?" (without Pro),
+  // and after the third tag (without Pro). Each once; closing one is final.
+  const shownChat: Thread = { id: threadRef.current, u: 0, m: messages }
+  const chatBlocks = pageBlocks(messages)
+  const mixed = messages.length > 0 && !historyMode && looksMixed(shownChat, orgCfg)
+  const pageElsewhere = chatBlocks.length >= 2 && chatBlocks.some((b) => b.url && threadList.some((x) => x.id !== threadRef.current && x.m.some((e) => e.page?.url === b.url)))
+  // Nothing until the plan is known: a Pro user mustn't see the free card while the status loads.
+  const idle = status !== null && !status.offline && !streaming && !historyMode && !picked && !error
+  const consentCard = TARGET === "safari" && plan === "pro" && Boolean(status?.organize?.on) && !settings.organize && cards !== null && !cards.consent && idle && (mixed || pageElsewhere)
+  const promoOk = TARGET === "safari" && plan !== "pro" && cards !== null && idle
+  const messCard = promoOk && !cards?.mess?.closed && (messFor === threadRef.current ||
+    (mixed && !cards?.mess?.chats.includes(threadRef.current) && Date.now() - (cards?.mess?.at ?? 0) > orgCfg.messHours * 3_600_000))
+  useEffect(() => {
+    if (!messCard || messFor === threadRef.current) return
+    const id = threadRef.current
+    setMessFor(id)
+    void setOrganizeCards({ mess: { chats: [...(cards?.mess?.chats ?? []), id].slice(-50), at: Date.now() } }).then(setCards)
+    orgEvent({ kind: "organize_promo", action: "shown", where: "inchat_mess" })
+  }, [messCard])
+  // They come after the chat (once the plan is known): bring them into view, as the offer card does.
+  const chatCard = consentCard || messCard
+  useEffect(() => {
+    if (chatCard) requestAnimationFrame(() => listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" }))
+  }, [chatCard])
+  useEffect(() => {
+    if (upsell && TARGET === "safari" && plan !== "pro") orgEvent({ kind: "organize_promo", action: "shown", where: "pro_card" })
+  }, [upsell])
+
+  /** Tags the user set on a message: after their third tag in all, what organizing does (without Pro, once). */
+  const userTags = (index: number, next: string[]) => {
+    const known = new Set(allTags(threadList).map((x) => x.tag.toLowerCase()))
+    for (const m of messages) for (const tag of m.tags ?? []) known.add(tag.toLowerCase())
+    const added = cleanTags(next).filter((tag) => !known.has(tag.toLowerCase())).length
+    tagMessage(index, next)
+    if (known.size < 3 && known.size + added >= 3 && TARGET === "safari" && plan !== "pro" && cards && !cards.thirdTag) {
+      setTagsCard(true)
+      void setOrganizeCards({ thirdTag: true }).then(setCards)
+      orgEvent({ kind: "organize_promo", action: "shown", where: "third_tag" })
+    }
+  }
+  const turnOnOrganize = (from: "card" | "settings") => {
+    updateSettings({ organize: true })
+    void setOrganizeCards({ consent: "accepted" }).then(setCards)
+    orgEvent({ kind: "organize_optin", action: "accepted", from })
+  }
+  const tryOrganizePro = (where: "inchat_mess" | "third_tag" | "settings") => {
+    orgEvent({ kind: "organize_promo", action: "tap", where })
+    if (byok) upgrade("pro_only")
+    else void openApp("subscribe", "organize")
+  }
+  const organizeCardsView = (
+    <>
+      {consentCard && (
+        <OrganizeCard
+          kind="consent"
+          onPrimary={() => turnOnOrganize("card")}
+          onClose={() => {
+            void setOrganizeCards({ consent: "declined" }).then(setCards)
+            orgEvent({ kind: "organize_optin", action: "declined", from: "card" })
+          }}
+        />
+      )}
+      {messCard && (
+        <OrganizeCard
+          kind="mess"
+          pro={byok ? (byokDiscount !== null ? t("upgradeProOff", byokDiscount) : t("upgradePro")) : undefined}
+          onPrimary={() => tryOrganizePro("inchat_mess")}
+          onClose={() => {
+            setMessFor(null)
+            void setOrganizeCards({ mess: { chats: cards?.mess?.chats ?? [], at: cards?.mess?.at ?? Date.now(), closed: true } }).then(setCards)
+          }}
+        />
+      )}
+      {tagsCard && !messCard && promoOk && (
+        <OrganizeCard kind="tags" pro={byok ? t("upgradePro") : undefined} onPrimary={() => tryOrganizePro("third_tag")} onClose={() => setTagsCard(false)} />
+      )}
+      {firstWin && orgOn && <div class="cf-org-win" role="status"><Icon.Sparkle size={13} /> {t("orgFirstWin")}</div>}
+    </>
+  )
 
   const theme = settings.theme === "auto" ? undefined : settings.theme
   // The last message is a question still without an answer (a note doesn't count).
@@ -1321,11 +2033,19 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         </button>
       )}
 
+      {/* The page reminder is set: said here too (on iPhone the selection, and its buttons, are gone by now). */}
+      {remindSaved !== null && !bubble?.rect && !open && (
+        <div class="cf-toast cf-snack" role="status" style={{ top: `${(window.visualViewport?.offsetTop ?? 0) + (window.visualViewport?.height ?? window.innerHeight) - 64}px` }}>
+          <Bell size={14} /> {remindSaved > 0 ? t("uxRemindSaved", remindLabel(remindSaved)) : remindSaved < 0 ? t("uxRemindNotSet") : t("uxRemindNoApp")}
+        </div>
+      )}
+      {later && !open && laterSheet(true)}
+
       {bubble?.rect && !open && !popup && (
         <SelectionBubble rect={bubble.rect} touch={touch}>
           {noteSaved ? (
             <div class="cf-bubble-saved" role="status">
-              <span><Icon.Check /> {t("selNoteSaved")}</span>
+              <span><Icon.Check /> {remindSaved === null ? t("selNoteSaved") : remindSaved > 0 ? t("uxRemindSaved", remindLabel(remindSaved)) : remindSaved < 0 ? t("uxRemindNotSet") : t("uxRemindNoApp")}</span>
               <button type="button" {...press(() => show())}>{t("selNoteOpen")}</button>
             </div>
           ) : (
@@ -1333,9 +2053,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               <div class="cf-bubble-row">
                 {touch ? (
                   <>
-                    {/* "Ask AI" on narrow screens (320 pt: iPhone mini and SE with Display Zoom), so the buttons fit. */}
-                    <button type="button" class="primary" {...press(() => show(bubble))}><Icon.Sparkle size={16} /> {t(narrowScreen() ? "selAsk" : "fabLabel")}</button>
-                    <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SEL_GOOGLE), 60) })}><Icon.Search size={15} /> {t("actGoogle")}</button>
+                    {/* "Ask AI" always (the owner, build 75: shorter and clearer than "Ask ContextFlow"), and Google by its word. */}
+                    <button type="button" class="primary" {...press(() => show(bubble))}><Icon.Sparkle size={16} /> {t("selAsk")}</button>
+                    <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SEL_GOOGLE), 60) })}>{t("actGoogle")}</button>
+                    <button type="button" class="cf-sel-template" aria-label={t("qiTemplateButton")} title={t("qiTemplateButton")} {...press(() => newTemplate(bubble))}><QIcon.Template /> <span class="cf-sel-l">{t("qiTemplateButton")}</span></button>
+                    {remindButton(bubble)}
+                    {bubbleExtras}
                   </>
                 ) : (
                   <>
@@ -1343,6 +2066,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SELECTION_ACTIONS[0]), 60) })}>{t("selExplain")}</button>
                     <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SELECTION_ACTIONS[2]), 60) })}>{t("selTranslate")}</button>
                     <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SEL_GOOGLE), 60) })}><Icon.Search size={13} /> {t("actGoogle")}</button>
+                    <button type="button" class="cf-sel-template" aria-label={t("qiTemplateButton")} title={t("qiTemplateButton")} {...press(() => newTemplate(bubble))}><QIcon.Template size={14} /> <span class="cf-sel-l">{t("qiTemplateButton")}</span></button>
+                    {remindButton(bubble)}
+                    {bubbleExtras}
                   </>
                 )}
               </div>
@@ -1375,6 +2101,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 <button type="button" class="cf-sel-note" title={t("selNoteTitle")} aria-label={t("selNote")} {...press(() => void noteSelection(bubble, selDraft))}><Icon.Pencil />{!(touch && narrowScreen()) && ` ${t("selNote")}`}</button>
               </div>
               {selHint && <div class="cf-bubble-hint">{t("selHint")}</div>}
+              {!selHint && <SelIconsTip watching={listsKind("watch")} />}
             </>
           )}
         </SelectionBubble>
@@ -1400,13 +2127,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           {layout === "sheet" && <div class="cf-grabber" onClick={hide} />}
           <header class="cf-header">
             {view !== "chat" ? (
-              <button type="button" class="cf-icon" onClick={() => setView("chat")} aria-label={t("back")}><Icon.Back /></button>
+              <button type="button" class="cf-icon" onClick={() => setView(view === "trash" ? "threads" : "chat")} aria-label={t("back")}><Icon.Back /></button>
             ) : (
               <span class="cf-logo"><Icon.Sparkle size={18} /></span>
             )}
             <div class="cf-title">
               {view !== "chat" ? (
-                <strong>{view === "settings" ? t("settings") : t("chatsTitle")}</strong>
+                <strong>{view === "settings" ? t("settings") : view === "templates" ? t("qiTemplatesTitle") : view === "trash" ? t("trashTitle") : t("chatsTitle")}</strong>
               ) : (
                 historyMode ? (
                   <span class="cf-ctx history"><Icon.Sparkle size={13} /> <span class="cf-ctx-text">{t("askHistory")}</span></span>
@@ -1428,17 +2155,65 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 {chatCopied ? <Icon.Check /> : <Icon.Share />}
               </button>
             )}
-            {view === "chat" && threadList.length > 0 && (
+            {/* With every chat in Recently Deleted, still the way to it. */}
+            {view === "chat" && (threadList.length > 0 || trashList.length > 0) && (
               <button type="button" class="cf-icon cf-chats-button" onClick={() => setView("threads")} aria-label={t("allChats")} title={t("allChats")}>
                 <Icon.Chats />
-                <span class="cf-badge">{threadList.length}</span>
+                {threadList.length > 0 && <span class="cf-badge">{threadList.length}</span>}
               </button>
             )}
             {((view === "chat" && messages.length > 0) || view === "threads") && (
               <button type="button" class="cf-icon" onClick={newChat} aria-label={t("newChat")} title={t("newChat")}><Icon.Plus /></button>
             )}
             {view === "chat" && (
-              <button type="button" class="cf-icon cf-settings-button" onClick={() => setView("settings")} aria-label={t("settings")} title={t("settings")}><Icon.Gear /></button>
+              <span class="cf-page-more-wrap">
+                <button type="button" class="cf-icon cf-page-more" aria-haspopup="menu" aria-expanded={pageMenu} aria-label={t("uxMorePage")} title={t("uxMorePage")} onClick={() => {
+                  // Opened, and which item: to see whether Settings is still found a tap further.
+                  if (!pageMenu) {
+                    void sendBackground({ type: "useEvent", f: "menu", a: "open" })
+                    void laterItems().then((items) => setLaterCount(countOf(items))).catch(() => setLaterCount({ remind: 0, watch: 0 }))
+                  }
+                  setPageMenu(!pageMenu)
+                }}><More size={18} /></button>
+                {pageMenu && (
+                  <PageMenu
+                    onLater={() => {
+                      setPageMenu(false)
+                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "later" })
+                      void sendBackground({ type: "useEvent", f: "later", a: "open", via: "menu" })
+                      setLater({ selection, range: selectedRange() })
+                    }}
+                    onWatchPage={listsKind("watch") && pageWatcher() ? () => {
+                      setPageMenu(false)
+                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "watch_page" })
+                      pageWatcher()?.({ url: source.href(), title: source.title() })
+                    } : undefined}
+                    reminders={laterCount.remind}
+                    watches={listsKind("watch") ? laterCount.watch : null}
+                    onReminders={() => {
+                      setPageMenu(false)
+                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "reminders" })
+                      openReminders("menu", "remind")
+                    }}
+                    onWatching={() => {
+                      setPageMenu(false)
+                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "watching" })
+                      openReminders("menu", "watch")
+                    }}
+                    onTips={() => {
+                      setPageMenu(false)
+                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "tips" })
+                      setTipsOpen(true)
+                    }}
+                    onSettings={() => {
+                      setPageMenu(false)
+                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "settings" })
+                      setView("settings")
+                    }}
+                    onClose={() => setPageMenu(false)}
+                  />
+                )}
+              </span>
             )}
             <button type="button" class="cf-icon" onClick={hide} aria-label={t("close")} title={t("close")}><Icon.Close /></button>
           </header>
@@ -1472,7 +2247,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 activeId={threadRef.current}
                 onOpen={openThread}
                 onRename={renameChat}
-                onDelete={removeThread}
+                onDelete={deleteChatWithUndo}
                 onNew={newChat}
                 onPin={pinChat}
                 onMove={moveChat}
@@ -1486,8 +2261,33 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 onTags={tagChat}
                 grouped={settings.groupByTags}
                 onGrouped={(on) => updateSettings({ groupByTags: on })}
+                touch={touch}
+                trashCount={trashList.length}
+                onOpenTrash={() => {
+                  setUndoBar(null)
+                  setView("trash")
+                }}
               />
+              <div class="cf-undo-host">{undoBar && <UndoBar text={undoBar.text} actions={undoBar.actions} onHold={holdBar} />}</div>
             </>
+          ) : view === "trash" ? (
+            <TrashView
+              threads={trashList}
+              onRestore={(id) => restoreFromTrash(id, "list")}
+              onDelete={(id) => purgeFromTrash([id])}
+              onDeleteAll={() => purgeFromTrash(trashList.map((th) => th.id))}
+            />
+          ) : view === "templates" ? (
+            <TemplatesView
+              touch={touch}
+              consent={consent}
+              onConsent={agreeQuietly}
+              host={source.site()}
+              onInsert={(tpl) => {
+                hide()
+                setTimeout(() => bus.dispatchEvent(new CustomEvent(QI_EVENTS.insertTemplate, { detail: tpl })), layout === "sheet" ? 240 : 0)
+              }}
+            />
           ) : view === "settings" ? (
             <SettingsView
               settings={settings}
@@ -1495,12 +2295,21 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               usage={usage}
               platform={platform}
               site={source.site()}
-              onChange={updateSettings}
+              onChange={(patch) => {
+                if (patch.organize === true) turnOnOrganize("settings")
+                else updateSettings(patch)
+              }}
+              onOrganizePro={() => tryOrganizePro("settings")}
               onUpgrade={() => (byok ? upgrade("settings") : void openApp("subscribe"))}
               upgradeLabel={byokDiscount !== null ? t("upgradeProOff", byokDiscount) : t("upgradePro")}
               onManage={() => void openApp("manage")}
               onStatusChange={() => void refreshStatus(true)}
               onOpenUrl={(url) => void sendBackground({ type: "openUrl", url })}
+              onOpenTemplates={() => setView("templates")}
+              onSocial={(network) => {
+                reportInsert({ kind: "social_open", network })
+                void sendBackground({ type: "openUrl", url: network === "x" ? LINKS.x : LINKS.threads })
+              }}
               onShowTour={() => {
                 setView("chat")
                 setTouring(true)
@@ -1511,6 +2320,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 setMessages([])
                 setError(null)
                 setThreadList([])
+                setTrashList([])
                 void loadThreads().then(({ active }) => {
                   threadRef.current = active.id
                 })
@@ -1518,7 +2328,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             />
           ) : (
             <>
-              <div class="cf-messages" ref={listRef}>
+              <div class="cf-messages" ref={listRef} onClick={ux.onListClick}>
+                {!picked && ux.strip}
                 {historyMode && messages.length === 0 && partial === null && (
                   <div class="cf-empty">
                     <div class="cf-empty-icon"><Icon.Sparkle size={28} /></div>
@@ -1549,12 +2360,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
                 {messages.map((m, idx) =>
                   m.role === "user" ? (
-                    <div class={`cf-msg user ${m.note ? "note" : ""} ${picked ? "pickable" : ""} ${picked?.has(idx) ? "picked" : ""}`} key={idx} data-index={idx} {...pickProps(idx)}>
+                    <div class={`cf-msg user ${m.note ? "note" : ""} ${m.pinned ? "pinned-msg" : ""} ${picked ? "pickable" : ""} ${picked?.has(idx) ? "picked" : ""}`} key={idx} data-index={idx} {...pickProps(idx)} onContextMenu={m.note && !picked ? ux.contextMenu(idx) : undefined}>
                       <PageDivider entries={messages} index={idx} onOpen={openPage} />
                       {m.note ? (
-                        <div class="cf-bubble-note">
-                          <span class="cf-note-mark" aria-label={t("shareNote")}><Icon.Pencil /></span>{m.content}
-                        </div>
+                        ux.wrap(m, idx, (
+                          <div class="cf-bubble-note">
+                            <span class="cf-note-mark" aria-label={t("shareNote")}><Icon.Pencil /></span>{m.content}
+                          </div>
+                        ), !picked)
                       ) : (
                         <div class="cf-bubble-user">{m.mode === "google" && <span class="cf-user-mode"><Icon.Search size={12} /></span>}{m.label ?? m.content}</div>
                       )}
@@ -1562,11 +2375,15 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       {m.note && messageFooter(m, idx, () => noteCopyText(m), () => noteShareText(messages, idx, shareLabels(chatLanguage(messages)), shareLinks()))}
                     </div>
                   ) : (
-                    <div class={`cf-msg ai ${picked ? "pickable" : ""} ${picked?.has(idx) ? "picked" : ""}`} key={idx} data-index={idx} {...pickProps(idx)}>
-                      {m.grounding && <div class="cf-grounded"><Icon.Search size={13} /> {t("googleBadge")}</div>}
-                      <Markdown text={m.content} onCopyCode={(code) => void copyText(code)} />
-                      {m.grounding && <Sources grounding={m.grounding} />}
-                      {!mediaOn && <MediaSkipped kinds={skippedFor(messages, idx)} onPro={tryPro} />}
+                    <div class={`cf-msg ai ${m.pinned ? "pinned-msg" : ""} ${picked ? "pickable" : ""} ${picked?.has(idx) ? "picked" : ""}`} key={idx} data-index={idx} {...pickProps(idx)} onContextMenu={picked ? undefined : ux.contextMenu(idx)}>
+                      {ux.wrap(m, idx, (
+                        <>
+                          {m.grounding && <div class="cf-grounded"><Icon.Search size={13} /> {t("googleBadge")}</div>}
+                          <Markdown text={m.content} marks={m.marks} onCopyCode={(code) => void copyText(code)} />
+                          {m.grounding && <Sources grounding={m.grounding} />}
+                          {!mediaOn && <MediaSkipped kinds={skippedFor(messages, idx)} onPro={tryPro} />}
+                        </>
+                      ), !picked)}
                       {messageFooter(m, idx, () => toPlainText(m.content), () => answerShareText(messages, idx, shareLabels(chatLanguage(messages)), shareLinks()))}
                     </div>
                   )
@@ -1596,6 +2413,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     ))}
                   </div>
                 )}
+
+                {organizeCardsView}
 
                 {byokCard && byokDiscount !== null && !error && partial === null && (
                   <div class="cf-card offer">
@@ -1643,10 +2462,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 {error && error.code === "LIMIT_REACHED" && (() => {
                   const resetsAt = error.usage?.resetsAt ?? usage?.resetsAt
                   const back = error.usage?.limit ?? usage?.limit ?? 5
+                  // A long page: some answers are left, but fewer than it counts as (2.5).
+                  const left = Math.max(0, (error.usage?.limit ?? 0) - (error.usage?.used ?? 0))
+                  const long = (error.weight ?? 1) > 1 && left > 0
                   return (
                     <div class="cf-card limit">
-                      <strong>{plan === "pro" ? t("limitProTitle") : byok ? t("byokLimitTitle") : t("limitFreeTitle")}</strong>
+                      <strong>{long ? t("limitLongTitle") : plan === "pro" ? t("limitProTitle") : byok ? t("byokLimitTitle") : t("limitFreeTitle")}</strong>
                       <p>
+                        {long && `${t("limitLongBody", error.weight!, left)} `}
                         {plan === "pro"
                           ? t("limitProBody", timeUntil(resetsAt))
                           : byok
@@ -1737,7 +2560,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 </footer>
               ) : (
                 <footer class="cf-composer">
+                  {undoBar && <UndoBar text={undoBar.text} actions={undoBar.actions} onHold={holdBar} />}
                   {noteHint && draft.trim() && !noteMode && <div class="cf-note-hint" role="status">{t(touch ? "noteHintTouch" : "noteHintMouse")}</div>}
+                  {weightNote && <div class="cf-weight-note" title={t("longPageWeightHint", pageWeight)}>{t("longPageWeight", pageWeight)}</div>}
                   <div class={`cf-input ${noteMode ? "note" : ""}`}>
                     {!noteMode && !historyMode && (
                       <button
@@ -1773,7 +2598,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       onKeyPress={(e) => e.stopPropagation()}
                     />
                     {streaming ? (
-                      <button type="button" class="cf-send stop" onClick={stop} aria-label={t("stop")} title={t("stop")}><Icon.Stop /></button>
+                      <button type="button" class="cf-send stop" onClick={() => stop(true)} aria-label={t("stop")} title={t("stop")}><Icon.Stop /></button>
                     ) : (
                       <span class="cf-send-wrap" {...switchGestures}>
                         <button
@@ -1814,7 +2639,34 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           {touring && view === "chat" && panelRef.current && (
             <Tour panel={panelRef.current} steps={tourSteps(TARGET === "safari" && settings.syncChats, touch)} onDone={endTour} />
           )}
+          {view === "chat" && !picked && ux.overlay}
+          {view === "chat" && later && laterSheet(false)}
+          {view === "chat" && listOpen && (
+            <RemindersSheet kind={listOpen} items={laterList} onOpen={openLaterItem} onCancel={(item) => void cancelLaterItem(item)} onReschedule={rescheduleLaterItem} onClose={() => setListOpen(null)} />
+          )}
+          {view === "chat" && tipsOpen && (
+            <TipsSheet mac={!touch} onClose={() => setTipsOpen(false)} />
+          )}
         </section>
+      )}
+
+      {!popup && (
+        <QuickInsert
+          platform={platform}
+          touch={touch}
+          bus={bus}
+          panelOpen={open}
+          panelAside={open && layout === "side"}
+          consent={consent}
+          onConsent={agreeQuietly}
+          free={plan === "free" && !ownKeyActive}
+          onUpgrade={() => void openApp("subscribe")}
+          onOpenTemplates={() => {
+            show()
+            setView("templates")
+          }}
+          onAdapt={adaptTemplate}
+        />
       )}
     </div>
   )
@@ -1875,16 +2727,25 @@ function press(action: () => void) {
 /**
  * Where the selection buttons go (`height`: theirs): below the selection, above it when there's no
  * room, so they don't cover it. iPhone and iPad: also clear of the selection handles and of the
- * system edit menu, which iOS 26+ shows right below the selection and older versions above it.
+ * system edit menu, which iOS 26+ shows right below the selection and above it when there's no room
+ * below (older versions the other way round); the buttons keep the menu's whole height away on either
+ * side, so they never meet it (the owner, build 75: "the menu lies over the bubble"). Mac: a right-click
+ * menu opens down from the pointer, so then they go above the selection (`up`).
  * Always within what's visible: above the keyboard while their field is typed in.
  */
-function bubbleTop(rect: DOMRect, touch: boolean, height: number): number {
+function bubbleTop(rect: DOMRect, touch: boolean, height: number, up = false): number {
   const vv = window.visualViewport
   const top0 = vv?.offsetTop ?? 0
   const bottom = top0 + (vv?.height ?? window.innerHeight)
-  const clear = touch ? 70 : 8
-  let top = rect.bottom + clear
-  if (top + height > bottom - 12 && rect.top - clear - height >= top0 + 8) top = rect.top - clear - height
+  // The edit menu: about 16 pt from the selection, 44 pt tall (more with larger text); plus air.
+  const clear = touch ? 88 : 8
+  const below = rect.bottom + clear
+  const above = rect.top - clear - height
+  const fitsBelow = below + height <= bottom - 12
+  const fitsAbove = above >= top0 + 8
+  let top = (up ? fitsAbove || !fitsBelow : !fitsBelow && fitsAbove) ? above : below
+  // Neither side has room (a long selection, the keyboard up): the side with more of it, at the screen's edge.
+  if (!fitsBelow && !fitsAbove) top = rect.top - top0 > bottom - rect.bottom ? top0 + 8 : bottom - height - 12
   return Math.max(top0 + 8, Math.min(bottom - height - 12, top))
 }
 
@@ -1896,6 +2757,14 @@ function narrowScreen(): boolean {
 /** The buttons shown for a page selection, centered under it and kept on screen. */
 function SelectionBubble({ rect, touch, children }: { rect: DOMRect; touch: boolean; children: ComponentChildren }): VNode {
   const ref = useRef<HTMLDivElement>(null)
+  // Mac: a right-click on the page opens the system menu down from the pointer; the buttons go above the selection.
+  const [up, setUp] = useState(false)
+  useEffect(() => {
+    if (touch) return
+    const menu = () => setUp(true)
+    document.addEventListener("contextmenu", menu, true)
+    return () => document.removeEventListener("contextmenu", menu, true)
+  }, [touch])
   useLayoutEffect(() => {
     const el = ref.current
     if (!el) return
@@ -1904,9 +2773,13 @@ function SelectionBubble({ rect, touch, children }: { rect: DOMRect; touch: bool
       const vv = window.visualViewport
       const min = (vv?.offsetLeft ?? 0) + 8
       const max = min + (vv?.width ?? window.innerWidth) - 16 - el.offsetWidth
+      // A row that doesn't fit the screen (longer words, the eye) keeps Template's icon only; once, not back and forth.
+      const row = el.querySelector(".cf-bubble-row")
+      if (row && row.scrollWidth > row.clientWidth + 1) el.classList.add("tight")
       el.style.left = `${Math.max(min, Math.min(max, center - el.offsetWidth / 2))}px`
-      el.style.top = `${bubbleTop(rect, touch, el.offsetHeight)}px`
+      el.style.top = `${bubbleTop(rect, touch, el.offsetHeight, up)}px`
     }
+    el.classList.remove("tight")
     place()
     // Its size changes ("Saved to the chat", the hint), and on iPhone the keyboard covers part of the page.
     const resized = new ResizeObserver(place)
@@ -1919,7 +2792,7 @@ function SelectionBubble({ rect, touch, children }: { rect: DOMRect; touch: bool
       vv?.removeEventListener("resize", place)
       vv?.removeEventListener("scroll", place)
     }
-  }, [rect, touch])
+  }, [rect, touch, up])
   return (
     // Clicks on the buttons keep the page selection; the field takes the focus.
     <div ref={ref} class={`cf-bubble ${touch ? "touch" : ""}`} onMouseDown={(e) => (e.target as Element).closest("input") || e.preventDefault()}>
@@ -1951,11 +2824,13 @@ function Sources({ grounding }: { grounding: Grounding }): VNode {
 /** Google's Search Suggestions, rendered as Google provides them, in their own shadow root. */
 function SearchSuggestions({ html }: { html: string }): VNode {
   const ref = useRef<HTMLDivElement>(null)
+  // Closed like the panel's own root: kept here, since a closed root can't be read back from its host.
+  const shadow = useRef<ShadowRoot | null>(null)
   useEffect(() => {
     const host = ref.current
     if (!host) return
-    const root = host.shadowRoot ?? host.attachShadow({ mode: "open" })
-    root.replaceChildren(suggestionNodes(html))
+    shadow.current ??= host.attachShadow({ mode: SHADOW_MODE })
+    shadow.current.replaceChildren(suggestionNodes(html))
   }, [html])
   return <div class="cf-suggest" ref={ref} />
 }

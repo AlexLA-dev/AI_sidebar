@@ -1,0 +1,173 @@
+/* Quick insert: the button by a field, the list (Copied, Templates, From ContextFlow), the "/" suggestions,
+   a template's preview with its blanks. Inside the panel's shadow root, with its colors (.cf variables). */
+
+/* ------------------------------------------------ the button by the field */
+.cf-qi-btn {
+  position: fixed;
+  width: 30px; height: 30px;
+  border-radius: 15px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff !important;
+  background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%) !important;
+  box-shadow: 0 3px 10px rgba(37, 99, 235, 0.38), 0 1px 2px rgba(0, 0, 0, 0.18);
+  z-index: 4;
+  touch-action: none !important;
+  user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+  animation: cf-pop 0.14s ease-out;
+}
+.cf-qi-btn:active { transform: scale(0.92); }
+/* The first time after the update: what the button does. Colors are .cf-snack's (styles.css), as every toast's. */
+.cf-qi-tip {
+  position: fixed; z-index: 4; max-width: 240px;
+  padding: 8px 11px; border-radius: 12px;
+  font-size: 13px;
+  animation: cf-pop 0.14s ease-out;
+}
+
+/* ------------------------------------------------------------- the list */
+.cf-qi {
+  position: fixed;
+  display: flex; flex-direction: column;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  z-index: 5;
+  overflow: hidden;
+  animation: cf-pop 0.14s ease-out;
+}
+.cf-qi-head { display: flex; align-items: center; gap: 6px; padding: 8px 8px 4px; }
+.cf-qi-search {
+  flex: 1; min-width: 0; height: 36px; padding: 0 10px 0 32px;
+  border: 1px solid var(--border); border-radius: 10px;
+  background: var(--bg-2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238d8a96' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.6-3.6'/%3E%3C/svg%3E") 10px center / 15px no-repeat;
+  color: var(--text); font: inherit; font-size: 16px; outline: none;
+}
+.cf-qi-search:focus { border-color: var(--accent); background-color: var(--bg); }
+.cf-qi-head button { flex: none; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 10px; color: var(--accent-text); background: var(--accent-soft); }
+.cf-qi-body { overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding: 0 0 6px; }
+/* Section titles in ordinary case, as "Pinned" and "Hint" elsewhere in the panel. */
+.cf-qi-sec { display: flex; align-items: center; gap: 8px; padding: 10px 14px 4px; font-size: 12.5px; font-weight: 650; color: var(--text-3); }
+.cf-qi-sec > span { flex: 1; }
+.cf-qi-sec button { font-size: 12.5px; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--accent-text); }
+.cf-qi-row { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 44px; padding: 6px 8px 6px 14px; text-align: left; }
+.cf-qi-row:hover, .cf-qi-row.on { background: var(--bg-2); }
+.cf-qi-row.on { box-shadow: inset 3px 0 0 var(--accent); }
+.cf-qi-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.cf-qi-title { font-size: 14.5px; font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cf-qi-text { font-size: 14px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cf-qi-title + .cf-qi-text { font-size: 12.5px; color: var(--text-2); }
+.cf-qi-meta { font-size: 11.5px; color: var(--text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cf-qi-mark { flex: none; display: inline-flex; align-items: center; gap: 3px; padding: 2px 7px; border-radius: 999px; font-size: 11px; font-weight: 600; color: var(--accent-text); background: var(--accent-soft); }
+.cf-qi-act { flex: none; display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 9px; color: var(--text-3); }
+.cf-qi-act:hover { color: var(--accent-text); background: var(--accent-soft); }
+.cf-qi-empty { padding: 4px 14px 6px; font-size: 13px; color: var(--text-3); }
+.cf-qi-foot { padding: 8px 14px 10px; border-top: 1px solid var(--border); font-size: 11.5px; line-height: 1.4; color: var(--text-3); }
+.cf-qi-foot button { color: var(--accent-text); font-size: 11.5px; }
+/* A small switch: Copied on or off. */
+.cf-qi-switch { position: relative; width: 34px; height: 20px; border-radius: 10px; background: var(--bg-3); transition: background 0.15s; }
+.cf-qi-switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 8px; background: #fff; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25); transition: transform 0.15s; }
+.cf-qi-switch[aria-checked="true"] { background: var(--ok); }
+.cf-qi-switch[aria-checked="true"]::after { transform: translateX(14px); }
+/* Under the caret ("/phrase", a Mac or an iPad with a keyboard): narrower, no search field. */
+.cf-qi.suggest { width: 320px; border-radius: 12px; }
+.cf-qi.suggest .cf-qi-row { min-height: 38px; padding-top: 4px; padding-bottom: 4px; }
+.cf-qi-keys { display: flex; gap: 10px; padding: 6px 12px 8px; border-top: 1px solid var(--border); font-size: 11.5px; color: var(--text-3); }
+.cf-qi-keys kbd { font: inherit; font-weight: 650; color: var(--text-2); }
+
+/* ----------------------------------------------- a template's blanks */
+.cf-qi-fill { padding: 10px 14px 12px; display: flex; flex-direction: column; gap: 10px; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+/* Its parts keep their height and the form scrolls (on an iPhone SE the title and the words were squeezed to
+   a sliver, letters cut off). */
+.cf-qi-fill > * { flex: none; }
+.cf-qi-fill-head { display: flex; align-items: center; gap: 6px; font-weight: 650; }
+.cf-qi-fill-head button { color: var(--text-3); }
+.cf-qi-fill-head span { flex: 1; min-width: 0; }
+/* Close, at the end of the list's head and the template's (2.5 (84)). */
+.cf-qi .cf-qi-x { flex: none; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 10px; color: var(--text-3); background: transparent; }
+.cf-qi .cf-qi-x svg { width: 18px; height: 18px; }
+.cf-qi-fill-text { font-size: 15px; line-height: 1.6; color: var(--text); white-space: pre-wrap; max-height: 40vh; overflow-y: auto; }
+.cf-qi-blank {
+  display: inline-block; min-width: 64px; padding: 0 6px; margin: 0 1px;
+  border: 1px dashed var(--accent); border-radius: 6px;
+  background: var(--accent-soft); color: var(--accent-text);
+  font: inherit; line-height: 1.45; outline: none;
+}
+.cf-qi-blank.filled { border-style: solid; border-color: transparent; background: rgba(250, 204, 21, 0.35); color: var(--text); }
+.cf-qi-blank:focus { border-style: solid; border-color: var(--accent); background: var(--bg); }
+/* Insert was pressed with this blank empty: it asks to be filled first. */
+.cf-qi-blank.missing { border-style: solid; border-color: var(--danger); }
+.cf-qi-fill-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.cf-qi-fill-row .cf-primary, .cf-qi-fill-row .cf-secondary { display: inline-flex; align-items: center; gap: 6px; }
+.cf-qi-note { font-size: 12px; color: var(--text-3); }
+
+/* ---------------------------------------------- "Paste it yourself" */
+/* .cf-snack's look; 64 px above the bottom of what's visible (chat UX's toast over the page stands there too). */
+.cf-qi-toast {
+  position: fixed; left: 50%; transform: translateX(-50%);
+  max-width: calc(100vw - 24px);
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px;
+  z-index: 6;
+  animation: cf-pop 0.14s ease-out;
+}
+
+/* ------------------------------------------ Copied for an empty blank */
+.cf-qi-pick { margin: -2px -14px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--bg-2); max-height: 180px; overflow-y: auto; }
+.cf-qi-pick .cf-qi-row { min-height: 40px; }
+.cf-qi-pick .cf-qi-sec { padding-top: 8px; }
+
+/* -------------------------------------------- the switch for Copied */
+.cf-qi-keep { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 12.5px; font-weight: 600; color: var(--text-2); cursor: pointer; }
+.cf-qi-foot .cf-qi-keep button { flex: none; }
+
+/* ------------------------------------------------ the template editor */
+.cf-qi-search.plain { padding-left: 10px; background-image: none; }
+.cf-qi-area {
+  width: 100%; min-height: 110px; max-height: 38vh; padding: 9px 10px; resize: vertical;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--bg-2); color: var(--text);
+  font: inherit; font-size: 15px; line-height: 1.5; outline: none;
+}
+.cf-qi-area:focus { border-color: var(--accent); background: var(--bg); }
+.cf-qi-chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.cf-qi-chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 6px 3px 9px; border-radius: 999px; font-size: 12.5px; font-weight: 600; color: var(--accent-text); background: var(--accent-soft); }
+.cf-qi-chip svg { width: 12px; height: 12px; }
+.cf-qi.inline { position: static; border: 0; box-shadow: none; animation: none; border-radius: 0; background: transparent; }
+.cf-qi-fill .cf-card { margin: 0; }
+
+/* -------------------------------------------- the panel's Templates view */
+.cf-qi-view { display: flex; flex-direction: column; min-height: 0; flex: 1; overflow-y: auto; }
+.cf-qi-view .cf-qi-head { padding: 10px 12px 6px; }
+.cf-qi-view .cf-qi-row { padding-left: 16px; cursor: pointer; }
+.cf-qi-empty.big { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 36px 24px; text-align: center; color: var(--text-2); font-size: 14px; }
+.cf-qi-empty.big p { margin: 0; line-height: 1.5; }
+.cf-qi-empty.big svg { color: var(--accent); }
+
+/* ------------------------------------------------------------ Settings */
+.cf-qi-sites { display: flex; flex-wrap: wrap; gap: 6px; margin: 2px 0 6px; }
+.cf-qi-sign { width: 64px; height: 32px; padding: 0 8px; text-align: center; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-2); color: var(--text); font: inherit; font-size: 16px; font-family: var(--mono); outline: none; }
+.cf-qi-sign:focus { border-color: var(--accent); }
+
+/* ----------------------------------- "Insert into the field" under answers */
+.cf-msg-tools button { white-space: nowrap; }
+.cf-msg-tools .cf-insert { color: var(--accent-text); font-weight: 600; }
+.cf-msg-tools .cf-insert svg { color: var(--accent); }
+/* Narrow by the panel's width, not the device: with the insert button first, Share and Tag keep their icons
+   and the buttons sit closer, so Insert · Copy · Share · Tag · … stay on one line at 375 pt in every language. */
+.cf-panel { container-type: inline-size; }
+@container (max-width: 460px) {
+  .cf-msg-tools.has-insert .cf-tl { display: none; }
+  /* Wraps rather than runs off the panel if something more joins the row. */
+  .cf-msg-tools.has-insert { gap: 2px; flex-wrap: wrap; }
+  .cf-msg-tools.has-insert button { padding: 4px 6px; }
+}
+
+/* ------------------------------------------- "Template" by a selection */
+.cf-bubble button.cf-sel-template { color: var(--accent-text); }
+.cf-bubble button.cf-sel-template svg { color: var(--accent); }
+.cf-bubble.touch .cf-bubble-row button.cf-sel-icon { flex: none; padding-left: 10px; padding-right: 10px; }
+.cf-bubble.touch .cf-bubble-row button.cf-sel-template { flex: none; color: var(--accent-text); }
+
+/* ------------------------------------------------------------ dark */
+.cf-qi-toast svg { color: inherit; }
+.cf-qi-note .cf-link { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; }

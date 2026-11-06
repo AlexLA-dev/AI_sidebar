@@ -1,5 +1,5 @@
 import type { VNode } from "preact"
-import { useEffect, useRef, useState } from "preact/hooks"
+import { useCallback, useEffect, useRef, useState } from "preact/hooks"
 
 import type { FindReply } from "../shared/types"
 
@@ -7,6 +7,9 @@ import { t, uiLanguage } from "../shared/i18n"
 import { activity, allTags, groupByTag, hasTag, MAX_TITLE, searchThreads, threadName, threadNotes, threadPages, threadSnippet, threadTags, threadTitle, type SearchHit, type Thread } from "../shared/threads"
 import * as Icon from "./icons"
 import { TagChip, TagEditor } from "./Tags"
+import { PinIcon, TrashIcon } from "./ux/MessageUx"
+import { Swipe } from "./ux/Swipe"
+import { ThreadMenu, ThreadMoreButton } from "./ux/ThreadMenu"
 
 interface Props {
   threads: Thread[] // pinned first, then the newest
@@ -34,6 +37,11 @@ interface Props {
   // The list in groups by tag, like folders.
   grouped: boolean
   onGrouped: (on: boolean) => void
+  // iPhone and iPad (2.5): swipe a chat left to delete it, right to pin it.
+  touch?: boolean
+  // Recently Deleted (2.5 (83)): how many chats are there (its row ends the list when there are some), and opening it.
+  trashCount?: number
+  onOpenTrash?: () => void
 }
 
 /** "3 pages", in the UI language's plural form. */
@@ -151,6 +159,27 @@ function AskHistoryRow({ pro, onOpen }: { pro: boolean; onOpen: () => void }): V
   )
 }
 
+/** The row at the end of the list: Recently Deleted and how many chats are there (2.5 (83)). */
+function TrashRow({ count, onOpen }: { count: number; onOpen: () => void }): VNode {
+  return (
+    <div class="cf-thread cf-trash-row" role="listitem">
+      <div
+        class="cf-thread-main"
+        role="button"
+        tabIndex={0}
+        onClick={onOpen}
+        onKeyDown={(e) => {
+          if (e.key !== "Enter" && e.key !== " ") return
+          e.preventDefault()
+          onOpen()
+        }}
+      >
+        <span class="cf-thread-title"><Icon.Trash /> {t("trashRow", count)}</span>
+      </div>
+    </div>
+  )
+}
+
 /** The chat's name in place, being edited: Enter (or leaving the field) keeps it, Escape doesn't. */
 function NameField({ thread, onDone }: { thread: Thread; onDone: (name: string | null) => void }): VNode {
   const ref = useRef<HTMLInputElement>(null)
@@ -207,7 +236,7 @@ interface Drag {
  * start a new one. Pinned chats come first and are reordered by dragging their handle; a chat that
  * was on several pages lists them (each opens its page).
  */
-export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onNew, onPin, onMove, onOpenPage, pro, onAskHistory, onFind, onUpsell, findError, findWaiting, onTags, grouped, onGrouped }: Props): VNode {
+export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onNew, onPin, onMove, onOpenPage, pro, onAskHistory, onFind, onUpsell, findError, findWaiting, onTags, grouped, onGrouped, touch = false, trashCount = 0, onOpenTrash }: Props): VNode {
   const [query, setQuery] = useState("")
   // Only the chats with this tag (in the list and in search results).
   const [tagFilter, setTagFilter] = useState<string | null>(null)
@@ -259,6 +288,9 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
     </div>
   )
   const [editing, setEditing] = useState<string | null>(null)
+  // The chat whose "…" menu is open (touch).
+  const [menuOf, setMenuOf] = useState<string | null>(null)
+  const closeMenu = useCallback(() => setMenuOf(null), [])
   const [pagesOf, setPagesOf] = useState<string | null>(null)
   const [drag, setDrag] = useState<Drag | null>(null)
   const pop = useRef<HTMLDivElement>(null)
@@ -276,6 +308,8 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
     return () => root.removeEventListener("pointerdown", close, true)
   }, [pagesOf])
 
+  const trashRow = trashCount > 0 && onOpenTrash && <TrashRow count={trashCount} onOpen={onOpenTrash} />
+
   if (threads.length === 0) {
     return (
       <div class="cf-threads">
@@ -284,6 +318,7 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
           <p>{t("chatsEmpty")}</p>
           <button type="button" class="cf-primary" onClick={onNew}><Icon.Plus /> {t("newChat")}</button>
         </div>
+        {trashRow && <div role="list">{trashRow}</div>}
       </div>
     )
   }
@@ -410,7 +445,12 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
                 }}
               />
             ) : (
-              <>
+              <Swipe
+                class="cf-thread-swipe"
+                enabled={touch && !drag}
+                left={{ label: t("uxDelete"), icon: <TrashIcon />, tone: "delete", run: () => onDelete(thread.id) }}
+                right={{ label: t(isPinned ? "uxUnpin" : "uxPin"), icon: <PinIcon filled={isPinned} />, tone: "pin", run: () => onPin(thread.id, !isPinned) }}
+              >
                 {isPinned && reorder && (
                   <span
                     class="cf-thread-grip"
@@ -472,19 +512,38 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
                     <span class="cf-thread-when">{when(activity(thread))}</span>
                   </span>
                 </div>
-                <button type="button" class={`cf-icon cf-thread-tool ${thread.tags?.length ? "on" : ""}`} onClick={() => setTagging(tagging === thread.id ? null : thread.id)} aria-label={t("tagsEdit")} title={t("tagsEdit")}>
-                  <Icon.Tag />
-                </button>
-                <button type="button" class={`cf-icon cf-thread-tool ${isPinned ? "on" : ""}`} onClick={() => onPin(thread.id, !isPinned)} aria-pressed={isPinned} aria-label={t(isPinned ? "unpinChat" : "pinChat")} title={t(isPinned ? "unpinChat" : "pinChat")}>
-                  <Icon.Pin filled={isPinned} />
-                </button>
-                <button type="button" class="cf-icon cf-thread-tool" onClick={() => setEditing(thread.id)} aria-label={t("renameChat")} title={t("renameChat")}>
-                  <Icon.Pencil />
-                </button>
-                <button type="button" class="cf-icon cf-thread-tool cf-thread-delete" onClick={() => onDelete(thread.id)} aria-label={t("deleteChat")} title={t("deleteChat")}>
-                  <Icon.Trash />
-                </button>
-              </>
+                {touch ? (
+                  // iPhone and iPad (2.5 (75)): the swipes pin and delete; "…" has those and the rest.
+                  <span class="cf-thread-more-wrap">
+                    <ThreadMoreButton open={menuOf === thread.id} onToggle={() => setMenuOf(menuOf === thread.id ? null : thread.id)} />
+                    {menuOf === thread.id && (
+                      <ThreadMenu
+                        pinned={isPinned}
+                        onPin={() => onPin(thread.id, !isPinned)}
+                        onRename={() => setEditing(thread.id)}
+                        onTags={() => setTagging(thread.id)}
+                        onDelete={() => onDelete(thread.id)}
+                        onClose={closeMenu}
+                      />
+                    )}
+                  </span>
+                ) : (
+                  <>
+                    <button type="button" class={`cf-icon cf-thread-tool ${thread.tags?.length ? "on" : ""}`} onClick={() => setTagging(tagging === thread.id ? null : thread.id)} aria-label={t("tagsEdit")} title={t("tagsEdit")}>
+                      <Icon.Tag />
+                    </button>
+                    <button type="button" class={`cf-icon cf-thread-tool ${isPinned ? "on" : ""}`} onClick={() => onPin(thread.id, !isPinned)} aria-pressed={isPinned} aria-label={t(isPinned ? "unpinChat" : "pinChat")} title={t(isPinned ? "unpinChat" : "pinChat")}>
+                      <Icon.Pin filled={isPinned} />
+                    </button>
+                    <button type="button" class="cf-icon cf-thread-tool" onClick={() => setEditing(thread.id)} aria-label={t("renameChat")} title={t("renameChat")}>
+                      <Icon.Pencil />
+                    </button>
+                    <button type="button" class="cf-icon cf-thread-tool cf-thread-delete" onClick={() => onDelete(thread.id)} aria-label={t("deleteChat")} title={t("deleteChat")}>
+                      <Icon.Trash />
+                    </button>
+                  </>
+                )}
+              </Swipe>
             )}
             {tagging === thread.id && (
               <TagEditor tags={thread.tags ?? []} known={known} onChange={(next) => onTags(thread.id, next)} onClose={() => setTagging(null)} />
@@ -529,6 +588,7 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
             </div>
           ))
         : shownThreads.map((thread, index) => row(thread, index, ""))}
+      {!filter && trashRow}
     </div>
   )
 }

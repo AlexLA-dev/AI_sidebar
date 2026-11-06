@@ -1,7 +1,8 @@
 import { API_BASE } from "../shared/config"
 import { isReasoningGpt, keyProvider, newestGptModel, type ModelTier } from "../shared/models"
 import { pageForModel } from "../shared/attachments"
-import { otherPagesOf, systemPrompt } from "../shared/prompt"
+import { OPENAI_PAGE_TOKENS } from "../shared/pagefit"
+import { hasMarks, otherPagesOf, systemPrompt } from "../shared/prompt"
 import { sseData } from "../shared/sse"
 import { STORAGE, type AskPayload, type ErrorCode, type Grounding, type OwnKeyUsage, type Plan, type ProOffer, type StreamEvent, type Usage } from "../shared/types"
 import { askClaude } from "./claude"
@@ -52,8 +53,8 @@ export async function askServer(req: ServerRequest, emit: Emit, signal: AbortSig
   clearTimeout(timer)
 
   if (!res.ok || !res.body) {
-    const body = (await res.json().catch(() => ({}))) as { code?: ErrorCode; usage?: Usage; plan?: Plan; message?: string; offer?: ProOffer | null }
-    emit({ type: "error", code: body.code ?? (res.status >= 500 ? "UPSTREAM" : "BAD_REQUEST"), usage: body.usage ?? null, plan: body.plan, message: body.message, offer: body.offer ?? null })
+    const body = (await res.json().catch(() => ({}))) as { code?: ErrorCode; usage?: Usage; plan?: Plan; message?: string; offer?: ProOffer | null; weight?: number }
+    emit({ type: "error", code: body.code ?? (res.status >= 500 ? "UPSTREAM" : "BAD_REQUEST"), usage: body.usage ?? null, plan: body.plan, message: body.message, offer: body.offer ?? null, ...(typeof body.weight === "number" ? { weight: body.weight } : {}) })
     return
   }
 
@@ -124,7 +125,8 @@ export async function askWithOwnKey(
   const usage: OwnKeyUsage = { provider: "openai", model: "", ok: false, promptTokens: 0, completionTokens: 0 }
   const fail = (code: ErrorCode | "STOPPED") => ({ ...usage, ok: false, error: code })
   // The user's own key: what the panel read (it reads videos and PDFs only for plans with them) goes in.
-  const system = systemPrompt(payload.page && pageForModel(payload.page, true), profile, locale, otherPagesOf(payload))
+  // The page within what GPT reads (pagefit.ts); the rules and the page first, so OpenAI's prompt cache keeps them.
+  const system = systemPrompt(payload.page && pageForModel(payload.page, true), profile, locale, otherPagesOf(payload), false, hasMarks(payload.messages), OPENAI_PAGE_TOKENS)
   const models = [...new Set([await newestGpt(key, tier, signal), ...OPENAI_FALLBACK_MODELS[tier]].filter((m): m is string => Boolean(m)))]
   let res: Response | null = null
   for (const model of models) {

@@ -2,7 +2,7 @@ import type { Config } from "@netlify/functions"
 import { createHash, timingSafeEqual } from "node:crypto"
 
 import { config as settings } from "../shared/config.mts"
-import { afterLimit, featureFunnels, features, limitsReport, newUserOutcomes, onboarding, ownerInsights, releases, setupFunnel, usageReport } from "../shared/db.mts"
+import { afterLimit, featureFunnels, features, limitsReport, newUserOutcomes, onboarding, organizeReport, ownerInsights, releases, setupFunnel, usageReport } from "../shared/db.mts"
 import { featureBase } from "../../src/shared/usage.ts"
 
 /**
@@ -35,7 +35,7 @@ export default async (req: Request): Promise<Response> => {
       console.error(`[cf] ${what} failed:`, err instanceof Error ? err.message : err)
       return null
     }
-    const [report, funnel, insights, limits, steps, outcomes, used, funnels, after, shipped] = await Promise.all([
+    const [report, funnel, insights, limits, steps, outcomes, used, funnels, after, shipped, organize] = await Promise.all([
       usageReport(days),
       // Older databases have no funnel or insights yet; the rest of the report still works.
       setupFunnel(days).catch(() => []),
@@ -46,11 +46,13 @@ export default async (req: Request): Promise<Response> => {
       features(days, featureBase()).catch(missing("features")),
       featureFunnels(days).catch(missing("feature funnels")),
       afterLimit(days).catch(missing("after limit")),
-      releases().catch(missing("releases"))
+      releases().catch(missing("releases")),
+      // Before its migration (2.5) there's none: the page leaves the block out.
+      organizeReport(days).catch(() => null)
     ])
     return new Response(JSON.stringify({
       ...report, setup_funnel: funnel, insights, limits_report: limits, onboarding: steps, new_outcomes: outcomes,
-      features: used, feature_funnels: funnels, after_limit: after, releases: shipped
+      features: used, feature_funnels: funnels, after_limit: after, releases: shipped, organize_report: organize
     }), { headers: noStore })
   } catch (err) {
     console.error("[cf] usage report failed:", err instanceof Error ? err.message : err)

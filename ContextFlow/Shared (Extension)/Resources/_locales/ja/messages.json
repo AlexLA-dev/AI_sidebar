@@ -167,6 +167,201 @@
  "pageUpdated": {
   "message": "ページが更新されました"
  },
+ "uxMark": {
+  "message": "ハイライト"
+ },
+ "uxUnmark": {
+  "message": "ハイライトを削除"
+ },
+ "uxDelete": {
+  "message": "削除"
+ },
+ "uxPin": {
+  "message": "固定"
+ },
+ "uxUnpin": {
+  "message": "固定を解除"
+ },
+ "uxDeletedAnswer": {
+  "message": "回答を削除しました"
+ },
+ "uxDeletedNote": {
+  "message": "メモを削除しました"
+ },
+ "uxDeletedChat": {
+  "message": "チャットを削除しました"
+ },
+ "trashTitle": {
+  "message": "最近削除した項目"
+ },
+ "trashRow": {
+  "message": "最近削除した項目 · {0}"
+ },
+ "trashNote": {
+  "message": "チャットはここに30日間保存されます。その後、完全に削除されます。"
+ },
+ "trashRestore": {
+  "message": "復元"
+ },
+ "trashDeleteNow": {
+  "message": "今すぐ削除"
+ },
+ "trashDeleteAll": {
+  "message": "すべて削除"
+ },
+ "trashDeleteAllAsk": {
+  "message": "「最近削除した項目」のチャットをすべて完全に削除しますか？この操作は取り消せません。"
+ },
+ "trashDays_one": {
+  "message": "{0}日"
+ },
+ "trashDays_few": {
+  "message": "{0}日"
+ },
+ "trashDays_many": {
+  "message": "{0}日"
+ },
+ "trashDays_other": {
+  "message": "{0}日"
+ },
+ "uxPinned": {
+  "message": "固定済み"
+ },
+ "uxPinnedN": {
+  "message": "固定済み #{0}"
+ },
+ "uxPinnedAll": {
+  "message": "固定一覧"
+ },
+ "uxMore": {
+  "message": "その他"
+ },
+ "uxMorePage": {
+  "message": "その他：ページ"
+ },
+ "uxMoreAnswer": {
+  "message": "その他：回答"
+ },
+ "uxMoreNote": {
+  "message": "その他：メモ"
+ },
+ "uxMoreChat": {
+  "message": "その他：チャット"
+ },
+ "uxLater": {
+  "message": "このページをリマインド…"
+ },
+ "uxLaterTitle": {
+  "message": "このページをリマインド"
+ },
+ "uxWatchPage": {
+  "message": "このページを見守る…"
+ },
+ "uxReminders": {
+  "message": "リマインダー"
+ },
+ "uxRemindersN": {
+  "message": "リマインダー · {0}"
+ },
+ "uxWatching": {
+  "message": "見守り"
+ },
+ "uxWatchingN": {
+  "message": "見守り · {0}"
+ },
+ "uxAllReminders": {
+  "message": "すべてのリマインダー"
+ },
+ "uxNoReminders": {
+  "message": "リマインダーはありません"
+ },
+ "uxNoRemindersHint": {
+  "message": "回答やメモで、選択したテキストのベルで、またはここで設定できます：… → このページをリマインド。"
+ },
+ "uxNoWatching": {
+  "message": "見守りはありません"
+ },
+ "uxNoWatchingHint": {
+  "message": "価格、在庫、日付を選択して目をタップしてください。ページ全体なら：… → このページを見守る。"
+ },
+ "uxOnAnotherDevice": {
+  "message": "{0} · 別のデバイス"
+ },
+ "uxStop": {
+  "message": "停止"
+ },
+ "uxRemind": {
+  "message": "リマインド"
+ },
+ "uxRemindChange": {
+  "message": "リマインドを変更"
+ },
+ "uxRemindOpen": {
+  "message": "開く"
+ },
+ "uxRemindTitle": {
+  "message": "いつリマインドしますか？"
+ },
+ "uxRemindAsked": {
+  "message": "リマインドのご依頼：{0}"
+ },
+ "uxRemindHour": {
+  "message": "1時間後"
+ },
+ "uxRemindEvening": {
+  "message": "今日の夕方"
+ },
+ "uxRemindMorning": {
+  "message": "明日の朝"
+ },
+ "uxRemindWeek": {
+  "message": "1週間後"
+ },
+ "uxRemindPick": {
+  "message": "日時を選ぶ"
+ },
+ "uxRemindSet": {
+  "message": "リマインドする"
+ },
+ "uxRemindCancel": {
+  "message": "リマインドしない"
+ },
+ "uxRemindOff": {
+  "message": "ContextFlowの通知がオフになっています。設定 → 通知 → ContextFlow でオンにしてください。"
+ },
+ "uxRemindAsk": {
+  "message": "ContextFlowアプリを一度開いて通知を許可してから、もう一度リマインドを設定してください。"
+ },
+ "uxRemindNone": {
+  "message": "リマインドには、このデバイスにContextFlowアプリが必要です。"
+ },
+ "uxToday": {
+  "message": "今日"
+ },
+ "uxTomorrow": {
+  "message": "明日"
+ },
+ "uxRemindSaved": {
+  "message": "リマインド：{0}"
+ },
+ "uxRemindNotSet": {
+  "message": "チャットに保存しました。ContextFlowの通知がオフになっています。設定 → 通知 → ContextFlow でオンにしてください。"
+ },
+ "uxRemindNoApp": {
+  "message": "チャットに保存しました。リマインドには、このデバイスにContextFlowアプリが必要です。"
+ },
+ "uxUnpinAll": {
+  "message": "すべて固定を解除"
+ },
+ "setShareGroup": {
+  "message": "共有とコピー"
+ },
+ "uxShareMarks": {
+  "message": "共有するテキストのハイライトを**太字**に"
+ },
+ "uxShareMarksHint": {
+  "message": "Telegram、Notion、Slackでは太字、メッセージとメモではアスタリスク付きで表示されます。「コピー」では常に太字のままです。"
+ },
  "nowOnPage": {
   "message": "現在: {0}"
  },
@@ -215,6 +410,18 @@
  "limitProBody": {
   "message": "Proの回答数は{0}後にリセットされます。"
  },
+ "longPageWeight": {
+  "message": "長いページ：回答 ×{0}"
+ },
+ "longPageWeightHint": {
+  "message": "このページは長文です：回答は上限から ×{0} として数えられます。"
+ },
+ "limitLongTitle": {
+  "message": "このページは長文です"
+ },
+ "limitLongBody": {
+  "message": "このページへの回答は{0}回分として数えられ、残りは{1}回です。"
+ },
  "getPro": {
   "message": "Proを入手"
  },
@@ -237,16 +444,37 @@
   "message": "{0}分"
  },
  "consentTitle": {
-  "message": "ご利用の前に"
+  "message": "ContextFlow が AI を使う前に"
  },
  "consentBody": {
-  "message": "回答するために、ContextFlowはあなたの質問とこのページ（または選択範囲）のテキスト（AI検索と「すべてのチャットに質問」ではチャットの抜粋）を、当社のサーバ経由でAnthropic（Claude）に、利用できない場合はOpenAIに（Googleでの回答の場合はGoogleに）送信します。ページの内容やチャットは当社のサーバに保存されず、チャットはお使いのデバイスと、同期をオンにした場合はあなたのiCloudにのみ保存されます。"
+  "message": "この同意は 1 回だけで、すべての AI 機能に適用されます。各機能は、使ったときに必要なものだけを、当社のサーバー経由で Anthropic（Claude）に送信します。当社のサーバーには何も保存されず、提供元がこれを学習に使うこともありません。"
+ },
+ "consentAnswers": {
+  "message": "回答：あなたの質問、ページのテキストまたは選択範囲、記入していれば「自己紹介」。Claude を利用できない場合は OpenAI が回答します。Google での回答は Google に送られます。"
+ },
+ "consentChats": {
+  "message": "「すべてのチャットに質問」と AI検索（Pro）：チャットの短い抜粋。"
+ },
+ "consentTemplates": {
+  "message": "テンプレート：空欄を見つけるためのテンプレートのテキスト、「ページから入力」ではページのテキスト、「意味で探す」では入力した言葉とテンプレートのタイトル。"
+ },
+ "consentWatch": {
+  "message": "ページの見守り：選択した部分、知らせてほしいタイミングを書いた言葉、その周りのテキスト、ページのタイトル。その後は古い値と新しい値。"
+ },
+ "consentSuggest": {
+  "message": "提案（Pro、オンにした場合のみ）：新しい質問・回答・メモのテキスト。比較のために OpenAI へ、タグの確認のために Claude へ送られます。"
+ },
+ "consentStored": {
+  "message": "チャットはお使いのデバイスと、同期をオンにした場合はあなたの iCloud に保存されます。"
+ },
+ "consentWhat": {
+  "message": "送信される内容"
  },
  "consentAccept": {
   "message": "同意して続ける"
  },
  "consentAgainTitle": {
-  "message": "更新：回答は Claude が担当するようになりました"
+  "message": "更新：すべての AI 機能への同意が 1 つになりました"
  },
  "consentDecline": {
   "message": "今はしない"
@@ -734,6 +962,240 @@
  "tagsButton": {
   "message": "タグ"
  },
+ "qiTitle": {
+  "message": "クイック挿入"
+ },
+ "qiButton": {
+  "message": "クイック挿入：コピーしたテキスト、テンプレート、チャットの回答"
+ },
+ "qiCommand": {
+  "message": "カーソル位置にクイック挿入"
+ },
+ "qiSearch": {
+  "message": "テンプレートを検索"
+ },
+ "qiNewTemplate": {
+  "message": "新規テンプレート"
+ },
+ "qiEditTemplate": {
+  "message": "テンプレート"
+ },
+ "qiCopied": {
+  "message": "コピー履歴"
+ },
+ "qiClear": {
+  "message": "消去"
+ },
+ "qiCopiedOff": {
+  "message": "コピー履歴はオフです。下でオンにできます。"
+ },
+ "qiCopiedEmpty": {
+  "message": "Safariのどのページでもテキストをコピーすると、ここに表示されます。"
+ },
+ "qiNothing": {
+  "message": "見つかりません"
+ },
+ "qiToTemplate": {
+  "message": "テンプレートにする"
+ },
+ "qiTemplates": {
+  "message": "テンプレート"
+ },
+ "qiTemplatesTitle": {
+  "message": "テンプレート"
+ },
+ "qiAllTemplates": {
+  "message": "すべてのテンプレート"
+ },
+ "qiTemplatesEmpty": {
+  "message": "テンプレートはまだありません。＋をタップするか、よく書く返信を選択して「テンプレート」をタップしてください。"
+ },
+ "qiTemplatesIntro": {
+  "message": "何度も書く返信を保存しましょう。名前や日付など変わる部分を見つけて、ページから入力できます。"
+ },
+ "qiFindAi": {
+  "message": "意味で探す"
+ },
+ "qiFinding": {
+  "message": "検索中…"
+ },
+ "qiFromCf": {
+  "message": "チャットから"
+ },
+ "qiLastAnswer": {
+  "message": "最新の回答"
+ },
+ "qiLastNote": {
+  "message": "最新のメモ"
+ },
+ "qiKeepCopied": {
+  "message": "コピーしたテキストを保存"
+ },
+ "qiPrivacy": {
+  "message": "コピーしたテキストはこの{0}にだけ保存され、24時間後に消去されます。"
+ },
+ "qiOnIphone": {
+  "message": "iPhone"
+ },
+ "qiOnIpad": {
+  "message": "iPad"
+ },
+ "qiOnMac": {
+  "message": "Mac"
+ },
+ "qiOnDevice": {
+  "message": "デバイス"
+ },
+ "qiHideButtonOnSite": {
+  "message": "{0} ではボタンを隠す"
+ },
+ "qiDontKeepOnSite": {
+  "message": "{0}では保存しない"
+ },
+ "qiKeepOnSite": {
+  "message": "{0}でも再び保存"
+ },
+ "qiTip": {
+  "message": "新機能：タップすると、ほかのタブでコピーしたテキスト、テンプレート、チャットの回答を挿入できます。"
+ },
+ "qiKeyInsert": {
+  "message": "挿入"
+ },
+ "qiKeyChoose": {
+  "message": "選択"
+ },
+ "qiKeyClose": {
+  "message": "閉じる"
+ },
+ "qiBlanksMark": {
+  "message": "空欄"
+ },
+ "qiBlanksCount": {
+  "message": "空欄：{0}"
+ },
+ "qiPasteManually": {
+  "message": "コピーしました。フィールドに自分でペーストしてください。"
+ },
+ "qiInsert": {
+  "message": "挿入"
+ },
+ "qiInsertIntoField": {
+  "message": "フィールドに挿入"
+ },
+ "qiFillFromPage": {
+  "message": "ページから入力"
+ },
+ "qiFillAgain": {
+  "message": "もう一度入力"
+ },
+ "qiFilling": {
+  "message": "入力中…"
+ },
+ "qiFillHint": {
+  "message": "空欄に入力するか、コピー履歴から選んでください。ページから入力することもできます。"
+ },
+ "qiFillDone": {
+  "message": "黄色：ページから入力した部分です。送信前に確認してください。"
+ },
+ "qiFillPartly": {
+  "message": "黄色：ページから入力した部分です。空の欄は見つかりませんでした。自分で入力してください。"
+ },
+ "qiFillLeft": {
+  "message": "今日の残り入力回数：{0}"
+ },
+ "qiFillLimit": {
+  "message": "今日の無料入力回数を使い切りました。Proなら制限はありません。空欄は手でも入力できます。"
+ },
+ "qiFillByHand": {
+  "message": "手で入力"
+ },
+ "qiPickCopied": {
+  "message": "「{0}」にコピー履歴から"
+ },
+ "qiAdapt": {
+  "message": "このページ向けに書き直す"
+ },
+ "qiAdaptChat": {
+  "message": "このチャット向けに書き直す"
+ },
+ "qiAdaptHint": {
+  "message": "「ページから入力」は空欄だけを埋めます。「書き直す」は AI で文章全体を書き換え、パネルに表示します。"
+ },
+ "qiAdaptLabel": {
+  "message": "テンプレートをこのページ向けに書き直す"
+ },
+ "qiAdaptPrompt": {
+  "message": "このテンプレートを、開いているページに合う返信に書き直して。意味、トーン、長さは保ち、ページからわかることを埋め、ほかはそのままにして。返信の本文だけを答えて。\n\nテンプレート：\n{0}"
+ },
+ "qiAdaptConversation": {
+  "message": "これは私が返信しているチャットです。その相手への返信として書いてください：\n{0}"
+ },
+ "qiTemplateButton": {
+  "message": "テンプレート"
+ },
+ "qiTemplateTitle": {
+  "message": "タイトル"
+ },
+ "qiTemplateText": {
+  "message": "本文。空欄は{名前}のように波かっこで囲みます。"
+ },
+ "qiMakeBlank": {
+  "message": "空欄"
+ },
+ "qiBlankDefault": {
+  "message": "空欄"
+ },
+ "qiUnmark": {
+  "message": "普通のテキストに戻す"
+ },
+ "qiMarking": {
+  "message": "変わる部分を見つけています…"
+ },
+ "qiMarkAi": {
+  "message": "空欄を見つける"
+ },
+ "qiMarkedHint": {
+  "message": "空欄を見つけました。タップすると普通のテキストに戻ります。"
+ },
+ "qiMarkedNone": {
+  "message": "変わる部分はなさそうです。単語を選択して「空欄」をタップすると追加できます。"
+ },
+ "qiMarkFailed": {
+  "message": "今は空欄を見つけられませんでした。テンプレートは普通のテキストとして保存され、空欄は手で追加できます。"
+ },
+ "qiBlankHint": {
+  "message": "空欄はテンプレートを挿入するときに入力します。"
+ },
+ "qiKeywords": {
+  "message": "検索用の言葉（カンマ区切り）"
+ },
+ "qiSave": {
+  "message": "保存"
+ },
+ "qiDelete": {
+  "message": "削除"
+ },
+ "qiSetButton": {
+  "message": "テキストフィールドの横のボタン"
+ },
+ "qiSetCopiedHint": {
+  "message": "ページでコピーした最新5件のテキスト。このデバイスにだけ保存され、24時間後に消去されます。パスワードやカードの欄、プライベートブラウズでは保存しません。"
+ },
+ "qiClearCopied": {
+  "message": "コピー履歴を消去"
+ },
+ "qiCleared": {
+  "message": "消去しました"
+ },
+ "qiSetSign": {
+  "message": "フィールドでの記号"
+ },
+ "qiSetSignHint": {
+  "message": "どのフィールドでも、{0}とテンプレートの言葉をいくつか入力します。"
+ },
+ "qiSetShortcut": {
+  "message": "Macとキーボード付きiPadでは、⌃⇧Vでリストが開きます。"
+ },
  "hintGot": {
   "message": "OK"
  },
@@ -838,5 +1300,443 @@
  },
  "byokOfferBody": {
   "message": "Pro はキーなしで回答します：週に最大{0}件、Google 検索は週{1}回、「すべてのチャットに質問」と AI検索。支払い前に App Store が価格と期間を表示します。Pro はすぐに始まり、現在のプランの未使用分は返金されます。"
+ },
+ "orgSuggested": {
+  "message": "提案"
+ },
+ "orgTagA11y": {
+  "message": "提案されたタグ「{0}」。追加する"
+ },
+ "orgNoA11y": {
+  "message": "提案を閉じる"
+ },
+ "orgCountOne": {
+  "message": "{0}件のメッセージ"
+ },
+ "orgCountFew": {
+  "message": "{0}件のメッセージ"
+ },
+ "orgCountMany": {
+  "message": "{0}件のメッセージ"
+ },
+ "orgCountOther": {
+  "message": "{0}件のメッセージ"
+ },
+ "orgMoveTo": {
+  "message": "{0}を「{1}」へ"
+ },
+ "orgSplit": {
+  "message": "新しいチャットへ：「{0}」"
+ },
+ "orgMoveA11y": {
+  "message": "{0}をチャット「{1}」に移動"
+ },
+ "orgSplitA11y": {
+  "message": "これらのメッセージを新しいチャット「{0}」に移動"
+ },
+ "orgMoved": {
+  "message": "「{0}」に移動しました"
+ },
+ "orgUndo": {
+  "message": "取り消す"
+ },
+ "orgOpen": {
+  "message": "開く"
+ },
+ "orgFirstWin": {
+  "message": "完了しました。これからは自分から提案します。"
+ },
+ "orgConsentTitle": {
+  "message": "チャットをトピックごとに整理しますか？"
+ },
+ "orgConsentText": {
+  "message": "新しい回答やメモの下に、合うチャットとあなたのタグを1つ提案します。設定でオフにできます。"
+ },
+ "orgTurnOn": {
+  "message": "オンにする"
+ },
+ "orgMessTitle": {
+  "message": "全部ひとつのチャットに？"
+ },
+ "orgMessText": {
+  "message": "Pro なら、何をどこに移すかを提案し、あなたと同じようにタグを付けます。"
+ },
+ "orgTagsTitle": {
+  "message": "あなたと同じようにタグを付けられます"
+ },
+ "orgTagsText": {
+  "message": "Pro なら、あなたが自分でタグを付けた場所をもとに、新しい回答やメモの下にあなたのタグを1つ提案します。"
+ },
+ "orgCloseA11y": {
+  "message": "閉じる"
+ },
+ "setOrganize": {
+  "message": "提案：タグと移動"
+ },
+ "setOrganizeHint": {
+  "message": "新しい回答やメモの下に、合うチャットとあなたのタグを表示します。メッセージのテキストは当社のサーバーと OpenAI、Anthropic に送られます。当社は保存せず、OpenAI と Anthropic は学習に使いません。"
+ },
+ "setOrganizePro": {
+  "message": "Pro：新しい回答やメモの下に、ContextFlow が合うチャットとあなたのタグを提案します。"
+ },
+ "upsellOrganizeName": {
+  "message": "トピックごとに整理"
+ },
+ "upsellOrganizeText": {
+  "message": "今聞いたことに合うチャットと、あなた自身のタグを提案します。"
+ },
+ "watchEye": {
+  "message": "変更を見守る"
+ },
+ "watchSection": {
+  "message": "変わったら知らせる"
+ },
+ "watchWhen": {
+  "message": "知らせるタイミング"
+ },
+ "watchCondPrice": {
+  "message": "価格が変わったら（現在 {0}）"
+ },
+ "watchCondBack": {
+  "message": "再入荷したら"
+ },
+ "watchCondStock": {
+  "message": "在庫状況が変わったら（現在 {0}）"
+ },
+ "watchCondDate": {
+  "message": "日付が変わったら（現在 {0}）"
+ },
+ "watchCondStatus": {
+  "message": "ステータスが変わったら（現在 {0}）"
+ },
+ "watchCondPage": {
+  "message": "ページに新しい内容が出たら"
+ },
+ "watchHonest": {
+  "message": "Safari を使っている間に確認します"
+ },
+ "watchStart": {
+  "message": "見守る"
+ },
+ "watchSave": {
+  "message": "保存"
+ },
+ "watchTipBell": {
+  "message": "ベル：選んだ時間に、このページへ戻るようお知らせします。"
+ },
+ "watchTipWatch": {
+  "message": "目：価格、在庫、ステータスなど、ここで何かが変わったらお知らせします。"
+ },
+ "watchChecking": {
+  "message": "ページを確認中…"
+ },
+ "watchSet": {
+  "message": "見守ります。変わったらお知らせします。"
+ },
+ "watchSetLive": {
+  "message": "見守ります。このサイトはページを開いたときだけ表示するので、そのときに確認します。"
+ },
+ "watchUnreadable": {
+  "message": "このサイトはバックグラウンドで確認できません。ページを開いたときに確認するか、見に行くようリマインドできます。"
+ },
+ "watchRemindInstead": {
+  "message": "見に行くようリマインド"
+ },
+ "watchLiveOk": {
+  "message": "ページを開いたときに確認"
+ },
+ "watchFull": {
+  "message": "すでに {0} 件を見守っています。先に「見守り」で1件止めてください。"
+ },
+ "watchFullFree": {
+  "message": "無料プランで同時に見守れるのは {0} ページまでです。Pro なら {1} ページまで。"
+ },
+ "watchMore": {
+  "message": "Pro でもっと"
+ },
+ "watchFailed": {
+  "message": "うまくいきませんでした。少ししてからもう一度お試しください。"
+ },
+ "watchRow": {
+  "message": "見守り中: {0} · {1}に確認"
+ },
+ "watchRowNew": {
+  "message": "見守り中: {0}"
+ },
+ "watchRowNow": {
+  "message": "現在 {0}"
+ },
+ "watchRowLive": {
+  "message": "見守り中: {0} · ページを開いたときに確認"
+ },
+ "watchRowMet": {
+  "message": "変更あり: {0} · {1}"
+ },
+ "watchRowMetNow": {
+  "message": "変更あり: {0}、現在 {1} · {2}"
+ },
+ "watchStop": {
+  "message": "見守りをやめる"
+ },
+ "watchStopped": {
+  "message": "見守りをやめました"
+ },
+ "watchLabelPrice": {
+  "message": "価格"
+ },
+ "watchLabelStock": {
+  "message": "在庫"
+ },
+ "watchLabelDate": {
+  "message": "日付"
+ },
+ "watchLabelStatus": {
+  "message": "ステータス"
+ },
+ "watchLabelPage": {
+  "message": "ページ"
+ },
+ "watchInStock": {
+  "message": "在庫あり"
+ },
+ "watchOutOfStock": {
+  "message": "在庫切れ"
+ },
+ "watchChanged": {
+  "message": "変更あり: {0}"
+ },
+ "watchChangedBody": {
+  "message": "現在: {0}"
+ },
+ "tip_4cf1b54b00": {
+  "message": "ヒント"
+ },
+ "tip_245f060c21": {
+  "message": "「どうやるの？」にすぐ答えます。"
+ },
+ "tip_89895fd68f": {
+  "message": "すべてのデバイスで"
+ },
+ "tip_9efc5dc7c2": {
+  "message": "「iCloudでチャットを同期」をオンにすると、iPhoneで始めたチャットをiPadやMacで続けられます。チャットはiCloud上でエンドツーエンド暗号化されます。"
+ },
+ "tip_90e40d5043": {
+  "message": "はじめに"
+ },
+ "tip_ad4199fa48": {
+  "message": "どのページでも開ける"
+ },
+ "tip_79a4dbe893": {
+  "message": "ページ上の✦をタップするか、アドレスバーのページメニューを開いて「ContextFlow」を選択します。"
+ },
+ "tip_4acd9995ac": {
+  "message": "ページ上の✦かツールバーのContextFlowアイコンをクリックするか、Control-Shift-Eを押します。"
+ },
+ "tip_2749afe54a": {
+  "message": "ワンタップで要点"
+ },
+ "tip_487a14e710": {
+  "message": "「要約」「重要ポイント」「やさしく解説」「翻訳」はページ全体が対象。プロンプトを書く必要はありません。"
+ },
+ "tip_d22c90dac1": {
+  "message": "一部分について質問"
+ },
+ "tip_328a1070b8": {
+  "message": "ページのテキストを選択して「AIに質問」を選ぶと、その部分についてだけ答えます。解説・翻訳・書き直しもできます。"
+ },
+ "tip_ca7dfa36cb": {
+  "message": "選択範囲に質問・メモ"
+ },
+ "tip_fa1cdf5479": {
+  "message": "ページのテキストを選択すると、そのすぐ下に自分の質問を入力できます。「メモ」をタップすると、ページと一緒にチャットに保存されます。メモは回答回数を使いません。"
+ },
+ "tip_9000896590": {
+  "message": "チャットはついてくる"
+ },
+ "tip_c76058fe4b": {
+  "message": "ページを移りながら質問を続けられます。ContextFlowは会話の内容と、各質問がどのページについてだったかを覚えています。チャット内のページ名をタップすると、そのページに戻れます。"
+ },
+ "tip_e5dff10006": {
+  "message": "Googleで最新情報"
+ },
+ "tip_d7c7b7b55d": {
+  "message": "質問欄の横の「Google」をオンにすると、Google検索をもとに答えます。ニュースや価格など最新の情報を出典付きで。"
+ },
+ "tip_da5f7b74b1": {
+  "message": "じっくり深掘り"
+ },
+ "tip_6ba198cbff": {
+  "message": "自分のメモ"
+ },
+ "tip_6a92f6c633": {
+  "message": "送信ボタンを上下にスワイプ（Macではボタンの上でスクロール）すると、質問の代わりにメモを書けます。メモはページと一緒にチャットに残り、チャットと一緒に同期され、回答回数を使いません。"
+ },
+ "tip_654fb12e51": {
+  "message": "大事なところをハイライト"
+ },
+ "tip_33115b31e1": {
+  "message": "回答の一行を選択して「ハイライト」をタップすると、マーカーのように印が残ります。そのチャットのこの先の回答はハイライトを踏まえ、「コピー」すると太字で残ります。"
+ },
+ "tip_b4e4a2a85e": {
+  "message": "固定したものは上に"
+ },
+ "tip_4d33a9d9e4": {
+  "message": "回答やメモを固定すると、チャット上部のバーに表示されます。バーをタップするとその場所へ、もう一度タップすると次の固定へ移動します。"
+ },
+ "tip_b7be002204": {
+  "message": "スワイプで固定・削除"
+ },
+ "tip_104ac1e6e8": {
+  "message": "回答やメモを右にスワイプすると固定、左にスワイプすると削除。気が変わったら「取り消す」で元に戻せます。"
+ },
+ "tip_c047d28229": {
+  "message": "クリックで固定・削除"
+ },
+ "tip_dcfe357b68": {
+  "message": "回答やメモにポインタを合わせると、横に「固定」「リマインド」「削除」が表示されます。右クリックでも同じメニューが開きます。気が変わったら「取り消す」で元に戻せます。"
+ },
+ "tip_e012ef5f59": {
+  "message": "チャット全体を踏まえて"
+ },
+ "tip_3a70cee32e": {
+  "message": "回答にすべてが必要なときは、質問欄の下の「チャット全体」をオンに：すべてのメッセージ、メモ、このチャットの他のページ。オフ：直近のメッセージと開いているページ。"
+ },
+ "tip_ca29a1f4ed": {
+  "message": "動画について質問"
+ },
+ "tip_d6be4709b7": {
+  "message": "Pro では、ページの動画の文字起こしを ContextFlow が読み取ります。要点や、ある話題について何が語られたかを聞くと、[4:15] のように場面を示して答えます。無料の回答はページのテキストを使います。"
+ },
+ "tip_5c5bca8a9e": {
+  "message": "ページの PDF"
+ },
+ "tip_ff32d2c483": {
+  "message": "Pro では、ページに表示・リンクされた PDF も質問と一緒に送られ、回答はどのページの内容かを示します。iPad と Mac では、ツールバーの ContextFlow を PDF のタブでも開けます。無料の回答はページのテキストを使います。"
+ },
+ "tip_328ee8ddce": {
+  "message": "クイック挿入"
+ },
+ "tip_ff7c853b85": {
+  "message": "どのフィールドにも挿入"
+ },
+ "tip_038e87000b": {
+  "message": "ページのテキストフィールドをタップし、その横のContextFlowボタンをタップします。ほかのタブでコピーしたもの、テンプレート、ContextFlowの最新の回答をワンタップで挿入できます。キーボードでは、/ とテンプレートの言葉をいくつか入力してTabを押します。"
+ },
+ "tip_a8e1d14e5b": {
+  "message": "ページのどのフィールドでも、/ とテンプレートの言葉をいくつか入力してTabを押します。Control-Shift-Vでリスト全体が開きます：ほかのタブでコピーしたもの、テンプレート、ContextFlowの最新の回答。"
+ },
+ "tip_451fa9ccb6": {
+  "message": "コピー履歴は1日保存"
+ },
+ "tip_8ddcf05a7e": {
+  "message": "Safariのページでコピーした最新5件が、このデバイスにだけ24時間リストに残ります。パスワードやカードの欄、プライベートブラウズでは保存しません。"
+ },
+ "tip_cf63db6cc6": {
+  "message": "自動で埋まるテンプレート"
+ },
+ "tip_6dd86048c4": {
+  "message": "よく送る返信を選択して「テンプレート」をタップすると、ContextFlowが名前や日付など変わる部分を見つけます。挿入時に「ページから入力」で埋まり、確認しやすいよう強調表示されます。"
+ },
+ "tip_f09b3558e2": {
+  "message": "見守りとリマインダー"
+ },
+ "tip_d0d8d1355c": {
+  "message": "このページをリマインド"
+ },
+ "tip_b5d4d7711a": {
+  "message": "あとで読み終えたいページは、1行を選択してベルをタップするか、パネル上部の「…」から「このページをリマインド…」をタップして時間を選ぶだけ。リマインダーがこのページを開きます。回答やメモの「…」メニューにも「リマインド」があります。"
+ },
+ "tip_74c328b672": {
+  "message": "値下がりを知らせる"
+ },
+ "tip_45c2496345": {
+  "message": "ページ上の価格、在庫状況、日付を選択して目のアイコンをタップ。ページ全体なら、パネル上部の「…」メニューから「このページを見守る…」を選びます。Safari を使っている間に ContextFlow がページを確認し、変わったときや、指定した価格を下回ったときにお知らせします。同時に5件まで、Pro なら20件まで。"
+ },
+ "tip_0daede04f6": {
+  "message": "チャットを整理"
+ },
+ "tip_ec2cf96f53": {
+  "message": "新しく始める・前に戻る"
+ },
+ "tip_623811ea30": {
+  "message": "＋で新しいチャットを始めます。以前のチャットは一覧に残っていて、開けば続きから再開でき、鉛筆アイコンで名前を変えたり、削除したりできます。"
+ },
+ "tip_c4b432e2e9": {
+  "message": "チャットを検索"
+ },
+ "tip_eff80bffda": {
+  "message": "チャット一覧の上の検索に入力すると、その単語を含むチャットと該当箇所が表示されます。結果をタップするとその箇所が開きます。"
+ },
+ "tip_2e4668f650": {
+  "message": "タグとフォルダ"
+ },
+ "tip_6b5bdf707f": {
+  "message": "🏷 でチャット・回答・メモにタグを付けられます。タグをタップするとそのチャットだけを表示し、「フォルダ」でタグごとにまとめます。"
+ },
+ "tip_752fb307f2": {
+  "message": "見つけたことを共有"
+ },
+ "tip_aa15b6c2c0": {
+  "message": "1つの回答またはチャット全体を共有できます。テキストにはリンク、出典、ContextFlowへのリンクが付きます。"
+ },
+ "tip_76f2924bba": {
+  "message": "アプリでチャットを見る"
+ },
+ "tip_969cf52d0b": {
+  "message": "「チャット」タブには Safari のすべてのチャットがあります。そのままページについて質問したりメモを書いたりでき、回答ごとにタグ付け・コピー・共有、チャット全体の共有もできます。「Safari で続ける」で中断したところから再開できます。"
+ },
+ "tip_4721064b09": {
+  "message": "AI検索"
+ },
+ "tip_52a09ac884": {
+  "message": "検索の横の ✦ をタップし、覚えているチャットを説明します（「睡眠とコーヒーの記事」など）。正確な言葉でなくても大丈夫です。"
+ },
+ "tip_068fa58797": {
+  "message": "すべてのチャットに質問"
+ },
+ "tip_8a40be768f": {
+  "message": "チャット一覧の最初の行で、すべてのチャットをまとめて質問できます：「今週は何を読んだ？」「AI についてのメモをまとめて」。"
+ },
+ "tip_4257aee15a": {
+  "message": "あるべき場所へ"
+ },
+ "tip_c61e2edab3": {
+  "message": "ソファのチャットで車のことを聞きましたか？回答の下に、ContextFlow がふさわしいチャットか新しいチャットを提案します。タップひとつで日付順にそこへ移り、「取り消す」で元に戻ります。"
+ },
+ "tip_3f9f46cd12": {
+  "message": "あなたのタグを提案"
+ },
+ "tip_69a0bac728": {
+  "message": "ContextFlow は、あなたがタグを付けた場所からそのタグの意味を学び、新しい回答やメモの下に合うタグを提案します。あなた自身のタグだけを、合うときだけ。"
+ },
+ "tip_3208aa35ac": {
+  "message": "プライバシーとパーソナライズ"
+ },
+ "tip_1e1a2fad4e": {
+  "message": "自分のことを伝える"
+ },
+ "tip_e2d1d4abd0": {
+  "message": "「自己紹介」に、仕事や好みの回答スタイルなどを一行書いておくと、ContextFlowがあなたに合わせて答えます。"
+ },
+ "tip_10400d6345": {
+  "message": "✦ボタンを好みに"
+ },
+ "tip_4c60874441": {
+  "message": "✦ がページの内容を隠しているときは、端に沿って上下にドラッグするか、反対側へ動かせます。置いた場所はそのまま覚えています。特定のサイトだけで隠したり、拡張機能の設定ですべてのサイトでオフにしたりもできます。その場合もSafariの拡張機能メニューから開けます。"
+ },
+ "tip_8a727e1bbe": {
+  "message": "自分のAPIキーを使う"
+ },
+ "tip_d84a0778d4": {
+  "message": "Proまたは「自分のキー」プランなら、Safariの拡張機能の設定にOpenAIまたはClaudeのキーを貼り付けられます。リクエストはそのプロバイダに直接送られます。"
+ },
+ "tip_3aaa9fd1f2": {
+  "message": "プライバシーを第一に"
+ },
+ "tip_241d3ad076": {
+  "message": "ContextFlowがページを読むのは質問したときだけで、回答のために送るのはそのテキストのみです。チャットはあなたのデバイスとiCloudに保存されます。提案をオンにすると、新しいメッセージのテキストも、どこに入るかを見つけるために当社のサーバーに送られます。当社は保存しません。"
+ },
+ "tip_clips": {
+  "message": "en"
  }
 }

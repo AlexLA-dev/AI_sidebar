@@ -21,6 +21,8 @@ export interface Counter {
   subject: string
   period: "day" | "week"
   limit: number | null
+  // How many answers this one counts as (a long page, weight.mts); 1 when absent.
+  amount?: number
 }
 
 export interface CounterState extends Counter {
@@ -76,6 +78,8 @@ export const setupFunnel = (days: number) => rpc<Record<string, unknown>[]>("cf_
 export const ownerInsights = (days: number) => rpc<Record<string, unknown>>("cf_owner_insights", { p_days: days })
 /** Whether any limit keeps getting in users' way: per limit, answers and users it touched (cf_limits_report). */
 export const limitsReport = (days: number) => rpc<Record<string, unknown>>("cf_limits_report", { p_days: days })
+/** Organizing the chats (2.5): suggestions shown, taken, turned down and undone; promotions; turning it on (cf_organize_report). */
+export const organizeReport = (days: number) => rpc<Record<string, unknown>>("cf_organize_report", { p_days: days })
 /** New people's way to the first answer, one row each, by the day they first showed up (cf_onboarding). */
 export const onboarding = (days: number) => rpc<Record<string, unknown>>("cf_onboarding", { p_days: days })
 /** By day: new users, how many of them ran out of free answers that day, Pro bought (cf_new_user_outcomes). */

@@ -11,7 +11,7 @@ process.env.FREE_DAILY_LIMIT = "5"
 process.env.GEMINI_API_KEY = "gemini-test"
 
 // ---- in-memory stand-in for the cf_* RPCs --------------------------------
-type Item = { subject: string; period: string; limit: number | null }
+type Item = { subject: string; period: string; limit: number | null; amount?: number }
 let counters = new Map<string, number>()
 let entitlements = new Map<string, Record<string, unknown>>()
 let events: { kind: string; install?: string | null; data: Record<string, unknown>; at: number }[] = []
@@ -33,6 +33,11 @@ type ClaudeFake = {
   lastHeaders?: Headers
 }
 let claude: ClaudeFake = { calls: 0, answer: "Hello from Claude" }
+
+/** Claude's system prompt as one text (2.5 sends it as blocks: the cached rules and page, then the rest). */
+function systemText(body: Record<string, any> | undefined): string {
+  return Array.isArray(body?.system) ? body.system.map((b: { text: string }) => b.text).join("\n") : body?.system
+}
 
 function claudeStream(signal?: AbortSignal | null): Response {
   const ev = (type: string, data: Record<string, unknown> = {}) => `event: ${type}\ndata: ${JSON.stringify({ type, ...data })}\n\n`
@@ -82,12 +87,13 @@ function geminiStream(): Response {
 const rpc: Record<string, (args: Record<string, any>) => unknown> = {
   cf_consume: ({ p_items }) => {
     const items = p_items as Item[]
-    const blocked = items.find((i) => i.limit !== null && (counters.get(i.subject) ?? 0) >= i.limit)
-    if (!blocked) items.forEach((i) => counters.set(i.subject, (counters.get(i.subject) ?? 0) + 1))
+    // As cf_consume: an item counts as its amount (a long page), allowed only when all of it fits.
+    const blocked = items.find((i) => i.limit !== null && (counters.get(i.subject) ?? 0) + (i.amount ?? 1) > i.limit)
+    if (!blocked) items.forEach((i) => counters.set(i.subject, (counters.get(i.subject) ?? 0) + (i.amount ?? 1)))
     return { allowed: !blocked, blocked: blocked?.subject ?? null, counters: items.map((i) => ({ ...i, n: counters.get(i.subject) ?? 0 })) }
   },
   cf_refund: ({ p_items }) => {
-    for (const i of p_items as Item[]) counters.set(i.subject, Math.max(0, (counters.get(i.subject) ?? 0) - 1))
+    for (const i of p_items as Item[]) counters.set(i.subject, Math.max(0, (counters.get(i.subject) ?? 0) - (i.amount ?? 1)))
     return null
   },
   cf_peek: ({ p_items }) => (p_items as Item[]).map((i) => ({ ...i, n: counters.get(i.subject) ?? 0 })),
@@ -109,6 +115,7 @@ const rpc: Record<string, (args: Record<string, any>) => unknown> = {
   cf_setup_funnel: () => [{ day: "2026-10-30", app_opened: 4, extension_on: 3, panel_opened: 2 }],
   cf_owner_insights: ({ p_days }) => ({ days: p_days, per_user: [{ plan: "free", users: 2, user_days: 3, asked_days: 2, requests: 4, max_per_day: 3 }] }),
   cf_limits_report: ({ p_days }) => ({ days: p_days, rows: [{ key: "memory_window", hits: 74, base: 311, status: "systematic" }] }),
+  cf_organize_report: ({ p_days }) => ({ days: p_days, suggestions: [{ what: "move", why: "site", shown: 5, accepted: 3, dismissed: 1, undone: 1, users: 2 }], promo: [], optin: [], api: null }),
   cf_onboarding: () => ({ people: [{ day: "2026-11-01", device: "iPhone", kind: "app", ext: 300, panel: 420, answer: 540 }], open_reviews: [] }),
   cf_new_user_outcomes: () => [{ day: "2026-11-02", new: 12, limit_d0: 3, pro_bought: 2 }],
   cf_features: ({ p_days, p_base }) => ({ days: p_days, active: 2, features: [{ f: "ask", base: 2, people: 2 }], base: p_base }),
@@ -194,7 +201,7 @@ let resetModelList: () => void
 let resetClaudeCooldown: () => void
 let serverConfig: {
   geminiKey: string; adminToken: string; ownKeyReportDailyLimit: number; eventDailyLimit: number; useEventDailyLimit: number; proOfferCode: string
-  anthropicKey: string; claudeEnabled: boolean; claudeFirstTokenMs: number; claudeMinBuild: number
+  anthropicKey: string; claudeEnabled: boolean; claudeFirstTokenMs: number; claudeMinBuild: number; freeDailyLimit: number
 }
 
 before(async () => {
@@ -545,19 +552,20 @@ test("admin usage report needs ADMIN_TOKEN", async () => {
   assert.equal(body.feature_funnels[0].funnel, "purchase")
   assert.deepEqual([body.after_limit.people[0].before, body.after_limit.paying], [5, []])
   assert.deepEqual(body.releases, [{ platform: "IOS", version: "2.4", approved_at: "2026-11-04T14:59:19Z" }])
+  assert.deepEqual([body.organize_report.days, body.organize_report.suggestions[0].accepted], [180, 3])
 })
 
-test("admin usage report still answers before cf_owner_insights, cf_limits_report, cf_onboarding, cf_new_user_outcomes, the feature reports, cf_after_limit and cf_releases exist", async () => {
+test("admin usage report still answers before cf_owner_insights, cf_limits_report, cf_onboarding, cf_new_user_outcomes, the feature reports, cf_after_limit, cf_releases and cf_organize_report exist", async () => {
   serverConfig.adminToken = "admin-test"
   const saved = { ...rpc }
-  for (const fn of ["cf_owner_insights", "cf_limits_report", "cf_onboarding", "cf_new_user_outcomes", "cf_features", "cf_feature_funnels", "cf_after_limit", "cf_releases"]) delete rpc[fn]
+  for (const fn of ["cf_owner_insights", "cf_limits_report", "cf_onboarding", "cf_new_user_outcomes", "cf_features", "cf_feature_funnels", "cf_after_limit", "cf_releases", "cf_organize_report"]) delete rpc[fn]
   try {
     const res = await adminUsage(new Request("https://aisidebar.netlify.app/api/v2/admin/usage", { headers: { Authorization: "Bearer admin-test" } }))
     assert.equal(res.status, 200)
     const body = await res.json()
     assert.deepEqual(
-      [body.segments[0].requests, body.insights, body.limits_report, body.onboarding, body.new_outcomes, body.features, body.feature_funnels, body.after_limit, body.releases],
-      [3, null, null, null, null, null, null, null, null]
+      [body.segments[0].requests, body.insights, body.limits_report, body.onboarding, body.new_outcomes, body.features, body.feature_funnels, body.after_limit, body.releases, body.organize_report],
+      [3, null, null, null, null, null, null, null, null, null]
     )
   } finally {
     Object.assign(rpc, saved)
@@ -788,7 +796,12 @@ test("Claude answers first: the free plan gets Sonnet at low effort, charged onc
   assert.equal(body.thinking, undefined, "adaptive thinking, the model's default")
   assert.equal(body.temperature, undefined)
   assert.equal(body.fallbacks, "default")
-  assert.match(body.system, /Some article text/)
+  assert.match(systemText(body), /Some article text/)
+  // The rules and the page in the first block, cached; the time after it (2.5).
+  assert.deepEqual(body.system[0].cache_control, { type: "ephemeral" })
+  assert.match(body.system[0].text, /Some article text/)
+  assert.doesNotMatch(body.system[0].text, /Current time/)
+  assert.match(body.system.at(-1).text, /Current time/)
   assert.deepEqual(body.messages, [{ role: "user", content: "Summarize" }])
   assert.equal(claude.lastHeaders?.get("authorization"), `Bearer ${CLAUDE_KEY}`)
   assert.match(claude.lastHeaders?.get("anthropic-beta") ?? "", /server-side-fallback-2026-07-01/)
@@ -902,7 +915,7 @@ test("Ask your chats (Pro settings) and AI search (free settings) go to Claude t
   const jws = signJws(transaction())
   const { ev } = await chatOnce(askHistory({ client: NEW_CLIENT, entitlement: jws }))
   assert.equal(deltas(ev), "Hello from Claude")
-  assert.match(claude.lastBody?.system, /earlier ContextFlow chats/)
+  assert.match(systemText(claude.lastBody), /earlier ContextFlow chats/)
   assert.deepEqual(claude.lastBody?.output_config, { effort: "medium" })
   assert.equal(chatEvent().mode, "history")
 
@@ -913,7 +926,7 @@ test("Ask your chats (Pro settings) and AI search (free settings) go to Claude t
   await Promise.all(c.pending)
   assert.deepEqual((await res.json()).results, [{ id: "c1", why: "The four-day week article" }])
   assert.deepEqual(claude.lastBody?.output_config, { effort: "low" })
-  assert.match(claude.lastBody?.system, /id=c2/)
+  assert.match(systemText(claude.lastBody), /id=c2/)
   assert.deepEqual([chatEvent().provider, chatEvent().mode, chatEvent().cost_usd], ["anthropic", "find", 0.004])
   assert.equal(counters.get("tx:2000000123"), 2)
 })
@@ -999,7 +1012,7 @@ test("videos and PDFs are Pro: for anyone else the server leaves them out, whate
   // Free: neither the transcript nor the PDF reaches the model, which is told not to pretend it saw them.
   events = []
   await chatOnce(askNew({ page }))
-  const free = claude.lastBody?.system as string
+  const free = systemText(claude.lastBody)
   assert.match(free, /A lecture about neural networks/)
   assert.doesNotMatch(free, /PINEAPPLE/)
   assert.doesNotMatch(free, /Revenue grew 14%/)
@@ -1009,7 +1022,7 @@ test("videos and PDFs are Pro: for anyone else the server leaves them out, whate
   // Pro: both go in, with the media limit and the timestamp rule.
   events = []
   await chatOnce(askNew({ page, entitlement: signJws(transaction()) }))
-  const pro = claude.lastBody?.system as string
+  const pro = systemText(claude.lastBody)
   assert.match(pro, /PINEAPPLE/)
   assert.match(pro, /Revenue grew 14%/)
   assert.match(pro, /\[m:ss\] timestamps/)
@@ -1019,23 +1032,23 @@ test("videos and PDFs are Pro: for anyone else the server leaves them out, whate
   // A PDF alone, free: left out and named as PDFs.
   events = []
   await chatOnce(askNew({ page: { ...page, attachments: [page.attachments[1]] } }))
-  assert.doesNotMatch(claude.lastBody?.system as string, /Revenue grew 14%/)
-  assert.match(claude.lastBody?.system as string, /PDF documents that you were not given/)
+  assert.doesNotMatch(systemText(claude.lastBody), /Revenue grew 14%/)
+  assert.match(systemText(claude.lastBody), /PDF documents that you were not given/)
   assert.equal(chatEvent().skipped, "pdf")
 
   // A text that already carries a transcript (an earlier 2.4 test build) is cut to a page's limit for free.
   const composed = "x".repeat(30_000) + transcript
   await chatOnce(askNew({ page: { kind: "page", title: "V", url: "https://example.com/v", text: composed, media: "video" } }))
-  assert.doesNotMatch(claude.lastBody?.system as string, /PINEAPPLE/)
-  assert.match(claude.lastBody?.system as string, /a video that you were not given/)
+  assert.doesNotMatch(systemText(claude.lastBody), /PINEAPPLE/)
+  assert.match(systemText(claude.lastBody), /a video that you were not given/)
 
   // The panel skipped them itself (free): nothing to drop, the answer is still told.
   await chatOnce(askNew({ page: { kind: "page", title: "T", url: "https://example.com", text: "Page text", skipped: ["video"] } }))
-  assert.match(claude.lastBody?.system as string, /a video that you were not given/)
+  assert.match(systemText(claude.lastBody), /a video that you were not given/)
   // A PDF tab with nothing but the PDF: the request still goes, with the title and the rule.
   const { res } = await chatOnce(askNew({ page: { kind: "page", title: "Report.pdf", url: "https://example.com/r.pdf", text: "", skipped: ["pdf"] } }))
   assert.equal(res.status, 200)
-  assert.match(claude.lastBody?.system as string, /Title: Report\.pdf[\s\S]*PDF documents that you were not given/)
+  assert.match(systemText(claude.lastBody), /Title: Report\.pdf[\s\S]*PDF documents that you were not given/)
 })
 
 test("the skipped video/PDF line's events keep only which media", async () => {
@@ -1133,6 +1146,92 @@ test("Own key upsell events keep only what was shown or tapped, where and from w
   assert.deepEqual([logged[0].action, logged[0].where, logged[0].from, logged[0].discount], ["tap", "search", "panel", true])
   assert.ok(!JSON.stringify(logged[0]).includes("secret"))
   assert.deepEqual([logged[1].action, logged[1].where], [undefined, undefined])
+})
+
+
+// ---------------------------------------------------------------- long pages count as several answers (2.5)
+const longPage = (chars: number) => ({ kind: "page", title: "Long", url: "https://example.com/long", text: "a".repeat(chars) })
+
+test("a long page counts as several answers: 200 000 characters as one, 200 001 as two, and the counter shows it", async () => {
+  serverConfig.anthropicKey = CLAUDE_KEY
+  const first = await chatOnce(askNew({ page: longPage(200_000) }))
+  assert.equal(counters.get(`install:${INSTALL}`), 1)
+  assert.deepEqual([chatEvent().weight, chatEvent().page_bucket], [1, "200k"])
+  events = []
+  const second = await chatOnce(askNew({ page: longPage(200_001) }))
+  assert.equal(counters.get(`install:${INSTALL}`), 3)
+  assert.deepEqual([chatEvent().weight, chatEvent().page_bucket], [2, "400k"])
+  // The allowance the panel shows comes from the counters: one, then three used.
+  assert.deepEqual([first.ev[0].usage.used, second.ev[0].usage.used], [1, 3])
+  // A follow-up on the same page counts the same (FOLLOW_UP_WEIGHT "page", the owner's rule now).
+  counters.clear()
+  events = []
+  await chatOnce(askNew({ page: longPage(400_001), messages: [{ role: "user", content: "Summarize" }, { role: "assistant", content: "It's long." }, { role: "user", content: "And the end?" }] }))
+  assert.equal(counters.get(`install:${INSTALL}`), 3)
+  assert.equal(chatEvent().weight, 3)
+})
+
+test("a long page with fewer answers left than it counts as: not sent, nothing charged, the weight told", async () => {
+  serverConfig.anthropicKey = CLAUDE_KEY
+  counters.set(`install:${INSTALL}`, 4)
+  const { res } = await chatOnce(askNew({ page: longPage(600_001) }))
+  assert.equal(res.status, 402)
+  const body = await res.json()
+  assert.deepEqual([body.code, body.weight, body.usage.used, body.usage.limit], ["LIMIT_REACHED", 4, 4, 5])
+  assert.equal(counters.get(`install:${INSTALL}`), 4)
+  assert.equal(claude.calls, 0, "Claude not asked")
+  assert.equal(events.find((e) => e.kind === "limit")?.data.weight, 4)
+  // One answer left still covers a short page.
+  const short = await chatOnce(askNew())
+  assert.equal(short.res.status, 200)
+  assert.equal(counters.get(`install:${INSTALL}`), 5)
+})
+
+test("a long page's weight is given back in full when the answer fails", async () => {
+  openai.failModels = ["gpt-5.2-mini", "gpt-5-mini", "gpt-4.1-mini", "gpt-5.2", "gpt-5"]
+  const { res } = await chatOnce(askNew({ page: longPage(400_001) }))
+  assert.notEqual(res.status, 200)
+  assert.equal(counters.get(`install:${INSTALL}`) ?? 0, 0)
+})
+
+test("a whole page goes through: a request of a few MB is taken, the model gets all of it", async () => {
+  serverConfig.anthropicKey = CLAUDE_KEY
+  serverConfig.freeDailyLimit = 50
+  try {
+    const { res } = await chatOnce(askNew({ page: longPage(2_500_000) }))
+    assert.equal(res.status, 200)
+    assert.ok(systemText(claude.lastBody).includes("a".repeat(2_500_000)))
+    assert.equal(counters.get(`install:${INSTALL}`), 13)
+  } finally {
+    serverConfig.freeDailyLimit = 5
+  }
+})
+
+test("a 2.4 panel's page (cut at 24 000 characters) counts as one", async () => {
+  await chatOnce(ask({ page: longPage(24_000) }))
+  assert.equal(counters.get(`install:${INSTALL}`), 1)
+  assert.deepEqual([chatEvent().weight, chatEvent().page_bucket], [1, "24k"])
+})
+
+test("an answer with the user's own key is only reported: the answer limit isn't touched, whatever the page", async () => {
+  const c = ctx()
+  const res = await usage(post("/api/v2/usage", { installId: INSTALL, client: NEW_CLIENT, usage: { provider: "anthropic", model: "claude-sonnet-5-5", ok: true, promptTokens: 400_000, completionTokens: 300, ms: 9000, tier: "smart" } }), c)
+  await Promise.all(c.pending)
+  assert.equal(res.status, 204)
+  assert.equal(counters.get(`install:${INSTALL}`), undefined)
+  assert.equal(events.find((e) => e.kind === "chat")?.data.weight, undefined)
+})
+
+test("a page reminder from \"Come back later\" is counted as how: later; the menu, the window and watching aren't ux_* kinds", async () => {
+  const send = (body: Record<string, unknown>) => event(post("/api/v2/event", body), ctx())
+  events = []
+  await send({ kind: "ux_remind", installId: INSTALL, action: "set", what: "page", how: "later", preset: "evening", text: "secret" })
+  await new Promise((r) => setTimeout(r, 0))
+  const remind = events.find((e) => e.kind === "ux_remind")!.data
+  assert.deepEqual([remind.how, remind.preset], ["later", "evening"])
+  assert.ok(!JSON.stringify(events).includes("secret"))
+  // The analytics registry's "use" kind counts them (PR #32).
+  for (const kind of ["ux_menu", "ux_later", "ux_watch"]) assert.equal((await send({ kind, installId: INSTALL, action: "opened" })).status, 400)
 })
 
 test("Own key upsell from Settings keeps where it was tapped", async () => {

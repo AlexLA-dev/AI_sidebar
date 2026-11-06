@@ -8,17 +8,41 @@
 
 /* Begin PBXBuildFile section */
 		CF3000000000000000000002 /* ChatSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF3000000000000000000001 /* ChatSync.swift */; };
+		CFA100000000000000000002 /* TemplateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA100000000000000000001 /* TemplateStore.swift */; };
+		CFA100000000000000000003 /* TemplateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA100000000000000000001 /* TemplateStore.swift */; };
+		CFA100000000000000000004 /* TemplateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA100000000000000000001 /* TemplateStore.swift */; };
+		CFA100000000000000000005 /* TemplateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA100000000000000000001 /* TemplateStore.swift */; };
+		CFA200000000000000000002 /* TemplatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA200000000000000000001 /* TemplatesView.swift */; };
+		CFD100000000000000000002 /* WatchOpen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFD100000000000000000001 /* WatchOpen.swift */; };
+		CFA200000000000000000003 /* TemplatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA200000000000000000001 /* TemplatesView.swift */; };
+		CFD100000000000000000003 /* WatchOpen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFD100000000000000000001 /* WatchOpen.swift */; };
 		CF3000000000000000000005 /* ChatSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF3000000000000000000001 /* ChatSync.swift */; };
 		CF6000000000000000000002 /* Chats.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF6000000000000000000001 /* Chats.swift */; };
+		CFB000000000000000000002 /* Organize.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFB000000000000000000001 /* Organize.swift */; };
+		CFB100000000000000000002 /* OrganizeViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFB100000000000000000001 /* OrganizeViews.swift */; };
 		CF9000000000000000000002 /* ChatAI.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9000000000000000000001 /* ChatAI.swift */; };
 		CF9000000000000000000003 /* ChatAI.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9000000000000000000001 /* ChatAI.swift */; };
 		CF6000000000000000000003 /* Chats.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF6000000000000000000001 /* Chats.swift */; };
+		CFB000000000000000000003 /* Organize.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFB000000000000000000001 /* Organize.swift */; };
+		CFC100000000000000000002 /* ChatUX.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFC100000000000000000001 /* ChatUX.swift */; };
+		CFC100000000000000000003 /* ChatUX.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFC100000000000000000001 /* ChatUX.swift */; };
+		CFC100000000000000000005 /* Later.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFC100000000000000000004 /* Later.swift */; };
+		CFC100000000000000000006 /* Later.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFC100000000000000000004 /* Later.swift */; };
+		CFB100000000000000000003 /* OrganizeViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFB100000000000000000001 /* OrganizeViews.swift */; };
 		CF7000000000000000000002 /* ChatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF7000000000000000000001 /* ChatsView.swift */; };
 		CF7000000000000000000003 /* ChatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF7000000000000000000001 /* ChatsView.swift */; };
 		CF8000000000000000000002 /* ChatMirror.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF8000000000000000000001 /* ChatMirror.swift */; };
 		CF8000000000000000000003 /* ChatMirror.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF8000000000000000000001 /* ChatMirror.swift */; };
 		CF8000000000000000000004 /* ChatMirror.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF8000000000000000000001 /* ChatMirror.swift */; };
 		CF8000000000000000000005 /* ChatMirror.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF8000000000000000000001 /* ChatMirror.swift */; };
+		CFC000000000000000000002 /* MessageReminders.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFC000000000000000000001 /* MessageReminders.swift */; };
+		CFD000000000000000000002 /* WatchStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFD000000000000000000001 /* WatchStore.swift */; };
+		CFC000000000000000000003 /* MessageReminders.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFC000000000000000000001 /* MessageReminders.swift */; };
+		CFD000000000000000000003 /* WatchStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFD000000000000000000001 /* WatchStore.swift */; };
+		CFC000000000000000000004 /* MessageReminders.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFC000000000000000000001 /* MessageReminders.swift */; };
+		CFD000000000000000000004 /* WatchStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFD000000000000000000001 /* WatchStore.swift */; };
+		CFC000000000000000000005 /* MessageReminders.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFC000000000000000000001 /* MessageReminders.swift */; };
+		CFD000000000000000000005 /* WatchStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFD000000000000000000001 /* WatchStore.swift */; };
 		CF5000000000000000000002 /* PdfText.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5000000000000000000001 /* PdfText.swift */; };
 		CF5000000000000000000003 /* PdfText.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5000000000000000000001 /* PdfText.swift */; };
 		CF3000000000000000000003 /* ChatSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF3000000000000000000001 /* ChatSync.swift */; };
@@ -121,12 +145,21 @@
 
 /* Begin PBXFileReference section */
 		CF3000000000000000000001 /* ChatSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatSync.swift; sourceTree = "<group>"; };
+		CFA100000000000000000001 /* TemplateStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplateStore.swift; sourceTree = "<group>"; };
+		CFA200000000000000000001 /* TemplatesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplatesView.swift; sourceTree = "<group>"; };
+		CFD100000000000000000001 /* WatchOpen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchOpen.swift; sourceTree = "<group>"; };
 		CF5000000000000000000001 /* PdfText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PdfText.swift; sourceTree = "<group>"; };
 		410D88912F41EE9800684748 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		CF6000000000000000000001 /* Chats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chats.swift; sourceTree = "<group>"; };
+		CFB000000000000000000001 /* Organize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Organize.swift; sourceTree = "<group>"; };
+		CFC100000000000000000001 /* ChatUX.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatUX.swift; sourceTree = "<group>"; };
+		CFC100000000000000000004 /* Later.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Later.swift; sourceTree = "<group>"; };
+		CFB100000000000000000001 /* OrganizeViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrganizeViews.swift; sourceTree = "<group>"; };
 		CF9000000000000000000001 /* ChatAI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatAI.swift; sourceTree = "<group>"; };
 		CF7000000000000000000001 /* ChatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatsView.swift; sourceTree = "<group>"; };
 		CF8000000000000000000001 /* ChatMirror.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMirror.swift; sourceTree = "<group>"; };
+		CFC000000000000000000001 /* MessageReminders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageReminders.swift; sourceTree = "<group>"; };
+		CFD000000000000000000001 /* WatchStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchStore.swift; sourceTree = "<group>"; };
 		CF4000000000000000000001 /* Setup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Setup.swift; sourceTree = "<group>"; };
 		410D88922F41EE9800684748 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		410D88932F41EE9800684748 /* SharedDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedDefaults.swift; sourceTree = "<group>"; };
@@ -223,7 +256,13 @@
 			children = (
 				CF9000000000000000000001 /* ChatAI.swift */,
 				CF6000000000000000000001 /* Chats.swift */,
+				CFB000000000000000000001 /* Organize.swift */,
+				CFC100000000000000000001 /* ChatUX.swift */,
+				CFC100000000000000000004 /* Later.swift */,
+				CFB100000000000000000001 /* OrganizeViews.swift */,
 				CF7000000000000000000001 /* ChatsView.swift */,
+				CFA200000000000000000001 /* TemplatesView.swift */,
+				CFD100000000000000000001 /* WatchOpen.swift */,
 				410D88912F41EE9800684748 /* ContentView.swift */,
 				CF4000000000000000000001 /* Setup.swift */,
 				410D88922F41EE9800684748 /* PrivacyInfo.xcprivacy */,
@@ -253,7 +292,10 @@
 			isa = PBXGroup;
 			children = (
 				CF8000000000000000000001 /* ChatMirror.swift */,
+				CFC000000000000000000001 /* MessageReminders.swift */,
+				CFD000000000000000000001 /* WatchStore.swift */,
 				CF3000000000000000000001 /* ChatSync.swift */,
+				CFA100000000000000000001 /* TemplateStore.swift */,
 				CF5000000000000000000001 /* PdfText.swift */,
 				410D889D2F41EEAA00684748 /* SharedDefaults.swift */,
 				41FA28092F41ED2200FED9FC /* Resources */,
@@ -537,10 +579,19 @@
 				410D88972F41EE9800684748 /* StoreKitManager.swift in Sources */,
 				410D88982F41EE9800684748 /* ContentView.swift in Sources */,
 				CF3000000000000000000005 /* ChatSync.swift in Sources */,
+				CFA100000000000000000005 /* TemplateStore.swift in Sources */,
+				CFA200000000000000000002 /* TemplatesView.swift in Sources */,
+				CFD100000000000000000002 /* WatchOpen.swift in Sources */,
 				CF6000000000000000000002 /* Chats.swift in Sources */,
+				CFB000000000000000000002 /* Organize.swift in Sources */,
+				CFC100000000000000000002 /* ChatUX.swift in Sources */,
+				CFC100000000000000000005 /* Later.swift in Sources */,
+				CFB100000000000000000002 /* OrganizeViews.swift in Sources */,
 				CF9000000000000000000002 /* ChatAI.swift in Sources */,
 				CF7000000000000000000002 /* ChatsView.swift in Sources */,
 				CF8000000000000000000002 /* ChatMirror.swift in Sources */,
+				CFC000000000000000000002 /* MessageReminders.swift in Sources */,
+				CFD000000000000000000002 /* WatchStore.swift in Sources */,
 				CF4000000000000000000002 /* Setup.swift in Sources */,
 				41FA27F32F41ED2100FED9FC /* ViewController.swift in Sources */,
 				41FA27C12F41ED2100FED9FC /* AppDelegate.swift in Sources */,
@@ -554,13 +605,22 @@
 			files = (
 				41FA27F42F41ED2100FED9FC /* ViewController.swift in Sources */,
 				CF3000000000000000000004 /* ChatSync.swift in Sources */,
+				CFA100000000000000000004 /* TemplateStore.swift in Sources */,
+				CFA200000000000000000003 /* TemplatesView.swift in Sources */,
+				CFD100000000000000000003 /* WatchOpen.swift in Sources */,
 				410D88992F41EE9800684748 /* SharedDefaults.swift in Sources */,
 				410D889A2F41EE9800684748 /* StoreKitManager.swift in Sources */,
 				410D889B2F41EE9800684748 /* ContentView.swift in Sources */,
 				CF6000000000000000000003 /* Chats.swift in Sources */,
+				CFB000000000000000000003 /* Organize.swift in Sources */,
+				CFC100000000000000000003 /* ChatUX.swift in Sources */,
+				CFC100000000000000000006 /* Later.swift in Sources */,
+				CFB100000000000000000003 /* OrganizeViews.swift in Sources */,
 				CF9000000000000000000003 /* ChatAI.swift in Sources */,
 				CF7000000000000000000003 /* ChatsView.swift in Sources */,
 				CF8000000000000000000003 /* ChatMirror.swift in Sources */,
+				CFC000000000000000000003 /* MessageReminders.swift in Sources */,
+				CFD000000000000000000003 /* WatchStore.swift in Sources */,
 				CF4000000000000000000003 /* Setup.swift in Sources */,
 				41FA27D22F41ED2100FED9FC /* AppDelegate.swift in Sources */,
 			);
@@ -571,9 +631,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				CF3000000000000000000002 /* ChatSync.swift in Sources */,
+				CFA100000000000000000002 /* TemplateStore.swift in Sources */,
 				410D889E2F41EEAA00684748 /* SharedDefaults.swift in Sources */,
 				CF5000000000000000000002 /* PdfText.swift in Sources */,
 				CF8000000000000000000004 /* ChatMirror.swift in Sources */,
+				CFC000000000000000000004 /* MessageReminders.swift in Sources */,
+				CFD000000000000000000004 /* WatchStore.swift in Sources */,
 				41FA27F72F41ED2100FED9FC /* SafariWebExtensionHandler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -583,9 +646,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				CF3000000000000000000003 /* ChatSync.swift in Sources */,
+				CFA100000000000000000003 /* TemplateStore.swift in Sources */,
 				410D889F2F41EEAA00684748 /* SharedDefaults.swift in Sources */,
 				CF5000000000000000000003 /* PdfText.swift in Sources */,
 				CF8000000000000000000005 /* ChatMirror.swift in Sources */,
+				CFC000000000000000000005 /* MessageReminders.swift in Sources */,
+				CFD000000000000000000005 /* WatchStore.swift in Sources */,
 				41FA27F82F41ED2100FED9FC /* SafariWebExtensionHandler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -696,7 +762,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 2.4;
+				MARKETING_VERSION = 2.5;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -754,7 +820,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 2.4;
+				MARKETING_VERSION = 2.5;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
@@ -766,7 +832,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "ContextFlow Extension (iOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 66;
+				CURRENT_PROJECT_VERSION = 85;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
@@ -778,7 +844,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 2.4;
+				MARKETING_VERSION = 2.5;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -801,7 +867,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "ContextFlow Extension (iOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 66;
+				CURRENT_PROJECT_VERSION = 85;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
@@ -813,7 +879,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 2.4;
+				MARKETING_VERSION = 2.5;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -839,7 +905,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "ContextFlow (iOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 66;
+				CURRENT_PROJECT_VERSION = 85;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS (App)/Info.plist";
@@ -854,7 +920,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.4;
+				MARKETING_VERSION = 2.5;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -881,7 +947,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "ContextFlow (iOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 66;
+				CURRENT_PROJECT_VERSION = 85;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS (App)/Info.plist";
@@ -896,7 +962,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.4;
+				MARKETING_VERSION = 2.5;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -922,7 +988,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "ContextFlow Extension (macOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 66;
+				CURRENT_PROJECT_VERSION = 85;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
@@ -938,7 +1004,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 2.4;
+				MARKETING_VERSION = 2.5;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -961,7 +1027,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "ContextFlow Extension (macOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 66;
+				CURRENT_PROJECT_VERSION = 85;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
@@ -977,7 +1043,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 2.4;
+				MARKETING_VERSION = 2.5;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -1002,7 +1068,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "ContextFlow (macOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 66;
+				CURRENT_PROJECT_VERSION = 85;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -1018,7 +1084,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 2.4;
+				MARKETING_VERSION = 2.5;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,
@@ -1045,7 +1111,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "ContextFlow (macOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 66;
+				CURRENT_PROJECT_VERSION = 85;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -1061,7 +1127,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
-				MARKETING_VERSION = 2.4;
+				MARKETING_VERSION = 2.5;
 				OTHER_LDFLAGS = (
 					"-framework",
 					SafariServices,

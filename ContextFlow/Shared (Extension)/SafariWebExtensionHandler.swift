@@ -17,11 +17,18 @@ import AppKit
 /// - `syncThreads` → sends the extension's chat changes to the user's iCloud and returns the other
 ///   devices' changes (see ChatSync); `available: false` without an iCloud account or connection.
 /// - `mirrorThreads` → keeps the app's copy of the chats (see ChatMirror) and returns the app's changes.
+/// - `syncTemplates` → quick insert's templates: the extension's changes into the store the app shares,
+///   iCloud both ways (see TemplateStore), and the merged set back.
 /// - `pdfText` → the text of a PDF (by address, or the bytes the extension fetched), see PdfText.
 /// - `renewalAsked` → the panel asked a Pro user with auto-renew off what was missing: not again this period
 ///   (the app checks the same mark).
 /// - `byokRefused` / `byokOfferShown` → an Own key subscriber's first refusal of the period, and the discount shown
 ///   (the app offers Pro at a discount a day after the refusal, once per period, like the panel).
+/// - `remind` / `unremind` → a reminder on an answer or a note: a local notification on this device that
+///   opens the app on the message (see MessageReminders); answers `outcome` (scheduled, denied, not-asked).
+/// - `watch_notify` / `watch_permission` / `watch_sync` → page watch: the local notification when a watch's
+///   condition came true, whether notifications are allowed, this device's watches for the app's list (back:
+///   the ones stopped in the app), see WatchStore.
 /// - `ping` → health check.
 ///
 /// Every message also tells the app that the extension is switched on (and, for `getEntitlement`, which
@@ -125,6 +132,24 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             // Only the panel opening takes the app's "continue this chat" (not a background start).
             if message["takeOpen"] as? Bool == true, let open = ChatMirror.takeOpenRequest() { data["open"] = open }
             Self.reply(context, ["success": true, "data": data])
+        case "syncTemplates":
+            // Quick insert's templates: the extension's changes into this device's store (the app sees them
+            // there), then iCloud; the merged set goes back (see TemplateStore).
+            let incoming = (message["changes"] as? [[String: Any]] ?? []).compactMap { TemplateRecord.decode($0["data"] as? String) }
+            TemplateStore.merge(incoming)
+            // iCloud only with "Sync chats with iCloud" on (the extension sends the switch).
+            let cloud = message["cloud"] as? Bool ?? true
+            Task {
+                var available = false
+                if cloud {
+                    let result = await Self.withTimeout(seconds: 15) { try await TemplateSync.sync() }
+                    if case .success = result { available = true }
+                }
+                Self.reply(context, ["success": true, "data": [
+                    "available": available,
+                    "templates": TemplateStore.all().map { ["id": $0.id, "updatedAt": $0.updatedAt, "data": $0.json] as [String: Any] }
+                ] as [String: Any]])
+            }
         case "pdfText":
             let url = message["url"] as? String
             let data = message["data"] as? String
@@ -136,6 +161,45 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                 }
                 Self.reply(context, ["success": true, "data": pdf])
             }
+        case "remind":
+            // A reminder on an answer or a note, set in the panel: a local notification on this device (2.5).
+            guard let chat = message["chat"] as? String, let key = message["message"] as? String,
+                  let at = (message["at"] as? NSNumber)?.doubleValue else {
+                Self.reply(context, ["success": false, "error": "remind: chat, message and at"])
+                return
+            }
+            let title = message["title"] as? String ?? "ContextFlow"
+            let body = message["body"] as? String ?? ""
+            let page = (message["url"] as? String).flatMap(URL.init(string:))
+            Task {
+                let outcome = await MessageReminders.schedule(chat: chat, message: key, at: Date(timeIntervalSince1970: at / 1000),
+                                                              title: title, body: body, open: page, ask: message["ask"] as? Bool ?? false)
+                Self.reply(context, ["success": true, "data": ["outcome": outcome.rawValue]])
+            }
+        case "unremind":
+            if let chat = message["chat"] as? String, let key = message["message"] as? String {
+                MessageReminders.cancel(chat: chat, message: key)
+            }
+            Self.reply(context, ["success": true])
+        case "watch_notify":
+            // Page watch (2.5): a watch's condition came true; "Changed: …" right away (WatchStore).
+            guard let id = message["id"] as? String else {
+                Self.reply(context, ["success": false, "error": "watch_notify: id"])
+                return
+            }
+            let page = (message["url"] as? String).flatMap(URL.init(string:))
+            Task {
+                let outcome = await WatchStore.notify(id: id, title: message["title"] as? String ?? "ContextFlow",
+                                                      body: message["body"] as? String ?? "", open: page)
+                Self.reply(context, ["success": true, "data": ["outcome": outcome.rawValue]])
+            }
+        case "watch_permission":
+            let ask = message["ask"] as? Bool ?? false
+            Task { Self.reply(context, ["success": true, "data": ["outcome": await WatchStore.permission(ask: ask).rawValue]]) }
+        case "watch_sync":
+            // This device's watches for the app's list; back, the ones stopped in the app.
+            let stopped = WatchStore.sync(message["watches"] as? [[String: Any]] ?? [])
+            Self.reply(context, ["success": true, "data": ["cancelled": stopped]])
         case "ping":
             let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
             let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""

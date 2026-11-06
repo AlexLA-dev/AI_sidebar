@@ -118,7 +118,11 @@ enum ChatAI {
                     .replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression).trimmingCharacters(in: .whitespaces)
                 if entry.isNote { lines.append("Note: " + text.prefix(perAnswer)) }
                 else if entry.isUser { lines.append("Q: " + (entry.label ?? text).prefix(300)) }
-                else { lines.append("A: " + text.prefix(perAnswer) + (text.count > perAnswer ? "…" : "")) }
+                else {
+                    lines.append("A: " + text.prefix(perAnswer) + (text.count > perAnswer ? "…" : ""))
+                    // Chat UX (2.5): what the user highlighted in the answer.
+                    if let marks = entry.marks, !marks.isEmpty { lines.append("Highlighted: " + ChatMarks.line(marks)) }
+                }
             }
             var text = String(lines.joined(separator: "\n").prefix(perChat))
             if size + text.count > total { text = String(text.prefix(max(0, total - size))) }
@@ -209,6 +213,20 @@ enum ChatAI {
         _ = try? await URLSession.shared.data(for: request)
     }
 
+    /// A tap on ContextFlow's X or Threads in the app's footer, for analytics: which network. Nothing else.
+    @MainActor
+    static func reportSocial(_ network: String) async {
+        var body: [String: Any] = [
+            "kind": "social_open",
+            "appId": Activation.shared.appId,
+            "network": network,
+            "client": ["platform": platform, "version": Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "", "locale": Locale.current.identifier]
+        ]
+        if let installId = SharedDefaults.shared.readExtensionStatus().installId { body["installId"] = installId }
+        guard let request = try? request("api/v2/event", body) else { return }
+        _ = try? await URLSession.shared.data(for: request)
+    }
+
     // MARK: A chat
 
     /// How much of a chat goes with a question (src/shared/conversation.ts `WHOLE_CHAT_CHARS`).
@@ -221,7 +239,9 @@ enum ChatAI {
         var out: [[String: String]] = []
         var size = 0
         for entry in entries.reversed() {
-            let text = entry.content.replacingOccurrences(of: #"[ \t]*\[\d{1,2}\]\(https?:[^)\s]+\)"#, with: "", options: .regularExpression)
+            var text = entry.content.replacingOccurrences(of: #"[ \t]*\[\d{1,2}\]\(https?:[^)\s]+\)"#, with: "", options: .regularExpression)
+            // Chat UX (2.5): the user's highlights in an answer go as <mark>…</mark> (the rule is in the system prompt).
+            if !entry.isUser, let marks = entry.marks, !marks.isEmpty { text = ChatMarks.markedContent(text, marks) }
             var elsewhere = ""
             if entry.isUser, let page = entry.page, page.url != currentUrl {
                 elsewhere = "\"\(page.title.isEmpty ? page.url : page.title)\" — \(page.url)"
@@ -307,3 +327,71 @@ enum ChatAI {
     }
 }
 
+
+// MARK: - Organizing the chats (2.5)
+
+/// What the app asks /api/v2/organize for (Pro, with suggestions on): vectors for messages' text and the check of
+/// suggested tags. The server keeps nothing; the vectors stay on this device (OrganizeModel).
+extension ChatAI {
+    struct Verdict {
+        let tag: String
+        let fits: Bool
+        let confidence: Double
+    }
+
+    /// Organizing as the server has it: switched on, the vector space and the thresholds; nil without an answer.
+    @MainActor
+    static func organizeStatus() async -> (on: Bool, space: String, config: [String: Any])? {
+        guard let request = try? request("api/v2/status", identity()),
+              let (data, response) = try? await URLSession.shared.data(for: request),
+              (response as? HTTPURLResponse)?.statusCode == 200,
+              let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let organize = object["organize"] as? [String: Any], let space = organize["space"] as? String else { return nil }
+        return (organize["on"] as? Bool ?? false, space, organize["config"] as? [String: Any] ?? [:])
+    }
+
+    /// Packed vectors (Organize.unpackVector) for `texts`, in their order, and the space they're in.
+    @MainActor
+    static func organizeEmbed(_ texts: [String]) async throws -> (space: String, vectors: [String]) {
+        var body = identity()
+        body["op"] = "embed"
+        body["texts"] = texts
+        let (data, response) = try await URLSession.shared.data(for: try request("api/v2/organize", body))
+        let status = (response as? HTTPURLResponse)?.statusCode ?? 0
+        guard status == 200, let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let space = object["space"] as? String, let vectors = object["vectors"] as? [String], vectors.count == texts.count else { throw failure(status, data) }
+        return (space, vectors)
+    }
+
+    /// Whether each candidate tag fits the message, as the server's check says.
+    @MainActor
+    static func organizeTags(message: String, candidates: [(tag: String, examples: [String])]) async throws -> [Verdict] {
+        var body = identity()
+        body["op"] = "tags"
+        body["message"] = message
+        body["candidates"] = candidates.map { ["tag": $0.tag, "examples": $0.examples] }
+        let (data, response) = try await URLSession.shared.data(for: try request("api/v2/organize", body))
+        let status = (response as? HTTPURLResponse)?.statusCode ?? 0
+        guard status == 200, let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let verdicts = object["verdicts"] as? [[String: Any]] else { throw failure(status, data) }
+        return verdicts.compactMap { v in
+            guard let tag = v["tag"] as? String, let fits = v["fits"] as? Bool else { return nil }
+            return Verdict(tag: tag, fits: fits, confidence: (v["confidence"] as? NSNumber)?.doubleValue ?? 0)
+        }
+    }
+
+    /// An organizing event (kind organize / organize_promo / organize_optin): what and where, never text.
+    @MainActor
+    static func reportOrganize(_ kind: String, _ fields: [String: String]) {
+        var body: [String: Any] = [
+            "kind": kind,
+            "appId": Activation.shared.appId,
+            "surface": "app",
+            "client": ["platform": platform, "version": Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "", "locale": Locale.current.identifier]
+        ]
+        for (key, value) in fields { body[key] = value }
+        if let installId = SharedDefaults.shared.readExtensionStatus().installId { body["installId"] = installId }
+        guard let request = try? request("api/v2/event", body) else { return }
+        Task { _ = try? await URLSession.shared.data(for: request) }
+    }
+}

@@ -13,6 +13,8 @@
 //                                                              subscription is added on the server side)
 //   PREVIEW_CLAUDE=credits|overloaded|refusal|off …            (answers come from a scripted Claude; these make
 //                                                              it fail that way, so OpenAI answers; off: no key)
+//   FIRST_WORD_DELAY_MS=4000 …                                 (an answer's first word comes that late: time to
+//                                                              stop the question before any of its answer)
 
 import { createServer } from "node:http"
 import { readFileSync } from "node:fs"
@@ -34,12 +36,13 @@ const panelEvents: string[] = []
 let lastChatRequest: unknown = null
 // The last answer's analytics event: provider, fallback reason, tokens, cost (GET /last-answer).
 let lastAnswerEvent: unknown = null
-type Item = { subject: string; limit: number | null }
+type Item = { subject: string; limit: number | null; amount?: number }
 const rpc: Record<string, (a: any) => unknown> = {
   cf_consume: ({ p_items }) => {
     const items = p_items as Item[]
-    const blocked = items.find((i) => i.limit !== null && (counters.get(i.subject) ?? 0) >= i.limit)
-    if (!blocked) items.forEach((i) => counters.set(i.subject, (counters.get(i.subject) ?? 0) + 1))
+    // As cf_consume: an item counts as its amount (a long page), allowed only when all of it fits.
+    const blocked = items.find((i) => i.limit !== null && (counters.get(i.subject) ?? 0) + (i.amount ?? 1) > i.limit)
+    if (!blocked) items.forEach((i) => counters.set(i.subject, (counters.get(i.subject) ?? 0) + (i.amount ?? 1)))
     return { allowed: !blocked, blocked: blocked?.subject ?? null, counters: items.map((i) => ({ ...i, n: counters.get(i.subject) ?? 0 })) }
   },
   cf_refund: () => null,
@@ -57,6 +60,8 @@ const rpc: Record<string, (a: any) => unknown> = {
 
 // Delay between streamed words; the App Store preview video slows it down to a readable pace.
 const STREAM_DELAY_MS = Number(process.env.STREAM_DELAY_MS ?? 8)
+// Before an answer's first word (0 by default): time to stop a question before any of its answer comes.
+const FIRST_WORD_DELAY_MS = Number(process.env.FIRST_WORD_DELAY_MS ?? 0)
 
 const answers: [RegExp, string][] = JSON.parse(readFileSync(new URL("./answers.json", import.meta.url), "utf8")).map(
   ([re, text]: [string, string]) => [new RegExp(re, "i"), text]
@@ -157,6 +162,60 @@ function scripted(system: string, last: string): string {
 
 // What the server last asked Claude (model, effort, max_tokens), for checks (GET /last-claude).
 let lastClaudeRequest: unknown = null
+// Quick insert's scripted Haiku: marks what looks like it changes (a name after a greeting, dates, times,
+// long numbers), fills blanks from the page the same way, finds templates sharing a word's start.
+const MONTHS = "января|февраля|марта|апреля|мая|июня|июля|августа|сентября|октября|ноября|декабря|January|February|March|April|May|June|July|August|September|October|November|December"
+const DAYS = "понедельник|вторник|среду|четверг|пятницу|субботу|воскресенье|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday"
+function scriptedInsert(system: string, content: string): unknown {
+  const between = (tag: string) => content.match(new RegExp(`<${tag}>\\n([\\s\\S]*?)\\n</${tag}>`))?.[1] ?? ""
+  const found = (text: string) => ({
+    // A conversation's title first (quick insert sends the one around the field: "Conversation with: Olga Lobova").
+    name: text.match(/^Conversation with: ([A-ZА-ЯЁ][a-zа-яё]+)/m)?.[1] ?? text.match(/(?:Здравствуйте|Привет|Добрый день|Hi|Hello|Dear),?\s+([A-ZА-ЯЁ][a-zа-яё]+)/)?.[1] ?? text.match(/^([A-ZА-ЯЁ][a-zа-яё]+)(?:\s+[A-ZА-ЯЁ][a-zа-яё]+)?:/m)?.[1] ?? "",
+    date: text.match(new RegExp(`\\d{1,2}\\s+(?:${MONTHS})`))?.[0] ?? "",
+    day: text.match(new RegExp(`(?:${DAYS})`, "i"))?.[0] ?? "",
+    time: text.match(/\b\d{1,2}:\d{2}\b/)?.[0] ?? "",
+    number: text.match(/\b\d{4,}[\w-]*/)?.[0] ?? ""
+  })
+  if (system.startsWith("You turn a message")) {
+    const text = between("message")
+    const f = found(text)
+    const blanks = [["Имя", f.name], ["дата", f.date], ["день", f.day], ["время", f.time], ["номер", f.number]].filter(([, v]) => v).map(([label, value]) => ({ label, value }))
+    const words = text.replace(/[^\p{L}\s]/gu, " ").split(/\s+/).filter((w) => w.length > 4)
+    return { title: words.slice(0, 3).join(" ") || "Шаблон", keywords: words.slice(3, 5).map((w) => w.toLowerCase()), blanks }
+  }
+  if (system.startsWith("You fill the blanks")) {
+    const page = between("page")
+    const f = found(page)
+    const labels = [...content.matchAll(/"([^"]+)"/g)].map((m) => m[1])
+    const pick = (label: string) => /им|name/i.test(label) ? f.name : /дат|date/i.test(label) ? f.date : /ден|day/i.test(label) ? f.day : /врем|time/i.test(label) ? f.time : /номер|код|number|code|order/i.test(label) ? f.number : ""
+    return { values: labels.map((label) => ({ label, value: pick(label) })) }
+  }
+  const query = (content.match(/looking for: (.*)/)?.[1] ?? "").toLowerCase().split(/\s+/).filter((w) => w.length > 2).map((w) => w.slice(0, 4))
+  const ids = [...content.matchAll(/^(\S+) \| (.*)$/gm)].filter((m) => query.some((q) => m[2].toLowerCase().includes(q))).map((m) => m[1])
+  return { ids }
+}
+
+// Page watch's scripted Haiku: the price from the page's markup when it's there, a threshold when the words
+// have a number ("below 40"), any change otherwise; after a change, met unless the words say a number it isn't under.
+function scriptedWatch(system: string, content: string): unknown {
+  const words = content.match(/in their words: (.*)/)?.[1] ?? ""
+  const between = (tag: string) => content.match(new RegExp(`<${tag}>\\n([\\s\\S]*?)\\n</${tag}>`))?.[1] ?? ""
+  if (system.startsWith("Someone on a web page")) {
+    const selection = between("selection")
+    const price = /\d/.test(selection) && /[€$£¥₽]/.test(selection)
+    const n = Number(words.match(/(\d+(?:[.,]\d+)?)/)?.[1]?.replace(",", "."))
+    return {
+      what: !selection ? "page" : price ? "price" : /stock|sold|налич/i.test(selection) ? "stock" : "status",
+      source: !selection ? "page" : price && content.includes("- ld-price:") ? "ld-price" : "text",
+      rule: price && n && /below|under|ниже|меньше|дешевле/i.test(words) ? { kind: "below", n } : { kind: "change" },
+      label: !selection ? "The page" : price ? "Price" : /stock|sold|налич/i.test(selection) ? "Availability" : "Status",
+      site: /shop|localhost/.test(content) ? "shop" : "other"
+    }
+  }
+  const now = between("now")
+  return { met: true, line: `Now: ${now}` }
+}
+
 const realFetch = globalThis.fetch
 globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
   const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url
@@ -170,9 +229,37 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     const body = JSON.parse(String(init?.body))
     return geminiStream(body.contents[body.contents.length - 1].parts[0].text)
   }
+  // Organizing (2.5): vectors from the words of a text (texts sharing words are alike), so the stand's chats get
+  // suggestions without OpenAI; the tag check says yes to every candidate.
+  if (url === "https://api.openai.com/v1/embeddings") {
+    const body = JSON.parse(String(init?.body))
+    const data = (body.input as string[]).map((text, index) => ({ index, embedding: wordVector(text, body.dimensions) }))
+    return new Response(JSON.stringify({ data, usage: { total_tokens: data.length * 40 } }), { headers: { "Content-Type": "application/json" } })
+  }
+  // Organizing's tag check: not streamed; it asks for a JSON format too (netlify/shared/organize.mts TAG_SCHEMA),
+  // so it is told from quick insert's and page watch's by its system prompt.
+  const judging = (b: { stream?: boolean; system?: unknown; output_config?: { format?: unknown } }) =>
+    !b.stream && (!b.output_config?.format || String(b.system).startsWith("You help a person keep their own tags"))
+  if (url.startsWith("https://api.anthropic.com/v1/messages") && judging(JSON.parse(String(init?.body)))) {
+    const body = JSON.parse(String(init?.body))
+    const tags = [...String(body.messages[0].content).matchAll(/<examples tag="([^"]+)">/g)].map((m) => ({ tag: m[1], fits: true, confidence: 0.9 }))
+    return new Response(JSON.stringify({ id: "msg_judge", type: "message", role: "assistant", model: body.model, content: [{ type: "text", text: JSON.stringify({ tags }) }], stop_reason: "end_turn", stop_sequence: null, usage: { input_tokens: 1600, output_tokens: 40 } }), { headers: { "Content-Type": "application/json" } })
+  }
   if (url.startsWith("https://api.anthropic.com/v1/messages")) {
     const body = JSON.parse(String(init?.body))
     lastClaudeRequest = { model: body.model, max_tokens: body.max_tokens, output_config: body.output_config, thinking: body.thinking ?? null, fallbacks: body.fallbacks }
+    // Quick insert and page watch (JSON answers, not streamed): a scripted Haiku.
+    if (body.output_config?.format) {
+      const system = String(body.system)
+      const answer = system.startsWith("Someone on a web page") || system.startsWith("A value someone watches")
+        ? scriptedWatch(system, String(body.messages[0].content))
+        : scriptedInsert(system, String(body.messages[0].content))
+      return new Response(JSON.stringify({
+        id: "msg_local", type: "message", role: "assistant", model: body.model,
+        content: [{ type: "text", text: JSON.stringify(answer) }], stop_reason: "end_turn", stop_sequence: null,
+        usage: { input_tokens: 2400, output_tokens: 90 }
+      }), { headers: { "Content-Type": "application/json" } })
+    }
     const fail = process.env.PREVIEW_CLAUDE
     if (fail === "credits") return new Response(JSON.stringify({ type: "error", error: { type: "invalid_request_error", message: "Your credit balance is too low to access the Anthropic API." } }), { status: 400 })
     if (fail === "overloaded") return new Response(JSON.stringify({ type: "error", error: { type: "overloaded_error", message: "Overloaded" } }), { status: 529 })
@@ -182,6 +269,7 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
       async start(c) {
         const enc = new TextEncoder()
         c.enqueue(enc.encode(ev("message_start", { message: { id: "msg_local", type: "message", role: "assistant", model: body.model, content: [], stop_reason: null, stop_sequence: null, usage: { input_tokens: 900, output_tokens: 1 } } })))
+        if (FIRST_WORD_DELAY_MS) await new Promise((r) => setTimeout(r, FIRST_WORD_DELAY_MS))
         if (words.length) c.enqueue(enc.encode(ev("content_block_start", { index: 0, content_block: { type: "text", text: "" } })))
         for (const w of words) {
           c.enqueue(enc.encode(ev("content_block_delta", { index: 0, delta: { type: "text_delta", text: w } })))
@@ -202,6 +290,7 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     const stream = new ReadableStream({
       async start(c) {
         const enc = new TextEncoder()
+        if (FIRST_WORD_DELAY_MS) await new Promise((r) => setTimeout(r, FIRST_WORD_DELAY_MS))
         for (const w of words) {
           c.enqueue(enc.encode(`data: ${JSON.stringify({ choices: [{ delta: { content: w } }] })}\n\n`))
           await new Promise((r) => setTimeout(r, STREAM_DELAY_MS))
@@ -214,6 +303,19 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
   }
   return realFetch(input, init)
 }) as typeof fetch
+
+/** A stand-in embedding: each word (its first 5 letters, lower case) adds to a few of `dims` numbers. */
+function wordVector(text: string, dims: number): number[] {
+  const v = new Array(dims).fill(0)
+  for (const word of text.toLowerCase().match(/[\p{L}\p{N}]{3,}/gu) ?? []) {
+    let hash = 2166136261
+    for (const ch of word.slice(0, 5)) hash = Math.imul(hash ^ ch.codePointAt(0)!, 16777619) >>> 0
+    v[hash % dims] += 1
+    v[(hash >>> 8) % dims] += 0.5
+  }
+  const n = Math.hypot(...v) || 1
+  return v.map((x) => x / n)
+}
 
 // PREVIEW_PLAN=pro (or byok): requests carry a subscription signed with the test chain (trusted here only).
 let proJws: string | null = null
@@ -239,7 +341,21 @@ const status = (await import("../../netlify/functions/v2-status.mts")).default
 const event = (await import("../../netlify/functions/v2-event.mts")).default
 const find = (await import("../../netlify/functions/v2-find.mts")).default
 const promo = (await import("../../netlify/functions/v2-promo.mts")).default
-const handlers: Record<string, typeof chat> = { "/api/v2/chat": chat, "/api/v2/status": status, "/api/v2/event": event, "/api/v2/find": find, "/api/v2/promo": promo }
+const insert = (await import("../../netlify/functions/v2-insert.mts")).default
+const organize = (await import("../../netlify/functions/v2-organize.mts")).default
+const watch = (await import("../../netlify/functions/v2-watch.mts")).default
+const handlers: Record<string, typeof chat> = { "/api/v2/chat": chat, "/api/v2/status": status, "/api/v2/event": event, "/api/v2/find": find, "/api/v2/promo": promo, "/api/v2/insert": insert, "/api/v2/organize": organize, "/api/v2/watch": watch }
+
+// Page watch's test shop (2.5): /shop shows a mug whose price and stock /shop-set changes
+// (/shop-set?price=39&stock=OutOfStock), /shop-js draws the price with a script (the background sees none, the
+// open page does), /shop-blocked answers 403 like a bot check. ?sel=1 selects the price, as a finger would.
+const shop = { price: "49.85", stock: "InStock" }
+const shopPage = () => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mug · Test shop</title><script type="application/ld+json">${JSON.stringify({ "@context": "https://schema.org", "@type": "Product", name: "Mug", offers: { "@type": "Offer", price: shop.price, priceCurrency: "EUR", availability: `https://schema.org/${shop.stock}` } })}</script>
+<style>body{font:18px -apple-system,sans-serif;margin:24px;line-height:1.5}b{font-size:28px}</style></head>
+<body><h1>Handmade mug</h1><p>A blue ceramic mug, 350 ml.</p><p>Price <b>${shop.price.replace(".", ",")} €</b></p>
+<p>${shop.stock === "InStock" ? "In stock" : "Sold out"}</p><p>Free delivery over 50 €.</p>
+<script>if (location.search.includes("sel=1")) setTimeout(() => getSelection().selectAllChildren(document.querySelector("b")), 600)</script></body></html>`
 
 const pages: Record<string, string> = {
   "/": "article.html",
@@ -250,8 +366,32 @@ const pages: Record<string, string> = {
   "/pdf-embed": "pdf-embed.html",
   "/pdf-link": "pdf-link.html",
   "/lecture": "lecture.html",
-  "/lecture-ru": "lecture-ru.html"
+  "/lecture-ru": "lecture-ru.html",
+  // The Tips takes of 2.5 (tools/store/tips-record.mjs): a message to answer, an order with a number to copy, a price.
+  "/inbox": "inbox.html",
+  "/inbox-ru": "inbox-ru.html",
+  "/order": "order.html",
+  "/order-ru": "order-ru.html",
+  "/product": "product.html",
+  "/product-ru": "product-ru.html",
+  // Quick insert's fields inside open shadow roots, and the same editor outside them (the owner, 2.5 (77): LinkedIn).
+  "/shadow-fields": "shadow-fields.html",
+  // The reply box of private messages (the owner, 2.5 (77): "it was in chats"): ?layout=page|overlay.
+  "/messaging": "messaging.html",
+  // A site that switches sections without loading a page (the owner, 2.5 (78): LinkedIn's feed → post → messages).
+  "/spa/messaging": "spa.html",
+  "/spa/feed": "spa.html",
+  // The article under a strict Content-Security-Policy for media and images, like GitHub's or LinkedIn's: the Tips
+  // sheet's clips are the extension's own files and must still play (2.5 (81)).
+  "/strict": "article.html",
+  "/strict-ru": "article-ru.html",
+  // A window shown over everything: a modal <dialog>, one in a shadow root, a popover (the owner, 2.5 (81)).
+  "/modal": "modal.html"
 }
+
+// Pages served with a strict policy for media and images (nothing from another origin, not even blob: or data:).
+const strict = new Set(["/strict", "/strict-ru"])
+const STRICT_CSP = "media-src 'self'; img-src 'self'"
 
 // PDFs for the PDF checks. private.pdf only with the cookie pdf-link.html sets, like a PDF behind a sign-in.
 const pdfs: Record<string, string> = {
@@ -270,7 +410,7 @@ createServer(async (req, res) => {
     if (url.pathname === "/api/v2/event") {
       try {
         const sent = JSON.parse(Buffer.concat(chunks).toString("utf8"))
-        panelEvents.push(`${sent.kind}:${sent.media ?? sent.where ?? sent.reason ?? ""}`)
+        panelEvents.push(`${sent.kind}:${sent.media ?? sent.where ?? sent.reason ?? sent.action ?? ""}${sent.what ? `:${sent.what}` : ""}`)
       } catch {
         // not JSON
       }
@@ -299,6 +439,59 @@ createServer(async (req, res) => {
     res.writeHead(response.status, Object.fromEntries(response.headers))
     if (response.body) for await (const c of response.body as any) res.write(c)
     res.end()
+    return
+  }
+  // The audit's pages (2.5): fields whose site keeps its own buttons inside them (a search like Amazon's, a
+  // comment's Send), and a news story with a publication date, a "shipped" in its text and an event's date.
+  // ?sel=<id> selects that element, as a finger would.
+  if (url.pathname === "/fields" || url.pathname === "/news" || url.pathname === "/prices") {
+    const sel = `<script>const id = new URLSearchParams(location.search).get("sel"); if (id) setTimeout(() => getSelection().selectAllChildren(document.getElementById(id)), 600)</script>`
+    const fields = `<h1>Fields</h1>
+<form role="search" style="position:relative;margin:24px 0"><input id="search" name="q" placeholder="Search" style="width:100%;box-sizing:border-box;height:44px;font-size:17px;padding:0 56px 0 12px">
+<button id="go" style="position:absolute;right:0;top:0;width:48px;height:44px;background:#f90;border:0">Go</button></form>
+<p>Leave a comment</p>
+<div style="position:relative"><textarea id="comment" rows="4" style="width:100%;box-sizing:border-box;font-size:17px;padding:10px 70px 10px 10px"></textarea>
+<button id="send" style="position:absolute;right:8px;bottom:12px;height:32px">Send</button></div>
+<p style="margin-top:40px">Your name</p><input id="name" type="text" style="width:100%;box-sizing:border-box;height:40px;font-size:17px">
+<p>Email</p><input id="email" type="email" style="width:100%;box-sizing:border-box;height:40px;font-size:17px">`
+    const news = `<p class="meta">By Anna Lee · <span id="pubdate">3 November 2026</span> · 4 min read</p>
+<h1>The phone that started it all</h1>
+<p>The company <span id="shipped">shipped</span> its first phone in 2007 and the line still sells for <span id="price">$1,299</span>.</p>
+<p>Tickets go on sale <span id="sale">12 December</span> at 10:00 for the anniversary event.</p>
+<p>Order #4471 · <span id="status">Shipped</span></p>`
+    // Prices with a code instead of a symbol (the owner, build 75); "n1" is the number alone, as a tap selects it.
+    const prices = `<h1>Prices</h1>
+<p>Monthly plan. Price: USD <span id="n1">40</span> per month, billed yearly.</p>
+<p id="eur">40 EUR</p>
+<p id="rub">1 299 RUB</p>
+<p id="chf">CHF 12.50</p>
+<p>A paragraph to select for the bubble's place: the four-day week kept revenue flat in most trials while cutting burnout, and the teams that cut meetings first gained the most. <span id="long">Most teams halved their recurring meetings and kept them under thirty minutes.</span></p>`
+    const page = url.pathname === "/fields" ? fields : url.pathname === "/news" ? news : prices
+    const name = url.pathname === "/fields" ? "Fields" : url.pathname === "/news" ? "News" : "Prices"
+    res.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" })
+    res.end(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${name} · Test</title>
+<style>body{font:18px -apple-system,sans-serif;margin:24px 16px;line-height:1.5}</style></head><body>${page}${sel}</body></html>`)
+    return
+  }
+  if (url.pathname === "/shop-js") {
+    res.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" })
+    res.end(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Lamp · Test shop</title>
+<style>body{font:18px -apple-system,sans-serif;margin:24px;line-height:1.5}b{font-size:28px}</style></head>
+<body><h1>Desk lamp</h1><p>A small brass lamp.</p><p id="p">…</p><p>Free delivery over 50 €.</p>
+<script>setTimeout(() => { document.getElementById("p").innerHTML = "Price <b>${shop.price.replace(".", ",")} €</b>" }, 300)
+if (location.search.includes("sel=1")) setTimeout(() => getSelection().selectAllChildren(document.querySelector("b")), 900)</script></body></html>`)
+    return
+  }
+  if (url.pathname === "/shop" || url.pathname === "/shop-blocked") {
+    res.writeHead(url.pathname === "/shop" ? 200 : 403, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" })
+    res.end(url.pathname === "/shop" ? shopPage() : "<!doctype html><title>Access denied</title><h1>Access denied</h1>")
+    return
+  }
+  if (url.pathname === "/shop-set") {
+    shop.price = url.searchParams.get("price") ?? shop.price
+    shop.stock = url.searchParams.get("stock") ?? shop.stock
+    res.writeHead(200, { "Content-Type": "application/json" })
+    res.end(JSON.stringify(shop))
     return
   }
   if (url.pathname === "/last-answer") {
@@ -355,6 +548,6 @@ createServer(async (req, res) => {
     res.writeHead(404).end("not found")
     return
   }
-  res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" })
+  res.writeHead(200, { "Content-Type": "text/html; charset=utf-8", ...(strict.has(url.pathname) ? { "Content-Security-Policy": STRICT_CSP } : {}) })
   res.end(readFileSync(new URL(`./${file}`, import.meta.url)))
 }).listen(Number(process.env.PORT ?? 8787), () => console.log("preview on http://localhost:" + (process.env.PORT ?? 8787)))

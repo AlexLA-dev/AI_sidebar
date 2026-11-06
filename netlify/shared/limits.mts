@@ -1,7 +1,7 @@
 // Which limits an answer ran into, logged with it so /analytics (cf_limits_report) can show whether any
 // of them keeps getting in users' way. Only the flags that are set go into the event.
 
-import { MAX_MEDIA_PAGE_CHARS, MAX_OTHER_PAGE_CHARS, pageLimit, type PageContext } from "../../src/shared/prompt.ts"
+import { MAX_MEDIA_PAGE_CHARS, MAX_OTHER_PAGE_CHARS, pageLimit, pageText, type PageContext } from "../../src/shared/prompt.ts"
 
 /** What the panel or the app says about the chat a question came from (ContextFlow 2.4 and later). */
 export interface ChatSize {
@@ -56,9 +56,11 @@ export const LIMITS_VERSION = 1
 export function limitsHit({ sent, page, sentMessages, messages, others, answerCut }: LimitInput): Record<string, true | number> {
   const hits: Record<string, true | number> = { limits_v: LIMITS_VERSION }
   if (sent && page) {
-    // With its video or PDFs the page is cut to the media limit; otherwise the panel cuts a page (and a
-    // selection) at the limit itself, so reaching it counts as cut.
-    const cut = page.media && sent.attachments?.length ? sentChars(sent) > MAX_MEDIA_PAGE_CHARS : page.text.length >= pageLimit(page)
+    // With its video or PDFs, cut to the media limit; otherwise cut when the model doesn't get all of it (a 2.3 or
+    // 2.4 panel cuts a page at 24 000 characters itself, 2.5 sends it whole; see pageText).
+    const cut = page.media && sent.attachments?.length
+      ? sentChars(sent) - sent.text.length > MAX_MEDIA_PAGE_CHARS
+      : page.kind === "selection" ? page.text.length >= pageLimit(page) : pageText(page).cut
     if (cut) hits.page_cut = true
   }
   if (sentMessages > messages) hits.history_cut = true

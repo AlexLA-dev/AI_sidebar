@@ -5,7 +5,8 @@ import { backgroundPdf, cachedPdf, type PageRead, type PageSource } from "../con
 import { detectPlatform, HOST_TAG } from "../content/page"
 import { pdfName } from "../content/pdf"
 import styles from "../content/styles.css"
-import { TARGET } from "../shared/config"
+import organizeStyles from "../content/organize.css"
+import { SHADOW_MODE, TARGET } from "../shared/config"
 import { urlKey } from "../shared/conversation"
 import { readsMedia } from "../shared/attachments"
 import type { PdfResult, StatusInfo } from "../shared/types"
@@ -33,6 +34,7 @@ function pdfSource(url: string): PageSource {
     kind: () => "pdf",
     pending: () => (pdf?.ok ? null : "pdf"),
     quick: () => ({ title: name(), text: pdf?.ok ? pdf.text : "" }),
+    length: () => (pdf?.ok ? pdf.text.length : 0),
     read: async (withMedia): Promise<PageRead> => {
       // Reading PDFs is Pro: otherwise the question only says there's a PDF it didn't get.
       if (!withMedia) return { title: name(), text: "", skipped: ["pdf"], sources: [] }
@@ -90,9 +92,9 @@ async function main(): Promise<void> {
   if (platform !== "ios") document.body.style.width = "420px"
   const host = document.createElement(HOST_TAG)
   host.setAttribute("style", "all:initial;position:fixed;top:0;left:0;width:0;height:0;")
-  const root = host.attachShadow({ mode: "open" })
+  const root = host.attachShadow({ mode: SHADOW_MODE })
   const style = document.createElement("style")
-  style.textContent = styles
+  style.textContent = styles + organizeStyles
   root.appendChild(style)
   const container = document.createElement("div")
   root.appendChild(container)

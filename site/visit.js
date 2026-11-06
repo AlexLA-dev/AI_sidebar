@@ -2,14 +2,30 @@
 // from fixed lists (src/shared/site.ts) to /api/v2/site. No cookie, nothing stored on the device, and not
 // the address of the page the visitor came from: only its source's name.
 (() => {
+  // On a Mac the App Store buttons open the Mac App Store and say so (the owner, 2.5: on a Mac the site offered the
+  // iPhone and iPad app). An iPad's Safari says "Macintosh" too, but it has touch.
+  if (/Macintosh/.test(navigator.userAgent || "") && !(navigator.maxTouchPoints > 1)) {
+    for (const link of document.querySelectorAll('a[href^="https://apps.apple.com/"]')) {
+      link.href = link.href.replace(/([?&])mt=8(?=&|$)/, "$1mt=12")
+      const name = link.querySelector("span") || link
+      for (const node of name.childNodes) if (node.nodeType === 3 && node.textContent.trim() === "App Store") node.textContent = "Mac App Store"
+    }
+  }
+
   const PAGES = {
     "/": "home",
+    "/features": "features",
     "/safari-ai-extension-iphone": "safari_ai",
     "/notes-while-reading-safari": "notes",
     "/safari-summary-vs-chatgpt": "compare",
     "/support": "support",
     "/privacy": "privacy",
-    "/terms": "terms"
+    "/terms": "terms",
+    "/cases": "cases",
+    "/cases/replies-and-forms": "case_fill",
+    "/cases/studying": "case_study",
+    "/cases/shopping": "case_shop",
+    "/cases/planning": "case_plan"
   }
   const OWN = /(^|\.)(context-flow\.app|aisidebar\.netlify\.app)$/
   // A referrer's host or a utm_source value → the source; the first match wins (Gemini before Google).

@@ -2,6 +2,7 @@
 // Pure helpers shared by the content script and tests.
 
 import type { MediaKind } from "./attachments.ts"
+import { markedContent, type Mark } from "./marks.ts"
 import type { ChatTurn, Grounding } from "./types.ts"
 
 /** The page a question was asked on: normalized URL, title and a fingerprint of its text. */
@@ -51,6 +52,88 @@ export interface Entry extends ChatTurn {
   skipped?: MediaKind[]
   // Answers and notes: the user's tags (a chat's own tags are on the thread).
   tags?: string[]
+  // 2.5: a message's id and when it was written (ms). Older messages have neither: their key comes from
+  // their content (entryKey) and their time from their page (entryTimes).
+  id?: string
+  t?: number
+  // Moved here from another chat (organizing): which one, and when (ms).
+  from?: { chat: string; at: number }
+  // Organizing suggestions the user turned down here (moving this message's block; these tags), and the
+  // suggested tags they took. Kept on the message, so they reach the other devices with the chat.
+  dismissed?: { move?: true; tags?: string[] }
+  accepted?: { tags?: string[] }
+  // 2.5, answers: what the user highlighted (sent to the model as <mark>, copied as bold).
+  marks?: Mark[]
+  // 2.5, answers and notes: pinned at the top of the chat (when, ms).
+  pinned?: number
+  // 2.5, answers and notes: a reminder (ms). The notification rings only on the device that set it (`dev`).
+  // `page`: a note made from a selection with "Remind me": the notification opens its page.
+  remind?: { at: number; dev?: string; page?: true }
+}
+
+/** A new message's id: 12 random letters and digits. */
+export function newEntryId(): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(12))
+  return [...bytes].map((b) => "abcdefghijklmnopqrstuvwxyz0123456789"[b % 36]).join("")
+}
+
+/** A message as it's written: with an id and the time (kept when it has them). */
+export function stamped<T extends Entry>(entry: T, now = Date.now()): T {
+  return { ...entry, id: entry.id ?? newEntryId(), t: entry.t ?? now }
+}
+
+/** FNV-1a (32 bit) of the UTF-16 code units of `text`, from `seed`, as 8 hex digits. */
+function fnv(text: string, seed: number): string {
+  let hash = seed
+  for (let i = 0; i < text.length; i++) {
+    hash ^= text.charCodeAt(i)
+    hash = Math.imul(hash, 0x01000193)
+  }
+  return (hash >>> 0).toString(16).padStart(8, "0")
+}
+
+/** A 64-bit fingerprint of `text` (two FNV-1a passes), the same in the app (Organize.swift). */
+export function textKey(text: string): string {
+  return fnv(text, 0x811c9dc5) + fnv(text, 0x050c5d1f)
+}
+
+/**
+ * A message's stable key, the same on every device and in the app: its id, or for a message written
+ * before 2.5 a fingerprint of its role, text and page (with the page's time, which tells apart the same
+ * quick action asked twice on one page).
+ */
+export function entryKey(entry: Entry): string {
+  return entry.id ?? `h${textKey(`${entry.role}\u0000${entry.content}\u0000${entry.page?.url ?? ""}\u0000${entry.page?.at ?? ""}`)}`
+}
+
+/**
+ * When each message was written, to put moved messages in order: its `t`, else its page's time (2.4),
+ * else the time of the message before it; null before the first known time (older than any).
+ */
+export function entryTimes(entries: Entry[]): Array<number | null> {
+  let last: number | null = null
+  return entries.map((e) => {
+    const own = e.t ?? e.page?.at
+    if (typeof own === "number" && Number.isFinite(own)) last = own
+    return last
+  })
+}
+
+/** The messages with "Page updated" worked out again for their order (after messages moved in or out). */
+export function withPageChanges(entries: Entry[]): Entry[] {
+  const seen = new Map<string, string>()
+  return entries.map((e) => {
+    if (e.role !== "user" || !e.page) return e
+    const before = seen.get(e.page.url)
+    if (e.page.hash) seen.set(e.page.url, e.page.hash)
+    if (e.note) return e
+    const changed = before !== undefined && e.page.hash !== undefined && before !== e.page.hash
+    if (changed === Boolean(e.pageChanged)) return e
+    const next = { ...e }
+    if (changed) next.pageChanged = true
+    else delete next.pageChanged
+    return next
+  })
 }
 
 const MAX_HISTORY = 12
@@ -74,7 +157,7 @@ export function selectionNote(selected: string, comment: string, page: PageRef, 
   if (text.length > MAX_NOTE_QUOTE) text = text.slice(0, MAX_NOTE_QUOTE).trimEnd() + "…"
   const quote = quoted(text)
   const note = comment.trim()
-  return { role: "user", content: note ? `${quote}\n\n${note}` : quote, note: true, quote: true, page }
+  return stamped({ role: "user", content: note ? `${quote}\n\n${note}` : quote, note: true, quote: true, page }, page.at)
 }
 
 /**
@@ -210,8 +293,9 @@ export function entriesFrom(parsed: unknown): Entry[] | null {
  * `wholeChat`: every message that fits WHOLE_CHAT_CHARS, the user's notes marked as notes.
  */
 export function historyForModel(entries: Entry[], currentUrl: string, wholeChat = false): ChatTurn[] {
-  const turn = ({ role, content, page, note }: Entry): ChatTurn => {
-    const text = stripCitations(content)
+  const turn = ({ role, content, page, note, marks }: Entry): ChatTurn => {
+    // The user's highlights in an answer go as <mark>…</mark> (the rule is in the system prompt).
+    const text = role === "assistant" && marks?.length ? markedContent(stripCitations(content), marks) : stripCitations(content)
     const elsewhere = role === "user" && page && page.url !== currentUrl ? `"${page.title || page.url}" — ${page.url}` : ""
     if (note) return { role, content: `[Note the user wrote${elsewhere ? ` on another page: ${elsewhere}` : ""}]\n${text}` }
     return { role, content: elsewhere ? `[Asked on another page: ${elsewhere}]\n${text}` : text }

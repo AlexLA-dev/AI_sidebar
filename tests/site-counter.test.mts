@@ -109,7 +109,7 @@ test("visits are capped per address and in all per day", async () => {
 const dir = new URL("../site/", import.meta.url)
 const script = readFileSync(new URL("visit.js", dir), "utf8")
 
-function load({ path = "/", search = "", referrer = "" } = {}) {
+function load({ path = "/", search = "", referrer = "", userAgent = "", maxTouchPoints = 0, links = [] as unknown[] } = {}) {
   const sent: Record<string, unknown>[] = []
   let onClick: ((e: { target: unknown }) => void) | undefined
   class Element {}
@@ -120,8 +120,8 @@ function load({ path = "/", search = "", referrer = "" } = {}) {
   }
   vm.runInNewContext(script, {
     location: { pathname: path, search },
-    document: { referrer, addEventListener: (type: string, fn: typeof onClick) => { if (type === "click") onClick = fn } },
-    navigator: { sendBeacon: (url: string, data: string) => { assert.equal(url, "/api/v2/site"); sent.push(JSON.parse(data)); return true } },
+    document: { referrer, querySelectorAll: () => links, addEventListener: (type: string, fn: typeof onClick) => { if (type === "click") onClick = fn } },
+    navigator: { userAgent, maxTouchPoints, sendBeacon: (url: string, data: string) => { assert.equal(url, "/api/v2/site"); sent.push(JSON.parse(data)); return true } },
     fetch: () => Promise.resolve(),
     URL, URLSearchParams, Element
   })
@@ -154,8 +154,9 @@ test("the page script names the source from utm_source first, then the referrer'
 
 test("the page script knows every indexable page by name and skips the rest", () => {
   const names: Record<string, string> = {
-    "/": "home", "/index.html": "home", "/safari-ai-extension-iphone": "safari_ai", "/notes-while-reading-safari.html": "notes",
-    "/safari-summary-vs-chatgpt": "compare", "/support": "support", "/support/": "support", "/privacy": "privacy", "/terms": "terms"
+    "/": "home", "/index.html": "home", "/features": "features", "/safari-ai-extension-iphone": "safari_ai", "/notes-while-reading-safari.html": "notes",
+    "/safari-summary-vs-chatgpt": "compare", "/support": "support", "/support/": "support", "/privacy": "privacy", "/terms": "terms",
+    "/cases": "cases", "/cases/": "cases", "/cases/replies-and-forms": "case_fill", "/cases/studying.html": "case_study", "/cases/shopping": "case_shop", "/cases/planning": "case_plan"
   }
   for (const [path, page] of Object.entries(names)) assert.equal(load({ path }).sent[0]?.page, page, path)
   assert.deepEqual(load({ path: "/analytics" }).sent, [])
@@ -170,7 +171,8 @@ test("a tap on an App Store button sends its ct label with the visit's source", 
 })
 
 test("the script is on every indexable page and not on /analytics; its lists match the server's", () => {
-  const pages = readdirSync(dir).filter((f) => f.endsWith(".html"))
+  // The case pages live in site/cases/.
+  const pages = (readdirSync(dir, { recursive: true }) as string[]).filter((f) => f.endsWith(".html"))
   for (const file of pages) {
     const html = readFileSync(new URL(file, dir), "utf8")
     const indexable = !/<meta name="robots" content="noindex/.test(html)
@@ -180,4 +182,26 @@ test("the script is on every indexable page and not on /analytics; its lists mat
   assert.deepEqual([...labels].sort(), [...SITE_LABELS].sort())
   const named = [...script.matchAll(/\["([a-z]+)", \//g)].map((m) => m[1])
   assert.deepEqual([...named, "other", "direct", "site"].sort(), [...SITE_SOURCES].sort())
+})
+
+test("on a Mac the App Store buttons open the Mac App Store and say so; an iPad (touch) keeps them", () => {
+  // The owner, 2.5: a Mac visitor was sent to the iPhone and iPad app.
+  const MAC = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.0 Safari/605.1.15"
+  const text = (t: string) => ({ nodeType: 3, textContent: t })
+  const buttons = () => {
+    const small = { nodeType: 1, textContent: "Download on the" }
+    const span = { childNodes: [small, text("App Store")] }
+    const hero = { href: "https://apps.apple.com/app/apple-store/id6759115793?pt=119037986&ct=site_hero&mt=8", querySelector: () => span, childNodes: [span], span }
+    const footer = { href: "https://apps.apple.com/app/apple-store/id6759115793?pt=119037986&ct=site_footer&mt=8", querySelector: () => null, childNodes: [text("App Store")] }
+    return { hero, footer }
+  }
+  const mac = buttons()
+  load({ path: "/features", userAgent: MAC, links: [mac.hero, mac.footer] })
+  assert.equal(mac.hero.href, "https://apps.apple.com/app/apple-store/id6759115793?pt=119037986&ct=site_hero&mt=12")
+  assert.equal(mac.hero.span.childNodes[1].textContent, "Mac App Store")
+  assert.equal(mac.hero.span.childNodes[0].textContent, "Download on the")
+  assert.deepEqual([mac.footer.href.endsWith("&mt=12"), mac.footer.childNodes[0].textContent], [true, "Mac App Store"])
+  const ipad = buttons()
+  load({ path: "/features", userAgent: MAC, maxTouchPoints: 5, links: [ipad.hero, ipad.footer] })
+  assert.deepEqual([ipad.hero.href.endsWith("&mt=8"), ipad.hero.span.childNodes[1].textContent, ipad.footer.childNodes[0].textContent], [true, "App Store", "App Store"])
 })

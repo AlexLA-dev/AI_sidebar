@@ -18,6 +18,9 @@ enum Links {
     static let support = URL(string: "https://context-flow.app/support")!
     static let review = URL(string: "https://apps.apple.com/app/id6759115793?action=write-review")!
     static let manageSubscriptions = URL(string: "https://apps.apple.com/account/subscriptions")!
+    // ContextFlow on X and Threads (the names aren't translated). Opens their app when it's installed.
+    static let x = URL(string: "https://x.com/ContextFlowApp")!
+    static let threads = URL(string: "https://www.threads.com/@contextflowapp")!
 }
 
 let brandGradient = LinearGradient(
@@ -40,7 +43,7 @@ final class DeepLinkRouter: ObservableObject {
 }
 
 enum AppTab: Hashable {
-    case home, chats, tips, pro, settings
+    case home, chats, templates, tips, pro, settings
 }
 
 // MARK: - Root
@@ -52,14 +55,15 @@ struct ContentView: View {
     @StateObject private var chats = ChatLibrary.shared
     @Environment(\.requestReview) private var requestReview
     @Environment(\.scenePhase) private var scenePhase
-    @State private var tab: AppTab = ChatLibrary.shared.threads.isEmpty ? .home : .chats
+    @State private var tab: AppTab = ChatLibrary.shared.threads.isEmpty && ChatLibrary.shared.trashed.isEmpty ? .home : .chats
     /// iOS: the setup guide, from the Chats screen (there is no Get Started tab once there are chats).
     @State private var showingSetup = false
     /// Settings scrolls down to the plan (the extension's "Manage subscription" with Pro).
     @State private var showPlan = false
 
     /// Once the user has chats, they come first: Get Started gives way to Chats.
-    private var hasChats: Bool { !chats.threads.isEmpty }
+    /// Chats in Recently Deleted count: the Chats screen is the way to them (2.5 (83)).
+    private var hasChats: Bool { !chats.threads.isEmpty || !chats.trashed.isEmpty }
 
     /// With Pro there is no Pro tab: the plan is at the bottom of Settings. A purchase made on the Pro
     /// tab keeps it until the user leaves it, so its "You're all set" isn't cut off.
@@ -83,9 +87,22 @@ struct ContentView: View {
         }
     }
 
+    /// What's new in 2.5 (organizing): once, to those who already have chats.
+    @State private var whatsNew = false
+
+    private func showWhatsNewIfDue() {
+        guard hasChats, !UserDefaults.standard.bool(forKey: "cf_whatsnew_organize") else { return }
+        UserDefaults.standard.set(true, forKey: "cf_whatsnew_organize")
+        whatsNew = true
+    }
+
     var body: some View {
         root
             .tint(brandBlue)
+            .sheet(isPresented: $whatsNew) {
+                OrganizeWhatsNew(pro: store.isPro, openPro: { whatsNew = false; tab = .pro }, close: { whatsNew = false })
+            }
+            .onChange(of: hasChats) { _ in showWhatsNewIfDue() }
             .onReceive(router.$pending.compactMap { $0 }) { url in
                 switch url.host {
                 case "subscribe", "manage":
@@ -93,6 +110,11 @@ struct ContentView: View {
                     showPlan = store.isPro
                 case "tips": tab = .tips
                 case "chats": tab = hasChats ? .chats : .home
+                // A reminder on a message (2.5): Chats opens at it.
+                case "chat":
+                    tab = .chats
+                    ChatLinks.shared.handle(url)
+                case "templates": tab = .templates
                 default: tab = hasChats ? .chats : .home
                 }
                 router.pending = nil
@@ -100,6 +122,7 @@ struct ContentView: View {
             .task {
                 SharedDefaults.shared.removeLegacyData()
                 chats.refresh()
+                showWhatsNewIfDue()
                 await store.refreshEntitlement()
                 askForReviewIfDue()
                 await activation.launched()
@@ -123,8 +146,9 @@ struct ContentView: View {
                 settingsTab
                 tipsTab
                 if showsPro { proTab }
-                NavigationView { ChatsView(library: chats, activation: activation, openSetup: { showingSetup = true }, openPro: { tab = .pro }) }
-                    .navigationViewStyle(.stack)
+                templatesTab
+                // A stack: chats open by value, so a chat's screen stays when its row moves (see ChatRoute).
+                NavigationStack { ChatsView(library: chats, activation: activation, openSetup: { showingSetup = true }, openPro: { tab = .pro }) }
                     .tabItem { Label("Chats", systemImage: "bubble.left.and.bubble.right") }
                     .tag(AppTab.chats)
             } else {
@@ -132,6 +156,7 @@ struct ContentView: View {
                     .navigationViewStyle(.stack)
                     .tabItem { Label("Get Started", systemImage: "sparkles") }
                     .tag(AppTab.home)
+                templatesTab
                 tipsTab
                 if showsPro { proTab }
                 settingsTab
@@ -161,6 +186,7 @@ struct ContentView: View {
                 } else {
                     Label("Get Started", systemImage: "sparkles").tag(AppTab.home)
                 }
+                Label("Templates", systemImage: "text.badge.plus").tag(AppTab.templates)
                 Label("Tips", systemImage: "lightbulb").tag(AppTab.tips)
                 if showsPro { Label("Pro", systemImage: "crown").tag(AppTab.pro) }
                 Label("Settings", systemImage: "gearshape").tag(AppTab.settings)
@@ -170,7 +196,8 @@ struct ContentView: View {
             switch tab {
             case .home: HomeView(store: store, activation: activation, openPro: { tab = .pro }, openTips: { tab = .tips })
             case .chats: NavigationStack { ChatsView(library: chats, activation: activation, openPro: { tab = .pro }) }
-            case .tips: TipsView()
+            case .templates: NavigationStack { TemplatesView() }
+            case .tips: TipsView(openPro: { tab = .pro })
             case .pro: ProView(store: store)
             case .settings: SettingsView(showPlan: $showPlan)
             }
@@ -189,10 +216,17 @@ struct ContentView: View {
 
     #if os(iOS)
     private var tipsTab: some View {
-        NavigationView { TipsView() }
+        NavigationView { TipsView(openPro: { tab = .pro }) }
             .navigationViewStyle(.stack)
             .tabItem { Label("Tips", systemImage: "lightbulb") }
             .tag(AppTab.tips)
+    }
+
+    private var templatesTab: some View {
+        NavigationView { TemplatesView() }
+            .navigationViewStyle(.stack)
+            .tabItem { Label("Templates", systemImage: "text.badge.plus") }
+            .tag(AppTab.templates)
     }
 
     private var proTab: some View {
@@ -360,31 +394,76 @@ struct HomeView: View {
 // MARK: - Tips
 
 /// What ContextFlow can do, to look up any time — in the spirit of the Tips app.
+///
+/// The extension's Tips sheet shows the same blocks and texts, read from here and from Localizable.xcstrings when
+/// the extension is built (scripts/tips-source.mjs): keep `TipGroup` in this shape — `Tip(…)` with string literals,
+/// `#if os(iOS)` for what differs on a Mac.
 struct TipsView: View {
+    /// The Pro tab (organizing tips, without Pro).
+    var openPro: () -> Void = {}
+    @ObservedObject private var store = StoreKitManager.shared
+    @ObservedObject private var organize = OrganizeModel.shared
+    // The blocks open, by id (2.5 (78), the owner's note: the big blocks fold). "Get started" until one is opened or
+    // closed, then as left.
+    @AppStorage("tipsOpenBlocks") private var openBlocks = TipGroup.all[0].id
+
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
+            // An open block's title stays at the top while its cards scroll under it, until the next block's takes
+            // its place (2.5 (81), the owner's note).
+            LazyVStack(alignment: .leading, spacing: 16, pinnedViews: [.sectionHeaders]) {
                 Text("Quick answers to “how do I…?”")
                     .font(.callout)
                     .foregroundColor(.secondary)
-                ForEach(TipGroup.all.indices, id: \.self) { index in
-                    let group = TipGroup.all[index]
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text(group.title)
-                            .font(.title3.weight(.semibold))
-                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 260), spacing: 12, alignment: .top)], alignment: .leading, spacing: 12) {
-                            ForEach(group.tips.indices, id: \.self) { TipCard(tip: group.tips[$0]) }
+                // The whole app's, before the blocks (the owner's note).
+                TipCard(tip: TipGroup.lead)
+                ForEach(TipGroup.all, id: \.id) { group in
+                    let open = isOpen(group)
+                    Section {
+                        if open {
+                            LazyVGrid(columns: [GridItem(.adaptive(minimum: 260), spacing: 12, alignment: .top)], alignment: .leading, spacing: 12) {
+                                ForEach(group.tips.indices, id: \.self) { i in
+                                    TipCard(tip: group.tips[i], action: organizeAction(group.tips[i]))
+                                }
+                            }
+                            .padding(.bottom, 8)
                         }
+                    } header: {
+                        TipBlockHeader(title: group.title, count: group.tips.count, open: open) { toggle(group) }
+                            .background(.background)
                     }
                 }
                 FooterLinks()
-                    .padding(.top, 4)
+                    .padding(.top, 8)
             }
             .padding(20)
             .frame(maxWidth: 760)
             .frame(maxWidth: .infinity)
         }
         .navigationTitle("Tips")
+    }
+
+    private func isOpen(_ group: TipGroup) -> Bool {
+        openBlocks.split(separator: ",").contains(Substring(group.id))
+    }
+
+    private func toggle(_ group: TipGroup) {
+        var ids = openBlocks.split(separator: ",").map(String.init)
+        if let i = ids.firstIndex(of: group.id) { ids.remove(at: i) } else { ids.append(group.id) }
+        withAnimation(.easeInOut(duration: 0.2)) { openBlocks = ids.joined(separator: ",") }
+    }
+
+    /// Under the organizing tips: Turn on (Pro, suggestions off; that's the consent) or Try Pro (without Pro).
+    private func organizeAction(_ tip: Tip) -> (label: LocalizedStringKey, run: () -> Void)? {
+        guard tip.organize else { return nil }
+        if !store.isPro {
+            return ("Try Pro", {
+                ChatAI.reportOrganize("organize_promo", ["action": "tap", "where": "tip"])
+                openPro()
+            })
+        }
+        guard !(SharedDefaults.shared.readSettings()?.settings["organize"] as? Bool ?? false) else { return nil }
+        return ("Turn on", { organize.answerConsent(true, from: "tip") })
     }
 }
 
@@ -395,11 +474,21 @@ struct Tip {
     let text: LocalizedStringKey
     // A short recording of the extension doing it (TipClips/<en|ru>/<clip>.mp4).
     var clip: String? = nil
+    // Organizing (2.5): Turn on or Try Pro under it.
+    var organize = false
+    // Needs Pro: the Pro badge by the title.
+    var pro = false
 }
 
 struct TipGroup {
+    // Stable, whatever the title says: which blocks are open is kept by it (and the site's sections use the same).
+    let id: String
     let title: LocalizedStringKey
     let tips: [Tip]
+
+    // Chats on every device: the whole app's, so it stands before the blocks (2.5 (78), the owner's note).
+    static let lead = Tip(symbol: "icloud", color: .cyan, title: "On all your devices",
+                          text: "With “Sync chats with iCloud” on, a chat started on your iPhone continues on your iPad and Mac. It's end-to-end encrypted in your iCloud.")
 
     private static var openTip: Tip {
         #if os(iOS)
@@ -411,63 +500,129 @@ struct TipGroup {
         #endif
     }
 
+    // Quick insert (2.5): how the list opens differs, a tap on iPhone and iPad, / or ⌃⇧V with a keyboard. The clips
+    // show the button by the field, which a Mac doesn't have.
+    private static var insertTip: Tip {
+        #if os(iOS)
+        Tip(symbol: "text.badge.plus", color: brandBlue, title: "Insert into any field",
+            text: "Tap a text field on a page, then the ContextFlow button by it: what you copied in other tabs, your templates and ContextFlow's last answer are one tap away. With a keyboard, type / and a few words of a template, then Tab.", clip: "insert")
+        #else
+        Tip(symbol: "text.badge.plus", color: brandBlue, title: "Insert into any field",
+            text: "In any field on a page, type / and a few words of a template, then Tab. Control-Shift-V opens the whole list: what you copied in other tabs, your templates and ContextFlow's last answer.")
+        #endif
+    }
+
+    private static var copiedTip: Tip {
+        Tip(symbol: "doc.on.clipboard", color: .green, title: "Copied, kept for a day",
+            text: "The last 5 things you copied on pages in Safari wait in the list for 24 hours, on this device only. Nothing from password or card fields, or in Private Browsing.", clip: iOSClip("copied"))
+    }
+
+    // Swipes are touch only: on a Mac the same actions show on hover and on a right-click.
+    private static var swipeTip: Tip {
+        #if os(iOS)
+        Tip(symbol: "hand.draw", color: .blue, title: "Swipe to pin or delete",
+            text: "Swipe an answer or a note to the right to pin it, to the left to delete it. Changed your mind? Undo brings it back.", clip: "swipes")
+        #else
+        Tip(symbol: "cursorarrow.rays", color: .blue, title: "Pin or delete with a click",
+            text: "Point at an answer or a note: Pin, Remind me and Delete show beside it, and a right-click opens the same menu. Changed your mind? Undo brings it back.")
+        #endif
+    }
+
+    // Reminders and watching are two lists (2.5): the bell is about time, the eye about a change on the page.
+    private static var remindTip: Tip {
+        Tip(symbol: "bell", color: .orange, title: "Remind me about this page",
+            text: "Reading something you want to finish later? Select a line and tap the bell, or tap … at the top of the panel, then Remind me about this page…, and pick a time: the reminder opens this page. Answers and notes have Remind me in their … menu.", clip: "later")
+    }
+
+    private static var watchTip: Tip {
+        Tip(symbol: "eye", color: .green, title: "Know when a price drops",
+            text: "Select a price, a stock status or a date on a page and tap the eye. For the whole page, choose Watch this page… in the … menu at the top of the panel. ContextFlow checks the page while you use Safari and tells you when it changes, or drops below the price you name. Up to 5 at a time, 20 with Pro.", clip: "watch")
+    }
+
+    private static func iOSClip(_ name: String) -> String? {
+        #if os(iOS)
+        name
+        #else
+        nil
+        #endif
+    }
+
+    // Blocks by what the person wants to do, simple to advanced within each; Pro cards carry the badge.
     static let all: [TipGroup] = [
-        TipGroup(title: "New in ContextFlow", tips: [
-            Tip(symbol: "text.quote", color: .orange, title: "Ask or note a selection",
-                text: "Select text on a page: type your own question about it right under the selection, or tap Note to save it to the chat with its page. Notes use no answers.", clip: "select"),
-            Tip(symbol: "play.rectangle", color: .red, title: "Ask about a video (Pro)",
-                text: "With Pro, ContextFlow reads the transcript of a video on the page: ask for the gist, or what was said about something, and the answer points to the moment, like [4:15]. Free answers use the page's text.", clip: "video"),
-            Tip(symbol: "doc.richtext", color: .orange, title: "PDFs on the page (Pro)",
-                text: "With Pro, PDFs shown on a page or linked from it go with your question, and answers say which page they're on. On iPad and Mac, ContextFlow in the toolbar opens on a PDF tab too. Free answers use the page's text.", clip: "pdf"),
-            Tip(symbol: "bubble.left.and.bubble.right", color: .teal, title: "Your chats in the app",
-                text: "The Chats tab has every chat from Safari. Ask about its pages or add a note right there, tag, copy or share any answer, or share the whole chat. “Continue in Safari” picks it up where you left off.", clip: "appchat"),
-            Tip(symbol: "magnifyingglass", color: .green, title: "Search your chats",
-                text: "Type in the search over the chat list: every chat with those words, with the place they're in. A result opens the chat right there.", clip: "search"),
-            Tip(symbol: "tag", color: .purple, title: "Tags and folders",
-                text: "Tag a chat, an answer or a note with 🏷. Tap a tag to see only its chats, or turn on Folders to group the list by tag.", clip: "tags"),
-            Tip(symbol: "sparkles", color: brandBlue, title: "AI search (Pro)",
-                text: "Tap ✦ next to the search and describe the chat you remember — “that article about sleep and coffee” — even without the exact words.", clip: "aisearch"),
-            Tip(symbol: "text.bubble", color: .indigo, title: "Ask your chats (Pro)",
-                text: "The first row of the chat list answers from all your chats at once: “What did I read this week?”, “Summarize my notes on AI”.", clip: "history")
-        ]),
-        TipGroup(title: "Get answers", tips: [
+        TipGroup(id: "get-started", title: "Get started", tips: [
             openTip,
             Tip(symbol: "list.bullet.rectangle", color: .orange, title: "One tap for the gist",
                 text: "Summarize, Key takeaways, Explain simply and Translate work on the whole page — no need to write a prompt.", clip: "gist"),
             Tip(symbol: "text.cursor", color: .purple, title: "Ask about a part",
                 text: "Select text on the page and choose Ask AI: the answer is about just that part. It can also explain, translate or rewrite it.", clip: "part"),
+            Tip(symbol: "text.quote", color: .orange, title: "Ask or note a selection",
+                text: "Select text on a page: type your own question about it right under the selection, or tap Note to save it to the chat with its page. Notes use no answers.", clip: "select"),
+            Tip(symbol: "bubble.left.and.bubble.right", color: .teal, title: "A chat follows you",
+                text: "Keep asking as you move from page to page. ContextFlow remembers the conversation and which page each question was about. Tap a page's name in the chat to go back to it.", clip: "follows"),
             Tip(symbol: "magnifyingglass", color: .green, title: "Fresh facts from Google",
                 text: "Turn on Google next to the question field to answer with Google Search: news, prices and anything recent, with sources.", clip: "google")
         ]),
-        TipGroup(title: "Chats", tips: [
-            Tip(symbol: "bubble.left.and.bubble.right", color: .teal, title: "A chat follows you",
-                text: "Keep asking as you move from page to page. ContextFlow remembers the conversation and which page each question was about. Tap a page's name in the chat to go back to it.", clip: "follows"),
+        TipGroup(id: "deeper-work", title: "Deeper work", tips: [
             Tip(symbol: "pencil.line", color: .orange, title: "Notes of your own",
                 text: "Swipe the send button up or down (on a Mac, scroll on it) to write a note instead of asking. It stays in the chat with its page, syncs with it and uses no answers.", clip: "notes"),
+            Tip(symbol: "highlighter", color: .yellow, title: "Highlight what matters",
+                text: "Select a line in an answer and tap Highlight: it stays marked, like with a pen. Later answers in that chat take your highlights into account, and Copy keeps them in bold.", clip: "highlight"),
+            Tip(symbol: "pin", color: .purple, title: "Pinned at the top",
+                text: "Pin an answer or a note and it waits in the bar at the top of the chat. Tap the bar to jump to it, tap again for the next one.", clip: "pinned"),
+            swipeTip,
             Tip(symbol: "rectangle.stack", color: .blue, title: "The whole chat in mind",
                 text: "Turn on Whole chat under the question field when an answer needs everything: all messages, your notes and the other pages of this chat. Off, answers use the last messages and the open page.", clip: "whole"),
+            Tip(symbol: "play.rectangle", color: .red, title: "Ask about a video",
+                text: "With Pro, ContextFlow reads the transcript of a video on the page: ask for the gist, or what was said about something, and the answer points to the moment, like [4:15]. Free answers use the page's text.", clip: "video", pro: true),
+            Tip(symbol: "doc.richtext", color: .orange, title: "PDFs on the page",
+                text: "With Pro, PDFs shown on a page or linked from it go with your question, and answers say which page they're on. On iPad and Mac, ContextFlow in the toolbar opens on a PDF tab too. Free answers use the page's text.", clip: "pdf", pro: true)
+        ]),
+        TipGroup(id: "quick-insert", title: "Quick insert", tips: [
+            insertTip,
+            copiedTip,
+            Tip(symbol: "curlybraces", color: .orange, title: "Templates that fill themselves",
+                text: "Select a reply you send often and tap Template: ContextFlow marks the name, the date and whatever else changes. When you insert it, Fill from the page puts them in, highlighted so you can check.", clip: "fill")
+        ]),
+        TipGroup(id: "watch-and-remind", title: "Watch and remind", tips: [
+            remindTip,
+            watchTip
+        ]),
+        TipGroup(id: "chats-in-order", title: "Chats in order", tips: [
             Tip(symbol: "square.and.pencil", color: .indigo, title: "Start fresh or go back",
                 text: "Start a new chat with +. Earlier chats wait in the chat list: open one to pick up where you left off, rename it with the pencil, or delete it.", clip: "chats"),
-            Tip(symbol: "icloud", color: .cyan, title: "On all your devices",
-                text: "With “Sync chats with iCloud” on, a chat started on your iPhone continues on your iPad and Mac. It's end-to-end encrypted in your iCloud."),
+            Tip(symbol: "magnifyingglass", color: .green, title: "Search your chats",
+                text: "Type in the search over the chat list: every chat with those words, with the place they're in. A result opens the chat right there.", clip: "search"),
+            Tip(symbol: "tag", color: .purple, title: "Tags and folders",
+                text: "Tag a chat, an answer or a note with 🏷. Tap a tag to see only its chats, or turn on Folders to group the list by tag.", clip: "tags"),
             Tip(symbol: "square.and.arrow.up", color: .pink, title: "Share what you found",
-                text: "Share one answer or the whole chat: the text comes with its links, its sources and a link to ContextFlow.")
+                text: "Share one answer or the whole chat: the text comes with its links, its sources and a link to ContextFlow.", clip: "share"),
+            Tip(symbol: "bubble.left.and.bubble.right", color: .teal, title: "Your chats in the app",
+                text: "The Chats tab has every chat from Safari. Ask about its pages or add a note right there, tag, copy or share any answer, or share the whole chat. “Continue in Safari” picks it up where you left off.", clip: "appchat"),
+            Tip(symbol: "sparkles", color: brandBlue, title: "AI search",
+                text: "Tap ✦ next to the search and describe the chat you remember — “that article about sleep and coffee” — even without the exact words.", clip: "aisearch", pro: true),
+            Tip(symbol: "text.bubble", color: .indigo, title: "Ask your chats",
+                text: "The first row of the chat list answers from all your chats at once: “What did I read this week?”, “Summarize my notes on AI”.", clip: "history", pro: true),
+            Tip(symbol: "arrow.turn.down.right", color: brandBlue, title: "Where it belongs",
+                text: "Asked about a car in the chat about a sofa? Under the answer, ContextFlow suggests the chat it belongs in, or a new one. One tap moves it there, by date; Undo puts it back.", clip: "organize", organize: true, pro: true),
+            Tip(symbol: "tag", color: .purple, title: "Your tags, suggested",
+                text: "ContextFlow learns what your tags mean from where you put them, and suggests the right one under a new answer or note. Only your own tags, only when they fit.", clip: "suggested-tags", organize: true, pro: true)
         ]),
-        TipGroup(title: "Settings & privacy", tips: [
+        TipGroup(id: "privacy-and-personalization", title: "Privacy & personalization", tips: [
             Tip(symbol: "person.text.rectangle", color: .mint, title: "Tell it about you",
                 text: "Add a line under About me — what you do, how you like answers — and ContextFlow will tailor them to you.", clip: "about"),
+            Tip(symbol: "hand.tap", color: .blue, title: "The ✦ button, your way",
+                text: "Covering something on the page? Drag ✦ up or down along the edge, or to the other side: it stays where you leave it. You can also hide it on a single site, or turn it off everywhere in the extension settings. ContextFlow still opens from Safari's extensions menu.", clip: "button"),
             Tip(symbol: "key.fill", color: .gray, title: "Use your own API key",
                 text: "With Pro or the Own key plan, paste an OpenAI or Claude key in the extension settings in Safari. Requests then go straight to that provider."),
-            Tip(symbol: "hand.tap", color: .blue, title: "The ✦ button, your way",
-                text: "Hide the button on a single site, or turn it off everywhere in the extension settings. ContextFlow still opens from Safari's extensions menu."),
             Tip(symbol: "lock.shield", color: .brown, title: "Private by design",
-                text: "ContextFlow reads a page only when you ask, and sends just its text to get the answer. Your chats stay on your devices and in your iCloud.")
+                text: "ContextFlow reads a page only when you ask, and sends just its text to get the answer. Your chats stay on your devices and in your iCloud. With suggestions on, the text of new messages also goes to our server to find where they belong; we don't keep it.")
         ])
     ]
 }
 
 struct TipCard: View {
     let tip: Tip
+    var action: (label: LocalizedStringKey, run: () -> Void)? = nil
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -487,18 +642,61 @@ struct TipCard: View {
                 .frame(width: 36, height: 36)
                 .background(RoundedRectangle(cornerRadius: 9, style: .continuous).fill(tip.color))
                 .accessibilityHidden(true)
-            Text(tip.title)
-                .font(.headline)
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
+                Text(tip.title)
+                    .font(.headline)
+                if tip.pro { ProBadge() }
+            }
             Text(tip.text)
                 .font(.callout)
                 .foregroundColor(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
+            if let action {
+                Button(action.label, action: action.run)
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.small)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .topLeading)
         .padding(16)
         .background(Color.cardFill)
         .cornerRadius(16)
-        .accessibilityElement(children: .combine)
+        .accessibilityElement(children: action == nil ? .combine : .contain)
+    }
+}
+
+/// A block's title: a tap opens or folds it; folded, it says how many tips are inside.
+struct TipBlockHeader: View {
+    let title: LocalizedStringKey
+    let count: Int
+    let open: Bool
+    let toggle: () -> Void
+
+    var body: some View {
+        Button(action: toggle) {
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Text(title)
+                    .font(.title3.weight(.semibold))
+                    .foregroundColor(.primary)
+                if !open {
+                    Text(verbatim: String(count))
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundColor(.secondary)
+                }
+                Spacer(minLength: 8)
+                Image(systemName: "chevron.right")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundColor(.secondary)
+                    .rotationEffect(.degrees(open ? 90 : 0))
+            }
+            .padding(.vertical, 6)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text(title))
+        .accessibilityValue(Text(open ? "Expanded" : "Collapsed"))
+        .accessibilityAddTraits([.isHeader, .isButton])
     }
 }
 
@@ -601,6 +799,7 @@ struct ProView: View {
             VStack(alignment: .leading, spacing: 18) {
                 hero
                 if store.isByok { byokCard } else if store.entitlement.active { activeCard }
+                organizing
                 features
                 products
                 actions
@@ -704,8 +903,24 @@ struct ProView: View {
         }
     }
 
+    /// Organizing the chats (2.5), first: what it does, with its loop.
+    private var organizing: some View {
+        HStack(alignment: .center, spacing: 16) {
+            OrganizeAnimation(big: true)
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Sorts by topic").font(.headline)
+                Text("Suggests the right chat for what you just asked, and your own tag for it.")
+                    .font(.callout)
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .onAppear { if !store.isPro { ChatAI.reportOrganize("organize_promo", ["action": "shown", "where": "pro_screen"]) } }
+    }
+
     private var features: some View {
         VStack(alignment: .leading, spacing: 10) {
+            Feature(systemImage: "arrow.turn.down.right", text: "Sorts by topic: suggests the right chat and your own tag")
             Feature(systemImage: "sparkles", text: "AI search: find any chat by describing it in your own words")
             Feature(systemImage: "bubble.left.and.text.bubble.right", text: "Ask your chats: questions across everything you've read and asked")
             Feature(systemImage: "bolt.fill", text: "Up to 375 deeper, more detailed answers a week instead of 5 a day")
@@ -1015,6 +1230,17 @@ struct FooterLinks: View {
                 Link("Terms of Use", destination: Links.terms)
             }
             .font(.footnote.weight(.medium))
+            // A row of their own: six links don't fit one line on a 375 pt iPhone.
+            HStack(spacing: 14) {
+                Link("X", destination: Links.x)
+                Link("Threads", destination: Links.threads)
+            }
+            .font(.footnote.weight(.medium))
+            // Counted (social_open: which network only), then opened as usual.
+            .environment(\.openURL, OpenURLAction { url in
+                Task { await ChatAI.reportSocial(url == Links.x ? "x" : "threads") }
+                return .systemAction
+            })
             Text("Version \(version)")
                 .font(.caption)
                 .foregroundColor(.secondary)
@@ -1036,6 +1262,18 @@ final class ExtensionSettings: ObservableObject {
     @Published var ownKeyModel = "smart" { didSet { save() } }
     @Published var hiddenSites: [String] = [] { didSet { save() } }
     @Published var syncChats = true { didSet { save() } }
+    /// Quick insert (2.5): the button by text fields (iPhone and iPad) and keeping copied text; both on by default.
+    @Published var insertButton = true { didSet { save() } }
+    @Published var keepCopied = true { didSet { save() } }
+    /// Suggestions (2.5, Pro): a better chat for a block, one of the user's tags. Off until turned on (the consent).
+    @Published var organize = false { didSet { save() } }
+
+    /// Turns suggestions on from outside the Settings screen (the card in a chat, What's new): that's the consent.
+    static func setOrganize(_ on: Bool) {
+        var stored = SharedDefaults.shared.readSettings()?.settings ?? [:]
+        stored["organize"] = on
+        SharedDefaults.shared.writeSettings(stored, updatedAt: Date().timeIntervalSince1970 * 1000)
+    }
 
     /// Switches iCloud sync of chats on or off from outside the Settings screen (the Chats screen).
     static func setSyncChats(_ on: Bool) {
@@ -1062,6 +1300,9 @@ final class ExtensionSettings: ObservableObject {
         ownKeyModel = stored["ownKeyModel"] as? String ?? "smart"
         hiddenSites = stored["fabHiddenSites"] as? [String] ?? []
         syncChats = stored["syncChats"] as? Bool ?? true
+        insertButton = stored["insertButton"] as? Bool ?? true
+        keepCopied = stored["keepCopied"] as? Bool ?? true
+        organize = stored["organize"] as? Bool ?? false
     }
 
     private func save() {
@@ -1075,6 +1316,9 @@ final class ExtensionSettings: ObservableObject {
         stored["fabHiddenSites"] = hiddenSites
         let syncChanged = (stored["syncChats"] as? Bool ?? true) != syncChats
         stored["syncChats"] = syncChats
+        stored["insertButton"] = insertButton
+        stored["keepCopied"] = keepCopied
+        stored["organize"] = organize
         SharedDefaults.shared.writeSettings(stored, updatedAt: Date().timeIntervalSince1970 * 1000)
         if syncChanged { ChatLibrary.shared.refresh() }
     }
@@ -1120,7 +1364,10 @@ struct SettingsView: View {
                 }
             }
 
-            Section(header: Text("On web pages")) {
+            Section(
+                header: Text("On web pages"),
+                footer: Text("The last 5 pieces of text copied on pages. They stay on this device and are erased after 24 hours. Nothing from password or card fields, or in Private Browsing.")
+            ) {
                 Toggle("Floating ✦ button", isOn: $settings.floatingButton)
                 Toggle("Button when selecting text", isOn: $settings.selectionButton)
                 if !settings.hiddenSites.isEmpty {
@@ -1128,6 +1375,11 @@ struct SettingsView: View {
                         settings.hiddenSites = []
                     }
                 }
+                // Quick insert's settings (2.5 rules): the button shows by fields on touch screens only, as in the panel.
+                #if os(iOS)
+                Toggle("Button by text fields", isOn: $settings.insertButton)
+                #endif
+                Toggle("Keep copied text", isOn: $settings.keepCopied)
             }
 
             Section(
@@ -1135,6 +1387,19 @@ struct SettingsView: View {
                 footer: Text("Your chats continue on your iPhone, iPad and Mac signed in to the same Apple Account. They're end-to-end encrypted in iCloud: only your devices can read them.")
             ) {
                 Toggle("Sync chats with iCloud", isOn: $settings.syncChats)
+            }
+
+            Section(
+                header: Text("Suggestions"),
+                footer: Text(store.isPro
+                    ? "A fitting chat and your tag under new answers and notes. The text of your messages goes to our server and to OpenAI and Anthropic. We don't keep it; they don't use it for training."
+                    : "Pro: ContextFlow suggests a fitting chat and your tag under new answers and notes.")
+            ) {
+                Toggle("Suggestions: tags and moving", isOn: $settings.organize)
+                    .disabled(!store.isPro)
+                    .onChange(of: settings.organize) { on in
+                        if on { ChatAI.reportOrganize("organize_optin", ["action": "accepted", "from": "settings"]) }
+                    }
             }
 
             Section(

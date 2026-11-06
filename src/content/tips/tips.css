@@ -1,0 +1,19 @@
+/* The panel's Tips sheet (2.5 (78)): the app's Tips, each block folding, no clips. */
+.cf-sheet.cf-tips { max-height: calc(100% - 56px); padding-bottom: 14px; }
+.cf-tips-intro { margin: -4px 8px 10px; font-size: 13px; color: var(--text-3); }
+/* The app's clip on its card (the web version), the size kept before it loads so nothing jumps. */
+.cf-tip-clip { display: block; width: 100%; max-width: 230px; aspect-ratio: 540 / 794; margin: 2px auto 10px; border-radius: 10px; border: 1px solid var(--border); background: #fff; object-fit: cover; }
+.cf-tip { margin: 0 4px 8px; padding: 10px 12px; border-radius: 12px; background: var(--bg-2); }
+.cf-tip-title { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 14px; font-weight: 600; color: var(--text); }
+.cf-tip-text { margin: 4px 0 0; font-size: 13px; line-height: 1.45; color: var(--text-2); }
+.cf[data-touch] .cf-tip-title { font-size: 15px; }
+.cf[data-touch] .cf-tip-text { font-size: 14.5px; }
+.cf-tips-block { border-top: 1px solid var(--border); }
+/* An open block's title stays at the top of the sheet while its cards scroll, until the next block's takes over
+   (2.5 (81), as in the app). The sheet's own 10px padding is above it. */
+.cf-tips-head { position: sticky; top: -10px; z-index: 1; display: flex; align-items: center; gap: 8px; width: 100%; padding: 12px 8px !important; font-size: 15px; font-weight: 600; text-align: left; background: var(--bg); }
+.cf-tips-count { font-size: 13px; font-weight: 600; color: var(--text-3); }
+.cf-tips-chev { margin-left: auto; flex-shrink: 0; color: var(--text-3); transition: transform 0.15s ease; }
+.cf-tips-block.open .cf-tips-chev { transform: rotate(90deg); }
+.cf-tips-cards { padding-bottom: 4px; }
+@media (prefers-reduced-motion: reduce) { .cf-tips-chev { transition: none; } }

@@ -90,13 +90,13 @@
   "message": "Recherche le texte sélectionné sur Google : de quoi s’agit-il, avec les faits essentiels."
  },
  "placeholderPage": {
-  "message": "Posez une question sur cette page…"
+  "message": "Question sur la page…"
  },
  "placeholderSelection": {
-  "message": "Posez une question sur la sélection…"
+  "message": "Question sur la sélection…"
  },
  "placeholderNone": {
-  "message": "Demandez ce que vous voulez…"
+  "message": "Demandez n’importe quoi…"
  },
  "placeholderGoogle": {
   "message": "Demander à Google…"
@@ -167,6 +167,201 @@
  "pageUpdated": {
   "message": "Page mise à jour"
  },
+ "uxMark": {
+  "message": "Surligner"
+ },
+ "uxUnmark": {
+  "message": "Retirer le surlignage"
+ },
+ "uxDelete": {
+  "message": "Supprimer"
+ },
+ "uxPin": {
+  "message": "Épingler"
+ },
+ "uxUnpin": {
+  "message": "Désépingler"
+ },
+ "uxDeletedAnswer": {
+  "message": "Réponse supprimée"
+ },
+ "uxDeletedNote": {
+  "message": "Note supprimée"
+ },
+ "uxDeletedChat": {
+  "message": "Discussion supprimée"
+ },
+ "trashTitle": {
+  "message": "Suppressions récentes"
+ },
+ "trashRow": {
+  "message": "Suppressions récentes · {0}"
+ },
+ "trashNote": {
+  "message": "Les discussions restent disponibles ici pendant 30 jours. Elles seront ensuite supprimées définitivement."
+ },
+ "trashRestore": {
+  "message": "Restaurer"
+ },
+ "trashDeleteNow": {
+  "message": "Supprimer maintenant"
+ },
+ "trashDeleteAll": {
+  "message": "Tout supprimer"
+ },
+ "trashDeleteAllAsk": {
+  "message": "Supprimer définitivement toutes les discussions des Suppressions récentes ? Cette action est irréversible."
+ },
+ "trashDays_one": {
+  "message": "{0} jour"
+ },
+ "trashDays_few": {
+  "message": "{0} jours"
+ },
+ "trashDays_many": {
+  "message": "{0} jours"
+ },
+ "trashDays_other": {
+  "message": "{0} jours"
+ },
+ "uxPinned": {
+  "message": "Épinglé"
+ },
+ "uxPinnedN": {
+  "message": "Épinglé #{0}"
+ },
+ "uxPinnedAll": {
+  "message": "Tous les épinglés"
+ },
+ "uxMore": {
+  "message": "Plus"
+ },
+ "uxMorePage": {
+  "message": "Plus : page"
+ },
+ "uxMoreAnswer": {
+  "message": "Plus : réponse"
+ },
+ "uxMoreNote": {
+  "message": "Plus : note"
+ },
+ "uxMoreChat": {
+  "message": "Plus : discussion"
+ },
+ "uxLater": {
+  "message": "Me rappeler cette page…"
+ },
+ "uxLaterTitle": {
+  "message": "Me rappeler cette page"
+ },
+ "uxWatchPage": {
+  "message": "Surveiller cette page…"
+ },
+ "uxReminders": {
+  "message": "Rappels"
+ },
+ "uxRemindersN": {
+  "message": "Rappels · {0}"
+ },
+ "uxWatching": {
+  "message": "Surveillances"
+ },
+ "uxWatchingN": {
+  "message": "Surveillances · {0}"
+ },
+ "uxAllReminders": {
+  "message": "Tous les rappels"
+ },
+ "uxNoReminders": {
+  "message": "Aucun rappel"
+ },
+ "uxNoRemindersHint": {
+  "message": "Ajoutez-en un sur une réponse ou une note, avec la cloche près d’un texte sélectionné, ou ici : … → Me rappeler cette page."
+ },
+ "uxNoWatching": {
+  "message": "Aucune surveillance"
+ },
+ "uxNoWatchingHint": {
+  "message": "Sélectionnez un prix, le stock ou une date et touchez l’œil. Pour toute la page : … → Surveiller cette page."
+ },
+ "uxOnAnotherDevice": {
+  "message": "{0} · sur un autre appareil"
+ },
+ "uxStop": {
+  "message": "Arrêter"
+ },
+ "uxRemind": {
+  "message": "Me le rappeler"
+ },
+ "uxRemindChange": {
+  "message": "Modifier le rappel"
+ },
+ "uxRemindOpen": {
+  "message": "Ouvrir"
+ },
+ "uxRemindTitle": {
+  "message": "Quand dois-je vous le rappeler ?"
+ },
+ "uxRemindAsked": {
+  "message": "Vous avez demandé un rappel : {0}"
+ },
+ "uxRemindHour": {
+  "message": "Dans une heure"
+ },
+ "uxRemindEvening": {
+  "message": "Ce soir"
+ },
+ "uxRemindMorning": {
+  "message": "Demain matin"
+ },
+ "uxRemindWeek": {
+  "message": "Dans une semaine"
+ },
+ "uxRemindPick": {
+  "message": "Choisir une date"
+ },
+ "uxRemindSet": {
+  "message": "Rappeler"
+ },
+ "uxRemindCancel": {
+  "message": "Ne pas rappeler"
+ },
+ "uxRemindOff": {
+  "message": "Les notifications de ContextFlow sont désactivées. Activez-les dans Réglages → Notifications → ContextFlow."
+ },
+ "uxRemindAsk": {
+  "message": "Ouvrez une fois l’app ContextFlow et autorisez les notifications, puis programmez à nouveau le rappel."
+ },
+ "uxRemindNone": {
+  "message": "Pour les rappels, il faut l’app ContextFlow sur cet appareil."
+ },
+ "uxToday": {
+  "message": "Aujourd’hui"
+ },
+ "uxTomorrow": {
+  "message": "Demain"
+ },
+ "uxRemindSaved": {
+  "message": "Rappel : {0}"
+ },
+ "uxRemindNotSet": {
+  "message": "Enregistré dans le chat. Les notifications de ContextFlow sont désactivées. Activez-les dans Réglages → Notifications → ContextFlow."
+ },
+ "uxRemindNoApp": {
+  "message": "Enregistré dans le chat. Pour les rappels, il faut l’app ContextFlow sur cet appareil."
+ },
+ "uxUnpinAll": {
+  "message": "Tout désépingler"
+ },
+ "setShareGroup": {
+  "message": "Partage et copie"
+ },
+ "uxShareMarks": {
+  "message": "Surlignages en **gras** dans le texte partagé"
+ },
+ "uxShareMarksHint": {
+  "message": "Telegram, Notion et Slack les affichent en gras ; Messages et Notes montrent les astérisques. « Copier » garde toujours le gras."
+ },
  "nowOnPage": {
   "message": "Maintenant : {0}"
  },
@@ -215,6 +410,18 @@
  "limitProBody": {
   "message": "Vos réponses Pro se renouvellent dans {0}."
  },
+ "longPageWeight": {
+  "message": "Page longue : réponse ×{0}"
+ },
+ "longPageWeightHint": {
+  "message": "Cette page est longue : une réponse à son sujet compte ×{0} dans votre limite."
+ },
+ "limitLongTitle": {
+  "message": "Cette page est longue"
+ },
+ "limitLongBody": {
+  "message": "Une réponse à son sujet compte pour {0}, et il vous en reste {1}."
+ },
  "getPro": {
   "message": "Passer à Pro"
  },
@@ -237,16 +444,37 @@
   "message": "{0} min"
  },
  "consentTitle": {
-  "message": "Avant votre première réponse"
+  "message": "Avant que ContextFlow utilise l’IA"
  },
  "consentBody": {
-  "message": "Pour répondre, ContextFlow envoie votre question et le texte de cette page (ou de votre sélection ; pour la recherche IA et « Interroger vos discussions », des extraits de vos discussions) via notre serveur à Anthropic (Claude) ou, s'il est indisponible, à OpenAI, ou à Google pour les réponses Google. Le contenu des pages et les discussions ne sont pas conservés sur nos serveurs ; vos discussions restent sur vos appareils et, si vous les synchronisez, dans votre iCloud."
+  "message": "Donné une fois, cet accord vaut pour toutes les fonctions d’IA. Chacune n’envoie que ce dont elle a besoin, quand vous l’utilisez, via notre serveur à Anthropic (Claude). Rien n’est conservé sur nos serveurs ni utilisé pour l’entraînement."
+ },
+ "consentAnswers": {
+  "message": "Réponses : votre question, le texte de la page ou votre sélection, et votre « À propos de moi » si vous l’avez rempli. Si Claude est indisponible, OpenAI répond ; les réponses Google vont à Google."
+ },
+ "consentChats": {
+  "message": "« Interroger vos discussions » et la recherche IA (Pro) : de courts extraits de vos discussions."
+ },
+ "consentTemplates": {
+  "message": "Modèles : leur texte, pour repérer les champs ; le texte de la page pour « Remplir depuis la page » ; vos mots et les titres des modèles pour « Chercher par le sens »."
+ },
+ "consentWatch": {
+  "message": "Surveiller une page : ce que vous avez sélectionné, vos mots pour dire quand prévenir, le texte autour et le titre de la page ; ensuite, l’ancienne et la nouvelle valeur."
+ },
+ "consentSuggest": {
+  "message": "Suggestions (Pro, seulement une fois activées) : le texte des nouvelles questions, réponses et notes, à OpenAI pour les comparer et à Claude pour vérifier un tag."
+ },
+ "consentStored": {
+  "message": "Vos discussions restent sur vos appareils et, si vous les synchronisez, dans votre iCloud."
+ },
+ "consentWhat": {
+  "message": "Ce qui est envoyé exactement"
  },
  "consentAccept": {
   "message": "Accepter et continuer"
  },
  "consentAgainTitle": {
-  "message": "Nouveau : les réponses viennent désormais de Claude"
+  "message": "Nouveau : un seul accord pour toutes les fonctions d’IA"
  },
  "consentDecline": {
   "message": "Pas maintenant"
@@ -734,6 +962,240 @@
  "tagsButton": {
   "message": "Tag"
  },
+ "qiTitle": {
+  "message": "Insertion rapide"
+ },
+ "qiButton": {
+  "message": "Insertion rapide : texte copié, modèles, réponses de la discussion"
+ },
+ "qiCommand": {
+  "message": "Insertion rapide au curseur"
+ },
+ "qiSearch": {
+  "message": "Chercher un modèle"
+ },
+ "qiNewTemplate": {
+  "message": "Nouveau modèle"
+ },
+ "qiEditTemplate": {
+  "message": "Modèle"
+ },
+ "qiCopied": {
+  "message": "Copié"
+ },
+ "qiClear": {
+  "message": "Effacer"
+ },
+ "qiCopiedOff": {
+  "message": "« Copié » est désactivé. Activez-le en bas."
+ },
+ "qiCopiedEmpty": {
+  "message": "Copiez du texte sur n’importe quelle page dans Safari : il apparaît ici."
+ },
+ "qiNothing": {
+  "message": "Rien trouvé"
+ },
+ "qiToTemplate": {
+  "message": "En faire un modèle"
+ },
+ "qiTemplates": {
+  "message": "Modèles"
+ },
+ "qiTemplatesTitle": {
+  "message": "Modèles"
+ },
+ "qiAllTemplates": {
+  "message": "Tous les modèles"
+ },
+ "qiTemplatesEmpty": {
+  "message": "Aucun modèle pour l’instant. Touchez + ou sélectionnez une réponse que vous écrivez souvent, puis touchez « Modèle »."
+ },
+ "qiTemplatesIntro": {
+  "message": "Enregistrez les réponses que vous écrivez encore et encore. Je repère ce qui change, comme un nom ou une date, et peux le reprendre de la page."
+ },
+ "qiFindAi": {
+  "message": "Chercher par le sens"
+ },
+ "qiFinding": {
+  "message": "Recherche…"
+ },
+ "qiFromCf": {
+  "message": "De la discussion"
+ },
+ "qiLastAnswer": {
+  "message": "Dernière réponse"
+ },
+ "qiLastNote": {
+  "message": "Dernière note"
+ },
+ "qiKeepCopied": {
+  "message": "Garder le texte copié"
+ },
+ "qiPrivacy": {
+  "message": "Le texte copié reste uniquement sur cet appareil et est effacé au bout de 24 heures."
+ },
+ "qiOnIphone": {
+  "message": "iPhone"
+ },
+ "qiOnIpad": {
+  "message": "iPad"
+ },
+ "qiOnMac": {
+  "message": "Mac"
+ },
+ "qiOnDevice": {
+  "message": "appareil"
+ },
+ "qiHideButtonOnSite": {
+  "message": "Masquer le bouton sur {0}"
+ },
+ "qiDontKeepOnSite": {
+  "message": "Ne pas garder sur {0}"
+ },
+ "qiKeepOnSite": {
+  "message": "Garder à nouveau sur {0}"
+ },
+ "qiTip": {
+  "message": "Nouveau : touchez pour insérer ce que vous avez copié dans d’autres onglets, un modèle ou ma réponse."
+ },
+ "qiKeyInsert": {
+  "message": "insérer"
+ },
+ "qiKeyChoose": {
+  "message": "choisir"
+ },
+ "qiKeyClose": {
+  "message": "fermer"
+ },
+ "qiBlanksMark": {
+  "message": "champs"
+ },
+ "qiBlanksCount": {
+  "message": "Champs à remplir : {0}"
+ },
+ "qiPasteManually": {
+  "message": "Copié. Collez-le vous-même dans le champ."
+ },
+ "qiInsert": {
+  "message": "Insérer"
+ },
+ "qiInsertIntoField": {
+  "message": "Insérer dans le champ"
+ },
+ "qiFillFromPage": {
+  "message": "Remplir depuis la page"
+ },
+ "qiFillAgain": {
+  "message": "Remplir à nouveau"
+ },
+ "qiFilling": {
+  "message": "Remplissage…"
+ },
+ "qiFillHint": {
+  "message": "Saisissez les champs, choisissez dans « Copié » ou je les remplis depuis la page."
+ },
+ "qiFillDone": {
+  "message": "En jaune : repris de la page. Vérifiez avant d’envoyer."
+ },
+ "qiFillPartly": {
+  "message": "En jaune : repris de la page. Un champ vide n’a pas été trouvé : remplissez-le vous-même."
+ },
+ "qiFillLeft": {
+  "message": "Remplissages restants aujourd’hui : {0}."
+ },
+ "qiFillLimit": {
+  "message": "Les remplissages gratuits du jour sont épuisés. Avec Pro, il n’y a pas de limite, et les champs peuvent aussi être remplis à la main."
+ },
+ "qiFillByHand": {
+  "message": "Remplir à la main"
+ },
+ "qiPickCopied": {
+  "message": "Copié pour « {0} »"
+ },
+ "qiAdapt": {
+  "message": "Réécrire pour cette page"
+ },
+ "qiAdaptChat": {
+  "message": "Réécrire pour cette discussion"
+ },
+ "qiAdaptHint": {
+  "message": "« Remplir depuis la page » ne remplit que les champs. « Réécrire » change tout le texte avec l’IA et l’affiche dans le panneau."
+ },
+ "qiAdaptLabel": {
+  "message": "Réécrire le modèle pour cette page"
+ },
+ "qiAdaptPrompt": {
+  "message": "Réécris ce modèle en une réponse adaptée à la page ouverte. Garde le sens, le ton et la longueur ; complète ce que la page indique et laisse le reste tel quel. Réponds uniquement par le texte de la réponse.\n\nModèle :\n{0}"
+ },
+ "qiAdaptConversation": {
+  "message": "Voici la discussion dans laquelle je réponds. Écris la réponse à la personne qui y participe :\n{0}"
+ },
+ "qiTemplateButton": {
+  "message": "Modèle"
+ },
+ "qiTemplateTitle": {
+  "message": "Titre"
+ },
+ "qiTemplateText": {
+  "message": "Texte. Les champs à remplir entre accolades, comme {Nom}."
+ },
+ "qiMakeBlank": {
+  "message": "Champ"
+ },
+ "qiBlankDefault": {
+  "message": "Champ"
+ },
+ "qiUnmark": {
+  "message": "redevenir du texte normal"
+ },
+ "qiMarking": {
+  "message": "Repérage de ce qui change…"
+ },
+ "qiMarkAi": {
+  "message": "Repérer les champs"
+ },
+ "qiMarkedHint": {
+  "message": "Les champs sont repérés. Touchez-en un pour qu’il redevienne du texte normal."
+ },
+ "qiMarkedNone": {
+  "message": "Rien ne semble changer ici. Sélectionnez un mot et touchez « Champ » pour en ajouter un."
+ },
+ "qiMarkFailed": {
+  "message": "Impossible de repérer les champs pour l’instant. Le modèle est enregistré en texte simple, vous pouvez ajouter des champs à la main."
+ },
+ "qiBlankHint": {
+  "message": "Les champs sont remplis quand le modèle est inséré."
+ },
+ "qiKeywords": {
+  "message": "Mots pour le retrouver, séparés par des virgules"
+ },
+ "qiSave": {
+  "message": "Enregistrer"
+ },
+ "qiDelete": {
+  "message": "Supprimer"
+ },
+ "qiSetButton": {
+  "message": "Bouton près des champs de texte"
+ },
+ "qiSetCopiedHint": {
+  "message": "Les 5 derniers textes copiés sur des pages. Ils restent uniquement sur cet appareil et sont effacés au bout de 24 heures. Rien des champs de mot de passe ou de carte, ni en navigation privée."
+ },
+ "qiClearCopied": {
+  "message": "Effacer « Copié »"
+ },
+ "qiCleared": {
+  "message": "Effacé"
+ },
+ "qiSetSign": {
+  "message": "Signe dans un champ"
+ },
+ "qiSetSignHint": {
+  "message": "Tapez {0} et quelques mots d’un modèle dans n’importe quel champ."
+ },
+ "qiSetShortcut": {
+  "message": "Sur Mac et sur iPad avec clavier, ⌃⇧V ouvre la liste."
+ },
  "hintGot": {
   "message": "Compris"
  },
@@ -838,5 +1300,443 @@
  },
  "byokOfferBody": {
   "message": "Pro répond sans votre clé : jusqu'à {0} réponses par semaine, {1} recherches Google par semaine, « Interroger vos discussions » et la recherche IA. L'App Store affiche le prix et la durée avant le paiement. Pro démarre aussitôt et la partie non utilisée de votre offre est remboursée."
+ },
+ "orgSuggested": {
+  "message": "Suggestion"
+ },
+ "orgTagA11y": {
+  "message": "Tag suggéré « {0} ». L’ajouter"
+ },
+ "orgNoA11y": {
+  "message": "Ignorer"
+ },
+ "orgCountOne": {
+  "message": "{0} message"
+ },
+ "orgCountFew": {
+  "message": "{0} messages"
+ },
+ "orgCountMany": {
+  "message": "{0} messages"
+ },
+ "orgCountOther": {
+  "message": "{0} messages"
+ },
+ "orgMoveTo": {
+  "message": "{0} vers « {1} »"
+ },
+ "orgSplit": {
+  "message": "Vers une nouvelle discussion : « {0} »"
+ },
+ "orgMoveA11y": {
+  "message": "Déplacer {0} vers la discussion « {1} »"
+ },
+ "orgSplitA11y": {
+  "message": "Déplacer ces messages vers une nouvelle discussion, « {0} »"
+ },
+ "orgMoved": {
+  "message": "Déplacé vers « {0} »"
+ },
+ "orgUndo": {
+  "message": "Annuler"
+ },
+ "orgOpen": {
+  "message": "Ouvrir"
+ },
+ "orgFirstWin": {
+  "message": "C’est fait. Désormais, je ferai mes suggestions de moi-même."
+ },
+ "orgConsentTitle": {
+  "message": "Classer vos discussions par sujet ?"
+ },
+ "orgConsentText": {
+  "message": "Je suggérerai une discussion adaptée et l’un de vos tags sous les nouvelles réponses et notes. Vous pouvez désactiver cela dans les Réglages."
+ },
+ "orgTurnOn": {
+  "message": "Activer"
+ },
+ "orgMessTitle": {
+  "message": "Tout dans une seule discussion ?"
+ },
+ "orgMessText": {
+  "message": "Avec Pro, je suggère ce qui va où et j’ajoute les tags comme vous le faites."
+ },
+ "orgTagsTitle": {
+  "message": "Je peux taguer comme vous"
+ },
+ "orgTagsText": {
+  "message": "Avec Pro, je suggère l’un de vos tags sous les nouvelles réponses et notes, d’après les endroits où vous le mettez vous-même."
+ },
+ "orgCloseA11y": {
+  "message": "Fermer"
+ },
+ "setOrganize": {
+  "message": "Suggestions : tags et déplacement"
+ },
+ "setOrganizeHint": {
+  "message": "Une discussion adaptée et votre tag sous les nouvelles réponses et notes. Le texte de vos messages est envoyé à notre serveur, à OpenAI et à Anthropic. Nous ne le conservons pas, et ils ne l’utilisent pas pour l’entraînement."
+ },
+ "setOrganizePro": {
+  "message": "Pro : ContextFlow suggère une discussion adaptée et votre tag sous les nouvelles réponses et notes."
+ },
+ "upsellOrganizeName": {
+  "message": "Classe par sujet"
+ },
+ "upsellOrganizeText": {
+  "message": "Suggère la bonne discussion pour ce que vous venez de demander, et votre propre tag."
+ },
+ "watchEye": {
+  "message": "Surveiller les changements"
+ },
+ "watchSection": {
+  "message": "Me prévenir quand ça change"
+ },
+ "watchWhen": {
+  "message": "Quand vous prévenir"
+ },
+ "watchCondPrice": {
+  "message": "quand le prix change (actuellement {0})"
+ },
+ "watchCondBack": {
+  "message": "quand ce sera de nouveau en stock"
+ },
+ "watchCondStock": {
+  "message": "quand la disponibilité change (actuellement {0})"
+ },
+ "watchCondDate": {
+  "message": "quand la date change (actuellement {0})"
+ },
+ "watchCondStatus": {
+  "message": "quand le statut change (actuellement {0})"
+ },
+ "watchCondPage": {
+  "message": "quand quelque chose de nouveau apparaît sur la page"
+ },
+ "watchHonest": {
+  "message": "Je vérifie pendant que vous utilisez Safari"
+ },
+ "watchStart": {
+  "message": "Surveiller"
+ },
+ "watchSave": {
+  "message": "Enregistrer"
+ },
+ "watchTipBell": {
+  "message": "La cloche : je vous rappelle de revenir sur cette page à l’heure choisie."
+ },
+ "watchTipWatch": {
+  "message": "L’œil : je vous préviens quand quelque chose change ici : un prix, le stock, un statut."
+ },
+ "watchChecking": {
+  "message": "Je regarde la page…"
+ },
+ "watchSet": {
+  "message": "C'est noté. Je vous préviens quand ça change."
+ },
+ "watchSetLive": {
+  "message": "C'est noté. Ce site ne l'affiche que lorsque vous ouvrez la page : je vérifierai à ce moment-là."
+ },
+ "watchUnreadable": {
+  "message": "Ce site ne se laisse pas vérifier en arrière-plan. Je peux vérifier quand vous ouvrez la page, ou vous rappeler d'y jeter un œil."
+ },
+ "watchRemindInstead": {
+  "message": "Me rappeler d'y jeter un œil"
+ },
+ "watchLiveOk": {
+  "message": "Vérifier quand j'ouvre la page"
+ },
+ "watchFull": {
+  "message": "Vous surveillez déjà {0} pages. Arrêtez-en une dans Surveillances d'abord."
+ },
+ "watchFullFree": {
+  "message": "En version gratuite, vous surveillez {0} pages à la fois. Avec Pro, jusqu'à {1}."
+ },
+ "watchMore": {
+  "message": "Plus avec Pro"
+ },
+ "watchFailed": {
+  "message": "Ça n'a pas marché. Réessayez dans un instant."
+ },
+ "watchRow": {
+  "message": "Surveillé : {0} · vérifié {1}"
+ },
+ "watchRowNew": {
+  "message": "Surveillé : {0}"
+ },
+ "watchRowNow": {
+  "message": "maintenant {0}"
+ },
+ "watchRowLive": {
+  "message": "Surveillé : {0} · je vérifie quand vous ouvrez la page"
+ },
+ "watchRowMet": {
+  "message": "Changé : {0} · {1}"
+ },
+ "watchRowMetNow": {
+  "message": "Changé : {0}, maintenant {1} · {2}"
+ },
+ "watchStop": {
+  "message": "Arrêter de surveiller"
+ },
+ "watchStopped": {
+  "message": "Surveillance arrêtée"
+ },
+ "watchLabelPrice": {
+  "message": "Prix"
+ },
+ "watchLabelStock": {
+  "message": "Disponibilité"
+ },
+ "watchLabelDate": {
+  "message": "Date"
+ },
+ "watchLabelStatus": {
+  "message": "Statut"
+ },
+ "watchLabelPage": {
+  "message": "La page"
+ },
+ "watchInStock": {
+  "message": "en stock"
+ },
+ "watchOutOfStock": {
+  "message": "en rupture de stock"
+ },
+ "watchChanged": {
+  "message": "Changé : {0}"
+ },
+ "watchChangedBody": {
+  "message": "Maintenant : {0}"
+ },
+ "tip_4cf1b54b00": {
+  "message": "Astuces"
+ },
+ "tip_245f060c21": {
+  "message": "Des réponses rapides à « comment faire… ? »"
+ },
+ "tip_89895fd68f": {
+  "message": "Sur tous vos appareils"
+ },
+ "tip_9efc5dc7c2": {
+  "message": "Avec « Synchroniser les discussions avec iCloud », une discussion commencée sur l’iPhone se poursuit sur l’iPad et le Mac. Elle est chiffrée de bout en bout dans votre iCloud."
+ },
+ "tip_90e40d5043": {
+  "message": "Pour commencer"
+ },
+ "tip_ad4199fa48": {
+  "message": "Ouvrez-le sur n’importe quelle page"
+ },
+ "tip_79a4dbe893": {
+  "message": "Touchez ✦ sur la page, ou ouvrez le menu de la page dans la barre d’adresse et choisissez ContextFlow."
+ },
+ "tip_4acd9995ac": {
+  "message": "Cliquez sur ✦ dans la page ou sur l’icône ContextFlow dans la barre d’outils, ou appuyez sur Control-Shift-E."
+ },
+ "tip_2749afe54a": {
+  "message": "L’essentiel en un geste"
+ },
+ "tip_487a14e710": {
+  "message": "« Résumer », « Points clés », « En termes simples » et « Traduire » portent sur toute la page — inutile d’écrire une consigne."
+ },
+ "tip_d22c90dac1": {
+  "message": "Questionner un passage"
+ },
+ "tip_328a1070b8": {
+  "message": "Sélectionnez du texte sur la page et choisissez « Demander à l’IA » : la réponse ne porte que sur ce passage. Vous pouvez aussi le faire expliquer, traduire ou réécrire."
+ },
+ "tip_ca7dfa36cb": {
+  "message": "Question ou note sur une sélection"
+ },
+ "tip_fa1cdf5479": {
+  "message": "Sélectionnez du texte sur une page : posez votre propre question juste sous la sélection, ou touchez « Note » pour l’enregistrer dans le chat avec sa page. Les notes ne consomment aucune réponse."
+ },
+ "tip_9000896590": {
+  "message": "La discussion vous suit"
+ },
+ "tip_c76058fe4b": {
+  "message": "Continuez à poser des questions en passant d’une page à l’autre. ContextFlow se souvient de la discussion et de la page concernée par chaque question. Touchez le nom d’une page dans la discussion pour y revenir."
+ },
+ "tip_e5dff10006": {
+  "message": "Des infos à jour avec Google"
+ },
+ "tip_d7c7b7b55d": {
+  "message": "Activez Google à côté du champ de question pour répondre avec la Recherche Google : actualités, prix et tout ce qui est récent, avec les sources."
+ },
+ "tip_da5f7b74b1": {
+  "message": "Aller plus loin"
+ },
+ "tip_6ba198cbff": {
+  "message": "Vos propres notes"
+ },
+ "tip_6a92f6c633": {
+  "message": "Faites glisser le bouton d’envoi vers le haut ou le bas (sur Mac, faites défiler dessus) pour écrire une note au lieu de poser une question. Elle reste dans la discussion avec sa page, se synchronise avec elle et ne consomme aucune réponse."
+ },
+ "tip_654fb12e51": {
+  "message": "Surlignez l’essentiel"
+ },
+ "tip_33115b31e1": {
+  "message": "Sélectionnez une ligne dans une réponse et touchez « Surligner » : elle reste marquée, comme au surligneur. Les réponses suivantes de cette discussion en tiennent compte, et « Copier » les garde en gras."
+ },
+ "tip_b4e4a2a85e": {
+  "message": "Épinglé en haut"
+ },
+ "tip_4d33a9d9e4": {
+  "message": "Épinglez une réponse ou une note : elle vous attend dans la barre en haut de la discussion. Touchez la barre pour y aller, encore une fois pour la suivante."
+ },
+ "tip_b7be002204": {
+  "message": "Balayez pour épingler ou supprimer"
+ },
+ "tip_104ac1e6e8": {
+  "message": "Balayez une réponse ou une note vers la droite pour l’épingler, vers la gauche pour la supprimer. Vous changez d’avis ? « Annuler » la remet en place."
+ },
+ "tip_c047d28229": {
+  "message": "Épingler ou supprimer d’un clic"
+ },
+ "tip_dcfe357b68": {
+  "message": "Pointez une réponse ou une note : « Épingler », « Me le rappeler » et « Supprimer » s’affichent à côté, et un clic droit ouvre le même menu. Vous changez d’avis ? « Annuler » la remet en place."
+ },
+ "tip_e012ef5f59": {
+  "message": "Toute la discussion en tête"
+ },
+ "tip_3a70cee32e": {
+  "message": "Activez « Tout le chat » sous le champ de question quand une réponse a besoin de tout : tous les messages, vos notes et les autres pages de cette discussion. Désactivé : les derniers messages et la page ouverte."
+ },
+ "tip_ca29a1f4ed": {
+  "message": "Interroger une vidéo"
+ },
+ "tip_d6be4709b7": {
+  "message": "Avec Pro, ContextFlow lit la transcription d’une vidéo de la page : demandez l’essentiel ou ce qui a été dit sur un sujet, et la réponse indique le moment, par exemple [4:15]. Les réponses gratuites utilisent le texte de la page."
+ },
+ "tip_5c5bca8a9e": {
+  "message": "PDF de la page"
+ },
+ "tip_ff32d2c483": {
+  "message": "Avec Pro, les PDF affichés ou liés sur une page accompagnent votre question, et les réponses indiquent la page. Sur iPad et Mac, ContextFlow dans la barre d’outils s’ouvre aussi sur un onglet PDF. Les réponses gratuites utilisent le texte de la page."
+ },
+ "tip_328ee8ddce": {
+  "message": "Insertion rapide"
+ },
+ "tip_ff7c853b85": {
+  "message": "Insérer dans n’importe quel champ"
+ },
+ "tip_038e87000b": {
+  "message": "Touchez un champ de texte sur une page, puis le bouton ContextFlow à côté : ce que vous avez copié dans d’autres onglets, vos modèles et la dernière réponse de ContextFlow sont à un toucher. Avec un clavier, tapez / et quelques mots d’un modèle, puis Tab."
+ },
+ "tip_a8e1d14e5b": {
+  "message": "Dans n’importe quel champ d’une page, tapez / et quelques mots d’un modèle, puis Tab. Contrôle-Maj-V ouvre la liste complète : ce que vous avez copié dans d’autres onglets, vos modèles et la dernière réponse de ContextFlow."
+ },
+ "tip_451fa9ccb6": {
+  "message": "Le texte copié, gardé une journée"
+ },
+ "tip_8ddcf05a7e": {
+  "message": "Les 5 derniers textes copiés sur des pages dans Safari restent 24 heures dans la liste, sur cet appareil uniquement. Rien des champs de mot de passe ou de carte, ni en navigation privée."
+ },
+ "tip_cf63db6cc6": {
+  "message": "Des modèles qui se remplissent seuls"
+ },
+ "tip_6dd86048c4": {
+  "message": "Sélectionnez une réponse que vous envoyez souvent et touchez « Modèle » : ContextFlow repère le nom, la date et tout ce qui change. À l’insertion, « Remplir depuis la page » les complète, surlignés pour que vous vérifiiez."
+ },
+ "tip_f09b3558e2": {
+  "message": "Surveiller et rappeler"
+ },
+ "tip_d0d8d1355c": {
+  "message": "Me rappeler cette page"
+ },
+ "tip_b5d4d7711a": {
+  "message": "Vous lisez quelque chose à finir plus tard ? Sélectionnez une ligne et touchez la cloche, ou touchez « … » en haut du panneau, puis « Me rappeler cette page… », et choisissez une heure : le rappel ouvre cette page. Les réponses et les notes ont « Me le rappeler » dans leur menu « … »."
+ },
+ "tip_74c328b672": {
+  "message": "Sachez quand un prix baisse"
+ },
+ "tip_45c2496345": {
+  "message": "Sélectionnez un prix, une disponibilité ou une date sur une page et touchez l’œil. Pour toute la page, choisissez « Surveiller cette page… » dans le menu « … » en haut du panneau. ContextFlow vérifie la page pendant que vous utilisez Safari et vous prévient quand cela change, ou quand le prix passe sous celui que vous indiquez. Jusqu’à 5 à la fois, 20 avec Pro."
+ },
+ "tip_0daede04f6": {
+  "message": "Des discussions bien rangées"
+ },
+ "tip_ec2cf96f53": {
+  "message": "Repartir de zéro ou revenir"
+ },
+ "tip_623811ea30": {
+  "message": "Commencez une nouvelle discussion avec +. Les précédentes vous attendent dans la liste : ouvrez-en une pour reprendre où vous en étiez, renommez-la avec le crayon ou supprimez-la."
+ },
+ "tip_c4b432e2e9": {
+  "message": "Cherchez dans vos discussions"
+ },
+ "tip_eff80bffda": {
+  "message": "Tapez dans la recherche au-dessus de la liste : toutes les discussions avec ces mots, et l’endroit où ils figurent. Un résultat ouvre la discussion à cet endroit."
+ },
+ "tip_2e4668f650": {
+  "message": "Tags et dossiers"
+ },
+ "tip_6b5bdf707f": {
+  "message": "Ajoutez un tag à une discussion, une réponse ou une note avec 🏷. Touchez un tag pour ne voir que ses discussions, ou activez Dossiers pour regrouper la liste par tag."
+ },
+ "tip_752fb307f2": {
+  "message": "Partagez ce que vous avez trouvé"
+ },
+ "tip_aa15b6c2c0": {
+  "message": "Partagez une réponse ou toute la discussion : le texte est accompagné de ses liens, de ses sources et d’un lien vers ContextFlow."
+ },
+ "tip_76f2924bba": {
+  "message": "Vos discussions dans l’app"
+ },
+ "tip_969cf52d0b": {
+  "message": "L’onglet Discussions contient toutes les discussions de Safari. Posez une question sur leurs pages ou ajoutez une note sur place ; étiquetez, copiez ou partagez une réponse, ou toute la discussion. « Continuer dans Safari » la reprend là où vous l’avez laissée."
+ },
+ "tip_4721064b09": {
+  "message": "Recherche IA"
+ },
+ "tip_52a09ac884": {
+  "message": "Touchez ✦ à côté de la recherche et décrivez la discussion dont vous vous souvenez — « l’article sur le sommeil et le café » — même sans les mots exacts."
+ },
+ "tip_068fa58797": {
+  "message": "Interroger vos discussions"
+ },
+ "tip_8a40be768f": {
+  "message": "La première ligne de la liste répond à partir de toutes vos discussions : « Qu’ai-je lu cette semaine ? », « Résume mes notes sur l’IA »."
+ },
+ "tip_4257aee15a": {
+  "message": "Chaque chose à sa place"
+ },
+ "tip_c61e2edab3": {
+  "message": "Une question sur une voiture dans la discussion sur un canapé ? Sous la réponse, ContextFlow suggère la discussion où elle a sa place, ou une nouvelle. Touchez, et elle y est déplacée, à sa date ; Annuler la remet en place."
+ },
+ "tip_3f9f46cd12": {
+  "message": "Vos tags, suggérés"
+ },
+ "tip_69a0bac728": {
+  "message": "ContextFlow apprend ce que signifient vos tags d’après les endroits où vous les mettez, et suggère le bon sous une nouvelle réponse ou note. Seulement vos propres tags, seulement quand ils conviennent."
+ },
+ "tip_3208aa35ac": {
+  "message": "Confidentialité et personnalisation"
+ },
+ "tip_1e1a2fad4e": {
+  "message": "Parlez-lui de vous"
+ },
+ "tip_e2d1d4abd0": {
+  "message": "Ajoutez une ligne dans « À propos de moi » — votre métier, le style de réponse que vous aimez — et ContextFlow s’adaptera à vous."
+ },
+ "tip_10400d6345": {
+  "message": "Le bouton ✦, à votre façon"
+ },
+ "tip_4c60874441": {
+  "message": "✦ cache quelque chose sur la page ? Faites-le glisser vers le haut ou le bas le long du bord, ou de l’autre côté : il reste là où vous le lâchez. Vous pouvez aussi le masquer sur un site précis ou le désactiver partout dans les réglages de l’extension. ContextFlow s’ouvre toujours depuis le menu des extensions de Safari."
+ },
+ "tip_8a727e1bbe": {
+  "message": "Utilisez votre clé d’API"
+ },
+ "tip_d84a0778d4": {
+  "message": "Avec Pro ou la formule Clé personnelle, collez une clé OpenAI ou Claude dans les réglages de l’extension dans Safari. Les requêtes vont alors directement chez ce fournisseur."
+ },
+ "tip_3aaa9fd1f2": {
+  "message": "Confidentiel par nature"
+ },
+ "tip_241d3ad076": {
+  "message": "ContextFlow ne lit une page que lorsque vous posez une question, et n’envoie que son texte pour obtenir la réponse. Vos discussions restent sur vos appareils et dans votre iCloud. Si les suggestions sont activées, le texte des nouveaux messages est aussi envoyé à notre serveur pour trouver leur place ; nous ne le conservons pas."
+ },
+ "tip_clips": {
+  "message": "en"
  }
 }

@@ -2,10 +2,18 @@ import Anthropic from "@anthropic-ai/sdk"
 
 import { config } from "./config.mts"
 import { readDeltas, startCompletion, type ChatMessage, type StreamStats } from "./llm.mts"
+import { estimateTokens, OPENAI_PAGE_TOKENS, PAGE_TOKENS } from "../../src/shared/pagefit.ts"
 import { modelsFor } from "./models.mts"
 
 /** Which plan's settings an answer uses (AI search and the old endpoint use the free ones). */
 export type Tier = "free" | "pro"
+
+/**
+ * The system prompt: plain, or built in two parts for a page budget (systemPromptParts: the rules and the page,
+ * then what changes); Claude gets the page within PAGE_TOKENS and caches the first part, GPT gets it within
+ * OPENAI_PAGE_TOKENS (pagefit.ts).
+ */
+export type SystemSource = string | ((pageTokens: number) => [string, string])
 
 export interface Answer {
   provider: "anthropic" | "openai"
@@ -57,7 +65,7 @@ function reasonOf(err: unknown): string {
  * Starts a Claude answer and waits for its first words, so that anything going wrong before them
  * (an HTTP error, a refusal, an empty answer, no first word in time) can still be answered by OpenAI.
  */
-async function startClaude(system: string, messages: ChatMessage[], tier: Tier, signal?: AbortSignal): Promise<Answer> {
+async function startClaude(system: SystemSource, messages: ChatMessage[], tier: Tier, signal?: AbortSignal): Promise<Answer> {
   const settings = config.claude[tier]
   const effort = (EFFORTS.includes(settings.effort) ? settings.effort : tier === "pro" ? "medium" : "low") as Effort
   // Retries would only delay the switch to OpenAI. The address is pinned: no environment variable
@@ -68,17 +76,26 @@ async function startClaude(system: string, messages: ChatMessage[], tier: Tier, 
   const stop = () => abort.abort()
   signal?.addEventListener("abort", stop)
   let late = false
+  const [cached, rest] = typeof system === "string" ? [system, ""] : system(PAGE_TOKENS)
+  // A long page takes Claude longer to read before the first word: a second more for every 25 000 tokens,
+  // within the function's minute.
+  const firstTokenMs = Math.min(45_000, config.claudeFirstTokenMs + Math.floor(estimateTokens(cached) / 25))
   const timer = setTimeout(() => {
     late = true
     abort.abort()
-  }, config.claudeFirstTokenMs)
+  }, firstTokenMs)
 
   // Adaptive thinking (the default) at the plan's effort. A decline in the categories Claude Sonnet 5
   // handles is re-run there by the API; other declines go to OpenAI below.
   const stream = client.beta.messages.stream({
     model: settings.model,
     max_tokens: settings.maxTokens,
-    system,
+    // The rules and the page are cached (5 minutes, renewed by each read): a follow-up on the same page pays a
+    // tenth of the price for them; the first question a quarter more.
+    system: [
+      { type: "text", text: cached, cache_control: { type: "ephemeral" } },
+      ...(rest ? [{ type: "text" as const, text: rest }] : [])
+    ],
     messages,
     output_config: { effort },
     betas: ["server-side-fallback-2026-07-01"],
@@ -88,6 +105,8 @@ async function startClaude(system: string, messages: ChatMessage[], tier: Tier, 
 
   let model = settings.model
   let promptTokens = 0
+  let cacheWriteTokens = 0
+  let cacheReadTokens = 0
   let completionTokens = 0
   let stopReason: string | null = null
   /** The next piece of text, reading usage on the way; null at the end of the answer. */
@@ -98,7 +117,9 @@ async function startClaude(system: string, messages: ChatMessage[], tier: Tier, 
       if (event.type === "message_start") {
         model = event.message.model || model
         const u = event.message.usage
-        promptTokens = (u.input_tokens ?? 0) + (u.cache_creation_input_tokens ?? 0) + (u.cache_read_input_tokens ?? 0)
+        cacheWriteTokens = u.cache_creation_input_tokens ?? 0
+        cacheReadTokens = u.cache_read_input_tokens ?? 0
+        promptTokens = (u.input_tokens ?? 0) + cacheWriteTokens + cacheReadTokens
       } else if (event.type === "message_delta") {
         completionTokens = event.usage.output_tokens ?? completionTokens
         stopReason = event.delta.stop_reason ?? stopReason
@@ -117,7 +138,7 @@ async function startClaude(system: string, messages: ChatMessage[], tier: Tier, 
     signal?.removeEventListener("abort", stop)
     abort.abort()
     if (signal?.aborted) throw err
-    throw late ? new ClaudeUnavailable("timeout", `no first word in ${config.claudeFirstTokenMs} ms`) : err
+    throw late ? new ClaudeUnavailable("timeout", `no first word in ${firstTokenMs} ms`) : err
   }
   clearTimeout(timer)
 
@@ -136,6 +157,8 @@ async function startClaude(system: string, messages: ChatMessage[], tier: Tier, 
         if (stopReason === "refusal") throw new Error("Claude declined to finish the answer")
       } finally {
         stats.promptTokens = promptTokens
+        stats.cacheWriteTokens = cacheWriteTokens
+        stats.cacheReadTokens = cacheReadTokens
         stats.completionTokens = completionTokens
         if (stopReason === "max_tokens") stats.cut = true
         signal?.removeEventListener("abort", stop)
@@ -159,7 +182,7 @@ export function clientBuild(client: Record<string, unknown>): number | null {
  * (or is charged) twice: the switch happens before any text is sent. Errors after OpenAI fails too
  * are thrown like startCompletion's.
  */
-export async function startAnswer(system: string, messages: ChatMessage[], tier: Tier, build: number | null, signal?: AbortSignal): Promise<Answer> {
+export async function startAnswer(system: SystemSource, messages: ChatMessage[], tier: Tier, build: number | null, signal?: AbortSignal): Promise<Answer> {
   let fallback: string
   // CLAUDE_MIN_BUILD=0 lets every client use Claude (the local stand: its extension has no build).
   if (config.claudeMinBuild > 0 && (build === null || build < config.claudeMinBuild)) fallback = "old_client"
@@ -177,13 +200,17 @@ export async function startAnswer(system: string, messages: ChatMessage[], tier:
       console.warn(`[cf] claude unavailable (${fallback}): ${err instanceof Error ? err.message.slice(0, 300) : err}; answering with openai`)
     }
   }
-  const completion = await startCompletion(system, messages, await modelsFor(tier), signal)
+  const completion = await startCompletion(typeof system === "string" ? system : system(OPENAI_PAGE_TOKENS).filter(Boolean).join("\n"), messages, await modelsFor(tier), signal)
   return { provider: "openai", model: completion.model, fallback, text: (stats) => readDeltas(completion.body, stats) }
 }
 
 /** What an answer cost us in USD, when it's known (Claude: from its tokens and list prices). */
 export function answerCost(answer: Pick<Answer, "provider">, stats: StreamStats): number | null {
   if (answer.provider !== "anthropic") return null
-  const usd = (stats.promptTokens * config.claudePriceIn + stats.completionTokens * config.claudePriceOut) / 1_000_000
+  // Cache writes cost 1.25 times the input price, reads a tenth.
+  const write = stats.cacheWriteTokens ?? 0
+  const read = stats.cacheReadTokens ?? 0
+  const input = stats.promptTokens - write - read + write * 1.25 + read * 0.1
+  const usd = (input * config.claudePriceIn + stats.completionTokens * config.claudePriceOut) / 1_000_000
   return Math.round(usd * 1_000_000) / 1_000_000
 }

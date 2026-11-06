@@ -1,0 +1,266 @@
+/* 2.5: highlights, swipes, pinned messages, reminders. Appended to styles.css in the shadow root. */
+
+.cf { --mark: rgba(250, 204, 21, 0.38); --mark-line: rgba(202, 138, 4, 0.55); --pin: #7c3aed; }
+.cf[data-theme="dark"] { --mark: rgba(250, 204, 21, 0.28); --mark-line: rgba(250, 204, 21, 0.5); --pin: #a78bfa; }
+@media (prefers-color-scheme: dark) { .cf:not([data-theme]) { --mark: rgba(250, 204, 21, 0.28); --mark-line: rgba(250, 204, 21, 0.5); --pin: #a78bfa; } }
+
+/* ---- highlights: a soft marker, like in a book. A highlight across bold text or a link is several <mark>s side by
+   side: no padding or overlap between them (2.5 (75): the overlap showed as darker stripes), rounded at its ends. */
+mark.cf-mark {
+  background: linear-gradient(transparent 12%, var(--mark) 12%, var(--mark) 92%, transparent 92%);
+  color: inherit;
+  padding: 0;
+  margin: 0;
+  border-radius: 0;
+  cursor: pointer;
+}
+mark.cf-mark-first { border-top-left-radius: 2px; border-bottom-left-radius: 2px; }
+mark.cf-mark-last { border-top-right-radius: 2px; border-bottom-right-radius: 2px; }
+
+/* ---- a bubble by a selection or a highlight in an answer */
+.cf-float {
+  position: fixed; left: 0; top: 0; z-index: 4;
+  display: flex; gap: 2px; padding: 4px;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow);
+  animation: cf-pop 0.14s ease-out;
+}
+.cf-float button { display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 8px; font-size: 13px; font-weight: 500; color: var(--text); white-space: nowrap; }
+.cf-float button:hover { background: var(--bg-2); }
+.cf-float button svg { color: #ca8a04; }
+.cf-float.touch { padding: 5px; border-radius: 16px; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.cf-float.touch button { padding: 9px 14px; font-size: 15px; border-radius: 12px; }
+
+/* ---- swipes (Swipe.tsx moves the row and sets data-dragging, data-full, data-short while the finger is down) */
+.cf-swipe { position: relative; touch-action: pan-y; }
+.cf-swipe > .cf-swipe-body { position: relative; background: var(--bg); }
+.cf-swipe[data-dragging] > .cf-swipe-body { will-change: transform; }
+.cf-swipe:not([data-dragging]) > .cf-swipe-body { transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.cf-swipe pre, .cf-swipe .md-table, .cf-swipe .md-code { touch-action: auto; }
+/* What's under the row, as tall as it: the colour, and the icon and its word where the row is on screen. */
+.cf-swipe-under { position: absolute; top: 0; bottom: 0; width: 0; overflow: hidden; border-radius: 14px; }
+.cf-swipe:not([data-dragging]) > .cf-swipe-under { transition: width 0.22s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.cf-swipe-under.end { right: 0; }
+.cf-swipe-under.start { left: 0; }
+.cf-swipe-under.delete { background: var(--danger); }
+.cf-swipe-under.pin { background: #7c3aed; }
+.cf-swipe-under button {
+  position: absolute; top: 0; height: 100%; width: 76px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  color: #fff; font-size: 12px; font-weight: 600; white-space: nowrap;
+}
+.cf-swipe-under.end button { right: 0; }
+.cf-swipe-under.start button { left: 0; }
+/* Past the point where letting go acts: the icon follows the row's edge. */
+.cf-swipe-under.end[data-full] button { right: auto; left: 0; }
+.cf-swipe-under.start[data-full] button { left: auto; right: 0; }
+/* 2.5 (78), the owner: the colour stood right against the answer's text. A message slides as a card: with swipes on,
+   its body reaches 12 px past the text on each side in the panel's colour (the text stays where it is), and the
+   colour stops 8 px short of the card (Swipe.tsx). A chat's row has its own padding. */
+.cf-msg > .cf-swipe.on > .cf-swipe-body { margin: 0 -12px; padding: 0 12px; border-radius: 14px; }
+.cf-msg.pinned-msg > .cf-swipe.on > .cf-swipe-body::before { left: 4px; }
+/* A row of one line: the icon and its word side by side. */
+.cf-swipe[data-short] .cf-swipe-under button { flex-direction: row; gap: 5px; width: auto; min-width: 76px; padding: 0 12px; }
+.cf-swipe[data-short] .cf-swipe-under button svg { width: 15px; height: 15px; }
+
+/* ---- the menu of a message (… in the tools row; right-click on a Mac) */
+.cf-msg-tools { position: relative; }
+.cf-msg-menu {
+  position: absolute; z-index: 3; top: calc(100% + 4px); left: 0; min-width: 190px;
+  display: flex; flex-direction: column; padding: 4px;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow);
+  animation: cf-pop 0.12s ease-out;
+}
+.cf-msg.user .cf-msg-menu { left: auto; right: 0; }
+/* No room below in the chat (the last answer, over the question field): over "…". */
+.cf-msg-menu.up { top: auto; bottom: calc(100% + 4px); animation-name: cf-pop-up; }
+@keyframes cf-pop-up { from { opacity: 0; transform: translateY(4px) scale(0.98); } to { opacity: 1; transform: none; } }
+.cf-msg-menu button { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 8px; font-size: 13.5px; color: var(--text); text-align: left; }
+.cf-msg-menu button:hover { background: var(--bg-2); }
+.cf-msg-menu button.danger { color: var(--danger); }
+.cf[data-touch] .cf-msg-menu button { padding: 11px 12px; font-size: 15px; }
+/* Mac: pin, remind and delete in the tools row, on hover (the same as in the menu and on right-click). */
+.cf-hover-tools { display: none; gap: 1px; }
+.cf-hover-tools button { padding: 4px 6px; }
+.cf-hover-tools button.danger:hover { color: var(--danger); }
+.cf:not([data-touch]) .cf-msg:hover .cf-hover-tools,
+.cf:not([data-touch]) .cf-msg:focus-within .cf-hover-tools { display: inline-flex; }
+/* "…" holds the same three: while they show, it steps aside, so the row stays one line in every language. */
+.cf:not([data-touch]) .cf-msg:hover .cf-msg-more,
+.cf:not([data-touch]) .cf-msg:focus-within .cf-msg-more { display: none; }
+.cf-msg-menu.at { position: fixed; top: 0; left: 0; z-index: 6; }
+/* The header's "…" (2.5): its menu under it, at the panel's right edge. */
+.cf-page-more-wrap { position: relative; display: flex; }
+.cf-page-menu { left: auto; right: 0; z-index: 6; width: max-content; min-width: 220px; max-width: calc(100vw - 24px); }
+.cf-page-menu button { white-space: nowrap; }
+.cf-page-menu svg { width: 15px; height: 15px; flex-shrink: 0; }
+.cf-msg { position: relative; }
+
+/* ---- pinned messages at the top of the chat: one bar, as in Telegram */
+.cf-pinbar {
+  /* Stuck to the very top of the list, over its 14px padding, so nothing shows above it. */
+  position: sticky; top: -14px; z-index: 2; display: flex; align-items: stretch; margin: -14px -14px 12px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+.cf-pinbar-main { flex: 1; min-width: 0; display: flex; align-items: stretch; gap: 9px; padding: 7px 6px 7px 8px; text-align: left; }
+.cf-pinbar-segments { flex: none; display: flex; flex-direction: column; gap: 2px; width: 2.5px; padding: 1px 0; }
+.cf-pinbar-segments span { border-radius: 2px; background: color-mix(in srgb, var(--pin) 30%, transparent); }
+.cf-pinbar-segments span.on { background: var(--pin); }
+.cf-pinbar-text { display: flex; flex-direction: column; min-width: 0; gap: 1px; }
+.cf-pinbar-label { font-size: 12px; font-weight: 600; color: var(--pin); }
+.cf-pinbar-line { display: block; font-size: 13.5px; color: var(--text); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.cf-pinbar-note { display: inline-block; flex: none; width: 6px; height: 6px; margin-right: 6px; vertical-align: 2px; border-radius: 50%; background: var(--note); }
+.cf-pinbar-all { flex: none; display: flex; align-items: center; justify-content: center; width: 40px; color: var(--text-3); }
+.cf-pinbar-all:hover, .cf-pinbar-all[aria-expanded="true"] { color: var(--pin); }
+.cf-pinbar-list {
+  position: absolute; top: calc(100% + 4px); left: 8px; right: 8px; z-index: 3; max-height: 260px; overflow: auto;
+  display: flex; flex-direction: column; padding: 4px;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow);
+  animation: cf-pop 0.12s ease-out;
+}
+.cf-pinbar-list-title { padding: 6px 10px 4px; font-size: 12px; font-weight: 600; color: var(--pin); }
+.cf-pinbar-item { display: flex; align-items: center; border-radius: 8px; }
+.cf-pinbar-item:hover { background: var(--bg-2); }
+.cf-pinbar-item > button:first-child { flex: 1; min-width: 0; display: block; padding: 9px 10px; text-align: left; font-size: 13.5px; color: var(--text); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.cf-pinbar-item.on > button:first-child { color: var(--pin); font-weight: 600; }
+.cf-pinbar-item.on > button:first-child::before { content: ""; display: inline-block; width: 3px; height: 12px; margin-right: 7px; vertical-align: -1px; border-radius: 2px; background: var(--pin); }
+.cf-pinbar-x { flex: none; width: 34px; height: 34px; font-size: 18px; line-height: 1; color: var(--text-3); border-radius: 8px; }
+.cf-pinbar-x:hover { color: var(--text); background: var(--bg-3); }
+.cf-pinbar-unpin-all { margin-top: 4px; padding: 9px 10px; border-top: 1px solid var(--border); border-radius: 0 0 8px 8px; text-align: left; font-size: 13.5px; color: var(--danger); }
+.cf[data-touch] .cf-pinbar-line, .cf[data-touch] .cf-pinbar-item > button:first-child, .cf[data-touch] .cf-pinbar-unpin-all { font-size: 15px; }
+.cf[data-touch] .cf-pinbar-x { width: 42px; height: 42px; }
+.cf[data-touch] .cf-pinbar-all { width: 46px; }
+.cf-msg.pin-flash { animation: cf-pin-flash 1.2s ease; border-radius: 12px; }
+@keyframes cf-pin-flash { 0%, 55% { background: color-mix(in srgb, var(--pin) 18%, transparent); box-shadow: 0 0 0 6px color-mix(in srgb, var(--pin) 18%, transparent); } 100% { background: transparent; box-shadow: 0 0 0 6px transparent; } }
+.cf-msg.pinned-msg > .cf-swipe > .cf-swipe-body::before,
+.cf-msg.pinned-msg::before { content: ""; position: absolute; left: -8px; top: 6px; width: 3px; height: 18px; border-radius: 2px; background: var(--pin); }
+
+/* ---- reminders */
+.cf-remind-chip {
+  display: inline-flex; align-items: center; gap: 5px; align-self: flex-start; margin-top: 4px; padding: 3px 9px;
+  border-radius: 999px; font-size: 12px; font-weight: 600; line-height: 16px; color: var(--accent-text); background: var(--accent-soft);
+}
+.cf-msg .cf-tag { padding: 2px 8px; font-size: 12px; line-height: 16px; }
+.cf-msg.user .cf-remind-chip { align-self: flex-end; }
+.cf-remind-chip.past { color: var(--text-3); background: var(--bg-2); }
+.cf-sheet-back { position: absolute; left: 0; right: 0; top: 0; bottom: 0; z-index: 5; display: flex; align-items: flex-end; background: rgba(0, 0, 0, 0.28); animation: cf-fade 0.15s ease; }
+.cf-sheet-back.page { position: fixed; z-index: 2147483000; align-items: center; justify-content: center; padding: 16px; font-family: var(--font); color: var(--text); }
+.cf-sheet-back.page .cf-sheet { width: min(420px, 100%); border-radius: 16px; padding-bottom: 10px; }
+.cf-sheet {
+  width: 100%; max-height: 100%; overflow: auto; padding: 10px;
+  background: var(--bg); border-radius: 16px 16px 0 0; box-shadow: var(--shadow);
+  animation: cf-up 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.cf-sheet-title svg { flex-shrink: 0; }
+/* "Remind me" from a selection: what the note will start with, under the title (3 lines at most). */
+.cf-sheet-quote {
+  margin: -2px 10px 6px; font-size: 13px; line-height: 1.4; color: var(--text-2); font-style: italic;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+/* The bell in the selection bubble (2.5 (77)), before the eye: an icon on touch screens (the row stays one line,
+   "Ask AI" and Google keep their words), with a word on Mac. */
+.cf-bubble button.cf-sel-remind { color: var(--accent-text); }
+.cf-bubble button.cf-sel-remind svg { color: var(--accent); }
+.cf-bubble:not(.touch) button.cf-sel-remind { gap: 4px; }
+.cf-bubble.touch .cf-sel-remind-l { display: none; }
+/* What the bell and the eye do, once (SelTip, .cf-snack's look): under the bubble, or over it near the bottom;
+   out of the bubble's flow, so the bubble keeps its size and place. */
+.cf-bubble .cf-sel-tip {
+  position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 1; display: flex; flex-direction: column; gap: 6px;
+  padding: 9px 12px; white-space: normal; text-align: left; font-size: 13px; font-weight: 500; line-height: 1.35;
+  pointer-events: none; animation: cf-fade 0.15s ease-out;
+}
+.cf-bubble .cf-sel-tip.up { top: auto; bottom: calc(100% + 6px); }
+.cf-bubble .cf-sel-tip span { display: flex; align-items: flex-start; gap: 6px; }
+.cf-bubble .cf-sel-tip svg { flex: none; margin-top: 2px; }
+/* A section's main buttons (watching's "Watch"): they stay at the sheet's bottom, over the question field, while
+   the rest scrolls under them. */
+.cf-sheet-actions {
+  position: sticky; bottom: -10px; z-index: 1; display: flex; flex-wrap: wrap; gap: 8px;
+  margin: 4px -10px -10px; padding: 10px; background: var(--bg); box-shadow: 0 -1px 0 var(--border);
+}
+/* Remind brought into view by a section under it (a page that can't be watched): a short flash. */
+.cf-sheet-title.flash { border-radius: 10px; animation: cf-pin-flash 1.2s ease-out; }
+/* "All reminders" at the window's end: quiet. */
+.cf-sheet-link { display: block; width: 100%; margin-top: 4px; padding: 10px; font-size: 13px; color: var(--text-3); text-align: center; }
+.cf-sheet-link:hover { color: var(--accent); }
+/* "Reminders" and "Watching" (2.5; two lists since 2.5 (77)): a row per bell or eye, ✕ to cancel; grey when it
+   rings on another device. */
+.cf-later-row { display: flex; align-items: center; gap: 4px; border-radius: 10px; }
+.cf-later-row:hover { background: var(--bg-2); }
+.cf-later-open { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 9px 8px; text-align: left; color: var(--text); }
+.cf-later-icon { flex-shrink: 0; display: flex; color: var(--accent); }
+.cf-later-row.elsewhere .cf-later-icon { color: var(--text-3); }
+.cf-later-text { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.cf-later-title { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cf-later-status { font-size: 12.5px; color: var(--text-3); }
+.cf-later-cancel { flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%; color: var(--text-3); font-size: 14px; }
+.cf-later-cancel:hover { background: var(--bg-3); color: var(--danger); }
+.cf-later-empty { display: flex; flex-direction: column; gap: 4px; padding: 12px 10px 14px; font-size: 13px; color: var(--text-3); text-align: center; }
+.cf-later-empty strong { color: var(--text); font-size: 14px; }
+.cf[data-touch] .cf-later-title { font-size: 15px; }
+/* A reminder (2.5 (75)): what it's about, wrapped (a few lines; all of it once opened), and its actions when open. */
+.cf-later-item { border-radius: 10px; }
+/* The list never covers the whole chat: a strip stays above it to tap away, and ✕ closes it. */
+.cf-sheet.cf-later-list { max-height: calc(100% - 56px); }
+.cf-sheet-close { margin-left: auto; width: 34px; height: 34px; color: var(--text-3); }
+.cf-later-item.open { background: var(--bg-2); }
+.cf-later-row.remind, .cf-later-row.remind .cf-later-open { align-items: flex-start; }
+.cf-later-row.remind .cf-later-icon { margin-top: 2px; }
+.cf-later-row.remind .cf-later-cancel { margin-top: 4px; }
+.cf-later-row.remind .cf-later-title, .cf-later-question, .cf-later-body { white-space: normal; overflow-wrap: anywhere; }
+.cf-later-question { font-size: 13px; font-weight: 600; color: var(--text-2); }
+.cf-later-body { font-size: 13.5px; line-height: 1.4; color: var(--text-2); }
+/* Closed: a few lines. Only closed rows get the clamp (iOS Safari kept it on an opened one when it was reset). */
+.cf-later-item:not(.open) .cf-later-title,
+.cf-later-item:not(.open) .cf-later-question,
+.cf-later-item:not(.open) .cf-later-body { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.cf-later-item:not(.open) .cf-later-body { -webkit-line-clamp: 3; }
+.cf-later-item.open .cf-later-title { overflow: visible; text-overflow: clip; }
+.cf-later-item.open .cf-later-body { white-space: pre-line; }
+.cf[data-touch] .cf-later-body { font-size: 14.5px; }
+.cf-later-actions { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 8px 10px 33px; }
+.cf-later-actions .cf-chip { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; }
+.cf-later-actions .cf-chip.danger { color: var(--danger); }
+.cf-later-actions .cf-chip svg { flex-shrink: 0; }
+.cf-sheet-title { display: flex; align-items: center; gap: 7px; padding: 6px 8px 10px; font-size: 15px; font-weight: 600; }
+.cf-sheet-row { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 12px 10px; border-radius: 10px; font-size: 15px; color: var(--text); text-align: left; }
+.cf-sheet-row:hover { background: var(--bg-2); }
+.cf-sheet-row.danger { color: var(--danger); }
+.cf-sheet-when { color: var(--text-3); font-size: 13.5px; }
+.cf-sheet-pick { display: flex; gap: 8px; padding: 6px 4px; }
+.cf-sheet-pick input { flex: 1; min-width: 0; height: 40px; padding: 0 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-2); color: var(--text); font: inherit; font-size: 16px; }
+.cf-sheet-ok { justify-content: center; }
+.cf-sheet-ok:disabled { opacity: 0.4; box-shadow: none; }
+.cf-sheet-note { margin: 4px 10px 6px; font-size: 12.5px; color: var(--text-3); }
+@keyframes cf-up { from { transform: translateY(30px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes cf-fade { from { opacity: 0; } to { opacity: 1; } }
+
+/* Notes keep to the right; the swipe takes the whole row. */
+.cf-msg.user > .cf-swipe { align-self: stretch; }
+.cf-msg.user > .cf-swipe > .cf-swipe-body { display: flex; flex-direction: column; align-items: flex-end; }
+
+/* The undo bar on the chat list (the chat has it over its question field). */
+.cf-undo-host { position: absolute; left: 0; right: 0; bottom: 12px; height: 0; z-index: 30; }
+/* A chat in the list: the swipe takes its row (title, tools). */
+.cf-thread .cf-thread-swipe { display: flex; align-items: stretch; flex: 1; min-width: 0; }
+.cf-thread .cf-thread-swipe > .cf-swipe-body { display: flex; align-items: center; flex: 1; min-width: 0; gap: 2px; }
+.cf-thread .cf-swipe-under { border-radius: 10px; }
+/* A chat moved by a swipe: the gap by its colour shows the panel, not the row's highlight (the current chat, hover). */
+.cf-thread:has(.cf-swipe[data-moved]) { background: var(--bg); }
+/* Touch: one "…" on the row (ThreadMenu.tsx), its menu under it at the row's right edge. */
+.cf-thread-more-wrap { position: relative; display: flex; align-self: center; }
+.cf-thread-more { width: 40px; height: 40px; }
+.cf-thread-menu { left: auto; right: 0; z-index: 6; width: max-content; min-width: 200px; max-width: calc(100vw - 24px); }
+.cf-thread-menu button { white-space: nowrap; }
+.cf-thread-menu svg { width: 15px; height: 15px; flex-shrink: 0; }
+/* A row moved by a swipe never makes the list scroll sideways (2.5 (75): a scroll bar showed under the panel). */
+.cf-messages, .cf-threads { overflow-x: hidden; }
+
+/* "Reminder: Tomorrow 9:00" over the page ("Come back later" with the panel closed): .cf-snack's look, at quick
+   insert's toast's height (64 px above the bottom of what's visible, set from visualViewport). */
+.cf-toast {
+  position: fixed; left: 50%; transform: translateX(-50%); z-index: 2147483000;
+  display: flex; align-items: center; gap: 7px; max-width: calc(100vw - 24px); padding: 10px 14px;
+  font-family: var(--font); animation: cf-fade 0.15s ease-out;
+}

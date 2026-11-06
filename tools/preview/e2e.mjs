@@ -1,11 +1,14 @@
 // End-to-end check of the extension in Chromium against tools/preview/server.mts.
 // Usage: node tools/preview/e2e.mjs <extensionDir> <outDir>   (needs `playwright`)
+// The build must leave the panel's shadow root open for these checks (production closes it):
+//   CF_API_BASE=http://localhost:8787 CF_OPEN_SHADOW=1 node scripts/build-extension.mjs --out=<extensionDir>
 import { chromium } from "playwright"
 import { mkdirSync } from "node:fs"
 
 const [extDir, outDir = "/tmp/cf-e2e"] = process.argv.slice(2)
 mkdirSync(outDir, { recursive: true })
-const BASE = "http://localhost:8787"
+// Another stand's port (preview_start moves it when 8787 is taken): CF_PREVIEW=http://localhost:8810.
+const BASE = process.env.CF_PREVIEW || "http://localhost:8787"
 const IPHONE_UA = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.7 Mobile/15E148 Safari/604.1"
 const MAC_UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15"
 
@@ -25,6 +28,8 @@ async function launch(ua, viewport, extra = {}) {
   })
   let [sw] = ctx.serviceWorkers()
   if (!sw) sw = await ctx.waitForEvent("serviceworker")
+  // The first-open tour (2.4) covers the panel; it has its own checks elsewhere.
+  await sw.evaluate(() => chrome.storage.local.set({ "cf:tourSeen": true }))
   return { ctx, sw }
 }
 
@@ -120,7 +125,8 @@ await fetch(`${BASE}/reset`)
   const pill = page.locator(".cf-bubble.touch")
   await pill.waitFor({ timeout: 3000 })
   const pillText = await pill.innerText()
-  check("selection button on iPhone for a one-word selection", /Ask ContextFlow/.test(pillText) && /Google/.test(pillText), pillText.replace(/\s+/g, " "))
+  // 2.5: Google keeps only its icon there (aria-label), next to Template.
+  check("selection button on iPhone for a one-word selection", /Ask ContextFlow/.test(pillText) && /Template/.test(pillText) && (await pill.locator("button[aria-label=Google]").count()) === 1, pillText.replace(/\s+/g, " "))
   const pillBox = await pill.boundingBox()
   check("selection button stays on screen", pillBox.x >= 8 && pillBox.x + pillBox.width <= 430 - 8, JSON.stringify(pillBox))
   await page.screenshot({ path: `${outDir}/touch-1-selection-button.png` })
@@ -156,7 +162,7 @@ await fetch(`${BASE}/reset`)
   await page.waitForTimeout(400)
   await selectWord(2)
   await pill.waitFor({ timeout: 3000 })
-  await pill.locator("button", { hasText: "Google" }).tap()
+  await pill.locator("button[aria-label=Google]").tap()
   await page.waitForFunction((r) => (new Function(`return (${r})()`)()?.querySelectorAll(".cf-msg.ai .cf-sources").length ?? 0) >= 2, root.toString(), { timeout: 15000 })
   check("Google from the selection button answers right away", (await page.locator(".cf-msg.ai .cf-grounded").count()) === 2)
 
@@ -243,7 +249,8 @@ await fetch(`${BASE}/reset`)
   body = await lastRequest()
   const marked = body.messages.filter((m) => m.role === "user" && m.content.startsWith("[Asked on another page:"))
   check("earlier questions marked with their page", marked.length === 2 && body.messages.at(-1).content.startsWith("[Asked") === false, marked.map((m) => m.content.split("\n")[0]).join(" | "))
-  check("'New page' divider", (await page.locator(".cf-divider", { hasText: "New page" }).count()) === 1)
+  // Since 2.4 the chat's first page has its divider too: the first page and the new one.
+  check("'New page' divider", (await page.locator(".cf-divider", { hasText: "New page" }).count()) === 2)
   await page.screenshot({ path: `${outDir}/conversation-2-divider.png` })
 
   // The whole chat can be shared (copied where sharing isn't available).
@@ -271,10 +278,10 @@ await fetch(`${BASE}/reset`)
   check("FAB on Mac by default", await page.locator(".cf-fab").isVisible())
 
   // toolbar click = background sends "toggle"
-  await sw.evaluate(async () => {
-    const [tab] = await chrome.tabs.query({ url: "http://localhost:8787/*" })
+  await sw.evaluate(async (base) => {
+    const [tab] = await chrome.tabs.query({ url: `${base}/*` })
     await chrome.tabs.sendMessage(tab.id, { type: "toggle" })
-  })
+  }, BASE)
   await page.locator(".cf-panel.in").waitFor()
   check("toolbar toggle opens side panel", (await page.locator(".cf[data-layout=side]").count()) === 1)
   await page.waitForTimeout(300)
@@ -299,7 +306,7 @@ await fetch(`${BASE}/reset`)
   await page.mouse.move(box.x + box.width - 10, box.y + box.height - 8, { steps: 8 })
   await page.mouse.up()
   await page.locator(".cf-bubble").waitFor({ timeout: 3000 })
-  check("selection bubble on Mac", await page.locator(".cf-bubble").isVisible() && (await page.locator(".cf-bubble-row button").count()) === 4 && (await page.locator(".cf-bubble-ask input").count()) === 1)
+  check("selection bubble on Mac", await page.locator(".cf-bubble").isVisible() && (await page.locator(".cf-bubble-row button").count()) === 5 && (await page.locator(".cf-bubble-row .cf-sel-template").count()) === 1 && (await page.locator(".cf-bubble-ask input").count()) === 1)
   await page.screenshot({ path: `${outDir}/mac-3-bubble.png` })
   await page.locator(".cf-bubble button", { hasText: "Explain" }).click()
   await page.waitForFunction(() => document.querySelector("contextflow-root")?.shadowRoot?.querySelectorAll(".cf-msg.ai .md").length >= 2 && !document.querySelector("contextflow-root")?.shadowRoot?.querySelector(".cf-send.stop"), null, { timeout: 15000 })

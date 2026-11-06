@@ -5,7 +5,7 @@ import { test } from "node:test"
 const dir = new URL("../site/", import.meta.url)
 const read = (name: string) => readFileSync(new URL(name, dir), "utf8")
 const ORIGIN = "https://context-flow.app"
-const pages = readdirSync(dir).filter((f) => f.endsWith(".html"))
+const pages = (readdirSync(dir, { recursive: true }) as string[]).filter((f) => f.endsWith(".html")).sort()
 const indexable = pages.filter((f) => !/<meta name="robots" content="noindex/.test(read(f)))
 const urlOf = (file: string) => `${ORIGIN}/${file === "index.html" ? "" : file.replace(/\.html$/, "")}`
 const sitemap = [...read("sitemap.xml").matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1])
@@ -21,7 +21,7 @@ test("every App Store button is a campaign link with its own short label", () =>
       labels.add(m[1])
     }
   }
-  assert.deepEqual([...labels].sort(), ["page_compare", "page_notes", "page_safari_ai", "site_footer", "site_hero", "site_pricing"])
+  assert.deepEqual([...labels].sort(), ["page_compare", "page_features", "page_notes", "page_safari_ai", "site_case_fill", "site_case_plan", "site_case_shop", "site_case_study", "site_cases", "site_footer", "site_hero", "site_pricing"])
 })
 
 test("the Smart App Banner carries the campaign and provider tokens on every indexable page", () => {
@@ -62,10 +62,12 @@ test("the IndexNow key file holds its own name", () => {
   assert.equal(read(key), key.replace(/\.txt$/, ""))
 })
 
-test("links between pages lead to files that exist", () => {
+test("links between pages lead to files that exist, and to sections that exist", () => {
   for (const file of pages) {
-    for (const [, path] of read(file).matchAll(/href="\/([a-z0-9-]*)(?:#[a-z]+)?"/g)) {
-      assert.ok(existsSync(new URL(path ? `${path}.html` : "index.html", dir)), `${file} → /${path}`)
+    for (const [, path, section] of read(file).matchAll(/href="\/([a-z0-9/-]*)(?:#([a-z-]+))?"/g)) {
+      const target = path ? `${path}.html` : "index.html"
+      assert.ok(existsSync(new URL(target, dir)), `${file} → /${path}`)
+      if (section) assert.ok(read(target).includes(` id="${section}"`), `${file} → /${path}#${section}`)
     }
   }
 })

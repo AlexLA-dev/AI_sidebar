@@ -1,10 +1,9 @@
 import { CONSENT_VERSION, consentStatus, type ConsentStatus } from "../shared/consent"
-import { trimSavedPages, type Entry } from "../shared/conversation"
-import { activity, cleanTitle, liveThreads, newThreadId, prune, type ActiveThread, type Thread, type Threads, cleanTags, withMessages } from "../shared/threads"
+import type { Entry } from "../shared/conversation"
+import { activity, cleanTitle, liveThreads, moveEntries, newThreadId, prune, purgeTrash, restoreThread, savedThread, trashThread, undoMove, type ActiveThread, type MoveUndo, type Thread, type Threads, cleanTags } from "../shared/threads"
 import { MAX_OTHER_PAGE_CHARS } from "../shared/prompt"
 import { DEFAULT_SETTINGS, STORAGE, type Settings } from "../shared/types"
 
-const MAX_TURNS = 40
 
 async function get<T>(key: string): Promise<T | undefined> {
   try {
@@ -44,6 +43,22 @@ export async function loadConsent(): Promise<ConsentStatus> {
 
 export async function giveConsent(): Promise<void> {
   await set(STORAGE.consent, CONSENT_VERSION)
+}
+
+/**
+ * Calls `listener` when the consent changes in another tab (each tab read it once when its page loaded: a consent
+ * given in one tab's panel left the tabs opened before it asking again, the template editor among them).
+ */
+export function onConsentChanged(listener: (status: ConsentStatus) => void): () => void {
+  const handler = (changes: Record<string, chrome.storage.StorageChange>, area: string) => {
+    if (area === "local" && changes[STORAGE.consent]) listener(consentStatus(changes[STORAGE.consent].newValue))
+  }
+  try {
+    chrome.storage.onChanged.addListener(handler)
+  } catch {
+    return () => undefined
+  }
+  return () => chrome.storage.onChanged.removeListener(handler)
 }
 
 export async function hasSeenTour(): Promise<boolean> {
@@ -124,16 +139,24 @@ type LegacyChats = Record<string, { t: string; u: number; m: Entry[] }>
 
 /**
  * The threads (chats) and the one this device shows. The first time, the running conversation of
- * 2.2 (or the latest per-page chat of 2.0 / 2.1) becomes the first thread.
+ * 2.2 (or the latest per-page chat of 2.0 / 2.1) becomes the first thread. Chats in Recently Deleted for
+ * TRASH_DAYS are deleted for good here (with iCloud sync off too); a chat shown here that went to Recently Deleted
+ * (on another device) gives way to a new one.
  */
 export async function loadThreads(): Promise<{ threads: Threads; active: ActiveThread }> {
-  const stored = await chrome.storage.local.get([STORAGE.threads, STORAGE.activeThread]).catch(() => ({} as Record<string, unknown>))
-  const threads = (stored[STORAGE.threads] as Threads | undefined) ?? (await legacyThreads())
+  const stored = await chrome.storage.local.get([STORAGE.threads, STORAGE.activeThread, STORAGE.syncedThreads]).catch(() => ({} as Record<string, unknown>))
+  let threads = (stored[STORAGE.threads] as Threads | undefined) ?? (await legacyThreads())
   let active = stored[STORAGE.activeThread] as ActiveThread | undefined
+  const update: Record<string, unknown> = {}
   if (!active) {
     active = { id: liveThreads(threads)[0]?.id ?? newThreadId(), at: Date.now() }
-    await chrome.storage.local.set({ [STORAGE.threads]: threads, [STORAGE.activeThread]: active }).catch(() => undefined)
+    update[STORAGE.threads] = threads
+    update[STORAGE.activeThread] = active
   }
+  const expired = purgeTrash(threads, (stored[STORAGE.syncedThreads] as Record<string, number> | undefined) ?? {})
+  if (expired.purged.length) update[STORAGE.threads] = threads = expired.threads
+  if (threads[active.id]?.trashed !== undefined) update[STORAGE.activeThread] = active = { id: newThreadId(), at: Date.now() }
+  if (Object.keys(update).length) await chrome.storage.local.set(update).catch(() => undefined)
   return { threads, active }
 }
 
@@ -162,15 +185,10 @@ export async function setActiveThread(id: string): Promise<void> {
 
 /** Stores a chat's messages; `kind` marks a new "Ask your chats" chat (a chat keeps its kind). */
 export async function saveThread(id: string, entries: Entry[], kind?: "history"): Promise<void> {
-  // Page texts for the chat's last few pages only (they go to iCloud with it).
-  const next = trimSavedPages(entries.slice(-MAX_TURNS))
   const threads = (await get<Threads>(STORAGE.threads)) ?? {}
-  const stored = threads[id]
-  // Only real changes get a new time: it decides which device's copy wins (iCloud sync),
-  // and opening an empty thread doesn't store anything.
-  if (stored ? JSON.stringify(stored.m) === JSON.stringify(next) : next.length === 0) return
-  const now = Date.now()
-  await set(STORAGE.threads, prune({ ...threads, [id]: withMessages(stored, id, next, now, kind) }))
+  // Only real changes get a new time: it decides which device's copy wins (iCloud sync).
+  const next = savedThread(threads[id], id, entries, Date.now(), kind)
+  if (next) await set(STORAGE.threads, prune({ ...threads, [id]: next }))
 }
 
 /** Names a chat (an empty name goes back to its first question); it keeps its place in the list. */
@@ -209,6 +227,38 @@ export async function pinThread(id: string, pin: number | null): Promise<void> {
   await set(STORAGE.threads, { ...threads, [id]: next })
 }
 
+/**
+ * Moves a chat the user deleted to Recently Deleted (2.5 (83)); returns it as it was, or null when there's none. It
+ * goes to iCloud like any edit, so it's in Recently Deleted on every device.
+ */
+export async function trashChat(id: string): Promise<Thread | null> {
+  const threads = (await get<Threads>(STORAGE.threads)) ?? {}
+  const next = trashThread(threads, id)
+  if (!next) return null
+  await set(STORAGE.threads, next)
+  return threads[id]
+}
+
+/** Brings a chat back from Recently Deleted, to its place by its last message. Returns it, or null. */
+export async function restoreChat(id: string): Promise<Thread | null> {
+  const threads = (await get<Threads>(STORAGE.threads)) ?? {}
+  const next = restoreThread(threads, id)
+  if (!next) return null
+  await set(STORAGE.threads, next)
+  return next[id]
+}
+
+/** Delete Now and Delete All in Recently Deleted: these chats are deleted for good, on every device. */
+export async function purgeChats(ids: string[]): Promise<Threads> {
+  const stored = await chrome.storage.local.get([STORAGE.threads, STORAGE.syncedThreads]).catch(() => ({} as Record<string, unknown>))
+  const threads = (stored[STORAGE.threads] as Threads | undefined) ?? {}
+  const synced = (stored[STORAGE.syncedThreads] as Record<string, number> | undefined) ?? {}
+  const { threads: next, purged } = purgeTrash(threads, synced, Date.now(), ids)
+  if (purged.length) await set(STORAGE.threads, next)
+  return next
+}
+
+/** Deletes a chat at once: a question stopped before its answer that was all the chat had (not the user's delete). */
 export async function deleteThread(id: string): Promise<void> {
   const threads = (await get<Threads>(STORAGE.threads)) ?? {}
   if (!threads[id]) return
@@ -227,7 +277,55 @@ export async function deleteAllChats(): Promise<void> {
   const gone: Threads = {}
   for (const id of Object.keys(threads)) if (id in synced) gone[id] = { id, u: now, m: [], deleted: true }
   await chrome.storage.local.set({ [STORAGE.threads]: gone, [STORAGE.activeThread]: { id: newThreadId(), at: now }, [STORAGE.chats]: {} }).catch(() => undefined)
-  await chrome.storage.local.remove([STORAGE.conversation, STORAGE.pageTexts]).catch(() => undefined)
+  // The messages' vectors (organizing) go with the chats.
+  await chrome.storage.local.remove([STORAGE.conversation, STORAGE.pageTexts, STORAGE.orgVectors, STORAGE.orgVerdicts]).catch(() => undefined)
+}
+
+// ------------------------------------------------------------ organizing (2.5)
+
+/**
+ * Moves messages `start`…`end` of chat `sourceId` to chat `targetId` (a new chat when there's none): see
+ * moveEntries. Returns both chats after it and what "Undo" needs, or null when it can't be moved.
+ */
+export async function moveBlock(sourceId: string, start: number, end: number, targetId: string): Promise<{ threads: Threads; undo: MoveUndo } | null> {
+  const stored = await chrome.storage.local.get([STORAGE.threads, STORAGE.syncedThreads]).catch(() => ({} as Record<string, unknown>))
+  const threads = (stored[STORAGE.threads] as Threads | undefined) ?? {}
+  const synced = (stored[STORAGE.syncedThreads] as Record<string, number> | undefined) ?? {}
+  const moved = moveEntries(threads, synced, sourceId, start, end, targetId)
+  if (!moved) return null
+  await set(STORAGE.threads, prune(moved.threads))
+  return moved
+}
+
+/** "Undo" after a move: both chats as they were (or the messages back by key when one changed since). */
+export async function undoBlockMove(undo: MoveUndo): Promise<Threads> {
+  const stored = await chrome.storage.local.get([STORAGE.threads, STORAGE.syncedThreads]).catch(() => ({} as Record<string, unknown>))
+  const threads = (stored[STORAGE.threads] as Threads | undefined) ?? {}
+  const synced = (stored[STORAGE.syncedThreads] as Record<string, number> | undefined) ?? {}
+  const next = undoMove(threads, synced, undo)
+  await set(STORAGE.threads, next)
+  return next
+}
+
+/**
+ * The cards about organizing on this device: the question to turn suggestions on (answered), "Everything in one
+ * chat?" (the chats it was shown in, when last, closed for good), the one after the third tag, the first one taken.
+ */
+export interface OrganizeCards {
+  consent?: "accepted" | "declined"
+  mess?: { chats: string[]; at: number; closed?: true }
+  thirdTag?: true
+  firstWin?: true
+}
+
+export async function organizeCards(): Promise<OrganizeCards> {
+  return (await get<OrganizeCards>(STORAGE.orgCards)) ?? {}
+}
+
+export async function setOrganizeCards(patch: Partial<OrganizeCards>): Promise<OrganizeCards> {
+  const next = { ...(await organizeCards()), ...patch }
+  await set(STORAGE.orgCards, next)
+  return next
 }
 
 /** Calls `listener` when threads change in another tab or come from another device. */

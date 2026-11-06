@@ -3,7 +3,8 @@
 // which the app may ask for an App Store rating; and the chats (threads), kept in the user's
 // iCloud so they continue on their other devices.
 
-import { applyAppChanges, applyRemote, markMirrored, markSent, mirrorChanges, pendingChanges, type CloudChange, type Threads } from "../shared/threads"
+import { sortedJson } from "../shared/stored"
+import { applyAppChanges, applyRemote, markMirrored, markSent, mirrorChanges, pendingChanges, purgeTrash, type CloudChange, type Threads } from "../shared/threads"
 import { DEFAULT_SETTINGS, STORAGE, type Settings } from "../shared/types"
 import { callNative } from "./native"
 
@@ -12,7 +13,8 @@ interface SharedSettings {
   updatedAt: number
 }
 
-// Settings just written from the app's copy: don't send them straight back.
+// Settings just written from the app's copy, as sortedJson (Safari hands them back with their keys in its own order):
+// don't send them straight back.
 let lastApplied = ""
 
 async function localSettings(): Promise<{ settings: Settings | null; updatedAt: number }> {
@@ -30,7 +32,7 @@ export async function syncSettings(): Promise<void> {
   const local = await localSettings()
   if (remote.settings && remote.updatedAt > local.updatedAt) {
     const settings = { ...DEFAULT_SETTINGS, ...local.settings, ...remote.settings }
-    lastApplied = JSON.stringify(settings)
+    lastApplied = sortedJson(settings)
     await chrome.storage.local.set({ [STORAGE.settings]: settings, [STORAGE.settingsUpdatedAt]: remote.updatedAt })
   } else if (local.settings && local.updatedAt > remote.updatedAt) {
     await callNative("setSettings", { settings: local.settings, updatedAt: local.updatedAt })
@@ -42,7 +44,7 @@ export function watchSettings(): void {
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== "local" || !changes[STORAGE.settings]) return
     const settings = changes[STORAGE.settings].newValue as Settings | undefined
-    if (!settings || JSON.stringify(settings) === lastApplied) return
+    if (!settings || sortedJson(settings) === lastApplied) return
     const updatedAt = Number(changes[STORAGE.settingsUpdatedAt]?.newValue ?? Date.now())
     void callNative("setSettings", { settings, updatedAt })
   })
@@ -70,7 +72,10 @@ interface CloudSync {
 let running: Promise<boolean> | null = null
 let again = false
 let pushTimer: ReturnType<typeof setTimeout> | undefined
-// The threads value this background last wrote: its own writes don't trigger another sync.
+// The threads value this background last wrote (sortedJson: Safari hands it back with its keys in its own order): its
+// own writes don't trigger another sync. Compared as written, Safari's copy never matched, and every sync's own write
+// started the next one, every second or so, for as long as Safari ran; the open chat list was redrawn each time, and
+// chats with the same time traded places (2.5 (77)).
 let lastWritten = ""
 
 async function syncEnabled(): Promise<boolean> {
@@ -105,19 +110,22 @@ export function syncThreads(): Promise<boolean> {
 async function syncOnce(): Promise<boolean> {
   if (!(await syncEnabled())) return false
   const stored = await chrome.storage.local.get([STORAGE.threads, STORAGE.syncedThreads, STORAGE.syncToken])
-  const threads = (stored[STORAGE.threads] as Threads | undefined) ?? {}
   const synced = (stored[STORAGE.syncedThreads] as Record<string, number> | undefined) ?? {}
+  // Chats in Recently Deleted for 30 days go for good, their deletions with this sync (2.5 (83)).
+  const at = Date.now()
+  const threads = purgeTrash((stored[STORAGE.threads] as Threads | undefined) ?? {}, synced, at).threads
   const sent = pendingChanges(threads, synced)
   const result = await callNative<CloudSync>("syncThreads", { token: stored[STORAGE.syncToken] ?? null, changes: sent }, 20_000)
   if (!result?.available) return false // not in Safari, no iCloud account, or offline
 
-  // Threads may have changed here while iCloud answered: apply to the current copy.
-  const now = (await chrome.storage.local.get(STORAGE.threads))[STORAGE.threads] as Threads | undefined ?? {}
+  // Threads may have changed here while iCloud answered: apply to the current copy (purged the same way, so the
+  // deletions just sent are forgotten, not sent again as chats).
+  const now = purgeTrash((await chrome.storage.local.get(STORAGE.threads))[STORAGE.threads] as Threads | undefined ?? {}, synced, at).threads
   const afterSend = markSent(now, synced, sent)
   const merged = applyRemote(afterSend.threads, afterSend.synced, result.changed ?? [], result.deleted ?? [])
   // Changed here during the sync, or newer here than iCloud's copy: send it right away.
   if (pendingChanges(merged.threads, merged.synced).length > 0) again = true
-  lastWritten = JSON.stringify(merged.threads)
+  lastWritten = sortedJson(merged.threads)
   await chrome.storage.local.set({
     [STORAGE.threads]: merged.threads,
     [STORAGE.syncedThreads]: merged.synced,
@@ -135,7 +143,7 @@ export function watchThreads(): void {
     if (area !== "local" || !changes[STORAGE.threads]) return
     clearTimeout(mirrorTimer)
     mirrorTimer = setTimeout(() => void mirrorThreads().catch(() => undefined), 1_200)
-    if (JSON.stringify(changes[STORAGE.threads].newValue ?? {}) === lastWritten) return
+    if (sortedJson(changes[STORAGE.threads].newValue ?? {}) === lastWritten) return
     clearTimeout(pushTimer)
     pushTimer = setTimeout(() => void syncThreads().catch(() => undefined), 800)
   })

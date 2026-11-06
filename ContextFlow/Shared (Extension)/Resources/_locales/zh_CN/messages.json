@@ -167,6 +167,201 @@
  "pageUpdated": {
   "message": "页面已更新"
  },
+ "uxMark": {
+  "message": "高亮"
+ },
+ "uxUnmark": {
+  "message": "取消高亮"
+ },
+ "uxDelete": {
+  "message": "删除"
+ },
+ "uxPin": {
+  "message": "置顶"
+ },
+ "uxUnpin": {
+  "message": "取消置顶"
+ },
+ "uxDeletedAnswer": {
+  "message": "回答已删除"
+ },
+ "uxDeletedNote": {
+  "message": "笔记已删除"
+ },
+ "uxDeletedChat": {
+  "message": "对话已删除"
+ },
+ "trashTitle": {
+  "message": "最近删除"
+ },
+ "trashRow": {
+  "message": "最近删除 · {0}"
+ },
+ "trashNote": {
+  "message": "对话会在这里保留 30 天，之后将被永久删除。"
+ },
+ "trashRestore": {
+  "message": "恢复"
+ },
+ "trashDeleteNow": {
+  "message": "立即删除"
+ },
+ "trashDeleteAll": {
+  "message": "全部删除"
+ },
+ "trashDeleteAllAsk": {
+  "message": "要永久删除“最近删除”中的所有对话吗？此操作无法撤销。"
+ },
+ "trashDays_one": {
+  "message": "{0} 天"
+ },
+ "trashDays_few": {
+  "message": "{0} 天"
+ },
+ "trashDays_many": {
+  "message": "{0} 天"
+ },
+ "trashDays_other": {
+  "message": "{0} 天"
+ },
+ "uxPinned": {
+  "message": "已置顶"
+ },
+ "uxPinnedN": {
+  "message": "已置顶 #{0}"
+ },
+ "uxPinnedAll": {
+  "message": "所有置顶"
+ },
+ "uxMore": {
+  "message": "更多"
+ },
+ "uxMorePage": {
+  "message": "更多：页面"
+ },
+ "uxMoreAnswer": {
+  "message": "更多：回答"
+ },
+ "uxMoreNote": {
+  "message": "更多：笔记"
+ },
+ "uxMoreChat": {
+  "message": "更多：对话"
+ },
+ "uxLater": {
+  "message": "提醒我看这个页面…"
+ },
+ "uxLaterTitle": {
+  "message": "提醒我看这个页面"
+ },
+ "uxWatchPage": {
+  "message": "关注这个页面…"
+ },
+ "uxReminders": {
+  "message": "提醒"
+ },
+ "uxRemindersN": {
+  "message": "提醒 · {0}"
+ },
+ "uxWatching": {
+  "message": "关注"
+ },
+ "uxWatchingN": {
+  "message": "关注 · {0}"
+ },
+ "uxAllReminders": {
+  "message": "全部提醒"
+ },
+ "uxNoReminders": {
+  "message": "没有提醒"
+ },
+ "uxNoRemindersHint": {
+  "message": "可以在回答或笔记上设置，用选中文字旁的铃铛，或在这里：… → 提醒我看这个页面。"
+ },
+ "uxNoWatching": {
+  "message": "没有关注"
+ },
+ "uxNoWatchingHint": {
+  "message": "选中价格、库存或日期，然后点眼睛。整个页面：… → 关注这个页面。"
+ },
+ "uxOnAnotherDevice": {
+  "message": "{0} · 在另一台设备上"
+ },
+ "uxStop": {
+  "message": "停止"
+ },
+ "uxRemind": {
+  "message": "提醒我"
+ },
+ "uxRemindChange": {
+  "message": "更改提醒"
+ },
+ "uxRemindOpen": {
+  "message": "打开"
+ },
+ "uxRemindTitle": {
+  "message": "什么时候提醒你？"
+ },
+ "uxRemindAsked": {
+  "message": "你让我提醒你：{0}"
+ },
+ "uxRemindHour": {
+  "message": "1 小时后"
+ },
+ "uxRemindEvening": {
+  "message": "今晚"
+ },
+ "uxRemindMorning": {
+  "message": "明天早上"
+ },
+ "uxRemindWeek": {
+  "message": "1 周后"
+ },
+ "uxRemindPick": {
+  "message": "选择日期"
+ },
+ "uxRemindSet": {
+  "message": "提醒"
+ },
+ "uxRemindCancel": {
+  "message": "不提醒"
+ },
+ "uxRemindOff": {
+  "message": "ContextFlow 的通知已关闭。请在这里打开：设置 → 通知 → ContextFlow。"
+ },
+ "uxRemindAsk": {
+  "message": "请打开一次 ContextFlow App 并允许通知，然后重新设置提醒。"
+ },
+ "uxRemindNone": {
+  "message": "提醒功能需要此设备上装有 ContextFlow App。"
+ },
+ "uxToday": {
+  "message": "今天"
+ },
+ "uxTomorrow": {
+  "message": "明天"
+ },
+ "uxRemindSaved": {
+  "message": "提醒：{0}"
+ },
+ "uxRemindNotSet": {
+  "message": "已保存到对话。ContextFlow 的通知已关闭。请在这里打开：设置 → 通知 → ContextFlow。"
+ },
+ "uxRemindNoApp": {
+  "message": "已保存到对话。提醒功能需要此设备上装有 ContextFlow App。"
+ },
+ "uxUnpinAll": {
+  "message": "全部取消置顶"
+ },
+ "setShareGroup": {
+  "message": "分享与复制"
+ },
+ "uxShareMarks": {
+  "message": "分享时把高亮内容设为**粗体**"
+ },
+ "uxShareMarksHint": {
+  "message": "Telegram、Notion 和 Slack 会显示为粗体，信息和备忘录会显示星号。“复制”始终保留粗体。"
+ },
  "nowOnPage": {
   "message": "当前：{0}"
  },
@@ -215,6 +410,18 @@
  "limitProBody": {
   "message": "你的 Pro 回答次数将在 {0}后恢复。"
  },
+ "longPageWeight": {
+  "message": "长页面：回答 ×{0}"
+ },
+ "longPageWeightHint": {
+  "message": "这个页面很长：关于它的回答按 ×{0} 计入额度。"
+ },
+ "limitLongTitle": {
+  "message": "这个页面很长"
+ },
+ "limitLongBody": {
+  "message": "关于它的回答按 {0} 次计算，你还剩 {1} 次。"
+ },
  "getPro": {
   "message": "升级 Pro"
  },
@@ -237,16 +444,37 @@
   "message": "{0} 分钟"
  },
  "consentTitle": {
-  "message": "首次回答前须知"
+  "message": "ContextFlow 使用 AI 之前"
  },
  "consentBody": {
-  "message": "为了回答问题，ContextFlow 会通过我们的服务器将你的问题和此页面（或所选内容）的文本（使用 AI 搜索和“问问你的所有对话”时为你的对话摘录）发送给 Anthropic（Claude），不可用时发送给 OpenAI；使用 Google 回答时则发送给 Google。我们的服务器不会存储页面内容和对话；你的对话仅保存在你的设备上；开启同步后也会保存在你的 iCloud 中。"
+  "message": "这项同意只需给出一次，适用于所有 AI 功能。每个功能只在你使用时，通过我们的服务器把所需内容发送给 Anthropic（Claude）。我们的服务器不保存任何内容，服务商也不会用它来训练模型。"
+ },
+ "consentAnswers": {
+  "message": "回答：你的问题、页面文本或所选内容，以及你填写的“关于我”。Claude 不可用时由 OpenAI 回答；Google 回答发送给 Google。"
+ },
+ "consentChats": {
+  "message": "“问问你的所有对话”和 AI 搜索（Pro）：你的对话的简短摘录。"
+ },
+ "consentTemplates": {
+  "message": "模板：用于标出空格的模板文字；“从网页填写”时的页面文本；“按意思查找”时你输入的词和模板标题。"
+ },
+ "consentWatch": {
+  "message": "关注页面：你选中的内容、你写下的提醒条件、周围的文字和页面标题；之后是旧值和新值。"
+ },
+ "consentSuggest": {
+  "message": "建议（Pro，仅在你开启后）：新问题、回答和笔记的文本，发送给 OpenAI 用于比较，发送给 Claude 用于核对标签。"
+ },
+ "consentStored": {
+  "message": "你的对话保存在你的设备上；开启同步后也会保存在你的 iCloud 中。"
+ },
+ "consentWhat": {
+  "message": "具体发送哪些内容"
  },
  "consentAccept": {
   "message": "同意并继续"
  },
  "consentAgainTitle": {
-  "message": "更新：现在由 Claude 回答"
+  "message": "更新：所有 AI 功能只需一次同意"
  },
  "consentDecline": {
   "message": "暂不"
@@ -734,6 +962,240 @@
  "tagsButton": {
   "message": "标签"
  },
+ "qiTitle": {
+  "message": "快速插入"
+ },
+ "qiButton": {
+  "message": "快速插入：复制的文字、模板、对话中的回答"
+ },
+ "qiCommand": {
+  "message": "在光标处快速插入"
+ },
+ "qiSearch": {
+  "message": "查找模板"
+ },
+ "qiNewTemplate": {
+  "message": "新模板"
+ },
+ "qiEditTemplate": {
+  "message": "模板"
+ },
+ "qiCopied": {
+  "message": "已复制"
+ },
+ "qiClear": {
+  "message": "清除"
+ },
+ "qiCopiedOff": {
+  "message": "“已复制”已关闭，可在下方打开。"
+ },
+ "qiCopiedEmpty": {
+  "message": "在 Safari 的任意网页上复制文字，它会出现在这里。"
+ },
+ "qiNothing": {
+  "message": "没有找到"
+ },
+ "qiToTemplate": {
+  "message": "存为模板"
+ },
+ "qiTemplates": {
+  "message": "模板"
+ },
+ "qiTemplatesTitle": {
+  "message": "模板"
+ },
+ "qiAllTemplates": {
+  "message": "全部模板"
+ },
+ "qiTemplatesEmpty": {
+  "message": "还没有模板。轻点 +，或选中一段常写的回复后轻点“模板”。"
+ },
+ "qiTemplatesIntro": {
+  "message": "把反复要写的回复存起来。我会标出会变的部分，比如姓名或日期，并能从网页上填好。"
+ },
+ "qiFindAi": {
+  "message": "按意思查找"
+ },
+ "qiFinding": {
+  "message": "正在查找…"
+ },
+ "qiFromCf": {
+  "message": "来自对话"
+ },
+ "qiLastAnswer": {
+  "message": "最新回答"
+ },
+ "qiLastNote": {
+  "message": "最新笔记"
+ },
+ "qiKeepCopied": {
+  "message": "保留复制的文字"
+ },
+ "qiPrivacy": {
+  "message": "复制的文字只保存在此{0}上，24 小时后自动清除。"
+ },
+ "qiOnIphone": {
+  "message": "iPhone"
+ },
+ "qiOnIpad": {
+  "message": "iPad"
+ },
+ "qiOnMac": {
+  "message": "Mac"
+ },
+ "qiOnDevice": {
+  "message": "设备"
+ },
+ "qiHideButtonOnSite": {
+  "message": "在 {0} 上隐藏按钮"
+ },
+ "qiDontKeepOnSite": {
+  "message": "在 {0} 不保留"
+ },
+ "qiKeepOnSite": {
+  "message": "在 {0} 重新保留"
+ },
+ "qiTip": {
+  "message": "新功能：轻点即可插入在其他标签页复制的文字、模板或我的回答。"
+ },
+ "qiKeyInsert": {
+  "message": "插入"
+ },
+ "qiKeyChoose": {
+  "message": "选择"
+ },
+ "qiKeyClose": {
+  "message": "关闭"
+ },
+ "qiBlanksMark": {
+  "message": "空格"
+ },
+ "qiBlanksCount": {
+  "message": "空格：{0}"
+ },
+ "qiPasteManually": {
+  "message": "已复制，请自行粘贴到输入框。"
+ },
+ "qiInsert": {
+  "message": "插入"
+ },
+ "qiInsertIntoField": {
+  "message": "插入输入框"
+ },
+ "qiFillFromPage": {
+  "message": "从网页填写"
+ },
+ "qiFillAgain": {
+  "message": "重新填写"
+ },
+ "qiFilling": {
+  "message": "正在填写…"
+ },
+ "qiFillHint": {
+  "message": "自己填写空格、从“已复制”中选择，或由我从网页上填写。"
+ },
+ "qiFillDone": {
+  "message": "黄色部分取自网页，发送前请检查。"
+ },
+ "qiFillPartly": {
+  "message": "黄色部分取自网页。空着的格没有找到，请自己填写。"
+ },
+ "qiFillLeft": {
+  "message": "今天还可填写 {0} 次。"
+ },
+ "qiFillLimit": {
+  "message": "今天的免费填写次数已用完。Pro 不限次数，空格也可以手动填写。"
+ },
+ "qiFillByHand": {
+  "message": "手动填写"
+ },
+ "qiPickCopied": {
+  "message": "为“{0}”选择已复制内容"
+ },
+ "qiAdapt": {
+  "message": "按此网页改写"
+ },
+ "qiAdaptChat": {
+  "message": "按此对话改写"
+ },
+ "qiAdaptHint": {
+  "message": "“从网页填写”只填空格。“改写”用 AI 改写整段文字，并显示在面板中。"
+ },
+ "qiAdaptLabel": {
+  "message": "按此网页改写模板"
+ },
+ "qiAdaptPrompt": {
+  "message": "把这个模板改写成适合当前网页的回复。保持意思、语气和长度；填入网页上能确定的内容，其余保持原样。只回答回复的正文。\n\n模板：\n{0}"
+ },
+ "qiAdaptConversation": {
+  "message": "这是我正在回复的对话。请写一条回复给其中的对方：\n{0}"
+ },
+ "qiTemplateButton": {
+  "message": "模板"
+ },
+ "qiTemplateTitle": {
+  "message": "标题"
+ },
+ "qiTemplateText": {
+  "message": "正文。空格用花括号表示，例如 {姓名}。"
+ },
+ "qiMakeBlank": {
+  "message": "空格"
+ },
+ "qiBlankDefault": {
+  "message": "空格"
+ },
+ "qiUnmark": {
+  "message": "恢复为普通文字"
+ },
+ "qiMarking": {
+  "message": "正在标出会变的部分…"
+ },
+ "qiMarkAi": {
+  "message": "标出空格"
+ },
+ "qiMarkedHint": {
+  "message": "已标出空格。轻点某个空格可恢复为普通文字。"
+ },
+ "qiMarkedNone": {
+  "message": "这里似乎没有会变的部分。选中一个词并轻点“空格”即可添加。"
+ },
+ "qiMarkFailed": {
+  "message": "暂时无法标出空格。模板将保存为普通文字，可以手动添加空格。"
+ },
+ "qiBlankHint": {
+  "message": "插入模板时再填写空格。"
+ },
+ "qiKeywords": {
+  "message": "用于查找的词，用逗号分隔"
+ },
+ "qiSave": {
+  "message": "存储"
+ },
+ "qiDelete": {
+  "message": "删除"
+ },
+ "qiSetButton": {
+  "message": "输入框旁的按钮"
+ },
+ "qiSetCopiedHint": {
+  "message": "网页上最近复制的 5 段文字。只保存在此设备上，24 小时后清除。不保存密码或卡号输入框中的内容，无痕浏览时也不保存。"
+ },
+ "qiClearCopied": {
+  "message": "清除“已复制”"
+ },
+ "qiCleared": {
+  "message": "已清除"
+ },
+ "qiSetSign": {
+  "message": "输入框中的符号"
+ },
+ "qiSetSignHint": {
+  "message": "在任意输入框中输入 {0} 和模板中的几个词。"
+ },
+ "qiSetShortcut": {
+  "message": "在 Mac 和连接键盘的 iPad 上，按 ⌃⇧V 打开列表。"
+ },
  "hintGot": {
   "message": "知道了"
  },
@@ -838,5 +1300,443 @@
  },
  "byokOfferBody": {
   "message": "Pro 无需你的密钥即可回答：每周最多 {0} 次回答、每周 {1} 次 Google 搜索、“问问你的所有对话”和 AI 搜索。付款前 App Store 会显示价格和期限。Pro 立即生效，当前方案未使用的部分会退款。"
+ },
+ "orgSuggested": {
+  "message": "建议"
+ },
+ "orgTagA11y": {
+  "message": "建议标签“{0}”。添加"
+ },
+ "orgNoA11y": {
+  "message": "忽略"
+ },
+ "orgCountOne": {
+  "message": "{0} 条消息"
+ },
+ "orgCountFew": {
+  "message": "{0} 条消息"
+ },
+ "orgCountMany": {
+  "message": "{0} 条消息"
+ },
+ "orgCountOther": {
+  "message": "{0} 条消息"
+ },
+ "orgMoveTo": {
+  "message": "{0}移到“{1}”"
+ },
+ "orgSplit": {
+  "message": "移到新对话：“{0}”"
+ },
+ "orgMoveA11y": {
+  "message": "将 {0}移到对话“{1}”"
+ },
+ "orgSplitA11y": {
+  "message": "将这些消息移到新对话“{0}”"
+ },
+ "orgMoved": {
+  "message": "已移到“{0}”"
+ },
+ "orgUndo": {
+  "message": "撤销"
+ },
+ "orgOpen": {
+  "message": "打开"
+ },
+ "orgFirstWin": {
+  "message": "完成。从现在起，我会主动给出建议。"
+ },
+ "orgConsentTitle": {
+  "message": "按主题整理你的对话？"
+ },
+ "orgConsentText": {
+  "message": "我会在新的回答和笔记下方建议合适的对话和你的一个标签。你可以在设置中关闭。"
+ },
+ "orgTurnOn": {
+  "message": "开启"
+ },
+ "orgMessTitle": {
+  "message": "全都在一个对话里？"
+ },
+ "orgMessText": {
+  "message": "使用 Pro 时，我会建议什么内容该放到哪里，并像你一样加标签。"
+ },
+ "orgTagsTitle": {
+  "message": "我能像你一样加标签"
+ },
+ "orgTagsText": {
+  "message": "使用 Pro 时，我会根据你自己加标签的位置，在新的回答和笔记下方建议你的一个标签。"
+ },
+ "orgCloseA11y": {
+  "message": "关闭"
+ },
+ "setOrganize": {
+  "message": "建议：标签和移动"
+ },
+ "setOrganizeHint": {
+  "message": "在新的回答和笔记下方显示合适的对话和你的标签。你的消息文本会发送到我们的服务器以及 OpenAI 和 Anthropic。我们不保存这些文本，它们也不会用它来训练模型。"
+ },
+ "setOrganizePro": {
+  "message": "Pro：ContextFlow 会在新的回答和笔记下方建议合适的对话和你的标签。"
+ },
+ "upsellOrganizeName": {
+  "message": "按主题整理"
+ },
+ "upsellOrganizeText": {
+  "message": "为你刚问的内容建议合适的对话，以及你自己的标签。"
+ },
+ "watchEye": {
+  "message": "关注变化"
+ },
+ "watchSection": {
+  "message": "变化时通知我"
+ },
+ "watchWhen": {
+  "message": "何时通知"
+ },
+ "watchCondPrice": {
+  "message": "价格变化时（现在 {0}）"
+ },
+ "watchCondBack": {
+  "message": "重新有货时"
+ },
+ "watchCondStock": {
+  "message": "库存变化时（现在 {0}）"
+ },
+ "watchCondDate": {
+  "message": "日期变化时（现在 {0}）"
+ },
+ "watchCondStatus": {
+  "message": "状态变化时（现在 {0}）"
+ },
+ "watchCondPage": {
+  "message": "页面出现新内容时"
+ },
+ "watchHonest": {
+  "message": "你使用 Safari 时我会检查"
+ },
+ "watchStart": {
+  "message": "关注"
+ },
+ "watchSave": {
+  "message": "保存"
+ },
+ "watchTipBell": {
+  "message": "铃铛：在你选的时间提醒你回到这个页面。"
+ },
+ "watchTipWatch": {
+  "message": "眼睛：这里有变化时我会通知你，比如价格、库存或状态。"
+ },
+ "watchChecking": {
+  "message": "正在查看页面…"
+ },
+ "watchSet": {
+  "message": "已关注，变化时通知你。"
+ },
+ "watchSetLive": {
+  "message": "已关注。这个网站只在你打开页面时显示，届时我会检查。"
+ },
+ "watchUnreadable": {
+  "message": "这个网站不允许在后台检查。我可以在你打开页面时检查，或提醒你去看看。"
+ },
+ "watchRemindInstead": {
+  "message": "提醒我去看"
+ },
+ "watchLiveOk": {
+  "message": "打开页面时检查"
+ },
+ "watchFull": {
+  "message": "你已经关注了 {0} 个页面。请先在“关注”里停止一个。"
+ },
+ "watchFullFree": {
+  "message": "免费版最多同时关注 {0} 个页面，Pro 最多 {1} 个。"
+ },
+ "watchMore": {
+  "message": "Pro 可关注更多"
+ },
+ "watchFailed": {
+  "message": "没有成功，请稍后再试。"
+ },
+ "watchRow": {
+  "message": "关注中：{0} · {1}检查"
+ },
+ "watchRowNew": {
+  "message": "关注中：{0}"
+ },
+ "watchRowNow": {
+  "message": "现在 {0}"
+ },
+ "watchRowLive": {
+  "message": "关注中：{0} · 打开页面时检查"
+ },
+ "watchRowMet": {
+  "message": "已变化：{0} · {1}"
+ },
+ "watchRowMetNow": {
+  "message": "已变化：{0}，现在 {1} · {2}"
+ },
+ "watchStop": {
+  "message": "停止关注"
+ },
+ "watchStopped": {
+  "message": "已停止关注"
+ },
+ "watchLabelPrice": {
+  "message": "价格"
+ },
+ "watchLabelStock": {
+  "message": "库存"
+ },
+ "watchLabelDate": {
+  "message": "日期"
+ },
+ "watchLabelStatus": {
+  "message": "状态"
+ },
+ "watchLabelPage": {
+  "message": "页面"
+ },
+ "watchInStock": {
+  "message": "有货"
+ },
+ "watchOutOfStock": {
+  "message": "缺货"
+ },
+ "watchChanged": {
+  "message": "已变化：{0}"
+ },
+ "watchChangedBody": {
+  "message": "现在：{0}"
+ },
+ "tip_4cf1b54b00": {
+  "message": "技巧"
+ },
+ "tip_245f060c21": {
+  "message": "快速解答“该怎么…？”"
+ },
+ "tip_89895fd68f": {
+  "message": "在你的所有设备上"
+ },
+ "tip_9efc5dc7c2": {
+  "message": "开启“通过 iCloud 同步对话”后，在 iPhone 上开始的对话可以在 iPad 和 Mac 上继续。对话在你的 iCloud 中端到端加密。"
+ },
+ "tip_90e40d5043": {
+  "message": "从这里开始"
+ },
+ "tip_ad4199fa48": {
+  "message": "在任意页面打开"
+ },
+ "tip_79a4dbe893": {
+  "message": "轻点页面上的 ✦，或打开地址栏中的页面菜单并选择“ContextFlow”。"
+ },
+ "tip_4acd9995ac": {
+  "message": "点按页面上的 ✦ 或工具栏中的 ContextFlow 图标，或按下 Control-Shift-E。"
+ },
+ "tip_2749afe54a": {
+  "message": "一键抓住要点"
+ },
+ "tip_487a14e710": {
+  "message": "“总结”“关键要点”“通俗解释”和“翻译”针对整个页面，无需自己写提示词。"
+ },
+ "tip_d22c90dac1": {
+  "message": "只问一部分"
+ },
+ "tip_328a1070b8": {
+  "message": "在页面上选中文字并选择“问 AI”，回答就只针对这部分。还可以让它解释、翻译或改写。"
+ },
+ "tip_ca7dfa36cb": {
+  "message": "就所选内容提问或记笔记"
+ },
+ "tip_fa1cdf5479": {
+  "message": "在页面上选中文字后，可以直接在下方输入你的问题，或点按“笔记”把它连同页面保存到对话中。笔记不消耗回答次数。"
+ },
+ "tip_9000896590": {
+  "message": "对话随你而行"
+ },
+ "tip_c76058fe4b": {
+  "message": "在页面间切换时可以继续提问。ContextFlow 会记住对话内容，以及每个问题对应的页面。点按对话中的页面名称即可回到该页面。"
+ },
+ "tip_e5dff10006": {
+  "message": "来自 Google 的最新信息"
+ },
+ "tip_d7c7b7b55d": {
+  "message": "打开提问框旁的 Google，即可借助 Google 搜索回答：新闻、价格等最新信息，并附上来源。"
+ },
+ "tip_da5f7b74b1": {
+  "message": "深入钻研"
+ },
+ "tip_6ba198cbff": {
+  "message": "你自己的笔记"
+ },
+ "tip_6a92f6c633": {
+  "message": "上下滑动发送按钮（在 Mac 上，在按钮上滚动），就能写笔记而不是提问。笔记会连同页面留在对话中，随对话同步，不消耗回答次数。"
+ },
+ "tip_654fb12e51": {
+  "message": "高亮重点"
+ },
+ "tip_33115b31e1": {
+  "message": "在回答中选中一行并轻点“高亮”，它会像用荧光笔划过一样留下标记。这个对话之后的回答会参考你的高亮，“复制”时高亮内容保留为粗体。"
+ },
+ "tip_b4e4a2a85e": {
+  "message": "置顶内容在最上方"
+ },
+ "tip_4d33a9d9e4": {
+  "message": "置顶回答或笔记后，它会出现在对话顶部的栏中。轻点该栏即可跳转过去，再轻点一次跳到下一条。"
+ },
+ "tip_b7be002204": {
+  "message": "滑动即可置顶或删除"
+ },
+ "tip_104ac1e6e8": {
+  "message": "将回答或笔记向右滑动可置顶，向左滑动可删除。改变主意了？轻点“撤销”即可恢复。"
+ },
+ "tip_c047d28229": {
+  "message": "单击即可置顶或删除"
+ },
+ "tip_dcfe357b68": {
+  "message": "将指针移到回答或笔记上，旁边会出现“置顶”“提醒我”和“删除”，右键点按也会打开同一菜单。改变主意了？点按“撤销”即可恢复。"
+ },
+ "tip_e012ef5f59": {
+  "message": "结合整个对话"
+ },
+ "tip_3a70cee32e": {
+  "message": "当回答需要全部内容时，打开问题输入框下方的“整个对话”：所有消息、你的笔记和此对话中的其他页面。关闭时：最近的消息和当前页面。"
+ },
+ "tip_ca29a1f4ed": {
+  "message": "就视频提问"
+ },
+ "tip_d6be4709b7": {
+  "message": "使用 Pro 时，ContextFlow 会读取页面视频的字幕全文：询问要点或某个话题说了什么，回答会指出时间点，例如 [4:15]。免费回答只使用页面文字。"
+ },
+ "tip_5c5bca8a9e": {
+  "message": "页面上的 PDF"
+ },
+ "tip_ff32d2c483": {
+  "message": "使用 Pro 时，页面上显示或链接的 PDF 会随问题一起发送，回答会说明内容在哪一页。在 iPad 和 Mac 上，工具栏中的 ContextFlow 也能在 PDF 标签页中打开。免费回答只使用页面文字。"
+ },
+ "tip_328ee8ddce": {
+  "message": "快速插入"
+ },
+ "tip_ff7c853b85": {
+  "message": "插入任意输入框"
+ },
+ "tip_038e87000b": {
+  "message": "轻点网页上的输入框，再轻点旁边的 ContextFlow 按钮：在其他标签页复制的内容、你的模板和 ContextFlow 的最新回答一触即可插入。使用键盘时，输入 / 和模板中的几个词，再按 Tab。"
+ },
+ "tip_a8e1d14e5b": {
+  "message": "在网页的任意输入框中输入 / 和模板中的几个词，再按 Tab。按 Control-Shift-V 打开完整列表：在其他标签页复制的内容、你的模板和 ContextFlow 的最新回答。"
+ },
+ "tip_451fa9ccb6": {
+  "message": "复制的内容保留一天"
+ },
+ "tip_8ddcf05a7e": {
+  "message": "在 Safari 网页上最近复制的 5 项内容会在列表中保留 24 小时，只保存在此设备上。不保存密码或卡号输入框中的内容，无痕浏览时也不保存。"
+ },
+ "tip_cf63db6cc6": {
+  "message": "自动填写的模板"
+ },
+ "tip_6dd86048c4": {
+  "message": "选中一段常发的回复并轻点“模板”：ContextFlow 会标出姓名、日期等会变的部分。插入时，“从网页填写”会自动填好，并高亮显示方便检查。"
+ },
+ "tip_f09b3558e2": {
+  "message": "关注与提醒"
+ },
+ "tip_d0d8d1355c": {
+  "message": "提醒我看这个页面"
+ },
+ "tip_b5d4d7711a": {
+  "message": "在读的内容想稍后读完？选中一行后轻点铃铛，或轻点面板顶部的“…”，再轻点“提醒我看这个页面…”并选择时间：提醒会打开这个网页。回答和笔记的“…”菜单里也有“提醒我”。"
+ },
+ "tip_74c328b672": {
+  "message": "降价时通知你"
+ },
+ "tip_45c2496345": {
+  "message": "在网页上选中价格、库存状态或日期，然后轻点眼睛图标。要关注整个网页，在面板顶部的“…”菜单中选择“关注这个页面…”。你使用 Safari 时，ContextFlow 会检查该网页，发生变化或价格低于你设定的值时通知你。最多同时 5 个，Pro 可达 20 个。"
+ },
+ "tip_0daede04f6": {
+  "message": "整理对话"
+ },
+ "tip_ec2cf96f53": {
+  "message": "开始新对话或回到旧对话"
+ },
+ "tip_623811ea30": {
+  "message": "点 + 开始新对话。以前的对话保存在对话列表中：打开即可接着聊，用铅笔图标重命名，或将其删除。"
+ },
+ "tip_c4b432e2e9": {
+  "message": "搜索你的对话"
+ },
+ "tip_eff80bffda": {
+  "message": "在对话列表上方的搜索中输入：会列出包含这些词的所有对话及其位置。点按结果即可直接跳到那里。"
+ },
+ "tip_2e4668f650": {
+  "message": "标签和文件夹"
+ },
+ "tip_6b5bdf707f": {
+  "message": "用 🏷 给对话、回答或笔记加标签。点按标签只看相关对话，或打开“文件夹”按标签分组。"
+ },
+ "tip_752fb307f2": {
+  "message": "分享你的发现"
+ },
+ "tip_aa15b6c2c0": {
+  "message": "可以分享单个回答或整个对话：文字会附带其中的链接、来源以及 ContextFlow 的链接。"
+ },
+ "tip_76f2924bba": {
+  "message": "在 App 中查看对话"
+ },
+ "tip_969cf52d0b": {
+  "message": "“对话”标签页里有 Safari 中的所有对话。可以直接就页面提问或添加笔记，给任意回答加标签、复制或分享，也可以分享整个对话。“在 Safari 中继续”可从上次停下的地方接着聊。"
+ },
+ "tip_4721064b09": {
+  "message": "AI 搜索"
+ },
+ "tip_52a09ac884": {
+  "message": "点按搜索旁的 ✦，描述你记得的对话（“那篇关于睡眠和咖啡的文章”），即使没有确切字词也行。"
+ },
+ "tip_068fa58797": {
+  "message": "问问你的所有对话"
+ },
+ "tip_8a40be768f": {
+  "message": "对话列表第一行会综合所有对话回答：“我这周读了什么？”“整理我关于 AI 的笔记”。"
+ },
+ "tip_4257aee15a": {
+  "message": "各归其位"
+ },
+ "tip_c61e2edab3": {
+  "message": "在聊沙发的对话里问了汽车的事？ContextFlow 会在回答下方建议它该去的对话，或一个新对话。点一下就按日期移过去，“撤销”可以移回来。"
+ },
+ "tip_3f9f46cd12": {
+  "message": "建议你的标签"
+ },
+ "tip_69a0bac728": {
+  "message": "ContextFlow 会从你加标签的位置了解每个标签的含义，并在新的回答或笔记下方建议合适的那个。只用你自己的标签，只在合适时建议。"
+ },
+ "tip_3208aa35ac": {
+  "message": "隐私与个性化"
+ },
+ "tip_1e1a2fad4e": {
+  "message": "介绍一下你自己"
+ },
+ "tip_e2d1d4abd0": {
+  "message": "在“关于我”中写一句话，比如你的职业、喜欢的回答风格，ContextFlow 就会据此调整回答。"
+ },
+ "tip_10400d6345": {
+  "message": "按你的习惯使用 ✦ 按钮"
+ },
+ "tip_4c60874441": {
+  "message": "✦ 挡住了页面上的内容？沿着边缘上下拖动它，或拖到另一侧，它会停在你松手的位置。也可以只在某个网站隐藏按钮，或在扩展设置中全部关闭。之后仍可从 Safari 的扩展菜单打开 ContextFlow。"
+ },
+ "tip_8a727e1bbe": {
+  "message": "使用自己的 API 密钥"
+ },
+ "tip_d84a0778d4": {
+  "message": "使用 Pro 或“自有密钥”方案时，可在 Safari 的扩展设置中粘贴 OpenAI 或 Claude 密钥，请求会直接发送给该服务商。"
+ },
+ "tip_3aaa9fd1f2": {
+  "message": "隐私优先"
+ },
+ "tip_241d3ad076": {
+  "message": "ContextFlow 只在你提问时读取页面，并且只发送页面文字来获取回答。你的对话保存在你的设备和 iCloud 中。开启建议后，新消息的文本也会发送到我们的服务器，用来判断它们该放在哪里；我们不会保存这些文本。"
+ },
+ "tip_clips": {
+  "message": "en"
  }
 }

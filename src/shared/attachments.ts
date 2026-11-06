@@ -31,9 +31,9 @@ export function composePage(pageText: string, attachments: Attachment[]): string
     return `${lead.heading}\n${lead.text.slice(0, room)}\n\nPage text (description, comments):\n${page}`
   }
   if (!attachments.length) return pageText
-  const page = pageText.slice(0, MAX_PAGE_CHARS)
-  let room = MAX_MEDIA_PAGE_CHARS - page.length
-  const out = [page]
+  // The page whole (2.5), its PDFs within the media limit.
+  let room = MAX_MEDIA_PAGE_CHARS
+  const out = [pageText]
   attachments.forEach((part, i) => {
     const share = Math.floor(room / (attachments.length - i))
     const body = `\n\n${part.heading}\n${part.text}`.slice(0, Math.max(0, share))
