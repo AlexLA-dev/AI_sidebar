@@ -155,7 +155,8 @@ test("the page script names the source from utm_source first, then the referrer'
 test("the page script knows every indexable page by name and skips the rest", () => {
   const names: Record<string, string> = {
     "/": "home", "/index.html": "home", "/features": "features", "/safari-ai-extension-iphone": "safari_ai", "/notes-while-reading-safari.html": "notes",
-    "/safari-summary-vs-chatgpt": "compare", "/support": "support", "/support/": "support", "/privacy": "privacy", "/terms": "terms"
+    "/safari-summary-vs-chatgpt": "compare", "/support": "support", "/support/": "support", "/privacy": "privacy", "/terms": "terms",
+    "/cases": "cases", "/cases/": "cases", "/cases/replies-and-forms": "case_fill", "/cases/studying.html": "case_study", "/cases/shopping": "case_shop", "/cases/planning": "case_plan"
   }
   for (const [path, page] of Object.entries(names)) assert.equal(load({ path }).sent[0]?.page, page, path)
   assert.deepEqual(load({ path: "/analytics" }).sent, [])
@@ -170,7 +171,8 @@ test("a tap on an App Store button sends its ct label with the visit's source", 
 })
 
 test("the script is on every indexable page and not on /analytics; its lists match the server's", () => {
-  const pages = readdirSync(dir).filter((f) => f.endsWith(".html"))
+  // The case pages live in site/cases/.
+  const pages = (readdirSync(dir, { recursive: true }) as string[]).filter((f) => f.endsWith(".html"))
   for (const file of pages) {
     const html = readFileSync(new URL(file, dir), "utf8")
     const indexable = !/<meta name="robots" content="noindex/.test(html)

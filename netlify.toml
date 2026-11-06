@@ -159,6 +159,66 @@
   force = true
 
 [[redirects]]
+  from = "https://aisidebar.netlify.app/cases"
+  to = "https://context-flow.app/cases"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/cases.html"
+  to = "https://context-flow.app/cases"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/cases/replies-and-forms"
+  to = "https://context-flow.app/cases/replies-and-forms"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/cases/replies-and-forms.html"
+  to = "https://context-flow.app/cases/replies-and-forms"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/cases/studying"
+  to = "https://context-flow.app/cases/studying"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/cases/studying.html"
+  to = "https://context-flow.app/cases/studying"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/cases/shopping"
+  to = "https://context-flow.app/cases/shopping"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/cases/shopping.html"
+  to = "https://context-flow.app/cases/shopping"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/cases/planning"
+  to = "https://context-flow.app/cases/planning"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://aisidebar.netlify.app/cases/planning.html"
+  to = "https://context-flow.app/cases/planning"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "https://aisidebar.netlify.app/sitemap.xml"
   to = "https://context-flow.app/sitemap.xml"
   status = 301

@@ -1,0 +1,39 @@
+/* Cases (/cases and /cases/…): what ContextFlow does for one kind of reader, a situation at a time, with clips of
+   the real panel. Loaded after style.css; the home page loads it for its "What do you do in Safari most?" block. */
+.grid.two { grid-template-columns: repeat(2, 1fr); }
+.tile .for { margin: 10px 0 0; font-size: 13px; color: var(--text-2); }
+.tile h2 { margin: 0 0 6px; font-size: 20px; }
+.case-head { padding: 20px 0 0; max-width: 760px; }
+.crumbs { font-size: 14px; color: var(--text-2); }
+.crumbs a { color: var(--text-2); }
+.case-head h1 { font-size: 44px; line-height: 1.1; letter-spacing: -0.02em; margin: 10px 0 12px; }
+.case-head .lede { font-size: 19px; color: var(--text-2); margin: 0; }
+.case-head .lede + .lede { margin-top: 12px; }
+.sits { display: grid; gap: 18px; margin: 34px 0 0; }
+.sit { display: grid; grid-template-columns: 240px 1fr; gap: 28px; align-items: center; background: var(--bg-2); border-radius: 18px; padding: 20px; scroll-margin-top: 12px; }
+.sit.text { grid-template-columns: 1fr; }
+.sit .clip { display: block; width: 100%; aspect-ratio: 540 / 794; border-radius: 12px; background: #fff; border: 1px solid var(--border); object-fit: cover; }
+.sit img.clip { aspect-ratio: auto; height: auto; }
+.sit h2 { font-size: 22px; line-height: 1.25; margin: 0 0 8px; }
+.sit p { margin: 0; color: var(--text-2); }
+.sit .uses { margin-top: 12px; font-size: 14px; }
+.sit .uses b { color: var(--text); font-weight: 600; }
+.case-body { max-width: 760px; }
+.case-body h2 { font-size: 22px; margin: 40px 0 8px; }
+.case-body ul { color: var(--text-2); padding-left: 20px; }
+.case-body li { margin: 6px 0; }
+.free-pro { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px; }
+.free-pro div { border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; }
+.free-pro h3 { margin: 0 0 6px; font-size: 16px; }
+.free-pro p { margin: 0; color: var(--text-2); font-size: 15px; }
+.case-get { margin: 34px 0 0; }
+.case-get .note { margin-top: 10px; }
+.others { padding: 40px 0 10px; }
+.others h2 { font-size: 22px; margin: 0 0 14px; }
+@media (max-width: 760px) {
+  .grid.two { grid-template-columns: 1fr; }
+  .sit { grid-template-columns: 1fr; gap: 16px; }
+  .sit .clip { max-width: 260px; margin: 0 auto; }
+  .case-head h1 { font-size: 34px; }
+  .free-pro { grid-template-columns: 1fr; }
+}
