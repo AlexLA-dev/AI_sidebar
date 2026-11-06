@@ -81,6 +81,32 @@ extension ChatLibrary {
         return true
     }
 
+    /// A chat going to Recently Deleted: its reminders don't ring on this device (the marks stay on the messages).
+    func pauseReminders(_ thread: ChatThread) {
+        guard let raw = thread.organized?.entries else { return }
+        for entry in raw where entry["remind"] != nil {
+            MessageReminders.cancel(chat: thread.id, message: Organize.entryKey(entry))
+        }
+    }
+
+    /// A chat back from Recently Deleted: the reminders still ahead that were set here ring again (others ring on
+    /// the device that set them).
+    func resumeReminders(_ thread: ChatThread) {
+        guard let raw = thread.organized?.entries else { return }
+        let here = String(Activation.shared.appId.prefix(12))
+        let now = Date().timeIntervalSince1970 * 1000
+        for (index, entry) in thread.entries.enumerated() where raw.indices.contains(index) {
+            guard let remind = entry.remind, remind.at > now, remind.dev == nil || remind.dev == here else { continue }
+            let title = entry.isNote ? (entry.page.map { $0.title.isEmpty ? $0.url : $0.title } ?? thread.name) : thread.name
+            let page = remind.page == true ? entry.page.flatMap { URL(string: $0.url) } : nil
+            let key = Organize.entryKey(raw[index])
+            Task {
+                _ = await MessageReminders.schedule(chat: thread.id, message: key, at: Date(timeIntervalSince1970: remind.at / 1000), title: title,
+                                                    body: ReminderTimes.asked(entry.content), open: page, ask: false)
+            }
+        }
+    }
+
     /// The reminders still to ring, in every chat, as rows: a page reminder titled with its page and opening it.
     func reminderItems(pending: [String: Date]) -> [LaterItem] {
         let now = Date().timeIntervalSince1970 * 1000
