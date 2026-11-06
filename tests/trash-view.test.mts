@@ -101,7 +101,7 @@ test("the chat list ends with Recently Deleted · N while it has chats, also whe
   const last = items.at(-1) as Element
   assert.ok(last.classList.contains("cf-trash-row"))
   assert.equal(last.textContent?.trim(), "Recently Deleted · 2")
-  click(last.querySelector(".cf-thread-main"))
+  click(last.querySelector(".cf-thread-main")!)
   assert.equal(opened, 1)
 
   // None there: no row.

@@ -1211,6 +1211,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     }
   }
 
+  // The last move to Recently Deleted being stored: Undo right after a delete waits for it, or it would find nothing to
+  // restore and the delete would land after it.
+  const trashing = useRef<Promise<unknown>>(Promise.resolve())
   /** A chat the user deleted goes to Recently Deleted (2.5 (83)); shown here, a new chat takes its place. */
   const removeThread = useCallback((id: string) => {
     setThreadList((list) => list.filter((x) => x.id !== id))
@@ -1222,16 +1225,17 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       setMessages([])
       setError(null)
     }
-    void trashChat(id).then(async (gone) => {
+    const done = trashChat(id).then(async (gone) => {
       if (gone) void chatReminders(gone, false)
       const { threads } = await loadThreads()
       showLists(threads)
     })
+    trashing.current = done.catch(() => undefined)
   }, [])
 
   /** Back from Recently Deleted (its Restore, or Undo after a delete): to its place in the list, its reminders on again. */
   const restoreFromTrash = (id: string, how: "bar" | "list") => {
-    void restoreChat(id).then(async (back) => {
+    void trashing.current.then(() => restoreChat(id)).then(async (back) => {
       if (back) void chatReminders(back, true)
       const { threads } = await loadThreads()
       showLists(threads)
