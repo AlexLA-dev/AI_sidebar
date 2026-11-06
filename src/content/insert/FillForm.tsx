@@ -172,9 +172,10 @@ export function FillForm(p: Props): VNode {
   return (
     <div ref={ref} class={`cf-qi ${p.sheet ? "" : "suggest"}`} role="dialog" aria-label={p.template.title} onPointerDown={(e) => !(e.target as Element).closest("input") && e.preventDefault()}>
       <div class="cf-qi-fill">
+        {/* It closes (the arrow it had read as "back to the list"): a cross at the end, as the list's (2.5 (84), the owner). */}
         <div class="cf-qi-fill-head">
-          <button type="button" aria-label={t("back")} onClick={p.onClose}><Icon.Back /></button>
           <span>{p.template.title}</span>
+          <button type="button" class="cf-qi-x" aria-label={t("close")} title={t("close")} onClick={p.onClose}><Icon.Close /></button>
         </div>
         <div class="cf-qi-fill-text">
           {parts.map((part) =>

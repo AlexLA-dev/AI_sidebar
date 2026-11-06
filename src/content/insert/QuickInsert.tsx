@@ -44,8 +44,9 @@ interface Props {
   touch: boolean
   bus: EventTarget
   panelOpen: boolean
-  // The panel open beside the page on its chat list (iPad): the button shows by a page's field all the same, clear
-  // of the panel (2.5 (82), the owner). Not on iPhone: there the panel is a sheet and a tap on the page closes it.
+  // The panel open beside the page (iPad): the button shows by a page's field all the same, clear of the panel (2.5
+  // (82), the owner, with the chat list open; 2.5 (84): with a chat open too). Not on iPhone: there the panel is a
+  // sheet and a tap on the page closes it.
   panelAside: boolean
   consent: ConsentStatus
   // Resolves once the consent is stored (the background checks it before sending anything).
@@ -735,6 +736,8 @@ function InsertList(p: ListProps): VNode {
           onKeyPress={(e) => e.stopPropagation()}
         />
         <button type="button" aria-label={t("qiNewTemplate")} title={t("qiNewTemplate")} onClick={p.onNew}><Icon.Plus /></button>
+        {/* 2.5 (84), the owner: how it closes wasn't clear (a tap outside, Esc). */}
+        <button type="button" class="cf-qi-x" aria-label={t("close")} title={t("close")} onClick={p.onClose}><Icon.Close /></button>
       </div>
       <div class="cf-qi-body">
         <div class="cf-qi-sec">

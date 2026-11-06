@@ -15,6 +15,9 @@ import { closestComposed, shadowRootsOf } from "./shadow.ts"
 /** The button's size and the gap it keeps from the field. */
 export const BUTTON = 30
 const GAP = 4
+// Off the screen's left edge by this much: there Safari takes the touch for its swipe back, and the tap never reached
+// the button (2.5 (84), the owner on an iPhone: the button at the reply box's left end did nothing).
+export const LEFT_EDGE = 24
 
 export interface Rect { top: number; left: number; right: number; bottom: number; width: number; height: number }
 export interface Box { width: number; height: number }
@@ -40,10 +43,10 @@ export function buttonSpot(field: Rect, view: Box, free: Probe): { top: number; 
     { top: below, left: right - BUTTON }
   ]
   const lefts: number[] = []
-  for (let left = right - 2 * BUTTON; left >= Math.max(GAP, field.left); left -= BUTTON) lefts.push(left)
+  for (let left = right - 2 * BUTTON; left >= Math.max(LEFT_EDGE, field.left); left -= BUTTON) lefts.push(left)
   for (const top of [above, below]) for (const left of lefts) spots.push({ top, left })
   for (const s of spots) {
-    if (s.top < GAP || s.left < GAP || s.top + BUTTON > view.height - GAP || s.left + BUTTON > view.width - GAP) continue
+    if (s.top < GAP || s.left < LEFT_EDGE || s.top + BUTTON > view.height - GAP || s.left + BUTTON > view.width - GAP) continue
     const points = [
       [s.left + BUTTON / 2, s.top + BUTTON / 2],
       [s.left + 2, s.top + 2],
@@ -91,7 +94,7 @@ export function cornerSpot(field: Rect, view: Box, free: Probe, text: Array<{ le
   const inset = Math.min(INSET, (bottom - Math.max(field.top, GAP) - BUTTON) / 2)
   if (inset < 2) return null
   const s = { top: bottom - inset - BUTTON, left: right - INSET - BUTTON }
-  if (s.left < Math.max(field.left + INSET, GAP)) return null
+  if (s.left < Math.max(field.left + INSET, LEFT_EDGE)) return null
   const zone = { left: s.left - CLEAR, top: s.top - CLEAR, right: s.left + BUTTON + CLEAR, bottom: s.top + BUTTON + CLEAR }
   if (text.some((r) => meets(r, zone))) return null
   const points = [

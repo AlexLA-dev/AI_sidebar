@@ -82,6 +82,10 @@
 .cf-qi-fill > * { flex: none; }
 .cf-qi-fill-head { display: flex; align-items: center; gap: 6px; font-weight: 650; }
 .cf-qi-fill-head button { color: var(--text-3); }
+.cf-qi-fill-head span { flex: 1; min-width: 0; }
+/* Close, at the end of the list's head and the template's (2.5 (84)). */
+.cf-qi .cf-qi-x { flex: none; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 10px; color: var(--text-3); background: transparent; }
+.cf-qi .cf-qi-x svg { width: 18px; height: 18px; }
 .cf-qi-fill-text { font-size: 15px; line-height: 1.6; color: var(--text); white-space: pre-wrap; max-height: 40vh; overflow-y: auto; }
 .cf-qi-blank {
   display: inline-block; min-width: 64px; padding: 0 6px; margin: 0 1px;

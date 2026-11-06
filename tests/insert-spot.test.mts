@@ -4,7 +4,7 @@ import { test } from "node:test"
 
 import { parseHTML } from "linkedom"
 
-import { besideSpot, BUTTON, buttonPlace, buttonSpot, cornerSpot, fieldPointFree, multiLineField, nearRect, noButtonField, pagePointFree, PANEL_CLEAR, SIDE_MIN } from "../src/content/insert/spot.ts"
+import { besideSpot, BUTTON, buttonPlace, buttonSpot, cornerSpot, fieldPointFree, LEFT_EDGE, multiLineField, nearRect, noButtonField, pagePointFree, PANEL_CLEAR, SIDE_MIN } from "../src/content/insert/spot.ts"
 
 const rect = (left: number, top: number, width: number, height: number) => ({ left, top, width, height, right: left + width, bottom: top + height })
 const view = { width: 375, height: 667 }
@@ -201,4 +201,15 @@ test("a same-origin frame the size of the page (LinkedIn's messages opened from 
   } finally {
     ;(globalThis as any).document = was
   }
+})
+
+test("never at the screen's left edge: Safari takes a touch there for its swipe back", () => {
+  // 2.5 (84), the owner on an iPhone: the button at the reply box's left end didn't open anything. A reply box with
+  // only its left end free above and below: no button outside (the corner inside, if there's room, else none).
+  const box = rect(8, 500, 359, 64)
+  const leftEndOnly = (x: number) => x < 40
+  assert.equal(buttonSpot(box, view, (x) => leftEndOnly(x)), null)
+  // A spot a little further in is fine.
+  const spot = buttonSpot(box, view, (x) => x >= LEFT_EDGE && x < 70)!
+  assert.ok(spot.left >= LEFT_EDGE, `${spot.left}`)
 })
