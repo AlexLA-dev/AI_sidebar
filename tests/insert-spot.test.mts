@@ -4,7 +4,7 @@ import { test } from "node:test"
 
 import { parseHTML } from "linkedom"
 
-import { BUTTON, buttonPlace, buttonSpot, cornerSpot, multiLineField, noButtonField } from "../src/content/insert/spot.ts"
+import { BUTTON, buttonPlace, buttonSpot, cornerSpot, multiLineField, nearRect, noButtonField, PANEL_CLEAR } from "../src/content/insert/spot.ts"
 
 const rect = (left: number, top: number, width: number, height: number) => ({ left, top, width, height, right: left + width, bottom: top + height })
 const view = { width: 375, height: 667 }
@@ -108,6 +108,22 @@ test("the order: the corners outside, then along the edges, and only then inside
   assert.equal(buttonPlace(box, view, taken([message, expand, footer]), busy), null)
   assert.equal(buttonPlace(box, view, free, busy)?.inside, false)
   assert.equal(measured, 1)
+})
+
+test("the panel open beside the page (iPad, its chat list): the button keeps clear of it", () => {
+  // 2.5 (82), the owner: the button by a page's field with the panel open on its chats, not over the panel.
+  const ipad = { width: 1024, height: 768 }
+  const panel = { left: 594, top: 10, right: 1014, bottom: 758 }
+  const clear = (x: number, y: number) => !nearRect(panel, x, y, PANEL_CLEAR)
+  // A field ending under the panel: along its top edge, left of the panel and a gap short of it.
+  const field = rect(40, 300, 700, 44)
+  const spot = buttonSpot(field, ipad, clear)!
+  assert.equal(spot.top, 300 - 4 - BUTTON)
+  assert.ok(spot.left + BUTTON <= panel.left - PANEL_CLEAR + 2, `left of the panel: ${spot.left}`)
+  // A field clear of the panel: its corner as usual.
+  assert.deepEqual(buttonSpot(rect(40, 300, 400, 44), ipad, clear), { top: 300 - 4 - BUTTON, left: 440 - BUTTON })
+  // A field all under the panel: no button.
+  assert.equal(buttonSpot(rect(620, 300, 360, 44), ipad, clear), null)
 })
 
 test("off screen or at the very top: the next spot, or none", () => {

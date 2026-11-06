@@ -12,6 +12,14 @@ export const BUTTON_WIDTH = 76
 export const GAP = 8
 // Two fingers on a trackpad: the gesture is over when wheel events stop coming this long (nothing marks the lift).
 export const WHEEL_IDLE = 150
+// The row moves this share of the fingers' scroll (2.5 (82), the owner: one to one, it ran far ahead of them).
+export const WHEEL_GAIN = 0.5
+// The fingers lifted: the scroll goes on by itself, each step smaller than the last, and the row would drift on
+// with it instead of settling. Lifted after LIFT_STEPS steps in a row under LIFT_SHARE of the gesture's fastest
+// step, once that one was LIFT_PEAK at least; a step past twice the last one after that is the fingers again.
+export const LIFT_PEAK = 4
+export const LIFT_SHARE = 0.35
+export const LIFT_STEPS = 3
 // Shorter than this on screen: the icon and its word side by side.
 export const SHORT = 52
 
@@ -63,11 +71,30 @@ export function openOffset(edge: number): number {
 }
 
 /**
- * A trackpad's sideways scroll as a finger's move: the row follows the fingers (deltas are the content's way,
- * the other way round unless the system's natural scrolling is off).
+ * A trackpad's sideways scroll as a finger's move: the row follows the fingers. Read as a Mac reads them (the
+ * deltas the content's way, unless natural scrolling is off), the row went against the fingers on an iPad
+ * (2.5 (82), the owner), so they're read the other way round; the swipe runs on iPhone and iPad only.
  */
 export function wheelStep(e: { deltaX: number; deltaY: number; deltaMode: number; inverted?: boolean }, width: number): { x: number; y: number } {
   const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? width : 1
-  const sign = e.inverted === false ? 1 : -1
+  const sign = e.inverted === false ? -1 : 1
   return { x: sign * e.deltaX * unit, y: sign * e.deltaY * unit }
+}
+
+export interface Lift {
+  peak: number
+  slow: number
+}
+
+/** Whether the fingers have lifted, as of this step (px, either way): see LIFT_PEAK. */
+export function wheelLifted(lift: Lift, step: number): boolean {
+  const s = Math.abs(step)
+  lift.peak = Math.max(lift.peak, s)
+  lift.slow = lift.peak >= LIFT_PEAK && s < lift.peak * LIFT_SHARE ? lift.slow + 1 : 0
+  return lift.slow >= LIFT_STEPS
+}
+
+/** After the row settled on a lift: whether this step is the fingers moving again rather than the scroll running out. */
+export function wheelAgain(last: number, step: number): boolean {
+  return Math.abs(step) > Math.max(LIFT_PEAK, last * 2)
 }

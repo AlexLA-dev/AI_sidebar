@@ -68,6 +68,14 @@ export function multiLineField(el: Element): boolean {
   return el.getAttribute("aria-multiline") !== "false"
 }
 
+/** How far the button keeps from our panel when it's open beside the page (QuickInsert). */
+export const PANEL_CLEAR = 8
+
+/** Whether a point is inside `r` or within `margin` of it. */
+export function nearRect(r: { left: number; top: number; right: number; bottom: number }, x: number, y: number, margin: number): boolean {
+  return x > r.left - margin && x < r.right + margin && y > r.top - margin && y < r.bottom + margin
+}
+
 const meets = (a: Rect | { left: number; top: number; right: number; bottom: number }, b: { left: number; top: number; right: number; bottom: number }) =>
   a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top
 

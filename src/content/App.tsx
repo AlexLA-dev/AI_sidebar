@@ -2586,6 +2586,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           touch={touch}
           bus={bus}
           panelOpen={open}
+          panelAside={open && view === "threads" && layout === "side"}
           consent={consent}
           onConsent={agreeQuietly}
           free={plan === "free" && !ownKeyActive}
