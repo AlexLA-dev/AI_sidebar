@@ -1,1 +1,1 @@
-summarizer,summary,tldr,extension,assistant,chat,reader,article,explain,research,study,browser,notes
+summarizer,webpage,article,tldr,extension,pdf,notes,shopping,clipboard,history,price,tracker,stock

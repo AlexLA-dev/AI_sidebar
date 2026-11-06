@@ -1,0 +1,25 @@
+# Подзаголовок и ключевые слова 2.5
+
+Владелец согласился с этим предложением, директор передал его «да». Тексты перенесены в `store/metadata/<locale>/subtitle.txt` и `keywords.txt` (en-US, en-CA, en-GB, en-AU, ru). Ниже — почему они такие.
+
+Источник: cpp-plan.md §5 (заметки store-pages): ключевые слова сведены с кластерами Apple Ads G1–G6.
+
+| Локаль | Подзаголовок | Ключевые слова |
+|---|---|---|
+| en-US, en-CA | Summarize & ask any web page (было «Summarize, ask & take notes») | summarizer,webpage,article,tldr,extension,pdf,notes,shopping,clipboard,history,price,tracker,stock |
+| en-GB, en-AU | Summarise & ask any web page (было «Summarise, ask & take notes») | то же, с summariser вместо summarizer |
+| ru | без изменений: «Пересказ, вопросы, заметки» | нейросеть,расширение,статьи,страницы,сайта,pdf,покупок,буфер,обмена,отслеживание,трекер,цен,цены |
+| остальные 10 | без изменений | без изменений |
+
+Что даёт:
+- clipboard, history — кластер G5 (быстрая вставка, «Скопированное»);
+- price, tracker, stock — кластер G6 (слежение за ценой);
+- shopping — G3;
+- pdf — G2 (это Pro: у него есть честная Pro-страница; если владелец против, вместо `pdf` поставить `tags`).
+
+Что уходит и почему:
+- translate / переводчик: в выдаче большие переводчики, своего кластера нет;
+- summary, assistant, chat, reader, explain, research, browser: слабый спрос или слова уже есть в названии и подзаголовке;
+- «notes» в EN переезжает из подзаголовка в ключевые слова.
+
+Лимиты: подзаголовок ≤ 30 символов, ключевые слова ≤ 100 (здесь 96–98).

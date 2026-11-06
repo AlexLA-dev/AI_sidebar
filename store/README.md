@@ -148,23 +148,41 @@ New in 2.2:
 
 ## Как пересобрать скриншоты
 
+Набор 2.5: десять кадров, одинаковых на iPhone 6.9", iPad 13" и Mac, EN и RU. Порядок задал владелец: сначала самое популярное, потом самые сильные новинки, потом глубина. Первые три кадра видны в поиске.
+1. Пересказ в Safari.
+2. Шаблон, заполненный из переписки.
+3. Слежение за ценой.
+4. Выделение: вопрос или заметка.
+5. «Скопированное» у поля.
+6. «Напомнить об этой странице».
+7. Закреплённые и отметки.
+8. Вопросы к видео и PDF.
+9. Подсказка, куда отнести ответ.
+10. Один чат на трёх устройствах.
+
+Pro на кадрах не упоминается (так решил владелец): в подписях нет «Pro:», а в панели скрыта кнопка «Get Pro».
+
+Подпись каждого кадра подтверждается тем, что на нём видно. Подписи, плашки и выноски заданы в `COPY` и `SETS_25` (`tools/store/compose.mjs`), сцены — в `tools/store/capture.mjs`.
+
 ```bash
 pnpm install
-CF_API_BASE=http://localhost:8787 node scripts/build-extension.mjs --out=/tmp/ext-local
-node --experimental-strip-types tools/preview/server.mts &        # локальный бэкенд с заготовленными ответами
-# Playwright нужен в той же папке, что и скрипты (npm i playwright):
-node tools/store/capture.mjs /tmp/ext-local /tmp/raw-en en         # ONLY=iphone,ipad,mac ограничит устройства
-node tools/store/compose.mjs /tmp/raw-en /tmp/shots-en en          # → iphone/ ipad/ mac/ + strip.png
-# Русский интерфейс: Chromium на macOS не слушает --lang, язык задаётся в настройках Chrome for Testing
-defaults write com.google.chrome.for.testing AppleLanguages -array ru
-node tools/store/capture.mjs /tmp/ext-local /tmp/raw-ru ru
-defaults delete com.google.chrome.for.testing AppleLanguages
-node tools/store/compose.mjs /tmp/raw-ru /tmp/shots-ru ru
+# Две сборки: обычный стенд и стенд с Pro (видео, подсказки, заполнение без строки «осталось N»).
+CF_API_BASE=http://localhost:8787 CF_OPEN_SHADOW=1 node scripts/build-extension.mjs --out=<ext-free>
+CF_API_BASE=http://localhost:8788 CF_OPEN_SHADOW=1 node scripts/build-extension.mjs --out=<ext-pro>
+PORT=8787 node --experimental-strip-types tools/preview/server.mts &
+PORT=8788 PREVIEW_PLAN=pro node --experimental-strip-types tools/preview/server.mts &
+# Playwright (1.64 под кэшированный chromium-1248) в той же папке, что и копии скриптов:
+cp tools/store/capture.mjs tools/store/compose.mjs <pw>/ && cd <pw>
+node capture.mjs <ext-free> <raw-en> en                                   # ONLY=iphone,ipad,mac  SCENES=watch,…
+CF_STAND=http://localhost:8788 SET=pro25 node capture.mjs <ext-pro> <raw-en> en
+CF_ROOT=<repo> node compose.mjs <raw-en> <out-en> en                      # → iphone/ ipad/ mac/ + strip.png
+# То же с ru вместо en.
 ```
 
-Набор (с 2.2, одинаковый на iPhone, iPad и Mac): «Перескажет любую страницу» → «Ответы Google с источниками» → «Выделите текст и спросите» → «Сравнит статьи в одном чате» (тёмный) → «Переведёт на русский». Каждая подпись подтверждается тем, что видно на кадре; выноски увеличивают доказательство: источники Google, кнопку у выделения, таблицу сравнения (на iPhone панель во всю ширину, поэтому там вместо таблицы плашка «Помнит контекст между сайтами»).
-
-Подписи, плашки и выноски лежат в `COPY` и `SETS` в `tools/store/compose.mjs`, демо-ответы в `tools/preview/answers.json`, демо-статьи в `tools/preview/article*.html` (вторая статья для сравнения — `article-2*.html`).
+- Демо-сайты открываются на своих доменах (mail.northwind.studio, soundhouse.store и т. п.): Chromium сводит их на стенд через `--host-resolver-rules`.
+- Письмо в `tools/preview/inbox*.html` лежит в блоке переписки, поэтому «Заполнить со страницы» берёт имя из неё, а под шаблоном видна ссылка «Переписать под переписку».
+- На Mac у поля нет кнопки: список открывается по ⌃⇧V.
+- Строка счётчика бесплатных ответов скрыта на всех кадрах: страница App Store не называет лимитов.
 
 Если `capture.mjs` падает на ожидании service worker, пересоберите расширение: macOS чистит временные папки и может удалить часть файлов сборки (иконки), тогда Chromium молча не загружает расширение.
 
