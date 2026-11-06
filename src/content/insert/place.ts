@@ -1,8 +1,28 @@
-// Where quick insert's windows go: under the caret (kept on screen), or as a sheet over the bottom of
-// what's visible (above the keyboard when it's up).
+// Where quick insert's windows go: beside the field when there's room, else under the caret (kept on screen), or
+// as a sheet over the bottom of what's visible (above the keyboard when it's up).
 
+import { panelRoot } from "../root"
 import type { Field } from "./field"
-import { caretRect, viewport } from "./watch"
+import { besideSpot } from "./spot"
+import { caretRect, pageRect, viewport } from "./watch"
+
+/** Our panel's box while it's open beside the page. */
+function panelBox(): DOMRect | null {
+  return panelRoot()?.querySelector(".cf-panel")?.getBoundingClientRect() ?? null
+}
+
+/** Beside the field (besideSpot): placed and true, or false with nothing changed but the height cap. */
+export function placeBeside(el: HTMLElement, field: Field | null, touch: boolean, width: number, maxHeight: number): boolean {
+  if (!field || !field.el.isConnected) return false
+  const vp = viewport(touch)
+  el.style.maxHeight = `${Math.min(maxHeight, vp.height - 16)}px`
+  const spot = besideSpot(pageRect(field.el), vp, width, el.offsetHeight, panelBox())
+  if (!spot) return false
+  el.style.width = `${spot.width}px`
+  el.style.top = `${spot.top + vp.dy}px`
+  el.style.left = `${spot.left + vp.dx}px`
+  return true
+}
 
 export function placeByCaret(el: HTMLElement, field: Field | null, touch: boolean, width: number): void {
   const vp = viewport(touch)

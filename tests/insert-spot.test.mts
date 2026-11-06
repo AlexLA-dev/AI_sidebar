@@ -4,7 +4,7 @@ import { test } from "node:test"
 
 import { parseHTML } from "linkedom"
 
-import { BUTTON, buttonPlace, buttonSpot, cornerSpot, multiLineField, nearRect, noButtonField, PANEL_CLEAR } from "../src/content/insert/spot.ts"
+import { besideSpot, BUTTON, buttonPlace, buttonSpot, cornerSpot, fieldPointFree, multiLineField, nearRect, noButtonField, pagePointFree, PANEL_CLEAR, SIDE_MIN } from "../src/content/insert/spot.ts"
 
 const rect = (left: number, top: number, width: number, height: number) => ({ left, top, width, height, right: left + width, bottom: top + height })
 const view = { width: 375, height: 667 }
@@ -126,6 +126,29 @@ test("the panel open beside the page (iPad, its chat list): the button keeps cle
   assert.equal(buttonSpot(rect(620, 300, 360, 44), ipad, clear), null)
 })
 
+test("quick insert's window beside the field, not over it: right, else left, else none (then over the field as before)", () => {
+  // 2.5 (83), the owner: LinkedIn's messages on an iPad, the panel open on its chats; the template's window covered
+  // the reply box. Room right of the box up to the panel: there, as wide as fits, its bottom level with the box's.
+  const ipad = { width: 1376, height: 1000 }
+  const panel = { left: 1095, top: 10, right: 1366, bottom: 990 }
+  const box = rect(372, 860, 308, 110)
+  const spot = besideSpot(box, ipad, 420, 180, panel)!
+  assert.deepEqual(spot, { left: 680 + 8, top: 970 - 180, width: 1095 - 8 - 688 })
+  // No panel: the full width.
+  assert.equal(besideSpot(box, ipad, 420, 180, null)!.width, 420)
+  // The box on the right of the screen: left of it.
+  const onRight = besideSpot(rect(900, 860, 400, 110), ipad, 420, 180, null)!
+  assert.deepEqual(onRight, { left: 900 - 8 - 420, top: 790, width: 420 })
+  // A phone: the box takes the width, no room either side.
+  assert.equal(besideSpot(rect(8, 600, 359, 44), { width: 375, height: 667 }, 420, 180, null), null)
+  // Narrower than SIDE_MIN either side: none.
+  assert.equal(besideSpot(rect(SIDE_MIN, 400, ipad.width - 2 * SIDE_MIN, 44), ipad, 420, 180, null), null)
+  // A tall window by a box near the top: kept on screen, from the top down.
+  assert.equal(besideSpot(rect(40, 20, 300, 60), ipad, 420, 400, null)!.top, 8)
+  // A box off screen: none.
+  assert.equal(besideSpot(rect(40, 1200, 300, 60), ipad, 420, 180, null), null)
+})
+
 test("off screen or at the very top: the next spot, or none", () => {
   assert.equal(buttonSpot(rect(16, 700, 343, 44), view, free), null)
   // A field at the top of the view: no room above, the field fills the width, so below.
@@ -143,4 +166,39 @@ test("searches, codes, emails, phones and links get no button; ordinary fields d
   </body>`)
   for (const id of "abcdefghijk") assert.equal(noButtonField(document.getElementById(id)!), true, id)
   for (const id of "mno") assert.equal(noButtonField(document.getElementById(id)!), false, id)
+})
+
+test("a same-origin frame the size of the page (LinkedIn's messages opened from the feed): what's in it counts", () => {
+  // 2.5 (83), the owner: after the feed, LinkedIn draws its messages in a frame covering the page; every point was
+  // "a frame", so taken, and the button by the reply box never came (a reload draws them in the page, and it came).
+  const top = parseHTML("<html><body><iframe id=\"f\"></iframe><iframe id=\"x\"></iframe></body></html>").document
+  const inner = parseHTML("<html><body><div id=\"chat\"></div><button id=\"send\">Send</button><div id=\"box\" contenteditable=\"true\"><p id=\"line\"></p></div></body></html>").document
+  const frame = top.getElementById("f")! as any
+  Object.defineProperty(frame, "contentDocument", { value: inner })
+  Object.assign(frame, { clientLeft: 0, clientTop: 0, getBoundingClientRect: () => ({ left: 0, top: 50, right: 1000, bottom: 800, width: 1000, height: 750 }) })
+  // Another site's frame: its document can't be read.
+  const foreign = top.getElementById("x")! as any
+  Object.defineProperty(foreign, "contentDocument", { get: () => { throw new Error("cross-origin") } })
+  const seen: Array<[number, number]> = []
+  ;(top as any).elementsFromPoint = (x: number) => [x >= 2000 ? foreign : frame]
+  ;(inner as any).elementsFromPoint = (x: number, y: number) => {
+    seen.push([x, y])
+    return [x < 100 ? inner.getElementById("send")! : y > 500 ? inner.getElementById("line")! : inner.getElementById("chat")!]
+  }
+  const was = (globalThis as any).document
+  ;(globalThis as any).document = top
+  ;(globalThis as any).Node ??= { TEXT_NODE: 3 }
+  try {
+    const free = pagePointFree(null)
+    assert.equal(free(300, 200), true, "the chat's plain background in the frame")
+    assert.deepEqual(seen.at(-1), [300, 150], "the point in the frame's own coordinates")
+    assert.equal(free(50, 200), false, "a button in the frame")
+    assert.equal(free(2500, 200), false, "another site's frame stays taken")
+    // Inside the reply box, in the frame.
+    const inBox = fieldPointFree(inner.getElementById("box")!, null)
+    assert.equal(inBox(300, 600), true)
+    assert.equal(inBox(300, 200), false)
+  } finally {
+    ;(globalThis as any).document = was
+  }
 })

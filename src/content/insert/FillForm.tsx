@@ -12,7 +12,7 @@ import { extractPage } from "../page"
 import { loadConsent } from "../store"
 import { conversationAround, conversationText } from "./conversation"
 import type { Field } from "./field"
-import { follow, placeByCaret, placeSheet } from "./place"
+import { follow, placeBeside, placeByCaret, placeSheet } from "./place"
 import { markRewriteHintSeen, report, rewriteHintSeen, sendBackground } from "./store"
 
 interface Props {
@@ -77,7 +77,7 @@ export function FillForm(p: Props): VNode {
   useLayoutEffect(() => {
     const el = ref.current
     if (!el) return
-    return follow(el, () => (p.sheet ? placeSheet(el, p.touch) : placeByCaret(el, p.field, p.touch, 420)))
+    return follow(el, () => placeBeside(el, p.field, p.touch, 420, 620) || (p.sheet ? placeSheet(el, p.touch) : placeByCaret(el, p.field, p.touch, 420)))
   })
   // The first blank takes the caret (on iPhone that brings the keyboard back up for it).
   useEffect(() => {

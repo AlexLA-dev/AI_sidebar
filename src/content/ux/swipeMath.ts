@@ -14,9 +14,13 @@ export const GAP = 8
 export const WHEEL_IDLE = 150
 // The row moves this share of the fingers' scroll (2.5 (82), the owner: one to one, it ran far ahead of them).
 export const WHEEL_GAIN = 0.5
-// The fingers lifted: the scroll goes on by itself, each step smaller than the last, and the row would drift on
-// with it instead of settling. Lifted after LIFT_STEPS steps in a row under LIFT_SHARE of the gesture's fastest
-// step, once that one was LIFT_PEAK at least; a step past twice the last one after that is the fingers again.
+// One step of the fingers counts this much at most (px, before WHEEL_GAIN): a burst of a quick flick doesn't
+// throw the row across (2.5 (83), the owner: "now hyper, now not listening").
+export const WHEEL_STEP_MAX = 36
+// The fingers lifted: the scroll goes on by itself, each step no bigger than the one before, and the row would drift
+// on with it instead of settling. Lifted after LIFT_STEPS such steps in a row under LIFT_SHARE of the gesture's
+// fastest step, once that one was LIFT_PEAK at least. Fingers slowing down while they still move don't shrink step
+// by step like that. After it, a step bigger than the last one, or back the other way, is the fingers again.
 export const LIFT_PEAK = 4
 export const LIFT_SHARE = 0.35
 export const LIFT_STEPS = 3
@@ -78,23 +82,29 @@ export function openOffset(edge: number): number {
 export function wheelStep(e: { deltaX: number; deltaY: number; deltaMode: number; inverted?: boolean }, width: number): { x: number; y: number } {
   const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? width : 1
   const sign = e.inverted === false ? -1 : 1
-  return { x: sign * e.deltaX * unit, y: sign * e.deltaY * unit }
+  const cap = (v: number) => Math.max(-WHEEL_STEP_MAX, Math.min(WHEEL_STEP_MAX, v))
+  return { x: cap(sign * e.deltaX * unit), y: cap(sign * e.deltaY * unit) }
 }
 
 export interface Lift {
   peak: number
   slow: number
+  // The step before (its size).
+  prev: number
 }
 
 /** Whether the fingers have lifted, as of this step (px, either way): see LIFT_PEAK. */
 export function wheelLifted(lift: Lift, step: number): boolean {
   const s = Math.abs(step)
   lift.peak = Math.max(lift.peak, s)
-  lift.slow = lift.peak >= LIFT_PEAK && s < lift.peak * LIFT_SHARE ? lift.slow + 1 : 0
+  const shrinking = s <= lift.prev
+  lift.slow = lift.peak >= LIFT_PEAK && s < lift.peak * LIFT_SHARE && shrinking ? lift.slow + 1 : 0
+  lift.prev = s
   return lift.slow >= LIFT_STEPS
 }
 
-/** After the row settled on a lift: whether this step is the fingers moving again rather than the scroll running out. */
+/** After the row settled on a lift (`last`: the step then, signed): whether this step is the fingers moving again. */
 export function wheelAgain(last: number, step: number): boolean {
-  return Math.abs(step) > Math.max(LIFT_PEAK, last * 2)
+  if (Math.abs(step) > Math.abs(last) + 1) return true
+  return Math.abs(step) >= 2 && Math.sign(step) !== Math.sign(last) && last !== 0
 }
