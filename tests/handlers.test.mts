@@ -116,11 +116,11 @@ const rpc: Record<string, (args: Record<string, any>) => unknown> = {
   cf_owner_insights: ({ p_days }) => ({ days: p_days, per_user: [{ plan: "free", users: 2, user_days: 3, asked_days: 2, requests: 4, max_per_day: 3 }] }),
   cf_limits_report: ({ p_days }) => ({ days: p_days, rows: [{ key: "memory_window", hits: 74, base: 311, status: "systematic" }] }),
   cf_organize_report: ({ p_days }) => ({ days: p_days, suggestions: [{ what: "move", why: "site", shown: 5, accepted: 3, dismissed: 1, undone: 1, users: 2 }], promo: [], optin: [], api: null }),
-  cf_onboarding: () => ({ people: [{ day: "2026-11-01", device: "iPhone", kind: "app", ext: 300, panel: 420, answer: 540 }], open_reviews: [] }),
+  cf_onboarding: () => ({ people: [{ day: "2026-11-01", device: "iPhone", kind: "app", ext: 300, panel: 420, answer: 540, limit: 900, paid: 1200 }], open_reviews: [] }),
   cf_new_user_outcomes: () => [{ day: "2026-11-02", new: 12, limit_d0: 3, pro_bought: 2 }],
   cf_features: ({ p_days, p_base }) => ({ days: p_days, active: 2, features: [{ f: "ask", base: 2, people: 2 }], base: p_base }),
   cf_feature_funnels: () => [{ funnel: "purchase", steps: [{ k: 1, step: "upsell.shown", people: 1 }] }],
-  cf_after_limit: () => ({ days: 7, today: "2026-11-05", people: [{ day: "2026-11-04", before: 5, paid_after: null, back_days: 1 }], paying: [] }),
+  cf_after_limit: () => ({ days: 7, today: "2026-11-05", people: [{ day: "2026-11-04", platform: "ios", locale: "uk-UA", before: 5, paid_after: null, back_days: 1 }], paying: [] }),
   cf_releases: () => [{ platform: "IOS", version: "2.4", approved_at: "2026-11-04T14:59:19Z" }]
 }
 
@@ -547,10 +547,12 @@ test("admin usage report needs ADMIN_TOKEN", async () => {
   assert.deepEqual([body.insights.days, body.insights.per_user[0].requests], [180, 4])
   assert.deepEqual([body.limits_report.days, body.limits_report.rows[0].key], [180, "memory_window"])
   assert.equal(body.onboarding.people[0].answer, 540)
+  assert.deepEqual([body.onboarding.people[0].limit, body.onboarding.people[0].paid], [900, 1200])
   assert.deepEqual(body.new_outcomes[0], { day: "2026-11-02", new: 12, limit_d0: 3, pro_bought: 2 })
   assert.deepEqual([body.features.features[0].f, body.features.base.paywall, body.features.base.panel.on], ["ask", { since: "2.5", on: "app" }, "ext"])
   assert.equal(body.feature_funnels[0].funnel, "purchase")
   assert.deepEqual([body.after_limit.people[0].before, body.after_limit.paying], [5, []])
+  assert.equal(body.after_limit.people[0].locale, "uk-UA")
   assert.deepEqual(body.releases, [{ platform: "IOS", version: "2.4", approved_at: "2026-11-04T14:59:19Z" }])
   assert.deepEqual([body.organize_report.days, body.organize_report.suggestions[0].accepted], [180, 3])
 })
