@@ -191,6 +191,39 @@
  "uxDeletedChat": {
   "message": "对话已删除"
  },
+ "trashTitle": {
+  "message": "最近删除"
+ },
+ "trashRow": {
+  "message": "最近删除 · {0}"
+ },
+ "trashNote": {
+  "message": "对话会在这里保留 30 天，之后将被永久删除。"
+ },
+ "trashRestore": {
+  "message": "恢复"
+ },
+ "trashDeleteNow": {
+  "message": "立即删除"
+ },
+ "trashDeleteAll": {
+  "message": "全部删除"
+ },
+ "trashDeleteAllAsk": {
+  "message": "要永久删除“最近删除”中的所有对话吗？此操作无法撤销。"
+ },
+ "trashDays_one": {
+  "message": "{0} 天"
+ },
+ "trashDays_few": {
+  "message": "{0} 天"
+ },
+ "trashDays_many": {
+  "message": "{0} 天"
+ },
+ "trashDays_other": {
+  "message": "{0} 天"
+ },
  "uxPinned": {
   "message": "已置顶"
  },

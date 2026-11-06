@@ -191,6 +191,39 @@
  "uxDeletedChat": {
   "message": "Discussion supprimée"
  },
+ "trashTitle": {
+  "message": "Suppressions récentes"
+ },
+ "trashRow": {
+  "message": "Suppressions récentes · {0}"
+ },
+ "trashNote": {
+  "message": "Les discussions restent disponibles ici pendant 30 jours. Elles seront ensuite supprimées définitivement."
+ },
+ "trashRestore": {
+  "message": "Restaurer"
+ },
+ "trashDeleteNow": {
+  "message": "Supprimer maintenant"
+ },
+ "trashDeleteAll": {
+  "message": "Tout supprimer"
+ },
+ "trashDeleteAllAsk": {
+  "message": "Supprimer définitivement toutes les discussions des Suppressions récentes ? Cette action est irréversible."
+ },
+ "trashDays_one": {
+  "message": "{0} jour"
+ },
+ "trashDays_few": {
+  "message": "{0} jours"
+ },
+ "trashDays_many": {
+  "message": "{0} jours"
+ },
+ "trashDays_other": {
+  "message": "{0} jours"
+ },
  "uxPinned": {
   "message": "Épinglé"
  },

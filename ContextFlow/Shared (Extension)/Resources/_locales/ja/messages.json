@@ -191,6 +191,39 @@
  "uxDeletedChat": {
   "message": "チャットを削除しました"
  },
+ "trashTitle": {
+  "message": "最近削除した項目"
+ },
+ "trashRow": {
+  "message": "最近削除した項目 · {0}"
+ },
+ "trashNote": {
+  "message": "チャットはここに30日間保存されます。その後、完全に削除されます。"
+ },
+ "trashRestore": {
+  "message": "復元"
+ },
+ "trashDeleteNow": {
+  "message": "今すぐ削除"
+ },
+ "trashDeleteAll": {
+  "message": "すべて削除"
+ },
+ "trashDeleteAllAsk": {
+  "message": "「最近削除した項目」のチャットをすべて完全に削除しますか？この操作は取り消せません。"
+ },
+ "trashDays_one": {
+  "message": "{0}日"
+ },
+ "trashDays_few": {
+  "message": "{0}日"
+ },
+ "trashDays_many": {
+  "message": "{0}日"
+ },
+ "trashDays_other": {
+  "message": "{0}日"
+ },
  "uxPinned": {
   "message": "固定済み"
  },

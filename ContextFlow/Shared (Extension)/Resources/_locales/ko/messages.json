@@ -191,6 +191,39 @@
  "uxDeletedChat": {
   "message": "채팅 삭제됨"
  },
+ "trashTitle": {
+  "message": "최근 삭제된 항목"
+ },
+ "trashRow": {
+  "message": "최근 삭제된 항목 · {0}"
+ },
+ "trashNote": {
+  "message": "채팅은 여기에 30일 동안 보관돼요. 그 후에는 영구적으로 삭제돼요."
+ },
+ "trashRestore": {
+  "message": "복원"
+ },
+ "trashDeleteNow": {
+  "message": "지금 삭제"
+ },
+ "trashDeleteAll": {
+  "message": "모두 삭제"
+ },
+ "trashDeleteAllAsk": {
+  "message": "최근 삭제된 항목의 채팅을 모두 영구적으로 삭제할까요? 이 작업은 실행 취소할 수 없어요."
+ },
+ "trashDays_one": {
+  "message": "{0}일"
+ },
+ "trashDays_few": {
+  "message": "{0}일"
+ },
+ "trashDays_many": {
+  "message": "{0}일"
+ },
+ "trashDays_other": {
+  "message": "{0}일"
+ },
  "uxPinned": {
   "message": "고정됨"
  },

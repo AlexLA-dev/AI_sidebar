@@ -191,6 +191,39 @@
  "uxDeletedChat": {
   "message": "Conversa apagada"
  },
+ "trashTitle": {
+  "message": "Apagados Recentemente"
+ },
+ "trashRow": {
+  "message": "Apagados Recentemente · {0}"
+ },
+ "trashNote": {
+  "message": "As conversas ficam disponíveis aqui por 30 dias. Depois disso, serão apagadas permanentemente."
+ },
+ "trashRestore": {
+  "message": "Restaurar"
+ },
+ "trashDeleteNow": {
+  "message": "Apagar agora"
+ },
+ "trashDeleteAll": {
+  "message": "Apagar tudo"
+ },
+ "trashDeleteAllAsk": {
+  "message": "Apagar permanentemente todas as conversas de Apagados Recentemente? Essa ação não pode ser desfeita."
+ },
+ "trashDays_one": {
+  "message": "{0} dia"
+ },
+ "trashDays_few": {
+  "message": "{0} dias"
+ },
+ "trashDays_many": {
+  "message": "{0} dias"
+ },
+ "trashDays_other": {
+  "message": "{0} dias"
+ },
  "uxPinned": {
   "message": "Fixada"
  },

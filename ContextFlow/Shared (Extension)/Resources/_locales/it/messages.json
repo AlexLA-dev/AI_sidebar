@@ -191,6 +191,39 @@
  "uxDeletedChat": {
   "message": "Chat eliminata"
  },
+ "trashTitle": {
+  "message": "Eliminati di recente"
+ },
+ "trashRow": {
+  "message": "Eliminati di recente · {0}"
+ },
+ "trashNote": {
+  "message": "Le chat restano disponibili qui per 30 giorni. Trascorso questo periodo, verranno eliminate definitivamente."
+ },
+ "trashRestore": {
+  "message": "Ripristina"
+ },
+ "trashDeleteNow": {
+  "message": "Elimina ora"
+ },
+ "trashDeleteAll": {
+  "message": "Elimina tutto"
+ },
+ "trashDeleteAllAsk": {
+  "message": "Eliminare definitivamente tutte le chat in Eliminati di recente? Questa azione non può essere annullata."
+ },
+ "trashDays_one": {
+  "message": "{0} giorno"
+ },
+ "trashDays_few": {
+  "message": "{0} giorni"
+ },
+ "trashDays_many": {
+  "message": "{0} giorni"
+ },
+ "trashDays_other": {
+  "message": "{0} giorni"
+ },
  "uxPinned": {
   "message": "Fissata"
  },

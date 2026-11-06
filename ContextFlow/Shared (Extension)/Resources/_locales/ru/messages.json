@@ -191,6 +191,39 @@
  "uxDeletedChat": {
   "message": "Чат удалён"
  },
+ "trashTitle": {
+  "message": "Недавно удалённые"
+ },
+ "trashRow": {
+  "message": "Недавно удалённые · {0}"
+ },
+ "trashNote": {
+  "message": "Чаты хранятся здесь 30 дней. После этого они будут удалены навсегда."
+ },
+ "trashRestore": {
+  "message": "Восстановить"
+ },
+ "trashDeleteNow": {
+  "message": "Удалить сейчас"
+ },
+ "trashDeleteAll": {
+  "message": "Удалить все"
+ },
+ "trashDeleteAllAsk": {
+  "message": "Удалить навсегда все чаты из «Недавно удалённых»? Это действие нельзя отменить."
+ },
+ "trashDays_one": {
+  "message": "{0} день"
+ },
+ "trashDays_few": {
+  "message": "{0} дня"
+ },
+ "trashDays_many": {
+  "message": "{0} дней"
+ },
+ "trashDays_other": {
+  "message": "{0} дня"
+ },
  "uxPinned": {
   "message": "Закреплено"
  },

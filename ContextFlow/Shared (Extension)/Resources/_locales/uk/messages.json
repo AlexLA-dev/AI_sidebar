@@ -191,6 +191,39 @@
  "uxDeletedChat": {
   "message": "Чат видалено"
  },
+ "trashTitle": {
+  "message": "Нещодавно видалені"
+ },
+ "trashRow": {
+  "message": "Нещодавно видалені · {0}"
+ },
+ "trashNote": {
+  "message": "Чати зберігаються тут 30 днів. Після цього їх буде видалено назавжди."
+ },
+ "trashRestore": {
+  "message": "Відновити"
+ },
+ "trashDeleteNow": {
+  "message": "Видалити зараз"
+ },
+ "trashDeleteAll": {
+  "message": "Видалити всі"
+ },
+ "trashDeleteAllAsk": {
+  "message": "Видалити назавжди всі чати з «Нещодавно видалених»? Цю дію не можна скасувати."
+ },
+ "trashDays_one": {
+  "message": "{0} день"
+ },
+ "trashDays_few": {
+  "message": "{0} дні"
+ },
+ "trashDays_many": {
+  "message": "{0} днів"
+ },
+ "trashDays_other": {
+  "message": "{0} дня"
+ },
  "uxPinned": {
   "message": "Закріплено"
  },

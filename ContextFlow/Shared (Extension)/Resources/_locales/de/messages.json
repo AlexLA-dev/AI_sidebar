@@ -191,6 +191,39 @@
  "uxDeletedChat": {
   "message": "Chat gelöscht"
  },
+ "trashTitle": {
+  "message": "Zuletzt gelöscht"
+ },
+ "trashRow": {
+  "message": "Zuletzt gelöscht · {0}"
+ },
+ "trashNote": {
+  "message": "Chats sind hier 30 Tage lang verfügbar. Danach werden sie endgültig gelöscht."
+ },
+ "trashRestore": {
+  "message": "Wiederherstellen"
+ },
+ "trashDeleteNow": {
+  "message": "Jetzt löschen"
+ },
+ "trashDeleteAll": {
+  "message": "Alle löschen"
+ },
+ "trashDeleteAllAsk": {
+  "message": "Alle Chats in „Zuletzt gelöscht“ endgültig löschen? Dies kann nicht widerrufen werden."
+ },
+ "trashDays_one": {
+  "message": "{0} Tag"
+ },
+ "trashDays_few": {
+  "message": "{0} Tage"
+ },
+ "trashDays_many": {
+  "message": "{0} Tage"
+ },
+ "trashDays_other": {
+  "message": "{0} Tage"
+ },
  "uxPinned": {
   "message": "Angeheftet"
  },
