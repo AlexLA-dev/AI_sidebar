@@ -9,7 +9,10 @@ process.env.SUPABASE_URL = "https://db.test"
 process.env.SUPABASE_SERVICE_ROLE_KEY = "service-key"
 process.env.OPENAI_API_KEY = "sk-test"
 process.env.GEMINI_API_KEY = "gemini-test"
-process.env.ADMIN_TOKEN = "admin-test-token"
+const { generateKeyPairSync, sign } = await import("node:crypto")
+const evalKeys = generateKeyPairSync("ed25519")
+process.env.CF_EVAL_PUBLIC_KEY = evalKeys.publicKey.export({ type: "spki", format: "der" }).toString("base64")
+const evalHeader = (install: string, at = Date.now()) => `${at}.${sign(null, Buffer.from(`${install}.${at}`), evalKeys.privateKey).toString("base64url")}`
 process.env.ULTRA_SPEAK_WEEKLY_SECONDS = "120"
 
 type Item = { subject: string; period: string; limit: number | null; amount?: number }
@@ -287,14 +290,18 @@ test("speak: a stream that breaks off is charged only for what was said", async 
   assert.equal(events.find((e) => e.kind === "speak")?.data.ok, false)
 })
 
-test("speak: the eval token stands in for Ultra on a deploy preview only", async () => {
-  const req = () => post("https://x/api/v2/speak", { installId: INSTALL, text: "Eval." }, { "x-cf-eval": "admin-test-token" })
+test("speak: a signed measuring request stands in for Ultra on a deploy preview only", async () => {
+  const req = () => post("https://x/api/v2/speak", { installId: INSTALL, text: "Eval." }, { "x-cf-eval": evalHeader(INSTALL) })
   assert.equal((await speak(req(), ctx())).status, 403)
   ;(globalThis as { Netlify?: unknown }).Netlify = { context: { deploy: { context: "production" } } }
   assert.equal((await speak(req(), ctx())).status, 403)
   ;(globalThis as { Netlify?: unknown }).Netlify = { context: { deploy: { context: "deploy-preview" } } }
-  const bad = post("https://x/api/v2/speak", { installId: INSTALL, text: "Eval." }, { "x-cf-eval": "wrong-token-of-same-len" })
-  assert.equal((await speak(bad, ctx())).status, 403)
+  // Another install's signature, an old one, or none of ours.
+  for (const header of [evalHeader("00000000-0000-4000-8000-000000000000"), evalHeader(INSTALL, Date.now() - 11 * 60_000), "123.abc"]) {
+    const bad = await speak(post("https://x/api/v2/speak", { installId: INSTALL, text: "Eval." }, { "x-cf-eval": header }), ctx())
+    assert.equal(bad.status, 403)
+    assert.equal((await bad.json()).eval, "token")
+  }
   const c = ctx()
   const res = await speak(req(), c)
   assert.equal(res.status, 200)

@@ -1,4 +1,4 @@
-import { timingSafeEqual } from "node:crypto"
+import { createPublicKey, verify } from "node:crypto"
 
 import { toEntitlement, verifyTransactionCached, type Entitlement } from "./apple.mts"
 import { config, PRODUCTS, type Plan } from "./config.mts"
@@ -80,10 +80,28 @@ export function proOffer(access: Access): { code: string; discount: number } | n
 }
 
 /**
- * Deploy previews only (never production): a request with the admin token in `x-cf-eval` counts as Ultra, so
- * read aloud and the Ultra counters can be measured there without a purchase (StoreKit test transactions aren't
- * signed by Apple). The counters go to `eval:<install>`; the rows are marked as tests (db.mts testMark).
+ * Deploy previews only (never production): a request signed with the measuring key counts as Ultra, so read aloud
+ * and the Ultra counters can be measured there without a purchase (StoreKit test transactions aren't signed by
+ * Apple). `x-cf-eval: <ms>.<Ed25519 signature of "<installId>.<ms>", base64url>`, at most 10 minutes old. Only the
+ * public key is here (CF_EVAL_PUBLIC_KEY replaces it, for tests); the private key never leaves the measuring Mac.
+ * The counters go to `tx:eval-<install>`; the rows are marked as tests (db.mts testMark).
  */
+const EVAL_PUBLIC_KEY = "MCowBQYDK2VwAyEAv7vts/GRgB6nrdl42cv/23RdbMSGjYQufT8U5z7SifU="
+const EVAL_MAX_AGE_MS = 10 * 60_000
+
+function evalSigned(header: string, installId: string): boolean {
+  const [ts, sig] = header.split(".")
+  const at = Number(ts)
+  if (!sig || !Number.isFinite(at) || Math.abs(Date.now() - at) > EVAL_MAX_AGE_MS) return false
+  try {
+    const raw = (process.env.CF_EVAL_PUBLIC_KEY ?? EVAL_PUBLIC_KEY).trim()
+    const key = createPublicKey({ key: Buffer.from(raw, "base64"), format: "der", type: "spki" })
+    return verify(null, Buffer.from(`${installId}.${ts}`), key, Buffer.from(sig, "base64url"))
+  } catch {
+    return false
+  }
+}
+
 export function evalAccess(req: Request, installId: string, context?: { deploy?: { context?: string } }): Access | null {
   return evalCheck(req, installId, context).access
 }
@@ -93,10 +111,8 @@ export function evalCheck(req: Request, installId: string, context?: { deploy?: 
   if (!req.headers.has("x-cf-eval")) return { access: null }
   const deploy = context?.deploy?.context ??
     (globalThis as { Netlify?: { context?: { deploy?: { context?: string } } | null } }).Netlify?.context?.deploy?.context ?? process.env.CONTEXT
-  if (!deploy || deploy === "production" || !config.adminToken) return { access: null, refused: "context" }
-  const given = Buffer.from(req.headers.get("x-cf-eval") ?? "")
-  const token = Buffer.from(config.adminToken)
-  if (given.length !== token.length || !timingSafeEqual(given, token)) return { access: null, refused: "token" }
+  if (!deploy || deploy === "production") return { access: null, refused: "context" }
+  if (!evalSigned(req.headers.get("x-cf-eval") ?? "", installId)) return { access: null, refused: "token" }
   return { access: evalUltra(installId) }
 }
 
