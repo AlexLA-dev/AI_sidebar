@@ -4,6 +4,7 @@ import SwiftUI
 import UserNotifications
 #if os(iOS)
 import AdServices
+import AVKit
 import SafariServices
 import UIKit
 #else
@@ -242,7 +243,9 @@ struct SetupCard: View {
     private var guide: some View {
         Card(title: "Turn on ContextFlow", systemImage: "switch.2") {
             SettingsWalkthrough()
-            Button(action: openExtensionSettings) {
+                // The picture-in-picture guide's source: in the window, under the walkthrough it shows.
+                .background(PiPSource(layer: SettingsPiP.shared.layer))
+            Button(action: openSettingsWithGuide) {
                 Label("Open Settings", systemImage: "gear")
                     .font(.headline)
                     .frame(maxWidth: .infinity)
@@ -269,6 +272,12 @@ struct SetupCard: View {
                 .buttonStyle(.bordered)
             }
         }
+    }
+
+    /// With the guide floating over Settings where picture in picture works (2.6, the owner: "like Chrome, a video
+    /// over the windows with the steps"); else Settings alone.
+    private func openSettingsWithGuide() {
+        SettingsPiP.shared.start(phases: directSettings ? [3, 4, 5] : Array(0..<6), then: openExtensionSettings)
     }
 
     private func openExtensionSettings() {
@@ -441,7 +450,7 @@ private struct SettingsScreen: View {
                     HStack {
                         Text("Allow Extension").font(.subheadline)
                         Spacer()
-                        Toggle("", isOn: .constant(phase >= 4)).labelsHidden().scaleEffect(0.8).allowsHitTesting(false)
+                        DrawnSwitch(on: phase >= 4)
                     }
                     .padding(.horizontal, 12)
                     .frame(height: 40)
@@ -509,6 +518,219 @@ private struct SettingsScreen: View {
                 Color.accentColor.opacity(scheme == .dark ? 0.28 : 0.14)
                 TouchRing().padding(.trailing, ringTrailing)
             }
+        }
+    }
+}
+
+/// The switch in the walkthrough, drawn: the same in the card and in the picture-in-picture frames.
+private struct DrawnSwitch: View {
+    let on: Bool
+
+    var body: some View {
+        Capsule()
+            .fill(on ? Color.green : Color(uiColor: .systemFill))
+            .frame(width: 41, height: 25)
+            .overlay(alignment: on ? .trailing : .leading) {
+                Circle().fill(Color.white).frame(width: 21, height: 21).padding(2).shadow(color: .black.opacity(0.15), radius: 1, y: 1)
+            }
+            .accessibilityHidden(true)
+    }
+}
+
+// MARK: - The guide over Settings (picture in picture)
+
+/// The walkthrough's screens floating over Settings while the person switches ContextFlow on (2.6, the owner's note:
+/// "like Chrome, a video over the windows with the steps"). "Open Settings" starts it, then opens Settings; it stops
+/// when the app is active again. The frames are the walkthrough's own screens with their step, drawn in the app's
+/// language (no recorded clip per language), fed to a sample-buffer layer on a timeline, so they keep playing while
+/// the app is in the background. It uses the "Audio, AirPlay, and Picture in Picture" background mode and a silent
+/// playback audio session mixed with others (the person's music keeps playing). Where picture in picture isn't
+/// possible, or doesn't start in time, Settings just opens, as before.
+@MainActor
+final class SettingsPiP: NSObject {
+    static let shared = SettingsPiP()
+    let layer = AVSampleBufferDisplayLayer()
+    private var controller: AVPictureInPictureController?
+    private var frames: [CVPixelBuffer] = []
+    private var phases: [Int] = []
+    private var queued = 0
+    private var pendingOpen: (() -> Void)?
+    private let feed = DispatchQueue(label: "contextflow.settings-pip")
+    /// Each screen this long, as in the card.
+    private static let hold = CMTime(value: 22, timescale: 10)
+    /// Frames queued ahead: about ten minutes of the loop.
+    private static let maxFrames = 270
+
+    private override init() {
+        super.init()
+        layer.videoGravity = .resizeAspect
+    }
+
+    private func makeController() -> AVPictureInPictureController? {
+        if let controller { return controller }
+        guard AVPictureInPictureController.isPictureInPictureSupported() else { return nil }
+        let source = AVPictureInPictureController.ContentSource(sampleBufferDisplayLayer: layer, playbackDelegate: self)
+        let made = AVPictureInPictureController(contentSource: source)
+        made.delegate = self
+        made.requiresLinearPlayback = true
+        controller = made
+        return made
+    }
+
+    /// Floats the screens for `phases` (Settings opens on ContextFlow's page on 26.2+: the last three), then calls
+    /// `open` once the window shows, or at once when it can't.
+    func start(phases: [Int], then open: @escaping () -> Void) {
+        guard let controller = makeController() else { return open() }
+        if phases != self.phases || frames.isEmpty {
+            self.phases = phases
+            frames = phases.compactMap { Self.frame(phase: $0) }
+        }
+        guard !frames.isEmpty else { return open() }
+        let session = AVAudioSession.sharedInstance()
+        try? session.setCategory(.playback, mode: .moviePlayback, options: [.mixWithOthers])
+        try? session.setActive(true)
+        play()
+        pendingOpen = open
+        controller.startPictureInPicture()
+        // Not possible on this device right now, or slow to start: Settings opens anyway.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in self?.openPending() }
+    }
+
+    /// Back in the app: the window goes.
+    func stop() {
+        guard controller?.isPictureInPictureActive == true || queued > 0 else { return }
+        controller?.stopPictureInPicture()
+        layer.stopRequestingMediaData()
+        layer.flush()
+        queued = 0
+        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+    }
+
+    private func openPending() {
+        let open = pendingOpen
+        pendingOpen = nil
+        open?()
+    }
+
+    /// The loop of screens on the layer's own clock: queued ahead, so it plays without the app running.
+    private func play() {
+        layer.stopRequestingMediaData()
+        layer.flush()
+        var timebase: CMTimebase?
+        CMTimebaseCreateWithSourceClock(allocator: kCFAllocatorDefault, sourceClock: CMClockGetHostTimeClock(), timebaseOut: &timebase)
+        if let timebase {
+            CMTimebaseSetTime(timebase, time: .zero)
+            CMTimebaseSetRate(timebase, rate: 1)
+            layer.controlTimebase = timebase
+        }
+        queued = 0
+        let frames = self.frames
+        let layer = self.layer
+        var index = 0
+        layer.requestMediaDataWhenReady(on: feed) {
+            while layer.isReadyForMoreMediaData && index < Self.maxFrames {
+                let at = CMTimeMultiply(Self.hold, multiplier: Int32(index))
+                if let sample = Self.sample(frames[index % frames.count], at: at) { layer.enqueue(sample) }
+                index += 1
+            }
+            if index >= Self.maxFrames { layer.stopRequestingMediaData() }
+        }
+        queued = Self.maxFrames
+    }
+
+    /// One screen with its step under it, drawn like the card's walkthrough, as a video frame.
+    private static func frame(phase: Int) -> CVPixelBuffer? {
+        let step: LocalizedStringKey = phase < 2 ? "Open the Settings app and go to Apps → Safari → Extensions."
+            : phase < 4 ? "Tap ContextFlow and switch it on." : "Under Permissions, set All Websites to Allow."
+        let view = VStack(spacing: 10) {
+            SettingsScreen(phase: phase).frame(height: 216)
+            Text(step)
+                .font(.footnote.weight(.semibold))
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(12)
+        .frame(width: 320, height: 300, alignment: .top)
+        .background(Color(uiColor: .systemBackground))
+        let renderer = ImageRenderer(content: view)
+        renderer.scale = 2
+        guard let image = renderer.cgImage else { return nil }
+        var buffer: CVPixelBuffer?
+        let attrs = [kCVPixelBufferCGImageCompatibilityKey: true, kCVPixelBufferCGBitmapContextCompatibilityKey: true, kCVPixelBufferIOSurfacePropertiesKey: [:]] as CFDictionary
+        guard CVPixelBufferCreate(kCFAllocatorDefault, image.width, image.height, kCVPixelFormatType_32BGRA, attrs, &buffer) == kCVReturnSuccess, let buffer else { return nil }
+        CVPixelBufferLockBaseAddress(buffer, [])
+        defer { CVPixelBufferUnlockBaseAddress(buffer, []) }
+        guard let context = CGContext(
+            data: CVPixelBufferGetBaseAddress(buffer), width: image.width, height: image.height, bitsPerComponent: 8,
+            bytesPerRow: CVPixelBufferGetBytesPerRow(buffer), space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.premultipliedFirst.rawValue | CGBitmapInfo.byteOrder32Little.rawValue
+        ) else { return nil }
+        context.draw(image, in: CGRect(x: 0, y: 0, width: image.width, height: image.height))
+        return buffer
+    }
+
+    private nonisolated static func sample(_ buffer: CVPixelBuffer, at time: CMTime) -> CMSampleBuffer? {
+        var format: CMVideoFormatDescription?
+        CMVideoFormatDescriptionCreateForImageBuffer(allocator: kCFAllocatorDefault, imageBuffer: buffer, formatDescriptionOut: &format)
+        guard let format else { return nil }
+        var timing = CMSampleTimingInfo(duration: hold, presentationTimeStamp: time, decodeTimeStamp: .invalid)
+        var sample: CMSampleBuffer?
+        CMSampleBufferCreateReadyWithImageBuffer(allocator: kCFAllocatorDefault, imageBuffer: buffer, formatDescription: format, sampleTiming: &timing, sampleBufferOut: &sample)
+        return sample
+    }
+}
+
+extension SettingsPiP: AVPictureInPictureControllerDelegate {
+    nonisolated func pictureInPictureControllerDidStartPictureInPicture(_ controller: AVPictureInPictureController) {
+        Task { @MainActor in self.openPending() }
+    }
+
+    nonisolated func pictureInPictureController(_ controller: AVPictureInPictureController, failedToStartPictureInPictureWithError error: Error) {
+        Task { @MainActor in self.openPending() }
+    }
+}
+
+extension SettingsPiP: AVPictureInPictureSampleBufferPlaybackDelegate {
+    // A guide, not a film: no pausing or skipping, always "live".
+    nonisolated func pictureInPictureController(_ controller: AVPictureInPictureController, setPlaying playing: Bool) {}
+
+    nonisolated func pictureInPictureControllerTimeRangeForPlayback(_ controller: AVPictureInPictureController) -> CMTimeRange {
+        CMTimeRange(start: .negativeInfinity, duration: .positiveInfinity)
+    }
+
+    nonisolated func pictureInPictureControllerIsPlaybackPaused(_ controller: AVPictureInPictureController) -> Bool { false }
+
+    nonisolated func pictureInPictureController(_ controller: AVPictureInPictureController, didTransitionToRenderSize newRenderSize: CMVideoDimensions) {}
+
+    nonisolated func pictureInPictureController(_ controller: AVPictureInPictureController, skipByInterval skipInterval: CMTime, completion completionHandler: @escaping () -> Void) {
+        completionHandler()
+    }
+}
+
+/// Puts the guide's layer in the window (picture in picture needs its source there), filling the view it's behind.
+private struct PiPSource: UIViewRepresentable {
+    let layer: AVSampleBufferDisplayLayer
+
+    func makeUIView(context: Context) -> UIView {
+        let view = LayerHost()
+        view.hosted = layer
+        view.isUserInteractionEnabled = false
+        return view
+    }
+
+    func updateUIView(_ uiView: UIView, context: Context) {}
+
+    final class LayerHost: UIView {
+        var hosted: CALayer? {
+            didSet {
+                oldValue?.removeFromSuperlayer()
+                if let hosted { layer.addSublayer(hosted) }
+            }
+        }
+
+        override func layoutSubviews() {
+            super.layoutSubviews()
+            hosted?.frame = bounds
         }
     }
 }

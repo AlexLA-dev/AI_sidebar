@@ -130,8 +130,11 @@ struct ContentView: View {
             .onChange(of: scenePhase) { phase in
                 if phase == .active {
                     askForReviewIfDue()
-                    // Back from Settings or Safari: whether ContextFlow is on now (2.6).
+                    // Back from Settings or Safari: whether ContextFlow is on now (2.6), and the guide over Settings goes.
                     Task { await activation.refresh() }
+                    #if os(iOS)
+                    SettingsPiP.shared.stop()
+                    #endif
                 }
             }
             // The first chat arrived (or the last one went): show the right first tab.
