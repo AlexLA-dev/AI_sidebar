@@ -171,6 +171,27 @@
           "referenceName" : "BYOK Monthly",
           "subscriptionGroupID" : "contextflow_subscriptions",
           "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [],
+          "codeOffers" : [],
+          "displayPrice" : "16.99",
+          "familyShareable" : false,
+          "groupNumber" : 3,
+          "internalID" : "byok_yearly_001",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "A year with your own API key",
+              "displayName" : "Own key (yearly)",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.contextflow.byok.yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Own Key Yearly",
+          "subscriptionGroupID" : "contextflow_subscriptions",
+          "type" : "RecurringSubscription"
         }
       ]
     }

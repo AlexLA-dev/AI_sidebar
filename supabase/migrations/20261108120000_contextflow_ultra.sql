@@ -416,7 +416,8 @@ language sql stable set search_path = '' as $$
       else (select min(n.created_at) from notes n where n.otid = s.original_transaction_id and n.price > 0)
     end,
     coalesce(l.price, case s.product_id when 'com.contextflow.pro.monthly' then 6990 when 'com.contextflow.byok.monthly' then 1990
-      when 'com.contextflow.pro.yearly' then 59990 when 'com.contextflow.ultra.monthly' then 12990 when 'com.contextflow.ultra.yearly' then 119990 end),
+      when 'com.contextflow.pro.yearly' then 59990 when 'com.contextflow.ultra.monthly' then 12990 when 'com.contextflow.ultra.yearly' then 119990
+      when 'com.contextflow.byok.yearly' then 16990 end),
     coalesce(l.currency, 'USD'),
     l.otid is null
   from contextflow.entitlements s
