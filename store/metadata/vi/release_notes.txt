@@ -1,0 +1,3 @@
+Có gì mới trong ContextFlow 2.6:
+• ContextFlow giờ đã có tiếng Việt: bảng trong Safari, ứng dụng và các mẹo
+• Sửa lỗi và cải tiến

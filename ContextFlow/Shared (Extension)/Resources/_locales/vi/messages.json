@@ -1,0 +1,1742 @@
+{
+ "extName": {
+  "message": "ContextFlow — AI cho Safari"
+ },
+ "extDescription": {
+  "message": "Hỏi AI về trang bạn đang đọc: tóm tắt, giải thích và dịch ngay trong Safari."
+ },
+ "actionTitle": {
+  "message": "Hỏi ContextFlow về trang này"
+ },
+ "languageName": {
+  "message": "Tiếng Việt"
+ },
+ "ctxPage": {
+  "message": "Trang này"
+ },
+ "ctxSelection": {
+  "message": "Đã chọn · {0} từ"
+ },
+ "ctxNone": {
+  "message": "Trò chuyện chung"
+ },
+ "ctxUsePage": {
+  "message": "Dùng cả trang"
+ },
+ "emptyTitle": {
+  "message": "Bạn muốn biết điều gì?"
+ },
+ "emptyPage": {
+  "message": "Tôi thấy trang này. Hãy đặt câu hỏi hoặc chọn một thao tác."
+ },
+ "emptySelection": {
+  "message": "Hãy hỏi về văn bản đã chọn hoặc chọn một thao tác."
+ },
+ "emptyNone": {
+  "message": "Không đọc được trang này, nhưng bạn vẫn có thể hỏi tôi bất cứ điều gì."
+ },
+ "actSummarize": {
+  "message": "Tóm tắt"
+ },
+ "actKeyPoints": {
+  "message": "Ý chính"
+ },
+ "actExplain": {
+  "message": "Giải thích đơn giản"
+ },
+ "actTranslate": {
+  "message": "Dịch"
+ },
+ "actImprove": {
+  "message": "Viết tốt hơn"
+ },
+ "actReply": {
+  "message": "Soạn câu trả lời"
+ },
+ "actGoogle": {
+  "message": "Google"
+ },
+ "promptSummarize": {
+  "message": "Tóm tắt trang này thành 5–7 gạch đầu dòng, rồi nêu kết luận chính trong một câu."
+ },
+ "promptKeyPoints": {
+  "message": "Những ý chính của trang này là gì? Liệt kê các dữ kiện, con số và ngày tháng quan trọng."
+ },
+ "promptExplain": {
+  "message": "Giải thích trang này bằng lời lẽ đơn giản, như đang giải thích cho một bạn nhỏ 12 tuổi thông minh."
+ },
+ "promptTranslate": {
+  "message": "Dịch nội dung chính của trang này sang {0}. Giữ nguyên cấu trúc và các tiêu đề."
+ },
+ "promptSelSummarize": {
+  "message": "Tóm tắt ngắn gọn văn bản đã chọn."
+ },
+ "promptSelExplain": {
+  "message": "Giải thích văn bản đã chọn bằng lời lẽ đơn giản."
+ },
+ "promptSelTranslate": {
+  "message": "Dịch văn bản đã chọn sang {0}."
+ },
+ "promptSelImprove": {
+  "message": "Viết lại văn bản đã chọn cho rõ ràng và súc tích hơn. Đưa ra một bản đã sửa."
+ },
+ "promptReply": {
+  "message": "Soạn một câu trả lời ngắn, lịch sự cho tin nhắn hoặc bài đăng này."
+ },
+ "promptGoogle": {
+  "message": "Tìm trên Google thông tin mới nhất về chủ đề của trang này và cho tôi một bản tổng quan."
+ },
+ "promptSelGoogle": {
+  "message": "Tìm trên Google văn bản đã chọn: đó là gì, kèm các dữ kiện chính."
+ },
+ "placeholderPage": {
+  "message": "Hỏi về trang này…"
+ },
+ "placeholderSelection": {
+  "message": "Hỏi về phần đã chọn…"
+ },
+ "placeholderNone": {
+  "message": "Hỏi bất cứ điều gì…"
+ },
+ "placeholderGoogle": {
+  "message": "Hỏi Google…"
+ },
+ "send": {
+  "message": "Gửi"
+ },
+ "stop": {
+  "message": "Dừng"
+ },
+ "newChat": {
+  "message": "Cuộc trò chuyện mới"
+ },
+ "chatsTitle": {
+  "message": "Cuộc trò chuyện"
+ },
+ "allChats": {
+  "message": "Tất cả cuộc trò chuyện"
+ },
+ "chatsEmpty": {
+  "message": "Chưa có cuộc trò chuyện nào. Hãy hỏi gì đó để bắt đầu."
+ },
+ "deleteChat": {
+  "message": "Xóa cuộc trò chuyện"
+ },
+ "renameChat": {
+  "message": "Đổi tên cuộc trò chuyện"
+ },
+ "chatName": {
+  "message": "Tên cuộc trò chuyện"
+ },
+ "chatNameHint": {
+  "message": "Để trống thì cuộc trò chuyện sẽ lấy tên theo câu hỏi đầu tiên."
+ },
+ "settings": {
+  "message": "Cài đặt"
+ },
+ "close": {
+  "message": "Đóng"
+ },
+ "back": {
+  "message": "Quay lại"
+ },
+ "copy": {
+  "message": "Sao chép"
+ },
+ "copied": {
+  "message": "Đã sao chép"
+ },
+ "share": {
+  "message": "Chia sẻ"
+ },
+ "shareSource": {
+  "message": "Nguồn"
+ },
+ "shareMadeWith": {
+  "message": "Tạo bằng ContextFlow"
+ },
+ "shareChat": {
+  "message": "Chia sẻ cuộc trò chuyện"
+ },
+ "shareYou": {
+  "message": "Bạn"
+ },
+ "newPage": {
+  "message": "Trang mới: {0}"
+ },
+ "pageUpdated": {
+  "message": "Trang đã cập nhật"
+ },
+ "uxMark": {
+  "message": "Đánh dấu"
+ },
+ "uxUnmark": {
+  "message": "Bỏ đánh dấu"
+ },
+ "uxDelete": {
+  "message": "Xóa"
+ },
+ "uxPin": {
+  "message": "Ghim"
+ },
+ "uxUnpin": {
+  "message": "Bỏ ghim"
+ },
+ "uxDeletedAnswer": {
+  "message": "Đã xóa câu trả lời"
+ },
+ "uxDeletedNote": {
+  "message": "Đã xóa ghi chú"
+ },
+ "uxDeletedChat": {
+  "message": "Đã xóa cuộc trò chuyện"
+ },
+ "trashTitle": {
+  "message": "Đã xóa gần đây"
+ },
+ "trashRow": {
+  "message": "Đã xóa gần đây · {0}"
+ },
+ "trashNote": {
+  "message": "Cuộc trò chuyện được giữ ở đây trong 30 ngày. Sau thời gian đó, chúng sẽ bị xóa vĩnh viễn."
+ },
+ "trashRestore": {
+  "message": "Khôi phục"
+ },
+ "trashDeleteNow": {
+  "message": "Xóa ngay"
+ },
+ "trashDeleteAll": {
+  "message": "Xóa tất cả"
+ },
+ "trashDeleteAllAsk": {
+  "message": "Xóa vĩnh viễn mọi cuộc trò chuyện trong “Đã xóa gần đây”? Không thể hoàn tác thao tác này."
+ },
+ "trashDays_one": {
+  "message": "{0} ngày"
+ },
+ "trashDays_few": {
+  "message": "{0} ngày"
+ },
+ "trashDays_many": {
+  "message": "{0} ngày"
+ },
+ "trashDays_other": {
+  "message": "{0} ngày"
+ },
+ "uxPinned": {
+  "message": "Đã ghim"
+ },
+ "uxPinnedN": {
+  "message": "Đã ghim #{0}"
+ },
+ "uxPinnedAll": {
+  "message": "Tất cả mục đã ghim"
+ },
+ "uxMore": {
+  "message": "Thêm"
+ },
+ "uxMorePage": {
+  "message": "Thêm: trang"
+ },
+ "uxMoreAnswer": {
+  "message": "Thêm: câu trả lời"
+ },
+ "uxMoreNote": {
+  "message": "Thêm: ghi chú"
+ },
+ "uxMoreChat": {
+  "message": "Thêm: cuộc trò chuyện"
+ },
+ "uxLater": {
+  "message": "Nhắc tôi về trang này…"
+ },
+ "uxLaterTitle": {
+  "message": "Nhắc tôi về trang này"
+ },
+ "uxWatchPage": {
+  "message": "Theo dõi trang này…"
+ },
+ "uxReminders": {
+  "message": "Lời nhắc"
+ },
+ "uxRemindersN": {
+  "message": "Lời nhắc · {0}"
+ },
+ "uxWatching": {
+  "message": "Đang theo dõi"
+ },
+ "uxWatchingN": {
+  "message": "Đang theo dõi · {0}"
+ },
+ "uxAllReminders": {
+  "message": "Tất cả lời nhắc"
+ },
+ "uxNoReminders": {
+  "message": "Không có lời nhắc"
+ },
+ "uxNoRemindersHint": {
+  "message": "Đặt lời nhắc trên câu trả lời hoặc ghi chú, bằng nút chuông cạnh văn bản đã chọn, hoặc tại đây: … → Nhắc tôi về trang này."
+ },
+ "uxNoWatching": {
+  "message": "Chưa theo dõi gì"
+ },
+ "uxNoWatchingHint": {
+  "message": "Chọn giá, tình trạng hàng hoặc ngày rồi chạm vào con mắt. Với cả trang: … → Theo dõi trang này."
+ },
+ "uxOnAnotherDevice": {
+  "message": "{0} · trên thiết bị khác"
+ },
+ "uxStop": {
+  "message": "Dừng"
+ },
+ "uxRemind": {
+  "message": "Nhắc tôi"
+ },
+ "uxRemindChange": {
+  "message": "Đổi lời nhắc"
+ },
+ "uxRemindOpen": {
+  "message": "Mở"
+ },
+ "uxRemindTitle": {
+  "message": "Nhắc bạn lúc nào?"
+ },
+ "uxRemindAsked": {
+  "message": "Bạn nhờ tôi nhắc: {0}"
+ },
+ "uxRemindHour": {
+  "message": "Sau 1 giờ"
+ },
+ "uxRemindEvening": {
+  "message": "Tối nay"
+ },
+ "uxRemindMorning": {
+  "message": "Sáng mai"
+ },
+ "uxRemindWeek": {
+  "message": "Sau 1 tuần"
+ },
+ "uxRemindPick": {
+  "message": "Chọn ngày"
+ },
+ "uxRemindSet": {
+  "message": "Nhắc"
+ },
+ "uxRemindCancel": {
+  "message": "Không nhắc"
+ },
+ "uxRemindOff": {
+  "message": "Thông báo của ContextFlow đang tắt. Hãy bật trong Cài đặt → Thông báo → ContextFlow."
+ },
+ "uxRemindAsk": {
+  "message": "Hãy mở ứng dụng ContextFlow một lần và cho phép thông báo, rồi đặt lại lời nhắc."
+ },
+ "uxRemindNone": {
+  "message": "Lời nhắc cần có ứng dụng ContextFlow trên thiết bị này."
+ },
+ "uxToday": {
+  "message": "Hôm nay"
+ },
+ "uxTomorrow": {
+  "message": "Ngày mai"
+ },
+ "uxRemindSaved": {
+  "message": "Lời nhắc: {0}"
+ },
+ "uxRemindNotSet": {
+  "message": "Đã lưu vào cuộc trò chuyện. Thông báo của ContextFlow đang tắt. Hãy bật trong Cài đặt → Thông báo → ContextFlow."
+ },
+ "uxRemindNoApp": {
+  "message": "Đã lưu vào cuộc trò chuyện. Lời nhắc cần có ứng dụng ContextFlow trên thiết bị này."
+ },
+ "uxUnpinAll": {
+  "message": "Bỏ ghim tất cả"
+ },
+ "setShareGroup": {
+  "message": "Chia sẻ và sao chép"
+ },
+ "uxShareMarks": {
+  "message": "Phần đánh dấu thành **chữ đậm** khi chia sẻ"
+ },
+ "uxShareMarksHint": {
+  "message": "Telegram, Notion và Slack hiển thị thành chữ đậm; Tin nhắn và Ghi chú hiển thị dấu sao. Sao chép luôn giữ chữ đậm."
+ },
+ "nowOnPage": {
+  "message": "Đang ở: {0}"
+ },
+ "retry": {
+  "message": "Thử lại"
+ },
+ "askWithoutGoogle": {
+  "message": "Hỏi không dùng Google"
+ },
+ "thinking": {
+  "message": "Đang đọc trang…"
+ },
+ "searching": {
+  "message": "Đang tìm trên Google…"
+ },
+ "errNetwork": {
+  "message": "Không có kết nối. Hãy kiểm tra Internet và thử lại."
+ },
+ "errBusy": {
+  "message": "ContextFlow đang rất bận. Hãy thử lại sau một phút."
+ },
+ "errUpstream": {
+  "message": "Dịch vụ AI không phản hồi. Hãy thử lại."
+ },
+ "errInterrupted": {
+  "message": "Câu trả lời bị gián đoạn."
+ },
+ "errBadKey": {
+  "message": "Khóa API của bạn bị từ chối. Hãy kiểm tra trong Cài đặt."
+ },
+ "errGeneric": {
+  "message": "Đã xảy ra lỗi. Hãy thử lại."
+ },
+ "errSearchLimit": {
+  "message": "Hiện bạn đã dùng hết lượt câu trả lời từ Google. Câu trả lời thường vẫn dùng được."
+ },
+ "errSearchUnavailable": {
+  "message": "Hiện không có câu trả lời từ Google. Câu trả lời thường vẫn dùng được."
+ },
+ "limitFreeTitle": {
+  "message": "Bạn đã dùng hết câu trả lời miễn phí hôm nay"
+ },
+ "limitProTitle": {
+  "message": "Đã đạt giới hạn tuần"
+ },
+ "limitProBody": {
+  "message": "Câu trả lời Pro sẽ được làm mới sau {0}."
+ },
+ "longPageWeight": {
+  "message": "Trang dài: câu trả lời ×{0}"
+ },
+ "longPageWeightHint": {
+  "message": "Trang này dài: một câu trả lời về trang này tính bằng {0} câu trả lời trong giới hạn của bạn."
+ },
+ "limitLongTitle": {
+  "message": "Trang này dài"
+ },
+ "limitLongBody": {
+  "message": "Một câu trả lời về trang này tính bằng {0}, còn bạn chỉ còn {1}."
+ },
+ "getPro": {
+  "message": "Dùng Pro"
+ },
+ "useOwnKey": {
+  "message": "Dùng khóa API của tôi"
+ },
+ "usageFree": {
+  "message": "Hôm nay còn {0}/{1} câu trả lời miễn phí"
+ },
+ "usagePro": {
+  "message": "Pro · tuần này còn {0}/{1} câu trả lời"
+ },
+ "usageOwnKey": {
+  "message": "Đang dùng khóa API của bạn"
+ },
+ "hours": {
+  "message": "{0} giờ"
+ },
+ "minutes": {
+  "message": "{0} phút"
+ },
+ "consentTitle": {
+  "message": "Trước khi ContextFlow dùng AI"
+ },
+ "consentBody": {
+  "message": "Bạn chỉ cần đồng ý một lần cho mọi tính năng AI của ContextFlow. Mỗi tính năng chỉ gửi những gì cần, khi bạn dùng, qua máy chủ của chúng tôi đến Anthropic (Claude). Máy chủ không lưu gì, và nhà cung cấp không dùng dữ liệu này để huấn luyện."
+ },
+ "consentAnswers": {
+  "message": "Câu trả lời: câu hỏi của bạn, nội dung trang hoặc phần bạn chọn, và phần “Về tôi” nếu bạn đã viết. Nếu Claude không khả dụng, OpenAI sẽ trả lời; câu trả lời từ Google được gửi đến Google."
+ },
+ "consentChats": {
+  "message": "“Hỏi các cuộc trò chuyện” và Tìm kiếm AI (Pro): các đoạn trích ngắn từ cuộc trò chuyện của bạn."
+ },
+ "consentTemplates": {
+  "message": "Mẫu: nội dung của mẫu, để đánh dấu chỗ trống; nội dung trang cho “Điền từ trang”; lời của bạn và tên các mẫu cho “Tìm theo ý nghĩa”."
+ },
+ "consentWatch": {
+  "message": "Theo dõi trang: phần bạn đã chọn, lời bạn dặn khi nào cần báo, đoạn văn bản xung quanh và tiêu đề trang; về sau là giá trị cũ và giá trị mới."
+ },
+ "consentSuggest": {
+  "message": "Gợi ý (Pro, chỉ khi bạn bật): nội dung các câu hỏi, câu trả lời và ghi chú mới, gửi đến OpenAI để so sánh và đến Claude để kiểm tra thẻ."
+ },
+ "consentStored": {
+  "message": "Cuộc trò chuyện của bạn nằm trên thiết bị của bạn và, nếu bạn bật đồng bộ, trong iCloud của bạn."
+ },
+ "consentWhat": {
+  "message": "Chính xác những gì được gửi"
+ },
+ "consentAccept": {
+  "message": "Đồng ý và tiếp tục"
+ },
+ "consentAgainTitle": {
+  "message": "Cập nhật: một lần đồng ý cho mọi tính năng AI"
+ },
+ "consentDecline": {
+  "message": "Để sau"
+ },
+ "consentNeeded": {
+  "message": "Chưa gửi gì: câu trả lời AI cần bạn đồng ý trước."
+ },
+ "privacyPolicy": {
+  "message": "Chính sách quyền riêng tư"
+ },
+ "setPlan": {
+  "message": "Gói"
+ },
+ "planFree": {
+  "message": "Miễn phí"
+ },
+ "planPro": {
+  "message": "Pro"
+ },
+ "planByok": {
+  "message": "Khóa riêng"
+ },
+ "planRenews": {
+  "message": "Gia hạn vào {0}"
+ },
+ "manageSubscription": {
+  "message": "Quản lý gói đăng ký"
+ },
+ "restorePurchases": {
+  "message": "Khôi phục giao dịch mua"
+ },
+ "setAppearance": {
+  "message": "Giao diện"
+ },
+ "themeAuto": {
+  "message": "Tự động"
+ },
+ "themeLight": {
+  "message": "Sáng"
+ },
+ "themeDark": {
+  "message": "Tối"
+ },
+ "setTextSize": {
+  "message": "Cỡ chữ"
+ },
+ "sizeNormal": {
+  "message": "Thường"
+ },
+ "sizeLarge": {
+  "message": "Lớn"
+ },
+ "setFab": {
+  "message": "Nút nổi"
+ },
+ "fabOn": {
+  "message": "Bật"
+ },
+ "fabOff": {
+  "message": "Tắt"
+ },
+ "setFabHint": {
+  "message": "Nút ✦ mở ContextFlow trên mọi trang web. Ẩn nút trên từng trang web bằng liên kết bên dưới, hoặc tắt hẳn ở đây."
+ },
+ "hideOnSite": {
+  "message": "Ẩn trên {0}"
+ },
+ "showOnSite": {
+  "message": "Hiện trên {0}"
+ },
+ "setSelectionButton": {
+  "message": "Nút khi chọn văn bản"
+ },
+ "setAbout": {
+  "message": "Về tôi"
+ },
+ "setAboutHint": {
+  "message": "Không bắt buộc. Giúp câu trả lời hợp với bạn hơn, ví dụ: “Tôi là nhà thiết kế sản phẩm, trả lời ngắn gọn thôi”."
+ },
+ "setOwnKey": {
+  "message": "Khóa API riêng (OpenAI hoặc Claude)"
+ },
+ "setOwnKeyHint": {
+  "message": "Có trong gói Pro và Khóa riêng. Dán khóa của OpenAI hoặc Anthropic (Claude); yêu cầu đi thẳng từ thiết bị của bạn đến nhà cung cấp đó."
+ },
+ "setOwnKeyLocked": {
+  "message": "Có trong gói Pro hoặc Khóa riêng"
+ },
+ "setOwnKeyModel": {
+  "message": "Mô hình"
+ },
+ "modelFast": {
+  "message": "Nhanh"
+ },
+ "modelSmart": {
+  "message": "Thông minh"
+ },
+ "setOwnKeyModelHint": {
+  "message": "Nhanh: Claude Haiku hoặc GPT mini mới nhất. Thông minh: Claude Sonnet hoặc GPT mới nhất."
+ },
+ "getKey": {
+  "message": "Lấy khóa"
+ },
+ "save": {
+  "message": "Lưu"
+ },
+ "remove": {
+  "message": "Xóa"
+ },
+ "saved": {
+  "message": "Đã lưu"
+ },
+ "setSyncChats": {
+  "message": "Đồng bộ cuộc trò chuyện qua iCloud"
+ },
+ "setSyncChatsHint": {
+  "message": "Tiếp tục cuộc trò chuyện trên iPhone, iPad và Mac. Cuộc trò chuyện được mã hóa đầu cuối trong iCloud của bạn và không bao giờ được lưu trên máy chủ của chúng tôi."
+ },
+ "deleteChats": {
+  "message": "Xóa tất cả cuộc trò chuyện"
+ },
+ "chatsDeleted": {
+  "message": "Đã xóa các cuộc trò chuyện"
+ },
+ "support": {
+  "message": "Hỗ trợ"
+ },
+ "terms": {
+  "message": "Điều khoản sử dụng"
+ },
+ "rateApp": {
+  "message": "Đánh giá ContextFlow"
+ },
+ "version": {
+  "message": "Phiên bản {0}"
+ },
+ "fabLabel": {
+  "message": "Hỏi ContextFlow"
+ },
+ "selAsk": {
+  "message": "Hỏi AI"
+ },
+ "selExplain": {
+  "message": "Giải thích"
+ },
+ "selTranslate": {
+  "message": "Dịch"
+ },
+ "googleModeHint": {
+  "message": "Trả lời bằng Google Tìm kiếm: thông tin mới kèm nguồn"
+ },
+ "googleBadge": {
+  "message": "Google Tìm kiếm"
+ },
+ "sources": {
+  "message": "Nguồn"
+ },
+ "tourStep": {
+  "message": "{0}/{1}"
+ },
+ "tourSkip": {
+  "message": "Bỏ qua"
+ },
+ "tourNext": {
+  "message": "Tiếp"
+ },
+ "tourDone": {
+  "message": "Đã hiểu"
+ },
+ "tourShow": {
+  "message": "Xem mẹo"
+ },
+ "tourAskTitle": {
+  "message": "Hỏi về trang này"
+ },
+ "tourAskBody": {
+  "message": "ContextFlow đọc trang bạn đang mở; với Pro, đọc cả video có phụ đề và tệp PDF trên trang. Chọn một thao tác như “Tóm tắt”, hoặc tự nhập câu hỏi."
+ },
+ "tourSelectTitle": {
+  "message": "Chỉ cần một phần?"
+ },
+ "tourSelectBody": {
+  "message": "Chọn văn bản trên trang trước, câu trả lời sẽ chỉ nói về phần đó. Nhãn này cho biết ContextFlow đang đọc gì."
+ },
+ "tourGoogleTitle": {
+  "message": "Thông tin mới từ Google"
+ },
+ "tourGoogleBody": {
+  "message": "Bật mục này để trả lời bằng Google Tìm kiếm: thông tin cập nhật kèm nguồn."
+ },
+ "tourChatsTitle": {
+  "message": "Cuộc trò chuyện của bạn"
+ },
+ "tourChatsBody": {
+  "message": "Một cuộc trò chuyện tiếp nối từ trang này sang trang khác. Bắt đầu cuộc mới bằng +, và mở, đổi tên hoặc xóa các cuộc trước trong danh sách. Chạm vào tên trang trong cuộc trò chuyện để quay lại trang đó."
+ },
+ "tourChatsBodySync": {
+  "message": "Một cuộc trò chuyện tiếp nối từ trang này sang trang khác, và trên iPhone, iPad, Mac của bạn qua iCloud. Bắt đầu cuộc mới bằng +, và mở, đổi tên hoặc xóa các cuộc trước trong danh sách. Chạm vào tên trang trong cuộc trò chuyện để quay lại trang đó."
+ },
+ "tourSettingsTitle": {
+  "message": "Tùy chỉnh theo ý bạn"
+ },
+ "tourSettingsBody": {
+  "message": "Giao diện và cỡ chữ, nút ✦, vài dòng về bạn để có câu trả lời tốt hơn, khóa API riêng và gói của bạn. Các mẹo này cũng nằm ở đây."
+ },
+ "tourNoteTitle": {
+  "message": "Ghi chú của riêng bạn"
+ },
+ "tourNoteBodyTouch": {
+  "message": "Vuốt nút này lên hoặc xuống để viết ghi chú thay vì đặt câu hỏi. Ghi chú nằm trong cuộc trò chuyện cùng trang của nó và không tốn câu trả lời."
+ },
+ "tourNoteBodyMouse": {
+  "message": "Cuộn trên nút này (hoặc nhấn giữ) để viết ghi chú thay vì đặt câu hỏi. Ghi chú nằm trong cuộc trò chuyện cùng trang của nó và không tốn câu trả lời."
+ },
+ "tourWholeTitle": {
+  "message": "Xét cả cuộc trò chuyện"
+ },
+ "tourWholeBody": {
+  "message": "Bật “Cả cuộc trò chuyện” khi câu hỏi cần đến mọi thứ: tất cả tin nhắn, ghi chú của bạn và các trang khác trong cuộc trò chuyện này. Khi tắt, câu trả lời dùng các tin nhắn gần nhất và trang này."
+ },
+ "welcomeTitle": {
+  "message": "ContextFlow đã sẵn sàng"
+ },
+ "welcomeBody": {
+  "message": "Mở trang web bất kỳ và chạm vào nút ✦ hoặc biểu tượng ContextFlow trên thanh công cụ. Chọn văn bản để chỉ hỏi về phần đó."
+ },
+ "welcomeRestricted": {
+  "message": "Safari không cho tiện ích mở rộng đọc trang này. Hãy mở một trang web thông thường để dùng ContextFlow."
+ },
+ "welcomePermission": {
+  "message": "Nếu không có gì xảy ra, hãy cho phép ContextFlow trên tất cả trang web: Safari → Tiện ích mở rộng → ContextFlow → Tất cả trang web → Cho phép."
+ },
+ "shareNote": {
+  "message": "Ghi chú"
+ },
+ "saveNote": {
+  "message": "Lưu ghi chú"
+ },
+ "selQuestion": {
+  "message": "Câu hỏi của bạn…"
+ },
+ "selNote": {
+  "message": "Ghi chú"
+ },
+ "selNoteTitle": {
+  "message": "Lưu phần đã chọn vào cuộc trò chuyện làm ghi chú (không tốn câu trả lời)"
+ },
+ "selNoteSaved": {
+  "message": "Đã lưu vào cuộc trò chuyện"
+ },
+ "selNoteOpen": {
+  "message": "Mở"
+ },
+ "selHint": {
+  "message": "Mới: nhập câu hỏi của bạn về phần đã chọn tại đây, hoặc lưu nó vào cuộc trò chuyện làm ghi chú — ghi chú không tốn câu trả lời."
+ },
+ "noteQuote": {
+  "message": "“{0}”"
+ },
+ "placeholderNote": {
+  "message": "Viết ghi chú — lưu trong cuộc trò chuyện này"
+ },
+ "noteHintTouch": {
+  "message": "Vuốt nút lên hoặc xuống để viết ghi chú"
+ },
+ "noteHintMouse": {
+  "message": "Cuộn trên nút để viết ghi chú"
+ },
+ "wholeChat": {
+  "message": "Cả cuộc trò chuyện"
+ },
+ "wholeChatHint": {
+  "message": "Câu trả lời xét đến cả cuộc trò chuyện: mọi tin nhắn, ghi chú của bạn và các trang trong cuộc trò chuyện này. Khi tắt: các tin nhắn gần nhất và trang đang mở."
+ },
+ "openPage": {
+  "message": "Mở trang này"
+ },
+ "usageFreeShort": {
+  "message": "Hôm nay còn {0}/{1}"
+ },
+ "usageProShort": {
+  "message": "Pro · {0}/{1} tuần này"
+ },
+ "pinChat": {
+  "message": "Ghim cuộc trò chuyện"
+ },
+ "unpinChat": {
+  "message": "Bỏ ghim cuộc trò chuyện"
+ },
+ "reorderChat": {
+  "message": "Kéo để sắp xếp lại"
+ },
+ "chatPages": {
+  "message": "Các trang trong cuộc trò chuyện này"
+ },
+ "chatNotes": {
+  "message": "Ghi chú của bạn trong cuộc trò chuyện này"
+ },
+ "pages_one": {
+  "message": "{0} trang"
+ },
+ "pages_few": {
+  "message": "{0} trang"
+ },
+ "pages_many": {
+  "message": "{0} trang"
+ },
+ "pages_other": {
+  "message": "{0} trang"
+ },
+ "cancel": {
+  "message": "Hủy"
+ },
+ "pickCount": {
+  "message": "{0}/{1}"
+ },
+ "pickHint": {
+  "message": "Chạm vào tin nhắn để chia sẻ"
+ },
+ "pickAll": {
+  "message": "Chọn tất cả"
+ },
+ "pickNone": {
+  "message": "Bỏ chọn tất cả"
+ },
+ "limitFreeBack": {
+  "message": "Có {0} câu trả lời miễn phí mới lúc {1}, sau {2} nữa."
+ },
+ "limitFreePro": {
+  "message": "Pro cho bạn tối đa {0} câu trả lời mỗi tuần, đọc video và PDF trên trang, Tìm kiếm AI và đặt câu hỏi trên mọi cuộc trò chuyện của bạn."
+ },
+ "limitNotes": {
+  "message": "Ghi chú vẫn miễn phí và không giới hạn: ghi lại điều quan trọng ngay bây giờ, hỏi AI về nó sau."
+ },
+ "writeNote": {
+  "message": "Viết ghi chú"
+ },
+ "errProvider": {
+  "message": "Nhà cung cấp AI của bạn trả lời: {0}"
+ },
+ "offerLimit": {
+  "message": "Hoặc dùng Pro, giảm {0}% tháng đầu: tối đa {1} câu trả lời mỗi tuần, sâu và chi tiết hơn. Hủy bất cứ lúc nào."
+ },
+ "offerButton": {
+  "message": "Dùng Pro, giảm {0}%"
+ },
+ "offerShort": {
+  "message": "Pro −{0}%"
+ },
+ "offerCardTitle": {
+  "message": "Sắp hết câu trả lời?"
+ },
+ "offerCardBody": {
+  "message": "Bạn từng chạm giới hạn miễn phí trong ngày. Pro cho bạn tối đa {1} câu trả lời mỗi tuần, sâu và chi tiết hơn, và tháng đầu được giảm {0}%. Sau đó là giá thông thường; hủy bất cứ lúc nào trong cài đặt App Store."
+ },
+ "offerLater": {
+  "message": "Để sau"
+ },
+ "emptyVideo": {
+  "message": "Tôi thấy video này và sẽ đọc bản chép lời của nó. Hãy đặt câu hỏi hoặc chọn một thao tác."
+ },
+ "emptyPdf": {
+  "message": "Tôi thấy tệp PDF này. Hãy đặt câu hỏi hoặc chọn một thao tác."
+ },
+ "readingVideo": {
+  "message": "Đang đọc bản chép lời video…"
+ },
+ "readingPdf": {
+  "message": "Đang đọc PDF…"
+ },
+ "usedVideo": {
+  "message": "Bản chép lời video · {0}"
+ },
+ "usedPdf": {
+  "message": "{0} · {1} trang"
+ },
+ "videoNoTranscript": {
+  "message": "Video này không có phụ đề: câu trả lời dựa vào tiêu đề và mô tả."
+ },
+ "videoFailed": {
+  "message": "Không lấy được bản chép lời của video này: câu trả lời dựa vào tiêu đề và mô tả."
+ },
+ "pdfNoText": {
+  "message": "“{0}” không có văn bản để đọc (trang quét): câu trả lời không dùng tệp này."
+ },
+ "pdfFailed": {
+  "message": "Không đọc được tệp PDF “{0}”: câu trả lời không dùng tệp này."
+ },
+ "searchChats": {
+  "message": "Tìm cuộc trò chuyện"
+ },
+ "searchNone": {
+  "message": "Không tìm thấy cuộc trò chuyện nào cho “{0}”"
+ },
+ "searchClear": {
+  "message": "Xóa tìm kiếm"
+ },
+ "askHistory": {
+  "message": "Hỏi các cuộc trò chuyện"
+ },
+ "askHistoryHint": {
+  "message": "Đặt câu hỏi về mọi thứ bạn đã đọc và đã hỏi"
+ },
+ "askHistoryEmpty": {
+  "message": "Hỏi về mọi thứ bạn đã đọc và đã hỏi với ContextFlow, trên tất cả cuộc trò chuyện của bạn."
+ },
+ "askHistoryEx1": {
+  "message": "Tuần này tôi đã đọc gì?"
+ },
+ "askHistoryEx2": {
+  "message": "Tóm tắt các ghi chú của tôi"
+ },
+ "askHistoryEx3": {
+  "message": "Tôi đã học được gì về AI?"
+ },
+ "placeholderHistory": {
+  "message": "Hỏi về các cuộc trò chuyện…"
+ },
+ "findToggle": {
+  "message": "Tìm kiếm AI"
+ },
+ "findToggleLocked": {
+  "message": "Tìm kiếm AI — Pro"
+ },
+ "findPlaceholder": {
+  "message": "Mô tả cuộc trò chuyện bạn đang tìm…"
+ },
+ "findHint": {
+  "message": "Mô tả điều bạn còn nhớ, bằng lời nào cũng được, rồi nhấn Enter: “bài viết về giấc ngủ và cà phê tuần trước”."
+ },
+ "findBusy": {
+  "message": "Đang tìm trong các cuộc trò chuyện…"
+ },
+ "upsellTitle": {
+  "message": "ContextFlow Pro"
+ },
+ "upsellFindTitle": {
+  "message": "Tìm mọi cuộc trò chuyện theo điều bạn nhớ"
+ },
+ "upsellHistoryTitle": {
+  "message": "Hỏi về mọi thứ bạn đã đọc"
+ },
+ "upsellFindName": {
+  "message": "Tìm kiếm AI"
+ },
+ "upsellFindText": {
+  "message": "Mô tả cuộc trò chuyện bằng lời của bạn — “bài viết về giấc ngủ và cà phê tuần trước” — và AI sẽ tìm ra, kể cả khi không có đúng từ ngữ."
+ },
+ "upsellHistoryName": {
+  "message": "Hỏi các cuộc trò chuyện"
+ },
+ "upsellHistoryText": {
+  "message": "Đặt câu hỏi trên mọi cuộc trò chuyện: “Tôi đã đọc gì về tiết kiệm để nghỉ hưu?”, “Tóm tắt ghi chú của tôi tháng này”."
+ },
+ "upsellMore": {
+  "message": "Kèm theo đó là video và PDF trên trang, và tối đa 375 câu trả lời mỗi tuần, sâu và chi tiết hơn, trên iPhone, iPad và Mac."
+ },
+ "errProOnly": {
+  "message": "Tính năng này có trong Pro."
+ },
+ "tagsTitle": {
+  "message": "Thẻ"
+ },
+ "tagsNew": {
+  "message": "Thẻ mới…"
+ },
+ "tagsAdd": {
+  "message": "Thêm thẻ"
+ },
+ "tagsDone": {
+  "message": "Xong"
+ },
+ "tagsFilter": {
+  "message": "Lọc theo thẻ"
+ },
+ "tagsGroup": {
+  "message": "Thư mục"
+ },
+ "tagsEdit": {
+  "message": "Thẻ"
+ },
+ "tagsNone": {
+  "message": "Không có thẻ"
+ },
+ "tagsButton": {
+  "message": "Thẻ"
+ },
+ "qiTitle": {
+  "message": "Chèn nhanh"
+ },
+ "qiButton": {
+  "message": "Chèn nhanh: văn bản đã sao chép, mẫu, câu trả lời từ cuộc trò chuyện"
+ },
+ "qiCommand": {
+  "message": "Chèn nhanh tại con trỏ"
+ },
+ "qiSearch": {
+  "message": "Tìm mẫu"
+ },
+ "qiNewTemplate": {
+  "message": "Mẫu mới"
+ },
+ "qiEditTemplate": {
+  "message": "Mẫu"
+ },
+ "qiCopied": {
+  "message": "Đã sao chép"
+ },
+ "qiClear": {
+  "message": "Xóa"
+ },
+ "qiCopiedOff": {
+  "message": "“Đã sao chép” đang tắt. Hãy bật ở bên dưới."
+ },
+ "qiCopiedEmpty": {
+  "message": "Sao chép văn bản trên bất kỳ trang nào trong Safari, nó sẽ xuất hiện ở đây."
+ },
+ "qiNothing": {
+  "message": "Không tìm thấy gì"
+ },
+ "qiToTemplate": {
+  "message": "Tạo mẫu"
+ },
+ "qiTemplates": {
+  "message": "Mẫu"
+ },
+ "qiTemplatesTitle": {
+  "message": "Mẫu"
+ },
+ "qiAllTemplates": {
+  "message": "Tất cả mẫu"
+ },
+ "qiTemplatesEmpty": {
+  "message": "Chưa có mẫu nào. Chạm + hoặc chọn một câu trả lời bạn hay gửi rồi chạm “Mẫu”."
+ },
+ "qiTemplatesIntro": {
+  "message": "Lưu những câu trả lời bạn viết đi viết lại. Tôi sẽ đánh dấu phần thay đổi, như tên hay ngày, và có thể điền từ trang."
+ },
+ "qiFindAi": {
+  "message": "Tìm theo ý nghĩa"
+ },
+ "qiFinding": {
+  "message": "Đang tìm…"
+ },
+ "qiFromCf": {
+  "message": "Từ cuộc trò chuyện"
+ },
+ "qiLastAnswer": {
+  "message": "Câu trả lời gần nhất"
+ },
+ "qiLastNote": {
+  "message": "Ghi chú gần nhất"
+ },
+ "qiKeepCopied": {
+  "message": "Giữ văn bản đã sao chép"
+ },
+ "qiPrivacy": {
+  "message": "Văn bản đã sao chép chỉ nằm trên {0} này và bị xóa sau 24 giờ."
+ },
+ "qiOnIphone": {
+  "message": "iPhone"
+ },
+ "qiOnIpad": {
+  "message": "iPad"
+ },
+ "qiOnMac": {
+  "message": "Mac"
+ },
+ "qiOnDevice": {
+  "message": "thiết bị"
+ },
+ "qiHideButtonOnSite": {
+  "message": "Ẩn nút trên {0}"
+ },
+ "qiDontKeepOnSite": {
+  "message": "Không giữ trên {0}"
+ },
+ "qiKeepOnSite": {
+  "message": "Giữ lại trên {0}"
+ },
+ "qiTip": {
+  "message": "Mới: chạm để chèn thứ bạn đã sao chép ở các tab khác, một mẫu hoặc câu trả lời của tôi."
+ },
+ "qiKeyInsert": {
+  "message": "chèn"
+ },
+ "qiKeyChoose": {
+  "message": "chọn"
+ },
+ "qiKeyClose": {
+  "message": "đóng"
+ },
+ "qiBlanksMark": {
+  "message": "chỗ trống"
+ },
+ "qiBlanksCount": {
+  "message": "Chỗ trống: {0}"
+ },
+ "qiPasteManually": {
+  "message": "Đã sao chép. Hãy tự dán vào ô."
+ },
+ "qiInsert": {
+  "message": "Chèn"
+ },
+ "qiInsertIntoField": {
+  "message": "Chèn vào ô"
+ },
+ "qiFillFromPage": {
+  "message": "Điền từ trang"
+ },
+ "qiFillAgain": {
+  "message": "Điền lại"
+ },
+ "qiFilling": {
+  "message": "Đang điền…"
+ },
+ "qiFillHint": {
+  "message": "Nhập vào chỗ trống, chọn từ “Đã sao chép”, hoặc để tôi điền từ trang."
+ },
+ "qiFillDone": {
+  "message": "Phần tô sáng: lấy từ trang. Hãy kiểm tra trước khi gửi."
+ },
+ "qiFillPartly": {
+  "message": "Phần tô sáng: lấy từ trang. Một chỗ trống không tìm được nội dung: hãy tự điền."
+ },
+ "qiFillLeft": {
+  "message": "Hôm nay còn {0} lượt điền."
+ },
+ "qiFillLimit": {
+  "message": "Bạn đã dùng hết lượt điền miễn phí hôm nay. Với Pro thì không giới hạn, và bạn vẫn có thể tự điền chỗ trống."
+ },
+ "qiFillByHand": {
+  "message": "Tự điền"
+ },
+ "qiPickCopied": {
+  "message": "Đã sao chép cho “{0}”"
+ },
+ "qiAdapt": {
+  "message": "Viết lại cho trang này"
+ },
+ "qiAdaptChat": {
+  "message": "Viết lại cho cuộc trò chuyện này"
+ },
+ "qiAdaptHint": {
+  "message": "“Điền từ trang” chỉ điền vào chỗ trống. “Viết lại” dùng AI để thay đổi toàn bộ văn bản và hiển thị trong bảng."
+ },
+ "qiAdaptLabel": {
+  "message": "Viết lại mẫu cho trang này"
+ },
+ "qiAdaptPrompt": {
+  "message": "Viết lại mẫu này thành một câu trả lời phù hợp với trang tôi đang mở. Giữ nguyên ý, giọng điệu và độ dài; điền những gì trang cho biết, phần còn lại để nguyên. Chỉ trả lời bằng nội dung câu trả lời.\n\nMẫu:\n{0}"
+ },
+ "qiAdaptConversation": {
+  "message": "Đây là cuộc trò chuyện tôi đang trả lời. Hãy viết câu trả lời cho người trong đó:\n{0}"
+ },
+ "qiTemplateButton": {
+  "message": "Mẫu"
+ },
+ "qiTemplateTitle": {
+  "message": "Tiêu đề"
+ },
+ "qiTemplateText": {
+  "message": "Nội dung. Đặt chỗ trống trong dấu ngoặc nhọn, như {Tên}."
+ },
+ "qiMakeBlank": {
+  "message": "Chỗ trống"
+ },
+ "qiBlankDefault": {
+  "message": "Chỗ trống"
+ },
+ "qiUnmark": {
+  "message": "chuyển về văn bản thường"
+ },
+ "qiMarking": {
+  "message": "Đang đánh dấu phần thay đổi…"
+ },
+ "qiMarkAi": {
+  "message": "Đánh dấu chỗ trống"
+ },
+ "qiMarkedHint": {
+  "message": "Đã đánh dấu chỗ trống. Chạm vào một chỗ để chuyển về văn bản thường."
+ },
+ "qiMarkedNone": {
+  "message": "Ở đây không có gì giống phần sẽ thay đổi. Chọn một từ và chạm “Chỗ trống” để thêm."
+ },
+ "qiMarkFailed": {
+  "message": "Hiện chưa đánh dấu được chỗ trống. Mẫu đã được lưu dạng văn bản thường, bạn có thể tự thêm chỗ trống."
+ },
+ "qiBlankHint": {
+  "message": "Chỗ trống được điền khi chèn mẫu."
+ },
+ "qiKeywords": {
+  "message": "Từ khóa để tìm mẫu, cách nhau bằng dấu phẩy"
+ },
+ "qiSave": {
+  "message": "Lưu"
+ },
+ "qiDelete": {
+  "message": "Xóa"
+ },
+ "qiSetButton": {
+  "message": "Nút cạnh ô văn bản"
+ },
+ "qiSetCopiedHint": {
+  "message": "5 đoạn văn bản gần nhất được sao chép trên các trang. Chúng chỉ nằm trên thiết bị này và bị xóa sau 24 giờ. Không lấy gì từ ô mật khẩu hay ô thẻ, và không lấy khi Duyệt web riêng tư."
+ },
+ "qiClearCopied": {
+  "message": "Xóa mục đã sao chép"
+ },
+ "qiCleared": {
+  "message": "Đã xóa"
+ },
+ "qiSetSign": {
+  "message": "Ký hiệu trong ô"
+ },
+ "qiSetSignHint": {
+  "message": "Nhập {0} và vài từ của mẫu vào ô bất kỳ."
+ },
+ "qiSetShortcut": {
+  "message": "Trên Mac hoặc iPad có bàn phím, ⌃⇧V sẽ mở danh sách."
+ },
+ "hintGot": {
+  "message": "Đã hiểu"
+ },
+ "hintChatsTitle": {
+  "message": "Tìm, sắp xếp, xem lại"
+ },
+ "hintChatsBody": {
+  "message": "Tìm theo từ hoặc #thẻ. Gắn thẻ cho cuộc trò chuyện và câu trả lời bằng 🏷 rồi bật “Thư mục” để nhóm lại. Trong Pro, ✦ tìm cuộc trò chuyện theo mô tả, còn “Hỏi các cuộc trò chuyện” trả lời dựa trên tất cả."
+ },
+ "hintVideoTitle": {
+  "message": "Trang này có video"
+ },
+ "hintVideoBody": {
+  "message": "Câu trả lời dùng bản chép lời và chỉ ra các thời điểm như [4:15]. Nếu không có phụ đề, câu trả lời dùng tiêu đề và mô tả, và sẽ nói rõ điều đó."
+ },
+ "hintPdfTitle": {
+  "message": "Đọc được cả PDF"
+ },
+ "hintPdfBody": {
+  "message": "Các tệp PDF hiển thị hoặc có liên kết trên trang này sẽ được gửi kèm câu hỏi; câu trả lời cho biết thông tin nằm ở trang nào."
+ },
+ "proSkipVideo": {
+  "message": "Đã bỏ qua video trên trang này — Pro đọc được video"
+ },
+ "proSkipPdf": {
+  "message": "Đã bỏ qua PDF trên trang này — Pro đọc được PDF"
+ },
+ "proSkipBoth": {
+  "message": "Đã bỏ qua video và PDF trên trang này — Pro đọc được chúng"
+ },
+ "tryPro": {
+  "message": "Dùng thử Pro"
+ },
+ "emptyVideoFree": {
+  "message": "Trang này có video. Câu trả lời Pro dùng bản chép lời; câu trả lời miễn phí dùng những gì trang hiển thị (tiêu đề, mô tả)."
+ },
+ "emptyPdfFree": {
+  "message": "Trang này có PDF. Câu trả lời Pro đọc tệp này; câu trả lời miễn phí dùng nội dung của trang."
+ },
+ "hintVideoBodyFree": {
+  "message": "Với Pro, câu trả lời dùng bản chép lời và chỉ ra các thời điểm như [4:15]. Câu trả lời miễn phí dùng tiêu đề và mô tả."
+ },
+ "hintPdfTitleFree": {
+  "message": "Trang này có PDF"
+ },
+ "hintPdfBodyFree": {
+  "message": "Pro đọc các tệp PDF hiển thị hoặc có liên kết trên trang này và cho biết câu trả lời lấy từ trang nào. Câu trả lời miễn phí dùng nội dung của trang."
+ },
+ "renewalTitle": {
+  "message": "Pro kết thúc vào {0}"
+ },
+ "renewalBody": {
+  "message": "Tự động gia hạn đã tắt. Bạn thấy còn thiếu gì?"
+ },
+ "renewalPrice": {
+  "message": "Quá đắt"
+ },
+ "renewalRarely": {
+  "message": "Tôi không dùng nhiều"
+ },
+ "renewalAnswers": {
+  "message": "Câu trả lời chưa đủ tốt"
+ },
+ "renewalFeatures": {
+  "message": "Thiếu tính năng tôi cần"
+ },
+ "renewalFreeEnough": {
+  "message": "Gói miễn phí là đủ"
+ },
+ "renewalOther": {
+  "message": "Lý do khác"
+ },
+ "renewalThanks": {
+  "message": "Cảm ơn bạn — điều này giúp chúng tôi cải thiện ContextFlow."
+ },
+ "planEnds": {
+  "message": "Kết thúc {0}: tự động gia hạn đã tắt"
+ },
+ "upgradePro": {
+  "message": "Nâng cấp lên Pro"
+ },
+ "upgradeProOff": {
+  "message": "Nâng cấp, giảm {0}%"
+ },
+ "byokLimitTitle": {
+  "message": "Đã hết câu trả lời qua ContextFlow hôm nay"
+ },
+ "byokLimitNoKey": {
+  "message": "Bạn chưa thêm khóa riêng, nên câu trả lời đi qua ContextFlow: {0} mỗi ngày. Hãy thêm khóa trong Cài đặt, hoặc chuyển sang Pro: tối đa {1} câu trả lời mỗi tuần, không cần khóa."
+ },
+ "byokLimitGoogle": {
+  "message": "Với gói Khóa riêng, câu trả lời từ Google đi qua ContextFlow: {0} mỗi ngày. Pro cho bạn tối đa {1} câu trả lời mỗi tuần."
+ },
+ "byokSearch": {
+  "message": "Với gói Khóa riêng, Google Tìm kiếm có {0} lượt mỗi ngày. Pro cho bạn {1} lượt mỗi tuần."
+ },
+ "byokProOnly": {
+  "message": "Không có trong gói Khóa riêng."
+ },
+ "byokOfferTitle": {
+  "message": "Chuyển sang Pro, giảm {0}%"
+ },
+ "byokOfferBody": {
+  "message": "Pro trả lời không cần khóa của bạn: tối đa {0} câu trả lời mỗi tuần, {1} lượt Google Tìm kiếm mỗi tuần, “Hỏi các cuộc trò chuyện” và Tìm kiếm AI. App Store hiển thị giá và thời hạn ưu đãi trước khi bạn thanh toán. Pro bắt đầu ngay, và phần chưa dùng của gói hiện tại sẽ được hoàn tiền."
+ },
+ "orgSuggested": {
+  "message": "Gợi ý"
+ },
+ "orgTagA11y": {
+  "message": "Thẻ gợi ý “{0}”. Thêm thẻ"
+ },
+ "orgNoA11y": {
+  "message": "Bỏ qua"
+ },
+ "orgCountOne": {
+  "message": "{0} tin nhắn"
+ },
+ "orgCountFew": {
+  "message": "{0} tin nhắn"
+ },
+ "orgCountMany": {
+  "message": "{0} tin nhắn"
+ },
+ "orgCountOther": {
+  "message": "{0} tin nhắn"
+ },
+ "orgMoveTo": {
+  "message": "{0} sang “{1}”"
+ },
+ "orgSplit": {
+  "message": "Sang cuộc trò chuyện mới: “{0}”"
+ },
+ "orgMoveA11y": {
+  "message": "Chuyển {0} sang cuộc trò chuyện “{1}”"
+ },
+ "orgSplitA11y": {
+  "message": "Chuyển các tin nhắn này sang cuộc trò chuyện mới, “{0}”"
+ },
+ "orgMoved": {
+  "message": "Đã chuyển sang “{0}”"
+ },
+ "orgUndo": {
+  "message": "Hoàn tác"
+ },
+ "orgOpen": {
+  "message": "Mở"
+ },
+ "orgFirstWin": {
+  "message": "Xong. Từ giờ tôi sẽ tự gợi ý."
+ },
+ "orgConsentTitle": {
+  "message": "Sắp xếp cuộc trò chuyện theo chủ đề?"
+ },
+ "orgConsentText": {
+  "message": "Tôi sẽ gợi ý một cuộc trò chuyện phù hợp và một thẻ của bạn dưới các câu trả lời và ghi chú mới. Bạn có thể tắt trong Cài đặt."
+ },
+ "orgTurnOn": {
+  "message": "Bật"
+ },
+ "orgMessTitle": {
+  "message": "Mọi thứ trong một cuộc trò chuyện?"
+ },
+ "orgMessText": {
+  "message": "Trong Pro, tôi gợi ý thứ gì nên để ở đâu và gắn thẻ theo cách bạn vẫn làm."
+ },
+ "orgTagsTitle": {
+  "message": "Tôi có thể gắn thẻ như bạn"
+ },
+ "orgTagsText": {
+  "message": "Trong Pro, tôi gợi ý một thẻ của bạn dưới các câu trả lời và ghi chú mới, dựa trên những chỗ bạn tự gắn thẻ đó."
+ },
+ "orgCloseA11y": {
+  "message": "Đóng"
+ },
+ "setOrganize": {
+  "message": "Gợi ý: thẻ và di chuyển"
+ },
+ "setOrganizeHint": {
+  "message": "Một cuộc trò chuyện phù hợp và thẻ của bạn dưới các câu trả lời và ghi chú mới. Nội dung tin nhắn được gửi đến máy chủ của chúng tôi, đến OpenAI và Anthropic. Chúng tôi không lưu lại; họ không dùng để huấn luyện."
+ },
+ "setOrganizePro": {
+  "message": "Pro: ContextFlow gợi ý một cuộc trò chuyện phù hợp và thẻ của bạn dưới các câu trả lời và ghi chú mới."
+ },
+ "upsellOrganizeName": {
+  "message": "Sắp xếp theo chủ đề"
+ },
+ "upsellOrganizeText": {
+  "message": "Gợi ý đúng cuộc trò chuyện cho điều bạn vừa hỏi, kèm thẻ của chính bạn."
+ },
+ "watchEye": {
+  "message": "Theo dõi thay đổi"
+ },
+ "watchSection": {
+  "message": "Báo cho tôi khi có thay đổi"
+ },
+ "watchWhen": {
+  "message": "Khi nào báo cho bạn"
+ },
+ "watchCondPrice": {
+  "message": "khi giá thay đổi (hiện là {0})"
+ },
+ "watchCondBack": {
+  "message": "khi có hàng trở lại"
+ },
+ "watchCondStock": {
+  "message": "khi tình trạng hàng thay đổi (hiện là {0})"
+ },
+ "watchCondDate": {
+  "message": "khi ngày thay đổi (hiện là {0})"
+ },
+ "watchCondStatus": {
+  "message": "khi trạng thái thay đổi (hiện là {0})"
+ },
+ "watchCondPage": {
+  "message": "khi trang có nội dung mới"
+ },
+ "watchHonest": {
+  "message": "Tôi kiểm tra trong lúc bạn dùng Safari"
+ },
+ "watchStart": {
+  "message": "Theo dõi"
+ },
+ "watchSave": {
+  "message": "Lưu"
+ },
+ "watchTipBell": {
+  "message": "Nút chuông: tôi sẽ đưa bạn quay lại trang này vào lúc bạn chọn."
+ },
+ "watchTipWatch": {
+  "message": "Con mắt: tôi sẽ báo khi có gì đó ở đây thay đổi: giá, tình trạng hàng, trạng thái."
+ },
+ "watchChecking": {
+  "message": "Đang xem trang…"
+ },
+ "watchSet": {
+  "message": "Đang theo dõi. Tôi sẽ báo khi có thay đổi."
+ },
+ "watchSetLive": {
+  "message": "Đang theo dõi. Trang web này chỉ hiển thị thông tin đó khi bạn mở trang, nên tôi sẽ kiểm tra vào lúc đó."
+ },
+ "watchUnreadable": {
+  "message": "Trang web này không cho tôi kiểm tra ở chế độ nền. Tôi có thể kiểm tra khi bạn mở trang, hoặc nhắc bạn vào xem."
+ },
+ "watchRemindInstead": {
+  "message": "Nhắc tôi vào xem"
+ },
+ "watchLiveOk": {
+  "message": "Kiểm tra khi tôi mở trang"
+ },
+ "watchFull": {
+  "message": "Bạn đang theo dõi {0} trang rồi. Hãy dừng một trang trong “Đang theo dõi” trước."
+ },
+ "watchFullFree": {
+  "message": "Gói Miễn phí theo dõi được {0} trang cùng lúc. Pro theo dõi tới {1} trang."
+ },
+ "watchMore": {
+  "message": "Nhiều hơn với Pro"
+ },
+ "watchFailed": {
+  "message": "Không được rồi. Hãy thử lại sau giây lát."
+ },
+ "watchRow": {
+  "message": "Đang theo dõi: {0} · đã kiểm tra {1}"
+ },
+ "watchRowNew": {
+  "message": "Đang theo dõi: {0}"
+ },
+ "watchRowNow": {
+  "message": "hiện là {0}"
+ },
+ "watchRowLive": {
+  "message": "Đang theo dõi: {0} · tôi sẽ kiểm tra khi bạn mở trang"
+ },
+ "watchRowMet": {
+  "message": "Đã thay đổi: {0} · {1}"
+ },
+ "watchRowMetNow": {
+  "message": "Đã thay đổi: {0}, hiện là {1} · {2}"
+ },
+ "watchStop": {
+  "message": "Dừng theo dõi"
+ },
+ "watchStopped": {
+  "message": "Đã dừng theo dõi"
+ },
+ "watchLabelPrice": {
+  "message": "Giá"
+ },
+ "watchLabelStock": {
+  "message": "Tình trạng hàng"
+ },
+ "watchLabelDate": {
+  "message": "Ngày"
+ },
+ "watchLabelStatus": {
+  "message": "Trạng thái"
+ },
+ "watchLabelPage": {
+  "message": "Trang"
+ },
+ "watchInStock": {
+  "message": "còn hàng"
+ },
+ "watchOutOfStock": {
+  "message": "hết hàng"
+ },
+ "watchChanged": {
+  "message": "Đã thay đổi: {0}"
+ },
+ "watchChangedBody": {
+  "message": "Hiện tại: {0}"
+ },
+ "tip_4cf1b54b00": {
+  "message": "Mẹo"
+ },
+ "tip_245f060c21": {
+  "message": "Trả lời nhanh cho “làm sao để…?”"
+ },
+ "tip_89895fd68f": {
+  "message": "Trên mọi thiết bị của bạn"
+ },
+ "tip_9efc5dc7c2": {
+  "message": "Khi bật “Đồng bộ cuộc trò chuyện với iCloud”, cuộc trò chuyện bắt đầu trên iPhone sẽ tiếp tục trên iPad và Mac. Dữ liệu được mã hóa đầu cuối trong iCloud của bạn."
+ },
+ "tip_90e40d5043": {
+  "message": "Bắt đầu"
+ },
+ "tip_ad4199fa48": {
+  "message": "Mở trên mọi trang"
+ },
+ "tip_79a4dbe893": {
+  "message": "Chạm vào ✦ trên trang, hoặc mở menu trang trên thanh địa chỉ và chọn ContextFlow."
+ },
+ "tip_4acd9995ac": {
+  "message": "Bấm vào ✦ trên trang hoặc biểu tượng ContextFlow trên thanh công cụ, hoặc nhấn Control-Shift-E."
+ },
+ "tip_2749afe54a": {
+  "message": "Nắm ý chính chỉ với một chạm"
+ },
+ "tip_487a14e710": {
+  "message": "Tóm tắt, Ý chính, Giải thích đơn giản và Dịch dùng cho cả trang, không cần viết câu lệnh."
+ },
+ "tip_d22c90dac1": {
+  "message": "Hỏi về một đoạn"
+ },
+ "tip_328a1070b8": {
+  "message": "Chọn văn bản trên trang và chọn Hỏi AI: câu trả lời chỉ nói về phần đó. AI cũng có thể giải thích, dịch hoặc viết lại phần đó."
+ },
+ "tip_ca7dfa36cb": {
+  "message": "Hỏi hoặc ghi chú đoạn đã chọn"
+ },
+ "tip_fa1cdf5479": {
+  "message": "Chọn văn bản trên trang: nhập câu hỏi của bạn ngay dưới đoạn đã chọn, hoặc chạm vào Ghi chú để lưu đoạn đó vào cuộc trò chuyện cùng trang của nó. Ghi chú không tốn câu trả lời."
+ },
+ "tip_9000896590": {
+  "message": "Cuộc trò chuyện đi theo bạn"
+ },
+ "tip_c76058fe4b": {
+  "message": "Cứ hỏi tiếp khi bạn chuyển từ trang này sang trang khác. ContextFlow nhớ cuộc trò chuyện và mỗi câu hỏi thuộc về trang nào. Chạm vào tên trang trong cuộc trò chuyện để quay lại trang đó."
+ },
+ "tip_e5dff10006": {
+  "message": "Thông tin mới từ Google"
+ },
+ "tip_d7c7b7b55d": {
+  "message": "Bật Google cạnh ô câu hỏi để trả lời bằng Google Tìm kiếm: tin tức, giá cả và mọi thứ mới diễn ra, kèm nguồn."
+ },
+ "tip_da5f7b74b1": {
+  "message": "Đi sâu hơn"
+ },
+ "tip_6ba198cbff": {
+  "message": "Ghi chú của riêng bạn"
+ },
+ "tip_6a92f6c633": {
+  "message": "Vuốt nút gửi lên hoặc xuống (trên Mac, cuộn trên nút đó) để viết ghi chú thay vì đặt câu hỏi. Ghi chú nằm trong cuộc trò chuyện cùng trang của nó, được đồng bộ cùng cuộc trò chuyện và không tốn câu trả lời nào."
+ },
+ "tip_654fb12e51": {
+  "message": "Đánh dấu điều quan trọng"
+ },
+ "tip_33115b31e1": {
+  "message": "Chọn một dòng trong câu trả lời và chạm vào Đánh dấu: dòng đó được tô như bằng bút dạ quang. Các câu trả lời sau trong cuộc trò chuyện đó sẽ tính đến những phần bạn đánh dấu, và Sao chép giữ chúng ở dạng chữ đậm."
+ },
+ "tip_b4e4a2a85e": {
+  "message": "Ghim ở trên cùng"
+ },
+ "tip_4d33a9d9e4": {
+  "message": "Ghim câu trả lời hoặc ghi chú để nó nằm trên thanh ở đầu cuộc trò chuyện. Chạm vào thanh để đi tới mục đó, chạm lần nữa để tới mục tiếp theo."
+ },
+ "tip_b7be002204": {
+  "message": "Vuốt để ghim hoặc xóa"
+ },
+ "tip_104ac1e6e8": {
+  "message": "Vuốt câu trả lời hoặc ghi chú sang phải để ghim, sang trái để xóa. Đổi ý? Hoàn tác sẽ đưa lại."
+ },
+ "tip_c047d28229": {
+  "message": "Ghim hoặc xóa bằng một lần bấm"
+ },
+ "tip_dcfe357b68": {
+  "message": "Di con trỏ lên câu trả lời hoặc ghi chú: Ghim, Nhắc tôi và Xóa hiện bên cạnh, còn bấm chuột phải sẽ mở cùng menu đó. Đổi ý? Hoàn tác sẽ đưa lại."
+ },
+ "tip_e012ef5f59": {
+  "message": "Ghi nhớ cả cuộc trò chuyện"
+ },
+ "tip_3a70cee32e": {
+  "message": "Bật Cả cuộc trò chuyện dưới ô câu hỏi khi câu trả lời cần mọi thứ: tất cả tin nhắn, ghi chú của bạn và các trang khác trong cuộc trò chuyện này. Khi tắt, câu trả lời dùng các tin nhắn gần nhất và trang đang mở."
+ },
+ "tip_ca29a1f4ed": {
+  "message": "Hỏi về video"
+ },
+ "tip_d6be4709b7": {
+  "message": "Với Pro, ContextFlow đọc bản chép lời của video trên trang: hỏi ý chính, hoặc video nói gì về một điều nào đó, và câu trả lời sẽ chỉ ra thời điểm, ví dụ [4:15]. Câu trả lời miễn phí dùng văn bản của trang."
+ },
+ "tip_5c5bca8a9e": {
+  "message": "PDF trên trang"
+ },
+ "tip_ff32d2c483": {
+  "message": "Với Pro, các tệp PDF hiển thị trên trang hoặc được liên kết từ trang sẽ được gửi kèm câu hỏi, và câu trả lời cho biết thông tin nằm ở trang nào. Trên iPad và Mac, ContextFlow trên thanh công cụ cũng mở được trên tab PDF. Câu trả lời miễn phí dùng văn bản của trang."
+ },
+ "tip_328ee8ddce": {
+  "message": "Chèn nhanh"
+ },
+ "tip_ff7c853b85": {
+  "message": "Chèn vào ô bất kỳ"
+ },
+ "tip_038e87000b": {
+  "message": "Chạm vào một ô văn bản trên trang, rồi chạm vào nút ContextFlow bên cạnh: những gì bạn đã sao chép ở các tab khác, các mẫu của bạn và câu trả lời gần nhất của ContextFlow chỉ cách một chạm. Với bàn phím, gõ / và vài từ của một mẫu, rồi nhấn Tab."
+ },
+ "tip_a8e1d14e5b": {
+  "message": "Trong ô bất kỳ trên trang, gõ / và vài từ của một mẫu, rồi nhấn Tab. Control-Shift-V mở toàn bộ danh sách: những gì bạn đã sao chép ở các tab khác, các mẫu của bạn và câu trả lời gần nhất của ContextFlow."
+ },
+ "tip_451fa9ccb6": {
+  "message": "Đã sao chép: giữ trong một ngày"
+ },
+ "tip_8ddcf05a7e": {
+  "message": "5 mục bạn sao chép gần nhất trên các trang trong Safari sẽ nằm trong danh sách 24 giờ, chỉ trên thiết bị này. Không lấy gì từ ô mật khẩu, ô thẻ hay khi Duyệt web riêng tư."
+ },
+ "tip_cf63db6cc6": {
+  "message": "Mẫu tự điền"
+ },
+ "tip_6dd86048c4": {
+  "message": "Chọn một đoạn trả lời bạn hay gửi và chạm vào Mẫu: ContextFlow nhận ra tên, ngày và những gì khác hay thay đổi. Khi bạn chèn mẫu, Điền từ trang sẽ điền các phần đó vào và tô sáng để bạn kiểm tra."
+ },
+ "tip_f09b3558e2": {
+  "message": "Theo dõi và nhắc"
+ },
+ "tip_d0d8d1355c": {
+  "message": "Nhắc tôi về trang này"
+ },
+ "tip_b5d4d7711a": {
+  "message": "Đang đọc dở thứ gì muốn đọc nốt sau? Chọn một dòng và chạm vào hình chuông, hoặc chạm vào … ở đầu bảng, rồi chọn Nhắc tôi về trang này… và chọn thời gian: lời nhắc sẽ mở trang này. Câu trả lời và ghi chú có mục Nhắc tôi trong menu … của chúng."
+ },
+ "tip_74c328b672": {
+  "message": "Biết khi giá giảm"
+ },
+ "tip_45c2496345": {
+  "message": "Chọn giá, tình trạng còn hàng hoặc ngày trên trang và chạm vào hình con mắt. Cho cả trang, chọn Theo dõi trang này… trong menu … ở đầu bảng. ContextFlow kiểm tra trang khi bạn dùng Safari và báo cho bạn khi có thay đổi, hoặc khi giá xuống dưới mức bạn đặt. Tối đa 5 mục cùng lúc, 20 mục với Pro."
+ },
+ "tip_0daede04f6": {
+  "message": "Cuộc trò chuyện gọn gàng"
+ },
+ "tip_ec2cf96f53": {
+  "message": "Bắt đầu lại hoặc quay về"
+ },
+ "tip_623811ea30": {
+  "message": "Bắt đầu cuộc trò chuyện mới bằng nút +. Các cuộc trò chuyện trước vẫn nằm trong danh sách: mở một cuộc để tiếp tục từ chỗ bạn dừng, đổi tên bằng hình bút chì hoặc xóa đi."
+ },
+ "tip_c4b432e2e9": {
+  "message": "Tìm trong cuộc trò chuyện"
+ },
+ "tip_eff80bffda": {
+  "message": "Nhập vào ô tìm kiếm phía trên danh sách: bạn sẽ thấy mọi cuộc trò chuyện có những từ đó, kèm vị trí của chúng. Chạm vào một kết quả để mở cuộc trò chuyện ngay tại chỗ đó."
+ },
+ "tip_2e4668f650": {
+  "message": "Thẻ và thư mục"
+ },
+ "tip_6b5bdf707f": {
+  "message": "Gắn thẻ cho cuộc trò chuyện, câu trả lời hoặc ghi chú bằng 🏷. Chạm vào một thẻ để chỉ xem các cuộc trò chuyện có thẻ đó, hoặc bật Thư mục để nhóm danh sách theo thẻ."
+ },
+ "tip_752fb307f2": {
+  "message": "Chia sẻ điều bạn tìm thấy"
+ },
+ "tip_aa15b6c2c0": {
+  "message": "Chia sẻ một câu trả lời hoặc cả cuộc trò chuyện: văn bản đi kèm các liên kết, nguồn và một liên kết tới ContextFlow."
+ },
+ "tip_76f2924bba": {
+  "message": "Cuộc trò chuyện trong ứng dụng"
+ },
+ "tip_969cf52d0b": {
+  "message": "Tab Trò chuyện có mọi cuộc trò chuyện từ Safari. Hỏi về các trang của cuộc trò chuyện hoặc thêm ghi chú ngay tại đó, gắn thẻ, sao chép hay chia sẻ một câu trả lời bất kỳ, hoặc chia sẻ cả cuộc trò chuyện. “Tiếp tục trong Safari” mở lại đúng chỗ bạn dừng."
+ },
+ "tip_4721064b09": {
+  "message": "Tìm kiếm AI"
+ },
+ "tip_52a09ac884": {
+  "message": "Chạm vào ✦ cạnh ô tìm kiếm và mô tả cuộc trò chuyện bạn nhớ, như “bài viết về giấc ngủ và cà phê”, kể cả khi không nhớ đúng từ."
+ },
+ "tip_068fa58797": {
+  "message": "Hỏi các cuộc trò chuyện"
+ },
+ "tip_8a40be768f": {
+  "message": "Hàng đầu tiên của danh sách trả lời dựa trên tất cả các cuộc trò chuyện cùng lúc: “Tuần này tôi đã đọc gì?”, “Tóm tắt ghi chú của tôi về AI”."
+ },
+ "tip_4257aee15a": {
+  "message": "Đúng chỗ của nó"
+ },
+ "tip_c61e2edab3": {
+  "message": "Hỏi về ô tô trong cuộc trò chuyện về ghế sofa? Dưới câu trả lời, ContextFlow gợi ý cuộc trò chuyện phù hợp, hoặc một cuộc mới. Một chạm là chuyển sang đó, theo đúng ngày; Hoàn tác sẽ đưa về chỗ cũ."
+ },
+ "tip_3f9f46cd12": {
+  "message": "Gợi ý thẻ của bạn"
+ },
+ "tip_69a0bac728": {
+  "message": "ContextFlow học ý nghĩa các thẻ của bạn từ những chỗ bạn gắn chúng, và gợi ý đúng thẻ dưới câu trả lời hoặc ghi chú mới. Chỉ thẻ của chính bạn, chỉ khi phù hợp."
+ },
+ "tip_3208aa35ac": {
+  "message": "Quyền riêng tư và cá nhân hóa"
+ },
+ "tip_1e1a2fad4e": {
+  "message": "Giới thiệu về bạn"
+ },
+ "tip_e2d1d4abd0": {
+  "message": "Thêm một dòng vào Về tôi (bạn làm nghề gì, thích câu trả lời ra sao) và ContextFlow sẽ trả lời hợp với bạn hơn."
+ },
+ "tip_10400d6345": {
+  "message": "Nút ✦ theo ý bạn"
+ },
+ "tip_4c60874441": {
+  "message": "Nút che mất thứ gì trên trang? Kéo ✦ lên hoặc xuống dọc theo cạnh, hoặc sang phía bên kia: nút sẽ ở yên chỗ bạn thả. Bạn cũng có thể ẩn nút trên một trang web, hoặc tắt ở mọi nơi trong phần cài đặt tiện ích mở rộng. ContextFlow vẫn mở được từ menu tiện ích mở rộng của Safari."
+ },
+ "tip_8a727e1bbe": {
+  "message": "Dùng khóa API riêng"
+ },
+ "tip_d84a0778d4": {
+  "message": "Với Pro hoặc gói Khóa riêng, hãy dán khóa OpenAI hoặc Claude vào phần cài đặt tiện ích mở rộng trong Safari. Khi đó, yêu cầu sẽ đi thẳng tới nhà cung cấp đó."
+ },
+ "tip_3aaa9fd1f2": {
+  "message": "Riêng tư ngay từ đầu"
+ },
+ "tip_241d3ad076": {
+  "message": "ContextFlow chỉ đọc trang khi bạn hỏi và chỉ gửi phần văn bản của trang để lấy câu trả lời. Các cuộc trò chuyện của bạn nằm trên thiết bị của bạn và trong iCloud của bạn. Khi bật gợi ý, văn bản của tin nhắn mới cũng được gửi tới máy chủ của chúng tôi để tìm chỗ phù hợp; chúng tôi không lưu lại."
+ },
+ "tip_clips": {
+  "message": "en"
+ }
+}

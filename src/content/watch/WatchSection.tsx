@@ -81,6 +81,7 @@ export function WatchSection(p: WatchSectionProps) {
           <textarea
             id="cf-watch-cond"
             class="cf-watch-cond"
+            dir="auto"
             rows={2}
             value={condition}
             maxLength={300}

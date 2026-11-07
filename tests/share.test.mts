@@ -69,6 +69,13 @@ test("the language of typed questions picks the share labels", () => {
   assert.equal(textLanguage("De quoi parle cet article ?"), "fr")
   assert.equal(textLanguage("Di cosa parla questo articolo?"), "it")
   assert.equal(textLanguage("Sobre o que é este artigo?"), "pt_BR")
+  // 2.6: Traditional Chinese by its own characters, Arabic by its script, Vietnamese by its letters and words.
+  assert.equal(textLanguage("這篇文章在講什麼？"), "zh_TW")
+  assert.equal(textLanguage("這個產品值得買嗎?"), "zh_TW")
+  assert.equal(textLanguage("这个产品值得买吗?"), "zh_CN")
+  assert.equal(textLanguage("عن ماذا تتحدث هذه المقالة؟"), "ar")
+  assert.equal(textLanguage("Bài viết này nói về điều gì?"), "vi")
+  assert.equal(textLanguage("Sản phẩm này có đáng mua không?"), "vi")
   assert.equal(textLanguage("ok"), undefined)
   // Quick actions are in the device's language, so only typed questions count.
   assert.equal(chatLanguage([{ role: "user", content: "Summarize this page", label: "Summarize" }, { role: "assistant", content: "Kurz gesagt" }]), undefined)

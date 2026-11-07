@@ -151,6 +151,7 @@ export function SettingsView(props: Props): VNode {
         <span class="cf-label">{t("setAbout")}</span>
         <textarea
           class="cf-textarea"
+          dir="auto"
           rows={3}
           maxLength={1000}
           value={about}

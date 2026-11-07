@@ -23,3 +23,26 @@ export function uiLanguage(): string {
     return navigator.language || "en"
   }
 }
+
+/**
+ * The panel's direction: "rtl" when its strings are in a right-to-left language (Arabic, 2.6), else "ltr". Read off
+ * the strings the browser actually loaded (their language's own name), so the direction and the text never disagree.
+ * Set on the panel's root: the host's `all: initial` doesn't reset direction, so without it a page's dir would leak in.
+ */
+export function uiDirection(): "rtl" | "ltr" {
+  return /[֐-ࣿ]/.test(t("languageName")) ? "rtl" : "ltr"
+}
+
+/** The panel strings' language as a BCP 47 tag ("ar", "zh-Hant", "pt-BR"): Safari's @@ui_locale is the _locales folder
+ * it picked. On the panel's root as lang, so Traditional Chinese gets Traditional glyphs (PingFang TC). */
+export function uiLang(): string {
+  let locale = ""
+  try {
+    locale = chrome.i18n?.getMessage("@@ui_locale") || ""
+  } catch {
+    // tests, preview harness
+  }
+  if (/^zh[_-](TW|HK|MO|Hant)/i.test(locale)) return "zh-Hant"
+  if (/^zh/i.test(locale)) return "zh-Hans"
+  return locale ? locale.replace(/_/g, "-") : "en"
+}

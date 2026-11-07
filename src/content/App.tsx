@@ -2364,12 +2364,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       <PageDivider entries={messages} index={idx} onOpen={openPage} />
                       {m.note ? (
                         ux.wrap(m, idx, (
-                          <div class="cf-bubble-note">
+                          <div class="cf-bubble-note" dir="auto">
                             <span class="cf-note-mark" aria-label={t("shareNote")}><Icon.Pencil /></span>{m.content}
                           </div>
                         ), !picked)
                       ) : (
-                        <div class="cf-bubble-user">{m.mode === "google" && <span class="cf-user-mode"><Icon.Search size={12} /></span>}{m.label ?? m.content}</div>
+                        <div class="cf-bubble-user" dir="auto">{m.mode === "google" && <span class="cf-user-mode"><Icon.Search size={12} /></span>}{m.label ?? m.content}</div>
                       )}
                       {m.sources && m.sources.length > 0 && <UsedSources notes={m.sources} />}
                       {m.note && messageFooter(m, idx, () => noteCopyText(m), () => noteShareText(messages, idx, shareLabels(chatLanguage(messages)), shareLinks()))}
@@ -2578,6 +2578,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     <textarea
                       ref={inputRef}
                       rows={1}
+                      dir="auto"
                       value={draft}
                       placeholder={t(noteMode ? "placeholderNote" : historyMode ? "placeholderHistory" : googleMode ? "placeholderGoogle" : contextKind === "selection" ? "placeholderSelection" : contextKind === "page" ? "placeholderPage" : "placeholderNone")}
                       enterkeyhint="send"

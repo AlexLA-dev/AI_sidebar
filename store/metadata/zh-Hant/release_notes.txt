@@ -1,0 +1,3 @@
+ContextFlow 2.6 新功能：
+• ContextFlow 現在支援繁體中文：Safari 中的面板、App 和提示
+• 錯誤修正和改進

@@ -51,8 +51,8 @@ export function fallbackRule(what: WatchKind, value: string, condition: string):
   const c = condition.toLowerCase()
   const n = parseNumber(c)
   if (what === "price" && n !== null) {
-    if (/(below|under|less|cheaper|ниже|меньше|дешевле|нижче|менше|unter|weniger|moins|sous|menos|debajo|meno|sotto|abaixo|以下|未満|이하|미만|低于|以下)/.test(c)) return { kind: "below", n }
-    if (/(above|over|more|выше|больше|вище|більше|über|mehr|plus|más|più|acima|以上|이상|高于)/.test(c)) return { kind: "above", n }
+    if (/(below|under|less|cheaper|ниже|меньше|дешевле|нижче|менше|unter|weniger|moins|sous|menos|debajo|meno|sotto|abaixo|以下|未満|이하|미만|低于|以下|低於|أقل|أدنى|تحت|dưới|thấp hơn|rẻ hơn|ít hơn)/.test(c)) return { kind: "below", n }
+    if (/(above|over|more|выше|больше|вище|більше|über|mehr|plus|más|più|acima|以上|이상|高于|高於|أعلى|أكثر|فوق|cao hơn|nhiều hơn|trên)/.test(c)) return { kind: "above", n }
   }
   if (what === "stock" && isOutOfStock(value)) return { kind: "in-stock" }
   return { kind: "change" }

@@ -65,6 +65,12 @@ function manifest() {
   return m
 }
 
+// Chinese by region (2.6): Traditional for Taiwan, Hong Kong and Macao, Simplified for China and Singapore. The
+// browser picks a _locales folder by the device's language and region, so the regions without a folder of their own
+// get a copy of their script's: zh_TW (Traditional) is also zh_HK and zh_MO, zh_CN (Simplified) is also zh_SG.
+// Chrome skips folders it doesn't know (it maps those regions itself).
+const LOCALE_COPIES = { zh_HK: "zh_TW", zh_MO: "zh_TW", zh_SG: "zh_CN" }
+
 // _locales/<lang>/messages.json from src/locales/<lang>.json, plus the Tips texts (tip_…) from the app's catalog.
 // {0}, {1} stay as they are: t() fills them in itself (Safari's own substitution loses the value next to some
 // characters, e.g. “{0}”).
@@ -78,8 +84,10 @@ function locales() {
       // "$" starts a placeholder in messages.json; written as "$$" it is a dollar sign.
       messages[key] = { message: String(text).replace(/\$/g, "$$$$") }
     }
-    mkdirSync(join(out, "_locales", lang), { recursive: true })
-    writeFileSync(join(out, "_locales", lang, "messages.json"), JSON.stringify(messages, null, 1) + "\n")
+    for (const folder of [lang, ...Object.keys(LOCALE_COPIES).filter((copy) => LOCALE_COPIES[copy] === lang)]) {
+      mkdirSync(join(out, "_locales", folder), { recursive: true })
+      writeFileSync(join(out, "_locales", folder, "messages.json"), JSON.stringify(messages, null, 1) + "\n")
+    }
   }
 }
 

@@ -1,0 +1,1 @@
+Mới: mẫu tự điền tên và ngày, chèn thứ bạn đã sao chép vào bất kỳ ô nào, và thông báo khi giá thay đổi.

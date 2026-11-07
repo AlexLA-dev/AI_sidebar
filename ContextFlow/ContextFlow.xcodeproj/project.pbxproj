@@ -490,6 +490,9 @@
 				ko,
 				"pt-BR",
 				"zh-Hans",
+				"zh-Hant",
+				ar,
+				vi,
 			);
 			mainGroup = 41FA27A92F41ED2000FED9FC;
 			minimizedProjectReferenceProxies = 1;

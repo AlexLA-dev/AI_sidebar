@@ -1,0 +1,1742 @@
+{
+ "extName": {
+  "message": "ContextFlow — Safari 的 AI 助手"
+ },
+ "extDescription": {
+  "message": "針對你正在閱讀的網頁詢問 AI：摘要、解釋和翻譯，不必離開 Safari。"
+ },
+ "actionTitle": {
+  "message": "向 ContextFlow 詢問這個頁面"
+ },
+ "languageName": {
+  "message": "繁體中文"
+ },
+ "ctxPage": {
+  "message": "此頁面"
+ },
+ "ctxSelection": {
+  "message": "選取的文字 · {0} 個字"
+ },
+ "ctxNone": {
+  "message": "一般對話"
+ },
+ "ctxUsePage": {
+  "message": "使用整個頁面"
+ },
+ "emptyTitle": {
+  "message": "你想知道什麼？"
+ },
+ "emptyPage": {
+  "message": "我看得到這個頁面。你可以提問，或選一個動作。"
+ },
+ "emptySelection": {
+  "message": "針對選取的文字提問，或選一個動作。"
+ },
+ "emptyNone": {
+  "message": "無法讀取這個頁面，但你可以問我任何問題。"
+ },
+ "actSummarize": {
+  "message": "摘要"
+ },
+ "actKeyPoints": {
+  "message": "重點整理"
+ },
+ "actExplain": {
+  "message": "簡單解釋"
+ },
+ "actTranslate": {
+  "message": "翻譯"
+ },
+ "actImprove": {
+  "message": "改善文字"
+ },
+ "actReply": {
+  "message": "草擬回覆"
+ },
+ "actGoogle": {
+  "message": "Google"
+ },
+ "promptSummarize": {
+  "message": "請用 5–7 個重點摘要這個頁面，最後用一句話說出主要結論。"
+ },
+ "promptKeyPoints": {
+  "message": "這個頁面有哪些重點？請列出重要的事實、數字和日期。"
+ },
+ "promptExplain": {
+  "message": "請用簡單的話解釋這個頁面，就像講給一個聰明的 12 歲孩子聽。"
+ },
+ "promptTranslate": {
+  "message": "請把這個頁面的主要內容翻譯成{0}，並保留原本的結構和標題。"
+ },
+ "promptSelSummarize": {
+  "message": "請簡短摘要選取的文字。"
+ },
+ "promptSelExplain": {
+  "message": "請用簡單的話解釋選取的文字。"
+ },
+ "promptSelTranslate": {
+  "message": "請把選取的文字翻譯成{0}。"
+ },
+ "promptSelImprove": {
+  "message": "請改寫選取的文字，讓它更清楚、更精簡。只提供一個改善後的版本。"
+ },
+ "promptReply": {
+  "message": "請針對這則訊息或貼文，草擬一則簡短、有禮貌的回覆。"
+ },
+ "promptGoogle": {
+  "message": "請用 Google 搜尋這個頁面主題的最新資訊，並給我一份概述。"
+ },
+ "promptSelGoogle": {
+  "message": "請用 Google 搜尋選取的文字：它是什麼，並列出重要的事實。"
+ },
+ "placeholderPage": {
+  "message": "針對此頁面提問…"
+ },
+ "placeholderSelection": {
+  "message": "針對選取的文字提問…"
+ },
+ "placeholderNone": {
+  "message": "什麼都可以問…"
+ },
+ "placeholderGoogle": {
+  "message": "問 Google…"
+ },
+ "send": {
+  "message": "傳送"
+ },
+ "stop": {
+  "message": "停止"
+ },
+ "newChat": {
+  "message": "新對話"
+ },
+ "chatsTitle": {
+  "message": "對話"
+ },
+ "allChats": {
+  "message": "所有對話"
+ },
+ "chatsEmpty": {
+  "message": "還沒有對話。問點什麼就能開始。"
+ },
+ "deleteChat": {
+  "message": "刪除對話"
+ },
+ "renameChat": {
+  "message": "重新命名對話"
+ },
+ "chatName": {
+  "message": "對話名稱"
+ },
+ "chatNameHint": {
+  "message": "留空的話，會用第一個問題當作對話名稱。"
+ },
+ "settings": {
+  "message": "設定"
+ },
+ "close": {
+  "message": "關閉"
+ },
+ "back": {
+  "message": "返回"
+ },
+ "copy": {
+  "message": "拷貝"
+ },
+ "copied": {
+  "message": "已拷貝"
+ },
+ "share": {
+  "message": "分享"
+ },
+ "shareSource": {
+  "message": "來源"
+ },
+ "shareMadeWith": {
+  "message": "用 ContextFlow 製作"
+ },
+ "shareChat": {
+  "message": "分享對話"
+ },
+ "shareYou": {
+  "message": "你"
+ },
+ "newPage": {
+  "message": "新頁面：{0}"
+ },
+ "pageUpdated": {
+  "message": "頁面已更新"
+ },
+ "uxMark": {
+  "message": "標示"
+ },
+ "uxUnmark": {
+  "message": "移除標示"
+ },
+ "uxDelete": {
+  "message": "刪除"
+ },
+ "uxPin": {
+  "message": "釘選"
+ },
+ "uxUnpin": {
+  "message": "取消釘選"
+ },
+ "uxDeletedAnswer": {
+  "message": "回答已刪除"
+ },
+ "uxDeletedNote": {
+  "message": "筆記已刪除"
+ },
+ "uxDeletedChat": {
+  "message": "對話已刪除"
+ },
+ "trashTitle": {
+  "message": "最近刪除"
+ },
+ "trashRow": {
+  "message": "最近刪除 · {0}"
+ },
+ "trashNote": {
+  "message": "對話會在這裡保留 30 天，之後就會永久刪除。"
+ },
+ "trashRestore": {
+  "message": "復原"
+ },
+ "trashDeleteNow": {
+  "message": "立即刪除"
+ },
+ "trashDeleteAll": {
+  "message": "全部刪除"
+ },
+ "trashDeleteAllAsk": {
+  "message": "要永久刪除「最近刪除」中的所有對話嗎？此動作無法復原。"
+ },
+ "trashDays_one": {
+  "message": "{0} 天"
+ },
+ "trashDays_few": {
+  "message": "{0} 天"
+ },
+ "trashDays_many": {
+  "message": "{0} 天"
+ },
+ "trashDays_other": {
+  "message": "{0} 天"
+ },
+ "uxPinned": {
+  "message": "已釘選"
+ },
+ "uxPinnedN": {
+  "message": "已釘選 #{0}"
+ },
+ "uxPinnedAll": {
+  "message": "所有釘選項目"
+ },
+ "uxMore": {
+  "message": "更多"
+ },
+ "uxMorePage": {
+  "message": "更多：頁面"
+ },
+ "uxMoreAnswer": {
+  "message": "更多：回答"
+ },
+ "uxMoreNote": {
+  "message": "更多：筆記"
+ },
+ "uxMoreChat": {
+  "message": "更多：對話"
+ },
+ "uxLater": {
+  "message": "提醒我看這個頁面…"
+ },
+ "uxLaterTitle": {
+  "message": "提醒我看這個頁面"
+ },
+ "uxWatchPage": {
+  "message": "追蹤這個頁面…"
+ },
+ "uxReminders": {
+  "message": "提醒"
+ },
+ "uxRemindersN": {
+  "message": "提醒 · {0}"
+ },
+ "uxWatching": {
+  "message": "追蹤中"
+ },
+ "uxWatchingN": {
+  "message": "追蹤中 · {0}"
+ },
+ "uxAllReminders": {
+  "message": "所有提醒"
+ },
+ "uxNoReminders": {
+  "message": "沒有提醒"
+ },
+ "uxNoRemindersHint": {
+  "message": "可以在回答或筆記上設定，用選取文字旁的鈴鐺，或在這裡：… → 提醒我看這個頁面。"
+ },
+ "uxNoWatching": {
+  "message": "沒有追蹤項目"
+ },
+ "uxNoWatchingHint": {
+  "message": "選取價格、庫存或日期，然後點一下眼睛。整個頁面：… → 追蹤這個頁面。"
+ },
+ "uxOnAnotherDevice": {
+  "message": "{0} · 在另一台裝置上"
+ },
+ "uxStop": {
+  "message": "停止"
+ },
+ "uxRemind": {
+  "message": "提醒我"
+ },
+ "uxRemindChange": {
+  "message": "更改提醒"
+ },
+ "uxRemindOpen": {
+  "message": "開啟"
+ },
+ "uxRemindTitle": {
+  "message": "要在什麼時候提醒你？"
+ },
+ "uxRemindAsked": {
+  "message": "你請我提醒你：{0}"
+ },
+ "uxRemindHour": {
+  "message": "1 小時後"
+ },
+ "uxRemindEvening": {
+  "message": "今天晚上"
+ },
+ "uxRemindMorning": {
+  "message": "明天早上"
+ },
+ "uxRemindWeek": {
+  "message": "1 週後"
+ },
+ "uxRemindPick": {
+  "message": "選擇日期"
+ },
+ "uxRemindSet": {
+  "message": "提醒"
+ },
+ "uxRemindCancel": {
+  "message": "不要提醒"
+ },
+ "uxRemindOff": {
+  "message": "ContextFlow 的通知已關閉。請在「設定 → 通知 → ContextFlow」中開啟。"
+ },
+ "uxRemindAsk": {
+  "message": "請先開啟一次 ContextFlow App 並允許通知，再重新設定提醒。"
+ },
+ "uxRemindNone": {
+  "message": "這台裝置上要有 ContextFlow App 才能使用提醒。"
+ },
+ "uxToday": {
+  "message": "今天"
+ },
+ "uxTomorrow": {
+  "message": "明天"
+ },
+ "uxRemindSaved": {
+  "message": "提醒：{0}"
+ },
+ "uxRemindNotSet": {
+  "message": "已儲存到對話。ContextFlow 的通知已關閉。請在「設定 → 通知 → ContextFlow」中開啟。"
+ },
+ "uxRemindNoApp": {
+  "message": "已儲存到對話。這台裝置上要有 ContextFlow App 才能使用提醒。"
+ },
+ "uxUnpinAll": {
+  "message": "全部取消釘選"
+ },
+ "setShareGroup": {
+  "message": "分享與拷貝"
+ },
+ "uxShareMarks": {
+  "message": "分享時把標示的內容設為**粗體**"
+ },
+ "uxShareMarksHint": {
+  "message": "Telegram、Notion 和 Slack 會顯示粗體；「訊息」和「備忘錄」會顯示星號。「拷貝」一律保留粗體。"
+ },
+ "nowOnPage": {
+  "message": "目前頁面：{0}"
+ },
+ "retry": {
+  "message": "重試"
+ },
+ "askWithoutGoogle": {
+  "message": "不用 Google 提問"
+ },
+ "thinking": {
+  "message": "正在閱讀頁面…"
+ },
+ "searching": {
+  "message": "正在搜尋 Google…"
+ },
+ "errNetwork": {
+  "message": "沒有網路連線。請檢查網路後再試一次。"
+ },
+ "errBusy": {
+  "message": "ContextFlow 現在非常忙碌，請過一分鐘再試。"
+ },
+ "errUpstream": {
+  "message": "AI 服務沒有回應，請再試一次。"
+ },
+ "errInterrupted": {
+  "message": "回答中斷了。"
+ },
+ "errBadKey": {
+  "message": "你的 API 金鑰被拒絕了。請到「設定」檢查。"
+ },
+ "errGeneric": {
+  "message": "出了點問題，請再試一次。"
+ },
+ "errSearchLimit": {
+  "message": "Google 回答暫時已達上限。一般回答仍可使用。"
+ },
+ "errSearchUnavailable": {
+  "message": "Google 回答目前無法使用。一般回答仍可使用。"
+ },
+ "limitFreeTitle": {
+  "message": "今天的免費回答已用完"
+ },
+ "limitProTitle": {
+  "message": "已達每週上限"
+ },
+ "limitProBody": {
+  "message": "你的 Pro 回答次數會在 {0}後恢復。"
+ },
+ "longPageWeight": {
+  "message": "長頁面：回答 ×{0}"
+ },
+ "longPageWeightHint": {
+  "message": "這個頁面很長：針對它的一個回答，會算作 {0} 個回答的額度。"
+ },
+ "limitLongTitle": {
+  "message": "這個頁面很長"
+ },
+ "limitLongBody": {
+  "message": "針對它的回答會算作 {0} 個，你還剩 {1} 個。"
+ },
+ "getPro": {
+  "message": "升級 Pro"
+ },
+ "useOwnKey": {
+  "message": "使用我自己的 API 金鑰"
+ },
+ "usageFree": {
+  "message": "今天剩餘的免費回答：{0}/{1}"
+ },
+ "usagePro": {
+  "message": "Pro · 本週剩餘的回答：{0}/{1}"
+ },
+ "usageOwnKey": {
+  "message": "正在使用你自己的 API 金鑰"
+ },
+ "hours": {
+  "message": "{0} 小時"
+ },
+ "minutes": {
+  "message": "{0} 分鐘"
+ },
+ "consentTitle": {
+  "message": "ContextFlow 使用 AI 之前"
+ },
+ "consentBody": {
+  "message": "只需同意一次，就適用於 ContextFlow 的所有 AI 功能。每項功能只在你使用時，透過我們的伺服器把需要的內容傳送給 Anthropic（Claude）。我們的伺服器不會保留任何內容，服務供應商也不會用它來訓練模型。"
+ },
+ "consentAnswers": {
+  "message": "回答：你的問題、頁面的文字或選取的文字，以及你寫的「關於我」（如果有寫）。Claude 無法使用時，改由 OpenAI 回答；Google 回答會傳送給 Google。"
+ },
+ "consentChats": {
+  "message": "「詢問你的所有對話」和 AI 搜尋（Pro）：你的對話的簡短摘錄。"
+ },
+ "consentTemplates": {
+  "message": "範本：範本的文字，用來標出空格；使用「從頁面填寫」時，傳送頁面的文字；使用「依意思尋找」時，傳送你輸入的字詞和範本標題。"
+ },
+ "consentWatch": {
+  "message": "追蹤頁面：你選取的內容、你寫的通知條件、周圍的文字和頁面標題；之後則是舊值和新值。"
+ },
+ "consentSuggest": {
+  "message": "建議（Pro，只在你開啟後）：新問題、回答和筆記的文字，傳送給 OpenAI 進行比對，並傳送給 Claude 核對標籤。"
+ },
+ "consentStored": {
+  "message": "你的對話保存在你的裝置上；如果開啟同步，也會保存在你的 iCloud 中。"
+ },
+ "consentWhat": {
+  "message": "具體會傳送哪些內容"
+ },
+ "consentAccept": {
+  "message": "同意並繼續"
+ },
+ "consentAgainTitle": {
+  "message": "更新：所有 AI 功能只需同意一次"
+ },
+ "consentDecline": {
+  "message": "現在不要"
+ },
+ "consentNeeded": {
+  "message": "沒有傳送任何內容：AI 回答需要先取得你的同意。"
+ },
+ "privacyPolicy": {
+  "message": "隱私權政策"
+ },
+ "setPlan": {
+  "message": "方案"
+ },
+ "planFree": {
+  "message": "免費"
+ },
+ "planPro": {
+  "message": "Pro"
+ },
+ "planByok": {
+  "message": "自備金鑰"
+ },
+ "planRenews": {
+  "message": "將於 {0} 續訂"
+ },
+ "manageSubscription": {
+  "message": "管理訂閱"
+ },
+ "restorePurchases": {
+  "message": "恢復購買項目"
+ },
+ "setAppearance": {
+  "message": "外觀"
+ },
+ "themeAuto": {
+  "message": "自動"
+ },
+ "themeLight": {
+  "message": "淺色"
+ },
+ "themeDark": {
+  "message": "深色"
+ },
+ "setTextSize": {
+  "message": "文字大小"
+ },
+ "sizeNormal": {
+  "message": "標準"
+ },
+ "sizeLarge": {
+  "message": "大"
+ },
+ "setFab": {
+  "message": "浮動按鈕"
+ },
+ "fabOn": {
+  "message": "開啟"
+ },
+ "fabOff": {
+  "message": "關閉"
+ },
+ "setFabHint": {
+  "message": "✦ 按鈕可以在任何網站上開啟 ContextFlow。用下方的連結可以只在某個網站上隱藏它，或在這裡關閉。"
+ },
+ "hideOnSite": {
+  "message": "在 {0} 上隱藏"
+ },
+ "showOnSite": {
+  "message": "在 {0} 上顯示"
+ },
+ "setSelectionButton": {
+  "message": "選取文字時顯示按鈕"
+ },
+ "setAbout": {
+  "message": "關於我"
+ },
+ "setAboutHint": {
+  "message": "選填。讓回答更符合你的需要，例如「我是產品設計師，回答簡短一點」。"
+ },
+ "setOwnKey": {
+  "message": "自備 API 金鑰（OpenAI 或 Claude）"
+ },
+ "setOwnKeyHint": {
+  "message": "包含在 Pro 和「自備金鑰」方案中。貼上 OpenAI 或 Anthropic（Claude）的金鑰；請求會直接從你的裝置傳送到該供應商。"
+ },
+ "setOwnKeyLocked": {
+  "message": "Pro 或「自備金鑰」方案可用"
+ },
+ "setOwnKeyModel": {
+  "message": "模型"
+ },
+ "modelFast": {
+  "message": "快速"
+ },
+ "modelSmart": {
+  "message": "聰明"
+ },
+ "setOwnKeyModelHint": {
+  "message": "快速：最新的 Claude Haiku 或 GPT mini。聰明：最新的 Claude Sonnet 或 GPT。"
+ },
+ "getKey": {
+  "message": "取得金鑰"
+ },
+ "save": {
+  "message": "儲存"
+ },
+ "remove": {
+  "message": "移除"
+ },
+ "saved": {
+  "message": "已儲存"
+ },
+ "setSyncChats": {
+  "message": "透過 iCloud 同步對話"
+ },
+ "setSyncChatsHint": {
+  "message": "在 iPhone、iPad 和 Mac 上接續同一段對話。對話以端對端加密儲存在你的 iCloud 中，從不存放在我們的伺服器上。"
+ },
+ "deleteChats": {
+  "message": "刪除所有對話"
+ },
+ "chatsDeleted": {
+  "message": "對話已刪除"
+ },
+ "support": {
+  "message": "支援"
+ },
+ "terms": {
+  "message": "使用條款"
+ },
+ "rateApp": {
+  "message": "為 ContextFlow 評分"
+ },
+ "version": {
+  "message": "版本 {0}"
+ },
+ "fabLabel": {
+  "message": "詢問 ContextFlow"
+ },
+ "selAsk": {
+  "message": "問 AI"
+ },
+ "selExplain": {
+  "message": "解釋"
+ },
+ "selTranslate": {
+  "message": "翻譯"
+ },
+ "googleModeHint": {
+  "message": "用 Google 搜尋回答：附上來源的最新資訊"
+ },
+ "googleBadge": {
+  "message": "Google 搜尋"
+ },
+ "sources": {
+  "message": "來源"
+ },
+ "tourStep": {
+  "message": "{0}/{1}"
+ },
+ "tourSkip": {
+  "message": "略過"
+ },
+ "tourNext": {
+  "message": "下一步"
+ },
+ "tourDone": {
+  "message": "知道了"
+ },
+ "tourShow": {
+  "message": "顯示提示"
+ },
+ "tourAskTitle": {
+  "message": "針對此頁面提問"
+ },
+ "tourAskBody": {
+  "message": "ContextFlow 會讀取你正在看的頁面；使用 Pro 時，也會讀取頁面上有字幕的影片和 PDF。選一個動作，例如「摘要」，或輸入你自己的問題。"
+ },
+ "tourSelectTitle": {
+  "message": "只想問一部分？"
+ },
+ "tourSelectBody": {
+  "message": "先在頁面上選取文字，回答就只會針對那部分。這裡會顯示 ContextFlow 讀取的內容。"
+ },
+ "tourGoogleTitle": {
+  "message": "來自 Google 的最新資訊"
+ },
+ "tourGoogleBody": {
+  "message": "開啟後會用 Google 搜尋來回答：附上來源的最新資訊。"
+ },
+ "tourChatsTitle": {
+  "message": "你的對話"
+ },
+ "tourChatsBody": {
+  "message": "對話會跟著你從一個頁面延續到下一個頁面。點 + 開始新對話，在對話列表中開啟、重新命名或刪除以前的對話。點一下對話中的頁面名稱，就能回到該頁面。"
+ },
+ "tourChatsBodySync": {
+  "message": "對話會跟著你從一個頁面延續到下一個頁面，也會透過 iCloud 延續到你的 iPhone、iPad 和 Mac。點 + 開始新對話，在對話列表中開啟、重新命名或刪除以前的對話。點一下對話中的頁面名稱，就能回到該頁面。"
+ },
+ "tourSettingsTitle": {
+  "message": "照你的習慣設定"
+ },
+ "tourSettingsBody": {
+  "message": "主題和文字大小、✦ 按鈕、幾句關於你的介紹（讓回答更貼切）、你自己的 API 金鑰和你的方案。這些提示也在這裡。"
+ },
+ "tourNoteTitle": {
+  "message": "你自己的筆記"
+ },
+ "tourNoteBodyTouch": {
+  "message": "把這個按鈕往上或往下滑，就能寫筆記，而不是提問。筆記會和它的頁面一起留在對話中，不會用掉回答次數。"
+ },
+ "tourNoteBodyMouse": {
+  "message": "在這個按鈕上捲動（或按住它），就能寫筆記，而不是提問。筆記會和它的頁面一起留在對話中，不會用掉回答次數。"
+ },
+ "tourWholeTitle": {
+  "message": "考慮整段對話"
+ },
+ "tourWholeBody": {
+  "message": "問題需要用到所有內容時，開啟「整段對話」：所有訊息、你的筆記和這段對話中的其他頁面。關閉時，回答只用最近的訊息和這個頁面。"
+ },
+ "welcomeTitle": {
+  "message": "ContextFlow 準備好了"
+ },
+ "welcomeBody": {
+  "message": "打開任何網站，點一下 ✦ 按鈕或工具列中的 ContextFlow 圖像。選取文字，就能只針對那部分提問。"
+ },
+ "welcomeRestricted": {
+  "message": "Safari 不允許延伸功能讀取這個頁面。請打開一般網站來使用 ContextFlow。"
+ },
+ "welcomePermission": {
+  "message": "如果沒有反應，請在所有網站上允許 ContextFlow：Safari → 延伸功能 → ContextFlow → 所有網站 → 允許。"
+ },
+ "shareNote": {
+  "message": "筆記"
+ },
+ "saveNote": {
+  "message": "儲存筆記"
+ },
+ "selQuestion": {
+  "message": "你的問題…"
+ },
+ "selNote": {
+  "message": "筆記"
+ },
+ "selNoteTitle": {
+  "message": "把選取的文字當作筆記存到對話中（不會用掉回答次數）"
+ },
+ "selNoteSaved": {
+  "message": "已儲存到對話"
+ },
+ "selNoteOpen": {
+  "message": "開啟"
+ },
+ "selHint": {
+  "message": "新功能：可以在這裡輸入關於選取文字的問題，或把它當作筆記存到對話中——筆記不會用掉回答次數。"
+ },
+ "noteQuote": {
+  "message": "「{0}」"
+ },
+ "placeholderNote": {
+  "message": "寫筆記——會留在這段對話中"
+ },
+ "noteHintTouch": {
+  "message": "把按鈕往上或往下滑，就能寫筆記"
+ },
+ "noteHintMouse": {
+  "message": "在按鈕上捲動，就能寫筆記"
+ },
+ "wholeChat": {
+  "message": "整段對話"
+ },
+ "wholeChatHint": {
+  "message": "回答會考慮整段對話：每則訊息、你的筆記和這段對話中的頁面。關閉時：最近的訊息和目前開啟的頁面。"
+ },
+ "openPage": {
+  "message": "開啟此頁面"
+ },
+ "usageFreeShort": {
+  "message": "今天剩 {0}/{1}"
+ },
+ "usageProShort": {
+  "message": "Pro · 本週剩 {0}/{1}"
+ },
+ "pinChat": {
+  "message": "釘選對話"
+ },
+ "unpinChat": {
+  "message": "取消釘選對話"
+ },
+ "reorderChat": {
+  "message": "拖移以重新排序"
+ },
+ "chatPages": {
+  "message": "這段對話中的頁面"
+ },
+ "chatNotes": {
+  "message": "你在這段對話中的筆記"
+ },
+ "pages_one": {
+  "message": "{0} 個頁面"
+ },
+ "pages_few": {
+  "message": "{0} 個頁面"
+ },
+ "pages_many": {
+  "message": "{0} 個頁面"
+ },
+ "pages_other": {
+  "message": "{0} 個頁面"
+ },
+ "cancel": {
+  "message": "取消"
+ },
+ "pickCount": {
+  "message": "{0}/{1}"
+ },
+ "pickHint": {
+  "message": "點一下要分享的訊息"
+ },
+ "pickAll": {
+  "message": "全選"
+ },
+ "pickNone": {
+  "message": "取消全選"
+ },
+ "limitFreeBack": {
+  "message": "{1}（{2}後）會恢復 {0} 個免費回答。"
+ },
+ "limitFreePro": {
+  "message": "Pro 每週最多 {0} 個回答，能讀取頁面上的影片和 PDF，還有 AI 搜尋和跨所有對話提問。"
+ },
+ "limitNotes": {
+  "message": "筆記一直免費、不限次數：現在先記下重點，之後再問 AI。"
+ },
+ "writeNote": {
+  "message": "寫筆記"
+ },
+ "errProvider": {
+  "message": "你的 AI 供應商回覆：{0}"
+ },
+ "offerLimit": {
+  "message": "或升級 Pro，首月省 {0}%：每週最多 {1} 個回答，更深入、更詳細。隨時可以取消。"
+ },
+ "offerButton": {
+  "message": "Pro 首月省 {0}%"
+ },
+ "offerShort": {
+  "message": "Pro −{0}%"
+ },
+ "offerCardTitle": {
+  "message": "回答不夠用？"
+ },
+ "offerCardBody": {
+  "message": "你之前用完過每天的免費回答。Pro 每週最多 {1} 個回答，更深入、更詳細，而且首月省 {0}%。之後按原價計費；隨時可以在 App Store 設定中取消。"
+ },
+ "offerLater": {
+  "message": "以後再說"
+ },
+ "emptyVideo": {
+  "message": "我看得到這部影片，也會讀取它的逐字稿。你可以提問，或選一個動作。"
+ },
+ "emptyPdf": {
+  "message": "我看得到這份 PDF。你可以提問，或選一個動作。"
+ },
+ "readingVideo": {
+  "message": "正在讀取影片逐字稿…"
+ },
+ "readingPdf": {
+  "message": "正在讀取 PDF…"
+ },
+ "usedVideo": {
+  "message": "影片逐字稿 · {0}"
+ },
+ "usedPdf": {
+  "message": "{0} · {1} 頁"
+ },
+ "videoNoTranscript": {
+  "message": "這部影片沒有字幕：回答會根據它的標題和說明。"
+ },
+ "videoFailed": {
+  "message": "無法取得這部影片的逐字稿：回答會根據它的標題和說明。"
+ },
+ "pdfNoText": {
+  "message": "「{0}」沒有可讀取的文字（掃描的頁面）：回答不包含它的內容。"
+ },
+ "pdfFailed": {
+  "message": "無法讀取 PDF「{0}」：回答不包含它的內容。"
+ },
+ "searchChats": {
+  "message": "搜尋對話"
+ },
+ "searchNone": {
+  "message": "找不到包含「{0}」的對話"
+ },
+ "searchClear": {
+  "message": "清除搜尋"
+ },
+ "askHistory": {
+  "message": "詢問你的所有對話"
+ },
+ "askHistoryHint": {
+  "message": "針對你讀過和問過的一切提問"
+ },
+ "askHistoryEmpty": {
+  "message": "針對你用 ContextFlow 讀過和問過的一切提問，涵蓋你所有的對話。"
+ },
+ "askHistoryEx1": {
+  "message": "我這週讀了什麼？"
+ },
+ "askHistoryEx2": {
+  "message": "整理我的筆記"
+ },
+ "askHistoryEx3": {
+  "message": "我學到了哪些關於 AI 的東西？"
+ },
+ "placeholderHistory": {
+  "message": "針對你的對話提問…"
+ },
+ "findToggle": {
+  "message": "AI 搜尋"
+ },
+ "findToggleLocked": {
+  "message": "AI 搜尋 — Pro"
+ },
+ "findPlaceholder": {
+  "message": "描述你要找的對話…"
+ },
+ "findHint": {
+  "message": "用任何說法描述你記得的內容，然後按 Enter：「上週那篇關於睡眠和咖啡的文章」。"
+ },
+ "findBusy": {
+  "message": "正在搜尋你的對話…"
+ },
+ "upsellTitle": {
+  "message": "ContextFlow Pro"
+ },
+ "upsellFindTitle": {
+  "message": "憑記憶找到任何對話"
+ },
+ "upsellHistoryTitle": {
+  "message": "針對你讀過的一切提問"
+ },
+ "upsellFindName": {
+  "message": "AI 搜尋"
+ },
+ "upsellFindText": {
+  "message": "用你自己的話描述一段對話——「上週那篇關於睡眠和咖啡的文章」——就算沒有一模一樣的字詞，AI 也找得到。"
+ },
+ "upsellHistoryName": {
+  "message": "詢問你的所有對話"
+ },
+ "upsellHistoryText": {
+  "message": "跨所有對話提問：「我讀過哪些關於存退休金的內容？」、「整理我這個月的筆記」。"
+ },
+ "upsellMore": {
+  "message": "還有：讀取頁面上的影片和 PDF，每週最多 375 個更深入、更詳細的回答，iPhone、iPad 和 Mac 都能用。"
+ },
+ "errProOnly": {
+  "message": "這是 Pro 的功能。"
+ },
+ "tagsTitle": {
+  "message": "標籤"
+ },
+ "tagsNew": {
+  "message": "新標籤…"
+ },
+ "tagsAdd": {
+  "message": "加入標籤"
+ },
+ "tagsDone": {
+  "message": "完成"
+ },
+ "tagsFilter": {
+  "message": "依標籤篩選"
+ },
+ "tagsGroup": {
+  "message": "資料夾"
+ },
+ "tagsEdit": {
+  "message": "標籤"
+ },
+ "tagsNone": {
+  "message": "無標籤"
+ },
+ "tagsButton": {
+  "message": "標籤"
+ },
+ "qiTitle": {
+  "message": "快速插入"
+ },
+ "qiButton": {
+  "message": "快速插入：拷貝的文字、範本、對話中的回答"
+ },
+ "qiCommand": {
+  "message": "在游標處快速插入"
+ },
+ "qiSearch": {
+  "message": "尋找範本"
+ },
+ "qiNewTemplate": {
+  "message": "新範本"
+ },
+ "qiEditTemplate": {
+  "message": "範本"
+ },
+ "qiCopied": {
+  "message": "已拷貝"
+ },
+ "qiClear": {
+  "message": "清除"
+ },
+ "qiCopiedOff": {
+  "message": "「已拷貝」已關閉。可以在下方開啟。"
+ },
+ "qiCopiedEmpty": {
+  "message": "在 Safari 的任何網頁上拷貝文字，就會出現在這裡。"
+ },
+ "qiNothing": {
+  "message": "找不到結果"
+ },
+ "qiToTemplate": {
+  "message": "存成範本"
+ },
+ "qiTemplates": {
+  "message": "範本"
+ },
+ "qiTemplatesTitle": {
+  "message": "範本"
+ },
+ "qiAllTemplates": {
+  "message": "所有範本"
+ },
+ "qiTemplatesEmpty": {
+  "message": "還沒有範本。點一下 +，或選取一段常寫的回覆，再點一下「範本」。"
+ },
+ "qiTemplatesIntro": {
+  "message": "把一再重寫的回覆存起來。我會標出會變的部分，例如姓名或日期，也能從頁面上幫你填好。"
+ },
+ "qiFindAi": {
+  "message": "依意思尋找"
+ },
+ "qiFinding": {
+  "message": "正在尋找…"
+ },
+ "qiFromCf": {
+  "message": "來自對話"
+ },
+ "qiLastAnswer": {
+  "message": "最新回答"
+ },
+ "qiLastNote": {
+  "message": "最新筆記"
+ },
+ "qiKeepCopied": {
+  "message": "保留拷貝的文字"
+ },
+ "qiPrivacy": {
+  "message": "拷貝的文字只會留在這台{0}上，24 小時後清除。"
+ },
+ "qiOnIphone": {
+  "message": "iPhone"
+ },
+ "qiOnIpad": {
+  "message": "iPad"
+ },
+ "qiOnMac": {
+  "message": "Mac"
+ },
+ "qiOnDevice": {
+  "message": "裝置"
+ },
+ "qiHideButtonOnSite": {
+  "message": "在 {0} 上隱藏按鈕"
+ },
+ "qiDontKeepOnSite": {
+  "message": "在 {0} 上不保留"
+ },
+ "qiKeepOnSite": {
+  "message": "在 {0} 上恢復保留"
+ },
+ "qiTip": {
+  "message": "新功能：點一下，就能插入你在其他標籤頁拷貝的文字、範本或我的回答。"
+ },
+ "qiKeyInsert": {
+  "message": "插入"
+ },
+ "qiKeyChoose": {
+  "message": "選擇"
+ },
+ "qiKeyClose": {
+  "message": "關閉"
+ },
+ "qiBlanksMark": {
+  "message": "空格"
+ },
+ "qiBlanksCount": {
+  "message": "空格：{0}"
+ },
+ "qiPasteManually": {
+  "message": "已拷貝。請自己貼到欄位中。"
+ },
+ "qiInsert": {
+  "message": "插入"
+ },
+ "qiInsertIntoField": {
+  "message": "插入欄位"
+ },
+ "qiFillFromPage": {
+  "message": "從頁面填寫"
+ },
+ "qiFillAgain": {
+  "message": "重新填寫"
+ },
+ "qiFilling": {
+  "message": "正在填寫…"
+ },
+ "qiFillHint": {
+  "message": "自己填空格、從「已拷貝」中選，或由我從頁面上填好。"
+ },
+ "qiFillDone": {
+  "message": "標示出來的部分取自頁面。傳送前請先檢查。"
+ },
+ "qiFillPartly": {
+  "message": "標示出來的部分取自頁面。空著的空格在頁面上找不到：請自己填寫。"
+ },
+ "qiFillLeft": {
+  "message": "今天還能填寫 {0} 次。"
+ },
+ "qiFillLimit": {
+  "message": "今天的免費填寫次數用完了。Pro 不限次數，空格也還是可以手動填寫。"
+ },
+ "qiFillByHand": {
+  "message": "手動填寫"
+ },
+ "qiPickCopied": {
+  "message": "為「{0}」選擇拷貝的內容"
+ },
+ "qiAdapt": {
+  "message": "依此頁面改寫"
+ },
+ "qiAdaptChat": {
+  "message": "依此對話改寫"
+ },
+ "qiAdaptHint": {
+  "message": "「從頁面填寫」只會填空格。「改寫」會用 AI 改寫整段文字，並顯示在面板中。"
+ },
+ "qiAdaptLabel": {
+  "message": "依此頁面改寫範本"
+ },
+ "qiAdaptPrompt": {
+  "message": "請把這個範本改寫成適合我目前所在頁面的回覆。保持原本的意思、語氣和長度；填入頁面上提供的資訊，其餘保持原樣。只輸出回覆本身。\n\n範本：\n{0}"
+ },
+ "qiAdaptConversation": {
+  "message": "這是我正在回覆的對話。請寫一則回覆給對話中的對方：\n{0}"
+ },
+ "qiTemplateButton": {
+  "message": "範本"
+ },
+ "qiTemplateTitle": {
+  "message": "標題"
+ },
+ "qiTemplateText": {
+  "message": "內文。空格請用大括號標出，例如 {姓名}。"
+ },
+ "qiMakeBlank": {
+  "message": "設為空格"
+ },
+ "qiBlankDefault": {
+  "message": "空格"
+ },
+ "qiUnmark": {
+  "message": "恢復為一般文字"
+ },
+ "qiMarking": {
+  "message": "正在標出會變的部分…"
+ },
+ "qiMarkAi": {
+  "message": "標出空格"
+ },
+ "qiMarkedHint": {
+  "message": "空格已標出。點一下某個空格，就能恢復為一般文字。"
+ },
+ "qiMarkedNone": {
+  "message": "這裡看起來沒有會變的部分。選取一個詞，再點一下「設為空格」來加入。"
+ },
+ "qiMarkFailed": {
+  "message": "現在無法標出空格。範本已存成一般文字，你可以手動加入空格。"
+ },
+ "qiBlankHint": {
+  "message": "插入範本時才填寫空格。"
+ },
+ "qiKeywords": {
+  "message": "用來找到它的字詞，以逗號分隔"
+ },
+ "qiSave": {
+  "message": "儲存"
+ },
+ "qiDelete": {
+  "message": "刪除"
+ },
+ "qiSetButton": {
+  "message": "文字欄位旁的按鈕"
+ },
+ "qiSetCopiedHint": {
+  "message": "網頁上最近拷貝的 5 段文字。只會留在這台裝置上，24 小時後清除。不保留密碼或卡號欄位中的內容，也不保留「私密瀏覽」中的內容。"
+ },
+ "qiClearCopied": {
+  "message": "清除「已拷貝」"
+ },
+ "qiCleared": {
+  "message": "已清除"
+ },
+ "qiSetSign": {
+  "message": "欄位中的符號"
+ },
+ "qiSetSignHint": {
+  "message": "在任何欄位中輸入 {0} 和範本中的幾個字。"
+ },
+ "qiSetShortcut": {
+  "message": "在 Mac 或接上鍵盤的 iPad 上，按 ⌃⇧V 可以打開列表。"
+ },
+ "hintGot": {
+  "message": "知道了"
+ },
+ "hintChatsTitle": {
+  "message": "尋找、整理、回顧"
+ },
+ "hintChatsBody": {
+  "message": "用字詞或 #標籤 搜尋。用 🏷 為對話和回答加上標籤，開啟「資料夾」就能分組。在 Pro 中，✦ 能依描述找到對話，「詢問你的所有對話」會根據所有對話來回答。"
+ },
+ "hintVideoTitle": {
+  "message": "這個頁面有影片"
+ },
+ "hintVideoBody": {
+  "message": "回答會根據它的逐字稿，並指出像 [4:15] 這樣的時間點。沒有字幕時，會根據標題和說明回答，並告訴你這一點。"
+ },
+ "hintPdfTitle": {
+  "message": "也會讀取 PDF"
+ },
+ "hintPdfBody": {
+  "message": "這個頁面上顯示或連結的 PDF 會和你的問題一起傳送；回答會註明出自哪一頁。"
+ },
+ "proSkipVideo": {
+  "message": "略過了此頁面上的影片 — Pro 會讀取影片"
+ },
+ "proSkipPdf": {
+  "message": "略過了此頁面上的 PDF — Pro 會讀取 PDF"
+ },
+ "proSkipBoth": {
+  "message": "略過了此頁面上的影片和 PDF — Pro 會讀取它們"
+ },
+ "tryPro": {
+  "message": "試用 Pro"
+ },
+ "emptyVideoFree": {
+  "message": "這個頁面有影片。Pro 回答會使用它的逐字稿；免費回答只使用頁面上顯示的內容（標題、說明）。"
+ },
+ "emptyPdfFree": {
+  "message": "這個頁面有 PDF。Pro 回答會讀取它；免費回答只使用頁面上的文字。"
+ },
+ "hintVideoBodyFree": {
+  "message": "使用 Pro 時，回答會根據它的逐字稿，並指出像 [4:15] 這樣的時間點。免費回答使用標題和說明。"
+ },
+ "hintPdfTitleFree": {
+  "message": "這個頁面有 PDF"
+ },
+ "hintPdfBodyFree": {
+  "message": "Pro 會讀取這個頁面上顯示或連結的 PDF，並註明回答出自哪一頁。免費回答使用頁面上的文字。"
+ },
+ "renewalTitle": {
+  "message": "Pro 將於 {0} 結束"
+ },
+ "renewalBody": {
+  "message": "自動續訂已關閉。少了什麼呢？"
+ },
+ "renewalPrice": {
+  "message": "太貴了"
+ },
+ "renewalRarely": {
+  "message": "我不常用"
+ },
+ "renewalAnswers": {
+  "message": "回答不夠好"
+ },
+ "renewalFeatures": {
+  "message": "缺少我需要的功能"
+ },
+ "renewalFreeEnough": {
+  "message": "免費方案就夠用了"
+ },
+ "renewalOther": {
+  "message": "其他原因"
+ },
+ "renewalThanks": {
+  "message": "謝謝，這能幫助我們改善 ContextFlow。"
+ },
+ "planEnds": {
+  "message": "將於 {0} 結束：自動續訂已關閉"
+ },
+ "upgradePro": {
+  "message": "升級至 Pro"
+ },
+ "upgradeProOff": {
+  "message": "升級並省 {0}%"
+ },
+ "byokLimitTitle": {
+  "message": "今天透過 ContextFlow 的回答已用完"
+ },
+ "byokLimitNoKey": {
+  "message": "你還沒加入自己的金鑰，所以回答會透過 ContextFlow：每天 {0} 個。請到「設定」加入金鑰，或改用 Pro：每週最多 {1} 個回答，不需要金鑰。"
+ },
+ "byokLimitGoogle": {
+  "message": "在「自備金鑰」方案中，Google 回答會透過 ContextFlow：每天 {0} 個。Pro 每週最多 {1} 個回答。"
+ },
+ "byokSearch": {
+  "message": "在「自備金鑰」方案中，Google 搜尋每天 {0} 次。Pro 每週 {1} 次。"
+ },
+ "byokProOnly": {
+  "message": "「自備金鑰」方案不包含此功能。"
+ },
+ "byokOfferTitle": {
+  "message": "改用 Pro，省 {0}%"
+ },
+ "byokOfferBody": {
+  "message": "Pro 不需要你的金鑰就能回答：每週最多 {0} 個回答、每週 {1} 次 Google 搜尋、「詢問你的所有對話」和 AI 搜尋。付款前，App Store 會顯示價格和期限。Pro 會立即生效，目前方案未使用的部分會退款。"
+ },
+ "orgSuggested": {
+  "message": "建議"
+ },
+ "orgTagA11y": {
+  "message": "建議標籤「{0}」。加入"
+ },
+ "orgNoA11y": {
+  "message": "忽略"
+ },
+ "orgCountOne": {
+  "message": "{0} 則訊息"
+ },
+ "orgCountFew": {
+  "message": "{0} 則訊息"
+ },
+ "orgCountMany": {
+  "message": "{0} 則訊息"
+ },
+ "orgCountOther": {
+  "message": "{0} 則訊息"
+ },
+ "orgMoveTo": {
+  "message": "{0}移到「{1}」"
+ },
+ "orgSplit": {
+  "message": "移到新對話：「{0}」"
+ },
+ "orgMoveA11y": {
+  "message": "把 {0}移到對話「{1}」"
+ },
+ "orgSplitA11y": {
+  "message": "把這些訊息移到新對話「{0}」"
+ },
+ "orgMoved": {
+  "message": "已移到「{0}」"
+ },
+ "orgUndo": {
+  "message": "還原"
+ },
+ "orgOpen": {
+  "message": "開啟"
+ },
+ "orgFirstWin": {
+  "message": "完成。從現在起，我會主動提出建議。"
+ },
+ "orgConsentTitle": {
+  "message": "依主題整理你的對話？"
+ },
+ "orgConsentText": {
+  "message": "我會在新的回答和筆記下方，建議適合的對話和你的一個標籤。你可以在「設定」中關閉。"
+ },
+ "orgTurnOn": {
+  "message": "開啟"
+ },
+ "orgMessTitle": {
+  "message": "全都在同一段對話裡？"
+ },
+ "orgMessText": {
+  "message": "在 Pro 中，我會建議哪些內容該放到哪裡，並像你一樣加上標籤。"
+ },
+ "orgTagsTitle": {
+  "message": "我可以像你一樣加標籤"
+ },
+ "orgTagsText": {
+  "message": "在 Pro 中，我會根據你自己加標籤的地方，在新的回答和筆記下方建議你的一個標籤。"
+ },
+ "orgCloseA11y": {
+  "message": "關閉"
+ },
+ "setOrganize": {
+  "message": "建議：標籤和移動"
+ },
+ "setOrganizeHint": {
+  "message": "在新的回答和筆記下方顯示適合的對話和你的標籤。你的訊息文字會傳送到我們的伺服器，以及 OpenAI 和 Anthropic。我們不會保留；它們也不會用它來訓練模型。"
+ },
+ "setOrganizePro": {
+  "message": "Pro：ContextFlow 會在新的回答和筆記下方，建議適合的對話和你的標籤。"
+ },
+ "upsellOrganizeName": {
+  "message": "依主題整理"
+ },
+ "upsellOrganizeText": {
+  "message": "為你剛問的內容建議適合的對話，以及你自己的標籤。"
+ },
+ "watchEye": {
+  "message": "追蹤變化"
+ },
+ "watchSection": {
+  "message": "有變化時通知我"
+ },
+ "watchWhen": {
+  "message": "何時通知你"
+ },
+ "watchCondPrice": {
+  "message": "價格變動時（目前 {0}）"
+ },
+ "watchCondBack": {
+  "message": "重新到貨時"
+ },
+ "watchCondStock": {
+  "message": "庫存狀態變動時（目前 {0}）"
+ },
+ "watchCondDate": {
+  "message": "日期變動時（目前 {0}）"
+ },
+ "watchCondStatus": {
+  "message": "狀態變動時（目前 {0}）"
+ },
+ "watchCondPage": {
+  "message": "頁面上出現新內容時"
+ },
+ "watchHonest": {
+  "message": "我會在你使用 Safari 時檢查"
+ },
+ "watchStart": {
+  "message": "追蹤"
+ },
+ "watchSave": {
+  "message": "儲存"
+ },
+ "watchTipBell": {
+  "message": "鈴鐺：在你選的時間，帶你回到這個頁面。"
+ },
+ "watchTipWatch": {
+  "message": "眼睛：這裡有變化時我會通知你，例如價格、庫存或狀態。"
+ },
+ "watchChecking": {
+  "message": "正在查看頁面…"
+ },
+ "watchSet": {
+  "message": "追蹤中。有變化時我會通知你。"
+ },
+ "watchSetLive": {
+  "message": "追蹤中。這個網站只在你開啟頁面時才顯示這項資訊，所以我會在那時檢查。"
+ },
+ "watchUnreadable": {
+  "message": "這個網站不讓我在背景檢查。我可以在你開啟頁面時檢查，或提醒你去看。"
+ },
+ "watchRemindInstead": {
+  "message": "提醒我去看"
+ },
+ "watchLiveOk": {
+  "message": "開啟頁面時檢查"
+ },
+ "watchFull": {
+  "message": "你已經在追蹤 {0} 個頁面。請先在「追蹤中」停止一個。"
+ },
+ "watchFullFree": {
+  "message": "免費方案可同時追蹤 {0} 個頁面。Pro 最多可追蹤 {1} 個。"
+ },
+ "watchMore": {
+  "message": "Pro 可追蹤更多"
+ },
+ "watchFailed": {
+  "message": "沒有成功。請稍後再試。"
+ },
+ "watchRow": {
+  "message": "追蹤中：{0} · {1}檢查過"
+ },
+ "watchRowNew": {
+  "message": "追蹤中：{0}"
+ },
+ "watchRowNow": {
+  "message": "目前 {0}"
+ },
+ "watchRowLive": {
+  "message": "追蹤中：{0} · 我會在你開啟頁面時檢查"
+ },
+ "watchRowMet": {
+  "message": "已變動：{0} · {1}"
+ },
+ "watchRowMetNow": {
+  "message": "已變動：{0}，目前 {1} · {2}"
+ },
+ "watchStop": {
+  "message": "停止追蹤"
+ },
+ "watchStopped": {
+  "message": "已停止追蹤"
+ },
+ "watchLabelPrice": {
+  "message": "價格"
+ },
+ "watchLabelStock": {
+  "message": "庫存"
+ },
+ "watchLabelDate": {
+  "message": "日期"
+ },
+ "watchLabelStatus": {
+  "message": "狀態"
+ },
+ "watchLabelPage": {
+  "message": "頁面"
+ },
+ "watchInStock": {
+  "message": "有現貨"
+ },
+ "watchOutOfStock": {
+  "message": "缺貨"
+ },
+ "watchChanged": {
+  "message": "已變動：{0}"
+ },
+ "watchChangedBody": {
+  "message": "目前：{0}"
+ },
+ "tip_4cf1b54b00": {
+  "message": "提示"
+ },
+ "tip_245f060c21": {
+  "message": "快速解答「要怎麼…？」"
+ },
+ "tip_89895fd68f": {
+  "message": "在你所有的裝置上"
+ },
+ "tip_9efc5dc7c2": {
+  "message": "開啟「透過 iCloud 同步對話」後，在 iPhone 上開始的對話可以在 iPad 和 Mac 上繼續。對話在你的 iCloud 中採用端對端加密。"
+ },
+ "tip_90e40d5043": {
+  "message": "入門"
+ },
+ "tip_ad4199fa48": {
+  "message": "在任何頁面打開"
+ },
+ "tip_79a4dbe893": {
+  "message": "點一下頁面上的 ✦，或打開網址列中的頁面選單並選擇「ContextFlow」。"
+ },
+ "tip_4acd9995ac": {
+  "message": "按一下頁面上的 ✦ 或工具列中的 ContextFlow 圖像，或按下 Control-Shift-E。"
+ },
+ "tip_2749afe54a": {
+  "message": "點一下抓重點"
+ },
+ "tip_487a14e710": {
+  "message": "「摘要」、「重點整理」、「簡單解釋」和「翻譯」會處理整個頁面，不用自己寫提示詞。"
+ },
+ "tip_d22c90dac1": {
+  "message": "只問一部分"
+ },
+ "tip_328a1070b8": {
+  "message": "在頁面上選取文字並選擇「詢問 AI」：回答就只針對那一段。也可以請它解釋、翻譯或改寫。"
+ },
+ "tip_ca7dfa36cb": {
+  "message": "針對選取內容提問或做筆記"
+ },
+ "tip_fa1cdf5479": {
+  "message": "在頁面上選取文字：直接在選取範圍下方輸入你的問題，或點一下「筆記」把它和頁面一起存到對話中。筆記不會用掉回答次數。"
+ },
+ "tip_9000896590": {
+  "message": "對話跟著你走"
+ },
+ "tip_c76058fe4b": {
+  "message": "從一個頁面換到另一個頁面時，可以繼續提問。ContextFlow 會記住對話內容，以及每個問題是關於哪個頁面。點一下對話中的頁面名稱就能回到那個頁面。"
+ },
+ "tip_e5dff10006": {
+  "message": "來自 Google 的最新資訊"
+ },
+ "tip_d7c7b7b55d": {
+  "message": "開啟提問欄位旁的 Google，就會用 Google 搜尋來回答：新聞、價格和任何最新的資訊，並附上來源。"
+ },
+ "tip_da5f7b74b1": {
+  "message": "深入使用"
+ },
+ "tip_6ba198cbff": {
+  "message": "你自己的筆記"
+ },
+ "tip_6a92f6c633": {
+  "message": "將傳送按鈕往上或往下滑（在 Mac 上，在按鈕上捲動），就能寫筆記而不是提問。筆記會和它的頁面一起留在對話中，跟著對話同步，也不會用掉回答次數。"
+ },
+ "tip_654fb12e51": {
+  "message": "標示重點"
+ },
+ "tip_33115b31e1": {
+  "message": "在回答中選取一行並點一下「標示」：它會一直保留標記，就像用筆畫過一樣。這段對話之後的回答會考慮你的標示，「拷貝」時也會以粗體保留。"
+ },
+ "tip_b4e4a2a85e": {
+  "message": "釘選在最上方"
+ },
+ "tip_4d33a9d9e4": {
+  "message": "釘選回答或筆記後，它會出現在對話頂部的列中。點一下該列即可跳到那裡，再點一下跳到下一則。"
+ },
+ "tip_b7be002204": {
+  "message": "滑動即可釘選或刪除"
+ },
+ "tip_104ac1e6e8": {
+  "message": "將回答或筆記向右滑動可釘選，向左滑動可刪除。改變主意了？「還原」可以把它找回來。"
+ },
+ "tip_c047d28229": {
+  "message": "按一下即可釘選或刪除"
+ },
+ "tip_dcfe357b68": {
+  "message": "將指標移到回答或筆記上：旁邊會出現「釘選」、「提醒我」和「刪除」，按右鍵也會打開相同的選單。改變主意了？「還原」可以把它找回來。"
+ },
+ "tip_e012ef5f59": {
+  "message": "顧及整段對話"
+ },
+ "tip_3a70cee32e": {
+  "message": "當回答需要全部內容時，開啟提問欄位下方的「整段對話」：所有訊息、你的筆記，以及這段對話中的其他頁面。關閉時，回答只會用最近的訊息和目前打開的頁面。"
+ },
+ "tip_ca29a1f4ed": {
+  "message": "詢問影片內容"
+ },
+ "tip_d6be4709b7": {
+  "message": "使用 Pro 時，ContextFlow 會讀取頁面上影片的逐字稿：問它重點，或某件事是怎麼說的，回答會指出對應的時間點，例如 [4:15]。免費回答只使用頁面的文字。"
+ },
+ "tip_5c5bca8a9e": {
+  "message": "頁面上的 PDF"
+ },
+ "tip_ff32d2c483": {
+  "message": "使用 Pro 時，頁面上顯示或連結的 PDF 會跟你的問題一起送出，回答會說明內容在 PDF 的哪一頁。在 iPad 和 Mac 上，工具列中的 ContextFlow 也能在 PDF 標籤頁中打開。免費回答只使用頁面的文字。"
+ },
+ "tip_328ee8ddce": {
+  "message": "快速插入"
+ },
+ "tip_ff7c853b85": {
+  "message": "插入任何欄位"
+ },
+ "tip_038e87000b": {
+  "message": "點一下頁面上的文字欄位，再點一下旁邊的 ContextFlow 按鈕：你在其他標籤頁拷貝的內容、你的範本，以及 ContextFlow 的最新回答，點一下就能插入。使用鍵盤時，輸入 / 和範本中的幾個字，再按 Tab。"
+ },
+ "tip_a8e1d14e5b": {
+  "message": "在頁面上的任何欄位中，輸入 / 和範本中的幾個字，再按 Tab。按 Control-Shift-V 會打開完整列表：你在其他標籤頁拷貝的內容、你的範本，以及 ContextFlow 的最新回答。"
+ },
+ "tip_451fa9ccb6": {
+  "message": "已拷貝，保留一天"
+ },
+ "tip_8ddcf05a7e": {
+  "message": "你在 Safari 網頁上最近拷貝的 5 項內容會在列表中保留 24 小時，只存在這部裝置上。不會保留密碼或卡號欄位的內容，使用私密瀏覽時也不會保留。"
+ },
+ "tip_cf63db6cc6": {
+  "message": "會自己填好的範本"
+ },
+ "tip_6dd86048c4": {
+  "message": "選取一段你常傳的回覆，然後點一下「範本」：ContextFlow 會標出名字、日期和其他會變動的部分。插入時，「從頁面填入」會把它們填好，並以醒目方式標出，方便你檢查。"
+ },
+ "tip_f09b3558e2": {
+  "message": "追蹤與提醒"
+ },
+ "tip_d0d8d1355c": {
+  "message": "提醒我看這個頁面"
+ },
+ "tip_b5d4d7711a": {
+  "message": "正在讀的東西想之後再讀完？選取一行並點一下鈴鐺，或點一下面板頂部的「…」，再點「提醒我看這個頁面…」，然後選擇時間：提醒會打開這個頁面。回答和筆記的「…」選單裡也有「提醒我」。"
+ },
+ "tip_74c328b672": {
+  "message": "降價時通知你"
+ },
+ "tip_45c2496345": {
+  "message": "在頁面上選取價格、庫存狀態或日期，然後點一下眼睛。要追蹤整個頁面，請在面板頂部的「…」選單中選擇「追蹤這個頁面…」。你使用 Safari 時，ContextFlow 會檢查該頁面，在頁面有變化或價格低於你設定的金額時通知你。最多可同時追蹤 5 個，Pro 可達 20 個。"
+ },
+ "tip_0daede04f6": {
+  "message": "整理對話"
+ },
+ "tip_ec2cf96f53": {
+  "message": "重新開始或回到先前的對話"
+ },
+ "tip_623811ea30": {
+  "message": "點 + 開始新對話。先前的對話都在對話列表中：打開一段就能從上次停下的地方繼續，用鉛筆重新命名，或將其刪除。"
+ },
+ "tip_c4b432e2e9": {
+  "message": "搜尋你的對話"
+ },
+ "tip_eff80bffda": {
+  "message": "在對話列表上方的搜尋欄位中輸入：每段含有這些字詞的對話都會列出，並顯示字詞出現的位置。點一下結果，就會直接打開對話中的那個位置。"
+ },
+ "tip_2e4668f650": {
+  "message": "標籤和資料夾"
+ },
+ "tip_6b5bdf707f": {
+  "message": "用 🏷 為對話、回答或筆記加上標籤。點一下標籤只顯示相關的對話，或開啟「資料夾」依標籤將列表分組。"
+ },
+ "tip_752fb307f2": {
+  "message": "分享你的發現"
+ },
+ "tip_aa15b6c2c0": {
+  "message": "分享單一回答或整段對話：文字會附上其中的連結、來源，以及 ContextFlow 的連結。"
+ },
+ "tip_76f2924bba": {
+  "message": "在 App 中查看對話"
+ },
+ "tip_969cf52d0b": {
+  "message": "「對話」標籤頁有來自 Safari 的每段對話。你可以直接在那裡詢問頁面內容或加上筆記，為任何回答加上標籤、拷貝或分享，也可以分享整段對話。「在 Safari 中繼續」會從你上次停下的地方接著進行。"
+ },
+ "tip_4721064b09": {
+  "message": "AI 搜尋"
+ },
+ "tip_52a09ac884": {
+  "message": "點一下搜尋旁的 ✦，描述你記得的對話（「那篇關於睡眠和咖啡的文章」），就算沒有確切的字詞也行。"
+ },
+ "tip_068fa58797": {
+  "message": "詢問你的所有對話"
+ },
+ "tip_8a40be768f": {
+  "message": "對話列表的第一列會從你所有的對話一起回答：「我這週讀了什麼？」、「摘要我關於 AI 的筆記」。"
+ },
+ "tip_4257aee15a": {
+  "message": "各歸其位"
+ },
+ "tip_c61e2edab3": {
+  "message": "在聊沙發的對話裡問了汽車的事？ContextFlow 會在回答下方建議它該去的對話，或建立新對話。點一下就會依日期移過去；「還原」可以移回來。"
+ },
+ "tip_3f9f46cd12": {
+  "message": "自動建議你的標籤"
+ },
+ "tip_69a0bac728": {
+  "message": "ContextFlow 會從你放標籤的位置學會每個標籤的意思，並在新的回答或筆記下方建議合適的標籤。只用你自己的標籤，而且只在合適時才建議。"
+ },
+ "tip_3208aa35ac": {
+  "message": "隱私與個人化"
+ },
+ "tip_1e1a2fad4e": {
+  "message": "介紹一下你自己"
+ },
+ "tip_e2d1d4abd0": {
+  "message": "在「關於我」寫一句話，例如你的工作、喜歡什麼樣的回答，ContextFlow 就會照你的需求調整回答。"
+ },
+ "tip_10400d6345": {
+  "message": "✦ 按鈕，照你的方式"
+ },
+ "tip_4c60874441": {
+  "message": "✦ 擋住頁面上的內容了嗎？沿著邊緣上下拖移，或拖到另一側：放開後它就會留在那裡。你也可以只在某個網站隱藏它，或在延伸功能設定中全部關閉。關閉後仍可從 Safari 的延伸功能選單打開 ContextFlow。"
+ },
+ "tip_8a727e1bbe": {
+  "message": "使用你自己的 API 金鑰"
+ },
+ "tip_d84a0778d4": {
+  "message": "使用 Pro 或自備金鑰方案時，在 Safari 的延伸功能設定中貼上 OpenAI 或 Claude 金鑰。之後請求會直接送到該供應商。"
+ },
+ "tip_3aaa9fd1f2": {
+  "message": "隱私優先"
+ },
+ "tip_241d3ad076": {
+  "message": "ContextFlow 只在你提問時讀取頁面，而且只傳送頁面的文字來取得回答。你的對話留在你的裝置和 iCloud 中。開啟建議後，新訊息的文字也會傳送到我們的伺服器，用來判斷它們該放在哪裡；我們不會保留這些文字。"
+ },
+ "tip_clips": {
+  "message": "en"
+ }
+}

@@ -2,6 +2,7 @@ import { render } from "preact"
 
 import { SHADOW_MODE, TARGET } from "../shared/config"
 import type { ContentRequest } from "../shared/types"
+import { uiDirection, uiLang } from "../shared/i18n"
 import { App } from "./App"
 import { tabPdf, tabSource } from "./context"
 import { detectPlatform, HOST_TAG } from "./page"
@@ -44,6 +45,9 @@ function boot(): void {
     if (document.querySelector(HOST_TAG)) return
     const host = document.createElement(HOST_TAG)
     host.setAttribute("style", "all:initial;position:fixed;top:0;left:0;width:0;height:0;z-index:2147483647;")
+    // The panel's own language and direction (Arabic: right to left), never the page's: `all: initial` keeps direction.
+    host.setAttribute("dir", uiDirection())
+    host.setAttribute("lang", uiLang())
     const root = host.attachShadow({ mode: SHADOW_MODE })
     setPanelRoot(root)
     const style = document.createElement("style")

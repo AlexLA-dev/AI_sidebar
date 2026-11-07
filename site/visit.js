@@ -40,7 +40,9 @@
     ["duckduckgo", /(^|\.)duckduckgo\.com$|^duckduckgo/]
   ]
 
-  const path = location.pathname.replace(/\.html$/, "").replace(/^\/index$/, "/").replace(/(.)\/$/, "$1")
+  // A page counts under the same name in every language (/ru/features is "features", /zh-hant/ is "home").
+  const LANG = /^\/(de|es|fr|it|pt-br|ru|uk|vi|ar|ja|ko|zh-hans|zh-hant)(?=\/|$)/
+  const path = (location.pathname.replace(LANG, "") || "/").replace(/\.html$/, "").replace(/^\/index$/, "/").replace(/(.)\/$/, "$1")
   const page = PAGES[path]
   if (!page) return
   const src = source()

@@ -25,7 +25,8 @@ export const Copy = (): VNode => <svg {...base} width={15} height={15}><rect x="
 export const Share = (): VNode => <svg {...base} width={15} height={15}><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13" /></svg>
 export const Retry = (): VNode => <svg {...base} width={15} height={15}><path d="M3 12a9 9 0 1 0 3-6.7L3 8" /><path d="M3 3v5h5" /></svg>
 export const Check = (): VNode => <svg {...base} width={15} height={15}><path d="M20 6 9 17l-5-5" /></svg>
-export const Back = (): VNode => <svg {...base}><path d="M15 18l-6-6 6-6" /></svg>
+// Points to the start side: mirrored right to left (.cf-flip).
+export const Back = (): VNode => <svg {...base} class="cf-flip"><path d="M15 18l-6-6 6-6" /></svg>
 // Two speech bubbles (2.5, the owner's pick "A"), like the app's bubble.left.and.text.bubble.right.
 export const Chats = (): VNode => (
   <svg {...base}><path d="M14 9a2 2 0 0 1-2 2H6l-4 4V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2z" /><path d="M18 9h2a2 2 0 0 1 2 2v11l-4-4h-6a2 2 0 0 1-2-2v-1" /></svg>

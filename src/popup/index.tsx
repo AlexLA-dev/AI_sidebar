@@ -8,6 +8,7 @@ import styles from "../content/styles.css"
 import organizeStyles from "../content/organize.css"
 import { SHADOW_MODE, TARGET } from "../shared/config"
 import { urlKey } from "../shared/conversation"
+import { uiDirection, uiLang } from "../shared/i18n"
 import { readsMedia } from "../shared/attachments"
 import type { PdfResult, StatusInfo } from "../shared/types"
 
@@ -92,6 +93,10 @@ async function main(): Promise<void> {
   if (platform !== "ios") document.body.style.width = "420px"
   const host = document.createElement(HOST_TAG)
   host.setAttribute("style", "all:initial;position:fixed;top:0;left:0;width:0;height:0;")
+  host.setAttribute("dir", uiDirection())
+  host.setAttribute("lang", uiLang())
+  document.documentElement.setAttribute("dir", uiDirection())
+  document.documentElement.setAttribute("lang", uiLang())
   const root = host.attachShadow({ mode: SHADOW_MODE })
   const style = document.createElement("style")
   style.textContent = styles + organizeStyles

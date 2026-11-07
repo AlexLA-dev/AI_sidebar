@@ -14,7 +14,7 @@ import { join } from "node:path"
 const SWIFT = "ContextFlow/Shared (App)/ContentView.swift"
 const CATALOG = "ContextFlow/Shared (App)/Localizable.xcstrings"
 // The extension's languages (src/locales/<file>.json) and the app catalog's names for them.
-export const CATALOG_LANG = { de: "de", es: "es", fr: "fr", it: "it", ja: "ja", ko: "ko", pt_BR: "pt-BR", ru: "ru", uk: "uk", zh_CN: "zh-Hans" }
+export const CATALOG_LANG = { ar: "ar", de: "de", es: "es", fr: "fr", it: "it", ja: "ja", ko: "ko", pt_BR: "pt-BR", ru: "ru", uk: "uk", vi: "vi", zh_CN: "zh-Hans", zh_TW: "zh-Hant" }
 // The screen's own words, outside TipGroup.
 const HEADING = "Tips"
 const INTRO = "Quick answers to “how do I…?”"
