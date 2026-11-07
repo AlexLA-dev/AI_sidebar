@@ -62,6 +62,21 @@ export function newestGeminiFlash(ids: string[]): string | null {
   return best?.id ?? null
 }
 
+// Stable TTS models only ("gemini-3.8-flash-lite-tts", "gemini-3.8-flash-tts"): previews and dated ids come and go.
+const GEMINI_TTS = /^gemini-(\d+)(?:\.(\d+))?-flash(-lite)?-tts$/
+
+/** The newest stable Gemini TTS model of a kind (Flash-Lite, or the full Flash with more languages). */
+export function newestGeminiTts(ids: string[], kind: "lite" | "full"): string | null {
+  let best: { id: string; version: number } | null = null
+  for (const id of ids) {
+    const m = GEMINI_TTS.exec(id)
+    if (!m || Boolean(m[3]) !== (kind === "lite")) continue
+    const version = Number(m[1]) * 1000 + Number(m[2] ?? 0)
+    if (!best || version > best.version) best = { id, version }
+  }
+  return best?.id ?? null
+}
+
 /** Gemini 3 and later take thinkingLevel; 2.x only understands thinkingBudget. */
 export function geminiGeneration(model: string): number {
   const m = /^gemini-(\d+)/.exec(model)

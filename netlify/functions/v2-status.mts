@@ -3,7 +3,8 @@ import type { Config, Context } from "@netlify/functions"
 import { config as settings } from "../shared/config.mts"
 import { limitedBefore, peek, touchInstall } from "../shared/db.mts"
 import { clip, ipSubject, isUuid, json, preflight, readJson } from "../shared/http.mts"
-import { countersFor, proOffer, resolveAccess, visibleUsage } from "../shared/plan.mts"
+import { countersFor, evalAccess, isUltra, proOffer, resolveAccess, similarCountersFor, speakCountersFor, ultraUsage, visibleUsage } from "../shared/plan.mts"
+import { WATCH_LIMITS } from "../../src/shared/plan.ts"
 import { vectorSpace } from "../shared/organize.mts"
 import { promoConfigured } from "../shared/promo.mts"
 
@@ -17,6 +18,9 @@ import { promoConfigured } from "../shared/promo.mts"
  * app gets signed by /api/v2/promo); null when it isn't set up. When to show it is the client's call.
  * `organize`: {on, space, config} — organizing the chats (2.5): switched on, the vector space to key vectors by,
  * and the thresholds (src/shared/organize.ts), for every plan (free users see what it does).
+ * `ultra`: {speak, similar} — this week's read-aloud seconds and find-similar searches (used, limit, resetsAt), for
+ * an Ultra subscriber only. `limits` also carries the Ultra allowances and the watched pages per plan, for what the
+ * paywall says (2.6).
  */
 export default async (req: Request, context: Context): Promise<Response> => {
   if (req.method === "OPTIONS") return preflight()
@@ -27,11 +31,13 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const installId = body.installId
   const client = (body.client ?? {}) as Record<string, unknown>
 
-  const access = await resolveAccess(body.entitlement, installId)
+  const access = evalAccess(req, installId) ?? (await resolveAccess(body.entitlement, installId))
   const counters = countersFor(access, installId, ipSubject(context.ip))
-  const [state, limited] = await Promise.all([
+  const ultraCounters = isUltra(access.plan) ? [...speakCountersFor(access, 0), ...similarCountersFor(access)] : []
+  const [state, limited, ultraState] = await Promise.all([
     peek(counters).catch(() => counters.map((c) => ({ ...c, n: 0 }))),
-    access.plan === "free" ? limitedBefore(installId).catch(() => false) : false
+    access.plan === "free" ? limitedBefore(installId).catch(() => false) : false,
+    ultraCounters.length ? peek(ultraCounters).catch(() => ultraCounters.map((c) => ({ ...c, n: 0 }))) : Promise.resolve([])
   ])
 
   context.waitUntil(
@@ -55,7 +61,11 @@ export default async (req: Request, context: Context): Promise<Response> => {
     limitedBefore: limited === true,
     offer,
     upgradeOffer: access.plan === "byok" && promoConfigured() ? { discount: settings.promoDiscount } : null,
-    limits: { freeDaily: settings.freeDailyLimit, proWeekly: settings.proWeeklyLimit, searchFreeDaily: settings.searchFreeDailyLimit, searchProWeekly: settings.searchProWeeklyLimit },
+    ultra: isUltra(access.plan) ? { speak: ultraUsage(ultraState, "speak:"), similar: ultraUsage(ultraState, "similar:") } : null,
+    limits: {
+      freeDaily: settings.freeDailyLimit, proWeekly: settings.proWeeklyLimit, searchFreeDaily: settings.searchFreeDailyLimit, searchProWeekly: settings.searchProWeeklyLimit,
+      ultraWeekly: settings.ultra.weeklyLimit, speakWeeklySeconds: settings.ultra.speakWeeklySeconds, similarWeekly: settings.ultra.similarWeekly, watch: WATCH_LIMITS
+    },
     organize: { on: settings.organize.enabled, space: vectorSpace(), config: settings.organize.thresholds }
   })
 }

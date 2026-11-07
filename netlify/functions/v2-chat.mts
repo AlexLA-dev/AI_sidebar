@@ -12,7 +12,7 @@ import { pageForModel } from "../../src/shared/attachments.ts"
 import { hasMarks, MAX_APP_OTHER_PAGES, MAX_OTHER_PAGES } from "../../src/shared/prompt.ts"
 import { uiFields } from "../../src/shared/usage.ts"
 import { historyPrompt, MAX_HISTORY_CHARS, MAX_HISTORY_CHATS, sanitizeDigests } from "../../src/shared/history.ts"
-import { blockReason, countersFor, proOffer, resolveAccess, searchCountersFor, visibleUsage } from "../shared/plan.mts"
+import { blockReason, countersFor, hasPro, proOffer, resolveAccess, searchCountersFor, visibleUsage } from "../shared/plan.mts"
 import { chatSize, digestCut, limitsHit } from "../shared/limits.mts"
 import { pageBucket, pageChars, requestWeight } from "../shared/weight.mts"
 
@@ -67,9 +67,9 @@ export default async (req: Request, context: Context): Promise<Response> => {
 
   const access = await resolveAccess(body.entitlement, installId)
   // Video transcripts and PDFs are Pro: for anyone else they're left out here, whatever the panel sent.
-  const page = sent && pageForModel(sent, access.plan === "pro")
+  const page = sent && pageForModel(sent, hasPro(access.plan))
   // Pro features are checked here, not in the panel: nothing is charged or asked without Pro.
-  if (history && access.plan !== "pro") {
+  if (history && !hasPro(access.plan)) {
     context.waitUntil(logEvent("pro_only", installId, { feature: "history", plan: access.plan, platform, version, ...step }))
     return json({ code: "PRO_ONLY", plan: access.plan, feature: "history" }, 403)
   }
@@ -92,7 +92,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
     quota = await consume(counters)
   } catch (err) {
     console.error("[cf] consume failed:", err instanceof Error ? err.message : err)
-    if (access.plan !== "pro") {
+    if (!hasPro(access.plan)) {
       context.waitUntil(giveBack())
       return json({ code: "UNAVAILABLE", message: "Service temporarily unavailable" }, 503)
     }
@@ -120,7 +120,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   let answer: Answer | null = null
   try {
     if (google) completion = await startGoogle(googlePrompt(page, profile, locale, others, hasMarks(messages)), messages, await geminiModels(), req.signal)
-    else answer = await startAnswer(history ? historyPrompt(chats, profile, locale) : (tokens) => systemPromptParts(page, profile, locale, others, fromApp, hasMarks(messages), tokens), messages, access.plan === "pro" ? "pro" : "free", build, req.signal)
+    else answer = await startAnswer(history ? historyPrompt(chats, profile, locale) : (tokens) => systemPromptParts(page, profile, locale, others, fromApp, hasMarks(messages), tokens), messages, hasPro(access.plan) ? "pro" : "free", build, req.signal)
   } catch (err) {
     console.error("[cf] upstream failed:", err instanceof Error ? err.message : err)
     context.waitUntil(Promise.all([
