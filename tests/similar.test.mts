@@ -212,6 +212,7 @@ test("soft-404: a redirect that drops the item's id or slug, or lands on ?error=
   assert.equal(softNotFound("https://www.soundcore.com/products/space-q45-a3040011", "https://www.soundcore.com/products/d1402-space-2-comfortable-noise-cancelling-headphones", "soundcore Space 2", "", ""), null)
   assert.equal(softNotFound("https://shop.com/p/acme-q20-black", "https://shop.com/en-us/p/acme-q20-black", "Acme Q20", "", ""), null)
   assert.equal(softNotFound("https://amzn.to/3xYz", "https://www.amazon.com/dp/B0C1234567", "Acme", "", ""), null)
+  assert.equal(softNotFound("https://www.nature.com/articles/s41586-021-03819-2", "https://www.nature.com/articles/s41586-021-03819-2?error=cookies_not_supported&code=x", "Highly accurate protein structure prediction with AlphaFold | Nature", "", ""), null)
   assert.equal(isBotWall(200, "<title>Client Challenge</title>"), true)
 })
 

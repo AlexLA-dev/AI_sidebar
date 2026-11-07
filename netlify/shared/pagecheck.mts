@@ -246,7 +246,8 @@ export function softNotFound(original: string, finalUrl: string, title: string, 
   // A deep address that lands on the site's home page: the page it named is gone.
   if (depth(from) >= 1 && !rootish(from) && rootish(to) && !to.search) return "redirected to the home page"
   if (/(^|[/._-])(404|not[-_]?found|page[-_]?not[-_]?found|error)([/._-]|$)/i.test(to.pathname) && !/(404|not[-_]?found|error)/i.test(from.pathname)) return "redirected to an error page"
-  if (/[?&](error|err|notfound|not_found|404|gone)=/i.test(to.search) && !/[?&](error|err|notfound|not_found|404|gone)=/i.test(from.search)) return "redirected to an error page"
+  // An error parameter on another page (a board, a list); on the same page it's about cookies or a login, not the item.
+  if (/[?&](error|err|notfound|not_found|404|gone)=/i.test(to.search) && !/[?&](error|err|notfound|not_found|404|gone)=/i.test(from.search) && to.pathname.replace(/\/$/, "") !== from.pathname.replace(/\/$/, "")) return "redirected to an error page"
   // A redirect that drops the item's own id or slug (a closed job post sent to the board, a product to a
   // category): the item is gone. A successor that keeps some of its words is left to the name check.
   const spec = decodeURIComponent(from.pathname.split("/").filter(Boolean).pop() ?? "").toLowerCase()
