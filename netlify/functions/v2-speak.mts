@@ -41,7 +41,8 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const part = Number.isInteger(body.part) ? Number(body.part) : 0
   const parts = Number.isInteger(body.parts) ? Number(body.parts) : 1
 
-  const access = evalAccess(req, installId) ?? (await resolveAccess(body.entitlement, installId))
+  const evaluated = evalAccess(req, installId)
+  const access = evaluated ?? (await resolveAccess(body.entitlement, installId))
   if (!isUltra(access.plan)) {
     context.waitUntil(logEvent("pro_only", installId, { feature: "speak", plan: access.plan, platform, version }))
     return json({ code: "ULTRA_ONLY", plan: access.plan, feature: "speak" }, 403)
@@ -104,9 +105,22 @@ export default async (req: Request, context: Context): Promise<Response> => {
     }
   })
 
-  context.waitUntil(done.then(() => settle(access.plan, installId, counters, charged, stats, failure, {
-    started, chars: text.length, lang: (lang || locale).toLowerCase().split(/[-_]/)[0].slice(0, 8), what, part, parts, platform, version, locale
-  })))
+  const info = { started, chars: text.length, lang: (lang || locale).toLowerCase().split(/[-_]/)[0].slice(0, 8), what, part, parts, platform, version, locale }
+
+  // Measuring on a deploy preview (the eval token, report: true): the whole part, then what it took and cost.
+  if (evaluated && body.report === true) {
+    const reader = stream.getReader()
+    let bytes = 0
+    while (true) {
+      const { done: end, value } = await reader.read().catch(() => ({ done: true, value: undefined }))
+      if (end) break
+      bytes += value?.length ?? 0
+    }
+    await settle(access.plan, installId, counters, charged, stats, failure, info)
+    return json({ model: stats.model, kind: stats.kind, charged_s: charged, audio_s: bytes / (SPEECH_RATE * 2), first_audio_ms: stats.firstAudioMs, ms: Date.now() - started, input_tokens: stats.inputTokens, output_tokens: stats.outputTokens, cost: speechCost(stats), failure })
+  }
+
+  context.waitUntil(done.then(() => settle(access.plan, installId, counters, charged, stats, failure, info)))
 
   return new Response(stream, {
     status: 200,
