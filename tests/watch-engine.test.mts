@@ -54,7 +54,7 @@ let plan: Record<string, unknown> | null = null
 let judge: Record<string, unknown> | null = null
 let aiCalls: Array<Record<string, any>> = []
 let events: Array<Record<string, any>> = []
-let paid = false
+let tier: "free" | "pro" | "byok" | "ultra" = "free"
 
 globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
   const url = String(input)
@@ -106,7 +106,7 @@ before(async () => {
     define: { __API_BASE__: '"https://api.test"', __VERSION__: '"2.5.0"', __TARGET__: '"safari"' }
   })
   const mod = await import(pathToFileURL(out).href)
-  mod.startWatch({ installId: async () => "8d7b3f2e-1c4a-4e9b-9f0a-2b6c7d8e9f01", clientInfo: async () => ({ version: "2.5.0", platform: "ios", build: "80" }), consented: async () => true, paid: async () => paid })
+  mod.startWatch({ installId: async () => "8d7b3f2e-1c4a-4e9b-9f0a-2b6c7d8e9f01", clientInfo: async () => ({ version: "2.5.0", platform: "ios", build: "80" }), consented: async () => true, plan: async () => tier })
 })
 
 beforeEach(() => {
@@ -241,15 +241,18 @@ test("stopped in the app: gone here on the next exchange; Safari's start sets th
   assert.ok(alarms.has("cf-watch"))
 })
 
-test("the owner's limit: 5 watches at once on Free, 20 on Pro", async () => {
+test("the owner's limit: 5 watches at once on Free, 20 on Pro, 50 on Ultra", async () => {
   const prepared = await send({ type: "watchPrepare", draft: draft(), how: "bubble" })
   const save = () => send({ type: "watchSave", draft: draft(), prepared, how: "bubble", live: false })
   for (let i = 0; i < 5; i++) assert.equal((await save()).ok, true)
-  assert.deepEqual(await save(), { ok: false, full: true, limit: 5, paid: false })
-  paid = true
+  assert.deepEqual(await save(), { ok: false, full: true, limit: 5, paid: false, plan: "free" })
+  tier = "pro"
   for (let i = 0; i < 15; i++) assert.equal((await save()).ok, true)
-  assert.deepEqual(await save(), { ok: false, full: true, limit: 20, paid: true })
-  paid = false
+  assert.deepEqual(await save(), { ok: false, full: true, limit: 20, paid: true, plan: "pro" })
+  tier = "ultra"
+  for (let i = 0; i < 30; i++) assert.equal((await save()).ok, true)
+  assert.deepEqual(await save(), { ok: false, full: true, limit: 50, paid: true, plan: "ultra" })
+  tier = "free"
 })
 
 test("once a day: how many checks and how many watches were checking, by mode", async () => {

@@ -3,6 +3,7 @@
 // leave them out for a plan without them (reading videos and PDFs is Pro; the server decides, the
 // panel only saves the work). Kept, they share the media limit with the page's text.
 
+import { hasPro } from "./plan.ts"
 import { MAX_MEDIA_PAGE_CHARS, MAX_PAGE_CHARS, type PageContext } from "./prompt.ts"
 import type { Plan } from "./types.ts"
 
@@ -49,7 +50,7 @@ export function composePage(pageText: string, attachments: Attachment[]): string
  */
 export function readsMedia(status: { plan: Plan; hasOwnKey: boolean } | null, target: string): boolean {
   if (!status) return false
-  return status.plan === "pro" || (status.hasOwnKey && (target === "chrome" || status.plan !== "free"))
+  return hasPro(status.plan) || (status.hasOwnKey && (target === "chrome" || status.plan !== "free"))
 }
 
 /** The kinds of media among `attachments`, video first. */

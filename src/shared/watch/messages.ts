@@ -1,5 +1,6 @@
 // Page watch (2.5): the messages between the panel or the page and the background, and the counters.
 
+import { WATCH_LIMITS } from "../plan"
 import type { Structured } from "./extract.ts"
 import type { Watch, WatchKind, WatchRule, WatchSite, WatchSource } from "./types.ts"
 
@@ -67,7 +68,8 @@ export interface WatchStep {
 }
 
 /** How many watches can check at once: the owner's limit, Free and paid. */
-export const WATCH_LIMIT = { free: 5, paid: 20 } as const
+// Pages watched at once: src/shared/plan.ts WATCH_LIMITS (Free 5, Pro and Own key 20, Ultra 50).
+export const WATCH_LIMIT = { free: WATCH_LIMITS.free, paid: WATCH_LIMITS.pro, ultra: WATCH_LIMITS.ultra } as const
 
 /** The watches of one page, for the live read: where each value sits. */
 export type WatchSpec = Pick<Watch, "id" | "what" | "source" | "before" | "after">

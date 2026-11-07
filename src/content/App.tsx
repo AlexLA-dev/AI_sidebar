@@ -24,7 +24,7 @@ import { historyForModel, isQuestion, lastPage, otherPages, pageHasChanged, page
 import { Markdown } from "./markdown"
 import { MAX_OTHER_PAGES, MAX_PAGE_CHARS } from "../shared/prompt"
 import { answerWeight } from "../shared/pagefit"
-import { answerShareText, chatLanguage, noteCopyText, noteShareText, pickedShareText, toPlainText, type ShareLinks } from "../shared/share"
+import { answerShareText, chatLanguage, noteCopyText, noteShareText, pickedShareText, textLanguage, toPlainText, type ShareLinks } from "../shared/share"
 import type { PageRead, PageSource } from "./context"
 import {
   forgetSelection,
@@ -47,6 +47,9 @@ import { DEFAULT_ORGANIZE, looksMixed } from "../shared/organize"
 import { entryKey } from "../shared/conversation"
 import type { OrganizeEvent, OrganizeReply } from "../shared/types"
 import { ProUpsell } from "./ProUpsell"
+import { PlansSheet } from "./Plans"
+import { ListenBar, SpeakerIcon, useListen } from "./listen/useListen"
+import { hasPro, isUltra, type PaidPlan } from "../shared/plan"
 import { SettingsView } from "./Settings"
 import { shareLabels } from "./shareLabels"
 import { markHintSeen, resetHints, seenHints, type HintKey } from "./store"
@@ -299,6 +302,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }
   // What a Pro feature would do, for someone without Pro (from the ✦ search or "Ask your chats").
   const [upsell, setUpsell] = useState<"find" | "history" | null>(null)
+  // 2.6: the plans sheet, open on this plan (Ultra from Listen).
+  const [plansOpen, setPlansOpen] = useState<PaidPlan | null>(null)
   const [draft, setDraft] = useState("")
   // The send button writes a note to the chat instead of asking (switched by swiping or scrolling on it).
   const [noteMode, setNoteMode] = useState(false)
@@ -1130,7 +1135,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
   /** "Ask your chats" (Pro): continues today's one, else starts a new one; without Pro, says what it does. */
   const askHistory = useCallback(() => {
-    if ((status?.plan ?? "free") !== "pro") {
+    if (!hasPro(status?.plan)) {
       setUpsell("history")
       return
     }
@@ -1244,6 +1249,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             void shareText(stars ? starMarks(shared(), m.marks) : shared())
           }} aria-label={t("share")} title={t("share")}>
             <Icon.Share /> <span class="cf-tl">{t("share")}</span>
+          </button>
+        )}
+        {TARGET === "safari" && !m.note && m.role === "assistant" && (
+          <button type="button" class={listen.state.at !== "idle" && "key" in listen.state && listen.state.key === `a:${idx}` ? "on" : ""} onClick={() => {
+            if (listen.state.at !== "idle" && "key" in listen.state && listen.state.key === `a:${idx}`) return listen.stop()
+            void listen.start(`a:${idx}`, { text: m.content, what: "answer", lang: textLanguage(m.content) ?? t("langCode"), title: source.title(), url: source.href() })
+          }} aria-label={t("listen")} title={t("listen")}>
+            <SpeakerIcon /> <span class="cf-tl">{t("listen")}</span>{!isUltra(plan) && <span class="cf-ultra-badge">Ultra</span>}
           </button>
         )}
         <button type="button" onClick={() => setTagging(tagging === idx ? null : idx)} aria-expanded={tagging === idx} aria-label={t("tagsButton")} title={t("tagsButton")}>
@@ -1636,6 +1649,29 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     else if (guide === "menu") endGuide("done")
   }
   const plan = status?.plan ?? "free"
+  // Read aloud (2.6, Ultra): an answer or the page. Without Ultra, Listen opens the plans sheet on Ultra.
+  const openPlans = useCallback((focus: PaidPlan, via: "listen" | "settings" | "watch" | "limit" = "listen") => {
+    setPlansOpen(focus)
+    void sendBackground({ type: "useEvent", f: "plans", a: "open", via, plan: focus })
+  }, [])
+  const listen = useListen({
+    platform,
+    plan,
+    onUltra: () => openPlans("ultra"),
+    follow: followLink,
+    send: (message) => sendBackground(message)
+  })
+  const listenPage = useCallback(async () => {
+    if (consentRef.current !== "ok") {
+      const agreed = await new Promise<boolean>((resolve) => setFindConsent({ resolve }))
+      setFindConsent(null)
+      if (!agreed) return
+      await giveConsent()
+      setConsent("ok")
+    }
+    const read = await source.read(false)
+    void listen.start("page", { text: read.text, what: "page", lang: document.documentElement.lang || textLanguage(read.text) || t("langCode"), title: read.title || source.title(), url: source.href() })
+  }, [listen.start, source])
   const ownKeyActive = viaOwnKey || (Boolean(status?.hasOwnKey) && plan !== "free")
   // The App Store offer code for Pro, once this install has run out of free answers (Safari only).
   const offer = TARGET === "safari" && plan === "free" && !ownKeyActive ? error?.offer ?? status?.offer ?? null : null
@@ -1837,8 +1873,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (ownKeyActive) return { short: t("usageOwnKey"), full: t("usageOwnKey") }
     if (!usage) return { short: "", full: "" }
     const left = Math.max(0, usage.limit - usage.used)
-    return plan === "pro"
-      ? { short: t("usageProShort", left, usage.limit), full: t("usagePro", left, usage.limit) }
+    return hasPro(plan)
+      ? { short: t("usageProShort", left, usage.limit), full: isUltra(plan) ? t("usageUltra", left, usage.limit) : t("usagePro", left, usage.limit) }
       : { short: t("usageFreeShort", left, usage.limit), full: t("usageFree", left, usage.limit) }
   }, [usage, plan, ownKeyActive])
 
@@ -1846,7 +1882,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // Suggestions for the chat shown (Pro, with suggestions on): asked once an answer or a note is in, or the chat
   // opens. They belong to the chat as it was (its length) and go when it changes; at most one row under a message.
   const orgCfg = status?.organize?.config ?? DEFAULT_ORGANIZE
-  const orgOn = TARGET === "safari" && plan === "pro" && Boolean(status?.organize?.on) && settings.organize
+  const orgOn = TARGET === "safari" && hasPro(plan) && Boolean(status?.organize?.on) && settings.organize
   const [org, setOrg] = useState<{ chat: string; length: number; move: OrganizeMove | null; tags: Array<{ index: number; key: string; tag: string }> } | null>(null)
   const [cards, setCards] = useState<OrganizeCards | null>(null)
   // "Everything in one chat?" showing in this chat; the card after the third tag; the line after the first one taken.
@@ -2061,8 +2097,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const pageElsewhere = chatBlocks.length >= 2 && chatBlocks.some((b) => b.url && threadList.some((x) => x.id !== threadRef.current && x.m.some((e) => e.page?.url === b.url)))
   // Nothing until the plan is known: a Pro user mustn't see the free card while the status loads.
   const idle = status !== null && !status.offline && !streaming && !historyMode && !picked && !error
-  const consentCard = TARGET === "safari" && plan === "pro" && Boolean(status?.organize?.on) && !settings.organize && cards !== null && !cards.consent && idle && (mixed || pageElsewhere)
-  const promoOk = TARGET === "safari" && plan !== "pro" && cards !== null && idle
+  const consentCard = TARGET === "safari" && hasPro(plan) && Boolean(status?.organize?.on) && !settings.organize && cards !== null && !cards.consent && idle && (mixed || pageElsewhere)
+  const promoOk = TARGET === "safari" && !hasPro(plan) && cards !== null && idle
   const messCard = promoOk && !cards?.mess?.closed && (messFor === threadRef.current ||
     (mixed && !cards?.mess?.chats.includes(threadRef.current) && Date.now() - (cards?.mess?.at ?? 0) > orgCfg.messHours * 3_600_000))
   useEffect(() => {
@@ -2078,7 +2114,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (chatCard) requestAnimationFrame(() => listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" }))
   }, [chatCard])
   useEffect(() => {
-    if (upsell && TARGET === "safari" && plan !== "pro") orgEvent({ kind: "organize_promo", action: "shown", where: "pro_card" })
+    if (upsell && TARGET === "safari" && !hasPro(plan)) orgEvent({ kind: "organize_promo", action: "shown", where: "pro_card" })
   }, [upsell])
 
   /** Tags the user set on a message: after their third tag in all, what organizing does (without Pro, once). */
@@ -2087,7 +2123,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     for (const m of messages) for (const tag of m.tags ?? []) known.add(tag.toLowerCase())
     const added = cleanTags(next).filter((tag) => !known.has(tag.toLowerCase())).length
     tagMessage(index, next)
-    if (known.size < 3 && known.size + added >= 3 && TARGET === "safari" && plan !== "pro" && cards && !cards.thirdTag) {
+    if (known.size < 3 && known.size + added >= 3 && TARGET === "safari" && !hasPro(plan) && cards && !cards.thirdTag) {
       setTagsCard(true)
       void setOrganizeCards({ thirdTag: true }).then(setCards)
       orgEvent({ kind: "organize_promo", action: "shown", where: "third_tag" })
@@ -2358,6 +2394,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "settings" })
                       setView("settings")
                     }}
+                    onListen={TARGET === "safari" && source.readable() && source.kind() === "page" ? () => {
+                      setPageMenu(false)
+                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "listen" })
+                      void listenPage()
+                    } : undefined}
+                    ultra={isUltra(plan)}
                     onIntro={firstGuideRef.current() ? () => {
                       setPageMenu(false)
                       void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "intro" })
@@ -2405,7 +2447,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 onPin={pinChat}
                 onMove={moveChat}
                 onOpenPage={openPage}
-                pro={plan === "pro"}
+                pro={hasPro(plan)}
                 onAskHistory={askHistory}
                 onFind={findChats}
                 findWaiting={findConsent !== null}
@@ -2454,6 +2496,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               }}
               onOrganizePro={() => tryOrganizePro("settings")}
               onUpgrade={() => (byok ? upgrade("settings") : void openApp("subscribe"))}
+              onPlans={() => openPlans(hasPro(plan) || byok ? "ultra" : "pro", "settings")}
               upgradeLabel={byokDiscount !== null ? t("upgradeProOff", byokDiscount) : t("upgradePro")}
               onManage={() => void openApp("manage")}
               onStatusChange={() => void refreshStatus(true)}
@@ -2620,10 +2663,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   const long = (error.weight ?? 1) > 1 && left > 0
                   return (
                     <div class="cf-card limit">
-                      <strong>{long ? t("limitLongTitle") : plan === "pro" ? t("limitProTitle") : byok ? t("byokLimitTitle") : t("limitFreeTitle")}</strong>
+                      <strong>{long ? t("limitLongTitle") : hasPro(plan) ? t("limitProTitle") : byok ? t("byokLimitTitle") : t("limitFreeTitle")}</strong>
                       <p>
                         {long && `${t("limitLongBody", error.weight!, left)} `}
-                        {plan === "pro"
+                        {hasPro(plan)
                           ? t("limitProBody", timeUntil(resetsAt))
                           : byok
                             ? `${t("limitFreeBack", back, clockTime(resetsAt), timeUntil(resetsAt))} ${status?.hasOwnKey ? t("byokLimitGoogle", back, PRO_WEEKLY) : t("byokLimitNoKey", back, PRO_WEEKLY)}`
@@ -2639,7 +2682,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                           {!status?.hasOwnKey && <button type="button" class="cf-secondary" onClick={() => setView("settings")}>{t("useOwnKey")}</button>}
                         </div>
                       )}
-                      {plan !== "pro" && !byok && (
+                      {!hasPro(plan) && !byok && (
                         <div class="cf-card-actions">
                           {offer ? (
                             <button type="button" class="cf-primary" onClick={() => redeemOffer(offer.code)}><Icon.Sparkle size={14} /> {t("offerButton", offer.discount)}</button>
@@ -2713,6 +2756,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 </footer>
               ) : (
                 <footer class="cf-composer">
+                  <ListenBar state={listen.state} onToggle={listen.toggle} onStop={listen.stop} onPlans={() => openPlans("ultra", "limit")} />
                   {undoBar && <UndoBar text={undoBar.text} actions={undoBar.actions} onHold={holdBar} />}
                   {noteHint && draft.trim() && !noteMode && <div class="cf-note-hint" role="status">{t(touch ? "noteHintTouch" : "noteHintMouse")}</div>}
                   {weightNote && <div class="cf-weight-note" title={t("longPageWeightHint", pageWeight)}>{t("longPageWeight", pageWeight)}</div>}
@@ -2811,6 +2855,21 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           )}
           {view === "chat" && tipsOpen && (
             <TipsSheet mac={!touch} onClose={() => setTipsOpen(false)} />
+          )}
+          {plansOpen && TARGET === "safari" && (
+            <PlansSheet
+              status={status}
+              focus={plansOpen}
+              onChoose={(chosen, period) => {
+                setPlansOpen(null)
+                void sendBackground({ type: "useEvent", f: "plans", a: "choose", plan: chosen, period })
+                void (async () => {
+                  const result = await sendBackground<{ opened: boolean; url: string }>({ type: "openApp", target: "subscribe", plan: chosen, period, feature: chosen === "ultra" ? "listen" : undefined })
+                  if (result && !result.opened && result.url) followLink(result.url)
+                })()
+              }}
+              onClose={() => setPlansOpen(null)}
+            />
           )}
         </section>
       )}

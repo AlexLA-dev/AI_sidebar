@@ -27,8 +27,5 @@ export const LINKS = {
   anthropicKeys: "https://platform.claude.com/settings/keys"
 }
 
-// Matches the products in App Store Connect.
-export const PRODUCTS = {
-  pro: ["com.contextflow.pro.monthly", "com.contextflow.pro.yearly"],
-  byok: ["com.contextflow.byok.monthly"]
-} as const
+// Matches the products in App Store Connect (src/shared/plan.ts: Ultra, Pro and Own key, monthly and yearly).
+export { PLAN_PRODUCTS as PRODUCTS } from "./plan"

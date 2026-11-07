@@ -3,6 +3,7 @@
 // this device (storage.local, never iCloud), keyed by the message's key and text in the server's vector space.
 // The rules are src/shared/organize.ts; the app runs the same ones (Organize.swift).
 
+import { hasPro } from "../shared/plan"
 import { API_BASE } from "../shared/config"
 import { entryKey, textKey, type Entry } from "../shared/conversation"
 import { embedText, judgedTags, judgeText, suggestMove, tagCandidates, tagTargets, unpackVector, type VectorOf } from "../shared/organize"
@@ -79,7 +80,7 @@ export function organizeChat(chatId: string, ctx: Context): Promise<OrganizeRepl
 async function organizeOnce(chatId: string, ctx: Context): Promise<OrganizeReply> {
   const org = ctx.status.organize
   if (!org?.on || !ctx.on) return { ok: false, code: "OFF" }
-  if (ctx.status.plan !== "pro") return { ok: false, code: "PRO_ONLY" }
+  if (!hasPro(ctx.status.plan)) return { ok: false, code: "PRO_ONLY" }
   const stored = await chrome.storage.local.get([STORAGE.threads, STORAGE.orgVectors, STORAGE.orgVerdicts])
   const threads = (stored[STORAGE.threads] as Threads | undefined) ?? {}
   const chat = threads[chatId]
