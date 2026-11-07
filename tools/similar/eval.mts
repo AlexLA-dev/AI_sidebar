@@ -295,7 +295,7 @@ async function checkLink(original: string): Promise<LinkCheck> {
   out.http = r.status
   out.finalUrl = r.finalUrl
   if (r.error) {
-    const gone = /ENOTFOUND|EAI_AGAIN|getaddrinfo|ECONNREFUSED|certificate|CERT_|SSL/i.test(r.error)
+    const gone = /ENOTFOUND|getaddrinfo|ECONNREFUSED|certificate|CERT_/i.test(r.error)
     return { ...out, verdict: gone ? "dead" : "error", reason: r.error.slice(0, 100) }
   }
   try { if (ARCHIVE_HOSTS.test(new URL(r.finalUrl).hostname)) return { ...out, verdict: "archived", reason: "redirects to an archived copy" } } catch { /* keep */ }
@@ -416,15 +416,12 @@ const JUDGE_SCHEMA = {
 }
 
 // USD per million tokens for the judge models we may pick (OpenAI list prices; the newest one is used).
-const OPENAI_PRICES: Array<[RegExp, number, number]> = [[/^gpt-5\.5(?!-mini)/, 2, 16], [/^gpt-5\.[1-4](?!-mini)/, 1.75, 14], [/^gpt-5(?!-mini)/, 1.25, 10], [/mini/, 0.25, 2]]
+const OPENAI_PRICES: Array<[RegExp, number, number]> = [[/^gpt-5\.5(?!-mini)/, 5, 30], [/^gpt-5\.[2-4](?!-mini)/, 1.75, 14], [/^gpt-5(\.1)?(?!-mini)/, 1.25, 10], [/mini/, 0.25, 2]]
 
+// GPT-5.1 at low reasoning: another vendor than both engines, and within the evaluation's budget (GPT-5.5 would
+// cost about six times as much for the same lists).
 async function judgeModel(): Promise<string> {
-  if (flag("judge-model")) return flag("judge-model")!
-  const res = await fetch("https://api.openai.com/v1/models", { headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` } })
-  const ids = ((await res.json()) as { data: Array<{ id: string }> }).data.map((m) => m.id)
-  const full = ids.filter((id) => /^gpt-5(\.\d+)?$/.test(id)).sort((a, b) => Number(b.slice(6) || 0) - Number(a.slice(6) || 0))
-  if (!full.length) throw new Error(`no gpt-5 model in ${ids.length} models`)
-  return full[0]
+  return flag("judge-model") ?? "gpt-5.1"
 }
 
 function judgeInput(test: Test, snap: Snapshot, items: Item[]): string {
@@ -462,7 +459,7 @@ async function judge() {
         model,
         messages: [{ role: "system", content: JUDGE_SYSTEM }, { role: "user", content: judgeInput(r.test, snapshots[r.test.id], items) }],
         response_format: { type: "json_schema", json_schema: { name: "grades", strict: true, schema: JUDGE_SCHEMA } },
-        reasoning_effort: "medium",
+        reasoning_effort: flag("judge-effort") ?? "low",
         max_completion_tokens: 8_000
       }),
       signal: AbortSignal.timeout(120_000)

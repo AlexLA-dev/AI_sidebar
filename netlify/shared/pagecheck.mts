@@ -381,8 +381,9 @@ export async function checkPage(url: string, opts: CheckOptions = {}): Promise<C
   } catch (err) {
     const timedOut = timer.aborted
     const msg = err instanceof Error ? (err.cause instanceof Error ? err.cause.message : err.message) : String(err)
-    // A name that doesn't resolve or a refused connection: the site is gone.
-    const gone = /ENOTFOUND|EAI_AGAIN|getaddrinfo|ECONNREFUSED|certificate|CERT_|SSL/i.test(msg)
+    // A name that doesn't resolve, a refused connection, a bad certificate: the site is gone. (A refused TLS
+    // handshake is a server turning us away, not a dead site.)
+    const gone = /ENOTFOUND|getaddrinfo|ECONNREFUSED|certificate|CERT_/i.test(msg)
     return { ...empty(url, gone ? "dead" : "error", timedOut ? "took too long to open" : msg.slice(0, 120), { finalUrl: current.toString(), hops }), ms: Date.now() - started }
   }
   if (!res) return { ...empty(url, "error", "no answer"), ms: Date.now() - started }
@@ -498,11 +499,14 @@ export function languageCheck(want: string, page: Pick<CheckedPage, "lang" | "in
   if (!w) return "unknown"
   if (page.inLanguage) return page.inLanguage.toLowerCase().startsWith(w) ? "yes" : "no"
   const wantScript = LANG_SCRIPT[w] ?? "latn"
-  const script = scriptOf(`${page.title} ${page.text.slice(0, 1_500)}`)
+  // The title says most (a page's interface around it may be in English): then the text.
+  const titleScript = scriptOf(page.title.length >= 8 ? page.title.padEnd(20, " ") + page.title : "")
+  const textScript = scriptOf(page.text.slice(0, 1_500))
+  if (wantScript !== "latn" && (titleScript === wantScript || textScript === wantScript)) return "yes"
+  const script = titleScript || textScript
   if (script && script !== wantScript) return "no"
   const lang = page.lang.toLowerCase().slice(0, 2)
   if (lang === w) return "yes"
-  if (script && wantScript !== "latn") return "yes"
   return "unknown"
 }
 

@@ -222,6 +222,8 @@ test("language: the content's own, else the script of its title and text, the si
   assert.equal(languageCheck("ru", yt("Нейронные сети с нуля: пишем GPT своими руками и разбираемся")), "yes")
   assert.equal(languageCheck("ru", yt("Let's build GPT: from scratch, in code, spelled out by Andrej")), "no")
   assert.equal(languageCheck("de", yt("Python lernen für Anfänger – der komplette Kurs auf Deutsch")), "unknown")
+  // A Russian repository on GitHub: its title is Russian, the interface around it English.
+  assert.equal(languageCheck("ru", { lang: "en", title: "Математика LLM — Создаём ChatGPT своими руками", text: "Skip to content Navigation Menu Product Solutions Resources Open Source Enterprise Pricing Sign in Sign up", inLanguage: undefined }), "yes")
   assert.equal(languageCheck("de", { lang: "de", title: "Python lernen für Anfänger – der komplette Kurs", text: "", inLanguage: undefined }), "yes")
   assert.equal(languageCheck("de", { lang: "de", title: "x", text: "", inLanguage: "en" }), "no")
 })
