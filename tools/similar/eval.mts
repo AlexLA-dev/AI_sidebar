@@ -15,7 +15,7 @@
 //              list on its own, without links or engine names, with evidence from the item's linked page
 //   report     the metrics side by side, per category, five examples; report.md and metrics.json
 // Spend (API calls of the engines and the judge) is kept in spend.json; `run` and `judge` stop at --cap (USD, 9.5).
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs"
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs"
 import { homedir } from "node:os"
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
@@ -73,7 +73,7 @@ const snapshots: Record<string, Snapshot> = readJson(snapPath, {})
 
 const spendPath = join(WORK, "spend.json")
 const spend: { entries: Array<{ at: string; what: string; usd: number }> } = readJson(spendPath, { entries: [] })
-const spent = () => spend.entries.reduce((n, e) => n + e.usd, 0)
+const spent = () => totalSpend().total
 function addSpend(what: string, usd: number) {
   spend.entries.push({ at: new Date().toISOString(), what, usd: Math.round(usd * 1e6) / 1e6 })
   writeJson(spendPath, spend)
@@ -246,7 +246,7 @@ function itemsOf(engine: string, call: SimilarCall): { items: Item[]; sources: s
 interface LinkCheck {
   original: string
   resolved: string
-  verdict: "live" | "dead" | "soft404" | "archived" | "blocked" | "error" | "unresolved"
+  verdict: "live" | "dead" | "soft404" | "archived" | "blocked" | "error" | "unclear" | "unresolved"
   http: number
   finalUrl: string
   reason: string
@@ -307,11 +307,13 @@ async function checkLink(original: string): Promise<LinkCheck> {
   const page = describePage(r.html, resolved, r.finalUrl, r.status, 0, 20_000)
   out.page = { title: page.title, name: page.name, description: page.description, lang: page.lang, inLanguage: page.inLanguage, price: page.price, stock: page.stock, published: page.published, modified: page.modified, duration: page.duration, reason: page.reason, types: page.types, text: page.text }
   if (page.status === "soft404") return { ...out, verdict: "soft404", reason: page.reason }
-  // A made-up address on the same site that answers 200 with the same title: the site answers anything that way.
+  // A made-up address on the same site that answers 200 with the same title: the site answers anything that way
+  // (a soft-404 site, or an app shell that shows nothing without a browser): we can't tell, unless the page names
+  // the item (checked per item later).
   const deep = new URL(resolved).pathname.split("/").filter(Boolean).length > 0
   if (deep && page.title) {
     const b = await baseline(new URL(r.finalUrl).hostname)
-    if (b.status === 200 && b.title === page.title) return { ...out, verdict: "soft404", reason: "the same page as a made-up address on that site" }
+    if (b.status === 200 && b.title === page.title) return { ...out, verdict: "unclear", reason: "the site answers a made-up address with the same page" }
   }
   return { ...out, verdict: "live" }
 }
@@ -471,7 +473,7 @@ async function judge() {
     }
     const usd = ((body.usage?.prompt_tokens ?? 0) * price[1] + (body.usage?.completion_tokens ?? 0) * price[2]) / 1e6
     addSpend(`judge/${TAG}/${key}`, usd)
-    out[key] = { ...JSON.parse(body.choices?.[0]?.message?.content ?? "{}"), model }
+    out[key] = { ...JSON.parse(body.choices?.[0]?.message?.content ?? "{}"), model, usd }
     writeJson(join(WORK, `judge-${TAG}.json`), out)
     console.log(`${key.padEnd(18)} score ${(out[key] as { list_score: number }).list_score}  $${usd.toFixed(4)}`)
   })
@@ -532,7 +534,7 @@ function engineMetrics(rows: Row[]) {
   const items = rows.flatMap((r) => r.items.map((it) => ({ r, it })))
   // Links: each item's own links (the ones a person would tap for that item).
   const linkVerdicts = items.flatMap(({ it }) => it.links.map((l) => linkCache[l]?.verdict ?? "unchecked"))
-  const known = linkVerdicts.filter((v) => v !== "blocked" && v !== "error" && v !== "unchecked")
+  const known = linkVerdicts.filter((v) => v !== "blocked" && v !== "error" && v !== "unclear" && v !== "unchecked")
   const live = linkVerdicts.filter((v) => v === "live").length
   const bad = linkVerdicts.filter((v) => v === "dead" || v === "soft404" || v === "archived" || v === "unresolved").length
   const listsAllLive = rows.filter((r) => r.items.length && r.items.every((it) => it.links.length && it.links.every((l) => linkCache[l]?.verdict === "live"))).length
@@ -622,7 +624,7 @@ function report() {
   const categories = [...new Set(tests.filter((t) => both.has(t.id)).map((t) => t.category))]
   const perCategory = Object.fromEntries(categories.map((c) => [c, { a: engineMetrics(by("a", (r) => r.test.category === c)), b: engineMetrics(by("b", (r) => r.test.category === c)) }]))
   const withCond = { a: engineMetrics(by("a", (r) => Boolean(r.test.condition))), b: engineMetrics(by("b", (r) => Boolean(r.test.condition))) }
-  writeJson(join(WORK, `metrics-${TAG}.json`), { pages: both.size, A, B, perCategory, withCond, spend: spent() })
+  writeJson(join(WORK, `metrics-${TAG}.json`), { pages: both.size, A, B, perCategory, withCond, spend: totalSpend() })
 
   const f = (x: number, d = 1) => (Number.isFinite(x) ? x.toFixed(d) : "—")
   const line = (label: string, a: string, b: string) => `| ${label} | ${a} | ${b} |`
@@ -665,7 +667,7 @@ function report() {
       return line(`${c} (${a.lists})`, cell(a), cell(b))
     }),
     "",
-    `Spend so far (engines + judge): $${spent().toFixed(3)}`,
+    `Spend so far (all runs incl. trials, judge, probes): $${totalSpend().total.toFixed(3)}`,
     "",
     "## All answers",
     ...[...both].flatMap((id) => {
@@ -684,7 +686,40 @@ function report() {
   console.log(md.split("## All answers")[0])
 }
 
-const steps: Record<string, () => Promise<void> | void> = { snapshot, run, check, judge, report }
+/**
+ * What the evaluation spent, from the records themselves (every run's own spend, every judge call's), plus the
+ * probes before the runs had records (extras.json). spend.json is only the running total for the cap.
+ */
+function totalSpend(): { engines: Record<string, number>; judge: number; extras: number; total: number } {
+  const engines: Record<string, number> = {}
+  let judgeUsd = 0
+  const runs = join(WORK, "runs")
+  for (const tag of existsSync(runs) ? readdirSync(runs) : []) {
+    for (const e of ["a", "b"]) {
+      const dir = join(runs, tag, e)
+      for (const f of existsSync(dir) ? readdirSync(dir) : []) {
+        const r = JSON.parse(readFileSync(join(dir, f), "utf8")) as { call: SimilarCall }
+        engines[`${tag}/${e}`] = (engines[`${tag}/${e}`] ?? 0) + callSpend(r.call)
+      }
+    }
+  }
+  for (const f of readdirSync(WORK).filter((x) => /^judge-.*[.]json$/.test(x))) {
+    for (const v of Object.values(JSON.parse(readFileSync(join(WORK, f), "utf8")) as Record<string, { usd?: number }>)) judgeUsd += v.usd ?? 0
+  }
+  const extras = readJson(join(WORK, "extras.json"), [] as Array<{ what: string; usd: number }>).reduce((n, x) => n + x.usd, 0)
+  const total = Object.values(engines).reduce((a, b) => a + b, 0) + judgeUsd + extras
+  return { engines, judge: judgeUsd, extras, total }
+}
+
+function spendStep() {
+  const s = totalSpend()
+  for (const [k, v] of Object.entries(s.engines)) console.log(`${k.padEnd(14)} $${v.toFixed(3)}`)
+  console.log(`judge          $${s.judge.toFixed(3)}`)
+  console.log(`probes/extras  $${s.extras.toFixed(3)}`)
+  console.log(`total          $${s.total.toFixed(3)}`)
+}
+
+const steps: Record<string, () => Promise<void> | void> = { snapshot, run, check, judge, report, spend: spendStep }
 if (!steps[step]) {
   console.log("steps: snapshot | run | check | judge | report")
   process.exit(1)
