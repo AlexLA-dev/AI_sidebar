@@ -422,6 +422,9 @@ const pages: Record<string, string> = {
   "/order-ru": "order-ru.html",
   "/product": "product.html",
   "/product-ru": "product-ru.html",
+  // An investor page with its quarterly report as a PDF (store-pages: the screens about PDFs).
+  "/report": "report.html",
+  "/report-ru": "report-ru.html",
   // Quick insert's fields inside open shadow roots, and the same editor outside them (the owner, 2.5 (77): LinkedIn).
   "/shadow-fields": "shadow-fields.html",
   // The reply box of private messages (the owner, 2.5 (77): "it was in chats"): ?layout=page|overlay.
@@ -445,7 +448,9 @@ const STRICT_CSP = "media-src 'self'; img-src 'self'"
 const pdfs: Record<string, string> = {
   "/files/report.pdf": "files/report.pdf",
   "/files/scan.pdf": "files/scan.pdf",
-  "/files/private.pdf": "files/report.pdf"
+  "/files/private.pdf": "files/report.pdf",
+  "/files/q3-report.pdf": "files/q3-report.pdf",
+  "/files/q3-report-ru.pdf": "files/q3-report-ru.pdf"
 }
 
 createServer(async (req, res) => {
@@ -581,6 +586,12 @@ if (location.search.includes("sel=1")) setTimeout(() => getSelection().selectAll
   // Captions of the lecture video (the video itself isn't needed: the panel reads the captions).
   if (/^\/files\/lecture(-ru)?\.vtt$/.test(url.pathname)) {
     res.writeHead(200, { "Content-Type": "text/vtt; charset=utf-8" })
+    res.end(readFileSync(new URL(`.${url.pathname}`, import.meta.url)))
+    return
+  }
+  // The report's first page as a picture (report.html shows it, the PDF itself sits in an <embed>).
+  if (/^\/files\/[\w-]+\.png$/.test(url.pathname)) {
+    res.writeHead(200, { "Content-Type": "image/png" })
     res.end(readFileSync(new URL(`.${url.pathname}`, import.meta.url)))
     return
   }

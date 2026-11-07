@@ -64,6 +64,16 @@ const COPY = {
     videos25: ["Ask about", "videos and PDFs"],
     qiButton: "The ContextFlow button by any field",
     qiShortcut: "⌃⇧V in any field",
+    ppoPrice: ["Know when", "a price drops"],
+    ppoCopies: ["Your last 5 copies", "in any Safari field"],
+    ppoSelect: ["Select text,", "get an answer"],
+    ppoGoogle: ["Google answers", "with sources"],
+    ppoDevices: ["Same chats on", "iPhone, iPad, Mac"],
+    ppoLater: ["Come back to", "a page later"],
+    ppoMedia: ["Ask about", "videos and PDFs"],
+    bannerTitle: "Changed: Price",
+    bannerBody: "Now: $99",
+    bannerTime: "now",
     erased: "Erased after 24 hours",
     alsoStock: "Also stock and dates",
     mailHost: "mail.northwind.studio",
@@ -123,6 +133,16 @@ const COPY = {
     videos25: ["Вопросы", "к видео и PDF"],
     qiButton: "Кнопка ContextFlow у любого поля",
     qiShortcut: "⌃⇧V в любом поле",
+    ppoPrice: ["Узнаете, когда", "цена упадёт"],
+    ppoCopies: ["Последние 5 копий", "в любом поле Safari"],
+    ppoSelect: ["Выделите текст —", "получите ответ"],
+    ppoGoogle: ["Ответы Google", "с источниками"],
+    ppoDevices: ["Одни чаты на", "iPhone, iPad и Mac"],
+    ppoLater: ["Вернитесь", "к странице позже"],
+    ppoMedia: ["Вопросы", "к видео и PDF"],
+    bannerTitle: "Изменилось: Цена",
+    bannerBody: "Сейчас: 10 990 ₽",
+    bannerTime: "сейчас",
     erased: "Стирается через 24 часа",
     alsoStock: "А ещё наличие и даты",
     mailHost: "mail.sevveter.studio",
@@ -223,6 +243,44 @@ const SETS_25 = Object.fromEntries(["iphone", "ipad", "mac"].map((k) => {
   ]]
 }))
 const SETS = SETS_25
+
+// Product page test (2.6) against the 2.5 set: the most popular first, Pro shown and labelled, every device whole
+// with its Safari bar in view, layouts that vary from screen to screen (centred, to the left or right with a
+// magnified card beside it), plaques only under the caption, never over the UI or the caption.
+const PPO_GEO = {
+  iphone: { scale: 0.72, y: 680, at: { center: 180.6, left: 60, right: 301 } },
+  ipad: { scale: 0.73, y: 680, at: { center: 278, left: 110, right: 447 } }
+}
+const SETS_PPO = Object.fromEntries(["iphone", "ipad"].map((k) => {
+  const phone = k === "iphone"
+  const G = PPO_GEO[k]
+  const geo = (at) => ({ scale: G.scale, x: G.at[at], y: G.y })
+  const v = (iphone, ipad) => (phone ? iphone : ipad)
+  const card = (select, place, extra = {}) => ({ select, pad: 14, mag: 9, maxW: place.w, place, ...extra })
+  return [k, [
+    { name: "summary", shot: `${k}-summary`, caption: COPY.hero, icon: phone, geo: geo("center"),
+      pills: [{ text: COPY.nosignup, icon: "✓", center: true, y: v(515, 490) }] },
+    { name: "price", shot: `${k}-watchpage`, caption: COPY.ppoPrice, host: COPY.shop25Host, geo: geo("center"),
+      banner: { title: COPY.bannerTitle, body: COPY.bannerBody, time: COPY.bannerTime, left: v(50, 260), top: v(830, 820), w: v(1190, 1544), font: v(50, 62) } },
+    { name: "copies", shot: `${k}-copied5done`, caption: COPY.ppoCopies, host: COPY.mailHost, geo: geo("left"),
+      callouts: [card(["all:.cf-qi-row"], { right: 40, top: v(1250, 1250), w: v(1010, 1500) }, { from: `${k}-copied5`, pad: 10 })] },
+    { name: "templates", shot: `${k}-fill`, caption: COPY.fill, host: COPY.mailHost, geo: geo("right"),
+      callout: { select: [".cf-qi-fill-text", ".cf-qi-fill-row"], pad: 12, mag: v(1.3, 1.7), maxW: v(1190, 1500) } },
+    { name: "select", shot: `${k}-selanswer`, caption: COPY.ppoSelect, geo: geo("left"),
+      // iPhone: over the page above the panel; iPad: over the page, left of the panel (clear of the answer).
+      callouts: [card([".cf-bubble"], phone ? { right: 40, top: 980, w: 1000 } : { left: 60, top: 1250, w: 1100 }, { from: `${k}-selask`, pad: 0, radius: 16 })] },
+    { name: "google", shot: `${k}-google`, caption: COPY.ppoGoogle, geo: geo("center"),
+      callout: { select: [".cf-sources-title", ".cf-source-list"], pad: 12, mag: v(1.25, 1.7), maxW: v(1190, 1400) } },
+    { ...TRIO(k), caption: COPY.ppoDevices },
+    { name: "later", shot: `${k}-remind`, caption: COPY.ppoLater, geo: geo("right"),
+      callout: { select: [".cf-sheet"], pad: 6, mag: v(1.15, 1.5), maxW: v(1190, 1300) } },
+    { name: "pins", shot: `${k}-pins`, caption: COPY.pins, geo: geo("center") },
+    { name: "media", shot: `${k}-pdf`, caption: COPY.ppoMedia, pro: true, host: COPY.reportHost, geo: geo("center"),
+      // The PDF's chip and the video's (from the lecture page) over the bottom of the answer, clear of the Safari bar.
+      callouts: [card([".cf-used"], { left: 40, top: v(2120, 2160), w: v(560, 700) }, { radius: 14 }),
+        card([".cf-used"], { right: 40, top: v(2310, 2380), w: v(660, 800) }, { from: `${k}-video`, radius: 14 })] }
+  ]]
+}))
 
 const SETS_24 = {
   iphone: [
@@ -431,8 +489,9 @@ function caption(device, lines, dark, size) {
 function pills(list = [], dark, scale = 1) {
   return list
     .map((p) => {
-      const pos = p.right != null ? `right:${p.right}px` : `left:${p.x}px`
-      return `<div class="pill ${dark ? "on-dark" : ""}" style="${pos};top:${p.y}px;transform:scale(${scale});transform-origin:${p.right != null ? "right" : "left"} top"><i>${p.icon}</i><span>${p.text}</span></div>`
+      const pos = p.center ? "left:50%" : p.right != null ? `right:${p.right}px` : `left:${p.x}px`
+      const origin = p.center ? "center" : p.right != null ? "right" : "left"
+      return `<div class="pill ${dark ? "on-dark" : ""}" style="${pos};top:${p.y}px;transform:${p.center ? "translateX(-50%) " : ""}scale(${scale});transform-origin:${origin} top"><i>${p.icon}</i><span>${p.text}</span></div>`
     })
     .join("")
 }
@@ -542,7 +601,7 @@ function trio(kind, shots) {
 
 // Magnified copy of the elements that prove the caption, centred over where they
 // sit on the device (cropped from the same capture).
-function callout(kind, shot, spec, dark) {
+function callout(kind, shot, spec, dark, geo = GEO[kind]) {
   // `from`: another capture of the same scene (a moment earlier), cropped at the same place on the screen.
   shot = spec.from ?? shot
   const meta = JSON.parse(readFileSync(join(RAW, shot + ".json"), "utf8"))
@@ -553,7 +612,7 @@ function callout(kind, shot, spec, dark) {
   const y0 = Math.min(...rects.map((r) => r.y)) - spec.pad
   const x1 = Math.max(...rects.map((r) => r.x + r.width)) + spec.pad
   const y1 = Math.max(...rects.map((r) => r.y + r.height)) + spec.pad
-  const g = GEO[kind]
+  const g = geo
   const { W, H } = DEVICES[kind]
   // The element on the canvas…
   const on = { x: g.x + x0 * ms * g.scale, y: g.y + (g.top + y0 * ms) * g.scale, w: (x1 - x0) * ms * g.scale, h: (y1 - y0) * ms * g.scale }
@@ -561,12 +620,22 @@ function callout(kind, shot, spec, dark) {
   const w = Math.min(on.w * spec.mag, spec.maxW)
   const f = w / ((x1 - x0) * ms)
   const h = (y1 - y0) * ms * f
-  const left = Math.max(50, Math.min(W - 50 - w, on.x + on.w / 2 - w / 2))
-  const top = Math.max(40, Math.min(H - 40 - h, on.y + on.h / 2 - h / 2))
+  // `place`: the card where the layout wants it (left/right, top/bottom), else over where the element sits.
+  const P = spec.place
+  const left = P ? (P.left ?? W - P.right - w) : Math.max(50, Math.min(W - 50 - w, on.x + on.w / 2 - w / 2))
+  const top = P ? (P.top ?? H - P.bottom - h) : Math.max(40, Math.min(H - 40 - h, on.y + on.h / 2 - h / 2))
   const radius = spec.radius ? spec.radius * ms * f : 36
   return `<div class="zoom ${dark ? "on-dark" : ""}" style="left:${left}px;top:${top}px;width:${w}px;height:${h}px;border-radius:${radius}px">
     <div style="width:100%;height:100%;background:url('${file(join(RAW, shot + ".png"))}') ${-x0 * ms * f}px ${-y0 * ms * f}px / ${g.rawW * f}px auto no-repeat"></div>
   </div>`
+}
+
+// An iOS notification banner with the app's icon and the exact text the app sends (src/background/watch.ts:
+// watchChanged / watchChangedBody), floating over the top of the device as iOS shows it over Safari.
+function banner(b) {
+  return `<div class="ios-banner" style="left:${b.left}px;top:${b.top}px;width:${b.w}px;font-size:${b.font}px">
+    <img src="${APP_ICON}" style="width:${b.font * 2.4}px;height:${b.font * 2.4}px;border-radius:${b.font * 0.56}px">
+    <div class="bt"><b>${b.title}</b><span>${b.body}</span></div><i>${b.time}</i></div>`
 }
 
 // ------------------------------------------------------------------- page
@@ -636,6 +705,12 @@ body.dark .tablet { box-shadow: 0 0 0 5px #4a4c55, 0 0 0 8px #22232a, 0 80px 180
 .win.dark .mac-tb .url { background: #3a3a3d; color: #f2f2f7; }
 
 .app-st { position: absolute; top: 0; left: 0; width: 640px; height: 50px; padding: 8px 0 0 44px; background: #f2f2f7; font: 500 30px Inter, sans-serif; color: #000; }
+.ios-banner { position: absolute; z-index: 6; display: flex; align-items: center; gap: 0.75em; padding: 0.8em 1em; border-radius: 1.6em; background: rgba(248, 248, 250, .99); box-shadow: 0 40px 90px rgba(20, 45, 110, .30), 0 6px 18px rgba(20, 45, 110, .14); font-family: Inter, sans-serif; color: #000; line-height: 1.25; }
+.ios-banner img { flex: none; display: block; }
+.ios-banner .bt { flex: 1; display: flex; flex-direction: column; }
+.ios-banner b { font-weight: 650; }
+.ios-banner i { align-self: flex-start; font-style: normal; color: #8a8a8e; font-size: .85em; }
+.pro-chip { position: absolute; left: 50%; transform: translateX(-50%); padding: 14px 40px; border-radius: 999px; font: 800 64px/1 "Inter Display", Inter, sans-serif; letter-spacing: .02em; color: #fff; background: linear-gradient(90deg, #0EA5E9, #2563EB 70%, #4F46E5); box-shadow: 0 16px 40px rgba(37, 99, 235, .3); }
 .zoom { position: absolute; z-index: 4; border-radius: 40px; overflow: hidden; background: #fff; box-shadow: 0 0 0 3px rgba(37,99,235,.18), 0 40px 90px rgba(20, 45, 110, .30), 0 8px 24px rgba(20, 45, 110, .14); }
 .zoom.on-dark { background: #1c1c1e; box-shadow: 0 0 0 3px rgba(147,197,253,.35), 0 40px 100px rgba(0,0,0,.55), 0 0 90px rgba(59,130,246,.35); }
 `
@@ -647,12 +722,16 @@ function page(device, count, index, spec, size) {
   body += caption(device, spec.caption, dark, size)
   if (spec.icon) body += `<img class="appicon" src="${APP_ICON}" style="top:70px;width:132px;height:132px">`
   const kind = Object.keys(DEVICES).find((k) => DEVICES[k] === device)
+  // `geo`: where this screen puts the device (PPO layouts); the call-outs map onto the same place.
+  const g = spec.geo ? { ...GEO[kind], ...spec.geo } : GEO[kind]
+  if (spec.pro) body += `<div class="pro-chip" style="top:${device.captionTop - (kind === "iphone" ? 118 : 132)}px">Pro</div>`
   if (spec.trio) body += trio(kind, spec.trio)
   else if (spec.app) body += appScreen(kind, spec.shot)
-  else if (kind === "iphone") body += iphone(spec.shot, dark, host)
-  else if (kind === "ipad") body += ipad(spec.shot, dark, host)
-  else body += macWindow(spec.shot, dark, host)
-  if (spec.callout) body += callout(kind, spec.shot, spec.callout, dark)
+  else if (kind === "iphone") body += iphone(spec.shot, dark, host, g)
+  else if (kind === "ipad") body += ipad(spec.shot, dark, host, g)
+  else body += macWindow(spec.shot, dark, host, g)
+  for (const c of spec.callouts ?? (spec.callout ? [spec.callout] : [])) body += callout(kind, spec.shot, c, dark, g)
+  if (spec.banner) body += banner(spec.banner)
   body += pills(spec.pills, dark, { iphone: 1, ipad: 1.25, mac: 1.3 }[kind])
   return `<!doctype html><html><head><meta charset="utf-8"><style>:root{--W:${device.W}px;--H:${device.H}px}${CSS}</style></head>
 <body class="${dark ? "dark" : ""}">${body}
@@ -700,7 +779,7 @@ async function fitSize(device, specs) {
   return size
 }
 
-for (const [kind, specs] of Object.entries(set === "notes" ? NOTES_SETS : set === "cpp" ? CPP_SETS : TEST_SETS[set] ?? SETS)) {
+for (const [kind, specs] of Object.entries(set === "ppo" ? SETS_PPO : set === "notes" ? NOTES_SETS : set === "cpp" ? CPP_SETS : TEST_SETS[set] ?? SETS)) {
   const device = DEVICES[kind]
   const size = await fitSize(device, specs)
   const dir = join(OUT, kind)
