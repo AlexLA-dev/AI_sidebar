@@ -5,7 +5,7 @@ import { test } from "node:test"
 // The site in every app language (2.6): scripts/site-i18n.mjs writes site/<language>/… from the English pages and
 // site-i18n/<language>.json. These checks read what's committed.
 // @ts-expect-error: a plain .mjs module
-import { ENGLISH_ONLY, LANGUAGES, PAGES, TRANSLATED, outputs, pageUrl, problems, urlPath } from "../scripts/site-i18n.mjs"
+import { ENGLISH_ONLY, LANGUAGES, PAGES, TRANSLATED, extract, outputs, pageUrl, problems, urlPath } from "../scripts/site-i18n.mjs"
 
 const dir = new URL("../site/", import.meta.url)
 const read = (path: string) => readFileSync(new URL(path, dir), "utf8")
@@ -75,17 +75,17 @@ test("the language links list every language, the current one unlinked", () => {
 })
 
 test("titles and descriptions are translated in every language, with the English markup kept", () => {
+  // The search result's headline and text: never left English ("Support — ContextFlow" may read the same in German).
+  const source = extract()
+  const head = source.filter((s: any) => s.kind === "title" || s.kind === "meta").map((s: any) => s.key)
   for (const language of TRANSLATED) {
-    const { problems: bad } = problems(language)
+    const { problems: bad, missing } = problems(language, source)
     assert.deepEqual(bad, [], language.path)
+    assert.deepEqual(head.filter((key: string) => missing.includes(key)), [], `${language.path}: titles or descriptions still English`)
     for (const page of PAGES) {
       const html = read(fileOf(language, page))
-      const en = read(page)
-      const title = (h: string) => h.match(/<title>([^<]*)<\/title>/)![1]
-      const description = (h: string) => h.match(/<meta name="description" content="([^"]*)"/)![1]
-      assert.notEqual(title(html), title(en), `${fileOf(language, page)}: title`)
-      assert.notEqual(description(html), description(en), `${fileOf(language, page)}: description`)
-      JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)![1])
+      assert.notEqual(html.match(/<meta name="description" content="([^"]*)"/)![1], read(page).match(/<meta name="description" content="([^"]*)"/)![1], `${fileOf(language, page)}: description`)
+      for (const [, json] of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) JSON.parse(json)
     }
   }
 })
