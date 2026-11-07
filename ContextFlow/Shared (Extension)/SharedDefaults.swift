@@ -14,6 +14,23 @@ import StoreKit
 ///
 /// This file is compiled into both the app and the extension targets
 /// (two copies: "Shared (App)" and "Shared (Extension)" — keep them identical).
+/// The products we sell, by plan (2.6: Ultra, and yearly plans). src/shared/plan.ts and App Store Connect match it.
+enum PlanProducts {
+    static let ultra = ["com.contextflow.ultra.monthly", "com.contextflow.ultra.yearly"]
+    static let pro = ["com.contextflow.pro.monthly", "com.contextflow.pro.yearly"]
+    static let byok = ["com.contextflow.byok.monthly", "com.contextflow.byok.yearly"]
+    static let all = Set(ultra + pro + byok)
+
+    /// "ultra", "pro", "byok" or "free" (no product, or one we don't sell).
+    static func plan(of productId: String?) -> String {
+        guard let productId else { return "free" }
+        if ultra.contains(productId) { return "ultra" }
+        if pro.contains(productId) { return "pro" }
+        if byok.contains(productId) { return "byok" }
+        return "free"
+    }
+}
+
 struct SharedEntitlement: Equatable {
     var active: Bool
     var productId: String?
@@ -40,7 +57,10 @@ struct SharedEntitlement: Equatable {
             result["autoRenew"] = autoRenew
             result["renewalAsked"] = SharedDefaults.shared.renewalAsked(period)
         }
-        if productId == "com.contextflow.byok.monthly" {
+        // The App Store's prices on this device, for the panel's plans sheet (2.6).
+        let prices = SharedDefaults.shared.readPrices()
+        if !prices.isEmpty { result["prices"] = prices }
+        if PlanProducts.byok.contains(productId ?? "") {
             if let at = SharedDefaults.shared.byokRefusedAt(period) { result["byokRefusedAt"] = Int64(at.timeIntervalSince1970 * 1000) }
             result["byokOfferShown"] = SharedDefaults.shared.byokOfferShown(period)
         }
@@ -75,6 +95,8 @@ final class SharedDefaults {
     private let renewalAskedKey = "cf_renewal_asked_v1"
     private let byokRefusedKey = "cf_byok_refused_v1"
     private let byokOfferShownKey = "cf_byok_offer_shown_v1"
+    private let pricesKey = "cf_prices_v1"
+    private let listenKey = "cf_listen_v1"
 
     /// Local notifications the app schedules on a new install until the extension is switched on.
     static let setupReminderIds = ["cf.setup.15m", "cf.setup.24h"]
@@ -110,6 +132,37 @@ final class SharedDefaults {
             updatedAt: Date(timeIntervalSince1970: stored["updatedAt"] as? Double ?? 0),
             autoRenew: stored["autoRenew"] as? Bool
         )
+    }
+
+    // MARK: Prices (2.6)
+
+    /// The display prices the app last loaded from the App Store (product id → "$12.99"), for the panel.
+    func writePrices(_ prices: [String: String]) {
+        defaults.set(prices, forKey: pricesKey)
+    }
+
+    func readPrices() -> [String: String] {
+        defaults.dictionary(forKey: pricesKey) as? [String: String] ?? [:]
+    }
+
+    // MARK: Read aloud on iPhone and iPad (2.6)
+
+    /// The panel's Listen: the text in parts, its language, title and page, for the app to play (WebKit stops a
+    /// page's audio when the screen locks). Only the latest one is kept; answers its id for contextflow://listen.
+    func writeListenRequest(_ request: [String: Any]) -> String {
+        let id = UUID().uuidString.lowercased()
+        var stored = request
+        stored["id"] = id
+        stored["at"] = Date().timeIntervalSince1970
+        defaults.set(stored, forKey: listenKey)
+        return id
+    }
+
+    /// The request with this id, if it's still the latest and fresh (an hour).
+    func readListenRequest(_ id: String) -> [String: Any]? {
+        guard let stored = defaults.dictionary(forKey: listenKey), stored["id"] as? String == id,
+              let at = stored["at"] as? Double, Date().timeIntervalSince1970 - at < 3600 else { return nil }
+        return stored
     }
 
     // MARK: The question when auto-renew is off

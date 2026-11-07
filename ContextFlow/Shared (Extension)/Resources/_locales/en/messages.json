@@ -1574,6 +1574,117 @@
  "watchChangedBody": {
   "message": "Now: {0}"
  },
+ "planUltra": {
+  "message": "Ultra"
+ },
+ "plansTitle": {
+  "message": "Plans"
+ },
+ "plansCompare": {
+  "message": "Compare plans"
+ },
+ "plansMonthly": {
+  "message": "Monthly"
+ },
+ "plansYearly": {
+  "message": "Yearly"
+ },
+ "plansSave": {
+  "message": "Save {0}%"
+ },
+ "plansCurrent": {
+  "message": "Your plan"
+ },
+ "plansChoose": {
+  "message": "Choose {0}"
+ },
+ "plansPerMonth": {
+  "message": "{0} / month"
+ },
+ "plansPerYear": {
+  "message": "{0} / year"
+ },
+ "plansNote": {
+  "message": "You subscribe in the ContextFlow app. Moving up to Ultra starts at once, and Apple refunds what's left of your current plan."
+ },
+ "tierByok1": {
+  "message": "Unlimited answers with your own OpenAI or Claude API key"
+ },
+ "tierByok2": {
+  "message": "Everything on the page: summaries, explanations, translations"
+ },
+ "tierPro1": {
+  "message": "Up to {0} answers a week, no API key needed"
+ },
+ "tierPro2": {
+  "message": "Videos and PDFs, AI search, Ask your chats, sorting by topic"
+ },
+ "tierPro3": {
+  "message": "Watch up to {0} pages for price drops and changes"
+ },
+ "tierUltra0": {
+  "message": "Everything in Pro, plus:"
+ },
+ "tierUltra1": {
+  "message": "Listen to answers and whole pages in a natural voice: {0} minutes a week"
+ },
+ "tierUltra2": {
+  "message": "Find similar: the same thing cheaper or in stock elsewhere, {0} searches a week"
+ },
+ "tierUltra3": {
+  "message": "Watch up to {0} pages"
+ },
+ "listen": {
+  "message": "Listen"
+ },
+ "listenPage": {
+  "message": "Listen to this page"
+ },
+ "listenPause": {
+  "message": "Pause"
+ },
+ "listenPlay": {
+  "message": "Play"
+ },
+ "listenStop": {
+  "message": "Stop"
+ },
+ "listenLoading": {
+  "message": "Getting the voice ready…"
+ },
+ "listenUltraTitle": {
+  "message": "Listening is part of Ultra"
+ },
+ "listenUltraBody": {
+  "message": "Answers and whole pages read aloud in a natural voice, in 100+ languages. On iPhone it keeps playing with the screen locked."
+ },
+ "listenLimit": {
+  "message": "This week's {0} minutes of listening are used up. They come back on {1}."
+ },
+ "listenFailed": {
+  "message": "Couldn't read this aloud. Try again in a moment."
+ },
+ "listenOffline": {
+  "message": "No connection: listening needs the internet the first time."
+ },
+ "listenInApp": {
+  "message": "Opening ContextFlow: it keeps playing with the screen locked."
+ },
+ "listenLeft": {
+  "message": "Listening: {0} of {1} min left this week"
+ },
+ "watchFullPro": {
+  "message": "On Pro you can watch {0} pages at once. Ultra watches up to {1}."
+ },
+ "watchMoreUltra": {
+  "message": "More with Ultra"
+ },
+ "seeUltra": {
+  "message": "See Ultra"
+ },
+ "usageUltra": {
+  "message": "Ultra · {0} of {1} answers left this week"
+ },
  "tip_4cf1b54b00": {
   "message": "Tips"
  },

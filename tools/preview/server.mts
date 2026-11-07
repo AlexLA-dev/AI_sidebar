@@ -11,6 +11,12 @@
 //                                                              throwaway key: /api/v2/promo signs)
 //   PREVIEW_PLAN=pro …                                         (every request comes as Pro: a test-signed
 //                                                              subscription is added on the server side)
+//   PREVIEW_PLAN=ultra …                                       (the same as Ultra, 2.6: read aloud speaks a tone
+//                                                              as long as the text would take)
+//   SPEAK_PROXY=https://deploy-preview-57--aisidebar.netlify.app SPEAK_EVAL_KEY=<private key .pem> …
+//                                                              (read aloud with the real voices: /api/v2/speak goes
+//                                                              to that deploy preview, each request signed with the
+//                                                              measuring key, see netlify/shared/plan.mts evalCheck)
 //   PREVIEW_CLAUDE=credits|overloaded|refusal|off …            (answers come from a scripted Claude; these make
 //                                                              it fail that way, so OpenAI answers; off: no key)
 //   FIRST_WORD_DELAY_MS=4000 …                                 (an answer's first word comes that late: time to
@@ -236,6 +242,19 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     const body = init?.body ? JSON.parse(String(init.body)) : {}
     return new Response(JSON.stringify(rpc[fn]?.(body) ?? null), { headers: { "Content-Type": "application/json" } })
   }
+  // Read aloud (2.6): a tone as long as the text takes to say (about 14 characters a second), in three pieces.
+  if (url === "https://generativelanguage.googleapis.com/v1beta/interactions") {
+    const body = JSON.parse(String(init?.body))
+    const text = String(body.input?.[0]?.content?.[0]?.text ?? "")
+    const samples = Math.max(2400, Math.round((text.length / 14) * 24_000))
+    const pcm = Buffer.alloc(samples * 2)
+    for (let i = 0; i < samples; i++) pcm.writeInt16LE(Math.round(Math.sin((i / 24_000) * 2 * Math.PI * 330) * 6000 * Math.min(1, (samples - i) / 2400)), i * 2)
+    const third = Math.ceil(pcm.length / 6) * 2
+    const frames = [0, 1, 2].map((k) => pcm.subarray(k * third, (k + 1) * third)).filter((b) => b.length).map((b) =>
+      `event: step.delta\ndata: ${JSON.stringify({ index: 0, delta: { type: "audio", data: b.toString("base64") }, event_type: "step.delta" })}\n\n`)
+    frames.push(`event: interaction.completed\ndata: ${JSON.stringify({ interaction: { status: "completed", usage: { total_input_tokens: Math.ceil(text.length / 4), total_output_tokens: Math.round((samples / 24_000) * 25) } }, event_type: "interaction.completed" })}\n\n`)
+    return new Response(frames.join(""), { headers: { "Content-Type": "text/event-stream" } })
+  }
   if (url.startsWith("https://generativelanguage.googleapis.com/v1beta/models")) {
     if (!url.includes(":streamGenerateContent")) return new Response(JSON.stringify({ models: [{ name: "models/gemini-3.8-flash", supportedGenerationMethods: ["generateContent"] }] }))
     const body = JSON.parse(String(init?.body))
@@ -338,14 +357,16 @@ if (process.env.PREVIEW_PROMO === "1") {
   process.env.PROMO_KEY_ID = "STANDKEY01"
   process.env.PROMO_PRIVATE_KEY = privateKey.export({ type: "pkcs8", format: "pem" }).toString()
 }
-if (process.env.PREVIEW_PLAN === "pro" || process.env.PREVIEW_PLAN === "byok") {
+if (process.env.PREVIEW_PLAN === "pro" || process.env.PREVIEW_PLAN === "byok" || process.env.PREVIEW_PLAN === "ultra") {
   const { signJws, transaction, TEST_ROOT_FINGERPRINT } = await import("../../tests/helpers.mts")
   // The test chain is only accepted in tests: this local stand counts as one.
   process.env.NODE_ENV = "test"
   ;(await import("../../netlify/shared/apple.mts")).setTrustedRootFingerprintForTests(TEST_ROOT_FINGERPRINT)
   proJws = signJws(transaction(process.env.PREVIEW_PLAN === "byok"
     ? { productId: "com.contextflow.byok.monthly", originalTransactionId: "2000000777", expiresDate: Date.now() + 30 * 86_400_000 }
-    : { expiresDate: Date.now() + 30 * 86_400_000 }))
+    : process.env.PREVIEW_PLAN === "ultra"
+      ? { productId: "com.contextflow.ultra.monthly", originalTransactionId: "2000000888", expiresDate: Date.now() + 30 * 86_400_000 }
+      : { expiresDate: Date.now() + 30 * 86_400_000 }))
 }
 
 const chat = (await import("../../netlify/functions/v2-chat.mts")).default
@@ -356,7 +377,22 @@ const promo = (await import("../../netlify/functions/v2-promo.mts")).default
 const insert = (await import("../../netlify/functions/v2-insert.mts")).default
 const organize = (await import("../../netlify/functions/v2-organize.mts")).default
 const watch = (await import("../../netlify/functions/v2-watch.mts")).default
-const handlers: Record<string, typeof chat> = { "/api/v2/chat": chat, "/api/v2/status": status, "/api/v2/event": event, "/api/v2/find": find, "/api/v2/promo": promo, "/api/v2/insert": insert, "/api/v2/organize": organize, "/api/v2/watch": watch }
+const localSpeak = (await import("../../netlify/functions/v2-speak.mts")).default
+// Read aloud with the real voices: the deploy preview speaks, this stand signs each request as Ultra for it.
+const speak: typeof chat = process.env.SPEAK_PROXY && process.env.SPEAK_EVAL_KEY
+  ? await (async () => {
+      const { createPrivateKey, sign } = await import("node:crypto")
+      const key = createPrivateKey(readFileSync(process.env.SPEAK_EVAL_KEY!))
+      return (async (req: Request) => {
+        const text = await req.text()
+        const installId = String(JSON.parse(text).installId ?? "")
+        const at = Date.now()
+        const signature = sign(null, Buffer.from(`${installId}.${at}`), key).toString("base64url")
+        return realFetch(`${process.env.SPEAK_PROXY}/api/v2/speak`, { method: "POST", headers: { "Content-Type": "application/json", "x-cf-eval": `${at}.${signature}` }, body: text })
+      }) as typeof chat
+    })()
+  : localSpeak
+const handlers: Record<string, typeof chat> = { "/api/v2/speak": speak, "/api/v2/chat": chat, "/api/v2/status": status, "/api/v2/event": event, "/api/v2/find": find, "/api/v2/promo": promo, "/api/v2/insert": insert, "/api/v2/organize": organize, "/api/v2/watch": watch }
 
 // Page watch's test shop (2.5): /shop shows a mug whose price and stock /shop-set changes
 // (/shop-set?price=39&stock=OutOfStock), /shop-js draws the price with a script (the background sees none, the

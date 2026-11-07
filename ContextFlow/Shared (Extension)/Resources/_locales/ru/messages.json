@@ -1574,6 +1574,117 @@
  "watchChangedBody": {
   "message": "Сейчас: {0}"
  },
+ "planUltra": {
+  "message": "Ultra"
+ },
+ "plansTitle": {
+  "message": "Тарифы"
+ },
+ "plansCompare": {
+  "message": "Сравнить тарифы"
+ },
+ "plansMonthly": {
+  "message": "На месяц"
+ },
+ "plansYearly": {
+  "message": "На год"
+ },
+ "plansSave": {
+  "message": "Выгода {0}%"
+ },
+ "plansCurrent": {
+  "message": "Ваш тариф"
+ },
+ "plansChoose": {
+  "message": "Выбрать {0}"
+ },
+ "plansPerMonth": {
+  "message": "{0}/мес."
+ },
+ "plansPerYear": {
+  "message": "{0}/год"
+ },
+ "plansNote": {
+  "message": "Подписка оформляется в приложении ContextFlow. Переход на Ultra начнётся сразу, а остаток текущего тарифа Apple вернёт."
+ },
+ "tierByok1": {
+  "message": "Безлимитные ответы с вашим API-ключом OpenAI или Claude"
+ },
+ "tierByok2": {
+  "message": "Всё на странице: пересказы, объяснения, переводы"
+ },
+ "tierPro1": {
+  "message": "До {0} ответов в неделю, API-ключ не нужен"
+ },
+ "tierPro2": {
+  "message": "Видео и PDF, ИИ-поиск, вопросы по всем чатам, раскладка по темам"
+ },
+ "tierPro3": {
+  "message": "Слежение за снижением цен и изменениями: до {0} страниц"
+ },
+ "tierUltra0": {
+  "message": "Всё, что есть в Pro, и ещё:"
+ },
+ "tierUltra1": {
+  "message": "Ответы и целые страницы вслух, естественным голосом: {0} мин в неделю"
+ },
+ "tierUltra2": {
+  "message": "Найти похожее: то же самое дешевле или в наличии в другом месте, {0} поисков в неделю"
+ },
+ "tierUltra3": {
+  "message": "Слежение: до {0} страниц"
+ },
+ "listen": {
+  "message": "Слушать"
+ },
+ "listenPage": {
+  "message": "Слушать эту страницу"
+ },
+ "listenPause": {
+  "message": "Пауза"
+ },
+ "listenPlay": {
+  "message": "Воспроизвести"
+ },
+ "listenStop": {
+  "message": "Стоп"
+ },
+ "listenLoading": {
+  "message": "Готовлю голос…"
+ },
+ "listenUltraTitle": {
+  "message": "Прослушивание входит в Ultra"
+ },
+ "listenUltraBody": {
+  "message": "Ответы и целые страницы вслух, естественным голосом, на 100+ языках. На iPhone звучит даже при заблокированном экране."
+ },
+ "listenLimit": {
+  "message": "Минуты прослушивания на эту неделю закончились ({0} мин). Обновятся: {1}."
+ },
+ "listenFailed": {
+  "message": "Не удалось озвучить. Попробуйте чуть позже."
+ },
+ "listenOffline": {
+  "message": "Нет соединения: в первый раз для прослушивания нужен интернет."
+ },
+ "listenInApp": {
+  "message": "Открываю ContextFlow: там звук не прервётся даже при заблокированном экране."
+ },
+ "listenLeft": {
+  "message": "Прослушивание: осталось {0} из {1} мин на неделю"
+ },
+ "watchFullPro": {
+  "message": "В Pro можно следить за {0} страницами сразу. В Ultra — до {1}."
+ },
+ "watchMoreUltra": {
+  "message": "Больше в Ultra"
+ },
+ "seeUltra": {
+  "message": "Подробнее об Ultra"
+ },
+ "usageUltra": {
+  "message": "Ultra · осталось {0} из {1} ответов на неделю"
+ },
  "tip_4cf1b54b00": {
   "message": "Советы"
  },

@@ -10,12 +10,37 @@ import SwiftUI
 final class StoreKitManager: ObservableObject {
     static let shared = StoreKitManager()
 
+    /// The products (2.6: Ultra, and yearly plans). A product not yet created in App Store Connect simply doesn't load:
+    /// the paywall shows the plan with the periods it has.
     enum ProductID {
+        static let ultra = "com.contextflow.ultra.monthly"
+        static let ultraYearly = "com.contextflow.ultra.yearly"
         static let pro = "com.contextflow.pro.monthly"
-        // Optional: shown automatically once created in App Store Connect.
         static let proYearly = "com.contextflow.pro.yearly"
         static let byok = "com.contextflow.byok.monthly"
-        static let all = [pro, proYearly, byok]
+        static let byokYearly = "com.contextflow.byok.yearly"
+        static let all = [ultra, ultraYearly, pro, proYearly, byok, byokYearly]
+    }
+
+    enum Tier: String, CaseIterable, Identifiable {
+        case byok, pro, ultra
+        var id: String { rawValue }
+        /// Subscription group order: moving up starts at once (an upgrade), moving down at the next renewal.
+        var rank: Int {
+            switch self {
+            case .byok: return 1
+            case .pro: return 2
+            case .ultra: return 3
+            }
+        }
+        func productId(yearly: Bool) -> String {
+            switch self {
+            case .byok: return yearly ? ProductID.byokYearly : ProductID.byok
+            case .pro: return yearly ? ProductID.proYearly : ProductID.pro
+            case .ultra: return yearly ? ProductID.ultraYearly : ProductID.ultra
+            }
+        }
+        static func of(_ productId: String?) -> Tier? { Tier(rawValue: PlanProducts.plan(of: productId)) }
     }
 
     @Published private(set) var products: [Product] = []
@@ -48,6 +73,20 @@ final class StoreKitManager: ObservableObject {
     var proYearly: Product? { products.first { $0.id == ProductID.proYearly } }
     var byok: Product? { products.first { $0.id == ProductID.byok } }
 
+    func product(_ tier: Tier, yearly: Bool) -> Product? {
+        products.first { $0.id == tier.productId(yearly: yearly) }
+    }
+
+    /// The current plan's tier (nil: none).
+    var tier: Tier? { entitlement.active ? Tier.of(entitlement.productId) : nil }
+
+    /// What the plans say, from the server (the defaults until it answers).
+    @Published private(set) var planFacts = ChatAI.PlanFacts()
+
+    func refreshPlanFacts() async {
+        if let facts = await ChatAI.planFacts() { planFacts = facts }
+    }
+
     /// Pro with auto-renew turned off: the subscription to ask "what was missing" about, once per period
     /// (the app and the panel share the mark). `-CFDebugRenewalOff YES` shows it in Debug builds.
     var renewalOff: SharedEntitlement? {
@@ -68,7 +107,7 @@ final class StoreKitManager: ObservableObject {
         #if DEBUG
         if UserDefaults.standard.bool(forKey: "CFDebugByok") { return true }
         #endif
-        return entitlement.active && entitlement.productId == ProductID.byok
+        return entitlement.active && PlanProducts.byok.contains(entitlement.productId ?? "")
     }
 
     /// Own key → Pro at this discount (%), when the server has the promotional offer set up; nil otherwise.
@@ -121,13 +160,21 @@ final class StoreKitManager: ObservableObject {
         return try await purchase(pro, offer: signature)
     }
 
-    /// Pro is active (the own-key plan isn't Pro): AI search, "Ask your chats", no Pro tab in the app.
+    /// Pro or Ultra is active (Ultra counts as Pro; the own-key plan isn't Pro): AI search, "Ask your chats".
     var isPro: Bool {
         #if DEBUG
         // Local checks against the Pro stand (tools/preview, PREVIEW_PLAN=pro): -CFDebugPro YES.
-        if UserDefaults.standard.bool(forKey: "CFDebugPro") { return true }
+        if UserDefaults.standard.bool(forKey: "CFDebugPro") || UserDefaults.standard.bool(forKey: "CFDebugUltra") { return true }
         #endif
-        return entitlement.active && entitlement.productId != ProductID.byok
+        return entitlement.active && ["pro", "ultra"].contains(PlanProducts.plan(of: entitlement.productId))
+    }
+
+    /// Ultra is active (2.6): read aloud, find similar, more watched pages. `-CFDebugUltra YES` in Debug builds.
+    var isUltra: Bool {
+        #if DEBUG
+        if UserDefaults.standard.bool(forKey: "CFDebugUltra") { return true }
+        #endif
+        return entitlement.active && PlanProducts.plan(of: entitlement.productId) == "ultra"
     }
 
     func loadProducts() async {
@@ -137,6 +184,8 @@ final class StoreKitManager: ObservableObject {
             let loaded = try await Product.products(for: ProductID.all)
             products = loaded.sorted { $0.price > $1.price }
             productsFailed = loaded.isEmpty
+            // The panel's plans sheet shows these prices (it can't ask the App Store itself).
+            if !loaded.isEmpty { SharedDefaults.shared.writePrices(Dictionary(uniqueKeysWithValues: loaded.map { ($0.id, $0.displayPrice) })) }
             var eligible = Set<String>()
             for product in loaded {
                 if let subscription = product.subscription,
@@ -191,7 +240,8 @@ final class StoreKitManager: ObservableObject {
     func refreshEntitlement() async {
         var best: (transaction: StoreKit.Transaction, jws: String)?
         for await result in StoreKit.Transaction.currentEntitlements {
-            // An Own key subscription upgraded to Pro stays listed until it ends: Pro counts from the purchase.
+            // An Own key subscription upgraded to Pro (or Pro to Ultra) stays listed until it ends: the higher plan
+            // counts from the purchase.
             guard case .verified(let transaction) = result,
                   ProductID.all.contains(transaction.productID),
                   transaction.revocationDate == nil, !transaction.isUpgraded else { continue }

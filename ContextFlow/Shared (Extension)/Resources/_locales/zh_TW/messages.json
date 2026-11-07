@@ -1574,6 +1574,117 @@
  "watchChangedBody": {
   "message": "目前：{0}"
  },
+ "planUltra": {
+  "message": "Ultra"
+ },
+ "plansTitle": {
+  "message": "方案"
+ },
+ "plansCompare": {
+  "message": "比較方案"
+ },
+ "plansMonthly": {
+  "message": "月繳"
+ },
+ "plansYearly": {
+  "message": "年繳"
+ },
+ "plansSave": {
+  "message": "省 {0}%"
+ },
+ "plansCurrent": {
+  "message": "你的方案"
+ },
+ "plansChoose": {
+  "message": "選擇 {0}"
+ },
+ "plansPerMonth": {
+  "message": "{0}/月"
+ },
+ "plansPerYear": {
+  "message": "{0}/年"
+ },
+ "plansNote": {
+  "message": "在 ContextFlow App 中訂閱。升級到 Ultra 會立即生效，Apple 會退還目前方案剩餘的部分。"
+ },
+ "tierByok1": {
+  "message": "使用你自己的 OpenAI 或 Claude API 金鑰，回答次數不限"
+ },
+ "tierByok2": {
+  "message": "頁面上的一切：摘要、解釋、翻譯"
+ },
+ "tierPro1": {
+  "message": "每週最多 {0} 個回答，不需要 API 金鑰"
+ },
+ "tierPro2": {
+  "message": "影片和 PDF、AI 搜尋、「詢問你的所有對話」、依主題整理"
+ },
+ "tierPro3": {
+  "message": "最多追蹤 {0} 個頁面：降價和變動"
+ },
+ "tierUltra0": {
+  "message": "Pro 的全部功能，另外還有："
+ },
+ "tierUltra1": {
+  "message": "用自然的聲音朗讀回答和整個頁面：每週 {0} 分鐘"
+ },
+ "tierUltra2": {
+  "message": "找同款：同樣的東西在別處更便宜或有貨，每週 {0} 次搜尋"
+ },
+ "tierUltra3": {
+  "message": "最多追蹤 {0} 個頁面"
+ },
+ "listen": {
+  "message": "朗讀"
+ },
+ "listenPage": {
+  "message": "朗讀這個頁面"
+ },
+ "listenPause": {
+  "message": "暫停"
+ },
+ "listenPlay": {
+  "message": "播放"
+ },
+ "listenStop": {
+  "message": "停止"
+ },
+ "listenLoading": {
+  "message": "正在準備語音…"
+ },
+ "listenUltraTitle": {
+  "message": "朗讀是 Ultra 的功能"
+ },
+ "listenUltraBody": {
+  "message": "用自然的聲音朗讀回答和整個頁面，支援 100 多種語言。在 iPhone 上鎖定螢幕後也會繼續播放。"
+ },
+ "listenLimit": {
+  "message": "這週的 {0} 分鐘朗讀時間已用完，{1}會恢復。"
+ },
+ "listenFailed": {
+  "message": "無法朗讀。請稍後再試。"
+ },
+ "listenOffline": {
+  "message": "沒有網路連線：第一次朗讀需要連上網路。"
+ },
+ "listenInApp": {
+  "message": "正在打開 ContextFlow：鎖定螢幕後也會繼續播放。"
+ },
+ "listenLeft": {
+  "message": "朗讀：本週剩餘 {0}/{1} 分鐘"
+ },
+ "watchFullPro": {
+  "message": "Pro 方案可同時追蹤 {0} 個頁面。Ultra 最多可追蹤 {1} 個。"
+ },
+ "watchMoreUltra": {
+  "message": "Ultra 可追蹤更多"
+ },
+ "seeUltra": {
+  "message": "了解 Ultra"
+ },
+ "usageUltra": {
+  "message": "Ultra · 本週剩餘的回答：{0}/{1}"
+ },
  "tip_4cf1b54b00": {
   "message": "提示"
  },

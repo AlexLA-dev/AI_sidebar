@@ -29,6 +29,8 @@ import AppKit
 /// - `watch_notify` / `watch_permission` / `watch_sync` → page watch: the local notification when a watch's
 ///   condition came true, whether notifications are allowed, this device's watches for the app's list (back:
 ///   the ones stopped in the app), see WatchStore.
+/// - `listen` → read aloud on iPhone and iPad (2.6, Ultra): the text's parts go to the app through the App Group;
+///   answers the request's `id`, and the page opens contextflow://listen?id=… (the app plays it with the screen locked).
 /// - `ping` → health check.
 ///
 /// Every message also tells the app that the extension is switched on (and, for `getEntitlement`, which
@@ -200,6 +202,20 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             // This device's watches for the app's list; back, the ones stopped in the app.
             let stopped = WatchStore.sync(message["watches"] as? [[String: Any]] ?? [])
             Self.reply(context, ["success": true, "data": ["cancelled": stopped]])
+        case "listen":
+            let parts = (message["parts"] as? [String] ?? []).prefix(40).map { String($0.prefix(4000)) }
+            guard !parts.isEmpty else {
+                Self.reply(context, ["success": false, "error": "no text"])
+                return
+            }
+            let id = SharedDefaults.shared.writeListenRequest([
+                "parts": Array(parts),
+                "lang": String((message["lang"] as? String ?? "").prefix(16)),
+                "what": message["what"] as? String == "page" ? "page" : "answer",
+                "title": String((message["title"] as? String ?? "").prefix(200)),
+                "url": String((message["url"] as? String ?? "").prefix(2000))
+            ])
+            Self.reply(context, ["success": true, "data": ["id": id]])
         case "ping":
             let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
             let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
@@ -250,10 +266,11 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
     }
 
     private static func liveEntitlement() async -> SharedEntitlement? {
-        let products: Set<String> = ["com.contextflow.pro.monthly", "com.contextflow.pro.yearly", "com.contextflow.byok.monthly"]
+        let products = PlanProducts.all
         var best: (entitlement: SharedEntitlement, transaction: StoreKit.Transaction)?
         for await result in StoreKit.Transaction.currentEntitlements {
-            // An Own key subscription upgraded to Pro stays listed until it ends: Pro counts from the purchase.
+            // An Own key subscription upgraded to Pro (or Pro to Ultra) stays listed until it ends: the higher plan
+            // counts from the purchase.
             guard case .verified(let transaction) = result,
                   products.contains(transaction.productID),
                   transaction.revocationDate == nil, !transaction.isUpgraded else { continue }
