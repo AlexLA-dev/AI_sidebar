@@ -44,7 +44,11 @@ export const FEATURES: Record<string, Feature> = {
     via: ["ask", "find", "ask_chats", "qi", "organize"], fields: { step: "int" }
   },
   note: { since: "2.3", actions: ["saved"], via: ["composer", "limit", "selection", "app"] },
-  bubble: { since: "2.0", on: "ext", actions: ["shown", "ask", "action", "question", "note", "template", "remind"] },
+  // 2.6: "action" by a chip in the field (via "chip", what: the action) on iPhone and iPad.
+  bubble: {
+    since: "2.0", on: "ext", actions: ["shown", "ask", "action", "question", "note", "template", "remind"], via: ["chip"],
+    fields: { what: ["sel_summarize", "sel_translate", "sel_explain", "sel_improve", "sel_reply"] }
+  },
   fab: { since: "2.0", on: "ext", actions: ["tap", "drag", "hide_site"] },
   msg: { since: "2.0", actions: ["copy", "share"], fields: { what: ["answer", "note", "ask_chats"] } },
   share_chat: { since: "2.3", actions: ["open", "copy", "share"], fields: { picked: "int" } },
@@ -74,7 +78,15 @@ export const FEATURES: Record<string, Feature> = {
     fields: { plan: ["monthly", "yearly", "own_key", "promo"] }
   },
   renewal: { since: "2.4", tracked: "2.4", actions: ["shown", "answer"] },
-  tour: { since: "2.3", actions: ["start", "step", "done", "skip"], fields: { step: "int" } },
+  // 2.6: the guided first request (src/content/Guide.tsx) reports these; "what" is the step it was on (or, for "exit",
+  // why it ended there), "via" how it started: the first open or the "…" menu.
+  tour: {
+    since: "2.3", tracked: "2.6", actions: ["start", "step", "done", "skip", "exit"], via: ["first", "menu"],
+    fields: {
+      step: "int",
+      what: ["summarize", "consent", "answer", "select", "pick", "ask", "askSel", "answer2", "chats", "menu", "declined", "limit", "error", "closed"]
+    }
+  },
   hint: { since: "2.3", actions: ["shown", "done"], fields: { what: ["chats", "video", "pdf", "note", "bubble", "qi", "app_chats"] } },
   tab: { since: "2.0", on: "app", actions: ["open"], fields: { what: ["start", "chats", "templates", "tips", "pro", "settings"] } },
   tips: {
@@ -93,7 +105,7 @@ export const FEATURES: Record<string, Feature> = {
   // The panel header's "…" (opened, an item picked) and "Come back later": its window in the panel ("open"),
   // the "Reminders" list in the panel ("list": from the menu or the window's "All reminders" link) and in the
   // app ("open" from its tab), with how many reminders and watches the list held.
-  menu: { since: "2.5", on: "ext", actions: ["open", "pick"], fields: { what: ["later", "reminders", "settings"] } },
+  menu: { since: "2.5", on: "ext", actions: ["open", "pick"], fields: { what: ["later", "reminders", "settings", "intro"] } },
   later: { since: "2.5", actions: ["open", "list"], via: ["menu", "link", "tab"], fields: { reminders: "int", watches: "int" } },
   watch: {
     since: "2.5", actions: ["create", "alert", "stop", "error", "daily"],

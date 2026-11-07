@@ -78,6 +78,8 @@ export interface AskPayload {
   // How big the chat is (its messages and pages) and how many chats this device keeps: no text, for
   // /analytics to show whether the limits on them get in the way.
   stats?: ChatStats
+  // Asked during the guided first request (2.6): not counted against the free answers, for an install's first few.
+  tour?: true
 }
 
 /** Where an Own key subscriber met Pro: a refusal (answers, Google, a Pro-only feature), the discount card, Settings. */
@@ -173,7 +175,7 @@ export type BackgroundRequest =
   // Chat UX counts (2.5), no text: see UX_KINDS in netlify/functions/v2-event.mts.
   | { type: "uxEvent"; kind: "ux_mark" | "ux_pin" | "ux_delete" | "ux_remind"; action: string; what?: string; how?: string; preset?: string }
   // A step for the feature counters: the analytics registry's "use" kind (src/shared/usage.ts), named values only.
-  | { type: "useEvent"; f: "menu" | "later"; a: string; what?: string; via?: string; reminders?: string; watches?: string }
+  | { type: "useEvent"; f: "menu" | "later" | "tour" | "bubble"; a: string; what?: string; via?: string; reminders?: string; watches?: string }
 
 /** A PDF's text, or why there is none ("none": nothing to read, e.g. scanned pages). */
 export type PdfResult =
