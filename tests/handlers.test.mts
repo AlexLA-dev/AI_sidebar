@@ -390,6 +390,23 @@ test("App Store notification records a refund", async () => {
   assert.equal(bad.status, 400)
 })
 
+test("App Store notification: a cancellation stays the subscription's state through a refund request", async () => {
+  const send = async (notificationType: string, subtype?: string) => {
+    const signedTransactionInfo = signJws(transaction({ originalTransactionId: "n3" }))
+    const signedPayload = signJws({ notificationType, subtype, notificationUUID: `u-${notificationType}`, data: { bundleId: "com.contextflow.app", signedTransactionInfo }, signedDate: Date.now() })
+    assert.equal((await notify(post("/.netlify/functions/appstore-verify", { signedPayload }), ctx())).status, 200)
+    return entitlements.get("n3")?.last_notification
+  }
+  assert.equal(await send("SUBSCRIBED", "INITIAL_BUY"), "SUBSCRIBED:INITIAL_BUY")
+  assert.equal(await send("DID_CHANGE_RENEWAL_STATUS", "AUTO_RENEW_DISABLED"), "DID_CHANGE_RENEWAL_STATUS:AUTO_RENEW_DISABLED")
+  for (const informational of ["CONSUMPTION_REQUEST", "REFUND_DECLINED", "PRICE_INCREASE", "RENEWAL_EXTENDED", "METADATA_UPDATE"]) {
+    assert.equal(await send(informational), "DID_CHANGE_RENEWAL_STATUS:AUTO_RENEW_DISABLED", `${informational} keeps the cancellation`)
+  }
+  assert.equal(await send("EXPIRED", "VOLUNTARY"), "EXPIRED:VOLUNTARY")
+  // Every notification is still in the history.
+  assert.equal(events.filter((e) => e.kind === "appstore_notification" && e.data.otid === "n3").length, 8)
+})
+
 test("App Store notification names the offer code a subscription started with", async () => {
   const signedTransactionInfo = signJws(transaction({ originalTransactionId: "n2", offerType: 3, offerIdentifier: "Limit hitters: first month 50% off", offerDiscountType: "PAY_AS_YOU_GO", price: 3490 }))
   const signedPayload = signJws({ notificationType: "SUBSCRIBED", subtype: "INITIAL_BUY", notificationUUID: "u2", data: { bundleId: "com.contextflow.app", signedTransactionInfo }, signedDate: Date.now() })

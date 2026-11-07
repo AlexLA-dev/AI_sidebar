@@ -136,7 +136,7 @@ const PLANS = {
   legacy_anonymous: "1.x без аккаунта", legacy_user: "1.x с аккаунтом", unknown: "Не указан"
 }
 const SUB_STATUS = {
-  active: "активна", renewal_off: "автопродление выключено", billing_retry: "не прошла оплата",
+  active: "активна", renewal_off: "отписался, доступ до конца срока", billing_retry: "не прошла оплата",
   downgrade: "сменит тариф при продлении", expired: "закончилась", refunded: "возврат"
 }
 // App Store notifications (type or type:subtype) in a subscription's history; "+" adds the plan's name.
@@ -148,8 +148,14 @@ const SUB_EVENT = {
   "DID_CHANGE_RENEWAL_STATUS:AUTO_RENEW_DISABLED": "выключил автопродление",
   "DID_CHANGE_RENEWAL_STATUS:AUTO_RENEW_ENABLED": "включил автопродление",
   "DID_FAIL_TO_RENEW": "не прошла оплата", "DID_FAIL_TO_RENEW:GRACE_PERIOD": "не прошла оплата, льготный период",
-  "EXPIRED": "закончилась", "GRACE_PERIOD_EXPIRED": "закончилась после сбоя оплаты",
-  "REFUND": "возврат денег", "REVOKE": "доступ отозван"
+  "EXPIRED": "закончилась", "EXPIRED:VOLUNTARY": "закончилась: автопродление было выключено",
+  "EXPIRED:BILLING_RETRY": "закончилась: оплата так и не прошла", "EXPIRED:PRICE_INCREASE": "закончилась: не согласился с новой ценой",
+  "GRACE_PERIOD_EXPIRED": "закончилась после сбоя оплаты",
+  "REFUND": "возврат денег", "REVOKE": "доступ отозван",
+  // Informational: they don't change the status (the server keeps the last state-changing notification).
+  "CONSUMPTION_REQUEST": "попросил вернуть деньги", "REFUND_DECLINED": "Apple отказала в возврате",
+  "REFUND_REVERSED": "возврат отменён", "PRICE_INCREASE": "уведомлён о новой цене", "PRICE_INCREASE:ACCEPTED": "согласился с новой ценой",
+  "RENEWAL_EXTENDED": "срок продлён нами", "OFFER_REDEEMED": "применил код +"
 }
 // How a subscription was taken (subscription_terms). Free ones are shown apart and stay out of the counts,
 // conversion and MRR until someone pays.
@@ -334,7 +340,7 @@ function userCards(users, subs, totalDays) {
         ...products.map((p) => [PRODUCTS[p.product_id] || p.product_id, n.format(p.active)]),
         [`Новых за ${totalDays} дн.`, n.format(sum(products, "new"))],
         sum(products, "switched") > 0 && ["Сменили тариф", n.format(sum(products, "switched"))],
-        ["Автопродление выключено", n.format(sum(products, "renewal_off"))],
+        ["Отписались (автопродление выключено)", n.format(sum(products, "renewal_off"))],
         sum(products, "billing_retry") > 0 && ["Не прошла оплата", n.format(sum(products, "billing_retry")), "bad"],
         ["Закончились или возврат", n.format(lost), lost ? "bad" : ""],
         ...free.map(([terms, count]) => [`Бесплатно, не входит: ${TERMS[terms] || terms}`, n.format(count)])
@@ -550,7 +556,7 @@ function label(r) {
 // A section that redraws itself: make(redraw) builds it, its controls call redraw.
 function live(make) {
   const holder = el("div")
-  const draw = () => holder.replaceChildren(make(draw))
+  const draw = () => holder.replaceChildren(make(draw) || "")
   draw()
   return holder
 }
@@ -1364,7 +1370,8 @@ function render(data, fx) {
     el("td", {}, n.format(r.max_per_day))
   ))
 
-  app.replaceChildren(
+  // A panel without its data returns null; replaceChildren would print that as the text "null".
+  app.replaceChildren(...[
     el("div", { class: "bar" },
       el("h1", {}, "Аналитика"),
       el("span", { class: "muted" }, `${n.format(total)} запросов реальных пользователей за ${data.days} дн. · обновлено ${new Date(data.generated_at).toLocaleString("ru-RU")}`),
@@ -1430,7 +1437,7 @@ function render(data, fx) {
     organizePanel(data.organize_report),
     table("Ошибки провайдеров", ["Тип", "Провайдер", "Ошибок"], errors, "Ошибок не было."),
     el("p", { class: "note" }, `Цифры выше — только реальные пользователи. Не входят: запросы с версии, пока она на ревью (блок «Ревью»), и наши тестовые проверки (${n.format(data.excluded_tests || 0)}). Время — UTC. Пользователь — установка расширения на одном устройстве; переустановка считается новым пользователем, а «новый» в графике запросов — это запрос в тот же день (UTC), когда установку увидели впервые. Сервер работает с 23.10.2026, поэтому все, кто пришёл с версий 1.x, в первые дни тоже выглядят новыми. Устройство и язык подписчика — из расширения, страна — из App Store; точнее страны ничего не хранится. Бесплатные подписки (подарочный код для прессы и блогеров, подписка владельца, пробный период, бесплатный код) показаны в «Подписках» отдельно и не входят в число подписок, конверсию, первую оплату, MRR и подписки из Apple Ads; такая подписка становится платящей с первой оплаты. MRR — в долларах США по сегодняшнему курсу, после комиссии Apple 15 %. В «По тарифам» Pro — все ответы Pro, бесплатные тоже. Активные до 28.10.2026 посчитаны по вопросам, дню установки и последнему заходу, поэтому за те дни цифры занижены; с 28.10 считается каждое открытие панели. Запросы с ключом пользователя видны начиная со следующей сборки после 2.1: расширение присылает только счётчики (модель, токены, время), без ключа и текста. События старше 180 дней удаляются.`)
-  )
+  ].filter(Boolean))
 }
 
 load()
