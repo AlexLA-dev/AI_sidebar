@@ -555,7 +555,6 @@ final class SettingsPiP: NSObject {
     private var phases: [Int] = []
     private var queued = 0
     private var pendingOpen: (() -> Void)?
-    private let feed = DispatchQueue(label: "contextflow.settings-pip")
     /// Each screen this long, as in the card.
     private static let hold = CMTime(value: 22, timescale: 10)
     /// Frames queued ahead: about ten minutes of the loop.
@@ -612,7 +611,8 @@ final class SettingsPiP: NSObject {
         open?()
     }
 
-    /// The loop of screens on the layer's own clock: queued ahead, so it plays without the app running.
+    /// The loop of screens on the layer's own clock: queued ahead, so it plays without the app running. Fed on the
+    /// main queue (the app's code is main-actor by default): the frames are few and go in at once.
     private func play() {
         layer.stopRequestingMediaData()
         layer.flush()
@@ -627,7 +627,7 @@ final class SettingsPiP: NSObject {
         let frames = self.frames
         let layer = self.layer
         var index = 0
-        layer.requestMediaDataWhenReady(on: feed) {
+        layer.requestMediaDataWhenReady(on: .main) {
             while layer.isReadyForMoreMediaData && index < Self.maxFrames {
                 let at = CMTimeMultiply(Self.hold, multiplier: Int32(index))
                 if let sample = Self.sample(frames[index % frames.count], at: at) { layer.enqueue(sample) }
