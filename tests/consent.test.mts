@@ -47,8 +47,8 @@ test("one consent card, wherever something would go to the AI first; no feature 
   assert.match(read("src/background/index.ts"), /on: prefs\.organize && agreed/)
 })
 
-test("the consent names each feature as the panel does, in all 11 languages", () => {
-  assert.equal(locales.length, 11)
+test("the consent names each feature as the panel does, in all 14 languages", () => {
+  assert.equal(locales.length, 14)
   const keys = ["consentTitle", "consentAgainTitle", "consentBody", "consentAnswers", "consentChats", "consentTemplates", "consentWatch", "consentSuggest", "consentStored"]
   // Mid-sentence a name may start lowercase ("la recherche IA").
   const names = (text: string, name: string) => text.toLowerCase().includes(name.toLowerCase())

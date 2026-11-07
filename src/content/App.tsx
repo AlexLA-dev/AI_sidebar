@@ -2517,12 +2517,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       <PageDivider entries={messages} index={idx} onOpen={openPage} />
                       {m.note ? (
                         ux.wrap(m, idx, (
-                          <div class="cf-bubble-note">
+                          <div class="cf-bubble-note" dir="auto">
                             <span class="cf-note-mark" aria-label={t("shareNote")}><Icon.Pencil /></span>{m.content}
                           </div>
                         ), !picked)
                       ) : (
-                        <div class="cf-bubble-user">{m.mode === "google" && <span class="cf-user-mode"><Icon.Search size={12} /></span>}{m.label ?? m.content}</div>
+                        <div class="cf-bubble-user" dir="auto">{m.mode === "google" && <span class="cf-user-mode"><Icon.Search size={12} /></span>}{m.label ?? m.content}</div>
                       )}
                       {m.sources && m.sources.length > 0 && <UsedSources notes={m.sources} />}
                       {m.note && messageFooter(m, idx, () => noteCopyText(m), () => noteShareText(messages, idx, shareLabels(chatLanguage(messages)), shareLinks()))}
@@ -2731,6 +2731,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     <textarea
                       ref={inputRef}
                       rows={1}
+                      dir="auto"
                       value={draft}
                       placeholder={t(noteMode ? "placeholderNote" : historyMode ? "placeholderHistory" : googleMode ? "placeholderGoogle" : contextKind === "selection" ? "placeholderSelection" : contextKind === "page" ? "placeholderPage" : "placeholderNone")}
                       enterkeyhint="send"
@@ -2923,8 +2924,8 @@ let chipsNudged = false
 
 /**
  * The selection buttons' question field (2.6, the owner's idea for iPhone and iPad): the panel's quick actions sit
- * in the field itself, semi-transparent, the first one peeking in at its right edge; a swipe to the left pulls them
- * in, a carousel, and a tap on one asks it, so the person can swipe and tap instead of typing. They step aside once
+ * in the field itself, semi-transparent, the first one peeking in at its end (the right edge; the left one right to
+ * left, Arabic); a swipe toward the start pulls them in, a carousel, and a tap on one asks it, so the person can swipe and tap instead of typing. They step aside once
  * the field has the focus or a question. The buttons are touch-action:none (taps only); the field scrolls sideways
  * (pan-x). The size of the buttons doesn't change. Mac: just the field.
  */
@@ -2937,7 +2938,9 @@ function SelField({ touch, chips, onChip, children }: { touch: boolean; chips: A
     field.scrollLeft = 0
     if (!on || chipsNudged || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return
     chipsNudged = true
-    const out = setTimeout(() => field.scrollTo({ left: 64, behavior: "smooth" }), 450)
+    // Right to left (Arabic) the chips wait past the left edge: scrollLeft runs from 0 into the negatives there.
+    const ahead = getComputedStyle(field).direction === "rtl" ? -64 : 64
+    const out = setTimeout(() => field.scrollTo({ left: ahead, behavior: "smooth" }), 450)
     const back = setTimeout(() => field.scrollTo({ left: 0, behavior: "smooth" }), 1150)
     return () => {
       clearTimeout(out)
@@ -3011,7 +3014,7 @@ function Sources({ grounding }: { grounding: Grounding }): VNode {
           <ol class="cf-source-list">
             {grounding.sources.map((s, i) => (
               <li key={s.url}>
-                <a href={s.url} target="_blank" rel="noopener noreferrer"><span class="n">{i + 1}</span><span class="t">{s.title}</span></a>
+                <a href={s.url} target="_blank" rel="noopener noreferrer"><span class="n">{i + 1}</span><span class="t" dir="auto">{s.title}</span></a>
               </li>
             ))}
           </ol>
@@ -3116,7 +3119,7 @@ function ContextChip({ kind, media, title, words, text, onClear }: { kind: "sele
   }
   return (
     <span class={`cf-ctx ${kind}`}>
-      {kind === "page" && media === "video" ? <Icon.Play /> : <Icon.Doc />} <span class="cf-ctx-text">{kind === "page" ? title || t("ctxPage") : t("ctxNone")}</span>
+      {kind === "page" && media === "video" ? <Icon.Play /> : <Icon.Doc />} <span class="cf-ctx-text" dir="auto">{kind === "page" ? title || t("ctxPage") : t("ctxNone")}</span>
     </span>
   )
 }

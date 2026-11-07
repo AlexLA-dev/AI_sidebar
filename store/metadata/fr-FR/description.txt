@@ -28,7 +28,7 @@ TOUTES VOS CONVERSATIONS DANS L’APP
 CONÇU POUR SAFARI SUR IPHONE, IPAD ET MAC
 • iPhone et iPad : le bouton flottant ContextFlow sur toute page, ou « Demander à l’IA » sur le texte sélectionné
 • Mac : une barre latérale via la barre d’outils, le bouton flottant ou Control-Shift-E
-• Astuces en courtes vidéos, mode clair et sombre, 11 langues
+• Astuces en courtes vidéos, mode clair et sombre, 14 langues
 
 CONFIDENTIALITÉ DÈS LA CONCEPTION
 • Ni compte, ni inscription, ni pistage

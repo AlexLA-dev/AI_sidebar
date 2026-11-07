@@ -11,11 +11,13 @@ test("prices in the shops' own formats", () => {
   all("price", [
     "$129.00", "$ 39", "US$ 1,299.99", "Now $89.00", "€ 249,00", "209,95 €", "49.99€", "£12", "¥34,500", "34,500 円",
     "69,800円", "199元", "¥199", "29,000원", "₩29,000", "1 299 ₽", "1299 руб.", "799 грн", "R$ 1.299,90", "CHF 49.90",
-    "120 EUR", "USD 15", "от 29 990 ₽", "à partir de 19,99 €", "ab 120 €"
+    "120 EUR", "USD 15", "от 29 990 ₽", "à partir de 19,99 €", "ab 120 €",
+    // Taiwan, Vietnam, the Gulf and Egypt (2.6)
+    "NT$1,299", "1,299 元", "299.000₫", "299.000đ", "1.299.000 VNĐ", "99 ر.س", "ر.س 99", "149 درهم", "SAR 99", "12.500 د.ك", "350 ج.م"
   ])
 })
 
-test("stock in 11 languages", () => {
+test("stock in 14 languages", () => {
   all("stock", [
     "In stock", "Out of stock", "Sold out", "Only 3 left", "Coming soon",
     "В наличии", "Нет в наличии", "Осталось 2",
@@ -27,15 +29,19 @@ test("stock in 11 languages", () => {
     "Em estoque", "Esgotado",
     "在庫あり", "在庫切れ", "売り切れ",
     "품절", "재고 있음",
-    "有货", "缺货", "售罄"
+    "有货", "缺货", "售罄",
+    "有貨", "缺貨", "已售完", "現貨",
+    "متوفر", "غير متوفر", "نفدت الكمية",
+    "Còn hàng", "Hết hàng", "Chỉ còn 3"
   ])
 })
 
-test("dates in 11 languages", () => {
+test("dates in 14 languages", () => {
   all("date", [
     "2026-11-04", "04.11.2026", "4/11/26", "12 March", "March 12, 2026", "Dec 3",
     "4 ноября", "15 янв.", "4 листопада", "12. März", "3 décembre", "12 de marzo", "5 maggio", "20 de janeiro",
-    "2026年11月", "11月4日", "11월 4일", "04.11", "4/11"
+    "2026年11月", "11月4日", "11월 4일", "04.11", "4/11",
+    "12 مارس", "4 نوفمبر 2026", "5 أيار", "4 tháng 11 năm 2026", "ngày 4 tháng 11", "12 tháng 3"
   ])
 })
 
@@ -44,7 +50,8 @@ test("statuses, a few words at most", () => {
     "Approved", "Case Was Received", "Shipped", "Registration open", "Tickets on sale",
     "На рассмотрении", "Отправлено", "Регистрация открыта",
     "Схвалено", "In Bearbeitung", "Zugestellt", "En attente", "Expédiée", "Pendiente", "Inscripciones abiertas",
-    "In lavorazione", "Em trânsito", "発送済み", "배송 중", "已发货"
+    "In lavorazione", "Em trânsito", "発送済み", "배송 중", "已发货",
+    "已出貨", "審核中", "تم الشحن", "قيد المراجعة", "Đã giao hàng", "Đang vận chuyển"
   ])
 })
 
@@ -52,6 +59,7 @@ test("ordinary text keeps the bubble as it was", () => {
   for (const s of [
     "the quick brown fox", "Привет, как дела?", "This is a long sentence about something that is not a value at all",
     "19.99", "12.50", "42", "1/2", "Hello world", "ContextFlow", "Mayday", "Openness",
+    "Tôi đi học", "đi chợ 5 lần", "مرحبا بك في موقعنا", "這是一篇文章",
     "We are open to new ideas and the status quo is changing quickly in this market",
     "x".repeat(81)
   ]) {

@@ -53,8 +53,14 @@ test("the fallback's label and prompt read right in each interface language", ()
   assert.equal(fill(msg("en").selTranslateTo, languageName("es", "en")), "Translate to Spanish")
   assert.equal(fill(msg("ja").selTranslateTo, languageName("en", "ja")), "英語に翻訳")
   // Every locale names its own language code, which the fallback compares against.
-  for (const lang of ["de", "en", "es", "fr", "it", "ja", "ko", "pt_BR", "ru", "uk", "zh_CN"]) {
+  for (const lang of ["ar", "de", "en", "es", "fr", "it", "ja", "ko", "pt_BR", "ru", "uk", "vi", "zh_CN", "zh_TW"]) {
     const code = msg(lang).langCode
     assert.ok(code && new Intl.Locale(code).language === lang.split("_")[0], `${lang}: ${code}`)
   }
+  // The panel's lang and direction come from it (2.6): Traditional and Simplified by script, Arabic right to left.
+  assert.equal(msg("zh_TW").langCode, "zh-Hant")
+  assert.equal(msg("zh_CN").langCode, "zh-Hans")
+  assert.equal(fill(msg("ar").selTranslateTo, languageName("en", "ar")), "ترجمة إلى الإنجليزية")
+  assert.equal(fill(msg("zh_TW").selTranslateTo, languageName("en", "zh-Hant")), "翻譯成英文")
+  assert.equal(fill(msg("vi").selTranslateTo, languageName("en", "vi")), "Dịch sang Tiếng Anh")
 })

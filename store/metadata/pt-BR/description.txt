@@ -28,7 +28,7 @@ TODOS OS SEUS CHATS NO APP
 FEITO PARA O SAFARI NO IPHONE, IPAD E MAC
 • iPhone e iPad: toque no botão flutuante do ContextFlow em qualquer página, ou em “Perguntar à IA” no texto selecionado
 • Mac: uma barra lateral que abre pela barra de ferramentas, pelo botão flutuante ou com Control-Shift-E
-• Dicas com vídeos curtos, modo claro e escuro, 11 idiomas
+• Dicas com vídeos curtos, modo claro e escuro, 14 idiomas
 
 PRIVACIDADE DESDE A CONCEPÇÃO
 • Sem conta, sem cadastro, sem rastreamento

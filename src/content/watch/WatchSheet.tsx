@@ -126,7 +126,7 @@ function WatchEdit({ watch, close, changed }: { watch: Watch; close(): void; cha
         <p class="cf-watch-msg">{conditionLine(w)}</p>
         <p class="cf-watch-note">{status(w)}</p>
         <label class="cf-watch-l" for="cf-watch-edit">{t("watchWhen")}</label>
-        <textarea id="cf-watch-edit" class="cf-watch-cond" rows={2} maxLength={300} value={words} disabled={state === "saving"} ref={grow} onInput={(e) => {
+        <textarea id="cf-watch-edit" class="cf-watch-cond" dir="auto" rows={2} maxLength={300} value={words} disabled={state === "saving"} ref={grow} onInput={(e) => {
           setWords(e.currentTarget.value)
           grow(e.currentTarget)
         }} />

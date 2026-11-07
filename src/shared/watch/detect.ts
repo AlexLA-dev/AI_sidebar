@@ -1,6 +1,6 @@
 // Page watch (2.5): is a selection something worth watching? The eye shows by a selection only for a price,
 // stock, a date or a status; ordinary text keeps the bubble as it was (Ask, Google, Template).
-// Words for the 11 languages the panel speaks. Short selections only: a sentence is text, not a value.
+// Words for the 14 languages the panel speaks (Traditional Chinese, Arabic and Vietnamese since 2.6). Short selections only: a sentence is text, not a value.
 
 export type WatchWhat = "price" | "stock" | "date" | "status"
 
@@ -8,7 +8,9 @@ const MAX_LEN = 80
 
 // Symbols and words that sit right by a number, in any case ("40 usd" on some shops).
 const SYMBOLS =
-  String.raw`US\$|R\$|C\$|A\$|HK\$|NZ\$|S\$|NT\$|MX\$|[$€£¥₩₽₴₹₺₪฿₫₸₾₼₱]|zł|Kč|kr\.?|lei|лв\.?|руб\.?|р\.|грн\.?|円|元|원`
+  String.raw`US\$|R\$|C\$|A\$|HK\$|NZ\$|S\$|NT\$|MX\$|[$€£¥₩₽₴₹₺₪฿₫₸₾₼₱]|zł|Kč|kr\.?|lei|лв\.?|руб\.?|р\.|грн\.?|円|元|원` +
+  // Vietnamese dong as shops write it ("299.000đ", "299.000 VNĐ"); the Gulf's and Egypt's riyal, dirham, dinar, pound.
+  String.raw`|vnđ|đ|ر\.\s?س\.?|د\.\s?إ\.?|ر\.\s?ع\.?|د\.\s?ك\.?|ر\.\s?ق\.?|د\.\s?ب\.?|ج\.\s?م\.?|ريال|درهم|دينار|جنيه|ل\.\s?س\.?`
 // The codes shops also write in small letters, which are never words.
 const SMALL_CODES = "usd|eur|gbp|chf|jpy|cny|rmb|rub|uah|pln|sek|nok|dkk|czk|huf|brl|inr|krw|aud|cad|nzd|sgd|hkd|mxn"
 // ISO 4217 codes, in capitals only: in small letters some are words ("try 3", "mad 10"); ALL, CUP, SOS and TOP
@@ -71,7 +73,16 @@ const STOCK_WORDS = [
   // ko
   "재고 있음", "재고 없음", "품절", "일시품절", "입고 예정", "예약 판매", "구매 가능", "판매 종료",
   // zh
-  "有货", "无货", "缺货", "售罄", "已售完", "现货", "预售", "到货通知", "即将上市", "库存紧张"
+  "有货", "无货", "缺货", "售罄", "已售完", "现货", "预售", "到货通知", "即将上市", "库存紧张",
+  // zh-Hant
+  "有貨", "無貨", "缺貨", "售完", "已售完", "已售罄", "完售", "現貨", "預購", "預售", "到貨通知", "即將上市", "庫存緊張",
+  "補貨中", "暫時缺貨",
+  // ar
+  "متوفر", "متوفر في المخزون", "متاح", "متوفر الآن", "غير متوفر", "غير متاح", "غير متوفر حاليًا", "نفد", "نفدت الكمية",
+  "نفذت الكمية", "نفد من المخزون", "نفدت الكمية مؤقتًا", "قريبًا", "طلب مسبق", "أضف إلى السلة", "تبقى #", "متبقي #",
+  // vi
+  "còn hàng", "hết hàng", "tạm hết hàng", "đặt trước", "sắp có hàng", "hàng sắp về", "sắp ra mắt", "ngừng kinh doanh",
+  "chỉ còn #", "còn # sản phẩm", "thêm vào giỏ hàng", "cháy hàng"
 ]
 
 // Statuses: an application, an order, a registration, an event. A few words at most.
@@ -118,7 +129,18 @@ const STATUS_WORDS = [
   "접수 마감", "연기",
   // zh
   "状态", "已批准", "审核中", "处理中", "已发货", "已送达", "运输中", "已签收", "已受理", "已拒绝", "已取消", "已确认",
-  "已完成", "报名开始", "报名截止", "已延期"
+  "已完成", "报名开始", "报名截止", "已延期",
+  // zh-Hant
+  "狀態", "已核准", "審核中", "處理中", "已出貨", "已發貨", "已送達", "配送中", "運送中", "已簽收", "已受理", "已拒絕",
+  "已取消", "已確認", "已完成", "報名開始", "報名截止", "已延期",
+  // ar
+  "الحالة", "تمت الموافقة", "قيد المراجعة", "قيد المعالجة", "تم الشحن", "تم التسليم", "قيد التوصيل", "في الطريق",
+  "تم الاستلام", "مرفوض", "تم الرفض", "مقبول", "تم القبول", "تم الإلغاء", "ملغى", "مؤكد", "تم التأكيد", "مكتمل",
+  "التسجيل مفتوح", "التسجيل مغلق", "مؤجل", "تم التأجيل",
+  // vi
+  "trạng thái", "đã duyệt", "đã phê duyệt", "đang chờ", "đang chờ xử lý", "đang xử lý", "đã gửi hàng", "đã giao",
+  "đã giao hàng", "đang giao", "đang giao hàng", "đang vận chuyển", "đã nhận", "bị từ chối", "đã từ chối", "đã chấp nhận",
+  "đã hủy", "đã xác nhận", "hoàn tất", "đã hoàn thành", "mở đăng ký", "đóng đăng ký", "đã hoãn"
 ]
 
 const CJK = /[\u3040-\u30ff\u3400-\u9fff\uac00-\ud7af]/
@@ -168,7 +190,13 @@ const MONTHS = [
   "giu", "lug", "ott",
   // pt
   "janeiro", "fevereiro", "março", "maio", "junho", "julho", "setembro", "outubro", "novembro", "dezembro", "fev",
-  "set", "out"
+  "set", "out",
+  // ar (the Gregorian names, and the Levantine and Iraqi ones)
+  "يناير", "فبراير", "مارس", "أبريل", "إبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر",
+  "كانون الثاني", "شباط", "آذار", "نيسان", "أيار", "حزيران", "تموز", "آب", "أيلول", "تشرين الأول", "تشرين الثاني",
+  "كانون الأول",
+  // vi: "tháng 3" is March
+  "tháng\\s?\\d{1,2}"
 ]
 const MONTH = `(?:${MONTHS.join("|")})\\.?`
 const DATE = new RegExp(
@@ -179,6 +207,8 @@ const DATE = new RegExp(
     // 12 March, 12. März, 12 de marzo, 4 ноября; March 12, 2026
     String.raw`(?<![\p{L}\d])\d{1,2}(?:\.|st|nd|rd|th|er)?\s?(?:de\s)?${MONTH}(?!\p{L})`,
     String.raw`(?<!\p{L})${MONTH}\s\d{1,2}(?:st|nd|rd|th)?(?![\d\p{L}])`,
+    // 4 tháng 11 năm 2026, ngày 4 tháng 11: the day before the month, as in Vietnamese
+    String.raw`(?<![\p{L}\d])(?:ngày\s)?\d{1,2}\stháng\s?\d{1,2}(?!\d)`,
     // 2026年11月, 11月4日, 11월 4일
     String.raw`\d{1,4}\s?[年년]\s?\d{1,2}\s?[月월]`,
     String.raw`\d{1,2}\s?[月월]\s?\d{1,2}\s?[日일]`
@@ -209,7 +239,10 @@ const STOCK_OUT = phrases([
   "esgotado", "esgotada", "fora de estoque", "indisponível",
   "在庫切れ", "在庫なし", "品切れ", "売り切れ", "販売終了",
   "재고 없음", "품절", "일시품절", "판매 종료",
-  "无货", "缺货", "售罄", "已售完", "outofstock", "soldout", "discontinued"
+  "无货", "缺货", "售罄", "已售完", "outofstock", "soldout", "discontinued",
+  "無貨", "缺貨", "售完", "已售罄", "完售", "暫時缺貨",
+  "غير متوفر", "غير متاح", "غير متوفر حاليًا", "نفد", "نفدت الكمية", "نفذت الكمية", "نفد من المخزون", "نفدت الكمية مؤقتًا",
+  "hết hàng", "tạm hết hàng", "ngừng kinh doanh", "cháy hàng"
 ])
 
 /** A stock value says it can't be bought now ("Sold out", "Нет в наличии", schema.org OutOfStock). */
@@ -280,7 +313,14 @@ const EVENT_WORDS = phrases([
   // ja, ko, zh
   "開始", "受付", "申込", "予約", "発売", "販売", "締切", "期限", "まで", "チケット", "開催", "公開",
   "시작", "접수", "신청", "예약", "판매", "발매", "마감", "까지", "티켓", "오픈", "출시",
-  "开始", "报名", "预约", "预订", "发售", "开售", "截止", "门票", "上市", "开放", "之前"
+  "开始", "报名", "预约", "预订", "发售", "开售", "截止", "门票", "上市", "开放", "之前",
+  "開始", "報名", "預約", "預訂", "發售", "開賣", "開售", "截止", "門票", "上市", "開放", "之前", "售票",
+  // ar
+  "التسجيل", "تسجيل", "يفتح", "افتتاح", "البيع", "بيع", "تذاكر", "التذاكر", "موعد", "آخر موعد", "حتى", "حجز", "يبدأ",
+  "بداية", "إطلاق", "طلب مسبق", "ينتهي", "الطرح",
+  // vi
+  "mở", "mở bán", "đăng ký", "bán", "vé", "hạn chót", "hạn", "đến", "cho đến", "đặt chỗ", "đặt lịch", "lịch hẹn",
+  "bắt đầu", "ra mắt", "phát hành", "đặt trước", "hết hạn"
 ])
 
 // What a status is about: an order, a parcel, a flight, an application.
@@ -310,7 +350,14 @@ const STATUS_CONTEXT = phrases([
   // ja, ko, zh
   "注文", "配送", "配達", "荷物", "申請", "返金", "支払", "ビザ", "パスポート",
   "주문", "배송", "택배", "항공편", "환불", "결제", "비자", "여권",
-  "订单", "快递", "包裹", "航班", "申请", "退款", "付款", "签证", "护照"
+  "订单", "快递", "包裹", "航班", "申请", "退款", "付款", "签证", "护照",
+  "訂單", "配送", "快遞", "包裹", "航班", "申請", "退款", "付款", "簽證", "護照", "物流",
+  // ar
+  "طلب", "الطلب", "طلبك", "شحنة", "الشحنة", "توصيل", "التوصيل", "طرد", "الطرد", "تتبع", "رحلة", "الرحلة", "تأشيرة",
+  "التأشيرة", "حجز", "الحجز", "استرداد", "دفع", "الدفع", "جواز السفر", "موعد",
+  // vi
+  "đơn hàng", "giao hàng", "vận chuyển", "kiện hàng", "bưu kiện", "mã vận đơn", "chuyến bay", "đơn", "hồ sơ", "visa",
+  "thị thực", "đặt chỗ", "hoàn tiền", "thanh toán", "hộ chiếu", "lịch hẹn"
 ])
 
 /**

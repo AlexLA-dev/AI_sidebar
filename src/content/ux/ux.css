@@ -14,8 +14,8 @@ mark.cf-mark {
   border-radius: 0;
   cursor: pointer;
 }
-mark.cf-mark-first { border-top-left-radius: 2px; border-bottom-left-radius: 2px; }
-mark.cf-mark-last { border-top-right-radius: 2px; border-bottom-right-radius: 2px; }
+mark.cf-mark-first { border-start-start-radius: 2px; border-end-start-radius: 2px; }
+mark.cf-mark-last { border-start-end-radius: 2px; border-end-end-radius: 2px; }
 
 /* ---- a bubble by a selection or a highlight in an answer */
 .cf-float {
@@ -57,7 +57,7 @@ mark.cf-mark-last { border-top-right-radius: 2px; border-bottom-right-radius: 2p
    its body reaches 12 px past the text on each side in the panel's colour (the text stays where it is), and the
    colour stops 8 px short of the card (Swipe.tsx). A chat's row has its own padding. */
 .cf-msg > .cf-swipe.on > .cf-swipe-body { margin: 0 -12px; padding: 0 12px; border-radius: 14px; }
-.cf-msg.pinned-msg > .cf-swipe.on > .cf-swipe-body::before { left: 4px; }
+.cf-msg.pinned-msg > .cf-swipe.on > .cf-swipe-body::before { inset-inline-start: 4px; }
 /* A row of one line: the icon and its word side by side. */
 .cf-swipe[data-short] .cf-swipe-under button { flex-direction: row; gap: 5px; width: auto; min-width: 76px; padding: 0 12px; }
 .cf-swipe[data-short] .cf-swipe-under button svg { width: 15px; height: 15px; }
@@ -65,16 +65,16 @@ mark.cf-mark-last { border-top-right-radius: 2px; border-bottom-right-radius: 2p
 /* ---- the menu of a message (… in the tools row; right-click on a Mac) */
 .cf-msg-tools { position: relative; }
 .cf-msg-menu {
-  position: absolute; z-index: 3; top: calc(100% + 4px); left: 0; min-width: 190px;
+  position: absolute; z-index: 3; top: calc(100% + 4px); inset-inline-start: 0; min-width: 190px;
   display: flex; flex-direction: column; padding: 4px;
   background: var(--bg); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow);
   animation: cf-pop 0.12s ease-out;
 }
-.cf-msg.user .cf-msg-menu { left: auto; right: 0; }
+.cf-msg.user .cf-msg-menu { inset-inline-start: auto; inset-inline-end: 0; }
 /* No room below in the chat (the last answer, over the question field): over "…". */
 .cf-msg-menu.up { top: auto; bottom: calc(100% + 4px); animation-name: cf-pop-up; }
 @keyframes cf-pop-up { from { opacity: 0; transform: translateY(4px) scale(0.98); } to { opacity: 1; transform: none; } }
-.cf-msg-menu button { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 8px; font-size: 13.5px; color: var(--text); text-align: left; }
+.cf-msg-menu button { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 8px; font-size: 13.5px; color: var(--text); text-align: start; }
 .cf-msg-menu button:hover { background: var(--bg-2); }
 .cf-msg-menu button.danger { color: var(--danger); }
 .cf[data-touch] .cf-msg-menu button { padding: 11px 12px; font-size: 15px; }
@@ -90,7 +90,7 @@ mark.cf-mark-last { border-top-right-radius: 2px; border-bottom-right-radius: 2p
 .cf-msg-menu.at { position: fixed; top: 0; left: 0; z-index: 6; }
 /* The header's "…" (2.5): its menu under it, at the panel's right edge. */
 .cf-page-more-wrap { position: relative; display: flex; }
-.cf-page-menu { left: auto; right: 0; z-index: 6; width: max-content; min-width: 220px; max-width: calc(100vw - 24px); }
+.cf-page-menu { inset-inline-start: auto; inset-inline-end: 0; z-index: 6; width: max-content; min-width: 220px; max-width: calc(100vw - 24px); }
 .cf-page-menu button { white-space: nowrap; }
 .cf-page-menu svg { width: 15px; height: 15px; flex-shrink: 0; }
 .cf-msg { position: relative; }
@@ -102,14 +102,14 @@ mark.cf-mark-last { border-top-right-radius: 2px; border-bottom-right-radius: 2p
   background: var(--bg);
   border-bottom: 1px solid var(--border);
 }
-.cf-pinbar-main { flex: 1; min-width: 0; display: flex; align-items: stretch; gap: 9px; padding: 7px 6px 7px 8px; text-align: left; }
+.cf-pinbar-main { flex: 1; min-width: 0; display: flex; align-items: stretch; gap: 9px; padding-block: 7px; padding-inline: 8px 6px; text-align: start; }
 .cf-pinbar-segments { flex: none; display: flex; flex-direction: column; gap: 2px; width: 2.5px; padding: 1px 0; }
 .cf-pinbar-segments span { border-radius: 2px; background: color-mix(in srgb, var(--pin) 30%, transparent); }
 .cf-pinbar-segments span.on { background: var(--pin); }
 .cf-pinbar-text { display: flex; flex-direction: column; min-width: 0; gap: 1px; }
 .cf-pinbar-label { font-size: 12px; font-weight: 600; color: var(--pin); }
 .cf-pinbar-line { display: block; font-size: 13.5px; color: var(--text); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-.cf-pinbar-note { display: inline-block; flex: none; width: 6px; height: 6px; margin-right: 6px; vertical-align: 2px; border-radius: 50%; background: var(--note); }
+.cf-pinbar-note { display: inline-block; flex: none; width: 6px; height: 6px; margin-inline-end: 6px; vertical-align: 2px; border-radius: 50%; background: var(--note); }
 .cf-pinbar-all { flex: none; display: flex; align-items: center; justify-content: center; width: 40px; color: var(--text-3); }
 .cf-pinbar-all:hover, .cf-pinbar-all[aria-expanded="true"] { color: var(--pin); }
 .cf-pinbar-list {
@@ -121,19 +121,19 @@ mark.cf-mark-last { border-top-right-radius: 2px; border-bottom-right-radius: 2p
 .cf-pinbar-list-title { padding: 6px 10px 4px; font-size: 12px; font-weight: 600; color: var(--pin); }
 .cf-pinbar-item { display: flex; align-items: center; border-radius: 8px; }
 .cf-pinbar-item:hover { background: var(--bg-2); }
-.cf-pinbar-item > button:first-child { flex: 1; min-width: 0; display: block; padding: 9px 10px; text-align: left; font-size: 13.5px; color: var(--text); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.cf-pinbar-item > button:first-child { flex: 1; min-width: 0; display: block; padding: 9px 10px; text-align: start; font-size: 13.5px; color: var(--text); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .cf-pinbar-item.on > button:first-child { color: var(--pin); font-weight: 600; }
-.cf-pinbar-item.on > button:first-child::before { content: ""; display: inline-block; width: 3px; height: 12px; margin-right: 7px; vertical-align: -1px; border-radius: 2px; background: var(--pin); }
+.cf-pinbar-item.on > button:first-child::before { content: ""; display: inline-block; width: 3px; height: 12px; margin-inline-end: 7px; vertical-align: -1px; border-radius: 2px; background: var(--pin); }
 .cf-pinbar-x { flex: none; width: 34px; height: 34px; font-size: 18px; line-height: 1; color: var(--text-3); border-radius: 8px; }
 .cf-pinbar-x:hover { color: var(--text); background: var(--bg-3); }
-.cf-pinbar-unpin-all { margin-top: 4px; padding: 9px 10px; border-top: 1px solid var(--border); border-radius: 0 0 8px 8px; text-align: left; font-size: 13.5px; color: var(--danger); }
+.cf-pinbar-unpin-all { margin-top: 4px; padding: 9px 10px; border-top: 1px solid var(--border); border-radius: 0 0 8px 8px; text-align: start; font-size: 13.5px; color: var(--danger); }
 .cf[data-touch] .cf-pinbar-line, .cf[data-touch] .cf-pinbar-item > button:first-child, .cf[data-touch] .cf-pinbar-unpin-all { font-size: 15px; }
 .cf[data-touch] .cf-pinbar-x { width: 42px; height: 42px; }
 .cf[data-touch] .cf-pinbar-all { width: 46px; }
 .cf-msg.pin-flash { animation: cf-pin-flash 1.2s ease; border-radius: 12px; }
 @keyframes cf-pin-flash { 0%, 55% { background: color-mix(in srgb, var(--pin) 18%, transparent); box-shadow: 0 0 0 6px color-mix(in srgb, var(--pin) 18%, transparent); } 100% { background: transparent; box-shadow: 0 0 0 6px transparent; } }
 .cf-msg.pinned-msg > .cf-swipe > .cf-swipe-body::before,
-.cf-msg.pinned-msg::before { content: ""; position: absolute; left: -8px; top: 6px; width: 3px; height: 18px; border-radius: 2px; background: var(--pin); }
+.cf-msg.pinned-msg::before { content: ""; position: absolute; inset-inline-start: -8px; top: 6px; width: 3px; height: 18px; border-radius: 2px; background: var(--pin); }
 
 /* ---- reminders */
 .cf-remind-chip {
@@ -167,7 +167,7 @@ mark.cf-mark-last { border-top-right-radius: 2px; border-bottom-right-radius: 2p
    out of the bubble's flow, so the bubble keeps its size and place. */
 .cf-bubble .cf-sel-tip {
   position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 1; display: flex; flex-direction: column; gap: 6px;
-  padding: 9px 12px; white-space: normal; text-align: left; font-size: 13px; font-weight: 500; line-height: 1.35;
+  padding: 9px 12px; white-space: normal; text-align: start; font-size: 13px; font-weight: 500; line-height: 1.35;
   pointer-events: none; animation: cf-fade 0.15s ease-out;
 }
 .cf-bubble .cf-sel-tip.up { top: auto; bottom: calc(100% + 6px); }
@@ -188,7 +188,7 @@ mark.cf-mark-last { border-top-right-radius: 2px; border-bottom-right-radius: 2p
    rings on another device. */
 .cf-later-row { display: flex; align-items: center; gap: 4px; border-radius: 10px; }
 .cf-later-row:hover { background: var(--bg-2); }
-.cf-later-open { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 9px 8px; text-align: left; color: var(--text); }
+.cf-later-open { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 9px 8px; text-align: start; color: var(--text); }
 .cf-later-icon { flex-shrink: 0; display: flex; color: var(--accent); }
 .cf-later-row.elsewhere .cf-later-icon { color: var(--text-3); }
 .cf-later-text { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
@@ -203,7 +203,7 @@ mark.cf-mark-last { border-top-right-radius: 2px; border-bottom-right-radius: 2p
 .cf-later-item { border-radius: 10px; }
 /* The list never covers the whole chat: a strip stays above it to tap away, and ✕ closes it. */
 .cf-sheet.cf-later-list { max-height: calc(100% - 56px); }
-.cf-sheet-close { margin-left: auto; width: 34px; height: 34px; color: var(--text-3); }
+.cf-sheet-close { margin-inline-start: auto; width: 34px; height: 34px; color: var(--text-3); }
 .cf-later-item.open { background: var(--bg-2); }
 .cf-later-row.remind, .cf-later-row.remind .cf-later-open { align-items: flex-start; }
 .cf-later-row.remind .cf-later-icon { margin-top: 2px; }
@@ -224,7 +224,7 @@ mark.cf-mark-last { border-top-right-radius: 2px; border-bottom-right-radius: 2p
 .cf-later-actions .cf-chip.danger { color: var(--danger); }
 .cf-later-actions .cf-chip svg { flex-shrink: 0; }
 .cf-sheet-title { display: flex; align-items: center; gap: 7px; padding: 6px 8px 10px; font-size: 15px; font-weight: 600; }
-.cf-sheet-row { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 12px 10px; border-radius: 10px; font-size: 15px; color: var(--text); text-align: left; }
+.cf-sheet-row { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 12px 10px; border-radius: 10px; font-size: 15px; color: var(--text); text-align: start; }
 .cf-sheet-row:hover { background: var(--bg-2); }
 .cf-sheet-row.danger { color: var(--danger); }
 .cf-sheet-when { color: var(--text-3); font-size: 13.5px; }
@@ -251,7 +251,7 @@ mark.cf-mark-last { border-top-right-radius: 2px; border-bottom-right-radius: 2p
 /* Touch: one "…" on the row (ThreadMenu.tsx), its menu under it at the row's right edge. */
 .cf-thread-more-wrap { position: relative; display: flex; align-self: center; }
 .cf-thread-more { width: 40px; height: 40px; }
-.cf-thread-menu { left: auto; right: 0; z-index: 6; width: max-content; min-width: 200px; max-width: calc(100vw - 24px); }
+.cf-thread-menu { inset-inline-start: auto; inset-inline-end: 0; z-index: 6; width: max-content; min-width: 200px; max-width: calc(100vw - 24px); }
 .cf-thread-menu button { white-space: nowrap; }
 .cf-thread-menu svg { width: 15px; height: 15px; flex-shrink: 0; }
 /* A row moved by a swipe never makes the list scroll sideways (2.5 (75): a scroll bar showed under the panel). */

@@ -11,9 +11,13 @@
 .cf-tips-block { border-top: 1px solid var(--border); }
 /* An open block's title stays at the top of the sheet while its cards scroll, until the next block's takes over
    (2.5 (81), as in the app). The sheet's own 10px padding is above it. */
-.cf-tips-head { position: sticky; top: -10px; z-index: 1; display: flex; align-items: center; gap: 8px; width: 100%; padding: 12px 8px !important; font-size: 15px; font-weight: 600; text-align: left; background: var(--bg); }
+.cf-tips-head { position: sticky; top: -10px; z-index: 1; display: flex; align-items: center; gap: 8px; width: 100%; padding: 12px 8px !important; font-size: 15px; font-weight: 600; text-align: start; background: var(--bg); }
 .cf-tips-count { font-size: 13px; font-weight: 600; color: var(--text-3); }
-.cf-tips-chev { margin-left: auto; flex-shrink: 0; color: var(--text-3); transition: transform 0.15s ease; }
+.cf-tips-chev { margin-inline-start: auto; flex-shrink: 0; color: var(--text-3); transition: transform 0.15s ease; }
 .cf-tips-block.open .cf-tips-chev { transform: rotate(90deg); }
 .cf-tips-cards { padding-bottom: 4px; }
 @media (prefers-reduced-motion: reduce) { .cf-tips-chev { transition: none; } }
+
+/* Right to left (Arabic): the chevron points to the start side, and down when open. */
+:host([dir="rtl"]) .cf-tips-chev { transform: scaleX(-1); }
+:host([dir="rtl"]) .cf-tips-block.open .cf-tips-chev { transform: scaleX(-1) rotate(90deg); }

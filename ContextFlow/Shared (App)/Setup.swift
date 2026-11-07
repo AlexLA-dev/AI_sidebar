@@ -401,7 +401,7 @@ private struct SettingsScreen: View {
         ZStack {
             Text(titles.title).font(.subheadline.weight(.semibold))
             HStack(spacing: 2) {
-                Image(systemName: "chevron.left").font(.footnote.weight(.semibold))
+                Image(systemName: "chevron.backward").font(.footnote.weight(.semibold))
                 Text(titles.back).font(.subheadline)
                 Spacer()
             }
@@ -453,7 +453,7 @@ private struct SettingsScreen: View {
                         Text("All Websites").font(.subheadline)
                         Spacer()
                         Text(phase >= 5 ? "Allow" : "Ask").font(.subheadline).foregroundColor(phase >= 5 ? .accentColor : .secondary)
-                        Image(systemName: "chevron.right").font(.caption.weight(.semibold)).foregroundColor(Color.secondary.opacity(0.6))
+                        Image(systemName: "chevron.forward").font(.caption.weight(.semibold)).foregroundColor(Color.secondary.opacity(0.6))
                     }
                     .padding(.horizontal, 12)
                     .frame(height: 40)
@@ -476,7 +476,7 @@ private struct SettingsScreen: View {
             icon
             Text(title).font(.subheadline)
             Spacer()
-            Image(systemName: "chevron.right").font(.caption.weight(.semibold)).foregroundColor(Color.secondary.opacity(0.6))
+            Image(systemName: "chevron.forward").font(.caption.weight(.semibold)).foregroundColor(Color.secondary.opacity(0.6))
         }
         .padding(.horizontal, 12)
         .frame(height: 40)

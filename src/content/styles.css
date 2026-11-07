@@ -146,7 +146,7 @@
 .cf-bubble button.cf-sel-note svg { width: 14px; height: 14px; color: var(--note); }
 /* Wraps to the width of the buttons instead of widening them. */
 .cf-bubble-hint { width: 0; min-width: 100%; padding: 0 6px 2px; font-size: 11.5px; line-height: 1.35; color: var(--text-3); }
-.cf-bubble-saved { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-left: 8px; font-size: 13px; font-weight: 500; color: var(--text); }
+.cf-bubble-saved { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-inline-start: 8px; font-size: 13px; font-weight: 500; color: var(--text); }
 .cf-bubble-saved span { display: flex; align-items: center; gap: 6px; }
 .cf-bubble-saved svg { color: var(--note); }
 /* iPhone / iPad: bigger tap targets, primary action filled; 16px text so Safari doesn't zoom into the field. */
@@ -188,7 +188,7 @@
   -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
   scroll-snap-align: end; touch-action: pan-x; opacity: 0.92;
 }
-.cf-bubble.touch button.cf-sel-chip:last-child { margin-right: 5px; }
+.cf-bubble.touch button.cf-sel-chip:last-child { margin-inline-end: 5px; }
 @keyframes cf-pop { from { opacity: 0; transform: translateY(-4px) scale(0.98); } to { opacity: 1; transform: none; } }
 
 /* ------------------------------------------------------------ panel */
@@ -253,7 +253,7 @@
   border-bottom: 1px solid var(--border);
 }
 .cf[data-layout="sheet"] .cf-header { padding-top: 2px; }
-.cf-logo { color: var(--accent); display: flex; margin-right: 4px; }
+.cf-logo { color: var(--accent); display: flex; margin-inline-end: 4px; }
 .cf-title { flex: 1; min-width: 0; display: flex; align-items: center; }
 .cf-title strong { font-size: 15px; font-weight: 600; }
 .cf-icon { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--text-2); }
@@ -321,7 +321,7 @@
 .cf-newpage { margin: 4px 0 10px; }
 .cf-newpage .cf-actions.follow { margin: 0; }
 .cf-msg.user { align-items: flex-end; }
-.cf-user-mode { display: inline-flex; vertical-align: -1px; margin-right: 5px; opacity: 0.85; }
+.cf-user-mode { display: inline-flex; vertical-align: -1px; margin-inline-end: 5px; opacity: 0.85; }
 .cf-bubble-user {
   max-width: 86%;
   padding: 8px 13px;
@@ -339,7 +339,7 @@
   color: var(--text);
   white-space: pre-wrap; word-break: break-word;
 }
-.cf-note-mark { display: inline-flex; vertical-align: -2px; margin-right: 6px; color: var(--note); }
+.cf-note-mark { display: inline-flex; vertical-align: -2px; margin-inline-end: 6px; color: var(--note); }
 .cf-msg.ai { align-items: stretch; }
 
 /* Under a question: the video transcript or PDF it was asked with, or why one couldn't be read. */
@@ -348,12 +348,12 @@
 .cf-used svg { flex-shrink: 0; }
 .cf-used span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cf-used.warn { background: var(--note-soft); color: var(--note-text); white-space: normal; }
-.cf-used.warn span { white-space: normal; text-align: right; }
+.cf-used.warn span { white-space: normal; text-align: end; }
 /* Choosing messages to share: a tick on each, the ones left out faded. */
-.cf-msg.pickable { position: relative; padding-left: 32px; cursor: pointer; transition: opacity 0.15s; }
+.cf-msg.pickable { position: relative; padding-inline-start: 32px; cursor: pointer; transition: opacity 0.15s; }
 .cf-msg.pickable:not(.picked) { opacity: 0.5; }
 .cf-msg.pickable::before {
-  content: ""; position: absolute; left: 2px; top: 4px; width: 20px; height: 20px; box-sizing: border-box;
+  content: ""; position: absolute; inset-inline-start: 2px; top: 4px; width: 20px; height: 20px; box-sizing: border-box;
   border-radius: 50%; border: 2px solid var(--text-3); background: var(--bg);
 }
 .cf-msg.user.pickable::before { top: auto; bottom: 6px; }
@@ -364,7 +364,7 @@
 .cf-msg.pickable:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 12px; }
 .cf-msg.pickable .cf-msg-tools { display: none; }
 .cf-pickbar { display: flex; align-items: center; gap: 8px; }
-.cf-pick-count { flex: 1; min-width: 0; text-align: left; font-size: 13.5px; font-weight: 600; color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cf-pick-count { flex: 1; min-width: 0; text-align: start; font-size: 13.5px; font-weight: 600; color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cf-pickbar .cf-primary, .cf-pickbar .cf-secondary { flex-shrink: 0; display: inline-flex; align-items: center; gap: 5px; }
 .cf-pickbar button:disabled { opacity: 0.45; }
 .cf-grounded { display: inline-flex; align-items: center; gap: 5px; margin-bottom: 6px; font-size: 12px; font-weight: 600; color: var(--text-3); }
@@ -387,7 +387,7 @@
 .cf-thinking { display: flex; align-items: center; gap: 4px; color: var(--text-3); font-size: 13px; padding: 4px 0; }
 .cf-thinking span { width: 6px; height: 6px; border-radius: 3px; background: var(--accent); opacity: 0.4; animation: cf-dot 1s infinite ease-in-out; }
 .cf-thinking span:nth-child(2) { animation-delay: 0.15s; }
-.cf-thinking span:nth-child(3) { animation-delay: 0.3s; margin-right: 6px; }
+.cf-thinking span:nth-child(3) { animation-delay: 0.3s; margin-inline-end: 6px; }
 @keyframes cf-dot { 0%, 100% { opacity: 0.25; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-2px); } }
 
 /* --------------------------------------------------------- markdown */
@@ -395,29 +395,29 @@
 .md p { margin: 0 0 8px; }
 .md h3, .md h4, .md h5, .md h6 { margin: 12px 0 6px; font-size: 1.02em; font-weight: 650; line-height: 1.35; }
 .md h3 { font-size: 1.1em; }
-.md ul, .md ol { margin: 0 0 8px; padding-left: 20px; }
+.md ul, .md ol { margin: 0 0 8px; padding-inline-start: 20px; }
 .md li { margin: 2px 0; }
-.md li.nested { margin-left: 16px; list-style-type: circle; }
+.md li.nested { margin-inline-start: 16px; list-style-type: circle; }
 .md strong { font-weight: 650; }
 .md em { font-style: italic; }
 .md a { color: var(--accent-text); text-decoration: underline; text-underline-offset: 2px; }
 .md a.md-cite {
   display: inline-flex; align-items: center; justify-content: center;
-  min-width: 17px; height: 17px; padding: 0 4px; margin-left: 2px;
+  min-width: 17px; height: 17px; padding: 0 4px; margin-inline-start: 2px;
   border-radius: 9px; background: var(--bg-2); color: var(--text-2);
   font-size: 10.5px; font-weight: 650; line-height: 1; text-decoration: none; vertical-align: 2px;
 }
 .md a.md-cite:hover { background: var(--accent-soft); color: var(--accent-text); }
 .md code { font-family: var(--mono); font-size: 0.9em; background: var(--bg-2); padding: 1px 5px; border-radius: 5px; }
 .md hr { border: 0; border-top: 1px solid var(--border); margin: 12px 0; }
-.md blockquote { margin: 0 0 8px; padding: 2px 0 2px 12px; border-left: 3px solid var(--bg-3); color: var(--text-2); }
+.md blockquote { margin: 0 0 8px; padding-block: 2px; padding-inline: 12px 0; border-inline-start: 3px solid var(--bg-3); color: var(--text-2); }
 .md-code { position: relative; margin: 0 0 8px; }
 .md-code pre { margin: 0; padding: 10px 12px; background: var(--bg-2); border-radius: 10px; overflow-x: auto; font-family: var(--mono); font-size: 12.5px; line-height: 1.45; }
 .md-code pre code { background: none; padding: 0; }
-.md-code-copy { position: absolute; top: 6px; right: 6px; width: 26px; height: 26px; border-radius: 7px; background: var(--bg) !important; color: var(--text-3); font-size: 14px; }
+.md-code-copy { position: absolute; top: 6px; inset-inline-end: 6px; width: 26px; height: 26px; border-radius: 7px; background: var(--bg) !important; color: var(--text-3); font-size: 14px; }
 .md-table { overflow-x: auto; margin: 0 0 8px; }
 .md table { border-collapse: collapse; font-size: 0.93em; min-width: 100%; }
-.md th, .md td { border: 1px solid var(--border); padding: 5px 8px; text-align: left; vertical-align: top; }
+.md th, .md td { border: 1px solid var(--border); padding: 5px 8px; text-align: start; vertical-align: top; }
 .md th { background: var(--bg-2); font-weight: 600; }
 .md > :last-child { margin-bottom: 0; }
 
@@ -430,7 +430,7 @@
 .cf-card.offer p { margin-bottom: 0; }
 /* Out of answers, notes still work: a quiet line in the note colour. */
 .cf-card p.cf-limit-notes { padding: 8px 10px; border-radius: 10px; background: var(--note-soft); color: var(--note-text); font-size: 13px; }
-.cf-limit-notes svg { display: inline-block; width: 13px; height: 13px; vertical-align: -2px; margin-right: 2px; }
+.cf-limit-notes svg { display: inline-block; width: 13px; height: 13px; vertical-align: -2px; margin-inline-end: 2px; }
 .cf-limit-notes .cf-link { color: var(--note-text) !important; font-weight: 600; text-decoration: underline; padding: 0 !important; font-size: 13px; }
 .cf-card.error p { color: var(--text); }
 .cf-card.consent { border: 1px solid var(--border); background: var(--bg); }
@@ -445,7 +445,7 @@
 .cf-consent-more.open svg { transform: rotate(180deg); }
 .cf-consent-details { margin: 2px 0 4px; }
 .cf-consent-details p { margin: 0; font-size: 13px; }
-.cf-consent-list { margin: 0 0 8px; padding-left: 18px; color: var(--text-2); font-size: 13px; line-height: 1.4; }
+.cf-consent-list { margin: 0 0 8px; padding-inline-start: 18px; color: var(--text-2); font-size: 13px; line-height: 1.4; }
 .cf-consent-list li { margin: 0 0 4px; }
 .cf-card-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .cf-card.renewal { border: 1px solid var(--border); background: var(--bg); }
@@ -481,12 +481,12 @@
   background: var(--bg-2);
 }
 .cf-input:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
-.cf-input.note { padding-left: 13px; border-color: rgba(245, 158, 11, 0.45); background: var(--note-soft); }
+.cf-input.note { padding-inline-start: 13px; border-color: rgba(245, 158, 11, 0.45); background: var(--note-soft); }
 .cf-input.note:focus-within { border-color: var(--note); box-shadow: 0 0 0 3px var(--note-soft); }
 .cf-mode {
   flex-shrink: 0; align-self: flex-end;
   display: flex; align-items: center; gap: 4px;
-  height: 32px; margin-left: -8px; padding: 0 10px; border-radius: 16px;
+  height: 32px; margin-inline-start: -8px; padding: 0 10px; border-radius: 16px;
   font-size: 12.5px; font-weight: 600; color: var(--text-3);
   border: 1px solid var(--border) !important;
 }
@@ -522,14 +522,14 @@
 .cf-send-icon { display: flex; animation: cf-flip 0.22s ease-out; }
 @keyframes cf-flip { from { transform: translateY(70%); opacity: 0; } to { transform: none; opacity: 1; } }
 .cf-note-hint {
-  position: absolute; right: 12px; bottom: calc(100% - 2px); z-index: 2;
+  position: absolute; inset-inline-end: 12px; bottom: calc(100% - 2px); z-index: 2;
   max-width: min(78%, 280px); padding: 7px 11px; border-radius: 12px;
   background: var(--snack-bg); color: var(--snack-text); font-size: 12.5px; line-height: 1.35;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
   animation: cf-hint 0.25s ease-out;
   pointer-events: none;
 }
-.cf-note-hint::after { content: ""; position: absolute; right: 14px; top: 100%; border: 6px solid transparent; border-top-color: var(--snack-bg); }
+.cf-note-hint::after { content: ""; position: absolute; inset-inline-end: 14px; top: 100%; border: 6px solid transparent; border-top-color: var(--snack-bg); }
 @keyframes cf-hint { from { transform: translateY(4px); opacity: 0; } to { transform: none; opacity: 1; } }
 .cf-send:disabled { background: var(--bg-3) !important; color: var(--text-3) !important; opacity: 1; }
 /* One look for every toast and bar (2.5): "… · Undo", "Moved to …", "Saved", "Reminder: …", quick insert's. In the
@@ -543,7 +543,7 @@
 .cf-whole { flex-shrink: 0; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; cursor: pointer; color: var(--text-2); -webkit-user-select: none; user-select: none; }
 .cf-whole input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
 .cf-switch { position: relative; width: 24px; height: 14px; border-radius: 7px; background: var(--bg-3); box-shadow: inset 0 0 0 1px var(--border); transition: background 0.15s; }
-.cf-switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 10px; height: 10px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); transition: transform 0.15s; }
+.cf-switch::after { content: ""; position: absolute; top: 2px; inset-inline-start: 2px; width: 10px; height: 10px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); transition: transform 0.15s; }
 .cf-whole input:checked + .cf-switch { background: var(--accent); box-shadow: none; }
 .cf-whole input:checked + .cf-switch::after { transform: translateX(10px); }
 .cf-whole input:focus-visible + .cf-switch { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -553,7 +553,7 @@
 .cf-settings { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 12px 14px 18px; }
 .cf-chats-button { position: relative; }
 .cf-badge {
-  position: absolute; top: 3px; right: 2px; min-width: 15px; height: 15px; padding: 0 4px; border-radius: 8px;
+  position: absolute; top: 3px; inset-inline-end: 2px; min-width: 15px; height: 15px; padding: 0 4px; border-radius: 8px;
   background: var(--accent); color: #fff; font-size: 10px; font-weight: 650; line-height: 15px; text-align: center;
 }
 .cf-threads { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 8px 10px 18px; }
@@ -575,14 +575,14 @@
 .cf-thread { position: relative; display: flex; align-items: center; gap: 4px; border-radius: 12px; background: var(--bg); }
 .cf-thread:hover { background: var(--bg-2); }
 .cf-thread.current { background: var(--accent-soft); }
-.cf-thread-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; padding: 10px 6px 10px 10px; text-align: left; cursor: pointer; border-radius: 12px; }
+.cf-thread-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; padding-block: 10px; padding-inline: 10px 6px; text-align: start; cursor: pointer; border-radius: 12px; }
 .cf-thread-main:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
-.cf-thread-grip + .cf-thread-main { padding-left: 2px; }
+.cf-thread-grip + .cf-thread-main { padding-inline-start: 2px; }
 .cf-thread-title { font-weight: 600; font-size: 14px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cf-thread-snippet { font-size: 13px; color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cf-thread-meta { display: flex; align-items: center; gap: 6px; min-width: 0; font-size: 11.5px; color: var(--text-3); white-space: nowrap; }
 .cf-thread-meta > * { flex-shrink: 0; }
-.cf-thread-meta > * + *::before { content: "·"; margin-right: 6px; color: var(--text-3); }
+.cf-thread-meta > * + *::before { content: "·"; margin-inline-end: 6px; color: var(--text-3); }
 .cf-thread-meta > .cf-thread-notes + *::before, .cf-thread-meta > * + .cf-pages-chip::before { content: none; }
 .cf-thread-site { flex-shrink: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .cf-thread-notes { display: inline-flex; align-items: center; gap: 2px; padding: 1px 6px 1px 4px; border-radius: 8px; background: var(--note-soft); color: var(--note-text); font-weight: 600; }
@@ -596,7 +596,7 @@
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.16);
 }
 .cf-pages-pop-title { padding: 4px 8px 6px; font-size: 11.5px; font-weight: 600; color: var(--text-3); }
-.cf-pages-item { display: flex; flex-direction: column; align-items: flex-start; width: 100%; padding: 7px 8px; border-radius: 8px; text-align: left; }
+.cf-pages-item { display: flex; flex-direction: column; align-items: flex-start; width: 100%; padding: 7px 8px; border-radius: 8px; text-align: start; }
 .cf-pages-item:hover { background: var(--bg-2); }
 .cf-pages-item-title { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; font-weight: 600; color: var(--text); }
 .cf-pages-item-host { font-size: 11.5px; color: var(--text-3); }
@@ -643,7 +643,7 @@
 .cf-textarea:focus, .cf-text:focus { border-color: var(--accent); }
 .cf-key { font-family: var(--mono); color: var(--ok); flex: 1; }
 .cf-links { display: flex; flex-wrap: wrap; gap: 4px 14px; padding: 6px 4px; align-items: center; }
-.cf-version { font-size: 12px; color: var(--text-3); margin-left: auto; }
+.cf-version { font-size: 12px; color: var(--text-3); margin-inline-start: auto; }
 
 @media (prefers-reduced-motion: reduce) {
   .cf-panel, .cf-backdrop, .cf-fab { transition: none !important; }
@@ -670,7 +670,7 @@
 .cf-tour-card strong { display: block; font-size: 15px; margin-bottom: 4px; }
 .cf-tour-card p { margin: 0 0 12px; color: var(--text-2); font-size: 13.5px; }
 .cf-tour-actions { display: flex; gap: 8px; align-items: center; justify-content: flex-end; }
-.cf-tour-actions .cf-link { margin-right: auto; }
+.cf-tour-actions .cf-link { margin-inline-end: auto; }
 /* The guided first request (2.6): what's lit up can be tapped; the clear covers around it hold every other tap. */
 .cf-guide { pointer-events: none; }
 .cf-guide .cf-tour-card, .cf-tour-block { pointer-events: auto; }
@@ -678,7 +678,7 @@
 .cf-guide-pill {
   position: fixed; left: 50%; transform: translateX(-50%); z-index: 4;
   display: flex; align-items: center; gap: 8px; max-width: calc(100vw - 24px);
-  padding: 7px 7px 7px 13px; border-radius: 999px;
+  padding-block: 7px; padding-inline: 13px 7px; border-radius: 999px;
   background: var(--bg); color: var(--text); border: 1px solid var(--border); box-shadow: var(--shadow);
   font-size: 14px; font-weight: 600; animation: cf-pop 0.14s ease-out;
 }
@@ -691,7 +691,7 @@
 /* Pro: AI search in the chat search, "Ask your chats", and what they do for someone without Pro. */
 .cf-search-ai { position: relative; flex: none; width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--accent-text); background: var(--accent-soft); }
 .cf-search-ai.on { color: #fff; background: linear-gradient(135deg, var(--accent-2), var(--accent)); }
-.cf-search-lock { position: absolute; right: -3px; bottom: -3px; width: 16px; height: 16px; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: var(--bg); color: var(--text-2); box-shadow: 0 0 0 1px var(--border); }
+.cf-search-lock { position: absolute; inset-inline-end: -3px; bottom: -3px; width: 16px; height: 16px; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: var(--bg); color: var(--text-2); box-shadow: 0 0 0 1px var(--border); }
 .cf-search-lock svg { width: 10px; height: 10px; }
 .cf-search.ai input { border-color: var(--accent); }
 .cf-find-busy { margin: 14px 8px; }
@@ -713,7 +713,7 @@
 .cf-trash-confirm p { margin: 0 0 8px; font-size: 13px; color: var(--text); }
 .cf-trash-item:hover { background: var(--bg); }
 .cf-trash-item .cf-thread-main { cursor: default; }
-.cf-trash-actions { flex: none; display: flex; gap: 6px; padding-right: 6px; }
+.cf-trash-actions { flex: none; display: flex; gap: 6px; padding-inline-end: 6px; }
 .cf-trash-actions .cf-secondary, .cf-trash-confirm .cf-secondary { padding: 6px 10px; font-size: 12.5px; }
 .cf-secondary.danger { color: var(--danger) !important; }
 .cf-pro-badge { display: inline-flex; align-items: center; padding: 1px 6px; border-radius: 6px; font-size: 10.5px; font-weight: 700; letter-spacing: 0.02em; color: #fff; background: linear-gradient(135deg, var(--accent-2), var(--accent)); }
@@ -745,11 +745,11 @@ button.cf-tag:hover { background: rgba(var(--tag), 0.2); }
 /* Clear of a Google answer's sources and its search box. */
 .cf-sources + .cf-msg-tags { margin-top: 10px; }
 .cf-tag-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin: 0 2px 8px; }
-.cf-tag-group { display: inline-flex; align-items: center; gap: 4px; margin-left: auto; padding: 2px 8px; border-radius: 999px; font-size: 11.5px; font-weight: 600; color: var(--text-2); background: var(--bg-2); }
+.cf-tag-group { display: inline-flex; align-items: center; gap: 4px; margin-inline-start: auto; padding: 2px 8px; border-radius: 999px; font-size: 11.5px; font-weight: 600; color: var(--text-2); background: var(--bg-2); }
 .cf-tag-group.on { color: #fff; background: var(--accent); }
 .cf-tag-group-section { margin-bottom: 8px; }
 .cf-tag-group-head { display: flex; align-items: center; gap: 6px; padding: 6px 10px 4px; font-size: 12px; font-weight: 700; color: var(--text-2); }
-.cf-tag-group-head span { margin-left: auto; font-weight: 600; color: var(--text-3); }
+.cf-tag-group-head span { margin-inline-start: auto; font-weight: 600; color: var(--text-3); }
 .cf-tag-editor { position: relative; z-index: 5; margin: 6px 0 8px; padding: 10px 12px; border-radius: 12px; background: var(--bg); border: 1px solid var(--border); box-shadow: 0 8px 26px rgba(0, 0, 0, 0.14); display: flex; flex-direction: column; gap: 8px; }
 .cf-thread .cf-tag-editor { position: absolute; left: 10px; right: 10px; top: calc(100% - 6px); }
 .cf-msg.user .cf-tag-editor { align-self: stretch; }
@@ -761,7 +761,7 @@ button.cf-tag:hover { background: rgba(var(--tag), 0.2); }
 .cf-tag-new input:focus { border-color: var(--accent); }
 .cf-tag-done { align-self: flex-end; font-size: 13px; }
 .cf-bubble-note { position: relative; }
-.cf-thread-title svg { display: inline-block; vertical-align: -1px; margin-right: 3px; }
+.cf-thread-title svg { display: inline-block; vertical-align: -1px; margin-inline-end: 3px; }
 
 /* "First time here" hints. */
 .cf-hint { display: flex; align-items: flex-start; gap: 10px; margin: 4px 0 12px; padding: 11px 12px; border-radius: 14px; background: var(--accent-soft); color: var(--text); }
@@ -770,3 +770,15 @@ button.cf-tag:hover { background: rgba(var(--tag), 0.2); }
 .cf-hint-text strong { display: block; font-size: 13.5px; margin-bottom: 2px; }
 .cf-hint-text p { margin: 0; font-size: 12.5px; line-height: 1.45; color: var(--text-2); }
 .cf-hint-done { flex: none; align-self: center; font-size: 13px; font-weight: 600; }
+
+/* ------------------------------------------------- right to left (Arabic, 2.6) */
+/* The host carries dir (the panel's language, never the page's). Layout uses logical properties; what's left here moves
+   along x: the Mac sidebar sits at the left and slides in from there, switches are on at the start side, the back chevron points to
+   the start. Code stays left to right in any language. Swipes and the floating button stay physical (a finger's way). */
+/* The sidebar is fixed to the viewport, whose direction is the page's: physical sides, mirrored here. */
+:host([dir="rtl"]) .cf[data-layout="side"] .cf-panel { right: auto; left: 10px; transform: translateX(-24px); }
+:host([dir="rtl"]) .cf[data-layout="side"] .cf-panel.in { transform: none; }
+:host([dir="rtl"]) .cf-whole input:checked + .cf-switch::after { transform: translateX(-10px); }
+:host([dir="rtl"]) .cf-flip { transform: scaleX(-1); }
+.md pre, .md code { direction: ltr; unicode-bidi: isolate; }
+.md pre { text-align: left; }

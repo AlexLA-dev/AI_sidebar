@@ -79,6 +79,7 @@ test("same or changed", () => {
   assert.ok(!sameValue("stock", "Sold out", "In stock"))
   assert.ok(sameValue("stock", "In  Stock", "in stock"))
   assert.ok(isOutOfStock("OutOfStock") && isOutOfStock("Нет в наличии") && isOutOfStock("品切れ") && !isOutOfStock("InStock"))
+  assert.ok(isOutOfStock("缺貨") && isOutOfStock("غير متوفر") && isOutOfStock("Hết hàng") && !isOutOfStock("有貨") && !isOutOfStock("متوفر") && !isOutOfStock("Còn hàng"))
 })
 
 test("most conditions are decided without the AI", () => {

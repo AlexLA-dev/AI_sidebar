@@ -163,5 +163,6 @@ export function Markdown({ text, onCopyCode, marks }: { text: string; onCopyCode
     blocks.push(<p key={key++}>{para.flatMap((l, j) => (j ? [<br key={`b${j}`} />, ...inline(l, `p${j}`)] : inline(l, `p${j}`)))}</p>)
   }
 
-  return <div class="md">{marks?.length ? withMarks(blocks, marks) : blocks}</div>
+  // Its own direction, by its first letters: an Arabic answer in an English panel reads right to left, and back (2.6).
+  return <div class="md" dir="auto">{marks?.length ? withMarks(blocks, marks) : blocks}</div>
 }

@@ -294,6 +294,7 @@ enum ShareText {
     static let appLink = "https://apps.apple.com/app/contextflow-ai-web-assistant/id6759115793"
 
     private static let byLanguage: [String: Labels] = [
+        "ar": Labels(you: "أنت", note: "ملاحظة", sources: "المصادر", source: "المصدر", madeWith: "صُنع باستخدام ContextFlow"),
         "de": Labels(you: "Du", note: "Notiz", sources: "Quellen", source: "Quelle", madeWith: "Erstellt mit ContextFlow"),
         "en": Labels(you: "You", note: "Note", sources: "Sources", source: "Source", madeWith: "Made with ContextFlow"),
         "es": Labels(you: "Tú", note: "Nota", sources: "Fuentes", source: "Fuente", madeWith: "Hecho con ContextFlow"),
@@ -304,14 +305,16 @@ enum ShareText {
         "pt_BR": Labels(you: "Você", note: "Nota", sources: "Fontes", source: "Fonte", madeWith: "Feito com o ContextFlow"),
         "ru": Labels(you: "Вы", note: "Заметка", sources: "Источники", source: "Источник", madeWith: "Сделано в ContextFlow"),
         "uk": Labels(you: "Ви", note: "Нотатка", sources: "Джерела", source: "Джерело", madeWith: "Зроблено в ContextFlow"),
-        "zh_CN": Labels(you: "你", note: "笔记", sources: "来源", source: "来源", madeWith: "由 ContextFlow 生成")
+        "vi": Labels(you: "Bạn", note: "Ghi chú", sources: "Nguồn", source: "Nguồn", madeWith: "Tạo bằng ContextFlow"),
+        "zh_CN": Labels(you: "你", note: "笔记", sources: "来源", source: "来源", madeWith: "由 ContextFlow 生成"),
+        "zh_TW": Labels(you: "你", note: "筆記", sources: "來源", source: "來源", madeWith: "用 ContextFlow 製作")
     ]
 
     /// The labels in the chat's language, or the app's.
     static func labels(for entries: [ChatEntry]) -> Labels {
         if let language = chatLanguage(entries), let labels = byLanguage[language] { return labels }
         let app = Bundle.main.preferredLocalizations.first ?? "en"
-        let code = app == "pt-BR" ? "pt_BR" : app.hasPrefix("zh") ? "zh_CN" : String(app.prefix(2))
+        let code = app == "pt-BR" ? "pt_BR" : app == "zh-Hant" ? "zh_TW" : app.hasPrefix("zh") ? "zh_CN" : String(app.prefix(2))
         return byLanguage[code] ?? byLanguage["en"]!
     }
 
@@ -395,8 +398,16 @@ enum ShareText {
         ("es", Set("el los las es son qué que cómo por y en un una del se está para con sobre trata eso esto".split(separator: " ").map(String.init)), "[ñ¿¡]"),
         ("fr", Set("le les est sont et que quoi comment pourquoi un une des du ce cet cette il elle pour dans avec sur qui parle".split(separator: " ").map(String.init)), "[œêâîôûëïç]"),
         ("it", Set("il lo gli è sono che cosa come perché di e un una del della per con su questo questa parla".split(separator: " ").map(String.init)), nil),
-        ("pt_BR", Set("o os é são que como por e um uma do da não para com sobre isso este esta fala".split(separator: " ").map(String.init)), "[ãõ]")
+        ("pt_BR", Set("o os é são que como por e um uma do da não para com sobre isso este esta fala".split(separator: " ").map(String.init)), "[ãõ]"),
+        ("vi", Set("là của và có không gì này những một các cho được trong về như thế nào sao bài trang tôi bạn với để khi đây đó nói".split(separator: " ").map(String.init)), "[ăđơư\\u1ea0-\\u1ef9]")
     ]
+    // The letters of Latin-script words: Vietnamese adds ă đ ĩ ũ ơ ư and its tone marks to French and German's.
+    private static let word = "[a-zà-ÿœăđĩũơư\\u1ea0-\\u1ef9]"
+
+    // Characters written one way in Traditional Chinese and another in Simplified (這/这, 們/们, 說/说…): which of the
+    // two a text uses more tells zh_TW from zh_CN (src/shared/share.ts has the same lists).
+    static let traditional = "這個們說麼時為會來嗎頁點與對關還讓價樣從種寫問題單開東車書長經現發學國總結網體請應該變處過實動頭義區記錄認識讀聽買賣錢氣電話視備帶獲據歡"
+    static let simplified = "这个们说么时为会来吗页点与对关还让价样从种写问题单开东车书长经现发学国总结网体请应该变处过实动头义区记录认识读听买卖钱气电话视备带获据欢"
 
     /// The language of a text, when it's clear: a locale code ("ru", "pt_BR"…).
     static func textLanguage(_ raw: String) -> String? {
@@ -404,15 +415,16 @@ enum ShareText {
         let count = { (pattern: String) in matches(text, pattern) }
         let scripts: [(String?, Int)] = [
             ("ko", count(#"[\uac00-\ud7af]"#)),
-            (count(#"[\u3040-\u30ff]"#) > 0 ? "ja" : "zh_CN", count(#"[\u3040-\u30ff\u4e00-\u9fff]"#)),
+            (count(#"[\u3040-\u30ff]"#) > 0 ? "ja" : count("[\(traditional)]") > count("[\(simplified)]") ? "zh_TW" : "zh_CN", count(#"[\u3040-\u30ff\u4e00-\u9fff]"#)),
+            ("ar", count(#"[\u0600-\u06ff\u0750-\u077f]"#)),
             (matches(text, #"[іїєґ]|(^|[^а-яё])(що|це|ця|цей|чому|який|яка|яке)(?![а-яё])"#, caseless: true) > 0 ? "uk" : "ru", matches(text, #"[а-яёіїєґ]"#, caseless: true)),
-            (nil, matches(text, #"[a-zà-ÿœ]"#, caseless: true))
+            (nil, matches(text, word, caseless: true))
         ]
         let (script, letters) = scripts.dropFirst().reduce(scripts[0]) { $1.1 > $0.1 ? $1 : $0 }
         guard letters >= 3 else { return nil }
         if let script { return script }
         let lower = text.lowercased()
-        let words = (try! NSRegularExpression(pattern: "[a-zà-ÿœ]+")).matches(in: lower, range: NSRange(lower.startIndex..., in: lower)).compactMap { Range($0.range, in: lower).map { String(lower[$0]) } }
+        let words = (try! NSRegularExpression(pattern: word + "+")).matches(in: lower, range: NSRange(lower.startIndex..., in: lower)).compactMap { Range($0.range, in: lower).map { String(lower[$0]) } }
         let scores = latin.map { language, common, letters in
             (language, words.filter { common.contains($0) }.count + (letters.map { matches(lower, $0) > 0 } == true ? 2 : 0))
         }

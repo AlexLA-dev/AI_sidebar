@@ -28,7 +28,7 @@ TUTTE LE TUE CHAT NELL’APP
 PENSATO PER SAFARI SU IPHONE, IPAD E MAC
 • iPhone e iPad: il pulsante flottante di ContextFlow su ogni pagina, o “Chiedi all’IA” sul testo selezionato
 • Mac: una barra laterale che apri dalla barra degli strumenti, dal pulsante flottante o con Control-Shift-E
-• Suggerimenti con brevi video, modalità chiara e scura, 11 lingue
+• Suggerimenti con brevi video, modalità chiara e scura, 14 lingue
 
 PRIVACY FIN DALLA PROGETTAZIONE
 • Nessun account, registrazione o tracciamento

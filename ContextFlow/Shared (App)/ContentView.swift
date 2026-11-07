@@ -688,7 +688,7 @@ struct TipBlockHeader: View {
                         .foregroundColor(.secondary)
                 }
                 Spacer(minLength: 8)
-                Image(systemName: "chevron.right")
+                Image(systemName: "chevron.forward")
                     .font(.subheadline.weight(.semibold))
                     .foregroundColor(.secondary)
                     .rotationEffect(.degrees(open ? 90 : 0))

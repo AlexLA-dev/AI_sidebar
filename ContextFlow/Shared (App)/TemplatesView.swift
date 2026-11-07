@@ -236,7 +236,7 @@ private struct TemplateEditor: View {
                         var t = template
                         t.title = title.trimmingCharacters(in: .whitespacesAndNewlines)
                         t.text = String(text.prefix(8000))
-                        t.keywords = keywords.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }.prefix(6).map { String($0.prefix(30)) }
+                        t.keywords = keywords.split(whereSeparator: { ",،，、".contains($0) }).map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }.prefix(6).map { String($0.prefix(30)) }
                         onSave(t)
                         dismiss()
                     }
