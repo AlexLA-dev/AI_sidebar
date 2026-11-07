@@ -165,13 +165,14 @@ export function speakCountersFor(access: Access, seconds: number): Counter[] {
   ]
 }
 
-/** Find similar (Ultra): one search. The engine (/api/v2/similar) charges these before it searches. */
+/**
+ * Find similar (Ultra): one search against the subscription's weekly allowance. The engine (/api/v2/similar) charges
+ * it together with its own daily safety caps before it searches (consume), gives it back when nothing came (refund),
+ * and answers LIMIT_REACHED with ultraUsage(…, "similar:") when blockReason() says "similar".
+ */
 export function similarCountersFor(access: Access): Counter[] {
   const otid = access.entitlement?.originalTransactionId ?? "none"
-  return [
-    { subject: `similar:tx:${otid}`, period: "week", limit: config.ultra.similarWeekly },
-    { subject: "global:similar", period: "day", limit: config.ultra.similarGlobalDaily }
-  ]
+  return [{ subject: `similar:tx:${otid}`, period: "week", limit: config.ultra.similarWeekly }]
 }
 
 /** An Ultra allowance as the clients show it: used of limit this week, and when it starts again. */

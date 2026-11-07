@@ -95,8 +95,8 @@ export const config = {
     weeklyLimit: int("ULTRA_WEEKLY_LIMIT", int("PRO_WEEKLY_LIMIT", 375)),
     speakWeeklySeconds: int("ULTRA_SPEAK_WEEKLY_SECONDS", ULTRA_DEFAULTS.speakWeeklySeconds),
     speakGlobalDailySeconds: int("SPEAK_GLOBAL_DAILY_SECONDS", 200_000),
-    similarWeekly: int("ULTRA_SIMILAR_WEEKLY", ULTRA_DEFAULTS.similarWeekly),
-    similarGlobalDaily: int("SIMILAR_GLOBAL_DAILY", 3000)
+    // Find similar's daily safety caps (per install, for everyone) belong to its engine (config.similar, /api/v2/similar).
+    similarWeekly: int("ULTRA_SIMILAR_WEEKLY", ULTRA_DEFAULTS.similarWeekly)
   },
   // Read aloud (2.6, Ultra): Gemini TTS through our server with GEMINI_API_KEY, streamed as headerless PCM.
   // "auto" picks the newest stable model of the kind from the model list (like GEMINI_MODEL); Flash-Lite speaks
