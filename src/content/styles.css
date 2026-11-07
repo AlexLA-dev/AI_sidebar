@@ -165,8 +165,10 @@
 .cf-bubble.touch button.cf-sel-note { color: var(--note-text); }
 .cf-bubble.touch .cf-bubble-hint { font-size: 12.5px; }
 /* iPhone / iPad (2.6): the field is a sideways carousel, the question box first, then the quick chips; the box is the
-   frame, the input clear inside it. With chips, the input leaves room for the first one to peek in at the edge. */
+   frame, the input clear inside it. With chips, the input is as wide as its placeholder (--cf-ph, measured on the
+   hidden probe in the same font), so the chips start right after "Your question…", at least one always in sight. */
 .cf-bubble.touch .cf-ask-field {
+  position: relative;
   flex: 1; min-width: 0; height: 38px;
   display: flex; align-items: center; gap: 6px;
   border: 1px solid var(--border); border-radius: 11px; background: var(--bg-2);
@@ -180,7 +182,8 @@
   flex: none; width: 100%; height: 36px; border: 0; border-radius: 0; background: transparent;
   scroll-snap-align: start; touch-action: pan-x;
 }
-.cf-bubble.touch .cf-ask-field.chips input { width: calc(100% - 46px); }
+.cf-bubble.touch .cf-ask-field.chips input { width: min(var(--cf-ph, calc(100% - 46px)), calc(100% - 46px)); }
+.cf-ask-probe { position: absolute; top: 0; inset-inline-start: 0; visibility: hidden; white-space: pre; font-size: 16px; pointer-events: none; }
 .cf-bubble.touch button.cf-sel-chip {
   flex: none; min-height: 0; height: 28px; padding: 0 11px; border-radius: 999px;
   font-size: 13.5px; font-weight: 600; color: var(--accent-text);
