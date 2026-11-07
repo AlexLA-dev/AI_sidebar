@@ -227,3 +227,25 @@ test("language: the content's own, else the script of its title and text, the si
   assert.equal(languageCheck("de", { lang: "de", title: "Python lernen für Anfänger – der komplette Kurs", text: "", inLanguage: undefined }), "yes")
   assert.equal(languageCheck("de", { lang: "de", title: "x", text: "", inLanguage: "en" }), "no")
 })
+
+test("streamed items: each object of the array as soon as its brace closes, strings and escapes respected", async () => {
+  const { ArrayScanner } = await import("../netlify/shared/similar.mts")
+  const s = new ArrayScanner("items")
+  const json = JSON.stringify({ items: [{ page: 1, name: 'A "quoted" {brace}', why: "x\\y" }, { page: 2, name: "B" }], intro: "hi", note: "" })
+  const got: unknown[] = []
+  for (let i = 0; i < json.length; i += 7) got.push(...s.feed(json.slice(i, i + 7)))
+  assert.deepEqual(got, [{ page: 1, name: 'A "quoted" {brace}', why: "x\\y" }, { page: 2, name: "B" }])
+})
+
+test("parallel search: picks interleaved by rank; each address and item once; at most 3 a site; follow-ups only for items not covered", async () => {
+  const { Claims, interleave } = await import("../netlify/shared/similar.mts")
+  assert.deepEqual(interleave([[1, 2, 3], [10], [20, 21]]), [1, 10, 20, 2, 21, 3])
+  const claims = new Claims({ title: "", url: "https://self.com/p", text: "" })
+  const c = (url: string, name: string, kind: "item" | "list" = "item") => ({ url, name, kind, resultTitle: name, pageAge: null })
+  const first = claims.take([c("https://self.com/p", "Self"), c("https://a.com/1", "Acme Q1"), c("https://a.com/2", "Acme Q2"), c("https://a.com/3", "Acme Q3"), c("https://a.com/4", "Acme Q4")])
+  assert.deepEqual(first.map((x) => x.name), ["Acme Q1", "Acme Q2", "Acme Q3"])
+  const second = claims.take([c("https://a.com/1?utm_source=x", "Acme Q1 again"), c("https://b.com/q1", "Acme Q1"), c("https://b.com/list", "Best list", "list")])
+  assert.deepEqual(second.map((x) => x.name), ["Best list"])
+  assert.equal(claims.covers("Acme Q2"), true)
+  assert.equal(claims.covers("Zeta Z9 headphones"), false)
+})

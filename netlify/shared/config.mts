@@ -126,6 +126,12 @@ export const config = {
     writeModel: (env("SIMILAR_WRITE_MODEL") ?? "claude-sonnet-5-5").trim(),
     // Candidate pages opened per search, and the whole run's time (the function has a minute).
     maxPages: int("SIMILAR_MAX_PAGES", 12),
+    // 2.6 speed-up: "parallel" (one call per search, all at once; pages opened as each returns) or "single" (one
+    // model runs every search in turn); follow-up searches for items named without their own page (at most);
+    // items streamed to the panel as each passes the checks.
+    searchMode: (env("SIMILAR_SEARCH_MODE") ?? "parallel").trim() === "single" ? "single" as const : "parallel" as const,
+    followUps: int("SIMILAR_FOLLOW_UPS", 2),
+    streamItems: (env("SIMILAR_STREAM") ?? "on").trim() !== "off",
     budgetMs: int("SIMILAR_BUDGET_MS", 52_000),
     // Pages a site won't open to servers may fill a list that has fewer than 3 checked items (marked "not opened").
     allowUnchecked: (env("SIMILAR_ALLOW_UNCHECKED") ?? "on").trim() !== "off",

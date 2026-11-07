@@ -16,7 +16,7 @@ export interface SimilarCall {
   ok: boolean
   status: number
   ms: number
-  // Client-side: until the first item can be shown (engine A: the result; B: the first text).
+  // Client-side: until the first item can be shown (engine A: the first streamed item, else the result; B: the first text).
   firstMs: number | null
   events: Array<Record<string, unknown>>
   error?: string
@@ -72,7 +72,8 @@ export async function callSimilar(base: string, engine: "a" | "b", page: PageInp
           try {
             const event = JSON.parse(line.slice(5).trim()) as Record<string, unknown>
             event.t = Date.now() - started
-            if (firstMs === null && (event.type === "result" || event.type === "delta")) firstMs = event.t as number
+            // The first item a person can see: a streamed item (engine A since the speed-up), the whole list, or B's text.
+            if (firstMs === null && (event.type === "item" || event.type === "result" || event.type === "delta")) firstMs = event.t as number
             events.push(event)
           } catch {
             // a broken line

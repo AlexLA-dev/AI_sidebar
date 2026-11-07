@@ -171,7 +171,12 @@ function overridesOf(raw: unknown): EngineOverrides {
   const o = (raw ?? {}) as Record<string, unknown>
   const model = (v: unknown) => (typeof v === "string" && /^claude-(haiku|sonnet|opus)-[\w.-]{1,30}$/.test(v) ? v : undefined)
   const tool = typeof o.searchTool === "string" && /^web_search_\d{8}$/.test(o.searchTool) ? o.searchTool : undefined
-  return { planModel: model(o.planModel), searchModel: model(o.searchModel), searchTool: tool, writeModel: model(o.writeModel) }
+  return {
+    planModel: model(o.planModel), searchModel: model(o.searchModel), searchTool: tool, writeModel: model(o.writeModel),
+    ...(o.searchMode === "single" || o.searchMode === "parallel" ? { searchMode: o.searchMode } : {}),
+    ...(typeof o.followUps === "string" && /^[0-4]$/.test(o.followUps) ? { followUps: Number(o.followUps) } : {}),
+    ...(o.stream === "off" ? { stream: false } : o.stream === "on" ? { stream: true } : {})
+  }
 }
 
 function readInput(body: Record<string, unknown>, locale: string): SimilarInput | null {
