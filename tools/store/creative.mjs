@@ -18,20 +18,22 @@ const file = (p) => pathToFileURL(p).href
 const COPY = {
   en: {
     header: ["Read less.", "Know more."],
-    search: ["Summarize any", "page in Safari"],
-    chips: ["Summarize any page", "Google answers with sources", "Select text, get answers", "One chat across sites"],
-    pills: [["✦", "Google answers with sources"], ["?", "Select text, get answers"], ["↻", "Compare pages in one chat"]],
+    search: ["Templates fill in", "names and dates"],
+    chips: ["Summarize any page", "Know when a price drops", "Your last 5 copies in any field", "Google answers with sources"],
+    pills: [["⧉", "Your last 5 copies in any field"], ["👁", "Know when a price drops"], ["✦", "Summarize any page"]],
   },
   ru: {
     header: ["Читайте меньше.", "Знайте больше."],
-    search: ["Перескажет", "любую страницу"],
-    chips: ["Пересказ любой страницы", "Ответы Google с источниками", "Выделите текст и спросите", "Один чат на все сайты"],
-    pills: [["✦", "Ответы Google с источниками"], ["?", "Выделите текст и спросите"], ["↻", "Сравнит статьи в одном чате"]],
+    search: ["Шаблон сам впишет", "имя и дату"],
+    chips: ["Пересказ любой страницы", "Узнаете, когда цена упадёт", "5 последних копий в любом поле", "Ответы Google с источниками"],
+    pills: [["⧉", "5 последних копий в любом поле"], ["👁", "Узнаете, когда цена упадёт"], ["✦", "Пересказ любой страницы"]],
   }
 }[lang]
 
-// The summary answer on the iPhone (1290 × 2400 page area), without the free-answers line.
-const summaryFrame = file(join(RAW, "iphone-summary-clean.png"))
+// The 2.5 UI (capture.mjs, free-answers line and "Get Pro" hidden): the header shows the summary, the search
+// asset a template filled from the page (so it doesn't repeat the first screenshot).
+const summaryFrame = file(join(RAW, "iphone-summary.png"))
+const fillFrame = file(join(RAW, "iphone-fill.png"))
 
 const svg = {
   signal: `<svg viewBox="0 0 18 12" width="54" height="36"><g fill="#000"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></g></svg>`,
@@ -44,11 +46,11 @@ const svg = {
 
 // iPhone screen (1290 × 2796 @3x: status 162 + web 2400 + Safari bar 234), frameless.
 // The address field stays empty: creative assets may not show URLs.
-function phone(scale, left, top) {
+function phone(scale, left, top, frame = summaryFrame) {
   return `
   <div class="screen" style="left:${left}px;top:${top}px;transform:scale(${scale})">
     <div class="ios-status"><div class="t">9:41</div><div class="ic">${svg.signal}${svg.wifi}${svg.battery}</div></div>
-    <img class="web" src="${summaryFrame}">
+    <img class="web" src="${frame}">
     <div class="ios-bar"><div class="btn">${svg.back}</div><div class="url"><span class="aa">aA</span></div><div class="btn">${svg.more}</div></div>
     <div class="home"></div><div class="island"></div>
   </div>`
@@ -151,7 +153,7 @@ function search() {
   <div style="position:absolute;inset:0;background:linear-gradient(180deg,#F4F9FF 0%,#E7F0FF 55%,#E3EEFF 100%)"></div>
   ${ribbon(W, H, 0.5)}
   <div style="position:absolute;left:${px}px;top:115px;width:${pw}px;height:2330px;border-radius:160px;box-shadow:0 0 0 6px rgba(11,21,48,.06),0 90px 200px rgba(16,38,96,.30),0 30px 70px rgba(16,38,96,.18)"></div>
-  ${phone(k, px, 115)}
+  ${phone(k, px, 115, fillFrame)}
   <h1 data-max="${px - 140 - 300}" style="left:300px;top:520px;font-size:224px;color:#0B1530;white-space:nowrap"><span>${COPY.search[0]}</span><br><span class="l2">${COPY.search[1]}</span></h1>
   <div style="position:absolute;left:300px;top:1200px;display:flex;flex-direction:column;align-items:flex-start;gap:56px">${pills}</div>`
   return { W, H, html: page(W, H, body) }
