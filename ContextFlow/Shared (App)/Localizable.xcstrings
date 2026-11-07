@@ -35472,84 +35472,84 @@
         }
       }
     },
-    "Find similar: the same thing cheaper or in stock elsewhere, %lld searches a week": {
+    "Find similar: more like the open page, from other sites, %lld searches a week": {
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "البحث عن المشابه: الشيء نفسه بسعر أقل أو متوفرًا في مكان آخر، %lld عملية بحث أسبوعيًا"
+            "value": "البحث عن المشابه: ما يشبه الصفحة المفتوحة من مواقع أخرى، %lld عملية بحث أسبوعيًا"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ähnliches finden: dasselbe günstiger oder anderswo auf Lager, %lld Suchen pro Woche"
+            "value": "Ähnliches finden: mehr wie die geöffnete Seite, von anderen Websites, %lld Suchen pro Woche"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Buscar parecidos: lo mismo más barato o disponible en otro sitio, %lld búsquedas a la semana"
+            "value": "Buscar parecidos: más como la página abierta, de otros sitios, %lld búsquedas a la semana"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Produits similaires : le même article moins cher ou en stock ailleurs, %lld recherches par semaine"
+            "value": "Contenus similaires : d'autres pages comme celle qui est ouverte, sur d'autres sites, %lld recherches par semaine"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Trova simili: la stessa cosa a meno o disponibile altrove, %lld ricerche a settimana"
+            "value": "Trova simili: altro come la pagina aperta, da altri siti, %lld ricerche a settimana"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "似た商品を探す：同じものをもっと安く、または在庫のある別の店で。週%lld回"
+            "value": "似たものを探す：開いているページに似たものを他のサイトから。週%lld回"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "비슷한 상품 찾기: 같은 물건을 더 싸게, 또는 재고 있는 다른 곳에서. 주당 %lld회"
+            "value": "비슷한 것 찾기: 열려 있는 페이지와 비슷한 것을 다른 사이트에서. 주당 %lld회"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Achar parecidos: a mesma coisa mais barata ou em estoque em outro lugar, %lld buscas por semana"
+            "value": "Achar parecidos: mais como a página aberta, de outros sites, %lld buscas por semana"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Найти похожее: то же самое дешевле или в наличии в другом месте, %lld поисков в неделю"
+            "value": "Найти похожее: похожее на открытую страницу, с других сайтов, %lld поисков в неделю"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Знайти схоже: те саме дешевше або в наявності деінде, %lld пошуків на тиждень"
+            "value": "Знайти схоже: схоже на відкриту сторінку, з інших сайтів, %lld пошуків на тиждень"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tìm tương tự: cùng món đồ rẻ hơn hoặc còn hàng ở nơi khác, %lld lượt tìm mỗi tuần"
+            "value": "Tìm tương tự: những gì giống trang đang mở, từ các trang web khác, %lld lượt tìm mỗi tuần"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "找同款：同样的东西在别处更便宜或有货，每周 %lld 次搜索"
+            "value": "查找相似内容：在其他网站查找与当前页面相似的内容，每周 %lld 次搜索"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "找同款：同樣的東西在別處更便宜或有貨，每週 %lld 次搜尋"
+            "value": "查找相似內容：在其他網站查找與目前頁面相似的內容，每週 %lld 次搜尋"
           }
         }
       }
