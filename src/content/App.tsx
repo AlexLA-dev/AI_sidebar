@@ -1640,10 +1640,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       guideTo("menu")
     } else if (guide === "menu") endGuide("done")
   }
-  // A tap on what the step lights up: the guide goes where it leads (the button's own handler opens it). The other
-  // steps' taps (Summarize, the consent card, a quick action) already move it on by what they start.
+  // A tap on what the step lights up: the guide goes where it leads. The other steps' taps (Summarize, the consent
+  // card, a quick action) already move it on by what they start.
   const guideTap = (step: GuideStep) => {
     if (step === "chats") {
+      // The list opened here too, with the step: this runs before the button's own handler, and a render between the
+      // two (the chat list's step with the chat still showing) would send the guide straight on to the "…".
+      setView("threads")
       guideTo("chatList")
       // The guide's card says what the list's hint would: it isn't shown again later.
       if (hints !== null && !hints.includes("chats")) doneHint("chats")
@@ -2958,8 +2961,8 @@ function SelField({ touch, chips, placeholder, onChip, children }: { touch: bool
     if (!field || !input || !probe.current) return
     const style = getComputedStyle(input)
     const pad = (parseFloat(style.paddingLeft) || 0) + (parseFloat(style.paddingRight) || 0)
-    // offsetWidth: the layout's width, not shrunk by the buttons' pop-in scale.
-    field.style.setProperty("--cf-ph", `${Math.ceil(probe.current.offsetWidth + pad + 6)}px`)
+    // offsetWidth: the layout's width, not shrunk by the buttons' pop-in scale (+1 for its rounding).
+    field.style.setProperty("--cf-ph", `${Math.ceil(probe.current.offsetWidth + pad + 1)}px`)
   }, [on, placeholder])
   useEffect(() => {
     const field = ref.current
