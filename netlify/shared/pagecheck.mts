@@ -37,6 +37,8 @@ export interface CheckedPage {
   inLanguage?: string
   price?: PagePrice
   priceRaw?: string
+  // Where the price was read: JSON-LD offers or product meta tags (page watch reads it from the same place).
+  priceFrom?: "ld" | "meta"
   stock?: "in" | "out" | "unknown"
   stockRaw?: string
   // ISO dates: when it was published and last changed; a job post's or offer's end.
@@ -454,6 +456,7 @@ export function describePage(html: string, url: string, finalUrl: string, http: 
   if (price) {
     page.price = price
     page.priceRaw = priceRaw
+    page.priceFrom = st.ldPrice ? "ld" : "meta"
   }
   if (stockRaw) {
     page.stockRaw = stockRaw

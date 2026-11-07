@@ -16,6 +16,7 @@ import Anthropic from "@anthropic-ai/sdk"
 
 import { config } from "./config.mts"
 import { checkPage, languageCheck, nameScore, nameTokens, normalizeUrl, type CheckedPage, type PagePrice } from "./pagecheck.mts"
+import type { Met, SimilarItem } from "../../src/shared/similar.ts"
 
 export const MAX_PAGE_TEXT = 5_000
 export const MAX_CONDITION = 300
@@ -75,7 +76,7 @@ export interface Candidate {
   pageAge: string | null
 }
 
-export type Met = "yes" | "no" | "unknown" | "n/a"
+export type { Met } from "../../src/shared/similar.ts"
 
 export interface ConditionCheck {
   met: Met
@@ -91,22 +92,8 @@ export interface CheckedCandidate extends Candidate {
   why: string
 }
 
-export interface SimilarItem {
-  name: string
-  why: string
-  fit: string
-  met: Met
-  url: string
-  host: string
-  title: string
-  // The page is the item's own, or a list/review page that names it.
-  source: "item" | "list"
-  // We opened it just now (false: the site doesn't let servers in; only the search result is known).
-  checked: boolean
-  price?: string
-  stock?: "in" | "out"
-  date?: string
-}
+// The item as the panel shows it (src/shared/similar.ts): one definition for both sides.
+export type { SimilarItem } from "../../src/shared/similar.ts"
 
 export interface SimilarResult {
   intro: string
@@ -329,9 +316,9 @@ export function planMessage(input: SimilarInput): string {
   ].filter(Boolean).join("\n\n")
 }
 
-function anthropic(timeoutMs: number): Anthropic {
+function anthropic(timeoutMs: number, retries = 1): Anthropic {
   // The address is pinned (no environment variable can send the key elsewhere); one retry for a hiccup.
-  return new Anthropic({ apiKey: config.anthropicKey, baseURL: "https://api.anthropic.com", maxRetries: 1, timeout: timeoutMs })
+  return new Anthropic({ apiKey: config.anthropicKey, baseURL: "https://api.anthropic.com", maxRetries: retries, timeout: timeoutMs })
 }
 
 function textOf(message: Anthropic.Message): string {
@@ -531,7 +518,8 @@ export async function searchOnce(input: SimilarInput, plan: Plan, query: string,
   const content = own
     ? [...contextLines(input, plan), `The item: ${own}`, `Run this search: ${query}`].join("\n\n")
     : [...contextLines(input, plan), `Run this search: ${query}`].join("\n\n")
-  const client = anthropic(timeoutMs)
+  // One try: a slow search is dropped (the others carry the round) rather than retried past the round's time.
+  const client = anthropic(timeoutMs, 0)
   const messages: Anthropic.MessageParam[] = [{ role: "user", content }]
   const blocks: Anthropic.ContentBlock[] = []
   let searches = 0
@@ -791,7 +779,9 @@ export class ItemFinisher {
       checked: !unchecked,
       ...(c.page.price && !unchecked ? { price: fmtPrice(c.page.price) } : {}),
       ...(c.page.stock === "in" || c.page.stock === "out" ? { stock: c.page.stock } : {}),
-      ...(c.page.published ?? c.page.modified ? { date: (c.page.published ?? c.page.modified)!.slice(0, 10) } : {})
+      ...(c.page.published ?? c.page.modified ? { date: (c.page.published ?? c.page.modified)!.slice(0, 10) } : {}),
+      // "Watch price" in the panel: where page watch will read this page's price.
+      ...(c.page.priceRaw && c.page.priceFrom && !unchecked && c.kind === "item" ? { watch: { source: c.page.priceFrom === "ld" ? "ld-price" as const : "meta-price" as const, value: c.page.priceRaw.slice(0, 60) } } : {})
     }
     this.items.push(item)
     return item
@@ -947,7 +937,7 @@ export async function* runEngineA(input: SimilarInput, stats: EngineStats, opts:
     const failed: string[] = []
     const round = async (jobs: Array<{ query: string; own: string | null }>) => Promise.all(jobs.map(async (job) => {
       try {
-        const call = await searchOnce(input, plan, job.query, job.own, Math.max(6_000, Math.min(15_000, left() - 16_000)), opts.signal, over)
+        const call = await searchOnce(input, plan, job.query, job.own, Math.max(6_000, Math.min(12_000, left() - 16_000)), opts.signal, over)
         stats.spend.search = addSpend(stats.spend.search, call.spend)
         results.push(...call.results)
         const taken = claims.take(call.candidates)

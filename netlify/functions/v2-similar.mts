@@ -11,6 +11,8 @@ import { resolveAccess, type Access } from "../shared/plan.mts"
 import { readPrice } from "../shared/pagecheck.mts"
 import { MAX_CONDITION, MAX_PAGE_TEXT, runEngineA, similarEvalToken, type EngineOverrides, type EngineStats, type SimilarInput, type SourceFacts } from "../shared/similar.mts"
 import { googleCost, startEngineB } from "../shared/similar-google.mts"
+// Who may find similar things (Ultra in 2.6): one seam with the panel (src/shared/similar.ts).
+import { similarAllowed } from "../../src/shared/similar.ts"
 
 /**
  * POST /api/v2/similar — "Find similar" (2.6, Ultra): real alternatives to what the page is about, for any
@@ -62,7 +64,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   let counters: Counter[] = []
   if (!evaluating) {
     access = await resolveAccess(body.entitlement, installId)
-    if (!similarAllowed(access)) {
+    if (!similarAllowed(access.plan)) {
       context.waitUntil(logEvent("pro_only", installId, { feature: "similar", plan: access.plan, platform, version, ...step }))
       return json({ code: "PRO_ONLY", plan: access.plan, feature: "similar" }, 403)
     }
@@ -96,6 +98,14 @@ export default async (req: Request, context: Context): Promise<Response> => {
 
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
+      // A comment line every few seconds while a step works silently: proxies cut a stream with nothing on it.
+      const ping = setInterval(() => {
+        try {
+          controller.enqueue(encoder.encode(": ping\n\n"))
+        } catch {
+          clearInterval(ping)
+        }
+      }, 5_000)
       try {
         if (engine === "a") {
           for await (const event of runEngineA(input, statsA, { signal: req.signal, debug: evaluating, overrides: evaluating ? overridesOf(body.options) : {} })) {
@@ -134,6 +144,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
           // client already gone
         }
       } finally {
+        clearInterval(ping)
         try {
           controller.close()
         } catch {
@@ -194,13 +205,6 @@ function readInput(body: Record<string, unknown>, locale: string): SimilarInput 
   return { page, facts, condition: clip(body.condition, MAX_CONDITION), locale }
 }
 
-/**
- * Who may find similar things. Ultra in 2.6: this switches to the Ultra check the ultra-26 branch adds to
- * plan.mts once it lands; until then, with SIMILAR_ENGINES empty in production, nobody reaches it there.
- */
-function similarAllowed(access: Access): boolean {
-  return access.plan === "pro"
-}
 
 /** Safety caps only (the Ultra allowance is counted with the Ultra plan): per install a day, and for everyone. */
 function similarCounters(installId: string, ip: string): Counter[] {
