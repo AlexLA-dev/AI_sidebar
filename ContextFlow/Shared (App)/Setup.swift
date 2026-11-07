@@ -4,6 +4,7 @@ import SwiftUI
 import UserNotifications
 #if os(iOS)
 import AdServices
+import SafariServices
 import UIKit
 #else
 import AppKit
@@ -15,8 +16,8 @@ import SafariServices
 /// Whether the Safari extension is switched on and has been used. The setup guide on the home screen,
 /// the reminders to finish setup and the anonymous "app opened" funnel event follow from it.
 ///
-/// iOS has no API to ask Safari, so the extension tells the app itself: every message it sends to its
-/// native handler is recorded in the App Group (see SharedDefaults). On the Mac, Safari also answers.
+/// The extension tells the app itself: every message it sends to its native handler is recorded in the App
+/// Group (see SharedDefaults). On the Mac, and on iOS and iPadOS 26.2 and later (2.6), Safari also answers.
 @MainActor
 final class Activation: ObservableObject {
     static let shared = Activation()
@@ -63,10 +64,28 @@ final class Activation: ObservableObject {
             }
         }
         if !enabled { next = .off } else if next == .off { next = .on }
+        #else
+        // Back from Settings with it switched on: the guide gives way at once (2.6, the owner: "after coming back it
+        // still shows how to switch it on"). Older iOS can't ask; the extension says so once it's used.
+        if #available(iOS 26.2, *), let enabled = await Self.safariSaysEnabled() {
+            if !enabled { next = .off } else if next == .off { next = .on }
+        }
         #endif
         state = next
         if next != .off { SetupReminders.cancel() }
     }
+
+    #if os(iOS)
+    /// Whether Safari has the extension switched on, or nil when it can't say.
+    @available(iOS 26.2, *)
+    private static func safariSaysEnabled() async -> Bool? {
+        await withCheckedContinuation { continuation in
+            SFSafariExtensionManager.getStateOfExtension(withIdentifier: extensionBundleIdentifier) { state, _ in
+                continuation.resume(returning: state?.isEnabled)
+            }
+        }
+    }
+    #endif
 
     /// On every launch: offer the reminders once on a new install that isn't set up yet, then report
     /// "app opened" (once a day).
@@ -213,12 +232,17 @@ struct SetupCard: View {
         }
     }
 
+    /// iOS and iPadOS 26.2 and later open Safari's settings on ContextFlow itself (2.6, the owner: "Open Settings"
+    /// led to the app's own settings). Older versions open the app's page, from where the steps above lead on.
+    private var directSettings: Bool {
+        if #available(iOS 26.2, *) { return true }
+        return false
+    }
+
     private var guide: some View {
         Card(title: "Turn on ContextFlow", systemImage: "switch.2") {
             SettingsWalkthrough()
-            Button {
-                if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
-            } label: {
+            Button(action: openExtensionSettings) {
                 Label("Open Settings", systemImage: "gear")
                     .font(.headline)
                     .frame(maxWidth: .infinity)
@@ -226,10 +250,37 @@ struct SetupCard: View {
             }
             .buttonStyle(.borderedProminent)
             .padding(.top, 4)
-            Text("Settings opens on ContextFlow's page: tap “Apps” at the top left, then follow the steps above.")
-                .font(.footnote)
-                .foregroundColor(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
+            if directSettings {
+                Text("Settings opens on ContextFlow: switch it on, then set All Websites to Allow.")
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            } else {
+                Text("Settings opens on ContextFlow's page: tap “Apps” at the top left, then follow the steps above.")
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                // This iOS can't tell the app it's on until the panel is used: the way on from here.
+                Button(action: openSafari) {
+                    Label("Switched it on? Open Safari", systemImage: "safari")
+                        .font(.subheadline.weight(.semibold))
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+            }
+        }
+    }
+
+    private func openExtensionSettings() {
+        let appSettings = {
+            if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
+        }
+        if #available(iOS 26.2, *) {
+            SFSafariSettings.openExtensionsSettings(forIdentifiers: [extensionBundleIdentifier]) { error in
+                if error != nil { appSettings() }
+            }
+        } else {
+            appSettings()
         }
     }
 

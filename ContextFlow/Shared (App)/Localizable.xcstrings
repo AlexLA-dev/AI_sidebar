@@ -3011,6 +3011,70 @@
         }
       }
     },
+    "Settings opens on ContextFlow: switch it on, then set All Websites to Allow.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Einstellungen öffnen sich bei ContextFlow: Aktiviere es und setze „Alle Websites“ auf „Erlauben“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajustes se abre en ContextFlow: actívalo y ajusta “Todos los sitios web” en “Permitir”."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages s’ouvre sur ContextFlow : activez-le, puis réglez « Tous les sites web » sur « Autoriser »."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impostazioni si apre su ContextFlow: attivalo, poi imposta “Tutti i siti web” su “Consenti”."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定が ContextFlow の画面で開きます。オンにしてから、「すべてのWebサイト」を「許可」に設定します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설정이 ContextFlow 화면에서 열려요. 켠 다음 '모든 웹 사이트'를 '허용'으로 설정하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os Ajustes abrem no ContextFlow: ative-o e ajuste “Todos os Sites” para “Permitir”."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Настройки откроются на ContextFlow: включите расширение, затем для «Все веб-сайты» выберите «Разрешить»."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Параметри відкриються на ContextFlow: увімкніть розширення, потім для «Усі вебсайти» виберіть «Дозволити»."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置会直接打开 ContextFlow：将其打开，然后把“所有网站”设为“允许”。"
+          }
+        }
+      }
+    },
     "Subscriptions renew automatically unless cancelled at least 24 hours before the end of the current period. Payment is charged to your Apple Account. You can manage or cancel your subscription in your App Store account settings.": {
       "localizations": {
         "de": {
@@ -3263,6 +3327,70 @@
           "stringUnit": {
             "state": "translated",
             "value": "支持"
+          }
+        }
+      }
+    },
+    "Switched it on? Open Safari": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktiviert? Safari öffnen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Ya lo activaste? Abrir Safari"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activé ? Ouvrir Safari"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attivato? Apri Safari"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オンにしましたか？Safariを開く"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "켰나요? Safari 열기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Já ativou? Abrir Safari"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Включили? Открыть Safari"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Увімкнули? Відкрити Safari"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已经打开了？打开 Safari"
           }
         }
       }
