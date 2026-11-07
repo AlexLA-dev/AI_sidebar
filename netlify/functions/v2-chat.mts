@@ -1,7 +1,8 @@
 import type { Config, Context } from "@netlify/functions"
 
 import { config as settings } from "../shared/config.mts"
-import { consume, logEvent, maybeCleanup, refund, touchInstall, type ConsumeResult } from "../shared/db.mts"
+import { consume, giveTourAnswerBack, logEvent, maybeCleanup, peek, refund, takeTourAnswer, touchInstall, type ConsumeResult } from "../shared/db.mts"
+import { installCounter, tourAsked, tourCounters } from "../shared/tour.mts"
 import { clip, ipSubject, isUuid, json, preflight, readJson, corsHeaders } from "../shared/http.mts"
 import { buildGrounding, googlePrompt, readGoogle, startGoogle, type GoogleStats } from "../shared/google.mts"
 import { answerCost, clientBuild, startAnswer, type Answer } from "../shared/answer.mts"
@@ -23,7 +24,8 @@ import { pageBucket, pageChars, requestWeight } from "../shared/weight.mts"
  *         context?: "chat" (the whole conversation and notes), pages?: [{title, url, text}] (its other pages),
  *         from?: "app" (with context "chat": asked in the ContextFlow app; page and pages are the chat's saved texts),
  *         stats?: {turns, pages, chats} (2.4: the chat's messages and pages and the device's chats, for /analytics),
- *         context?: "history" with history: [{id, title, date, text}] — "Ask your chats", Pro only (no page) }
+ *         context?: "history" with history: [{id, title, date, text}] — "Ask your chats", Pro only (no page),
+ *         tour?: true (2.6: asked in the guided first request; free for an install's first few, tour.mts) }
  * Response: text/event-stream of `data: {"type": "meta"|"delta"|"grounding"|"done"|"error", …}` lines
  * ("grounding" only in Google mode: the final text with citations, sources and Search Suggestions),
  * or JSON {code, …} with a 4xx/5xx status when the request is refused before streaming.
@@ -74,8 +76,14 @@ export default async (req: Request, context: Context): Promise<Response> => {
   // A long page counts as several answers, charged in full or not at all (weight.mts); Google mode and
   // "Ask your chats" as one.
   const weight = google || history ? 1 : requestWeight(page, messages)
+  // Asked in the guided first request (2.6): not charged to the install's daily answers, for its first few.
+  const tour = tourAsked(body, access.plan, google, history)
+    ? await takeTourAnswer(installId, settings.tourFreeAnswers).catch(() => false)
+    : false
+  const giveBack = () => (tour ? giveTourAnswerBack(installId).catch(() => undefined) : Promise.resolve(undefined))
+  const own = countersFor(access, installId, ipSubject(context.ip))
   const counters = [
-    ...countersFor(access, installId, ipSubject(context.ip)).map((c) => (weight > 1 ? { ...c, amount: weight } : c)),
+    ...tourCounters(own, installId, tour).map((c) => (weight > 1 ? { ...c, amount: weight } : c)),
     ...(google ? searchCountersFor(access, installId) : [])
   ]
 
@@ -84,12 +92,19 @@ export default async (req: Request, context: Context): Promise<Response> => {
     quota = await consume(counters)
   } catch (err) {
     console.error("[cf] consume failed:", err instanceof Error ? err.message : err)
-    if (access.plan !== "pro") return json({ code: "UNAVAILABLE", message: "Service temporarily unavailable" }, 503)
+    if (access.plan !== "pro") {
+      context.waitUntil(giveBack())
+      return json({ code: "UNAVAILABLE", message: "Service temporarily unavailable" }, 503)
+    }
     quota = { allowed: true, blocked: null, counters: counters.map((c) => ({ ...c, n: 0 })) }
   }
-  const usage = visibleUsage(access, quota.counters)
+  // A free guided answer left the install's counter alone: the person still sees where it stands.
+  const usage = tour
+    ? await peek(own.filter((c) => c.subject === installCounter(installId))).then((rows) => visibleUsage(access, rows), () => null)
+    : visibleUsage(access, quota.counters)
 
   if (!quota.allowed) {
+    context.waitUntil(giveBack())
     const reason = blockReason(quota.blocked)
     context.waitUntil(logEvent("limit", installId, { plan: access.plan, reason, platform, version, mode: google ? "google" : "chat", ...(weight > 1 ? { weight } : {}), ...step }))
     const code = reason === "busy" ? "BUSY" : reason === "search" ? "SEARCH_LIMIT" : "LIMIT_REACHED"
@@ -110,6 +125,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
     console.error("[cf] upstream failed:", err instanceof Error ? err.message : err)
     context.waitUntil(Promise.all([
       refund(counters).catch(() => undefined),
+      giveBack(),
       logEvent("upstream_error", installId, {
         message: err instanceof Error ? err.message.slice(0, 300) : "unknown",
         mode: google ? "google" : "chat",
@@ -160,7 +176,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
         } catch {
           // already closed
         }
-        if (!ok) await refund(counters).catch(() => undefined)
+        if (!ok) await Promise.all([refund(counters).catch(() => undefined), giveBack()])
         succeeded = ok
         finished()
       }
@@ -197,6 +213,8 @@ export default async (req: Request, context: Context): Promise<Response> => {
       ...chatSize(body.stats),
       // How many answers it counted as, and the page's length, to set against cost_usd (2.5).
       weight,
+      // Asked in the guided first request (2.6), and whether it was left out of the daily answers.
+      ...(body.tour === true ? { tour: true, tour_free: tour } : {}),
       ...(page?.kind === "page" ? { page_bucket: pageBucket(pageChars(page)) } : {}),
       prompt_tokens: stats.promptTokens,
       ...(stats.cacheWriteTokens ? { cache_write_tokens: stats.cacheWriteTokens } : {}),

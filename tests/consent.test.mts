@@ -61,6 +61,10 @@ test("the consent names each feature as the panel does, in all 11 languages", ()
     assert.ok(names(s.consentTemplates, s.qiFindAi), `${lang}: "Find by meaning"`)
     for (const key of ["consentAnswers", "consentSuggest"]) assert.match(s[key], /OpenAI/, `${lang}: ${key} names the backup`)
     assert.match(s.consentBody, /Anthropic \(Claude\)|Anthropic（Claude）|Anthropic\(Claude\)/, `${lang}: who answers`)
+    // 2.6: every provider it can go to, in the text shown before the fold.
+    assert.match(s.consentBody, /OpenAI/, `${lang}: the backup and suggestions`)
+    assert.match(s.consentBody, /Google Gemini/, `${lang}: Google answers`)
+    assert.match(s.consentBody, /API/, `${lang}: the own key`)
     assert.match(s.consentAnswers, /Google/, `${lang}: Google answers`)
     // The suggestions card is a switch now: it no longer reads like a second consent.
     assert.doesNotMatch(s.orgConsentText, /OpenAI|Anthropic/, `${lang}: the suggestions card`)
@@ -153,7 +157,8 @@ test("the card is compact: folded at first, what each feature sends unfolds and 
 
 test("the short text stays short in every language (the folded card fits on an iPhone with the question box)", () => {
   for (const [lang, s] of locales) {
-    assert.ok(s.consentBody.length <= 260, `${lang}: ${s.consentBody.length} characters`)
+    // 2.6: it names OpenAI and Google Gemini next to Anthropic, and the own key (the owner: "why only Anthropic?").
+    assert.ok(s.consentBody.length <= 345, `${lang}: ${s.consentBody.length} characters`)
     assert.ok(s.consentWhat.length <= 32, `${lang}: consentWhat`)
     assert.doesNotMatch(s.consentStored, /OpenAI|Anthropic/, `${lang}: the stored line no longer repeats the body`)
   }

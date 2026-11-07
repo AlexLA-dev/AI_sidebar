@@ -41,7 +41,8 @@ export async function askServer(req: ServerRequest, emit: Emit, signal: AbortSig
         mode: req.payload.mode,
         ...(req.payload.context === "chat" ? { context: "chat", pages: req.payload.pages ?? [] } : {}),
         ...(req.payload.context === "history" ? { context: "history", history: req.payload.history ?? [] } : {}),
-        ...(req.payload.stats ? { stats: req.payload.stats } : {})
+        ...(req.payload.stats ? { stats: req.payload.stats } : {}),
+        ...(req.payload.tour ? { tour: true } : {})
       }),
       signal: timeout.signal
     })

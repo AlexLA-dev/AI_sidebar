@@ -44,6 +44,10 @@ async function rpc<T>(fn: string, args: Record<string, unknown>): Promise<T> {
 export const consume = (items: Counter[]) => rpc<ConsumeResult>("cf_consume", { p_items: items })
 export const refund = (items: Counter[]) => rpc<null>("cf_refund", { p_items: items })
 export const peek = (items: Counter[]) => rpc<CounterState[]>("cf_peek", { p_items: items })
+/** One of the install's free answers in the guided first request (2.6, tour.mts): true while it had one left. */
+export const takeTourAnswer = (installId: string, max: number) => rpc<boolean>("cf_tour_take", { p_install: installId, p_max: max })
+/** The guided answer didn't come (refused, failed): it's the install's again. */
+export const giveTourAnswerBack = (installId: string) => rpc<null>("cf_tour_give_back", { p_install: installId })
 
 export function touchInstall(installId: string, platform: string, version: string, locale: string, requests = 0) {
   return rpc<null>("cf_touch_install", {

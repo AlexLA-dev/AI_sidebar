@@ -2,7 +2,8 @@
 // reminders and watching (two words, two icons, never one list): "Remind me about this page…" (the bell; time
 // only), "Watch this page…" (the eye; the whole page, where watching works), "Reminders · N" (the bell),
 // "Watching · N" (the eye; where watching works) and Settings. 2.5 (78), the owner's note: Tips (the app's Tips,
-// tips/TipsSheet) before Settings.
+// tips/TipsSheet) before Settings. 2.6, the owner's note: "Show the intro again" (the guided first request,
+// Guide.tsx), last.
 
 import type { VNode } from "preact"
 import { useEffect, useRef } from "preact/hooks"
@@ -13,7 +14,7 @@ import * as Icon from "../icons"
 import { tipsLabel, TipsIcon } from "../tips/TipsSheet"
 import { Bell } from "./MessageUx"
 
-export function PageMenu({ reminders, watches, onLater, onWatchPage, onReminders, onWatching, onTips, onSettings, onClose }: {
+export function PageMenu({ reminders, watches, onLater, onWatchPage, onReminders, onWatching, onTips, onSettings, onIntro, onClose }: {
   reminders: number
   // null: no watching here (not Safari).
   watches: number | null
@@ -25,6 +26,8 @@ export function PageMenu({ reminders, watches, onLater, onWatchPage, onReminders
   // Absent (or a build without Tips): no Tips item.
   onTips?: () => void
   onSettings: () => void
+  // Absent: no page to summarize here, so no guide.
+  onIntro?: () => void
   onClose: () => void
 }): VNode {
   const ref = useRef<HTMLDivElement>(null)
@@ -57,6 +60,7 @@ export function PageMenu({ reminders, watches, onLater, onWatchPage, onReminders
       )}
       {tips && <button type="button" role="menuitem" onClick={onTips}><TipsIcon size={16} /> {tips}</button>}
       <button type="button" role="menuitem" onClick={onSettings}><Icon.Gear /> {t("settings")}</button>
+      {onIntro && <button type="button" role="menuitem" class="cf-page-intro" onClick={onIntro}><Icon.Sparkle size={15} /> {t("uxShowIntro")}</button>}
     </div>
   )
 }

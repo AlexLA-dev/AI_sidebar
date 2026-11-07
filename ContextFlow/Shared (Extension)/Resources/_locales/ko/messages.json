@@ -11,6 +11,9 @@
  "languageName": {
   "message": "한국어"
  },
+ "langCode": {
+  "message": "ko"
+ },
  "ctxPage": {
   "message": "이 페이지"
  },
@@ -447,10 +450,10 @@
   "message": "ContextFlow가 AI를 사용하기 전에"
  },
  "consentBody": {
-  "message": "이 동의는 한 번만 하면 모든 AI 기능에 적용돼요. 각 기능은 사용할 때 필요한 것만 당사 서버를 거쳐 Anthropic(Claude)으로 보내요. 당사 서버에는 아무것도 저장되지 않으며, 제공업체는 이를 학습에 사용하지 않아요."
+  "message": "한 번만 동의하면 모든 AI 기능에 적용돼요. 각 기능은 사용할 때 필요한 것만 당사 서버를 거쳐 Anthropic(Claude), OpenAI(예비 답변, 추천), Google Gemini(Google 답변)로 보내요. 내 API 키를 쓰면 해당 제공업체로 바로 가요. 서버에 아무것도 남지 않고 학습에도 쓰이지 않아요."
  },
  "consentAnswers": {
-  "message": "답변: 질문, 페이지 텍스트나 선택한 부분, 그리고 작성했다면 ‘내 소개’. Claude를 사용할 수 없으면 OpenAI가 답하고, Google 답변은 Google로 가요."
+  "message": "답변: 질문, 페이지 텍스트나 선택한 부분, 그리고 작성했다면 ‘내 소개’. Claude를 사용할 수 없으면 OpenAI가 답하고, Google 답변은 Google Gemini로 가요."
  },
  "consentChats": {
   "message": "‘모든 채팅에 묻기’와 AI 검색(Pro): 채팅의 짧은 발췌."
@@ -695,6 +698,63 @@
  "tourWholeBody": {
   "message": "질문에 모든 내용이 필요할 때 '채팅 전체'를 켜세요: 모든 메시지, 메모, 이 채팅의 다른 페이지. 끄면: 최근 메시지와 이 페이지."
  },
+ "tourMenuTitle": {
+  "message": "그 밖의 기능"
+ },
+ "tourMenuBody": {
+  "message": "리마인더와 지켜보는 페이지, 팁, 설정, 이 소개 다시 보기는 이 메뉴에 있어요."
+ },
+ "guideSumTitle": {
+  "message": "첫 번째 답변"
+ },
+ "guideSumBody": {
+  "message": "‘{0}’를 탭하면 ContextFlow가 이 페이지를 읽고 요약해 줘요."
+ },
+ "guideConsentTitle": {
+  "message": "모든 AI 기능에 한 번만 동의"
+ },
+ "guideConsentBody": {
+  "message": "AI로 무언가를 보내기 전에 ContextFlow가 한 번 물어봐요. 동의하면 요약을 받을 수 있어요."
+ },
+ "guideAnswerTitle": {
+  "message": "요약이 준비됐어요"
+ },
+ "guideAnswerBody": {
+  "message": "스크롤해서 읽어 보세요. 아래 입력란에서 언제든 이어서 질문할 수 있어요."
+ },
+ "guideSelectTitle": {
+  "message": "이제 일부분에 대해 물어보세요"
+ },
+ "guideSelectBodyTouch": {
+  "message": "페이지의 단어를 길게 누르고 선택 범위를 몇 줄로 늘린 다음 ‘{0}’를 탭하세요."
+ },
+ "guideSelectBodyMouse": {
+  "message": "페이지에서 몇 줄을 선택하고 ‘{0}’를 클릭하세요."
+ },
+ "guideSelectGo": {
+  "message": "해 보기"
+ },
+ "guidePickTouch": {
+  "message": "페이지의 단어를 길게 누르세요"
+ },
+ "guidePickMouse": {
+  "message": "페이지에서 몇 줄을 선택하세요"
+ },
+ "guideTapAskTouch": {
+  "message": "‘{0}’를 탭해서 선택한 부분에 대해 물어보세요."
+ },
+ "guideTapAskMouse": {
+  "message": "‘{0}’를 클릭해서 선택한 부분에 대해 물어보세요."
+ },
+ "guideAskSelTitle": {
+  "message": "선택한 부분에 대해 묻기"
+ },
+ "guideAskSelBody": {
+  "message": "‘{0}’ 같은 빠른 동작을 고르거나 직접 질문을 입력하세요."
+ },
+ "uxShowIntro": {
+  "message": "소개 다시 보기"
+ },
  "welcomeTitle": {
   "message": "ContextFlow가 준비됐어요"
  },
@@ -715,6 +775,12 @@
  },
  "selQuestion": {
   "message": "질문 입력…"
+ },
+ "selTranslateTo": {
+  "message": "{0}로 번역"
+ },
+ "selChips": {
+  "message": "빠른 동작"
  },
  "selNote": {
   "message": "메모"

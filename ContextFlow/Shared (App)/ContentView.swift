@@ -128,7 +128,11 @@ struct ContentView: View {
                 await activation.launched()
             }
             .onChange(of: scenePhase) { phase in
-                if phase == .active { askForReviewIfDue() }
+                if phase == .active {
+                    askForReviewIfDue()
+                    // Back from Settings or Safari: whether ContextFlow is on now (2.6).
+                    Task { await activation.refresh() }
+                }
             }
             // The first chat arrived (or the last one went): show the right first tab.
             .onChange(of: hasChats) { has in
