@@ -2811,7 +2811,7 @@ function Sources({ grounding }: { grounding: Grounding }): VNode {
           <ol class="cf-source-list">
             {grounding.sources.map((s, i) => (
               <li key={s.url}>
-                <a href={s.url} target="_blank" rel="noopener noreferrer"><span class="n">{i + 1}</span><span class="t">{s.title}</span></a>
+                <a href={s.url} target="_blank" rel="noopener noreferrer"><span class="n">{i + 1}</span><span class="t" dir="auto">{s.title}</span></a>
               </li>
             ))}
           </ol>
@@ -2916,7 +2916,7 @@ function ContextChip({ kind, media, title, words, text, onClear }: { kind: "sele
   }
   return (
     <span class={`cf-ctx ${kind}`}>
-      {kind === "page" && media === "video" ? <Icon.Play /> : <Icon.Doc />} <span class="cf-ctx-text">{kind === "page" ? title || t("ctxPage") : t("ctxNone")}</span>
+      {kind === "page" && media === "video" ? <Icon.Play /> : <Icon.Doc />} <span class="cf-ctx-text" dir="auto">{kind === "page" ? title || t("ctxPage") : t("ctxNone")}</span>
     </span>
   )
 }
