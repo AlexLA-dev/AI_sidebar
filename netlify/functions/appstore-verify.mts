@@ -24,6 +24,15 @@ export default async (req: Request, _context: Context): Promise<Response> => {
   return json({ error: "Missing signedPayload or jwsTransaction" }, 400)
 }
 
+// Notifications that change a subscription's state: the analytics status (/analytics «Подписки») is read from the
+// last of these. The rest only inform (a refund request, a declined or reversed refund, a price change, an
+// extension, a metadata update): recording them as the last notification would hide, say, a cancellation
+// (auto-renew off) behind a refund request.
+const STATE_NOTIFICATIONS = new Set([
+  "SUBSCRIBED", "DID_RENEW", "DID_CHANGE_RENEWAL_STATUS", "DID_CHANGE_RENEWAL_PREF", "OFFER_REDEEMED",
+  "DID_FAIL_TO_RENEW", "GRACE_PERIOD_EXPIRED", "EXPIRED", "REFUND", "REVOKE"
+])
+
 interface NotificationPayload {
   notificationType: string
   subtype?: string
@@ -65,7 +74,8 @@ async function handleNotification(signedPayload: string): Promise<Response> {
     revoked_at: revokedAt,
     app_account_token: tx.appAccountToken ?? null,
     last_transaction_id: String(tx.transactionId),
-    last_notification: subtype ? `${type}:${subtype}` : type
+    // Left out for an informational notification, so the stored state stays (cf_entitlement_upsert keeps it).
+    ...(STATE_NOTIFICATIONS.has(type) ? { last_notification: subtype ? `${type}:${subtype}` : type } : {})
   })
   await logEvent("appstore_notification", null, {
     type, subtype, product: tx.productId, environment: tx.environment, uuid: notification.notificationUUID,
