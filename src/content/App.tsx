@@ -1620,7 +1620,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     else if (guide === "answer2" && !streaming && !error && lastRole === "assistant") guideTo(threadList.length > 0 ? "chats" : "menu")
     else if (guide === "pick" && bubble?.rect && !open) guideTo("ask")
     else if (guide === "ask" && !bubble?.rect && !open) guideTo("pick")
-  }, [guide, pending, partial, consent, error, lastRole, bubble, open, threadList.length])
+    // Out of the chat list (back, a chat opened, a new one): on to the "…".
+    else if (guide === "chatList" && view === "chat") guideTo("menu")
+  }, [guide, pending, partial, consent, error, lastRole, bubble, open, threadList.length, view])
   // The answer step's card waits for the answer to be in.
   const guideIdle = guide !== null && !(WAITING.includes(guide) && (streaming || lastRole !== "assistant"))
   // The panel closed during a step in it (not by the guide's own "Try it"): it ends there.
@@ -1633,7 +1635,22 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       guideTo("pick")
       if (!popup) hide()
     } else if (guide === "chats") guideTo("menu")
-    else if (guide === "menu") endGuide("done")
+    else if (guide === "chatList") {
+      setView("chat")
+      guideTo("menu")
+    } else if (guide === "menu") endGuide("done")
+  }
+  // A tap on what the step lights up: the guide goes where it leads. The other steps' taps (Summarize, the consent
+  // card, a quick action) already move it on by what they start.
+  const guideTap = (step: GuideStep) => {
+    if (step === "chats") {
+      // The list opened here too, with the step: this runs before the button's own handler, and a render between the
+      // two (the chat list's step with the chat still showing) would send the guide straight on to the "…".
+      setView("threads")
+      guideTo("chatList")
+      // The guide's card says what the list's hint would: it isn't shown again later.
+      if (hints !== null && !hints.includes("chats")) doneHint("chats")
+    } else if (step === "menu") endGuide("done")
   }
   const plan = status?.plan ?? "free"
   const ownKeyActive = viaOwnKey || (Boolean(status?.hasOwnKey) && plan !== "free")
@@ -2202,7 +2219,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 )}
               </div>
               <div class="cf-bubble-ask">
-                <SelField touch={touch} chips={touch && !selDraft && !selFocus ? SEL_CHIPS.flatMap((id) => forSelection(selAction(id), bubble.text) ?? []) : []} onChip={(a) => {
+                <SelField touch={touch} placeholder={t("selQuestion")} chips={touch && !selDraft && !selFocus ? SEL_CHIPS.flatMap((id) => forSelection(selAction(id), bubble.text) ?? []) : []} onChip={(a) => {
                   selFeatureUsed()
                   void sendBackground({ type: "useEvent", f: "bubble", a: "action", what: a.id, via: "chip" })
                   show(bubble)
@@ -2373,7 +2390,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
           {view === "threads" ? (
             <>
-              {hintDue("chats") && threadList.length > 0 && (
+              {hintDue("chats") && threadList.length > 0 && guide !== "chatList" && (
                 <div class="cf-upsell-wrap">
                   <Hint icon={<Icon.Chats />} title={t("hintChatsTitle")} onDone={() => doneHint("chats")}>{t("hintChatsBody")}</Hint>
                 </div>
@@ -2790,7 +2807,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               )}
             </>
           )}
-          {guide && guideIdle && !ON_PAGE.includes(guide) && view === "chat" && panelRef.current && (
+          {guide && guideIdle && !ON_PAGE.includes(guide) && view === (guide === "chatList" ? "threads" : "chat") && panelRef.current && (
             <GuideCard
               key={guide}
               panel={panelRef.current}
@@ -2799,6 +2816,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               sync={TARGET === "safari" && settings.syncChats}
               onNext={guideNext}
               onSkip={() => endGuide("skip")}
+              onTap={guideTap}
             />
           )}
           {touring && view === "chat" && panelRef.current && (
@@ -2924,14 +2942,28 @@ let chipsNudged = false
 
 /**
  * The selection buttons' question field (2.6, the owner's idea for iPhone and iPad): the panel's quick actions sit
- * in the field itself, semi-transparent, the first one peeking in at its end (the right edge; the left one right to
- * left, Arabic); a swipe toward the start pulls them in, a carousel, and a tap on one asks it, so the person can swipe and tap instead of typing. They step aside once
- * the field has the focus or a question. The buttons are touch-action:none (taps only); the field scrolls sideways
- * (pan-x). The size of the buttons doesn't change. Mac: just the field.
+ * in the field itself, semi-transparent, starting right after the placeholder's text (build 86, the owner: the first
+ * one barely peeked in at the far edge); a swipe toward the start pulls the rest in, a carousel, and a tap on one asks
+ * it, so the person can swipe and tap instead of typing. Right to left (Arabic) the placeholder is on the right and
+ * the chips follow it to its left. They step aside once the field has the focus or a question. The buttons are
+ * touch-action:none (taps only); the field scrolls sideways (pan-x). The size of the buttons doesn't change. Mac: just
+ * the field.
  */
-function SelField({ touch, chips, onChip, children }: { touch: boolean; chips: Action[]; onChip: (a: Action) => void; children: ComponentChildren }): VNode {
+function SelField({ touch, chips, placeholder, onChip, children }: { touch: boolean; chips: Action[]; placeholder: string; onChip: (a: Action) => void; children: ComponentChildren }): VNode {
   const ref = useRef<HTMLDivElement>(null)
+  const probe = useRef<HTMLSpanElement>(null)
   const on = chips.length > 0
+  // The placeholder's own width in the field's font (each language's is different), plus the input's padding: the
+  // input is that wide while the chips show, so the first one or two sit right after "Your question…".
+  useLayoutEffect(() => {
+    const field = ref.current
+    const input = field?.querySelector("input")
+    if (!field || !input || !probe.current) return
+    const style = getComputedStyle(input)
+    const pad = (parseFloat(style.paddingLeft) || 0) + (parseFloat(style.paddingRight) || 0)
+    // offsetWidth: the layout's width, not shrunk by the buttons' pop-in scale (+1 for its rounding).
+    field.style.setProperty("--cf-ph", `${Math.ceil(probe.current.offsetWidth + pad + 1)}px`)
+  }, [on, placeholder])
   useEffect(() => {
     const field = ref.current
     if (!field) return
@@ -2950,6 +2982,7 @@ function SelField({ touch, chips, onChip, children }: { touch: boolean; chips: A
   if (!touch) return <>{children}</>
   return (
     <div ref={ref} class={`cf-ask-field ${on ? "chips" : ""}`} role="group" aria-label={on ? t("selChips") : undefined}>
+      <span ref={probe} class="cf-ask-probe" aria-hidden="true">{placeholder}</span>
       {children}
       {chips.map((a) => (
         <button type="button" key={a.id} class="cf-sel-chip" {...press(() => onChip(a))}>{a.text ?? t(a.label)}</button>
