@@ -11,6 +11,9 @@
  "languageName": {
   "message": "简体中文"
  },
+ "langCode": {
+  "message": "zh-Hans"
+ },
  "ctxPage": {
   "message": "此页面"
  },
@@ -447,10 +450,10 @@
   "message": "ContextFlow 使用 AI 之前"
  },
  "consentBody": {
-  "message": "这项同意只需给出一次，适用于所有 AI 功能。每个功能只在你使用时，通过我们的服务器把所需内容发送给 Anthropic（Claude）。我们的服务器不保存任何内容，服务商也不会用它来训练模型。"
+  "message": "只需同意一次，适用于所有 AI 功能。每个功能只在你使用时，通过我们的服务器把所需内容发送给 Anthropic（Claude）、OpenAI（备用回答、建议）和 Google Gemini（Google 回答）。使用自己的 API 密钥时，直接发送给该服务商。服务器不保存任何内容，也不会用于训练。"
  },
  "consentAnswers": {
-  "message": "回答：你的问题、页面文本或所选内容，以及你填写的“关于我”。Claude 不可用时由 OpenAI 回答；Google 回答发送给 Google。"
+  "message": "回答：你的问题、页面文本或所选内容，以及你填写的“关于我”。Claude 不可用时由 OpenAI 回答；Google 回答发送给 Google Gemini。"
  },
  "consentChats": {
   "message": "“问问你的所有对话”和 AI 搜索（Pro）：你的对话的简短摘录。"
@@ -695,6 +698,63 @@
  "tourWholeBody": {
   "message": "当问题需要全部内容时，打开“整个对话”：所有消息、你的笔记和此对话中的其他页面。关闭时：最近的消息和当前页面。"
  },
+ "tourMenuTitle": {
+  "message": "其他功能"
+ },
+ "tourMenuBody": {
+  "message": "提醒和关注的页面、使用技巧、设置以及重新查看这段介绍，都在这个菜单里。"
+ },
+ "guideSumTitle": {
+  "message": "你的第一个回答"
+ },
+ "guideSumBody": {
+  "message": "点按“{0}”：ContextFlow 会阅读这个页面并为你总结。"
+ },
+ "guideConsentTitle": {
+  "message": "一次同意，适用于所有 AI 功能"
+ },
+ "guideConsentBody": {
+  "message": "在把任何内容发送给 AI 之前，ContextFlow 会询问一次。同意后即可获得总结。"
+ },
+ "guideAnswerTitle": {
+  "message": "这是你的总结"
+ },
+ "guideAnswerBody": {
+  "message": "滚动即可阅读。你随时可以在下方输入框里继续提问。"
+ },
+ "guideSelectTitle": {
+  "message": "现在问问其中一部分"
+ },
+ "guideSelectBodyTouch": {
+  "message": "长按页面上的一个词，把选择范围拖到几行，然后点按“{0}”。"
+ },
+ "guideSelectBodyMouse": {
+  "message": "在页面上选中几行，然后点击“{0}”。"
+ },
+ "guideSelectGo": {
+  "message": "试一试"
+ },
+ "guidePickTouch": {
+  "message": "长按页面上的一个词"
+ },
+ "guidePickMouse": {
+  "message": "在页面上选中几行"
+ },
+ "guideTapAskTouch": {
+  "message": "点按“{0}”，就所选内容提问。"
+ },
+ "guideTapAskMouse": {
+  "message": "点击“{0}”，就所选内容提问。"
+ },
+ "guideAskSelTitle": {
+  "message": "就所选内容提问"
+ },
+ "guideAskSelBody": {
+  "message": "选一个快捷操作，比如“{0}”，或输入你自己的问题。"
+ },
+ "uxShowIntro": {
+  "message": "再次查看介绍"
+ },
  "welcomeTitle": {
   "message": "ContextFlow 已准备就绪"
  },
@@ -715,6 +775,12 @@
  },
  "selQuestion": {
   "message": "输入你的问题…"
+ },
+ "selTranslateTo": {
+  "message": "翻译成{0}"
+ },
+ "selChips": {
+  "message": "快捷操作"
  },
  "selNote": {
   "message": "笔记"

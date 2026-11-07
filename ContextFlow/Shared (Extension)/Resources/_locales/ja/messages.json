@@ -11,6 +11,9 @@
  "languageName": {
   "message": "日本語"
  },
+ "langCode": {
+  "message": "ja"
+ },
  "ctxPage": {
   "message": "このページ"
  },
@@ -447,10 +450,10 @@
   "message": "ContextFlow が AI を使う前に"
  },
  "consentBody": {
-  "message": "この同意は 1 回だけで、すべての AI 機能に適用されます。各機能は、使ったときに必要なものだけを、当社のサーバー経由で Anthropic（Claude）に送信します。当社のサーバーには何も保存されず、提供元がこれを学習に使うこともありません。"
+  "message": "同意は 1 回だけで、すべての AI 機能に適用されます。各機能は使ったときに必要なものだけを、当社サーバー経由で Anthropic（Claude）、OpenAI（予備の回答・提案）、Google Gemini（Google での回答）に送信します。自分の API キーなら、そのプロバイダーに直接送られます。当社サーバーには何も残らず、学習にも使われません。"
  },
  "consentAnswers": {
-  "message": "回答：あなたの質問、ページのテキストまたは選択範囲、記入していれば「自己紹介」。Claude を利用できない場合は OpenAI が回答します。Google での回答は Google に送られます。"
+  "message": "回答：あなたの質問、ページのテキストまたは選択範囲、記入していれば「自己紹介」。Claude を利用できない場合は OpenAI が回答します。Google での回答は Google Gemini に送られます。"
  },
  "consentChats": {
   "message": "「すべてのチャットに質問」と AI検索（Pro）：チャットの短い抜粋。"
@@ -695,6 +698,63 @@
  "tourWholeBody": {
   "message": "質問にすべてが必要なときは「チャット全体」をオンに：すべてのメッセージ、メモ、このチャットの他のページ。オフ：直近のメッセージとこのページ。"
  },
+ "tourMenuTitle": {
+  "message": "その他の機能"
+ },
+ "tourMenuBody": {
+  "message": "リマインダー、見守り中のページ、ヒント、設定、この紹介のやり直しはこのメニューにあります。"
+ },
+ "guideSumTitle": {
+  "message": "最初の回答"
+ },
+ "guideSumBody": {
+  "message": "「{0}」をタップすると、ContextFlow がこのページを読んで要約します。"
+ },
+ "guideConsentTitle": {
+  "message": "AI 機能への同意は 1 回だけ"
+ },
+ "guideConsentBody": {
+  "message": "AI に何かを送る前に、ContextFlow は一度だけ確認します。同意すると要約が届きます。"
+ },
+ "guideAnswerTitle": {
+  "message": "要約ができました"
+ },
+ "guideAnswerBody": {
+  "message": "スクロールして読めます。下の入力欄でいつでも続けて質問できます。"
+ },
+ "guideSelectTitle": {
+  "message": "次は一部分について質問"
+ },
+ "guideSelectBodyTouch": {
+  "message": "ページの単語を長押しし、選択範囲を数行に広げて「{0}」をタップします。"
+ },
+ "guideSelectBodyMouse": {
+  "message": "ページの数行を選択して「{0}」をクリックします。"
+ },
+ "guideSelectGo": {
+  "message": "試してみる"
+ },
+ "guidePickTouch": {
+  "message": "ページの単語を長押ししてください"
+ },
+ "guidePickMouse": {
+  "message": "ページの数行を選択してください"
+ },
+ "guideTapAskTouch": {
+  "message": "「{0}」をタップして、選択した部分について質問します。"
+ },
+ "guideTapAskMouse": {
+  "message": "「{0}」をクリックして、選択した部分について質問します。"
+ },
+ "guideAskSelTitle": {
+  "message": "選択した部分について質問"
+ },
+ "guideAskSelBody": {
+  "message": "「{0}」などのクイック操作を選ぶか、質問を入力してください。"
+ },
+ "uxShowIntro": {
+  "message": "紹介をもう一度見る"
+ },
  "welcomeTitle": {
   "message": "ContextFlowの準備ができました"
  },
@@ -715,6 +775,12 @@
  },
  "selQuestion": {
   "message": "質問を入力…"
+ },
+ "selTranslateTo": {
+  "message": "{0}に翻訳"
+ },
+ "selChips": {
+  "message": "クイック操作"
  },
  "selNote": {
   "message": "メモ"

@@ -11,6 +11,9 @@
  "languageName": {
   "message": "English"
  },
+ "langCode": {
+  "message": "en"
+ },
  "ctxPage": {
   "message": "This page"
  },
@@ -447,10 +450,10 @@
   "message": "Before ContextFlow uses AI"
  },
  "consentBody": {
-  "message": "You give it once, and it covers all of ContextFlow's AI. Each feature sends only what it needs, when you use it, through our server to Anthropic (Claude). Nothing is kept on our servers, and the providers don't train on it."
+  "message": "You give it once, for all of ContextFlow's AI. Each feature sends only what it needs, when you use it, via our server to Anthropic (Claude), OpenAI (backup answers, suggestions) and Google Gemini (Google answers). With your own API key, it goes straight to that provider. Nothing is kept on our servers; no one trains on it."
  },
  "consentAnswers": {
-  "message": "Answers: your question, the page's text or your selection, and your “About me” if you wrote one. If Claude is unavailable, OpenAI answers; Google answers go to Google."
+  "message": "Answers: your question, the page's text or your selection, and your “About me” if you wrote one. If Claude is unavailable, OpenAI answers; Google answers go to Google Gemini."
  },
  "consentChats": {
   "message": "“Ask your chats” and AI search (Pro): short excerpts of your chats."
@@ -695,6 +698,63 @@
  "tourWholeBody": {
   "message": "Turn on Whole chat when a question needs everything: all messages, your notes and the other pages of this chat. Off, answers use the last messages and this page."
  },
+ "tourMenuTitle": {
+  "message": "Everything else"
+ },
+ "tourMenuBody": {
+  "message": "Reminders and watched pages, Tips, Settings and this intro again are in this menu."
+ },
+ "guideSumTitle": {
+  "message": "Your first answer"
+ },
+ "guideSumBody": {
+  "message": "Tap {0}: ContextFlow reads this page and sums it up for you."
+ },
+ "guideConsentTitle": {
+  "message": "One yes for all AI features"
+ },
+ "guideConsentBody": {
+  "message": "Before anything goes to the AI, ContextFlow asks once. Agree to get your summary."
+ },
+ "guideAnswerTitle": {
+  "message": "Here's your summary"
+ },
+ "guideAnswerBody": {
+  "message": "Scroll to read it. You can ask a follow-up in the box below any time."
+ },
+ "guideSelectTitle": {
+  "message": "Now ask about one part"
+ },
+ "guideSelectBodyTouch": {
+  "message": "Long-press a word on the page, drag the handles over a few lines, then tap {0}."
+ },
+ "guideSelectBodyMouse": {
+  "message": "Select a few lines on the page, then click {0}."
+ },
+ "guideSelectGo": {
+  "message": "Try it"
+ },
+ "guidePickTouch": {
+  "message": "Long-press a word on the page"
+ },
+ "guidePickMouse": {
+  "message": "Select a few lines on the page"
+ },
+ "guideTapAskTouch": {
+  "message": "Tap {0} to ask about what you selected."
+ },
+ "guideTapAskMouse": {
+  "message": "Click {0} to ask about what you selected."
+ },
+ "guideAskSelTitle": {
+  "message": "Ask about your selection"
+ },
+ "guideAskSelBody": {
+  "message": "Pick a quick action, like {0}, or type your own question."
+ },
+ "uxShowIntro": {
+  "message": "Show the intro again"
+ },
  "welcomeTitle": {
   "message": "ContextFlow is ready"
  },
@@ -715,6 +775,12 @@
  },
  "selQuestion": {
   "message": "Your question…"
+ },
+ "selTranslateTo": {
+  "message": "Translate to {0}"
+ },
+ "selChips": {
+  "message": "Quick actions"
  },
  "selNote": {
   "message": "Note"

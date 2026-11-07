@@ -11,6 +11,9 @@
  "languageName": {
   "message": "Español"
  },
+ "langCode": {
+  "message": "es"
+ },
  "ctxPage": {
   "message": "Esta página"
  },
@@ -447,10 +450,10 @@
   "message": "Antes de que ContextFlow use la IA"
  },
  "consentBody": {
-  "message": "Lo das una vez y vale para todas las funciones de IA. Cada una envía solo lo que necesita, cuando la usas, a través de nuestro servidor a Anthropic (Claude). No se guarda nada en nuestros servidores y los proveedores no entrenan con ello."
+  "message": "Lo das una vez, para toda la IA de ContextFlow. Cada función envía solo lo que necesita, cuando la usas, por nuestro servidor a Anthropic (Claude), OpenAI (respuestas de respaldo, sugerencias) y Google Gemini (respuestas de Google). Con tu propia clave de API, va directo a ese proveedor. No guardamos nada ni se entrena con ello."
  },
  "consentAnswers": {
-  "message": "Respuestas: tu pregunta, el texto de la página o tu selección, y tu «Sobre mí» si lo escribiste. Si Claude no está disponible, responde OpenAI; las respuestas de Google van a Google."
+  "message": "Respuestas: tu pregunta, el texto de la página o tu selección, y tu «Sobre mí» si lo escribiste. Si Claude no está disponible, responde OpenAI; las respuestas de Google van a Google Gemini."
  },
  "consentChats": {
   "message": "«Pregunta a tus chats» y la búsqueda con IA (Pro): fragmentos breves de tus chats."
@@ -695,6 +698,63 @@
  "tourWholeBody": {
   "message": "Activa «Todo el chat» cuando una pregunta lo necesite todo: todos los mensajes, tus notas y las otras páginas de este chat. Desactivado: los últimos mensajes y esta página."
  },
+ "tourMenuTitle": {
+  "message": "Todo lo demás"
+ },
+ "tourMenuBody": {
+  "message": "Recordatorios y páginas vigiladas, Consejos, Configuración y esta introducción de nuevo están en este menú."
+ },
+ "guideSumTitle": {
+  "message": "Tu primera respuesta"
+ },
+ "guideSumBody": {
+  "message": "Toca «{0}»: ContextFlow lee esta página y te la resume."
+ },
+ "guideConsentTitle": {
+  "message": "Un sí para todas las funciones de IA"
+ },
+ "guideConsentBody": {
+  "message": "Antes de enviar nada a la IA, ContextFlow pregunta una vez. Acepta para recibir tu resumen."
+ },
+ "guideAnswerTitle": {
+  "message": "Aquí está tu resumen"
+ },
+ "guideAnswerBody": {
+  "message": "Desplázate para leerlo. Puedes hacer otra pregunta en el campo de abajo cuando quieras."
+ },
+ "guideSelectTitle": {
+  "message": "Ahora pregunta por una parte"
+ },
+ "guideSelectBodyTouch": {
+  "message": "Mantén pulsada una palabra de la página, arrastra la selección unas líneas y toca «{0}»."
+ },
+ "guideSelectBodyMouse": {
+  "message": "Selecciona unas líneas de la página y haz clic en «{0}»."
+ },
+ "guideSelectGo": {
+  "message": "Probar"
+ },
+ "guidePickTouch": {
+  "message": "Mantén pulsada una palabra de la página"
+ },
+ "guidePickMouse": {
+  "message": "Selecciona unas líneas de la página"
+ },
+ "guideTapAskTouch": {
+  "message": "Toca «{0}» para preguntar por lo que seleccionaste."
+ },
+ "guideTapAskMouse": {
+  "message": "Haz clic en «{0}» para preguntar por lo que seleccionaste."
+ },
+ "guideAskSelTitle": {
+  "message": "Pregunta por tu selección"
+ },
+ "guideAskSelBody": {
+  "message": "Elige una acción rápida, como «{0}», o escribe tu propia pregunta."
+ },
+ "uxShowIntro": {
+  "message": "Ver la introducción otra vez"
+ },
  "welcomeTitle": {
   "message": "ContextFlow está listo"
  },
@@ -715,6 +775,12 @@
  },
  "selQuestion": {
   "message": "Tu pregunta…"
+ },
+ "selTranslateTo": {
+  "message": "Traducir al {0}"
+ },
+ "selChips": {
+  "message": "Acciones rápidas"
  },
  "selNote": {
   "message": "Nota"
