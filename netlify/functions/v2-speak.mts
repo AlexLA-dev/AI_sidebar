@@ -3,7 +3,7 @@ import type { Config, Context } from "@netlify/functions"
 import { config as settings } from "../shared/config.mts"
 import { consume, logEvent, refund, touchInstall, type Counter } from "../shared/db.mts"
 import { clip, corsHeaders, isUuid, json, preflight, readJson } from "../shared/http.mts"
-import { blockReason, evalAccess, isUltra, resolveAccess, speakCountersFor, ultraUsage } from "../shared/plan.mts"
+import { blockReason, evalCheck, isUltra, resolveAccess, speakCountersFor, ultraUsage } from "../shared/plan.mts"
 import { readSpeech, speechCost, startSpeech, type SpeechStats } from "../shared/speak.mts"
 import { SPEECH_RATE, speechKind, speechSeconds } from "../../src/shared/speech.ts"
 
@@ -41,11 +41,12 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const part = Number.isInteger(body.part) ? Number(body.part) : 0
   const parts = Number.isInteger(body.parts) ? Number(body.parts) : 1
 
-  const evaluated = evalAccess(req, installId)
+  const check = evalCheck(req, installId, context)
+  const evaluated = check.access
   const access = evaluated ?? (await resolveAccess(body.entitlement, installId))
   if (!isUltra(access.plan)) {
     context.waitUntil(logEvent("pro_only", installId, { feature: "speak", plan: access.plan, platform, version }))
-    return json({ code: "ULTRA_ONLY", plan: access.plan, feature: "speak" }, 403)
+    return json({ code: "ULTRA_ONLY", plan: access.plan, feature: "speak", ...(check.refused ? { eval: check.refused } : {}) }, 403)
   }
   if (!settings.geminiKey) return json({ code: "OFF", message: "Read aloud is not available right now." }, 503)
 

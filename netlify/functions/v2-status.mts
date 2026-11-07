@@ -31,7 +31,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const installId = body.installId
   const client = (body.client ?? {}) as Record<string, unknown>
 
-  const access = evalAccess(req, installId) ?? (await resolveAccess(body.entitlement, installId))
+  const access = evalAccess(req, installId, context) ?? (await resolveAccess(body.entitlement, installId))
   const counters = countersFor(access, installId, ipSubject(context.ip))
   const ultraCounters = isUltra(access.plan) ? [...speakCountersFor(access, 0), ...similarCountersFor(access)] : []
   const [state, limited, ultraState] = await Promise.all([

@@ -84,12 +84,23 @@ export function proOffer(access: Access): { code: string; discount: number } | n
  * read aloud and the Ultra counters can be measured there without a purchase (StoreKit test transactions aren't
  * signed by Apple). The counters go to `eval:<install>`; the rows are marked as tests (db.mts testMark).
  */
-export function evalAccess(req: Request, installId: string): Access | null {
-  const deploy = (globalThis as { Netlify?: { context?: { deploy?: { context?: string } } | null } }).Netlify?.context?.deploy?.context
-  if (!deploy || deploy === "production" || !config.adminToken) return null
+export function evalAccess(req: Request, installId: string, context?: { deploy?: { context?: string } }): Access | null {
+  return evalCheck(req, installId, context).access
+}
+
+/** evalAccess and, when it says no to a request that tried, why ("context", "token"): never the token itself. */
+export function evalCheck(req: Request, installId: string, context?: { deploy?: { context?: string } }): { access: Access | null; refused?: "context" | "token" } {
+  if (!req.headers.has("x-cf-eval")) return { access: null }
+  const deploy = context?.deploy?.context ??
+    (globalThis as { Netlify?: { context?: { deploy?: { context?: string } } | null } }).Netlify?.context?.deploy?.context ?? process.env.CONTEXT
+  if (!deploy || deploy === "production" || !config.adminToken) return { access: null, refused: "context" }
   const given = Buffer.from(req.headers.get("x-cf-eval") ?? "")
   const token = Buffer.from(config.adminToken)
-  if (given.length !== token.length || !timingSafeEqual(given, token)) return null
+  if (given.length !== token.length || !timingSafeEqual(given, token)) return { access: null, refused: "token" }
+  return { access: evalUltra(installId) }
+}
+
+function evalUltra(installId: string): Access {
   return {
     plan: "ultra",
     entitlement: { plan: "ultra", productId: "com.contextflow.ultra.monthly", originalTransactionId: `eval-${installId}`, environment: "Sandbox", expiresAt: Date.now() + 86_400_000 }
