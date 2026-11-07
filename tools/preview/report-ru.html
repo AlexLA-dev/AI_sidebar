@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Норвинд — результаты третьего квартала</title>
+<style>
+  body { margin: 0; font: 17px/1.55 -apple-system, "Helvetica Neue", sans-serif; color: #17151c; background: #fff; }
+  header.site { border-bottom: 1px solid #e5e5ea; padding: 14px 20px; display: flex; align-items: center; gap: 10px; font: 700 17px -apple-system, sans-serif; letter-spacing: .02em; }
+  header.site span { color: #8e8e93; font-weight: 500; font-size: 15px; margin-left: auto; }
+  main { max-width: 760px; margin: 0 auto; padding: 22px 22px 80px; }
+  .kicker { font: 600 13px -apple-system, sans-serif; color: #0f766e; text-transform: uppercase; letter-spacing: .06em; }
+  h1 { font-size: 32px; line-height: 1.15; margin: 8px 0 10px; }
+  .dek { color: #48484a; margin: 0 0 18px; }
+  .doc { background: #e5e5ea; border-radius: 12px; padding: 14px; }
+  .doc img { display: block; width: 100%; height: auto; border-radius: 2px; box-shadow: 0 2px 10px rgba(0,0,0,.18); }
+  .hidden-pdf { position: absolute; left: -9999px; top: 0; width: 1px; height: 1px; }
+</style>
+</head>
+<body>
+<header class="site">Норвинд <span>Инвесторам</span></header>
+<main>
+<div class="kicker">Квартальные результаты</div>
+<h1>Результаты третьего квартала</h1>
+<p class="dek">Выручка выросла на 12%, подписчиков стало больше 1,9 млн. Полный отчёт — ниже.</p>
+<!-- How Safari shows an embedded PDF: its pages in the page. The <embed> is what the panel finds. -->
+<div class="doc"><img src="/files/q3-report-ru-p1.png" alt="Отчёт за III квартал" /></div>
+<embed class="hidden-pdf" src="/files/q3-report-ru.pdf" type="application/pdf" title="Отчёт за III квартал" />
+</main>
+</body>
+</html>

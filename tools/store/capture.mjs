@@ -157,6 +157,12 @@ async function rect(s, file, selectors) {
   const rects = await s.page.evaluate((sels) => {
     const root = document.querySelector("contextflow-root").shadowRoot
     return Object.fromEntries(sels.map((sel) => {
+      if (sel.startsWith("all:")) {
+        const rs = [...root.querySelectorAll(sel.slice(4))].map((e) => e.getBoundingClientRect())
+        if (!rs.length) return [sel, null]
+        const x = Math.min(...rs.map((r) => r.x)), y = Math.min(...rs.map((r) => r.y))
+        return [sel, { x, y, width: Math.max(...rs.map((r) => r.right)) - x, height: Math.max(...rs.map((r) => r.bottom)) - y }]
+      }
       const els = sel.startsWith("@") ? document.querySelectorAll(sel.slice(1)) : root.querySelectorAll(sel)
       const b = els[els.length - 1]?.getBoundingClientRect()
       return [sel, b ? { x: b.x, y: b.y, width: b.width, height: b.height } : null]
@@ -634,6 +640,79 @@ async function organize(s) {
   await s.page.waitForTimeout(700)
 }
 
+// ------------------------------------------------------------- PPO (2.6)
+// Scenes for the product page test against the 2.5 set: the page after a price drop, the last five copies and the
+// field they fill, an answer about a selection, Google with sources, a PDF (Pro).
+
+// The product page as the check found it: the new price, the old one struck through; the panel closed.
+async function watchPage(s) {
+  await fresh(s, { url: SHOP })
+  await s.page.evaluate(([now, was]) => {
+    document.getElementById("price").textContent = now
+    document.querySelector(".old").textContent = was
+    document.getElementById("price").scrollIntoView({ block: "center" })
+  }, lang === "ru" ? ["10 990 ₽", "12 990 ₽"] : ["$99", "$129"])
+  await s.page.waitForTimeout(400)
+}
+
+/** Copied: the last five things copied on pages, no templates (so the list is Copied alone). */
+function copied5() {
+  const now = Date.now()
+  const ru = lang === "ru"
+  const items = (ru
+    ? [["PX-7741-2093", "parcelly.studio", 4], ["Москва, ул. Лесная, 12, кв. 4", "contacts.sevveter.studio", 18], ["Заказ 48213", "shop.sevveter.studio", 35], ["maria.lopez@sevveter.studio", "mail.sevveter.studio", 52], ["+7 495 555-01-42", "contacts.sevveter.studio", 80]]
+    : [["PX-7741-2093", "parcelly.studio", 4], ["12 Linden Street, Apt 4, Boston, MA 02118", "contacts.northwind.studio", 18], ["Order 48213", "shop.northwind.studio", 35], ["maria.lopez@northwind.studio", "mail.northwind.studio", 52], ["+1 617 555 0142", "contacts.northwind.studio", 80]])
+    .map(([text, host, min], i) => ({ id: `k${i}`, text, host, at: now - min * 60e3, from: "page" }))
+  return { "cf:templates": {}, "cf:copied": items }
+}
+
+// The reply begun by hand, the list open on the five copies; then the tracking number tapped into the reply.
+async function copiedFive(s, k) {
+  await fresh(s, { url: INBOX, extra: copied5() })
+  await s.page.evaluate((top) => {
+    document.body.style.paddingBottom = "900px"
+    const r = document.getElementById("reply")
+    r.scrollIntoView({ block: top ? "start" : "center" })
+    window.scrollBy(0, top ? -12 : 60)
+  }, s.d.touch)
+  await press(s, s.page.locator("#reply"))
+  await s.page.keyboard.type(lang === "ru" ? "Мария, заказ уже в пути. Трек-номер: " : "Hi Maria, your order is on its way. Tracking number: ", { delay: 2 })
+  if (s.d.touch) {
+    await s.page.locator(".cf-qi-btn").waitFor()
+    await s.page.waitForTimeout(400)
+    await press(s, s.page.locator(".cf-qi-btn"))
+  } else {
+    await s.sw.evaluate(async (url) => {
+      const tab = (await chrome.tabs.query({})).find((t) => t.url === url)
+      await chrome.tabs.sendMessage(tab.id, { type: "quickInsert" })
+    }, s.page.url())
+  }
+  await s.page.locator(".cf-qi-row").first().waitFor()
+  await s.page.waitForTimeout(700)
+  await shot(s, `${k}-copied5`); await rect(s, `${k}-copied5`, [".cf-qi", ".cf-qi-body", "@#reply", "all:.cf-qi-row", ".cf-qi-sec"])
+  await press(s, s.page.locator(".cf-qi-row", { hasText: "PX-7741-2093" }).first())
+  await s.page.waitForTimeout(900)
+  await s.page.evaluate(() => { const r = document.getElementById("reply"); r.setSelectionRange(r.value.length, r.value.length) })
+}
+
+// A question about the selected sentence, sent from the bubble: the panel opens on the answer.
+async function selAnswer(s) {
+  await selAsk(s)
+  await press(s, s.page.locator(".cf-bubble-send"))
+  await waitAnswer(s)
+  await s.page.evaluate(() => getSelection().removeAllRanges())
+  await s.page.waitForTimeout(400)
+}
+
+// Google: a fresh answer from Google Search with its numbered sources.
+async function google(s) {
+  await fresh(s); await open(s); await chip(s, L.google); await waitSources(s)
+  await scrollTo(s, ".cf-msg.ai .cf-grounded", 140, ".cf-msg.ai .cf-source-list")
+  // The numbered sources whole, with a little room under them.
+  await s.page.evaluate(shadow(`(r) => { const l = r.querySelector(".cf-messages"); l.scrollTop += 70 }`))
+  await s.page.waitForTimeout(250)
+}
+
 const ONLY = process.env.ONLY?.split(",")
 const want = (d) => !ONLY || ONLY.includes(d)
 
@@ -689,7 +768,9 @@ for (const name of ["iphone", "ipad", "mac"]) {
   if (process.env.SET === "pro25") {
     for (const [name, run, sels] of [["organize", organize, [".cf-panel", ".cf-org"]], ["video", video, [".cf-panel", ".cf-used"]],
       // Fill on the Pro stand: a free fill adds "N fills left today", and the store page names no limits.
-      ["fill", fill, [".cf-qi", ".cf-qi-fill-text", ".cf-qi-fill-row"]]]) {
+      ["fill", fill, [".cf-qi", ".cf-qi-fill-text", ".cf-qi-fill-row"]],
+      ["pdf", pdf, [".cf-panel", ".cf-used", ".cf-msg.ai"]]]) {
+      if (process.env.PRO_SCENES && !process.env.PRO_SCENES.split(",").includes(name)) continue
       try { await run(s) } catch (e) { await shot(s, `${k}-${name}-fail`); throw e }
       await shot(s, `${k}-${name}`); await rect(s, `${k}-${name}`, sels)
     }
@@ -704,7 +785,12 @@ for (const name of ["iphone", "ipad", "mac"]) {
     ["remind", () => remind(s), [".cf-panel", ".cf-sheet"]],
     ["selask", () => selAsk(s), [".cf-bubble"]],
     ["pins", () => pins(s), [".cf-panel", ".cf-pinbar", ".cf-msg.ai"]],
-    ["notes", () => notes(s), [".cf-panel", ".cf-bubble-note", ".cf-input"]]
+    ["notes", () => notes(s), [".cf-panel", ".cf-bubble-note", ".cf-input"]],
+    // PPO (2.6)
+    ["watchpage", () => watchPage(s), [".cf-fab"]],
+    ["copied5done", () => copiedFive(s, k), ["@#reply"]],
+    ["selanswer", () => selAnswer(s), [".cf-panel", ".cf-msg.ai"]],
+    ["google", () => google(s), [".cf-panel", ".cf-sources-title", ".cf-source-list"]]
   ]
   for (const [name, run, sels] of scenes) {
     if (process.env.SCENES && !process.env.SCENES.split(",").includes(name)) continue
