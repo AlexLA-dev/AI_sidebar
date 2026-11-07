@@ -203,3 +203,24 @@ test("the evaluation token is derived, never configured", () => {
   assert.equal(similarEvalToken("k"), similarEvalToken("k"))
   assert.notEqual(similarEvalToken("k"), similarEvalToken("other"))
 })
+
+test("soft-404: a redirect that drops the item's id or slug, or lands on ?error=true", () => {
+  assert.equal(softNotFound("https://www.ikea.com/us/en/p/markus-office-chair-vissle-dark-gray-70261150/", "https://www.ikea.com/us/en/cat/products-products/", "Products - IKEA", "", ""), "redirected away from the item")
+  assert.equal(softNotFound("https://job-boards.greenhouse.io/contentful/jobs/7725939", "https://job-boards.greenhouse.io/contentful?error=true", "Jobs at Contentful", "", ""), "redirected to an error page")
+  assert.equal(softNotFound("https://job-boards.greenhouse.io/greenhouse/jobs/7846916", "https://www.greenhouse.com/careers/opportunities", "Opportunities", "", ""), "redirected away from the item")
+  // A successor that keeps words of the slug, a locale added, a short link: left to the name check.
+  assert.equal(softNotFound("https://www.soundcore.com/products/space-q45-a3040011", "https://www.soundcore.com/products/d1402-space-2-comfortable-noise-cancelling-headphones", "soundcore Space 2", "", ""), null)
+  assert.equal(softNotFound("https://shop.com/p/acme-q20-black", "https://shop.com/en-us/p/acme-q20-black", "Acme Q20", "", ""), null)
+  assert.equal(softNotFound("https://amzn.to/3xYz", "https://www.amazon.com/dp/B0C1234567", "Acme", "", ""), null)
+  assert.equal(isBotWall(200, "<title>Client Challenge</title>"), true)
+})
+
+test("language: the content's own, else the script of its title and text, the site's only to confirm", async () => {
+  const { languageCheck } = await import("../netlify/shared/pagecheck.mts")
+  const yt = (title: string) => ({ lang: "en", title, text: "", inLanguage: undefined })
+  assert.equal(languageCheck("ru", yt("Нейронные сети с нуля: пишем GPT своими руками и разбираемся")), "yes")
+  assert.equal(languageCheck("ru", yt("Let's build GPT: from scratch, in code, spelled out by Andrej")), "no")
+  assert.equal(languageCheck("de", yt("Python lernen für Anfänger – der komplette Kurs auf Deutsch")), "unknown")
+  assert.equal(languageCheck("de", { lang: "de", title: "Python lernen für Anfänger – der komplette Kurs", text: "", inLanguage: undefined }), "yes")
+  assert.equal(languageCheck("de", { lang: "de", title: "x", text: "", inLanguage: "en" }), "no")
+})

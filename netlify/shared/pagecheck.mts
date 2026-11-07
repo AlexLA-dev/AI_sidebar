@@ -31,7 +31,10 @@ export interface CheckedPage {
   siteName: string
   // schema.org types seen in the page's JSON-LD (Product, Recipe, NewsArticle, …) and og:type.
   types: string[]
+  // <html lang> (or og:locale): the site's language for this request; some sites follow the browser's language.
   lang: string
+  // The content's own language when the page states it (JSON-LD inLanguage).
+  inLanguage?: string
   price?: PagePrice
   priceRaw?: string
   stock?: "in" | "out" | "unknown"
@@ -52,7 +55,7 @@ export interface CheckOptions {
   maxBytes?: number
   // Characters of main text kept (for the writer and the name check).
   textChars?: number
-  // The user's language, sent as Accept-Language.
+  // The person's language (kept for the caller's records; pages are always asked for in English).
   lang?: string
   signal?: AbortSignal
   // For tests: a fetch to use instead of the global one.
@@ -101,7 +104,7 @@ export function normalizeUrl(raw: string): string {
   }
 }
 
-const ARCHIVE_HOSTS = /(^|\.)(web\.archive\.org|archive\.org|archive\.ph|archive\.today|archive\.is|archive\.li|archive\.md|webcache\.googleusercontent\.com|cachedview\.nl)$/i
+export const ARCHIVE_HOSTS = /(^|\.)(web\.archive\.org|archive\.org|archive\.ph|archive\.today|archive\.is|archive\.li|archive\.md|webcache\.googleusercontent\.com|cachedview\.nl)$/i
 
 // ------------------------------------------------------------ reading HTML
 
@@ -122,7 +125,7 @@ function meta(html: string, ...names: string[]): string {
   return ""
 }
 
-function tagText(html: string, tag: string): string {
+export function tagText(html: string, tag: string): string {
   const m = new RegExp(`<${tag}\\b[^>]*>([\\s\\S]*?)</${tag}>`, "i").exec(html)
   return m ? fold(unescapeHtml(m[1].replace(/<[^>]+>/g, " "))) : ""
 }
@@ -215,7 +218,7 @@ export function readPrice(raw: string | undefined, html = ""): PagePrice | undef
 // ------------------------------------------------------------ verdicts on a page
 
 // "Not found" in the title or the main heading, in the languages the app speaks.
-const NOT_FOUND = new RegExp([
+export const NOT_FOUND = new RegExp([
   "\\b404\\b", "not found", "page not found", "page (?:does not|doesn'?t) exist", "no longer (?:available|exists)", "page (?:is )?unavailable",
   "we can'?t find", "couldn'?t find (?:that|this|the) page", "nothing (?:was )?found", "page you (?:requested|were looking for)",
   "страница не найдена", "не найдено", "ошибка 404", "сторінку не знайдено", "сторінка не знайдена",
@@ -227,7 +230,7 @@ const NOT_FOUND = new RegExp([
 // A product or listing that is gone though its page still answers (not a dead link: a gone item).
 const GONE = /(no longer available|this item is (?:no longer|not) available|product (?:is )?(?:discontinued|unavailable)|listing (?:has )?ended|this listing (?:was|has been) (?:removed|ended)|job (?:is )?no longer (?:available|accepting)|(?:this )?(?:position|job) has been filled|вакансия (?:в архиве|закрыта)|товар (?:снят с продажи|больше не продается)|nicht mehr verfügbar)/i
 
-const BOT_WALL = /(cf-chl-|challenge-platform|just a moment\.\.\.|attention required! \| cloudflare|px-captcha|captcha-delivery|datadome|<title>\s*access denied|pardon our interruption|are you a (?:robot|human)|robot or human\?|request unsuccessful\. incapsula|enable javascript and cookies to continue|verify you are human|unusual traffic from your computer|automated access|sorry, we just need to make sure you'?re not a robot)/i
+export const BOT_WALL = /(cf-chl-|challenge-platform|just a moment\.\.\.|attention required! \| cloudflare|px-captcha|captcha-delivery|datadome|<title>\s*access denied|pardon our interruption|are you a (?:robot|human)|robot or human\?|request unsuccessful\. incapsula|enable javascript and cookies to continue|verify you are human|unusual traffic from your computer|automated access|sorry, we just need to make sure you'?re not a robot|<title>\s*client challenge|ddos-guard|checking your browser|please wait while we verify)/i
 
 /** Why a page that answered 200 is really a "not found" page, or null. */
 export function softNotFound(original: string, finalUrl: string, title: string, heading: string, text: string): string | null {
@@ -243,6 +246,15 @@ export function softNotFound(original: string, finalUrl: string, title: string, 
   // A deep address that lands on the site's home page: the page it named is gone.
   if (depth(from) >= 1 && !rootish(from) && rootish(to) && !to.search) return "redirected to the home page"
   if (/(^|[/._-])(404|not[-_]?found|page[-_]?not[-_]?found|error)([/._-]|$)/i.test(to.pathname) && !/(404|not[-_]?found|error)/i.test(from.pathname)) return "redirected to an error page"
+  if (/[?&](error|err|notfound|not_found|404|gone)=/i.test(to.search) && !/[?&](error|err|notfound|not_found|404|gone)=/i.test(from.search)) return "redirected to an error page"
+  // A redirect that drops the item's own id or slug (a closed job post sent to the board, a product to a
+  // category): the item is gone. A successor that keeps some of its words is left to the name check.
+  const spec = decodeURIComponent(from.pathname.split("/").filter(Boolean).pop() ?? "").toLowerCase()
+  if (spec && (/\d{4,}/.test(spec) || spec.split(/[-_]/).length >= 3) && !decodeURIComponent(to.pathname + to.search).toLowerCase().includes(spec)) {
+    const words = (x: string) => x.toLowerCase().split(/[^\p{L}\p{N}]+/u).filter((w) => w.length >= 3 || /\d/.test(w))
+    const left = new Set(words(decodeURIComponent(to.pathname + " " + to.search)))
+    if (!words(spec).some((w) => left.has(w))) return "redirected away from the item"
+  }
   if (NOT_FOUND.test(title) || NOT_FOUND.test(heading)) return "the page says it was not found"
   const t = text.slice(0, 600)
   if (text.length < 1200 && NOT_FOUND.test(t)) return "the page says it was not found"
@@ -256,6 +268,32 @@ export function isBotWall(status: number, html: string): boolean {
 }
 
 // ------------------------------------------------------------ fetching
+
+/**
+ * One hop with node's own HTTP client, for sites whose response headers are larger than fetch accepts
+ * (YouTube's are): same request, redirects still left to the caller.
+ */
+async function hopByHttps(url: string, headers: Record<string, string>, signal: AbortSignal): Promise<Response> {
+  const { request } = await import(url.startsWith("https:") ? "node:https" : "node:http")
+  const { Readable } = await import("node:stream")
+  return new Promise<Response>((resolve, reject) => {
+    const req = request(url, { method: "GET", headers, signal, maxHeaderSize: 512 * 1024 }, (res: import("node:http").IncomingMessage) => {
+      const h = new Headers()
+      for (const [k, v] of Object.entries(res.headers)) if (v !== undefined) h.set(k, Array.isArray(v) ? v.join(", ") : String(v))
+      const status = res.statusCode ?? 0
+      const body = status === 204 || status === 304 ? null : (Readable.toWeb(res) as unknown as ReadableStream<Uint8Array>)
+      try {
+        resolve(new Response(body, { status: status >= 200 && status <= 599 ? status : 502, headers: h }))
+      } catch (err) {
+        reject(err)
+      }
+    })
+    req.on("error", reject)
+    req.end()
+  })
+}
+
+const overflow = (err: unknown) => /HEADERS_OVERFLOW|Headers Overflow/i.test(`${(err as { code?: string })?.code ?? ""} ${(err as Error)?.message ?? ""} ${((err as Error)?.cause as { code?: string; message?: string })?.code ?? ""} ${((err as Error)?.cause as Error)?.message ?? ""}`)
 
 async function readBody(res: Response, maxBytes: number): Promise<string> {
   if (!res.body) return ""
@@ -314,15 +352,18 @@ export async function checkPage(url: string, opts: CheckOptions = {}): Promise<C
   let hops = 0
   try {
     for (; hops <= MAX_HOPS; hops++) {
-      res = await doFetch(current.toString(), {
-        redirect: "manual",
-        signal,
-        headers: {
-          "User-Agent": UA,
-          Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-          "Accept-Language": opts.lang ? `${opts.lang},en;q=0.7` : "en-US,en;q=0.9"
-        }
-      })
+      const headers = {
+        "User-Agent": UA,
+        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        // English, whatever the person's language: a page in another language then means it (languageCheck).
+        "Accept-Language": "en-US,en;q=0.9"
+      }
+      try {
+        res = await doFetch(current.toString(), { redirect: "manual", signal, headers })
+      } catch (err) {
+        if (!overflow(err) || opts.fetcher) throw err
+        res = await hopByHttps(current.toString(), headers, signal)
+      }
       const location = res.status >= 300 && res.status < 400 ? res.headers.get("location") : null
       if (!location) break
       res.body?.cancel().catch(() => undefined)
@@ -363,6 +404,11 @@ export async function checkPage(url: string, opts: CheckOptions = {}): Promise<C
     return { ...empty(url, "ok", type.includes("pdf") ? "pdf" : "file", base), title: file, name: file, types: type.includes("pdf") ? ["PDF"] : [], ms: Date.now() - started }
   }
 
+  return { ...describePage(html, url, finalUrl, res.status, hops, opts.textChars ?? 6_000, res.headers.get("content-language") ?? ""), ms: Date.now() - started }
+}
+
+/** What an opened HTML page is: its status verdict (ok or soft-404) and what it states for machines. */
+export function describePage(html: string, url: string, finalUrl: string, http: number, hops: number, textChars = 6_000, contentLanguage = ""): CheckedPage {
   const title = tagText(html, "title")
   const heading = tagText(html, "h1")
   const ld = ldFacts(html)
@@ -373,13 +419,13 @@ export async function checkPage(url: string, opts: CheckOptions = {}): Promise<C
   const priceRaw = st.ldPrice ?? st.metaPrice
   const stockRaw = st.ldStock ?? st.metaStock
   const name = ld.name || meta(html, "og:title", "twitter:title") || heading || title
-  const published = isoDate(ld.published ?? meta(html, "article:published_time", "datePublished", "date", "pubdate", "publish-date", "dc.date"))
+  const published = isoDate(ld.published ?? meta(html, "article:published_time", "datePublished", "citation_date", "citation_publication_date", "date", "pubdate", "publish-date", "dc.date"))
   const modified = isoDate(ld.modified ?? meta(html, "article:modified_time", "og:updated_time", "dateModified", "last-modified"))
   const validThrough = isoDate(ld.validThrough)
   const duration = isoSeconds(ld.duration ?? meta(html, "duration", "video:duration")) ?? (Number(meta(html, "video:duration")) || null)
-  const lang = (/<html[^>]*\slang=["']?([\w-]+)/i.exec(html)?.[1] ?? meta(html, "og:locale", "content-language") ?? (res.headers.get("content-language") ?? "")).replace("_", "-")
+  const lang = (/<html[^>]*\slang=["']?([\w-]+)/i.exec(html)?.[1] || meta(html, "og:locale", "content-language") || contentLanguage).replace("_", "-")
 
-  let status: PageStatus = notFound ? "soft404" : "ok"
+  const status: PageStatus = notFound ? "soft404" : "ok"
   let reason = notFound ?? ""
   if (status === "ok") {
     if (validThrough && Date.parse(validThrough) < Date.now()) reason = "expired"
@@ -387,7 +433,10 @@ export async function checkPage(url: string, opts: CheckOptions = {}): Promise<C
     else if (text.length < 200) reason = "thin"
   }
   const page: CheckedPage = {
-    ...base,
+    url,
+    finalUrl,
+    http,
+    hops,
     status,
     reason,
     title,
@@ -396,8 +445,8 @@ export async function checkPage(url: string, opts: CheckOptions = {}): Promise<C
     siteName: meta(html, "og:site_name", "application-name"),
     types: [...ld.types, ...(ogType ? [`og:${ogType}`] : [])].slice(0, 12),
     lang,
-    text: text.slice(0, opts.textChars ?? 6_000),
-    ms: Date.now() - started
+    text: text.slice(0, textChars),
+    ms: 0
   }
   const price = readPrice(priceRaw, html)
   if (price) {
@@ -412,7 +461,48 @@ export async function checkPage(url: string, opts: CheckOptions = {}): Promise<C
   if (modified) page.modified = modified
   if (validThrough) page.validThrough = validThrough
   if (duration) page.duration = duration
+  if (ld.lang) page.inLanguage = String(ld.lang).slice(0, 12)
   return page
+}
+
+const SCRIPTS: Array<[string, RegExp]> = [
+  ["cyrl", /\p{Script=Cyrillic}/u], ["cjk", /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u],
+  ["arab", /\p{Script=Arabic}/u], ["hebr", /\p{Script=Hebrew}/u], ["thai", /\p{Script=Thai}/u], ["grek", /\p{Script=Greek}/u], ["latn", /\p{Script=Latin}/u]
+]
+const LANG_SCRIPT: Record<string, string> = { ru: "cyrl", uk: "cyrl", be: "cyrl", bg: "cyrl", sr: "cyrl", kk: "cyrl", mk: "cyrl", zh: "cjk", ja: "cjk", ko: "cjk", ar: "arab", fa: "arab", ur: "arab", he: "hebr", th: "thai", el: "grek" }
+
+/** The script most letters of a text are in ("latn", "cyrl", "cjk", …), or "" for too few letters. */
+export function scriptOf(text: string): string {
+  const counts = new Map<string, number>()
+  let letters = 0
+  for (const ch of text.slice(0, 3_000)) {
+    if (!/\p{L}/u.test(ch)) continue
+    letters++
+    const found = SCRIPTS.find(([, re]) => re.test(ch))
+    if (found) counts.set(found[0], (counts.get(found[0]) ?? 0) + 1)
+  }
+  if (letters < 20) return ""
+  const [best, n] = [...counts.entries()].sort((a, b) => b[1] - a[1])[0] ?? ["", 0]
+  return n / letters > 0.5 ? best : ""
+}
+
+/**
+ * Is the page in this language? From the content's own language when stated; else the script of its title and
+ * text (a Russian video page has a Cyrillic title whatever the site's interface language), and the site's
+ * language only to confirm. Pages are opened with English as the browser's language, so a site that answers in
+ * another language means it.
+ */
+export function languageCheck(want: string, page: Pick<CheckedPage, "lang" | "inLanguage" | "title" | "text">): "yes" | "no" | "unknown" {
+  const w = want.toLowerCase().slice(0, 2)
+  if (!w) return "unknown"
+  if (page.inLanguage) return page.inLanguage.toLowerCase().startsWith(w) ? "yes" : "no"
+  const wantScript = LANG_SCRIPT[w] ?? "latn"
+  const script = scriptOf(`${page.title} ${page.text.slice(0, 1_500)}`)
+  if (script && script !== wantScript) return "no"
+  const lang = page.lang.toLowerCase().slice(0, 2)
+  if (lang === w) return "yes"
+  if (script && wantScript !== "latn") return "yes"
+  return "unknown"
 }
 
 // ------------------------------------------------------------ is it the item?

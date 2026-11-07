@@ -29,7 +29,7 @@ export interface PageInput {
   facts?: Record<string, unknown>
 }
 
-export async function callSimilar(base: string, engine: "a" | "b", page: PageInput, condition: string, locale: string, timeoutMs = 75_000): Promise<SimilarCall> {
+export async function callSimilar(base: string, engine: "a" | "b", page: PageInput, condition: string, locale: string, options: Record<string, string> = {}, timeoutMs = 75_000): Promise<SimilarCall> {
   const started = Date.now()
   let firstMs: number | null = null
   const events: Array<Record<string, unknown>> = []
@@ -43,7 +43,8 @@ export async function callSimilar(base: string, engine: "a" | "b", page: PageInp
         client: { version: "dev-check", platform: "eval", locale, build: "999", audience: "test", run: randomUUID().slice(0, 8) },
         engine,
         page,
-        condition
+        condition,
+        ...(Object.keys(options).length ? { options } : {})
       }),
       signal: AbortSignal.timeout(timeoutMs)
     })

@@ -9,7 +9,7 @@ import { buildGrounding, type GoogleStats } from "../shared/google.mts"
 import { clip, ipSubject, isUuid, json, preflight, readJson, corsHeaders } from "../shared/http.mts"
 import { resolveAccess, type Access } from "../shared/plan.mts"
 import { readPrice } from "../shared/pagecheck.mts"
-import { MAX_CONDITION, MAX_PAGE_TEXT, runEngineA, similarEvalToken, type EngineStats, type SimilarInput, type SourceFacts } from "../shared/similar.mts"
+import { MAX_CONDITION, MAX_PAGE_TEXT, runEngineA, similarEvalToken, type EngineOverrides, type EngineStats, type SimilarInput, type SourceFacts } from "../shared/similar.mts"
 import { googleCost, startEngineB } from "../shared/similar-google.mts"
 
 /**
@@ -98,7 +98,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
     async start(controller) {
       try {
         if (engine === "a") {
-          for await (const event of runEngineA(input, statsA, { signal: req.signal, debug: evaluating })) {
+          for await (const event of runEngineA(input, statsA, { signal: req.signal, debug: evaluating, overrides: evaluating ? overridesOf(body.options) : {} })) {
             if (event.type === "result") {
               items = event.items.length
               condition = event.condition
@@ -164,6 +164,14 @@ export default async (req: Request, context: Context): Promise<Response> => {
   return new Response(stream, {
     headers: { ...corsHeaders, "Content-Type": "text/event-stream; charset=utf-8", "Cache-Control": "no-cache, no-transform", "X-Accel-Buffering": "no" }
   })
+}
+
+/** Evaluation only: Claude models and the search tool for one run (to compare variants), from a short list. */
+function overridesOf(raw: unknown): EngineOverrides {
+  const o = (raw ?? {}) as Record<string, unknown>
+  const model = (v: unknown) => (typeof v === "string" && /^claude-(haiku|sonnet|opus)-[\w.-]{1,30}$/.test(v) ? v : undefined)
+  const tool = typeof o.searchTool === "string" && /^web_search_\d{8}$/.test(o.searchTool) ? o.searchTool : undefined
+  return { planModel: model(o.planModel), searchModel: model(o.searchModel), searchTool: tool, writeModel: model(o.writeModel) }
 }
 
 function readInput(body: Record<string, unknown>, locale: string): SimilarInput | null {
