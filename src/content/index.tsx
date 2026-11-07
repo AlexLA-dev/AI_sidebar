@@ -7,6 +7,7 @@ import { App } from "./App"
 import { tabPdf, tabSource } from "./context"
 import { detectPlatform, HOST_TAG } from "./page"
 import { setPanelRoot } from "./root"
+import { guardScroll } from "./scrollGuard"
 import { keepOverTopLayer } from "./topLayer"
 import styles from "./styles.css"
 import insertStyles from "./insert/insert.css"
@@ -50,6 +51,8 @@ function boot(): void {
     host.setAttribute("lang", uiLang())
     const root = host.attachShadow({ mode: SHADOW_MODE })
     setPanelRoot(root)
+    // The page's touch handlers (Google's) can't stop our lists from scrolling (2.6).
+    guardScroll(root)
     const style = document.createElement("style")
     style.textContent = `${styles}
 ${insertStyles}

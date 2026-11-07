@@ -11,6 +11,9 @@
  "languageName": {
   "message": "Deutsch"
  },
+ "langCode": {
+  "message": "de"
+ },
  "ctxPage": {
   "message": "Diese Seite"
  },
@@ -447,10 +450,10 @@
   "message": "Bevor ContextFlow KI nutzt"
  },
  "consentBody": {
-  "message": "Du gibst sie einmal, und sie gilt für alle KI-Funktionen. Jede sendet nur, was sie braucht, und nur, wenn du sie nutzt, über unseren Server an Anthropic (Claude). Auf unseren Servern wird nichts gespeichert, und die Anbieter trainieren nicht damit."
+  "message": "Einmal gegeben, gilt sie für alle KI-Funktionen. Jede sendet nur, was sie braucht, wenn du sie nutzt, über unseren Server an Anthropic (Claude), OpenAI (Ersatzantworten, Vorschläge) und Google Gemini (Google-Antworten). Mit eigenem API-Schlüssel direkt an diesen Anbieter. Auf unseren Servern bleibt nichts, niemand trainiert damit."
  },
  "consentAnswers": {
-  "message": "Antworten: deine Frage, der Text der Seite oder deine Auswahl und dein „Über mich“, falls du es ausgefüllt hast. Ist Claude nicht verfügbar, antwortet OpenAI; Google-Antworten gehen an Google."
+  "message": "Antworten: deine Frage, der Text der Seite oder deine Auswahl und dein „Über mich“, falls du es ausgefüllt hast. Ist Claude nicht verfügbar, antwortet OpenAI; Google-Antworten gehen an Google Gemini."
  },
  "consentChats": {
   "message": "„Frag deine Chats“ und KI-Suche (Pro): kurze Auszüge aus deinen Chats."
@@ -695,6 +698,63 @@
  "tourWholeBody": {
   "message": "Schalte „Ganzer Chat“ ein, wenn eine Frage alles braucht: alle Nachrichten, deine Notizen und die anderen Seiten dieses Chats. Aus: die letzten Nachrichten und diese Seite."
  },
+ "tourMenuTitle": {
+  "message": "Alles andere"
+ },
+ "tourMenuBody": {
+  "message": "Erinnerungen und beobachtete Seiten, Tipps, Einstellungen und diese Einführung findest du in diesem Menü."
+ },
+ "guideSumTitle": {
+  "message": "Deine erste Antwort"
+ },
+ "guideSumBody": {
+  "message": "Tippe auf „{0}“: ContextFlow liest diese Seite und fasst sie für dich zusammen."
+ },
+ "guideConsentTitle": {
+  "message": "Ein Ja für alle KI-Funktionen"
+ },
+ "guideConsentBody": {
+  "message": "Bevor etwas an die KI geht, fragt ContextFlow einmal. Stimme zu, um deine Zusammenfassung zu bekommen."
+ },
+ "guideAnswerTitle": {
+  "message": "Deine Zusammenfassung"
+ },
+ "guideAnswerBody": {
+  "message": "Scrolle, um sie zu lesen. Eine Rückfrage kannst du jederzeit unten ins Feld schreiben."
+ },
+ "guideSelectTitle": {
+  "message": "Jetzt nach einem Teil fragen"
+ },
+ "guideSelectBodyTouch": {
+  "message": "Halte ein Wort auf der Seite gedrückt, zieh die Markierung über ein paar Zeilen und tippe auf „{0}“."
+ },
+ "guideSelectBodyMouse": {
+  "message": "Markiere ein paar Zeilen auf der Seite und klicke auf „{0}“."
+ },
+ "guideSelectGo": {
+  "message": "Ausprobieren"
+ },
+ "guidePickTouch": {
+  "message": "Halte ein Wort auf der Seite gedrückt"
+ },
+ "guidePickMouse": {
+  "message": "Markiere ein paar Zeilen auf der Seite"
+ },
+ "guideTapAskTouch": {
+  "message": "Tippe auf „{0}“, um nach der Markierung zu fragen."
+ },
+ "guideTapAskMouse": {
+  "message": "Klicke auf „{0}“, um nach der Markierung zu fragen."
+ },
+ "guideAskSelTitle": {
+  "message": "Frag nach deiner Markierung"
+ },
+ "guideAskSelBody": {
+  "message": "Wähle eine Schnellaktion wie „{0}“ oder schreib deine eigene Frage."
+ },
+ "uxShowIntro": {
+  "message": "Einführung erneut zeigen"
+ },
  "welcomeTitle": {
   "message": "ContextFlow ist bereit"
  },
@@ -715,6 +775,12 @@
  },
  "selQuestion": {
   "message": "Deine Frage …"
+ },
+ "selTranslateTo": {
+  "message": "Übersetzen: {0}"
+ },
+ "selChips": {
+  "message": "Schnellaktionen"
  },
  "selNote": {
   "message": "Notiz"

@@ -11,6 +11,9 @@
  "languageName": {
   "message": "繁體中文"
  },
+ "langCode": {
+  "message": "zh-Hant"
+ },
  "ctxPage": {
   "message": "此頁面"
  },
@@ -447,10 +450,10 @@
   "message": "ContextFlow 使用 AI 之前"
  },
  "consentBody": {
-  "message": "只需同意一次，就適用於 ContextFlow 的所有 AI 功能。每項功能只在你使用時，透過我們的伺服器把需要的內容傳送給 Anthropic（Claude）。我們的伺服器不會保留任何內容，服務供應商也不會用它來訓練模型。"
+  "message": "只需同意一次，就適用於 ContextFlow 的所有 AI 功能。每項功能只在你使用時，透過我們的伺服器把需要的內容傳送給 Anthropic（Claude）、OpenAI（備用回答、建議）和 Google Gemini（Google 回答）。使用自備的 API 金鑰時，則直接傳給該服務供應商。我們的伺服器不會保留任何內容，也沒有人用它來訓練模型。"
  },
  "consentAnswers": {
-  "message": "回答：你的問題、頁面的文字或選取的文字，以及你寫的「關於我」（如果有寫）。Claude 無法使用時，改由 OpenAI 回答；Google 回答會傳送給 Google。"
+  "message": "回答：你的問題、頁面的文字或選取的文字，以及你寫的「關於我」（如果有寫）。Claude 無法使用時，改由 OpenAI 回答；Google 回答會傳送給 Google Gemini。"
  },
  "consentChats": {
   "message": "「詢問你的所有對話」和 AI 搜尋（Pro）：你的對話的簡短摘錄。"
@@ -695,6 +698,63 @@
  "tourWholeBody": {
   "message": "問題需要用到所有內容時，開啟「整段對話」：所有訊息、你的筆記和這段對話中的其他頁面。關閉時，回答只用最近的訊息和這個頁面。"
  },
+ "tourMenuTitle": {
+  "message": "其他所有功能"
+ },
+ "tourMenuBody": {
+  "message": "提醒、追蹤中的頁面、提示、設定，以及重新觀看這段介紹，都在這個選單裡。"
+ },
+ "guideSumTitle": {
+  "message": "你的第一個回答"
+ },
+ "guideSumBody": {
+  "message": "點一下「{0}」：ContextFlow 會讀這個頁面並幫你摘要。"
+ },
+ "guideConsentTitle": {
+  "message": "一次同意，適用所有 AI 功能"
+ },
+ "guideConsentBody": {
+  "message": "在任何內容傳給 AI 之前，ContextFlow 只會問你一次。同意後就能拿到摘要。"
+ },
+ "guideAnswerTitle": {
+  "message": "這是你的摘要"
+ },
+ "guideAnswerBody": {
+  "message": "捲動即可閱讀。你隨時可以在下方的輸入框接著問。"
+ },
+ "guideSelectTitle": {
+  "message": "現在針對其中一段提問"
+ },
+ "guideSelectBodyTouch": {
+  "message": "在頁面上按住一個字，拖動控點選取幾行，然後點一下「{0}」。"
+ },
+ "guideSelectBodyMouse": {
+  "message": "在頁面上選取幾行，然後按一下「{0}」。"
+ },
+ "guideSelectGo": {
+  "message": "試試看"
+ },
+ "guidePickTouch": {
+  "message": "在頁面上按住一個字"
+ },
+ "guidePickMouse": {
+  "message": "在頁面上選取幾行"
+ },
+ "guideTapAskTouch": {
+  "message": "點一下「{0}」，針對選取的內容提問。"
+ },
+ "guideTapAskMouse": {
+  "message": "按一下「{0}」，針對選取的內容提問。"
+ },
+ "guideAskSelTitle": {
+  "message": "針對選取的內容提問"
+ },
+ "guideAskSelBody": {
+  "message": "選一個快速動作（例如「{0}」），或輸入你自己的問題。"
+ },
+ "uxShowIntro": {
+  "message": "重新顯示介紹"
+ },
  "welcomeTitle": {
   "message": "ContextFlow 準備好了"
  },
@@ -715,6 +775,12 @@
  },
  "selQuestion": {
   "message": "你的問題…"
+ },
+ "selTranslateTo": {
+  "message": "翻譯成{0}"
+ },
+ "selChips": {
+  "message": "快速動作"
  },
  "selNote": {
   "message": "筆記"

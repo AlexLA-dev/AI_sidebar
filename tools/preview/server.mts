@@ -29,6 +29,8 @@ process.env.GEMINI_API_KEY = "local"
 process.env.FREE_DAILY_LIMIT = process.env.FREE_DAILY_LIMIT ?? "5"
 
 const counters = new Map<string, number>()
+// The guided first request's free answers per install, ever (2.6: cf_tour_take in the 2.6 migration).
+const tours = new Map<string, number>()
 const aiRequests: string[] = []
 // The panel's funnel events since /reset ("media_notice:video"…), to check what it reports.
 const panelEvents: string[] = []
@@ -55,7 +57,17 @@ const rpc: Record<string, (a: any) => unknown> = {
   cf_entitlement_upsert: ({ p }) => p,
   cf_entitlement_get: () => null,
   cf_entitlement_by_token: () => null,
-  cf_limited_before: () => process.env.LIMITED_BEFORE === "1"
+  cf_limited_before: () => process.env.LIMITED_BEFORE === "1",
+  cf_tour_take: ({ p_install, p_max }) => {
+    const n = tours.get(p_install) ?? 0
+    if (n >= p_max) return false
+    tours.set(p_install, n + 1)
+    return true
+  },
+  cf_tour_give_back: ({ p_install }) => {
+    tours.set(p_install, Math.max(0, (tours.get(p_install) ?? 0) - 1))
+    return null
+  }
 }
 
 // Delay between streamed words; the App Store preview video slows it down to a readable pace.
@@ -410,7 +422,9 @@ createServer(async (req, res) => {
     if (url.pathname === "/api/v2/event") {
       try {
         const sent = JSON.parse(Buffer.concat(chunks).toString("utf8"))
-        panelEvents.push(`${sent.kind}:${sent.media ?? sent.where ?? sent.reason ?? sent.action ?? ""}${sent.what ? `:${sent.what}` : ""}`)
+        // A feature step: "use:tour.step:pick" (f.a and what).
+        const what = sent.kind === "use" ? `${sent.f}.${sent.a}` : sent.media ?? sent.where ?? sent.reason ?? sent.action ?? ""
+        panelEvents.push(`${sent.kind}:${what}${sent.what ? `:${sent.what}` : ""}`)
       } catch {
         // not JSON
       }
@@ -522,6 +536,7 @@ if (location.search.includes("sel=1")) setTimeout(() => getSelection().selectAll
   }
   if (url.pathname === "/reset") {
     counters.clear()
+    tours.clear()
     aiRequests.length = 0
     panelEvents.length = 0
     res.end("ok")

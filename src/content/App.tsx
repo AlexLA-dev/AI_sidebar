@@ -67,6 +67,8 @@ import { shadowSelection, trackPointer } from "./selectionShadow"
 import { restoredDraft, withoutStopped } from "./ux/stopped"
 import { scheduleReminder, thisDevice, useMessageUx } from "./ux/useMessageUx"
 import { Tour, tourSteps } from "./Tour"
+import { languageName, translateTarget } from "./translateTarget"
+import { GuideCard, GuidePill, ON_PAGE, WAITING, type GuideStep } from "./Guide"
 import { ConsentCard } from "./Consent"
 import { QI_EVENTS, QuickInsert } from "./insert/QuickInsert"
 import * as QIcon from "./insert/icons"
@@ -101,6 +103,9 @@ interface Action {
   label: MessageKey
   prompt: MessageKey
   mode?: "google"
+  // In place of the language: Translate into another one than the interface's (2.6, translateTarget.ts), with its label.
+  arg?: string
+  text?: string
 }
 
 const PAGE_ACTIONS: Action[] = [
@@ -121,6 +126,31 @@ const SELECTION_ACTIONS: Action[] = [
   { id: "sel_improve", label: "actImprove", prompt: "promptSelImprove" },
   { id: "sel_reply", label: "actReply", prompt: "promptReply" }
 ]
+const selAction = (id: string) => SELECTION_ACTIONS.find((a) => a.id === id)!
+
+/** The chips in the selection buttons' field on iPhone and iPad (2.6, the owner): the panel's selection actions in his
+ * order, without Google (the buttons have their own). */
+const SEL_CHIPS = ["sel_summarize", "sel_translate", "sel_explain", "sel_improve", "sel_reply"]
+
+/**
+ * Translate for this text: into the interface's language, or, when the text already is in it, into English (or the
+ * person's next language) with a label that says so; null when there's nowhere to translate it (translateTarget.ts).
+ */
+function translateFor(text: string): Action | null {
+  // The language the panel speaks (its messages'), not the browser's: they differ where we have no translation.
+  const ui = t("langCode")
+  const to = translateTarget(text, ui, navigator.languages ?? [navigator.language])
+  const action = selAction("sel_translate")
+  if (!to) return null
+  if (!to.code) return action
+  const name = languageName(to.code, ui)
+  return { ...action, arg: name, text: t("selTranslateTo", name) }
+}
+
+/** An action as it goes for this selection (Translate may go elsewhere, or not at all). */
+function forSelection(action: Action, text: string): Action | null {
+  return action.id === "sel_translate" ? translateFor(text) : action
+}
 
 function sendBackground<T>(message: unknown): Promise<T | null> {
   return new Promise((resolve) => {
@@ -287,6 +317,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [selDraft, setSelDraft] = useState("")
   const [noteSaved, setNoteSaved] = useState(false)
   const [selHint, setSelHint] = useState(false)
+  // The selection buttons' field has the focus: its quick chips step aside (2.6).
+  const [selFocus, setSelFocus] = useState(false)
   // The buttons stay while their field is being typed in or a note is being saved, though the page
   // selection is gone (focusing the field clears it) or the page scrolls (iPhone, for the keyboard).
   const selTyping = useRef(false)
@@ -301,6 +333,16 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [touring, setTouring] = useState(false)
   const touringRef = useRef(false)
   touringRef.current = touring
+  // The guided first request (2.6, Guide.tsx): its step, or null; how it was started; the selection part begun.
+  const [guide, setGuide] = useState<GuideStep | null>(null)
+  const guideRef = useRef<GuideStep | null>(null)
+  guideRef.current = guide
+  const guideVia = useRef<"first" | "menu">("first")
+  // Set where the guide's logic is (after what it reads); used by the panel's earlier hooks.
+  const firstGuideRef = useRef<() => boolean>(() => false)
+  const startGuideRef = useRef<(via: "first" | "menu") => void>(() => undefined)
+  const endGuideRef = useRef<(a: "done" | "skip" | "exit", what?: string) => void>(() => undefined)
+  const guideToRef = useRef<(step: GuideStep) => void>(() => undefined)
   const panelRef = useRef<HTMLElement>(null)
 
   // The page the panel is on now (normalized URL), followed while open for single-page apps.
@@ -418,6 +460,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setSelection(sel)
     setBubble(null)
     setView("chat")
+    // The guide's selection steps: Ask AI (or another button by the selection) brings it back into the panel; the
+    // ✦ without a selection, back to the card that sends the person to the page.
+    if (guideRef.current && ON_PAGE.includes(guideRef.current)) guideToRef.current(captured ? "askSel" : "select")
     setOpen(true)
     requestAnimationFrame(() => requestAnimationFrame(() => setVisible(true)))
   }, [touch])
@@ -549,10 +594,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     return () => document.removeEventListener("visibilitychange", onVisible)
   }, [open, refreshStatus])
 
-  // The first time the panel is open and idle, show what it can do.
+  // The first time the panel is open and idle: the guided first request where there's a page to summarize (2.6),
+  // else the tour of what it can do.
   useEffect(() => {
-    if (popup || tourSeen || touring || !visible || view !== "chat" || streaming || pending) return
-    const timer = setTimeout(() => setTouring(true), 450)
+    if (popup || tourSeen || touring || guideRef.current || !visible || view !== "chat" || streaming || pending) return
+    const timer = setTimeout(() => (firstGuideRef.current() ? startGuideRef.current("first") : setTouring(true)), 450)
     return () => clearTimeout(timer)
   }, [popup, tourSeen, touring, visible, view, streaming, pending])
 
@@ -597,6 +643,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       if (e.key !== "Escape") return
       if (touringRef.current) {
         endTour()
+        return
+      }
+      if (guideRef.current) {
+        endGuideRef.current("skip")
         return
       }
       if (pickedRef.current) {
@@ -662,21 +712,29 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       if ((e.target as Element | null)?.closest?.("contextflow-root")) return
       setTimeout(offerButton, 10)
     }
-    const onScroll = () => {
+    const onScroll = (e: Event) => {
       if (bubbleHeld()) return
+      // A box of the page scrolled (2.6: Gemini's report on an iPhone is a full-screen fixed layer with its own
+      // scroller, and the window never scrolls under it): only the one the selection is in moves the buttons.
+      const box = e.target
+      if (box instanceof Element) {
+        const anchor = document.getSelection()?.anchorNode
+        if (!anchor || !box.contains(anchor)) return
+      }
       setBubble(null)
       clearTimeout(scrollTimer)
       if (touch) scrollTimer = setTimeout(offerButton, 400)
     }
     document.addEventListener("selectionchange", onSelectionChange)
     document.addEventListener("mouseup", onMouseUp)
-    window.addEventListener("scroll", onScroll, { passive: true })
+    // Capturing: a box's scroll doesn't bubble to the window. Our own lists scroll in our root, out of sight here.
+    document.addEventListener("scroll", onScroll, { passive: true, capture: true })
     return () => {
       clearTimeout(timer)
       clearTimeout(scrollTimer)
       document.removeEventListener("selectionchange", onSelectionChange)
       document.removeEventListener("mouseup", onMouseUp)
-      window.removeEventListener("scroll", onScroll)
+      document.removeEventListener("scroll", onScroll, true)
     }
   }, [open, touch])
 
@@ -850,6 +908,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           action: opts.action,
           mode: opts.mode,
           stats,
+          // Asked during the guided first request: the server doesn't count it, for an install's first few (2.6).
+          ...(guideRef.current ? { tour: true as const } : {}),
           ...(wholeChat ? { context: "chat" as const, pages } : {})
         }
       })
@@ -940,10 +1000,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     ask(last.content, { label: last.label, retry: true, mode: withoutGoogle ? undefined : last.mode })
   }, [messages, ask])
 
-  const runAction = useCallback((action: Action) => {
-    const language = t("languageName")
-    ask(t(action.prompt, language), { label: t(action.label), action: action.id, mode: action.mode })
-  }, [ask])
+  const runAction = useCallback((picked: Action) => {
+    // Translate by a selection: into English (or the next language) when the text is in the interface's already.
+    const action = (selection && forSelection(picked, selection.text)) || picked
+    ask(t(action.prompt, action.arg ?? t("languageName")), { label: action.text ?? t(action.label), action: action.id, mode: action.mode })
+  }, [ask, selection])
   runActionRef.current = runAction
 
   const acceptConsent = useCallback(async () => {
@@ -977,6 +1038,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   useEffect(() => {
     if (!bubble) {
       setSelDraft("")
+      setSelFocus(false)
       // The field went away with the buttons while focused (after Note): no blur comes, and a
       // "typing" left on would hold back every later selection on the page.
       selTyping.current = false
@@ -1506,7 +1568,73 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
   // ------------------------------------------------------------ derived
   const contextKind: "selection" | "page" | "none" = selection ? "selection" : pageReadable ? "page" : "none"
-  const actions = historyMode ? [] : contextKind === "selection" ? SELECTION_ACTIONS : contextKind === "page" ? PAGE_ACTIONS : []
+  const actions = historyMode
+    ? []
+    : contextKind === "selection" && selection
+      ? SELECTION_ACTIONS.flatMap((a) => forSelection(a, selection.text) ?? [])
+      : contextKind === "page" ? PAGE_ACTIONS : []
+  const actionLabel = (a: Action) => a.text ?? t(a.label)
+
+  // ------------------------------------------------------------ the guided first request (2.6, Guide.tsx)
+  const reportGuide = (a: "start" | "step" | "done" | "skip" | "exit", what?: string) =>
+    void sendBackground({ type: "useEvent", f: "tour", a, what, via: guideVia.current })
+  /** It can start here: a page to summarize, in the panel's chat (a selection is put aside when it starts). */
+  firstGuideRef.current = () => !historyMode && pageReadable
+  startGuideRef.current = (via: "first" | "menu") => {
+    guideVia.current = via
+    setTouring(false)
+    // From the "…" menu over a chat: a new one about the whole page, so Summarize is there to tap.
+    if (selection) {
+      forgetSelection()
+      setSelection(null)
+    }
+    if (messages.length > 0) newChat()
+    setGuide("summarize")
+    reportGuide("start")
+  }
+  const endGuide = (a: "done" | "skip" | "exit", what?: string) => {
+    const step = guideRef.current
+    if (!step) return
+    setGuide(null)
+    setTourSeen(true)
+    void markTourSeen()
+    reportGuide(a, what ?? step)
+  }
+  endGuideRef.current = endGuide
+  const guideTo = (step: GuideStep) => {
+    if (guideRef.current === step) return
+    guideRef.current = step
+    setGuide(step)
+    reportGuide("step", step)
+  }
+  guideToRef.current = guideTo
+  // Which step is on follows what happens: the consent card, a question going out, its answer, the selection buttons.
+  const lastRole = messages[messages.length - 1]?.role
+  useEffect(() => {
+    if (!guide) return
+    const second = guide === "askSel" || guide === "answer2" || ON_PAGE.includes(guide)
+    if (pending && (guide === "summarize" || guide === "askSel")) guideTo("consent")
+    else if (guide === "consent" && !pending && partial === null && consent !== "ok") endGuide("exit", "declined")
+    else if (streaming && !WAITING.includes(guide)) guideTo(second ? "answer2" : "answer")
+    else if (error && (WAITING.includes(guide) || guide === "consent")) endGuide("exit", error.code === "LIMIT_REACHED" ? "limit" : "error")
+    else if (guide === "answer2" && !streaming && !error && lastRole === "assistant") guideTo(threadList.length > 0 ? "chats" : "menu")
+    else if (guide === "pick" && bubble?.rect && !open) guideTo("ask")
+    else if (guide === "ask" && !bubble?.rect && !open) guideTo("pick")
+  }, [guide, pending, partial, consent, error, lastRole, bubble, open, threadList.length])
+  // The answer step's card waits for the answer to be in.
+  const guideIdle = guide !== null && !(WAITING.includes(guide) && (streaming || lastRole !== "assistant"))
+  // The panel closed during a step in it (not by the guide's own "Try it"): it ends there.
+  useEffect(() => {
+    if (!open && guide && !ON_PAGE.includes(guide)) endGuide("exit", "closed")
+  }, [open])
+  const guideNext = () => {
+    if (guide === "answer") guideTo("select")
+    else if (guide === "select") {
+      guideTo("pick")
+      if (!popup) hide()
+    } else if (guide === "chats") guideTo("menu")
+    else if (guide === "menu") endGuide("done")
+  }
   const plan = status?.plan ?? "free"
   const ownKeyActive = viaOwnKey || (Boolean(status?.hasOwnKey) && plan !== "free")
   // The App Store offer code for Pro, once this install has run out of free answers (Safari only).
@@ -2040,9 +2168,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         </div>
       )}
       {later && !open && laterSheet(true)}
+      {guide === "pick" && !open && !bubble?.rect && <GuidePill touch={touch} onSkip={() => endGuide("skip")} />}
 
       {bubble?.rect && !open && !popup && (
-        <SelectionBubble rect={bubble.rect} touch={touch}>
+        <SelectionBubble rect={bubble.rect} touch={touch} guide={guide === "ask"}>
           {noteSaved ? (
             <div class="cf-bubble-saved" role="status">
               <span><Icon.Check /> {remindSaved === null ? t("selNoteSaved") : remindSaved > 0 ? t("uxRemindSaved", remindLabel(remindSaved)) : remindSaved < 0 ? t("uxRemindNotSet") : t("uxRemindNoApp")}</span>
@@ -2073,6 +2202,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 )}
               </div>
               <div class="cf-bubble-ask">
+                <SelField touch={touch} chips={touch && !selDraft && !selFocus ? SEL_CHIPS.flatMap((id) => forSelection(selAction(id), bubble.text) ?? []) : []} onChip={(a) => {
+                  selFeatureUsed()
+                  void sendBackground({ type: "useEvent", f: "bubble", a: "action", what: a.id, via: "chip" })
+                  show(bubble)
+                  setTimeout(() => runActionRef.current(a), 60)
+                }}>
                 <input
                   type="text"
                   value={selDraft}
@@ -2080,8 +2215,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   aria-label={t("placeholderSelection")}
                   enterKeyHint="send"
                   autoComplete="off"
-                  onFocus={() => (selTyping.current = true)}
-                  onBlur={() => (selTyping.current = false)}
+                  onFocus={() => {
+                    selTyping.current = true
+                    setSelFocus(true)
+                  }}
+                  onBlur={() => {
+                    selTyping.current = false
+                    setSelFocus(false)
+                  }}
                   onInput={(e) => setSelDraft(e.currentTarget.value)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && !e.isComposing) {
@@ -2096,12 +2237,19 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   onKeyUp={(e) => e.stopPropagation()}
                   onKeyPress={(e) => e.stopPropagation()}
                 />
+                </SelField>
                 {/* iPhone and iPad: send shows once there's a question, so the field has room for it. */}
                 {(!touch || selDraft.trim()) && <button type="button" class="cf-bubble-send" disabled={!selDraft.trim()} aria-label={t("send")} title={t("send")} {...press(() => askAboutSelection(bubble, selDraft))}><Icon.ArrowUp /></button>}
                 <button type="button" class="cf-sel-note" title={t("selNoteTitle")} aria-label={t("selNote")} {...press(() => void noteSelection(bubble, selDraft))}><Icon.Pencil />{!(touch && narrowScreen()) && ` ${t("selNote")}`}</button>
               </div>
-              {selHint && <div class="cf-bubble-hint">{t("selHint")}</div>}
-              {!selHint && <SelIconsTip watching={listsKind("watch")} />}
+              {guide === "ask" ? (
+                <div class="cf-bubble-hint guide">{t(touch ? "guideTapAskTouch" : "guideTapAskMouse", t("selAsk"))}</div>
+              ) : (
+                <>
+                  {selHint && <div class="cf-bubble-hint">{t("selHint")}</div>}
+                  {!selHint && <SelIconsTip watching={listsKind("watch")} />}
+                </>
+              )}
             </>
           )}
         </SelectionBubble>
@@ -2210,6 +2358,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "settings" })
                       setView("settings")
                     }}
+                    onIntro={firstGuideRef.current() ? () => {
+                      setPageMenu(false)
+                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "intro" })
+                      startGuideRef.current("menu")
+                    } : undefined}
                     onClose={() => setPageMenu(false)}
                   />
                 )}
@@ -2351,7 +2504,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     {actions.length > 0 && (
                       <div class="cf-actions">
                         {actions.map((a) => (
-                          <button type="button" key={a.id} class="cf-chip" onClick={() => runAction(a)}>{t(a.label)}</button>
+                          <button type="button" key={a.id} class="cf-chip" data-action={a.id} onClick={() => runAction(a)}>{actionLabel(a)}</button>
                         ))}
                       </div>
                     )}
@@ -2400,7 +2553,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     <div class="cf-divider"><span>{t("nowOnPage", source.title() || source.site())}</span></div>
                     <div class="cf-actions follow">
                       {actions.slice(0, 4).map((a) => (
-                        <button type="button" key={a.id} class="cf-chip small" onClick={() => runAction(a)}>{t(a.label)}</button>
+                        <button type="button" key={a.id} class="cf-chip small" onClick={() => runAction(a)}>{actionLabel(a)}</button>
                       ))}
                     </div>
                   </div>
@@ -2408,8 +2561,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
                 {messages.length > 0 && partial === null && !error && actions.length > 0 && lastIsUser === false && !onNewPage && messages.length < 3 && (
                   <div class="cf-actions follow">
-                    {actions.filter((a) => !messages.some((m) => m.label === t(a.label))).slice(0, 3).map((a) => (
-                      <button type="button" key={a.id} class="cf-chip small" onClick={() => runAction(a)}>{t(a.label)}</button>
+                    {actions.filter((a) => !messages.some((m) => m.label === actionLabel(a))).slice(0, 3).map((a) => (
+                      <button type="button" key={a.id} class="cf-chip small" onClick={() => runAction(a)}>{actionLabel(a)}</button>
                     ))}
                   </div>
                 )}
@@ -2637,6 +2790,17 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               )}
             </>
           )}
+          {guide && guideIdle && !ON_PAGE.includes(guide) && view === "chat" && panelRef.current && (
+            <GuideCard
+              key={guide}
+              panel={panelRef.current}
+              step={guide}
+              touch={touch}
+              sync={TARGET === "safari" && settings.syncChats}
+              onNext={guideNext}
+              onSkip={() => endGuide("skip")}
+            />
+          )}
           {touring && view === "chat" && panelRef.current && (
             <Tour panel={panelRef.current} steps={tourSteps(TARGET === "safari" && settings.syncChats, touch)} onDone={endTour} />
           )}
@@ -2755,8 +2919,47 @@ function narrowScreen(): boolean {
   return (window.visualViewport?.width ?? window.innerWidth) < 360
 }
 
+// Nudged once per page: the chips peek out, then slide back, so the swipe is found.
+let chipsNudged = false
+
+/**
+ * The selection buttons' question field (2.6, the owner's idea for iPhone and iPad): the panel's quick actions sit
+ * in the field itself, semi-transparent, the first one peeking in at its end (the right edge; the left one right to
+ * left, Arabic); a swipe toward the start pulls them in, a carousel, and a tap on one asks it, so the person can swipe and tap instead of typing. They step aside once
+ * the field has the focus or a question. The buttons are touch-action:none (taps only); the field scrolls sideways
+ * (pan-x). The size of the buttons doesn't change. Mac: just the field.
+ */
+function SelField({ touch, chips, onChip, children }: { touch: boolean; chips: Action[]; onChip: (a: Action) => void; children: ComponentChildren }): VNode {
+  const ref = useRef<HTMLDivElement>(null)
+  const on = chips.length > 0
+  useEffect(() => {
+    const field = ref.current
+    if (!field) return
+    field.scrollLeft = 0
+    if (!on || chipsNudged || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return
+    chipsNudged = true
+    // Right to left (Arabic) the chips wait past the left edge: scrollLeft runs from 0 into the negatives there.
+    const ahead = getComputedStyle(field).direction === "rtl" ? -64 : 64
+    const out = setTimeout(() => field.scrollTo({ left: ahead, behavior: "smooth" }), 450)
+    const back = setTimeout(() => field.scrollTo({ left: 0, behavior: "smooth" }), 1150)
+    return () => {
+      clearTimeout(out)
+      clearTimeout(back)
+    }
+  }, [on])
+  if (!touch) return <>{children}</>
+  return (
+    <div ref={ref} class={`cf-ask-field ${on ? "chips" : ""}`} role="group" aria-label={on ? t("selChips") : undefined}>
+      {children}
+      {chips.map((a) => (
+        <button type="button" key={a.id} class="cf-sel-chip" {...press(() => onChip(a))}>{a.text ?? t(a.label)}</button>
+      ))}
+    </div>
+  )
+}
+
 /** The buttons shown for a page selection, centered under it and kept on screen. */
-function SelectionBubble({ rect, touch, children }: { rect: DOMRect; touch: boolean; children: ComponentChildren }): VNode {
+function SelectionBubble({ rect, touch, guide, children }: { rect: DOMRect; touch: boolean; guide?: boolean; children: ComponentChildren }): VNode {
   const ref = useRef<HTMLDivElement>(null)
   // Mac: a right-click on the page opens the system menu down from the pointer; the buttons go above the selection.
   const [up, setUp] = useState(false)
@@ -2796,7 +2999,7 @@ function SelectionBubble({ rect, touch, children }: { rect: DOMRect; touch: bool
   }, [rect, touch, up])
   return (
     // Clicks on the buttons keep the page selection; the field takes the focus.
-    <div ref={ref} class={`cf-bubble ${touch ? "touch" : ""}`} onMouseDown={(e) => (e.target as Element).closest("input") || e.preventDefault()}>
+    <div ref={ref} class={`cf-bubble ${touch ? "touch" : ""} ${guide ? "guide" : ""}`} onMouseDown={(e) => (e.target as Element).closest("input") || e.preventDefault()}>
       {children}
     </div>
   )

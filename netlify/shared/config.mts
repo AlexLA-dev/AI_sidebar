@@ -82,6 +82,8 @@ export const config = {
   entitlementLeewayMs: int("ENTITLEMENT_LEEWAY_HOURS", 48) * 3600_000,
 
   freeDailyLimit: int("FREE_DAILY_LIMIT", 5),
+  // Answers in the guided first request that don't count against the free ones, per install, ever (2.6, tour.mts).
+  tourFreeAnswers: int("TOUR_FREE_ANSWERS", 3),
   freeIpDailyLimit: int("FREE_IP_DAILY_LIMIT", 40),
   freeGlobalDailyLimit: int("FREE_GLOBAL_DAILY_LIMIT", 3000),
   proWeeklyLimit: int("PRO_WEEKLY_LIMIT", 375),

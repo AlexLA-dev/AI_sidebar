@@ -11,6 +11,9 @@
  "languageName": {
   "message": "Tiếng Việt"
  },
+ "langCode": {
+  "message": "vi"
+ },
  "ctxPage": {
   "message": "Trang này"
  },
@@ -447,10 +450,10 @@
   "message": "Trước khi ContextFlow dùng AI"
  },
  "consentBody": {
-  "message": "Bạn chỉ cần đồng ý một lần cho mọi tính năng AI của ContextFlow. Mỗi tính năng chỉ gửi những gì cần, khi bạn dùng, qua máy chủ của chúng tôi đến Anthropic (Claude). Máy chủ không lưu gì, và nhà cung cấp không dùng dữ liệu này để huấn luyện."
+  "message": "Bạn chỉ cần đồng ý một lần cho mọi tính năng AI của ContextFlow. Mỗi tính năng chỉ gửi những gì cần, khi bạn dùng, qua máy chủ của chúng tôi đến Anthropic (Claude), OpenAI (trả lời dự phòng, gợi ý) và Google Gemini (trả lời từ Google). Với khóa API riêng, dữ liệu đi thẳng đến nhà cung cấp đó. Máy chủ không lưu gì, không ai dùng để huấn luyện."
  },
  "consentAnswers": {
-  "message": "Câu trả lời: câu hỏi của bạn, nội dung trang hoặc phần bạn chọn, và phần “Về tôi” nếu bạn đã viết. Nếu Claude không khả dụng, OpenAI sẽ trả lời; câu trả lời từ Google được gửi đến Google."
+  "message": "Câu trả lời: câu hỏi của bạn, nội dung trang hoặc phần bạn chọn, và phần “Về tôi” nếu bạn đã viết. Nếu Claude không khả dụng, OpenAI sẽ trả lời; câu trả lời từ Google được gửi đến Google Gemini."
  },
  "consentChats": {
   "message": "“Hỏi các cuộc trò chuyện” và Tìm kiếm AI (Pro): các đoạn trích ngắn từ cuộc trò chuyện của bạn."
@@ -695,6 +698,63 @@
  "tourWholeBody": {
   "message": "Bật “Cả cuộc trò chuyện” khi câu hỏi cần đến mọi thứ: tất cả tin nhắn, ghi chú của bạn và các trang khác trong cuộc trò chuyện này. Khi tắt, câu trả lời dùng các tin nhắn gần nhất và trang này."
  },
+ "tourMenuTitle": {
+  "message": "Mọi thứ khác"
+ },
+ "tourMenuBody": {
+  "message": "Lời nhắc, các trang đang theo dõi, Mẹo, Cài đặt và phần giới thiệu này đều nằm trong menu này."
+ },
+ "guideSumTitle": {
+  "message": "Câu trả lời đầu tiên"
+ },
+ "guideSumBody": {
+  "message": "Chạm “{0}”: ContextFlow sẽ đọc trang này và tóm tắt cho bạn."
+ },
+ "guideConsentTitle": {
+  "message": "Một lần đồng ý cho mọi tính năng AI"
+ },
+ "guideConsentBody": {
+  "message": "Trước khi gửi bất cứ gì cho AI, ContextFlow hỏi bạn một lần. Đồng ý để nhận bản tóm tắt."
+ },
+ "guideAnswerTitle": {
+  "message": "Bản tóm tắt của bạn đây"
+ },
+ "guideAnswerBody": {
+  "message": "Cuộn để đọc. Bạn có thể hỏi tiếp trong ô bên dưới bất cứ lúc nào."
+ },
+ "guideSelectTitle": {
+  "message": "Giờ hãy hỏi về một phần"
+ },
+ "guideSelectBodyTouch": {
+  "message": "Nhấn giữ một từ trên trang, kéo tay cầm qua vài dòng, rồi chạm “{0}”."
+ },
+ "guideSelectBodyMouse": {
+  "message": "Chọn vài dòng trên trang, rồi bấm “{0}”."
+ },
+ "guideSelectGo": {
+  "message": "Thử ngay"
+ },
+ "guidePickTouch": {
+  "message": "Nhấn giữ một từ trên trang"
+ },
+ "guidePickMouse": {
+  "message": "Chọn vài dòng trên trang"
+ },
+ "guideTapAskTouch": {
+  "message": "Chạm “{0}” để hỏi về phần đã chọn."
+ },
+ "guideTapAskMouse": {
+  "message": "Bấm “{0}” để hỏi về phần đã chọn."
+ },
+ "guideAskSelTitle": {
+  "message": "Hỏi về phần đã chọn"
+ },
+ "guideAskSelBody": {
+  "message": "Chọn một thao tác nhanh, như “{0}”, hoặc tự nhập câu hỏi."
+ },
+ "uxShowIntro": {
+  "message": "Xem lại phần giới thiệu"
+ },
  "welcomeTitle": {
   "message": "ContextFlow đã sẵn sàng"
  },
@@ -715,6 +775,12 @@
  },
  "selQuestion": {
   "message": "Câu hỏi của bạn…"
+ },
+ "selTranslateTo": {
+  "message": "Dịch sang {0}"
+ },
+ "selChips": {
+  "message": "Thao tác nhanh"
  },
  "selNote": {
   "message": "Ghi chú"

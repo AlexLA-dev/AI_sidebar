@@ -164,6 +164,31 @@
 .cf-bubble.touch button.cf-bubble-send { width: 36px; min-height: 36px; height: 36px; padding: 0; border-radius: 50%; color: #fff; }
 .cf-bubble.touch button.cf-sel-note { color: var(--note-text); }
 .cf-bubble.touch .cf-bubble-hint { font-size: 12.5px; }
+/* iPhone / iPad (2.6): the field is a sideways carousel, the question box first, then the quick chips; the box is the
+   frame, the input clear inside it. With chips, the input leaves room for the first one to peek in at the edge. */
+.cf-bubble.touch .cf-ask-field {
+  flex: 1; min-width: 0; height: 38px;
+  display: flex; align-items: center; gap: 6px;
+  border: 1px solid var(--border); border-radius: 11px; background: var(--bg-2);
+  overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain;
+  scrollbar-width: none; scroll-snap-type: x proximity;
+  touch-action: pan-x; -webkit-user-select: none; user-select: none;
+}
+.cf-bubble.touch .cf-ask-field::-webkit-scrollbar { display: none; }
+.cf-bubble.touch .cf-ask-field:focus-within { border-color: var(--accent); background: var(--bg); }
+.cf-bubble.touch .cf-ask-field input {
+  flex: none; width: 100%; height: 36px; border: 0; border-radius: 0; background: transparent;
+  scroll-snap-align: start; touch-action: pan-x;
+}
+.cf-bubble.touch .cf-ask-field.chips input { width: calc(100% - 46px); }
+.cf-bubble.touch button.cf-sel-chip {
+  flex: none; min-height: 0; height: 28px; padding: 0 11px; border-radius: 999px;
+  font-size: 13.5px; font-weight: 600; color: var(--accent-text);
+  background: rgba(37, 99, 235, 0.13); border: 1px solid rgba(37, 99, 235, 0.22);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  scroll-snap-align: end; touch-action: pan-x; opacity: 0.92;
+}
+.cf-bubble.touch button.cf-sel-chip:last-child { margin-inline-end: 5px; }
 @keyframes cf-pop { from { opacity: 0; transform: translateY(-4px) scale(0.98); } to { opacity: 1; transform: none; } }
 
 /* ------------------------------------------------------------ panel */
@@ -200,6 +225,10 @@
   left: 0; right: 0; bottom: 0;
   height: min(78vh, 640px);
   max-height: calc(100vh - 40px);
+  /* What's visible now, Safari's toolbar shown (2.6): vh is the screen with the toolbar hidden, and the last rows of
+     Settings ended up under the toolbar. */
+  height: min(78dvh, 640px);
+  max-height: calc(100dvh - 40px);
   border-radius: 18px 18px 0 0;
   padding-bottom: env(safe-area-inset-bottom);
   transform: translateY(100%);
@@ -618,7 +647,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .cf-panel, .cf-backdrop, .cf-fab { transition: none !important; }
-  .cf-bubble, .cf-thinking span { animation: none !important; }
+  .cf-bubble, .cf-thinking span, .cf-bubble.guide button.primary, .cf-guide-pill { animation: none !important; }
 }
 
 /* The first-session tour: the part of the panel a step is about stays lit, the rest dims. */
@@ -642,6 +671,22 @@
 .cf-tour-card p { margin: 0 0 12px; color: var(--text-2); font-size: 13.5px; }
 .cf-tour-actions { display: flex; gap: 8px; align-items: center; justify-content: flex-end; }
 .cf-tour-actions .cf-link { margin-inline-end: auto; }
+/* The guided first request (2.6): what's lit up can be tapped; the clear covers around it hold every other tap. */
+.cf-guide { pointer-events: none; }
+.cf-guide .cf-tour-card, .cf-tour-block { pointer-events: auto; }
+.cf-tour-block { position: absolute; }
+.cf-guide-pill {
+  position: fixed; left: 50%; transform: translateX(-50%); z-index: 4;
+  display: flex; align-items: center; gap: 8px; max-width: calc(100vw - 24px);
+  padding-block: 7px; padding-inline: 13px 7px; border-radius: 999px;
+  background: var(--bg); color: var(--text); border: 1px solid var(--border); box-shadow: var(--shadow);
+  font-size: 14px; font-weight: 600; animation: cf-pop 0.14s ease-out;
+}
+.cf-guide-pill svg { color: var(--accent); }
+.cf-guide-pill button { flex: none; padding: 6px 11px; border-radius: 999px; background: var(--bg-2); color: var(--text-2); font-size: 13px; font-weight: 500; }
+.cf-bubble.guide button.primary { animation: cf-guide-pulse 1.4s ease-in-out infinite; }
+.cf-bubble-hint.guide { color: var(--accent-text); font-weight: 600; }
+@keyframes cf-guide-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.55); } 50% { box-shadow: 0 0 0 7px rgba(37, 99, 235, 0); } }
 
 /* Pro: AI search in the chat search, "Ask your chats", and what they do for someone without Pro. */
 .cf-search-ai { position: relative; flex: none; width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--accent-text); background: var(--accent-soft); }
