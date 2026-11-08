@@ -123,6 +123,8 @@ struct UltraMark: View {
     var body: some View {
         Text("Ultra")
             .font(.system(size: 9, weight: .bold))
+            .lineLimit(1)
+            .fixedSize()
             .foregroundColor(.white)
             .padding(.horizontal, 4)
             .padding(.vertical, 1)

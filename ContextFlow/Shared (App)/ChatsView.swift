@@ -2113,47 +2113,78 @@ private struct MessageTools: View {
                     .buttonStyle(.plain)
                     .accessibilityHint(Text("Tags"))
             }
-            HStack(spacing: 2) {
-                Button(action: copy) {
-                    Label(copied ? "Copied" : "Copy", systemImage: copied ? "checkmark" : "doc.on.doc")
-                }
-                if let shareRich {
-                    Button(action: shareRich) { Label("Share", systemImage: "square.and.arrow.up") }
-                } else {
-                    ShareLink(item: shareText) { Label("Share", systemImage: "square.and.arrow.up") }
-                }
-                if let listen {
-                    Button(action: listen) {
-                        HStack(spacing: 3) {
-                            Image(systemName: store.isUltra ? "speaker.wave.2.fill" : "speaker.wave.2")
-                            Text("Listen")
-                            if !store.isUltra { UltraMark() }
-                        }
-                        .foregroundColor(ultraTint)
-                    }
-                    .accessibilityLabel(Text("Listen"))
-                    .accessibilityIdentifier("chat.listen")
-                }
-                if let tag {
-                    Button(action: tag) { Label("Tag", systemImage: "tag") }
-                        .background(Capsule().fill(tagging ? Color.secondary.opacity(0.14) : .clear))
-                        .accessibilityAddTraits(tagging ? .isSelected : [])
-                }
-                if let actions {
-                    Menu {
-                        Button(action: actions.pin) { Label(actions.pinned ? "Unpin" : "Pin", systemImage: actions.pinned ? "pin.slash" : "pin") }
-                        Button(action: actions.remind) { Label(actions.reminded ? "Change reminder" : "Remind me", systemImage: "bell") }
-                        Button(role: .destructive, action: actions.delete) { Label("Delete", systemImage: "trash") }
-                    } label: {
-                        Label("More", systemImage: "ellipsis")
-                    }
-                    .menuIndicator(.hidden)
-                }
+            // With their names while they fit on one line; icons alone when they don't (a long language, a narrow
+            // screen): never a name broken over two lines.
+            ViewThatFits(in: .horizontal) {
+                tools(titles: true)
+                tools(titles: false)
             }
             .buttonStyle(MessageToolStyle())
-            .labelStyle(CompactLabelStyle())
             .padding(.leading, -8)
         }
+    }
+
+    /// The tools with their names, or icons alone (VoiceOver still reads the names).
+    @ViewBuilder
+    private func tools(titles: Bool) -> some View {
+        if titles {
+            row(titles: true).labelStyle(ToolLabelStyle())
+        } else {
+            row(titles: false).labelStyle(.iconOnly)
+        }
+    }
+
+    @ViewBuilder
+    private func row(titles: Bool) -> some View {
+        HStack(spacing: 2) {
+            Button(action: copy) {
+                Label(copied ? "Copied" : "Copy", systemImage: copied ? "checkmark" : "doc.on.doc")
+            }
+            if let shareRich {
+                Button(action: shareRich) { Label("Share", systemImage: "square.and.arrow.up") }
+            } else {
+                ShareLink(item: shareText) { Label("Share", systemImage: "square.and.arrow.up") }
+            }
+            if let listen {
+                Button(action: listen) {
+                    HStack(spacing: 3) {
+                        Image(systemName: store.isUltra ? "speaker.wave.2.fill" : "speaker.wave.2")
+                        if titles { Text("Listen").lineLimit(1) }
+                        if !store.isUltra { UltraMark() }
+                    }
+                    .foregroundColor(ultraTint)
+                    .fixedSize()
+                }
+                .accessibilityLabel(Text("Listen"))
+                .accessibilityIdentifier("chat.listen")
+            }
+            if let tag {
+                Button(action: tag) { Label("Tag", systemImage: "tag") }
+                    .background(Capsule().fill(tagging ? Color.secondary.opacity(0.14) : .clear))
+                    .accessibilityAddTraits(tagging ? .isSelected : [])
+            }
+            if let actions {
+                Menu {
+                    Button(action: actions.pin) { Label(actions.pinned ? "Unpin" : "Pin", systemImage: actions.pinned ? "pin.slash" : "pin") }
+                    Button(action: actions.remind) { Label(actions.reminded ? "Change reminder" : "Remind me", systemImage: "bell") }
+                    Button(role: .destructive, action: actions.delete) { Label("Delete", systemImage: "trash") }
+                } label: {
+                    Label("More", systemImage: "ellipsis")
+                }
+                .menuIndicator(.hidden)
+            }
+        }
+    }
+}
+
+/// A footer tool's label: its icon and its name, on one line.
+private struct ToolLabelStyle: LabelStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        HStack(spacing: 3) {
+            configuration.icon
+            configuration.title.lineLimit(1)
+        }
+        .fixedSize()
     }
 }
 
