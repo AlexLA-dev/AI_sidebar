@@ -176,7 +176,8 @@ export type BackgroundRequest =
   // Read aloud on iPhone and iPad (2.6): the parts go to the app (App Group), which plays them with the screen
   // locked; answers { url } (contextflow://listen?id=…) for the page to follow, or { url: null } (no app).
   // text, script (2.6): the raw text and whether the app should write it for the ear first (parts: when it can't).
-  | { type: "listenInApp"; parts: string[]; text: string; script: boolean; lang: string; what: "answer" | "page"; title: string; url: string }
+  // id: made by the panel, so the contextflow:// link can be followed during the tap itself (build 91).
+  | { type: "listenInApp"; id: string; parts: string[]; text: string; script: boolean; lang: string; what: "answer" | "page"; title: string; url: string }
   // "Delete all chats": the audio and the texts for listening kept on this device go too.
   | { type: "speechClear" }
   // The line under a free answer that skipped the page's video or PDFs: shown, or its "Try Pro" tapped.

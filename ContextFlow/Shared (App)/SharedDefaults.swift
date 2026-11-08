@@ -29,6 +29,27 @@ enum PlanProducts {
         if byok.contains(productId) { return "byok" }
         return "free"
     }
+
+    /// The panel's price table (2.6): each product's display price, and for each yearly plan a month of it, what it
+    /// saves a year and in percent ("<id>#perMonth", "<id>#save", "<id>#percent"), all in the App Store's own format.
+    /// Built by the app when it loads the plans, and by the extension itself when the app hasn't yet (build 91: the
+    /// panel's plans sheet showed no prices).
+    static func priceTable(_ products: [Product]) -> [String: String] {
+        var table = Dictionary(products.map { ($0.id, $0.displayPrice) }, uniquingKeysWith: { a, _ in a })
+        for ids in [ultra, pro, byok] {
+            guard let monthly = products.first(where: { $0.id == ids[0] }), let yearly = products.first(where: { $0.id == ids[1] }),
+                  monthly.price > 0 else { continue }
+            let full = monthly.price * 12
+            guard full > yearly.price else { continue }
+            let percent = Int((NSDecimalNumber(decimal: (full - yearly.price) / full).doubleValue * 100).rounded())
+            guard percent >= 5 else { continue }
+            let style = yearly.priceFormatStyle
+            table["\(yearly.id)#perMonth"] = (yearly.price / 12).formatted(style)
+            table["\(yearly.id)#save"] = (full - yearly.price).formatted(style)
+            table["\(yearly.id)#percent"] = String(percent)
+        }
+        return table
+    }
 }
 
 struct SharedEntitlement: Equatable {
@@ -164,8 +185,9 @@ final class SharedDefaults {
 
     /// The panel's Listen: the text in parts, its language, title and page, for the app to play (WebKit stops a
     /// page's audio when the screen locks). Only the latest one is kept; answers its id for contextflow://listen.
-    func writeListenRequest(_ request: [String: Any]) -> String {
-        let id = UUID().uuidString.lowercased()
+    /// `id`: the panel's own (build 91: it follows the link before this is written), else a new one.
+    func writeListenRequest(_ request: [String: Any], id given: String? = nil) -> String {
+        let id = given.flatMap { $0.range(of: "^[0-9a-fA-F-]{8,64}$", options: .regularExpression) != nil ? $0.lowercased() : nil } ?? UUID().uuidString.lowercased()
         var stored = request
         stored["id"] = id
         stored["at"] = Date().timeIntervalSince1970

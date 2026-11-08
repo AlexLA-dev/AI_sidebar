@@ -129,6 +129,8 @@ export function serveSpeak(port: chrome.runtime.Port, deps: SpeakDeps): void {
   let written = false
   let controller: AbortController | null = null
   const scriptAbort = new AbortController()
+  // The model the text's first part came from: every later part asks for it (one voice per text, build 91).
+  let textModel = ""
   const post = (message: SpeakOut) => {
     try {
       port.postMessage(message)
@@ -252,12 +254,13 @@ export function serveSpeak(port: chrome.runtime.Port, deps: SpeakDeps): void {
       res = await fetch(`${API_BASE}/api/v2/speak`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ installId, client, entitlement: jws, text, lang, what, part, parts: parts.length }),
+        body: JSON.stringify({ installId, client, entitlement: jws, text, lang, what, part, parts: parts.length, ...(textModel ? { model: textModel } : {}) }),
         signal: controller.signal
       })
     } catch {
       return { ok: false, code: "NETWORK", sent: skip }
     }
+    if (res.ok && !textModel) textModel = res.headers.get("X-CF-Model") ?? ""
     if (!res.ok || !res.body) {
       const body = (await res.json().catch(() => ({}))) as { code?: string; usage?: Usage | null }
       const code = (["ULTRA_ONLY", "LIMIT_REACHED", "BUSY", "OFF"] as const).find((c) => c === body.code) ?? "UPSTREAM"
@@ -317,6 +320,7 @@ export function serveSpeak(port: chrome.runtime.Port, deps: SpeakDeps): void {
       next = 0
       playing = -1
       stopped = false
+      textModel = ""
       // A page always (captions, credits, its tables), an answer when it has more than plain sentences.
       if (what === "page" || needsScript(text)) {
         parts = []
@@ -326,7 +330,7 @@ export function serveSpeak(port: chrome.runtime.Port, deps: SpeakDeps): void {
           void pump()
         })
       } else {
-        parts = speechParts(speechText(text)).slice(0, 40)
+        parts = speechParts(speechText(text)).slice(0, 80)
         written = true
         void pump()
       }

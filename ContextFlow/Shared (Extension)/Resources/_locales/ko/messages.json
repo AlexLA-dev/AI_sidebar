@@ -1725,7 +1725,7 @@
   "message": "인터넷에 연결되어 있지 않아요. 처음 들을 때는 인터넷이 필요해요."
  },
  "listenInApp": {
-  "message": "ContextFlow를 여는 중이에요. 화면을 잠가도 계속 재생돼요."
+  "message": "듣기는 ContextFlow 앱에서 재생되어서 화면을 잠가도, 헤드폰에서도 계속 재생돼요."
  },
  "listenLeft": {
   "message": "듣기: 이번 주 {1}분 중 {0}분 남음"
@@ -2017,6 +2017,24 @@
  },
  "gSimilarCheaper": {
   "message": "더 저렴하게"
+ },
+ "listenMinLeft": {
+  "message": "{0}분 남음"
+ },
+ "listenMinLeftTitle": {
+  "message": "이번 주 듣기 {0}분 남음"
+ },
+ "listenLow": {
+  "message": "이번 주 듣기가 약 {0}분 남았고, 이 텍스트는 약 {1}분 걸려요. 남은 시간이 끝나는 곳에서 멈춰요."
+ },
+ "listenAnyway": {
+  "message": "그래도 듣기"
+ },
+ "plansUpgrade": {
+  "message": "{0}로 업그레이드"
+ },
+ "plansUpgradeYearly": {
+  "message": "연간으로 업그레이드"
  },
  "similarPayFree": {
   "message": "무료, 앱 내 구입 없음"

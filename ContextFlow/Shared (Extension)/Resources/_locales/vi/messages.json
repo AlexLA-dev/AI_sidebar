@@ -1725,7 +1725,7 @@
   "message": "Không có kết nối: lần đầu nghe cần có Internet."
  },
  "listenInApp": {
-  "message": "Đang mở ContextFlow: vẫn phát tiếp khi khóa màn hình."
+  "message": "Tính năng Nghe phát trong ứng dụng ContextFlow, nên vẫn phát tiếp khi khóa màn hình và trong tai nghe."
  },
  "listenLeft": {
   "message": "Nghe: tuần này còn {0}/{1} phút"
@@ -2017,6 +2017,24 @@
  },
  "gSimilarCheaper": {
   "message": "Rẻ hơn"
+ },
+ "listenMinLeft": {
+  "message": "Còn {0} phút"
+ },
+ "listenMinLeftTitle": {
+  "message": "Tuần này còn {0} phút nghe"
+ },
+ "listenLow": {
+  "message": "Tuần này còn khoảng {0} phút nghe, còn nội dung này cần khoảng {1} phút. Phần đọc sẽ dừng ở chỗ hết phút."
+ },
+ "listenAnyway": {
+  "message": "Vẫn nghe"
+ },
+ "plansUpgrade": {
+  "message": "Nâng cấp lên {0}"
+ },
+ "plansUpgradeYearly": {
+  "message": "Nâng cấp lên gói theo năm"
  },
  "similarPayFree": {
   "message": "Miễn phí, không có mua hàng trong ứng dụng"

@@ -1725,7 +1725,7 @@
   "message": "无网络连接：第一次朗读需要联网。"
  },
  "listenInApp": {
-  "message": "正在打开 ContextFlow：锁屏后也会继续播放。"
+  "message": "朗读在 ContextFlow App 中播放，所以锁屏后也会继续播放，戴着耳机也能一直听。"
  },
  "listenLeft": {
   "message": "朗读：本周剩余 {0}/{1} 分钟"
@@ -2017,6 +2017,24 @@
  },
  "gSimilarCheaper": {
   "message": "更便宜"
+ },
+ "listenMinLeft": {
+  "message": "剩余 {0} 分钟"
+ },
+ "listenMinLeftTitle": {
+  "message": "本周剩余 {0} 分钟朗读时长"
+ },
+ "listenLow": {
+  "message": "本周还剩约 {0} 分钟朗读时长，这段内容大约需要 {1} 分钟。时长用完时，朗读会在那里停止。"
+ },
+ "listenAnyway": {
+  "message": "仍然朗读"
+ },
+ "plansUpgrade": {
+  "message": "升级到 {0}"
+ },
+ "plansUpgradeYearly": {
+  "message": "升级到年付"
  },
  "similarPayFree": {
   "message": "免费，无 App 内购买"

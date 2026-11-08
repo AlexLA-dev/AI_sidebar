@@ -1652,6 +1652,12 @@
  "plansCurrent": {
   "message": "Your plan"
  },
+ "plansUpgrade": {
+  "message": "Upgrade to {0}"
+ },
+ "plansUpgradeYearly": {
+  "message": "Upgrade to yearly"
+ },
  "plansChoose": {
   "message": "Choose {0}"
  },
@@ -1728,10 +1734,22 @@
   "message": "No connection: listening needs the internet the first time."
  },
  "listenInApp": {
-  "message": "Opening ContextFlow: it keeps playing with the screen locked."
+  "message": "Listen plays in the ContextFlow app, so the sound keeps going with the screen locked and in your headphones."
  },
  "listenLeft": {
   "message": "Listening: {0} of {1} min left this week"
+ },
+ "listenMinLeft": {
+  "message": "{0} min left"
+ },
+ "listenMinLeftTitle": {
+  "message": "{0} min of listening left this week"
+ },
+ "listenLow": {
+  "message": "About {0} min of listening left this week, and this takes about {1} min. It stops where they run out."
+ },
+ "listenAnyway": {
+  "message": "Listen anyway"
  },
  "watchFullPro": {
   "message": "On Pro you can watch {0} pages at once. Ultra watches up to {1}."
