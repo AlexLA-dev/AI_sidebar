@@ -1,5 +1,5 @@
 // The app's Tips, for the extension's Tips sheet (2.5 (78), the owner's note: the same Tips in the extension).
-// One source: the blocks, their order, the cards and the Pro badges come from TipGroup in ContentView.swift, the
+// One source: the blocks, their order, the cards and the Pro and Ultra badges come from TipGroup in ContentView.swift, the
 // translations from Localizable.xcstrings. The extension build reads both, so the sheet can't drift from the app:
 //   tipsData(root)            → { heading, intro, clipLang, lead, groups } in English, each text with its message key
 //   tipsMessages(root, data, lang) → { key: text } in an extension language (src/locales/<lang>.json's name)
@@ -93,7 +93,7 @@ function clipArg(value) {
   return { ios: name, mac: name }
 }
 
-/** `Tip(symbol: …, title: "…", text: "…", clip: …, pro: true)` → { title, text, clip: { ios, mac }, pro }. */
+/** `Tip(symbol: …, title: "…", text: "…", clip: …, pro: true)` → { title, text, clip: { ios, mac }, pro, ultra }. */
 function tipCall(src) {
   const open = src.indexOf("Tip(")
   if (open < 0) throw new Error(`tips: no Tip(…) in ${src.slice(0, 60)}`)
@@ -101,7 +101,7 @@ function tipCall(src) {
     const at = a.indexOf(":")
     return [a.slice(0, at).trim(), a.slice(at + 1).trim()]
   }))
-  return { title: literal(args.title, "a Tip's title"), text: literal(args.text, "a Tip's text"), clip: clipArg(args.clip), pro: args.pro === "true" }
+  return { title: literal(args.title, "a Tip's title"), text: literal(args.text, "a Tip's text"), clip: clipArg(args.clip), pro: args.pro === "true", ultra: args.ultra === "true" }
 }
 
 /** A tip on iOS and on a Mac: one Tip(…), or `#if os(iOS) Tip(…) #else Tip(…) #endif`. */
@@ -124,6 +124,8 @@ function entry({ ios, mac }) {
     if (mac.clip) e.mac.clip = mac.clip
   }
   if (ios.pro || mac.pro) e.pro = true
+  // 2.6: Ultra's own features (Find similar, Listen) carry the Ultra badge.
+  if (ios.ultra || mac.ultra) e.ultra = true
   return e
 }
 

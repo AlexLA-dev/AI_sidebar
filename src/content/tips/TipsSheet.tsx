@@ -119,6 +119,7 @@ function TipCard({ tip, mac, lang, load = null }: { tip: TipEntry; mac: boolean;
       <div class="cf-tip-title">
         {say(title)}
         {tip.pro && <span class="cf-pro-badge">Pro</span>}
+        {tip.ultra && <span class="cf-ultra-badge">Ultra</span>}
       </div>
       <p class="cf-tip-text">{say(text)}</p>
     </div>

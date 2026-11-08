@@ -7,7 +7,7 @@ export type TipText = { key: string; en: string }
 // `clip`: the app's clip for the card (dist/clips/<en|ru>/<clip>.mp4 and .jpg, the web versions); `mac` where a Mac's
 // words or clip differ (none where the app shows none).
 export type TipShown = { title: TipText; text: TipText; clip?: string }
-export type TipEntry = TipShown & { mac?: TipShown; pro?: true }
+export type TipEntry = TipShown & { mac?: TipShown; pro?: true; ultra?: true }
 export type TipBlock = { id: string; title: TipText; tips: TipEntry[] }
 // clipLang: "ru" or "en" in the panel's language, as the app picks its clips.
 export type TipsData = { heading: TipText; intro: TipText; clipLang: TipText; lead: TipEntry; groups: TipBlock[] }
