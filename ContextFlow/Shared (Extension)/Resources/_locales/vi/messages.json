@@ -1469,6 +1469,15 @@
  "orgFirstWin": {
   "message": "Xong. Từ giờ tôi sẽ tự gợi ý."
  },
+ "orgNameChat": {
+  "message": "Đặt tên theo chủ đề"
+ },
+ "orgNamed": {
+  "message": "Đã đặt tên “{0}”"
+ },
+ "orgNameFailed": {
+  "message": "Mình chưa đặt được tên cho cuộc trò chuyện. Hãy thử lại sau."
+ },
  "orgConsentTitle": {
   "message": "Sắp xếp cuộc trò chuyện theo chủ đề?"
  },

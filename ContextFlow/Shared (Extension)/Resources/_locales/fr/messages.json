@@ -1469,6 +1469,15 @@
  "orgFirstWin": {
   "message": "C’est fait. Désormais, je ferai mes suggestions de moi-même."
  },
+ "orgNameChat": {
+  "message": "Nommer d’après le sujet"
+ },
+ "orgNamed": {
+  "message": "Discussion nommée « {0} »"
+ },
+ "orgNameFailed": {
+  "message": "Je n’ai pas pu nommer la discussion pour l’instant. Réessayez plus tard."
+ },
  "orgConsentTitle": {
   "message": "Classer vos discussions par sujet ?"
  },

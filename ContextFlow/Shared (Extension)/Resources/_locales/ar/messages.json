@@ -1469,6 +1469,15 @@
  "orgFirstWin": {
   "message": "تم. من الآن فصاعدًا سأقترح بنفسي."
  },
+ "orgNameChat": {
+  "message": "التسمية حسب الموضوع"
+ },
+ "orgNamed": {
+  "message": "سُمّيت المحادثة «{0}»"
+ },
+ "orgNameFailed": {
+  "message": "تعذّرت تسمية المحادثة الآن. حاول مرة أخرى لاحقًا."
+ },
  "orgConsentTitle": {
   "message": "ترتيب محادثاتك حسب الموضوع؟"
  },

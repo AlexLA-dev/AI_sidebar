@@ -1469,6 +1469,15 @@
  "orgFirstWin": {
   "message": "Fatto. D’ora in poi ti farò suggerimenti senza che tu lo chieda."
  },
+ "orgNameChat": {
+  "message": "Dai un nome per argomento"
+ },
+ "orgNamed": {
+  "message": "Chat chiamata «{0}»"
+ },
+ "orgNameFailed": {
+  "message": "Non sono riuscito a dare un nome alla chat. Riprova più tardi."
+ },
  "orgConsentTitle": {
   "message": "Ordinare le chat per argomento?"
  },

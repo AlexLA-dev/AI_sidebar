@@ -1469,6 +1469,15 @@
  "orgFirstWin": {
   "message": "完成。从现在起，我会主动给出建议。"
  },
+ "orgNameChat": {
+  "message": "按主题命名"
+ },
+ "orgNamed": {
+  "message": "已命名为“{0}”"
+ },
+ "orgNameFailed": {
+  "message": "暂时无法为对话命名，请稍后再试。"
+ },
  "orgConsentTitle": {
   "message": "按主题整理你的对话？"
  },

@@ -1469,6 +1469,15 @@
  "orgFirstWin": {
   "message": "Done. From now on I'll suggest on my own."
  },
+ "orgNameChat": {
+  "message": "Name by topic"
+ },
+ "orgNamed": {
+  "message": "Named “{0}”"
+ },
+ "orgNameFailed": {
+  "message": "I couldn't name this chat just now. Try again later."
+ },
  "orgConsentTitle": {
   "message": "Sort your chats by topic?"
  },

@@ -1469,6 +1469,15 @@
  "orgFirstWin": {
   "message": "完了しました。これからは自分から提案します。"
  },
+ "orgNameChat": {
+  "message": "トピックで名前を付ける"
+ },
+ "orgNamed": {
+  "message": "「{0}」と名前を付けました"
+ },
+ "orgNameFailed": {
+  "message": "今はチャットに名前を付けられませんでした。あとでもう一度お試しください。"
+ },
  "orgConsentTitle": {
   "message": "チャットをトピックごとに整理しますか？"
  },

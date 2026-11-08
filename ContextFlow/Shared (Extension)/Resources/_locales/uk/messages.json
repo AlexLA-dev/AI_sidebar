@@ -1469,6 +1469,15 @@
  "orgFirstWin": {
   "message": "Готово. Далі підказуватиму, не чекаючи прохання."
  },
+ "orgNameChat": {
+  "message": "Назвати за темою"
+ },
+ "orgNamed": {
+  "message": "Чат названо «{0}»"
+ },
+ "orgNameFailed": {
+  "message": "Не вдалося назвати чат. Спробуйте пізніше."
+ },
  "orgConsentTitle": {
   "message": "Розкласти чати за темами?"
  },

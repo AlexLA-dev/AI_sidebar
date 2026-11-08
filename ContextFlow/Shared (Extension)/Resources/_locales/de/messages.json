@@ -1469,6 +1469,15 @@
  "orgFirstWin": {
   "message": "Erledigt. Ab jetzt mache ich von selbst Vorschläge."
  },
+ "orgNameChat": {
+  "message": "Nach Thema benennen"
+ },
+ "orgNamed": {
+  "message": "„{0}“ benannt"
+ },
+ "orgNameFailed": {
+  "message": "Ich konnte den Chat gerade nicht benennen. Versuch es später noch einmal."
+ },
  "orgConsentTitle": {
   "message": "Chats nach Themen sortieren?"
  },

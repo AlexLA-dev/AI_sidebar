@@ -1469,6 +1469,15 @@
  "orgFirstWin": {
   "message": "Pronto. Daqui em diante, vou sugerir por conta própria."
  },
+ "orgNameChat": {
+  "message": "Nomear pelo assunto"
+ },
+ "orgNamed": {
+  "message": "Conversa nomeada “{0}”"
+ },
+ "orgNameFailed": {
+  "message": "Não consegui nomear a conversa agora. Tente de novo mais tarde."
+ },
  "orgConsentTitle": {
   "message": "Organizar suas conversas por assunto?"
  },
