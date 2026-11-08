@@ -605,7 +605,7 @@
   "listenLimit": "Se acabaron los {0} minutos de escucha de esta semana. Vuelven el {1}.",
   "listenFailed": "No se pudo leer en voz alta. Inténtalo de nuevo en un momento.",
   "listenOffline": "Sin conexión: la primera vez, escuchar necesita internet.",
-  "listenInApp": "Abriendo ContextFlow: sigue sonando con la pantalla bloqueada.",
+  "listenInApp": "«Escuchar» se reproduce en la app ContextFlow, así que sigue sonando con la pantalla bloqueada y en tus auriculares.",
   "listenLeft": "Escucha: te quedan {0} de {1} min esta semana",
   "watchFullPro": "Con Pro puedes vigilar {0} páginas a la vez. Con Ultra, hasta {1}.",
   "watchMoreUltra": "Más con Ultra",
@@ -704,5 +704,20 @@
   "gSimilar3": "Silla con reposacabezas",
   "gSimilarInStock": "En stock",
   "gSimilarNewer": "Más reciente",
-  "gSimilarCheaper": "Más barato"
+  "gSimilarCheaper": "Más barato",
+
+  "listenMinLeft": "Quedan {0} min",
+  "listenMinLeftTitle": "Te quedan {0} min de escucha esta semana",
+  "listenLow": "Te quedan unos {0} min de escucha esta semana, y esto dura unos {1} min. La lectura se detiene donde se acaben los minutos.",
+  "listenAnyway": "Escuchar de todos modos",
+  "plansUpgrade": "Pasar a {0}",
+  "plansUpgradeYearly": "Pasar a anual",
+  "similarPayFree": "Gratis, sin compras dentro de la app",
+  "similarPayFreeStart": "Gratis",
+  "similarPaySub": "Suscripción desde {0}",
+  "similarPayOnce": "Compra única {0}",
+  "similarPayIap": "Compras dentro de la app desde {0}",
+  "similarPerWeek": "{0}/semana",
+  "similarPerMonth": "{0}/mes",
+  "similarPerYear": "{0}/año"
 }

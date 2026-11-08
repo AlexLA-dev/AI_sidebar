@@ -1035,6 +1035,7 @@ struct ProView: View {
                             focused: tier == focusTier,
                             current: store.entitlement.active && store.entitlement.productId == product.id,
                             currentTier: store.tier,
+                            fromMonthly: store.entitlement.active && store.product(tier, yearly: false)?.id == store.entitlement.productId,
                             trialEligible: store.introEligible.contains(product.id),
                             busy: busyProduct == product.id,
                             action: { buy(product) }
@@ -1173,6 +1174,8 @@ struct TierCard: View {
     let focused: Bool
     let current: Bool
     let currentTier: StoreKitManager.Tier?
+    /// The subscriber has this plan monthly: its yearly card is an upgrade too (build 91).
+    var fromMonthly = false
     let trialEligible: Bool
     let busy: Bool
     let action: () -> Void
@@ -1252,6 +1255,8 @@ struct TierCard: View {
                         Text("Start free trial")
                     } else if let currentTier, currentTier.rank < tier.rank {
                         Text("Upgrade to \(tier.name)")
+                    } else if fromMonthly, yearly {
+                        Text("Upgrade to yearly")
                     } else {
                         Text("Subscribe for \(priceLine)")
                     }
@@ -1662,6 +1667,7 @@ struct SettingsView: View {
         Section(header: Text("Your plan"), footer: restoreMessage.map { Text($0) }) {
             HStack {
                 Text(planName(store.entitlement.productId))
+                    .task { if store.isUltra { await store.refreshPlanFacts() } }
                 Spacer()
                 if let date = store.entitlement.expiresAt {
                     if store.entitlement.autoRenew == false {
@@ -1672,6 +1678,11 @@ struct SettingsView: View {
                             .foregroundColor(.secondary)
                     }
                 }
+            }
+            // Ultra: this week's listening (build 91: the owner wanted to see the minutes left somewhere).
+            if store.isUltra, let left = store.planFacts.speakLeftSeconds {
+                Text("Listening: \(left / 60) of \(store.planFacts.speakWeeklyMinutes) min left this week")
+                    .foregroundColor(.secondary)
             }
             if let offer = store.yearlySwitch, Date().timeIntervalSince1970 > yearlyHiddenUntil {
                 yearlyLine(offer)

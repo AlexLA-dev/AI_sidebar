@@ -605,7 +605,7 @@
   "listenLimit": "انتهت دقائق الاستماع لهذا الأسبوع ({0} دقيقة). تعود يوم {1}.",
   "listenFailed": "تعذّرت القراءة بصوت عالٍ. حاول مرة أخرى بعد قليل.",
   "listenOffline": "لا يوجد اتصال: يحتاج الاستماع إلى الإنترنت في المرة الأولى.",
-  "listenInApp": "جارٍ فتح ContextFlow: يستمر التشغيل حتى مع قفل الشاشة.",
+  "listenInApp": "يعمل «استماع» في تطبيق ContextFlow، لذا يستمر التشغيل حتى مع قفل الشاشة وفي سماعات الرأس.",
   "listenLeft": "الاستماع: تبقّى {0} من {1} د هذا الأسبوع",
   "watchFullPro": "في Pro يمكنك مراقبة {0} صفحة في وقت واحد. يراقب Ultra حتى {1}.",
   "watchMoreUltra": "المزيد مع Ultra",
@@ -704,5 +704,20 @@
   "gSimilar3": "كرسي بمسند للرأس",
   "gSimilarInStock": "متوفر",
   "gSimilarNewer": "أحدث",
-  "gSimilarCheaper": "أرخص"
+  "gSimilarCheaper": "أرخص",
+
+  "listenMinLeft": "تبقّى {0} د",
+  "listenMinLeftTitle": "تبقّى {0} د من الاستماع هذا الأسبوع",
+  "listenLow": "تبقّى نحو {0} د من الاستماع هذا الأسبوع، وهذا النص يستغرق نحو {1} د. يتوقف التشغيل عند نفاد الدقائق.",
+  "listenAnyway": "استمع على أي حال",
+  "plansUpgrade": "الترقية إلى {0}",
+  "plansUpgradeYearly": "الترقية إلى الاشتراك السنوي",
+  "similarPayFree": "مجاني، بلا مشتريات داخل التطبيق",
+  "similarPayFreeStart": "مجاني",
+  "similarPaySub": "اشتراك من {0}",
+  "similarPayOnce": "شراء لمرة واحدة {0}",
+  "similarPayIap": "مشتريات داخل التطبيق من {0}",
+  "similarPerWeek": "{0}/أسبوع",
+  "similarPerMonth": "{0}/شهر",
+  "similarPerYear": "{0}/سنة"
 }

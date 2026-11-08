@@ -47,8 +47,14 @@ final class ListenPlayer: NSObject, ObservableObject {
         /// The rest couldn't come (no connection, the minutes ran out) after ours had played: what was heard stays
         /// heard, and "Try again" asks for the rest in the same voice.
         case interrupted(limit: Bool)
+        /// Fewer minutes left this week than the text takes (build 91): said before it starts; "Listen anyway".
+        case lowMinutes(left: Int, needed: Int)
         case failed(String)
     }
+
+    /// The size of a part after the first (src/shared/speech.ts PART_CHARS): about 35 s of speech, so each one is
+    /// made quickly and the next is ready before the one playing ends (build 91: a 95 s part came 20 s late).
+    nonisolated static let partChars = 500
 
     /// The speeds offered (the panel's too); the last one chosen is kept.
     nonisolated static let speeds: [Double] = [1, 1.2, 1.5, 2]
@@ -60,6 +66,8 @@ final class ListenPlayer: NSObject, ObservableObject {
     @Published private(set) var request: ListenRequest?
     @Published private(set) var state: State = .idle
     @Published private(set) var elapsed: Double = 0
+    /// Seconds of this week's listening left (each part's X-CF-Usage; the plan's facts before the first one).
+    @Published private(set) var secondsLeft: Int?
     @Published private(set) var duration: Double = 0
     @Published var visible = false
 
@@ -108,13 +116,13 @@ final class ListenPlayer: NSObject, ObservableObject {
         #endif
     }
 
-    /// Sentences gathered into parts like the panel's (src/shared/speech.ts): a short first one, then up to 1400.
+    /// Sentences gathered into parts like the panel's (src/shared/speech.ts): a short first one, then up to 500.
     nonisolated static func sentenceParts(_ text: String, first: Bool = true) -> [String] {
         var parts: [String] = []
         var current = ""
         text.enumerateSubstrings(in: text.startIndex..., options: .bySentences) { sentence, _, _, _ in
             guard let sentence else { return }
-            let limit = parts.isEmpty && first ? 240 : 1400
+            let limit = parts.isEmpty && first ? 240 : Self.partChars
             if !current.isEmpty, current.count + sentence.count > limit {
                 parts.append(current.trimmingCharacters(in: .whitespaces))
                 current = ""
@@ -187,13 +195,47 @@ final class ListenPlayer: NSObject, ObservableObject {
     }
 
     func open(_ url: URL) {
-        let id = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first { $0.name == "id" }?.value ?? ""
+        let id = (URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first { $0.name == "id" }?.value ?? "").lowercased()
         if let request, request.id == id, state != .idle {
             visible = true
             return
         }
-        guard let stored = SharedDefaults.shared.readListenRequest(id), let parts = stored["parts"] as? [String], !parts.isEmpty else {
+        // The panel follows the link during the tap and sends the text meanwhile (build 91): it may land a moment
+        // after the app opens, so wait for it a few seconds before saying it isn't here.
+        guard let stored = SharedDefaults.shared.readListenRequest(id) else {
+            stop()
+            state = .loading
+            visible = true
+            waitTask?.cancel()
+            waitTask = Task { [weak self] in
+                for _ in 0..<24 {
+                    try? await Task.sleep(nanoseconds: 250_000_000)
+                    if Task.isCancelled { return }
+                    if SharedDefaults.shared.readListenRequest(id) != nil { break }
+                }
+                guard let self, !Task.isCancelled else { return }
+                if let stored = SharedDefaults.shared.readListenRequest(id) {
+                    self.open(stored: stored, id: id)
+                } else {
+                    self.state = .failed(String(localized: "This text is no longer here. Tap Listen in Safari again."))
+                }
+            }
+            return
+        }
+        open(stored: stored, id: id)
+    }
+
+    private var waitTask: Task<Void, Never>?
+
+    private func open(stored: [String: Any], id: String) {
+        guard let parts = stored["parts"] as? [String], !parts.isEmpty else {
             state = .failed(String(localized: "This text is no longer here. Tap Listen in Safari again."))
+            visible = true
+            return
+        }
+        // The same text again (Listen tapped twice in Safari) while it plays: it carries on, never starts over (build 91:
+        // starting over cut off a part still downloading, and it was asked for again).
+        if let request, request.parts == parts, request.text == (stored["text"] as? String ?? ""), state != .idle {
             visible = true
             return
         }
@@ -209,11 +251,18 @@ final class ListenPlayer: NSObject, ObservableObject {
         ))
     }
 
-    func start(_ request: ListenRequest) {
+    func start(_ request: ListenRequest, anyway: Bool = false) {
         stop()
+        textModel = ""
         self.request = request
         visible = true
         duration = Self.estimate(request.parts.joined(separator: " "))
+        if secondsLeft == nil { secondsLeft = StoreKitManager.shared.planFacts.speakLeftSeconds }
+        // Fewer minutes left than the text takes: said first (none left at all: the server says so, Apple's voice reads).
+        if !anyway, let left = secondsLeft, left > 0, Double(left) < duration {
+            state = .lowMinutes(left: max(1, left / 60), needed: max(1, Int((duration / 60).rounded(.up))))
+            return
+        }
         state = .loading
         wire()
         fetchTask = Task { await fetchAll(request) }
@@ -226,9 +275,12 @@ final class ListenPlayer: NSObject, ObservableObject {
         if state == .ended || state == .ultraOnly || state == .idle { stop() }
         if case .failed = state { stop() }
         if case .interrupted = state { stop() }
+        if case .lowMinutes = state { stop() }
     }
 
     func stop() {
+        waitTask?.cancel()
+        waitTask = nil
         fetchTask?.cancel()
         fetchTask = nil
         stopClock()
@@ -295,6 +347,12 @@ final class ListenPlayer: NSObject, ObservableObject {
         UserDefaults.standard.set(value, forKey: "cf_listen_speed")
         pitch.rate = Float(value)
         updateNowPlaying()
+    }
+
+    /// "Listen anyway" after the few-minutes-left note.
+    func listenAnyway() {
+        guard let request else { return }
+        start(request, anyway: true)
     }
 
     /// "Try again" after the rest couldn't come: the same voice carries on from where it stopped.
@@ -456,7 +514,7 @@ final class ListenPlayer: NSObject, ObservableObject {
         }
         // Nothing a voice can say (a dash, an emoji): skipped.
         guard part.rangeOfCharacter(from: .alphanumerics) != nil else { return .ok }
-        guard let urlRequest = try? ChatAI.speechRequest(text: part, lang: request.lang, what: request.what, part: index, parts: max(request.parts.count, index + 1)) else {
+        guard let urlRequest = try? ChatAI.speechRequest(text: part, lang: request.lang, what: request.what, part: index, parts: max(request.parts.count, index + 1), model: textModel) else {
             return .fallBack(.appleVoice)
         }
         var outcome: Download = .failed
@@ -484,6 +542,8 @@ final class ListenPlayer: NSObject, ObservableObject {
                     partHeld = Data()
                 }
                 if let gender = Self.lastGender { UserDefaults.standard.set(gender, forKey: "cf_voice_gender") }
+                if textModel.isEmpty, let model = Self.lastModel { textModel = model }
+                if let usage = Self.lastUsage { secondsLeft = max(0, usage.limit - usage.used) }
                 SpeechCache.write(key, all)
                 // The lock screen learns the new length once a part (not every piece).
                 updateNowPlaying()
@@ -509,6 +569,7 @@ final class ListenPlayer: NSObject, ObservableObject {
             }
             if code == "LIMIT_REACHED" {
                 let usage = body["usage"] as? [String: Any]
+                secondsLeft = 0
                 let minutes = (usage?["limit"] as? Int ?? 0) / 60
                 let resets = (usage?["resetsAt"] as? String).flatMap { ISO8601DateFormatter().date(from: $0) }
                     .map { $0.formatted(.dateTime.weekday(.wide)) } ?? ""
@@ -557,8 +618,13 @@ final class ListenPlayer: NSObject, ObservableObject {
         case failed
     }
 
-    /// The voice's gender the server last named (X-CF-Voice-Gender).
+    /// The voice's gender the server last named (X-CF-Voice-Gender), and the model it last spoke with (X-CF-Model).
     nonisolated(unsafe) private static var lastGender: String?
+    nonisolated(unsafe) private static var lastModel: String?
+    /// The week's listening as the server last counted it (X-CF-Usage: seconds used of the limit).
+    nonisolated(unsafe) private static var lastUsage: (used: Int, limit: Int)?
+    /// The model this text's first part came from: every later part asks for it (one voice per text, build 91).
+    private var textModel = ""
 
     /// The part coming in: whether it's playing as it comes, what's held back, how much of it was played (bytes), and
     /// how much of a new attempt to skip (what an earlier one already played).
@@ -607,6 +673,12 @@ final class ListenPlayer: NSObject, ObservableObject {
             let (bytes, response) = try await URLSession.shared.bytes(for: request)
             let status = (response as? HTTPURLResponse)?.statusCode ?? 0
             if let gender = (response as? HTTPURLResponse)?.value(forHTTPHeaderField: "X-CF-Voice-Gender") { lastGender = gender }
+            if status == 200, let model = (response as? HTTPURLResponse)?.value(forHTTPHeaderField: "X-CF-Model") { lastModel = model }
+            if let raw = (response as? HTTPURLResponse)?.value(forHTTPHeaderField: "X-CF-Usage"),
+               let usage = (try? JSONSerialization.jsonObject(with: Data(raw.utf8))) as? [String: Any],
+               let used = usage["used"] as? Int, let limit = usage["limit"] as? Int {
+                lastUsage = (used, limit)
+            }
             guard status == 200 else {
                 var body = Data()
                 for try await byte in bytes { body.append(byte) }
@@ -868,11 +940,23 @@ final class ListenPlayer: NSObject, ObservableObject {
             MPNowPlayingInfoPropertyDefaultPlaybackRate: speed
         ]
         info[MPNowPlayingInfoPropertyMediaType] = MPNowPlayingInfoMediaType.audio.rawValue
+        // The app's icon in the Dynamic Island, on the lock screen and in Control Center (build 91: a black square).
+        if let artwork = Self.artwork { info[MPMediaItemPropertyArtwork] = artwork }
         MPNowPlayingInfoCenter.default().nowPlayingInfo = info
         #if os(macOS)
         MPNowPlayingInfoCenter.default().playbackState = state == .playing ? .playing : .paused
         #endif
     }
+
+    /// Now Playing's picture: the app icon (made once).
+    private static let artwork: MPMediaItemArtwork? = {
+        #if os(iOS)
+        guard let image = UIImage(named: "LargeIcon") else { return nil }
+        #else
+        guard let image = NSImage(named: "LargeIcon") else { return nil }
+        #endif
+        return MPMediaItemArtwork(boundsSize: image.size) { _ in image }
+    }()
 
     // MARK: Helpers
 
@@ -990,6 +1074,13 @@ struct ListenView: View {
                     }
                     .font(.caption.monospacedDigit())
                     .foregroundColor(.secondary)
+                    // The week's listening left (build 91: the owner wanted to see it somewhere).
+                    if let left = player.secondsLeft {
+                        Text("\(left / 60) min of listening left this week")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .accessibilityIdentifier("listen.left")
+                    }
                 }
                 HStack(spacing: 44) {
                     Button { player.skip(-15) } label: { Image(systemName: "gobackward.15").font(.title) }
@@ -1078,6 +1169,19 @@ struct ListenView: View {
                 .font(.callout)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
+        case .lowMinutes(let left, let needed):
+            VStack(spacing: 10) {
+                Text("About \(left) min of listening left this week, and this takes about \(needed) min. It stops where they run out.")
+                    .font(.callout)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                HStack(spacing: 12) {
+                    Button("Listen anyway") { player.listenAnyway() }
+                        .buttonStyle(.borderedProminent)
+                        .accessibilityIdentifier("listen.anyway")
+                    Button("Cancel") { player.dismiss() }.buttonStyle(.bordered)
+                }
+            }
         case .interrupted(let limit):
             VStack(spacing: 10) {
                 (limit ? Text("This week's listening minutes are used up, so the rest can't be read in this voice.") : Text("The rest didn't come through: no connection to ContextFlow."))
@@ -1109,7 +1213,7 @@ struct ListenView: View {
 }
 
 /// Cuts text that streams in into parts as soon as they're complete, at sentence ends: the very first part as soon as
-/// a sentence of `min` characters is there, then parts of up to 1400 (src/shared/speech.ts PartSplitter).
+/// a sentence of `min` characters is there, then parts of up to 500 (src/shared/speech.ts PartSplitter).
 final class PartSplitter {
     private var buffer = ""
     private var first: Bool
@@ -1125,7 +1229,7 @@ final class PartSplitter {
         buffer += text
         var out: [String] = []
         while true {
-            let limit = first ? 240 : 1400
+            let limit = first ? 240 : ListenPlayer.partChars
             let ns = buffer as NSString
             var cut = -1
             var firstEnd = -1

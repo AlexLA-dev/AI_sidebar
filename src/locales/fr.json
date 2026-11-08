@@ -605,7 +605,7 @@
   "listenLimit": "Les {0} minutes d’écoute de la semaine sont épuisées. Elles reviennent {1}.",
   "listenFailed": "Impossible de lire ce texte à voix haute. Réessayez dans un instant.",
   "listenOffline": "Pas de connexion : la première écoute a besoin d’Internet.",
-  "listenInApp": "Ouverture de ContextFlow : la lecture continue écran verrouillé.",
+  "listenInApp": "L’écoute se fait dans l’app ContextFlow : la lecture continue écran verrouillé et dans vos écouteurs.",
   "listenLeft": "Écoute : {0} min sur {1} restantes cette semaine",
   "watchFullPro": "Avec Pro, vous surveillez {0} pages à la fois. Avec Ultra, jusqu'à {1}.",
   "watchMoreUltra": "Plus avec Ultra",
@@ -704,5 +704,20 @@
   "gSimilar3": "Fauteuil avec appui-tête",
   "gSimilarInStock": "En stock",
   "gSimilarNewer": "Plus récent",
-  "gSimilarCheaper": "Moins cher"
+  "gSimilarCheaper": "Moins cher",
+
+  "listenMinLeft": "{0} min restantes",
+  "listenMinLeftTitle": "{0} min d’écoute restantes cette semaine",
+  "listenLow": "Il reste environ {0} min d’écoute cette semaine, et ce texte dure environ {1} min. La lecture s’arrêtera une fois les minutes épuisées.",
+  "listenAnyway": "Écouter quand même",
+  "plansUpgrade": "Passer à {0}",
+  "plansUpgradeYearly": "Passer à l’annuel",
+  "similarPayFree": "Gratuit, sans achats intégrés",
+  "similarPayFreeStart": "Gratuit",
+  "similarPaySub": "Abonnement à partir de {0}",
+  "similarPayOnce": "Achat unique {0}",
+  "similarPayIap": "Achats intégrés à partir de {0}",
+  "similarPerWeek": "{0}/semaine",
+  "similarPerMonth": "{0}/mois",
+  "similarPerYear": "{0}/an"
 }

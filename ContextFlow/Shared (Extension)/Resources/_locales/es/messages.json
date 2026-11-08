@@ -1749,7 +1749,7 @@
   "message": "Sin conexión: la primera vez, escuchar necesita internet."
  },
  "listenInApp": {
-  "message": "Abriendo ContextFlow: sigue sonando con la pantalla bloqueada."
+  "message": "«Escuchar» se reproduce en la app ContextFlow, así que sigue sonando con la pantalla bloqueada y en tus auriculares."
  },
  "listenLeft": {
   "message": "Escucha: te quedan {0} de {1} min esta semana"
@@ -2041,6 +2041,48 @@
  },
  "gSimilarCheaper": {
   "message": "Más barato"
+ },
+ "listenMinLeft": {
+  "message": "Quedan {0} min"
+ },
+ "listenMinLeftTitle": {
+  "message": "Te quedan {0} min de escucha esta semana"
+ },
+ "listenLow": {
+  "message": "Te quedan unos {0} min de escucha esta semana, y esto dura unos {1} min. La lectura se detiene donde se acaben los minutos."
+ },
+ "listenAnyway": {
+  "message": "Escuchar de todos modos"
+ },
+ "plansUpgrade": {
+  "message": "Pasar a {0}"
+ },
+ "plansUpgradeYearly": {
+  "message": "Pasar a anual"
+ },
+ "similarPayFree": {
+  "message": "Gratis, sin compras dentro de la app"
+ },
+ "similarPayFreeStart": {
+  "message": "Gratis"
+ },
+ "similarPaySub": {
+  "message": "Suscripción desde {0}"
+ },
+ "similarPayOnce": {
+  "message": "Compra única {0}"
+ },
+ "similarPayIap": {
+  "message": "Compras dentro de la app desde {0}"
+ },
+ "similarPerWeek": {
+  "message": "{0}/semana"
+ },
+ "similarPerMonth": {
+  "message": "{0}/mes"
+ },
+ "similarPerYear": {
+  "message": "{0}/año"
  },
  "tip_4cf1b54b00": {
   "message": "Consejos"

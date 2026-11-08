@@ -87,6 +87,10 @@ export function PlansSheet({ status, focus, onChoose, onClose }: {
           const current = currentPlan === plan && (periodOfProduct(currentProduct) ?? "monthly") === shownPeriod
           // A lower plan than the current one is still a choice (it starts at the next renewal), just not pushed.
           const lower = PLAN_RANK[plan] < PLAN_RANK[currentPlan]
+          // Every move up is an upgrade (build 91, the owner): a higher plan, or the same plan from monthly to yearly.
+          const paid = currentPlan !== "free"
+          const upgrade: "plan" | "yearly" | null = paid && PLAN_RANK[plan] > PLAN_RANK[currentPlan] ? "plan"
+            : paid && plan === currentPlan && periodOfProduct(currentProduct) === "monthly" && shownPeriod === "yearly" ? "yearly" : null
           const name = plan === "ultra" ? t("planUltra") : plan === "pro" ? t("planPro") : t("planByok")
           return (
             <section key={plan} class={`cf-plan-card ${plan} ${plan === focus ? "focus" : ""} ${current ? "current" : ""}`}>
@@ -96,6 +100,9 @@ export function PlansSheet({ status, focus, onChoose, onClose }: {
                 {price && <span class="cf-plan-price">{shownPeriod === "yearly" ? t("plansPerYear", price) : t("plansPerMonth", price)}</span>}
               </div>
               {perMonth && <div class="cf-plan-year"><span>{t("plansPerMonthYearly", perMonth)}</span></div>}
+              {plan === "ultra" && currentPlan === "ultra" && status?.ultra?.speak && (
+                <p class="cf-plan-left">{t("listenLeft", String(Math.max(0, Math.floor((status.ultra.speak.limit - status.ultra.speak.used) / 60))), String(Math.round(status.ultra.speak.limit / 60)))}</p>
+              )}
               {saved && <p class="cf-plan-saved">{t("plansSaveMoney", saved)}</p>}
               {facts && (
                 <ul class="cf-plan-lines">
@@ -105,8 +112,8 @@ export function PlansSheet({ status, focus, onChoose, onClose }: {
               {current ? (
                 <span class="cf-plan-current"><Icon.Check /> {t("plansCurrent")}</span>
               ) : (
-                <button type="button" class={plan === focus && !lower ? "cf-primary" : "cf-secondary"} onClick={() => onChoose(plan, shownPeriod)}>
-                  {plan === focus && !lower && <Icon.Sparkle size={14} />} {t("plansChoose", name)}
+                <button type="button" class={(plan === focus && !lower) || upgrade ? "cf-primary" : "cf-secondary"} onClick={() => onChoose(plan, shownPeriod)}>
+                  {((plan === focus && !lower) || upgrade) && <Icon.Sparkle size={14} />} {upgrade === "yearly" ? t("plansUpgradeYearly") : upgrade === "plan" ? t("plansUpgrade", name) : t("plansChoose", name)}
                 </button>
               )}
             </section>

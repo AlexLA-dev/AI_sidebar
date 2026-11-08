@@ -1749,7 +1749,7 @@
   "message": "Keine Verbindung: Beim ersten Anhören braucht es Internet."
  },
  "listenInApp": {
-  "message": "ContextFlow wird geöffnet: Dort läuft es auch bei gesperrtem Bildschirm weiter."
+  "message": "„Anhören“ läuft in der ContextFlow-App: Dort geht der Ton auch bei gesperrtem Bildschirm und über Kopfhörer weiter."
  },
  "listenLeft": {
   "message": "Anhören: diese Woche noch {0} von {1} Min."
@@ -2041,6 +2041,48 @@
  },
  "gSimilarCheaper": {
   "message": "Günstiger"
+ },
+ "listenMinLeft": {
+  "message": "Noch {0} Min."
+ },
+ "listenMinLeftTitle": {
+  "message": "Diese Woche noch {0} Min. Anhören"
+ },
+ "listenLow": {
+  "message": "Diese Woche bleiben noch etwa {0} Min. Anhören, dieser Text dauert etwa {1} Min. Das Vorlesen endet dort, wo die Minuten aufgebraucht sind."
+ },
+ "listenAnyway": {
+  "message": "Trotzdem anhören"
+ },
+ "plansUpgrade": {
+  "message": "Zu {0} wechseln"
+ },
+ "plansUpgradeYearly": {
+  "message": "Zur jährlichen Zahlung wechseln"
+ },
+ "similarPayFree": {
+  "message": "Kostenlos, ohne In-App-Käufe"
+ },
+ "similarPayFreeStart": {
+  "message": "Kostenlos"
+ },
+ "similarPaySub": {
+  "message": "Abo ab {0}"
+ },
+ "similarPayOnce": {
+  "message": "Einmalkauf {0}"
+ },
+ "similarPayIap": {
+  "message": "In-App-Käufe ab {0}"
+ },
+ "similarPerWeek": {
+  "message": "{0}/Woche"
+ },
+ "similarPerMonth": {
+  "message": "{0}/Monat"
+ },
+ "similarPerYear": {
+  "message": "{0}/Jahr"
  },
  "tip_4cf1b54b00": {
   "message": "Tipps"

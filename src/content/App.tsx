@@ -58,7 +58,7 @@ import { dodgeFab } from "./fabDodge"
 import { hasPro, isUltra, type PaidPlan } from "../shared/plan"
 import { SettingsView } from "./Settings"
 import { shareLabels } from "./shareLabels"
-import { markHintSeen, resetHints, seenHints, type HintKey } from "./store"
+import { loadJobs, markHintSeen, resetHints, seenHints, type HintKey } from "./store"
 import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, onConsentChanged, loadThreads, markTourSeen, lastPlanSeen, setLastPlanSeen, planToursSeen, markPlanToursSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, purgeChats, nameThread, rememberPageText, renameThread, renewalAskedPeriod, unnameThread, restoreChat, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount, trashChat } from "./store"
 import { TagChip, TagEditor } from "./Tags"
 import { ThreadsView } from "./Threads"
@@ -74,6 +74,7 @@ import { TipsSheet } from "./tips/TipsSheet"
 import { SelIconsTip } from "./ux/SelTip"
 import { shadowSelection, trackPointer } from "./selectionShadow"
 import { restoredDraft, withoutStopped } from "./ux/stopped"
+import { extendsChat, interruption, repeatsLast } from "../shared/jobs"
 import { scheduleReminder, thisDevice, useMessageUx } from "./ux/useMessageUx"
 import { Tour, tourSteps } from "./Tour"
 import { languageName, translateTarget } from "./translateTarget"
@@ -233,6 +234,9 @@ function clockTime(iso: string | undefined): string {
 function offerUrl(code: string): string {
   return `https://apps.apple.com/redeem?ctx=offercodes&id=${APP_ID}&code=${encodeURIComponent(code)}`
 }
+
+// A question whose answer was lost while nobody followed it shows these as they were; anything else as "interrupted".
+const RESUMABLE = ["STREAM", "NETWORK", "UPSTREAM", "BUSY"]
 
 function errorText(error: ChatError): string {
   switch (error.code) {
@@ -563,6 +567,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         showLists(threads)
         setMessages(entries)
         scrollToEnd()
+        // Its last question still being answered (asked before the panel closed), or lost meanwhile (build 91).
+        resumeRef.current(entries, active.id)
         // Other devices may have continued a chat (iCloud), or the ContextFlow app asked to continue one
         // here ("Open in Safari"): show it unless something was asked here meanwhile.
         void sendBackground<{ changed: boolean; open?: string | null }>({ type: "syncThreads" }).then(async (result) => {
@@ -578,6 +584,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               void setActiveThread(next.id)
             }
             setKind(fresh.threads[next.id]?.kind)
+            setTimeout(() => resumeRef.current(next.m, next.id), 0)
             return next.m
           })
           scrollToEnd()
@@ -610,6 +617,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (!open) return
     const off = onThreadsChanged(() => void loadThreads().then(({ threads, active }) => {
       showLists(threads)
+      // An answer the background wrote into the shown chat while this panel didn't follow it (another tab asked, or
+      // this one lost the thread of it): it shows (build 91).
+      const shown = threads[threadRef.current]
+      if (shown && !portRef.current && !askToken.current && extendsChat(shown.m, nowRef.current.messages)) {
+        setMessages(shown.m)
+        setError(null)
+      }
       // The chat shown went to Recently Deleted in another tab or on another device: it goes from here too, as when
       // it's deleted here (not while an answer is coming in).
       if (threads[threadRef.current]?.trashed === undefined || portRef.current || askToken.current) return
@@ -648,6 +662,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   useEffect(() => {
     if (view === "trash" && trashList.length === 0) setView("threads")
   }, [view, trashList])
+
+  // The panel open on a chat: its answers that came while it was closed were seen (the dots go, build 91).
+  useEffect(() => {
+    if (!open || !visible || !loadedRef.current) return
+    const thread = threadRef.current
+    const timer = setTimeout(() => void sendBackground({ type: "jobsSeen", thread }), 400)
+    return () => clearTimeout(timer)
+  }, [open, visible, messages])
 
   // Persist the chat shown.
   useEffect(() => {
@@ -781,14 +803,15 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }, [open, touch])
 
   // ------------------------------------------------------------ chat
-  const finish = useCallback((history: Turn[], text: string, err: ChatError | null, grounding?: Grounding) => {
+  // `entry`: the answer as the background wrote it into the chat (build 91: the same message, its id too).
+  const finish = useCallback((history: Turn[], text: string, err: ChatError | null, grounding?: Grounding, entry?: Turn) => {
     portRef.current = null
     askToken.current = null
     partialRef.current = ""
     setPartial(null)
     setStreamMode(null)
-    if (text) {
-      const next: Turn[] = [...history, stamped(grounding ? { role: "assistant", content: text, grounding } : { role: "assistant", content: text })]
+    if (entry || text) {
+      const next: Turn[] = [...history, entry ?? stamped(grounding ? { role: "assistant", content: text, grounding } : { role: "assistant", content: text })]
       setMessages(next)
       const skipped = skippedFor(next, next.length - 1)
       if (skipped) void sendBackground({ type: "mediaNotice", action: "shown", media: skipped })
@@ -807,7 +830,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       setPending({ text: content, label: opts.label, action: opts.action, mode: opts.mode })
       return
     }
-    const base = opts.retry ? messages.slice(0, messages.length - 1) : messages
+    // The same question again after it was left without an answer (interrupted): it takes that one's place.
+    const base = opts.retry || repeatsLast(messages, { content }) ? messages.slice(0, messages.length - 1) : messages
     const url = source.key()
     if (historyRef.current) {
       // "Ask your chats": the question goes with a digest of all the other chats, not the page.
@@ -892,6 +916,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       : full.text || full.attachments || full.skipped
         ? { kind: "page", title: full.title, url: source.href(), text: full.text, changed, ...(full.attachments ? { attachments: full.attachments } : {}), ...(full.skipped ? { skipped: full.skipped } : {}) }
         : null
+    // The question is in the chat before it goes: the background writes the answer after it (build 91).
+    const thread = threadRef.current
+    const saved = saveThread(thread, history, historyRef.current ? "history" : undefined).catch(() => undefined)
+    const job = { id: user.id!, thread }
     let port: chrome.runtime.Port
     try {
       port = chrome.runtime.connect({ name: "chat" })
@@ -900,51 +928,25 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       return
     }
     portRef.current = port
-    let settled = false
-    let grounded: { text: string; grounding: Grounding } | null = null
-    let lastSeq = 0
-    port.onMessage.addListener((event: StreamEvent & { seq?: number }) => {
-      // Safari can deliver a message twice (in the PDF popup): every event is numbered.
-      if (event.seq !== undefined) {
-        if (event.seq <= lastSeq) return
-        lastSeq = event.seq
-      }
-      if (event.type === "meta") {
-        setViaOwnKey(event.viaOwnKey)
-        if (event.usage) setUsage(event.usage)
-      } else if (event.type === "delta") {
-        partialRef.current += event.text
-        setPartial(partialRef.current)
-      } else if (event.type === "grounding") {
-        grounded = { text: event.text, grounding: event.grounding }
-      } else if (event.type === "done") {
-        settled = true
-        if (event.usage) setUsage(event.usage)
-        finish(history, grounded?.text ?? partialRef.current, null, grounded?.grounding)
-      } else if (event.type === "error") {
-        settled = true
-        if (event.usage) setUsage(event.usage)
-        finish(history, partialRef.current, { code: event.code, message: event.message, usage: event.usage, offer: event.offer, weight: event.weight })
-      }
-    })
-    port.onDisconnect.addListener(() => {
-      if (!settled && portRef.current === port) finish(history, partialRef.current, partialRef.current ? null : { code: "STREAM" })
-    })
+    listenChat(port, history)
     // Sizes only, for /analytics: whether keeping 40 messages, 50 chats or a few pages gets in the way.
     const stats = { turns: history.length, pages: threadPages(history).length, chats: threadList.length }
     if (chats) {
-      port.postMessage({ type: "ask", payload: { messages: historyForModel(history, url), page: null, action: opts.action, context: "history" as const, history: chats, stats } })
+      void saved.then(() => {
+        if (portRef.current === port) port.postMessage({ type: "ask", job, payload: { messages: historyForModel(history, url), page: null, action: opts.action, context: "history" as const, history: chats, stats } })
+      })
       return
     }
     const wholeChat = settingsRef.current.wholeChat
     // The chat's other pages: this device's copy of their text, else the one saved in the chat (another device's).
     const others = otherPages(history, url).map((p) => p.url).slice(0, MAX_OTHER_PAGES)
-    const saved = savedPages(history)
-    void (wholeChat ? pageTexts(others) : Promise.resolve([])).then((local) => {
-      const pages = wholeChat ? others.flatMap((u) => local.find((p) => p.url === u) ?? saved.find((p) => p.url === u) ?? []) : []
+    const savedTexts = savedPages(history)
+    void Promise.all([wholeChat ? pageTexts(others) : Promise.resolve([]), saved]).then(([local]) => {
+      const pages = wholeChat ? others.flatMap((u) => local.find((p) => p.url === u) ?? savedTexts.find((p) => p.url === u) ?? []) : []
       if (portRef.current !== port) return // stopped meanwhile
       port.postMessage({
         type: "ask",
+        job,
         payload: {
           messages: historyForModel(history, url, wholeChat),
           page,
@@ -958,6 +960,147 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       })
     })
   }
+
+  // ------------------------------------------------------------ answers that go on with the panel closed (build 91)
+  // The background answers every question as a job and writes the answer into its chat (background/jobs.ts). The panel
+  // follows the job of the chat it shows: the one it asked, or, coming back to the chat (the panel reopened, another
+  // page, another chat and back), the one still running, from what came so far. A job that ended while nobody
+  // followed it left its answer in the chat; one lost (the connection, the background closed) leaves "interrupted".
+  const heardRef = useRef(0)
+
+  /** Follows a chat answer on `port`: what came so far first when it's a job followed again ("snapshot"). */
+  const listenChat = (port: chrome.runtime.Port, history: Turn[]) => {
+    heardRef.current = Date.now()
+    let settled = false
+    let grounded: { text: string; grounding: Grounding } | null = null
+    let lastSeq = 0
+    type Followed = { type: "snapshot"; text: string; grounding?: { text: string; grounding: Grounding } } | { type: "beat" } | { type: "gone" }
+    port.onMessage.addListener((event: (StreamEvent | Followed) & { seq?: number; entry?: Turn }) => {
+      // Safari can deliver a message twice (in the PDF popup): every event is numbered.
+      if (event.seq !== undefined) {
+        if (event.seq <= lastSeq) return
+        lastSeq = event.seq
+      }
+      if (portRef.current !== port) return
+      heardRef.current = Date.now()
+      if (event.type === "snapshot") {
+        partialRef.current = event.text
+        setPartial(event.text)
+        if (event.grounding) grounded = event.grounding
+      } else if (event.type === "gone") {
+        settled = true
+        lostRef.current()
+      } else if (event.type === "meta") {
+        setViaOwnKey(event.viaOwnKey)
+        if (event.usage) setUsage(event.usage)
+      } else if (event.type === "delta") {
+        partialRef.current += event.text
+        setPartial(partialRef.current)
+      } else if (event.type === "grounding") {
+        grounded = { text: event.text, grounding: event.grounding }
+      } else if (event.type === "done") {
+        settled = true
+        if (event.usage) setUsage(event.usage)
+        finish(history, grounded?.text ?? partialRef.current, null, grounded?.grounding, event.entry)
+      } else if (event.type === "error") {
+        settled = true
+        if (event.usage) setUsage(event.usage)
+        finish(history, partialRef.current, { code: event.code, message: event.message, usage: event.usage, offer: event.offer, weight: event.weight }, undefined, event.entry)
+      }
+    })
+    // Closed without an end: the job may well go on (the background still answers it), so the chat is read again.
+    port.onDisconnect.addListener(() => {
+      if (!settled && portRef.current === port) lostRef.current()
+    })
+  }
+
+  /** Follows the job answering `last` (the shown chat's last question), from what came so far. */
+  const attach = (last: Turn, history: Turn[]) => {
+    let port: chrome.runtime.Port
+    try {
+      port = chrome.runtime.connect({ name: "job" })
+    } catch {
+      return
+    }
+    portRef.current = port
+    setError(null)
+    partialRef.current = ""
+    setPartial("")
+    if (last.similarAsk !== undefined) {
+      setSimilarRun({ items: [], step: "plan" })
+      listenSimilarRef.current(port, history, last.similarAsk)
+    } else {
+      setStreamMode(last.mode ?? null)
+      listenChat(port, history)
+    }
+    port.postMessage({ type: "attach", id: last.id })
+  }
+
+  /**
+   * The shown chat's last question has no answer: follow its job when the background still runs it, else say it was
+   * interrupted (with Retry), unless it's too fresh to tell (asked on another device a moment ago).
+   */
+  const resume = (entries: Turn[], thread: string) => {
+    const last = entries[entries.length - 1]
+    if (!isQuestion(last)) return
+    void Promise.all([sendBackground<{ ids: string[] }>({ type: "liveJobs" }), loadJobs()]).then(([live, jobs]) => {
+      const shown = nowRef.current.messages
+      const now = shown[shown.length - 1]
+      if (threadRef.current !== thread || portRef.current || askToken.current || !now || entryKey(now) !== entryKey(last)) return
+      if (last.id && live?.ids?.includes(last.id)) return attach(now, shown)
+      const gap = interruption(shown, jobs, false)
+      if (gap) setError({ code: RESUMABLE.includes(gap.code) ? (gap.code as ErrorCode) : "STREAM" })
+    })
+  }
+  const resumeRef = useRef(resume)
+  resumeRef.current = resume
+
+  /**
+   * The followed answer went quiet or its port closed: the chat as the background left it (the answer may be in it
+   * already), then its last question followed again or said to be interrupted.
+   */
+  const lost = () => {
+    const port = portRef.current
+    portRef.current = null
+    askToken.current = null
+    try {
+      port?.disconnect()
+    } catch {
+      // already closed
+    }
+    partialRef.current = ""
+    setPartial(null)
+    setStreamMode(null)
+    setSimilarRun(null)
+    const thread = threadRef.current
+    void loadThreads().then(({ threads }) => {
+      if (threadRef.current !== thread || portRef.current || askToken.current) return
+      const shown = nowRef.current.messages
+      const stored = threads[thread]?.m
+      const entries = stored && extendsChat(stored, shown) ? stored : shown
+      if (entries !== shown) setMessages(entries)
+      resumeRef.current(entries, thread)
+    })
+  }
+  const lostRef = useRef(lost)
+  lostRef.current = lost
+
+  // A followed answer that says nothing for a while (its port broke without closing: 2.6 (90), "Reading the page…" for
+  // minutes) is looked up again; so is one coming back from sleep (the page in the background, the phone locked).
+  useEffect(() => {
+    const quiet = (ms: number) => portRef.current !== null && heardRef.current > 0 && Date.now() - heardRef.current > ms
+    const timer = setInterval(() => {
+      if (quiet(20_000)) lostRef.current()
+    }, 5_000)
+    const onVisible = () => {
+      if (document.visibilityState === "visible" && quiet(6_000)) lostRef.current()
+    }
+    document.addEventListener("visibilitychange", onVisible)
+    return () => {
+      clearInterval(timer)
+      document.removeEventListener("visibilitychange", onVisible)
+    }
+  }, [])
 
   /** Keeps a note in the chat (with the page it was written on); no AI, no allowance used. */
   const saveNote = useCallback((text: string) => {
@@ -1006,7 +1149,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const dropStoppedRef = useRef(dropStopped)
   dropStoppedRef.current = dropStopped
 
-  // `fromButton`: the stop button (the question comes back to the field); else a new or another chat is opening.
+  // `fromButton`: the stop button (the question comes back to the field); else a new or another chat is opening, and
+  // the answer goes on in its chat (build 91): the panel only stops following it.
   const stop = useCallback((fromButton = false) => {
     const port = portRef.current
     if (!port && askToken.current) {
@@ -1024,6 +1168,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     // The next question can go (it waited for this one to finish).
     askToken.current = null
     try {
+      if (fromButton) port.postMessage({ type: "stop" })
       port.disconnect()
     } catch {
       // already closed
@@ -1033,6 +1178,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setPartial(null)
     setStreamMode(null)
     setSimilarRun(null)
+    if (!fromButton) return
     if (text) setMessages((prev) => [...prev, stamped({ role: "assistant", content: text })])
     else dropStoppedRef.current(fromButton)
   }, [])
@@ -1073,7 +1219,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   openSimilarRef.current = openSimilar
 
   /** Ends a Find similar: the checked list as the chat's answer, or why there isn't one. */
-  const finishSimilar = (history: Turn[], answer: Omit<SimilarAnswer, "asked" | "at"> | null, asked: string, code: string | null, usage?: Usage | null) => {
+  const finishSimilar = (history: Turn[], answer: Omit<SimilarAnswer, "asked" | "at"> | null, asked: string, code: string | null, usage?: Usage | null, entry?: Turn) => {
     portRef.current = null
     askToken.current = null
     partialRef.current = ""
@@ -1086,10 +1232,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       setSimilarCard(code === "LIMIT_REACHED" ? { limit: usage ?? null } : "upsell")
       return
     }
-    if (answer) {
-      const full: SimilarAnswer = { ...answer, asked, at: Date.now() }
-      const content = similarMarkdown(full, { inStock: t("similarStockIn"), outOfStock: t("similarStockOut"), notConfirmed: t("similarNotConfirmed"), notOpened: t("similarNotOpened") })
-      const next: Turn[] = [...history, stamped({ role: "assistant", content, similar: full })]
+    if (entry || answer) {
+      // The list as the background wrote it into the chat (build 91), else as it came.
+      const full: SimilarAnswer | null = entry ? null : { ...answer!, asked, at: Date.now() }
+      const content = full ? similarMarkdown(full, { inStock: t("similarStockIn"), outOfStock: t("similarStockOut"), notConfirmed: t("similarNotConfirmed"), notOpened: t("similarNotOpened") }) : ""
+      const next: Turn[] = [...history, entry ?? stamped({ role: "assistant", content, similar: full! })]
       setMessages(next)
       void saveThread(threadRef.current, next)
     }
@@ -1108,10 +1255,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setFirstWin(null)
     setError(null)
     setOfferCard(false)
-    const base = again ? messages.slice(0, messages.length - 1) : messages
+    // Asked again after it was left without an answer (interrupted): it takes that question's place (2.6 (90): twice).
+    const base = again || repeatsLast(messages, { content: label, similarAsk: condition, similarSel: subject }) ? messages.slice(0, messages.length - 1) : messages
     const user: Turn = stamped({ role: "user", content: label, label, similarAsk: condition, ...(subject ? { similarSel: subject } : {}), page: { url: source.key(), title: source.title(), at: Date.now() } })
     const history: Turn[] = [...base, user]
     setMessages(history)
+    // In the chat before it goes: the background writes the list after it (build 91).
+    const thread = threadRef.current
+    const saved = saveThread(thread, history).catch(() => undefined)
     partialRef.current = ""
     setPartial("")
     setSimilarRun({ items: [], step: "plan" })
@@ -1119,7 +1270,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     askToken.current = token
     // What the page states for machines (page watch's reader): its price and stock, to compare against.
     const facts = factsFrom(structured(document.documentElement.outerHTML), document.documentElement.lang || "")
-    void source.read(false).catch(() => ({ ...source.quick(), sources: [] })).then((full) => {
+    void Promise.all([source.read(false).catch(() => ({ ...source.quick(), sources: [] })), saved]).then(([full]) => {
       if (askToken.current !== token) return
       let port: chrome.runtime.Port
       try {
@@ -1129,34 +1280,56 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         return
       }
       portRef.current = port
-      let settled = false
-      let lastSeq = 0
-      let items: SimilarItem[] = []
-      let answer: Omit<SimilarAnswer, "asked" | "at"> | null = null
-      port.onMessage.addListener((event: SimilarStreamEvent & { seq?: number }) => {
-        if (event.seq !== undefined) {
-          if (event.seq <= lastSeq) return
-          lastSeq = event.seq
-        }
-        if (event.type === "progress") setSimilarRun((r) => (r ? { ...r, step: event.step, pages: event.pages ?? r.pages } : r))
-        else if (event.type === "item") {
-          items = [...items, event.item]
-          setSimilarRun((r) => (r ? { ...r, items } : r))
-        } else if (event.type === "result") answer = event.answer
-        else if (event.type === "done") {
-          settled = true
-          finishSimilar(history, answer ?? { intro: "", items, note: "", condition: "" }, condition, null)
-        } else if (event.type === "error") {
-          settled = true
-          finishSimilar(history, items.length ? { intro: "", items, note: "", condition: "" } : null, condition, event.code, event.usage)
-        }
+      listenSimilar(port, history, condition)
+      port.postMessage({
+        type: "similar",
+        job: { id: user.id!, thread },
+        payload: { page: { title: full.title || source.title(), url: source.href(), text: full.text.slice(0, 5_000), facts }, condition, ...(subject ? { selection: subject } : {}) }
       })
-      port.onDisconnect.addListener(() => {
-        if (!settled && portRef.current === port) finishSimilar(history, items.length ? { intro: "", items, note: "", condition: "" } : null, condition, items.length ? null : "STREAM")
-      })
-      port.postMessage({ type: "similar", payload: { page: { title: full.title || source.title(), url: source.href(), text: full.text.slice(0, 5_000), facts }, condition, ...(subject ? { selection: subject } : {}) } })
     })
   }
+
+  /** Follows a Find similar on `port`: what came so far first when it's a job followed again ("snapshot"). */
+  const listenSimilar = (port: chrome.runtime.Port, history: Turn[], condition: string) => {
+    heardRef.current = Date.now()
+    let settled = false
+    let lastSeq = 0
+    let items: SimilarItem[] = []
+    let answer: Omit<SimilarAnswer, "asked" | "at"> | null = null
+    type Followed = { type: "snapshot"; items: SimilarItem[]; step?: SimilarStep; pages?: number } | { type: "beat" } | { type: "gone" }
+    port.onMessage.addListener((event: (SimilarStreamEvent | Followed) & { seq?: number; entry?: Turn }) => {
+      if (event.seq !== undefined) {
+        if (event.seq <= lastSeq) return
+        lastSeq = event.seq
+      }
+      if (portRef.current !== port) return
+      heardRef.current = Date.now()
+      if (event.type === "snapshot") {
+        items = [...event.items]
+        setSimilarRun({ items, step: event.step ?? "plan", ...(event.pages !== undefined ? { pages: event.pages } : {}) })
+      } else if (event.type === "gone") {
+        settled = true
+        lostRef.current()
+      } else if (event.type === "progress") setSimilarRun((r) => (r ? { ...r, step: event.step, pages: event.pages ?? r.pages } : r))
+      else if (event.type === "item") {
+        items = [...items, event.item]
+        setSimilarRun((r) => (r ? { ...r, items } : r))
+      } else if (event.type === "result") answer = event.answer
+      else if (event.type === "done") {
+        settled = true
+        finishSimilar(history, answer ?? { intro: "", items, note: "", condition: "" }, condition, null, undefined, event.entry)
+      } else if (event.type === "error") {
+        settled = true
+        finishSimilar(history, items.length ? { intro: "", items, note: "", condition: "" } : null, condition, event.code, event.usage, event.entry)
+      }
+    })
+    // Closed without an end: the background may still be answering it, so the chat is read again.
+    port.onDisconnect.addListener(() => {
+      if (!settled && portRef.current === port) lostRef.current()
+    })
+  }
+  const listenSimilarRef = useRef(listenSimilar)
+  listenSimilarRef.current = listenSimilar
   const findSimilarRef = useRef(findSimilar)
   findSimilarRef.current = findSimilar
 
@@ -1309,6 +1482,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setMessages(recent?.m ?? [])
     setError(null)
     setView("chat")
+    if (recent) setTimeout(() => resumeRef.current(recent.m, id), 0)
   }, [stop, status, threadList])
 
   /** AI search (Pro): the chats the server finds for what the user describes. */
@@ -1341,6 +1515,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setMessages(thread?.m ?? [])
     setError(null)
     setView("chat")
+    // Its answer still coming (asked before another chat was opened), or lost (build 91).
+    if (thread) setTimeout(() => resumeRef.current(thread.m, id), 0)
     requestAnimationFrame(() => requestAnimationFrame(() => {
       const list = listRef.current
       if (!list) return
@@ -1942,6 +2118,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const listen = useListen({
     platform,
     plan,
+    speakLeft: status?.ultra?.speak ? Math.max(0, status.ultra.speak.limit - status.ultra.speak.used) : null,
     onUltra: () => openPlans("ultra"),
     follow: followLink,
     send: (message) => sendBackground(message)
@@ -3164,7 +3341,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 </footer>
               ) : (
                 <footer class="cf-composer">
-                  <ListenBar state={listen.state} speed={listen.speed} onSpeed={listen.cycleSpeed} onToggle={listen.toggle} onStop={listen.stop} onPlans={() => openPlans("ultra", "limit")} />
+                  <ListenBar state={listen.state} speed={listen.speed} left={listen.left} onSpeed={listen.cycleSpeed} onAnyway={listen.anyway} onToggle={listen.toggle} onStop={listen.stop} onPlans={() => openPlans("ultra", "limit")} />
                   {undoBar && <UndoBar text={undoBar.text} actions={undoBar.actions} onHold={holdBar} />}
                   {noteHint && draft.trim() && !noteMode && <div class="cf-note-hint" role="status">{t(touch ? "noteHintTouch" : "noteHintMouse")}</div>}
                   {weightNote && <div class="cf-weight-note" title={t("longPageWeightHint", pageWeight)}>{t("longPageWeight", pageWeight)}</div>}

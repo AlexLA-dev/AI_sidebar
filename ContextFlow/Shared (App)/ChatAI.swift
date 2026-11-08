@@ -202,13 +202,15 @@ enum ChatAI {
 
     /// Read aloud (2.6, Ultra): one part of the text, spoken by our server (/api/v2/speak), as 24 kHz 16-bit PCM.
     @MainActor
-    static func speechRequest(text: String, lang: String, what: String, part: Int, parts: Int) throws -> URLRequest {
+    /// `model`: the one the text's first part came from (X-CF-Model), so every part has the same voice (build 91).
+    static func speechRequest(text: String, lang: String, what: String, part: Int, parts: Int, model: String = "") throws -> URLRequest {
         var body = identity()
         body["text"] = text
         body["lang"] = lang
         body["what"] = what
         body["part"] = part
         body["parts"] = parts
+        if !model.isEmpty { body["model"] = model }
         return try request("api/v2/speak", body)
     }
 

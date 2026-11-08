@@ -1749,7 +1749,7 @@
   "message": "Nessuna connessione: la prima volta l’ascolto richiede internet."
  },
  "listenInApp": {
-  "message": "Apro ContextFlow: continua anche a schermo bloccato."
+  "message": "L’ascolto avviene nell’app ContextFlow, così continua anche a schermo bloccato e nelle cuffie."
  },
  "listenLeft": {
   "message": "Ascolto: questa settimana restano {0} min su {1}"
@@ -2041,6 +2041,48 @@
  },
  "gSimilarCheaper": {
   "message": "Più economico"
+ },
+ "listenMinLeft": {
+  "message": "Restano {0} min"
+ },
+ "listenMinLeftTitle": {
+  "message": "Questa settimana restano {0} min di ascolto"
+ },
+ "listenLow": {
+  "message": "Questa settimana restano circa {0} min di ascolto, e questo testo dura circa {1} min. La lettura si ferma dove finiscono i minuti."
+ },
+ "listenAnyway": {
+  "message": "Ascolta comunque"
+ },
+ "plansUpgrade": {
+  "message": "Passa a {0}"
+ },
+ "plansUpgradeYearly": {
+  "message": "Passa all’annuale"
+ },
+ "similarPayFree": {
+  "message": "Gratis, senza acquisti in-app"
+ },
+ "similarPayFreeStart": {
+  "message": "Gratis"
+ },
+ "similarPaySub": {
+  "message": "Abbonamento da {0}"
+ },
+ "similarPayOnce": {
+  "message": "Acquisto unico {0}"
+ },
+ "similarPayIap": {
+  "message": "Acquisti in-app da {0}"
+ },
+ "similarPerWeek": {
+  "message": "{0}/settimana"
+ },
+ "similarPerMonth": {
+  "message": "{0}/mese"
+ },
+ "similarPerYear": {
+  "message": "{0}/anno"
  },
  "tip_4cf1b54b00": {
   "message": "Suggerimenti"
