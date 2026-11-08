@@ -57,7 +57,12 @@ export type SimilarStreamEvent =
 export interface SimilarPayload {
   page: { title: string; url: string; text: string; facts: SimilarFacts }
   condition: string
+  // 2.6 (build 90): from a selection, what was selected: alternatives to what it describes, the page as context.
+  selection?: string
 }
+
+/** The longest selection sent as Find similar's subject. */
+export const SIMILAR_SELECTION_MAX = 1000
 
 export interface SimilarFacts {
   price?: number

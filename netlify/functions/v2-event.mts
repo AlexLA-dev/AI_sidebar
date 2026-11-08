@@ -235,7 +235,8 @@ const ORGANIZE_ACTIONS: Record<string, Set<string>> = {
 const ORGANIZE_WHAT = new Set(["move", "new", "tag"])
 const ORGANIZE_WHY = new Set(["page", "site", "topic", "apart"])
 const ORGANIZE_WHERE = new Set(["pro_card", "pro_screen", "inchat_mess", "third_tag", "first_win", "settings", "tip", "whatsnew"])
-const ORGANIZE_FROM = new Set(["card", "settings", "whatsnew", "tip"])
+// plan_tour (2.6): "Turn on suggestions" in the app's tour of Pro after a purchase.
+const ORGANIZE_FROM = new Set(["card", "settings", "whatsnew", "tip", "plan_tour"])
 
 /** What an organizing event carries: its action and, by kind, what was suggested and why, or where. */
 function organizeFields(kind: string, body: Record<string, unknown>): Record<string, unknown> {

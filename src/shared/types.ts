@@ -249,6 +249,9 @@ export const STORAGE = {
   consent: "cf:consent",
   // The first-session tour of the panel was seen (finished or skipped).
   tourSeen: "cf:tourSeen",
+  // 2.6: the plan the panel saw last (an upgrade from it starts that plan's tour) and the plans whose tour was shown.
+  planLast: "cf:planLast",
+  planTours: "cf:planTours",
   // The "first time here" hints already shown (chats, video, pdf).
   hintsSeen: "cf:hintsSeen",
   // Recent pages' text on this device ({ [url]: { title, text, at } }) for "whole chat" answers.

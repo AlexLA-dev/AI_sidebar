@@ -755,6 +755,60 @@
  "uxShowIntro": {
   "message": "عرض المقدمة مجددًا"
  },
+ "ptMenu": {
+  "message": "ما يتضمنه {0}"
+ },
+ "ptProMediaTitle": {
+  "message": "Pro: الفيديو وملفات PDF"
+ },
+ "ptProMediaBody": {
+  "message": "في صفحة فيها فيديو أو ملف PDF، يقرأهما ContextFlow الآن أيضًا: ترجمة الفيديو ونص الملف. اسأل كالمعتاد."
+ },
+ "ptProChatsTitle": {
+  "message": "ابحث في محادثاتك واسألها"
+ },
+ "ptProChatsBody": {
+  "message": "في قائمة المحادثات، يجد ✦ محادثة من وصفها، ويجيب «{0}» من كل ما قرأته وسألت عنه."
+ },
+ "ptProChatListTitle": {
+  "message": "هنا بالضبط"
+ },
+ "ptProChatListBody": {
+  "message": "فعّل ✦ بجوار البحث وصِف المحادثة التي تريدها، أو اضغط «{0}» لتسأل كل محادثاتك دفعة واحدة."
+ },
+ "ptProSortTitle": {
+  "message": "مرتبة حسب الموضوع"
+ },
+ "ptProSortBody": {
+  "message": "بعد كل إجابة، يقترح سطر تحتها وسمًا أو مجلدًا للمحادثة. ضغطة واحدة ترتبها، ويمكنك التراجع."
+ },
+ "ptProTemplatesTitle": {
+  "message": "القوالب"
+ },
+ "ptProTemplatesBody": {
+  "message": "حدد نصًا واضغط «{0}» لحفظه، ثم الصقه في أي حقل. احفظ ما تشاء منها."
+ },
+ "ptProWatchTitle": {
+  "message": "تابع حتى 20 صفحة"
+ },
+ "ptProWatchBody": {
+  "message": "في «…»، يخبرك «{0}» عندما تتغير الصفحة: سعر أو تاريخ أو منشور جديد."
+ },
+ "ptUltraListenTitle": {
+  "message": "Ultra: استمع"
+ },
+ "ptUltraListenBody": {
+  "message": "اضغط «{0}» تحت الإجابة، أو «{1}» في «…»: تُعاد صياغة النص ليناسب السمع ثم يُقرأ بصوت عالٍ."
+ },
+ "ptUltraSimilarBody": {
+  "message": "بدائل حقيقية لما تتصفحه، مع فتح كل رابط والتحقق منه. اضغط «{0}» هنا أو في «…»، أو حدد نصًا واضغط «{1}»."
+ },
+ "ptUltraWatchTitle": {
+  "message": "تابع حتى 50 صفحة"
+ },
+ "ptUltraWatchBody": {
+  "message": "في «…»، يتابع «{0}» الآن حتى 50 صفحة في آن واحد."
+ },
  "welcomeTitle": {
   "message": "ContextFlow جاهز"
  },
@@ -1690,6 +1744,9 @@
  },
  "actSimilar": {
   "message": "ابحث عن مشابه"
+ },
+ "selSimilar": {
+  "message": "مشابه"
  },
  "uxSimilar": {
   "message": "ابحث عن مشابه…"

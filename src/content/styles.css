@@ -109,6 +109,8 @@
 }
 .cf-fab.right { right: max(14px, env(safe-area-inset-right)); }
 .cf-fab.left { left: max(14px, env(safe-area-inset-left)); }
+/* Stepping out of the selection buttons' way and back (fabDodge.ts); not while it's dragged. */
+.cf-fab.glide { transition: transform 0.15s ease, opacity 0.2s ease, top 0.22s ease; }
 .cf-fab:hover { opacity: 1; transform: scale(1.05); }
 .cf-fab:active { transform: scale(0.94); }
 

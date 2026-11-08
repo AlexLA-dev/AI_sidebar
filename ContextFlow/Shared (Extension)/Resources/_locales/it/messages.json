@@ -755,6 +755,60 @@
  "uxShowIntro": {
   "message": "Rivedi l’introduzione"
  },
+ "ptMenu": {
+  "message": "Cosa include {0}"
+ },
+ "ptProMediaTitle": {
+  "message": "Pro: video e PDF"
+ },
+ "ptProMediaBody": {
+  "message": "Su una pagina con un video o un PDF, ContextFlow ora legge anche quelli: i sottotitoli del video e il testo del PDF. Chiedi pure."
+ },
+ "ptProChatsTitle": {
+  "message": "Cerca nelle chat e chiedi"
+ },
+ "ptProChatsBody": {
+  "message": "Nelle tue chat, ✦ trova una chat da una descrizione, e «{0}» risponde da tutto ciò che hai letto e chiesto."
+ },
+ "ptProChatListTitle": {
+  "message": "Proprio qui"
+ },
+ "ptProChatListBody": {
+  "message": "Attiva ✦ accanto alla ricerca e descrivi la chat che cerchi, oppure tocca «{0}» per chiedere a tutte le chat insieme."
+ },
+ "ptProSortTitle": {
+  "message": "Ordinate per argomento"
+ },
+ "ptProSortBody": {
+  "message": "Dopo una risposta, una riga sotto propone un tag o una cartella per la chat. Un tocco la sistema, e puoi annullare."
+ },
+ "ptProTemplatesTitle": {
+  "message": "Modelli"
+ },
+ "ptProTemplatesBody": {
+  "message": "Seleziona del testo e tocca «{0}» per salvarlo, poi incollalo in qualsiasi campo. Quanti ne vuoi."
+ },
+ "ptProWatchTitle": {
+  "message": "Segui fino a 20 pagine"
+ },
+ "ptProWatchBody": {
+  "message": "In «…», «{0}» ti avvisa quando la pagina cambia: un prezzo, una data, un nuovo post."
+ },
+ "ptUltraListenTitle": {
+  "message": "Ultra: ascolta"
+ },
+ "ptUltraListenBody": {
+  "message": "Tocca «{0}» sotto una risposta, o «{1}» in «…»: il testo viene riscritto per l'ascolto e letto ad alta voce."
+ },
+ "ptUltraSimilarBody": {
+  "message": "Alternative reali a ciò che stai guardando, ogni link aperto e controllato. Tocca «{0}» qui o in «…», oppure seleziona del testo e tocca «{1}»."
+ },
+ "ptUltraWatchTitle": {
+  "message": "Segui fino a 50 pagine"
+ },
+ "ptUltraWatchBody": {
+  "message": "In «…», «{0}» ora segue fino a 50 pagine insieme."
+ },
  "welcomeTitle": {
   "message": "ContextFlow è pronto"
  },
@@ -1690,6 +1744,9 @@
  },
  "actSimilar": {
   "message": "Trova simili"
+ },
+ "selSimilar": {
+  "message": "Simili"
  },
  "uxSimilar": {
   "message": "Trova simili…"

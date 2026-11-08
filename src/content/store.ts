@@ -69,6 +69,25 @@ export async function markTourSeen(): Promise<void> {
   await set(STORAGE.tourSeen, true)
 }
 
+/** The plan the panel saw last (null before 2.6 saw any): an upgrade from it starts that plan's tour. */
+export async function lastPlanSeen(): Promise<string | null> {
+  return (await get<string>(STORAGE.planLast)) ?? null
+}
+
+export async function setLastPlanSeen(plan: string): Promise<void> {
+  await set(STORAGE.planLast, plan)
+}
+
+/** The plans whose tour was shown (finished or skipped): each shows once by itself, then from the "…" menu. */
+export async function planToursSeen(): Promise<string[]> {
+  return (await get<string[]>(STORAGE.planTours)) ?? []
+}
+
+export async function markPlanToursSeen(plans: string[]): Promise<void> {
+  const seen = await planToursSeen()
+  await set(STORAGE.planTours, [...new Set([...seen, ...plans])])
+}
+
 export type HintKey = "chats" | "video" | "pdf"
 
 /** The "first time here" hints already shown. */

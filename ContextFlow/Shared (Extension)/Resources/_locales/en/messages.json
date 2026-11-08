@@ -755,6 +755,60 @@
  "uxShowIntro": {
   "message": "Show the intro again"
  },
+ "ptMenu": {
+  "message": "What's in {0}"
+ },
+ "ptProMediaTitle": {
+  "message": "Pro: videos and PDFs"
+ },
+ "ptProMediaBody": {
+  "message": "On a page with a video or a PDF, ContextFlow now reads them too: the video's subtitles and the PDF's text. Just ask."
+ },
+ "ptProChatsTitle": {
+  "message": "Search and ask your chats"
+ },
+ "ptProChatsBody": {
+  "message": "In your chats, ✦ finds a chat from a description, and “{0}” answers from everything you've read and asked."
+ },
+ "ptProChatListTitle": {
+  "message": "Right here"
+ },
+ "ptProChatListBody": {
+  "message": "Turn on ✦ by the search and describe the chat you want, or tap “{0}” to ask all your chats at once."
+ },
+ "ptProSortTitle": {
+  "message": "Sorted by topic"
+ },
+ "ptProSortBody": {
+  "message": "After an answer, a row under it suggests a tag or a folder for the chat. One tap sorts it, and you can undo it."
+ },
+ "ptProTemplatesTitle": {
+  "message": "Templates"
+ },
+ "ptProTemplatesBody": {
+  "message": "Select text and tap “{0}” to keep it, then paste it into any field. Keep as many as you need."
+ },
+ "ptProWatchTitle": {
+  "message": "Watch up to 20 pages"
+ },
+ "ptProWatchBody": {
+  "message": "In “…”, “{0}” tells you when the page changes: a price, a date, a new post."
+ },
+ "ptUltraListenTitle": {
+  "message": "Ultra: listen"
+ },
+ "ptUltraListenBody": {
+  "message": "Tap “{0}” under an answer, or “{1}” in “…”: the text is rewritten for the ear and read aloud."
+ },
+ "ptUltraSimilarBody": {
+  "message": "Real alternatives to what you're looking at, every link opened and checked. Tap “{0}” here or in “…”, or select text and tap “{1}”."
+ },
+ "ptUltraWatchTitle": {
+  "message": "Watch up to 50 pages"
+ },
+ "ptUltraWatchBody": {
+  "message": "In “…”, “{0}” now covers up to 50 pages at once."
+ },
  "welcomeTitle": {
   "message": "ContextFlow is ready"
  },
@@ -1690,6 +1744,9 @@
  },
  "actSimilar": {
   "message": "Find similar"
+ },
+ "selSimilar": {
+  "message": "Similar"
  },
  "uxSimilar": {
   "message": "Find similar…"

@@ -16,11 +16,25 @@ import { useEffect } from "preact/hooks"
 
 import { t, type MessageKey } from "../shared/i18n"
 import * as Icon from "./icons"
+import { SpeakerIcon } from "./listen/useListen"
+import { SimilarIcon } from "./similar/Similar"
 import { Blockers, cardPlace, chatsStep, holeAround, MENU_STEP, Shade, useBlurPanel, useParts } from "./Tour"
+import { More } from "./ux/MessageUx"
 
 /** The steps, in order. "pick" and "ask" are on the page (the panel closed), the rest in the panel. */
-export const GUIDE_STEPS = ["summarize", "consent", "answer", "select", "pick", "ask", "askSel", "answer2", "chats", "chatList", "menu"] as const
+export const GUIDE_STEPS = [
+  "summarize", "consent", "answer", "select", "pick", "ask", "askSel", "answer2", "chats", "chatList", "menu",
+  // 2.6 (build 89, the owner): after buying Pro or Ultra, a tour of what the plan added, on the same engine.
+  "pro_media", "pro_chats", "pro_chatList", "pro_sort", "pro_templates", "pro_watch", "ultra_listen", "ultra_similar", "ultra_watch"
+] as const
 export type GuideStep = (typeof GUIDE_STEPS)[number]
+
+/** A plan's tour: its steps in order (pro_chatList comes in when the chats button is tapped). Pro's, Ultra's on top of
+ * Pro, and Ultra's with Pro's for someone coming from below Pro; the "…" (the watched pages) last. */
+export const PLAN_STEPS: readonly GuideStep[] = ["pro_media", "pro_chats", "pro_chatList", "pro_sort", "pro_templates", "pro_watch", "ultra_listen", "ultra_similar", "ultra_watch"]
+export const PRO_TOUR: GuideStep[] = ["pro_media", "pro_chats", "pro_sort", "pro_templates", "pro_watch"]
+export const ULTRA_TOUR: GuideStep[] = ["ultra_listen", "ultra_similar", "ultra_watch"]
+export const ULTRA_FULL_TOUR: GuideStep[] = ["ultra_listen", "ultra_similar", "pro_media", "pro_chats", "pro_sort", "pro_templates", "ultra_watch"]
 
 /** Steps shown on the page, with the panel closed. */
 export const ON_PAGE: readonly GuideStep[] = ["pick", "ask"]
@@ -65,6 +79,25 @@ function card(step: GuideStep, touch: boolean, sync: boolean): Card | null {
       return { targets: [], icon: <Icon.Chats />, title: "hintChatsTitle", body: "hintChatsBody", next: "tourNext", holds: false, foot: true }
     case "menu":
       return { ...MENU_STEP, next: "tourDone", holds: true }
+    // A plan's tour: what's lit up can be tapped (and takes the tour on), Next goes without it.
+    case "pro_media":
+      return { targets: [[".cf-title .cf-ctx"]], icon: <Icon.Doc />, title: "ptProMediaTitle", body: "ptProMediaBody", next: "tourNext", holds: false }
+    case "pro_chats":
+      return { targets: [[".cf-chats-button"]], icon: <Icon.Chats />, title: "ptProChatsTitle", body: "ptProChatsBody", args: ["askHistory"], next: "tourNext", holds: true }
+    case "pro_chatList":
+      return { targets: [[".cf-search-ai"], [".cf-ask-history"]], icon: <Icon.Sparkle size={16} />, title: "ptProChatListTitle", body: "ptProChatListBody", args: ["askHistory"], next: "tourNext", holds: false }
+    case "pro_sort":
+      return { targets: [], icon: <Icon.Tag />, title: "ptProSortTitle", body: "ptProSortBody", next: "tourNext", holds: false }
+    case "pro_templates":
+      return { targets: [], icon: <Icon.Pencil />, title: "ptProTemplatesTitle", body: "ptProTemplatesBody", args: ["qiTemplateButton"], next: "tourNext", holds: false }
+    case "pro_watch":
+      return { targets: [[".cf-page-more"]], icon: <More size={16} />, title: "ptProWatchTitle", body: "ptProWatchBody", args: ["uxWatchPage"], next: "tourDone", holds: true }
+    case "ultra_listen":
+      return { targets: [[".cf-messages .cf-listen-btn.last"]], icon: <SpeakerIcon />, title: "ptUltraListenTitle", body: "ptUltraListenBody", args: ["listen", "listenPage"], next: "tourNext", holds: false }
+    case "ultra_similar":
+      return { targets: [[".cf-empty .cf-chip[data-action=similar]"]], icon: <SimilarIcon />, title: "similarTitle", body: "ptUltraSimilarBody", args: ["actSimilar", "selSimilar"], next: "tourNext", holds: false }
+    case "ultra_watch":
+      return { targets: [[".cf-page-more"]], icon: <More size={16} />, title: "ptUltraWatchTitle", body: "ptUltraWatchBody", args: ["uxWatchPage"], next: "tourDone", holds: true }
     default:
       return null
   }
@@ -112,7 +145,7 @@ export function GuideCard({ panel, step, touch, sync, onNext, onSkip, onTap }: {
         <strong>{t(spec.title)}</strong>
         <p>{t(spec.body, ...(spec.args ?? []).map((k) => t(k)))}</p>
         <div class="cf-tour-actions">
-          {step !== "menu" && <button type="button" class="cf-link" onClick={onSkip}>{t("tourSkip")}</button>}
+          {spec.next !== "tourDone" && <button type="button" class="cf-link" onClick={onSkip}>{t("tourSkip")}</button>}
           {spec.next && <button type="button" class="cf-primary" onClick={onNext}>{t(spec.next)}</button>}
         </div>
       </div>}
