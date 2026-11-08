@@ -115,7 +115,15 @@ export const config = {
       lite: { text: Number(env("TTS_PRICE_TEXT") ?? 0.5), audio: Number(env("TTS_PRICE_AUDIO") ?? 6) },
       full: { text: Number(env("TTS_FULL_PRICE_TEXT") ?? 0.5), audio: Number(env("TTS_FULL_PRICE_AUDIO") ?? 9) }
     },
-    pricesFrom2027: (env("TTS_PRICES_2027") ?? "on").trim() !== "off"
+    pricesFrom2027: (env("TTS_PRICES_2027") ?? "on").trim() !== "off",
+    // Text for listening (/api/v2/speak-script, the owner's note): Claude Haiku rewrites tables, lists, code and
+    // symbols into speech before the voice reads it. SPEAK_SCRIPT=off: the device's own rules only. The caps only stop
+    // runaway clients (characters a request; requests a day per subscription and for everyone).
+    scriptEnabled: (env("SPEAK_SCRIPT") ?? "on").trim() !== "off",
+    scriptModel: (env("SPEAK_SCRIPT_MODEL") ?? "claude-haiku-5-5").trim(),
+    scriptMaxChars: int("SPEAK_SCRIPT_MAX_CHARS", 6000),
+    scriptDaily: int("SPEAK_SCRIPT_DAILY", 400),
+    scriptGlobalDaily: int("SPEAK_SCRIPT_GLOBAL_DAILY", 60_000)
   },
   // Quick insert's AI (Claude Haiku 5.5): marking a template's blanks, filling them from the page, finding a
   // template by meaning. The owner's choice: Free fills its blanks with AI 5 times a day (apart from the 5

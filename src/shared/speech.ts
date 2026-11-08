@@ -31,15 +31,29 @@ export function speechText(markdown: string): string {
     .replace(/https?:\/\/\S+/g, "")
     .replace(/`([^`\n]+)`/g, "$1")
   const lines: string[] = []
-  for (const raw of text.split("\n")) {
-    let line = raw.trim()
+  const rawLines = text.split("\n")
+  for (let i = 0; i < rawLines.length; i++) {
+    let line = rawLines[i].trim()
     if (!line) {
       lines.push("")
       continue
     }
-    // Table rows: cells with commas; the |---| line goes.
-    if (/^\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?$/.test(line)) continue
-    if (line.includes("|") && /^\|.*\|$/.test(line)) line = line.replace(/^\||\|$/g, "").split("|").map((c) => c.trim()).filter(Boolean).join(", ")
+    // A table: each row as "first cell: column value, column value." (the owner: a table read cell by cell can't be
+    // followed by ear). Without a header row, the cells joined with commas.
+    if (isTableRow(line)) {
+      const block: string[][] = []
+      let header: string[] | null = null
+      while (i < rawLines.length && isTableRow(rawLines[i].trim())) {
+        const row = rawLines[i].trim()
+        if (TABLE_RULE.test(row)) {
+          if (block.length === 1 && !header) header = block.pop()!
+        } else block.push(cells(row))
+        i++
+      }
+      i--
+      for (const row of block) lines.push(tableRow(row, header))
+      continue
+    }
     line = line
       .replace(/^#{1,6}\s+/, "")
       .replace(/^>\s?/, "")
@@ -56,6 +70,27 @@ export function speechText(markdown: string): string {
   }
   text = lines.join("\n").replace(/\n{3,}/g, "\n\n").replace(/[ \t]{2,}/g, " ").trim()
   return text.slice(0, MAX_SPEECH_CHARS)
+}
+
+const TABLE_RULE = /^\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?$/
+
+function isTableRow(line: string): boolean {
+  return TABLE_RULE.test(line) || (line.includes("|") && /^\|.*\|$/.test(line))
+}
+
+function cells(row: string): string[] {
+  return row.replace(/^\||\|$/g, "").split("|").map((c) => c.replace(/(\*\*|__)(.+?)\1/g, "$2").trim())
+}
+
+/** One table row for the ear: "MARKUS: Price 299 dollars, Color dark gray." */
+function tableRow(row: string[], header: string[] | null): string {
+  const [head, ...rest] = row
+  let line: string
+  if (header && rest.length) {
+    const said = rest.map((v, k) => (v ? `${header[k + 1] ? `${header[k + 1]} ` : ""}${v}` : "")).filter(Boolean)
+    line = head ? `${head}: ${said.join(", ")}` : said.join(", ")
+  } else line = row.filter(Boolean).join(", ")
+  return /[.!?…:;。！？]$/.test(line) ? line : `${line}.`
 }
 
 const SENTENCE_END = /[.!?…。！？؟।]["'»”)\]]*\s+|\n+/g
@@ -164,4 +199,89 @@ export function speechKind(text: string, lang: string | null | undefined, fullLa
     if (fullLangs.includes(code) && n >= Math.max(3, words.length * 0.12) && n > cancel * 1.5) return "full"
   }
   return "lite"
+}
+
+/**
+ * Whether an answer needs writing for the ear (Claude Haiku, /api/v2/speak-script) before the voice reads it: a table,
+ * a long or nested list, code, a formula or symbols, several links or headings. Plain prose goes straight to the voice.
+ */
+export function needsScript(markdown: string): boolean {
+  const text = String(markdown ?? "")
+  if (/^\s*\|.*\|\s*$/m.test(text) && /^\s*\|?\s*:?-{2,}/m.test(text)) return true
+  if (/```/.test(text)) return true
+  const items = text.match(/^\s*(?:[-*+•]|\d{1,3}[.)])\s+/gm)?.length ?? 0
+  if (items >= 4 || /^\s{2,}(?:[-*+•]|\d{1,3}[.)])\s+/m.test(text)) return true
+  if ((text.match(/^#{1,6}\s/gm)?.length ?? 0) >= 2) return true
+  if ((text.match(/https?:\/\/|\]\(/g)?.length ?? 0) >= 2) return true
+  if ((text.match(/[→←↔×÷±≈≤≥≠∑√∞°%‰€$£¥₽]|\b\d+\s*[–-]\s*\d+\b|`[^`]+`/g)?.length ?? 0) >= 6) return true
+  return false
+}
+
+/** A long text for /api/v2/speak-script in pieces of at most `size` characters, cut between paragraphs (or sentences). */
+export function scriptChunks(text: string, size = 5000): string[] {
+  const out: string[] = []
+  let current = ""
+  for (const paragraph of String(text ?? "").split(/\n{2,}/)) {
+    const pieces = paragraph.length > size ? speechParts(paragraph, size, size) : [paragraph]
+    for (const piece of pieces) {
+      if (current && current.length + piece.length + 2 > size) {
+        out.push(current.trim())
+        current = ""
+      }
+      current += (current ? "\n\n" : "") + piece
+    }
+  }
+  if (current.trim()) out.push(current.trim())
+  return out.filter(Boolean)
+}
+
+/**
+ * Cuts text that streams in (the text for listening) into parts as soon as they're complete, at sentence ends: the
+ * very first part as soon as there's a sentence of `min` characters (the first sound comes early), then parts of up
+ * to PART_CHARS. end() gives the rest.
+ */
+export class PartSplitter {
+  private buffer = ""
+  private first: boolean
+  private readonly min: number
+
+  constructor(first = true, min = 40) {
+    this.first = first
+    this.min = min
+  }
+
+  push(text: string): string[] {
+    this.buffer += text
+    const out: string[] = []
+    while (true) {
+      const limit = this.first ? FIRST_PART_CHARS : PART_CHARS
+      let cut = -1
+      let firstEnd = -1
+      for (const m of this.buffer.matchAll(SENTENCE_END)) {
+        const end = (m.index ?? 0) + m[0].length
+        if (firstEnd < 0) firstEnd = end
+        if (end <= limit) cut = end
+        else break
+      }
+      if (cut < 0 && firstEnd >= 0 && this.buffer.length > limit) cut = firstEnd
+      if (cut < 0) break
+      // A part waits until it's full, except the very first, which goes as soon as it says something.
+      const ready = this.buffer.length >= limit || (this.first && cut >= this.min)
+      if (!ready) break
+      const part = this.buffer.slice(0, cut).trim()
+      this.buffer = this.buffer.slice(cut)
+      if (part) {
+        out.push(part)
+        this.first = false
+      }
+    }
+    return out
+  }
+
+  end(): string[] {
+    const rest = speechParts(this.buffer.trim(), this.first ? FIRST_PART_CHARS : PART_CHARS)
+    this.buffer = ""
+    if (rest.length) this.first = false
+    return rest
+  }
 }

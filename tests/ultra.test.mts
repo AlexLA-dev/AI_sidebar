@@ -9,6 +9,7 @@ process.env.SUPABASE_URL = "https://db.test"
 process.env.SUPABASE_SERVICE_ROLE_KEY = "service-key"
 process.env.OPENAI_API_KEY = "sk-test"
 process.env.GEMINI_API_KEY = "gemini-test"
+process.env.ANTHROPIC_API_KEY = "anthropic-test"
 const { generateKeyPairSync, sign } = await import("node:crypto")
 const evalKeys = generateKeyPairSync("ed25519")
 process.env.CF_EVAL_PUBLIC_KEY = evalKeys.publicKey.export({ type: "spki", format: "der" }).toString("base64")
@@ -20,6 +21,20 @@ let counters = new Map<string, number>()
 let entitlements = new Map<string, Record<string, unknown>>()
 let events: { kind: string; data: Record<string, unknown> }[] = []
 let tts: { calls: Array<{ model: string; text: string; voice: string; mime: string }>; refuseLanguage?: string[]; pcmBytes: number; chunks: number; failAfter?: number } = { calls: [], pcmBytes: 48_000 * 3, chunks: 3 }
+let haiku: { calls: Array<{ model: string; system: string; content: string }>; status?: number; script: string } = { calls: [], script: "The MARKUS costs 299 dollars. The Sihoo costs 169." }
+function haikuStream(): Response {
+  const ev = (type: string, data: Record<string, unknown> = {}) => `event: ${type}\ndata: ${JSON.stringify({ type, ...data })}\n\n`
+  const words = haiku.script.split(" ").map((w, i) => (i ? ` ${w}` : w))
+  const frames = [
+    ev("message_start", { message: { id: "msg_1", type: "message", role: "assistant", model: "claude-haiku-5-5", content: [], stop_reason: null, stop_sequence: null, usage: { input_tokens: 900, output_tokens: 1 } } }),
+    ev("content_block_start", { index: 0, content_block: { type: "text", text: "" } }),
+    ...words.map((w) => ev("content_block_delta", { index: 0, delta: { type: "text_delta", text: w } })),
+    ev("content_block_stop", { index: 0 }),
+    ev("message_delta", { delta: { stop_reason: "end_turn", stop_sequence: null }, usage: { output_tokens: 120 } }),
+    ev("message_stop")
+  ]
+  return new Response(frames.join(""), { headers: { "Content-Type": "text/event-stream" } })
+}
 const MODELS = ["gemini-3.8-flash", "gemini-3.8-flash-tts", "gemini-3.8-flash-lite-tts", "gemini-3.1-flash-tts-preview", "gemini-3.6-flash-lite-tts"]
 
 const rpc: Record<string, (args: Record<string, any>) => unknown> = {
@@ -80,6 +95,11 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
   if (url.startsWith("https://generativelanguage.googleapis.com/v1beta/models?")) {
     return new Response(JSON.stringify({ models: MODELS.map((m) => ({ name: `models/${m}`, supportedGenerationMethods: m.endsWith("tts") ? ["generateContent"] : ["generateContent", "countTokens"] })) }), { headers: { "Content-Type": "application/json" } })
   }
+  if (url.startsWith("https://api.anthropic.com/v1/messages")) {
+    haiku.calls.push({ model: body.model, system: body.system.map((b: { text: string }) => b.text).join("\n"), content: body.messages[0].content })
+    if (haiku.status) return new Response(JSON.stringify({ type: "error", error: { type: "overloaded_error", message: "Overloaded" } }), { status: haiku.status, headers: { "Content-Type": "application/json" } })
+    return haikuStream()
+  }
   if (url === "https://generativelanguage.googleapis.com/v1beta/interactions") {
     const text = body.input[0].content[0].text
     tts.calls.push({ model: body.model, text, voice: body.generation_config.speech_config[0].voice, mime: body.response_format.mime_type })
@@ -96,11 +116,12 @@ apple.setTrustedRootFingerprintForTests(TEST_ROOT_FINGERPRINT)
 const { PRODUCTS } = await import("../netlify/shared/config.mts")
 const { resolveAccess, countersFor, searchCountersFor, visibleUsage } = await import("../netlify/shared/plan.mts")
 const { hasPro, isUltra, planOfProduct, productOf, PLAN_RANK, watchLimit } = await import("../src/shared/plan.ts")
-const { speechText, speechParts, speechSeconds, speechKind } = await import("../src/shared/speech.ts")
+const { speechText, speechParts, speechSeconds, speechKind, needsScript, scriptChunks, PartSplitter } = await import("../src/shared/speech.ts")
 const { newestGeminiTts } = await import("../src/shared/models.ts")
 const { tourAsked } = await import("../netlify/shared/tour.mts")
 const speak = (await import("../netlify/functions/v2-speak.mts")).default
 const status = (await import("../netlify/functions/v2-status.mts")).default
+const speakScript = (await import("../netlify/functions/v2-speak-script.mts")).default
 
 const INSTALL = "7b3c9a0e-1d2f-4a5b-8c6d-9e0f1a2b3c4d"
 const ultraJws = (o: Record<string, unknown> = {}) => signJws(transaction({ productId: "com.contextflow.ultra.monthly", originalTransactionId: "3000000001", ...o }))
@@ -116,6 +137,7 @@ beforeEach(() => {
   entitlements = new Map()
   events = []
   tts = { calls: [], pcmBytes: 48_000 * 3, chunks: 3 }
+  haiku = { calls: [], script: "The MARKUS costs 299 dollars. The Sihoo costs 169." }
   delete (globalThis as { Netlify?: unknown }).Netlify
 })
 
@@ -177,8 +199,10 @@ test("Pro → Ultra: the upgrade counts at once, the week's answers carry over",
 // ---- speech text -----------------------------------------------------------
 
 test("speechText reads an answer: no code, links' words only, items as sentences", () => {
-  const text = speechText("## Key points\n\n- **Fast** start [1]\n- See [the docs](https://example.com/a(b)) now\n\n```js\nconsole.log(1)\n```\n| A | B |\n|---|---|\n| 1 | 2 |\nVisit https://x.com today.")
-  assert.equal(text, "Key points.\n\nFast start.\nSee the docs now.\n\nA, B.\n1, 2.\nVisit today.")
+  const text = speechText("## Key points\n\n- **Fast** start [1]\n- See [the docs](https://example.com/a(b)) now\n\n```js\nconsole.log(1)\n```\n| Chair | Price | Color |\n|---|---|---|\n| **MARKUS** | $299 | dark gray |\n| Sihoo M18 | $169 | |\nVisit https://x.com today.")
+  assert.equal(text, "Key points.\n\nFast start.\nSee the docs now.\n\nMARKUS: Price $299, Color dark gray.\nSihoo M18: Price $169.\nVisit today.")
+  // A table without a header row: its cells in a row.
+  assert.equal(speechText("| a | b |\n| c | d |"), "a, b.\nc, d.")
 })
 
 test("speechParts: a short first part, the rest up to the part size, nothing lost", () => {
@@ -189,6 +213,35 @@ test("speechParts: a short first part, the rest up to the part size, nothing los
   assert.ok(parts.slice(1).every((p) => p.length <= 1400))
   assert.equal(parts.join(" ").replace(/\s+/g, " "), text.replace(/\s+/g, " "))
   assert.deepEqual(speechParts("Hello."), ["Hello."])
+})
+
+test("needsScript: tables, lists, code, headings and symbols go to Haiku; plain prose goes straight to the voice", () => {
+  assert.equal(needsScript("The train leaves at nine. It arrives a little after noon."), false)
+  assert.equal(needsScript("Short list:\n- one\n- two"), false)
+  assert.equal(needsScript("| A | B |\n|---|---|\n| 1 | 2 |"), true)
+  assert.equal(needsScript("Steps:\n1. a\n2. b\n3. c\n4. d"), true)
+  assert.equal(needsScript("Run this:\n```sh\nnpm i\n```"), true)
+  assert.equal(needsScript("## One\ntext\n## Two\ntext"), true)
+  assert.equal(needsScript("From 5–10 °C, ±2%, about 3 € → 4 €, then 7–9 km at 20–30 km/h"), true)
+})
+
+test("scriptChunks: a long page in pieces cut between paragraphs, nothing lost", () => {
+  const paragraph = (i: number) => `Paragraph ${i}. ` + "Words that go on for a while. ".repeat(20)
+  const text = Array.from({ length: 20 }, (_, i) => paragraph(i)).join("\n\n")
+  const chunks = scriptChunks(text, 2000)
+  assert.ok(chunks.length > 3 && chunks.every((c) => c.length <= 2000))
+  assert.equal(chunks.join("\n\n").replace(/\s+/g, " "), text.replace(/\s+/g, " ").trim())
+})
+
+test("PartSplitter: the first part as soon as a sentence is said, then full parts, nothing lost", () => {
+  const splitter = new PartSplitter()
+  const parts: string[] = []
+  const stream = "The MARKUS costs 299 dollars and comes in dark gray. " + "The Sihoo M18 costs 169 dollars and it is in stock right now. ".repeat(40) + "That's all."
+  for (let i = 0; i < stream.length; i += 17) parts.push(...splitter.push(stream.slice(i, i + 17)))
+  assert.equal(parts[0], "The MARKUS costs 299 dollars and comes in dark gray.")
+  parts.push(...splitter.end())
+  assert.ok(parts.slice(1).every((p) => p.length <= 1400))
+  assert.equal(parts.join(" ").replace(/\s+/g, " "), stream.replace(/\s+/g, " ").trim())
 })
 
 test("speechSeconds: about 14 characters a second, fewer for Chinese and Japanese", () => {
@@ -321,4 +374,42 @@ test("status: an Ultra subscriber sees the week's read-aloud seconds and the all
   assert.deepEqual(body.limits.watch, { free: 5, byok: 20, pro: 20, ultra: 50 })
   const pro = await (await status(post("https://x/api/v2/status", { installId: INSTALL, entitlement: signJws(transaction()) }), ctx())).json()
   assert.equal(pro.ultra, null)
+})
+
+// ---- /api/v2/speak-script ----------------------------------------------------
+
+test("speak-script: Haiku writes a table for the ear, streamed; an answer may be rephrased, a page keeps its words", async () => {
+  const c = ctx()
+  const table = "| Chair | Price |\n|---|---|\n| MARKUS | $299 |\n| Sihoo | $169 |"
+  const res = await speakScript(post("https://x/api/v2/speak-script", { installId: INSTALL, text: table, what: "answer", lang: "en", entitlement: ultraJws() }), c)
+  assert.equal(res.status, 200)
+  assert.equal(await res.text(), "The MARKUS costs 299 dollars. The Sihoo costs 169.")
+  await Promise.all(c.waits)
+  assert.equal(haiku.calls[0].model, "claude-haiku-5-5")
+  assert.match(haiku.calls[0].system, /Tables: say them as short sentences/)
+  assert.match(haiku.calls[0].system, /you may rephrase/)
+  assert.ok(haiku.calls[0].content.includes(table))
+  const log = events.find((e) => e.kind === "speak_script")?.data
+  assert.equal(log?.ok, true)
+  assert.equal(log?.chars_out, 50)
+  // 900 tokens in at $0.10 and 120 out at $0.50 per million.
+  assert.equal(log?.cost_usd, 0.00015)
+  // Not counted against the week's minutes.
+  assert.equal(counters.get("speak:tx:3000000001") ?? 0, 0)
+
+  const page = await speakScript(post("https://x/api/v2/speak-script", { installId: INSTALL, text: "Some article text.", what: "page", entitlement: ultraJws() }), ctx())
+  await page.text()
+  assert.match(haiku.calls[1].system, /keep the author's own sentences word for word/)
+})
+
+test("speak-script: Ultra only; too long refused; Haiku failing gives UPSTREAM and the cap back", async () => {
+  assert.equal((await speakScript(post("https://x/api/v2/speak-script", { installId: INSTALL, text: "Hi.", entitlement: signJws(transaction()) }), ctx())).status, 403)
+  assert.equal((await speakScript(post("https://x/api/v2/speak-script", { installId: INSTALL, text: "x".repeat(6001), entitlement: ultraJws() }), ctx())).status, 400)
+  haiku.status = 529
+  const c = ctx()
+  const res = await speakScript(post("https://x/api/v2/speak-script", { installId: INSTALL, text: "| a | b |", entitlement: ultraJws() }), c)
+  assert.equal(res.status, 502)
+  assert.equal((await res.json()).code, "UPSTREAM")
+  await Promise.all(c.waits)
+  assert.equal(counters.get("script:tx:3000000001"), 0)
 })
