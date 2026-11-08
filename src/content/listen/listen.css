@@ -56,7 +56,8 @@
 .cf-tier-chip.ultra { background: linear-gradient(135deg, #a78bfa, #2563eb); }
 .cf-tier-chip.dim { opacity: 0.45; }
 button.cf-tier-chip { border: 0; cursor: pointer; }
-.cf-gallery-stage { min-height: 268px; overflow: hidden; }
+/* As tall as the slide: a short one leaves no gap above the arrows. */
+.cf-gallery-stage { overflow: hidden; }
 .cf-gallery-slide { display: flex; flex-direction: column; gap: 6px; animation: cf-gallery-in 0.28s ease-out both; }
 .cf-gallery-slide.back { animation-name: cf-gallery-back; }
 @keyframes cf-gallery-in { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }

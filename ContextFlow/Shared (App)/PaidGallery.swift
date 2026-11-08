@@ -23,7 +23,7 @@ struct PaidGallery: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
-                Text("What you get").font(.headline)
+                Text("What you get").font(.headline).accessibilityIdentifier("gallery.header")
                 Spacer()
                 groupChip(ultra: false)
                 groupChip(ultra: true)
@@ -33,7 +33,8 @@ struct PaidGallery: View {
                     .id(index)
                     .transition(transition)
             }
-            .frame(maxWidth: .infinity, minHeight: 318, alignment: .topLeading)
+            // As tall as the slide (a short one leaves no gap above the arrows).
+            .frame(maxWidth: .infinity, alignment: .topLeading)
             .clipped()
             .contentShape(Rectangle())
             .gesture(DragGesture(minimumDistance: 24).onEnded { drag in
