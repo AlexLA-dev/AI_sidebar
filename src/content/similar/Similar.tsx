@@ -143,6 +143,18 @@ export function payText(p: SimilarPricing): string {
   return p.freeStart ? `${t("similarPayFreeStart")} · ${what}` : what
 }
 
+/** Where the condition was settled when it's another page than the item's (build 91): its site, as a link. */
+function proofLink(item: SimilarItem, onOpen: (url: string) => void): VNode | null {
+  if (!item.proof || item.pricing?.url === item.proof) return null
+  let host = ""
+  try {
+    host = new URL(item.proof).hostname.replace(/^www\./, "")
+  } catch {
+    return null
+  }
+  return <> · <a class="cf-similar-proof" href={item.proof} target="_blank" rel="noopener noreferrer" onClick={opening(item.proof, onOpen)}>{host}</a></>
+}
+
 function Item({ item, n, onOpen, onWatch }: { item: SimilarItem; n: number; onOpen: (url: string) => void; onWatch?: (item: SimilarItem) => void }): VNode {
   const facts = [
     // An app's pricing says more than its store price ($0.00 for one with a subscription inside).
@@ -162,7 +174,7 @@ function Item({ item, n, onOpen, onWatch }: { item: SimilarItem; n: number; onOp
           {item.source === "list" ? ` · ${t("similarFromList")}` : ""}
         </span>
         {item.why && <p class="cf-similar-why" dir="auto">{item.why}</p>}
-        {item.met === "yes" && item.fit && <p class="cf-similar-fit ok" dir="auto"><Tick size={13} /> {item.fit}</p>}
+        {item.met === "yes" && item.fit && <p class="cf-similar-fit ok" dir="auto"><Tick size={13} /> {item.fit}{proofLink(item, onOpen)}</p>}
         {item.met === "unknown" && (
           <p class="cf-similar-fit unknown" dir="auto"><span class="cf-similar-nc">{t("similarNotConfirmed")}</span>{item.fit ? ` ${item.fit}` : ""}</p>
         )}

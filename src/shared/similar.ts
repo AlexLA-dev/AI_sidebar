@@ -31,6 +31,8 @@ export interface SimilarItem {
   // Apps (build 91): what it costs, read on its App Store page or its pricing page (`url`): free, a subscription from a
   // price, a one-time purchase, or in-app purchases from a price; `freeStart`: free to download, or a free plan.
   pricing?: SimilarPricing
+  // Build 91: the page that settled the condition when it isn't the item's own (its price page, a rates page…).
+  proof?: string
 }
 
 export interface SimilarPricing {
@@ -143,7 +145,8 @@ export function cleanItem(raw: unknown): SimilarItem | null {
     ...(o.stock === "in" || o.stock === "out" ? { stock: o.stock } : {}),
     ...(/^\d{4}-\d{2}-\d{2}$/.test(s(o.date, 10)) ? { date: s(o.date, 10) } : {}),
     ...(w && (w.source === "ld-price" || w.source === "meta-price") && s(w.value, 60) ? { watch: { source: w.source, value: s(w.value, 60) } } : {}),
-    ...(cleanPricing(o.pricing) ?? {})
+    ...(cleanPricing(o.pricing) ?? {}),
+    ...(/^https?:\/\//i.test(s(o.proof, 2_000)) ? { proof: s(o.proof, 2_000) } : {})
   }
 }
 
