@@ -56,6 +56,22 @@ test("App Store: nothing to buy, a lifetime unlock, coins, a paid app", () => {
   assert.equal(paid.freeStart, undefined)
 })
 
+test("App Store in another storefront's language: its in-app purchases by their title there, prices in its currency", () => {
+  const ru = (annotations: string) => `<html lang="ru"><head><title>Telegram</title></head><body><h1>Telegram</h1><p>${"Быстрый мессенджер. ".repeat(20)}</p>
+<script>{"shelves":[{"items":[{"$kind":"Annotation","title":"Провайдер","summary":"Telegram FZ-LLC","items":[]},{"$kind":"Annotation","title":"Размер","summary":"255,8 МБ","items":[]},${annotations}{"$kind":"Annotation","title":"Авторские права","summary":"© 2026","items":[]}],"title":"Информация"}]}</script></body></html>`
+  const TG = "https://apps.apple.com/ru/app/telegram-messenger/id686449807"
+  const rub = (amount: number) => ({ amount, currency: "RUB" })
+  const p = appStorePricing(ru(`{"$kind":"Annotation","title":"Встроенные покупки","summary":"Да","items":[{"$kind":"textPair","leadingText":"Telegram Premium","trailingText":"329,00 ₽"},{"$kind":"textPair","leadingText":"Telegram Premium Annual","trailingText":"2\u00a0390,00 ₽"},{"$kind":"textPair","leadingText":"1x Premium (3 Months)","trailingText":"1\u00a0290,00 ₽"}]},`), TG, rub(0))!
+  // "3 Months" is a pack, not a monthly price: from the yearly one.
+  assert.equal(p.model, "subscription")
+  assert.deepEqual(p.from, rub(2390))
+  assert.equal(p.period, "year")
+  assert.equal(p.freeStart, true)
+  // No in-app purchases listed in its information section: free, nothing to buy.
+  assert.equal(appStorePricing(ru(""), TG, rub(0))!.model, "free")
+  assert.equal(appStorePricing(ru(`{"$kind":"Annotation","title":"Встроенные покупки","summary":"Нет","items":[]},`), TG, rub(0))!.model, "free")
+})
+
 test("App Store: nothing assumed off the store, without a price, or without the information section", () => {
   const html = storePage(iap([["Monthly", "$4.99"]]), 0)
   assert.equal(appStorePricing(html, "https://example.com/app", usd(0)), null)

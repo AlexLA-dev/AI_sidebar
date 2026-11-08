@@ -35,7 +35,8 @@ const SUBSCRIPTION = /\b(week(ly)?|month(ly)?|year(ly)?|annual(ly)?|quarter(ly)?
 const ONE_TIME = /\b(lifetime|one[- ]time|forever|permanent|pay once|once)\b|навсегда|пожизн|einmalig|à vie|de por vida/i
 
 // Words for how often a price is paid; the one nearest the price counts ("$10 per seat/month billed annually": monthly).
-const PERIODS = /(?<week>\b(?:week(?:ly)?|wk|wks|\d+\s*weeks?)\b|недел|semana|woche|semaine)|(?<year>\b(?:year(?:ly)?|annual(?:ly)?|yr|yrs|\d+\s*years?)\b|годов|год\b|anual|jährlich|annuel|jahr)|(?<month>\b(?:month(?:ly)?|mo|mos|\d+\s*months?)\b|месяц|мес\b|mensual|monatlich|mensuel|monat|mois|mes\b)/gi
+// "3 months" is a pack, not a monthly price: only a plain period, or one of 1, counts.
+const PERIODS = /(?<week>\b(?:week(?:ly)?|wk|wks|1\s*weeks?)\b|недел|semana|woche|semaine)|(?<year>\b(?:year(?:ly)?|annual(?:ly)?|yr|yrs|1\s*years?)\b|годов|год\b|anual|jährlich|annuel|jahr)|(?<month>\b(?:month(?:ly)?|mo|mos|1\s*months?)\b|месяц|мес\b|mensual|monatlich|mensuel|monat|mois|mes\b)/gi
 
 function periodsIn(text: string): Period[] {
   return [...text.matchAll(PERIODS)].map((m) => (m.groups?.week ? "week" : m.groups?.year ? "year" : "month"))
@@ -87,25 +88,26 @@ const isAppStore = (url: string) => {
   }
 }
 
+// "In-App Purchases" in the App Store's storefront languages, and its "No".
+const IAP_TITLES = /^(in-app purchases|встроенные покупки|покупки в програмі|вбудовані покупки|in[-‑ ]app[-‑ ]käufe|achats intégrés|compras dentro de la app|compras en la app|compras dentro do app|compras no app|acquisti in[-‑ ]app|app内課金|app 内购买项目|app內購買項目|app 內購買項目|앱 내 구입|mua in-app|mua hàng trong ứng dụng|عمليات شراء داخل التطبيق|zakupy w aplikacji|in-app aankopen|uygulama içi satın alımlar|nákupy v aplikaci)$/i
+const NO = /^(no|нет|ні|nein|non|não|nao|いいえ|아니요|否|không|لا|nie|nee|hayır|ne)$/i
+
 /**
  * An App Store page's pricing: its price (`price`, from the page's JSON-LD) and its "In-App Purchases" list. Null when
  * the page isn't an App Store app page or its information section can't be found (nothing is assumed then).
  */
 export function appStorePricing(html: string, url: string, price: PricePoint | undefined): AppPricing | null {
   if (!isAppStore(url) || !price) return null
-  const at = html.indexOf('"title":"In-App Purchases"')
+  // The information section's facts (provider, size, languages, in-app purchases…), in the storefront's language.
+  const notes = [...html.matchAll(/"\$kind":"Annotation","title":"((?:[^"\\]|\\.)*)","summary":"((?:[^"\\]|\\.)*)"/g)]
+  const iap = notes.find((n) => IAP_TITLES.test(unescapeJson(n[1])))
   // The information section is there and lists no in-app purchases: there are none.
-  if (at < 0) {
-    if (!html.includes('"title":"Information"')) return null
-    return price.amount > 0
-      ? { model: "one_time", from: price, options: [], url, via: "app_store" }
-      : { model: "free", options: [], url, via: "app_store" }
-  }
+  const none = () => (price.amount > 0 ? { model: "one_time" as const, from: price, options: [], url, via: "app_store" as const } : { model: "free" as const, options: [], url, via: "app_store" as const })
+  if (!iap) return notes.length >= 3 || html.includes('"title":"Information"') ? none() : null
+  const at = iap.index ?? 0
   const end = html.indexOf('"$kind":"Annotation"', at + 30)
   const block = html.slice(at, end > at ? end : at + 6_000)
-  if (/"summary":"No"/.test(block.slice(0, 80))) {
-    return price.amount > 0 ? { model: "one_time", from: price, options: [], url, via: "app_store" } : { model: "free", options: [], url, via: "app_store" }
-  }
+  if (NO.test(unescapeJson(iap[2]).trim())) return none()
   const items: Array<{ name: string; price: PricePoint }> = []
   for (const m of block.matchAll(/"leadingText":"((?:[^"\\]|\\.)*)","trailingText":"((?:[^"\\]|\\.)*)"/g)) {
     const name = unescapeJson(m[1]).trim()
