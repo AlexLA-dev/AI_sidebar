@@ -1796,6 +1796,18 @@
  "similarLimit": {
   "message": "Les {0} recherches « Trouver similaire » de la semaine sont utilisées. Elles reviennent {1}."
  },
+ "orgDemoQuestion": {
+  "message": "Vols pas chers pour Lisbonne en mai ?"
+ },
+ "orgDemoAnswer": {
+  "message": "En mai, les allers-retours Berlin–Lisbonne commencent vers 90 euros. Mieux vaut réserver six à huit semaines à l'avance."
+ },
+ "orgDemoTag": {
+  "message": "vacances"
+ },
+ "orgDemoChat": {
+  "message": "Voyages"
+ },
  "tip_4cf1b54b00": {
   "message": "Astuces"
  },

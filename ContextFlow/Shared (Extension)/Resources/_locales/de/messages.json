@@ -1796,6 +1796,18 @@
  "similarLimit": {
   "message": "Die {0} Suchen nach Ähnlichem für diese Woche sind aufgebraucht. Neue gibt es am {1}."
  },
+ "orgDemoQuestion": {
+  "message": "Günstige Flüge nach Lissabon im Mai?"
+ },
+ "orgDemoAnswer": {
+  "message": "Im Mai gibt es Hin- und Rückflüge von Berlin nach Lissabon ab etwa 90 Euro. Am besten sechs bis acht Wochen vorher buchen."
+ },
+ "orgDemoTag": {
+  "message": "urlaub"
+ },
+ "orgDemoChat": {
+  "message": "Reisen"
+ },
  "tip_4cf1b54b00": {
   "message": "Tipps"
  },

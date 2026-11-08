@@ -152,49 +152,74 @@ struct UndoBar: View {
     }
 }
 
-/// What organizing does, in a loop: messages of one chat slide into the chats and tags they belong to. With Reduce
-/// Motion it stands still.
-struct OrganizeAnimation: View {
-    var big = false
-    @State private var sorted = false
+/// What organizing does, drawn with its real pieces (2.6, the owner: the abstract bars read as placeholder art): a
+/// question, the answer under it and the row the app really shows there, a suggested tag and "3 messages to “Trips”".
+/// In a gentle loop the move is taken and the bar after a move shows, then it starts again; with Reduce Motion (or
+/// `-CFStillPictures YES`, for screenshots) it stays on the suggestions. `compact`: the row alone, for small cards.
+struct OrganizePreview: View {
+    var compact = false
+    @State private var moved = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
+    private var tag: String { String(localized: "vacation", comment: "A sample tag in the picture of what organizing does") }
+    private var chat: String { String(localized: "Trips", comment: "A sample chat name in the picture of what organizing does") }
+    private var still: Bool {
+        #if DEBUG
+        if UserDefaults.standard.bool(forKey: "CFStillPictures") { return true }
+        #endif
+        return reduceMotion
+    }
+
     var body: some View {
-        let s: CGFloat = big ? 1.8 : 1
-        ZStack(alignment: .topLeading) {
-            RoundedRectangle(cornerRadius: 12 * s).fill(Color.cardFill)
-                .overlay(RoundedRectangle(cornerRadius: 12 * s).stroke(Color.primary.opacity(0.08)))
-            bar(.blue, y: 12, s: s)
-            bar(.green, y: 26, s: s).modifier(Slide(on: sorted, dx: 30 * s, dy: 0))
-            bar(.blue, y: 40, s: s)
-            bar(.orange, y: 54, s: s).modifier(Slide(on: sorted, dx: 30 * s, dy: 6 * s))
-            folder(.green, y: 22, s: s)
-            folder(.orange, y: 56, s: s)
+        Group {
+            if compact {
+                row
+            } else {
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack {
+                        Spacer(minLength: 48)
+                        Text("Cheap flights to Lisbon in May?")
+                            .font(.footnote)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background(RoundedRectangle(cornerRadius: 16).fill(brandBlue))
+                    }
+                    Text("In May, return flights from Berlin to Lisbon start at about 90 euros. It's best to book six to eight weeks ahead.")
+                        .font(.footnote)
+                        .fixedSize(horizontal: false, vertical: true)
+                    ZStack(alignment: .leading) {
+                        row.opacity(moved ? 0 : 1)
+                        UndoBar(text: String(localized: "Moved to “\(chat)”"), actions: [("Undo", {}), ("Open", {})])
+                            .opacity(moved ? 1 : 0)
+                            .scaleEffect(moved ? 1 : 0.96)
+                    }
+                    .frame(minHeight: 44, alignment: .leading)
+                }
+                .padding(14)
+                .background(RoundedRectangle(cornerRadius: 16).fill(Color.cardFill))
+                .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.primary.opacity(0.06)))
+            }
         }
-        .frame(width: 76 * s, height: 88 * s)
-        .clipShape(RoundedRectangle(cornerRadius: 12 * s))
+        .allowsHitTesting(false)
         .accessibilityHidden(true)
-        .onAppear {
-            guard !reduceMotion else { return }
-            withAnimation(.easeInOut(duration: 1.4).delay(0.6).repeatForever(autoreverses: true)) { sorted = true }
+        .task {
+            guard !compact, !still else { return }
+            while !Task.isCancelled {
+                try? await Task.sleep(nanoseconds: 2_800_000_000)
+                withAnimation(.easeInOut(duration: 0.35)) { moved = true }
+                try? await Task.sleep(nanoseconds: 2_200_000_000)
+                withAnimation(.easeInOut(duration: 0.35)) { moved = false }
+            }
         }
     }
 
-    private func bar(_ color: Color, y: CGFloat, s: CGFloat) -> some View {
-        RoundedRectangle(cornerRadius: 4 * s).fill(color.opacity(0.6)).frame(width: 36 * s, height: 8 * s).offset(x: 8 * s, y: y * s)
-    }
-
-    private func folder(_ color: Color, y: CGFloat, s: CGFloat) -> some View {
-        RoundedRectangle(cornerRadius: 3 * s).fill(color.opacity(0.25)).frame(width: 22 * s, height: 16 * s).offset(x: 47 * s, y: y * s)
-    }
-
-    private struct Slide: ViewModifier {
-        let on: Bool
-        let dx: CGFloat
-        let dy: CGFloat
-        func body(content: Content) -> some View {
-            content.scaleEffect(on ? 0.45 : 1).offset(x: on ? dx : 0, y: on ? dy : 0).opacity(on ? 0.15 : 1)
-        }
+    private var row: some View {
+        SuggestionRow(
+            tag: tag,
+            move: OrganizeModel.Move(start: 0, end: 2, to: "sample", toName: chat, why: .topic),
+            onTag: {}, onTagNo: {}, onMove: {}, onMoveNo: {}
+        )
     }
 }
 
@@ -210,7 +235,6 @@ struct OrganizeCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(alignment: .top, spacing: 12) {
-                if kind != .consent { OrganizeAnimation() }
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title).font(.subheadline.weight(.semibold))
                     Text(text).font(.footnote).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
@@ -222,6 +246,7 @@ struct OrganizeCard: View {
                         .accessibilityLabel(Text("Close"))
                 }
             }
+            if kind != .consent { OrganizePreview(compact: true) }
             HStack(spacing: 12) {
                 Button(action: primary) { Text(kind == .consent ? "Turn on" : "Try Pro") }
                     .buttonStyle(.borderedProminent)
@@ -503,7 +528,7 @@ struct OrganizeWhatsNew: View {
     var body: some View {
         VStack(spacing: 18) {
             Text("New in ContextFlow").font(.footnote.weight(.semibold)).foregroundColor(.secondary).padding(.top, 24)
-            OrganizeAnimation(big: true)
+            OrganizePreview()
             Text("Everything in one chat?").font(.title2.weight(.bold)).multilineTextAlignment(.center)
             Text("Under a new answer or note, ContextFlow suggests the chat it belongs in, or a new one, and one of your own tags. One tap, and it's there.")
                 .multilineTextAlignment(.center)

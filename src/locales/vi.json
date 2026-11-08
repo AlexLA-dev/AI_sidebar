@@ -620,5 +620,10 @@
   "similarUpsellWatch": "Giá và tình trạng hàng như trang hiển thị, kèm Theo dõi giá.",
   "similarGetUltra": "Nâng cấp Ultra",
   "similarOff": "«Tìm tương tự» chưa có sẵn.",
-  "similarLimit": "Đã dùng hết {0} lượt «Tìm tương tự» của tuần này. Sẽ có lại vào {1}."
+  "similarLimit": "Đã dùng hết {0} lượt «Tìm tương tự» của tuần này. Sẽ có lại vào {1}.",
+
+  "orgDemoQuestion": "Vé máy bay giá rẻ đi Lisbon tháng 5?",
+  "orgDemoAnswer": "Tháng 5, vé khứ hồi Berlin – Lisbon chỉ từ khoảng 90 euro. Nên đặt trước sáu đến tám tuần.",
+  "orgDemoTag": "kỳ nghỉ",
+  "orgDemoChat": "Chuyến đi"
 }

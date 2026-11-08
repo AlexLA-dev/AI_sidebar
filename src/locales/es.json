@@ -620,5 +620,10 @@
   "similarUpsellWatch": "Precio y stock tal como los muestra la página, con Seguir el precio.",
   "similarGetUltra": "Obtener Ultra",
   "similarOff": "«Buscar similares» aún no está disponible.",
-  "similarLimit": "Ya usaste las {0} búsquedas de «Buscar similares» de esta semana. Vuelven el {1}."
+  "similarLimit": "Ya usaste las {0} búsquedas de «Buscar similares» de esta semana. Vuelven el {1}.",
+
+  "orgDemoQuestion": "¿Vuelos baratos a Lisboa en mayo?",
+  "orgDemoAnswer": "En mayo, los vuelos de ida y vuelta de Berlín a Lisboa cuestan desde unos 90 euros. Conviene reservar con seis a ocho semanas de antelación.",
+  "orgDemoTag": "vacaciones",
+  "orgDemoChat": "Viajes"
 }
