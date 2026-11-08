@@ -156,11 +156,14 @@ export function searchCountersFor(access: Access, installId: string): Counter[] 
 }
 
 /** Read aloud (Ultra): `seconds` of audio, charged before speaking (estimated from the text, see speak.mts). */
-export function speakCountersFor(access: Access, seconds: number): Counter[] {
+export function speakCountersFor(access: Access, seconds: number, finishing = false): Counter[] {
   const amount = Math.max(1, Math.ceil(seconds))
   const otid = access.entitlement?.originalTransactionId ?? "none"
+  // A text already playing finishes in the same voice (build 90, the owner heard Apple's voice take over at the end):
+  // its later parts may run over the week's minutes by up to speakFinishSeconds; a new text can't.
+  const limit = config.ultra.speakWeeklySeconds + (finishing ? config.ultra.speakFinishSeconds : 0)
   return [
-    { subject: `speak:tx:${otid}`, period: "week", limit: config.ultra.speakWeeklySeconds, amount },
+    { subject: `speak:tx:${otid}`, period: "week", limit, amount },
     { subject: "global:speak", period: "day", limit: config.ultra.speakGlobalDailySeconds, amount }
   ]
 }
@@ -179,7 +182,9 @@ export function similarCountersFor(access: Access): Counter[] {
 export function ultraUsage(counters: { subject: string; n: number; limit: number | null }[], prefix: "speak:" | "similar:"): Usage | null {
   const own = counters.find((c) => c.subject.startsWith(prefix) && !c.subject.startsWith("global:"))
   if (!own || own.limit === null) return null
-  return { used: own.n, limit: own.limit, period: "week", resetsAt: nextReset("week") }
+  // The allowance as sold (a text's finishing room isn't shown).
+  const limit = prefix === "speak:" ? Math.min(own.limit, config.ultra.speakWeeklySeconds) : own.limit
+  return { used: own.n, limit, period: "week", resetsAt: nextReset("week") }
 }
 
 export interface Usage {

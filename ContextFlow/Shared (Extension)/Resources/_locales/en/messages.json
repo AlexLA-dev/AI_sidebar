@@ -1706,6 +1706,9 @@
  "listenStop": {
   "message": "Stop"
  },
+ "listenSpeed": {
+  "message": "Speed: {0}. Tap for another speed"
+ },
  "listenLoading": {
   "message": "Getting the voice ready…"
  },
@@ -1864,6 +1867,156 @@
  },
  "orgDemoChat": {
   "message": "Trips"
+ },
+ "plansYearlySave": {
+  "message": "Yearly · save up to {0}%"
+ },
+ "plansPerMonthYearly": {
+  "message": "{0} a month, billed yearly"
+ },
+ "plansSaveMoney": {
+  "message": "You save {0} a year"
+ },
+ "yearlyNudge": {
+  "message": "{0} yearly: you save {1} ({2}%) a year."
+ },
+ "yearlyNudgeButton": {
+  "message": "Switch to yearly"
+ },
+ "yearlyNudgeNote": {
+  "message": "Yearly starts when your current month ends."
+ },
+ "yearlyNudgeHide": {
+  "message": "Hide"
+ },
+ "galleryTitle": {
+  "message": "What you get"
+ },
+ "galleryNext": {
+  "message": "Next"
+ },
+ "galleryPrevious": {
+  "message": "Previous"
+ },
+ "gMediaTitle": {
+  "message": "Videos and PDFs"
+ },
+ "gMediaLine": {
+  "message": "Answers use the video's transcript and the PDF's pages."
+ },
+ "gMediaVideo": {
+  "message": "Video transcript · 11:40"
+ },
+ "gMediaPdf": {
+  "message": "Q3 report · 3 pages"
+ },
+ "gMediaAnswer": {
+  "message": "Revenue grew 12% in the third quarter. In the video, the CEO puts it down to the new subscription plans."
+ },
+ "gSearchTitle": {
+  "message": "AI search and Ask your chats"
+ },
+ "gSearchLine": {
+  "message": "Find a chat by describing it, or ask a question across all of them."
+ },
+ "gSearchQuery": {
+  "message": "that article about sleep and coffee"
+ },
+ "gSearchResult": {
+  "message": "Caffeine and sleep"
+ },
+ "gSearchSnippet": {
+  "message": "Coffee after 2 pm cut deep sleep by a fifth…"
+ },
+ "gSearchWhen": {
+  "message": "Last week"
+ },
+ "gTemplatesTitle": {
+  "message": "Templates without limits"
+ },
+ "gTemplatesLine": {
+  "message": "Your own prompts and replies, with names and dates filled in from the page."
+ },
+ "gTemplatesName": {
+  "message": "Follow-up after a call"
+ },
+ "gTemplatesBody": {
+  "message": "Hi {0}, thanks for the call on {1}. As promised, here are the next steps."
+ },
+ "gTemplatesPerson": {
+  "message": "Anna"
+ },
+ "gTemplatesDay": {
+  "message": "Tuesday"
+ },
+ "gWatchTitle": {
+  "message": "Watch {0} pages"
+ },
+ "gWatchLine": {
+  "message": "Hear when a price drops or a page changes."
+ },
+ "gWatchChanged": {
+  "message": "Changed: Price"
+ },
+ "gWatchNow": {
+  "message": "Now: {0} (was {1})"
+ },
+ "gWatchManyLine": {
+  "message": "Prices, stock and changes on up to {0} pages at once."
+ },
+ "gWatchItem1": {
+  "message": "Headphones"
+ },
+ "gWatchItem2": {
+  "message": "Flight to Lisbon"
+ },
+ "gWatchMore": {
+  "message": "and {0} more pages"
+ },
+ "gAnswersTitle": {
+  "message": "Up to {0} answers a week"
+ },
+ "gAnswersLine": {
+  "message": "Deeper, more detailed answers, instead of {0} a day."
+ },
+ "gAnswersWeek": {
+  "message": "a week"
+ },
+ "gAnswersFree": {
+  "message": "Free: {0} a day"
+ },
+ "gListenTitle": {
+  "message": "Listen"
+ },
+ "gListenLine": {
+  "message": "Answers and whole pages read aloud in a natural voice, at the speed you like."
+ },
+ "gListenSample": {
+  "message": "How electric trains save energy"
+ },
+ "gSimilarTitle": {
+  "message": "Find similar"
+ },
+ "gSimilarLine": {
+  "message": "Alternatives to any page: cheaper, newer, in stock or in your language."
+ },
+ "gSimilar1": {
+  "message": "Mesh office chair"
+ },
+ "gSimilar2": {
+  "message": "The same chair, 2026 model"
+ },
+ "gSimilar3": {
+  "message": "Chair with a headrest"
+ },
+ "gSimilarInStock": {
+  "message": "In stock"
+ },
+ "gSimilarNewer": {
+  "message": "Newer"
+ },
+ "gSimilarCheaper": {
+  "message": "Cheaper"
  },
  "tip_4cf1b54b00": {
   "message": "Tips"

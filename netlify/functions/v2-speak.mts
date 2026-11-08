@@ -4,7 +4,7 @@ import { config as settings } from "../shared/config.mts"
 import { consume, logEvent, refund, touchInstall, type Counter } from "../shared/db.mts"
 import { clip, corsHeaders, isUuid, json, preflight, readJson } from "../shared/http.mts"
 import { blockReason, evalCheck, isUltra, resolveAccess, speakCountersFor, ultraUsage } from "../shared/plan.mts"
-import { readSpeech, speechCost, startSpeech, type SpeechStats } from "../shared/speak.mts"
+import { voiceGender, readSpeech, speechCost, startSpeech, type SpeechStats } from "../shared/speak.mts"
 import { SPEECH_RATE, speechKind, speechSeconds } from "../../src/shared/speech.ts"
 
 /**
@@ -15,7 +15,8 @@ import { SPEECH_RATE, speechKind, speechSeconds } from "../../src/shared/speech.
  * - lang: the text's language as the device knows it (the page's, or the answer's), to pick the model;
  * - what: "answer" | "page" (analytics), part/parts: which part of how many.
  * Response 200: audio/L16 (24 kHz, mono, 16-bit little-endian, no header), streamed. Headers: X-CF-Usage (the week's
- * read-aloud seconds as JSON), X-CF-Charged (seconds charged up front), X-CF-Model.
+ * read-aloud seconds as JSON), X-CF-Charged (seconds charged up front), X-CF-Model, X-CF-Voice-Gender (the voice's,
+ * for the device's stand-in voice at a text's start).
  * Errors (JSON {code}): ULTRA_ONLY 403, LIMIT_REACHED 402 (with usage), BUSY 503, OFF 503, UPSTREAM 502, BAD_REQUEST 400.
  *
  * The seconds are charged before speaking (estimated from the text); when the part ends, the charge is set to the
@@ -50,8 +51,14 @@ export default async (req: Request, context: Context): Promise<Response> => {
   }
   if (!settings.geminiKey) return json({ code: "OFF", message: "Read aloud is not available right now." }, 503)
 
+  // Nothing a voice can say (a dash, an emoji, a line of symbols): no sound, no charge. An empty 200 is a part that
+  // ends at once on every device (a 502 here made build 89's app hand the rest to Apple's voice).
+  if (!/[\p{L}\p{N}]/u.test(text)) {
+    return new Response(null, { status: 200, headers: { ...corsHeaders, "Content-Type": `audio/L16; rate=${SPEECH_RATE}; channels=1`, "Cache-Control": "no-store" } })
+  }
+
   const charged = speechSeconds(text)
-  const counters = speakCountersFor(access, charged)
+  const counters = speakCountersFor(access, charged, part > 0)
   let quota
   try {
     quota = await consume(counters)
@@ -127,12 +134,13 @@ export default async (req: Request, context: Context): Promise<Response> => {
     status: 200,
     headers: {
       ...corsHeaders,
-      "Access-Control-Expose-Headers": "X-CF-Usage, X-CF-Charged, X-CF-Model, X-CF-Rate",
+      "Access-Control-Expose-Headers": "X-CF-Usage, X-CF-Charged, X-CF-Model, X-CF-Rate, X-CF-Voice-Gender",
       "Content-Type": `audio/L16; rate=${SPEECH_RATE}; channels=1`,
       "Cache-Control": "no-store",
       "X-CF-Usage": JSON.stringify(usage),
       "X-CF-Charged": String(charged),
       "X-CF-Model": speech.model,
+      ...(voiceGender() ? { "X-CF-Voice-Gender": voiceGender() as string } : {}),
       "X-CF-Rate": String(SPEECH_RATE)
     }
   })

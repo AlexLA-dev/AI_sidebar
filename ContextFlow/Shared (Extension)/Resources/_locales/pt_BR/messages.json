@@ -1865,6 +1865,159 @@
  "orgDemoChat": {
   "message": "Viagens"
  },
+ "listenSpeed": {
+  "message": "Velocidade: {0}. Toque para escolher outra"
+ },
+ "plansYearlySave": {
+  "message": "Anual · economize até {0}%"
+ },
+ "plansPerMonthYearly": {
+  "message": "{0} por mês, cobrado anualmente"
+ },
+ "plansSaveMoney": {
+  "message": "Você economiza {0} por ano"
+ },
+ "yearlyNudge": {
+  "message": "{0} anual: você economiza {1} ({2}%) por ano."
+ },
+ "yearlyNudgeButton": {
+  "message": "Mudar para anual"
+ },
+ "yearlyNudgeNote": {
+  "message": "O anual começa quando o seu mês atual terminar."
+ },
+ "yearlyNudgeHide": {
+  "message": "Ocultar"
+ },
+ "galleryTitle": {
+  "message": "O que está incluído"
+ },
+ "galleryNext": {
+  "message": "Próximo"
+ },
+ "galleryPrevious": {
+  "message": "Anterior"
+ },
+ "gMediaTitle": {
+  "message": "Vídeos e PDFs"
+ },
+ "gMediaLine": {
+  "message": "As respostas usam a transcrição do vídeo e as páginas do PDF."
+ },
+ "gMediaVideo": {
+  "message": "Transcrição do vídeo · 11:40"
+ },
+ "gMediaPdf": {
+  "message": "Relatório 3T · 3 páginas"
+ },
+ "gMediaAnswer": {
+  "message": "A receita cresceu 12% no terceiro trimestre. No vídeo, o CEO atribui isso aos novos planos de assinatura."
+ },
+ "gSearchTitle": {
+  "message": "Busca com IA e “Pergunte às suas conversas”"
+ },
+ "gSearchLine": {
+  "message": "Encontre uma conversa descrevendo-a ou faça uma pergunta sobre todas."
+ },
+ "gSearchQuery": {
+  "message": "o artigo sobre sono e café"
+ },
+ "gSearchResult": {
+  "message": "Cafeína e sono"
+ },
+ "gSearchSnippet": {
+  "message": "Café depois das 14h reduziu o sono profundo em um quinto…"
+ },
+ "gSearchWhen": {
+  "message": "Semana passada"
+ },
+ "gTemplatesTitle": {
+  "message": "Modelos sem limites"
+ },
+ "gTemplatesLine": {
+  "message": "Seus próprios prompts e respostas, com nomes e datas preenchidos pela página."
+ },
+ "gTemplatesName": {
+  "message": "Retorno após uma ligação"
+ },
+ "gTemplatesBody": {
+  "message": "Oi, {0}. Agradeço pela ligação de {1}. Como combinado, seguem os próximos passos."
+ },
+ "gTemplatesPerson": {
+  "message": "Ana"
+ },
+ "gTemplatesDay": {
+  "message": "terça"
+ },
+ "gWatchTitle": {
+  "message": "Acompanhe {0} páginas"
+ },
+ "gWatchLine": {
+  "message": "Saiba quando um preço cair ou uma página mudar."
+ },
+ "gWatchChanged": {
+  "message": "Mudou: Preço"
+ },
+ "gWatchNow": {
+  "message": "Agora: {0} (antes {1})"
+ },
+ "gWatchManyLine": {
+  "message": "Preços, estoque e mudanças em até {0} páginas ao mesmo tempo."
+ },
+ "gWatchItem1": {
+  "message": "Fones de ouvido"
+ },
+ "gWatchItem2": {
+  "message": "Voo para Lisboa"
+ },
+ "gWatchMore": {
+  "message": "e mais {0} páginas"
+ },
+ "gAnswersTitle": {
+  "message": "Até {0} respostas por semana"
+ },
+ "gAnswersLine": {
+  "message": "Respostas mais aprofundadas e detalhadas, em vez de {0} por dia."
+ },
+ "gAnswersWeek": {
+  "message": "por semana"
+ },
+ "gAnswersFree": {
+  "message": "Grátis: {0} por dia"
+ },
+ "gListenTitle": {
+  "message": "Ouvir"
+ },
+ "gListenLine": {
+  "message": "Respostas e páginas inteiras lidas em voz alta com uma voz natural, na velocidade que você preferir."
+ },
+ "gListenSample": {
+  "message": "Como os trens elétricos economizam energia"
+ },
+ "gSimilarTitle": {
+  "message": "Encontrar parecidos"
+ },
+ "gSimilarLine": {
+  "message": "Alternativas a qualquer página: mais baratas, mais novas, em estoque ou no seu idioma."
+ },
+ "gSimilar1": {
+  "message": "Cadeira de escritório de tela"
+ },
+ "gSimilar2": {
+  "message": "A mesma cadeira, modelo 2026"
+ },
+ "gSimilar3": {
+  "message": "Cadeira com apoio de cabeça"
+ },
+ "gSimilarInStock": {
+  "message": "Em estoque"
+ },
+ "gSimilarNewer": {
+  "message": "Mais recente"
+ },
+ "gSimilarCheaper": {
+  "message": "Mais barato"
+ },
  "tip_4cf1b54b00": {
   "message": "Dicas"
  },

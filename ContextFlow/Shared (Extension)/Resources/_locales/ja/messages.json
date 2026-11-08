@@ -1865,6 +1865,159 @@
  "orgDemoChat": {
   "message": "旅行"
  },
+ "listenSpeed": {
+  "message": "速度: {0}。タップで別の速度に変更"
+ },
+ "plansYearlySave": {
+  "message": "年額 · 最大{0}%お得"
+ },
+ "plansPerMonthYearly": {
+  "message": "月あたり{0}（年額払い）"
+ },
+ "plansSaveMoney": {
+  "message": "年間{0}お得"
+ },
+ "yearlyNudge": {
+  "message": "{0} 年額なら年間{1}（{2}%）お得です。"
+ },
+ "yearlyNudgeButton": {
+  "message": "年額に切り替える"
+ },
+ "yearlyNudgeNote": {
+  "message": "年額は今の1か月が終わってから始まります。"
+ },
+ "yearlyNudgeHide": {
+  "message": "非表示"
+ },
+ "galleryTitle": {
+  "message": "使える機能"
+ },
+ "galleryNext": {
+  "message": "次へ"
+ },
+ "galleryPrevious": {
+  "message": "前へ"
+ },
+ "gMediaTitle": {
+  "message": "動画とPDF"
+ },
+ "gMediaLine": {
+  "message": "動画の文字起こしとPDFのページをもとに回答します。"
+ },
+ "gMediaVideo": {
+  "message": "動画の文字起こし · 11:40"
+ },
+ "gMediaPdf": {
+  "message": "第3四半期レポート · 3ページ"
+ },
+ "gMediaAnswer": {
+  "message": "第3四半期の売上は12%増えました。動画では、CEOが新しいサブスクリプションプランによるものだと説明しています。"
+ },
+ "gSearchTitle": {
+  "message": "AI検索と「すべてのチャットに質問」"
+ },
+ "gSearchLine": {
+  "message": "説明するだけでチャットが見つかり、すべてのチャットに質問もできます。"
+ },
+ "gSearchQuery": {
+  "message": "睡眠とコーヒーのあの記事"
+ },
+ "gSearchResult": {
+  "message": "カフェインと睡眠"
+ },
+ "gSearchSnippet": {
+  "message": "午後2時以降のコーヒーで、深い睡眠が5分の1減少…"
+ },
+ "gSearchWhen": {
+  "message": "先週"
+ },
+ "gTemplatesTitle": {
+  "message": "テンプレートを無制限に"
+ },
+ "gTemplatesLine": {
+  "message": "自分のプロンプトや返信に、名前や日付をページから入力します。"
+ },
+ "gTemplatesName": {
+  "message": "通話後のフォローアップ"
+ },
+ "gTemplatesBody": {
+  "message": "{0}さん、{1}はお電話ありがとうございました。お約束どおり、次のステップをお送りします。"
+ },
+ "gTemplatesPerson": {
+  "message": "佐藤"
+ },
+ "gTemplatesDay": {
+  "message": "火曜日"
+ },
+ "gWatchTitle": {
+  "message": "{0}ページを見守り"
+ },
+ "gWatchLine": {
+  "message": "値下がりやページの変化をお知らせします。"
+ },
+ "gWatchChanged": {
+  "message": "変更あり: 価格"
+ },
+ "gWatchNow": {
+  "message": "現在: {0}（以前は{1}）"
+ },
+ "gWatchManyLine": {
+  "message": "最大{0}ページの価格、在庫、変化をまとめて見守ります。"
+ },
+ "gWatchItem1": {
+  "message": "ヘッドホン"
+ },
+ "gWatchItem2": {
+  "message": "リスボン行きのフライト"
+ },
+ "gWatchMore": {
+  "message": "ほか{0}ページ"
+ },
+ "gAnswersTitle": {
+  "message": "週に最大{0}回の回答"
+ },
+ "gAnswersLine": {
+  "message": "1日{0}回ではなく、より深く詳しい回答を。"
+ },
+ "gAnswersWeek": {
+  "message": "回／週"
+ },
+ "gAnswersFree": {
+  "message": "無料: 1日{0}回"
+ },
+ "gListenTitle": {
+  "message": "読み上げ"
+ },
+ "gListenLine": {
+  "message": "回答やページ全体を、自然な声で好きな速さで読み上げます。"
+ },
+ "gListenSample": {
+  "message": "電車が省エネできるしくみ"
+ },
+ "gSimilarTitle": {
+  "message": "似たものを探す"
+ },
+ "gSimilarLine": {
+  "message": "どのページにも代わりの候補を。より安い、より新しい、在庫あり、自分の言語で。"
+ },
+ "gSimilar1": {
+  "message": "メッシュのオフィスチェア"
+ },
+ "gSimilar2": {
+  "message": "同じチェアの2026年モデル"
+ },
+ "gSimilar3": {
+  "message": "ヘッドレスト付きチェア"
+ },
+ "gSimilarInStock": {
+  "message": "在庫あり"
+ },
+ "gSimilarNewer": {
+  "message": "もっと新しい"
+ },
+ "gSimilarCheaper": {
+  "message": "もっと安い"
+ },
  "tip_4cf1b54b00": {
   "message": "ヒント"
  },

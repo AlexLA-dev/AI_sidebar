@@ -1865,6 +1865,159 @@
  "orgDemoChat": {
   "message": "Chuyến đi"
  },
+ "listenSpeed": {
+  "message": "Tốc độ: {0}. Chạm để chọn tốc độ khác"
+ },
+ "plansYearlySave": {
+  "message": "Theo năm · tiết kiệm tới {0}%"
+ },
+ "plansPerMonthYearly": {
+  "message": "{0} mỗi tháng, thanh toán theo năm"
+ },
+ "plansSaveMoney": {
+  "message": "Bạn tiết kiệm {0} mỗi năm"
+ },
+ "yearlyNudge": {
+  "message": "{0} theo năm: bạn tiết kiệm {1} ({2}%) mỗi năm."
+ },
+ "yearlyNudgeButton": {
+  "message": "Chuyển sang theo năm"
+ },
+ "yearlyNudgeNote": {
+  "message": "Gói theo năm bắt đầu khi tháng hiện tại của bạn kết thúc."
+ },
+ "yearlyNudgeHide": {
+  "message": "Ẩn"
+ },
+ "galleryTitle": {
+  "message": "Bạn nhận được gì"
+ },
+ "galleryNext": {
+  "message": "Tiếp"
+ },
+ "galleryPrevious": {
+  "message": "Trước"
+ },
+ "gMediaTitle": {
+  "message": "Video và PDF"
+ },
+ "gMediaLine": {
+  "message": "Câu trả lời dùng bản chép lời video và các trang PDF."
+ },
+ "gMediaVideo": {
+  "message": "Bản chép lời video · 11:40"
+ },
+ "gMediaPdf": {
+  "message": "Báo cáo quý 3 · 3 trang"
+ },
+ "gMediaAnswer": {
+  "message": "Doanh thu quý 3 tăng 12%. Trong video, CEO cho rằng đó là nhờ các gói đăng ký mới."
+ },
+ "gSearchTitle": {
+  "message": "Tìm kiếm AI và “Hỏi các cuộc trò chuyện”"
+ },
+ "gSearchLine": {
+  "message": "Tìm cuộc trò chuyện bằng cách mô tả, hoặc đặt câu hỏi trên tất cả."
+ },
+ "gSearchQuery": {
+  "message": "bài viết về giấc ngủ và cà phê"
+ },
+ "gSearchResult": {
+  "message": "Caffeine và giấc ngủ"
+ },
+ "gSearchSnippet": {
+  "message": "Cà phê sau 2 giờ chiều làm giảm 1/5 giấc ngủ sâu…"
+ },
+ "gSearchWhen": {
+  "message": "Tuần trước"
+ },
+ "gTemplatesTitle": {
+  "message": "Mẫu không giới hạn"
+ },
+ "gTemplatesLine": {
+  "message": "Câu lệnh và câu trả lời của riêng bạn, với tên và ngày được điền từ trang."
+ },
+ "gTemplatesName": {
+  "message": "Tin nhắn sau cuộc gọi"
+ },
+ "gTemplatesBody": {
+  "message": "Chào {0}, cảm ơn bạn về cuộc gọi hôm {1}. Như đã hứa, đây là các bước tiếp theo."
+ },
+ "gTemplatesPerson": {
+  "message": "Lan"
+ },
+ "gTemplatesDay": {
+  "message": "thứ Ba"
+ },
+ "gWatchTitle": {
+  "message": "Theo dõi {0} trang"
+ },
+ "gWatchLine": {
+  "message": "Biết khi giá giảm hoặc trang thay đổi."
+ },
+ "gWatchChanged": {
+  "message": "Đã thay đổi: Giá"
+ },
+ "gWatchNow": {
+  "message": "Hiện tại: {0} (trước đó {1})"
+ },
+ "gWatchManyLine": {
+  "message": "Giá, tình trạng hàng và thay đổi trên tối đa {0} trang cùng lúc."
+ },
+ "gWatchItem1": {
+  "message": "Tai nghe"
+ },
+ "gWatchItem2": {
+  "message": "Chuyến bay đến Lisbon"
+ },
+ "gWatchMore": {
+  "message": "và {0} trang khác"
+ },
+ "gAnswersTitle": {
+  "message": "Tối đa {0} câu trả lời mỗi tuần"
+ },
+ "gAnswersLine": {
+  "message": "Câu trả lời sâu và chi tiết hơn, thay vì {0} mỗi ngày."
+ },
+ "gAnswersWeek": {
+  "message": "mỗi tuần"
+ },
+ "gAnswersFree": {
+  "message": "Miễn phí: {0} mỗi ngày"
+ },
+ "gListenTitle": {
+  "message": "Nghe"
+ },
+ "gListenLine": {
+  "message": "Đọc to câu trả lời và cả trang bằng giọng tự nhiên, với tốc độ bạn thích."
+ },
+ "gListenSample": {
+  "message": "Tàu điện tiết kiệm năng lượng như thế nào"
+ },
+ "gSimilarTitle": {
+  "message": "Tìm tương tự"
+ },
+ "gSimilarLine": {
+  "message": "Lựa chọn thay thế cho mọi trang: rẻ hơn, mới hơn, còn hàng hoặc bằng ngôn ngữ của bạn."
+ },
+ "gSimilar1": {
+  "message": "Ghế văn phòng lưới"
+ },
+ "gSimilar2": {
+  "message": "Cùng mẫu ghế, đời 2026"
+ },
+ "gSimilar3": {
+  "message": "Ghế có tựa đầu"
+ },
+ "gSimilarInStock": {
+  "message": "Còn hàng"
+ },
+ "gSimilarNewer": {
+  "message": "Mới hơn"
+ },
+ "gSimilarCheaper": {
+  "message": "Rẻ hơn"
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },

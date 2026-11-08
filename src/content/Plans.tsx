@@ -8,6 +8,7 @@ import { useState } from "preact/hooks"
 import { t } from "../shared/i18n"
 import { PLAN_RANK, periodOfProduct, planOfProduct, productOf, type PaidPlan, type Period } from "../shared/plan"
 import type { PlanFacts, StatusInfo } from "../shared/types"
+import { Gallery } from "./Gallery"
 import * as Icon from "./icons"
 
 const ORDER: PaidPlan[] = ["byok", "pro", "ultra"]
@@ -54,6 +55,8 @@ export function PlansSheet({ status, focus, onChoose, onClose }: {
   const currentPlan = planOfProduct(currentProduct)
   const [period, setPeriod] = useState<Period>(periodOfProduct(currentProduct) ?? "yearly")
   const facts = status?.plans
+  // The best yearly saving on offer, for the switch (the app's own figure when it shared one).
+  const best = Math.max(0, ...ORDER.map((plan) => Number(prices[`${productOf(plan, "yearly")}#percent`]) || yearlySaving(prices[productOf(plan, "monthly")], prices[productOf(plan, "yearly")]) || 0))
 
   return (
     <div class="cf-sheet-back" onClick={(e) => e.target === e.currentTarget && onClose()}>
@@ -65,7 +68,7 @@ export function PlansSheet({ status, focus, onChoose, onClose }: {
       <div class="cf-seg cf-plans-period" role="radiogroup">
         {(["monthly", "yearly"] as const).map((p) => (
           <button type="button" key={p} role="radio" aria-checked={p === period} class={p === period ? "on" : ""} onClick={() => setPeriod(p)}>
-            {p === "monthly" ? t("plansMonthly") : t("plansYearly")}
+            {p === "monthly" ? t("plansMonthly") : best ? t("plansYearlySave", String(best)) : t("plansYearly")}
           </button>
         ))}
       </div>
@@ -76,7 +79,11 @@ export function PlansSheet({ status, focus, onChoose, onClose }: {
           // Own key yearly may not be on sale yet: its monthly price then.
           const shownPeriod: Period = period === "yearly" && (yearly || !monthly) ? "yearly" : "monthly"
           const price = shownPeriod === "yearly" ? yearly : monthly
-          const saving = shownPeriod === "yearly" ? yearlySaving(monthly, yearly) : null
+          const yearlyId = productOf(plan, "yearly")
+          const saving = shownPeriod === "yearly" ? (Number(prices[`${yearlyId}#percent`]) || yearlySaving(monthly, yearly)) : null
+          // A month of the yearly plan and the money it saves, as the App Store writes them (shared by the app).
+          const perMonth = shownPeriod === "yearly" ? prices[`${yearlyId}#perMonth`] : undefined
+          const saved = shownPeriod === "yearly" ? prices[`${yearlyId}#save`] : undefined
           const current = currentPlan === plan && (periodOfProduct(currentProduct) ?? "monthly") === shownPeriod
           // A lower plan than the current one is still a choice (it starts at the next renewal), just not pushed.
           const lower = PLAN_RANK[plan] < PLAN_RANK[currentPlan]
@@ -88,6 +95,8 @@ export function PlansSheet({ status, focus, onChoose, onClose }: {
                 {saving !== null && <span class="cf-plan-save">{t("plansSave", String(saving))}</span>}
                 {price && <span class="cf-plan-price">{shownPeriod === "yearly" ? t("plansPerYear", price) : t("plansPerMonth", price)}</span>}
               </div>
+              {perMonth && <div class="cf-plan-year"><span>{t("plansPerMonthYearly", perMonth)}</span></div>}
+              {saved && <p class="cf-plan-saved">{t("plansSaveMoney", saved)}</p>}
               {facts && (
                 <ul class="cf-plan-lines">
                   {tierLines(plan, facts).map((line, i) => <li key={i} class={plan === "ultra" && i === 0 ? "lead" : ""}>{line}</li>)}
@@ -104,6 +113,7 @@ export function PlansSheet({ status, focus, onChoose, onClose }: {
           )
         })}
       </div>
+      <Gallery facts={facts} ultra={focus === "ultra"} />
       <p class="cf-hint">{t("plansNote")}</p>
     </div>
     </div>

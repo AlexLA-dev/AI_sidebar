@@ -80,6 +80,47 @@ final class StoreKitManager: ObservableObject {
     /// The current plan's tier (nil: none).
     var tier: Tier? { entitlement.active ? Tier.of(entitlement.productId) : nil }
 
+    /// A plan's yearly price against twelve months of it, in the App Store's own currency format (build 90: the owner
+    /// saw nothing selling the yearly plan). Nil when either isn't on sale or it saves under 5%.
+    struct YearlyDeal: Equatable {
+        let perMonth: String
+        let saving: String
+        let percent: Int
+        let twelveMonths: String
+    }
+
+    func yearlyDeal(_ tier: Tier) -> YearlyDeal? {
+        guard let monthly = product(tier, yearly: false), let yearly = product(tier, yearly: true) else { return nil }
+        return Self.deal(monthly: monthly, yearly: yearly)
+    }
+
+    static func deal(monthly: Product, yearly: Product) -> YearlyDeal? {
+        guard monthly.price > 0 else { return nil }
+        let full = monthly.price * 12
+        guard full > yearly.price else { return nil }
+        // doubleValue: NSDecimalNumber.intValue misreads a long quotient (it gave no badge).
+        let percent = Int((NSDecimalNumber(decimal: (full - yearly.price) / full).doubleValue * 100).rounded())
+        guard percent >= 5 else { return nil }
+        let style = yearly.priceFormatStyle
+        return YearlyDeal(perMonth: (yearly.price / 12).formatted(style), saving: (full - yearly.price).formatted(style), percent: percent, twelveMonths: full.formatted(style))
+    }
+
+    /// The best yearly saving on offer (for the monthly/yearly switch).
+    var bestYearlySaving: Int? {
+        Tier.allCases.compactMap { yearlyDeal($0)?.percent }.max()
+    }
+
+    /// A monthly Pro or Ultra subscriber whose plan is also sold yearly: what switching saves (Settings, the panel).
+    /// Gone once the switch is made (yearly starts at the renewal; until then the month runs on).
+    var yearlySwitch: (tier: Tier, deal: YearlyDeal, product: Product)? {
+        guard let tier, tier != .byok, product(tier, yearly: false)?.id == entitlement.productId,
+              let yearly = product(tier, yearly: true), renewsTo != yearly.id, let deal = yearlyDeal(tier) else { return nil }
+        return (tier, deal, yearly)
+    }
+
+    /// The product the subscription renews into (a switch to yearly shows here before it starts).
+    @Published private(set) var renewsTo: String?
+
     /// What the plans say, from the server (the defaults until it answers).
     @Published private(set) var planFacts = ChatAI.PlanFacts()
 
@@ -185,7 +226,20 @@ final class StoreKitManager: ObservableObject {
             products = loaded.sorted { $0.price > $1.price }
             productsFailed = loaded.isEmpty
             // The panel's plans sheet shows these prices (it can't ask the App Store itself).
-            if !loaded.isEmpty { SharedDefaults.shared.writePrices(Dictionary(uniqueKeysWithValues: loaded.map { ($0.id, $0.displayPrice) })) }
+            if !loaded.isEmpty {
+                var prices = Dictionary(uniqueKeysWithValues: loaded.map { ($0.id, $0.displayPrice) })
+                // And for each yearly plan, in the App Store's own format: a month of it, and what it saves a year
+                // ("<id>#perMonth", "<id>#save", "<id>#percent"); older panels ignore them.
+                for tier in Tier.allCases {
+                    guard let monthly = loaded.first(where: { $0.id == tier.productId(yearly: false) }),
+                          let yearly = loaded.first(where: { $0.id == tier.productId(yearly: true) }),
+                          let deal = Self.deal(monthly: monthly, yearly: yearly) else { continue }
+                    prices["\(yearly.id)#perMonth"] = deal.perMonth
+                    prices["\(yearly.id)#save"] = deal.saving
+                    prices["\(yearly.id)#percent"] = String(deal.percent)
+                }
+                SharedDefaults.shared.writePrices(prices)
+            }
             var eligible = Set<String>()
             for product in loaded {
                 if let subscription = product.subscription,
@@ -267,8 +321,18 @@ final class StoreKitManager: ObservableObject {
         } else {
             value = SharedEntitlement(active: false, productId: nil, expiresAt: nil, jws: nil, updatedAt: Date())
         }
+        let before = entitlement.active ? Tier.of(entitlement.productId) : nil
+        if let best { renewsTo = await Self.renewalProduct(of: best.transaction) }
         entitlement = value
         SharedDefaults.shared.writeEntitlement(value)
+        // Build 90: a plan that starts (bought, upgraded, or a different one at renewal) is announced once, for the
+        // onboarding to its features: .cfPlanChanged here (userInfo from / to / productId), "planChange" for the panel.
+        let after = value.active ? Tier.of(value.productId) : nil
+        if let after, after != before, let productId = value.productId {
+            let from = before?.rawValue ?? "free"
+            SharedDefaults.shared.writePlanChange(from: from, to: after.rawValue, productId: productId)
+            NotificationCenter.default.post(name: .cfPlanChanged, object: nil, userInfo: ["from": from, "to": after.rawValue, "productId": productId])
+        }
         planSeen(value)
     }
 
@@ -291,4 +355,22 @@ final class StoreKitManager: ObservableObject {
             }
         }
     }
+}
+
+extension StoreKitManager {
+    /// What the subscription of `transaction` renews into (its own product, or the one the user switched to).
+    static func renewalProduct(of transaction: StoreKit.Transaction) async -> String? {
+        guard let group = transaction.subscriptionGroupID,
+              let statuses = try? await Product.SubscriptionInfo.status(for: group) else { return nil }
+        for status in statuses {
+            guard case .verified(let renewal) = status.renewalInfo, renewal.originalTransactionID == transaction.originalID else { continue }
+            return renewal.autoRenewPreference
+        }
+        return nil
+    }
+}
+
+extension Notification.Name {
+    /// A plan started on this device (build 90): userInfo "from" ("free", "byok", "pro", "ultra"), "to", "productId".
+    static let cfPlanChanged = Notification.Name("cfPlanChanged")
 }

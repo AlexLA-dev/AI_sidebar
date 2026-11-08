@@ -60,6 +60,8 @@ struct SharedEntitlement: Equatable {
         // The App Store's prices on this device, for the panel's plans sheet (2.6).
         let prices = SharedDefaults.shared.readPrices()
         if !prices.isEmpty { result["prices"] = prices }
+        // The last plan that started on this device (bought, upgraded): the panel's onboarding for it (build 90).
+        if let change = SharedDefaults.shared.readPlanChange() { result["planChange"] = change }
         if PlanProducts.byok.contains(productId ?? "") {
             if let at = SharedDefaults.shared.byokRefusedAt(period) { result["byokRefusedAt"] = Int64(at.timeIntervalSince1970 * 1000) }
             result["byokOfferShown"] = SharedDefaults.shared.byokOfferShown(period)
@@ -96,6 +98,7 @@ final class SharedDefaults {
     private let byokRefusedKey = "cf_byok_refused_v1"
     private let byokOfferShownKey = "cf_byok_offer_shown_v1"
     private let pricesKey = "cf_prices_v1"
+    private let planChangeKey = "cf_plan_change_v1"
     private let listenKey = "cf_listen_v1"
 
     /// Local notifications the app schedules on a new install until the extension is switched on.
@@ -143,6 +146,18 @@ final class SharedDefaults {
 
     func readPrices() -> [String: String] {
         defaults.dictionary(forKey: pricesKey) as? [String: String] ?? [:]
+    }
+
+    // MARK: Plan changes (build 90)
+
+    /// A plan started (bought, upgraded, or changed at renewal): from, to ("free", "byok", "pro", "ultra"), the product
+    /// and when (ms). StoreKitManager writes it and posts .cfPlanChanged; the panel gets it with the entitlement.
+    func writePlanChange(from: String, to: String, productId: String) {
+        defaults.set(["from": from, "to": to, "productId": productId, "at": Int64(Date().timeIntervalSince1970 * 1000)] as [String: Any], forKey: planChangeKey)
+    }
+
+    func readPlanChange() -> [String: Any]? {
+        defaults.dictionary(forKey: planChangeKey)
     }
 
     // MARK: Read aloud on iPhone and iPad (2.6)

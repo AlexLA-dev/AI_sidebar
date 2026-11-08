@@ -591,11 +591,13 @@ struct HistoryChatView: View {
                             } else {
                                 VStack(alignment: .leading, spacing: 8) {
                                     MarkdownView(text: m["content"] ?? "")
-                                    MessageTools(tags: [], copied: copied == index, shareText: ShareText.answer(entries, index, labels)) {
+                                    MessageTools(tags: [], copied: copied == index, shareText: ShareText.answer(entries, index, labels), copy: {
                                         Clipboard.copy(ShareText.plain(m["content"] ?? ""))
                                         copied = index
                                         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { if copied == index { copied = nil } }
-                                    }
+                                    }, listen: {
+                                        ListenPlayer.shared.listen(answer: m["content"] ?? "", id: "history-\(index)-\((m["content"] ?? "").hashValue)", title: String(localized: "Ask your chats"))
+                                    })
                                 }
                             }
                         }
@@ -1098,7 +1100,10 @@ struct ChatDetailView: View {
                                                     pin: { togglePin(thread, index, how: "menu") },
                                                     remind: { remindNote = nil; reminding = index },
                                                     delete: { deleteMessage(thread, index, how: "menu") }
-                                                )
+                                                ),
+                                                listen: entry.isNote ? nil : {
+                                                    ListenPlayer.shared.listen(answer: entry.content, id: "chat-\(thread.id)-\(index)", title: thread.name)
+                                                }
                                             )
                                             .frame(maxWidth: .infinity, alignment: entry.isUser ? .trailing : .leading)
                                             if tagging == index {
@@ -2097,6 +2102,9 @@ private struct MessageTools: View {
     var shareRich: (() -> Void)? = nil
     /// Pin, remind and delete in "…" (2.5); nil: none ("Ask your chats").
     var actions: MessageActions? = nil
+    /// Listen (build 90, answers): Ultra's, in Ultra's tint; without Ultra with a tiny "Ultra" mark.
+    var listen: (() -> Void)? = nil
+    @ObservedObject var store = StoreKitManager.shared
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -2105,35 +2113,78 @@ private struct MessageTools: View {
                     .buttonStyle(.plain)
                     .accessibilityHint(Text("Tags"))
             }
-            HStack(spacing: 2) {
-                Button(action: copy) {
-                    Label(copied ? "Copied" : "Copy", systemImage: copied ? "checkmark" : "doc.on.doc")
-                }
-                if let shareRich {
-                    Button(action: shareRich) { Label("Share", systemImage: "square.and.arrow.up") }
-                } else {
-                    ShareLink(item: shareText) { Label("Share", systemImage: "square.and.arrow.up") }
-                }
-                if let tag {
-                    Button(action: tag) { Label("Tag", systemImage: "tag") }
-                        .background(Capsule().fill(tagging ? Color.secondary.opacity(0.14) : .clear))
-                        .accessibilityAddTraits(tagging ? .isSelected : [])
-                }
-                if let actions {
-                    Menu {
-                        Button(action: actions.pin) { Label(actions.pinned ? "Unpin" : "Pin", systemImage: actions.pinned ? "pin.slash" : "pin") }
-                        Button(action: actions.remind) { Label(actions.reminded ? "Change reminder" : "Remind me", systemImage: "bell") }
-                        Button(role: .destructive, action: actions.delete) { Label("Delete", systemImage: "trash") }
-                    } label: {
-                        Label("More", systemImage: "ellipsis")
-                    }
-                    .menuIndicator(.hidden)
-                }
+            // With their names while they fit on one line; icons alone when they don't (a long language, a narrow
+            // screen): never a name broken over two lines.
+            ViewThatFits(in: .horizontal) {
+                tools(titles: true)
+                tools(titles: false)
             }
             .buttonStyle(MessageToolStyle())
-            .labelStyle(CompactLabelStyle())
             .padding(.leading, -8)
         }
+    }
+
+    /// The tools with their names, or icons alone (VoiceOver still reads the names).
+    @ViewBuilder
+    private func tools(titles: Bool) -> some View {
+        if titles {
+            row(titles: true).labelStyle(ToolLabelStyle())
+        } else {
+            row(titles: false).labelStyle(.iconOnly)
+        }
+    }
+
+    @ViewBuilder
+    private func row(titles: Bool) -> some View {
+        HStack(spacing: 2) {
+            Button(action: copy) {
+                Label(copied ? "Copied" : "Copy", systemImage: copied ? "checkmark" : "doc.on.doc")
+            }
+            if let shareRich {
+                Button(action: shareRich) { Label("Share", systemImage: "square.and.arrow.up") }
+            } else {
+                ShareLink(item: shareText) { Label("Share", systemImage: "square.and.arrow.up") }
+            }
+            if let listen {
+                Button(action: listen) {
+                    HStack(spacing: 3) {
+                        Image(systemName: store.isUltra ? "speaker.wave.2.fill" : "speaker.wave.2")
+                        if titles { Text("Listen").lineLimit(1) }
+                        if !store.isUltra { UltraMark() }
+                    }
+                    .foregroundColor(ultraTint)
+                    .fixedSize()
+                }
+                .accessibilityLabel(Text("Listen"))
+                .accessibilityIdentifier("chat.listen")
+            }
+            if let tag {
+                Button(action: tag) { Label("Tag", systemImage: "tag") }
+                    .background(Capsule().fill(tagging ? Color.secondary.opacity(0.14) : .clear))
+                    .accessibilityAddTraits(tagging ? .isSelected : [])
+            }
+            if let actions {
+                Menu {
+                    Button(action: actions.pin) { Label(actions.pinned ? "Unpin" : "Pin", systemImage: actions.pinned ? "pin.slash" : "pin") }
+                    Button(action: actions.remind) { Label(actions.reminded ? "Change reminder" : "Remind me", systemImage: "bell") }
+                    Button(role: .destructive, action: actions.delete) { Label("Delete", systemImage: "trash") }
+                } label: {
+                    Label("More", systemImage: "ellipsis")
+                }
+                .menuIndicator(.hidden)
+            }
+        }
+    }
+}
+
+/// A footer tool's label: its icon and its name, on one line.
+private struct ToolLabelStyle: LabelStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        HStack(spacing: 3) {
+            configuration.icon
+            configuration.title.lineLimit(1)
+        }
+        .fixedSize()
     }
 }
 
