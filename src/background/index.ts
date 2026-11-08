@@ -406,7 +406,8 @@ async function openApp(
 async function listenInApp(message: Extract<BackgroundRequest, { type: "listenInApp" }>): Promise<{ url: string | null }> {
   if (TARGET !== "safari") return { url: null }
   const reply = await callNative<{ id?: string }>("listen", {
-    parts: message.parts.slice(0, 40),
+    id: /^[0-9a-f-]{8,64}$/i.test(message.id) ? message.id : "",
+    parts: message.parts.slice(0, 80),
     text: message.text.slice(0, 24_000),
     script: message.script === true,
     lang: message.lang.slice(0, 16),

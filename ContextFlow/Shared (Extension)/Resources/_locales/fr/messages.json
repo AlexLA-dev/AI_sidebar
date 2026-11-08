@@ -1725,7 +1725,7 @@
   "message": "Pas de connexion : la première écoute a besoin d’Internet."
  },
  "listenInApp": {
-  "message": "Ouverture de ContextFlow : la lecture continue écran verrouillé."
+  "message": "L’écoute se fait dans l’app ContextFlow : la lecture continue écran verrouillé et dans vos écouteurs."
  },
  "listenLeft": {
   "message": "Écoute : {0} min sur {1} restantes cette semaine"
@@ -2017,6 +2017,24 @@
  },
  "gSimilarCheaper": {
   "message": "Moins cher"
+ },
+ "listenMinLeft": {
+  "message": "{0} min restantes"
+ },
+ "listenMinLeftTitle": {
+  "message": "{0} min d’écoute restantes cette semaine"
+ },
+ "listenLow": {
+  "message": "Il reste environ {0} min d’écoute cette semaine, et ce texte dure environ {1} min. La lecture s’arrêtera une fois les minutes épuisées."
+ },
+ "listenAnyway": {
+  "message": "Écouter quand même"
+ },
+ "plansUpgrade": {
+  "message": "Passer à {0}"
+ },
+ "plansUpgradeYearly": {
+  "message": "Passer à l’annuel"
  },
  "tip_4cf1b54b00": {
   "message": "Astuces"

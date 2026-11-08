@@ -8,7 +8,9 @@ export const SPEECH_BYTES_PER_SECOND = SPEECH_RATE * 2
 
 /** The first part is short, so the first sound comes quickly; the rest are longer (fewer requests). */
 export const FIRST_PART_CHARS = 240
-export const PART_CHARS = 1400
+// Build 91: parts of about 35 s (was 1400 characters, about 95 s): each is quick to make, so the next one is ready
+// before the one playing ends, and a part that has to be asked for again costs little.
+export const PART_CHARS = 500
 /** At most this much text is read in one go (a long article: about 25 minutes). */
 export const MAX_SPEECH_CHARS = 24_000
 
