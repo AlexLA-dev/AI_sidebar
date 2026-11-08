@@ -35472,84 +35472,84 @@
         }
       }
     },
-    "Find similar: more like the open page, from other sites, %lld searches a week": {
+    "Find similar: alternatives to any page — cheaper, newer, in stock or in your language — %lld searches a week": {
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "البحث عن المشابه: ما يشبه الصفحة المفتوحة من مواقع أخرى، %lld عملية بحث أسبوعيًا"
+            "value": "البحث عن المشابه: بدائل لأي صفحة — أرخص أو أحدث أو متوفرة أو بلغتك — %lld عملية بحث أسبوعيًا"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ähnliches finden: mehr wie die geöffnete Seite, von anderen Websites, %lld Suchen pro Woche"
+            "value": "Ähnliches finden: Alternativen zu jeder Seite – günstiger, neuer, verfügbar oder in deiner Sprache – %lld Suchen pro Woche"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Buscar parecidos: más como la página abierta, de otros sitios, %lld búsquedas a la semana"
+            "value": "Buscar parecidos: alternativas a cualquier página (más baratas, más nuevas, disponibles o en tu idioma), %lld búsquedas a la semana"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Contenus similaires : d'autres pages comme celle qui est ouverte, sur d'autres sites, %lld recherches par semaine"
+            "value": "Contenus similaires : des alternatives à n'importe quelle page (moins chères, plus récentes, en stock ou dans votre langue), %lld recherches par semaine"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Trova simili: altro come la pagina aperta, da altri siti, %lld ricerche a settimana"
+            "value": "Trova simili: alternative a qualsiasi pagina (più economiche, più recenti, disponibili o nella tua lingua), %lld ricerche a settimana"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "似たものを探す：開いているページに似たものを他のサイトから。週%lld回"
+            "value": "似たものを探す：どのページにも代わりの候補を。より安い、より新しい、在庫あり、自分の言語で。週%lld回"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "비슷한 것 찾기: 열려 있는 페이지와 비슷한 것을 다른 사이트에서. 주당 %lld회"
+            "value": "비슷한 것 찾기: 어떤 페이지든 대안을 찾아 줍니다. 더 싸거나, 더 새롭거나, 재고가 있거나, 내 언어로. 주당 %lld회"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Achar parecidos: mais como a página aberta, de outros sites, %lld buscas por semana"
+            "value": "Achar parecidos: alternativas a qualquer página (mais baratas, mais novas, em estoque ou no seu idioma), %lld buscas por semana"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Найти похожее: похожее на открытую страницу, с других сайтов, %lld поисков в неделю"
+            "value": "Найти похожее: альтернативы любой странице — дешевле, новее, в наличии или на вашем языке, %lld поисков в неделю"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Знайти схоже: схоже на відкриту сторінку, з інших сайтів, %lld пошуків на тиждень"
+            "value": "Знайти схоже: альтернативи будь-якій сторінці — дешевше, новіше, в наявності або вашою мовою, %lld пошуків на тиждень"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tìm tương tự: những gì giống trang đang mở, từ các trang web khác, %lld lượt tìm mỗi tuần"
+            "value": "Tìm tương tự: lựa chọn thay thế cho mọi trang — rẻ hơn, mới hơn, còn hàng hoặc bằng ngôn ngữ của bạn — %lld lượt tìm mỗi tuần"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "查找相似内容：在其他网站查找与当前页面相似的内容，每周 %lld 次搜索"
+            "value": "查找相似内容：为任何页面找替代选择——更便宜、更新、有货或用你的语言，每周 %lld 次搜索"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "查找相似內容：在其他網站查找與目前頁面相似的內容，每週 %lld 次搜尋"
+            "value": "查找相似內容：為任何頁面找替代選擇——更便宜、更新、有貨或用你的語言，每週 %lld 次搜尋"
           }
         }
       }

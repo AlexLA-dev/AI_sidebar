@@ -1180,7 +1180,7 @@ struct TierCard: View {
             return [
                 ("checkmark.circle", "Everything in Pro, plus:"),
                 ("speaker.wave.2.fill", "Listen to answers and whole pages in a natural voice: \(facts.speakWeeklyMinutes) minutes a week"),
-                ("square.on.square", "Find similar: more like the open page, from other sites, \(facts.similarWeekly) searches a week"),
+                ("square.on.square", "Find similar: alternatives to any page — cheaper, newer, in stock or in your language — \(facts.similarWeekly) searches a week"),
                 ("eye", "Watch up to \(facts.watchUltra) pages")
             ]
         }
