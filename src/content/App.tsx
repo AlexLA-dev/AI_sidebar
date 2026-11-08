@@ -1376,7 +1376,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           </button>
         )}
         {TARGET === "safari" && !m.note && m.role === "assistant" && (
-          <button type="button" class={listen.state.at !== "idle" && "key" in listen.state && listen.state.key === `a:${idx}` ? "on" : ""} onClick={() => {
+          <button type="button" class={`cf-ultra-tool ${listen.state.at !== "idle" && "key" in listen.state && listen.state.key === `a:${idx}` ? "on" : ""}`} onClick={() => {
             if (listen.state.at !== "idle" && "key" in listen.state && listen.state.key === `a:${idx}`) return listen.stop()
             void listen.start(`a:${idx}`, { text: m.content, what: "answer", lang: textLanguage(m.content) ?? t("langCode"), title: source.title(), url: source.href() })
           }} aria-label={t("listen")} title={t("listen")}>

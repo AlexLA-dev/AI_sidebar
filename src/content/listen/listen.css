@@ -3,6 +3,18 @@
 .cf-plan.ultra { color: #fff; background: linear-gradient(135deg, #a78bfa, #2563eb); }
 .cf-msg-tools button.on { color: var(--accent-text); }
 
+/* Build 90: Listen is Ultra's, and looks it (the owner): a soft violet tint in both themes; without Ultra the tiny
+   "Ultra" mark stays. The tokens come from styles.css when they're there (--ultra-text, --ultra-soft). */
+.cf-msg-tools button.cf-ultra-tool { color: var(--ultra-text, #7c3aed); }
+.cf-msg-tools button.cf-ultra-tool:hover, .cf-msg-tools button.cf-ultra-tool.on { color: var(--ultra-text, #7c3aed); background: var(--ultra-soft, rgba(139, 92, 246, 0.12)); }
+.cf-msg-tools button.cf-ultra-tool .cf-ultra-badge { font-size: 9px; padding: 0 4px; margin-inline-start: 2px; opacity: 0.9; }
+.cf[data-theme="dark"] .cf-msg-tools button.cf-ultra-tool { color: var(--ultra-text, #c4b5fd); }
+.cf[data-theme="dark"] .cf-msg-tools button.cf-ultra-tool:hover, .cf[data-theme="dark"] .cf-msg-tools button.cf-ultra-tool.on { background: var(--ultra-soft, rgba(167, 139, 250, 0.16)); }
+@media (prefers-color-scheme: dark) {
+  .cf:not([data-theme]) .cf-msg-tools button.cf-ultra-tool { color: var(--ultra-text, #c4b5fd); }
+  .cf:not([data-theme]) .cf-msg-tools button.cf-ultra-tool:hover, .cf:not([data-theme]) .cf-msg-tools button.cf-ultra-tool.on { background: var(--ultra-soft, rgba(167, 139, 250, 0.16)); }
+}
+
 /* The bar over the question field while something plays. */
 .cf-listen { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; padding: 6px 8px; border-radius: 12px; background: var(--accent-soft); color: var(--text); font-size: 12.5px; }
 .cf-listen.error { background: var(--bg-3); }

@@ -591,11 +591,13 @@ struct HistoryChatView: View {
                             } else {
                                 VStack(alignment: .leading, spacing: 8) {
                                     MarkdownView(text: m["content"] ?? "")
-                                    MessageTools(tags: [], copied: copied == index, shareText: ShareText.answer(entries, index, labels)) {
+                                    MessageTools(tags: [], copied: copied == index, shareText: ShareText.answer(entries, index, labels), copy: {
                                         Clipboard.copy(ShareText.plain(m["content"] ?? ""))
                                         copied = index
                                         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { if copied == index { copied = nil } }
-                                    }
+                                    }, listen: {
+                                        ListenPlayer.shared.listen(answer: m["content"] ?? "", id: "history-\(index)-\((m["content"] ?? "").hashValue)", title: String(localized: "Ask your chats"))
+                                    })
                                 }
                             }
                         }
@@ -1098,7 +1100,10 @@ struct ChatDetailView: View {
                                                     pin: { togglePin(thread, index, how: "menu") },
                                                     remind: { remindNote = nil; reminding = index },
                                                     delete: { deleteMessage(thread, index, how: "menu") }
-                                                )
+                                                ),
+                                                listen: entry.isNote ? nil : {
+                                                    ListenPlayer.shared.listen(answer: entry.content, id: "chat-\(thread.id)-\(index)", title: thread.name)
+                                                }
                                             )
                                             .frame(maxWidth: .infinity, alignment: entry.isUser ? .trailing : .leading)
                                             if tagging == index {
@@ -2097,6 +2102,9 @@ private struct MessageTools: View {
     var shareRich: (() -> Void)? = nil
     /// Pin, remind and delete in "…" (2.5); nil: none ("Ask your chats").
     var actions: MessageActions? = nil
+    /// Listen (build 90, answers): Ultra's, in Ultra's tint; without Ultra with a tiny "Ultra" mark.
+    var listen: (() -> Void)? = nil
+    @ObservedObject var store = StoreKitManager.shared
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -2113,6 +2121,18 @@ private struct MessageTools: View {
                     Button(action: shareRich) { Label("Share", systemImage: "square.and.arrow.up") }
                 } else {
                     ShareLink(item: shareText) { Label("Share", systemImage: "square.and.arrow.up") }
+                }
+                if let listen {
+                    Button(action: listen) {
+                        HStack(spacing: 3) {
+                            Image(systemName: store.isUltra ? "speaker.wave.2.fill" : "speaker.wave.2")
+                            Text("Listen")
+                            if !store.isUltra { UltraMark() }
+                        }
+                        .foregroundColor(ultraTint)
+                    }
+                    .accessibilityLabel(Text("Listen"))
+                    .accessibilityIdentifier("chat.listen")
                 }
                 if let tag {
                     Button(action: tag) { Label("Tag", systemImage: "tag") }

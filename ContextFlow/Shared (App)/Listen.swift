@@ -2,6 +2,7 @@ import AVFoundation
 import Combine
 import CryptoKit
 import MediaPlayer
+import NaturalLanguage
 import SwiftUI
 #if os(iOS)
 import UIKit
@@ -140,6 +141,49 @@ final class ListenPlayer: NSObject, ObservableObject {
         }
         if !current.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { chunks.append(current.trimmingCharacters(in: .whitespacesAndNewlines)) }
         return chunks
+    }
+
+    /// Listen under an answer in the app's own chats (build 90): Ultra plays it here; without Ultra the sheet says
+    /// what Ultra adds (and opens the plans on it).
+    func listen(answer markdown: String, id: String, title: String) {
+        if let request, request.id == id, state != .idle {
+            visible = true
+            return
+        }
+        let plain = Self.plainText(markdown)
+        guard StoreKitManager.shared.isUltra else {
+            stop()
+            self.request = ListenRequest(id: id, parts: [], lang: "", what: "answer", title: title, url: nil)
+            state = .ultraOnly
+            visible = true
+            return
+        }
+        let parts = Self.sentenceParts(plain)
+        guard !parts.isEmpty else { return }
+        ChatAI.reportUse("listen", "start", ["what": "answer"])
+        start(ListenRequest(id: id, parts: parts, lang: Self.language(of: plain), what: "answer", title: title, url: nil,
+                            text: markdown, script: Self.needsScript(markdown)))
+    }
+
+    /// An answer's Markdown as plain sentences (no marks, links' words only).
+    nonisolated static func plainText(_ markdown: String) -> String {
+        var text = markdown.replacingOccurrences(of: #"```[\s\S]*?```"#, with: " ", options: .regularExpression)
+        text = text.replacingOccurrences(of: #"\[([^\]]+)\]\([^)]*\)"#, with: "$1", options: .regularExpression)
+        text = text.replacingOccurrences(of: #"(?m)^\s{0,3}(#{1,6}|[-*+]|\d+[.)]|>)\s+"#, with: "", options: .regularExpression)
+        text = text.replacingOccurrences(of: #"[*_`~|]+"#, with: " ", options: .regularExpression)
+        return text.replacingOccurrences(of: #"[ \t]+"#, with: " ", options: .regularExpression).trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    /// Tables, lists, headings or code: written for the ear first (src/shared/speech.ts needsScript, roughly).
+    nonisolated static func needsScript(_ markdown: String) -> Bool {
+        markdown.range(of: #"(?m)^\s*(\|.*\||#{1,6}\s|[-*+]\s|\d+[.)]\s|```)"#, options: .regularExpression) != nil
+    }
+
+    /// The text's language ("en", "ru"…), for the voice.
+    nonisolated static func language(of text: String) -> String {
+        let recognizer = NLLanguageRecognizer()
+        recognizer.processString(String(text.prefix(1000)))
+        return recognizer.dominantLanguage?.rawValue ?? (Locale.current.language.languageCode?.identifier ?? "en")
     }
 
     func open(_ url: URL) {

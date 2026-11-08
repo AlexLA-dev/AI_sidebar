@@ -1,4 +1,9 @@
 import SwiftUI
+#if os(iOS)
+import UIKit
+#else
+import AppKit
+#endif
 
 /// What the paid plans give, one feature a slide, grouped Pro and Ultra (build 90; the owner: why show only sorting by
 /// topic on the paywall, show every paid feature). Each slide says what the feature does in one line, over a sample
@@ -102,6 +107,29 @@ struct PaidGallery: View {
 }
 
 let ultraViolet = Color(red: 0.49, green: 0.31, blue: 0.93)
+
+/// Ultra's tint for text and icons on the app's own backgrounds (build 90: Listen looks like Ultra's), readable in
+/// both themes: violet-600 in light, violet-300 in dark (the panel's --ultra-text).
+let ultraTint: Color = {
+    #if os(iOS)
+    return Color(UIColor { $0.userInterfaceStyle == .dark ? UIColor(red: 0.77, green: 0.71, blue: 0.99, alpha: 1) : UIColor(red: 0.49, green: 0.23, blue: 0.93, alpha: 1) })
+    #else
+    return Color(NSColor(name: nil) { $0.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua ? NSColor(red: 0.77, green: 0.71, blue: 0.99, alpha: 1) : NSColor(red: 0.49, green: 0.23, blue: 0.93, alpha: 1) })
+    #endif
+}()
+
+/// The tiny "Ultra" mark next to an Ultra feature for those without Ultra.
+struct UltraMark: View {
+    var body: some View {
+        Text("Ultra")
+            .font(.system(size: 9, weight: .bold))
+            .foregroundColor(.white)
+            .padding(.horizontal, 4)
+            .padding(.vertical, 1)
+            .background(Capsule().fill(ultraGradient))
+            .opacity(0.9)
+    }
+}
 
 /// "Pro" or "Ultra" in its colours.
 struct TierChip: View {
