@@ -31,7 +31,7 @@ import { isPdfTab, markPdfTab, openPdfPopup, pdfFromBytes, pdfText } from "./pdf
 import { countValueMoment, mirrorOnStart, mirrorThreads, syncSettings, syncThreads, watchSettings, watchThreads } from "./sync"
 import { startInsert } from "./insert"
 import { startWatch } from "./watch"
-import { organizeChat, reportOrganize } from "./organize"
+import { nameChatNow, organizeChat, organizeCounts, reportOrganize } from "./organize"
 import { organizeConfig } from "../shared/organize"
 import { askSimilar } from "./similar"
 import type { SimilarPayload, SimilarStreamEvent } from "../shared/similar"
@@ -595,6 +595,16 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
       // Suggestions send text to the AI: only with the one consent too (it lists them), not the switch alone.
       Promise.all([status(), installId(), entitlement(), clientInfo(), settings(), consented()])
         .then(([now, id, ent, client, prefs, agreed]) => organizeChat(message.chat, { status: now, installId: id, jws: ent?.active ? ent.jws : null, client, on: prefs.organize && agreed }))
+        .then(sendResponse, () => sendResponse({ ok: false, code: "NETWORK" }))
+      return true
+    case "organizeName":
+      Promise.all([status(), installId(), entitlement(), clientInfo(), settings(), consented()])
+        .then(([now, id, ent, client, prefs, agreed]) => nameChatNow(message.chat, { status: now, installId: id, jws: ent?.active ? ent.jws : null, client, on: prefs.organize && agreed }))
+        .then(sendResponse, () => sendResponse({ ok: false, code: "NETWORK" }))
+      return true
+    case "organizeCounts":
+      Promise.all([status(), installId(), entitlement(), clientInfo(), settings(), consented()])
+        .then(([now, id, ent, client, prefs, agreed]) => organizeCounts({ status: now, installId: id, jws: ent?.active ? ent.jws : null, client, on: prefs.organize && agreed }))
         .then(sendResponse, () => sendResponse({ ok: false, code: "NETWORK" }))
       return true
     case "organizeEvent":

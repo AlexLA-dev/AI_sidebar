@@ -434,6 +434,20 @@ extension ChatAI {
         }
     }
 
+    /// A name for a chat by its topic (2.6, /api/v2/organize op "name"; `chat` is Organize.nameText), and whether
+    /// `current` still fits (false without one).
+    static func organizeName(chat: String, current: String?) async throws -> (title: String, fits: Bool) {
+        var body = identity()
+        body["op"] = "name"
+        body["chat"] = chat
+        if let current { body["current"] = current }
+        let (data, response) = try await URLSession.shared.data(for: try request("api/v2/organize", body))
+        let status = (response as? HTTPURLResponse)?.statusCode ?? 0
+        guard status == 200, let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let title = (object["title"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines), !title.isEmpty else { throw failure(status, data) }
+        return (title, object["fits"] as? Bool ?? false)
+    }
+
     /// A step in a feature ("use", src/shared/usage.ts): f, a and its allowed fields, never text (build 90: listen).
     @MainActor
     static func reportUse(_ f: String, _ a: String, _ fields: [String: String] = [:]) {

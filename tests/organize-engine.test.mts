@@ -3,7 +3,7 @@ import { test } from "node:test"
 
 import type { Entry } from "../src/shared/conversation.ts"
 import {
-  DEFAULT_ORGANIZE, embedText, judgedTags, looksMixed, movesAllowed, organizeConfig, packVector, refusedTags, suggestMove, tagCandidates, tagTargets, unpackVector, type VectorOf
+  DEFAULT_ORGANIZE, embedText, judgedTags, looksMixed, movesAllowed, nameCheckKey, nameText, organizeConfig, packVector, refusedTags, suggestMove, tagCandidates, tagTargets, unpackVector, wantsNameCheck, type VectorOf
 } from "../src/shared/organize.ts"
 import type { Thread } from "../src/shared/threads.ts"
 
@@ -134,4 +134,75 @@ test("texts, packed vectors, thresholds and the pile signal", () => {
   const sites = chat("s", [...qa("a", "https://a.com/1"), ...qa("b", "https://b.com/1"), ...qa("c", "https://c.com/1")])
   assert.equal(looksMixed(sites, cfg), true)
   assert.equal(looksMixed(japan, cfg), false)
+})
+
+// The owner's notes on 2.6 (90): notes count, and moves make chats more about one thing, in one direction.
+function note(topic: string, url: string, text: string): Entry {
+  topicOf.set(text, topic)
+  clock += 1_000
+  return { role: "user", content: text, note: true, page: { url, title: `${topic} page`, at: clock }, id: `n${++salt}`, t: clock }
+}
+
+test("a chat with only a note on a page joins the chat with questions about that page, not the other way", () => {
+  const site = chat("site", [...qa("cf", "https://context-flow.app/"), ...qa("cf", "https://context-flow.app/")])
+  // Too short to be judged by its words, but the page says where it belongs.
+  const memo = chat("memo", [note("cf", "https://context-flow.app/", "FAQ for pricing")])
+  const s = suggestMove(memo, [site, memo], vectorOf, cfg)!
+  assert.equal(s.to, "site")
+  assert.equal(s.why, "page")
+  assert.deepEqual([s.start, s.end], [0, 0])
+  assert.equal(suggestMove(site, [site, memo], vectorOf, cfg), null)
+  // A longer note on another page of the topic joins by topic.
+  const memo2 = chat("memo2", [note("cf", "https://context-flow.app/blog", "Write the post about sorting chats by topic, with the before and after")])
+  assert.equal(suggestMove(memo2, [site, memo2], vectorOf, cfg)?.to, "site")
+})
+
+test("off-topic messages leave a mixed chat for the single-topic one; the single-topic chat never goes into the mix", () => {
+  const mix = chat("mix", [...qa("cars", "https://cars/1"), ...qa("cars", "https://cars/2"), ...qa("analytics", "https://stats/1"), ...qa("analytics", "https://stats/2")])
+  const one = chat("one", qa("analytics", "https://stats/3"))
+  const s = suggestMove(mix, [mix, one], vectorOf, cfg)!
+  assert.equal(s.to, "one")
+  assert.deepEqual([s.start, s.end], [4, 7], "both analytics blocks, together")
+  assert.equal(suggestMove(one, [mix, one], vectorOf, cfg), null, "not into the mix")
+  // Mostly analytics (three of four) but still a mix: its cars go first (a new chat), then the one-topic chat joins it.
+  const most = chat("most", [...qa("analytics", "https://stats/1"), ...qa("analytics", "https://stats/2"), ...qa("analytics", "https://stats/4"), ...qa("cars", "https://cars/1")])
+  assert.equal(suggestMove(one, [most, one], vectorOf, cfg), null)
+  const out = suggestMove(most, [most, one], vectorOf, cfg)!
+  assert.deepEqual([out.to, out.start, out.end], [null, 6, 7], "its analytics are at home; the cars leave")
+  const clean = chat("most", most.m.slice(0, 6))
+  assert.equal(suggestMove(one, [clean, one], vectorOf, cfg)?.to, "most")
+})
+
+test("two one-topic chats of one block each: only the smaller joins the larger", () => {
+  const a = chat("a", [...qa("bread", "https://bread/9"), { role: "user", content: "and rye?", id: "x1", t: 1 }, { role: "assistant", content: "rye too", id: "x2", t: 2 }])
+  const b = chat("b", qa("bread", "https://bread/8"))
+  topicOf.set("and rye?", "bread")
+  topicOf.set("rye too", "bread")
+  assert.equal(suggestMove(b, [a, b], vectorOf, cfg)?.to, "a")
+  assert.equal(suggestMove(a, [a, b], vectorOf, cfg), null)
+})
+
+test("naming (2.6): what the AI reads, when a name gets checked by itself, never over a name the user typed", () => {
+  const site = chat("site", [...qa("cf", "https://context-flow.app/"), note("cf", "https://context-flow.app/", "**Ask** about [1](https://x.example/a) the FAQ")])
+  const text = nameText(site.m)
+  assert.match(text, /^Page: cf page\nQuestion: cf question \d+ about something long enough\nAnswer: cf answer \d+ with details\nNote: Ask about the FAQ$/)
+  assert.equal(wantsNameCheck(site), true)
+  assert.equal(wantsNameCheck(chat("one", qa("cf", "https://context-flow.app/"))), false, "one question names it well enough")
+  assert.equal(wantsNameCheck({ ...site, title: "Mine" }), false, "typed by the user")
+  assert.equal(wantsNameCheck({ ...site, title: "Theirs", aiTitle: "Theirs" }), true, "the AI's own name")
+  assert.equal(wantsNameCheck({ ...site, title: "Mine", aiTitle: "Theirs" }), false, "renamed by the user after the AI")
+  assert.equal(wantsNameCheck({ ...site, kind: "history" }), false)
+  // Checked again when a page is added or the name changed; not for another answer on the same page.
+  const key = nameCheckKey(site)
+  const more = chat("site", [...site.m, ...qa("cars", "https://cars/1")])
+  assert.notEqual(nameCheckKey(more), key)
+  assert.notEqual(nameCheckKey(site, "Other"), key)
+  assert.equal(nameCheckKey({ ...site, m: [...site.m, { role: "assistant", content: "more", id: "z", t: 1 }] }), key)
+  // A long chat: its first page and the latest that fit.
+  const long = chat("long", Array.from({ length: 40 }, (_, i) => qa(`t${i}`, `https://long/${i}`, { question: `Question ${i} ${"words ".repeat(50)}` })).flat())
+  const cut = nameText(long.m)
+  assert.ok(cut.length <= 6_000)
+  assert.match(cut, /^Page: t0 page/)
+  assert.match(cut, /Question 39/)
+  assert.doesNotMatch(cut, /Question 20 /)
 })

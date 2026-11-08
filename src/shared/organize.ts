@@ -4,8 +4,8 @@
 // rules are in the app (ContextFlow/Shared (App)/Organize.swift); tests/organize-parity.test.mts checks both
 // give the same suggestions. Thresholds come from /api/v2/status, so they can be tuned without a release.
 
-import { entryKey, entryTimes, stripCitations, type Entry } from "./conversation.ts"
-import { activity, pageBlocks, type PageBlock, type Thread } from "./threads.ts"
+import { entryKey, entryTimes, stripCitations, textKey, type Entry } from "./conversation.ts"
+import { activity, namedByUser, pageBlocks, type PageBlock, type Thread } from "./threads.ts"
 
 /** What decides a suggestion (chat-organize-2.5.md §2); the server sends its own values in /status. */
 export interface OrganizeConfig {
@@ -16,6 +16,9 @@ export interface OrganizeConfig {
   moveT1: number
   // Same site: the fit to the one other chat about that site.
   siteT: number
+  // Two blocks this alike are on one topic: what "a chat is mostly about this" counts (2.6: moves only make chats
+  // more about one thing).
+  topicT: number
   // A new chat: the block fits its own chat less than this, and at least `splitMin` blocks stay in it.
   splitT: number
   splitMin: number
@@ -45,6 +48,7 @@ export const DEFAULT_ORGANIZE: OrganizeConfig = {
   moveD: 0.1,
   moveT1: 0.65,
   siteT: 0.35,
+  topicT: 0.4,
   splitT: 0.25,
   splitMin: 2,
   window: 3,
@@ -229,15 +233,19 @@ export function movesAllowed(chat: Thread, all: Thread[], cfg: OrganizeConfig): 
 }
 
 /**
- * The one move to suggest in `chat` now (or null): of its last `window` blocks, those that say enough and
- * nobody decided about yet are checked — first whether the same page is in another chat (no vectors
- * needed), then the same site, then the topic; a block that fits no chat and not its own goes to a new
- * chat. Blocks in a row with the same place are one suggestion. The strongest reason wins.
+ * The one move to suggest in `chat` now (or null): of its last `window` blocks, those nobody decided about yet are
+ * checked — first whether the same page is in another chat (no vectors needed; a short note or question will do),
+ * then, for those that say enough, the same site, then the topic; a block that fits no chat and not its own goes to
+ * a new chat. Blocks in a row with the same place are one suggestion. The strongest reason wins.
+ *
+ * A move only makes chats more about one thing (2.6): a block leaves its chat when it's off that chat's topic, for a
+ * chat mostly about it. A chat of one block (a note on a page, a single question) joins another chat mostly about
+ * it; of two such chats, the smaller joins the larger. Two chats never suggest moves into each other.
  */
 export function suggestMove(chat: Thread, chats: Thread[], vectorOf: VectorOf, cfg: OrganizeConfig): MoveSuggestion | null {
   if (chat.kind === "history" || chat.deleted) return null
   const blocks = scoredBlocks(chat.m, vectorOf)
-  if (blocks.length < 2 || !movesAllowed(chat, chats, cfg)) return null
+  if (!blocks.length || !movesAllowed(chat, chats, cfg)) return null
   const others = chats
     .filter((t) => t.id !== chat.id && !t.deleted && t.kind !== "history" && t.m.length > 0)
     .map((t) => ({ thread: t, blocks: scoredBlocks(t.m, vectorOf) }))
@@ -245,9 +253,9 @@ export function suggestMove(chat: Thread, chats: Thread[], vectorOf: VectorOf, c
   const found: Array<MoveSuggestion & { index: number }> = []
   for (let i = first; i < blocks.length; i++) {
     const b = blocks[i]
-    if (b.weak || b.settled || b.dismissed) continue
+    if (b.settled || b.dismissed) continue
     const rest = blocks.filter((_, j) => j !== i)
-    const pick = movePlace(b, i, blocks, rest, others, cfg)
+    const pick = movePlace(chat, b, i, blocks, rest, others, cfg)
     if (pick) found.push({ ...pick, start: b.start, end: b.end, index: i })
   }
   // Blocks in a row going to the same chat (or, for a new chat, alike) are moved together.
@@ -268,7 +276,59 @@ export function suggestMove(chat: Thread, chats: Thread[], vectorOf: VectorOf, c
   return suggestion
 }
 
+/**
+ * Whether block `x` is on block `b`'s subject: the same page, or a topic this alike; without the vectors to tell, the
+ * same site (with them, a site isn't a subject: one video site holds every topic).
+ */
+function onSubject(b: ScoredBlock, x: ScoredBlock, cfg: OrganizeConfig): boolean {
+  if (b.url && x.url === b.url) return true
+  if (b.v && x.v) return dot(b.v, x.v) >= cfg.topicT
+  return Boolean(b.host && x.host === b.host)
+}
+
+/** How many of `list` are on `b`'s subject, and their share of it (0 for an empty list). */
+function shareOn(b: ScoredBlock, list: ScoredBlock[], cfg: OrganizeConfig): { on: number; share: number } {
+  const on = list.filter((x) => onSubject(b, x, cfg)).length
+  return { on, share: list.length ? on / list.length : 0 }
+}
+
+/** Of two chats, the one the other joins: more messages, then written in last, then by id. */
+function larger(a: Thread, b: Thread): boolean {
+  if (a.m.length !== b.m.length) return a.m.length > b.m.length
+  if (activity(a) !== activity(b)) return activity(a) > activity(b)
+  return a.id < b.id
+}
+
+/** Whether a chat's blocks are on more than one topic: one of them is off the rest (less than half of them on it). */
+function isMix(blocks: ScoredBlock[], cfg: OrganizeConfig): boolean {
+  return blocks.length > 1 && blocks.some((x, i) => shareOn(x, blocks.filter((_, j) => j !== i), cfg).share < 0.5)
+}
+
+/**
+ * Whether a chat of one block `b` joins `to`: `to` is on one topic and mostly about `b`'s (more than half its blocks),
+ * and has more on it or, with one such block each, is the larger chat. Never into a mix, and of two chats one way.
+ */
+function joins(b: ScoredBlock, from: Thread, to: { thread: Thread; blocks: ScoredBlock[] }, cfg: OrganizeConfig): boolean {
+  if (isMix(to.blocks, cfg)) return false
+  const there = shareOn(b, to.blocks, cfg)
+  return there.share > 0.5 && (there.on > 1 || larger(to.thread, from))
+}
+
+/**
+ * Whether block `b` of chat `from` (with its other blocks `rest`) goes to `to`. A block that is the whole chat joins
+ * (`joins`). A block of a chat goes when it's off that chat's topic (less than half of `rest` is on it), to a chat that
+ * has its page or is mostly about it (more than half its blocks), unless that chat is one block that would rather
+ * join this one.
+ */
+function goesTo(b: ScoredBlock, rest: ScoredBlock[], from: Thread, to: { thread: Thread; blocks: ScoredBlock[] }, cfg: OrganizeConfig, samePage = false): boolean {
+  if (!rest.length) return joins(b, from, to, cfg)
+  if (shareOn(b, rest, cfg).share >= 0.5) return false
+  if (!samePage && shareOn(b, to.blocks, cfg).share <= 0.5) return false
+  return !(to.blocks.length === 1 && joins(to.blocks[0], to.thread, { thread: from, blocks: [...rest, b] }, cfg))
+}
+
 function movePlace(
+  chat: Thread,
   b: ScoredBlock,
   i: number,
   blocks: ScoredBlock[],
@@ -278,10 +338,13 @@ function movePlace(
 ): Omit<MoveSuggestion, "start" | "end"> | null {
   // The same page, already in another chat and not elsewhere in this one.
   if (b.url && !rest.some((x) => x.url === b.url)) {
-    const there = others.filter((o) => o.blocks.some((x) => x.url === b.url)).sort((a, z) => activity(z.thread) - activity(a.thread))[0]
+    const there = others
+      .filter((o) => o.blocks.some((x) => x.url === b.url) && goesTo(b, rest, chat, o, cfg, true))
+      .sort((a, z) => activity(z.thread) - activity(a.thread))[0]
     if (there) return { to: there.thread.id, why: "page", score: 1, current: 0 }
   }
-  if (!b.v) return null
+  // Below, the block has to say enough.
+  if (!b.v || b.weak) return null
   // The fit to its own chat: its blocks outside the window, else all its other blocks.
   const outside = blocks.filter((x, j) => j < blocks.length - cfg.window && j !== i && x.v)
   const base = (outside.length ? outside : rest.filter((x) => x.v)).map((x) => ({ v: x.v! }))
@@ -292,22 +355,26 @@ function movePlace(
       const on = o.blocks.filter((x) => x.host === b.host).length
       return on >= 2 && on * 2 >= o.blocks.length
     })
-    if (about.length === 1) {
+    if (about.length === 1 && goesTo(b, rest, chat, about[0], cfg)) {
       const vs = about[0].blocks.filter((x) => x.v).map((x) => ({ v: x.v! }))
       const score = topMean(b.v, vs, 2)
       if (vs.length && score >= cfg.siteT && score >= current) return { to: about[0].thread.id, why: "site", score, current }
     }
   }
+  // A chat it fits but that isn't mostly about it (a mix) gets nothing; it still keeps it from a new chat.
+  let fits = false
   let best: { to: string; score: number } | null = null
   for (const o of others) {
     const vs = o.blocks.filter((x) => x.v).map((x) => ({ v: x.v! }))
     if (!vs.length) continue
     const score = topMean(b.v, vs, 2)
     if (score < (vs.length >= 2 ? cfg.moveT : cfg.moveT1)) continue
+    fits = true
+    if (!goesTo(b, rest, chat, o, cfg)) continue
     if (!best || score > best.score) best = { to: o.thread.id, score }
   }
   if (best && best.score - current >= cfg.moveD) return { to: best.to, why: "topic", score: best.score, current }
-  if (!best && base.length && current < cfg.splitT) return { to: null, why: "apart", score: 0, current }
+  if (!fits && base.length && current < cfg.splitT) return { to: null, why: "apart", score: 0, current }
   return null
 }
 
@@ -461,4 +528,53 @@ export function missingVectors(chats: Thread[], has: (key: string, text: string)
     }
   }
   return out
+}
+
+// ------------------------------------------------------------ the chat's name by its topic (2.6)
+
+export const MAX_NAME_TEXT = 6_000
+
+/**
+ * What the AI reads to name a chat (/api/v2/organize op "name"): page by page, the page's title, the person's
+ * questions and notes, and the start of each answer. A long chat keeps its first page and as many of the latest as fit.
+ */
+export function nameText(entries: Entry[]): string {
+  const parts = pageBlocks(entries).map((b) => {
+    const list = entries.slice(b.start, b.end + 1)
+    const lines: string[] = []
+    const title = list.find((e) => e.page?.title)?.page?.title
+    if (title) lines.push(`Page: ${plain(title).slice(0, 150)}`)
+    for (const e of list) {
+      if (e.note) lines.push(`Note: ${plain(e.content).slice(0, 300)}`)
+      else if (e.role === "user") lines.push(`Question: ${plain(e.label ?? e.content).slice(0, 300)}`)
+      else if (plain(e.content)) lines.push(`Answer: ${plain(e.content).slice(0, 200)}`)
+    }
+    return lines.join("\n")
+  }).filter(Boolean)
+  const all = parts.join("\n\n")
+  if (all.length <= MAX_NAME_TEXT || parts.length < 2) return all.slice(0, MAX_NAME_TEXT)
+  const first = parts[0].slice(0, 1_200)
+  const latest: string[] = []
+  let size = first.length
+  for (let i = parts.length - 1; i > 0; i--) {
+    if (size + parts[i].length + 2 > MAX_NAME_TEXT) break
+    latest.unshift(parts[i])
+    size += parts[i].length + 2
+  }
+  return [first, ...latest].join("\n\n")
+}
+
+/**
+ * Whether the chat's name gets checked by itself (as suggestions come): not one the user typed, and the chat has
+ * two questions or notes at least (one question names it well enough).
+ */
+export function wantsNameCheck(thread: Thread): boolean {
+  if (thread.kind === "history" || thread.deleted || namedByUser(thread)) return false
+  return thread.m.filter((e) => e.role === "user").length >= 2
+}
+
+/** What a name check was about: the name, the chat's pages and how many questions (up to 3). The same: no new check. */
+export function nameCheckKey(thread: Thread, title = thread.title ?? ""): string {
+  const asks = Math.min(3, thread.m.filter((e) => e.role === "user").length)
+  return textKey(JSON.stringify([title, pageBlocks(thread.m).map((b) => entryKey(thread.m[b.start])), asks]))
 }

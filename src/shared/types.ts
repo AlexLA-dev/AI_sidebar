@@ -199,6 +199,10 @@ export type BackgroundRequest =
   | { type: "find"; query: string; chats: ChatDigest[] }
   // Organizing (2.5, Pro, with suggestions on): the suggestions for a chat now; answers an OrganizeReply.
   | { type: "organize"; chat: string }
+  // "Name by topic" (2.6, with suggestions on): a name for the chat by its topic; answers an OrganizeNameReply.
+  | { type: "organizeName"; chat: string }
+  // The chats list (2.6, Pro, with suggestions on): how many open suggestions each chat has; answers an OrganizeCountsReply.
+  | { type: "organizeCounts" }
   // Organizing: a suggestion shown, taken, turned down or undone; a promotion shown or tapped; suggestions
   // switched on or declined. Counts only, never text.
   | { type: "organizeEvent"; event: OrganizeEvent }
@@ -228,12 +232,22 @@ export type OrganizeReply =
       move: { start: number; end: number; to: string | null; toName: string; why: "page" | "site" | "topic" | "apart"; count: number } | null
       // A suggested tag for the message at `index` (its key, to check it's still that message).
       tags: Array<{ index: number; key: string; tag: string }>
+      // 2.6: the chat's name no longer fits its topic (and the user didn't type it): this one does.
+      name?: string
     }
   | { ok: false; code: "OFF" | "PRO_ONLY" | "NETWORK" | "LIMIT_REACHED" | "UPSTREAM" }
+
+export type OrganizeCountsReply = { ok: true; counts: Record<string, number> } | { ok: false; code: "OFF" | "PRO_ONLY" | "NETWORK" | "LIMIT_REACHED" | "UPSTREAM" }
+
+export type OrganizeNameReply = { ok: true; name: string } | { ok: false; code: "OFF" | "PRO_ONLY" | "NETWORK" | "LIMIT_REACHED" | "UPSTREAM" }
 
 /** Organizing events for /api/v2/event (src/background/organize.ts sends them). */
 export type OrganizeEvent =
   | { kind: "organize"; action: "shown" | "accepted" | "dismissed" | "undone"; what: "move" | "new" | "tag"; why?: "page" | "site" | "topic" | "apart" }
+  // 2.6: the chat named by its topic ("Name by topic", or by itself when its name no longer fit), or that undone.
+  | { kind: "organize"; action: "accepted" | "undone"; what: "name"; why: "asked" | "drift" }
+  // 2.6: "N recommendations" on a chat in the list, shown (once per chat) and tapped.
+  | { kind: "organize"; action: "shown" | "tap"; what: "badge" }
   | { kind: "organize_promo"; action: "shown" | "tap"; where: "pro_card" | "inchat_mess" | "third_tag" | "first_win" | "settings" }
   | { kind: "organize_optin"; action: "accepted" | "declined"; from: "card" | "settings" }
 
@@ -297,6 +311,8 @@ export const STORAGE = {
   // the tag checks' answers ({[hash]: tags}), and the cards about it already shown or closed.
   orgVectors: "cf:orgVectors",
   orgVerdicts: "cf:orgVerdicts",
+  // Name checks done (2.6), by chat: what each was about (nameCheckKey), so the same chat isn't checked again.
+  orgNames: "cf:orgNames",
   orgCards: "cf:orgCards"
 } as const
 

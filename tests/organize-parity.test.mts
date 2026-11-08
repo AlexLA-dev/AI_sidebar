@@ -10,8 +10,8 @@ import { test } from "node:test"
 
 import { entryKey, entryTimes, withPageChanges, type Entry } from "../src/shared/conversation.ts"
 import {
-  embedText, hostOf, judgedTags, judgeText, looksMixed, missingVectors, movesAllowed, organizeConfig, packVector, refusedTags, scoredBlocks,
-  suggestMove, tagCandidates, tagTargets, unpackVector, type TagCandidate, type VectorOf
+  embedText, hostOf, judgedTags, judgeText, looksMixed, missingVectors, movesAllowed, nameText, organizeConfig, packVector, refusedTags, scoredBlocks,
+  suggestMove, tagCandidates, tagTargets, unpackVector, wantsNameCheck, type TagCandidate, type VectorOf
 } from "../src/shared/organize.ts"
 import { moveEntries, pageBlocks, sweepMoved, undoMove, type Thread, type Threads } from "../src/shared/threads.ts"
 
@@ -48,6 +48,10 @@ function js(c: Case): unknown {
       return organizeConfig(c.raw)
     case "embedText":
       return (c.m as Entry[]).map(embedText)
+    case "nameText":
+      return nameText(c.m as Entry[])
+    case "wantsNameCheck":
+      return wantsNameCheck(c.chat as Thread)
     case "hostOf":
       return (c.urls as Array<string | null>).map(hostOf)
     case "pack": {
@@ -294,6 +298,50 @@ const site = thread("site", [...react(), ...qa("sofa", "https://www.ikea.example
 move(site, [site, ikea, japan])
 move(site, [site, ikea, ikea2, japan])
 move(site, [site, ikea, japan], { cfg: { siteT: 0.99 } })
+// 2.6: a note-only chat on a page joins the chat with questions about it (a short note by the page alone, a longer
+// one by its topic), never the other way; off-topic blocks leave a mix for the one-topic chat, which never goes into
+// the mix; of two one-block chats only the smaller joins.
+function noteOn(topic: string, url: string, text: string): Entry {
+  count++
+  clock += 1_000
+  const e: Entry = { role: "user", content: text, note: true, page: { url, title: `${topic} page`, at: clock }, id: `n${count}`, t: clock }
+  table[e.id!] = vectorFor(topic)
+  return e
+}
+const service = thread("service", [...qa("cf", "https://context-flow.example/"), ...qa("cf", "https://context-flow.example/")])
+const memo = thread("memo", [noteOn("cf", "https://context-flow.example/", "FAQ for pricing")])
+const memo2 = thread("memo2", [noteOn("cf", "https://context-flow.example/blog", "Write the post about sorting chats by topic, before and after")])
+move(memo, [service, memo])
+move(memo, [service, memo], { vectors: {} })
+move(service, [service, memo])
+move(memo2, [service, memo2])
+move(memo2, [service, memo2], { cfg: { topicT: 0.99 } })
+const mix = thread("mix", [...qa("cars", "https://cars.example/1"), ...qa("cars", "https://cars.example/2"), ...qa("analytics", "https://stats.example/1"), ...qa("analytics", "https://stats.example/2")])
+const lone = thread("lone", qa("analytics", "https://stats.example/3"))
+const most = thread("most", [...qa("cars", "https://cars.example/1"), ...qa("analytics", "https://stats.example/1"), ...qa("analytics", "https://stats.example/2"), ...qa("analytics", "https://stats.example/4")])
+move(mix, [mix, lone])
+move(lone, [mix, lone])
+move(lone, [most, lone])
+move(most, [most, lone])
+move(lone, [mix, lone], { cfg: { topicT: 0.01 } })
+const twin = thread("twin", qa("bread", "https://bread.example/8"))
+const twin2 = thread("twin2", [...qa("bread", "https://bread.example/9"), ...qa("bread", "https://bread.example/9")])
+move(twin, [twin, twin2])
+move(twin2, [twin, twin2])
+move(twin, [twin, { ...twin2, m: twin2.m.slice(0, 2), a: 99_000_000 }])
+// 2.6: what the AI reads to name a chat (pages, questions, notes, answers' starts; a long chat's first and latest
+// pages), and when a name is checked by itself (never the user's).
+const longChat = thread("long", Array.from({ length: 30 }, (_, i) => qa(`t${i % 4}`, `https://long.example/${i}`, { question: `Question ${i} ${"детали ".repeat(60)}` })).flat())
+suggestions.push(
+  { op: "nameText", m: [...service.m, ...memo.m, { role: "assistant", content: "**" }, { role: "user", content: "", label: "Summarize", page: { url: "https://s.example/", title: "" } }] },
+  { op: "nameText", m: longChat.m },
+  { op: "nameText", m: [] },
+  { op: "wantsNameCheck", chat: service },
+  { op: "wantsNameCheck", chat: memo },
+  { op: "wantsNameCheck", chat: { ...service, title: "Mine", aiTitle: "Theirs", ait: "Theirs" } },
+  { op: "wantsNameCheck", chat: { ...service, title: "Theirs", aiTitle: "Theirs", ait: "Theirs" } },
+  { op: "wantsNameCheck", chat: history(service) }
+)
 // Short questions, moved-in and turned-down blocks get nothing.
 const thanks: Entry[] = [{ role: "user", content: "ok thanks", id: "ok", t: 1_999_999 }, { role: "assistant", content: "You're welcome", id: "ok2", t: 1_999_999 }]
 table.ok = vectorFor("japan")

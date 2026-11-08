@@ -17,6 +17,7 @@ import {
   tagColor,
   threadTags,
   withMessages,
+  namedByUser,
   foldText,
   liveThreads,
   markMirrored,
@@ -139,6 +140,18 @@ test("a renamed chat keeps its place in the list and its name travels through iC
   assert.deepEqual(back.threads.old, threads.old)
   assert.equal(cleanTitle("  Trip \n to   Rome  "), "Trip to Rome")
   assert.ok(cleanTitle("x".repeat(200)).length <= 80)
+})
+
+test("the AI's name (2.6) goes to iCloud as \"ait\", comes back, and stays with new messages; the user's name is theirs", () => {
+  const m: Entry[] = [{ role: "user", content: "q" }, { role: "assistant", content: "a" }]
+  const named: Thread = { id: "t", u: 5, m, title: "Sorting chats", aiTitle: "Sorting chats" }
+  const data = threadForCloud(named)
+  assert.equal(JSON.parse(data).ait, "Sorting chats")
+  assert.deepEqual(threadFromCloud(data), { m, title: "Sorting chats", aiTitle: "Sorting chats" })
+  assert.equal(withMessages(named, "t", [...m, { role: "user", content: "more" }], 9).aiTitle, "Sorting chats")
+  assert.equal(namedByUser(named), false)
+  assert.equal(namedByUser({ ...named, title: "My own" }), true)
+  assert.equal(namedByUser({ ...named, title: undefined }), false)
 })
 
 test("threadForCloud fits one record; threadFromCloud reads both formats and rejects the rest", () => {

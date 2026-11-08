@@ -1481,6 +1481,30 @@
  "orgFirstWin": {
   "message": "Done. From now on I'll suggest on my own."
  },
+ "orgNameChat": {
+  "message": "Name by topic"
+ },
+ "orgNamed": {
+  "message": "Named “{0}”"
+ },
+ "orgNameFailed": {
+  "message": "I couldn't name this chat just now. Try again later."
+ },
+ "recs_one": {
+  "message": "{0} recommendation"
+ },
+ "recs_two": {
+  "message": "{0} recommendations"
+ },
+ "recs_few": {
+  "message": "{0} recommendations"
+ },
+ "recs_many": {
+  "message": "{0} recommendations"
+ },
+ "recs_other": {
+  "message": "{0} recommendations"
+ },
  "orgConsentTitle": {
   "message": "Sort your chats by topic?"
  },

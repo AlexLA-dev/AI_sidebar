@@ -61,6 +61,10 @@ func run(_ c: [String: Any]) -> Any {
         return Dictionary(uniqueKeysWithValues: OrganizeConfig.fields.map { ($0.name, read[keyPath: $0.path]) })
     case "embedText":
         return (c["m"] as? [[String: Any]] ?? []).map(Organize.embedText)
+    case "nameText":
+        return Organize.nameText(c["m"] as? [[String: Any]] ?? [])
+    case "wantsNameCheck":
+        return thread(c["chat"]).map(Organize.wantsNameCheck) ?? false
     case "hostOf":
         return (c["urls"] as? [Any] ?? []).map { Organize.hostOf($0 as? String) }
     case "pack":

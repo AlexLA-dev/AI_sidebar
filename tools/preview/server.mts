@@ -17,6 +17,10 @@
 //                                                              (read aloud with the real voices: /api/v2/speak goes
 //                                                              to that deploy preview, each request signed with the
 //                                                              measuring key, see netlify/shared/plan.mts evalCheck)
+//   ORGANIZE_PROXY=https://<deploy preview> SPEAK_EVAL_KEY=<private key .pem> …
+//                                                              (organizing with the real vectors, tag checks and chat
+//                                                              names: /api/v2/organize goes to that deploy preview,
+//                                                              signed the same way)
 //   PREVIEW_SPEAK_USED=1700 …                                  (Ultra: that many of the week's read-aloud seconds used)
 //   SPEAK_FAIL_FROM_PART=1 …                                   (read aloud: every part from that one on fails with
 //                                                              502, as a connection lost mid-text)
@@ -278,6 +282,13 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
   // so it is told from quick insert's and page watch's by its system prompt.
   const judging = (b: { stream?: boolean; system?: unknown; output_config?: { format?: unknown } }) =>
     !b.stream && (!b.output_config?.format || String(b.system).startsWith("You help a person keep their own tags"))
+  // Organizing's chat name (2.6): the first question's first words, and a name never "fits" (so the stand renames).
+  if (url.startsWith("https://api.anthropic.com/v1/messages") && String(JSON.parse(String(init?.body)).system).startsWith("You name a person's chat")) {
+    const body = JSON.parse(String(init?.body))
+    const question = /(?:Question|Note): (.+)/.exec(String(body.messages[0].content))?.[1] ?? "Chat"
+    const title = question.split(/\s+/).slice(0, 4).join(" ").replace(/[?.!,]+$/, "")
+    return new Response(JSON.stringify({ id: "msg_name", type: "message", role: "assistant", model: body.model, content: [{ type: "text", text: JSON.stringify({ fits: false, title: `Topic: ${title}` }) }], stop_reason: "end_turn", stop_sequence: null, usage: { input_tokens: 900, output_tokens: 20 } }), { headers: { "Content-Type": "application/json" } })
+  }
   if (url.startsWith("https://api.anthropic.com/v1/messages") && judging(JSON.parse(String(init?.body)))) {
     const body = JSON.parse(String(init?.body))
     const tags = [...String(body.messages[0].content).matchAll(/<examples tag="([^"]+)">/g)].map((m) => ({ tag: m[1], fits: true, confidence: 0.9 }))
@@ -388,8 +399,8 @@ const localSpeak = (await import("../../netlify/functions/v2-speak.mts")).defaul
 const localScript = (await import("../../netlify/functions/v2-speak-script.mts")).default
 // Read aloud with the real voices (and the real text for listening): the deploy preview answers, this stand signs each
 // request as Ultra for it.
-const proxied = async (path: string): Promise<typeof chat | null> => {
-  if (!process.env.SPEAK_PROXY || !process.env.SPEAK_EVAL_KEY) return null
+const proxied = async (path: string, base = process.env.SPEAK_PROXY): Promise<typeof chat | null> => {
+  if (!base || !process.env.SPEAK_EVAL_KEY) return null
   const { createPrivateKey, sign } = await import("node:crypto")
   const key = createPrivateKey(readFileSync(process.env.SPEAK_EVAL_KEY))
   return (async (req: Request) => {
@@ -397,7 +408,9 @@ const proxied = async (path: string): Promise<typeof chat | null> => {
     const installId = String(JSON.parse(text).installId ?? "")
     const at = Date.now()
     const signature = sign(null, Buffer.from(`${installId}.${at}`), key).toString("base64url")
-    const res = await realFetch(`${process.env.SPEAK_PROXY}${path}`, { method: "POST", headers: { "Content-Type": "application/json", "x-cf-eval": `${at}.${signature}` }, body: text })
+    // A dropped connection to the preview is the device's network trouble, not the stand's end.
+    const res = await realFetch(`${base}${path}`, { method: "POST", headers: { "Content-Type": "application/json", "x-cf-eval": `${at}.${signature}` }, body: text })
+      .catch(() => Response.json({ code: "UPSTREAM" }, { status: 502 }))
     // fetch has already unpacked a compressed body: passing Netlify's Content-Encoding on would break it in the browser.
     const headers = new Headers(res.headers)
     headers.delete("content-encoding")
@@ -406,6 +419,7 @@ const proxied = async (path: string): Promise<typeof chat | null> => {
   }) as typeof chat
 }
 const speakAny: typeof chat = (await proxied("/api/v2/speak")) ?? localSpeak
+const organizeAny: typeof chat = (await proxied("/api/v2/organize", process.env.ORGANIZE_PROXY)) ?? organize
 // SPEAK_FAIL_FROM_PART=1: every part from that one on fails (502), as a lost connection mid-text would (build 90: the
 // device must stop in the same voice and offer "Try again", never hand the rest to another voice).
 const speak: typeof chat = (async (req: Request, context: Parameters<typeof chat>[1]) => {
@@ -417,7 +431,7 @@ const speak: typeof chat = (async (req: Request, context: Parameters<typeof chat
   return speakAny(new Request(req.url, { method: req.method, headers: req.headers, body: text }), context)
 }) as typeof chat
 const speakScript: typeof chat = (await proxied("/api/v2/speak-script")) ?? localScript
-const handlers: Record<string, typeof chat> = { "/api/v2/speak": speak, "/api/v2/speak-script": speakScript, "/api/v2/chat": chat, "/api/v2/status": status, "/api/v2/event": event, "/api/v2/find": find, "/api/v2/promo": promo, "/api/v2/insert": insert, "/api/v2/organize": organize, "/api/v2/watch": watch }
+const handlers: Record<string, typeof chat> = { "/api/v2/speak": speak, "/api/v2/speak-script": speakScript, "/api/v2/chat": chat, "/api/v2/status": status, "/api/v2/event": event, "/api/v2/find": find, "/api/v2/promo": promo, "/api/v2/insert": insert, "/api/v2/organize": organizeAny, "/api/v2/watch": watch }
 
 // Page watch's test shop (2.5): /shop shows a mug whose price and stock /shop-set changes
 // (/shop-set?price=39&stock=OutOfStock), /shop-js draws the price with a script (the background sees none, the

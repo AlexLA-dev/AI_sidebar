@@ -1481,6 +1481,30 @@
  "orgFirstWin": {
   "message": "Xong. Từ giờ tôi sẽ tự gợi ý."
  },
+ "orgNameChat": {
+  "message": "Đặt tên theo chủ đề"
+ },
+ "orgNamed": {
+  "message": "Đã đặt tên “{0}”"
+ },
+ "orgNameFailed": {
+  "message": "Mình chưa đặt được tên cho cuộc trò chuyện. Hãy thử lại sau."
+ },
+ "recs_one": {
+  "message": "{0} gợi ý"
+ },
+ "recs_two": {
+  "message": "{0} gợi ý"
+ },
+ "recs_few": {
+  "message": "{0} gợi ý"
+ },
+ "recs_many": {
+  "message": "{0} gợi ý"
+ },
+ "recs_other": {
+  "message": "{0} gợi ý"
+ },
  "orgConsentTitle": {
   "message": "Sắp xếp cuộc trò chuyện theo chủ đề?"
  },

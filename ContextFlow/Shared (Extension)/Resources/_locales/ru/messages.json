@@ -1481,6 +1481,30 @@
  "orgFirstWin": {
   "message": "Готово. Дальше буду подсказывать, не дожидаясь просьбы."
  },
+ "orgNameChat": {
+  "message": "Назвать по теме"
+ },
+ "orgNamed": {
+  "message": "Чат назван «{0}»"
+ },
+ "orgNameFailed": {
+  "message": "Не получилось назвать чат. Попробуйте позже."
+ },
+ "recs_one": {
+  "message": "{0} рекомендация"
+ },
+ "recs_two": {
+  "message": "{0} рекомендации"
+ },
+ "recs_few": {
+  "message": "{0} рекомендации"
+ },
+ "recs_many": {
+  "message": "{0} рекомендаций"
+ },
+ "recs_other": {
+  "message": "{0} рекомендации"
+ },
  "orgConsentTitle": {
   "message": "Разложить чаты по темам?"
  },
