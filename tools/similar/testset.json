@@ -1,0 +1,430 @@
+[
+ {
+  "id": "p-q45",
+  "category": "product",
+  "locale": "en-US",
+  "url": "https://www.soundcore.com/products/space-q45-a3040011",
+  "condition": "cheaper",
+  "check": {
+   "kind": "cheaper"
+  }
+ },
+ {
+  "id": "p-markus",
+  "category": "product",
+  "locale": "en-US",
+  "url": "https://www.ikea.com/us/en/p/markus-office-chair-vissle-dark-gray-90289172/",
+  "condition": "cheaper",
+  "check": {
+   "kind": "cheaper"
+  }
+ },
+ {
+  "id": "p-era100",
+  "category": "product",
+  "locale": "en-US",
+  "url": "https://www.sonos.com/en-us/shop/era-100",
+  "condition": ""
+ },
+ {
+  "id": "p-everyday",
+  "category": "product",
+  "locale": "en-US",
+  "url": "https://www.peakdesign.com/products/everyday-backpack",
+  "condition": ""
+ },
+ {
+  "id": "p-mxmaster",
+  "category": "product",
+  "locale": "en-US",
+  "url": "https://www.logitech.com/en-us/shop/p/mx-master-3s",
+  "condition": "in stock",
+  "check": {
+   "kind": "in_stock"
+  }
+ },
+ {
+  "id": "p-notesleeve",
+  "category": "product",
+  "locale": "en-US",
+  "url": "https://bellroy.com/products/note-sleeve-wallet",
+  "condition": "under $80",
+  "check": {
+   "kind": "max_price",
+   "value": 80,
+   "currency": "USD"
+  }
+ },
+ {
+  "id": "p-pocket3",
+  "category": "product",
+  "locale": "en-US",
+  "url": "https://www.dji.com/osmo-pocket-3",
+  "condition": ""
+ },
+ {
+  "id": "p-macbook",
+  "category": "product",
+  "locale": "en-US",
+  "url": "https://www.apple.com/macbook-air/",
+  "condition": "cheaper",
+  "check": {
+   "kind": "judgment"
+  }
+ },
+ {
+  "id": "p-thomann",
+  "category": "product",
+  "locale": "de-DE",
+  "url": "https://www.thomann.de/de/fender_player_ii_strat_mn_blk.htm",
+  "condition": "günstiger",
+  "check": {
+   "kind": "cheaper"
+  }
+ },
+ {
+  "id": "a-notion",
+  "category": "app",
+  "locale": "en-US",
+  "url": "https://apps.apple.com/us/app/notion-notes-tasks-ai/id1232780281",
+  "condition": "free and works offline",
+  "check": {
+   "kind": "judgment"
+  }
+ },
+ {
+  "id": "a-raycast",
+  "category": "app",
+  "locale": "en-US",
+  "url": "https://www.raycast.com/",
+  "condition": ""
+ },
+ {
+  "id": "a-figma",
+  "category": "app",
+  "locale": "en-US",
+  "url": "https://www.figma.com/",
+  "condition": "open source",
+  "check": {
+   "kind": "judgment"
+  }
+ },
+ {
+  "id": "a-duolingo",
+  "category": "app",
+  "locale": "en-US",
+  "url": "https://apps.apple.com/us/app/duolingo-language-lessons/id570060128",
+  "condition": ""
+ },
+ {
+  "id": "a-todoist",
+  "category": "app",
+  "locale": "ru-RU",
+  "url": "https://todoist.com/",
+  "condition": "бесплатно",
+  "check": {
+   "kind": "judgment"
+  }
+ },
+ {
+  "id": "r-nng",
+  "category": "article",
+  "locale": "en-US",
+  "url": "https://www.nngroup.com/articles/ten-usability-heuristics/",
+  "condition": "newer",
+  "check": {
+   "kind": "newer"
+  }
+ },
+ {
+  "id": "r-pg",
+  "category": "article",
+  "locale": "en-US",
+  "url": "https://paulgraham.com/greatwork.html",
+  "condition": "shorter",
+  "check": {
+   "kind": "judgment"
+  }
+ },
+ {
+  "id": "r-pomodoro",
+  "category": "article",
+  "locale": "ru-RU",
+  "url": "https://en.wikipedia.org/wiki/Pomodoro_Technique",
+  "condition": "на русском",
+  "check": {
+   "kind": "language",
+   "lang": "ru"
+  }
+ },
+ {
+  "id": "r-habr",
+  "category": "article",
+  "locale": "ru-RU",
+  "url": "https://habr.com/ru/articles/992196",
+  "condition": ""
+ },
+ {
+  "id": "r-9to5",
+  "category": "article",
+  "locale": "en-US",
+  "url": "https://9to5toys.com/2026/09/29/roborock-2026-qrevo-edge-3-pro-robot-vac-and-mop/",
+  "condition": "newer",
+  "check": {
+   "kind": "newer"
+  }
+ },
+ {
+  "id": "c-curry",
+  "category": "recipe",
+  "locale": "en-GB",
+  "url": "https://www.bbcgoodfood.com/recipes/easy-chicken-curry",
+  "condition": "vegetarian",
+  "check": {
+   "kind": "judgment"
+  }
+ },
+ {
+  "id": "c-chowmein",
+  "category": "recipe",
+  "locale": "en-US",
+  "url": "https://www.recipetineats.com/chicken-chow-mein/",
+  "condition": ""
+ },
+ {
+  "id": "c-stroganoff",
+  "category": "recipe",
+  "locale": "en-US",
+  "url": "https://www.recipetineats.com/beef-stroganoff/",
+  "condition": "under 30 minutes",
+  "check": {
+   "kind": "judgment"
+  }
+ },
+ {
+  "id": "c-borscht",
+  "category": "recipe",
+  "locale": "ru-RU",
+  "url": "https://lifehacker.ru/classic-borshcht/",
+  "condition": "постный",
+  "check": {
+   "kind": "judgment"
+  }
+ },
+ {
+  "id": "c-syrniki",
+  "category": "recipe",
+  "locale": "ru-RU",
+  "url": "https://lifehacker.ru/syrniki/",
+  "condition": ""
+ },
+ {
+  "id": "l-hoxton",
+  "category": "place",
+  "locale": "en-US",
+  "url": "https://thehoxton.com/paris/",
+  "condition": "cheaper",
+  "check": {
+   "kind": "judgment"
+  }
+ },
+ {
+  "id": "l-louvre",
+  "category": "place",
+  "locale": "en-US",
+  "url": "https://www.louvre.fr/en",
+  "condition": ""
+ },
+ {
+  "id": "l-yosemite",
+  "category": "place",
+  "locale": "en-US",
+  "url": "https://www.nps.gov/yose/index.htm",
+  "condition": "less crowded",
+  "check": {
+   "kind": "judgment"
+  }
+ },
+ {
+  "id": "l-sagrada",
+  "category": "place",
+  "locale": "en-US",
+  "url": "https://sagradafamilia.org/en/",
+  "condition": ""
+ },
+ {
+  "id": "l-septime",
+  "category": "place",
+  "locale": "en-US",
+  "url": "https://guide.michelin.com/en/ile-de-france/paris/restaurant/septime",
+  "condition": "cheaper",
+  "check": {
+   "kind": "judgment"
+  }
+ },
+ {
+  "id": "k-ml",
+  "category": "course",
+  "locale": "en-US",
+  "url": "https://www.coursera.org/learn/machine-learning",
+  "condition": "free",
+  "check": {
+   "kind": "free"
+  }
+ },
+ {
+  "id": "k-cs50",
+  "category": "course",
+  "locale": "en-US",
+  "url": "https://www.edx.org/learn/computer-science/harvard-university-cs50-s-introduction-to-computer-science",
+  "condition": "shorter",
+  "check": {
+   "kind": "shorter"
+  }
+ },
+ {
+  "id": "k-mit",
+  "category": "course",
+  "locale": "en-US",
+  "url": "https://ocw.mit.edu/courses/6-0001-introduction-to-computer-science-and-programming-in-python-fall-2016/",
+  "condition": ""
+ },
+ {
+  "id": "k-pyde",
+  "category": "course",
+  "locale": "de-DE",
+  "url": "https://www.coursera.org/learn/python",
+  "condition": "auf Deutsch",
+  "check": {
+   "kind": "language",
+   "lang": "de"
+  }
+ },
+ {
+  "id": "v-3b1b",
+  "category": "video",
+  "locale": "en-US",
+  "url": "https://www.youtube.com/watch?v=aircAruvnKk",
+  "condition": "shorter",
+  "check": {
+   "kind": "shorter"
+  }
+ },
+ {
+  "id": "v-karpathy",
+  "category": "video",
+  "locale": "ru-RU",
+  "url": "https://www.youtube.com/watch?v=kCc8FmEb1nY",
+  "condition": "на русском",
+  "check": {
+   "kind": "language",
+   "lang": "ru"
+  }
+ },
+ {
+  "id": "v-jobs",
+  "category": "video",
+  "locale": "en-US",
+  "url": "https://www.youtube.com/watch?v=UF8uR6Z6KLc",
+  "condition": ""
+ },
+ {
+  "id": "v-ted",
+  "category": "video",
+  "locale": "en-US",
+  "url": "https://www.ted.com/talks/sir_ken_robinson_do_schools_kill_creativity",
+  "condition": ""
+ },
+ {
+  "id": "x-attention",
+  "category": "paper",
+  "locale": "en-US",
+  "url": "https://arxiv.org/abs/1706.03762",
+  "condition": "newer",
+  "check": {
+   "kind": "newer"
+  }
+ },
+ {
+  "id": "x-rag",
+  "category": "paper",
+  "locale": "en-US",
+  "url": "https://arxiv.org/abs/2005.11401",
+  "condition": ""
+ },
+ {
+  "id": "x-lora",
+  "category": "paper",
+  "locale": "en-US",
+  "url": "https://arxiv.org/abs/2106.09685",
+  "condition": "newer, with code",
+  "check": {
+   "kind": "newer"
+  }
+ },
+ {
+  "id": "x-alphafold",
+  "category": "paper",
+  "locale": "en-US",
+  "url": "https://www.nature.com/articles/s41586-021-03819-2",
+  "condition": ""
+ },
+ {
+  "id": "j-product-designer",
+  "category": "job",
+  "locale": "en-US",
+  "url": "https://job-boards.greenhouse.io/anthropic/jobs/5446776008",
+  "condition": "remote",
+  "check": {
+   "kind": "judgment"
+  }
+ },
+ {
+  "id": "j-data-scientist",
+  "category": "job",
+  "locale": "en-US",
+  "url": "https://boards.greenhouse.io/figma/jobs/5552580004?gh_jid=5552580004",
+  "condition": ""
+ },
+ {
+  "id": "j-backend",
+  "category": "job",
+  "locale": "en-US",
+  "url": "https://job-boards.greenhouse.io/gitlab/jobs/8749950002",
+  "condition": "in Europe",
+  "check": {
+   "kind": "judgment"
+  }
+ },
+ {
+  "id": "j-pm-airbnb",
+  "category": "job",
+  "locale": "de-DE",
+  "url": "https://careers.airbnb.com/positions/8303742?gh_jid=8303742",
+  "condition": ""
+ },
+ {
+  "id": "b-atomic",
+  "category": "book",
+  "locale": "en-US",
+  "url": "https://www.goodreads.com/book/show/40121378-atomic-habits",
+  "condition": "shorter",
+  "check": {
+   "kind": "judgment"
+  }
+ },
+ {
+  "id": "b-1984",
+  "category": "book",
+  "locale": "en-US",
+  "url": "https://www.goodreads.com/book/show/5470.1984",
+  "condition": ""
+ },
+ {
+  "id": "b-deepwork",
+  "category": "book",
+  "locale": "en-US",
+  "url": "https://calnewport.com/deep-work-rules-for-focused-success-in-a-distracted-world/",
+  "condition": ""
+ }
+]

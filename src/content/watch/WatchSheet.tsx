@@ -11,7 +11,7 @@ import { t } from "../../shared/i18n"
 import { ConsentCard } from "../Consent"
 import { giveConsent, loadConsent } from "../store"
 import { conditionLine, shown } from "../../shared/watch/line"
-import type { WatchHow } from "../../shared/watch/messages"
+import type { WatchDraft, WatchHow } from "../../shared/watch/messages"
 import type { Watch } from "../../shared/watch/types"
 import { panelRoot } from "../root"
 import { Eye } from "./icons"
@@ -26,6 +26,8 @@ export interface WatchSheetProps {
   how: WatchHow
   // A page the background can't read: "Remind me to look" (the whole page's window, from the header's "…").
   remind?: () => void
+  // A page that isn't the one open ("Watch price" on a Find similar item): its draft, made from what our server read.
+  draft?: WatchDraft
 }
 
 let layer: HTMLDivElement | null = null
@@ -58,7 +60,7 @@ function show(make: (close: () => void) => VNode): void {
 export function openWatchSheet(p: WatchSheetProps): void {
   show((close) => (
     <Sheet label={t("watchSection")} close={close}>
-      <WatchSection url={p.url} title={p.title} selection={p.selection} how={p.how} close={close} remind={p.remind && (() => {
+      <WatchSection url={p.url} title={p.title} selection={p.selection} how={p.how} draft={p.draft} close={close} remind={p.remind && (() => {
         close()
         p.remind?.()
       })} />

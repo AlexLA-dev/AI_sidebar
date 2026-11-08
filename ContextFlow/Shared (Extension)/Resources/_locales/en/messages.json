@@ -1685,6 +1685,114 @@
  "usageUltra": {
   "message": "Ultra · {0} of {1} answers left this week"
  },
+ "actSimilar": {
+  "message": "Find similar"
+ },
+ "uxSimilar": {
+  "message": "Find similar…"
+ },
+ "similarTitle": {
+  "message": "Find similar"
+ },
+ "similarConditions": {
+  "message": "Conditions"
+ },
+ "similarCheaper": {
+  "message": "Cheaper"
+ },
+ "similarInStock": {
+  "message": "In stock"
+ },
+ "similarNewer": {
+  "message": "Newer"
+ },
+ "similarFree": {
+  "message": "Free"
+ },
+ "similarMyLanguage": {
+  "message": "In my language"
+ },
+ "similarShorter": {
+  "message": "Shorter"
+ },
+ "similarInLanguage": {
+  "message": "in {0}"
+ },
+ "similarCustom": {
+  "message": "Or say what you need (optional)"
+ },
+ "similarHint": {
+  "message": "Real alternatives that exist now. We open every link and check it before you see it."
+ },
+ "similarFind": {
+  "message": "Find"
+ },
+ "similarAsked": {
+  "message": "Find similar"
+ },
+ "similarAskedWith": {
+  "message": "Find similar: {0}"
+ },
+ "similarStockIn": {
+  "message": "In stock"
+ },
+ "similarStockOut": {
+  "message": "Out of stock"
+ },
+ "similarFromList": {
+  "message": "named in a review"
+ },
+ "similarNotConfirmed": {
+  "message": "Not confirmed"
+ },
+ "similarNotOpened": {
+  "message": "Couldn't open the page to check"
+ },
+ "similarWatchPrice": {
+  "message": "Watch price"
+ },
+ "similarStepPlan": {
+  "message": "Reading the page…"
+ },
+ "similarStepSearch": {
+  "message": "Searching the web…"
+ },
+ "similarStepCheck": {
+  "message": "Checking the pages…"
+ },
+ "similarStepCheckN": {
+  "message": "Checking {0} pages…"
+ },
+ "similarStepWrite": {
+  "message": "Picking the best…"
+ },
+ "similarNone": {
+  "message": "No checked alternatives for this page. Try another condition or none."
+ },
+ "similarChecked": {
+  "message": "Links checked at {0}"
+ },
+ "similarUpsellText": {
+  "message": "Real alternatives to whatever you're looking at — a product, an app, an article, a recipe, a place."
+ },
+ "similarUpsellChecked": {
+  "message": "Every link opened and checked: no dead or made-up pages."
+ },
+ "similarUpsellConditions": {
+  "message": "Cheaper, in stock, newer, free, in your language — or your own words."
+ },
+ "similarUpsellWatch": {
+  "message": "Prices and stock as the page shows them, with Watch price."
+ },
+ "similarGetUltra": {
+  "message": "Get Ultra"
+ },
+ "similarOff": {
+  "message": "Find similar isn't available yet."
+ },
+ "similarLimit": {
+  "message": "This week's {0} Find similar searches are used. They come back on {1}."
+ },
  "tip_4cf1b54b00": {
   "message": "Tips"
  },

@@ -1685,6 +1685,114 @@
  "usageUltra": {
   "message": "Ultra · Questa settimana ti restano {0} risposte su {1}"
  },
+ "actSimilar": {
+  "message": "Trova simili"
+ },
+ "uxSimilar": {
+  "message": "Trova simili…"
+ },
+ "similarTitle": {
+  "message": "Trova simili"
+ },
+ "similarConditions": {
+  "message": "Condizioni"
+ },
+ "similarCheaper": {
+  "message": "Più economico"
+ },
+ "similarInStock": {
+  "message": "Disponibile"
+ },
+ "similarNewer": {
+  "message": "Più recente"
+ },
+ "similarFree": {
+  "message": "Gratis"
+ },
+ "similarMyLanguage": {
+  "message": "Nella mia lingua"
+ },
+ "similarShorter": {
+  "message": "Più breve"
+ },
+ "similarInLanguage": {
+  "message": "in {0}"
+ },
+ "similarCustom": {
+  "message": "Oppure di' cosa ti serve (facoltativo)"
+ },
+ "similarHint": {
+  "message": "Alternative reali che esistono ora. Apriamo e verifichiamo ogni link prima di mostrartelo."
+ },
+ "similarFind": {
+  "message": "Trova"
+ },
+ "similarAsked": {
+  "message": "Trova simili"
+ },
+ "similarAskedWith": {
+  "message": "Trova simili: {0}"
+ },
+ "similarStockIn": {
+  "message": "Disponibile"
+ },
+ "similarStockOut": {
+  "message": "Esaurito"
+ },
+ "similarFromList": {
+  "message": "citato in una recensione"
+ },
+ "similarNotConfirmed": {
+  "message": "Non confermato"
+ },
+ "similarNotOpened": {
+  "message": "Impossibile aprire la pagina per verificarla"
+ },
+ "similarWatchPrice": {
+  "message": "Segui il prezzo"
+ },
+ "similarStepPlan": {
+  "message": "Leggo la pagina…"
+ },
+ "similarStepSearch": {
+  "message": "Cerco sul web…"
+ },
+ "similarStepCheck": {
+  "message": "Verifico le pagine…"
+ },
+ "similarStepCheckN": {
+  "message": "Verifico {0} pagine…"
+ },
+ "similarStepWrite": {
+  "message": "Scelgo le migliori…"
+ },
+ "similarNone": {
+  "message": "Nessuna alternativa verificata per questa pagina. Prova un'altra condizione o nessuna."
+ },
+ "similarChecked": {
+  "message": "Link verificati alle {0}"
+ },
+ "similarUpsellText": {
+  "message": "Alternative reali a ciò che stai guardando: un prodotto, un'app, un articolo, una ricetta, un luogo."
+ },
+ "similarUpsellChecked": {
+  "message": "Ogni link aperto e verificato: niente pagine morte o inventate."
+ },
+ "similarUpsellConditions": {
+  "message": "Più economico, disponibile, più recente, gratis, nella tua lingua, o con parole tue."
+ },
+ "similarUpsellWatch": {
+  "message": "Prezzo e disponibilità come li mostra la pagina, con Segui il prezzo."
+ },
+ "similarGetUltra": {
+  "message": "Passa a Ultra"
+ },
+ "similarOff": {
+  "message": "«Trova simili» non è ancora disponibile."
+ },
+ "similarLimit": {
+  "message": "Le {0} ricerche «Trova simili» di questa settimana sono finite. Tornano {1}."
+ },
  "tip_4cf1b54b00": {
   "message": "Suggerimenti"
  },
