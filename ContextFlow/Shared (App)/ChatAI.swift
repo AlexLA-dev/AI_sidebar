@@ -94,7 +94,7 @@ enum ChatAI {
         let object = data.flatMap { try? JSONSerialization.jsonObject(with: $0) as? [String: Any] }
         switch object?["code"] as? String {
         case "PRO_ONLY": return .proOnly
-        case "LIMIT_REACHED": return object?["plan"] as? String == "pro" ? .limitReached : .dailyLimit
+        case "LIMIT_REACHED": return ["pro", "ultra"].contains(object?["plan"] as? String ?? "") ? .limitReached : .dailyLimit
         case "BUSY", "UPSTREAM": return .busy
         default: return status == 403 ? .proOnly : .network
         }
@@ -168,6 +168,58 @@ enum ChatAI {
               let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return nil }
         let limits = object["limits"] as? [String: Any]
         return ((object["upgradeOffer"] as? [String: Any])?["discount"] as? Int, limits?["searchFreeDaily"] as? Int, limits?["searchProWeekly"] as? Int)
+    }
+
+    /// What the plans say (2.6), from the server: Pro's answers a week, Ultra's listening minutes and find-similar
+    /// searches a week, and the pages each plan watches; Ultra's listening left this week. nil without an answer.
+    @MainActor
+    static func planFacts() async -> PlanFacts? {
+        guard let request = try? request("api/v2/status", identity()),
+              let (data, response) = try? await URLSession.shared.data(for: request),
+              (response as? HTTPURLResponse)?.statusCode == 200,
+              let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let limits = object["limits"] as? [String: Any] else { return nil }
+        let watch = limits["watch"] as? [String: Int] ?? [:]
+        let speak = (object["ultra"] as? [String: Any])?["speak"] as? [String: Any]
+        return PlanFacts(
+            proWeekly: limits["proWeekly"] as? Int ?? 375,
+            speakWeeklyMinutes: (limits["speakWeeklySeconds"] as? Int ?? 1800) / 60,
+            similarWeekly: limits["similarWeekly"] as? Int ?? 10,
+            watchPro: watch["pro"] ?? 20,
+            watchUltra: watch["ultra"] ?? 50,
+            speakLeftSeconds: speak.flatMap { s in (s["limit"] as? Int).map { max(0, $0 - (s["used"] as? Int ?? 0)) } }
+        )
+    }
+
+    struct PlanFacts: Equatable {
+        var proWeekly = 375
+        var speakWeeklyMinutes = 30
+        var similarWeekly = 10
+        var watchPro = 20
+        var watchUltra = 50
+        var speakLeftSeconds: Int?
+    }
+
+    /// Read aloud (2.6, Ultra): one part of the text, spoken by our server (/api/v2/speak), as 24 kHz 16-bit PCM.
+    @MainActor
+    static func speechRequest(text: String, lang: String, what: String, part: Int, parts: Int) throws -> URLRequest {
+        var body = identity()
+        body["text"] = text
+        body["lang"] = lang
+        body["what"] = what
+        body["part"] = part
+        body["parts"] = parts
+        return try request("api/v2/speak", body)
+    }
+
+    /// Read aloud: the text written for the ear by our server (/api/v2/speak-script, Claude Haiku), streamed as plain text.
+    @MainActor
+    static func scriptRequest(text: String, what: String, lang: String) throws -> URLRequest {
+        var body = identity()
+        body["text"] = text
+        body["what"] = what
+        body["lang"] = lang
+        return try request("api/v2/speak-script", body)
     }
 
     /// The server's signature for Pro's promotional offer (only for an active Own key subscription).

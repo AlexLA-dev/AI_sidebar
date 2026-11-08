@@ -92,6 +92,19 @@ New in 2.2:
 - The ContextFlow app has a new Settings tab (appearance, buttons, About me); it is shared with the extension.
 - The app asks for a rating only with Apple's standard prompt (requestReview), after the user has had several
   successful answers in Safari.
+
+New in 2.6: the Ultra plan, yearly plans and read aloud.
+- Plans in the app's Pro tab (one subscription group, top level first): Ultra (monthly, yearly), Pro (monthly,
+  yearly), Own key (monthly, yearly). Moving up (Pro → Ultra) is an upgrade that starts at once.
+- Ultra includes everything in Pro, plus read aloud: under an answer in the Safari panel, tap "Listen"; or in the
+  panel's "…" menu, "Listen to this page". The text is turned into speech by Google (Gemini API) through our server.
+- Background audio (UIBackgroundModes: audio): Safari stops a web page's audio when the screen locks, so on iPhone
+  and iPad "Listen" opens the ContextFlow app, which plays the speech. It keeps playing with the screen locked and
+  shows the standard Now Playing controls (play/pause, 15 seconds back and ahead) on the lock screen. Audio plays
+  only after the user taps Listen; "Back to Safari" returns to the page. Nothing plays in the background otherwise.
+  The same background mode also lets the setup guide play its short video in picture in picture over Settings.
+- To test: subscribe to Ultra in the sandbox, open an article in Safari, ask "Summarize", tap Listen under the
+  answer, then lock the screen.
 ```
 
 В поле Contact Information укажите свои имя, телефон и e-mail.

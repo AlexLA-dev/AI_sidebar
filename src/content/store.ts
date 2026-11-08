@@ -277,8 +277,12 @@ export async function deleteAllChats(): Promise<void> {
   const gone: Threads = {}
   for (const id of Object.keys(threads)) if (id in synced) gone[id] = { id, u: now, m: [], deleted: true }
   await chrome.storage.local.set({ [STORAGE.threads]: gone, [STORAGE.activeThread]: { id: newThreadId(), at: now }, [STORAGE.chats]: {} }).catch(() => undefined)
-  // The messages' vectors (organizing) go with the chats.
+  // The messages' vectors (organizing) go with the chats, and what was read aloud (2.6, kept in the background).
   await chrome.storage.local.remove([STORAGE.conversation, STORAGE.pageTexts, STORAGE.orgVectors, STORAGE.orgVerdicts]).catch(() => undefined)
+  await new Promise<void>((resolve) => chrome.runtime.sendMessage({ type: "speechClear" }, () => {
+    void chrome.runtime.lastError
+    resolve()
+  }))
 }
 
 // ------------------------------------------------------------ organizing (2.5)

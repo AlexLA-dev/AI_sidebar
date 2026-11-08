@@ -2,6 +2,7 @@
 // (Project configuration → Environment variables) without a code change.
 
 import { organizeConfig } from "../../src/shared/organize.ts"
+import { PLAN_PRODUCTS, ULTRA_DEFAULTS, type PaidPlan } from "../../src/shared/plan.ts"
 
 function env(name: string): string | undefined {
   const fromNetlify = (globalThis as { Netlify?: { env: { get(k: string): string | undefined } } }).Netlify?.env.get(name)
@@ -87,6 +88,43 @@ export const config = {
   freeIpDailyLimit: int("FREE_IP_DAILY_LIMIT", 40),
   freeGlobalDailyLimit: int("FREE_GLOBAL_DAILY_LIMIT", 3000),
   proWeeklyLimit: int("PRO_WEEKLY_LIMIT", 375),
+  // Ultra (2.6): everything in Pro (its answers, the same weekly allowance unless set apart) and read aloud,
+  // find similar and more watched pages. Read aloud counts seconds of audio, find similar counts searches, a week
+  // per subscription (Monday, UTC); the global caps only stop runaway spend (nobody sees them).
+  ultra: {
+    weeklyLimit: int("ULTRA_WEEKLY_LIMIT", int("PRO_WEEKLY_LIMIT", 375)),
+    speakWeeklySeconds: int("ULTRA_SPEAK_WEEKLY_SECONDS", ULTRA_DEFAULTS.speakWeeklySeconds),
+    speakGlobalDailySeconds: int("SPEAK_GLOBAL_DAILY_SECONDS", 200_000),
+    // Find similar's daily safety caps (per install, for everyone) belong to its engine (config.similar, /api/v2/similar).
+    similarWeekly: int("ULTRA_SIMILAR_WEEKLY", ULTRA_DEFAULTS.similarWeekly)
+  },
+  // Read aloud (2.6, Ultra): Gemini TTS through our server with GEMINI_API_KEY, streamed as headerless PCM.
+  // "auto" picks the newest stable model of the kind from the model list (like GEMINI_MODEL); Flash-Lite speaks
+  // ~100 languages, the full Flash TTS the rest (TTS_FULL_LANGS, ISO 639-1/-3 codes Flash-Lite lacks).
+  speak: {
+    liteModel: (env("TTS_MODEL") ?? "auto").trim(),
+    fullModel: (env("TTS_FULL_MODEL") ?? "auto").trim(),
+    liteFallback: (env("TTS_FALLBACK_MODELS") ?? "gemini-3.8-flash-lite-tts,gemini-3.1-flash-tts-preview").split(",").map((m) => m.trim()).filter(Boolean),
+    fullFallback: (env("TTS_FULL_FALLBACK_MODELS") ?? "gemini-3.8-flash-tts,gemini-3.1-flash-tts-preview").split(",").map((m) => m.trim()).filter(Boolean),
+    fullLangs: (env("TTS_FULL_LANGS") ?? "ba,bem,bjn,crh,dyu,dz,fi,gn,ig,kab,lb,lt,ltg,min,my,oc,pag,sd,sl,so,ss,st,sv,sw,tg,th,ti,als,ug").split(",").map((l) => l.trim().toLowerCase()).filter(Boolean),
+    voice: (env("TTS_VOICE") ?? "Kore").trim(),
+    // Characters per request: the client sends a long text in parts (a first short one, for a quick start).
+    maxChars: int("TTS_MAX_CHARS", 3000),
+    // USD per million tokens, for the spend in the logs. Google doubles them from 2027-01-01 (see TTS_PRICES_2027).
+    prices: {
+      lite: { text: Number(env("TTS_PRICE_TEXT") ?? 0.5), audio: Number(env("TTS_PRICE_AUDIO") ?? 6) },
+      full: { text: Number(env("TTS_FULL_PRICE_TEXT") ?? 0.5), audio: Number(env("TTS_FULL_PRICE_AUDIO") ?? 9) }
+    },
+    pricesFrom2027: (env("TTS_PRICES_2027") ?? "on").trim() !== "off",
+    // Text for listening (/api/v2/speak-script, the owner's note): Claude Haiku rewrites tables, lists, code and
+    // symbols into speech before the voice reads it. SPEAK_SCRIPT=off: the device's own rules only. The caps only stop
+    // runaway clients (characters a request; requests a day per subscription and for everyone).
+    scriptEnabled: (env("SPEAK_SCRIPT") ?? "on").trim() !== "off",
+    scriptModel: (env("SPEAK_SCRIPT_MODEL") ?? "claude-haiku-5-5").trim(),
+    scriptMaxChars: int("SPEAK_SCRIPT_MAX_CHARS", 6000),
+    scriptDaily: int("SPEAK_SCRIPT_DAILY", 400),
+    scriptGlobalDaily: int("SPEAK_SCRIPT_GLOBAL_DAILY", 60_000)
+  },
   // Quick insert's AI (Claude Haiku 5.5): marking a template's blanks, filling them from the page, finding a
   // template by meaning. The owner's choice: Free fills its blanks with AI 5 times a day (apart from the 5
   // answers), Pro and Own key without a limit; marking and search have no limit for anyone. The caps
@@ -170,11 +208,9 @@ export const config = {
   siteGlobalDailyLimit: int("SITE_GLOBAL_DAILY_LIMIT", 20000)
 }
 
-export const PRODUCTS = {
-  "com.contextflow.pro.monthly": "pro",
-  "com.contextflow.pro.yearly": "pro",
-  "com.contextflow.byok.monthly": "byok"
-} as const
+/** Product id → plan, for every product we sell (src/shared/plan.ts; the app and App Store Connect match it). */
+export const PRODUCTS: Readonly<Record<string, PaidPlan>> = Object.fromEntries(
+  (Object.keys(PLAN_PRODUCTS) as PaidPlan[]).flatMap((plan) => PLAN_PRODUCTS[plan].map((id) => [id, plan]))
+)
 
-export type PaidPlan = (typeof PRODUCTS)[keyof typeof PRODUCTS]
-export type Plan = "free" | PaidPlan
+export type { PaidPlan, Plan } from "../../src/shared/plan.ts"

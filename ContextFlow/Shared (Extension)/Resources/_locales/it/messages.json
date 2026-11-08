@@ -1574,6 +1574,117 @@
  "watchChangedBody": {
   "message": "Ora: {0}"
  },
+ "planUltra": {
+  "message": "Ultra"
+ },
+ "plansTitle": {
+  "message": "Piani"
+ },
+ "plansCompare": {
+  "message": "Confronta i piani"
+ },
+ "plansMonthly": {
+  "message": "Mensile"
+ },
+ "plansYearly": {
+  "message": "Annuale"
+ },
+ "plansSave": {
+  "message": "Risparmia il {0}%"
+ },
+ "plansCurrent": {
+  "message": "Il tuo piano"
+ },
+ "plansChoose": {
+  "message": "Scegli {0}"
+ },
+ "plansPerMonth": {
+  "message": "{0}/mese"
+ },
+ "plansPerYear": {
+  "message": "{0}/anno"
+ },
+ "plansNote": {
+  "message": "L’abbonamento si fa nell’app ContextFlow. Il passaggio a Ultra parte subito e Apple rimborsa quello che resta del piano attuale."
+ },
+ "tierByok1": {
+  "message": "Risposte illimitate con la tua chiave API di OpenAI o Claude"
+ },
+ "tierByok2": {
+  "message": "Tutto sulla pagina: riassunti, spiegazioni, traduzioni"
+ },
+ "tierPro1": {
+  "message": "Fino a {0} risposte a settimana, senza chiave API"
+ },
+ "tierPro2": {
+  "message": "Video e PDF, ricerca IA, «Chiedi alle tue chat», ordine per argomento"
+ },
+ "tierPro3": {
+  "message": "Segui fino a {0} pagine: cali di prezzo e modifiche"
+ },
+ "tierUltra0": {
+  "message": "Tutto di Pro, e in più:"
+ },
+ "tierUltra1": {
+  "message": "Ascolta risposte e pagine intere con una voce naturale: {0} minuti a settimana"
+ },
+ "tierUltra2": {
+  "message": "Trova simili: altro come la pagina aperta, da altri siti, {0} ricerche a settimana"
+ },
+ "tierUltra3": {
+  "message": "Segui fino a {0} pagine"
+ },
+ "listen": {
+  "message": "Ascolta"
+ },
+ "listenPage": {
+  "message": "Ascolta questa pagina"
+ },
+ "listenPause": {
+  "message": "Pausa"
+ },
+ "listenPlay": {
+  "message": "Riproduci"
+ },
+ "listenStop": {
+  "message": "Interrompi"
+ },
+ "listenLoading": {
+  "message": "Preparo la voce…"
+ },
+ "listenUltraTitle": {
+  "message": "L’ascolto fa parte di Ultra"
+ },
+ "listenUltraBody": {
+  "message": "Risposte e pagine intere lette ad alta voce con una voce naturale, in oltre 100 lingue. Su iPhone continua anche a schermo bloccato."
+ },
+ "listenLimit": {
+  "message": "I {0} minuti di ascolto di questa settimana sono finiti. Tornano {1}."
+ },
+ "listenFailed": {
+  "message": "Impossibile leggerlo ad alta voce. Riprova tra poco."
+ },
+ "listenOffline": {
+  "message": "Nessuna connessione: la prima volta l’ascolto richiede internet."
+ },
+ "listenInApp": {
+  "message": "Apro ContextFlow: continua anche a schermo bloccato."
+ },
+ "listenLeft": {
+  "message": "Ascolto: questa settimana restano {0} min su {1}"
+ },
+ "watchFullPro": {
+  "message": "Con Pro puoi seguire {0} pagine alla volta. Con Ultra fino a {1}."
+ },
+ "watchMoreUltra": {
+  "message": "Di più con Ultra"
+ },
+ "seeUltra": {
+  "message": "Scopri Ultra"
+ },
+ "usageUltra": {
+  "message": "Ultra · Questa settimana ti restano {0} risposte su {1}"
+ },
  "tip_4cf1b54b00": {
   "message": "Suggerimenti"
  },

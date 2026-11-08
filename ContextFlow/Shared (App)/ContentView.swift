@@ -65,9 +65,13 @@ struct ContentView: View {
     /// Chats in Recently Deleted count: the Chats screen is the way to them (2.5 (83)).
     private var hasChats: Bool { !chats.threads.isEmpty || !chats.trashed.isEmpty }
 
-    /// With Pro there is no Pro tab: the plan is at the bottom of Settings. A purchase made on the Pro
-    /// tab keeps it until the user leaves it, so its "You're all set" isn't cut off.
-    private var showsPro: Bool { !store.isPro || tab == .pro }
+    /// With Ultra there is no Pro tab: the plan is at the bottom of Settings (2.6: Pro subscribers keep it, as
+    /// "Ultra"). A purchase made on the tab keeps it until the user leaves it, so its "You're all set" isn't cut off.
+    private var showsPro: Bool { !store.isUltra || tab == .pro }
+    /// The tab's name: Ultra for Pro subscribers (what's left to get), else Pro.
+    private var proTabName: LocalizedStringKey { store.isPro && !store.isUltra ? "Ultra" : "Pro" }
+    /// Read aloud handed over by the Safari panel (contextflow://listen?id=…).
+    @StateObject private var listen = ListenPlayer.shared
 
     /// The extension counted enough good answers since the last time: ask for an App Store rating
     /// (Apple decides whether to show it, at most 3 times a year). Never on a plain first launch. On
@@ -99,15 +103,28 @@ struct ContentView: View {
     var body: some View {
         root
             .tint(brandBlue)
+            .sheet(isPresented: Binding(get: { listen.visible }, set: { if !$0 { listen.dismiss() } })) {
+                ListenView(player: listen, openPlans: {
+                    listen.dismiss()
+                    Paywall.shared.focus = .ultra
+                    tab = .pro
+                })
+            }
             .sheet(isPresented: $whatsNew) {
                 OrganizeWhatsNew(pro: store.isPro, openPro: { whatsNew = false; tab = .pro }, close: { whatsNew = false })
             }
             .onChange(of: hasChats) { _ in showWhatsNewIfDue() }
             .onReceive(router.$pending.compactMap { $0 }) { url in
                 switch url.host {
+                // 2.6: the panel's plans sheet names the plan and period; a plan above the current one opens on it.
+                case "subscribe" where Paywall.wantsUpgrade(url, from: store.tier):
+                    Paywall.shared.open(url)
+                    tab = .pro
                 case "subscribe", "manage":
                     tab = store.isPro ? .settings : .pro
                     showPlan = store.isPro
+                case "listen":
+                    listen.open(url)
                 case "tips": tab = .tips
                 case "chats": tab = hasChats ? .chats : .home
                 // A reminder on a message (2.5): Chats opens at it.
@@ -121,6 +138,7 @@ struct ContentView: View {
             }
             .task {
                 SharedDefaults.shared.removeLegacyData()
+                listen.debugStartIfAsked()
                 chats.refresh()
                 showWhatsNewIfDue()
                 await store.refreshEntitlement()
@@ -195,7 +213,7 @@ struct ContentView: View {
                 }
                 Label("Templates", systemImage: "text.badge.plus").tag(AppTab.templates)
                 Label("Tips", systemImage: "lightbulb").tag(AppTab.tips)
-                if showsPro { Label("Pro", systemImage: "crown").tag(AppTab.pro) }
+                if showsPro { Label(proTabName, systemImage: "crown").tag(AppTab.pro) }
                 Label("Settings", systemImage: "gearshape").tag(AppTab.settings)
             }
             .navigationSplitViewColumnWidth(min: 170, ideal: 190)
@@ -239,7 +257,7 @@ struct ContentView: View {
     private var proTab: some View {
         NavigationView { ProView(store: store) }
             .navigationViewStyle(.stack)
-            .tabItem { Label("Pro", systemImage: "crown") }
+            .tabItem { Label(proTabName, systemImage: "crown") }
             .tag(AppTab.pro)
     }
 
@@ -794,35 +812,49 @@ struct PlayerLayerView: NSViewRepresentable {
 
 struct ProView: View {
     @ObservedObject var store: StoreKitManager
+    @ObservedObject private var paywall = Paywall.shared
     @Environment(\.requestReview) private var requestReview
     @Environment(\.openURL) private var openURL
     @State private var busyProduct: String?
     @State private var restoring = false
     @State private var message: String?
-    @State private var success = false
+    @State private var success: String?
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 18) {
-                hero
-                if store.isByok { byokCard } else if store.entitlement.active { activeCard }
-                organizing
-                features
-                products
-                actions
-                legal
+        ScrollViewReader { scroller in
+            ScrollView {
+                VStack(alignment: .leading, spacing: 18) {
+                    hero
+                    if store.isByok { byokCard } else if store.entitlement.active { activeCard }
+                    plans
+                    organizing
+                    features
+                    actions
+                    legal
+                }
+                .padding(20)
+                .frame(maxWidth: 640)
+                .frame(maxWidth: .infinity)
             }
-            .padding(20)
-            .frame(maxWidth: 640)
-            .frame(maxWidth: .infinity)
+            .onAppear { scrollToFocus(scroller) }
+            .onChange(of: paywall.focus) { _ in scrollToFocus(scroller) }
         }
         .navigationTitle("ContextFlow Pro")
-        .alert(isPresented: $success) {
+        .task { await store.refreshPlanFacts() }
+        .alert(isPresented: Binding(get: { success != nil }, set: { if !$0 { success = nil } })) {
             Alert(
                 title: Text("You're all set"),
-                message: Text("Pro is active. Open Safari and tap ✦ on any page."),
+                message: Text("\(success ?? "Pro") is active. Open Safari and tap ✦ on any page."),
                 dismissButton: .default(Text("OK")) { requestReview() }
             )
+        }
+    }
+
+    /// From the panel's plans sheet (contextflow://subscribe?plan=…&period=…): the chosen plan in view.
+    private func scrollToFocus(_ scroller: ScrollViewProxy) {
+        guard let focus = paywall.focus else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+            withAnimation { scroller.scrollTo(focus.rawValue, anchor: .center) }
         }
     }
 
@@ -855,7 +887,7 @@ struct ProView: View {
             Spacer()
         }
         .padding(16)
-        .background(brandGradient)
+        .background(store.isUltra ? ultraGradient : brandGradient)
         .cornerRadius(16)
     }
 
@@ -899,7 +931,7 @@ struct ProView: View {
         Task {
             do {
                 switch try await store.upgradeWithOffer() {
-                case .purchased: success = true
+                case .purchased: success = String(localized: "Pro")
                 case .pending: message = String(localized: "Your purchase is waiting for approval.")
                 case .cancelled: break
                 }
@@ -910,7 +942,7 @@ struct ProView: View {
         }
     }
 
-    /// Organizing the chats (2.5), first: what it does, with its loop.
+    /// Organizing the chats (2.5): what it does, with its loop.
     private var organizing: some View {
         HStack(alignment: .center, spacing: 16) {
             OrganizeAnimation(big: true)
@@ -927,6 +959,7 @@ struct ProView: View {
 
     private var features: some View {
         VStack(alignment: .leading, spacing: 10) {
+            Text("Everything in Pro").font(.headline)
             Feature(systemImage: "arrow.turn.down.right", text: "Sorts by topic: suggests the right chat and your own tag")
             Feature(systemImage: "sparkles", text: "AI search: find any chat by describing it in your own words")
             Feature(systemImage: "bubble.left.and.text.bubble.right", text: "Ask your chats: questions across everything you've read and asked")
@@ -939,8 +972,12 @@ struct ProView: View {
         }
     }
 
+    // MARK: Plans (2.6): Own key, Pro and Ultra, monthly or yearly
+
+    private var hasYearly: Bool { StoreKitManager.Tier.allCases.contains { store.product($0, yearly: true) != nil } }
+
     @ViewBuilder
-    private var products: some View {
+    private var plans: some View {
         if store.products.isEmpty {
             HStack(spacing: 10) {
                 if store.isLoadingProducts {
@@ -953,45 +990,37 @@ struct ProView: View {
                 }
             }
         } else {
-            VStack(spacing: 12) {
-                if let pro = store.pro {
-                    PlanCard(
-                        product: pro,
-                        title: "Pro",
-                        subtitle: "Everything included. No API key needed.",
-                        badge: "Recommended",
-                        highlighted: store.proYearly == nil,
-                        trialEligible: store.introEligible.contains(pro.id),
-                        current: store.entitlement.productId == pro.id,
-                        busy: busyProduct == pro.id,
-                        action: { buy(pro) }
-                    )
+            VStack(alignment: .leading, spacing: 12) {
+                if hasYearly {
+                    Picker("Billing", selection: $paywall.yearly) {
+                        Text("Monthly").tag(false)
+                        Text("Yearly").tag(true)
+                    }
+                    .pickerStyle(.segmented)
+                    .accessibilityIdentifier("plans.period")
                 }
-                if let yearly = store.proYearly {
-                    PlanCard(
-                        product: yearly,
-                        title: "Pro yearly",
-                        subtitle: "Everything in Pro for a whole year.",
-                        badge: savingsBadge(yearly: yearly, monthly: store.pro),
-                        highlighted: true,
-                        trialEligible: store.introEligible.contains(yearly.id),
-                        current: store.entitlement.productId == yearly.id,
-                        busy: busyProduct == yearly.id,
-                        action: { buy(yearly) }
-                    )
+                ForEach(StoreKitManager.Tier.allCases) { tier in
+                    if let product = store.product(tier, yearly: paywall.yearly && hasYearly) ?? store.product(tier, yearly: false) {
+                        TierCard(
+                            tier: tier,
+                            product: product,
+                            monthly: store.product(tier, yearly: false),
+                            facts: store.planFacts,
+                            focused: tier == focusTier,
+                            current: store.entitlement.active && store.entitlement.productId == product.id,
+                            currentTier: store.tier,
+                            trialEligible: store.introEligible.contains(product.id),
+                            busy: busyProduct == product.id,
+                            action: { buy(product) }
+                        )
+                        .id(tier.rawValue)
+                    }
                 }
-                if let byok = store.byok {
-                    PlanCard(
-                        product: byok,
-                        title: "Own key",
-                        subtitle: "Unlimited answers with your own OpenAI or Claude API key.",
-                        badge: nil,
-                        highlighted: false,
-                        trialEligible: store.introEligible.contains(byok.id),
-                        current: store.entitlement.productId == byok.id,
-                        busy: busyProduct == byok.id,
-                        action: { buy(byok) }
-                    )
+                if let note = changeNote {
+                    Text(note)
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
             }
         }
@@ -1000,6 +1029,24 @@ struct ProView: View {
                 .font(.footnote)
                 .foregroundColor(.secondary)
         }
+    }
+
+    /// The plan to highlight: the panel's choice, else the next one up from the current plan (Pro for Free).
+    private var focusTier: StoreKitManager.Tier {
+        if let focus = paywall.focus { return focus }
+        switch store.tier {
+        case .pro?, .ultra?: return .ultra
+        default: return .pro
+        }
+    }
+
+    /// What happens to the current plan when the focused one is bought.
+    private var changeNote: String? {
+        guard let current = store.tier, current != focusTier else { return nil }
+        let name = focusTier.name
+        return focusTier.rank > current.rank
+            ? String(localized: "\(name) starts now. Apple refunds the unused part of \(current.name).")
+            : String(localized: "\(name) starts when your current plan renews.")
     }
 
     private var actions: some View {
@@ -1037,23 +1084,13 @@ struct ProView: View {
         .padding(.top, 4)
     }
 
-    private func savingsBadge(yearly: Product, monthly: Product?) -> LocalizedStringKey? {
-        guard let monthly, monthly.price > 0 else { return nil }
-        let full = monthly.price * 12
-        guard full > yearly.price else { return nil }
-        let percent = NSDecimalNumber(decimal: (full - yearly.price) / full * 100).intValue
-        guard percent >= 5 else { return nil }
-        let badge: LocalizedStringKey = "Save \(percent)%"
-        return badge
-    }
-
     private func buy(_ product: Product) {
         busyProduct = product.id
         message = nil
         Task {
             do {
                 switch try await store.purchase(product) {
-                case .purchased: success = true
+                case .purchased: success = planName(product.id)
                 case .pending: message = String(localized: "Your purchase is waiting for approval.")
                 case .cancelled: break
                 }
@@ -1065,10 +1102,144 @@ struct ProView: View {
     }
 }
 
+/// What the panel's plans sheet chose (contextflow://subscribe?plan=ultra&period=yearly), for the Pro screen.
+final class Paywall: ObservableObject {
+    static let shared = Paywall()
+
+    /// The link names a plan above the current one (or there is none): the Pro screen opens on it.
+    static func wantsUpgrade(_ url: URL, from current: StoreKitManager.Tier?) -> Bool {
+        let plan = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first { $0.name == "plan" }?.value
+        guard let tier = plan.flatMap(StoreKitManager.Tier.init(rawValue:)) else { return false }
+        return (current?.rank ?? 0) < tier.rank
+    }
+    @Published var focus: StoreKitManager.Tier?
+    @Published var yearly = true
+
+    func open(_ url: URL) {
+        let items = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
+        let value = { (name: String) in items.first { $0.name == name }?.value }
+        if let plan = value("plan").flatMap(StoreKitManager.Tier.init(rawValue:)) { focus = plan }
+        if let period = value("period") { yearly = period == "yearly" }
+    }
+}
+
+let ultraGradient = LinearGradient(colors: [Color(red: 0.55, green: 0.36, blue: 0.96), brandBlue], startPoint: .topLeading, endPoint: .bottomTrailing)
+
+extension StoreKitManager.Tier {
+    var name: String {
+        switch self {
+        case .byok: return String(localized: "Own key")
+        case .pro: return String(localized: "Pro")
+        case .ultra: return String(localized: "Ultra")
+        }
+    }
+}
+
+/// One plan on the Pro screen: its price for the period, what it adds in plain words, and its button.
+struct TierCard: View {
+    let tier: StoreKitManager.Tier
+    let product: Product
+    let monthly: Product?
+    let facts: ChatAI.PlanFacts
+    let focused: Bool
+    let current: Bool
+    let currentTier: StoreKitManager.Tier?
+    let trialEligible: Bool
+    let busy: Bool
+    let action: () -> Void
+
+    private var yearly: Bool { product.subscription?.subscriptionPeriod.unit == .year }
+
+    private var priceLine: String {
+        yearly ? String(localized: "\(product.displayPrice) / year") : String(localized: "\(product.displayPrice) / month")
+    }
+
+    private var saving: Int? {
+        guard yearly, let monthly, monthly.price > 0 else { return nil }
+        let full = monthly.price * 12
+        guard full > product.price else { return nil }
+        // doubleValue: NSDecimalNumber.intValue misreads a long quotient like 35.89 / 155.88 (it gave no badge).
+        let percent = Int((NSDecimalNumber(decimal: (full - product.price) / full).doubleValue * 100).rounded())
+        return percent >= 5 ? percent : nil
+    }
+
+    private var lines: [(String, LocalizedStringKey)] {
+        switch tier {
+        case .byok:
+            return [
+                ("key.fill", "Unlimited answers with your own OpenAI or Claude API key"),
+                ("doc.text.magnifyingglass", "Everything on the page: summaries, explanations, translations")
+            ]
+        case .pro:
+            return [
+                ("bolt.fill", "Up to \(facts.proWeekly) answers a week, no API key needed"),
+                ("play.rectangle", "Videos and PDFs, AI search, Ask your chats, sorting by topic"),
+                ("eye", "Watch up to \(facts.watchPro) pages for price drops and changes")
+            ]
+        case .ultra:
+            return [
+                ("checkmark.circle", "Everything in Pro, plus:"),
+                ("speaker.wave.2.fill", "Listen to answers and whole pages in a natural voice: \(facts.speakWeeklyMinutes) minutes a week"),
+                ("square.on.square", "Find similar: more like the open page, from other sites, \(facts.similarWeekly) searches a week"),
+                ("eye", "Watch up to \(facts.watchUltra) pages")
+            ]
+        }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Text(tier.name).font(.title3.weight(.bold))
+                if let saving {
+                    Text("Save \(saving)%")
+                        .font(.caption2.weight(.bold))
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .background(Capsule().fill(Color.green.opacity(0.15)))
+                        .foregroundColor(.green)
+                }
+                Spacer()
+                Text(priceLine).font(.headline)
+            }
+            ForEach(Array(lines.enumerated()), id: \.offset) { _, line in
+                Feature(systemImage: line.0, text: line.1)
+            }
+            Button(action: action) {
+                Group {
+                    if busy {
+                        ProgressView()
+                    } else if current {
+                        Text("Current plan")
+                    } else if trialEligible, product.subscription?.introductoryOffer?.paymentMode == .freeTrial {
+                        Text("Start free trial")
+                    } else if let currentTier, currentTier.rank < tier.rank {
+                        Text("Upgrade to \(tier.name)")
+                    } else {
+                        Text("Subscribe for \(priceLine)")
+                    }
+                }
+                .font(.headline)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 6)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(focused ? (tier == .ultra ? Color(red: 0.49, green: 0.31, blue: 0.93) : brandBlue) : .gray)
+            .disabled(busy || current)
+            .accessibilityIdentifier("plans.buy.\(tier.rawValue)")
+        }
+        .padding(16)
+        .overlay(RoundedRectangle(cornerRadius: 16).stroke(focused ? (tier == .ultra ? Color(red: 0.55, green: 0.36, blue: 0.96) : brandBlue) : Color.secondary.opacity(0.25), lineWidth: focused ? 2 : 1))
+    }
+}
+
 // MARK: - Components
 
 func planName(_ productId: String?) -> String {
-    productId == StoreKitManager.ProductID.byok ? String(localized: "Own key plan") : String(localized: "Pro")
+    switch PlanProducts.plan(of: productId) {
+    case "byok": return String(localized: "Own key plan")
+    case "ultra": return String(localized: "Ultra")
+    default: return String(localized: "Pro")
+    }
 }
 
 struct Card<Content: View>: View {

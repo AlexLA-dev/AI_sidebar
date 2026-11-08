@@ -6,11 +6,12 @@
 // ignored and the answer counts as before.
 
 import type { Counter } from "./db.mts"
+import { hasPro, type Plan } from "../../src/shared/plan.ts"
 
 /** Whether to try the guide's free answer: marked so, on our key, an ordinary answer (not Google, not "Ask your
  * chats"), and not Pro (whose allowance is weekly and large). */
 export function tourAsked(body: Record<string, unknown>, plan: string, google: boolean, history: boolean): boolean {
-  return body.tour === true && !google && !history && plan !== "pro"
+  return body.tour === true && !google && !history && !hasPro(plan as Plan)
 }
 
 /** The install's own daily counter, which a free guided answer leaves out. */

@@ -4,6 +4,7 @@ import { useEffect, useState } from "preact/hooks"
 import { LINKS, TARGET, VERSION } from "../shared/config"
 import { t } from "../shared/i18n"
 import { OWN_KEY_PATTERN } from "../shared/models"
+import { hasPro, isUltra } from "../shared/plan"
 import type { Platform, Settings, StatusInfo, Usage } from "../shared/types"
 import * as Icon from "./icons"
 import { deleteAllChats } from "./store"
@@ -17,6 +18,8 @@ interface Props {
   site: string
   onChange: (patch: Partial<Settings>) => void
   onUpgrade: () => void
+  // 2.6: the plans sheet (Own key, Pro, Ultra; monthly or yearly).
+  onPlans?: () => void
   // The Own key plan's button: "Upgrade to Pro", at the discount when there is one.
   upgradeLabel?: string
   onManage: () => void
@@ -64,7 +67,9 @@ export function SettingsView(props: Props): VNode {
 
   const hidden = settings.fabHiddenSites.includes(site)
   const renews = status?.store?.expiresAt ? new Date(status.store.expiresAt).toLocaleDateString() : null
-  const planName = plan === "pro" ? t("planPro") : plan === "byok" ? t("planByok") : t("planFree")
+  const planName = plan === "ultra" ? t("planUltra") : plan === "pro" ? t("planPro") : plan === "byok" ? t("planByok") : t("planFree")
+  // Ultra: this week's listening, in minutes.
+  const speak = isUltra(plan) ? status?.ultra?.speak ?? null : null
 
   // The plan comes first until there is Pro; with Pro it's managed at the very bottom.
   const planGroup = (
@@ -78,6 +83,9 @@ export function SettingsView(props: Props): VNode {
           <div style={{ width: `${Math.min(100, (usage.used / Math.max(1, usage.limit)) * 100)}%` }} />
         </div>
       )}
+      {speak && (
+        <p class="cf-hint">{t("listenLeft", String(Math.max(0, Math.floor((speak.limit - speak.used) / 60))), String(Math.round(speak.limit / 60)))}</p>
+      )}
       {renews && plan !== "free" && <p class="cf-hint">{status?.store?.autoRenew === false ? t("planEnds", renews) : t("planRenews", renews)}</p>}
       {TARGET === "safari" && (
         <div class="cf-row buttons">
@@ -90,6 +98,7 @@ export function SettingsView(props: Props): VNode {
             </>
           )}
           {plan === "free" && <button type="button" class="cf-link" onClick={props.onManage}>{t("restorePurchases")}</button>}
+          {props.onPlans && <button type="button" class={isUltra(plan) ? "cf-link" : "cf-secondary"} onClick={props.onPlans}>{isUltra(plan) ? t("plansCompare") : plan === "free" ? t("plansCompare") : t("seeUltra")}</button>}
         </div>
       )}
     </section>
@@ -97,7 +106,7 @@ export function SettingsView(props: Props): VNode {
 
   return (
     <div class="cf-settings">
-      {plan !== "pro" && planGroup}
+      {!hasPro(plan) && planGroup}
 
       <section class="cf-group">
         <div class="cf-row">
@@ -208,7 +217,7 @@ export function SettingsView(props: Props): VNode {
       </section>
 
       <section class="cf-group">
-        {TARGET === "safari" && (plan === "pro" ? (
+        {TARGET === "safari" && (hasPro(plan) ? (
           <>
             <label class="cf-row toggle">
               <span class="cf-label">{t("setOrganize")}</span>
@@ -222,7 +231,7 @@ export function SettingsView(props: Props): VNode {
             <button type="button" class="cf-link" onClick={props.onOrganizePro}>{t("getPro")}</button>
           </div>
         ))}
-        {TARGET === "safari" && plan !== "pro" && <p class="cf-hint">{t("setOrganizePro")}</p>}
+        {TARGET === "safari" && !hasPro(plan) && <p class="cf-hint">{t("setOrganizePro")}</p>}
         {TARGET === "safari" && (
           <>
             <label class="cf-row toggle">
@@ -245,7 +254,7 @@ export function SettingsView(props: Props): VNode {
         </button>
       </section>
 
-      {plan === "pro" && planGroup}
+      {hasPro(plan) && planGroup}
 
       <footer class="cf-links">
         <button type="button" class="cf-link" onClick={props.onShowTour}>{t("tourShow")}</button>

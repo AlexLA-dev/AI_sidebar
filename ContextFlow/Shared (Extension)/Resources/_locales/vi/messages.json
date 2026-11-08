@@ -1574,6 +1574,117 @@
  "watchChangedBody": {
   "message": "Hiện tại: {0}"
  },
+ "planUltra": {
+  "message": "Ultra"
+ },
+ "plansTitle": {
+  "message": "Các gói"
+ },
+ "plansCompare": {
+  "message": "So sánh các gói"
+ },
+ "plansMonthly": {
+  "message": "Theo tháng"
+ },
+ "plansYearly": {
+  "message": "Theo năm"
+ },
+ "plansSave": {
+  "message": "Tiết kiệm {0}%"
+ },
+ "plansCurrent": {
+  "message": "Gói của bạn"
+ },
+ "plansChoose": {
+  "message": "Chọn {0}"
+ },
+ "plansPerMonth": {
+  "message": "{0}/tháng"
+ },
+ "plansPerYear": {
+  "message": "{0}/năm"
+ },
+ "plansNote": {
+  "message": "Bạn đăng ký trong ứng dụng ContextFlow. Chuyển lên Ultra sẽ bắt đầu ngay, và Apple hoàn tiền phần còn lại của gói hiện tại."
+ },
+ "tierByok1": {
+  "message": "Không giới hạn câu trả lời với khóa API OpenAI hoặc Claude của riêng bạn"
+ },
+ "tierByok2": {
+  "message": "Mọi thứ trên trang: tóm tắt, giải thích, dịch"
+ },
+ "tierPro1": {
+  "message": "Tối đa {0} câu trả lời mỗi tuần, không cần khóa API"
+ },
+ "tierPro2": {
+  "message": "Video và PDF, Tìm kiếm AI, “Hỏi các cuộc trò chuyện”, sắp xếp theo chủ đề"
+ },
+ "tierPro3": {
+  "message": "Theo dõi tới {0} trang: giảm giá và thay đổi"
+ },
+ "tierUltra0": {
+  "message": "Mọi tính năng Pro, cùng với:"
+ },
+ "tierUltra1": {
+  "message": "Nghe câu trả lời và cả trang bằng giọng tự nhiên: {0} phút mỗi tuần"
+ },
+ "tierUltra2": {
+  "message": "Tìm tương tự: những gì giống trang đang mở, từ các trang web khác, {0} lượt tìm mỗi tuần"
+ },
+ "tierUltra3": {
+  "message": "Theo dõi tới {0} trang"
+ },
+ "listen": {
+  "message": "Nghe"
+ },
+ "listenPage": {
+  "message": "Nghe trang này"
+ },
+ "listenPause": {
+  "message": "Tạm dừng"
+ },
+ "listenPlay": {
+  "message": "Phát"
+ },
+ "listenStop": {
+  "message": "Dừng"
+ },
+ "listenLoading": {
+  "message": "Đang chuẩn bị giọng đọc…"
+ },
+ "listenUltraTitle": {
+  "message": "Tính năng nghe có trong Ultra"
+ },
+ "listenUltraBody": {
+  "message": "Đọc to câu trả lời và cả trang bằng giọng tự nhiên, hơn 100 ngôn ngữ. Trên iPhone, vẫn phát tiếp khi khóa màn hình."
+ },
+ "listenLimit": {
+  "message": "Bạn đã dùng hết {0} phút nghe của tuần này. Sẽ có lại vào {1}."
+ },
+ "listenFailed": {
+  "message": "Không đọc to được. Hãy thử lại sau giây lát."
+ },
+ "listenOffline": {
+  "message": "Không có kết nối: lần đầu nghe cần có Internet."
+ },
+ "listenInApp": {
+  "message": "Đang mở ContextFlow: vẫn phát tiếp khi khóa màn hình."
+ },
+ "listenLeft": {
+  "message": "Nghe: tuần này còn {0}/{1} phút"
+ },
+ "watchFullPro": {
+  "message": "Gói Pro theo dõi được {0} trang cùng lúc. Ultra theo dõi tới {1} trang."
+ },
+ "watchMoreUltra": {
+  "message": "Nhiều hơn với Ultra"
+ },
+ "seeUltra": {
+  "message": "Xem Ultra"
+ },
+ "usageUltra": {
+  "message": "Ultra · tuần này còn {0}/{1} câu trả lời"
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },

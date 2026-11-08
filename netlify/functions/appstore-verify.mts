@@ -108,6 +108,7 @@ async function handleClientTransaction(jws: string): Promise<Response> {
     last_transaction_id: String(tx.transactionId)
   })
   await logEvent("appstore_client_tx", null, { product: tx.productId, environment: tx.environment, otid: String(tx.originalTransactionId) })
+  // Builds <= 40 only know these two (they can't buy Ultra or the yearly plans).
   const planType = tx.productId.includes("byok") ? "byok_license" : "pro_subscription"
   return json({ success: true, plan_type: planType })
 }
