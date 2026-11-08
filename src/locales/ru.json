@@ -696,5 +696,13 @@
   "gSimilar3": "Кресло с подголовником",
   "gSimilarInStock": "В наличии",
   "gSimilarNewer": "Новее",
-  "gSimilarCheaper": "Дешевле"
+  "gSimilarCheaper": "Дешевле",
+  "similarPayFree": "Бесплатно, без встроенных покупок",
+  "similarPayFreeStart": "Бесплатно",
+  "similarPaySub": "Подписка от {0}",
+  "similarPayOnce": "Разовая покупка {0}",
+  "similarPayIap": "Встроенные покупки от {0}",
+  "similarPerWeek": "{0}/нед.",
+  "similarPerMonth": "{0}/мес.",
+  "similarPerYear": "{0}/год"
 }

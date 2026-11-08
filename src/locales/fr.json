@@ -696,5 +696,13 @@
   "gSimilar3": "Fauteuil avec appui-tête",
   "gSimilarInStock": "En stock",
   "gSimilarNewer": "Plus récent",
-  "gSimilarCheaper": "Moins cher"
+  "gSimilarCheaper": "Moins cher",
+  "similarPayFree": "Gratuit, sans achats intégrés",
+  "similarPayFreeStart": "Gratuit",
+  "similarPaySub": "Abonnement à partir de {0}",
+  "similarPayOnce": "Achat unique {0}",
+  "similarPayIap": "Achats intégrés à partir de {0}",
+  "similarPerWeek": "{0}/semaine",
+  "similarPerMonth": "{0}/mois",
+  "similarPerYear": "{0}/an"
 }

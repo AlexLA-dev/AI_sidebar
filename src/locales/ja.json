@@ -696,5 +696,13 @@
   "gSimilar3": "ヘッドレスト付きチェア",
   "gSimilarInStock": "在庫あり",
   "gSimilarNewer": "もっと新しい",
-  "gSimilarCheaper": "もっと安い"
+  "gSimilarCheaper": "もっと安い",
+  "similarPayFree": "無料・App内課金なし",
+  "similarPayFreeStart": "無料",
+  "similarPaySub": "サブスクリプション {0}〜",
+  "similarPayOnce": "買い切り {0}",
+  "similarPayIap": "App内課金 {0}〜",
+  "similarPerWeek": "{0}/週",
+  "similarPerMonth": "{0}/月",
+  "similarPerYear": "{0}/年"
 }

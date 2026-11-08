@@ -696,5 +696,13 @@
   "gSimilar3": "كرسي بمسند للرأس",
   "gSimilarInStock": "متوفر",
   "gSimilarNewer": "أحدث",
-  "gSimilarCheaper": "أرخص"
+  "gSimilarCheaper": "أرخص",
+  "similarPayFree": "مجاني، بلا مشتريات داخل التطبيق",
+  "similarPayFreeStart": "مجاني",
+  "similarPaySub": "اشتراك من {0}",
+  "similarPayOnce": "شراء لمرة واحدة {0}",
+  "similarPayIap": "مشتريات داخل التطبيق من {0}",
+  "similarPerWeek": "{0}/أسبوع",
+  "similarPerMonth": "{0}/شهر",
+  "similarPerYear": "{0}/سنة"
 }

@@ -7,6 +7,7 @@
 
 import { isOutOfStock } from "../../src/shared/watch/detect.ts"
 import { pageText, parseNumber, structured } from "../../src/shared/watch/extract.ts"
+import { appStoreLink, appStorePricing, pricingLinks, type AppPricing } from "./apppricing.mts"
 
 export type PageStatus = "ok" | "dead" | "soft404" | "blocked" | "archived" | "error" | "unsafe"
 
@@ -47,6 +48,11 @@ export interface CheckedPage {
   validThrough?: string
   // Seconds: a video's length, a recipe's total time.
   duration?: number
+  // Apps (build 91): what it costs as this page shows it (an App Store page's price and in-app purchases); else where
+  // to look next: the App Store page the app's site links to, the site's pricing page.
+  pricing?: AppPricing
+  storeLink?: string
+  pricingLinks?: string[]
   // The page's main text, folded, cut to the requested length.
   text: string
   ms: number
@@ -467,6 +473,16 @@ export function describePage(html: string, url: string, finalUrl: string, http: 
   if (validThrough) page.validThrough = validThrough
   if (duration) page.duration = duration
   if (ld.lang) page.inLanguage = String(ld.lang).slice(0, 12)
+  if (status === "ok") {
+    const pricing = appStorePricing(html, finalUrl, page.price)
+    if (pricing) page.pricing = pricing
+    else {
+      const store = appStoreLink(html)
+      if (store) page.storeLink = store
+      const links = pricingLinks(html, finalUrl)
+      if (links.length) page.pricingLinks = links
+    }
+  }
   return page
 }
 

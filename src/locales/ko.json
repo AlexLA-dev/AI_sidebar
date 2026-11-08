@@ -696,5 +696,13 @@
   "gSimilar3": "헤드레스트 의자",
   "gSimilarInStock": "재고 있음",
   "gSimilarNewer": "더 최신",
-  "gSimilarCheaper": "더 저렴하게"
+  "gSimilarCheaper": "더 저렴하게",
+  "similarPayFree": "무료, 앱 내 구입 없음",
+  "similarPayFreeStart": "무료",
+  "similarPaySub": "구독 {0}부터",
+  "similarPayOnce": "일회성 구입 {0}",
+  "similarPayIap": "앱 내 구입 {0}부터",
+  "similarPerWeek": "{0}/주",
+  "similarPerMonth": "{0}/월",
+  "similarPerYear": "{0}/년"
 }

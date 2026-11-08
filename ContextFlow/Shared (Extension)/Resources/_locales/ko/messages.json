@@ -2018,6 +2018,30 @@
  "gSimilarCheaper": {
   "message": "더 저렴하게"
  },
+ "similarPayFree": {
+  "message": "무료, 앱 내 구입 없음"
+ },
+ "similarPayFreeStart": {
+  "message": "무료"
+ },
+ "similarPaySub": {
+  "message": "구독 {0}부터"
+ },
+ "similarPayOnce": {
+  "message": "일회성 구입 {0}"
+ },
+ "similarPayIap": {
+  "message": "앱 내 구입 {0}부터"
+ },
+ "similarPerWeek": {
+  "message": "{0}/주"
+ },
+ "similarPerMonth": {
+  "message": "{0}/월"
+ },
+ "similarPerYear": {
+  "message": "{0}/년"
+ },
  "tip_4cf1b54b00": {
   "message": "팁"
  },

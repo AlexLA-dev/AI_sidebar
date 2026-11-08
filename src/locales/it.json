@@ -696,5 +696,13 @@
   "gSimilar3": "Sedia con poggiatesta",
   "gSimilarInStock": "Disponibile",
   "gSimilarNewer": "Più recente",
-  "gSimilarCheaper": "Più economico"
+  "gSimilarCheaper": "Più economico",
+  "similarPayFree": "Gratis, senza acquisti in-app",
+  "similarPayFreeStart": "Gratis",
+  "similarPaySub": "Abbonamento da {0}",
+  "similarPayOnce": "Acquisto unico {0}",
+  "similarPayIap": "Acquisti in-app da {0}",
+  "similarPerWeek": "{0}/settimana",
+  "similarPerMonth": "{0}/mese",
+  "similarPerYear": "{0}/anno"
 }

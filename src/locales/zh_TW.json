@@ -696,5 +696,13 @@
   "gSimilar3": "附頭枕的椅子",
   "gSimilarInStock": "有貨",
   "gSimilarNewer": "更新",
-  "gSimilarCheaper": "更便宜"
+  "gSimilarCheaper": "更便宜",
+  "similarPayFree": "免費，無 App 內購買",
+  "similarPayFreeStart": "免費",
+  "similarPaySub": "訂閱 {0} 起",
+  "similarPayOnce": "一次性購買 {0}",
+  "similarPayIap": "App 內購買 {0} 起",
+  "similarPerWeek": "{0}/週",
+  "similarPerMonth": "{0}/月",
+  "similarPerYear": "{0}/年"
 }

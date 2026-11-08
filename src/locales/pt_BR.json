@@ -696,5 +696,13 @@
   "gSimilar3": "Cadeira com apoio de cabeça",
   "gSimilarInStock": "Em estoque",
   "gSimilarNewer": "Mais recente",
-  "gSimilarCheaper": "Mais barato"
+  "gSimilarCheaper": "Mais barato",
+  "similarPayFree": "Grátis, sem compras no app",
+  "similarPayFreeStart": "Grátis",
+  "similarPaySub": "Assinatura a partir de {0}",
+  "similarPayOnce": "Compra única {0}",
+  "similarPayIap": "Compras no app a partir de {0}",
+  "similarPerWeek": "{0}/semana",
+  "similarPerMonth": "{0}/mês",
+  "similarPerYear": "{0}/ano"
 }

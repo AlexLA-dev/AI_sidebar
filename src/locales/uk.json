@@ -696,5 +696,13 @@
   "gSimilar3": "Крісло з підголівником",
   "gSimilarInStock": "У наявності",
   "gSimilarNewer": "Новіше",
-  "gSimilarCheaper": "Дешевше"
+  "gSimilarCheaper": "Дешевше",
+  "similarPayFree": "Безкоштовно, без вбудованих покупок",
+  "similarPayFreeStart": "Безкоштовно",
+  "similarPaySub": "Підписка від {0}",
+  "similarPayOnce": "Разова покупка {0}",
+  "similarPayIap": "Вбудовані покупки від {0}",
+  "similarPerWeek": "{0}/тиж.",
+  "similarPerMonth": "{0}/міс.",
+  "similarPerYear": "{0}/рік"
 }

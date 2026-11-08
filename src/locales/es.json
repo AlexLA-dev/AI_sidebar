@@ -696,5 +696,13 @@
   "gSimilar3": "Silla con reposacabezas",
   "gSimilarInStock": "En stock",
   "gSimilarNewer": "Más reciente",
-  "gSimilarCheaper": "Más barato"
+  "gSimilarCheaper": "Más barato",
+  "similarPayFree": "Gratis, sin compras dentro de la app",
+  "similarPayFreeStart": "Gratis",
+  "similarPaySub": "Suscripción desde {0}",
+  "similarPayOnce": "Compra única {0}",
+  "similarPayIap": "Compras dentro de la app desde {0}",
+  "similarPerWeek": "{0}/semana",
+  "similarPerMonth": "{0}/mes",
+  "similarPerYear": "{0}/año"
 }

@@ -2018,6 +2018,30 @@
  "gSimilarCheaper": {
   "message": "更便宜"
  },
+ "similarPayFree": {
+  "message": "免费，无 App 内购买"
+ },
+ "similarPayFreeStart": {
+  "message": "免费"
+ },
+ "similarPaySub": {
+  "message": "订阅 {0} 起"
+ },
+ "similarPayOnce": {
+  "message": "一次性购买 {0}"
+ },
+ "similarPayIap": {
+  "message": "App 内购买 {0} 起"
+ },
+ "similarPerWeek": {
+  "message": "{0}/周"
+ },
+ "similarPerMonth": {
+  "message": "{0}/月"
+ },
+ "similarPerYear": {
+  "message": "{0}/年"
+ },
  "tip_4cf1b54b00": {
   "message": "技巧"
  },

@@ -28,6 +28,18 @@ export interface SimilarItem {
   date?: string
   // Where the price is on the page, for "Watch price" (page watch reads it from the same place).
   watch?: { source: "ld-price" | "meta-price"; value: string }
+  // Apps (build 91): what it costs, read on its App Store page or its pricing page (`url`): free, a subscription from a
+  // price, a one-time purchase, or in-app purchases from a price; `freeStart`: free to download, or a free plan.
+  pricing?: SimilarPricing
+}
+
+export interface SimilarPricing {
+  model: "free" | "subscription" | "one_time" | "in_app"
+  // "11.99 USD"
+  from?: string
+  period?: "week" | "month" | "year"
+  freeStart?: boolean
+  url: string
 }
 
 /** A finished answer, kept with the chat's answer turn. */
@@ -130,6 +142,18 @@ export function cleanItem(raw: unknown): SimilarItem | null {
     ...(s(o.price, 40) ? { price: s(o.price, 40) } : {}),
     ...(o.stock === "in" || o.stock === "out" ? { stock: o.stock } : {}),
     ...(/^\d{4}-\d{2}-\d{2}$/.test(s(o.date, 10)) ? { date: s(o.date, 10) } : {}),
-    ...(w && (w.source === "ld-price" || w.source === "meta-price") && s(w.value, 60) ? { watch: { source: w.source, value: s(w.value, 60) } } : {})
+    ...(w && (w.source === "ld-price" || w.source === "meta-price") && s(w.value, 60) ? { watch: { source: w.source, value: s(w.value, 60) } } : {}),
+    ...(cleanPricing(o.pricing) ?? {})
   }
+}
+
+function cleanPricing(raw: unknown): { pricing: SimilarPricing } | null {
+  const p = (raw ?? null) as Record<string, unknown> | null
+  if (!p || typeof p !== "object") return null
+  const model = (["free", "subscription", "one_time", "in_app"] as const).find((m) => m === p.model)
+  const url = typeof p.url === "string" ? p.url.slice(0, 2_000) : ""
+  const from = typeof p.from === "string" ? p.from.slice(0, 40) : ""
+  if (!model || !/^https?:\/\//i.test(url) || (model !== "free" && !from)) return null
+  const period = (["week", "month", "year"] as const).find((x) => x === p.period)
+  return { pricing: { model, url, ...(from ? { from } : {}), ...(period ? { period } : {}), ...(p.freeStart === true ? { freeStart: true } : {}) } }
 }

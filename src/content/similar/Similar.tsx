@@ -7,7 +7,7 @@ import type { VNode } from "preact"
 import { useState } from "preact/hooks"
 
 import { t, uiLang } from "../../shared/i18n"
-import { SIMILAR_CHIPS, type SimilarAnswer, type SimilarChip, type SimilarItem, type SimilarStep } from "../../shared/similar"
+import { SIMILAR_CHIPS, type SimilarAnswer, type SimilarChip, type SimilarItem, type SimilarPricing, type SimilarStep } from "../../shared/similar"
 import { moneyIn } from "../../shared/watch/compare"
 import { parseNumber } from "../../shared/watch/extract"
 import * as Icon from "../icons"
@@ -118,9 +118,35 @@ export function shownPrice(price: string): string {
   }
 }
 
+/**
+ * An item's link opens its page in a new tab the browser's own way (build 91, the owner: the titles opened nothing on
+ * iPhone; a tab the extension opens may stay behind the one shown there). Only a page that stops links itself (its
+ * own click handling) gets it opened by the background instead.
+ */
+function opening(url: string, onOpen: (url: string) => void): (e: MouseEvent) => void {
+  return (e) => {
+    setTimeout(() => {
+      if (e.defaultPrevented) onOpen(url)
+    }, 0)
+  }
+}
+
+/**
+ * What an app costs, as its App Store page or pricing page says (build 91): "Free · Subscription from $11.99/month",
+ * "One-time purchase $9.99", "Free, no in-app purchases".
+ */
+export function payText(p: SimilarPricing): string {
+  if (p.model === "free") return t("similarPayFree")
+  const money = p.from ? shownPrice(p.from) : ""
+  const per = p.period ? t(p.period === "week" ? "similarPerWeek" : p.period === "year" ? "similarPerYear" : "similarPerMonth", money) : money
+  const what = p.model === "subscription" ? t("similarPaySub", per) : p.model === "one_time" ? t("similarPayOnce", money) : t("similarPayIap", per)
+  return p.freeStart ? `${t("similarPayFreeStart")} · ${what}` : what
+}
+
 function Item({ item, n, onOpen, onWatch }: { item: SimilarItem; n: number; onOpen: (url: string) => void; onWatch?: (item: SimilarItem) => void }): VNode {
   const facts = [
-    item.price ? shownPrice(item.price) : "",
+    // An app's pricing says more than its store price ($0.00 for one with a subscription inside).
+    item.price && !item.pricing ? shownPrice(item.price) : "",
     item.stock === "in" ? t("similarStockIn") : item.stock === "out" ? t("similarStockOut") : "",
     item.date ? shortDate(item.date) : ""
   ].filter(Boolean)
@@ -128,28 +154,24 @@ function Item({ item, n, onOpen, onWatch }: { item: SimilarItem; n: number; onOp
     <li class="cf-similar-item">
       <span class="cf-similar-n">{n}</span>
       <div class="cf-similar-body">
-        <a
-          class="cf-similar-name"
-          href={item.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          dir="auto"
-          onClick={(e) => {
-            e.preventDefault()
-            onOpen(item.url)
-          }}
-        >
+        <a class="cf-similar-name" href={item.url} target="_blank" rel="noopener noreferrer" dir="auto" onClick={opening(item.url, onOpen)}>
           {item.name}
         </a>
-        <span class="cf-similar-host">{item.host}{item.source === "list" ? ` · ${t("similarFromList")}` : ""}</span>
+        <span class="cf-similar-host">
+          <a href={item.url} target="_blank" rel="noopener noreferrer" onClick={opening(item.url, onOpen)}>{item.host}</a>
+          {item.source === "list" ? ` · ${t("similarFromList")}` : ""}
+        </span>
         {item.why && <p class="cf-similar-why" dir="auto">{item.why}</p>}
         {item.met === "yes" && item.fit && <p class="cf-similar-fit ok" dir="auto"><Tick size={13} /> {item.fit}</p>}
         {item.met === "unknown" && (
           <p class="cf-similar-fit unknown" dir="auto"><span class="cf-similar-nc">{t("similarNotConfirmed")}</span>{item.fit ? ` ${item.fit}` : ""}</p>
         )}
         {item.met === "n/a" && item.fit && <p class="cf-similar-fit" dir="auto">{item.fit}</p>}
-        {(facts.length > 0 || !item.checked || (onWatch && item.watch)) && (
+        {(facts.length > 0 || item.pricing || !item.checked || (onWatch && item.watch)) && (
           <div class="cf-similar-facts">
+            {item.pricing && (
+              <a class="cf-similar-pay" href={item.pricing.url} target="_blank" rel="noopener noreferrer" dir="auto" onClick={opening(item.pricing.url, onOpen)}>{payText(item.pricing)}</a>
+            )}
             {facts.map((f) => <span key={f}>{f}</span>)}
             {!item.checked && <span class="cf-similar-unopened">{t("similarNotOpened")}</span>}
             {onWatch && item.watch && item.source === "item" && watchable(item.watch.value) && (

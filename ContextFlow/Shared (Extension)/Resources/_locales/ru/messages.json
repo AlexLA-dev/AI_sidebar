@@ -2018,6 +2018,30 @@
  "gSimilarCheaper": {
   "message": "Дешевле"
  },
+ "similarPayFree": {
+  "message": "Бесплатно, без встроенных покупок"
+ },
+ "similarPayFreeStart": {
+  "message": "Бесплатно"
+ },
+ "similarPaySub": {
+  "message": "Подписка от {0}"
+ },
+ "similarPayOnce": {
+  "message": "Разовая покупка {0}"
+ },
+ "similarPayIap": {
+  "message": "Встроенные покупки от {0}"
+ },
+ "similarPerWeek": {
+  "message": "{0}/нед."
+ },
+ "similarPerMonth": {
+  "message": "{0}/мес."
+ },
+ "similarPerYear": {
+  "message": "{0}/год"
+ },
  "tip_4cf1b54b00": {
   "message": "Советы"
  },

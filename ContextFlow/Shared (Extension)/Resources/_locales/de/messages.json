@@ -2018,6 +2018,30 @@
  "gSimilarCheaper": {
   "message": "Günstiger"
  },
+ "similarPayFree": {
+  "message": "Kostenlos, ohne In-App-Käufe"
+ },
+ "similarPayFreeStart": {
+  "message": "Kostenlos"
+ },
+ "similarPaySub": {
+  "message": "Abo ab {0}"
+ },
+ "similarPayOnce": {
+  "message": "Einmalkauf {0}"
+ },
+ "similarPayIap": {
+  "message": "In-App-Käufe ab {0}"
+ },
+ "similarPerWeek": {
+  "message": "{0}/Woche"
+ },
+ "similarPerMonth": {
+  "message": "{0}/Monat"
+ },
+ "similarPerYear": {
+  "message": "{0}/Jahr"
+ },
  "tip_4cf1b54b00": {
   "message": "Tipps"
  },
