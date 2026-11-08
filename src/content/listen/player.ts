@@ -188,6 +188,20 @@ export class PcmPlayer {
     return Math.max(0, this.heardSamples() / SPEECH_RATE)
   }
 
+  /** Where each part starts in the audio (seconds; index = part), as far as it has come. A part with nothing to say
+   *  (skipped) starts where the next one does. For the app to carry on from the same second (2.6). */
+  get starts(): number[] {
+    const last = Math.max(-1, ...this.partStarts.keys())
+    const out: number[] = new Array(last + 1)
+    let following = this.sourceLength
+    for (let part = last; part >= 0; part--) {
+      const start = this.partStarts.get(part)
+      if (start !== undefined) following = start
+      out[part] = Math.round((following / SPEECH_RATE) * 100) / 100
+    }
+    return out
+  }
+
   /** Seconds of audio received so far. */
   get received(): number {
     return this.sourceLength / SPEECH_RATE
@@ -207,7 +221,8 @@ export class PcmPlayer {
   }
 
   get paused(): boolean {
-    return this.ctx.state === "suspended"
+    // "interrupted" (iOS: the page went away, a call): silent too, so it shows as paused and Play resumes it.
+    return this.ctx.state !== "running"
   }
 
   pause(): void {

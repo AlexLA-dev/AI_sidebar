@@ -2066,6 +2066,21 @@
  "listenAnyway": {
   "message": "Ouvir mesmo assim"
  },
+ "listenAway": {
+  "message": "Continue ouvindo no ContextFlow — a partir de {0}"
+ },
+ "listenNotifyAsk": {
+  "message": "Ative as notificações para continuar ouvindo quando sair do Safari ou bloquear a tela. Caso contrário, Listen abre o app."
+ },
+ "listenNotifyOn": {
+  "message": "Ativar notificações"
+ },
+ "listenNotifyLater": {
+  "message": "Agora não"
+ },
+ "listenTaken": {
+  "message": "Tocando no app ContextFlow."
+ },
  "plansUpgrade": {
   "message": "Mudar para o {0}"
  },

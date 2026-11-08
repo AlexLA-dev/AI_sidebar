@@ -1787,6 +1787,21 @@
  "listenAnyway": {
   "message": "Listen anyway"
  },
+ "listenAway": {
+  "message": "Keep listening in ContextFlow — from {0}"
+ },
+ "listenNotifyAsk": {
+  "message": "Turn on notifications to keep listening when you leave Safari or lock the screen. Otherwise Listen opens the app."
+ },
+ "listenNotifyOn": {
+  "message": "Turn on notifications"
+ },
+ "listenNotifyLater": {
+  "message": "Not now"
+ },
+ "listenTaken": {
+  "message": "Playing in the ContextFlow app."
+ },
  "watchFullPro": {
   "message": "On Pro you can watch {0} pages at once. Ultra watches up to {1}."
  },

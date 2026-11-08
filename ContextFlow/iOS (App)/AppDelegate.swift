@@ -36,6 +36,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             await MainActor.run { WatchOpen.handle(info) }
             return
         }
+        // Read aloud carried on from Safari (2.6): the app plays it from the second it had reached.
+        if info["listen"] is String, let link = info["link"] as? String, let url = URL(string: link) {
+            await MainActor.run {
+                ChatAI.reportUse("listen", "carried_on")
+                DeepLinkRouter.shared.handle(url)
+            }
+            return
+        }
         await MainActor.run { ChatAI.reportUx("ux_remind", info["open"] != nil ? ["action": "opened", "what": "page"] : ["action": "opened"]) }
         if let open = info["open"] as? String, let page = URL(string: open) {
             await MainActor.run { UIApplication.shared.open(page) }

@@ -44757,6 +44757,416 @@
           }
         }
       }
+    },
+    "Turn on notifications": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "فعّل الإشعارات"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mitteilungen aktivieren"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activa las notificaciones"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activez les notifications"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attiva le notifiche"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通知をオンにする"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "알림 켜기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ative as notificações"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Включите уведомления"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Увімкніть сповіщення"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bật thông báo"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开通知"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "開啟通知"
+          }
+        }
+      }
+    },
+    "Keep listening when you leave Safari or lock the screen: a notification carries it on in the app, from the same second.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تابِع الاستماع عند مغادرة Safari أو قفل الشاشة: إشعار يكمله في التطبيق من الثانية نفسها."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hör weiter, wenn du Safari verlässt oder den Bildschirm sperrst: Eine Mitteilung setzt es in der App fort, ab derselben Sekunde."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sigue escuchando al salir de Safari o bloquear la pantalla: una notificación lo continúa en la app, desde el mismo segundo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuez l’écoute quand vous quittez Safari ou verrouillez l’écran : une notification la reprend dans l’app, à la même seconde."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continua ad ascoltare quando esci da Safari o blocchi lo schermo: una notifica lo riprende nell’app, dallo stesso secondo."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safariを離れたり画面をロックしたりしても聴き続けられます。通知から、同じ秒からアプリで続きを再生します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safari를 떠나거나 화면을 잠가도 계속 들을 수 있습니다. 알림을 누르면 앱에서 같은 초부터 이어서 재생합니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue ouvindo ao sair do Safari ou bloquear a tela: uma notificação continua no app, a partir do mesmo segundo."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Слушайте дальше, когда уходите из Safari или блокируете экран: уведомление продолжит чтение в приложении с той же секунды."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Слухайте далі, коли виходите з Safari або блокуєте екран: сповіщення продовжить читання в застосунку з тієї ж секунди."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nghe tiếp khi bạn rời Safari hoặc khóa màn hình: một thông báo sẽ phát tiếp trong ứng dụng, từ đúng giây đó."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "离开 Safari 或锁定屏幕时也能继续收听：点通知即可在 App 中从同一秒继续播放。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "離開 Safari 或鎖定螢幕時也能繼續收聽：點通知即可在 App 中從同一秒繼續播放。"
+          }
+        }
+      }
+    },
+    "Reminders you set on answers and notes.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "التذكيرات التي تضعها على الإجابات والملاحظات."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erinnerungen, die du für Antworten und Notizen setzt."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recordatorios que pones en respuestas y notas."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les rappels que vous placez sur les réponses et les notes."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I promemoria che imposti su risposte e note."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "回答やメモに設定したリマインダー。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "답변과 메모에 설정한 리마인더."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lembretes que você define em respostas e notas."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Напоминания, которые вы ставите на ответы и заметки."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нагадування, які ви ставите на відповіді та нотатки."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lời nhắc bạn đặt cho câu trả lời và ghi chú."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你为回答和笔记设置的提醒。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你為回答和筆記設定的提醒。"
+          }
+        }
+      }
+    },
+    "When a page you watch changes.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "عندما تتغيّر صفحة تتابعها."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wenn sich eine beobachtete Seite ändert."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuando cambia una página que sigues."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quand une page que vous suivez change."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quando cambia una pagina che segui."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ウォッチしているページが変わったとき。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "지켜보는 페이지가 바뀔 때."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quando uma página que você acompanha muda."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Когда меняется страница, за которой вы следите."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Коли змінюється сторінка, за якою ви стежите."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Khi một trang bạn theo dõi thay đổi."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你关注的页面发生变化时。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你關注的頁面發生變化時。"
+          }
+        }
+      }
+    },
+    "Notifications are off for ContextFlow. Turn them on in Settings, then come back to Safari.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إشعارات ContextFlow متوقفة. فعّلها من الإعدادات ثم عُد إلى Safari."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mitteilungen sind für ContextFlow aus. Aktiviere sie in den Einstellungen und kehre dann zu Safari zurück."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Las notificaciones de ContextFlow están desactivadas. Actívalas en Ajustes y vuelve a Safari."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les notifications de ContextFlow sont désactivées. Activez-les dans Réglages, puis revenez dans Safari."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le notifiche di ContextFlow sono disattivate. Attivale in Impostazioni, poi torna su Safari."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlowの通知はオフになっています。設定でオンにしてから、Safariに戻ってください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow 알림이 꺼져 있습니다. 설정에서 켠 다음 Safari로 돌아가세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "As notificações do ContextFlow estão desativadas. Ative-as em Ajustes e volte ao Safari."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Уведомления для ContextFlow выключены. Включите их в Настройках и вернитесь в Safari."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сповіщення для ContextFlow вимкнено. Увімкніть їх у Параметрах і поверніться в Safari."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thông báo của ContextFlow đang tắt. Hãy bật trong Cài đặt rồi quay lại Safari."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow 的通知已关闭。请在“设置”中打开，然后回到 Safari。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow 的通知已關閉。請在「設定」中開啟，然後回到 Safari。"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

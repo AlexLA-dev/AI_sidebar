@@ -261,6 +261,11 @@ final class StoreKitManager: ObservableObject {
             }
             await transaction.finish()
             await refreshEntitlement()
+            #if os(iOS)
+            // Ultra (2.6): read aloud carries on from Safari only with notifications, so they're asked about once (after
+            // the plan's tour).
+            if transaction.productID.contains(".ultra.") { Task { await NotifyAsk.shared.afterUltra() } }
+            #endif
             return .purchased
         case .userCancelled:
             return .cancelled

@@ -2066,6 +2066,21 @@
  "listenAnyway": {
   "message": "仍然朗讀"
  },
+ "listenAway": {
+  "message": "在 ContextFlow 中繼續收聽 — 從 {0} 開始"
+ },
+ "listenNotifyAsk": {
+  "message": "開啟通知，離開 Safari 或鎖定螢幕時也能繼續收聽。否則，Listen 會打開 App。"
+ },
+ "listenNotifyOn": {
+  "message": "開啟通知"
+ },
+ "listenNotifyLater": {
+  "message": "以後再說"
+ },
+ "listenTaken": {
+  "message": "正在 ContextFlow App 中播放。"
+ },
  "plansUpgrade": {
   "message": "升級到 {0}"
  },

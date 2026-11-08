@@ -3478,7 +3478,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 </footer>
               ) : (
                 <footer class="cf-composer">
-                  <ListenBar state={listen.state} speed={listen.speed} left={listen.left} onSpeed={listen.cycleSpeed} onAnyway={listen.anyway} onToggle={listen.toggle} onStop={listen.stop} onPlans={() => openPlans("ultra", "limit")} />
+                  <ListenBar state={listen.state} speed={listen.speed} left={listen.left} onSpeed={listen.cycleSpeed} onAnyway={listen.anyway} onNotifyOn={listen.notifyTurnOn} onNotifyLater={listen.notifyNotNow} onToggle={listen.toggle} onStop={listen.stop} onPlans={() => openPlans("ultra", "limit")} />
                   {undoBar && <UndoBar text={undoBar.text} actions={undoBar.actions} onHold={holdBar} />}
                   {noteHint && draft.trim() && !noteMode && <div class="cf-note-hint" role="status">{t(touch ? "noteHintTouch" : "noteHintMouse")}</div>}
                   {weightNote && <div class="cf-weight-note" title={t("longPageWeightHint", pageWeight)}>{t("longPageWeight", pageWeight)}</div>}

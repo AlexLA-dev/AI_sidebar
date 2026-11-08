@@ -280,6 +280,29 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                 let text = key.isEmpty ? nil : await SpeechSync.fetchText(key, wait: (message["wait"] as? Double) ?? 1.5)
                 Self.reply(context, ["success": true, "data": text.map { ["text": $0] } ?? [:]])
             }
+        // Read aloud in the panel on iPhone and iPad (2.6), carried on in the app when the page goes away (ListenAway).
+        case "notifStatus":
+            Task {
+                let status = await UNUserNotificationCenter.current().notificationSettings().authorizationStatus
+                Self.reply(context, ["success": true, "data": ["status": ListenAway.name(status)]])
+            }
+        case "listenState":
+            Task {
+                await ListenAway.state(message, now: false)
+                Self.reply(context, ["success": true])
+            }
+        case "listenAway":
+            Task {
+                await ListenAway.state(message, now: true)
+                Self.reply(context, ["success": true])
+            }
+        case "listenBack":
+            let id = (message["id"] as? String ?? "").lowercased()
+            ListenAway.withdraw()
+            Self.reply(context, ["success": true, "data": ["taken": SharedDefaults.shared.listenTaken(id)]])
+        case "listenStop":
+            ListenAway.withdraw()
+            Self.reply(context, ["success": true])
         case "speechClear":
             // "Delete all chats" in the panel: what was read aloud goes from iCloud too.
             Task {
@@ -375,5 +398,70 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         // Whether it renews: the panel asks a Pro user who turned auto-renew off what was missing.
         entitlement.autoRenew = await SharedEntitlement.autoRenew(of: transaction)
         return entitlement
+    }
+}
+
+// MARK: - Read aloud carried on in the app (iPhone, iPad; 2.6)
+
+/// While the panel plays (notifications on), the App Group keeps what the app needs to carry on: the parts as the
+/// panel speaks them (written for the ear when they were), where each one starts, and where it is. When the page goes
+/// away (another app, the screen locks), "Keep listening in ContextFlow — from m:ss" opens the app at that second.
+/// The same notification also waits a few seconds ahead while it plays (each update moves it on): if Safari stops
+/// before the panel can say the page went away, it still comes. Pause, the end, or the page back: it's withdrawn.
+enum ListenAway {
+    static let identifier = "cf.listen.away"
+    /// How far ahead the waiting notification is: well past the panel's next update (every 4 s).
+    private static let ahead: TimeInterval = 12
+
+    static func name(_ status: UNAuthorizationStatus) -> String {
+        switch status {
+        case .authorized: return "authorized"
+        case .denied: return "denied"
+        case .notDetermined: return "notDetermined"
+        case .provisional: return "provisional"
+        #if os(iOS)
+        case .ephemeral: return "ephemeral"
+        #endif
+        @unknown default: return "unknown"
+        }
+    }
+
+    /// The panel's state as it plays (`now`: the page went away, the notification goes at once).
+    static func state(_ message: [String: Any], now: Bool) async {
+        let id = (message["id"] as? String ?? "").lowercased()
+        guard id.range(of: "^[0-9a-f-]{8,64}$", options: .regularExpression) != nil else { return }
+        let at = max(0, (message["at"] as? NSNumber)?.doubleValue ?? 0)
+        var handoff: [String: Any] = ["position": at]
+        if let starts = message["starts"] as? [NSNumber] { handoff["starts"] = starts.prefix(80).map(\.doubleValue) }
+        if let speed = (message["speed"] as? NSNumber)?.doubleValue { handoff["speed"] = speed }
+        var changes: [String: Any] = [:]
+        if let parts = message["parts"] as? [String], !parts.isEmpty {
+            changes["spoken"] = Array(parts.prefix(80).map { String($0.prefix(4000)) })
+            changes["spokenComplete"] = message["complete"] as? Bool ?? false
+        }
+        // Merged into what the panel stored when it started (the text, the title…): kept as given, the rest replaced.
+        let stored = SharedDefaults.shared.readListenRequest(id)?["handoff"] as? [String: Any] ?? [:]
+        changes["handoff"] = stored.merging(handoff) { _, new in new }
+        guard SharedDefaults.shared.updateListenRequest(id, changes) else { return }
+
+        let center = UNUserNotificationCenter.current()
+        let status = await center.notificationSettings().authorizationStatus
+        guard status == .authorized || status == .provisional else { return }
+        let content = UNMutableNotificationContent()
+        let title = String((message["title"] as? String ?? "").prefix(200))
+        content.title = title.isEmpty ? "ContextFlow" : title
+        content.body = String((message["body"] as? String ?? "").prefix(200))
+        content.threadIdentifier = "cf.listen"
+        content.userInfo = ["listen": id, "link": "contextflow://listen?id=\(id)&at=\(Int(at))"]
+        // No sound: the user just left Safari, or locked the screen; it's there when they look.
+        let trigger: UNNotificationTrigger? = now ? nil : UNTimeIntervalNotificationTrigger(timeInterval: ahead, repeats: false)
+        center.removePendingNotificationRequests(withIdentifiers: [identifier])
+        try? await center.add(UNNotificationRequest(identifier: identifier, content: content, trigger: trigger))
+    }
+
+    static func withdraw() {
+        let center = UNUserNotificationCenter.current()
+        center.removePendingNotificationRequests(withIdentifiers: [identifier])
+        center.removeDeliveredNotifications(withIdentifiers: [identifier])
     }
 }
