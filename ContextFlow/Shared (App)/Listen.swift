@@ -258,6 +258,27 @@ final class ListenPlayer: NSObject, ObservableObject {
         visible = true
         duration = Self.estimate(request.parts.joined(separator: " "))
         if secondsLeft == nil { secondsLeft = StoreKitManager.shared.planFacts.speakLeftSeconds }
+        // The week's minutes not known yet (the app just opened, Settings not visited): asked first, for at most 2 s,
+        // so the few-minutes note can come before it starts rather than the limit after.
+        if !anyway, secondsLeft == nil, StoreKitManager.shared.isUltra {
+            state = .loading
+            waitTask = Task { [weak self] in
+                await withTaskGroup(of: Void.self) { group in
+                    group.addTask { @MainActor in await StoreKitManager.shared.refreshPlanFacts() }
+                    group.addTask { try? await Task.sleep(nanoseconds: 2_000_000_000) }
+                    _ = await group.next()
+                    group.cancelAll()
+                }
+                guard let self, !Task.isCancelled, self.request?.id == request.id else { return }
+                self.secondsLeft = StoreKitManager.shared.planFacts.speakLeftSeconds
+                self.begin(request, anyway: false)
+            }
+            return
+        }
+        begin(request, anyway: anyway)
+    }
+
+    private func begin(_ request: ListenRequest, anyway: Bool) {
         // Fewer minutes left than the text takes: said first (none left at all: the server says so, Apple's voice reads).
         if !anyway, let left = secondsLeft, left > 0, Double(left) < duration {
             state = .lowMinutes(left: max(1, left / 60), needed: max(1, Int((duration / 60).rounded(.up))))
@@ -571,8 +592,13 @@ final class ListenPlayer: NSObject, ObservableObject {
                 let usage = body["usage"] as? [String: Any]
                 secondsLeft = 0
                 let minutes = (usage?["limit"] as? Int ?? 0) / 60
-                let resets = (usage?["resetsAt"] as? String).flatMap { ISO8601DateFormatter().date(from: $0) }
-                    .map { $0.formatted(.dateTime.weekday(.wide)) } ?? ""
+                // The server's time has milliseconds ("2026-11-09T00:00:00.000Z"), which the plain formatter refuses
+                // (build 91 showed "They come back on ."). Missing anyway: the week starts on Monday (UTC).
+                let fractional = ISO8601DateFormatter()
+                fractional.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+                let resetsAt = (usage?["resetsAt"] as? String).flatMap { fractional.date(from: $0) ?? ISO8601DateFormatter().date(from: $0) }
+                    ?? Self.nextMondayUTC()
+                let resets = resetsAt.formatted(.dateTime.weekday(.wide))
                 return .fallBack(.limit(minutes: minutes, resets: resets))
             }
             return .fallBack(.appleVoice)
@@ -959,6 +985,15 @@ final class ListenPlayer: NSObject, ObservableObject {
     }()
 
     // MARK: Helpers
+
+    /// When the week's listening comes back (netlify/shared/plan.mts nextReset: Monday 00:00 UTC).
+    static func nextMondayUTC(from now: Date = Date()) -> Date {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "UTC")!
+        let tomorrow = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: now))!
+        let weekday = calendar.component(.weekday, from: tomorrow)  // 1 = Sunday, 2 = Monday
+        return calendar.date(byAdding: .day, value: (9 - weekday) % 7, to: tomorrow)!
+    }
 
     /// About 14 characters a second (src/shared/speech.ts speechSeconds).
     static func estimate(_ text: String) -> Double {
