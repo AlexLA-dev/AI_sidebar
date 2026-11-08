@@ -55,7 +55,7 @@ import { openWatchSheet } from "./watch/WatchSheet"
 import { PlansSheet } from "./Plans"
 import { ListenBar, SpeakerIcon, useListen } from "./listen/useListen"
 import { dodgeFab } from "./fabDodge"
-import { clearUnread, onBusy, setViewing, type BusyState } from "../shared/busy"
+import { jobsSeen, onJobs, type JobsView } from "./jobsView"
 import { hasPro, isUltra, type PaidPlan } from "../shared/plan"
 import { SettingsView } from "./Settings"
 import { shareLabels } from "./shareLabels"
@@ -1330,7 +1330,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const openThread = useCallback((id: string, at?: number) => {
     stop()
     setUndoBar(null)
-    void clearUnread(id)
+    jobsSeen(id)
     const thread = threadList.find((x) => x.id === id)
     threadRef.current = id
     setKind(thread?.kind)
@@ -1710,15 +1710,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // The ✦ steps aside while quick insert's button sits by the field being typed in.
   const insertButtonShown = useButtonShown()
   const fabVisible = !popup && fabEnabled && !open && !settings.fabHiddenSites.includes(source.site()) && !insertButtonShown
-  // Long answers off the panel (busy.ts): a spinner on their chat, a dot on the round button once one is done unseen.
-  const [busyState, setBusyState] = useState<BusyState>({ busy: {}, unread: [] })
-  useEffect(() => onBusy(setBusyState), [])
-  // Which chat the panel shows, so a long answer finishing in it isn't marked unread; opening it clears its dot.
+  // Long answers run by the background (jobsView.ts, similar-26's jobs): a spinner on their chat, a dot on the round
+  // button once one finished unseen.
+  const [jobs, setJobs] = useState<JobsView>({ running: new Set(), unread: new Set() })
+  useEffect(() => onJobs(setJobs), [])
+  // The chat on screen: the background marks its finished jobs seen (on open, on a chat switch, and as they finish).
   useEffect(() => {
-    const shown = open && view === "chat" && !popup ? threadRef.current : null
-    void setViewing(shown)
-    if (shown) void clearUnread(shown)
-  }, [open, view, messages])
+    if (open && view === "chat" && jobs.unread.has(threadRef.current)) jobsSeen(threadRef.current)
+  }, [open, view, messages, jobs])
   // The selection buttons were placed: the round button steps out of their way, or stays (fabDodge.ts).
   const onBubblePlace = useCallback((box: DOMRect, selection: DOMRect) => {
     const fab = fabRef.current
@@ -2488,7 +2487,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           }}
         >
           <Icon.Sparkle size={22} />
-          {busyState.unread.length > 0 && <span class="cf-fab-dot" role="status" aria-label={t("busyNew")} />}
+          {jobs.unread.size > 0 && <span class="cf-fab-dot" role="status" aria-label={t("busyNew")} />}
         </button>
       )}
 
@@ -2769,8 +2768,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 onGrouped={(on) => updateSettings({ groupByTags: on })}
                 touch={touch}
                 trashCount={trashList.length}
-                busy={new Set(Object.keys(busyState.busy))}
-                unread={new Set(busyState.unread.map((u) => u.id))}
+                busy={jobs.running}
+                unread={jobs.unread}
                 onOpenTrash={() => {
                   setUndoBar(null)
                   setView("trash")
@@ -2963,7 +2962,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 )}
 
                 {/* 2.6 (91): a long answer for this chat under way off the panel (Find similar in the background). */}
-                {busyState.busy[threadRef.current] && partial === null && (
+                {jobs.running.has(threadRef.current) && partial === null && (
                   <div class="cf-busy-row" role="status"><span class="cf-busy-spin" aria-hidden="true" /> {t("busyWorking")}</div>
                 )}
                 {organizeCardsView}
