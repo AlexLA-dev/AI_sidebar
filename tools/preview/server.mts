@@ -405,7 +405,9 @@ const proxied = async (path: string, base = process.env.SPEAK_PROXY): Promise<ty
     const installId = String(JSON.parse(text).installId ?? "")
     const at = Date.now()
     const signature = sign(null, Buffer.from(`${installId}.${at}`), key).toString("base64url")
+    // A dropped connection to the preview is the device's network trouble, not the stand's end.
     const res = await realFetch(`${base}${path}`, { method: "POST", headers: { "Content-Type": "application/json", "x-cf-eval": `${at}.${signature}` }, body: text })
+      .catch(() => Response.json({ code: "UPSTREAM" }, { status: 502 }))
     // fetch has already unpacked a compressed body: passing Netlify's Content-Encoding on would break it in the browser.
     const headers = new Headers(res.headers)
     headers.delete("content-encoding")
