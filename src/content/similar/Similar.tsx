@@ -9,7 +9,14 @@ import { useState } from "preact/hooks"
 import { t, uiLang } from "../../shared/i18n"
 import { SIMILAR_CHIPS, type SimilarAnswer, type SimilarChip, type SimilarItem, type SimilarStep } from "../../shared/similar"
 import { moneyIn } from "../../shared/watch/compare"
+import { parseNumber } from "../../shared/watch/extract"
 import * as Icon from "../icons"
+
+/** A price worth watching: a real one (a free app's 0 has nowhere to go). */
+export function watchable(price: string): boolean {
+  const n = parseNumber(price)
+  return n !== null && n > 0
+}
 
 const CHIP_LABEL: Record<SimilarChip, Parameters<typeof t>[0]> = {
   cheaper: "similarCheaper",
@@ -143,7 +150,7 @@ function Item({ item, n, onOpen, onWatch }: { item: SimilarItem; n: number; onOp
           <div class="cf-similar-facts">
             {facts.map((f) => <span key={f}>{f}</span>)}
             {!item.checked && <span class="cf-similar-unopened">{t("similarNotOpened")}</span>}
-            {onWatch && item.watch && item.source === "item" && (
+            {onWatch && item.watch && item.source === "item" && watchable(item.watch.value) && (
               <button type="button" class="cf-similar-watch" onClick={() => onWatch(item)}><Icon.Eye size={13} /> {t("similarWatchPrice")}</button>
             )}
           </div>

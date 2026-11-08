@@ -1032,7 +1032,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const openSimilar = (via: "chip" | "menu") => {
     setPageMenu(false)
     if (via === "menu") void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "similar" })
-    setSimilarCard(similarAllowed(statusRef.current?.plan) ? "pick" : "upsell")
+    // The plan decides: as the panel knows it, or, tapped before the panel's status came, as the background tells it
+    // (an Ultra subscriber must never see Ultra's card for being quick).
+    const decide = (plan: string | undefined) => setSimilarCard(similarAllowed(plan) ? "pick" : "upsell")
+    if (statusRef.current) decide(statusRef.current.plan)
+    else void sendBackground<StatusInfo>({ type: "status", platform }).then((now) => decide(now?.plan ?? statusRef.current?.plan))
     setTimeout(() => listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" }), 60)
   }
   const openSimilarRef = useRef(openSimilar)
