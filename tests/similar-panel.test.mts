@@ -126,10 +126,12 @@ test("the list: checked price and stock, a condition met or Not confirmed, Watch
   const items = [
     { name: "Acme Q1", url: "https://a.com/q1", host: "a.com", title: "Acme Q1", why: "Same kind.", fit: "Cheaper: $79 vs $129.", met: "yes", source: "item", checked: true, price: "79 USD", stock: "in", watch: { source: "ld-price", value: "79 USD" } },
     { name: "Zeta Z9", url: "https://list.com/best", host: "list.com", title: "Best", why: "Named in a review.", fit: "No price on the page.", met: "unknown", source: "list", checked: true },
-    { name: "Shop item", url: "https://shop.com/x", host: "shop.com", title: "X", why: "Similar.", fit: "", met: "unknown", source: "item", checked: false }
+    { name: "Shop item", url: "https://shop.com/x", host: "shop.com", title: "X", why: "Similar.", fit: "", met: "unknown", source: "item", checked: false },
+    // A free app: its price is 0, nothing to watch.
+    { name: "Free timer", url: "https://free.app/", host: "free.app", title: "Free timer", why: "Same idea.", fit: "", met: "yes", source: "item", checked: true, price: "0 USD", watch: { source: "ld-price", value: "0 USD" } }
   ]
   ui.list(el, { answer: { intro: "Here.", items, note: "", condition: "cheaper", asked: "cheaper", at: Date.parse("2026-11-08T10:00:00Z") }, items, onOpen() {}, onWatch() {} })
-  assert.equal(el.querySelectorAll(".cf-similar-item").length, 3)
+  assert.equal(el.querySelectorAll(".cf-similar-item").length, 4)
   assert.equal(el.querySelectorAll(".cf-similar-fit.ok").length, 1)
   assert.equal(el.querySelectorAll(".cf-similar-nc").length, 2)
   assert.equal(el.querySelectorAll(".cf-similar-watch").length, 1)
@@ -144,7 +146,7 @@ test("the list: checked price and stock, a condition met or Not confirmed, Watch
   assert.equal(busy.querySelectorAll(".cf-similar-watch").length, 0)
 })
 
-test("the start: a chip is the condition (one at a time), the person's words join it", () => {
+test("the start: a chip is the condition (one at a time), the person's words join it", async () => {
   const el = root()
   const asked: Array<[string, string]> = []
   ui.picker(el, (c: string, l: string) => asked.push([c, l]))
@@ -152,6 +154,18 @@ test("the start: a chip is the condition (one at a time), the person's words joi
   assert.equal(chips.length, 6)
   el.querySelector(".cf-primary").click()
   assert.deepEqual(asked[0], ["", "Find similar"])
+  // A chip: the bubble says the chip's words, no "Find similar:" prefix (the icon says it; build 90).
+  chips[0].click()
+  await new Promise((r) => setTimeout(r, 20))
+  el.querySelector(".cf-primary").click()
+  assert.deepEqual(asked[1], ["Cheaper", "Cheaper"])
+})
+
+test("no zoom on iOS: Find similar's field and quick insert's are 16px on touch screens", () => {
+  const css = (p: string) => readFileSync(new URL(`../src/content/${p}`, import.meta.url), "utf8")
+  assert.match(css("similar/similar.css"), /\.cf\[data-touch\] \.cf-similar-words \{ font-size: 16px; \}/)
+  assert.match(css("insert/insert.css"), /@media \(pointer: coarse\) \{\s*\.cf-qi-area, \.cf-qi-blank, \.cf-qi-fill-text \{ font-size: 16px; \}/)
+  assert.match(css("watch/watch.css"), /\.cf-watch-cond \{[^}]*font-size: 16px/)
 })
 
 test("the menu: Find similar… where there is a page, with Ultra's badge for someone without it", () => {

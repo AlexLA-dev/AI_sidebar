@@ -289,3 +289,21 @@ test("createSearch: an unsupported country is dropped and the search runs withou
   assert.equal(calls[1].tools[0].user_location, undefined)
   assert.equal(calls[1].tools[0].max_uses, 1)
 })
+
+test("a selection is the subject: the planner reads it, the page's own facts don't stand for it", async () => {
+  const { planMessage, subjectInput, writeMessage } = await import("../netlify/shared/similar.mts")
+  const input = { page: { title: "Best ANC headphones 2026", url: "https://review.example/anc", text: "Our picks…" }, facts: { price: { amount: 399, currency: "USD" } }, condition: "cheaper", locale: "en-US", selection: "  Sony WH-1000XM6 — $449  " }
+  const msg = planMessage(input)
+  assert.match(msg, /<selection>\nSony WH-1000XM6 — \$449\n<\/selection>/)
+  assert.match(msg, /about the page's main item/)
+  const subject = subjectInput(input)
+  assert.deepEqual(subject.facts, {})
+  assert.equal(subject.selection, "Sony WH-1000XM6 — $449")
+  // Without a selection nothing changes.
+  const plain = subjectInput({ ...input, selection: "   " })
+  assert.deepEqual(plain.facts, input.facts)
+  assert.equal(plain.selection, undefined)
+  assert.ok(!/<selection>/.test(planMessage({ ...input, selection: undefined })))
+  const plan = checkPlan({ category: "product", subject: "Sony WH-1000XM6", queries: ["q"], source_price: 449, source_currency: "USD", condition: { kind: "cheaper" } }, subject)
+  assert.match(writeMessage(subject, plan, []), /They selected on the page "Best ANC headphones 2026": "Sony WH-1000XM6 — \$449"/)
+})

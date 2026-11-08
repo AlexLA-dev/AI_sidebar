@@ -1051,7 +1051,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setPageMenu(false)
     setSimilarSubject(via === "selection" && subject?.trim() ? subject.trim().slice(0, SIMILAR_SELECTION_MAX) : null)
     if (via === "menu") void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "similar" })
-    setSimilarCard(similarAllowed(statusRef.current?.plan) ? "pick" : "upsell")
+    // The plan decides: as the panel knows it, or, tapped before the panel's status came, as the background tells it
+    // (an Ultra subscriber must never see Ultra's card for being quick).
+    const decide = (plan: string | undefined) => setSimilarCard(similarAllowed(plan) ? "pick" : "upsell")
+    if (statusRef.current) decide(statusRef.current.plan)
+    else void sendBackground<StatusInfo>({ type: "status", platform }).then((now) => decide(now?.plan ?? statusRef.current?.plan))
     setTimeout(() => listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" }), 60)
   }
   const openSimilarRef = useRef(openSimilar)
@@ -2842,7 +2846,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                           </div>
                         ), !picked)
                       ) : (
-                        <div class="cf-bubble-user" dir="auto">{m.mode === "google" && <span class="cf-user-mode"><Icon.Search size={12} /></span>}{m.label ?? m.content}</div>
+                        <div class="cf-bubble-user" dir="auto">
+                          {m.mode === "google" && <span class="cf-user-mode"><Icon.Search size={12} /></span>}
+                          {m.similarAsk !== undefined && <span class="cf-user-mode" title={t("similarTitle")} aria-label={t("similarTitle")}><SimilarIcon size={12} /></span>}
+                          {m.label ?? m.content}
+                        </div>
                       )}
                       {m.sources && m.sources.length > 0 && <UsedSources notes={m.sources} />}
                       {m.note && messageFooter(m, idx, () => noteCopyText(m), () => noteShareText(messages, idx, shareLabels(chatLanguage(messages)), shareLinks()))}
@@ -2879,7 +2887,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       if (!similarSubject) return findSimilar(condition, label)
                       // What was selected, in the question: "Find similar: “…”" (and the condition after it).
                       const quote = t("noteQuote", clip(similarSubject, 60))
-                      findSimilar(condition, condition ? `${label} · ${quote}` : t("similarAskedWith", quote), false, similarSubject)
+                      findSimilar(condition, condition ? `${quote} · ${label}` : quote, false, similarSubject)
                     }}
                     onClose={() => setSimilarCard(null)}
                   />
