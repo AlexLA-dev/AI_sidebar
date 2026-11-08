@@ -17,11 +17,15 @@ import AppKit
 /// the language reads the rest.
 struct ListenRequest: Equatable {
     let id: String
+    /// The panel's parts (its own rules): what's read when the text can't be written for the ear.
     let parts: [String]
     let lang: String
     let what: String
     let title: String
     let url: URL?
+    /// The raw text, and whether to write it for the ear first (/api/v2/speak-script: tables, lists, a page…).
+    var text: String = ""
+    var script: Bool = false
 }
 
 @MainActor
@@ -57,8 +61,8 @@ final class ListenPlayer: NSObject, ObservableObject {
     private var timer: Timer?
     private var wired = false
     private let synth = AVSpeechSynthesizer()
-    /// From this part on, Apple's voice reads (the week's minutes ran out, or the connection did).
-    private var appleFrom: Int?
+    /// What Apple's voice reads when the server can't (the week's minutes ran out, or the connection did).
+    private var appleText: String?
     private var appleStarted = false
 
     // MARK: Opening
@@ -68,18 +72,19 @@ final class ListenPlayer: NSObject, ObservableObject {
         #if DEBUG
         guard request == nil, let text = UserDefaults.standard.string(forKey: "CFDebugListen"), !text.isEmpty else { return }
         let lang = UserDefaults.standard.string(forKey: "CFDebugListenLang") ?? "en"
-        start(ListenRequest(id: "debug", parts: Self.parts(text), lang: lang, what: "page", title: "How electric trains save energy", url: URL(string: "https://example.com/trains")))
+        // -CFDebugListenScript YES: written for the ear first, as a page or an answer with a table would be.
+        start(ListenRequest(id: "debug", parts: Self.sentenceParts(text), lang: lang, what: "page", title: "How electric trains save energy", url: URL(string: "https://example.com/trains"),
+                            text: text, script: UserDefaults.standard.bool(forKey: "CFDebugListenScript")))
         #endif
     }
 
-    #if DEBUG
     /// Sentences gathered into parts like the panel's (src/shared/speech.ts): a short first one, then up to 1400.
-    static func parts(_ text: String) -> [String] {
+    nonisolated static func sentenceParts(_ text: String, first: Bool = true) -> [String] {
         var parts: [String] = []
         var current = ""
         text.enumerateSubstrings(in: text.startIndex..., options: .bySentences) { sentence, _, _, _ in
             guard let sentence else { return }
-            let limit = parts.isEmpty ? 240 : 1400
+            let limit = parts.isEmpty && first ? 240 : 1400
             if !current.isEmpty, current.count + sentence.count > limit {
                 parts.append(current.trimmingCharacters(in: .whitespaces))
                 current = ""
@@ -89,7 +94,24 @@ final class ListenPlayer: NSObject, ObservableObject {
         if !current.trimmingCharacters(in: .whitespaces).isEmpty { parts.append(current.trimmingCharacters(in: .whitespaces)) }
         return parts
     }
-    #endif
+
+    /// A long text for /api/v2/speak-script in pieces of at most 5000 characters, cut between paragraphs.
+    nonisolated static func scriptChunks(_ text: String, size: Int = 5000) -> [String] {
+        var chunks: [String] = []
+        var current = ""
+        for paragraph in text.components(separatedBy: "\n\n") {
+            let pieces = paragraph.utf16.count > size ? sentenceParts(paragraph, first: false) : [paragraph]
+            for piece in pieces {
+                if !current.isEmpty, current.utf16.count + piece.utf16.count + 2 > size {
+                    chunks.append(current.trimmingCharacters(in: .whitespacesAndNewlines))
+                    current = ""
+                }
+                current += (current.isEmpty ? "" : "\n\n") + piece
+            }
+        }
+        if !current.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { chunks.append(current.trimmingCharacters(in: .whitespacesAndNewlines)) }
+        return chunks
+    }
 
     func open(_ url: URL) {
         let id = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first { $0.name == "id" }?.value ?? ""
@@ -108,7 +130,9 @@ final class ListenPlayer: NSObject, ObservableObject {
             lang: stored["lang"] as? String ?? "",
             what: stored["what"] as? String ?? "answer",
             title: (stored["title"] as? String).flatMap { $0.isEmpty ? nil : $0 } ?? String(localized: "ContextFlow"),
-            url: (stored["url"] as? String).flatMap { $0.isEmpty ? nil : URL(string: $0) }
+            url: (stored["url"] as? String).flatMap { $0.isEmpty ? nil : URL(string: $0) },
+            text: stored["text"] as? String ?? "",
+            script: stored["script"] as? Bool ?? false
         ))
     }
 
@@ -147,7 +171,8 @@ final class ListenPlayer: NSObject, ObservableObject {
         scheduledUpTo = 0
         startSample = 0
         fetchedAll = false
-        appleFrom = nil
+        appleText = nil
+        pendingReason = nil
         appleStarted = false
         elapsed = 0
         state = .idle
@@ -210,45 +235,155 @@ final class ListenPlayer: NSObject, ObservableObject {
     // MARK: Speech from the server
 
     private func fetchAll(_ request: ListenRequest) async {
+        if request.script, !request.text.isEmpty { return await speakWritten(request) }
         for (index, part) in request.parts.enumerated() {
             if Task.isCancelled { return }
-            let key = Self.cacheKey(part, request.lang)
-            if let cached = SpeechCache.read(key) {
-                append(cached)
-                continue
-            }
-            let urlRequest: URLRequest
-            do {
-                urlRequest = try ChatAI.speechRequest(text: part, lang: request.lang, what: request.what, part: index, parts: request.parts.count)
-            } catch {
-                return fallBack(from: index, .appleVoice)
-            }
-            let outcome = await Self.download(urlRequest) { [weak self] chunk in
-                await self?.append(chunk)
-            }
-            if Task.isCancelled { return }
-            switch outcome {
-            case .done(let all):
-                SpeechCache.write(key, all)
-            case .refused(let status, let body):
-                let code = body["code"] as? String
-                if status == 403 || code == "ULTRA_ONLY" {
-                    if samples.isEmpty { state = .ultraOnly } else { fallBack(from: index, .appleVoice) }
-                    return
-                }
-                if code == "LIMIT_REACHED" {
-                    let usage = body["usage"] as? [String: Any]
-                    let minutes = (usage?["limit"] as? Int ?? 0) / 60
-                    let resets = (usage?["resetsAt"] as? String).flatMap { ISO8601DateFormatter().date(from: $0) }
-                        .map { $0.formatted(.dateTime.weekday(.wide)) } ?? ""
-                    return fallBack(from: index, .limit(minutes: minutes, resets: resets))
-                }
-                return fallBack(from: index, .appleVoice)
-            case .failed:
-                return fallBack(from: index, .appleVoice)
+            switch await speakPart(part, index: index, request: request) {
+            case .ok: continue
+            case .stop: return
+            case .fallBack(let reason): return fallBack(text: request.parts[index...].joined(separator: " "), reason)
             }
         }
         fetchedAll = true
+    }
+
+    /// Written for the ear first: the writer streams parts in, the voice takes them in order as they come.
+    private func speakWritten(_ request: ListenRequest) async {
+        let (parts, continuation) = AsyncStream<String>.makeStream()
+        let writer = Task { await self.write(request, into: continuation) }
+        defer { writer.cancel() }
+        var iterator = parts.makeAsyncIterator()
+        var index = 0
+        while let part = await iterator.next() {
+            if Task.isCancelled { return }
+            switch await speakPart(part, index: index, request: request) {
+            case .ok: index += 1
+            case .stop: return
+            case .fallBack(let reason):
+                // Apple's voice reads the rest of what was written (it's quick to finish).
+                var rest = [part]
+                while let more = await iterator.next() { rest.append(more) }
+                return fallBack(text: rest.joined(separator: " "), reason)
+            }
+        }
+        fetchedAll = true
+    }
+
+    /// The text for listening, chunk by chunk, each part handed on as soon as it's complete; kept for 7 days.
+    private func write(_ request: ListenRequest, into out: AsyncStream<String>.Continuation) async {
+        defer { out.finish() }
+        let chunks = Self.scriptChunks(request.text)
+        var first = true
+        for (index, chunk) in chunks.enumerated() {
+            if Task.isCancelled { return }
+            let splitter = PartSplitter(first: first)
+            let give = { (parts: [String]) in
+                for part in parts { out.yield(part) }
+                if !parts.isEmpty { first = false }
+            }
+            let key = "script|\(request.what)|" + Self.cacheKey(chunk, request.lang)
+            if let kept = SpeechCache.read(key), let script = String(data: kept, encoding: .utf8) {
+                give(splitter.push(script))
+                give(splitter.end())
+                continue
+            }
+            var script = ""
+            do {
+                let urlRequest = try ChatAI.scriptRequest(text: chunk, what: request.what, lang: request.lang)
+                for try await piece in Self.textStream(urlRequest) {
+                    script += piece
+                    give(splitter.push(piece))
+                }
+                give(splitter.end())
+                if !script.isEmpty { SpeechCache.write(key, Data(script.utf8)) }
+            } catch {
+                if Task.isCancelled { return }
+                if !script.isEmpty {
+                    give(splitter.end())
+                } else if index == 0 && chunks.count == 1 {
+                    // Nothing written: the panel's own parts (its rules), as before this was written for the ear.
+                    give(request.parts)
+                } else {
+                    give(Self.sentenceParts(chunk, first: first))
+                }
+            }
+        }
+    }
+
+    private enum Spoken {
+        case ok, stop
+        case fallBack(State)
+    }
+
+    /// One part to speech, from the device's copy when there is one.
+    private func speakPart(_ part: String, index: Int, request: ListenRequest) async -> Spoken {
+        let key = Self.cacheKey(part, request.lang)
+        if let cached = SpeechCache.read(key) {
+            append(cached)
+            return .ok
+        }
+        guard let urlRequest = try? ChatAI.speechRequest(text: part, lang: request.lang, what: request.what, part: index, parts: max(request.parts.count, index + 1)) else {
+            return .fallBack(.appleVoice)
+        }
+        let outcome = await Self.download(urlRequest) { [weak self] chunk in
+            await self?.append(chunk)
+        }
+        if Task.isCancelled { return .stop }
+        switch outcome {
+        case .done(let all):
+            SpeechCache.write(key, all)
+            return .ok
+        case .refused(let status, let body):
+            let code = body["code"] as? String
+            if status == 403 || code == "ULTRA_ONLY" {
+                if samples.isEmpty {
+                    state = .ultraOnly
+                    return .stop
+                }
+                return .fallBack(.appleVoice)
+            }
+            if code == "LIMIT_REACHED" {
+                let usage = body["usage"] as? [String: Any]
+                let minutes = (usage?["limit"] as? Int ?? 0) / 60
+                let resets = (usage?["resetsAt"] as? String).flatMap { ISO8601DateFormatter().date(from: $0) }
+                    .map { $0.formatted(.dateTime.weekday(.wide)) } ?? ""
+                return .fallBack(.limit(minutes: minutes, resets: resets))
+            }
+            return .fallBack(.appleVoice)
+        case .failed:
+            return .fallBack(.appleVoice)
+        }
+    }
+
+    private enum ScriptError: Error {
+        case status(Int)
+    }
+
+    /// /api/v2/speak-script's text as it streams, in pieces of whole characters (off the main thread).
+    nonisolated private static func textStream(_ request: URLRequest) -> AsyncThrowingStream<String, Error> {
+        AsyncThrowingStream { continuation in
+            let task = Task {
+                do {
+                    let (bytes, response) = try await URLSession.shared.bytes(for: request)
+                    let status = (response as? HTTPURLResponse)?.statusCode ?? 0
+                    guard status == 200 else { throw ScriptError.status(status) }
+                    var buffer = Data()
+                    for try await byte in bytes {
+                        buffer.append(byte)
+                        // At a sentence's end or every few dozen bytes; a character cut in two waits for its rest.
+                        if byte == 0x2E || byte == 0x0A || buffer.count >= 48, let text = String(data: buffer, encoding: .utf8) {
+                            continuation.yield(text)
+                            buffer.removeAll(keepingCapacity: true)
+                        }
+                    }
+                    if !buffer.isEmpty, let text = String(data: buffer, encoding: .utf8) { continuation.yield(text) }
+                    continuation.finish()
+                } catch {
+                    continuation.finish(throwing: error)
+                }
+            }
+            continuation.onTermination = { _ in task.cancel() }
+        }
     }
 
     private enum Download {
@@ -318,8 +453,8 @@ final class ListenPlayer: NSObject, ObservableObject {
         }
     }
 
-    private func fallBack(from part: Int, _ reason: State) {
-        appleFrom = part
+    private func fallBack(text: String, _ reason: State) {
+        appleText = text
         if samples.isEmpty {
             state = reason
             speakWithApple()
@@ -341,7 +476,7 @@ final class ListenPlayer: NSObject, ObservableObject {
             if fetchedAll {
                 node.pause()
                 state = .ended
-            } else if let reason = pendingReason, appleFrom != nil {
+            } else if let reason = pendingReason, appleText != nil {
                 pendingReason = nil
                 node.pause()
                 state = reason
@@ -354,10 +489,10 @@ final class ListenPlayer: NSObject, ObservableObject {
     // MARK: Apple's voice (out of minutes, offline)
 
     private func speakWithApple() {
-        guard let request, let from = appleFrom, from < request.parts.count, !appleStarted else { return }
+        guard let request, let text = appleText, !text.isEmpty, !appleStarted else { return }
         appleStarted = true
         activateSession()
-        let utterance = AVSpeechUtterance(string: request.parts[from...].joined(separator: " "))
+        let utterance = AVSpeechUtterance(string: text)
         utterance.voice = Self.bestVoice(request.lang)
         synth.speak(utterance)
     }
@@ -465,9 +600,11 @@ final class ListenPlayer: NSObject, ObservableObject {
     }
 }
 
-/// The parts already spoken, in Caches (the system may clear them; then they're asked for again): about 25 minutes.
+/// The parts already spoken and the texts written for the ear, in Caches (the system may clear them; then they're asked
+/// for again): about 25 minutes of audio, nothing older than 7 days; gone with the chats ("Delete all chats").
 enum SpeechCache {
     private static let limit = 75 * 1024 * 1024
+    private static let maxAge: TimeInterval = 7 * 86_400
 
     private static var folder: URL? {
         guard let caches = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first else { return nil }
@@ -477,14 +614,29 @@ enum SpeechCache {
     }
 
     static func read(_ key: String) -> Data? {
-        guard let file = folder?.appendingPathComponent("\(key).pcm"), let data = try? Data(contentsOf: file), !data.isEmpty else { return nil }
-        try? FileManager.default.setAttributes([.modificationDate: Date()], ofItemAtPath: file.path)
+        guard let file = folder?.appendingPathComponent("\(name(key)).pcm"), let data = try? Data(contentsOf: file), !data.isEmpty else { return nil }
+        let written = (try? file.resourceValues(forKeys: [.contentModificationDateKey]))?.contentModificationDate ?? .distantPast
+        guard Date().timeIntervalSince(written) < maxAge else {
+            try? FileManager.default.removeItem(at: file)
+            return nil
+        }
         return data
+    }
+
+    /// "Delete all chats": everything read aloud goes.
+    static func clear() {
+        guard let folder, let files = try? FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: nil) else { return }
+        for file in files { try? FileManager.default.removeItem(at: file) }
+    }
+
+    /// File names from keys ("script|page|<hash>" has bars).
+    private static func name(_ key: String) -> String {
+        key.replacingOccurrences(of: "|", with: "-")
     }
 
     static func write(_ key: String, _ data: Data) {
         guard let folder, !data.isEmpty else { return }
-        try? data.write(to: folder.appendingPathComponent("\(key).pcm"), options: .atomic)
+        try? data.write(to: folder.appendingPathComponent("\(name(key)).pcm"), options: .atomic)
         // Over the limit: the parts played longest ago go.
         let keys: [URLResourceKey] = [.contentModificationDateKey, .fileSizeKey]
         guard let files = try? FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: keys) else { return }
@@ -495,7 +647,7 @@ enum SpeechCache {
         var total = 0
         for row in rows {
             total += row.2
-            if total > limit { try? FileManager.default.removeItem(at: row.0) }
+            if total > limit || Date().timeIntervalSince(row.1) > maxAge { try? FileManager.default.removeItem(at: row.0) }
         }
     }
 }
@@ -618,5 +770,53 @@ struct ListenView: View {
     private func clock(_ seconds: Double) -> String {
         let s = max(0, Int(seconds.rounded()))
         return String(format: "%d:%02d", s / 60, s % 60)
+    }
+}
+
+/// Cuts text that streams in into parts as soon as they're complete, at sentence ends: the very first part as soon as
+/// a sentence of `min` characters is there, then parts of up to 1400 (src/shared/speech.ts PartSplitter).
+final class PartSplitter {
+    private var buffer = ""
+    private var first: Bool
+    private let min: Int
+    private static let sentenceEnd = try! NSRegularExpression(pattern: "[.!?…。！？؟।][\"'»”)\\]]*\\s+|\\n+")
+
+    init(first: Bool = true, min: Int = 40) {
+        self.first = first
+        self.min = min
+    }
+
+    func push(_ text: String) -> [String] {
+        buffer += text
+        var out: [String] = []
+        while true {
+            let limit = first ? 240 : 1400
+            let ns = buffer as NSString
+            var cut = -1
+            var firstEnd = -1
+            for match in Self.sentenceEnd.matches(in: buffer, range: NSRange(location: 0, length: ns.length)) {
+                let end = match.range.location + match.range.length
+                if firstEnd < 0 { firstEnd = end }
+                if end <= limit { cut = end } else { break }
+            }
+            if cut < 0, firstEnd >= 0, ns.length > limit { cut = firstEnd }
+            guard cut >= 0, ns.length >= limit || (first && cut >= min) else { break }
+            let part = ns.substring(to: cut).trimmingCharacters(in: .whitespacesAndNewlines)
+            buffer = ns.substring(from: cut)
+            if !part.isEmpty {
+                out.append(part)
+                first = false
+            }
+        }
+        return out
+    }
+
+    func end() -> [String] {
+        let rest = buffer.trimmingCharacters(in: .whitespacesAndNewlines)
+        buffer = ""
+        guard !rest.isEmpty else { return [] }
+        let parts = ListenPlayer.sentenceParts(rest, first: first)
+        if !parts.isEmpty { first = false }
+        return parts
     }
 }

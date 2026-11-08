@@ -166,7 +166,10 @@ export type BackgroundRequest =
   | { type: "openApp"; target: "subscribe" | "manage" | "home"; feature?: "ai" | "organize" | "listen" | "watch"; plan?: PaidPlan; period?: Period }
   // Read aloud on iPhone and iPad (2.6): the parts go to the app (App Group), which plays them with the screen
   // locked; answers { url } (contextflow://listen?id=…) for the page to follow, or { url: null } (no app).
-  | { type: "listenInApp"; parts: string[]; lang: string; what: "answer" | "page"; title: string; url: string }
+  // text, script (2.6): the raw text and whether the app should write it for the ear first (parts: when it can't).
+  | { type: "listenInApp"; parts: string[]; text: string; script: boolean; lang: string; what: "answer" | "page"; title: string; url: string }
+  // "Delete all chats": the audio and the texts for listening kept on this device go too.
+  | { type: "speechClear" }
   // The line under a free answer that skipped the page's video or PDFs: shown, or its "Try Pro" tapped.
   | { type: "mediaNotice"; action: "shown" | "pro"; media: MediaKind[] }
   // An Own key subscriber and Pro: a refusal (starts the day before the discount), the discount card shown, a tap.

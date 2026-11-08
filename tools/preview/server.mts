@@ -378,21 +378,24 @@ const insert = (await import("../../netlify/functions/v2-insert.mts")).default
 const organize = (await import("../../netlify/functions/v2-organize.mts")).default
 const watch = (await import("../../netlify/functions/v2-watch.mts")).default
 const localSpeak = (await import("../../netlify/functions/v2-speak.mts")).default
-// Read aloud with the real voices: the deploy preview speaks, this stand signs each request as Ultra for it.
-const speak: typeof chat = process.env.SPEAK_PROXY && process.env.SPEAK_EVAL_KEY
-  ? await (async () => {
-      const { createPrivateKey, sign } = await import("node:crypto")
-      const key = createPrivateKey(readFileSync(process.env.SPEAK_EVAL_KEY!))
-      return (async (req: Request) => {
-        const text = await req.text()
-        const installId = String(JSON.parse(text).installId ?? "")
-        const at = Date.now()
-        const signature = sign(null, Buffer.from(`${installId}.${at}`), key).toString("base64url")
-        return realFetch(`${process.env.SPEAK_PROXY}/api/v2/speak`, { method: "POST", headers: { "Content-Type": "application/json", "x-cf-eval": `${at}.${signature}` }, body: text })
-      }) as typeof chat
-    })()
-  : localSpeak
-const handlers: Record<string, typeof chat> = { "/api/v2/speak": speak, "/api/v2/chat": chat, "/api/v2/status": status, "/api/v2/event": event, "/api/v2/find": find, "/api/v2/promo": promo, "/api/v2/insert": insert, "/api/v2/organize": organize, "/api/v2/watch": watch }
+const localScript = (await import("../../netlify/functions/v2-speak-script.mts")).default
+// Read aloud with the real voices (and the real text for listening): the deploy preview answers, this stand signs each
+// request as Ultra for it.
+const proxied = async (path: string): Promise<typeof chat | null> => {
+  if (!process.env.SPEAK_PROXY || !process.env.SPEAK_EVAL_KEY) return null
+  const { createPrivateKey, sign } = await import("node:crypto")
+  const key = createPrivateKey(readFileSync(process.env.SPEAK_EVAL_KEY))
+  return (async (req: Request) => {
+    const text = await req.text()
+    const installId = String(JSON.parse(text).installId ?? "")
+    const at = Date.now()
+    const signature = sign(null, Buffer.from(`${installId}.${at}`), key).toString("base64url")
+    return realFetch(`${process.env.SPEAK_PROXY}${path}`, { method: "POST", headers: { "Content-Type": "application/json", "x-cf-eval": `${at}.${signature}` }, body: text })
+  }) as typeof chat
+}
+const speak: typeof chat = (await proxied("/api/v2/speak")) ?? localSpeak
+const speakScript: typeof chat = (await proxied("/api/v2/speak-script")) ?? localScript
+const handlers: Record<string, typeof chat> = { "/api/v2/speak": speak, "/api/v2/speak-script": speakScript, "/api/v2/chat": chat, "/api/v2/status": status, "/api/v2/event": event, "/api/v2/find": find, "/api/v2/promo": promo, "/api/v2/insert": insert, "/api/v2/organize": organize, "/api/v2/watch": watch }
 
 // Page watch's test shop (2.5): /shop shows a mug whose price and stock /shop-set changes
 // (/shop-set?price=39&stock=OutOfStock), /shop-js draws the price with a script (the background sees none, the

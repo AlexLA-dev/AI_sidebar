@@ -210,6 +210,9 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             }
             let id = SharedDefaults.shared.writeListenRequest([
                 "parts": Array(parts),
+                // The raw text, and whether the app writes it for the ear first (tables, lists, a page…).
+                "text": String((message["text"] as? String ?? "").prefix(24_000)),
+                "script": message["script"] as? Bool ?? false,
                 "lang": String((message["lang"] as? String ?? "").prefix(16)),
                 "what": message["what"] as? String == "page" ? "page" : "answer",
                 "title": String((message["title"] as? String ?? "").prefix(200)),

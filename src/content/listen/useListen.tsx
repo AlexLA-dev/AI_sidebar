@@ -6,7 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "preact/hooks"
 
 import { t } from "../../shared/i18n"
 import { isUltra, type Plan } from "../../shared/plan"
-import { speechParts, speechSeconds, speechText } from "../../shared/speech"
+import { needsScript, speechParts, speechSeconds, speechText } from "../../shared/speech"
 import type { Platform, Usage } from "../../shared/types"
 import type { SpeakIn, SpeakOut } from "../../background/speak"
 import { isTouch } from "../page"
@@ -71,7 +71,9 @@ export function useListen({ platform, plan, onUltra, follow, send }: {
 
     if (isTouch(platform)) {
       setState({ at: "loading", key })
-      const reply = await send<{ url: string | null }>({ type: "listenInApp", parts, lang: item.lang, what: item.what, title: item.title, url: item.url })
+      // The app writes it for the ear itself (as the background does here); the parts are its way when it can't.
+      const script = item.what === "page" || needsScript(item.text)
+      const reply = await send<{ url: string | null }>({ type: "listenInApp", parts, text: item.text.slice(0, 24_000), script, lang: item.lang, what: item.what, title: item.title, url: item.url })
       if (reply?.url) {
         step("app")
         setState({ at: "handoff", key })
@@ -135,7 +137,7 @@ export function useListen({ platform, plan, onUltra, follow, send }: {
     port.onDisconnect.addListener(() => {
       if (run.current === current && !current.ended) current.ended = true
     })
-    port.postMessage({ type: "play", parts, lang: item.lang, what: item.what } satisfies SpeakIn)
+    port.postMessage({ type: "play", text: item.text, lang: item.lang, what: item.what } satisfies SpeakIn)
   }, [plan, platform, onUltra, follow, send, stop])
 
   const toggle = useCallback(() => {

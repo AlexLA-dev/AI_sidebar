@@ -32,7 +32,7 @@ import { startInsert } from "./insert"
 import { startWatch } from "./watch"
 import { organizeChat, reportOrganize } from "./organize"
 import { organizeConfig } from "../shared/organize"
-import { serveSpeak } from "./speak"
+import { clearSpeech, serveSpeak } from "./speak"
 
 // ---------------------------------------------------------------- identity
 
@@ -367,6 +367,8 @@ async function listenInApp(message: Extract<BackgroundRequest, { type: "listenIn
   if (TARGET !== "safari") return { url: null }
   const reply = await callNative<{ id?: string }>("listen", {
     parts: message.parts.slice(0, 40),
+    text: message.text.slice(0, 24_000),
+    script: message.script === true,
     lang: message.lang.slice(0, 16),
     what: message.what,
     title: message.title.slice(0, 200),
@@ -433,6 +435,9 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
       return true
     case "listenInApp":
       listenInApp(message).then(sendResponse, () => sendResponse({ url: null }))
+      return true
+    case "speechClear":
+      clearSpeech().then(() => sendResponse({ ok: true }), () => sendResponse({ ok: false }))
       return true
     case "mediaNotice":
       void reportMediaNotice(message.action, message.media)

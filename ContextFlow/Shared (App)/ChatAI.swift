@@ -212,6 +212,16 @@ enum ChatAI {
         return try request("api/v2/speak", body)
     }
 
+    /// Read aloud: the text written for the ear by our server (/api/v2/speak-script, Claude Haiku), streamed as plain text.
+    @MainActor
+    static func scriptRequest(text: String, what: String, lang: String) throws -> URLRequest {
+        var body = identity()
+        body["text"] = text
+        body["what"] = what
+        body["lang"] = lang
+        return try request("api/v2/speak-script", body)
+    }
+
     /// The server's signature for Pro's promotional offer (only for an active Own key subscription).
     @MainActor
     static func promoSignature() async throws -> PromoSignature {
