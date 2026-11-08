@@ -55,6 +55,7 @@ import { openWatchSheet } from "./watch/WatchSheet"
 import { PlansSheet } from "./Plans"
 import { ListenBar, SpeakerIcon, useListen } from "./listen/useListen"
 import { dodgeFab } from "./fabDodge"
+import { clearUnread, onBusy, setViewing, type BusyState } from "../shared/busy"
 import { hasPro, isUltra, type PaidPlan } from "../shared/plan"
 import { SettingsView } from "./Settings"
 import { shareLabels } from "./shareLabels"
@@ -77,7 +78,7 @@ import { restoredDraft, withoutStopped } from "./ux/stopped"
 import { scheduleReminder, thisDevice, useMessageUx } from "./ux/useMessageUx"
 import { Tour, tourSteps } from "./Tour"
 import { languageName, translateTarget } from "./translateTarget"
-import { GuideCard, GuidePill, ON_PAGE, PLAN_STEPS, PRO_TOUR, ULTRA_FULL_TOUR, ULTRA_TOUR, WAITING, type GuideStep } from "./Guide"
+import { GuideCard, GuidePill, ON_PAGE, PLAN_MENU, PLAN_STEPS, PLAN_VIEW, PRO_TOUR, ULTRA_FULL_TOUR, ULTRA_TOUR, WAITING, type GuideStep } from "./Guide"
 import { ConsentCard } from "./Consent"
 import { QI_EVENTS, QuickInsert } from "./insert/QuickInsert"
 import * as QIcon from "./insert/icons"
@@ -1329,6 +1330,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const openThread = useCallback((id: string, at?: number) => {
     stop()
     setUndoBar(null)
+    void clearUnread(id)
     const thread = threadList.find((x) => x.id === id)
     threadRef.current = id
     setKind(thread?.kind)
@@ -1708,6 +1710,15 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // The ✦ steps aside while quick insert's button sits by the field being typed in.
   const insertButtonShown = useButtonShown()
   const fabVisible = !popup && fabEnabled && !open && !settings.fabHiddenSites.includes(source.site()) && !insertButtonShown
+  // Long answers off the panel (busy.ts): a spinner on their chat, a dot on the round button once one is done unseen.
+  const [busyState, setBusyState] = useState<BusyState>({ busy: {}, unread: [] })
+  useEffect(() => onBusy(setBusyState), [])
+  // Which chat the panel shows, so a long answer finishing in it isn't marked unread; opening it clears its dot.
+  useEffect(() => {
+    const shown = open && view === "chat" && !popup ? threadRef.current : null
+    void setViewing(shown)
+    if (shown) void clearUnread(shown)
+  }, [open, view, messages])
   // The selection buttons were placed: the round button steps out of their way, or stays (fabDodge.ts).
   const onBubblePlace = useCallback((box: DOMRect, selection: DOMRect) => {
     const fab = fabRef.current
@@ -1818,7 +1829,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (!guide) return
     // A plan's tour goes by its Next and the taps on what it lights up; out of the chat list, on past the chats.
     if (planTour.current) {
-      if (guide === "pro_chatList" && view === "chat") guideTo(planAfter("pro_chats"))
+      // Left the place the step is shown in (Back from the chat list or Templates): on past that place's steps.
+      const there = PLAN_VIEW[guide]
+      if (there && view !== there && view !== "settings") planNext(there === "threads" ? "pro_askChats" : guide)
       return
     }
     const second = guide === "askSel" || guide === "answer2" || ON_PAGE.includes(guide)
@@ -1838,25 +1851,25 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   useEffect(() => {
     if (!open && guide && !ON_PAGE.includes(guide)) endGuide("exit", "closed")
   }, [open])
-  /** The plan tour's step after `step` (null: the tour ends). */
-  const planAfter = (step: GuideStep): GuideStep => {
-    const steps = planTour.current?.steps ?? []
-    return steps[steps.indexOf(step) + 1] ?? step
+  /** A plan step on, where it's shown: the chat list, Templates or the chat, with the "…" menu open for the watched
+   * pages (and for Find similar when the chat has no quick action for it). One update with the step, so the step is
+   * never measured on the screen before. */
+  const planEnter = (step: GuideStep) => {
+    setView(PLAN_VIEW[step] ?? "chat")
+    const menu = PLAN_MENU.includes(step) || (step === "ultra_similar" && !panelRef.current?.querySelector(".cf-empty .cf-chip[data-action=similar]"))
+    setPageMenu(menu)
+    guideTo(step)
   }
   const planNext = (step: GuideStep) => {
     const steps = planTour.current?.steps ?? []
     const i = steps.indexOf(step)
-    if (i < 0 || i >= steps.length - 1) endGuide("done")
-    else guideTo(steps[i + 1])
+    if (i < 0 || i >= steps.length - 1) {
+      setPageMenu(false)
+      endGuide("done")
+    } else planEnter(steps[i + 1])
   }
   const guideNext = () => {
-    if (guide && planTour.current) {
-      if (guide === "pro_chatList") {
-        setView("chat")
-        return planNext("pro_chats")
-      }
-      return planNext(guide)
-    }
+    if (guide && planTour.current) return planNext(guide)
     if (guide === "answer") guideTo("select")
     else if (guide === "select") {
       guideTo("pick")
@@ -1878,13 +1891,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       // The guide's card says what the list's hint would: it isn't shown again later.
       if (hints !== null && !hints.includes("chats")) doneHint("chats")
     } else if (step === "menu") endGuide("done")
-    // A plan's tour: into the chat list with its button; Listen and Find similar do their thing and it goes on; the
-    // "…" ends it with the menu open (the watched pages are there).
-    else if (step === "pro_chats") {
-      setView("threads")
-      guideTo("pro_chatList")
-    } else if (step === "pro_watch" || step === "ultra_watch") endGuide("done")
-    else if (step === "ultra_listen" || step === "ultra_similar") planNext(step)
+    // A plan's tour: the lit-up control does its thing (✦ turns on, Listen plays, Find similar's card opens, a new
+    // template starts) and the tour goes on; Watch this page or Watching ends it there.
+    else if (step === "pro_watch" || step === "ultra_watch") endGuide("done")
+    else if (planTour.current && PLAN_STEPS.includes(step)) planNext(step)
   }
   /** A plan's tour: what Pro or Ultra added. After the upgrade (via "plan"), or again from the "…" menu. Ultra for
    * someone coming from below Pro (and from the menu) has Pro's steps too. */
@@ -1894,7 +1904,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     planTour.current = { steps, plans: full || tier === "pro" ? (tier === "pro" ? ["pro"] : ["pro", "ultra"]) : ["ultra"] }
     guideVia.current = via
     setTouring(false)
-    setView("chat")
+    setView(PLAN_VIEW[steps[0]] ?? "chat")
     guideRef.current = steps[0]
     setGuide(steps[0])
     reportGuide("start", steps[0])
@@ -2478,6 +2488,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           }}
         >
           <Icon.Sparkle size={22} />
+          {busyState.unread.length > 0 && <span class="cf-fab-dot" role="status" aria-label={t("busyNew")} />}
         </button>
       )}
 
@@ -2715,7 +2726,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
           {view === "threads" ? (
             <>
-              {hintDue("chats") && threadList.length > 0 && guide !== "chatList" && guide !== "pro_chatList" && (
+              {hintDue("chats") && threadList.length > 0 && guide !== "chatList" && !(guide && PLAN_VIEW[guide] === "threads") && (
                 <div class="cf-upsell-wrap">
                   <Hint icon={<Icon.Chats />} title={t("hintChatsTitle")} onDone={() => doneHint("chats")}>{t("hintChatsBody")}</Hint>
                 </div>
@@ -2758,6 +2769,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 onGrouped={(on) => updateSettings({ groupByTags: on })}
                 touch={touch}
                 trashCount={trashList.length}
+                busy={new Set(Object.keys(busyState.busy))}
+                unread={new Set(busyState.unread.map((u) => u.id))}
                 onOpenTrash={() => {
                   setUndoBar(null)
                   setView("trash")
@@ -2949,6 +2962,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   </div>
                 )}
 
+                {/* 2.6 (91): a long answer for this chat under way off the panel (Find similar in the background). */}
+                {busyState.busy[threadRef.current] && partial === null && (
+                  <div class="cf-busy-row" role="status"><span class="cf-busy-spin" aria-hidden="true" /> {t("busyWorking")}</div>
+                )}
                 {organizeCardsView}
 
                 {byokCard && byokDiscount !== null && !error && partial === null && (
@@ -3173,7 +3190,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               )}
             </>
           )}
-          {guide && guideIdle && !ON_PAGE.includes(guide) && view === (guide === "chatList" || guide === "pro_chatList" ? "threads" : "chat") && panelRef.current && (
+          {guide && guideIdle && !ON_PAGE.includes(guide) && view === (guide === "chatList" ? "threads" : PLAN_VIEW[guide] ?? "chat") && panelRef.current && (
             <GuideCard
               key={guide}
               panel={panelRef.current}

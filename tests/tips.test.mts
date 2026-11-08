@@ -309,15 +309,26 @@ test("the clips: in the panel's language; a Mac's own; the open block's first th
   assert.equal(deeper.querySelectorAll(".cf-tips-block")[0].querySelectorAll("video").length, 0)
 })
 
-test("the header's \"…\": Tips right before Settings", () => {
+test("the header's \"…\": Tips under Other… (2.6 (91)), right after Settings", async () => {
+  const flush = async () => {
+    await Promise.resolve()
+    await Promise.resolve()
+  }
   const r = box()
   let tips = 0
   ui.menu(r, () => tips++)
   const items = [...r.querySelectorAll("[role=menuitem]")] as Element[]
-  assert.deepEqual(items.map((b) => text(b).trim()).slice(-2), ["Tips", en.settings])
-  click(items.at(-2)!)
+  assert.equal(text(items.at(-1)!).trim(), en.uxOther)
+  assert.ok(!items.some((b) => text(b).trim() === "Tips"), "folded under Other…")
+  click(items.at(-1)!)
+  await flush()
+  const group = [...r.querySelectorAll(".cf-page-more-group [role=menuitem]")] as Element[]
+  assert.deepEqual(group.map((b) => text(b).trim()), [en.settings, "Tips"])
+  click(group[1])
   assert.equal(tips, 1)
   const without = box()
   ui.menu(without)
+  click([...without.querySelectorAll("[role=menuitem]")].at(-1) as Element)
+  await flush()
   assert.ok(![...without.querySelectorAll("[role=menuitem]")].some((b: any) => text(b).trim() === "Tips"))
 })
