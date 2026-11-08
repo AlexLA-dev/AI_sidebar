@@ -1,4 +1,4 @@
-:root { --blue: #2563eb; --blue-2: #38bdf8; --text: #16151a; --text-2: #55535e; --bg: #ffffff; --bg-2: #f5f6fa; --border: #e6e7ee; color-scheme: light dark; }
+:root { --blue: #2563eb; --blue-2: #38bdf8; --ultra-grad: linear-gradient(135deg, #a78bfa, #2563eb); --text: #16151a; --text-2: #55535e; --bg: #ffffff; --bg-2: #f5f6fa; --border: #e6e7ee; color-scheme: light dark; }
 @media (prefers-color-scheme: dark) { :root { --text: #f2f2f6; --text-2: #b3b2bd; --bg: #111114; --bg-2: #1b1b20; --border: #2a2a31; --blue: #60a5fa; } }
 * { box-sizing: border-box; }
 body { margin: 0; font: 17px/1.6 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; color: var(--text); background: var(--bg); -webkit-font-smoothing: antialiased; }
@@ -32,12 +32,16 @@ section h2 { font-size: 34px; letter-spacing: -0.01em; margin: 0 0 22px; }
 .steps { counter-reset: s; display: grid; gap: 12px; }
 .steps div { counter-increment: s; display: flex; gap: 14px; align-items: flex-start; }
 .steps div::before { content: counter(s); flex: none; width: 28px; height: 28px; border-radius: 14px; background: var(--blue); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; margin-top: 1px; }
-.plans { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.plans { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
 .plan { border: 1px solid var(--border); border-radius: 18px; padding: 22px; }
 .plan.pro { border: 2px solid var(--blue); }
 .plan .price { font-size: 30px; font-weight: 700; margin: 6px 0; }
 .plan .price small { font-size: 15px; color: var(--text-2); font-weight: 500; }
 .plan ul { padding-inline-start: 18px; color: var(--text-2); font-size: 15px; margin: 10px 0 0; }
+/* Ultra (2.6): the panel's violet-to-blue, as a border and a badge; each paid plan's yearly price under the monthly one. */
+.plan.ultra { border: 2px solid transparent; background: linear-gradient(var(--bg), var(--bg)) padding-box, var(--ultra-grad) border-box; }
+.plan .year { color: var(--text-2); font-size: 14px; margin: -2px 0 4px; }
+@media (max-width: 900px) { .plans { grid-template-columns: repeat(2, 1fr); } }
 details { border-bottom: 1px solid var(--border); padding: 14px 0; }
 summary { cursor: pointer; font-weight: 600; }
 details p { color: var(--text-2); margin: 8px 0 0; }
@@ -69,6 +73,10 @@ section[id] { scroll-margin-top: 12px; }
 .feat-head ~ section[id] > h2 { position: sticky; top: 0; z-index: 2; background: var(--bg); padding: 12px 0; margin: -12px 0 10px; }
 /* "On all your devices": the whole app's, before the blocks (as in the app's Tips). */
 .feat-lead { max-width: 720px; margin: 28px 0 0; border: 1px solid var(--border); }
+/* Ultra (2.6), before the app's Tips blocks: laid out like a block, with the plan's border. */
+.feat-ultra { padding: 50px 0 0; }
+.feat-ultra h2 { font-size: 34px; letter-spacing: -0.01em; margin: 0 0 22px; }
+.feat-ultra .feat { border: 1px solid transparent; background: linear-gradient(var(--bg-2), var(--bg-2)) padding-box, var(--ultra-grad) border-box; }
 .block-lede { color: var(--text-2); margin: -12px 0 20px; }
 .feats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; align-items: start; }
 .feat { background: var(--bg-2); border-radius: 18px; padding: 18px; }
@@ -76,6 +84,7 @@ section[id] { scroll-margin-top: 12px; }
 .feat h3 { margin: 0 0 6px; font-size: 18px; }
 .feat p { margin: 0; color: var(--text-2); font-size: 15px; }
 .pro-badge { display: inline-block; vertical-align: 2px; margin-inline-start: 4px; padding: 1px 7px; border-radius: 999px; font-size: 11px; font-weight: 700; line-height: 1.5; letter-spacing: 0.02em; color: #fff; background: linear-gradient(135deg, var(--blue-2), var(--blue)); }
+.ultra-badge { display: inline-block; vertical-align: 2px; margin-inline-start: 4px; padding: 1px 7px; border-radius: 999px; font-size: 11px; font-weight: 700; line-height: 1.5; letter-spacing: 0.02em; color: #fff; background: var(--ultra-grad); }
 .more { margin-top: 18px; }
 @media (max-width: 900px) { .feats { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 560px) { .feats { grid-template-columns: 1fr; } .feat-head h1 { font-size: 34px; } }
