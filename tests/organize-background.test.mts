@@ -58,10 +58,12 @@ const ctx = {
   installId: "5f0c2a1e-6b7d-4c3e-9a8f-0e1d2c3b4a59", jws: null, client: {}, on: true
 } as any
 
-let organizeChat: typeof import("../src/background/organize.ts").organizeChat
-let organizeCounts: typeof import("../src/background/organize.ts").organizeCounts
-let nameThread: typeof import("../src/content/store.ts").nameThread
-let settleNameSuggestion: typeof import("../src/content/store.ts").settleNameSuggestion
+// From the bundle below (typed loosely: the extension's own types need the browser's).
+type Reply = { ok: boolean; name?: string; counts: Record<string, number> }
+let organizeChat: (chat: string, ctx: unknown) => Promise<Reply>
+let organizeCounts: (ctx: unknown) => Promise<Reply>
+let nameThread: (id: string, name: string, asked?: boolean) => Promise<unknown>
+let settleNameSuggestion: (id: string, taken: boolean) => Promise<void>
 
 // The background and the panel's store as the extension builds them (their imports have no ".ts").
 before(async () => {
