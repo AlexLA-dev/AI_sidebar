@@ -20,6 +20,8 @@ export type ListenState =
   | { at: "playing" | "paused"; key: string; position: number; total: number }
   | { at: "handoff"; key: string }
   | { at: "error"; key: string; code: string; usage?: Usage | null }
+  // Build 91: fewer minutes left this week than the text takes, said before it starts.
+  | { at: "low"; key: string; left: number; need: number; item: ListenWhat }
 
 export interface ListenWhat {
   // An answer's Markdown, or the page's text.
@@ -30,9 +32,11 @@ export interface ListenWhat {
   url: string
 }
 
-export function useListen({ platform, plan, onUltra, follow, send }: {
+export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: {
   platform: Platform
   plan: Plan
+  // Seconds of this week's listening left (the status's), null when not known.
+  speakLeft?: number | null
   // Without Ultra: what Ultra adds (the plans sheet on Ultra).
   onUltra: () => void
   // Opens a contextflow:// link from the page (iPhone and iPad).
@@ -40,6 +44,13 @@ export function useListen({ platform, plan, onUltra, follow, send }: {
   send: <T>(message: Record<string, unknown>) => Promise<T | null>
 }) {
   const [state, setState] = useState<ListenState>({ at: "idle" })
+  // iPhone and iPad: when the last hand-off to the app started (a tap again meanwhile does nothing).
+  const handing = useRef(0)
+  // Seconds of listening left this week: the status's, then each part's count (shown in the bar, build 91).
+  const [left, setLeft] = useState<number | null>(null)
+  useEffect(() => {
+    if (typeof speakLeft === "number") setLeft(speakLeft)
+  }, [speakLeft])
   // 1×, 1.2×, 1.5×, 2×: the last one chosen (build 90).
   const [speed, setSpeedState] = useState<Speed>(1)
   useEffect(() => void listenSpeed().then(setSpeedState), [])
@@ -63,7 +74,7 @@ export function useListen({ platform, plan, onUltra, follow, send }: {
 
   useEffect(() => stop, [stop])
 
-  const start = useCallback(async (key: string, item: ListenWhat) => {
+  const start = useCallback(async (key: string, item: ListenWhat, anyway = false) => {
     stop()
     const step = (a: string) => void send({ type: "useEvent", f: "listen", a, what: item.what })
     if (!isUltra(plan)) {
@@ -74,19 +85,33 @@ export function useListen({ platform, plan, onUltra, follow, send }: {
     const parts = speechParts(text)
     if (!parts.length) return
 
+    // iPhone and iPad always listen in the app (WebKit stops a page's sound when the screen locks; the app keeps
+    // playing, in headphones too). The link is followed during the tap itself, before anything is awaited: Safari
+    // asks "Open in ContextFlow?" only for a tap's own navigation (build 90 followed it after a round trip to the
+    // app, so the question never came, and the panel tried to play by itself). The text goes to the app meanwhile;
+    // the app waits a moment for it. Once per tap: a tap again during the hand-off does nothing.
     if (isTouch(platform)) {
-      setState({ at: "loading", key })
+      if (Date.now() - handing.current < 6000) return
+      handing.current = Date.now()
+      const id = typeof crypto.randomUUID === "function" ? crypto.randomUUID() : `${Date.now().toString(16)}-${Math.random().toString(16).slice(2)}`
+      setState({ at: "handoff", key })
+      follow(`contextflow://listen?id=${encodeURIComponent(id)}`)
+      step("app")
       // The app writes it for the ear itself (as the background does here); the parts are its way when it can't.
       const script = item.what === "page" || needsScript(item.text)
-      const reply = await send<{ url: string | null }>({ type: "listenInApp", parts, text: item.text.slice(0, 24_000), script, lang: item.lang, what: item.what, title: item.title, url: item.url })
-      if (reply?.url) {
-        step("app")
-        setState({ at: "handoff", key })
-        follow(reply.url)
-        setTimeout(() => setState((s) => (s.at === "handoff" && s.key === key ? { at: "idle" } : s)), 4000)
-        return
-      }
-      // No app to hand it to: play it here (it stops if the screen locks).
+      void send({ type: "listenInApp", id, parts, text: item.text.slice(0, 24_000), script, lang: item.lang, what: item.what, title: item.title, url: item.url })
+      setTimeout(() => {
+        handing.current = 0
+        setState((s) => (s.at === "handoff" && s.key === key ? { at: "idle" } : s))
+      }, 6000)
+      return
+    }
+
+    // Fewer minutes left than this takes: said first (none left: the server says so).
+    const need = speechSeconds(text)
+    if (!anyway && typeof left === "number" && left > 0 && left < need) {
+      setState({ at: "low", key, left, need, item })
+      return
     }
 
     step("start")
@@ -118,7 +143,8 @@ export function useListen({ platform, plan, onUltra, follow, send }: {
     port.onMessage.addListener((raw: unknown) => {
       if (run.current !== current) return
       const message = raw as SpeakOut
-      if (message.type === "chunk") player.push(message.part, message.data)
+      if (message.type === "usage" && message.usage) setLeft(Math.max(0, message.usage.limit - message.usage.used))
+      else if (message.type === "chunk") player.push(message.part, message.data)
       else if (message.type === "end") {
         current.ended = true
         player.end()
@@ -146,7 +172,7 @@ export function useListen({ platform, plan, onUltra, follow, send }: {
       if (run.current === current && !current.ended) current.ended = true
     })
     port.postMessage({ type: "play", text: item.text, lang: item.lang, what: item.what } satisfies SpeakIn)
-  }, [plan, platform, onUltra, follow, send, stop])
+  }, [plan, platform, onUltra, follow, send, stop, left])
 
   const toggle = useCallback(() => {
     const current = run.current
@@ -163,20 +189,40 @@ export function useListen({ platform, plan, onUltra, follow, send }: {
     run.current?.player.setSpeed(next)
   }, [speed])
 
-  return { state, start, stop, toggle, speed, cycleSpeed }
+  /** "Listen anyway" after the few-minutes-left note. */
+  const stateRef = useRef(state)
+  stateRef.current = state
+  const anyway = useCallback(() => {
+    const s = stateRef.current
+    if (s.at === "low") void start(s.key, s.item, true)
+  }, [start])
+
+  return { state, start, stop, toggle, speed, cycleSpeed, left, anyway }
 }
 
 /** The bar over the question field while something is read aloud (or why it isn't). */
-export function ListenBar({ state, speed, onSpeed, onToggle, onStop, onPlans }: {
+export function ListenBar({ state, speed, left, onSpeed, onAnyway, onToggle, onStop, onPlans }: {
   state: ListenState
   speed: number
+  // Seconds of listening left this week (null: not known).
+  left?: number | null
   onSpeed: () => void
+  onAnyway?: () => void
   onToggle: () => void
   onStop: () => void
   onPlans: () => void
 }): VNode | null {
   if (state.at === "idle") return null
   if (state.at === "handoff") return <div class="cf-listen" role="status"><SpeakerIcon /> <span class="cf-listen-text">{t("listenInApp")}</span></div>
+  if (state.at === "low") {
+    return (
+      <div class="cf-listen low" role="alert">
+        <span class="cf-listen-text">{t("listenLow", String(Math.max(1, Math.floor(state.left / 60))), String(Math.max(1, Math.ceil(state.need / 60))))}</span>
+        <button type="button" class="cf-link" onClick={onAnyway}>{t("listenAnyway")}</button>
+        <button type="button" class="cf-icon-btn" onClick={onStop} aria-label={t("close")}>×</button>
+      </div>
+    )
+  }
   if (state.at === "error") {
     const resets = state.usage?.resetsAt ? new Date(state.usage.resetsAt).toLocaleDateString(undefined, { weekday: "long" }) : ""
     const text = state.code === "LIMIT_REACHED"
@@ -204,6 +250,7 @@ export function ListenBar({ state, speed, onSpeed, onToggle, onStop, onPlans }: 
           <div class="cf-listen-track" aria-hidden="true"><div style={{ width: `${Math.min(100, (state.position / Math.max(1, state.total)) * 100)}%` }} /></div>
         </>
       )}
+      {typeof left === "number" && !loading && <span class="cf-listen-left" title={t("listenMinLeftTitle", String(Math.floor(left / 60)))}>{t("listenMinLeft", String(Math.floor(left / 60)))}</span>}
       <button type="button" class="cf-listen-speed" onClick={onSpeed} aria-label={t("listenSpeed", speedLabel(speed))} title={t("listenSpeed", speedLabel(speed))}>{speedLabel(speed)}</button>
       <button type="button" class="cf-icon-btn" onClick={onStop} aria-label={t("listenStop")}><StopIcon /></button>
     </div>

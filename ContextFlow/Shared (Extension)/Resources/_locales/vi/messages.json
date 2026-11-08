@@ -1725,7 +1725,7 @@
   "message": "Không có kết nối: lần đầu nghe cần có Internet."
  },
  "listenInApp": {
-  "message": "Đang mở ContextFlow: vẫn phát tiếp khi khóa màn hình."
+  "message": "Tính năng Nghe phát trong ứng dụng ContextFlow, nên vẫn phát tiếp khi khóa màn hình và trong tai nghe."
  },
  "listenLeft": {
   "message": "Nghe: tuần này còn {0}/{1} phút"
@@ -2017,6 +2017,60 @@
  },
  "gSimilarCheaper": {
   "message": "Rẻ hơn"
+ },
+ "listenMinLeft": {
+  "message": "Còn {0} phút"
+ },
+ "listenMinLeftTitle": {
+  "message": "Tuần này còn {0} phút nghe"
+ },
+ "listenLow": {
+  "message": "Tuần này còn khoảng {0} phút nghe, còn nội dung này cần khoảng {1} phút. Phần đọc sẽ dừng ở chỗ hết phút."
+ },
+ "listenAnyway": {
+  "message": "Vẫn nghe"
+ },
+ "plansUpgrade": {
+  "message": "Nâng cấp lên {0}"
+ },
+ "plansUpgradeYearly": {
+  "message": "Nâng cấp lên gói theo năm"
+ },
+ "similarPayFree": {
+  "message": "Miễn phí, không có mua hàng trong ứng dụng"
+ },
+ "similarPayFreeStart": {
+  "message": "Miễn phí"
+ },
+ "similarPaySub": {
+  "message": "Gói đăng ký từ {0}"
+ },
+ "similarPayOnce": {
+  "message": "Mua một lần {0}"
+ },
+ "similarPayIap": {
+  "message": "Mua hàng trong ứng dụng từ {0}"
+ },
+ "similarPerWeek": {
+  "message": "{0}/tuần"
+ },
+ "similarPerMonth": {
+  "message": "{0}/tháng"
+ },
+ "similarPerYear": {
+  "message": "{0}/năm"
+ },
+ "offerMemoryTitle": {
+  "message": "Pro ghi nhớ cả cuộc trò chuyện"
+ },
+ "offerMemoryBody": {
+  "message": "Câu trả lời miễn phí chỉ xem {0} tin nhắn gần nhất của cuộc trò chuyện. Với Pro, AI ghi nhớ toàn bộ: mọi tin nhắn, ghi chú của bạn và các trang bạn đã hỏi."
+ },
+ "offerMemoryLong": {
+  "message": "Cuộc trò chuyện này đã dài hơn {0} tin nhắn mà câu trả lời miễn phí ghi nhớ. Với Pro, AI ghi nhớ toàn bộ: mọi tin nhắn, ghi chú của bạn và các trang bạn đã hỏi."
+ },
+ "offerRetryAt": {
+  "message": "Câu trả lời có lại lúc {0}."
  },
  "tip_4cf1b54b00": {
   "message": "Mẹo"

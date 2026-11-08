@@ -37,6 +37,18 @@ import AppKit
 /// the panel sends when it opens, that it is in use), so the app can drop its setup guide and reminders.
 final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
 
+    /// The plans' prices from the App Store, into the App Group (at most 4 s; nothing when it can't answer).
+    static func loadPrices() async {
+        let load = Task { try? await Product.products(for: PlanProducts.all) }
+        let timeout = Task {
+            try? await Task.sleep(nanoseconds: 4_000_000_000)
+            load.cancel()
+        }
+        let products = await load.value ?? []
+        timeout.cancel()
+        if !products.isEmpty { SharedDefaults.shared.writePrices(PlanProducts.priceTable(products)) }
+    }
+
     func beginRequest(with context: NSExtensionContext) {
         let item = context.inputItems.first as? NSExtensionItem
         let message = item?.userInfo?[SFExtensionMessageKey] as? [String: Any] ?? [:]
@@ -51,6 +63,9 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         switch command {
         case "getEntitlement":
             Task {
+                // No prices from the app yet (it hasn't loaded its plans since the update): the extension asks the
+                // App Store itself, so the panel's plans sheet has its prices and savings (build 91).
+                if SharedDefaults.shared.readPrices().isEmpty { await Self.loadPrices() }
                 let entitlement = await Self.currentEntitlement()
                 Self.reply(context, ["success": true, "data": entitlement.dictionary])
             }
@@ -203,7 +218,7 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             let stopped = WatchStore.sync(message["watches"] as? [[String: Any]] ?? [])
             Self.reply(context, ["success": true, "data": ["cancelled": stopped]])
         case "listen":
-            let parts = (message["parts"] as? [String] ?? []).prefix(40).map { String($0.prefix(4000)) }
+            let parts = (message["parts"] as? [String] ?? []).prefix(80).map { String($0.prefix(4000)) }
             guard !parts.isEmpty else {
                 Self.reply(context, ["success": false, "error": "no text"])
                 return
@@ -217,7 +232,7 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                 "what": message["what"] as? String == "page" ? "page" : "answer",
                 "title": String((message["title"] as? String ?? "").prefix(200)),
                 "url": String((message["url"] as? String ?? "").prefix(2000))
-            ])
+            ], id: message["id"] as? String)
             Self.reply(context, ["success": true, "data": ["id": id]])
         case "ping":
             let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""

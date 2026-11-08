@@ -1725,7 +1725,7 @@
   "message": "لا يوجد اتصال: يحتاج الاستماع إلى الإنترنت في المرة الأولى."
  },
  "listenInApp": {
-  "message": "جارٍ فتح ContextFlow: يستمر التشغيل حتى مع قفل الشاشة."
+  "message": "يعمل «استماع» في تطبيق ContextFlow، لذا يستمر التشغيل حتى مع قفل الشاشة وفي سماعات الرأس."
  },
  "listenLeft": {
   "message": "الاستماع: تبقّى {0} من {1} د هذا الأسبوع"
@@ -2017,6 +2017,60 @@
  },
  "gSimilarCheaper": {
   "message": "أرخص"
+ },
+ "listenMinLeft": {
+  "message": "تبقّى {0} د"
+ },
+ "listenMinLeftTitle": {
+  "message": "تبقّى {0} د من الاستماع هذا الأسبوع"
+ },
+ "listenLow": {
+  "message": "تبقّى نحو {0} د من الاستماع هذا الأسبوع، وهذا النص يستغرق نحو {1} د. يتوقف التشغيل عند نفاد الدقائق."
+ },
+ "listenAnyway": {
+  "message": "استمع على أي حال"
+ },
+ "plansUpgrade": {
+  "message": "الترقية إلى {0}"
+ },
+ "plansUpgradeYearly": {
+  "message": "الترقية إلى الاشتراك السنوي"
+ },
+ "similarPayFree": {
+  "message": "مجاني، بلا مشتريات داخل التطبيق"
+ },
+ "similarPayFreeStart": {
+  "message": "مجاني"
+ },
+ "similarPaySub": {
+  "message": "اشتراك من {0}"
+ },
+ "similarPayOnce": {
+  "message": "شراء لمرة واحدة {0}"
+ },
+ "similarPayIap": {
+  "message": "مشتريات داخل التطبيق من {0}"
+ },
+ "similarPerWeek": {
+  "message": "{0}/أسبوع"
+ },
+ "similarPerMonth": {
+  "message": "{0}/شهر"
+ },
+ "similarPerYear": {
+  "message": "{0}/سنة"
+ },
+ "offerMemoryTitle": {
+  "message": "Pro يتذكر المحادثة كاملة"
+ },
+ "offerMemoryBody": {
+  "message": "الإجابة المجانية ترى آخر {0} رسالة في المحادثة. مع Pro يتذكر الذكاء الاصطناعي المحادثة كاملة: كل رسالة، وملاحظاتك، والصفحات التي سألت عنها."
+ },
+ "offerMemoryLong": {
+  "message": "هذه المحادثة أطول من {0} رسالة تتذكرها الإجابة المجانية. مع Pro يتذكر الذكاء الاصطناعي المحادثة كاملة: كل رسالة، وملاحظاتك، والصفحات التي سألت عنها."
+ },
+ "offerRetryAt": {
+  "message": "تعود الإجابات في {0}."
  },
  "tip_4cf1b54b00": {
   "message": "تلميحات"

@@ -3,6 +3,7 @@ import { CONSENT_VERSION, consentStatus, type ConsentStatus } from "../shared/co
 import type { Entry } from "../shared/conversation"
 import { activity, cleanTitle, liveThreads, moveEntries, newThreadId, prune, purgeTrash, restoreThread, savedThread, trashThread, undoMove, type ActiveThread, type MoveUndo, type Thread, type Threads, cleanTags } from "../shared/threads"
 import { MAX_OTHER_PAGE_CHARS } from "../shared/prompt"
+import { keepingAnswers, type Jobs } from "../shared/jobs"
 import { DEFAULT_SETTINGS, STORAGE, type Settings } from "../shared/types"
 
 
@@ -224,10 +225,41 @@ export async function setActiveThread(id: string): Promise<void> {
 
 /** Stores a chat's messages; `kind` marks a new "Ask your chats" chat (a chat keeps its kind). */
 export async function saveThread(id: string, entries: Entry[], kind?: "history"): Promise<void> {
-  const threads = (await get<Threads>(STORAGE.threads)) ?? {}
+  const stored = await chrome.storage.local.get([STORAGE.threads, STORAGE.jobs]).catch(() => ({} as Record<string, unknown>))
+  const threads = (stored[STORAGE.threads] as Threads | undefined) ?? {}
+  // Answers the background wrote into this chat meanwhile stay (build 91): this copy may be from before them.
+  const kept = threads[id] ? keepingAnswers(entries, threads[id].m, (stored[STORAGE.jobs] as Jobs | undefined) ?? {}, id) : entries
   // Only real changes get a new time: it decides which device's copy wins (iCloud sync).
-  const next = savedThread(threads[id], id, entries, Date.now(), kind)
+  const next = savedThread(threads[id], id, kept, Date.now(), kind)
   if (next) await set(STORAGE.threads, prune({ ...threads, [id]: next }))
+}
+
+/** The free chats that had the memory message once (build 91). */
+export async function memoryOffered(): Promise<string[]> {
+  return (await get<string[]>(STORAGE.memoryOffered)) ?? []
+}
+
+export async function markMemoryOffered(chat: string): Promise<void> {
+  const done = await memoryOffered()
+  if (!done.includes(chat)) await set(STORAGE.memoryOffered, [...done, chat].slice(-200))
+}
+
+/** The questions the background is answering, and how the last ones ended (build 91, jobs.ts). */
+export async function loadJobs(): Promise<Jobs> {
+  return (await get<Jobs>(STORAGE.jobs)) ?? {}
+}
+
+/** Calls `listener` when a job starts or ends (here or in another tab): the chats list's and the button's dots. */
+export function onJobsChanged(listener: (jobs: Jobs) => void): () => void {
+  const handler = (changes: Record<string, chrome.storage.StorageChange>, area: string) => {
+    if (area === "local" && changes[STORAGE.jobs]) listener((changes[STORAGE.jobs].newValue as Jobs | undefined) ?? {})
+  }
+  try {
+    chrome.storage.onChanged.addListener(handler)
+  } catch {
+    return () => undefined
+  }
+  return () => chrome.storage.onChanged.removeListener(handler)
 }
 
 /** Names a chat (an empty name goes back to its first question); it keeps its place in the list. */

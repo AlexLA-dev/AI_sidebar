@@ -165,6 +165,10 @@ export type ErrorCode =
 
 export type BackgroundRequest =
   | { type: "status"; refresh?: boolean; fresh?: boolean; platform?: Platform }
+  // Build 91: the jobs the background is running now (ids), to follow one again after the panel was closed.
+  | { type: "liveJobs" }
+  // …and the panel showed this chat: its jobs' outcomes were seen (the chats list's and the floating button's dot go).
+  | { type: "jobsSeen"; thread: string }
   // feature "ai": the Pro screen opens on AI search and "Ask your chats".
   // feature "organize": on organizing the chats (2.5).
   // plan, period (2.6): what was chosen in the panel's plans sheet; the app opens on it.
@@ -172,7 +176,8 @@ export type BackgroundRequest =
   // Read aloud on iPhone and iPad (2.6): the parts go to the app (App Group), which plays them with the screen
   // locked; answers { url } (contextflow://listen?id=…) for the page to follow, or { url: null } (no app).
   // text, script (2.6): the raw text and whether the app should write it for the ear first (parts: when it can't).
-  | { type: "listenInApp"; parts: string[]; text: string; script: boolean; lang: string; what: "answer" | "page"; title: string; url: string }
+  // id: made by the panel, so the contextflow:// link can be followed during the tap itself (build 91).
+  | { type: "listenInApp"; id: string; parts: string[]; text: string; script: boolean; lang: string; what: "answer" | "page"; title: string; url: string }
   // "Delete all chats": the audio and the texts for listening kept on this device go too.
   | { type: "speechClear" }
   // The line under a free answer that skipped the page's video or PDFs: shown, or its "Try Pro" tapped.
@@ -205,7 +210,7 @@ export type BackgroundRequest =
   // Chat UX counts (2.5), no text: see UX_KINDS in netlify/functions/v2-event.mts.
   | { type: "uxEvent"; kind: "ux_mark" | "ux_pin" | "ux_delete" | "ux_remind"; action: string; what?: string; how?: string; preset?: string }
   // A step for the feature counters: the analytics registry's "use" kind (src/shared/usage.ts), named values only.
-  | { type: "useEvent"; f: "menu" | "later" | "tour" | "bubble" | "listen" | "plans"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string }
+  | { type: "useEvent"; f: "menu" | "later" | "tour" | "bubble" | "listen" | "plans" | "chat_plans"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string }
 
 /** A PDF's text, or why there is none ("none": nothing to read, e.g. scanned pages). */
 export type PdfResult =
@@ -239,6 +244,10 @@ export const STORAGE = {
   // Chats as threads (Threads by id) and the one this device shows ({ id, at }).
   threads: "cf:threads",
   activeThread: "cf:activeThread",
+  // Build 91: the questions the background is answering, and how the last ones ended (Jobs by question id, jobs.ts).
+  jobs: "cf:jobs",
+  // Build 91: the free chats that had the memory message once (chat ids, the latest last).
+  memoryOffered: "cf:memoryOffered",
   // iCloud sync: CloudKit change token, and the time of each thread's copy in iCloud.
   syncToken: "cf:syncToken",
   syncedThreads: "cf:syncedThreads",
@@ -305,8 +314,12 @@ export interface Settings {
   syncChats: boolean
   // The chat list in groups by tag, like folders (a chat with two tags is in both).
   groupByTags: boolean
-  // Answer with the whole chat in mind (all messages, notes, its other pages), not just the last messages.
+  // Answer with the whole chat in mind (all messages, notes, its other pages), not just the last messages. Before
+  // build 91 the switch itself; read no more (it was off by default, so it can't tell who chose off).
   wholeChat: boolean
+  // Build 91: the whole chat is Pro's memory, on unless the person turns it off (Pro and Ultra; free answers see the
+  // last messages, and the switch offers Pro).
+  chatMemory: boolean
   // Suggestions (2.5, Pro): a better chat for a block, one of the user's tags. Off until the user turns them on:
   // turning them on is the consent to send the messages' text for it.
   organize: boolean
@@ -331,6 +344,7 @@ export const DEFAULT_SETTINGS: Settings = {
   syncChats: true,
   groupByTags: false,
   wholeChat: false,
+  chatMemory: true,
   organize: false,
   shareMarks: false,
   insertButton: true,

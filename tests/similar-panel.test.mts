@@ -17,7 +17,9 @@ const KEYS = ["actSimilar", "uxSimilar", "similarTitle", "similarConditions", "s
   "similarAsked", "similarAskedWith", "similarStockIn", "similarStockOut", "similarFromList", "similarNotConfirmed",
   "similarNotOpened", "similarWatchPrice", "similarStepPlan", "similarStepSearch", "similarStepCheck", "similarStepCheckN",
   "similarStepWrite", "similarNone", "similarChecked", "similarUpsellText", "similarUpsellChecked", "similarUpsellConditions",
-  "similarUpsellWatch", "similarGetUltra", "similarOff", "similarLimit"]
+  "similarUpsellWatch", "similarGetUltra", "similarOff", "similarLimit",
+  // Build 91: an app's price, read on its App Store page or its pricing page.
+  "similarPayFree", "similarPayFreeStart", "similarPaySub", "similarPayOnce", "similarPayIap", "similarPerWeek", "similarPerMonth", "similarPerYear"]
 
 test("every language has Find similar's words, with their placeholders", () => {
   const files = readdirSync(locales).filter((f) => f.endsWith(".json"))
@@ -25,7 +27,7 @@ test("every language has Find similar's words, with their placeholders", () => {
   for (const file of files) {
     const s = JSON.parse(readFileSync(new URL(file, locales), "utf8")) as Record<string, string>
     for (const key of KEYS) assert.ok(s[key]?.trim(), `${file}: ${key}`)
-    for (const key of ["similarInLanguage", "similarAskedWith", "similarStepCheckN", "similarChecked", "similarLimit"]) assert.match(s[key], /\{0\}/, `${file}: ${key}`)
+    for (const key of ["similarInLanguage", "similarAskedWith", "similarStepCheckN", "similarChecked", "similarLimit", "similarPaySub", "similarPayOnce", "similarPayIap", "similarPerWeek", "similarPerMonth", "similarPerYear"]) assert.match(s[key], /\{0\}/, `${file}: ${key}`)
     assert.match(s.similarLimit, /\{1\}/, `${file}: similarLimit's day`)
     // The menu item is the action's name with an ellipsis (it opens a card first).
     assert.equal(s.uxSimilar.replace(/…$/, ""), s.actSimilar, file)
@@ -144,6 +146,46 @@ test("the list: checked price and stock, a condition met or Not confirmed, Watch
   assert.ok(busy.querySelector(".cf-similar-step"))
   assert.ok(!busy.querySelector(".cf-similar-checked"))
   assert.equal(busy.querySelectorAll(".cf-similar-watch").length, 0)
+})
+
+test("an app's price as its pages say, linked to where it was read; links open as the browser opens them", async () => {
+  const el = root()
+  const items = [
+    { name: "Glarity", url: "https://apps.apple.com/us/app/glarity/id1", host: "apps.apple.com", title: "Glarity", why: "Same idea.", fit: "Free to download; Pro from $9.99/month.", met: "yes", source: "item", checked: true, price: "0 USD",
+      pricing: { model: "subscription", from: "9.99 USD", period: "month", freeStart: true, url: "https://apps.apple.com/us/app/glarity/id1" } },
+    { name: "Raycast", url: "https://raycast.com/", host: "raycast.com", title: "Raycast", why: "Same idea.", fit: "", met: "yes", source: "item", checked: true,
+      pricing: { model: "subscription", from: "10 USD", period: "month", freeStart: true, url: "https://raycast.com/pricing" } },
+    { name: "Things 3", url: "https://apps.apple.com/us/app/things-3/id2", host: "apps.apple.com", title: "Things 3", why: "", fit: "", met: "n/a", source: "item", checked: true, price: "9.99 USD",
+      pricing: { model: "one_time", from: "9.99 USD", url: "https://apps.apple.com/us/app/things-3/id2" } },
+    { name: "Pages", url: "https://apps.apple.com/us/app/pages/id3", host: "apps.apple.com", title: "Pages", why: "", fit: "", met: "yes", source: "item", checked: true, price: "0 USD",
+      pricing: { model: "free", url: "https://apps.apple.com/us/app/pages/id3" } }
+  ]
+  const opened: string[] = []
+  ui.list(el, { items, onOpen: (u: string) => opened.push(u) })
+  const pay = [...el.querySelectorAll(".cf-similar-pay")].map((a: any) => [a.textContent, a.getAttribute("href"), a.getAttribute("target")])
+  assert.deepEqual(pay, [
+    ["Free · Subscription from $9.99/month", "https://apps.apple.com/us/app/glarity/id1", "_blank"],
+    ["Free · Subscription from $10.00/month", "https://raycast.com/pricing", "_blank"],
+    ["One-time purchase $9.99", "https://apps.apple.com/us/app/things-3/id2", "_blank"],
+    ["Free, no in-app purchases", "https://apps.apple.com/us/app/pages/id3", "_blank"]
+  ])
+  // The store's $0.00 doesn't show next to it.
+  assert.ok(!/\$0\.00/.test(el.textContent))
+  // Title, host and price line are links to a new tab; the click is the browser's own.
+  const title = el.querySelector(".cf-similar-name")
+  assert.equal(title.getAttribute("target"), "_blank")
+  assert.equal(el.querySelector(".cf-similar-host a").getAttribute("href"), items[0].url)
+  const click = new dom.window.Event("click", { bubbles: true, cancelable: true })
+  title.dispatchEvent(click)
+  await new Promise((r) => setTimeout(r, 5))
+  assert.equal(click.defaultPrevented, false)
+  assert.deepEqual(opened, [])
+  // A page that stops links itself: the background opens it.
+  const stopped = new dom.window.Event("click", { bubbles: true, cancelable: true })
+  stopped.preventDefault()
+  el.querySelectorAll(".cf-similar-name")[1].dispatchEvent(stopped)
+  await new Promise((r) => setTimeout(r, 5))
+  assert.deepEqual(opened, ["https://raycast.com/"])
 })
 
 test("the start: a chip is the condition (one at a time), the person's words join it", async () => {

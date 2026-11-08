@@ -1725,7 +1725,7 @@
   "message": "无网络连接：第一次朗读需要联网。"
  },
  "listenInApp": {
-  "message": "正在打开 ContextFlow：锁屏后也会继续播放。"
+  "message": "朗读在 ContextFlow App 中播放，所以锁屏后也会继续播放，戴着耳机也能一直听。"
  },
  "listenLeft": {
   "message": "朗读：本周剩余 {0}/{1} 分钟"
@@ -2017,6 +2017,60 @@
  },
  "gSimilarCheaper": {
   "message": "更便宜"
+ },
+ "listenMinLeft": {
+  "message": "剩余 {0} 分钟"
+ },
+ "listenMinLeftTitle": {
+  "message": "本周剩余 {0} 分钟朗读时长"
+ },
+ "listenLow": {
+  "message": "本周还剩约 {0} 分钟朗读时长，这段内容大约需要 {1} 分钟。时长用完时，朗读会在那里停止。"
+ },
+ "listenAnyway": {
+  "message": "仍然朗读"
+ },
+ "plansUpgrade": {
+  "message": "升级到 {0}"
+ },
+ "plansUpgradeYearly": {
+  "message": "升级到年付"
+ },
+ "similarPayFree": {
+  "message": "免费，无 App 内购买"
+ },
+ "similarPayFreeStart": {
+  "message": "免费"
+ },
+ "similarPaySub": {
+  "message": "订阅 {0} 起"
+ },
+ "similarPayOnce": {
+  "message": "一次性购买 {0}"
+ },
+ "similarPayIap": {
+  "message": "App 内购买 {0} 起"
+ },
+ "similarPerWeek": {
+  "message": "{0}/周"
+ },
+ "similarPerMonth": {
+  "message": "{0}/月"
+ },
+ "similarPerYear": {
+  "message": "{0}/年"
+ },
+ "offerMemoryTitle": {
+  "message": "Pro 记住整个对话"
+ },
+ "offerMemoryBody": {
+  "message": "免费回答只看对话的最近 {0} 条消息。使用 Pro，AI 会记住整个对话：每条消息、你的笔记和你提问过的页面。"
+ },
+ "offerMemoryLong": {
+  "message": "这个对话已超过免费回答能记住的 {0} 条消息。使用 Pro，AI 会记住整个对话：每条消息、你的笔记和你提问过的页面。"
+ },
+ "offerRetryAt": {
+  "message": "回答将在 {0} 恢复。"
  },
  "tip_4cf1b54b00": {
   "message": "技巧"
