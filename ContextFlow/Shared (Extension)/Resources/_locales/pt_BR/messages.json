@@ -1737,7 +1737,7 @@
   "message": "Sem conexão: para ouvir pela primeira vez, é preciso internet."
  },
  "listenInApp": {
-  "message": "Abrindo o ContextFlow: continua tocando com a tela bloqueada."
+  "message": "“Ouvir” funciona no app ContextFlow, então continua tocando com a tela bloqueada e nos fones de ouvido."
  },
  "listenLeft": {
   "message": "Ouvir: restam {0} de {1} min nesta semana"
@@ -2029,6 +2029,24 @@
  },
  "gSimilarCheaper": {
   "message": "Mais barato"
+ },
+ "listenMinLeft": {
+  "message": "Restam {0} min"
+ },
+ "listenMinLeftTitle": {
+  "message": "Restam {0} min para ouvir nesta semana"
+ },
+ "listenLow": {
+  "message": "Restam cerca de {0} min para ouvir nesta semana, e este texto leva cerca de {1} min. A leitura para onde os minutos acabarem."
+ },
+ "listenAnyway": {
+  "message": "Ouvir mesmo assim"
+ },
+ "plansUpgrade": {
+  "message": "Mudar para o {0}"
+ },
+ "plansUpgradeYearly": {
+  "message": "Mudar para anual"
  },
  "tip_4cf1b54b00": {
   "message": "Dicas"

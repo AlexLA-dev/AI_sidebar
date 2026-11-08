@@ -1737,7 +1737,7 @@
   "message": "沒有網路連線：第一次朗讀需要連上網路。"
  },
  "listenInApp": {
-  "message": "正在打開 ContextFlow：鎖定螢幕後也會繼續播放。"
+  "message": "朗讀在 ContextFlow App 中播放，所以鎖定螢幕後也會繼續播放，戴著耳機也能一直聽。"
  },
  "listenLeft": {
   "message": "朗讀：本週剩餘 {0}/{1} 分鐘"
@@ -2029,6 +2029,24 @@
  },
  "gSimilarCheaper": {
   "message": "更便宜"
+ },
+ "listenMinLeft": {
+  "message": "剩餘 {0} 分鐘"
+ },
+ "listenMinLeftTitle": {
+  "message": "本週剩餘 {0} 分鐘朗讀時間"
+ },
+ "listenLow": {
+  "message": "本週還剩約 {0} 分鐘朗讀時間，這段內容大約需要 {1} 分鐘。時間用完時，朗讀會在那裡停止。"
+ },
+ "listenAnyway": {
+  "message": "仍然朗讀"
+ },
+ "plansUpgrade": {
+  "message": "升級到 {0}"
+ },
+ "plansUpgradeYearly": {
+  "message": "升級到年繳"
  },
  "tip_4cf1b54b00": {
   "message": "提示"

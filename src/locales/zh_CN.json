@@ -601,7 +601,7 @@
   "listenLimit": "本周的 {0} 分钟朗读时长已用完，{1}恢复。",
   "listenFailed": "无法朗读，请稍后再试。",
   "listenOffline": "无网络连接：第一次朗读需要联网。",
-  "listenInApp": "正在打开 ContextFlow：锁屏后也会继续播放。",
+  "listenInApp": "朗读在 ContextFlow App 中播放，所以锁屏后也会继续播放，戴着耳机也能一直听。",
   "listenLeft": "朗读：本周剩余 {0}/{1} 分钟",
   "watchFullPro": "Pro 最多同时关注 {0} 个页面，Ultra 最多 {1} 个。",
   "watchMoreUltra": "Ultra 可关注更多",
@@ -700,5 +700,12 @@
   "gSimilar3": "带头枕的椅子",
   "gSimilarInStock": "有货",
   "gSimilarNewer": "更新",
-  "gSimilarCheaper": "更便宜"
+  "gSimilarCheaper": "更便宜",
+
+  "listenMinLeft": "剩余 {0} 分钟",
+  "listenMinLeftTitle": "本周剩余 {0} 分钟朗读时长",
+  "listenLow": "本周还剩约 {0} 分钟朗读时长，这段内容大约需要 {1} 分钟。时长用完时，朗读会在那里停止。",
+  "listenAnyway": "仍然朗读",
+  "plansUpgrade": "升级到 {0}",
+  "plansUpgradeYearly": "升级到年付"
 }

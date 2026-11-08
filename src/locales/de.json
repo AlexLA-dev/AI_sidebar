@@ -601,7 +601,7 @@
   "listenLimit": "Die {0} Minuten Anhören für diese Woche sind aufgebraucht. Am {1} gibt es neue.",
   "listenFailed": "Das ließ sich nicht vorlesen. Versuch es gleich noch einmal.",
   "listenOffline": "Keine Verbindung: Beim ersten Anhören braucht es Internet.",
-  "listenInApp": "ContextFlow wird geöffnet: Dort läuft es auch bei gesperrtem Bildschirm weiter.",
+  "listenInApp": "„Anhören“ läuft in der ContextFlow-App: Dort geht der Ton auch bei gesperrtem Bildschirm und über Kopfhörer weiter.",
   "listenLeft": "Anhören: diese Woche noch {0} von {1} Min.",
   "watchFullPro": "Mit Pro beobachtest du bis zu {0} Seiten gleichzeitig. Mit Ultra bis zu {1}.",
   "watchMoreUltra": "Mehr mit Ultra",
@@ -700,5 +700,12 @@
   "gSimilar3": "Stuhl mit Kopfstütze",
   "gSimilarInStock": "Auf Lager",
   "gSimilarNewer": "Neuer",
-  "gSimilarCheaper": "Günstiger"
+  "gSimilarCheaper": "Günstiger",
+
+  "listenMinLeft": "Noch {0} Min.",
+  "listenMinLeftTitle": "Diese Woche noch {0} Min. Anhören",
+  "listenLow": "Diese Woche bleiben noch etwa {0} Min. Anhören, dieser Text dauert etwa {1} Min. Das Vorlesen endet dort, wo die Minuten aufgebraucht sind.",
+  "listenAnyway": "Trotzdem anhören",
+  "plansUpgrade": "Zu {0} wechseln",
+  "plansUpgradeYearly": "Zur jährlichen Zahlung wechseln"
 }

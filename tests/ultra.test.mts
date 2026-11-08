@@ -354,11 +354,11 @@ test("speak: a text already playing finishes over the week's minutes (up to 5 mo
   assert.deepEqual(JSON.parse(later.headers.get("X-CF-Usage") ?? "null").limit, 120)
   await readAll(later)
   // A new text (part 0) over the limit: refused, as before.
-  const fresh = await speak(post("https://x/api/v2/speak", { installId: INSTALL, text: "B".repeat(70), part: 0, entitlement: ultraJws() }), ctx())
+  const fresh = await speak(post("https://x/api/v2/speak", { installId: INSTALL, text: "D".repeat(70), part: 0, entitlement: ultraJws() }), ctx())
   assert.equal(fresh.status, 402)
   // The finishing room has an end: 300 s past the week's minutes, even for later parts.
   counters.set("speak:tx:3000000001", 120 + 300)
-  const beyond = await speak(post("https://x/api/v2/speak", { installId: INSTALL, text: "B".repeat(70), part: 5, parts: 9, entitlement: ultraJws() }), ctx())
+  const beyond = await speak(post("https://x/api/v2/speak", { installId: INSTALL, text: "E".repeat(70), part: 5, parts: 9, entitlement: ultraJws() }), ctx())
   assert.equal(beyond.status, 402)
 })
 
@@ -374,6 +374,37 @@ test("speak: a part with nothing to say is an empty 200, uncharged; a passing 50
   assert.equal(res.status, 200)
   await readAll(res)
   assert.deepEqual(tts.calls.map((x) => [x.model, x.voice]), [["gemini-3.8-flash-lite-tts", "Kore"], ["gemini-3.8-flash-lite-tts", "Kore"]])
+})
+
+test("speak: the same part asked for again the same day is spoken again but not charged again", async () => {
+  const body = { installId: INSTALL, text: "F".repeat(70), lang: "en", part: 1, parts: 3, entitlement: ultraJws() }
+  const c1 = ctx()
+  await readAll(await speak(post("https://x/api/v2/speak", body), c1))
+  await Promise.all(c1.waits)
+  assert.equal(counters.get("speak:tx:3000000001"), 3)
+  // The download broke off on the device and it asks again: the audio comes again, the week's seconds stay at 3.
+  const c2 = ctx()
+  const again = await speak(post("https://x/api/v2/speak", body), c2)
+  assert.equal(again.status, 200)
+  assert.equal(again.headers.get("X-CF-Charged"), "0")
+  assert.equal((await readAll(again)).length, 48_000 * 3)
+  await Promise.all(c2.waits)
+  assert.equal(counters.get("speak:tx:3000000001"), 3)
+  assert.equal(tts.calls.length, 2)
+  assert.equal(events.filter((e) => e.kind === "speak").at(-1)?.data.repeat, true)
+})
+
+test("speak: a text keeps its first part's model; a 400 never moves it to another model", async () => {
+  // The device sends the model its first part came from: the next part is asked of that one first.
+  const c = ctx()
+  await readAll(await speak(post("https://x/api/v2/speak", { installId: INSTALL, text: "Next part.", lang: "en", part: 1, parts: 2, model: "gemini-3.1-flash-tts-preview", entitlement: ultraJws() }), c))
+  assert.equal(tts.calls[0].model, "gemini-3.1-flash-tts-preview")
+  // Another refusal (not "no such model"): passed on, no second model tried.
+  tts.calls = []
+  tts.failStatus = [400]
+  const res = await speak(post("https://x/api/v2/speak", { installId: INSTALL, text: "Too long a part.", lang: "en", entitlement: ultraJws() }), ctx())
+  assert.equal(res.status, 502)
+  assert.deepEqual(tts.calls.map((x) => x.model), ["gemini-3.8-flash-lite-tts"])
 })
 
 test("speak: a signed measuring request stands in for Ultra on a deploy preview only", async () => {

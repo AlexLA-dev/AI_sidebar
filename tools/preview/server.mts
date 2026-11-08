@@ -17,6 +17,7 @@
 //                                                              (read aloud with the real voices: /api/v2/speak goes
 //                                                              to that deploy preview, each request signed with the
 //                                                              measuring key, see netlify/shared/plan.mts evalCheck)
+//   PREVIEW_SPEAK_USED=1700 …                                  (Ultra: that many of the week's read-aloud seconds used)
 //   SPEAK_FAIL_FROM_PART=1 …                                   (read aloud: every part from that one on fails with
 //                                                              502, as a connection lost mid-text)
 //   PREVIEW_CLAUDE=credits|overloaded|refusal|off …            (answers come from a scripted Claude; these make
@@ -37,6 +38,8 @@ process.env.GEMINI_API_KEY = "local"
 process.env.FREE_DAILY_LIMIT = process.env.FREE_DAILY_LIMIT ?? "5"
 
 const counters = new Map<string, number>()
+// PREVIEW_SPEAK_USED=1700: the Ultra subscriber has used that many of the week's read-aloud seconds (the few-minutes-left note).
+if (process.env.PREVIEW_SPEAK_USED) counters.set("speak:tx:2000000888", Number(process.env.PREVIEW_SPEAK_USED))
 // The guided first request's free answers per install, ever (2.6: cf_tour_take in the 2.6 migration).
 const tours = new Map<string, number>()
 const aiRequests: string[] = []
