@@ -16,7 +16,7 @@ import { tipsLabel, TipsIcon } from "../tips/TipsSheet"
 import { Bell } from "./MessageUx"
 import { SpeakerIcon } from "../listen/useListen"
 
-export function PageMenu({ reminders, watches, onLater, onWatchPage, onSimilar, similarLocked, onReminders, onWatching, onTips, onSettings, onIntro, planTour, onListen, ultra, onClose }: {
+export function PageMenu({ reminders, watches, onLater, onWatchPage, onSimilar, similarLocked, onNameChat, onReminders, onWatching, onTips, onSettings, onIntro, planTour, onListen, ultra, onClose }: {
   reminders: number
   // null: no watching here (not Safari).
   watches: number | null
@@ -26,6 +26,8 @@ export function PageMenu({ reminders, watches, onLater, onWatchPage, onSimilar, 
   // "Find similar…" (2.6, Ultra); absent: no page to find alternatives to. `similarLocked`: not in their plan (a badge).
   onSimilar?: () => void
   similarLocked?: boolean
+  // "Name by topic" (2.6, with suggestions on): absent outside a chat with messages, or while it's being named.
+  onNameChat?: () => void
   onReminders: () => void
   onWatching: () => void
   // Absent (or a build without Tips): no Tips item.
@@ -69,6 +71,7 @@ export function PageMenu({ reminders, watches, onLater, onWatchPage, onSimilar, 
           <SimilarIcon size={16} /> {t("uxSimilar")}{similarLocked && <span class="cf-ultra-badge">Ultra</span>}
         </button>
       )}
+      {onNameChat && <button type="button" role="menuitem" class="cf-page-name" onClick={onNameChat}><Icon.Sparkle size={15} /> {t("orgNameChat")}</button>}
       {onListen && <button type="button" role="menuitem" onClick={onListen}><SpeakerIcon size={16} /> {t("listenPage")}{!ultra && <span class="cf-ultra-badge">Ultra</span>}</button>}
       <button type="button" role="menuitem" onClick={onReminders}><Bell size={16} /> {reminders > 0 ? t("uxRemindersN", reminders) : t("uxReminders")}</button>
       {watches !== null && (

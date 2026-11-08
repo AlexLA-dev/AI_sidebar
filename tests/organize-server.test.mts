@@ -87,6 +87,7 @@ beforeEach(() => {
   config.organize.enabled = true
   config.organize.embedDaily = 150
   config.organize.tagsDaily = 300
+  ;(config.organize as Record<string, unknown>).nameDaily = 200
 })
 
 function ctx() {
@@ -173,6 +174,55 @@ test("tags: when Claude fails, refuses or has no key, gpt-5-nano answers; both d
   assert.equal(r.res.status, 502)
   assert.equal(r.body.code, "UPSTREAM")
   assert.equal(counters.get("organize:tags:tx:2000000123"), 3)
+})
+
+test("name (2.6): Haiku names the chat in the person's words, checks the current name, and the text never reaches the logs", async () => {
+  claude.text = '{"fits":false,"title":"  «Sorting chats by topic.»  "}'
+  const chat = "Page: ContextFlow\nQuestion: How do I sort my chats by topic?\nAnswer: Turn on suggestions"
+  const { res, body } = await call({ op: "name", chat, current: "what is this?" })
+  assert.equal(res.status, 200)
+  assert.deepEqual(body, { fits: false, title: "Sorting chats by topic" })
+  assert.equal(claude.lastBody?.output_config.format.schema.required.join(), "fits,title")
+  assert.match(claude.lastBody?.messages[0].content, /<current>\nwhat is this\?\n<\/current>/)
+  assert.match(claude.lastBody?.system, /language most of the person's own questions/)
+  assert.equal(counters.get("organize:name:tx:2000000123"), 1)
+  const logged = events.find((e) => e.kind === "organize_api")!.data
+  assert.equal(logged.op, "name")
+  assert.equal(logged.checked, true)
+  assert.ok(!JSON.stringify(events).includes("sort"))
+  // No current name: never "fits".
+  claude.text = '{"fits":true,"title":"Sorting chats"}'
+  assert.deepEqual((await call({ op: "name", chat })).body, { fits: false, title: "Sorting chats" })
+  assert.match(claude.lastBody?.messages[0].content, /There is no current name/)
+  // Claude down: gpt-5-nano names it.
+  claude.status = 529
+  nano.text = '{"fits":true,"title":"Sorting chats"}'
+  assert.deepEqual((await call({ op: "name", chat, current: "Chats" })).body, { fits: true, title: "Sorting chats" })
+  assert.equal(nano.lastBody?.response_format.json_schema.name, "name")
+  claude.status = undefined
+  // An empty title is no answer.
+  claude.text = '{"fits":false,"title":"  "}'
+  nano.text = '{"fits":false,"title":""}'
+  assert.equal((await call({ op: "name", chat })).res.status, 502)
+  assert.equal((await call({ op: "name", chat: "  " })).res.status, 400)
+})
+
+test("a request signed with the measuring key counts as a subscriber on a deploy preview, never in production", async () => {
+  const { generateKeyPairSync, sign } = await import("node:crypto")
+  const { privateKey, publicKey } = generateKeyPairSync("ed25519")
+  process.env.CF_EVAL_PUBLIC_KEY = publicKey.export({ type: "spki", format: "der" }).toString("base64")
+  const asSigned = (deploy: string, key = privateKey) => {
+    const at = Date.now()
+    const req = request({ op: "embed", texts: ["a"], entitlement: null })
+    const signature = sign(null, Buffer.from(`${INSTALL}.${at}`), key).toString("base64url")
+    const signed = new Request(req, { headers: { ...Object.fromEntries(req.headers), "x-cf-eval": `${at}.${signature}` } })
+    return organize(signed, { ...ctx(), deploy: { context: deploy, id: "d1", published: false } })
+  }
+  assert.equal((await asSigned("deploy-preview")).status, 200)
+  assert.equal(counters.get(`organize:embed:tx:eval-${INSTALL}`), 1)
+  assert.equal((await asSigned("production")).status, 403)
+  assert.equal((await asSigned("deploy-preview", generateKeyPairSync("ed25519").privateKey)).status, 403)
+  delete process.env.CF_EVAL_PUBLIC_KEY
 })
 
 test("only Pro: free and Own key get PRO_ONLY before anything is charged or sent", async () => {

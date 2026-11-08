@@ -991,6 +991,14 @@ struct ExtensionOffBanner: View {
 
 // MARK: - A chat
 
+/// "Named “…” · Undo" (2.6), or why the chat couldn't be named (no Undo).
+private struct NameBar {
+    let id = UUID()
+    let chat: String
+    let text: String
+    let undo: (() -> Void)?
+}
+
 struct ChatDetailView: View {
     @ObservedObject var library: ChatLibrary
     let threadId: String
@@ -1031,10 +1039,14 @@ struct ChatDetailView: View {
     // When that bar came, when it goes and where the chat was scrolled to (a class: scrolling doesn't redraw), and
     // whether a pointer holds it.
     @State private var undoBarClock = MovedBarClock()
+    // 2.6: "Named “…” · Undo" after the AI named the chat (or why it couldn't), and "Name by topic" working.
+    @State private var nameBar: NameBar?
+    @State private var naming = false
     @State private var undoBarHeld = false
     @State private var messShown = false
     @State private var tagsCard = false
-    @State private var firstWin = false
+    // The chat the first suggestion was taken in: its line stays there until the next question or note.
+    @State private var firstWin: String?
     @State private var organizeTick = 0
     @State private var seen = Set<String>()
     // Chat UX (2.5): which pinned message the bar shows (and until when scrolling doesn't move it), the message whose
@@ -1232,6 +1244,15 @@ struct ChatDetailView: View {
                             guard !Task.isCancelled else { return }
                             withAnimation { undoBar = nil }
                         }
+                    } else if let bar = nameBar, bar.chat == currentId {
+                        UndoBar(text: bar.text, actions: bar.undo.map { undo in [(label: LocalizedStringKey("Undo"), run: undo)] } ?? [])
+                            .padding(.horizontal, 12)
+                            .padding(.bottom, 8)
+                            .task(id: bar.id) {
+                                try? await Task.sleep(nanoseconds: UInt64(UndoClock.move * 1_000_000_000))
+                                guard !Task.isCancelled else { return }
+                                withAnimation { if nameBar?.id == bar.id { nameBar = nil } }
+                            }
                     }
                 }
                 .sheet(isPresented: Binding(get: { reminding != nil }, set: { if !$0 { reminding = nil } })) {
@@ -1280,6 +1301,10 @@ struct ChatDetailView: View {
                                 newName = thread.title ?? ""
                                 renaming = true
                             } label: { Label("Rename", systemImage: "pencil") }
+                            if organize.enabled(pro: store.isPro), !thread.isHistory, !thread.entries.isEmpty {
+                                Button { nameByTopic(thread) } label: { Label("Name by topic", systemImage: "sparkles") }
+                                    .disabled(naming)
+                            }
                             Button { taggingChat = true } label: { Label("Tags", systemImage: "tag") }
                             Button { library.setPinned(thread, !thread.isPinned) } label: {
                                 Label(thread.isPinned ? "Unpin" : "Pin", systemImage: thread.isPinned ? "pin.slash" : "pin")
@@ -1378,6 +1403,8 @@ struct ChatDetailView: View {
         guard !text.isEmpty, asking == nil else { return }
         failure = nil
         undoBar = nil
+        nameBar = nil
+        firstWin = nil
         if noteMode {
             // A note: kept with the chat, never sent to the AI, uses no answers.
             library.append(thread, [Organize.stamped(["role": "user", "content": text, "note": true])])
@@ -1431,6 +1458,7 @@ struct ChatDetailView: View {
         guard !Task.isCancelled, let found = await organize.suggestions(for: thread, in: library.threads),
               found.chat == currentId, found.length == self.thread?.entries.count else { return }
         withAnimation(.easeOut(duration: 0.4)) { suggestions = found }
+        if let name = found.name { putName(thread, name, why: "drift") }
         // Each suggestion counted once as shown.
         if let move = found.move, !seen.contains("m\(found.chat)\(move.start)") {
             seen.insert("m\(found.chat)\(move.start)")
@@ -1440,6 +1468,36 @@ struct ChatDetailView: View {
             seen.insert("t\(tag.key)\(tag.tag)")
             _ = index
             ChatAI.reportOrganize("organize", ["action": "shown", "what": "tag"])
+        }
+    }
+
+    /// 2.6: the AI's name on the chat, with "Named “…” · Undo". By itself (its topic changed) never over a name the user
+    /// typed, and quietly while another bar is up; asked for ("Name by topic"), over any.
+    private func putName(_ thread: ChatThread, _ name: String, why: String) {
+        guard let before = library.nameByAI(thread, name, asked: why == "asked") else { return }
+        ChatAI.reportOrganize("organize", ["action": "accepted", "what": "name", "why": why])
+        if why == "drift", undoBar != nil || deleted != nil { return }
+        let id = thread.id
+        withAnimation {
+            nameBar = NameBar(chat: id, text: String(localized: "Named “\(name)”"), undo: {
+                withAnimation { nameBar = nil }
+                library.unname(id, name, before: before)
+                ChatAI.reportOrganize("organize", ["action": "undone", "what": "name", "why": why])
+            })
+        }
+    }
+
+    /// "Name by topic" in the chat's menu.
+    private func nameByTopic(_ thread: ChatThread) {
+        naming = true
+        Task {
+            let name = await organize.nameNow(thread)
+            naming = false
+            if let name, let current = library.threads.first(where: { $0.id == thread.id }) {
+                putName(current, name, why: "asked")
+            } else {
+                withAnimation { nameBar = NameBar(chat: thread.id, text: String(localized: "I couldn't name this chat just now. Try again later."), undo: nil) }
+            }
         }
     }
 
@@ -1467,7 +1525,7 @@ struct ChatDetailView: View {
     }
 
     private func won() {
-        if organize.takeFirstWin() { withAnimation { firstWin = true } }
+        if organize.takeFirstWin() { withAnimation { firstWin = currentId } }
     }
 
     private func takeTag(_ thread: ChatThread, _ index: Int, _ tag: String) {
@@ -1690,7 +1748,7 @@ struct ChatDetailView: View {
                 openPro()
             }, close: { withAnimation { tagsCard = false } })
         }
-        if firstWin, organize.enabled(pro: store.isPro) {
+        if firstWin == thread.id, organize.enabled(pro: store.isPro) {
             Label("Done. From now on I'll suggest on my own.", systemImage: "sparkles")
                 .font(.footnote)
                 .foregroundColor(.secondary)

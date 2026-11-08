@@ -6,9 +6,9 @@
 import { hasPro } from "../shared/plan"
 import { API_BASE } from "../shared/config"
 import { entryKey, textKey, type Entry } from "../shared/conversation"
-import { embedText, judgedTags, judgeText, suggestMove, tagCandidates, tagTargets, unpackVector, type VectorOf } from "../shared/organize"
-import { liveThreads, threadName, threadTitle, type Thread, type Threads } from "../shared/threads"
-import { STORAGE, type OrganizeEvent, type OrganizeReply, type StatusInfo } from "../shared/types"
+import { embedText, judgedTags, judgeText, nameCheckKey, nameText, suggestMove, tagCandidates, tagTargets, unpackVector, wantsNameCheck, type VectorOf } from "../shared/organize"
+import { cleanTitle, liveThreads, threadName, threadTitle, type Thread, type Threads } from "../shared/threads"
+import { STORAGE, type OrganizeEvent, type OrganizeNameReply, type OrganizeReply, type StatusInfo } from "../shared/types"
 
 interface Context {
   status: StatusInfo
@@ -24,6 +24,8 @@ const MAX_EMBED_PER_RUN = 640
 const BATCH = 128
 // Tag checks remembered (the newest), so opening a chat again asks nothing.
 const MAX_VERDICTS = 400
+// Name checks remembered (the newest chats).
+const MAX_NAMES = 200
 
 interface VectorStore {
   space: string
@@ -139,6 +141,27 @@ async function organizeOnce(chatId: string, ctx: Context): Promise<OrganizeReply
   const newest = Object.entries(verdicts).sort((a, b) => b[1].at - a[1].at).slice(0, MAX_VERDICTS)
   await chrome.storage.local.set({ [STORAGE.orgVerdicts]: Object.fromEntries(newest) })
 
+  // 2.6: the chat's name, unless the user typed it: checked once the chat has a second question or note, and again
+  // when it gets another page or a move changes it; renamed when it no longer fits.
+  let name: string | undefined
+  if (wantsNameCheck(chat)) {
+    const { [STORAGE.orgNames]: kept } = await chrome.storage.local.get(STORAGE.orgNames)
+    const names = (kept as Names | undefined) ?? {}
+    const key = nameCheckKey(chat)
+    if (names[chat.id]?.key !== key) {
+      const current = threadName(chat)
+      const res = await api(ctx, { op: "name", chat: nameText(chat.m), current })
+      const title = res.ok && typeof res.body.title === "string" ? cleanTitle(res.body.title) : ""
+      if (res.ok) {
+        const renamed = !res.body.fits && title && title !== current
+        if (renamed) name = title
+        names[chat.id] = { key: nameCheckKey(chat, renamed ? title : chat.title ?? ""), at: Date.now() }
+        const recent = Object.entries(names).sort((a, b) => b[1].at - a[1].at).slice(0, MAX_NAMES)
+        await chrome.storage.local.set({ [STORAGE.orgNames]: Object.fromEntries(recent) })
+      }
+    }
+  }
+
   return {
     ok: true,
     move: move && {
@@ -147,8 +170,25 @@ async function organizeOnce(chatId: string, ctx: Context): Promise<OrganizeReply
       toName: move.to ? threadName(threads[move.to]) : threadTitle(chat.m.slice(move.start, move.end + 1)),
       count: move.end - move.start + 1
     },
-    tags
+    tags,
+    ...(name ? { name } : {})
   }
+}
+
+type Names = Record<string, { key: string; at: number }>
+
+/** "Name by topic": a name for chat `chatId` now (the panel puts it on, unless the user typed one meanwhile). */
+export async function nameChatNow(chatId: string, ctx: Context): Promise<OrganizeNameReply> {
+  const org = ctx.status.organize
+  if (!org?.on || !ctx.on) return { ok: false, code: "OFF" }
+  if (!hasPro(ctx.status.plan)) return { ok: false, code: "PRO_ONLY" }
+  const { [STORAGE.threads]: stored } = await chrome.storage.local.get(STORAGE.threads)
+  const chat = (stored as Threads | undefined)?.[chatId]
+  if (!chat || chat.deleted || chat.kind === "history" || !chat.m.length) return { ok: false, code: "NETWORK" }
+  const res = await api(ctx, { op: "name", chat: nameText(chat.m) })
+  if (!res.ok) return { ok: false, code: res.code === "OFF" || res.code === "PRO_ONLY" || res.code === "LIMIT_REACHED" ? res.code : "UPSTREAM" }
+  const name = typeof res.body.title === "string" ? cleanTitle(res.body.title) : ""
+  return name ? { ok: true, name } : { ok: false, code: "UPSTREAM" }
 }
 
 /** An organizing event for the funnel (/api/v2/event): what and where, never text. */

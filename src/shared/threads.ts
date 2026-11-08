@@ -10,7 +10,10 @@ export interface Thread {
   u: number // last change (ms), decides which copy wins between devices
   m: Entry[]
   a?: number // last message (ms): the list order; renaming changes `u` only (missing = `u`)
-  title?: string // set by the user; otherwise the first question names the chat
+  title?: string // set by the user, or by the AI (aiTitle); otherwise the first question names the chat
+  // The name the AI gave it ("Name by topic", or renamed as its topic changed; 2.6). While `title` is still this one,
+  // the AI may name it again; a name the user typed differs from it, and the AI never touches that one.
+  aiTitle?: string
   pin?: number // pinned: its place among the pinned chats at the top of the list (lower first)
   kind?: "history" // "Ask your chats" (Pro): questions about all the other chats, not a page
   tags?: string[] // the user's tags for the chat (answers and notes have their own, on the entry)
@@ -166,6 +169,11 @@ export function threadName(thread: Thread): string {
   return thread.title || threadTitle(thread.m)
 }
 
+/** Whether the user named the chat themselves (the AI never renames it then). */
+export function namedByUser(thread: Thread): boolean {
+  return Boolean(thread.title) && thread.title !== thread.aiTitle
+}
+
 /** A name the user typed, cleaned up; empty means "name it after the first question again". */
 export function cleanTitle(text: string): string {
   return oneLine(text, MAX_TITLE)
@@ -230,6 +238,7 @@ export function withMessages(stored: Thread | undefined, id: string, m: Entry[],
   return {
     id, u: now, a: activityAfter(keep, m, now), m,
     ...(keep?.title ? { title: keep.title } : {}),
+    ...(keep?.aiTitle ? { aiTitle: keep.aiTitle } : {}),
     ...(keep?.pin !== undefined ? { pin: keep.pin } : {}),
     ...(keep?.tags?.length ? { tags: keep.tags } : {}),
     ...(keptKind ? { kind: keptKind } : {}),
@@ -303,6 +312,7 @@ export function threadForCloud(thread: Thread, maxChars = CLOUD_MAX_CHARS): stri
   const meta = {
     ...thread.x,
     ...(thread.title ? { title: thread.title } : {}),
+    ...(thread.aiTitle ? { ait: thread.aiTitle } : {}),
     ...(thread.a !== undefined && thread.a !== thread.u ? { a: thread.a } : {}),
     ...(thread.pin !== undefined ? { pin: thread.pin } : {}),
     ...(thread.kind ? { k: thread.kind } : {}),
@@ -320,13 +330,13 @@ export function threadForCloud(thread: Thread, maxChars = CLOUD_MAX_CHARS): stri
 }
 
 // The fields of a thread's iCloud JSON this version reads; any other is kept in `x` as it came.
-const CLOUD_FIELDS = new Set(["m", "a", "title", "pin", "k", "tags", "trashed"])
+const CLOUD_FIELDS = new Set(["m", "a", "title", "ait", "pin", "k", "tags", "trashed"])
 
 /**
  * A thread read back from iCloud (2.3 build 56 stored just the messages), or null if it isn't one. Fields it doesn't
  * know are kept (`x`): 2.4 dropped those it didn't know, and saving such a chat there takes it out of Recently Deleted.
  */
-export function threadFromCloud(data: string): Pick<Thread, "m" | "a" | "title" | "pin" | "kind" | "tags" | "trashed" | "x"> | null {
+export function threadFromCloud(data: string): Pick<Thread, "m" | "a" | "title" | "aiTitle" | "pin" | "kind" | "tags" | "trashed" | "x"> | null {
   let parsed: unknown
   try {
     parsed = JSON.parse(data)
@@ -338,7 +348,7 @@ export function threadFromCloud(data: string): Pick<Thread, "m" | "a" | "title" 
     return m && { m }
   }
   if (parsed === null || typeof parsed !== "object") return null
-  const { m: raw, a, title, pin, k, tags, trashed } = parsed as Record<string, unknown>
+  const { m: raw, a, title, ait, pin, k, tags, trashed } = parsed as Record<string, unknown>
   const m = entriesFrom(raw)
   if (!m) return null
   const unknown = Object.entries(parsed).filter(([key]) => !CLOUD_FIELDS.has(key))
@@ -346,6 +356,7 @@ export function threadFromCloud(data: string): Pick<Thread, "m" | "a" | "title" 
     m,
     ...(typeof a === "number" ? { a } : {}),
     ...(typeof title === "string" && title.trim() ? { title: cleanTitle(title) } : {}),
+    ...(typeof ait === "string" && ait.trim() ? { aiTitle: cleanTitle(ait) } : {}),
     ...(typeof pin === "number" && Number.isFinite(pin) ? { pin } : {}),
     ...(k === "history" ? { kind: "history" as const } : {}),
     ...(Array.isArray(tags) && cleanTags(tags).length ? { tags: cleanTags(tags) } : {}),

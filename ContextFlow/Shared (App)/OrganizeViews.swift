@@ -306,9 +306,11 @@ final class OrganizeModel: ObservableObject {
         var move: Move?
         /// A tag per message index (and the message's key, to check it's still that message).
         var tags: [Int: (key: String, tag: String)]
+        /// 2.6: the chat's name no longer fits its topic (and the user didn't type it): this one does.
+        var name: String?
 
         static func == (a: Suggestions, b: Suggestions) -> Bool {
-            a.chat == b.chat && a.length == b.length && a.move == b.move && a.tags.mapValues(\.tag) == b.tags.mapValues(\.tag)
+            a.chat == b.chat && a.length == b.length && a.move == b.move && a.tags.mapValues(\.tag) == b.tags.mapValues(\.tag) && a.name == b.name
         }
     }
 
@@ -322,6 +324,8 @@ final class OrganizeModel: ObservableObject {
     private let maxEmbedPerRun = 640
     private let batch = 128
     private let maxVerdicts = 400
+    // Name checks remembered (the newest chats): what each was about (Organize.nameCheckKey).
+    private let maxNames = 200
 
     private struct VectorStore: Codable {
         var space: String
@@ -335,14 +339,21 @@ final class OrganizeModel: ObservableObject {
         var at: [String: Double] = [:]
     }
 
+    private struct Names: Codable {
+        var key: [String: String] = [:]
+        var at: [String: Double] = [:]
+    }
+
     private var vectors = VectorStore(space: "", v: [:])
     private var verdicts = Verdicts()
+    private var names = Names()
     private var unpacked: [String: [Float]] = [:]
     private var running: Task<Suggestions?, Never>?
 
     private init() {
         vectors = Self.load("organize-vectors.json") ?? VectorStore(space: "", v: [:])
         verdicts = Self.load("organize-verdicts.json") ?? Verdicts()
+        names = Self.load("organize-names.json") ?? Names()
     }
 
     // MARK: Files (the app's caches: not synced, not in the App Group)
@@ -363,12 +374,14 @@ final class OrganizeModel: ObservableObject {
 
     /// The vectors go with the chats ("Delete all chats" in Safari, or the chats gone).
     func forget() {
-        guard !vectors.v.isEmpty || !verdicts.items.isEmpty else { return }
+        guard !vectors.v.isEmpty || !verdicts.items.isEmpty || !names.key.isEmpty else { return }
         vectors = VectorStore(space: space, v: [:])
         verdicts = Verdicts()
+        names = Names()
         unpacked = [:]
         Self.save(vectors, "organize-vectors.json")
         Self.save(verdicts, "organize-verdicts.json")
+        Self.save(names, "organize-names.json")
     }
 
     // MARK: When
@@ -462,7 +475,33 @@ final class OrganizeModel: ObservableObject {
             verdicts.at = verdicts.at.filter { keep.contains($0.key) }
         }
         Self.save(verdicts, "organize-verdicts.json")
+
+        // 2.6: the chat's name, unless the user typed it: checked once the chat has a second question or note, and
+        // again when it gets another page or a move changes it; renamed when it no longer fits.
+        if Organize.wantsNameCheck(chat) {
+            let key = Organize.nameCheckKey(chat)
+            if names.key[chat.id] != key, let answer = try? await ChatAI.organizeName(chat: Organize.nameText(chat.entries), current: thread.name) {
+                let renamed = !answer.fits && answer.title != thread.name
+                if renamed { out.name = answer.title }
+                names.key[chat.id] = Organize.nameCheckKey(chat, title: renamed ? answer.title : nil)
+                names.at[chat.id] = Date().timeIntervalSince1970
+                if names.key.count > maxNames {
+                    let keep = Set(names.at.sorted { $0.value > $1.value }.prefix(maxNames).map(\.key))
+                    names.key = names.key.filter { keep.contains($0.key) }
+                    names.at = names.at.filter { keep.contains($0.key) }
+                }
+                Self.save(names, "organize-names.json")
+            }
+        }
         return out
+    }
+
+    /// "Name by topic": a name for the chat by its topic now (nil: it couldn't be had).
+    func nameNow(_ thread: ChatThread) async -> String? {
+        await refreshStatus()
+        guard serverOn, !thread.isHistory, !thread.entries.isEmpty, let chat = thread.organized,
+              let answer = try? await ChatAI.organizeName(chat: Organize.nameText(chat.entries), current: nil) else { return nil }
+        return answer.title
     }
 
     // MARK: The cards (each once; closing is final)

@@ -227,6 +227,8 @@ export const config = {
     // Requests a Pro subscriber may make a day (vectors go in batches of up to 128 texts), and all together.
     embedDaily: int("ORGANIZE_EMBED_DAILY", 150),
     tagsDaily: int("ORGANIZE_TAGS_DAILY", 300),
+    // Names by topic (2.6): "Name by topic", and checks of a chat's name as its topic changes.
+    nameDaily: int("ORGANIZE_NAME_DAILY", 200),
     globalDaily: int("ORGANIZE_GLOBAL_DAILY", 100_000),
     // Calibrating the thresholds (tools/organize/calibrate.mts) on a deploy preview: this token stands in for
     // Pro there, never in production. Set it for the Deploy Previews context only.

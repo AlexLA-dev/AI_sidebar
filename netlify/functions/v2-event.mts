@@ -232,8 +232,9 @@ const ORGANIZE_ACTIONS: Record<string, Set<string>> = {
   organize_promo: new Set(["shown", "tap"]),
   organize_optin: new Set(["accepted", "declined"])
 }
-const ORGANIZE_WHAT = new Set(["move", "new", "tag"])
-const ORGANIZE_WHY = new Set(["page", "site", "topic", "apart"])
+// "name" (2.6): the chat named by its topic, "asked" ("Name by topic") or by itself as its topic changed ("drift").
+const ORGANIZE_WHAT = new Set(["move", "new", "tag", "name"])
+const ORGANIZE_WHY = new Set(["page", "site", "topic", "apart", "asked", "drift"])
 const ORGANIZE_WHERE = new Set(["pro_card", "pro_screen", "inchat_mess", "third_tag", "first_win", "settings", "tip", "whatsnew"])
 // plan_tour (2.6): "Turn on suggestions" in the app's tour of Pro after a purchase.
 const ORGANIZE_FROM = new Set(["card", "settings", "whatsnew", "tip", "plan_tour"])

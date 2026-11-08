@@ -37,6 +37,9 @@ struct OrganizeConfig {
     var moveT1 = 0.65
     // Same site: the fit to the one other chat about that site.
     var siteT = 0.35
+    // Two blocks this alike are on one topic: what "a chat is mostly about this" counts (2.6: moves only make chats
+    // more about one thing).
+    var topicT = 0.4
     // A new chat: the block fits its own chat less than this, and at least `splitMin` blocks stay in it.
     var splitT = 0.25
     var splitMin = 2.0
@@ -74,7 +77,7 @@ struct OrganizeConfig {
 
     /// The fields by their names in /status.
     static let fields: [(name: String, path: WritableKeyPath<OrganizeConfig, Double>)] = [
-        ("moveT", \.moveT), ("moveD", \.moveD), ("moveT1", \.moveT1), ("siteT", \.siteT), ("splitT", \.splitT),
+        ("moveT", \.moveT), ("moveD", \.moveD), ("moveT1", \.moveT1), ("siteT", \.siteT), ("topicT", \.topicT), ("splitT", \.splitT),
         ("splitMin", \.splitMin), ("window", \.window), ("tagWindow", \.tagWindow), ("tagT", \.tagT), ("tagD", \.tagD),
         ("coherence", \.coherence), ("judge", \.judge), ("maxTags", \.maxTags), ("rollback", \.rollback),
         ("messSites", \.messSites), ("messBlocks", \.messBlocks), ("messHours", \.messHours)
@@ -590,14 +593,15 @@ enum Organize {
 
     private typealias Other = (thread: OrganizeThread, blocks: [ScoredBlock])
 
-    /// The one move to suggest in `chat` now (or nil): of its last `window` blocks, those that say enough and
-    /// nobody decided about yet are checked — first whether the same page is in another chat (no vectors
-    /// needed), then the same site, then the topic; a block that fits no chat and not its own goes to a new
-    /// chat. Blocks in a row with the same place are one suggestion. The strongest reason wins (`suggestMove`).
+    /// The one move to suggest in `chat` now (or nil): of its last `window` blocks, those nobody decided about yet
+    /// are checked — first whether the same page is in another chat (no vectors needed; a short note or question
+    /// will do), then, for those that say enough, the same site, then the topic; a block that fits no chat and not
+    /// its own goes to a new chat. Blocks in a row with the same place are one suggestion. The strongest reason wins.
+    /// A move only makes chats more about one thing (2.6, `suggestMove`): see `goesTo`.
     static func suggestMove(_ chat: OrganizeThread, _ chats: [OrganizeThread], _ vectorOf: VectorOf, _ cfg: OrganizeConfig) -> MoveSuggestion? {
         if chat.isHistory || chat.isDeleted { return nil }
         let blocks = scoredBlocks(chat.entries, vectorOf)
-        guard blocks.count >= 2, movesAllowed(chat, chats, cfg) else { return nil }
+        guard !blocks.isEmpty, movesAllowed(chat, chats, cfg) else { return nil }
         let others: [Other] = chats
             .filter { $0.id != chat.id && !$0.isDeleted && !$0.isHistory && !$0.entries.isEmpty }
             .map { ($0, scoredBlocks($0.entries, vectorOf)) }
@@ -606,10 +610,10 @@ enum Organize {
         var found: [(suggestion: MoveSuggestion, index: Int)] = []
         for i in first..<blocks.count {
             let b = blocks[i]
-            if b.weak || b.settled || b.dismissed { continue }
+            if b.settled || b.dismissed { continue }
             var rest = blocks
             rest.remove(at: i)
-            if let pick = movePlace(b, i, blocks, rest, others, cfg) {
+            if let pick = movePlace(chat, b, i, blocks, rest, others, cfg) {
                 found.append((MoveSuggestion(start: b.start, end: b.end, to: pick.to, why: pick.why, score: pick.score, current: pick.current), i))
             }
         }
@@ -643,19 +647,51 @@ enum Organize {
         return dot(a, b) >= threshold
     }
 
+    /// Whether block `x` is on block `b`'s subject: the same page, or a topic this alike; without the vectors to tell,
+    /// the same site (with them, a site isn't a subject: one video site holds every topic).
+    private static func onSubject(_ b: ScoredBlock, _ x: ScoredBlock, _ cfg: OrganizeConfig) -> Bool {
+        if let url = b.url, !url.isEmpty, x.url == url { return true }
+        if let bv = b.v, let xv = x.v { return dot(bv, xv) >= cfg.topicT }
+        return !b.host.isEmpty && x.host == b.host
+    }
+
+    /// How many of `list` are on `b`'s subject, and their share of it (0 for an empty list).
+    private static func shareOn(_ b: ScoredBlock, _ list: [ScoredBlock], _ cfg: OrganizeConfig) -> (on: Int, share: Double) {
+        let on = list.filter { onSubject(b, $0, cfg) }.count
+        return (on, list.isEmpty ? 0 : Double(on) / Double(list.count))
+    }
+
+    /// Of two chats, the one the other joins: more messages, then written in last, then by id.
+    private static func larger(_ a: OrganizeThread, _ b: OrganizeThread) -> Bool {
+        if a.entries.count != b.entries.count { return a.entries.count > b.entries.count }
+        if a.activity != b.activity { return a.activity > b.activity }
+        return a.id < b.id
+    }
+
+    /// Whether block `b` of chat `from` (with its other blocks `rest`) goes to `to`: `to` is mostly about it (more
+    /// than half its blocks), and `b` is off its own chat's topic (less than half of `rest` is on it). A block that is
+    /// the whole chat joins `to` when `to` has more on it, or, with one such block each, when `to` is the larger chat.
+    private static func goesTo(_ b: ScoredBlock, _ rest: [ScoredBlock], _ from: OrganizeThread, _ to: Other, _ cfg: OrganizeConfig) -> Bool {
+        let there = shareOn(b, to.blocks, cfg)
+        if there.share <= 0.5 { return false }
+        if rest.isEmpty { return there.on > 1 || larger(to.thread, from) }
+        return shareOn(b, rest, cfg).share < 0.5
+    }
+
     private static func movePlace(
-        _ b: ScoredBlock, _ i: Int, _ blocks: [ScoredBlock], _ rest: [ScoredBlock], _ others: [Other], _ cfg: OrganizeConfig
+        _ chat: OrganizeThread, _ b: ScoredBlock, _ i: Int, _ blocks: [ScoredBlock], _ rest: [ScoredBlock], _ others: [Other], _ cfg: OrganizeConfig
     ) -> (to: String?, why: MoveReason, score: Double, current: Double)? {
         // The same page, already in another chat and not elsewhere in this one (the chat written in last;
         // of equals, the first, as the panel's stable sort).
         if let url = b.url, !url.isEmpty, !rest.contains(where: { $0.url == url }) {
             var there: OrganizeThread?
-            for o in others where o.blocks.contains(where: { $0.url == url }) {
+            for o in others where o.blocks.contains(where: { $0.url == url }) && goesTo(b, rest, chat, o, cfg) {
                 if there == nil || o.thread.activity > there!.activity { there = o.thread }
             }
             if let there { return (there.id, .page, 1, 0) }
         }
-        guard let v = b.v else { return nil }
+        // Below, the block has to say enough.
+        guard let v = b.v, !b.weak else { return nil }
         // The fit to its own chat: its blocks outside the window, else all its other blocks.
         let outside = blocks.enumerated().filter { j, x in Double(j) < Double(blocks.count) - cfg.window && j != i && x.v != nil }.map(\.element)
         let base = (outside.isEmpty ? rest.filter { $0.v != nil } : outside).map { (v: $0.v!, w: 1.0) }
@@ -666,22 +702,26 @@ enum Organize {
                 let on = o.blocks.filter { $0.host == b.host }.count
                 return on >= 2 && on * 2 >= o.blocks.count
             }
-            if about.count == 1 {
+            if about.count == 1, goesTo(b, rest, chat, about[0], cfg) {
                 let vs = about[0].blocks.compactMap(\.v).map { (v: $0, w: 1.0) }
                 let score = topMean(v, vs, 2)
                 if !vs.isEmpty, score >= cfg.siteT, score >= current { return (about[0].thread.id, .site, score, current) }
             }
         }
+        // A chat it fits but that isn't mostly about it (a mix) gets nothing; it still keeps it from a new chat.
+        var fits = false
         var best: (to: String, score: Double)?
         for o in others {
             let vs = o.blocks.compactMap(\.v).map { (v: $0, w: 1.0) }
             if vs.isEmpty { continue }
             let score = topMean(v, vs, 2)
             if score < (vs.count >= 2 ? cfg.moveT : cfg.moveT1) { continue }
+            fits = true
+            if !goesTo(b, rest, chat, o, cfg) { continue }
             if best == nil || score > best!.score { best = (o.thread.id, score) }
         }
         if let best, best.score - current >= cfg.moveD { return (best.to, .topic, best.score, current) }
-        if best == nil, !base.isEmpty, current < cfg.splitT { return (nil, .apart, 0, current) }
+        if !fits, !base.isEmpty, current < cfg.splitT { return (nil, .apart, 0, current) }
         return nil
     }
 
@@ -874,5 +914,63 @@ enum Organize {
             }
         }
         return out
+    }
+
+    // MARK: The chat's name by its topic (2.6)
+
+    static let maxNameText = 6_000
+
+    /// What the AI reads to name a chat (/api/v2/organize op "name", src/shared/organize.ts `nameText`): page by page,
+    /// the page's title, the person's questions and notes, and the start of each answer. A long chat keeps its first
+    /// page and as many of the latest as fit.
+    static func nameText(_ entries: [[String: Any]]) -> String {
+        var parts: [String] = []
+        for b in pageBlocks(entries) {
+            let list = Array(entries[b.start...b.end])
+            var lines: [String] = []
+            if let title = list.lazy.compactMap(pageTitle).first { lines.append("Page: " + prefix16(plain(title), 150)) }
+            for e in list {
+                if isNote(e) {
+                    lines.append("Note: " + prefix16(plain(content(e)), 300))
+                } else if isUser(e) {
+                    lines.append("Question: " + prefix16(plain(e["label"] as? String ?? content(e)), 300))
+                } else if !plain(content(e)).isEmpty {
+                    lines.append("Answer: " + prefix16(plain(content(e)), 200))
+                }
+            }
+            let part = lines.joined(separator: "\n")
+            if !part.isEmpty { parts.append(part) }
+        }
+        let all = parts.joined(separator: "\n\n")
+        if all.utf16.count <= maxNameText || parts.count < 2 { return prefix16(all, maxNameText) }
+        let first = prefix16(parts[0], 1_200)
+        var latest: [String] = []
+        var size = first.utf16.count
+        for i in stride(from: parts.count - 1, to: 0, by: -1) {
+            if size + parts[i].utf16.count + 2 > maxNameText { break }
+            latest.insert(parts[i], at: 0)
+            size += parts[i].utf16.count + 2
+        }
+        return ([first] + latest).joined(separator: "\n\n")
+    }
+
+    /// The user named the chat themselves: a name that isn't the AI's (src/shared/threads.ts `namedByUser`).
+    static func namedByUser(_ chat: OrganizeThread) -> Bool {
+        guard let title = (chat.object["title"] as? String).flatMap({ $0.isEmpty ? nil : $0 }) else { return false }
+        return title != chat.object["ait"] as? String
+    }
+
+    /// Whether the chat's name gets checked by itself: not one the user typed, and two questions or notes at least.
+    static func wantsNameCheck(_ chat: OrganizeThread) -> Bool {
+        if chat.isHistory || chat.isDeleted || namedByUser(chat) { return false }
+        return chat.entries.filter(isUser).count >= 2
+    }
+
+    /// What a name check was about (this device's own record): the name, the chat's pages, how many questions (up to 3).
+    static func nameCheckKey(_ chat: OrganizeThread, title: String? = nil) -> String {
+        let entries = chat.entries
+        let asks = min(3, entries.filter(isUser).count)
+        let pages = pageBlocks(entries).map { entryKey(entries[$0.start]) }.joined(separator: "\u{1}")
+        return textKey([title ?? chat.object["title"] as? String ?? "", pages, String(asks)].joined(separator: "\u{0}"))
     }
 }

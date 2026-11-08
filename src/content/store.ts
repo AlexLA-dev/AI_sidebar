@@ -1,7 +1,7 @@
 import { SPEEDS, type Speed } from "../shared/stretch"
 import { CONSENT_VERSION, consentStatus, type ConsentStatus } from "../shared/consent"
 import type { Entry } from "../shared/conversation"
-import { activity, cleanTitle, liveThreads, moveEntries, newThreadId, prune, purgeTrash, restoreThread, savedThread, trashThread, undoMove, type ActiveThread, type MoveUndo, type Thread, type Threads, cleanTags } from "../shared/threads"
+import { activity, cleanTitle, liveThreads, namedByUser, moveEntries, newThreadId, prune, purgeTrash, restoreThread, savedThread, trashThread, undoMove, type ActiveThread, type MoveUndo, type Thread, type Threads, cleanTags } from "../shared/threads"
 import { MAX_OTHER_PAGE_CHARS } from "../shared/prompt"
 import { DEFAULT_SETTINGS, STORAGE, type Settings } from "../shared/types"
 
@@ -240,6 +240,31 @@ export async function renameThread(id: string, name: string): Promise<void> {
   const renamed: Thread = { ...stored, u: Date.now(), a: activity(stored), title }
   if (!title) delete renamed.title
   await set(STORAGE.threads, { ...threads, [id]: renamed })
+}
+
+/**
+ * The AI's name for a chat (2.6): it becomes the chat's name. By itself (its topic changed) never over a name the user
+ * typed; asked for ("Name by topic"), over any. What the names were before, for Undo (null: nothing changed).
+ */
+export async function nameThread(id: string, name: string, asked = false): Promise<{ title?: string; aiTitle?: string } | null> {
+  const threads = (await get<Threads>(STORAGE.threads)) ?? {}
+  const stored = threads[id]
+  const title = cleanTitle(name)
+  if (!stored || stored.deleted || !title || (!asked && namedByUser(stored)) || title === stored.title) return null
+  const before = { ...(stored.title ? { title: stored.title } : {}), ...(stored.aiTitle ? { aiTitle: stored.aiTitle } : {}) }
+  await set(STORAGE.threads, { ...threads, [id]: { ...stored, u: Date.now(), a: activity(stored), title, aiTitle: title } })
+  return before
+}
+
+/** Undo for nameThread: the names as they were, if the chat still has the AI's one. */
+export async function unnameThread(id: string, name: string, before: { title?: string; aiTitle?: string }): Promise<void> {
+  const threads = (await get<Threads>(STORAGE.threads)) ?? {}
+  const stored = threads[id]
+  if (!stored || stored.deleted || stored.title !== cleanTitle(name)) return
+  const back: Thread = { ...stored, u: Date.now(), a: activity(stored) }
+  delete back.title
+  delete back.aiTitle
+  await set(STORAGE.threads, { ...threads, [id]: { ...back, ...before } })
 }
 
 /** Sets a chat's own tags; it keeps its place in the list. */
