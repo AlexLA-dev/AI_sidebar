@@ -755,6 +755,60 @@
  "uxShowIntro": {
   "message": "再次查看介绍"
  },
+ "ptMenu": {
+  "message": "{0} 包含的功能"
+ },
+ "ptProMediaTitle": {
+  "message": "Pro：视频和 PDF"
+ },
+ "ptProMediaBody": {
+  "message": "页面上有视频或 PDF 时，ContextFlow 现在也会读取：视频字幕和 PDF 正文。直接提问即可。"
+ },
+ "ptProChatsTitle": {
+  "message": "搜索和询问你的聊天"
+ },
+ "ptProChatsBody": {
+  "message": "在聊天列表里，✦ 可以按描述找到聊天，“{0}”会根据你读过和问过的所有内容回答。"
+ },
+ "ptProChatListTitle": {
+  "message": "就在这里"
+ },
+ "ptProChatListBody": {
+  "message": "打开搜索旁的 ✦，描述你要找的聊天；或者点“{0}”，一次询问所有聊天。"
+ },
+ "ptProSortTitle": {
+  "message": "按主题整理"
+ },
+ "ptProSortBody": {
+  "message": "回答下方会出现一行建议，为聊天推荐标签或文件夹。点一下即可整理，也可以撤销。"
+ },
+ "ptProTemplatesTitle": {
+  "message": "模板"
+ },
+ "ptProTemplatesBody": {
+  "message": "选中文字后点“{0}”即可保存，之后可粘贴到任何输入框。想存多少都行。"
+ },
+ "ptProWatchTitle": {
+  "message": "关注最多 20 个页面"
+ },
+ "ptProWatchBody": {
+  "message": "在“…”里，“{0}”会在页面变化时通知你：价格、日期、新帖子。"
+ },
+ "ptUltraListenTitle": {
+  "message": "Ultra：听"
+ },
+ "ptUltraListenBody": {
+  "message": "点回答下方的“{0}”，或“…”里的“{1}”：文字会改写成适合收听的形式并朗读出来。"
+ },
+ "ptUltraSimilarBody": {
+  "message": "为你正在看的内容找到真实的替代选择，每个链接都打开并核实过。在这里或“…”里点“{0}”，也可以选中文字后点“{1}”。"
+ },
+ "ptUltraWatchTitle": {
+  "message": "关注最多 50 个页面"
+ },
+ "ptUltraWatchBody": {
+  "message": "现在，“…”里的“{0}”最多可同时关注 50 个页面。"
+ },
  "welcomeTitle": {
   "message": "ContextFlow 已准备就绪"
  },
@@ -1690,6 +1744,9 @@
  },
  "actSimilar": {
   "message": "查找相似"
+ },
+ "selSimilar": {
+  "message": "相似"
  },
  "uxSimilar": {
   "message": "查找相似…"

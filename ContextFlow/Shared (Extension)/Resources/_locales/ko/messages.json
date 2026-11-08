@@ -755,6 +755,60 @@
  "uxShowIntro": {
   "message": "소개 다시 보기"
  },
+ "ptMenu": {
+  "message": "{0}에 포함된 기능"
+ },
+ "ptProMediaTitle": {
+  "message": "Pro: 동영상과 PDF"
+ },
+ "ptProMediaBody": {
+  "message": "동영상이나 PDF가 있는 페이지에서는 그것도 읽습니다. 동영상 자막과 PDF 본문까지요. 그냥 물어보세요."
+ },
+ "ptProChatsTitle": {
+  "message": "채팅 검색과 질문"
+ },
+ "ptProChatsBody": {
+  "message": "채팅 목록에서 ✦는 설명으로 채팅을 찾고, ‘{0}’ 기능은 지금까지 읽고 물어본 모든 것에서 답합니다."
+ },
+ "ptProChatListTitle": {
+  "message": "바로 여기"
+ },
+ "ptProChatListBody": {
+  "message": "검색창 옆 ✦를 켜고 찾는 채팅을 설명하거나, ‘{0}’ 항목을 탭해 모든 채팅에 한 번에 물어보세요."
+ },
+ "ptProSortTitle": {
+  "message": "주제별 정리"
+ },
+ "ptProSortBody": {
+  "message": "답변 아래에 채팅에 붙일 태그나 폴더가 제안됩니다. 한 번 탭하면 정리되고, 되돌릴 수도 있습니다."
+ },
+ "ptProTemplatesTitle": {
+  "message": "템플릿"
+ },
+ "ptProTemplatesBody": {
+  "message": "텍스트를 선택하고 ‘{0}’ 버튼을 탭해 저장한 뒤 어느 입력란에든 붙여 넣으세요. 원하는 만큼 저장할 수 있습니다."
+ },
+ "ptProWatchTitle": {
+  "message": "최대 20개 페이지 지켜보기"
+ },
+ "ptProWatchBody": {
+  "message": "‘…’ 메뉴의 ‘{0}’ 항목은 페이지가 바뀌면 알려 줍니다. 가격, 날짜, 새 글 등."
+ },
+ "ptUltraListenTitle": {
+  "message": "Ultra: 듣기"
+ },
+ "ptUltraListenBody": {
+  "message": "답변 아래 ‘{0}’ 버튼이나 ‘…’ 메뉴의 ‘{1}’ 항목을 탭하세요. 듣기 좋게 다시 쓴 글을 소리 내어 읽어 줍니다."
+ },
+ "ptUltraSimilarBody": {
+  "message": "보고 있는 것의 실제 대안을, 모든 링크를 열어 확인한 뒤 보여 줍니다. 여기나 ‘…’ 메뉴에서 ‘{0}’ 항목을 탭하거나, 텍스트를 선택하고 ‘{1}’ 칩을 탭하세요."
+ },
+ "ptUltraWatchTitle": {
+  "message": "최대 50개 페이지 지켜보기"
+ },
+ "ptUltraWatchBody": {
+  "message": "이제 ‘…’ 메뉴의 ‘{0}’ 항목으로 최대 50개 페이지를 한 번에 지켜볼 수 있습니다."
+ },
  "welcomeTitle": {
   "message": "ContextFlow가 준비됐어요"
  },
@@ -1690,6 +1744,9 @@
  },
  "actSimilar": {
   "message": "비슷한 것 찾기"
+ },
+ "selSimilar": {
+  "message": "비슷한 것"
  },
  "uxSimilar": {
   "message": "비슷한 것 찾기…"

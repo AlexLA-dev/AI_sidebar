@@ -755,6 +755,60 @@
  "uxShowIntro": {
   "message": "Xem lại phần giới thiệu"
  },
+ "ptMenu": {
+  "message": "{0} có gì"
+ },
+ "ptProMediaTitle": {
+  "message": "Pro: video và PDF"
+ },
+ "ptProMediaBody": {
+  "message": "Trên trang có video hoặc PDF, giờ ContextFlow đọc cả chúng: phụ đề của video và nội dung PDF. Cứ hỏi như bình thường."
+ },
+ "ptProChatsTitle": {
+  "message": "Tìm và hỏi các cuộc trò chuyện"
+ },
+ "ptProChatsBody": {
+  "message": "Trong danh sách trò chuyện, ✦ tìm một cuộc trò chuyện theo mô tả, còn “{0}” trả lời từ mọi thứ bạn đã đọc và hỏi."
+ },
+ "ptProChatListTitle": {
+  "message": "Ngay đây"
+ },
+ "ptProChatListBody": {
+  "message": "Bật ✦ cạnh ô tìm kiếm và mô tả cuộc trò chuyện bạn cần, hoặc chạm “{0}” để hỏi tất cả cùng lúc."
+ },
+ "ptProSortTitle": {
+  "message": "Sắp xếp theo chủ đề"
+ },
+ "ptProSortBody": {
+  "message": "Sau mỗi câu trả lời, một hàng bên dưới gợi ý thẻ hoặc thư mục cho cuộc trò chuyện. Chạm một lần là xếp xong, và có thể hoàn tác."
+ },
+ "ptProTemplatesTitle": {
+  "message": "Mẫu"
+ },
+ "ptProTemplatesBody": {
+  "message": "Chọn văn bản rồi chạm “{0}” để lưu, sau đó dán vào bất kỳ ô nào. Lưu bao nhiêu tùy thích."
+ },
+ "ptProWatchTitle": {
+  "message": "Theo dõi tới 20 trang"
+ },
+ "ptProWatchBody": {
+  "message": "Trong “…”, “{0}” báo cho bạn khi trang thay đổi: giá, ngày, bài viết mới."
+ },
+ "ptUltraListenTitle": {
+  "message": "Ultra: nghe"
+ },
+ "ptUltraListenBody": {
+  "message": "Chạm “{0}” dưới câu trả lời, hoặc “{1}” trong “…”: văn bản được viết lại cho dễ nghe và đọc to."
+ },
+ "ptUltraSimilarBody": {
+  "message": "Những lựa chọn thay thế thật cho thứ bạn đang xem, mọi liên kết đều được mở và kiểm tra. Chạm “{0}” ở đây hoặc trong “…”, hoặc chọn văn bản rồi chạm “{1}”."
+ },
+ "ptUltraWatchTitle": {
+  "message": "Theo dõi tới 50 trang"
+ },
+ "ptUltraWatchBody": {
+  "message": "Trong “…”, “{0}” giờ theo dõi tới 50 trang cùng lúc."
+ },
  "welcomeTitle": {
   "message": "ContextFlow đã sẵn sàng"
  },
@@ -1690,6 +1744,9 @@
  },
  "actSimilar": {
   "message": "Tìm tương tự"
+ },
+ "selSimilar": {
+  "message": "Tương tự"
  },
  "uxSimilar": {
   "message": "Tìm tương tự…"

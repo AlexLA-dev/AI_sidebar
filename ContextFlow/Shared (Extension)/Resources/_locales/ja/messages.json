@@ -755,6 +755,60 @@
  "uxShowIntro": {
   "message": "紹介をもう一度見る"
  },
+ "ptMenu": {
+  "message": "{0}でできること"
+ },
+ "ptProMediaTitle": {
+  "message": "Pro：動画とPDF"
+ },
+ "ptProMediaBody": {
+  "message": "動画やPDFのあるページでは、それも読み取ります。動画の字幕とPDFの本文です。そのまま質問してください。"
+ },
+ "ptProChatsTitle": {
+  "message": "チャットを探す・質問する"
+ },
+ "ptProChatsBody": {
+  "message": "チャット一覧では、✦で説明からチャットを探せます。「{0}」は、これまで読んだもの・質問したものすべてから答えます。"
+ },
+ "ptProChatListTitle": {
+  "message": "ここです"
+ },
+ "ptProChatListBody": {
+  "message": "検索の横の✦をオンにして探したいチャットを説明するか、「{0}」をタップしてすべてのチャットにまとめて質問します。"
+ },
+ "ptProSortTitle": {
+  "message": "トピックで整理"
+ },
+ "ptProSortBody": {
+  "message": "回答の下に、チャットのタグやフォルダの候補が表示されます。タップ1回で整理でき、元に戻すこともできます。"
+ },
+ "ptProTemplatesTitle": {
+  "message": "テンプレート"
+ },
+ "ptProTemplatesBody": {
+  "message": "テキストを選択して「{0}」をタップすると保存され、どの入力欄にも貼り付けられます。いくつでも保存できます。"
+ },
+ "ptProWatchTitle": {
+  "message": "最大20ページを見守り"
+ },
+ "ptProWatchBody": {
+  "message": "「…」の「{0}」で、ページが変わったとき（価格、日付、新しい投稿）にお知らせします。"
+ },
+ "ptUltraListenTitle": {
+  "message": "Ultra：聴く"
+ },
+ "ptUltraListenBody": {
+  "message": "回答の下の「{0}」、または「…」の「{1}」をタップすると、耳で聴きやすい文に書き直して読み上げます。"
+ },
+ "ptUltraSimilarBody": {
+  "message": "見ているものの本当の代替候補を、リンクをすべて開いて確認したうえで表示します。ここか「…」の「{0}」、またはテキストを選択して「{1}」をタップします。"
+ },
+ "ptUltraWatchTitle": {
+  "message": "最大50ページを見守り"
+ },
+ "ptUltraWatchBody": {
+  "message": "「…」の「{0}」で、最大50ページを同時に見守れるようになりました。"
+ },
  "welcomeTitle": {
   "message": "ContextFlowの準備ができました"
  },
@@ -1690,6 +1744,9 @@
  },
  "actSimilar": {
   "message": "似たものを探す"
+ },
+ "selSimilar": {
+  "message": "似たもの"
  },
  "uxSimilar": {
   "message": "似たものを探す…"

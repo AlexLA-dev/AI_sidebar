@@ -755,6 +755,60 @@
  "uxShowIntro": {
   "message": "Revoir l’introduction"
  },
+ "ptMenu": {
+  "message": "Ce que {0} inclut"
+ },
+ "ptProMediaTitle": {
+  "message": "Pro : vidéos et PDF"
+ },
+ "ptProMediaBody": {
+  "message": "Sur une page avec une vidéo ou un PDF, ContextFlow les lit aussi : les sous-titres de la vidéo et le texte du PDF. Posez simplement votre question."
+ },
+ "ptProChatsTitle": {
+  "message": "Cherchez dans vos chats et interrogez-les"
+ },
+ "ptProChatsBody": {
+  "message": "Dans vos chats, ✦ retrouve un chat à partir d'une description, et « {0} » répond à partir de tout ce que vous avez lu et demandé."
+ },
+ "ptProChatListTitle": {
+  "message": "Juste ici"
+ },
+ "ptProChatListBody": {
+  "message": "Activez ✦ près de la recherche et décrivez le chat voulu, ou touchez « {0} » pour interroger tous vos chats d'un coup."
+ },
+ "ptProSortTitle": {
+  "message": "Rangé par thème"
+ },
+ "ptProSortBody": {
+  "message": "Après une réponse, une ligne en dessous propose un tag ou un dossier pour le chat. Un toucher le range, et vous pouvez l'annuler."
+ },
+ "ptProTemplatesTitle": {
+  "message": "Modèles"
+ },
+ "ptProTemplatesBody": {
+  "message": "Sélectionnez du texte et touchez « {0} » pour le garder, puis collez-le dans n'importe quel champ. Autant qu'il vous en faut."
+ },
+ "ptProWatchTitle": {
+  "message": "Jusqu'à 20 pages suivies"
+ },
+ "ptProWatchBody": {
+  "message": "Dans « … », « {0} » vous prévient quand la page change : un prix, une date, un nouveau billet."
+ },
+ "ptUltraListenTitle": {
+  "message": "Ultra : écoutez"
+ },
+ "ptUltraListenBody": {
+  "message": "Touchez « {0} » sous une réponse, ou « {1} » dans « … » : le texte est réécrit pour l'oreille et lu à voix haute."
+ },
+ "ptUltraSimilarBody": {
+  "message": "De vraies alternatives à ce que vous regardez, chaque lien ouvert et vérifié. Touchez « {0} » ici ou dans « … », ou sélectionnez du texte et touchez « {1} »."
+ },
+ "ptUltraWatchTitle": {
+  "message": "Jusqu'à 50 pages suivies"
+ },
+ "ptUltraWatchBody": {
+  "message": "Dans « … », « {0} » suit désormais jusqu'à 50 pages à la fois."
+ },
  "welcomeTitle": {
   "message": "ContextFlow est prêt"
  },
@@ -1690,6 +1744,9 @@
  },
  "actSimilar": {
   "message": "Trouver similaire"
+ },
+ "selSimilar": {
+  "message": "Similaires"
  },
  "uxSimilar": {
   "message": "Trouver similaire…"

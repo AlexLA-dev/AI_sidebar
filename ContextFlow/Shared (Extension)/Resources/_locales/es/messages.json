@@ -755,6 +755,60 @@
  "uxShowIntro": {
   "message": "Ver la introducción otra vez"
  },
+ "ptMenu": {
+  "message": "Qué incluye {0}"
+ },
+ "ptProMediaTitle": {
+  "message": "Pro: vídeos y PDF"
+ },
+ "ptProMediaBody": {
+  "message": "Si una página tiene un vídeo o un PDF, ContextFlow ahora también los lee: los subtítulos del vídeo y el texto del PDF. Solo pregunta."
+ },
+ "ptProChatsTitle": {
+  "message": "Busca y pregunta a tus chats"
+ },
+ "ptProChatsBody": {
+  "message": "En tus chats, ✦ encuentra un chat a partir de una descripción, y «{0}» responde con todo lo que has leído y preguntado."
+ },
+ "ptProChatListTitle": {
+  "message": "Justo aquí"
+ },
+ "ptProChatListBody": {
+  "message": "Activa ✦ junto a la búsqueda y describe el chat que buscas, o toca «{0}» para preguntar a todos tus chats a la vez."
+ },
+ "ptProSortTitle": {
+  "message": "Ordenado por temas"
+ },
+ "ptProSortBody": {
+  "message": "Después de una respuesta, una fila debajo sugiere una etiqueta o una carpeta para el chat. Un toque lo ordena, y puedes deshacerlo."
+ },
+ "ptProTemplatesTitle": {
+  "message": "Plantillas"
+ },
+ "ptProTemplatesBody": {
+  "message": "Selecciona texto y toca «{0}» para guardarlo, y luego pégalo en cualquier campo. Todas las que necesites."
+ },
+ "ptProWatchTitle": {
+  "message": "Sigue hasta 20 páginas"
+ },
+ "ptProWatchBody": {
+  "message": "En «…», «{0}» te avisa cuando la página cambia: un precio, una fecha, una publicación nueva."
+ },
+ "ptUltraListenTitle": {
+  "message": "Ultra: escucha"
+ },
+ "ptUltraListenBody": {
+  "message": "Toca «{0}» bajo una respuesta, o «{1}» en «…»: el texto se reescribe para el oído y se lee en voz alta."
+ },
+ "ptUltraSimilarBody": {
+  "message": "Alternativas reales a lo que estás viendo, con cada enlace abierto y comprobado. Toca «{0}» aquí o en «…», o selecciona texto y toca «{1}»."
+ },
+ "ptUltraWatchTitle": {
+  "message": "Sigue hasta 50 páginas"
+ },
+ "ptUltraWatchBody": {
+  "message": "En «…», «{0}» ahora sigue hasta 50 páginas a la vez."
+ },
  "welcomeTitle": {
   "message": "ContextFlow está listo"
  },
@@ -1690,6 +1744,9 @@
  },
  "actSimilar": {
   "message": "Buscar similares"
+ },
+ "selSimilar": {
+  "message": "Similares"
  },
  "uxSimilar": {
   "message": "Buscar similares…"
