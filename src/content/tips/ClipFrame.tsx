@@ -13,7 +13,7 @@ declare const __TARGET__: "safari" | "chrome"
 const SAFARI = typeof __TARGET__ === "undefined" || __TARGET__ === "safari"
 
 export function clipSrc(name: string, lang: string, still: boolean, motion = true): string {
-  return chrome.runtime.getURL(`clip.html?name=${encodeURIComponent(name)}&lang=${lang === "ru" ? "ru" : "en"}${still ? "&still=1" : ""}${motion ? "" : "&motion=0"}`)
+  return chrome.runtime.getURL(`dist/clip.html?name=${encodeURIComponent(name)}&lang=${lang === "ru" ? "ru" : "en"}${still ? "&still=1" : ""}${motion ? "" : "&motion=0"}`)
 }
 
 export function ClipFrame({ name, lang, still, active, motion = true, onMissing }: {

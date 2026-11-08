@@ -9,7 +9,7 @@
 //   CF_OPEN_SHADOW=1       the panel's shadow root left open for Playwright checks (test builds only)
 //
 // Output layout (stable file names, so the Xcode project never needs edits):
-//   manifest.json  welcome.html  popup.html  clip.html  dist/*.js  icons/*.png  _locales/<lang>/messages.json
+//   manifest.json  welcome.html  popup.html  dist/*.js  dist/clip.html  icons/*.png  _locales/<lang>/messages.json
 
 import { context, build } from "esbuild"
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs"
@@ -53,7 +53,8 @@ function manifest() {
       { matches: ["http://*/*", "https://*/*"], js: ["dist/content.js"], run_at: "document_idle", all_frames: false }
     ],
     // The Tips clips' page (2.6 (91)): the panel shows the app's clips in a frame of it, so pages must be able to.
-    web_accessible_resources: [{ resources: ["clip.html"], matches: ["http://*/*", "https://*/*"] }],
+    // Under dist/ (a folder the Xcode project copies whole; files at the root are listed one by one there).
+    web_accessible_resources: [{ resources: ["dist/clip.html"], matches: ["http://*/*", "https://*/*"] }],
     commands: {
       _execute_action: { suggested_key: { default: "Ctrl+Shift+E", mac: "MacCtrl+Shift+E" }, description: "__MSG_actionTitle__" },
       // Quick insert at the caret: ⌃⇧V in Safari on Mac and iPad (Ctrl+Space is the system's on iPad).
@@ -109,7 +110,8 @@ function statics() {
   cpSync(join(root, "src/pages/welcome.html"), join(out, "welcome.html"))
   cpSync(join(root, "src/pages/popup.html"), join(out, "popup.html"))
   cpSync(join(root, "extension/icons"), join(out, "icons"), { recursive: true })
-  cpSync(join(root, "src/pages/clip.html"), join(out, "clip.html"))
+  mkdirSync(join(out, "dist"), { recursive: true })
+  cpSync(join(root, "src/pages/clip.html"), join(out, "dist/clip.html"))
   locales()
   clips()
 }
