@@ -203,6 +203,11 @@ export function serveSpeak(port: chrome.runtime.Port, deps: SpeakDeps): void {
 
   const fetchPart = async (part: number): Promise<boolean> => {
     const text = parts[part]
+    // Nothing a voice can say (a dash, an emoji): skipped.
+    if (!/[\p{L}\p{N}]/u.test(text)) {
+      post({ type: "partEnd", part, cached: true })
+      return true
+    }
     const key = await speechKey(text, lang)
     const hit = await cached(key)
     if (hit) {
@@ -210,6 +215,36 @@ export function serveSpeak(port: chrome.runtime.Port, deps: SpeakDeps): void {
       post({ type: "partEnd", part, cached: true })
       return true
     }
+    // A passing failure (offline a moment, the voice busy, a download that broke off) is asked for again twice, in the
+    // same voice; what the panel already has of this part is skipped in the new audio (build 90: a text never changes
+    // voice, and never repeats itself).
+    let sent = 0
+    let last: { code: "ULTRA_ONLY" | "LIMIT_REACHED" | "BUSY" | "NETWORK" | "UPSTREAM" | "OFF"; usage?: Usage | null } = { code: "NETWORK" }
+    for (let attempt = 0; attempt < 3; attempt++) {
+      if (attempt) {
+        await new Promise((resolve) => setTimeout(resolve, attempt === 1 ? 1000 : 3000))
+        if (stopped) return false
+      }
+      const outcome = await download(part, text, sent)
+      if (outcome.ok) {
+        void keep(key, outcome.all)
+        return true
+      }
+      sent = outcome.sent
+      last = outcome
+      if (stopped) return false
+      if (outcome.code !== "NETWORK" && outcome.code !== "UPSTREAM" && outcome.code !== "BUSY") break
+    }
+    if (!stopped) post({ type: "error", code: last.code, part, usage: last.usage ?? null })
+    return false
+  }
+
+  type Downloaded =
+    | { ok: true; all: Uint8Array }
+    | { ok: false; code: "ULTRA_ONLY" | "LIMIT_REACHED" | "BUSY" | "NETWORK" | "UPSTREAM" | "OFF"; usage?: Usage | null; sent: number }
+
+  /** One attempt at a part: its audio to the panel as it comes, the first `skip` bytes left out (sent before). */
+  const download = async (part: number, text: string, skip: number): Promise<Downloaded> => {
     controller = new AbortController()
     let res: Response
     try {
@@ -221,14 +256,12 @@ export function serveSpeak(port: chrome.runtime.Port, deps: SpeakDeps): void {
         signal: controller.signal
       })
     } catch {
-      if (!stopped) post({ type: "error", code: "NETWORK", part })
-      return false
+      return { ok: false, code: "NETWORK", sent: skip }
     }
     if (!res.ok || !res.body) {
       const body = (await res.json().catch(() => ({}))) as { code?: string; usage?: Usage | null }
       const code = (["ULTRA_ONLY", "LIMIT_REACHED", "BUSY", "OFF"] as const).find((c) => c === body.code) ?? "UPSTREAM"
-      post({ type: "error", code, part, usage: body.usage ?? null })
-      return false
+      return { ok: false, code, usage: body.usage ?? null, sent: skip }
     }
     try {
       const usage = JSON.parse(res.headers.get("X-CF-Usage") ?? "null") as Usage | null
@@ -239,6 +272,7 @@ export function serveSpeak(port: chrome.runtime.Port, deps: SpeakDeps): void {
     const reader = res.body.getReader()
     const pieces: Uint8Array[] = []
     let size = 0
+    let sent = skip
     let pending = new Uint8Array(0)
     try {
       while (true) {
@@ -247,19 +281,21 @@ export function serveSpeak(port: chrome.runtime.Port, deps: SpeakDeps): void {
         if (!value?.length) continue
         pieces.push(value)
         size += value.length
-        // Whole samples, in pieces big enough not to flood the port.
-        const joined = new Uint8Array(pending.length + value.length)
+        if (size <= skip) continue
+        // What an earlier attempt sent stays out; then whole samples, in pieces big enough not to flood the port.
+        const fresh = size - value.length < skip ? value.subarray(skip - (size - value.length)) : value
+        const joined = new Uint8Array(pending.length + fresh.length)
         joined.set(pending)
-        joined.set(value, pending.length)
+        joined.set(fresh, pending.length)
         const whole = joined.length - (joined.length % 2)
         if (whole >= 4800) {
           post({ type: "chunk", part, data: base64(joined.subarray(0, whole)) })
+          sent += whole
           pending = joined.slice(whole)
         } else pending = joined
       }
     } catch {
-      if (!stopped) post({ type: "error", code: "NETWORK", part })
-      return false
+      return { ok: false, code: "NETWORK", sent }
     }
     if (pending.length >= 2) post({ type: "chunk", part, data: base64(pending.subarray(0, pending.length - (pending.length % 2))) })
     post({ type: "partEnd", part, cached: false })
@@ -269,8 +305,7 @@ export function serveSpeak(port: chrome.runtime.Port, deps: SpeakDeps): void {
       all.set(piece, at)
       at += piece.length
     }
-    void keep(key, all)
-    return true
+    return { ok: true, all }
   }
 
   port.onMessage.addListener((raw: unknown) => {

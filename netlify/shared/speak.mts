@@ -26,6 +26,14 @@ export interface Speech {
   body: ReadableStream<Uint8Array>
 }
 
+// Whose voice it is, for the device's own voice when it must stand in at a text's start (offline, out of minutes): it
+// picks one of the same gender, so a text never sounds like a different person (build 90).
+const VOICE_GENDER: Record<string, "female" | "male"> = { Kore: "female", Leda: "female", Aoede: "female", Zephyr: "female", Puck: "male", Charon: "male", Fenrir: "male", Orus: "male" }
+
+export function voiceGender(voice = config.speak.voice): "female" | "male" | null {
+  return VOICE_GENDER[voice] ?? null
+}
+
 function requestBody(model: string, text: string): string {
   return JSON.stringify({
     model,
@@ -46,12 +54,19 @@ export async function startSpeech(text: string, kind: "lite" | "full", signal?: 
   for (const k of kinds) {
     let languageRefused = false
     for (const model of await ttsModels(k)) {
-      const res = await fetch(INTERACTIONS, {
+      const ask = () => fetch(INTERACTIONS, {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-goog-api-key": config.geminiKey, "Api-Revision": "2026-05-20" },
         body: requestBody(model, text),
         signal
       })
+      let res = await ask()
+      // A passing hiccup (overloaded, 5xx): once more, the same model and voice, before the device hears of it.
+      if (res.status === 429 || res.status >= 500) {
+        await res.body?.cancel().catch(() => undefined)
+        await new Promise((resolve) => setTimeout(resolve, 400))
+        res = await ask()
+      }
       if (res.ok && res.body) return { model, kind: k, body: res.body }
       const detail = await res.text().catch(() => "")
       lastError = new UpstreamError(`${model}: ${res.status} ${detail.slice(0, 300)}`, res.status)

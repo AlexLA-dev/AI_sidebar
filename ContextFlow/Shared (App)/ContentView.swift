@@ -861,7 +861,8 @@ struct ProView: View {
                     hero
                     if store.isByok { byokCard } else if store.entitlement.active { activeCard }
                     plans
-                    organizing
+                    PaidGallery(facts: store.planFacts, startOnUltra: focusTier == .ultra)
+                        .onAppear { if !store.isPro { ChatAI.reportOrganize("organize_promo", ["action": "shown", "where": "pro_screen"]) } }
                     features
                     actions
                     legal
@@ -977,21 +978,6 @@ struct ProView: View {
         }
     }
 
-    /// Organizing the chats (2.5): what it does, shown with the row the app really puts under an answer (2.6).
-    private var organizing: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Sorts by topic").font(.headline)
-                Text("Suggests the right chat for what you just asked, and your own tag for it.")
-                    .font(.callout)
-                    .foregroundColor(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            OrganizePreview()
-        }
-        .onAppear { if !store.isPro { ChatAI.reportOrganize("organize_promo", ["action": "shown", "where": "pro_screen"]) } }
-    }
-
     private var features: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Everything in Pro").font(.headline)
@@ -1029,7 +1015,11 @@ struct ProView: View {
                 if hasYearly {
                     Picker("Billing", selection: $paywall.yearly) {
                         Text("Monthly").tag(false)
-                        Text("Yearly").tag(true)
+                        if let best = store.bestYearlySaving {
+                            Text("Yearly · save up to \(best)%").tag(true)
+                        } else {
+                            Text("Yearly").tag(true)
+                        }
                     }
                     .pickerStyle(.segmented)
                     .accessibilityIdentifier("plans.period")
@@ -1040,6 +1030,7 @@ struct ProView: View {
                             tier: tier,
                             product: product,
                             monthly: store.product(tier, yearly: false),
+                            deal: product.subscription?.subscriptionPeriod.unit == .year ? store.yearlyDeal(tier) : nil,
                             facts: store.planFacts,
                             focused: tier == focusTier,
                             current: store.entitlement.active && store.entitlement.productId == product.id,
@@ -1176,6 +1167,8 @@ struct TierCard: View {
     let tier: StoreKitManager.Tier
     let product: Product
     let monthly: Product?
+    /// Yearly shown: a month of it and what it saves (the App Store's format).
+    let deal: StoreKitManager.YearlyDeal?
     let facts: ChatAI.PlanFacts
     let focused: Bool
     let current: Bool
@@ -1190,14 +1183,7 @@ struct TierCard: View {
         yearly ? String(localized: "\(product.displayPrice) / year") : String(localized: "\(product.displayPrice) / month")
     }
 
-    private var saving: Int? {
-        guard yearly, let monthly, monthly.price > 0 else { return nil }
-        let full = monthly.price * 12
-        guard full > product.price else { return nil }
-        // doubleValue: NSDecimalNumber.intValue misreads a long quotient like 35.89 / 155.88 (it gave no badge).
-        let percent = Int((NSDecimalNumber(decimal: (full - product.price) / full).doubleValue * 100).rounded())
-        return percent >= 5 ? percent : nil
-    }
+    private var saving: Int? { deal?.percent }
 
     private var lines: [(String, LocalizedStringKey)] {
         switch tier {
@@ -1236,6 +1222,22 @@ struct TierCard: View {
                 }
                 Spacer()
                 Text(priceLine).font(.headline)
+            }
+            // Yearly: what a month of it comes to, against twelve months, and the money it saves.
+            if let deal {
+                HStack(alignment: .firstTextBaseline, spacing: 6) {
+                    Text("\(deal.perMonth) a month, billed yearly")
+                        .font(.footnote.weight(.medium))
+                    Spacer(minLength: 4)
+                    Text(deal.twelveMonths)
+                        .font(.footnote)
+                        .strikethrough()
+                        .foregroundColor(.secondary)
+                        .accessibilityHidden(true)
+                }
+                Text("You save \(deal.saving) a year")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundColor(.green)
             }
             ForEach(Array(lines.enumerated()), id: \.offset) { _, line in
                 Feature(systemImage: line.0, text: line.1)
@@ -1544,6 +1546,9 @@ struct SettingsView: View {
     @Environment(\.openURL) private var openURL
     @State private var restoring = false
     @State private var restoreMessage: String?
+    @State private var switching = false
+    /// "Hide" on the yearly line: away for 60 days (it's a line in Settings, never a prompt).
+    @AppStorage("cf_yearly_hidden_until") private var yearlyHiddenUntil: Double = 0
     /// Set to scroll down to the plan; cleared once it has.
     @Binding var showPlan: Bool
 
@@ -1668,6 +1673,9 @@ struct SettingsView: View {
                     }
                 }
             }
+            if let offer = store.yearlySwitch, Date().timeIntervalSince1970 > yearlyHiddenUntil {
+                yearlyLine(offer)
+            }
             // The plan's tour again (2.6): Pro's steps, or Ultra's with Pro's.
             if let tier = store.tier, tier != .byok {
                 Button("What's in \(tier.name)") { PlanTour.shared.show(tier) }
@@ -1686,6 +1694,39 @@ struct SettingsView: View {
             }
             .disabled(restoring)
         }
+    }
+
+    /// A monthly Pro or Ultra subscriber: what yearly saves, and the switch (it starts when the month ends).
+    private func yearlyLine(_ offer: (tier: StoreKitManager.Tier, deal: StoreKitManager.YearlyDeal, product: Product)) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("\(offer.tier.name) yearly: you save \(offer.deal.saving) (\(offer.deal.percent)%) a year.")
+                .fixedSize(horizontal: false, vertical: true)
+            Text("Yearly starts when your current month ends.")
+                .font(.footnote)
+                .foregroundColor(.secondary)
+            HStack {
+                Button {
+                    switching = true
+                    Task {
+                        if case .purchased? = try? await store.purchase(offer.product) {
+                            restoreMessage = String(localized: "Yearly starts when your current month ends.")
+                        }
+                        switching = false
+                    }
+                } label: {
+                    if switching { ProgressView() } else { Text("Switch to yearly") }
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(offer.tier == .ultra ? ultraViolet : brandBlue)
+                .disabled(switching)
+                .accessibilityIdentifier("settings.yearly")
+                Spacer()
+                Button("Hide") { yearlyHiddenUntil = Date().addingTimeInterval(60 * 86_400).timeIntervalSince1970 }
+                    .buttonStyle(.borderless)
+                    .foregroundColor(.secondary)
+            }
+        }
+        .padding(.vertical, 4)
     }
 }
 

@@ -432,6 +432,12 @@ extension ChatAI {
         }
     }
 
+    /// A step in a feature ("use", src/shared/usage.ts): f, a and its allowed fields, never text (build 90: listen).
+    @MainActor
+    static func reportUse(_ f: String, _ a: String, _ fields: [String: String] = [:]) {
+        reportOrganize("use", ["f": f, "a": a, "s": "app"].merging(fields) { $1 })
+    }
+
     /// An organizing event (kind organize / organize_promo / organize_optin): what and where, never text.
     @MainActor
     static func reportOrganize(_ kind: String, _ fields: [String: String]) {

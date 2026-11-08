@@ -120,7 +120,10 @@ async function status(refresh = false, fresh = false): Promise<StatusInfo> {
         autoRenew: typeof ent.autoRenew === "boolean" ? ent.autoRenew : null, period, renewalAsked: ent.renewalAsked === true,
         byokRefusedAt: refusedAt.length ? Math.min(...refusedAt) : null,
         byokOfferShown: ent.byokOfferShown === true || (period !== null && local[STORAGE.byokOfferShown] === period),
-        prices: ent.prices && typeof ent.prices === "object" ? ent.prices : {}
+        prices: ent.prices && typeof ent.prices === "object" ? ent.prices : {},
+        planChange: ent.planChange && typeof ent.planChange.to === "string" && typeof ent.planChange.at === "number"
+          ? { from: String(ent.planChange.from ?? "free"), to: ent.planChange.to, productId: String(ent.planChange.productId ?? ""), at: ent.planChange.at }
+          : null
       }
     : null
 
