@@ -4,6 +4,7 @@ import { config } from "../shared/config.mts"
 import { consume, db, entitlementByToken, logEvent, refund, type Counter } from "../shared/db.mts"
 import { corsHeaders, ipSubject, json, preflight, readJson } from "../shared/http.mts"
 import { answerCost, startAnswer } from "../shared/answer.mts"
+import { hasPro, planOfProduct } from "../../src/shared/plan.ts"
 import type { StreamStats } from "../shared/llm.mts"
 
 /**
@@ -35,7 +36,8 @@ export default async (req: Request, context: Context): Promise<Response> => {
 
   if (userId) {
     const ent = await entitlementByToken(userId).catch(() => null)
-    const active = ent?.product_id.includes("pro") && ent.expires_at &&
+    // Ultra counts as Pro (a user of an old build whose subscription is Ultra on another device).
+    const active = ent && hasPro(planOfProduct(ent.product_id)) && ent.expires_at &&
       Date.parse(ent.expires_at) + config.entitlementLeewayMs > Date.now()
     if (active && ent) {
       plan = "legacy_pro"

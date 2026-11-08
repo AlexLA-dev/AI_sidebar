@@ -1574,6 +1574,117 @@
  "watchChangedBody": {
   "message": "지금: {0}"
  },
+ "planUltra": {
+  "message": "Ultra"
+ },
+ "plansTitle": {
+  "message": "요금제"
+ },
+ "plansCompare": {
+  "message": "요금제 비교"
+ },
+ "plansMonthly": {
+  "message": "월간"
+ },
+ "plansYearly": {
+  "message": "연간"
+ },
+ "plansSave": {
+  "message": "{0}% 절약"
+ },
+ "plansCurrent": {
+  "message": "내 요금제"
+ },
+ "plansChoose": {
+  "message": "{0} 선택"
+ },
+ "plansPerMonth": {
+  "message": "{0}/월"
+ },
+ "plansPerYear": {
+  "message": "{0}/년"
+ },
+ "plansNote": {
+  "message": "구독은 ContextFlow 앱에서 해요. Ultra로 바꾸면 바로 시작되고, 현재 요금제의 남은 기간은 Apple이 환불해요."
+ },
+ "tierByok1": {
+  "message": "내 OpenAI 또는 Claude API 키로 답변 무제한"
+ },
+ "tierByok2": {
+  "message": "페이지의 모든 것: 요약, 설명, 번역"
+ },
+ "tierPro1": {
+  "message": "주당 최대 {0}개 답변, API 키 필요 없음"
+ },
+ "tierPro2": {
+  "message": "동영상과 PDF, AI 검색, '모든 채팅에 묻기', 주제별 정리"
+ },
+ "tierPro3": {
+  "message": "최대 {0}개 페이지 지켜보기: 가격 인하와 변화"
+ },
+ "tierUltra0": {
+  "message": "Pro의 모든 기능, 그리고:"
+ },
+ "tierUltra1": {
+  "message": "답변과 페이지 전체를 자연스러운 목소리로 듣기: 주당 {0}분"
+ },
+ "tierUltra2": {
+  "message": "비슷한 것 찾기: 열려 있는 페이지와 비슷한 것을 다른 사이트에서. 주당 {0}회"
+ },
+ "tierUltra3": {
+  "message": "최대 {0}개 페이지 지켜보기"
+ },
+ "listen": {
+  "message": "듣기"
+ },
+ "listenPage": {
+  "message": "이 페이지 듣기"
+ },
+ "listenPause": {
+  "message": "일시정지"
+ },
+ "listenPlay": {
+  "message": "재생"
+ },
+ "listenStop": {
+  "message": "중지"
+ },
+ "listenLoading": {
+  "message": "음성을 준비하고 있어요…"
+ },
+ "listenUltraTitle": {
+  "message": "듣기는 Ultra에 포함돼요"
+ },
+ "listenUltraBody": {
+  "message": "답변과 페이지 전체를 자연스러운 목소리로 읽어 줘요. 100개 이상의 언어를 지원해요. iPhone에서는 화면을 잠가도 계속 재생돼요."
+ },
+ "listenLimit": {
+  "message": "이번 주 듣기 {0}분을 모두 사용했어요. {1}에 다시 채워져요."
+ },
+ "listenFailed": {
+  "message": "소리 내어 읽지 못했어요. 잠시 후 다시 시도해 주세요."
+ },
+ "listenOffline": {
+  "message": "인터넷에 연결되어 있지 않아요. 처음 들을 때는 인터넷이 필요해요."
+ },
+ "listenInApp": {
+  "message": "ContextFlow를 여는 중이에요. 화면을 잠가도 계속 재생돼요."
+ },
+ "listenLeft": {
+  "message": "듣기: 이번 주 {1}분 중 {0}분 남음"
+ },
+ "watchFullPro": {
+  "message": "Pro로는 페이지 {0}개까지 동시에 지켜볼 수 있어요. Ultra는 {1}개까지."
+ },
+ "watchMoreUltra": {
+  "message": "Ultra로 더 많이"
+ },
+ "seeUltra": {
+  "message": "Ultra 보기"
+ },
+ "usageUltra": {
+  "message": "Ultra · 이번 주 남은 답변 {0}/{1}개"
+ },
  "actSimilar": {
   "message": "비슷한 것 찾기"
  },
@@ -1678,6 +1789,9 @@
  },
  "similarOff": {
   "message": "'비슷한 것 찾기'는 아직 이용할 수 없습니다."
+ },
+ "similarLimit": {
+  "message": "이번 주 '비슷한 것 찾기' {0}회를 모두 사용했습니다. {1}에 다시 채워집니다."
  },
  "tip_4cf1b54b00": {
   "message": "팁"

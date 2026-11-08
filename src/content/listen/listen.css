@@ -1,0 +1,38 @@
+/* Read aloud and the plans sheet (2.6, Ultra). Ultra's colour: violet into blue, next to Pro's sky into blue. */
+.cf-ultra-badge { display: inline-flex; align-items: center; margin-inline-start: 4px; padding: 0 5px; border-radius: 6px; font-size: 10px; font-weight: 700; letter-spacing: 0.02em; color: #fff; background: linear-gradient(135deg, #a78bfa, #2563eb); }
+.cf-plan.ultra { color: #fff; background: linear-gradient(135deg, #a78bfa, #2563eb); }
+.cf-msg-tools button.on { color: var(--accent-text); }
+
+/* The bar over the question field while something plays. */
+.cf-listen { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; padding: 6px 8px; border-radius: 12px; background: var(--accent-soft); color: var(--text); font-size: 12.5px; }
+.cf-listen.error { background: var(--bg-3); }
+.cf-listen-play { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; flex: none; border-radius: 50%; color: #fff !important; background: var(--accent) !important; }
+.cf-listen-play:disabled { opacity: 0.6; }
+.cf-listen-text { flex: 1; min-width: 0; line-height: 1.35; }
+.cf-listen-time { flex: none; font-variant-numeric: tabular-nums; color: var(--text-2); }
+.cf-listen-track { flex: 1; height: 4px; border-radius: 2px; background: var(--bg-3); overflow: hidden; }
+.cf-listen-track div { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.25s linear; }
+.cf-listen .cf-icon-btn { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 8px; color: var(--text-2); font-size: 18px; }
+.cf[data-touch] .cf-listen { font-size: 14px; }
+
+/* The plans sheet. */
+.cf-sheet.cf-plans { max-height: calc(100% - 40px); padding: 12px 12px 14px; }
+.cf-plans-head { display: flex; align-items: center; justify-content: space-between; margin: 0 2px 10px; font-size: 16px; }
+.cf-plans-head .cf-icon-btn { width: 30px; height: 30px; border-radius: 8px; font-size: 20px; color: var(--text-2); }
+.cf-plans-period { display: flex; margin: 0 0 10px; }
+.cf-plans-period button { flex: 1; }
+.cf-plans-list { display: flex; flex-direction: column; gap: 8px; }
+.cf-plan-card { padding: 10px 12px 12px; border-radius: 14px; border: 1px solid var(--border); background: var(--bg-2); }
+.cf-plan-card.focus { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+.cf-plan-card.ultra.focus { border-color: #8b5cf6; box-shadow: 0 0 0 1px #8b5cf6 inset; }
+.cf-plan-top { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px; }
+.cf-plan-top strong { font-size: 15px; }
+.cf-plan-price { margin-inline-start: auto; font-weight: 600; font-size: 13.5px; font-variant-numeric: tabular-nums; }
+.cf-plan-save { padding: 1px 6px; border-radius: 6px; font-size: 11px; font-weight: 700; color: #047857; background: rgba(16, 185, 129, 0.14); }
+.cf-plan-lines { margin: 6px 0 10px; padding-inline-start: 18px; font-size: 12.5px; line-height: 1.45; color: var(--text-2); }
+.cf-plan-lines li { margin: 2px 0; }
+.cf-plan-lines li.lead { list-style: none; margin-inline-start: -18px; font-weight: 600; color: var(--text); }
+.cf-plan-card .cf-primary, .cf-plan-card .cf-secondary { width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
+.cf-plan-current { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 600; color: var(--accent-text); }
+.cf[data-touch] .cf-plan-lines { font-size: 14px; }
+.cf[data-touch] .cf-plan-top strong { font-size: 16.5px; }

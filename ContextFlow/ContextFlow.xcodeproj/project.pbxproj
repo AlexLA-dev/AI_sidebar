@@ -16,6 +16,8 @@
 		CFD100000000000000000002 /* WatchOpen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFD100000000000000000001 /* WatchOpen.swift */; };
 		CFA200000000000000000003 /* TemplatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA200000000000000000001 /* TemplatesView.swift */; };
 		CFD100000000000000000003 /* WatchOpen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFD100000000000000000001 /* WatchOpen.swift */; };
+		CFE200000000000000000002 /* Listen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE200000000000000000001 /* Listen.swift */; };
+		CFE200000000000000000003 /* Listen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE200000000000000000001 /* Listen.swift */; };
 		CF3000000000000000000005 /* ChatSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF3000000000000000000001 /* ChatSync.swift */; };
 		CF6000000000000000000002 /* Chats.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF6000000000000000000001 /* Chats.swift */; };
 		CFB000000000000000000002 /* Organize.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFB000000000000000000001 /* Organize.swift */; };
@@ -148,6 +150,7 @@
 		CFA100000000000000000001 /* TemplateStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplateStore.swift; sourceTree = "<group>"; };
 		CFA200000000000000000001 /* TemplatesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplatesView.swift; sourceTree = "<group>"; };
 		CFD100000000000000000001 /* WatchOpen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchOpen.swift; sourceTree = "<group>"; };
+		CFE200000000000000000001 /* Listen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Listen.swift; sourceTree = "<group>"; };
 		CF5000000000000000000001 /* PdfText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PdfText.swift; sourceTree = "<group>"; };
 		410D88912F41EE9800684748 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		CF6000000000000000000001 /* Chats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chats.swift; sourceTree = "<group>"; };
@@ -263,6 +266,7 @@
 				CF7000000000000000000001 /* ChatsView.swift */,
 				CFA200000000000000000001 /* TemplatesView.swift */,
 				CFD100000000000000000001 /* WatchOpen.swift */,
+				CFE200000000000000000001 /* Listen.swift */,
 				410D88912F41EE9800684748 /* ContentView.swift */,
 				CF4000000000000000000001 /* Setup.swift */,
 				410D88922F41EE9800684748 /* PrivacyInfo.xcprivacy */,
@@ -585,6 +589,7 @@
 				CFA100000000000000000005 /* TemplateStore.swift in Sources */,
 				CFA200000000000000000002 /* TemplatesView.swift in Sources */,
 				CFD100000000000000000002 /* WatchOpen.swift in Sources */,
+				CFE200000000000000000002 /* Listen.swift in Sources */,
 				CF6000000000000000000002 /* Chats.swift in Sources */,
 				CFB000000000000000000002 /* Organize.swift in Sources */,
 				CFC100000000000000000002 /* ChatUX.swift in Sources */,
@@ -611,6 +616,7 @@
 				CFA100000000000000000004 /* TemplateStore.swift in Sources */,
 				CFA200000000000000000003 /* TemplatesView.swift in Sources */,
 				CFD100000000000000000003 /* WatchOpen.swift in Sources */,
+				CFE200000000000000000003 /* Listen.swift in Sources */,
 				410D88992F41EE9800684748 /* SharedDefaults.swift in Sources */,
 				410D889A2F41EE9800684748 /* StoreKitManager.swift in Sources */,
 				410D889B2F41EE9800684748 /* ContentView.swift in Sources */,
@@ -835,7 +841,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "ContextFlow Extension (iOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 86;
+				CURRENT_PROJECT_VERSION = 87;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
@@ -870,7 +876,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "ContextFlow Extension (iOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 86;
+				CURRENT_PROJECT_VERSION = 87;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
@@ -908,7 +914,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "ContextFlow (iOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 86;
+				CURRENT_PROJECT_VERSION = 87;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS (App)/Info.plist";
@@ -950,7 +956,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "ContextFlow (iOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 86;
+				CURRENT_PROJECT_VERSION = 87;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS (App)/Info.plist";
@@ -991,7 +997,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "ContextFlow Extension (macOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 86;
+				CURRENT_PROJECT_VERSION = 87;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
@@ -1030,7 +1036,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "ContextFlow Extension (macOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 86;
+				CURRENT_PROJECT_VERSION = 87;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
@@ -1071,7 +1077,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "ContextFlow (macOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 86;
+				CURRENT_PROJECT_VERSION = 87;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -1114,7 +1120,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "ContextFlow (macOS).entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 86;
+				CURRENT_PROJECT_VERSION = 87;
 				DEVELOPMENT_TEAM = P9NCXXTCU8;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;

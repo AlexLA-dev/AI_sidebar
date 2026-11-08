@@ -2,7 +2,9 @@
 // so they tap them and make their first request"). Where the first-open tour was: instead of seven cards to read,
 // the person does it: Summarize, the consent card, the answer, then a selection on the page and Ask AI, and last
 // where the chats and the "…" menu are. Each step lights up what to tap and lets only that be tapped (the rest of
-// the panel is held under a clear cover); the card's Skip ends it any time.
+// the panel is held under a clear cover); the card's Skip ends it any time. A tap on what's lit up takes the guide
+// along (build 86, the owner: it stayed behind when he opened the chat list): the chat list gets its own step, and
+// the "…" opened ends it with its menu showing.
 //
 // App drives it: which step is on comes from what happens in the panel (a question going out, the consent card, the
 // answer coming in, the selection buttons showing). It ends by itself, quietly, when the consent is declined, the
@@ -10,13 +12,14 @@
 // counted ("use" f "tour", src/shared/usage.ts) for the guided funnel (cf_feature_funnels "guided").
 
 import type { VNode } from "preact"
+import { useEffect } from "preact/hooks"
 
 import { t, type MessageKey } from "../shared/i18n"
 import * as Icon from "./icons"
 import { Blockers, cardPlace, chatsStep, holeAround, MENU_STEP, Shade, useBlurPanel, useParts } from "./Tour"
 
 /** The steps, in order. "pick" and "ask" are on the page (the panel closed), the rest in the panel. */
-export const GUIDE_STEPS = ["summarize", "consent", "answer", "select", "pick", "ask", "askSel", "answer2", "chats", "menu"] as const
+export const GUIDE_STEPS = ["summarize", "consent", "answer", "select", "pick", "ask", "askSel", "answer2", "chats", "chatList", "menu"] as const
 export type GuideStep = (typeof GUIDE_STEPS)[number]
 
 /** Steps shown on the page, with the panel closed. */
@@ -57,6 +60,9 @@ function card(step: GuideStep, touch: boolean, sync: boolean): Card | null {
       const s = chatsStep(sync)
       return { ...s, next: "tourNext", holds: true }
     }
+    // In the chat list (the chats button tapped): what it does, the list free to look through and tap.
+    case "chatList":
+      return { targets: [], icon: <Icon.Chats />, title: "hintChatsTitle", body: "hintChatsBody", next: "tourNext", holds: false, foot: true }
     case "menu":
       return { ...MENU_STEP, next: "tourDone", holds: true }
     default:
@@ -65,17 +71,30 @@ function card(step: GuideStep, touch: boolean, sync: boolean): Card | null {
 }
 
 /** The step's card in the panel (none on the page's steps or while an answer comes in). */
-export function GuideCard({ panel, step, touch, sync, onNext, onSkip }: {
+export function GuideCard({ panel, step, touch, sync, onNext, onSkip, onTap }: {
   panel: HTMLElement
   step: GuideStep
   touch: boolean
   sync: boolean
   onNext: () => void
   onSkip: () => void
+  // A tap on what the step lights up (App takes the guide where that tap leads).
+  onTap: (step: GuideStep) => void
 }): VNode | null {
   const spec = card(step, touch, sync)
   const parts = useParts(panel, spec?.targets ?? [], step)
   useBlurPanel(panel)
+  useEffect(() => {
+    const selectors = (spec?.targets ?? []).flat()
+    if (selectors.length === 0) return
+    // Capture: before the tapped button's own handler changes the panel under it.
+    const onClick = (e: Event) => {
+      const el = e.target
+      if (el instanceof Element && selectors.some((s) => el.closest(s) !== null)) onTap(step)
+    }
+    panel.addEventListener("click", onClick, true)
+    return () => panel.removeEventListener("click", onClick, true)
+  }, [panel, step])
   if (!spec) return null
   const hole = holeAround(parts)
   // Above the composer (the box the answer step points to), not over it.

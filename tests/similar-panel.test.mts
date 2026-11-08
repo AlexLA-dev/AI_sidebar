@@ -17,7 +17,7 @@ const KEYS = ["actSimilar", "uxSimilar", "similarTitle", "similarConditions", "s
   "similarAsked", "similarAskedWith", "similarStockIn", "similarStockOut", "similarFromList", "similarNotConfirmed",
   "similarNotOpened", "similarWatchPrice", "similarStepPlan", "similarStepSearch", "similarStepCheck", "similarStepCheckN",
   "similarStepWrite", "similarNone", "similarChecked", "similarUpsellText", "similarUpsellChecked", "similarUpsellConditions",
-  "similarUpsellWatch", "similarGetUltra", "similarOff"]
+  "similarUpsellWatch", "similarGetUltra", "similarOff", "similarLimit"]
 
 test("every language has Find similar's words, with their placeholders", () => {
   const files = readdirSync(locales).filter((f) => f.endsWith(".json"))
@@ -25,7 +25,8 @@ test("every language has Find similar's words, with their placeholders", () => {
   for (const file of files) {
     const s = JSON.parse(readFileSync(new URL(file, locales), "utf8")) as Record<string, string>
     for (const key of KEYS) assert.ok(s[key]?.trim(), `${file}: ${key}`)
-    for (const key of ["similarInLanguage", "similarAskedWith", "similarStepCheckN", "similarChecked"]) assert.match(s[key], /\{0\}/, `${file}: ${key}`)
+    for (const key of ["similarInLanguage", "similarAskedWith", "similarStepCheckN", "similarChecked", "similarLimit"]) assert.match(s[key], /\{0\}/, `${file}: ${key}`)
+    assert.match(s.similarLimit, /\{1\}/, `${file}: similarLimit's day`)
     // The menu item is the action's name with an ellipsis (it opens a card first).
     assert.equal(s.uxSimilar.replace(/…$/, ""), s.actSimilar, file)
   }
@@ -33,9 +34,9 @@ test("every language has Find similar's words, with their placeholders", () => {
 
 const { cleanItem, factsFrom, similarAllowed, similarMarkdown } = await import("../src/shared/similar.ts")
 
-test("the plan's seam: Pro until Ultra lands; Free and Own key never", () => {
-  assert.equal(similarAllowed("pro"), true)
-  for (const plan of ["free", "byok", null, undefined]) assert.equal(similarAllowed(plan), false)
+test("the plan's seam: Ultra only (Pro, Own key and Free see Ultra's card)", () => {
+  assert.equal(similarAllowed("ultra"), true)
+  for (const plan of ["pro", "free", "byok", null, undefined]) assert.equal(similarAllowed(plan), false)
 })
 
 test("the page's own price and stock go along, read like page watch reads them", () => {

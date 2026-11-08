@@ -16,8 +16,9 @@ import { fallbackRule, sameValue, shownValue, verdict } from "../shared/watch/co
 import { readPage, readValue } from "../shared/watch/extract"
 import { conditionLine } from "../shared/watch/line"
 import {
-  siteOf, WATCH_LIMIT, type WatchDraft, type WatchHow, type WatchPrepared, type WatchRequest, type WatchSpec, type WatchStep
+  siteOf, type WatchDraft, type WatchHow, type WatchPrepared, type WatchRequest, type WatchSpec, type WatchStep
 } from "../shared/watch/messages"
+import { watchLimit, type Plan } from "../shared/plan"
 import { WATCH_EVERY_MS, WATCH_FAILS_TO_LIVE, WATCH_ROUND_MS, WATCH_STORAGE, type Watch, type WatchKind } from "../shared/watch/types"
 import { callNative } from "./native"
 
@@ -26,8 +27,8 @@ export interface WatchDeps {
   clientInfo: () => Promise<Record<string, unknown>>
   // The AI only with the person's consent (the same as for answers); without it, the device's own rules.
   consented: () => Promise<boolean>
-  // Pro or Own key: 20 watches at once instead of Free's 5 (the owner's limit).
-  paid: () => Promise<boolean>
+  // The plan: Pro or Own key watch 20 pages at once instead of Free's 5 (the owner's limit), Ultra 50 (2.6).
+  plan: () => Promise<Plan>
 }
 
 let deps: WatchDeps
@@ -151,7 +152,7 @@ const hostOf = (url: string) => {
   }
 }
 
-async function save(draft: WatchDraft, prepared: WatchPrepared & { value?: string | null }, how: WatchHow): Promise<{ ok: boolean; id?: string; full?: boolean; limit?: number; paid?: boolean; notify?: string }> {
+async function save(draft: WatchDraft, prepared: WatchPrepared & { value?: string | null }, how: WatchHow): Promise<{ ok: boolean; id?: string; full?: boolean; limit?: number; paid?: boolean; plan?: Plan; notify?: string }> {
   const now = Date.now()
   const w: Watch = {
     id: crypto.randomUUID(),
@@ -174,14 +175,15 @@ async function save(draft: WatchDraft, prepared: WatchPrepared & { value?: strin
     checks: 0,
     failures: 0
   }
-  const paid = await deps.paid().catch(() => false)
-  const limit = paid ? WATCH_LIMIT.paid : WATCH_LIMIT.free
+  const plan = await deps.plan().catch((): Plan => "free")
+  const paid = plan !== "free"
+  const limit = watchLimit(plan)
   const added = await update((list) => {
     if (list.filter((x) => !x.metAt).length >= limit) return false
     list.push(w)
     return true
   })
-  if (!added) return { ok: false, full: true, limit, paid }
+  if (!added) return { ok: false, full: true, limit, paid, plan }
   if (w.what === "page" && draft.text) await keepText(w.id, draft.text)
   void report({ a: "create", via: how, what: w.what, site: w.site, mode: w.mode })
   await ensureAlarm()

@@ -1574,6 +1574,117 @@
  "watchChangedBody": {
   "message": "Jetzt: {0}"
  },
+ "planUltra": {
+  "message": "Ultra"
+ },
+ "plansTitle": {
+  "message": "Tarife"
+ },
+ "plansCompare": {
+  "message": "Tarife vergleichen"
+ },
+ "plansMonthly": {
+  "message": "Monatlich"
+ },
+ "plansYearly": {
+  "message": "Jährlich"
+ },
+ "plansSave": {
+  "message": "{0} % sparen"
+ },
+ "plansCurrent": {
+  "message": "Dein Tarif"
+ },
+ "plansChoose": {
+  "message": "{0} wählen"
+ },
+ "plansPerMonth": {
+  "message": "{0}/Monat"
+ },
+ "plansPerYear": {
+  "message": "{0}/Jahr"
+ },
+ "plansNote": {
+  "message": "Das Abo schließt du in der ContextFlow-App ab. Der Wechsel zu Ultra gilt sofort, und Apple erstattet den Rest deines aktuellen Tarifs."
+ },
+ "tierByok1": {
+  "message": "Unbegrenzte Antworten mit deinem eigenen OpenAI- oder Claude-API-Schlüssel"
+ },
+ "tierByok2": {
+  "message": "Alles auf der Seite: Zusammenfassungen, Erklärungen, Übersetzungen"
+ },
+ "tierPro1": {
+  "message": "Bis zu {0} Antworten pro Woche, ohne API-Schlüssel"
+ },
+ "tierPro2": {
+  "message": "Videos und PDFs, KI-Suche, „Frag deine Chats“, Sortieren nach Themen"
+ },
+ "tierPro3": {
+  "message": "Bis zu {0} Seiten beobachten: Preissenkungen und Änderungen"
+ },
+ "tierUltra0": {
+  "message": "Alles aus Pro, dazu:"
+ },
+ "tierUltra1": {
+  "message": "Antworten und ganze Seiten mit natürlicher Stimme anhören: {0} Minuten pro Woche"
+ },
+ "tierUltra2": {
+  "message": "Ähnliches finden: mehr wie die geöffnete Seite, von anderen Websites, {0} Suchen pro Woche"
+ },
+ "tierUltra3": {
+  "message": "Bis zu {0} Seiten beobachten"
+ },
+ "listen": {
+  "message": "Anhören"
+ },
+ "listenPage": {
+  "message": "Diese Seite anhören"
+ },
+ "listenPause": {
+  "message": "Pause"
+ },
+ "listenPlay": {
+  "message": "Abspielen"
+ },
+ "listenStop": {
+  "message": "Stopp"
+ },
+ "listenLoading": {
+  "message": "Stimme wird vorbereitet…"
+ },
+ "listenUltraTitle": {
+  "message": "Anhören ist Teil von Ultra"
+ },
+ "listenUltraBody": {
+  "message": "Antworten und ganze Seiten, vorgelesen mit natürlicher Stimme, in über 100 Sprachen. Auf dem iPhone läuft es bei gesperrtem Bildschirm weiter."
+ },
+ "listenLimit": {
+  "message": "Die {0} Minuten Anhören für diese Woche sind aufgebraucht. Am {1} gibt es neue."
+ },
+ "listenFailed": {
+  "message": "Das ließ sich nicht vorlesen. Versuch es gleich noch einmal."
+ },
+ "listenOffline": {
+  "message": "Keine Verbindung: Beim ersten Anhören braucht es Internet."
+ },
+ "listenInApp": {
+  "message": "ContextFlow wird geöffnet: Dort läuft es auch bei gesperrtem Bildschirm weiter."
+ },
+ "listenLeft": {
+  "message": "Anhören: diese Woche noch {0} von {1} Min."
+ },
+ "watchFullPro": {
+  "message": "Mit Pro beobachtest du bis zu {0} Seiten gleichzeitig. Mit Ultra bis zu {1}."
+ },
+ "watchMoreUltra": {
+  "message": "Mehr mit Ultra"
+ },
+ "seeUltra": {
+  "message": "Ultra ansehen"
+ },
+ "usageUltra": {
+  "message": "Ultra · Diese Woche noch {0} von {1} Antworten"
+ },
  "actSimilar": {
   "message": "Ähnliches finden"
  },
@@ -1678,6 +1789,9 @@
  },
  "similarOff": {
   "message": "„Ähnliches finden“ ist noch nicht verfügbar."
+ },
+ "similarLimit": {
+  "message": "Die {0} Suchen nach Ähnlichem für diese Woche sind aufgebraucht. Neue gibt es am {1}."
  },
  "tip_4cf1b54b00": {
   "message": "Tipps"

@@ -589,8 +589,14 @@ final class ChatLibrary: ObservableObject {
         threads = all.filter { !$0.isTrashed }.sorted(by: Self.listOrder)
         trashed = all.filter(\.isTrashed).sorted { a, b in a.trashedAt != b.trashedAt ? a.trashedAt! > b.trashedAt! : a.id < b.id }
         loaded = true
-        // No chats left ("Delete all chats" in Safari): the messages' vectors (organizing) go with them.
-        if threads.isEmpty && trashed.isEmpty { OrganizeModel.shared.forget() }
+        // No chats left ("Delete all chats" in Safari): the messages' vectors (organizing) go with them, and what was
+        // read aloud (2.6) once there had been chats (a page heard with no chats at all keeps its audio).
+        let hadChats = UserDefaults.standard.bool(forKey: "cf_listen_had_chats")
+        if threads.isEmpty && trashed.isEmpty {
+            OrganizeModel.shared.forget()
+            if hadChats { SpeechCache.clear() }
+        }
+        UserDefaults.standard.set(!threads.isEmpty || !trashed.isEmpty, forKey: "cf_listen_had_chats")
         // 30 days in Recently Deleted: deleted for good, as on any device that sees it first.
         let cutoff = now - Int64(Self.trashDays) * 86_400_000
         let expired = trashed.filter { $0.trashedAt! <= cutoff }

@@ -1574,6 +1574,117 @@
  "watchChangedBody": {
   "message": "Maintenant : {0}"
  },
+ "planUltra": {
+  "message": "Ultra"
+ },
+ "plansTitle": {
+  "message": "Forfaits"
+ },
+ "plansCompare": {
+  "message": "Comparer les forfaits"
+ },
+ "plansMonthly": {
+  "message": "Mensuel"
+ },
+ "plansYearly": {
+  "message": "Annuel"
+ },
+ "plansSave": {
+  "message": "Économisez {0} %"
+ },
+ "plansCurrent": {
+  "message": "Votre forfait"
+ },
+ "plansChoose": {
+  "message": "Choisir {0}"
+ },
+ "plansPerMonth": {
+  "message": "{0}/mois"
+ },
+ "plansPerYear": {
+  "message": "{0}/an"
+ },
+ "plansNote": {
+  "message": "L’abonnement se fait dans l’app ContextFlow. Le passage à Ultra démarre aussitôt, et Apple rembourse ce qui reste de votre forfait actuel."
+ },
+ "tierByok1": {
+  "message": "Réponses illimitées avec votre propre clé API OpenAI ou Claude"
+ },
+ "tierByok2": {
+  "message": "Tout sur la page : résumés, explications, traductions"
+ },
+ "tierPro1": {
+  "message": "Jusqu’à {0} réponses par semaine, sans clé API"
+ },
+ "tierPro2": {
+  "message": "Vidéos et PDF, recherche IA, « Interroger vos discussions », classement par sujet"
+ },
+ "tierPro3": {
+  "message": "Surveillez jusqu’à {0} pages : baisses de prix et changements"
+ },
+ "tierUltra0": {
+  "message": "Tout ce qu’offre Pro, et en plus :"
+ },
+ "tierUltra1": {
+  "message": "Écoutez les réponses et des pages entières avec une voix naturelle : {0} minutes par semaine"
+ },
+ "tierUltra2": {
+  "message": "Contenus similaires : d'autres pages comme celle qui est ouverte, sur d'autres sites, {0} recherches par semaine"
+ },
+ "tierUltra3": {
+  "message": "Surveillez jusqu’à {0} pages"
+ },
+ "listen": {
+  "message": "Écouter"
+ },
+ "listenPage": {
+  "message": "Écouter cette page"
+ },
+ "listenPause": {
+  "message": "Pause"
+ },
+ "listenPlay": {
+  "message": "Lecture"
+ },
+ "listenStop": {
+  "message": "Arrêter"
+ },
+ "listenLoading": {
+  "message": "Préparation de la voix…"
+ },
+ "listenUltraTitle": {
+  "message": "L’écoute fait partie d’Ultra"
+ },
+ "listenUltraBody": {
+  "message": "Les réponses et des pages entières lues à voix haute avec une voix naturelle, dans plus de 100 langues. Sur iPhone, la lecture continue écran verrouillé."
+ },
+ "listenLimit": {
+  "message": "Les {0} minutes d’écoute de la semaine sont épuisées. Elles reviennent {1}."
+ },
+ "listenFailed": {
+  "message": "Impossible de lire ce texte à voix haute. Réessayez dans un instant."
+ },
+ "listenOffline": {
+  "message": "Pas de connexion : la première écoute a besoin d’Internet."
+ },
+ "listenInApp": {
+  "message": "Ouverture de ContextFlow : la lecture continue écran verrouillé."
+ },
+ "listenLeft": {
+  "message": "Écoute : {0} min sur {1} restantes cette semaine"
+ },
+ "watchFullPro": {
+  "message": "Avec Pro, vous surveillez {0} pages à la fois. Avec Ultra, jusqu'à {1}."
+ },
+ "watchMoreUltra": {
+  "message": "Plus avec Ultra"
+ },
+ "seeUltra": {
+  "message": "Voir Ultra"
+ },
+ "usageUltra": {
+  "message": "Ultra · Réponses restantes cette semaine : {0} sur {1}"
+ },
  "actSimilar": {
   "message": "Trouver similaire"
  },
@@ -1678,6 +1789,9 @@
  },
  "similarOff": {
   "message": "« Trouver similaire » n'est pas encore disponible."
+ },
+ "similarLimit": {
+  "message": "Les {0} recherches « Trouver similaire » de la semaine sont utilisées. Elles reviennent {1}."
  },
  "tip_4cf1b54b00": {
   "message": "Astuces"

@@ -14,8 +14,9 @@ import * as Icon from "../icons"
 import { SimilarIcon } from "../similar/Similar"
 import { tipsLabel, TipsIcon } from "../tips/TipsSheet"
 import { Bell } from "./MessageUx"
+import { SpeakerIcon } from "../listen/useListen"
 
-export function PageMenu({ reminders, watches, onLater, onWatchPage, onSimilar, similarLocked, onReminders, onWatching, onTips, onSettings, onIntro, onClose }: {
+export function PageMenu({ reminders, watches, onLater, onWatchPage, onSimilar, similarLocked, onReminders, onWatching, onTips, onSettings, onIntro, onListen, ultra, onClose }: {
   reminders: number
   // null: no watching here (not Safari).
   watches: number | null
@@ -32,6 +33,9 @@ export function PageMenu({ reminders, watches, onLater, onWatchPage, onSimilar, 
   onSettings: () => void
   // Absent: no page to summarize here, so no guide.
   onIntro?: () => void
+  // 2.6: read the page aloud (Ultra; without it, the plans sheet). Absent: nothing to read here.
+  onListen?: () => void
+  ultra?: boolean
   onClose: () => void
 }): VNode {
   const ref = useRef<HTMLDivElement>(null)
@@ -63,6 +67,7 @@ export function PageMenu({ reminders, watches, onLater, onWatchPage, onSimilar, 
           <SimilarIcon size={16} /> {t("uxSimilar")}{similarLocked && <span class="cf-ultra-badge">Ultra</span>}
         </button>
       )}
+      {onListen && <button type="button" role="menuitem" onClick={onListen}><SpeakerIcon size={16} /> {t("listenPage")}{!ultra && <span class="cf-ultra-badge">Ultra</span>}</button>}
       <button type="button" role="menuitem" onClick={onReminders}><Bell size={16} /> {reminders > 0 ? t("uxRemindersN", reminders) : t("uxReminders")}</button>
       {watches !== null && (
         <button type="button" role="menuitem" onClick={onWatching}><Icon.Eye size={16} /> {watches > 0 ? t("uxWatchingN", watches) : t("uxWatching")}</button>

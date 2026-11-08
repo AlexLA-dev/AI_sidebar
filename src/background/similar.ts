@@ -4,7 +4,7 @@
 import { API_BASE } from "../shared/config"
 import { sseData } from "../shared/sse"
 import { cleanItem, type SimilarPayload, type SimilarStreamEvent } from "../shared/similar"
-import type { Plan } from "../shared/types"
+import type { Plan, Usage } from "../shared/types"
 
 const FIRST_BYTE_TIMEOUT_MS = 30_000
 
@@ -42,8 +42,8 @@ export async function askSimilar(req: SimilarRequest, emit: (e: SimilarStreamEve
   }
   clearTimeout(timer)
   if (!res.ok || !res.body) {
-    const body = (await res.json().catch(() => ({}))) as { code?: string; plan?: Plan }
-    emit({ type: "error", code: body.code ?? (res.status >= 500 ? "UPSTREAM" : "BAD_REQUEST"), ...(body.plan ? { plan: body.plan } : {}) })
+    const body = (await res.json().catch(() => ({}))) as { code?: string; plan?: Plan; usage?: Usage | null }
+    emit({ type: "error", code: body.code ?? (res.status >= 500 ? "UPSTREAM" : "BAD_REQUEST"), ...(body.plan ? { plan: body.plan } : {}), ...(body.usage ? { usage: body.usage } : {}) })
     return
   }
   let finished = false

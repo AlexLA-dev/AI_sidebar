@@ -1,11 +1,7 @@
 {
   "identifier" : "com.contextflow.storekit",
-  "nonRenewingSubscriptions" : [
-
-  ],
-  "products" : [
-
-  ],
+  "nonRenewingSubscriptions" : [],
+  "products" : [],
   "settings" : {
     "_applicationInternalID" : "",
     "_developerTeamID" : "",
@@ -58,21 +54,109 @@
   "subscriptionGroups" : [
     {
       "id" : "contextflow_subscriptions",
-      "localizations" : [
-
-      ],
+      "localizations" : [],
       "name" : "ContextFlow Subscriptions",
       "subscriptions" : [
         {
+          "adHocOffers" : [],
+          "codeOffers" : [],
+          "displayPrice" : "12.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "ultra_monthly_001",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Pro plus read aloud, find similar, 50 watched pages",
+              "displayName" : "Ultra",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.contextflow.ultra.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Ultra Monthly",
+          "subscriptionGroupID" : "contextflow_subscriptions",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [],
+          "codeOffers" : [],
+          "displayPrice" : "119.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "ultra_yearly_001",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "A year of Ultra: Pro plus read aloud and find similar",
+              "displayName" : "Ultra Yearly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.contextflow.ultra.yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Ultra Yearly",
+          "subscriptionGroupID" : "contextflow_subscriptions",
+          "type" : "RecurringSubscription"
+        },
+        {
           "adHocOffers" : [
-
+            {
+              "displayPrice" : "3.49",
+              "internalID" : "pro_byok_upgrade_001",
+              "numberOfPeriods" : 1,
+              "offerID" : "byok_upgrade",
+              "paymentMode" : "payAsYouGo",
+              "referenceName" : "Own key to Pro",
+              "subscriptionPeriod" : "P1M"
+            }
           ],
-          "codeOffers" : [
-
-          ],
-          "displayPrice" : "1.99",
+          "codeOffers" : [],
+          "displayPrice" : "6.99",
           "familyShareable" : false,
           "groupNumber" : 2,
+          "internalID" : "pro_monthly_001",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Full access with built-in AI credits",
+              "displayName" : "Pro Monthly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.contextflow.pro.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Pro Monthly",
+          "subscriptionGroupID" : "contextflow_subscriptions",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [],
+          "codeOffers" : [],
+          "displayPrice" : "59.99",
+          "familyShareable" : false,
+          "groupNumber" : 2,
+          "internalID" : "pro_yearly_001",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "A year of Pro: answers, videos and PDFs, AI search",
+              "displayName" : "Pro Yearly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.contextflow.pro.yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Pro Yearly",
+          "subscriptionGroupID" : "contextflow_subscriptions",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [],
+          "codeOffers" : [],
+          "displayPrice" : "1.99",
+          "familyShareable" : false,
+          "groupNumber" : 3,
           "internalID" : "byok_monthly_001",
           "introductoryOffer" : null,
           "localizations" : [
@@ -89,35 +173,23 @@
           "type" : "RecurringSubscription"
         },
         {
-          "adHocOffers" : [
-            {
-              "displayPrice" : "3.49",
-              "internalID" : "pro_byok_upgrade_001",
-              "numberOfPeriods" : 1,
-              "offerID" : "byok_upgrade",
-              "paymentMode" : "payAsYouGo",
-              "referenceName" : "Own key to Pro",
-              "subscriptionPeriod" : "P1M"
-            }
-          ],
-          "codeOffers" : [
-
-          ],
-          "displayPrice" : "6.99",
+          "adHocOffers" : [],
+          "codeOffers" : [],
+          "displayPrice" : "16.99",
           "familyShareable" : false,
-          "groupNumber" : 1,
-          "internalID" : "pro_monthly_001",
+          "groupNumber" : 3,
+          "internalID" : "byok_yearly_001",
           "introductoryOffer" : null,
           "localizations" : [
             {
-              "description" : "Full access with built-in AI credits",
-              "displayName" : "Pro Monthly",
+              "description" : "A year with your own API key",
+              "displayName" : "Own key (yearly)",
               "locale" : "en_US"
             }
           ],
-          "productID" : "com.contextflow.pro.monthly",
-          "recurringSubscriptionPeriod" : "P1M",
-          "referenceName" : "Pro Monthly",
+          "productID" : "com.contextflow.byok.yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Own Key Yearly",
           "subscriptionGroupID" : "contextflow_subscriptions",
           "type" : "RecurringSubscription"
         }

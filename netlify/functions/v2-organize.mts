@@ -5,7 +5,7 @@ import { config as settings } from "../shared/config.mts"
 import { consume, logEvent, refund, type Counter } from "../shared/db.mts"
 import { clip, isUuid, json, preflight, readJson } from "../shared/http.mts"
 import { embed, judgeTags, organizeCost, OrganizeUpstream, sanitizeTagCheck, sanitizeTexts, vectorSpace } from "../shared/organize.mts"
-import { resolveAccess } from "../shared/plan.mts"
+import { hasPro, resolveAccess } from "../shared/plan.mts"
 
 /**
  * POST /api/v2/organize — organizing the chats (2.5): Pro only, and the panel and the app ask only after the
@@ -40,7 +40,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
     subject = "eval"
   } else {
     const access = await resolveAccess(body.entitlement, installId)
-    if (access.plan !== "pro" || !access.entitlement) {
+    if (!hasPro(access.plan) || !access.entitlement) {
       context.waitUntil(logEvent("pro_only", installId, { feature: "organize", plan: access.plan, platform, version }))
       return json({ code: "PRO_ONLY", plan: access.plan, feature: "organize" }, 403)
     }

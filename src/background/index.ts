@@ -1,5 +1,6 @@
 import { mediaKinds, type MediaKind } from "../shared/attachments"
-import { API_BASE, LINKS, PRODUCTS, TARGET, VERSION } from "../shared/config"
+import { API_BASE, LINKS, TARGET, VERSION } from "../shared/config"
+import { planOfProduct, ULTRA_DEFAULTS, WATCH_LIMITS, type PaidPlan, type Period } from "../shared/plan"
 import { consentStatus } from "../shared/consent"
 import { urlKey } from "../shared/conversation"
 import { uiLanguage } from "../shared/i18n"
@@ -12,6 +13,7 @@ import {
   type ErrorCode,
   type FindReply,
   type Plan,
+  type PlanFacts,
   type Platform,
   type ProOffer,
   type Settings,
@@ -32,6 +34,7 @@ import { organizeChat, reportOrganize } from "./organize"
 import { organizeConfig } from "../shared/organize"
 import { askSimilar } from "./similar"
 import type { SimilarPayload, SimilarStreamEvent } from "../shared/similar"
+import { clearSpeech, serveSpeak } from "./speak"
 
 // ---------------------------------------------------------------- identity
 
@@ -91,10 +94,7 @@ async function entitlement(force = false): Promise<NativeEntitlement | null> {
 }
 
 function planFromProduct(productId: string | null | undefined): Plan {
-  if (!productId) return "free"
-  if ((PRODUCTS.pro as readonly string[]).includes(productId)) return "pro"
-  if ((PRODUCTS.byok as readonly string[]).includes(productId)) return "byok"
-  return "free"
+  return planOfProduct(productId)
 }
 
 // ------------------------------------------------------------------ status
@@ -119,7 +119,8 @@ async function status(refresh = false, fresh = false): Promise<StatusInfo> {
         active: ent.active, productId: ent.productId, expiresAt: ent.expiresAt,
         autoRenew: typeof ent.autoRenew === "boolean" ? ent.autoRenew : null, period, renewalAsked: ent.renewalAsked === true,
         byokRefusedAt: refusedAt.length ? Math.min(...refusedAt) : null,
-        byokOfferShown: ent.byokOfferShown === true || (period !== null && local[STORAGE.byokOfferShown] === period)
+        byokOfferShown: ent.byokOfferShown === true || (period !== null && local[STORAGE.byokOfferShown] === period),
+        prices: ent.prices && typeof ent.prices === "object" ? ent.prices : {}
       }
     : null
 
@@ -133,12 +134,15 @@ async function status(refresh = false, fresh = false): Promise<StatusInfo> {
     if (!res.ok) throw new Error(`status ${res.status}`)
     const body = (await res.json()) as {
       plan: Plan; usage: Usage | null; limitedBefore?: boolean; offer?: ProOffer | null; upgradeOffer?: { discount: number } | null
-      limits?: { searchFreeDaily?: number; searchProWeekly?: number }
+      limits?: { freeDaily?: number; proWeekly?: number; ultraWeekly?: number; searchFreeDaily?: number; searchProWeekly?: number; speakWeeklySeconds?: number; similarWeekly?: number; watch?: Record<Plan, number> }
       organize?: { on?: unknown; space?: unknown; config?: unknown }
+      ultra?: { speak?: Usage | null; similar?: Usage | null } | null
     }
     value = {
       plan: body.plan, usage: body.usage, limitedBefore: body.limitedBefore === true, offer: body.offer ?? null,
       upgradeOffer: body.upgradeOffer ?? null,
+      ultra: body.ultra ? { speak: body.ultra.speak ?? null, similar: body.ultra.similar ?? null } : null,
+      plans: planFacts(body.limits),
       searchLimits: { freeDaily: body.limits?.searchFreeDaily ?? SEARCH_LIMITS.freeDaily, proWeekly: body.limits?.searchProWeekly ?? SEARCH_LIMITS.proWeekly },
       store, hasOwnKey: Boolean(key), ownKeyProvider: key ? keyProvider(key) : null, offline: false,
       organize: body.organize && typeof body.organize.space === "string"
@@ -148,7 +152,7 @@ async function status(refresh = false, fresh = false): Promise<StatusInfo> {
   } catch {
     value = {
       plan: ent?.active ? planFromProduct(ent.productId) : "free", usage: null, limitedBefore: false, offer: null,
-      upgradeOffer: null, searchLimits: SEARCH_LIMITS,
+      upgradeOffer: null, searchLimits: SEARCH_LIMITS, ultra: null, plans: planFacts(undefined),
       store, hasOwnKey: Boolean(key), ownKeyProvider: key ? keyProvider(key) : null, offline: true, organize: null
     }
   }
@@ -183,6 +187,20 @@ async function reportMediaNotice(action: "shown" | "pro", media: MediaKind[]): P
 
 // Google search allowances when the server can't be asked (free a day, Pro a week).
 const SEARCH_LIMITS = { freeDaily: 3, proWeekly: 50 }
+
+/** What the plans sheet says about each plan: the server's numbers, these when it can't be reached. */
+function planFacts(limits: { freeDaily?: number; proWeekly?: number; ultraWeekly?: number; searchProWeekly?: number; speakWeeklySeconds?: number; similarWeekly?: number; watch?: Record<Plan, number> } | undefined): PlanFacts {
+  const n = (v: unknown, d: number) => (typeof v === "number" && Number.isFinite(v) ? v : d)
+  return {
+    freeDaily: n(limits?.freeDaily, 5),
+    proWeekly: n(limits?.proWeekly, 375),
+    ultraWeekly: n(limits?.ultraWeekly, n(limits?.proWeekly, 375)),
+    searchProWeekly: n(limits?.searchProWeekly, SEARCH_LIMITS.proWeekly),
+    speakWeeklySeconds: n(limits?.speakWeeklySeconds, ULTRA_DEFAULTS.speakWeeklySeconds),
+    similarWeekly: n(limits?.similarWeekly, ULTRA_DEFAULTS.similarWeekly),
+    watch: { ...WATCH_LIMITS, ...(limits?.watch ?? {}) }
+  }
+}
 
 /**
  * An Own key subscriber and Pro. "refused": the first refusal of the period starts the day after which Pro at a
@@ -263,6 +281,13 @@ async function runChat(payload: AskPayload, emit: (e: StreamEvent) => void, sign
 }
 
 chrome.runtime.onConnect.addListener((port) => {
+  if (port.name === "speak") {
+    serveSpeak(port, { installId, client: clientInfo, jws: async () => {
+      const ent = await entitlement()
+      return ent?.active ? ent.jws : null
+    } })
+    return
+  }
   if (port.name !== "chat") return
   const controller = new AbortController()
   port.onDisconnect.addListener(() => controller.abort())
@@ -354,17 +379,39 @@ async function findChats(query: string, chats: unknown[]): Promise<FindReply> {
 
 // --------------------------------------------------------------- open app
 
-async function openApp(target: "subscribe" | "manage" | "home", feature?: "ai" | "organize"): Promise<{ opened: boolean; url: string }> {
+async function openApp(
+  target: "subscribe" | "manage" | "home", feature?: "ai" | "organize" | "listen" | "watch", plan: PaidPlan = "pro", period?: Period
+): Promise<{ opened: boolean; url: string }> {
   if (TARGET !== "safari") {
     await chrome.tabs.create({ url: LINKS.appStore })
     return { opened: true, url: LINKS.appStore }
   }
-  const url = target === "subscribe" ? `contextflow://subscribe?plan=pro${feature ? `&feature=${feature}` : ""}` : target === "manage" ? "contextflow://manage" : "contextflow://open"
+  // 2.6: the plan and period chosen in the panel's plans sheet open preselected in the app.
+  const query = [`plan=${plan}`, period ? `period=${period}` : "", feature ? `feature=${feature}` : ""].filter(Boolean).join("&")
+  const url = target === "subscribe" ? `contextflow://subscribe?${query}` : target === "manage" ? "contextflow://manage" : "contextflow://open"
   // macOS can launch the app from the extension; on iOS the page has to follow the link.
   const result = await callNative<{ opened?: boolean }>("openApp", { url })
   entitlementCache = null
   statusCache = null
   return { opened: Boolean(result?.opened), url }
+}
+
+/**
+ * Read aloud on iPhone and iPad (2.6): WebKit stops a page's audio when the screen locks, so the app plays it (with
+ * the lock screen's controls). The parts go to the app through the App Group; the page then follows the link.
+ */
+async function listenInApp(message: Extract<BackgroundRequest, { type: "listenInApp" }>): Promise<{ url: string | null }> {
+  if (TARGET !== "safari") return { url: null }
+  const reply = await callNative<{ id?: string }>("listen", {
+    parts: message.parts.slice(0, 40),
+    text: message.text.slice(0, 24_000),
+    script: message.script === true,
+    lang: message.lang.slice(0, 16),
+    what: message.what,
+    title: message.title.slice(0, 200),
+    url: /^https?:\/\//.test(message.url) ? message.url.slice(0, 2000) : ""
+  })
+  return { url: reply?.id ? `contextflow://listen?id=${encodeURIComponent(reply.id)}` : null }
 }
 
 // ---------------------------------------------------------------- reminders (2.5)
@@ -405,7 +452,7 @@ async function reportUse(message: Extract<BackgroundRequest, { type: "useEvent" 
   await fetch(`${API_BASE}/api/v2/event`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ kind: "use", installId: id, client, f: message.f, a: message.a, what: message.what, via: message.via, reminders: message.reminders, watches: message.watches, s: "panel" })
+    body: JSON.stringify({ kind: "use", installId: id, client, f: message.f, a: message.a, what: message.what, via: message.via, reminders: message.reminders, watches: message.watches, plan: message.plan, period: message.period, s: "panel" })
   }).catch(() => undefined)
 }
 
@@ -421,7 +468,13 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
         .then(sendResponse, () => sendResponse(null))
       return true
     case "openApp":
-      openApp(message.target, message.feature).then(sendResponse, () => sendResponse({ opened: false, url: "" }))
+      openApp(message.target, message.feature, message.plan, message.period).then(sendResponse, () => sendResponse({ opened: false, url: "" }))
+      return true
+    case "listenInApp":
+      listenInApp(message).then(sendResponse, () => sendResponse({ url: null }))
+      return true
+    case "speechClear":
+      clearSpeech().then(() => sendResponse({ ok: true }), () => sendResponse({ ok: false }))
       return true
     case "mediaNotice":
       void reportMediaNotice(message.action, message.media)
@@ -612,8 +665,8 @@ startWatch({
   installId,
   clientInfo,
   consented,
-  paid: async () => {
+  plan: async () => {
     const ent = await entitlement()
-    return Boolean(ent?.active) && planFromProduct(ent?.productId) !== "free"
+    return ent?.active ? planFromProduct(ent.productId) : "free"
   }
 })

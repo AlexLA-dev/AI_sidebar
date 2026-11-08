@@ -7,7 +7,7 @@ import { config as settings } from "../shared/config.mts"
 import { consume, logEvent, refund, touchInstall, type Counter } from "../shared/db.mts"
 import { buildGrounding, type GoogleStats } from "../shared/google.mts"
 import { clip, ipSubject, isUuid, json, preflight, readJson, corsHeaders } from "../shared/http.mts"
-import { resolveAccess, type Access } from "../shared/plan.mts"
+import { blockReason, resolveAccess, similarCountersFor, ultraUsage, type Access } from "../shared/plan.mts"
 import { readPrice } from "../shared/pagecheck.mts"
 import { MAX_CONDITION, MAX_PAGE_TEXT, runEngineA, similarEvalToken, type EngineOverrides, type EngineStats, type SimilarInput, type SourceFacts } from "../shared/similar.mts"
 import { googleCost, startEngineB } from "../shared/similar-google.mts"
@@ -68,15 +68,18 @@ export default async (req: Request, context: Context): Promise<Response> => {
       context.waitUntil(logEvent("pro_only", installId, { feature: "similar", plan: access.plan, platform, version, ...step }))
       return json({ code: "PRO_ONLY", plan: access.plan, feature: "similar" }, 403)
     }
-    counters = similarCounters(installId, ipSubject(context.ip))
-    let allowed = true
+    // Ultra's weekly searches (plan.mts) and the engine's daily safety caps, charged together before anything runs.
+    counters = [...similarCountersFor(access), ...similarCounters(installId, ipSubject(context.ip))]
+    let quota: { allowed: boolean; blocked: string | null; counters: Array<Counter & { n: number }> } | null = null
     try {
-      allowed = (await consume(counters)).allowed
+      quota = await consume(counters)
     } catch (err) {
       console.error("[cf] consume failed:", err instanceof Error ? err.message : err)
     }
-    if (!allowed) {
-      context.waitUntil(logEvent("limit", installId, { reason: "busy", plan: access.plan, platform, version, mode: "similar", ...step }))
+    if (quota && !quota.allowed) {
+      const reason = blockReason(quota.blocked)
+      context.waitUntil(logEvent("limit", installId, { reason, plan: access.plan, platform, version, mode: "similar", ...step }))
+      if (reason === "similar") return json({ code: "LIMIT_REACHED", plan: access.plan, usage: ultraUsage(quota.counters, "similar:") }, 402)
       return json({ code: "BUSY" }, 503)
     }
   }

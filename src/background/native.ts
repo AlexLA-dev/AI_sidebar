@@ -46,5 +46,7 @@ export interface NativeEntitlement {
   // Own key: the first refusal this period (ms; in the app or the panel) and whether the discount was shown.
   byokRefusedAt?: number
   byokOfferShown?: boolean
+  // 2.6: the App Store's prices as the app last loaded them (product id → display price).
+  prices?: Record<string, string>
   jws: string | null
 }

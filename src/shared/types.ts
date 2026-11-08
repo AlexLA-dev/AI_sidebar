@@ -5,7 +5,8 @@ import type { OrganizeConfig } from "./organize.ts"
 import type { RenewalReason } from "./renewal.ts"
 // Messages exchanged between the content script (UI) and the background worker.
 
-export type Plan = "free" | "pro" | "byok"
+import type { PaidPlan, Period, Plan } from "./plan.ts"
+export type { Plan } from "./plan.ts"
 export type Platform = "ios" | "ipados" | "macos" | "chrome" | "other"
 
 export interface Usage {
@@ -32,6 +33,10 @@ export interface StatusInfo {
   upgradeOffer: { discount: number } | null
   // Google search allowances (free a day, Pro a week), for what the panel tells Own key subscribers.
   searchLimits: { freeDaily: number; proWeekly: number }
+  // 2.6: an Ultra subscriber's week of read aloud (seconds) and find similar (searches); null for other plans or
+  // offline. plans: the allowances the plans sheet names, from the server (defaults offline).
+  ultra: { speak: Usage | null; similar: Usage | null } | null
+  plans: PlanFacts
   // What the device's App Store account says (may be ahead of the server).
   // autoRenew: false when the user turned auto-renew off (null: not known); period and renewalAsked: the
   // question "what was missing" is asked once per subscription period, in the app or the panel.
@@ -40,12 +45,25 @@ export interface StatusInfo {
   store: {
     active: boolean; productId: string | null; expiresAt: string | null; autoRenew: boolean | null; period: string | null; renewalAsked: boolean
     byokRefusedAt: number | null; byokOfferShown: boolean
+    // The App Store's prices on this device (product id → "$12.99"), as the app last loaded them; {} until it has.
+    prices: Record<string, string>
   } | null
   hasOwnKey: boolean
   ownKeyProvider: "openai" | "anthropic" | null
   offline: boolean
   // Organizing the chats (2.5): switched on on the server, the vector space and the thresholds; null offline.
   organize: { on: boolean; space: string; config: OrganizeConfig } | null
+}
+
+/** What each plan gives, for the plans sheet (2.6): the server's numbers. */
+export interface PlanFacts {
+  freeDaily: number
+  proWeekly: number
+  ultraWeekly: number
+  searchProWeekly: number
+  speakWeeklySeconds: number
+  similarWeekly: number
+  watch: Record<Plan, number>
 }
 
 export interface ChatTurn {
@@ -144,7 +162,14 @@ export type BackgroundRequest =
   | { type: "status"; refresh?: boolean; fresh?: boolean; platform?: Platform }
   // feature "ai": the Pro screen opens on AI search and "Ask your chats".
   // feature "organize": on organizing the chats (2.5).
-  | { type: "openApp"; target: "subscribe" | "manage" | "home"; feature?: "ai" | "organize" }
+  // plan, period (2.6): what was chosen in the panel's plans sheet; the app opens on it.
+  | { type: "openApp"; target: "subscribe" | "manage" | "home"; feature?: "ai" | "organize" | "listen" | "watch"; plan?: PaidPlan; period?: Period }
+  // Read aloud on iPhone and iPad (2.6): the parts go to the app (App Group), which plays them with the screen
+  // locked; answers { url } (contextflow://listen?id=…) for the page to follow, or { url: null } (no app).
+  // text, script (2.6): the raw text and whether the app should write it for the ear first (parts: when it can't).
+  | { type: "listenInApp"; parts: string[]; text: string; script: boolean; lang: string; what: "answer" | "page"; title: string; url: string }
+  // "Delete all chats": the audio and the texts for listening kept on this device go too.
+  | { type: "speechClear" }
   // The line under a free answer that skipped the page's video or PDFs: shown, or its "Try Pro" tapped.
   | { type: "mediaNotice"; action: "shown" | "pro"; media: MediaKind[] }
   // An Own key subscriber and Pro: a refusal (starts the day before the discount), the discount card shown, a tap.
@@ -175,7 +200,7 @@ export type BackgroundRequest =
   // Chat UX counts (2.5), no text: see UX_KINDS in netlify/functions/v2-event.mts.
   | { type: "uxEvent"; kind: "ux_mark" | "ux_pin" | "ux_delete" | "ux_remind"; action: string; what?: string; how?: string; preset?: string }
   // A step for the feature counters: the analytics registry's "use" kind (src/shared/usage.ts), named values only.
-  | { type: "useEvent"; f: "menu" | "later" | "tour" | "bubble"; a: string; what?: string; via?: string; reminders?: string; watches?: string }
+  | { type: "useEvent"; f: "menu" | "later" | "tour" | "bubble" | "listen" | "plans"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string }
 
 /** A PDF's text, or why there is none ("none": nothing to read, e.g. scanned pages). */
 export type PdfResult =

@@ -5,6 +5,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "preact/hooks"
 
+import { TARGET } from "../../shared/config"
 import { t } from "../../shared/i18n"
 import { WATCH_LIMIT, type WatchDraft, type WatchHow, type WatchPrepared } from "../../shared/watch/messages"
 import { ConsentCard } from "../Consent"
@@ -30,7 +31,7 @@ type State =
   | { at: "unreadable"; prepared: WatchPrepared }
   | { at: "set"; live: boolean; notify: string }
   // The owner's limit: Free 5 at once, Pro 20.
-  | { at: "full"; limit: number; paid: boolean }
+  | { at: "full"; limit: number; paid: boolean; ultra: boolean }
   | { at: "failed" }
   // The AI reads the words: without the consent, the one card here first (2.5 (81): never a silent watch whose words
   // nobody reads).
@@ -56,8 +57,8 @@ export function WatchSection(p: WatchSectionProps) {
   useEffect(() => () => clearTimeout(closing.current), [])
 
   const save = async (prepared: WatchPrepared, live: boolean) => {
-    const reply = await send<{ ok: boolean; full?: boolean; limit?: number; paid?: boolean; notify?: string }>({ type: "watchSave", draft: { ...draft, condition }, prepared, how, live }).catch(() => null)
-    if (!reply?.ok) return setState(reply?.full ? { at: "full", limit: reply.limit ?? 5, paid: reply.paid === true } : { at: "failed" })
+    const reply = await send<{ ok: boolean; full?: boolean; limit?: number; paid?: boolean; plan?: string; notify?: string }>({ type: "watchSave", draft: { ...draft, condition }, prepared, how, live }).catch(() => null)
+    if (!reply?.ok) return setState(reply?.full ? { at: "full", limit: reply.limit ?? 5, paid: reply.paid === true, ultra: reply.plan === "ultra" } : { at: "failed" })
     setState({ at: "set", live, notify: reply.notify ?? "ok" })
     if ((reply.notify ?? "ok") === "ok") closing.current = setTimeout(p.close, 1800)
   }
@@ -102,15 +103,16 @@ export function WatchSection(p: WatchSectionProps) {
           />
           <p class="cf-watch-note">{t("watchHonest")}</p>
           {state.at === "failed" && <p class="cf-watch-msg">{t("watchFailed")}</p>}
-          {state.at === "full" && <p class="cf-watch-msg">{state.paid ? t("watchFull", state.limit) : t("watchFullFree", state.limit, WATCH_LIMIT.paid)}</p>}
+          {state.at === "full" && <p class="cf-watch-msg">{state.ultra || (state.paid && TARGET !== "safari") ? t("watchFull", state.limit) : state.paid ? t("watchFullPro", state.limit, WATCH_LIMIT.ultra) : t("watchFullFree", state.limit, WATCH_LIMIT.paid)}</p>}
           {/* The section's main button stays in view over the question field (chat UX's sheet row). With every
               watch taken, Pro is the way on (Free) or there's nothing to press (Pro). */}
           {state.at === "consent" ? (
             <ConsentCard again={state.again} onAccept={() => void giveConsent().then(start)} onDecline={() => setState({ at: "edit" })} />
           ) : state.at === "full" ? (
-            !state.paid && (
+            !state.ultra && (!state.paid || TARGET === "safari") && (
               <div class="cf-sheet-actions">
-                <button type="button" class="cf-primary" onClick={() => void send({ type: "openApp", target: "subscribe" })}>{t("watchMore")}</button>
+                {/* 2.6: on Free, Pro (20 pages); on Pro or Own key, Ultra (50). */}
+                <button type="button" class="cf-primary" onClick={() => void send({ type: "openApp", target: "subscribe", feature: "watch", plan: state.paid ? "ultra" : "pro" })}>{state.paid ? t("watchMoreUltra") : t("watchMore")}</button>
               </div>
             )
           ) : (

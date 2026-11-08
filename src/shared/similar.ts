@@ -1,7 +1,8 @@
 // "Find similar" (2.6, Ultra): what the panel, the background worker and the server share. The panel asks only
 // engine A (ours, every link opened and checked on our server); engine B (Google) stays off the panel's path.
 
-import type { Plan } from "./types.ts"
+import { isUltra, type Plan } from "./plan.ts"
+import type { Usage } from "./types.ts"
 import { isOutOfStock } from "./watch/detect.ts"
 import { parseNumber, type Structured } from "./watch/extract.ts"
 
@@ -49,7 +50,8 @@ export type SimilarStreamEvent =
   | { type: "item"; item: SimilarItem }
   | { type: "result"; answer: Omit<SimilarAnswer, "asked" | "at"> }
   | { type: "done" }
-  | { type: "error"; code: string; plan?: Plan }
+  // LIMIT_REACHED: the week's searches are used (`usage`: how many, and when they come back).
+  | { type: "error"; code: string; plan?: Plan; usage?: Usage | null }
 
 /** The request the panel makes: the page as it is now, and the condition in the person's words. */
 export interface SimilarPayload {
@@ -65,13 +67,9 @@ export interface SimilarFacts {
   lang?: string
 }
 
-/**
- * Who may find similar things: Ultra in 2.6. One seam for the panel and the server: it switches to isUltra() from
- * the Ultra plan (the ultra-26 branch) once that is in the integration branch; until then Pro passes here, and
- * production serves nothing anyway until SIMILAR_ENGINES is set at release.
- */
+/** Who may find similar things: Ultra (2.6). One seam for the panel and the server. */
 export function similarAllowed(plan: Plan | string | null | undefined): boolean {
-  return plan === "pro"
+  return isUltra(plan as Plan | null | undefined)
 }
 
 /** The condition chips, in the panel's order; "language" means the person's own. */

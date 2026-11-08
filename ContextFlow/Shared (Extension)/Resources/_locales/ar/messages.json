@@ -1574,6 +1574,117 @@
  "watchChangedBody": {
   "message": "الآن: {0}"
  },
+ "planUltra": {
+  "message": "Ultra"
+ },
+ "plansTitle": {
+  "message": "الخطط"
+ },
+ "plansCompare": {
+  "message": "قارن الخطط"
+ },
+ "plansMonthly": {
+  "message": "شهري"
+ },
+ "plansYearly": {
+  "message": "سنوي"
+ },
+ "plansSave": {
+  "message": "وفّر {0}%"
+ },
+ "plansCurrent": {
+  "message": "خطتك"
+ },
+ "plansChoose": {
+  "message": "اختر {0}"
+ },
+ "plansPerMonth": {
+  "message": "{0} / شهر"
+ },
+ "plansPerYear": {
+  "message": "{0} / سنة"
+ },
+ "plansNote": {
+  "message": "الاشتراك يكون في تطبيق ContextFlow. الانتقال إلى Ultra يبدأ فورًا، وتعيد لك Apple قيمة ما تبقّى من خطتك الحالية."
+ },
+ "tierByok1": {
+  "message": "إجابات بلا حدود بمفتاح API الخاص بك من OpenAI أو Claude"
+ },
+ "tierByok2": {
+  "message": "كل ما في الصفحة: ملخصات وشروح وترجمات"
+ },
+ "tierPro1": {
+  "message": "حتى {0} إجابة أسبوعيًا، دون حاجة إلى مفتاح API"
+ },
+ "tierPro2": {
+  "message": "الفيديوهات وملفات PDF، وبحث AI، و«اسأل محادثاتك»، والترتيب حسب الموضوع"
+ },
+ "tierPro3": {
+  "message": "مراقبة حتى {0} صفحة: انخفاض الأسعار والتغييرات"
+ },
+ "tierUltra0": {
+  "message": "كل ما في Pro، وأيضًا:"
+ },
+ "tierUltra1": {
+  "message": "الاستماع إلى الإجابات والصفحات كاملة بصوت طبيعي: {0} دقيقة أسبوعيًا"
+ },
+ "tierUltra2": {
+  "message": "البحث عن المشابه: ما يشبه الصفحة المفتوحة من مواقع أخرى، {0} عملية بحث أسبوعيًا"
+ },
+ "tierUltra3": {
+  "message": "مراقبة حتى {0} صفحة"
+ },
+ "listen": {
+  "message": "استماع"
+ },
+ "listenPage": {
+  "message": "الاستماع إلى هذه الصفحة"
+ },
+ "listenPause": {
+  "message": "إيقاف مؤقت"
+ },
+ "listenPlay": {
+  "message": "تشغيل"
+ },
+ "listenStop": {
+  "message": "إيقاف"
+ },
+ "listenLoading": {
+  "message": "جارٍ تجهيز الصوت…"
+ },
+ "listenUltraTitle": {
+  "message": "الاستماع جزء من Ultra"
+ },
+ "listenUltraBody": {
+  "message": "تُقرأ لك الإجابات والصفحات كاملة بصوت طبيعي، بأكثر من 100 لغة. على iPhone يستمر التشغيل حتى مع قفل الشاشة."
+ },
+ "listenLimit": {
+  "message": "انتهت دقائق الاستماع لهذا الأسبوع ({0} دقيقة). تعود يوم {1}."
+ },
+ "listenFailed": {
+  "message": "تعذّرت القراءة بصوت عالٍ. حاول مرة أخرى بعد قليل."
+ },
+ "listenOffline": {
+  "message": "لا يوجد اتصال: يحتاج الاستماع إلى الإنترنت في المرة الأولى."
+ },
+ "listenInApp": {
+  "message": "جارٍ فتح ContextFlow: يستمر التشغيل حتى مع قفل الشاشة."
+ },
+ "listenLeft": {
+  "message": "الاستماع: تبقّى {0} من {1} د هذا الأسبوع"
+ },
+ "watchFullPro": {
+  "message": "في Pro يمكنك مراقبة {0} صفحة في وقت واحد. يراقب Ultra حتى {1}."
+ },
+ "watchMoreUltra": {
+  "message": "المزيد مع Ultra"
+ },
+ "seeUltra": {
+  "message": "اطّلع على Ultra"
+ },
+ "usageUltra": {
+  "message": "Ultra · تبقّى {0} من {1} إجابة هذا الأسبوع"
+ },
  "actSimilar": {
   "message": "ابحث عن مشابه"
  },
@@ -1678,6 +1789,9 @@
  },
  "similarOff": {
   "message": "ميزة «ابحث عن مشابه» غير متاحة بعد."
+ },
+ "similarLimit": {
+  "message": "استُخدمت عمليات «ابحث عن مشابه» لهذا الأسبوع ({0}). تعود يوم {1}."
  },
  "tip_4cf1b54b00": {
   "message": "تلميحات"
