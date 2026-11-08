@@ -1793,6 +1793,18 @@
  "similarLimit": {
   "message": "이번 주 '비슷한 것 찾기' {0}회를 모두 사용했습니다. {1}에 다시 채워집니다."
  },
+ "orgDemoQuestion": {
+  "message": "5월 리스본 저렴한 항공권?"
+ },
+ "orgDemoAnswer": {
+  "message": "5월 베를린–리스본 왕복 항공권은 약 90유로부터입니다. 6~8주 전에 예약하는 것이 좋아요."
+ },
+ "orgDemoTag": {
+  "message": "휴가"
+ },
+ "orgDemoChat": {
+  "message": "여행"
+ },
  "tip_4cf1b54b00": {
   "message": "팁"
  },

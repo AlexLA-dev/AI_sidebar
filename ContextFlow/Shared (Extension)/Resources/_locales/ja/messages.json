@@ -1793,6 +1793,18 @@
  "similarLimit": {
   "message": "今週の「似たものを探す」{0}回を使い切りました。{1}に戻ります。"
  },
+ "orgDemoQuestion": {
+  "message": "5月のリスボン行き格安航空券は？"
+ },
+ "orgDemoAnswer": {
+  "message": "5月のベルリン〜リスボン往復は約90ユーロから。6〜8週間前の予約がおすすめです。"
+ },
+ "orgDemoTag": {
+  "message": "休暇"
+ },
+ "orgDemoChat": {
+  "message": "旅行"
+ },
  "tip_4cf1b54b00": {
   "message": "ヒント"
  },

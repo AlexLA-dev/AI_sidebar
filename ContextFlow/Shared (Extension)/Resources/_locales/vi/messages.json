@@ -1793,6 +1793,18 @@
  "similarLimit": {
   "message": "Đã dùng hết {0} lượt «Tìm tương tự» của tuần này. Sẽ có lại vào {1}."
  },
+ "orgDemoQuestion": {
+  "message": "Vé máy bay giá rẻ đi Lisbon tháng 5?"
+ },
+ "orgDemoAnswer": {
+  "message": "Tháng 5, vé khứ hồi Berlin – Lisbon chỉ từ khoảng 90 euro. Nên đặt trước sáu đến tám tuần."
+ },
+ "orgDemoTag": {
+  "message": "kỳ nghỉ"
+ },
+ "orgDemoChat": {
+  "message": "Chuyến đi"
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },

@@ -1793,6 +1793,18 @@
  "similarLimit": {
   "message": "本周的 {0} 次“查找相似”已用完，{1}恢复。"
  },
+ "orgDemoQuestion": {
+  "message": "五月去里斯本的便宜机票？"
+ },
+ "orgDemoAnswer": {
+  "message": "五月从柏林到里斯本的往返机票约 90 欧元起，最好提前六到八周预订。"
+ },
+ "orgDemoTag": {
+  "message": "度假"
+ },
+ "orgDemoChat": {
+  "message": "旅行"
+ },
  "tip_4cf1b54b00": {
   "message": "技巧"
  },

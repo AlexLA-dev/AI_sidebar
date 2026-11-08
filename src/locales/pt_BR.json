@@ -619,5 +619,10 @@
   "similarUpsellWatch": "Preço e estoque como a página mostra, com Acompanhar preço.",
   "similarGetUltra": "Assinar Ultra",
   "similarOff": "\"Encontrar parecidos\" ainda não está disponível.",
-  "similarLimit": "As {0} buscas de \"Encontrar parecidos\" desta semana acabaram. Elas voltam na {1}."
+  "similarLimit": "As {0} buscas de \"Encontrar parecidos\" desta semana acabaram. Elas voltam na {1}.",
+
+  "orgDemoQuestion": "Voos baratos para Lisboa em maio?",
+  "orgDemoAnswer": "Em maio, voos de ida e volta de Berlim a Lisboa saem a partir de uns 90 euros. O ideal é reservar com seis a oito semanas de antecedência.",
+  "orgDemoTag": "férias",
+  "orgDemoChat": "Viagens"
 }

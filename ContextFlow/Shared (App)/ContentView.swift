@@ -95,6 +95,13 @@ struct ContentView: View {
     @State private var whatsNew = false
 
     private func showWhatsNewIfDue() {
+        #if DEBUG
+        // Screenshots of the sheet without chats: -CFDebugWhatsNew YES.
+        if UserDefaults.standard.bool(forKey: "CFDebugWhatsNew") {
+            whatsNew = true
+            return
+        }
+        #endif
         guard hasChats, !UserDefaults.standard.bool(forKey: "cf_whatsnew_organize") else { return }
         UserDefaults.standard.set(true, forKey: "cf_whatsnew_organize")
         whatsNew = true
@@ -942,17 +949,17 @@ struct ProView: View {
         }
     }
 
-    /// Organizing the chats (2.5): what it does, with its loop.
+    /// Organizing the chats (2.5): what it does, shown with the row the app really puts under an answer (2.6).
     private var organizing: some View {
-        HStack(alignment: .center, spacing: 16) {
-            OrganizeAnimation(big: true)
-            VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 10) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text("Sorts by topic").font(.headline)
                 Text("Suggests the right chat for what you just asked, and your own tag for it.")
                     .font(.callout)
                     .foregroundColor(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
+            OrganizePreview()
         }
         .onAppear { if !store.isPro { ChatAI.reportOrganize("organize_promo", ["action": "shown", "where": "pro_screen"]) } }
     }

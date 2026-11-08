@@ -620,5 +620,10 @@
   "similarUpsellWatch": "Prices and stock as the page shows them, with Watch price.",
   "similarGetUltra": "Get Ultra",
   "similarOff": "Find similar isn't available yet.",
-  "similarLimit": "This week's {0} Find similar searches are used. They come back on {1}."
+  "similarLimit": "This week's {0} Find similar searches are used. They come back on {1}.",
+
+  "orgDemoQuestion": "Cheap flights to Lisbon in May?",
+  "orgDemoAnswer": "In May, return flights from Berlin to Lisbon start at about 90 euros. It's best to book six to eight weeks ahead.",
+  "orgDemoTag": "vacation",
+  "orgDemoChat": "Trips"
 }

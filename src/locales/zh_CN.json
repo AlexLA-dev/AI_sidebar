@@ -619,5 +619,10 @@
   "similarUpsellWatch": "价格和库存与页面所示一致，还可关注价格。",
   "similarGetUltra": "获取 Ultra",
   "similarOff": "“查找相似”暂不可用。",
-  "similarLimit": "本周的 {0} 次“查找相似”已用完，{1}恢复。"
+  "similarLimit": "本周的 {0} 次“查找相似”已用完，{1}恢复。",
+
+  "orgDemoQuestion": "五月去里斯本的便宜机票？",
+  "orgDemoAnswer": "五月从柏林到里斯本的往返机票约 90 欧元起，最好提前六到八周预订。",
+  "orgDemoTag": "度假",
+  "orgDemoChat": "旅行"
 }

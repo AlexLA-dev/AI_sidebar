@@ -619,5 +619,10 @@
   "similarUpsellWatch": "Prix et stock tels que la page les affiche, avec Suivre le prix.",
   "similarGetUltra": "Passer à Ultra",
   "similarOff": "« Trouver similaire » n'est pas encore disponible.",
-  "similarLimit": "Les {0} recherches « Trouver similaire » de la semaine sont utilisées. Elles reviennent {1}."
+  "similarLimit": "Les {0} recherches « Trouver similaire » de la semaine sont utilisées. Elles reviennent {1}.",
+
+  "orgDemoQuestion": "Vols pas chers pour Lisbonne en mai ?",
+  "orgDemoAnswer": "En mai, les allers-retours Berlin–Lisbonne commencent vers 90 euros. Mieux vaut réserver six à huit semaines à l'avance.",
+  "orgDemoTag": "vacances",
+  "orgDemoChat": "Voyages"
 }
