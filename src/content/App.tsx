@@ -1045,11 +1045,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     partialRef.current = ""
     setPartial(null)
     setSimilarRun(null)
-    if (code === "PRO_ONLY" || code === "LIMIT_REACHED") {
+    if (code === "ULTRA_ONLY" || code === "PRO_ONLY" || code === "LIMIT_REACHED") {
       // Not in their plan after all (the server's word), or the week's searches are used: the question goes, a card
       // says so.
       setMessages(history.slice(0, -1))
-      setSimilarCard(code === "PRO_ONLY" ? "upsell" : { limit: usage ?? null })
+      setSimilarCard(code === "LIMIT_REACHED" ? { limit: usage ?? null } : "upsell")
       return
     }
     if (answer) {

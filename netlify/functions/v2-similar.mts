@@ -29,7 +29,7 @@ import { similarAllowed } from "../../src/shared/similar.ts"
  *   "a": {type:"result", engine:"a", intro, items:[{name, why, fit, met, url, host, title, source, checked, price?, stock?, date?}], note, condition}
  *   "b": {type:"delta", text} … {type:"grounding", text, grounding:{sources, suggestions, queries}}
  *   and {type:"done", ms, usd} — or {type:"error", code}. Before the stream: {code} with UNAVAILABLE (404: the
- *   engine is off), PRO_ONLY (403), BUSY (503), BAD_REQUEST (400).
+ *   engine is off), ULTRA_ONLY (403), LIMIT_REACHED (402, with the week's usage), BUSY (503), BAD_REQUEST (400).
  * Production reaches only the engines in SIMILAR_ENGINES (none by default). Off production, the evaluation
  * script (tools/similar/eval.mts) reaches both with its token (see `evaluation`): no plan, no counters,
  * nothing logged, and the run's details (search results, every page's verdict, spend) come with "done".
@@ -66,7 +66,9 @@ export default async (req: Request, context: Context): Promise<Response> => {
     access = await resolveAccess(body.entitlement, installId)
     if (!similarAllowed(access.plan)) {
       context.waitUntil(logEvent("pro_only", installId, { feature: "similar", plan: access.plan, platform, version, ...step }))
-      return json({ code: "PRO_ONLY", plan: access.plan, feature: "similar" }, 403)
+      // Ultra's own feature: the same code as read aloud's (the panel shows Ultra's card for it, and for PRO_ONLY
+      // from a server before 2.6's release candidate).
+      return json({ code: "ULTRA_ONLY", plan: access.plan, feature: "similar" }, 403)
     }
     // Ultra's weekly searches (plan.mts) and the engine's daily safety caps, charged together before anything runs.
     counters = [...similarCountersFor(access), ...similarCounters(installId, ipSubject(context.ip))]
