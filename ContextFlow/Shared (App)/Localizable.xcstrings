@@ -37357,6 +37357,1236 @@
           }
         }
       }
+    },
+    "What's in %@": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ما يتضمنه %@"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Was %@ bietet"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qué incluye %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce que %@ inclut"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cosa include %@"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@でできること"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@에 포함된 기능"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O que vem no %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Что есть в %@"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Що є в %@"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ có gì"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 包含的功能"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 包含的功能"
+          }
+        }
+      }
+    },
+    "Skip": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تخطي"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Überspringen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Omitir"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passer"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salta"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "スキップ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "건너뛰기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pular"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пропустить"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пропустити"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bỏ qua"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "跳过"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "略過"
+          }
+        }
+      }
+    },
+    "Next": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "التالي"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weiter"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Siguiente"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suivant"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avanti"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "次へ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다음"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Próximo"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Далее"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Далі"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiếp"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下一步"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下一步"
+          }
+        }
+      }
+    },
+    "Open Chats": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "فتح المحادثات"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chats öffnen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir Chats"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir les discussions"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri Chat"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "チャットを開く"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "채팅 열기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir Conversas"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Открыть чаты"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відкрити чати"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mở Trò chuyện"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开对话"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打開對話"
+          }
+        }
+      }
+    },
+    "Open Templates": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "فتح القوالب"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vorlagen öffnen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir Plantillas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir les modèles"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri Modelli"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "テンプレートを開く"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "템플릿 열기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir Modelos"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Открыть шаблоны"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відкрити шаблони"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mở Mẫu"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开模板"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打開範本"
+          }
+        }
+      }
+    },
+    "Suggestions are on.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الاقتراحات مفعّلة."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vorschläge sind an."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Las sugerencias están activadas."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les suggestions sont activées."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I suggerimenti sono attivi."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提案はオンです。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "추천이 켜져 있어요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "As sugestões estão ativadas."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подсказки включены."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Підказки увімкнено."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đã bật gợi ý."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "建议已开启。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "建議已開啟。"
+          }
+        }
+      }
+    },
+    "Videos and PDFs on the page": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الفيديوهات وملفات PDF في الصفحة"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Videos und PDFs auf der Seite"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vídeos y PDF de la página"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vidéos et PDF de la page"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Video e PDF della pagina"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ページの動画と PDF"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페이지의 동영상과 PDF"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vídeos e PDFs da página"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Видео и PDF на странице"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відео та PDF на сторінці"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Video và PDF trên trang"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "页面上的视频和 PDF"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "頁面上的影片和 PDF"
+          }
+        }
+      }
+    },
+    "ContextFlow now reads a video's transcript and the PDFs on a page. Ask as usual: answers point to the moment, like [4:15], or to the PDF's page.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يقرأ ContextFlow الآن نص الفيديو وملفات PDF في الصفحة. اسأل كالمعتاد: تشير الإجابة إلى اللحظة، مثل [4:15]، أو إلى صفحة ملف PDF."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow liest jetzt das Transkript eines Videos und die PDFs auf einer Seite. Frag wie gewohnt: Die Antwort nennt die Stelle, etwa [4:15], oder die Seite im PDF."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ahora ContextFlow lee la transcripción de un vídeo y los PDF de una página. Pregunta como siempre: la respuesta señala el momento, como [4:15], o la página del PDF."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow lit désormais la transcription d’une vidéo et les PDF d’une page. Posez vos questions comme d’habitude : la réponse indique le moment, par exemple [4:15], ou la page du PDF."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ora ContextFlow legge la trascrizione di un video e i PDF di una pagina. Chiedi come sempre: la risposta indica il momento, come [4:15], o la pagina del PDF."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow がページの動画の文字起こしと PDF も読み取るようになりました。いつもどおり質問すると、[4:15] のような場面や PDF のページを示して答えます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이제 ContextFlow가 페이지에 있는 동영상의 자막 전문과 PDF도 읽어요. 평소처럼 물어보면 [4:15]처럼 장면이나 PDF 페이지를 짚어 답해요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agora o ContextFlow lê a transcrição de um vídeo e os PDFs de uma página. Pergunte como sempre: a resposta aponta o momento, como [4:15], ou a página do PDF."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Теперь ContextFlow читает транскрипт видео и PDF на странице. Спрашивайте как обычно: ответ укажет момент, например [4:15], или страницу PDF."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тепер ContextFlow читає транскрипт відео й PDF на сторінці. Запитуйте як завжди: відповідь вкаже момент, наприклад [4:15], або сторінку PDF."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Giờ ContextFlow đọc cả bản chép lời của video và các tệp PDF trên trang. Cứ hỏi như bình thường: câu trả lời sẽ chỉ ra thời điểm, ví dụ [4:15], hoặc trang trong PDF."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow 现在也会读取页面上视频的字幕全文和 PDF。照常提问即可：回答会指出时间点，例如 [4:15]，或 PDF 的页码。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ContextFlow 現在也會讀取頁面上影片的逐字稿和 PDF。照常提問即可：回答會指出對應的時間點，例如 [4:15]，或 PDF 的頁碼。"
+          }
+        }
+      }
+    },
+    "Search and ask your chats": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ابحث في محادثاتك واسألها"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chats durchsuchen und fragen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Busca y pregunta a tus chats"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cherchez dans vos discussions et interrogez-les"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cerca nelle chat e chiedi"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "チャットを探す・質問する"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "채팅 검색과 질문"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Busque e pergunte às suas conversas"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поиск и вопросы по чатам"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пошук і запитання до чатів"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tìm và hỏi các cuộc trò chuyện"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜索和询问你的对话"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜尋並詢問你的對話"
+          }
+        }
+      }
+    },
+    "In Chats, tap ✦ by the search and describe the chat you remember. Ask your chats, at the top of the list, answers from all your chats at once.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "في المحادثات، اضغط على ✦ بجانب البحث وصِف المحادثة التي تتذكرها. «اسأل محادثاتك» في أعلى القائمة يجيب من كل محادثاتك دفعة واحدة."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tippe in „Chats“ auf ✦ neben der Suche und beschreibe den Chat, an den du dich erinnerst. „Frag deine Chats“ ganz oben in der Liste antwortet aus allen Chats zugleich."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En Chats, toca ✦ junto a la búsqueda y describe el chat que recuerdas. «Pregunta a tus chats», arriba en la lista, responde a partir de todos tus chats a la vez."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dans Discussions, touchez ✦ à côté de la recherche et décrivez la discussion dont vous vous souvenez. « Interroger vos discussions », en haut de la liste, répond à partir de toutes vos discussions à la fois."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Chat, tocca ✦ accanto alla ricerca e descrivi la chat che ricordi. «Chiedi alle tue chat», in cima all’elenco, risponde da tutte le chat insieme."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「チャット」で検索の横の ✦ をタップし、覚えているチャットを説明します。リストの一番上の「すべてのチャットに質問」は、すべてのチャットからまとめて答えます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "채팅에서 검색 옆 ✦를 탭하고 기억나는 채팅을 설명하세요. 목록 맨 위의 ‘모든 채팅에 묻기’는 모든 채팅을 한꺼번에 보고 답해요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Em Conversas, toque em ✦ ao lado da busca e descreva a conversa de que se lembra. “Pergunte às suas conversas”, no topo da lista, responde com base em todas as suas conversas de uma vez."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В «Чатах» нажмите ✦ рядом с поиском и опишите чат, который помните. «Вопросы по всем чатам» вверху списка отвечают сразу по всем чатам."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "У «Чатах» натисніть ✦ поруч із пошуком і опишіть чат, який пам’ятаєте. «Питання про всі чати» вгорі списку відповідають одразу з усіх чатів."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trong Trò chuyện, chạm vào ✦ cạnh ô tìm kiếm và mô tả cuộc trò chuyện bạn nhớ. “Hỏi các cuộc trò chuyện” ở đầu danh sách trả lời dựa trên tất cả cuộc trò chuyện cùng lúc."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在“对话”中点按搜索旁的 ✦，描述你记得的对话。列表顶部的“问问你的所有对话”会一次根据你所有的对话来回答。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在「對話」中點一下搜尋旁的 ✦，描述你記得的對話。列表頂端的「詢問你的所有對話」會一次根據你所有的對話來回答。"
+          }
+        }
+      }
+    },
+    "Sorted by topic": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "مرتبة حسب الموضوع"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nach Themen sortiert"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ordenado por temas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rangé par thème"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ordinate per argomento"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "トピックで整理"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "주제별 정리"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Organizado por tema"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сортировка по темам"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сортування за темами"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sắp xếp theo chủ đề"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按主题整理"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "依主題整理"
+          }
+        }
+      }
+    },
+    "Listen": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "استماع"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anhören"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escuchar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Écouter"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ascolta"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "読み上げ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "듣기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvir"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Слушать"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Слухати"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nghe"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "朗读"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "朗讀"
+          }
+        }
+      }
+    },
+    "Tap Listen under an answer, or choose Listen to this page in the … menu at the top of the panel. A natural voice reads it aloud.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اضغط «استماع» تحت الإجابة، أو اختر «الاستماع إلى هذه الصفحة» من قائمة … أعلى اللوحة. يقرأ صوت طبيعي النص بصوت عالٍ."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tippe unter einer Antwort auf „Anhören“ oder wähle „Diese Seite anhören“ im Menü „…“ oben im Panel. Eine natürliche Stimme liest den Text vor."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toca «Escuchar» bajo una respuesta, o elige «Escuchar esta página» en el menú «…» arriba del panel. Una voz natural lee el texto en voz alta."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touchez « Écouter » sous une réponse, ou choisissez « Écouter cette page » dans le menu « … » en haut du panneau. Une voix naturelle lit le texte à voix haute."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tocca «Ascolta» sotto una risposta, oppure scegli «Ascolta questa pagina» nel menu «…» in alto nel pannello. Una voce naturale legge il testo ad alta voce."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "回答の下の「読み上げ」をタップするか、パネル上部の「…」メニューから「このページを読み上げ」を選びます。自然な声で読み上げます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "답변 아래 ‘듣기’를 탭하거나, 패널 위쪽 ‘…’ 메뉴에서 ‘이 페이지 듣기’를 고르세요. 자연스러운 목소리로 읽어 줘요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toque em “Ouvir” abaixo de uma resposta, ou escolha “Ouvir esta página” no menu “…” no topo do painel. Uma voz natural lê o texto em voz alta."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нажмите «Слушать» под ответом или выберите «Слушать эту страницу» в меню «…» вверху панели. Текст прочитает естественный голос."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Натисніть «Слухати» під відповіддю або виберіть «Слухати цю сторінку» в меню «…» угорі панелі. Текст прочитає природний голос."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chạm vào Nghe dưới câu trả lời, hoặc chọn Nghe trang này trong menu … ở đầu bảng. Một giọng đọc tự nhiên sẽ đọc to văn bản."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "轻点回答下方的“朗读”，或在面板顶部的“…”菜单中选择“朗读此页面”。自然的声音会把内容读出来。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "點一下回答下方的「朗讀」，或在面板頂部的「…」選單中選擇「朗讀這個頁面」。自然的聲音會把內容讀出來。"
+          }
+        }
+      }
+    },
+    "Find similar": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ابحث عن مشابه"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ähnliches finden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buscar similares"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trouver similaire"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trova simili"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "似たものを探す"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "비슷한 것 찾기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encontrar parecidos"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Найти похожее"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Знайти схоже"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tìm tương tự"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "查找相似"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "尋找相似"
+          }
+        }
+      }
+    },
+    "Tap Find similar in the panel, or select text on the page and tap Similar. You get real alternatives — cheaper, newer, in stock or in your language. Every link is opened and checked before you see it.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اضغط «ابحث عن مشابه» في اللوحة، أو حدد نصًا في الصفحة واضغط «مشابه». ستحصل على بدائل حقيقية — أرخص أو أحدث أو متوفرة أو بلغتك. نفتح كل رابط ونتحقق منه قبل أن تراه."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tippe im Panel auf „Ähnliches finden“ oder markiere Text auf der Seite und tippe auf „Ähnliches“. Du bekommst echte Alternativen – günstiger, neuer, verfügbar oder in deiner Sprache. Jeder Link wird geöffnet und geprüft, bevor du ihn siehst."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toca «Buscar similares» en el panel, o selecciona texto en la página y toca «Similares». Obtienes alternativas reales: más baratas, más nuevas, disponibles o en tu idioma. Cada enlace se abre y se comprueba antes de que lo veas."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touchez « Trouver similaire » dans le panneau, ou sélectionnez du texte sur la page et touchez « Similaires ». Vous obtenez de vraies alternatives : moins chères, plus récentes, en stock ou dans votre langue. Chaque lien est ouvert et vérifié avant que vous le voyiez."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tocca «Trova simili» nel pannello, oppure seleziona del testo sulla pagina e tocca «Simili». Ottieni alternative reali: più economiche, più recenti, disponibili o nella tua lingua. Ogni link viene aperto e verificato prima che tu lo veda."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "パネルの「似たものを探す」をタップするか、ページのテキストを選択して「似たもの」をタップします。より安い、より新しい、在庫あり、自分の言語で、といった実在する代わりの候補が見つかります。リンクはすべて開いて確認してから表示します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "패널에서 ‘비슷한 것 찾기’를 탭하거나, 페이지에서 텍스트를 선택하고 ‘비슷한 것’을 탭하세요. 더 싸거나, 더 새롭거나, 재고가 있거나, 내 언어로 된 실제 대안을 찾아 줘요. 모든 링크는 열어서 확인한 뒤 보여 드려요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toque em “Encontrar parecidos” no painel, ou selecione um texto na página e toque em “Parecidos”. Você recebe alternativas reais: mais baratas, mais novas, em estoque ou no seu idioma. Cada link é aberto e verificado antes de você ver."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нажмите «Найти похожее» в панели или выделите текст на странице и нажмите «Похожее». Вы получите настоящие альтернативы — дешевле, новее, в наличии или на вашем языке. Каждую ссылку мы открываем и проверяем, прежде чем показать."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Натисніть «Знайти схоже» в панелі або виділіть текст на сторінці й натисніть «Схоже». Ви отримаєте справжні альтернативи — дешевше, новіше, в наявності або вашою мовою. Кожне посилання ми відкриваємо й перевіряємо, перш ніж показати."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chạm vào Tìm tương tự trong bảng, hoặc chọn văn bản trên trang rồi chạm Tương tự. Bạn nhận được những lựa chọn thay thế có thật — rẻ hơn, mới hơn, còn hàng hoặc bằng ngôn ngữ của bạn. Mọi liên kết đều được mở và kiểm tra trước khi bạn xem."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在面板中轻点“查找相似”，或在页面上选中文字后轻点“相似”。你会得到真实的替代选择——更便宜、更新、有货或用你的语言。每个链接都会先打开检查，再给你看。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在面板中點一下「尋找相似」，或在頁面上選取文字後點一下「相似」。你會得到真實的替代選擇——更便宜、更新、有貨或用你的語言。每個連結都會先開啟檢查，再給你看。"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

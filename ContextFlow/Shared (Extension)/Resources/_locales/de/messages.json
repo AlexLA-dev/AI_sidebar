@@ -755,6 +755,60 @@
  "uxShowIntro": {
   "message": "Einführung erneut zeigen"
  },
+ "ptMenu": {
+  "message": "Was {0} bietet"
+ },
+ "ptProMediaTitle": {
+  "message": "Pro: Videos und PDFs"
+ },
+ "ptProMediaBody": {
+  "message": "Hat eine Seite ein Video oder ein PDF, liest ContextFlow jetzt auch diese: die Untertitel des Videos und den Text des PDFs. Frag einfach."
+ },
+ "ptProChatsTitle": {
+  "message": "Chats durchsuchen und fragen"
+ },
+ "ptProChatsBody": {
+  "message": "In deinen Chats findet ✦ einen Chat anhand einer Beschreibung, und „{0}“ antwortet aus allem, was du gelesen und gefragt hast."
+ },
+ "ptProChatListTitle": {
+  "message": "Genau hier"
+ },
+ "ptProChatListBody": {
+  "message": "Schalte ✦ neben der Suche ein und beschreib den gesuchten Chat, oder tippe auf „{0}“, um alle Chats auf einmal zu fragen."
+ },
+ "ptProSortTitle": {
+  "message": "Nach Themen sortiert"
+ },
+ "ptProSortBody": {
+  "message": "Nach einer Antwort schlägt eine Zeile darunter ein Tag oder einen Ordner für den Chat vor. Ein Tippen sortiert ihn ein, und du kannst es rückgängig machen."
+ },
+ "ptProTemplatesTitle": {
+  "message": "Vorlagen"
+ },
+ "ptProTemplatesBody": {
+  "message": "Markiere Text und tippe auf „{0}“, um ihn zu behalten, und füge ihn dann in jedes Feld ein. So viele du brauchst."
+ },
+ "ptProWatchTitle": {
+  "message": "Bis zu 20 Seiten beobachten"
+ },
+ "ptProWatchBody": {
+  "message": "Unter „…“ meldet „{0}“, wenn sich die Seite ändert: ein Preis, ein Datum, ein neuer Beitrag."
+ },
+ "ptUltraListenTitle": {
+  "message": "Ultra: anhören"
+ },
+ "ptUltraListenBody": {
+  "message": "Tippe unter einer Antwort auf „{0}“ oder unter „…“ auf „{1}“: Der Text wird fürs Hören umgeschrieben und vorgelesen."
+ },
+ "ptUltraSimilarBody": {
+  "message": "Echte Alternativen zu dem, was du dir ansiehst, jeder Link geöffnet und geprüft. Tippe hier oder unter „…“ auf „{0}“, oder markiere Text und tippe auf „{1}“."
+ },
+ "ptUltraWatchTitle": {
+  "message": "Bis zu 50 Seiten beobachten"
+ },
+ "ptUltraWatchBody": {
+  "message": "Unter „…“ beobachtet „{0}“ jetzt bis zu 50 Seiten gleichzeitig."
+ },
  "welcomeTitle": {
   "message": "ContextFlow ist bereit"
  },
@@ -1690,6 +1744,9 @@
  },
  "actSimilar": {
   "message": "Ähnliches finden"
+ },
+ "selSimilar": {
+  "message": "Ähnliches"
  },
  "uxSimilar": {
   "message": "Ähnliches finden…"

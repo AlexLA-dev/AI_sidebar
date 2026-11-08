@@ -43,6 +43,8 @@ export interface Entry extends ChatTurn {
   // "Find similar" (2.6): on the question, the condition in the person's words ("" for none); on the answer, the
   // checked list (its text is the same list in Markdown, for copying, sharing and the app).
   similarAsk?: string
+  // …and, asked from a selection, what was selected (its subject; asked again with it).
+  similarSel?: string
   similar?: SimilarAnswer
   // User turns: where they were asked, and whether the page had changed since the last question there.
   page?: PageRef
