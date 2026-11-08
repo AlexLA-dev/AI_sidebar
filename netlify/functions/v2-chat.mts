@@ -44,11 +44,11 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const fromApp = wholeChat && body.from === "app"
   // "Ask your chats": answered from a digest of all the user's chats instead of a page (Pro).
   const history = body.context === "history"
-  const messages = sanitizeMessages(body.messages, wholeChat)
+  let messages = sanitizeMessages(body.messages, wholeChat)
   if (!messages) return json({ code: "BAD_REQUEST", message: "messages required" }, 400)
   const sent = history ? null : sanitizePage(body.page)
   const chats = history ? sanitizeDigests(body.history, MAX_HISTORY_CHATS, MAX_HISTORY_CHARS) : []
-  const others = wholeChat ? sanitizeOtherPages(body.pages, fromApp ? MAX_APP_OTHER_PAGES : MAX_OTHER_PAGES) : []
+  let others = wholeChat ? sanitizeOtherPages(body.pages, fromApp ? MAX_APP_OTHER_PAGES : MAX_OTHER_PAGES) : []
   const client = (body.client ?? {}) as Record<string, unknown>
   const platform = clip(client.platform, 20)
   const version = clip(client.version, 20)
@@ -66,6 +66,14 @@ export default async (req: Request, context: Context): Promise<Response> => {
   if (google && !settings.geminiKey) return json({ code: "SEARCH_UNAVAILABLE", message: "Google search is not available right now." }, 503)
 
   const access = await resolveAccess(body.entitlement, installId)
+  // 2.6 (build 91): the whole chat (every message, the notes, its other pages) is Pro's memory. A free request for it
+  // (a 2.5 panel with "Whole chat" on, a chat continued in the app) is answered as any free answer, with the last
+  // messages only: trimmed, never refused.
+  const memory = wholeChat && hasPro(access.plan)
+  if (wholeChat && !memory) {
+    messages = sanitizeMessages(body.messages, false) ?? messages
+    others = []
+  }
   // Video transcripts and PDFs are Pro: for anyone else they're left out here, whatever the panel sent.
   const page = sent && pageForModel(sent, hasPro(access.plan))
   // Pro features are checked here, not in the panel: nothing is charged or asked without Pro.
@@ -205,7 +213,9 @@ export default async (req: Request, context: Context): Promise<Response> => {
       ...(page?.media ? { media: page.media } : {}),
       ...(page?.skipped?.length ? { skipped: page.skipped.join(",") } : {}),
       history: messages.length,
-      ...(wholeChat ? { whole_chat: true, other_pages: others.length } : {}),
+      ...(memory ? { whole_chat: true, other_pages: others.length } : {}),
+      // Asked for the whole chat without Pro: answered with the last messages (build 91).
+      ...(wholeChat && !memory ? { memory_trimmed: true } : {}),
       ...(history ? { history_chats: chats.length, history_chars: chats.reduce((n, c) => n + c.text.length, 0) } : {}),
       // The limits it ran into (cf_limits_report), and how big the user's chat is (2.4).
       ...limitsHit({ sent, page, sentMessages: Array.isArray(body.messages) ? body.messages.length : 0, messages: messages.length, others, answerCut: stats.cut === true }),

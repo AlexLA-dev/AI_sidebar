@@ -62,6 +62,16 @@ function reasonOf(err: unknown): string {
 }
 
 /**
+ * The messages with a cache breakpoint on the last one, once there's a conversation to keep (a first question has
+ * nothing before it worth caching).
+ */
+export function cachedConversation(messages: ChatMessage[]): Array<ChatMessage | { role: "user" | "assistant"; content: Array<{ type: "text"; text: string; cache_control: { type: "ephemeral" } }> }> {
+  if (messages.length < 3) return messages
+  const last = messages[messages.length - 1]
+  return [...messages.slice(0, -1), { role: last.role, content: [{ type: "text", text: last.content, cache_control: { type: "ephemeral" } }] }]
+}
+
+/**
  * Starts a Claude answer and waits for its first words, so that anything going wrong before them
  * (an HTTP error, a refusal, an empty answer, no first word in time) can still be answered by OpenAI.
  */
@@ -96,7 +106,9 @@ async function startClaude(system: SystemSource, messages: ChatMessage[], tier: 
       { type: "text", text: cached, cache_control: { type: "ephemeral" } },
       ...(rest ? [{ type: "text" as const, text: rest }] : [])
     ],
-    messages,
+    // The conversation is cached as well (build 91: Pro remembers the whole chat): the next question in the chat
+    // reads it at a tenth of the price instead of paying for every earlier message again.
+    messages: cachedConversation(messages),
     output_config: { effort },
     betas: ["server-side-fallback-2026-07-01"],
     fallbacks: "default"
