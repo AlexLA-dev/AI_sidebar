@@ -597,7 +597,7 @@
   "listenLimit": "這週的 {0} 分鐘朗讀時間已用完，{1}會恢復。",
   "listenFailed": "無法朗讀。請稍後再試。",
   "listenOffline": "沒有網路連線：第一次朗讀需要連上網路。",
-  "listenInApp": "正在打開 ContextFlow：鎖定螢幕後也會繼續播放。",
+  "listenInApp": "朗讀在 ContextFlow App 中播放，所以鎖定螢幕後也會繼續播放，戴著耳機也能一直聽。",
   "listenLeft": "朗讀：本週剩餘 {0}/{1} 分鐘",
   "watchFullPro": "Pro 方案可同時追蹤 {0} 個頁面。Ultra 最多可追蹤 {1} 個。",
   "watchMoreUltra": "Ultra 可追蹤更多",
@@ -696,5 +696,12 @@
   "gSimilar3": "附頭枕的椅子",
   "gSimilarInStock": "有貨",
   "gSimilarNewer": "更新",
-  "gSimilarCheaper": "更便宜"
+  "gSimilarCheaper": "更便宜",
+
+  "listenMinLeft": "剩餘 {0} 分鐘",
+  "listenMinLeftTitle": "本週剩餘 {0} 分鐘朗讀時間",
+  "listenLow": "本週還剩約 {0} 分鐘朗讀時間，這段內容大約需要 {1} 分鐘。時間用完時，朗讀會在那裡停止。",
+  "listenAnyway": "仍然朗讀",
+  "plansUpgrade": "升級到 {0}",
+  "plansUpgradeYearly": "升級到年繳"
 }

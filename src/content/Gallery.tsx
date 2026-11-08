@@ -33,7 +33,10 @@ const price = (value: number, currency = "USD") => value.toLocaleString(undefine
 export function Gallery({ facts, ultra = false }: { facts: PlanFacts | undefined; ultra?: boolean }): VNode {
   const [index, setIndex] = useState(ultra ? ULTRA_FROM : 0)
   const [forward, setForward] = useState(true)
-  const touch = useRef<number | null>(null)
+  const touch = useRef<{ x: number; y: number; horizontal: boolean | null } | null>(null)
+  // A trackpad's two-finger swipe (Mac, iPad with a Magic Keyboard): the sideways scroll adds up to one step, then
+  // waits for the gesture (and its glide) to end before the next one.
+  const wheel = useRef({ sum: 0, lockedUntil: 0, last: 0 })
   const slide = SLIDES[index]
   const isUltra = index >= ULTRA_FROM
   const go = (to: number) => {
@@ -78,29 +81,68 @@ export function Gallery({ facts, ultra = false }: { facts: PlanFacts | undefined
         e.preventDefault()
         e.stopPropagation()
       }}
-      onTouchStart={(e) => (touch.current = e.touches[0]?.clientX ?? null)}
+      // A sideways swipe moves the slides and nothing else (build 91: the sheet jumped); an up-and-down one scrolls.
+      onTouchStart={(e) => {
+        const p = e.touches[0]
+        touch.current = p ? { x: p.clientX, y: p.clientY, horizontal: null } : null
+      }}
+      onTouchMove={(e) => {
+        const from = touch.current
+        const p = e.touches[0]
+        if (!from || !p) return
+        if (from.horizontal === null && (Math.abs(p.clientX - from.x) > 8 || Math.abs(p.clientY - from.y) > 8)) {
+          from.horizontal = Math.abs(p.clientX - from.x) > Math.abs(p.clientY - from.y)
+        }
+        if (from.horizontal) e.preventDefault()
+      }}
       onTouchEnd={(e) => {
         const from = touch.current
         touch.current = null
         const to = e.changedTouches[0]?.clientX
-        if (from === null || to === undefined) return
-        if (to - from < -40) go(index + 1)
-        else if (to - from > 40) go(index - 1)
+        if (!from || !from.horizontal || to === undefined) return
+        if (to - from.x < -40) go(index + 1)
+        else if (to - from.x > 40) go(index - 1)
+      }}
+      onWheel={(e) => {
+        if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return
+        e.preventDefault()
+        const w = wheel.current
+        const now = Date.now()
+        if (now - w.last > 250) w.sum = 0
+        w.last = now
+        if (now < w.lockedUntil) {
+          w.lockedUntil = now + 250
+          return
+        }
+        w.sum += e.deltaX
+        if (Math.abs(w.sum) > 50) {
+          go(index + (w.sum > 0 ? 1 : -1))
+          w.sum = 0
+          w.lockedUntil = now + 450
+        }
       }}>
       <div class="cf-gallery-head">
         <strong>{t("galleryTitle")}</strong>
         <button type="button" class={`cf-tier-chip pro ${isUltra ? "dim" : ""}`} aria-pressed={!isUltra} onClick={() => go(0)}>{t("planPro")}</button>
         <button type="button" class={`cf-tier-chip ultra ${isUltra ? "" : "dim"}`} aria-pressed={isUltra} onClick={() => go(ULTRA_FROM)}>{t("planUltra")}</button>
       </div>
+      {/* Every slide in the same place, only one shown: the gallery is as tall as its tallest slide, so turning a
+          slide never moves the sheet. */}
       <div class="cf-gallery-stage">
-        <div key={slide} class={`cf-gallery-slide ${forward ? "fwd" : "back"}`} role="group" aria-roledescription="slide" aria-label={`${index + 1} / ${SLIDES.length}`}>
-          <div class="cf-gallery-title">
-            <span class={`cf-tier-chip ${isUltra ? "ultra" : "pro"}`}>{isUltra ? t("planUltra") : t("planPro")}</span>
-            <strong>{title[slide]}</strong>
-          </div>
-          <p class="cf-gallery-line">{line[slide]}</p>
-          {slide === "organize" ? <OrganizePreview /> : <div class="cf-gallery-sample" aria-hidden="true">{sample(slide, watchUltra, weekly, daily)}</div>}
-        </div>
+        {SLIDES.map((s, i) => {
+          const on = i === index
+          const ultraSlide = i >= ULTRA_FROM
+          return (
+            <div key={on ? `${s}-on` : s} class={`cf-gallery-slide ${on ? `on ${forward ? "fwd" : "back"}` : ""}`} role="group" aria-roledescription="slide" aria-label={`${i + 1} / ${SLIDES.length}`} aria-hidden={on ? undefined : "true"}>
+              <div class="cf-gallery-title">
+                <span class={`cf-tier-chip ${ultraSlide ? "ultra" : "pro"}`}>{ultraSlide ? t("planUltra") : t("planPro")}</span>
+                <strong>{title[s]}</strong>
+              </div>
+              <p class="cf-gallery-line">{line[s]}</p>
+              {s === "organize" ? <OrganizePreview /> : <div class="cf-gallery-sample" aria-hidden="true">{sample(s, watchUltra, weekly, daily)}</div>}
+            </div>
+          )
+        })}
       </div>
       <div class="cf-gallery-nav">
         <button type="button" class="cf-icon-btn" disabled={index === 0} onClick={() => go(index - 1)} aria-label={t("galleryPrevious")}>‹</button>

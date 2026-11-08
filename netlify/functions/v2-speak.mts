@@ -1,4 +1,5 @@
 import type { Config, Context } from "@netlify/functions"
+import { createHash } from "node:crypto"
 
 import { config as settings } from "../shared/config.mts"
 import { consume, logEvent, refund, touchInstall, type Counter } from "../shared/db.mts"
@@ -57,11 +58,22 @@ export default async (req: Request, context: Context): Promise<Response> => {
     return new Response(null, { status: 200, headers: { ...corsHeaders, "Content-Type": `audio/L16; rate=${SPEECH_RATE}; channels=1`, "Cache-Control": "no-store" } })
   }
 
-  const charged = speechSeconds(text)
-  const counters = speakCountersFor(access, charged, part > 0)
+  // The same part asked for again the same day (a download that broke off on the device, the text heard again, or on
+  // another of the subscriber's devices): spoken again, never charged again (build 91: one part was charged twice).
+  const otid = access.entitlement?.originalTransactionId ?? installId
+  const repeatSubject = `speakrep:${createHash("sha256").update(`${otid}|${lang}|${text}`).digest("hex").slice(0, 32)}`
+  let repeat = false
+  try {
+    repeat = !(await consume([{ subject: repeatSubject, period: "day", limit: 1 }])).allowed
+  } catch {
+    repeat = false
+  }
+  const charged = repeat ? 0 : speechSeconds(text)
+  const counters = speakCountersFor(access, speechSeconds(text), part > 0)
   let quota
   try {
-    quota = await consume(counters)
+    // A repeat only reads the week's seconds (nothing added, nothing refused).
+    quota = await consume(repeat ? counters.map((c) => ({ ...c, amount: 0, limit: null })) : counters)
   } catch (err) {
     console.error("[cf] consume failed:", err instanceof Error ? err.message : err)
     quota = { allowed: true, blocked: null, counters: counters.map((c) => ({ ...c, n: c.amount ?? 0 })) }
@@ -77,11 +89,11 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const started = Date.now()
   let speech
   try {
-    speech = await startSpeech(text, kind, req.signal)
+    speech = await startSpeech(text, kind, req.signal, clip(body.model, 64))
   } catch (err) {
     console.error("[cf] speak failed:", err instanceof Error ? err.message : err)
     context.waitUntil(Promise.all([
-      refund(counters).catch(() => undefined),
+      repeat ? Promise.resolve() : refund(counters).catch(() => undefined),
       logEvent("upstream_error", installId, { message: err instanceof Error ? err.message.slice(0, 300) : "unknown", mode: "speak", provider: "gemini", platform, version })
     ]))
     return json({ code: "UPSTREAM", message: "Read aloud is busy. Please try again in a moment." }, 502)
@@ -115,7 +127,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
 
   // Debug and TestFlight builds mark their traffic, which /analytics leaves out.
   const test = client.audience === "test"
-  const info = { started, chars: text.length, lang: (lang || locale).toLowerCase().split(/[-_]/)[0].slice(0, 8), what, part, parts, platform, version, locale, test }
+  const info = { started, chars: text.length, lang: (lang || locale).toLowerCase().split(/[-_]/)[0].slice(0, 8), what, part, parts, platform, version, locale, repeat, test }
 
   // Measuring on a deploy preview (the eval token, report: true): the whole part, then what it took and cost.
   if (evaluated && body.report === true) {
@@ -151,12 +163,15 @@ export default async (req: Request, context: Context): Promise<Response> => {
 /** After the part: the charge becomes the audio's real length (more or less than the estimate), and the log line. */
 async function settle(
   plan: string, installId: string, counters: Counter[], charged: number, stats: SpeechStats, failure: string | null,
-  info: { started: number; chars: number; lang: string; what: string; part: number; parts: number; platform: string; version: string; locale: string; test: boolean }
+  info: { started: number; chars: number; lang: string; what: string; part: number; parts: number; platform: string; version: string; locale: string; test: boolean; repeat: boolean }
 ): Promise<void> {
   const seconds = Math.ceil(stats.bytes / (SPEECH_RATE * 2))
   const diff = charged - seconds
   try {
-    if (diff > 0) await refund(counters.map((c) => ({ ...c, amount: diff })))
+    // A repeat was never charged: nothing to settle.
+    if (info.repeat) {
+      // Nothing.
+    } else if (diff > 0) await refund(counters.map((c) => ({ ...c, amount: diff })))
     // Longer than estimated: the rest is charged too, never refused halfway.
     else if (diff < 0) await consume(counters.map((c) => ({ ...c, amount: -diff, limit: null })))
   } catch (err) {
@@ -177,6 +192,7 @@ async function settle(
       chars: info.chars,
       lang: info.lang,
       charged_s: charged,
+      ...(info.repeat ? { repeat: true } : {}),
       audio_s: Math.round((stats.bytes / (SPEECH_RATE * 2)) * 10) / 10,
       first_audio_ms: stats.firstAudioMs,
       ms: Date.now() - info.started,
