@@ -17,6 +17,8 @@
 //                                                              (read aloud with the real voices: /api/v2/speak goes
 //                                                              to that deploy preview, each request signed with the
 //                                                              measuring key, see netlify/shared/plan.mts evalCheck)
+//   SPEAK_FAIL_FROM_PART=1 …                                   (read aloud: every part from that one on fails with
+//                                                              502, as a connection lost mid-text)
 //   PREVIEW_CLAUDE=credits|overloaded|refusal|off …            (answers come from a scripted Claude; these make
 //                                                              it fail that way, so OpenAI answers; off: no key)
 //   FIRST_WORD_DELAY_MS=4000 …                                 (an answer's first word comes that late: time to
@@ -400,7 +402,17 @@ const proxied = async (path: string): Promise<typeof chat | null> => {
     return new Response(res.body, { status: res.status, headers })
   }) as typeof chat
 }
-const speak: typeof chat = (await proxied("/api/v2/speak")) ?? localSpeak
+const speakAny: typeof chat = (await proxied("/api/v2/speak")) ?? localSpeak
+// SPEAK_FAIL_FROM_PART=1: every part from that one on fails (502), as a lost connection mid-text would (build 90: the
+// device must stop in the same voice and offer "Try again", never hand the rest to another voice).
+const speak: typeof chat = (async (req: Request, context: Parameters<typeof chat>[1]) => {
+  const failFrom = Number(process.env.SPEAK_FAIL_FROM_PART ?? NaN)
+  if (!Number.isFinite(failFrom)) return speakAny(req, context)
+  const text = await req.text()
+  const part = Number(JSON.parse(text || "{}").part ?? 0)
+  if (part >= failFrom) return Response.json({ code: "UPSTREAM", message: "Read aloud is busy. Please try again in a moment." }, { status: 502 })
+  return speakAny(new Request(req.url, { method: req.method, headers: req.headers, body: text }), context)
+}) as typeof chat
 const speakScript: typeof chat = (await proxied("/api/v2/speak-script")) ?? localScript
 const handlers: Record<string, typeof chat> = { "/api/v2/speak": speak, "/api/v2/speak-script": speakScript, "/api/v2/chat": chat, "/api/v2/status": status, "/api/v2/event": event, "/api/v2/find": find, "/api/v2/promo": promo, "/api/v2/insert": insert, "/api/v2/organize": organize, "/api/v2/watch": watch }
 

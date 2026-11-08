@@ -111,11 +111,15 @@ final class StoreKitManager: ObservableObject {
     }
 
     /// A monthly Pro or Ultra subscriber whose plan is also sold yearly: what switching saves (Settings, the panel).
+    /// Gone once the switch is made (yearly starts at the renewal; until then the month runs on).
     var yearlySwitch: (tier: Tier, deal: YearlyDeal, product: Product)? {
         guard let tier, tier != .byok, product(tier, yearly: false)?.id == entitlement.productId,
-              let yearly = product(tier, yearly: true), let deal = yearlyDeal(tier) else { return nil }
+              let yearly = product(tier, yearly: true), renewsTo != yearly.id, let deal = yearlyDeal(tier) else { return nil }
         return (tier, deal, yearly)
     }
+
+    /// The product the subscription renews into (a switch to yearly shows here before it starts).
+    @Published private(set) var renewsTo: String?
 
     /// What the plans say, from the server (the defaults until it answers).
     @Published private(set) var planFacts = ChatAI.PlanFacts()
@@ -313,6 +317,7 @@ final class StoreKitManager: ObservableObject {
             value = SharedEntitlement(active: false, productId: nil, expiresAt: nil, jws: nil, updatedAt: Date())
         }
         let before = entitlement.active ? Tier.of(entitlement.productId) : nil
+        if let best { renewsTo = await Self.renewalProduct(of: best.transaction) }
         entitlement = value
         SharedDefaults.shared.writeEntitlement(value)
         // Build 90: a plan that starts (bought, upgraded, or a different one at renewal) is announced once, for the
@@ -335,6 +340,19 @@ final class StoreKitManager: ObservableObject {
             case .noPlans: return String(localized: "Plans couldn't be loaded. Check your connection.")
             }
         }
+    }
+}
+
+extension StoreKitManager {
+    /// What the subscription of `transaction` renews into (its own product, or the one the user switched to).
+    static func renewalProduct(of transaction: StoreKit.Transaction) async -> String? {
+        guard let group = transaction.subscriptionGroupID,
+              let statuses = try? await Product.SubscriptionInfo.status(for: group) else { return nil }
+        for status in statuses {
+            guard case .verified(let renewal) = status.renewalInfo, renewal.originalTransactionID == transaction.originalID else { continue }
+            return renewal.autoRenewPreference
+        }
+        return nil
     }
 }
 

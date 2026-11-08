@@ -1675,7 +1675,7 @@ struct SettingsView: View {
                 Button {
                     switching = true
                     Task {
-                        if case .purchased = try? await store.purchase(offer.product) {
+                        if case .purchased? = try? await store.purchase(offer.product) {
                             restoreMessage = String(localized: "Yearly starts when your current month ends.")
                         }
                         switching = false

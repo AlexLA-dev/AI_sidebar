@@ -50,7 +50,7 @@ final class ListenPlayer: NSObject, ObservableObject {
     }
 
     /// The speeds offered (the panel's too); the last one chosen is kept.
-    static let speeds: [Double] = [1, 1.2, 1.5, 2]
+    nonisolated static let speeds: [Double] = [1, 1.2, 1.5, 2]
     @Published private(set) var speed: Double = {
         let kept = UserDefaults.standard.double(forKey: "cf_listen_speed")
         return ListenPlayer.speeds.contains(kept) ? kept : 1
@@ -89,6 +89,8 @@ final class ListenPlayer: NSObject, ObservableObject {
     /// The parts not yet spoken when the rest couldn't come ("Try again" asks for them), and the first one's index.
     private var rest: [String] = []
     private var restIndex = 0
+    /// Why the rest couldn't come: the week's minutes (true), or the connection (false).
+    private var restLimited = false
 
     // MARK: Opening
 
@@ -214,6 +216,8 @@ final class ListenPlayer: NSObject, ObservableObject {
         case .playing: pause()
         case .paused: play()
         case .ended: seek(to: 0)
+        // Stopped short: play is "Try again" (what was heard can be heard again with ‹15).
+        case .interrupted: rest.isEmpty ? seek(to: 0) : retryRest()
         default:
             guard appleStarted else { return }
             if synth.isPaused { synth.continueSpeaking() } else { synth.pauseSpeaking(at: .word) }
@@ -252,6 +256,7 @@ final class ListenPlayer: NSObject, ObservableObject {
     /// "Try again" after the rest couldn't come: the same voice carries on from where it stopped.
     func retryRest() {
         guard let request, !rest.isEmpty else { return }
+        ChatAI.reportUse("listen", "retry", ["what": request.what == "page" ? "page" : "answer"])
         let parts = rest
         let first = restIndex
         rest = []
@@ -636,6 +641,7 @@ final class ListenPlayer: NSObject, ObservableObject {
     /// The rest can't come. Nothing of ours played yet: Apple's voice reads the text (out of minutes, offline). Ours
     /// has played: no other voice takes over mid-text; what came plays to its end, then "Try again".
     private func fallBack(parts: [String], index: Int, _ reason: State) {
+        ChatAI.reportUse("listen", samples.isEmpty ? "apple" : "interrupted", ["what": request?.what == "page" ? "page" : "answer"])
         if samples.isEmpty {
             appleText = parts.joined(separator: " ")
             state = reason
@@ -647,6 +653,7 @@ final class ListenPlayer: NSObject, ObservableObject {
         resumeSkip = partGiven
         let limited: Bool
         if case .limit = reason { limited = true } else { limited = false }
+        restLimited = limited
         pendingReason = .interrupted(limit: limited)
         if state != .playing { state = .interrupted(limit: limited) }
     }
@@ -669,6 +676,10 @@ final class ListenPlayer: NSObject, ObservableObject {
             } else if let reason = pendingReason {
                 pendingReason = nil
                 finish(reason)
+                return
+            } else if !rest.isEmpty {
+                // Heard again (‹15) after it stopped short: back to "Try again".
+                finish(.interrupted(limit: restLimited))
                 return
             }
         }

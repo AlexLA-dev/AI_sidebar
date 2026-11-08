@@ -42,6 +42,7 @@ struct PaidGallery: View {
             HStack {
                 Button { step(-1) } label: { Image(systemName: "chevron.left").font(.body.weight(.semibold)).frame(width: 36, height: 30) }
                     .accessibilityLabel(Text("Previous"))
+                    .accessibilityIdentifier("gallery.previous")
                     .disabled(index == 0)
                 Spacer()
                 HStack(spacing: 6) {
@@ -55,6 +56,7 @@ struct PaidGallery: View {
                 Spacer()
                 Button { step(1) } label: { Image(systemName: "chevron.right").font(.body.weight(.semibold)).frame(width: 36, height: 30) }
                     .accessibilityLabel(Text("Next"))
+                    .accessibilityIdentifier("gallery.next")
                     .disabled(index == Slide.allCases.count - 1)
             }
             .buttonStyle(.borderless)
@@ -292,7 +294,7 @@ struct GallerySlide: View {
     private var answers: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(alignment: .lastTextBaseline, spacing: 8) {
-                Text("\(facts.proWeekly)")
+                Text(verbatim: "\(facts.proWeekly)")
                     .font(.system(size: 44, weight: .bold, design: .rounded))
                     .foregroundStyle(brandGradient)
                 Text("a week").font(.subheadline).foregroundColor(.secondary)
