@@ -109,12 +109,12 @@ struct PaidGallery: View {
 let ultraViolet = Color(red: 0.49, green: 0.31, blue: 0.93)
 
 /// Ultra's tint for text and icons on the app's own backgrounds (build 90: Listen looks like Ultra's), readable in
-/// both themes: violet-600 in light, violet-300 in dark (the panel's --ultra-text).
+/// both themes: #5B2FD1 in light, #C4B5FD in dark (the panel's --ultra-text, 5.3:1 or better).
 let ultraTint: Color = {
     #if os(iOS)
-    return Color(UIColor { $0.userInterfaceStyle == .dark ? UIColor(red: 0.77, green: 0.71, blue: 0.99, alpha: 1) : UIColor(red: 0.49, green: 0.23, blue: 0.93, alpha: 1) })
+    return Color(UIColor { $0.userInterfaceStyle == .dark ? UIColor(red: 0.77, green: 0.71, blue: 0.99, alpha: 1) : UIColor(red: 0.357, green: 0.184, blue: 0.82, alpha: 1) })
     #else
-    return Color(NSColor(name: nil) { $0.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua ? NSColor(red: 0.77, green: 0.71, blue: 0.99, alpha: 1) : NSColor(red: 0.49, green: 0.23, blue: 0.93, alpha: 1) })
+    return Color(NSColor(name: nil) { $0.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua ? NSColor(red: 0.77, green: 0.71, blue: 0.99, alpha: 1) : NSColor(red: 0.357, green: 0.184, blue: 0.82, alpha: 1) })
     #endif
 }()
 
@@ -126,8 +126,7 @@ struct UltraMark: View {
             .foregroundColor(.white)
             .padding(.horizontal, 4)
             .padding(.vertical, 1)
-            .background(Capsule().fill(ultraGradient))
-            .opacity(0.9)
+            .background(Capsule().fill(ultraViolet))
     }
 }
 
@@ -142,7 +141,7 @@ struct TierChip: View {
             .foregroundColor(.white)
             .padding(.horizontal, 9)
             .padding(.vertical, 3)
-            .background(Capsule().fill(ultra ? ultraGradient : brandGradient))
+            .background(Capsule().fill(ultra ? ultraViolet : brandBlue))
             .opacity(dimmed ? 0.45 : 1)
     }
 }

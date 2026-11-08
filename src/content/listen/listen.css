@@ -1,12 +1,13 @@
 /* Read aloud and the plans sheet (2.6, Ultra). Ultra's colour: violet into blue, next to Pro's sky into blue. */
-.cf-ultra-badge { display: inline-flex; align-items: center; margin-inline-start: 4px; padding: 0 5px; border-radius: 6px; font-size: 10px; font-weight: 700; letter-spacing: 0.02em; color: #fff; background: linear-gradient(135deg, #a78bfa, #2563eb); }
+/* Solid, so its small text reads (white on the gradient's light end was 2.7:1; on --ultra it's 5:1). */
+.cf-ultra-badge { display: inline-flex; align-items: center; margin-inline-start: 4px; padding: 0 5px; border-radius: 6px; font-size: 10px; font-weight: 700; letter-spacing: 0.02em; color: var(--ultra-on, #fff); background: var(--ultra, #7d4fed); }
 .cf-plan.ultra { color: #fff; background: linear-gradient(135deg, #a78bfa, #2563eb); }
 .cf-msg-tools button.on { color: var(--accent-text); }
 
 /* Build 90: Listen is Ultra's, and looks it (the owner): a soft violet tint in both themes; without Ultra the tiny
    "Ultra" mark stays. The tokens come from styles.css when they're there (--ultra-text, --ultra-soft). */
-.cf-msg-tools button.cf-ultra-tool { color: var(--ultra-text, #7c3aed); }
-.cf-msg-tools button.cf-ultra-tool:hover, .cf-msg-tools button.cf-ultra-tool.on { color: var(--ultra-text, #7c3aed); background: var(--ultra-soft, rgba(139, 92, 246, 0.12)); }
+.cf-msg-tools button.cf-ultra-tool { color: var(--ultra-text, #5b2fd1); }
+.cf-msg-tools button.cf-ultra-tool:hover, .cf-msg-tools button.cf-ultra-tool.on { color: var(--ultra-text, #5b2fd1); background: var(--ultra-soft, rgba(139, 92, 246, 0.12)); }
 .cf-msg-tools button.cf-ultra-tool .cf-ultra-badge { font-size: 9px; padding: 0 4px; margin-inline-start: 2px; opacity: 0.9; }
 .cf[data-theme="dark"] .cf-msg-tools button.cf-ultra-tool { color: var(--ultra-text, #c4b5fd); }
 .cf[data-theme="dark"] .cf-msg-tools button.cf-ultra-tool:hover, .cf[data-theme="dark"] .cf-msg-tools button.cf-ultra-tool.on { background: var(--ultra-soft, rgba(167, 139, 250, 0.16)); }
@@ -37,7 +38,7 @@
 .cf-plans-list { display: flex; flex-direction: column; gap: 8px; }
 .cf-plan-card { padding: 10px 12px 12px; border-radius: 14px; border: 1px solid var(--border); background: var(--bg-2); }
 .cf-plan-card.focus { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
-.cf-plan-card.ultra.focus { border-color: #8b5cf6; box-shadow: 0 0 0 1px #8b5cf6 inset; }
+.cf-plan-card.ultra.focus { border-color: var(--ultra, #7d4fed); box-shadow: 0 0 0 1px var(--ultra, #7d4fed) inset; }
 .cf-plan-top { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px; }
 .cf-plan-top strong { font-size: 15px; }
 .cf-plan-price { margin-inline-start: auto; font-weight: 600; font-size: 13.5px; font-variant-numeric: tabular-nums; }
@@ -64,8 +65,8 @@
 .cf-gallery { margin: 12px 0 4px; }
 .cf-gallery-head { display: flex; align-items: center; gap: 6px; margin: 0 2px 8px; }
 .cf-gallery-head strong { flex: 1; font-size: 14px; }
-.cf-tier-chip { display: inline-flex; align-items: center; padding: 1px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; color: #fff !important; background: linear-gradient(135deg, #38bdf8, #2563eb); }
-.cf-tier-chip.ultra { background: linear-gradient(135deg, #a78bfa, #2563eb); }
+.cf-tier-chip { display: inline-flex; align-items: center; padding: 1px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; color: #fff !important; background: var(--accent); }
+.cf-tier-chip.ultra { color: var(--ultra-on, #fff) !important; background: var(--ultra, #7d4fed); }
 .cf-tier-chip.dim { opacity: 0.45; }
 button.cf-tier-chip { border: 0; cursor: pointer; }
 /* As tall as the slide: a short one leaves no gap above the arrows. */
@@ -85,7 +86,7 @@ button.cf-tier-chip { border: 0; cursor: pointer; }
 .cf-gallery-dots { display: flex; gap: 5px; align-items: center; }
 .cf-gallery-dots i { width: 5px; height: 5px; border-radius: 50%; background: var(--text-2); opacity: 0.35; }
 .cf-gallery-dots i.on { width: 7px; height: 7px; opacity: 1; background: #2563eb; }
-.cf-gallery-dots i.on.ultra { background: #8b5cf6; }
+.cf-gallery-dots i.on.ultra { background: var(--ultra, #7d4fed); }
 
 /* The samples: the panel's own pieces, small. */
 .cf-g-chips { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -110,20 +111,20 @@ button.cf-tier-chip { border: 0; cursor: pointer; }
 .cf-g-bar { display: flex; flex-direction: column; gap: 2px; font-size: 11px; color: var(--text-2); }
 .cf-g-bar i { display: block; height: 7px; border-radius: 4px; background: var(--text-2); opacity: 0.45; }
 .cf-g-bar.pro i { background: var(--accent); opacity: 1; }
-.cf-g-player-title { display: flex; align-items: center; gap: 6px; color: #8b5cf6; }
+.cf-g-player-title { display: flex; align-items: center; gap: 6px; color: var(--ultra, #7d4fed); }
 .cf-g-player-title strong { color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cf-g-track { height: 4px; border-radius: 2px; background: var(--bg-3); overflow: hidden; }
-.cf-g-track i { display: block; height: 100%; background: #8b5cf6; }
+.cf-g-track i { display: block; height: 100%; background: var(--ultra, #7d4fed); }
 .cf-g-times { display: flex; justify-content: space-between; font-size: 11px; font-variant-numeric: tabular-nums; color: var(--text-2); }
-.cf-g-controls { display: flex; align-items: center; justify-content: center; gap: 18px; color: #8b5cf6; }
+.cf-g-controls { display: flex; align-items: center; justify-content: center; gap: 18px; color: var(--ultra, #7d4fed); }
 .cf-g-controls .skip { position: relative; display: inline-flex; }
 .cf-g-controls .skip small { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 6.5px; font-weight: 700; }
-.cf-g-controls .play { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; color: #fff; background: #8b5cf6; }
-.cf-g-controls .speed { padding: 2px 8px; border-radius: 10px; font-size: 11.5px; font-weight: 650; background: rgba(139, 92, 246, 0.14); }
+.cf-g-controls .play { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; color: var(--ultra-on, #fff); background: var(--ultra, #7d4fed); }
+.cf-g-controls .speed { padding: 2px 8px; border-radius: 10px; font-size: 11.5px; font-weight: 650; color: var(--ultra-text, #5b2fd1); background: var(--ultra-soft, rgba(139, 92, 246, 0.12)); }
 .cf-g-rows { display: flex; flex-direction: column; gap: 6px; }
 .cf-g-row { display: flex; align-items: center; gap: 6px; padding: 7px 9px; border-radius: 9px; background: var(--bg-3); }
 .cf-g-row .n { flex: 1; min-width: 0; font-weight: 550; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.cf-g-row .tag { padding: 0 6px; border-radius: 8px; font-size: 10.5px; font-weight: 650; color: #7c3aed; background: rgba(139, 92, 246, 0.13); }
+.cf-g-row .tag { padding: 0 6px; border-radius: 8px; font-size: 10.5px; font-weight: 650; color: var(--ultra-text, #5b2fd1); background: var(--ultra-soft, rgba(139, 92, 246, 0.12)); }
 .cf-g-row s { font-size: 11px; color: var(--text-2); }
 .cf-g-row b { font-variant-numeric: tabular-nums; }
 .cf-g-more { margin: 0 0 0 4px; color: var(--text-2); }
