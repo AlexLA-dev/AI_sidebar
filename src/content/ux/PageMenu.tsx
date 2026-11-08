@@ -11,16 +11,20 @@ import { useEffect, useRef } from "preact/hooks"
 import { t } from "../../shared/i18n"
 import { listenAround } from "../around"
 import * as Icon from "../icons"
+import { SimilarIcon } from "../similar/Similar"
 import { tipsLabel, TipsIcon } from "../tips/TipsSheet"
 import { Bell } from "./MessageUx"
 
-export function PageMenu({ reminders, watches, onLater, onWatchPage, onReminders, onWatching, onTips, onSettings, onIntro, onClose }: {
+export function PageMenu({ reminders, watches, onLater, onWatchPage, onSimilar, similarLocked, onReminders, onWatching, onTips, onSettings, onIntro, onClose }: {
   reminders: number
   // null: no watching here (not Safari).
   watches: number | null
   onLater: () => void
   // Absent: no watching here.
   onWatchPage?: () => void
+  // "Find similar…" (2.6, Ultra); absent: no page to find alternatives to. `similarLocked`: not in their plan (a badge).
+  onSimilar?: () => void
+  similarLocked?: boolean
   onReminders: () => void
   onWatching: () => void
   // Absent (or a build without Tips): no Tips item.
@@ -54,6 +58,11 @@ export function PageMenu({ reminders, watches, onLater, onWatchPage, onReminders
     <div ref={ref} class="cf-msg-menu cf-page-menu" role="menu">
       <button type="button" role="menuitem" onClick={onLater}><Bell size={16} /> {t("uxLater")}</button>
       {onWatchPage && <button type="button" role="menuitem" onClick={onWatchPage}><Icon.Eye size={16} /> {t("uxWatchPage")}</button>}
+      {onSimilar && (
+        <button type="button" role="menuitem" class="cf-page-similar" onClick={onSimilar}>
+          <SimilarIcon size={16} /> {t("uxSimilar")}{similarLocked && <span class="cf-ultra-badge">Ultra</span>}
+        </button>
+      )}
       <button type="button" role="menuitem" onClick={onReminders}><Bell size={16} /> {reminders > 0 ? t("uxRemindersN", reminders) : t("uxReminders")}</button>
       {watches !== null && (
         <button type="button" role="menuitem" onClick={onWatching}><Icon.Eye size={16} /> {watches > 0 ? t("uxWatchingN", watches) : t("uxWatching")}</button>

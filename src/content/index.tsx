@@ -18,6 +18,7 @@ import { startLiveWatch } from "./watch/live"
 import "./watch/register"
 import watchStyles from "./watch/watch.css"
 import tipsStyles from "./tips/tips.css"
+import similarStyles from "./similar/similar.css"
 
 // Runs on every http(s) page (and again if injected on demand). Everything we
 // render lives in a closed-off shadow root so page CSS can't break it and our
@@ -59,7 +60,8 @@ ${insertStyles}
 ${organizeStyles}
 ${uxStyles}
 ${watchStyles}
-${tipsStyles}`
+${tipsStyles}
+${similarStyles}`
     root.appendChild(style)
     const container = document.createElement("div")
     root.appendChild(container)

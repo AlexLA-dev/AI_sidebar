@@ -6,7 +6,7 @@
 import { useEffect, useMemo, useRef, useState } from "preact/hooks"
 
 import { t } from "../../shared/i18n"
-import { WATCH_LIMIT, type WatchHow, type WatchPrepared } from "../../shared/watch/messages"
+import { WATCH_LIMIT, type WatchDraft, type WatchHow, type WatchPrepared } from "../../shared/watch/messages"
 import { ConsentCard } from "../Consent"
 import { giveConsent, loadConsent } from "../store"
 import { draftFor } from "./draft"
@@ -17,6 +17,8 @@ export interface WatchSectionProps {
   title: string
   selection: string | null
   how: WatchHow
+  // Made elsewhere (an item from Find similar): this tab's page isn't the one watched.
+  draft?: WatchDraft
   close(): void
   // "Remind me to look" for a site the background can't read: chat UX's part of the same window.
   remind?: () => void
@@ -45,7 +47,7 @@ export function grow(el: HTMLTextAreaElement | null): void {
 
 export function WatchSection(p: WatchSectionProps) {
   // Read once, when the window opens: the page may change under the person while they type.
-  const draft = useMemo(() => draftFor(p.url, p.title, p.selection), [p.url, p.selection])
+  const draft = useMemo(() => p.draft ?? draftFor(p.url, p.title, p.selection), [p.url, p.selection, p.draft])
   const [condition, setCondition] = useState(draft.condition)
   // Where the window was opened from, as it was when it opened (the window may render again meanwhile).
   const [how] = useState(p.how)

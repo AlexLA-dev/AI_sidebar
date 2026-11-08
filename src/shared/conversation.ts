@@ -3,6 +3,7 @@
 
 import type { MediaKind } from "./attachments.ts"
 import { markedContent, type Mark } from "./marks.ts"
+import type { SimilarAnswer } from "./similar.ts"
 import type { ChatTurn, Grounding } from "./types.ts"
 
 /** The page a question was asked on: normalized URL, title and a fingerprint of its text. */
@@ -39,6 +40,10 @@ export interface Entry extends ChatTurn {
   mode?: "google"
   // Google answers: sources and Search Suggestions shown with the answer.
   grounding?: Grounding
+  // "Find similar" (2.6): on the question, the condition in the person's words ("" for none); on the answer, the
+  // checked list (its text is the same list in Markdown, for copying, sharing and the app).
+  similarAsk?: string
+  similar?: SimilarAnswer
   // User turns: where they were asked, and whether the page had changed since the last question there.
   page?: PageRef
   pageChanged?: boolean

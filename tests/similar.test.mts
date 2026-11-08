@@ -249,3 +249,23 @@ test("parallel search: picks interleaved by rank; each address and item once; at
   assert.equal(claims.covers("Acme Q2"), true)
   assert.equal(claims.covers("Zeta Z9 headphones"), false)
 })
+
+test("production serves only the engines in SIMILAR_ENGINES: with \"a\", a request for B is refused before anything runs", async () => {
+  const { spawnSync } = await import("node:child_process")
+  const script = `
+    process.env.SIMILAR_ENGINES = "a"
+    process.env.SUPABASE_URL = "https://db.test"
+    process.env.SUPABASE_SERVICE_ROLE_KEY = "service-key"
+    process.env.GEMINI_API_KEY = "g"
+    process.env.ANTHROPIC_API_KEY = "a"
+    globalThis.fetch = async () => { throw new Error("nothing may be fetched") }
+    const { default: handler } = await import(${JSON.stringify(new URL("../netlify/functions/v2-similar.mts", import.meta.url).href)})
+    const ask = (engine) => handler(new Request("http://x/api/v2/similar", { method: "POST", body: JSON.stringify({ engine, installId: "5e1f0c2a-6b1d-4c3e-9a7f-2d6c0e8b4a10", page: { title: "T", text: "x" } }) }), { deploy: { context: "production" }, waitUntil() {}, ip: "1.2.3.4" })
+    const b = await ask("b")
+    console.log(JSON.stringify({ status: b.status, body: await b.json() }))
+  `
+  const run = spawnSync(process.execPath, ["--experimental-strip-types", "--no-warnings", "--input-type=module", "-e", script], { encoding: "utf8" })
+  const out = JSON.parse(run.stdout.trim().split("\n").pop() ?? "{}")
+  assert.equal(out.status, 404, run.stderr)
+  assert.equal(out.body.code, "UNAVAILABLE")
+})

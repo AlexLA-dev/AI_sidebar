@@ -30,6 +30,8 @@ import { startInsert } from "./insert"
 import { startWatch } from "./watch"
 import { organizeChat, reportOrganize } from "./organize"
 import { organizeConfig } from "../shared/organize"
+import { askSimilar } from "./similar"
+import type { SimilarPayload, SimilarStreamEvent } from "../shared/similar"
 
 // ---------------------------------------------------------------- identity
 
@@ -280,6 +282,41 @@ chrome.runtime.onConnect.addListener((port) => {
       }
     }
     runChat(message.payload, emit, controller.signal)
+      .catch(() => emit({ type: "error", code: "STREAM" }))
+      .finally(() => {
+        try {
+          port.disconnect()
+        } catch {
+          // already closed
+        }
+      })
+  })
+})
+
+// ------------------------------------------------------------ find similar
+
+// "Find similar" (2.6, Ultra): one request per port, like a question; the server checks the plan.
+chrome.runtime.onConnect.addListener((port) => {
+  if (port.name !== "similar") return
+  const controller = new AbortController()
+  port.onDisconnect.addListener(() => controller.abort())
+  let asked = false
+  let seq = 0
+  port.onMessage.addListener((message: { type: "similar"; payload: SimilarPayload }) => {
+    if (message?.type !== "similar" || asked) return
+    asked = true
+    const emit = (event: SimilarStreamEvent) => {
+      try {
+        port.postMessage({ ...event, seq: ++seq })
+      } catch {
+        controller.abort()
+      }
+    }
+    void (async () => {
+      if (!(await consented())) return emit({ type: "error", code: "CONSENT" })
+      const [id, ent, client] = await Promise.all([installId(), entitlement(), clientInfo()])
+      await askSimilar({ installId: id, client, entitlement: ent?.active ? ent.jws : null, payload: message.payload }, emit, controller.signal)
+    })()
       .catch(() => emit({ type: "error", code: "STREAM" }))
       .finally(() => {
         try {
