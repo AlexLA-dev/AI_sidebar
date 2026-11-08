@@ -1481,6 +1481,30 @@
  "orgFirstWin": {
   "message": "Pronto. Daqui em diante, vou sugerir por conta própria."
  },
+ "orgNameChat": {
+  "message": "Nomear pelo assunto"
+ },
+ "orgNamed": {
+  "message": "Conversa nomeada “{0}”"
+ },
+ "orgNameFailed": {
+  "message": "Não consegui nomear a conversa agora. Tente de novo mais tarde."
+ },
+ "recs_one": {
+  "message": "{0} recomendação"
+ },
+ "recs_two": {
+  "message": "{0} recomendações"
+ },
+ "recs_few": {
+  "message": "{0} recomendações"
+ },
+ "recs_many": {
+  "message": "{0} recomendações"
+ },
+ "recs_other": {
+  "message": "{0} recomendações"
+ },
  "orgConsentTitle": {
   "message": "Organizar suas conversas por assunto?"
  },

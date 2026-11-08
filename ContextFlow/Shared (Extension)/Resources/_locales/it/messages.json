@@ -1481,6 +1481,30 @@
  "orgFirstWin": {
   "message": "Fatto. D’ora in poi ti farò suggerimenti senza che tu lo chieda."
  },
+ "orgNameChat": {
+  "message": "Dai un nome per argomento"
+ },
+ "orgNamed": {
+  "message": "Chat chiamata «{0}»"
+ },
+ "orgNameFailed": {
+  "message": "Non sono riuscito a dare un nome alla chat. Riprova più tardi."
+ },
+ "recs_one": {
+  "message": "{0} consiglio"
+ },
+ "recs_two": {
+  "message": "{0} consigli"
+ },
+ "recs_few": {
+  "message": "{0} consigli"
+ },
+ "recs_many": {
+  "message": "{0} consigli"
+ },
+ "recs_other": {
+  "message": "{0} consigli"
+ },
  "orgConsentTitle": {
   "message": "Ordinare le chat per argomento?"
  },

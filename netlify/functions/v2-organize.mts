@@ -4,8 +4,8 @@ import { timingSafeEqual } from "node:crypto"
 import { config as settings } from "../shared/config.mts"
 import { consume, logEvent, refund, type Counter } from "../shared/db.mts"
 import { clip, isUuid, json, preflight, readJson } from "../shared/http.mts"
-import { embed, judgeTags, organizeCost, OrganizeUpstream, sanitizeTagCheck, sanitizeTexts, vectorSpace } from "../shared/organize.mts"
-import { hasPro, resolveAccess } from "../shared/plan.mts"
+import { embed, judgeTags, nameChat, organizeCost, OrganizeUpstream, sanitizeNameCheck, sanitizeTagCheck, sanitizeTexts, vectorSpace } from "../shared/organize.mts"
+import { evalAccess, hasPro, resolveAccess } from "../shared/plan.mts"
 
 /**
  * POST /api/v2/organize — organizing the chats (2.5): Pro only, and the panel and the app ask only after the
@@ -17,6 +17,8 @@ import { hasPro, resolveAccess } from "../shared/plan.mts"
  *     → { space: "model:dims", vectors: string[] } (src/shared/organize.ts `packVector`, in the texts' order)
  *   op "tags": message: string, candidates: [{tag, examples: string[]}] (up to 3 tags, 5 examples each)
  *     → { verdicts: [{tag, fits, confidence}] }
+ *   op "name" (2.6): chat: string (src/shared/organize.ts `nameText`, up to 6,000 characters), current?: its name
+ *     → { title, fits } (a name by its topic; whether the current one still fits, false without one)
  * Errors: {code} — PRO_ONLY (403), OFF (503, switched off), LIMIT_REACHED (429), UPSTREAM (502), BAD_REQUEST (400).
  */
 export default async (req: Request, context: Context): Promise<Response> => {
@@ -26,10 +28,11 @@ export default async (req: Request, context: Context): Promise<Response> => {
   const body = await readJson(req, 400_000)
   if (!body || !isUuid(body.installId)) return json({ code: "BAD_REQUEST" }, 400)
   const installId = body.installId
-  const op = body.op === "embed" || body.op === "tags" ? body.op : null
+  const op = body.op === "embed" || body.op === "tags" || body.op === "name" ? body.op : null
   const texts = op === "embed" ? sanitizeTexts(body.texts) : null
   const check = op === "tags" ? sanitizeTagCheck(body) : null
-  if (!op || (op === "embed" ? !texts : !check)) return json({ code: "BAD_REQUEST" }, 400)
+  const naming = op === "name" ? sanitizeNameCheck(body) : null
+  if (!op || (op === "embed" ? !texts : op === "tags" ? !check : !naming)) return json({ code: "BAD_REQUEST" }, 400)
   if (!settings.organize.enabled) return json({ code: "OFF" }, 503)
   const client = (body.client ?? {}) as Record<string, unknown>
   const platform = clip(client.platform, 20)
@@ -39,7 +42,8 @@ export default async (req: Request, context: Context): Promise<Response> => {
   if (calibrating(req, context)) {
     subject = "eval"
   } else {
-    const access = await resolveAccess(body.entitlement, installId)
+    // Deploy previews: a request signed with the measuring key counts as a subscriber (never in production).
+    const access = evalAccess(req, installId, context) ?? (await resolveAccess(body.entitlement, installId))
     if (!hasPro(access.plan) || !access.entitlement) {
       context.waitUntil(logEvent("pro_only", installId, { feature: "organize", plan: access.plan, platform, version }))
       return json({ code: "PRO_ONLY", plan: access.plan, feature: "organize" }, 403)
@@ -48,7 +52,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   }
 
   const counters: Counter[] = [
-    { subject: `organize:${op}:${subject}`, period: "day", limit: subject === "eval" ? 20_000 : op === "embed" ? settings.organize.embedDaily : settings.organize.tagsDaily },
+    { subject: `organize:${op}:${subject}`, period: "day", limit: subject === "eval" ? 20_000 : op === "embed" ? settings.organize.embedDaily : op === "tags" ? settings.organize.tagsDaily : settings.organize.nameDaily },
     { subject: "global:organize", period: "day", limit: settings.organize.globalDaily }
   ]
   const quota = await consume(counters).catch((err) => {
@@ -66,6 +70,16 @@ export default async (req: Request, context: Context): Promise<Response> => {
         op, n: texts!.length, tokens: result.tokens, cost_usd: organizeCost("embed", result.tokens), model: settings.organize.embedModel, ms: Date.now() - started, platform, version
       }))
       return json({ space: vectorSpace(), vectors: result.vectors })
+    }
+    if (op === "name") {
+      const named = await nameChat(naming!, req.signal)
+      context.waitUntil(logEvent("organize_api", installId, {
+        op, fits: named.answer.fits, checked: naming!.current !== null, provider: named.provider, model: named.model,
+        ...(named.fallback ? { fallback: named.fallback } : {}),
+        prompt_tokens: named.tokensIn, completion_tokens: named.tokensOut, cost_usd: organizeCost("name", named.tokensIn, named.tokensOut, named.provider),
+        ms: Date.now() - started, platform, version
+      }))
+      return json(named.answer)
     }
     const judged = await judgeTags(check!, req.signal)
     context.waitUntil(logEvent("organize_api", installId, {

@@ -1481,6 +1481,30 @@
  "orgFirstWin": {
   "message": "完成。從現在起，我會主動提出建議。"
  },
+ "orgNameChat": {
+  "message": "依主題命名"
+ },
+ "orgNamed": {
+  "message": "已命名為「{0}」"
+ },
+ "orgNameFailed": {
+  "message": "目前無法為對話命名，請稍後再試。"
+ },
+ "recs_one": {
+  "message": "{0} 則建議"
+ },
+ "recs_two": {
+  "message": "{0} 則建議"
+ },
+ "recs_few": {
+  "message": "{0} 則建議"
+ },
+ "recs_many": {
+  "message": "{0} 則建議"
+ },
+ "recs_other": {
+  "message": "{0} 則建議"
+ },
  "orgConsentTitle": {
   "message": "依主題整理你的對話？"
  },

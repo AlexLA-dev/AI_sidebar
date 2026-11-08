@@ -105,7 +105,7 @@ export const FEATURES: Record<string, Feature> = {
   // The panel header's "…" (opened, an item picked) and "Come back later": its window in the panel ("open"),
   // the "Reminders" list in the panel ("list": from the menu or the window's "All reminders" link) and in the
   // app ("open" from its tab), with how many reminders and watches the list held.
-  menu: { since: "2.5", on: "ext", actions: ["open", "pick"], fields: { what: ["later", "reminders", "settings", "intro", "listen", "similar", "plan_tour"] } },
+  menu: { since: "2.5", on: "ext", actions: ["open", "pick"], fields: { what: ["later", "reminders", "settings", "intro", "listen", "similar", "plan_tour", "name_chat"] } },
   // 2.6: read aloud (Ultra) started from an answer or the page, handed to the app (iPhone, iPad), or refused (not
   // Ultra: the plans sheet; the week's minutes used up). The parts themselves are logged by the server ("speak").
   // Build 90 (the app): Apple's voice read a text the server couldn't start ("apple"), a text stopped short after

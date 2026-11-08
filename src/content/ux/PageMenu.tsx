@@ -18,7 +18,7 @@ import { tipsLabel, TipsIcon } from "../tips/TipsSheet"
 import { Bell, More } from "./MessageUx"
 import { SpeakerIcon } from "../listen/useListen"
 
-export function PageMenu({ reminders, watches, onLater, onWatchPage, onSimilar, similarLocked, onReminders, onWatching, onTips, onSettings, onIntro, planTour, onListen, ultra, onClose }: {
+export function PageMenu({ reminders, watches, onLater, onWatchPage, onSimilar, similarLocked, onNameChat, onReminders, onWatching, onTips, onSettings, onIntro, planTour, onListen, ultra, onClose }: {
   reminders: number
   // null: no watching here (not Safari).
   watches: number | null
@@ -28,6 +28,8 @@ export function PageMenu({ reminders, watches, onLater, onWatchPage, onSimilar, 
   // "Find similar…" (2.6, Ultra); absent: no page to find alternatives to. `similarLocked`: not in their plan (a badge).
   onSimilar?: () => void
   similarLocked?: boolean
+  // "Name by topic" (2.6, with suggestions on): absent outside a chat with messages, or while it's being named.
+  onNameChat?: () => void
   onReminders: () => void
   onWatching: () => void
   // Absent (or a build without Tips): no Tips item.
@@ -77,6 +79,7 @@ export function PageMenu({ reminders, watches, onLater, onWatchPage, onSimilar, 
           <SimilarIcon size={16} /> {t("uxSimilar")}{similarLocked && <span class="cf-ultra-badge">Ultra</span>}
         </button>
       )}
+      {onNameChat && <button type="button" role="menuitem" class="cf-page-name" onClick={onNameChat}><Icon.Sparkle size={15} /> {t("orgNameChat")}</button>}
       {onListen && <button type="button" role="menuitem" class="cf-page-listen" onClick={onListen}><SpeakerIcon size={16} /> {t("listenPage")}{!ultra && <span class="cf-ultra-badge">Ultra</span>}</button>}
       <button type="button" role="menuitem" class={`cf-page-other ${more ? "open" : ""}`} aria-expanded={more} onClick={() => setMore(!more)}>
         <More size={16} /> <span class="cf-page-other-l">{t("uxOther")}</span><svg class="cf-page-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>

@@ -1481,6 +1481,30 @@
  "orgFirstWin": {
   "message": "完了しました。これからは自分から提案します。"
  },
+ "orgNameChat": {
+  "message": "トピックで名前を付ける"
+ },
+ "orgNamed": {
+  "message": "「{0}」と名前を付けました"
+ },
+ "orgNameFailed": {
+  "message": "今はチャットに名前を付けられませんでした。あとでもう一度お試しください。"
+ },
+ "recs_one": {
+  "message": "おすすめ {0} 件"
+ },
+ "recs_two": {
+  "message": "おすすめ {0} 件"
+ },
+ "recs_few": {
+  "message": "おすすめ {0} 件"
+ },
+ "recs_many": {
+  "message": "おすすめ {0} 件"
+ },
+ "recs_other": {
+  "message": "おすすめ {0} 件"
+ },
  "orgConsentTitle": {
   "message": "チャットをトピックごとに整理しますか？"
  },

@@ -306,9 +306,11 @@ final class OrganizeModel: ObservableObject {
         var move: Move?
         /// A tag per message index (and the message's key, to check it's still that message).
         var tags: [Int: (key: String, tag: String)]
+        /// 2.6: the chat's name no longer fits its topic (and the user didn't type it): this one does.
+        var name: String?
 
         static func == (a: Suggestions, b: Suggestions) -> Bool {
-            a.chat == b.chat && a.length == b.length && a.move == b.move && a.tags.mapValues(\.tag) == b.tags.mapValues(\.tag)
+            a.chat == b.chat && a.length == b.length && a.move == b.move && a.tags.mapValues(\.tag) == b.tags.mapValues(\.tag) && a.name == b.name
         }
     }
 
@@ -322,6 +324,8 @@ final class OrganizeModel: ObservableObject {
     private let maxEmbedPerRun = 640
     private let batch = 128
     private let maxVerdicts = 400
+    // Name checks remembered (the newest chats): what each was about (Organize.nameCheckKey).
+    private let maxNames = 200
 
     private struct VectorStore: Codable {
         var space: String
@@ -335,14 +339,21 @@ final class OrganizeModel: ObservableObject {
         var at: [String: Double] = [:]
     }
 
+    private struct Names: Codable {
+        var key: [String: String] = [:]
+        var at: [String: Double] = [:]
+    }
+
     private var vectors = VectorStore(space: "", v: [:])
     private var verdicts = Verdicts()
+    private var names = Names()
     private var unpacked: [String: [Float]] = [:]
     private var running: Task<Suggestions?, Never>?
 
     private init() {
         vectors = Self.load("organize-vectors.json") ?? VectorStore(space: "", v: [:])
         verdicts = Self.load("organize-verdicts.json") ?? Verdicts()
+        names = Self.load("organize-names.json") ?? Names()
     }
 
     // MARK: Files (the app's caches: not synced, not in the App Group)
@@ -363,12 +374,14 @@ final class OrganizeModel: ObservableObject {
 
     /// The vectors go with the chats ("Delete all chats" in Safari, or the chats gone).
     func forget() {
-        guard !vectors.v.isEmpty || !verdicts.items.isEmpty else { return }
+        guard !vectors.v.isEmpty || !verdicts.items.isEmpty || !names.key.isEmpty else { return }
         vectors = VectorStore(space: space, v: [:])
         verdicts = Verdicts()
+        names = Names()
         unpacked = [:]
         Self.save(vectors, "organize-vectors.json")
         Self.save(verdicts, "organize-verdicts.json")
+        Self.save(names, "organize-names.json")
     }
 
     // MARK: When
@@ -401,20 +414,18 @@ final class OrganizeModel: ObservableObject {
         return await task.value
     }
 
-    private func run(_ thread: ChatThread, _ threads: [ChatThread]) async -> Suggestions? {
-        await refreshStatus()
-        guard serverOn, !thread.isHistory, let chat = thread.organized else { return nil }
-        let live = threads.filter { !$0.isHistory }.compactMap(\.organized)
+    /// The vectors of `live`'s messages (`first`'s first), asking for those the device lacks; nil when `first` has none.
+    private func vectorsFor(_ first: OrganizeThread?, _ live: [OrganizeThread]) async -> Organize.VectorOf? {
         if vectors.space != space && !space.isEmpty { vectors = VectorStore(space: space, v: [:]); unpacked = [:] }
 
         // Vectors for what lacks them: this chat first, then the others (the list's order, latest first).
-        let order = [chat] + live.filter { $0.id != chat.id }
+        let order = first.map { f in [f] + live.filter { $0.id != f.id } } ?? live
         let todo = Organize.missingVectors(order, has: { key, text in self.vectors.v[key]?.hasPrefix(Organize.textKey(text) + ":") == true }, limit: maxEmbedPerRun)
         var start = 0
         while start < todo.count {
             let part = Array(todo[start..<min(start + batch, todo.count)])
             guard let result = try? await ChatAI.organizeEmbed(part.map(\.text)) else {
-                if start == 0 && !chat.entries.contains(where: { vectors.v[Organize.entryKey($0)] != nil }) { return nil }
+                if start == 0, let first, !first.entries.contains(where: { vectors.v[Organize.entryKey($0)] != nil }) { return nil }
                 break
             }
             if result.space != vectors.space { vectors = VectorStore(space: result.space, v: [:]); unpacked = [:] }
@@ -426,7 +437,7 @@ final class OrganizeModel: ObservableObject {
         vectors.v = vectors.v.filter { keys.contains($0.key) }
         Self.save(vectors, "organize-vectors.json")
 
-        let vectorOf: Organize.VectorOf = { entry in
+        return { entry in
             let text = Organize.embedText(entry)
             guard !text.isEmpty, let hit = self.vectors.v[Organize.entryKey(entry)], let colon = hit.firstIndex(of: ":"),
                   hit[..<colon] == Organize.textKey(text) else { return nil }
@@ -435,6 +446,18 @@ final class OrganizeModel: ObservableObject {
             self.unpacked[hit] = v
             return v
         }
+    }
+
+    /// The hash a tag check is remembered by.
+    private func verdictHash(_ message: String, _ candidates: [Organize.TagCandidate]) -> String {
+        Organize.textKey(String(data: (try? JSONSerialization.data(withJSONObject: [message, candidates.map { [$0.tag, $0.examples] }])) ?? Data(), encoding: .utf8) ?? message)
+    }
+
+    private func run(_ thread: ChatThread, _ threads: [ChatThread]) async -> Suggestions? {
+        await refreshStatus()
+        guard serverOn, !thread.isHistory, let chat = thread.organized else { return nil }
+        let live = threads.filter { !$0.isHistory }.compactMap(\.organized)
+        guard let vectorOf = await vectorsFor(chat, live) else { return nil }
 
         var out = Suggestions(chat: thread.id, length: thread.entries.count, move: nil, tags: [:])
         if let s = Organize.suggestMove(chat, live, vectorOf, config) {
@@ -445,7 +468,7 @@ final class OrganizeModel: ObservableObject {
             let candidates = Organize.tagCandidates(chat, index, live, vectorOf, config)
             guard !candidates.isEmpty else { continue }
             let message = Organize.judgeText(chat.entries, index)
-            let hash = Organize.textKey(String(data: (try? JSONSerialization.data(withJSONObject: [message, candidates.map { [$0.tag, $0.examples] }])) ?? Data(), encoding: .utf8) ?? message)
+            let hash = verdictHash(message, candidates)
             if verdicts.items[hash] == nil {
                 guard let answer = try? await ChatAI.organizeTags(message: message, candidates: candidates.map { ($0.tag, $0.examples) }) else { break }
                 verdicts.items[hash] = answer.map { .init(tag: $0.tag, fits: $0.fits, confidence: $0.confidence) }
@@ -462,7 +485,55 @@ final class OrganizeModel: ObservableObject {
             verdicts.at = verdicts.at.filter { keep.contains($0.key) }
         }
         Self.save(verdicts, "organize-verdicts.json")
+
+        // 2.6: the chat's name, unless the user typed it: checked once the chat has a second question or note, and
+        // again when it gets another page or a move changes it; renamed when it no longer fits.
+        if Organize.wantsNameCheck(chat) {
+            let key = Organize.nameCheckKey(chat)
+            if names.key[chat.id] != key, let answer = try? await ChatAI.organizeName(chat: Organize.nameText(chat.entries), current: thread.name) {
+                let renamed = !answer.fits && answer.title != thread.name
+                if renamed { out.name = answer.title }
+                names.key[chat.id] = Organize.nameCheckKey(chat, title: renamed ? answer.title : nil)
+                names.at[chat.id] = Date().timeIntervalSince1970
+                if names.key.count > maxNames {
+                    let keep = Set(names.at.sorted { $0.value > $1.value }.prefix(maxNames).map(\.key))
+                    names.key = names.key.filter { keep.contains($0.key) }
+                    names.at = names.at.filter { keep.contains($0.key) }
+                }
+                Self.save(names, "organize-names.json")
+            }
+        }
         return out
+    }
+
+    /// The open suggestions of every chat, for the chats list (2.6, "N recommendations"): its move, and the tags the
+    /// check already said yes to (a chat opened since has them all; nothing is asked of the AI here but vectors). The
+    /// same rules as in the chat, so the count is what the chat shows. Only chats with some.
+    func counts(in threads: [ChatThread]) async -> [String: Int] {
+        await refreshStatus()
+        _ = await running?.value
+        guard serverOn else { return [:] }
+        let live = threads.filter { !$0.isHistory }.compactMap(\.organized)
+        guard !live.isEmpty, let vectorOf = await vectorsFor(nil, live) else { return [:] }
+        var out: [String: Int] = [:]
+        for chat in live {
+            var n = Organize.suggestMove(chat, live, vectorOf, config) == nil ? 0 : 1
+            for index in Organize.tagTargets(chat, config) {
+                let candidates = Organize.tagCandidates(chat, index, live, vectorOf, config)
+                guard !candidates.isEmpty, let said = verdicts.items[verdictHash(Organize.judgeText(chat.entries, index), candidates)] else { continue }
+                if !Organize.judgedTags(candidates, said.map { Organize.TagVerdict(tag: $0.tag, fits: $0.fits, confidence: $0.confidence) }, config).isEmpty { n += 1 }
+            }
+            if n > 0 { out[chat.id] = n }
+        }
+        return out
+    }
+
+    /// "Name by topic": a name for the chat by its topic now (nil: it couldn't be had).
+    func nameNow(_ thread: ChatThread) async -> String? {
+        await refreshStatus()
+        guard serverOn, !thread.isHistory, !thread.entries.isEmpty, let chat = thread.organized,
+              let answer = try? await ChatAI.organizeName(chat: Organize.nameText(chat.entries), current: nil) else { return nil }
+        return answer.title
     }
 
     // MARK: The cards (each once; closing is final)

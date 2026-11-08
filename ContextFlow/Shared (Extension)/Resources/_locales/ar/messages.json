@@ -1481,6 +1481,30 @@
  "orgFirstWin": {
   "message": "تم. من الآن فصاعدًا سأقترح بنفسي."
  },
+ "orgNameChat": {
+  "message": "التسمية حسب الموضوع"
+ },
+ "orgNamed": {
+  "message": "سُمّيت المحادثة «{0}»"
+ },
+ "orgNameFailed": {
+  "message": "تعذّرت تسمية المحادثة الآن. حاول مرة أخرى لاحقًا."
+ },
+ "recs_one": {
+  "message": "توصية واحدة"
+ },
+ "recs_two": {
+  "message": "توصيتان"
+ },
+ "recs_few": {
+  "message": "{0} توصيات"
+ },
+ "recs_many": {
+  "message": "{0} توصية"
+ },
+ "recs_other": {
+  "message": "{0} توصية"
+ },
  "orgConsentTitle": {
   "message": "ترتيب محادثاتك حسب الموضوع؟"
  },

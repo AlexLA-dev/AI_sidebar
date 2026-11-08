@@ -46,7 +46,7 @@ import { barDeadline, deadlineAfterHold, goesOnWork, type BarKind } from "./undo
 import { moveBlock, organizeCards, setOrganizeCards, undoBlockMove, type OrganizeCards } from "./store"
 import { DEFAULT_ORGANIZE, looksMixed } from "../shared/organize"
 import { entryKey } from "../shared/conversation"
-import type { OrganizeEvent, OrganizeReply } from "../shared/types"
+import type { OrganizeCountsReply, OrganizeEvent, OrganizeNameReply, OrganizeReply } from "../shared/types"
 import { ProUpsell } from "./ProUpsell"
 import { shownPrice, SimilarIcon, SimilarList, SimilarPicker, SimilarUpsell } from "./similar/Similar"
 import { factsFrom, SIMILAR_SELECTION_MAX, similarAllowed, similarMarkdown, type SimilarAnswer, type SimilarItem, type SimilarStep, type SimilarStreamEvent } from "../shared/similar"
@@ -61,7 +61,7 @@ import { hasPro, isUltra, type PaidPlan } from "../shared/plan"
 import { SettingsView } from "./Settings"
 import { shareLabels } from "./shareLabels"
 import { loadJobs, markHintSeen, markMemoryOffered, memoryOffered, onJobsChanged, resetHints, seenHints, type HintKey } from "./store"
-import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, onConsentChanged, loadThreads, markTourSeen, lastPlanSeen, setLastPlanSeen, planToursSeen, markPlanToursSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, purgeChats, rememberPageText, renameThread, renewalAskedPeriod, restoreChat, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount, trashChat } from "./store"
+import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, onConsentChanged, loadThreads, markTourSeen, lastPlanSeen, setLastPlanSeen, planToursSeen, markPlanToursSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, purgeChats, nameThread, rememberPageText, renameThread, renewalAskedPeriod, unnameThread, restoreChat, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount, trashChat } from "./store"
 import { TagChip, TagEditor } from "./Tags"
 import { ThreadsView } from "./Threads"
 import { TrashView } from "./Trash"
@@ -847,6 +847,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const content = text.trim()
     if (!content || portRef.current || askToken.current) return
     setUndoBar(null)
+    setFirstWin(null)
     setMemoryOffer(null)
     if (consent !== "ok") {
       setPending({ text: content, label: opts.label, action: opts.action, mode: opts.mode })
@@ -1134,6 +1135,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const content = text.trim()
     if (!content || portRef.current || askToken.current) return
     setUndoBar(null)
+    setFirstWin(null)
     const url = source.key()
     const full = source.quick()
     const next: Turn[] = [...messages, stamped({ role: "user", content, note: true, page: pageRef(messages, url, full.title, full.text, keepsText) })]
@@ -1278,6 +1280,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       return
     }
     setUndoBar(null)
+    setFirstWin(null)
     setError(null)
     setOfferCard(false)
     // Asked again after it was left without an answer (interrupted): it takes that question's place (2.6 (90): twice).
@@ -1385,6 +1388,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const newChat = useCallback(() => {
     stop()
     setUndoBar(null)
+    setFirstWin(null)
     const id = newThreadId()
     threadRef.current = id
     setKind(undefined)
@@ -1532,6 +1536,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const openThread = useCallback((id: string, at?: number) => {
     stop()
     setUndoBar(null)
+    setFirstWin(null)
     const thread = threadList.find((x) => x.id === id)
     threadRef.current = id
     setKind(thread?.kind)
@@ -2397,10 +2402,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const orgOn = TARGET === "safari" && hasPro(plan) && Boolean(status?.organize?.on) && settings.organize
   const [org, setOrg] = useState<{ chat: string; length: number; move: OrganizeMove | null; tags: Array<{ index: number; key: string; tag: string }> } | null>(null)
   const [cards, setCards] = useState<OrganizeCards | null>(null)
-  // "Everything in one chat?" showing in this chat; the card after the third tag; the line after the first one taken.
+  // "Everything in one chat?" showing in this chat; the card after the third tag; the line after the first one taken
+  // (the chat it was taken in: it stays there until the next question or note, never at the end of other chats).
   const [messFor, setMessFor] = useState<string | null>(null)
   const [tagsCard, setTagsCard] = useState(false)
-  const [firstWin, setFirstWin] = useState(false)
+  const [firstWin, setFirstWin] = useState<string | null>(null)
   const orgSeen = useRef(new Set<string>())
   const messagesRef = useRef(messages)
   messagesRef.current = messages
@@ -2416,6 +2422,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     // After the answer is in, without delaying it; a fade in, not a jump.
     const timer = setTimeout(() => {
       void sendBackground<OrganizeReply>({ type: "organize", chat }).then((reply) => {
+        if (reply?.ok && reply.name) void putName(chat, reply.name, "drift")
         if (!reply?.ok || threadRef.current !== chat || messagesRef.current.length !== length) return
         setOrg({ chat, length, move: reply.move, tags: reply.tags })
       })
@@ -2439,10 +2446,63 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     }
   }, [orgNow])
 
+  // 2.6: the chat named by its topic, by "Name by topic" or by itself when its name no longer fit (never one the user
+  // typed): the list shows it, and a bar says so, with Undo. By itself while another bar is up: quietly.
+  const undoBarRef = useRef(undoBar)
+  undoBarRef.current = undoBar
+  const putName = async (chat: string, name: string, why: "asked" | "drift") => {
+    const before = await nameThread(chat, name, why === "asked")
+    if (!before) return
+    setThreadList(chatList((await loadThreads()).threads))
+    orgEvent({ kind: "organize", action: "accepted", what: "name", why })
+    if (why === "drift" && (undoBarRef.current || threadRef.current !== chat)) return
+    setUndoBar({
+      text: t("orgNamed", name),
+      kind: "move",
+      actions: [{
+        label: t("orgUndo"),
+        run: () => {
+          setUndoBar(null)
+          void unnameThread(chat, name, before).then(() => loadThreads()).then(({ threads }) => setThreadList(chatList(threads)))
+          orgEvent({ kind: "organize", action: "undone", what: "name", why })
+        }
+      }]
+    })
+  }
+  const [naming, setNaming] = useState(false)
+  const nameByTopic = () => {
+    const chat = threadRef.current
+    setNaming(true)
+    void sendBackground<OrganizeNameReply>({ type: "organizeName", chat }).then((reply) => {
+      setNaming(false)
+      if (reply?.ok) void putName(chat, reply.name, "asked")
+      else if (threadRef.current === chat) setUndoBar({ text: t("orgNameFailed"), actions: [] })
+    })
+  }
+
+  // 2.6: the chats list shows how many open suggestions each chat has ("N recommendations"): asked each time the list
+  // shows (and the chats change), counted once per chat as shown.
+  const [recs, setRecs] = useState<Record<string, number>>({})
+  const recsSeen = useRef(new Set<string>())
+  useEffect(() => {
+    if (!open || !orgOn || view !== "threads") return
+    let live = true
+    void sendBackground<OrganizeCountsReply>({ type: "organizeCounts" }).then((reply) => {
+      if (!live || !reply?.ok) return
+      setRecs(reply.counts)
+      for (const id of Object.keys(reply.counts)) {
+        if (recsSeen.current.has(id)) continue
+        recsSeen.current.add(id)
+        orgEvent({ kind: "organize", action: "shown", what: "badge" })
+      }
+    })
+    return () => { live = false }
+  }, [open, orgOn, view, threadList])
+
   // The first suggestion taken: a line that from now on they come by themselves (once).
   const won = () => {
     if (!cards || cards.firstWin) return
-    setFirstWin(true)
+    setFirstWin(threadRef.current)
     void setOrganizeCards({ firstWin: true }).then(setCards)
     orgEvent({ kind: "organize_promo", action: "shown", where: "first_win" })
   }
@@ -2677,7 +2737,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       {tagsCard && !messCard && promoOk && (
         <OrganizeCard kind="tags" pro={byok ? t("upgradePro") : undefined} onPrimary={() => tryOrganizePro("third_tag")} onClose={() => setTagsCard(false)} />
       )}
-      {firstWin && orgOn && <div class="cf-org-win" role="status"><Icon.Sparkle size={13} /> {t("orgFirstWin")}</div>}
+      {firstWin === threadRef.current && orgOn && <div class="cf-org-win" role="status"><Icon.Sparkle size={13} /> {t("orgFirstWin")}</div>}
     </>
   )
 
@@ -2893,6 +2953,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       pageWatcher()?.({ url: source.href(), title: source.title() })
                     } : undefined}
                     onSimilar={contextKind === "page" && !historyMode ? () => openSimilar("menu") : undefined}
+                    onNameChat={orgOn && view === "chat" && !historyMode && messages.length > 0 && !naming ? () => {
+                      setPageMenu(false)
+                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "name_chat" })
+                      nameByTopic()
+                    } : undefined}
                     similarLocked={!similarAllowed(plan)}
                     reminders={laterCount.remind}
                     watches={listsKind("watch") ? laterCount.watch : null}
@@ -2970,7 +3035,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               <ThreadsView
                 threads={threadList}
                 activeId={threadRef.current}
-                onOpen={openThread}
+                onOpen={(id, at) => {
+                  if (orgOn && recs[id]) orgEvent({ kind: "organize", action: "tap", what: "badge" })
+                  openThread(id, at)
+                }}
                 onRename={renameChat}
                 onDelete={deleteChatWithUndo}
                 onNew={newChat}
@@ -2994,6 +3062,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   setUndoBar(null)
                   setView("trash")
                 }}
+                recs={orgOn ? recs : undefined}
               />
               <div class="cf-undo-host">{undoBar && <UndoBar text={undoBar.text} actions={undoBar.actions} onHold={holdBar} />}</div>
             </>

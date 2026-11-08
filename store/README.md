@@ -121,7 +121,7 @@ New in 2.6: the Ultra plan, yearly plans and read aloud.
 
 | Тип данных | Назначение | Linked to user | Tracking |
 |---|---|---|---|
-| User Content → Other User Content (вопрос и текст страницы, отправленные для ответа; с 2.5 ещё текст шаблона для разметки пропусков, шаблон и текст страницы по «Заполнить со страницы», слова поиска и названия шаблонов по «Найти по смыслу»; не хранятся, обрабатываются Anthropic, при сбое OpenAI, а ответы с Google — Google) | App Functionality | No | No |
+| User Content → Other User Content (вопрос и текст страницы, отправленные для ответа; с 2.5 ещё текст шаблона для разметки пропусков, шаблон и текст страницы по «Заполнить со страницы», слова поиска и названия шаблонов по «Найти по смыслу»; не хранятся, обрабатываются Anthropic, при сбое OpenAI, а ответы с Google — Google; с 2.6 текст для «Слушать» (Google) и «Найти похожее» (Anthropic); условие «Найти похожее» хранится в событиях до 180 дней, поэтому с 2.6 ещё и Analytics) | App Functionality, Analytics (с 2.6) | No | No |
 | Identifiers → Device ID (случайный install ID для дневного лимита) | App Functionality | No | No |
 | Purchases → Purchase History (подписанная Apple транзакция для проверки подписки) | App Functionality | No | No |
 | Usage Data → Product Interaction (счётчики ответов, тип действия; с 2.5 счётчики быстрой вставки — что и как вставлено, сколько пропусков заполнено, открыты ли X и Threads — без текста и без сайта) | App Functionality, Analytics | No | No |

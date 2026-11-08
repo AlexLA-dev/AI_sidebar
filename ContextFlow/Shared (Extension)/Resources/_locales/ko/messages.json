@@ -1481,6 +1481,30 @@
  "orgFirstWin": {
   "message": "완료. 이제부터 알아서 추천할게요."
  },
+ "orgNameChat": {
+  "message": "주제로 이름 짓기"
+ },
+ "orgNamed": {
+  "message": "‘{0}’(으)로 이름을 지었어요"
+ },
+ "orgNameFailed": {
+  "message": "지금은 채팅 이름을 짓지 못했어요. 나중에 다시 해 보세요."
+ },
+ "recs_one": {
+  "message": "추천 {0}개"
+ },
+ "recs_two": {
+  "message": "추천 {0}개"
+ },
+ "recs_few": {
+  "message": "추천 {0}개"
+ },
+ "recs_many": {
+  "message": "추천 {0}개"
+ },
+ "recs_other": {
+  "message": "추천 {0}개"
+ },
  "orgConsentTitle": {
   "message": "채팅을 주제별로 정리할까요?"
  },
