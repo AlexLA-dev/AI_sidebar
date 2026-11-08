@@ -517,6 +517,7 @@
   "orgNameChat": "按主题命名",
   "orgNamed": "已命名为“{0}”",
   "orgNameFailed": "暂时无法为对话命名，请稍后再试。",
+  "orgNameAs": "将对话命名为“{0}”",
   "recs_one": "{0} 条建议",
   "recs_two": "{0} 条建议",
   "recs_few": "{0} 条建议",

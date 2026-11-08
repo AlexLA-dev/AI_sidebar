@@ -271,11 +271,7 @@ struct ChatThread: Identifiable, Hashable {
     }
 
     /// The chat as Organize works on it (its stored JSON).
-    var organized: OrganizeThread? {
-        let parsed = try? JSONSerialization.jsonObject(with: Data(data.utf8))
-        guard let object = (parsed as? [String: Any]) ?? (parsed as? [Any]).map({ ["m": $0] }) else { return nil }
-        return OrganizeThread(id: id, u: updatedAt, object: object)
-    }
+    var organized: OrganizeThread? { OrganizeThread(id: id, u: updatedAt, data: data) }
 
     /// The same chat with `entries` (src/shared/conversation.ts `Entry` objects) after its messages,
     /// written at `updatedAt`: it moves to the top of the list like a chat continued in Safari.

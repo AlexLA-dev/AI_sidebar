@@ -55,6 +55,7 @@ struct ChatsView: View {
     // 2.6: open organizing suggestions per chat, and the chats whose badge was counted as shown.
     @State private var recs: [String: Int] = [:]
     @State private var recsSeen = Set<String>()
+    @State private var listShown = false
     @State private var linked: (threadId: String, index: Int)?
     // "Reminders" or "Watching" (2.5 (77): two lists, never one), from the Chats toolbar.
     @State private var showingList: LaterItem.Kind?
@@ -171,13 +172,24 @@ struct ChatsView: View {
         } message: {
             Text("You can restore it from Recently Deleted for 30 days.")
         }
-        .onAppear { library.refresh() }
-        // 2.6 (Pro, suggestions on): how many open suggestions each chat has, again whenever the chats change; each
-        // chat's "N recommendations" counted once as shown.
-        .task(id: library.threads.map { "\($0.id):\($0.updatedAt)" }.joined(separator: ",")) {
+        .onAppear {
+            library.refresh()
+            listShown = true
+        }
+        // A chat opened over the list (iPhone): the list's counts wait until it shows again.
+        .onDisappear { listShown = false }
+        // 2.6 (Pro, suggestions on): how many open suggestions each chat has, again when chats or their messages
+        // change (not a pin, a mark or a sync of the same messages: 2.6 (91), that recounted all the time while a
+        // chat was open, on the main thread); each chat's "N recommendations" counted once as shown.
+        .task(id: listShown ? library.threads.map { "\($0.id):\($0.entries.count)" }.joined(separator: ",") : "") {
+            guard listShown else { return }
+            // A moment first: a burst of changes (iCloud) counts once.
+            try? await Task.sleep(nanoseconds: 700_000_000)
+            guard !Task.isCancelled else { return }
             await organize.refreshStatus()
             guard organize.enabled(pro: store.isPro) else { recs = [:]; return }
             let found = await organize.counts(in: library.threads)
+            guard !Task.isCancelled else { return }
             recs = found
             for id in found.keys where !recsSeen.contains(id) {
                 recsSeen.insert(id)
@@ -1484,7 +1496,6 @@ struct ChatDetailView: View {
         guard !Task.isCancelled, let found = await organize.suggestions(for: thread, in: library.threads),
               found.chat == currentId, found.length == self.thread?.entries.count else { return }
         withAnimation(.easeOut(duration: 0.4)) { suggestions = found }
-        if let name = found.name { putName(thread, name, why: "drift") }
         // Each suggestion counted once as shown.
         if let move = found.move, !seen.contains("m\(found.chat)\(move.start)") {
             seen.insert("m\(found.chat)\(move.start)")
@@ -1497,12 +1508,11 @@ struct ChatDetailView: View {
         }
     }
 
-    /// 2.6: the AI's name on the chat, with "Named “…” · Undo". By itself (its topic changed) never over a name the user
-    /// typed, and quietly while another bar is up; asked for ("Name by topic"), over any.
+    /// 2.6: the AI's name on the chat, with "Named “…” · Undo": a suggested name taken (never over a name the user
+    /// typed), or "Name by topic" (over any). Never by itself (2.6 (91)).
     private func putName(_ thread: ChatThread, _ name: String, why: String) {
         guard let before = library.nameByAI(thread, name, asked: why == "asked") else { return }
         ChatAI.reportOrganize("organize", ["action": "accepted", "what": "name", "why": why])
-        if why == "drift", undoBar != nil || deleted != nil { return }
         let id = thread.id
         withAnimation {
             nameBar = NameBar(chat: id, text: String(localized: "Named “\(name)”"), undo: {
@@ -1538,13 +1548,26 @@ struct ChatDetailView: View {
         if let s = current(thread) {
             let tag = s.tags[index].flatMap { raw.indices.contains(index) && Organize.entryKey(raw[index]) == $0.key ? $0.tag : nil }
             let move = s.move?.end == index ? s.move : nil
-            if tag != nil || move != nil {
+            // 2.6 (91): a better name is a suggestion under the last message, like a tag or a move.
+            let name = index == raw.count - 1 ? s.name : nil
+            if tag != nil || move != nil || name != nil {
                 SuggestionRow(
-                    tag: tag, move: move,
+                    tag: tag, move: move, name: name,
                     onTag: { if let tag { takeTag(thread, index, tag) } },
                     onTagNo: { if let tag { refuseTag(thread, index, tag) } },
                     onMove: { if let move { takeMove(thread, move) } },
-                    onMoveNo: { if let move { refuseMove(thread, move) } }
+                    onMoveNo: { if let move { refuseMove(thread, move) } },
+                    onName: {
+                        guard let name else { return }
+                        suggestions?.name = nil
+                        organize.settleName(thread.id, taken: true)
+                        putName(thread, name, why: "drift")
+                    },
+                    onNameNo: {
+                        suggestions?.name = nil
+                        organize.settleName(thread.id, taken: false)
+                        ChatAI.reportOrganize("organize", ["action": "dismissed", "what": "name", "why": "drift"])
+                    }
                 )
             }
         }

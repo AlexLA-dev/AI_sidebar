@@ -61,7 +61,7 @@ import { hasPro, isUltra, type PaidPlan } from "../shared/plan"
 import { SettingsView } from "./Settings"
 import { shareLabels } from "./shareLabels"
 import { loadJobs, markHintSeen, markMemoryOffered, memoryOffered, onJobsChanged, resetHints, seenHints, type HintKey } from "./store"
-import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, onConsentChanged, loadThreads, markTourSeen, lastPlanSeen, setLastPlanSeen, planToursSeen, markPlanToursSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, purgeChats, nameThread, rememberPageText, renameThread, renewalAskedPeriod, unnameThread, restoreChat, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount, trashChat } from "./store"
+import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, onConsentChanged, loadThreads, markTourSeen, lastPlanSeen, setLastPlanSeen, planToursSeen, markPlanToursSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, purgeChats, nameThread, rememberPageText, renameThread, renewalAskedPeriod, settleNameSuggestion, unnameThread, restoreChat, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount, trashChat } from "./store"
 import { TagChip, TagEditor } from "./Tags"
 import { ThreadsView } from "./Threads"
 import { TrashView } from "./Trash"
@@ -2400,7 +2400,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // opens. They belong to the chat as it was (its length) and go when it changes; at most one row under a message.
   const orgCfg = status?.organize?.config ?? DEFAULT_ORGANIZE
   const orgOn = TARGET === "safari" && hasPro(plan) && Boolean(status?.organize?.on) && settings.organize
-  const [org, setOrg] = useState<{ chat: string; length: number; move: OrganizeMove | null; tags: Array<{ index: number; key: string; tag: string }> } | null>(null)
+  const [org, setOrg] = useState<{ chat: string; length: number; move: OrganizeMove | null; tags: Array<{ index: number; key: string; tag: string }>; name: string | null } | null>(null)
   const [cards, setCards] = useState<OrganizeCards | null>(null)
   // "Everything in one chat?" showing in this chat; the card after the third tag; the line after the first one taken
   // (the chat it was taken in: it stays there until the next question or note, never at the end of other chats).
@@ -2422,9 +2422,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     // After the answer is in, without delaying it; a fade in, not a jump.
     const timer = setTimeout(() => {
       void sendBackground<OrganizeReply>({ type: "organize", chat }).then((reply) => {
-        if (reply?.ok && reply.name) void putName(chat, reply.name, "drift")
         if (!reply?.ok || threadRef.current !== chat || messagesRef.current.length !== length) return
-        setOrg({ chat, length, move: reply.move, tags: reply.tags })
+        setOrg({ chat, length, move: reply.move, tags: reply.tags, name: reply.name ?? null })
       })
     }, 900)
     return () => clearTimeout(timer)
@@ -2439,6 +2438,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       seen.push([`m:${entryKey(messages[orgNow.move.start])}:${orgNow.move.to}`, { kind: "organize", action: "shown", what: orgNow.move.to ? "move" : "new", why: orgNow.move.why }])
     }
     for (const x of orgNow.tags) seen.push([`t:${x.key}:${x.tag}`, { kind: "organize", action: "shown", what: "tag" }])
+    if (orgNow.name) seen.push([`n:${orgNow.chat}:${orgNow.name}`, { kind: "organize", action: "shown", what: "name", why: "drift" }])
     for (const [id, event] of seen) {
       if (orgSeen.current.has(id)) continue
       orgSeen.current.add(id)
@@ -2446,16 +2446,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     }
   }, [orgNow])
 
-  // 2.6: the chat named by its topic, by "Name by topic" or by itself when its name no longer fit (never one the user
-  // typed): the list shows it, and a bar says so, with Undo. By itself while another bar is up: quietly.
-  const undoBarRef = useRef(undoBar)
-  undoBarRef.current = undoBar
+  // 2.6: the chat named by its topic, by "Name by topic" or by taking a suggested name (never over a name the user
+  // typed, unless they asked): the list shows it, and a bar says so, with Undo. Never by itself (2.6 (91)).
   const putName = async (chat: string, name: string, why: "asked" | "drift") => {
     const before = await nameThread(chat, name, why === "asked")
     if (!before) return
     setThreadList(chatList((await loadThreads()).threads))
     orgEvent({ kind: "organize", action: "accepted", what: "name", why })
-    if (why === "drift" && (undoBarRef.current || threadRef.current !== chat)) return
+    if (threadRef.current !== chat) return
     setUndoBar({
       text: t("orgNamed", name),
       kind: "move",
@@ -2487,16 +2485,22 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   useEffect(() => {
     if (!open || !orgOn || view !== "threads") return
     let live = true
-    void sendBackground<OrganizeCountsReply>({ type: "organizeCounts" }).then((reply) => {
-      if (!live || !reply?.ok) return
-      setRecs(reply.counts)
-      for (const id of Object.keys(reply.counts)) {
-        if (recsSeen.current.has(id)) continue
-        recsSeen.current.add(id)
-        orgEvent({ kind: "organize", action: "shown", what: "badge" })
-      }
-    })
-    return () => { live = false }
+    // A moment first: a burst of changes (a sync, a long answer saving) counts once (2.6 (91)).
+    const timer = setTimeout(() => {
+      void sendBackground<OrganizeCountsReply>({ type: "organizeCounts" }).then((reply) => {
+        if (!live || !reply?.ok) return
+        setRecs(reply.counts)
+        for (const id of Object.keys(reply.counts)) {
+          if (recsSeen.current.has(id)) continue
+          recsSeen.current.add(id)
+          orgEvent({ kind: "organize", action: "shown", what: "badge" })
+        }
+      })
+    }, 600)
+    return () => {
+      live = false
+      clearTimeout(timer)
+    }
   }, [open, orgOn, view, threadList])
 
   // The first suggestion taken: a line that from now on they come by themselves (once).
@@ -2647,11 +2651,25 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (!orgNow) return null
     const tag = orgNow.tags.find((x) => x.index === idx && messages[idx] && entryKey(messages[idx]) === x.key)?.tag
     const move = orgNow.move && orgNow.move.end === idx ? orgNow.move : undefined
-    if (!tag && !move) return null
+    const name = orgNow.name && idx === messages.length - 1 ? orgNow.name : undefined
+    if (!tag && !move && !name) return null
     return (
       <OrganizeRow
         tag={tag}
         move={move}
+        name={name}
+        onName={() => {
+          if (!name) return
+          const chat = threadRef.current
+          setOrg((o) => o && { ...o, name: null })
+          void settleNameSuggestion(chat, true).then(() => putName(chat, name, "drift"))
+        }}
+        onNameNo={() => {
+          if (!name) return
+          setOrg((o) => o && { ...o, name: null })
+          void settleNameSuggestion(threadRef.current, false)
+          orgEvent({ kind: "organize", action: "dismissed", what: "name", why: "drift" })
+        }}
         quiet={idx === selectingIdx}
         onTag={() => tag && takeTag(idx, tag)}
         onTagNo={() => tag && refuseTag(idx, tag)}

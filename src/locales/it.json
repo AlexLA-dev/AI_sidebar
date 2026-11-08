@@ -517,6 +517,7 @@
   "orgNameChat": "Dai un nome per argomento",
   "orgNamed": "Chat chiamata «{0}»",
   "orgNameFailed": "Non sono riuscito a dare un nome alla chat. Riprova più tardi.",
+  "orgNameAs": "Chiama la chat «{0}»",
   "recs_one": "{0} consiglio",
   "recs_two": "{0} consigli",
   "recs_few": "{0} consigli",

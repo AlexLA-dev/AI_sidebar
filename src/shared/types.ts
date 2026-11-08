@@ -237,10 +237,17 @@ export type OrganizeReply =
       move: { start: number; end: number; to: string | null; toName: string; why: "page" | "site" | "topic" | "apart"; count: number } | null
       // A suggested tag for the message at `index` (its key, to check it's still that message).
       tags: Array<{ index: number; key: string; tag: string }>
-      // 2.6: the chat's name no longer fits its topic (and the user didn't type it): this one does.
+      // 2.6: the chat's name no longer fits its topic (and the user didn't type it): this one would. A suggestion, like a
+      // tag or a move (2.6 (91): the owner wants to OK each rename).
       name?: string
     }
   | { ok: false; code: "OFF" | "PRO_ONLY" | "NETWORK" | "LIMIT_REACHED" | "UPSTREAM" }
+
+/**
+ * Name checks (2.6), by chat: what the last one was about (nameCheckKey), and the name it suggested while it's open
+ * (`title`; `no`: turned down). Only on this device.
+ */
+export type OrgNames = Record<string, { key: string; at: number; title?: string; no?: true }>
 
 export type OrganizeCountsReply = { ok: true; counts: Record<string, number> } | { ok: false; code: "OFF" | "PRO_ONLY" | "NETWORK" | "LIMIT_REACHED" | "UPSTREAM" }
 
@@ -249,8 +256,9 @@ export type OrganizeNameReply = { ok: true; name: string } | { ok: false; code: 
 /** Organizing events for /api/v2/event (src/background/organize.ts sends them). */
 export type OrganizeEvent =
   | { kind: "organize"; action: "shown" | "accepted" | "dismissed" | "undone"; what: "move" | "new" | "tag"; why?: "page" | "site" | "topic" | "apart" }
-  // 2.6: the chat named by its topic ("Name by topic", or by itself when its name no longer fit), or that undone.
-  | { kind: "organize"; action: "accepted" | "undone"; what: "name"; why: "asked" | "drift" }
+  // 2.6: the chat named by its topic: "Name by topic" (asked), or a suggested name ("drift": its name no longer fit)
+  // shown, taken, turned down; either undone.
+  | { kind: "organize"; action: "shown" | "accepted" | "dismissed" | "undone"; what: "name"; why: "asked" | "drift" }
   // 2.6: "N recommendations" on a chat in the list, shown (once per chat) and tapped.
   | { kind: "organize"; action: "shown" | "tap"; what: "badge" }
   | { kind: "organize_promo"; action: "shown" | "tap"; where: "pro_card" | "inchat_mess" | "third_tag" | "first_win" | "settings" }
@@ -320,6 +328,9 @@ export const STORAGE = {
   orgVerdicts: "cf:orgVerdicts",
   // Name checks done (2.6), by chat: what each was about (nameCheckKey), so the same chat isn't checked again.
   orgNames: "cf:orgNames",
+  // Tags the check said yes to, by chat, as the chat last showed them ({key, tag}[]): the chats list counts these
+  // (2.6 (91)) instead of working out every chat's tag candidates again.
+  orgTagsShown: "cf:orgTagsShown",
   orgCards: "cf:orgCards"
 } as const
 

@@ -14,10 +14,14 @@ func messagesCount(_ n: Int) -> String {
 struct SuggestionRow: View {
     var tag: String?
     var move: OrganizeModel.Move?
+    /// 2.6 (91): a better name for the chat (under its last message).
+    var name: String?
     let onTag: () -> Void
     let onTagNo: () -> Void
     let onMove: () -> Void
     let onMoveNo: () -> Void
+    var onName: () -> Void = {}
+    var onNameNo: () -> Void = {}
 
     var body: some View {
         OrganizeFlow(spacing: 6) {
@@ -30,6 +34,13 @@ struct SuggestionRow: View {
             if let move {
                 SuggestionChip(tint: .secondary, takeLabel: move.to == nil ? Text("Move these messages to a new chat, “\(move.toName)”") : Text("Move \(messagesCount(move.count)) to the chat “\(move.toName)”"), take: onMove, refuse: onMoveNo) {
                     (Text(Image(systemName: "arrow.turn.down.right")) + Text(" ") + moveText(move))
+                        .font(.footnote)
+                        .lineLimit(1)
+                }
+            }
+            if let name {
+                SuggestionChip(tint: .secondary, takeLabel: Text("Name it “\(name)”"), take: onName, refuse: onNameNo) {
+                    (Text(Image(systemName: "pencil")) + Text(" ") + Text("Name it “\(Text(name).fontWeight(.semibold).foregroundColor(.primary))”"))
                         .font(.footnote)
                         .lineLimit(1)
                 }
@@ -327,47 +338,57 @@ final class OrganizeModel: ObservableObject {
     // Name checks remembered (the newest chats): what each was about (Organize.nameCheckKey).
     private let maxNames = 200
 
-    private struct VectorStore: Codable {
+    // The caches as files: nonisolated, so they're written off the main thread.
+    nonisolated private struct VectorStore: Codable {
         var space: String
         /// entryKey → "textKey:packed vector".
         var v: [String: String]
     }
 
-    private struct Verdicts: Codable {
+    nonisolated private struct Verdicts: Codable {
         struct Item: Codable { var tag: String; var fits: Bool; var confidence: Double; }
         var items: [String: [Item]] = [:]
         var at: [String: Double] = [:]
+        /// The tags each chat last showed (chat → message key → tag), for the chats list's count (2.6 (91)).
+        var shown: [String: [String: String]]? = [:]
     }
 
-    private struct Names: Codable {
+    /// Name checks by chat: what the last one was about, when, and the name it suggested while that's open (`title`;
+    /// `no`: turned down). Optional so a file from 2.6 (90/91) still reads.
+    nonisolated private struct Names: Codable {
         var key: [String: String] = [:]
         var at: [String: Double] = [:]
+        var title: [String: String]? = [:]
+        var no: [String: Bool]? = [:]
     }
 
     private var vectors = VectorStore(space: "", v: [:])
     private var verdicts = Verdicts()
     private var names = Names()
-    private var unpacked: [String: [Float]] = [:]
     private var running: Task<Suggestions?, Never>?
 
     private init() {
         vectors = Self.load("organize-vectors.json") ?? VectorStore(space: "", v: [:])
         verdicts = Self.load("organize-verdicts.json") ?? Verdicts()
         names = Self.load("organize-names.json") ?? Names()
+        // Files from 2.6 (90/91) lack these.
+        if verdicts.shown == nil { verdicts.shown = [:] }
+        if names.title == nil { names.title = [:] }
+        if names.no == nil { names.no = [:] }
     }
 
     // MARK: Files (the app's caches: not synced, not in the App Group)
 
-    private static func file(_ name: String) -> URL? {
+    private nonisolated static func file(_ name: String) -> URL? {
         FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first?.appendingPathComponent(name)
     }
 
-    private static func load<T: Decodable>(_ name: String) -> T? {
+    private nonisolated static func load<T: Decodable>(_ name: String) -> T? {
         guard let url = file(name), let data = try? Data(contentsOf: url) else { return nil }
         return try? JSONDecoder().decode(T.self, from: data)
     }
 
-    private static func save<T: Encodable>(_ value: T, _ name: String) {
+    private nonisolated static func save<T: Encodable>(_ value: T, _ name: String) {
         guard let url = file(name), let data = try? JSONEncoder().encode(value) else { return }
         try? data.write(to: url, options: .atomic)
     }
@@ -378,7 +399,6 @@ final class OrganizeModel: ObservableObject {
         vectors = VectorStore(space: space, v: [:])
         verdicts = Verdicts()
         names = Names()
-        unpacked = [:]
         Self.save(vectors, "organize-vectors.json")
         Self.save(verdicts, "organize-verdicts.json")
         Self.save(names, "organize-names.json")
@@ -414,38 +434,41 @@ final class OrganizeModel: ObservableObject {
         return await task.value
     }
 
-    /// The vectors of `live`'s messages (`first`'s first), asking for those the device lacks; nil when `first` has none.
-    private func vectorsFor(_ first: OrganizeThread?, _ live: [OrganizeThread]) async -> Organize.VectorOf? {
-        if vectors.space != space && !space.isEmpty { vectors = VectorStore(space: space, v: [:]); unpacked = [:] }
+    // MARK: The work, off the main thread (2.6 (91): with hundreds of chats it hung the app for seconds)
 
-        // Vectors for what lacks them: this chat first, then the others (the list's order, latest first).
-        let order = first.map { f in [f] + live.filter { $0.id != f.id } } ?? live
-        let todo = Organize.missingVectors(order, has: { key, text in self.vectors.v[key]?.hasPrefix(Organize.textKey(text) + ":") == true }, limit: maxEmbedPerRun)
+    private typealias Carry = OrganizeWork.Carry
+
+    /// The chats organizing reads, read off the main thread.
+    private func read(_ threads: [ChatThread]) async -> Carry<[OrganizeThread]> {
+        let sources = threads.filter { !$0.isHistory }.map { OrganizeWork.Source(id: $0.id, u: $0.updatedAt, data: $0.data) }
+        return await Task.detached(priority: .userInitiated) { Carry(value: OrganizeWork.read(sources)) }.value
+    }
+
+    /// Vectors for the messages of `live` that lack them, asked for in batches; false when chat `first` has none and
+    /// none could be had. What's missing and what's gone is worked out off the main thread.
+    private func embedMissing(_ first: String?, _ live: Carry<[OrganizeThread]>) async -> Bool {
+        if vectors.space != space && !space.isEmpty { vectors = VectorStore(space: space, v: [:]) }
+        let known = vectors.v
+        let limit = maxEmbedPerRun
+        let todo = await Task.detached(priority: .userInitiated) { Carry(value: OrganizeWork.missing(live.value, known: known, limit: limit)) }.value.value
         var start = 0
         while start < todo.count {
             let part = Array(todo[start..<min(start + batch, todo.count)])
             guard let result = try? await ChatAI.organizeEmbed(part.map(\.text)) else {
-                if start == 0, let first, !first.entries.contains(where: { vectors.v[Organize.entryKey($0)] != nil }) { return nil }
+                let chat = first.flatMap { id in live.value.first { $0.id == id } }
+                if start == 0, let chat, !chat.entries.contains(where: { vectors.v[Organize.entryKey($0)] != nil }) { return false }
                 break
             }
-            if result.space != vectors.space { vectors = VectorStore(space: result.space, v: [:]); unpacked = [:] }
+            if result.space != vectors.space { vectors = VectorStore(space: result.space, v: [:]) }
             for (i, item) in part.enumerated() { vectors.v[item.key] = "\(Organize.textKey(item.text)):\(result.vectors[i])" }
             start += batch
         }
         // Vectors of messages no chat has any more go.
-        let keys = Set(live.flatMap { $0.entries.map(Organize.entryKey) })
-        vectors.v = vectors.v.filter { keys.contains($0.key) }
-        Self.save(vectors, "organize-vectors.json")
-
-        return { entry in
-            let text = Organize.embedText(entry)
-            guard !text.isEmpty, let hit = self.vectors.v[Organize.entryKey(entry)], let colon = hit.firstIndex(of: ":"),
-                  hit[..<colon] == Organize.textKey(text) else { return nil }
-            if let v = self.unpacked[hit] { return v }
-            let v = Organize.unpackVector(String(hit[hit.index(after: colon)...]))
-            self.unpacked[hit] = v
-            return v
-        }
+        let current = vectors.v
+        vectors.v = await Task.detached(priority: .utility) { OrganizeWork.keep(current, live.value) }.value
+        let snapshot = vectors
+        Task.detached(priority: .utility) { Self.save(snapshot, "organize-vectors.json") }
+        return true
     }
 
     /// The hash a tag check is remembered by.
@@ -455,28 +478,29 @@ final class OrganizeModel: ObservableObject {
 
     private func run(_ thread: ChatThread, _ threads: [ChatThread]) async -> Suggestions? {
         await refreshStatus()
-        guard serverOn, !thread.isHistory, let chat = thread.organized else { return nil }
-        let live = threads.filter { !$0.isHistory }.compactMap(\.organized)
-        guard let vectorOf = await vectorsFor(chat, live) else { return nil }
+        guard serverOn, !thread.isHistory else { return nil }
+        let chatId = thread.id
+        let live = await read(threads)
+        guard let chat = live.value.first(where: { $0.id == chatId }), await embedMissing(chatId, live) else { return nil }
+        let known = vectors.v
+        let cfg = config
+        guard let work = await Task.detached(priority: .userInitiated, operation: { Carry(value: OrganizeWork.suggest(chatId, live.value, known: known, cfg)) }).value.value else { return nil }
 
         var out = Suggestions(chat: thread.id, length: thread.entries.count, move: nil, tags: [:])
-        if let s = Organize.suggestMove(chat, live, vectorOf, config) {
+        if let s = work.move {
             let name = s.to.flatMap { id in threads.first { $0.id == id }?.name } ?? ChatThread.title(of: Array(thread.entries[s.start...s.end]))
             out.move = Move(start: s.start, end: s.end, to: s.to, toName: name, why: s.why)
         }
-        for index in Organize.tagTargets(chat, config) {
-            let candidates = Organize.tagCandidates(chat, index, live, vectorOf, config)
-            guard !candidates.isEmpty else { continue }
-            let message = Organize.judgeText(chat.entries, index)
-            let hash = verdictHash(message, candidates)
+        for tagging in work.tags {
+            let hash = verdictHash(tagging.message, tagging.candidates)
             if verdicts.items[hash] == nil {
-                guard let answer = try? await ChatAI.organizeTags(message: message, candidates: candidates.map { ($0.tag, $0.examples) }) else { break }
+                guard let answer = try? await ChatAI.organizeTags(message: tagging.message, candidates: tagging.candidates.map { ($0.tag, $0.examples) }) else { break }
                 verdicts.items[hash] = answer.map { .init(tag: $0.tag, fits: $0.fits, confidence: $0.confidence) }
                 verdicts.at[hash] = Date().timeIntervalSince1970
             }
             let said = (verdicts.items[hash] ?? []).map { Organize.TagVerdict(tag: $0.tag, fits: $0.fits, confidence: $0.confidence) }
-            if let tag = Organize.judgedTags(candidates, said, config).first {
-                out.tags[index] = (Organize.entryKey(chat.entries[index]), tag)
+            if let tag = Organize.judgedTags(tagging.candidates, said, config).first {
+                out.tags[tagging.index] = (Organize.entryKey(chat.entries[tagging.index]), tag)
             }
         }
         if verdicts.items.count > maxVerdicts {
@@ -484,48 +508,64 @@ final class OrganizeModel: ObservableObject {
             verdicts.items = verdicts.items.filter { keep.contains($0.key) }
             verdicts.at = verdicts.at.filter { keep.contains($0.key) }
         }
-        Self.save(verdicts, "organize-verdicts.json")
+        // What this chat showed, for the chats list's count (2.6 (91)).
+        verdicts.shown?[thread.id] = Dictionary(out.tags.values.map { ($0.key, $0.tag) }, uniquingKeysWith: { a, _ in a })
+        let liveIds = Set(threads.map(\.id))
+        verdicts.shown = verdicts.shown?.filter { liveIds.contains($0.key) }
+        let kept = verdicts
+        Task.detached(priority: .utility) { Self.save(kept, "organize-verdicts.json") }
 
         // 2.6: the chat's name, unless the user typed it: checked once the chat has a second question or note, and
-        // again when it gets another page or a move changes it; renamed when it no longer fits.
+        // again when it gets another page or a move changes it. A better one is a suggestion until taken or turned down
+        // (2.6 (91): never renamed by itself), kept so it's still there when the chat opens again.
         if Organize.wantsNameCheck(chat) {
             let key = Organize.nameCheckKey(chat)
             if names.key[chat.id] != key, let answer = try? await ChatAI.organizeName(chat: Organize.nameText(chat.entries), current: thread.name) {
-                let renamed = !answer.fits && answer.title != thread.name
-                if renamed { out.name = answer.title }
-                names.key[chat.id] = Organize.nameCheckKey(chat, title: renamed ? answer.title : nil)
+                names.key[chat.id] = key
                 names.at[chat.id] = Date().timeIntervalSince1970
+                names.title?[chat.id] = !answer.fits && answer.title != thread.name ? answer.title : nil
+                names.no?[chat.id] = nil
                 if names.key.count > maxNames {
                     let keep = Set(names.at.sorted { $0.value > $1.value }.prefix(maxNames).map(\.key))
                     names.key = names.key.filter { keep.contains($0.key) }
                     names.at = names.at.filter { keep.contains($0.key) }
+                    names.title = names.title?.filter { keep.contains($0.key) }
+                    names.no = names.no?.filter { keep.contains($0.key) }
                 }
                 Self.save(names, "organize-names.json")
             }
+            out.name = openName(thread)
         }
         return out
     }
 
-    /// The open suggestions of every chat, for the chats list (2.6, "N recommendations"): its move, and the tags the
-    /// check already said yes to (a chat opened since has them all; nothing is asked of the AI here but vectors). The
-    /// same rules as in the chat, so the count is what the chat shows. Only chats with some.
+    /// The name suggested for `thread` while it's open: not turned down, not its name already, not one the user typed.
+    func openName(_ thread: ChatThread) -> String? {
+        guard let title = names.title?[thread.id], names.no?[thread.id] != true, title != thread.name, !thread.namedByUser else { return nil }
+        return title
+    }
+
+    /// A suggested name taken or turned down: not suggested again for the chat as it is.
+    func settleName(_ chatId: String, taken: Bool) {
+        guard names.title?[chatId] != nil else { return }
+        if taken { names.title?[chatId] = nil } else { names.no?[chatId] = true }
+        Self.save(names, "organize-names.json")
+    }
+
+    /// The open suggestions of every chat, for the chats list (2.6, "N recommendations"): its move, a suggested name,
+    /// and the tags it last showed that are still open (2.6 (91): working out every chat's tag candidates again, on the
+    /// main thread, hung the app). Nothing is asked of the AI here but missing vectors. Only chats with some.
     func counts(in threads: [ChatThread]) async -> [String: Int] {
         await refreshStatus()
         _ = await running?.value
         guard serverOn else { return [:] }
-        let live = threads.filter { !$0.isHistory }.compactMap(\.organized)
-        guard !live.isEmpty, let vectorOf = await vectorsFor(nil, live) else { return [:] }
-        var out: [String: Int] = [:]
-        for chat in live {
-            var n = Organize.suggestMove(chat, live, vectorOf, config) == nil ? 0 : 1
-            for index in Organize.tagTargets(chat, config) {
-                let candidates = Organize.tagCandidates(chat, index, live, vectorOf, config)
-                guard !candidates.isEmpty, let said = verdicts.items[verdictHash(Organize.judgeText(chat.entries, index), candidates)] else { continue }
-                if !Organize.judgedTags(candidates, said.map { Organize.TagVerdict(tag: $0.tag, fits: $0.fits, confidence: $0.confidence) }, config).isEmpty { n += 1 }
-            }
-            if n > 0 { out[chat.id] = n }
-        }
-        return out
+        let live = await read(threads)
+        guard !live.value.isEmpty, await embedMissing(nil, live) else { return [:] }
+        let known = vectors.v
+        let cfg = config
+        let shown = verdicts.shown ?? [:]
+        let named = Set(threads.filter { openName($0) != nil }.map(\.id))
+        return await Task.detached(priority: .utility) { OrganizeWork.counts(live.value, known: known, cfg, shown: shown, named: named) }.value
     }
 
     /// "Name by topic": a name for the chat by its topic now (nil: it couldn't be had).
