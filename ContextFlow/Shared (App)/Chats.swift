@@ -590,6 +590,7 @@ final class ChatLibrary: ObservableObject {
         }
         // A big library (2.6 (92): the app hung opening chats with hundreds of them): -CFDebugSeedChats 300 puts that
         // many chats here, 40 topics over their sites, with page texts, notes and the user's tags.
+        DebugHangLog.start()
         let many = UserDefaults.standard.integer(forKey: "CFDebugSeedChats")
         if many > 0, ChatMirror.chats()["debug-many-0"] == nil {
             var saves: [String: ChatMirror.Item] = [:]

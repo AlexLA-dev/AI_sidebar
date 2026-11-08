@@ -1244,6 +1244,9 @@ struct ChatDetailView: View {
                         }
                     }
                     .onAppear {
+                        #if DEBUG
+                        DebugHangLog.mark("open \(threadId)")
+                        #endif
                         guard let scrollTo else { return }
                         DispatchQueue.main.async { proxy.scrollTo(scrollTo, anchor: .center) }
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { flashMessage(scrollTo) }

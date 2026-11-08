@@ -687,3 +687,48 @@ struct OrganizeWhatsNew: View {
         #endif
     }
 }
+
+#if DEBUG
+/// Debug builds, `-CFDebugHangLog YES` (2.6 (92): the app hung opening chats): each stall of the main thread over 250 ms,
+/// and each chat opened, with the time, in Library/Caches/cf-hangs.log.
+nonisolated enum DebugHangLog {
+    static let on = UserDefaults.standard.bool(forKey: "CFDebugHangLog")
+    static let url = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!.appendingPathComponent("cf-hangs.log")
+    private static let queue = DispatchQueue(label: "cf.hanglog")
+    nonisolated(unsafe) private static var started = false
+
+    static func start() {
+        guard on else { return }
+        queue.async {
+            guard !started else { return }
+            started = true
+            try? Data().write(to: url)
+            Thread.detachNewThread {
+                while true {
+                    let sent = Date()
+                    let done = DispatchSemaphore(value: 0)
+                    DispatchQueue.main.async { done.signal() }
+                    done.wait()
+                    let ms = Date().timeIntervalSince(sent) * 1000
+                    if ms > 250 { write(String(format: "stall %.0f ms", ms)) }
+                    Thread.sleep(forTimeInterval: 0.1)
+                }
+            }
+        }
+    }
+
+    static func mark(_ what: String) {
+        if on { write(what) }
+    }
+
+    private static func write(_ line: String) {
+        let text = String(format: "%.3f %@\n", Date().timeIntervalSince1970, line)
+        queue.async {
+            guard let handle = try? FileHandle(forWritingTo: url) else { return }
+            handle.seekToEndOfFile()
+            handle.write(Data(text.utf8))
+            try? handle.close()
+        }
+    }
+}
+#endif
