@@ -84,7 +84,7 @@ export const FEATURES: Record<string, Feature> = {
     since: "2.3", tracked: "2.6", actions: ["start", "step", "done", "skip", "exit"], via: ["first", "menu"],
     fields: {
       step: "int",
-      what: ["summarize", "consent", "answer", "select", "pick", "ask", "askSel", "answer2", "chats", "menu", "declined", "limit", "error", "closed"]
+      what: ["summarize", "consent", "answer", "select", "pick", "ask", "askSel", "answer2", "chats", "chatList", "menu", "declined", "limit", "error", "closed"]
     }
   },
   hint: { since: "2.3", actions: ["shown", "done"], fields: { what: ["chats", "video", "pdf", "note", "bubble", "qi", "app_chats"] } },
