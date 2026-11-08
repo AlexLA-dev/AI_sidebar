@@ -1490,6 +1490,9 @@
  "orgNameFailed": {
   "message": "Não consegui nomear a conversa agora. Tente de novo mais tarde."
  },
+ "orgNameAs": {
+  "message": "Chamar a conversa de “{0}”"
+ },
  "recs_one": {
   "message": "{0} recomendação"
  },
