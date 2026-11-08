@@ -84,6 +84,8 @@ export const ownerInsights = (days: number) => rpc<Record<string, unknown>>("cf_
 export const limitsReport = (days: number) => rpc<Record<string, unknown>>("cf_limits_report", { p_days: days })
 /** Organizing the chats (2.5): suggestions shown, taken, turned down and undone; promotions; turning it on (cf_organize_report). */
 export const organizeReport = (days: number) => rpc<Record<string, unknown>>("cf_organize_report", { p_days: days })
+/** Read aloud and find similar (2.6, Ultra): requests, people, tokens by model, cost, failures (cf_ultra_report). */
+export const ultraReport = (days: number) => rpc<Record<string, unknown>>("cf_ultra_report", { p_days: days })
 /** New people's way to the first answer, one row each, by the day they first showed up (cf_onboarding). */
 export const onboarding = (days: number) => rpc<Record<string, unknown>>("cf_onboarding", { p_days: days })
 /** By day: new users, how many of them ran out of free answers that day, Pro bought (cf_new_user_outcomes). */

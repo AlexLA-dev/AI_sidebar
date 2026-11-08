@@ -168,9 +168,15 @@ export default async (req: Request, context: Context): Promise<Response> => {
         engine, ok, items, model: engine === "a" ? settings.similar.writeModel : model,
         ...(category ? { category } : {}), ...(condition ? { condition } : {}),
         ...(failure ? { message: failure } : {}),
-        cost_usd: engine === "a" ? statsA.usd : googleCost(statsB),
+        // Engine A's dollars from its steps, so a search that stopped halfway still counts what it spent (statsA.usd is
+        // set only when the run gets that far).
+        cost_usd: engine === "a" ? Math.round(Object.values(statsA.spend).reduce((sum, step) => sum + step.usd, 0) * 1e6) / 1e6 : googleCost(statsB),
         ...(engine === "a"
-          ? { searches: statsA.searches, candidates: statsA.candidates, checked: statsA.checked, kept: statsA.kept, step_ms: statsA.ms }
+          ? {
+              searches: statsA.searches, candidates: statsA.candidates, checked: statsA.checked, kept: statsA.kept, step_ms: statsA.ms,
+              // Tokens and dollars per step ({plan, search, write}: model, input, output, searches, usd), for /analytics.
+              spend: statsA.spend
+            }
           : { search_queries: statsB.grounding?.webSearchQueries?.length ?? 0, sources: statsB.grounding?.groundingChunks?.length ?? 0, prompt_tokens: statsB.promptTokens, completion_tokens: statsB.completionTokens }),
         ms: Date.now() - started, plan: access?.plan, platform, version, build, ...step
       }),

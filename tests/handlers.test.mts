@@ -116,6 +116,7 @@ const rpc: Record<string, (args: Record<string, any>) => unknown> = {
   cf_owner_insights: ({ p_days }) => ({ days: p_days, per_user: [{ plan: "free", users: 2, user_days: 3, asked_days: 2, requests: 4, max_per_day: 3 }] }),
   cf_limits_report: ({ p_days }) => ({ days: p_days, rows: [{ key: "memory_window", hits: 74, base: 311, status: "systematic" }] }),
   cf_organize_report: ({ p_days }) => ({ days: p_days, suggestions: [{ what: "move", why: "site", shown: 5, accepted: 3, dismissed: 1, undone: 1, users: 2 }], promo: [], optin: [], api: null }),
+  cf_ultra_report: ({ p_days }) => ({ days: p_days, today: "2026-11-08", voice: { total: { texts: 3, minutes: 4.1 }, by_day: [], by_model: [], weeks: [] }, similar: { total: { searches: 4 }, by_day: [], by_model: [], weeks: [] } }),
   cf_onboarding: () => ({ people: [{ day: "2026-11-01", device: "iPhone", kind: "app", ext: 300, panel: 420, answer: 540, limit: 900, paid: 1200 }], open_reviews: [] }),
   cf_new_user_outcomes: () => [{ day: "2026-11-02", new: 12, limit_d0: 3, pro_bought: 2 }],
   cf_features: ({ p_days, p_base }) => ({ days: p_days, active: 2, features: [{ f: "ask", base: 2, people: 2 }], base: p_base }),
@@ -202,6 +203,7 @@ let resetClaudeCooldown: () => void
 let serverConfig: {
   geminiKey: string; adminToken: string; ownKeyReportDailyLimit: number; eventDailyLimit: number; useEventDailyLimit: number; proOfferCode: string
   anthropicKey: string; claudeEnabled: boolean; claudeFirstTokenMs: number; claudeMinBuild: number; freeDailyLimit: number
+  ultra: { speakWeeklySeconds: number; similarWeekly: number }
 }
 
 before(async () => {
@@ -572,19 +574,22 @@ test("admin usage report needs ADMIN_TOKEN", async () => {
   assert.equal(body.after_limit.people[0].locale, "uk-UA")
   assert.deepEqual(body.releases, [{ platform: "IOS", version: "2.4", approved_at: "2026-11-04T14:59:19Z" }])
   assert.deepEqual([body.organize_report.days, body.organize_report.suggestions[0].accepted], [180, 3])
+  // Read aloud and find similar (2.6) with the weekly allowances as configured.
+  assert.deepEqual([body.ultra_report.days, body.ultra_report.voice.total.texts, body.ultra_report.similar.total.searches], [180, 3, 4])
+  assert.deepEqual(body.ultra_report.allowance, { speak_minutes: serverConfig.ultra.speakWeeklySeconds / 60, similar_searches: serverConfig.ultra.similarWeekly })
 })
 
-test("admin usage report still answers before cf_owner_insights, cf_limits_report, cf_onboarding, cf_new_user_outcomes, the feature reports, cf_after_limit, cf_releases and cf_organize_report exist", async () => {
+test("admin usage report still answers before cf_owner_insights, cf_limits_report, cf_onboarding, cf_new_user_outcomes, the feature reports, cf_after_limit, cf_releases, cf_organize_report and cf_ultra_report exist", async () => {
   serverConfig.adminToken = "admin-test"
   const saved = { ...rpc }
-  for (const fn of ["cf_owner_insights", "cf_limits_report", "cf_onboarding", "cf_new_user_outcomes", "cf_features", "cf_feature_funnels", "cf_after_limit", "cf_releases", "cf_organize_report"]) delete rpc[fn]
+  for (const fn of ["cf_owner_insights", "cf_limits_report", "cf_onboarding", "cf_new_user_outcomes", "cf_features", "cf_feature_funnels", "cf_after_limit", "cf_releases", "cf_organize_report", "cf_ultra_report"]) delete rpc[fn]
   try {
     const res = await adminUsage(new Request("https://aisidebar.netlify.app/api/v2/admin/usage", { headers: { Authorization: "Bearer admin-test" } }))
     assert.equal(res.status, 200)
     const body = await res.json()
     assert.deepEqual(
-      [body.segments[0].requests, body.insights, body.limits_report, body.onboarding, body.new_outcomes, body.features, body.feature_funnels, body.after_limit, body.releases, body.organize_report],
-      [3, null, null, null, null, null, null, null, null, null]
+      [body.segments[0].requests, body.insights, body.limits_report, body.onboarding, body.new_outcomes, body.features, body.feature_funnels, body.after_limit, body.releases, body.organize_report, body.ultra_report],
+      [3, null, null, null, null, null, null, null, null, null, null]
     )
   } finally {
     Object.assign(rpc, saved)

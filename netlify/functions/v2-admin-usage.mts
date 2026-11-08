@@ -2,7 +2,7 @@ import type { Config } from "@netlify/functions"
 import { createHash, timingSafeEqual } from "node:crypto"
 
 import { config as settings } from "../shared/config.mts"
-import { afterLimit, featureFunnels, features, limitsReport, newUserOutcomes, onboarding, organizeReport, ownerInsights, releases, setupFunnel, usageReport } from "../shared/db.mts"
+import { afterLimit, featureFunnels, features, limitsReport, newUserOutcomes, onboarding, organizeReport, ownerInsights, releases, setupFunnel, ultraReport, usageReport } from "../shared/db.mts"
 import { featureBase } from "../../src/shared/usage.ts"
 
 /**
@@ -35,7 +35,7 @@ export default async (req: Request): Promise<Response> => {
       console.error(`[cf] ${what} failed:`, err instanceof Error ? err.message : err)
       return null
     }
-    const [report, funnel, insights, limits, steps, outcomes, used, funnels, after, shipped, organize] = await Promise.all([
+    const [report, funnel, insights, limits, steps, outcomes, used, funnels, after, shipped, organize, ultra] = await Promise.all([
       usageReport(days),
       // Older databases have no funnel or insights yet; the rest of the report still works.
       setupFunnel(days).catch(() => []),
@@ -48,11 +48,18 @@ export default async (req: Request): Promise<Response> => {
       afterLimit(days).catch(missing("after limit")),
       releases().catch(missing("releases")),
       // Before its migration (2.5) there's none: the page leaves the block out.
-      organizeReport(days).catch(() => null)
+      organizeReport(days).catch(() => null),
+      // Before its migration (2.6) there's none: the page says so in the block.
+      ultraReport(days).catch(() => null)
     ])
     return new Response(JSON.stringify({
       ...report, setup_funnel: funnel, insights, limits_report: limits, onboarding: steps, new_outcomes: outcomes,
-      features: used, feature_funnels: funnels, after_limit: after, releases: shipped, organize_report: organize
+      features: used, feature_funnels: funnels, after_limit: after, releases: shipped, organize_report: organize,
+      // The weekly allowances as configured (each per subscription), for the block's "of the week" columns.
+      ultra_report: ultra && {
+        ...ultra,
+        allowance: { speak_minutes: settings.ultra.speakWeeklySeconds / 60, similar_searches: settings.ultra.similarWeekly }
+      }
     }), { headers: noStore })
   } catch (err) {
     console.error("[cf] usage report failed:", err instanceof Error ? err.message : err)
