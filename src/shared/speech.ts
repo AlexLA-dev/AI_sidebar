@@ -287,3 +287,16 @@ export class PartSplitter {
     return rest
   }
 }
+
+/** The voice the server speaks with until it says otherwise (X-CF-Voice). */
+export const DEFAULT_VOICE = "Kore"
+
+/**
+ * A part's key on the user's devices and in their iCloud (2.6): sha256 of "speech|v1|<voice>|<language>|<text>", the
+ * same as the app's SpeechSync.key, so a part made on one device plays on the others without being made again.
+ */
+export async function syncKey(voice: string, lang: string, text: string): Promise<string> {
+  const primary = lang.toLowerCase().split(/[-_]/)[0] ?? ""
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`speech|v1|${voice}|${primary}|${text}`))
+  return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("")
+}

@@ -148,13 +148,16 @@ export default async (req: Request, context: Context): Promise<Response> => {
     status: 200,
     headers: {
       ...corsHeaders,
-      "Access-Control-Expose-Headers": "X-CF-Usage, X-CF-Charged, X-CF-Model, X-CF-Rate, X-CF-Voice-Gender",
+      "Access-Control-Expose-Headers": "X-CF-Usage, X-CF-Charged, X-CF-Model, X-CF-Rate, X-CF-Voice-Gender, X-CF-Voice",
       "Content-Type": `audio/L16; rate=${SPEECH_RATE}; channels=1`,
       "Cache-Control": "no-store",
       "X-CF-Usage": JSON.stringify(usage),
       "X-CF-Charged": String(charged),
       "X-CF-Model": speech.model,
       ...(voiceGender() ? { "X-CF-Voice-Gender": voiceGender() as string } : {}),
+      // The voice's name: part of the key a part is kept under on the user's devices and in their iCloud, so a new
+      // voice never plays an old recording.
+      "X-CF-Voice": settings.speak.voice,
       "X-CF-Rate": String(SPEECH_RATE)
     }
   })
