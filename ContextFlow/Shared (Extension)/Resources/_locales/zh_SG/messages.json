@@ -2072,6 +2072,18 @@
  "similarPerYear": {
   "message": "{0}/年"
  },
+ "offerMemoryTitle": {
+  "message": "Pro 记住整个对话"
+ },
+ "offerMemoryBody": {
+  "message": "免费回答只看对话的最近 {0} 条消息。使用 Pro，AI 会记住整个对话：每条消息、你的笔记和你提问过的页面。"
+ },
+ "offerMemoryLong": {
+  "message": "这个对话已超过免费回答能记住的 {0} 条消息。使用 Pro，AI 会记住整个对话：每条消息、你的笔记和你提问过的页面。"
+ },
+ "offerRetryAt": {
+  "message": "回答将在 {0} 恢复。"
+ },
  "tip_4cf1b54b00": {
   "message": "技巧"
  },

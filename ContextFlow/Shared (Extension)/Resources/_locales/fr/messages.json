@@ -2072,6 +2072,18 @@
  "similarPerYear": {
   "message": "{0}/an"
  },
+ "offerMemoryTitle": {
+  "message": "Pro se souvient de tout le chat"
+ },
+ "offerMemoryBody": {
+  "message": "Une réponse gratuite voit les {0} derniers messages d'un chat. Avec Pro, l'IA s'en souvient en entier : chaque message, vos notes et les pages sur lesquelles vous avez posé des questions."
+ },
+ "offerMemoryLong": {
+  "message": "Ce chat dépasse les {0} messages dont se souvient une réponse gratuite. Avec Pro, l'IA s'en souvient en entier : chaque message, vos notes et les pages sur lesquelles vous avez posé des questions."
+ },
+ "offerRetryAt": {
+  "message": "Les réponses reviennent à {0}."
+ },
  "tip_4cf1b54b00": {
   "message": "Astuces"
  },

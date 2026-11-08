@@ -715,5 +715,9 @@
   "similarPayIap": "Compras no app a partir de {0}",
   "similarPerWeek": "{0}/semana",
   "similarPerMonth": "{0}/mês",
-  "similarPerYear": "{0}/ano"
+  "similarPerYear": "{0}/ano",
+  "offerMemoryTitle": "O Pro lembra o chat inteiro",
+  "offerMemoryBody": "Uma resposta gratuita vê as últimas {0} mensagens de um chat. Com o Pro, a IA lembra dele inteiro: cada mensagem, suas notas e as páginas sobre as quais você perguntou.",
+  "offerMemoryLong": "Este chat passou das {0} mensagens que uma resposta gratuita lembra. Com o Pro, a IA lembra dele inteiro: cada mensagem, suas notas e as páginas sobre as quais você perguntou.",
+  "offerRetryAt": "As respostas voltam às {0}."
 }

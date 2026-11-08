@@ -715,5 +715,9 @@
   "similarPayIap": "App内課金 {0}〜",
   "similarPerWeek": "{0}/週",
   "similarPerMonth": "{0}/月",
-  "similarPerYear": "{0}/年"
+  "similarPerYear": "{0}/年",
+  "offerMemoryTitle": "Proならチャット全体を記憶",
+  "offerMemoryBody": "無料の回答が参照するのは、チャットの直近{0}件のメッセージです。ProならAIがチャット全体を記憶します：すべてのメッセージ、メモ、質問したページ。",
+  "offerMemoryLong": "このチャットは、無料の回答が覚えている{0}件を超えています。ProならAIがチャット全体を記憶します：すべてのメッセージ、メモ、質問したページ。",
+  "offerRetryAt": "{0}に回答が戻ります。"
 }

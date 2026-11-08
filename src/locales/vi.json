@@ -715,5 +715,9 @@
   "similarPayIap": "Mua hàng trong ứng dụng từ {0}",
   "similarPerWeek": "{0}/tuần",
   "similarPerMonth": "{0}/tháng",
-  "similarPerYear": "{0}/năm"
+  "similarPerYear": "{0}/năm",
+  "offerMemoryTitle": "Pro ghi nhớ cả cuộc trò chuyện",
+  "offerMemoryBody": "Câu trả lời miễn phí chỉ xem {0} tin nhắn gần nhất của cuộc trò chuyện. Với Pro, AI ghi nhớ toàn bộ: mọi tin nhắn, ghi chú của bạn và các trang bạn đã hỏi.",
+  "offerMemoryLong": "Cuộc trò chuyện này đã dài hơn {0} tin nhắn mà câu trả lời miễn phí ghi nhớ. Với Pro, AI ghi nhớ toàn bộ: mọi tin nhắn, ghi chú của bạn và các trang bạn đã hỏi.",
+  "offerRetryAt": "Câu trả lời có lại lúc {0}."
 }

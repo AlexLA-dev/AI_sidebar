@@ -2072,6 +2072,18 @@
  "similarPerYear": {
   "message": "{0}/年"
  },
+ "offerMemoryTitle": {
+  "message": "Pro 會記住整段對話"
+ },
+ "offerMemoryBody": {
+  "message": "免費回答只看對話的最近 {0} 則訊息。使用 Pro，AI 會記住整段對話：每則訊息、你的筆記和你提問過的頁面。"
+ },
+ "offerMemoryLong": {
+  "message": "這段對話已超過免費回答能記住的 {0} 則訊息。使用 Pro，AI 會記住整段對話：每則訊息、你的筆記和你提問過的頁面。"
+ },
+ "offerRetryAt": {
+  "message": "回答將在 {0} 恢復。"
+ },
  "tip_4cf1b54b00": {
   "message": "提示"
  },

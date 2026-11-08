@@ -2072,6 +2072,18 @@
  "similarPerYear": {
   "message": "{0}/anno"
  },
+ "offerMemoryTitle": {
+  "message": "Pro ricorda tutta la chat"
+ },
+ "offerMemoryBody": {
+  "message": "Una risposta gratuita vede gli ultimi {0} messaggi di una chat. Con Pro l'IA la ricorda tutta: ogni messaggio, le tue note e le pagine su cui hai fatto domande."
+ },
+ "offerMemoryLong": {
+  "message": "Questa chat supera i {0} messaggi che ricorda una risposta gratuita. Con Pro l'IA la ricorda tutta: ogni messaggio, le tue note e le pagine su cui hai fatto domande."
+ },
+ "offerRetryAt": {
+  "message": "Le risposte tornano alle {0}."
+ },
  "tip_4cf1b54b00": {
   "message": "Suggerimenti"
  },
