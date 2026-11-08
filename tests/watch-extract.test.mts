@@ -102,6 +102,10 @@ test("without the AI, the plain cases still get a rule", () => {
 test("values as a person reads them: markup prices in their currency format, stock in words", () => {
   const words = { inStock: "в наличии", outOfStock: "нет в наличии" }
   assert.equal(shownValue("34.50 EUR", "ru", words), "34,50\u00a0€")
+  // Arabic (2.6): Intl writes "‏99.99 US$"; a left-to-right mark after the sign keeps "US$" whole in right-to-left text.
+  assert.equal(shownValue("99.99 USD", "ar", words), "\u200f99.99\u00a0US$\u200e")
+  assert.equal(shownValue("99.99 EUR", "ar", words), "\u200f99.99\u00a0€")
+  assert.equal(shownValue("99.99 USD", "zh-Hant", words), "US$99.99")
   assert.equal(shownValue("129 USD", "en", words), "$129.00")
   assert.equal(shownValue("OutOfStock", "ru", words), "нет в наличии")
   assert.equal(shownValue("InStock", "ru", words), "в наличии")
