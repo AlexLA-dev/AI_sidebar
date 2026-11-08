@@ -390,7 +390,12 @@ const proxied = async (path: string): Promise<typeof chat | null> => {
     const installId = String(JSON.parse(text).installId ?? "")
     const at = Date.now()
     const signature = sign(null, Buffer.from(`${installId}.${at}`), key).toString("base64url")
-    return realFetch(`${process.env.SPEAK_PROXY}${path}`, { method: "POST", headers: { "Content-Type": "application/json", "x-cf-eval": `${at}.${signature}` }, body: text })
+    const res = await realFetch(`${process.env.SPEAK_PROXY}${path}`, { method: "POST", headers: { "Content-Type": "application/json", "x-cf-eval": `${at}.${signature}` }, body: text })
+    // fetch has already unpacked a compressed body: passing Netlify's Content-Encoding on would break it in the browser.
+    const headers = new Headers(res.headers)
+    headers.delete("content-encoding")
+    headers.delete("content-length")
+    return new Response(res.body, { status: res.status, headers })
   }) as typeof chat
 }
 const speak: typeof chat = (await proxied("/api/v2/speak")) ?? localSpeak
@@ -493,10 +498,16 @@ createServer(async (req, res) => {
       headers: { ...(req.headers as Record<string, string>), "content-length": String(raw.length) },
       body: req.method === "POST" ? raw : undefined
     })
+    const t0 = Date.now()
     const response = await handler(request, { ip: "127.0.0.1", waitUntil: () => undefined } as any)
     res.writeHead(response.status, Object.fromEntries(response.headers))
-    if (response.body) for await (const c of response.body as any) res.write(c)
+    let bytes = 0
+    if (response.body) for await (const c of response.body as any) {
+      bytes += c.length
+      res.write(c)
+    }
     res.end()
+    if (process.env.STAND_LOG === "1") console.log(`${new Date().toISOString().slice(11, 19)} ${url.pathname} ${response.status} ${bytes} B ${Date.now() - t0} ms`)
     return
   }
   // The audit's pages (2.5): fields whose site keeps its own buttons inside them (a search like Amazon's, a

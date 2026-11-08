@@ -70,7 +70,9 @@ final class ListenPlayer: NSObject, ObservableObject {
     /// Debug builds: `-CFDebugListen "<text>"` plays that text as if Safari had handed it over (simulator checks).
     func debugStartIfAsked() {
         #if DEBUG
-        guard request == nil, let text = UserDefaults.standard.string(forKey: "CFDebugListen"), !text.isEmpty else { return }
+        // The environment keeps line breaks (a Markdown table); a launch argument stops at the first one.
+        let given = ProcessInfo.processInfo.environment["CF_DEBUG_LISTEN"] ?? UserDefaults.standard.string(forKey: "CFDebugListen")
+        guard request == nil, let text = given, !text.isEmpty else { return }
         let lang = UserDefaults.standard.string(forKey: "CFDebugListenLang") ?? "en"
         // -CFDebugListenScript YES: written for the ear first, as a page or an answer with a table would be.
         start(ListenRequest(id: "debug", parts: Self.sentenceParts(text), lang: lang, what: "page", title: "How electric trains save energy", url: URL(string: "https://example.com/trains"),
