@@ -2042,6 +2042,21 @@
  "listenAnyway": {
   "message": "استمع على أي حال"
  },
+ "listenAway": {
+  "message": "تابِع الاستماع في ContextFlow — من {0}"
+ },
+ "listenNotifyAsk": {
+  "message": "فعّل الإشعارات لتواصل الاستماع عند مغادرة Safari أو قفل الشاشة. وإلا فسيفتح Listen التطبيق."
+ },
+ "listenNotifyOn": {
+  "message": "تفعيل الإشعارات"
+ },
+ "listenNotifyLater": {
+  "message": "ليس الآن"
+ },
+ "listenTaken": {
+  "message": "يُشغَّل في تطبيق ContextFlow."
+ },
  "plansUpgrade": {
   "message": "الترقية إلى {0}"
  },

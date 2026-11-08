@@ -109,10 +109,26 @@ struct ContentView: View {
 
     /// What a plan adds, after a purchase or an upgrade (2.6, build 89).
     @StateObject private var tour = PlanTour.shared
+    #if os(iOS)
+    /// Notifications, asked with a reason (2.6): after the other sheets and the plan tour.
+    @StateObject private var notify = NotifyAsk.shared
+    #endif
 
     /// The plan tour waits while another sheet is up (Listen handed over from Safari, What's new, the setup guide),
     /// then comes back at the step it was on.
-    private var otherSheet: Bool { listen.visible || whatsNew || showingSetup }
+    private var otherSheet: Bool {
+        #if os(iOS)
+        if notify.ask != nil { return true }
+        #endif
+        return listen.visible || whatsNew || showingSetup
+    }
+
+    #if os(iOS)
+    private var notifyAsk: Binding<NotifyAsk.Ask?> {
+        Binding(get: { listen.visible || whatsNew || showingSetup || tour.run != nil ? nil : notify.ask },
+                set: { if $0 == nil, notify.ask != nil { notify.notNow() } })
+    }
+    #endif
 
     private var tourRun: Binding<PlanTour.Run?> {
         Binding(get: { otherSheet ? nil : tour.run }, set: { if $0 == nil, !otherSheet { closeTour() } })
@@ -146,6 +162,11 @@ struct ContentView: View {
                     tab = place
                 }, close: closeTour)
             }
+            #if os(iOS)
+            .sheet(item: notifyAsk) { ask in
+                NotifyAskView(model: notify, ask: ask)
+            }
+            #endif
             .onChange(of: hasChats) { _ in showWhatsNewIfDue() }
             .onReceive(router.$pending.compactMap { $0 }) { url in
                 switch url.host {
@@ -158,6 +179,12 @@ struct ContentView: View {
                     showPlan = store.isPro
                 case "listen":
                     listen.open(url)
+                #if os(iOS)
+                // Listen in Safari without notifications (2.6): asked here (the extension can't), then the text plays.
+                case "notifications":
+                    let id = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first { $0.name == "listen" }?.value?.lowercased()
+                    Task { await NotifyAsk.shared.show(.listen, listen: id) }
+                #endif
                 case "tips": tab = .tips
                 case "chats": tab = hasChats ? .chats : .home
                 // A reminder on a message (2.5): Chats opens at it.

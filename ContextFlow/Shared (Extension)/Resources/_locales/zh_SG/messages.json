@@ -2042,6 +2042,21 @@
  "listenAnyway": {
   "message": "仍然朗读"
  },
+ "listenAway": {
+  "message": "在 ContextFlow 中继续收听 — 从 {0} 开始"
+ },
+ "listenNotifyAsk": {
+  "message": "打开通知，离开 Safari 或锁定屏幕时也能继续收听。否则，Listen 会打开 App。"
+ },
+ "listenNotifyOn": {
+  "message": "打开通知"
+ },
+ "listenNotifyLater": {
+  "message": "以后再说"
+ },
+ "listenTaken": {
+  "message": "正在 ContextFlow App 中播放。"
+ },
  "plansUpgrade": {
   "message": "升级到 {0}"
  },

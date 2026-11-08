@@ -36,6 +36,9 @@ export type SpeakOut =
   | { type: "chunk"; part: number; data: string }
   // A whole part as AAC (from the user's iCloud): the panel decodes it.
   | { type: "aac"; part: number; data: string }
+  // The parts as spoken (written for the ear when it was), and whether that's all of them: what the app needs to
+  // carry on from the same second (iPhone and iPad, 2.6).
+  | { type: "parts"; parts: string[]; complete: boolean }
   | { type: "partEnd"; part: number; cached: boolean }
   | { type: "usage"; usage: Usage | null }
   | { type: "end" }
@@ -151,6 +154,8 @@ export function serveSpeak(port: chrome.runtime.Port, deps: SpeakDeps): void {
     }
   }
 
+  const tellParts = () => post({ type: "parts", parts: [...parts], complete: written })
+
   const pump = async () => {
     // One part ahead of the one playing.
     while (!stopped && !busy && next < parts.length && next <= playing + 1) {
@@ -171,6 +176,7 @@ export function serveSpeak(port: chrome.runtime.Port, deps: SpeakDeps): void {
       const add = (more: string[]) => {
         if (!more.length) return
         parts.push(...more)
+        tellParts()
         void pump()
       }
       const key = `script|${what}|${await speechKey(chunk, lang)}`
@@ -366,11 +372,13 @@ export function serveSpeak(port: chrome.runtime.Port, deps: SpeakDeps): void {
         written = false
         void write(text).finally(() => {
           written = true
+          tellParts()
           void pump()
         })
       } else {
         parts = speechParts(speechText(text)).slice(0, 80)
         written = true
+        tellParts()
         void pump()
       }
     } else if (message.type === "playing") {

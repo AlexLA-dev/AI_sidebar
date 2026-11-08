@@ -556,6 +556,30 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
     case "listenInApp":
       listenInApp(message).then(sendResponse, () => sendResponse({ url: null }))
       return true
+    case "notifStatus":
+      if (TARGET !== "safari") {
+        sendResponse({ status: "none" })
+        return false
+      }
+      callNative<{ status?: string }>("notifStatus", {}, 3000).then((r) => sendResponse({ status: r?.status ?? "unknown" }), () => sendResponse({ status: "unknown" }))
+      return true
+    case "listenHandoff": {
+      if (TARGET !== "safari" || !/^[0-9a-f-]{8,64}$/i.test(message.id)) {
+        sendResponse({ ok: false })
+        return false
+      }
+      const command = { state: "listenState", away: "listenAway", back: "listenBack", stop: "listenStop" }[message.op]
+      callNative<{ taken?: boolean }>(command, {
+        id: message.id,
+        at: typeof message.at === "number" ? Math.max(0, message.at) : 0,
+        ...(message.starts ? { starts: message.starts.slice(0, 80) } : {}),
+        ...(message.parts ? { parts: message.parts.slice(0, 80).map((p) => p.slice(0, 4000)), complete: message.complete === true } : {}),
+        ...(typeof message.speed === "number" ? { speed: message.speed } : {}),
+        ...(message.title ? { title: message.title.slice(0, 200) } : {}),
+        ...(message.body ? { body: message.body.slice(0, 200) } : {})
+      }, 4000).then((r) => sendResponse({ ok: r !== null, taken: r?.taken === true }), () => sendResponse({ ok: false }))
+      return true
+    }
     case "speechClear":
       // "Delete all chats": what was read aloud goes from this device and, in Safari, from the user's iCloud (2.6).
       if (TARGET === "safari") void callNative("speechClear", {}, 15_000)

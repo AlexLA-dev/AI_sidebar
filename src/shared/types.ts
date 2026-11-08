@@ -182,6 +182,11 @@ export type BackgroundRequest =
   | { type: "listenInApp"; id: string; parts: string[]; text: string; script: boolean; lang: string; what: "answer" | "page"; title: string; url: string }
   // "Delete all chats": the audio and the texts for listening kept on this device go too.
   | { type: "speechClear" }
+  // Notifications for ContextFlow on this device (Safari: "authorized", "denied", "notDetermined"…; elsewhere none).
+  | { type: "notifStatus" }
+  // Read aloud playing in the panel on iPhone and iPad (2.6): what the app needs to carry on from the same second
+  // ("state", as it plays), the page went away ("away": the notification now), came back ("back"), or it stopped.
+  | { type: "listenHandoff"; op: "state" | "away" | "back" | "stop"; id: string; at?: number; starts?: number[]; parts?: string[]; complete?: boolean; speed?: number; title?: string; body?: string }
   // The line under a free answer that skipped the page's video or PDFs: shown, or its "Try Pro" tapped.
   | { type: "mediaNotice"; action: "shown" | "pro"; media: MediaKind[] }
   // An Own key subscriber and Pro: a refusal (starts the day before the discount), the discount card shown, a tap.
@@ -272,6 +277,8 @@ export const STORAGE = {
   listenSpeed: "cf:listenSpeed",
   // The Settings line about switching to yearly, hidden until then (ms).
   yearlyHiddenUntil: "cf:yearlyHiddenUntil",
+  // "Not now" to notifications at Listen (iPhone, iPad): Listen opens the app without asking until this time.
+  listenNotifyLater: "cf:listenNotifyLater",
   // Recent pages' text on this device ({ [url]: { title, text, at } }) for "whole chat" answers.
   pageTexts: "cf:pageTexts",
   // How many times the hint about writing notes with the send button was shown, or -1 once used.

@@ -2042,6 +2042,21 @@
  "listenAnyway": {
   "message": "Усе одно слухати"
  },
+ "listenAway": {
+  "message": "Слухати далі в ContextFlow — з {0}"
+ },
+ "listenNotifyAsk": {
+  "message": "Увімкніть сповіщення, щоб слухати далі, коли ви виходите з Safari або блокуєте екран. Інакше Listen відкриє застосунок."
+ },
+ "listenNotifyOn": {
+  "message": "Увімкнути сповіщення"
+ },
+ "listenNotifyLater": {
+  "message": "Не зараз"
+ },
+ "listenTaken": {
+  "message": "Грає в застосунку ContextFlow."
+ },
  "plansUpgrade": {
   "message": "Перейти на {0}"
  },

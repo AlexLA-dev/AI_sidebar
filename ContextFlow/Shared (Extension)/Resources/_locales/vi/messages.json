@@ -2042,6 +2042,21 @@
  "listenAnyway": {
   "message": "Vẫn nghe"
  },
+ "listenAway": {
+  "message": "Nghe tiếp trong ContextFlow — từ {0}"
+ },
+ "listenNotifyAsk": {
+  "message": "Bật thông báo để nghe tiếp khi bạn rời Safari hoặc khóa màn hình. Nếu không, Listen sẽ mở ứng dụng."
+ },
+ "listenNotifyOn": {
+  "message": "Bật thông báo"
+ },
+ "listenNotifyLater": {
+  "message": "Để sau"
+ },
+ "listenTaken": {
+  "message": "Đang phát trong ứng dụng ContextFlow."
+ },
  "plansUpgrade": {
   "message": "Nâng cấp lên {0}"
  },

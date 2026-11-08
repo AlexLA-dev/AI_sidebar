@@ -121,6 +121,7 @@ final class SharedDefaults {
     private let pricesKey = "cf_prices_v1"
     private let planChangeKey = "cf_plan_change_v1"
     private let listenKey = "cf_listen_v1"
+    private let listenTakenKey = "cf_listen_taken"
 
     /// Local notifications the app schedules on a new install until the extension is switched on.
     static let setupReminderIds = ["cf.setup.15m", "cf.setup.24h"]
@@ -200,6 +201,26 @@ final class SharedDefaults {
         guard let stored = defaults.dictionary(forKey: listenKey), stored["id"] as? String == id,
               let at = stored["at"] as? Double, Date().timeIntervalSince1970 - at < 3600 else { return nil }
         return stored
+    }
+
+    /// Read aloud playing in the panel (iPhone, iPad; 2.6): its parts as spoken and where it is, merged into the request
+    /// with this id (kept fresh while it plays). False: that request isn't the latest any more.
+    @discardableResult
+    func updateListenRequest(_ id: String, _ changes: [String: Any]) -> Bool {
+        guard var stored = defaults.dictionary(forKey: listenKey), stored["id"] as? String == id else { return false }
+        for (key, value) in changes { stored[key] = value }
+        stored["at"] = Date().timeIntervalSince1970
+        defaults.set(stored, forKey: listenKey)
+        return true
+    }
+
+    /// The app carried on the panel's read aloud (its notification was tapped): the panel doesn't play it again.
+    func markListenTaken(_ id: String) {
+        defaults.set(id, forKey: listenTakenKey)
+    }
+
+    func listenTaken(_ id: String) -> Bool {
+        defaults.string(forKey: listenTakenKey) == id
     }
 
     // MARK: The question when auto-renew is off

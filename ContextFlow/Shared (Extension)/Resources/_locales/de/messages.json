@@ -2042,6 +2042,21 @@
  "listenAnyway": {
   "message": "Trotzdem anhören"
  },
+ "listenAway": {
+  "message": "In ContextFlow weiterhören – ab {0}"
+ },
+ "listenNotifyAsk": {
+  "message": "Aktiviere Mitteilungen, um weiterzuhören, wenn du Safari verlässt oder den Bildschirm sperrst. Sonst öffnet Listen die App."
+ },
+ "listenNotifyOn": {
+  "message": "Mitteilungen aktivieren"
+ },
+ "listenNotifyLater": {
+  "message": "Nicht jetzt"
+ },
+ "listenTaken": {
+  "message": "Läuft in der ContextFlow-App."
+ },
  "plansUpgrade": {
   "message": "Zu {0} wechseln"
  },

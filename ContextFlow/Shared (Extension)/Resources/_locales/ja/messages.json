@@ -2042,6 +2042,21 @@
  "listenAnyway": {
   "message": "このまま読み上げる"
  },
+ "listenAway": {
+  "message": "ContextFlowで続きを聴く — {0}から"
+ },
+ "listenNotifyAsk": {
+  "message": "Safariを離れたり画面をロックしたりしても聴き続けるには、通知をオンにしてください。オフの場合、Listenはアプリを開きます。"
+ },
+ "listenNotifyOn": {
+  "message": "通知をオンにする"
+ },
+ "listenNotifyLater": {
+  "message": "今はしない"
+ },
+ "listenTaken": {
+  "message": "ContextFlowアプリで再生中です。"
+ },
  "plansUpgrade": {
   "message": "{0} にアップグレード"
  },

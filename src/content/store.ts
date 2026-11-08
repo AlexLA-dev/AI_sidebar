@@ -112,6 +112,18 @@ export async function setListenSpeed(speed: Speed): Promise<void> {
   await set(STORAGE.listenSpeed, speed)
 }
 
+/** Whether "Not now" to notifications at Listen still holds (until the next day): Listen just opens the app. */
+export async function listenNotifyLaterNow(): Promise<boolean> {
+  return ((await get<number>(STORAGE.listenNotifyLater)) ?? 0) > Date.now()
+}
+
+/** "Not now": not asked again at Listen until the next day (local midnight). */
+export async function listenNotifyLater(): Promise<void> {
+  const tomorrow = new Date()
+  tomorrow.setHours(24, 0, 0, 0)
+  await set(STORAGE.listenNotifyLater, tomorrow.getTime())
+}
+
 /** Whether the switch-to-yearly line is hidden for now ("Hide": 60 days). */
 export async function yearlyHiddenNow(): Promise<boolean> {
   return ((await get<number>(STORAGE.yearlyHiddenUntil)) ?? 0) > Date.now()
