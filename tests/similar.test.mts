@@ -269,3 +269,23 @@ test("production serves only the engines in SIMILAR_ENGINES: with \"a\", a reque
   assert.equal(out.status, 404, run.stderr)
   assert.equal(out.body.code, "UNAVAILABLE")
 })
+
+test("createSearch: an unsupported country is dropped and the search runs without it", async () => {
+  const { createSearch } = await import("../netlify/shared/similar.mts")
+  const calls: any[] = []
+  const client = {
+    messages: {
+      create: async (params: any) => {
+        calls.push(params)
+        if (params.tools?.[0]?.user_location) throw new Error('400 {"type":"error","error":{"type":"invalid_request_error","message":"tools.0.web_search_20250305: Country code CY is not supported."}}')
+        return { content: [], usage: { input_tokens: 1, output_tokens: 1 } }
+      }
+    }
+  } as any
+  const params = { model: "m", max_tokens: 10, messages: [], tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 1, user_location: { type: "approximate", country: "CY" } }] } as any
+  const out = await createSearch(client, params)
+  assert.ok(out)
+  assert.equal(calls.length, 2)
+  assert.equal(calls[1].tools[0].user_location, undefined)
+  assert.equal(calls[1].tools[0].max_uses, 1)
+})

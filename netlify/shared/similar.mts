@@ -363,9 +363,32 @@ export function searchMessage(input: SimilarInput, plan: Plan): string {
   ].filter(Boolean).join("\n\n")
 }
 
+/** Countries the search tool refused ("Country code CY is not supported"): searched without a location from then on. */
+const unsupportedCountries = new Set<string>()
+
 function countryOf(locale: string): string | null {
   const m = /^[a-z]{2,3}[-_]([A-Z]{2})\b/.exec(locale)
-  return m ? m[1] : null
+  return m && !unsupportedCountries.has(m[1]) ? m[1] : null
+}
+
+/**
+ * The search tool takes a user_location only for some countries; for others (Cyprus, 2026-11-08 in TestFlight 89)
+ * the whole request fails with 400. Then the country is dropped for good and the same request is sent without it.
+ */
+export async function createSearch(client: Anthropic, params: Anthropic.MessageCreateParamsNonStreaming, signal?: AbortSignal): Promise<Anthropic.Message> {
+  try {
+    return await client.messages.create(params, { signal })
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    const m = /Country code ([A-Z]{2}) is not supported/.exec(message)
+    if (!m) throw error
+    unsupportedCountries.add(m[1])
+    const tools = (params.tools ?? []).map((t) => {
+      const { user_location: _drop, ...rest } = t as unknown as Record<string, unknown>
+      return rest as unknown as Anthropic.ToolUnion
+    })
+    return await client.messages.create({ ...params, tools }, { signal })
+  }
 }
 
 export function searchTool(model: string, override = ""): string {
@@ -442,14 +465,14 @@ export async function searchWith(input: SimilarInput, plan: Plan, timeoutMs: num
   let output_tokens = 0
   // A long server-side search loop pauses the turn: it's resumed once, as is.
   for (let turn = 0; turn < 2; turn++) {
-    const response = await client.messages.create({
+    const response = await createSearch(client, {
       model,
       max_tokens: 4_000,
       system: SEARCH_SYSTEM,
       messages,
       tools: [tool],
       output_config: { effort: "low" }
-    }, { signal })
+    }, signal)
     content.push(...response.content)
     const u = response.usage
     input_tokens += (u.input_tokens ?? 0) + (u.cache_creation_input_tokens ?? 0) + (u.cache_read_input_tokens ?? 0)
@@ -527,14 +550,14 @@ export async function searchOnce(input: SimilarInput, plan: Plan, query: string,
   let input_tokens = 0
   let output_tokens = 0
   for (let turn = 0; turn < 2; turn++) {
-    const response = await client.messages.create({
+    const response = await createSearch(client, {
       model,
       max_tokens: 2_500,
       system: own ? SEARCH_OWN_SYSTEM : SEARCH_ONE_SYSTEM,
       messages,
       tools: [tool],
       output_config: { effort: "low" }
-    }, { signal })
+    }, signal)
     blocks.push(...response.content)
     const u = response.usage
     input_tokens += (u.input_tokens ?? 0) + (u.cache_creation_input_tokens ?? 0) + (u.cache_read_input_tokens ?? 0)
