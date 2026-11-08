@@ -126,10 +126,12 @@ test("the list: checked price and stock, a condition met or Not confirmed, Watch
   const items = [
     { name: "Acme Q1", url: "https://a.com/q1", host: "a.com", title: "Acme Q1", why: "Same kind.", fit: "Cheaper: $79 vs $129.", met: "yes", source: "item", checked: true, price: "79 USD", stock: "in", watch: { source: "ld-price", value: "79 USD" } },
     { name: "Zeta Z9", url: "https://list.com/best", host: "list.com", title: "Best", why: "Named in a review.", fit: "No price on the page.", met: "unknown", source: "list", checked: true },
-    { name: "Shop item", url: "https://shop.com/x", host: "shop.com", title: "X", why: "Similar.", fit: "", met: "unknown", source: "item", checked: false }
+    { name: "Shop item", url: "https://shop.com/x", host: "shop.com", title: "X", why: "Similar.", fit: "", met: "unknown", source: "item", checked: false },
+    // A free app: its price is 0, nothing to watch.
+    { name: "Free timer", url: "https://free.app/", host: "free.app", title: "Free timer", why: "Same idea.", fit: "", met: "yes", source: "item", checked: true, price: "0 USD", watch: { source: "ld-price", value: "0 USD" } }
   ]
   ui.list(el, { answer: { intro: "Here.", items, note: "", condition: "cheaper", asked: "cheaper", at: Date.parse("2026-11-08T10:00:00Z") }, items, onOpen() {}, onWatch() {} })
-  assert.equal(el.querySelectorAll(".cf-similar-item").length, 3)
+  assert.equal(el.querySelectorAll(".cf-similar-item").length, 4)
   assert.equal(el.querySelectorAll(".cf-similar-fit.ok").length, 1)
   assert.equal(el.querySelectorAll(".cf-similar-nc").length, 2)
   assert.equal(el.querySelectorAll(".cf-similar-watch").length, 1)
