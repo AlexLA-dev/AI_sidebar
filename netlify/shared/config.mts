@@ -126,10 +126,11 @@ export const config = {
     writeModel: (env("SIMILAR_WRITE_MODEL") ?? "claude-sonnet-5-5").trim(),
     // Candidate pages opened per search, and the whole run's time (the function has a minute).
     maxPages: int("SIMILAR_MAX_PAGES", 12),
-    // 2.6 speed-up: "parallel" (one call per search, all at once; pages opened as each returns) or "single" (one
-    // model runs every search in turn); follow-up searches for items named without their own page (at most);
-    // items streamed to the panel as each passes the checks.
-    searchMode: (env("SIMILAR_SEARCH_MODE") ?? "parallel").trim() === "single" ? "single" as const : "parallel" as const,
+    // 2.6 speed-up: items streamed to the panel as each passes the checks, and at most two follow-up searches for
+    // items named without their own page. Searching stays one call ("single"): the parallel calls ("parallel", one
+    // per search) were faster but brought more list pages, and in the 48-page comparison 7 items named from them
+    // weren't really on them (0 before), so that part was rolled back.
+    searchMode: (env("SIMILAR_SEARCH_MODE") ?? "single").trim() === "parallel" ? "parallel" as const : "single" as const,
     followUps: int("SIMILAR_FOLLOW_UPS", 2),
     streamItems: (env("SIMILAR_STREAM") ?? "on").trim() !== "off",
     budgetMs: int("SIMILAR_BUDGET_MS", 52_000),

@@ -15,6 +15,7 @@
 //   judge      a blind LLM judge (OpenAI: neither Claude, which writes A, nor Gemini, which writes B) grades each
 //              list on its own, without links or engine names, with evidence from the item's linked page
 //   report     the metrics side by side, per category, five examples; report.md and metrics.json
+//   compare    engine A before and after a change on the same pages (--before=main --after=fast), paired
 // Spend (API calls of the engines and the judge) is kept in spend.json; `run` and `judge` stop at --cap (USD, 9.5).
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs"
 import { homedir } from "node:os"
@@ -688,6 +689,76 @@ function report() {
 }
 
 /**
+ * Engine A before and after a change, on the same pages (--before=main --after=fast): the same metrics, plus a
+ * paired look at each page's judged list score (better, worse, the same; a sign test), so a change is told from noise.
+ */
+function compare() {
+  const before = flag("before") ?? "main"
+  const after = flag("after") ?? "fast"
+  const rowsOf = (tag: string): Row[] => {
+    const judged: Record<string, Row["judged"]> = readJson(join(WORK, `judge-${tag}.json`), {})
+    return allRuns(tag).filter((r) => r.engine === "a").map((r) => {
+      const { items, answer } = itemsOf(r.engine, r.call)
+      return { ...r, items, answer, judged: judged[`a/${r.test.id}`] }
+    })
+  }
+  const b = rowsOf(before)
+  const a = rowsOf(after)
+  const ids = new Set(b.map((r) => r.test.id).filter((id) => a.some((r) => r.test.id === id)))
+  const B = engineMetrics(b.filter((r) => ids.has(r.test.id)))
+  const A = engineMetrics(a.filter((r) => ids.has(r.test.id)))
+  let better = 0, worse = 0, same = 0
+  const diffs: number[] = []
+  for (const id of ids) {
+    const x = b.find((r) => r.test.id === id)?.judged?.list_score
+    const y = a.find((r) => r.test.id === id)?.judged?.list_score
+    if (typeof x !== "number" || typeof y !== "number") continue
+    diffs.push(y - x)
+    if (y > x) better++
+    else if (y < x) worse++
+    else same++
+  }
+  // Two-sided sign test on the pages that changed.
+  const n = better + worse
+  let tail = 0
+  for (let k = 0; k <= Math.min(better, worse); k++) {
+    let c = 1
+    for (let i = 0; i < k; i++) c = (c * (n - i)) / (i + 1)
+    tail += c / 2 ** n
+  }
+  const p = Math.min(1, 2 * tail)
+  const f = (x: number, d = 1) => (Number.isFinite(x) ? x.toFixed(d) : "—")
+  const line = (label: string, x: string, y: string) => `| ${label} | ${x} | ${y} |`
+  const md = [
+    `# Engine A: ${before} → ${after}, ${ids.size} pages`,
+    "",
+    `| metric | before (${before}) | after (${after}) |`,
+    "|---|---|---|",
+    line("lists answered", `${B.answered}/${B.lists}`, `${A.answered}/${A.lists}`),
+    line("items per list", f(B.itemsPerList), f(A.itemsPerList)),
+    line("dead / soft-404 / archived item links", String(B.badLinks), String(A.badLinks)),
+    line("item links live (of those we could open)", `${f(B.liveOfKnown * 100, 0)}%`, `${f(A.liveOfKnown * 100, 0)}%`),
+    line("items backed by a live page that names them", `${B.supported}/${B.items}`, `${A.supported}/${A.items}`),
+    line("items without a source (no link / page doesn't name it)", `${B.noLink + B.notNamed} of ${B.items}`, `${A.noLink + A.notNamed} of ${A.items}`),
+    line("items not opened by the checker (blocked)", String(B.notOpened), String(A.notOpened)),
+    line("items the linked page contradicts (judge)", String(B.judgeSupportedNo), String(A.judgeSupportedNo)),
+    line("judge: relevance 0–2", f(B.relevance, 2), f(A.relevance, 2)),
+    line("judge: list score 1–5", f(B.listScore, 2), f(A.listScore, 2)),
+    line("pages: better / worse / same (sign test p)", "—", `${better} / ${worse} / ${same} (p = ${f(p, 2)})`),
+    line("condition met: yes / no / unknown", `${B.condData.yes} / ${B.condData.no} / ${B.condData.unknown} of ${B.condItems}`, `${A.condData.yes} / ${A.condData.no} / ${A.condData.unknown} of ${A.condItems}`),
+    line("duplicate items; the item itself", `${B.dupItems}; ${B.selfItems}`, `${A.dupItems}; ${A.selfItems}`),
+    line("stale items", String(B.stale), String(A.stale)),
+    line("first item shown p50 / p90 (s)", `${f(B.first50 / 1000)} / ${f(B.first90 / 1000)}`, `${f(A.first50 / 1000)} / ${f(A.first90 / 1000)}`),
+    line("whole list p50 / p90 (s)", `${f(B.p50 / 1000)} / ${f(B.p90 / 1000)}`, `${f(A.p50 / 1000)} / ${f(A.p90 / 1000)}`),
+    line("cost per search mean / p90 (USD)", `${f(B.usdMean, 4)} / ${f(B.usdP90, 4)}`, `${f(A.usdMean, 4)} / ${f(A.usdP90, 4)}`),
+    line("cost of the run (USD)", f(B.usdTotal, 3), f(A.usdTotal, 3))
+  ].join("\n")
+  writeFileSync(join(WORK, `compare-${before}-${after}.md`), md)
+  writeJson(join(WORK, `compare-${before}-${after}.json`), { before: B, after: A, better, worse, same, p, diffs })
+  console.log(md)
+}
+
+/**
  * What the evaluation spent, from the records themselves (every run's own spend, every judge call's), plus the
  * probes before the runs had records (extras.json). spend.json is only the running total for the cap.
  */
@@ -720,7 +791,7 @@ function spendStep() {
   console.log(`total          $${s.total.toFixed(3)}`)
 }
 
-const steps: Record<string, () => Promise<void> | void> = { snapshot, run, check, judge, report, spend: spendStep }
+const steps: Record<string, () => Promise<void> | void> = { snapshot, run, check, judge, report, compare, spend: spendStep }
 if (!steps[step]) {
   console.log("steps: snapshot | run | check | judge | report")
   process.exit(1)

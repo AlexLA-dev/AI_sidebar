@@ -212,7 +212,7 @@ const PLAN_SCHEMA = {
 export const SEARCH_SYSTEM = `You find the pages for a list of alternatives.
 1. Run the searches you are given with the web_search tool, all of them at once.
 2. Read the results. Many are lists or reviews ("best … of 2026"): take the specific items they recommend that fit the person's need and condition.
-3. For the strongest of those items (up to 4) with no page of their own in the results, run one search each with the item's name (for a product: brand and model) to find its own page: the maker's product page or official site, a shop's product page, an app store page, the recipe, the article, the course, the listing.
+3. For the strongest of those items (up to 2) with no page of their own in the results, run one search each with the item's name (for a product: brand and model) to find its own page: the maker's product page or official site, a shop's product page, an app store page, the recipe, the article, the course, the listing.
 Then answer with JSON only, nothing else:
 {"candidates":[{"url":"...","name":"...","kind":"item"}]}
 - 6 to 12 candidates, best first, each a different specific item: kind "item" with the item's own page; kind "list" with a list or review page that names the item, when no page of its own came up;
@@ -430,7 +430,8 @@ export async function searchWith(input: SimilarInput, plan: Plan, timeoutMs: num
   const tool = {
     type: searchTool(model, over.searchTool),
     name: "web_search",
-    max_uses: plan.queries.length + 4,
+    // The plan's searches and at most `followUps` more for items' own pages (2.6: two).
+    max_uses: plan.queries.length + Math.max(0, Math.min(4, over.followUps ?? config.similar.followUps)),
     ...(country ? { user_location: { type: "approximate", country } } : {})
   } as unknown as Anthropic.ToolUnion
   const client = anthropic(timeoutMs)
