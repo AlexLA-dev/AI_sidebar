@@ -755,6 +755,18 @@
  "uxShowIntro": {
   "message": "Ver a introdução de novo"
  },
+ "uxOther": {
+  "message": "Outros…"
+ },
+ "tipClipNeedsApp": {
+  "message": "Abra o app ContextFlow uma vez para ver este vídeo."
+ },
+ "busyWorking": {
+  "message": "Preparando a resposta…"
+ },
+ "busyNew": {
+  "message": "Nova resposta pronta"
+ },
  "ptMenu": {
   "message": "O que vem no {0}"
  },
@@ -764,17 +776,17 @@
  "ptProMediaBody": {
   "message": "Em uma página com vídeo ou PDF, o ContextFlow agora lê esses também: as legendas do vídeo e o texto do PDF. É só perguntar."
  },
- "ptProChatsTitle": {
-  "message": "Busque e pergunte aos seus chats"
+ "ptProFindTitle": {
+  "message": "Busca com IA nos seus chats"
  },
- "ptProChatsBody": {
-  "message": "Nos seus chats, ✦ encontra um chat a partir de uma descrição, e “{0}” responde com tudo o que você leu e perguntou."
+ "ptProFindBody": {
+  "message": "Ative ✦ ao lado da busca e descreva o chat de que você se lembra, mesmo sem as palavras exatas."
  },
- "ptProChatListTitle": {
-  "message": "Bem aqui"
+ "ptProAskTitle": {
+  "message": "Pergunte a todos os chats"
  },
- "ptProChatListBody": {
-  "message": "Ative ✦ ao lado da busca e descreva o chat que procura, ou toque em “{0}” para perguntar a todos os chats de uma vez."
+ "ptProAskBody": {
+  "message": "“{0}” responde com tudo o que você leu e perguntou: “O que eu li esta semana?”"
  },
  "ptProSortTitle": {
   "message": "Organizado por tema"
@@ -2060,6 +2072,18 @@
  "tip_fa1cdf5479": {
   "message": "Selecione um texto na página: escreva sua própria pergunta logo abaixo da seleção ou toque em “Nota” para salvá-lo no chat com a página. Notas não gastam respostas."
  },
+ "tip_2f27bc2271": {
+  "message": "Ações rápidas sob a seleção"
+ },
+ "tip_b4d2d0edad": {
+  "message": "Selecione um texto na página: “Resumir”, “Traduzir”, “Encontrar parecidos” e outras ações ficam no campo “Sua pergunta…” logo abaixo. Deslize por elas e toque em uma, sem digitar nada."
+ },
+ "tip_2aef052e5b": {
+  "message": "Botões sob a seleção"
+ },
+ "tip_894f528548": {
+  "message": "Selecione um texto na página: “Explicar”, “Traduzir”, Google e “Encontrar parecidos” são botões logo abaixo. Clique em um ou escreva sua própria pergunta no campo abaixo deles."
+ },
  "tip_9000896590": {
   "message": "A conversa vai com você"
  },
@@ -2122,6 +2146,24 @@
  },
  "tip_ff32d2c483": {
   "message": "Com o Pro, os PDFs exibidos ou vinculados na página vão com a sua pergunta, e as respostas dizem em que página está cada coisa. No iPad e no Mac, o ContextFlow na barra de ferramentas também abre em uma aba de PDF. As respostas gratuitas usam o texto da página."
+ },
+ "tip_de4adc7524": {
+  "message": "Encontrar parecidos"
+ },
+ "tip_b2248495b1": {
+  "message": "Toque em “Encontrar parecidos” entre as ações do painel ou no menu “…” no topo do painel. Ou selecione um texto, como o nome de um produto, e toque em “Encontrar parecidos” nas ações rápidas logo abaixo. Adicione uma condição como “Mais barato” ou “Em estoque” se quiser: as alternativas são reais, e cada link é aberto e verificado antes de você ver."
+ },
+ "tip_9161a2ed42": {
+  "message": "Clique em “Encontrar parecidos” entre as ações do painel ou no menu “…” no topo do painel. Ou selecione um texto, como o nome de um produto, e clique no botão “Encontrar parecidos” logo abaixo. Adicione uma condição como “Mais barato” ou “Em estoque” se quiser: as alternativas são reais, e cada link é aberto e verificado antes de você ver."
+ },
+ "tip_c518fb0674": {
+  "message": "Ouvir"
+ },
+ "tip_f26f3d2993": {
+  "message": "Toque em “Ouvir” abaixo de uma resposta ou escolha “Ouvir esta página” no menu “…” no topo do painel. O app ContextFlow lê com uma voz natural e continua tocando com a tela bloqueada. Toque na velocidade no player para 1×, 1,2×, 1,5× ou 2×."
+ },
+ "tip_4eab0ec0a2": {
+  "message": "Clique em “Ouvir” abaixo de uma resposta ou escolha “Ouvir esta página” no menu “…” no topo do painel. Uma voz natural lê ali mesmo, no painel. Clique na velocidade no player para 1×, 1,2×, 1,5× ou 2×."
  },
  "tip_328ee8ddce": {
   "message": "Inserção rápida"
@@ -2218,6 +2260,21 @@
  },
  "tip_69a0bac728": {
   "message": "O ContextFlow aprende o que suas tags significam pelo lugar onde você as coloca, e sugere a certa embaixo de uma nova resposta ou nota. Só as suas próprias tags, só quando combinam."
+ },
+ "tip_b96ddaab20": {
+  "message": "Seu plano"
+ },
+ "tip_b3282f43dd": {
+  "message": "Mensal ou anual"
+ },
+ "tip_12e62d9862": {
+  "message": "Pro e Ultra podem ser mensais ou anuais, e um ano sai mais barato que doze meses. Toque em “Anual” acima dos planos, no app ou no Safari, para ver cada preço e quanto você economiza. Já paga por mês? “Mudar para anual” fica em “Ajustes” → “Seu plano”: começa quando o mês atual termina."
+ },
+ "tip_9288a85bb9": {
+  "message": "O que seu plano traz"
+ },
+ "tip_0f2289f887": {
+  "message": "Depois de comprar o Pro ou o Ultra, o ContextFlow mostra, passo a passo, o que seu plano traz. Para ver de novo, toque em “…” no topo do painel, depois em “Outros…” e em “O que vem no Pro” ou “O que vem no Ultra”. No app, fica em “Ajustes”, em “Seu plano”."
  },
  "tip_3208aa35ac": {
   "message": "Privacidade e personalização"
