@@ -45,15 +45,20 @@ function requestBody(model: string, text: string): string {
 }
 
 /**
- * Starts speaking `text`. A model that isn't there falls through to the next one (like Google answers); Flash-Lite
- * refusing the language moves to the full Flash TTS.
+ * Starts speaking `text`. `prefer`: the model a text's earlier parts were spoken with, so every part of one text has
+ * the same voice (build 91: a part that went to another model sounded like another person). A model that isn't
+ * there (404) falls through to the next one; Flash-Lite refusing the language moves to the full Flash TTS. Any other
+ * refusal is passed on as it is (no quiet switch to another model mid-text).
  */
-export async function startSpeech(text: string, kind: "lite" | "full", signal?: AbortSignal): Promise<Speech> {
+export async function startSpeech(text: string, kind: "lite" | "full", signal?: AbortSignal, prefer = ""): Promise<Speech> {
   let lastError: UpstreamError | null = null
   const kinds: Array<"lite" | "full"> = kind === "lite" ? ["lite", "full"] : ["full"]
   for (const k of kinds) {
     let languageRefused = false
-    for (const model of await ttsModels(k)) {
+    const models = await ttsModels(k)
+    // The text's own model first, when it's one of this kind's.
+    const ordered = prefer && models.includes(prefer) ? [prefer, ...models.filter((m) => m !== prefer)] : models
+    for (const model of ordered) {
       const ask = () => fetch(INTERACTIONS, {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-goog-api-key": config.geminiKey, "Api-Revision": "2026-05-20" },
@@ -74,8 +79,7 @@ export async function startSpeech(text: string, kind: "lite" | "full", signal?: 
         languageRefused = true
         break
       }
-      const modelUnavailable = res.status === 404 || (res.status === 400 && /model/i.test(detail))
-      if (!modelUnavailable) throw lastError
+      if (res.status !== 404) throw lastError
       console.warn(`[cf] tts model ${model} unavailable, trying next`)
     }
     if (!languageRefused && k === "lite") break

@@ -11,6 +11,7 @@ import {
   type ErrorCode,
   type Grounding,
   type Platform,
+  type Plan,
   type ProOffer,
   type Settings,
   type UpsellWhere,
@@ -20,7 +21,7 @@ import {
   type Usage
 } from "../shared/types"
 import * as Icon from "./icons"
-import { historyForModel, isQuestion, lastPage, otherPages, pageHasChanged, pageRef, pageWhen, savedPages, selectionNote, stamped, type Entry, type SourceNote } from "../shared/conversation"
+import { FREE_MEMORY, historyForModel, isQuestion, lastPage, otherPages, pageHasChanged, pageRef, pageWhen, savedPages, selectionNote, stamped, type Entry, type SourceNote } from "../shared/conversation"
 import { Markdown } from "./markdown"
 import { MAX_OTHER_PAGES, MAX_PAGE_CHARS } from "../shared/prompt"
 import { answerWeight } from "../shared/pagefit"
@@ -45,7 +46,7 @@ import { barDeadline, deadlineAfterHold, goesOnWork, type BarKind } from "./undo
 import { moveBlock, organizeCards, setOrganizeCards, undoBlockMove, type OrganizeCards } from "./store"
 import { DEFAULT_ORGANIZE, looksMixed } from "../shared/organize"
 import { entryKey } from "../shared/conversation"
-import type { OrganizeEvent, OrganizeReply } from "../shared/types"
+import type { OrganizeCountsReply, OrganizeEvent, OrganizeNameReply, OrganizeReply } from "../shared/types"
 import { ProUpsell } from "./ProUpsell"
 import { shownPrice, SimilarIcon, SimilarList, SimilarPicker, SimilarUpsell } from "./similar/Similar"
 import { factsFrom, SIMILAR_SELECTION_MAX, similarAllowed, similarMarkdown, type SimilarAnswer, type SimilarItem, type SimilarStep, type SimilarStreamEvent } from "../shared/similar"
@@ -53,13 +54,14 @@ import { structured } from "../shared/watch/extract"
 import { conditionFor } from "./watch/draft"
 import { openWatchSheet } from "./watch/WatchSheet"
 import { PlansSheet } from "./Plans"
+import { PlanOffer, type OfferChoice, type OfferPlace } from "./ux/PlanOffer"
 import { ListenBar, SpeakerIcon, useListen } from "./listen/useListen"
 import { dodgeFab } from "./fabDodge"
 import { hasPro, isUltra, type PaidPlan } from "../shared/plan"
 import { SettingsView } from "./Settings"
 import { shareLabels } from "./shareLabels"
-import { markHintSeen, resetHints, seenHints, type HintKey } from "./store"
-import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, onConsentChanged, loadThreads, markTourSeen, lastPlanSeen, setLastPlanSeen, planToursSeen, markPlanToursSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, purgeChats, rememberPageText, renameThread, renewalAskedPeriod, restoreChat, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount, trashChat } from "./store"
+import { loadJobs, markHintSeen, markMemoryOffered, memoryOffered, onJobsChanged, resetHints, seenHints, type HintKey } from "./store"
+import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, onConsentChanged, loadThreads, markTourSeen, lastPlanSeen, setLastPlanSeen, planToursSeen, markPlanToursSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, purgeChats, nameThread, rememberPageText, renameThread, renewalAskedPeriod, unnameThread, restoreChat, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount, trashChat } from "./store"
 import { TagChip, TagEditor } from "./Tags"
 import { ThreadsView } from "./Threads"
 import { TrashView } from "./Trash"
@@ -74,10 +76,11 @@ import { TipsSheet } from "./tips/TipsSheet"
 import { SelIconsTip } from "./ux/SelTip"
 import { shadowSelection, trackPointer } from "./selectionShadow"
 import { restoredDraft, withoutStopped } from "./ux/stopped"
+import { type Jobs, extendsChat, interruption, repeatsLast, runningThreads, unreadThreads } from "../shared/jobs"
 import { scheduleReminder, thisDevice, useMessageUx } from "./ux/useMessageUx"
 import { Tour, tourSteps } from "./Tour"
 import { languageName, translateTarget } from "./translateTarget"
-import { GuideCard, GuidePill, ON_PAGE, PLAN_STEPS, PRO_TOUR, ULTRA_FULL_TOUR, ULTRA_TOUR, WAITING, type GuideStep } from "./Guide"
+import { GuideCard, GuidePill, ON_PAGE, PLAN_MENU, PLAN_STEPS, PLAN_VIEW, PRO_TOUR, ULTRA_FULL_TOUR, ULTRA_TOUR, WAITING, type GuideStep } from "./Guide"
 import { ConsentCard } from "./Consent"
 import { QI_EVENTS, QuickInsert } from "./insert/QuickInsert"
 import * as QIcon from "./insert/icons"
@@ -234,6 +237,9 @@ function offerUrl(code: string): string {
   return `https://apps.apple.com/redeem?ctx=offercodes&id=${APP_ID}&code=${encodeURIComponent(code)}`
 }
 
+// A question whose answer was lost while nobody followed it shows these as they were; anything else as "interrupted".
+const RESUMABLE = ["STREAM", "NETWORK", "UPSTREAM", "BUSY", "LIMIT_REACHED"]
+
 function errorText(error: ChatError): string {
   switch (error.code) {
     case "NETWORK":
@@ -328,6 +334,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [upsell, setUpsell] = useState<"find" | "history" | null>(null)
   // Find similar (2.6): its card (the condition, or Ultra for someone without it), and the answer as it comes.
   const [similarCard, setSimilarCard] = useState<"pick" | "upsell" | { limit: Usage | null } | null>(null)
+  // Build 91: the chat's memory is Pro's — the plans message in the chat, from the switch ("switch") or once a free
+  // chat is longer than the messages a free answer remembers ("long").
+  const [memoryOffer, setMemoryOffer] = useState<"switch" | "long" | null>(null)
+  // The plan as last known (the status, else the plan the panel saw last): what a question's memory is.
+  const planKnownRef = useRef<Plan>("free")
   // The card opened from a selection: what was selected, the thing to find alternatives to (the page is context).
   const [similarSubject, setSimilarSubject] = useState<string | null>(null)
   const [similarRun, setSimilarRun] = useState<{ items: SimilarItem[]; step: SimilarStep; pages?: number } | null>(null)
@@ -563,6 +574,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         showLists(threads)
         setMessages(entries)
         scrollToEnd()
+        // Its last question still being answered (asked before the panel closed), or lost meanwhile (build 91).
+        resumeRef.current(entries, active.id)
         // Other devices may have continued a chat (iCloud), or the ContextFlow app asked to continue one
         // here ("Open in Safari"): show it unless something was asked here meanwhile.
         void sendBackground<{ changed: boolean; open?: string | null }>({ type: "syncThreads" }).then(async (result) => {
@@ -578,6 +591,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               void setActiveThread(next.id)
             }
             setKind(fresh.threads[next.id]?.kind)
+            setTimeout(() => resumeRef.current(next.m, next.id), 0)
             return next.m
           })
           scrollToEnd()
@@ -610,6 +624,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (!open) return
     const off = onThreadsChanged(() => void loadThreads().then(({ threads, active }) => {
       showLists(threads)
+      // An answer the background wrote into the shown chat while this panel didn't follow it (another tab asked, or
+      // this one lost the thread of it): it shows (build 91).
+      const shown = threads[threadRef.current]
+      if (shown && !portRef.current && !askToken.current && extendsChat(shown.m, nowRef.current.messages)) {
+        setMessages(shown.m)
+        setError(null)
+      }
       // The chat shown went to Recently Deleted in another tab or on another device: it goes from here too, as when
       // it's deleted here (not while an answer is coming in).
       if (threads[threadRef.current]?.trashed === undefined || portRef.current || askToken.current) return
@@ -648,6 +669,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   useEffect(() => {
     if (view === "trash" && trashList.length === 0) setView("threads")
   }, [view, trashList])
+
+  // The panel open on a chat: its answers that came while it was closed were seen (the dots go, build 91).
+  useEffect(() => {
+    if (!open || !visible || !loadedRef.current) return
+    const thread = threadRef.current
+    const timer = setTimeout(() => void sendBackground({ type: "jobsSeen", thread }), 400)
+    return () => clearTimeout(timer)
+  }, [open, visible, messages])
 
   // Persist the chat shown.
   useEffect(() => {
@@ -781,32 +810,51 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }, [open, touch])
 
   // ------------------------------------------------------------ chat
-  const finish = useCallback((history: Turn[], text: string, err: ChatError | null, grounding?: Grounding) => {
+  // `entry`: the answer as the background wrote it into the chat (build 91: the same message, its id too).
+  const finish = useCallback((history: Turn[], text: string, err: ChatError | null, grounding?: Grounding, entry?: Turn) => {
     portRef.current = null
     askToken.current = null
     partialRef.current = ""
     setPartial(null)
     setStreamMode(null)
-    if (text) {
-      const next: Turn[] = [...history, stamped(grounding ? { role: "assistant", content: text, grounding } : { role: "assistant", content: text })]
+    if (entry || text) {
+      const next: Turn[] = [...history, entry ?? stamped(grounding ? { role: "assistant", content: text, grounding } : { role: "assistant", content: text })]
       setMessages(next)
       const skipped = skippedFor(next, next.length - 1)
       if (skipped) void sendBackground({ type: "mediaNotice", action: "shown", media: skipped })
       // Right away, not on the debounced save: the user may go to another page as soon as the answer is in.
       void saveThread(threadRef.current, next, historyRef.current ? "history" : undefined)
+      memoryNudgeRef.current(next)
     }
     if (err) setError(err)
   }, [])
+
+  // A free chat longer than a free answer remembers: the memory message, once per chat (build 91).
+  const memoryNudgeRef = useRef((_entries: Turn[]) => {})
+  memoryNudgeRef.current = (entries: Turn[]) => {
+    const planNow = statusRef.current?.plan ?? planKnownRef.current
+    if (historyRef.current || hasPro(planNow) || (Boolean(statusRef.current?.hasOwnKey) && planNow !== "free")) return
+    if (entries.filter((e) => !e.note).length <= FREE_MEMORY) return
+    const chat = threadRef.current
+    void memoryOffered().then((done) => {
+      if (done.includes(chat) || threadRef.current !== chat) return
+      void markMemoryOffered(chat)
+      setMemoryOffer("long")
+    })
+  }
 
   const ask = useCallback((text: string, opts: { label?: string; action?: string; retry?: boolean; mode?: "google" } = {}) => {
     const content = text.trim()
     if (!content || portRef.current || askToken.current) return
     setUndoBar(null)
+    setFirstWin(null)
+    setMemoryOffer(null)
     if (consent !== "ok") {
       setPending({ text: content, label: opts.label, action: opts.action, mode: opts.mode })
       return
     }
-    const base = opts.retry ? messages.slice(0, messages.length - 1) : messages
+    // The same question again after it was left without an answer (interrupted): it takes that one's place.
+    const base = opts.retry || repeatsLast(messages, { content }) ? messages.slice(0, messages.length - 1) : messages
     const url = source.key()
     if (historyRef.current) {
       // "Ask your chats": the question goes with a digest of all the other chats, not the page.
@@ -891,6 +939,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       : full.text || full.attachments || full.skipped
         ? { kind: "page", title: full.title, url: source.href(), text: full.text, changed, ...(full.attachments ? { attachments: full.attachments } : {}), ...(full.skipped ? { skipped: full.skipped } : {}) }
         : null
+    // The question is in the chat before it goes: the background writes the answer after it (build 91).
+    const thread = threadRef.current
+    const saved = saveThread(thread, history, historyRef.current ? "history" : undefined).catch(() => undefined)
+    const job = { id: user.id!, thread }
     let port: chrome.runtime.Port
     try {
       port = chrome.runtime.connect({ name: "chat" })
@@ -899,51 +951,30 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       return
     }
     portRef.current = port
-    let settled = false
-    let grounded: { text: string; grounding: Grounding } | null = null
-    let lastSeq = 0
-    port.onMessage.addListener((event: StreamEvent & { seq?: number }) => {
-      // Safari can deliver a message twice (in the PDF popup): every event is numbered.
-      if (event.seq !== undefined) {
-        if (event.seq <= lastSeq) return
-        lastSeq = event.seq
-      }
-      if (event.type === "meta") {
-        setViaOwnKey(event.viaOwnKey)
-        if (event.usage) setUsage(event.usage)
-      } else if (event.type === "delta") {
-        partialRef.current += event.text
-        setPartial(partialRef.current)
-      } else if (event.type === "grounding") {
-        grounded = { text: event.text, grounding: event.grounding }
-      } else if (event.type === "done") {
-        settled = true
-        if (event.usage) setUsage(event.usage)
-        finish(history, grounded?.text ?? partialRef.current, null, grounded?.grounding)
-      } else if (event.type === "error") {
-        settled = true
-        if (event.usage) setUsage(event.usage)
-        finish(history, partialRef.current, { code: event.code, message: event.message, usage: event.usage, offer: event.offer, weight: event.weight })
-      }
-    })
-    port.onDisconnect.addListener(() => {
-      if (!settled && portRef.current === port) finish(history, partialRef.current, partialRef.current ? null : { code: "STREAM" })
-    })
+    listenChat(port, history)
     // Sizes only, for /analytics: whether keeping 40 messages, 50 chats or a few pages gets in the way.
     const stats = { turns: history.length, pages: threadPages(history).length, chats: threadList.length }
     if (chats) {
-      port.postMessage({ type: "ask", payload: { messages: historyForModel(history, url), page: null, action: opts.action, context: "history" as const, history: chats, stats } })
+      void saved.then(() => {
+        if (portRef.current === port) port.postMessage({ type: "ask", job, payload: { messages: historyForModel(history, url), page: null, action: opts.action, context: "history" as const, history: chats, stats } })
+      })
       return
     }
-    const wholeChat = settingsRef.current.wholeChat
+    // The whole chat (its messages, notes and other pages) is Pro's memory, on unless turned off; free answers see the
+    // last messages (build 91).
+    const planNow = statusRef.current?.plan ?? planKnownRef.current
+    // …and the own key's, whose subscriber pays the model.
+    const ownKeyNow = Boolean(statusRef.current?.hasOwnKey) && planNow !== "free"
+    const wholeChat = (hasPro(planNow) || ownKeyNow) && settingsRef.current.chatMemory !== false
     // The chat's other pages: this device's copy of their text, else the one saved in the chat (another device's).
     const others = otherPages(history, url).map((p) => p.url).slice(0, MAX_OTHER_PAGES)
-    const saved = savedPages(history)
-    void (wholeChat ? pageTexts(others) : Promise.resolve([])).then((local) => {
-      const pages = wholeChat ? others.flatMap((u) => local.find((p) => p.url === u) ?? saved.find((p) => p.url === u) ?? []) : []
+    const savedTexts = savedPages(history)
+    void Promise.all([wholeChat ? pageTexts(others) : Promise.resolve([]), saved]).then(([local]) => {
+      const pages = wholeChat ? others.flatMap((u) => local.find((p) => p.url === u) ?? savedTexts.find((p) => p.url === u) ?? []) : []
       if (portRef.current !== port) return // stopped meanwhile
       port.postMessage({
         type: "ask",
+        job,
         payload: {
           messages: historyForModel(history, url, wholeChat),
           page,
@@ -958,11 +989,153 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     })
   }
 
+  // ------------------------------------------------------------ answers that go on with the panel closed (build 91)
+  // The background answers every question as a job and writes the answer into its chat (background/jobs.ts). The panel
+  // follows the job of the chat it shows: the one it asked, or, coming back to the chat (the panel reopened, another
+  // page, another chat and back), the one still running, from what came so far. A job that ended while nobody
+  // followed it left its answer in the chat; one lost (the connection, the background closed) leaves "interrupted".
+  const heardRef = useRef(0)
+
+  /** Follows a chat answer on `port`: what came so far first when it's a job followed again ("snapshot"). */
+  const listenChat = (port: chrome.runtime.Port, history: Turn[]) => {
+    heardRef.current = Date.now()
+    let settled = false
+    let grounded: { text: string; grounding: Grounding } | null = null
+    let lastSeq = 0
+    type Followed = { type: "snapshot"; text: string; grounding?: { text: string; grounding: Grounding } } | { type: "beat" } | { type: "gone" }
+    port.onMessage.addListener((event: (StreamEvent | Followed) & { seq?: number; entry?: Turn }) => {
+      // Safari can deliver a message twice (in the PDF popup): every event is numbered.
+      if (event.seq !== undefined) {
+        if (event.seq <= lastSeq) return
+        lastSeq = event.seq
+      }
+      if (portRef.current !== port) return
+      heardRef.current = Date.now()
+      if (event.type === "snapshot") {
+        partialRef.current = event.text
+        setPartial(event.text)
+        if (event.grounding) grounded = event.grounding
+      } else if (event.type === "gone") {
+        settled = true
+        lostRef.current()
+      } else if (event.type === "meta") {
+        setViaOwnKey(event.viaOwnKey)
+        if (event.usage) setUsage(event.usage)
+      } else if (event.type === "delta") {
+        partialRef.current += event.text
+        setPartial(partialRef.current)
+      } else if (event.type === "grounding") {
+        grounded = { text: event.text, grounding: event.grounding }
+      } else if (event.type === "done") {
+        settled = true
+        if (event.usage) setUsage(event.usage)
+        finish(history, grounded?.text ?? partialRef.current, null, grounded?.grounding, event.entry)
+      } else if (event.type === "error") {
+        settled = true
+        if (event.usage) setUsage(event.usage)
+        finish(history, partialRef.current, { code: event.code, message: event.message, usage: event.usage, offer: event.offer, weight: event.weight }, undefined, event.entry)
+      }
+    })
+    // Closed without an end: the job may well go on (the background still answers it), so the chat is read again.
+    port.onDisconnect.addListener(() => {
+      if (!settled && portRef.current === port) lostRef.current()
+    })
+  }
+
+  /** Follows the job answering `last` (the shown chat's last question), from what came so far. */
+  const attach = (last: Turn, history: Turn[]) => {
+    let port: chrome.runtime.Port
+    try {
+      port = chrome.runtime.connect({ name: "job" })
+    } catch {
+      return
+    }
+    portRef.current = port
+    setError(null)
+    partialRef.current = ""
+    setPartial("")
+    if (last.similarAsk !== undefined) {
+      setSimilarRun({ items: [], step: "plan" })
+      listenSimilarRef.current(port, history, last.similarAsk)
+    } else {
+      setStreamMode(last.mode ?? null)
+      listenChat(port, history)
+    }
+    port.postMessage({ type: "attach", id: last.id })
+  }
+
+  /**
+   * The shown chat's last question has no answer: follow its job when the background still runs it, else say it was
+   * interrupted (with Retry), unless it's too fresh to tell (asked on another device a moment ago).
+   */
+  const resume = (entries: Turn[], thread: string) => {
+    const last = entries[entries.length - 1]
+    if (!isQuestion(last)) return
+    void Promise.all([sendBackground<{ ids: string[] }>({ type: "liveJobs" }), loadJobs()]).then(([live, jobs]) => {
+      const shown = nowRef.current.messages
+      const now = shown[shown.length - 1]
+      if (threadRef.current !== thread || portRef.current || askToken.current || !now || entryKey(now) !== entryKey(last)) return
+      if (last.id && live?.ids?.includes(last.id)) return attach(now, shown)
+      const gap = interruption(shown, jobs, false)
+      if (gap) setError({ code: RESUMABLE.includes(gap.code) ? (gap.code as ErrorCode) : "STREAM" })
+    })
+  }
+  const resumeRef = useRef(resume)
+  resumeRef.current = resume
+
+  /**
+   * The followed answer went quiet or its port closed: the chat as the background left it (the answer may be in it
+   * already), then its last question followed again or said to be interrupted.
+   */
+  const lost = () => {
+    const port = portRef.current
+    portRef.current = null
+    askToken.current = null
+    try {
+      port?.disconnect()
+    } catch {
+      // already closed
+    }
+    partialRef.current = ""
+    setPartial(null)
+    setStreamMode(null)
+    setSimilarRun(null)
+    const thread = threadRef.current
+    void loadThreads().then(({ threads }) => {
+      if (threadRef.current !== thread || portRef.current || askToken.current) return
+      const shown = nowRef.current.messages
+      const stored = threads[thread]?.m
+      const entries = stored && extendsChat(stored, shown) ? stored : shown
+      if (entries !== shown) setMessages(entries)
+      resumeRef.current(entries, thread)
+    })
+  }
+  const lostRef = useRef(lost)
+  lostRef.current = lost
+
+  // A followed answer that says nothing for a while (its port broke without closing: 2.6 (90), "Reading the page…" for
+  // minutes) is looked up again; so is one coming back from sleep (the page in the background, the phone locked).
+  useEffect(() => {
+    const quiet = (ms: number) => portRef.current !== null && heardRef.current > 0 && Date.now() - heardRef.current > ms
+    const timer = setInterval(() => {
+      if (quiet(20_000)) lostRef.current()
+    }, 5_000)
+    const onVisible = () => {
+      if (document.visibilityState === "visible" && quiet(6_000)) lostRef.current()
+    }
+    document.addEventListener("visibilitychange", onVisible)
+    return () => {
+      clearInterval(timer)
+      document.removeEventListener("visibilitychange", onVisible)
+    }
+  }, [])
+
   /** Keeps a note in the chat (with the page it was written on); no AI, no allowance used. */
   const saveNote = useCallback((text: string) => {
     const content = text.trim()
     if (!content || portRef.current || askToken.current) return
     setUndoBar(null)
+    setFirstWin(null)
     const url = source.key()
     const full = source.quick()
     const next: Turn[] = [...messages, stamped({ role: "user", content, note: true, page: pageRef(messages, url, full.title, full.text, keepsText) })]
@@ -1004,7 +1177,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const dropStoppedRef = useRef(dropStopped)
   dropStoppedRef.current = dropStopped
 
-  // `fromButton`: the stop button (the question comes back to the field); else a new or another chat is opening.
+  // `fromButton`: the stop button (the question comes back to the field); else a new or another chat is opening, and
+  // the answer goes on in its chat (build 91): the panel only stops following it.
   const stop = useCallback((fromButton = false) => {
     const port = portRef.current
     if (!port && askToken.current) {
@@ -1022,6 +1196,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     // The next question can go (it waited for this one to finish).
     askToken.current = null
     try {
+      if (fromButton) port.postMessage({ type: "stop" })
       port.disconnect()
     } catch {
       // already closed
@@ -1031,6 +1206,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setPartial(null)
     setStreamMode(null)
     setSimilarRun(null)
+    if (!fromButton) return
     if (text) setMessages((prev) => [...prev, stamped({ role: "assistant", content: text })])
     else dropStoppedRef.current(fromButton)
   }, [])
@@ -1071,7 +1247,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   openSimilarRef.current = openSimilar
 
   /** Ends a Find similar: the checked list as the chat's answer, or why there isn't one. */
-  const finishSimilar = (history: Turn[], answer: Omit<SimilarAnswer, "asked" | "at"> | null, asked: string, code: string | null, usage?: Usage | null) => {
+  const finishSimilar = (history: Turn[], answer: Omit<SimilarAnswer, "asked" | "at"> | null, asked: string, code: string | null, usage?: Usage | null, entry?: Turn) => {
     portRef.current = null
     askToken.current = null
     partialRef.current = ""
@@ -1084,10 +1260,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       setSimilarCard(code === "LIMIT_REACHED" ? { limit: usage ?? null } : "upsell")
       return
     }
-    if (answer) {
-      const full: SimilarAnswer = { ...answer, asked, at: Date.now() }
-      const content = similarMarkdown(full, { inStock: t("similarStockIn"), outOfStock: t("similarStockOut"), notConfirmed: t("similarNotConfirmed"), notOpened: t("similarNotOpened") })
-      const next: Turn[] = [...history, stamped({ role: "assistant", content, similar: full })]
+    if (entry || answer) {
+      // The list as the background wrote it into the chat (build 91), else as it came.
+      const full: SimilarAnswer | null = entry ? null : { ...answer!, asked, at: Date.now() }
+      const content = full ? similarMarkdown(full, { inStock: t("similarStockIn"), outOfStock: t("similarStockOut"), notConfirmed: t("similarNotConfirmed"), notOpened: t("similarNotOpened") }) : ""
+      const next: Turn[] = [...history, entry ?? stamped({ role: "assistant", content, similar: full! })]
       setMessages(next)
       void saveThread(threadRef.current, next)
     }
@@ -1103,12 +1280,17 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       return
     }
     setUndoBar(null)
+    setFirstWin(null)
     setError(null)
     setOfferCard(false)
-    const base = again ? messages.slice(0, messages.length - 1) : messages
+    // Asked again after it was left without an answer (interrupted): it takes that question's place (2.6 (90): twice).
+    const base = again || repeatsLast(messages, { content: label, similarAsk: condition, similarSel: subject }) ? messages.slice(0, messages.length - 1) : messages
     const user: Turn = stamped({ role: "user", content: label, label, similarAsk: condition, ...(subject ? { similarSel: subject } : {}), page: { url: source.key(), title: source.title(), at: Date.now() } })
     const history: Turn[] = [...base, user]
     setMessages(history)
+    // In the chat before it goes: the background writes the list after it (build 91).
+    const thread = threadRef.current
+    const saved = saveThread(thread, history).catch(() => undefined)
     partialRef.current = ""
     setPartial("")
     setSimilarRun({ items: [], step: "plan" })
@@ -1116,7 +1298,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     askToken.current = token
     // What the page states for machines (page watch's reader): its price and stock, to compare against.
     const facts = factsFrom(structured(document.documentElement.outerHTML), document.documentElement.lang || "")
-    void source.read(false).catch(() => ({ ...source.quick(), sources: [] })).then((full) => {
+    void Promise.all([source.read(false).catch(() => ({ ...source.quick(), sources: [] })), saved]).then(([full]) => {
       if (askToken.current !== token) return
       let port: chrome.runtime.Port
       try {
@@ -1126,34 +1308,56 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         return
       }
       portRef.current = port
-      let settled = false
-      let lastSeq = 0
-      let items: SimilarItem[] = []
-      let answer: Omit<SimilarAnswer, "asked" | "at"> | null = null
-      port.onMessage.addListener((event: SimilarStreamEvent & { seq?: number }) => {
-        if (event.seq !== undefined) {
-          if (event.seq <= lastSeq) return
-          lastSeq = event.seq
-        }
-        if (event.type === "progress") setSimilarRun((r) => (r ? { ...r, step: event.step, pages: event.pages ?? r.pages } : r))
-        else if (event.type === "item") {
-          items = [...items, event.item]
-          setSimilarRun((r) => (r ? { ...r, items } : r))
-        } else if (event.type === "result") answer = event.answer
-        else if (event.type === "done") {
-          settled = true
-          finishSimilar(history, answer ?? { intro: "", items, note: "", condition: "" }, condition, null)
-        } else if (event.type === "error") {
-          settled = true
-          finishSimilar(history, items.length ? { intro: "", items, note: "", condition: "" } : null, condition, event.code, event.usage)
-        }
+      listenSimilar(port, history, condition)
+      port.postMessage({
+        type: "similar",
+        job: { id: user.id!, thread },
+        payload: { page: { title: full.title || source.title(), url: source.href(), text: full.text.slice(0, 5_000), facts }, condition, ...(subject ? { selection: subject } : {}) }
       })
-      port.onDisconnect.addListener(() => {
-        if (!settled && portRef.current === port) finishSimilar(history, items.length ? { intro: "", items, note: "", condition: "" } : null, condition, items.length ? null : "STREAM")
-      })
-      port.postMessage({ type: "similar", payload: { page: { title: full.title || source.title(), url: source.href(), text: full.text.slice(0, 5_000), facts }, condition, ...(subject ? { selection: subject } : {}) } })
     })
   }
+
+  /** Follows a Find similar on `port`: what came so far first when it's a job followed again ("snapshot"). */
+  const listenSimilar = (port: chrome.runtime.Port, history: Turn[], condition: string) => {
+    heardRef.current = Date.now()
+    let settled = false
+    let lastSeq = 0
+    let items: SimilarItem[] = []
+    let answer: Omit<SimilarAnswer, "asked" | "at"> | null = null
+    type Followed = { type: "snapshot"; items: SimilarItem[]; step?: SimilarStep; pages?: number } | { type: "beat" } | { type: "gone" }
+    port.onMessage.addListener((event: (SimilarStreamEvent | Followed) & { seq?: number; entry?: Turn }) => {
+      if (event.seq !== undefined) {
+        if (event.seq <= lastSeq) return
+        lastSeq = event.seq
+      }
+      if (portRef.current !== port) return
+      heardRef.current = Date.now()
+      if (event.type === "snapshot") {
+        items = [...event.items]
+        setSimilarRun({ items, step: event.step ?? "plan", ...(event.pages !== undefined ? { pages: event.pages } : {}) })
+      } else if (event.type === "gone") {
+        settled = true
+        lostRef.current()
+      } else if (event.type === "progress") setSimilarRun((r) => (r ? { ...r, step: event.step, pages: event.pages ?? r.pages } : r))
+      else if (event.type === "item") {
+        items = [...items, event.item]
+        setSimilarRun((r) => (r ? { ...r, items } : r))
+      } else if (event.type === "result") answer = event.answer
+      else if (event.type === "done") {
+        settled = true
+        finishSimilar(history, answer ?? { intro: "", items, note: "", condition: "" }, condition, null, undefined, event.entry)
+      } else if (event.type === "error") {
+        settled = true
+        finishSimilar(history, items.length ? { intro: "", items, note: "", condition: "" } : null, condition, event.code, event.usage, event.entry)
+      }
+    })
+    // Closed without an end: the background may still be answering it, so the chat is read again.
+    port.onDisconnect.addListener(() => {
+      if (!settled && portRef.current === port) lostRef.current()
+    })
+  }
+  const listenSimilarRef = useRef(listenSimilar)
+  listenSimilarRef.current = listenSimilar
   const findSimilarRef = useRef(findSimilar)
   findSimilarRef.current = findSimilar
 
@@ -1184,12 +1388,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const newChat = useCallback(() => {
     stop()
     setUndoBar(null)
+    setFirstWin(null)
     const id = newThreadId()
     threadRef.current = id
     setKind(undefined)
     void setActiveThread(id)
     setMessages([])
     setError(null)
+    setMemoryOffer(null)
     setView("chat")
   }, [stop])
 
@@ -1305,6 +1511,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setMessages(recent?.m ?? [])
     setError(null)
     setView("chat")
+    if (recent) setTimeout(() => resumeRef.current(recent.m, id), 0)
   }, [stop, status, threadList])
 
   /** AI search (Pro): the chats the server finds for what the user describes. */
@@ -1329,13 +1536,17 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const openThread = useCallback((id: string, at?: number) => {
     stop()
     setUndoBar(null)
+    setFirstWin(null)
     const thread = threadList.find((x) => x.id === id)
     threadRef.current = id
     setKind(thread?.kind)
     void setActiveThread(id)
     setMessages(thread?.m ?? [])
     setError(null)
+    setMemoryOffer(null)
     setView("chat")
+    // Its answer still coming (asked before another chat was opened), or lost (build 91).
+    if (thread) setTimeout(() => resumeRef.current(thread.m, id), 0)
     requestAnimationFrame(() => requestAnimationFrame(() => {
       const list = listRef.current
       if (!list) return
@@ -1708,6 +1919,15 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // The ✦ steps aside while quick insert's button sits by the field being typed in.
   const insertButtonShown = useButtonShown()
   const fabVisible = !popup && fabEnabled && !open && !settings.fabHiddenSites.includes(source.site()) && !insertButtonShown
+  // Long answers run by the background (similar-26's jobs, src/shared/jobs.ts): a spinner on their chat's row and
+  // "Working on it…" in it, a dot on the row and on the round button once one finished unseen. The background marks
+  // a chat's outcomes seen when the panel shows it (the "jobsSeen" effect above).
+  const [jobList, setJobList] = useState<Jobs>({})
+  useEffect(() => {
+    void loadJobs().then(setJobList)
+    return onJobsChanged(setJobList)
+  }, [])
+  const jobs = useMemo(() => ({ running: runningThreads(jobList), unread: unreadThreads(jobList) }), [jobList])
   // The selection buttons were placed: the round button steps out of their way, or stays (fabDodge.ts).
   const onBubblePlace = useCallback((box: DOMRect, selection: DOMRect) => {
     const fab = fabRef.current
@@ -1818,7 +2038,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (!guide) return
     // A plan's tour goes by its Next and the taps on what it lights up; out of the chat list, on past the chats.
     if (planTour.current) {
-      if (guide === "pro_chatList" && view === "chat") guideTo(planAfter("pro_chats"))
+      // Left the place the step is shown in (Back from the chat list or Templates): on past that place's steps.
+      const there = PLAN_VIEW[guide]
+      if (there && view !== there && view !== "settings") planNext(there === "threads" ? "pro_askChats" : guide)
       return
     }
     const second = guide === "askSel" || guide === "answer2" || ON_PAGE.includes(guide)
@@ -1838,25 +2060,25 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   useEffect(() => {
     if (!open && guide && !ON_PAGE.includes(guide)) endGuide("exit", "closed")
   }, [open])
-  /** The plan tour's step after `step` (null: the tour ends). */
-  const planAfter = (step: GuideStep): GuideStep => {
-    const steps = planTour.current?.steps ?? []
-    return steps[steps.indexOf(step) + 1] ?? step
+  /** A plan step on, where it's shown: the chat list, Templates or the chat, with the "…" menu open for the watched
+   * pages (and for Find similar when the chat has no quick action for it). One update with the step, so the step is
+   * never measured on the screen before. */
+  const planEnter = (step: GuideStep) => {
+    setView(PLAN_VIEW[step] ?? "chat")
+    const menu = PLAN_MENU.includes(step) || (step === "ultra_similar" && !panelRef.current?.querySelector(".cf-empty .cf-chip[data-action=similar]"))
+    setPageMenu(menu)
+    guideTo(step)
   }
   const planNext = (step: GuideStep) => {
     const steps = planTour.current?.steps ?? []
     const i = steps.indexOf(step)
-    if (i < 0 || i >= steps.length - 1) endGuide("done")
-    else guideTo(steps[i + 1])
+    if (i < 0 || i >= steps.length - 1) {
+      setPageMenu(false)
+      endGuide("done")
+    } else planEnter(steps[i + 1])
   }
   const guideNext = () => {
-    if (guide && planTour.current) {
-      if (guide === "pro_chatList") {
-        setView("chat")
-        return planNext("pro_chats")
-      }
-      return planNext(guide)
-    }
+    if (guide && planTour.current) return planNext(guide)
     if (guide === "answer") guideTo("select")
     else if (guide === "select") {
       guideTo("pick")
@@ -1878,13 +2100,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       // The guide's card says what the list's hint would: it isn't shown again later.
       if (hints !== null && !hints.includes("chats")) doneHint("chats")
     } else if (step === "menu") endGuide("done")
-    // A plan's tour: into the chat list with its button; Listen and Find similar do their thing and it goes on; the
-    // "…" ends it with the menu open (the watched pages are there).
-    else if (step === "pro_chats") {
-      setView("threads")
-      guideTo("pro_chatList")
-    } else if (step === "pro_watch" || step === "ultra_watch") endGuide("done")
-    else if (step === "ultra_listen" || step === "ultra_similar") planNext(step)
+    // A plan's tour: the lit-up control does its thing (✦ turns on, Listen plays, Find similar's card opens, a new
+    // template starts) and the tour goes on; Watch this page or Watching ends it there.
+    else if (step === "pro_watch" || step === "ultra_watch") endGuide("done")
+    else if (planTour.current && PLAN_STEPS.includes(step)) planNext(step)
   }
   /** A plan's tour: what Pro or Ultra added. After the upgrade (via "plan"), or again from the "…" menu. Ultra for
    * someone coming from below Pro (and from the menu) has Pro's steps too. */
@@ -1894,7 +2113,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     planTour.current = { steps, plans: full || tier === "pro" ? (tier === "pro" ? ["pro"] : ["pro", "ultra"]) : ["ultra"] }
     guideVia.current = via
     setTouring(false)
-    setView("chat")
+    setView(PLAN_VIEW[steps[0]] ?? "chat")
     guideRef.current = steps[0]
     setGuide(steps[0])
     reportGuide("start", steps[0])
@@ -1934,9 +2153,20 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setPlansOpen(focus)
     void sendBackground({ type: "useEvent", f: "plans", a: "open", via, plan: focus })
   }, [])
+  if (status?.plan) planKnownRef.current = status.plan
+  // The plans message in the chat (build 91): a plan and period chosen open the app on them, as the plans sheet does.
+  const choosePlan = (choice: OfferChoice) => {
+    void (async () => {
+      const result = await sendBackground<{ opened: boolean; url: string }>({ type: "openApp", target: "subscribe", plan: choice.plan, period: choice.period, feature: choice.plan === "ultra" ? "listen" : undefined })
+      if (result && !result.opened && result.url) followLink(result.url)
+    })()
+  }
+  const offerEvent = (place: OfferPlace) => (action: string, choice?: OfferChoice) =>
+    void sendBackground({ type: "useEvent", f: "chat_plans", a: action, via: place, ...(choice ? { plan: choice.plan, period: choice.period } : {}) })
   const listen = useListen({
     platform,
     plan,
+    speakLeft: status?.ultra?.speak ? Math.max(0, status.ultra.speak.limit - status.ultra.speak.used) : null,
     onUltra: () => openPlans("ultra"),
     follow: followLink,
     send: (message) => sendBackground(message)
@@ -1953,6 +2183,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     void listen.start("page", { text: read.text, what: "page", lang: document.documentElement.lang || textLanguage(read.text) || t("langCode"), title: read.title || source.title(), url: source.href() })
   }, [listen.start, source])
   const ownKeyActive = viaOwnKey || (Boolean(status?.hasOwnKey) && plan !== "free")
+  // The chat's memory as the next answer gets it (build 91): the whole chat for Pro and Ultra (and the own key, whose
+  // subscriber pays the model) unless turned off.
+  const memoryAllowed = hasPro(plan) || ownKeyActive
+  const memoryOn = memoryAllowed && settings.chatMemory !== false
   // The App Store offer code for Pro, once this install has run out of free answers (Safari only).
   const offer = TARGET === "safari" && plan === "free" && !ownKeyActive ? error?.offer ?? status?.offer ?? null : null
   // Videos and PDFs on the page are read for Pro (and the user's own key); free answers say they skipped them.
@@ -2168,10 +2402,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const orgOn = TARGET === "safari" && hasPro(plan) && Boolean(status?.organize?.on) && settings.organize
   const [org, setOrg] = useState<{ chat: string; length: number; move: OrganizeMove | null; tags: Array<{ index: number; key: string; tag: string }> } | null>(null)
   const [cards, setCards] = useState<OrganizeCards | null>(null)
-  // "Everything in one chat?" showing in this chat; the card after the third tag; the line after the first one taken.
+  // "Everything in one chat?" showing in this chat; the card after the third tag; the line after the first one taken
+  // (the chat it was taken in: it stays there until the next question or note, never at the end of other chats).
   const [messFor, setMessFor] = useState<string | null>(null)
   const [tagsCard, setTagsCard] = useState(false)
-  const [firstWin, setFirstWin] = useState(false)
+  const [firstWin, setFirstWin] = useState<string | null>(null)
   const orgSeen = useRef(new Set<string>())
   const messagesRef = useRef(messages)
   messagesRef.current = messages
@@ -2187,6 +2422,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     // After the answer is in, without delaying it; a fade in, not a jump.
     const timer = setTimeout(() => {
       void sendBackground<OrganizeReply>({ type: "organize", chat }).then((reply) => {
+        if (reply?.ok && reply.name) void putName(chat, reply.name, "drift")
         if (!reply?.ok || threadRef.current !== chat || messagesRef.current.length !== length) return
         setOrg({ chat, length, move: reply.move, tags: reply.tags })
       })
@@ -2210,10 +2446,63 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     }
   }, [orgNow])
 
+  // 2.6: the chat named by its topic, by "Name by topic" or by itself when its name no longer fit (never one the user
+  // typed): the list shows it, and a bar says so, with Undo. By itself while another bar is up: quietly.
+  const undoBarRef = useRef(undoBar)
+  undoBarRef.current = undoBar
+  const putName = async (chat: string, name: string, why: "asked" | "drift") => {
+    const before = await nameThread(chat, name, why === "asked")
+    if (!before) return
+    setThreadList(chatList((await loadThreads()).threads))
+    orgEvent({ kind: "organize", action: "accepted", what: "name", why })
+    if (why === "drift" && (undoBarRef.current || threadRef.current !== chat)) return
+    setUndoBar({
+      text: t("orgNamed", name),
+      kind: "move",
+      actions: [{
+        label: t("orgUndo"),
+        run: () => {
+          setUndoBar(null)
+          void unnameThread(chat, name, before).then(() => loadThreads()).then(({ threads }) => setThreadList(chatList(threads)))
+          orgEvent({ kind: "organize", action: "undone", what: "name", why })
+        }
+      }]
+    })
+  }
+  const [naming, setNaming] = useState(false)
+  const nameByTopic = () => {
+    const chat = threadRef.current
+    setNaming(true)
+    void sendBackground<OrganizeNameReply>({ type: "organizeName", chat }).then((reply) => {
+      setNaming(false)
+      if (reply?.ok) void putName(chat, reply.name, "asked")
+      else if (threadRef.current === chat) setUndoBar({ text: t("orgNameFailed"), actions: [] })
+    })
+  }
+
+  // 2.6: the chats list shows how many open suggestions each chat has ("N recommendations"): asked each time the list
+  // shows (and the chats change), counted once per chat as shown.
+  const [recs, setRecs] = useState<Record<string, number>>({})
+  const recsSeen = useRef(new Set<string>())
+  useEffect(() => {
+    if (!open || !orgOn || view !== "threads") return
+    let live = true
+    void sendBackground<OrganizeCountsReply>({ type: "organizeCounts" }).then((reply) => {
+      if (!live || !reply?.ok) return
+      setRecs(reply.counts)
+      for (const id of Object.keys(reply.counts)) {
+        if (recsSeen.current.has(id)) continue
+        recsSeen.current.add(id)
+        orgEvent({ kind: "organize", action: "shown", what: "badge" })
+      }
+    })
+    return () => { live = false }
+  }, [open, orgOn, view, threadList])
+
   // The first suggestion taken: a line that from now on they come by themselves (once).
   const won = () => {
     if (!cards || cards.firstWin) return
-    setFirstWin(true)
+    setFirstWin(threadRef.current)
     void setOrganizeCards({ firstWin: true }).then(setCards)
     orgEvent({ kind: "organize_promo", action: "shown", where: "first_win" })
   }
@@ -2448,7 +2737,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       {tagsCard && !messCard && promoOk && (
         <OrganizeCard kind="tags" pro={byok ? t("upgradePro") : undefined} onPrimary={() => tryOrganizePro("third_tag")} onClose={() => setTagsCard(false)} />
       )}
-      {firstWin && orgOn && <div class="cf-org-win" role="status"><Icon.Sparkle size={13} /> {t("orgFirstWin")}</div>}
+      {firstWin === threadRef.current && orgOn && <div class="cf-org-win" role="status"><Icon.Sparkle size={13} /> {t("orgFirstWin")}</div>}
     </>
   )
 
@@ -2478,6 +2767,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           }}
         >
           <Icon.Sparkle size={22} />
+          {jobs.unread.size > 0 && <span class="cf-fab-dot" role="status" aria-label={t("busyNew")} />}
         </button>
       )}
 
@@ -2663,6 +2953,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       pageWatcher()?.({ url: source.href(), title: source.title() })
                     } : undefined}
                     onSimilar={contextKind === "page" && !historyMode ? () => openSimilar("menu") : undefined}
+                    onNameChat={orgOn && view === "chat" && !historyMode && messages.length > 0 && !naming ? () => {
+                      setPageMenu(false)
+                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "name_chat" })
+                      nameByTopic()
+                    } : undefined}
                     similarLocked={!similarAllowed(plan)}
                     reminders={laterCount.remind}
                     watches={listsKind("watch") ? laterCount.watch : null}
@@ -2715,7 +3010,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
           {view === "threads" ? (
             <>
-              {hintDue("chats") && threadList.length > 0 && guide !== "chatList" && guide !== "pro_chatList" && (
+              {hintDue("chats") && threadList.length > 0 && guide !== "chatList" && !(guide && PLAN_VIEW[guide] === "threads") && (
                 <div class="cf-upsell-wrap">
                   <Hint icon={<Icon.Chats />} title={t("hintChatsTitle")} onDone={() => doneHint("chats")}>{t("hintChatsBody")}</Hint>
                 </div>
@@ -2740,7 +3035,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               <ThreadsView
                 threads={threadList}
                 activeId={threadRef.current}
-                onOpen={openThread}
+                onOpen={(id, at) => {
+                  if (orgOn && recs[id]) orgEvent({ kind: "organize", action: "tap", what: "badge" })
+                  openThread(id, at)
+                }}
                 onRename={renameChat}
                 onDelete={deleteChatWithUndo}
                 onNew={newChat}
@@ -2758,10 +3056,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 onGrouped={(on) => updateSettings({ groupByTags: on })}
                 touch={touch}
                 trashCount={trashList.length}
+                busy={jobs.running}
+                unread={jobs.unread}
                 onOpenTrash={() => {
                   setUndoBar(null)
                   setView("trash")
                 }}
+                recs={orgOn ? recs : undefined}
               />
               <div class="cf-undo-host">{undoBar && <UndoBar text={undoBar.text} actions={undoBar.actions} onHold={holdBar} />}</div>
             </>
@@ -2921,7 +3222,17 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   />
                 )}
                 {similarCard === "upsell" && (
-                  <SimilarUpsell onUpgrade={() => { setSimilarCard(null); openPlans("ultra", "similar") }} onClose={() => setSimilarCard(null)} />
+                  <PlanOffer
+                    place="ultra_only"
+                    status={status}
+                    title={t("similarTitle")}
+                    body={t("similarUpsellText")}
+                    lines={[t("similarUpsellChecked"), t("similarUpsellConditions"), t("similarUpsellWatch")]}
+                    plans={["ultra"]}
+                    onChoose={(choice) => { setSimilarCard(null); choosePlan(choice) }}
+                    onEvent={offerEvent("ultra_only")}
+                    onClose={() => setSimilarCard(null)}
+                  />
                 )}
                 {similarCard !== null && typeof similarCard === "object" && (
                   <div class="cf-card limit cf-similar-limit">
@@ -2949,6 +3260,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   </div>
                 )}
 
+                {/* 2.6 (91): a long answer for this chat under way off the panel (Find similar in the background). */}
+                {jobs.running.has(threadRef.current) && partial === null && (
+                  <div class="cf-busy-row" role="status"><span class="cf-busy-spin" aria-hidden="true" /> {t("busyWorking")}</div>
+                )}
                 {organizeCardsView}
 
                 {byokCard && byokDiscount !== null && !error && partial === null && (
@@ -3000,6 +3315,41 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   // A long page: some answers are left, but fewer than it counts as (2.5).
                   const left = Math.max(0, (error.usage?.limit ?? 0) - (error.usage?.used ?? 0))
                   const long = (error.weight ?? 1) > 1 && left > 0
+                  // Free and Pro (build 91): the plans message in the chat, Retry once the answers are back. An own key
+                  // subscriber, and Ultra (nothing above it), keep the card.
+                  if (!byok && !isUltra(plan)) {
+                    const event = offerEvent("limit")
+                    return (
+                      <PlanOffer
+                        place="limit"
+                        status={status}
+                        title={long ? t("limitLongTitle") : hasPro(plan) ? t("limitProTitle") : t("limitFreeTitle")}
+                        body={<>
+                          {long && `${t("limitLongBody", error.weight!, left)} `}
+                          {hasPro(plan) ? t("limitProBody", timeUntil(resetsAt)) : t("limitFreeBack", back, clockTime(resetsAt), timeUntil(resetsAt))}
+                        </>}
+                        plans={hasPro(plan) ? ["ultra"] : ["pro", "ultra"]}
+                        retryAt={resetsAt ? Date.parse(resetsAt) : null}
+                        onRetry={lastIsUser ? () => retry() : undefined}
+                        onChoose={choosePlan}
+                        onEvent={event}
+                        extra={<>
+                          {offer && (
+                            <div class="cf-card-actions">
+                              <button type="button" class="cf-secondary" onClick={() => { event("discount"); redeemOffer(offer.code) }}><Icon.Sparkle size={14} /> {t("offerButton", offer.discount)}</button>
+                            </div>
+                          )}
+                          <p class="cf-limit-notes">
+                            <Icon.Pencil /> {t("limitNotes")}{" "}
+                            <button type="button" class="cf-link" onClick={() => { event("note"); writeNote() }}>{t("writeNote")}</button>
+                          </p>
+                          {!hasPro(plan) && TARGET === "safari" && (
+                            <p class="cf-offer-own"><button type="button" class="cf-link" onClick={() => { event("own_key"); setView("settings") }}>{t("useOwnKey")}</button></p>
+                          )}
+                        </>}
+                      />
+                    )
+                  }
                   return (
                     <div class="cf-card limit">
                       <strong>{long ? t("limitLongTitle") : hasPro(plan) ? t("limitProTitle") : byok ? t("byokLimitTitle") : t("limitFreeTitle")}</strong>
@@ -3035,14 +3385,47 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   )
                 })()}
 
-                {error && error.code === "PRO_ONLY" && (
+                {error && error.code === "PRO_ONLY" && (byok ? (
                   <ProUpsell
                     feature="history"
                     offer={offer}
-                    byok={byok ? { discount: byokDiscount } : undefined}
-                    onPro={() => (byok ? upgrade("pro_only") : void openApp("subscribe", "ai"))}
+                    byok={{ discount: byokDiscount }}
+                    onPro={() => upgrade("pro_only")}
                     onOffer={redeemOffer}
                     onClose={() => setError(null)}
+                  />
+                ) : (
+                  <PlanOffer
+                    place="pro_only"
+                    status={status}
+                    title={t("upsellHistoryTitle")}
+                    lines={[t("upsellHistoryText"), t("upsellFindText"), t("upsellOrganizeText")]}
+                    onChoose={choosePlan}
+                    onEvent={offerEvent("pro_only")}
+                    onClose={() => setError(null)}
+                    extra={offer ? (
+                      <div class="cf-card-actions">
+                        <button type="button" class="cf-secondary" onClick={() => { offerEvent("pro_only")("discount"); redeemOffer(offer.code) }}><Icon.Sparkle size={14} /> {t("offerButton", offer.discount)}</button>
+                      </div>
+                    ) : undefined}
+                  />
+                ))}
+
+                {memoryOffer && !error && partial === null && !memoryAllowed && (
+                  <PlanOffer
+                    key={memoryOffer}
+                    place="memory"
+                    status={status}
+                    title={t("offerMemoryTitle")}
+                    body={t(memoryOffer === "long" ? "offerMemoryLong" : "offerMemoryBody", FREE_MEMORY)}
+                    onChoose={choosePlan}
+                    onEvent={offerEvent("memory")}
+                    onClose={() => setMemoryOffer(null)}
+                    extra={offer ? (
+                      <div class="cf-card-actions">
+                        <button type="button" class="cf-secondary" onClick={() => { offerEvent("memory")("discount"); redeemOffer(offer.code) }}><Icon.Sparkle size={14} /> {t("offerButton", offer.discount)}</button>
+                      </div>
+                    ) : undefined}
                   />
                 )}
 
@@ -3095,7 +3478,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 </footer>
               ) : (
                 <footer class="cf-composer">
-                  <ListenBar state={listen.state} speed={listen.speed} onSpeed={listen.cycleSpeed} onToggle={listen.toggle} onStop={listen.stop} onPlans={() => openPlans("ultra", "limit")} />
+                  <ListenBar state={listen.state} speed={listen.speed} left={listen.left} onSpeed={listen.cycleSpeed} onAnyway={listen.anyway} onNotifyOn={listen.notifyTurnOn} onNotifyLater={listen.notifyNotNow} onToggle={listen.toggle} onStop={listen.stop} onPlans={() => openPlans("ultra", "limit")} />
                   {undoBar && <UndoBar text={undoBar.text} actions={undoBar.actions} onHold={holdBar} />}
                   {noteHint && draft.trim() && !noteMode && <div class="cf-note-hint" role="status">{t(touch ? "noteHintTouch" : "noteHintMouse")}</div>}
                   {weightNote && <div class="cf-weight-note" title={t("longPageWeightHint", pageWeight)}>{t("longPageWeight", pageWeight)}</div>}
@@ -3157,9 +3540,17 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   <div class="cf-usage">
                     <span class="cf-usage-text" title={usageLine.full}>{usageLine.short}</span>
                     {!historyMode && <label class="cf-whole" title={t("wholeChatHint")}>
-                      <input type="checkbox" role="switch" checked={settings.wholeChat} onChange={(e) => updateSettings({ wholeChat: e.currentTarget.checked })} />
+                      <input type="checkbox" role="switch" checked={memoryOn} onChange={(e) => {
+                        // Pro's memory (build 91): Pro and Ultra turn it on and off; without Pro it stays off and the chat
+                        // says what Pro remembers.
+                        if (memoryAllowed) return updateSettings({ chatMemory: e.currentTarget.checked })
+                        e.currentTarget.checked = false
+                        setMemoryOffer("switch")
+                        setTimeout(() => listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" }), 60)
+                      }} />
                       <span class="cf-switch" aria-hidden="true" />
                       {t("wholeChat")}
+                      {!memoryAllowed && <span class="cf-pro-badge">Pro</span>}
                     </label>}
                     {plan === "free" && !ownKeyActive && TARGET === "safari" && (
                       offer ? (
@@ -3173,7 +3564,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               )}
             </>
           )}
-          {guide && guideIdle && !ON_PAGE.includes(guide) && view === (guide === "chatList" || guide === "pro_chatList" ? "threads" : "chat") && panelRef.current && (
+          {guide && guideIdle && !ON_PAGE.includes(guide) && view === (guide === "chatList" ? "threads" : PLAN_VIEW[guide] ?? "chat") && panelRef.current && (
             <GuideCard
               key={guide}
               panel={panelRef.current}

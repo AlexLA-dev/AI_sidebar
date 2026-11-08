@@ -1,3 +1,4 @@
+import { tipClip } from "./tipClips"
 import { mediaKinds, type MediaKind } from "../shared/attachments"
 import { API_BASE, LINKS, TARGET, VERSION } from "../shared/config"
 import { planOfProduct, ULTRA_DEFAULTS, WATCH_LIMITS, type PaidPlan, type Period } from "../shared/plan"
@@ -30,11 +31,12 @@ import { isPdfTab, markPdfTab, openPdfPopup, pdfFromBytes, pdfText } from "./pdf
 import { countValueMoment, mirrorOnStart, mirrorThreads, syncSettings, syncThreads, watchSettings, watchThreads } from "./sync"
 import { startInsert } from "./insert"
 import { startWatch } from "./watch"
-import { organizeChat, reportOrganize } from "./organize"
+import { nameChatNow, organizeChat, organizeCounts, reportOrganize } from "./organize"
 import { organizeConfig } from "../shared/organize"
 import { askSimilar } from "./similar"
 import type { SimilarPayload, SimilarStreamEvent } from "../shared/similar"
-import { clearSpeech, serveSpeak } from "./speak"
+import { base64 as speechBase64, clearSpeech, serveSpeak } from "./speak"
+import { follow, jobsOnStart, liveJobIds, markSeen, startJob, stopJob, type JobSpec } from "./jobs"
 
 // ---------------------------------------------------------------- identity
 
@@ -285,74 +287,142 @@ async function runChat(payload: AskPayload, emit: (e: StreamEvent) => void, sign
 
 chrome.runtime.onConnect.addListener((port) => {
   if (port.name === "speak") {
-    serveSpeak(port, { installId, client: clientInfo, jws: async () => {
-      const ent = await entitlement()
-      return ent?.active ? ent.jws : null
-    } })
+    serveSpeak(port, {
+      installId,
+      client: clientInfo,
+      jws: async () => {
+        const ent = await entitlement()
+        return ent?.active ? ent.jws : null
+      },
+      // The user's iCloud through the app's extension (Safari): parts and texts made on their other devices.
+      sync: TARGET === "safari" ? {
+        getPart: async (key, wait) => (await callNative<{ aac?: string }>("speechGet", { key, wait }, (wait + 2) * 1000))?.aac ?? null,
+        putPart: async (key, pcm) => {
+          // In pieces (native messages stay small); the extension encodes and keeps it when the last one is in.
+          const size = 384 * 1024
+          for (let at = 0, index = 0; at < pcm.length; at += size, index++) {
+            await callNative("speechPut", { key, index, last: at + size >= pcm.length, data: speechBase64(pcm.subarray(at, at + size)) }, 15_000)
+          }
+        },
+        getText: async (key, wait) => (await callNative<{ text?: string }>("speechTextGet", { key, wait }, (wait + 2) * 1000))?.text ?? null,
+        putText: async (key, text) => void (await callNative("speechTextPut", { key, text }, 10_000))
+      } : undefined
+    })
     return
   }
+  if (port.name === "job") return serveJob(port)
   if (port.name !== "chat") return
-  const controller = new AbortController()
-  port.onDisconnect.addListener(() => controller.abort())
   // One question per port: Safari delivers a popup's message twice (two answers, two used from the allowance).
   let asked = false
-  let seq = 0
-  port.onMessage.addListener((message: { type: "ask"; payload: AskPayload }) => {
+  port.onMessage.addListener((message: { type: "ask"; payload: AskPayload; job?: JobSpec }) => {
     if (message?.type !== "ask" || asked) return
     asked = true
-    const emit = (event: StreamEvent) => {
-      if (event.type === "done") void countValueMoment().catch(() => undefined)
-      try {
-        // Numbered, so a page that gets a message twice can drop the copy.
-        port.postMessage({ ...event, seq: ++seq })
-      } catch {
-        controller.abort()
-      }
-    }
-    runChat(message.payload, emit, controller.signal)
-      .catch(() => emit({ type: "error", code: "STREAM" }))
-      .finally(() => {
-        try {
-          port.disconnect()
-        } catch {
-          // already closed
-        }
-      })
+    const run = (emit: (event: StreamEvent) => void, signal: AbortSignal) =>
+      runChat(message.payload, (event) => {
+        if (event.type === "done") void countValueMoment().catch(() => undefined)
+        emit(event)
+      }, signal)
+    servePort(port, message.job ? { ...message.job, kind: "chat" } : null, run as Run)
   })
 })
+
+type Run = (emit: (event: StreamEvent | SimilarStreamEvent) => void, signal: AbortSignal) => Promise<void>
+
+/**
+ * Answers a panel's question on its port. With a job (build 91), the question is the background's: it goes on when the
+ * panel goes, and its answer is written into the chat (jobs.ts); the panel's "stop" stops it. Without (a page still
+ * running an older panel), as before: the port closing stops it.
+ */
+function servePort(port: chrome.runtime.Port, spec: JobSpec | null, run: Run): void {
+  let seq = 0
+  let closed = false
+  const close = () => {
+    if (closed) return
+    closed = true
+    try {
+      port.disconnect()
+    } catch {
+      // already closed
+    }
+  }
+  // Numbered, so a page that gets a message twice can drop the copy.
+  const send = (event: Record<string, unknown>) => {
+    if (closed) return
+    try {
+      port.postMessage({ ...event, seq: ++seq })
+    } catch {
+      closed = true
+    }
+    if (event.type === "done" || event.type === "error") close()
+  }
+  if (spec) {
+    const unfollow = startJob(spec, run, send)
+    port.onDisconnect.addListener(() => {
+      closed = true
+      unfollow()
+    })
+    port.onMessage.addListener((message: { type?: string }) => {
+      if (message?.type === "stop") {
+        stopJob(spec.id)
+        close()
+      }
+    })
+    return
+  }
+  const controller = new AbortController()
+  port.onDisconnect.addListener(() => {
+    closed = true
+    controller.abort()
+  })
+  run((event) => send(event as unknown as Record<string, unknown>), controller.signal)
+    .catch(() => send({ type: "error", code: "STREAM" }))
+    .finally(close)
+}
+
+/** A panel coming back to a running job ("attach"): what came so far, then the rest; "gone" when none runs here. */
+function serveJob(port: chrome.runtime.Port): void {
+  let seq = 0
+  let unfollow: (() => void) | null = null
+  let id = ""
+  const send = (event: Record<string, unknown>) => {
+    try {
+      port.postMessage({ ...event, seq: ++seq })
+    } catch {
+      unfollow?.()
+    }
+    if (event.type === "done" || event.type === "error" || event.type === "gone") {
+      try {
+        port.disconnect()
+      } catch {
+        // already closed
+      }
+    }
+  }
+  port.onDisconnect.addListener(() => unfollow?.())
+  port.onMessage.addListener((message: { type?: string; id?: string }) => {
+    if (message?.type === "attach" && typeof message.id === "string" && !unfollow) {
+      id = message.id
+      unfollow = follow(id, send)
+      if (!unfollow) send({ type: "gone" })
+    } else if (message?.type === "stop" && id) stopJob(id)
+  })
+}
 
 // ------------------------------------------------------------ find similar
 
 // "Find similar" (2.6, Ultra): one request per port, like a question; the server checks the plan.
 chrome.runtime.onConnect.addListener((port) => {
   if (port.name !== "similar") return
-  const controller = new AbortController()
-  port.onDisconnect.addListener(() => controller.abort())
   let asked = false
-  let seq = 0
-  port.onMessage.addListener((message: { type: "similar"; payload: SimilarPayload }) => {
+  port.onMessage.addListener((message: { type: "similar"; payload: SimilarPayload; job?: JobSpec }) => {
     if (message?.type !== "similar" || asked) return
     asked = true
-    const emit = (event: SimilarStreamEvent) => {
-      try {
-        port.postMessage({ ...event, seq: ++seq })
-      } catch {
-        controller.abort()
-      }
-    }
-    void (async () => {
+    const run = async (emit: (event: SimilarStreamEvent) => void, signal: AbortSignal) => {
       if (!(await consented())) return emit({ type: "error", code: "CONSENT" })
       const [id, ent, client] = await Promise.all([installId(), entitlement(), clientInfo()])
-      await askSimilar({ installId: id, client, entitlement: ent?.active ? ent.jws : null, payload: message.payload }, emit, controller.signal)
-    })()
-      .catch(() => emit({ type: "error", code: "STREAM" }))
-      .finally(() => {
-        try {
-          port.disconnect()
-        } catch {
-          // already closed
-        }
-      })
+      await askSimilar({ installId: id, client, entitlement: ent?.active ? ent.jws : null, payload: message.payload }, emit, signal)
+    }
+    servePort(port, message.job ? { ...message.job, kind: "similar", asked: message.payload.condition ?? "" } : null, run as Run)
   })
 })
 
@@ -406,7 +476,8 @@ async function openApp(
 async function listenInApp(message: Extract<BackgroundRequest, { type: "listenInApp" }>): Promise<{ url: string | null }> {
   if (TARGET !== "safari") return { url: null }
   const reply = await callNative<{ id?: string }>("listen", {
-    parts: message.parts.slice(0, 40),
+    id: /^[0-9a-f-]{8,64}$/i.test(message.id) ? message.id : "",
+    parts: message.parts.slice(0, 80),
     text: message.text.slice(0, 24_000),
     script: message.script === true,
     lang: message.lang.slice(0, 16),
@@ -463,6 +534,15 @@ async function reportUse(message: Extract<BackgroundRequest, { type: "useEvent" 
 
 chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendResponse) => {
   switch (message?.type) {
+    case "tipClip":
+      void tipClip(message.name, message.lang).then(sendResponse, () => sendResponse({ ok: false }))
+      return true
+    case "liveJobs":
+      sendResponse({ ids: liveJobIds() })
+      return false
+    case "jobsSeen":
+      void markSeen(message.thread).then(() => sendResponse(true), () => sendResponse(false))
+      return true
     case "status":
       // The panel just opened: pick up settings changed in the ContextFlow app (never delays the status).
       void syncSettings().catch(() => undefined)
@@ -476,7 +556,33 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
     case "listenInApp":
       listenInApp(message).then(sendResponse, () => sendResponse({ url: null }))
       return true
+    case "notifStatus":
+      if (TARGET !== "safari") {
+        sendResponse({ status: "none" })
+        return false
+      }
+      callNative<{ status?: string }>("notifStatus", {}, 3000).then((r) => sendResponse({ status: r?.status ?? "unknown" }), () => sendResponse({ status: "unknown" }))
+      return true
+    case "listenHandoff": {
+      if (TARGET !== "safari" || !/^[0-9a-f-]{8,64}$/i.test(message.id)) {
+        sendResponse({ ok: false })
+        return false
+      }
+      const command = { state: "listenState", away: "listenAway", back: "listenBack", stop: "listenStop" }[message.op]
+      callNative<{ taken?: boolean }>(command, {
+        id: message.id,
+        at: typeof message.at === "number" ? Math.max(0, message.at) : 0,
+        ...(message.starts ? { starts: message.starts.slice(0, 80) } : {}),
+        ...(message.parts ? { parts: message.parts.slice(0, 80).map((p) => p.slice(0, 4000)), complete: message.complete === true } : {}),
+        ...(typeof message.speed === "number" ? { speed: message.speed } : {}),
+        ...(message.title ? { title: message.title.slice(0, 200) } : {}),
+        ...(message.body ? { body: message.body.slice(0, 200) } : {})
+      }, 4000).then((r) => sendResponse({ ok: r !== null, taken: r?.taken === true }), () => sendResponse({ ok: false }))
+      return true
+    }
     case "speechClear":
+      // "Delete all chats": what was read aloud goes from this device and, in Safari, from the user's iCloud (2.6).
+      if (TARGET === "safari") void callNative("speechClear", {}, 15_000)
       clearSpeech().then(() => sendResponse({ ok: true }), () => sendResponse({ ok: false }))
       return true
     case "mediaNotice":
@@ -513,6 +619,16 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
       // Suggestions send text to the AI: only with the one consent too (it lists them), not the switch alone.
       Promise.all([status(), installId(), entitlement(), clientInfo(), settings(), consented()])
         .then(([now, id, ent, client, prefs, agreed]) => organizeChat(message.chat, { status: now, installId: id, jws: ent?.active ? ent.jws : null, client, on: prefs.organize && agreed }))
+        .then(sendResponse, () => sendResponse({ ok: false, code: "NETWORK" }))
+      return true
+    case "organizeName":
+      Promise.all([status(), installId(), entitlement(), clientInfo(), settings(), consented()])
+        .then(([now, id, ent, client, prefs, agreed]) => nameChatNow(message.chat, { status: now, installId: id, jws: ent?.active ? ent.jws : null, client, on: prefs.organize && agreed }))
+        .then(sendResponse, () => sendResponse({ ok: false, code: "NETWORK" }))
+      return true
+    case "organizeCounts":
+      Promise.all([status(), installId(), entitlement(), clientInfo(), settings(), consented()])
+        .then(([now, id, ent, client, prefs, agreed]) => organizeCounts({ status: now, installId: id, jws: ent?.active ? ent.jws : null, client, on: prefs.organize && agreed }))
         .then(sendResponse, () => sendResponse({ ok: false, code: "NETWORK" }))
       return true
     case "organizeEvent":
@@ -645,6 +761,8 @@ chrome.runtime.onInstalled.addListener((details) => {
 
 watchSettings()
 void syncSettings().catch(() => undefined)
+// Questions a previous background was answering were lost with it: their chats say "interrupted" (build 91).
+void jobsOnStart().catch(() => undefined)
 // Offline at install time: try again whenever the background starts.
 void reportSwitchedOn().catch(() => undefined)
 // Chats follow the user to their other Apple devices through iCloud, and to the ContextFlow app.

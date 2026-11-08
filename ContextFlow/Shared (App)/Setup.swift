@@ -97,7 +97,12 @@ final class Activation: ObservableObject {
             defaults.set(true, forKey: Self.remindersOfferedKey)
             // Let the guide appear before the system asks about notifications.
             try? await Task.sleep(nanoseconds: 1_200_000_000)
+            #if os(iOS)
+            // 2.6: our screen first (what they're for, reading aloud included), then the system's question.
+            await NotifyAsk.shared.show(.launch)
+            #else
             await SetupReminders.schedule()
+            #endif
         }
         await reportOpen()
     }
@@ -169,6 +174,147 @@ final class Activation: ObservableObject {
         #endif
     }
 }
+
+#if os(iOS)
+// MARK: - Notifications, asked with a reason (2.6)
+
+/// The system's question about notifications can't say what they're for, so this screen comes first: reminders, pages
+/// that change, and read aloud carried on from Safari when the page goes away or the screen locks. When they're off
+/// (iOS asks only once), it opens the app's notification settings instead. Shown on a new install, once after an
+/// Ultra purchase, and when Listen in Safari needs them (the extension can't ask): then the text plays here after.
+@MainActor
+final class NotifyAsk: ObservableObject {
+    static let shared = NotifyAsk()
+
+    enum Reason: String {
+        case launch, ultra, listen
+    }
+
+    struct Ask: Identifiable {
+        let id = UUID()
+        let reason: Reason
+        /// Turned off: iOS won't ask again, only Settings can turn them on.
+        let denied: Bool
+        /// From Listen in Safari: the text handed over, played here once this is answered.
+        let listen: String?
+    }
+
+    @Published var ask: Ask?
+    private static let ultraKey = "cf_notify_asked_ultra"
+
+    /// Shown when notifications aren't on (not asked yet, or turned off); otherwise a text handed over just plays.
+    func show(_ reason: Reason, listen id: String? = nil) async {
+        let status = await UNUserNotificationCenter.current().notificationSettings().authorizationStatus
+        guard status == .notDetermined || status == .denied else {
+            if let id { play(id) }
+            return
+        }
+        ask = Ask(reason: reason, denied: status == .denied, listen: id)
+        ChatAI.reportUse("notify", "shown", ["why": reason.rawValue, "status": status == .denied ? "denied" : "not_asked"])
+    }
+
+    /// Once, after an Ultra purchase (read aloud carries on from Safari only with notifications).
+    func afterUltra() async {
+        guard !UserDefaults.standard.bool(forKey: Self.ultraKey) else { return }
+        let status = await UNUserNotificationCenter.current().notificationSettings().authorizationStatus
+        guard status == .notDetermined || status == .denied else { return }
+        UserDefaults.standard.set(true, forKey: Self.ultraKey)
+        await show(.ultra)
+    }
+
+    func turnOn() async {
+        guard let ask else { return }
+        ChatAI.reportUse("notify", "on", ["why": ask.reason.rawValue])
+        if ask.denied {
+            // Back from Settings, the user goes on in Safari: Listen there plays in the panel now.
+            self.ask = nil
+            if let url = URL(string: UIApplication.openNotificationSettingsURLString) { await UIApplication.shared.open(url) }
+            return
+        }
+        if ask.reason == .launch {
+            // The setup reminders ask the system themselves, and are scheduled when allowed.
+            await SetupReminders.schedule()
+        } else {
+            _ = try? await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound])
+        }
+        finish()
+    }
+
+    func notNow() {
+        if let ask { ChatAI.reportUse("notify", "later", ["why": ask.reason.rawValue]) }
+        finish()
+    }
+
+    private func finish() {
+        let id = ask?.listen
+        ask = nil
+        if let id { play(id) }
+    }
+
+    /// The text Listen handed over in Safari: played here (after this screen has gone).
+    private func play(_ id: String) {
+        guard let url = URL(string: "contextflow://listen?id=\(id)") else { return }
+        Task {
+            try? await Task.sleep(nanoseconds: 600_000_000)
+            ListenPlayer.shared.open(url)
+        }
+    }
+}
+
+struct NotifyAskView: View {
+    @ObservedObject var model: NotifyAsk
+    let ask: NotifyAsk.Ask
+
+    var body: some View {
+        VStack(spacing: 22) {
+            Spacer(minLength: 12)
+            Image(systemName: "bell.badge.fill")
+                .font(.system(size: 48))
+                .foregroundStyle(.tint)
+            Text("Turn on notifications")
+                .font(.title2.weight(.bold))
+                .multilineTextAlignment(.center)
+            VStack(alignment: .leading, spacing: 16) {
+                row("speaker.wave.2.fill", "Keep listening when you leave Safari or lock the screen: a notification carries it on in the app, from the same second.")
+                row("bell.fill", "Reminders you set on answers and notes.")
+                row("eye.fill", "When a page you watch changes.")
+            }
+            .frame(maxWidth: 440, alignment: .leading)
+            if ask.denied {
+                Text("Notifications are off for ContextFlow. Turn them on in Settings, then come back to Safari.")
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+            Spacer(minLength: 12)
+            Button {
+                Task { await model.turnOn() }
+            } label: {
+                Text(ask.denied ? "Open Settings" : "Turn on notifications").frame(maxWidth: 440)
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
+            .accessibilityIdentifier("notify.on")
+            Button("Not now") { model.notNow() }
+                .accessibilityIdentifier("notify.later")
+        }
+        .padding(24)
+        .interactiveDismissDisabled()
+    }
+
+    private func row(_ icon: String, _ text: LocalizedStringKey) -> some View {
+        HStack(alignment: .top, spacing: 14) {
+            Image(systemName: icon)
+                .font(.system(size: 18))
+                .foregroundStyle(.tint)
+                .frame(width: 26)
+            Text(text)
+                .font(.callout)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+}
+#endif
 
 // MARK: - Reminders
 

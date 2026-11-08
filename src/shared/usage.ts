@@ -105,7 +105,7 @@ export const FEATURES: Record<string, Feature> = {
   // The panel header's "…" (opened, an item picked) and "Come back later": its window in the panel ("open"),
   // the "Reminders" list in the panel ("list": from the menu or the window's "All reminders" link) and in the
   // app ("open" from its tab), with how many reminders and watches the list held.
-  menu: { since: "2.5", on: "ext", actions: ["open", "pick"], fields: { what: ["later", "reminders", "settings", "intro", "listen", "similar", "plan_tour"] } },
+  menu: { since: "2.5", on: "ext", actions: ["open", "pick"], fields: { what: ["later", "reminders", "settings", "intro", "listen", "similar", "plan_tour", "name_chat"] } },
   // 2.6: read aloud (Ultra) started from an answer or the page, handed to the app (iPhone, iPad), or refused (not
   // Ultra: the plans sheet; the week's minutes used up). The parts themselves are logged by the server ("speak").
   // Build 90 (the app): Apple's voice read a text the server couldn't start ("apple"), a text stopped short after
@@ -116,6 +116,14 @@ export const FEATURES: Record<string, Feature> = {
     since: "2.6", tracked: "2.6", on: "ext", actions: ["open", "choose", "yearly"],
     via: ["listen", "settings", "watch", "limit", "similar"],
     fields: { plan: ["byok", "pro", "ultra"], period: ["monthly", "yearly"] }
+  },
+  // Build 91: the plans message in the chat — out of answers ("limit"), the chat's memory ("memory": the switch, or a
+  // free chat past its last messages), a Pro or Ultra feature refused; shown, and what was tapped: a plan and period
+  // (to the app), the discount, a note, the own key, Retry.
+  chat_plans: {
+    since: "2.6", tracked: "2.6", on: "ext", actions: ["shown", "choose", "discount", "note", "own_key", "retry", "close"],
+    via: ["limit", "memory", "pro_only", "ultra_only"],
+    fields: { plan: ["pro", "ultra"], period: ["monthly", "yearly"] }
   },
   later: { since: "2.5", actions: ["open", "list"], via: ["menu", "link", "tab"], fields: { reminders: "int", watches: "int" } },
   watch: {

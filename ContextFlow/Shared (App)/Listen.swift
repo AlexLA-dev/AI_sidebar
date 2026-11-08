@@ -4,6 +4,7 @@ import CryptoKit
 import MediaPlayer
 import NaturalLanguage
 import SwiftUI
+import UserNotifications
 #if os(iOS)
 import UIKit
 #else
@@ -30,6 +31,11 @@ struct ListenRequest: Equatable {
     /// The raw text, and whether to write it for the ear first (/api/v2/speak-script: tables, lists, a page…).
     var text: String = ""
     var script: Bool = false
+    /// Carried on from the panel (iPhone, iPad; 2.6): the index of the first part here (the ones before were heard in
+    /// Safari), the seconds of audio before it, and how far into it to start.
+    var firstIndex = 0
+    var base: Double = 0
+    var skip: Double = 0
 }
 
 @MainActor
@@ -47,8 +53,14 @@ final class ListenPlayer: NSObject, ObservableObject {
         /// The rest couldn't come (no connection, the minutes ran out) after ours had played: what was heard stays
         /// heard, and "Try again" asks for the rest in the same voice.
         case interrupted(limit: Bool)
+        /// Fewer minutes left this week than the text takes (build 91): said before it starts; "Listen anyway".
+        case lowMinutes(left: Int, needed: Int)
         case failed(String)
     }
+
+    /// The size of a part after the first (src/shared/speech.ts PART_CHARS): about 35 s of speech, so each one is
+    /// made quickly and the next is ready before the one playing ends (build 91: a 95 s part came 20 s late).
+    nonisolated static let partChars = 500
 
     /// The speeds offered (the panel's too); the last one chosen is kept.
     nonisolated static let speeds: [Double] = [1, 1.2, 1.5, 2]
@@ -60,6 +72,8 @@ final class ListenPlayer: NSObject, ObservableObject {
     @Published private(set) var request: ListenRequest?
     @Published private(set) var state: State = .idle
     @Published private(set) var elapsed: Double = 0
+    /// Seconds of this week's listening left (each part's X-CF-Usage; the plan's facts before the first one).
+    @Published private(set) var secondsLeft: Int?
     @Published private(set) var duration: Double = 0
     @Published var visible = false
 
@@ -72,6 +86,10 @@ final class ListenPlayer: NSObject, ObservableObject {
     private var samples: [Float] = []
     private var scheduledUpTo = 0
     private var startSample = 0
+    /// Carried on from Safari (2.6): the seconds heard there before the first part here (the clock shows the whole
+    /// text's time), and how far into the first part to start once enough of it is in.
+    private var base: Double = 0
+    private var pendingSkip: Double?
     /// The player's own clock (samples since play from startSample): where the scheduled audio ends on it, and the
     /// silence it ran through while waiting for the next part. Without it a wait counted as heard: the clock ran
     /// ahead and playing stopped early, cutting the end off (2.6, seen with the text written for the ear).
@@ -98,6 +116,43 @@ final class ListenPlayer: NSObject, ObservableObject {
     /// Debug builds: `-CFDebugListen "<text>"` plays that text as if Safari had handed it over (simulator checks).
     func debugStartIfAsked() {
         #if DEBUG
+        if UserDefaults.standard.bool(forKey: "CFDebugSpeechSync") { Task { await SpeechSync.debugSelfCheck() } }
+        // -CFDebugSeedHandoff YES: the App Group holds what the panel would have stored while playing on an iPhone
+        // (2.6): four parts as spoken and where each starts, id 0000aaaa-…-eeeeffff0001. A test then opens
+        // contextflow://listen?id=…&at=N as the notification would.
+        if UserDefaults.standard.bool(forKey: "CFDebugSeedHandoff") {
+            let spoken = [
+                "Electric trains draw power from overhead lines or a third rail.",
+                "Modern ones return energy to the grid when they brake, so a busy line uses less than its timetable suggests.",
+                "Regenerative braking alone saves between a tenth and a third of the energy, depending on how often trains stop.",
+                "Lighter cars and smoother driving save the rest."
+            ]
+            var starts: [Double] = []
+            var at = 0.0
+            for part in spoken {
+                starts.append(at)
+                at += Self.estimate(part)
+            }
+            let id = SharedDefaults.shared.writeListenRequest([
+                "parts": spoken, "text": spoken.joined(separator: " "), "script": false, "lang": "en", "what": "answer",
+                "title": "How electric trains save energy", "url": "https://example.com/trains"
+            ], id: "0000aaaa-bbbb-cccc-dddd-eeeeffff0001")
+            SharedDefaults.shared.updateListenRequest(id, ["spoken": spoken, "spokenComplete": true, "handoff": ["starts": starts, "position": 0.0, "speed": 1.0]])
+            NSLog("[cf-handoff] seeded %@ starts %@", id, starts.map { String(format: "%.1f", $0) }.joined(separator: ","))
+        }
+        // -CFDebugNotifyAt N: the notification the extension posts when Safari goes away, from second N, in 4 s (the
+        // app needs notifications allowed). A test then leaves the app and taps it.
+        let notifyAt = UserDefaults.standard.double(forKey: "CFDebugNotifyAt")
+        if notifyAt > 0 {
+            let content = UNMutableNotificationContent()
+            content.title = "How electric trains save energy"
+            content.body = "Keep listening in ContextFlow — from 0:\(String(format: "%02d", Int(notifyAt)))"
+            content.threadIdentifier = "cf.listen"
+            let id = "0000aaaa-bbbb-cccc-dddd-eeeeffff0001"
+            content.userInfo = ["listen": id, "link": "contextflow://listen?id=\(id)&at=\(Int(notifyAt))"]
+            UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: "cf.listen.away", content: content,
+                                                                         trigger: UNTimeIntervalNotificationTrigger(timeInterval: 4, repeats: false)))
+        }
         // The environment keeps line breaks (a Markdown table); a launch argument stops at the first one.
         let given = ProcessInfo.processInfo.environment["CF_DEBUG_LISTEN"] ?? UserDefaults.standard.string(forKey: "CFDebugListen")
         guard request == nil, let text = given, !text.isEmpty else { return }
@@ -108,13 +163,13 @@ final class ListenPlayer: NSObject, ObservableObject {
         #endif
     }
 
-    /// Sentences gathered into parts like the panel's (src/shared/speech.ts): a short first one, then up to 1400.
+    /// Sentences gathered into parts like the panel's (src/shared/speech.ts): a short first one, then up to 500.
     nonisolated static func sentenceParts(_ text: String, first: Bool = true) -> [String] {
         var parts: [String] = []
         var current = ""
         text.enumerateSubstrings(in: text.startIndex..., options: .bySentences) { sentence, _, _, _ in
             guard let sentence else { return }
-            let limit = parts.isEmpty && first ? 240 : 1400
+            let limit = parts.isEmpty && first ? 240 : Self.partChars
             if !current.isEmpty, current.count + sentence.count > limit {
                 parts.append(current.trimmingCharacters(in: .whitespaces))
                 current = ""
@@ -187,17 +242,54 @@ final class ListenPlayer: NSObject, ObservableObject {
     }
 
     func open(_ url: URL) {
-        let id = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first { $0.name == "id" }?.value ?? ""
+        let items = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
+        let id = (items.first { $0.name == "id" }?.value ?? "").lowercased()
+        // From the panel's notification (2.6): the second it had reached in Safari.
+        let from = items.first { $0.name == "at" }?.value.flatMap(Double.init)
         if let request, request.id == id, state != .idle {
             visible = true
             return
         }
-        guard let stored = SharedDefaults.shared.readListenRequest(id), let parts = stored["parts"] as? [String], !parts.isEmpty else {
+        // The panel follows the link during the tap and sends the text meanwhile (build 91): it may land a moment
+        // after the app opens, so wait for it a few seconds before saying it isn't here.
+        guard let stored = SharedDefaults.shared.readListenRequest(id) else {
+            stop()
+            state = .loading
+            visible = true
+            waitTask?.cancel()
+            waitTask = Task { [weak self] in
+                for _ in 0..<24 {
+                    try? await Task.sleep(nanoseconds: 250_000_000)
+                    if Task.isCancelled { return }
+                    if SharedDefaults.shared.readListenRequest(id) != nil { break }
+                }
+                guard let self, !Task.isCancelled else { return }
+                if let stored = SharedDefaults.shared.readListenRequest(id) {
+                    self.open(stored: stored, id: id, from: from)
+                } else {
+                    self.state = .failed(String(localized: "This text is no longer here. Tap Listen in Safari again."))
+                }
+            }
+            return
+        }
+        open(stored: stored, id: id, from: from)
+    }
+
+    private var waitTask: Task<Void, Never>?
+
+    private func open(stored: [String: Any], id: String, from: Double? = nil) {
+        guard let parts = stored["parts"] as? [String], !parts.isEmpty else {
             state = .failed(String(localized: "This text is no longer here. Tap Listen in Safari again."))
             visible = true
             return
         }
-        start(ListenRequest(
+        // The same text again (Listen tapped twice in Safari) while it plays: it carries on, never starts over (build 91:
+        // starting over cut off a part still downloading, and it was asked for again).
+        if let request, request.parts == parts, request.text == (stored["text"] as? String ?? ""), state != .idle {
+            visible = true
+            return
+        }
+        var request = ListenRequest(
             id: id,
             parts: parts,
             lang: stored["lang"] as? String ?? "",
@@ -206,14 +298,74 @@ final class ListenPlayer: NSObject, ObservableObject {
             url: (stored["url"] as? String).flatMap { $0.isEmpty ? nil : URL(string: $0) },
             text: stored["text"] as? String ?? "",
             script: stored["script"] as? Bool ?? false
-        ))
+        )
+        if let from {
+            // Carried on from Safari: the panel won't play it again, and the speed it had goes on.
+            SharedDefaults.shared.markListenTaken(id)
+            let handoff = stored["handoff"] as? [String: Any] ?? [:]
+            if let speed = (handoff["speed"] as? NSNumber)?.doubleValue { setSpeed(speed) }
+            request = Self.carriedOn(request, stored: stored, from: from)
+        }
+        start(request)
     }
 
-    func start(_ request: ListenRequest) {
+    /// The panel's text from second `from` on: its parts as it spoke them (the same words, so their audio comes from
+    /// this device, iCloud, or the server as a repeat: nothing made or charged twice), from the part playing at that
+    /// second. Parts still being written when Safari stopped: the whole text again, and the player seeks there.
+    nonisolated static func carriedOn(_ request: ListenRequest, stored: [String: Any], from: Double) -> ListenRequest {
+        var out = request
+        let starts = ((stored["handoff"] as? [String: Any])?["starts"] as? [NSNumber] ?? []).map(\.doubleValue)
+        guard let spoken = stored["spoken"] as? [String], !spoken.isEmpty, stored["spokenComplete"] as? Bool == true, !starts.isEmpty else {
+            out.skip = max(0, from)
+            return out
+        }
+        let first = min(spoken.count - 1, starts.lastIndex { $0 <= from + 0.05 } ?? 0)
+        out = ListenRequest(id: request.id, parts: Array(spoken[first...]), lang: request.lang, what: request.what, title: request.title,
+                            url: request.url, text: "", script: false)
+        out.firstIndex = first
+        out.base = starts[min(first, starts.count - 1)]
+        out.skip = max(0, from - out.base)
+        return out
+    }
+
+    func start(_ request: ListenRequest, anyway: Bool = false) {
+        // What's expired in iCloud goes (at most once a day).
+        Task.detached(priority: .background) { await SpeechSync.sweep() }
         stop()
+        textModel = ""
         self.request = request
         visible = true
-        duration = Self.estimate(request.parts.joined(separator: " "))
+        base = request.base
+        pendingSkip = request.skip > 0 ? request.skip : nil
+        elapsed = base + request.skip
+        duration = base + Self.estimate(request.parts.joined(separator: " "))
+        if secondsLeft == nil { secondsLeft = StoreKitManager.shared.planFacts.speakLeftSeconds }
+        // The week's minutes not known yet (the app just opened, Settings not visited): asked first, for at most 2 s,
+        // so the few-minutes note can come before it starts rather than the limit after.
+        if !anyway, secondsLeft == nil, StoreKitManager.shared.isUltra {
+            state = .loading
+            waitTask = Task { [weak self] in
+                await withTaskGroup(of: Void.self) { group in
+                    group.addTask { @MainActor in await StoreKitManager.shared.refreshPlanFacts() }
+                    group.addTask { try? await Task.sleep(nanoseconds: 2_000_000_000) }
+                    _ = await group.next()
+                    group.cancelAll()
+                }
+                guard let self, !Task.isCancelled, self.request?.id == request.id else { return }
+                self.secondsLeft = StoreKitManager.shared.planFacts.speakLeftSeconds
+                self.begin(request, anyway: false)
+            }
+            return
+        }
+        begin(request, anyway: anyway)
+    }
+
+    private func begin(_ request: ListenRequest, anyway: Bool) {
+        // Fewer minutes left than the text takes: said first (none left at all: the server says so, Apple's voice reads).
+        if !anyway, let left = secondsLeft, left > 0, Double(left) < duration - base {
+            state = .lowMinutes(left: max(1, left / 60), needed: max(1, Int(((duration - base) / 60).rounded(.up))))
+            return
+        }
         state = .loading
         wire()
         fetchTask = Task { await fetchAll(request) }
@@ -226,9 +378,12 @@ final class ListenPlayer: NSObject, ObservableObject {
         if state == .ended || state == .ultraOnly || state == .idle { stop() }
         if case .failed = state { stop() }
         if case .interrupted = state { stop() }
+        if case .lowMinutes = state { stop() }
     }
 
     func stop() {
+        waitTask?.cancel()
+        waitTask = nil
         fetchTask?.cancel()
         fetchTask = nil
         stopClock()
@@ -240,6 +395,8 @@ final class ListenPlayer: NSObject, ObservableObject {
         samples.removeAll()
         scheduledUpTo = 0
         startSample = 0
+        base = 0
+        pendingSkip = nil
         playerEnd = 0
         gapFrames = 0
         pausedAt = nil
@@ -297,6 +454,12 @@ final class ListenPlayer: NSObject, ObservableObject {
         updateNowPlaying()
     }
 
+    /// "Listen anyway" after the few-minutes-left note.
+    func listenAnyway() {
+        guard let request else { return }
+        start(request, anyway: true)
+    }
+
     /// "Try again" after the rest couldn't come: the same voice carries on from where it stopped.
     func retryRest() {
         guard let request, !rest.isEmpty else { return }
@@ -335,13 +498,14 @@ final class ListenPlayer: NSObject, ObservableObject {
         guard !samples.isEmpty else { return }
         let wasPlaying = state == .playing || state == .ended || state == .interrupted(limit: false) || state == .interrupted(limit: true)
         node.stop()
-        startSample = max(0, min(samples.count - 1, Int(seconds * Self.rate)))
+        // The clock shows the whole text's time; what was heard in Safari before this part isn't here (2.6).
+        startSample = max(0, min(samples.count - 1, Int((seconds - base) * Self.rate)))
         scheduledUpTo = startSample
         // A stopped player starts its clock again from zero.
         playerEnd = 0
         gapFrames = 0
         pausedAt = nil
-        elapsed = Double(startSample) / Self.rate
+        elapsed = base + Double(startSample) / Self.rate
         scheduleMore()
         if wasPlaying { play() } else { updateNowPlaying() }
     }
@@ -360,7 +524,7 @@ final class ListenPlayer: NSObject, ObservableObject {
 
     private func fetchAll(_ request: ListenRequest) async {
         if request.script, !request.text.isEmpty { return await speakWritten(request) }
-        await speakParts(request.parts, from: 0, request: request)
+        await speakParts(request.parts, from: request.firstIndex, request: request)
     }
 
     /// Parts in order; one that can't come stops the rest (Apple's voice only if nothing of ours played yet).
@@ -368,12 +532,25 @@ final class ListenPlayer: NSObject, ObservableObject {
         for (offset, part) in parts.enumerated() {
             if Task.isCancelled { return }
             switch await speakPart(part, index: first + offset, request: request) {
-            case .ok: continue
+            case .ok:
+                // Carried on from Safari: the first part is all here, and shorter than the second it was at (its clock
+                // and this audio differ a little): from just before its end.
+                if offset == 0 { startSkippedIfShort() }
+                continue
             case .stop: return
             case .fallBack(let reason): return fallBack(parts: Array(parts[offset...]), index: first + offset, reason)
             }
         }
         fetchedAll = true
+        startSkippedIfShort()
+    }
+
+    /// The second to carry on from is past what's here: it starts just before the end of what is.
+    private func startSkippedIfShort() {
+        guard let skip = pendingSkip, state == .loading, !samples.isEmpty else { return }
+        pendingSkip = nil
+        seek(to: base + min(skip, max(0, Double(samples.count) / Self.rate - 0.5)))
+        play()
     }
 
     /// Written for the ear first: the writer streams parts in, the voice takes them in order as they come.
@@ -396,6 +573,7 @@ final class ListenPlayer: NSObject, ObservableObject {
             }
         }
         fetchedAll = true
+        startSkippedIfShort()
     }
 
     /// The text for listening, chunk by chunk, each part handed on as soon as it's complete; kept for 7 days.
@@ -416,6 +594,14 @@ final class ListenPlayer: NSObject, ObservableObject {
                 give(splitter.end())
                 continue
             }
+            // Written on another of the user's devices (iCloud): the same words, so the same parts and their audio.
+            let textKey = SpeechSync.key(voice: "script|\(request.what)", lang: request.lang, text: chunk)
+            if let synced = await SpeechSync.fetchText(textKey, wait: first ? 1 : 1.5) {
+                SpeechCache.write(key, Data(synced.utf8))
+                give(splitter.push(synced))
+                give(splitter.end())
+                continue
+            }
             var script = ""
             do {
                 let urlRequest = try ChatAI.scriptRequest(text: chunk, what: request.what, lang: request.lang)
@@ -424,7 +610,11 @@ final class ListenPlayer: NSObject, ObservableObject {
                     give(splitter.push(piece))
                 }
                 give(splitter.end())
-                if !script.isEmpty { SpeechCache.write(key, Data(script.utf8)) }
+                if !script.isEmpty {
+                    SpeechCache.write(key, Data(script.utf8))
+                    let written = script
+                    Task.detached(priority: .utility) { await SpeechSync.saveText(textKey, text: written) }
+                }
             } catch {
                 if Task.isCancelled { return }
                 if !script.isEmpty {
@@ -456,7 +646,18 @@ final class ListenPlayer: NSObject, ObservableObject {
         }
         // Nothing a voice can say (a dash, an emoji): skipped.
         guard part.rangeOfCharacter(from: .alphanumerics) != nil else { return .ok }
-        guard let urlRequest = try? ChatAI.speechRequest(text: part, lang: request.lang, what: request.what, part: index, parts: max(request.parts.count, index + 1)) else {
+        // Made on another of the user's devices (iCloud): played from there, nothing asked of the server. The first
+        // sound waits for iCloud at most a second; later parts come well ahead of being heard.
+        let syncKey = SpeechSync.key(voice: Self.voiceName, lang: request.lang, text: part)
+        if let synced = await SpeechSync.fetchPart(syncKey, wait: samples.isEmpty ? 1 : 2), !synced.isEmpty {
+            if Task.isCancelled { return .stop }
+            append(synced)
+            SpeechCache.write(key, synced)
+            updateNowPlaying()
+            return .ok
+        }
+        if Task.isCancelled { return .stop }
+        guard let urlRequest = try? ChatAI.speechRequest(text: part, lang: request.lang, what: request.what, part: index, parts: max(request.parts.count, index + 1), model: textModel) else {
             return .fallBack(.appleVoice)
         }
         var outcome: Download = .failed
@@ -484,6 +685,10 @@ final class ListenPlayer: NSObject, ObservableObject {
                     partHeld = Data()
                 }
                 if let gender = Self.lastGender { UserDefaults.standard.set(gender, forKey: "cf_voice_gender") }
+                if textModel.isEmpty, let model = Self.lastModel { textModel = model }
+                // For the user's other devices (iCloud, AAC): in the background, never in the voice's way.
+                Task.detached(priority: .utility) { await SpeechSync.savePart(syncKey, pcm: all) }
+                if let usage = Self.lastUsage { secondsLeft = max(0, usage.limit - usage.used) }
                 SpeechCache.write(key, all)
                 // The lock screen learns the new length once a part (not every piece).
                 updateNowPlaying()
@@ -509,9 +714,15 @@ final class ListenPlayer: NSObject, ObservableObject {
             }
             if code == "LIMIT_REACHED" {
                 let usage = body["usage"] as? [String: Any]
+                secondsLeft = 0
                 let minutes = (usage?["limit"] as? Int ?? 0) / 60
-                let resets = (usage?["resetsAt"] as? String).flatMap { ISO8601DateFormatter().date(from: $0) }
-                    .map { $0.formatted(.dateTime.weekday(.wide)) } ?? ""
+                // The server's time has milliseconds ("2026-11-09T00:00:00.000Z"), which the plain formatter refuses
+                // (build 91 showed "They come back on ."). Missing anyway: the week starts on Monday (UTC).
+                let fractional = ISO8601DateFormatter()
+                fractional.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+                let resetsAt = (usage?["resetsAt"] as? String).flatMap { fractional.date(from: $0) ?? ISO8601DateFormatter().date(from: $0) }
+                    ?? Self.nextMondayUTC()
+                let resets = resetsAt.formatted(.dateTime.weekday(.wide))
                 return .fallBack(.limit(minutes: minutes, resets: resets))
             }
             return .fallBack(.appleVoice)
@@ -557,8 +768,16 @@ final class ListenPlayer: NSObject, ObservableObject {
         case failed
     }
 
-    /// The voice's gender the server last named (X-CF-Voice-Gender).
+    /// The voice the server speaks with (X-CF-Voice; part of a part's key on the user's devices and in iCloud).
+    static var voiceName: String { UserDefaults.standard.string(forKey: "cf_voice_name") ?? "Kore" }
+
+    /// The voice's gender the server last named (X-CF-Voice-Gender), and the model it last spoke with (X-CF-Model).
     nonisolated(unsafe) private static var lastGender: String?
+    nonisolated(unsafe) private static var lastModel: String?
+    /// The week's listening as the server last counted it (X-CF-Usage: seconds used of the limit).
+    nonisolated(unsafe) private static var lastUsage: (used: Int, limit: Int)?
+    /// The model this text's first part came from: every later part asks for it (one voice per text, build 91).
+    private var textModel = ""
 
     /// The part coming in: whether it's playing as it comes, what's held back, how much of it was played (bytes), and
     /// how much of a new attempt to skip (what an earlier one already played).
@@ -578,7 +797,7 @@ final class ListenPlayer: NSObject, ObservableObject {
             if piece.isEmpty { return }
         }
         // Needed now: the text's first sound, or less than 3 s left to play.
-        if !partLive, samples.isEmpty || aheadSeconds() < 3 {
+        if !partLive, samples.isEmpty || pendingSkip != nil || aheadSeconds() < 3 {
             partLive = true
             if !partHeld.isEmpty {
                 append(partHeld)
@@ -607,6 +826,15 @@ final class ListenPlayer: NSObject, ObservableObject {
             let (bytes, response) = try await URLSession.shared.bytes(for: request)
             let status = (response as? HTTPURLResponse)?.statusCode ?? 0
             if let gender = (response as? HTTPURLResponse)?.value(forHTTPHeaderField: "X-CF-Voice-Gender") { lastGender = gender }
+            if status == 200, let voice = (response as? HTTPURLResponse)?.value(forHTTPHeaderField: "X-CF-Voice"), !voice.isEmpty {
+                UserDefaults.standard.set(voice, forKey: "cf_voice_name")
+            }
+            if status == 200, let model = (response as? HTTPURLResponse)?.value(forHTTPHeaderField: "X-CF-Model") { lastModel = model }
+            if let raw = (response as? HTTPURLResponse)?.value(forHTTPHeaderField: "X-CF-Usage"),
+               let usage = (try? JSONSerialization.jsonObject(with: Data(raw.utf8))) as? [String: Any],
+               let used = usage["used"] as? Int, let limit = usage["limit"] as? Int {
+                lastUsage = (used, limit)
+            }
             guard status == 200 else {
                 var body = Data()
                 for try await byte in bytes { body.append(byte) }
@@ -643,8 +871,16 @@ final class ListenPlayer: NSObject, ObservableObject {
             samples.reserveCapacity(samples.count + count)
             for i in 0..<count { samples.append(Float(Int16(littleEndian: values[i])) / 32_768) }
         }
-        let longer = Double(samples.count) / Self.rate > duration
-        duration = max(duration, Double(samples.count) / Self.rate)
+        let longer = base + Double(samples.count) / Self.rate > duration
+        duration = max(duration, base + Double(samples.count) / Self.rate)
+        // Carried on from Safari: it starts at that second of the first part, once that much of it is in.
+        if let skip = pendingSkip {
+            guard state == .loading, samples.count > Int(Self.rate * (skip + 0.25)) else { return }
+            pendingSkip = nil
+            seek(to: base + skip)
+            play()
+            return
+        }
         scheduleMore()
         // The first sound: start (a quarter second in hand, so it doesn't stutter); after "Try again", carry on.
         if state == .loading, samples.count > Int(Self.rate * 0.25) {
@@ -710,7 +946,7 @@ final class ListenPlayer: NSObject, ObservableObject {
         if !samples.isEmpty, let now = playerNow() {
             // Heard: up to the end of what's scheduled, less the silences while waiting.
             let heard = max(0, min(now, playerEnd) - gapFrames)
-            elapsed = min(Double(samples.count) / Self.rate, Double(startSample + Int(heard)) / Self.rate)
+            elapsed = base + min(Double(samples.count) / Self.rate, Double(startSample + Int(heard)) / Self.rate)
             drained = now >= playerEnd
         }
         if drained, state == .playing {
@@ -868,13 +1104,34 @@ final class ListenPlayer: NSObject, ObservableObject {
             MPNowPlayingInfoPropertyDefaultPlaybackRate: speed
         ]
         info[MPNowPlayingInfoPropertyMediaType] = MPNowPlayingInfoMediaType.audio.rawValue
+        // The app's icon in the Dynamic Island, on the lock screen and in Control Center (build 91: a black square).
+        if let artwork = Self.artwork { info[MPMediaItemPropertyArtwork] = artwork }
         MPNowPlayingInfoCenter.default().nowPlayingInfo = info
         #if os(macOS)
         MPNowPlayingInfoCenter.default().playbackState = state == .playing ? .playing : .paused
         #endif
     }
 
+    /// Now Playing's picture: the app icon (made once).
+    private static let artwork: MPMediaItemArtwork? = {
+        #if os(iOS)
+        guard let image = UIImage(named: "LargeIcon") else { return nil }
+        #else
+        guard let image = NSImage(named: "LargeIcon") else { return nil }
+        #endif
+        return MPMediaItemArtwork(boundsSize: image.size) { _ in image }
+    }()
+
     // MARK: Helpers
+
+    /// When the week's listening comes back (netlify/shared/plan.mts nextReset: Monday 00:00 UTC).
+    static func nextMondayUTC(from now: Date = Date()) -> Date {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "UTC")!
+        let tomorrow = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: now))!
+        let weekday = calendar.component(.weekday, from: tomorrow)  // 1 = Sunday, 2 = Monday
+        return calendar.date(byAdding: .day, value: (9 - weekday) % 7, to: tomorrow)!
+    }
 
     /// About 14 characters a second (src/shared/speech.ts speechSeconds).
     static func estimate(_ text: String) -> Double {
@@ -990,6 +1247,13 @@ struct ListenView: View {
                     }
                     .font(.caption.monospacedDigit())
                     .foregroundColor(.secondary)
+                    // The week's listening left (build 91: the owner wanted to see it somewhere).
+                    if let left = player.secondsLeft {
+                        Text("\(left / 60) min of listening left this week")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .accessibilityIdentifier("listen.left")
+                    }
                 }
                 HStack(spacing: 44) {
                     Button { player.skip(-15) } label: { Image(systemName: "gobackward.15").font(.title) }
@@ -1078,6 +1342,19 @@ struct ListenView: View {
                 .font(.callout)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
+        case .lowMinutes(let left, let needed):
+            VStack(spacing: 10) {
+                Text("About \(left) min of listening left this week, and this takes about \(needed) min. It stops where they run out.")
+                    .font(.callout)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                HStack(spacing: 12) {
+                    Button("Listen anyway") { player.listenAnyway() }
+                        .buttonStyle(.borderedProminent)
+                        .accessibilityIdentifier("listen.anyway")
+                    Button("Cancel") { player.dismiss() }.buttonStyle(.bordered)
+                }
+            }
         case .interrupted(let limit):
             VStack(spacing: 10) {
                 (limit ? Text("This week's listening minutes are used up, so the rest can't be read in this voice.") : Text("The rest didn't come through: no connection to ContextFlow."))
@@ -1109,7 +1386,7 @@ struct ListenView: View {
 }
 
 /// Cuts text that streams in into parts as soon as they're complete, at sentence ends: the very first part as soon as
-/// a sentence of `min` characters is there, then parts of up to 1400 (src/shared/speech.ts PartSplitter).
+/// a sentence of `min` characters is there, then parts of up to 500 (src/shared/speech.ts PartSplitter).
 final class PartSplitter {
     private var buffer = ""
     private var first: Bool
@@ -1125,7 +1402,7 @@ final class PartSplitter {
         buffer += text
         var out: [String] = []
         while true {
-            let limit = first ? 240 : 1400
+            let limit = first ? 240 : ListenPlayer.partChars
             let ns = buffer as NSString
             var cut = -1
             var firstEnd = -1

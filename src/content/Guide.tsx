@@ -12,12 +12,14 @@
 // counted ("use" f "tour", src/shared/usage.ts) for the guided funnel (cf_feature_funnels "guided").
 
 import type { VNode } from "preact"
-import { useEffect } from "preact/hooks"
+import { useEffect, useState } from "preact/hooks"
 
 import { t, type MessageKey } from "../shared/i18n"
 import * as Icon from "./icons"
 import { SpeakerIcon } from "./listen/useListen"
 import { SimilarIcon } from "./similar/Similar"
+import { ClipFrame } from "./tips/ClipFrame"
+import { say, tipsData } from "./tips/data"
 import { Blockers, cardPlace, chatsStep, holeAround, MENU_STEP, Shade, useBlurPanel, useParts } from "./Tour"
 import { More } from "./ux/MessageUx"
 
@@ -25,16 +27,21 @@ import { More } from "./ux/MessageUx"
 export const GUIDE_STEPS = [
   "summarize", "consent", "answer", "select", "pick", "ask", "askSel", "answer2", "chats", "chatList", "menu",
   // 2.6 (build 89, the owner): after buying Pro or Ultra, a tour of what the plan added, on the same engine.
-  "pro_media", "pro_chats", "pro_chatList", "pro_sort", "pro_templates", "pro_watch", "ultra_listen", "ultra_similar", "ultra_watch"
+  "pro_media", "pro_chats", "pro_askChats", "pro_sort", "pro_templates", "pro_watch", "ultra_listen", "ultra_similar", "ultra_watch"
 ] as const
 export type GuideStep = (typeof GUIDE_STEPS)[number]
 
-/** A plan's tour: its steps in order (pro_chatList comes in when the chats button is tapped). Pro's, Ultra's on top of
- * Pro, and Ultra's with Pro's for someone coming from below Pro; the "…" (the watched pages) last. */
-export const PLAN_STEPS: readonly GuideStep[] = ["pro_media", "pro_chats", "pro_chatList", "pro_sort", "pro_templates", "pro_watch", "ultra_listen", "ultra_similar", "ultra_watch"]
-export const PRO_TOUR: GuideStep[] = ["pro_media", "pro_chats", "pro_sort", "pro_templates", "pro_watch"]
+/** A plan's tour (2.6 (91), the owner: show it, and light up only the feature's own control, where it is). A feature
+ * with a place in the panel is shown there: the tour opens the chat list for ✦ and "Ask your chats", Templates for
+ * templates, the "…" menu for the watched pages; one without a place (videos and PDFs, sorting) is a card, with a
+ * Tips clip where there is one. Pro's, Ultra's on top of Pro, and Ultra's with Pro's for someone coming from below. */
+export const PLAN_STEPS: readonly GuideStep[] = ["pro_media", "pro_chats", "pro_askChats", "pro_sort", "pro_templates", "pro_watch", "ultra_listen", "ultra_similar", "ultra_watch"]
+export const PRO_TOUR: GuideStep[] = ["pro_media", "pro_chats", "pro_askChats", "pro_sort", "pro_templates", "pro_watch"]
 export const ULTRA_TOUR: GuideStep[] = ["ultra_listen", "ultra_similar", "ultra_watch"]
-export const ULTRA_FULL_TOUR: GuideStep[] = ["ultra_listen", "ultra_similar", "pro_media", "pro_chats", "pro_sort", "pro_templates", "ultra_watch"]
+export const ULTRA_FULL_TOUR: GuideStep[] = ["ultra_listen", "ultra_similar", "pro_media", "pro_chats", "pro_askChats", "pro_sort", "pro_templates", "ultra_watch"]
+/** Where a plan step is shown (the chat otherwise), and the steps shown in the open "…" menu. */
+export const PLAN_VIEW: Partial<Record<GuideStep, "threads" | "templates">> = { pro_chats: "threads", pro_askChats: "threads", pro_templates: "templates" }
+export const PLAN_MENU: readonly GuideStep[] = ["pro_watch", "ultra_watch"]
 
 /** Steps shown on the page, with the panel closed. */
 export const ON_PAGE: readonly GuideStep[] = ["pick", "ask"]
@@ -56,6 +63,8 @@ interface Card {
   foot?: true
   // No card: what's lit up says it all (the consent card, with its own "Not now").
   bare?: true
+  // A Tips clip on the card (the feature at work), from the extension's own files like the Tips sheet's.
+  clip?: string
 }
 
 function card(step: GuideStep, touch: boolean, sync: boolean): Card | null {
@@ -79,25 +88,26 @@ function card(step: GuideStep, touch: boolean, sync: boolean): Card | null {
       return { targets: [], icon: <Icon.Chats />, title: "hintChatsTitle", body: "hintChatsBody", next: "tourNext", holds: false, foot: true }
     case "menu":
       return { ...MENU_STEP, next: "tourDone", holds: true }
-    // A plan's tour: what's lit up can be tapped (and takes the tour on), Next goes without it.
+    // A plan's tour: what's lit up is the feature's own control and can be tapped (it takes the tour on); Next goes
+    // without it. Nothing else is lit up.
     case "pro_media":
-      return { targets: [[".cf-title .cf-ctx"]], icon: <Icon.Doc />, title: "ptProMediaTitle", body: "ptProMediaBody", next: "tourNext", holds: false }
+      return { targets: [], icon: <Icon.Doc />, title: "ptProMediaTitle", body: "ptProMediaBody", next: "tourNext", holds: false }
     case "pro_chats":
-      return { targets: [[".cf-chats-button"]], icon: <Icon.Chats />, title: "ptProChatsTitle", body: "ptProChatsBody", args: ["askHistory"], next: "tourNext", holds: true }
-    case "pro_chatList":
-      return { targets: [[".cf-search-ai"], [".cf-ask-history"]], icon: <Icon.Sparkle size={16} />, title: "ptProChatListTitle", body: "ptProChatListBody", args: ["askHistory"], next: "tourNext", holds: false }
+      return { targets: [[".cf-search-ai"]], icon: <Icon.Sparkle size={16} />, title: "ptProFindTitle", body: "ptProFindBody", next: "tourNext", holds: false }
+    case "pro_askChats":
+      return { targets: [[".cf-ask-history"]], icon: <Icon.Chats />, title: "ptProAskTitle", body: "ptProAskBody", args: ["askHistory"], next: "tourNext", holds: false }
     case "pro_sort":
-      return { targets: [], icon: <Icon.Tag />, title: "ptProSortTitle", body: "ptProSortBody", next: "tourNext", holds: false }
+      return { targets: [], icon: <Icon.Tag />, title: "ptProSortTitle", body: "ptProSortBody", next: "tourNext", holds: false, clip: "organize" }
     case "pro_templates":
-      return { targets: [], icon: <Icon.Pencil />, title: "ptProTemplatesTitle", body: "ptProTemplatesBody", args: ["qiTemplateButton"], next: "tourNext", holds: false }
+      return { targets: [[".cf-qi-empty.big .cf-primary", ".cf-qi-body"]], icon: <Icon.Pencil />, title: "ptProTemplatesTitle", body: "ptProTemplatesBody", args: ["qiTemplateButton"], next: "tourNext", holds: false, clip: "fill" }
     case "pro_watch":
-      return { targets: [[".cf-page-more"]], icon: <More size={16} />, title: "ptProWatchTitle", body: "ptProWatchBody", args: ["uxWatchPage"], next: "tourDone", holds: true }
+      return { targets: [[".cf-page-menu .cf-page-watch"], [".cf-page-menu .cf-page-watching"]], icon: <Icon.Eye size={16} />, title: "ptProWatchTitle", body: "ptProWatchBody", args: ["uxWatchPage"], next: "tourDone", holds: false }
     case "ultra_listen":
-      return { targets: [[".cf-messages .cf-listen-btn.last"]], icon: <SpeakerIcon />, title: "ptUltraListenTitle", body: "ptUltraListenBody", args: ["listen", "listenPage"], next: "tourNext", holds: false }
+      return { targets: [[".cf-messages .cf-listen-btn.last"]], icon: <SpeakerIcon />, title: "ptUltraListenTitle", body: "ptUltraListenBody", args: ["listen", "listenPage"], next: "tourNext", holds: false, clip: "listen" }
     case "ultra_similar":
-      return { targets: [[".cf-empty .cf-chip[data-action=similar]"]], icon: <SimilarIcon />, title: "similarTitle", body: "ptUltraSimilarBody", args: ["actSimilar", "selSimilar"], next: "tourNext", holds: false }
+      return { targets: [[".cf-empty .cf-chip[data-action=similar]", ".cf-page-menu .cf-page-similar"]], icon: <SimilarIcon />, title: "similarTitle", body: "ptUltraSimilarBody", args: ["actSimilar", "selSimilar"], next: "tourNext", holds: false, clip: "similar" }
     case "ultra_watch":
-      return { targets: [[".cf-page-more"]], icon: <More size={16} />, title: "ptUltraWatchTitle", body: "ptUltraWatchBody", args: ["uxWatchPage"], next: "tourDone", holds: true }
+      return { targets: [[".cf-page-menu .cf-page-watch"], [".cf-page-menu .cf-page-watching"]], icon: <Icon.Eye size={16} />, title: "ptUltraWatchTitle", body: "ptUltraWatchBody", args: ["uxWatchPage"], next: "tourDone", holds: false }
     default:
       return null
   }
@@ -142,6 +152,7 @@ export function GuideCard({ panel, step, touch, sync, onNext, onSkip, onTap }: {
         <div class="cf-tour-head">
           <span class="cf-tour-icon">{spec.icon}</span>
         </div>
+        {spec.clip && <GuideClip name={spec.clip} />}
         <strong>{t(spec.title)}</strong>
         <p>{t(spec.body, ...(spec.args ?? []).map((k) => t(k)))}</p>
         <div class="cf-tour-actions">
@@ -164,4 +175,21 @@ export function GuidePill({ touch, onSkip }: { touch: boolean; onSkip: () => voi
       <button type="button" onClick={onSkip}>{t("tourSkip")}</button>
     </div>
   )
+}
+
+/** A Tips clip on a tour card: the feature at work (the owner: show it, not only describe it). The app's clip, like
+ * the Tips sheet's (ClipFrame); one still frame with Reduce Motion. Before the app has shared it, the card goes
+ * without (its words say it all; the Tips sheet is where "open the app once" is said). */
+function GuideClip({ name }: { name: string }): VNode | null {
+  const [gone, setGone] = useState(false)
+  const data = tipsData()
+  if (!data || gone) return null
+  const lang = say(data.clipLang) === "ru" ? "ru" : "en"
+  let still = false
+  try {
+    still = matchMedia("(prefers-reduced-motion: reduce)").matches
+  } catch {
+    // No media queries: it plays.
+  }
+  return <div class="cf-guide-clip"><ClipFrame name={name} lang={lang} still={still} motion={!still} onMissing={() => setGone(true)} /></div>
 }

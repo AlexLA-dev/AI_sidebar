@@ -44,7 +44,7 @@
       "@type": "WebPage",
       "name": "ContextFlow로 할 수 있는 일",
       "url": "https://context-flow.app/ko/features",
-      "dateModified": "2026-11-05",
+      "dateModified": "2026-11-08",
       "inLanguage": "ko",
       "about": { "@id": "https://context-flow.app/#app" }
     },
@@ -67,12 +67,21 @@
 <main class="wrap">
   <div class="feat-head">
     <h1>ContextFlow로 할 수 있는 일</h1>
-    <p class="lede">앱에 있는 팁과 같은 내용을 하려는 일별로 묶었어요. 각 영상은 실제 패널이 작동하는 모습이에요. <span class="pro-badge">Pro</span> 표시가 있는 카드는 Pro 요금제가 필요해요. 나머지는 모두 무료 플랜에서 작동해요.</p>
-    <div class="jump"><a href="#get-started">시작하기</a><a href="#deeper-work">더 깊이 파고들기</a><a href="#quick-insert">빠른 삽입</a><a href="#watch-and-remind">변경 알림과 리마인더</a><a href="#chats-in-order">채팅 정리</a><a href="#privacy-and-personalization">개인정보 및 맞춤 설정</a></div>
+    <p class="lede">앱에 있는 팁과 같은 내용을 하려는 일별로 묶었어요. 각 영상은 실제 패널이 작동하는 모습이에요. <span class="pro-badge">Pro</span> 표시가 있는 카드는 Pro 요금제가, <span class="ultra-badge">Ultra</span> 표시가 있는 카드는 Ultra가 필요해요. 나머지는 모두 무료 플랜에서 작동해요.</p>
+    <div class="jump"><a href="#get-started">시작하기</a><a href="#deeper-work">더 깊이 파고들기</a><a href="#quick-insert">빠른 삽입</a><a href="#watch-and-remind">변경 알림과 리마인더</a><a href="#chats-in-order">채팅 정리</a><a href="#your-plan">내 요금제</a><a href="#privacy-and-personalization">개인정보 및 맞춤 설정</a></div>
   </div>
 
   <!-- The whole app's, before the blocks, as in the app's Tips. -->
   <article class="feat feat-lead" id="all-devices"><h3>모든 기기에서</h3><p>iPhone에서 시작해서 Mac에서 마무리하나요? ‘iCloud로 채팅 동기화’를 켜면 채팅이 iPad와 Mac에서 이어져요. iCloud에서 종단 간 암호화되며 제 서버에는 절대 저장되지 않아요.</p></article>
+  <!-- Ultra (2.6): outside the app's Tips blocks below, which this page mirrors; Listen and Find similar are Tips cards in Deeper work. -->
+  <div class="feat-ultra" id="ultra">
+  <h2>Ultra</h2>
+  <p class="block-lede">Pro의 모든 기능에, 듣고 싶은 것을 읽어 주는 목소리와 지금 보고 있는 것의 대안이 더해져요.</p>
+  <div class="feats">
+  <article class="feat" id="watch-more"><h3>50개 페이지 지켜보기 <span class="ultra-badge">Ultra</span></h3><p>여러 가격을 한꺼번에 기다리고 있나요? Ultra는 최대 50개 페이지를 지켜봐요. Pro는 20개, 무료 플랜은 5개예요. 그 밖의 지켜보기 방식은 그대로예요.</p></article>
+  </div>
+  <p class="more"><a href="#deeper-work">‘듣기’와 ‘비슷한 것 찾기’는 영상과 함께 ‘더 깊이 파고들기’에 있어요 →</a></p>
+  </div>
 
   <section id="get-started">
     <h2>시작하기</h2>
@@ -82,6 +91,7 @@
       <article class="feat"><video class="clip" data-src="/clips/gist.mp4" poster="/clips/gist.jpg" muted loop playsinline preload="none" aria-hidden="true"></video><h3>한 번에 핵심만</h3><p>긴 기사인데 시간이 없나요? 요약, 핵심 정리, 쉽게 설명, 번역은 페이지 전체를 대상으로 해요. 프롬프트를 쓸 필요가 없어요.</p></article>
       <article class="feat"><video class="clip" data-src="/clips/part.mp4" poster="/clips/part.jpg" muted loop playsinline preload="none" aria-hidden="true"></video><h3>일부분만 질문하기</h3><p>한 문단만 헷갈리나요? 그 부분을 선택하고 ‘AI에게 묻기’를 고르세요. 그 부분에 대해서만 답해요. 설명, 번역, 다시 쓰기도 할 수 있어요.</p></article>
       <article class="feat"><video class="clip" data-src="/clips/select.mp4" poster="/clips/select.jpg" muted loop playsinline preload="none" aria-hidden="true"></video><h3>선택한 내용에 질문하거나 메모하기</h3><p>간직하고 싶은 한 줄을 찾았나요? 선택하고 ‘메모’를 탭하면 페이지와 함께 채팅에 저장돼요. 또는 선택 영역 바로 아래에 직접 질문을 입력하세요. 메모는 답변 횟수를 쓰지 않아요.</p></article>
+      <article class="feat"><video class="clip" data-src="/clips/chips.mp4" poster="/clips/chips.jpg" muted loop playsinline preload="none" aria-hidden="true"></video><h3>선택 영역 아래의 빠른 동작</h3><p>휴대폰으로 타이핑하기 귀찮나요? iPhone과 iPad에서 텍스트를 선택하면 아래 ‘질문 입력…’ 칸에 요약, 번역, 비슷한 것 찾기 등이 나타나요. 옆으로 밀어 보고 하나를 탭하세요. Mac에서는 같은 동작이 선택 영역 아래의 버튼으로 있어요.</p></article>
       <article class="feat"><video class="clip" data-src="/clips/follows.mp4" poster="/clips/follows.jpg" muted loop playsinline preload="none" aria-hidden="true"></video><h3>채팅이 따라와요</h3><p>여러 페이지에 걸쳐 읽고 있나요? 읽어 가면서 계속 질문하세요. 채팅은 대화 내용과 각 질문이 어느 페이지에 관한 것이었는지 기억해요. 채팅에서 페이지 이름을 탭하면 그 페이지로 돌아가요.</p></article>
       <article class="feat"><video class="clip" data-src="/clips/google.mp4" poster="/clips/google.jpg" muted loop playsinline preload="none" aria-hidden="true"></video><h3>Google의 최신 정보</h3><p>최근 정보가 필요한가요? 질문 입력란 옆의 Google을 켜면 Google 검색으로 출처와 함께 답해요. 뉴스, 가격, 새로 나온 무엇이든요.</p></article>
     </div>
@@ -98,6 +108,8 @@
       <article class="feat"><video class="clip" data-src="/clips/whole.mp4" poster="/clips/whole.jpg" muted loop playsinline preload="none" aria-hidden="true"></video><h3>채팅 전체를 고려해서</h3><p>모은 것을 전부 반영한 답변이 필요한가요? 질문 입력란 아래의 ‘채팅 전체’를 켜세요. 모든 메시지, 메모, 이 채팅의 다른 페이지가 질문과 함께 가요. 끄면 최근 메시지와 열린 페이지만 가요.</p></article>
       <article class="feat"><video class="clip" data-src="/clips/video.mp4" poster="/clips/video.jpg" muted loop playsinline preload="none" aria-hidden="true"></video><h3>동영상에 대해 묻기 <span class="pro-badge">Pro</span></h3><p>한 부분을 찾으려고 전부 보고 싶지는 않나요? ContextFlow가 동영상의 자막을 읽어요. 요점이나 어떤 주제에 대해 한 말을 물으면 [4:15]처럼 그 장면을 짚어 답해요. 무료 플랜에서는 페이지의 텍스트로 답해요.</p></article>
       <article class="feat"><video class="clip" data-src="/clips/pdf.mp4" poster="/clips/pdf.jpg" muted loop playsinline preload="none" aria-hidden="true"></video><h3>페이지의 PDF <span class="pro-badge">Pro</span></h3><p>자세한 내용이 PDF에 있나요? 페이지에 보이거나 링크된 PDF가 질문과 함께 가고, 답변은 PDF의 몇 쪽 내용인지 알려 줘요. iPad와 Mac에서는 PDF 탭에서도 작동해요. 무료 플랜에서는 페이지의 텍스트로 답해요.</p></article>
+      <article class="feat"><video class="clip" data-src="/clips/similar.mp4" poster="/clips/similar.jpg" muted loop playsinline preload="none" aria-hidden="true"></video><h3>비슷한 것 찾기 <span class="ultra-badge">Ultra</span></h3><p>다른 건 뭐가 있는지 궁금한가요? 패널에서 ‘비슷한 것 찾기’를 탭하거나, 상품 이름을 선택하고 아래의 ‘비슷한 것 찾기’를 탭하세요. 원하면 ‘더 저렴하게’, ‘재고 있음’ 같은 조건을 더할 수 있어요. 모든 대안은 실제 페이지이고, 보여 드리기 전에 열어서 확인해요.</p></article>
+      <article class="feat"><video class="clip" data-src="/clips/listen.mp4" poster="/clips/listen.jpg" muted loop playsinline preload="none" aria-hidden="true"></video><h3>듣기 <span class="ultra-badge">Ultra</span></h3><p>읽기보다 듣고 싶나요? 답변 아래 ‘듣기’를 탭하거나 ‘…’ 메뉴에서 ‘이 페이지 듣기’를 고르세요. 자연스러운 목소리가 1×, 1.2×, 1.5×, 2× 속도로 읽어 줘요. iPhone과 iPad에서는 ContextFlow 앱에서 재생되고 화면을 잠가도 계속돼요. Mac에서는 패널에서 바로 재생돼요.</p></article>
     </div>
   </section>
 
@@ -133,6 +145,15 @@
       <article class="feat"><video class="clip" data-src="/clips/history.mp4" poster="/clips/history.jpg" muted loop playsinline preload="none" aria-hidden="true"></video><h3>모든 채팅에 묻기 <span class="pro-badge">Pro</span></h3><p>“이번 주에 뭘 읽었지?” 채팅 목록 첫 줄에서 모든 채팅을 바탕으로 한 번에 답해요. “AI에 관한 내 메모 정리해 줘”도 해 보세요.</p></article>
       <article class="feat"><video class="clip" data-src="/clips/organize.mp4" poster="/clips/organize.jpg" muted loop playsinline preload="none" aria-hidden="true"></video><h3>제자리로 <span class="pro-badge">Pro</span></h3><p>소파 채팅에서 자동차를 물어봤나요? 답변 아래에 ContextFlow가 어울리는 채팅이나 새 채팅을 추천해요. 탭 한 번이면 그곳으로 옮겨지고, ‘실행 취소’로 되돌릴 수 있어요.</p></article>
       <article class="feat"><video class="clip" data-src="/clips/suggested-tags.mp4" poster="/clips/suggested-tags.jpg" muted loop playsinline preload="none" aria-hidden="true"></video><h3>내 태그 추천 <span class="pro-badge">Pro</span></h3><p>직접 태그 달기가 귀찮나요? ContextFlow는 내가 태그를 단 곳을 보고 태그의 뜻을 배워, 새 답변이나 메모 아래에 하나를 추천해요. 내 태그만, 어울릴 때만.</p></article>
+    </div>
+  </section>
+
+  <section id="your-plan">
+    <h2>내 요금제</h2>
+    <p class="block-lede">결제 방식과 요금제로 더해지는 기능.</p>
+    <div class="feats">
+      <article class="feat"><video class="clip" data-src="/clips/yearly.mp4" poster="/clips/yearly.jpg" muted loop playsinline preload="none" aria-hidden="true"></video><h3>월간 또는 연간</h3><p>더 저렴하게 쓰고 싶나요? Pro와 Ultra는 월간이나 연간으로 이용할 수 있고, 연간이 12개월보다 저렴해요. 요금제 위의 ‘연간’을 탭하면 가격과 절약 금액을 볼 수 있어요. 이미 월간이라면 ‘설정’ → ‘내 요금제’에서 ‘연간으로 전환’을 누르세요. 지금 한 달이 끝나면 연간이 시작돼요.</p></article>
+      <article class="feat"><h3>요금제로 더해지는 기능</h3><p>업그레이드했는데 뭐가 새로운지 모르겠나요? Pro나 Ultra를 구입하면 ContextFlow가 요금제로 더해진 기능을 하나씩 보여 줘요. 다시 보려면 패널 위쪽 ‘…’을 탭한 다음 ‘기타…’에서 ‘Pro에 포함된 기능’이나 ‘Ultra에 포함된 기능’을 고르세요. 앱에서는 ‘설정’의 ‘내 요금제’에 있어요.</p></article>
     </div>
   </section>
 

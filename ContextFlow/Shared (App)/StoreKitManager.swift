@@ -226,20 +226,8 @@ final class StoreKitManager: ObservableObject {
             products = loaded.sorted { $0.price > $1.price }
             productsFailed = loaded.isEmpty
             // The panel's plans sheet shows these prices (it can't ask the App Store itself).
-            if !loaded.isEmpty {
-                var prices = Dictionary(uniqueKeysWithValues: loaded.map { ($0.id, $0.displayPrice) })
-                // And for each yearly plan, in the App Store's own format: a month of it, and what it saves a year
-                // ("<id>#perMonth", "<id>#save", "<id>#percent"); older panels ignore them.
-                for tier in Tier.allCases {
-                    guard let monthly = loaded.first(where: { $0.id == tier.productId(yearly: false) }),
-                          let yearly = loaded.first(where: { $0.id == tier.productId(yearly: true) }),
-                          let deal = Self.deal(monthly: monthly, yearly: yearly) else { continue }
-                    prices["\(yearly.id)#perMonth"] = deal.perMonth
-                    prices["\(yearly.id)#save"] = deal.saving
-                    prices["\(yearly.id)#percent"] = String(deal.percent)
-                }
-                SharedDefaults.shared.writePrices(prices)
-            }
+            // The panel's plans sheet shows these (with each yearly plan's month and saving).
+            if !loaded.isEmpty { SharedDefaults.shared.writePrices(PlanProducts.priceTable(loaded)) }
             var eligible = Set<String>()
             for product in loaded {
                 if let subscription = product.subscription,
@@ -273,6 +261,11 @@ final class StoreKitManager: ObservableObject {
             }
             await transaction.finish()
             await refreshEntitlement()
+            #if os(iOS)
+            // Ultra (2.6): read aloud carries on from Safari only with notifications, so they're asked about once (after
+            // the plan's tour).
+            if transaction.productID.contains(".ultra.") { Task { await NotifyAsk.shared.afterUltra() } }
+            #endif
             return .purchased
         case .userCancelled:
             return .cancelled

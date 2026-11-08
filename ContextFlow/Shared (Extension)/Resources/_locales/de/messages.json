@@ -755,6 +755,18 @@
  "uxShowIntro": {
   "message": "Einführung erneut zeigen"
  },
+ "uxOther": {
+  "message": "Weiteres …"
+ },
+ "tipClipNeedsApp": {
+  "message": "Öffne die ContextFlow-App einmal, um dieses Video zu sehen."
+ },
+ "busyWorking": {
+  "message": "Wird bearbeitet …"
+ },
+ "busyNew": {
+  "message": "Neue Antwort da"
+ },
  "ptMenu": {
   "message": "Was {0} bietet"
  },
@@ -764,17 +776,17 @@
  "ptProMediaBody": {
   "message": "Hat eine Seite ein Video oder ein PDF, liest ContextFlow jetzt auch diese: die Untertitel des Videos und den Text des PDFs. Frag einfach."
  },
- "ptProChatsTitle": {
-  "message": "Chats durchsuchen und fragen"
+ "ptProFindTitle": {
+  "message": "KI-Suche in deinen Chats"
  },
- "ptProChatsBody": {
-  "message": "In deinen Chats findet ✦ einen Chat anhand einer Beschreibung, und „{0}“ antwortet aus allem, was du gelesen und gefragt hast."
+ "ptProFindBody": {
+  "message": "Schalte ✦ neben der Suche ein und beschreib den Chat, an den du dich erinnerst – auch ohne die genauen Worte."
  },
- "ptProChatListTitle": {
-  "message": "Genau hier"
+ "ptProAskTitle": {
+  "message": "Alle Chats fragen"
  },
- "ptProChatListBody": {
-  "message": "Schalte ✦ neben der Suche ein und beschreib den gesuchten Chat, oder tippe auf „{0}“, um alle Chats auf einmal zu fragen."
+ "ptProAskBody": {
+  "message": "„{0}“ antwortet aus allem, was du gelesen und gefragt hast: „Was habe ich diese Woche gelesen?“"
  },
  "ptProSortTitle": {
   "message": "Nach Themen sortiert"
@@ -1469,6 +1481,30 @@
  "orgFirstWin": {
   "message": "Erledigt. Ab jetzt mache ich von selbst Vorschläge."
  },
+ "orgNameChat": {
+  "message": "Nach Thema benennen"
+ },
+ "orgNamed": {
+  "message": "„{0}“ benannt"
+ },
+ "orgNameFailed": {
+  "message": "Ich konnte den Chat gerade nicht benennen. Versuch es später noch einmal."
+ },
+ "recs_one": {
+  "message": "{0} Empfehlung"
+ },
+ "recs_two": {
+  "message": "{0} Empfehlungen"
+ },
+ "recs_few": {
+  "message": "{0} Empfehlungen"
+ },
+ "recs_many": {
+  "message": "{0} Empfehlungen"
+ },
+ "recs_other": {
+  "message": "{0} Empfehlungen"
+ },
  "orgConsentTitle": {
   "message": "Chats nach Themen sortieren?"
  },
@@ -1725,7 +1761,7 @@
   "message": "Keine Verbindung: Beim ersten Anhören braucht es Internet."
  },
  "listenInApp": {
-  "message": "ContextFlow wird geöffnet: Dort läuft es auch bei gesperrtem Bildschirm weiter."
+  "message": "„Anhören“ läuft in der ContextFlow-App: Dort geht der Ton auch bei gesperrtem Bildschirm und über Kopfhörer weiter."
  },
  "listenLeft": {
   "message": "Anhören: diese Woche noch {0} von {1} Min."
@@ -2018,6 +2054,75 @@
  "gSimilarCheaper": {
   "message": "Günstiger"
  },
+ "listenMinLeft": {
+  "message": "Noch {0} Min."
+ },
+ "listenMinLeftTitle": {
+  "message": "Diese Woche noch {0} Min. Anhören"
+ },
+ "listenLow": {
+  "message": "Diese Woche bleiben noch etwa {0} Min. Anhören, dieser Text dauert etwa {1} Min. Das Vorlesen endet dort, wo die Minuten aufgebraucht sind."
+ },
+ "listenAnyway": {
+  "message": "Trotzdem anhören"
+ },
+ "listenAway": {
+  "message": "In ContextFlow weiterhören – ab {0}"
+ },
+ "listenNotifyAsk": {
+  "message": "Aktiviere Mitteilungen, um weiterzuhören, wenn du Safari verlässt oder den Bildschirm sperrst. Sonst öffnet Listen die App."
+ },
+ "listenNotifyOn": {
+  "message": "Mitteilungen aktivieren"
+ },
+ "listenNotifyLater": {
+  "message": "Nicht jetzt"
+ },
+ "listenTaken": {
+  "message": "Läuft in der ContextFlow-App."
+ },
+ "plansUpgrade": {
+  "message": "Zu {0} wechseln"
+ },
+ "plansUpgradeYearly": {
+  "message": "Zur jährlichen Zahlung wechseln"
+ },
+ "similarPayFree": {
+  "message": "Kostenlos, ohne In-App-Käufe"
+ },
+ "similarPayFreeStart": {
+  "message": "Kostenlos"
+ },
+ "similarPaySub": {
+  "message": "Abo ab {0}"
+ },
+ "similarPayOnce": {
+  "message": "Einmalkauf {0}"
+ },
+ "similarPayIap": {
+  "message": "In-App-Käufe ab {0}"
+ },
+ "similarPerWeek": {
+  "message": "{0}/Woche"
+ },
+ "similarPerMonth": {
+  "message": "{0}/Monat"
+ },
+ "similarPerYear": {
+  "message": "{0}/Jahr"
+ },
+ "offerMemoryTitle": {
+  "message": "Pro merkt sich den ganzen Chat"
+ },
+ "offerMemoryBody": {
+  "message": "Eine kostenlose Antwort sieht die letzten {0} Nachrichten eines Chats. Mit Pro merkt sich die KI alles: jede Nachricht, deine Notizen und die Seiten, zu denen du gefragt hast."
+ },
+ "offerMemoryLong": {
+  "message": "Dieser Chat ist länger als die {0} Nachrichten, die eine kostenlose Antwort sieht. Mit Pro merkt sich die KI alles: jede Nachricht, deine Notizen und die Seiten, zu denen du gefragt hast."
+ },
+ "offerRetryAt": {
+  "message": "Antworten gibt es wieder um {0}."
+ },
  "tip_4cf1b54b00": {
   "message": "Tipps"
  },
@@ -2059,6 +2164,18 @@
  },
  "tip_fa1cdf5479": {
   "message": "Markiere Text auf einer Seite: Stell direkt unter der Auswahl deine eigene Frage dazu oder tippe auf „Notiz“, um ihn mit seiner Seite im Chat zu speichern. Notizen verbrauchen keine Antworten."
+ },
+ "tip_2f27bc2271": {
+  "message": "Schnellaktionen unter der Auswahl"
+ },
+ "tip_b4d2d0edad": {
+  "message": "Markiere Text auf einer Seite: „Zusammenfassen“, „Übersetzen“, „Ähnliches finden“ und mehr warten im Feld „Deine Frage …“ darunter. Wisch durch und tipp eine an – schreiben musst du nichts."
+ },
+ "tip_2aef052e5b": {
+  "message": "Schaltflächen unter der Auswahl"
+ },
+ "tip_894f528548": {
+  "message": "Markiere Text auf einer Seite: „Erklären“, „Übersetzen“, Google und „Ähnliches finden“ sind Schaltflächen direkt darunter. Klick auf eine oder schreib deine eigene Frage in das Feld darunter."
  },
  "tip_9000896590": {
   "message": "Der Chat geht mit"
@@ -2122,6 +2239,24 @@
  },
  "tip_ff32d2c483": {
   "message": "Mit Pro gehen PDFs, die eine Seite zeigt oder verlinkt, mit deiner Frage mit, und Antworten nennen die Seite. Auf iPad und Mac öffnet sich ContextFlow in der Symbolleiste auch auf einem PDF-Tab. Kostenlose Antworten nutzen den Text der Seite."
+ },
+ "tip_de4adc7524": {
+  "message": "Ähnliches finden"
+ },
+ "tip_b2248495b1": {
+  "message": "Tippe bei den Aktionen im Panel oder im Menü „…“ oben im Panel auf „Ähnliches finden“. Oder markiere Text, etwa den Namen eines Produkts, und tippe in den Schnellaktionen darunter auf „Ähnliches finden“. Wenn du willst, füge eine Bedingung wie „Günstiger“ oder „Auf Lager“ hinzu: Die Alternativen sind echt, und jeder Link wird geöffnet und geprüft, bevor du ihn siehst."
+ },
+ "tip_9161a2ed42": {
+  "message": "Klick bei den Aktionen im Panel oder im Menü „…“ oben im Panel auf „Ähnliches finden“. Oder markiere Text, etwa den Namen eines Produkts, und klick auf die Schaltfläche „Ähnliches finden“ darunter. Wenn du willst, füge eine Bedingung wie „Günstiger“ oder „Auf Lager“ hinzu: Die Alternativen sind echt, und jeder Link wird geöffnet und geprüft, bevor du ihn siehst."
+ },
+ "tip_c518fb0674": {
+  "message": "Anhören"
+ },
+ "tip_f26f3d2993": {
+  "message": "Tippe unter einer Antwort auf „Anhören“ oder wähle „Diese Seite anhören“ im Menü „…“ oben im Panel. Die ContextFlow-App liest sie mit natürlicher Stimme vor, auch bei gesperrtem Bildschirm. Tippe im Player auf die Geschwindigkeit für 1×, 1,2×, 1,5× oder 2×."
+ },
+ "tip_4eab0ec0a2": {
+  "message": "Klick unter einer Antwort auf „Anhören“ oder wähle „Diese Seite anhören“ im Menü „…“ oben im Panel. Eine natürliche Stimme liest sie direkt im Panel vor. Klick im Player auf die Geschwindigkeit für 1×, 1,2×, 1,5× oder 2×."
  },
  "tip_328ee8ddce": {
   "message": "Schnelleinfügen"
@@ -2218,6 +2353,21 @@
  },
  "tip_69a0bac728": {
   "message": "ContextFlow lernt daran, wo du deine Tags setzt, was sie bedeuten, und schlägt unter einer neuen Antwort oder Notiz den passenden vor. Nur deine eigenen Tags und nur, wenn sie passen."
+ },
+ "tip_b96ddaab20": {
+  "message": "Dein Tarif"
+ },
+ "tip_b3282f43dd": {
+  "message": "Monatlich oder jährlich"
+ },
+ "tip_12e62d9862": {
+  "message": "Pro und Ultra gibt es monatlich oder jährlich, und ein Jahr kostet weniger als zwölf Monate. Tippe über den Tarifen auf „Jährlich“, in der App oder in Safari, um jeden Preis und deine Ersparnis zu sehen. Schon monatlich dabei? „Auf jährlich umstellen“ findest du unter „Einstellungen“ → „Dein Tarif“: Es gilt ab dem Ende deines aktuellen Monats."
+ },
+ "tip_9288a85bb9": {
+  "message": "Was dein Tarif bietet"
+ },
+ "tip_0f2289f887": {
+  "message": "Nach dem Kauf von Pro oder Ultra zeigt dir ContextFlow Schritt für Schritt, was dein Tarif bietet. Um es noch einmal zu sehen, tippe oben im Panel auf „…“, dann auf „Weiteres …“ und „Was Pro bietet“ oder „Was Ultra bietet“. In der App findest du es in den „Einstellungen“ unter „Dein Tarif“."
  },
  "tip_3208aa35ac": {
   "message": "Datenschutz & Personalisierung"

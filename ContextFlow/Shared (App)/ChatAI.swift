@@ -202,13 +202,15 @@ enum ChatAI {
 
     /// Read aloud (2.6, Ultra): one part of the text, spoken by our server (/api/v2/speak), as 24 kHz 16-bit PCM.
     @MainActor
-    static func speechRequest(text: String, lang: String, what: String, part: Int, parts: Int) throws -> URLRequest {
+    /// `model`: the one the text's first part came from (X-CF-Model), so every part has the same voice (build 91).
+    static func speechRequest(text: String, lang: String, what: String, part: Int, parts: Int, model: String = "") throws -> URLRequest {
         var body = identity()
         body["text"] = text
         body["lang"] = lang
         body["what"] = what
         body["part"] = part
         body["parts"] = parts
+        if !model.isEmpty { body["model"] = model }
         return try request("api/v2/speak", body)
     }
 
@@ -430,6 +432,20 @@ extension ChatAI {
             guard let tag = v["tag"] as? String, let fits = v["fits"] as? Bool else { return nil }
             return Verdict(tag: tag, fits: fits, confidence: (v["confidence"] as? NSNumber)?.doubleValue ?? 0)
         }
+    }
+
+    /// A name for a chat by its topic (2.6, /api/v2/organize op "name"; `chat` is Organize.nameText), and whether
+    /// `current` still fits (false without one).
+    static func organizeName(chat: String, current: String?) async throws -> (title: String, fits: Bool) {
+        var body = identity()
+        body["op"] = "name"
+        body["chat"] = chat
+        if let current { body["current"] = current }
+        let (data, response) = try await URLSession.shared.data(for: try request("api/v2/organize", body))
+        let status = (response as? HTTPURLResponse)?.statusCode ?? 0
+        guard status == 200, let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let title = (object["title"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines), !title.isEmpty else { throw failure(status, data) }
+        return (title, object["fits"] as? Bool ?? false)
     }
 
     /// A step in a feature ("use", src/shared/usage.ts): f, a and its allowed fields, never text (build 90: listen).

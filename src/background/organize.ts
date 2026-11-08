@@ -6,9 +6,9 @@
 import { hasPro } from "../shared/plan"
 import { API_BASE } from "../shared/config"
 import { entryKey, textKey, type Entry } from "../shared/conversation"
-import { embedText, judgedTags, judgeText, suggestMove, tagCandidates, tagTargets, unpackVector, type VectorOf } from "../shared/organize"
-import { liveThreads, threadName, threadTitle, type Thread, type Threads } from "../shared/threads"
-import { STORAGE, type OrganizeEvent, type OrganizeReply, type StatusInfo } from "../shared/types"
+import { embedText, judgedTags, judgeText, nameCheckKey, nameText, suggestMove, tagCandidates, tagTargets, unpackVector, wantsNameCheck, type VectorOf } from "../shared/organize"
+import { cleanTitle, liveThreads, threadName, threadTitle, type Thread, type Threads } from "../shared/threads"
+import { STORAGE, type OrganizeCountsReply, type OrganizeEvent, type OrganizeNameReply, type OrganizeReply, type StatusInfo } from "../shared/types"
 
 interface Context {
   status: StatusInfo
@@ -24,6 +24,8 @@ const MAX_EMBED_PER_RUN = 640
 const BATCH = 128
 // Tag checks remembered (the newest), so opening a chat again asks nothing.
 const MAX_VERDICTS = 400
+// Name checks remembered (the newest chats).
+const MAX_NAMES = 200
 
 interface VectorStore {
   space: string
@@ -69,33 +71,32 @@ function missing(chats: Thread[], store: VectorStore, max: number): Array<{ key:
   return out
 }
 
-let running: Promise<OrganizeReply> = Promise.resolve({ ok: true, move: null, tags: [] })
-
-/** The suggestions for chat `chatId` now; one run at a time (two panels open don't embed the same twice). */
-export function organizeChat(chatId: string, ctx: Context): Promise<OrganizeReply> {
-  running = running.catch(() => undefined).then(() => organizeOnce(chatId, ctx))
-  return running
+// One run at a time (two panels open, or the list and a chat, don't embed the same twice).
+let running: Promise<unknown> = Promise.resolve()
+function inTurn<T>(work: () => Promise<T>): Promise<T> {
+  const run = running.catch(() => undefined).then(work)
+  running = run
+  return run
 }
 
-async function organizeOnce(chatId: string, ctx: Context): Promise<OrganizeReply> {
-  const org = ctx.status.organize
-  if (!org?.on || !ctx.on) return { ok: false, code: "OFF" }
-  if (!hasPro(ctx.status.plan)) return { ok: false, code: "PRO_ONLY" }
-  const stored = await chrome.storage.local.get([STORAGE.threads, STORAGE.orgVectors, STORAGE.orgVerdicts])
-  const threads = (stored[STORAGE.threads] as Threads | undefined) ?? {}
-  const chat = threads[chatId]
-  if (!chat || chat.deleted || chat.kind === "history" || chat.m.length === 0) return { ok: true, move: null, tags: [] }
-  const live = liveThreads(threads).filter((t) => t.kind !== "history")
+/** The suggestions for chat `chatId` now. */
+export function organizeChat(chatId: string, ctx: Context): Promise<OrganizeReply> {
+  return inTurn(() => organizeOnce(chatId, ctx))
+}
+
+/** The device's vectors for `first` and then the other chats (asking for those it lacks), and how to read them. */
+async function vectorsFor(first: Thread | null, live: Thread[], ctx: Context, stored: Record<string, unknown>): Promise<{ vectorOf: VectorOf } | { code: OrganizeErrorCode }> {
+  const org = ctx.status.organize!
   let store = stored[STORAGE.orgVectors] as VectorStore | undefined
   if (!store || store.space !== org.space) store = { space: org.space, v: {} }
 
   // Vectors for what lacks them: this chat's messages first, then the other chats', the latest first.
-  const todo = missing([chat, ...live.filter((t) => t.id !== chat.id)], store, MAX_EMBED_PER_RUN)
+  const todo = missing(first ? [first, ...live.filter((t) => t.id !== first.id)] : live, store, MAX_EMBED_PER_RUN)
   for (let i = 0; i < todo.length; i += BATCH) {
     const batch = todo.slice(i, i + BATCH)
     const res = await api(ctx, { op: "embed", texts: batch.map((x) => x.text) })
     if (!res.ok) {
-      if (i === 0 && !chat.m.some((e) => store!.v[entryKey(e)])) return { ok: false, code: res.code }
+      if (i === 0 && first && !first.m.some((e) => store!.v[entryKey(e)])) return { code: res.code }
       break
     }
     // The server moved to another model: the vectors kept so far no longer compare with new ones.
@@ -109,15 +110,33 @@ async function organizeOnce(chatId: string, ctx: Context): Promise<OrganizeReply
   for (const key of Object.keys(store.v)) if (!keys.has(key)) delete store.v[key]
   await chrome.storage.local.set({ [STORAGE.orgVectors]: store })
 
+  const kept = store
   const unpacked = new Map<string, Float32Array | null>()
   const vectorOf: VectorOf = (e: Entry) => {
     const text = embedText(e)
-    const hit = text ? store!.v[entryKey(e)] : undefined
+    const hit = text ? kept.v[entryKey(e)] : undefined
     const at = hit?.indexOf(":") ?? -1
     if (!hit || at < 0 || hit.slice(0, at) !== textKey(text)) return null
     if (!unpacked.has(hit)) unpacked.set(hit, unpackVector(hit.slice(at + 1)))
     return unpacked.get(hit)
   }
+  return { vectorOf }
+}
+
+type OrganizeErrorCode = "PRO_ONLY" | "NETWORK" | "LIMIT_REACHED" | "UPSTREAM" | "OFF"
+
+async function organizeOnce(chatId: string, ctx: Context): Promise<OrganizeReply> {
+  const org = ctx.status.organize
+  if (!org?.on || !ctx.on) return { ok: false, code: "OFF" }
+  if (!hasPro(ctx.status.plan)) return { ok: false, code: "PRO_ONLY" }
+  const stored = await chrome.storage.local.get([STORAGE.threads, STORAGE.orgVectors, STORAGE.orgVerdicts])
+  const threads = (stored[STORAGE.threads] as Threads | undefined) ?? {}
+  const chat = threads[chatId]
+  if (!chat || chat.deleted || chat.kind === "history" || chat.m.length === 0) return { ok: true, move: null, tags: [] }
+  const live = liveThreads(threads).filter((t) => t.kind !== "history")
+  const vectors = await vectorsFor(chat, live, ctx, stored)
+  if ("code" in vectors) return { ok: false, code: vectors.code }
+  const { vectorOf } = vectors
   const cfg = org.config
 
   const move = suggestMove(chat, live, vectorOf, cfg)
@@ -139,6 +158,27 @@ async function organizeOnce(chatId: string, ctx: Context): Promise<OrganizeReply
   const newest = Object.entries(verdicts).sort((a, b) => b[1].at - a[1].at).slice(0, MAX_VERDICTS)
   await chrome.storage.local.set({ [STORAGE.orgVerdicts]: Object.fromEntries(newest) })
 
+  // 2.6: the chat's name, unless the user typed it: checked once the chat has a second question or note, and again
+  // when it gets another page or a move changes it; renamed when it no longer fits.
+  let name: string | undefined
+  if (wantsNameCheck(chat)) {
+    const { [STORAGE.orgNames]: kept } = await chrome.storage.local.get(STORAGE.orgNames)
+    const names = (kept as Names | undefined) ?? {}
+    const key = nameCheckKey(chat)
+    if (names[chat.id]?.key !== key) {
+      const current = threadName(chat)
+      const res = await api(ctx, { op: "name", chat: nameText(chat.m), current })
+      const title = res.ok && typeof res.body.title === "string" ? cleanTitle(res.body.title) : ""
+      if (res.ok) {
+        const renamed = !res.body.fits && title && title !== current
+        if (renamed) name = title
+        names[chat.id] = { key: nameCheckKey(chat, renamed ? title : chat.title ?? ""), at: Date.now() }
+        const recent = Object.entries(names).sort((a, b) => b[1].at - a[1].at).slice(0, MAX_NAMES)
+        await chrome.storage.local.set({ [STORAGE.orgNames]: Object.fromEntries(recent) })
+      }
+    }
+  }
+
   return {
     ok: true,
     move: move && {
@@ -147,8 +187,57 @@ async function organizeOnce(chatId: string, ctx: Context): Promise<OrganizeReply
       toName: move.to ? threadName(threads[move.to]) : threadTitle(chat.m.slice(move.start, move.end + 1)),
       count: move.end - move.start + 1
     },
-    tags
+    tags,
+    ...(name ? { name } : {})
   }
+}
+
+type Names = Record<string, { key: string; at: number }>
+
+/**
+ * The open suggestions of every chat, for the chats list (2.6, "N recommendations"): its move, and the tags the check
+ * already said yes to (a chat opened since has them all; nothing new is asked of the AI here but vectors). The same
+ * rules as in the chat, so the count is what the chat shows. Only chats with some.
+ */
+export function organizeCounts(ctx: Context): Promise<OrganizeCountsReply> {
+  return inTurn(() => countsOnce(ctx))
+}
+
+async function countsOnce(ctx: Context): Promise<OrganizeCountsReply> {
+  const org = ctx.status.organize
+  if (!org?.on || !ctx.on) return { ok: false, code: "OFF" }
+  if (!hasPro(ctx.status.plan)) return { ok: false, code: "PRO_ONLY" }
+  const stored = await chrome.storage.local.get([STORAGE.threads, STORAGE.orgVectors, STORAGE.orgVerdicts])
+  const live = liveThreads((stored[STORAGE.threads] as Threads | undefined) ?? {}).filter((t) => t.kind !== "history")
+  const vectors = await vectorsFor(null, live, ctx, stored)
+  if ("code" in vectors) return { ok: false, code: vectors.code }
+  const verdicts = (stored[STORAGE.orgVerdicts] as Verdicts | undefined) ?? {}
+  const counts: Record<string, number> = {}
+  for (const chat of live) {
+    let n = suggestMove(chat, live, vectors.vectorOf, org.config) ? 1 : 0
+    for (const index of tagTargets(chat, org.config)) {
+      const candidates = tagCandidates(chat, index, live, vectors.vectorOf, org.config)
+      if (!candidates.length) continue
+      const hash = textKey(JSON.stringify([judgeText(chat.m, index), candidates.map((c) => [c.tag, c.examples])]))
+      if (verdicts[hash] && judgedTags(candidates, verdicts[hash].v, org.config).length) n++
+    }
+    if (n) counts[chat.id] = n
+  }
+  return { ok: true, counts }
+}
+
+/** "Name by topic": a name for chat `chatId` now (the panel puts it on, unless the user typed one meanwhile). */
+export async function nameChatNow(chatId: string, ctx: Context): Promise<OrganizeNameReply> {
+  const org = ctx.status.organize
+  if (!org?.on || !ctx.on) return { ok: false, code: "OFF" }
+  if (!hasPro(ctx.status.plan)) return { ok: false, code: "PRO_ONLY" }
+  const { [STORAGE.threads]: stored } = await chrome.storage.local.get(STORAGE.threads)
+  const chat = (stored as Threads | undefined)?.[chatId]
+  if (!chat || chat.deleted || chat.kind === "history" || !chat.m.length) return { ok: false, code: "NETWORK" }
+  const res = await api(ctx, { op: "name", chat: nameText(chat.m) })
+  if (!res.ok) return { ok: false, code: res.code === "OFF" || res.code === "PRO_ONLY" || res.code === "LIMIT_REACHED" ? res.code : "UPSTREAM" }
+  const name = typeof res.body.title === "string" ? cleanTitle(res.body.title) : ""
+  return name ? { ok: true, name } : { ok: false, code: "UPSTREAM" }
 }
 
 /** An organizing event for the funnel (/api/v2/event): what and where, never text. */

@@ -18,6 +18,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         UNUserNotificationCenter.current().delegate = self
         // Page watch: this device's watches in Watching, and the notification question when they need it.
         WatchOpen.start()
+        // The Tips clips for the Safari panel, into the App Group once per build (TipClipShare).
+        DispatchQueue.global(qos: .utility).async { TipClipShare.publish() }
         return true
     }
 
@@ -32,6 +34,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         // Page watch: "Changed: …" opens its page (WatchOpen).
         if info["watch"] != nil {
             await MainActor.run { WatchOpen.handle(info) }
+            return
+        }
+        // Read aloud carried on from Safari (2.6): the app plays it from the second it had reached.
+        if info["listen"] is String, let link = info["link"] as? String, let url = URL(string: link) {
+            await MainActor.run {
+                ChatAI.reportUse("listen", "carried_on")
+                DeepLinkRouter.shared.handle(url)
+            }
             return
         }
         await MainActor.run { ChatAI.reportUx("ux_remind", info["open"] != nil ? ["action": "opened", "what": "page"] : ["action": "opened"]) }

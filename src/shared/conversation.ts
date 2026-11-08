@@ -144,6 +144,8 @@ export function withPageChanges(entries: Entry[]): Entry[] {
 }
 
 const MAX_HISTORY = 12
+/** The messages a free answer remembers (build 91: the whole chat is Pro's). */
+export const FREE_MEMORY = MAX_HISTORY
 // Page texts kept in a chat: each cut to this (the budget the server gives a chat's other pages), for
 // its last 10 pages (an answer in the app gets the chat's last page and up to MAX_APP_OTHER_PAGES others).
 export const MAX_SAVED_PAGE_CHARS = 8_000

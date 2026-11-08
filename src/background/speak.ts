@@ -5,7 +5,7 @@
 // what's playing: stopping early doesn't spend the week's minutes on parts nobody hears.
 
 import { API_BASE } from "../shared/config"
-import { needsScript, PartSplitter, scriptChunks, speechParts, speechText } from "../shared/speech"
+import { DEFAULT_VOICE, needsScript, PartSplitter, scriptChunks, speechParts, speechText, syncKey } from "../shared/speech"
 import type { Usage } from "../shared/types"
 
 export interface SpeakDeps {
@@ -13,6 +13,14 @@ export interface SpeakDeps {
   client: () => Promise<Record<string, unknown>>
   // Apple's signed transaction (null: none).
   jws: () => Promise<string | null>
+  // The user's iCloud through the app's extension (Safari, 2.6): a part made on another device (AAC, base64), a part
+  // made here for the others (PCM), the same for texts written for the ear. Missing: no sync (Chrome).
+  sync?: {
+    getPart: (key: string, wait: number) => Promise<string | null>
+    putPart: (key: string, pcm: Uint8Array) => Promise<void>
+    getText: (key: string, wait: number) => Promise<string | null>
+    putText: (key: string, text: string) => Promise<void>
+  }
 }
 
 /** Panel → background. */
@@ -26,6 +34,11 @@ export type SpeakIn =
 /** Background → panel. */
 export type SpeakOut =
   | { type: "chunk"; part: number; data: string }
+  // A whole part as AAC (from the user's iCloud): the panel decodes it.
+  | { type: "aac"; part: number; data: string }
+  // The parts as spoken (written for the ear when it was), and whether that's all of them: what the app needs to
+  // carry on from the same second (iPhone and iPad, 2.6).
+  | { type: "parts"; parts: string[]; complete: boolean }
   | { type: "partEnd"; part: number; cached: boolean }
   | { type: "usage"; usage: Usage | null }
   | { type: "end" }
@@ -110,7 +123,7 @@ export async function clearSpeech(): Promise<void> {
   }
 }
 
-function base64(bytes: Uint8Array): string {
+export function base64(bytes: Uint8Array): string {
   let binary = ""
   for (let i = 0; i < bytes.length; i += 0x8000) binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000))
   return btoa(binary)
@@ -129,6 +142,10 @@ export function serveSpeak(port: chrome.runtime.Port, deps: SpeakDeps): void {
   let written = false
   let controller: AbortController | null = null
   const scriptAbort = new AbortController()
+  // The model the text's first part came from: every later part asks for it (one voice per text, build 91).
+  let textModel = ""
+  // The server's voice (X-CF-Voice): part of a part's key in the user's iCloud.
+  let voice = DEFAULT_VOICE
   const post = (message: SpeakOut) => {
     try {
       port.postMessage(message)
@@ -136,6 +153,8 @@ export function serveSpeak(port: chrome.runtime.Port, deps: SpeakDeps): void {
       stopped = true
     }
   }
+
+  const tellParts = () => post({ type: "parts", parts: [...parts], complete: written })
 
   const pump = async () => {
     // One part ahead of the one playing.
@@ -157,12 +176,22 @@ export function serveSpeak(port: chrome.runtime.Port, deps: SpeakDeps): void {
       const add = (more: string[]) => {
         if (!more.length) return
         parts.push(...more)
+        tellParts()
         void pump()
       }
       const key = `script|${what}|${await speechKey(chunk, lang)}`
       const kept = await cached(key)
       if (kept) {
         add(splitter.push(new TextDecoder().decode(kept)))
+        add(splitter.end())
+        continue
+      }
+      // Written on another of the user's devices: the same words, so the same parts and their audio.
+      const textKey = await syncKey(`script|${what}`, lang, chunk)
+      const synced = await deps.sync?.getText(textKey, parts.length ? 1.5 : 1).catch(() => null)
+      if (synced) {
+        void keep(key, new TextEncoder().encode(synced))
+        add(splitter.push(synced))
         add(splitter.end())
         continue
       }
@@ -191,7 +220,10 @@ export function serveSpeak(port: chrome.runtime.Port, deps: SpeakDeps): void {
           add(splitter.push(piece))
         }
         add(splitter.end())
-        if (script.trim()) void keep(key, new TextEncoder().encode(script))
+        if (script.trim()) {
+          void keep(key, new TextEncoder().encode(script))
+          void deps.sync?.putText(textKey, script).catch(() => undefined)
+        }
       } catch {
         if (stopped) return
         // No text for listening (Haiku busy, offline): the device's own rules, for what wasn't written yet.
@@ -215,6 +247,18 @@ export function serveSpeak(port: chrome.runtime.Port, deps: SpeakDeps): void {
       post({ type: "partEnd", part, cached: true })
       return true
     }
+    // Made on another of the user's devices (kept here as AAC, or in iCloud): played from there, the server not asked.
+    const shared = await syncKey(voice, lang, text)
+    const kept = await cached(`aac|${key}`)
+    const fromCloud = kept ? null : await deps.sync?.getPart(shared, part === 0 ? 1 : 2).catch(() => null)
+    if (kept || fromCloud) {
+      const data = kept ? base64(kept) : (fromCloud as string)
+      post({ type: "aac", part, data })
+      post({ type: "partEnd", part, cached: true })
+      if (!kept) void keep(`aac|${key}`, Uint8Array.from(atob(data), (c) => c.charCodeAt(0)))
+      return true
+    }
+    if (stopped) return false
     // A passing failure (offline a moment, the voice busy, a download that broke off) is asked for again twice, in the
     // same voice; what the panel already has of this part is skipped in the new audio (build 90: a text never changes
     // voice, and never repeats itself).
@@ -228,6 +272,8 @@ export function serveSpeak(port: chrome.runtime.Port, deps: SpeakDeps): void {
       const outcome = await download(part, text, sent)
       if (outcome.ok) {
         void keep(key, outcome.all)
+        // For the user's other devices (iCloud through the app): in the background.
+        void deps.sync?.putPart(shared, outcome.all).catch(() => undefined)
         return true
       }
       sent = outcome.sent
@@ -252,12 +298,14 @@ export function serveSpeak(port: chrome.runtime.Port, deps: SpeakDeps): void {
       res = await fetch(`${API_BASE}/api/v2/speak`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ installId, client, entitlement: jws, text, lang, what, part, parts: parts.length }),
+        body: JSON.stringify({ installId, client, entitlement: jws, text, lang, what, part, parts: parts.length, ...(textModel ? { model: textModel } : {}) }),
         signal: controller.signal
       })
     } catch {
       return { ok: false, code: "NETWORK", sent: skip }
     }
+    if (res.ok && !textModel) textModel = res.headers.get("X-CF-Model") ?? ""
+    if (res.ok) voice = res.headers.get("X-CF-Voice") || voice
     if (!res.ok || !res.body) {
       const body = (await res.json().catch(() => ({}))) as { code?: string; usage?: Usage | null }
       const code = (["ULTRA_ONLY", "LIMIT_REACHED", "BUSY", "OFF"] as const).find((c) => c === body.code) ?? "UPSTREAM"
@@ -317,17 +365,20 @@ export function serveSpeak(port: chrome.runtime.Port, deps: SpeakDeps): void {
       next = 0
       playing = -1
       stopped = false
+      textModel = ""
       // A page always (captions, credits, its tables), an answer when it has more than plain sentences.
       if (what === "page" || needsScript(text)) {
         parts = []
         written = false
         void write(text).finally(() => {
           written = true
+          tellParts()
           void pump()
         })
       } else {
-        parts = speechParts(speechText(text)).slice(0, 40)
+        parts = speechParts(speechText(text)).slice(0, 80)
         written = true
+        tellParts()
         void pump()
       }
     } else if (message.type === "playing") {

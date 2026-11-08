@@ -109,10 +109,26 @@ struct ContentView: View {
 
     /// What a plan adds, after a purchase or an upgrade (2.6, build 89).
     @StateObject private var tour = PlanTour.shared
+    #if os(iOS)
+    /// Notifications, asked with a reason (2.6): after the other sheets and the plan tour.
+    @StateObject private var notify = NotifyAsk.shared
+    #endif
 
     /// The plan tour waits while another sheet is up (Listen handed over from Safari, What's new, the setup guide),
     /// then comes back at the step it was on.
-    private var otherSheet: Bool { listen.visible || whatsNew || showingSetup }
+    private var otherSheet: Bool {
+        #if os(iOS)
+        if notify.ask != nil { return true }
+        #endif
+        return listen.visible || whatsNew || showingSetup
+    }
+
+    #if os(iOS)
+    private var notifyAsk: Binding<NotifyAsk.Ask?> {
+        Binding(get: { listen.visible || whatsNew || showingSetup || tour.run != nil ? nil : notify.ask },
+                set: { if $0 == nil, notify.ask != nil { notify.notNow() } })
+    }
+    #endif
 
     private var tourRun: Binding<PlanTour.Run?> {
         Binding(get: { otherSheet ? nil : tour.run }, set: { if $0 == nil, !otherSheet { closeTour() } })
@@ -146,6 +162,11 @@ struct ContentView: View {
                     tab = place
                 }, close: closeTour)
             }
+            #if os(iOS)
+            .sheet(item: notifyAsk) { ask in
+                NotifyAskView(model: notify, ask: ask)
+            }
+            #endif
             .onChange(of: hasChats) { _ in showWhatsNewIfDue() }
             .onReceive(router.$pending.compactMap { $0 }) { url in
                 switch url.host {
@@ -158,6 +179,12 @@ struct ContentView: View {
                     showPlan = store.isPro
                 case "listen":
                     listen.open(url)
+                #if os(iOS)
+                // Listen in Safari without notifications (2.6): asked here (the extension can't), then the text plays.
+                case "notifications":
+                    let id = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first { $0.name == "listen" }?.value?.lowercased()
+                    Task { await NotifyAsk.shared.show(.listen, listen: id) }
+                #endif
                 case "tips": tab = .tips
                 case "chats": tab = hasChats ? .chats : .home
                 // A reminder on a message (2.5): Chats opens at it.
@@ -172,6 +199,8 @@ struct ContentView: View {
             .task {
                 SharedDefaults.shared.removeLegacyData()
                 listen.debugStartIfAsked()
+                // Read aloud kept in iCloud (2.6): what's older than 7 days goes (at most once a day, from any device).
+                Task.detached(priority: .background) { await SpeechSync.sweep() }
                 chats.refresh()
                 showWhatsNewIfDue()
                 tour.debugStartIfAsked()
@@ -537,6 +566,8 @@ struct Tip {
     var organize = false
     // Needs Pro: the Pro badge by the title.
     var pro = false
+    // Needs Ultra (2.6): the Ultra badge by the title.
+    var ultra = false
 }
 
 struct TipGroup {
@@ -598,6 +629,42 @@ struct TipGroup {
             text: "Select a price, a stock status or a date on a page and tap the eye. For the whole page, choose Watch this page… in the … menu at the top of the panel. ContextFlow checks the page while you use Safari and tells you when it changes, or drops below the price you name. Up to 5 at a time, 20 with Pro.", clip: "watch")
     }
 
+    // Quick actions in the selection's field (2.6): touch only. A Mac has buttons under the selection instead, and no
+    // clip (it shows the chips).
+    private static var chipsTip: Tip {
+        #if os(iOS)
+        Tip(symbol: "hand.point.up.left", color: .indigo, title: "Quick actions under a selection",
+            text: "Select text on a page: Summarize, Translate, Find similar and more wait in the “Your question…” field under it. Swipe along them and tap one, no typing needed.", clip: "chips")
+        #else
+        Tip(symbol: "cursorarrow.click", color: .indigo, title: "Buttons under a selection",
+            text: "Select text on a page: Explain, Translate, Google and Find similar are buttons right under it. Click one, or type your own question in the field below them.")
+        #endif
+    }
+
+    // Find similar (2.6, Ultra): from the panel's actions or its … menu, or from a selection (a chip in its field on
+    // iPhone and iPad, a button on a Mac). The clip picks it from the chips, so a Mac has none.
+    private static var similarTip: Tip {
+        #if os(iOS)
+        Tip(symbol: "square.on.square", color: ultraViolet, title: "Find similar",
+            text: "Tap Find similar among the panel's actions, or in the … menu at the top of the panel. Or select text, like a product's name, and tap Find similar among the quick actions under it. Add a condition like Cheaper or In stock if you want: the alternatives are real, and every link is opened and checked before you see it.", clip: "similar", ultra: true)
+        #else
+        Tip(symbol: "square.on.square", color: ultraViolet, title: "Find similar",
+            text: "Click Find similar among the panel's actions, or in the … menu at the top of the panel. Or select text, like a product's name, and click the Find similar button under it. Add a condition like Cheaper or In stock if you want: the alternatives are real, and every link is opened and checked before you see it.", ultra: true)
+        #endif
+    }
+
+    // Listen (2.6, Ultra): on iPhone and iPad the app plays it (it goes on with the screen locked), on a Mac the panel
+    // does. The clip is the panel's player, so a Mac's only.
+    private static var listenTip: Tip {
+        #if os(iOS)
+        Tip(symbol: "speaker.wave.2.fill", color: ultraViolet, title: "Listen",
+            text: "Tap Listen under an answer, or choose Listen to this page in the … menu at the top of the panel. The ContextFlow app reads it in a natural voice, and it keeps playing with the screen locked. Tap the speed in the player for 1×, 1.2×, 1.5× or 2×.", ultra: true)
+        #else
+        Tip(symbol: "speaker.wave.2.fill", color: ultraViolet, title: "Listen",
+            text: "Click Listen under an answer, or choose Listen to this page in the … menu at the top of the panel. A natural voice reads it right in the panel. Click the speed in the player for 1×, 1.2×, 1.5× or 2×.", clip: "listen", ultra: true)
+        #endif
+    }
+
     private static func iOSClip(_ name: String) -> String? {
         #if os(iOS)
         name
@@ -616,6 +683,7 @@ struct TipGroup {
                 text: "Select text on the page and choose Ask AI: the answer is about just that part. It can also explain, translate or rewrite it.", clip: "part"),
             Tip(symbol: "text.quote", color: .orange, title: "Ask or note a selection",
                 text: "Select text on a page: type your own question about it right under the selection, or tap Note to save it to the chat with its page. Notes use no answers.", clip: "select"),
+            chipsTip,
             Tip(symbol: "bubble.left.and.bubble.right", color: .teal, title: "A chat follows you",
                 text: "Keep asking as you move from page to page. ContextFlow remembers the conversation and which page each question was about. Tap a page's name in the chat to go back to it.", clip: "follows"),
             Tip(symbol: "magnifyingglass", color: .green, title: "Fresh facts from Google",
@@ -634,7 +702,9 @@ struct TipGroup {
             Tip(symbol: "play.rectangle", color: .red, title: "Ask about a video",
                 text: "With Pro, ContextFlow reads the transcript of a video on the page: ask for the gist, or what was said about something, and the answer points to the moment, like [4:15]. Free answers use the page's text.", clip: "video", pro: true),
             Tip(symbol: "doc.richtext", color: .orange, title: "PDFs on the page",
-                text: "With Pro, PDFs shown on a page or linked from it go with your question, and answers say which page they're on. On iPad and Mac, ContextFlow in the toolbar opens on a PDF tab too. Free answers use the page's text.", clip: "pdf", pro: true)
+                text: "With Pro, PDFs shown on a page or linked from it go with your question, and answers say which page they're on. On iPad and Mac, ContextFlow in the toolbar opens on a PDF tab too. Free answers use the page's text.", clip: "pdf", pro: true),
+            similarTip,
+            listenTip
         ]),
         TipGroup(id: "quick-insert", title: "Quick insert", tips: [
             insertTip,
@@ -665,6 +735,13 @@ struct TipGroup {
                 text: "Asked about a car in the chat about a sofa? Under the answer, ContextFlow suggests the chat it belongs in, or a new one. One tap moves it there, by date; Undo puts it back.", clip: "organize", organize: true, pro: true),
             Tip(symbol: "tag", color: .purple, title: "Your tags, suggested",
                 text: "ContextFlow learns what your tags mean from where you put them, and suggests the right one under a new answer or note. Only your own tags, only when they fit.", clip: "suggested-tags", organize: true, pro: true)
+        ]),
+        // 2.6: monthly or yearly, and the tour of a plan (text only: the tour itself is being reworked).
+        TipGroup(id: "your-plan", title: "Your plan", tips: [
+            Tip(symbol: "calendar", color: .green, title: "Monthly or yearly",
+                text: "Pro and Ultra come monthly or yearly, and a year costs less than twelve months. Tap Yearly above the plans, in the app or in Safari, to see each price and what you save. On monthly already? Switch to yearly is in Settings → Your plan: it starts when your current month ends.", clip: "yearly"),
+            Tip(symbol: "crown", color: brandBlue, title: "What your plan adds",
+                text: "After you buy Pro or Ultra, ContextFlow shows what your plan adds, a step at a time. To see it again, tap … at the top of the panel, then Other… and What's in Pro or What's in Ultra. In the app, it's in Settings, under Your plan.")
         ]),
         TipGroup(id: "privacy-and-personalization", title: "Privacy & personalization", tips: [
             Tip(symbol: "person.text.rectangle", color: .mint, title: "Tell it about you",
@@ -705,6 +782,7 @@ struct TipCard: View {
                 Text(tip.title)
                     .font(.headline)
                 if tip.pro { ProBadge() }
+                if tip.ultra { UltraBadge() }
             }
             Text(tip.text)
                 .font(.callout)
@@ -721,6 +799,18 @@ struct TipCard: View {
         .background(Color.cardFill)
         .cornerRadius(16)
         .accessibilityElement(children: action == nil ? .combine : .contain)
+    }
+}
+
+/// "Ultra" by an Ultra card's title in Tips (2.6), as ProBadge is for Pro's, in Ultra's violet.
+struct UltraBadge: View {
+    var body: some View {
+        Text("Ultra")
+            .font(.caption2.weight(.bold))
+            .foregroundColor(.white)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(Capsule().fill(ultraViolet))
     }
 }
 
@@ -1035,6 +1125,7 @@ struct ProView: View {
                             focused: tier == focusTier,
                             current: store.entitlement.active && store.entitlement.productId == product.id,
                             currentTier: store.tier,
+                            fromMonthly: store.entitlement.active && store.product(tier, yearly: false)?.id == store.entitlement.productId,
                             trialEligible: store.introEligible.contains(product.id),
                             busy: busyProduct == product.id,
                             action: { buy(product) }
@@ -1173,6 +1264,8 @@ struct TierCard: View {
     let focused: Bool
     let current: Bool
     let currentTier: StoreKitManager.Tier?
+    /// The subscriber has this plan monthly: its yearly card is an upgrade too (build 91).
+    var fromMonthly = false
     let trialEligible: Bool
     let busy: Bool
     let action: () -> Void
@@ -1252,6 +1345,8 @@ struct TierCard: View {
                         Text("Start free trial")
                     } else if let currentTier, currentTier.rank < tier.rank {
                         Text("Upgrade to \(tier.name)")
+                    } else if fromMonthly, yearly {
+                        Text("Upgrade to yearly")
                     } else {
                         Text("Subscribe for \(priceLine)")
                     }
@@ -1662,6 +1757,7 @@ struct SettingsView: View {
         Section(header: Text("Your plan"), footer: restoreMessage.map { Text($0) }) {
             HStack {
                 Text(planName(store.entitlement.productId))
+                    .task { if store.isUltra { await store.refreshPlanFacts() } }
                 Spacer()
                 if let date = store.entitlement.expiresAt {
                     if store.entitlement.autoRenew == false {
@@ -1672,6 +1768,11 @@ struct SettingsView: View {
                             .foregroundColor(.secondary)
                     }
                 }
+            }
+            // Ultra: this week's listening (build 91: the owner wanted to see the minutes left somewhere).
+            if store.isUltra, let left = store.planFacts.speakLeftSeconds {
+                Text("Listening: \(left / 60) of \(store.planFacts.speakWeeklyMinutes) min left this week")
+                    .foregroundColor(.secondary)
             }
             if let offer = store.yearlySwitch, Date().timeIntervalSince1970 > yearlyHiddenUntil {
                 yearlyLine(offer)

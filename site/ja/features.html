@@ -44,7 +44,7 @@
       "@type": "WebPage",
       "name": "ContextFlowでできること",
       "url": "https://context-flow.app/ja/features",
-      "dateModified": "2026-11-05",
+      "dateModified": "2026-11-08",
       "inLanguage": "ja",
       "about": { "@id": "https://context-flow.app/#app" }
     },
@@ -67,12 +67,21 @@
 <main class="wrap">
   <div class="feat-head">
     <h1>ContextFlowでできること</h1>
-    <p class="lede">アプリのヒントと同じ内容を、やりたいことごとにまとめました。動画はどれも実際のパネルの動作です。<span class="pro-badge">Pro</span>の付いたカードにはProプランが必要です。それ以外はすべて無料プランで使えます。</p>
-    <div class="jump"><a href="#get-started">はじめに</a><a href="#deeper-work">じっくり深掘り</a><a href="#quick-insert">クイック挿入</a><a href="#watch-and-remind">見守りとリマインダー</a><a href="#chats-in-order">チャットを整理</a><a href="#privacy-and-personalization">プライバシーとパーソナライズ</a></div>
+    <p class="lede">アプリのヒントと同じ内容を、やりたいことごとにまとめました。動画はどれも実際のパネルの動作です。<span class="pro-badge">Pro</span>の付いたカードにはProプランが、<span class="ultra-badge">Ultra</span>の付いたカードにはUltraが必要です。それ以外はすべて無料プランで使えます。</p>
+    <div class="jump"><a href="#get-started">はじめに</a><a href="#deeper-work">じっくり深掘り</a><a href="#quick-insert">クイック挿入</a><a href="#watch-and-remind">見守りとリマインダー</a><a href="#chats-in-order">チャットを整理</a><a href="#your-plan">ご利用中のプラン</a><a href="#privacy-and-personalization">プライバシーとパーソナライズ</a></div>
   </div>
 
   <!-- The whole app's, before the blocks, as in the app's Tips. -->
   <article class="feat feat-lead" id="all-devices"><h3>すべてのデバイスで</h3><p>iPhoneで始めて、Macで仕上げたい？「iCloudでチャットを同期」をオンにすると、チャットがiPadやMacでも続きます。チャットはiCloudでエンドツーエンドで暗号化され、私のサーバーには保存されません。</p></article>
+  <!-- Ultra (2.6): outside the app's Tips blocks below, which this page mirrors; Listen and Find similar are Tips cards in Deeper work. -->
+  <div class="feat-ultra" id="ultra">
+  <h2>Ultra</h2>
+  <p class="block-lede">Proのすべてに加えて、聞きたいものには声を、見ているものには代わりの候補を。</p>
+  <div class="feats">
+  <article class="feat" id="watch-more"><h3>50ページを見守り <span class="ultra-badge">Ultra</span></h3><p>たくさんの価格をまとめて待っている？Ultraなら最大50ページを見守れます。Proは20ページ、無料プランは5ページです。見守りのそれ以外の点は変わりません。</p></article>
+  </div>
+  <p class="more"><a href="#deeper-work">「読み上げ」と「似たものを探す」は、動画付きで「じっくり深掘り」にあります →</a></p>
+  </div>
 
   <section id="get-started">
     <h2>はじめに</h2>
@@ -82,6 +91,7 @@
       <article class="feat"><video class="clip" data-src="/clips/gist.mp4" poster="/clips/gist.jpg" muted loop playsinline preload="none" aria-hidden="true"></video><h3>ワンタップで要点</h3><p>長い記事なのに時間がない？「要約」「重要ポイント」「やさしく解説」「翻訳」はページ全体が対象です。プロンプトを書く必要はありません。</p></article>
       <article class="feat"><video class="clip" data-src="/clips/part.mp4" poster="/clips/part.jpg" muted loop playsinline preload="none" aria-hidden="true"></video><h3>一部分について質問</h3><p>1つの段落だけがわかりにくい？その段落を選択して「AIに質問」を選びます。回答はその部分についてだけです。解説、翻訳、書き直しもできます。</p></article>
       <article class="feat"><video class="clip" data-src="/clips/select.mp4" poster="/clips/select.jpg" muted loop playsinline preload="none" aria-hidden="true"></video><h3>選択範囲に質問・メモ</h3><p>残しておきたい一文が見つかった？選択して「メモ」をタップすると、ページと一緒にチャットに入ります。選択範囲のすぐ下に、それについての質問を入力することもできます。メモは回答回数を使いません。</p></article>
+      <article class="feat"><video class="clip" data-src="/clips/chips.mp4" poster="/clips/chips.jpg" muted loop playsinline preload="none" aria-hidden="true"></video><h3>選択範囲の下のクイック操作</h3><p>スマホで文字を打ちたくないときは？ iPhoneとiPadでテキストを選択すると、その下の「質問を入力…」欄に「要約」「翻訳」「似たものを探す」などが並びます。スワイプして1つタップするだけ。Macでは、同じ操作が選択範囲の下のボタンになります。</p></article>
       <article class="feat"><video class="clip" data-src="/clips/follows.mp4" poster="/clips/follows.jpg" muted loop playsinline preload="none" aria-hidden="true"></video><h3>チャットはついてくる</h3><p>いくつものページにまたがって読んでいる？読み進めながら質問を続けられます。チャットは会話の内容と、各質問がどのページについてだったかを覚えています。チャット内のページ名をタップすると、そのページに戻れます。</p></article>
       <article class="feat"><video class="clip" data-src="/clips/google.mp4" poster="/clips/google.jpg" muted loop playsinline preload="none" aria-hidden="true"></video><h3>Googleで最新情報</h3><p>最近の情報が必要？質問欄の横の「Google」をオンにすると、Google検索をもとに出典付きで答えます。ニュース、価格など、新しいことなら何でも。</p></article>
     </div>
@@ -98,6 +108,8 @@
       <article class="feat"><video class="clip" data-src="/clips/whole.mp4" poster="/clips/whole.jpg" muted loop playsinline preload="none" aria-hidden="true"></video><h3>チャット全体を踏まえて</h3><p>集めたものすべてを使った回答がほしい？質問欄の下の「チャット全体」をオンにすると、すべてのメッセージ、メモ、このチャットのほかのページが質問と一緒に送られます。オフなら、直近のメッセージと開いているページです。</p></article>
       <article class="feat"><video class="clip" data-src="/clips/video.mp4" poster="/clips/video.jpg" muted loop playsinline preload="none" aria-hidden="true"></video><h3>動画について質問 <span class="pro-badge">Pro</span></h3><p>一部分を探すために全部見たくない？ContextFlowは動画の文字起こしを読み取ります。要点や、ある話題について何が語られたかを聞くと、[4:15]のように場面を示して答えます。無料プランでは、回答はページのテキストを使います。</p></article>
       <article class="feat"><video class="clip" data-src="/clips/pdf.mp4" poster="/clips/pdf.jpg" muted loop playsinline preload="none" aria-hidden="true"></video><h3>ページのPDF <span class="pro-badge">Pro</span></h3><p>詳細はPDFの中？ページに表示された、またはリンクされたPDFも質問と一緒に送られ、回答にはPDFの何ページ目の内容かが示されます。iPadとMacでは、PDFのタブでも使えます。無料プランでは、回答はページのテキストを使います。</p></article>
+      <article class="feat"><video class="clip" data-src="/clips/similar.mp4" poster="/clips/similar.jpg" muted loop playsinline preload="none" aria-hidden="true"></video><h3>似たものを探す <span class="ultra-badge">Ultra</span></h3><p>ほかに何があるか気になる？ パネルの「似たものを探す」をタップするか、商品名を選択してその下の「似たものを探す」をタップします。必要なら「もっと安い」「在庫あり」などの条件を追加できます。候補はどれも実在するページで、表示する前に開いて確認しています。</p></article>
+      <article class="feat"><video class="clip" data-src="/clips/listen.mp4" poster="/clips/listen.jpg" muted loop playsinline preload="none" aria-hidden="true"></video><h3>読み上げ <span class="ultra-badge">Ultra</span></h3><p>読むより聞きたいときは？ 回答の下の「読み上げ」をタップするか、「…」メニューから「このページを読み上げ」を選びます。自然な声が1×、1.2×、1.5×、2×で読み上げます。iPhoneとiPadではContextFlowアプリで再生され、画面をロックしても続きます。Macではパネルの中で再生されます。</p></article>
     </div>
   </section>
 
@@ -133,6 +145,15 @@
       <article class="feat"><video class="clip" data-src="/clips/history.mp4" poster="/clips/history.jpg" muted loop playsinline preload="none" aria-hidden="true"></video><h3>すべてのチャットに質問 <span class="pro-badge">Pro</span></h3><p>「今週は何を読んだ？」チャット一覧の最初の行が、すべてのチャットからまとめて答えます。「AIについてのメモをまとめて」と試してみてください。</p></article>
       <article class="feat"><video class="clip" data-src="/clips/organize.mp4" poster="/clips/organize.jpg" muted loop playsinline preload="none" aria-hidden="true"></video><h3>あるべき場所へ <span class="pro-badge">Pro</span></h3><p>ソファのチャットで車のことを聞いた？回答の下に、ContextFlowがふさわしいチャットか新しいチャットを提案します。タップひとつでそこへ移り、「取り消す」で元に戻ります。</p></article>
       <article class="feat"><video class="clip" data-src="/clips/suggested-tags.mp4" poster="/clips/suggested-tags.jpg" muted loop playsinline preload="none" aria-hidden="true"></video><h3>あなたのタグを提案 <span class="pro-badge">Pro</span></h3><p>手でタグを付けるのが面倒？ContextFlowは、あなたがタグを付けた場所からそのタグの意味を学び、新しい回答やメモの下にタグを提案します。あなた自身のタグだけを、合うときだけ。</p></article>
+    </div>
+  </section>
+
+  <section id="your-plan">
+    <h2>ご利用中のプラン</h2>
+    <p class="block-lede">支払い方と、プランで使える機能。</p>
+    <div class="feats">
+      <article class="feat"><video class="clip" data-src="/clips/yearly.mp4" poster="/clips/yearly.jpg" muted loop playsinline preload="none" aria-hidden="true"></video><h3>月額または年額</h3><p>もっと安くしたい？ Pro と Ultra は月額か年額で利用でき、年額は12か月分より安くなります。プランの上の「年額」をタップすると、それぞれの価格とお得になる額が分かります。すでに月額なら、「設定」→「ご利用中のプラン」の「年額に切り替える」から。今の1か月が終わってから年額が始まります。</p></article>
+      <article class="feat"><h3>プランで使える機能</h3><p>アップグレードしたけれど、何が増えたか分からない？ Pro または Ultra を購入すると、ContextFlow がプランで使えるようになった機能を1つずつ紹介します。もう一度見るには、パネル上部の「…」をタップし、「その他…」から「Proでできること」または「Ultraでできること」を選びます。アプリでは「設定」の「ご利用中のプラン」にあります。</p></article>
     </div>
   </section>
 

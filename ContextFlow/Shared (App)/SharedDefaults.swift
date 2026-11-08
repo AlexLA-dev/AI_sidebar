@@ -29,6 +29,27 @@ enum PlanProducts {
         if byok.contains(productId) { return "byok" }
         return "free"
     }
+
+    /// The panel's price table (2.6): each product's display price, and for each yearly plan a month of it, what it
+    /// saves a year and in percent ("<id>#perMonth", "<id>#save", "<id>#percent"), all in the App Store's own format.
+    /// Built by the app when it loads the plans, and by the extension itself when the app hasn't yet (build 91: the
+    /// panel's plans sheet showed no prices).
+    static func priceTable(_ products: [Product]) -> [String: String] {
+        var table = Dictionary(products.map { ($0.id, $0.displayPrice) }, uniquingKeysWith: { a, _ in a })
+        for ids in [ultra, pro, byok] {
+            guard let monthly = products.first(where: { $0.id == ids[0] }), let yearly = products.first(where: { $0.id == ids[1] }),
+                  monthly.price > 0 else { continue }
+            let full = monthly.price * 12
+            guard full > yearly.price else { continue }
+            let percent = Int((NSDecimalNumber(decimal: (full - yearly.price) / full).doubleValue * 100).rounded())
+            guard percent >= 5 else { continue }
+            let style = yearly.priceFormatStyle
+            table["\(yearly.id)#perMonth"] = (yearly.price / 12).formatted(style)
+            table["\(yearly.id)#save"] = (full - yearly.price).formatted(style)
+            table["\(yearly.id)#percent"] = String(percent)
+        }
+        return table
+    }
 }
 
 struct SharedEntitlement: Equatable {
@@ -100,6 +121,7 @@ final class SharedDefaults {
     private let pricesKey = "cf_prices_v1"
     private let planChangeKey = "cf_plan_change_v1"
     private let listenKey = "cf_listen_v1"
+    private let listenTakenKey = "cf_listen_taken"
 
     /// Local notifications the app schedules on a new install until the extension is switched on.
     static let setupReminderIds = ["cf.setup.15m", "cf.setup.24h"]
@@ -164,8 +186,9 @@ final class SharedDefaults {
 
     /// The panel's Listen: the text in parts, its language, title and page, for the app to play (WebKit stops a
     /// page's audio when the screen locks). Only the latest one is kept; answers its id for contextflow://listen.
-    func writeListenRequest(_ request: [String: Any]) -> String {
-        let id = UUID().uuidString.lowercased()
+    /// `id`: the panel's own (build 91: it follows the link before this is written), else a new one.
+    func writeListenRequest(_ request: [String: Any], id given: String? = nil) -> String {
+        let id = given.flatMap { $0.range(of: "^[0-9a-fA-F-]{8,64}$", options: .regularExpression) != nil ? $0.lowercased() : nil } ?? UUID().uuidString.lowercased()
         var stored = request
         stored["id"] = id
         stored["at"] = Date().timeIntervalSince1970
@@ -178,6 +201,26 @@ final class SharedDefaults {
         guard let stored = defaults.dictionary(forKey: listenKey), stored["id"] as? String == id,
               let at = stored["at"] as? Double, Date().timeIntervalSince1970 - at < 3600 else { return nil }
         return stored
+    }
+
+    /// Read aloud playing in the panel (iPhone, iPad; 2.6): its parts as spoken and where it is, merged into the request
+    /// with this id (kept fresh while it plays). False: that request isn't the latest any more.
+    @discardableResult
+    func updateListenRequest(_ id: String, _ changes: [String: Any]) -> Bool {
+        guard var stored = defaults.dictionary(forKey: listenKey), stored["id"] as? String == id else { return false }
+        for (key, value) in changes { stored[key] = value }
+        stored["at"] = Date().timeIntervalSince1970
+        defaults.set(stored, forKey: listenKey)
+        return true
+    }
+
+    /// The app carried on the panel's read aloud (its notification was tapped): the panel doesn't play it again.
+    func markListenTaken(_ id: String) {
+        defaults.set(id, forKey: listenTakenKey)
+    }
+
+    func listenTaken(_ id: String) -> Bool {
+        defaults.string(forKey: listenTakenKey) == id
     }
 
     // MARK: The question when auto-renew is off
@@ -319,5 +362,53 @@ final class SharedDefaults {
             "cf_pending_subscribe_plan", "cf_pending_logout"
         ]
         legacyKeys.forEach { defaults.removeObject(forKey: $0) }
+    }
+}
+
+/// The Tips clips for the Safari panel (2.6 (91), the owner: «если ролики лежат в приложении, подтянуть их из
+/// приложения в расширение на том же девайсе»). The extension carries no clips of its own: the app puts its TipClips in
+/// the App Group once per build, at launch, and the extension reads them from there for the panel (the command
+/// `tipClip`, in parts). Before the app has run once after an install or an update, the panel shows its words instead.
+enum TipClipShare {
+    nonisolated private static var folder: URL? {
+        FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: SharedDefaults.suiteName)?
+            .appendingPathComponent("TipClips", isDirectory: true)
+    }
+
+    /// The app: copies TipClips/<lang>/*.mp4 into the App Group when this build hasn't yet (an update replaces them).
+    nonisolated static func publish() {
+        guard let source = Bundle.main.url(forResource: "TipClips", withExtension: nil), let folder else { return }
+        let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "0"
+        let stamp = folder.appendingPathComponent("build.txt")
+        if (try? String(contentsOf: stamp, encoding: .utf8)) == build { return }
+        let files = FileManager.default
+        let fresh = folder.deletingLastPathComponent().appendingPathComponent("TipClips-\(build)", isDirectory: true)
+        do {
+            // Into a fresh folder, then swapped in whole: the extension never reads a half-copied set.
+            try? files.removeItem(at: fresh)
+            try files.copyItem(at: source, to: fresh)
+            try build.write(to: fresh.appendingPathComponent("build.txt"), atomically: true, encoding: .utf8)
+            if files.fileExists(atPath: folder.path) {
+                _ = try files.replaceItemAt(folder, withItemAt: fresh)
+            } else {
+                try files.moveItem(at: fresh, to: folder)
+            }
+        } catch {
+            try? files.removeItem(at: fresh)
+        }
+    }
+
+    /// The extension: up to `length` bytes of a clip from `offset`, and its whole size; nil when the app hasn't put it
+    /// there (not run since the install, or a clip newer than its last run).
+    nonisolated static func read(name: String, lang: String, offset: Int, length: Int) -> (data: Data, total: Int)? {
+        guard name.range(of: "^[a-z0-9-]{1,40}$", options: .regularExpression) != nil, lang == "en" || lang == "ru",
+              let url = folder?.appendingPathComponent(lang).appendingPathComponent("\(name).mp4"),
+              let handle = try? FileHandle(forReadingFrom: url) else { return nil }
+        defer { try? handle.close() }
+        guard let end = try? handle.seekToEnd() else { return nil }
+        let start = UInt64(max(0, min(offset, Int(end))))
+        try? handle.seek(toOffset: start)
+        let data = (try? handle.read(upToCount: max(0, min(length, 1 << 20)))) ?? Data()
+        return (data, Int(end))
     }
 }

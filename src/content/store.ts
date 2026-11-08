@@ -1,8 +1,9 @@
 import { SPEEDS, type Speed } from "../shared/stretch"
 import { CONSENT_VERSION, consentStatus, type ConsentStatus } from "../shared/consent"
 import type { Entry } from "../shared/conversation"
-import { activity, cleanTitle, liveThreads, moveEntries, newThreadId, prune, purgeTrash, restoreThread, savedThread, trashThread, undoMove, type ActiveThread, type MoveUndo, type Thread, type Threads, cleanTags } from "../shared/threads"
+import { activity, cleanTitle, liveThreads, namedByUser, moveEntries, newThreadId, prune, purgeTrash, restoreThread, savedThread, trashThread, undoMove, type ActiveThread, type MoveUndo, type Thread, type Threads, cleanTags } from "../shared/threads"
 import { MAX_OTHER_PAGE_CHARS } from "../shared/prompt"
+import { keepingAnswers, type Jobs } from "../shared/jobs"
 import { DEFAULT_SETTINGS, STORAGE, type Settings } from "../shared/types"
 
 
@@ -109,6 +110,18 @@ export async function listenSpeed(): Promise<Speed> {
 
 export async function setListenSpeed(speed: Speed): Promise<void> {
   await set(STORAGE.listenSpeed, speed)
+}
+
+/** Whether "Not now" to notifications at Listen still holds (until the next day): Listen just opens the app. */
+export async function listenNotifyLaterNow(): Promise<boolean> {
+  return ((await get<number>(STORAGE.listenNotifyLater)) ?? 0) > Date.now()
+}
+
+/** "Not now": not asked again at Listen until the next day (local midnight). */
+export async function listenNotifyLater(): Promise<void> {
+  const tomorrow = new Date()
+  tomorrow.setHours(24, 0, 0, 0)
+  await set(STORAGE.listenNotifyLater, tomorrow.getTime())
 }
 
 /** Whether the switch-to-yearly line is hidden for now ("Hide": 60 days). */
@@ -224,10 +237,41 @@ export async function setActiveThread(id: string): Promise<void> {
 
 /** Stores a chat's messages; `kind` marks a new "Ask your chats" chat (a chat keeps its kind). */
 export async function saveThread(id: string, entries: Entry[], kind?: "history"): Promise<void> {
-  const threads = (await get<Threads>(STORAGE.threads)) ?? {}
+  const stored = await chrome.storage.local.get([STORAGE.threads, STORAGE.jobs]).catch(() => ({} as Record<string, unknown>))
+  const threads = (stored[STORAGE.threads] as Threads | undefined) ?? {}
+  // Answers the background wrote into this chat meanwhile stay (build 91): this copy may be from before them.
+  const kept = threads[id] ? keepingAnswers(entries, threads[id].m, (stored[STORAGE.jobs] as Jobs | undefined) ?? {}, id) : entries
   // Only real changes get a new time: it decides which device's copy wins (iCloud sync).
-  const next = savedThread(threads[id], id, entries, Date.now(), kind)
+  const next = savedThread(threads[id], id, kept, Date.now(), kind)
   if (next) await set(STORAGE.threads, prune({ ...threads, [id]: next }))
+}
+
+/** The free chats that had the memory message once (build 91). */
+export async function memoryOffered(): Promise<string[]> {
+  return (await get<string[]>(STORAGE.memoryOffered)) ?? []
+}
+
+export async function markMemoryOffered(chat: string): Promise<void> {
+  const done = await memoryOffered()
+  if (!done.includes(chat)) await set(STORAGE.memoryOffered, [...done, chat].slice(-200))
+}
+
+/** The questions the background is answering, and how the last ones ended (build 91, jobs.ts). */
+export async function loadJobs(): Promise<Jobs> {
+  return (await get<Jobs>(STORAGE.jobs)) ?? {}
+}
+
+/** Calls `listener` when a job starts or ends (here or in another tab): the chats list's and the button's dots. */
+export function onJobsChanged(listener: (jobs: Jobs) => void): () => void {
+  const handler = (changes: Record<string, chrome.storage.StorageChange>, area: string) => {
+    if (area === "local" && changes[STORAGE.jobs]) listener((changes[STORAGE.jobs].newValue as Jobs | undefined) ?? {})
+  }
+  try {
+    chrome.storage.onChanged.addListener(handler)
+  } catch {
+    return () => undefined
+  }
+  return () => chrome.storage.onChanged.removeListener(handler)
 }
 
 /** Names a chat (an empty name goes back to its first question); it keeps its place in the list. */
@@ -240,6 +284,31 @@ export async function renameThread(id: string, name: string): Promise<void> {
   const renamed: Thread = { ...stored, u: Date.now(), a: activity(stored), title }
   if (!title) delete renamed.title
   await set(STORAGE.threads, { ...threads, [id]: renamed })
+}
+
+/**
+ * The AI's name for a chat (2.6): it becomes the chat's name. By itself (its topic changed) never over a name the user
+ * typed; asked for ("Name by topic"), over any. What the names were before, for Undo (null: nothing changed).
+ */
+export async function nameThread(id: string, name: string, asked = false): Promise<{ title?: string; aiTitle?: string } | null> {
+  const threads = (await get<Threads>(STORAGE.threads)) ?? {}
+  const stored = threads[id]
+  const title = cleanTitle(name)
+  if (!stored || stored.deleted || !title || (!asked && namedByUser(stored)) || title === stored.title) return null
+  const before = { ...(stored.title ? { title: stored.title } : {}), ...(stored.aiTitle ? { aiTitle: stored.aiTitle } : {}) }
+  await set(STORAGE.threads, { ...threads, [id]: { ...stored, u: Date.now(), a: activity(stored), title, aiTitle: title } })
+  return before
+}
+
+/** Undo for nameThread: the names as they were, if the chat still has the AI's one. */
+export async function unnameThread(id: string, name: string, before: { title?: string; aiTitle?: string }): Promise<void> {
+  const threads = (await get<Threads>(STORAGE.threads)) ?? {}
+  const stored = threads[id]
+  if (!stored || stored.deleted || stored.title !== cleanTitle(name)) return
+  const back: Thread = { ...stored, u: Date.now(), a: activity(stored) }
+  delete back.title
+  delete back.aiTitle
+  await set(STORAGE.threads, { ...threads, [id]: { ...back, ...before } })
 }
 
 /** Sets a chat's own tags; it keeps its place in the list. */

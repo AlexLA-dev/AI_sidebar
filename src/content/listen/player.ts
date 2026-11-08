@@ -36,6 +36,9 @@ export class PcmPlayer {
   private partStarts = new Map<number, number>()
   private ended = false
   private closed = false
+  // Pieces go in strictly in order: a part from iCloud is decoded first (AAC), and what comes after it waits for it.
+  private queue: Promise<void> = Promise.resolve()
+  private waiting = 0
 
   constructor(speed = 1) {
     const Ctor = (globalThis.AudioContext ?? (globalThis as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext) as typeof AudioContext
@@ -52,31 +55,56 @@ export class PcmPlayer {
     if (this.ctx.state === "suspended") await this.ctx.resume().catch(() => undefined)
   }
 
+  private then(step: () => void | Promise<void>): void {
+    this.waiting++
+    this.queue = this.queue.then(step).catch(() => undefined).then(() => void this.waiting--)
+  }
+
   /** Base64 PCM (16-bit little-endian, mono) of `part`, played right after what's already scheduled. */
   push(part: number, data: string): void {
-    if (this.closed) return
-    const binary = atob(data)
-    const count = binary.length >> 1
-    if (!count) return
-    const samples = new Float32Array(count)
-    for (let i = 0; i < count; i++) {
-      const lo = binary.charCodeAt(i * 2)
-      const hi = binary.charCodeAt(i * 2 + 1)
-      let v = (hi << 8) | lo
-      if (v >= 0x8000) v -= 0x10000
-      samples[i] = v / 0x8000
-    }
+    this.then(() => {
+      if (this.closed) return
+      const binary = atob(data)
+      const count = binary.length >> 1
+      if (!count) return
+      const samples = new Float32Array(count)
+      for (let i = 0; i < count; i++) {
+        const lo = binary.charCodeAt(i * 2)
+        const hi = binary.charCodeAt(i * 2 + 1)
+        let v = (hi << 8) | lo
+        if (v >= 0x8000) v -= 0x10000
+        samples[i] = v / 0x8000
+      }
+      this.add(part, samples)
+    })
+  }
+
+  /** A whole part as AAC (base64, from the user's iCloud): decoded at the voice's rate, then played in its turn. */
+  pushAac(part: number, data: string): void {
+    this.then(async () => {
+      if (this.closed) return
+      const bytes = Uint8Array.from(atob(data), (c) => c.charCodeAt(0))
+      const decoder = new OfflineAudioContext(1, 1, SPEECH_RATE)
+      const audio = await decoder.decodeAudioData(bytes.buffer)
+      if (!this.closed) this.add(part, audio.getChannelData(0).slice())
+    })
+  }
+
+  private add(part: number, samples: Float32Array): void {
+    if (!samples.length) return
     if (!this.partStarts.has(part)) this.partStarts.set(part, this.sourceLength)
     this.source.push(samples)
-    this.sourceLength += count
+    this.sourceLength += samples.length
     this.feed()
   }
 
   /** Everything has come: the stretcher gives up what it held back. */
   end(): void {
-    if (this.closed || this.ended) return
-    this.ended = true
-    this.feed()
+    this.then(() => {
+      if (this.closed || this.ended) return
+      this.ended = true
+      this.feed()
+    })
   }
 
   /** From now on at `speed`, from where it is (what's scheduled ahead is laid down again). */
@@ -160,6 +188,20 @@ export class PcmPlayer {
     return Math.max(0, this.heardSamples() / SPEECH_RATE)
   }
 
+  /** Where each part starts in the audio (seconds; index = part), as far as it has come. A part with nothing to say
+   *  (skipped) starts where the next one does. For the app to carry on from the same second (2.6). */
+  get starts(): number[] {
+    const last = Math.max(-1, ...this.partStarts.keys())
+    const out: number[] = new Array(last + 1)
+    let following = this.sourceLength
+    for (let part = last; part >= 0; part--) {
+      const start = this.partStarts.get(part)
+      if (start !== undefined) following = start
+      out[part] = Math.round((following / SPEECH_RATE) * 100) / 100
+    }
+    return out
+  }
+
   /** Seconds of audio received so far. */
   get received(): number {
     return this.sourceLength / SPEECH_RATE
@@ -167,7 +209,7 @@ export class PcmPlayer {
 
   /** Whether everything received has been heard (waiting for more, or done). */
   get drained(): boolean {
-    return this.ctx.currentTime >= this.next - 0.02 && (this.ended || this.fed >= this.sourceLength)
+    return this.waiting === 0 && this.ctx.currentTime >= this.next - 0.02 && (this.ended || this.fed >= this.sourceLength)
   }
 
   /** The part being heard now (-1 before the first). */
@@ -179,7 +221,8 @@ export class PcmPlayer {
   }
 
   get paused(): boolean {
-    return this.ctx.state === "suspended"
+    // "interrupted" (iOS: the page went away, a call): silent too, so it shows as paused and Play resumes it.
+    return this.ctx.state !== "running"
   }
 
   pause(): void {

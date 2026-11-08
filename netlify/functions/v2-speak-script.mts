@@ -27,24 +27,29 @@ export default async (req: Request, context: Context): Promise<Response> => {
   if (!isUuid(installId)) return json({ code: "BAD_REQUEST", message: "installId required" }, 400)
   const text = (typeof body.text === "string" ? body.text : "").trim()
   if (!text) return json({ code: "BAD_REQUEST", message: "text required" }, 400)
-  if (text.length > settings.speak.scriptMaxChars) return json({ code: "BAD_REQUEST", message: "text too long", max: settings.speak.scriptMaxChars }, 400)
   const what = body.what === "page" ? "page" : "answer"
   const lang = clip(body.lang, 16)
   const client = (body.client ?? {}) as Record<string, unknown>
   const platform = clip(client.platform, 20)
   const version = clip(client.version, 20)
+  // Every refusal leaves a line too (build 91: no speak_script events at all, and nothing to tell why).
+  const refused = (code: string, status: number, extra: Record<string, unknown> = {}) => {
+    context.waitUntil(logEvent("speak_script", installId, { ok: false, error: code, what, chars_in: text.length, platform, version }).catch(() => undefined))
+    return json({ code, ...extra }, status)
+  }
+  if (text.length > settings.speak.scriptMaxChars) return refused("BAD_REQUEST", 400, { message: "text too long", max: settings.speak.scriptMaxChars })
 
   const check = evalCheck(req, installId, context)
   const access: Access = check.access ?? (await resolveAccess(body.entitlement, installId))
-  if (!isUltra(access.plan)) return json({ code: "ULTRA_ONLY", plan: access.plan, feature: "speak", ...(check.refused ? { eval: check.refused } : {}) }, 403)
-  if (!settings.speak.scriptEnabled || !settings.anthropicKey) return json({ code: "OFF" }, 503)
+  if (!isUltra(access.plan)) return refused("ULTRA_ONLY", 403, { plan: access.plan, feature: "speak", ...(check.refused ? { eval: check.refused } : {}) })
+  if (!settings.speak.scriptEnabled || !settings.anthropicKey) return refused("OFF", 503)
 
   const counters: Counter[] = [
     { subject: `script:tx:${access.entitlement?.originalTransactionId ?? installId}`, period: "day", limit: settings.speak.scriptDaily },
     { subject: "global:script", period: "day", limit: settings.speak.scriptGlobalDaily }
   ]
   const quota = await consume(counters).catch(() => ({ allowed: true, blocked: null }))
-  if (!quota.allowed) return json({ code: "BUSY" }, 503)
+  if (!quota.allowed) return refused("BUSY", 503)
 
   const started = Date.now()
   const stats: ScriptStats = { model: settings.speak.scriptModel, promptTokens: 0, completionTokens: 0, firstMs: null, chars: 0 }
@@ -112,7 +117,9 @@ export default async (req: Request, context: Context): Promise<Response> => {
     completion_tokens: stats.completionTokens,
     cost_usd: scriptCost(stats),
     platform,
-    version
+    version,
+    // Debug and TestFlight builds mark their traffic, which /analytics leaves out.
+    ...(client.audience === "test" ? { audience: "test" } : {})
   })))
 
   return new Response(stream, {

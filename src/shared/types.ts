@@ -165,6 +165,12 @@ export type ErrorCode =
 
 export type BackgroundRequest =
   | { type: "status"; refresh?: boolean; fresh?: boolean; platform?: Platform }
+  // 2.6 (91): a Tips clip from the app (App Group) for the clip page.
+  | { type: "tipClip"; name: string; lang: string }
+  // Build 91: the jobs the background is running now (ids), to follow one again after the panel was closed.
+  | { type: "liveJobs" }
+  // …and the panel showed this chat: its jobs' outcomes were seen (the chats list's and the floating button's dot go).
+  | { type: "jobsSeen"; thread: string }
   // feature "ai": the Pro screen opens on AI search and "Ask your chats".
   // feature "organize": on organizing the chats (2.5).
   // plan, period (2.6): what was chosen in the panel's plans sheet; the app opens on it.
@@ -172,9 +178,15 @@ export type BackgroundRequest =
   // Read aloud on iPhone and iPad (2.6): the parts go to the app (App Group), which plays them with the screen
   // locked; answers { url } (contextflow://listen?id=…) for the page to follow, or { url: null } (no app).
   // text, script (2.6): the raw text and whether the app should write it for the ear first (parts: when it can't).
-  | { type: "listenInApp"; parts: string[]; text: string; script: boolean; lang: string; what: "answer" | "page"; title: string; url: string }
+  // id: made by the panel, so the contextflow:// link can be followed during the tap itself (build 91).
+  | { type: "listenInApp"; id: string; parts: string[]; text: string; script: boolean; lang: string; what: "answer" | "page"; title: string; url: string }
   // "Delete all chats": the audio and the texts for listening kept on this device go too.
   | { type: "speechClear" }
+  // Notifications for ContextFlow on this device (Safari: "authorized", "denied", "notDetermined"…; elsewhere none).
+  | { type: "notifStatus" }
+  // Read aloud playing in the panel on iPhone and iPad (2.6): what the app needs to carry on from the same second
+  // ("state", as it plays), the page went away ("away": the notification now), came back ("back"), or it stopped.
+  | { type: "listenHandoff"; op: "state" | "away" | "back" | "stop"; id: string; at?: number; starts?: number[]; parts?: string[]; complete?: boolean; speed?: number; title?: string; body?: string }
   // The line under a free answer that skipped the page's video or PDFs: shown, or its "Try Pro" tapped.
   | { type: "mediaNotice"; action: "shown" | "pro"; media: MediaKind[] }
   // An Own key subscriber and Pro: a refusal (starts the day before the discount), the discount card shown, a tap.
@@ -192,6 +204,10 @@ export type BackgroundRequest =
   | { type: "find"; query: string; chats: ChatDigest[] }
   // Organizing (2.5, Pro, with suggestions on): the suggestions for a chat now; answers an OrganizeReply.
   | { type: "organize"; chat: string }
+  // "Name by topic" (2.6, with suggestions on): a name for the chat by its topic; answers an OrganizeNameReply.
+  | { type: "organizeName"; chat: string }
+  // The chats list (2.6, Pro, with suggestions on): how many open suggestions each chat has; answers an OrganizeCountsReply.
+  | { type: "organizeCounts" }
   // Organizing: a suggestion shown, taken, turned down or undone; a promotion shown or tapped; suggestions
   // switched on or declined. Counts only, never text.
   | { type: "organizeEvent"; event: OrganizeEvent }
@@ -205,7 +221,7 @@ export type BackgroundRequest =
   // Chat UX counts (2.5), no text: see UX_KINDS in netlify/functions/v2-event.mts.
   | { type: "uxEvent"; kind: "ux_mark" | "ux_pin" | "ux_delete" | "ux_remind"; action: string; what?: string; how?: string; preset?: string }
   // A step for the feature counters: the analytics registry's "use" kind (src/shared/usage.ts), named values only.
-  | { type: "useEvent"; f: "menu" | "later" | "tour" | "bubble" | "listen" | "plans"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string }
+  | { type: "useEvent"; f: "menu" | "later" | "tour" | "bubble" | "listen" | "plans" | "chat_plans"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string }
 
 /** A PDF's text, or why there is none ("none": nothing to read, e.g. scanned pages). */
 export type PdfResult =
@@ -221,12 +237,22 @@ export type OrganizeReply =
       move: { start: number; end: number; to: string | null; toName: string; why: "page" | "site" | "topic" | "apart"; count: number } | null
       // A suggested tag for the message at `index` (its key, to check it's still that message).
       tags: Array<{ index: number; key: string; tag: string }>
+      // 2.6: the chat's name no longer fits its topic (and the user didn't type it): this one does.
+      name?: string
     }
   | { ok: false; code: "OFF" | "PRO_ONLY" | "NETWORK" | "LIMIT_REACHED" | "UPSTREAM" }
+
+export type OrganizeCountsReply = { ok: true; counts: Record<string, number> } | { ok: false; code: "OFF" | "PRO_ONLY" | "NETWORK" | "LIMIT_REACHED" | "UPSTREAM" }
+
+export type OrganizeNameReply = { ok: true; name: string } | { ok: false; code: "OFF" | "PRO_ONLY" | "NETWORK" | "LIMIT_REACHED" | "UPSTREAM" }
 
 /** Organizing events for /api/v2/event (src/background/organize.ts sends them). */
 export type OrganizeEvent =
   | { kind: "organize"; action: "shown" | "accepted" | "dismissed" | "undone"; what: "move" | "new" | "tag"; why?: "page" | "site" | "topic" | "apart" }
+  // 2.6: the chat named by its topic ("Name by topic", or by itself when its name no longer fit), or that undone.
+  | { kind: "organize"; action: "accepted" | "undone"; what: "name"; why: "asked" | "drift" }
+  // 2.6: "N recommendations" on a chat in the list, shown (once per chat) and tapped.
+  | { kind: "organize"; action: "shown" | "tap"; what: "badge" }
   | { kind: "organize_promo"; action: "shown" | "tap"; where: "pro_card" | "inchat_mess" | "third_tag" | "first_win" | "settings" }
   | { kind: "organize_optin"; action: "accepted" | "declined"; from: "card" | "settings" }
 
@@ -239,6 +265,10 @@ export const STORAGE = {
   // Chats as threads (Threads by id) and the one this device shows ({ id, at }).
   threads: "cf:threads",
   activeThread: "cf:activeThread",
+  // Build 91: the questions the background is answering, and how the last ones ended (Jobs by question id, jobs.ts).
+  jobs: "cf:jobs",
+  // Build 91: the free chats that had the memory message once (chat ids, the latest last).
+  memoryOffered: "cf:memoryOffered",
   // iCloud sync: CloudKit change token, and the time of each thread's copy in iCloud.
   syncToken: "cf:syncToken",
   syncedThreads: "cf:syncedThreads",
@@ -261,6 +291,8 @@ export const STORAGE = {
   listenSpeed: "cf:listenSpeed",
   // The Settings line about switching to yearly, hidden until then (ms).
   yearlyHiddenUntil: "cf:yearlyHiddenUntil",
+  // "Not now" to notifications at Listen (iPhone, iPad): Listen opens the app without asking until this time.
+  listenNotifyLater: "cf:listenNotifyLater",
   // Recent pages' text on this device ({ [url]: { title, text, at } }) for "whole chat" answers.
   pageTexts: "cf:pageTexts",
   // How many times the hint about writing notes with the send button was shown, or -1 once used.
@@ -286,6 +318,8 @@ export const STORAGE = {
   // the tag checks' answers ({[hash]: tags}), and the cards about it already shown or closed.
   orgVectors: "cf:orgVectors",
   orgVerdicts: "cf:orgVerdicts",
+  // Name checks done (2.6), by chat: what each was about (nameCheckKey), so the same chat isn't checked again.
+  orgNames: "cf:orgNames",
   orgCards: "cf:orgCards"
 } as const
 
@@ -305,8 +339,12 @@ export interface Settings {
   syncChats: boolean
   // The chat list in groups by tag, like folders (a chat with two tags is in both).
   groupByTags: boolean
-  // Answer with the whole chat in mind (all messages, notes, its other pages), not just the last messages.
+  // Answer with the whole chat in mind (all messages, notes, its other pages), not just the last messages. Before
+  // build 91 the switch itself; read no more (it was off by default, so it can't tell who chose off).
   wholeChat: boolean
+  // Build 91: the whole chat is Pro's memory, on unless the person turns it off (Pro and Ultra; free answers see the
+  // last messages, and the switch offers Pro).
+  chatMemory: boolean
   // Suggestions (2.5, Pro): a better chat for a block, one of the user's tags. Off until the user turns them on:
   // turning them on is the consent to send the messages' text for it.
   organize: boolean
@@ -331,6 +369,7 @@ export const DEFAULT_SETTINGS: Settings = {
   syncChats: true,
   groupByTags: false,
   wholeChat: false,
+  chatMemory: true,
   organize: false,
   shareMarks: false,
   insertButton: true,

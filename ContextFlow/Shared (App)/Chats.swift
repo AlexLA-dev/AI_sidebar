@@ -115,6 +115,9 @@ struct ChatThread: Identifiable, Hashable {
     /// The JSON the extension and iCloud store.
     let data: String
     let title: String?
+    /// The name the AI gave it (2.6, src/shared/threads.ts `aiTitle`, stored as "ait"): while `title` is still this one,
+    /// the AI may name it again; a name the user typed differs, and the AI never touches it.
+    let aiTitle: String?
     /// Last message (ms): the list order.
     let lastAt: Int64
     let pin: Double?
@@ -129,6 +132,7 @@ struct ChatThread: Identifiable, Hashable {
 
     private struct Stored: Decodable {
         var title: String?
+        var ait: String?
         var a: Int64?
         var pin: Double?
         var k: String?
@@ -152,6 +156,7 @@ struct ChatThread: Identifiable, Hashable {
         self.updatedAt = updatedAt
         self.data = data
         title = stored.title?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty
+        aiTitle = stored.ait?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty
         lastAt = stored.a ?? updatedAt
         pin = stored.pin
         isHistory = stored.k == "history"
@@ -176,8 +181,11 @@ struct ChatThread: Identifiable, Hashable {
 
     var isPinned: Bool { pin != nil }
 
-    /// The user's name for it, or its first question (or quick action and its page).
+    /// The user's name for it (or the AI's), or its first question (or quick action and its page).
     var name: String { title ?? Self.title(of: entries) }
+
+    /// The user named it themselves: the AI never renames it (src/shared/threads.ts `namedByUser`).
+    var namedByUser: Bool { title != nil && title != aiTitle }
 
     /// A name for these messages, as a chat is named after its first question (src/shared/threads.ts `threadTitle`).
     static func title(of entries: [ChatEntry]) -> String {
@@ -226,13 +234,18 @@ struct ChatThread: Identifiable, Hashable {
     /// The same chat with its name and pin changed, as of `updatedAt`. For each: nil keeps it,
     /// `.some(nil)` removes it, `.some(value)` sets it. `trashed` the same: in Recently Deleted since then, or out of it.
     /// Every other field stays as it is in the JSON, those this version doesn't know too.
-    func edited(title: String??, pin: Double??, tags: [String]? = nil, entryTags: (index: Int, tags: [String])? = nil, trashed: Int64?? = nil, updatedAt: Int64) -> ChatMirror.Item? {
+    func edited(title: String??, aiTitle: String?? = nil, pin: Double??, tags: [String]? = nil, entryTags: (index: Int, tags: [String])? = nil, trashed: Int64?? = nil, updatedAt: Int64) -> ChatMirror.Item? {
         let parsed = try? JSONSerialization.jsonObject(with: Data(data.utf8))
         guard var object = (parsed as? [String: Any]) ?? (parsed as? [Any]).map({ ["m": $0] }) else { return nil }
         switch title {
         case .none: break
         case .some(.none): object.removeValue(forKey: "title")
         case .some(.some(let value)): object["title"] = value
+        }
+        switch aiTitle {
+        case .none: break
+        case .some(.none): object.removeValue(forKey: "ait")
+        case .some(.some(let value)): object["ait"] = value
         }
         switch pin {
         case .none: break
@@ -607,7 +620,11 @@ final class ChatLibrary: ObservableObject {
         let hadChats = UserDefaults.standard.bool(forKey: "cf_listen_had_chats")
         if threads.isEmpty && trashed.isEmpty {
             OrganizeModel.shared.forget()
-            if hadChats { SpeechCache.clear() }
+            if hadChats {
+                SpeechCache.clear()
+                // And from the user's iCloud (2.6), for every device.
+                Task.detached(priority: .utility) { await SpeechSync.deleteAll() }
+            }
         }
         UserDefaults.standard.set(!threads.isEmpty || !trashed.isEmpty, forKey: "cf_listen_had_chats")
         // 30 days in Recently Deleted: deleted for good, as on any device that sees it first.
@@ -651,10 +668,10 @@ final class ChatLibrary: ObservableObject {
     private var now: Int64 { Int64(Date().timeIntervalSince1970 * 1000) }
 
     /// Stores a changed chat here, for the extension, and in iCloud.
-    private func save(_ thread: ChatThread, title: String??, pin: Double??, tags: [String]? = nil, entryTags: (index: Int, tags: [String])? = nil) {
+    private func save(_ thread: ChatThread, title: String??, aiTitle: String?? = nil, pin: Double??, tags: [String]? = nil, entryTags: (index: Int, tags: [String])? = nil) {
         // Always later than the copy it replaces, whatever the clocks say.
         let at = max(now, thread.updatedAt + 1)
-        guard let item = thread.edited(title: title, pin: pin, tags: tags, entryTags: entryTags, updatedAt: at) else { return }
+        guard let item = thread.edited(title: title, aiTitle: aiTitle, pin: pin, tags: tags, entryTags: entryTags, updatedAt: at) else { return }
         store(thread, item)
     }
 
@@ -680,6 +697,23 @@ final class ChatLibrary: ObservableObject {
             .trimmingCharacters(in: .whitespaces).prefix(80))
         guard clean != (thread.title ?? "") else { return }
         save(thread, title: .some(clean.nilIfEmpty), pin: nil)
+    }
+
+    /// The AI's name for a chat (2.6): it becomes its name. By itself (its topic changed) never over a name the user
+    /// typed; asked for ("Name by topic"), over any. What the names were before, for Undo (nil: nothing changed).
+    func nameByAI(_ thread: ChatThread, _ name: String, asked: Bool = false) -> (title: String?, aiTitle: String?)? {
+        let current = threads.first { $0.id == thread.id } ?? thread
+        let clean = String(name.replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression)
+            .trimmingCharacters(in: .whitespaces).prefix(80))
+        guard !clean.isEmpty, asked || !current.namedByUser, clean != current.title else { return nil }
+        save(current, title: .some(clean), aiTitle: .some(clean), pin: nil)
+        return (current.title, current.aiTitle)
+    }
+
+    /// Undo for nameByAI: the names as they were, if the chat still has the AI's one.
+    func unname(_ id: String, _ name: String, before: (title: String?, aiTitle: String?)) {
+        guard let current = threads.first(where: { $0.id == id }), current.title == name else { return }
+        save(current, title: .some(before.title), aiTitle: .some(before.aiTitle), pin: nil)
     }
 
     /// Pins a chat at the top of the list, or unpins it.

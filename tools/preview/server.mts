@@ -17,6 +17,11 @@
 //                                                              (read aloud with the real voices: /api/v2/speak goes
 //                                                              to that deploy preview, each request signed with the
 //                                                              measuring key, see netlify/shared/plan.mts evalCheck)
+//   ORGANIZE_PROXY=https://<deploy preview> SPEAK_EVAL_KEY=<private key .pem> …
+//                                                              (organizing with the real vectors, tag checks and chat
+//                                                              names: /api/v2/organize goes to that deploy preview,
+//                                                              signed the same way)
+//   PREVIEW_SPEAK_USED=1700 …                                  (Ultra: that many of the week's read-aloud seconds used)
 //   SPEAK_FAIL_FROM_PART=1 …                                   (read aloud: every part from that one on fails with
 //                                                              502, as a connection lost mid-text)
 //   PREVIEW_CLAUDE=credits|overloaded|refusal|off …            (answers come from a scripted Claude; these make
@@ -37,6 +42,8 @@ process.env.GEMINI_API_KEY = "local"
 process.env.FREE_DAILY_LIMIT = process.env.FREE_DAILY_LIMIT ?? "5"
 
 const counters = new Map<string, number>()
+// PREVIEW_SPEAK_USED=1700: the Ultra subscriber has used that many of the week's read-aloud seconds (the few-minutes-left note).
+if (process.env.PREVIEW_SPEAK_USED) counters.set("speak:tx:2000000888", Number(process.env.PREVIEW_SPEAK_USED))
 // The guided first request's free answers per install, ever (2.6: cf_tour_take in the 2.6 migration).
 const tours = new Map<string, number>()
 const aiRequests: string[] = []
@@ -275,6 +282,13 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
   // so it is told from quick insert's and page watch's by its system prompt.
   const judging = (b: { stream?: boolean; system?: unknown; output_config?: { format?: unknown } }) =>
     !b.stream && (!b.output_config?.format || String(b.system).startsWith("You help a person keep their own tags"))
+  // Organizing's chat name (2.6): the first question's first words, and a name never "fits" (so the stand renames).
+  if (url.startsWith("https://api.anthropic.com/v1/messages") && String(JSON.parse(String(init?.body)).system).startsWith("You name a person's chat")) {
+    const body = JSON.parse(String(init?.body))
+    const question = /(?:Question|Note): (.+)/.exec(String(body.messages[0].content))?.[1] ?? "Chat"
+    const title = question.split(/\s+/).slice(0, 4).join(" ").replace(/[?.!,]+$/, "")
+    return new Response(JSON.stringify({ id: "msg_name", type: "message", role: "assistant", model: body.model, content: [{ type: "text", text: JSON.stringify({ fits: false, title: `Topic: ${title}` }) }], stop_reason: "end_turn", stop_sequence: null, usage: { input_tokens: 900, output_tokens: 20 } }), { headers: { "Content-Type": "application/json" } })
+  }
   if (url.startsWith("https://api.anthropic.com/v1/messages") && judging(JSON.parse(String(init?.body)))) {
     const body = JSON.parse(String(init?.body))
     const tags = [...String(body.messages[0].content).matchAll(/<examples tag="([^"]+)">/g)].map((m) => ({ tag: m[1], fits: true, confidence: 0.9 }))
@@ -385,8 +399,8 @@ const localSpeak = (await import("../../netlify/functions/v2-speak.mts")).defaul
 const localScript = (await import("../../netlify/functions/v2-speak-script.mts")).default
 // Read aloud with the real voices (and the real text for listening): the deploy preview answers, this stand signs each
 // request as Ultra for it.
-const proxied = async (path: string): Promise<typeof chat | null> => {
-  if (!process.env.SPEAK_PROXY || !process.env.SPEAK_EVAL_KEY) return null
+const proxied = async (path: string, base = process.env.SPEAK_PROXY): Promise<typeof chat | null> => {
+  if (!base || !process.env.SPEAK_EVAL_KEY) return null
   const { createPrivateKey, sign } = await import("node:crypto")
   const key = createPrivateKey(readFileSync(process.env.SPEAK_EVAL_KEY))
   return (async (req: Request) => {
@@ -394,7 +408,9 @@ const proxied = async (path: string): Promise<typeof chat | null> => {
     const installId = String(JSON.parse(text).installId ?? "")
     const at = Date.now()
     const signature = sign(null, Buffer.from(`${installId}.${at}`), key).toString("base64url")
-    const res = await realFetch(`${process.env.SPEAK_PROXY}${path}`, { method: "POST", headers: { "Content-Type": "application/json", "x-cf-eval": `${at}.${signature}` }, body: text })
+    // A dropped connection to the preview is the device's network trouble, not the stand's end.
+    const res = await realFetch(`${base}${path}`, { method: "POST", headers: { "Content-Type": "application/json", "x-cf-eval": `${at}.${signature}` }, body: text })
+      .catch(() => Response.json({ code: "UPSTREAM" }, { status: 502 }))
     // fetch has already unpacked a compressed body: passing Netlify's Content-Encoding on would break it in the browser.
     const headers = new Headers(res.headers)
     headers.delete("content-encoding")
@@ -403,6 +419,7 @@ const proxied = async (path: string): Promise<typeof chat | null> => {
   }) as typeof chat
 }
 const speakAny: typeof chat = (await proxied("/api/v2/speak")) ?? localSpeak
+const organizeAny: typeof chat = (await proxied("/api/v2/organize", process.env.ORGANIZE_PROXY)) ?? organize
 // SPEAK_FAIL_FROM_PART=1: every part from that one on fails (502), as a lost connection mid-text would (build 90: the
 // device must stop in the same voice and offer "Try again", never hand the rest to another voice).
 const speak: typeof chat = (async (req: Request, context: Parameters<typeof chat>[1]) => {
@@ -414,7 +431,7 @@ const speak: typeof chat = (async (req: Request, context: Parameters<typeof chat
   return speakAny(new Request(req.url, { method: req.method, headers: req.headers, body: text }), context)
 }) as typeof chat
 const speakScript: typeof chat = (await proxied("/api/v2/speak-script")) ?? localScript
-const handlers: Record<string, typeof chat> = { "/api/v2/speak": speak, "/api/v2/speak-script": speakScript, "/api/v2/chat": chat, "/api/v2/status": status, "/api/v2/event": event, "/api/v2/find": find, "/api/v2/promo": promo, "/api/v2/insert": insert, "/api/v2/organize": organize, "/api/v2/watch": watch }
+const handlers: Record<string, typeof chat> = { "/api/v2/speak": speak, "/api/v2/speak-script": speakScript, "/api/v2/chat": chat, "/api/v2/status": status, "/api/v2/event": event, "/api/v2/find": find, "/api/v2/promo": promo, "/api/v2/insert": insert, "/api/v2/organize": organizeAny, "/api/v2/watch": watch }
 
 // Page watch's test shop (2.5): /shop shows a mug whose price and stock /shop-set changes
 // (/shop-set?price=39&stock=OutOfStock), /shop-js draws the price with a script (the background sees none, the
@@ -478,8 +495,16 @@ const pdfs: Record<string, string> = {
 // Find similar (2.6): a scripted answer in /api/v2/similar's own events (the real engine needs the web and our keys,
 // tools/similar/eval.mts runs it on a deploy preview). Find similar is Ultra's: without PREVIEW_PLAN=ultra, PRO_ONLY.
 const SIMILAR_STEP_MS = Number(process.env.SIMILAR_STEP_MS ?? 700)
-function similarItems(condition: string) {
+function similarItems(condition: string, ru = false) {
   const cond = Boolean(condition.trim())
+  // A Russian page (/product-ru) gets the same list written in Russian, its prices against the page's 12 990 ₽ (the
+  // Tips clip in Russian; the real engine answers in the person's language).
+  if (ru) return [
+    { name: "Soundcore Space One", why: "Накладные, с адаптивным шумоподавлением и LDAC, как Aero 2, но с более мягким и лёгким оголовьем.", fit: cond ? "Дешевле: 9 990 ₽ против 12 990 ₽, в наличии." : "", met: cond ? "yes" : "n/a", url: "https://www.soundcore.com/products/space-one-a3035011", host: "soundcore.com", title: "Space One", source: "item", checked: true, price: "9990 RUB", stock: "in", watch: { source: "ld-price", value: "9990 RUB" } },
+    { name: "Sony WH-CH720N", why: "Лёгкие наушники с шумоподавлением и похожей батареей на 35 часов; кодеков меньше.", fit: cond ? "Дешевле: 8 990 ₽ против 12 990 ₽, в наличии." : "", met: cond ? "yes" : "n/a", url: "https://electronics.sony.com/audio/headphones/all-headphones/p/whch720n-b", host: "electronics.sony.com", title: "WH-CH720N", source: "item", checked: true, price: "8990 RUB", stock: "in", date: "2026-08-14", watch: { source: "ld-price", value: "8990 RUB" } },
+    { name: "JLab JBuds Lux ANC", why: "Недорогой вариант с активным шумоподавлением и эквалайзером в приложении, из свежей подборки.", fit: cond ? "На странице нет цены, так что «дешевле» не подтверждено." : "", met: cond ? "unknown" : "n/a", url: "https://www.soundguys.com/best-budget-noise-cancelling-headphones-7142/", host: "soundguys.com", title: "Лучшие недорогие наушники с шумоподавлением", source: "list", checked: true, date: "2026-10-02" },
+    { name: "EarFun Wave Pro", why: "LDAC и мультипойнт, как у Aero 2, и батарея держит дольше.", fit: cond ? "Магазин не пускает серверы на страницу, так что цена и наличие не подтверждены." : "", met: cond ? "unknown" : "n/a", url: "https://www.amazon.com/dp/B0CSKDX2SQ", host: "amazon.com", title: "EarFun Wave Pro", source: "item", checked: false }
+  ]
   return [
     { name: "Soundcore Space One", why: "Over-ear, adaptive noise cancelling and LDAC like the Aero 2, with a softer, lighter headband.", fit: cond ? "Cheaper: $99.99 against $129, in stock." : "", met: cond ? "yes" : "n/a", url: "https://www.soundcore.com/products/space-one-a3035011", host: "soundcore.com", title: "Space One", source: "item", checked: true, price: "99.99 USD", stock: "in", watch: { source: "ld-price", value: "99.99 USD" } },
     { name: "Sony WH-CH720N", why: "Light noise-cancelling headphones with a similar 35-hour battery; fewer codecs.", fit: cond ? "Cheaper: $89.99 against $129, in stock." : "", met: cond ? "yes" : "n/a", url: "https://electronics.sony.com/audio/headphones/all-headphones/p/whch720n-b", host: "electronics.sony.com", title: "WH-CH720N", source: "item", checked: true, price: "89.99 USD", stock: "in", date: "2026-08-14", watch: { source: "ld-price", value: "89.99 USD" } },
@@ -497,20 +522,22 @@ async function similarStub(body: Record<string, unknown>, res: import("node:http
   const send = (e: unknown) => res.write(`data: ${JSON.stringify(e)}\n\n`)
   const wait = (ms: number) => new Promise((r) => setTimeout(r, ms))
   const condition = typeof body.condition === "string" ? body.condition : ""
+  const ru = /[а-яё]/i.test(`${condition} ${typeof body.selection === "string" ? body.selection : ""} ${JSON.stringify(body.page ?? "").slice(0, 400)}`)
   send({ type: "progress", step: "plan" })
   await wait(SIMILAR_STEP_MS)
-  send({ type: "progress", step: "search", queries: ["wireless noise cancelling headphones like Aero 2"] })
+  send({ type: "progress", step: "search", queries: [ru ? "беспроводные наушники с шумоподавлением как Aero 2" : "wireless noise cancelling headphones like Aero 2"] })
   await wait(SIMILAR_STEP_MS * 2)
   send({ type: "progress", step: "check", pages: 12 })
   await wait(SIMILAR_STEP_MS)
   send({ type: "progress", step: "write", verified: 9 })
-  const items = similarItems(condition)
+  const items = similarItems(condition, ru)
   for (const [i, item] of items.entries()) {
     await wait(SIMILAR_STEP_MS * 0.7)
     send({ type: "item", engine: "a", index: i, item })
   }
   await wait(200)
-  send({ type: "result", engine: "a", intro: "Wireless noise-cancelling headphones like the Aero 2, each page opened and checked just now.", items, note: "", condition: condition ? "cheaper" : "none" })
+  const intro = ru ? "Беспроводные наушники с шумоподавлением, похожие на Aero 2; каждую страницу мы только что открыли и проверили." : "Wireless noise-cancelling headphones like the Aero 2, each page opened and checked just now."
+  send({ type: "result", engine: "a", intro, items, note: "", condition: condition ? "cheaper" : "none" })
   send({ type: "done", ms: 9000, usd: 0 })
   res.end()
 }
