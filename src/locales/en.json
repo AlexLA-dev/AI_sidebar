@@ -703,5 +703,13 @@
   "gSimilar3": "Chair with a headrest",
   "gSimilarInStock": "In stock",
   "gSimilarNewer": "Newer",
-  "gSimilarCheaper": "Cheaper"
+  "gSimilarCheaper": "Cheaper",
+  "similarPayFree": "Free, no in-app purchases",
+  "similarPayFreeStart": "Free",
+  "similarPaySub": "Subscription from {0}",
+  "similarPayOnce": "One-time purchase {0}",
+  "similarPayIap": "In-app purchases from {0}",
+  "similarPerWeek": "{0}/week",
+  "similarPerMonth": "{0}/month",
+  "similarPerYear": "{0}/year"
 }

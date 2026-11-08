@@ -2036,6 +2036,30 @@
  "plansUpgradeYearly": {
   "message": "Passer à l’annuel"
  },
+ "similarPayFree": {
+  "message": "Gratuit, sans achats intégrés"
+ },
+ "similarPayFreeStart": {
+  "message": "Gratuit"
+ },
+ "similarPaySub": {
+  "message": "Abonnement à partir de {0}"
+ },
+ "similarPayOnce": {
+  "message": "Achat unique {0}"
+ },
+ "similarPayIap": {
+  "message": "Achats intégrés à partir de {0}"
+ },
+ "similarPerWeek": {
+  "message": "{0}/semaine"
+ },
+ "similarPerMonth": {
+  "message": "{0}/mois"
+ },
+ "similarPerYear": {
+  "message": "{0}/an"
+ },
  "tip_4cf1b54b00": {
   "message": "Astuces"
  },

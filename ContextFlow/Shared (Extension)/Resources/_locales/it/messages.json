@@ -2036,6 +2036,30 @@
  "plansUpgradeYearly": {
   "message": "Passa all’annuale"
  },
+ "similarPayFree": {
+  "message": "Gratis, senza acquisti in-app"
+ },
+ "similarPayFreeStart": {
+  "message": "Gratis"
+ },
+ "similarPaySub": {
+  "message": "Abbonamento da {0}"
+ },
+ "similarPayOnce": {
+  "message": "Acquisto unico {0}"
+ },
+ "similarPayIap": {
+  "message": "Acquisti in-app da {0}"
+ },
+ "similarPerWeek": {
+  "message": "{0}/settimana"
+ },
+ "similarPerMonth": {
+  "message": "{0}/mese"
+ },
+ "similarPerYear": {
+  "message": "{0}/anno"
+ },
  "tip_4cf1b54b00": {
   "message": "Suggerimenti"
  },

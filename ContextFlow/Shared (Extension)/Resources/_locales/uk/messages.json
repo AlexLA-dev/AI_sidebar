@@ -2036,6 +2036,30 @@
  "plansUpgradeYearly": {
   "message": "Перейти на оплату за рік"
  },
+ "similarPayFree": {
+  "message": "Безкоштовно, без вбудованих покупок"
+ },
+ "similarPayFreeStart": {
+  "message": "Безкоштовно"
+ },
+ "similarPaySub": {
+  "message": "Підписка від {0}"
+ },
+ "similarPayOnce": {
+  "message": "Разова покупка {0}"
+ },
+ "similarPayIap": {
+  "message": "Вбудовані покупки від {0}"
+ },
+ "similarPerWeek": {
+  "message": "{0}/тиж."
+ },
+ "similarPerMonth": {
+  "message": "{0}/міс."
+ },
+ "similarPerYear": {
+  "message": "{0}/рік"
+ },
  "tip_4cf1b54b00": {
   "message": "Поради"
  },

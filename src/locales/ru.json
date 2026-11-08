@@ -703,5 +703,13 @@
   "listenLow": "На эту неделю осталось около {0} мин прослушивания, а этот текст займёт около {1} мин. Чтение остановится там, где закончатся минуты.",
   "listenAnyway": "Всё равно слушать",
   "plansUpgrade": "Перейти на {0}",
-  "plansUpgradeYearly": "Перейти на оплату за год"
+  "plansUpgradeYearly": "Перейти на оплату за год",
+  "similarPayFree": "Бесплатно, без встроенных покупок",
+  "similarPayFreeStart": "Бесплатно",
+  "similarPaySub": "Подписка от {0}",
+  "similarPayOnce": "Разовая покупка {0}",
+  "similarPayIap": "Встроенные покупки от {0}",
+  "similarPerWeek": "{0}/нед.",
+  "similarPerMonth": "{0}/мес.",
+  "similarPerYear": "{0}/год"
 }

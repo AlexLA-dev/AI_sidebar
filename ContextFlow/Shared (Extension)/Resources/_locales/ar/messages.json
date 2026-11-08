@@ -2036,6 +2036,30 @@
  "plansUpgradeYearly": {
   "message": "الترقية إلى الاشتراك السنوي"
  },
+ "similarPayFree": {
+  "message": "مجاني، بلا مشتريات داخل التطبيق"
+ },
+ "similarPayFreeStart": {
+  "message": "مجاني"
+ },
+ "similarPaySub": {
+  "message": "اشتراك من {0}"
+ },
+ "similarPayOnce": {
+  "message": "شراء لمرة واحدة {0}"
+ },
+ "similarPayIap": {
+  "message": "مشتريات داخل التطبيق من {0}"
+ },
+ "similarPerWeek": {
+  "message": "{0}/أسبوع"
+ },
+ "similarPerMonth": {
+  "message": "{0}/شهر"
+ },
+ "similarPerYear": {
+  "message": "{0}/سنة"
+ },
  "tip_4cf1b54b00": {
   "message": "تلميحات"
  },

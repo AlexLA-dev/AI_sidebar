@@ -2036,6 +2036,30 @@
  "gSimilarCheaper": {
   "message": "Cheaper"
  },
+ "similarPayFree": {
+  "message": "Free, no in-app purchases"
+ },
+ "similarPayFreeStart": {
+  "message": "Free"
+ },
+ "similarPaySub": {
+  "message": "Subscription from {0}"
+ },
+ "similarPayOnce": {
+  "message": "One-time purchase {0}"
+ },
+ "similarPayIap": {
+  "message": "In-app purchases from {0}"
+ },
+ "similarPerWeek": {
+  "message": "{0}/week"
+ },
+ "similarPerMonth": {
+  "message": "{0}/month"
+ },
+ "similarPerYear": {
+  "message": "{0}/year"
+ },
  "tip_4cf1b54b00": {
   "message": "Tips"
  },
