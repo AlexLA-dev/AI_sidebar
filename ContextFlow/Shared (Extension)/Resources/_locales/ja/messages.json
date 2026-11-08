@@ -2048,6 +2048,30 @@
  "plansUpgradeYearly": {
   "message": "年額にアップグレード"
  },
+ "similarPayFree": {
+  "message": "無料・App内課金なし"
+ },
+ "similarPayFreeStart": {
+  "message": "無料"
+ },
+ "similarPaySub": {
+  "message": "サブスクリプション {0}〜"
+ },
+ "similarPayOnce": {
+  "message": "買い切り {0}"
+ },
+ "similarPayIap": {
+  "message": "App内課金 {0}〜"
+ },
+ "similarPerWeek": {
+  "message": "{0}/週"
+ },
+ "similarPerMonth": {
+  "message": "{0}/月"
+ },
+ "similarPerYear": {
+  "message": "{0}/年"
+ },
  "tip_4cf1b54b00": {
   "message": "ヒント"
  },

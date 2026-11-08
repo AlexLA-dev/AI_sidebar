@@ -707,5 +707,13 @@
   "listenLow": "На цей тиждень залишилося близько {0} хв прослуховування, а цей текст займе близько {1} хв. Читання зупиниться там, де закінчаться хвилини.",
   "listenAnyway": "Усе одно слухати",
   "plansUpgrade": "Перейти на {0}",
-  "plansUpgradeYearly": "Перейти на оплату за рік"
+  "plansUpgradeYearly": "Перейти на оплату за рік",
+  "similarPayFree": "Безкоштовно, без вбудованих покупок",
+  "similarPayFreeStart": "Безкоштовно",
+  "similarPaySub": "Підписка від {0}",
+  "similarPayOnce": "Разова покупка {0}",
+  "similarPayIap": "Вбудовані покупки від {0}",
+  "similarPerWeek": "{0}/тиж.",
+  "similarPerMonth": "{0}/міс.",
+  "similarPerYear": "{0}/рік"
 }

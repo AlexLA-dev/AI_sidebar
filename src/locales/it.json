@@ -707,5 +707,13 @@
   "listenLow": "Questa settimana restano circa {0} min di ascolto, e questo testo dura circa {1} min. La lettura si ferma dove finiscono i minuti.",
   "listenAnyway": "Ascolta comunque",
   "plansUpgrade": "Passa a {0}",
-  "plansUpgradeYearly": "Passa all’annuale"
+  "plansUpgradeYearly": "Passa all’annuale",
+  "similarPayFree": "Gratis, senza acquisti in-app",
+  "similarPayFreeStart": "Gratis",
+  "similarPaySub": "Abbonamento da {0}",
+  "similarPayOnce": "Acquisto unico {0}",
+  "similarPayIap": "Acquisti in-app da {0}",
+  "similarPerWeek": "{0}/settimana",
+  "similarPerMonth": "{0}/mese",
+  "similarPerYear": "{0}/anno"
 }

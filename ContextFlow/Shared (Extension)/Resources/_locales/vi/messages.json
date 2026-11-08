@@ -2048,6 +2048,30 @@
  "plansUpgradeYearly": {
   "message": "Nâng cấp lên gói theo năm"
  },
+ "similarPayFree": {
+  "message": "Miễn phí, không có mua hàng trong ứng dụng"
+ },
+ "similarPayFreeStart": {
+  "message": "Miễn phí"
+ },
+ "similarPaySub": {
+  "message": "Gói đăng ký từ {0}"
+ },
+ "similarPayOnce": {
+  "message": "Mua một lần {0}"
+ },
+ "similarPayIap": {
+  "message": "Mua hàng trong ứng dụng từ {0}"
+ },
+ "similarPerWeek": {
+  "message": "{0}/tuần"
+ },
+ "similarPerMonth": {
+  "message": "{0}/tháng"
+ },
+ "similarPerYear": {
+  "message": "{0}/năm"
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },

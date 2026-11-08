@@ -707,5 +707,13 @@
   "listenLow": "本周还剩约 {0} 分钟朗读时长，这段内容大约需要 {1} 分钟。时长用完时，朗读会在那里停止。",
   "listenAnyway": "仍然朗读",
   "plansUpgrade": "升级到 {0}",
-  "plansUpgradeYearly": "升级到年付"
+  "plansUpgradeYearly": "升级到年付",
+  "similarPayFree": "免费，无 App 内购买",
+  "similarPayFreeStart": "免费",
+  "similarPaySub": "订阅 {0} 起",
+  "similarPayOnce": "一次性购买 {0}",
+  "similarPayIap": "App 内购买 {0} 起",
+  "similarPerWeek": "{0}/周",
+  "similarPerMonth": "{0}/月",
+  "similarPerYear": "{0}/年"
 }

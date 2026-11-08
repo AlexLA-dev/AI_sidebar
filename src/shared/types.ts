@@ -165,9 +165,11 @@ export type ErrorCode =
 
 export type BackgroundRequest =
   | { type: "status"; refresh?: boolean; fresh?: boolean; platform?: Platform }
-  // 2.6 (91): a Tips clip from the app (App Group) for the clip page, and the panel's "this chat is on screen" for
-  // similar-26's background jobs.
+  // 2.6 (91): a Tips clip from the app (App Group) for the clip page.
   | { type: "tipClip"; name: string; lang: string }
+  // Build 91: the jobs the background is running now (ids), to follow one again after the panel was closed.
+  | { type: "liveJobs" }
+  // …and the panel showed this chat: its jobs' outcomes were seen (the chats list's and the floating button's dot go).
   | { type: "jobsSeen"; thread: string }
   // feature "ai": the Pro screen opens on AI search and "Ask your chats".
   // feature "organize": on organizing the chats (2.5).
@@ -244,6 +246,8 @@ export const STORAGE = {
   // Chats as threads (Threads by id) and the one this device shows ({ id, at }).
   threads: "cf:threads",
   activeThread: "cf:activeThread",
+  // Build 91: the questions the background is answering, and how the last ones ended (Jobs by question id, jobs.ts).
+  jobs: "cf:jobs",
   // iCloud sync: CloudKit change token, and the time of each thread's copy in iCloud.
   syncToken: "cf:syncToken",
   syncedThreads: "cf:syncedThreads",

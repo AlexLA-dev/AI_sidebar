@@ -707,5 +707,13 @@
   "listenLow": "이번 주 듣기가 약 {0}분 남았고, 이 텍스트는 약 {1}분 걸려요. 남은 시간이 끝나는 곳에서 멈춰요.",
   "listenAnyway": "그래도 듣기",
   "plansUpgrade": "{0}로 업그레이드",
-  "plansUpgradeYearly": "연간으로 업그레이드"
+  "plansUpgradeYearly": "연간으로 업그레이드",
+  "similarPayFree": "무료, 앱 내 구입 없음",
+  "similarPayFreeStart": "무료",
+  "similarPaySub": "구독 {0}부터",
+  "similarPayOnce": "일회성 구입 {0}",
+  "similarPayIap": "앱 내 구입 {0}부터",
+  "similarPerWeek": "{0}/주",
+  "similarPerMonth": "{0}/월",
+  "similarPerYear": "{0}/년"
 }

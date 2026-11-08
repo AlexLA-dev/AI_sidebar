@@ -707,5 +707,13 @@
   "listenLow": "Diese Woche bleiben noch etwa {0} Min. Anhören, dieser Text dauert etwa {1} Min. Das Vorlesen endet dort, wo die Minuten aufgebraucht sind.",
   "listenAnyway": "Trotzdem anhören",
   "plansUpgrade": "Zu {0} wechseln",
-  "plansUpgradeYearly": "Zur jährlichen Zahlung wechseln"
+  "plansUpgradeYearly": "Zur jährlichen Zahlung wechseln",
+  "similarPayFree": "Kostenlos, ohne In-App-Käufe",
+  "similarPayFreeStart": "Kostenlos",
+  "similarPaySub": "Abo ab {0}",
+  "similarPayOnce": "Einmalkauf {0}",
+  "similarPayIap": "In-App-Käufe ab {0}",
+  "similarPerWeek": "{0}/Woche",
+  "similarPerMonth": "{0}/Monat",
+  "similarPerYear": "{0}/Jahr"
 }

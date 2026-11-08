@@ -30,6 +30,10 @@
 .cf-similar-body { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 3px; }
 .cf-similar-name { font-weight: 600; font-size: 14px; color: var(--accent-text); text-decoration: none; overflow-wrap: anywhere; }
 .cf-similar-name:hover { text-decoration: underline; text-underline-offset: 2px; }
+.cf-similar-host a { color: inherit; text-decoration: none; }
+.cf-similar-proof { color: inherit; text-decoration: underline; text-underline-offset: 2px; text-decoration-color: color-mix(in srgb, currentColor 40%, transparent); }
+.cf-similar-pay { color: inherit; text-decoration: underline; text-decoration-color: color-mix(in srgb, currentColor 35%, transparent); text-underline-offset: 2px; }
+.cf-similar-host a:hover { text-decoration: underline; text-underline-offset: 2px; }
 .cf-similar-host { font-size: 11.5px; color: var(--text-3); }
 .cf .cf-similar-why, .cf .cf-similar-fit { margin: 0; font-size: 13px; line-height: 1.4; color: var(--text-2); }
 .cf .cf-similar-fit.ok { color: var(--ok); display: flex; gap: 5px; align-items: baseline; }
@@ -39,7 +43,7 @@
   font-size: 11px; font-weight: 600; color: var(--text-2); background: var(--border);
 }
 .cf-similar-facts { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin-top: 2px; font-size: 12px; font-weight: 600; color: var(--text); }
-.cf-similar-facts span + span::before { content: "·"; margin-inline-end: 10px; color: var(--text-3); font-weight: 400; }
+.cf-similar-facts span + span::before, .cf-similar-facts .cf-similar-pay + span::before { content: "·"; margin-inline-end: 10px; color: var(--text-3); font-weight: 400; }
 .cf-similar-facts .cf-similar-unopened { font-weight: 500; color: var(--text-3); }
 .cf-similar-watch {
   display: inline-flex; align-items: center; gap: 4px; margin-inline-start: auto; padding: 3px 9px;

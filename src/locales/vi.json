@@ -707,5 +707,13 @@
   "listenLow": "Tuần này còn khoảng {0} phút nghe, còn nội dung này cần khoảng {1} phút. Phần đọc sẽ dừng ở chỗ hết phút.",
   "listenAnyway": "Vẫn nghe",
   "plansUpgrade": "Nâng cấp lên {0}",
-  "plansUpgradeYearly": "Nâng cấp lên gói theo năm"
+  "plansUpgradeYearly": "Nâng cấp lên gói theo năm",
+  "similarPayFree": "Miễn phí, không có mua hàng trong ứng dụng",
+  "similarPayFreeStart": "Miễn phí",
+  "similarPaySub": "Gói đăng ký từ {0}",
+  "similarPayOnce": "Mua một lần {0}",
+  "similarPayIap": "Mua hàng trong ứng dụng từ {0}",
+  "similarPerWeek": "{0}/tuần",
+  "similarPerMonth": "{0}/tháng",
+  "similarPerYear": "{0}/năm"
 }
