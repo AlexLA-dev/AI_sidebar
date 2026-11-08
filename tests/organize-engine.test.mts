@@ -164,10 +164,13 @@ test("off-topic messages leave a mixed chat for the single-topic one; the single
   assert.equal(s.to, "one")
   assert.deepEqual([s.start, s.end], [4, 7], "both analytics blocks, together")
   assert.equal(suggestMove(one, [mix, one], vectorOf, cfg), null, "not into the mix")
-  // Mostly analytics already (three of four): there it goes.
-  const most = chat("most", [...qa("cars", "https://cars/1"), ...qa("analytics", "https://stats/1"), ...qa("analytics", "https://stats/2"), ...qa("analytics", "https://stats/4")])
-  assert.equal(suggestMove(one, [most, one], vectorOf, cfg)?.to, "most")
-  assert.equal(suggestMove(most, [most, one], vectorOf, cfg), null, "its analytics are at home")
+  // Mostly analytics (three of four) but still a mix: its cars go first (a new chat), then the one-topic chat joins it.
+  const most = chat("most", [...qa("analytics", "https://stats/1"), ...qa("analytics", "https://stats/2"), ...qa("analytics", "https://stats/4"), ...qa("cars", "https://cars/1")])
+  assert.equal(suggestMove(one, [most, one], vectorOf, cfg), null)
+  const out = suggestMove(most, [most, one], vectorOf, cfg)!
+  assert.deepEqual([out.to, out.start, out.end], [null, 6, 7], "its analytics are at home; the cars leave")
+  const clean = chat("most", most.m.slice(0, 6))
+  assert.equal(suggestMove(one, [clean, one], vectorOf, cfg)?.to, "most")
 })
 
 test("two one-topic chats of one block each: only the smaller joins the larger", () => {

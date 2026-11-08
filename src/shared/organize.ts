@@ -299,16 +299,32 @@ function larger(a: Thread, b: Thread): boolean {
   return a.id < b.id
 }
 
+/** Whether a chat's blocks are on more than one topic: one of them is off the rest (less than half of them on it). */
+function isMix(blocks: ScoredBlock[], cfg: OrganizeConfig): boolean {
+  return blocks.length > 1 && blocks.some((x, i) => shareOn(x, blocks.filter((_, j) => j !== i), cfg).share < 0.5)
+}
+
 /**
- * Whether block `b` of chat `from` (with its other blocks `rest`) goes to `to`: `to` is mostly about it (more than
- * half its blocks), and `b` is off its own chat's topic (less than half of `rest` is on it). A block that is the whole
- * chat joins `to` when `to` has more on it, or, with one such block each, when `to` is the larger chat.
+ * Whether a chat of one block `b` joins `to`: `to` is on one topic and mostly about `b`'s (more than half its blocks),
+ * and has more on it or, with one such block each, is the larger chat. Never into a mix, and of two chats one way.
  */
-function goesTo(b: ScoredBlock, rest: ScoredBlock[], from: Thread, to: { thread: Thread; blocks: ScoredBlock[] }, cfg: OrganizeConfig): boolean {
+function joins(b: ScoredBlock, from: Thread, to: { thread: Thread; blocks: ScoredBlock[] }, cfg: OrganizeConfig): boolean {
+  if (isMix(to.blocks, cfg)) return false
   const there = shareOn(b, to.blocks, cfg)
-  if (there.share <= 0.5) return false
-  if (!rest.length) return there.on > 1 || larger(to.thread, from)
-  return shareOn(b, rest, cfg).share < 0.5
+  return there.share > 0.5 && (there.on > 1 || larger(to.thread, from))
+}
+
+/**
+ * Whether block `b` of chat `from` (with its other blocks `rest`) goes to `to`. A block that is the whole chat joins
+ * (`joins`). A block of a chat goes when it's off that chat's topic (less than half of `rest` is on it), to a chat that
+ * has its page or is mostly about it (more than half its blocks), unless that chat is one block that would rather
+ * join this one.
+ */
+function goesTo(b: ScoredBlock, rest: ScoredBlock[], from: Thread, to: { thread: Thread; blocks: ScoredBlock[] }, cfg: OrganizeConfig, samePage = false): boolean {
+  if (!rest.length) return joins(b, from, to, cfg)
+  if (shareOn(b, rest, cfg).share >= 0.5) return false
+  if (!samePage && shareOn(b, to.blocks, cfg).share <= 0.5) return false
+  return !(to.blocks.length === 1 && joins(to.blocks[0], to.thread, { thread: from, blocks: [...rest, b] }, cfg))
 }
 
 function movePlace(
@@ -323,7 +339,7 @@ function movePlace(
   // The same page, already in another chat and not elsewhere in this one.
   if (b.url && !rest.some((x) => x.url === b.url)) {
     const there = others
-      .filter((o) => o.blocks.some((x) => x.url === b.url) && goesTo(b, rest, chat, o, cfg))
+      .filter((o) => o.blocks.some((x) => x.url === b.url) && goesTo(b, rest, chat, o, cfg, true))
       .sort((a, z) => activity(z.thread) - activity(a.thread))[0]
     if (there) return { to: there.thread.id, why: "page", score: 1, current: 0 }
   }

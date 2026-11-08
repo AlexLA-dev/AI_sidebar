@@ -668,14 +668,34 @@ enum Organize {
         return a.id < b.id
     }
 
-    /// Whether block `b` of chat `from` (with its other blocks `rest`) goes to `to`: `to` is mostly about it (more
-    /// than half its blocks), and `b` is off its own chat's topic (less than half of `rest` is on it). A block that is
-    /// the whole chat joins `to` when `to` has more on it, or, with one such block each, when `to` is the larger chat.
-    private static func goesTo(_ b: ScoredBlock, _ rest: [ScoredBlock], _ from: OrganizeThread, _ to: Other, _ cfg: OrganizeConfig) -> Bool {
+    /// Whether a chat's blocks are on more than one topic: one of them is off the rest (less than half of them on it).
+    private static func isMix(_ blocks: [ScoredBlock], _ cfg: OrganizeConfig) -> Bool {
+        guard blocks.count > 1 else { return false }
+        return blocks.indices.contains { i in
+            var others = blocks
+            others.remove(at: i)
+            return shareOn(blocks[i], others, cfg).share < 0.5
+        }
+    }
+
+    /// Whether a chat of one block `b` joins `to`: `to` is on one topic and mostly about `b`'s (more than half its
+    /// blocks), and has more on it or, with one such block each, is the larger chat. Never into a mix, and of two chats
+    /// one way.
+    private static func joins(_ b: ScoredBlock, _ from: OrganizeThread, _ to: Other, _ cfg: OrganizeConfig) -> Bool {
+        if isMix(to.blocks, cfg) { return false }
         let there = shareOn(b, to.blocks, cfg)
-        if there.share <= 0.5 { return false }
-        if rest.isEmpty { return there.on > 1 || larger(to.thread, from) }
-        return shareOn(b, rest, cfg).share < 0.5
+        return there.share > 0.5 && (there.on > 1 || larger(to.thread, from))
+    }
+
+    /// Whether block `b` of chat `from` (with its other blocks `rest`) goes to `to`. A block that is the whole chat
+    /// joins (`joins`). A block of a chat goes when it's off that chat's topic (less than half of `rest` is on it), to a
+    /// chat that has its page or is mostly about it (more than half its blocks), unless that chat is one block that
+    /// would rather join this one.
+    private static func goesTo(_ b: ScoredBlock, _ rest: [ScoredBlock], _ from: OrganizeThread, _ to: Other, _ cfg: OrganizeConfig, samePage: Bool = false) -> Bool {
+        if rest.isEmpty { return joins(b, from, to, cfg) }
+        if shareOn(b, rest, cfg).share >= 0.5 { return false }
+        if !samePage, shareOn(b, to.blocks, cfg).share <= 0.5 { return false }
+        return !(to.blocks.count == 1 && joins(to.blocks[0], to.thread, (from, rest + [b]), cfg))
     }
 
     private static func movePlace(
@@ -685,7 +705,7 @@ enum Organize {
         // of equals, the first, as the panel's stable sort).
         if let url = b.url, !url.isEmpty, !rest.contains(where: { $0.url == url }) {
             var there: OrganizeThread?
-            for o in others where o.blocks.contains(where: { $0.url == url }) && goesTo(b, rest, chat, o, cfg) {
+            for o in others where o.blocks.contains(where: { $0.url == url }) && goesTo(b, rest, chat, o, cfg, samePage: true) {
                 if there == nil || o.thread.activity > there!.activity { there = o.thread }
             }
             if let there { return (there.id, .page, 1, 0) }
