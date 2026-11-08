@@ -1574,6 +1574,111 @@
  "watchChangedBody": {
   "message": "Зараз: {0}"
  },
+ "actSimilar": {
+  "message": "Знайти схоже"
+ },
+ "uxSimilar": {
+  "message": "Знайти схоже…"
+ },
+ "similarTitle": {
+  "message": "Знайти схоже"
+ },
+ "similarConditions": {
+  "message": "Умови"
+ },
+ "similarCheaper": {
+  "message": "Дешевше"
+ },
+ "similarInStock": {
+  "message": "У наявності"
+ },
+ "similarNewer": {
+  "message": "Новіше"
+ },
+ "similarFree": {
+  "message": "Безкоштовно"
+ },
+ "similarMyLanguage": {
+  "message": "Моєю мовою"
+ },
+ "similarShorter": {
+  "message": "Коротше"
+ },
+ "similarInLanguage": {
+  "message": "мовою: {0}"
+ },
+ "similarCustom": {
+  "message": "Або напишіть, що потрібно (необов'язково)"
+ },
+ "similarHint": {
+  "message": "Справжні альтернативи, які є зараз. Кожне посилання ми відкриваємо й перевіряємо, перш ніж показати."
+ },
+ "similarFind": {
+  "message": "Знайти"
+ },
+ "similarAsked": {
+  "message": "Знайти схоже"
+ },
+ "similarAskedWith": {
+  "message": "Знайти схоже: {0}"
+ },
+ "similarStockIn": {
+  "message": "У наявності"
+ },
+ "similarStockOut": {
+  "message": "Немає в наявності"
+ },
+ "similarFromList": {
+  "message": "згадано в огляді"
+ },
+ "similarNotConfirmed": {
+  "message": "Не підтверджено"
+ },
+ "similarNotOpened": {
+  "message": "Не вдалося відкрити сторінку для перевірки"
+ },
+ "similarWatchPrice": {
+  "message": "Стежити за ціною"
+ },
+ "similarStepPlan": {
+  "message": "Читаю сторінку…"
+ },
+ "similarStepSearch": {
+  "message": "Шукаю в інтернеті…"
+ },
+ "similarStepCheck": {
+  "message": "Перевіряю сторінки…"
+ },
+ "similarStepCheckN": {
+  "message": "Перевіряю сторінок: {0}…"
+ },
+ "similarStepWrite": {
+  "message": "Вибираю найкраще…"
+ },
+ "similarNone": {
+  "message": "Не знайшлося перевірених альтернатив для цієї сторінки. Спробуйте іншу умову або без неї."
+ },
+ "similarChecked": {
+  "message": "Посилання перевірено о {0}"
+ },
+ "similarUpsellText": {
+  "message": "Справжні альтернативи тому, що ви переглядаєте: товару, застосунку, статті, рецепту, місцю."
+ },
+ "similarUpsellChecked": {
+  "message": "Кожне посилання відкрите й перевірене: жодних мертвих чи вигаданих сторінок."
+ },
+ "similarUpsellConditions": {
+  "message": "Дешевше, у наявності, новіше, безкоштовно, вашою мовою — або своїми словами."
+ },
+ "similarUpsellWatch": {
+  "message": "Ціна й наявність — як на сторінці, і можна стежити за ціною."
+ },
+ "similarGetUltra": {
+  "message": "Отримати Ultra"
+ },
+ "similarOff": {
+  "message": "«Знайти схоже» поки недоступне."
+ },
  "tip_4cf1b54b00": {
   "message": "Поради"
  },

@@ -1574,6 +1574,111 @@
  "watchChangedBody": {
   "message": "Сейчас: {0}"
  },
+ "actSimilar": {
+  "message": "Найти похожее"
+ },
+ "uxSimilar": {
+  "message": "Найти похожее…"
+ },
+ "similarTitle": {
+  "message": "Найти похожее"
+ },
+ "similarConditions": {
+  "message": "Условия"
+ },
+ "similarCheaper": {
+  "message": "Дешевле"
+ },
+ "similarInStock": {
+  "message": "В наличии"
+ },
+ "similarNewer": {
+  "message": "Новее"
+ },
+ "similarFree": {
+  "message": "Бесплатно"
+ },
+ "similarMyLanguage": {
+  "message": "На моём языке"
+ },
+ "similarShorter": {
+  "message": "Короче"
+ },
+ "similarInLanguage": {
+  "message": "на языке: {0}"
+ },
+ "similarCustom": {
+  "message": "Или напишите, что нужно (необязательно)"
+ },
+ "similarHint": {
+  "message": "Настоящие альтернативы, которые есть сейчас. Каждую ссылку мы открываем и проверяем, прежде чем показать."
+ },
+ "similarFind": {
+  "message": "Найти"
+ },
+ "similarAsked": {
+  "message": "Найти похожее"
+ },
+ "similarAskedWith": {
+  "message": "Найти похожее: {0}"
+ },
+ "similarStockIn": {
+  "message": "В наличии"
+ },
+ "similarStockOut": {
+  "message": "Нет в наличии"
+ },
+ "similarFromList": {
+  "message": "упомянуто в обзоре"
+ },
+ "similarNotConfirmed": {
+  "message": "Не подтверждено"
+ },
+ "similarNotOpened": {
+  "message": "Не удалось открыть страницу для проверки"
+ },
+ "similarWatchPrice": {
+  "message": "Следить за ценой"
+ },
+ "similarStepPlan": {
+  "message": "Читаю страницу…"
+ },
+ "similarStepSearch": {
+  "message": "Ищу в интернете…"
+ },
+ "similarStepCheck": {
+  "message": "Проверяю страницы…"
+ },
+ "similarStepCheckN": {
+  "message": "Проверяю страниц: {0}…"
+ },
+ "similarStepWrite": {
+  "message": "Выбираю лучшее…"
+ },
+ "similarNone": {
+  "message": "Не нашлось проверенных альтернатив для этой страницы. Попробуйте другое условие или без него."
+ },
+ "similarChecked": {
+  "message": "Ссылки проверены в {0}"
+ },
+ "similarUpsellText": {
+  "message": "Настоящие альтернативы тому, что вы смотрите: товару, приложению, статье, рецепту, месту."
+ },
+ "similarUpsellChecked": {
+  "message": "Каждая ссылка открыта и проверена: никаких мёртвых или выдуманных страниц."
+ },
+ "similarUpsellConditions": {
+  "message": "Дешевле, в наличии, новее, бесплатно, на вашем языке — или своими словами."
+ },
+ "similarUpsellWatch": {
+  "message": "Цена и наличие — как на странице, и можно следить за ценой."
+ },
+ "similarGetUltra": {
+  "message": "Получить Ultra"
+ },
+ "similarOff": {
+  "message": "«Найти похожее» пока недоступно."
+ },
  "tip_4cf1b54b00": {
   "message": "Советы"
  },
