@@ -8,6 +8,7 @@ import { useState } from "preact/hooks"
 
 import { t, uiLang } from "../../shared/i18n"
 import { SIMILAR_CHIPS, type SimilarAnswer, type SimilarChip, type SimilarItem, type SimilarStep } from "../../shared/similar"
+import { moneyIn } from "../../shared/watch/compare"
 import * as Icon from "../icons"
 
 const CHIP_LABEL: Record<SimilarChip, Parameters<typeof t>[0]> = {
@@ -102,7 +103,7 @@ export function shownPrice(price: string): string {
   const m = /^(\d+(?:\.\d+)?)\s([A-Z]{3})$/.exec(price.trim())
   if (!m) return price
   try {
-    return new Intl.NumberFormat(uiLang(), { style: "currency", currency: m[2] }).format(Number(m[1]))
+    return moneyIn(uiLang(), Number(m[1]), m[2])
   } catch {
     return price
   }

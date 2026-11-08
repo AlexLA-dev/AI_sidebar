@@ -286,6 +286,7 @@
   "openPage": "このページを開く",
   "usageFreeShort": "今日 残り{0}/{1}回",
   "usageProShort": "Pro · 今週 残り{0}/{1}回",
+  "usageUltraShort": "Ultra · 今週 残り{0}/{1}回",
 
   "pinChat": "チャットを固定",
   "unpinChat": "固定を解除",

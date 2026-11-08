@@ -286,6 +286,7 @@
   "openPage": "Ouvrir cette page",
   "usageFreeShort": "Aujourd’hui : {0} sur {1}",
   "usageProShort": "Pro · {0} sur {1} cette semaine",
+  "usageUltraShort": "Ultra · {0} sur {1} cette semaine",
 
   "pinChat": "Épingler la discussion",
   "unpinChat": "Désépingler",
@@ -565,7 +566,7 @@
   "tierPro3": "Surveillez jusqu’à {0} pages : baisses de prix et changements",
   "tierUltra0": "Tout ce qu’offre Pro, et en plus :",
   "tierUltra1": "Écoutez les réponses et des pages entières avec une voix naturelle : {0} minutes par semaine",
-  "tierUltra2": "Contenus similaires : des alternatives à n'importe quelle page (moins chères, plus récentes, en stock ou dans votre langue), {0} recherches par semaine",
+  "tierUltra2": "Trouver similaire : des alternatives à n'importe quelle page (moins chères, plus récentes, en stock ou dans votre langue), {0} recherches par semaine",
   "tierUltra3": "Surveillez jusqu’à {0} pages",
   "listen": "Écouter",
   "listenPage": "Écouter cette page",

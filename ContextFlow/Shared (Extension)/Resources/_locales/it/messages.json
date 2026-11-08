@@ -824,6 +824,9 @@
  "usageProShort": {
   "message": "Pro · {0} su {1} questa settimana"
  },
+ "usageUltraShort": {
+  "message": "Ultra · {0} su {1} questa settimana"
+ },
  "pinChat": {
   "message": "Fissa la chat"
  },

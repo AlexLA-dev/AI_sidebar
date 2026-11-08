@@ -286,6 +286,7 @@
   "openPage": "開啟此頁面",
   "usageFreeShort": "今天剩 {0}/{1}",
   "usageProShort": "Pro · 本週剩 {0}/{1}",
+  "usageUltraShort": "Ultra · 本週剩 {0}/{1}",
 
   "pinChat": "釘選對話",
   "unpinChat": "取消釘選對話",
@@ -565,7 +566,7 @@
   "tierPro3": "最多追蹤 {0} 個頁面：降價和變動",
   "tierUltra0": "Pro 的全部功能，另外還有：",
   "tierUltra1": "用自然的聲音朗讀回答和整個頁面：每週 {0} 分鐘",
-  "tierUltra2": "查找相似內容：為任何頁面找替代選擇——更便宜、更新、有貨或用你的語言，每週 {0} 次搜尋",
+  "tierUltra2": "尋找相似：為任何頁面找替代選擇——更便宜、更新、有貨或用你的語言，每週 {0} 次搜尋",
   "tierUltra3": "最多追蹤 {0} 個頁面",
   "listen": "朗讀",
   "listenPage": "朗讀這個頁面",

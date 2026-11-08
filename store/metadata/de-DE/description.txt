@@ -1,12 +1,10 @@
 Schluss damit, Artikel in einen Chatbot zu kopieren. Frag die KI zu jeder Seite, antworte mit Vorlagen, die sich selbst ausfüllen, und bekomm Bescheid, wenn sich ein Preis ändert, ohne Safari zu verlassen. Der Chat folgt dir von Seite zu Seite und ist derselbe auf iPhone, iPad und Mac.
 
-NEU IN 2.5
-• Vorlagen für Antworten, die du immer wieder schreibst: ContextFlow trägt Name und Datum von der Seite oder aus der offenen Unterhaltung ein. Prüfen, dann senden
-• Tippe auf ein Textfeld: Daneben erscheint die schwebende ContextFlow-Taste. Kopiertes aus Safari, deine Vorlagen und die letzte Antwort sind einen Tipp entfernt. Kopiertes bleibt 24 Stunden auf deinem Gerät
-• Wartest du, bis ein Preis sinkt oder ein Artikel wieder lieferbar ist? Markiere den Preis und tippe auf das Auge: ContextFlow prüft, während du Safari nutzt, und meldet jede Änderung
-• Später zu einer Seite zurück? Tippe auf die Glocke und wähle eine Zeit
-• Hebe die wichtigen Zeilen einer Antwort hervor und hefte Antworten oben im Chat an
-• Chat aus Versehen gelöscht? Er bleibt 30 Tage unter „Zuletzt gelöscht“
+NEU IN 2.6
+• Ultra, ein neuer Tarif: „Anhören“ liest Antworten und ganze Seiten mit natürlicher Stimme vor, in über 100 Sprachen, auf dem iPhone auch bei gesperrtem Bildschirm
+• Ähnliches finden (Ultra): echte Alternativen zu jeder Seite, günstiger, neuer, auf Lager, kostenlos oder in deiner Sprache. Jeden Link öffnen und prüfen wir vorher
+• Eigener Schlüssel, Pro und Ultra jetzt auch jährlich
+• Eine kurze Einführung zu deiner ersten Antwort und das Panel auf traditionellem Chinesisch, Arabisch und Vietnamesisch
 
 DAS KANNST DU DAMIT MACHEN
 • Artikel, Testberichte, Threads und Produktseiten zusammenfassen oder das Wichtigste herausziehen
@@ -14,6 +12,8 @@ DAS KANNST DU DAMIT MACHEN
 • Fachbegriffe einfach erklären lassen oder die Seite in deine Sprache übersetzen
 • Text markieren, um nur dazu zu fragen oder ihn als Notiz zu behalten
 • Google-Antworten: aktuelle Fakten aus der Google-Suche mit Quellen zum Öffnen
+• Vorlagen für wiederkehrende Antworten, von der Seite ausgefüllt. Tippe auf ein Textfeld: Die schwebende Taste bringt sie und dein Kopiertes
+• Wartest du, bis ein Preis sinkt? Markiere ihn und tippe auf das Auge: ContextFlow meldet jede Änderung. Die Glocke erinnert dich später an eine Seite
 
 NOTIZEN UND CHATS
 • Notizen: Wisch die Senden-Taste nach oben oder unten (auf dem Mac: darüber scrollen) für eine Notiz statt einer Frage. Sie verbraucht keine Antworten
@@ -35,10 +35,12 @@ DATENSCHUTZ VON ANFANG AN
 • Eine Seite wird nur gelesen, wenn du fragst oder sie beobachtest
 • Seitentexte werden nie auf unseren Servern gespeichert; deine Chats bleiben auf deinen Geräten und werden Ende-zu-Ende-verschlüsselt über deine iCloud synchronisiert
 
-KOSTENLOS UND PRO
-• Kostenlos: täglich Antworten und ein paar ausgefüllte Vorlagen, Notizen ohne Limit. Antworten nutzen den Seitentext; ein Video oder PDF wird übersprungen, und die Antwort sagt es dir
-• Pro: viele Antworten, tiefer und ausführlicher, Fragen zu Videos und PDFs, Vorlagen ohne Limit ausfüllen, mehr Seiten zugleich beobachten, Vorschläge, die neue Antworten und Notizen in deine Chats und Tags einsortieren, KI-Suche und „Frag deine Chats“
+TARIFE
+• Kostenlos: täglich Antworten und ein paar ausgefüllte Vorlagen, Notizen ohne Limit
+• Pro: viele Antworten, tiefer und ausführlicher, Videos und PDFs, Vorlagen ohne Limit ausfüllen, mehr beobachtete Seiten, Sortiervorschläge für Chats und Tags, KI-Suche und „Frag deine Chats“
+• Ultra: alles aus Pro, dazu „Anhören“, „Ähnliches finden“ und bis zu 50 beobachtete Seiten
 • Eigener Schlüssel: unbegrenzte Antworten mit deinem OpenAI- oder Claude-API-Schlüssel
+• Pro, Ultra und Eigener Schlüssel: monatlich oder jährlich
 
 IN EINER MINUTE STARTKLAR
 1. Öffne die ContextFlow-App: Sie zeigt dir Schritt für Schritt, wie du die Erweiterung in Safari aktivierst.

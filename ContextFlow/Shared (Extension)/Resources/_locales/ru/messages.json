@@ -824,6 +824,9 @@
  "usageProShort": {
   "message": "Pro · {0} из {1} на неделю"
  },
+ "usageUltraShort": {
+  "message": "Ultra · {0} из {1} на неделю"
+ },
  "pinChat": {
   "message": "Закрепить чат"
  },

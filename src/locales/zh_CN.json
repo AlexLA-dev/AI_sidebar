@@ -286,6 +286,7 @@
   "openPage": "打开此页面",
   "usageFreeShort": "今日剩余 {0}/{1}",
   "usageProShort": "Pro · 本周剩余 {0}/{1}",
+  "usageUltraShort": "Ultra · 本周剩余 {0}/{1}",
 
   "pinChat": "置顶对话",
   "unpinChat": "取消置顶",
@@ -565,7 +566,7 @@
   "tierPro3": "最多关注 {0} 个页面：降价和变化",
   "tierUltra0": "Pro 的全部功能，另外还有：",
   "tierUltra1": "用自然的声音朗读回答和整个页面：每周 {0} 分钟",
-  "tierUltra2": "查找相似内容：为任何页面找替代选择——更便宜、更新、有货或用你的语言，每周 {0} 次搜索",
+  "tierUltra2": "查找相似：为任何页面找替代选择——更便宜、更新、有货或用你的语言，每周 {0} 次搜索",
   "tierUltra3": "最多关注 {0} 个页面",
   "listen": "朗读",
   "listenPage": "朗读此页面",
