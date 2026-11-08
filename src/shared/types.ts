@@ -168,7 +168,7 @@ export type BackgroundRequest =
   // Build 91: the jobs the background is running now (ids), to follow one again after the panel was closed.
   | { type: "liveJobs" }
   // …and the panel showed this chat: its jobs' outcomes were seen (the chats list's and the floating button's dot go).
-  | { type: "seenJobs"; thread: string }
+  | { type: "jobsSeen"; thread: string }
   // feature "ai": the Pro screen opens on AI search and "Ask your chats".
   // feature "organize": on organizing the chats (2.5).
   // plan, period (2.6): what was chosen in the panel's plans sheet; the app opens on it.

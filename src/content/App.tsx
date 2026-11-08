@@ -667,7 +667,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   useEffect(() => {
     if (!open || !visible || !loadedRef.current) return
     const thread = threadRef.current
-    const timer = setTimeout(() => void sendBackground({ type: "seenJobs", thread }), 400)
+    const timer = setTimeout(() => void sendBackground({ type: "jobsSeen", thread }), 400)
     return () => clearTimeout(timer)
   }, [open, visible, messages])
 

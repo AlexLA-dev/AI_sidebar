@@ -518,7 +518,7 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
     case "liveJobs":
       sendResponse({ ids: liveJobIds() })
       return false
-    case "seenJobs":
+    case "jobsSeen":
       void markSeen(message.thread).then(() => sendResponse(true), () => sendResponse(false))
       return true
     case "status":
