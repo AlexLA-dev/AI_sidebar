@@ -2,13 +2,15 @@
 
 /* The suggestions: one row under the message's tools, dashed and a little faded, fading in. */
 .cf-org { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; animation: cf-org-in .45s ease-out both; }
-.cf-msg.user .cf-org { justify-content: flex-end; }
+/* Under a note or question (2.6: a note's chat can join another): as wide as the message, so a long chat name ends in
+   an ellipsis instead of running off the panel's left edge. */
+.cf-msg.user .cf-org { justify-content: flex-end; align-self: stretch; min-width: 0; }
 .cf-msg.pickable .cf-org { display: none; }
 /* Text selected in the message: the row keeps its place but steps aside for the bubble by the selection. */
 .cf-org.quiet { visibility: hidden; }
 @keyframes cf-org-in { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
 .cf-org-label { font-size: 11.5px; color: var(--text-3); margin-inline-end: 2px; }
-.cf-org-chip { --tag: 93, 90, 102; display: inline-flex; align-items: center; max-width: 100%; height: 26px; border-radius: 999px; border: 1px dashed rgba(var(--tag), 0.55); background: rgba(var(--tag), 0.05); color: rgb(var(--tag)); opacity: 0.92; }
+.cf-org-chip { --tag: 93, 90, 102; display: inline-flex; align-items: center; max-width: 100%; min-width: 0; height: 26px; border-radius: 999px; border: 1px dashed rgba(var(--tag), 0.55); background: rgba(var(--tag), 0.05); color: rgb(var(--tag)); opacity: 0.92; }
 .cf-org-chip.c0 { --tag: 37, 99, 235; } .cf-org-chip.c1 { --tag: 13, 148, 136; } .cf-org-chip.c2 { --tag: 202, 138, 4; } .cf-org-chip.c3 { --tag: 219, 39, 119; }
 .cf-org-chip.c4 { --tag: 124, 58, 237; } .cf-org-chip.c5 { --tag: 22, 163, 74; } .cf-org-chip.c6 { --tag: 234, 88, 12; } .cf-org-chip.c7 { --tag: 71, 85, 105; }
 .cf-org-chip.move { color: var(--text-2); }
