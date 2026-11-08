@@ -286,6 +286,7 @@
   "openPage": "打开此页面",
   "usageFreeShort": "今日剩余 {0}/{1}",
   "usageProShort": "Pro · 本周剩余 {0}/{1}",
+  "usageUltraShort": "Ultra · 本周剩余 {0}/{1}",
 
   "pinChat": "置顶对话",
   "unpinChat": "取消置顶",

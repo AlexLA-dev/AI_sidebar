@@ -286,6 +286,7 @@
   "openPage": "이 페이지 열기",
   "usageFreeShort": "오늘 {0}/{1}개 남음",
   "usageProShort": "Pro · 이번 주 {0}/{1}개 남음",
+  "usageUltraShort": "Ultra · 이번 주 {0}/{1}개 남음",
 
   "pinChat": "채팅 고정",
   "unpinChat": "고정 해제",

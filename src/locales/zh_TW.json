@@ -286,6 +286,7 @@
   "openPage": "開啟此頁面",
   "usageFreeShort": "今天剩 {0}/{1}",
   "usageProShort": "Pro · 本週剩 {0}/{1}",
+  "usageUltraShort": "Ultra · 本週剩 {0}/{1}",
 
   "pinChat": "釘選對話",
   "unpinChat": "取消釘選對話",

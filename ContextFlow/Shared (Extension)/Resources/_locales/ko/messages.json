@@ -824,6 +824,9 @@
  "usageProShort": {
   "message": "Pro · 이번 주 {0}/{1}개 남음"
  },
+ "usageUltraShort": {
+  "message": "Ultra · 이번 주 {0}/{1}개 남음"
+ },
  "pinChat": {
   "message": "채팅 고정"
  },

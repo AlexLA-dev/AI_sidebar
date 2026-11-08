@@ -2015,7 +2015,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (!usage) return { short: "", full: "" }
     const left = Math.max(0, usage.limit - usage.used)
     return hasPro(plan)
-      ? { short: t("usageProShort", left, usage.limit), full: isUltra(plan) ? t("usageUltra", left, usage.limit) : t("usagePro", left, usage.limit) }
+      // Ultra by its name on the line too (2.6: it said "Pro", and the full text is only a hover, none on iPhone).
+      ? isUltra(plan)
+        ? { short: t("usageUltraShort", left, usage.limit), full: t("usageUltra", left, usage.limit) }
+        : { short: t("usageProShort", left, usage.limit), full: t("usagePro", left, usage.limit) }
       : { short: t("usageFreeShort", left, usage.limit), full: t("usageFree", left, usage.limit) }
   }, [usage, plan, ownKeyActive])
 

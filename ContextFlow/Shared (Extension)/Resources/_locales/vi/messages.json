@@ -824,6 +824,9 @@
  "usageProShort": {
   "message": "Pro · {0}/{1} tuần này"
  },
+ "usageUltraShort": {
+  "message": "Ultra · {0}/{1} tuần này"
+ },
  "pinChat": {
   "message": "Ghim cuộc trò chuyện"
  },
