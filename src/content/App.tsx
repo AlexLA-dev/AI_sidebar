@@ -2846,7 +2846,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                           </div>
                         ), !picked)
                       ) : (
-                        <div class="cf-bubble-user" dir="auto">{m.mode === "google" && <span class="cf-user-mode"><Icon.Search size={12} /></span>}{m.label ?? m.content}</div>
+                        <div class="cf-bubble-user" dir="auto">
+                          {m.mode === "google" && <span class="cf-user-mode"><Icon.Search size={12} /></span>}
+                          {m.similarAsk !== undefined && <span class="cf-user-mode" title={t("similarTitle")} aria-label={t("similarTitle")}><SimilarIcon size={12} /></span>}
+                          {m.label ?? m.content}
+                        </div>
                       )}
                       {m.sources && m.sources.length > 0 && <UsedSources notes={m.sources} />}
                       {m.note && messageFooter(m, idx, () => noteCopyText(m), () => noteShareText(messages, idx, shareLabels(chatLanguage(messages)), shareLinks()))}
@@ -2883,7 +2887,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       if (!similarSubject) return findSimilar(condition, label)
                       // What was selected, in the question: "Find similar: “…”" (and the condition after it).
                       const quote = t("noteQuote", clip(similarSubject, 60))
-                      findSimilar(condition, condition ? `${label} · ${quote}` : t("similarAskedWith", quote), false, similarSubject)
+                      findSimilar(condition, condition ? `${quote} · ${label}` : quote, false, similarSubject)
                     }}
                     onClose={() => setSimilarCard(null)}
                   />

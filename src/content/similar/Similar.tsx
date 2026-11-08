@@ -57,7 +57,9 @@ export function SimilarPicker({ title, onFind, onClose }: { title: string; onFin
   const [words, setWords] = useState("")
   const find = () => {
     const condition = [chip ? chipCondition(chip) : "", words.trim()].filter(Boolean).join(", ").slice(0, 300)
-    onFind(condition, condition ? t("similarAskedWith", condition) : t("similarAsked"))
+    // The question's bubble: the person's own words (or the chip's), in whatever language they wrote them; the Find
+    // similar icon beside it says what it is (2.6 build 90: "Find similar:" in an English panel before Russian words).
+    onFind(condition, condition || t("similarAsked"))
   }
   return (
     <div class="cf-card cf-similar-pick" role="dialog" aria-label={t("similarTitle")}>

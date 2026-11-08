@@ -146,7 +146,7 @@ test("the list: checked price and stock, a condition met or Not confirmed, Watch
   assert.equal(busy.querySelectorAll(".cf-similar-watch").length, 0)
 })
 
-test("the start: a chip is the condition (one at a time), the person's words join it", () => {
+test("the start: a chip is the condition (one at a time), the person's words join it", async () => {
   const el = root()
   const asked: Array<[string, string]> = []
   ui.picker(el, (c: string, l: string) => asked.push([c, l]))
@@ -154,6 +154,18 @@ test("the start: a chip is the condition (one at a time), the person's words joi
   assert.equal(chips.length, 6)
   el.querySelector(".cf-primary").click()
   assert.deepEqual(asked[0], ["", "Find similar"])
+  // A chip: the bubble says the chip's words, no "Find similar:" prefix (the icon says it; build 90).
+  chips[0].click()
+  await new Promise((r) => setTimeout(r, 20))
+  el.querySelector(".cf-primary").click()
+  assert.deepEqual(asked[1], ["Cheaper", "Cheaper"])
+})
+
+test("no zoom on iOS: Find similar's field and quick insert's are 16px on touch screens", () => {
+  const css = (p: string) => readFileSync(new URL(`../src/content/${p}`, import.meta.url), "utf8")
+  assert.match(css("similar/similar.css"), /\.cf\[data-touch\] \.cf-similar-words \{ font-size: 16px; \}/)
+  assert.match(css("insert/insert.css"), /@media \(pointer: coarse\) \{\s*\.cf-qi-area, \.cf-qi-blank, \.cf-qi-fill-text \{ font-size: 16px; \}/)
+  assert.match(css("watch/watch.css"), /\.cf-watch-cond \{[^}]*font-size: 16px/)
 })
 
 test("the menu: Find similar… where there is a page, with Ultra's badge for someone without it", () => {

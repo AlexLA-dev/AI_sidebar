@@ -9,7 +9,7 @@ import { buildGrounding, type GoogleStats } from "../shared/google.mts"
 import { clip, ipSubject, isUuid, json, preflight, readJson, corsHeaders } from "../shared/http.mts"
 import { blockReason, resolveAccess, similarCountersFor, ultraUsage, type Access } from "../shared/plan.mts"
 import { readPrice } from "../shared/pagecheck.mts"
-import { MAX_CONDITION, MAX_PAGE_TEXT, runEngineA, similarEvalToken, type EngineOverrides, type EngineStats, type SimilarInput, type SourceFacts } from "../shared/similar.mts"
+import { MAX_CONDITION, MAX_PAGE_TEXT, MAX_SELECTION, runEngineA, similarEvalToken, type EngineOverrides, type EngineStats, type SimilarInput, type SourceFacts } from "../shared/similar.mts"
 import { googleCost, startEngineB } from "../shared/similar-google.mts"
 // Who may find similar things (Ultra in 2.6): one seam with the panel (src/shared/similar.ts).
 import { similarAllowed } from "../../src/shared/similar.ts"
@@ -24,7 +24,8 @@ import { similarAllowed } from "../../src/shared/similar.ts"
  *   Google's Search Suggestions (Google's terms: unedited, unmixed, unchecked by us, in its own block).
  *
  * Body: { installId, client: {version, platform, locale, build, audience?}, entitlement, engine: "a" | "b",
- *         page: {title, url, text, facts?: {price?, currency?, stock?, published?, duration?, lang?}}, condition }
+ *         page: {title, url, text, facts?: {price?, currency?, stock?, published?, duration?, lang?}}, condition,
+ *         selection? (≤ 1000 chars: what was selected; alternatives to what it describes, the page as context) }
  * Response (SSE): {type:"progress", step, …} … then
  *   "a": {type:"result", engine:"a", intro, items:[{name, why, fit, met, url, host, title, source, checked, price?, stock?, date?}], note, condition}
  *   "b": {type:"delta", text} … {type:"grounding", text, grounding:{sources, suggestions, queries}}
@@ -207,7 +208,9 @@ function readInput(body: Record<string, unknown>, locale: string): SimilarInput 
   if (typeof f.published === "string" && Number.isFinite(Date.parse(f.published))) facts.published = new Date(Date.parse(f.published)).toISOString()
   if (typeof f.duration === "number" && f.duration > 0) facts.duration = f.duration
   if (typeof f.lang === "string") facts.lang = clip(f.lang, 12)
-  return { page, facts, condition: clip(body.condition, MAX_CONDITION), locale }
+  // 2.6 (build 90): Find similar from a selection: what was selected is the subject, the page its context.
+  const selection = clip(body.selection, MAX_SELECTION).trim()
+  return { page, facts, condition: clip(body.condition, MAX_CONDITION), locale, ...(selection ? { selection } : {}) }
 }
 
 
