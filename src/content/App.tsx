@@ -11,6 +11,7 @@ import {
   type ErrorCode,
   type Grounding,
   type Platform,
+  type Plan,
   type ProOffer,
   type Settings,
   type UpsellWhere,
@@ -20,7 +21,7 @@ import {
   type Usage
 } from "../shared/types"
 import * as Icon from "./icons"
-import { historyForModel, isQuestion, lastPage, otherPages, pageHasChanged, pageRef, pageWhen, savedPages, selectionNote, stamped, type Entry, type SourceNote } from "../shared/conversation"
+import { FREE_MEMORY, historyForModel, isQuestion, lastPage, otherPages, pageHasChanged, pageRef, pageWhen, savedPages, selectionNote, stamped, type Entry, type SourceNote } from "../shared/conversation"
 import { Markdown } from "./markdown"
 import { MAX_OTHER_PAGES, MAX_PAGE_CHARS } from "../shared/prompt"
 import { answerWeight } from "../shared/pagefit"
@@ -53,12 +54,13 @@ import { structured } from "../shared/watch/extract"
 import { conditionFor } from "./watch/draft"
 import { openWatchSheet } from "./watch/WatchSheet"
 import { PlansSheet } from "./Plans"
+import { PlanOffer, type OfferChoice, type OfferPlace } from "./ux/PlanOffer"
 import { ListenBar, SpeakerIcon, useListen } from "./listen/useListen"
 import { dodgeFab } from "./fabDodge"
 import { hasPro, isUltra, type PaidPlan } from "../shared/plan"
 import { SettingsView } from "./Settings"
 import { shareLabels } from "./shareLabels"
-import { loadJobs, markHintSeen, resetHints, seenHints, type HintKey } from "./store"
+import { loadJobs, markHintSeen, markMemoryOffered, memoryOffered, resetHints, seenHints, type HintKey } from "./store"
 import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, onConsentChanged, loadThreads, markTourSeen, lastPlanSeen, setLastPlanSeen, planToursSeen, markPlanToursSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, purgeChats, rememberPageText, renameThread, renewalAskedPeriod, restoreChat, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount, trashChat } from "./store"
 import { TagChip, TagEditor } from "./Tags"
 import { ThreadsView } from "./Threads"
@@ -236,7 +238,7 @@ function offerUrl(code: string): string {
 }
 
 // A question whose answer was lost while nobody followed it shows these as they were; anything else as "interrupted".
-const RESUMABLE = ["STREAM", "NETWORK", "UPSTREAM", "BUSY"]
+const RESUMABLE = ["STREAM", "NETWORK", "UPSTREAM", "BUSY", "LIMIT_REACHED"]
 
 function errorText(error: ChatError): string {
   switch (error.code) {
@@ -332,6 +334,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [upsell, setUpsell] = useState<"find" | "history" | null>(null)
   // Find similar (2.6): its card (the condition, or Ultra for someone without it), and the answer as it comes.
   const [similarCard, setSimilarCard] = useState<"pick" | "upsell" | { limit: Usage | null } | null>(null)
+  // Build 91: the chat's memory is Pro's — the plans message in the chat, from the switch ("switch") or once a free
+  // chat is longer than the messages a free answer remembers ("long").
+  const [memoryOffer, setMemoryOffer] = useState<"switch" | "long" | null>(null)
+  // The plan as last known (the status, else the plan the panel saw last): what a question's memory is.
+  const planKnownRef = useRef<Plan>("free")
   // The card opened from a selection: what was selected, the thing to find alternatives to (the page is context).
   const [similarSubject, setSimilarSubject] = useState<string | null>(null)
   const [similarRun, setSimilarRun] = useState<{ items: SimilarItem[]; step: SimilarStep; pages?: number } | null>(null)
@@ -817,14 +824,29 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       if (skipped) void sendBackground({ type: "mediaNotice", action: "shown", media: skipped })
       // Right away, not on the debounced save: the user may go to another page as soon as the answer is in.
       void saveThread(threadRef.current, next, historyRef.current ? "history" : undefined)
+      memoryNudgeRef.current(next)
     }
     if (err) setError(err)
   }, [])
+
+  // A free chat longer than a free answer remembers: the memory message, once per chat (build 91).
+  const memoryNudgeRef = useRef((_entries: Turn[]) => {})
+  memoryNudgeRef.current = (entries: Turn[]) => {
+    if (historyRef.current || hasPro(statusRef.current?.plan ?? planKnownRef.current) || viaOwnKey) return
+    if (entries.filter((e) => !e.note).length <= FREE_MEMORY) return
+    const chat = threadRef.current
+    void memoryOffered().then((done) => {
+      if (done.includes(chat) || threadRef.current !== chat) return
+      void markMemoryOffered(chat)
+      setMemoryOffer("long")
+    })
+  }
 
   const ask = useCallback((text: string, opts: { label?: string; action?: string; retry?: boolean; mode?: "google" } = {}) => {
     const content = text.trim()
     if (!content || portRef.current || askToken.current) return
     setUndoBar(null)
+    setMemoryOffer(null)
     if (consent !== "ok") {
       setPending({ text: content, label: opts.label, action: opts.action, mode: opts.mode })
       return
@@ -936,7 +958,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       })
       return
     }
-    const wholeChat = settingsRef.current.wholeChat
+    // The whole chat (its messages, notes and other pages) is Pro's memory, on unless turned off; free answers see the
+    // last messages (build 91).
+    const wholeChat = hasPro(statusRef.current?.plan ?? planKnownRef.current) && settingsRef.current.chatMemory !== false
     // The chat's other pages: this device's copy of their text, else the one saved in the chat (another device's).
     const others = otherPages(history, url).map((p) => p.url).slice(0, MAX_OTHER_PAGES)
     const savedTexts = savedPages(history)
@@ -1363,6 +1387,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     void setActiveThread(id)
     setMessages([])
     setError(null)
+    setMemoryOffer(null)
     setView("chat")
   }, [stop])
 
@@ -1509,6 +1534,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     void setActiveThread(id)
     setMessages(thread?.m ?? [])
     setError(null)
+    setMemoryOffer(null)
     setView("chat")
     // Its answer still coming (asked before another chat was opened), or lost (build 91).
     if (thread) setTimeout(() => resumeRef.current(thread.m, id), 0)
@@ -2102,6 +2128,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     startPlanTourRef.current(planTourDue.tier, "plan", planTourDue.from)
   }, [planTourDue, open, guide, touring, view, streaming, partial])
   const plan = status?.plan ?? "free"
+  // The chat's memory as the next answer gets it (build 91): the whole chat for Pro unless turned off.
+  const memoryOn = hasPro(plan) && settings.chatMemory !== false
   // "Ultra" on Ultra's actions for anyone without it, once the plan is known: the selection buttons come before the
   // panel has opened on a page, so their plan is read then too (below), and an Ultra subscriber never sees the mark.
   const markUltra = status !== null && !isUltra(plan)
@@ -2110,6 +2138,16 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setPlansOpen(focus)
     void sendBackground({ type: "useEvent", f: "plans", a: "open", via, plan: focus })
   }, [])
+  if (status?.plan) planKnownRef.current = status.plan
+  // The plans message in the chat (build 91): a plan and period chosen open the app on them, as the plans sheet does.
+  const choosePlan = (choice: OfferChoice) => {
+    void (async () => {
+      const result = await sendBackground<{ opened: boolean; url: string }>({ type: "openApp", target: "subscribe", plan: choice.plan, period: choice.period, feature: choice.plan === "ultra" ? "listen" : undefined })
+      if (result && !result.opened && result.url) followLink(result.url)
+    })()
+  }
+  const offerEvent = (place: OfferPlace) => (action: string, choice?: OfferChoice) =>
+    void sendBackground({ type: "useEvent", f: "chat_plans", a: action, via: place, ...(choice ? { plan: choice.plan, period: choice.period } : {}) })
   const listen = useListen({
     platform,
     plan,
@@ -3098,7 +3136,17 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   />
                 )}
                 {similarCard === "upsell" && (
-                  <SimilarUpsell onUpgrade={() => { setSimilarCard(null); openPlans("ultra", "similar") }} onClose={() => setSimilarCard(null)} />
+                  <PlanOffer
+                    place="ultra_only"
+                    status={status}
+                    title={t("similarTitle")}
+                    body={t("similarUpsellText")}
+                    lines={[t("similarUpsellChecked"), t("similarUpsellConditions"), t("similarUpsellWatch")]}
+                    plans={["ultra"]}
+                    onChoose={(choice) => { setSimilarCard(null); choosePlan(choice) }}
+                    onEvent={offerEvent("ultra_only")}
+                    onClose={() => setSimilarCard(null)}
+                  />
                 )}
                 {similarCard !== null && typeof similarCard === "object" && (
                   <div class="cf-card limit cf-similar-limit">
@@ -3177,6 +3225,41 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   // A long page: some answers are left, but fewer than it counts as (2.5).
                   const left = Math.max(0, (error.usage?.limit ?? 0) - (error.usage?.used ?? 0))
                   const long = (error.weight ?? 1) > 1 && left > 0
+                  // Free and Pro (build 91): the plans message in the chat, Retry once the answers are back. An own key
+                  // subscriber, and Ultra (nothing above it), keep the card.
+                  if (!byok && !isUltra(plan)) {
+                    const event = offerEvent("limit")
+                    return (
+                      <PlanOffer
+                        place="limit"
+                        status={status}
+                        title={long ? t("limitLongTitle") : hasPro(plan) ? t("limitProTitle") : t("limitFreeTitle")}
+                        body={<>
+                          {long && `${t("limitLongBody", error.weight!, left)} `}
+                          {hasPro(plan) ? t("limitProBody", timeUntil(resetsAt)) : t("limitFreeBack", back, clockTime(resetsAt), timeUntil(resetsAt))}
+                        </>}
+                        plans={hasPro(plan) ? ["ultra"] : ["pro", "ultra"]}
+                        retryAt={resetsAt ? Date.parse(resetsAt) : null}
+                        onRetry={lastIsUser ? () => retry() : undefined}
+                        onChoose={choosePlan}
+                        onEvent={event}
+                        extra={<>
+                          {offer && (
+                            <div class="cf-card-actions">
+                              <button type="button" class="cf-secondary" onClick={() => { event("discount"); redeemOffer(offer.code) }}><Icon.Sparkle size={14} /> {t("offerButton", offer.discount)}</button>
+                            </div>
+                          )}
+                          <p class="cf-limit-notes">
+                            <Icon.Pencil /> {t("limitNotes")}{" "}
+                            <button type="button" class="cf-link" onClick={() => { event("note"); writeNote() }}>{t("writeNote")}</button>
+                          </p>
+                          {!hasPro(plan) && TARGET === "safari" && (
+                            <p class="cf-offer-own"><button type="button" class="cf-link" onClick={() => { event("own_key"); setView("settings") }}>{t("useOwnKey")}</button></p>
+                          )}
+                        </>}
+                      />
+                    )
+                  }
                   return (
                     <div class="cf-card limit">
                       <strong>{long ? t("limitLongTitle") : hasPro(plan) ? t("limitProTitle") : byok ? t("byokLimitTitle") : t("limitFreeTitle")}</strong>
@@ -3212,14 +3295,47 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   )
                 })()}
 
-                {error && error.code === "PRO_ONLY" && (
+                {error && error.code === "PRO_ONLY" && (byok ? (
                   <ProUpsell
                     feature="history"
                     offer={offer}
-                    byok={byok ? { discount: byokDiscount } : undefined}
-                    onPro={() => (byok ? upgrade("pro_only") : void openApp("subscribe", "ai"))}
+                    byok={{ discount: byokDiscount }}
+                    onPro={() => upgrade("pro_only")}
                     onOffer={redeemOffer}
                     onClose={() => setError(null)}
+                  />
+                ) : (
+                  <PlanOffer
+                    place="pro_only"
+                    status={status}
+                    title={t("upsellHistoryTitle")}
+                    lines={[t("upsellHistoryText"), t("upsellFindText"), t("upsellOrganizeText")]}
+                    onChoose={choosePlan}
+                    onEvent={offerEvent("pro_only")}
+                    onClose={() => setError(null)}
+                    extra={offer ? (
+                      <div class="cf-card-actions">
+                        <button type="button" class="cf-secondary" onClick={() => { offerEvent("pro_only")("discount"); redeemOffer(offer.code) }}><Icon.Sparkle size={14} /> {t("offerButton", offer.discount)}</button>
+                      </div>
+                    ) : undefined}
+                  />
+                ))}
+
+                {memoryOffer && !error && partial === null && !hasPro(plan) && (
+                  <PlanOffer
+                    key={memoryOffer}
+                    place="memory"
+                    status={status}
+                    title={t("offerMemoryTitle")}
+                    body={t(memoryOffer === "long" ? "offerMemoryLong" : "offerMemoryBody", FREE_MEMORY)}
+                    onChoose={choosePlan}
+                    onEvent={offerEvent("memory")}
+                    onClose={() => setMemoryOffer(null)}
+                    extra={offer ? (
+                      <div class="cf-card-actions">
+                        <button type="button" class="cf-secondary" onClick={() => { offerEvent("memory")("discount"); redeemOffer(offer.code) }}><Icon.Sparkle size={14} /> {t("offerButton", offer.discount)}</button>
+                      </div>
+                    ) : undefined}
                   />
                 )}
 
@@ -3334,9 +3450,17 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   <div class="cf-usage">
                     <span class="cf-usage-text" title={usageLine.full}>{usageLine.short}</span>
                     {!historyMode && <label class="cf-whole" title={t("wholeChatHint")}>
-                      <input type="checkbox" role="switch" checked={settings.wholeChat} onChange={(e) => updateSettings({ wholeChat: e.currentTarget.checked })} />
+                      <input type="checkbox" role="switch" checked={memoryOn} onChange={(e) => {
+                        // Pro's memory (build 91): Pro and Ultra turn it on and off; without Pro it stays off and the chat
+                        // says what Pro remembers.
+                        if (hasPro(plan)) return updateSettings({ chatMemory: e.currentTarget.checked })
+                        e.currentTarget.checked = false
+                        setMemoryOffer("switch")
+                        setTimeout(() => listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" }), 60)
+                      }} />
                       <span class="cf-switch" aria-hidden="true" />
                       {t("wholeChat")}
+                      {!hasPro(plan) && <span class="cf-pro-badge">Pro</span>}
                     </label>}
                     {plan === "free" && !ownKeyActive && TARGET === "safari" && (
                       offer ? (

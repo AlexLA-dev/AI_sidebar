@@ -711,5 +711,9 @@
   "similarPayIap": "앱 내 구입 {0}부터",
   "similarPerWeek": "{0}/주",
   "similarPerMonth": "{0}/월",
-  "similarPerYear": "{0}/년"
+  "similarPerYear": "{0}/년",
+  "offerMemoryTitle": "Pro는 채팅 전체를 기억합니다",
+  "offerMemoryBody": "무료 답변은 채팅의 최근 메시지 {0}개만 봅니다. Pro에서는 AI가 채팅 전체를 기억합니다: 모든 메시지, 메모, 질문한 페이지까지.",
+  "offerMemoryLong": "이 채팅은 무료 답변이 기억하는 메시지 {0}개보다 깁니다. Pro에서는 AI가 채팅 전체를 기억합니다: 모든 메시지, 메모, 질문한 페이지까지.",
+  "offerRetryAt": "{0}에 답변이 다시 가능합니다."
 }

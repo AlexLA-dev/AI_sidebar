@@ -711,5 +711,9 @@
   "similarPayIap": "App 內購買 {0} 起",
   "similarPerWeek": "{0}/週",
   "similarPerMonth": "{0}/月",
-  "similarPerYear": "{0}/年"
+  "similarPerYear": "{0}/年",
+  "offerMemoryTitle": "Pro 會記住整段對話",
+  "offerMemoryBody": "免費回答只看對話的最近 {0} 則訊息。使用 Pro，AI 會記住整段對話：每則訊息、你的筆記和你提問過的頁面。",
+  "offerMemoryLong": "這段對話已超過免費回答能記住的 {0} 則訊息。使用 Pro，AI 會記住整段對話：每則訊息、你的筆記和你提問過的頁面。",
+  "offerRetryAt": "回答將在 {0} 恢復。"
 }

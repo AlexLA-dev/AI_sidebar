@@ -2060,6 +2060,18 @@
  "similarPerYear": {
   "message": "{0}/年"
  },
+ "offerMemoryTitle": {
+  "message": "Proならチャット全体を記憶"
+ },
+ "offerMemoryBody": {
+  "message": "無料の回答が参照するのは、チャットの直近{0}件のメッセージです。ProならAIがチャット全体を記憶します：すべてのメッセージ、メモ、質問したページ。"
+ },
+ "offerMemoryLong": {
+  "message": "このチャットは、無料の回答が覚えている{0}件を超えています。ProならAIがチャット全体を記憶します：すべてのメッセージ、メモ、質問したページ。"
+ },
+ "offerRetryAt": {
+  "message": "{0}に回答が戻ります。"
+ },
  "tip_4cf1b54b00": {
   "message": "ヒント"
  },

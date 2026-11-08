@@ -497,9 +497,18 @@ test("answer events mark the limits they ran into and the chat's size (2.4)", as
   // The server keeps the last 12 messages of a usual chat.
   const long = Array.from({ length: 15 }, (_, i) => ({ role: i % 2 ? "assistant" : "user", content: `m${i}` }))
   assert.equal((await one({ messages: long })).history_cut, true)
-  // "Whole chat": another page at the 8,000-character limit.
-  const whole = await one({ context: "chat", messages: [{ role: "user", content: "q" }], pages: [{ title: "O", url: "https://o.example", text: "b".repeat(8_000) }, { title: "P", url: "https://p.example", text: "short" }] })
+  // "Whole chat" (Pro's memory, build 91): another page at the 8,000-character limit.
+  const otherPages = [{ title: "O", url: "https://o.example", text: "b".repeat(8_000) }, { title: "P", url: "https://p.example", text: "short" }]
+  const whole = await one({ entitlement: signJws(transaction()), context: "chat", messages: [{ role: "user", content: "q" }], pages: otherPages })
   assert.equal(whole.other_pages_cut, 1)
+  assert.equal(whole.whole_chat, true)
+  // Without Pro, a whole-chat request (a 2.5 panel, the app) is answered with the last 12 messages and no other pages.
+  const trimmed = await one({ context: "chat", messages: long, pages: otherPages })
+  assert.equal(trimmed.memory_trimmed, true)
+  assert.equal(trimmed.history, 12)
+  assert.equal(trimmed.history_cut, true)
+  assert.equal(trimmed.whole_chat, undefined)
+  assert.equal(trimmed.other_pages_cut, undefined)
   // The chat's size from 2.4; anything that isn't a whole number is dropped.
   const sized = await one({ stats: { turns: 45, pages: 3, chats: 50 } })
   assert.deepEqual([sized.chat_turns, sized.chat_pages, sized.chats], [45, 3, 50])
@@ -724,20 +733,25 @@ test("A question from the app about a saved chat: charged like an answer, the pr
   assert.match(system, /ContextFlow app/)
   assert.match(system, /Saved text of the chat's last page/)
   assert.match(system, /Some article text/)
-  assert.match(system, /Other saved text/)
+  // Free (build 91): the chat's memory is Pro's, so its other pages stay out.
+  assert.doesNotMatch(system, /Other saved text/)
   assert.equal(counters.get(`install:${INSTALL}`), 1, "one free answer")
+  const pro = signJws(transaction())
+  await events$(await chat(ask({ entitlement: pro, context: "chat", from: "app", messages, pages: [{ title: "Other", url: "https://other.example", text: "Other saved text" }] }), ctx()))
+  system = (openai.lastBody?.messages as Array<{ role: string; content: string }>)[0].content
+  assert.match(system, /Other saved text/)
   // An older chat without saved page texts.
   await events$(await chat(ask({ context: "chat", from: "app", messages, page: null }), ctx()))
   system = (openai.lastBody?.messages as Array<{ role: string; content: string }>)[0].content
   assert.match(system, /wasn't saved with it/)
   assert.doesNotMatch(system, /browser blocks access/)
-  // The app sends up to 9 other pages; the panel's "whole chat" still gets 3.
+  // The app sends up to 9 other pages; the panel's "whole chat" still gets 3 (Pro).
   const pages = Array.from({ length: 10 }, (_, i) => ({ title: `Page ${i + 1}`, url: `https://p${i + 1}.example`, text: `Saved fact ${i + 1}` }))
-  await events$(await chat(ask({ context: "chat", from: "app", messages, pages }), ctx()))
+  await events$(await chat(ask({ entitlement: pro, context: "chat", from: "app", messages, pages }), ctx()))
   system = (openai.lastBody?.messages as Array<{ role: string; content: string }>)[0].content
   assert.match(system, /Saved fact 9\b/)
   assert.doesNotMatch(system, /Saved fact 10/)
-  await events$(await chat(ask({ context: "chat", messages, pages }), ctx()))
+  await events$(await chat(ask({ entitlement: pro, context: "chat", messages, pages }), ctx()))
   system = (openai.lastBody?.messages as Array<{ role: string; content: string }>)[0].content
   assert.match(system, /Saved fact 3\b/)
   assert.doesNotMatch(system, /Saved fact 4/)

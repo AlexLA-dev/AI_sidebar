@@ -210,7 +210,7 @@ export type BackgroundRequest =
   // Chat UX counts (2.5), no text: see UX_KINDS in netlify/functions/v2-event.mts.
   | { type: "uxEvent"; kind: "ux_mark" | "ux_pin" | "ux_delete" | "ux_remind"; action: string; what?: string; how?: string; preset?: string }
   // A step for the feature counters: the analytics registry's "use" kind (src/shared/usage.ts), named values only.
-  | { type: "useEvent"; f: "menu" | "later" | "tour" | "bubble" | "listen" | "plans"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string }
+  | { type: "useEvent"; f: "menu" | "later" | "tour" | "bubble" | "listen" | "plans" | "chat_plans"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string }
 
 /** A PDF's text, or why there is none ("none": nothing to read, e.g. scanned pages). */
 export type PdfResult =
@@ -246,6 +246,8 @@ export const STORAGE = {
   activeThread: "cf:activeThread",
   // Build 91: the questions the background is answering, and how the last ones ended (Jobs by question id, jobs.ts).
   jobs: "cf:jobs",
+  // Build 91: the free chats that had the memory message once (chat ids, the latest last).
+  memoryOffered: "cf:memoryOffered",
   // iCloud sync: CloudKit change token, and the time of each thread's copy in iCloud.
   syncToken: "cf:syncToken",
   syncedThreads: "cf:syncedThreads",
@@ -312,8 +314,12 @@ export interface Settings {
   syncChats: boolean
   // The chat list in groups by tag, like folders (a chat with two tags is in both).
   groupByTags: boolean
-  // Answer with the whole chat in mind (all messages, notes, its other pages), not just the last messages.
+  // Answer with the whole chat in mind (all messages, notes, its other pages), not just the last messages. Before
+  // build 91 the switch itself; read no more (it was off by default, so it can't tell who chose off).
   wholeChat: boolean
+  // Build 91: the whole chat is Pro's memory, on unless the person turns it off (Pro and Ultra; free answers see the
+  // last messages, and the switch offers Pro).
+  chatMemory: boolean
   // Suggestions (2.5, Pro): a better chat for a block, one of the user's tags. Off until the user turns them on:
   // turning them on is the consent to send the messages' text for it.
   organize: boolean
@@ -338,6 +344,7 @@ export const DEFAULT_SETTINGS: Settings = {
   syncChats: true,
   groupByTags: false,
   wholeChat: false,
+  chatMemory: true,
   organize: false,
   shareMarks: false,
   insertButton: true,
