@@ -55,8 +55,7 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "dist/clips/en/*",
-        "dist/clips/ru/*"
+        "dist/clip.html"
       ],
       "matches": [
         "http://*/*",
