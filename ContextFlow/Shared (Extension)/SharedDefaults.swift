@@ -343,3 +343,51 @@ final class SharedDefaults {
         legacyKeys.forEach { defaults.removeObject(forKey: $0) }
     }
 }
+
+/// The Tips clips for the Safari panel (2.6 (91), the owner: «если ролики лежат в приложении, подтянуть их из
+/// приложения в расширение на том же девайсе»). The extension carries no clips of its own: the app puts its TipClips in
+/// the App Group once per build, at launch, and the extension reads them from there for the panel (the command
+/// `tipClip`, in parts). Before the app has run once after an install or an update, the panel shows its words instead.
+enum TipClipShare {
+    nonisolated private static var folder: URL? {
+        FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: SharedDefaults.suiteName)?
+            .appendingPathComponent("TipClips", isDirectory: true)
+    }
+
+    /// The app: copies TipClips/<lang>/*.mp4 into the App Group when this build hasn't yet (an update replaces them).
+    nonisolated static func publish() {
+        guard let source = Bundle.main.url(forResource: "TipClips", withExtension: nil), let folder else { return }
+        let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "0"
+        let stamp = folder.appendingPathComponent("build.txt")
+        if (try? String(contentsOf: stamp, encoding: .utf8)) == build { return }
+        let files = FileManager.default
+        let fresh = folder.deletingLastPathComponent().appendingPathComponent("TipClips-\(build)", isDirectory: true)
+        do {
+            // Into a fresh folder, then swapped in whole: the extension never reads a half-copied set.
+            try? files.removeItem(at: fresh)
+            try files.copyItem(at: source, to: fresh)
+            try build.write(to: fresh.appendingPathComponent("build.txt"), atomically: true, encoding: .utf8)
+            if files.fileExists(atPath: folder.path) {
+                _ = try files.replaceItemAt(folder, withItemAt: fresh)
+            } else {
+                try files.moveItem(at: fresh, to: folder)
+            }
+        } catch {
+            try? files.removeItem(at: fresh)
+        }
+    }
+
+    /// The extension: up to `length` bytes of a clip from `offset`, and its whole size; nil when the app hasn't put it
+    /// there (not run since the install, or a clip newer than its last run).
+    nonisolated static func read(name: String, lang: String, offset: Int, length: Int) -> (data: Data, total: Int)? {
+        guard name.range(of: "^[a-z0-9-]{1,40}$", options: .regularExpression) != nil, lang == "en" || lang == "ru",
+              let url = folder?.appendingPathComponent(lang).appendingPathComponent("\(name).mp4"),
+              let handle = try? FileHandle(forReadingFrom: url) else { return nil }
+        defer { try? handle.close() }
+        guard let end = try? handle.seekToEnd() else { return nil }
+        let start = UInt64(max(0, min(offset, Int(end))))
+        try? handle.seek(toOffset: start)
+        let data = (try? handle.read(upToCount: max(0, min(length, 1 << 20)))) ?? Data()
+        return (data, Int(end))
+    }
+}

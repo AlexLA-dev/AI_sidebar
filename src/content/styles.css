@@ -130,6 +130,8 @@
 }
 .cf-fab.right { right: max(14px, env(safe-area-inset-right)); }
 .cf-fab.left { left: max(14px, env(safe-area-inset-left)); }
+/* A long answer finished while the person was elsewhere (busy.ts): a dot on the round button until they open it. */
+.cf-fab-dot { position: absolute; top: 2px; inset-inline-end: 2px; width: 12px; height: 12px; border-radius: 50%; background: #ef4444; border: 2px solid #fff; }
 /* Stepping out of the selection buttons' way and back (fabDodge.ts); not while it's dragged. */
 .cf-fab.glide { transition: transform 0.15s ease, opacity 0.2s ease, top 0.22s ease; }
 .cf-fab:hover { opacity: 1; transform: scale(1.05); }
@@ -710,6 +712,10 @@
 .cf-guide { pointer-events: none; }
 .cf-guide .cf-tour-card, .cf-tour-block { pointer-events: auto; }
 .cf-tour-block { position: absolute; }
+/* A Tips clip on a plan tour's card (2.6 (91)): the feature at work, small, the card's size kept before it loads. */
+.cf-guide-clip { display: block; width: 124px; aspect-ratio: 540 / 794; margin: 2px auto 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-2); overflow: hidden; }
+.cf-guide-clip .cf-clip-frame { display: block; width: 100%; height: 100%; border: 0; }
+.cf-guide-clip .cf-clip-missing { display: flex; align-items: center; height: 100%; margin: 0; padding: 8px; font-size: 11.5px; text-align: center; color: var(--text-3); }
 .cf-guide-pill {
   position: fixed; left: 50%; transform: translateX(-50%); z-index: 4;
   display: flex; align-items: center; gap: 8px; max-width: calc(100vw - 24px);
@@ -817,3 +823,11 @@ button.cf-tag:hover { background: rgba(var(--tag), 0.2); }
 :host([dir="rtl"]) .cf-flip { transform: scaleX(-1); }
 .md pre, .md code { direction: ltr; unicode-bidi: isolate; }
 .md pre { text-align: left; }
+
+/* 2.6 (91): a long answer under way off the panel (busy.ts): a row in its chat, a spinner or a dot on its list row. */
+.cf-busy-row { display: flex; align-items: center; gap: 8px; margin: 6px 4px; padding: 10px 12px; border-radius: 12px; background: var(--bg-2); color: var(--text-2); font-size: 13.5px; }
+.cf-busy-spin, .cf-thread-busy { display: inline-block; width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--accent-soft); border-top-color: var(--accent); animation: cf-busy-spin 0.8s linear infinite; flex-shrink: 0; }
+.cf-thread-busy, .cf-thread-unread { margin-inline-start: 6px; vertical-align: -1px; }
+.cf-thread-unread { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+@keyframes cf-busy-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .cf-busy-spin, .cf-thread-busy { animation: none; } }

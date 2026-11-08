@@ -11,6 +11,7 @@ import {
   type ErrorCode,
   type Grounding,
   type Platform,
+  type Plan,
   type ProOffer,
   type Settings,
   type UpsellWhere,
@@ -20,7 +21,7 @@ import {
   type Usage
 } from "../shared/types"
 import * as Icon from "./icons"
-import { historyForModel, isQuestion, lastPage, otherPages, pageHasChanged, pageRef, pageWhen, savedPages, selectionNote, stamped, type Entry, type SourceNote } from "../shared/conversation"
+import { FREE_MEMORY, historyForModel, isQuestion, lastPage, otherPages, pageHasChanged, pageRef, pageWhen, savedPages, selectionNote, stamped, type Entry, type SourceNote } from "../shared/conversation"
 import { Markdown } from "./markdown"
 import { MAX_OTHER_PAGES, MAX_PAGE_CHARS } from "../shared/prompt"
 import { answerWeight } from "../shared/pagefit"
@@ -53,12 +54,13 @@ import { structured } from "../shared/watch/extract"
 import { conditionFor } from "./watch/draft"
 import { openWatchSheet } from "./watch/WatchSheet"
 import { PlansSheet } from "./Plans"
+import { PlanOffer, type OfferChoice, type OfferPlace } from "./ux/PlanOffer"
 import { ListenBar, SpeakerIcon, useListen } from "./listen/useListen"
 import { dodgeFab } from "./fabDodge"
 import { hasPro, isUltra, type PaidPlan } from "../shared/plan"
 import { SettingsView } from "./Settings"
 import { shareLabels } from "./shareLabels"
-import { loadJobs, markHintSeen, resetHints, seenHints, type HintKey } from "./store"
+import { loadJobs, markHintSeen, markMemoryOffered, memoryOffered, onJobsChanged, resetHints, seenHints, type HintKey } from "./store"
 import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, onConsentChanged, loadThreads, markTourSeen, lastPlanSeen, setLastPlanSeen, planToursSeen, markPlanToursSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, purgeChats, nameThread, rememberPageText, renameThread, renewalAskedPeriod, unnameThread, restoreChat, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount, trashChat } from "./store"
 import { TagChip, TagEditor } from "./Tags"
 import { ThreadsView } from "./Threads"
@@ -74,11 +76,11 @@ import { TipsSheet } from "./tips/TipsSheet"
 import { SelIconsTip } from "./ux/SelTip"
 import { shadowSelection, trackPointer } from "./selectionShadow"
 import { restoredDraft, withoutStopped } from "./ux/stopped"
-import { extendsChat, interruption, repeatsLast } from "../shared/jobs"
+import { type Jobs, extendsChat, interruption, repeatsLast, runningThreads, unreadThreads } from "../shared/jobs"
 import { scheduleReminder, thisDevice, useMessageUx } from "./ux/useMessageUx"
 import { Tour, tourSteps } from "./Tour"
 import { languageName, translateTarget } from "./translateTarget"
-import { GuideCard, GuidePill, ON_PAGE, PLAN_STEPS, PRO_TOUR, ULTRA_FULL_TOUR, ULTRA_TOUR, WAITING, type GuideStep } from "./Guide"
+import { GuideCard, GuidePill, ON_PAGE, PLAN_MENU, PLAN_STEPS, PLAN_VIEW, PRO_TOUR, ULTRA_FULL_TOUR, ULTRA_TOUR, WAITING, type GuideStep } from "./Guide"
 import { ConsentCard } from "./Consent"
 import { QI_EVENTS, QuickInsert } from "./insert/QuickInsert"
 import * as QIcon from "./insert/icons"
@@ -236,7 +238,7 @@ function offerUrl(code: string): string {
 }
 
 // A question whose answer was lost while nobody followed it shows these as they were; anything else as "interrupted".
-const RESUMABLE = ["STREAM", "NETWORK", "UPSTREAM", "BUSY"]
+const RESUMABLE = ["STREAM", "NETWORK", "UPSTREAM", "BUSY", "LIMIT_REACHED"]
 
 function errorText(error: ChatError): string {
   switch (error.code) {
@@ -332,6 +334,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [upsell, setUpsell] = useState<"find" | "history" | null>(null)
   // Find similar (2.6): its card (the condition, or Ultra for someone without it), and the answer as it comes.
   const [similarCard, setSimilarCard] = useState<"pick" | "upsell" | { limit: Usage | null } | null>(null)
+  // Build 91: the chat's memory is Pro's — the plans message in the chat, from the switch ("switch") or once a free
+  // chat is longer than the messages a free answer remembers ("long").
+  const [memoryOffer, setMemoryOffer] = useState<"switch" | "long" | null>(null)
+  // The plan as last known (the status, else the plan the panel saw last): what a question's memory is.
+  const planKnownRef = useRef<Plan>("free")
   // The card opened from a selection: what was selected, the thing to find alternatives to (the page is context).
   const [similarSubject, setSimilarSubject] = useState<string | null>(null)
   const [similarRun, setSimilarRun] = useState<{ items: SimilarItem[]; step: SimilarStep; pages?: number } | null>(null)
@@ -817,15 +824,31 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       if (skipped) void sendBackground({ type: "mediaNotice", action: "shown", media: skipped })
       // Right away, not on the debounced save: the user may go to another page as soon as the answer is in.
       void saveThread(threadRef.current, next, historyRef.current ? "history" : undefined)
+      memoryNudgeRef.current(next)
     }
     if (err) setError(err)
   }, [])
+
+  // A free chat longer than a free answer remembers: the memory message, once per chat (build 91).
+  const memoryNudgeRef = useRef((_entries: Turn[]) => {})
+  memoryNudgeRef.current = (entries: Turn[]) => {
+    const planNow = statusRef.current?.plan ?? planKnownRef.current
+    if (historyRef.current || hasPro(planNow) || (Boolean(statusRef.current?.hasOwnKey) && planNow !== "free")) return
+    if (entries.filter((e) => !e.note).length <= FREE_MEMORY) return
+    const chat = threadRef.current
+    void memoryOffered().then((done) => {
+      if (done.includes(chat) || threadRef.current !== chat) return
+      void markMemoryOffered(chat)
+      setMemoryOffer("long")
+    })
+  }
 
   const ask = useCallback((text: string, opts: { label?: string; action?: string; retry?: boolean; mode?: "google" } = {}) => {
     const content = text.trim()
     if (!content || portRef.current || askToken.current) return
     setUndoBar(null)
     setFirstWin(null)
+    setMemoryOffer(null)
     if (consent !== "ok") {
       setPending({ text: content, label: opts.label, action: opts.action, mode: opts.mode })
       return
@@ -937,7 +960,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       })
       return
     }
-    const wholeChat = settingsRef.current.wholeChat
+    // The whole chat (its messages, notes and other pages) is Pro's memory, on unless turned off; free answers see the
+    // last messages (build 91).
+    const planNow = statusRef.current?.plan ?? planKnownRef.current
+    // …and the own key's, whose subscriber pays the model.
+    const ownKeyNow = Boolean(statusRef.current?.hasOwnKey) && planNow !== "free"
+    const wholeChat = (hasPro(planNow) || ownKeyNow) && settingsRef.current.chatMemory !== false
     // The chat's other pages: this device's copy of their text, else the one saved in the chat (another device's).
     const others = otherPages(history, url).map((p) => p.url).slice(0, MAX_OTHER_PAGES)
     const savedTexts = savedPages(history)
@@ -1367,6 +1395,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     void setActiveThread(id)
     setMessages([])
     setError(null)
+    setMemoryOffer(null)
     setView("chat")
   }, [stop])
 
@@ -1514,6 +1543,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     void setActiveThread(id)
     setMessages(thread?.m ?? [])
     setError(null)
+    setMemoryOffer(null)
     setView("chat")
     // Its answer still coming (asked before another chat was opened), or lost (build 91).
     if (thread) setTimeout(() => resumeRef.current(thread.m, id), 0)
@@ -1889,6 +1919,15 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // The ✦ steps aside while quick insert's button sits by the field being typed in.
   const insertButtonShown = useButtonShown()
   const fabVisible = !popup && fabEnabled && !open && !settings.fabHiddenSites.includes(source.site()) && !insertButtonShown
+  // Long answers run by the background (similar-26's jobs, src/shared/jobs.ts): a spinner on their chat's row and
+  // "Working on it…" in it, a dot on the row and on the round button once one finished unseen. The background marks
+  // a chat's outcomes seen when the panel shows it (the "jobsSeen" effect above).
+  const [jobList, setJobList] = useState<Jobs>({})
+  useEffect(() => {
+    void loadJobs().then(setJobList)
+    return onJobsChanged(setJobList)
+  }, [])
+  const jobs = useMemo(() => ({ running: runningThreads(jobList), unread: unreadThreads(jobList) }), [jobList])
   // The selection buttons were placed: the round button steps out of their way, or stays (fabDodge.ts).
   const onBubblePlace = useCallback((box: DOMRect, selection: DOMRect) => {
     const fab = fabRef.current
@@ -1999,7 +2038,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (!guide) return
     // A plan's tour goes by its Next and the taps on what it lights up; out of the chat list, on past the chats.
     if (planTour.current) {
-      if (guide === "pro_chatList" && view === "chat") guideTo(planAfter("pro_chats"))
+      // Left the place the step is shown in (Back from the chat list or Templates): on past that place's steps.
+      const there = PLAN_VIEW[guide]
+      if (there && view !== there && view !== "settings") planNext(there === "threads" ? "pro_askChats" : guide)
       return
     }
     const second = guide === "askSel" || guide === "answer2" || ON_PAGE.includes(guide)
@@ -2019,25 +2060,25 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   useEffect(() => {
     if (!open && guide && !ON_PAGE.includes(guide)) endGuide("exit", "closed")
   }, [open])
-  /** The plan tour's step after `step` (null: the tour ends). */
-  const planAfter = (step: GuideStep): GuideStep => {
-    const steps = planTour.current?.steps ?? []
-    return steps[steps.indexOf(step) + 1] ?? step
+  /** A plan step on, where it's shown: the chat list, Templates or the chat, with the "…" menu open for the watched
+   * pages (and for Find similar when the chat has no quick action for it). One update with the step, so the step is
+   * never measured on the screen before. */
+  const planEnter = (step: GuideStep) => {
+    setView(PLAN_VIEW[step] ?? "chat")
+    const menu = PLAN_MENU.includes(step) || (step === "ultra_similar" && !panelRef.current?.querySelector(".cf-empty .cf-chip[data-action=similar]"))
+    setPageMenu(menu)
+    guideTo(step)
   }
   const planNext = (step: GuideStep) => {
     const steps = planTour.current?.steps ?? []
     const i = steps.indexOf(step)
-    if (i < 0 || i >= steps.length - 1) endGuide("done")
-    else guideTo(steps[i + 1])
+    if (i < 0 || i >= steps.length - 1) {
+      setPageMenu(false)
+      endGuide("done")
+    } else planEnter(steps[i + 1])
   }
   const guideNext = () => {
-    if (guide && planTour.current) {
-      if (guide === "pro_chatList") {
-        setView("chat")
-        return planNext("pro_chats")
-      }
-      return planNext(guide)
-    }
+    if (guide && planTour.current) return planNext(guide)
     if (guide === "answer") guideTo("select")
     else if (guide === "select") {
       guideTo("pick")
@@ -2059,13 +2100,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       // The guide's card says what the list's hint would: it isn't shown again later.
       if (hints !== null && !hints.includes("chats")) doneHint("chats")
     } else if (step === "menu") endGuide("done")
-    // A plan's tour: into the chat list with its button; Listen and Find similar do their thing and it goes on; the
-    // "…" ends it with the menu open (the watched pages are there).
-    else if (step === "pro_chats") {
-      setView("threads")
-      guideTo("pro_chatList")
-    } else if (step === "pro_watch" || step === "ultra_watch") endGuide("done")
-    else if (step === "ultra_listen" || step === "ultra_similar") planNext(step)
+    // A plan's tour: the lit-up control does its thing (✦ turns on, Listen plays, Find similar's card opens, a new
+    // template starts) and the tour goes on; Watch this page or Watching ends it there.
+    else if (step === "pro_watch" || step === "ultra_watch") endGuide("done")
+    else if (planTour.current && PLAN_STEPS.includes(step)) planNext(step)
   }
   /** A plan's tour: what Pro or Ultra added. After the upgrade (via "plan"), or again from the "…" menu. Ultra for
    * someone coming from below Pro (and from the menu) has Pro's steps too. */
@@ -2075,7 +2113,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     planTour.current = { steps, plans: full || tier === "pro" ? (tier === "pro" ? ["pro"] : ["pro", "ultra"]) : ["ultra"] }
     guideVia.current = via
     setTouring(false)
-    setView("chat")
+    setView(PLAN_VIEW[steps[0]] ?? "chat")
     guideRef.current = steps[0]
     setGuide(steps[0])
     reportGuide("start", steps[0])
@@ -2115,6 +2153,16 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setPlansOpen(focus)
     void sendBackground({ type: "useEvent", f: "plans", a: "open", via, plan: focus })
   }, [])
+  if (status?.plan) planKnownRef.current = status.plan
+  // The plans message in the chat (build 91): a plan and period chosen open the app on them, as the plans sheet does.
+  const choosePlan = (choice: OfferChoice) => {
+    void (async () => {
+      const result = await sendBackground<{ opened: boolean; url: string }>({ type: "openApp", target: "subscribe", plan: choice.plan, period: choice.period, feature: choice.plan === "ultra" ? "listen" : undefined })
+      if (result && !result.opened && result.url) followLink(result.url)
+    })()
+  }
+  const offerEvent = (place: OfferPlace) => (action: string, choice?: OfferChoice) =>
+    void sendBackground({ type: "useEvent", f: "chat_plans", a: action, via: place, ...(choice ? { plan: choice.plan, period: choice.period } : {}) })
   const listen = useListen({
     platform,
     plan,
@@ -2135,6 +2183,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     void listen.start("page", { text: read.text, what: "page", lang: document.documentElement.lang || textLanguage(read.text) || t("langCode"), title: read.title || source.title(), url: source.href() })
   }, [listen.start, source])
   const ownKeyActive = viaOwnKey || (Boolean(status?.hasOwnKey) && plan !== "free")
+  // The chat's memory as the next answer gets it (build 91): the whole chat for Pro and Ultra (and the own key, whose
+  // subscriber pays the model) unless turned off.
+  const memoryAllowed = hasPro(plan) || ownKeyActive
+  const memoryOn = memoryAllowed && settings.chatMemory !== false
   // The App Store offer code for Pro, once this install has run out of free answers (Safari only).
   const offer = TARGET === "safari" && plan === "free" && !ownKeyActive ? error?.offer ?? status?.offer ?? null : null
   // Videos and PDFs on the page are read for Pro (and the user's own key); free answers say they skipped them.
@@ -2715,6 +2767,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           }}
         >
           <Icon.Sparkle size={22} />
+          {jobs.unread.size > 0 && <span class="cf-fab-dot" role="status" aria-label={t("busyNew")} />}
         </button>
       )}
 
@@ -2957,7 +3010,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
           {view === "threads" ? (
             <>
-              {hintDue("chats") && threadList.length > 0 && guide !== "chatList" && guide !== "pro_chatList" && (
+              {hintDue("chats") && threadList.length > 0 && guide !== "chatList" && !(guide && PLAN_VIEW[guide] === "threads") && (
                 <div class="cf-upsell-wrap">
                   <Hint icon={<Icon.Chats />} title={t("hintChatsTitle")} onDone={() => doneHint("chats")}>{t("hintChatsBody")}</Hint>
                 </div>
@@ -3003,6 +3056,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 onGrouped={(on) => updateSettings({ groupByTags: on })}
                 touch={touch}
                 trashCount={trashList.length}
+                busy={jobs.running}
+                unread={jobs.unread}
                 onOpenTrash={() => {
                   setUndoBar(null)
                   setView("trash")
@@ -3167,7 +3222,17 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   />
                 )}
                 {similarCard === "upsell" && (
-                  <SimilarUpsell onUpgrade={() => { setSimilarCard(null); openPlans("ultra", "similar") }} onClose={() => setSimilarCard(null)} />
+                  <PlanOffer
+                    place="ultra_only"
+                    status={status}
+                    title={t("similarTitle")}
+                    body={t("similarUpsellText")}
+                    lines={[t("similarUpsellChecked"), t("similarUpsellConditions"), t("similarUpsellWatch")]}
+                    plans={["ultra"]}
+                    onChoose={(choice) => { setSimilarCard(null); choosePlan(choice) }}
+                    onEvent={offerEvent("ultra_only")}
+                    onClose={() => setSimilarCard(null)}
+                  />
                 )}
                 {similarCard !== null && typeof similarCard === "object" && (
                   <div class="cf-card limit cf-similar-limit">
@@ -3195,6 +3260,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   </div>
                 )}
 
+                {/* 2.6 (91): a long answer for this chat under way off the panel (Find similar in the background). */}
+                {jobs.running.has(threadRef.current) && partial === null && (
+                  <div class="cf-busy-row" role="status"><span class="cf-busy-spin" aria-hidden="true" /> {t("busyWorking")}</div>
+                )}
                 {organizeCardsView}
 
                 {byokCard && byokDiscount !== null && !error && partial === null && (
@@ -3246,6 +3315,41 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   // A long page: some answers are left, but fewer than it counts as (2.5).
                   const left = Math.max(0, (error.usage?.limit ?? 0) - (error.usage?.used ?? 0))
                   const long = (error.weight ?? 1) > 1 && left > 0
+                  // Free and Pro (build 91): the plans message in the chat, Retry once the answers are back. An own key
+                  // subscriber, and Ultra (nothing above it), keep the card.
+                  if (!byok && !isUltra(plan)) {
+                    const event = offerEvent("limit")
+                    return (
+                      <PlanOffer
+                        place="limit"
+                        status={status}
+                        title={long ? t("limitLongTitle") : hasPro(plan) ? t("limitProTitle") : t("limitFreeTitle")}
+                        body={<>
+                          {long && `${t("limitLongBody", error.weight!, left)} `}
+                          {hasPro(plan) ? t("limitProBody", timeUntil(resetsAt)) : t("limitFreeBack", back, clockTime(resetsAt), timeUntil(resetsAt))}
+                        </>}
+                        plans={hasPro(plan) ? ["ultra"] : ["pro", "ultra"]}
+                        retryAt={resetsAt ? Date.parse(resetsAt) : null}
+                        onRetry={lastIsUser ? () => retry() : undefined}
+                        onChoose={choosePlan}
+                        onEvent={event}
+                        extra={<>
+                          {offer && (
+                            <div class="cf-card-actions">
+                              <button type="button" class="cf-secondary" onClick={() => { event("discount"); redeemOffer(offer.code) }}><Icon.Sparkle size={14} /> {t("offerButton", offer.discount)}</button>
+                            </div>
+                          )}
+                          <p class="cf-limit-notes">
+                            <Icon.Pencil /> {t("limitNotes")}{" "}
+                            <button type="button" class="cf-link" onClick={() => { event("note"); writeNote() }}>{t("writeNote")}</button>
+                          </p>
+                          {!hasPro(plan) && TARGET === "safari" && (
+                            <p class="cf-offer-own"><button type="button" class="cf-link" onClick={() => { event("own_key"); setView("settings") }}>{t("useOwnKey")}</button></p>
+                          )}
+                        </>}
+                      />
+                    )
+                  }
                   return (
                     <div class="cf-card limit">
                       <strong>{long ? t("limitLongTitle") : hasPro(plan) ? t("limitProTitle") : byok ? t("byokLimitTitle") : t("limitFreeTitle")}</strong>
@@ -3281,14 +3385,47 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   )
                 })()}
 
-                {error && error.code === "PRO_ONLY" && (
+                {error && error.code === "PRO_ONLY" && (byok ? (
                   <ProUpsell
                     feature="history"
                     offer={offer}
-                    byok={byok ? { discount: byokDiscount } : undefined}
-                    onPro={() => (byok ? upgrade("pro_only") : void openApp("subscribe", "ai"))}
+                    byok={{ discount: byokDiscount }}
+                    onPro={() => upgrade("pro_only")}
                     onOffer={redeemOffer}
                     onClose={() => setError(null)}
+                  />
+                ) : (
+                  <PlanOffer
+                    place="pro_only"
+                    status={status}
+                    title={t("upsellHistoryTitle")}
+                    lines={[t("upsellHistoryText"), t("upsellFindText"), t("upsellOrganizeText")]}
+                    onChoose={choosePlan}
+                    onEvent={offerEvent("pro_only")}
+                    onClose={() => setError(null)}
+                    extra={offer ? (
+                      <div class="cf-card-actions">
+                        <button type="button" class="cf-secondary" onClick={() => { offerEvent("pro_only")("discount"); redeemOffer(offer.code) }}><Icon.Sparkle size={14} /> {t("offerButton", offer.discount)}</button>
+                      </div>
+                    ) : undefined}
+                  />
+                ))}
+
+                {memoryOffer && !error && partial === null && !memoryAllowed && (
+                  <PlanOffer
+                    key={memoryOffer}
+                    place="memory"
+                    status={status}
+                    title={t("offerMemoryTitle")}
+                    body={t(memoryOffer === "long" ? "offerMemoryLong" : "offerMemoryBody", FREE_MEMORY)}
+                    onChoose={choosePlan}
+                    onEvent={offerEvent("memory")}
+                    onClose={() => setMemoryOffer(null)}
+                    extra={offer ? (
+                      <div class="cf-card-actions">
+                        <button type="button" class="cf-secondary" onClick={() => { offerEvent("memory")("discount"); redeemOffer(offer.code) }}><Icon.Sparkle size={14} /> {t("offerButton", offer.discount)}</button>
+                      </div>
+                    ) : undefined}
                   />
                 )}
 
@@ -3403,9 +3540,17 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   <div class="cf-usage">
                     <span class="cf-usage-text" title={usageLine.full}>{usageLine.short}</span>
                     {!historyMode && <label class="cf-whole" title={t("wholeChatHint")}>
-                      <input type="checkbox" role="switch" checked={settings.wholeChat} onChange={(e) => updateSettings({ wholeChat: e.currentTarget.checked })} />
+                      <input type="checkbox" role="switch" checked={memoryOn} onChange={(e) => {
+                        // Pro's memory (build 91): Pro and Ultra turn it on and off; without Pro it stays off and the chat
+                        // says what Pro remembers.
+                        if (memoryAllowed) return updateSettings({ chatMemory: e.currentTarget.checked })
+                        e.currentTarget.checked = false
+                        setMemoryOffer("switch")
+                        setTimeout(() => listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" }), 60)
+                      }} />
                       <span class="cf-switch" aria-hidden="true" />
                       {t("wholeChat")}
+                      {!memoryAllowed && <span class="cf-pro-badge">Pro</span>}
                     </label>}
                     {plan === "free" && !ownKeyActive && TARGET === "safari" && (
                       offer ? (
@@ -3419,7 +3564,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               )}
             </>
           )}
-          {guide && guideIdle && !ON_PAGE.includes(guide) && view === (guide === "chatList" || guide === "pro_chatList" ? "threads" : "chat") && panelRef.current && (
+          {guide && guideIdle && !ON_PAGE.includes(guide) && view === (guide === "chatList" ? "threads" : PLAN_VIEW[guide] ?? "chat") && panelRef.current && (
             <GuideCard
               key={guide}
               panel={panelRef.current}

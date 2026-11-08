@@ -495,8 +495,16 @@ const pdfs: Record<string, string> = {
 // Find similar (2.6): a scripted answer in /api/v2/similar's own events (the real engine needs the web and our keys,
 // tools/similar/eval.mts runs it on a deploy preview). Find similar is Ultra's: without PREVIEW_PLAN=ultra, PRO_ONLY.
 const SIMILAR_STEP_MS = Number(process.env.SIMILAR_STEP_MS ?? 700)
-function similarItems(condition: string) {
+function similarItems(condition: string, ru = false) {
   const cond = Boolean(condition.trim())
+  // A Russian page (/product-ru) gets the same list written in Russian, its prices against the page's 12 990 ₽ (the
+  // Tips clip in Russian; the real engine answers in the person's language).
+  if (ru) return [
+    { name: "Soundcore Space One", why: "Накладные, с адаптивным шумоподавлением и LDAC, как Aero 2, но с более мягким и лёгким оголовьем.", fit: cond ? "Дешевле: 9 990 ₽ против 12 990 ₽, в наличии." : "", met: cond ? "yes" : "n/a", url: "https://www.soundcore.com/products/space-one-a3035011", host: "soundcore.com", title: "Space One", source: "item", checked: true, price: "9990 RUB", stock: "in", watch: { source: "ld-price", value: "9990 RUB" } },
+    { name: "Sony WH-CH720N", why: "Лёгкие наушники с шумоподавлением и похожей батареей на 35 часов; кодеков меньше.", fit: cond ? "Дешевле: 8 990 ₽ против 12 990 ₽, в наличии." : "", met: cond ? "yes" : "n/a", url: "https://electronics.sony.com/audio/headphones/all-headphones/p/whch720n-b", host: "electronics.sony.com", title: "WH-CH720N", source: "item", checked: true, price: "8990 RUB", stock: "in", date: "2026-08-14", watch: { source: "ld-price", value: "8990 RUB" } },
+    { name: "JLab JBuds Lux ANC", why: "Недорогой вариант с активным шумоподавлением и эквалайзером в приложении, из свежей подборки.", fit: cond ? "На странице нет цены, так что «дешевле» не подтверждено." : "", met: cond ? "unknown" : "n/a", url: "https://www.soundguys.com/best-budget-noise-cancelling-headphones-7142/", host: "soundguys.com", title: "Лучшие недорогие наушники с шумоподавлением", source: "list", checked: true, date: "2026-10-02" },
+    { name: "EarFun Wave Pro", why: "LDAC и мультипойнт, как у Aero 2, и батарея держит дольше.", fit: cond ? "Магазин не пускает серверы на страницу, так что цена и наличие не подтверждены." : "", met: cond ? "unknown" : "n/a", url: "https://www.amazon.com/dp/B0CSKDX2SQ", host: "amazon.com", title: "EarFun Wave Pro", source: "item", checked: false }
+  ]
   return [
     { name: "Soundcore Space One", why: "Over-ear, adaptive noise cancelling and LDAC like the Aero 2, with a softer, lighter headband.", fit: cond ? "Cheaper: $99.99 against $129, in stock." : "", met: cond ? "yes" : "n/a", url: "https://www.soundcore.com/products/space-one-a3035011", host: "soundcore.com", title: "Space One", source: "item", checked: true, price: "99.99 USD", stock: "in", watch: { source: "ld-price", value: "99.99 USD" } },
     { name: "Sony WH-CH720N", why: "Light noise-cancelling headphones with a similar 35-hour battery; fewer codecs.", fit: cond ? "Cheaper: $89.99 against $129, in stock." : "", met: cond ? "yes" : "n/a", url: "https://electronics.sony.com/audio/headphones/all-headphones/p/whch720n-b", host: "electronics.sony.com", title: "WH-CH720N", source: "item", checked: true, price: "89.99 USD", stock: "in", date: "2026-08-14", watch: { source: "ld-price", value: "89.99 USD" } },
@@ -514,20 +522,22 @@ async function similarStub(body: Record<string, unknown>, res: import("node:http
   const send = (e: unknown) => res.write(`data: ${JSON.stringify(e)}\n\n`)
   const wait = (ms: number) => new Promise((r) => setTimeout(r, ms))
   const condition = typeof body.condition === "string" ? body.condition : ""
+  const ru = /[а-яё]/i.test(`${condition} ${typeof body.selection === "string" ? body.selection : ""} ${JSON.stringify(body.page ?? "").slice(0, 400)}`)
   send({ type: "progress", step: "plan" })
   await wait(SIMILAR_STEP_MS)
-  send({ type: "progress", step: "search", queries: ["wireless noise cancelling headphones like Aero 2"] })
+  send({ type: "progress", step: "search", queries: [ru ? "беспроводные наушники с шумоподавлением как Aero 2" : "wireless noise cancelling headphones like Aero 2"] })
   await wait(SIMILAR_STEP_MS * 2)
   send({ type: "progress", step: "check", pages: 12 })
   await wait(SIMILAR_STEP_MS)
   send({ type: "progress", step: "write", verified: 9 })
-  const items = similarItems(condition)
+  const items = similarItems(condition, ru)
   for (const [i, item] of items.entries()) {
     await wait(SIMILAR_STEP_MS * 0.7)
     send({ type: "item", engine: "a", index: i, item })
   }
   await wait(200)
-  send({ type: "result", engine: "a", intro: "Wireless noise-cancelling headphones like the Aero 2, each page opened and checked just now.", items, note: "", condition: condition ? "cheaper" : "none" })
+  const intro = ru ? "Беспроводные наушники с шумоподавлением, похожие на Aero 2; каждую страницу мы только что открыли и проверили." : "Wireless noise-cancelling headphones like the Aero 2, each page opened and checked just now."
+  send({ type: "result", engine: "a", intro, items, note: "", condition: condition ? "cheaper" : "none" })
   send({ type: "done", ms: 9000, usd: 0 })
   res.end()
 }

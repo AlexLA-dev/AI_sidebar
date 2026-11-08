@@ -87,7 +87,6 @@
   "1cbf20f3c9d5": "Cosa fa ContextFlow in Safari",
   "28b831787b53": "Ogni funzione con un breve video: risposte sulla pagina, note, inserimento rapido, promemoria, prezzi seguiti e chat in ordine.",
   "71164de42647": "Cosa fa ContextFlow",
-  "97df13861bf7": "Sono gli stessi suggerimenti dell’app, raggruppati in base a ciò che vuoi fare. Ogni video mostra il vero pannello al lavoro. Le schede con <span class=\"pro-badge\">Pro</span> richiedono il piano Pro. Tutto il resto funziona con il piano Gratis.",
   "89895fd68fea": "Su tutti i tuoi dispositivi",
   "db298c67acfd": "Hai iniziato su iPhone e finisci su Mac? Attiva «Sincronizza le chat con iCloud», e la chat continua su iPad e Mac. È cifrata end-to-end nel tuo iCloud e non viene mai salvata sul mio server.",
   "23bcbc4b8227": "Aprilo sulla pagina che stai leggendo e chiedi. Nessun prompt da scrivere.",
@@ -467,5 +466,18 @@
   "a3587d02c409": "Cosa viene inviato quando faccio una domanda?",
   "9e77c9846978": "La tua domanda e il testo della pagina (o la tua selezione), solo in quel momento e solo per generare la risposta. Dettagli nell’<a href=\"/privacy\">Informativa sulla privacy</a>.",
   "0943d5368501": "Avevo un account in una versione precedente. Come lo elimino?",
-  "17328923ce30": "Scrivici dall’indirizzo usato per la registrazione e lo elimineremo entro 30 giorni. La versione 2.0 non usa più gli account."
+  "17328923ce30": "Scrivici dall’indirizzo usato per la registrazione e lo elimineremo entro 30 giorni. La versione 2.0 non usa più gli account.",
+  "b8a90a3e910d": "Sono gli stessi suggerimenti dell’app, raggruppati in base a ciò che vuoi fare. Ogni video mostra il vero pannello al lavoro. Le schede con <span class=\"pro-badge\">Pro</span> richiedono il piano Pro, quelle con <span class=\"ultra-badge\">Ultra</span> richiedono Ultra. Tutto il resto funziona con il piano Gratis.",
+  "b96ddaab20ff": "Il tuo piano",
+  "2f27bc2271a5": "Azioni rapide sotto la selezione",
+  "fe4d888ff56e": "Non hai voglia di scrivere sul telefono? Su iPhone e iPad seleziona del testo: nel campo «La tua domanda…» sotto trovi «Riassumi», «Traduci», «Trova simili» e altro. Scorrile col dito e toccane una. Su Mac le stesse azioni sono pulsanti sotto la selezione.",
+  "cd4dfd7997f6": "Trova simili <span class=\"ultra-badge\">Ultra</span>",
+  "ea488f6eb0df": "Ti chiedi cos’altro c’è in giro? Tocca «Trova simili» nel pannello, oppure seleziona il nome di un prodotto e tocca «Trova simili» sotto. Aggiungi una condizione come «Più economico» o «Disponibile» se vuoi. Ogni alternativa è una pagina reale, aperta e verificata prima che tu la veda.",
+  "63345676db20": "Ascolta <span class=\"ultra-badge\">Ultra</span>",
+  "3c892169e2cc": "Preferisci ascoltare invece di leggere? Tocca «Ascolta» sotto una risposta, oppure scegli «Ascolta questa pagina» nel menu «…». Una voce naturale legge a 1×, 1,2×, 1,5× o 2×. Su iPhone e iPad suona nell’app ContextFlow e continua a schermo bloccato; su Mac, direttamente nel pannello.",
+  "da0391a442a7": "Come paghi e cosa aggiunge il tuo piano.",
+  "b3282f43dd8a": "Mensile o annuale",
+  "0401a0483c47": "Vuoi spendere meno? Pro e Ultra si pagano al mese o all’anno, e un anno costa meno di dodici mesi. Tocca «Annuale» sopra i piani per vedere ogni prezzo e quanto risparmi. Paghi già al mese? «Passa all’annuale» è in «Impostazioni» → «Il tuo piano», e parte quando finisce il mese in corso.",
+  "9288a85bb996": "Cosa aggiunge il tuo piano",
+  "14a3f72a986a": "Hai appena cambiato piano e non sai cosa c’è di nuovo? Dopo l’acquisto di Pro o Ultra, ContextFlow ti mostra passo passo cosa aggiunge il tuo piano. Per rivederlo, tocca «…» in alto nel pannello, poi «Altro…» e «Cosa include Pro» o «Cosa include Ultra». Nell’app è in «Impostazioni», sotto «Il tuo piano»."
 }

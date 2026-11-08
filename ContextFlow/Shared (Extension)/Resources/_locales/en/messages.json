@@ -755,6 +755,18 @@
  "uxShowIntro": {
   "message": "Show the intro again"
  },
+ "uxOther": {
+  "message": "Other…"
+ },
+ "tipClipNeedsApp": {
+  "message": "Open the ContextFlow app once to see this clip."
+ },
+ "busyWorking": {
+  "message": "Working on it…"
+ },
+ "busyNew": {
+  "message": "New answer ready"
+ },
  "ptMenu": {
   "message": "What's in {0}"
  },
@@ -764,17 +776,17 @@
  "ptProMediaBody": {
   "message": "On a page with a video or a PDF, ContextFlow now reads them too: the video's subtitles and the PDF's text. Just ask."
  },
- "ptProChatsTitle": {
-  "message": "Search and ask your chats"
+ "ptProFindTitle": {
+  "message": "AI search in your chats"
  },
- "ptProChatsBody": {
-  "message": "In your chats, ✦ finds a chat from a description, and “{0}” answers from everything you've read and asked."
+ "ptProFindBody": {
+  "message": "Turn on ✦ by the search and describe the chat you remember, even without its exact words."
  },
- "ptProChatListTitle": {
-  "message": "Right here"
+ "ptProAskTitle": {
+  "message": "Ask all your chats"
  },
- "ptProChatListBody": {
-  "message": "Turn on ✦ by the search and describe the chat you want, or tap “{0}” to ask all your chats at once."
+ "ptProAskBody": {
+  "message": "“{0}” answers from everything you've read and asked: “What did I read this week?”"
  },
  "ptProSortTitle": {
   "message": "Sorted by topic"
@@ -2084,6 +2096,18 @@
  "similarPerYear": {
   "message": "{0}/year"
  },
+ "offerMemoryTitle": {
+  "message": "Pro remembers the whole chat"
+ },
+ "offerMemoryBody": {
+  "message": "A free answer sees the last {0} messages of a chat. With Pro the AI remembers all of it: every message, your notes and the pages you asked about."
+ },
+ "offerMemoryLong": {
+  "message": "This chat is longer than the {0} messages a free answer remembers. With Pro the AI remembers all of it: every message, your notes and the pages you asked about."
+ },
+ "offerRetryAt": {
+  "message": "Answers are back at {0}."
+ },
  "tip_4cf1b54b00": {
   "message": "Tips"
  },
@@ -2125,6 +2149,18 @@
  },
  "tip_fa1cdf5479": {
   "message": "Select text on a page: type your own question about it right under the selection, or tap Note to save it to the chat with its page. Notes use no answers."
+ },
+ "tip_2f27bc2271": {
+  "message": "Quick actions under a selection"
+ },
+ "tip_b4d2d0edad": {
+  "message": "Select text on a page: Summarize, Translate, Find similar and more wait in the “Your question…” field under it. Swipe along them and tap one, no typing needed."
+ },
+ "tip_2aef052e5b": {
+  "message": "Buttons under a selection"
+ },
+ "tip_894f528548": {
+  "message": "Select text on a page: Explain, Translate, Google and Find similar are buttons right under it. Click one, or type your own question in the field below them."
  },
  "tip_9000896590": {
   "message": "A chat follows you"
@@ -2188,6 +2224,24 @@
  },
  "tip_ff32d2c483": {
   "message": "With Pro, PDFs shown on a page or linked from it go with your question, and answers say which page they're on. On iPad and Mac, ContextFlow in the toolbar opens on a PDF tab too. Free answers use the page's text."
+ },
+ "tip_de4adc7524": {
+  "message": "Find similar"
+ },
+ "tip_b2248495b1": {
+  "message": "Tap Find similar among the panel's actions, or in the … menu at the top of the panel. Or select text, like a product's name, and tap Find similar among the quick actions under it. Add a condition like Cheaper or In stock if you want: the alternatives are real, and every link is opened and checked before you see it."
+ },
+ "tip_9161a2ed42": {
+  "message": "Click Find similar among the panel's actions, or in the … menu at the top of the panel. Or select text, like a product's name, and click the Find similar button under it. Add a condition like Cheaper or In stock if you want: the alternatives are real, and every link is opened and checked before you see it."
+ },
+ "tip_c518fb0674": {
+  "message": "Listen"
+ },
+ "tip_f26f3d2993": {
+  "message": "Tap Listen under an answer, or choose Listen to this page in the … menu at the top of the panel. The ContextFlow app reads it in a natural voice, and it keeps playing with the screen locked. Tap the speed in the player for 1×, 1.2×, 1.5× or 2×."
+ },
+ "tip_4eab0ec0a2": {
+  "message": "Click Listen under an answer, or choose Listen to this page in the … menu at the top of the panel. A natural voice reads it right in the panel. Click the speed in the player for 1×, 1.2×, 1.5× or 2×."
  },
  "tip_328ee8ddce": {
   "message": "Quick insert"
@@ -2284,6 +2338,21 @@
  },
  "tip_69a0bac728": {
   "message": "ContextFlow learns what your tags mean from where you put them, and suggests the right one under a new answer or note. Only your own tags, only when they fit."
+ },
+ "tip_b96ddaab20": {
+  "message": "Your plan"
+ },
+ "tip_b3282f43dd": {
+  "message": "Monthly or yearly"
+ },
+ "tip_12e62d9862": {
+  "message": "Pro and Ultra come monthly or yearly, and a year costs less than twelve months. Tap Yearly above the plans, in the app or in Safari, to see each price and what you save. On monthly already? Switch to yearly is in Settings → Your plan: it starts when your current month ends."
+ },
+ "tip_9288a85bb9": {
+  "message": "What your plan adds"
+ },
+ "tip_0f2289f887": {
+  "message": "After you buy Pro or Ultra, ContextFlow shows what your plan adds, a step at a time. To see it again, tap … at the top of the panel, then Other… and What's in Pro or What's in Ultra. In the app, it's in Settings, under Your plan."
  },
  "tip_3208aa35ac": {
   "message": "Privacy & personalization"

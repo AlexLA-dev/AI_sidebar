@@ -234,6 +234,16 @@ export async function saveThread(id: string, entries: Entry[], kind?: "history")
   if (next) await set(STORAGE.threads, prune({ ...threads, [id]: next }))
 }
 
+/** The free chats that had the memory message once (build 91). */
+export async function memoryOffered(): Promise<string[]> {
+  return (await get<string[]>(STORAGE.memoryOffered)) ?? []
+}
+
+export async function markMemoryOffered(chat: string): Promise<void> {
+  const done = await memoryOffered()
+  if (!done.includes(chat)) await set(STORAGE.memoryOffered, [...done, chat].slice(-200))
+}
+
 /** The questions the background is answering, and how the last ones ended (build 91, jobs.ts). */
 export async function loadJobs(): Promise<Jobs> {
   return (await get<Jobs>(STORAGE.jobs)) ?? {}

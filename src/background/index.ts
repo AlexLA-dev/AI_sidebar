@@ -1,3 +1,4 @@
+import { tipClip } from "./tipClips"
 import { mediaKinds, type MediaKind } from "../shared/attachments"
 import { API_BASE, LINKS, TARGET, VERSION } from "../shared/config"
 import { planOfProduct, ULTRA_DEFAULTS, WATCH_LIMITS, type PaidPlan, type Period } from "../shared/plan"
@@ -516,6 +517,9 @@ async function reportUse(message: Extract<BackgroundRequest, { type: "useEvent" 
 
 chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendResponse) => {
   switch (message?.type) {
+    case "tipClip":
+      void tipClip(message.name, message.lang).then(sendResponse, () => sendResponse({ ok: false }))
+      return true
     case "liveJobs":
       sendResponse({ ids: liveJobIds() })
       return false

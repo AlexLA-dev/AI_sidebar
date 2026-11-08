@@ -87,7 +87,6 @@
   "1cbf20f3c9d5": "Was ContextFlow in Safari kann",
   "28b831787b53": "Jede Funktion mit kurzem Clip: Antworten zur Seite, Notizen, Schnelleinfügen, Erinnerungen, Preise beobachten und aufgeräumte Chats.",
   "71164de42647": "Was ContextFlow kann",
-  "97df13861bf7": "Das sind dieselben Tipps wie in der App, sortiert nach dem, was du vorhast. Jeder Clip zeigt das echte Panel bei der Arbeit. Karten mit <span class=\"pro-badge\">Pro</span> brauchen den Tarif Pro. Alles andere funktioniert auch kostenlos.",
   "89895fd68fea": "Auf all deinen Geräten",
   "db298c67acfd": "Auf dem iPhone angefangen, auf dem Mac weitermachen? Schalte „Chats über iCloud synchronisieren“ ein, und ein Chat geht auf deinem iPad und Mac weiter. Er liegt Ende-zu-Ende-verschlüsselt in deiner iCloud und wird nie auf meinem Server gespeichert.",
   "23bcbc4b8227": "Öffne es auf der Seite, die du liest, und frag. Ganz ohne Prompts.",
@@ -467,5 +466,18 @@
   "a3587d02c409": "Was wird gesendet, wenn ich eine Frage stelle?",
   "9e77c9846978": "Deine Frage und der Seitentext (oder deine Auswahl) – nur in diesem Moment und nur, um die Antwort zu erzeugen. Details in der <a href=\"/privacy\">Datenschutzrichtlinie</a>.",
   "0943d5368501": "Ich hatte in einer älteren Version ein Konto. Wie lösche ich es?",
-  "17328923ce30": "Schreib uns eine E-Mail von der Adresse, mit der du dich registriert hast, und wir löschen es innerhalb von 30 Tagen. Version 2.0 nutzt keine Konten mehr."
+  "17328923ce30": "Schreib uns eine E-Mail von der Adresse, mit der du dich registriert hast, und wir löschen es innerhalb von 30 Tagen. Version 2.0 nutzt keine Konten mehr.",
+  "b8a90a3e910d": "Das sind dieselben Tipps wie in der App, sortiert nach dem, was du vorhast. Jeder Clip zeigt das echte Panel bei der Arbeit. Karten mit <span class=\"pro-badge\">Pro</span> brauchen den Tarif Pro, Karten mit <span class=\"ultra-badge\">Ultra</span> brauchen Ultra. Alles andere funktioniert auch kostenlos.",
+  "b96ddaab20ff": "Dein Tarif",
+  "2f27bc2271a5": "Schnellaktionen unter der Auswahl",
+  "fe4d888ff56e": "Keine Lust, auf dem Handy zu tippen? Markiere auf iPhone und iPad Text, und im Feld „Deine Frage …“ darunter warten „Zusammenfassen“, „Übersetzen“, „Ähnliches finden“ und mehr. Wisch durch und tipp eine an. Auf dem Mac sind dieselben Aktionen Schaltflächen unter der Auswahl.",
+  "cd4dfd7997f6": "Ähnliches finden <span class=\"ultra-badge\">Ultra</span>",
+  "ea488f6eb0df": "Was gibt es sonst noch? Tippe im Panel auf „Ähnliches finden“ oder markiere den Namen eines Produkts und tippe darunter auf „Ähnliches finden“. Wenn du willst, füge eine Bedingung wie „Günstiger“ oder „Auf Lager“ hinzu. Jede Alternative ist eine echte Seite, geöffnet und geprüft, bevor du sie siehst.",
+  "63345676db20": "Anhören <span class=\"ultra-badge\">Ultra</span>",
+  "3c892169e2cc": "Lieber hören als lesen? Tippe unter einer Antwort auf „Anhören“ oder wähle „Diese Seite anhören“ im Menü „…“. Eine natürliche Stimme liest vor, in 1×, 1,2×, 1,5× oder 2×. Auf iPhone und iPad läuft es in der ContextFlow-App weiter, auch bei gesperrtem Bildschirm; auf dem Mac direkt im Panel.",
+  "da0391a442a7": "Wie du bezahlst und was dein Tarif bietet.",
+  "b3282f43dd8a": "Monatlich oder jährlich",
+  "0401a0483c47": "Weniger zahlen? Pro und Ultra gibt es monatlich oder jährlich, und ein Jahr kostet weniger als zwölf Monate. Tippe über den Tarifen auf „Jährlich“, um jeden Preis und deine Ersparnis zu sehen. Schon monatlich dabei? „Auf jährlich umstellen“ findest du unter „Einstellungen“ → „Dein Tarif“, und es gilt ab dem Ende deines aktuellen Monats.",
+  "9288a85bb996": "Was dein Tarif bietet",
+  "14a3f72a986a": "Gerade upgegradet und unsicher, was neu ist? Nach dem Kauf von Pro oder Ultra zeigt dir ContextFlow Schritt für Schritt, was dein Tarif bietet. Um es noch einmal zu sehen, tippe oben im Panel auf „…“, dann auf „Weiteres …“ und „Was Pro bietet“ oder „Was Ultra bietet“. In der App findest du es in den „Einstellungen“ unter „Dein Tarif“."
 }
