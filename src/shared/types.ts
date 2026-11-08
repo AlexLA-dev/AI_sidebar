@@ -47,6 +47,9 @@ export interface StatusInfo {
     byokRefusedAt: number | null; byokOfferShown: boolean
     // The App Store's prices on this device (product id → "$12.99"), as the app last loaded them; {} until it has.
     prices: Record<string, string>
+    // Build 90: the last plan that started on this device (bought, upgraded, changed at renewal), for onboarding to
+    // its features; null when none was seen.
+    planChange: { from: string; to: string; productId: string; at: number } | null
   } | null
   hasOwnKey: boolean
   ownKeyProvider: "openai" | "anthropic" | null
@@ -249,8 +252,15 @@ export const STORAGE = {
   consent: "cf:consent",
   // The first-session tour of the panel was seen (finished or skipped).
   tourSeen: "cf:tourSeen",
+  // 2.6: the plan the panel saw last (an upgrade from it starts that plan's tour) and the plans whose tour was shown.
+  planLast: "cf:planLast",
+  planTours: "cf:planTours",
   // The "first time here" hints already shown (chats, video, pdf).
   hintsSeen: "cf:hintsSeen",
+  // Read aloud's speed (build 90): 1, 1.2, 1.5 or 2.
+  listenSpeed: "cf:listenSpeed",
+  // The Settings line about switching to yearly, hidden until then (ms).
+  yearlyHiddenUntil: "cf:yearlyHiddenUntil",
   // Recent pages' text on this device ({ [url]: { title, text, at } }) for "whole chat" answers.
   pageTexts: "cf:pageTexts",
   // How many times the hint about writing notes with the send button was shown, or -1 once used.

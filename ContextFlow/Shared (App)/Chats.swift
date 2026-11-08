@@ -567,6 +567,19 @@ final class ChatLibrary: ObservableObject {
 
     /// Re-reads the extension's copy, then asks iCloud for anything newer.
     func refresh() {
+        #if DEBUG
+        // Screenshots of a chat (build 90, Listen under an answer): -CFDebugSeedChat YES puts one sample chat here.
+        if UserDefaults.standard.bool(forKey: "CFDebugSeedChat"), ChatMirror.chats()["debug-seed"] == nil {
+            let at = Int64(Date().timeIntervalSince1970 * 1000)
+            let thread: [String: Any] = ["title": "Electric trains", "a": at, "m": [
+                ["role": "user", "content": "How do electric trains save energy?"],
+                ["role": "assistant", "content": "Electric trains draw power from overhead lines or a third rail, and modern ones return energy to the grid when they brake. That is why a high-speed line can use less energy per passenger than a short flight."]
+            ]]
+            if let data = try? JSONSerialization.data(withJSONObject: thread), let text = String(data: data, encoding: .utf8) {
+                _ = ChatMirror.apply(saves: ["debug-seed": ChatMirror.Item(updatedAt: at, data: text)])
+            }
+        }
+        #endif
         reload()
         guard syncOn else {
             cloud = .off

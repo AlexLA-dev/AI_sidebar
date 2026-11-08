@@ -755,6 +755,60 @@
  "uxShowIntro": {
   "message": "عرض المقدمة مجددًا"
  },
+ "ptMenu": {
+  "message": "ما يتضمنه {0}"
+ },
+ "ptProMediaTitle": {
+  "message": "Pro: الفيديو وملفات PDF"
+ },
+ "ptProMediaBody": {
+  "message": "في صفحة فيها فيديو أو ملف PDF، يقرأهما ContextFlow الآن أيضًا: ترجمة الفيديو ونص الملف. اسأل كالمعتاد."
+ },
+ "ptProChatsTitle": {
+  "message": "ابحث في محادثاتك واسألها"
+ },
+ "ptProChatsBody": {
+  "message": "في قائمة المحادثات، يجد ✦ محادثة من وصفها، ويجيب «{0}» من كل ما قرأته وسألت عنه."
+ },
+ "ptProChatListTitle": {
+  "message": "هنا بالضبط"
+ },
+ "ptProChatListBody": {
+  "message": "فعّل ✦ بجوار البحث وصِف المحادثة التي تريدها، أو اضغط «{0}» لتسأل كل محادثاتك دفعة واحدة."
+ },
+ "ptProSortTitle": {
+  "message": "مرتبة حسب الموضوع"
+ },
+ "ptProSortBody": {
+  "message": "بعد كل إجابة، يقترح سطر تحتها وسمًا أو مجلدًا للمحادثة. ضغطة واحدة ترتبها، ويمكنك التراجع."
+ },
+ "ptProTemplatesTitle": {
+  "message": "القوالب"
+ },
+ "ptProTemplatesBody": {
+  "message": "حدد نصًا واضغط «{0}» لحفظه، ثم الصقه في أي حقل. احفظ ما تشاء منها."
+ },
+ "ptProWatchTitle": {
+  "message": "تابع حتى 20 صفحة"
+ },
+ "ptProWatchBody": {
+  "message": "في «…»، يخبرك «{0}» عندما تتغير الصفحة: سعر أو تاريخ أو منشور جديد."
+ },
+ "ptUltraListenTitle": {
+  "message": "Ultra: استمع"
+ },
+ "ptUltraListenBody": {
+  "message": "اضغط «{0}» تحت الإجابة، أو «{1}» في «…»: تُعاد صياغة النص ليناسب السمع ثم يُقرأ بصوت عالٍ."
+ },
+ "ptUltraSimilarBody": {
+  "message": "بدائل حقيقية لما تتصفحه، مع فتح كل رابط والتحقق منه. اضغط «{0}» هنا أو في «…»، أو حدد نصًا واضغط «{1}»."
+ },
+ "ptUltraWatchTitle": {
+  "message": "تابع حتى 50 صفحة"
+ },
+ "ptUltraWatchBody": {
+  "message": "في «…»، يتابع «{0}» الآن حتى 50 صفحة في آن واحد."
+ },
  "welcomeTitle": {
   "message": "ContextFlow جاهز"
  },
@@ -1691,6 +1745,9 @@
  "actSimilar": {
   "message": "ابحث عن مشابه"
  },
+ "selSimilar": {
+  "message": "ابحث عن مشابه"
+ },
  "uxSimilar": {
   "message": "ابحث عن مشابه…"
  },
@@ -1807,6 +1864,159 @@
  },
  "orgDemoChat": {
   "message": "رحلات"
+ },
+ "listenSpeed": {
+  "message": "السرعة: {0}. اضغط لاختيار سرعة أخرى"
+ },
+ "plansYearlySave": {
+  "message": "سنوي · وفّر حتى {0}%"
+ },
+ "plansPerMonthYearly": {
+  "message": "{0} شهريًا، يُدفع سنويًا"
+ },
+ "plansSaveMoney": {
+  "message": "توفّر {0} في السنة"
+ },
+ "yearlyNudge": {
+  "message": "{0} السنوي: توفّر {1} ({2}%) في السنة."
+ },
+ "yearlyNudgeButton": {
+  "message": "التبديل إلى السنوي"
+ },
+ "yearlyNudgeNote": {
+  "message": "يبدأ الاشتراك السنوي عند انتهاء شهرك الحالي."
+ },
+ "yearlyNudgeHide": {
+  "message": "إخفاء"
+ },
+ "galleryTitle": {
+  "message": "ما تحصل عليه"
+ },
+ "galleryNext": {
+  "message": "التالي"
+ },
+ "galleryPrevious": {
+  "message": "السابق"
+ },
+ "gMediaTitle": {
+  "message": "الفيديوهات وملفات PDF"
+ },
+ "gMediaLine": {
+  "message": "تعتمد الإجابات على نص الفيديو المكتوب وعلى صفحات ملف PDF."
+ },
+ "gMediaVideo": {
+  "message": "نص الفيديو · 11:40"
+ },
+ "gMediaPdf": {
+  "message": "تقرير الربع الثالث · 3 صفحات"
+ },
+ "gMediaAnswer": {
+  "message": "نمت الإيرادات بنسبة 12% في الربع الثالث. وفي الفيديو يُرجع الرئيس التنفيذي ذلك إلى خطط الاشتراك الجديدة."
+ },
+ "gSearchTitle": {
+  "message": "بحث AI و«اسأل محادثاتك»"
+ },
+ "gSearchLine": {
+  "message": "اعثر على محادثة بوصفها، أو اطرح سؤالًا على كل محادثاتك."
+ },
+ "gSearchQuery": {
+  "message": "المقال عن النوم والقهوة"
+ },
+ "gSearchResult": {
+  "message": "الكافيين والنوم"
+ },
+ "gSearchSnippet": {
+  "message": "القهوة بعد الثانية ظهرًا قلّلت النوم العميق بمقدار الخُمس…"
+ },
+ "gSearchWhen": {
+  "message": "الأسبوع الماضي"
+ },
+ "gTemplatesTitle": {
+  "message": "قوالب بلا حدود"
+ },
+ "gTemplatesLine": {
+  "message": "طلباتك وردودك الخاصة، مع أسماء وتواريخ تُملأ من الصفحة."
+ },
+ "gTemplatesName": {
+  "message": "متابعة بعد مكالمة"
+ },
+ "gTemplatesBody": {
+  "message": "مرحبًا {0}، شكرًا على مكالمة يوم {1}. كما وعدتُ، إليك الخطوات التالية."
+ },
+ "gTemplatesPerson": {
+  "message": "سارة"
+ },
+ "gTemplatesDay": {
+  "message": "الثلاثاء"
+ },
+ "gWatchTitle": {
+  "message": "مراقبة {0} صفحة"
+ },
+ "gWatchLine": {
+  "message": "اعرف متى ينخفض سعر أو تتغيّر صفحة."
+ },
+ "gWatchChanged": {
+  "message": "تغيّر: السعر"
+ },
+ "gWatchNow": {
+  "message": "الآن: {0} (سابقًا {1})"
+ },
+ "gWatchManyLine": {
+  "message": "الأسعار والتوفر والتغييرات في ما يصل إلى {0} صفحة معًا."
+ },
+ "gWatchItem1": {
+  "message": "سماعات رأس"
+ },
+ "gWatchItem2": {
+  "message": "رحلة إلى لشبونة"
+ },
+ "gWatchMore": {
+  "message": "و{0} صفحة أخرى"
+ },
+ "gAnswersTitle": {
+  "message": "حتى {0} إجابة أسبوعيًا"
+ },
+ "gAnswersLine": {
+  "message": "إجابات أعمق وأكثر تفصيلًا، بدلًا من {0} في اليوم."
+ },
+ "gAnswersWeek": {
+  "message": "في الأسبوع"
+ },
+ "gAnswersFree": {
+  "message": "مجاني: {0} في اليوم"
+ },
+ "gListenTitle": {
+  "message": "استماع"
+ },
+ "gListenLine": {
+  "message": "تُقرأ لك الإجابات والصفحات كاملة بصوت طبيعي، بالسرعة التي تناسبك."
+ },
+ "gListenSample": {
+  "message": "كيف توفّر القطارات الكهربائية الطاقة"
+ },
+ "gSimilarTitle": {
+  "message": "ابحث عن مشابه"
+ },
+ "gSimilarLine": {
+  "message": "بدائل لأي صفحة: أرخص أو أحدث أو متوفرة أو بلغتك."
+ },
+ "gSimilar1": {
+  "message": "كرسي مكتب شبكي"
+ },
+ "gSimilar2": {
+  "message": "الكرسي نفسه، طراز 2026"
+ },
+ "gSimilar3": {
+  "message": "كرسي بمسند للرأس"
+ },
+ "gSimilarInStock": {
+  "message": "متوفر"
+ },
+ "gSimilarNewer": {
+  "message": "أحدث"
+ },
+ "gSimilarCheaper": {
+  "message": "أرخص"
  },
  "tip_4cf1b54b00": {
   "message": "تلميحات"

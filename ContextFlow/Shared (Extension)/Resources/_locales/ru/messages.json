@@ -755,6 +755,60 @@
  "uxShowIntro": {
   "message": "Показать знакомство снова"
  },
+ "ptMenu": {
+  "message": "Что есть в {0}"
+ },
+ "ptProMediaTitle": {
+  "message": "Pro: видео и PDF"
+ },
+ "ptProMediaBody": {
+  "message": "Если на странице есть видео или PDF, ContextFlow теперь читает и их: субтитры видео и текст PDF. Просто спросите."
+ },
+ "ptProChatsTitle": {
+  "message": "Поиск и вопросы по чатам"
+ },
+ "ptProChatsBody": {
+  "message": "В чатах ✦ находит чат по описанию, а «{0}» отвечает по всему, что вы читали и спрашивали."
+ },
+ "ptProChatListTitle": {
+  "message": "Вот здесь"
+ },
+ "ptProChatListBody": {
+  "message": "Включите ✦ у поиска и опишите нужный чат или нажмите «{0}», чтобы спросить все чаты сразу."
+ },
+ "ptProSortTitle": {
+  "message": "Сортировка по темам"
+ },
+ "ptProSortBody": {
+  "message": "После ответа под ним появляется строка с тегом или папкой для чата. Одно нажатие раскладывает чат, и это можно отменить."
+ },
+ "ptProTemplatesTitle": {
+  "message": "Шаблоны"
+ },
+ "ptProTemplatesBody": {
+  "message": "Выделите текст и нажмите «{0}», чтобы сохранить его, а потом вставляйте в любое поле. Сколько угодно."
+ },
+ "ptProWatchTitle": {
+  "message": "Слежение до 20 страниц"
+ },
+ "ptProWatchBody": {
+  "message": "В «…» пункт «{0}» сообщит, когда страница изменится: цена, дата, новый пост."
+ },
+ "ptUltraListenTitle": {
+  "message": "Ultra: слушайте"
+ },
+ "ptUltraListenBody": {
+  "message": "Нажмите «{0}» под ответом или «{1}» в «…»: текст переписывается для слуха и читается вслух."
+ },
+ "ptUltraSimilarBody": {
+  "message": "Настоящие альтернативы тому, что вы смотрите, каждая ссылка открыта и проверена. Нажмите «{0}» здесь или в «…» либо выделите текст и нажмите «{1}»."
+ },
+ "ptUltraWatchTitle": {
+  "message": "Слежение до 50 страниц"
+ },
+ "ptUltraWatchBody": {
+  "message": "В «…» пункт «{0}» теперь следит за 50 страницами сразу."
+ },
  "welcomeTitle": {
   "message": "ContextFlow готов к работе"
  },
@@ -1691,6 +1745,9 @@
  "actSimilar": {
   "message": "Найти похожее"
  },
+ "selSimilar": {
+  "message": "Найти похожее"
+ },
  "uxSimilar": {
   "message": "Найти похожее…"
  },
@@ -1807,6 +1864,159 @@
  },
  "orgDemoChat": {
   "message": "Поездки"
+ },
+ "listenSpeed": {
+  "message": "Скорость: {0}. Нажмите, чтобы выбрать другую"
+ },
+ "plansYearlySave": {
+  "message": "На год · выгода до {0}%"
+ },
+ "plansPerMonthYearly": {
+  "message": "{0} в месяц при оплате за год"
+ },
+ "plansSaveMoney": {
+  "message": "Выгода {0} в год"
+ },
+ "yearlyNudge": {
+  "message": "С годовым {0} вы сэкономите {1} ({2}%) за год."
+ },
+ "yearlyNudgeButton": {
+  "message": "Перейти на оплату за год"
+ },
+ "yearlyNudgeNote": {
+  "message": "Оплата за год начнётся, когда закончится текущий месяц."
+ },
+ "yearlyNudgeHide": {
+  "message": "Скрыть"
+ },
+ "galleryTitle": {
+  "message": "Что входит"
+ },
+ "galleryNext": {
+  "message": "Далее"
+ },
+ "galleryPrevious": {
+  "message": "Назад"
+ },
+ "gMediaTitle": {
+  "message": "Видео и PDF"
+ },
+ "gMediaLine": {
+  "message": "Ответы опираются на расшифровку видео и страницы PDF."
+ },
+ "gMediaVideo": {
+  "message": "Расшифровка видео · 11:40"
+ },
+ "gMediaPdf": {
+  "message": "Отчёт за III квартал · 3 страницы"
+ },
+ "gMediaAnswer": {
+  "message": "Выручка в третьем квартале выросла на 12%. В видео глава компании объясняет это новыми тарифами подписки."
+ },
+ "gSearchTitle": {
+  "message": "ИИ-поиск и вопросы по всем чатам"
+ },
+ "gSearchLine": {
+  "message": "Найдите чат по описанию или задайте вопрос сразу по всем."
+ },
+ "gSearchQuery": {
+  "message": "та статья про сон и кофе"
+ },
+ "gSearchResult": {
+  "message": "Кофеин и сон"
+ },
+ "gSearchSnippet": {
+  "message": "Кофе после 14:00 сократил глубокий сон на пятую часть…"
+ },
+ "gSearchWhen": {
+  "message": "На прошлой неделе"
+ },
+ "gTemplatesTitle": {
+  "message": "Шаблоны без ограничений"
+ },
+ "gTemplatesLine": {
+  "message": "Ваши запросы и ответы, а имена и даты подставляются со страницы."
+ },
+ "gTemplatesName": {
+  "message": "Письмо после звонка"
+ },
+ "gTemplatesBody": {
+  "message": "Добрый день, {0}. Спасибо за звонок во {1}. Как договаривались, вот следующие шаги."
+ },
+ "gTemplatesPerson": {
+  "message": "Анна"
+ },
+ "gTemplatesDay": {
+  "message": "вторник"
+ },
+ "gWatchTitle": {
+  "message": "Слежение за {0} страницами"
+ },
+ "gWatchLine": {
+  "message": "Узнайте, когда цена упадёт или страница изменится."
+ },
+ "gWatchChanged": {
+  "message": "Изменилось: Цена"
+ },
+ "gWatchNow": {
+  "message": "Сейчас: {0} (было {1})"
+ },
+ "gWatchManyLine": {
+  "message": "Цены, наличие и изменения: до {0} страниц одновременно."
+ },
+ "gWatchItem1": {
+  "message": "Наушники"
+ },
+ "gWatchItem2": {
+  "message": "Рейс в Лиссабон"
+ },
+ "gWatchMore": {
+  "message": "и ещё {0} страниц"
+ },
+ "gAnswersTitle": {
+  "message": "До {0} ответов в неделю"
+ },
+ "gAnswersLine": {
+  "message": "Более глубокие и подробные ответы — вместо {0} в день."
+ },
+ "gAnswersWeek": {
+  "message": "в неделю"
+ },
+ "gAnswersFree": {
+  "message": "Бесплатно: {0} в день"
+ },
+ "gListenTitle": {
+  "message": "Слушать"
+ },
+ "gListenLine": {
+  "message": "Ответы и целые страницы вслух, естественным голосом, в удобном темпе."
+ },
+ "gListenSample": {
+  "message": "Как электропоезда экономят энергию"
+ },
+ "gSimilarTitle": {
+  "message": "Найти похожее"
+ },
+ "gSimilarLine": {
+  "message": "Альтернативы любой странице: дешевле, новее, в наличии или на вашем языке."
+ },
+ "gSimilar1": {
+  "message": "Сетчатое офисное кресло"
+ },
+ "gSimilar2": {
+  "message": "То же кресло, модель 2026 года"
+ },
+ "gSimilar3": {
+  "message": "Кресло с подголовником"
+ },
+ "gSimilarInStock": {
+  "message": "В наличии"
+ },
+ "gSimilarNewer": {
+  "message": "Новее"
+ },
+ "gSimilarCheaper": {
+  "message": "Дешевле"
  },
  "tip_4cf1b54b00": {
   "message": "Советы"

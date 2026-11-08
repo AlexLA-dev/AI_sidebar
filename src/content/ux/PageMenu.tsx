@@ -16,7 +16,7 @@ import { tipsLabel, TipsIcon } from "../tips/TipsSheet"
 import { Bell } from "./MessageUx"
 import { SpeakerIcon } from "../listen/useListen"
 
-export function PageMenu({ reminders, watches, onLater, onWatchPage, onSimilar, similarLocked, onReminders, onWatching, onTips, onSettings, onIntro, onListen, ultra, onClose }: {
+export function PageMenu({ reminders, watches, onLater, onWatchPage, onSimilar, similarLocked, onReminders, onWatching, onTips, onSettings, onIntro, planTour, onListen, ultra, onClose }: {
   reminders: number
   // null: no watching here (not Safari).
   watches: number | null
@@ -33,6 +33,8 @@ export function PageMenu({ reminders, watches, onLater, onWatchPage, onSimilar, 
   onSettings: () => void
   // Absent: no page to summarize here, so no guide.
   onIntro?: () => void
+  // 2.6: a Pro or Ultra subscriber's tour of the plan, again ("What's in Ultra").
+  planTour?: { label: string; start: () => void }
   // 2.6: read the page aloud (Ultra; without it, the plans sheet). Absent: nothing to read here.
   onListen?: () => void
   ultra?: boolean
@@ -74,6 +76,7 @@ export function PageMenu({ reminders, watches, onLater, onWatchPage, onSimilar, 
       )}
       {tips && <button type="button" role="menuitem" onClick={onTips}><TipsIcon size={16} /> {tips}</button>}
       <button type="button" role="menuitem" onClick={onSettings}><Icon.Gear /> {t("settings")}</button>
+      {planTour && <button type="button" role="menuitem" class="cf-page-plan-tour" onClick={planTour.start}><Icon.Sparkle size={15} /> {planTour.label}</button>}
       {onIntro && <button type="button" role="menuitem" class="cf-page-intro" onClick={onIntro}><Icon.Sparkle size={15} /> {t("uxShowIntro")}</button>}
     </div>
   )

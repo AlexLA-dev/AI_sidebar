@@ -755,6 +755,60 @@
  "uxShowIntro": {
   "message": "소개 다시 보기"
  },
+ "ptMenu": {
+  "message": "{0}에 포함된 기능"
+ },
+ "ptProMediaTitle": {
+  "message": "Pro: 동영상과 PDF"
+ },
+ "ptProMediaBody": {
+  "message": "동영상이나 PDF가 있는 페이지에서는 그것도 읽습니다. 동영상 자막과 PDF 본문까지요. 그냥 물어보세요."
+ },
+ "ptProChatsTitle": {
+  "message": "채팅 검색과 질문"
+ },
+ "ptProChatsBody": {
+  "message": "채팅 목록에서 ✦는 설명으로 채팅을 찾고, ‘{0}’ 기능은 지금까지 읽고 물어본 모든 것에서 답합니다."
+ },
+ "ptProChatListTitle": {
+  "message": "바로 여기"
+ },
+ "ptProChatListBody": {
+  "message": "검색창 옆 ✦를 켜고 찾는 채팅을 설명하거나, ‘{0}’ 항목을 탭해 모든 채팅에 한 번에 물어보세요."
+ },
+ "ptProSortTitle": {
+  "message": "주제별 정리"
+ },
+ "ptProSortBody": {
+  "message": "답변 아래에 채팅에 붙일 태그나 폴더가 제안됩니다. 한 번 탭하면 정리되고, 되돌릴 수도 있습니다."
+ },
+ "ptProTemplatesTitle": {
+  "message": "템플릿"
+ },
+ "ptProTemplatesBody": {
+  "message": "텍스트를 선택하고 ‘{0}’ 버튼을 탭해 저장한 뒤 어느 입력란에든 붙여 넣으세요. 원하는 만큼 저장할 수 있습니다."
+ },
+ "ptProWatchTitle": {
+  "message": "최대 20개 페이지 지켜보기"
+ },
+ "ptProWatchBody": {
+  "message": "‘…’ 메뉴의 ‘{0}’ 항목은 페이지가 바뀌면 알려 줍니다. 가격, 날짜, 새 글 등."
+ },
+ "ptUltraListenTitle": {
+  "message": "Ultra: 듣기"
+ },
+ "ptUltraListenBody": {
+  "message": "답변 아래 ‘{0}’ 버튼이나 ‘…’ 메뉴의 ‘{1}’ 항목을 탭하세요. 듣기 좋게 다시 쓴 글을 소리 내어 읽어 줍니다."
+ },
+ "ptUltraSimilarBody": {
+  "message": "보고 있는 것의 실제 대안을, 모든 링크를 열어 확인한 뒤 보여 줍니다. 여기나 ‘…’ 메뉴에서 ‘{0}’ 항목을 탭하거나, 텍스트를 선택하고 ‘{1}’ 칩을 탭하세요."
+ },
+ "ptUltraWatchTitle": {
+  "message": "최대 50개 페이지 지켜보기"
+ },
+ "ptUltraWatchBody": {
+  "message": "이제 ‘…’ 메뉴의 ‘{0}’ 항목으로 최대 50개 페이지를 한 번에 지켜볼 수 있습니다."
+ },
  "welcomeTitle": {
   "message": "ContextFlow가 준비됐어요"
  },
@@ -1691,6 +1745,9 @@
  "actSimilar": {
   "message": "비슷한 것 찾기"
  },
+ "selSimilar": {
+  "message": "비슷한 것 찾기"
+ },
  "uxSimilar": {
   "message": "비슷한 것 찾기…"
  },
@@ -1807,6 +1864,159 @@
  },
  "orgDemoChat": {
   "message": "여행"
+ },
+ "listenSpeed": {
+  "message": "속도: {0}. 탭해서 다른 속도 선택"
+ },
+ "plansYearlySave": {
+  "message": "연간 · 최대 {0}% 절약"
+ },
+ "plansPerMonthYearly": {
+  "message": "월 {0}, 연간 결제"
+ },
+ "plansSaveMoney": {
+  "message": "1년에 {0} 절약"
+ },
+ "yearlyNudge": {
+  "message": "{0} 연간 결제 시 1년에 {1}({2}%) 절약돼요."
+ },
+ "yearlyNudgeButton": {
+  "message": "연간으로 전환"
+ },
+ "yearlyNudgeNote": {
+  "message": "연간 결제는 이번 달 이용 기간이 끝나면 시작돼요."
+ },
+ "yearlyNudgeHide": {
+  "message": "숨기기"
+ },
+ "galleryTitle": {
+  "message": "포함된 기능"
+ },
+ "galleryNext": {
+  "message": "다음"
+ },
+ "galleryPrevious": {
+  "message": "이전"
+ },
+ "gMediaTitle": {
+  "message": "동영상과 PDF"
+ },
+ "gMediaLine": {
+  "message": "동영상 자막과 PDF 페이지를 바탕으로 답해요."
+ },
+ "gMediaVideo": {
+  "message": "동영상 자막 · 11:40"
+ },
+ "gMediaPdf": {
+  "message": "3분기 보고서 · 3쪽"
+ },
+ "gMediaAnswer": {
+  "message": "3분기 매출이 12% 늘었습니다. 동영상에서 CEO는 새 구독 요금제 덕분이라고 설명합니다."
+ },
+ "gSearchTitle": {
+  "message": "AI 검색과 '모든 채팅에 묻기'"
+ },
+ "gSearchLine": {
+  "message": "설명만으로 채팅을 찾거나, 모든 채팅에 한 번에 물어보세요."
+ },
+ "gSearchQuery": {
+  "message": "수면과 커피에 관한 그 기사"
+ },
+ "gSearchResult": {
+  "message": "카페인과 수면"
+ },
+ "gSearchSnippet": {
+  "message": "오후 2시 이후 커피가 깊은 수면을 5분의 1 줄였다…"
+ },
+ "gSearchWhen": {
+  "message": "지난주"
+ },
+ "gTemplatesTitle": {
+  "message": "제한 없는 템플릿"
+ },
+ "gTemplatesLine": {
+  "message": "나만의 프롬프트와 답장에 이름과 날짜를 페이지에서 채워 넣어요."
+ },
+ "gTemplatesName": {
+  "message": "통화 후 후속 연락"
+ },
+ "gTemplatesBody": {
+  "message": "{0} 님, 안녕하세요. {1} 통화 감사합니다. 말씀드린 대로 다음 단계를 보내 드려요."
+ },
+ "gTemplatesPerson": {
+  "message": "지은"
+ },
+ "gTemplatesDay": {
+  "message": "화요일"
+ },
+ "gWatchTitle": {
+  "message": "{0}개 페이지 지켜보기"
+ },
+ "gWatchLine": {
+  "message": "가격이 내리거나 페이지가 바뀌면 알려 드려요."
+ },
+ "gWatchChanged": {
+  "message": "바뀜: 가격"
+ },
+ "gWatchNow": {
+  "message": "지금: {0} (이전 {1})"
+ },
+ "gWatchManyLine": {
+  "message": "최대 {0}개 페이지의 가격, 재고, 변화를 한 번에 지켜봐요."
+ },
+ "gWatchItem1": {
+  "message": "헤드폰"
+ },
+ "gWatchItem2": {
+  "message": "리스본행 항공편"
+ },
+ "gWatchMore": {
+  "message": "외 {0}개 페이지"
+ },
+ "gAnswersTitle": {
+  "message": "주당 최대 {0}개 답변"
+ },
+ "gAnswersLine": {
+  "message": "하루 {0}개 대신, 더 깊이 있고 자세한 답변."
+ },
+ "gAnswersWeek": {
+  "message": "주당"
+ },
+ "gAnswersFree": {
+  "message": "무료: 하루 {0}개"
+ },
+ "gListenTitle": {
+  "message": "듣기"
+ },
+ "gListenLine": {
+  "message": "답변과 페이지 전체를 자연스러운 목소리로, 원하는 속도로 읽어 줘요."
+ },
+ "gListenSample": {
+  "message": "전기 열차가 에너지를 아끼는 방법"
+ },
+ "gSimilarTitle": {
+  "message": "비슷한 것 찾기"
+ },
+ "gSimilarLine": {
+  "message": "어떤 페이지든 대안을 찾아 줘요. 더 싸거나, 더 새롭거나, 재고가 있거나, 내 언어로."
+ },
+ "gSimilar1": {
+  "message": "메시 사무용 의자"
+ },
+ "gSimilar2": {
+  "message": "같은 의자, 2026년형"
+ },
+ "gSimilar3": {
+  "message": "헤드레스트 의자"
+ },
+ "gSimilarInStock": {
+  "message": "재고 있음"
+ },
+ "gSimilarNewer": {
+  "message": "더 최신"
+ },
+ "gSimilarCheaper": {
+  "message": "더 저렴하게"
  },
  "tip_4cf1b54b00": {
   "message": "팁"

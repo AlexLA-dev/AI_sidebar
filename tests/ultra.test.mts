@@ -20,7 +20,7 @@ type Item = { subject: string; period: string; limit: number | null; amount?: nu
 let counters = new Map<string, number>()
 let entitlements = new Map<string, Record<string, unknown>>()
 let events: { kind: string; data: Record<string, unknown> }[] = []
-let tts: { calls: Array<{ model: string; text: string; voice: string; mime: string }>; refuseLanguage?: string[]; pcmBytes: number; chunks: number; failAfter?: number } = { calls: [], pcmBytes: 48_000 * 3, chunks: 3 }
+let tts: { calls: Array<{ model: string; text: string; voice: string; mime: string }>; refuseLanguage?: string[]; pcmBytes: number; chunks: number; failAfter?: number; failStatus?: number[] } = { calls: [], pcmBytes: 48_000 * 3, chunks: 3 }
 let haiku: { calls: Array<{ model: string; system: string; content: string }>; status?: number; script: string } = { calls: [], script: "The MARKUS costs 299 dollars. The Sihoo costs 169." }
 function haikuStream(): Response {
   const ev = (type: string, data: Record<string, unknown> = {}) => `event: ${type}\ndata: ${JSON.stringify({ type, ...data })}\n\n`
@@ -103,6 +103,8 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
   if (url === "https://generativelanguage.googleapis.com/v1beta/interactions") {
     const text = body.input[0].content[0].text
     tts.calls.push({ model: body.model, text, voice: body.generation_config.speech_config[0].voice, mime: body.response_format.mime_type })
+    const failing = tts.failStatus?.shift()
+    if (failing) return new Response(JSON.stringify({ error: { code: failing, message: "Overloaded" } }), { status: failing })
     if (tts.refuseLanguage?.includes(body.model)) {
       return new Response(JSON.stringify({ error: { code: 400, message: "Language not supported by this model", status: "INVALID_ARGUMENT" } }), { status: 400 })
     }
@@ -341,6 +343,36 @@ test("speak: a stream that breaks off is charged only for what was said", async 
   await Promise.all(c.waits)
   assert.equal(counters.get("speak:tx:3000000001"), 1)
   assert.equal(events.find((e) => e.kind === "speak")?.data.ok, false)
+})
+
+test("speak: a text already playing finishes over the week's minutes (up to 5 more), a new one doesn't", async () => {
+  counters.set("speak:tx:3000000001", 118)
+  // Its third part: allowed into the finishing room, and the usage still shows the week's 120.
+  const later = await speak(post("https://x/api/v2/speak", { installId: INSTALL, text: "B".repeat(70), part: 2, parts: 3, entitlement: ultraJws() }), ctx())
+  assert.equal(later.status, 200)
+  assert.deepEqual(JSON.parse(later.headers.get("X-CF-Usage") ?? "null").limit, 120)
+  await readAll(later)
+  // A new text (part 0) over the limit: refused, as before.
+  const fresh = await speak(post("https://x/api/v2/speak", { installId: INSTALL, text: "B".repeat(70), part: 0, entitlement: ultraJws() }), ctx())
+  assert.equal(fresh.status, 402)
+  // The finishing room has an end: 300 s past the week's minutes, even for later parts.
+  counters.set("speak:tx:3000000001", 120 + 300)
+  const beyond = await speak(post("https://x/api/v2/speak", { installId: INSTALL, text: "B".repeat(70), part: 5, parts: 9, entitlement: ultraJws() }), ctx())
+  assert.equal(beyond.status, 402)
+})
+
+test("speak: a part with nothing to say is an empty 200, uncharged; a passing 503 is asked again in the same voice", async () => {
+  const empty = await speak(post("https://x/api/v2/speak", { installId: INSTALL, text: "— …", part: 4, parts: 5, entitlement: ultraJws() }), ctx())
+  assert.equal(empty.status, 200)
+  assert.equal((await readAll(empty)).length, 0)
+  assert.equal(tts.calls.length, 0)
+  assert.equal(counters.get("speak:tx:3000000001") ?? 0, 0)
+  tts.failStatus = [503]
+  const c = ctx()
+  const res = await speak(post("https://x/api/v2/speak", { installId: INSTALL, text: "Some words.", lang: "en", entitlement: ultraJws() }), c)
+  assert.equal(res.status, 200)
+  await readAll(res)
+  assert.deepEqual(tts.calls.map((x) => [x.model, x.voice]), [["gemini-3.8-flash-lite-tts", "Kore"], ["gemini-3.8-flash-lite-tts", "Kore"]])
 })
 
 test("speak: a signed measuring request stands in for Ultra on a deploy preview only", async () => {

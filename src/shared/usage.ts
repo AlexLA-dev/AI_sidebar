@@ -46,8 +46,8 @@ export const FEATURES: Record<string, Feature> = {
   note: { since: "2.3", actions: ["saved"], via: ["composer", "limit", "selection", "app"] },
   // 2.6: "action" by a chip in the field (via "chip", what: the action) on iPhone and iPad.
   bubble: {
-    since: "2.0", on: "ext", actions: ["shown", "ask", "action", "question", "note", "template", "remind"], via: ["chip"],
-    fields: { what: ["sel_summarize", "sel_translate", "sel_explain", "sel_improve", "sel_reply"] }
+    since: "2.0", on: "ext", actions: ["shown", "ask", "action", "question", "note", "template", "remind"], via: ["chip", "button"],
+    fields: { what: ["sel_summarize", "sel_translate", "sel_explain", "sel_improve", "sel_reply", "sel_similar"] }
   },
   fab: { since: "2.0", on: "ext", actions: ["tap", "drag", "hide_site"] },
   msg: { since: "2.0", actions: ["copy", "share"], fields: { what: ["answer", "note", "ask_chats"] } },
@@ -81,10 +81,10 @@ export const FEATURES: Record<string, Feature> = {
   // 2.6: the guided first request (src/content/Guide.tsx) reports these; "what" is the step it was on (or, for "exit",
   // why it ended there), "via" how it started: the first open or the "…" menu.
   tour: {
-    since: "2.3", tracked: "2.6", actions: ["start", "step", "done", "skip", "exit"], via: ["first", "menu"],
+    since: "2.3", tracked: "2.6", actions: ["start", "step", "done", "skip", "exit"], via: ["first", "menu", "plan", "plan_menu"],
     fields: {
       step: "int",
-      what: ["summarize", "consent", "answer", "select", "pick", "ask", "askSel", "answer2", "chats", "chatList", "menu", "declined", "limit", "error", "closed"]
+      what: ["summarize", "consent", "answer", "select", "pick", "ask", "askSel", "answer2", "chats", "chatList", "menu", "pro_media", "pro_chats", "pro_chatList", "pro_sort", "pro_templates", "pro_watch", "ultra_listen", "ultra_similar", "ultra_watch", "declined", "limit", "error", "closed"]
     }
   },
   hint: { since: "2.3", actions: ["shown", "done"], fields: { what: ["chats", "video", "pdf", "note", "bubble", "qi", "app_chats"] } },
@@ -105,13 +105,15 @@ export const FEATURES: Record<string, Feature> = {
   // The panel header's "…" (opened, an item picked) and "Come back later": its window in the panel ("open"),
   // the "Reminders" list in the panel ("list": from the menu or the window's "All reminders" link) and in the
   // app ("open" from its tab), with how many reminders and watches the list held.
-  menu: { since: "2.5", on: "ext", actions: ["open", "pick"], fields: { what: ["later", "reminders", "settings", "intro", "listen", "similar"] } },
+  menu: { since: "2.5", on: "ext", actions: ["open", "pick"], fields: { what: ["later", "reminders", "settings", "intro", "listen", "similar", "plan_tour"] } },
   // 2.6: read aloud (Ultra) started from an answer or the page, handed to the app (iPhone, iPad), or refused (not
   // Ultra: the plans sheet; the week's minutes used up). The parts themselves are logged by the server ("speak").
-  listen: { since: "2.6", tracked: "2.6", actions: ["start", "app", "ultra", "limit", "error"], fields: { what: ["answer", "page"] } },
+  // Build 90 (the app): Apple's voice read a text the server couldn't start ("apple"), a text stopped short after
+  // ours had played ("interrupted"), "Try again" ("retry").
+  listen: { since: "2.6", tracked: "2.6", actions: ["start", "app", "ultra", "limit", "error", "apple", "interrupted", "retry"], fields: { what: ["answer", "page"] } },
   // 2.6: the plans sheet (Own key, Pro, Ultra): opened from where, and the plan and period chosen (to the app).
   plans: {
-    since: "2.6", tracked: "2.6", on: "ext", actions: ["open", "choose"],
+    since: "2.6", tracked: "2.6", on: "ext", actions: ["open", "choose", "yearly"],
     via: ["listen", "settings", "watch", "limit", "similar"],
     fields: { plan: ["byok", "pro", "ultra"], period: ["monthly", "yearly"] }
   },

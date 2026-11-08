@@ -47,18 +47,19 @@ import { DEFAULT_ORGANIZE, looksMixed } from "../shared/organize"
 import { entryKey } from "../shared/conversation"
 import type { OrganizeEvent, OrganizeReply } from "../shared/types"
 import { ProUpsell } from "./ProUpsell"
-import { shownPrice, SimilarList, SimilarPicker, SimilarUpsell } from "./similar/Similar"
-import { factsFrom, similarAllowed, similarMarkdown, type SimilarAnswer, type SimilarItem, type SimilarStep, type SimilarStreamEvent } from "../shared/similar"
+import { shownPrice, SimilarIcon, SimilarList, SimilarPicker, SimilarUpsell } from "./similar/Similar"
+import { factsFrom, SIMILAR_SELECTION_MAX, similarAllowed, similarMarkdown, type SimilarAnswer, type SimilarItem, type SimilarStep, type SimilarStreamEvent } from "../shared/similar"
 import { structured } from "../shared/watch/extract"
 import { conditionFor } from "./watch/draft"
 import { openWatchSheet } from "./watch/WatchSheet"
 import { PlansSheet } from "./Plans"
 import { ListenBar, SpeakerIcon, useListen } from "./listen/useListen"
+import { dodgeFab } from "./fabDodge"
 import { hasPro, isUltra, type PaidPlan } from "../shared/plan"
 import { SettingsView } from "./Settings"
 import { shareLabels } from "./shareLabels"
 import { markHintSeen, resetHints, seenHints, type HintKey } from "./store"
-import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, onConsentChanged, loadThreads, markTourSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, purgeChats, rememberPageText, renameThread, renewalAskedPeriod, restoreChat, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount, trashChat } from "./store"
+import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, onConsentChanged, loadThreads, markTourSeen, lastPlanSeen, setLastPlanSeen, planToursSeen, markPlanToursSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, purgeChats, rememberPageText, renameThread, renewalAskedPeriod, restoreChat, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount, trashChat } from "./store"
 import { TagChip, TagEditor } from "./Tags"
 import { ThreadsView } from "./Threads"
 import { TrashView } from "./Trash"
@@ -76,7 +77,7 @@ import { restoredDraft, withoutStopped } from "./ux/stopped"
 import { scheduleReminder, thisDevice, useMessageUx } from "./ux/useMessageUx"
 import { Tour, tourSteps } from "./Tour"
 import { languageName, translateTarget } from "./translateTarget"
-import { GuideCard, GuidePill, ON_PAGE, WAITING, type GuideStep } from "./Guide"
+import { GuideCard, GuidePill, ON_PAGE, PLAN_STEPS, PRO_TOUR, ULTRA_FULL_TOUR, ULTRA_TOUR, WAITING, type GuideStep } from "./Guide"
 import { ConsentCard } from "./Consent"
 import { QI_EVENTS, QuickInsert } from "./insert/QuickInsert"
 import * as QIcon from "./insert/icons"
@@ -134,13 +135,27 @@ const SELECTION_ACTIONS: Action[] = [
   { id: "sel_translate", label: "actTranslate", prompt: "promptSelTranslate" },
   SEL_GOOGLE,
   { id: "sel_improve", label: "actImprove", prompt: "promptSelImprove" },
-  { id: "sel_reply", label: "actReply", prompt: "promptReply" }
+  { id: "sel_reply", label: "actReply", prompt: "promptReply" },
+  // 2.6: Find similar for what the selection describes (Ultra); last, since the Mac buttons pick these by index.
+  { id: "sel_similar", label: "selSimilar", prompt: "selSimilar" }
 ]
 const selAction = (id: string) => SELECTION_ACTIONS.find((a) => a.id === id)!
 
 /** The chips in the selection buttons' field on iPhone and iPad (2.6, the owner): the panel's selection actions in his
  * order, without Google (the buttons have their own). */
-const SEL_CHIPS = ["sel_summarize", "sel_translate", "sel_explain", "sel_improve", "sel_reply"]
+/** Ultra's actions (2.6, build 90, the owner: "colour Similar so it's clear it's an Ultra feature"): in Ultra's colour
+ * (--ultra) everywhere they show, with a small "Ultra" for anyone without it. */
+const ULTRA_ACTIONS = new Set(["similar", "sel_similar"])
+
+/** The small "Ultra" on an Ultra action, for someone without Ultra (a tap opens Ultra's card). */
+function UltraMark({ show }: { show: boolean }): VNode | null {
+  return show ? <span class="cf-ultra-mark">Ultra</span> : null
+}
+
+/** The plans, low to high: an upgrade moves up (Own key is below Pro: it has none of Pro's features). */
+const PLAN_RANK: Record<string, number> = { free: 0, byok: 1, pro: 2, ultra: 3 }
+
+const SEL_CHIPS = ["sel_summarize", "sel_translate", "sel_similar", "sel_explain", "sel_improve", "sel_reply"]
 
 /**
  * Translate for this text: into the interface's language, or, when the text already is in it, into English (or the
@@ -313,6 +328,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [upsell, setUpsell] = useState<"find" | "history" | null>(null)
   // Find similar (2.6): its card (the condition, or Ultra for someone without it), and the answer as it comes.
   const [similarCard, setSimilarCard] = useState<"pick" | "upsell" | { limit: Usage | null } | null>(null)
+  // The card opened from a selection: what was selected, the thing to find alternatives to (the page is context).
+  const [similarSubject, setSimilarSubject] = useState<string | null>(null)
   const [similarRun, setSimilarRun] = useState<{ items: SimilarItem[]; step: SimilarStep; pages?: number } | null>(null)
   // 2.6: the plans sheet, open on this plan (Ultra from Listen).
   const [plansOpen, setPlansOpen] = useState<PaidPlan | null>(null)
@@ -324,7 +341,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // The Pro offer, shown once more to an install that ran out of free answers before.
   const [offerCard, setOfferCard] = useState(false)
   const [findConsent, setFindConsent] = useState<{ resolve: (agreed: boolean) => void } | null>(null)
-  const [pending, setPending] = useState<{ text: string; label?: string; action?: string; mode?: "google"; similar?: string } | null>(null)
+  const [pending, setPending] = useState<{ text: string; label?: string; action?: string; mode?: "google"; similar?: string; similarSel?: string } | null>(null)
   const [selection, setSelection] = useState<SelectionInfo | null>(null)
   const [pageReadable, setPageReadable] = useState(true)
   const [wide, setWide] = useState(() => window.innerWidth >= 700)
@@ -345,6 +362,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [streamMode, setStreamMode] = useState<"google" | null>(null)
   const [copied, setCopied] = useState<number | null>(null)
   const [dragY, setDragY] = useState<number | null>(null)
+  // The round button out of the selection buttons' way while they show (fabDodge.ts): its center, in px; null at home.
+  const fabRef = useRef<HTMLButtonElement>(null)
+  const fabHome = useRef<DOMRect | null>(null)
+  const [fabDodge, setFabDodge] = useState<number | null>(null)
+  const fabDodgeRef = useRef<number | null>(null)
+  fabDodgeRef.current = fabDodge
   // The tour of the panel: shown once, on the first open; Settings can show it again.
   const [tourSeen, setTourSeen] = useState(true)
   const [touring, setTouring] = useState(false)
@@ -354,7 +377,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [guide, setGuide] = useState<GuideStep | null>(null)
   const guideRef = useRef<GuideStep | null>(null)
   guideRef.current = guide
-  const guideVia = useRef<"first" | "menu">("first")
+  const guideVia = useRef<"first" | "menu" | "plan" | "plan_menu">("first")
+  // A plan's tour (2.6): its steps in order and the plans it covers (marked shown when it ends); null for the first one.
+  const planTour = useRef<{ steps: GuideStep[]; plans: string[] } | null>(null)
   // Set where the guide's logic is (after what it reads); used by the panel's earlier hooks.
   const firstGuideRef = useRef<() => boolean>(() => false)
   const startGuideRef = useRef<(via: "first" | "menu") => void>(() => undefined)
@@ -926,7 +951,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           mode: opts.mode,
           stats,
           // Asked during the guided first request: the server doesn't count it, for an install's first few (2.6).
-          ...(guideRef.current ? { tour: true as const } : {}),
+          ...(guideRef.current && !planTour.current ? { tour: true as const } : {}),
           ...(wholeChat ? { context: "chat" as const, pages } : {})
         }
       })
@@ -1014,13 +1039,15 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const retry = useCallback((withoutGoogle = false) => {
     const last = messages[messages.length - 1]
     if (!isQuestion(last)) return
-    if (last.similarAsk !== undefined) return findSimilarRef.current(last.similarAsk, last.label ?? last.content, true)
+    if (last.similarAsk !== undefined) return findSimilarRef.current(last.similarAsk, last.label ?? last.content, true, last.similarSel)
     if (withoutGoogle) setGoogleMode(false)
     ask(last.content, { label: last.label, retry: true, mode: withoutGoogle ? undefined : last.mode })
   }, [messages, ask])
 
   const runAction = useCallback((picked: Action) => {
     if (picked.id === "similar") return openSimilarRef.current("chip")
+    // 2.6 (build 89, the owner): Find similar from a selection: alternatives to what it describes, the page as context.
+    if (picked.id === "sel_similar") return openSimilarRef.current("selection", selection?.text)
     // Translate by a selection: into English (or the next language) when the text is in the interface's already.
     const action = (selection && forSelection(picked, selection.text)) || picked
     ask(t(action.prompt, action.arg ?? t("languageName")), { label: action.text ?? t(action.label), action: action.id, mode: action.mode })
@@ -1029,10 +1056,15 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
   // ------------------------------------------------------------ find similar (2.6, Ultra)
   /** The card: the condition for someone with Ultra, what it is and the way to it for anyone else. */
-  const openSimilar = (via: "chip" | "menu") => {
+  const openSimilar = (via: "chip" | "menu" | "selection", subject?: string) => {
     setPageMenu(false)
+    setSimilarSubject(via === "selection" && subject?.trim() ? subject.trim().slice(0, SIMILAR_SELECTION_MAX) : null)
     if (via === "menu") void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "similar" })
-    setSimilarCard(similarAllowed(statusRef.current?.plan) ? "pick" : "upsell")
+    // The plan decides: as the panel knows it, or, tapped before the panel's status came, as the background tells it
+    // (an Ultra subscriber must never see Ultra's card for being quick).
+    const decide = (plan: string | undefined) => setSimilarCard(similarAllowed(plan) ? "pick" : "upsell")
+    if (statusRef.current) decide(statusRef.current.plan)
+    else void sendBackground<StatusInfo>({ type: "status", platform }).then((now) => decide(now?.plan ?? statusRef.current?.plan))
     setTimeout(() => listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" }), 60)
   }
   const openSimilarRef = useRef(openSimilar)
@@ -1063,18 +1095,18 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }
 
   /** Asks our server for checked alternatives to this page (engine A only); the list streams in as items pass. */
-  const findSimilar = (condition: string, label: string, again = false) => {
+  const findSimilar = (condition: string, label: string, again = false, subject?: string) => {
     if (portRef.current || askToken.current) return
     setSimilarCard(null)
     if (consent !== "ok") {
-      setPending({ text: label, label, action: "similar", similar: condition })
+      setPending({ text: label, label, action: "similar", similar: condition, ...(subject ? { similarSel: subject } : {}) })
       return
     }
     setUndoBar(null)
     setError(null)
     setOfferCard(false)
     const base = again ? messages.slice(0, messages.length - 1) : messages
-    const user: Turn = stamped({ role: "user", content: label, label, similarAsk: condition, page: { url: source.key(), title: source.title(), at: Date.now() } })
+    const user: Turn = stamped({ role: "user", content: label, label, similarAsk: condition, ...(subject ? { similarSel: subject } : {}), page: { url: source.key(), title: source.title(), at: Date.now() } })
     const history: Turn[] = [...base, user]
     setMessages(history)
     partialRef.current = ""
@@ -1119,7 +1151,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       port.onDisconnect.addListener(() => {
         if (!settled && portRef.current === port) finishSimilar(history, items.length ? { intro: "", items, note: "", condition: "" } : null, condition, items.length ? null : "STREAM")
       })
-      port.postMessage({ type: "similar", payload: { page: { title: full.title || source.title(), url: source.href(), text: full.text.slice(0, 5_000), facts }, condition } })
+      port.postMessage({ type: "similar", payload: { page: { title: full.title || source.title(), url: source.href(), text: full.text.slice(0, 5_000), facts }, condition, ...(subject ? { selection: subject } : {}) } })
     })
   }
   const findSimilarRef = useRef(findSimilar)
@@ -1140,7 +1172,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setConsent("ok")
     const p = pending
     setPending(null)
-    if (p?.action === "similar") setTimeout(() => findSimilarRef.current(p.similar ?? "", p.label ?? p.text), 0)
+    if (p?.action === "similar") setTimeout(() => findSimilarRef.current(p.similar ?? "", p.label ?? p.text, false, p.similarSel), 0)
     else if (p) setTimeout(() => askRef.current(p.text, { label: p.label, action: p.action, mode: p.mode }), 0)
   }, [pending])
   // "Not now": the question stays in the box, nothing is sent.
@@ -1376,7 +1408,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           </button>
         )}
         {TARGET === "safari" && !m.note && m.role === "assistant" && (
-          <button type="button" class={listen.state.at !== "idle" && "key" in listen.state && listen.state.key === `a:${idx}` ? "on" : ""} onClick={() => {
+          <button type="button" class={`cf-listen-btn cf-ultra-tool ${idx === lastAnswerIdx ? "last" : ""} ${listen.state.at !== "idle" && "key" in listen.state && listen.state.key === `a:${idx}` ? "on" : ""}`} onClick={() => {
             if (listen.state.at !== "idle" && "key" in listen.state && listen.state.key === `a:${idx}`) return listen.stop()
             void listen.start(`a:${idx}`, { text: m.content, what: "answer", lang: textLanguage(m.content) ?? t("langCode"), title: source.title(), url: source.href() })
           }} aria-label={t("listen")} title={t("listen")}>
@@ -1676,6 +1708,33 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // The ✦ steps aside while quick insert's button sits by the field being typed in.
   const insertButtonShown = useButtonShown()
   const fabVisible = !popup && fabEnabled && !open && !settings.fabHiddenSites.includes(source.site()) && !insertButtonShown
+  // The selection buttons were placed: the round button steps out of their way, or stays (fabDodge.ts).
+  const onBubblePlace = useCallback((box: DOMRect, selection: DOMRect) => {
+    const fab = fabRef.current
+    if (!fab) return
+    // Its own place: measured while it's there (the drag's end or the settings move it there again).
+    if (fabDodgeRef.current === null) fabHome.current = fab.getBoundingClientRect()
+    const home = fabHome.current
+    if (!home) return
+    const vv = window.visualViewport
+    const top = vv?.offsetTop ?? 0
+    setFabDodge(dodgeFab(home, box, selection, { top, bottom: top + (vv?.height ?? window.innerHeight) }))
+  }, [])
+  // The selection buttons before the panel opened here: the plan from the background's copy, for Ultra's mark.
+  useEffect(() => {
+    if (!bubble?.rect || statusRef.current) return
+    void sendBackground<StatusInfo>({ type: "status", platform }).then((now) => {
+      if (now && !statusRef.current) setStatus(now)
+    })
+  }, [bubble?.rect])
+  // Back home once the selection buttons are gone, or when the button is moved or hidden.
+  useEffect(() => {
+    if (!bubble?.rect || !fabVisible) setFabDodge(null)
+  }, [bubble?.rect, fabVisible])
+  useEffect(() => {
+    setFabDodge(null)
+    fabHome.current = null
+  }, [settings.fabY, settings.fabSide])
   const dragRef = useRef<{ startY: number; startX: number; moved: boolean; pointer: number } | null>(null)
 
   const onFabDown = (e: PointerEvent) => {
@@ -1733,8 +1792,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const step = guideRef.current
     if (!step) return
     setGuide(null)
-    setTourSeen(true)
-    void markTourSeen()
+    if (planTour.current) {
+      void markPlanToursSeen(planTour.current.plans)
+      planTour.current = null
+    } else {
+      setTourSeen(true)
+      void markTourSeen()
+    }
     reportGuide(a, what ?? step)
   }
   endGuideRef.current = endGuide
@@ -1747,8 +1811,16 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   guideToRef.current = guideTo
   // Which step is on follows what happens: the consent card, a question going out, its answer, the selection buttons.
   const lastRole = messages[messages.length - 1]?.role
+  // The last answer (its Listen is what Ultra's tour lights up).
+  let lastAnswerIdx = -1
+  for (let i = messages.length - 1; i >= 0 && lastAnswerIdx < 0; i--) if (messages[i].role === "assistant" && !messages[i].note) lastAnswerIdx = i
   useEffect(() => {
     if (!guide) return
+    // A plan's tour goes by its Next and the taps on what it lights up; out of the chat list, on past the chats.
+    if (planTour.current) {
+      if (guide === "pro_chatList" && view === "chat") guideTo(planAfter("pro_chats"))
+      return
+    }
     const second = guide === "askSel" || guide === "answer2" || ON_PAGE.includes(guide)
     if (pending && (guide === "summarize" || guide === "askSel")) guideTo("consent")
     else if (guide === "consent" && !pending && partial === null && consent !== "ok") endGuide("exit", "declined")
@@ -1766,7 +1838,25 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   useEffect(() => {
     if (!open && guide && !ON_PAGE.includes(guide)) endGuide("exit", "closed")
   }, [open])
+  /** The plan tour's step after `step` (null: the tour ends). */
+  const planAfter = (step: GuideStep): GuideStep => {
+    const steps = planTour.current?.steps ?? []
+    return steps[steps.indexOf(step) + 1] ?? step
+  }
+  const planNext = (step: GuideStep) => {
+    const steps = planTour.current?.steps ?? []
+    const i = steps.indexOf(step)
+    if (i < 0 || i >= steps.length - 1) endGuide("done")
+    else guideTo(steps[i + 1])
+  }
   const guideNext = () => {
+    if (guide && planTour.current) {
+      if (guide === "pro_chatList") {
+        setView("chat")
+        return planNext("pro_chats")
+      }
+      return planNext(guide)
+    }
     if (guide === "answer") guideTo("select")
     else if (guide === "select") {
       guideTo("pick")
@@ -1788,8 +1878,57 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       // The guide's card says what the list's hint would: it isn't shown again later.
       if (hints !== null && !hints.includes("chats")) doneHint("chats")
     } else if (step === "menu") endGuide("done")
+    // A plan's tour: into the chat list with its button; Listen and Find similar do their thing and it goes on; the
+    // "…" ends it with the menu open (the watched pages are there).
+    else if (step === "pro_chats") {
+      setView("threads")
+      guideTo("pro_chatList")
+    } else if (step === "pro_watch" || step === "ultra_watch") endGuide("done")
+    else if (step === "ultra_listen" || step === "ultra_similar") planNext(step)
   }
+  /** A plan's tour: what Pro or Ultra added. After the upgrade (via "plan"), or again from the "…" menu. Ultra for
+   * someone coming from below Pro (and from the menu) has Pro's steps too. */
+  const startPlanTour = (tier: "pro" | "ultra", via: "plan" | "plan_menu", from?: string) => {
+    const full = tier === "ultra" && (via === "plan_menu" || from === "free" || from === "byok")
+    const steps = tier === "pro" ? PRO_TOUR : full ? ULTRA_FULL_TOUR : ULTRA_TOUR
+    planTour.current = { steps, plans: full || tier === "pro" ? (tier === "pro" ? ["pro"] : ["pro", "ultra"]) : ["ultra"] }
+    guideVia.current = via
+    setTouring(false)
+    setView("chat")
+    guideRef.current = steps[0]
+    setGuide(steps[0])
+    reportGuide("start", steps[0])
+  }
+  const startPlanTourRef = useRef(startPlanTour)
+  startPlanTourRef.current = startPlanTour
+  // An upgrade seen here (Free or Own key → Pro, → Ultra): its tour on the panel's next quiet moment. The first plan
+  // 2.6 sees is only noted (subscribers before 2.6 aren't toured), and each plan's tour shows once by itself.
+  const [planTourDue, setPlanTourDue] = useState<{ tier: "pro" | "ultra"; from: string } | null>(null)
+  useEffect(() => {
+    const now = status?.plan
+    if (!now) return
+    let live = true
+    void (async () => {
+      const before = await lastPlanSeen()
+      if (before === now) return
+      await setLastPlanSeen(now)
+      if (!live || !before || (now !== "pro" && now !== "ultra") || PLAN_RANK[now] <= (PLAN_RANK[before] ?? 0)) return
+      if ((await planToursSeen()).includes(now)) return
+      if (live) setPlanTourDue({ tier: now, from: before })
+    })()
+    return () => {
+      live = false
+    }
+  }, [status?.plan])
+  useEffect(() => {
+    if (!planTourDue || !open || guide || touring || view !== "chat" || streaming || partial !== null) return
+    setPlanTourDue(null)
+    startPlanTourRef.current(planTourDue.tier, "plan", planTourDue.from)
+  }, [planTourDue, open, guide, touring, view, streaming, partial])
   const plan = status?.plan ?? "free"
+  // "Ultra" on Ultra's actions for anyone without it, once the plan is known: the selection buttons come before the
+  // panel has opened on a page, so their plan is read then too (below), and an Ultra subscriber never sees the mark.
+  const markUltra = status !== null && !isUltra(plan)
   // Read aloud (2.6, Ultra): an answer or the page. Without Ultra, Listen opens the plans sheet on Ultra.
   const openPlans = useCallback((focus: PaidPlan, via: "listen" | "settings" | "watch" | "limit" | "similar" = "listen") => {
     setPlansOpen(focus)
@@ -2325,8 +2464,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       {fabVisible && (
         <button
           type="button"
-          class={`cf-fab ${settings.fabSide === "left" ? "left" : "right"}`}
-          style={{ top: `${dragY ?? settings.fabY}%` }}
+          ref={fabRef}
+          class={`cf-fab ${settings.fabSide === "left" ? "left" : "right"} ${dragY === null ? "glide" : ""}`}
+          style={{ top: dragY !== null ? `${dragY}%` : fabDodge !== null ? `${fabDodge}px` : `${settings.fabY}%` }}
           aria-label={t("fabLabel")}
           title={t("fabLabel")}
           onPointerDown={onFabDown}
@@ -2351,7 +2491,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       {guide === "pick" && !open && !bubble?.rect && <GuidePill touch={touch} onSkip={() => endGuide("skip")} />}
 
       {bubble?.rect && !open && !popup && (
-        <SelectionBubble rect={bubble.rect} touch={touch} guide={guide === "ask"}>
+        <SelectionBubble rect={bubble.rect} touch={touch} guide={guide === "ask"} onPlace={onBubblePlace}>
           {noteSaved ? (
             <div class="cf-bubble-saved" role="status">
               <span><Icon.Check /> {remindSaved === null ? t("selNoteSaved") : remindSaved > 0 ? t("uxRemindSaved", remindLabel(remindSaved)) : remindSaved < 0 ? t("uxRemindNotSet") : t("uxRemindNoApp")}</span>
@@ -2375,6 +2515,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SELECTION_ACTIONS[0]), 60) })}>{t("selExplain")}</button>
                     <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SELECTION_ACTIONS[2]), 60) })}>{t("selTranslate")}</button>
                     <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SEL_GOOGLE), 60) })}><Icon.Search size={13} /> {t("actGoogle")}</button>
+                    {/* 2.6 (build 89, the owner): Find similar from a selection too, not only from the panel. */}
+                    <button type="button" class="cf-sel-similar ultra" title={t("actSimilar")} {...press(() => {
+                      void sendBackground({ type: "useEvent", f: "bubble", a: "action", what: "sel_similar", via: "button" })
+                      show(bubble)
+                      setTimeout(() => runActionRef.current(selAction("sel_similar")), 60)
+                    })}><SimilarIcon size={13} /> {t("selSimilar")}<UltraMark show={markUltra} /></button>
                     <button type="button" class="cf-sel-template" aria-label={t("qiTemplateButton")} title={t("qiTemplateButton")} {...press(() => newTemplate(bubble))}><QIcon.Template size={14} /> <span class="cf-sel-l">{t("qiTemplateButton")}</span></button>
                     {remindButton(bubble)}
                     {bubbleExtras}
@@ -2382,7 +2528,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 )}
               </div>
               <div class="cf-bubble-ask">
-                <SelField touch={touch} placeholder={t("selQuestion")} chips={touch && !selDraft && !selFocus ? SEL_CHIPS.flatMap((id) => forSelection(selAction(id), bubble.text) ?? []) : []} onChip={(a) => {
+                <SelField touch={touch} placeholder={t("selQuestion")} markUltra={markUltra} chips={touch && !selDraft && !selFocus ? SEL_CHIPS.flatMap((id) => forSelection(selAction(id), bubble.text) ?? []) : []} onChip={(a) => {
                   selFeatureUsed()
                   void sendBackground({ type: "useEvent", f: "bubble", a: "action", what: a.id, via: "chip" })
                   show(bubble)
@@ -2546,6 +2692,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       void listenPage()
                     } : undefined}
                     ultra={isUltra(plan)}
+                    planTour={plan === "pro" || plan === "ultra" ? {
+                      label: t("ptMenu", plan === "ultra" ? t("planUltra") : t("planPro")),
+                      start: () => {
+                        setPageMenu(false)
+                        void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "plan_tour" })
+                        startPlanTour(plan, "plan_menu")
+                      }
+                    } : undefined}
                     onIntro={firstGuideRef.current() ? () => {
                       setPageMenu(false)
                       void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "intro" })
@@ -2561,7 +2715,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
           {view === "threads" ? (
             <>
-              {hintDue("chats") && threadList.length > 0 && guide !== "chatList" && (
+              {hintDue("chats") && threadList.length > 0 && guide !== "chatList" && guide !== "pro_chatList" && (
                 <div class="cf-upsell-wrap">
                   <Hint icon={<Icon.Chats />} title={t("hintChatsTitle")} onDone={() => doneHint("chats")}>{t("hintChatsBody")}</Hint>
                 </div>
@@ -2643,6 +2797,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               onOrganizePro={() => tryOrganizePro("settings")}
               onUpgrade={() => (byok ? upgrade("settings") : void openApp("subscribe"))}
               onPlans={() => openPlans(hasPro(plan) || byok ? "ultra" : "pro", "settings")}
+              onYearly={(chosen) => {
+                void sendBackground({ type: "useEvent", f: "plans", a: "yearly", plan: chosen, period: "yearly" })
+                void (async () => {
+                  const result = await sendBackground<{ opened: boolean; url: string }>({ type: "openApp", target: "subscribe", plan: chosen, period: "yearly" })
+                  if (result && !result.opened && result.url) followLink(result.url)
+                })()
+              }}
               upgradeLabel={byokDiscount !== null ? t("upgradeProOff", byokDiscount) : t("upgradePro")}
               onManage={() => void openApp("manage")}
               onStatusChange={() => void refreshStatus(true)}
@@ -2693,7 +2854,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     {actions.length > 0 && (
                       <div class="cf-actions">
                         {actions.map((a) => (
-                          <button type="button" key={a.id} class="cf-chip" data-action={a.id} onClick={() => runAction(a)}>{actionLabel(a)}</button>
+                          ULTRA_ACTIONS.has(a.id)
+                            ? <button type="button" key={a.id} class="cf-chip ultra" data-action={a.id} onClick={() => runAction(a)}><SimilarIcon size={13} /> {actionLabel(a)}<UltraMark show={markUltra} /></button>
+                            : <button type="button" key={a.id} class="cf-chip" data-action={a.id} onClick={() => runAction(a)}>{actionLabel(a)}</button>
                         ))}
                       </div>
                     )}
@@ -2711,7 +2874,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                           </div>
                         ), !picked)
                       ) : (
-                        <div class="cf-bubble-user" dir="auto">{m.mode === "google" && <span class="cf-user-mode"><Icon.Search size={12} /></span>}{m.label ?? m.content}</div>
+                        <div class="cf-bubble-user" dir="auto">
+                          {m.mode === "google" && <span class="cf-user-mode"><Icon.Search size={12} /></span>}
+                          {m.similarAsk !== undefined && <span class="cf-user-mode" title={t("similarTitle")} aria-label={t("similarTitle")}><SimilarIcon size={12} /></span>}
+                          {m.label ?? m.content}
+                        </div>
                       )}
                       {m.sources && m.sources.length > 0 && <UsedSources notes={m.sources} />}
                       {m.note && messageFooter(m, idx, () => noteCopyText(m), () => noteShareText(messages, idx, shareLabels(chatLanguage(messages)), shareLinks()))}
@@ -2742,7 +2909,16 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 )}
 
                 {similarCard === "pick" && partial === null && (
-                  <SimilarPicker title={source.title() || source.site()} onFind={(condition, label) => findSimilar(condition, label)} onClose={() => setSimilarCard(null)} />
+                  <SimilarPicker
+                    title={similarSubject ? t("noteQuote", clip(similarSubject, 140)) : source.title() || source.site()}
+                    onFind={(condition, label) => {
+                      if (!similarSubject) return findSimilar(condition, label)
+                      // What was selected, in the question: "Find similar: “…”" (and the condition after it).
+                      const quote = t("noteQuote", clip(similarSubject, 60))
+                      findSimilar(condition, condition ? `${quote} · ${label}` : quote, false, similarSubject)
+                    }}
+                    onClose={() => setSimilarCard(null)}
+                  />
                 )}
                 {similarCard === "upsell" && (
                   <SimilarUpsell onUpgrade={() => { setSimilarCard(null); openPlans("ultra", "similar") }} onClose={() => setSimilarCard(null)} />
@@ -2919,7 +3095,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 </footer>
               ) : (
                 <footer class="cf-composer">
-                  <ListenBar state={listen.state} onToggle={listen.toggle} onStop={listen.stop} onPlans={() => openPlans("ultra", "limit")} />
+                  <ListenBar state={listen.state} speed={listen.speed} onSpeed={listen.cycleSpeed} onToggle={listen.toggle} onStop={listen.stop} onPlans={() => openPlans("ultra", "limit")} />
                   {undoBar && <UndoBar text={undoBar.text} actions={undoBar.actions} onHold={holdBar} />}
                   {noteHint && draft.trim() && !noteMode && <div class="cf-note-hint" role="status">{t(touch ? "noteHintTouch" : "noteHintMouse")}</div>}
                   {weightNote && <div class="cf-weight-note" title={t("longPageWeightHint", pageWeight)}>{t("longPageWeight", pageWeight)}</div>}
@@ -2997,7 +3173,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               )}
             </>
           )}
-          {guide && guideIdle && !ON_PAGE.includes(guide) && view === (guide === "chatList" ? "threads" : "chat") && panelRef.current && (
+          {guide && guideIdle && !ON_PAGE.includes(guide) && view === (guide === "chatList" || guide === "pro_chatList" ? "threads" : "chat") && panelRef.current && (
             <GuideCard
               key={guide}
               panel={panelRef.current}
@@ -3137,6 +3313,12 @@ function bubbleTop(rect: DOMRect, touch: boolean, height: number, up = false): n
   return Math.max(top0 + 8, Math.min(bottom - height - 12, top))
 }
 
+/** A selection shown in a line: one line, at most `max` characters. */
+function clip(text: string, max: number): string {
+  const line = text.replace(/\s+/g, " ").trim()
+  return line.length > max ? `${line.slice(0, max - 1).trimEnd()}…` : line
+}
+
 /** 320 pt wide or less room (iPhone mini and SE with Display Zoom): the selection buttons use shorter labels. */
 function narrowScreen(): boolean {
   return (window.visualViewport?.width ?? window.innerWidth) < 360
@@ -3154,7 +3336,7 @@ let chipsNudged = false
  * touch-action:none (taps only); the field scrolls sideways (pan-x). The size of the buttons doesn't change. Mac: just
  * the field.
  */
-function SelField({ touch, chips, placeholder, onChip, children }: { touch: boolean; chips: Action[]; placeholder: string; onChip: (a: Action) => void; children: ComponentChildren }): VNode {
+function SelField({ touch, chips, placeholder, markUltra, onChip, children }: { touch: boolean; chips: Action[]; placeholder: string; markUltra: boolean; onChip: (a: Action) => void; children: ComponentChildren }): VNode {
   const ref = useRef<HTMLDivElement>(null)
   const probe = useRef<HTMLSpanElement>(null)
   const on = chips.length > 0
@@ -3190,14 +3372,16 @@ function SelField({ touch, chips, placeholder, onChip, children }: { touch: bool
       <span ref={probe} class="cf-ask-probe" aria-hidden="true">{placeholder}</span>
       {children}
       {chips.map((a) => (
-        <button type="button" key={a.id} class="cf-sel-chip" {...press(() => onChip(a))}>{a.text ?? t(a.label)}</button>
+        ULTRA_ACTIONS.has(a.id)
+          ? <button type="button" key={a.id} class="cf-sel-chip ultra" {...press(() => onChip(a))}><SimilarIcon size={12} /> {a.text ?? t(a.label)}<UltraMark show={markUltra} /></button>
+          : <button type="button" key={a.id} class="cf-sel-chip" {...press(() => onChip(a))}>{a.text ?? t(a.label)}</button>
       ))}
     </div>
   )
 }
 
 /** The buttons shown for a page selection, centered under it and kept on screen. */
-function SelectionBubble({ rect, touch, guide, children }: { rect: DOMRect; touch: boolean; guide?: boolean; children: ComponentChildren }): VNode {
+function SelectionBubble({ rect, touch, guide, onPlace, children }: { rect: DOMRect; touch: boolean; guide?: boolean; onPlace?: (box: DOMRect, selection: DOMRect) => void; children: ComponentChildren }): VNode {
   const ref = useRef<HTMLDivElement>(null)
   // Mac: a right-click on the page opens the system menu down from the pointer; the buttons go above the selection.
   const [up, setUp] = useState(false)
@@ -3220,6 +3404,7 @@ function SelectionBubble({ rect, touch, guide, children }: { rect: DOMRect; touc
       if (row && row.scrollWidth > row.clientWidth + 1) el.classList.add("tight")
       el.style.left = `${Math.max(min, Math.min(max, center - el.offsetWidth / 2))}px`
       el.style.top = `${bubbleTop(rect, touch, el.offsetHeight, up)}px`
+      onPlace?.(el.getBoundingClientRect(), rect)
     }
     el.classList.remove("tight")
     place()

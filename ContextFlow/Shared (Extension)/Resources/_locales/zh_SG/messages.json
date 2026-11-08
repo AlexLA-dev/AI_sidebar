@@ -755,6 +755,60 @@
  "uxShowIntro": {
   "message": "再次查看介绍"
  },
+ "ptMenu": {
+  "message": "{0} 包含的功能"
+ },
+ "ptProMediaTitle": {
+  "message": "Pro：视频和 PDF"
+ },
+ "ptProMediaBody": {
+  "message": "页面上有视频或 PDF 时，ContextFlow 现在也会读取：视频字幕和 PDF 正文。直接提问即可。"
+ },
+ "ptProChatsTitle": {
+  "message": "搜索和询问你的聊天"
+ },
+ "ptProChatsBody": {
+  "message": "在聊天列表里，✦ 可以按描述找到聊天，“{0}”会根据你读过和问过的所有内容回答。"
+ },
+ "ptProChatListTitle": {
+  "message": "就在这里"
+ },
+ "ptProChatListBody": {
+  "message": "打开搜索旁的 ✦，描述你要找的聊天；或者点“{0}”，一次询问所有聊天。"
+ },
+ "ptProSortTitle": {
+  "message": "按主题整理"
+ },
+ "ptProSortBody": {
+  "message": "回答下方会出现一行建议，为聊天推荐标签或文件夹。点一下即可整理，也可以撤销。"
+ },
+ "ptProTemplatesTitle": {
+  "message": "模板"
+ },
+ "ptProTemplatesBody": {
+  "message": "选中文字后点“{0}”即可保存，之后可粘贴到任何输入框。想存多少都行。"
+ },
+ "ptProWatchTitle": {
+  "message": "关注最多 20 个页面"
+ },
+ "ptProWatchBody": {
+  "message": "在“…”里，“{0}”会在页面变化时通知你：价格、日期、新帖子。"
+ },
+ "ptUltraListenTitle": {
+  "message": "Ultra：听"
+ },
+ "ptUltraListenBody": {
+  "message": "点回答下方的“{0}”，或“…”里的“{1}”：文字会改写成适合收听的形式并朗读出来。"
+ },
+ "ptUltraSimilarBody": {
+  "message": "为你正在看的内容找到真实的替代选择，每个链接都打开并核实过。在这里或“…”里点“{0}”，也可以选中文字后点“{1}”。"
+ },
+ "ptUltraWatchTitle": {
+  "message": "关注最多 50 个页面"
+ },
+ "ptUltraWatchBody": {
+  "message": "现在，“…”里的“{0}”最多可同时关注 50 个页面。"
+ },
  "welcomeTitle": {
   "message": "ContextFlow 已准备就绪"
  },
@@ -1691,6 +1745,9 @@
  "actSimilar": {
   "message": "查找相似"
  },
+ "selSimilar": {
+  "message": "查找相似"
+ },
  "uxSimilar": {
   "message": "查找相似…"
  },
@@ -1807,6 +1864,159 @@
  },
  "orgDemoChat": {
   "message": "旅行"
+ },
+ "listenSpeed": {
+  "message": "速度：{0}。轻点选择其他速度"
+ },
+ "plansYearlySave": {
+  "message": "年付 · 最多省 {0}%"
+ },
+ "plansPerMonthYearly": {
+  "message": "每月 {0}，按年付费"
+ },
+ "plansSaveMoney": {
+  "message": "每年省 {0}"
+ },
+ "yearlyNudge": {
+  "message": "{0} 年付：每年省 {1}（{2}%）。"
+ },
+ "yearlyNudgeButton": {
+  "message": "改为年付"
+ },
+ "yearlyNudgeNote": {
+  "message": "年付将在你当前这个月结束时开始。"
+ },
+ "yearlyNudgeHide": {
+  "message": "隐藏"
+ },
+ "galleryTitle": {
+  "message": "包含的功能"
+ },
+ "galleryNext": {
+  "message": "下一张"
+ },
+ "galleryPrevious": {
+  "message": "上一张"
+ },
+ "gMediaTitle": {
+  "message": "视频和 PDF"
+ },
+ "gMediaLine": {
+  "message": "回答会依据视频文字稿和 PDF 的页面。"
+ },
+ "gMediaVideo": {
+  "message": "视频文字稿 · 11:40"
+ },
+ "gMediaPdf": {
+  "message": "第三季度报告 · 3 页"
+ },
+ "gMediaAnswer": {
+  "message": "第三季度收入增长了 12%。在视频中，CEO 将其归功于新的订阅方案。"
+ },
+ "gSearchTitle": {
+  "message": "AI 搜索和“问问你的所有对话”"
+ },
+ "gSearchLine": {
+  "message": "描述一下就能找到对话，也可以向所有对话提问。"
+ },
+ "gSearchQuery": {
+  "message": "那篇关于睡眠和咖啡的文章"
+ },
+ "gSearchResult": {
+  "message": "咖啡因与睡眠"
+ },
+ "gSearchSnippet": {
+  "message": "下午两点后喝咖啡，深度睡眠减少了五分之一…"
+ },
+ "gSearchWhen": {
+  "message": "上周"
+ },
+ "gTemplatesTitle": {
+  "message": "模板不限次数"
+ },
+ "gTemplatesLine": {
+  "message": "你自己的提示词和回复，姓名和日期从网页上填好。"
+ },
+ "gTemplatesName": {
+  "message": "通话后跟进"
+ },
+ "gTemplatesBody": {
+  "message": "{0}，你好。感谢{1}的通话。按照约定，以下是接下来的步骤。"
+ },
+ "gTemplatesPerson": {
+  "message": "李娜"
+ },
+ "gTemplatesDay": {
+  "message": "周二"
+ },
+ "gWatchTitle": {
+  "message": "关注 {0} 个页面"
+ },
+ "gWatchLine": {
+  "message": "降价或页面变化时通知你。"
+ },
+ "gWatchChanged": {
+  "message": "已变化：价格"
+ },
+ "gWatchNow": {
+  "message": "现在：{0}（之前 {1}）"
+ },
+ "gWatchManyLine": {
+  "message": "同时关注最多 {0} 个页面的价格、库存和变化。"
+ },
+ "gWatchItem1": {
+  "message": "耳机"
+ },
+ "gWatchItem2": {
+  "message": "飞往里斯本的航班"
+ },
+ "gWatchMore": {
+  "message": "以及另外 {0} 个页面"
+ },
+ "gAnswersTitle": {
+  "message": "每周最多 {0} 个回答"
+ },
+ "gAnswersLine": {
+  "message": "更深入、更详细的回答，而非每天 {0} 个。"
+ },
+ "gAnswersWeek": {
+  "message": "每周"
+ },
+ "gAnswersFree": {
+  "message": "免费版：每天 {0} 个"
+ },
+ "gListenTitle": {
+  "message": "朗读"
+ },
+ "gListenLine": {
+  "message": "用自然的声音朗读回答和整个页面，语速随你调。"
+ },
+ "gListenSample": {
+  "message": "电动列车如何节省能源"
+ },
+ "gSimilarTitle": {
+  "message": "查找相似"
+ },
+ "gSimilarLine": {
+  "message": "为任何页面找替代选择：更便宜、更新、有货或用你的语言。"
+ },
+ "gSimilar1": {
+  "message": "网布办公椅"
+ },
+ "gSimilar2": {
+  "message": "同款椅子，2026 款"
+ },
+ "gSimilar3": {
+  "message": "带头枕的椅子"
+ },
+ "gSimilarInStock": {
+  "message": "有货"
+ },
+ "gSimilarNewer": {
+  "message": "更新"
+ },
+ "gSimilarCheaper": {
+  "message": "更便宜"
  },
  "tip_4cf1b54b00": {
   "message": "技巧"
