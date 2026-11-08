@@ -42,12 +42,20 @@ interface Props {
   // Recently Deleted (2.5 (83)): how many chats are there (its row ends the list when there are some), and opening it.
   trashCount?: number
   onOpenTrash?: () => void
+  // Organizing (2.6, Pro with suggestions on): open suggestions per chat ("N recommendations" on its row).
+  recs?: Record<string, number>
 }
 
 /** "3 pages", in the UI language's plural form. */
 function pagesLabel(count: number): string {
   const rule = new Intl.PluralRules(uiLanguage()).select(count)
   return t(rule === "one" || rule === "few" || rule === "many" ? `pages_${rule}` : "pages_other", count)
+}
+
+/** "1 recommendation", "5 recommendations" (2.6): the open organizing suggestions of a chat, in the plural its language has. */
+export function recsLabel(count: number): string {
+  const rule = new Intl.PluralRules(uiLanguage()).select(count)
+  return t(rule === "one" || rule === "two" || rule === "few" || rule === "many" ? `recs_${rule}` : "recs_other", count)
 }
 
 function host(url: string): string {
@@ -236,7 +244,7 @@ interface Drag {
  * start a new one. Pinned chats come first and are reordered by dragging their handle; a chat that
  * was on several pages lists them (each opens its page).
  */
-export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onNew, onPin, onMove, onOpenPage, pro, onAskHistory, onFind, onUpsell, findError, findWaiting, onTags, grouped, onGrouped, touch = false, trashCount = 0, onOpenTrash }: Props): VNode {
+export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onNew, onPin, onMove, onOpenPage, pro, onAskHistory, onFind, onUpsell, findError, findWaiting, onTags, grouped, onGrouped, touch = false, trashCount = 0, onOpenTrash, recs }: Props): VNode {
   const [query, setQuery] = useState("")
   // Only the chats with this tag (in the list and in search results).
   const [tagFilter, setTagFilter] = useState<string | null>(null)
@@ -508,6 +516,9 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
                       </button>
                     ) : (
                       pages.length === 1 && <span class="cf-thread-site">{host(pages[0].url)}</span>
+                    )}
+                    {Boolean(recs?.[thread.id]) && (
+                      <span class="cf-thread-recs"><Icon.Sparkle size={11} />{recsLabel(recs![thread.id])}</span>
                     )}
                     <span class="cf-thread-when">{when(activity(thread))}</span>
                   </span>

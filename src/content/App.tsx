@@ -45,7 +45,7 @@ import { barDeadline, deadlineAfterHold, goesOnWork, type BarKind } from "./undo
 import { moveBlock, organizeCards, setOrganizeCards, undoBlockMove, type OrganizeCards } from "./store"
 import { DEFAULT_ORGANIZE, looksMixed } from "../shared/organize"
 import { entryKey } from "../shared/conversation"
-import type { OrganizeEvent, OrganizeNameReply, OrganizeReply } from "../shared/types"
+import type { OrganizeCountsReply, OrganizeEvent, OrganizeNameReply, OrganizeReply } from "../shared/types"
 import { ProUpsell } from "./ProUpsell"
 import { shownPrice, SimilarIcon, SimilarList, SimilarPicker, SimilarUpsell } from "./similar/Similar"
 import { factsFrom, SIMILAR_SELECTION_MAX, similarAllowed, similarMarkdown, type SimilarAnswer, type SimilarItem, type SimilarStep, type SimilarStreamEvent } from "../shared/similar"
@@ -2251,6 +2251,25 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     })
   }
 
+  // 2.6: the chats list shows how many open suggestions each chat has ("N recommendations"): asked each time the list
+  // shows (and the chats change), counted once per chat as shown.
+  const [recs, setRecs] = useState<Record<string, number>>({})
+  const recsSeen = useRef(new Set<string>())
+  useEffect(() => {
+    if (!open || !orgOn || view !== "threads") return
+    let live = true
+    void sendBackground<OrganizeCountsReply>({ type: "organizeCounts" }).then((reply) => {
+      if (!live || !reply?.ok) return
+      setRecs(reply.counts)
+      for (const id of Object.keys(reply.counts)) {
+        if (recsSeen.current.has(id)) continue
+        recsSeen.current.add(id)
+        orgEvent({ kind: "organize", action: "shown", what: "badge" })
+      }
+    })
+    return () => { live = false }
+  }, [open, orgOn, view, threadList])
+
   // The first suggestion taken: a line that from now on they come by themselves (once).
   const won = () => {
     if (!cards || cards.firstWin) return
@@ -2786,7 +2805,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               <ThreadsView
                 threads={threadList}
                 activeId={threadRef.current}
-                onOpen={openThread}
+                onOpen={(id, at) => {
+                  if (orgOn && recs[id]) orgEvent({ kind: "organize", action: "tap", what: "badge" })
+                  openThread(id, at)
+                }}
                 onRename={renameChat}
                 onDelete={deleteChatWithUndo}
                 onNew={newChat}
@@ -2808,6 +2830,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   setUndoBar(null)
                   setView("trash")
                 }}
+                recs={orgOn ? recs : undefined}
               />
               <div class="cf-undo-host">{undoBar && <UndoBar text={undoBar.text} actions={undoBar.actions} onHold={holdBar} />}</div>
             </>

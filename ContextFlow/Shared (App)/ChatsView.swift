@@ -51,6 +51,10 @@ struct ChatsView: View {
 
     /// A reminder's notification was tapped: the chat the message is in now, at the message (2.5).
     @ObservedObject private var links = ChatLinks.shared
+    @ObservedObject private var organize = OrganizeModel.shared
+    // 2.6: open organizing suggestions per chat, and the chats whose badge was counted as shown.
+    @State private var recs: [String: Int] = [:]
+    @State private var recsSeen = Set<String>()
     @State private var linked: (threadId: String, index: Int)?
     // "Reminders" or "Watching" (2.5 (77): two lists, never one), from the Chats toolbar.
     @State private var showingList: LaterItem.Kind?
@@ -168,6 +172,18 @@ struct ChatsView: View {
             Text("You can restore it from Recently Deleted for 30 days.")
         }
         .onAppear { library.refresh() }
+        // 2.6 (Pro, suggestions on): how many open suggestions each chat has, again whenever the chats change; each
+        // chat's "N recommendations" counted once as shown.
+        .task(id: library.threads.map { "\($0.id):\($0.updatedAt)" }.joined(separator: ",")) {
+            await organize.refreshStatus()
+            guard organize.enabled(pro: store.isPro) else { recs = [:]; return }
+            let found = await organize.counts(in: library.threads)
+            recs = found
+            for id in found.keys where !recsSeen.contains(id) {
+                recsSeen.insert(id)
+                ChatAI.reportOrganize("organize", ["action": "shown", "what": "badge"])
+            }
+        }
         // An Own key subscriber: whether Pro at a discount is set up, and if it's due, the card above, once a period.
         .task {
             await store.refreshUpgradeOffer()
@@ -217,8 +233,11 @@ struct ChatsView: View {
     private func chatRows(_ threads: [ChatThread]) -> some View {
         ForEach(threads) { thread in
             NavigationLink(value: ChatRoute(id: thread.id, history: thread.isHistory)) {
-                ChatRow(thread: thread)
+                ChatRow(thread: thread, recs: recs[thread.id] ?? 0)
             }
+            .simultaneousGesture(TapGesture().onEnded {
+                if recs[thread.id] != nil { ChatAI.reportOrganize("organize", ["action": "tap", "what": "badge"]) }
+            })
             .contextMenu { menu(for: thread) }
             #if os(iOS)
             .swipeActions(edge: .trailing) {
@@ -862,6 +881,8 @@ extension View {
 
 struct ChatRow: View {
     let thread: ChatThread
+    /// Open organizing suggestions in it (2.6, Pro): "N recommendations" on its last line.
+    var recs = 0
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -898,6 +919,11 @@ struct ChatRow: View {
                 if thread.notes > 0 {
                     Label("\(thread.notes)", systemImage: "pencil")
                         .accessibilityLabel(Text("\(thread.notes) notes"))
+                }
+                if recs > 0 {
+                    Label("\(recs) recommendations", systemImage: "sparkles")
+                        .foregroundColor(brandBlue)
+                        .lineLimit(1)
                 }
                 Spacer(minLength: 0)
                 Text(thread.lastActivity, style: .relative)
