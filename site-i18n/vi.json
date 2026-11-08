@@ -87,7 +87,6 @@
   "1cbf20f3c9d5": "ContextFlow làm được gì trong Safari",
   "28b831787b53": "Mọi tính năng kèm video ngắn: hỏi về trang, ghi chú, chèn nhanh, lời nhắc, theo dõi giá và cuộc trò chuyện gọn gàng.",
   "71164de42647": "ContextFlow làm được gì",
-  "97df13861bf7": "Đây là những mẹo giống như trong ứng dụng, được nhóm theo việc bạn muốn làm. Mỗi video là bảng ContextFlow thật đang hoạt động. Các mục có nhãn <span class=\"pro-badge\">Pro</span> cần gói Pro. Mọi thứ khác đều dùng được với gói Miễn phí.",
   "89895fd68fea": "Trên mọi thiết bị của bạn",
   "db298c67acfd": "Bắt đầu trên iPhone, làm tiếp trên Mac? Bật Đồng bộ cuộc trò chuyện qua iCloud, cuộc trò chuyện sẽ tiếp tục trên iPad và Mac của bạn. Dữ liệu được mã hóa đầu cuối trong iCloud của bạn và không bao giờ được lưu trên máy chủ của tôi.",
   "23bcbc4b8227": "Mở ContextFlow trên trang bạn đang đọc và hỏi. Không cần viết câu lệnh.",
@@ -467,5 +466,18 @@
   "a3587d02c409": "Những gì được gửi đi khi tôi đặt câu hỏi?",
   "9e77c9846978": "Câu hỏi của bạn và văn bản của trang (hoặc phần bạn đã chọn) — chỉ vào lúc đó, chỉ để tạo câu trả lời. Chi tiết trong <a href=\"/privacy\">Chính sách quyền riêng tư</a>.",
   "0943d5368501": "Tôi có tài khoản ở phiên bản cũ. Làm sao để xóa?",
-  "17328923ce30": "Hãy gửi email cho chúng tôi từ địa chỉ bạn đã dùng để đăng ký, chúng tôi sẽ xóa tài khoản trong vòng 30 ngày. Phiên bản 2.0 không còn dùng tài khoản nữa."
+  "17328923ce30": "Hãy gửi email cho chúng tôi từ địa chỉ bạn đã dùng để đăng ký, chúng tôi sẽ xóa tài khoản trong vòng 30 ngày. Phiên bản 2.0 không còn dùng tài khoản nữa.",
+  "b8a90a3e910d": "Đây là những mẹo giống như trong ứng dụng, được nhóm theo việc bạn muốn làm. Mỗi video là bảng ContextFlow thật đang hoạt động. Các mục có nhãn <span class=\"pro-badge\">Pro</span> cần gói Pro, còn các mục có nhãn <span class=\"ultra-badge\">Ultra</span> cần gói Ultra. Mọi thứ khác đều dùng được với gói Miễn phí.",
+  "b96ddaab20ff": "Gói của bạn",
+  "2f27bc2271a5": "Thao tác nhanh dưới đoạn đã chọn",
+  "fe4d888ff56e": "Ngại gõ trên điện thoại? Trên iPhone và iPad, chọn văn bản, ô Câu hỏi của bạn… bên dưới sẽ có Tóm tắt, Dịch, Tìm tương tự và hơn thế. Vuốt qua chúng và chạm vào một mục. Trên Mac, các thao tác này là nút dưới đoạn đã chọn.",
+  "cd4dfd7997f6": "Tìm tương tự <span class=\"ultra-badge\">Ultra</span>",
+  "ea488f6eb0df": "Muốn biết còn gì khác? Chạm vào Tìm tương tự trong bảng, hoặc chọn tên một sản phẩm rồi chạm vào Tìm tương tự bên dưới. Thêm điều kiện như Rẻ hơn hoặc Còn hàng nếu muốn. Mỗi lựa chọn thay thế là một trang có thật, đã được mở và kiểm tra trước khi bạn xem.",
+  "63345676db20": "Nghe <span class=\"ultra-badge\">Ultra</span>",
+  "3c892169e2cc": "Thích nghe hơn đọc? Chạm vào Nghe dưới một câu trả lời, hoặc chọn Nghe trang này trong menu …. Một giọng đọc tự nhiên sẽ đọc ở tốc độ 1×, 1,2×, 1,5× hoặc 2×. Trên iPhone và iPad, âm thanh phát trong ứng dụng ContextFlow và vẫn tiếp tục khi khóa màn hình; trên Mac, phát ngay trong bảng.",
+  "da0391a442a7": "Cách bạn trả tiền, và gói của bạn có thêm gì.",
+  "b3282f43dd8a": "Theo tháng hoặc theo năm",
+  "0401a0483c47": "Muốn trả ít hơn? Pro và Ultra có gói theo tháng hoặc theo năm, và một năm rẻ hơn mười hai tháng. Chạm vào Theo năm phía trên các gói để xem từng giá và số tiền tiết kiệm. Đang trả theo tháng? Chuyển sang theo năm nằm trong Cài đặt → Gói của bạn, và gói năm bắt đầu khi tháng hiện tại kết thúc.",
+  "9288a85bb996": "Gói của bạn có thêm gì",
+  "14a3f72a986a": "Vừa nâng cấp và chưa rõ có gì mới? Sau khi bạn mua Pro hoặc Ultra, ContextFlow giới thiệu từng bước những gì gói của bạn có thêm. Muốn xem lại, chạm vào … ở đầu bảng, rồi Khác… và Pro có gì hoặc Ultra có gì. Trong ứng dụng, mục này nằm trong Cài đặt, ở phần Gói của bạn."
 }

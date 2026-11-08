@@ -165,6 +165,8 @@ export type ErrorCode =
 
 export type BackgroundRequest =
   | { type: "status"; refresh?: boolean; fresh?: boolean; platform?: Platform }
+  // 2.6 (91): a Tips clip from the app (App Group) for the clip page.
+  | { type: "tipClip"; name: string; lang: string }
   // Build 91: the jobs the background is running now (ids), to follow one again after the panel was closed.
   | { type: "liveJobs" }
   // …and the panel showed this chat: its jobs' outcomes were seen (the chats list's and the floating button's dot go).

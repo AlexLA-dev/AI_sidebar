@@ -79,6 +79,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     // development environment, checks it comes back with the changes, deletes it, prints the result
     // and quits.
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // The Tips clips for the Safari panel, into the App Group once per build (TipClipShare).
+        DispatchQueue.global(qos: .utility).async { TipClipShare.publish() }
         guard CommandLine.arguments.contains("--cf-sync-selftest") else { return }
         Task {
             let id = "selftest-\(UUID().uuidString)"
