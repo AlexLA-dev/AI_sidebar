@@ -38506,84 +38506,84 @@
         }
       }
     },
-    "Tap Find similar in the panel, or select text on the page and tap Similar. You get real alternatives — cheaper, newer, in stock or in your language. Every link is opened and checked before you see it.": {
+    "Tap Find similar in the panel, or select text on the page and tap Find similar. You get real alternatives — cheaper, newer, in stock or in your language. Every link is opened and checked before you see it.": {
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "اضغط «ابحث عن مشابه» في اللوحة، أو حدد نصًا في الصفحة واضغط «مشابه». ستحصل على بدائل حقيقية — أرخص أو أحدث أو متوفرة أو بلغتك. نفتح كل رابط ونتحقق منه قبل أن تراه."
+            "value": "اضغط «ابحث عن مشابه» في اللوحة، أو حدد نصًا في الصفحة واضغط «ابحث عن مشابه». ستحصل على بدائل حقيقية — أرخص أو أحدث أو متوفرة أو بلغتك. نفتح كل رابط ونتحقق منه قبل أن تراه."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tippe im Panel auf „Ähnliches finden“ oder markiere Text auf der Seite und tippe auf „Ähnliches“. Du bekommst echte Alternativen – günstiger, neuer, verfügbar oder in deiner Sprache. Jeder Link wird geöffnet und geprüft, bevor du ihn siehst."
+            "value": "Tippe im Panel auf „Ähnliches finden“ oder markiere Text auf der Seite und tippe auf „Ähnliches finden“. Du bekommst echte Alternativen – günstiger, neuer, verfügbar oder in deiner Sprache. Jeder Link wird geöffnet und geprüft, bevor du ihn siehst."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Toca «Buscar similares» en el panel, o selecciona texto en la página y toca «Similares». Obtienes alternativas reales: más baratas, más nuevas, disponibles o en tu idioma. Cada enlace se abre y se comprueba antes de que lo veas."
+            "value": "Toca «Buscar similares» en el panel, o selecciona texto en la página y toca «Buscar similares». Obtienes alternativas reales: más baratas, más nuevas, disponibles o en tu idioma. Cada enlace se abre y se comprueba antes de que lo veas."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Touchez « Trouver similaire » dans le panneau, ou sélectionnez du texte sur la page et touchez « Similaires ». Vous obtenez de vraies alternatives : moins chères, plus récentes, en stock ou dans votre langue. Chaque lien est ouvert et vérifié avant que vous le voyiez."
+            "value": "Touchez « Trouver similaire » dans le panneau, ou sélectionnez du texte sur la page et touchez « Trouver similaire ». Vous obtenez de vraies alternatives : moins chères, plus récentes, en stock ou dans votre langue. Chaque lien est ouvert et vérifié avant que vous le voyiez."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tocca «Trova simili» nel pannello, oppure seleziona del testo sulla pagina e tocca «Simili». Ottieni alternative reali: più economiche, più recenti, disponibili o nella tua lingua. Ogni link viene aperto e verificato prima che tu lo veda."
+            "value": "Tocca «Trova simili» nel pannello, oppure seleziona del testo sulla pagina e tocca «Trova simili». Ottieni alternative reali: più economiche, più recenti, disponibili o nella tua lingua. Ogni link viene aperto e verificato prima che tu lo veda."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "パネルの「似たものを探す」をタップするか、ページのテキストを選択して「似たもの」をタップします。より安い、より新しい、在庫あり、自分の言語で、といった実在する代わりの候補が見つかります。リンクはすべて開いて確認してから表示します。"
+            "value": "パネルの「似たものを探す」をタップするか、ページのテキストを選択して「似たものを探す」をタップします。より安い、より新しい、在庫あり、自分の言語で、といった実在する代わりの候補が見つかります。リンクはすべて開いて確認してから表示します。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "패널에서 ‘비슷한 것 찾기’를 탭하거나, 페이지에서 텍스트를 선택하고 ‘비슷한 것’을 탭하세요. 더 싸거나, 더 새롭거나, 재고가 있거나, 내 언어로 된 실제 대안을 찾아 줘요. 모든 링크는 열어서 확인한 뒤 보여 드려요."
+            "value": "패널에서 ‘비슷한 것 찾기’를 탭하거나, 페이지에서 텍스트를 선택하고 ‘비슷한 것 찾기’를 탭하세요. 더 싸거나, 더 새롭거나, 재고가 있거나, 내 언어로 된 실제 대안을 찾아 줘요. 모든 링크는 열어서 확인한 뒤 보여 드려요."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Toque em “Encontrar parecidos” no painel, ou selecione um texto na página e toque em “Parecidos”. Você recebe alternativas reais: mais baratas, mais novas, em estoque ou no seu idioma. Cada link é aberto e verificado antes de você ver."
+            "value": "Toque em “Encontrar parecidos” no painel, ou selecione um texto na página e toque em “Encontrar parecidos”. Você recebe alternativas reais: mais baratas, mais novas, em estoque ou no seu idioma. Cada link é aberto e verificado antes de você ver."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Нажмите «Найти похожее» в панели или выделите текст на странице и нажмите «Похожее». Вы получите настоящие альтернативы — дешевле, новее, в наличии или на вашем языке. Каждую ссылку мы открываем и проверяем, прежде чем показать."
+            "value": "Нажмите «Найти похожее» в панели или выделите текст на странице и нажмите «Найти похожее». Вы получите настоящие альтернативы — дешевле, новее, в наличии или на вашем языке. Каждую ссылку мы открываем и проверяем, прежде чем показать."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Натисніть «Знайти схоже» в панелі або виділіть текст на сторінці й натисніть «Схоже». Ви отримаєте справжні альтернативи — дешевше, новіше, в наявності або вашою мовою. Кожне посилання ми відкриваємо й перевіряємо, перш ніж показати."
+            "value": "Натисніть «Знайти схоже» в панелі або виділіть текст на сторінці й натисніть «Знайти схоже». Ви отримаєте справжні альтернативи — дешевше, новіше, в наявності або вашою мовою. Кожне посилання ми відкриваємо й перевіряємо, перш ніж показати."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Chạm vào Tìm tương tự trong bảng, hoặc chọn văn bản trên trang rồi chạm Tương tự. Bạn nhận được những lựa chọn thay thế có thật — rẻ hơn, mới hơn, còn hàng hoặc bằng ngôn ngữ của bạn. Mọi liên kết đều được mở và kiểm tra trước khi bạn xem."
+            "value": "Chạm vào Tìm tương tự trong bảng, hoặc chọn văn bản trên trang rồi chạm Tìm tương tự. Bạn nhận được những lựa chọn thay thế có thật — rẻ hơn, mới hơn, còn hàng hoặc bằng ngôn ngữ của bạn. Mọi liên kết đều được mở và kiểm tra trước khi bạn xem."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "在面板中轻点“查找相似”，或在页面上选中文字后轻点“相似”。你会得到真实的替代选择——更便宜、更新、有货或用你的语言。每个链接都会先打开检查，再给你看。"
+            "value": "在面板中轻点“查找相似”，或在页面上选中文字后轻点“查找相似”。你会得到真实的替代选择——更便宜、更新、有货或用你的语言。每个链接都会先打开检查，再给你看。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "在面板中點一下「尋找相似」，或在頁面上選取文字後點一下「相似」。你會得到真實的替代選擇——更便宜、更新、有貨或用你的語言。每個連結都會先開啟檢查，再給你看。"
+            "value": "在面板中點一下「尋找相似」，或在頁面上選取文字後點一下「尋找相似」。你會得到真實的替代選擇——更便宜、更新、有貨或用你的語言。每個連結都會先開啟檢查，再給你看。"
           }
         }
       }
