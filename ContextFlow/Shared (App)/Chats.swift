@@ -588,6 +588,32 @@ final class ChatLibrary: ObservableObject {
                 _ = ChatMirror.apply(saves: ["debug-seed": ChatMirror.Item(updatedAt: at, data: text)])
             }
         }
+        // A big library (2.6 (92): the app hung opening chats with hundreds of them): -CFDebugSeedChats 300 puts that
+        // many chats here, 40 topics over their sites, with page texts, notes and the user's tags.
+        let many = UserDefaults.standard.integer(forKey: "CFDebugSeedChats")
+        if many > 0, ChatMirror.chats()["debug-many-0"] == nil {
+            var saves: [String: ChatMirror.Item] = [:]
+            var at = Int64(Date().timeIntervalSince1970 * 1000) - Int64(many) * 3_600_000
+            let topics = ["electric cars", "sourdough baking", "marathon training", "home espresso", "kyoto travel", "index funds", "react hooks", "kubernetes", "houseplants", "photography"]
+            let pageText = String(repeating: "A page about the topic, with the details a reader would ask about. ", count: 110)
+            for c in 0..<many {
+                let topic = topics[c % topics.count]
+                var m: [[String: Any]] = []
+                for t in 0..<(3 + c % 9) {
+                    at += 60_000
+                    let page: [String: Any] = ["url": "https://site\(c % 40).example/\(topic.replacingOccurrences(of: " ", with: "-"))/\(t % 3)", "title": "\(topic.capitalized), part \(t % 3)", "at": at, "text": t % 3 == 0 ? pageText : ""]
+                    m.append(["role": "user", "content": "Question \(t + 1) about \(topic): what matters most here, and why?", "id": "dq\(c)-\(t)", "t": at, "page": page])
+                    var answer: [String: Any] = ["role": "assistant", "content": "About \(topic): the main points are the basics, the common mistakes and what to try first.", "id": "da\(c)-\(t)", "t": at + 4000]
+                    if (c + t) % 6 == 0 { answer["tags"] = [topic.split(separator: " ").first.map(String.init) ?? "later"] }
+                    m.append(answer)
+                    if t == 1 { m.append(["role": "user", "content": "Remember to come back to \(topic) later", "note": true, "id": "dn\(c)", "t": at + 8000, "page": page]) }
+                }
+                if let data = try? JSONSerialization.data(withJSONObject: ["a": at, "m": m] as [String: Any]), let text = String(data: data, encoding: .utf8) {
+                    saves["debug-many-\(c)"] = ChatMirror.Item(updatedAt: at, data: text)
+                }
+            }
+            _ = ChatMirror.apply(saves: saves)
+        }
         #endif
         reload()
         guard syncOn else {

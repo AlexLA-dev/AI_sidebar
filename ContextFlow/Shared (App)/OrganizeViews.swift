@@ -408,7 +408,11 @@ final class OrganizeModel: ObservableObject {
 
     /// Pro, the user turned them on, and the server has them on.
     func enabled(pro: Bool) -> Bool {
-        pro && serverOn && (SharedDefaults.shared.readSettings()?.settings["organize"] as? Bool ?? false)
+        #if DEBUG
+        // Checks with a seeded library against a stand: -CFDebugOrganize YES.
+        if UserDefaults.standard.bool(forKey: "CFDebugOrganize") { return pro && serverOn }
+        #endif
+        return pro && serverOn && (SharedDefaults.shared.readSettings()?.settings["organize"] as? Bool ?? false)
     }
 
     /// The switch and thresholds, asked again after half an hour.
