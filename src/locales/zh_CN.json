@@ -263,6 +263,7 @@
   "guideAskSelBody": "选一个快捷操作，比如“{0}”，或输入你自己的问题。",
   "uxShowIntro": "再次查看介绍",
   "uxOther": "其他…",
+  "tipClipNeedsApp": "打开一次 ContextFlow App 即可观看此视频。",
   "busyWorking": "正在准备回答…",
   "busyNew": "有新回答",
   "ptMenu": "{0} 包含的功能",

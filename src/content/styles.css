@@ -709,7 +709,9 @@
 .cf-guide .cf-tour-card, .cf-tour-block { pointer-events: auto; }
 .cf-tour-block { position: absolute; }
 /* A Tips clip on a plan tour's card (2.6 (91)): the feature at work, small, the card's size kept before it loads. */
-.cf-guide-clip { display: block; width: 124px; aspect-ratio: 540 / 794; margin: 2px auto 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-2); object-fit: cover; }
+.cf-guide-clip { display: block; width: 124px; aspect-ratio: 540 / 794; margin: 2px auto 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-2); overflow: hidden; }
+.cf-guide-clip .cf-clip-frame { display: block; width: 100%; height: 100%; border: 0; }
+.cf-guide-clip .cf-clip-missing { display: flex; align-items: center; height: 100%; margin: 0; padding: 8px; font-size: 11.5px; text-align: center; color: var(--text-3); }
 .cf-guide-pill {
   position: fixed; left: 50%; transform: translateX(-50%); z-index: 4;
   display: flex; align-items: center; gap: 8px; max-width: calc(100vw - 24px);

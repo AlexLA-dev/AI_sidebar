@@ -12,12 +12,13 @@
 // counted ("use" f "tour", src/shared/usage.ts) for the guided funnel (cf_feature_funnels "guided").
 
 import type { VNode } from "preact"
-import { useEffect, useState } from "preact/hooks"
+import { useEffect } from "preact/hooks"
 
 import { t, type MessageKey } from "../shared/i18n"
 import * as Icon from "./icons"
 import { SpeakerIcon } from "./listen/useListen"
 import { SimilarIcon } from "./similar/Similar"
+import { ClipFrame } from "./tips/ClipFrame"
 import { say, tipsData } from "./tips/data"
 import { Blockers, cardPlace, chatsStep, holeAround, MENU_STEP, Shade, useBlurPanel, useParts } from "./Tour"
 import { More } from "./ux/MessageUx"
@@ -176,13 +177,11 @@ export function GuidePill({ touch, onSkip }: { touch: boolean; onSkip: () => voi
   )
 }
 
-/** A Tips clip on a tour card: the feature at work (the owner: show it, not only describe it). The extension's own
- * copy, like the Tips sheet's (a page's media rules don't apply to it); muted and looping; one still frame with Reduce
- * Motion; gone if this build has no such clip. */
+/** A Tips clip on a tour card: the feature at work (the owner: show it, not only describe it). The app's clip, like
+ * the Tips sheet's (ClipFrame); one still frame with Reduce Motion; a line instead before the app has shared it. */
 function GuideClip({ name }: { name: string }): VNode | null {
-  const [failed, setFailed] = useState(false)
   const data = tipsData()
-  if (!data || failed) return null
+  if (!data) return null
   const lang = say(data.clipLang) === "ru" ? "ru" : "en"
   let still = false
   try {
@@ -190,6 +189,5 @@ function GuideClip({ name }: { name: string }): VNode | null {
   } catch {
     // No media queries: it plays.
   }
-  const src = `${chrome.runtime.getURL(`dist/clips/${lang}/${name}.mp4`)}${still ? "#t=3.5" : ""}`
-  return <video class="cf-guide-clip" src={src} muted loop playsinline autoplay={!still} preload="auto" aria-hidden="true" onError={() => setFailed(true)} />
+  return <div class="cf-guide-clip"><ClipFrame name={name} lang={lang} still={still} motion={!still} /></div>
 }

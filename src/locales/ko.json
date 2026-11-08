@@ -263,6 +263,7 @@
   "guideAskSelBody": "‘{0}’ 같은 빠른 동작을 고르거나 직접 질문을 입력하세요.",
   "uxShowIntro": "소개 다시 보기",
   "uxOther": "기타…",
+  "tipClipNeedsApp": "이 영상을 보려면 ContextFlow 앱을 한 번 열어 주세요.",
   "busyWorking": "답변 준비 중…",
   "busyNew": "새 답변이 있습니다",
   "ptMenu": "{0}에 포함된 기능",

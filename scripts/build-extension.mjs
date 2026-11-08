@@ -9,7 +9,7 @@
 //   CF_OPEN_SHADOW=1       the panel's shadow root left open for Playwright checks (test builds only)
 //
 // Output layout (stable file names, so the Xcode project never needs edits):
-//   manifest.json  welcome.html  popup.html  dist/*.js  dist/clips/<en|ru>/*  icons/*.png  _locales/<lang>/messages.json
+//   manifest.json  welcome.html  popup.html  clip.html  dist/*.js  icons/*.png  _locales/<lang>/messages.json
 
 import { context, build } from "esbuild"
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs"
@@ -52,8 +52,8 @@ function manifest() {
     content_scripts: [
       { matches: ["http://*/*", "https://*/*"], js: ["dist/content.js"], run_at: "document_idle", all_frames: false }
     ],
-    // The Tips clips (2.5 (81)): the panel's <video> lives in the page, so the page must be able to load them.
-    web_accessible_resources: [{ resources: ["dist/clips/en/*", "dist/clips/ru/*"], matches: ["http://*/*", "https://*/*"] }],
+    // The Tips clips' page (2.6 (91)): the panel shows the app's clips in a frame of it, so pages must be able to.
+    web_accessible_resources: [{ resources: ["clip.html"], matches: ["http://*/*", "https://*/*"] }],
     commands: {
       _execute_action: { suggested_key: { default: "Ctrl+Shift+E", mac: "MacCtrl+Shift+E" }, description: "__MSG_actionTitle__" },
       // Quick insert at the caret: ⌃⇧V in Safari on Mac and iPad (Ctrl+Space is the system's on iPad).
@@ -91,19 +91,15 @@ function locales() {
   }
 }
 
-// The Tips sheet's clips (2.5 (81), the owner: "why aren't the videos in the extension?"): the web versions, one file
-// each, never in the scripts, read from the device (no network). English: the site's (site/clips); Russian:
-// extension/clips/ru (the app's Russian clips, made the same way). Under dist/, a folder the Xcode project already
-// copies whole.
+// The Tips clips (2.6 (91), the owner: «подтянуть их из приложения в расширение на том же девайсе»): none in the
+// extension. The app shares its own (TipClips/<en|ru>) through the App Group and the panel plays them from there
+// (TipClipShare.swift, src/background/tipClips.ts, src/pages/clip.ts). The build only checks that the app has every
+// clip a Tips card names, in both languages, so no card waits on a clip that doesn't exist.
 function clips() {
-  const sources = { en: join(root, "site/clips"), ru: join(root, "extension/clips/ru") }
-  for (const [lang, dir] of Object.entries(sources)) {
-    mkdirSync(join(out, "dist/clips", lang), { recursive: true })
-    // The clips only: a still frame comes from the clip itself (#t=3.5), so the posters stay the site's.
+  const app = join(root, "ContextFlow/Shared (App)/TipClips")
+  for (const lang of ["en", "ru"]) {
     for (const name of tipClips(tips)) {
-      const from = join(dir, `${name}.mp4`)
-      if (!existsSync(from)) throw new Error(`tips: no ${lang} clip ${name}.mp4 in ${dir}`)
-      cpSync(from, join(out, "dist/clips", lang, `${name}.mp4`))
+      if (!existsSync(join(app, lang, `${name}.mp4`))) throw new Error(`tips: no ${lang} clip ${name}.mp4 in the app's TipClips`)
     }
   }
 }
@@ -113,6 +109,7 @@ function statics() {
   cpSync(join(root, "src/pages/welcome.html"), join(out, "welcome.html"))
   cpSync(join(root, "src/pages/popup.html"), join(out, "popup.html"))
   cpSync(join(root, "extension/icons"), join(out, "icons"), { recursive: true })
+  cpSync(join(root, "src/pages/clip.html"), join(out, "clip.html"))
   locales()
   clips()
 }
@@ -123,7 +120,8 @@ const options = {
     background: "src/background/index.ts",
     content: "src/content/index.tsx",
     popup: "src/popup/index.tsx",
-    welcome: "src/pages/welcome.ts"
+    welcome: "src/pages/welcome.ts",
+    clip: "src/pages/clip.ts"
   },
   outdir: join(out, "dist"),
   bundle: true,

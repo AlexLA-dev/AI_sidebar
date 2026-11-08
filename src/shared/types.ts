@@ -165,6 +165,10 @@ export type ErrorCode =
 
 export type BackgroundRequest =
   | { type: "status"; refresh?: boolean; fresh?: boolean; platform?: Platform }
+  // 2.6 (91): a Tips clip from the app (App Group) for the clip page, and the panel's "this chat is on screen" for
+  // similar-26's background jobs.
+  | { type: "tipClip"; name: string; lang: string }
+  | { type: "jobsSeen"; thread: string }
   // feature "ai": the Pro screen opens on AI search and "Ask your chats".
   // feature "organize": on organizing the chats (2.5).
   // plan, period (2.6): what was chosen in the panel's plans sheet; the app opens on it.

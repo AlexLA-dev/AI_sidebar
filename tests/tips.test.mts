@@ -171,7 +171,7 @@ before(async () => {
   await build({
     entryPoints: [join(dir, "entry.ts")], bundle: true, format: "esm", platform: "neutral", outfile: out, logLevel: "silent",
     jsx: "automatic", jsxImportSource: "preact", nodePaths: [new URL("../node_modules", import.meta.url).pathname],
-    loader: { ".css": "empty" }, define: { __TIPS__: JSON.stringify(data) }
+    loader: { ".css": "empty" }, define: { __TIPS__: JSON.stringify(data), __TARGET__: JSON.stringify("safari") }
   })
   ui = await import(pathToFileURL(out).href)
 })
@@ -241,72 +241,70 @@ test("the clips' loading rule: nothing before Tips opens, then the open block's 
   // Before Tips opens there is no sheet: the panel renders it only while it's open.
   const app = readFileSync(join(root, "src/content/App.tsx"), "utf8")
   assert.match(app, /\{view === "chat" && tipsOpen && \(\s*<TipsSheet /)
-  assert.ok(!/<video/.test(app), "no clip anywhere else in the panel")
+  assert.ok(!/<video|<iframe/.test(app), "no clip anywhere else in the panel")
   stored = {}
   messages = {}
   const r = box()
   ui.sheet(r, false)
   await tick()
-  const videos = [...r.querySelectorAll("video.cf-tip-clip")] as Element[]
+  // 2.6 (91): each clip a frame of the extension's clip page, the app's clip from the App Group (no copies in the
+  // extension): `still=1` waits on a frame, without it plays.
+  const boxes = [...r.querySelectorAll(".cf-tip-clip")] as Element[]
   const clips = data.groups[0].tips.filter((t: any) => t.clip).map((t: any) => t.clip)
-  assert.equal(videos.length, clips.length, "Get started's cards; the folded blocks have none in the page")
-  const src = (v: Element) => v.getAttribute("src")
+  assert.equal(boxes.length, clips.length, "Get started's cards; the folded blocks have none in the page")
+  const src = (b: Element) => b.querySelector("iframe")?.getAttribute("src") ?? null
+  const page = (name: string, lang = "en", still = false) => `ext://cf/clip.html?name=${name}&lang=${lang}${still ? "&still=1" : ""}`
   // Opening Tips prepares three: the first plays, the next two wait on their still frame.
-  assert.equal(videos.filter(src).length, 3)
-  assert.equal(src(videos[0]), `ext://cf/dist/clips/en/${clips[0]}.mp4`)
-  assert.equal(videos[0].getAttribute("preload"), "auto")
-  assert.equal(videos[0].hasAttribute("autoplay"), true)
-  for (const i of [1, 2]) {
-    assert.equal(src(videos[i]), `ext://cf/dist/clips/en/${clips[i]}.mp4#t=3.5`)
-    assert.equal(videos[i].getAttribute("preload"), "metadata")
-    assert.equal(videos[i].hasAttribute("autoplay"), false)
-  }
-  assert.ok(videos.slice(3).every((v) => !src(v) && v.getAttribute("preload") === "none"), "the rest: nothing yet")
-  assert.ok(videos.every((v) => !v.hasAttribute("poster")), "no stills fetched: the clip gives its own")
+  assert.equal(boxes.filter(src).length, 3)
+  assert.equal(src(boxes[0]), page(clips[0]))
+  for (const i of [1, 2]) assert.equal(src(boxes[i]), page(clips[i], "en", true))
+  assert.ok(boxes.slice(3).every((b) => !src(b)), "the rest: nothing yet")
+  assert.ok(!r.querySelector("video"), "no clip from the extension's own files")
   // On screen: it loads and plays.
-  seen(videos[4])
+  seen(boxes[4])
   await tick()
-  assert.equal(src(videos[4]), `ext://cf/dist/clips/en/${clips[4]}.mp4`)
-  assert.ok(!src(videos[3]) && !src(videos[5]))
+  assert.equal(src(boxes[4]), page(clips[4]))
+  assert.ok(!src(boxes[3]) && !src(boxes[5]))
   // A folded block opened: its cards come, still nothing loads until one is seen (or tapped).
   click(r.querySelectorAll(".cf-tips-head")[1])
   await tick()
-  const deeper = [...r.querySelectorAll(".cf-tips-block")[1].querySelectorAll("video.cf-tip-clip")] as Element[]
-  assert.ok(deeper.length > 0 && deeper.every((v) => !src(v)))
+  const deeper = [...r.querySelectorAll(".cf-tips-block")[1].querySelectorAll(".cf-tip-clip")] as Element[]
+  assert.ok(deeper.length > 0 && deeper.every((b) => !src(b)))
   click(deeper[0])
   await tick()
-  assert.equal(src(deeper[0]), `ext://cf/dist/clips/en/${data.groups[1].tips[0].clip}.mp4`)
-  // Tips closed: every clip let go.
-  const loaded = [...r.querySelectorAll("video.cf-tip-clip")].filter(src) as Element[]
+  assert.ok(src(deeper[0])?.startsWith(page(data.groups[1].tips[0].clip)))
+  // Tips closed: every clip let go (their frames gone).
+  assert.ok(r.querySelectorAll("iframe").length >= 5)
   ui.close(r)
   await tick()
-  assert.ok(loaded.length >= 5 && loaded.every((v) => !src(v)), "src taken off")
+  assert.equal(r.querySelectorAll("iframe").length, 0)
 })
 
 test("the clips: in the panel's language; a Mac's own; the open block's first three wherever it is", async () => {
+  const src = (b: Element | null) => b?.querySelector("iframe")?.getAttribute("src") ?? null
   // Russian: the Russian clips (the language chrome.i18n picks for every text).
   stored = {}
   messages = { [data.clipLang.key]: "ru" }
   const ru = box()
   ui.sheet(ru, false)
   await tick()
-  assert.equal(ru.querySelector("video.cf-tip-clip")?.getAttribute("src"), "ext://cf/dist/clips/ru/open.mp4")
+  assert.equal(src(ru.querySelector(".cf-tip-clip")), "ext://cf/clip.html?name=open&lang=ru")
   messages = {}
   // A Mac: no clip where the app has none (opening it by a tap), so the first three start a card later.
   const mac = box()
   ui.sheet(mac, true)
   await tick()
   const macClips = data.groups[0].tips.map((t: any) => (t.mac ?? t).clip).filter(Boolean)
-  assert.equal(mac.querySelectorAll("video.cf-tip-clip").length, macClips.length)
-  assert.equal(mac.querySelector("video.cf-tip-clip")?.getAttribute("src"), `ext://cf/dist/clips/en/${macClips[0]}.mp4`)
+  assert.equal(mac.querySelectorAll(".cf-tip-clip").length, macClips.length)
+  assert.equal(src(mac.querySelector(".cf-tip-clip")), `ext://cf/clip.html?name=${macClips[0]}&lang=en`)
   // Left with Deeper work open (Get started folded): its first three, nothing of Get started.
   stored = { "cf:tipsOpen": ["deeper-work"] }
   const deeper = box()
   ui.sheet(deeper, false)
   await tick()
-  const loaded = [...deeper.querySelectorAll("video.cf-tip-clip")].filter((v: any) => v.getAttribute("src")).map((v: any) => v.getAttribute("src"))
-  assert.deepEqual(loaded.map((u: string) => u.replace(/^.*\/en\//, "").replace(/\.mp4.*$/, "")), data.groups[1].tips.slice(0, 3).map((t: any) => t.clip))
-  assert.equal(deeper.querySelectorAll(".cf-tips-block")[0].querySelectorAll("video").length, 0)
+  const loaded = [...deeper.querySelectorAll(".cf-tip-clip")].map((b: any) => src(b)).filter(Boolean) as string[]
+  assert.deepEqual(loaded.map((u) => new URL(u.replace("ext://cf/", "https://x/")).searchParams.get("name")), data.groups[1].tips.slice(0, 3).map((t: any) => t.clip))
+  assert.equal(deeper.querySelectorAll(".cf-tips-block")[0].querySelectorAll("iframe").length, 0)
 })
 
 test("the header's \"…\": Tips under Other… (2.6 (91)), right after Settings", async () => {

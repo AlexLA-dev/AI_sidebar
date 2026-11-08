@@ -263,6 +263,7 @@
   "guideAskSelBody": "Wähle eine Schnellaktion wie „{0}“ oder schreib deine eigene Frage.",
   "uxShowIntro": "Einführung erneut zeigen",
   "uxOther": "Weiteres …",
+  "tipClipNeedsApp": "Öffne die ContextFlow-App einmal, um dieses Video zu sehen.",
   "busyWorking": "Wird bearbeitet …",
   "busyNew": "Neue Antwort da",
   "ptMenu": "Was {0} bietet",
