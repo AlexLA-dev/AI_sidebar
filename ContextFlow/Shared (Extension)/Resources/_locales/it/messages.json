@@ -755,6 +755,60 @@
  "uxShowIntro": {
   "message": "Rivedi l’introduzione"
  },
+ "ptMenu": {
+  "message": "Cosa include {0}"
+ },
+ "ptProMediaTitle": {
+  "message": "Pro: video e PDF"
+ },
+ "ptProMediaBody": {
+  "message": "Su una pagina con un video o un PDF, ContextFlow ora legge anche quelli: i sottotitoli del video e il testo del PDF. Chiedi pure."
+ },
+ "ptProChatsTitle": {
+  "message": "Cerca nelle chat e chiedi"
+ },
+ "ptProChatsBody": {
+  "message": "Nelle tue chat, ✦ trova una chat da una descrizione, e «{0}» risponde da tutto ciò che hai letto e chiesto."
+ },
+ "ptProChatListTitle": {
+  "message": "Proprio qui"
+ },
+ "ptProChatListBody": {
+  "message": "Attiva ✦ accanto alla ricerca e descrivi la chat che cerchi, oppure tocca «{0}» per chiedere a tutte le chat insieme."
+ },
+ "ptProSortTitle": {
+  "message": "Ordinate per argomento"
+ },
+ "ptProSortBody": {
+  "message": "Dopo una risposta, una riga sotto propone un tag o una cartella per la chat. Un tocco la sistema, e puoi annullare."
+ },
+ "ptProTemplatesTitle": {
+  "message": "Modelli"
+ },
+ "ptProTemplatesBody": {
+  "message": "Seleziona del testo e tocca «{0}» per salvarlo, poi incollalo in qualsiasi campo. Quanti ne vuoi."
+ },
+ "ptProWatchTitle": {
+  "message": "Segui fino a 20 pagine"
+ },
+ "ptProWatchBody": {
+  "message": "In «…», «{0}» ti avvisa quando la pagina cambia: un prezzo, una data, un nuovo post."
+ },
+ "ptUltraListenTitle": {
+  "message": "Ultra: ascolta"
+ },
+ "ptUltraListenBody": {
+  "message": "Tocca «{0}» sotto una risposta, o «{1}» in «…»: il testo viene riscritto per l'ascolto e letto ad alta voce."
+ },
+ "ptUltraSimilarBody": {
+  "message": "Alternative reali a ciò che stai guardando, ogni link aperto e controllato. Tocca «{0}» qui o in «…», oppure seleziona del testo e tocca «{1}»."
+ },
+ "ptUltraWatchTitle": {
+  "message": "Segui fino a 50 pagine"
+ },
+ "ptUltraWatchBody": {
+  "message": "In «…», «{0}» ora segue fino a 50 pagine insieme."
+ },
  "welcomeTitle": {
   "message": "ContextFlow è pronto"
  },
@@ -1691,6 +1745,9 @@
  "actSimilar": {
   "message": "Trova simili"
  },
+ "selSimilar": {
+  "message": "Simili"
+ },
  "uxSimilar": {
   "message": "Trova simili…"
  },
@@ -1807,6 +1864,159 @@
  },
  "orgDemoChat": {
   "message": "Viaggi"
+ },
+ "listenSpeed": {
+  "message": "Velocità: {0}. Tocca per sceglierne un’altra"
+ },
+ "plansYearlySave": {
+  "message": "Annuale · risparmia fino al {0}%"
+ },
+ "plansPerMonthYearly": {
+  "message": "{0} al mese, con addebito annuale"
+ },
+ "plansSaveMoney": {
+  "message": "Risparmi {0} all’anno"
+ },
+ "yearlyNudge": {
+  "message": "{0} annuale: risparmi {1} ({2}%) all’anno."
+ },
+ "yearlyNudgeButton": {
+  "message": "Passa all’annuale"
+ },
+ "yearlyNudgeNote": {
+  "message": "L’annuale inizia alla fine del mese in corso."
+ },
+ "yearlyNudgeHide": {
+  "message": "Nascondi"
+ },
+ "galleryTitle": {
+  "message": "Cosa include"
+ },
+ "galleryNext": {
+  "message": "Avanti"
+ },
+ "galleryPrevious": {
+  "message": "Indietro"
+ },
+ "gMediaTitle": {
+  "message": "Video e PDF"
+ },
+ "gMediaLine": {
+  "message": "Le risposte usano la trascrizione del video e le pagine del PDF."
+ },
+ "gMediaVideo": {
+  "message": "Trascrizione del video · 11:40"
+ },
+ "gMediaPdf": {
+  "message": "Report Q3 · 3 pagine"
+ },
+ "gMediaAnswer": {
+  "message": "Il fatturato è cresciuto del 12% nel terzo trimestre. Nel video, il CEO lo attribuisce ai nuovi piani di abbonamento."
+ },
+ "gSearchTitle": {
+  "message": "Ricerca IA e «Chiedi alle tue chat»"
+ },
+ "gSearchLine": {
+  "message": "Trova una chat descrivendola, o fai una domanda su tutte."
+ },
+ "gSearchQuery": {
+  "message": "l’articolo su sonno e caffè"
+ },
+ "gSearchResult": {
+  "message": "Caffeina e sonno"
+ },
+ "gSearchSnippet": {
+  "message": "Il caffè dopo le 14 ha ridotto il sonno profondo di un quinto…"
+ },
+ "gSearchWhen": {
+  "message": "La settimana scorsa"
+ },
+ "gTemplatesTitle": {
+  "message": "Modelli senza limiti"
+ },
+ "gTemplatesLine": {
+  "message": "I tuoi prompt e le tue risposte, con nomi e date presi dalla pagina."
+ },
+ "gTemplatesName": {
+  "message": "Follow-up dopo una chiamata"
+ },
+ "gTemplatesBody": {
+  "message": "Ciao {0}, grazie per la chiamata di {1}. Come promesso, ecco i prossimi passi."
+ },
+ "gTemplatesPerson": {
+  "message": "Giulia"
+ },
+ "gTemplatesDay": {
+  "message": "martedì"
+ },
+ "gWatchTitle": {
+  "message": "Segui {0} pagine"
+ },
+ "gWatchLine": {
+  "message": "Ti avvisa quando un prezzo scende o una pagina cambia."
+ },
+ "gWatchChanged": {
+  "message": "Cambiato: Prezzo"
+ },
+ "gWatchNow": {
+  "message": "Ora: {0} (prima {1})"
+ },
+ "gWatchManyLine": {
+  "message": "Prezzi, disponibilità e modifiche su un massimo di {0} pagine insieme."
+ },
+ "gWatchItem1": {
+  "message": "Cuffie"
+ },
+ "gWatchItem2": {
+  "message": "Volo per Lisbona"
+ },
+ "gWatchMore": {
+  "message": "e altre {0} pagine"
+ },
+ "gAnswersTitle": {
+  "message": "Fino a {0} risposte a settimana"
+ },
+ "gAnswersLine": {
+  "message": "Risposte più approfondite e dettagliate, invece di {0} al giorno."
+ },
+ "gAnswersWeek": {
+  "message": "a settimana"
+ },
+ "gAnswersFree": {
+  "message": "Gratis: {0} al giorno"
+ },
+ "gListenTitle": {
+  "message": "Ascolta"
+ },
+ "gListenLine": {
+  "message": "Risposte e pagine intere lette ad alta voce con una voce naturale, alla velocità che preferisci."
+ },
+ "gListenSample": {
+  "message": "Come i treni elettrici risparmiano energia"
+ },
+ "gSimilarTitle": {
+  "message": "Trova simili"
+ },
+ "gSimilarLine": {
+  "message": "Alternative a qualsiasi pagina: più economiche, più recenti, disponibili o nella tua lingua."
+ },
+ "gSimilar1": {
+  "message": "Sedia da ufficio in rete"
+ },
+ "gSimilar2": {
+  "message": "La stessa sedia, modello 2026"
+ },
+ "gSimilar3": {
+  "message": "Sedia con poggiatesta"
+ },
+ "gSimilarInStock": {
+  "message": "Disponibile"
+ },
+ "gSimilarNewer": {
+  "message": "Più recente"
+ },
+ "gSimilarCheaper": {
+  "message": "Più economico"
  },
  "tip_4cf1b54b00": {
   "message": "Suggerimenti"

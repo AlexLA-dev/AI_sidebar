@@ -755,6 +755,60 @@
  "uxShowIntro": {
   "message": "紹介をもう一度見る"
  },
+ "ptMenu": {
+  "message": "{0}でできること"
+ },
+ "ptProMediaTitle": {
+  "message": "Pro：動画とPDF"
+ },
+ "ptProMediaBody": {
+  "message": "動画やPDFのあるページでは、それも読み取ります。動画の字幕とPDFの本文です。そのまま質問してください。"
+ },
+ "ptProChatsTitle": {
+  "message": "チャットを探す・質問する"
+ },
+ "ptProChatsBody": {
+  "message": "チャット一覧では、✦で説明からチャットを探せます。「{0}」は、これまで読んだもの・質問したものすべてから答えます。"
+ },
+ "ptProChatListTitle": {
+  "message": "ここです"
+ },
+ "ptProChatListBody": {
+  "message": "検索の横の✦をオンにして探したいチャットを説明するか、「{0}」をタップしてすべてのチャットにまとめて質問します。"
+ },
+ "ptProSortTitle": {
+  "message": "トピックで整理"
+ },
+ "ptProSortBody": {
+  "message": "回答の下に、チャットのタグやフォルダの候補が表示されます。タップ1回で整理でき、元に戻すこともできます。"
+ },
+ "ptProTemplatesTitle": {
+  "message": "テンプレート"
+ },
+ "ptProTemplatesBody": {
+  "message": "テキストを選択して「{0}」をタップすると保存され、どの入力欄にも貼り付けられます。いくつでも保存できます。"
+ },
+ "ptProWatchTitle": {
+  "message": "最大20ページを見守り"
+ },
+ "ptProWatchBody": {
+  "message": "「…」の「{0}」で、ページが変わったとき（価格、日付、新しい投稿）にお知らせします。"
+ },
+ "ptUltraListenTitle": {
+  "message": "Ultra：聴く"
+ },
+ "ptUltraListenBody": {
+  "message": "回答の下の「{0}」、または「…」の「{1}」をタップすると、耳で聴きやすい文に書き直して読み上げます。"
+ },
+ "ptUltraSimilarBody": {
+  "message": "見ているものの本当の代替候補を、リンクをすべて開いて確認したうえで表示します。ここか「…」の「{0}」、またはテキストを選択して「{1}」をタップします。"
+ },
+ "ptUltraWatchTitle": {
+  "message": "最大50ページを見守り"
+ },
+ "ptUltraWatchBody": {
+  "message": "「…」の「{0}」で、最大50ページを同時に見守れるようになりました。"
+ },
  "welcomeTitle": {
   "message": "ContextFlowの準備ができました"
  },
@@ -1691,6 +1745,9 @@
  "actSimilar": {
   "message": "似たものを探す"
  },
+ "selSimilar": {
+  "message": "似たもの"
+ },
  "uxSimilar": {
   "message": "似たものを探す…"
  },
@@ -1807,6 +1864,159 @@
  },
  "orgDemoChat": {
   "message": "旅行"
+ },
+ "listenSpeed": {
+  "message": "速度: {0}。タップで別の速度に変更"
+ },
+ "plansYearlySave": {
+  "message": "年額 · 最大{0}%お得"
+ },
+ "plansPerMonthYearly": {
+  "message": "月あたり{0}（年額払い）"
+ },
+ "plansSaveMoney": {
+  "message": "年間{0}お得"
+ },
+ "yearlyNudge": {
+  "message": "{0} 年額なら年間{1}（{2}%）お得です。"
+ },
+ "yearlyNudgeButton": {
+  "message": "年額に切り替える"
+ },
+ "yearlyNudgeNote": {
+  "message": "年額は今の1か月が終わってから始まります。"
+ },
+ "yearlyNudgeHide": {
+  "message": "非表示"
+ },
+ "galleryTitle": {
+  "message": "使える機能"
+ },
+ "galleryNext": {
+  "message": "次へ"
+ },
+ "galleryPrevious": {
+  "message": "前へ"
+ },
+ "gMediaTitle": {
+  "message": "動画とPDF"
+ },
+ "gMediaLine": {
+  "message": "動画の文字起こしとPDFのページをもとに回答します。"
+ },
+ "gMediaVideo": {
+  "message": "動画の文字起こし · 11:40"
+ },
+ "gMediaPdf": {
+  "message": "第3四半期レポート · 3ページ"
+ },
+ "gMediaAnswer": {
+  "message": "第3四半期の売上は12%増えました。動画では、CEOが新しいサブスクリプションプランによるものだと説明しています。"
+ },
+ "gSearchTitle": {
+  "message": "AI検索と「すべてのチャットに質問」"
+ },
+ "gSearchLine": {
+  "message": "説明するだけでチャットが見つかり、すべてのチャットに質問もできます。"
+ },
+ "gSearchQuery": {
+  "message": "睡眠とコーヒーのあの記事"
+ },
+ "gSearchResult": {
+  "message": "カフェインと睡眠"
+ },
+ "gSearchSnippet": {
+  "message": "午後2時以降のコーヒーで、深い睡眠が5分の1減少…"
+ },
+ "gSearchWhen": {
+  "message": "先週"
+ },
+ "gTemplatesTitle": {
+  "message": "テンプレートを無制限に"
+ },
+ "gTemplatesLine": {
+  "message": "自分のプロンプトや返信に、名前や日付をページから入力します。"
+ },
+ "gTemplatesName": {
+  "message": "通話後のフォローアップ"
+ },
+ "gTemplatesBody": {
+  "message": "{0}さん、{1}はお電話ありがとうございました。お約束どおり、次のステップをお送りします。"
+ },
+ "gTemplatesPerson": {
+  "message": "佐藤"
+ },
+ "gTemplatesDay": {
+  "message": "火曜日"
+ },
+ "gWatchTitle": {
+  "message": "{0}ページを見守り"
+ },
+ "gWatchLine": {
+  "message": "値下がりやページの変化をお知らせします。"
+ },
+ "gWatchChanged": {
+  "message": "変更あり: 価格"
+ },
+ "gWatchNow": {
+  "message": "現在: {0}（以前は{1}）"
+ },
+ "gWatchManyLine": {
+  "message": "最大{0}ページの価格、在庫、変化をまとめて見守ります。"
+ },
+ "gWatchItem1": {
+  "message": "ヘッドホン"
+ },
+ "gWatchItem2": {
+  "message": "リスボン行きのフライト"
+ },
+ "gWatchMore": {
+  "message": "ほか{0}ページ"
+ },
+ "gAnswersTitle": {
+  "message": "週に最大{0}回の回答"
+ },
+ "gAnswersLine": {
+  "message": "1日{0}回ではなく、より深く詳しい回答を。"
+ },
+ "gAnswersWeek": {
+  "message": "回／週"
+ },
+ "gAnswersFree": {
+  "message": "無料: 1日{0}回"
+ },
+ "gListenTitle": {
+  "message": "読み上げ"
+ },
+ "gListenLine": {
+  "message": "回答やページ全体を、自然な声で好きな速さで読み上げます。"
+ },
+ "gListenSample": {
+  "message": "電車が省エネできるしくみ"
+ },
+ "gSimilarTitle": {
+  "message": "似たものを探す"
+ },
+ "gSimilarLine": {
+  "message": "どのページにも代わりの候補を。より安い、より新しい、在庫あり、自分の言語で。"
+ },
+ "gSimilar1": {
+  "message": "メッシュのオフィスチェア"
+ },
+ "gSimilar2": {
+  "message": "同じチェアの2026年モデル"
+ },
+ "gSimilar3": {
+  "message": "ヘッドレスト付きチェア"
+ },
+ "gSimilarInStock": {
+  "message": "在庫あり"
+ },
+ "gSimilarNewer": {
+  "message": "もっと新しい"
+ },
+ "gSimilarCheaper": {
+  "message": "もっと安い"
  },
  "tip_4cf1b54b00": {
   "message": "ヒント"

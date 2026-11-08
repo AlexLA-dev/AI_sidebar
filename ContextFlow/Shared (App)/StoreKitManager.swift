@@ -283,8 +283,13 @@ final class StoreKitManager: ObservableObject {
         }
     }
 
+    /// Restore Purchases is running: the plan it brings back isn't a purchase (no plan tour).
+    private var restoring = false
+
     /// "Restore Purchases": re-syncs with the App Store (may ask the user to sign in).
     func restore() async -> Bool {
+        restoring = true
+        defer { restoring = false }
         try? await AppStore.sync()
         await refreshEntitlement()
         return entitlement.active
@@ -328,6 +333,15 @@ final class StoreKitManager: ObservableObject {
             SharedDefaults.shared.writePlanChange(from: from, to: after.rawValue, productId: productId)
             NotificationCenter.default.post(name: .cfPlanChanged, object: nil, userInfo: ["from": from, "to": after.rawValue, "productId": productId])
         }
+        planSeen(value)
+    }
+
+    /// The one place the app sees its plan (after every refresh, from StoreKit, never the App Group's cached copy): a
+    /// move up starts the tour of what the plan adds (PlanTour). PlanTour filters by the last plan it stored: the first
+    /// plan seen (an update, or a fresh install whose subscription StoreKit already has) and Restore show nothing.
+    // `.cfPlanChanged` (ultra-26, branch claude/ultra-26-build90) can replace this hook once that's merged.
+    private func planSeen(_ value: SharedEntitlement) {
+        PlanTour.shared.planSeen(value.active ? Tier.of(value.productId) : nil, quietly: restoring)
     }
 
     enum StoreError: LocalizedError {

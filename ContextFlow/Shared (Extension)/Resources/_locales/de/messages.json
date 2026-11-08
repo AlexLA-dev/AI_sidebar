@@ -755,6 +755,60 @@
  "uxShowIntro": {
   "message": "Einführung erneut zeigen"
  },
+ "ptMenu": {
+  "message": "Was {0} bietet"
+ },
+ "ptProMediaTitle": {
+  "message": "Pro: Videos und PDFs"
+ },
+ "ptProMediaBody": {
+  "message": "Hat eine Seite ein Video oder ein PDF, liest ContextFlow jetzt auch diese: die Untertitel des Videos und den Text des PDFs. Frag einfach."
+ },
+ "ptProChatsTitle": {
+  "message": "Chats durchsuchen und fragen"
+ },
+ "ptProChatsBody": {
+  "message": "In deinen Chats findet ✦ einen Chat anhand einer Beschreibung, und „{0}“ antwortet aus allem, was du gelesen und gefragt hast."
+ },
+ "ptProChatListTitle": {
+  "message": "Genau hier"
+ },
+ "ptProChatListBody": {
+  "message": "Schalte ✦ neben der Suche ein und beschreib den gesuchten Chat, oder tippe auf „{0}“, um alle Chats auf einmal zu fragen."
+ },
+ "ptProSortTitle": {
+  "message": "Nach Themen sortiert"
+ },
+ "ptProSortBody": {
+  "message": "Nach einer Antwort schlägt eine Zeile darunter ein Tag oder einen Ordner für den Chat vor. Ein Tippen sortiert ihn ein, und du kannst es rückgängig machen."
+ },
+ "ptProTemplatesTitle": {
+  "message": "Vorlagen"
+ },
+ "ptProTemplatesBody": {
+  "message": "Markiere Text und tippe auf „{0}“, um ihn zu behalten, und füge ihn dann in jedes Feld ein. So viele du brauchst."
+ },
+ "ptProWatchTitle": {
+  "message": "Bis zu 20 Seiten beobachten"
+ },
+ "ptProWatchBody": {
+  "message": "Unter „…“ meldet „{0}“, wenn sich die Seite ändert: ein Preis, ein Datum, ein neuer Beitrag."
+ },
+ "ptUltraListenTitle": {
+  "message": "Ultra: anhören"
+ },
+ "ptUltraListenBody": {
+  "message": "Tippe unter einer Antwort auf „{0}“ oder unter „…“ auf „{1}“: Der Text wird fürs Hören umgeschrieben und vorgelesen."
+ },
+ "ptUltraSimilarBody": {
+  "message": "Echte Alternativen zu dem, was du dir ansiehst, jeder Link geöffnet und geprüft. Tippe hier oder unter „…“ auf „{0}“, oder markiere Text und tippe auf „{1}“."
+ },
+ "ptUltraWatchTitle": {
+  "message": "Bis zu 50 Seiten beobachten"
+ },
+ "ptUltraWatchBody": {
+  "message": "Unter „…“ beobachtet „{0}“ jetzt bis zu 50 Seiten gleichzeitig."
+ },
  "welcomeTitle": {
   "message": "ContextFlow ist bereit"
  },
@@ -1691,6 +1745,9 @@
  "actSimilar": {
   "message": "Ähnliches finden"
  },
+ "selSimilar": {
+  "message": "Ähnliches"
+ },
  "uxSimilar": {
   "message": "Ähnliches finden…"
  },
@@ -1807,6 +1864,159 @@
  },
  "orgDemoChat": {
   "message": "Reisen"
+ },
+ "listenSpeed": {
+  "message": "Tempo: {0}. Tippe für ein anderes Tempo"
+ },
+ "plansYearlySave": {
+  "message": "Jährlich · bis zu {0} % sparen"
+ },
+ "plansPerMonthYearly": {
+  "message": "{0} pro Monat, jährlich abgerechnet"
+ },
+ "plansSaveMoney": {
+  "message": "Du sparst {0} pro Jahr"
+ },
+ "yearlyNudge": {
+  "message": "{0} jährlich: Du sparst {1} ({2} %) pro Jahr."
+ },
+ "yearlyNudgeButton": {
+  "message": "Auf jährlich umstellen"
+ },
+ "yearlyNudgeNote": {
+  "message": "Die jährliche Zahlung beginnt, wenn dein aktueller Monat endet."
+ },
+ "yearlyNudgeHide": {
+  "message": "Ausblenden"
+ },
+ "galleryTitle": {
+  "message": "Das bekommst du"
+ },
+ "galleryNext": {
+  "message": "Weiter"
+ },
+ "galleryPrevious": {
+  "message": "Zurück"
+ },
+ "gMediaTitle": {
+  "message": "Videos und PDFs"
+ },
+ "gMediaLine": {
+  "message": "Antworten nutzen das Transkript des Videos und die Seiten des PDFs."
+ },
+ "gMediaVideo": {
+  "message": "Video-Transkript · 11:40"
+ },
+ "gMediaPdf": {
+  "message": "Q3-Bericht · 3 Seiten"
+ },
+ "gMediaAnswer": {
+  "message": "Der Umsatz stieg im dritten Quartal um 12 %. Im Video führt der CEO das auf die neuen Abo-Tarife zurück."
+ },
+ "gSearchTitle": {
+  "message": "KI-Suche und „Frag deine Chats“"
+ },
+ "gSearchLine": {
+  "message": "Finde einen Chat über eine Beschreibung oder stell allen Chats eine Frage."
+ },
+ "gSearchQuery": {
+  "message": "der Artikel über Schlaf und Kaffee"
+ },
+ "gSearchResult": {
+  "message": "Koffein und Schlaf"
+ },
+ "gSearchSnippet": {
+  "message": "Kaffee nach 14 Uhr verkürzte den Tiefschlaf um ein Fünftel …"
+ },
+ "gSearchWhen": {
+  "message": "Letzte Woche"
+ },
+ "gTemplatesTitle": {
+  "message": "Vorlagen ohne Limit"
+ },
+ "gTemplatesLine": {
+  "message": "Eigene Prompts und Antworten, Namen und Daten kommen von der Seite."
+ },
+ "gTemplatesName": {
+  "message": "Nachricht nach dem Telefonat"
+ },
+ "gTemplatesBody": {
+  "message": "Hallo {0}, danke für das Telefonat am {1}. Wie versprochen hier die nächsten Schritte."
+ },
+ "gTemplatesPerson": {
+  "message": "Anna"
+ },
+ "gTemplatesDay": {
+  "message": "Dienstag"
+ },
+ "gWatchTitle": {
+  "message": "{0} Seiten beobachten"
+ },
+ "gWatchLine": {
+  "message": "Erfahre, wenn ein Preis fällt oder sich eine Seite ändert."
+ },
+ "gWatchChanged": {
+  "message": "Geändert: Preis"
+ },
+ "gWatchNow": {
+  "message": "Jetzt: {0} (vorher {1})"
+ },
+ "gWatchManyLine": {
+  "message": "Preise, Verfügbarkeit und Änderungen auf bis zu {0} Seiten gleichzeitig."
+ },
+ "gWatchItem1": {
+  "message": "Kopfhörer"
+ },
+ "gWatchItem2": {
+  "message": "Flug nach Lissabon"
+ },
+ "gWatchMore": {
+  "message": "und {0} weitere Seiten"
+ },
+ "gAnswersTitle": {
+  "message": "Bis zu {0} Antworten pro Woche"
+ },
+ "gAnswersLine": {
+  "message": "Ausführlichere, gründlichere Antworten statt {0} pro Tag."
+ },
+ "gAnswersWeek": {
+  "message": "pro Woche"
+ },
+ "gAnswersFree": {
+  "message": "Kostenlos: {0} pro Tag"
+ },
+ "gListenTitle": {
+  "message": "Anhören"
+ },
+ "gListenLine": {
+  "message": "Antworten und ganze Seiten, vorgelesen mit natürlicher Stimme, in deinem Tempo."
+ },
+ "gListenSample": {
+  "message": "Wie Elektrozüge Energie sparen"
+ },
+ "gSimilarTitle": {
+  "message": "Ähnliches finden"
+ },
+ "gSimilarLine": {
+  "message": "Alternativen zu jeder Seite: günstiger, neuer, verfügbar oder in deiner Sprache."
+ },
+ "gSimilar1": {
+  "message": "Bürostuhl mit Netzrücken"
+ },
+ "gSimilar2": {
+  "message": "Derselbe Stuhl, Modell 2026"
+ },
+ "gSimilar3": {
+  "message": "Stuhl mit Kopfstütze"
+ },
+ "gSimilarInStock": {
+  "message": "Auf Lager"
+ },
+ "gSimilarNewer": {
+  "message": "Neuer"
+ },
+ "gSimilarCheaper": {
+  "message": "Günstiger"
  },
  "tip_4cf1b54b00": {
   "message": "Tipps"

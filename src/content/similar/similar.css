@@ -11,6 +11,8 @@
   border: 1px solid var(--border); border-radius: 10px; background: var(--bg); color: var(--text); font: inherit; font-size: 13.5px;
 }
 .cf-similar-words:focus { outline: none; border-color: var(--accent); }
+/* iOS zooms the page into a field whose text is under 16px (build 89, the owner): never on a touch screen. */
+.cf[data-touch] .cf-similar-words { font-size: 16px; }
 .cf .cf-similar-hint { margin: 0 0 10px; font-size: 12px; color: var(--text-3); }
 .cf-similar-pick .cf-primary { display: inline-flex; align-items: center; gap: 6px; }
 

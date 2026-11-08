@@ -175,3 +175,9 @@
 /* Right to left (Arabic): the switch is on at the start side, the magnifier sits at the start of the field. */
 :host([dir="rtl"]) .cf-qi-switch[aria-checked="true"]::after { transform: translateX(-14px); }
 :host([dir="rtl"]) .cf-qi-search { background-position: right 10px center; }
+
+/* iOS zooms the page into a field whose text is under 16px (2.6 build 90): the template's text and a blank you type
+   into (and the words around the blanks, so they read as one line) are 16px on touch screens. */
+@media (pointer: coarse) {
+  .cf-qi-area, .cf-qi-blank, .cf-qi-fill-text { font-size: 16px; }
+}

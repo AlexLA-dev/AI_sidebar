@@ -252,6 +252,9 @@ export const STORAGE = {
   consent: "cf:consent",
   // The first-session tour of the panel was seen (finished or skipped).
   tourSeen: "cf:tourSeen",
+  // 2.6: the plan the panel saw last (an upgrade from it starts that plan's tour) and the plans whose tour was shown.
+  planLast: "cf:planLast",
+  planTours: "cf:planTours",
   // The "first time here" hints already shown (chats, video, pdf).
   hintsSeen: "cf:hintsSeen",
   // Read aloud's speed (build 90): 1, 1.2, 1.5 or 2.
