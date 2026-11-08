@@ -74,3 +74,13 @@ test("speedLabel: the reader's own decimal mark", () => {
   assert.equal(speedLabel(1.5, "ru"), "1,5×")
   assert.equal(speedLabel(2, "de"), "2×")
 })
+
+test("syncKey: the same as the app's SpeechSync.key (sha256 of speech|v1|voice|language|text, the language's first part)", async () => {
+  const { syncKey } = await import("../src/shared/speech.ts")
+  const { createHash } = await import("node:crypto")
+  const expected = createHash("sha256").update("speech|v1|Kore|en|Hello there.").digest("hex")
+  assert.equal(await syncKey("Kore", "en-US", "Hello there."), expected)
+  assert.equal(await syncKey("Kore", "EN", "Hello there."), expected)
+  // The app's DEBUG self-check (-CFDebugSpeechSync YES) logs its key for the same input: it must be this one.
+  assert.equal(expected, "113db5a013838f507ae6065abc4e53dea5287a7dd0387c991e397bdc9f56b7ef")
+})

@@ -172,6 +172,8 @@ struct ContentView: View {
             .task {
                 SharedDefaults.shared.removeLegacyData()
                 listen.debugStartIfAsked()
+                // Read aloud kept in iCloud (2.6): what's older than 7 days goes (at most once a day, from any device).
+                Task.detached(priority: .background) { await SpeechSync.sweep() }
                 chats.refresh()
                 showWhatsNewIfDue()
                 tour.debugStartIfAsked()

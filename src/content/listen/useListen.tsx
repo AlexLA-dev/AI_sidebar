@@ -145,6 +145,7 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: 
       const message = raw as SpeakOut
       if (message.type === "usage" && message.usage) setLeft(Math.max(0, message.usage.limit - message.usage.used))
       else if (message.type === "chunk") player.push(message.part, message.data)
+      else if (message.type === "aac") player.pushAac(message.part, message.data)
       else if (message.type === "end") {
         current.ended = true
         player.end()

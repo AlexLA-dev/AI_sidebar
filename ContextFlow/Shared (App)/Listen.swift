@@ -106,6 +106,7 @@ final class ListenPlayer: NSObject, ObservableObject {
     /// Debug builds: `-CFDebugListen "<text>"` plays that text as if Safari had handed it over (simulator checks).
     func debugStartIfAsked() {
         #if DEBUG
+        if UserDefaults.standard.bool(forKey: "CFDebugSpeechSync") { Task { await SpeechSync.debugSelfCheck() } }
         // The environment keeps line breaks (a Markdown table); a launch argument stops at the first one.
         let given = ProcessInfo.processInfo.environment["CF_DEBUG_LISTEN"] ?? UserDefaults.standard.string(forKey: "CFDebugListen")
         guard request == nil, let text = given, !text.isEmpty else { return }
@@ -252,6 +253,8 @@ final class ListenPlayer: NSObject, ObservableObject {
     }
 
     func start(_ request: ListenRequest, anyway: Bool = false) {
+        // What's expired in iCloud goes (at most once a day).
+        Task.detached(priority: .background) { await SpeechSync.sweep() }
         stop()
         textModel = ""
         self.request = request
@@ -474,6 +477,14 @@ final class ListenPlayer: NSObject, ObservableObject {
                 give(splitter.end())
                 continue
             }
+            // Written on another of the user's devices (iCloud): the same words, so the same parts and their audio.
+            let textKey = SpeechSync.key(voice: "script|\(request.what)", lang: request.lang, text: chunk)
+            if let synced = await SpeechSync.fetchText(textKey, wait: first ? 1 : 1.5) {
+                SpeechCache.write(key, Data(synced.utf8))
+                give(splitter.push(synced))
+                give(splitter.end())
+                continue
+            }
             var script = ""
             do {
                 let urlRequest = try ChatAI.scriptRequest(text: chunk, what: request.what, lang: request.lang)
@@ -482,7 +493,11 @@ final class ListenPlayer: NSObject, ObservableObject {
                     give(splitter.push(piece))
                 }
                 give(splitter.end())
-                if !script.isEmpty { SpeechCache.write(key, Data(script.utf8)) }
+                if !script.isEmpty {
+                    SpeechCache.write(key, Data(script.utf8))
+                    let written = script
+                    Task.detached(priority: .utility) { await SpeechSync.saveText(textKey, text: written) }
+                }
             } catch {
                 if Task.isCancelled { return }
                 if !script.isEmpty {
@@ -514,6 +529,17 @@ final class ListenPlayer: NSObject, ObservableObject {
         }
         // Nothing a voice can say (a dash, an emoji): skipped.
         guard part.rangeOfCharacter(from: .alphanumerics) != nil else { return .ok }
+        // Made on another of the user's devices (iCloud): played from there, nothing asked of the server. The first
+        // sound waits for iCloud at most a second; later parts come well ahead of being heard.
+        let syncKey = SpeechSync.key(voice: Self.voiceName, lang: request.lang, text: part)
+        if let synced = await SpeechSync.fetchPart(syncKey, wait: samples.isEmpty ? 1 : 2), !synced.isEmpty {
+            if Task.isCancelled { return .stop }
+            append(synced)
+            SpeechCache.write(key, synced)
+            updateNowPlaying()
+            return .ok
+        }
+        if Task.isCancelled { return .stop }
         guard let urlRequest = try? ChatAI.speechRequest(text: part, lang: request.lang, what: request.what, part: index, parts: max(request.parts.count, index + 1), model: textModel) else {
             return .fallBack(.appleVoice)
         }
@@ -543,6 +569,8 @@ final class ListenPlayer: NSObject, ObservableObject {
                 }
                 if let gender = Self.lastGender { UserDefaults.standard.set(gender, forKey: "cf_voice_gender") }
                 if textModel.isEmpty, let model = Self.lastModel { textModel = model }
+                // For the user's other devices (iCloud, AAC): in the background, never in the voice's way.
+                Task.detached(priority: .utility) { await SpeechSync.savePart(syncKey, pcm: all) }
                 if let usage = Self.lastUsage { secondsLeft = max(0, usage.limit - usage.used) }
                 SpeechCache.write(key, all)
                 // The lock screen learns the new length once a part (not every piece).
@@ -618,6 +646,9 @@ final class ListenPlayer: NSObject, ObservableObject {
         case failed
     }
 
+    /// The voice the server speaks with (X-CF-Voice; part of a part's key on the user's devices and in iCloud).
+    static var voiceName: String { UserDefaults.standard.string(forKey: "cf_voice_name") ?? "Kore" }
+
     /// The voice's gender the server last named (X-CF-Voice-Gender), and the model it last spoke with (X-CF-Model).
     nonisolated(unsafe) private static var lastGender: String?
     nonisolated(unsafe) private static var lastModel: String?
@@ -673,6 +704,9 @@ final class ListenPlayer: NSObject, ObservableObject {
             let (bytes, response) = try await URLSession.shared.bytes(for: request)
             let status = (response as? HTTPURLResponse)?.statusCode ?? 0
             if let gender = (response as? HTTPURLResponse)?.value(forHTTPHeaderField: "X-CF-Voice-Gender") { lastGender = gender }
+            if status == 200, let voice = (response as? HTTPURLResponse)?.value(forHTTPHeaderField: "X-CF-Voice"), !voice.isEmpty {
+                UserDefaults.standard.set(voice, forKey: "cf_voice_name")
+            }
             if status == 200, let model = (response as? HTTPURLResponse)?.value(forHTTPHeaderField: "X-CF-Model") { lastModel = model }
             if let raw = (response as? HTTPURLResponse)?.value(forHTTPHeaderField: "X-CF-Usage"),
                let usage = (try? JSONSerialization.jsonObject(with: Data(raw.utf8))) as? [String: Any],
