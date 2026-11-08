@@ -832,7 +832,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // A free chat longer than a free answer remembers: the memory message, once per chat (build 91).
   const memoryNudgeRef = useRef((_entries: Turn[]) => {})
   memoryNudgeRef.current = (entries: Turn[]) => {
-    if (historyRef.current || hasPro(statusRef.current?.plan ?? planKnownRef.current) || viaOwnKey) return
+    const planNow = statusRef.current?.plan ?? planKnownRef.current
+    if (historyRef.current || hasPro(planNow) || (Boolean(statusRef.current?.hasOwnKey) && planNow !== "free")) return
     if (entries.filter((e) => !e.note).length <= FREE_MEMORY) return
     const chat = threadRef.current
     void memoryOffered().then((done) => {
@@ -960,7 +961,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     }
     // The whole chat (its messages, notes and other pages) is Pro's memory, on unless turned off; free answers see the
     // last messages (build 91).
-    const wholeChat = hasPro(statusRef.current?.plan ?? planKnownRef.current) && settingsRef.current.chatMemory !== false
+    const planNow = statusRef.current?.plan ?? planKnownRef.current
+    // …and the own key's, whose subscriber pays the model.
+    const ownKeyNow = Boolean(statusRef.current?.hasOwnKey) && planNow !== "free"
+    const wholeChat = (hasPro(planNow) || ownKeyNow) && settingsRef.current.chatMemory !== false
     // The chat's other pages: this device's copy of their text, else the one saved in the chat (another device's).
     const others = otherPages(history, url).map((p) => p.url).slice(0, MAX_OTHER_PAGES)
     const savedTexts = savedPages(history)
@@ -2128,8 +2132,6 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     startPlanTourRef.current(planTourDue.tier, "plan", planTourDue.from)
   }, [planTourDue, open, guide, touring, view, streaming, partial])
   const plan = status?.plan ?? "free"
-  // The chat's memory as the next answer gets it (build 91): the whole chat for Pro unless turned off.
-  const memoryOn = hasPro(plan) && settings.chatMemory !== false
   // "Ultra" on Ultra's actions for anyone without it, once the plan is known: the selection buttons come before the
   // panel has opened on a page, so their plan is read then too (below), and an Ultra subscriber never sees the mark.
   const markUltra = status !== null && !isUltra(plan)
@@ -2168,6 +2170,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     void listen.start("page", { text: read.text, what: "page", lang: document.documentElement.lang || textLanguage(read.text) || t("langCode"), title: read.title || source.title(), url: source.href() })
   }, [listen.start, source])
   const ownKeyActive = viaOwnKey || (Boolean(status?.hasOwnKey) && plan !== "free")
+  // The chat's memory as the next answer gets it (build 91): the whole chat for Pro and Ultra (and the own key, whose
+  // subscriber pays the model) unless turned off.
+  const memoryAllowed = hasPro(plan) || ownKeyActive
+  const memoryOn = memoryAllowed && settings.chatMemory !== false
   // The App Store offer code for Pro, once this install has run out of free answers (Safari only).
   const offer = TARGET === "safari" && plan === "free" && !ownKeyActive ? error?.offer ?? status?.offer ?? null : null
   // Videos and PDFs on the page are read for Pro (and the user's own key); free answers say they skipped them.
@@ -3321,7 +3327,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   />
                 ))}
 
-                {memoryOffer && !error && partial === null && !hasPro(plan) && (
+                {memoryOffer && !error && partial === null && !memoryAllowed && (
                   <PlanOffer
                     key={memoryOffer}
                     place="memory"
@@ -3453,14 +3459,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       <input type="checkbox" role="switch" checked={memoryOn} onChange={(e) => {
                         // Pro's memory (build 91): Pro and Ultra turn it on and off; without Pro it stays off and the chat
                         // says what Pro remembers.
-                        if (hasPro(plan)) return updateSettings({ chatMemory: e.currentTarget.checked })
+                        if (memoryAllowed) return updateSettings({ chatMemory: e.currentTarget.checked })
                         e.currentTarget.checked = false
                         setMemoryOffer("switch")
                         setTimeout(() => listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" }), 60)
                       }} />
                       <span class="cf-switch" aria-hidden="true" />
                       {t("wholeChat")}
-                      {!hasPro(plan) && <span class="cf-pro-badge">Pro</span>}
+                      {!memoryAllowed && <span class="cf-pro-badge">Pro</span>}
                     </label>}
                     {plan === "free" && !ownKeyActive && TARGET === "safari" && (
                       offer ? (
