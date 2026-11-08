@@ -144,7 +144,7 @@ const selAction = (id: string) => SELECTION_ACTIONS.find((a) => a.id === id)!
 /** The chips in the selection buttons' field on iPhone and iPad (2.6, the owner): the panel's selection actions in his
  * order, without Google (the buttons have their own). */
 /** Ultra's actions (2.6, build 90, the owner: "colour Similar so it's clear it's an Ultra feature"): in Ultra's colour
- * (--cf-ultra) everywhere they show, with a small "Ultra" for anyone without it. */
+ * (--ultra) everywhere they show, with a small "Ultra" for anyone without it. */
 const ULTRA_ACTIONS = new Set(["similar", "sel_similar"])
 
 /** The small "Ultra" on an Ultra action, for someone without Ultra (a tap opens Ultra's card). */

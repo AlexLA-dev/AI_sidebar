@@ -8,13 +8,15 @@
   --accent-2: #38bdf8;
   --accent-soft: rgba(37, 99, 235, 0.10);
   --accent-text: #1d4ed8;
-  /* Ultra (2.6, build 90): one colour for its features, the app's (ContentView ultraColor, #7D4FED). Text and mark
-     pass 4.5:1 on every panel background in both themes. */
-  --cf-ultra: #7d4fed;
-  --cf-ultra-text: #5b2fd1;
-  --cf-ultra-soft: rgba(125, 79, 237, 0.14);
-  --cf-ultra-line: rgba(125, 79, 237, 0.32);
-  --cf-ultra-on: #ffffff;
+  /* Ultra (2.6, build 90): one colour for its features (names agreed with ultra-26, Listen uses them too). --ultra is
+     the app's solid violet (ContentView ultraColor, #7D4FED); text and the mark pass 4.5:1 on every panel background
+     in both themes (#7C3AED text is 4.2:1 on --bg-3, white on #8B5CF6 4.2:1, so these are a step darker). */
+  --ultra: #7d4fed;
+  --ultra-text: #5b2fd1;
+  --ultra-soft: rgba(139, 92, 246, 0.12);
+  --ultra-line: rgba(125, 79, 237, 0.32);
+  --ultra-on: #ffffff;
+  --ultra-grad: linear-gradient(135deg, #a78bfa, #2563eb);
   --note: #d97706;
   --note-soft: rgba(245, 158, 11, 0.13);
   --note-text: #92400e;
@@ -53,11 +55,12 @@
   --accent-2: #7dd3fc;
   --accent-soft: rgba(96, 165, 250, 0.16);
   --accent-text: #93c5fd;
-  --cf-ultra: #a78bfa;
-  --cf-ultra-text: #c4b5fd;
-  --cf-ultra-soft: rgba(167, 139, 250, 0.18);
-  --cf-ultra-line: rgba(167, 139, 250, 0.36);
-  --cf-ultra-on: #1c1b21;
+  --ultra: #a78bfa;
+  --ultra-text: #c4b5fd;
+  --ultra-soft: rgba(167, 139, 250, 0.16);
+  --ultra-line: rgba(167, 139, 250, 0.36);
+  --ultra-on: #1c1b21;
+  --ultra-grad: linear-gradient(135deg, #a78bfa, #2563eb);
   --bg: #1c1b21;
   --bg-2: #26252c;
   --bg-3: #302f37;
@@ -81,11 +84,12 @@
     --accent-2: #7dd3fc;
     --accent-soft: rgba(96, 165, 250, 0.16);
     --accent-text: #93c5fd;
-    --cf-ultra: #a78bfa;
-    --cf-ultra-text: #c4b5fd;
-    --cf-ultra-soft: rgba(167, 139, 250, 0.18);
-    --cf-ultra-line: rgba(167, 139, 250, 0.36);
-    --cf-ultra-on: #1c1b21;
+    --ultra: #a78bfa;
+    --ultra-text: #c4b5fd;
+    --ultra-soft: rgba(167, 139, 250, 0.16);
+    --ultra-line: rgba(167, 139, 250, 0.36);
+    --ultra-on: #1c1b21;
+    --ultra-grad: linear-gradient(135deg, #a78bfa, #2563eb);
     --bg: #1c1b21;
     --bg-2: #26252c;
     --bg-3: #302f37;
@@ -330,10 +334,10 @@
 .cf-chip:hover { background: var(--accent-soft); border-color: transparent; color: var(--accent-text); }
 .cf-chip.small { padding: 5px 10px; font-size: 12.5px; color: var(--text-2); }
 /* Ultra's actions in Ultra's colour (2.6, build 90): the panel's quick action, the selection chip and the Mac button. */
-.cf-chip.ultra, .cf-chip.ultra:hover { display: inline-flex; align-items: center; gap: 5px; color: var(--cf-ultra-text); background: var(--cf-ultra-soft); border-color: var(--cf-ultra-line); }
-.cf-bubble button.cf-sel-similar.ultra { color: var(--cf-ultra-text); background: var(--cf-ultra-soft); box-shadow: 0 0 0 1px var(--cf-ultra-line) inset; }
-.cf-bubble.touch button.cf-sel-chip.ultra { gap: 4px; color: var(--cf-ultra-text); background: var(--cf-ultra-soft); border-color: var(--cf-ultra-line); }
-.cf-ultra-mark { display: inline-block; margin-inline-start: 5px; padding: 0 4px; border-radius: 5px; font-size: 9.5px; font-weight: 700; line-height: 15px; letter-spacing: 0.02em; color: var(--cf-ultra-on); background: var(--cf-ultra); }
+.cf-chip.ultra, .cf-chip.ultra:hover { display: inline-flex; align-items: center; gap: 5px; color: var(--ultra-text); background: var(--ultra-soft); border-color: var(--ultra-line); }
+.cf-bubble button.cf-sel-similar.ultra { color: var(--ultra-text); background: var(--ultra-soft); box-shadow: 0 0 0 1px var(--ultra-line) inset; }
+.cf-bubble.touch button.cf-sel-chip.ultra { gap: 4px; color: var(--ultra-text); background: var(--ultra-soft); border-color: var(--ultra-line); }
+.cf-ultra-mark { display: inline-block; margin-inline-start: 5px; padding: 0 4px; border-radius: 5px; font-size: 9.5px; font-weight: 700; line-height: 15px; letter-spacing: 0.02em; color: var(--ultra-on); background: var(--ultra); }
 
 .cf-msg { margin: 0 0 14px; display: flex; flex-direction: column; }
 /* "New page: …" / "Page updated" between questions of the running conversation. */

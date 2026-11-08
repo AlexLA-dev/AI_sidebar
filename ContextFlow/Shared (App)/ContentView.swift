@@ -1930,7 +1930,7 @@ struct PlanTourView: View {
                         text: "Tap Listen under an answer, or choose Listen to this page in the … menu at the top of the panel. A natural voice reads it aloud.")
         case .ultraSimilar:
             return Info(symbol: "square.on.square", color: Self.ultraColor, title: "Find similar",
-                        text: "Tap Find similar in the panel, or select text on the page and tap Similar. You get real alternatives — cheaper, newer, in stock or in your language. Every link is opened and checked before you see it.")
+                        text: "Tap Find similar in the panel, or select text on the page and tap Find similar. You get real alternatives — cheaper, newer, in stock or in your language. Every link is opened and checked before you see it.")
         }
     }
 
