@@ -304,6 +304,7 @@ test("speak: streams whole PCM samples, charges the estimate, then the real leng
   // 40 text tokens at $0.50 and 75 audio tokens at $6 per million; twice that from 2027.
   assert.equal(log?.cost_usd, 0.00047)
   assert.equal(log?.cost_usd_2027, 0.00094)
+  assert.equal(log?.audience, undefined)
 })
 
 test("speak: the week's seconds run out → 402 with the usage", async () => {
@@ -432,6 +433,16 @@ test("speak-script: Haiku writes a table for the ear, streamed; an answer may be
   const page = await speakScript(post("https://x/api/v2/speak-script", { installId: INSTALL, text: "Some article text.", what: "page", entitlement: ultraJws() }), ctx())
   await page.text()
   assert.match(haiku.calls[1].system, /keep the author's own sentences word for word/)
+})
+
+test("speak and speak-script: a debug or TestFlight build's traffic is marked test (/analytics leaves it out)", async () => {
+  const c = ctx()
+  const client = { platform: "ios", version: "2.6", audience: "test" }
+  await readAll(await speak(post("https://x/api/v2/speak", { installId: INSTALL, text: "A".repeat(70), lang: "en", entitlement: ultraJws(), client }), c))
+  await (await speakScript(post("https://x/api/v2/speak-script", { installId: INSTALL, text: "Some article text.", what: "page", entitlement: ultraJws(), client }), c)).text()
+  await Promise.all(c.waits)
+  assert.equal(events.find((e) => e.kind === "speak")?.data.audience, "test")
+  assert.equal(events.find((e) => e.kind === "speak_script")?.data.audience, "test")
 })
 
 test("speak-script: Ultra only; too long refused; Haiku failing gives UPSTREAM and the cap back", async () => {

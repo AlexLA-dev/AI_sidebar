@@ -112,7 +112,9 @@ export default async (req: Request, context: Context): Promise<Response> => {
     completion_tokens: stats.completionTokens,
     cost_usd: scriptCost(stats),
     platform,
-    version
+    version,
+    // Debug and TestFlight builds mark their traffic, which /analytics leaves out.
+    ...(client.audience === "test" ? { audience: "test" } : {})
   })))
 
   return new Response(stream, {

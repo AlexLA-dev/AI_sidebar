@@ -113,7 +113,9 @@ export default async (req: Request, context: Context): Promise<Response> => {
     }
   })
 
-  const info = { started, chars: text.length, lang: (lang || locale).toLowerCase().split(/[-_]/)[0].slice(0, 8), what, part, parts, platform, version, locale }
+  // Debug and TestFlight builds mark their traffic, which /analytics leaves out.
+  const test = client.audience === "test"
+  const info = { started, chars: text.length, lang: (lang || locale).toLowerCase().split(/[-_]/)[0].slice(0, 8), what, part, parts, platform, version, locale, test }
 
   // Measuring on a deploy preview (the eval token, report: true): the whole part, then what it took and cost.
   if (evaluated && body.report === true) {
@@ -149,7 +151,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
 /** After the part: the charge becomes the audio's real length (more or less than the estimate), and the log line. */
 async function settle(
   plan: string, installId: string, counters: Counter[], charged: number, stats: SpeechStats, failure: string | null,
-  info: { started: number; chars: number; lang: string; what: string; part: number; parts: number; platform: string; version: string; locale: string }
+  info: { started: number; chars: number; lang: string; what: string; part: number; parts: number; platform: string; version: string; locale: string; test: boolean }
 ): Promise<void> {
   const seconds = Math.ceil(stats.bytes / (SPEECH_RATE * 2))
   const diff = charged - seconds
@@ -183,7 +185,8 @@ async function settle(
       cost_usd: cost.now,
       cost_usd_2027: cost.from2027,
       platform: info.platform,
-      version: info.version
+      version: info.version,
+      ...(info.test ? { audience: "test" } : {})
     }),
     touchInstall(installId, info.platform, info.version, info.locale).catch(() => undefined)
   ])

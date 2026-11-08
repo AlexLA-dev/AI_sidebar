@@ -1269,6 +1269,171 @@ function limitsPanel(report) {
   return panel
 }
 
+// Read aloud and find similar, 2.6 Ultra (cf_ultra_report): requests, people, tokens by model, cost now and at the
+// 2027 TTS prices, failures, by day and for the period; who uses the most of a week's allowance.
+const ULTRA_STEP = {
+  tts: ["Озвучка", "Gemini TTS: вход — токены текста, выход — токены аудио"],
+  script: ["Текст для слуха", "Claude Haiku переписывает ответ или страницу перед озвучкой"],
+  plan: ["План поиска", "Claude Haiku читает страницу и пишет запросы"],
+  search: ["Веб-поиск", "Claude Haiku с веб-поиском Anthropic находит кандидатов"],
+  write: ["Список", "Claude Sonnet пишет ответ по проверенным страницам"],
+  google: ["Google (движок B)", "Gemini с поиском Google"],
+  unsplit: ["Без разбивки по шагам", "Записи до того, как сервер начал писать токены по шагам: только сумма"]
+}
+const NO_ULTRA = "Появится после миграции 20261108140000 (функция cf_ultra_report): её применяют вместе с релизом 2.6."
+let ultraShow = "voice"
+const num = (v) => Number(v || 0)
+// Dollars with as many digits as small sums need (a spoken part costs a fraction of a cent).
+const usd = (v) => {
+  const x = num(v)
+  const digits = x === 0 ? 2 : x < 0.1 ? 4 : x < 10 ? 3 : 2
+  return `$${x.toLocaleString("ru-RU", { minimumFractionDigits: Math.min(2, digits), maximumFractionDigits: digits })}`
+}
+const tokens = (a, b) => `${compact.format(num(a))} / ${compact.format(num(b))}`
+const minutes = (v) => `${num(v).toLocaleString("ru-RU", { maximumFractionDigits: 1 })} мин`
+// The device and, under it, its language and region (from the extension; nothing finer than the country).
+const deviceCell = (w) => {
+  const [lang, region] = localeParts(w.locale)
+  const where = [lang, region && nameOf(regions, region)].filter(Boolean).join(" · ")
+  return el("td", {}, PLATFORMS[w.platform] || w.platform || "—", where && el("small", {}, where))
+}
+const stat = (big, name, detail) => el("div", {}, el("b", {}, big), el("span", {}, name), detail && el("span", {}, detail))
+const sumRow = (cells) => el("tr", { class: "sum" }, cells.map((c) => el("td", {}, c)))
+const failCell = (v) => el("td", { class: num(v) ? "bad" : "" }, n.format(num(v)))
+
+function voiceSection(v, allowance, totalDays, marks) {
+  const t = v.total || {}
+  const days = [...(v.by_day || [])].reverse()
+  const byDay = new Map((v.by_day || []).map((r) => [r.day, r]))
+  const limit = allowance?.speak_minutes
+  const models = (v.by_model || []).map((m) => {
+    const [step, hint] = ULTRA_STEP[m.step] || [m.step]
+    return el("tr", {},
+      el("td", { title: hint || null }, step, el("small", {}, m.model)),
+      el("td", {}, n.format(num(m.requests))), failCell(m.failed),
+      el("td", {}, compact.format(num(m.input))), el("td", {}, compact.format(num(m.output))),
+      el("td", {}, m.step === "tts" ? minutes(m.minutes) : "—"),
+      el("td", {}, usd(m.usd)), el("td", {}, m.step === "tts" ? usd(m.usd_2027) : "то же"))
+  })
+  const dayRows = days.map((r) => el("tr", {},
+    el("td", {}, dayLabel(r.day)),
+    el("td", {}, n.format(num(r.texts))), el("td", {}, n.format(num(r.parts))), el("td", {}, n.format(num(r.people))),
+    el("td", {}, minutes(r.minutes)),
+    el("td", {}, tokens(r.tts_in, r.tts_out)), el("td", {}, tokens(r.script_in, r.script_out)),
+    el("td", {}, usd(num(r.tts_usd) + num(r.script_usd))), el("td", {}, usd(num(r.tts_usd_2027) + num(r.script_usd))),
+    failCell(num(r.failed) + num(r.script_failed) + num(r.busy)), el("td", {}, n.format(num(r.limit_hits)))))
+  const weeks = (v.weeks || []).slice(0, 10).map((w) => el("tr", {},
+    el("td", {}, `с ${short(w.week)}`), deviceCell(w),
+    el("td", {}, minutes(w.minutes)), el("td", { class: limit && num(w.minutes) >= limit ? "bad" : "" }, limit ? pct(num(w.minutes), limit) : "—"),
+    el("td", {}, n.format(num(w.texts))), el("td", {}, num(w.limit_hits) ? `да (отказов: ${n.format(num(w.limit_hits))})` : "нет")))
+  const failed = num(t.failed) + num(t.busy)
+  // Gemini or Haiku failing before anything came has no model in its log line: the total row names them apart.
+  const early = num(t.failed) + num(t.script_failed) - sum(v.by_model || [], "failed")
+  return [
+    el("div", { class: "al-stats" },
+      // Whole minutes from 100 on, so the number fits a phone's tile on one line.
+      stat(num(t.minutes) >= 100 ? `${n.format(Math.round(num(t.minutes)))} мин` : minutes(t.minutes), "Прослушано", `текстов: ${n.format(num(t.texts))} · частей: ${n.format(num(t.parts))}`),
+      stat(n.format(num(t.people)), "Слушали, устройств", limit ? `упёрлись в ${n.format(limit)} мин в неделю: ${n.format(num(t.limit_people))}` : null),
+      stat(usd(num(t.tts_usd) + num(t.script_usd)), "Стоимость сейчас", `по ценам TTS 2027: ${usd(num(t.tts_usd_2027) + num(t.script_usd))}${num(t.minutes) ? ` · ${usd((num(t.tts_usd) + num(t.script_usd)) / num(t.minutes))} за минуту` : ""}`),
+      stat(t.first_audio_p50 == null ? "—" : ms(Math.round(t.first_audio_p50)), "Первый звук, медиана", `90 %: ${t.first_audio_p90 == null ? "—" : ms(Math.round(t.first_audio_p90))} · ошибок: ${n.format(failed)} из ${n.format(num(t.parts))} частей`)
+    ),
+    chart("Голос по дням", [
+      { title: "Тексты", color: "var(--c1)", value: (d) => num(byDay.get(d)?.texts), hint: "Сколько текстов начали слушать (первая часть каждого)" },
+      { title: "Устройств", color: "var(--c4)", axis: "right", value: (d) => num(byDay.get(d)?.people), hint: "Сколько устройств слушали в этот день" }
+    ], totalDays, { leftLabel: "Тексты", rightLabel: "Устройства", marks }),
+    table("Голос: токены и стоимость по моделям", ["Шаг · модель", "Запросов", "Ошибок", "Токены вход", "Токены выход", "Прослушано", "Сейчас", "Цены 2027"], [
+      ...models,
+      models.length > 1 && sumRow(["Всего", n.format(num(t.parts) + num(t.scripts)),
+        el("span", { title: early > 0 ? "Gemini или Haiku не ответили до начала: в записи нет модели, поэтому в строках выше их нет" : null },
+          n.format(num(t.failed) + num(t.script_failed)), early > 0 && el("small", {}, `${n.format(early)} до начала`)),
+        compact.format(num(t.tts_in) + num(t.script_in)), compact.format(num(t.tts_out) + num(t.script_out)), minutes(t.minutes),
+        usd(num(t.tts_usd) + num(t.script_usd)), usd(num(t.tts_usd_2027) + num(t.script_usd))])
+    ].filter(Boolean), "Голосом за период не пользовались.", "num2"),
+    table("Голос по дням", ["День (UTC)", "Тексты", "Части", "Устройств", "Прослушано", "Озвучка: токены вход / выход", "Haiku: вход / выход", "Сейчас", "Цены 2027", "Ошибки", "Лимит"], [
+      days.length > 1 && sumRow([`За ${totalDays} дн.`, n.format(num(t.texts)), n.format(num(t.parts)), n.format(num(t.people)), minutes(t.minutes),
+        tokens(t.tts_in, t.tts_out), tokens(t.script_in, t.script_out), usd(num(t.tts_usd) + num(t.script_usd)),
+        usd(num(t.tts_usd_2027) + num(t.script_usd)), n.format(failed + num(t.script_failed)), n.format(num(t.limit_hits))]),
+      ...dayRows
+    ].filter(Boolean), "Голосом за период не пользовались.", "num2"),
+    table(`Больше всех слушали за неделю${limit ? ` (лимит ${n.format(limit)} мин в неделю)` : ""}`, ["Неделя", "Устройство · язык", "Прослушано", "Из лимита", "Текстов", "Упирался в лимит"], weeks, "Пока никто не слушал.")
+  ]
+}
+
+function similarSection(s, allowance, totalDays, marks) {
+  const t = s.total || {}
+  const days = [...(s.by_day || [])].reverse()
+  const byDay = new Map((s.by_day || []).map((r) => [r.day, r]))
+  const limit = allowance?.similar_searches
+  const worked = num(t.searches) - num(t.failed)
+  const models = (s.by_model || []).map((m) => {
+    const [step, hint] = ULTRA_STEP[m.step] || [m.step]
+    return el("tr", {},
+      el("td", { title: hint || null }, step, el("small", {}, m.model)),
+      el("td", {}, n.format(num(m.calls))),
+      el("td", {}, m.input == null ? "—" : compact.format(num(m.input))), el("td", {}, m.output == null ? "—" : compact.format(num(m.output))),
+      el("td", {}, num(m.web) ? n.format(num(m.web)) : "—"), el("td", {}, usd(m.usd)))
+  })
+  const dayRows = days.map((r) => el("tr", {},
+    el("td", {}, dayLabel(r.day)),
+    el("td", {}, n.format(num(r.searches))), el("td", {}, n.format(num(r.people))), failCell(num(r.failed) + num(r.busy)),
+    el("td", {}, n.format(num(r.web))), el("td", {}, tokens(r.tokens_in, r.tokens_out)),
+    el("td", {}, `${n.format(num(r.kept))} из ${n.format(num(r.checked))}`), el("td", {}, n.format(num(r.items))),
+    el("td", {}, usd(r.usd)), el("td", {}, n.format(num(r.limit_hits)))))
+  // Person-weeks by how much of the week's searches they used.
+  const all = s.weeks || []
+  const buckets = limit ? [
+    ["1 поиск", (x) => x === 1], [`2–${Math.max(2, Math.floor(limit / 2))}`, (x) => x >= 2 && x <= Math.floor(limit / 2)],
+    [`${Math.floor(limit / 2) + 1}–${limit - 1}`, (x) => x > Math.floor(limit / 2) && x < limit], [`все ${n.format(limit)}`, (x) => x >= limit]
+  ].map(([name, test]) => `${name}: ${n.format(all.filter((w) => test(num(w.searches))).length)}`).join(" · ") : null
+  const weeks = all.slice(0, 10).map((w) => el("tr", {},
+    el("td", {}, `с ${short(w.week)}`), deviceCell(w),
+    el("td", {}, n.format(num(w.searches))), el("td", { class: limit && num(w.searches) >= limit ? "bad" : "" }, limit ? `${n.format(num(w.searches))} из ${n.format(limit)}` : "—"),
+    failCell(w.failed), el("td", {}, num(w.limit_hits) ? `да (отказов: ${n.format(num(w.limit_hits))})` : "нет")))
+  const weeksPanel = table(`Поиски на устройство за неделю${limit ? ` (лимит ${n.format(limit)} в неделю)` : ""}`, ["Неделя", "Устройство · язык", "Поисков", "Из лимита", "Ошибок", "Упирался в лимит"], weeks, "Пока никто не искал.")
+  if (buckets && all.length) weeksPanel.append(el("p", { class: "hint" }, `Устройство-недель по числу поисков: ${buckets}.`))
+  return [
+    el("div", { class: "al-stats" },
+      stat(n.format(num(t.searches)), "Поисков", `устройств: ${n.format(num(t.people))}${limit ? ` · упёрлись в ${n.format(limit)} в неделю: ${n.format(num(t.limit_people))}` : ""}`),
+      stat(`${n.format(num(t.kept))} из ${n.format(num(t.checked))}`, "Страниц прошли проверку", worked ? `вариантов в ответе, в среднем: ${(num(t.items) / worked).toLocaleString("ru-RU", { maximumFractionDigits: 1 })}` : null),
+      stat(usd(t.usd), "Стоимость", `${num(t.searches) ? `${usd(num(t.usd) / num(t.searches))} за поиск · ` : ""}веб-поисков: ${n.format(num(t.web))}`),
+      stat(t.ms_p50 == null ? "—" : ms(Math.round(t.ms_p50)), "Время поиска, медиана", `90 %: ${t.ms_p90 == null ? "—" : ms(Math.round(t.ms_p90))} · ошибок: ${n.format(num(t.failed) + num(t.busy))}`)
+    ),
+    chart("Поиск похожего по дням", [
+      { title: "Нашли", color: "var(--c2)", value: (d) => num(byDay.get(d)?.searches) - num(byDay.get(d)?.failed), hint: "Поиски, которые дошли до ответа" },
+      { title: "С ошибкой", color: "var(--warn)", value: (d) => num(byDay.get(d)?.failed), hint: "Поиск оборвался или ничего не вернул" },
+      { title: "Устройств", color: "var(--c4)", axis: "right", value: (d) => num(byDay.get(d)?.people), hint: "Сколько устройств искали в этот день" }
+    ], totalDays, { leftLabel: "Поиски", rightLabel: "Устройства", marks }),
+    table("Поиск похожего: токены и стоимость по шагам", ["Шаг · модель", "Вызовов", "Токены вход", "Токены выход", "Веб-поисков", "Стоимость"], [
+      ...models,
+      models.length > 1 && sumRow(["Всего", n.format(num(t.searches)), compact.format(num(t.tokens_in)), compact.format(num(t.tokens_out)), n.format(num(t.web)), usd(t.usd)])
+    ].filter(Boolean), "Похожее за период не искали.", "num2"),
+    table("Поиск похожего по дням", ["День (UTC)", "Поиски", "Устройств", "Ошибки", "Веб-поиски", "Токены вход / выход", "Оставлено из проверенных", "Вариантов", "Стоимость", "Лимит"], [
+      days.length > 1 && sumRow([`За ${totalDays} дн.`, n.format(num(t.searches)), n.format(num(t.people)), n.format(num(t.failed) + num(t.busy)), n.format(num(t.web)),
+        tokens(t.tokens_in, t.tokens_out), `${n.format(num(t.kept))} из ${n.format(num(t.checked))}`, n.format(num(t.items)), usd(t.usd), n.format(num(t.limit_hits))]),
+      ...dayRows
+    ].filter(Boolean), "Похожее за период не искали.", "num2"),
+    weeksPanel
+  ]
+}
+
+function ultraPanels(report, totalDays, marks, redraw) {
+  const title = "Голос и поиск похожего · Ultra"
+  if (!report) return el("div", { class: "panel" }, el("h3", {}, title), el("p", { class: "empty" }, NO_ULTRA))
+  const pick = (v) => { ultraShow = v; redraw() }
+  const voice = ultraShow === "voice"
+  const t = (voice ? report.voice : report.similar)?.total || {}
+  // The first part of a section is its row of numbers: it goes in the panel with the switch.
+  const [stats, ...body] = voice ? voiceSection(report.voice || {}, report.allowance, totalDays, marks) : similarSection(report.similar || {}, report.allowance, totalDays, marks)
+  const head = el("div", { class: "panel" },
+    el("h3", {}, title, toggle([["voice", "Голос"], ["similar", "Поиск похожего"]], ultraShow, pick)),
+    stats,
+    el("p", { class: "hint", style: "margin:0" }, voice
+      ? `Чтение вслух: текст делится на части, каждую озвучивает Gemini TTS (Flash-Lite, для части языков — полная модель); перед озвучкой Claude Haiku может переписать текст для слуха. Стоимость сейчас и по ценам TTS с 2027 года (Haiku не меняется). Ошибки — оборвавшиеся части, сбои Gemini и Haiku, отказы по общему дневному лимиту (сейчас ${n.format(num(t.busy))}). «Лимит» — отказы, когда кончились минуты недели.`
+      : "Поиск похожего, движок A: Claude Haiku планирует запросы, ищет в вебе (веб-поиск Anthropic), сервер открывает и проверяет страницы, Claude Sonnet пишет список. Токены по шагам сервер пишет с этой версии; более ранние поиски — строкой «Без разбивки». Ошибки — оборвавшиеся поиски и отказы по общему дневному лимиту. «Лимит» — отказы, когда кончились поиски недели."))
+  return el("div", {}, head, ...body,
+    el("p", { class: "hint" }, "Без тестов (TestFlight, отладочные сборки, наши устройства) и без версии, пока она на ревью: события 2.6 появятся здесь, когда ревью 2.6 закроют. Лимит недели общий на подписку; здесь он считается по устройству, неделя — с понедельника (UTC), как у счётчика."))
+}
+
 function render(data, fx) {
   const segments = data.segments || []
   const insights = data.insights || null
@@ -1432,6 +1597,7 @@ function render(data, fx) {
     table("По тарифам", ["Тариф", "Запросы", "Устройств", "Больше всего за день на устройство"], plans, "Пока нет запросов.", "num2"),
     table("По устройствам", ["Устройство", "Сегмент", "Запросы", "Устройств", "Токены вход", "Токены выход", "Поиск Google"], devices, "Пока нет запросов."),
     table("По моделям", ["Сегмент", "Модель", "Запросы", "Ошибки", "Токены вход", "Токены выход", "Поиск Google", "Ср. время"], models, "Пока нет запросов."),
+    live((redraw) => ultraPanels(data.ultra_report, data.days, marks, redraw)),
     table(`Ревью: вы или App Review (${n.format(sum(review, "requests"))})`, ["Устройство", "Сегмент", "Версия", "Запросы", "Устройств", "Дни"], reviewRows, "Пока версия на ревью, запросы с неё попадают сюда, а не в цифры выше."),
     limitsPanel(data.limits_report) || table("Упёрлись в лимит", ["Тип", "Лимит · план", "Раз"], limits, "Никто не упирался в лимиты."),
     organizePanel(data.organize_report),
