@@ -88,12 +88,33 @@ export function OrganizeRow({ tag, move, quiet, onTag, onTagNo, onMove, onMoveNo
   )
 }
 
-/** A short loop of what organizing does: messages of one chat slide into the chats and tags they belong to. */
-export function OrganizeAnimation(): VNode {
+const still = () => undefined
+
+/**
+ * What organizing does, drawn with its real pieces (2.6, the owner: the abstract bars read as placeholder art): a
+ * question, the answer and the row the panel really shows under it, a suggested tag and "3 messages to “Trips”"; in a
+ * gentle loop the bar after a move takes its place (organize.css; it stays on the row with Reduce Motion). `compact`:
+ * the row alone, for the small cards. Not interactive.
+ */
+export function OrganizePreview({ compact }: { compact?: boolean }): VNode {
+  const chat = t("orgDemoChat")
+  const row = (
+    <OrganizeRow
+      tag={t("orgDemoTag")}
+      move={{ start: 0, end: 2, to: "sample", toName: chat, why: "topic", count: 3 }}
+      onTag={still} onTagNo={still} onMove={still} onMoveNo={still}
+    />
+  )
+  const inert = (el: HTMLElement | null) => el?.setAttribute("inert", "")
+  if (compact) return <div ref={inert} class="cf-org-demo compact" aria-hidden="true">{row}</div>
   return (
-    <div class="cf-org-anim" aria-hidden="true">
-      <i class="m m1" /><i class="m m2" /><i class="m m3" /><i class="m m4" />
-      <b class="f f1"><span /></b><b class="f f2"><span /></b>
+    <div ref={inert} class="cf-org-demo" aria-hidden="true">
+      <div class="cf-org-demo-q">{t("orgDemoQuestion")}</div>
+      <div class="cf-org-demo-a">{t("orgDemoAnswer")}</div>
+      <div class="cf-org-demo-swap">
+        <div class="cf-org-demo-row">{row}</div>
+        <div class="cf-org-demo-bar cf-snack"><span>{t("orgMoved", chat)}</span><b>{t("orgUndo")}</b></div>
+      </div>
     </div>
   )
 }
@@ -126,12 +147,12 @@ export function OrganizeCard({ kind, pro, onPrimary, onClose }: {
     <div class="cf-card cf-org-card promo" role="region" aria-label={t(kind === "mess" ? "orgMessTitle" : "orgTagsTitle")}>
       <button type="button" class="cf-org-close" onClick={onClose} aria-label={t("orgCloseA11y")}><Icon.Close /></button>
       <div class="cf-org-promo">
-        <OrganizeAnimation />
         <div>
           <strong>{t(kind === "mess" ? "orgMessTitle" : "orgTagsTitle")}</strong>
           <p>{t(kind === "mess" ? "orgMessText" : "orgTagsText")}</p>
         </div>
       </div>
+      <OrganizePreview compact />
       <div class="cf-card-actions">
         <button type="button" class="cf-primary" onClick={onPrimary}><Icon.Sparkle size={14} /> {pro ?? t("getPro")}</button>
       </div>

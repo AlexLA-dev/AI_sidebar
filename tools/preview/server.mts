@@ -40,6 +40,8 @@ const tours = new Map<string, number>()
 const aiRequests: string[] = []
 // The panel's funnel events since /reset ("media_notice:video"…), to check what it reports.
 const panelEvents: string[] = []
+// The last /api/v2/similar request body (GET /last-similar): the engine and the page the panel sent.
+let lastSimilarRequest: unknown = null
 // The last /api/v2/chat request body, for e2e checks of what the extension sends (GET /last-request).
 let lastChatRequest: unknown = null
 // The last answer's analytics event: provider, fallback reason, tokens, cost (GET /last-answer).
@@ -390,7 +392,12 @@ const proxied = async (path: string): Promise<typeof chat | null> => {
     const installId = String(JSON.parse(text).installId ?? "")
     const at = Date.now()
     const signature = sign(null, Buffer.from(`${installId}.${at}`), key).toString("base64url")
-    return realFetch(`${process.env.SPEAK_PROXY}${path}`, { method: "POST", headers: { "Content-Type": "application/json", "x-cf-eval": `${at}.${signature}` }, body: text })
+    const res = await realFetch(`${process.env.SPEAK_PROXY}${path}`, { method: "POST", headers: { "Content-Type": "application/json", "x-cf-eval": `${at}.${signature}` }, body: text })
+    // fetch has already unpacked a compressed body: passing Netlify's Content-Encoding on would break it in the browser.
+    const headers = new Headers(res.headers)
+    headers.delete("content-encoding")
+    headers.delete("content-length")
+    return new Response(res.body, { status: res.status, headers })
   }) as typeof chat
 }
 const speak: typeof chat = (await proxied("/api/v2/speak")) ?? localSpeak
@@ -456,8 +463,63 @@ const pdfs: Record<string, string> = {
   "/files/q3-report-ru.pdf": "files/q3-report-ru.pdf"
 }
 
+// Find similar (2.6): a scripted answer in /api/v2/similar's own events (the real engine needs the web and our keys,
+// tools/similar/eval.mts runs it on a deploy preview). Find similar is Ultra's: without PREVIEW_PLAN=ultra, PRO_ONLY.
+const SIMILAR_STEP_MS = Number(process.env.SIMILAR_STEP_MS ?? 700)
+function similarItems(condition: string) {
+  const cond = Boolean(condition.trim())
+  return [
+    { name: "Soundcore Space One", why: "Over-ear, adaptive noise cancelling and LDAC like the Aero 2, with a softer, lighter headband.", fit: cond ? "Cheaper: $99.99 against $129, in stock." : "", met: cond ? "yes" : "n/a", url: "https://www.soundcore.com/products/space-one-a3035011", host: "soundcore.com", title: "Space One", source: "item", checked: true, price: "99.99 USD", stock: "in", watch: { source: "ld-price", value: "99.99 USD" } },
+    { name: "Sony WH-CH720N", why: "Light noise-cancelling headphones with a similar 35-hour battery; fewer codecs.", fit: cond ? "Cheaper: $89.99 against $129, in stock." : "", met: cond ? "yes" : "n/a", url: "https://electronics.sony.com/audio/headphones/all-headphones/p/whch720n-b", host: "electronics.sony.com", title: "WH-CH720N", source: "item", checked: true, price: "89.99 USD", stock: "in", date: "2026-08-14", watch: { source: "ld-price", value: "89.99 USD" } },
+    { name: "JLab JBuds Lux ANC", why: "A budget pick with active noise cancelling and app EQ, named in a recent round-up.", fit: cond ? "The page shows no price, so cheaper isn't confirmed." : "", met: cond ? "unknown" : "n/a", url: "https://www.soundguys.com/best-budget-noise-cancelling-headphones-7142/", host: "soundguys.com", title: "Best budget noise-cancelling headphones", source: "list", checked: true, date: "2026-10-02" },
+    { name: "EarFun Wave Pro", why: "LDAC and multipoint like the Aero 2, with a longer battery.", fit: cond ? "The shop doesn't let servers open the page, so price and stock aren't confirmed." : "", met: cond ? "unknown" : "n/a", url: "https://www.amazon.com/dp/B0CSKDX2SQ", host: "amazon.com", title: "EarFun Wave Pro", source: "item", checked: false }
+  ]
+}
+async function similarStub(body: Record<string, unknown>, res: import("node:http").ServerResponse) {
+  if (process.env.PREVIEW_PLAN !== "ultra") {
+    res.writeHead(403, { "Content-Type": "application/json" })
+    res.end(JSON.stringify({ code: "PRO_ONLY", plan: "free", feature: "similar" }))
+    return
+  }
+  res.writeHead(200, { "Content-Type": "text/event-stream; charset=utf-8", "Cache-Control": "no-cache" })
+  const send = (e: unknown) => res.write(`data: ${JSON.stringify(e)}\n\n`)
+  const wait = (ms: number) => new Promise((r) => setTimeout(r, ms))
+  const condition = typeof body.condition === "string" ? body.condition : ""
+  send({ type: "progress", step: "plan" })
+  await wait(SIMILAR_STEP_MS)
+  send({ type: "progress", step: "search", queries: ["wireless noise cancelling headphones like Aero 2"] })
+  await wait(SIMILAR_STEP_MS * 2)
+  send({ type: "progress", step: "check", pages: 12 })
+  await wait(SIMILAR_STEP_MS)
+  send({ type: "progress", step: "write", verified: 9 })
+  const items = similarItems(condition)
+  for (const [i, item] of items.entries()) {
+    await wait(SIMILAR_STEP_MS * 0.7)
+    send({ type: "item", engine: "a", index: i, item })
+  }
+  await wait(200)
+  send({ type: "result", engine: "a", intro: "Wireless noise-cancelling headphones like the Aero 2, each page opened and checked just now.", items, note: "", condition: condition ? "cheaper" : "none" })
+  send({ type: "done", ms: 9000, usd: 0 })
+  res.end()
+}
+
 createServer(async (req, res) => {
   const url = new URL(req.url ?? "/", "http://localhost")
+  if (url.pathname === "/api/v2/similar" && req.method === "POST") {
+    const chunks: Buffer[] = []
+    for await (const c of req) chunks.push(c as Buffer)
+    let body: Record<string, unknown> = {}
+    try { body = JSON.parse(Buffer.concat(chunks).toString("utf8")) } catch { /* not JSON */ }
+    aiRequests.push(url.pathname)
+    lastSimilarRequest = body
+    await similarStub(body, res)
+    return
+  }
+  if (url.pathname === "/last-similar") {
+    res.writeHead(200, { "Content-Type": "application/json" })
+    res.end(JSON.stringify(lastSimilarRequest))
+    return
+  }
   const handler = handlers[url.pathname] ?? null
   if (handler) {
     const chunks: Buffer[] = []
@@ -493,10 +555,16 @@ createServer(async (req, res) => {
       headers: { ...(req.headers as Record<string, string>), "content-length": String(raw.length) },
       body: req.method === "POST" ? raw : undefined
     })
+    const t0 = Date.now()
     const response = await handler(request, { ip: "127.0.0.1", waitUntil: () => undefined } as any)
     res.writeHead(response.status, Object.fromEntries(response.headers))
-    if (response.body) for await (const c of response.body as any) res.write(c)
+    let bytes = 0
+    if (response.body) for await (const c of response.body as any) {
+      bytes += c.length
+      res.write(c)
+    }
     res.end()
+    if (process.env.STAND_LOG === "1") console.log(`${new Date().toISOString().slice(11, 19)} ${url.pathname} ${response.status} ${bytes} B ${Date.now() - t0} ms`)
     return
   }
   // The audit's pages (2.5): fields whose site keeps its own buttons inside them (a search like Amazon's, a

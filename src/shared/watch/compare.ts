@@ -59,6 +59,16 @@ export function fallbackRule(what: WatchKind, value: string, condition: string):
 }
 
 /**
+ * An amount in a language's currency format. In right-to-left text, Intl's Arabic "‏99.99 US$" shows as "$US 99.99":
+ * the sign after Latin letters ("US$", "UK£", "JP¥") is pulled to the far end. A left-to-right mark after it keeps
+ * the symbol whole, as Intl's Hebrew does with its own marks.
+ */
+export function moneyIn(lang: string, amount: number, currency: string): string {
+  const s = new Intl.NumberFormat(lang, { style: "currency", currency }).format(amount)
+  return /^(ar|he|fa|ur)\b/i.test(lang) ? s.replace(/([A-Za-z]\p{Sc})/gu, "$1\u200E") : s
+}
+
+/**
  * A value as a person reads it, for the notification and the list: a price from a page's markup ("34.50 EUR")
  * in their language's currency format, schema.org stock in words; text as the page wrote it.
  */
@@ -67,7 +77,7 @@ export function shownValue(value: string, lang: string, words: { inStock: string
   const money = /^(\d+(?:\.\d+)?)\s([A-Z]{3})$/.exec(v)
   if (money) {
     try {
-      return new Intl.NumberFormat(lang, { style: "currency", currency: money[2] }).format(Number(money[1]))
+      return moneyIn(lang, Number(money[1]), money[2])
     } catch {
       return v
     }

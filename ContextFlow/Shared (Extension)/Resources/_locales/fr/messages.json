@@ -824,6 +824,9 @@
  "usageProShort": {
   "message": "Pro · {0} sur {1} cette semaine"
  },
+ "usageUltraShort": {
+  "message": "Ultra · {0} sur {1} cette semaine"
+ },
  "pinChat": {
   "message": "Épingler la discussion"
  },
@@ -1629,7 +1632,7 @@
   "message": "Écoutez les réponses et des pages entières avec une voix naturelle : {0} minutes par semaine"
  },
  "tierUltra2": {
-  "message": "Contenus similaires : d'autres pages comme celle qui est ouverte, sur d'autres sites, {0} recherches par semaine"
+  "message": "Trouver similaire : des alternatives à n'importe quelle page (moins chères, plus récentes, en stock ou dans votre langue), {0} recherches par semaine"
  },
  "tierUltra3": {
   "message": "Surveillez jusqu’à {0} pages"
@@ -1684,6 +1687,126 @@
  },
  "usageUltra": {
   "message": "Ultra · Réponses restantes cette semaine : {0} sur {1}"
+ },
+ "actSimilar": {
+  "message": "Trouver similaire"
+ },
+ "uxSimilar": {
+  "message": "Trouver similaire…"
+ },
+ "similarTitle": {
+  "message": "Trouver similaire"
+ },
+ "similarConditions": {
+  "message": "Conditions"
+ },
+ "similarCheaper": {
+  "message": "Moins cher"
+ },
+ "similarInStock": {
+  "message": "En stock"
+ },
+ "similarNewer": {
+  "message": "Plus récent"
+ },
+ "similarFree": {
+  "message": "Gratuit"
+ },
+ "similarMyLanguage": {
+  "message": "Dans ma langue"
+ },
+ "similarShorter": {
+  "message": "Plus court"
+ },
+ "similarInLanguage": {
+  "message": "en {0}"
+ },
+ "similarCustom": {
+  "message": "Ou dites ce qu'il vous faut (facultatif)"
+ },
+ "similarHint": {
+  "message": "De vraies alternatives qui existent maintenant. Nous ouvrons et vérifions chaque lien avant de vous le montrer."
+ },
+ "similarFind": {
+  "message": "Trouver"
+ },
+ "similarAsked": {
+  "message": "Trouver similaire"
+ },
+ "similarAskedWith": {
+  "message": "Trouver similaire : {0}"
+ },
+ "similarStockIn": {
+  "message": "En stock"
+ },
+ "similarStockOut": {
+  "message": "En rupture"
+ },
+ "similarFromList": {
+  "message": "cité dans un comparatif"
+ },
+ "similarNotConfirmed": {
+  "message": "Non confirmé"
+ },
+ "similarNotOpened": {
+  "message": "Page impossible à vérifier"
+ },
+ "similarWatchPrice": {
+  "message": "Suivre le prix"
+ },
+ "similarStepPlan": {
+  "message": "Lecture de la page…"
+ },
+ "similarStepSearch": {
+  "message": "Recherche sur le web…"
+ },
+ "similarStepCheck": {
+  "message": "Vérification des pages…"
+ },
+ "similarStepCheckN": {
+  "message": "Vérification de {0} pages…"
+ },
+ "similarStepWrite": {
+  "message": "Sélection des meilleurs…"
+ },
+ "similarNone": {
+  "message": "Aucune alternative vérifiée pour cette page. Essayez une autre condition, ou aucune."
+ },
+ "similarChecked": {
+  "message": "Liens vérifiés à {0}"
+ },
+ "similarUpsellText": {
+  "message": "De vraies alternatives à ce que vous regardez : un produit, une app, un article, une recette, un lieu."
+ },
+ "similarUpsellChecked": {
+  "message": "Chaque lien ouvert et vérifié : pas de pages mortes ni inventées."
+ },
+ "similarUpsellConditions": {
+  "message": "Moins cher, en stock, plus récent, gratuit, dans votre langue — ou avec vos mots."
+ },
+ "similarUpsellWatch": {
+  "message": "Prix et stock tels que la page les affiche, avec Suivre le prix."
+ },
+ "similarGetUltra": {
+  "message": "Passer à Ultra"
+ },
+ "similarOff": {
+  "message": "« Trouver similaire » n'est pas encore disponible."
+ },
+ "similarLimit": {
+  "message": "Les {0} recherches « Trouver similaire » de la semaine sont utilisées. Elles reviennent {1}."
+ },
+ "orgDemoQuestion": {
+  "message": "Vols pas chers pour Lisbonne en mai ?"
+ },
+ "orgDemoAnswer": {
+  "message": "En mai, les allers-retours Berlin–Lisbonne commencent vers 90 euros. Mieux vaut réserver six à huit semaines à l'avance."
+ },
+ "orgDemoTag": {
+  "message": "vacances"
+ },
+ "orgDemoChat": {
+  "message": "Voyages"
  },
  "tip_4cf1b54b00": {
   "message": "Astuces"

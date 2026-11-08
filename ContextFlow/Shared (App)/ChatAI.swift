@@ -54,7 +54,7 @@ enum ChatAI {
         #if DEBUG
         if let custom = UserDefaults.standard.string(forKey: "CFApiBase"), let url = URL(string: custom) { return url }
         #endif
-        return URL(string: "https://6af010a03e82d1922a169916--aisidebar.netlify.app")! // TestFlight 2.6 only (claude/release-2.6-tf, never merged): the deploy of PR #60
+        return URL(string: "https://deploy-preview-60--aisidebar.netlify.app")! // TestFlight 2.6 only (claude/release-2.6-tf, never merged): PR #60 deploy preview, follows the 2.6 branch
     }
 
     @MainActor

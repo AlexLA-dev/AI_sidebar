@@ -47,6 +47,11 @@ import { DEFAULT_ORGANIZE, looksMixed } from "../shared/organize"
 import { entryKey } from "../shared/conversation"
 import type { OrganizeEvent, OrganizeReply } from "../shared/types"
 import { ProUpsell } from "./ProUpsell"
+import { shownPrice, SimilarList, SimilarPicker, SimilarUpsell } from "./similar/Similar"
+import { factsFrom, similarAllowed, similarMarkdown, type SimilarAnswer, type SimilarItem, type SimilarStep, type SimilarStreamEvent } from "../shared/similar"
+import { structured } from "../shared/watch/extract"
+import { conditionFor } from "./watch/draft"
+import { openWatchSheet } from "./watch/WatchSheet"
 import { PlansSheet } from "./Plans"
 import { ListenBar, SpeakerIcon, useListen } from "./listen/useListen"
 import { hasPro, isUltra, type PaidPlan } from "../shared/plan"
@@ -116,7 +121,9 @@ const PAGE_ACTIONS: Action[] = [
   { id: "key_points", label: "actKeyPoints", prompt: "promptKeyPoints" },
   { id: "explain", label: "actExplain", prompt: "promptExplain" },
   { id: "translate", label: "actTranslate", prompt: "promptTranslate" },
-  { id: "google", label: "actGoogle", prompt: "promptGoogle", mode: "google" }
+  { id: "google", label: "actGoogle", prompt: "promptGoogle", mode: "google" },
+  // 2.6, Ultra: opens Find similar's card (a condition, then the checked list), not a question.
+  { id: "similar", label: "actSimilar", prompt: "actSimilar" }
 ]
 
 const SEL_GOOGLE: Action = { id: "sel_google", label: "actGoogle", prompt: "promptSelGoogle", mode: "google" }
@@ -232,6 +239,8 @@ function errorText(error: ChatError): string {
       return t("errProOnly")
     case "SEARCH_UNAVAILABLE":
       return t("errSearchUnavailable")
+    case "UNAVAILABLE":
+      return error.message === "similar" ? t("similarOff") : t("errGeneric")
     case "CONSENT":
       return t("consentNeeded")
     default:
@@ -302,6 +311,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }
   // What a Pro feature would do, for someone without Pro (from the ✦ search or "Ask your chats").
   const [upsell, setUpsell] = useState<"find" | "history" | null>(null)
+  // Find similar (2.6): its card (the condition, or Ultra for someone without it), and the answer as it comes.
+  const [similarCard, setSimilarCard] = useState<"pick" | "upsell" | { limit: Usage | null } | null>(null)
+  const [similarRun, setSimilarRun] = useState<{ items: SimilarItem[]; step: SimilarStep; pages?: number } | null>(null)
   // 2.6: the plans sheet, open on this plan (Ultra from Listen).
   const [plansOpen, setPlansOpen] = useState<PaidPlan | null>(null)
   const [draft, setDraft] = useState("")
@@ -312,7 +324,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // The Pro offer, shown once more to an install that ran out of free answers before.
   const [offerCard, setOfferCard] = useState(false)
   const [findConsent, setFindConsent] = useState<{ resolve: (agreed: boolean) => void } | null>(null)
-  const [pending, setPending] = useState<{ text: string; label?: string; action?: string; mode?: "google" } | null>(null)
+  const [pending, setPending] = useState<{ text: string; label?: string; action?: string; mode?: "google"; similar?: string } | null>(null)
   const [selection, setSelection] = useState<SelectionInfo | null>(null)
   const [pageReadable, setPageReadable] = useState(true)
   const [wide, setWide] = useState(() => window.innerWidth >= 700)
@@ -993,6 +1005,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     partialRef.current = ""
     setPartial(null)
     setStreamMode(null)
+    setSimilarRun(null)
     if (text) setMessages((prev) => [...prev, stamped({ role: "assistant", content: text })])
     else dropStoppedRef.current(fromButton)
   }, [])
@@ -1001,23 +1014,134 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const retry = useCallback((withoutGoogle = false) => {
     const last = messages[messages.length - 1]
     if (!isQuestion(last)) return
+    if (last.similarAsk !== undefined) return findSimilarRef.current(last.similarAsk, last.label ?? last.content, true)
     if (withoutGoogle) setGoogleMode(false)
     ask(last.content, { label: last.label, retry: true, mode: withoutGoogle ? undefined : last.mode })
   }, [messages, ask])
 
   const runAction = useCallback((picked: Action) => {
+    if (picked.id === "similar") return openSimilarRef.current("chip")
     // Translate by a selection: into English (or the next language) when the text is in the interface's already.
     const action = (selection && forSelection(picked, selection.text)) || picked
     ask(t(action.prompt, action.arg ?? t("languageName")), { label: action.text ?? t(action.label), action: action.id, mode: action.mode })
   }, [ask, selection])
   runActionRef.current = runAction
 
+  // ------------------------------------------------------------ find similar (2.6, Ultra)
+  /** The card: the condition for someone with Ultra, what it is and the way to it for anyone else. */
+  const openSimilar = (via: "chip" | "menu") => {
+    setPageMenu(false)
+    if (via === "menu") void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "similar" })
+    setSimilarCard(similarAllowed(statusRef.current?.plan) ? "pick" : "upsell")
+    setTimeout(() => listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" }), 60)
+  }
+  const openSimilarRef = useRef(openSimilar)
+  openSimilarRef.current = openSimilar
+
+  /** Ends a Find similar: the checked list as the chat's answer, or why there isn't one. */
+  const finishSimilar = (history: Turn[], answer: Omit<SimilarAnswer, "asked" | "at"> | null, asked: string, code: string | null, usage?: Usage | null) => {
+    portRef.current = null
+    askToken.current = null
+    partialRef.current = ""
+    setPartial(null)
+    setSimilarRun(null)
+    if (code === "ULTRA_ONLY" || code === "PRO_ONLY" || code === "LIMIT_REACHED") {
+      // Not in their plan after all (the server's word), or the week's searches are used: the question goes, a card
+      // says so.
+      setMessages(history.slice(0, -1))
+      setSimilarCard(code === "LIMIT_REACHED" ? { limit: usage ?? null } : "upsell")
+      return
+    }
+    if (answer) {
+      const full: SimilarAnswer = { ...answer, asked, at: Date.now() }
+      const content = similarMarkdown(full, { inStock: t("similarStockIn"), outOfStock: t("similarStockOut"), notConfirmed: t("similarNotConfirmed"), notOpened: t("similarNotOpened") })
+      const next: Turn[] = [...history, stamped({ role: "assistant", content, similar: full })]
+      setMessages(next)
+      void saveThread(threadRef.current, next)
+    }
+    if (code) setError(code === "UNAVAILABLE" ? { code: "UNAVAILABLE", message: "similar" } : { code: code as ErrorCode })
+  }
+
+  /** Asks our server for checked alternatives to this page (engine A only); the list streams in as items pass. */
+  const findSimilar = (condition: string, label: string, again = false) => {
+    if (portRef.current || askToken.current) return
+    setSimilarCard(null)
+    if (consent !== "ok") {
+      setPending({ text: label, label, action: "similar", similar: condition })
+      return
+    }
+    setUndoBar(null)
+    setError(null)
+    setOfferCard(false)
+    const base = again ? messages.slice(0, messages.length - 1) : messages
+    const user: Turn = stamped({ role: "user", content: label, label, similarAsk: condition, page: { url: source.key(), title: source.title(), at: Date.now() } })
+    const history: Turn[] = [...base, user]
+    setMessages(history)
+    partialRef.current = ""
+    setPartial("")
+    setSimilarRun({ items: [], step: "plan" })
+    const token = {}
+    askToken.current = token
+    // What the page states for machines (page watch's reader): its price and stock, to compare against.
+    const facts = factsFrom(structured(document.documentElement.outerHTML), document.documentElement.lang || "")
+    void source.read(false).catch(() => ({ ...source.quick(), sources: [] })).then((full) => {
+      if (askToken.current !== token) return
+      let port: chrome.runtime.Port
+      try {
+        port = chrome.runtime.connect({ name: "similar" })
+      } catch {
+        finishSimilar(history, null, condition, "NETWORK")
+        return
+      }
+      portRef.current = port
+      let settled = false
+      let lastSeq = 0
+      let items: SimilarItem[] = []
+      let answer: Omit<SimilarAnswer, "asked" | "at"> | null = null
+      port.onMessage.addListener((event: SimilarStreamEvent & { seq?: number }) => {
+        if (event.seq !== undefined) {
+          if (event.seq <= lastSeq) return
+          lastSeq = event.seq
+        }
+        if (event.type === "progress") setSimilarRun((r) => (r ? { ...r, step: event.step, pages: event.pages ?? r.pages } : r))
+        else if (event.type === "item") {
+          items = [...items, event.item]
+          setSimilarRun((r) => (r ? { ...r, items } : r))
+        } else if (event.type === "result") answer = event.answer
+        else if (event.type === "done") {
+          settled = true
+          finishSimilar(history, answer ?? { intro: "", items, note: "", condition: "" }, condition, null)
+        } else if (event.type === "error") {
+          settled = true
+          finishSimilar(history, items.length ? { intro: "", items, note: "", condition: "" } : null, condition, event.code, event.usage)
+        }
+      })
+      port.onDisconnect.addListener(() => {
+        if (!settled && portRef.current === port) finishSimilar(history, items.length ? { intro: "", items, note: "", condition: "" } : null, condition, items.length ? null : "STREAM")
+      })
+      port.postMessage({ type: "similar", payload: { page: { title: full.title || source.title(), url: source.href(), text: full.text.slice(0, 5_000), facts }, condition } })
+    })
+  }
+  const findSimilarRef = useRef(findSimilar)
+  findSimilarRef.current = findSimilar
+
+  /** "Watch price" on an item: page watch on that page, from where our server read its price. */
+  const watchItem = (item: SimilarItem) => {
+    if (!item.watch) return
+    const candidates = item.watch.source === "ld-price" ? { ldPrice: item.watch.value } : { metaPrice: item.watch.value }
+    openWatchSheet({
+      url: item.url, title: item.name, selection: item.watch.value, how: "later",
+      draft: { url: item.url, title: item.name, selection: item.watch.value, what: "price", condition: conditionFor("price", shownPrice(item.watch.value)), around: "", candidates, value: item.watch.value }
+    })
+  }
+
   const acceptConsent = useCallback(async () => {
     await giveConsent()
     setConsent("ok")
     const p = pending
     setPending(null)
-    if (p) setTimeout(() => askRef.current(p.text, { label: p.label, action: p.action, mode: p.mode }), 0)
+    if (p?.action === "similar") setTimeout(() => findSimilarRef.current(p.similar ?? "", p.label ?? p.text), 0)
+    else if (p) setTimeout(() => askRef.current(p.text, { label: p.label, action: p.action, mode: p.mode }), 0)
   }, [pending])
   // "Not now": the question stays in the box, nothing is sent.
   const declineConsent = useCallback(() => setPending(null), [])
@@ -1667,7 +1791,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }
   const plan = status?.plan ?? "free"
   // Read aloud (2.6, Ultra): an answer or the page. Without Ultra, Listen opens the plans sheet on Ultra.
-  const openPlans = useCallback((focus: PaidPlan, via: "listen" | "settings" | "watch" | "limit" = "listen") => {
+  const openPlans = useCallback((focus: PaidPlan, via: "listen" | "settings" | "watch" | "limit" | "similar" = "listen") => {
     setPlansOpen(focus)
     void sendBackground({ type: "useEvent", f: "plans", a: "open", via, plan: focus })
   }, [])
@@ -1891,7 +2015,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (!usage) return { short: "", full: "" }
     const left = Math.max(0, usage.limit - usage.used)
     return hasPro(plan)
-      ? { short: t("usageProShort", left, usage.limit), full: isUltra(plan) ? t("usageUltra", left, usage.limit) : t("usagePro", left, usage.limit) }
+      // Ultra by its name on the line too (2.6: it said "Pro", and the full text is only a hover, none on iPhone).
+      ? isUltra(plan)
+        ? { short: t("usageUltraShort", left, usage.limit), full: t("usageUltra", left, usage.limit) }
+        : { short: t("usageProShort", left, usage.limit), full: t("usagePro", left, usage.limit) }
       : { short: t("usageFreeShort", left, usage.limit), full: t("usageFree", left, usage.limit) }
   }, [usage, plan, ownKeyActive])
 
@@ -2389,6 +2516,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "watch_page" })
                       pageWatcher()?.({ url: source.href(), title: source.title() })
                     } : undefined}
+                    onSimilar={contextKind === "page" && !historyMode ? () => openSimilar("menu") : undefined}
+                    similarLocked={!similarAllowed(plan)}
                     reminders={laterCount.remind}
                     watches={listsKind("watch") ? laterCount.watch : null}
                     onReminders={() => {
@@ -2592,7 +2721,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       {ux.wrap(m, idx, (
                         <>
                           {m.grounding && <div class="cf-grounded"><Icon.Search size={13} /> {t("googleBadge")}</div>}
-                          <Markdown text={m.content} marks={m.marks} onCopyCode={(code) => void copyText(code)} />
+                          {m.similar ? (
+                            <SimilarList answer={m.similar} items={m.similar.items} onOpen={openPage} onWatch={listsKind("watch") ? watchItem : undefined} />
+                          ) : (
+                            <Markdown text={m.content} marks={m.marks} onCopyCode={(code) => void copyText(code)} />
+                          )}
                           {m.grounding && <Sources grounding={m.grounding} />}
                           {!mediaOn && <MediaSkipped kinds={skippedFor(messages, idx)} onPro={tryPro} />}
                         </>
@@ -2604,7 +2737,20 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
                 {partial !== null && (
                   <div class="cf-msg ai">
-                    {partial ? <Markdown text={partial} /> : <div class="cf-thinking"><span /><span /><span /> {t(reading === "video" ? "readingVideo" : reading === "pdf" ? "readingPdf" : streamMode === "google" ? "searching" : "thinking")}</div>}
+                    {similarRun ? <SimilarList items={similarRun.items} step={similarRun.step} pages={similarRun.pages} onOpen={openPage} /> : partial ? <Markdown text={partial} /> : <div class="cf-thinking"><span /><span /><span /> {t(reading === "video" ? "readingVideo" : reading === "pdf" ? "readingPdf" : streamMode === "google" ? "searching" : "thinking")}</div>}
+                  </div>
+                )}
+
+                {similarCard === "pick" && partial === null && (
+                  <SimilarPicker title={source.title() || source.site()} onFind={(condition, label) => findSimilar(condition, label)} onClose={() => setSimilarCard(null)} />
+                )}
+                {similarCard === "upsell" && (
+                  <SimilarUpsell onUpgrade={() => { setSimilarCard(null); openPlans("ultra", "similar") }} onClose={() => setSimilarCard(null)} />
+                )}
+                {similarCard !== null && typeof similarCard === "object" && (
+                  <div class="cf-card limit cf-similar-limit">
+                    <p>{t("similarLimit", String(similarCard.limit?.limit ?? ""), similarCard.limit?.resetsAt ? new Date(similarCard.limit.resetsAt).toLocaleDateString(undefined, { weekday: "long" }) : "")}</p>
+                    <div class="cf-card-actions"><button type="button" class="cf-secondary" onClick={() => setSimilarCard(null)}>{t("close")}</button></div>
                   </div>
                 )}
 

@@ -824,6 +824,9 @@
  "usageProShort": {
   "message": "Pro · {0}/{1} tuần này"
  },
+ "usageUltraShort": {
+  "message": "Ultra · {0}/{1} tuần này"
+ },
  "pinChat": {
   "message": "Ghim cuộc trò chuyện"
  },
@@ -1629,7 +1632,7 @@
   "message": "Nghe câu trả lời và cả trang bằng giọng tự nhiên: {0} phút mỗi tuần"
  },
  "tierUltra2": {
-  "message": "Tìm tương tự: những gì giống trang đang mở, từ các trang web khác, {0} lượt tìm mỗi tuần"
+  "message": "Tìm tương tự: lựa chọn thay thế cho mọi trang — rẻ hơn, mới hơn, còn hàng hoặc bằng ngôn ngữ của bạn — {0} lượt tìm mỗi tuần"
  },
  "tierUltra3": {
   "message": "Theo dõi tới {0} trang"
@@ -1684,6 +1687,126 @@
  },
  "usageUltra": {
   "message": "Ultra · tuần này còn {0}/{1} câu trả lời"
+ },
+ "actSimilar": {
+  "message": "Tìm tương tự"
+ },
+ "uxSimilar": {
+  "message": "Tìm tương tự…"
+ },
+ "similarTitle": {
+  "message": "Tìm tương tự"
+ },
+ "similarConditions": {
+  "message": "Điều kiện"
+ },
+ "similarCheaper": {
+  "message": "Rẻ hơn"
+ },
+ "similarInStock": {
+  "message": "Còn hàng"
+ },
+ "similarNewer": {
+  "message": "Mới hơn"
+ },
+ "similarFree": {
+  "message": "Miễn phí"
+ },
+ "similarMyLanguage": {
+  "message": "Bằng ngôn ngữ của tôi"
+ },
+ "similarShorter": {
+  "message": "Ngắn hơn"
+ },
+ "similarInLanguage": {
+  "message": "bằng {0}"
+ },
+ "similarCustom": {
+  "message": "Hoặc nói bạn cần gì (không bắt buộc)"
+ },
+ "similarHint": {
+  "message": "Những lựa chọn thay thế có thật, đang tồn tại. Chúng tôi mở và kiểm tra từng liên kết trước khi cho bạn xem."
+ },
+ "similarFind": {
+  "message": "Tìm"
+ },
+ "similarAsked": {
+  "message": "Tìm tương tự"
+ },
+ "similarAskedWith": {
+  "message": "Tìm tương tự: {0}"
+ },
+ "similarStockIn": {
+  "message": "Còn hàng"
+ },
+ "similarStockOut": {
+  "message": "Hết hàng"
+ },
+ "similarFromList": {
+  "message": "được nêu trong một bài đánh giá"
+ },
+ "similarNotConfirmed": {
+  "message": "Chưa xác nhận"
+ },
+ "similarNotOpened": {
+  "message": "Không mở được trang để kiểm tra"
+ },
+ "similarWatchPrice": {
+  "message": "Theo dõi giá"
+ },
+ "similarStepPlan": {
+  "message": "Đang đọc trang…"
+ },
+ "similarStepSearch": {
+  "message": "Đang tìm trên web…"
+ },
+ "similarStepCheck": {
+  "message": "Đang kiểm tra các trang…"
+ },
+ "similarStepCheckN": {
+  "message": "Đang kiểm tra {0} trang…"
+ },
+ "similarStepWrite": {
+  "message": "Đang chọn những cái tốt nhất…"
+ },
+ "similarNone": {
+  "message": "Không có lựa chọn đã kiểm tra cho trang này. Hãy thử điều kiện khác hoặc bỏ điều kiện."
+ },
+ "similarChecked": {
+  "message": "Liên kết đã kiểm tra lúc {0}"
+ },
+ "similarUpsellText": {
+  "message": "Lựa chọn thay thế có thật cho thứ bạn đang xem: sản phẩm, ứng dụng, bài viết, công thức, địa điểm."
+ },
+ "similarUpsellChecked": {
+  "message": "Mọi liên kết đều được mở và kiểm tra: không có trang chết hay bịa ra."
+ },
+ "similarUpsellConditions": {
+  "message": "Rẻ hơn, còn hàng, mới hơn, miễn phí, bằng ngôn ngữ của bạn — hoặc bằng lời của bạn."
+ },
+ "similarUpsellWatch": {
+  "message": "Giá và tình trạng hàng như trang hiển thị, kèm Theo dõi giá."
+ },
+ "similarGetUltra": {
+  "message": "Nâng cấp Ultra"
+ },
+ "similarOff": {
+  "message": "«Tìm tương tự» chưa có sẵn."
+ },
+ "similarLimit": {
+  "message": "Đã dùng hết {0} lượt «Tìm tương tự» của tuần này. Sẽ có lại vào {1}."
+ },
+ "orgDemoQuestion": {
+  "message": "Vé máy bay giá rẻ đi Lisbon tháng 5?"
+ },
+ "orgDemoAnswer": {
+  "message": "Tháng 5, vé khứ hồi Berlin – Lisbon chỉ từ khoảng 90 euro. Nên đặt trước sáu đến tám tuần."
+ },
+ "orgDemoTag": {
+  "message": "kỳ nghỉ"
+ },
+ "orgDemoChat": {
+  "message": "Chuyến đi"
  },
  "tip_4cf1b54b00": {
   "message": "Mẹo"

@@ -19863,6 +19863,88 @@
         }
       }
     },
+    "To answer, ContextFlow sends your question and excerpts of your chats via our server to Anthropic (Claude) or, if it's unavailable, OpenAI. With suggestions on, the text of new messages and notes also goes there to find where they belong. Chats are not stored on our servers: they stay on your devices and, if you sync them, in your iCloud.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "للإجابة، يرسل ContextFlow سؤالك ومقتطفات من محادثاتك عبر خادمنا إلى Anthropic (Claude)، أو إلى OpenAI إذا لم يكن متاحًا. وعند تشغيل الاقتراحات، يُرسَل إلى هناك أيضًا نص الرسائل والملاحظات الجديدة لمعرفة مكانها. لا تُخزَّن المحادثات على خوادمنا: تبقى على أجهزتك، وفي iCloud الخاص بك إذا كنت تزامنها."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Um zu antworten, sendet ContextFlow deine Frage und Auszüge aus deinen Chats über unseren Server an Anthropic (Claude) oder, falls Claude nicht verfügbar ist, an OpenAI. Mit eingeschalteten Vorschlägen geht auch der Text neuer Nachrichten und Notizen dorthin, um herauszufinden, wohin sie gehören. Chats werden nicht auf unseren Servern gespeichert – sie bleiben auf deinen Geräten und, wenn du sie synchronisierst, in deiner iCloud."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para responder, ContextFlow envía tu pregunta y fragmentos de tus chats a través de nuestro servidor a Anthropic (Claude) o, si no está disponible, a OpenAI. Con las sugerencias activadas, el texto de los mensajes y notas nuevos también va allí para ver dónde encajan. Los chats no se guardan en nuestros servidores: se quedan en tus dispositivos y, si los sincronizas, en tu iCloud."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pour répondre, ContextFlow envoie votre question et des extraits de vos discussions via notre serveur à Anthropic (Claude) ou, s'il est indisponible, à OpenAI. Si les suggestions sont activées, le texte des nouveaux messages et des nouvelles notes y est aussi envoyé pour trouver leur place. Les discussions ne sont pas conservées sur nos serveurs : elles restent sur vos appareils et, si vous les synchronisez, dans votre iCloud."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Per rispondere, ContextFlow invia la tua domanda ed estratti delle tue chat tramite il nostro server ad Anthropic (Claude) o, se non è disponibile, a OpenAI. Con i suggerimenti attivi, anche il testo dei nuovi messaggi e delle nuove note va lì per capire dove vanno. Le chat non vengono salvate sui nostri server: restano sui tuoi dispositivi e, se le sincronizzi, nel tuo iCloud."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "回答するために、ContextFlowはあなたの質問とチャットの抜粋を、当社のサーバ経由でAnthropic（Claude）に、利用できない場合はOpenAIに送信します。提案をオンにすると、新しいメッセージとメモのテキストも、どこに入るかを見つけるために同じように送信されます。チャットは当社のサーバに保存されず、お使いのデバイスと、同期をオンにした場合はあなたのiCloudにのみ保存されます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "답변을 위해 ContextFlow는 질문과 채팅 발췌를 당사 서버를 거쳐 Anthropic(Claude)으로, 사용할 수 없을 때는 OpenAI로 보내요. 추천을 켜면 새 메시지와 메모의 텍스트도 어디에 맞는지 찾기 위해 함께 보내요. 채팅은 당사 서버에 저장되지 않으며, 내 기기에, 동기화를 켜면 내 iCloud에만 보관돼요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para responder, o ContextFlow envia sua pergunta e trechos das suas conversas por meio do nosso servidor à Anthropic (Claude) ou, se ela estiver indisponível, à OpenAI. Com as sugestões ativadas, o texto das novas mensagens e notas também vai para lá para encontrar o lugar delas. As conversas não ficam armazenadas em nossos servidores: elas ficam nos seus dispositivos e, se você sincronizar, no seu iCloud."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Чтобы ответить, ContextFlow отправляет ваш вопрос и выдержки из ваших чатов через наш сервер в Anthropic (Claude), а если он недоступен — в OpenAI. Если подсказки включены, туда же уходит текст новых сообщений и заметок, чтобы найти, куда они относятся. Мы не храним чаты на своих серверах: они остаются на ваших устройствах и, если включена синхронизация, в вашем iCloud."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Щоб відповісти, ContextFlow надсилає ваше запитання й уривки з ваших чатів через наш сервер до Anthropic (Claude), а якщо він недоступний — до OpenAI. Якщо підказки ввімкнено, туди ж надсилається текст нових повідомлень і нотаток, щоб знайти, куди вони належать. Чати не зберігаються на наших серверах: вони залишаються на ваших пристроях і, якщо ви їх синхронізуєте, у вашому iCloud."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Để trả lời, ContextFlow gửi câu hỏi của bạn và các đoạn trích từ cuộc trò chuyện qua máy chủ của chúng tôi tới Anthropic (Claude) hoặc, nếu Anthropic không khả dụng, tới OpenAI. Khi bật gợi ý, văn bản của tin nhắn và ghi chú mới cũng được gửi tới đó để tìm chỗ phù hợp. Cuộc trò chuyện không được lưu trên máy chủ của chúng tôi: chúng nằm trên thiết bị của bạn và, nếu bạn đồng bộ, trong iCloud của bạn."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "为了回答问题，ContextFlow 会通过我们的服务器将你的问题和对话摘录发送给 Anthropic（Claude），不可用时发送给 OpenAI。开启建议后，新消息和笔记的文本也会一并发送，用来判断它们该放在哪里。我们的服务器不会存储对话；对话仅保存在你的设备上，开启同步后也会保存在你的 iCloud 中。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "為了回答，ContextFlow 會透過我們的伺服器，把你的問題和對話摘錄傳送給 Anthropic（Claude）；如果無法使用，則傳送給 OpenAI。開啟建議後，新訊息和筆記的文字也會一併傳送，用來判斷它們該放在哪裡。我們的伺服器不會儲存對話：對話只會留在你的裝置上，若你有同步，也會存在你的 iCloud 中。"
+          }
+        }
+      }
+    },
     "Nothing was sent: AI answers need your consent first.": {
       "localizations": {
         "ar": {
@@ -35472,84 +35554,84 @@
         }
       }
     },
-    "Find similar: more like the open page, from other sites, %lld searches a week": {
+    "Find similar: alternatives to any page — cheaper, newer, in stock or in your language — %lld searches a week": {
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "البحث عن المشابه: ما يشبه الصفحة المفتوحة من مواقع أخرى، %lld عملية بحث أسبوعيًا"
+            "value": "البحث عن المشابه: بدائل لأي صفحة — أرخص أو أحدث أو متوفرة أو بلغتك — %lld عملية بحث أسبوعيًا"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ähnliches finden: mehr wie die geöffnete Seite, von anderen Websites, %lld Suchen pro Woche"
+            "value": "Ähnliches finden: Alternativen zu jeder Seite – günstiger, neuer, verfügbar oder in deiner Sprache – %lld Suchen pro Woche"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Buscar parecidos: más como la página abierta, de otros sitios, %lld búsquedas a la semana"
+            "value": "Buscar similares: alternativas a cualquier página (más baratas, más nuevas, disponibles o en tu idioma), %lld búsquedas a la semana"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Contenus similaires : d'autres pages comme celle qui est ouverte, sur d'autres sites, %lld recherches par semaine"
+            "value": "Trouver similaire : des alternatives à n'importe quelle page (moins chères, plus récentes, en stock ou dans votre langue), %lld recherches par semaine"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Trova simili: altro come la pagina aperta, da altri siti, %lld ricerche a settimana"
+            "value": "Trova simili: alternative a qualsiasi pagina (più economiche, più recenti, disponibili o nella tua lingua), %lld ricerche a settimana"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "似たものを探す：開いているページに似たものを他のサイトから。週%lld回"
+            "value": "似たものを探す：どのページにも代わりの候補を。より安い、より新しい、在庫あり、自分の言語で。週%lld回"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "비슷한 것 찾기: 열려 있는 페이지와 비슷한 것을 다른 사이트에서. 주당 %lld회"
+            "value": "비슷한 것 찾기: 어떤 페이지든 대안을 찾아 줍니다. 더 싸거나, 더 새롭거나, 재고가 있거나, 내 언어로. 주당 %lld회"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Achar parecidos: mais como a página aberta, de outros sites, %lld buscas por semana"
+            "value": "Encontrar parecidos: alternativas a qualquer página (mais baratas, mais novas, em estoque ou no seu idioma), %lld buscas por semana"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Найти похожее: похожее на открытую страницу, с других сайтов, %lld поисков в неделю"
+            "value": "Найти похожее: альтернативы любой странице — дешевле, новее, в наличии или на вашем языке, %lld поисков в неделю"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Знайти схоже: схоже на відкриту сторінку, з інших сайтів, %lld пошуків на тиждень"
+            "value": "Знайти схоже: альтернативи будь-якій сторінці — дешевше, новіше, в наявності або вашою мовою, %lld пошуків на тиждень"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tìm tương tự: những gì giống trang đang mở, từ các trang web khác, %lld lượt tìm mỗi tuần"
+            "value": "Tìm tương tự: lựa chọn thay thế cho mọi trang — rẻ hơn, mới hơn, còn hàng hoặc bằng ngôn ngữ của bạn — %lld lượt tìm mỗi tuần"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "查找相似内容：在其他网站查找与当前页面相似的内容，每周 %lld 次搜索"
+            "value": "查找相似：为任何页面找替代选择——更便宜、更新、有货或用你的语言，每周 %lld 次搜索"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "查找相似內容：在其他網站查找與目前頁面相似的內容，每週 %lld 次搜尋"
+            "value": "尋找相似：為任何頁面找替代選擇——更便宜、更新、有貨或用你的語言，每週 %lld 次搜尋"
           }
         }
       }
@@ -36944,6 +37026,334 @@
           "stringUnit": {
             "state": "translated",
             "value": "無法連線到 ContextFlow：其餘部分由 Apple 的語音朗讀。"
+          }
+        }
+      }
+    },
+    "Cheap flights to Lisbon in May?": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تذاكر رخيصة إلى لشبونة في مايو؟"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Günstige Flüge nach Lissabon im Mai?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Vuelos baratos a Lisboa en mayo?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vols pas chers pour Lisbonne en mai ?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voli economici per Lisbona a maggio?"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5月のリスボン行き格安航空券は？"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5월 리스본 저렴한 항공권?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voos baratos para Lisboa em maio?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Дешёвые билеты в Лиссабон на май?"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Дешеві квитки до Лісабона на травень?"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vé máy bay giá rẻ đi Lisbon tháng 5?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "五月去里斯本的便宜机票？"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "五月去里斯本的便宜機票？"
+          }
+        }
+      }
+    },
+    "In May, return flights from Berlin to Lisbon start at about 90 euros. It's best to book six to eight weeks ahead.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "في مايو تبدأ تذاكر الذهاب والعودة من برلين إلى لشبونة من نحو 90 يورو. الأفضل الحجز قبل ستة إلى ثمانية أسابيع."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Im Mai gibt es Hin- und Rückflüge von Berlin nach Lissabon ab etwa 90 Euro. Am besten sechs bis acht Wochen vorher buchen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En mayo, los vuelos de ida y vuelta de Berlín a Lisboa cuestan desde unos 90 euros. Conviene reservar con seis a ocho semanas de antelación."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En mai, les allers-retours Berlin–Lisbonne commencent vers 90 euros. Mieux vaut réserver six à huit semaines à l'avance."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A maggio i voli andata e ritorno da Berlino a Lisbona partono da circa 90 euro. Meglio prenotare sei-otto settimane prima."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5月のベルリン〜リスボン往復は約90ユーロから。6〜8週間前の予約がおすすめです。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5월 베를린–리스본 왕복 항공권은 약 90유로부터입니다. 6~8주 전에 예약하는 것이 좋아요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Em maio, voos de ida e volta de Berlim a Lisboa saem a partir de uns 90 euros. O ideal é reservar com seis a oito semanas de antecedência."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В мае билеты из Берлина в Лиссабон и обратно — примерно от 90 евро. Лучше брать за шесть–восемь недель."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "У травні квитки з Берліна до Лісабона й назад — приблизно від 90 євро. Краще купувати за шість–вісім тижнів."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tháng 5, vé khứ hồi Berlin – Lisbon chỉ từ khoảng 90 euro. Nên đặt trước sáu đến tám tuần."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "五月从柏林到里斯本的往返机票约 90 欧元起，最好提前六到八周预订。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "五月從柏林到里斯本的來回機票約 90 歐元起，最好提前六到八週訂票。"
+          }
+        }
+      }
+    },
+    "vacation": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إجازة"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "urlaub"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "vacaciones"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "vacances"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "vacanze"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "休暇"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "휴가"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "férias"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "отпуск"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "відпустка"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "kỳ nghỉ"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "度假"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "度假"
+          }
+        }
+      }
+    },
+    "Trips": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "رحلات"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reisen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Viajes"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voyages"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Viaggi"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "旅行"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "여행"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Viagens"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поездки"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подорожі"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chuyến đi"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "旅行"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "旅行"
           }
         }
       }

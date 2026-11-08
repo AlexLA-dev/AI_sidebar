@@ -1,12 +1,10 @@
 Không cần dán bài viết vào chatbot nữa. Hỏi AI về bất kỳ trang nào, trả lời bằng mẫu tự điền và nhận thông báo khi giá thay đổi, mà không phải rời Safari. Cuộc trò chuyện đi theo bạn từ trang này sang trang khác, và cùng một cuộc trò chuyện có trên iPhone, iPad và Mac của bạn.
 
-MỚI TRONG BẢN 2.5
-• Mẫu cho những câu trả lời bạn viết đi viết lại: ContextFlow điền tên và ngày từ trang hoặc cuộc trò chuyện đang mở. Kiểm tra lại rồi gửi
-• Chạm vào một ô văn bản là nút nổi ContextFlow hiện ngay bên cạnh: thứ bạn đã sao chép trong Safari, các mẫu của bạn và câu trả lời gần nhất chỉ cách một lần chạm. Văn bản đã sao chép nằm trên thiết bị của bạn trong 24 giờ
-• Đang chờ giá giảm hay một món hàng có lại? Chọn nó và chạm vào con mắt: ContextFlow kiểm tra trong lúc bạn dùng Safari và báo cho bạn khi có thay đổi
-• Muốn quay lại một trang sau? Chạm vào chuông và chọn thời gian
-• Đánh dấu những dòng quan trọng trong câu trả lời, và ghim câu trả lời lên đầu cuộc trò chuyện
-• Lỡ xóa nhầm một cuộc trò chuyện? Nó vẫn nằm trong Đã xóa gần đây 30 ngày
+MỚI TRONG BẢN 2.6
+• Ultra, gói mới: Nghe đọc to câu trả lời và cả trang bằng giọng tự nhiên, hơn 100 ngôn ngữ. Trên iPhone, vẫn phát tiếp khi khóa màn hình
+• Tìm tương tự (Ultra): lựa chọn thay thế có thật cho mọi trang — rẻ hơn, mới hơn, còn hàng, miễn phí hoặc bằng ngôn ngữ của bạn. Mọi liên kết đều được mở và kiểm tra trước khi bạn thấy
+• Gói theo năm cho Khóa riêng, Pro và Ultra
+• Một hướng dẫn ngắn cho câu trả lời đầu tiên, và bảng ContextFlow giờ có tiếng Việt, tiếng Trung phồn thể và tiếng Ả Rập
 
 BẠN CÓ THỂ LÀM GÌ
 • Tóm tắt mọi bài viết, bài đánh giá, chuỗi thảo luận hay trang sản phẩm, hoặc rút ra các ý chính
@@ -14,6 +12,8 @@ BẠN CÓ THỂ LÀM GÌ
 • Giải thích thuật ngữ bằng lời đơn giản, hoặc dịch trang sang ngôn ngữ của bạn
 • Chọn văn bản để chỉ hỏi về phần đó, hoặc lưu lại làm ghi chú
 • Câu trả lời từ Google: thông tin mới từ Google Tìm kiếm, kèm nguồn bạn có thể mở
+• Mẫu cho những câu trả lời bạn viết đi viết lại, tự điền từ trang. Chạm vào một ô văn bản là nút nổi mang các mẫu đến, kèm thứ bạn đã sao chép
+• Đang chờ giá giảm? Chọn giá và chạm vào con mắt: ContextFlow báo cho bạn khi giá thay đổi. Chạm vào chuông để quay lại trang sau
 
 GHI CHÚ VÀ CUỘC TRÒ CHUYỆN
 • Ghi chú: vuốt nút gửi lên hoặc xuống (trên Mac, cuộn trên nút) để viết ghi chú thay vì đặt câu hỏi. Ghi chú không tốn câu trả lời
@@ -35,10 +35,12 @@ RIÊNG TƯ NGAY TỪ THIẾT KẾ
 • Trang chỉ được đọc khi bạn hỏi về trang đó hoặc theo dõi nó
 • Nội dung trang không bao giờ được lưu trên máy chủ của chúng tôi; cuộc trò chuyện nằm trên thiết bị của bạn và đồng bộ qua iCloud của bạn, được mã hóa đầu cuối
 
-MIỄN PHÍ VÀ PRO
-• Miễn phí: có câu trả lời mỗi ngày, vài lượt điền mẫu mỗi ngày và ghi chú không giới hạn. Câu trả lời dùng nội dung của trang; nếu trang có video hoặc PDF, câu trả lời sẽ nói là đã bỏ qua
-• Pro: nhiều câu trả lời, sâu và chi tiết hơn, hỏi về video và PDF, điền mẫu không giới hạn, theo dõi nhiều trang cùng lúc hơn, gợi ý xếp câu trả lời và ghi chú mới vào đúng cuộc trò chuyện và thẻ, Tìm kiếm AI và “Hỏi các cuộc trò chuyện”
+CÁC GÓI
+• Miễn phí: có câu trả lời mỗi ngày, vài lượt điền mẫu mỗi ngày và ghi chú không giới hạn
+• Pro: nhiều câu trả lời, sâu và chi tiết hơn, video và PDF, điền mẫu không giới hạn, theo dõi nhiều trang hơn, gợi ý xếp câu trả lời vào đúng cuộc trò chuyện và thẻ, Tìm kiếm AI và “Hỏi các cuộc trò chuyện”
+• Ultra: mọi tính năng Pro, cùng với Nghe, Tìm tương tự và theo dõi tới 50 trang
 • Khóa riêng: câu trả lời không giới hạn với khóa API OpenAI hoặc Claude của bạn
+• Pro, Ultra và Khóa riêng: theo tháng hoặc theo năm
 
 BẮT ĐẦU TRONG MỘT PHÚT
 1. Mở ứng dụng ContextFlow: ứng dụng hướng dẫn từng bước cách bật tiện ích mở rộng trong Safari.

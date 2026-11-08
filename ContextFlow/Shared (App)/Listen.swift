@@ -56,6 +56,13 @@ final class ListenPlayer: NSObject, ObservableObject {
     private var samples: [Float] = []
     private var scheduledUpTo = 0
     private var startSample = 0
+    /// The player's own clock (samples since play from startSample): where the scheduled audio ends on it, and the
+    /// silence it ran through while waiting for the next part. Without it a wait counted as heard: the clock ran
+    /// ahead and playing stopped early, cutting the end off (2.6, seen with the text written for the ear).
+    private var playerEnd: AVAudioFramePosition = 0
+    private var gapFrames: AVAudioFramePosition = 0
+    /// The player's clock when it was paused (a pause keeps it; parts arriving meanwhile still count from there).
+    private var pausedAt: AVAudioFramePosition?
     private var fetchedAll = false
     private var fetchTask: Task<Void, Never>?
     private var timer: Timer?
@@ -70,7 +77,9 @@ final class ListenPlayer: NSObject, ObservableObject {
     /// Debug builds: `-CFDebugListen "<text>"` plays that text as if Safari had handed it over (simulator checks).
     func debugStartIfAsked() {
         #if DEBUG
-        guard request == nil, let text = UserDefaults.standard.string(forKey: "CFDebugListen"), !text.isEmpty else { return }
+        // The environment keeps line breaks (a Markdown table); a launch argument stops at the first one.
+        let given = ProcessInfo.processInfo.environment["CF_DEBUG_LISTEN"] ?? UserDefaults.standard.string(forKey: "CFDebugListen")
+        guard request == nil, let text = given, !text.isEmpty else { return }
         let lang = UserDefaults.standard.string(forKey: "CFDebugListenLang") ?? "en"
         // -CFDebugListenScript YES: written for the ear first, as a page or an answer with a table would be.
         start(ListenRequest(id: "debug", parts: Self.sentenceParts(text), lang: lang, what: "page", title: "How electric trains save energy", url: URL(string: "https://example.com/trains"),
@@ -170,6 +179,9 @@ final class ListenPlayer: NSObject, ObservableObject {
         samples.removeAll()
         scheduledUpTo = 0
         startSample = 0
+        playerEnd = 0
+        gapFrames = 0
+        pausedAt = nil
         fetchedAll = false
         appleText = nil
         pendingReason = nil
@@ -197,11 +209,13 @@ final class ListenPlayer: NSObject, ObservableObject {
         activateSession()
         if !engine.isRunning { try? engine.start() }
         node.play()
+        pausedAt = nil
         state = .playing
         updateNowPlaying()
     }
 
     func pause() {
+        pausedAt = playerNow() ?? pausedAt
         node.pause()
         if state == .playing { state = .paused }
         updateNowPlaying()
@@ -217,6 +231,10 @@ final class ListenPlayer: NSObject, ObservableObject {
         node.stop()
         startSample = max(0, min(samples.count - 1, Int(seconds * Self.rate)))
         scheduledUpTo = startSample
+        // A stopped player starts its clock again from zero.
+        playerEnd = 0
+        gapFrames = 0
+        pausedAt = nil
         elapsed = Double(startSample) / Self.rate
         scheduleMore()
         if wasPlaying { play() } else { updateNowPlaying() }
@@ -439,7 +457,18 @@ final class ListenPlayer: NSObject, ObservableObject {
         if state == .loading, samples.count > Int(Self.rate * 0.25) { play() }
     }
 
+    /// The player's clock now, in samples (nil before it plays).
+    private func playerNow() -> AVAudioFramePosition? {
+        guard node.isPlaying, let nodeTime = node.lastRenderTime, let playerTime = node.playerTime(forNodeTime: nodeTime) else { return nil }
+        return playerTime.sampleTime
+    }
+
     private func scheduleMore() {
+        // The player ran dry (waiting for the next part): what comes now starts now; the silence isn't audio.
+        if scheduledUpTo < samples.count, let now = playerNow() ?? pausedAt, now > playerEnd {
+            gapFrames += now - playerEnd
+            playerEnd = now
+        }
         while scheduledUpTo < samples.count {
             let end = min(samples.count, scheduledUpTo + Int(Self.rate))
             let frames = AVAudioFrameCount(end - scheduledUpTo)
@@ -449,6 +478,7 @@ final class ListenPlayer: NSObject, ObservableObject {
                 channel.update(from: source.baseAddress!.advanced(by: scheduledUpTo), count: Int(frames))
             }
             node.scheduleBuffer(buffer, completionHandler: nil)
+            playerEnd += AVAudioFramePosition(frames)
             scheduledUpTo = end
         }
     }
@@ -468,10 +498,13 @@ final class ListenPlayer: NSObject, ObservableObject {
 
     private func tick() {
         guard request != nil else { return }
-        if !samples.isEmpty, node.isPlaying, let nodeTime = node.lastRenderTime, let playerTime = node.playerTime(forNodeTime: nodeTime) {
-            elapsed = min(Double(samples.count) / Self.rate, Double(startSample) / Self.rate + Double(playerTime.sampleTime) / playerTime.sampleRate)
+        var drained = false
+        if !samples.isEmpty, let now = playerNow() {
+            // Heard: up to the end of what's scheduled, less the silences while waiting.
+            let heard = max(0, min(now, playerEnd) - gapFrames)
+            elapsed = min(Double(samples.count) / Self.rate, Double(startSample + Int(heard)) / Self.rate)
+            drained = now >= playerEnd
         }
-        let drained = !samples.isEmpty && elapsed >= Double(samples.count) / Self.rate - 0.05
         if drained, state == .playing {
             if fetchedAll {
                 node.pause()

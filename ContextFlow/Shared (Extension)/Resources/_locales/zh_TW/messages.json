@@ -824,6 +824,9 @@
  "usageProShort": {
   "message": "Pro · 本週剩 {0}/{1}"
  },
+ "usageUltraShort": {
+  "message": "Ultra · 本週剩 {0}/{1}"
+ },
  "pinChat": {
   "message": "釘選對話"
  },
@@ -1629,7 +1632,7 @@
   "message": "用自然的聲音朗讀回答和整個頁面：每週 {0} 分鐘"
  },
  "tierUltra2": {
-  "message": "查找相似內容：在其他網站查找與目前頁面相似的內容，每週 {0} 次搜尋"
+  "message": "尋找相似：為任何頁面找替代選擇——更便宜、更新、有貨或用你的語言，每週 {0} 次搜尋"
  },
  "tierUltra3": {
   "message": "最多追蹤 {0} 個頁面"
@@ -1684,6 +1687,126 @@
  },
  "usageUltra": {
   "message": "Ultra · 本週剩餘的回答：{0}/{1}"
+ },
+ "actSimilar": {
+  "message": "尋找相似"
+ },
+ "uxSimilar": {
+  "message": "尋找相似…"
+ },
+ "similarTitle": {
+  "message": "尋找相似"
+ },
+ "similarConditions": {
+  "message": "條件"
+ },
+ "similarCheaper": {
+  "message": "更便宜"
+ },
+ "similarInStock": {
+  "message": "有貨"
+ },
+ "similarNewer": {
+  "message": "更新"
+ },
+ "similarFree": {
+  "message": "免費"
+ },
+ "similarMyLanguage": {
+  "message": "用我的語言"
+ },
+ "similarShorter": {
+  "message": "更短"
+ },
+ "similarInLanguage": {
+  "message": "用{0}"
+ },
+ "similarCustom": {
+  "message": "或說說你的需求（選填）"
+ },
+ "similarHint": {
+  "message": "現在真實存在的替代選擇。每個連結我們都會先開啟檢查，再給你看。"
+ },
+ "similarFind": {
+  "message": "尋找"
+ },
+ "similarAsked": {
+  "message": "尋找相似"
+ },
+ "similarAskedWith": {
+  "message": "尋找相似：{0}"
+ },
+ "similarStockIn": {
+  "message": "有貨"
+ },
+ "similarStockOut": {
+  "message": "缺貨"
+ },
+ "similarFromList": {
+  "message": "評測中提到"
+ },
+ "similarNotConfirmed": {
+  "message": "未確認"
+ },
+ "similarNotOpened": {
+  "message": "無法開啟頁面進行檢查"
+ },
+ "similarWatchPrice": {
+  "message": "關注價格"
+ },
+ "similarStepPlan": {
+  "message": "正在讀取頁面…"
+ },
+ "similarStepSearch": {
+  "message": "正在網路上搜尋…"
+ },
+ "similarStepCheck": {
+  "message": "正在檢查頁面…"
+ },
+ "similarStepCheckN": {
+  "message": "正在檢查 {0} 個頁面…"
+ },
+ "similarStepWrite": {
+  "message": "正在挑選最好的…"
+ },
+ "similarNone": {
+  "message": "找不到這一頁已檢查的替代選擇。換個條件或不加條件試試。"
+ },
+ "similarChecked": {
+  "message": "連結檢查於 {0}"
+ },
+ "similarUpsellText": {
+  "message": "你正在看的東西的真實替代選擇：商品、App、文章、食譜、地點。"
+ },
+ "similarUpsellChecked": {
+  "message": "每個連結都已開啟並檢查：沒有失效或捏造的頁面。"
+ },
+ "similarUpsellConditions": {
+  "message": "更便宜、有貨、更新、免費、用你的語言，或用你自己的話。"
+ },
+ "similarUpsellWatch": {
+  "message": "價格與庫存和頁面所示一致，還可關注價格。"
+ },
+ "similarGetUltra": {
+  "message": "取得 Ultra"
+ },
+ "similarOff": {
+  "message": "「尋找相似」暫時無法使用。"
+ },
+ "similarLimit": {
+  "message": "本週的 {0} 次「尋找相似」已用完，{1}恢復。"
+ },
+ "orgDemoQuestion": {
+  "message": "五月去里斯本的便宜機票？"
+ },
+ "orgDemoAnswer": {
+  "message": "五月從柏林到里斯本的來回機票約 90 歐元起，最好提前六到八週訂票。"
+ },
+ "orgDemoTag": {
+  "message": "度假"
+ },
+ "orgDemoChat": {
+  "message": "旅行"
  },
  "tip_4cf1b54b00": {
   "message": "提示"

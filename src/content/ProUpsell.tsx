@@ -2,7 +2,7 @@ import type { VNode } from "preact"
 
 import { t } from "../shared/i18n"
 import * as Icon from "./icons"
-import { OrganizeAnimation } from "./Organize"
+import { OrganizePreview } from "./Organize"
 
 /**
  * What AI search and "Ask your chats" do, for someone without Pro: shown when they reach for one
@@ -27,11 +27,11 @@ export function ProUpsell({ feature, offer, byok, onPro, onOffer, onClose }: {
         <span class="cf-pro-badge">Pro</span>
       </div>
       <div class="cf-upsell-organize">
-        <OrganizeAnimation />
         <div>
           <strong>{t("upsellOrganizeName")}</strong>
           <span>{t("upsellOrganizeText")}</span>
         </div>
+        <OrganizePreview />
       </div>
       <ul class="cf-upsell-list">
         {items.map((item) => (

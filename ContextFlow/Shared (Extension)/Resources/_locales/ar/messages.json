@@ -824,6 +824,9 @@
  "usageProShort": {
   "message": "Pro · {0} من {1} هذا الأسبوع"
  },
+ "usageUltraShort": {
+  "message": "Ultra · {0} من {1} هذا الأسبوع"
+ },
  "pinChat": {
   "message": "تثبيت المحادثة"
  },
@@ -1629,7 +1632,7 @@
   "message": "الاستماع إلى الإجابات والصفحات كاملة بصوت طبيعي: {0} دقيقة أسبوعيًا"
  },
  "tierUltra2": {
-  "message": "البحث عن المشابه: ما يشبه الصفحة المفتوحة من مواقع أخرى، {0} عملية بحث أسبوعيًا"
+  "message": "البحث عن المشابه: بدائل لأي صفحة — أرخص أو أحدث أو متوفرة أو بلغتك — {0} عملية بحث أسبوعيًا"
  },
  "tierUltra3": {
   "message": "مراقبة حتى {0} صفحة"
@@ -1684,6 +1687,126 @@
  },
  "usageUltra": {
   "message": "Ultra · تبقّى {0} من {1} إجابة هذا الأسبوع"
+ },
+ "actSimilar": {
+  "message": "ابحث عن مشابه"
+ },
+ "uxSimilar": {
+  "message": "ابحث عن مشابه…"
+ },
+ "similarTitle": {
+  "message": "ابحث عن مشابه"
+ },
+ "similarConditions": {
+  "message": "الشروط"
+ },
+ "similarCheaper": {
+  "message": "أرخص"
+ },
+ "similarInStock": {
+  "message": "متوفر"
+ },
+ "similarNewer": {
+  "message": "أحدث"
+ },
+ "similarFree": {
+  "message": "مجاني"
+ },
+ "similarMyLanguage": {
+  "message": "بلغتي"
+ },
+ "similarShorter": {
+  "message": "أقصر"
+ },
+ "similarInLanguage": {
+  "message": "باللغة {0}"
+ },
+ "similarCustom": {
+  "message": "أو اكتب ما تحتاجه (اختياري)"
+ },
+ "similarHint": {
+  "message": "بدائل حقيقية موجودة الآن. نفتح كل رابط ونتحقق منه قبل أن نعرضه عليك."
+ },
+ "similarFind": {
+  "message": "ابحث"
+ },
+ "similarAsked": {
+  "message": "ابحث عن مشابه"
+ },
+ "similarAskedWith": {
+  "message": "ابحث عن مشابه: {0}"
+ },
+ "similarStockIn": {
+  "message": "متوفر"
+ },
+ "similarStockOut": {
+  "message": "غير متوفر"
+ },
+ "similarFromList": {
+  "message": "مذكور في مراجعة"
+ },
+ "similarNotConfirmed": {
+  "message": "غير مؤكد"
+ },
+ "similarNotOpened": {
+  "message": "تعذّر فتح الصفحة للتحقق"
+ },
+ "similarWatchPrice": {
+  "message": "راقب السعر"
+ },
+ "similarStepPlan": {
+  "message": "جارٍ قراءة الصفحة…"
+ },
+ "similarStepSearch": {
+  "message": "جارٍ البحث في الويب…"
+ },
+ "similarStepCheck": {
+  "message": "جارٍ التحقق من الصفحات…"
+ },
+ "similarStepCheckN": {
+  "message": "جارٍ التحقق من {0} صفحة…"
+ },
+ "similarStepWrite": {
+  "message": "جارٍ اختيار الأفضل…"
+ },
+ "similarNone": {
+  "message": "لا توجد بدائل متحقق منها لهذه الصفحة. جرّب شرطًا آخر أو بدون شرط."
+ },
+ "similarChecked": {
+  "message": "تم التحقق من الروابط في {0}"
+ },
+ "similarUpsellText": {
+  "message": "بدائل حقيقية لما تنظر إليه: منتج أو تطبيق أو مقال أو وصفة أو مكان."
+ },
+ "similarUpsellChecked": {
+  "message": "كل رابط مفتوح ومتحقق منه: لا صفحات معطلة أو مختلقة."
+ },
+ "similarUpsellConditions": {
+  "message": "أرخص، متوفر، أحدث، مجاني، بلغتك — أو بكلماتك."
+ },
+ "similarUpsellWatch": {
+  "message": "السعر والتوفر كما تعرضهما الصفحة، مع مراقبة السعر."
+ },
+ "similarGetUltra": {
+  "message": "احصل على Ultra"
+ },
+ "similarOff": {
+  "message": "ميزة «ابحث عن مشابه» غير متاحة بعد."
+ },
+ "similarLimit": {
+  "message": "استُخدمت عمليات «ابحث عن مشابه» لهذا الأسبوع ({0}). تعود يوم {1}."
+ },
+ "orgDemoQuestion": {
+  "message": "تذاكر رخيصة إلى لشبونة في مايو؟"
+ },
+ "orgDemoAnswer": {
+  "message": "في مايو تبدأ تذاكر الذهاب والعودة من برلين إلى لشبونة من نحو 90 يورو. الأفضل الحجز قبل ستة إلى ثمانية أسابيع."
+ },
+ "orgDemoTag": {
+  "message": "إجازة"
+ },
+ "orgDemoChat": {
+  "message": "رحلات"
  },
  "tip_4cf1b54b00": {
   "message": "تلميحات"

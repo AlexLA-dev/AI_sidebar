@@ -824,6 +824,9 @@
  "usageProShort": {
   "message": "Pro · 本周剩余 {0}/{1}"
  },
+ "usageUltraShort": {
+  "message": "Ultra · 本周剩余 {0}/{1}"
+ },
  "pinChat": {
   "message": "置顶对话"
  },
@@ -1629,7 +1632,7 @@
   "message": "用自然的声音朗读回答和整个页面：每周 {0} 分钟"
  },
  "tierUltra2": {
-  "message": "查找相似内容：在其他网站查找与当前页面相似的内容，每周 {0} 次搜索"
+  "message": "查找相似：为任何页面找替代选择——更便宜、更新、有货或用你的语言，每周 {0} 次搜索"
  },
  "tierUltra3": {
   "message": "最多关注 {0} 个页面"
@@ -1684,6 +1687,126 @@
  },
  "usageUltra": {
   "message": "Ultra · 本周剩余回答：{0}/{1}"
+ },
+ "actSimilar": {
+  "message": "查找相似"
+ },
+ "uxSimilar": {
+  "message": "查找相似…"
+ },
+ "similarTitle": {
+  "message": "查找相似"
+ },
+ "similarConditions": {
+  "message": "条件"
+ },
+ "similarCheaper": {
+  "message": "更便宜"
+ },
+ "similarInStock": {
+  "message": "有货"
+ },
+ "similarNewer": {
+  "message": "更新"
+ },
+ "similarFree": {
+  "message": "免费"
+ },
+ "similarMyLanguage": {
+  "message": "用我的语言"
+ },
+ "similarShorter": {
+  "message": "更短"
+ },
+ "similarInLanguage": {
+  "message": "用{0}"
+ },
+ "similarCustom": {
+  "message": "或说说你的需求（可选）"
+ },
+ "similarHint": {
+  "message": "现在真实存在的替代选择。每个链接我们都会先打开检查，再给你看。"
+ },
+ "similarFind": {
+  "message": "查找"
+ },
+ "similarAsked": {
+  "message": "查找相似"
+ },
+ "similarAskedWith": {
+  "message": "查找相似：{0}"
+ },
+ "similarStockIn": {
+  "message": "有货"
+ },
+ "similarStockOut": {
+  "message": "无货"
+ },
+ "similarFromList": {
+  "message": "评测中提到"
+ },
+ "similarNotConfirmed": {
+  "message": "未确认"
+ },
+ "similarNotOpened": {
+  "message": "无法打开页面进行检查"
+ },
+ "similarWatchPrice": {
+  "message": "关注价格"
+ },
+ "similarStepPlan": {
+  "message": "正在读取页面…"
+ },
+ "similarStepSearch": {
+  "message": "正在网上搜索…"
+ },
+ "similarStepCheck": {
+  "message": "正在检查页面…"
+ },
+ "similarStepCheckN": {
+  "message": "正在检查 {0} 个页面…"
+ },
+ "similarStepWrite": {
+  "message": "正在挑选最好的…"
+ },
+ "similarNone": {
+  "message": "没有找到这一页的已检查替代选择。换个条件或不加条件试试。"
+ },
+ "similarChecked": {
+  "message": "链接检查于 {0}"
+ },
+ "similarUpsellText": {
+  "message": "你正在看的东西的真实替代选择：商品、应用、文章、菜谱、地点。"
+ },
+ "similarUpsellChecked": {
+  "message": "每个链接都已打开并检查：没有失效或编造的页面。"
+ },
+ "similarUpsellConditions": {
+  "message": "更便宜、有货、更新、免费、用你的语言，或用你自己的话。"
+ },
+ "similarUpsellWatch": {
+  "message": "价格和库存与页面所示一致，还可关注价格。"
+ },
+ "similarGetUltra": {
+  "message": "获取 Ultra"
+ },
+ "similarOff": {
+  "message": "“查找相似”暂不可用。"
+ },
+ "similarLimit": {
+  "message": "本周的 {0} 次“查找相似”已用完，{1}恢复。"
+ },
+ "orgDemoQuestion": {
+  "message": "五月去里斯本的便宜机票？"
+ },
+ "orgDemoAnswer": {
+  "message": "五月从柏林到里斯本的往返机票约 90 欧元起，最好提前六到八周预订。"
+ },
+ "orgDemoTag": {
+  "message": "度假"
+ },
+ "orgDemoChat": {
+  "message": "旅行"
  },
  "tip_4cf1b54b00": {
   "message": "技巧"

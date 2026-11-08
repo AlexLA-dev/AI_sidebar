@@ -824,6 +824,9 @@
  "usageProShort": {
   "message": "Pro · 今週 残り{0}/{1}回"
  },
+ "usageUltraShort": {
+  "message": "Ultra · 今週 残り{0}/{1}回"
+ },
  "pinChat": {
   "message": "チャットを固定"
  },
@@ -1629,7 +1632,7 @@
   "message": "回答やページ全体を自然な声で読み上げ：週{0}分"
  },
  "tierUltra2": {
-  "message": "似たものを探す：開いているページに似たものを他のサイトから。週{0}回"
+  "message": "似たものを探す：どのページにも代わりの候補を。より安い、より新しい、在庫あり、自分の言語で。週{0}回"
  },
  "tierUltra3": {
   "message": "最大{0}ページを見守り"
@@ -1684,6 +1687,126 @@
  },
  "usageUltra": {
   "message": "Ultra · 今週の回答：残り{0}/{1}回"
+ },
+ "actSimilar": {
+  "message": "似たものを探す"
+ },
+ "uxSimilar": {
+  "message": "似たものを探す…"
+ },
+ "similarTitle": {
+  "message": "似たものを探す"
+ },
+ "similarConditions": {
+  "message": "条件"
+ },
+ "similarCheaper": {
+  "message": "もっと安い"
+ },
+ "similarInStock": {
+  "message": "在庫あり"
+ },
+ "similarNewer": {
+  "message": "もっと新しい"
+ },
+ "similarFree": {
+  "message": "無料"
+ },
+ "similarMyLanguage": {
+  "message": "自分の言語で"
+ },
+ "similarShorter": {
+  "message": "もっと短い"
+ },
+ "similarInLanguage": {
+  "message": "{0}で"
+ },
+ "similarCustom": {
+  "message": "または必要なことを入力（任意）"
+ },
+ "similarHint": {
+  "message": "いま実在する本当の代替案です。表示する前に、すべてのリンクを開いて確認します。"
+ },
+ "similarFind": {
+  "message": "探す"
+ },
+ "similarAsked": {
+  "message": "似たものを探す"
+ },
+ "similarAskedWith": {
+  "message": "似たものを探す：{0}"
+ },
+ "similarStockIn": {
+  "message": "在庫あり"
+ },
+ "similarStockOut": {
+  "message": "在庫なし"
+ },
+ "similarFromList": {
+  "message": "レビューで紹介"
+ },
+ "similarNotConfirmed": {
+  "message": "未確認"
+ },
+ "similarNotOpened": {
+  "message": "ページを開いて確認できませんでした"
+ },
+ "similarWatchPrice": {
+  "message": "価格を見守る"
+ },
+ "similarStepPlan": {
+  "message": "ページを読んでいます…"
+ },
+ "similarStepSearch": {
+  "message": "ウェブを検索しています…"
+ },
+ "similarStepCheck": {
+  "message": "ページを確認しています…"
+ },
+ "similarStepCheckN": {
+  "message": "{0}ページを確認しています…"
+ },
+ "similarStepWrite": {
+  "message": "よいものを選んでいます…"
+ },
+ "similarNone": {
+  "message": "このページについて確認済みの代替案は見つかりませんでした。別の条件か、条件なしでお試しください。"
+ },
+ "similarChecked": {
+  "message": "{0}にリンクを確認済み"
+ },
+ "similarUpsellText": {
+  "message": "見ているものの本当の代替案：商品、アプリ、記事、レシピ、場所。"
+ },
+ "similarUpsellChecked": {
+  "message": "すべてのリンクを開いて確認：リンク切れや架空のページはありません。"
+ },
+ "similarUpsellConditions": {
+  "message": "もっと安い、在庫あり、もっと新しい、無料、自分の言語で、または自分の言葉で。"
+ },
+ "similarUpsellWatch": {
+  "message": "価格と在庫はページの表示どおり。価格を見守ることもできます。"
+ },
+ "similarGetUltra": {
+  "message": "Ultraにする"
+ },
+ "similarOff": {
+  "message": "「似たものを探す」はまだご利用いただけません。"
+ },
+ "similarLimit": {
+  "message": "今週の「似たものを探す」{0}回を使い切りました。{1}に戻ります。"
+ },
+ "orgDemoQuestion": {
+  "message": "5月のリスボン行き格安航空券は？"
+ },
+ "orgDemoAnswer": {
+  "message": "5月のベルリン〜リスボン往復は約90ユーロから。6〜8週間前の予約がおすすめです。"
+ },
+ "orgDemoTag": {
+  "message": "休暇"
+ },
+ "orgDemoChat": {
+  "message": "旅行"
  },
  "tip_4cf1b54b00": {
   "message": "ヒント"

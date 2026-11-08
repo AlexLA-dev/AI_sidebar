@@ -824,6 +824,9 @@
  "usageProShort": {
   "message": "Pro · 이번 주 {0}/{1}개 남음"
  },
+ "usageUltraShort": {
+  "message": "Ultra · 이번 주 {0}/{1}개 남음"
+ },
  "pinChat": {
   "message": "채팅 고정"
  },
@@ -1629,7 +1632,7 @@
   "message": "답변과 페이지 전체를 자연스러운 목소리로 듣기: 주당 {0}분"
  },
  "tierUltra2": {
-  "message": "비슷한 것 찾기: 열려 있는 페이지와 비슷한 것을 다른 사이트에서. 주당 {0}회"
+  "message": "비슷한 것 찾기: 어떤 페이지든 대안을 찾아 줍니다. 더 싸거나, 더 새롭거나, 재고가 있거나, 내 언어로. 주당 {0}회"
  },
  "tierUltra3": {
   "message": "최대 {0}개 페이지 지켜보기"
@@ -1684,6 +1687,126 @@
  },
  "usageUltra": {
   "message": "Ultra · 이번 주 남은 답변 {0}/{1}개"
+ },
+ "actSimilar": {
+  "message": "비슷한 것 찾기"
+ },
+ "uxSimilar": {
+  "message": "비슷한 것 찾기…"
+ },
+ "similarTitle": {
+  "message": "비슷한 것 찾기"
+ },
+ "similarConditions": {
+  "message": "조건"
+ },
+ "similarCheaper": {
+  "message": "더 저렴하게"
+ },
+ "similarInStock": {
+  "message": "재고 있음"
+ },
+ "similarNewer": {
+  "message": "더 최신"
+ },
+ "similarFree": {
+  "message": "무료"
+ },
+ "similarMyLanguage": {
+  "message": "내 언어로"
+ },
+ "similarShorter": {
+  "message": "더 짧게"
+ },
+ "similarInLanguage": {
+  "message": "{0}로"
+ },
+ "similarCustom": {
+  "message": "또는 원하는 것을 적어 주세요(선택)"
+ },
+ "similarHint": {
+  "message": "지금 실제로 있는 대안입니다. 보여 드리기 전에 모든 링크를 열어 확인합니다."
+ },
+ "similarFind": {
+  "message": "찾기"
+ },
+ "similarAsked": {
+  "message": "비슷한 것 찾기"
+ },
+ "similarAskedWith": {
+  "message": "비슷한 것 찾기: {0}"
+ },
+ "similarStockIn": {
+  "message": "재고 있음"
+ },
+ "similarStockOut": {
+  "message": "품절"
+ },
+ "similarFromList": {
+  "message": "리뷰에서 언급됨"
+ },
+ "similarNotConfirmed": {
+  "message": "확인되지 않음"
+ },
+ "similarNotOpened": {
+  "message": "페이지를 열어 확인하지 못했습니다"
+ },
+ "similarWatchPrice": {
+  "message": "가격 지켜보기"
+ },
+ "similarStepPlan": {
+  "message": "페이지를 읽는 중…"
+ },
+ "similarStepSearch": {
+  "message": "웹을 검색하는 중…"
+ },
+ "similarStepCheck": {
+  "message": "페이지를 확인하는 중…"
+ },
+ "similarStepCheckN": {
+  "message": "페이지 {0}개를 확인하는 중…"
+ },
+ "similarStepWrite": {
+  "message": "가장 좋은 것을 고르는 중…"
+ },
+ "similarNone": {
+  "message": "이 페이지에 대해 확인된 대안이 없습니다. 다른 조건으로 또는 조건 없이 해 보세요."
+ },
+ "similarChecked": {
+  "message": "{0}에 링크 확인됨"
+ },
+ "similarUpsellText": {
+  "message": "지금 보고 있는 것의 실제 대안: 상품, 앱, 기사, 레시피, 장소."
+ },
+ "similarUpsellChecked": {
+  "message": "모든 링크를 열어 확인: 죽은 페이지나 지어낸 페이지는 없습니다."
+ },
+ "similarUpsellConditions": {
+  "message": "더 저렴하게, 재고 있음, 더 최신, 무료, 내 언어로, 또는 직접 적어서."
+ },
+ "similarUpsellWatch": {
+  "message": "가격과 재고는 페이지에 나온 그대로, 가격 지켜보기도 됩니다."
+ },
+ "similarGetUltra": {
+  "message": "Ultra 받기"
+ },
+ "similarOff": {
+  "message": "'비슷한 것 찾기'는 아직 이용할 수 없습니다."
+ },
+ "similarLimit": {
+  "message": "이번 주 '비슷한 것 찾기' {0}회를 모두 사용했습니다. {1}에 다시 채워집니다."
+ },
+ "orgDemoQuestion": {
+  "message": "5월 리스본 저렴한 항공권?"
+ },
+ "orgDemoAnswer": {
+  "message": "5월 베를린–리스본 왕복 항공권은 약 90유로부터입니다. 6~8주 전에 예약하는 것이 좋아요."
+ },
+ "orgDemoTag": {
+  "message": "휴가"
+ },
+ "orgDemoChat": {
+  "message": "여행"
  },
  "tip_4cf1b54b00": {
   "message": "팁"

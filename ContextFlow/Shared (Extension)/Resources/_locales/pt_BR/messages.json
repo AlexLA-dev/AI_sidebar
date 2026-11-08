@@ -824,6 +824,9 @@
  "usageProShort": {
   "message": "Pro · {0} de {1} nesta semana"
  },
+ "usageUltraShort": {
+  "message": "Ultra · {0} de {1} nesta semana"
+ },
  "pinChat": {
   "message": "Fixar chat"
  },
@@ -1629,7 +1632,7 @@
   "message": "Ouça respostas e páginas inteiras em uma voz natural: {0} minutos por semana"
  },
  "tierUltra2": {
-  "message": "Achar parecidos: mais como a página aberta, de outros sites, {0} buscas por semana"
+  "message": "Encontrar parecidos: alternativas a qualquer página (mais baratas, mais novas, em estoque ou no seu idioma), {0} buscas por semana"
  },
  "tierUltra3": {
   "message": "Acompanhe até {0} páginas"
@@ -1684,6 +1687,126 @@
  },
  "usageUltra": {
   "message": "Ultra · Restam {0} de {1} respostas nesta semana"
+ },
+ "actSimilar": {
+  "message": "Encontrar parecidos"
+ },
+ "uxSimilar": {
+  "message": "Encontrar parecidos…"
+ },
+ "similarTitle": {
+  "message": "Encontrar parecidos"
+ },
+ "similarConditions": {
+  "message": "Condições"
+ },
+ "similarCheaper": {
+  "message": "Mais barato"
+ },
+ "similarInStock": {
+  "message": "Em estoque"
+ },
+ "similarNewer": {
+  "message": "Mais recente"
+ },
+ "similarFree": {
+  "message": "Grátis"
+ },
+ "similarMyLanguage": {
+  "message": "No meu idioma"
+ },
+ "similarShorter": {
+  "message": "Mais curto"
+ },
+ "similarInLanguage": {
+  "message": "em {0}"
+ },
+ "similarCustom": {
+  "message": "Ou diga o que você precisa (opcional)"
+ },
+ "similarHint": {
+  "message": "Alternativas reais que existem agora. Abrimos e verificamos cada link antes de mostrar."
+ },
+ "similarFind": {
+  "message": "Encontrar"
+ },
+ "similarAsked": {
+  "message": "Encontrar parecidos"
+ },
+ "similarAskedWith": {
+  "message": "Encontrar parecidos: {0}"
+ },
+ "similarStockIn": {
+  "message": "Em estoque"
+ },
+ "similarStockOut": {
+  "message": "Esgotado"
+ },
+ "similarFromList": {
+  "message": "citado em uma análise"
+ },
+ "similarNotConfirmed": {
+  "message": "Não confirmado"
+ },
+ "similarNotOpened": {
+  "message": "Não deu para abrir a página e verificar"
+ },
+ "similarWatchPrice": {
+  "message": "Acompanhar preço"
+ },
+ "similarStepPlan": {
+  "message": "Lendo a página…"
+ },
+ "similarStepSearch": {
+  "message": "Buscando na web…"
+ },
+ "similarStepCheck": {
+  "message": "Verificando as páginas…"
+ },
+ "similarStepCheckN": {
+  "message": "Verificando {0} páginas…"
+ },
+ "similarStepWrite": {
+  "message": "Escolhendo os melhores…"
+ },
+ "similarNone": {
+  "message": "Nenhuma alternativa verificada para esta página. Tente outra condição ou nenhuma."
+ },
+ "similarChecked": {
+  "message": "Links verificados às {0}"
+ },
+ "similarUpsellText": {
+  "message": "Alternativas reais ao que você está vendo: um produto, um app, um artigo, uma receita, um lugar."
+ },
+ "similarUpsellChecked": {
+  "message": "Cada link aberto e verificado: nada de páginas mortas ou inventadas."
+ },
+ "similarUpsellConditions": {
+  "message": "Mais barato, em estoque, mais recente, grátis, no seu idioma — ou com suas palavras."
+ },
+ "similarUpsellWatch": {
+  "message": "Preço e estoque como a página mostra, com Acompanhar preço."
+ },
+ "similarGetUltra": {
+  "message": "Assinar Ultra"
+ },
+ "similarOff": {
+  "message": "\"Encontrar parecidos\" ainda não está disponível."
+ },
+ "similarLimit": {
+  "message": "As {0} buscas de \"Encontrar parecidos\" desta semana acabaram. Elas voltam na {1}."
+ },
+ "orgDemoQuestion": {
+  "message": "Voos baratos para Lisboa em maio?"
+ },
+ "orgDemoAnswer": {
+  "message": "Em maio, voos de ida e volta de Berlim a Lisboa saem a partir de uns 90 euros. O ideal é reservar com seis a oito semanas de antecedência."
+ },
+ "orgDemoTag": {
+  "message": "férias"
+ },
+ "orgDemoChat": {
+  "message": "Viagens"
  },
  "tip_4cf1b54b00": {
   "message": "Dicas"

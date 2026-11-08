@@ -155,6 +155,8 @@ export type ErrorCode =
   | "SEARCH_UNAVAILABLE"
   // A Pro feature asked for without Pro (AI search, "Ask your chats").
   | "PRO_ONLY"
+  // An Ultra feature asked for without Ultra (Find similar; read aloud has its own channel).
+  | "ULTRA_ONLY"
   // No consent for the current text yet: nothing was sent.
   | "CONSENT"
 

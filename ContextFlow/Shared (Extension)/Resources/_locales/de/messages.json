@@ -824,6 +824,9 @@
  "usageProShort": {
   "message": "Pro · noch {0} von {1} diese Woche"
  },
+ "usageUltraShort": {
+  "message": "Ultra · noch {0} von {1} diese Woche"
+ },
  "pinChat": {
   "message": "Chat anheften"
  },
@@ -1629,7 +1632,7 @@
   "message": "Antworten und ganze Seiten mit natürlicher Stimme anhören: {0} Minuten pro Woche"
  },
  "tierUltra2": {
-  "message": "Ähnliches finden: mehr wie die geöffnete Seite, von anderen Websites, {0} Suchen pro Woche"
+  "message": "Ähnliches finden: Alternativen zu jeder Seite – günstiger, neuer, verfügbar oder in deiner Sprache – {0} Suchen pro Woche"
  },
  "tierUltra3": {
   "message": "Bis zu {0} Seiten beobachten"
@@ -1684,6 +1687,126 @@
  },
  "usageUltra": {
   "message": "Ultra · Diese Woche noch {0} von {1} Antworten"
+ },
+ "actSimilar": {
+  "message": "Ähnliches finden"
+ },
+ "uxSimilar": {
+  "message": "Ähnliches finden…"
+ },
+ "similarTitle": {
+  "message": "Ähnliches finden"
+ },
+ "similarConditions": {
+  "message": "Bedingungen"
+ },
+ "similarCheaper": {
+  "message": "Günstiger"
+ },
+ "similarInStock": {
+  "message": "Auf Lager"
+ },
+ "similarNewer": {
+  "message": "Neuer"
+ },
+ "similarFree": {
+  "message": "Kostenlos"
+ },
+ "similarMyLanguage": {
+  "message": "In meiner Sprache"
+ },
+ "similarShorter": {
+  "message": "Kürzer"
+ },
+ "similarInLanguage": {
+  "message": "auf {0}"
+ },
+ "similarCustom": {
+  "message": "Oder sag, was du brauchst (optional)"
+ },
+ "similarHint": {
+  "message": "Echte Alternativen, die es jetzt gibt. Wir öffnen und prüfen jeden Link, bevor du ihn siehst."
+ },
+ "similarFind": {
+  "message": "Finden"
+ },
+ "similarAsked": {
+  "message": "Ähnliches finden"
+ },
+ "similarAskedWith": {
+  "message": "Ähnliches finden: {0}"
+ },
+ "similarStockIn": {
+  "message": "Auf Lager"
+ },
+ "similarStockOut": {
+  "message": "Nicht auf Lager"
+ },
+ "similarFromList": {
+  "message": "in einem Test genannt"
+ },
+ "similarNotConfirmed": {
+  "message": "Nicht bestätigt"
+ },
+ "similarNotOpened": {
+  "message": "Seite ließ sich nicht prüfen"
+ },
+ "similarWatchPrice": {
+  "message": "Preis beobachten"
+ },
+ "similarStepPlan": {
+  "message": "Seite wird gelesen…"
+ },
+ "similarStepSearch": {
+  "message": "Suche im Web…"
+ },
+ "similarStepCheck": {
+  "message": "Seiten werden geprüft…"
+ },
+ "similarStepCheckN": {
+  "message": "{0} Seiten werden geprüft…"
+ },
+ "similarStepWrite": {
+  "message": "Die besten werden ausgewählt…"
+ },
+ "similarNone": {
+  "message": "Keine geprüften Alternativen für diese Seite. Versuch eine andere Bedingung oder keine."
+ },
+ "similarChecked": {
+  "message": "Links geprüft um {0}"
+ },
+ "similarUpsellText": {
+  "message": "Echte Alternativen zu dem, was du dir ansiehst – ein Produkt, eine App, ein Artikel, ein Rezept, ein Ort."
+ },
+ "similarUpsellChecked": {
+  "message": "Jeder Link geöffnet und geprüft: keine toten oder erfundenen Seiten."
+ },
+ "similarUpsellConditions": {
+  "message": "Günstiger, auf Lager, neuer, kostenlos, in deiner Sprache – oder in eigenen Worten."
+ },
+ "similarUpsellWatch": {
+  "message": "Preise und Verfügbarkeit, wie die Seite sie zeigt, mit Preis beobachten."
+ },
+ "similarGetUltra": {
+  "message": "Ultra holen"
+ },
+ "similarOff": {
+  "message": "„Ähnliches finden“ ist noch nicht verfügbar."
+ },
+ "similarLimit": {
+  "message": "Die {0} Suchen nach Ähnlichem für diese Woche sind aufgebraucht. Neue gibt es am {1}."
+ },
+ "orgDemoQuestion": {
+  "message": "Günstige Flüge nach Lissabon im Mai?"
+ },
+ "orgDemoAnswer": {
+  "message": "Im Mai gibt es Hin- und Rückflüge von Berlin nach Lissabon ab etwa 90 Euro. Am besten sechs bis acht Wochen vorher buchen."
+ },
+ "orgDemoTag": {
+  "message": "urlaub"
+ },
+ "orgDemoChat": {
+  "message": "Reisen"
  },
  "tip_4cf1b54b00": {
   "message": "Tipps"

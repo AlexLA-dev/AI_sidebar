@@ -151,6 +151,39 @@ export const config = {
     ipDaily: int("WATCH_IP_DAILY", 1000),
     globalDaily: int("WATCH_GLOBAL_DAILY", 40_000)
   },
+  // "Find similar" (2.6, Ultra; /api/v2/similar). SIMILAR_ENGINES says which engines people can reach in
+  // production: "" (the default: none, the endpoint answers UNAVAILABLE), "a" (ours, checked), "b" (Google,
+  // Gemini grounding, shown as is) or "a,b". Off production (deploy previews, `netlify dev`) the evaluation
+  // script (tools/similar/eval.mts) reaches both with a token derived from the service key; nothing else does.
+  similar: {
+    engines: (env("SIMILAR_ENGINES") ?? "").split(",").map((s) => s.trim()).filter((s) => s === "a" || s === "b"),
+    planModel: (env("SIMILAR_PLAN_MODEL") ?? "claude-haiku-5-5").trim(),
+    searchModel: (env("SIMILAR_SEARCH_MODEL") ?? "claude-haiku-5-5").trim(),
+    // Empty: web_search_20260209 (dynamic filtering) on Sonnet and Opus, web_search_20250305 on Haiku.
+    searchTool: (env("SIMILAR_SEARCH_TOOL") ?? "").trim(),
+    writeModel: (env("SIMILAR_WRITE_MODEL") ?? "claude-sonnet-5-5").trim(),
+    // Candidate pages opened per search, and the whole run's time (the function has a minute).
+    maxPages: int("SIMILAR_MAX_PAGES", 12),
+    // 2.6 speed-up: items streamed to the panel as each passes the checks, and at most two follow-up searches for
+    // items named without their own page. Searching stays one call ("single"): the parallel calls ("parallel", one
+    // per search) were faster but brought more list pages, and in the 48-page comparison 7 items named from them
+    // weren't really on them (0 before), so that part was rolled back.
+    searchMode: (env("SIMILAR_SEARCH_MODE") ?? "single").trim() === "parallel" ? "parallel" as const : "single" as const,
+    followUps: int("SIMILAR_FOLLOW_UPS", 2),
+    streamItems: (env("SIMILAR_STREAM") ?? "on").trim() !== "off",
+    budgetMs: int("SIMILAR_BUDGET_MS", 52_000),
+    // Pages a site won't open to servers may fill a list that has fewer than 3 checked items (marked "not opened").
+    allowUnchecked: (env("SIMILAR_ALLOW_UNCHECKED") ?? "on").trim() !== "off",
+    // Safety caps (the Ultra allowance itself comes with the Ultra plan): per install a day, and for everyone.
+    installDaily: int("SIMILAR_INSTALL_DAILY", 40),
+    globalDaily: int("SIMILAR_GLOBAL_DAILY", 5_000),
+    // USD, for the spend in the logs: Anthropic web search per search; Gemini 3.8 Flash per million tokens
+    // (to 2026-12-31; $1.50/$7.50 from 2027) and Google Search grounding per query (after 5,000 free a month).
+    searchPrice: Number(env("SIMILAR_SEARCH_PRICE") ?? 0.01),
+    geminiPriceIn: Number(env("GEMINI_PRICE_IN") ?? 0.75),
+    geminiPriceOut: Number(env("GEMINI_PRICE_OUT") ?? 3.75),
+    groundingPrice: Number(env("GEMINI_GROUNDING_PRICE") ?? 0.014)
+  },
   legacyIpDailyLimit: int("LEGACY_IP_DAILY_LIMIT", 10),
 
   ipPepper: env("CF_IP_PEPPER") ?? "contextflow-ip-v1",
