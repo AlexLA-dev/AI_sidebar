@@ -1,12 +1,10 @@
 Stop pasting articles into a chatbot. Ask AI about any page, reply with templates that fill themselves and get a notification when a price changes, without leaving Safari. The chat follows you from page to page, and the same chat is on your iPhone, iPad and Mac.
 
-NEW IN 2.5
-• Templates for the replies you write again and again: ContextFlow fills in the name and the date from the page or the open conversation. Check it, then send
-• Tap a text field and the floating ContextFlow button appears next to it: what you copied in Safari, your templates and the last answer are one tap away. Copied text stays on your device for 24 hours
-• Waiting for a price to drop or an item to come back in stock? Select it and tap the eye: ContextFlow checks while you use Safari and tells you when it changes
-• Want to come back to a page later? Tap the bell and pick a time
-• Highlight the lines that matter in an answer, and pin answers to the top of the chat
-• Deleted a chat by mistake? It stays in Recently Deleted for 30 days
+NEW IN 2.6
+• Ultra, a new plan: Listen reads answers and whole pages aloud in a natural voice, in 100+ languages. On iPhone it keeps playing with the screen locked
+• Find similar (Ultra): real alternatives to any page, cheaper, newer, in stock, free or in your language. Every link is opened and checked before you see it
+• Yearly plans for Own key, Pro and Ultra
+• A short guide to your first answer, and the panel in Traditional Chinese, Arabic and Vietnamese
 
 WHAT YOU CAN DO
 • Summarize any article, review, thread or product page, or pull out the key facts
@@ -14,6 +12,8 @@ WHAT YOU CAN DO
 • Explain jargon in simple words, or translate the page into your language
 • Select text to ask about just that part, or keep it as a note
 • Google answers: fresh facts from Google Search, with sources you can open
+• Templates for replies you write again and again, filled in from the page. Tap a text field and the floating button brings them, with what you copied
+• Waiting for a price to drop? Select it and tap the eye: ContextFlow tells you when it changes. Tap the bell to come back to a page later
 
 NOTES AND CHATS
 • Notes: swipe the send button up or down (on a Mac, scroll over it) to write a note instead of asking. Notes use no answers
@@ -35,10 +35,12 @@ PRIVATE BY DESIGN
 • A page is read only when you ask about it or watch it
 • Page text is never stored on our servers; your chats stay on your devices and sync through your iCloud, end-to-end encrypted
 
-FREE AND PRO
-• Free: answers every day, a few template fills a day, and notes with no limit. Answers use the text of the page; if it has a video or a PDF, the answer says it skipped it
-• Pro: plenty of answers, deeper and more detailed, questions about videos and PDFs, template fills with no limit, more pages watched at once, suggestions that sort new answers and notes into your chats and tags, AI search and “Ask your chats”
+PLANS
+• Free: answers every day, a few template fills a day, and notes with no limit
+• Pro: plenty of answers, deeper and more detailed, videos and PDFs, unlimited template fills, more watched pages, suggestions that sort answers into your chats and tags, AI search and “Ask your chats”
+• Ultra: everything in Pro, plus Listen, Find similar and up to 50 watched pages
 • Own key: unlimited answers with your own OpenAI or Claude API key
+• Pro, Ultra and Own key: monthly or yearly
 
 GET STARTED IN A MINUTE
 1. Open the ContextFlow app: it shows you step by step how to turn the extension on in Safari.

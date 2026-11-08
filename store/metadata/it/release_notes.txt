@@ -1,14 +1,11 @@
-Novità di ContextFlow 2.5:
-• Scrivi sempre le stesse risposte? Salvane una come modello. ContextFlow segna cosa cambia, come un nome o una data, e lo compila dalla pagina o dalla conversazione aperta quando lo inserisci. Controlla, poi invia. Con Gratis hai qualche compilazione al giorno, con Pro senza limiti
-• Tocca un campo di testo e accanto compare il pulsante flottante di ContextFlow: ciò che hai copiato in Safari, i tuoi modelli e l'ultima risposta sono a un tocco. Funziona anche nei messaggi sui social e nelle finestre che si aprono sopra la pagina
-• Il testo copiato resta sul tuo dispositivo per 24 ore. Dai campi di password e carte non viene conservato nulla
-• Risposte e note hanno un nuovo pulsante: «Inserisci nel campo»
-• Su Mac o su iPad con tastiera, digita / e qualche parola di un modello in qualsiasi campo, poi premi Tab. Control-Shift-V apre l'elenco completo
-• Aspetti che un prezzo scenda o che un articolo torni disponibile? Seleziona il prezzo o la riga della disponibilità e tocca l'occhio. ContextFlow controlla mentre usi Safari e ti manda una notifica quando cambia. Per tutta la pagina: … → «Segui questa pagina»
-• Vuoi tornare a una pagina più tardi? Seleziona una riga e tocca la campanella, oppure scegli … → «Ricordami questa pagina», poi un orario. Anche una risposta o una nota può ricordartelo
-• Seleziona una riga in una risposta e tocca «Evidenzia». Le risposte successive in quella chat tengono conto delle tue evidenziazioni
-• Su iPhone e iPad, scorri una risposta o una nota verso destra per fissarla, verso sinistra per eliminarla. Quelle fissate stanno in una barra in cima alla chat
-• Hai eliminato una chat per errore? Resta in «Eliminati di recente» per 30 giorni
-• Con Pro, ContextFlow può suggerire in quale chat va una nuova risposta o nota, e uno dei tuoi tag. Sei tu ad attivarlo
-• I suggerimenti ora sono raggruppati per attività, con brevi video, nell'app e nel pannello
-• Correzioni e miglioramenti: le chat non si scambiano più di posto nell'elenco
+Novità di ContextFlow 2.6:
+• Ultra, un nuovo piano: tutto di Pro, più «Ascolta» e «Trova simili»
+• Ascolta: tocca «Ascolta» sotto una risposta, oppure scegli … → «Ascolta questa pagina». Una voce naturale legge il testo ad alta voce, in oltre 100 lingue. Su iPhone continua anche a schermo bloccato
+• Trova simili: stai guardando un prodotto, un'app, un articolo, una ricetta o un luogo? Tocca «Trova simili» per alternative reali: più economiche, più recenti, disponibili, gratuite o nella tua lingua, oppure di' con parole tue cosa ti serve. Ogni link viene aperto e verificato prima che tu lo veda, e puoi seguire il prezzo di ognuno
+• Ultra segue fino a 50 pagine alla volta
+• Piani annuali per Chiave propria, Pro e Ultra. Il passaggio da Pro a Ultra parte subito e Apple rimborsa quello che resta di Pro
+• Prima volta con ContextFlow? Una breve guida ti accompagna fino alla tua prima risposta e non consuma le risposte del giorno. Per rivederla: … → «Rivedi l'introduzione»
+• Seleziona del testo su iPhone o iPad e le azioni rapide sono già nel campo «La tua domanda…»: scorri tra «Riassumi», «Traduci», «In parole semplici» e altre
+• Il testo selezionato è già nella tua lingua? «Traduci» ora propone un'altra lingua, come l'inglese
+• ContextFlow ora parla cinese tradizionale, arabo e vietnamita: 14 lingue in tutto
+• Correzioni: il pannello e le Impostazioni ora scorrono su Google, le ultime righe delle Impostazioni non finiscono più sotto la barra degli strumenti di Safari, e i pulsanti accanto al testo selezionato non restano più fermi quando scorre solo una parte della pagina

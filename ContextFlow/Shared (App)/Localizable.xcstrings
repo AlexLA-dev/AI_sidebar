@@ -19863,6 +19863,88 @@
         }
       }
     },
+    "To answer, ContextFlow sends your question and excerpts of your chats via our server to Anthropic (Claude) or, if it's unavailable, OpenAI. With suggestions on, the text of new messages and notes also goes there to find where they belong. Chats are not stored on our servers: they stay on your devices and, if you sync them, in your iCloud.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "للإجابة، يرسل ContextFlow سؤالك ومقتطفات من محادثاتك عبر خادمنا إلى Anthropic (Claude)، أو إلى OpenAI إذا لم يكن متاحًا. وعند تشغيل الاقتراحات، يُرسَل إلى هناك أيضًا نص الرسائل والملاحظات الجديدة لمعرفة مكانها. لا تُخزَّن المحادثات على خوادمنا: تبقى على أجهزتك، وفي iCloud الخاص بك إذا كنت تزامنها."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Um zu antworten, sendet ContextFlow deine Frage und Auszüge aus deinen Chats über unseren Server an Anthropic (Claude) oder, falls Claude nicht verfügbar ist, an OpenAI. Mit eingeschalteten Vorschlägen geht auch der Text neuer Nachrichten und Notizen dorthin, um herauszufinden, wohin sie gehören. Chats werden nicht auf unseren Servern gespeichert – sie bleiben auf deinen Geräten und, wenn du sie synchronisierst, in deiner iCloud."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para responder, ContextFlow envía tu pregunta y fragmentos de tus chats a través de nuestro servidor a Anthropic (Claude) o, si no está disponible, a OpenAI. Con las sugerencias activadas, el texto de los mensajes y notas nuevos también va allí para ver dónde encajan. Los chats no se guardan en nuestros servidores: se quedan en tus dispositivos y, si los sincronizas, en tu iCloud."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pour répondre, ContextFlow envoie votre question et des extraits de vos discussions via notre serveur à Anthropic (Claude) ou, s'il est indisponible, à OpenAI. Si les suggestions sont activées, le texte des nouveaux messages et des nouvelles notes y est aussi envoyé pour trouver leur place. Les discussions ne sont pas conservées sur nos serveurs : elles restent sur vos appareils et, si vous les synchronisez, dans votre iCloud."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Per rispondere, ContextFlow invia la tua domanda ed estratti delle tue chat tramite il nostro server ad Anthropic (Claude) o, se non è disponibile, a OpenAI. Con i suggerimenti attivi, anche il testo dei nuovi messaggi e delle nuove note va lì per capire dove vanno. Le chat non vengono salvate sui nostri server: restano sui tuoi dispositivi e, se le sincronizzi, nel tuo iCloud."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "回答するために、ContextFlowはあなたの質問とチャットの抜粋を、当社のサーバ経由でAnthropic（Claude）に、利用できない場合はOpenAIに送信します。提案をオンにすると、新しいメッセージとメモのテキストも、どこに入るかを見つけるために同じように送信されます。チャットは当社のサーバに保存されず、お使いのデバイスと、同期をオンにした場合はあなたのiCloudにのみ保存されます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "답변을 위해 ContextFlow는 질문과 채팅 발췌를 당사 서버를 거쳐 Anthropic(Claude)으로, 사용할 수 없을 때는 OpenAI로 보내요. 추천을 켜면 새 메시지와 메모의 텍스트도 어디에 맞는지 찾기 위해 함께 보내요. 채팅은 당사 서버에 저장되지 않으며, 내 기기에, 동기화를 켜면 내 iCloud에만 보관돼요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para responder, o ContextFlow envia sua pergunta e trechos das suas conversas por meio do nosso servidor à Anthropic (Claude) ou, se ela estiver indisponível, à OpenAI. Com as sugestões ativadas, o texto das novas mensagens e notas também vai para lá para encontrar o lugar delas. As conversas não ficam armazenadas em nossos servidores: elas ficam nos seus dispositivos e, se você sincronizar, no seu iCloud."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Чтобы ответить, ContextFlow отправляет ваш вопрос и выдержки из ваших чатов через наш сервер в Anthropic (Claude), а если он недоступен — в OpenAI. Если подсказки включены, туда же уходит текст новых сообщений и заметок, чтобы найти, куда они относятся. Мы не храним чаты на своих серверах: они остаются на ваших устройствах и, если включена синхронизация, в вашем iCloud."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Щоб відповісти, ContextFlow надсилає ваше запитання й уривки з ваших чатів через наш сервер до Anthropic (Claude), а якщо він недоступний — до OpenAI. Якщо підказки ввімкнено, туди ж надсилається текст нових повідомлень і нотаток, щоб знайти, куди вони належать. Чати не зберігаються на наших серверах: вони залишаються на ваших пристроях і, якщо ви їх синхронізуєте, у вашому iCloud."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Để trả lời, ContextFlow gửi câu hỏi của bạn và các đoạn trích từ cuộc trò chuyện qua máy chủ của chúng tôi tới Anthropic (Claude) hoặc, nếu Anthropic không khả dụng, tới OpenAI. Khi bật gợi ý, văn bản của tin nhắn và ghi chú mới cũng được gửi tới đó để tìm chỗ phù hợp. Cuộc trò chuyện không được lưu trên máy chủ của chúng tôi: chúng nằm trên thiết bị của bạn và, nếu bạn đồng bộ, trong iCloud của bạn."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "为了回答问题，ContextFlow 会通过我们的服务器将你的问题和对话摘录发送给 Anthropic（Claude），不可用时发送给 OpenAI。开启建议后，新消息和笔记的文本也会一并发送，用来判断它们该放在哪里。我们的服务器不会存储对话；对话仅保存在你的设备上，开启同步后也会保存在你的 iCloud 中。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "為了回答，ContextFlow 會透過我們的伺服器，把你的問題和對話摘錄傳送給 Anthropic（Claude）；如果無法使用，則傳送給 OpenAI。開啟建議後，新訊息和筆記的文字也會一併傳送，用來判斷它們該放在哪裡。我們的伺服器不會儲存對話：對話只會留在你的裝置上，若你有同步，也會存在你的 iCloud 中。"
+          }
+        }
+      }
+    },
     "Nothing was sent: AI answers need your consent first.": {
       "localizations": {
         "ar": {
@@ -35489,13 +35571,13 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Buscar parecidos: alternativas a cualquier página (más baratas, más nuevas, disponibles o en tu idioma), %lld búsquedas a la semana"
+            "value": "Buscar similares: alternativas a cualquier página (más baratas, más nuevas, disponibles o en tu idioma), %lld búsquedas a la semana"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Contenus similaires : des alternatives à n'importe quelle page (moins chères, plus récentes, en stock ou dans votre langue), %lld recherches par semaine"
+            "value": "Trouver similaire : des alternatives à n'importe quelle page (moins chères, plus récentes, en stock ou dans votre langue), %lld recherches par semaine"
           }
         },
         "it": {
@@ -35519,7 +35601,7 @@
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Achar parecidos: alternativas a qualquer página (mais baratas, mais novas, em estoque ou no seu idioma), %lld buscas por semana"
+            "value": "Encontrar parecidos: alternativas a qualquer página (mais baratas, mais novas, em estoque ou no seu idioma), %lld buscas por semana"
           }
         },
         "ru": {
@@ -35543,13 +35625,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "查找相似内容：为任何页面找替代选择——更便宜、更新、有货或用你的语言，每周 %lld 次搜索"
+            "value": "查找相似：为任何页面找替代选择——更便宜、更新、有货或用你的语言，每周 %lld 次搜索"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "查找相似內容：為任何頁面找替代選擇——更便宜、更新、有貨或用你的語言，每週 %lld 次搜尋"
+            "value": "尋找相似：為任何頁面找替代選擇——更便宜、更新、有貨或用你的語言，每週 %lld 次搜尋"
           }
         }
       }
