@@ -12,7 +12,7 @@
 // counted ("use" f "tour", src/shared/usage.ts) for the guided funnel (cf_feature_funnels "guided").
 
 import type { VNode } from "preact"
-import { useEffect } from "preact/hooks"
+import { useEffect, useState } from "preact/hooks"
 
 import { t, type MessageKey } from "../shared/i18n"
 import * as Icon from "./icons"
@@ -178,10 +178,12 @@ export function GuidePill({ touch, onSkip }: { touch: boolean; onSkip: () => voi
 }
 
 /** A Tips clip on a tour card: the feature at work (the owner: show it, not only describe it). The app's clip, like
- * the Tips sheet's (ClipFrame); one still frame with Reduce Motion; a line instead before the app has shared it. */
+ * the Tips sheet's (ClipFrame); one still frame with Reduce Motion. Before the app has shared it, the card goes
+ * without (its words say it all; the Tips sheet is where "open the app once" is said). */
 function GuideClip({ name }: { name: string }): VNode | null {
+  const [gone, setGone] = useState(false)
   const data = tipsData()
-  if (!data) return null
+  if (!data || gone) return null
   const lang = say(data.clipLang) === "ru" ? "ru" : "en"
   let still = false
   try {
@@ -189,5 +191,5 @@ function GuideClip({ name }: { name: string }): VNode | null {
   } catch {
     // No media queries: it plays.
   }
-  return <div class="cf-guide-clip"><ClipFrame name={name} lang={lang} still={still} motion={!still} /></div>
+  return <div class="cf-guide-clip"><ClipFrame name={name} lang={lang} still={still} motion={!still} onMissing={() => setGone(true)} /></div>
 }
