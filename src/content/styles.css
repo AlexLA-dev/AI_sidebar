@@ -8,6 +8,13 @@
   --accent-2: #38bdf8;
   --accent-soft: rgba(37, 99, 235, 0.10);
   --accent-text: #1d4ed8;
+  /* Ultra (2.6, build 90): one colour for its features, the app's (ContentView ultraColor, #7D4FED). Text and mark
+     pass 4.5:1 on every panel background in both themes. */
+  --cf-ultra: #7d4fed;
+  --cf-ultra-text: #5b2fd1;
+  --cf-ultra-soft: rgba(125, 79, 237, 0.14);
+  --cf-ultra-line: rgba(125, 79, 237, 0.32);
+  --cf-ultra-on: #ffffff;
   --note: #d97706;
   --note-soft: rgba(245, 158, 11, 0.13);
   --note-text: #92400e;
@@ -46,6 +53,11 @@
   --accent-2: #7dd3fc;
   --accent-soft: rgba(96, 165, 250, 0.16);
   --accent-text: #93c5fd;
+  --cf-ultra: #a78bfa;
+  --cf-ultra-text: #c4b5fd;
+  --cf-ultra-soft: rgba(167, 139, 250, 0.18);
+  --cf-ultra-line: rgba(167, 139, 250, 0.36);
+  --cf-ultra-on: #1c1b21;
   --bg: #1c1b21;
   --bg-2: #26252c;
   --bg-3: #302f37;
@@ -69,6 +81,11 @@
     --accent-2: #7dd3fc;
     --accent-soft: rgba(96, 165, 250, 0.16);
     --accent-text: #93c5fd;
+    --cf-ultra: #a78bfa;
+    --cf-ultra-text: #c4b5fd;
+    --cf-ultra-soft: rgba(167, 139, 250, 0.18);
+    --cf-ultra-line: rgba(167, 139, 250, 0.36);
+    --cf-ultra-on: #1c1b21;
     --bg: #1c1b21;
     --bg-2: #26252c;
     --bg-3: #302f37;
@@ -312,6 +329,11 @@
 }
 .cf-chip:hover { background: var(--accent-soft); border-color: transparent; color: var(--accent-text); }
 .cf-chip.small { padding: 5px 10px; font-size: 12.5px; color: var(--text-2); }
+/* Ultra's actions in Ultra's colour (2.6, build 90): the panel's quick action, the selection chip and the Mac button. */
+.cf-chip.ultra, .cf-chip.ultra:hover { display: inline-flex; align-items: center; gap: 5px; color: var(--cf-ultra-text); background: var(--cf-ultra-soft); border-color: var(--cf-ultra-line); }
+.cf-bubble button.cf-sel-similar.ultra { color: var(--cf-ultra-text); background: var(--cf-ultra-soft); box-shadow: 0 0 0 1px var(--cf-ultra-line) inset; }
+.cf-bubble.touch button.cf-sel-chip.ultra { gap: 4px; color: var(--cf-ultra-text); background: var(--cf-ultra-soft); border-color: var(--cf-ultra-line); }
+.cf-ultra-mark { display: inline-block; margin-inline-start: 5px; padding: 0 4px; border-radius: 5px; font-size: 9.5px; font-weight: 700; line-height: 15px; letter-spacing: 0.02em; color: var(--cf-ultra-on); background: var(--cf-ultra); }
 
 .cf-msg { margin: 0 0 14px; display: flex; flex-direction: column; }
 /* "New page: …" / "Page updated" between questions of the running conversation. */

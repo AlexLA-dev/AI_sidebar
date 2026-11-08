@@ -143,6 +143,15 @@ const selAction = (id: string) => SELECTION_ACTIONS.find((a) => a.id === id)!
 
 /** The chips in the selection buttons' field on iPhone and iPad (2.6, the owner): the panel's selection actions in his
  * order, without Google (the buttons have their own). */
+/** Ultra's actions (2.6, build 90, the owner: "colour Similar so it's clear it's an Ultra feature"): in Ultra's colour
+ * (--cf-ultra) everywhere they show, with a small "Ultra" for anyone without it. */
+const ULTRA_ACTIONS = new Set(["similar", "sel_similar"])
+
+/** The small "Ultra" on an Ultra action, for someone without Ultra (a tap opens Ultra's card). */
+function UltraMark({ show }: { show: boolean }): VNode | null {
+  return show ? <span class="cf-ultra-mark">Ultra</span> : null
+}
+
 /** The plans, low to high: an upgrade moves up (Own key is below Pro: it has none of Pro's features). */
 const PLAN_RANK: Record<string, number> = { free: 0, byok: 1, pro: 2, ultra: 3 }
 
@@ -2497,11 +2506,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SELECTION_ACTIONS[2]), 60) })}>{t("selTranslate")}</button>
                     <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SEL_GOOGLE), 60) })}><Icon.Search size={13} /> {t("actGoogle")}</button>
                     {/* 2.6 (build 89, the owner): Find similar from a selection too, not only from the panel. */}
-                    <button type="button" class="cf-sel-similar" title={t("actSimilar")} {...press(() => {
+                    <button type="button" class="cf-sel-similar ultra" title={t("actSimilar")} {...press(() => {
                       void sendBackground({ type: "useEvent", f: "bubble", a: "action", what: "sel_similar", via: "button" })
                       show(bubble)
                       setTimeout(() => runActionRef.current(selAction("sel_similar")), 60)
-                    })}><SimilarIcon size={13} /> {t("selSimilar")}</button>
+                    })}><SimilarIcon size={13} /> {t("selSimilar")}<UltraMark show={!isUltra(plan)} /></button>
                     <button type="button" class="cf-sel-template" aria-label={t("qiTemplateButton")} title={t("qiTemplateButton")} {...press(() => newTemplate(bubble))}><QIcon.Template size={14} /> <span class="cf-sel-l">{t("qiTemplateButton")}</span></button>
                     {remindButton(bubble)}
                     {bubbleExtras}
@@ -2509,7 +2518,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 )}
               </div>
               <div class="cf-bubble-ask">
-                <SelField touch={touch} placeholder={t("selQuestion")} chips={touch && !selDraft && !selFocus ? SEL_CHIPS.flatMap((id) => forSelection(selAction(id), bubble.text) ?? []) : []} onChip={(a) => {
+                <SelField touch={touch} placeholder={t("selQuestion")} ultra={isUltra(plan)} chips={touch && !selDraft && !selFocus ? SEL_CHIPS.flatMap((id) => forSelection(selAction(id), bubble.text) ?? []) : []} onChip={(a) => {
                   selFeatureUsed()
                   void sendBackground({ type: "useEvent", f: "bubble", a: "action", what: a.id, via: "chip" })
                   show(bubble)
@@ -2828,7 +2837,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     {actions.length > 0 && (
                       <div class="cf-actions">
                         {actions.map((a) => (
-                          <button type="button" key={a.id} class="cf-chip" data-action={a.id} onClick={() => runAction(a)}>{actionLabel(a)}</button>
+                          ULTRA_ACTIONS.has(a.id)
+                            ? <button type="button" key={a.id} class="cf-chip ultra" data-action={a.id} onClick={() => runAction(a)}><SimilarIcon size={13} /> {actionLabel(a)}<UltraMark show={!isUltra(plan)} /></button>
+                            : <button type="button" key={a.id} class="cf-chip" data-action={a.id} onClick={() => runAction(a)}>{actionLabel(a)}</button>
                         ))}
                       </div>
                     )}
@@ -3308,7 +3319,7 @@ let chipsNudged = false
  * touch-action:none (taps only); the field scrolls sideways (pan-x). The size of the buttons doesn't change. Mac: just
  * the field.
  */
-function SelField({ touch, chips, placeholder, onChip, children }: { touch: boolean; chips: Action[]; placeholder: string; onChip: (a: Action) => void; children: ComponentChildren }): VNode {
+function SelField({ touch, chips, placeholder, ultra, onChip, children }: { touch: boolean; chips: Action[]; placeholder: string; ultra: boolean; onChip: (a: Action) => void; children: ComponentChildren }): VNode {
   const ref = useRef<HTMLDivElement>(null)
   const probe = useRef<HTMLSpanElement>(null)
   const on = chips.length > 0
@@ -3344,7 +3355,9 @@ function SelField({ touch, chips, placeholder, onChip, children }: { touch: bool
       <span ref={probe} class="cf-ask-probe" aria-hidden="true">{placeholder}</span>
       {children}
       {chips.map((a) => (
-        <button type="button" key={a.id} class="cf-sel-chip" {...press(() => onChip(a))}>{a.text ?? t(a.label)}</button>
+        ULTRA_ACTIONS.has(a.id)
+          ? <button type="button" key={a.id} class="cf-sel-chip ultra" {...press(() => onChip(a))}><SimilarIcon size={12} /> {a.text ?? t(a.label)}<UltraMark show={!ultra} /></button>
+          : <button type="button" key={a.id} class="cf-sel-chip" {...press(() => onChip(a))}>{a.text ?? t(a.label)}</button>
       ))}
     </div>
   )
