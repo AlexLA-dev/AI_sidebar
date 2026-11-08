@@ -87,7 +87,6 @@
   "1cbf20f3c9d5": "Ce que fait ContextFlow dans Safari",
   "28b831787b53": "Chaque fonction en courte vidéo : réponses sur la page, notes, insertion rapide, rappels, suivi des prix et discussions bien rangées.",
   "71164de42647": "Ce que fait ContextFlow",
-  "97df13861bf7": "Ce sont les mêmes astuces que dans l’app, classées selon ce que vous voulez faire. Chaque vidéo montre le vrai panneau en action. Les cartes marquées <span class=\"pro-badge\">Pro</span> nécessitent le forfait Pro. Tout le reste fonctionne en Gratuit.",
   "89895fd68fea": "Sur tous vos appareils",
   "db298c67acfd": "Commencé sur iPhone, terminé sur Mac&nbsp;? Activez «&nbsp;Synchroniser les discussions avec iCloud&nbsp;»&nbsp;: la discussion se poursuit sur votre iPad et votre Mac. Elle est chiffrée de bout en bout dans votre iCloud et n’est jamais stockée sur mon serveur.",
   "23bcbc4b8227": "Ouvrez-le sur la page que vous lisez et posez votre question. Pas de consigne à écrire.",
@@ -467,5 +466,18 @@
   "a3587d02c409": "Qu’est-ce qui est envoyé quand je pose une question&nbsp;?",
   "9e77c9846978": "Votre question et le texte de la page (ou votre sélection) — uniquement à ce moment-là, uniquement pour générer la réponse. Les détails sont dans la <a href=\"/privacy\">Politique de confidentialité</a>.",
   "0943d5368501": "J’avais un compte dans une ancienne version. Comment le supprimer&nbsp;?",
-  "17328923ce30": "Écrivez-nous depuis l’adresse utilisée lors de l’inscription, et nous le supprimerons sous 30 jours. La version 2.0 n’utilise plus de comptes."
+  "17328923ce30": "Écrivez-nous depuis l’adresse utilisée lors de l’inscription, et nous le supprimerons sous 30 jours. La version 2.0 n’utilise plus de comptes.",
+  "b8a90a3e910d": "Ce sont les mêmes astuces que dans l’app, classées selon ce que vous voulez faire. Chaque vidéo montre le vrai panneau en action. Les cartes marquées <span class=\"pro-badge\">Pro</span> nécessitent le forfait Pro, et celles marquées <span class=\"ultra-badge\">Ultra</span>, Ultra. Tout le reste fonctionne en Gratuit.",
+  "b96ddaab20ff": "Votre forfait",
+  "2f27bc2271a5": "Actions rapides sous la sélection",
+  "fe4d888ff56e": "Pas envie de taper sur votre téléphone ? Sur iPhone et iPad, sélectionnez du texte : le champ « Votre question… » juste en dessous propose « Résumer », « Traduire », « Trouver similaire » et d’autres. Faites-les défiler du doigt et touchez-en une. Sur Mac, les mêmes actions sont des boutons sous la sélection.",
+  "cd4dfd7997f6": "Trouver similaire <span class=\"ultra-badge\">Ultra</span>",
+  "ea488f6eb0df": "Vous vous demandez ce qui existe d’autre ? Touchez « Trouver similaire » dans le panneau, ou sélectionnez le nom d’un produit et touchez « Trouver similaire » en dessous. Ajoutez une condition comme « Moins cher » ou « En stock » si vous voulez. Chaque alternative est une vraie page, ouverte et vérifiée avant que vous ne la voyiez.",
+  "63345676db20": "Écouter <span class=\"ultra-badge\">Ultra</span>",
+  "3c892169e2cc": "Plutôt écouter que lire ? Touchez « Écouter » sous une réponse, ou choisissez « Écouter cette page » dans le menu « … ». Une voix naturelle la lit à 1×, 1,2×, 1,5× ou 2×. Sur iPhone et iPad, la lecture se fait dans l’app ContextFlow et continue écran verrouillé ; sur Mac, directement dans le panneau.",
+  "da0391a442a7": "Comment vous payez, et ce qu’apporte votre forfait.",
+  "b3282f43dd8a": "Mensuel ou annuel",
+  "0401a0483c47": "Envie de payer moins ? Pro et Ultra existent au mois ou à l’année, et une année coûte moins cher que douze mois. Touchez « Annuel » au-dessus des forfaits pour voir chaque prix et ce que vous économisez. Déjà au mois ? « Passer à l’annuel » se trouve dans « Réglages » → « Votre forfait », et l’annuel commence à la fin de votre mois en cours.",
+  "9288a85bb996": "Ce qu’apporte votre forfait",
+  "14a3f72a986a": "Vous venez de passer à un forfait supérieur et ne savez pas ce qui change ? Après l’achat de Pro ou d’Ultra, ContextFlow vous montre, étape par étape, ce qu’apporte votre forfait. Pour le revoir, touchez « … » en haut du panneau, puis « Autres… » et « Ce que Pro inclut » ou « Ce que Ultra inclut ». Dans l’app, c’est dans « Réglages », sous « Votre forfait »."
 }

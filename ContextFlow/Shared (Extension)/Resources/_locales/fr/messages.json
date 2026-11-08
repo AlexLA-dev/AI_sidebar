@@ -755,6 +755,18 @@
  "uxShowIntro": {
   "message": "Revoir l’introduction"
  },
+ "uxOther": {
+  "message": "Autres…"
+ },
+ "tipClipNeedsApp": {
+  "message": "Ouvrez l’app ContextFlow une fois pour voir cette vidéo."
+ },
+ "busyWorking": {
+  "message": "Réponse en préparation…"
+ },
+ "busyNew": {
+  "message": "Nouvelle réponse prête"
+ },
  "ptMenu": {
   "message": "Ce que {0} inclut"
  },
@@ -764,17 +776,17 @@
  "ptProMediaBody": {
   "message": "Sur une page avec une vidéo ou un PDF, ContextFlow les lit aussi : les sous-titres de la vidéo et le texte du PDF. Posez simplement votre question."
  },
- "ptProChatsTitle": {
-  "message": "Cherchez dans vos chats et interrogez-les"
+ "ptProFindTitle": {
+  "message": "Recherche IA dans vos chats"
  },
- "ptProChatsBody": {
-  "message": "Dans vos chats, ✦ retrouve un chat à partir d'une description, et « {0} » répond à partir de tout ce que vous avez lu et demandé."
+ "ptProFindBody": {
+  "message": "Activez ✦ près de la recherche et décrivez le chat dont vous vous souvenez, même sans les mots exacts."
  },
- "ptProChatListTitle": {
-  "message": "Juste ici"
+ "ptProAskTitle": {
+  "message": "Interrogez tous vos chats"
  },
- "ptProChatListBody": {
-  "message": "Activez ✦ près de la recherche et décrivez le chat voulu, ou touchez « {0} » pour interroger tous vos chats d'un coup."
+ "ptProAskBody": {
+  "message": "« {0} » répond à partir de tout ce que vous avez lu et demandé : « Qu'ai-je lu cette semaine ? »"
  },
  "ptProSortTitle": {
   "message": "Rangé par thème"
@@ -2036,6 +2048,42 @@
  "plansUpgradeYearly": {
   "message": "Passer à l’annuel"
  },
+ "similarPayFree": {
+  "message": "Gratuit, sans achats intégrés"
+ },
+ "similarPayFreeStart": {
+  "message": "Gratuit"
+ },
+ "similarPaySub": {
+  "message": "Abonnement à partir de {0}"
+ },
+ "similarPayOnce": {
+  "message": "Achat unique {0}"
+ },
+ "similarPayIap": {
+  "message": "Achats intégrés à partir de {0}"
+ },
+ "similarPerWeek": {
+  "message": "{0}/semaine"
+ },
+ "similarPerMonth": {
+  "message": "{0}/mois"
+ },
+ "similarPerYear": {
+  "message": "{0}/an"
+ },
+ "offerMemoryTitle": {
+  "message": "Pro se souvient de tout le chat"
+ },
+ "offerMemoryBody": {
+  "message": "Une réponse gratuite voit les {0} derniers messages d'un chat. Avec Pro, l'IA s'en souvient en entier : chaque message, vos notes et les pages sur lesquelles vous avez posé des questions."
+ },
+ "offerMemoryLong": {
+  "message": "Ce chat dépasse les {0} messages dont se souvient une réponse gratuite. Avec Pro, l'IA s'en souvient en entier : chaque message, vos notes et les pages sur lesquelles vous avez posé des questions."
+ },
+ "offerRetryAt": {
+  "message": "Les réponses reviennent à {0}."
+ },
  "tip_4cf1b54b00": {
   "message": "Astuces"
  },
@@ -2077,6 +2125,18 @@
  },
  "tip_fa1cdf5479": {
   "message": "Sélectionnez du texte sur une page : posez votre propre question juste sous la sélection, ou touchez « Note » pour l’enregistrer dans le chat avec sa page. Les notes ne consomment aucune réponse."
+ },
+ "tip_2f27bc2271": {
+  "message": "Actions rapides sous la sélection"
+ },
+ "tip_b4d2d0edad": {
+  "message": "Sélectionnez du texte sur une page : « Résumer », « Traduire », « Trouver similaire » et d’autres attendent dans le champ « Votre question… » juste en dessous. Faites-les défiler du doigt et touchez-en une, sans rien taper."
+ },
+ "tip_2aef052e5b": {
+  "message": "Boutons sous la sélection"
+ },
+ "tip_894f528548": {
+  "message": "Sélectionnez du texte sur une page : « Expliquer », « Traduire », Google et « Trouver similaire » sont des boutons juste en dessous. Cliquez sur l’un d’eux, ou tapez votre propre question dans le champ en dessous."
  },
  "tip_9000896590": {
   "message": "La discussion vous suit"
@@ -2140,6 +2200,24 @@
  },
  "tip_ff32d2c483": {
   "message": "Avec Pro, les PDF affichés ou liés sur une page accompagnent votre question, et les réponses indiquent la page. Sur iPad et Mac, ContextFlow dans la barre d’outils s’ouvre aussi sur un onglet PDF. Les réponses gratuites utilisent le texte de la page."
+ },
+ "tip_de4adc7524": {
+  "message": "Trouver similaire"
+ },
+ "tip_b2248495b1": {
+  "message": "Touchez « Trouver similaire » parmi les actions du panneau, ou dans le menu « … » en haut du panneau. Ou sélectionnez du texte, comme le nom d’un produit, et touchez « Trouver similaire » dans les actions rapides en dessous. Ajoutez une condition comme « Moins cher » ou « En stock » si vous voulez : les alternatives sont réelles, et chaque lien est ouvert et vérifié avant que vous ne le voyiez."
+ },
+ "tip_9161a2ed42": {
+  "message": "Cliquez sur « Trouver similaire » parmi les actions du panneau, ou dans le menu « … » en haut du panneau. Ou sélectionnez du texte, comme le nom d’un produit, et cliquez sur le bouton « Trouver similaire » en dessous. Ajoutez une condition comme « Moins cher » ou « En stock » si vous voulez : les alternatives sont réelles, et chaque lien est ouvert et vérifié avant que vous ne le voyiez."
+ },
+ "tip_c518fb0674": {
+  "message": "Écouter"
+ },
+ "tip_f26f3d2993": {
+  "message": "Touchez « Écouter » sous une réponse, ou choisissez « Écouter cette page » dans le menu « … » en haut du panneau. L’app ContextFlow la lit d’une voix naturelle, même écran verrouillé. Touchez la vitesse dans le lecteur pour choisir 1×, 1,2×, 1,5× ou 2×."
+ },
+ "tip_4eab0ec0a2": {
+  "message": "Cliquez sur « Écouter » sous une réponse, ou choisissez « Écouter cette page » dans le menu « … » en haut du panneau. Une voix naturelle la lit directement dans le panneau. Cliquez sur la vitesse dans le lecteur pour choisir 1×, 1,2×, 1,5× ou 2×."
  },
  "tip_328ee8ddce": {
   "message": "Insertion rapide"
@@ -2236,6 +2314,21 @@
  },
  "tip_69a0bac728": {
   "message": "ContextFlow apprend ce que signifient vos tags d’après les endroits où vous les mettez, et suggère le bon sous une nouvelle réponse ou note. Seulement vos propres tags, seulement quand ils conviennent."
+ },
+ "tip_b96ddaab20": {
+  "message": "Votre forfait"
+ },
+ "tip_b3282f43dd": {
+  "message": "Mensuel ou annuel"
+ },
+ "tip_12e62d9862": {
+  "message": "Pro et Ultra existent au mois ou à l’année, et une année coûte moins cher que douze mois. Touchez « Annuel » au-dessus des forfaits, dans l’app ou dans Safari, pour voir chaque prix et ce que vous économisez. Déjà au mois ? « Passer à l’annuel » se trouve dans « Réglages » → « Votre forfait » : l’annuel commence à la fin de votre mois en cours."
+ },
+ "tip_9288a85bb9": {
+  "message": "Ce qu’apporte votre forfait"
+ },
+ "tip_0f2289f887": {
+  "message": "Après l’achat de Pro ou d’Ultra, ContextFlow vous montre, étape par étape, ce qu’apporte votre forfait. Pour le revoir, touchez « … » en haut du panneau, puis « Autres… » et « Ce que Pro inclut » ou « Ce que Ultra inclut ». Dans l’app, c’est dans « Réglages », sous « Votre forfait »."
  },
  "tip_3208aa35ac": {
   "message": "Confidentialité et personnalisation"

@@ -755,6 +755,18 @@
  "uxShowIntro": {
   "message": "Xem lại phần giới thiệu"
  },
+ "uxOther": {
+  "message": "Khác…"
+ },
+ "tipClipNeedsApp": {
+  "message": "Mở ứng dụng ContextFlow một lần để xem video này."
+ },
+ "busyWorking": {
+  "message": "Đang chuẩn bị câu trả lời…"
+ },
+ "busyNew": {
+  "message": "Có câu trả lời mới"
+ },
  "ptMenu": {
   "message": "{0} có gì"
  },
@@ -764,17 +776,17 @@
  "ptProMediaBody": {
   "message": "Trên trang có video hoặc PDF, giờ ContextFlow đọc cả chúng: phụ đề của video và nội dung PDF. Cứ hỏi như bình thường."
  },
- "ptProChatsTitle": {
-  "message": "Tìm và hỏi các cuộc trò chuyện"
+ "ptProFindTitle": {
+  "message": "Tìm bằng AI trong các cuộc trò chuyện"
  },
- "ptProChatsBody": {
-  "message": "Trong danh sách trò chuyện, ✦ tìm một cuộc trò chuyện theo mô tả, còn “{0}” trả lời từ mọi thứ bạn đã đọc và hỏi."
+ "ptProFindBody": {
+  "message": "Bật ✦ cạnh ô tìm kiếm và mô tả cuộc trò chuyện bạn nhớ, không cần đúng từng chữ."
  },
- "ptProChatListTitle": {
-  "message": "Ngay đây"
+ "ptProAskTitle": {
+  "message": "Hỏi tất cả cuộc trò chuyện"
  },
- "ptProChatListBody": {
-  "message": "Bật ✦ cạnh ô tìm kiếm và mô tả cuộc trò chuyện bạn cần, hoặc chạm “{0}” để hỏi tất cả cùng lúc."
+ "ptProAskBody": {
+  "message": "“{0}” trả lời từ mọi thứ bạn đã đọc và hỏi: “Tuần này tôi đã đọc gì?”"
  },
  "ptProSortTitle": {
   "message": "Sắp xếp theo chủ đề"
@@ -2036,6 +2048,42 @@
  "plansUpgradeYearly": {
   "message": "Nâng cấp lên gói theo năm"
  },
+ "similarPayFree": {
+  "message": "Miễn phí, không có mua hàng trong ứng dụng"
+ },
+ "similarPayFreeStart": {
+  "message": "Miễn phí"
+ },
+ "similarPaySub": {
+  "message": "Gói đăng ký từ {0}"
+ },
+ "similarPayOnce": {
+  "message": "Mua một lần {0}"
+ },
+ "similarPayIap": {
+  "message": "Mua hàng trong ứng dụng từ {0}"
+ },
+ "similarPerWeek": {
+  "message": "{0}/tuần"
+ },
+ "similarPerMonth": {
+  "message": "{0}/tháng"
+ },
+ "similarPerYear": {
+  "message": "{0}/năm"
+ },
+ "offerMemoryTitle": {
+  "message": "Pro ghi nhớ cả cuộc trò chuyện"
+ },
+ "offerMemoryBody": {
+  "message": "Câu trả lời miễn phí chỉ xem {0} tin nhắn gần nhất của cuộc trò chuyện. Với Pro, AI ghi nhớ toàn bộ: mọi tin nhắn, ghi chú của bạn và các trang bạn đã hỏi."
+ },
+ "offerMemoryLong": {
+  "message": "Cuộc trò chuyện này đã dài hơn {0} tin nhắn mà câu trả lời miễn phí ghi nhớ. Với Pro, AI ghi nhớ toàn bộ: mọi tin nhắn, ghi chú của bạn và các trang bạn đã hỏi."
+ },
+ "offerRetryAt": {
+  "message": "Câu trả lời có lại lúc {0}."
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },
@@ -2077,6 +2125,18 @@
  },
  "tip_fa1cdf5479": {
   "message": "Chọn văn bản trên trang: nhập câu hỏi của bạn ngay dưới đoạn đã chọn, hoặc chạm vào Ghi chú để lưu đoạn đó vào cuộc trò chuyện cùng trang của nó. Ghi chú không tốn câu trả lời."
+ },
+ "tip_2f27bc2271": {
+  "message": "Thao tác nhanh dưới đoạn đã chọn"
+ },
+ "tip_b4d2d0edad": {
+  "message": "Chọn văn bản trên trang: Tóm tắt, Dịch, Tìm tương tự và các thao tác khác nằm sẵn trong ô Câu hỏi của bạn… ngay bên dưới. Vuốt qua chúng và chạm vào một mục, không cần gõ."
+ },
+ "tip_2aef052e5b": {
+  "message": "Các nút dưới đoạn đã chọn"
+ },
+ "tip_894f528548": {
+  "message": "Chọn văn bản trên trang: Giải thích, Dịch, Google và Tìm tương tự là các nút ngay bên dưới. Bấm vào một nút, hoặc nhập câu hỏi của bạn vào ô bên dưới."
  },
  "tip_9000896590": {
   "message": "Cuộc trò chuyện đi theo bạn"
@@ -2140,6 +2200,24 @@
  },
  "tip_ff32d2c483": {
   "message": "Với Pro, các tệp PDF hiển thị trên trang hoặc được liên kết từ trang sẽ được gửi kèm câu hỏi, và câu trả lời cho biết thông tin nằm ở trang nào. Trên iPad và Mac, ContextFlow trên thanh công cụ cũng mở được trên tab PDF. Câu trả lời miễn phí dùng văn bản của trang."
+ },
+ "tip_de4adc7524": {
+  "message": "Tìm tương tự"
+ },
+ "tip_b2248495b1": {
+  "message": "Chạm vào Tìm tương tự trong các thao tác của bảng, hoặc trong menu … ở đầu bảng. Hoặc chọn văn bản, như tên một sản phẩm, rồi chạm vào Tìm tương tự trong các thao tác nhanh bên dưới. Thêm điều kiện như Rẻ hơn hoặc Còn hàng nếu muốn: các lựa chọn thay thế đều có thật, và mọi liên kết đều được mở và kiểm tra trước khi bạn xem."
+ },
+ "tip_9161a2ed42": {
+  "message": "Bấm vào Tìm tương tự trong các thao tác của bảng, hoặc trong menu … ở đầu bảng. Hoặc chọn văn bản, như tên một sản phẩm, rồi bấm nút Tìm tương tự bên dưới. Thêm điều kiện như Rẻ hơn hoặc Còn hàng nếu muốn: các lựa chọn thay thế đều có thật, và mọi liên kết đều được mở và kiểm tra trước khi bạn xem."
+ },
+ "tip_c518fb0674": {
+  "message": "Nghe"
+ },
+ "tip_f26f3d2993": {
+  "message": "Chạm vào Nghe dưới một câu trả lời, hoặc chọn Nghe trang này trong menu … ở đầu bảng. Ứng dụng ContextFlow đọc bằng giọng tự nhiên và vẫn phát tiếp khi khóa màn hình. Chạm vào tốc độ trong trình phát để chọn 1×, 1,2×, 1,5× hoặc 2×."
+ },
+ "tip_4eab0ec0a2": {
+  "message": "Bấm vào Nghe dưới một câu trả lời, hoặc chọn Nghe trang này trong menu … ở đầu bảng. Một giọng đọc tự nhiên sẽ đọc ngay trong bảng. Bấm vào tốc độ trong trình phát để chọn 1×, 1,2×, 1,5× hoặc 2×."
  },
  "tip_328ee8ddce": {
   "message": "Chèn nhanh"
@@ -2236,6 +2314,21 @@
  },
  "tip_69a0bac728": {
   "message": "ContextFlow học ý nghĩa các thẻ của bạn từ những chỗ bạn gắn chúng, và gợi ý đúng thẻ dưới câu trả lời hoặc ghi chú mới. Chỉ thẻ của chính bạn, chỉ khi phù hợp."
+ },
+ "tip_b96ddaab20": {
+  "message": "Gói của bạn"
+ },
+ "tip_b3282f43dd": {
+  "message": "Theo tháng hoặc theo năm"
+ },
+ "tip_12e62d9862": {
+  "message": "Pro và Ultra có gói theo tháng hoặc theo năm, và một năm rẻ hơn mười hai tháng. Chạm vào Theo năm phía trên các gói, trong ứng dụng hoặc trong Safari, để xem từng giá và số tiền tiết kiệm. Đang trả theo tháng? Chuyển sang theo năm nằm trong Cài đặt → Gói của bạn: gói năm bắt đầu khi tháng hiện tại kết thúc."
+ },
+ "tip_9288a85bb9": {
+  "message": "Gói của bạn có thêm gì"
+ },
+ "tip_0f2289f887": {
+  "message": "Sau khi bạn mua Pro hoặc Ultra, ContextFlow giới thiệu từng bước những gì gói của bạn có thêm. Muốn xem lại, chạm vào … ở đầu bảng, rồi Khác… và Pro có gì hoặc Ultra có gì. Trong ứng dụng, mục này nằm trong Cài đặt, ở phần Gói của bạn."
  },
  "tip_3208aa35ac": {
   "message": "Quyền riêng tư và cá nhân hóa"

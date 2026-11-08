@@ -888,9 +888,17 @@
   ]
  },
  {
-  "key": "97df13861bf7",
+  "key": "b8a90a3e910d",
   "kind": "html",
-  "en": "These are the same tips as in the app, grouped by what you're trying to do. Each clip is the real panel at work. Cards marked <span class=\"pro-badge\">Pro</span> need the Pro plan. Everything else works on Free.",
+  "en": "These are the same tips as in the app, grouped by what you're trying to do. Each clip is the real panel at work. Cards marked <span class=\"pro-badge\">Pro</span> need the Pro plan, and cards marked <span class=\"ultra-badge\">Ultra</span> need Ultra. Everything else works on Free.",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "b96ddaab20ff",
+  "kind": "html",
+  "en": "Your plan",
   "pages": [
    "features.html"
   ]
@@ -980,6 +988,22 @@
   "key": "8a37b8219919",
   "kind": "html",
   "en": "Found a line worth keeping? Select it and tap Note: it goes into the chat with its page. Or type your own question about it right under the selection. Notes don't use answers.",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "2f27bc2271a5",
+  "kind": "html",
+  "en": "Quick actions under a selection",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "fe4d888ff56e",
+  "kind": "html",
+  "en": "Don't feel like typing on your phone? On iPhone and iPad, select text, and the “Your question…” field under it holds Summarize, Translate, Find similar and more. Swipe along them and tap one. On Mac, the same actions are buttons under the selection.",
   "pages": [
    "features.html"
   ]
@@ -1132,6 +1156,38 @@
   "key": "cbda1a244b4c",
   "kind": "html",
   "en": "The details are in a PDF? PDFs shown on the page or linked from it go with your question, and the answer says which page of the PDF it's from. On iPad and Mac it works on a PDF tab too. On Free, answers use the page's text.",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "cd4dfd7997f6",
+  "kind": "html",
+  "en": "Find similar <span class=\"ultra-badge\">Ultra</span>",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "ea488f6eb0df",
+  "kind": "html",
+  "en": "Wondering what else is out there? Tap Find similar in the panel, or select a product's name and tap Find similar under it. Add a condition like Cheaper or In stock if you want. Every alternative is a real page, opened and checked before you see it.",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "63345676db20",
+  "kind": "html",
+  "en": "Listen <span class=\"ultra-badge\">Ultra</span>",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "3c892169e2cc",
+  "kind": "html",
+  "en": "Rather listen than read? Tap Listen under an answer, or choose Listen to this page in the … menu. A natural voice reads it at 1×, 1.2×, 1.5× or 2×. On iPhone and iPad it plays in the ContextFlow app and keeps going with the screen locked; on Mac, right in the panel.",
   "pages": [
    "features.html"
   ]
@@ -1380,6 +1436,46 @@
   "key": "208eb29b62e9",
   "kind": "html",
   "en": "Tired of tagging by hand? ContextFlow learns what your tags mean from where you put them, and suggests one under a new answer or note. Only your own tags, and only when one fits.",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "da0391a442a7",
+  "kind": "html",
+  "en": "How you pay for it, and what your plan adds.",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "b3282f43dd8a",
+  "kind": "html",
+  "en": "Monthly or yearly",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "0401a0483c47",
+  "kind": "html",
+  "en": "Want to pay less? Pro and Ultra come monthly or yearly, and a year costs less than twelve months. Tap Yearly above the plans to see each price and what you save. Already on monthly? Switch to yearly is in Settings → Your plan, and it starts when your current month ends.",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "9288a85bb996",
+  "kind": "html",
+  "en": "What your plan adds",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "14a3f72a986a",
+  "kind": "html",
+  "en": "Just upgraded and not sure what's new? After you buy Pro or Ultra, ContextFlow shows what your plan adds, a step at a time. To see it again, tap … at the top of the panel, then Other… and What's in Pro or What's in Ultra. In the app, it's in Settings, under Your plan.",
   "pages": [
    "features.html"
   ]

@@ -42,6 +42,9 @@ interface Props {
   // Recently Deleted (2.5 (83)): how many chats are there (its row ends the list when there are some), and opening it.
   trashCount?: number
   onOpenTrash?: () => void
+  // 2.6 (91): chats with a long answer under way off the panel (a spinner) and with one finished unseen (a dot).
+  busy?: ReadonlySet<string>
+  unread?: ReadonlySet<string>
 }
 
 /** "3 pages", in the UI language's plural form. */
@@ -236,7 +239,7 @@ interface Drag {
  * start a new one. Pinned chats come first and are reordered by dragging their handle; a chat that
  * was on several pages lists them (each opens its page).
  */
-export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onNew, onPin, onMove, onOpenPage, pro, onAskHistory, onFind, onUpsell, findError, findWaiting, onTags, grouped, onGrouped, touch = false, trashCount = 0, onOpenTrash }: Props): VNode {
+export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onNew, onPin, onMove, onOpenPage, pro, onAskHistory, onFind, onUpsell, findError, findWaiting, onTags, grouped, onGrouped, touch = false, trashCount = 0, onOpenTrash, busy, unread }: Props): VNode {
   const [query, setQuery] = useState("")
   // Only the chats with this tag (in the list and in search results).
   const [tagFilter, setTagFilter] = useState<string | null>(null)
@@ -483,7 +486,10 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
                     onOpen(thread.id)
                   }}
                 >
-                  <span class="cf-thread-title" dir="auto">{thread.kind === "history" && <Icon.Sparkle size={12} />} {threadName(thread)}</span>
+                  <span class="cf-thread-title" dir="auto">
+                    {thread.kind === "history" && <Icon.Sparkle size={12} />} {threadName(thread)}
+                    {busy?.has(thread.id) ? <span class="cf-thread-busy" role="status" aria-label={t("busyWorking")} /> : unread?.has(thread.id) ? <span class="cf-thread-unread" role="status" aria-label={t("busyNew")} /> : null}
+                  </span>
                   <span class="cf-thread-snippet" dir="auto">{threadSnippet(thread.m)}</span>
                   {tags.length > 0 && (
                     <span class="cf-thread-tags">

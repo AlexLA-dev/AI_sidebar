@@ -31,6 +31,8 @@ import AppKit
 ///   the ones stopped in the app), see WatchStore.
 /// - `listen` → read aloud on iPhone and iPad (2.6, Ultra): the text's parts go to the app through the App Group;
 ///   answers the request's `id`, and the page opens contextflow://listen?id=… (the app plays it with the screen locked).
+/// - `tipClip` → a Tips clip for the panel (2.6 (91)): `name`, `lang` (en|ru), `offset`; answers `ok`, the clip's
+///   `total` size and up to 256 KB of it from `offset` (base64), read from the app's copy in the App Group.
 /// - `ping` → health check.
 ///
 /// Every message also tells the app that the extension is switched on (and, for `getEntitlement`, which
@@ -291,6 +293,16 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                 if !key.isEmpty { await SpeechSync.saveText(key, text: text) }
                 Self.reply(context, ["success": true])
             }
+        case "tipClip":
+            // A Tips clip for the panel, from the app's copy in the App Group (2.6 (91)), in parts of 256 KB (a multiple of 3 bytes, so the parts' base64 joins as is).
+            let name = message["name"] as? String ?? ""
+            let lang = message["lang"] as? String ?? "en"
+            let offset = (message["offset"] as? NSNumber)?.intValue ?? 0
+            guard let part = TipClipShare.read(name: name, lang: lang, offset: offset, length: 262_143) else {
+                Self.reply(context, ["success": true, "data": ["ok": false]])
+                return
+            }
+            Self.reply(context, ["success": true, "data": ["ok": true, "total": part.total, "offset": offset, "length": part.data.count, "data": part.data.base64EncodedString()]])
         case "ping":
             let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
             let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""

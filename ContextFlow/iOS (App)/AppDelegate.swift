@@ -18,6 +18,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         UNUserNotificationCenter.current().delegate = self
         // Page watch: this device's watches in Watching, and the notification question when they need it.
         WatchOpen.start()
+        // The Tips clips for the Safari panel, into the App Group once per build (TipClipShare).
+        DispatchQueue.global(qos: .utility).async { TipClipShare.publish() }
         return true
     }
 

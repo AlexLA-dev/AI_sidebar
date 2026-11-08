@@ -43235,6 +43235,990 @@
           }
         }
       }
+    },
+    "Quick actions under a selection": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إجراءات سريعة تحت التحديد"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schnellaktionen unter der Auswahl"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acciones rápidas bajo la selección"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Actions rapides sous la sélection"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Azioni rapide sotto la selezione"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "選択範囲の下のクイック操作"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "선택 영역 아래의 빠른 동작"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ações rápidas sob a seleção"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Быстрые действия под выделением"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Швидкі дії під виділенням"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thao tác nhanh dưới đoạn đã chọn"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选中文字下方的快捷操作"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "選取文字下方的快速動作"
+          }
+        }
+      }
+    },
+    "Select text on a page: Summarize, Translate, Find similar and more wait in the “Your question…” field under it. Swipe along them and tap one, no typing needed.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "حدد نصًا في صفحة: «تلخيص» و«ترجمة» و«ابحث عن مشابه» وغيرها تنتظرك في حقل «سؤالك…» أسفله. اسحب بينها واضغط على واحد منها، دون كتابة أي شيء."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Markiere Text auf einer Seite: „Zusammenfassen“, „Übersetzen“, „Ähnliches finden“ und mehr warten im Feld „Deine Frage …“ darunter. Wisch durch und tipp eine an – schreiben musst du nichts."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selecciona texto en una página: «Resumir», «Traducir», «Buscar similares» y más esperan en el campo «Tu pregunta…» debajo. Desliza entre ellas y toca una, sin escribir nada."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sélectionnez du texte sur une page : « Résumer », « Traduire », « Trouver similaire » et d’autres attendent dans le champ « Votre question… » juste en dessous. Faites-les défiler du doigt et touchez-en une, sans rien taper."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seleziona del testo in una pagina: «Riassumi», «Traduci», «Trova simili» e altre azioni ti aspettano nel campo «La tua domanda…» sotto. Scorrile col dito e toccane una, senza scrivere nulla."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ページのテキストを選択すると、その下の「質問を入力…」欄に「要約」「翻訳」「似たものを探す」などが並びます。指でスワイプして1つタップするだけ。入力は不要です。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페이지에서 텍스트를 선택하면 아래 ‘질문 입력…’ 칸에 요약, 번역, 비슷한 것 찾기 등이 나타나요. 옆으로 밀어 보고 하나를 탭하면 돼요. 입력할 필요가 없어요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selecione um texto na página: “Resumir”, “Traduzir”, “Encontrar parecidos” e outras ações ficam no campo “Sua pergunta…” logo abaixo. Deslize por elas e toque em uma, sem digitar nada."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выделите текст на странице: «Кратко», «Перевести», «Найти похожее» и другие действия ждут в поле «Ваш вопрос…» под ним. Проведите по ним пальцем и нажмите нужное — печатать не придётся."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Виділіть текст на сторінці: «Коротко», «Перекласти», «Знайти схоже» та інші дії чекають у полі «Ваше запитання…» під ним. Проведіть по них пальцем і натисніть потрібну — друкувати не доведеться."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chọn văn bản trên trang: Tóm tắt, Dịch, Tìm tương tự và các thao tác khác nằm sẵn trong ô Câu hỏi của bạn… ngay bên dưới. Vuốt qua chúng và chạm vào một mục, không cần gõ."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在页面上选中文字后，下方的“输入你的问题…”栏里会出现“总结”“翻译”“查找相似”等操作。左右滑动，轻点一个即可，无需打字。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在頁面上選取文字後，下方的「你的問題…」欄位中會出現「摘要」、「翻譯」、「尋找相似」等動作。左右滑動，點一下其中一個就行，不用打字。"
+          }
+        }
+      }
+    },
+    "Buttons under a selection": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أزرار تحت التحديد"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schaltflächen unter der Auswahl"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Botones bajo la selección"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Boutons sous la sélection"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pulsanti sotto la selezione"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "選択範囲の下のボタン"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "선택 영역 아래의 버튼"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Botões sob a seleção"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Кнопки под выделением"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Кнопки під виділенням"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Các nút dưới đoạn đã chọn"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选中文字下方的按钮"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "選取文字下方的按鈕"
+          }
+        }
+      }
+    },
+    "Select text on a page: Explain, Translate, Google and Find similar are buttons right under it. Click one, or type your own question in the field below them.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "حدد نصًا في صفحة: «اشرح» و«ترجم» وGoogle و«ابحث عن مشابه» أزرار أسفله مباشرةً. انقر على أحدها، أو اكتب سؤالك في الحقل أسفلها."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Markiere Text auf einer Seite: „Erklären“, „Übersetzen“, Google und „Ähnliches finden“ sind Schaltflächen direkt darunter. Klick auf eine oder schreib deine eigene Frage in das Feld darunter."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selecciona texto en una página: «Explicar», «Traducir», Google y «Buscar similares» son botones justo debajo. Haz clic en uno o escribe tu propia pregunta en el campo de abajo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sélectionnez du texte sur une page : « Expliquer », « Traduire », Google et « Trouver similaire » sont des boutons juste en dessous. Cliquez sur l’un d’eux, ou tapez votre propre question dans le champ en dessous."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seleziona del testo in una pagina: «Spiega», «Traduci», Google e «Trova simili» sono pulsanti proprio sotto. Fai clic su uno, oppure scrivi la tua domanda nel campo più in basso."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ページのテキストを選択すると、すぐ下に「説明」「翻訳」「Google」「似たものを探す」のボタンが表示されます。どれかをクリックするか、その下の欄に自分の質問を入力します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페이지에서 텍스트를 선택하면 바로 아래에 설명, 번역, Google, 비슷한 것 찾기 버튼이 나타나요. 하나를 클릭하거나 그 아래 칸에 직접 질문을 입력하세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selecione um texto na página: “Explicar”, “Traduzir”, Google e “Encontrar parecidos” são botões logo abaixo. Clique em um ou escreva sua própria pergunta no campo abaixo deles."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выделите текст на странице: «Объяснить», «Перевести», Google и «Найти похожее» — кнопки прямо под ним. Нажмите нужную или напишите свой вопрос в поле под ними."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Виділіть текст на сторінці: «Пояснити», «Перекласти», Google і «Знайти схоже» — кнопки просто під ним. Натисніть потрібну або напишіть своє запитання в полі під ними."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chọn văn bản trên trang: Giải thích, Dịch, Google và Tìm tương tự là các nút ngay bên dưới. Bấm vào một nút, hoặc nhập câu hỏi của bạn vào ô bên dưới."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在页面上选中文字后，下方会出现“解释”“翻译”“Google”和“查找相似”按钮。点按其中一个，或在下面的栏里输入你自己的问题。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在頁面上選取文字後，下方會出現「解釋」、「翻譯」、「Google」和「尋找相似」按鈕。按一下其中一個，或在下面的欄位輸入你自己的問題。"
+          }
+        }
+      }
+    },
+    "Tap Find similar among the panel's actions, or in the … menu at the top of the panel. Or select text, like a product's name, and tap Find similar among the quick actions under it. Add a condition like Cheaper or In stock if you want: the alternatives are real, and every link is opened and checked before you see it.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اضغط على «ابحث عن مشابه» بين إجراءات اللوحة أو في قائمة … أعلى اللوحة. أو حدد نصًا، مثل اسم منتج، واضغط على «ابحث عن مشابه» بين الإجراءات السريعة أسفله. أضف شرطًا مثل «أرخص» أو «متوفر» إن أردت: البدائل حقيقية، ونفتح كل رابط ونتحقق منه قبل أن تراه."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tippe bei den Aktionen im Panel oder im Menü „…“ oben im Panel auf „Ähnliches finden“. Oder markiere Text, etwa den Namen eines Produkts, und tippe in den Schnellaktionen darunter auf „Ähnliches finden“. Wenn du willst, füge eine Bedingung wie „Günstiger“ oder „Auf Lager“ hinzu: Die Alternativen sind echt, und jeder Link wird geöffnet und geprüft, bevor du ihn siehst."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toca «Buscar similares» entre las acciones del panel o en el menú «…» arriba del panel. O selecciona texto, como el nombre de un producto, y toca «Buscar similares» en las acciones rápidas de debajo. Añade una condición como «Más barato» o «En stock» si quieres: las alternativas son reales, y abrimos y comprobamos cada enlace antes de mostrártelo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touchez « Trouver similaire » parmi les actions du panneau, ou dans le menu « … » en haut du panneau. Ou sélectionnez du texte, comme le nom d’un produit, et touchez « Trouver similaire » dans les actions rapides en dessous. Ajoutez une condition comme « Moins cher » ou « En stock » si vous voulez : les alternatives sont réelles, et chaque lien est ouvert et vérifié avant que vous ne le voyiez."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tocca «Trova simili» tra le azioni del pannello o nel menu «…» in alto nel pannello. Oppure seleziona del testo, come il nome di un prodotto, e tocca «Trova simili» nelle azioni rapide sotto. Aggiungi una condizione come «Più economico» o «Disponibile» se vuoi: le alternative sono reali, e ogni link viene aperto e verificato prima che tu lo veda."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "パネルのアクションか、パネル上部の「…」メニューで「似たものを探す」をタップします。または、商品名などのテキストを選択し、その下のクイック操作で「似たものを探す」をタップします。必要なら「もっと安い」「在庫あり」などの条件を追加できます。候補はどれも実在し、表示する前にすべてのリンクを開いて確認しています。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "패널의 동작 목록이나 패널 위쪽 ‘…’ 메뉴에서 ‘비슷한 것 찾기’를 탭하세요. 또는 상품 이름 같은 텍스트를 선택하고 아래 빠른 동작에서 ‘비슷한 것 찾기’를 탭하세요. 원하면 ‘더 저렴하게’, ‘재고 있음’ 같은 조건을 더할 수 있어요. 대안은 모두 실제로 있는 것이고, 보여 드리기 전에 모든 링크를 열어 확인해요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toque em “Encontrar parecidos” entre as ações do painel ou no menu “…” no topo do painel. Ou selecione um texto, como o nome de um produto, e toque em “Encontrar parecidos” nas ações rápidas logo abaixo. Adicione uma condição como “Mais barato” ou “Em estoque” se quiser: as alternativas são reais, e cada link é aberto e verificado antes de você ver."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нажмите «Найти похожее» среди действий панели или в меню «…» вверху панели. Или выделите текст, например название товара, и нажмите «Найти похожее» среди быстрых действий под ним. Если нужно, добавьте условие, например «Дешевле» или «В наличии»: альтернативы настоящие, и каждую ссылку мы открываем и проверяем, прежде чем показать."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Натисніть «Знайти схоже» серед дій панелі або в меню «…» угорі панелі. Або виділіть текст, наприклад назву товару, і натисніть «Знайти схоже» серед швидких дій під ним. Якщо треба, додайте умову, як-от «Дешевше» чи «У наявності»: альтернативи справжні, і кожне посилання ми відкриваємо й перевіряємо, перш ніж показати."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chạm vào Tìm tương tự trong các thao tác của bảng, hoặc trong menu … ở đầu bảng. Hoặc chọn văn bản, như tên một sản phẩm, rồi chạm vào Tìm tương tự trong các thao tác nhanh bên dưới. Thêm điều kiện như Rẻ hơn hoặc Còn hàng nếu muốn: các lựa chọn thay thế đều có thật, và mọi liên kết đều được mở và kiểm tra trước khi bạn xem."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在面板的操作中，或在面板顶部的“…”菜单中，轻点“查找相似”。也可以选中文字（比如商品名称），在下方的快捷操作中轻点“查找相似”。需要的话，可以加上“更便宜”或“有货”等条件：给出的替代选择都真实存在，每个链接都会先打开检查，再给你看。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在面板的動作中，或在面板頂部的「…」選單中，點一下「尋找相似」。也可以選取文字（例如商品名稱），在下方的快速動作中點一下「尋找相似」。需要的話，可以加上「更便宜」或「有貨」等條件：列出的替代選擇都真實存在，每個連結都會先開啟檢查，再給你看。"
+          }
+        }
+      }
+    },
+    "Click Find similar among the panel's actions, or in the … menu at the top of the panel. Or select text, like a product's name, and click the Find similar button under it. Add a condition like Cheaper or In stock if you want: the alternatives are real, and every link is opened and checked before you see it.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "انقر على «ابحث عن مشابه» بين إجراءات اللوحة أو في قائمة … أعلى اللوحة. أو حدد نصًا، مثل اسم منتج، وانقر على زر «ابحث عن مشابه» أسفله. أضف شرطًا مثل «أرخص» أو «متوفر» إن أردت: البدائل حقيقية، ونفتح كل رابط ونتحقق منه قبل أن تراه."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klick bei den Aktionen im Panel oder im Menü „…“ oben im Panel auf „Ähnliches finden“. Oder markiere Text, etwa den Namen eines Produkts, und klick auf die Schaltfläche „Ähnliches finden“ darunter. Wenn du willst, füge eine Bedingung wie „Günstiger“ oder „Auf Lager“ hinzu: Die Alternativen sind echt, und jeder Link wird geöffnet und geprüft, bevor du ihn siehst."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haz clic en «Buscar similares» entre las acciones del panel o en el menú «…» arriba del panel. O selecciona texto, como el nombre de un producto, y haz clic en el botón «Buscar similares» de debajo. Añade una condición como «Más barato» o «En stock» si quieres: las alternativas son reales, y abrimos y comprobamos cada enlace antes de mostrártelo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cliquez sur « Trouver similaire » parmi les actions du panneau, ou dans le menu « … » en haut du panneau. Ou sélectionnez du texte, comme le nom d’un produit, et cliquez sur le bouton « Trouver similaire » en dessous. Ajoutez une condition comme « Moins cher » ou « En stock » si vous voulez : les alternatives sont réelles, et chaque lien est ouvert et vérifié avant que vous ne le voyiez."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fai clic su «Trova simili» tra le azioni del pannello o nel menu «…» in alto nel pannello. Oppure seleziona del testo, come il nome di un prodotto, e fai clic sul pulsante «Trova simili» sotto. Aggiungi una condizione come «Più economico» o «Disponibile» se vuoi: le alternative sono reali, e ogni link viene aperto e verificato prima che tu lo veda."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "パネルのアクションか、パネル上部の「…」メニューで「似たものを探す」をクリックします。または、商品名などのテキストを選択し、その下の「似たものを探す」ボタンをクリックします。必要なら「もっと安い」「在庫あり」などの条件を追加できます。候補はどれも実在し、表示する前にすべてのリンクを開いて確認しています。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "패널의 동작 목록이나 패널 위쪽 ‘…’ 메뉴에서 ‘비슷한 것 찾기’를 클릭하세요. 또는 상품 이름 같은 텍스트를 선택하고 아래의 ‘비슷한 것 찾기’ 버튼을 클릭하세요. 원하면 ‘더 저렴하게’, ‘재고 있음’ 같은 조건을 더할 수 있어요. 대안은 모두 실제로 있는 것이고, 보여 드리기 전에 모든 링크를 열어 확인해요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clique em “Encontrar parecidos” entre as ações do painel ou no menu “…” no topo do painel. Ou selecione um texto, como o nome de um produto, e clique no botão “Encontrar parecidos” logo abaixo. Adicione uma condição como “Mais barato” ou “Em estoque” se quiser: as alternativas são reais, e cada link é aberto e verificado antes de você ver."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нажмите «Найти похожее» среди действий панели или в меню «…» вверху панели. Или выделите текст, например название товара, и нажмите кнопку «Найти похожее» под ним. Если нужно, добавьте условие, например «Дешевле» или «В наличии»: альтернативы настоящие, и каждую ссылку мы открываем и проверяем, прежде чем показать."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Натисніть «Знайти схоже» серед дій панелі або в меню «…» угорі панелі. Або виділіть текст, наприклад назву товару, і натисніть кнопку «Знайти схоже» під ним. Якщо треба, додайте умову, як-от «Дешевше» чи «У наявності»: альтернативи справжні, і кожне посилання ми відкриваємо й перевіряємо, перш ніж показати."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bấm vào Tìm tương tự trong các thao tác của bảng, hoặc trong menu … ở đầu bảng. Hoặc chọn văn bản, như tên một sản phẩm, rồi bấm nút Tìm tương tự bên dưới. Thêm điều kiện như Rẻ hơn hoặc Còn hàng nếu muốn: các lựa chọn thay thế đều có thật, và mọi liên kết đều được mở và kiểm tra trước khi bạn xem."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在面板的操作中，或在面板顶部的“…”菜单中，点按“查找相似”。也可以选中文字（比如商品名称），点按下方的“查找相似”按钮。需要的话，可以加上“更便宜”或“有货”等条件：给出的替代选择都真实存在，每个链接都会先打开检查，再给你看。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在面板的動作中，或在面板頂部的「…」選單中，按一下「尋找相似」。也可以選取文字（例如商品名稱），按一下下方的「尋找相似」按鈕。需要的話，可以加上「更便宜」或「有貨」等條件：列出的替代選擇都真實存在，每個連結都會先開啟檢查，再給你看。"
+          }
+        }
+      }
+    },
+    "Tap Listen under an answer, or choose Listen to this page in the … menu at the top of the panel. The ContextFlow app reads it in a natural voice, and it keeps playing with the screen locked. Tap the speed in the player for 1×, 1.2×, 1.5× or 2×.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اضغط على «استماع» أسفل إجابة، أو اختر «الاستماع إلى هذه الصفحة» من قائمة … أعلى اللوحة. يقرؤها تطبيق ContextFlow بصوت طبيعي، ويستمر التشغيل حتى مع قفل الشاشة. اضغط على السرعة في المشغّل لتختار 1× أو 1.2× أو 1.5× أو 2×."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tippe unter einer Antwort auf „Anhören“ oder wähle „Diese Seite anhören“ im Menü „…“ oben im Panel. Die ContextFlow-App liest sie mit natürlicher Stimme vor, auch bei gesperrtem Bildschirm. Tippe im Player auf die Geschwindigkeit für 1×, 1,2×, 1,5× oder 2×."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toca «Escuchar» debajo de una respuesta, o elige «Escuchar esta página» en el menú «…» arriba del panel. La app ContextFlow lo lee con una voz natural y sigue sonando con la pantalla bloqueada. Toca la velocidad en el reproductor para elegir 1×, 1,2×, 1,5× o 2×."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touchez « Écouter » sous une réponse, ou choisissez « Écouter cette page » dans le menu « … » en haut du panneau. L’app ContextFlow la lit d’une voix naturelle, même écran verrouillé. Touchez la vitesse dans le lecteur pour choisir 1×, 1,2×, 1,5× ou 2×."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tocca «Ascolta» sotto una risposta, oppure scegli «Ascolta questa pagina» nel menu «…» in alto nel pannello. L’app ContextFlow la legge con una voce naturale e continua anche a schermo bloccato. Tocca la velocità nel player per 1×, 1,2×, 1,5× o 2×."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "回答の下の「読み上げ」をタップするか、パネル上部の「…」メニューから「このページを読み上げ」を選びます。ContextFlowアプリが自然な声で読み上げ、画面をロックしても再生が続きます。プレーヤーの速度をタップすると、1×、1.2×、1.5×、2×を選べます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "답변 아래 ‘듣기’를 탭하거나 패널 위쪽 ‘…’ 메뉴에서 ‘이 페이지 듣기’를 고르세요. ContextFlow 앱이 자연스러운 목소리로 읽어 주고, 화면을 잠가도 계속 재생돼요. 플레이어에서 속도를 탭해 1×, 1.2×, 1.5×, 2× 중에서 고르세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toque em “Ouvir” abaixo de uma resposta ou escolha “Ouvir esta página” no menu “…” no topo do painel. O app ContextFlow lê com uma voz natural e continua tocando com a tela bloqueada. Toque na velocidade no player para 1×, 1,2×, 1,5× ou 2×."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нажмите «Слушать» под ответом или выберите «Слушать эту страницу» в меню «…» вверху панели. Приложение ContextFlow прочитает текст естественным голосом, и звук не прервётся при заблокированном экране. Скорость меняется в плеере: 1×, 1,2×, 1,5× или 2×."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Натисніть «Слухати» під відповіддю або виберіть «Слухати цю сторінку» в меню «…» угорі панелі. Застосунок ContextFlow прочитає текст природним голосом, і звук не перерветься із заблокованим екраном. Швидкість змінюється в плеєрі: 1×, 1,2×, 1,5× або 2×."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chạm vào Nghe dưới một câu trả lời, hoặc chọn Nghe trang này trong menu … ở đầu bảng. Ứng dụng ContextFlow đọc bằng giọng tự nhiên và vẫn phát tiếp khi khóa màn hình. Chạm vào tốc độ trong trình phát để chọn 1×, 1,2×, 1,5× hoặc 2×."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "轻点回答下方的“朗读”，或在面板顶部的“…”菜单中选择“朗读此页面”。ContextFlow App 会用自然的声音朗读，锁屏后也会继续播放。在播放器中轻点速度，可选 1×、1.2×、1.5× 或 2×。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "點一下回答下方的「朗讀」，或在面板頂部的「…」選單中選擇「朗讀這個頁面」。ContextFlow App 會用自然的聲音朗讀，鎖定螢幕後也會繼續播放。在播放器中點一下速度，可選 1×、1.2×、1.5× 或 2×。"
+          }
+        }
+      }
+    },
+    "Click Listen under an answer, or choose Listen to this page in the … menu at the top of the panel. A natural voice reads it right in the panel. Click the speed in the player for 1×, 1.2×, 1.5× or 2×.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "انقر على «استماع» أسفل إجابة، أو اختر «الاستماع إلى هذه الصفحة» من قائمة … أعلى اللوحة. يقرؤها صوت طبيعي داخل اللوحة مباشرةً. انقر على السرعة في المشغّل لتختار 1× أو 1.2× أو 1.5× أو 2×."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klick unter einer Antwort auf „Anhören“ oder wähle „Diese Seite anhören“ im Menü „…“ oben im Panel. Eine natürliche Stimme liest sie direkt im Panel vor. Klick im Player auf die Geschwindigkeit für 1×, 1,2×, 1,5× oder 2×."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haz clic en «Escuchar» debajo de una respuesta, o elige «Escuchar esta página» en el menú «…» arriba del panel. Una voz natural lo lee ahí mismo, en el panel. Haz clic en la velocidad del reproductor para elegir 1×, 1,2×, 1,5× o 2×."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cliquez sur « Écouter » sous une réponse, ou choisissez « Écouter cette page » dans le menu « … » en haut du panneau. Une voix naturelle la lit directement dans le panneau. Cliquez sur la vitesse dans le lecteur pour choisir 1×, 1,2×, 1,5× ou 2×."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fai clic su «Ascolta» sotto una risposta, oppure scegli «Ascolta questa pagina» nel menu «…» in alto nel pannello. Una voce naturale la legge direttamente nel pannello. Fai clic sulla velocità nel player per 1×, 1,2×, 1,5× o 2×."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "回答の下の「読み上げ」をクリックするか、パネル上部の「…」メニューから「このページを読み上げ」を選びます。パネルの中で自然な声が読み上げます。プレーヤーの速度をクリックすると、1×、1.2×、1.5×、2×を選べます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "답변 아래 ‘듣기’를 클릭하거나 패널 위쪽 ‘…’ 메뉴에서 ‘이 페이지 듣기’를 고르세요. 자연스러운 목소리가 패널에서 바로 읽어 줘요. 플레이어에서 속도를 클릭해 1×, 1.2×, 1.5×, 2× 중에서 고르세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clique em “Ouvir” abaixo de uma resposta ou escolha “Ouvir esta página” no menu “…” no topo do painel. Uma voz natural lê ali mesmo, no painel. Clique na velocidade no player para 1×, 1,2×, 1,5× ou 2×."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нажмите «Слушать» под ответом или выберите «Слушать эту страницу» в меню «…» вверху панели. Естественный голос прочитает текст прямо в панели. Скорость меняется в плеере: 1×, 1,2×, 1,5× или 2×."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Натисніть «Слухати» під відповіддю або виберіть «Слухати цю сторінку» в меню «…» угорі панелі. Природний голос прочитає текст просто в панелі. Швидкість змінюється в плеєрі: 1×, 1,2×, 1,5× або 2×."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bấm vào Nghe dưới một câu trả lời, hoặc chọn Nghe trang này trong menu … ở đầu bảng. Một giọng đọc tự nhiên sẽ đọc ngay trong bảng. Bấm vào tốc độ trong trình phát để chọn 1×, 1,2×, 1,5× hoặc 2×."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点按回答下方的“朗读”，或在面板顶部的“…”菜单中选择“朗读此页面”。自然的声音会直接在面板中朗读。在播放器中点按速度，可选 1×、1.2×、1.5× 或 2×。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按一下回答下方的「朗讀」，或在面板頂部的「…」選單中選擇「朗讀這個頁面」。自然的聲音會直接在面板中朗讀。在播放器中按一下速度，可選 1×、1.2×、1.5× 或 2×。"
+          }
+        }
+      }
+    },
+    "Monthly or yearly": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "شهريًا أو سنويًا"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Monatlich oder jährlich"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mensual o anual"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mensuel ou annuel"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mensile o annuale"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "月額または年額"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "월간 또는 연간"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mensal ou anual"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "На месяц или на год"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "На місяць або на рік"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Theo tháng hoặc theo năm"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "月付或年付"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "月繳或年繳"
+          }
+        }
+      }
+    },
+    "Pro and Ultra come monthly or yearly, and a year costs less than twelve months. Tap Yearly above the plans, in the app or in Safari, to see each price and what you save. On monthly already? Switch to yearly is in Settings → Your plan: it starts when your current month ends.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يتوفر Pro وUltra باشتراك شهري أو سنوي، والسنة أرخص من اثني عشر شهرًا. اضغط على «سنوي» فوق الخطط، في التطبيق أو في Safari، لترى كل سعر وكم توفّر. تدفع شهريًا بالفعل؟ «التبديل إلى السنوي» موجود في «الإعدادات» ← «خطتك»: يبدأ عند انتهاء شهرك الحالي."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro und Ultra gibt es monatlich oder jährlich, und ein Jahr kostet weniger als zwölf Monate. Tippe über den Tarifen auf „Jährlich“, in der App oder in Safari, um jeden Preis und deine Ersparnis zu sehen. Schon monatlich dabei? „Auf jährlich umstellen“ findest du unter „Einstellungen“ → „Dein Tarif“: Es gilt ab dem Ende deines aktuellen Monats."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro y Ultra se pagan al mes o al año, y un año cuesta menos que doce meses. Toca «Anual» encima de los planes, en la app o en Safari, para ver cada precio y cuánto ahorras. ¿Ya pagas al mes? «Cambiar a anual» está en «Configuración» → «Tu plan»: empieza cuando termina tu mes actual."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro et Ultra existent au mois ou à l’année, et une année coûte moins cher que douze mois. Touchez « Annuel » au-dessus des forfaits, dans l’app ou dans Safari, pour voir chaque prix et ce que vous économisez. Déjà au mois ? « Passer à l’annuel » se trouve dans « Réglages » → « Votre forfait » : l’annuel commence à la fin de votre mois en cours."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro e Ultra si pagano al mese o all’anno, e un anno costa meno di dodici mesi. Tocca «Annuale» sopra i piani, nell’app o in Safari, per vedere ogni prezzo e quanto risparmi. Paghi già al mese? «Passa all’annuale» è in «Impostazioni» → «Il tuo piano»: parte quando finisce il mese in corso."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro と Ultra は月額か年額で利用でき、年額は12か月分より安くなります。アプリでも Safari でも、プランの上の「年額」をタップすると、それぞれの価格とお得になる額が分かります。すでに月額なら、「設定」→「ご利用中のプラン」の「年額に切り替える」から。今の1か月が終わってから年額が始まります。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro와 Ultra는 월간이나 연간으로 이용할 수 있고, 연간이 12개월보다 저렴해요. 앱이나 Safari에서 요금제 위의 ‘연간’을 탭하면 가격과 절약 금액을 볼 수 있어요. 이미 월간이라면 ‘설정’ → ‘내 요금제’에서 ‘연간으로 전환’을 누르세요. 지금 한 달이 끝나면 연간이 시작돼요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro e Ultra podem ser mensais ou anuais, e um ano sai mais barato que doze meses. Toque em “Anual” acima dos planos, no app ou no Safari, para ver cada preço e quanto você economiza. Já paga por mês? “Mudar para anual” fica em “Ajustes” → “Seu plano”: começa quando o mês atual termina."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro и Ultra можно оплачивать на месяц или на год, и год обходится дешевле двенадцати месяцев. Нажмите «На год» над тарифами — в приложении или в Safari, — чтобы увидеть цену и выгоду каждого. Уже платите помесячно? «Перейти на оплату за год» есть в «Настройки» → «Ваш тариф»: оплата за год начнётся, когда закончится текущий месяц."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro і Ultra можна оплачувати на місяць або на рік, і рік обходиться дешевше за дванадцять місяців. Натисніть «На рік» над тарифами — у застосунку чи в Safari, — щоб побачити ціну й вигоду кожного. Уже платите щомісяця? «Перейти на оплату за рік» є в «Налаштування» → «Ваш тариф»: оплата за рік почнеться, коли закінчиться поточний місяць."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro và Ultra có gói theo tháng hoặc theo năm, và một năm rẻ hơn mười hai tháng. Chạm vào Theo năm phía trên các gói, trong ứng dụng hoặc trong Safari, để xem từng giá và số tiền tiết kiệm. Đang trả theo tháng? Chuyển sang theo năm nằm trong Cài đặt → Gói của bạn: gói năm bắt đầu khi tháng hiện tại kết thúc."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro 和 Ultra 可以月付或年付，一年比十二个月更便宜。在 App 或 Safari 中轻点套餐上方的“年付”，就能看到每个价格和能省多少。已经在月付？在“设置”→“你的套餐”中选择“改为年付”，当前这个月结束后开始年付。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro 和 Ultra 可以月繳或年繳，一年比十二個月更便宜。在 App 或 Safari 中點一下方案上方的「年繳」，就能看到每個價格和能省多少。已經是月繳？在「設定」→「你的方案」中選擇「改為年繳」，目前這個月結束後開始年繳。"
+          }
+        }
+      }
+    },
+    "What your plan adds": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ما تضيفه خطتك"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Was dein Tarif bietet"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lo que añade tu plan"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce qu’apporte votre forfait"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cosa aggiunge il tuo piano"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プランで使える機能"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "요금제로 더해지는 기능"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O que seu plano traz"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Что даёт ваш тариф"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Що дає ваш тариф"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gói của bạn có thêm gì"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你的套餐增加了什么"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你的方案增加了什麼"
+          }
+        }
+      }
+    },
+    "After you buy Pro or Ultra, ContextFlow shows what your plan adds, a step at a time. To see it again, tap … at the top of the panel, then Other… and What's in Pro or What's in Ultra. In the app, it's in Settings, under Your plan.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "بعد شراء Pro أو Ultra، يعرض لك ContextFlow خطوة بخطوة ما تضيفه خطتك. لتراه مجددًا، اضغط على … أعلى اللوحة، ثم «أخرى…» و«ما يتضمنه Pro» أو «ما يتضمنه Ultra». في التطبيق، تجده في «الإعدادات» ضمن «خطتك»."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nach dem Kauf von Pro oder Ultra zeigt dir ContextFlow Schritt für Schritt, was dein Tarif bietet. Um es noch einmal zu sehen, tippe oben im Panel auf „…“, dann auf „Weiteres …“ und „Was Pro bietet“ oder „Was Ultra bietet“. In der App findest du es in den „Einstellungen“ unter „Dein Tarif“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Después de comprar Pro o Ultra, ContextFlow te muestra paso a paso lo que añade tu plan. Para verlo otra vez, toca «…» arriba del panel, luego «Más…» y «Qué incluye Pro» o «Qué incluye Ultra». En la app, está en «Configuración», en «Tu plan»."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Après l’achat de Pro ou d’Ultra, ContextFlow vous montre, étape par étape, ce qu’apporte votre forfait. Pour le revoir, touchez « … » en haut du panneau, puis « Autres… » et « Ce que Pro inclut » ou « Ce que Ultra inclut ». Dans l’app, c’est dans « Réglages », sous « Votre forfait »."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dopo l’acquisto di Pro o Ultra, ContextFlow ti mostra passo passo cosa aggiunge il tuo piano. Per rivederlo, tocca «…» in alto nel pannello, poi «Altro…» e «Cosa include Pro» o «Cosa include Ultra». Nell’app è in «Impostazioni», sotto «Il tuo piano»."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro または Ultra を購入すると、ContextFlow がプランで使えるようになった機能を1つずつ紹介します。もう一度見るには、パネル上部の「…」をタップし、「その他…」から「Proでできること」または「Ultraでできること」を選びます。アプリでは「設定」の「ご利用中のプラン」にあります。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro나 Ultra를 구입하면 ContextFlow가 요금제로 더해진 기능을 하나씩 보여 줘요. 다시 보려면 패널 위쪽 ‘…’을 탭한 다음 ‘기타…’에서 ‘Pro에 포함된 기능’이나 ‘Ultra에 포함된 기능’을 고르세요. 앱에서는 ‘설정’의 ‘내 요금제’에 있어요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Depois de comprar o Pro ou o Ultra, o ContextFlow mostra, passo a passo, o que seu plano traz. Para ver de novo, toque em “…” no topo do painel, depois em “Outros…” e em “O que vem no Pro” ou “O que vem no Ultra”. No app, fica em “Ajustes”, em “Seu plano”."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "После покупки Pro или Ultra ContextFlow по шагам показывает, что даёт ваш тариф. Чтобы посмотреть снова, нажмите «…» вверху панели, затем «Другое…» и «Что есть в Pro» или «Что есть в Ultra». В приложении это в «Настройках», в разделе «Ваш тариф»."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Після купівлі Pro або Ultra ContextFlow крок за кроком показує, що дає ваш тариф. Щоб переглянути знову, натисніть «…» угорі панелі, потім «Інше…» і «Що є в Pro» або «Що є в Ultra». У застосунку це в «Налаштуваннях», у розділі «Ваш тариф»."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sau khi bạn mua Pro hoặc Ultra, ContextFlow giới thiệu từng bước những gì gói của bạn có thêm. Muốn xem lại, chạm vào … ở đầu bảng, rồi Khác… và Pro có gì hoặc Ultra có gì. Trong ứng dụng, mục này nằm trong Cài đặt, ở phần Gói của bạn."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "购买 Pro 或 Ultra 后，ContextFlow 会一步一步展示你的套餐增加了哪些功能。想再看一遍，可以轻点面板顶部的“…”，再选“其他…”和“Pro 包含的功能”或“Ultra 包含的功能”。在 App 中，它在“设置”的“你的套餐”下。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "購買 Pro 或 Ultra 後，ContextFlow 會一步一步介紹你的方案增加了哪些功能。想再看一次，請點一下面板頂部的「…」，再選「其他…」和「Pro 包含的功能」或「Ultra 包含的功能」。在 App 中，它在「設定」的「你的方案」下。"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

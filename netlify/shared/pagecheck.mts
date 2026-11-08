@@ -7,12 +7,18 @@
 
 import { isOutOfStock } from "../../src/shared/watch/detect.ts"
 import { pageText, parseNumber, structured } from "../../src/shared/watch/extract.ts"
+import { appStoreLink, appStorePricing, pricingLinks, type AppPricing } from "./apppricing.mts"
 
 export type PageStatus = "ok" | "dead" | "soft404" | "blocked" | "archived" | "error" | "unsafe"
 
 export interface PagePrice {
   amount: number
   currency: string
+}
+
+export interface PageLink {
+  url: string
+  text: string
 }
 
 export interface CheckedPage {
@@ -47,6 +53,15 @@ export interface CheckedPage {
   validThrough?: string
   // Seconds: a video's length, a recipe's total time.
   duration?: number
+  // Apps (build 91): what it costs as this page shows it (an App Store page's price and in-app purchases); else where
+  // to look next: the App Store page the app's site links to, the site's pricing page.
+  pricing?: AppPricing
+  storeLink?: string
+  pricingLinks?: string[]
+  // Build 91: the page's links (address and words) and its versions in other languages, for one or two pages more
+  // when this one doesn't show the person's condition (dig.mts).
+  links?: PageLink[]
+  alternates?: Array<{ lang: string; url: string }>
   // The page's main text, folded, cut to the requested length.
   text: string
   ms: number
@@ -467,7 +482,74 @@ export function describePage(html: string, url: string, finalUrl: string, http: 
   if (validThrough) page.validThrough = validThrough
   if (duration) page.duration = duration
   if (ld.lang) page.inLanguage = String(ld.lang).slice(0, 12)
+  if (status === "ok") {
+    const links = pageLinks(html, finalUrl)
+    if (links.length) page.links = links
+    const alternates = hreflangs(html, finalUrl)
+    if (alternates.length) page.alternates = alternates
+    const pricing = appStorePricing(html, finalUrl, page.price)
+    if (pricing) page.pricing = pricing
+    else {
+      const store = appStoreLink(html)
+      if (store) page.storeLink = store
+      const links = pricingLinks(html, finalUrl)
+      if (links.length) page.pricingLinks = links
+    }
+  }
   return page
+}
+
+// Links that never lead to an item's facts: accounts, carts, legal pages, social networks.
+const NOT_FACTS = /\/(login|log-in|signin|sign-in|signup|sign-up|register|account|cart|basket|checkout|privacy|terms|cookies?|legal|careers-login)(\/|$|\?)|^(mailto|tel|javascript):/i
+const SOCIAL = /(^|\.)(facebook|twitter|x|instagram|pinterest|youtube|linkedin|tiktok|reddit|threads|t)\.(com|me|net)$/i
+
+/** The page's links worth following: http(s), not the page itself, not accounts or social networks; at most 150. */
+export function pageLinks(html: string, pageUrl: string): PageLink[] {
+  let base: URL
+  try {
+    base = new URL(pageUrl)
+  } catch {
+    return []
+  }
+  const seen = new Set<string>([normalizeUrl(pageUrl)])
+  const out: PageLink[] = []
+  for (const m of html.matchAll(/<a\b[^>]*\bhref=["']([^"'#][^"']*)["'][^>]*>([\s\S]{0,400}?)<\/a>/gi)) {
+    if (NOT_FACTS.test(m[1])) continue
+    let url: URL
+    try {
+      url = new URL(m[1].replace(/&amp;/g, "&"), base)
+    } catch {
+      continue
+    }
+    if (!/^https?:$/.test(url.protocol) || SOCIAL.test(url.hostname) || NOT_FACTS.test(url.pathname)) continue
+    url.hash = ""
+    const key = normalizeUrl(url.toString())
+    if (seen.has(key)) continue
+    seen.add(key)
+    const text = m[2].replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim().slice(0, 100)
+    out.push({ url: url.toString(), text })
+    if (out.length >= 150) break
+  }
+  return out
+}
+
+/** The page in other languages: <link rel="alternate" hreflang="…" href="…">. */
+export function hreflangs(html: string, pageUrl: string): Array<{ lang: string; url: string }> {
+  const out: Array<{ lang: string; url: string }> = []
+  for (const m of html.matchAll(/<link\b[^>]*>/gi)) {
+    const tag = m[0]
+    if (!/\brel=["']?alternate/i.test(tag)) continue
+    const lang = /\bhreflang=["']?([\w-]+)/i.exec(tag)?.[1]
+    const href = /\bhref=["']([^"']+)["']/i.exec(tag)?.[1]
+    if (!lang || !href || lang.toLowerCase() === "x-default") continue
+    try {
+      out.push({ lang: lang.toLowerCase(), url: new URL(href.replace(/&amp;/g, "&"), pageUrl).toString() })
+    } catch {
+      // not an address
+    }
+    if (out.length >= 40) break
+  }
+  return out
 }
 
 const SCRIPTS: Array<[string, RegExp]> = [

@@ -117,6 +117,14 @@ export const FEATURES: Record<string, Feature> = {
     via: ["listen", "settings", "watch", "limit", "similar"],
     fields: { plan: ["byok", "pro", "ultra"], period: ["monthly", "yearly"] }
   },
+  // Build 91: the plans message in the chat — out of answers ("limit"), the chat's memory ("memory": the switch, or a
+  // free chat past its last messages), a Pro or Ultra feature refused; shown, and what was tapped: a plan and period
+  // (to the app), the discount, a note, the own key, Retry.
+  chat_plans: {
+    since: "2.6", tracked: "2.6", on: "ext", actions: ["shown", "choose", "discount", "note", "own_key", "retry", "close"],
+    via: ["limit", "memory", "pro_only", "ultra_only"],
+    fields: { plan: ["pro", "ultra"], period: ["monthly", "yearly"] }
+  },
   later: { since: "2.5", actions: ["open", "list"], via: ["menu", "link", "tab"], fields: { reminders: "int", watches: "int" } },
   watch: {
     since: "2.5", actions: ["create", "alert", "stop", "error", "daily"],

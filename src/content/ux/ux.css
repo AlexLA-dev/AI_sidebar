@@ -92,6 +92,14 @@ mark.cf-mark-last { border-start-end-radius: 2px; border-end-end-radius: 2px; }
 .cf-page-more-wrap { position: relative; display: flex; }
 .cf-page-menu { inset-inline-start: auto; inset-inline-end: 0; z-index: 6; width: max-content; min-width: 220px; max-width: calc(100vw - 24px); }
 .cf-page-menu button { white-space: nowrap; }
+/* 2.6 (91): "Other…" folds the rest (Settings, Tips, the tours); its chevron turns when it opens. */
+.cf-page-menu .cf-page-other { border-top: 1px solid var(--border); border-radius: 0 0 8px 8px; margin-top: 2px; color: var(--text-2); }
+.cf-page-other-l { flex: 1; }
+.cf-page-chev { flex-shrink: 0; color: var(--text-3); transition: transform 0.15s ease; }
+.cf-page-other.open .cf-page-chev { transform: rotate(90deg); }
+:host([dir="rtl"]) .cf-page-chev { transform: scaleX(-1); }
+:host([dir="rtl"]) .cf-page-other.open .cf-page-chev { transform: scaleX(-1) rotate(90deg); }
+.cf-page-more-group { display: flex; flex-direction: column; padding-inline-start: 12px; }
 .cf-page-menu svg { width: 15px; height: 15px; flex-shrink: 0; }
 .cf-msg { position: relative; }
 
@@ -264,3 +272,18 @@ mark.cf-mark-last { border-start-end-radius: 2px; border-end-end-radius: 2px; }
   display: flex; align-items: center; gap: 7px; max-width: calc(100vw - 24px); padding: 10px 14px;
   font-family: var(--font); animation: cf-fade 0.15s ease-out;
 }
+
+/* Build 91: the plans message in the chat (PlanOffer) — out of answers, the chat's memory, a Pro or Ultra feature. */
+.cf-offer .cf-upsell-head { margin-bottom: 6px; }
+.cf-offer-close { margin-inline-start: auto; font-size: 18px; line-height: 1; color: var(--text-3); }
+.cf-offer .cf-offer-body { margin: 0 0 10px; font-size: 13.5px; line-height: 1.45; color: var(--text); }
+.cf-offer .cf-seg { display: flex; width: 100%; margin-bottom: 8px; }
+.cf-offer .cf-seg button { flex: 1; padding: 6px 8px; font-size: 13px; }
+.cf-offer-plan-card { margin: 2px 0 10px; padding: 10px 12px 4px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); }
+.cf-offer .cf-plan-lines { margin-bottom: 6px; }
+.cf-offer .cf-card-actions { flex-wrap: wrap; }
+.cf-offer .cf-card-actions + .cf-card-actions { margin-top: 6px; }
+.cf-offer .cf-limit-notes { margin-top: 10px; }
+.cf-offer-retry-at { margin: 6px 0 0; font-size: 12px; color: var(--text-3); }
+.cf-offer-own { margin: 6px 0 0; font-size: 13px; }
+.cf-whole .cf-pro-badge { margin-inline-start: 4px; }

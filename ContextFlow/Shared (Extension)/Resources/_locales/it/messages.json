@@ -755,6 +755,18 @@
  "uxShowIntro": {
   "message": "Rivedi l’introduzione"
  },
+ "uxOther": {
+  "message": "Altro…"
+ },
+ "tipClipNeedsApp": {
+  "message": "Apri l’app ContextFlow una volta per vedere questo video."
+ },
+ "busyWorking": {
+  "message": "Sto preparando la risposta…"
+ },
+ "busyNew": {
+  "message": "Nuova risposta pronta"
+ },
  "ptMenu": {
   "message": "Cosa include {0}"
  },
@@ -764,17 +776,17 @@
  "ptProMediaBody": {
   "message": "Su una pagina con un video o un PDF, ContextFlow ora legge anche quelli: i sottotitoli del video e il testo del PDF. Chiedi pure."
  },
- "ptProChatsTitle": {
-  "message": "Cerca nelle chat e chiedi"
+ "ptProFindTitle": {
+  "message": "Ricerca IA nelle tue chat"
  },
- "ptProChatsBody": {
-  "message": "Nelle tue chat, ✦ trova una chat da una descrizione, e «{0}» risponde da tutto ciò che hai letto e chiesto."
+ "ptProFindBody": {
+  "message": "Attiva ✦ accanto alla ricerca e descrivi la chat che ricordi, anche senza le parole esatte."
  },
- "ptProChatListTitle": {
-  "message": "Proprio qui"
+ "ptProAskTitle": {
+  "message": "Chiedi a tutte le chat"
  },
- "ptProChatListBody": {
-  "message": "Attiva ✦ accanto alla ricerca e descrivi la chat che cerchi, oppure tocca «{0}» per chiedere a tutte le chat insieme."
+ "ptProAskBody": {
+  "message": "«{0}» risponde da tutto ciò che hai letto e chiesto: «Cosa ho letto questa settimana?»"
  },
  "ptProSortTitle": {
   "message": "Ordinate per argomento"
@@ -2036,6 +2048,42 @@
  "plansUpgradeYearly": {
   "message": "Passa all’annuale"
  },
+ "similarPayFree": {
+  "message": "Gratis, senza acquisti in-app"
+ },
+ "similarPayFreeStart": {
+  "message": "Gratis"
+ },
+ "similarPaySub": {
+  "message": "Abbonamento da {0}"
+ },
+ "similarPayOnce": {
+  "message": "Acquisto unico {0}"
+ },
+ "similarPayIap": {
+  "message": "Acquisti in-app da {0}"
+ },
+ "similarPerWeek": {
+  "message": "{0}/settimana"
+ },
+ "similarPerMonth": {
+  "message": "{0}/mese"
+ },
+ "similarPerYear": {
+  "message": "{0}/anno"
+ },
+ "offerMemoryTitle": {
+  "message": "Pro ricorda tutta la chat"
+ },
+ "offerMemoryBody": {
+  "message": "Una risposta gratuita vede gli ultimi {0} messaggi di una chat. Con Pro l'IA la ricorda tutta: ogni messaggio, le tue note e le pagine su cui hai fatto domande."
+ },
+ "offerMemoryLong": {
+  "message": "Questa chat supera i {0} messaggi che ricorda una risposta gratuita. Con Pro l'IA la ricorda tutta: ogni messaggio, le tue note e le pagine su cui hai fatto domande."
+ },
+ "offerRetryAt": {
+  "message": "Le risposte tornano alle {0}."
+ },
  "tip_4cf1b54b00": {
   "message": "Suggerimenti"
  },
@@ -2077,6 +2125,18 @@
  },
  "tip_fa1cdf5479": {
   "message": "Seleziona del testo in una pagina: scrivi la tua domanda proprio sotto la selezione, oppure tocca «Nota» per salvarlo nella chat con la sua pagina. Le note non consumano risposte."
+ },
+ "tip_2f27bc2271": {
+  "message": "Azioni rapide sotto la selezione"
+ },
+ "tip_b4d2d0edad": {
+  "message": "Seleziona del testo in una pagina: «Riassumi», «Traduci», «Trova simili» e altre azioni ti aspettano nel campo «La tua domanda…» sotto. Scorrile col dito e toccane una, senza scrivere nulla."
+ },
+ "tip_2aef052e5b": {
+  "message": "Pulsanti sotto la selezione"
+ },
+ "tip_894f528548": {
+  "message": "Seleziona del testo in una pagina: «Spiega», «Traduci», Google e «Trova simili» sono pulsanti proprio sotto. Fai clic su uno, oppure scrivi la tua domanda nel campo più in basso."
  },
  "tip_9000896590": {
   "message": "La chat ti segue"
@@ -2140,6 +2200,24 @@
  },
  "tip_ff32d2c483": {
   "message": "Con Pro, i PDF mostrati o collegati in una pagina vanno con la tua domanda e le risposte dicono in quale pagina si trova qualcosa. Su iPad e Mac, ContextFlow nella barra degli strumenti si apre anche su una scheda PDF. Le risposte gratuite usano il testo della pagina."
+ },
+ "tip_de4adc7524": {
+  "message": "Trova simili"
+ },
+ "tip_b2248495b1": {
+  "message": "Tocca «Trova simili» tra le azioni del pannello o nel menu «…» in alto nel pannello. Oppure seleziona del testo, come il nome di un prodotto, e tocca «Trova simili» nelle azioni rapide sotto. Aggiungi una condizione come «Più economico» o «Disponibile» se vuoi: le alternative sono reali, e ogni link viene aperto e verificato prima che tu lo veda."
+ },
+ "tip_9161a2ed42": {
+  "message": "Fai clic su «Trova simili» tra le azioni del pannello o nel menu «…» in alto nel pannello. Oppure seleziona del testo, come il nome di un prodotto, e fai clic sul pulsante «Trova simili» sotto. Aggiungi una condizione come «Più economico» o «Disponibile» se vuoi: le alternative sono reali, e ogni link viene aperto e verificato prima che tu lo veda."
+ },
+ "tip_c518fb0674": {
+  "message": "Ascolta"
+ },
+ "tip_f26f3d2993": {
+  "message": "Tocca «Ascolta» sotto una risposta, oppure scegli «Ascolta questa pagina» nel menu «…» in alto nel pannello. L’app ContextFlow la legge con una voce naturale e continua anche a schermo bloccato. Tocca la velocità nel player per 1×, 1,2×, 1,5× o 2×."
+ },
+ "tip_4eab0ec0a2": {
+  "message": "Fai clic su «Ascolta» sotto una risposta, oppure scegli «Ascolta questa pagina» nel menu «…» in alto nel pannello. Una voce naturale la legge direttamente nel pannello. Fai clic sulla velocità nel player per 1×, 1,2×, 1,5× o 2×."
  },
  "tip_328ee8ddce": {
   "message": "Inserimento rapido"
@@ -2236,6 +2314,21 @@
  },
  "tip_69a0bac728": {
   "message": "ContextFlow capisce cosa significano i tuoi tag da dove li metti, e suggerisce quello giusto sotto una nuova risposta o nota. Solo i tuoi tag, solo quando calzano."
+ },
+ "tip_b96ddaab20": {
+  "message": "Il tuo piano"
+ },
+ "tip_b3282f43dd": {
+  "message": "Mensile o annuale"
+ },
+ "tip_12e62d9862": {
+  "message": "Pro e Ultra si pagano al mese o all’anno, e un anno costa meno di dodici mesi. Tocca «Annuale» sopra i piani, nell’app o in Safari, per vedere ogni prezzo e quanto risparmi. Paghi già al mese? «Passa all’annuale» è in «Impostazioni» → «Il tuo piano»: parte quando finisce il mese in corso."
+ },
+ "tip_9288a85bb9": {
+  "message": "Cosa aggiunge il tuo piano"
+ },
+ "tip_0f2289f887": {
+  "message": "Dopo l’acquisto di Pro o Ultra, ContextFlow ti mostra passo passo cosa aggiunge il tuo piano. Per rivederlo, tocca «…» in alto nel pannello, poi «Altro…» e «Cosa include Pro» o «Cosa include Ultra». Nell’app è in «Impostazioni», sotto «Il tuo piano»."
  },
  "tip_3208aa35ac": {
   "message": "Privacy e personalizzazione"
