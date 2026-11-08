@@ -9,7 +9,9 @@ import { isUltra, type Plan } from "../../shared/plan"
 import { needsScript, speechParts, speechSeconds, speechText } from "../../shared/speech"
 import type { Platform, Usage } from "../../shared/types"
 import type { SpeakIn, SpeakOut } from "../../background/speak"
+import { SPEEDS, speedLabel, type Speed } from "../../shared/stretch"
 import { isTouch } from "../page"
+import { listenSpeed, setListenSpeed } from "../store"
 import { clock, PcmPlayer } from "./player"
 
 export type ListenState =
@@ -38,6 +40,9 @@ export function useListen({ platform, plan, onUltra, follow, send }: {
   send: <T>(message: Record<string, unknown>) => Promise<T | null>
 }) {
   const [state, setState] = useState<ListenState>({ at: "idle" })
+  // 1×, 1.2×, 1.5×, 2×: the last one chosen (build 90).
+  const [speed, setSpeedState] = useState<Speed>(1)
+  useEffect(() => void listenSpeed().then(setSpeedState), [])
   const run = useRef<{ port: chrome.runtime.Port; player: PcmPlayer; timer: ReturnType<typeof setInterval>; ended: boolean; key: string; total: number; told: number } | null>(null)
 
   const stop = useCallback(() => {
@@ -85,7 +90,7 @@ export function useListen({ platform, plan, onUltra, follow, send }: {
     }
 
     step("start")
-    const player = new PcmPlayer()
+    const player = new PcmPlayer(await listenSpeed())
     await player.unlock()
     const port = chrome.runtime.connect({ name: "speak" })
     const total = speechSeconds(text)
@@ -114,7 +119,10 @@ export function useListen({ platform, plan, onUltra, follow, send }: {
       if (run.current !== current) return
       const message = raw as SpeakOut
       if (message.type === "chunk") player.push(message.part, message.data)
-      else if (message.type === "end") current.ended = true
+      else if (message.type === "end") {
+        current.ended = true
+        player.end()
+      }
       else if (message.type === "error") {
         // A part that failed after others played: what was heard stays heard, the rest stops.
         clearInterval(current.timer)
@@ -147,12 +155,22 @@ export function useListen({ platform, plan, onUltra, follow, send }: {
     else current.player.pause()
   }, [])
 
-  return { state, start, stop, toggle }
+  /** The next speed (1× → 1.2× → 1.5× → 2× → 1×), kept for next time; what's playing changes at once. */
+  const cycleSpeed = useCallback(() => {
+    const next = SPEEDS[(SPEEDS.indexOf(speed) + 1) % SPEEDS.length]
+    setSpeedState(next)
+    void setListenSpeed(next)
+    run.current?.player.setSpeed(next)
+  }, [speed])
+
+  return { state, start, stop, toggle, speed, cycleSpeed }
 }
 
 /** The bar over the question field while something is read aloud (or why it isn't). */
-export function ListenBar({ state, onToggle, onStop, onPlans }: {
+export function ListenBar({ state, speed, onSpeed, onToggle, onStop, onPlans }: {
   state: ListenState
+  speed: number
+  onSpeed: () => void
   onToggle: () => void
   onStop: () => void
   onPlans: () => void
@@ -186,6 +204,7 @@ export function ListenBar({ state, onToggle, onStop, onPlans }: {
           <div class="cf-listen-track" aria-hidden="true"><div style={{ width: `${Math.min(100, (state.position / Math.max(1, state.total)) * 100)}%` }} /></div>
         </>
       )}
+      <button type="button" class="cf-listen-speed" onClick={onSpeed} aria-label={t("listenSpeed", speedLabel(speed))} title={t("listenSpeed", speedLabel(speed))}>{speedLabel(speed)}</button>
       <button type="button" class="cf-icon-btn" onClick={onStop} aria-label={t("listenStop")}><StopIcon /></button>
     </div>
   )

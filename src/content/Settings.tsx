@@ -4,10 +4,10 @@ import { useEffect, useState } from "preact/hooks"
 import { LINKS, TARGET, VERSION } from "../shared/config"
 import { t } from "../shared/i18n"
 import { OWN_KEY_PATTERN } from "../shared/models"
-import { hasPro, isUltra } from "../shared/plan"
+import { hasPro, isUltra, periodOfProduct, productOf } from "../shared/plan"
 import type { Platform, Settings, StatusInfo, Usage } from "../shared/types"
 import * as Icon from "./icons"
-import { deleteAllChats } from "./store"
+import { deleteAllChats, hideYearly, yearlyHiddenNow } from "./store"
 import { InsertSettingsGroup } from "./insert/InsertSettings"
 
 interface Props {
@@ -20,6 +20,8 @@ interface Props {
   onUpgrade: () => void
   // 2.6: the plans sheet (Own key, Pro, Ultra; monthly or yearly).
   onPlans?: () => void
+  // Build 90: a monthly Pro or Ultra subscriber switches to the yearly plan (the app takes the payment).
+  onYearly?: (plan: "pro" | "ultra") => void
   // The Own key plan's button: "Upgrade to Pro", at the discount when there is one.
   upgradeLabel?: string
   onManage: () => void
@@ -70,6 +72,15 @@ export function SettingsView(props: Props): VNode {
   const planName = plan === "ultra" ? t("planUltra") : plan === "pro" ? t("planPro") : plan === "byok" ? t("planByok") : t("planFree")
   // Ultra: this week's listening, in minutes.
   const speak = isUltra(plan) ? status?.ultra?.speak ?? null : null
+  // A monthly Pro or Ultra subscriber, with the yearly plan's saving known (the app shares it): one quiet line here,
+  // never a prompt; "Hide" puts it away for 60 days.
+  const [yearlyHidden, setYearlyHidden] = useState<boolean | null>(null)
+  useEffect(() => void yearlyHiddenNow().then(setYearlyHidden), [])
+  const storeProduct = status?.store?.active ? status.store.productId ?? null : null
+  const monthlyPaid = (plan === "pro" || plan === "ultra") && periodOfProduct(storeProduct) === "monthly" ? plan : null
+  const yearlyId = monthlyPaid ? productOf(monthlyPaid, "yearly") : null
+  const yearlySave = yearlyId ? status?.store?.prices?.[`${yearlyId}#save`] : undefined
+  const yearlyPercent = yearlyId ? status?.store?.prices?.[`${yearlyId}#percent`] : undefined
 
   // The plan comes first until there is Pro; with Pro it's managed at the very bottom.
   const planGroup = (
@@ -99,6 +110,19 @@ export function SettingsView(props: Props): VNode {
           )}
           {plan === "free" && <button type="button" class="cf-link" onClick={props.onManage}>{t("restorePurchases")}</button>}
           {props.onPlans && <button type="button" class={isUltra(plan) ? "cf-link" : "cf-secondary"} onClick={props.onPlans}>{isUltra(plan) ? t("plansCompare") : plan === "free" ? t("plansCompare") : t("seeUltra")}</button>}
+        </div>
+      )}
+      {TARGET === "safari" && monthlyPaid && yearlySave && yearlyPercent && yearlyHidden === false && props.onYearly && (
+        <div class="cf-yearly" role="note">
+          <span>{t("yearlyNudge", monthlyPaid === "ultra" ? t("planUltra") : t("planPro"), yearlySave, yearlyPercent)}</span>
+          <small>{t("yearlyNudgeNote")}</small>
+          <div class="cf-card-actions">
+            <button type="button" class="cf-primary" onClick={() => props.onYearly?.(monthlyPaid)}>{t("yearlyNudgeButton")}</button>
+            <button type="button" class="cf-link" onClick={() => {
+              setYearlyHidden(true)
+              void hideYearly()
+            }}>{t("yearlyNudgeHide")}</button>
+          </div>
         </div>
       )}
     </section>

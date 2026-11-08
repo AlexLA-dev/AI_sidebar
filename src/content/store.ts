@@ -1,3 +1,4 @@
+import { SPEEDS, type Speed } from "../shared/stretch"
 import { CONSENT_VERSION, consentStatus, type ConsentStatus } from "../shared/consent"
 import type { Entry } from "../shared/conversation"
 import { activity, cleanTitle, liveThreads, moveEntries, newThreadId, prune, purgeTrash, restoreThread, savedThread, trashThread, undoMove, type ActiveThread, type MoveUndo, type Thread, type Threads, cleanTags } from "../shared/threads"
@@ -79,6 +80,25 @@ export async function seenHints(): Promise<HintKey[]> {
 export async function markHintSeen(key: HintKey): Promise<void> {
   const seen = await seenHints()
   if (!seen.includes(key)) await set(STORAGE.hintsSeen, [...seen, key])
+}
+
+/** Read aloud's last speed (1× until one is chosen). */
+export async function listenSpeed(): Promise<Speed> {
+  const kept = await get<number>(STORAGE.listenSpeed)
+  return (SPEEDS as readonly number[]).includes(kept ?? 1) ? (kept as Speed) ?? 1 : 1
+}
+
+export async function setListenSpeed(speed: Speed): Promise<void> {
+  await set(STORAGE.listenSpeed, speed)
+}
+
+/** Whether the switch-to-yearly line is hidden for now ("Hide": 60 days). */
+export async function yearlyHiddenNow(): Promise<boolean> {
+  return ((await get<number>(STORAGE.yearlyHiddenUntil)) ?? 0) > Date.now()
+}
+
+export async function hideYearly(): Promise<void> {
+  await set(STORAGE.yearlyHiddenUntil, Date.now() + 60 * 86_400_000)
 }
 
 /** "Show tips" in Settings: the tour and the hints come back. */

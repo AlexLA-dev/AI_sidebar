@@ -13,8 +13,11 @@ import AppKit
 /// screen locks, so the panel puts the text in the App Group and opens contextflow://listen?id=…. The app asks our
 /// server for the speech part by part (/api/v2/speak: 24 kHz 16-bit PCM), plays it with the screen locked (background
 /// audio), shows it on the lock screen (Now Playing, play/pause, 15 s back and ahead) and keeps each part on the
-/// device, so playing it again costs nothing. Out of the week's minutes, or offline, the best Apple voice installed for
-/// the language reads the rest.
+/// device, so playing it again costs nothing. Out of the week's minutes, or offline, at a text's start, the best Apple
+/// voice installed for the language (of the same gender as ours) reads it; a text never changes voice in the middle
+/// (build 90): a part that fails is asked for again, and if it still can't come, playing stops with "Try again".
+/// Speeds 1×, 1.2×, 1.5×, 2× keep the pitch (AVAudioUnitTimePitch); the minutes count the audio, not the time heard.
+/// Nothing runs while it's paused or done: no timer, no audio engine, and the audio session is let go at the end.
 struct ListenRequest: Equatable {
     let id: String
     /// The panel's parts (its own rules): what's read when the text can't be written for the ear.
@@ -38,10 +41,20 @@ final class ListenPlayer: NSObject, ObservableObject {
         case ultraOnly
         /// The week's minutes are used up (minutes, the day they come back); Apple's voice reads the rest.
         case limit(minutes: Int, resets: String)
-        /// No connection or the server failed: Apple's voice reads the rest.
+        /// No connection or the server failed before anything played: Apple's voice reads it.
         case appleVoice
+        /// The rest couldn't come (no connection, the minutes ran out) after ours had played: what was heard stays
+        /// heard, and "Try again" asks for the rest in the same voice.
+        case interrupted(limit: Bool)
         case failed(String)
     }
+
+    /// The speeds offered (the panel's too); the last one chosen is kept.
+    static let speeds: [Double] = [1, 1.2, 1.5, 2]
+    @Published private(set) var speed: Double = {
+        let kept = UserDefaults.standard.double(forKey: "cf_listen_speed")
+        return ListenPlayer.speeds.contains(kept) ? kept : 1
+    }()
 
     @Published private(set) var request: ListenRequest?
     @Published private(set) var state: State = .idle
@@ -52,6 +65,8 @@ final class ListenPlayer: NSObject, ObservableObject {
     private static let rate = 24_000.0
     private let engine = AVAudioEngine()
     private let node = AVAudioPlayerNode()
+    /// Faster or slower at the same pitch.
+    private let pitch = AVAudioUnitTimePitch()
     private let format = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: ListenPlayer.rate, channels: 1, interleaved: false)!
     private var samples: [Float] = []
     private var scheduledUpTo = 0
@@ -68,9 +83,12 @@ final class ListenPlayer: NSObject, ObservableObject {
     private var timer: Timer?
     private var wired = false
     private let synth = AVSpeechSynthesizer()
-    /// What Apple's voice reads when the server can't (the week's minutes ran out, or the connection did).
+    /// What Apple's voice reads when the server can't at a text's start (out of minutes, or offline).
     private var appleText: String?
     private var appleStarted = false
+    /// The parts not yet spoken when the rest couldn't come ("Try again" asks for them), and the first one's index.
+    private var rest: [String] = []
+    private var restIndex = 0
 
     // MARK: Opening
 
@@ -152,12 +170,6 @@ final class ListenPlayer: NSObject, ObservableObject {
         duration = Self.estimate(request.parts.joined(separator: " "))
         state = .loading
         wire()
-        activateSession()
-        if !engine.isRunning { try? engine.start() }
-        timer = Timer.scheduledTimer(withTimeInterval: 0.25, repeats: true) { [weak self] _ in
-            guard let player = self else { return }
-            MainActor.assumeIsolated { player.tick() }
-        }
         fetchTask = Task { await fetchAll(request) }
         updateNowPlaying()
     }
@@ -167,15 +179,18 @@ final class ListenPlayer: NSObject, ObservableObject {
         // Closing the sheet doesn't stop it: it plays on, with the lock screen's controls. Stopped or done, it goes.
         if state == .ended || state == .ultraOnly || state == .idle { stop() }
         if case .failed = state { stop() }
+        if case .interrupted = state { stop() }
     }
 
     func stop() {
         fetchTask?.cancel()
         fetchTask = nil
-        timer?.invalidate()
-        timer = nil
+        stopClock()
         node.stop()
+        if engine.isRunning { engine.stop() }
         synth.stopSpeaking(at: .immediate)
+        rest = []
+        restIndex = 0
         samples.removeAll()
         scheduledUpTo = 0
         startSample = 0
@@ -189,6 +204,7 @@ final class ListenPlayer: NSObject, ObservableObject {
         elapsed = 0
         state = .idle
         MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
+        releaseSession()
     }
 
     // MARK: Controls
@@ -211,14 +227,55 @@ final class ListenPlayer: NSObject, ObservableObject {
         node.play()
         pausedAt = nil
         state = .playing
+        startClock()
         updateNowPlaying()
     }
 
     func pause() {
         pausedAt = playerNow() ?? pausedAt
         node.pause()
+        // Paused, nothing runs: the engine stops pulling silence (the phone stays cool and the app can sleep).
+        engine.pause()
+        stopClock()
         if state == .playing { state = .paused }
         updateNowPlaying()
+    }
+
+    func setSpeed(_ value: Double) {
+        guard Self.speeds.contains(value) else { return }
+        speed = value
+        UserDefaults.standard.set(value, forKey: "cf_listen_speed")
+        pitch.rate = Float(value)
+        updateNowPlaying()
+    }
+
+    /// "Try again" after the rest couldn't come: the same voice carries on from where it stopped.
+    func retryRest() {
+        guard let request, !rest.isEmpty else { return }
+        let parts = rest
+        let first = restIndex
+        rest = []
+        pendingReason = nil
+        // What's left to hear plays on; otherwise it waits for the rest (and plays as soon as it's here).
+        if samples.count > scheduledUpTo || node.isPlaying {
+            play()
+        } else {
+            state = .loading
+        }
+        fetchTask = Task { await self.speakParts(parts, from: first, request: request) }
+    }
+
+    private func startClock() {
+        guard timer == nil else { return }
+        timer = Timer.scheduledTimer(withTimeInterval: 0.25, repeats: true) { [weak self] _ in
+            guard let player = self else { return }
+            MainActor.assumeIsolated { player.tick() }
+        }
+    }
+
+    private func stopClock() {
+        timer?.invalidate()
+        timer = nil
     }
 
     func skip(_ seconds: Double) {
@@ -227,7 +284,7 @@ final class ListenPlayer: NSObject, ObservableObject {
 
     func seek(to seconds: Double) {
         guard !samples.isEmpty else { return }
-        let wasPlaying = state == .playing || state == .ended
+        let wasPlaying = state == .playing || state == .ended || state == .interrupted(limit: false) || state == .interrupted(limit: true)
         node.stop()
         startSample = max(0, min(samples.count - 1, Int(seconds * Self.rate)))
         scheduledUpTo = startSample
@@ -254,12 +311,17 @@ final class ListenPlayer: NSObject, ObservableObject {
 
     private func fetchAll(_ request: ListenRequest) async {
         if request.script, !request.text.isEmpty { return await speakWritten(request) }
-        for (index, part) in request.parts.enumerated() {
+        await speakParts(request.parts, from: 0, request: request)
+    }
+
+    /// Parts in order; one that can't come stops the rest (Apple's voice only if nothing of ours played yet).
+    private func speakParts(_ parts: [String], from first: Int, request: ListenRequest) async {
+        for (offset, part) in parts.enumerated() {
             if Task.isCancelled { return }
-            switch await speakPart(part, index: index, request: request) {
+            switch await speakPart(part, index: first + offset, request: request) {
             case .ok: continue
             case .stop: return
-            case .fallBack(let reason): return fallBack(text: request.parts[index...].joined(separator: " "), reason)
+            case .fallBack(let reason): return fallBack(parts: Array(parts[offset...]), index: first + offset, reason)
             }
         }
         fetchedAll = true
@@ -278,10 +340,10 @@ final class ListenPlayer: NSObject, ObservableObject {
             case .ok: index += 1
             case .stop: return
             case .fallBack(let reason):
-                // Apple's voice reads the rest of what was written (it's quick to finish).
+                // The rest of what was written waits for "Try again" (or Apple's voice, if nothing played yet).
                 var rest = [part]
                 while let more = await iterator.next() { rest.append(more) }
-                return fallBack(text: rest.joined(separator: " "), reason)
+                return fallBack(parts: rest, index: index, reason)
             }
         }
         fetchedAll = true
@@ -333,23 +395,59 @@ final class ListenPlayer: NSObject, ObservableObject {
         case fallBack(State)
     }
 
-    /// One part to speech, from the device's copy when there is one.
+    /// One part to speech, from the device's copy when there is one. A part is held back as it comes and played as soon
+    /// as it's needed (the text's first sound at once, later ones when what's ahead runs short), so a download that
+    /// breaks off can be asked for again without repeating what was heard (receive). A passing failure is asked
+    /// again twice before it counts.
     private func speakPart(_ part: String, index: Int, request: ListenRequest) async -> Spoken {
         let key = Self.cacheKey(part, request.lang)
         if let cached = SpeechCache.read(key) {
             append(cached)
             return .ok
         }
+        // Nothing a voice can say (a dash, an emoji): skipped.
+        guard part.rangeOfCharacter(from: .alphanumerics) != nil else { return .ok }
         guard let urlRequest = try? ChatAI.speechRequest(text: part, lang: request.lang, what: request.what, part: index, parts: max(request.parts.count, index + 1)) else {
             return .fallBack(.appleVoice)
         }
-        let outcome = await Self.download(urlRequest) { [weak self] chunk in
-            await self?.append(chunk)
+        var outcome: Download = .failed
+        // "Try again" on a part that had begun to play carries on from where it stopped.
+        partLive = resumeSkip > 0
+        partGiven = resumeSkip
+        resumeSkip = 0
+        defer { partHeld = Data() }
+        for attempt in 0..<3 {
+            if attempt > 0 {
+                try? await Task.sleep(nanoseconds: attempt == 1 ? 1_000_000_000 : 3_000_000_000)
+                if Task.isCancelled { return .stop }
+            }
+            // A new attempt: what was held goes (nobody heard it); what was played is skipped in the new audio.
+            partHeld = Data()
+            partSkip = partGiven
+            outcome = await Self.download(urlRequest) { [weak self] chunk in
+                await self?.receive(chunk)
+            }
+            if Task.isCancelled { return .stop }
+            switch outcome {
+            case .done(let all):
+                if !partHeld.isEmpty {
+                    append(partHeld)
+                    partHeld = Data()
+                }
+                if let gender = Self.lastGender { UserDefaults.standard.set(gender, forKey: "cf_voice_gender") }
+                SpeechCache.write(key, all)
+                // The lock screen learns the new length once a part (not every piece).
+                updateNowPlaying()
+                return .ok
+            case .failed, .refused(500..., _), .refused(429, _):
+                continue
+            case .refused:
+                break
+            }
+            break
         }
-        if Task.isCancelled { return .stop }
         switch outcome {
-        case .done(let all):
-            SpeechCache.write(key, all)
+        case .done:
             return .ok
         case .refused(let status, let body):
             let code = body["code"] as? String
@@ -358,7 +456,7 @@ final class ListenPlayer: NSObject, ObservableObject {
                     state = .ultraOnly
                     return .stop
                 }
-                return .fallBack(.appleVoice)
+                return .fallBack(.interrupted(limit: false))
             }
             if code == "LIMIT_REACHED" {
                 let usage = body["usage"] as? [String: Any]
@@ -410,11 +508,56 @@ final class ListenPlayer: NSObject, ObservableObject {
         case failed
     }
 
+    /// The voice's gender the server last named (X-CF-Voice-Gender).
+    nonisolated(unsafe) private static var lastGender: String?
+
+    /// The part coming in: whether it's playing as it comes, what's held back, how much of it was played (bytes), and
+    /// how much of a new attempt to skip (what an earlier one already played).
+    private var partLive = false
+    private var partHeld = Data()
+    private var partGiven = 0
+    private var partSkip = 0
+    /// Bytes of the first part of `rest` that were heard before it broke off ("Try again" skips them).
+    private var resumeSkip = 0
+
+    private func receive(_ chunk: Data) {
+        var piece = chunk
+        if partSkip > 0 {
+            let drop = min(partSkip, piece.count)
+            partSkip -= drop
+            piece = Data(piece.dropFirst(drop))
+            if piece.isEmpty { return }
+        }
+        // Needed now: the text's first sound, or less than 3 s left to play.
+        if !partLive, samples.isEmpty || aheadSeconds() < 3 {
+            partLive = true
+            if !partHeld.isEmpty {
+                append(partHeld)
+                partGiven += partHeld.count
+                partHeld = Data()
+            }
+        }
+        if partLive {
+            append(piece)
+            partGiven += piece.count
+        } else {
+            partHeld.append(piece)
+        }
+    }
+
+    /// Seconds of audio in hand ahead of what's being heard (none known while paused: plenty).
+    private func aheadSeconds() -> Double {
+        guard let now = playerNow() else { return state == .playing ? 0 : .infinity }
+        let heard = startSample + Int(max(0, min(now, playerEnd) - gapFrames))
+        return Double(samples.count - heard) / Self.rate
+    }
+
     /// One part, passed on in pieces of whole samples as it comes (off the main thread).
     nonisolated private static func download(_ request: URLRequest, onChunk: @escaping @Sendable (Data) async -> Void) async -> Download {
         do {
             let (bytes, response) = try await URLSession.shared.bytes(for: request)
             let status = (response as? HTTPURLResponse)?.statusCode ?? 0
+            if let gender = (response as? HTTPURLResponse)?.value(forHTTPHeaderField: "X-CF-Voice-Gender") { lastGender = gender }
             guard status == 200 else {
                 var body = Data()
                 for try await byte in bytes { body.append(byte) }
@@ -451,10 +594,17 @@ final class ListenPlayer: NSObject, ObservableObject {
             samples.reserveCapacity(samples.count + count)
             for i in 0..<count { samples.append(Float(Int16(littleEndian: values[i])) / 32_768) }
         }
+        let longer = Double(samples.count) / Self.rate > duration
         duration = max(duration, Double(samples.count) / Self.rate)
         scheduleMore()
-        // The first sound: start (a quarter second in hand, so it doesn't stutter).
-        if state == .loading, samples.count > Int(Self.rate * 0.25) { play() }
+        // The first sound: start (a quarter second in hand, so it doesn't stutter); after "Try again", carry on.
+        if state == .loading, samples.count > Int(Self.rate * 0.25) {
+            play()
+        } else if state == .playing, !node.isPlaying {
+            play()
+        } else if longer, state == .paused {
+            updateNowPlaying()
+        }
     }
 
     /// The player's clock now, in samples (nil before it plays).
@@ -483,15 +633,22 @@ final class ListenPlayer: NSObject, ObservableObject {
         }
     }
 
-    private func fallBack(text: String, _ reason: State) {
-        appleText = text
+    /// The rest can't come. Nothing of ours played yet: Apple's voice reads the text (out of minutes, offline). Ours
+    /// has played: no other voice takes over mid-text; what came plays to its end, then "Try again".
+    private func fallBack(parts: [String], index: Int, _ reason: State) {
         if samples.isEmpty {
+            appleText = parts.joined(separator: " ")
             state = reason
             speakWithApple()
-        } else {
-            // What came from the server plays first; Apple's voice follows (tick).
-            pendingReason = reason
+            return
         }
+        rest = parts
+        restIndex = index
+        resumeSkip = partGiven
+        let limited: Bool
+        if case .limit = reason { limited = true } else { limited = false }
+        pendingReason = .interrupted(limit: limited)
+        if state != .playing { state = .interrupted(limit: limited) }
     }
 
     private var pendingReason: State?
@@ -507,16 +664,27 @@ final class ListenPlayer: NSObject, ObservableObject {
         }
         if drained, state == .playing {
             if fetchedAll {
-                node.pause()
-                state = .ended
-            } else if let reason = pendingReason, appleText != nil {
+                finish(.ended)
+                return
+            } else if let reason = pendingReason {
                 pendingReason = nil
-                node.pause()
-                state = reason
-                speakWithApple()
+                finish(reason)
+                return
             }
         }
+        // While playing, the lock screen keeps its own clock (rate and elapsed): it's told only of changes.
+    }
+
+    /// Done, or stopped short: nothing keeps running and the audio session is let go (the phone can rest).
+    private func finish(_ next: State) {
+        stopClock()
+        // Where the clock stopped: audio that comes later ("Try again") doesn't count the wait as heard.
+        pausedAt = playerNow() ?? pausedAt
+        node.pause()
+        if engine.isRunning { engine.pause() }
+        state = next
         updateNowPlaying()
+        releaseSession()
     }
 
     // MARK: Apple's voice (out of minutes, offline)
@@ -526,21 +694,39 @@ final class ListenPlayer: NSObject, ObservableObject {
         appleStarted = true
         activateSession()
         let utterance = AVSpeechUtterance(string: text)
-        utterance.voice = Self.bestVoice(request.lang)
+        utterance.voice = Self.bestVoice(request.lang, gender: UserDefaults.standard.string(forKey: "cf_voice_gender") ?? "female")
+        utterance.rate = Self.appleRate(speed)
         synth.speak(utterance)
     }
 
-    /// The best voice installed for the language: premium, then enhanced, then the default one.
-    static func bestVoice(_ lang: String) -> AVSpeechSynthesisVoice? {
+    /// Apple's rate for our speeds (its scale isn't linear: 0.5 is normal speech).
+    nonisolated static func appleRate(_ speed: Double) -> Float {
+        switch speed {
+        case 2...: return 0.66
+        case 1.5...: return 0.6
+        case 1.2...: return 0.54
+        default: return AVSpeechUtteranceDefaultSpeechRate
+        }
+    }
+
+    /// The best voice installed for the language, of the same gender as ours (so it sounds like the same kind of
+    /// voice): premium, then enhanced, then the default one; the device's language variant first.
+    static func bestVoice(_ lang: String, gender: String = "female") -> AVSpeechSynthesisVoice? {
         let code = lang.isEmpty ? Locale.current.identifier : lang
         let primary = code.split(whereSeparator: { $0 == "-" || $0 == "_" }).first.map(String.init) ?? code
         let voices = AVSpeechSynthesisVoice.speechVoices().filter { $0.language.hasPrefix(primary) }
+        let wanted: AVSpeechSynthesisVoiceGender = gender == "male" ? .male : .female
+        let region = Locale.current.region?.identifier
         func rank(_ v: AVSpeechSynthesisVoice) -> Int {
+            var score = 0
+            if v.gender == wanted { score += 100 }
             switch v.quality {
-            case .premium: return 3
-            case .enhanced: return 2
-            default: return 1
+            case .premium: score += 30
+            case .enhanced: score += 20
+            default: score += 10
             }
+            if let region, v.language.hasSuffix(region) { score += 1 }
+            return score
         }
         return voices.max { rank($0) < rank($1) } ?? AVSpeechSynthesisVoice(language: code)
     }
@@ -555,11 +741,21 @@ final class ListenPlayer: NSObject, ObservableObject {
         #endif
     }
 
+    /// At the end (or stop): other apps' audio may carry on, and the app is free to sleep.
+    private func releaseSession() {
+        #if os(iOS)
+        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+        #endif
+    }
+
     private func wire() {
         guard !wired else { return }
         wired = true
         engine.attach(node)
-        engine.connect(node, to: engine.mainMixerNode, format: format)
+        engine.attach(pitch)
+        pitch.rate = Float(speed)
+        engine.connect(node, to: pitch, format: format)
+        engine.connect(pitch, to: engine.mainMixerNode, format: format)
         let center = MPRemoteCommandCenter.shared()
         center.playCommand.addTarget { [weak self] _ in
             Task { @MainActor in self?.play() }
@@ -581,6 +777,14 @@ final class ListenPlayer: NSObject, ObservableObject {
         center.skipBackwardCommand.preferredIntervals = [15]
         center.skipBackwardCommand.addTarget { [weak self] _ in
             Task { @MainActor in self?.skip(-15) }
+            return .success
+        }
+        // The speed on the lock screen and in Control Center, where the system offers it.
+        center.changePlaybackRateCommand.supportedPlaybackRates = Self.speeds.map { NSNumber(value: $0) }
+        center.changePlaybackRateCommand.addTarget { [weak self] event in
+            guard let rate = (event as? MPChangePlaybackRateCommandEvent)?.playbackRate else { return .commandFailed }
+            let nearest = ListenPlayer.speeds.min { abs($0 - Double(rate)) < abs($1 - Double(rate)) } ?? 1
+            Task { @MainActor in self?.setSpeed(nearest) }
             return .success
         }
         #if os(iOS)
@@ -605,7 +809,8 @@ final class ListenPlayer: NSObject, ObservableObject {
             MPMediaItemPropertyArtist: "ContextFlow",
             MPMediaItemPropertyPlaybackDuration: duration,
             MPNowPlayingInfoPropertyElapsedPlaybackTime: elapsed,
-            MPNowPlayingInfoPropertyPlaybackRate: state == .playing ? 1.0 : 0.0
+            MPNowPlayingInfoPropertyPlaybackRate: state == .playing ? speed : 0.0,
+            MPNowPlayingInfoPropertyDefaultPlaybackRate: speed
         ]
         info[MPNowPlayingInfoPropertyMediaType] = MPNowPlayingInfoMediaType.audio.rawValue
         MPNowPlayingInfoCenter.default().nowPlayingInfo = info
@@ -744,6 +949,7 @@ struct ListenView: View {
                 }
                 .foregroundColor(brandBlue)
                 .disabled(player.state == .loading)
+                speedMenu
             }
             Spacer(minLength: 0)
             Text("Keeps playing with the screen locked. Controls are on the lock screen too.")
@@ -758,9 +964,36 @@ struct ListenView: View {
 
     private var showsControls: Bool {
         switch player.state {
-        case .loading, .playing, .paused, .ended: return true
+        case .loading, .playing, .paused, .ended, .interrupted: return true
         default: return false
         }
+    }
+
+    /// 1×, 1.2×, 1.5×, 2× (the last one chosen stays).
+    private var speedMenu: some View {
+        Menu {
+            Picker(selection: Binding(get: { player.speed }, set: { player.setSpeed($0) })) {
+                ForEach(ListenPlayer.speeds, id: \.self) { value in
+                    Text(speedLabel(value)).tag(value)
+                }
+            } label: {
+                Text("Playback speed")
+            }
+        } label: {
+            Text(speedLabel(player.speed))
+                .font(.subheadline.weight(.semibold).monospacedDigit())
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(Capsule().fill(brandBlue.opacity(0.12)))
+        }
+        .foregroundColor(brandBlue)
+        .accessibilityLabel(Text("Playback speed"))
+        .accessibilityValue(Text(speedLabel(player.speed)))
+        .accessibilityIdentifier("listen.speed")
+    }
+
+    private func speedLabel(_ value: Double) -> String {
+        value.formatted(.number.precision(.fractionLength(0...1))) + "×"
     }
 
     @ViewBuilder
@@ -790,6 +1023,20 @@ struct ListenView: View {
                 .font(.callout)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
+        case .interrupted(let limit):
+            VStack(spacing: 10) {
+                (limit ? Text("This week's listening minutes are used up, so the rest can't be read in this voice.") : Text("The rest didn't come through: no connection to ContextFlow."))
+                    .font(.callout)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                if limit {
+                    Button("See Ultra", action: openPlans).buttonStyle(.bordered)
+                } else {
+                    Button("Try again") { player.retryRest() }
+                        .buttonStyle(.borderedProminent)
+                        .accessibilityIdentifier("listen.retry")
+                }
+            }
         case .failed(let message):
             Text(message)
                 .font(.callout)
