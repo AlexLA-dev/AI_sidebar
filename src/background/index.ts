@@ -35,7 +35,7 @@ import { nameChatNow, organizeChat, organizeCounts, reportOrganize } from "./org
 import { organizeConfig } from "../shared/organize"
 import { askSimilar } from "./similar"
 import type { SimilarPayload, SimilarStreamEvent } from "../shared/similar"
-import { clearSpeech, serveSpeak } from "./speak"
+import { base64 as speechBase64, clearSpeech, serveSpeak } from "./speak"
 import { follow, jobsOnStart, liveJobIds, markSeen, startJob, stopJob, type JobSpec } from "./jobs"
 
 // ---------------------------------------------------------------- identity
@@ -287,10 +287,27 @@ async function runChat(payload: AskPayload, emit: (e: StreamEvent) => void, sign
 
 chrome.runtime.onConnect.addListener((port) => {
   if (port.name === "speak") {
-    serveSpeak(port, { installId, client: clientInfo, jws: async () => {
-      const ent = await entitlement()
-      return ent?.active ? ent.jws : null
-    } })
+    serveSpeak(port, {
+      installId,
+      client: clientInfo,
+      jws: async () => {
+        const ent = await entitlement()
+        return ent?.active ? ent.jws : null
+      },
+      // The user's iCloud through the app's extension (Safari): parts and texts made on their other devices.
+      sync: TARGET === "safari" ? {
+        getPart: async (key, wait) => (await callNative<{ aac?: string }>("speechGet", { key, wait }, (wait + 2) * 1000))?.aac ?? null,
+        putPart: async (key, pcm) => {
+          // In pieces (native messages stay small); the extension encodes and keeps it when the last one is in.
+          const size = 384 * 1024
+          for (let at = 0, index = 0; at < pcm.length; at += size, index++) {
+            await callNative("speechPut", { key, index, last: at + size >= pcm.length, data: speechBase64(pcm.subarray(at, at + size)) }, 15_000)
+          }
+        },
+        getText: async (key, wait) => (await callNative<{ text?: string }>("speechTextGet", { key, wait }, (wait + 2) * 1000))?.text ?? null,
+        putText: async (key, text) => void (await callNative("speechTextPut", { key, text }, 10_000))
+      } : undefined
+    })
     return
   }
   if (port.name === "job") return serveJob(port)
@@ -540,6 +557,8 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
       listenInApp(message).then(sendResponse, () => sendResponse({ url: null }))
       return true
     case "speechClear":
+      // "Delete all chats": what was read aloud goes from this device and, in Safari, from the user's iCloud (2.6).
+      if (TARGET === "safari") void callNative("speechClear", {}, 15_000)
       clearSpeech().then(() => sendResponse({ ok: true }), () => sendResponse({ ok: false }))
       return true
     case "mediaNotice":

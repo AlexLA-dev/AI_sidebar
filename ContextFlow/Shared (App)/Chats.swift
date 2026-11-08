@@ -620,7 +620,11 @@ final class ChatLibrary: ObservableObject {
         let hadChats = UserDefaults.standard.bool(forKey: "cf_listen_had_chats")
         if threads.isEmpty && trashed.isEmpty {
             OrganizeModel.shared.forget()
-            if hadChats { SpeechCache.clear() }
+            if hadChats {
+                SpeechCache.clear()
+                // And from the user's iCloud (2.6), for every device.
+                Task.detached(priority: .utility) { await SpeechSync.deleteAll() }
+            }
         }
         UserDefaults.standard.set(!threads.isEmpty || !trashed.isEmpty, forKey: "cf_listen_had_chats")
         // 30 days in Recently Deleted: deleted for good, as on any device that sees it first.

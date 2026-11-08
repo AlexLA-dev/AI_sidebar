@@ -236,6 +236,63 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                 "url": String((message["url"] as? String ?? "").prefix(2000))
             ], id: message["id"] as? String)
             Self.reply(context, ["success": true, "data": ["id": id]])
+        // Read aloud on the user's devices (2.6): the Mac panel plays through Safari, so the extension reaches iCloud
+        // for it (SpeechSync). A part comes as AAC (the panel decodes it); a part made here goes up as PCM in pieces
+        // (native messages stay small), encoded and kept when the last piece is in.
+        case "speechGet":
+            let key = message["key"] as? String ?? ""
+            Task {
+                let aac = key.isEmpty ? nil : await SpeechSync.fetchPartAAC(key, wait: (message["wait"] as? Double) ?? 2)
+                Self.reply(context, ["success": true, "data": aac.map { ["aac": $0.base64EncodedString()] } ?? [:]])
+            }
+        case "speechPut":
+            let key = message["key"] as? String ?? ""
+            let piece = (message["data"] as? String).flatMap { Data(base64Encoded: $0) } ?? Data()
+            let index = message["index"] as? Int ?? 0
+            let last = message["last"] as? Bool ?? true
+            guard key.range(of: "^[0-9a-f]{64}$", options: .regularExpression) != nil,
+                  let folder = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: SharedDefaults.suiteName)?.appendingPathComponent("SpeechUp", isDirectory: true) else {
+                Self.reply(context, ["success": false])
+                return
+            }
+            try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+            let file = folder.appendingPathComponent("\(key).pcm")
+            if index == 0 { try? FileManager.default.removeItem(at: file) }
+            if let handle = try? FileHandle(forWritingTo: file) {
+                handle.seekToEndOfFile()
+                handle.write(piece)
+                try? handle.close()
+            } else {
+                try? piece.write(to: file)
+            }
+            guard last else {
+                Self.reply(context, ["success": true])
+                return
+            }
+            Task {
+                if let pcm = try? Data(contentsOf: file) { await SpeechSync.savePart(key, pcm: pcm) }
+                try? FileManager.default.removeItem(at: file)
+                Self.reply(context, ["success": true])
+            }
+        case "speechTextGet":
+            let key = message["key"] as? String ?? ""
+            Task {
+                let text = key.isEmpty ? nil : await SpeechSync.fetchText(key, wait: (message["wait"] as? Double) ?? 1.5)
+                Self.reply(context, ["success": true, "data": text.map { ["text": $0] } ?? [:]])
+            }
+        case "speechClear":
+            // "Delete all chats" in the panel: what was read aloud goes from iCloud too.
+            Task {
+                await SpeechSync.deleteAll()
+                Self.reply(context, ["success": true])
+            }
+        case "speechTextPut":
+            let key = message["key"] as? String ?? ""
+            let text = String((message["text"] as? String ?? "").prefix(40_000))
+            Task {
+                if !key.isEmpty { await SpeechSync.saveText(key, text: text) }
+                Self.reply(context, ["success": true])
+            }
         case "tipClip":
             // A Tips clip for the panel, from the app's copy in the App Group (2.6 (91)), in parts of 256 KB (a multiple of 3 bytes, so the parts' base64 joins as is).
             let name = message["name"] as? String ?? ""
