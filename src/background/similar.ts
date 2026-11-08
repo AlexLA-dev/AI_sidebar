@@ -31,7 +31,8 @@ export async function askSimilar(req: SimilarRequest, emit: (e: SimilarStreamEve
         entitlement: req.entitlement,
         engine: "a",
         page: req.payload.page,
-        condition: req.payload.condition
+        condition: req.payload.condition,
+        ...(req.payload.selection ? { selection: req.payload.selection } : {})
       }),
       signal: timeout.signal
     })
