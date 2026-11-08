@@ -286,6 +286,7 @@
   "openPage": "Abrir esta página",
   "usageFreeShort": "Quedan {0} de {1} hoy",
   "usageProShort": "Pro · {0} de {1} esta semana",
+  "usageUltraShort": "Ultra · {0} de {1} esta semana",
 
   "pinChat": "Fijar chat",
   "unpinChat": "Dejar de fijar",

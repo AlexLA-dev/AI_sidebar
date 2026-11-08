@@ -824,6 +824,9 @@
  "usageProShort": {
   "message": "Pro · 本週剩 {0}/{1}"
  },
+ "usageUltraShort": {
+  "message": "Ultra · 本週剩 {0}/{1}"
+ },
  "pinChat": {
   "message": "釘選對話"
  },

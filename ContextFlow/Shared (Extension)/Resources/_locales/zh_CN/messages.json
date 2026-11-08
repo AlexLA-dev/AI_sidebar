@@ -824,6 +824,9 @@
  "usageProShort": {
   "message": "Pro · 本周剩余 {0}/{1}"
  },
+ "usageUltraShort": {
+  "message": "Ultra · 本周剩余 {0}/{1}"
+ },
  "pinChat": {
   "message": "置顶对话"
  },
