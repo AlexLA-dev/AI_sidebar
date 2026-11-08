@@ -1478,6 +1478,21 @@
  "orgNameFailed": {
   "message": "Je n’ai pas pu nommer la discussion pour l’instant. Réessayez plus tard."
  },
+ "recs_one": {
+  "message": "{0} recommandation"
+ },
+ "recs_two": {
+  "message": "{0} recommandations"
+ },
+ "recs_few": {
+  "message": "{0} recommandations"
+ },
+ "recs_many": {
+  "message": "{0} recommandations"
+ },
+ "recs_other": {
+  "message": "{0} recommandations"
+ },
  "orgConsentTitle": {
   "message": "Classer vos discussions par sujet ?"
  },

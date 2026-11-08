@@ -1478,6 +1478,21 @@
  "orgNameFailed": {
   "message": "暂时无法为对话命名，请稍后再试。"
  },
+ "recs_one": {
+  "message": "{0} 条建议"
+ },
+ "recs_two": {
+  "message": "{0} 条建议"
+ },
+ "recs_few": {
+  "message": "{0} 条建议"
+ },
+ "recs_many": {
+  "message": "{0} 条建议"
+ },
+ "recs_other": {
+  "message": "{0} 条建议"
+ },
  "orgConsentTitle": {
   "message": "按主题整理你的对话？"
  },

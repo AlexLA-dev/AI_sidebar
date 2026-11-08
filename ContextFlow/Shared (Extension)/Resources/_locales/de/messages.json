@@ -1478,6 +1478,21 @@
  "orgNameFailed": {
   "message": "Ich konnte den Chat gerade nicht benennen. Versuch es später noch einmal."
  },
+ "recs_one": {
+  "message": "{0} Empfehlung"
+ },
+ "recs_two": {
+  "message": "{0} Empfehlungen"
+ },
+ "recs_few": {
+  "message": "{0} Empfehlungen"
+ },
+ "recs_many": {
+  "message": "{0} Empfehlungen"
+ },
+ "recs_other": {
+  "message": "{0} Empfehlungen"
+ },
  "orgConsentTitle": {
   "message": "Chats nach Themen sortieren?"
  },

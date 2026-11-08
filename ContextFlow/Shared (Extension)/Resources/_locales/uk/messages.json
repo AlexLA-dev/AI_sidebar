@@ -1478,6 +1478,21 @@
  "orgNameFailed": {
   "message": "Не вдалося назвати чат. Спробуйте пізніше."
  },
+ "recs_one": {
+  "message": "{0} рекомендація"
+ },
+ "recs_two": {
+  "message": "{0} рекомендації"
+ },
+ "recs_few": {
+  "message": "{0} рекомендації"
+ },
+ "recs_many": {
+  "message": "{0} рекомендацій"
+ },
+ "recs_other": {
+  "message": "{0} рекомендації"
+ },
  "orgConsentTitle": {
   "message": "Розкласти чати за темами?"
  },
