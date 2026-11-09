@@ -105,6 +105,24 @@ export function selectionRange(): Range | null {
   return lastRange
 }
 
+/**
+ * Puts the selection the panel was about back on the page when the page has none: the panel's field took it (iPhone
+ * drops a page selection once something else gets focus, and so does a click into the field on a Mac). False when
+ * there's nothing to put back or the page already has its own selection.
+ */
+export function restoreSelection(): boolean {
+  const live = document.getSelection()
+  if (!live || !lastRange || readSelection()) return false
+  if (lastRange.collapsed || !lastRange.startContainer.isConnected || !lastRange.endContainer.isConnected) return false
+  try {
+    live.removeAllRanges()
+    live.addRange(lastRange.cloneRange())
+    return true
+  } catch {
+    return false
+  }
+}
+
 export function recentSelection(): SelectionInfo | null {
   const live = readSelection()
   if (live && live.words >= MIN_SELECTION_WORDS) return live

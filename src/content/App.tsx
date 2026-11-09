@@ -38,6 +38,7 @@ import {
   rememberSelection,
   trackSelection,
   selectionRange,
+  restoreSelection,
   type SelectionInfo
 } from "./page"
 import { Hint } from "./Hint"
@@ -363,6 +364,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [findConsent, setFindConsent] = useState<{ resolve: (agreed: boolean) => void } | null>(null)
   const [pending, setPending] = useState<{ text: string; label?: string; action?: string; mode?: "google"; similar?: string; similarSel?: string } | null>(null)
   const [selection, setSelection] = useState<SelectionInfo | null>(null)
+  // For closing the panel: whether it was about a selection, and whether it was open before (92: the buttons come back).
+  const keptSelectionRef = useRef<SelectionInfo | null>(null)
+  keptSelectionRef.current = selection
+  const wasOpenRef = useRef(false)
   const [pageReadable, setPageReadable] = useState(true)
   const [wide, setWide] = useState(() => window.innerWidth >= 700)
   const [keyboard, setKeyboard] = useState(0)
@@ -820,7 +825,16 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     document.addEventListener("scroll", onScroll, { passive: true, capture: true })
     // 2.6 (92), the owner: a selection still on the page when the panel closes gets its buttons back (once the panel
     // has slid away), without selecting it again.
-    const back = open ? undefined : setTimeout(offerButton, 320)
+    // The panel's field takes the page's selection away (iPhone, and a click into it on a Mac): the one the panel was
+    // about goes back on the page first, unless its chip was cleared.
+    const closing = wasOpenRef.current && !open
+    wasOpenRef.current = open
+    const back = open
+      ? undefined
+      : setTimeout(() => {
+          if (closing && keptSelectionRef.current) restoreSelection()
+          offerButton()
+        }, 320)
     return () => {
       clearTimeout(back)
       clearTimeout(timer)
