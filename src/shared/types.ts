@@ -275,6 +275,8 @@ export const STORAGE = {
   activeThread: "cf:activeThread",
   // Build 91: the questions the background is answering, and how the last ones ended (Jobs by question id, jobs.ts).
   jobs: "cf:jobs",
+  // Build 92: the app's last answer about the subscription ({ value, at }), for when the app doesn't answer.
+  lastEntitlement: "cf:lastEntitlement",
   // Build 91: the free chats that had the memory message once (chat ids, the latest last).
   memoryOffered: "cf:memoryOffered",
   // iCloud sync: CloudKit change token, and the time of each thread's copy in iCloud.

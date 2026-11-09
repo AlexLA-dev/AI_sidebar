@@ -178,6 +178,10 @@
 .cf-bubble.touch { gap: 5px; padding: 5px; border-radius: 16px; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 /* Wide enough for the field: the buttons above share the width. */
 .cf-bubble.touch { min-width: min(330px, calc(100vw - 16px)); max-width: calc(100vw - 16px); }
+/* 2.6 (92), the owner: the iPad's and the Mac's as narrow as the iPhone's, the chips sliding in the field. */
+.cf-bubble { width: min(380px, calc(100vw - 16px)); }
+.cf-bubble:not(.touch) .cf-bubble-row { min-width: 0; overflow: hidden; }
+.cf-bubble:not(.touch) .cf-bubble-row button { flex: 1 1 auto; justify-content: center; }
 .cf-bubble.touch .cf-bubble-row { min-width: 0; overflow: hidden; }
 .cf-bubble.tight .cf-sel-template .cf-sel-l { display: none; }
 .cf-bubble.touch .cf-bubble-row { gap: 4px; }
@@ -213,10 +217,29 @@
   flex: none; min-height: 0; height: 28px; padding: 0 10px; border-radius: 999px;
   font-size: 13.5px; font-weight: 600; color: var(--accent-text);
   background: rgba(37, 99, 235, 0.13); border: 1px solid rgba(37, 99, 235, 0.22);
-  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
   scroll-snap-align: end; touch-action: pan-x; opacity: 0.92;
 }
 .cf-bubble.touch button.cf-sel-chip:last-child { margin-inline-end: 5px; }
+/* The Mac's field (2.6 (92)): the same carousel, the Mac's sizes; the trackpad's sideways swipe (or the wheel) moves it. */
+.cf-bubble .cf-ask-field.mouse {
+  position: relative; flex: 1; min-width: 0; height: 32px;
+  display: flex; align-items: center; gap: 4px;
+  border: 1px solid var(--border); border-radius: 8px; background: var(--bg-2);
+  overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; scrollbar-width: none;
+}
+.cf-bubble .cf-ask-field.mouse::-webkit-scrollbar { display: none; }
+.cf-bubble .cf-ask-field.mouse:focus-within { border-color: var(--accent); background: var(--bg); }
+.cf-bubble .cf-ask-field.mouse input { flex: none; width: 100%; height: 30px; border: 0; border-radius: 0; background: transparent; }
+.cf-bubble .cf-ask-field.mouse.chips input { width: min(var(--cf-ph, calc(100% - 46px)), calc(100% - 46px)); padding-inline-end: 2px; }
+.cf-bubble .cf-ask-field.mouse .cf-ask-probe { font-size: 13px; }
+.cf-bubble .cf-ask-field.mouse button.cf-sel-chip {
+  flex: none; min-height: 0; height: 24px; padding: 0 9px; border-radius: 999px; white-space: nowrap;
+  font-size: 12.5px; font-weight: 600; color: var(--accent-text);
+  background: rgba(37, 99, 235, 0.11); border: 1px solid rgba(37, 99, 235, 0.2);
+}
+.cf-bubble .cf-ask-field.mouse button.cf-sel-chip:hover { background: rgba(37, 99, 235, 0.18); }
+.cf-bubble .cf-ask-field.mouse button.cf-sel-chip.ultra { display: inline-flex; align-items: center; gap: 4px; color: var(--ultra-text); background: var(--ultra-soft); border-color: var(--ultra-line); }
+.cf-bubble .cf-ask-field.mouse button.cf-sel-chip:last-child { margin-inline-end: 4px; }
 @keyframes cf-pop { from { opacity: 0; transform: translateY(-4px) scale(0.98); } to { opacity: 1; transform: none; } }
 
 /* ------------------------------------------------------------ panel */
@@ -831,3 +854,18 @@ button.cf-tag:hover { background: rgba(var(--tag), 0.2); }
 .cf-thread-unread { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
 @keyframes cf-busy-spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .cf-busy-spin, .cf-thread-busy { animation: none; } }
+
+/* 2.6 (92), the owner: with the panel open on a selection, a ring with a light running round it marks the selected
+   text on the page and the header's "Selection" chip. Light on the phone: the light is a gradient turning under a
+   fixed mask (transform only, on the compositor), three turns and it fades, the ring stays still; nothing animates
+   after that, and none of it with Reduce Motion. */
+.cf-sel-glow { position: fixed; z-index: 2; pointer-events: none; border-radius: 10px; box-shadow: 0 0 0 1.5px rgba(56, 189, 248, 0.6), 0 0 16px rgba(37, 99, 235, 0.25); }
+.cf-ctx.selection.glow { position: relative; box-shadow: 0 0 0 1.5px rgba(56, 189, 248, 0.6); }
+.cf-glow-run { position: absolute; inset: -2px; border-radius: inherit; padding: 2px; overflow: hidden; pointer-events: none;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
+.cf-glow-run::before { content: ""; position: absolute; left: 50%; top: 50%; width: 260%; aspect-ratio: 1; translate: -50% -50%;
+  background: conic-gradient(from 0deg, transparent 0 68%, #38bdf8 80%, #2563eb 88%, transparent 96%);
+  animation: cf-glow-turn 2.4s linear 3, cf-glow-fade 0.8s ease 7.2s forwards; }
+@keyframes cf-glow-turn { to { rotate: 1turn; } }
+@keyframes cf-glow-fade { to { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .cf-glow-run::before { animation: none; opacity: 0; } }

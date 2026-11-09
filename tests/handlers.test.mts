@@ -505,7 +505,7 @@ test("answer events mark the limits they ran into and the chat's size (2.4)", as
   // Without Pro, a whole-chat request (a 2.5 panel, the app) is answered with the last 12 messages and no other pages.
   const trimmed = await one({ context: "chat", messages: long, pages: otherPages })
   assert.equal(trimmed.memory_trimmed, true)
-  assert.equal(trimmed.history, 12)
+  assert.equal(trimmed.history, 11) // the last 5 answers, their questions and the one asked now (build 92)
   assert.equal(trimmed.history_cut, true)
   assert.equal(trimmed.whole_chat, undefined)
   assert.equal(trimmed.other_pages_cut, undefined)

@@ -6,7 +6,7 @@ import { installCounter, tourAsked, tourCounters } from "../shared/tour.mts"
 import { clip, ipSubject, isUuid, json, preflight, readJson, corsHeaders } from "../shared/http.mts"
 import { buildGrounding, googlePrompt, readGoogle, startGoogle, type GoogleStats } from "../shared/google.mts"
 import { answerCost, clientBuild, startAnswer, type Answer } from "../shared/answer.mts"
-import { sanitizeMessages, sanitizeOtherPages, sanitizePage, systemPromptParts } from "../shared/llm.mts"
+import { freeMemory, sanitizeMessages, sanitizeOtherPages, sanitizePage, systemPromptParts } from "../shared/llm.mts"
 import { geminiModels } from "../shared/models.mts"
 import { pageForModel } from "../../src/shared/attachments.ts"
 import { hasMarks, MAX_APP_OTHER_PAGES, MAX_OTHER_PAGES } from "../../src/shared/prompt.ts"
@@ -70,10 +70,10 @@ export default async (req: Request, context: Context): Promise<Response> => {
   // (a 2.5 panel with "Whole chat" on, a chat continued in the app) is answered as any free answer, with the last
   // messages only: trimmed, never refused.
   const memory = wholeChat && hasPro(access.plan)
-  if (wholeChat && !memory) {
-    messages = sanitizeMessages(body.messages, false) ?? messages
-    others = []
-  }
+  if (wholeChat && !memory) others = []
+  // Free (build 92, the owner): the last 5 answers and notes, whatever the client sent (2.5 sends 12 messages, the
+  // whole chat with "Whole chat" on).
+  if (!hasPro(access.plan) && !history) messages = freeMemory(sanitizeMessages(body.messages, true) ?? messages)
   // Video transcripts and PDFs are Pro: for anyone else they're left out here, whatever the panel sent.
   const page = sent && pageForModel(sent, hasPro(access.plan))
   // Pro features are checked here, not in the panel: nothing is charged or asked without Pro.
