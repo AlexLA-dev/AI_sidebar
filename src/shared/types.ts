@@ -267,6 +267,8 @@ export const STORAGE = {
   activeThread: "cf:activeThread",
   // Build 91: the questions the background is answering, and how the last ones ended (Jobs by question id, jobs.ts).
   jobs: "cf:jobs",
+  // Build 92: the app's last answer about the subscription ({ value, at }), for when the app doesn't answer.
+  lastEntitlement: "cf:lastEntitlement",
   // Build 91: the free chats that had the memory message once (chat ids, the latest last).
   memoryOffered: "cf:memoryOffered",
   // iCloud sync: CloudKit change token, and the time of each thread's copy in iCloud.
@@ -293,10 +295,10 @@ export const STORAGE = {
   yearlyHiddenUntil: "cf:yearlyHiddenUntil",
   // "Not now" to notifications at Listen (iPhone, iPad): Listen opens the app without asking until this time.
   listenNotifyLater: "cf:listenNotifyLater",
-  // The last subscription the app's side gave (build 92): stands while the app's side is slow, until it expires.
-  lastEntitlement: "cf:lastEntitlement",
   // The App Store's prices the last time the app's side gave them (build 92): the plans sheet's when none come.
   lastPrices: "cf:lastPrices",
+  // Notifications on for ContextFlow, as the app's side last said (build 92): Listen decides from it inside the tap.
+  notifyOn: "cf:notifyOn",
   // Recent pages' text on this device ({ [url]: { title, text, at } }) for "whole chat" answers.
   pageTexts: "cf:pageTexts",
   // How many times the hint about writing notes with the send button was shown, or -1 once used.

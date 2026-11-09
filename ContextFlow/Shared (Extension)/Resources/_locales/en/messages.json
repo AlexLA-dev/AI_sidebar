@@ -2118,10 +2118,10 @@
   "message": "Pro remembers the whole chat"
  },
  "offerMemoryBody": {
-  "message": "A free answer sees the last {0} messages of a chat. With Pro the AI remembers all of it: every message, your notes and the pages you asked about."
+  "message": "A free answer remembers the last {0} answers and notes of a chat. With Pro the AI remembers all of it: every message, your notes and the pages you asked about."
  },
  "offerMemoryLong": {
-  "message": "This chat is longer than the {0} messages a free answer remembers. With Pro the AI remembers all of it: every message, your notes and the pages you asked about."
+  "message": "This chat has more than the {0} answers and notes a free answer remembers. With Pro the AI remembers all of it: every message, your notes and the pages you asked about."
  },
  "offerRetryAt": {
   "message": "Answers are back at {0}."

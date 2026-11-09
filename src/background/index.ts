@@ -48,9 +48,12 @@ async function installId(): Promise<string> {
   return id
 }
 
+let platformKept: Platform | null = null
+
 async function platform(): Promise<Platform> {
+  if (platformKept) return platformKept
   const stored = (await chrome.storage.local.get(STORAGE.platform))[STORAGE.platform] as Platform | undefined
-  if (stored) return stored
+  if (stored) return (platformKept = stored)
   return TARGET === "chrome" ? "chrome" : "other"
 }
 
@@ -94,15 +97,6 @@ function inSpeechLane<T>(job: () => Promise<T>): Promise<T> {
   return run
 }
 
-/** The last subscription the app's side gave, while it hasn't expired: what a slow or failed answer falls back to. */
-async function lastEntitlement(): Promise<NativeEntitlement | null> {
-  const stored: Record<string, unknown> = await chrome.storage.local.get(STORAGE.lastEntitlement).catch(() => ({}))
-  const kept = stored[STORAGE.lastEntitlement] as NativeEntitlement | undefined
-  if (!kept?.active) return null
-  const ends = kept.expiresAt ? Date.parse(kept.expiresAt) : NaN
-  return Number.isFinite(ends) && ends > Date.now() ? kept : null
-}
-
 // Build 92 (the owner: the panel showed Free and no prices after coming back from the app, until Safari restarted):
 // an answer that doesn't come, or comes late, never turns a subscriber into Free. The last good one (kept in the
 // extension's storage too, so a fresh background has it at once) stands until it expires while the app's side is
@@ -116,8 +110,8 @@ function askEntitlement(): Promise<NativeEntitlement | null> {
     const value = await callNative<NativeEntitlement>("getEntitlement", { installId: await installId() }, 6000)
     if (value) {
       entitlementCache = { at: Date.now(), value }
-      const prices = value.prices && typeof value.prices === "object" && Object.keys(value.prices).length ? { [STORAGE.lastPrices]: value.prices } : {}
-      void chrome.storage.local.set({ [STORAGE.lastEntitlement]: value, ...prices }).catch(() => undefined)
+      void keepEntitlement(value)
+      void keepPrices(value.prices)
       return value
     }
     const kept = entitlementCache?.value?.active ? entitlementCache.value : await lastEntitlement()
@@ -139,6 +133,37 @@ async function entitlement(force = false): Promise<NativeEntitlement | null> {
   if (!inHand) return asking
   const late = new Promise<null>((resolve) => setTimeout(() => resolve(null), 1500))
   return (await Promise.race([asking, late])) ?? inHand
+}
+
+// Kept for at most a week, and only while the subscription it saw is still running.
+const KEEP_ENTITLEMENT_MS = 7 * 86_400_000
+let keptJson = ""
+
+async function keepEntitlement(value: NativeEntitlement): Promise<void> {
+  const json = JSON.stringify(value)
+  // Written only when it changes: a write wakes every tab listening to storage.
+  if (json === keptJson) return
+  keptJson = json
+  await chrome.storage.local.set({ [STORAGE.lastEntitlement]: { value, at: Date.now() } }).catch(() => undefined)
+}
+
+// The App Store's prices, kept for the plans sheet when no answer comes (build 92); written only when they change.
+let keptPricesJson = ""
+
+async function keepPrices(prices: unknown): Promise<void> {
+  if (!prices || typeof prices !== "object" || !Object.keys(prices).length) return
+  const json = JSON.stringify(prices)
+  if (json === keptPricesJson) return
+  keptPricesJson = json
+  await chrome.storage.local.set({ [STORAGE.lastPrices]: prices }).catch(() => undefined)
+}
+
+async function lastEntitlement(): Promise<NativeEntitlement | null> {
+  const kept = (await chrome.storage.local.get(STORAGE.lastEntitlement).catch(() => ({} as Record<string, unknown>)))[STORAGE.lastEntitlement] as { value?: NativeEntitlement; at?: number } | undefined
+  const value = kept?.value
+  if (!value || typeof kept?.at !== "number" || Date.now() - kept.at > KEEP_ENTITLEMENT_MS) return null
+  if (value.active && value.expiresAt && Date.parse(value.expiresAt) < Date.now()) return null
+  return value
 }
 
 function planFromProduct(productId: string | null | undefined): Plan {
@@ -601,7 +626,8 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
     case "status":
       // The panel just opened: pick up settings changed in the ContextFlow app (never delays the status).
       void syncSettings().catch(() => undefined)
-      ;(message.platform ? chrome.storage.local.set({ [STORAGE.platform]: message.platform }) : Promise.resolve())
+      // The platform only when it changes (build 92: written on every status, it woke every tab's storage listeners).
+      ;(message.platform && message.platform !== platformKept ? chrome.storage.local.set({ [STORAGE.platform]: (platformKept = message.platform) }) : Promise.resolve())
         .then(() => status(Boolean(message.refresh), Boolean(message.fresh)))
         .then(sendResponse, () => sendResponse(null))
       return true

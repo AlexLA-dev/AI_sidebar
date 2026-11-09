@@ -27,6 +27,9 @@ type Listener = (event: Record<string, unknown>) => void
 
 interface Live {
   job: Job
+  // When the job last heard from its request (ms), and how it ends itself (a stale one, below).
+  heard: number
+  emit?: (event: AnyEvent) => void
   // Find similar: the condition asked (kept with the answer).
   asked: string
   controller: AbortController
@@ -40,8 +43,11 @@ const live = new Map<string, Live>()
 // Every write to the jobs and to the chats goes one after another (the panel's own writes go through saveThread,
 // which keeps the answers written here: keepingAnswers).
 let queue: Promise<unknown> = Promise.resolve()
+// A write that never comes back (storage stuck) gives way after this, so the next ones still go (build 92).
+const WRITE_MS = 15_000
 function serial<T>(work: () => Promise<T>): Promise<T> {
-  const next = queue.then(work, work)
+  const bounded = () => Promise.race([work(), new Promise<T>((_, reject) => setTimeout(() => reject(new Error("storage write timed out")), WRITE_MS))])
+  const next = queue.then(bounded, bounded)
   queue = next.catch(() => undefined)
   return next
 }
@@ -89,6 +95,21 @@ export function jobsOnStart(): Promise<void> {
 // While a job runs: every few seconds the panels following it hear it's alive (a panel that hears nothing asks again,
 // 2.6 (90): "Reading the page…" for minutes), and an extension call keeps Chrome from closing the background
 // mid-answer.
+// A job that hears nothing for this long, or runs longer than this, has lost its request (build 92: a stream stalled by
+// the system never ended, and the beat kept the background awake for good): it ends as interrupted.
+export const JOB_QUIET_MS = 75_000
+export const JOB_MAX_MS = 5 * 60_000
+
+/** Ends the jobs that went quiet or ran too long, as interrupted (their requests stopped). */
+export function sweepStale(now = Date.now()): void {
+  for (const job of [...live.values()]) {
+    if (now - job.heard > JOB_QUIET_MS || now - job.job.at > JOB_MAX_MS) {
+      job.emit?.({ type: "error", code: "STREAM" })
+      job.controller.abort()
+    }
+  }
+}
+
 let beat: ReturnType<typeof setInterval> | undefined
 function beating(): void {
   if (beat || !live.size) return
@@ -98,6 +119,7 @@ function beating(): void {
       beat = undefined
       return
     }
+    sweepStale()
     for (const job of live.values()) for (const listener of job.listeners) listener({ type: "beat" })
     try {
       void chrome.runtime.getPlatformInfo?.().catch(() => undefined)
@@ -151,6 +173,7 @@ export function startJob(spec: JobSpec, run: (emit: (e: AnyEvent) => void, signa
   if (running) return running
   const job: Live = {
     job: { id: spec.id, thread: spec.thread, kind: spec.kind, state: "running", at: Date.now() },
+    heard: Date.now(),
     asked: spec.asked ?? "",
     controller: new AbortController(),
     listeners: new Set([listener]),
@@ -162,6 +185,7 @@ export function startJob(spec: JobSpec, run: (emit: (e: AnyEvent) => void, signa
   let ended = false
   const emit = (event: AnyEvent) => {
     if (ended || live.get(spec.id) !== job) return
+    job.heard = Date.now()
     if (event.type === "done" || event.type === "error") {
       ended = true
       void end(job, event)
@@ -170,6 +194,7 @@ export function startJob(spec: JobSpec, run: (emit: (e: AnyEvent) => void, signa
     take(job, event)
     for (const l of job.listeners) l(event as unknown as Record<string, unknown>)
   }
+  job.emit = emit
   void run(emit, job.controller.signal)
     .catch(() => emit({ type: "error", code: "STREAM" }))
     .finally(() => {

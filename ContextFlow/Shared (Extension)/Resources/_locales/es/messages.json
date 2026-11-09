@@ -2118,10 +2118,10 @@
   "message": "Pro recuerda todo el chat"
  },
  "offerMemoryBody": {
-  "message": "Una respuesta gratuita ve los últimos {0} mensajes de un chat. Con Pro, la IA lo recuerda entero: cada mensaje, tus notas y las páginas sobre las que preguntaste."
+  "message": "Una respuesta gratuita recuerda las últimas {0} respuestas y notas de un chat. Con Pro, la IA lo recuerda entero: cada mensaje, tus notas y las páginas sobre las que preguntaste."
  },
  "offerMemoryLong": {
-  "message": "Este chat supera los {0} mensajes que recuerda una respuesta gratuita. Con Pro, la IA lo recuerda entero: cada mensaje, tus notas y las páginas sobre las que preguntaste."
+  "message": "Este chat tiene más de las {0} respuestas y notas que recuerda una respuesta gratuita. Con Pro, la IA lo recuerda entero: cada mensaje, tus notas y las páginas sobre las que preguntaste."
  },
  "offerRetryAt": {
   "message": "Las respuestas vuelven a las {0}."

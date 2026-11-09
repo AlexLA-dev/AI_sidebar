@@ -118,6 +118,16 @@ export async function lastPrices(): Promise<Record<string, string>> {
   return prices && typeof prices === "object" ? prices : {}
 }
 
+/** Notifications on for ContextFlow, as the app's side last said (iPhone, iPad; build 92): Listen decides from it inside
+ *  the tap, without a native message first. */
+export async function notifyKnown(): Promise<boolean> {
+  return (await get<boolean>(STORAGE.notifyOn)) === true
+}
+
+export async function setNotifyKnown(on: boolean): Promise<void> {
+  if ((await get<boolean>(STORAGE.notifyOn)) !== on) await set(STORAGE.notifyOn, on)
+}
+
 /** Whether "Not now" to notifications at Listen still holds (until the next day): Listen just opens the app. */
 export async function listenNotifyLaterNow(): Promise<boolean> {
   return ((await get<number>(STORAGE.listenNotifyLater)) ?? 0) > Date.now()

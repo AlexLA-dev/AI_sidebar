@@ -731,7 +731,7 @@
   "similarPerMonth": "{0}/mês",
   "similarPerYear": "{0}/ano",
   "offerMemoryTitle": "O Pro lembra o chat inteiro",
-  "offerMemoryBody": "Uma resposta gratuita vê as últimas {0} mensagens de um chat. Com o Pro, a IA lembra dele inteiro: cada mensagem, suas notas e as páginas sobre as quais você perguntou.",
-  "offerMemoryLong": "Este chat passou das {0} mensagens que uma resposta gratuita lembra. Com o Pro, a IA lembra dele inteiro: cada mensagem, suas notas e as páginas sobre as quais você perguntou.",
+  "offerMemoryBody": "Uma resposta gratuita lembra as últimas {0} respostas e notas de um chat. Com o Pro, a IA lembra dele inteiro: cada mensagem, suas notas e as páginas sobre as quais você perguntou.",
+  "offerMemoryLong": "Este chat tem mais do que as {0} respostas e notas que uma resposta gratuita lembra. Com o Pro, a IA lembra dele inteiro: cada mensagem, suas notas e as páginas sobre as quais você perguntou.",
   "offerRetryAt": "As respostas voltam às {0}."
 }

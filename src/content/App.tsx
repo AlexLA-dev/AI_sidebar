@@ -596,10 +596,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (!touch) setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 250)
   }, [open, refreshStatus, touch, source])
 
-  // Single-page apps: follow URL changes while open (the conversation carries on).
+  // Single-page apps: follow URL changes while open (the conversation carries on). Every 3 s while the page shows, and
+  // at once on the browser's own navigation events (build 92: every 1.5 s, hidden pages too).
   useEffect(() => {
     if (!open) return
-    const timer = setInterval(() => {
+    const check = () => {
+      if (document.visibilityState !== "visible") return
       const key = source.key()
       if (key !== pageUrlRef.current) {
         pageUrlRef.current = key
@@ -608,8 +610,15 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         setSelection(null)
         setPageReadable(source.readable())
       }
-    }, 1500)
-    return () => clearInterval(timer)
+    }
+    const timer = setInterval(check, 3000)
+    window.addEventListener("popstate", check)
+    window.addEventListener("hashchange", check)
+    return () => {
+      clearInterval(timer)
+      window.removeEventListener("popstate", check)
+      window.removeEventListener("hashchange", check)
+    }
   }, [open, source])
 
   // While open: the chat list follows other tabs and devices, and the answer counter other devices.
@@ -827,7 +836,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   memoryNudgeRef.current = (entries: Turn[]) => {
     const planNow = statusRef.current?.plan ?? planKnownRef.current
     if (historyRef.current || hasPro(planNow) || (Boolean(statusRef.current?.hasOwnKey) && planNow !== "free")) return
-    if (entries.filter((e) => !e.note).length <= FREE_MEMORY) return
+    // More answers and notes than a free answer remembers (build 92: the last 5).
+    if (entries.filter((e) => e.role === "assistant" || e.note).length <= FREE_MEMORY) return
     const chat = threadRef.current
     void memoryOffered().then((done) => {
       if (done.includes(chat) || threadRef.current !== chat) return
@@ -959,6 +969,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     // …and the own key's, whose subscriber pays the model.
     const ownKeyNow = Boolean(statusRef.current?.hasOwnKey) && planNow !== "free"
     const wholeChat = (hasPro(planNow) || ownKeyNow) && settingsRef.current.chatMemory !== false
+    // Free: the last 5 answers and notes (build 92).
+    const free = !hasPro(planNow) && !ownKeyNow
     // The chat's other pages: this device's copy of their text, else the one saved in the chat (another device's).
     const others = otherPages(history, url).map((p) => p.url).slice(0, MAX_OTHER_PAGES)
     const savedTexts = savedPages(history)
@@ -969,7 +981,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         type: "ask",
         job,
         payload: {
-          messages: historyForModel(history, url, wholeChat),
+          messages: historyForModel(history, url, wholeChat, free),
           page,
           action: opts.action,
           mode: opts.mode,
@@ -1108,7 +1120,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
   // A followed answer that says nothing for a while (its port broke without closing: 2.6 (90), "Reading the page…" for
   // minutes) is looked up again; so is one coming back from sleep (the page in the background, the phone locked).
+  // Only while an answer is coming (build 92: it ran every 5 s on every page, the panel closed too).
   useEffect(() => {
+    if (partial === null) return
     const quiet = (ms: number) => portRef.current !== null && heardRef.current > 0 && Date.now() - heardRef.current > ms
     const timer = setInterval(() => {
       if (quiet(20_000)) lostRef.current()
@@ -1121,7 +1135,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       clearInterval(timer)
       document.removeEventListener("visibilitychange", onVisible)
     }
-  }, [])
+  }, [partial === null])
 
   /** Keeps a note in the chat (with the page it was written on); no AI, no allowance used. */
   const saveNote = useCallback((text: string) => {

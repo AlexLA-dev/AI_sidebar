@@ -13,7 +13,7 @@ import type { Platform, Usage } from "../../shared/types"
 import type { SpeakIn, SpeakOut } from "../../background/speak"
 import { SPEEDS, speedLabel, type Speed } from "../../shared/stretch"
 import { isTouch } from "../page"
-import { listenNotifyLater, listenNotifyLaterNow, listenSpeed, setListenSpeed } from "../store"
+import { listenNotifyLater, listenNotifyLaterNow, listenSpeed, notifyKnown, setListenSpeed, setNotifyKnown } from "../store"
 import { clock, PcmPlayer } from "./player"
 
 export type ListenState =
@@ -69,6 +69,8 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: 
     handoff?: { parts: (parts: string[], complete: boolean) => void; tick: () => void; paused: () => void; resumed: () => void; moved: () => void }
     // The clock (4 times a second) runs only while it plays (build 92: a paused player kept it going for good).
     clock?: (on: boolean) => void
+    // What the bar shows now (the tick sets it only when it changes).
+    shown?: { at: "playing" | "paused"; position: number; total: number; received: number }
   } | null>(null)
   const speedRef = useRef<Speed>(1)
   speedRef.current = speed
@@ -77,17 +79,30 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: 
   // may have just turned them on), and whether "Not now" holds today.
   const notifyOn = useRef(false)
   const notifyLater = useRef(false)
+  // Build 92: asked after Listen (and on coming back while the card asks to turn them on), not on every page and every
+  // tab switch: each ask is a native message, which wakes the app's extension on iPhone and iPad. Listen itself decides
+  // from the last answer (kept in the extension's storage, read without a native message): what it does has to happen
+  // inside the tap (the link to the app, the sound), and an ask first would come after it (build 90's bug).
+  const askNotify = useCallback(async () => {
+    const [r, later] = await Promise.all([send<{ status?: string }>({ type: "notifStatus" }), listenNotifyLaterNow()])
+    notifyOn.current = ["authorized", "provisional", "ephemeral"].includes(r?.status ?? "")
+    notifyLater.current = later
+    void setNotifyKnown(notifyOn.current)
+  }, [send])
   useEffect(() => {
     if (!isTouch(platform)) return
-    const ask = () => void send<{ status?: string }>({ type: "notifStatus" }).then((r) => {
-      notifyOn.current = ["authorized", "provisional", "ephemeral"].includes(r?.status ?? "")
+    void Promise.all([notifyKnown(), listenNotifyLaterNow()]).then(([on, later]) => {
+      notifyOn.current = on
+      notifyLater.current = later
     })
-    ask()
-    void listenNotifyLaterNow().then((later) => { notifyLater.current = later })
-    const onVisible = () => { if (document.visibilityState === "visible") ask() }
+  }, [platform])
+  const asking = state.at === "notify"
+  useEffect(() => {
+    if (!isTouch(platform) || !asking) return
+    const onVisible = () => { if (document.visibilityState === "visible") void askNotify() }
     document.addEventListener("visibilitychange", onVisible)
     return () => document.removeEventListener("visibilitychange", onVisible)
-  }, [platform, send])
+  }, [platform, asking, askNotify])
 
   const stop = useCallback(() => {
     const current = run.current
@@ -140,6 +155,8 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: 
 
     // iPhone and iPad without notifications: the app plays it (WebKit stops a page's sound when the page goes away;
     // the app keeps playing, screen locked and in headphones too), after asking once a day to turn them on.
+    // Decided now, in the tap, from the last answer; the answer is refreshed for next time.
+    if (isTouch(platform)) void askNotify()
     if (isTouch(platform) && !notifyOn.current) {
       if (notifyLater.current) return handOff(key, item, parts, "listen")
       step("notify")
@@ -154,7 +171,9 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: 
     }
 
     step("start")
-    const player = new PcmPlayer(await listenSpeed())
+    // In the tap itself, before anything is awaited: WebKit lets a page's sound start only from the tap (the speed is
+    // already known; build 92 read it from storage first).
+    const player = new PcmPlayer(speedRef.current)
     await player.unlock()
     const port = chrome.runtime.connect({ name: "speak" })
     const total = speechSeconds(text)
@@ -259,9 +278,17 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: 
         return
       }
       if (player.received === 0) return
-      // Waiting for more audio shows as loading only before the first sound.
-      const position = player.position
-      setState({ at: player.paused ? "paused" : "playing", key, position, total: Math.max(current.total, player.received), received: player.received })
+      // Waiting for more audio shows as loading only before the first sound. The bar moves by half seconds, and nothing
+      // is set when nothing moved (build 92: paused, handed to the app or waiting, it re-drew the whole panel 4 times a
+      // second, for as long as the bar stayed). What has come is shown too (the bar seeks within it).
+      const at = player.paused ? "paused" : "playing"
+      const position = Math.floor(player.position * 2) / 2
+      const total = Math.max(current.total, player.received)
+      const received = player.received
+      const shown = current.shown
+      if (shown && shown.at === at && shown.position === position && shown.total === total && shown.received === received) return
+      current.shown = { at, position, total, received }
+      setState({ at, key, position, total, received })
     }
 
     port.onMessage.addListener((raw: unknown) => {
@@ -298,7 +325,7 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: 
       if (run.current === current && !current.ended) current.ended = true
     })
     port.postMessage({ type: "play", text: item.text, lang: item.lang, what: item.what } satisfies SpeakIn)
-  }, [plan, platform, onUltra, send, stop, left, handOff])
+  }, [plan, platform, onUltra, send, stop, left, handOff, askNotify])
 
   const toggle = useCallback(() => {
     const current = run.current
