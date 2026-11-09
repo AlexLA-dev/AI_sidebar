@@ -71,7 +71,11 @@ struct ContentView: View {
     /// The tab's name: Ultra for Pro subscribers (what's left to get), else Pro.
     private var proTabName: LocalizedStringKey { store.isPro && !store.isUltra ? "Ultra" : "Pro" }
     /// Read aloud handed over by the Safari panel (contextflow://listen?id=…).
-    @StateObject private var listen = ListenPlayer.shared
+    /// The player itself isn't observed here (build 92): its clock changes four times a second while it plays, and the
+    /// whole app behind the sheet was laid out again each time (the chat jumped behind the player on iPad, and it cost
+    /// energy). Only whether its sheet is up is.
+    private let listen = ListenPlayer.shared
+    @StateObject private var listenShown = ListenShown()
 
     /// The extension counted enough good answers since the last time: ask for an App Store rating
     /// (Apple decides whether to show it, at most 3 times a year). Never on a plain first launch. On
@@ -120,12 +124,12 @@ struct ContentView: View {
         #if os(iOS)
         if notify.ask != nil { return true }
         #endif
-        return listen.visible || whatsNew || showingSetup
+        return listenShown.visible || whatsNew || showingSetup
     }
 
     #if os(iOS)
     private var notifyAsk: Binding<NotifyAsk.Ask?> {
-        Binding(get: { listen.visible || whatsNew || showingSetup || tour.run != nil ? nil : notify.ask },
+        Binding(get: { listenShown.visible || whatsNew || showingSetup || tour.run != nil ? nil : notify.ask },
                 set: { if $0 == nil, notify.ask != nil { notify.notNow() } })
     }
     #endif
@@ -146,7 +150,7 @@ struct ContentView: View {
     var body: some View {
         root
             .tint(brandBlue)
-            .sheet(isPresented: Binding(get: { listen.visible }, set: { if !$0 { listen.dismiss() } })) {
+            .sheet(isPresented: Binding(get: { listenShown.visible }, set: { if !$0 { listen.dismiss() } })) {
                 ListenView(player: listen, openPlans: {
                     listen.dismiss()
                     Paywall.shared.focus = .ultra
@@ -200,7 +204,13 @@ struct ContentView: View {
                 SharedDefaults.shared.removeLegacyData()
                 listen.debugStartIfAsked()
                 // Read aloud kept in iCloud (2.6): what's older than 7 days goes (at most once a day, from any device).
-                Task.detached(priority: .background) { await SpeechSync.sweep() }
+                // And the parts the panel made that are still waiting to go up (build 92: the extension no longer waits on it).
+                Task.detached(priority: .background) {
+                    await SpeechSync.sweep()
+                    await SpeechSync.uploadPending()
+                    // What was heard and not counted yet (the app closed offline): to the server now.
+                    await ListenPlayer.sendHeard()
+                }
                 chats.refresh()
                 showWhatsNewIfDue()
                 tour.debugStartIfAsked()

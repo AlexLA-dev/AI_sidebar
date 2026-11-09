@@ -3,6 +3,7 @@ import { CONSENT_VERSION, consentStatus, type ConsentStatus } from "../shared/co
 import type { Entry } from "../shared/conversation"
 import { activity, cleanTitle, liveThreads, namedByUser, moveEntries, newThreadId, prune, purgeTrash, restoreThread, savedThread, trashThread, undoMove, type ActiveThread, type MoveUndo, type Thread, type Threads, cleanTags } from "../shared/threads"
 import { MAX_OTHER_PAGE_CHARS } from "../shared/prompt"
+import { planOfProduct, type Plan } from "../shared/plan"
 import { keepingAnswers, type Jobs } from "../shared/jobs"
 import { DEFAULT_SETTINGS, STORAGE, type OrgNames, type Settings } from "../shared/types"
 
@@ -110,6 +111,31 @@ export async function listenSpeed(): Promise<Speed> {
 
 export async function setListenSpeed(speed: Speed): Promise<void> {
   await set(STORAGE.listenSpeed, speed)
+}
+
+/** The plan the app's side last gave (the background's kept answer, a week at most), while its subscription runs. */
+export async function keptPlanNow(): Promise<Plan | null> {
+  const kept = await get<{ value?: { active?: boolean; productId?: string | null; expiresAt?: string | null }; at?: number }>(STORAGE.lastEntitlement)
+  const value = kept?.value
+  if (!value?.active || typeof kept?.at !== "number" || Date.now() - kept.at > 7 * 86_400_000) return null
+  if (value.expiresAt && Date.parse(value.expiresAt) < Date.now()) return null
+  return planOfProduct(value.productId)
+}
+
+/** The App Store's prices the last time the app's side gave them (the background keeps them; build 92). */
+export async function lastPrices(): Promise<Record<string, string>> {
+  const prices = await get<Record<string, string>>(STORAGE.lastPrices)
+  return prices && typeof prices === "object" ? prices : {}
+}
+
+/** Notifications on for ContextFlow, as the app's side last said (iPhone, iPad; build 92): Listen decides from it inside
+ *  the tap, without a native message first. */
+export async function notifyKnown(): Promise<boolean> {
+  return (await get<boolean>(STORAGE.notifyOn)) === true
+}
+
+export async function setNotifyKnown(on: boolean): Promise<void> {
+  if ((await get<boolean>(STORAGE.notifyOn)) !== on) await set(STORAGE.notifyOn, on)
 }
 
 /** Whether "Not now" to notifications at Listen still holds (until the next day): Listen just opens the app. */

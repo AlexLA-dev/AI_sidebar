@@ -720,6 +720,7 @@
   "listenNotifyOn": "Включить уведомления",
   "listenNotifyLater": "Не сейчас",
   "listenTaken": "Играет в приложении ContextFlow.",
+  "listenSeek": "Позиция в записи",
   "plansUpgrade": "Перейти на {0}",
   "plansUpgradeYearly": "Перейти на оплату за год",
   "similarPayFree": "Бесплатно, без встроенных покупок",

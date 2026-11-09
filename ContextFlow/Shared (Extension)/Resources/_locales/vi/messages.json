@@ -2084,6 +2084,9 @@
  "listenTaken": {
   "message": "Đang phát trong ứng dụng ContextFlow."
  },
+ "listenSeek": {
+  "message": "Vị trí trong bản ghi"
+ },
  "plansUpgrade": {
   "message": "Nâng cấp lên {0}"
  },

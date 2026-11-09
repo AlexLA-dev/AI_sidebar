@@ -12,6 +12,7 @@ import { productOf, type PaidPlan, type Period } from "../../shared/plan"
 import type { StatusInfo } from "../../shared/types"
 import { tierLines, yearlySaving } from "../Plans"
 import * as Icon from "../icons"
+import { lastPrices } from "../store"
 
 export type OfferPlace = "limit" | "memory" | "pro_only" | "ultra_only"
 
@@ -45,7 +46,11 @@ export function PlanOffer({ place, status, title, body, lines, plans = ["pro", "
   onEvent: (action: "shown" | "choose" | "retry" | "close", choice?: OfferChoice) => void
   onClose?: () => void
 }): VNode {
-  const prices = status?.store?.prices ?? {}
+  // The App Store's prices, or the last ones this device had (build 92: "Choose Pro" came with no price at all).
+  const [keptPrices, setKeptPrices] = useState<Record<string, string>>({})
+  useEffect(() => void lastPrices().then(setKeptPrices), [])
+  const given = status?.store?.prices ?? {}
+  const prices = Object.keys(given).length ? given : keptPrices
   const facts = status?.plans
   const [plan, setPlan] = useState<OfferChoice["plan"]>(focus && plans.includes(focus) ? focus : plans[0])
   const [period, setPeriod] = useState<Period>("yearly")

@@ -38,6 +38,21 @@ struct ListenRequest: Equatable {
     var skip: Double = 0
 }
 
+/// Whether the player's sheet is up, and nothing else (build 92): the app's root watches this instead of the player,
+/// whose clock changes four times a second while it plays.
+@MainActor
+final class ListenShown: ObservableObject {
+    @Published private(set) var visible = false
+    private var watching: AnyCancellable?
+
+    init() {
+        visible = ListenPlayer.shared.visible
+        watching = ListenPlayer.shared.$visible.removeDuplicates().receive(on: RunLoop.main).sink { [weak self] shown in
+            self?.visible = shown
+        }
+    }
+}
+
 @MainActor
 final class ListenPlayer: NSObject, ObservableObject {
     static let shared = ListenPlayer()
@@ -90,6 +105,15 @@ final class ListenPlayer: NSObject, ObservableObject {
     /// text's time), and how far into the first part to start once enough of it is in.
     private var base: Double = 0
     private var pendingSkip: Double?
+    /// Where this text's audio came from (seconds of audio: this device's copy, iCloud, the server), what the server
+    /// charged up front, and how far it was heard: reported when it stops (build 92, minutes charged against heard).
+    private var counts = (cache: 0.0, icloud: 0.0, server: 0.0, charged: 0.0)
+    private var heardTo: Double = 0
+    /// Each part's samples here (its key on the devices and the server), and the seconds heard of each (build 92: the
+    /// week's minutes count what's heard; HeardStore keeps them until the server has).
+    private var partRanges: [(key: String, start: Int, end: Int)] = []
+    private var heardByKey: [String: Double] = [:]
+    private var lastHeardSample: Int?
     /// The player's own clock (samples since play from startSample): where the scheduled audio ends on it, and the
     /// silence it ran through while waiting for the next part. Without it a wait counted as heard: the clock ran
     /// ahead and playing stopped early, cutting the end off (2.6, seen with the text written for the ear).
@@ -342,7 +366,12 @@ final class ListenPlayer: NSObject, ObservableObject {
         if secondsLeft == nil { secondsLeft = StoreKitManager.shared.planFacts.speakLeftSeconds }
         // The week's minutes not known yet (the app just opened, Settings not visited): asked first, for at most 2 s,
         // so the few-minutes note can come before it starts rather than the limit after.
-        if !anyway, secondsLeft == nil, StoreKitManager.shared.isUltra {
+        // Only when it could matter (more than a minute of audio): a short answer starts at once, and the facts come in
+        // meanwhile (build 92: every Listen waited up to 2 s for them, an 18 s answer felt slow on iPad).
+        if secondsLeft == nil, StoreKitManager.shared.isUltra, duration - base <= 60 {
+            Task { await StoreKitManager.shared.refreshPlanFacts() }
+        }
+        if !anyway, secondsLeft == nil, StoreKitManager.shared.isUltra, duration - base > 60 {
             state = .loading
             waitTask = Task { [weak self] in
                 await withTaskGroup(of: Void.self) { group in
@@ -382,6 +411,12 @@ final class ListenPlayer: NSObject, ObservableObject {
     }
 
     func stop() {
+        keepHeard()
+        Task { await Self.sendHeard() }
+        reportHeard()
+        partRanges = []
+        heardByKey = [:]
+        lastHeardSample = nil
         waitTask?.cancel()
         waitTask = nil
         fetchTask?.cancel()
@@ -437,6 +472,7 @@ final class ListenPlayer: NSObject, ObservableObject {
     }
 
     func pause() {
+        keepHeard()
         pausedAt = playerNow() ?? pausedAt
         node.pause()
         // Paused, nothing runs: the engine stops pulling silence (the phone stays cool and the app can sleep).
@@ -531,6 +567,8 @@ final class ListenPlayer: NSObject, ObservableObject {
     private func speakParts(_ parts: [String], from first: Int, request: ListenRequest) async {
         for (offset, part) in parts.enumerated() {
             if Task.isCancelled { return }
+            await untilNeeded()
+            if Task.isCancelled { return }
             switch await speakPart(part, index: first + offset, request: request) {
             case .ok:
                 // Carried on from Safari: the first part is all here, and shorter than the second it was at (its clock
@@ -543,6 +581,65 @@ final class ListenPlayer: NSObject, ObservableObject {
         }
         fetchedAll = true
         startSkippedIfShort()
+    }
+
+    /// What's heard, part by part: the position moving on by about a tick's worth while it plays (a seek or a wait isn't).
+    private func noteHeard(at sample: Int) {
+        defer { lastHeardSample = sample }
+        guard state == .playing, let last = lastHeardSample else { return }
+        let moved = sample - last
+        guard moved > 0, Double(moved) <= Self.rate * 1.5 else { return }
+        guard let part = partRanges.last(where: { $0.start <= sample - 1 && sample - 1 < $0.end }) else { return }
+        let before = heardByKey[part.key] ?? 0
+        let after = before + Double(moved) / Self.rate
+        heardByKey[part.key] = after
+        // A part heard to its end, or every 10 s of one: kept now, so it counts even if the app is closed while it plays.
+        if let previous = partRanges.last(where: { $0.start <= last && last < $0.end }), previous.key != part.key { keepHeard() }
+        else if Int(after / 10) != Int(before / 10) { keepHeard() }
+    }
+
+    /// Into the store the server is told from (by part key; it counts a part once, up to its length).
+    private func keepHeard() {
+        for (key, seconds) in heardByKey { HeardStore.note(key, seconds) }
+    }
+
+    /// What's waiting goes to the server (when a text stops, and at launch for what didn't go); the minutes shown follow.
+    static func sendHeard() async {
+        let items = HeardStore.items()
+        guard !items.isEmpty, let request = try? ChatAI.heardRequest(items),
+              let (data, response) = try? await URLSession.shared.data(for: request),
+              (response as? HTTPURLResponse)?.statusCode == 200 else { return }
+        HeardStore.counted(items)
+        if let body = try? JSONSerialization.jsonObject(with: data) as? [String: Any], let usage = body["usage"] as? [String: Any],
+           let used = usage["used"] as? Int, let limit = usage["limit"] as? Int {
+            lastUsage = (used, limit)
+            shared.secondsLeft = max(0, limit - used)
+        }
+    }
+
+    /// Where the minutes went for this text, once, when it stops: heard, from where, and charged up front.
+    private func reportHeard() {
+        guard let request, counts.cache + counts.icloud + counts.server > 0 else { return }
+        let whole = { (value: Double) in String(min(9999, max(0, Int(value.rounded())))) }
+        ChatAI.reportUse("listen", "heard", [
+            "what": request.what == "page" ? "page" : "answer",
+            "heard_s": whole(heardTo - request.base - request.skip),
+            "cache_s": whole(counts.cache), "icloud_s": whole(counts.icloud), "server_s": whole(counts.server), "charged_s": whole(counts.charged)
+        ])
+        counts = (0, 0, 0, 0)
+        heardTo = 0
+    }
+
+    /// The next part is asked for only when what's in hand ahead runs short (about 8 s of listening, at any speed), and
+    /// not at all while it's paused: a text stopped early never costs minutes for parts nobody heard. Build 92: every
+    /// part was asked for at once, so a minute heard of a long page had cost most of the page.
+    private func untilNeeded() async {
+        while !Task.isCancelled {
+            // Nothing in hand yet, still filling up to the second carried on from, or waiting to start: needed now.
+            if samples.isEmpty || pendingSkip != nil || state == .loading { return }
+            if state == .playing, aheadSeconds() < 8 * speed + 4 { return }
+            try? await Task.sleep(nanoseconds: 500_000_000)
+        }
     }
 
     /// The second to carry on from is past what's here: it starts just before the end of what is.
@@ -561,6 +658,8 @@ final class ListenPlayer: NSObject, ObservableObject {
         var iterator = parts.makeAsyncIterator()
         var index = 0
         while let part = await iterator.next() {
+            if Task.isCancelled { return }
+            await untilNeeded()
             if Task.isCancelled { return }
             switch await speakPart(part, index: index, request: request) {
             case .ok: index += 1
@@ -640,7 +739,11 @@ final class ListenPlayer: NSObject, ObservableObject {
     /// again twice before it counts.
     private func speakPart(_ part: String, index: Int, request: ListenRequest) async -> Spoken {
         let key = Self.cacheKey(part, request.lang)
+        // Where this part starts here (what's heard of it counts by its key).
+        partRanges.append((key: key, start: samples.count, end: Int.max))
+        defer { if let last = partRanges.indices.last, partRanges[last].key == key { partRanges[last].end = samples.count } }
         if let cached = SpeechCache.read(key) {
+            counts.cache += Double(cached.count / 2) / Self.rate
             append(cached)
             return .ok
         }
@@ -651,13 +754,15 @@ final class ListenPlayer: NSObject, ObservableObject {
         let syncKey = SpeechSync.key(voice: Self.voiceName, lang: request.lang, text: part)
         if let synced = await SpeechSync.fetchPart(syncKey, wait: samples.isEmpty ? 1 : 2), !synced.isEmpty {
             if Task.isCancelled { return .stop }
+            counts.icloud += Double(synced.count / 2) / Self.rate
             append(synced)
             SpeechCache.write(key, synced)
             updateNowPlaying()
             return .ok
         }
         if Task.isCancelled { return .stop }
-        guard let urlRequest = try? ChatAI.speechRequest(text: part, lang: request.lang, what: request.what, part: index, parts: max(request.parts.count, index + 1), model: textModel) else {
+        let heardNow = HeardStore.items()
+        guard let urlRequest = try? ChatAI.speechRequest(text: part, lang: request.lang, what: request.what, part: index, parts: max(request.parts.count, index + 1), model: textModel, heard: heardNow) else {
             return .fallBack(.appleVoice)
         }
         var outcome: Download = .failed
@@ -677,6 +782,13 @@ final class ListenPlayer: NSObject, ObservableObject {
             outcome = await Self.download(urlRequest) { [weak self] chunk in
                 await self?.receive(chunk)
             }
+            // The server counted what went with it (on a part or a refusal for the week's minutes).
+            if !heardNow.isEmpty {
+                switch outcome {
+                case .done, .refused(402, _): HeardStore.counted(heardNow)
+                default: break
+                }
+            }
             if Task.isCancelled { return .stop }
             switch outcome {
             case .done(let all):
@@ -684,6 +796,8 @@ final class ListenPlayer: NSObject, ObservableObject {
                     append(partHeld)
                     partHeld = Data()
                 }
+                counts.server += Double(all.count / 2) / Self.rate
+                counts.charged += Self.lastCharged
                 if let gender = Self.lastGender { UserDefaults.standard.set(gender, forKey: "cf_voice_gender") }
                 if textModel.isEmpty, let model = Self.lastModel { textModel = model }
                 // For the user's other devices (iCloud, AAC): in the background, never in the voice's way.
@@ -774,6 +888,8 @@ final class ListenPlayer: NSObject, ObservableObject {
     /// The voice's gender the server last named (X-CF-Voice-Gender), and the model it last spoke with (X-CF-Model).
     nonisolated(unsafe) private static var lastGender: String?
     nonisolated(unsafe) private static var lastModel: String?
+    /// The seconds the server charged up front for the last part (X-CF-Charged: 0 for a repeat).
+    nonisolated(unsafe) private static var lastCharged: Double = 0
     /// The week's listening as the server last counted it (X-CF-Usage: seconds used of the limit).
     nonisolated(unsafe) private static var lastUsage: (used: Int, limit: Int)?
     /// The model this text's first part came from: every later part asks for it (one voice per text, build 91).
@@ -830,6 +946,7 @@ final class ListenPlayer: NSObject, ObservableObject {
                 UserDefaults.standard.set(voice, forKey: "cf_voice_name")
             }
             if status == 200, let model = (response as? HTTPURLResponse)?.value(forHTTPHeaderField: "X-CF-Model") { lastModel = model }
+            lastCharged = status == 200 ? Double((response as? HTTPURLResponse)?.value(forHTTPHeaderField: "X-CF-Charged") ?? "") ?? 0 : 0
             if let raw = (response as? HTTPURLResponse)?.value(forHTTPHeaderField: "X-CF-Usage"),
                let usage = (try? JSONSerialization.jsonObject(with: Data(raw.utf8))) as? [String: Any],
                let used = usage["used"] as? Int, let limit = usage["limit"] as? Int {
@@ -947,6 +1064,8 @@ final class ListenPlayer: NSObject, ObservableObject {
             // Heard: up to the end of what's scheduled, less the silences while waiting.
             let heard = max(0, min(now, playerEnd) - gapFrames)
             elapsed = base + min(Double(samples.count) / Self.rate, Double(startSample + Int(heard)) / Self.rate)
+            heardTo = max(heardTo, elapsed)
+            noteHeard(at: startSample + Int(heard))
             drained = now >= playerEnd
         }
         if drained, state == .playing {
@@ -1152,6 +1271,35 @@ final class ListenPlayer: NSObject, ObservableObject {
 
 /// The parts already spoken and the texts written for the ear, in Caches (the system may clear them; then they're asked
 /// for again): about 25 minutes of audio, nothing older than 7 days; gone with the chats ("Delete all chats").
+/// Read aloud's seconds heard, by part key, until the server has counted them (build 92: the week's minutes count what's
+/// heard). They go with the next part asked for, on their own when a text stops, and again at the next launch if they
+/// didn't; the server counts a part once, up to its length, so sending again never charges twice.
+enum HeardStore {
+    private static let key = "cf_listen_heard"
+
+    static func note(_ part: String, _ seconds: Double) {
+        var map = UserDefaults.standard.dictionary(forKey: key) as? [String: Double] ?? [:]
+        guard seconds > (map[part] ?? 0) else { return }
+        map[part] = (seconds * 10).rounded() / 10
+        UserDefaults.standard.set(map, forKey: key)
+    }
+
+    static func items() -> [[String: Any]] {
+        let map = UserDefaults.standard.dictionary(forKey: key) as? [String: Double] ?? [:]
+        return map.prefix(80).map { ["key": $0.key, "s": $0.value] }
+    }
+
+    /// Takes out what the server counted (only where nothing more was heard meanwhile).
+    static func counted(_ sent: [[String: Any]]) {
+        var map = UserDefaults.standard.dictionary(forKey: key) as? [String: Double] ?? [:]
+        for item in sent {
+            guard let part = item["key"] as? String, let seconds = item["s"] as? Double else { continue }
+            if (map[part] ?? 0) <= seconds { map.removeValue(forKey: part) }
+        }
+        UserDefaults.standard.set(map, forKey: key)
+    }
+}
+
 enum SpeechCache {
     private static let limit = 75 * 1024 * 1024
     private static let maxAge: TimeInterval = 7 * 86_400
@@ -1164,7 +1312,10 @@ enum SpeechCache {
     }
 
     static func read(_ key: String) -> Data? {
-        guard let file = folder?.appendingPathComponent("\(name(key)).pcm"), let data = try? Data(contentsOf: file), !data.isEmpty else { return nil }
+        // Made by the panel on this device (build 92): from the App Group, as if it were here.
+        guard let file = folder?.appendingPathComponent("\(name(key)).pcm"), let data = try? Data(contentsOf: file), !data.isEmpty else {
+            return SharedListenCache.read(key)
+        }
         let written = (try? file.resourceValues(forKeys: [.contentModificationDateKey]))?.contentModificationDate ?? .distantPast
         guard Date().timeIntervalSince(written) < maxAge else {
             try? FileManager.default.removeItem(at: file)
@@ -1175,6 +1326,7 @@ enum SpeechCache {
 
     /// "Delete all chats": everything read aloud goes.
     static func clear() {
+        SharedListenCache.clear()
         guard let folder, let files = try? FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: nil) else { return }
         for file in files { try? FileManager.default.removeItem(at: file) }
     }

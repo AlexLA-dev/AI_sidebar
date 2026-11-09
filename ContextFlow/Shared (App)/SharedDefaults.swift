@@ -412,3 +412,53 @@ enum TipClipShare {
         return (data, Int(end))
     }
 }
+
+// MARK: - Read aloud made in the panel, for the app on this device
+
+/// Parts the panel made (build 92), kept where the app on the same device finds them, under the key its own cache uses
+/// (sha256 of "v1|<language>|<text>"): a text handed from Safari to the app plays from here, nothing asked of iCloud or
+/// the server. About 40 MB of audio, nothing older than 7 days; gone with "Delete all chats".
+enum SharedListenCache {
+    private static let limit = 40 * 1024 * 1024
+    private static let maxAge: TimeInterval = 7 * 86_400
+
+    private static var folder: URL? {
+        guard let base = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: SharedDefaults.suiteName) else { return nil }
+        let folder = base.appendingPathComponent("Listen", isDirectory: true)
+        try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        return folder
+    }
+
+    static func read(_ key: String) -> Data? {
+        guard key.range(of: "^[0-9a-f]{64}$", options: .regularExpression) != nil,
+              let file = folder?.appendingPathComponent("\(key).pcm"), let data = try? Data(contentsOf: file), !data.isEmpty else { return nil }
+        let written = (try? file.resourceValues(forKeys: [.contentModificationDateKey]))?.contentModificationDate ?? .distantPast
+        return Date().timeIntervalSince(written) < maxAge ? data : nil
+    }
+
+    static func write(_ key: String, _ pcm: Data) {
+        guard key.range(of: "^[0-9a-f]{64}$", options: .regularExpression) != nil, let folder else { return }
+        try? pcm.write(to: folder.appendingPathComponent("\(key).pcm"), options: .atomic)
+        prune(folder)
+    }
+
+    static func clear() {
+        guard let folder, let files = try? FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: nil) else { return }
+        for file in files { try? FileManager.default.removeItem(at: file) }
+    }
+
+    /// Older than 7 days, then the oldest first while over the limit.
+    private static func prune(_ folder: URL) {
+        let keys: [URLResourceKey] = [.contentModificationDateKey, .fileSizeKey]
+        guard let files = try? FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: keys) else { return }
+        let rows = files.compactMap { url -> (url: URL, at: Date, size: Int)? in
+            guard let values = try? url.resourceValues(forKeys: Set(keys)) else { return nil }
+            return (url, values.contentModificationDate ?? .distantPast, values.fileSize ?? 0)
+        }.sorted { $0.at > $1.at }
+        var total = 0
+        for row in rows {
+            total += row.size
+            if total > limit || Date().timeIntervalSince(row.at) >= maxAge { try? FileManager.default.removeItem(at: row.url) }
+        }
+    }
+}

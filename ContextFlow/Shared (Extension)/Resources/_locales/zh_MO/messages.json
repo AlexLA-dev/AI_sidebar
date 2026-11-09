@@ -2084,6 +2084,9 @@
  "listenTaken": {
   "message": "正在 ContextFlow App 中播放。"
  },
+ "listenSeek": {
+  "message": "播放位置"
+ },
  "plansUpgrade": {
   "message": "升級到 {0}"
  },

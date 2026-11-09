@@ -12,6 +12,7 @@ import { ConsentCard } from "../Consent"
 import { giveConsent, loadConsent } from "../store"
 import { draftFor } from "./draft"
 import { Eye } from "./icons"
+import { detectPlatform, isTouch, openAppFromTap } from "../page"
 
 export interface WatchSectionProps {
   url: string
@@ -112,7 +113,7 @@ export function WatchSection(p: WatchSectionProps) {
             !state.ultra && (!state.paid || TARGET === "safari") && (
               <div class="cf-sheet-actions">
                 {/* 2.6: on Free, Pro (20 pages); on Pro or Own key, Ultra (50). */}
-                <button type="button" class="cf-primary" onClick={() => void send({ type: "openApp", target: "subscribe", feature: "watch", plan: state.paid ? "ultra" : "pro" })}>{state.paid ? t("watchMoreUltra") : t("watchMore")}</button>
+                <button type="button" class="cf-primary" onClick={() => openAppFromTap(isTouch(detectPlatform(TARGET)), { target: "subscribe", feature: "watch", plan: state.paid ? "ultra" : "pro" })}>{state.paid ? t("watchMoreUltra") : t("watchMore")}</button>
               </div>
             )
           ) : (

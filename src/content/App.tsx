@@ -28,10 +28,12 @@ import { answerWeight } from "../shared/pagefit"
 import { answerShareText, chatLanguage, noteCopyText, noteShareText, pickedShareText, textLanguage, toPlainText, type ShareLinks } from "../shared/share"
 import type { PageRead, PageSource } from "./context"
 import {
+  followLink,
   forgetSelection,
   HOST_TAG,
   isTouch,
   MIN_SELECTION_WORDS,
+  openAppFromTap,
   privateBrowsing,
   readSelection,
   recentSelection,
@@ -62,7 +64,7 @@ import { dodgeFab } from "./fabDodge"
 import { hasPro, isUltra, type PaidPlan } from "../shared/plan"
 import { SettingsView } from "./Settings"
 import { shareLabels } from "./shareLabels"
-import { loadJobs, markHintSeen, markMemoryOffered, memoryOffered, onJobsChanged, resetHints, seenHints, type HintKey } from "./store"
+import { keptPlanNow, loadJobs, markHintSeen, markMemoryOffered, memoryOffered, onJobsChanged, resetHints, seenHints, type HintKey } from "./store"
 import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, onConsentChanged, loadThreads, markTourSeen, lastPlanSeen, setLastPlanSeen, planToursSeen, markPlanToursSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, purgeChats, nameThread, rememberPageText, renameThread, renewalAskedPeriod, settleNameSuggestion, unnameThread, restoreChat, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount, trashChat } from "./store"
 import { TagChip, TagEditor } from "./Tags"
 import { ThreadsView } from "./Threads"
@@ -203,15 +205,6 @@ function sendBackground<T>(message: unknown): Promise<T | null> {
   })
 }
 
-function followLink(url: string): void {
-  const a = document.createElement("a")
-  a.href = url
-  a.rel = "noopener"
-  a.style.display = "none"
-  document.documentElement.appendChild(a)
-  a.click()
-  setTimeout(() => a.remove(), 500)
-}
 
 async function copyText(text: string): Promise<boolean> {
   try {
@@ -349,6 +342,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [memoryOffer, setMemoryOffer] = useState<"switch" | "long" | null>(null)
   // The plan as last known (the status, else the plan the panel saw last): what a question's memory is.
   const planKnownRef = useRef<Plan>("free")
+  // The plan the app's side last gave (the background keeps it): shown until this page's status comes, so a subscriber
+  // never sees Free first (build 92: Free for a moment on every page, for seconds when the app was slow to answer).
+  const [keptPlan, setKeptPlan] = useState<Plan | null>(null)
+  useEffect(() => void keptPlanNow().then(setKeptPlan), [])
   // The card opened from a selection: what was selected, the thing to find alternatives to (the page is context).
   const [similarSubject, setSimilarSubject] = useState<string | null>(null)
   const [similarRun, setSimilarRun] = useState<{ items: SimilarItem[]; step: SimilarStep; pages?: number } | null>(null)
@@ -1929,10 +1926,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   useEffect(() => setPicked(null), [threadRef.current, messages.length, view])
 
   // ------------------------------------------------------------ upgrade
-  const openApp = useCallback(async (target: "subscribe" | "manage", feature?: "ai" | "organize") => {
-    const result = await sendBackground<{ opened: boolean; url: string }>({ type: "openApp", target, feature })
-    if (result && !result.opened && result.url) followLink(result.url)
-  }, [])
+  const openApp = useCallback((target: "subscribe" | "manage", feature?: "ai" | "organize") => {
+    openAppFromTap(touch, { target, feature })
+  }, [touch])
 
   // The App Store's sheet for the offer code: the discount and the price after it, then the purchase.
   const redeemOffer = useCallback((code: string) => {
@@ -2187,7 +2183,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setPlanTourDue(null)
     startPlanTourRef.current(planTourDue.tier, "plan", planTourDue.from)
   }, [planTourDue, open, guide, touring, view, streaming, partial])
-  const plan = status?.plan ?? "free"
+  const plan = status?.plan ?? keptPlan ?? "free"
   // "Ultra" on Ultra's actions for anyone without it, once the plan is known: the selection buttons come before the
   // panel has opened on a page, so their plan is read then too (below), and an Ultra subscriber never sees the mark.
   const markUltra = status !== null && !isUltra(plan)
@@ -2203,10 +2199,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   if (status?.plan) planKnownRef.current = status.plan
   // The plans message in the chat (build 91): a plan and period chosen open the app on them, as the plans sheet does.
   const choosePlan = (choice: OfferChoice) => {
-    void (async () => {
-      const result = await sendBackground<{ opened: boolean; url: string }>({ type: "openApp", target: "subscribe", plan: choice.plan, period: choice.period, feature: choice.plan === "ultra" ? "listen" : undefined })
-      if (result && !result.opened && result.url) followLink(result.url)
-    })()
+    openAppFromTap(touch, { target: "subscribe", plan: choice.plan, period: choice.period, feature: choice.plan === "ultra" ? "listen" : undefined })
   }
   const offerEvent = (place: OfferPlace) => (action: string, choice?: OfferChoice) =>
     void sendBackground({ type: "useEvent", f: "chat_plans", a: action, via: place, ...(choice ? { plan: choice.plan, period: choice.period } : {}) })
@@ -2218,6 +2211,16 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     follow: followLink,
     send: (message) => sendBackground(message)
   })
+  // The panel closed (build 92): what isn't playing goes, its audio and clock with it; what plays goes on (it's back
+  // in the bar when the panel opens again).
+  // Only at the moment it closes: a text paused later (the page left, with the panel closed) keeps its notification.
+  const listenAtRef = useRef(listen.state.at)
+  listenAtRef.current = listen.state.at
+  const listenStop = listen.stop
+  useEffect(() => {
+    const at = listenAtRef.current
+    if (!open && at !== "idle" && at !== "playing" && at !== "loading" && at !== "handoff") listenStop()
+  }, [open, listenStop])
   const listenPage = useCallback(async () => {
     if (consentRef.current !== "ok") {
       const agreed = await new Promise<boolean>((resolve) => setFindConsent({ resolve }))
@@ -3162,10 +3165,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               onPlans={() => openPlans(hasPro(plan) || byok ? "ultra" : "pro", "settings")}
               onYearly={(chosen) => {
                 void sendBackground({ type: "useEvent", f: "plans", a: "yearly", plan: chosen, period: "yearly" })
-                void (async () => {
-                  const result = await sendBackground<{ opened: boolean; url: string }>({ type: "openApp", target: "subscribe", plan: chosen, period: "yearly" })
-                  if (result && !result.opened && result.url) followLink(result.url)
-                })()
+                openAppFromTap(touch, { target: "subscribe", plan: chosen, period: "yearly" })
               }}
               upgradeLabel={byokDiscount !== null ? t("upgradeProOff", byokDiscount) : t("upgradePro")}
               onManage={() => void openApp("manage")}
@@ -3514,6 +3514,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 )}
 
                 {pending && <ConsentCard again={consent === "old"} onAccept={() => void acceptConsent()} onDecline={declineConsent} />}
+                {/* Listen to this page or Find similar from the chat (build 92): the consent they wait for shows here too (it
+                    showed only in the chat list, so from a chat they did nothing without consent). */}
+                {findConsent && !pending && (
+                  <ConsentCard again={consent === "old"} onAccept={() => findConsent.resolve(true)} onDecline={() => findConsent.resolve(false)} />
+                )}
               </div>
 
               {picked ? (
@@ -3534,7 +3539,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 </footer>
               ) : (
                 <footer class="cf-composer">
-                  <ListenBar state={listen.state} speed={listen.speed} left={listen.left} onSpeed={listen.cycleSpeed} onAnyway={listen.anyway} onNotifyOn={listen.notifyTurnOn} onNotifyLater={listen.notifyNotNow} onToggle={listen.toggle} onStop={listen.stop} onPlans={() => openPlans("ultra", "limit")} />
+                  <ListenBar state={listen.state} speed={listen.speed} left={listen.left} onSpeed={listen.cycleSpeed} onAnyway={listen.anyway} onNotifyOn={listen.notifyTurnOn} onNotifyLater={listen.notifyNotNow} onToggle={listen.toggle} onSeek={listen.seek} onStop={listen.stop} onPlans={() => openPlans("ultra", "limit")} />
                   {undoBar && <UndoBar text={undoBar.text} actions={undoBar.actions} onHold={holdBar} />}
                   {noteHint && draft.trim() && !noteMode && <div class="cf-note-hint" role="status">{t(touch ? "noteHintTouch" : "noteHintMouse")}</div>}
                   {weightNote && <div class="cf-weight-note" title={t("longPageWeightHint", pageWeight)}>{t("longPageWeight", pageWeight)}</div>}
@@ -3650,10 +3655,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               onChoose={(chosen, period) => {
                 setPlansOpen(null)
                 void sendBackground({ type: "useEvent", f: "plans", a: "choose", plan: chosen, period })
-                void (async () => {
-                  const result = await sendBackground<{ opened: boolean; url: string }>({ type: "openApp", target: "subscribe", plan: chosen, period, feature: chosen === "ultra" ? "listen" : undefined })
-                  if (result && !result.opened && result.url) followLink(result.url)
-                })()
+                openAppFromTap(touch, { target: "subscribe", plan: chosen, period, feature: chosen === "ultra" ? "listen" : undefined })
               }}
               onClose={() => setPlansOpen(null)}
             />

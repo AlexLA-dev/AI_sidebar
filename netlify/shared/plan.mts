@@ -169,6 +169,20 @@ export function speakCountersFor(access: Access, seconds: number, finishing = fa
 }
 
 /**
+ * Read aloud's own caps on audio made (build 92, the owner: "30 s heard is 30 s off; the rest is our economy"): per
+ * subscription a week, a share of the allowance above it (ULTRA_SPEAK_MADE_PERCENT), and for everyone a day. What's made
+ * isn't the user's minutes; what's heard is (speakCountersFor, through /api/v2/speak-heard).
+ */
+export function speakMadeCountersFor(access: Access, seconds: number): Counter[] {
+  const amount = Math.max(1, Math.ceil(seconds))
+  const otid = access.entitlement?.originalTransactionId ?? "none"
+  return [
+    { subject: `speakmade:tx:${otid}`, period: "week", limit: Math.round((config.ultra.speakWeeklySeconds * config.ultra.speakMadePercent) / 100), amount },
+    { subject: "global:speak", period: "day", limit: config.ultra.speakGlobalDailySeconds, amount }
+  ]
+}
+
+/**
  * Find similar (Ultra): one search against the subscription's weekly allowance. The engine (/api/v2/similar) charges
  * it together with its own daily safety caps before it searches (consume), gives it back when nothing came (refund),
  * and answers LIMIT_REACHED with ultraUsage(…, "similar:") when blockReason() says "similar".

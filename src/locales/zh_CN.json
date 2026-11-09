@@ -720,6 +720,7 @@
   "listenNotifyOn": "打开通知",
   "listenNotifyLater": "以后再说",
   "listenTaken": "正在 ContextFlow App 中播放。",
+  "listenSeek": "播放位置",
   "plansUpgrade": "升级到 {0}",
   "plansUpgradeYearly": "升级到年付",
   "similarPayFree": "免费，无 App 内购买",

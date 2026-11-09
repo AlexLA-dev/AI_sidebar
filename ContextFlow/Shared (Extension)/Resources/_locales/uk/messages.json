@@ -2084,6 +2084,9 @@
  "listenTaken": {
   "message": "Грає в застосунку ContextFlow."
  },
+ "listenSeek": {
+  "message": "Позиція в записі"
+ },
  "plansUpgrade": {
   "message": "Перейти на {0}"
  },

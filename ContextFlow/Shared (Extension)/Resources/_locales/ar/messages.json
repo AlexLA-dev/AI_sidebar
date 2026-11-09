@@ -2084,6 +2084,9 @@
  "listenTaken": {
   "message": "يُشغَّل في تطبيق ContextFlow."
  },
+ "listenSeek": {
+  "message": "الموضع في التسجيل"
+ },
  "plansUpgrade": {
   "message": "الترقية إلى {0}"
  },
