@@ -37,6 +37,8 @@ import {
   recentSelection,
   rememberSelection,
   trackSelection,
+  selectionRange,
+  restoreSelection,
   type SelectionInfo
 } from "./page"
 import { Hint } from "./Hint"
@@ -149,6 +151,14 @@ const selAction = (id: string) => SELECTION_ACTIONS.find((a) => a.id === id)!
 /** Ultra's actions (2.6, build 90, the owner: "colour Similar so it's clear it's an Ultra feature"): in Ultra's colour
  * (--ultra) everywhere they show, with a small "Ultra" for anyone without it. */
 const ULTRA_ACTIONS = new Set(["similar", "sel_similar"])
+
+/** The first `n` quick actions, and Find similar after them wherever it falls in the list (2.6 (92), the owner: the
+ * rows under "Now on…" and under an answer showed the first few only, never Find similar). */
+function withUltra(list: Action[], n: number): Action[] {
+  const ultra = list.find((a) => ULTRA_ACTIONS.has(a.id))
+  const rest = list.filter((a) => !ULTRA_ACTIONS.has(a.id)).slice(0, n)
+  return ultra ? [...rest, ultra] : rest
+}
 
 /** The small "Ultra" on an Ultra action, for someone without Ultra (a tap opens Ultra's card). */
 function UltraMark({ show }: { show: boolean }): VNode | null {
@@ -354,6 +364,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [findConsent, setFindConsent] = useState<{ resolve: (agreed: boolean) => void } | null>(null)
   const [pending, setPending] = useState<{ text: string; label?: string; action?: string; mode?: "google"; similar?: string; similarSel?: string } | null>(null)
   const [selection, setSelection] = useState<SelectionInfo | null>(null)
+  // For closing the panel: whether it was about a selection, and whether it was open before (92: the buttons come back).
+  const keptSelectionRef = useRef<SelectionInfo | null>(null)
+  keptSelectionRef.current = selection
+  const wasOpenRef = useRef(false)
   const [pageReadable, setPageReadable] = useState(true)
   const [wide, setWide] = useState(() => window.innerWidth >= 700)
   const [keyboard, setKeyboard] = useState(0)
@@ -809,7 +823,20 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     document.addEventListener("mouseup", onMouseUp)
     // Capturing: a box's scroll doesn't bubble to the window. Our own lists scroll in our root, out of sight here.
     document.addEventListener("scroll", onScroll, { passive: true, capture: true })
+    // 2.6 (92), the owner: a selection still on the page when the panel closes gets its buttons back (once the panel
+    // has slid away), without selecting it again.
+    // The panel's field takes the page's selection away (iPhone, and a click into it on a Mac): the one the panel was
+    // about goes back on the page first, unless its chip was cleared.
+    const closing = wasOpenRef.current && !open
+    wasOpenRef.current = open
+    const back = open
+      ? undefined
+      : setTimeout(() => {
+          if (closing && keptSelectionRef.current) restoreSelection()
+          offerButton()
+        }, 320)
     return () => {
+      clearTimeout(back)
       clearTimeout(timer)
       clearTimeout(scrollTimer)
       document.removeEventListener("selectionchange", onSelectionChange)
@@ -1998,6 +2025,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
   // ------------------------------------------------------------ derived
   const contextKind: "selection" | "page" | "none" = selection ? "selection" : pageReadable ? "page" : "none"
+  // The selection's place on the page, for its ring (none for a page, a chat about the chats, or the toolbar popup).
+  const glowRange = useMemo(() => (open && contextKind === "selection" && !popup ? selectionRange() : null), [open, selection, contextKind])
   const actions = historyMode
     ? []
     : contextKind === "selection" && selection
@@ -2162,6 +2191,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // "Ultra" on Ultra's actions for anyone without it, once the plan is known: the selection buttons come before the
   // panel has opened on a page, so their plan is read then too (below), and an Ultra subscriber never sees the mark.
   const markUltra = status !== null && !isUltra(plan)
+  /** A quick action's chip: Ultra's in Ultra's colour with its icon (and "Ultra" without it), in every row of them. */
+  const chip = (a: Action, small: boolean) => ULTRA_ACTIONS.has(a.id)
+    ? <button type="button" key={a.id} class={`cf-chip ultra${small ? " small" : ""}`} data-action={a.id} onClick={() => runAction(a)}><SimilarIcon size={small ? 12 : 13} /> {actionLabel(a)}<UltraMark show={markUltra} /></button>
+    : <button type="button" key={a.id} class={`cf-chip${small ? " small" : ""}`} data-action={a.id} onClick={() => runAction(a)}>{actionLabel(a)}</button>
   // Read aloud (2.6, Ultra): an answer or the page. Without Ultra, Listen opens the plans sheet on Ultra.
   const openPlans = useCallback((focus: PaidPlan, via: "listen" | "settings" | "watch" | "limit" | "similar" = "listen") => {
     setPlansOpen(focus)
@@ -2815,16 +2848,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   </>
                 ) : (
                   <>
+                    {/* 2.6 (92), the owner: as narrow as the iPhone's. Explain, Translate, Find similar and the rest are the
+                        chips in the field below, pulled along with the trackpad (or the mouse wheel). */}
                     <button type="button" class="primary" {...press(() => show(bubble))}><Icon.Sparkle size={14} /> {t("selAsk")}</button>
-                    <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SELECTION_ACTIONS[0]), 60) })}>{t("selExplain")}</button>
-                    <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SELECTION_ACTIONS[2]), 60) })}>{t("selTranslate")}</button>
                     <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SEL_GOOGLE), 60) })}><Icon.Search size={13} /> {t("actGoogle")}</button>
-                    {/* 2.6 (build 89, the owner): Find similar from a selection too, not only from the panel. */}
-                    <button type="button" class="cf-sel-similar ultra" title={t("actSimilar")} {...press(() => {
-                      void sendBackground({ type: "useEvent", f: "bubble", a: "action", what: "sel_similar", via: "button" })
-                      show(bubble)
-                      setTimeout(() => runActionRef.current(selAction("sel_similar")), 60)
-                    })}><SimilarIcon size={13} /> {t("selSimilar")}<UltraMark show={markUltra} /></button>
                     <button type="button" class="cf-sel-template" aria-label={t("qiTemplateButton")} title={t("qiTemplateButton")} {...press(() => newTemplate(bubble))}><QIcon.Template size={14} /> <span class="cf-sel-l">{t("qiTemplateButton")}</span></button>
                     {remindButton(bubble)}
                     {bubbleExtras}
@@ -2832,7 +2859,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 )}
               </div>
               <div class="cf-bubble-ask">
-                <SelField touch={touch} placeholder={t("selQuestion")} markUltra={markUltra} chips={touch && !selDraft && !selFocus ? SEL_CHIPS.flatMap((id) => forSelection(selAction(id), bubble.text) ?? []) : []} onChip={(a) => {
+                <SelField touch={touch} placeholder={t("selQuestion")} markUltra={markUltra} chips={!selDraft && !selFocus ? SEL_CHIPS.flatMap((id) => forSelection(selAction(id), bubble.text) ?? []) : []} onChip={(a) => {
                   selFeatureUsed()
                   void sendBackground({ type: "useEvent", f: "bubble", a: "action", what: a.id, via: "chip" })
                   show(bubble)
@@ -2841,7 +2868,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 <input
                   type="text"
                   value={selDraft}
-                  placeholder={t(touch ? "selQuestion" : "placeholderSelection")}
+                  placeholder={t("selQuestion")}
                   aria-label={t("placeholderSelection")}
                   enterKeyHint="send"
                   autoComplete="off"
@@ -2869,7 +2896,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 />
                 </SelField>
                 {/* iPhone and iPad: send shows once there's a question, so the field has room for it. */}
-                {(!touch || selDraft.trim()) && <button type="button" class="cf-bubble-send" disabled={!selDraft.trim()} aria-label={t("send")} title={t("send")} {...press(() => askAboutSelection(bubble, selDraft))}><Icon.ArrowUp /></button>}
+                {selDraft.trim() && <button type="button" class="cf-bubble-send" disabled={!selDraft.trim()} aria-label={t("send")} title={t("send")} {...press(() => askAboutSelection(bubble, selDraft))}><Icon.ArrowUp /></button>}
                 <button type="button" class="cf-sel-note" title={t("selNoteTitle")} aria-label={t("selNote")} {...press(() => void noteSelection(bubble, selDraft))}><Icon.Pencil />{!(touch && narrowScreen()) && ` ${t("selNote")}`}</button>
               </div>
               {guide === "ask" ? (
@@ -2893,6 +2920,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           onTouchMove={(e) => e.preventDefault()}
         />
       )}
+
+      {/* 2.6 (92), the owner: with the panel open on a selection, the text it's about is ringed on the page. */}
+      {open && glowRange && <SelectionGlow range={glowRange} />}
 
       {open && (
         <section
@@ -3169,9 +3199,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     {actions.length > 0 && (
                       <div class="cf-actions">
                         {actions.map((a) => (
-                          ULTRA_ACTIONS.has(a.id)
-                            ? <button type="button" key={a.id} class="cf-chip ultra" data-action={a.id} onClick={() => runAction(a)}><SimilarIcon size={13} /> {actionLabel(a)}<UltraMark show={markUltra} /></button>
-                            : <button type="button" key={a.id} class="cf-chip" data-action={a.id} onClick={() => runAction(a)}>{actionLabel(a)}</button>
+                          chip(a, false)
                         ))}
                       </div>
                     )}
@@ -3259,18 +3287,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   <div class="cf-newpage">
                     <div class="cf-divider"><span>{t("nowOnPage", source.title() || source.site())}</span></div>
                     <div class="cf-actions follow">
-                      {actions.slice(0, 4).map((a) => (
-                        <button type="button" key={a.id} class="cf-chip small" onClick={() => runAction(a)}>{actionLabel(a)}</button>
-                      ))}
+                      {withUltra(actions, 4).map((a) => chip(a, true))}
                     </div>
                   </div>
                 )}
 
                 {messages.length > 0 && partial === null && !error && actions.length > 0 && lastIsUser === false && !onNewPage && messages.length < 3 && (
                   <div class="cf-actions follow">
-                    {actions.filter((a) => !messages.some((m) => m.label === actionLabel(a))).slice(0, 3).map((a) => (
-                      <button type="button" key={a.id} class="cf-chip small" onClick={() => runAction(a)}>{actionLabel(a)}</button>
-                    ))}
+                    {withUltra(actions.filter((a) => !messages.some((m) => m.label === actionLabel(a))), 3).map((a) => chip(a, true))}
                   </div>
                 )}
 
@@ -3771,9 +3795,20 @@ function SelField({ touch, chips, placeholder, markUltra, onChip, children }: { 
       clearTimeout(back)
     }
   }, [on])
-  if (!touch) return <>{children}</>
   return (
-    <div ref={ref} class={`cf-ask-field ${on ? "chips" : ""}`} role="group" aria-label={on ? t("selChips") : undefined}>
+    <div
+      ref={ref}
+      class={`cf-ask-field ${on ? "chips" : ""} ${touch ? "" : "mouse"}`}
+      role="group"
+      aria-label={on ? t("selChips") : undefined}
+      // A mouse's wheel turns the chips along too (a trackpad's sideways swipe does by itself).
+      onWheel={(e) => {
+        const field = e.currentTarget
+        if (!on || Math.abs(e.deltaY) <= Math.abs(e.deltaX) || field.scrollWidth <= field.clientWidth) return
+        field.scrollLeft += getComputedStyle(field).direction === "rtl" ? -e.deltaY : e.deltaY
+        e.preventDefault()
+      }}
+    >
       <span ref={probe} class="cf-ask-probe" aria-hidden="true">{placeholder}</span>
       {children}
       {chips.map((a) => (
@@ -3781,6 +3816,45 @@ function SelField({ touch, chips, placeholder, markUltra, onChip, children }: { 
           ? <button type="button" key={a.id} class="cf-sel-chip ultra" {...press(() => onChip(a))}><SimilarIcon size={12} /> {a.text ?? t(a.label)}<UltraMark show={markUltra} /></button>
           : <button type="button" key={a.id} class="cf-sel-chip" {...press(() => onChip(a))}>{a.text ?? t(a.label)}</button>
       ))}
+    </div>
+  )
+}
+
+/**
+ * The ring around the selection the panel is about (2.6 (92), the owner: tie the panel to the text on the page, the
+ * same ring as on the header's "Selection" chip). A few sweeps of light, then a still ring: CSS only, on the
+ * compositor (a turning gradient under a fixed mask); it moves with the page by the scroll events, nothing runs while
+ * the page is still.
+ */
+function SelectionGlow({ range }: { range: Range }): VNode | null {
+  const [box, setBox] = useState<DOMRect | null>(null)
+  useLayoutEffect(() => {
+    let frame = 0
+    const place = () => {
+      frame = 0
+      const r = range.getBoundingClientRect()
+      setBox(r.width > 0 || r.height > 0 ? r : null)
+    }
+    const soon = () => {
+      if (!frame) frame = requestAnimationFrame(place)
+    }
+    place()
+    window.addEventListener("scroll", soon, { passive: true, capture: true })
+    window.addEventListener("resize", soon)
+    window.visualViewport?.addEventListener("resize", soon)
+    window.visualViewport?.addEventListener("scroll", soon)
+    return () => {
+      cancelAnimationFrame(frame)
+      window.removeEventListener("scroll", soon, true)
+      window.removeEventListener("resize", soon)
+      window.visualViewport?.removeEventListener("resize", soon)
+      window.visualViewport?.removeEventListener("scroll", soon)
+    }
+  }, [range])
+  if (!box) return null
+  return (
+    <div class="cf-sel-glow" aria-hidden="true" style={{ left: `${box.left - 5}px`, top: `${box.top - 4}px`, width: `${box.width + 10}px`, height: `${box.height + 8}px` }}>
+      <span class="cf-glow-run" />
     </div>
   )
 }
@@ -3939,7 +4013,8 @@ function ContextChip({ kind, media, title, words, text, onClear }: { kind: "sele
     // A word or two (a long-press on iPhone) reads better as itself than as a word count.
     const short = words <= 3 && text.length <= 28
     return (
-      <span class="cf-ctx selection">
+      <span class="cf-ctx selection glow">
+        <span class="cf-glow-run" aria-hidden="true" />
         <Icon.Cursor /> <span class="cf-ctx-text">{short ? `“${text}”` : t("ctxSelection", words)}</span>
         <button type="button" class="cf-ctx-clear" onClick={onClear} title={t("ctxUsePage")} aria-label={t("ctxUsePage")}>×</button>
       </span>

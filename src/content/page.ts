@@ -40,6 +40,8 @@ export interface SelectionInfo {
 }
 
 let lastSelection: SelectionInfo | null = null
+// Its place on the page (2.6 (92)): the panel rings the text it's about, also after iOS has let go of the selection.
+let lastRange: Range | null = null
 const SELECTION_TTL_MS = 30_000
 // A long-press on iPhone selects a single word, so one word is already a selection worth using.
 export const MIN_SELECTION_WORDS = 1
@@ -80,8 +82,45 @@ function selectionInfo(raw: string, box: () => DOMRect): SelectionInfo | null {
 /** Remembers the latest selection: on iPhone tapping our button clears it. */
 export function trackSelection(): SelectionInfo | null {
   const current = readSelection()
-  if (current && current.words >= MIN_SELECTION_WORDS) lastSelection = current
+  if (current && current.words >= MIN_SELECTION_WORDS) {
+    lastSelection = current
+    try {
+      lastRange = document.getSelection()?.getRangeAt(0).cloneRange() ?? lastRange
+    } catch {
+      // No range to keep.
+    }
+  }
   return current
+}
+
+/** Where the selection the panel is about is on the page: the live one, or the one last remembered. */
+export function selectionRange(): Range | null {
+  const live = document.getSelection()
+  if (live && live.rangeCount > 0 && !live.isCollapsed) {
+    const range = live.getRangeAt(0)
+    const at = range.commonAncestorContainer
+    const el = at instanceof Element ? at : at.parentElement
+    if (!el?.closest(HOST_TAG)) return range.cloneRange()
+  }
+  return lastRange
+}
+
+/**
+ * Puts the selection the panel was about back on the page when the page has none: the panel's field took it (iPhone
+ * drops a page selection once something else gets focus, and so does a click into the field on a Mac). False when
+ * there's nothing to put back or the page already has its own selection.
+ */
+export function restoreSelection(): boolean {
+  const live = document.getSelection()
+  if (!live || !lastRange || readSelection()) return false
+  if (lastRange.collapsed || !lastRange.startContainer.isConnected || !lastRange.endContainer.isConnected) return false
+  try {
+    live.removeAllRanges()
+    live.addRange(lastRange.cloneRange())
+    return true
+  } catch {
+    return false
+  }
 }
 
 export function recentSelection(): SelectionInfo | null {
@@ -98,6 +137,7 @@ export function rememberSelection(selection: SelectionInfo): void {
 
 export function forgetSelection(): void {
   lastSelection = null
+  lastRange = null
 }
 
 // ------------------------------------------------------------ page text
