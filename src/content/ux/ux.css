@@ -90,7 +90,8 @@ mark.cf-mark-last { border-start-end-radius: 2px; border-end-end-radius: 2px; }
 .cf-msg-menu.at { position: fixed; top: 0; left: 0; z-index: 6; }
 /* The header's "…" (2.5): its menu under it, at the panel's right edge. */
 .cf-page-more-wrap { position: relative; display: flex; }
-.cf-page-menu { inset-inline-start: auto; inset-inline-end: 0; z-index: 6; width: max-content; min-width: 220px; max-width: calc(100vw - 24px); }
+.cf-page-menu { inset-inline-start: auto; inset-inline-end: 0; z-index: 6; width: max-content; min-width: 220px; max-width: calc(100vw - 24px); overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; touch-action: pan-y; }
+.cf-page-menu > button, .cf-page-more-group > button { flex-shrink: 0; }
 .cf-page-menu button { white-space: nowrap; }
 /* 2.6 (91): "Other…" folds the rest (Settings, Tips, the tours); its chevron turns when it opens. */
 .cf-page-menu .cf-page-other { border-top: 1px solid var(--border); border-radius: 0 0 8px 8px; margin-top: 2px; color: var(--text-2); }
