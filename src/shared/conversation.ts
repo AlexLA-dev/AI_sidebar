@@ -144,8 +144,25 @@ export function withPageChanges(entries: Entry[]): Entry[] {
 }
 
 const MAX_HISTORY = 12
-/** The messages a free answer remembers (build 91: the whole chat is Pro's). */
-export const FREE_MEMORY = MAX_HISTORY
+/**
+ * What a free answer remembers (build 92, the owner): the last 5 answers and notes of the chat. The person's questions
+ * don't count, they come with their answers; the question asked now always goes.
+ */
+export const FREE_MEMORY = 5
+
+/** The last `keep` items that count (answers, notes) and everything after the oldest of them (the questions). */
+export function lastCounted<T>(items: T[], counts: (item: T) => boolean, keep = FREE_MEMORY): T[] {
+  let counted = 0
+  let start = items.length
+  for (let i = items.length - 1; i >= 0; i--) {
+    if (counts(items[i])) {
+      if (counted === keep) break
+      counted++
+    }
+    start = i
+  }
+  return items.slice(start)
+}
 // Page texts kept in a chat: each cut to this (the budget the server gives a chat's other pages), for
 // its last 10 pages (an answer in the app gets the chat's last page and up to MAX_APP_OTHER_PAGES others).
 export const MAX_SAVED_PAGE_CHARS = 8_000
@@ -301,7 +318,7 @@ export function entriesFrom(parsed: unknown): Entry[] | null {
  * other pages marked with that page so the model knows the current page content isn't what they were about.
  * `wholeChat`: every message that fits WHOLE_CHAT_CHARS, the user's notes marked as notes.
  */
-export function historyForModel(entries: Entry[], currentUrl: string, wholeChat = false): ChatTurn[] {
+export function historyForModel(entries: Entry[], currentUrl: string, wholeChat = false, free = false): ChatTurn[] {
   const turn = ({ role, content, page, note, marks }: Entry): ChatTurn => {
     // The user's highlights in an answer go as <mark>…</mark> (the rule is in the system prompt).
     const text = role === "assistant" && marks?.length ? markedContent(stripCitations(content), marks) : stripCitations(content)
@@ -309,6 +326,8 @@ export function historyForModel(entries: Entry[], currentUrl: string, wholeChat 
     if (note) return { role, content: `[Note the user wrote${elsewhere ? ` on another page: ${elsewhere}` : ""}]\n${text}` }
     return { role, content: elsewhere ? `[Asked on another page: ${elsewhere}]\n${text}` : text }
   }
+  // Free (build 92): the last answers and notes, the notes marked as notes.
+  if (!wholeChat && free) return lastCounted(entries, (e) => e.role === "assistant" || Boolean(e.note)).map(turn)
   if (!wholeChat) return entries.filter((e) => !e.note).slice(-MAX_HISTORY).map(turn)
   const turns: ChatTurn[] = []
   let size = 0
