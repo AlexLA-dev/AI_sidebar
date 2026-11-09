@@ -1490,6 +1490,9 @@
  "orgNameFailed": {
   "message": "今はチャットに名前を付けられませんでした。あとでもう一度お試しください。"
  },
+ "orgNameAs": {
+  "message": "チャット名を「{0}」にする"
+ },
  "recs_one": {
   "message": "おすすめ {0} 件"
  },

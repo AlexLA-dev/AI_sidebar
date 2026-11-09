@@ -1490,6 +1490,9 @@
  "orgNameFailed": {
   "message": "Non sono riuscito a dare un nome alla chat. Riprova più tardi."
  },
+ "orgNameAs": {
+  "message": "Chiama la chat «{0}»"
+ },
  "recs_one": {
   "message": "{0} consiglio"
  },

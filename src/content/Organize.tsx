@@ -57,9 +57,13 @@ export function panelSelectionStart(root: ShadowRoot): Node | null {
  * Under an answer or a note: what organizing suggests for it, dashed — one of the user's tags (a tap adds it) and,
  * under a block's last message, a better chat or a new one (a tap moves the block); ✕ turns either down.
  */
-export function OrganizeRow({ tag, move, quiet, onTag, onTagNo, onMove, onMoveNo }: {
+export function OrganizeRow({ tag, move, name, quiet, onTag, onTagNo, onMove, onMoveNo, onName, onNameNo }: {
   tag?: string
   move?: OrganizeMove
+  // 2.6 (91): a better name for the chat (under its last message); taken or turned down like the rest.
+  name?: string
+  onName?: () => void
+  onNameNo?: () => void
   // Text in this message is selected: the row steps aside (keeping its place) for the bubble by the selection.
   quiet?: boolean
   onTag: () => void
@@ -82,6 +86,14 @@ export function OrganizeRow({ tag, move, quiet, onTag, onTagNo, onMove, onMoveNo
             <Arrow /><span class="cf-org-text">{move.to ? withName("orgMoveTo", move.toName, messagesCount(move.count)) : withName("orgSplit", move.toName)}</span>
           </button>
           <button type="button" class="cf-org-x" onClick={onMoveNo} aria-label={t("orgNoA11y")}><Icon.Close /></button>
+        </span>
+      )}
+      {name && (
+        <span class="cf-org-chip move name">
+          <button type="button" class="cf-org-take" onClick={onName} aria-label={t("orgNameAs", name)}>
+            <Icon.Pencil /><span class="cf-org-text">{withName("orgNameAs", name)}</span>
+          </button>
+          <button type="button" class="cf-org-x" onClick={onNameNo} aria-label={t("orgNoA11y")}><Icon.Close /></button>
         </span>
       )}
     </div>

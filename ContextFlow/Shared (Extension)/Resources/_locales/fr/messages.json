@@ -1490,6 +1490,9 @@
  "orgNameFailed": {
   "message": "Je n’ai pas pu nommer la discussion pour l’instant. Réessayez plus tard."
  },
+ "orgNameAs": {
+  "message": "Nommer la discussion « {0} »"
+ },
  "recs_one": {
   "message": "{0} recommandation"
  },

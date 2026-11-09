@@ -5,7 +5,7 @@ import { activity, cleanTitle, liveThreads, namedByUser, moveEntries, newThreadI
 import { MAX_OTHER_PAGE_CHARS } from "../shared/prompt"
 import { planOfProduct, type Plan } from "../shared/plan"
 import { keepingAnswers, type Jobs } from "../shared/jobs"
-import { DEFAULT_SETTINGS, STORAGE, type Settings } from "../shared/types"
+import { DEFAULT_SETTINGS, STORAGE, type OrgNames, type Settings } from "../shared/types"
 
 
 async function get<T>(key: string): Promise<T | undefined> {
@@ -324,6 +324,15 @@ export async function nameThread(id: string, name: string, asked = false): Promi
   const before = { ...(stored.title ? { title: stored.title } : {}), ...(stored.aiTitle ? { aiTitle: stored.aiTitle } : {}) }
   await set(STORAGE.threads, { ...threads, [id]: { ...stored, u: Date.now(), a: activity(stored), title, aiTitle: title } })
   return before
+}
+
+/** A suggested name (2.6 (91)) taken or turned down: it isn't suggested again for the chat as it is. */
+export async function settleNameSuggestion(id: string, taken: boolean): Promise<void> {
+  const names = (await get<OrgNames>(STORAGE.orgNames)) ?? {}
+  const entry = names[id]
+  if (!entry?.title) return
+  const { title: _title, ...rest } = entry
+  await set(STORAGE.orgNames, { ...names, [id]: taken ? rest : { ...entry, no: true as const } })
 }
 
 /** Undo for nameThread: the names as they were, if the chat still has the AI's one. */

@@ -183,7 +183,21 @@ export function hostOf(url: string | null): string {
   }
 }
 
+// A chat's scored blocks, kept per message list and vector reader: the chats list's counts score every chat once, not
+// once per other chat (2.6 (91): that was the app's hang). Message lists are never changed in place.
+const scoredCache = new WeakMap<VectorOf, WeakMap<Entry[], ScoredBlock[]>>()
+
 export function scoredBlocks(entries: Entry[], vectorOf: VectorOf): ScoredBlock[] {
+  let byList = scoredCache.get(vectorOf)
+  if (!byList) scoredCache.set(vectorOf, (byList = new WeakMap()))
+  const hit = byList.get(entries)
+  if (hit) return hit
+  const out = scoreBlocks(entries, vectorOf)
+  byList.set(entries, out)
+  return out
+}
+
+function scoreBlocks(entries: Entry[], vectorOf: VectorOf): ScoredBlock[] {
   const times = entryTimes(entries)
   return pageBlocks(entries).map((b) => {
     const list = entries.slice(b.start, b.end + 1)
@@ -220,9 +234,17 @@ export interface MoveSuggestion {
 const RANK = { page: 0, site: 1, topic: 2, apart: 3 } as const
 
 /** True while move suggestions stay on in this chat: fewer than `rollback` refused since the last one taken. */
+// When a move out of each chat was last taken, per list of chats (read once for all of them).
+const takenCache = new WeakMap<Thread[], Map<string, number>>()
+
 export function movesAllowed(chat: Thread, all: Thread[], cfg: OrganizeConfig): boolean {
-  let taken = -Infinity
-  for (const t of all) for (const e of t.m) if (e.from?.chat === chat.id) taken = Math.max(taken, e.from.at)
+  let takenOf = takenCache.get(all)
+  if (!takenOf) {
+    takenOf = new Map()
+    for (const t of all) for (const e of t.m) if (e.from) takenOf.set(e.from.chat, Math.max(takenOf.get(e.from.chat) ?? -Infinity, e.from.at))
+    takenCache.set(all, takenOf)
+  }
+  const taken = takenOf.get(chat.id) ?? -Infinity
   const times = entryTimes(chat.m)
   let refused = 0
   for (const b of pageBlocks(chat.m)) {
@@ -309,6 +331,9 @@ function isMix(blocks: ScoredBlock[], cfg: OrganizeConfig): boolean {
  * and has more on it or, with one such block each, is the larger chat. Never into a mix, and of two chats one way.
  */
 function joins(b: ScoredBlock, from: Thread, to: { thread: Thread; blocks: ScoredBlock[] }, cfg: OrganizeConfig): boolean {
+  // Most of `to` is on `b`'s site (its pages, whatever each one is about): that site's chat (2.6 (91)).
+  const onSite = b.host ? to.blocks.filter((x) => x.host === b.host).length : 0
+  if (onSite * 2 > to.blocks.length) return onSite > 1 || larger(to.thread, from)
   if (isMix(to.blocks, cfg)) return false
   const there = shareOn(b, to.blocks, cfg)
   return there.share > 0.5 && (there.on > 1 || larger(to.thread, from))
@@ -343,6 +368,17 @@ function movePlace(
       .sort((a, z) => activity(z.thread) - activity(a.thread))[0]
     if (there) return { to: there.thread.id, why: "page", score: 1, current: 0 }
   }
+  // A chat of one block on a site (a note, a question) joins the chat with the most of that site, when more than half
+  // of it is that site and the block isn't about something else entirely there (2.6 (91): a note's chat joins the
+  // chat with the questions about that site). A short note says too little to be judged by its words: its site will do.
+  const sites = b.host && !rest.some((x) => x.host === b.host)
+    ? others.map((o) => ({ o, on: o.blocks.filter((x) => x.host === b.host).length })).filter(({ o, on }) => on >= 2 && on * 2 >= o.blocks.length)
+    : []
+  if (!rest.length) {
+    const home = sites.filter(({ o, on }) => on * 2 > o.blocks.length).sort((a, z) => z.on - a.on || (larger(a.o.thread, z.o.thread) ? -1 : 1))[0]
+    const vs = home ? home.o.blocks.filter((x) => x.v).map((x) => ({ v: x.v! })) : []
+    if (home && (!b.v || !vs.length || topMean(b.v, vs, 2) >= cfg.siteT)) return { to: home.o.thread.id, why: "site", score: 1, current: 0 }
+  }
   // Below, the block has to say enough.
   if (!b.v || b.weak) return null
   // The fit to its own chat: its blocks outside the window, else all its other blocks.
@@ -350,11 +386,8 @@ function movePlace(
   const base = (outside.length ? outside : rest.filter((x) => x.v)).map((x) => ({ v: x.v! }))
   const current = topMean(b.v, base, 2)
   // The same site: one other chat is about it (half its blocks or more, two at least), this one isn't.
-  if (b.host && !rest.some((x) => x.host === b.host)) {
-    const about = others.filter((o) => {
-      const on = o.blocks.filter((x) => x.host === b.host).length
-      return on >= 2 && on * 2 >= o.blocks.length
-    })
+  if (sites.length) {
+    const about = sites.map(({ o }) => o)
     if (about.length === 1 && goesTo(b, rest, chat, about[0], cfg)) {
       const vs = about[0].blocks.filter((x) => x.v).map((x) => ({ v: x.v! }))
       const score = topMean(b.v, vs, 2)

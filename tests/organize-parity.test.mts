@@ -342,6 +342,18 @@ suggestions.push(
   { op: "wantsNameCheck", chat: { ...service, title: "Theirs", aiTitle: "Theirs", ait: "Theirs" } },
   { op: "wantsNameCheck", chat: history(service) }
 )
+// 2.6 (91): a one-block chat on a site joins the chat with the most of that site (a short note by its site alone);
+// not a chat about something else on one video site; of two site chats, the one with more of it.
+const cfSite = thread("cfsite", [...qa("cf", "https://context-flow.example/"), ...qa("cf", "https://context-flow.example/pricing"), ...qa("cf", "https://context-flow.example/support")])
+const cfSmall = thread("cfsmall", [...qa("cf", "https://context-flow.example/blog"), ...qa("cf", "https://context-flow.example/faq")])
+const changelog = thread("changelog", [noteOn("cf", "https://context-flow.example/changelog", "Release notes")])
+move(changelog, [cfSite, cfSmall, changelog])
+move(changelog, [cfSmall, changelog])
+move(changelog, [cfSite, changelog], { vectors: {} })
+move(cfSite, [cfSite, changelog])
+const videoCars = thread("videocars", [...qa("cars", "https://video.example/1"), ...qa("cars", "https://video.example/2")])
+const borsch = thread("borsch", [noteOn("borsch", "https://video.example/3", "Try this borsch recipe with smoked pears on Sunday, for the guests")])
+move(borsch, [videoCars, borsch])
 // Short questions, moved-in and turned-down blocks get nothing.
 const thanks: Entry[] = [{ role: "user", content: "ok thanks", id: "ok", t: 1_999_999 }, { role: "assistant", content: "You're welcome", id: "ok2", t: 1_999_999 }]
 table.ok = vectorFor("japan")
