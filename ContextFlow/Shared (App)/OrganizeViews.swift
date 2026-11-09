@@ -696,6 +696,7 @@ nonisolated enum DebugHangLog {
     static let url = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!.appendingPathComponent("cf-hangs.log")
     private static let queue = DispatchQueue(label: "cf.hanglog")
     nonisolated(unsafe) private static var started = false
+    nonisolated(unsafe) static var openScheduled = false
 
     static func start() {
         guard on else { return }

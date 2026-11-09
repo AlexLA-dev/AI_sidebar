@@ -615,6 +615,16 @@ final class ChatLibrary: ObservableObject {
             }
             _ = ChatMirror.apply(saves: saves)
         }
+        // -CFDebugOpenChat <id> -CFDebugOpenAfter <s>: that chat opens after so many seconds (its first answer), as a tap
+        // on it would; the hang log has when it was asked for and when it showed.
+        if let id = UserDefaults.standard.string(forKey: "CFDebugOpenChat"), !DebugHangLog.openScheduled {
+            DebugHangLog.openScheduled = true
+            let after = max(1, UserDefaults.standard.double(forKey: "CFDebugOpenAfter"))
+            DispatchQueue.main.asyncAfter(deadline: .now() + after) {
+                DebugHangLog.mark("request \(id)")
+                ChatLinks.shared.pending = (id, id.replacingOccurrences(of: "debug-many-", with: "da") + "-0")
+            }
+        }
         #endif
         reload()
         guard syncOn else {
