@@ -1,5 +1,6 @@
 import { config } from "./config.mts"
 import { isReasoningGpt } from "../../src/shared/models.ts"
+import { lastCounted } from "../../src/shared/conversation.ts"
 import { MAX_ATTACHMENTS, mediaKinds, type Attachment, type MediaKind } from "../../src/shared/attachments.ts"
 import { MAX_MEDIA_PAGE_CHARS, MAX_OTHER_PAGE_CHARS, MAX_OTHER_PAGES, MAX_PAGE_CHARS, systemPrompt, systemPromptParts, type PageContext } from "../../src/shared/prompt.ts"
 
@@ -31,6 +32,14 @@ export function sanitizeMessages(raw: unknown, wholeChat = false): ChatMessage[]
     while (size > MAX_CHAT_CHARS && messages.length > 1) size -= messages.shift()!.content.length
   }
   return messages
+}
+
+/**
+ * What a free answer remembers (build 92): the last 5 answers and notes, with the questions among them and the one asked
+ * now. A note comes as a user message marked by the panel ("[Note the user wrote…").
+ */
+export function freeMemory(messages: ChatMessage[]): ChatMessage[] {
+  return lastCounted(messages, (m) => m.role === "assistant" || m.content.startsWith("[Note the user wrote"))
 }
 
 /** Other pages of the conversation sent with "whole chat": `max` of them, each cut to a budget. */
