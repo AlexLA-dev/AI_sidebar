@@ -591,9 +591,11 @@ final class ListenPlayer: NSObject, ObservableObject {
         guard moved > 0, Double(moved) <= Self.rate * 1.5 else { return }
         guard let part = partRanges.last(where: { $0.start <= sample - 1 && sample - 1 < $0.end }) else { return }
         let before = heardByKey[part.key] ?? 0
-        heardByKey[part.key] = before + Double(moved) / Self.rate
-        // A part heard to its end: kept now, so it counts even if the app goes away.
+        let after = before + Double(moved) / Self.rate
+        heardByKey[part.key] = after
+        // A part heard to its end, or every 10 s of one: kept now, so it counts even if the app is closed while it plays.
         if let previous = partRanges.last(where: { $0.start <= last && last < $0.end }), previous.key != part.key { keepHeard() }
+        else if Int(after / 10) != Int(before / 10) { keepHeard() }
     }
 
     /// Into the store the server is told from (by part key; it counts a part once, up to its length).
