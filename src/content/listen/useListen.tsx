@@ -62,8 +62,15 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: 
   useEffect(() => void listenSpeed().then(setSpeedState), [])
   const run = useRef<{
     port: chrome.runtime.Port; player: PcmPlayer; timer: ReturnType<typeof setInterval>; ended: boolean; key: string; total: number; told: number
-    // The audio received when the next part was last asked for (build 92: asked for only when it runs short).
+    // The audio received when the next part was last asked for (build 92: asked for only when it runs short), and whether
+    // a part is still coming (its pieces make what's in hand look short: no "more" until it has all come).
     more?: number
+    fetching?: boolean
+    // Seconds heard of each part (by index), the part being heard, and where the last tick was (build 92: the week's
+    // minutes count what's heard).
+    heard?: Record<number, number>
+    heardPart?: number
+    lastPos?: number
     // iPhone and iPad with notifications: leaving the page, coming back, and what the app is told meanwhile.
     cleanup?: () => void
     handoff?: { parts: (parts: string[], complete: boolean) => void; tick: () => void; paused: () => void; resumed: () => void; moved: () => void }
@@ -111,6 +118,8 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: 
       current.cleanup?.()
       clearInterval(current.timer)
       try {
+        // What was heard of each part, then the stop (the background sends it to the server).
+        if (current.heard) current.port.postMessage({ type: "heard", heard: { ...current.heard } } satisfies SpeakIn)
         current.port.postMessage({ type: "stop", heard: current.player.position } satisfies SpeakIn)
         current.port.disconnect()
       } catch {
@@ -177,7 +186,8 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: 
     await player.unlock()
     const port = chrome.runtime.connect({ name: "speak" })
     const total = speechSeconds(text)
-    const current: NonNullable<typeof run.current> = { port, player, ended: false, key, total, told: -1, timer: setInterval(() => tick(), 250) }
+    // The first part is asked for at once (it's coming until its end).
+    const current: NonNullable<typeof run.current> = { port, player, ended: false, key, total, told: -1, timer: setInterval(() => tick(), 250), fetching: true }
     current.clock = (on) => {
       clearInterval(current.timer)
       if (on) current.timer = setInterval(() => tick(), 250)
@@ -207,6 +217,8 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: 
         away.gone = true
         player.pause()
         current.clock?.(false)
+        // What was heard here so far (the app counts what it plays from this second).
+        if (current.heard) port.postMessage({ type: "heard", heard: { ...current.heard } } satisfies SpeakIn)
         // The clock is off: the bar is told itself (it showed Pause while the page was away).
         setState((s) => (s.at === "playing" ? { ...s, at: "paused" } : s))
         tell("away")
@@ -263,6 +275,18 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: 
     function tick() {
       if (run.current !== current) return
       current.handoff?.tick()
+      // Heard, part by part: the position moving on by about a tick's worth while it plays (a seek or a wait isn't).
+      const pos = player.position
+      const moved = pos - (current.lastPos ?? 0)
+      current.lastPos = pos
+      if (!player.paused && moved > 0 && moved <= 1.5 && player.received > 0) {
+        const heardPart = Math.max(0, player.part)
+        current.heard = current.heard ?? {}
+        current.heard[heardPart] = (current.heard[heardPart] ?? 0) + moved
+        // A part heard to its end (the next one began): told now, so it counts even if the page goes.
+        if (current.heardPart !== undefined && current.heardPart !== heardPart) port.postMessage({ type: "heard", heard: { ...current.heard } } satisfies SpeakIn)
+        current.heardPart = heardPart
+      }
       const part = player.part
       if (part > current.told) {
         current.told = part
@@ -270,9 +294,10 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: 
       }
       // The next part is asked for only when what's in hand runs short (about 8 s of listening left, at any speed): a
       // text stopped early never costs minutes for parts nobody heard (build 92).
-      if (!current.ended && !player.paused && player.received > 0 && player.received !== current.more
+      if (!current.ended && !current.fetching && !player.paused && player.received > 0 && player.received !== current.more
         && (player.received - player.position) < 8 * speedRef.current + 4) {
         current.more = player.received
+        current.fetching = true
         port.postMessage({ type: "more" } satisfies SpeakIn)
       }
       if (current.ended && player.drained && player.received > 0) {
@@ -300,6 +325,7 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: 
       else if (message.type === "chunk") player.push(message.part, message.data)
       else if (message.type === "aac") player.pushAac(message.part, message.data)
       else if (message.type === "parts") current.handoff?.parts(message.parts, message.complete)
+      else if (message.type === "partEnd") current.fetching = false
       else if (message.type === "end") {
         current.ended = true
         player.end()
@@ -350,6 +376,8 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: 
     const current = run.current
     if (!current) return
     current.player.seek(seconds)
+    // A seek isn't heard.
+    current.lastPos = current.player.position
     current.handoff?.moved()
     const position = current.player.position
     setState((s) => (s.at === "playing" || s.at === "paused" ? { ...s, position } : s))

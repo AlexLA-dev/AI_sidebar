@@ -109,6 +109,11 @@ final class ListenPlayer: NSObject, ObservableObject {
     /// charged up front, and how far it was heard: reported when it stops (build 92, minutes charged against heard).
     private var counts = (cache: 0.0, icloud: 0.0, server: 0.0, charged: 0.0)
     private var heardTo: Double = 0
+    /// Each part's samples here (its key on the devices and the server), and the seconds heard of each (build 92: the
+    /// week's minutes count what's heard; HeardStore keeps them until the server has).
+    private var partRanges: [(key: String, start: Int, end: Int)] = []
+    private var heardByKey: [String: Double] = [:]
+    private var lastHeardSample: Int?
     /// The player's own clock (samples since play from startSample): where the scheduled audio ends on it, and the
     /// silence it ran through while waiting for the next part. Without it a wait counted as heard: the clock ran
     /// ahead and playing stopped early, cutting the end off (2.6, seen with the text written for the ear).
@@ -406,7 +411,12 @@ final class ListenPlayer: NSObject, ObservableObject {
     }
 
     func stop() {
+        keepHeard()
+        Task { await Self.sendHeard() }
         reportHeard()
+        partRanges = []
+        heardByKey = [:]
+        lastHeardSample = nil
         waitTask?.cancel()
         waitTask = nil
         fetchTask?.cancel()
@@ -462,6 +472,7 @@ final class ListenPlayer: NSObject, ObservableObject {
     }
 
     func pause() {
+        keepHeard()
         pausedAt = playerNow() ?? pausedAt
         node.pause()
         // Paused, nothing runs: the engine stops pulling silence (the phone stays cool and the app can sleep).
@@ -570,6 +581,38 @@ final class ListenPlayer: NSObject, ObservableObject {
         }
         fetchedAll = true
         startSkippedIfShort()
+    }
+
+    /// What's heard, part by part: the position moving on by about a tick's worth while it plays (a seek or a wait isn't).
+    private func noteHeard(at sample: Int) {
+        defer { lastHeardSample = sample }
+        guard state == .playing, let last = lastHeardSample else { return }
+        let moved = sample - last
+        guard moved > 0, Double(moved) <= Self.rate * 1.5 else { return }
+        guard let part = partRanges.last(where: { $0.start <= sample - 1 && sample - 1 < $0.end }) else { return }
+        let before = heardByKey[part.key] ?? 0
+        heardByKey[part.key] = before + Double(moved) / Self.rate
+        // A part heard to its end: kept now, so it counts even if the app goes away.
+        if let previous = partRanges.last(where: { $0.start <= last && last < $0.end }), previous.key != part.key { keepHeard() }
+    }
+
+    /// Into the store the server is told from (by part key; it counts a part once, up to its length).
+    private func keepHeard() {
+        for (key, seconds) in heardByKey { HeardStore.note(key, seconds) }
+    }
+
+    /// What's waiting goes to the server (when a text stops, and at launch for what didn't go); the minutes shown follow.
+    static func sendHeard() async {
+        let items = HeardStore.items()
+        guard !items.isEmpty, let request = try? ChatAI.heardRequest(items),
+              let (data, response) = try? await URLSession.shared.data(for: request),
+              (response as? HTTPURLResponse)?.statusCode == 200 else { return }
+        HeardStore.counted(items)
+        if let body = try? JSONSerialization.jsonObject(with: data) as? [String: Any], let usage = body["usage"] as? [String: Any],
+           let used = usage["used"] as? Int, let limit = usage["limit"] as? Int {
+            lastUsage = (used, limit)
+            shared.secondsLeft = max(0, limit - used)
+        }
     }
 
     /// Where the minutes went for this text, once, when it stops: heard, from where, and charged up front.
@@ -694,6 +737,9 @@ final class ListenPlayer: NSObject, ObservableObject {
     /// again twice before it counts.
     private func speakPart(_ part: String, index: Int, request: ListenRequest) async -> Spoken {
         let key = Self.cacheKey(part, request.lang)
+        // Where this part starts here (what's heard of it counts by its key).
+        partRanges.append((key: key, start: samples.count, end: Int.max))
+        defer { if let last = partRanges.indices.last, partRanges[last].key == key { partRanges[last].end = samples.count } }
         if let cached = SpeechCache.read(key) {
             counts.cache += Double(cached.count / 2) / Self.rate
             append(cached)
@@ -713,7 +759,8 @@ final class ListenPlayer: NSObject, ObservableObject {
             return .ok
         }
         if Task.isCancelled { return .stop }
-        guard let urlRequest = try? ChatAI.speechRequest(text: part, lang: request.lang, what: request.what, part: index, parts: max(request.parts.count, index + 1), model: textModel) else {
+        let heardNow = HeardStore.items()
+        guard let urlRequest = try? ChatAI.speechRequest(text: part, lang: request.lang, what: request.what, part: index, parts: max(request.parts.count, index + 1), model: textModel, heard: heardNow) else {
             return .fallBack(.appleVoice)
         }
         var outcome: Download = .failed
@@ -732,6 +779,13 @@ final class ListenPlayer: NSObject, ObservableObject {
             partSkip = partGiven
             outcome = await Self.download(urlRequest) { [weak self] chunk in
                 await self?.receive(chunk)
+            }
+            // The server counted what went with it (on a part or a refusal for the week's minutes).
+            if !heardNow.isEmpty {
+                switch outcome {
+                case .done, .refused(402, _): HeardStore.counted(heardNow)
+                default: break
+                }
             }
             if Task.isCancelled { return .stop }
             switch outcome {
@@ -1009,6 +1063,7 @@ final class ListenPlayer: NSObject, ObservableObject {
             let heard = max(0, min(now, playerEnd) - gapFrames)
             elapsed = base + min(Double(samples.count) / Self.rate, Double(startSample + Int(heard)) / Self.rate)
             heardTo = max(heardTo, elapsed)
+            noteHeard(at: startSample + Int(heard))
             drained = now >= playerEnd
         }
         if drained, state == .playing {
@@ -1214,6 +1269,35 @@ final class ListenPlayer: NSObject, ObservableObject {
 
 /// The parts already spoken and the texts written for the ear, in Caches (the system may clear them; then they're asked
 /// for again): about 25 minutes of audio, nothing older than 7 days; gone with the chats ("Delete all chats").
+/// Read aloud's seconds heard, by part key, until the server has counted them (build 92: the week's minutes count what's
+/// heard). They go with the next part asked for, on their own when a text stops, and again at the next launch if they
+/// didn't; the server counts a part once, up to its length, so sending again never charges twice.
+enum HeardStore {
+    private static let key = "cf_listen_heard"
+
+    static func note(_ part: String, _ seconds: Double) {
+        var map = UserDefaults.standard.dictionary(forKey: key) as? [String: Double] ?? [:]
+        guard seconds > (map[part] ?? 0) else { return }
+        map[part] = (seconds * 10).rounded() / 10
+        UserDefaults.standard.set(map, forKey: key)
+    }
+
+    static func items() -> [[String: Any]] {
+        let map = UserDefaults.standard.dictionary(forKey: key) as? [String: Double] ?? [:]
+        return map.prefix(80).map { ["key": $0.key, "s": $0.value] }
+    }
+
+    /// Takes out what the server counted (only where nothing more was heard meanwhile).
+    static func counted(_ sent: [[String: Any]]) {
+        var map = UserDefaults.standard.dictionary(forKey: key) as? [String: Double] ?? [:]
+        for item in sent {
+            guard let part = item["key"] as? String, let seconds = item["s"] as? Double else { continue }
+            if (map[part] ?? 0) <= seconds { map.removeValue(forKey: part) }
+        }
+        UserDefaults.standard.set(map, forKey: key)
+    }
+}
+
 enum SpeechCache {
     private static let limit = 75 * 1024 * 1024
     private static let maxAge: TimeInterval = 7 * 86_400

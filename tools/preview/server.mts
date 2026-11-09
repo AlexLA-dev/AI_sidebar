@@ -399,6 +399,7 @@ const organize = (await import("../../netlify/functions/v2-organize.mts")).defau
 const watch = (await import("../../netlify/functions/v2-watch.mts")).default
 const localSpeak = (await import("../../netlify/functions/v2-speak.mts")).default
 const localScript = (await import("../../netlify/functions/v2-speak-script.mts")).default
+const speakHeard = (await import("../../netlify/functions/v2-speak-heard.mts")).default
 // Read aloud with the real voices (and the real text for listening): the deploy preview answers, this stand signs each
 // request as Ultra for it.
 const proxied = async (path: string, base = process.env.SPEAK_PROXY): Promise<typeof chat | null> => {
@@ -438,7 +439,7 @@ const statusLate: typeof chat = (async (req: Request, context: Parameters<typeof
   if (STATUS_DELAY_MS) await new Promise((r) => setTimeout(r, STATUS_DELAY_MS))
   return status(req, context)
 }) as typeof chat
-const handlers: Record<string, typeof chat> = { "/api/v2/speak": speak, "/api/v2/speak-script": speakScript, "/api/v2/chat": chat, "/api/v2/status": statusLate, "/api/v2/event": event, "/api/v2/find": find, "/api/v2/promo": promo, "/api/v2/insert": insert, "/api/v2/organize": organizeAny, "/api/v2/watch": watch }
+const handlers: Record<string, typeof chat> = { "/api/v2/speak": speak, "/api/v2/speak-script": speakScript, "/api/v2/speak-heard": speakHeard, "/api/v2/chat": chat, "/api/v2/status": statusLate, "/api/v2/event": event, "/api/v2/find": find, "/api/v2/promo": promo, "/api/v2/insert": insert, "/api/v2/organize": organizeAny, "/api/v2/watch": watch }
 
 // Page watch's test shop (2.5): /shop shows a mug whose price and stock /shop-set changes
 // (/shop-set?price=39&stock=OutOfStock), /shop-js draws the price with a script (the background sees none, the
@@ -605,12 +606,18 @@ createServer(async (req, res) => {
     const response = await handler(request, { ip: "127.0.0.1", waitUntil: () => undefined } as any)
     res.writeHead(response.status, Object.fromEntries(response.headers))
     let bytes = 0
+    // Read aloud's minutes as the server counts them (build 92: what's heard), for the stand's log.
+    const heardReply: Buffer[] = []
     if (response.body) for await (const c of response.body as any) {
       bytes += c.length
       res.write(c)
+      if (url.pathname === "/api/v2/speak-heard") heardReply.push(Buffer.from(c))
     }
     res.end()
-    if (process.env.STAND_LOG === "1") console.log(`${new Date().toISOString().slice(11, 19)} ${url.pathname} ${response.status} ${bytes} B ${Date.now() - t0} ms`)
+    if (process.env.STAND_LOG === "1") {
+      const usage = response.headers.get("X-CF-Usage") ?? (heardReply.length ? Buffer.concat(heardReply).toString() : "")
+      console.log(`${new Date().toISOString().slice(11, 19)} ${url.pathname} ${response.status} ${bytes} B ${Date.now() - t0} ms${usage ? ` ${usage}` : ""}`)
+    }
     return
   }
   // The audit's pages (2.5): fields whose site keeps its own buttons inside them (a search like Amazon's, a

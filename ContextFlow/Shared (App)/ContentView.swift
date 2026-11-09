@@ -208,6 +208,8 @@ struct ContentView: View {
                 Task.detached(priority: .background) {
                     await SpeechSync.sweep()
                     await SpeechSync.uploadPending()
+                    // What was heard and not counted yet (the app closed offline): to the server now.
+                    await ListenPlayer.sendHeard()
                 }
                 chats.refresh()
                 showWhatsNewIfDue()

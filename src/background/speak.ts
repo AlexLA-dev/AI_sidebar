@@ -38,6 +38,8 @@ export type SpeakIn =
   | { type: "more" }
   // heard: seconds of audio heard, for the report of where the minutes went.
   | { type: "stop"; heard?: number }
+  // Seconds heard of each part so far (by the part's index): the week's minutes count these (build 92).
+  | { type: "heard"; heard: Record<number, number> }
 
 /** Background → panel. */
 export type SpeakOut =
@@ -69,6 +71,75 @@ function openDb(): Promise<IDBDatabase> {
     req.onsuccess = () => resolve(req.result)
     req.onerror = () => reject(req.error)
   })
+}
+
+// ---- what's heard (build 92, the owner: "30 s heard is 30 s off") ---------------------------------------------------
+// Seconds heard per part key (the server's too: sha256 of "v1|<language>|<text>"), kept until the server has counted
+// them: they go with the next part asked for, or on their own when a text stops, and again at the next start if they
+// didn't. The server counts a part once, up to its length, so sending again never charges twice.
+const HEARD = "cf:speakHeard"
+
+async function pendingHeard(): Promise<Record<string, number>> {
+  try {
+    const stored = (await chrome.storage.local.get(HEARD))[HEARD] as Record<string, number> | undefined
+    return stored && typeof stored === "object" ? stored : {}
+  } catch {
+    return {}
+  }
+}
+
+// Every change to the stored map goes through this one queue (each reads, then writes, the whole map).
+let heardLane: Promise<unknown> = Promise.resolve()
+function changeHeard(change: (map: Record<string, number>) => boolean): Promise<void> {
+  const run = heardLane.then(async () => {
+    const map = await pendingHeard()
+    if (!change(map)) return
+    try {
+      await chrome.storage.local.set({ [HEARD]: map })
+    } catch {
+      // No storage (a test).
+    }
+  })
+  heardLane = run.catch(() => undefined)
+  return run
+}
+
+const noteHeard = (key: string, seconds: number) =>
+  changeHeard((map) => {
+    if (seconds <= (map[key] ?? 0)) return false
+    map[key] = Math.round(seconds * 10) / 10
+    return true
+  })
+
+/** Takes out what the server has counted (only where nothing more was heard meanwhile). */
+const heardCounted = (sent: Record<string, number>) =>
+  changeHeard((map) => {
+    for (const [key, s] of Object.entries(sent)) if ((map[key] ?? 0) <= s) delete map[key]
+    return true
+  })
+
+/** The map once the writes queued before have landed. */
+const heardNow = () => heardLane.then(pendingHeard)
+
+const heardItems = (map: Record<string, number>) => Object.entries(map).slice(0, 80).map(([key, s]) => ({ key, s }))
+
+/** Sends what's waiting to /api/v2/speak-heard; the week's minutes as the server now counts them, or null. */
+async function sendHeard(deps: SpeakDeps): Promise<Usage | null> {
+  const map = await heardNow()
+  if (!Object.keys(map).length) return null
+  try {
+    const [installId, client, jws] = await Promise.all([deps.installId(), deps.client(), deps.jws()])
+    const res = await fetch(`${API_BASE}/api/v2/speak-heard`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ installId, client, entitlement: jws, items: heardItems(map) })
+    })
+    if (!res.ok) return null
+    await heardCounted(map)
+    return ((await res.json().catch(() => null)) as { usage?: Usage | null } | null)?.usage ?? null
+  } catch {
+    return null
+  }
 }
 
 async function speechKey(text: string, lang: string): Promise<string> {
@@ -318,17 +389,23 @@ export function serveSpeak(port: chrome.runtime.Port, deps: SpeakDeps): void {
   const download = async (part: number, text: string, skip: number): Promise<Downloaded> => {
     controller = new AbortController()
     let res: Response
+    // What's been heard and not counted yet goes with the part (counted before the server decides).
+    const heard = await heardNow()
     try {
       const [installId, client, jws] = await Promise.all([deps.installId(), deps.client(), deps.jws()])
       res = await fetch(`${API_BASE}/api/v2/speak`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ installId, client, entitlement: jws, text, lang, what, part, parts: parts.length, ...(textModel ? { model: textModel } : {}) }),
+        body: JSON.stringify({
+          installId, client, entitlement: jws, text, lang, what, part, parts: parts.length, ...(textModel ? { model: textModel } : {}),
+          ...(Object.keys(heard).length ? { heard: heardItems(heard) } : {})
+        }),
         signal: controller.signal
       })
     } catch {
       return { ok: false, code: "NETWORK", sent: skip }
     }
+    if (res.ok || res.status === 402) void heardCounted(heard)
     if (res.ok && !textModel) textModel = res.headers.get("X-CF-Model") ?? ""
     if (res.ok) counts.charged += Number(res.headers.get("X-CF-Charged") ?? 0) || 0
     if (res.ok) voice = res.headers.get("X-CF-Voice") || voice
@@ -385,6 +462,8 @@ export function serveSpeak(port: chrome.runtime.Port, deps: SpeakDeps): void {
   port.onMessage.addListener((raw: unknown) => {
     const message = raw as SpeakIn
     if (message.type === "play") {
+      // Heard before and not counted (a text stopped offline, the browser closed): sent again now.
+      void sendHeard(deps)
       const text = String(message.text ?? "").slice(0, 24_000)
       lang = String(message.lang ?? "").slice(0, 16)
       what = message.what === "page" ? "page" : "answer"
@@ -413,11 +492,18 @@ export function serveSpeak(port: chrome.runtime.Port, deps: SpeakDeps): void {
     } else if (message.type === "more") {
       allowed = Math.max(allowed, next)
       void pump()
+    } else if (message.type === "heard") {
+      const forParts = message.heard && typeof message.heard === "object" ? Object.entries(message.heard) : []
+      void Promise.all(forParts.map(async ([index, seconds]) => {
+        const text = parts[Number(index)]
+        if (typeof text === "string" && typeof seconds === "number" && seconds > 0) await noteHeard(await speechKey(text, lang), seconds)
+      }))
     } else if (message.type === "stop") {
       stopped = true
       controller?.abort()
       scriptAbort.abort()
       report(typeof message.heard === "number" ? message.heard : null)
+      void settleHeard()
     }
   })
   port.onDisconnect.addListener(() => {
@@ -425,5 +511,13 @@ export function serveSpeak(port: chrome.runtime.Port, deps: SpeakDeps): void {
     controller?.abort()
     scriptAbort.abort()
     report(null)
+    void settleHeard()
   })
+  // When a text stops: what was heard goes to the server now (its "heard" message comes just before), and the minutes
+  // shown follow.
+  const settleHeard = async () => {
+    await new Promise((resolve) => setTimeout(resolve, 300))
+    const usage = await sendHeard(deps)
+    if (usage) post({ type: "usage", usage })
+  }
 }
