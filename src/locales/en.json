@@ -517,6 +517,7 @@
   "orgNameChat": "Name by topic",
   "orgNamed": "Named “{0}”",
   "orgNameFailed": "I couldn't name this chat just now. Try again later.",
+  "orgNameAs": "Name it “{0}”",
   "recs_one": "{0} recommendation",
   "recs_two": "{0} recommendations",
   "recs_few": "{0} recommendations",
@@ -623,6 +624,7 @@
   "listenNotifyOn": "Turn on notifications",
   "listenNotifyLater": "Not now",
   "listenTaken": "Playing in the ContextFlow app.",
+  "listenSeek": "Position in the audio",
   "watchFullPro": "On Pro you can watch {0} pages at once. Ultra watches up to {1}.",
   "watchMoreUltra": "More with Ultra",
   "seeUltra": "See Ultra",
@@ -730,7 +732,7 @@
   "similarPerMonth": "{0}/month",
   "similarPerYear": "{0}/year",
   "offerMemoryTitle": "Pro remembers the whole chat",
-  "offerMemoryBody": "A free answer sees the last {0} messages of a chat. With Pro the AI remembers all of it: every message, your notes and the pages you asked about.",
-  "offerMemoryLong": "This chat is longer than the {0} messages a free answer remembers. With Pro the AI remembers all of it: every message, your notes and the pages you asked about.",
+  "offerMemoryBody": "A free answer remembers the last {0} answers and notes of a chat. With Pro the AI remembers all of it: every message, your notes and the pages you asked about.",
+  "offerMemoryLong": "This chat has more than the {0} answers and notes a free answer remembers. With Pro the AI remembers all of it: every message, your notes and the pages you asked about.",
   "offerRetryAt": "Answers are back at {0}."
 }

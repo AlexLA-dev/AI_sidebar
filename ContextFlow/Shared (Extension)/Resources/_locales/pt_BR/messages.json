@@ -1490,6 +1490,9 @@
  "orgNameFailed": {
   "message": "Não consegui nomear a conversa agora. Tente de novo mais tarde."
  },
+ "orgNameAs": {
+  "message": "Chamar a conversa de “{0}”"
+ },
  "recs_one": {
   "message": "{0} recomendação"
  },
@@ -2081,6 +2084,9 @@
  "listenTaken": {
   "message": "Tocando no app ContextFlow."
  },
+ "listenSeek": {
+  "message": "Posição no áudio"
+ },
  "plansUpgrade": {
   "message": "Mudar para o {0}"
  },
@@ -2115,10 +2121,10 @@
   "message": "O Pro lembra o chat inteiro"
  },
  "offerMemoryBody": {
-  "message": "Uma resposta gratuita vê as últimas {0} mensagens de um chat. Com o Pro, a IA lembra dele inteiro: cada mensagem, suas notas e as páginas sobre as quais você perguntou."
+  "message": "Uma resposta gratuita lembra as últimas {0} respostas e notas de um chat. Com o Pro, a IA lembra dele inteiro: cada mensagem, suas notas e as páginas sobre as quais você perguntou."
  },
  "offerMemoryLong": {
-  "message": "Este chat passou das {0} mensagens que uma resposta gratuita lembra. Com o Pro, a IA lembra dele inteiro: cada mensagem, suas notas e as páginas sobre as quais você perguntou."
+  "message": "Este chat tem mais do que as {0} respostas e notas que uma resposta gratuita lembra. Com o Pro, a IA lembra dele inteiro: cada mensagem, suas notas e as páginas sobre as quais você perguntou."
  },
  "offerRetryAt": {
   "message": "As respostas voltam às {0}."

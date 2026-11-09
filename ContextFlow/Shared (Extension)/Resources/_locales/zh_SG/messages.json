@@ -1490,6 +1490,9 @@
  "orgNameFailed": {
   "message": "暂时无法为对话命名，请稍后再试。"
  },
+ "orgNameAs": {
+  "message": "将对话命名为“{0}”"
+ },
  "recs_one": {
   "message": "{0} 条建议"
  },
@@ -2081,6 +2084,9 @@
  "listenTaken": {
   "message": "正在 ContextFlow App 中播放。"
  },
+ "listenSeek": {
+  "message": "播放位置"
+ },
  "plansUpgrade": {
   "message": "升级到 {0}"
  },
@@ -2115,10 +2121,10 @@
   "message": "Pro 记住整个对话"
  },
  "offerMemoryBody": {
-  "message": "免费回答只看对话的最近 {0} 条消息。使用 Pro，AI 会记住整个对话：每条消息、你的笔记和你提问过的页面。"
+  "message": "免费回答只记住对话中最近的 {0} 条回答和笔记。使用 Pro，AI 会记住整个对话：每条消息、你的笔记和你提问过的页面。"
  },
  "offerMemoryLong": {
-  "message": "这个对话已超过免费回答能记住的 {0} 条消息。使用 Pro，AI 会记住整个对话：每条消息、你的笔记和你提问过的页面。"
+  "message": "这个对话的回答和笔记已超过免费回答能记住的 {0} 条。使用 Pro，AI 会记住整个对话：每条消息、你的笔记和你提问过的页面。"
  },
  "offerRetryAt": {
   "message": "回答将在 {0} 恢复。"

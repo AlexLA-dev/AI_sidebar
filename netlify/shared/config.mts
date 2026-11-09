@@ -97,6 +97,9 @@ export const config = {
     // Room over the week's minutes for a text that's already playing (its later parts), so it never ends in another voice.
     speakFinishSeconds: int("ULTRA_SPEAK_FINISH_SECONDS", 300),
     speakGlobalDailySeconds: int("SPEAK_GLOBAL_DAILY_SECONDS", 200_000),
+    // Audio made a week per subscription, as a share of the allowance (build 92: the allowance counts what's heard;
+    // parts made ahead, never heard, repeats and hand-offs are ours, up to this).
+    speakMadePercent: int("ULTRA_SPEAK_MADE_PERCENT", 150),
     // Find similar's daily safety caps (per install, for everyone) belong to its engine (config.similar, /api/v2/similar).
     similarWeekly: int("ULTRA_SIMILAR_WEEKLY", ULTRA_DEFAULTS.similarWeekly)
   },

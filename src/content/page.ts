@@ -2,6 +2,7 @@ import { Readability } from "@mozilla/readability"
 
 import { urlKey } from "../shared/conversation"
 import { MAX_PAGE_CHARS } from "../shared/prompt"
+import { appLink, type PaidPlan, type Period } from "../shared/plan"
 import type { Platform } from "../shared/types"
 import { shadowSelection } from "./selectionShadow"
 import { unfoldCollapsed } from "./unfold"
@@ -19,6 +20,33 @@ export function detectPlatform(target: "safari" | "chrome"): Platform {
 
 export function isTouch(platform: Platform): boolean {
   return platform === "ios" || platform === "ipados"
+}
+
+/** Follows a contextflow:// link from the page (iPhone and iPad can't open the app from the extension). Must run in
+ *  the tap itself: Safari asks "Open in ContextFlow?" only for a tap's own navigation. */
+export function followLink(url: string): void {
+  const a = document.createElement("a")
+  a.href = url
+  a.rel = "noopener"
+  a.style.display = "none"
+  document.documentElement.appendChild(a)
+  a.click()
+  setTimeout(() => a.remove(), 500)
+}
+
+/** Opens the ContextFlow app on a plan (or its plans). iPhone and iPad: the link is followed during the tap and the
+ *  background is told afterwards (build 91: Choose and Buy closed the sheet and nothing more, the link came after a
+ *  round trip to the extension, too late for Safari). Mac: the extension opens the app itself. */
+export function openAppFromTap(touch: boolean, request: { target: "subscribe" | "manage"; feature?: "ai" | "organize" | "listen" | "watch"; plan?: PaidPlan; period?: Period }): void {
+  const message = { type: "openApp", ...request }
+  if (touch) {
+    followLink(appLink(request.target, request.feature, request.plan, request.period))
+    void chrome.runtime.sendMessage(message).catch(() => undefined)
+    return
+  }
+  void (chrome.runtime.sendMessage(message) as Promise<{ opened: boolean; url: string } | null>).then((result) => {
+    if (result && !result.opened && result.url) followLink(result.url)
+  }, () => undefined)
 }
 
 /** Stable key for "the same page" (ignores hash and tracking parameters). */
@@ -40,6 +68,8 @@ export interface SelectionInfo {
 }
 
 let lastSelection: SelectionInfo | null = null
+// Its place on the page (2.6 (92)): the panel rings the text it's about, also after iOS has let go of the selection.
+let lastRange: Range | null = null
 const SELECTION_TTL_MS = 30_000
 // A long-press on iPhone selects a single word, so one word is already a selection worth using.
 export const MIN_SELECTION_WORDS = 1
@@ -80,8 +110,45 @@ function selectionInfo(raw: string, box: () => DOMRect): SelectionInfo | null {
 /** Remembers the latest selection: on iPhone tapping our button clears it. */
 export function trackSelection(): SelectionInfo | null {
   const current = readSelection()
-  if (current && current.words >= MIN_SELECTION_WORDS) lastSelection = current
+  if (current && current.words >= MIN_SELECTION_WORDS) {
+    lastSelection = current
+    try {
+      lastRange = document.getSelection()?.getRangeAt(0).cloneRange() ?? lastRange
+    } catch {
+      // No range to keep.
+    }
+  }
   return current
+}
+
+/** Where the selection the panel is about is on the page: the live one, or the one last remembered. */
+export function selectionRange(): Range | null {
+  const live = document.getSelection()
+  if (live && live.rangeCount > 0 && !live.isCollapsed) {
+    const range = live.getRangeAt(0)
+    const at = range.commonAncestorContainer
+    const el = at instanceof Element ? at : at.parentElement
+    if (!el?.closest(HOST_TAG)) return range.cloneRange()
+  }
+  return lastRange
+}
+
+/**
+ * Puts the selection the panel was about back on the page when the page has none: the panel's field took it (iPhone
+ * drops a page selection once something else gets focus, and so does a click into the field on a Mac). False when
+ * there's nothing to put back or the page already has its own selection.
+ */
+export function restoreSelection(): boolean {
+  const live = document.getSelection()
+  if (!live || !lastRange || readSelection()) return false
+  if (lastRange.collapsed || !lastRange.startContainer.isConnected || !lastRange.endContainer.isConnected) return false
+  try {
+    live.removeAllRanges()
+    live.addRange(lastRange.cloneRange())
+    return true
+  } catch {
+    return false
+  }
 }
 
 export function recentSelection(): SelectionInfo | null {
@@ -98,6 +165,7 @@ export function rememberSelection(selection: SelectionInfo): void {
 
 export function forgetSelection(): void {
   lastSelection = null
+  lastRange = null
 }
 
 // ------------------------------------------------------------ page text

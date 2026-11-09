@@ -517,6 +517,7 @@
   "orgNameChat": "按主题命名",
   "orgNamed": "已命名为“{0}”",
   "orgNameFailed": "暂时无法为对话命名，请稍后再试。",
+  "orgNameAs": "将对话命名为“{0}”",
   "recs_one": "{0} 条建议",
   "recs_two": "{0} 条建议",
   "recs_few": "{0} 条建议",
@@ -719,6 +720,7 @@
   "listenNotifyOn": "打开通知",
   "listenNotifyLater": "以后再说",
   "listenTaken": "正在 ContextFlow App 中播放。",
+  "listenSeek": "播放位置",
   "plansUpgrade": "升级到 {0}",
   "plansUpgradeYearly": "升级到年付",
   "similarPayFree": "免费，无 App 内购买",
@@ -730,7 +732,7 @@
   "similarPerMonth": "{0}/月",
   "similarPerYear": "{0}/年",
   "offerMemoryTitle": "Pro 记住整个对话",
-  "offerMemoryBody": "免费回答只看对话的最近 {0} 条消息。使用 Pro，AI 会记住整个对话：每条消息、你的笔记和你提问过的页面。",
-  "offerMemoryLong": "这个对话已超过免费回答能记住的 {0} 条消息。使用 Pro，AI 会记住整个对话：每条消息、你的笔记和你提问过的页面。",
+  "offerMemoryBody": "免费回答只记住对话中最近的 {0} 条回答和笔记。使用 Pro，AI 会记住整个对话：每条消息、你的笔记和你提问过的页面。",
+  "offerMemoryLong": "这个对话的回答和笔记已超过免费回答能记住的 {0} 条。使用 Pro，AI 会记住整个对话：每条消息、你的笔记和你提问过的页面。",
   "offerRetryAt": "回答将在 {0} 恢复。"
 }

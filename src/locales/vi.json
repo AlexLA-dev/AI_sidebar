@@ -517,6 +517,7 @@
   "orgNameChat": "Đặt tên theo chủ đề",
   "orgNamed": "Đã đặt tên “{0}”",
   "orgNameFailed": "Mình chưa đặt được tên cho cuộc trò chuyện. Hãy thử lại sau.",
+  "orgNameAs": "Đặt tên “{0}”",
   "recs_one": "{0} gợi ý",
   "recs_two": "{0} gợi ý",
   "recs_few": "{0} gợi ý",
@@ -719,6 +720,7 @@
   "listenNotifyOn": "Bật thông báo",
   "listenNotifyLater": "Để sau",
   "listenTaken": "Đang phát trong ứng dụng ContextFlow.",
+  "listenSeek": "Vị trí trong bản ghi",
   "plansUpgrade": "Nâng cấp lên {0}",
   "plansUpgradeYearly": "Nâng cấp lên gói theo năm",
   "similarPayFree": "Miễn phí, không có mua hàng trong ứng dụng",
@@ -730,7 +732,7 @@
   "similarPerMonth": "{0}/tháng",
   "similarPerYear": "{0}/năm",
   "offerMemoryTitle": "Pro ghi nhớ cả cuộc trò chuyện",
-  "offerMemoryBody": "Câu trả lời miễn phí chỉ xem {0} tin nhắn gần nhất của cuộc trò chuyện. Với Pro, AI ghi nhớ toàn bộ: mọi tin nhắn, ghi chú của bạn và các trang bạn đã hỏi.",
-  "offerMemoryLong": "Cuộc trò chuyện này đã dài hơn {0} tin nhắn mà câu trả lời miễn phí ghi nhớ. Với Pro, AI ghi nhớ toàn bộ: mọi tin nhắn, ghi chú của bạn và các trang bạn đã hỏi.",
+  "offerMemoryBody": "Câu trả lời miễn phí ghi nhớ {0} câu trả lời và ghi chú gần nhất của cuộc trò chuyện. Với Pro, AI ghi nhớ toàn bộ: mọi tin nhắn, ghi chú của bạn và các trang bạn đã hỏi.",
+  "offerMemoryLong": "Cuộc trò chuyện này có nhiều hơn {0} câu trả lời và ghi chú mà câu trả lời miễn phí ghi nhớ. Với Pro, AI ghi nhớ toàn bộ: mọi tin nhắn, ghi chú của bạn và các trang bạn đã hỏi.",
   "offerRetryAt": "Câu trả lời có lại lúc {0}."
 }

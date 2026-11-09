@@ -517,6 +517,7 @@
   "orgNameChat": "Nach Thema benennen",
   "orgNamed": "„{0}“ benannt",
   "orgNameFailed": "Ich konnte den Chat gerade nicht benennen. Versuch es später noch einmal.",
+  "orgNameAs": "Chat „{0}“ nennen",
   "recs_one": "{0} Empfehlung",
   "recs_two": "{0} Empfehlungen",
   "recs_few": "{0} Empfehlungen",
@@ -719,6 +720,7 @@
   "listenNotifyOn": "Mitteilungen aktivieren",
   "listenNotifyLater": "Nicht jetzt",
   "listenTaken": "Läuft in der ContextFlow-App.",
+  "listenSeek": "Position in der Wiedergabe",
   "plansUpgrade": "Zu {0} wechseln",
   "plansUpgradeYearly": "Zur jährlichen Zahlung wechseln",
   "similarPayFree": "Kostenlos, ohne In-App-Käufe",
@@ -730,7 +732,7 @@
   "similarPerMonth": "{0}/Monat",
   "similarPerYear": "{0}/Jahr",
   "offerMemoryTitle": "Pro merkt sich den ganzen Chat",
-  "offerMemoryBody": "Eine kostenlose Antwort sieht die letzten {0} Nachrichten eines Chats. Mit Pro merkt sich die KI alles: jede Nachricht, deine Notizen und die Seiten, zu denen du gefragt hast.",
-  "offerMemoryLong": "Dieser Chat ist länger als die {0} Nachrichten, die eine kostenlose Antwort sieht. Mit Pro merkt sich die KI alles: jede Nachricht, deine Notizen und die Seiten, zu denen du gefragt hast.",
+  "offerMemoryBody": "Eine kostenlose Antwort kennt die letzten {0} Antworten und Notizen eines Chats. Mit Pro merkt sich die KI alles: jede Nachricht, deine Notizen und die Seiten, zu denen du gefragt hast.",
+  "offerMemoryLong": "Dieser Chat hat mehr als die {0} Antworten und Notizen, die eine kostenlose Antwort kennt. Mit Pro merkt sich die KI alles: jede Nachricht, deine Notizen und die Seiten, zu denen du gefragt hast.",
   "offerRetryAt": "Antworten gibt es wieder um {0}."
 }

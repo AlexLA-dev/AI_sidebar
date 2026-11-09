@@ -1490,6 +1490,9 @@
  "orgNameFailed": {
   "message": "目前無法為對話命名，請稍後再試。"
  },
+ "orgNameAs": {
+  "message": "將對話命名為「{0}」"
+ },
  "recs_one": {
   "message": "{0} 則建議"
  },
@@ -2081,6 +2084,9 @@
  "listenTaken": {
   "message": "正在 ContextFlow App 中播放。"
  },
+ "listenSeek": {
+  "message": "播放位置"
+ },
  "plansUpgrade": {
   "message": "升級到 {0}"
  },
@@ -2115,10 +2121,10 @@
   "message": "Pro 會記住整段對話"
  },
  "offerMemoryBody": {
-  "message": "免費回答只看對話的最近 {0} 則訊息。使用 Pro，AI 會記住整段對話：每則訊息、你的筆記和你提問過的頁面。"
+  "message": "免費回答只記得對話中最近的 {0} 則回答和筆記。使用 Pro，AI 會記住整段對話：每則訊息、你的筆記和你提問過的頁面。"
  },
  "offerMemoryLong": {
-  "message": "這段對話已超過免費回答能記住的 {0} 則訊息。使用 Pro，AI 會記住整段對話：每則訊息、你的筆記和你提問過的頁面。"
+  "message": "這段對話的回答和筆記已超過免費回答能記住的 {0} 則。使用 Pro，AI 會記住整段對話：每則訊息、你的筆記和你提問過的頁面。"
  },
  "offerRetryAt": {
   "message": "回答將在 {0} 恢復。"

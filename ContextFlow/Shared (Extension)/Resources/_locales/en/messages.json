@@ -1490,6 +1490,9 @@
  "orgNameFailed": {
   "message": "I couldn't name this chat just now. Try again later."
  },
+ "orgNameAs": {
+  "message": "Name it “{0}”"
+ },
  "recs_one": {
   "message": "{0} recommendation"
  },
@@ -1801,6 +1804,9 @@
  },
  "listenTaken": {
   "message": "Playing in the ContextFlow app."
+ },
+ "listenSeek": {
+  "message": "Position in the audio"
  },
  "watchFullPro": {
   "message": "On Pro you can watch {0} pages at once. Ultra watches up to {1}."
@@ -2115,10 +2121,10 @@
   "message": "Pro remembers the whole chat"
  },
  "offerMemoryBody": {
-  "message": "A free answer sees the last {0} messages of a chat. With Pro the AI remembers all of it: every message, your notes and the pages you asked about."
+  "message": "A free answer remembers the last {0} answers and notes of a chat. With Pro the AI remembers all of it: every message, your notes and the pages you asked about."
  },
  "offerMemoryLong": {
-  "message": "This chat is longer than the {0} messages a free answer remembers. With Pro the AI remembers all of it: every message, your notes and the pages you asked about."
+  "message": "This chat has more than the {0} answers and notes a free answer remembers. With Pro the AI remembers all of it: every message, your notes and the pages you asked about."
  },
  "offerRetryAt": {
   "message": "Answers are back at {0}."

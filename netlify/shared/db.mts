@@ -41,9 +41,15 @@ async function rpc<T>(fn: string, args: Record<string, unknown>): Promise<T> {
   return data as T
 }
 
-export const consume = (items: Counter[]) => rpc<ConsumeResult>("cf_consume", { p_items: items })
+/** A counter kept for good (build 92: a read-aloud part's heard and made seconds, per subscription); before its
+ *  migration (20261109140000) the database counts "ever" by the day. */
+export interface EverCounter extends Omit<Counter, "period"> {
+  period: "ever"
+}
+
+export const consume = (items: Array<Counter | EverCounter>) => rpc<ConsumeResult>("cf_consume", { p_items: items })
 export const refund = (items: Counter[]) => rpc<null>("cf_refund", { p_items: items })
-export const peek = (items: Counter[]) => rpc<CounterState[]>("cf_peek", { p_items: items })
+export const peek = (items: Array<Counter | EverCounter>) => rpc<CounterState[]>("cf_peek", { p_items: items })
 /** One of the install's free answers in the guided first request (2.6, tour.mts): true while it had one left. */
 export const takeTourAnswer = (installId: string, max: number) => rpc<boolean>("cf_tour_take", { p_install: installId, p_max: max })
 /** The guided answer didn't come (refused, failed): it's the install's again. */

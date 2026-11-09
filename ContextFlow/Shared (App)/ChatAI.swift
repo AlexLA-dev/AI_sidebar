@@ -203,7 +203,7 @@ enum ChatAI {
     /// Read aloud (2.6, Ultra): one part of the text, spoken by our server (/api/v2/speak), as 24 kHz 16-bit PCM.
     @MainActor
     /// `model`: the one the text's first part came from (X-CF-Model), so every part has the same voice (build 91).
-    static func speechRequest(text: String, lang: String, what: String, part: Int, parts: Int, model: String = "") throws -> URLRequest {
+    static func speechRequest(text: String, lang: String, what: String, part: Int, parts: Int, model: String = "", heard: [[String: Any]] = []) throws -> URLRequest {
         var body = identity()
         body["text"] = text
         body["lang"] = lang
@@ -211,7 +211,17 @@ enum ChatAI {
         body["part"] = part
         body["parts"] = parts
         if !model.isEmpty { body["model"] = model }
+        // What's been heard and not counted yet (build 92: the week's minutes count what's heard), counted first.
+        if !heard.isEmpty { body["heard"] = heard }
         return try request("api/v2/speak", body)
+    }
+
+    /// Read aloud's seconds heard, by part key (build 92), to /api/v2/speak-heard.
+    @MainActor
+    static func heardRequest(_ items: [[String: Any]]) throws -> URLRequest {
+        var body = identity()
+        body["items"] = items
+        return try request("api/v2/speak-heard", body)
     }
 
     /// Read aloud: the text written for the ear by our server (/api/v2/speak-script, Claude Haiku), streamed as plain text.

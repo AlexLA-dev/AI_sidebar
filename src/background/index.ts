@@ -1,7 +1,7 @@
 import { tipClip } from "./tipClips"
 import { mediaKinds, type MediaKind } from "../shared/attachments"
 import { API_BASE, LINKS, TARGET, VERSION } from "../shared/config"
-import { planOfProduct, ULTRA_DEFAULTS, WATCH_LIMITS, type PaidPlan, type Period } from "../shared/plan"
+import { appLink, planOfProduct, ULTRA_DEFAULTS, WATCH_LIMITS, type PaidPlan, type Period } from "../shared/plan"
 import { consentStatus } from "../shared/consent"
 import { urlKey } from "../shared/conversation"
 import { uiLanguage } from "../shared/i18n"
@@ -48,9 +48,12 @@ async function installId(): Promise<string> {
   return id
 }
 
+let platformKept: Platform | null = null
+
 async function platform(): Promise<Platform> {
+  if (platformKept) return platformKept
   const stored = (await chrome.storage.local.get(STORAGE.platform))[STORAGE.platform] as Platform | undefined
-  if (stored) return stored
+  if (stored) return (platformKept = stored)
   return TARGET === "chrome" ? "chrome" : "other"
 }
 
@@ -85,13 +88,87 @@ async function clientInfo() {
 
 let entitlementCache: { at: number; value: NativeEntitlement | null } | null = null
 
+// Read aloud's calls to the app's side (iCloud), one at a time (build 92): if Safari hands native calls over one by
+// one, the plan's waits behind at most one short speech call, never a queue of them.
+let speechLane: Promise<unknown> = Promise.resolve()
+function inSpeechLane<T>(job: () => Promise<T>): Promise<T> {
+  const run = speechLane.then(job, job)
+  speechLane = run.catch(() => undefined)
+  return run
+}
+
+// Build 92 (the owner: the panel showed Free and no prices after coming back from the app, until Safari restarted):
+// an answer that doesn't come, or comes late, never turns a subscriber into Free. The last good one (kept in the
+// extension's storage too, so a fresh background has it at once) stands until it expires while the app's side is
+// asked; a failure is asked again in 5 s, not cached for a minute; a re-read waits at most 1.5 s when one is in hand.
+let entitlementAsking: Promise<NativeEntitlement | null> | null = null
+
+function askEntitlement(): Promise<NativeEntitlement | null> {
+  entitlementAsking ??= (async () => {
+    // The install id lets the app link a purchase to this install (StoreKit appAccountToken) and tells it
+    // the panel is in use, so it stops showing the setup guide.
+    const value = await callNative<NativeEntitlement>("getEntitlement", { installId: await installId() }, 6000)
+    if (value) {
+      entitlementCache = { at: Date.now(), value }
+      void keepEntitlement(value)
+      void keepPrices(value.prices)
+      return value
+    }
+    const kept = entitlementCache?.value?.active ? entitlementCache.value : await lastEntitlement()
+    entitlementCache = { at: kept ? Date.now() - 55_000 : Date.now(), value: kept }
+    return kept
+  })().finally(() => {
+    entitlementAsking = null
+  })
+  return entitlementAsking
+}
+
 async function entitlement(force = false): Promise<NativeEntitlement | null> {
   if (TARGET !== "safari") return null
-  if (!force && entitlementCache && Date.now() - entitlementCache.at < 60_000) return entitlementCache.value
-  // The install id lets the app link a purchase to this install (StoreKit appAccountToken) and tells it
-  // the panel is in use, so it stops showing the setup guide.
-  const value = await callNative<NativeEntitlement>("getEntitlement", { installId: await installId() }, 6000)
-  entitlementCache = { at: Date.now(), value }
+  const fresh = entitlementCache && Date.now() - entitlementCache.at < (entitlementCache.value ? 60_000 : 5_000)
+  if (fresh && !force) return entitlementCache!.value
+  const asking = askEntitlement()
+  // A fresh background (Safari started, or its worker woke): the kept one now, the app's answer for the next time.
+  if (!entitlementCache) {
+    const kept = await lastEntitlement()
+    if (kept) return kept
+    return asking
+  }
+  // A re-read with one in hand: the app's answer if it comes within 1.5 s, else the one in hand.
+  const inHand = entitlementCache.value
+  if (!inHand) return asking
+  const late = new Promise<null>((resolve) => setTimeout(() => resolve(null), 1500))
+  return (await Promise.race([asking, late])) ?? inHand
+}
+
+// Kept for at most a week, and only while the subscription it saw is still running.
+const KEEP_ENTITLEMENT_MS = 7 * 86_400_000
+let keptJson = ""
+
+async function keepEntitlement(value: NativeEntitlement): Promise<void> {
+  const json = JSON.stringify(value)
+  // Written only when it changes: a write wakes every tab listening to storage.
+  if (json === keptJson) return
+  keptJson = json
+  await chrome.storage.local.set({ [STORAGE.lastEntitlement]: { value, at: Date.now() } }).catch(() => undefined)
+}
+
+// The App Store's prices, kept for the plans sheet when no answer comes (build 92); written only when they change.
+let keptPricesJson = ""
+
+async function keepPrices(prices: unknown): Promise<void> {
+  if (!prices || typeof prices !== "object" || !Object.keys(prices).length) return
+  const json = JSON.stringify(prices)
+  if (json === keptPricesJson) return
+  keptPricesJson = json
+  await chrome.storage.local.set({ [STORAGE.lastPrices]: prices }).catch(() => undefined)
+}
+
+async function lastEntitlement(): Promise<NativeEntitlement | null> {
+  const kept = (await chrome.storage.local.get(STORAGE.lastEntitlement).catch(() => ({} as Record<string, unknown>)))[STORAGE.lastEntitlement] as { value?: NativeEntitlement; at?: number } | undefined
+  const value = kept?.value
+  if (!value || typeof kept?.at !== "number" || Date.now() - kept.at > KEEP_ENTITLEMENT_MS) return null
+  if (value.active && value.expiresAt && Date.parse(value.expiresAt) < Date.now()) return null
   return value
 }
 
@@ -294,18 +371,24 @@ chrome.runtime.onConnect.addListener((port) => {
         const ent = await entitlement()
         return ent?.active ? ent.jws : null
       },
-      // The user's iCloud through the app's extension (Safari): parts and texts made on their other devices.
+      // Where a text's minutes went (build 92): heard, from this device, iCloud or the server, and charged up front.
+      report: (counts) => void reportUse({ type: "useEvent", f: "listen", a: "heard", ...counts }),
+      // The user's iCloud through the app's extension (Safari): parts and texts made on their other devices. In their own
+      // lane, one at a time and each short (build 92): the plan and the status never wait behind more than one.
       sync: TARGET === "safari" ? {
-        getPart: async (key, wait) => (await callNative<{ aac?: string }>("speechGet", { key, wait }, (wait + 2) * 1000))?.aac ?? null,
-        putPart: async (key, pcm) => {
-          // In pieces (native messages stay small); the extension encodes and keeps it when the last one is in.
-          const size = 384 * 1024
+        getPart: (key, wait) => inSpeechLane(async () => (await callNative<{ aac?: string }>("speechGet", { key, wait: Math.min(wait, 0.8) }, 2500))?.aac ?? null),
+        putPart: async (key, pcm, cache) => {
+          // In pieces (native messages stay small), each its own turn in the lane: the extension keeps it when the last
+          // one is in and replies at once (iCloud comes after).
+          const size = 256 * 1024
           for (let at = 0, index = 0; at < pcm.length; at += size, index++) {
-            await callNative("speechPut", { key, index, last: at + size >= pcm.length, data: speechBase64(pcm.subarray(at, at + size)) }, 15_000)
+            const last = at + size >= pcm.length
+            const data = speechBase64(pcm.subarray(at, at + size))
+            await inSpeechLane(() => callNative("speechPut", { key, index, last, data, ...(last && cache ? { cache } : {}) }, 5_000))
           }
         },
-        getText: async (key, wait) => (await callNative<{ text?: string }>("speechTextGet", { key, wait }, (wait + 2) * 1000))?.text ?? null,
-        putText: async (key, text) => void (await callNative("speechTextPut", { key, text }, 10_000))
+        getText: (key, wait) => inSpeechLane(async () => (await callNative<{ text?: string }>("speechTextGet", { key, wait: Math.min(wait, 0.8) }, 2500))?.text ?? null),
+        putText: (key, text) => inSpeechLane(async () => void (await callNative("speechTextPut", { key, text }, 5_000)))
       } : undefined
     })
     return
@@ -460,8 +543,7 @@ async function openApp(
     return { opened: true, url: LINKS.appStore }
   }
   // 2.6: the plan and period chosen in the panel's plans sheet open preselected in the app.
-  const query = [`plan=${plan}`, period ? `period=${period}` : "", feature ? `feature=${feature}` : ""].filter(Boolean).join("&")
-  const url = target === "subscribe" ? `contextflow://subscribe?${query}` : target === "manage" ? "contextflow://manage" : "contextflow://open"
+  const url = appLink(target, feature, plan, period)
   // macOS can launch the app from the extension; on iOS the page has to follow the link.
   const result = await callNative<{ opened?: boolean }>("openApp", { url })
   entitlementCache = null
@@ -526,7 +608,11 @@ async function reportUse(message: Extract<BackgroundRequest, { type: "useEvent" 
   await fetch(`${API_BASE}/api/v2/event`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ kind: "use", installId: id, client, f: message.f, a: message.a, what: message.what, via: message.via, reminders: message.reminders, watches: message.watches, plan: message.plan, period: message.period, s: "panel" })
+    body: JSON.stringify({
+      kind: "use", installId: id, client, f: message.f, a: message.a, what: message.what, via: message.via, reminders: message.reminders,
+      watches: message.watches, plan: message.plan, period: message.period,
+      heard_s: message.heard_s, cache_s: message.cache_s, icloud_s: message.icloud_s, server_s: message.server_s, charged_s: message.charged_s, s: "panel"
+    })
   }).catch(() => undefined)
 }
 
@@ -546,7 +632,8 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
     case "status":
       // The panel just opened: pick up settings changed in the ContextFlow app (never delays the status).
       void syncSettings().catch(() => undefined)
-      ;(message.platform ? chrome.storage.local.set({ [STORAGE.platform]: message.platform }) : Promise.resolve())
+      // The platform only when it changes (build 92: written on every status, it woke every tab's storage listeners).
+      ;(message.platform && message.platform !== platformKept ? chrome.storage.local.set({ [STORAGE.platform]: (platformKept = message.platform) }) : Promise.resolve())
         .then(() => status(Boolean(message.refresh), Boolean(message.fresh)))
         .then(sendResponse, () => sendResponse(null))
       return true

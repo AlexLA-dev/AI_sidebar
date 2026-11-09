@@ -1490,6 +1490,9 @@
  "orgNameFailed": {
   "message": "Je n’ai pas pu nommer la discussion pour l’instant. Réessayez plus tard."
  },
+ "orgNameAs": {
+  "message": "Nommer la discussion « {0} »"
+ },
  "recs_one": {
   "message": "{0} recommandation"
  },
@@ -2081,6 +2084,9 @@
  "listenTaken": {
   "message": "Lecture dans l’app ContextFlow."
  },
+ "listenSeek": {
+  "message": "Position dans l’audio"
+ },
  "plansUpgrade": {
   "message": "Passer à {0}"
  },
@@ -2115,10 +2121,10 @@
   "message": "Pro se souvient de tout le chat"
  },
  "offerMemoryBody": {
-  "message": "Une réponse gratuite voit les {0} derniers messages d'un chat. Avec Pro, l'IA s'en souvient en entier : chaque message, vos notes et les pages sur lesquelles vous avez posé des questions."
+  "message": "Une réponse gratuite se souvient des {0} dernières réponses et notes d'un chat. Avec Pro, l'IA s'en souvient en entier : chaque message, vos notes et les pages sur lesquelles vous avez posé des questions."
  },
  "offerMemoryLong": {
-  "message": "Ce chat dépasse les {0} messages dont se souvient une réponse gratuite. Avec Pro, l'IA s'en souvient en entier : chaque message, vos notes et les pages sur lesquelles vous avez posé des questions."
+  "message": "Ce chat compte plus que les {0} réponses et notes dont se souvient une réponse gratuite. Avec Pro, l'IA s'en souvient en entier : chaque message, vos notes et les pages sur lesquelles vous avez posé des questions."
  },
  "offerRetryAt": {
   "message": "Les réponses reviennent à {0}."

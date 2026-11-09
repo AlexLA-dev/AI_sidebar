@@ -127,6 +127,26 @@ export class PcmPlayer {
     this.feed()
   }
 
+  /** Plays from `seconds` of the audio, back or forward within what has come (the bar, build 92; the owner: "it won't
+   *  let me move the audio back or forward"). Paused, it stays paused there. */
+  seek(seconds: number): void {
+    if (this.closed || !this.sourceLength) return
+    const to = Math.max(0, Math.min(this.sourceLength - 1, Math.round(seconds * SPEECH_RATE)))
+    for (const piece of this.pieces) {
+      try {
+        piece.source.stop()
+      } catch {
+        // Already ended.
+      }
+    }
+    this.pieces = []
+    this.stretch = new Stretcher(this.stretch.speed, to)
+    this.lastTo = to
+    this.fed = to
+    this.next = this.ctx.currentTime
+    this.feed()
+  }
+
   private feed(): void {
     if (this.fed < this.sourceLength) {
       const fresh = this.slice(this.fed, this.sourceLength)

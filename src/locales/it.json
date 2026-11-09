@@ -517,6 +517,7 @@
   "orgNameChat": "Dai un nome per argomento",
   "orgNamed": "Chat chiamata «{0}»",
   "orgNameFailed": "Non sono riuscito a dare un nome alla chat. Riprova più tardi.",
+  "orgNameAs": "Chiama la chat «{0}»",
   "recs_one": "{0} consiglio",
   "recs_two": "{0} consigli",
   "recs_few": "{0} consigli",
@@ -719,6 +720,7 @@
   "listenNotifyOn": "Attiva le notifiche",
   "listenNotifyLater": "Non ora",
   "listenTaken": "In riproduzione nell’app ContextFlow.",
+  "listenSeek": "Posizione nell’audio",
   "plansUpgrade": "Passa a {0}",
   "plansUpgradeYearly": "Passa all’annuale",
   "similarPayFree": "Gratis, senza acquisti in-app",
@@ -730,7 +732,7 @@
   "similarPerMonth": "{0}/mese",
   "similarPerYear": "{0}/anno",
   "offerMemoryTitle": "Pro ricorda tutta la chat",
-  "offerMemoryBody": "Una risposta gratuita vede gli ultimi {0} messaggi di una chat. Con Pro l'IA la ricorda tutta: ogni messaggio, le tue note e le pagine su cui hai fatto domande.",
-  "offerMemoryLong": "Questa chat supera i {0} messaggi che ricorda una risposta gratuita. Con Pro l'IA la ricorda tutta: ogni messaggio, le tue note e le pagine su cui hai fatto domande.",
+  "offerMemoryBody": "Una risposta gratuita ricorda le ultime {0} risposte e note di una chat. Con Pro l'IA la ricorda tutta: ogni messaggio, le tue note e le pagine su cui hai fatto domande.",
+  "offerMemoryLong": "Questa chat ha più delle {0} risposte e note che ricorda una risposta gratuita. Con Pro l'IA la ricorda tutta: ogni messaggio, le tue note e le pagine su cui hai fatto domande.",
   "offerRetryAt": "Le risposte tornano alle {0}."
 }

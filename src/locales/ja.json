@@ -517,6 +517,7 @@
   "orgNameChat": "トピックで名前を付ける",
   "orgNamed": "「{0}」と名前を付けました",
   "orgNameFailed": "今はチャットに名前を付けられませんでした。あとでもう一度お試しください。",
+  "orgNameAs": "チャット名を「{0}」にする",
   "recs_one": "おすすめ {0} 件",
   "recs_two": "おすすめ {0} 件",
   "recs_few": "おすすめ {0} 件",
@@ -719,6 +720,7 @@
   "listenNotifyOn": "通知をオンにする",
   "listenNotifyLater": "今はしない",
   "listenTaken": "ContextFlowアプリで再生中です。",
+  "listenSeek": "再生位置",
   "plansUpgrade": "{0} にアップグレード",
   "plansUpgradeYearly": "年額にアップグレード",
   "similarPayFree": "無料・App内課金なし",
@@ -730,7 +732,7 @@
   "similarPerMonth": "{0}/月",
   "similarPerYear": "{0}/年",
   "offerMemoryTitle": "Proならチャット全体を記憶",
-  "offerMemoryBody": "無料の回答が参照するのは、チャットの直近{0}件のメッセージです。ProならAIがチャット全体を記憶します：すべてのメッセージ、メモ、質問したページ。",
-  "offerMemoryLong": "このチャットは、無料の回答が覚えている{0}件を超えています。ProならAIがチャット全体を記憶します：すべてのメッセージ、メモ、質問したページ。",
+  "offerMemoryBody": "無料の回答が覚えているのは、チャットの直近{0}件の回答とメモです。ProならAIがチャット全体を記憶します：すべてのメッセージ、メモ、質問したページ。",
+  "offerMemoryLong": "このチャットは、無料の回答が覚えている{0}件の回答とメモを超えています。ProならAIがチャット全体を記憶します：すべてのメッセージ、メモ、質問したページ。",
   "offerRetryAt": "{0}に回答が戻ります。"
 }

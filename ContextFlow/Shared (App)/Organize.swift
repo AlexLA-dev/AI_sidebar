@@ -7,12 +7,28 @@ import Foundation
 // (tests/organize-parity.test.mts) builds this file on its own and checks it gives what the panel gives.
 
 /// A chat as stored: its id, the time of its copy (ms) and its JSON object `{title?, a?, pin?, k?, tags?, m}`.
-struct OrganizeThread {
+/// Organizing is pure work on these (no UI): nonisolated, so the app runs it off the main thread (2.6 (91)).
+nonisolated struct OrganizeThread {
     var id: String
     var u: Int64
-    var object: [String: Any]
+    let object: [String: Any]
+    /// Its messages, read once: each read of `object["m"]` casts the whole list again (2.6 (91): with hundreds of chats
+    /// that alone took seconds).
+    let entries: [[String: Any]]
 
-    var entries: [[String: Any]] { object["m"] as? [[String: Any]] ?? [] }
+    init(id: String, u: Int64, object: [String: Any]) {
+        self.id = id
+        self.u = u
+        self.object = object
+        entries = object["m"] as? [[String: Any]] ?? []
+    }
+
+    /// A chat from its stored JSON (2.3 build 56 stored just the messages); nil if it isn't one.
+    init?(id: String, u: Int64, data: String) {
+        let parsed = try? JSONSerialization.jsonObject(with: Data(data.utf8))
+        guard let object = (parsed as? [String: Any]) ?? (parsed as? [Any]).map({ ["m": $0] }) else { return nil }
+        self.init(id: id, u: u, object: object)
+    }
     var isHistory: Bool { object["k"] as? String == "history" }
     /// Kept until iCloud knows it's gone (the panel's `deleted`).
     var isDeleted: Bool { Organize.truthy(object["deleted"]) }
@@ -29,7 +45,7 @@ struct OrganizeThread {
 
 /// What decides a suggestion (src/shared/organize.ts `OrganizeConfig`, chat-organize-2.5.md §2); the server
 /// sends its own values in /api/v2/status. All numbers, as in JavaScript (the counts too).
-struct OrganizeConfig {
+nonisolated struct OrganizeConfig: Sendable {
     // Move: the block's fit to the other chat (mean of the two best block similarities), the margin over
     // its fit to its own chat, and the fit needed when the other chat has a single block.
     var moveT = 0.55
@@ -84,7 +100,7 @@ struct OrganizeConfig {
     ]
 }
 
-enum Organize {
+nonisolated enum Organize {
     // MARK: Keys and times
 
     /// A new message's id: 12 random letters and digits (src/shared/conversation.ts `newEntryId`).
@@ -573,13 +589,42 @@ enum Organize {
         var current: Double
     }
 
+    /// What one pass over many chats works out once (the chats list's counts, 2.6 (91): working it out again for each
+    /// chat hung the app): each chat's scored blocks, and when a move out of each chat was last taken.
+    final class MoveCache {
+        fileprivate var blocks: [String: [ScoredBlock]] = [:]
+        fileprivate var taken: [String: Double]?
+        init() {}
+
+        fileprivate func scored(_ thread: OrganizeThread, _ vectorOf: VectorOf) -> [ScoredBlock] {
+            if let hit = blocks[thread.id] { return hit }
+            let out = Organize.scoredBlocks(thread.entries, vectorOf)
+            blocks[thread.id] = out
+            return out
+        }
+    }
+
     /// True while move suggestions stay on in this chat: fewer than `rollback` refused since the last one taken.
-    static func movesAllowed(_ chat: OrganizeThread, _ all: [OrganizeThread], _ cfg: OrganizeConfig) -> Bool {
+    static func movesAllowed(_ chat: OrganizeThread, _ all: [OrganizeThread], _ cfg: OrganizeConfig, _ cache: MoveCache? = nil) -> Bool {
         var taken = -Double.infinity
-        for thread in all {
-            for e in thread.entries {
-                guard let from = e["from"] as? [String: Any], from["chat"] as? String == chat.id else { continue }
-                taken = jsMax(taken, (from["at"] as? NSNumber)?.doubleValue ?? .nan)
+        if let cache {
+            if cache.taken == nil {
+                var map: [String: Double] = [:]
+                for thread in all {
+                    for e in thread.entries {
+                        guard let from = e["from"] as? [String: Any], let id = from["chat"] as? String else { continue }
+                        map[id] = jsMax(map[id] ?? -.infinity, (from["at"] as? NSNumber)?.doubleValue ?? .nan)
+                    }
+                }
+                cache.taken = map
+            }
+            taken = cache.taken?[chat.id] ?? -.infinity
+        } else {
+            for thread in all {
+                for e in thread.entries {
+                    guard let from = e["from"] as? [String: Any], from["chat"] as? String == chat.id else { continue }
+                    taken = jsMax(taken, (from["at"] as? NSNumber)?.doubleValue ?? .nan)
+                }
             }
         }
         let entries = chat.entries
@@ -598,13 +643,13 @@ enum Organize {
     /// will do), then, for those that say enough, the same site, then the topic; a block that fits no chat and not
     /// its own goes to a new chat. Blocks in a row with the same place are one suggestion. The strongest reason wins.
     /// A move only makes chats more about one thing (2.6, `suggestMove`): see `goesTo`.
-    static func suggestMove(_ chat: OrganizeThread, _ chats: [OrganizeThread], _ vectorOf: VectorOf, _ cfg: OrganizeConfig) -> MoveSuggestion? {
+    static func suggestMove(_ chat: OrganizeThread, _ chats: [OrganizeThread], _ vectorOf: VectorOf, _ cfg: OrganizeConfig, _ cache: MoveCache? = nil) -> MoveSuggestion? {
         if chat.isHistory || chat.isDeleted { return nil }
-        let blocks = scoredBlocks(chat.entries, vectorOf)
-        guard !blocks.isEmpty, movesAllowed(chat, chats, cfg) else { return nil }
+        let blocks = cache?.scored(chat, vectorOf) ?? scoredBlocks(chat.entries, vectorOf)
+        guard !blocks.isEmpty, movesAllowed(chat, chats, cfg, cache) else { return nil }
         let others: [Other] = chats
             .filter { $0.id != chat.id && !$0.isDeleted && !$0.isHistory && !$0.entries.isEmpty }
-            .map { ($0, scoredBlocks($0.entries, vectorOf)) }
+            .map { ($0, cache?.scored($0, vectorOf) ?? scoredBlocks($0.entries, vectorOf)) }
         // `window` is a whole number (the panel stops at a fraction; here it starts at the next whole block).
         let first = Int(max(0, Double(blocks.count) - cfg.window).rounded(.up))
         var found: [(suggestion: MoveSuggestion, index: Int)] = []
@@ -682,6 +727,9 @@ enum Organize {
     /// blocks), and has more on it or, with one such block each, is the larger chat. Never into a mix, and of two chats
     /// one way.
     private static func joins(_ b: ScoredBlock, _ from: OrganizeThread, _ to: Other, _ cfg: OrganizeConfig) -> Bool {
+        // Most of `to` is on `b`'s site (its pages, whatever each one is about): that site's chat (2.6 (91)).
+        let onSite = b.host.isEmpty ? 0 : to.blocks.filter { $0.host == b.host }.count
+        if onSite * 2 > to.blocks.count { return onSite > 1 || larger(to.thread, from) }
         if isMix(to.blocks, cfg) { return false }
         let there = shareOn(b, to.blocks, cfg)
         return there.share > 0.5 && (there.on > 1 || larger(to.thread, from))
@@ -710,6 +758,24 @@ enum Organize {
             }
             if let there { return (there.id, .page, 1, 0) }
         }
+        // A chat of one block on a site (a note, a question) joins the chat with the most of that site, when more than
+        // half of it is that site and the block isn't about something else entirely there (2.6 (91)). A short note says
+        // too little to be judged by its words: its site will do.
+        var sites: [(o: Other, on: Int)] = []
+        if !b.host.isEmpty, !rest.contains(where: { $0.host == b.host }) {
+            sites = others.map { o in (o, o.blocks.filter { $0.host == b.host }.count) }.filter { $0.on >= 2 && $0.on * 2 >= $0.o.blocks.count }
+        }
+        if rest.isEmpty {
+            var home: (o: Other, on: Int)?
+            for x in sites where x.on * 2 > x.o.blocks.count {
+                if let h = home, !(x.on > h.on || (x.on == h.on && larger(x.o.thread, h.o.thread))) { continue }
+                home = x
+            }
+            if let home {
+                let vs = home.o.blocks.compactMap(\.v).map { (v: $0, w: 1.0) }
+                if b.v == nil || vs.isEmpty || topMean(b.v!, vs, 2) >= cfg.siteT { return (home.o.thread.id, .site, 1, 0) }
+            }
+        }
         // Below, the block has to say enough.
         guard let v = b.v, !b.weak else { return nil }
         // The fit to its own chat: its blocks outside the window, else all its other blocks.
@@ -717,11 +783,8 @@ enum Organize {
         let base = (outside.isEmpty ? rest.filter { $0.v != nil } : outside).map { (v: $0.v!, w: 1.0) }
         let current = topMean(v, base, 2)
         // The same site: one other chat is about it (half its blocks or more, two at least), this one isn't.
-        if !b.host.isEmpty, !rest.contains(where: { $0.host == b.host }) {
-            let about = others.filter { o in
-                let on = o.blocks.filter { $0.host == b.host }.count
-                return on >= 2 && on * 2 >= o.blocks.count
-            }
+        if !sites.isEmpty {
+            let about = sites.map(\.o)
             if about.count == 1, goesTo(b, rest, chat, about[0], cfg) {
                 let vs = about[0].blocks.compactMap(\.v).map { (v: $0, w: 1.0) }
                 let score = topMean(v, vs, 2)
@@ -992,5 +1055,96 @@ enum Organize {
         let asks = min(3, entries.filter(isUser).count)
         let pages = pageBlocks(entries).map { entryKey(entries[$0.start]) }.joined(separator: "\u{1}")
         return textKey([title ?? chat.object["title"] as? String ?? "", pages, String(asks)].joined(separator: "\u{0}"))
+    }
+}
+
+/// Organizing's work for the app, off its main thread (2.6 (91): with hundreds of chats it hung the app for seconds when
+/// the chats list or a chat opened): reading the chats, which messages lack vectors, one chat's suggestions, every
+/// chat's counts. Plain values in, plain values out; OrganizeModel does the network and keeps the state.
+nonisolated enum OrganizeWork {
+    /// Chats (their JSON objects aren't Sendable) carried to and from the work: nothing else touches them meanwhile.
+    struct Carry<T>: @unchecked Sendable {
+        let value: T
+    }
+
+    /// A chat as stored (strings only: it crosses to the work).
+    struct Source: Sendable {
+        let id: String
+        let u: Int64
+        let data: String
+    }
+
+    static func read(_ sources: [Source]) -> [OrganizeThread] {
+        sources.compactMap { OrganizeThread(id: $0.id, u: $0.u, data: $0.data) }
+    }
+
+    /// The messages of `live` without a vector in `known` (entryKey → "textKey:packed"), up to `limit`.
+    static func missing(_ live: [OrganizeThread], known: [String: String], limit: Int) -> [(key: String, text: String)] {
+        Organize.missingVectors(live, has: { key, text in known[key]?.hasPrefix(Organize.textKey(text) + ":") == true }, limit: limit)
+    }
+
+    /// `known` without the vectors of messages no chat has any more.
+    static func keep(_ known: [String: String], _ live: [OrganizeThread]) -> [String: String] {
+        let keys = Set(live.flatMap { $0.entries.map(Organize.entryKey) })
+        return known.filter { keys.contains($0.key) }
+    }
+
+    private final class Unpacked {
+        var v: [String: [Float]?] = [:]
+    }
+
+    /// Reads vectors as the device keeps them (a message's vector only while its text is the one embedded), each
+    /// unpacked once.
+    static func reader(_ known: [String: String]) -> Organize.VectorOf {
+        let unpacked = Unpacked()
+        return { entry in
+            let text = Organize.embedText(entry)
+            guard !text.isEmpty, let hit = known[Organize.entryKey(entry)], let colon = hit.firstIndex(of: ":"),
+                  hit[..<colon] == Organize.textKey(text) else { return nil }
+            if let v = unpacked.v[hit] { return v }
+            let v = Organize.unpackVector(String(hit[hit.index(after: colon)...]))
+            unpacked.v[hit] = v
+            return v
+        }
+    }
+
+    /// A message that has tag candidates, and what the judge reads for it.
+    struct Tagging {
+        let index: Int
+        let message: String
+        let candidates: [Organize.TagCandidate]
+    }
+
+    /// Chat `chatId`'s move, and its messages with tag candidates (the judge's answers come from the network).
+    static func suggest(_ chatId: String, _ live: [OrganizeThread], known: [String: String], _ cfg: OrganizeConfig) -> (move: Organize.MoveSuggestion?, tags: [Tagging])? {
+        guard let chat = live.first(where: { $0.id == chatId }) else { return nil }
+        let vectorOf = reader(known)
+        let move = Organize.suggestMove(chat, live, vectorOf, cfg, Organize.MoveCache())
+        let tags = Organize.tagTargets(chat, cfg).compactMap { index -> Tagging? in
+            let candidates = Organize.tagCandidates(chat, index, live, vectorOf, cfg)
+            return candidates.isEmpty ? nil : Tagging(index: index, message: Organize.judgeText(chat.entries, index), candidates: candidates)
+        }
+        return (move, tags)
+    }
+
+    /// Every chat's open suggestions, for the chats list ("N recommendations"): its move (every chat scored once), a
+    /// suggested name (`named`), and the tags it last showed (`shown`: chat → message key → tag) still open there.
+    static func counts(_ live: [OrganizeThread], known: [String: String], _ cfg: OrganizeConfig, shown: [String: [String: String]], named: Set<String>) -> [String: Int] {
+        let vectorOf = reader(known)
+        let cache = Organize.MoveCache()
+        var out: [String: Int] = [:]
+        for chat in live {
+            var n = Organize.suggestMove(chat, live, vectorOf, cfg, cache) == nil ? 0 : 1
+            if named.contains(chat.id) { n += 1 }
+            if let tags = shown[chat.id], !tags.isEmpty {
+                for e in chat.entries {
+                    guard let tag = tags[Organize.entryKey(e)] else { continue }
+                    func has(_ list: Any?) -> Bool { (list as? [String] ?? []).contains { $0.caseInsensitiveCompare(tag) == .orderedSame } }
+                    if !has(e["tags"]), !has((e["dismissed"] as? [String: Any])?["tags"]) { n += 1 }
+                }
+            }
+            if n > 0 { out[chat.id] = n }
+        }
+        return out
     }
 }

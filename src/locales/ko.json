@@ -517,6 +517,7 @@
   "orgNameChat": "주제로 이름 짓기",
   "orgNamed": "‘{0}’(으)로 이름을 지었어요",
   "orgNameFailed": "지금은 채팅 이름을 짓지 못했어요. 나중에 다시 해 보세요.",
+  "orgNameAs": "채팅 이름을 ‘{0}’(으)로",
   "recs_one": "추천 {0}개",
   "recs_two": "추천 {0}개",
   "recs_few": "추천 {0}개",
@@ -719,6 +720,7 @@
   "listenNotifyOn": "알림 켜기",
   "listenNotifyLater": "나중에",
   "listenTaken": "ContextFlow 앱에서 재생 중입니다.",
+  "listenSeek": "재생 위치",
   "plansUpgrade": "{0}로 업그레이드",
   "plansUpgradeYearly": "연간으로 업그레이드",
   "similarPayFree": "무료, 앱 내 구입 없음",
@@ -730,7 +732,7 @@
   "similarPerMonth": "{0}/월",
   "similarPerYear": "{0}/년",
   "offerMemoryTitle": "Pro는 채팅 전체를 기억합니다",
-  "offerMemoryBody": "무료 답변은 채팅의 최근 메시지 {0}개만 봅니다. Pro에서는 AI가 채팅 전체를 기억합니다: 모든 메시지, 메모, 질문한 페이지까지.",
-  "offerMemoryLong": "이 채팅은 무료 답변이 기억하는 메시지 {0}개보다 깁니다. Pro에서는 AI가 채팅 전체를 기억합니다: 모든 메시지, 메모, 질문한 페이지까지.",
+  "offerMemoryBody": "무료 답변은 채팅의 최근 답변과 메모 {0}개를 기억합니다. Pro에서는 AI가 채팅 전체를 기억합니다: 모든 메시지, 메모, 질문한 페이지까지.",
+  "offerMemoryLong": "이 채팅에는 무료 답변이 기억하는 답변과 메모 {0}개보다 많은 내용이 있습니다. Pro에서는 AI가 채팅 전체를 기억합니다: 모든 메시지, 메모, 질문한 페이지까지.",
   "offerRetryAt": "{0}에 답변이 다시 가능합니다."
 }

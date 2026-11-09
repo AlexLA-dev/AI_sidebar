@@ -13,13 +13,13 @@ import type { Platform, Usage } from "../../shared/types"
 import type { SpeakIn, SpeakOut } from "../../background/speak"
 import { SPEEDS, speedLabel, type Speed } from "../../shared/stretch"
 import { isTouch } from "../page"
-import { listenNotifyLater, listenNotifyLaterNow, listenSpeed, setListenSpeed } from "../store"
+import { listenNotifyLater, listenNotifyLaterNow, listenSpeed, notifyKnown, setListenSpeed, setNotifyKnown } from "../store"
 import { clock, PcmPlayer } from "./player"
 
 export type ListenState =
   | { at: "idle" }
   | { at: "loading"; key: string }
-  | { at: "playing" | "paused"; key: string; position: number; total: number }
+  | { at: "playing" | "paused"; key: string; position: number; total: number; received?: number }
   | { at: "handoff"; key: string }
   | { at: "error"; key: string; code: string; usage?: Usage | null }
   // Build 91: fewer minutes left this week than the text takes, said before it starts.
@@ -62,9 +62,22 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: 
   useEffect(() => void listenSpeed().then(setSpeedState), [])
   const run = useRef<{
     port: chrome.runtime.Port; player: PcmPlayer; timer: ReturnType<typeof setInterval>; ended: boolean; key: string; total: number; told: number
+    // The audio received when the next part was last asked for (build 92: asked for only when it runs short), and whether
+    // a part is still coming (its pieces make what's in hand look short: no "more" until it has all come).
+    more?: number
+    fetching?: boolean
+    // Seconds heard of each part (by index), the part being heard, and where the last tick was (build 92: the week's
+    // minutes count what's heard).
+    heard?: Record<number, number>
+    heardPart?: number
+    lastPos?: number
     // iPhone and iPad with notifications: leaving the page, coming back, and what the app is told meanwhile.
     cleanup?: () => void
-    handoff?: { parts: (parts: string[], complete: boolean) => void; tick: () => void; paused: () => void; resumed: () => void }
+    handoff?: { parts: (parts: string[], complete: boolean) => void; tick: () => void; paused: () => void; resumed: () => void; moved: () => void }
+    // The clock (4 times a second) runs only while it plays (build 92: a paused player kept it going for good).
+    clock?: (on: boolean) => void
+    // What the bar shows now (the tick sets it only when it changes).
+    shown?: { at: "playing" | "paused"; position: number; total: number; received: number }
   } | null>(null)
   const speedRef = useRef<Speed>(1)
   speedRef.current = speed
@@ -73,17 +86,30 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: 
   // may have just turned them on), and whether "Not now" holds today.
   const notifyOn = useRef(false)
   const notifyLater = useRef(false)
+  // Build 92: asked after Listen (and on coming back while the card asks to turn them on), not on every page and every
+  // tab switch: each ask is a native message, which wakes the app's extension on iPhone and iPad. Listen itself decides
+  // from the last answer (kept in the extension's storage, read without a native message): what it does has to happen
+  // inside the tap (the link to the app, the sound), and an ask first would come after it (build 90's bug).
+  const askNotify = useCallback(async () => {
+    const [r, later] = await Promise.all([send<{ status?: string }>({ type: "notifStatus" }), listenNotifyLaterNow()])
+    notifyOn.current = ["authorized", "provisional", "ephemeral"].includes(r?.status ?? "")
+    notifyLater.current = later
+    void setNotifyKnown(notifyOn.current)
+  }, [send])
   useEffect(() => {
     if (!isTouch(platform)) return
-    const ask = () => void send<{ status?: string }>({ type: "notifStatus" }).then((r) => {
-      notifyOn.current = ["authorized", "provisional", "ephemeral"].includes(r?.status ?? "")
+    void Promise.all([notifyKnown(), listenNotifyLaterNow()]).then(([on, later]) => {
+      notifyOn.current = on
+      notifyLater.current = later
     })
-    ask()
-    void listenNotifyLaterNow().then((later) => { notifyLater.current = later })
-    const onVisible = () => { if (document.visibilityState === "visible") ask() }
+  }, [platform])
+  const asking = state.at === "notify"
+  useEffect(() => {
+    if (!isTouch(platform) || !asking) return
+    const onVisible = () => { if (document.visibilityState === "visible") void askNotify() }
     document.addEventListener("visibilitychange", onVisible)
     return () => document.removeEventListener("visibilitychange", onVisible)
-  }, [platform, send])
+  }, [platform, asking, askNotify])
 
   const stop = useCallback(() => {
     const current = run.current
@@ -92,7 +118,9 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: 
       current.cleanup?.()
       clearInterval(current.timer)
       try {
-        current.port.postMessage({ type: "stop" } satisfies SpeakIn)
+        // What was heard of each part, then the stop (the background sends it to the server).
+        if (current.heard) current.port.postMessage({ type: "heard", heard: { ...current.heard } } satisfies SpeakIn)
+        current.port.postMessage({ type: "stop", heard: current.player.position } satisfies SpeakIn)
         current.port.disconnect()
       } catch {
         // Already gone.
@@ -136,6 +164,8 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: 
 
     // iPhone and iPad without notifications: the app plays it (WebKit stops a page's sound when the page goes away;
     // the app keeps playing, screen locked and in headphones too), after asking once a day to turn them on.
+    // Decided now, in the tap, from the last answer; the answer is refreshed for next time.
+    if (isTouch(platform)) void askNotify()
     if (isTouch(platform) && !notifyOn.current) {
       if (notifyLater.current) return handOff(key, item, parts, "listen")
       step("notify")
@@ -150,11 +180,18 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: 
     }
 
     step("start")
-    const player = new PcmPlayer(await listenSpeed())
+    // In the tap itself, before anything is awaited: WebKit lets a page's sound start only from the tap (the speed is
+    // already known; build 92 read it from storage first).
+    const player = new PcmPlayer(speedRef.current)
     await player.unlock()
     const port = chrome.runtime.connect({ name: "speak" })
     const total = speechSeconds(text)
-    const current: NonNullable<typeof run.current> = { port, player, ended: false, key, total, told: -1, timer: setInterval(() => tick(), 250) }
+    // The first part is asked for at once (it's coming until its end).
+    const current: NonNullable<typeof run.current> = { port, player, ended: false, key, total, told: -1, timer: setInterval(() => tick(), 250), fetching: true }
+    current.clock = (on) => {
+      clearInterval(current.timer)
+      if (on) current.timer = setInterval(() => tick(), 250)
+    }
     run.current = current
     setState({ at: "loading", key })
 
@@ -179,6 +216,11 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: 
         if (event.type === "visibilitychange" && document.visibilityState === "visible") return
         away.gone = true
         player.pause()
+        current.clock?.(false)
+        // What was heard here so far (the app counts what it plays from this second).
+        if (current.heard) port.postMessage({ type: "heard", heard: { ...current.heard } } satisfies SpeakIn)
+        // The clock is off: the bar is told itself (it showed Pause while the page was away).
+        setState((s) => (s.at === "playing" ? { ...s, at: "paused" } : s))
         tell("away")
       }
       const show = () => {
@@ -191,6 +233,7 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: 
             setState({ at: "taken", key })
           } else {
             player.resume()
+            current.clock?.(true)
             away.last = 0
           }
         })
@@ -203,33 +246,76 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: 
         window.removeEventListener("pagehide", hide)
         void send({ type: "listenHandoff", op: "stop", id: away.id })
       }
-      current.handoff = { parts: (p, complete) => { away.parts = p; away.complete = complete }, tick: () => {
-        if (!away.gone && !away.held && player.received > 0 && document.visibilityState === "visible" && Date.now() - away.last > 4000) tell("state")
-      }, paused: () => {
-        away.held = true
-        void send({ type: "listenHandoff", op: "stop", id: away.id })
-      }, resumed: () => {
-        away.held = false
-        away.last = 0
-      } }
+      // The app is told on events only (build 92, energy: it was every 4 s while playing): the first sound, the parts as
+      // they're written, pause and play, a seek; leaving the page sends the second it was at.
+      const told = () => player.received > 0 && !away.gone && !away.held
+      current.handoff = {
+        parts: (p, complete) => {
+          away.parts = p
+          away.complete = complete
+          if (told()) tell("state")
+        },
+        tick: () => {
+          if (away.last === 0 && told()) tell("state")
+        },
+        paused: () => {
+          away.held = true
+          void send({ type: "listenHandoff", op: "stop", id: away.id })
+        },
+        resumed: () => {
+          away.held = false
+          away.last = 0
+        },
+        moved: () => {
+          if (told()) tell("state")
+        }
+      }
     }
 
     function tick() {
       if (run.current !== current) return
       current.handoff?.tick()
+      // Heard, part by part: the position moving on by about a tick's worth while it plays (a seek or a wait isn't).
+      const pos = player.position
+      const moved = pos - (current.lastPos ?? 0)
+      current.lastPos = pos
+      if (!player.paused && moved > 0 && moved <= 1.5 && player.received > 0) {
+        const heardPart = Math.max(0, player.part)
+        current.heard = current.heard ?? {}
+        current.heard[heardPart] = (current.heard[heardPart] ?? 0) + moved
+        // A part heard to its end (the next one began): told now, so it counts even if the page goes.
+        if (current.heardPart !== undefined && current.heardPart !== heardPart) port.postMessage({ type: "heard", heard: { ...current.heard } } satisfies SpeakIn)
+        current.heardPart = heardPart
+      }
       const part = player.part
       if (part > current.told) {
         current.told = part
         port.postMessage({ type: "playing", part } satisfies SpeakIn)
+      }
+      // The next part is asked for only when what's in hand runs short (about 8 s of listening left, at any speed): a
+      // text stopped early never costs minutes for parts nobody heard (build 92).
+      if (!current.ended && !current.fetching && !player.paused && player.received > 0 && player.received !== current.more
+        && (player.received - player.position) < 8 * speedRef.current + 4) {
+        current.more = player.received
+        current.fetching = true
+        port.postMessage({ type: "more" } satisfies SpeakIn)
       }
       if (current.ended && player.drained && player.received > 0) {
         stop()
         return
       }
       if (player.received === 0) return
-      // Waiting for more audio shows as loading only before the first sound.
-      const position = player.position
-      setState({ at: player.paused ? "paused" : "playing", key, position, total: Math.max(current.total, player.received) })
+      // Waiting for more audio shows as loading only before the first sound. The bar moves by half seconds, and nothing
+      // is set when nothing moved (build 92: paused, handed to the app or waiting, it re-drew the whole panel 4 times a
+      // second, for as long as the bar stayed). What has come is shown too (the bar seeks within it).
+      const at = player.paused ? "paused" : "playing"
+      const position = Math.floor(player.position * 2) / 2
+      const total = Math.max(current.total, player.received)
+      const received = player.received
+      const shown = current.shown
+      if (shown && shown.at === at && shown.position === position && shown.total === total && shown.received === received) return
+      current.shown = { at, position, total, received }
+      setState({ at, key, position, total, received })
     }
 
     port.onMessage.addListener((raw: unknown) => {
@@ -239,6 +325,7 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: 
       else if (message.type === "chunk") player.push(message.part, message.data)
       else if (message.type === "aac") player.pushAac(message.part, message.data)
       else if (message.type === "parts") current.handoff?.parts(message.parts, message.complete)
+      else if (message.type === "partEnd") current.fetching = false
       else if (message.type === "end") {
         current.ended = true
         player.end()
@@ -266,19 +353,34 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: 
       if (run.current === current && !current.ended) current.ended = true
     })
     port.postMessage({ type: "play", text: item.text, lang: item.lang, what: item.what } satisfies SpeakIn)
-  }, [plan, platform, onUltra, send, stop, left, handOff])
+  }, [plan, platform, onUltra, send, stop, left, handOff, askNotify])
 
   const toggle = useCallback(() => {
     const current = run.current
     if (!current) return
     if (current.player.paused) {
       current.player.resume()
+      current.clock?.(true)
       current.handoff?.resumed()
     } else {
-      // Paused: leaving the page then doesn't bring a notification.
+      // Paused: leaving the page then doesn't bring a notification, and nothing runs meanwhile.
       current.player.pause()
+      current.clock?.(false)
+      setState((s) => (s.at === "playing" ? { ...s, at: "paused" } : s))
       current.handoff?.paused()
     }
+  }, [])
+
+  /** The bar dragged or tapped (build 92): from that second, within what has come; the app is told where it is. */
+  const seek = useCallback((seconds: number) => {
+    const current = run.current
+    if (!current) return
+    current.player.seek(seconds)
+    // A seek isn't heard.
+    current.lastPos = current.player.position
+    current.handoff?.moved()
+    const position = current.player.position
+    setState((s) => (s.at === "playing" || s.at === "paused" ? { ...s, position } : s))
   }, [])
 
   /** The next speed (1× → 1.2× → 1.5× → 2× → 1×), kept for next time; what's playing changes at once. */
@@ -313,7 +415,7 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: 
     handOff(s.key, s.item, speechParts(plainText(s.item)), "listen")
   }, [handOff, send])
 
-  return { state, start, stop, toggle, speed, cycleSpeed, left, anyway, notifyTurnOn, notifyNotNow }
+  return { state, start, stop, toggle, seek, speed, cycleSpeed, left, anyway, notifyTurnOn, notifyNotNow }
 }
 
 /** What's read: an answer's words without its Markdown, or the page's text. */
@@ -326,7 +428,7 @@ function newId(): string {
 }
 
 /** The bar over the question field while something is read aloud (or why it isn't). */
-export function ListenBar({ state, speed, left, onSpeed, onAnyway, onNotifyOn, onNotifyLater, onToggle, onStop, onPlans }: {
+export function ListenBar({ state, speed, left, onSpeed, onAnyway, onNotifyOn, onNotifyLater, onToggle, onSeek, onStop, onPlans }: {
   state: ListenState
   speed: number
   // Seconds of listening left this week (null: not known).
@@ -337,6 +439,8 @@ export function ListenBar({ state, speed, left, onSpeed, onAnyway, onNotifyOn, o
   onNotifyOn?: () => void
   onNotifyLater?: () => void
   onToggle: () => void
+  // The bar dragged or tapped: from that second (build 92).
+  onSeek?: (seconds: number) => void
   onStop: () => void
   onPlans: () => void
 }): VNode | null {
@@ -393,12 +497,65 @@ export function ListenBar({ state, speed, left, onSpeed, onAnyway, onNotifyOn, o
       ) : (
         <>
           <span class="cf-listen-time">{clock(state.position)} / {clock(state.total)}</span>
-          <div class="cf-listen-track" aria-hidden="true"><div style={{ width: `${Math.min(100, (state.position / Math.max(1, state.total)) * 100)}%` }} /></div>
+          <SeekBar position={state.position} total={state.total} received={state.received ?? state.total} onSeek={onSeek} />
         </>
       )}
       {typeof left === "number" && !loading && <span class="cf-listen-left" title={t("listenMinLeftTitle", String(Math.floor(left / 60)))}>{t("listenMinLeft", String(Math.floor(left / 60)))}</span>}
       <button type="button" class="cf-listen-speed" onClick={onSpeed} aria-label={t("listenSpeed", speedLabel(speed))} title={t("listenSpeed", speedLabel(speed))}>{speedLabel(speed)}</button>
       <button type="button" class="cf-icon-btn" onClick={onStop} aria-label={t("listenStop")}><StopIcon /></button>
+    </div>
+  )
+}
+
+/** The progress bar, dragged or tapped with a finger, a mouse or a trackpad, or moved with the arrow keys (±5 s): from
+ *  that second, within what has come (the rest isn't made yet). While dragging it shows where it would go; letting go
+ *  moves there once. */
+function SeekBar({ position, total, received, onSeek }: { position: number; total: number; received: number; onSeek?: (seconds: number) => void }): VNode {
+  const track = useRef<HTMLDivElement>(null)
+  const [dragging, setDragging] = useState<number | null>(null)
+  const span = Math.max(1, total)
+  const at = (clientX: number) => {
+    const box = track.current?.getBoundingClientRect()
+    if (!box || box.width <= 0) return position
+    return Math.max(0, Math.min(received, ((clientX - box.left) / box.width) * span))
+  }
+  const shown = dragging ?? position
+  return (
+    <div
+      ref={track}
+      class={`cf-listen-track seek ${dragging !== null ? "dragging" : ""}`}
+      role="slider"
+      tabIndex={0}
+      aria-label={t("listenSeek")}
+      aria-valuemin={0}
+      aria-valuemax={Math.round(span)}
+      aria-valuenow={Math.round(position)}
+      aria-valuetext={clock(position)}
+      onPointerDown={(e) => {
+        if (!onSeek) return
+        e.preventDefault()
+        ;(e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId)
+        setDragging(at(e.clientX))
+      }}
+      onPointerMove={(e) => {
+        if (dragging !== null) setDragging(at(e.clientX))
+      }}
+      onPointerUp={(e) => {
+        if (dragging === null) return
+        const to = at(e.clientX)
+        setDragging(null)
+        onSeek?.(to)
+      }}
+      onPointerCancel={() => setDragging(null)}
+      onKeyDown={(e) => {
+        if (!onSeek || (e.key !== "ArrowLeft" && e.key !== "ArrowRight")) return
+        e.preventDefault()
+        onSeek(Math.max(0, Math.min(received, position + (e.key === "ArrowRight" ? 5 : -5))))
+      }}
+    >
+      <div class="cf-listen-buffered" style={{ width: `${Math.min(100, (received / span) * 100)}%` }} />
+      <div class="cf-listen-done" style={{ width: `${Math.min(100, (shown / span) * 100)}%` }} />
+      <span class="cf-listen-thumb" style={{ left: `${Math.min(100, (shown / span) * 100)}%` }} />
     </div>
   )
 }

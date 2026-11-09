@@ -3,12 +3,13 @@
 // Choosing a plan opens the ContextFlow app on it, where the App Store sheet takes the payment.
 
 import type { VNode } from "preact"
-import { useState } from "preact/hooks"
+import { useEffect, useState } from "preact/hooks"
 
 import { t } from "../shared/i18n"
-import { PLAN_RANK, periodOfProduct, planOfProduct, productOf, type PaidPlan, type Period } from "../shared/plan"
+import { DEFAULT_PLAN_FACTS, PLAN_RANK, periodOfProduct, planOfProduct, productOf, type PaidPlan, type Period } from "../shared/plan"
 import type { PlanFacts, StatusInfo } from "../shared/types"
 import { Gallery } from "./Gallery"
+import { lastPrices } from "./store"
 import * as Icon from "./icons"
 
 const ORDER: PaidPlan[] = ["byok", "pro", "ultra"]
@@ -50,11 +51,15 @@ export function PlansSheet({ status, focus, onChoose, onClose }: {
   onChoose: (plan: PaidPlan, period: Period) => void
   onClose: () => void
 }): VNode {
-  const prices = status?.store?.prices ?? {}
+  // The App Store's prices, or the last ones this device had (build 92: none at all when the status didn't come).
+  const [keptPrices, setKeptPrices] = useState<Record<string, string>>({})
+  useEffect(() => void lastPrices().then(setKeptPrices), [])
+  const given = status?.store?.prices ?? {}
+  const prices = Object.keys(given).length ? given : keptPrices
   const currentProduct = status?.store?.active ? status.store.productId : null
   const currentPlan = planOfProduct(currentProduct)
   const [period, setPeriod] = useState<Period>(periodOfProduct(currentProduct) ?? "yearly")
-  const facts = status?.plans
+  const facts = status?.plans ?? DEFAULT_PLAN_FACTS
   // The best yearly saving on offer, for the switch (the app's own figure when it shared one).
   const best = Math.max(0, ...ORDER.map((plan) => Number(prices[`${productOf(plan, "yearly")}#percent`]) || yearlySaving(prices[productOf(plan, "monthly")], prices[productOf(plan, "yearly")]) || 0))
 

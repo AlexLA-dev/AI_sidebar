@@ -517,6 +517,7 @@
   "orgNameChat": "依主題命名",
   "orgNamed": "已命名為「{0}」",
   "orgNameFailed": "目前無法為對話命名，請稍後再試。",
+  "orgNameAs": "將對話命名為「{0}」",
   "recs_one": "{0} 則建議",
   "recs_two": "{0} 則建議",
   "recs_few": "{0} 則建議",
@@ -719,6 +720,7 @@
   "listenNotifyOn": "開啟通知",
   "listenNotifyLater": "以後再說",
   "listenTaken": "正在 ContextFlow App 中播放。",
+  "listenSeek": "播放位置",
   "plansUpgrade": "升級到 {0}",
   "plansUpgradeYearly": "升級到年繳",
   "similarPayFree": "免費，無 App 內購買",
@@ -730,7 +732,7 @@
   "similarPerMonth": "{0}/月",
   "similarPerYear": "{0}/年",
   "offerMemoryTitle": "Pro 會記住整段對話",
-  "offerMemoryBody": "免費回答只看對話的最近 {0} 則訊息。使用 Pro，AI 會記住整段對話：每則訊息、你的筆記和你提問過的頁面。",
-  "offerMemoryLong": "這段對話已超過免費回答能記住的 {0} 則訊息。使用 Pro，AI 會記住整段對話：每則訊息、你的筆記和你提問過的頁面。",
+  "offerMemoryBody": "免費回答只記得對話中最近的 {0} 則回答和筆記。使用 Pro，AI 會記住整段對話：每則訊息、你的筆記和你提問過的頁面。",
+  "offerMemoryLong": "這段對話的回答和筆記已超過免費回答能記住的 {0} 則。使用 Pro，AI 會記住整段對話：每則訊息、你的筆記和你提問過的頁面。",
   "offerRetryAt": "回答將在 {0} 恢復。"
 }

@@ -221,7 +221,7 @@ export type BackgroundRequest =
   // Chat UX counts (2.5), no text: see UX_KINDS in netlify/functions/v2-event.mts.
   | { type: "uxEvent"; kind: "ux_mark" | "ux_pin" | "ux_delete" | "ux_remind"; action: string; what?: string; how?: string; preset?: string }
   // A step for the feature counters: the analytics registry's "use" kind (src/shared/usage.ts), named values only.
-  | { type: "useEvent"; f: "menu" | "later" | "tour" | "bubble" | "listen" | "plans" | "chat_plans"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string }
+  | { type: "useEvent"; f: "menu" | "later" | "tour" | "bubble" | "listen" | "plans" | "chat_plans"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string; heard_s?: number; cache_s?: number; icloud_s?: number; server_s?: number; charged_s?: number }
 
 /** A PDF's text, or why there is none ("none": nothing to read, e.g. scanned pages). */
 export type PdfResult =
@@ -237,10 +237,17 @@ export type OrganizeReply =
       move: { start: number; end: number; to: string | null; toName: string; why: "page" | "site" | "topic" | "apart"; count: number } | null
       // A suggested tag for the message at `index` (its key, to check it's still that message).
       tags: Array<{ index: number; key: string; tag: string }>
-      // 2.6: the chat's name no longer fits its topic (and the user didn't type it): this one does.
+      // 2.6: the chat's name no longer fits its topic (and the user didn't type it): this one would. A suggestion, like a
+      // tag or a move (2.6 (91): the owner wants to OK each rename).
       name?: string
     }
   | { ok: false; code: "OFF" | "PRO_ONLY" | "NETWORK" | "LIMIT_REACHED" | "UPSTREAM" }
+
+/**
+ * Name checks (2.6), by chat: what the last one was about (nameCheckKey), and the name it suggested while it's open
+ * (`title`; `no`: turned down). Only on this device.
+ */
+export type OrgNames = Record<string, { key: string; at: number; title?: string; no?: true }>
 
 export type OrganizeCountsReply = { ok: true; counts: Record<string, number> } | { ok: false; code: "OFF" | "PRO_ONLY" | "NETWORK" | "LIMIT_REACHED" | "UPSTREAM" }
 
@@ -249,8 +256,9 @@ export type OrganizeNameReply = { ok: true; name: string } | { ok: false; code: 
 /** Organizing events for /api/v2/event (src/background/organize.ts sends them). */
 export type OrganizeEvent =
   | { kind: "organize"; action: "shown" | "accepted" | "dismissed" | "undone"; what: "move" | "new" | "tag"; why?: "page" | "site" | "topic" | "apart" }
-  // 2.6: the chat named by its topic ("Name by topic", or by itself when its name no longer fit), or that undone.
-  | { kind: "organize"; action: "accepted" | "undone"; what: "name"; why: "asked" | "drift" }
+  // 2.6: the chat named by its topic: "Name by topic" (asked), or a suggested name ("drift": its name no longer fit)
+  // shown, taken, turned down; either undone.
+  | { kind: "organize"; action: "shown" | "accepted" | "dismissed" | "undone"; what: "name"; why: "asked" | "drift" }
   // 2.6: "N recommendations" on a chat in the list, shown (once per chat) and tapped.
   | { kind: "organize"; action: "shown" | "tap"; what: "badge" }
   | { kind: "organize_promo"; action: "shown" | "tap"; where: "pro_card" | "inchat_mess" | "third_tag" | "first_win" | "settings" }
@@ -267,6 +275,8 @@ export const STORAGE = {
   activeThread: "cf:activeThread",
   // Build 91: the questions the background is answering, and how the last ones ended (Jobs by question id, jobs.ts).
   jobs: "cf:jobs",
+  // Build 92: the app's last answer about the subscription ({ value, at }), for when the app doesn't answer.
+  lastEntitlement: "cf:lastEntitlement",
   // Build 91: the free chats that had the memory message once (chat ids, the latest last).
   memoryOffered: "cf:memoryOffered",
   // iCloud sync: CloudKit change token, and the time of each thread's copy in iCloud.
@@ -293,6 +303,10 @@ export const STORAGE = {
   yearlyHiddenUntil: "cf:yearlyHiddenUntil",
   // "Not now" to notifications at Listen (iPhone, iPad): Listen opens the app without asking until this time.
   listenNotifyLater: "cf:listenNotifyLater",
+  // The App Store's prices the last time the app's side gave them (build 92): the plans sheet's when none come.
+  lastPrices: "cf:lastPrices",
+  // Notifications on for ContextFlow, as the app's side last said (build 92): Listen decides from it inside the tap.
+  notifyOn: "cf:notifyOn",
   // Recent pages' text on this device ({ [url]: { title, text, at } }) for "whole chat" answers.
   pageTexts: "cf:pageTexts",
   // How many times the hint about writing notes with the send button was shown, or -1 once used.
@@ -320,6 +334,9 @@ export const STORAGE = {
   orgVerdicts: "cf:orgVerdicts",
   // Name checks done (2.6), by chat: what each was about (nameCheckKey), so the same chat isn't checked again.
   orgNames: "cf:orgNames",
+  // Tags the check said yes to, by chat, as the chat last showed them ({key, tag}[]): the chats list counts these
+  // (2.6 (91)) instead of working out every chat's tag candidates again.
+  orgTagsShown: "cf:orgTagsShown",
   orgCards: "cf:orgCards"
 } as const
 

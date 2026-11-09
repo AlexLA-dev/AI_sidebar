@@ -8,7 +8,7 @@
 // What's in Pro/Ultra, Show the intro again) under "Other…", folded until it's tapped.
 
 import type { VNode } from "preact"
-import { useEffect, useRef, useState } from "preact/hooks"
+import { useEffect, useLayoutEffect, useRef, useState } from "preact/hooks"
 
 import { t } from "../../shared/i18n"
 import { listenAround } from "../around"
@@ -66,6 +66,19 @@ export function PageMenu({ reminders, watches, onLater, onWatchPage, onSimilar, 
   const tips = onTips && tipsLabel()
   // "Other…": folded each time the menu opens.
   const [more, setMore] = useState(false)
+  // 2.6 (92), the owner: with Other… open on an iPhone its last items were below the screen, and a swipe moved the page.
+  // The menu is as tall as there's room from it to the panel's (and the screen's) bottom and scrolls inside itself;
+  // opening Other… brings its items into view.
+  useLayoutEffect(() => {
+    const menu = ref.current
+    if (!menu) return
+    const panel = menu.closest(".cf-panel")?.getBoundingClientRect?.()
+    const vv = window.visualViewport
+    const bottom = Math.min(panel?.bottom ?? Infinity, vv ? vv.offsetTop + vv.height : window.innerHeight)
+    const top = menu.getBoundingClientRect?.().top
+    if (top !== undefined && Number.isFinite(bottom)) menu.style.maxHeight = `${Math.max(160, Math.floor(bottom - top - 8))}px`
+    if (more) (menu.querySelector(".cf-page-more-group") as HTMLElement | null)?.scrollIntoView?.({ block: "nearest" })
+  }, [more])
   return (
     <div ref={ref} class="cf-msg-menu cf-page-menu" role="menu">
       <button type="button" role="menuitem" class="cf-page-later" onClick={onLater}><Bell size={16} /> {t("uxLater")}</button>

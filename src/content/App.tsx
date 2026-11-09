@@ -28,15 +28,19 @@ import { answerWeight } from "../shared/pagefit"
 import { answerShareText, chatLanguage, noteCopyText, noteShareText, pickedShareText, textLanguage, toPlainText, type ShareLinks } from "../shared/share"
 import type { PageRead, PageSource } from "./context"
 import {
+  followLink,
   forgetSelection,
   HOST_TAG,
   isTouch,
   MIN_SELECTION_WORDS,
+  openAppFromTap,
   privateBrowsing,
   readSelection,
   recentSelection,
   rememberSelection,
   trackSelection,
+  selectionRange,
+  restoreSelection,
   type SelectionInfo
 } from "./page"
 import { Hint } from "./Hint"
@@ -60,8 +64,8 @@ import { dodgeFab } from "./fabDodge"
 import { hasPro, isUltra, type PaidPlan } from "../shared/plan"
 import { SettingsView } from "./Settings"
 import { shareLabels } from "./shareLabels"
-import { loadJobs, markHintSeen, markMemoryOffered, memoryOffered, onJobsChanged, resetHints, seenHints, type HintKey } from "./store"
-import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, onConsentChanged, loadThreads, markTourSeen, lastPlanSeen, setLastPlanSeen, planToursSeen, markPlanToursSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, purgeChats, nameThread, rememberPageText, renameThread, renewalAskedPeriod, unnameThread, restoreChat, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount, trashChat } from "./store"
+import { keptPlanNow, loadJobs, markHintSeen, markMemoryOffered, memoryOffered, onJobsChanged, resetHints, seenHints, type HintKey } from "./store"
+import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, onConsentChanged, loadThreads, markTourSeen, lastPlanSeen, setLastPlanSeen, planToursSeen, markPlanToursSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, purgeChats, nameThread, rememberPageText, renameThread, renewalAskedPeriod, settleNameSuggestion, unnameThread, restoreChat, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount, trashChat } from "./store"
 import { TagChip, TagEditor } from "./Tags"
 import { ThreadsView } from "./Threads"
 import { TrashView } from "./Trash"
@@ -150,6 +154,14 @@ const selAction = (id: string) => SELECTION_ACTIONS.find((a) => a.id === id)!
  * (--ultra) everywhere they show, with a small "Ultra" for anyone without it. */
 const ULTRA_ACTIONS = new Set(["similar", "sel_similar"])
 
+/** The first `n` quick actions, and Find similar after them wherever it falls in the list (2.6 (92), the owner: the
+ * rows under "Now on…" and under an answer showed the first few only, never Find similar). */
+function withUltra(list: Action[], n: number): Action[] {
+  const ultra = list.find((a) => ULTRA_ACTIONS.has(a.id))
+  const rest = list.filter((a) => !ULTRA_ACTIONS.has(a.id)).slice(0, n)
+  return ultra ? [...rest, ultra] : rest
+}
+
 /** The small "Ultra" on an Ultra action, for someone without Ultra (a tap opens Ultra's card). */
 function UltraMark({ show }: { show: boolean }): VNode | null {
   return show ? <span class="cf-ultra-mark">Ultra</span> : null
@@ -193,15 +205,6 @@ function sendBackground<T>(message: unknown): Promise<T | null> {
   })
 }
 
-function followLink(url: string): void {
-  const a = document.createElement("a")
-  a.href = url
-  a.rel = "noopener"
-  a.style.display = "none"
-  document.documentElement.appendChild(a)
-  a.click()
-  setTimeout(() => a.remove(), 500)
-}
 
 async function copyText(text: string): Promise<boolean> {
   try {
@@ -339,6 +342,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [memoryOffer, setMemoryOffer] = useState<"switch" | "long" | null>(null)
   // The plan as last known (the status, else the plan the panel saw last): what a question's memory is.
   const planKnownRef = useRef<Plan>("free")
+  // The plan the app's side last gave (the background keeps it): shown until this page's status comes, so a subscriber
+  // never sees Free first (build 92: Free for a moment on every page, for seconds when the app was slow to answer).
+  const [keptPlan, setKeptPlan] = useState<Plan | null>(null)
+  useEffect(() => void keptPlanNow().then(setKeptPlan), [])
   // The card opened from a selection: what was selected, the thing to find alternatives to (the page is context).
   const [similarSubject, setSimilarSubject] = useState<string | null>(null)
   const [similarRun, setSimilarRun] = useState<{ items: SimilarItem[]; step: SimilarStep; pages?: number } | null>(null)
@@ -354,6 +361,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [findConsent, setFindConsent] = useState<{ resolve: (agreed: boolean) => void } | null>(null)
   const [pending, setPending] = useState<{ text: string; label?: string; action?: string; mode?: "google"; similar?: string; similarSel?: string } | null>(null)
   const [selection, setSelection] = useState<SelectionInfo | null>(null)
+  // For closing the panel: whether it was about a selection, and whether it was open before (92: the buttons come back).
+  const keptSelectionRef = useRef<SelectionInfo | null>(null)
+  keptSelectionRef.current = selection
+  const wasOpenRef = useRef(false)
   const [pageReadable, setPageReadable] = useState(true)
   const [wide, setWide] = useState(() => window.innerWidth >= 700)
   const [keyboard, setKeyboard] = useState(0)
@@ -603,10 +614,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (!touch) setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 250)
   }, [open, refreshStatus, touch, source])
 
-  // Single-page apps: follow URL changes while open (the conversation carries on).
+  // Single-page apps: follow URL changes while open (the conversation carries on). Every 3 s while the page shows, and
+  // at once on the browser's own navigation events (build 92: every 1.5 s, hidden pages too).
   useEffect(() => {
     if (!open) return
-    const timer = setInterval(() => {
+    const check = () => {
+      if (document.visibilityState !== "visible") return
       const key = source.key()
       if (key !== pageUrlRef.current) {
         pageUrlRef.current = key
@@ -615,8 +628,15 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         setSelection(null)
         setPageReadable(source.readable())
       }
-    }, 1500)
-    return () => clearInterval(timer)
+    }
+    const timer = setInterval(check, 3000)
+    window.addEventListener("popstate", check)
+    window.addEventListener("hashchange", check)
+    return () => {
+      clearInterval(timer)
+      window.removeEventListener("popstate", check)
+      window.removeEventListener("hashchange", check)
+    }
   }, [open, source])
 
   // While open: the chat list follows other tabs and devices, and the answer counter other devices.
@@ -800,7 +820,20 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     document.addEventListener("mouseup", onMouseUp)
     // Capturing: a box's scroll doesn't bubble to the window. Our own lists scroll in our root, out of sight here.
     document.addEventListener("scroll", onScroll, { passive: true, capture: true })
+    // 2.6 (92), the owner: a selection still on the page when the panel closes gets its buttons back (once the panel
+    // has slid away), without selecting it again.
+    // The panel's field takes the page's selection away (iPhone, and a click into it on a Mac): the one the panel was
+    // about goes back on the page first, unless its chip was cleared.
+    const closing = wasOpenRef.current && !open
+    wasOpenRef.current = open
+    const back = open
+      ? undefined
+      : setTimeout(() => {
+          if (closing && keptSelectionRef.current) restoreSelection()
+          offerButton()
+        }, 320)
     return () => {
+      clearTimeout(back)
       clearTimeout(timer)
       clearTimeout(scrollTimer)
       document.removeEventListener("selectionchange", onSelectionChange)
@@ -834,7 +867,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   memoryNudgeRef.current = (entries: Turn[]) => {
     const planNow = statusRef.current?.plan ?? planKnownRef.current
     if (historyRef.current || hasPro(planNow) || (Boolean(statusRef.current?.hasOwnKey) && planNow !== "free")) return
-    if (entries.filter((e) => !e.note).length <= FREE_MEMORY) return
+    // More answers and notes than a free answer remembers (build 92: the last 5).
+    if (entries.filter((e) => e.role === "assistant" || e.note).length <= FREE_MEMORY) return
     const chat = threadRef.current
     void memoryOffered().then((done) => {
       if (done.includes(chat) || threadRef.current !== chat) return
@@ -966,6 +1000,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     // …and the own key's, whose subscriber pays the model.
     const ownKeyNow = Boolean(statusRef.current?.hasOwnKey) && planNow !== "free"
     const wholeChat = (hasPro(planNow) || ownKeyNow) && settingsRef.current.chatMemory !== false
+    // Free: the last 5 answers and notes (build 92).
+    const free = !hasPro(planNow) && !ownKeyNow
     // The chat's other pages: this device's copy of their text, else the one saved in the chat (another device's).
     const others = otherPages(history, url).map((p) => p.url).slice(0, MAX_OTHER_PAGES)
     const savedTexts = savedPages(history)
@@ -976,7 +1012,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         type: "ask",
         job,
         payload: {
-          messages: historyForModel(history, url, wholeChat),
+          messages: historyForModel(history, url, wholeChat, free),
           page,
           action: opts.action,
           mode: opts.mode,
@@ -1115,7 +1151,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
   // A followed answer that says nothing for a while (its port broke without closing: 2.6 (90), "Reading the page…" for
   // minutes) is looked up again; so is one coming back from sleep (the page in the background, the phone locked).
+  // Only while an answer is coming (build 92: it ran every 5 s on every page, the panel closed too).
   useEffect(() => {
+    if (partial === null) return
     const quiet = (ms: number) => portRef.current !== null && heardRef.current > 0 && Date.now() - heardRef.current > ms
     const timer = setInterval(() => {
       if (quiet(20_000)) lostRef.current()
@@ -1128,7 +1166,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       clearInterval(timer)
       document.removeEventListener("visibilitychange", onVisible)
     }
-  }, [])
+  }, [partial === null])
 
   /** Keeps a note in the chat (with the page it was written on); no AI, no allowance used. */
   const saveNote = useCallback((text: string) => {
@@ -1888,10 +1926,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   useEffect(() => setPicked(null), [threadRef.current, messages.length, view])
 
   // ------------------------------------------------------------ upgrade
-  const openApp = useCallback(async (target: "subscribe" | "manage", feature?: "ai" | "organize") => {
-    const result = await sendBackground<{ opened: boolean; url: string }>({ type: "openApp", target, feature })
-    if (result && !result.opened && result.url) followLink(result.url)
-  }, [])
+  const openApp = useCallback((target: "subscribe" | "manage", feature?: "ai" | "organize") => {
+    openAppFromTap(touch, { target, feature })
+  }, [touch])
 
   // The App Store's sheet for the offer code: the discount and the price after it, then the purchase.
   const redeemOffer = useCallback((code: string) => {
@@ -1984,6 +2021,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
   // ------------------------------------------------------------ derived
   const contextKind: "selection" | "page" | "none" = selection ? "selection" : pageReadable ? "page" : "none"
+  // The selection's place on the page, for its ring (none for a page, a chat about the chats, or the toolbar popup).
+  const glowRange = useMemo(() => (open && contextKind === "selection" && !popup ? selectionRange() : null), [open, selection, contextKind])
   const actions = historyMode
     ? []
     : contextKind === "selection" && selection
@@ -2144,10 +2183,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setPlanTourDue(null)
     startPlanTourRef.current(planTourDue.tier, "plan", planTourDue.from)
   }, [planTourDue, open, guide, touring, view, streaming, partial])
-  const plan = status?.plan ?? "free"
+  const plan = status?.plan ?? keptPlan ?? "free"
   // "Ultra" on Ultra's actions for anyone without it, once the plan is known: the selection buttons come before the
   // panel has opened on a page, so their plan is read then too (below), and an Ultra subscriber never sees the mark.
   const markUltra = status !== null && !isUltra(plan)
+  /** A quick action's chip: Ultra's in Ultra's colour with its icon (and "Ultra" without it), in every row of them. */
+  const chip = (a: Action, small: boolean) => ULTRA_ACTIONS.has(a.id)
+    ? <button type="button" key={a.id} class={`cf-chip ultra${small ? " small" : ""}`} data-action={a.id} onClick={() => runAction(a)}><SimilarIcon size={small ? 12 : 13} /> {actionLabel(a)}<UltraMark show={markUltra} /></button>
+    : <button type="button" key={a.id} class={`cf-chip${small ? " small" : ""}`} data-action={a.id} onClick={() => runAction(a)}>{actionLabel(a)}</button>
   // Read aloud (2.6, Ultra): an answer or the page. Without Ultra, Listen opens the plans sheet on Ultra.
   const openPlans = useCallback((focus: PaidPlan, via: "listen" | "settings" | "watch" | "limit" | "similar" = "listen") => {
     setPlansOpen(focus)
@@ -2156,10 +2199,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   if (status?.plan) planKnownRef.current = status.plan
   // The plans message in the chat (build 91): a plan and period chosen open the app on them, as the plans sheet does.
   const choosePlan = (choice: OfferChoice) => {
-    void (async () => {
-      const result = await sendBackground<{ opened: boolean; url: string }>({ type: "openApp", target: "subscribe", plan: choice.plan, period: choice.period, feature: choice.plan === "ultra" ? "listen" : undefined })
-      if (result && !result.opened && result.url) followLink(result.url)
-    })()
+    openAppFromTap(touch, { target: "subscribe", plan: choice.plan, period: choice.period, feature: choice.plan === "ultra" ? "listen" : undefined })
   }
   const offerEvent = (place: OfferPlace) => (action: string, choice?: OfferChoice) =>
     void sendBackground({ type: "useEvent", f: "chat_plans", a: action, via: place, ...(choice ? { plan: choice.plan, period: choice.period } : {}) })
@@ -2171,6 +2211,16 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     follow: followLink,
     send: (message) => sendBackground(message)
   })
+  // The panel closed (build 92): what isn't playing goes, its audio and clock with it; what plays goes on (it's back
+  // in the bar when the panel opens again).
+  // Only at the moment it closes: a text paused later (the page left, with the panel closed) keeps its notification.
+  const listenAtRef = useRef(listen.state.at)
+  listenAtRef.current = listen.state.at
+  const listenStop = listen.stop
+  useEffect(() => {
+    const at = listenAtRef.current
+    if (!open && at !== "idle" && at !== "playing" && at !== "loading" && at !== "handoff") listenStop()
+  }, [open, listenStop])
   const listenPage = useCallback(async () => {
     if (consentRef.current !== "ok") {
       const agreed = await new Promise<boolean>((resolve) => setFindConsent({ resolve }))
@@ -2400,7 +2450,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // opens. They belong to the chat as it was (its length) and go when it changes; at most one row under a message.
   const orgCfg = status?.organize?.config ?? DEFAULT_ORGANIZE
   const orgOn = TARGET === "safari" && hasPro(plan) && Boolean(status?.organize?.on) && settings.organize
-  const [org, setOrg] = useState<{ chat: string; length: number; move: OrganizeMove | null; tags: Array<{ index: number; key: string; tag: string }> } | null>(null)
+  const [org, setOrg] = useState<{ chat: string; length: number; move: OrganizeMove | null; tags: Array<{ index: number; key: string; tag: string }>; name: string | null } | null>(null)
   const [cards, setCards] = useState<OrganizeCards | null>(null)
   // "Everything in one chat?" showing in this chat; the card after the third tag; the line after the first one taken
   // (the chat it was taken in: it stays there until the next question or note, never at the end of other chats).
@@ -2422,9 +2472,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     // After the answer is in, without delaying it; a fade in, not a jump.
     const timer = setTimeout(() => {
       void sendBackground<OrganizeReply>({ type: "organize", chat }).then((reply) => {
-        if (reply?.ok && reply.name) void putName(chat, reply.name, "drift")
         if (!reply?.ok || threadRef.current !== chat || messagesRef.current.length !== length) return
-        setOrg({ chat, length, move: reply.move, tags: reply.tags })
+        setOrg({ chat, length, move: reply.move, tags: reply.tags, name: reply.name ?? null })
       })
     }, 900)
     return () => clearTimeout(timer)
@@ -2439,6 +2488,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       seen.push([`m:${entryKey(messages[orgNow.move.start])}:${orgNow.move.to}`, { kind: "organize", action: "shown", what: orgNow.move.to ? "move" : "new", why: orgNow.move.why }])
     }
     for (const x of orgNow.tags) seen.push([`t:${x.key}:${x.tag}`, { kind: "organize", action: "shown", what: "tag" }])
+    if (orgNow.name) seen.push([`n:${orgNow.chat}:${orgNow.name}`, { kind: "organize", action: "shown", what: "name", why: "drift" }])
     for (const [id, event] of seen) {
       if (orgSeen.current.has(id)) continue
       orgSeen.current.add(id)
@@ -2446,16 +2496,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     }
   }, [orgNow])
 
-  // 2.6: the chat named by its topic, by "Name by topic" or by itself when its name no longer fit (never one the user
-  // typed): the list shows it, and a bar says so, with Undo. By itself while another bar is up: quietly.
-  const undoBarRef = useRef(undoBar)
-  undoBarRef.current = undoBar
+  // 2.6: the chat named by its topic, by "Name by topic" or by taking a suggested name (never over a name the user
+  // typed, unless they asked): the list shows it, and a bar says so, with Undo. Never by itself (2.6 (91)).
   const putName = async (chat: string, name: string, why: "asked" | "drift") => {
     const before = await nameThread(chat, name, why === "asked")
     if (!before) return
     setThreadList(chatList((await loadThreads()).threads))
     orgEvent({ kind: "organize", action: "accepted", what: "name", why })
-    if (why === "drift" && (undoBarRef.current || threadRef.current !== chat)) return
+    if (threadRef.current !== chat) return
     setUndoBar({
       text: t("orgNamed", name),
       kind: "move",
@@ -2487,16 +2535,22 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   useEffect(() => {
     if (!open || !orgOn || view !== "threads") return
     let live = true
-    void sendBackground<OrganizeCountsReply>({ type: "organizeCounts" }).then((reply) => {
-      if (!live || !reply?.ok) return
-      setRecs(reply.counts)
-      for (const id of Object.keys(reply.counts)) {
-        if (recsSeen.current.has(id)) continue
-        recsSeen.current.add(id)
-        orgEvent({ kind: "organize", action: "shown", what: "badge" })
-      }
-    })
-    return () => { live = false }
+    // A moment first: a burst of changes (a sync, a long answer saving) counts once (2.6 (91)).
+    const timer = setTimeout(() => {
+      void sendBackground<OrganizeCountsReply>({ type: "organizeCounts" }).then((reply) => {
+        if (!live || !reply?.ok) return
+        setRecs(reply.counts)
+        for (const id of Object.keys(reply.counts)) {
+          if (recsSeen.current.has(id)) continue
+          recsSeen.current.add(id)
+          orgEvent({ kind: "organize", action: "shown", what: "badge" })
+        }
+      })
+    }, 600)
+    return () => {
+      live = false
+      clearTimeout(timer)
+    }
   }, [open, orgOn, view, threadList])
 
   // The first suggestion taken: a line that from now on they come by themselves (once).
@@ -2647,11 +2701,25 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (!orgNow) return null
     const tag = orgNow.tags.find((x) => x.index === idx && messages[idx] && entryKey(messages[idx]) === x.key)?.tag
     const move = orgNow.move && orgNow.move.end === idx ? orgNow.move : undefined
-    if (!tag && !move) return null
+    const name = orgNow.name && idx === messages.length - 1 ? orgNow.name : undefined
+    if (!tag && !move && !name) return null
     return (
       <OrganizeRow
         tag={tag}
         move={move}
+        name={name}
+        onName={() => {
+          if (!name) return
+          const chat = threadRef.current
+          setOrg((o) => o && { ...o, name: null })
+          void settleNameSuggestion(chat, true).then(() => putName(chat, name, "drift"))
+        }}
+        onNameNo={() => {
+          if (!name) return
+          setOrg((o) => o && { ...o, name: null })
+          void settleNameSuggestion(threadRef.current, false)
+          orgEvent({ kind: "organize", action: "dismissed", what: "name", why: "drift" })
+        }}
         quiet={idx === selectingIdx}
         onTag={() => tag && takeTag(idx, tag)}
         onTagNo={() => tag && refuseTag(idx, tag)}
@@ -2801,16 +2869,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   </>
                 ) : (
                   <>
+                    {/* 2.6 (92), the owner: as narrow as the iPhone's. Explain, Translate, Find similar and the rest are the
+                        chips in the field below, pulled along with the trackpad (or the mouse wheel). */}
                     <button type="button" class="primary" {...press(() => show(bubble))}><Icon.Sparkle size={14} /> {t("selAsk")}</button>
-                    <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SELECTION_ACTIONS[0]), 60) })}>{t("selExplain")}</button>
-                    <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SELECTION_ACTIONS[2]), 60) })}>{t("selTranslate")}</button>
                     <button type="button" {...press(() => { show(bubble); setTimeout(() => runActionRef.current(SEL_GOOGLE), 60) })}><Icon.Search size={13} /> {t("actGoogle")}</button>
-                    {/* 2.6 (build 89, the owner): Find similar from a selection too, not only from the panel. */}
-                    <button type="button" class="cf-sel-similar ultra" title={t("actSimilar")} {...press(() => {
-                      void sendBackground({ type: "useEvent", f: "bubble", a: "action", what: "sel_similar", via: "button" })
-                      show(bubble)
-                      setTimeout(() => runActionRef.current(selAction("sel_similar")), 60)
-                    })}><SimilarIcon size={13} /> {t("selSimilar")}<UltraMark show={markUltra} /></button>
                     <button type="button" class="cf-sel-template" aria-label={t("qiTemplateButton")} title={t("qiTemplateButton")} {...press(() => newTemplate(bubble))}><QIcon.Template size={14} /> <span class="cf-sel-l">{t("qiTemplateButton")}</span></button>
                     {remindButton(bubble)}
                     {bubbleExtras}
@@ -2818,7 +2880,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 )}
               </div>
               <div class="cf-bubble-ask">
-                <SelField touch={touch} placeholder={t("selQuestion")} markUltra={markUltra} chips={touch && !selDraft && !selFocus ? SEL_CHIPS.flatMap((id) => forSelection(selAction(id), bubble.text) ?? []) : []} onChip={(a) => {
+                <SelField touch={touch} placeholder={t("selQuestion")} markUltra={markUltra} chips={!selDraft && !selFocus ? SEL_CHIPS.flatMap((id) => forSelection(selAction(id), bubble.text) ?? []) : []} onChip={(a) => {
                   selFeatureUsed()
                   void sendBackground({ type: "useEvent", f: "bubble", a: "action", what: a.id, via: "chip" })
                   show(bubble)
@@ -2827,7 +2889,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 <input
                   type="text"
                   value={selDraft}
-                  placeholder={t(touch ? "selQuestion" : "placeholderSelection")}
+                  placeholder={t("selQuestion")}
                   aria-label={t("placeholderSelection")}
                   enterKeyHint="send"
                   autoComplete="off"
@@ -2855,7 +2917,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 />
                 </SelField>
                 {/* iPhone and iPad: send shows once there's a question, so the field has room for it. */}
-                {(!touch || selDraft.trim()) && <button type="button" class="cf-bubble-send" disabled={!selDraft.trim()} aria-label={t("send")} title={t("send")} {...press(() => askAboutSelection(bubble, selDraft))}><Icon.ArrowUp /></button>}
+                {selDraft.trim() && <button type="button" class="cf-bubble-send" disabled={!selDraft.trim()} aria-label={t("send")} title={t("send")} {...press(() => askAboutSelection(bubble, selDraft))}><Icon.ArrowUp /></button>}
                 <button type="button" class="cf-sel-note" title={t("selNoteTitle")} aria-label={t("selNote")} {...press(() => void noteSelection(bubble, selDraft))}><Icon.Pencil />{!(touch && narrowScreen()) && ` ${t("selNote")}`}</button>
               </div>
               {guide === "ask" ? (
@@ -2879,6 +2941,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           onTouchMove={(e) => e.preventDefault()}
         />
       )}
+
+      {/* 2.6 (92), the owner: with the panel open on a selection, the text it's about is ringed on the page. */}
+      {open && glowRange && <SelectionGlow range={glowRange} />}
 
       {open && (
         <section
@@ -3100,10 +3165,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               onPlans={() => openPlans(hasPro(plan) || byok ? "ultra" : "pro", "settings")}
               onYearly={(chosen) => {
                 void sendBackground({ type: "useEvent", f: "plans", a: "yearly", plan: chosen, period: "yearly" })
-                void (async () => {
-                  const result = await sendBackground<{ opened: boolean; url: string }>({ type: "openApp", target: "subscribe", plan: chosen, period: "yearly" })
-                  if (result && !result.opened && result.url) followLink(result.url)
-                })()
+                openAppFromTap(touch, { target: "subscribe", plan: chosen, period: "yearly" })
               }}
               upgradeLabel={byokDiscount !== null ? t("upgradeProOff", byokDiscount) : t("upgradePro")}
               onManage={() => void openApp("manage")}
@@ -3155,9 +3217,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     {actions.length > 0 && (
                       <div class="cf-actions">
                         {actions.map((a) => (
-                          ULTRA_ACTIONS.has(a.id)
-                            ? <button type="button" key={a.id} class="cf-chip ultra" data-action={a.id} onClick={() => runAction(a)}><SimilarIcon size={13} /> {actionLabel(a)}<UltraMark show={markUltra} /></button>
-                            : <button type="button" key={a.id} class="cf-chip" data-action={a.id} onClick={() => runAction(a)}>{actionLabel(a)}</button>
+                          chip(a, false)
                         ))}
                       </div>
                     )}
@@ -3245,18 +3305,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   <div class="cf-newpage">
                     <div class="cf-divider"><span>{t("nowOnPage", source.title() || source.site())}</span></div>
                     <div class="cf-actions follow">
-                      {actions.slice(0, 4).map((a) => (
-                        <button type="button" key={a.id} class="cf-chip small" onClick={() => runAction(a)}>{actionLabel(a)}</button>
-                      ))}
+                      {withUltra(actions, 4).map((a) => chip(a, true))}
                     </div>
                   </div>
                 )}
 
                 {messages.length > 0 && partial === null && !error && actions.length > 0 && lastIsUser === false && !onNewPage && messages.length < 3 && (
                   <div class="cf-actions follow">
-                    {actions.filter((a) => !messages.some((m) => m.label === actionLabel(a))).slice(0, 3).map((a) => (
-                      <button type="button" key={a.id} class="cf-chip small" onClick={() => runAction(a)}>{actionLabel(a)}</button>
-                    ))}
+                    {withUltra(actions.filter((a) => !messages.some((m) => m.label === actionLabel(a))), 3).map((a) => chip(a, true))}
                   </div>
                 )}
 
@@ -3458,6 +3514,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 )}
 
                 {pending && <ConsentCard again={consent === "old"} onAccept={() => void acceptConsent()} onDecline={declineConsent} />}
+                {/* Listen to this page or Find similar from the chat (build 92): the consent they wait for shows here too (it
+                    showed only in the chat list, so from a chat they did nothing without consent). */}
+                {findConsent && !pending && (
+                  <ConsentCard again={consent === "old"} onAccept={() => findConsent.resolve(true)} onDecline={() => findConsent.resolve(false)} />
+                )}
               </div>
 
               {picked ? (
@@ -3478,7 +3539,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 </footer>
               ) : (
                 <footer class="cf-composer">
-                  <ListenBar state={listen.state} speed={listen.speed} left={listen.left} onSpeed={listen.cycleSpeed} onAnyway={listen.anyway} onNotifyOn={listen.notifyTurnOn} onNotifyLater={listen.notifyNotNow} onToggle={listen.toggle} onStop={listen.stop} onPlans={() => openPlans("ultra", "limit")} />
+                  <ListenBar state={listen.state} speed={listen.speed} left={listen.left} onSpeed={listen.cycleSpeed} onAnyway={listen.anyway} onNotifyOn={listen.notifyTurnOn} onNotifyLater={listen.notifyNotNow} onToggle={listen.toggle} onSeek={listen.seek} onStop={listen.stop} onPlans={() => openPlans("ultra", "limit")} />
                   {undoBar && <UndoBar text={undoBar.text} actions={undoBar.actions} onHold={holdBar} />}
                   {noteHint && draft.trim() && !noteMode && <div class="cf-note-hint" role="status">{t(touch ? "noteHintTouch" : "noteHintMouse")}</div>}
                   {weightNote && <div class="cf-weight-note" title={t("longPageWeightHint", pageWeight)}>{t("longPageWeight", pageWeight)}</div>}
@@ -3594,10 +3655,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
               onChoose={(chosen, period) => {
                 setPlansOpen(null)
                 void sendBackground({ type: "useEvent", f: "plans", a: "choose", plan: chosen, period })
-                void (async () => {
-                  const result = await sendBackground<{ opened: boolean; url: string }>({ type: "openApp", target: "subscribe", plan: chosen, period, feature: chosen === "ultra" ? "listen" : undefined })
-                  if (result && !result.opened && result.url) followLink(result.url)
-                })()
+                openAppFromTap(touch, { target: "subscribe", plan: chosen, period, feature: chosen === "ultra" ? "listen" : undefined })
               }}
               onClose={() => setPlansOpen(null)}
             />
@@ -3757,9 +3815,20 @@ function SelField({ touch, chips, placeholder, markUltra, onChip, children }: { 
       clearTimeout(back)
     }
   }, [on])
-  if (!touch) return <>{children}</>
   return (
-    <div ref={ref} class={`cf-ask-field ${on ? "chips" : ""}`} role="group" aria-label={on ? t("selChips") : undefined}>
+    <div
+      ref={ref}
+      class={`cf-ask-field ${on ? "chips" : ""} ${touch ? "" : "mouse"}`}
+      role="group"
+      aria-label={on ? t("selChips") : undefined}
+      // A mouse's wheel turns the chips along too (a trackpad's sideways swipe does by itself).
+      onWheel={(e) => {
+        const field = e.currentTarget
+        if (!on || Math.abs(e.deltaY) <= Math.abs(e.deltaX) || field.scrollWidth <= field.clientWidth) return
+        field.scrollLeft += getComputedStyle(field).direction === "rtl" ? -e.deltaY : e.deltaY
+        e.preventDefault()
+      }}
+    >
       <span ref={probe} class="cf-ask-probe" aria-hidden="true">{placeholder}</span>
       {children}
       {chips.map((a) => (
@@ -3767,6 +3836,45 @@ function SelField({ touch, chips, placeholder, markUltra, onChip, children }: { 
           ? <button type="button" key={a.id} class="cf-sel-chip ultra" {...press(() => onChip(a))}><SimilarIcon size={12} /> {a.text ?? t(a.label)}<UltraMark show={markUltra} /></button>
           : <button type="button" key={a.id} class="cf-sel-chip" {...press(() => onChip(a))}>{a.text ?? t(a.label)}</button>
       ))}
+    </div>
+  )
+}
+
+/**
+ * The ring around the selection the panel is about (2.6 (92), the owner: tie the panel to the text on the page, the
+ * same ring as on the header's "Selection" chip). A few sweeps of light, then a still ring: CSS only, on the
+ * compositor (a turning gradient under a fixed mask); it moves with the page by the scroll events, nothing runs while
+ * the page is still.
+ */
+function SelectionGlow({ range }: { range: Range }): VNode | null {
+  const [box, setBox] = useState<DOMRect | null>(null)
+  useLayoutEffect(() => {
+    let frame = 0
+    const place = () => {
+      frame = 0
+      const r = range.getBoundingClientRect()
+      setBox(r.width > 0 || r.height > 0 ? r : null)
+    }
+    const soon = () => {
+      if (!frame) frame = requestAnimationFrame(place)
+    }
+    place()
+    window.addEventListener("scroll", soon, { passive: true, capture: true })
+    window.addEventListener("resize", soon)
+    window.visualViewport?.addEventListener("resize", soon)
+    window.visualViewport?.addEventListener("scroll", soon)
+    return () => {
+      cancelAnimationFrame(frame)
+      window.removeEventListener("scroll", soon, true)
+      window.removeEventListener("resize", soon)
+      window.visualViewport?.removeEventListener("resize", soon)
+      window.visualViewport?.removeEventListener("scroll", soon)
+    }
+  }, [range])
+  if (!box) return null
+  return (
+    <div class="cf-sel-glow" aria-hidden="true" style={{ left: `${box.left - 5}px`, top: `${box.top - 4}px`, width: `${box.width + 10}px`, height: `${box.height + 8}px` }}>
+      <span class="cf-glow-run" />
     </div>
   )
 }
@@ -3925,7 +4033,8 @@ function ContextChip({ kind, media, title, words, text, onClear }: { kind: "sele
     // A word or two (a long-press on iPhone) reads better as itself than as a word count.
     const short = words <= 3 && text.length <= 28
     return (
-      <span class="cf-ctx selection">
+      <span class="cf-ctx selection glow">
+        <span class="cf-glow-run" aria-hidden="true" />
         <Icon.Cursor /> <span class="cf-ctx-text">{short ? `“${text}”` : t("ctxSelection", words)}</span>
         <button type="button" class="cf-ctx-clear" onClick={onClear} title={t("ctxUsePage")} aria-label={t("ctxUsePage")}>×</button>
       </span>

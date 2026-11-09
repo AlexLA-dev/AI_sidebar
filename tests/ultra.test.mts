@@ -1,5 +1,6 @@
 // Ultra (2.6): the plan, its products, "Ultra counts as Pro", the read-aloud endpoint and its counters.
 import assert from "node:assert/strict"
+import { createHash } from "node:crypto"
 import { beforeEach, test } from "node:test"
 
 import { signJws, TEST_ROOT_FINGERPRINT, transaction } from "./helpers.mts"
@@ -18,6 +19,9 @@ process.env.ULTRA_SPEAK_WEEKLY_SECONDS = "120"
 
 type Item = { subject: string; period: string; limit: number | null; amount?: number }
 let counters = new Map<string, number>()
+const periods = new Map<string, string>()
+// The counters table before 20261109140000 (its check takes only 'day' and 'week').
+let noEver = false
 let entitlements = new Map<string, Record<string, unknown>>()
 let events: { kind: string; data: Record<string, unknown> }[] = []
 let tts: { calls: Array<{ model: string; text: string; voice: string; mime: string }>; refuseLanguage?: string[]; pcmBytes: number; chunks: number; failAfter?: number; failStatus?: number[] } = { calls: [], pcmBytes: 48_000 * 3, chunks: 3 }
@@ -40,6 +44,7 @@ const MODELS = ["gemini-3.8-flash", "gemini-3.8-flash-tts", "gemini-3.8-flash-li
 const rpc: Record<string, (args: Record<string, any>) => unknown> = {
   cf_consume: ({ p_items }) => {
     const items = p_items as Item[]
+    for (const i of items) periods.set(i.subject, i.period)
     const blocked = items.find((i) => i.limit !== null && (counters.get(i.subject) ?? 0) + (i.amount ?? 1) > i.limit)
     if (!blocked) items.forEach((i) => counters.set(i.subject, (counters.get(i.subject) ?? 0) + (i.amount ?? 1)))
     return { allowed: !blocked, blocked: blocked?.subject ?? null, counters: items.map((i) => ({ ...i, n: counters.get(i.subject) ?? 0 })) }
@@ -90,6 +95,8 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
   if (url.startsWith("https://db.test/rest/v1/rpc/")) {
     const fn = url.split("/rpc/")[1].split("?")[0]
     if (!rpc[fn]) return new Response(JSON.stringify({ message: "not found" }), { status: 404 })
+    if (noEver && (body.p_items as Item[] | undefined)?.some((i) => i.period === "ever"))
+      return new Response(JSON.stringify({ code: "23514", message: 'new row violates check constraint "usage_counters_period_check"' }), { status: 400 })
     return new Response(JSON.stringify(rpc[fn](body)), { headers: { "Content-Type": "application/json" } })
   }
   if (url.startsWith("https://generativelanguage.googleapis.com/v1beta/models?")) {
@@ -122,6 +129,9 @@ const { speechText, speechParts, speechSeconds, speechKind, needsScript, scriptC
 const { newestGeminiTts } = await import("../src/shared/models.ts")
 const { tourAsked } = await import("../netlify/shared/tour.mts")
 const speak = (await import("../netlify/functions/v2-speak.mts")).default
+const speakHeard = (await import("../netlify/functions/v2-speak-heard.mts")).default
+// A part's key on the devices (src/background/speak.ts speechKey, the app's cacheKey).
+const partKey = (lang: string, text: string) => createHash("sha256").update(`v1|${lang}|${text}`).digest("hex")
 const status = (await import("../netlify/functions/v2-status.mts")).default
 const speakScript = (await import("../netlify/functions/v2-speak-script.mts")).default
 
@@ -139,6 +149,7 @@ beforeEach(() => {
   entitlements = new Map()
   events = []
   tts = { calls: [], pcmBytes: 48_000 * 3, chunks: 3 }
+  noEver = false
   haiku = { calls: [], script: "The MARKUS costs 299 dollars. The Sihoo costs 169." }
   delete (globalThis as { Netlify?: unknown }).Netlify
 })
@@ -282,22 +293,27 @@ test("speak: Ultra only", async () => {
   assert.equal(tts.calls.length, 0)
 })
 
-test("speak: streams whole PCM samples, charges the estimate, then the real length", async () => {
+test("speak: streams whole PCM samples; making a part costs the user nothing, our cap holds its real length", async () => {
   const c = ctx()
   const text = "A".repeat(70) // 5 s estimated
   const res = await speak(post("https://x/api/v2/speak", { installId: INSTALL, text, lang: "en", what: "answer", entitlement: ultraJws(), client: { platform: "macos", version: "2.6" } }), c)
   assert.equal(res.status, 200)
   assert.match(res.headers.get("Content-Type") ?? "", /audio\/L16; rate=24000/)
-  assert.equal(res.headers.get("X-CF-Charged"), "5")
-  assert.deepEqual(JSON.parse(res.headers.get("X-CF-Usage") ?? "null").used, 5)
+  // Build 92: the week's minutes count what's heard, not what's made.
+  assert.equal(res.headers.get("X-CF-Charged"), "0")
+  assert.deepEqual(JSON.parse(res.headers.get("X-CF-Usage") ?? "null").used, 0)
   const pcm = await readAll(res)
   assert.equal(pcm.length, 48_000 * 3)
   await Promise.all(c.waits)
   assert.equal(tts.calls[0].model, "gemini-3.8-flash-lite-tts")
   assert.equal(tts.calls[0].mime, "audio/l16")
-  // 3 s of audio came: the counter holds 3, not the 5 estimated.
-  assert.equal(counters.get("speak:tx:3000000001"), 3)
+  // 3 s of audio came: our cap holds 3, not the 5 estimated; the user's minutes are untouched; the part's length is kept.
+  assert.equal(counters.get("speakmade:tx:3000000001"), 3)
+  assert.equal(counters.get("speak:tx:3000000001") ?? 0, 0)
+  assert.equal(counters.get(`speakpart:3000000001:${partKey("en", text)}`), 3)
   const log = events.find((e) => e.kind === "speak")?.data
+  assert.equal(log?.charged_s, 0)
+  assert.equal(log?.est_s, 5)
   assert.equal(log?.ok, true)
   assert.equal(log?.audio_s, 3)
   assert.equal(log?.output_tokens, 75)
@@ -307,14 +323,18 @@ test("speak: streams whole PCM samples, charges the estimate, then the real leng
   assert.equal(log?.audience, undefined)
 })
 
-test("speak: the week's seconds run out → 402 with the usage", async () => {
-  counters.set("speak:tx:3000000001", 118)
+test("speak: the week's heard minutes used up → 402 with the usage; a minute short of it, a new text still starts", async () => {
+  counters.set("speak:tx:3000000001", 119)
+  const near = await speak(post("https://x/api/v2/speak", { installId: INSTALL, text: "B".repeat(70), entitlement: ultraJws() }), ctx())
+  assert.equal(near.status, 200)
+  await readAll(near)
+  counters.set("speak:tx:3000000001", 120)
   const res = await speak(post("https://x/api/v2/speak", { installId: INSTALL, text: "B".repeat(70), entitlement: ultraJws() }), ctx())
   assert.equal(res.status, 402)
   const body = await res.json()
   assert.equal(body.code, "LIMIT_REACHED")
-  assert.deepEqual([body.usage.used, body.usage.limit], [118, 120])
-  assert.equal(tts.calls.length, 0)
+  assert.deepEqual([body.usage.used, body.usage.limit], [120, 120])
+  assert.equal(tts.calls.length, 1)
 })
 
 test("speak: Flash-Lite refusing the language moves to the full model", async () => {
@@ -342,12 +362,12 @@ test("speak: a stream that breaks off is charged only for what was said", async 
   const res = await speak(post("https://x/api/v2/speak", { installId: INSTALL, text: "C".repeat(140), entitlement: ultraJws() }), c)
   await assert.rejects(readAll(res))
   await Promise.all(c.waits)
-  assert.equal(counters.get("speak:tx:3000000001"), 1)
+  assert.equal(counters.get("speakmade:tx:3000000001"), 1)
   assert.equal(events.find((e) => e.kind === "speak")?.data.ok, false)
 })
 
-test("speak: a text already playing finishes over the week's minutes (up to 5 more), a new one doesn't", async () => {
-  counters.set("speak:tx:3000000001", 118)
+test("speak: a text already playing finishes over the week's minutes (300 s more), a new one doesn't", async () => {
+  counters.set("speak:tx:3000000001", 120)
   // Its third part: allowed into the finishing room, and the usage still shows the week's 120.
   const later = await speak(post("https://x/api/v2/speak", { installId: INSTALL, text: "B".repeat(70), part: 2, parts: 3, entitlement: ultraJws() }), ctx())
   assert.equal(later.status, 200)
@@ -368,6 +388,7 @@ test("speak: a part with nothing to say is an empty 200, uncharged; a passing 50
   assert.equal((await readAll(empty)).length, 0)
   assert.equal(tts.calls.length, 0)
   assert.equal(counters.get("speak:tx:3000000001") ?? 0, 0)
+  assert.equal(counters.get("speakmade:tx:3000000001") ?? 0, 0)
   tts.failStatus = [503]
   const c = ctx()
   const res = await speak(post("https://x/api/v2/speak", { installId: INSTALL, text: "Some words.", lang: "en", entitlement: ultraJws() }), c)
@@ -376,22 +397,117 @@ test("speak: a part with nothing to say is an empty 200, uncharged; a passing 50
   assert.deepEqual(tts.calls.map((x) => [x.model, x.voice]), [["gemini-3.8-flash-lite-tts", "Kore"], ["gemini-3.8-flash-lite-tts", "Kore"]])
 })
 
-test("speak: the same part asked for again the same day is spoken again but not charged again", async () => {
+test("speak: the same part made again costs the user nothing; our cap counts both makings; logged as a repeat", async () => {
   const body = { installId: INSTALL, text: "F".repeat(70), lang: "en", part: 1, parts: 3, entitlement: ultraJws() }
   const c1 = ctx()
   await readAll(await speak(post("https://x/api/v2/speak", body), c1))
   await Promise.all(c1.waits)
-  assert.equal(counters.get("speak:tx:3000000001"), 3)
-  // The download broke off on the device and it asks again: the audio comes again, the week's seconds stay at 3.
+  assert.equal(counters.get("speakmade:tx:3000000001"), 3)
+  // The download broke off on the device and it asks again: the audio comes again, the week's minutes stay at 0.
   const c2 = ctx()
   const again = await speak(post("https://x/api/v2/speak", body), c2)
   assert.equal(again.status, 200)
   assert.equal(again.headers.get("X-CF-Charged"), "0")
   assert.equal((await readAll(again)).length, 48_000 * 3)
   await Promise.all(c2.waits)
-  assert.equal(counters.get("speak:tx:3000000001"), 3)
+  assert.equal(counters.get("speak:tx:3000000001") ?? 0, 0)
+  assert.equal(counters.get("speakmade:tx:3000000001"), 6)
   assert.equal(tts.calls.length, 2)
   assert.equal(events.filter((e) => e.kind === "speak").at(-1)?.data.repeat, true)
+  // Counted by the week the minutes are counted in, not by the day.
+  assert.equal(periods.get([...counters.keys()].find((k) => k.startsWith("speakrep:")) ?? ""), "week")
+})
+
+// ---- build 92: the minutes count what's heard ----------------------------------
+
+const heardReq = (items: unknown, installId = INSTALL) => post("https://x/api/v2/speak-heard", { installId, entitlement: ultraJws(), items })
+
+test("heard: the week's minutes count what's heard (30 s heard of 43 s made is 30 s), once a part, up to its length", async () => {
+  // Two parts made: 3 s each (the stand-in voice), 6 s in all; only the first one heard, 2 s of it.
+  const a = "G".repeat(70), b = "H".repeat(70)
+  for (const text of [a, b]) {
+    const c = ctx()
+    await readAll(await speak(post("https://x/api/v2/speak", { installId: INSTALL, text, lang: "en", entitlement: ultraJws() }), c))
+    await Promise.all(c.waits)
+  }
+  assert.equal(counters.get("speakmade:tx:3000000001"), 6)
+  const first = await (await speakHeard(heardReq([{ key: partKey("en", a), s: 2.2 }]), ctx())).json()
+  assert.equal(first.added, 2)
+  assert.deepEqual([first.usage.used, first.usage.limit], [2, 120])
+  assert.equal(counters.get("speak:tx:3000000001"), 2)
+  // The same report again (a batch sent twice): nothing more.
+  assert.equal((await (await speakHeard(heardReq([{ key: partKey("en", a), s: 2.2 }]), ctx())).json()).added, 0)
+  // Heard to the end and past it (a report can't count more than the part's 3 s).
+  const last = ctx()
+  assert.equal((await (await speakHeard(heardReq([{ key: partKey("en", a), s: 40 }]), last)).json()).added, 1)
+  await Promise.all(last.waits)
+  assert.equal(counters.get("speak:tx:3000000001"), 3)
+  assert.equal(events.filter((e) => e.kind === "speak_heard").at(-1)?.data.added_s, 1)
+})
+
+test("heard: a replay costs nothing, on this device or another of the subscriber's", async () => {
+  const text = "J".repeat(70)
+  const c = ctx()
+  await readAll(await speak(post("https://x/api/v2/speak", { installId: INSTALL, text, lang: "en", entitlement: ultraJws() }), c))
+  await Promise.all(c.waits)
+  assert.equal((await (await speakHeard(heardReq([{ key: partKey("en", text), s: 3 }]), ctx())).json()).added, 3)
+  // From the device's copy again, and on another device (another install, the same subscription, from iCloud).
+  assert.equal((await (await speakHeard(heardReq([{ key: partKey("en", text), s: 3 }]), ctx())).json()).added, 0)
+  const other = "6f1d2c3b-4a59-4e6f-8a7b-9c0d1e2f3a4b"
+  assert.equal((await (await speakHeard(heardReq([{ key: partKey("en", text), s: 3 }], other), ctx())).json()).added, 0)
+  assert.equal(counters.get("speak:tx:3000000001"), 3)
+})
+
+test("heard: reports come with the next part too, and count before it's decided; a part not on record counts at most 60 s", async () => {
+  counters.set("speak:tx:3000000001", 100)
+  // A part made before its length was kept: at most 60 s of it count; nonsense is left out.
+  const old = "a".repeat(64)
+  const c = ctx()
+  const res = await speak(post("https://x/api/v2/speak", {
+    installId: INSTALL, text: "K".repeat(70), lang: "en", entitlement: ultraJws(),
+    heard: [{ key: old, s: 90 }, { key: "nope", s: 5 }, { key: "b".repeat(64), s: -3 }]
+  }), c)
+  // 100 + 60 heard is past the week's 120: this new text is refused.
+  assert.equal(res.status, 402)
+  await Promise.all(c.waits)
+  assert.equal(counters.get("speak:tx:3000000001"), 160)
+})
+
+test("heard: our cap on audio made (150% of the allowance) stops a device that never reports; the minutes it shows are untouched", async () => {
+  counters.set("speakmade:tx:3000000001", 178)
+  const c = ctx()
+  const res = await speak(post("https://x/api/v2/speak", { installId: INSTALL, text: "L".repeat(70), entitlement: ultraJws() }), c)
+  assert.equal(res.status, 402)
+  await Promise.all(c.waits)
+  const body = await res.json()
+  assert.equal(body.code, "LIMIT_REACHED")
+  assert.equal(body.usage.used, 0)
+  assert.equal(events.filter((e) => e.kind === "limit").at(-1)?.data.reason, "speak_made")
+  assert.equal(tts.calls.length, 0)
+})
+
+test("heard: before the 'ever' counters are set up, read aloud still plays and a report is 'busy' (the device sends it again)", async () => {
+  noEver = true
+  const text = "J".repeat(70)
+  const c = ctx()
+  const res = await speak(post("https://x/api/v2/speak", { installId: INSTALL, text, lang: "en", entitlement: ultraJws(), heard: [{ key: partKey("en", text), s: 2 }] }), c)
+  assert.equal(res.status, 200)
+  await readAll(res)
+  await Promise.all(c.waits)
+  assert.equal(counters.get("speakmade:tx:3000000001"), 3)
+  const report = await speakHeard(heardReq([{ key: partKey("en", text), s: 2 }]), ctx())
+  assert.equal(report.status, 503)
+  assert.equal((await report.json()).code, "BUSY")
+  assert.equal(counters.get("speak:tx:3000000001"), undefined)
+  // Set up: the same report counts.
+  noEver = false
+  assert.equal((await (await speakHeard(heardReq([{ key: partKey("en", text), s: 2 }]), ctx())).json()).added, 2)
+})
+
+test("heard: Ultra only, and nothing to count is a 400", async () => {
+  const pro = await speakHeard(post("https://x/api/v2/speak-heard", { installId: INSTALL, entitlement: signJws(transaction()), items: [{ key: "c".repeat(64), s: 3 }] }), ctx())
+  assert.equal(pro.status, 403)
+  assert.equal((await speakHeard(heardReq([]), ctx())).status, 400)
 })
 
 test("speak: a text keeps its first part's model; a 400 never moves it to another model", async () => {
@@ -424,7 +540,7 @@ test("speak: a signed measuring request stands in for Ultra on a deploy preview 
   assert.equal(res.status, 200)
   await readAll(res)
   await Promise.all(c.waits)
-  assert.ok(counters.has(`speak:tx:eval-${INSTALL}`))
+  assert.ok(counters.has(`speakmade:tx:eval-${INSTALL}`))
 })
 
 test("status: an Ultra subscriber sees the week's read-aloud seconds and the allowances", async () => {
