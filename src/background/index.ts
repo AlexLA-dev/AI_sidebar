@@ -94,35 +94,7 @@ async function entitlement(force = false): Promise<NativeEntitlement | null> {
   // The install id lets the app link a purchase to this install (StoreKit appAccountToken) and tells it
   // the panel is in use, so it stops showing the setup guide.
   const value = await callNative<NativeEntitlement>("getEntitlement", { installId: await installId() }, 6000)
-  if (value) {
-    entitlementCache = { at: Date.now(), value }
-    void keepEntitlement(value)
-    return value
-  }
-  // The app didn't answer (busy, or its extension stuck): its last answer stands while it's recent and the subscription
-  // still runs, and the app is asked again in a few seconds (build 92: Ultra showed as Free until Safari restarted).
-  const kept = await lastEntitlement()
-  entitlementCache = { at: Date.now() - 50_000, value: kept }
-  return kept
-}
-
-// Kept for at most a week, and only while the subscription it saw is still running.
-const KEEP_ENTITLEMENT_MS = 7 * 86_400_000
-let keptJson = ""
-
-async function keepEntitlement(value: NativeEntitlement): Promise<void> {
-  const json = JSON.stringify(value)
-  // Written only when it changes: a write wakes every tab listening to storage.
-  if (json === keptJson) return
-  keptJson = json
-  await chrome.storage.local.set({ [STORAGE.lastEntitlement]: { value, at: Date.now() } }).catch(() => undefined)
-}
-
-async function lastEntitlement(): Promise<NativeEntitlement | null> {
-  const kept = (await chrome.storage.local.get(STORAGE.lastEntitlement).catch(() => ({} as Record<string, unknown>)))[STORAGE.lastEntitlement] as { value?: NativeEntitlement; at?: number } | undefined
-  const value = kept?.value
-  if (!value || typeof kept?.at !== "number" || Date.now() - kept.at > KEEP_ENTITLEMENT_MS) return null
-  if (value.active && value.expiresAt && Date.parse(value.expiresAt) < Date.now()) return null
+  entitlementCache = { at: Date.now(), value }
   return value
 }
 

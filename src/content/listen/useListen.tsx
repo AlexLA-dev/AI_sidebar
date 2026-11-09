@@ -65,8 +65,6 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: 
     // iPhone and iPad with notifications: leaving the page, coming back, and what the app is told meanwhile.
     cleanup?: () => void
     handoff?: { parts: (parts: string[], complete: boolean) => void; tick: () => void; paused: () => void; resumed: () => void }
-    // What the bar shows now (the tick sets it only when it changes).
-    shown?: { at: "playing" | "paused"; position: number; total: number }
   } | null>(null)
   const speedRef = useRef<Speed>(1)
   speedRef.current = speed
@@ -233,16 +231,9 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: 
         return
       }
       if (player.received === 0) return
-      // Waiting for more audio shows as loading only before the first sound. The bar moves by half seconds, and nothing
-      // is set when nothing moved (build 92: paused, handed to the app or waiting, it re-drew the whole panel 4 times a
-      // second, for as long as the bar stayed).
-      const at = player.paused ? "paused" : "playing"
-      const position = Math.floor(player.position * 2) / 2
-      const total = Math.max(current.total, player.received)
-      const shown = current.shown
-      if (shown && shown.at === at && shown.position === position && shown.total === total) return
-      current.shown = { at, position, total }
-      setState({ at, key, position, total })
+      // Waiting for more audio shows as loading only before the first sound.
+      const position = player.position
+      setState({ at: player.paused ? "paused" : "playing", key, position, total: Math.max(current.total, player.received) })
     }
 
     port.onMessage.addListener((raw: unknown) => {
