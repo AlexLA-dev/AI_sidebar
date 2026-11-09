@@ -3496,6 +3496,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 )}
 
                 {pending && <ConsentCard again={consent === "old"} onAccept={() => void acceptConsent()} onDecline={declineConsent} />}
+                {/* Listen to this page or Find similar from the chat (build 92): the consent they wait for shows here too (it
+                    showed only in the chat list, so from a chat they did nothing without consent). */}
+                {findConsent && !pending && (
+                  <ConsentCard again={consent === "old"} onAccept={() => findConsent.resolve(true)} onDecline={() => findConsent.resolve(false)} />
+                )}
               </div>
 
               {picked ? (
