@@ -72,6 +72,8 @@ export const FEATURES: Record<string, Feature> = {
     fields: { feature: ["ai", "organize", "media", "limit", "qi", "google"] }
   },
   offer: { since: "2.4", actions: ["shown", "redeem", "later"] },
+  // The app's notifications screen before the system's question (2.6): why it came up, and what was answered.
+  notify: { since: "2.6", tracked: "2.6", on: "app", actions: ["shown", "on", "later"], fields: { why: ["launch", "ultra", "listen"], status: ["denied", "not_asked"] } },
   paywall: {
     since: "2.0", on: "app", actions: ["shown", "plan", "buy_ok", "buy_cancel", "buy_pending", "buy_fail", "restore", "manage"],
     via: ["tab", "home", "deeplink", "ai_lock", "ask_chats", "limit", "offer", "organize", "tips", "whatsnew"],
@@ -110,7 +112,12 @@ export const FEATURES: Record<string, Feature> = {
   // Ultra: the plans sheet; the week's minutes used up). The parts themselves are logged by the server ("speak").
   // Build 90 (the app): Apple's voice read a text the server couldn't start ("apple"), a text stopped short after
   // ours had played ("interrupted"), "Try again" ("retry").
-  listen: { since: "2.6", tracked: "2.6", actions: ["start", "app", "ultra", "limit", "error", "apple", "interrupted", "retry"], fields: { what: ["answer", "page"] } },
+  // "heard" (build 92): when a text stops or ends, the seconds heard and where its audio came from (this device's copy,
+  // iCloud, the server) and what the server charged up front, so minutes charged can be set against minutes heard.
+  listen: {
+    since: "2.6", tracked: "2.6", actions: ["start", "app", "ultra", "limit", "error", "apple", "interrupted", "retry", "heard", "notify", "notify_on", "notify_later", "carried_on"],
+    fields: { what: ["answer", "page"], heard_s: "int", cache_s: "int", icloud_s: "int", server_s: "int", charged_s: "int" }
+  },
   // 2.6: the plans sheet (Own key, Pro, Ultra): opened from where, and the plan and period chosen (to the app).
   plans: {
     since: "2.6", tracked: "2.6", on: "ext", actions: ["open", "choose", "yearly"],

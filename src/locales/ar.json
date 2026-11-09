@@ -719,6 +719,7 @@
   "listenNotifyOn": "تفعيل الإشعارات",
   "listenNotifyLater": "ليس الآن",
   "listenTaken": "يُشغَّل في تطبيق ContextFlow.",
+  "listenSeek": "الموضع في التسجيل",
   "plansUpgrade": "الترقية إلى {0}",
   "plansUpgradeYearly": "الترقية إلى الاشتراك السنوي",
   "similarPayFree": "مجاني، بلا مشتريات داخل التطبيق",

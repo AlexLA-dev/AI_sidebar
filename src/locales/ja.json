@@ -719,6 +719,7 @@
   "listenNotifyOn": "通知をオンにする",
   "listenNotifyLater": "今はしない",
   "listenTaken": "ContextFlowアプリで再生中です。",
+  "listenSeek": "再生位置",
   "plansUpgrade": "{0} にアップグレード",
   "plansUpgradeYearly": "年額にアップグレード",
   "similarPayFree": "無料・App内課金なし",

@@ -2,6 +2,7 @@ import { Readability } from "@mozilla/readability"
 
 import { urlKey } from "../shared/conversation"
 import { MAX_PAGE_CHARS } from "../shared/prompt"
+import { appLink, type PaidPlan, type Period } from "../shared/plan"
 import type { Platform } from "../shared/types"
 import { shadowSelection } from "./selectionShadow"
 import { unfoldCollapsed } from "./unfold"
@@ -19,6 +20,33 @@ export function detectPlatform(target: "safari" | "chrome"): Platform {
 
 export function isTouch(platform: Platform): boolean {
   return platform === "ios" || platform === "ipados"
+}
+
+/** Follows a contextflow:// link from the page (iPhone and iPad can't open the app from the extension). Must run in
+ *  the tap itself: Safari asks "Open in ContextFlow?" only for a tap's own navigation. */
+export function followLink(url: string): void {
+  const a = document.createElement("a")
+  a.href = url
+  a.rel = "noopener"
+  a.style.display = "none"
+  document.documentElement.appendChild(a)
+  a.click()
+  setTimeout(() => a.remove(), 500)
+}
+
+/** Opens the ContextFlow app on a plan (or its plans). iPhone and iPad: the link is followed during the tap and the
+ *  background is told afterwards (build 91: Choose and Buy closed the sheet and nothing more, the link came after a
+ *  round trip to the extension, too late for Safari). Mac: the extension opens the app itself. */
+export function openAppFromTap(touch: boolean, request: { target: "subscribe" | "manage"; feature?: "ai" | "organize" | "listen" | "watch"; plan?: PaidPlan; period?: Period }): void {
+  const message = { type: "openApp", ...request }
+  if (touch) {
+    followLink(appLink(request.target, request.feature, request.plan, request.period))
+    void chrome.runtime.sendMessage(message).catch(() => undefined)
+    return
+  }
+  void (chrome.runtime.sendMessage(message) as Promise<{ opened: boolean; url: string } | null>).then((result) => {
+    if (result && !result.opened && result.url) followLink(result.url)
+  }, () => undefined)
 }
 
 /** Stable key for "the same page" (ignores hash and tracking parameters). */

@@ -1802,6 +1802,9 @@
  "listenTaken": {
   "message": "Playing in the ContextFlow app."
  },
+ "listenSeek": {
+  "message": "Position in the audio"
+ },
  "watchFullPro": {
   "message": "On Pro you can watch {0} pages at once. Ultra watches up to {1}."
  },

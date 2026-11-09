@@ -1,11 +1,12 @@
 // Read aloud (2.6, Ultra) in the background worker: the text written for the ear first (/api/v2/speak-script, when it
 // has tables, lists, code… or is a page), cut into parts as it streams, then /api/v2/speak part by part, the audio
 // passed to the panel (port "speak") as it comes. What was written and spoken is kept on this device (IndexedDB) for
-// up to 7 days, so playing it again costs nothing; "Delete all chats" clears it. Only one part is fetched ahead of
-// what's playing: stopping early doesn't spend the week's minutes on parts nobody hears.
+// up to 7 days, so playing it again costs nothing; "Delete all chats" clears it. A part is fetched only when the panel
+// says what it has in hand is running short (build 92: one whole part ahead was charged even if nobody heard it), so
+// stopping early doesn't spend the week's minutes on parts nobody hears.
 
 import { API_BASE } from "../shared/config"
-import { DEFAULT_VOICE, needsScript, PartSplitter, scriptChunks, speechParts, speechText, syncKey } from "../shared/speech"
+import { DEFAULT_VOICE, needsScript, PartSplitter, scriptChunks, SPEECH_RATE, speechParts, speechText, syncKey } from "../shared/speech"
 import type { Usage } from "../shared/types"
 
 export interface SpeakDeps {
@@ -15,9 +16,13 @@ export interface SpeakDeps {
   jws: () => Promise<string | null>
   // The user's iCloud through the app's extension (Safari, 2.6): a part made on another device (AAC, base64), a part
   // made here for the others (PCM), the same for texts written for the ear. Missing: no sync (Chrome).
+  // When a text stops: the seconds heard and where its audio came from, in whole seconds (build 92, the minutes audit).
+  report?: (counts: { what: "answer" | "page"; heard_s: number; cache_s: number; icloud_s: number; server_s: number; charged_s: number }) => void
   sync?: {
     getPart: (key: string, wait: number) => Promise<string | null>
-    putPart: (key: string, pcm: Uint8Array) => Promise<void>
+    // `cache`: the part's key on this device (the app's too): the extension keeps a copy in the App Group, so the app on
+    // this device plays it without asking iCloud or the server (build 92).
+    putPart: (key: string, pcm: Uint8Array, cache?: string) => Promise<void>
     getText: (key: string, wait: number) => Promise<string | null>
     putText: (key: string, text: string) => Promise<void>
   }
@@ -27,9 +32,12 @@ export interface SpeakDeps {
 export type SpeakIn =
   // text: an answer's Markdown or the page's text, as it is.
   | { type: "play"; text: string; lang: string; what: "answer" | "page" }
-  // The panel started playing `part`: the next one may be fetched.
+  // The panel started playing `part` (kept for older panels: the next part may be fetched).
   | { type: "playing"; part: number }
-  | { type: "stop" }
+  // The audio in hand ahead of what's heard is running short: the next part may be fetched (build 92).
+  | { type: "more" }
+  // heard: seconds of audio heard, for the report of where the minutes went.
+  | { type: "stop"; heard?: number }
 
 /** Background → panel. */
 export type SpeakOut =
@@ -136,6 +144,17 @@ export function serveSpeak(port: chrome.runtime.Port, deps: SpeakDeps): void {
   let what: "answer" | "page" = "answer"
   let next = 0
   let playing = -1
+  // The highest part the panel has asked for (build 92: on "more", not as soon as the one before starts).
+  let allowed = 0
+  // Where this text's audio came from, in seconds of audio, and what the server charged up front.
+  const counts = { cache: 0, icloud: 0, server: 0, charged: 0 }
+  let reported = false
+  const report = (heard: number | null) => {
+    if (reported || !deps.report) return
+    reported = true
+    const n = (v: number) => Math.min(9999, Math.round(v))
+    deps.report({ what, heard_s: n(heard ?? 0), cache_s: n(counts.cache), icloud_s: n(counts.icloud), server_s: n(counts.server), charged_s: n(counts.charged) })
+  }
   let busy = false
   let stopped = false
   // The parts are all known (the text for listening is written, or wasn't needed).
@@ -157,8 +176,8 @@ export function serveSpeak(port: chrome.runtime.Port, deps: SpeakDeps): void {
   const tellParts = () => post({ type: "parts", parts: [...parts], complete: written })
 
   const pump = async () => {
-    // One part ahead of the one playing.
-    while (!stopped && !busy && next < parts.length && next <= playing + 1) {
+    // Only the parts the panel has asked for (the first at once; each next one when what's in hand runs short).
+    while (!stopped && !busy && next < parts.length && next <= allowed) {
       busy = true
       const part = next++
       const ok = await fetchPart(part)
@@ -243,6 +262,7 @@ export function serveSpeak(port: chrome.runtime.Port, deps: SpeakDeps): void {
     const key = await speechKey(text, lang)
     const hit = await cached(key)
     if (hit) {
+      counts.cache += hit.length / (SPEECH_RATE * 2)
       for (let i = 0; i < hit.length; i += CHUNK) post({ type: "chunk", part, data: base64(hit.subarray(i, i + CHUNK)) })
       post({ type: "partEnd", part, cached: true })
       return true
@@ -253,6 +273,10 @@ export function serveSpeak(port: chrome.runtime.Port, deps: SpeakDeps): void {
     const fromCloud = kept ? null : await deps.sync?.getPart(shared, part === 0 ? 1 : 2).catch(() => null)
     if (kept || fromCloud) {
       const data = kept ? base64(kept) : (fromCloud as string)
+      // AAC at 64 kbps: its length in seconds from its size (base64 is 4/3 of it).
+      const seconds = ((data.length * 3) / 4) * 8 / 64_000
+      if (kept) counts.cache += seconds
+      else counts.icloud += seconds
       post({ type: "aac", part, data })
       post({ type: "partEnd", part, cached: true })
       if (!kept) void keep(`aac|${key}`, Uint8Array.from(atob(data), (c) => c.charCodeAt(0)))
@@ -271,9 +295,10 @@ export function serveSpeak(port: chrome.runtime.Port, deps: SpeakDeps): void {
       }
       const outcome = await download(part, text, sent)
       if (outcome.ok) {
+        counts.server += outcome.all.length / (SPEECH_RATE * 2)
         void keep(key, outcome.all)
         // For the user's other devices (iCloud through the app): in the background.
-        void deps.sync?.putPart(shared, outcome.all).catch(() => undefined)
+        void deps.sync?.putPart(shared, outcome.all, key).catch(() => undefined)
         return true
       }
       sent = outcome.sent
@@ -305,6 +330,7 @@ export function serveSpeak(port: chrome.runtime.Port, deps: SpeakDeps): void {
       return { ok: false, code: "NETWORK", sent: skip }
     }
     if (res.ok && !textModel) textModel = res.headers.get("X-CF-Model") ?? ""
+    if (res.ok) counts.charged += Number(res.headers.get("X-CF-Charged") ?? 0) || 0
     if (res.ok) voice = res.headers.get("X-CF-Voice") || voice
     if (!res.ok || !res.body) {
       const body = (await res.json().catch(() => ({}))) as { code?: string; usage?: Usage | null }
@@ -364,6 +390,7 @@ export function serveSpeak(port: chrome.runtime.Port, deps: SpeakDeps): void {
       what = message.what === "page" ? "page" : "answer"
       next = 0
       playing = -1
+      allowed = 0
       stopped = false
       textModel = ""
       // A page always (captions, credits, its tables), an answer when it has more than plain sentences.
@@ -383,16 +410,20 @@ export function serveSpeak(port: chrome.runtime.Port, deps: SpeakDeps): void {
       }
     } else if (message.type === "playing") {
       playing = Math.max(playing, message.part)
+    } else if (message.type === "more") {
+      allowed = Math.max(allowed, next)
       void pump()
     } else if (message.type === "stop") {
       stopped = true
       controller?.abort()
       scriptAbort.abort()
+      report(typeof message.heard === "number" ? message.heard : null)
     }
   })
   port.onDisconnect.addListener(() => {
     stopped = true
     controller?.abort()
     scriptAbort.abort()
+    report(null)
   })
 }

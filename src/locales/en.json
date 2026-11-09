@@ -623,6 +623,7 @@
   "listenNotifyOn": "Turn on notifications",
   "listenNotifyLater": "Not now",
   "listenTaken": "Playing in the ContextFlow app.",
+  "listenSeek": "Position in the audio",
   "watchFullPro": "On Pro you can watch {0} pages at once. Ultra watches up to {1}.",
   "watchMoreUltra": "More with Ultra",
   "seeUltra": "See Ultra",

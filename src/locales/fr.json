@@ -719,6 +719,7 @@
   "listenNotifyOn": "Activer les notifications",
   "listenNotifyLater": "Plus tard",
   "listenTaken": "Lecture dans l’app ContextFlow.",
+  "listenSeek": "Position dans l’audio",
   "plansUpgrade": "Passer à {0}",
   "plansUpgradeYearly": "Passer à l’annuel",
   "similarPayFree": "Gratuit, sans achats intégrés",

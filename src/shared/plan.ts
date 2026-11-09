@@ -62,3 +62,15 @@ export function watchLimit(plan: Plan | null | undefined): number {
 /** Ultra's own allowances, as the server gives them in /api/v2/status (these are the defaults the clients show
  * offline). Read aloud is counted in seconds of audio, find similar in searches; both reset on Monday (UTC). */
 export const ULTRA_DEFAULTS = { speakWeeklySeconds: 1800, similarWeekly: 10 } as const
+
+/** The link that opens the ContextFlow app on a plan and period (2.6), or on its plans or home. */
+export function appLink(target: "subscribe" | "manage" | "home", feature?: "ai" | "organize" | "listen" | "watch", plan: PaidPlan = "pro", period?: Period): string {
+  const query = [`plan=${plan}`, period ? `period=${period}` : "", feature ? `feature=${feature}` : ""].filter(Boolean).join("&")
+  return target === "subscribe" ? `contextflow://subscribe?${query}` : target === "manage" ? "contextflow://manage" : "contextflow://open"
+}
+
+/** What the plans sheet says about each plan when no status came (build 92: the sheet showed bare plan names). */
+export const DEFAULT_PLAN_FACTS = {
+  freeDaily: 5, proWeekly: 375, ultraWeekly: 375, searchProWeekly: 50,
+  speakWeeklySeconds: ULTRA_DEFAULTS.speakWeeklySeconds, similarWeekly: ULTRA_DEFAULTS.similarWeekly, watch: WATCH_LIMITS
+} as const

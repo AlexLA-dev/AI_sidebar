@@ -58,13 +58,14 @@ export default async (req: Request, context: Context): Promise<Response> => {
     return new Response(null, { status: 200, headers: { ...corsHeaders, "Content-Type": `audio/L16; rate=${SPEECH_RATE}; channels=1`, "Cache-Control": "no-store" } })
   }
 
-  // The same part asked for again the same day (a download that broke off on the device, the text heard again, or on
-  // another of the subscriber's devices): spoken again, never charged again (build 91: one part was charged twice).
+  // The same part asked for again within the week its minutes count in (a download that broke off on the device, the
+  // text heard again after the device's copy went, or on another of the subscriber's devices): spoken again, never
+  // charged again (build 91: one part was charged twice; build 92, the owner: "the same audio again costs minutes").
   const otid = access.entitlement?.originalTransactionId ?? installId
   const repeatSubject = `speakrep:${createHash("sha256").update(`${otid}|${lang}|${text}`).digest("hex").slice(0, 32)}`
   let repeat = false
   try {
-    repeat = !(await consume([{ subject: repeatSubject, period: "day", limit: 1 }])).allowed
+    repeat = !(await consume([{ subject: repeatSubject, period: "week", limit: 1 }])).allowed
   } catch {
     repeat = false
   }

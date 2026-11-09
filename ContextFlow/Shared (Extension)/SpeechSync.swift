@@ -72,6 +72,43 @@ enum SpeechSync {
         await save(record)
     }
 
+    // MARK: Parts waiting to go up (the panel's, build 92)
+
+    private static var pendingFolder: URL? {
+        guard let base = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: SharedDefaults.suiteName) else { return nil }
+        let folder = base.appendingPathComponent("SpeechUp/pending", isDirectory: true)
+        try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        return folder
+    }
+
+    /// A part the panel made, waiting to be encoded and kept in iCloud (moved, not copied: no time on the reply's path).
+    static func queueUpload(_ key: String, from file: URL) {
+        guard key.range(of: "^[0-9a-f]{64}$", options: .regularExpression) != nil, let folder = pendingFolder else { return }
+        let target = folder.appendingPathComponent("\(key).pcm")
+        try? FileManager.default.removeItem(at: target)
+        try? FileManager.default.moveItem(at: file, to: target)
+    }
+
+    /// Encodes and keeps the waiting parts (at most `limit` a time), oldest first; with sync off they're dropped, and
+    /// nothing waits more than 7 days. The extension after a reply, the app when it runs.
+    static func uploadPending(limit: Int = 10) async {
+        guard let folder = pendingFolder,
+              let files = try? FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: [.contentModificationDateKey]) else { return }
+        let dated = files.map { ($0, (try? $0.resourceValues(forKeys: [.contentModificationDateKey]))?.contentModificationDate ?? .distantPast) }
+            .sorted { $0.1 < $1.1 }
+        guard !dated.isEmpty else { return }
+        let ready = on ? await available() : false
+        for (file, at) in dated.prefix(limit) {
+            if Date().timeIntervalSince(at) > keepFor || !on {
+                try? FileManager.default.removeItem(at: file)
+                continue
+            }
+            guard ready, let pcm = try? Data(contentsOf: file) else { continue }
+            await savePart(file.deletingPathExtension().lastPathComponent, pcm: pcm)
+            try? FileManager.default.removeItem(at: file)
+        }
+    }
+
     // MARK: Texts written for the ear
 
     /// The text written for the ear for this input, if a device of the user's wrote it in the last 7 days.
@@ -117,8 +154,14 @@ enum SpeechSync {
 
     // MARK: iCloud
 
+    /// Asked of iCloud at most every two minutes (build 92: each part asked again, and a first sound waited on it).
+    nonisolated(unsafe) private static var known: (available: Bool, at: Date)?
+
     private static func available() async -> Bool {
-        (try? await CKContainer(identifier: containerIdentifier).accountStatus()) == .available
+        if let known, Date().timeIntervalSince(known.at) < 120 { return known.available }
+        let available = (try? await CKContainer(identifier: containerIdentifier).accountStatus()) == .available
+        known = (available, Date())
+        return available
     }
 
     private static func ensureZone() async throws {

@@ -719,6 +719,7 @@
   "listenNotifyOn": "開啟通知",
   "listenNotifyLater": "以後再說",
   "listenTaken": "正在 ContextFlow App 中播放。",
+  "listenSeek": "播放位置",
   "plansUpgrade": "升級到 {0}",
   "plansUpgradeYearly": "升級到年繳",
   "similarPayFree": "免費，無 App 內購買",

@@ -2081,6 +2081,9 @@
  "listenTaken": {
   "message": "Läuft in der ContextFlow-App."
  },
+ "listenSeek": {
+  "message": "Position in der Wiedergabe"
+ },
  "plansUpgrade": {
   "message": "Zu {0} wechseln"
  },

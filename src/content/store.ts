@@ -112,6 +112,12 @@ export async function setListenSpeed(speed: Speed): Promise<void> {
   await set(STORAGE.listenSpeed, speed)
 }
 
+/** The App Store's prices the last time the app's side gave them (the background keeps them; build 92). */
+export async function lastPrices(): Promise<Record<string, string>> {
+  const prices = await get<Record<string, string>>(STORAGE.lastPrices)
+  return prices && typeof prices === "object" ? prices : {}
+}
+
 /** Whether "Not now" to notifications at Listen still holds (until the next day): Listen just opens the app. */
 export async function listenNotifyLaterNow(): Promise<boolean> {
   return ((await get<number>(STORAGE.listenNotifyLater)) ?? 0) > Date.now()

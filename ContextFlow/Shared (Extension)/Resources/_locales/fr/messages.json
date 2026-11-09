@@ -2081,6 +2081,9 @@
  "listenTaken": {
   "message": "Lecture dans l’app ContextFlow."
  },
+ "listenSeek": {
+  "message": "Position dans l’audio"
+ },
  "plansUpgrade": {
   "message": "Passer à {0}"
  },

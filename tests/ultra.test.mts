@@ -18,6 +18,7 @@ process.env.ULTRA_SPEAK_WEEKLY_SECONDS = "120"
 
 type Item = { subject: string; period: string; limit: number | null; amount?: number }
 let counters = new Map<string, number>()
+const periods = new Map<string, string>()
 let entitlements = new Map<string, Record<string, unknown>>()
 let events: { kind: string; data: Record<string, unknown> }[] = []
 let tts: { calls: Array<{ model: string; text: string; voice: string; mime: string }>; refuseLanguage?: string[]; pcmBytes: number; chunks: number; failAfter?: number; failStatus?: number[] } = { calls: [], pcmBytes: 48_000 * 3, chunks: 3 }
@@ -40,6 +41,7 @@ const MODELS = ["gemini-3.8-flash", "gemini-3.8-flash-tts", "gemini-3.8-flash-li
 const rpc: Record<string, (args: Record<string, any>) => unknown> = {
   cf_consume: ({ p_items }) => {
     const items = p_items as Item[]
+    for (const i of items) periods.set(i.subject, i.period)
     const blocked = items.find((i) => i.limit !== null && (counters.get(i.subject) ?? 0) + (i.amount ?? 1) > i.limit)
     if (!blocked) items.forEach((i) => counters.set(i.subject, (counters.get(i.subject) ?? 0) + (i.amount ?? 1)))
     return { allowed: !blocked, blocked: blocked?.subject ?? null, counters: items.map((i) => ({ ...i, n: counters.get(i.subject) ?? 0 })) }
@@ -376,7 +378,7 @@ test("speak: a part with nothing to say is an empty 200, uncharged; a passing 50
   assert.deepEqual(tts.calls.map((x) => [x.model, x.voice]), [["gemini-3.8-flash-lite-tts", "Kore"], ["gemini-3.8-flash-lite-tts", "Kore"]])
 })
 
-test("speak: the same part asked for again the same day is spoken again but not charged again", async () => {
+test("speak: the same part asked for again within the allowance week is spoken again but not charged again", async () => {
   const body = { installId: INSTALL, text: "F".repeat(70), lang: "en", part: 1, parts: 3, entitlement: ultraJws() }
   const c1 = ctx()
   await readAll(await speak(post("https://x/api/v2/speak", body), c1))
@@ -392,6 +394,8 @@ test("speak: the same part asked for again the same day is spoken again but not 
   assert.equal(counters.get("speak:tx:3000000001"), 3)
   assert.equal(tts.calls.length, 2)
   assert.equal(events.filter((e) => e.kind === "speak").at(-1)?.data.repeat, true)
+  // Counted by the week the minutes are counted in, not by the day.
+  assert.equal(periods.get([...counters.keys()].find((k) => k.startsWith("speakrep:")) ?? ""), "week")
 })
 
 test("speak: a text keeps its first part's model; a 400 never moves it to another model", async () => {

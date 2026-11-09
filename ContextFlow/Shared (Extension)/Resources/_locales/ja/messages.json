@@ -2081,6 +2081,9 @@
  "listenTaken": {
   "message": "ContextFlowアプリで再生中です。"
  },
+ "listenSeek": {
+  "message": "再生位置"
+ },
  "plansUpgrade": {
   "message": "{0} にアップグレード"
  },

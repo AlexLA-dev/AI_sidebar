@@ -221,7 +221,7 @@ export type BackgroundRequest =
   // Chat UX counts (2.5), no text: see UX_KINDS in netlify/functions/v2-event.mts.
   | { type: "uxEvent"; kind: "ux_mark" | "ux_pin" | "ux_delete" | "ux_remind"; action: string; what?: string; how?: string; preset?: string }
   // A step for the feature counters: the analytics registry's "use" kind (src/shared/usage.ts), named values only.
-  | { type: "useEvent"; f: "menu" | "later" | "tour" | "bubble" | "listen" | "plans" | "chat_plans"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string }
+  | { type: "useEvent"; f: "menu" | "later" | "tour" | "bubble" | "listen" | "plans" | "chat_plans"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string; heard_s?: number; cache_s?: number; icloud_s?: number; server_s?: number; charged_s?: number }
 
 /** A PDF's text, or why there is none ("none": nothing to read, e.g. scanned pages). */
 export type PdfResult =
@@ -293,6 +293,10 @@ export const STORAGE = {
   yearlyHiddenUntil: "cf:yearlyHiddenUntil",
   // "Not now" to notifications at Listen (iPhone, iPad): Listen opens the app without asking until this time.
   listenNotifyLater: "cf:listenNotifyLater",
+  // The last subscription the app's side gave (build 92): stands while the app's side is slow, until it expires.
+  lastEntitlement: "cf:lastEntitlement",
+  // The App Store's prices the last time the app's side gave them (build 92): the plans sheet's when none come.
+  lastPrices: "cf:lastPrices",
   // Recent pages' text on this device ({ [url]: { title, text, at } }) for "whole chat" answers.
   pageTexts: "cf:pageTexts",
   // How many times the hint about writing notes with the send button was shown, or -1 once used.
