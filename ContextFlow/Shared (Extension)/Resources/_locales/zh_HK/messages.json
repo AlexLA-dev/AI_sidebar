@@ -1490,6 +1490,9 @@
  "orgNameFailed": {
   "message": "目前無法為對話命名，請稍後再試。"
  },
+ "orgNameAs": {
+  "message": "將對話命名為「{0}」"
+ },
  "recs_one": {
   "message": "{0} 則建議"
  },

@@ -1490,6 +1490,9 @@
  "orgNameFailed": {
   "message": "Mình chưa đặt được tên cho cuộc trò chuyện. Hãy thử lại sau."
  },
+ "orgNameAs": {
+  "message": "Đặt tên “{0}”"
+ },
  "recs_one": {
   "message": "{0} gợi ý"
  },

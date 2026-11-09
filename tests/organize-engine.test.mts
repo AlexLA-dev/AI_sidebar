@@ -164,9 +164,10 @@ test("off-topic messages leave a mixed chat for the single-topic one; the single
   assert.equal(s.to, "one")
   assert.deepEqual([s.start, s.end], [4, 7], "both analytics blocks, together")
   assert.equal(suggestMove(one, [mix, one], vectorOf, cfg), null, "not into the mix")
-  // Mostly analytics (three of four) but still a mix: its cars go first (a new chat), then the one-topic chat joins it.
+  // Mostly that analytics site (three of four): the one-topic chat joins it (where the mix is narrower), and its cars
+  // leave for a chat of their own.
   const most = chat("most", [...qa("analytics", "https://stats/1"), ...qa("analytics", "https://stats/2"), ...qa("analytics", "https://stats/4"), ...qa("cars", "https://cars/1")])
-  assert.equal(suggestMove(one, [most, one], vectorOf, cfg), null)
+  assert.deepEqual([suggestMove(one, [most, one], vectorOf, cfg)?.to, suggestMove(one, [most, one], vectorOf, cfg)?.why], ["most", "site"])
   const out = suggestMove(most, [most, one], vectorOf, cfg)!
   assert.deepEqual([out.to, out.start, out.end], [null, 6, 7], "its analytics are at home; the cars leave")
   const clean = chat("most", most.m.slice(0, 6))
@@ -205,4 +206,19 @@ test("naming (2.6): what the AI reads, when a name gets checked by itself, never
   assert.match(cut, /^Page: t0 page/)
   assert.match(cut, /Question 39/)
   assert.doesNotMatch(cut, /Question 20 /)
+})
+
+test("2.6 (91): a chat with one short note on a page of a site joins the chat with the most questions on that site", () => {
+  const site = chat("site", [...qa("cf", "https://context-flow.app/"), ...qa("cf", "https://context-flow.app/pricing"), ...qa("cf", "https://context-flow.app/support")])
+  const other = chat("other", [...qa("cf", "https://context-flow.app/blog"), ...qa("cars", "https://cars/9")])
+  // Its page isn't in either chat, and it's too short to be judged by its words.
+  const memo = chat("memo", [note("cf", "https://context-flow.app/changelog", "Release notes")])
+  const s = suggestMove(memo, [site, other, memo], vectorOf, cfg)!
+  assert.deepEqual([s.to, s.why, s.start, s.end], ["site", "site", 0, 0])
+  // The site's chat doesn't go into the note's chat.
+  assert.equal(suggestMove(site, [site, other, memo], vectorOf, cfg), null)
+  // A site chat about something else entirely (one video site, every topic) doesn't take a note on another topic.
+  const videos = chat("videos", [...qa("cars", "https://video.example/1"), ...qa("cars", "https://video.example/2")])
+  const cooking = chat("cooking", [note("borsch", "https://video.example/3", "Try this borsch recipe with smoked pears on Sunday, for the guests")])
+  assert.equal(suggestMove(cooking, [videos, cooking], vectorOf, cfg), null)
 })

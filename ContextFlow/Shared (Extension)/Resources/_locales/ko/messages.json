@@ -1490,6 +1490,9 @@
  "orgNameFailed": {
   "message": "지금은 채팅 이름을 짓지 못했어요. 나중에 다시 해 보세요."
  },
+ "orgNameAs": {
+  "message": "채팅 이름을 ‘{0}’(으)로"
+ },
  "recs_one": {
   "message": "추천 {0}개"
  },
