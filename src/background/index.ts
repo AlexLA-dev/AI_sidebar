@@ -128,8 +128,14 @@ async function entitlement(force = false): Promise<NativeEntitlement | null> {
   const fresh = entitlementCache && Date.now() - entitlementCache.at < (entitlementCache.value ? 60_000 : 5_000)
   if (fresh && !force) return entitlementCache!.value
   const asking = askEntitlement()
-  // A fresh background: the kept one now, the app's answer for the next time.
-  const inHand = entitlementCache?.value ?? (entitlementCache ? null : await lastEntitlement())
+  // A fresh background (Safari started, or its worker woke): the kept one now, the app's answer for the next time.
+  if (!entitlementCache) {
+    const kept = await lastEntitlement()
+    if (kept) return kept
+    return asking
+  }
+  // A re-read with one in hand: the app's answer if it comes within 1.5 s, else the one in hand.
+  const inHand = entitlementCache.value
   if (!inHand) return asking
   const late = new Promise<null>((resolve) => setTimeout(() => resolve(null), 1500))
   return (await Promise.race([asking, late])) ?? inHand

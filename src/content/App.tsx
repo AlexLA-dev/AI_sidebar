@@ -64,7 +64,7 @@ import { dodgeFab } from "./fabDodge"
 import { hasPro, isUltra, type PaidPlan } from "../shared/plan"
 import { SettingsView } from "./Settings"
 import { shareLabels } from "./shareLabels"
-import { loadJobs, markHintSeen, markMemoryOffered, memoryOffered, onJobsChanged, resetHints, seenHints, type HintKey } from "./store"
+import { keptPlanNow, loadJobs, markHintSeen, markMemoryOffered, memoryOffered, onJobsChanged, resetHints, seenHints, type HintKey } from "./store"
 import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, onConsentChanged, loadThreads, markTourSeen, lastPlanSeen, setLastPlanSeen, planToursSeen, markPlanToursSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, purgeChats, nameThread, rememberPageText, renameThread, renewalAskedPeriod, unnameThread, restoreChat, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount, trashChat } from "./store"
 import { TagChip, TagEditor } from "./Tags"
 import { ThreadsView } from "./Threads"
@@ -342,6 +342,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [memoryOffer, setMemoryOffer] = useState<"switch" | "long" | null>(null)
   // The plan as last known (the status, else the plan the panel saw last): what a question's memory is.
   const planKnownRef = useRef<Plan>("free")
+  // The plan the app's side last gave (the background keeps it): shown until this page's status comes, so a subscriber
+  // never sees Free first (build 92: Free for a moment on every page, for seconds when the app was slow to answer).
+  const [keptPlan, setKeptPlan] = useState<Plan | null>(null)
+  useEffect(() => void keptPlanNow().then(setKeptPlan), [])
   // The card opened from a selection: what was selected, the thing to find alternatives to (the page is context).
   const [similarSubject, setSimilarSubject] = useState<string | null>(null)
   const [similarRun, setSimilarRun] = useState<{ items: SimilarItem[]; step: SimilarStep; pages?: number } | null>(null)
@@ -2179,7 +2183,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setPlanTourDue(null)
     startPlanTourRef.current(planTourDue.tier, "plan", planTourDue.from)
   }, [planTourDue, open, guide, touring, view, streaming, partial])
-  const plan = status?.plan ?? "free"
+  const plan = status?.plan ?? keptPlan ?? "free"
   // "Ultra" on Ultra's actions for anyone without it, once the plan is known: the selection buttons come before the
   // panel has opened on a page, so their plan is read then too (below), and an Ultra subscriber never sees the mark.
   const markUltra = status !== null && !isUltra(plan)

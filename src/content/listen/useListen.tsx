@@ -207,6 +207,8 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: 
         away.gone = true
         player.pause()
         current.clock?.(false)
+        // The clock is off: the bar is told itself (it showed Pause while the page was away).
+        setState((s) => (s.at === "playing" ? { ...s, at: "paused" } : s))
         tell("away")
       }
       const show = () => {
