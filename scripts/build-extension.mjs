@@ -129,7 +129,8 @@ const options = {
   bundle: true,
   format: "iife",
   target: ["safari16", "chrome110"],
-  minify: !args.watch,
+  // CF_MINIFY=0: readable bundles for profiling test builds (function names in stacks); release builds are minified.
+  minify: !args.watch && process.env.CF_MINIFY !== "0",
   sourcemap: args.watch ? "inline" : false,
   legalComments: "none",
   jsx: "automatic",

@@ -146,6 +146,7 @@ let jobs: {
   liveJobIds: () => string[]
   markSeen: (thread: string) => Promise<void>
   jobsOnStart: () => Promise<void>
+  sweepStale: (now?: number) => void
 }
 let panelStore: { saveThread: (id: string, entries: Entry[]) => Promise<void> }
 
@@ -334,4 +335,21 @@ test("seen: the panel showed the chat", async () => {
   assert.equal(stored().q2.seen, undefined)
   await jobs.markSeen("T")
   assert.equal(stored().q2.seen, true)
+})
+
+test("a job that goes quiet ends as interrupted, its request stopped (build 92: the beat kept the background awake)", async () => {
+  const s = scripted()
+  const heard: any[] = []
+  jobs.startJob({ id: "q2", thread: "T", kind: "chat" }, s.run, (e) => heard.push(e))
+  s.push({ type: "delta", text: "Half" })
+  jobs.sweepStale(Date.now() + 10_000)
+  assert.deepEqual(jobs.liveJobIds(), ["q2"]) // still talking
+  jobs.sweepStale(Date.now() + 80_000)
+  await tick(10)
+  assert.equal(s.aborted(), true)
+  assert.deepEqual(jobs.liveJobIds(), [])
+  assert.equal(stored().q2.state, "failed")
+  assert.equal(stored().q2.code, "STREAM")
+  assert.equal(thread()[3].content, "Half") // what came stays
+  assert.equal(heard.at(-1).type, "error")
 })

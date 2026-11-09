@@ -730,7 +730,7 @@
   "similarPerMonth": "{0}/mois",
   "similarPerYear": "{0}/an",
   "offerMemoryTitle": "Pro se souvient de tout le chat",
-  "offerMemoryBody": "Une réponse gratuite voit les {0} derniers messages d'un chat. Avec Pro, l'IA s'en souvient en entier : chaque message, vos notes et les pages sur lesquelles vous avez posé des questions.",
-  "offerMemoryLong": "Ce chat dépasse les {0} messages dont se souvient une réponse gratuite. Avec Pro, l'IA s'en souvient en entier : chaque message, vos notes et les pages sur lesquelles vous avez posé des questions.",
+  "offerMemoryBody": "Une réponse gratuite se souvient des {0} dernières réponses et notes d'un chat. Avec Pro, l'IA s'en souvient en entier : chaque message, vos notes et les pages sur lesquelles vous avez posé des questions.",
+  "offerMemoryLong": "Ce chat compte plus que les {0} réponses et notes dont se souvient une réponse gratuite. Avec Pro, l'IA s'en souvient en entier : chaque message, vos notes et les pages sur lesquelles vous avez posé des questions.",
   "offerRetryAt": "Les réponses reviennent à {0}."
 }

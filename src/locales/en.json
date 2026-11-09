@@ -730,7 +730,7 @@
   "similarPerMonth": "{0}/month",
   "similarPerYear": "{0}/year",
   "offerMemoryTitle": "Pro remembers the whole chat",
-  "offerMemoryBody": "A free answer sees the last {0} messages of a chat. With Pro the AI remembers all of it: every message, your notes and the pages you asked about.",
-  "offerMemoryLong": "This chat is longer than the {0} messages a free answer remembers. With Pro the AI remembers all of it: every message, your notes and the pages you asked about.",
+  "offerMemoryBody": "A free answer remembers the last {0} answers and notes of a chat. With Pro the AI remembers all of it: every message, your notes and the pages you asked about.",
+  "offerMemoryLong": "This chat has more than the {0} answers and notes a free answer remembers. With Pro the AI remembers all of it: every message, your notes and the pages you asked about.",
   "offerRetryAt": "Answers are back at {0}."
 }

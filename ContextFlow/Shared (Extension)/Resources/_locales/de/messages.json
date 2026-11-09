@@ -2115,10 +2115,10 @@
   "message": "Pro merkt sich den ganzen Chat"
  },
  "offerMemoryBody": {
-  "message": "Eine kostenlose Antwort sieht die letzten {0} Nachrichten eines Chats. Mit Pro merkt sich die KI alles: jede Nachricht, deine Notizen und die Seiten, zu denen du gefragt hast."
+  "message": "Eine kostenlose Antwort kennt die letzten {0} Antworten und Notizen eines Chats. Mit Pro merkt sich die KI alles: jede Nachricht, deine Notizen und die Seiten, zu denen du gefragt hast."
  },
  "offerMemoryLong": {
-  "message": "Dieser Chat ist länger als die {0} Nachrichten, die eine kostenlose Antwort sieht. Mit Pro merkt sich die KI alles: jede Nachricht, deine Notizen und die Seiten, zu denen du gefragt hast."
+  "message": "Dieser Chat hat mehr als die {0} Antworten und Notizen, die eine kostenlose Antwort kennt. Mit Pro merkt sich die KI alles: jede Nachricht, deine Notizen und die Seiten, zu denen du gefragt hast."
  },
  "offerRetryAt": {
   "message": "Antworten gibt es wieder um {0}."
