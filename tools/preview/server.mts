@@ -202,8 +202,8 @@ const DAYS = "понедельник|вторник|среду|четверг|п
 function scriptedInsert(system: string, content: string): unknown {
   const between = (tag: string) => content.match(new RegExp(`<${tag}>\\n([\\s\\S]*?)\\n</${tag}>`))?.[1] ?? ""
   const found = (text: string) => ({
-    // A conversation's title first (quick insert sends the one around the field: "Conversation with: Olga Lobova").
-    name: text.match(/^Conversation with: ([A-ZА-ЯЁ][a-zа-яё]+)/m)?.[1] ?? text.match(/(?:Здравствуйте|Привет|Добрый день|Hi|Hello|Dear),?\s+([A-ZА-ЯЁ][a-zа-яё]+)/)?.[1] ?? text.match(/^([A-ZА-ЯЁ][a-zа-яё]+)(?:\s+[A-ZА-ЯЁ][a-zа-яё]+)?:/m)?.[1] ?? "",
+    // A conversation's title first (quick insert sends the one around the field: "Conversation: Maria Keller").
+    name: text.match(/^Conversation: ([A-ZА-ЯЁ][a-zа-яё]+)/m)?.[1] ?? text.match(/(?:Здравствуйте|Привет|Добрый день|Hi|Hello|Dear),?\s+([A-ZА-ЯЁ][a-zа-яё]+)/)?.[1] ?? text.match(/^([A-ZА-ЯЁ][a-zа-яё]+)(?:\s+[A-ZА-ЯЁ][a-zа-яё]+)?:/m)?.[1] ?? "",
     date: text.match(new RegExp(`\\d{1,2}\\s+(?:${MONTHS})`))?.[0] ?? "",
     day: text.match(new RegExp(`(?:${DAYS})`, "i"))?.[0] ?? "",
     time: text.match(/\b\d{1,2}:\d{2}\b/)?.[0] ?? "",
