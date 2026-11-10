@@ -735,5 +735,16 @@
   "offerMemoryTitle": "Pro يتذكر المحادثة كاملة",
   "offerMemoryBody": "الإجابة المجانية تتذكر آخر {0} إجابات وملاحظات في المحادثة. مع Pro يتذكر الذكاء الاصطناعي المحادثة كاملة: كل رسالة، وملاحظاتك، والصفحات التي سألت عنها.",
   "offerMemoryLong": "في هذه المحادثة أكثر من {0} إجابات وملاحظات تتذكرها الإجابة المجانية. مع Pro يتذكر الذكاء الاصطناعي المحادثة كاملة: كل رسالة، وملاحظاتك، والصفحات التي سألت عنها.",
-  "offerRetryAt": "تعود الإجابات في {0}."
+  "offerRetryAt": "تعود الإجابات في {0}.",
+  "similarWhere": "أين أبحث",
+  "similarWorld": "حول العالم",
+  "similarLocal": "بالقرب مني",
+  "similarLocalIn": "بالقرب · {0}",
+  "similarWhereHint": "اختر أولًا أين تبحث.",
+  "similarLess": "أقل تشابهًا",
+  "similarPercent": "متشابه بنسبة {0}٪",
+  "similarDiffers": "الاختلاف: {0}",
+  "similarRegionLocked": "غير متوفر في App Store بلدك",
+  "similarRatings": "{0} تقييم",
+  "similarReviewersSay": "المراجعات: {0}"
 }

@@ -735,5 +735,16 @@
   "offerMemoryTitle": "Proならチャット全体を記憶",
   "offerMemoryBody": "無料の回答が覚えているのは、チャットの直近{0}件の回答とメモです。ProならAIがチャット全体を記憶します：すべてのメッセージ、メモ、質問したページ。",
   "offerMemoryLong": "このチャットは、無料の回答が覚えている{0}件の回答とメモを超えています。ProならAIがチャット全体を記憶します：すべてのメッセージ、メモ、質問したページ。",
-  "offerRetryAt": "{0}に回答が戻ります。"
+  "offerRetryAt": "{0}に回答が戻ります。",
+  "similarWhere": "探す範囲",
+  "similarWorld": "世界中",
+  "similarLocal": "近く",
+  "similarLocalIn": "近く · {0}",
+  "similarWhereHint": "まず探す範囲を選んでください。",
+  "similarLess": "あまり似ていないもの",
+  "similarPercent": "{0}% 似ている",
+  "similarDiffers": "違い: {0}",
+  "similarRegionLocked": "お住まいの国の App Store にはありません",
+  "similarRatings": "{0}件の評価",
+  "similarReviewersSay": "レビュー: {0}"
 }

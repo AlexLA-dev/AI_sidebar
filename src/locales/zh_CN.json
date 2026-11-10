@@ -735,5 +735,16 @@
   "offerMemoryTitle": "Pro 记住整个对话",
   "offerMemoryBody": "免费回答只记住对话中最近的 {0} 条回答和笔记。使用 Pro，AI 会记住整个对话：每条消息、你的笔记和你提问过的页面。",
   "offerMemoryLong": "这个对话的回答和笔记已超过免费回答能记住的 {0} 条。使用 Pro，AI 会记住整个对话：每条消息、你的笔记和你提问过的页面。",
-  "offerRetryAt": "回答将在 {0} 恢复。"
+  "offerRetryAt": "回答将在 {0} 恢复。",
+  "similarWhere": "搜索范围",
+  "similarWorld": "全球",
+  "similarLocal": "我附近",
+  "similarLocalIn": "附近 · {0}",
+  "similarWhereHint": "请先选择搜索范围。",
+  "similarLess": "不太相似",
+  "similarPercent": "相似度 {0}%",
+  "similarDiffers": "不同之处：{0}",
+  "similarRegionLocked": "你所在国家/地区的 App Store 中没有",
+  "similarRatings": "{0} 个评分",
+  "similarReviewersSay": "评价：{0}"
 }

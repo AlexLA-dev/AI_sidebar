@@ -2129,6 +2129,39 @@
  "offerRetryAt": {
   "message": "تعود الإجابات في {0}."
  },
+ "similarWhere": {
+  "message": "أين أبحث"
+ },
+ "similarWorld": {
+  "message": "حول العالم"
+ },
+ "similarLocal": {
+  "message": "بالقرب مني"
+ },
+ "similarLocalIn": {
+  "message": "بالقرب · {0}"
+ },
+ "similarWhereHint": {
+  "message": "اختر أولًا أين تبحث."
+ },
+ "similarLess": {
+  "message": "أقل تشابهًا"
+ },
+ "similarPercent": {
+  "message": "متشابه بنسبة {0}٪"
+ },
+ "similarDiffers": {
+  "message": "الاختلاف: {0}"
+ },
+ "similarRegionLocked": {
+  "message": "غير متوفر في App Store بلدك"
+ },
+ "similarRatings": {
+  "message": "{0} تقييم"
+ },
+ "similarReviewersSay": {
+  "message": "المراجعات: {0}"
+ },
  "tip_4cf1b54b00": {
   "message": "تلميحات"
  },

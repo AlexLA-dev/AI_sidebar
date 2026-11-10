@@ -2129,6 +2129,39 @@
  "offerRetryAt": {
   "message": "回答將在 {0} 恢復。"
  },
+ "similarWhere": {
+  "message": "搜尋範圍"
+ },
+ "similarWorld": {
+  "message": "全球"
+ },
+ "similarLocal": {
+  "message": "我附近"
+ },
+ "similarLocalIn": {
+  "message": "附近 · {0}"
+ },
+ "similarWhereHint": {
+  "message": "請先選擇搜尋範圍。"
+ },
+ "similarLess": {
+  "message": "較不相似"
+ },
+ "similarPercent": {
+  "message": "相似度 {0}%"
+ },
+ "similarDiffers": {
+  "message": "不同之處：{0}"
+ },
+ "similarRegionLocked": {
+  "message": "你所在國家／地區的 App Store 沒有"
+ },
+ "similarRatings": {
+  "message": "{0} 則評分"
+ },
+ "similarReviewersSay": {
+  "message": "評價：{0}"
+ },
  "tip_4cf1b54b00": {
   "message": "提示"
  },

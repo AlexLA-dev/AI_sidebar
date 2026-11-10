@@ -19,7 +19,9 @@ const KEYS = ["actSimilar", "uxSimilar", "similarTitle", "similarConditions", "s
   "similarStepWrite", "similarNone", "similarChecked", "similarUpsellText", "similarUpsellChecked", "similarUpsellConditions",
   "similarUpsellWatch", "similarGetUltra", "similarOff", "similarLimit",
   // Build 91: an app's price, read on its App Store page or its pricing page.
-  "similarPayFree", "similarPayFreeStart", "similarPaySub", "similarPayOnce", "similarPayIap", "similarPerWeek", "similarPerMonth", "similarPerYear"]
+  "similarPayFree", "similarPayFreeStart", "similarPaySub", "similarPayOnce", "similarPayIap", "similarPerWeek", "similarPerMonth", "similarPerYear",
+  // Build 93: where to look, the less similar ones, their country's store, what reviewers say.
+  "similarWhere", "similarWorld", "similarLocal", "similarLocalIn", "similarWhereHint", "similarLess", "similarPercent", "similarDiffers", "similarRegionLocked", "similarRatings", "similarReviewersSay"]
 
 test("every language has Find similar's words, with their placeholders", () => {
   const files = readdirSync(locales).filter((f) => f.endsWith(".json"))
@@ -27,7 +29,7 @@ test("every language has Find similar's words, with their placeholders", () => {
   for (const file of files) {
     const s = JSON.parse(readFileSync(new URL(file, locales), "utf8")) as Record<string, string>
     for (const key of KEYS) assert.ok(s[key]?.trim(), `${file}: ${key}`)
-    for (const key of ["similarInLanguage", "similarAskedWith", "similarStepCheckN", "similarChecked", "similarLimit", "similarPaySub", "similarPayOnce", "similarPayIap", "similarPerWeek", "similarPerMonth", "similarPerYear"]) assert.match(s[key], /\{0\}/, `${file}: ${key}`)
+    for (const key of ["similarInLanguage", "similarAskedWith", "similarStepCheckN", "similarChecked", "similarLimit", "similarPaySub", "similarPayOnce", "similarPayIap", "similarPerWeek", "similarPerMonth", "similarPerYear", "similarLocalIn", "similarPercent", "similarDiffers", "similarRatings", "similarReviewersSay"]) assert.match(s[key], /\{0\}/, `${file}: ${key}`)
     assert.match(s.similarLimit, /\{1\}/, `${file}: similarLimit's day`)
     // The menu item is the action's name with an ellipsis (it opens a card first).
     assert.equal(s.uxSimilar.replace(/…$/, ""), s.actSimilar, file)
@@ -103,7 +105,7 @@ before(async () => {
     import { SimilarList, SimilarPicker, SimilarUpsell } from ${src("similar/Similar.tsx")}
     import { PageMenu } from ${src("ux/PageMenu.tsx")}
     export function list(container: Element, props: unknown) { render(h(SimilarList, props as never), container) }
-    export function picker(container: Element, onFind: (c: string, l: string) => void) { render(h(SimilarPicker, { title: "Aero 2", onFind, onClose() {} }), container) }
+    export function picker(container: Element, onFind: (c: string, l: string) => void, region?: unknown) { render(h(SimilarPicker, { title: "Aero 2", onFind, onClose() {}, ...(region as object ?? {}) }), container) }
     export function upsell(container: Element) { render(h(SimilarUpsell, { onUpgrade() {}, onClose() {} }), container) }
     export function menu(container: Element, onSimilar: (() => void) | undefined, locked: boolean) {
       render(h(PageMenu, { reminders: 0, watches: null, onLater() {}, onSimilar, similarLocked: locked, onReminders() {}, onWatching() {}, onSettings() {}, onClose() {} }), container)
@@ -186,6 +188,52 @@ test("an app's price as its pages say, linked to where it was read; links open a
   el.querySelectorAll(".cf-similar-name")[1].dispatchEvent(stopped)
   await new Promise((r) => setTimeout(r, 5))
   assert.deepEqual(opened, ["https://raycast.com/"])
+})
+
+test("build 93: the less similar ones apart with how close and how they differ, a store that doesn't sell it, reviewers", async () => {
+  const el = root()
+  const base = { url: "https://a.example", host: "a.example", title: "A", why: "Same idea.", fit: "", met: "n/a", source: "item", checked: true }
+  const items = [
+    { ...base, name: "Merlin", url: "https://apps.apple.com/ru/app/id222", host: "apps.apple.com", similarity: 100,
+      reviews: { rating: { value: 4.6, best: 5, count: 1234 }, summary: "Fast summaries; the free plan is limited.", sources: ["https://apps.apple.com/ru/app/id222", "https://techreview.example/merlin"] } },
+    { ...base, name: "Glarity", url: "https://apps.apple.com/us/app/id111", host: "apps.apple.com", similarity: 50, differs: "No translation", regionLocked: true },
+    { ...base, name: "Beta", url: "https://b.example", host: "b.example", similarity: 25, differs: "Chrome only" }
+  ]
+  ui.list(el, { answer: { intro: "", items, note: "", condition: "none", asked: "", at: Date.now() }, items, onOpen() {} })
+  const text = el.textContent as string
+  assert.equal(el.querySelectorAll(".cf-similar-less .cf-similar-item").length, 2)
+  assert.match(el.querySelector(".cf-similar-less-head").textContent, /Less similar/)
+  assert.match(text, /50% similar/)
+  assert.match(text, /Differs: No translation/)
+  assert.match(el.querySelector(".cf-similar-locked").textContent, /Not in your country's App Store/)
+  assert.match(el.querySelector(".cf-similar-stars").textContent, /★ 4\.6/)
+  assert.match(text, /1,234 ratings/)
+  assert.match(text, /Reviewers: Fast summaries/)
+  assert.deepEqual([...el.querySelectorAll(".cf-similar-src")].map((a: any) => [a.textContent, a.getAttribute("target")]), [["apps.apple.com", "_blank"], ["techreview.example", "_blank"]])
+  // The close one isn't shown with a percentage (only the less similar ones say how close).
+  assert.equal(el.querySelector(".cf-similar-list .cf-similar-pct")?.closest(".cf-similar-less") !== null, true)
+})
+
+test("build 93: where to look is asked the first time (Find waits for it), then shown as chosen", async () => {
+  const el = root()
+  let chosen: unknown = null
+  const found: string[] = []
+  ui.picker(el, (c: string) => found.push(c), { region: null, country: "DE", onRegion: (r: unknown) => (chosen = r) })
+  await new Promise((r) => setTimeout(r, 0))
+  const find = el.querySelector(".cf-similar-pick .cf-primary")
+  assert.equal(find.disabled, true)
+  assert.ok(el.querySelector(".cf-similar-where-hint"))
+  const options = [...el.querySelectorAll(".cf-similar-where button")]
+  assert.equal(options.length, 2)
+  assert.match(options[1].textContent, /Near me · Germany/)
+  options[0].dispatchEvent(new dom.window.Event("click", { bubbles: true }))
+  assert.equal(chosen, "world")
+  // Chosen before: shown as such, Find goes.
+  const again = root()
+  ui.picker(again, (c: string) => found.push(c), { region: "local", country: "DE", onRegion() {} })
+  await new Promise((r) => setTimeout(r, 0))
+  assert.equal(again.querySelector(".cf-similar-where button.on").textContent.includes("Germany"), true)
+  assert.equal(again.querySelector(".cf-similar-pick .cf-primary").disabled, false)
 })
 
 test("the start: a chip is the condition (one at a time), the person's words join it", async () => {

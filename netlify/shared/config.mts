@@ -175,6 +175,8 @@ export const config = {
     // weren't really on them (0 before), so that part was rolled back.
     searchMode: (env("SIMILAR_SEARCH_MODE") ?? "single").trim() === "parallel" ? "parallel" as const : "single" as const,
     followUps: int("SIMILAR_FOLLOW_UPS", 2),
+    // Build 93: what reviewers say about the top items (a review search for those without a rating of their own).
+    reviews: (env("SIMILAR_REVIEWS") ?? "on").trim() !== "off",
     streamItems: (env("SIMILAR_STREAM") ?? "on").trim() !== "off",
     budgetMs: int("SIMILAR_BUDGET_MS", 52_000),
     // Pages a site won't open to servers may fill a list that has fewer than 3 checked items (marked "not opened").

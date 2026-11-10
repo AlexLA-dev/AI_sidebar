@@ -735,5 +735,16 @@
   "offerMemoryTitle": "Pro 會記住整段對話",
   "offerMemoryBody": "免費回答只記得對話中最近的 {0} 則回答和筆記。使用 Pro，AI 會記住整段對話：每則訊息、你的筆記和你提問過的頁面。",
   "offerMemoryLong": "這段對話的回答和筆記已超過免費回答能記住的 {0} 則。使用 Pro，AI 會記住整段對話：每則訊息、你的筆記和你提問過的頁面。",
-  "offerRetryAt": "回答將在 {0} 恢復。"
+  "offerRetryAt": "回答將在 {0} 恢復。",
+  "similarWhere": "搜尋範圍",
+  "similarWorld": "全球",
+  "similarLocal": "我附近",
+  "similarLocalIn": "附近 · {0}",
+  "similarWhereHint": "請先選擇搜尋範圍。",
+  "similarLess": "較不相似",
+  "similarPercent": "相似度 {0}%",
+  "similarDiffers": "不同之處：{0}",
+  "similarRegionLocked": "你所在國家／地區的 App Store 沒有",
+  "similarRatings": "{0} 則評分",
+  "similarReviewersSay": "評價：{0}"
 }
