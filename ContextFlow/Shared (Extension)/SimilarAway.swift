@@ -3,11 +3,6 @@ import UserNotifications
 #if canImport(os)
 import os
 #endif
-#if os(iOS)
-import UIKit
-#elseif os(macOS)
-import AppKit
-#endif
 
 /// Find similar after leaving Safari (build 94, the owner: «Поиск прерывается, если выходишь из Safari, а надо, чтобы
 /// шел и приходила нотификация от приложения, когда найдено с переходом прямо к вариантам»).
@@ -238,25 +233,17 @@ nonisolated enum SimilarAway {
 
     // MARK: The app: the notification's tap
 
-    /// The chat opens in the panel (the next panel to ask takes it) and the page in Safari.
+    /// The chat opens in the panel (the next panel to ask takes it); the page to open in Safari (the app opens it:
+    /// UIApplication isn't an extension's).
     @MainActor
-    static func opened(_ info: [AnyHashable: Any]) {
-        guard info["similar"] is String else { return }
+    static func opened(_ info: [AnyHashable: Any]) -> URL? {
+        guard info["similar"] is String else { return nil }
         let thread = info["chat"] as? String ?? ""
         if !thread.isEmpty {
             ChatMirror.requestOpen(thread)
             defaults.set(["thread": thread, "at": Date().timeIntervalSince1970], forKey: openKey)
         }
-        let page = (info["open"] as? String).flatMap(URL.init(string:)).flatMap { $0.scheme == "https" || $0.scheme == "http" ? $0 : nil }
-        #if os(iOS)
-        if let page {
-            UIApplication.shared.open(page)
-        } else if let chats = URL(string: "contextflow://chats") {
-            UIApplication.shared.open(chats)
-        }
-        #elseif os(macOS)
-        if let page { _ = NSWorkspace.shared.open(page) }
-        #endif
+        return (info["open"] as? String).flatMap(URL.init(string:)).flatMap { $0.scheme == "https" || $0.scheme == "http" ? $0 : nil }
     }
 
     /// The chat a notification's tap asked to open, once, if recent.

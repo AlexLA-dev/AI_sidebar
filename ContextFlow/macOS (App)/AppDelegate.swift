@@ -33,7 +33,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         let info = response.notification.request.content.userInfo
         // Find similar is done (build 94): its chat opens in the panel, on its page in Safari (SimilarAway).
         if info["similar"] is String {
-            await MainActor.run { SimilarAway.opened(info) }
+            await MainActor.run {
+                if let page = SimilarAway.opened(info) { _ = NSWorkspace.shared.open(page) }
+            }
             return
         }
         // Page watch: "Changed: …" opens its page (WatchOpen).

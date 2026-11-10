@@ -50,7 +50,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         if info["similar"] is String {
             await MainActor.run {
                 ChatAI.reportOrganize("use", ["f": "notif", "a": "tap", "what": "similar", "s": "notif"])
-                SimilarAway.opened(info)
+                if let page = SimilarAway.opened(info) {
+                    UIApplication.shared.open(page)
+                } else if let chats = URL(string: "contextflow://chats") {
+                    DeepLinkRouter.shared.handle(chats)
+                }
             }
             return
         }

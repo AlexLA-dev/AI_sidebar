@@ -294,7 +294,7 @@ export const WRITE_SYSTEM = `You write ContextFlow's "Find similar" answer: a sh
 - Up to 6 items, best first: every checked page that is a real alternative, the weaker ones too (they are shown apart, as less similar). Never the item the person is on, never the same item twice (colors or sizes of one model are one item: take one).
 - why: one short, concrete sentence on what it shares with their item. No ratings or reviews in it: they have their own line.
 - shares: the numbers of the traits listed under "What makes an alternative" that this item has too. For a page that wasn't opened, judge from its search result title.
-- differs: one short phrase on how it differs most from their item ("" when it hardly does).
+- differs: one short phrase on how it differs most from their item ("" when it hardly does). No ratings or reviews in it either.
 - Before saying an item lacks something their item has, look at its "other models on its site": when one of them has it, say so in differs with that model's name and price and whether it fits their condition (e.g. "No trolley; the brand's Pro Max has one, at 272.95 EUR — over your budget"). Only what those pages show; never say a brand has no such model.
 - Reviews: when a page has a "reviews" fact, weigh it: among items that fit as well, the better rated first, a poorly rated one lower. Use only the facts given; never invent a rating.
 - An item marked "not in their country's App Store" can't be had there: say so in fit and put it after the ones they can get.
@@ -1143,7 +1143,7 @@ const REVIEW_ITEMS = 6
 const REVIEW_SEARCHES = 3
 const REVIEW_WORDS = /\b(reviews?|rating|ratings|tested|test|hands[- ]on|verdict|recensione|recensioni|bewertung|test|avis|reseña|reseñas|análise)\b|отзыв|обзор|рейтинг|огляд|відгук/i
 
-export const REVIEW_SEARCH_SYSTEM = `You find review pages. Run every search you are given with the web_search tool, all of them at once, exactly as written. Then answer "done".`
+export const REVIEW_SEARCH_SYSTEM = `You find a review page. Run the one search you are given with the web_search tool, exactly as written, once. Then answer "done".`
 
 export const REVIEW_READ_SYSTEM = `You read pages about a few items and say, for each, what their reviewers say about it.
 Answer with JSON only: {"items":[{"item":n,"page":n,"pros":"…","cons":"…","quote":"…"}]}
@@ -1181,17 +1181,21 @@ export async function reviewsStep(checked: CheckedCandidate[], plan: Plan, input
   const unrated = [...due.filter(({ c }) => !c.page.rating && !c.page.reviewsText), ...due.filter(({ c }) => c.page.rating && !c.page.reviewsText)].slice(0, REVIEW_SEARCHES)
   if (unrated.length && left() > 6_000) {
     try {
-      const queries = unrated.map(({ c }) => `${c.name} review`)
       const model = config.similar.searchModel
       const country = searchLocation(input)
-      const tool = { type: searchTool(model), name: "web_search", max_uses: queries.length, ...(country ? { user_location: { type: "approximate", country } } : {}) } as unknown as Anthropic.ToolUnion
-      const response = await createSearch(anthropic(Math.min(12_000, left() - 3_000), 0), {
+      const tool = { type: searchTool(model), name: "web_search", max_uses: 1, ...(country ? { user_location: { type: "approximate", country } } : {}) } as unknown as Anthropic.ToolUnion
+      // One call a search, side by side (build 94: one call given three searches often ran none).
+      const responses = await Promise.all(unrated.map(({ c }) => createSearch(anthropic(Math.min(10_000, left() - 3_000), 0), {
         model, max_tokens: 200, system: REVIEW_SEARCH_SYSTEM, tools: [tool],
-        messages: [{ role: "user", content: `Run these searches:\n${queries.map((q, n) => `${n + 1}. ${q}`).join("\n")}` }]
-      }, signal)
-      const results = resultsOf(response.content)
-      stats.searches = results.length ? new Set(results.map((r) => r.query)).size : 0
-      spend = addSpend(spend, spendOf(model, response.usage, stats.searches))
+        messages: [{ role: "user", content: `Run this search: ${c.name} review` }]
+      }, signal).catch(() => null)))
+      const results = responses.flatMap((r) => (r ? resultsOf(r.content) : []))
+      for (const r of responses) {
+        if (!r) continue
+        const ran = r.usage.server_tool_use?.web_search_requests ?? 0
+        stats.searches += ran
+        spend = addSpend(spend, spendOf(model, r.usage, ran))
+      }
       const picks = unrated.flatMap(({ c, i }) => {
         const own = (() => { try { return new URL(c.page.finalUrl).hostname } catch { return "" } })()
         const r = results.find((x) => nameScore(c.name, { title: x.title, name: "", text: "" }) >= 0.5 && (REVIEW_WORDS.test(x.title) || REVIEW_WORDS.test(x.url)) && (() => { try { return new URL(x.url).hostname !== own } catch { return false } })())

@@ -150,8 +150,9 @@ test("reviews: the item's own rating, a review page found and checked, what revi
     },
     () => reviewsStep([rated, unrated], plan(), input(), "en", 10_000)
   )
-  // One search call (for the unrated one), one reading.
-  assert.deepEqual(calls.map((c) => c.tools), [true, false])
+  // Build 94: a search call each for the items without reviewers' words on their own page (the rated one too), then
+  // one reading.
+  assert.deepEqual(calls.map((c) => c.tools), [true, true, false])
   assert.deepEqual(result.checked[0].reviews, { rating: { value: 4.6, best: 5, count: 1234 }, sources: ["https://apps.apple.com/us/app/merlin/id222"] })
   const g = result.checked[1].reviews!
   assert.deepEqual(g.rating, { value: 4.2, best: 5, count: 87 })
@@ -160,7 +161,7 @@ test("reviews: the item's own rating, a review page found and checked, what revi
   assert.equal(g.cons, "the free plan is limited")
   assert.equal(g.summary, undefined)
   assert.deepEqual(g.sources, ["https://techreview.example/glarity-review"])
-  assert.deepEqual(result.stats, { items: 2, searches: 1, pages: 1, summaries: 1 })
+  assert.deepEqual(result.stats, { items: 2, searches: 2, pages: 1, summaries: 1 })
 })
 
 test("no reviews for kinds nobody reviews, and nothing claimed when nothing holds up", async () => {
