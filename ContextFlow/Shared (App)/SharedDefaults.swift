@@ -276,6 +276,22 @@ final class SharedDefaults {
         defaults.removeObject(forKey: voicedKey)
     }
 
+    // MARK: "Not now" to notifications at Listen (build 95)
+
+    private let listenNotifyLaterKey = "cf_listen_notify_later"
+
+    /// Until when "Not now" to notifications at Listen holds (ms since 1970; the next local midnight): said in the app,
+    /// the panel doesn't ask again that day either.
+    func listenNotifyLaterUntil() -> Double {
+        defaults.double(forKey: listenNotifyLaterKey)
+    }
+
+    func setListenNotifyLater() {
+        let calendar = Calendar.current
+        let tomorrow = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: Date())) ?? Date().addingTimeInterval(86_400)
+        defaults.set(tomorrow.timeIntervalSince1970 * 1000, forKey: listenNotifyLaterKey)
+    }
+
     // MARK: The question when auto-renew is off
 
     /// Asked (answered or put off) in the app or the panel for this subscription period.

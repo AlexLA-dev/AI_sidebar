@@ -1721,6 +1721,9 @@
  "plansNote": {
   "message": "Das Abo schließt du in der ContextFlow-App ab. Der Wechsel zu Ultra gilt sofort, und Apple erstattet den Rest deines aktuellen Tarifs."
  },
+ "plansCurrency": {
+  "message": "Preise in {0}, so wie der App Store sie angibt."
+ },
  "tierByok1": {
   "message": "Unbegrenzte Antworten mit deinem eigenen OpenAI- oder Claude-API-Schlüssel"
  },

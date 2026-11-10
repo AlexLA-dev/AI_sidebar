@@ -1170,6 +1170,13 @@ struct ProView: View {
                         .foregroundColor(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
+                if let code = store.unclearCurrency {
+                    Text("Prices in \(code), as the App Store gives them.")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityIdentifier("plans.currency")
+                }
             }
         }
         if let message {
@@ -1365,6 +1372,14 @@ struct TierCard: View {
                 Text("You save \(deal.saving) a year")
                     .font(.footnote.weight(.semibold))
                     .foregroundColor(.green)
+            }
+            // An Ultra subscriber: this week's listening on Ultra's card too, as in the panel's plans (build 95; the owner
+            // asked for the minutes left in the player, Settings and the plans).
+            if tier == .ultra, currentTier == .ultra, let left = facts.speakLeftSeconds {
+                Text("Listening: \(left / 60) of \(facts.speakWeeklyMinutes) min left this week")
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+                    .accessibilityIdentifier("plans.listen.left")
             }
             ForEach(Array(lines.enumerated()), id: \.offset) { _, line in
                 Feature(systemImage: line.0, text: line.1)

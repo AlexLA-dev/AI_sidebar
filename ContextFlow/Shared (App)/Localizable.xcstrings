@@ -46725,6 +46725,88 @@
           }
         }
       }
+    },
+    "Prices in %@, as the App Store gives them.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الأسعار بعملة %@، كما يعرضها App Store."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preise in %@, so wie der App Store sie angibt."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Precios en %@, tal como los da el App Store."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prix en %@, tels que l’App Store les donne."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prezzi in %@, come li indica l’App Store."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "価格は%@です（App Storeの表示どおり）。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가격은 %@ 기준이며 App Store에 표시된 그대로입니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preços em %@, como a App Store informa."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Цены в %@ — так их даёт App Store."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ціни в %@ — так їх дає App Store."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Giá tính bằng %@, đúng như App Store đưa ra."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "价格以 %@ 计，与 App Store 显示一致。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "價格以 %@ 計，與 App Store 顯示一致。"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

@@ -1727,6 +1727,9 @@
  "plansNote": {
   "message": "You subscribe in the ContextFlow app. Moving up to Ultra starts at once, and Apple refunds what's left of your current plan."
  },
+ "plansCurrency": {
+  "message": "Prices in {0}, as the App Store gives them."
+ },
  "tierByok1": {
   "message": "Unlimited answers with your own OpenAI or Claude API key"
  },

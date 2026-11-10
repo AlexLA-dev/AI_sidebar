@@ -1721,6 +1721,9 @@
  "plansNote": {
   "message": "登録はContextFlowアプリで行います。Ultraへの切り替えはすぐに始まり、現在のプランの残り分はAppleが返金します。"
  },
+ "plansCurrency": {
+  "message": "価格は{0}です（App Storeの表示どおり）。"
+ },
  "tierByok1": {
   "message": "自分のOpenAIまたはClaudeのAPIキーで、回答数は無制限"
  },

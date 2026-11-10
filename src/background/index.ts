@@ -751,7 +751,7 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
         sendResponse({ status: "none" })
         return false
       }
-      callNative<{ status?: string }>("notifStatus", {}, 3000).then((r) => sendResponse({ status: r?.status ?? "unknown" }), () => sendResponse({ status: "unknown" }))
+      callNative<{ status?: string; later?: number }>("notifStatus", {}, 3000).then((r) => sendResponse({ status: r?.status ?? "unknown", ...(typeof r?.later === "number" && r.later > Date.now() ? { later: r.later } : {}) }), () => sendResponse({ status: "unknown" }))
       return true
     case "listenHandoff": {
       if (TARGET !== "safari" || !/^[0-9a-f-]{8,64}$/i.test(message.id)) {

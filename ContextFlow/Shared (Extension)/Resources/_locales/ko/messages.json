@@ -1721,6 +1721,9 @@
  "plansNote": {
   "message": "구독은 ContextFlow 앱에서 해요. Ultra로 바꾸면 바로 시작되고, 현재 요금제의 남은 기간은 Apple이 환불해요."
  },
+ "plansCurrency": {
+  "message": "가격은 {0} 기준이며 App Store에 표시된 그대로입니다."
+ },
  "tierByok1": {
   "message": "내 OpenAI 또는 Claude API 키로 답변 무제한"
  },

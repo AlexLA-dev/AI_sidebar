@@ -596,6 +596,7 @@
   "plansPerMonth": "{0} / شهر",
   "plansPerYear": "{0} / سنة",
   "plansNote": "الاشتراك يكون في تطبيق ContextFlow. الانتقال إلى Ultra يبدأ فورًا، وتعيد لك Apple قيمة ما تبقّى من خطتك الحالية.",
+  "plansCurrency": "الأسعار بعملة {0}، كما يعرضها App Store.",
   "tierByok1": "إجابات بلا حدود بمفتاح API الخاص بك من OpenAI أو Claude",
   "tierByok2": "كل ما في الصفحة: ملخصات وشروح وترجمات",
   "tierPro1": "حتى {0} إجابة أسبوعيًا، دون حاجة إلى مفتاح API",

@@ -24,6 +24,15 @@ export function priceValue(display: string | undefined): number | null {
   return Number.isFinite(value) && value > 0 ? value : null
 }
 
+/** The App Store's currency, when its prices don't say it themselves (build 95, the owner's App Store of Canada: CAD
+ *  reads "$12.99", the same as dollars of the US): a currency other than USD written with a bare "$". Null otherwise. */
+export function currencyCode(prices: Record<string, string>): string | null {
+  const code = (prices["#currency"] ?? "").toUpperCase()
+  if (!/^[A-Z]{3}$/.test(code) || code === "USD") return null
+  const shown = Object.entries(prices).filter(([key, value]) => !key.includes("#") && value).map(([, value]) => value)
+  return shown.some((price) => price.includes("$") && !/\p{L}/u.test(price)) ? code : null
+}
+
 /** Percent saved by paying yearly instead of 12 months, when both prices are known (at least 5%). */
 export function yearlySaving(monthly: string | undefined, yearly: string | undefined): number | null {
   const m = priceValue(monthly)
@@ -125,6 +134,7 @@ export function PlansSheet({ status, focus, onChoose, onClose }: {
           )
         })}
       </div>
+      {currencyCode(prices) && <p class="cf-hint cf-plans-currency">{t("plansCurrency", currencyCode(prices)!)}</p>}
       <Gallery facts={facts} ultra={focus === "ultra"} />
       <p class="cf-hint">{t("plansNote")}</p>
     </div>

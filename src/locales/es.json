@@ -596,6 +596,7 @@
   "plansPerMonth": "{0}/mes",
   "plansPerYear": "{0}/año",
   "plansNote": "La suscripción se hace en la app ContextFlow. El cambio a Ultra empieza enseguida, y Apple te reembolsa lo que queda de tu plan actual.",
+  "plansCurrency": "Precios en {0}, tal como los da el App Store.",
   "tierByok1": "Respuestas ilimitadas con tu propia clave de API de OpenAI o Claude",
   "tierByok2": "Todo en la página: resúmenes, explicaciones, traducciones",
   "tierPro1": "Hasta {0} respuestas a la semana, sin clave de API",

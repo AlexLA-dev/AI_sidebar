@@ -1721,6 +1721,9 @@
  "plansNote": {
   "message": "Підписка оформлюється в застосунку ContextFlow. Перехід на Ultra почнеться одразу, а залишок поточного тарифу Apple поверне."
  },
+ "plansCurrency": {
+  "message": "Ціни в {0} — так їх дає App Store."
+ },
  "tierByok1": {
   "message": "Безлімітні відповіді з вашим API-ключем OpenAI або Claude"
  },

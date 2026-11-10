@@ -360,7 +360,11 @@ final class ListenPlayer: NSObject, ObservableObject {
     private var timer: Timer?
     private var wired = false
     private let synth = AVSpeechSynthesizer()
-    /// What Apple's voice reads when the server can't at a text's start (out of minutes, or offline).
+    private lazy var appleEnd = AppleVoiceEnd { [weak self] in
+        Task { @MainActor in self?.appleFinished() }
+    }
+    /// What Apple's voice reads when the server can't at a text's start (out of minutes, or offline), and why.
+    private var appleReason: State?
     private var appleText: String?
     private var appleStarted = false
     /// The parts not yet spoken when the rest couldn't come ("Try again" asks for them), and the first one's index.
@@ -430,46 +434,16 @@ final class ListenPlayer: NSObject, ObservableObject {
         guard request == nil, let text = given, !text.isEmpty else { return }
         let lang = UserDefaults.standard.string(forKey: "CFDebugListenLang") ?? "en"
         // -CFDebugListenScript YES: written for the ear first, as a page or an answer with a table would be.
-        start(ListenRequest(id: "debug", parts: Self.sentenceParts(text), lang: lang, what: "page", title: "How electric trains save energy", url: URL(string: "https://example.com/trains"),
+        start(ListenRequest(id: "debug", parts: SpeechText.parts(text), lang: lang, what: "page", title: "How electric trains save energy", url: URL(string: "https://example.com/trains"),
                             text: text, script: UserDefaults.standard.bool(forKey: "CFDebugListenScript")))
         // -CFDebugListenMini YES (build 93): as after Done, the bar at the bottom (frames of it on the Mac).
         if UserDefaults.standard.bool(forKey: "CFDebugListenMini") { visible = false }
         #endif
     }
 
-    /// Sentences gathered into parts like the panel's (src/shared/speech.ts): a short first one, then up to 500.
-    nonisolated static func sentenceParts(_ text: String, first: Bool = true) -> [String] {
-        var parts: [String] = []
-        var current = ""
-        text.enumerateSubstrings(in: text.startIndex..., options: .bySentences) { sentence, _, _, _ in
-            guard let sentence else { return }
-            let limit = parts.isEmpty && first ? 240 : Self.partChars
-            if !current.isEmpty, current.count + sentence.count > limit {
-                parts.append(current.trimmingCharacters(in: .whitespaces))
-                current = ""
-            }
-            current += sentence
-        }
-        if !current.trimmingCharacters(in: .whitespaces).isEmpty { parts.append(current.trimmingCharacters(in: .whitespaces)) }
-        return parts
-    }
-
-    /// A long text for /api/v2/speak-script in pieces of at most 5000 characters, cut between paragraphs.
+    /// A long text for /api/v2/speak-script in pieces of at most 5000 characters, cut between paragraphs (the panel's).
     nonisolated static func scriptChunks(_ text: String, size: Int = 5000) -> [String] {
-        var chunks: [String] = []
-        var current = ""
-        for paragraph in text.components(separatedBy: "\n\n") {
-            let pieces = paragraph.utf16.count > size ? sentenceParts(paragraph, first: false) : [paragraph]
-            for piece in pieces {
-                if !current.isEmpty, current.utf16.count + piece.utf16.count + 2 > size {
-                    chunks.append(current.trimmingCharacters(in: .whitespacesAndNewlines))
-                    current = ""
-                }
-                current += (current.isEmpty ? "" : "\n\n") + piece
-            }
-        }
-        if !current.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { chunks.append(current.trimmingCharacters(in: .whitespacesAndNewlines)) }
-        return chunks
+        SpeechText.scriptChunks(text, size: size)
     }
 
     /// Listen under an answer in the app's own chats (build 90): Ultra plays it here; without Ultra the sheet says
@@ -479,7 +453,6 @@ final class ListenPlayer: NSObject, ObservableObject {
             visible = true
             return
         }
-        let plain = Self.plainText(markdown)
         guard StoreKitManager.shared.isUltra else {
             stop()
             self.request = ListenRequest(id: id, parts: [], lang: "", what: "answer", title: title, url: nil)
@@ -487,32 +460,14 @@ final class ListenPlayer: NSObject, ObservableObject {
             visible = true
             return
         }
-        let parts = Self.sentenceParts(plain)
+        // As the panel makes them (build 95): the same parts, language and text for the ear, so a text heard in Safari
+        // plays here from what's kept and isn't counted again (and the other way round).
+        let text = (markdown as NSString).length > SpeechText.maxChars ? (markdown as NSString).substring(to: SpeechText.maxChars) : markdown
+        let parts = Array(SpeechText.parts(SpeechText.text(text)).prefix(80))
         guard !parts.isEmpty else { return }
         ChatAI.reportUse("listen", "start", ["what": "answer"])
-        start(ListenRequest(id: id, parts: parts, lang: Self.language(of: plain), what: "answer", title: title, url: nil,
-                            text: markdown, script: Self.needsScript(markdown), voiced: VoicedList.id(what: "answer", text: markdown)))
-    }
-
-    /// An answer's Markdown as plain sentences (no marks, links' words only).
-    nonisolated static func plainText(_ markdown: String) -> String {
-        var text = markdown.replacingOccurrences(of: #"```[\s\S]*?```"#, with: " ", options: .regularExpression)
-        text = text.replacingOccurrences(of: #"\[([^\]]+)\]\([^)]*\)"#, with: "$1", options: .regularExpression)
-        text = text.replacingOccurrences(of: #"(?m)^\s{0,3}(#{1,6}|[-*+]|\d+[.)]|>)\s+"#, with: "", options: .regularExpression)
-        text = text.replacingOccurrences(of: #"[*_`~|]+"#, with: " ", options: .regularExpression)
-        return text.replacingOccurrences(of: #"[ \t]+"#, with: " ", options: .regularExpression).trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    /// Tables, lists, headings or code: written for the ear first (src/shared/speech.ts needsScript, roughly).
-    nonisolated static func needsScript(_ markdown: String) -> Bool {
-        markdown.range(of: #"(?m)^\s*(\|.*\||#{1,6}\s|[-*+]\s|\d+[.)]\s|```)"#, options: .regularExpression) != nil
-    }
-
-    /// The text's language ("en", "ru"…), for the voice.
-    nonisolated static func language(of text: String) -> String {
-        let recognizer = NLLanguageRecognizer()
-        recognizer.processString(String(text.prefix(1000)))
-        return recognizer.dominantLanguage?.rawValue ?? (Locale.current.language.languageCode?.identifier ?? "en")
+        start(ListenRequest(id: id, parts: parts, lang: SpeechText.language(markdown) ?? SpeechText.uiLanguage, what: "answer", title: title, url: nil,
+                            text: text, script: SpeechText.needsScript(text), voiced: VoicedList.id(what: "answer", text: markdown)))
     }
 
     func open(_ url: URL) {
@@ -694,6 +649,7 @@ final class ListenPlayer: NSObject, ObservableObject {
         pausedAt = nil
         fetchedAll = false
         appleText = nil
+        appleReason = nil
         pendingReason = nil
         appleStarted = false
         elapsed = 0
@@ -708,7 +664,13 @@ final class ListenPlayer: NSObject, ObservableObject {
         switch state {
         case .playing: pause()
         case .paused: play()
-        case .ended: seek(to: 0)
+        case .ended:
+            if samples.isEmpty, appleText != nil, let reason = appleReason {
+                state = reason
+                speakWithApple()
+            } else {
+                seek(to: 0)
+            }
         // Stopped short: play is "Try again" (what was heard can be heard again with ‹15).
         case .interrupted: rest.isEmpty ? seek(to: 0) : retryRest()
         default:
@@ -982,7 +944,7 @@ final class ListenPlayer: NSObject, ObservableObject {
                     // Nothing written: the panel's own parts (its rules), as before this was written for the ear.
                     give(request.parts)
                 } else {
-                    give(Self.sentenceParts(chunk, first: first))
+                    give(SpeechText.parts(SpeechText.text(chunk)))
                 }
             }
         }
@@ -1298,9 +1260,13 @@ final class ListenPlayer: NSObject, ObservableObject {
     /// The rest can't come. Nothing of ours played yet: Apple's voice reads the text (out of minutes, offline). Ours
     /// has played: no other voice takes over mid-text; what came plays to its end, then "Try again".
     private func fallBack(parts: [String], index: Int, _ reason: State) {
-        ChatAI.reportUse("listen", samples.isEmpty ? "apple" : "interrupted", ["what": request?.what == "page" ? "page" : "answer"])
-        if samples.isEmpty {
+        // Carried on from Safari (build 95): our voice has played there, so Apple's doesn't take over mid-text either.
+        let carriedOn = (request?.base ?? 0) + (request?.skip ?? 0) > 0
+        let apple = samples.isEmpty && !carriedOn
+        ChatAI.reportUse("listen", apple ? "apple" : "interrupted", ["what": request?.what == "page" ? "page" : "answer"])
+        if apple {
             appleText = parts.joined(separator: " ")
+            appleReason = reason
             state = reason
             speakWithApple()
             return
@@ -1312,7 +1278,13 @@ final class ListenPlayer: NSObject, ObservableObject {
         if case .limit = reason { limited = true } else { limited = false }
         restLimited = limited
         pendingReason = .interrupted(limit: limited)
-        if state != .playing { state = .interrupted(limit: limited) }
+        if samples.isEmpty {
+            // Nothing of it here yet (carried on from Safari): "Try again" at once, nothing left running.
+            pendingReason = nil
+            finish(.interrupted(limit: limited))
+        } else if state != .playing {
+            state = .interrupted(limit: limited)
+        }
     }
 
     private var pendingReason: State?
@@ -1351,8 +1323,14 @@ final class ListenPlayer: NSObject, ObservableObject {
     /// Heard to its end with nothing skipped, here and in Safari before (build 94): Listen marks it "already voiced", in
     /// the app and in the panel on this device.
     private func noteVoiced() {
-        guard let request, let id = request.voiced, !skippedAhead, !request.skippedBefore,
-              reached >= base + Double(samples.count) / Self.rate - 1.5 else { return }
+        guard let request, let id = request.voiced else { return }
+        let gap = max(0, base + Double(samples.count) / Self.rate - reached)
+        guard !skippedAhead, !request.skippedBefore, gap <= 1.5 else {
+            // Not marked: why, for the record (build 95: the owner saw no mark on 94).
+            let why = skippedAhead ? "skipped" : request.skippedBefore ? "before" : "short"
+            ChatAI.reportUse("listen", "unvoiced", ["what": request.what == "page" ? "page" : "answer", "why": why, "gap_s": String(Int(gap.rounded()))])
+            return
+        }
         if VoicedList.shared.mark(id) { ChatAI.reportUse("listen", "voiced", ["what": request.what == "page" ? "page" : "answer"]) }
     }
 
@@ -1374,10 +1352,23 @@ final class ListenPlayer: NSObject, ObservableObject {
         guard let request, let text = appleText, !text.isEmpty, !appleStarted else { return }
         appleStarted = true
         activateSession()
+        synth.delegate = appleEnd
         let utterance = AVSpeechUtterance(string: text)
         utterance.voice = Self.bestVoice(request.lang, gender: UserDefaults.standard.string(forKey: "cf_voice_gender") ?? "female")
         utterance.rate = Self.appleRate(speed)
         synth.speak(utterance)
+    }
+
+    /// Apple's voice read it to its end: the text has ended (the bar goes, the audio session is let go); Play reads it
+    /// again.
+    private func appleFinished() {
+        guard appleStarted, request != nil else { return }
+        switch state {
+        case .appleVoice, .limit: break
+        default: return
+        }
+        appleStarted = false
+        finish(.ended)
     }
 
     /// Apple's rate for our speeds (its scale isn't linear: 0.5 is normal speech).
@@ -1803,50 +1794,15 @@ struct ListenView: View {
     }
 }
 
-/// Cuts text that streams in into parts as soon as they're complete, at sentence ends: the very first part as soon as
-/// a sentence of `min` characters is there, then parts of up to 500 (src/shared/speech.ts PartSplitter).
-final class PartSplitter {
-    private var buffer = ""
-    private var first: Bool
-    private let min: Int
-    private static let sentenceEnd = try! NSRegularExpression(pattern: "[.!?…。！？؟।][\"'»”)\\]]*\\s+|\\n+")
+/// Tells the player when Apple's voice has read its text to the end (build 95).
+nonisolated final class AppleVoiceEnd: NSObject, AVSpeechSynthesizerDelegate, @unchecked Sendable {
+    private let done: @Sendable () -> Void
 
-    init(first: Bool = true, min: Int = 40) {
-        self.first = first
-        self.min = min
+    init(_ done: @escaping @Sendable () -> Void) {
+        self.done = done
     }
 
-    func push(_ text: String) -> [String] {
-        buffer += text
-        var out: [String] = []
-        while true {
-            let limit = first ? 240 : ListenPlayer.partChars
-            let ns = buffer as NSString
-            var cut = -1
-            var firstEnd = -1
-            for match in Self.sentenceEnd.matches(in: buffer, range: NSRange(location: 0, length: ns.length)) {
-                let end = match.range.location + match.range.length
-                if firstEnd < 0 { firstEnd = end }
-                if end <= limit { cut = end } else { break }
-            }
-            if cut < 0, firstEnd >= 0, ns.length > limit { cut = firstEnd }
-            guard cut >= 0, ns.length >= limit || (first && cut >= min) else { break }
-            let part = ns.substring(to: cut).trimmingCharacters(in: .whitespacesAndNewlines)
-            buffer = ns.substring(from: cut)
-            if !part.isEmpty {
-                out.append(part)
-                first = false
-            }
-        }
-        return out
-    }
-
-    func end() -> [String] {
-        let rest = buffer.trimmingCharacters(in: .whitespacesAndNewlines)
-        buffer = ""
-        guard !rest.isEmpty else { return [] }
-        let parts = ListenPlayer.sentenceParts(rest, first: first)
-        if !parts.isEmpty { first = false }
-        return parts
+    func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
+        done()
     }
 }

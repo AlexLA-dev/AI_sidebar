@@ -1721,6 +1721,9 @@
  "plansNote": {
   "message": "La suscripción se hace en la app ContextFlow. El cambio a Ultra empieza enseguida, y Apple te reembolsa lo que queda de tu plan actual."
  },
+ "plansCurrency": {
+  "message": "Precios en {0}, tal como los da el App Store."
+ },
  "tierByok1": {
   "message": "Respuestas ilimitadas con tu propia clave de API de OpenAI o Claude"
  },

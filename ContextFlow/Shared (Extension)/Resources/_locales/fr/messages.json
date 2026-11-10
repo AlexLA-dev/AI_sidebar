@@ -1721,6 +1721,9 @@
  "plansNote": {
   "message": "L’abonnement se fait dans l’app ContextFlow. Le passage à Ultra démarre aussitôt, et Apple rembourse ce qui reste de votre forfait actuel."
  },
+ "plansCurrency": {
+  "message": "Prix en {0}, tels que l’App Store les donne."
+ },
  "tierByok1": {
   "message": "Réponses illimitées avec votre propre clé API OpenAI ou Claude"
  },

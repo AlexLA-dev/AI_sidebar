@@ -306,7 +306,8 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         case "notifStatus":
             Task {
                 let status = await UNUserNotificationCenter.current().notificationSettings().authorizationStatus
-                Self.reply(context, ["success": true, "data": ["status": ListenAway.name(status)]])
+                // With the app's "Not now" at Listen (build 95): the panel doesn't ask again that day either.
+                Self.reply(context, ["success": true, "data": ["status": ListenAway.name(status), "later": SharedDefaults.shared.listenNotifyLaterUntil()]])
             }
         case "listenState":
             Task {

@@ -596,6 +596,7 @@
   "plansPerMonth": "{0}/月",
   "plansPerYear": "{0}/年",
   "plansNote": "登録はContextFlowアプリで行います。Ultraへの切り替えはすぐに始まり、現在のプランの残り分はAppleが返金します。",
+  "plansCurrency": "価格は{0}です（App Storeの表示どおり）。",
   "tierByok1": "自分のOpenAIまたはClaudeのAPIキーで、回答数は無制限",
   "tierByok2": "ページのことなら何でも：要約、解説、翻訳",
   "tierPro1": "週に最大{0}回の回答、APIキー不要",

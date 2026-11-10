@@ -10,7 +10,7 @@ import { useEffect, useState } from "preact/hooks"
 import { t, uiLanguage } from "../../shared/i18n"
 import { productOf, type PaidPlan, type Period } from "../../shared/plan"
 import type { StatusInfo } from "../../shared/types"
-import { tierLines, yearlySaving } from "../Plans"
+import { currencyCode, tierLines, yearlySaving } from "../Plans"
 import * as Icon from "../icons"
 import { lastPrices } from "../store"
 
@@ -113,6 +113,7 @@ export function PlanOffer({ place, status, title, body, lines, plans = ["pro", "
           )}
           {perMonth && <div class="cf-plan-year"><span>{t("plansPerMonthYearly", perMonth)}</span></div>}
           {facts && <ul class="cf-plan-lines">{tierLines(plan, facts).map((line, i) => <li key={i}>{line}</li>)}</ul>}
+          {price && currencyCode(prices) && <p class="cf-hint cf-plans-currency">{t("plansCurrency", currencyCode(prices)!)}</p>}
         </div>
       )}
       <div class="cf-card-actions">

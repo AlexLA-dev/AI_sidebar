@@ -121,9 +121,11 @@ export const FEATURES: Record<string, Feature> = {
   // played the text ("back_play").
   // Build 94: what plays tapped in the panel's bar, back to its chat ("go"); a text heard to its end, now marked
   // "already voiced" by Listen ("voiced").
+  // Build 95: a text whose audio played out but isn't marked ("unvoiced"), and why: skipped ahead here, skipped in Safari
+  // before it was carried on ("before"), or the end not reached by `gap_s` seconds ("short").
   listen: {
-    since: "2.6", tracked: "2.6", actions: ["start", "app", "ultra", "limit", "error", "apple", "interrupted", "retry", "heard", "notify", "notify_on", "notify_later", "carried_on", "back_safari", "back_play", "go", "voiced"],
-    fields: { what: ["answer", "page"], heard_s: "int", cache_s: "int", icloud_s: "int", server_s: "int", charged_s: "int" }
+    since: "2.6", tracked: "2.6", actions: ["start", "app", "ultra", "limit", "error", "apple", "interrupted", "retry", "heard", "notify", "notify_on", "notify_later", "carried_on", "back_safari", "back_play", "go", "voiced", "unvoiced"],
+    fields: { what: ["answer", "page"], heard_s: "int", cache_s: "int", icloud_s: "int", server_s: "int", charged_s: "int", why: ["skipped", "before", "short"], gap_s: "int" }
   },
   // 2.6: the plans sheet (Own key, Pro, Ultra): opened from where, and the plan and period chosen (to the app).
   plans: {

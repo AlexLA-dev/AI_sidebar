@@ -596,6 +596,7 @@
   "plansPerMonth": "{0}/月",
   "plansPerYear": "{0}/年",
   "plansNote": "在 ContextFlow App 中订阅。升级到 Ultra 立即生效，Apple 会退还当前套餐剩余的部分。",
+  "plansCurrency": "价格以 {0} 计，与 App Store 显示一致。",
   "tierByok1": "使用你自己的 OpenAI 或 Claude API 密钥，回答次数不限",
   "tierByok2": "页面上的一切：总结、解释、翻译",
   "tierPro1": "每周最多 {0} 个回答，无需 API 密钥",

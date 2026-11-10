@@ -1721,6 +1721,9 @@
  "plansNote": {
   "message": "在 ContextFlow App 中訂閱。升級到 Ultra 會立即生效，Apple 會退還目前方案剩餘的部分。"
  },
+ "plansCurrency": {
+  "message": "價格以 {0} 計，與 App Store 顯示一致。"
+ },
  "tierByok1": {
   "message": "使用你自己的 OpenAI 或 Claude API 金鑰，回答次數不限"
  },
