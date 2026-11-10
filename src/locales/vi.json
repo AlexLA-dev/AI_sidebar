@@ -727,7 +727,7 @@
   "listenLow": "Tuần này còn khoảng {0} phút nghe, còn nội dung này cần khoảng {1} phút. Phần đọc sẽ dừng ở chỗ hết phút.",
   "listenAnyway": "Vẫn nghe",
   "listenAway": "Nghe tiếp trong ContextFlow — từ {0}",
-  "listenNotifyAsk": "Bật thông báo để nghe tiếp khi bạn rời Safari hoặc khóa màn hình. Nếu không, Listen sẽ mở ứng dụng.",
+  "listenNotifyAsk": "Bật thông báo để nghe tiếp khi bạn rời Safari hoặc khóa màn hình. Nếu không, “Nghe” sẽ mở ứng dụng.",
   "listenNotifyOn": "Bật thông báo",
   "listenNotifyLater": "Để sau",
   "listenTaken": "Đang phát trong ứng dụng ContextFlow.",

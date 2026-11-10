@@ -72,6 +72,38 @@ final class VoicedList: ObservableObject {
         return added
     }
 
+    /// Voiced as the server counts it (build 95): kept with this device's list (the panel's too, through the App Group).
+    func markAll(_ list: [String]) {
+        guard !list.isEmpty, SharedDefaults.shared.markVoiced(list) else { return }
+        reload()
+    }
+
+    /// When each text was last asked about: a chat opened again soon after asks nothing.
+    private var asked: [String: Date] = [:]
+
+    /// Build 95 (the owner on 94: no mark anywhere; it was set only by a listen heard to its very end, on that device):
+    /// a chat's answers as the server counts them, heard on any device in any number of listens. Each is asked about at
+    /// most every 10 minutes, with its parts' keys when they're known here (as Listen makes them), else by its id.
+    func ask(answers: [String]) {
+        guard StoreKitManager.shared.isUltra else { return }
+        let now = Date()
+        var texts: [[String: Any]] = []
+        for text in answers.suffix(30) where !text.isEmpty {
+            let id = Self.id(what: "answer", text: text)
+            guard !ids.contains(id), now.timeIntervalSince(asked[id] ?? .distantPast) > 600, !texts.contains(where: { $0["id"] as? String == id }) else { continue }
+            asked[id] = now
+            texts.append(["id": id, "keys": ListenPlayer.partKeys(answer: text)])
+        }
+        guard !texts.isEmpty else { return }
+        Task {
+            guard let request = try? ChatAI.heardRequest([], texts: texts),
+                  let (data, response) = try? await URLSession.shared.data(for: request),
+                  (response as? HTTPURLResponse)?.statusCode == 200,
+                  let body = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return }
+            self.markAll((body["voiced"] as? [String]) ?? [])
+        }
+    }
+
     /// The text's id: cyrb53's two 32-bit lanes over "<what>|<its first 24,000 UTF-16 units>" (src/shared/voiced.ts).
     nonisolated static func id(what: String, text: String) -> String {
         var h1: UInt32 = 0xdeadbeef
@@ -346,6 +378,8 @@ final class ListenPlayer: NSObject, ObservableObject {
     /// Each part's samples here (its key on the devices and the server), and the seconds heard of each (build 92: the
     /// week's minutes count what's heard; HeardStore keeps them until the server has).
     private var partRanges: [(key: String, start: Int, end: Int)] = []
+    /// The keys of the text's parts that can be said, in order (build 95: the server says from them whether it's voiced).
+    private var textKeys: [String] = []
     private var heardByKey: [String: Double] = [:]
     private var lastHeardSample: Int?
     /// The player's own clock (samples since play from startSample): where the scheduled audio ends on it, and the
@@ -627,6 +661,7 @@ final class ListenPlayer: NSObject, ObservableObject {
         Task { await Self.sendHeard() }
         reportHeard()
         partRanges = []
+        textKeys = []
         heardByKey = [:]
         lastHeardSample = nil
         waitTask?.cancel()
@@ -802,6 +837,7 @@ final class ListenPlayer: NSObject, ObservableObject {
             }
         }
         fetchedAll = true
+        noteText(request)
         startSkippedIfShort()
     }
 
@@ -820,6 +856,13 @@ final class ListenPlayer: NSObject, ObservableObject {
         else if Int(after / 10) != Int(before / 10) { keepHeard() }
     }
 
+    /// All of the text's parts known here (from its first): the text goes with the next heard report, and the server
+    /// says whether it's voiced now (build 95). Carried on from a later part, the panel tells it.
+    private func noteText(_ request: ListenRequest) {
+        guard request.firstIndex == 0, let id = request.voiced, !textKeys.isEmpty else { return }
+        HeardStore.noteText(id, textKeys)
+    }
+
     /// Into the store the server is told from (by part key; it counts a part once, up to its length).
     private func keepHeard() {
         for (key, seconds) in heardByKey { HeardStore.note(key, seconds) }
@@ -828,15 +871,19 @@ final class ListenPlayer: NSObject, ObservableObject {
     /// What's waiting goes to the server (when a text stops, and at launch for what didn't go); the minutes shown follow.
     static func sendHeard() async {
         let items = HeardStore.items()
-        guard !items.isEmpty, let request = try? ChatAI.heardRequest(items),
+        let texts = HeardStore.texts()
+        guard !items.isEmpty || !texts.isEmpty, let request = try? ChatAI.heardRequest(items, texts: texts),
               let (data, response) = try? await URLSession.shared.data(for: request),
               (response as? HTTPURLResponse)?.statusCode == 200 else { return }
         HeardStore.counted(items)
-        if let body = try? JSONSerialization.jsonObject(with: data) as? [String: Any], let usage = body["usage"] as? [String: Any],
-           let used = usage["used"] as? Int, let limit = usage["limit"] as? Int {
+        HeardStore.textsSent(texts.compactMap { $0["id"] as? String })
+        let body = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+        if let usage = body?["usage"] as? [String: Any], let used = usage["used"] as? Int, let limit = usage["limit"] as? Int {
             lastUsage = (used, limit)
             shared.secondsLeft = max(0, limit - used)
         }
+        // Voiced now, as the server counts it (build 95).
+        VoicedList.shared.markAll((body?["voiced"] as? [String]) ?? [])
     }
 
     /// Where the minutes went for this text, once, when it stops: heard, from where, and charged up front.
@@ -894,6 +941,7 @@ final class ListenPlayer: NSObject, ObservableObject {
             }
         }
         fetchedAll = true
+        noteText(request)
         startSkippedIfShort()
     }
 
@@ -961,6 +1009,7 @@ final class ListenPlayer: NSObject, ObservableObject {
     /// again twice before it counts.
     private func speakPart(_ part: String, index: Int, request: ListenRequest) async -> Spoken {
         let key = Self.cacheKey(part, request.lang)
+        if Self.speakable(part) { textKeys.append(key) }
         // Where this part starts here (what's heard of it counts by its key).
         partRanges.append((key: key, start: samples.count, end: Int.max))
         defer { if let last = partRanges.indices.last, partRanges[last].key == key { partRanges[last].end = samples.count } }
@@ -1535,6 +1584,30 @@ final class ListenPlayer: NSObject, ObservableObject {
     static func cacheKey(_ text: String, _ lang: String) -> String {
         SHA256.hash(data: Data("v1|\(lang)|\(text)".utf8)).map { String(format: "%02x", $0) }.joined()
     }
+
+    /// Something a voice can say (a part without is skipped: never made, never heard).
+    static func speakable(_ part: String) -> Bool {
+        part.range(of: #"[\p{L}\p{N}]"#, options: .regularExpression) != nil
+    }
+
+    /// The keys of an answer's parts as Listen makes them (build 95), for asking whether it's voiced: the same parts as
+    /// playing it would give. Written for the ear, it has them only when its writing is kept on this device; otherwise
+    /// none (the server answers by its id alone).
+    static func partKeys(answer markdown: String) -> [String] {
+        let text = (markdown as NSString).length > SpeechText.maxChars ? (markdown as NSString).substring(to: SpeechText.maxChars) : markdown
+        let lang = SpeechText.language(markdown) ?? SpeechText.uiLanguage
+        var parts: [String] = []
+        if SpeechText.needsScript(text) {
+            for chunk in SpeechText.scriptChunks(text) {
+                guard let kept = SpeechCache.read("script|answer|" + cacheKey(chunk, lang)), let script = String(data: kept, encoding: .utf8) else { return [] }
+                let splitter = PartSplitter(first: parts.isEmpty)
+                parts += splitter.push(script) + splitter.end()
+            }
+        } else {
+            parts = Array(SpeechText.parts(SpeechText.text(text)).prefix(80))
+        }
+        return parts.filter(speakable).map { cacheKey($0, lang) }
+    }
 }
 
 /// The parts already spoken and the texts written for the ear, in Caches (the system may clear them; then they're asked
@@ -1555,6 +1628,28 @@ enum HeardStore {
     static func items() -> [[String: Any]] {
         let map = UserDefaults.standard.dictionary(forKey: key) as? [String: Double] ?? [:]
         return map.prefix(80).map { ["key": $0.key, "s": $0.value] }
+    }
+
+    private static let textsKey = "cf_listen_heard_texts"
+
+    /// A text heard from, with all its parts' keys (build 95): told with the next report, the server says if it's voiced.
+    static func noteText(_ id: String, _ keys: [String]) {
+        var map = UserDefaults.standard.dictionary(forKey: textsKey) as? [String: [String]] ?? [:]
+        map[id] = Array(keys.prefix(80))
+        if map.count > 20 { map = Dictionary(uniqueKeysWithValues: map.prefix(20).map { ($0.key, $0.value) }) }
+        UserDefaults.standard.set(map, forKey: textsKey)
+    }
+
+    static func texts() -> [[String: Any]] {
+        let map = UserDefaults.standard.dictionary(forKey: textsKey) as? [String: [String]] ?? [:]
+        return map.prefix(20).map { ["id": $0.key, "keys": $0.value] }
+    }
+
+    static func textsSent(_ ids: [String]) {
+        guard !ids.isEmpty else { return }
+        var map = UserDefaults.standard.dictionary(forKey: textsKey) as? [String: [String]] ?? [:]
+        for id in ids { map.removeValue(forKey: id) }
+        UserDefaults.standard.set(map, forKey: textsKey)
     }
 
     /// Takes out what the server counted (only where nothing more was heard meanwhile).

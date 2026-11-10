@@ -994,6 +994,9 @@ struct ProView: View {
             }
             .onAppear { scrollToFocus(scroller) }
             .onChange(of: paywall.focus) { _ in scrollToFocus(scroller) }
+            .onAppear { buyChosen() }
+            .onChange(of: paywall.buyNow) { _ in buyChosen() }
+            .onChange(of: store.products.count) { _ in buyChosen() }
         }
         .navigationTitle("ContextFlow Pro")
         .task { await store.refreshPlanFacts() }
@@ -1004,6 +1007,15 @@ struct ProView: View {
                 dismissButton: .default(Text("OK")) { requestReview() }
             )
         }
+    }
+
+    /// Chosen in the panel (contextflow://subscribe?plan=…&period=…): its purchase opens at once, once the plans have
+    /// loaded and are on screen (build 95). Not the subscription the person already has.
+    private func buyChosen() {
+        guard let id = paywall.buyNow, busyProduct == nil, let product = store.products.first(where: { $0.id == id }) else { return }
+        paywall.buyNow = nil
+        guard !(store.entitlement.active && store.entitlement.productId == id) else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { buy(product) }
     }
 
     /// From the panel's plans sheet (contextflow://subscribe?plan=…&period=…): the chosen plan in view.
@@ -1273,12 +1285,18 @@ final class Paywall: ObservableObject {
     }
     @Published var focus: StoreKitManager.Tier?
     @Published var yearly = true
+    /// The product to buy at once (build 95, the owner since 91: "Choose…" in the panel and "Buy" in the chat open the
+    /// App Store's purchase of that plan and period, not the plans with one more tap to go).
+    @Published var buyNow: String?
 
     func open(_ url: URL) {
         let items = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
         let value = { (name: String) in items.first { $0.name == name }?.value }
-        if let plan = value("plan").flatMap(StoreKitManager.Tier.init(rawValue:)) { focus = plan }
+        let plan = value("plan").flatMap(StoreKitManager.Tier.init(rawValue:))
+        if let plan { focus = plan }
         if let period = value("period") { yearly = period == "yearly" }
+        // A plan and a period named: that product is bought now (the plans stay behind the App Store's sheet).
+        if let plan, let period = value("period") { buyNow = "com.contextflow.\(plan.rawValue).\(period == "yearly" ? "yearly" : "monthly")" }
     }
 }
 

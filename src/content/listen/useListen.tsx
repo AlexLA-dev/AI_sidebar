@@ -22,7 +22,8 @@ export type ListenState =
   | { at: "loading"; key: string }
   | { at: "playing" | "paused"; key: string; position: number; total: number; received?: number }
   | { at: "handoff"; key: string }
-  | { at: "error"; key: string; code: string; usage?: Usage | null }
+  // Build 95: the text too, for "Retry" (promised on 90: a break offers to try again, as the app's "Try again").
+  | { at: "error"; key: string; code: string; usage?: Usage | null; item?: ListenWhat }
   // Build 91: fewer minutes left this week than the text takes, said before it starts.
   | { at: "low"; key: string; left: number; need: number; item: ListenWhat }
   // iPhone, iPad without notifications (2.6): turn them on (in the app), or not now (the app plays it).
@@ -403,7 +404,7 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send, pa
           onUltra()
         } else {
           step(message.code === "LIMIT_REACHED" ? "limit" : "error")
-          setState({ at: "error", key, code: message.code, usage: message.usage ?? null })
+          setState({ at: "error", key, code: message.code, usage: message.usage ?? null, item })
         }
       }
     })
@@ -459,6 +460,15 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send, pa
     const s = stateRef.current
     if (s.at === "low") void start(s.key, s.item, true)
   }, [start])
+
+  /** After a break: the same text again, from its start (what was heard of it plays from this device, and isn't
+   *  counted again). In the tap itself, as Listen. */
+  const retry = useCallback(() => {
+    const s = stateRef.current
+    if (s.at !== "error" || !s.item) return
+    void send({ type: "useEvent", f: "listen", a: "retry", what: s.item.what })
+    void start(s.key, s.item)
+  }, [start, send])
 
   /** Without notifications: "Turn on notifications" opens the app (only it can ask), which then plays the text. */
   const notifyTurnOn = useCallback(() => {
@@ -531,7 +541,7 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send, pa
     handOff(s.key, s.item, speechParts(plainText(s.item)), "listen")
   }, [handOff, send])
 
-  return { state, title, start, stop, toggle, seek, speed, cycleSpeed, left, anyway, notifyTurnOn, notifyNotNow }
+  return { state, title, start, stop, toggle, seek, speed, cycleSpeed, left, anyway, retry, notifyTurnOn, notifyNotNow }
 }
 
 /** What's read: an answer's words without its Markdown, or the page's text. */
@@ -549,7 +559,7 @@ function newId(): string {
 }
 
 /** The bar over the question field while something is read aloud (or why it isn't). */
-export function ListenBar({ state, title, onTitle, speed, left, onSpeed, onAnyway, onNotifyOn, onNotifyLater, onToggle, onSeek, onStop, onPlans }: {
+export function ListenBar({ state, title, onTitle, speed, left, onSpeed, onAnyway, onRetry, onNotifyOn, onNotifyLater, onToggle, onSeek, onStop, onPlans }: {
   state: ListenState
   // What plays (build 94), and a tap on it: back to the chat and the message it's from.
   title?: string
@@ -559,6 +569,8 @@ export function ListenBar({ state, title, onTitle, speed, left, onSpeed, onAnywa
   left?: number | null
   onSpeed: () => void
   onAnyway?: () => void
+  // After a break (build 95): the same text again.
+  onRetry?: () => void
   // iPhone, iPad without notifications: turn them on (in the app), or not now.
   onNotifyOn?: () => void
   onNotifyLater?: () => void
@@ -612,6 +624,7 @@ export function ListenBar({ state, title, onTitle, speed, left, onSpeed, onAnywa
       <div class="cf-listen error" role="alert">
         <span class="cf-listen-text">{text}</span>
         {state.code === "LIMIT_REACHED" && <button type="button" class="cf-link" onClick={onPlans}>{t("plansCompare")}</button>}
+        {state.code !== "LIMIT_REACHED" && state.item && onRetry && <button type="button" class="cf-link cf-listen-retry" onClick={onRetry}>{t("retry")}</button>}
         <button type="button" class="cf-icon-btn" onClick={onStop} aria-label={t("close")}>×</button>
       </div>
     )

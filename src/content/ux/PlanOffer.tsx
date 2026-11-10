@@ -69,6 +69,7 @@ export function PlanOffer({ place, status, title, body, lines, plans = ["pro", "
   const yearly = prices[productOf(plan, "yearly")]
   const price = period === "yearly" ? yearly : monthly
   const perMonth = period === "yearly" ? prices[`${productOf(plan, "yearly")}#perMonth`] : undefined
+  const twelve = period === "yearly" ? prices[`${productOf(plan, "yearly")}#twelve`] : undefined
   const best = Math.max(0, ...plans.map((p) => savingOf(prices, p) ?? 0))
   const saving = period === "yearly" ? savingOf(prices, plan) : null
   const name = (p: OfferChoice["plan"]) => (p === "ultra" ? t("planUltra") : t("planPro"))
@@ -111,7 +112,7 @@ export function PlanOffer({ place, status, title, body, lines, plans = ["pro", "
               <span class="cf-plan-price">{period === "yearly" ? t("plansPerYear", price) : t("plansPerMonth", price)}</span>
             </div>
           )}
-          {perMonth && <div class="cf-plan-year"><span>{t("plansPerMonthYearly", perMonth)}</span></div>}
+          {perMonth && <div class="cf-plan-year"><span>{t("plansPerMonthYearly", perMonth)}</span>{twelve && <s aria-hidden="true">{twelve}</s>}</div>}
           {facts && <ul class="cf-plan-lines">{tierLines(plan, facts).map((line, i) => <li key={i}>{line}</li>)}</ul>}
           {price && currencyCode(prices) && <p class="cf-hint cf-plans-currency">{t("plansCurrency", currencyCode(prices)!)}</p>}
         </div>

@@ -727,7 +727,7 @@
   "listenLow": "今週の読み上げは残り約{0}分で、このテキストは約{1}分かかります。残りがなくなったところで止まります。",
   "listenAnyway": "このまま読み上げる",
   "listenAway": "ContextFlowで続きを聴く — {0}から",
-  "listenNotifyAsk": "Safariを離れたり画面をロックしたりしても聴き続けるには、通知をオンにしてください。オフの場合、Listenはアプリを開きます。",
+  "listenNotifyAsk": "Safariを離れたり画面をロックしたりしても聴き続けるには、通知をオンにしてください。オフの場合、「読み上げ」はアプリを開きます。",
   "listenNotifyOn": "通知をオンにする",
   "listenNotifyLater": "今はしない",
   "listenTaken": "ContextFlowアプリで再生中です。",

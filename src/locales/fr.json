@@ -727,7 +727,7 @@
   "listenLow": "Il reste environ {0} min d’écoute cette semaine, et ce texte dure environ {1} min. La lecture s’arrêtera une fois les minutes épuisées.",
   "listenAnyway": "Écouter quand même",
   "listenAway": "Continuer l’écoute dans ContextFlow — à partir de {0}",
-  "listenNotifyAsk": "Activez les notifications pour continuer l’écoute quand vous quittez Safari ou verrouillez l’écran. Sinon, Listen ouvre l’app.",
+  "listenNotifyAsk": "Activez les notifications pour continuer l’écoute quand vous quittez Safari ou verrouillez l’écran. Sinon, « Écouter » ouvre l’app.",
   "listenNotifyOn": "Activer les notifications",
   "listenNotifyLater": "Plus tard",
   "listenTaken": "Lecture dans l’app ContextFlow.",

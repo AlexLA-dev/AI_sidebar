@@ -1194,6 +1194,12 @@ struct ChatDetailView: View {
     private var currentId: String { shownId ?? threadId }
     private var thread: ChatThread? { library.threads.first { $0.id == currentId } }
 
+    /// The chat's answers, asked about whether they're voiced (build 95); not while one is still being written.
+    private func askVoiced(_ thread: ChatThread) {
+        guard streaming.isEmpty else { return }
+        voiced.ask(answers: thread.entries.filter { !$0.isUser && !$0.isNote }.map(\.content))
+    }
+
     var body: some View {
         Group {
             if let thread, deleted?.whole != true {
@@ -1342,6 +1348,8 @@ struct ChatDetailView: View {
                         #if DEBUG
                         DebugHangLog.mark("open \(threadId)")
                         #endif
+                        // Build 95: which answers are already voiced, as the server counts them (any device, any listens).
+                        askVoiced(thread)
                         guard let scrollTo else { return }
                         DispatchQueue.main.async { proxy.scrollTo(scrollTo, anchor: .center) }
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { flashMessage(scrollTo) }
@@ -1352,6 +1360,7 @@ struct ChatDetailView: View {
                         proxy.scrollTo("end", anchor: .bottom)
                         // Another message came: start picking again.
                         picked = nil
+                        askVoiced(thread)
                     }
                     // The tag picker opened: all of it in view (above the keyboard).
                     .onChange(of: tagging) { index in

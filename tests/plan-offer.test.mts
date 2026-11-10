@@ -109,6 +109,18 @@ test("prices in a currency other than USD written with a bare \"$\" (build 95, t
   assert.equal(await shown(PRICES), null)
 })
 
+test("yearly (build 95): twelve months of the monthly plan, struck through, when the app shared it", async () => {
+  const el = dom.document.createElement("div")
+  dom.document.body.appendChild(el)
+  const prices = { ...PRICES, "com.contextflow.ultra.yearly#perMonth": "$10.00", "com.contextflow.ultra.yearly#twelve": "$155.88" }
+  ui.offer(el, { place: "ultra_only", status: { ...STATUS, store: { active: false, productId: null, prices } }, title: "Listen", plans: ["ultra"], onChoose() {}, onEvent() {} })
+  await tick()
+  const seg = [...el.querySelectorAll(".cf-offer-period button")]
+  if (seg.length) await click(seg[seg.length - 1])
+  assert.equal(el.querySelector(".cf-plan-year s")?.textContent, "$155.88")
+  ui.clear(el)
+})
+
 test("Retry: off until the answers are back, then the question goes again", async () => {
   const el = dom.document.createElement("div")
   dom.document.body.appendChild(el)

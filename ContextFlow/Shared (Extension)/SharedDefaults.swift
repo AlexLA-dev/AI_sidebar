@@ -31,7 +31,8 @@ enum PlanProducts {
     }
 
     /// The panel's price table (2.6): each product's display price, and for each yearly plan a month of it, what it
-    /// saves a year and in percent ("<id>#perMonth", "<id>#save", "<id>#percent"), all in the App Store's own format.
+    /// saves a year and in percent ("<id>#perMonth", "<id>#save", "<id>#percent"), and twelve months of the monthly
+    /// plan ("<id>#twelve", build 95), all in the App Store's own format.
     /// Built by the app when it loads the plans, and by the extension itself when the app hasn't yet (build 91: the
     /// panel's plans sheet showed no prices).
     /// Build 93: also the prices' currency ("#currency", e.g. "USD") and, given, the App Store country ("#storefront",
@@ -51,6 +52,8 @@ enum PlanProducts {
             table["\(yearly.id)#perMonth"] = (yearly.price / 12).formatted(style)
             table["\(yearly.id)#save"] = (full - yearly.price).formatted(style)
             table["\(yearly.id)#percent"] = String(percent)
+            // Twelve months of the monthly plan, struck through by the yearly price (build 95: the app's cards had it).
+            table["\(yearly.id)#twelve"] = full.formatted(style)
         }
         return table
     }
