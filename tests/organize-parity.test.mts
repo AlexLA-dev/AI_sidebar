@@ -76,7 +76,7 @@ function js(c: Case): unknown {
     case "unpack":
       return (c.packed as string[]).map((p) => numbers(unpackVector(p)))
     case "scoredBlocks":
-      return scoredBlocks(c.m as Entry[], vectorsOf(c.vectors)).map((b) => ({ ...b, v: numbers(b.v) }))
+      return scoredBlocks(c.m as Entry[], vectorsOf(c.vectors)).map((b) => ({ ...b, v: numbers(b.v), a: numbers(b.a) }))
     case "movesAllowed":
       return movesAllowed(chat, chats, cfg)
     case "suggestMove":
@@ -415,6 +415,40 @@ move(site, [site, ikea, japan], { cfg: { minMatch: 10, siteT: 0.01 } })
   move(thread("oldlone", [noteOn("japan", "https://jg.example/1", "A note about the rail pass for the trip")]), [fresh])
   move(no(japan.m).length ? { ...japan, m: [...japan.m.slice(0, 2), ...no(japan.m.slice(2, 4)), ...japan.m.slice(4)] } : japan, [japan, fresh])
 }
+// 2.6 (95): the newer chat shows the merge too (an older chat joins it); one shared page is enough and the newer chat
+// may be one block; the answers decide (questions on a shared page are mostly its title); a chat of two pages on two
+// topics: the newer page goes; an end of a block whose answer fits another chat far better; a site's chat takes a
+// question chat on its topic only.
+{
+  const qa2 = (qTopic: string, aTopic: string, url: string): Entry[] => {
+    const [q, a] = qa(qTopic, url)
+    table[a.id!] = vectorFor(aTopic)
+    return [q, a]
+  }
+  const fresh = thread("freshjapan2", [...qa("japan", "https://jg.example/1"), ...qa("japan", "https://jg.example/2"), ...qa("japan", "https://jg.example/4")])
+  move(fresh, [japan, fresh, bread])
+  move(fresh, [{ ...japan, org: { n: japan.m.length, k: entryKey(japan.m[japan.m.length - 1]), mx: ["freshjapan2"] } }, fresh])
+  move(japan, [japan, thread("onejapan2", [...qa("japan", "https://jg.example/2"), ...qa("japan", "https://jg.example/2")])])
+  move(japan, [japan, thread("titleonly", [...qa2("japan", "bread", "https://jg.example/1"), ...qa2("japan", "bread", "https://jg.example/5")])])
+  move(japan, [japan, fresh], { cfg: { mergeA: 0.99 } })
+  const luggage = thread("luggage", [...qa("bags", "https://ryanair.example/bags"), ...qa("bags", "https://cabinzero.example/36l")])
+  const ipad = thread("ipadmix", [...qa("ipad", "https://apple.example/ipad-mini"), ...qa("ipad", "https://apple.example/ipad-mini"), ...qa("bags", "https://airback.example/rollerbags")])
+  move(ipad, [ipad, luggage, bread])
+  move(ipad, [ipad, bread])
+  move(ipad, [ipad, bread], { cfg: { splitMin: 3 } })
+  move(thread("backagain", [...qa("ipad", "https://apple.example/ipad-mini"), ...qa("kombucha", "https://kitchn.example/k"), ...qa2("ipad", "kombucha", "https://apple.example/ipad-mini")]), [bread])
+  const monitors = thread("monitors", [...qa("monitor", "https://rtings.example/dell"), ...qa("monitor", "https://lg.example/27")])
+  const vpage = "https://roborock.example/s8"
+  const vacuum = thread("vacuum", [...qa("vacuum", vpage), ...qa("vacuum", vpage), ...qa("vacuum", vpage), ...qa2("vacuum", "monitor", vpage)])
+  move(vacuum, [vacuum, monitors, bread])
+  move(vacuum, [vacuum, bread])
+  move(vacuum, [vacuum, monitors, bread], { cfg: { moveD: 0.9 } })
+  const oneQ = thread("oneq", [...qa("monitor", "https://rtings.example/dell"), ...qa("monitor", "https://rtings.example/dell")])
+  move(vacuum, [vacuum, oneQ, bread])
+  const headphones = thread("headphones", [...qa("headphones", "https://rtings.example/xm5"), ...qa("headphones", "https://rtings.example/airpods"), ...qa("headphones", "https://apple.example/airpods")])
+  move(thread("monitorq", [...qa("monitor", "https://rtings.example/dell"), ...qa("monitor", "https://rtings.example/dell")]), [headphones])
+  move(thread("monitorq2", [...qa("headphones", "https://rtings.example/dell"), ...qa("headphones", "https://rtings.example/dell")]), [headphones])
+}
 // 2.6 (93): organizing's state kept with the chat, as another device reads it back: the move while the chat is as it
 // was, the tags still open, the name unless turned down or typed by the user; junk dropped part by part.
 {
@@ -428,6 +462,12 @@ move(site, [site, ikea, japan], { cfg: { minMatch: 10, siteT: 0.01 } })
   kept(pile, { n, k: "other", mv: { ...mv, to: null, why: "apart" } })
   kept(pile, { n, k: last(pile), mv: { ...mv, to: "gone" } })
   kept(pile, { n, k: last(pile), mv: { ...mv, s: 7, e: 6 } })
+  // 2.6 (95): a merge into this chat (fr) while the older chat is there and didn't turn it down; a name hidden while a
+  // move is open; an older-chat merge turned down here (mx) isn't open.
+  kept(japan, { n: japan.m.length, k: last(japan), mv: { s: 5, e: 5, to: "japan", why: "merge", mt: 88, fr: "bread" }, nm: { k: "k1", t: "Japan, by rail" } })
+  kept(japan, { n: japan.m.length, k: last(japan), mv: { s: 5, e: 5, to: "japan", why: "merge", mt: 88, fr: "gone" } })
+  kept(japan, { n: japan.m.length, k: last(japan), mv: { s: 5, e: 5, to: "japan", why: "merge", fr: "" } })
+  kept(pile, { n, k: last(pile), mv: { s: 0, e: 7, to: "japan", why: "merge", mt: 80 }, mx: ["japan"], nm: { k: "k1", t: "React and a trip" } })
   kept({ ...pile, m: pile.m.map((e, i) => (i === 7 ? { ...e, dismissed: { move: true as const, tags: ["travel"] } } : i === 1 ? { ...e, tags: ["react"] } : e)) },
     { n, k: last(pile), mv, tg: [[entryKey(pile.m[1]), "React"], [entryKey(pile.m[7]), "TRAVEL"], ["nope", "X"]] })
   kept(pile, { n, k: last(pile), nm: { k: "k1", t: "React and a trip", no: ["react AND a trip"] } }, { answer: { fits: false, title: "REACT and a trip" } })
@@ -567,7 +607,15 @@ suggestions.push(
     { role: "assistant", content: long(900, "Long answer with [3](http://cite.example/a) a citation. ") },
     { role: "user", content: "[1](https://no-close.example/a b) [1]( https://space.example) \t [7](https://ok.example/a)tail" },
     { role: "user", content: "   ", note: true },
-    { role: "assistant", content: "_*_ ### >>> |||" }
+    { role: "assistant", content: "_*_ ### >>> |||" },
+    // 2.6 (95): Find similar, by what it's about.
+    { role: "user", content: "Cheaper", label: "Cheaper", similarAsk: "", page: { url: "https://airback.example/r", title: "Vacuum **Rollerbags** - Airback" } },
+    { role: "user", content: "Дешевле", label: "Дешевле", similarAsk: "в наличии", similarSel: "  рюкзак  с насосом ", page: { url: "https://x.example/1", title: "Рюкзак" } },
+    { role: "user", content: "Cheaper", label: "Cheaper", similarAsk: "", page: { url: "https://x.example/2", title: "" } },
+    { role: "user", content: "Cheaper", similarAsk: "" },
+    { role: "assistant", content: "Rolling backpacks like the Airback, some with vacuum compression.\n\n1. **[Travel Backpack 55L, Grey](https://a.example/1)** (amazon.com) — Pump. The page states no price. _(Not confirmed)_\n2. **[Fanwoli [2-in-1] Vacuum Backpack](https://a.example/2)** (amazon.com) — Pump. _(132.29 USD · Not confirmed)_\n 3. **[Третий](https://a.example/3)** (x.ru) — y\n\nCheck the delivery to Cyprus." },
+    { role: "assistant", content: "1. **[Only list](https://a.example/1)** (a) — x\n2. **[Second](https://a.example/2)** (b) — y" },
+    { role: "assistant", content: "1. **[One item](https://a.example/1)** (a) — x\nnot a list" }
   ] },
   { op: "hostOf", urls: ["https://jg/1", "https://www.Example.COM:8080/a?b#c", "https://user:pw@www.host.com/", "http://192.168.0.1/x", "https://sub.www.example.com/", "u", "", null, "about:blank", "mailto:a@b.com", "file:///Users/x", "https://e.example/😀"] },
   { op: "pack", vectors: [vectorFor("pack"), [1, tie(5), -tie(5), tie(60), -tie(60), 0, -0.0001, 0.25, -1], [0, 0, 0], [0.5, -0.25, 2, -3e-8, 1e-300], Array.from({ length: 256 }, (_, i) => Math.sin(i))] },
@@ -580,6 +628,9 @@ test("organizing gives the same results in the panel and in the app", { skip }, 
   // The cases reach every kind of move suggestion, and tags the judge confirms, or the parity would say little.
   const whys = new Set(cases.filter((c) => c.op === "suggestMove").map((c) => (js(c) as { why: string } | null)?.why ?? "none"))
   assert.deepEqual([...whys].sort(), ["apart", "merge", "none", "page", "site", "topic"])
+  // 2.6 (95): a merge into the chat shown, and one kept in a chat's record.
+  assert.ok(cases.some((c) => c.op === "suggestMove" && (js(c) as { from?: string } | null)?.from))
+  assert.ok(cases.some((c) => c.op === "org" && (js(c) as { move: { fr?: string } | null }).move?.fr))
   assert.ok(cases.some((c) => c.op === "tags" && (js(c) as Array<{ candidates: unknown[]; judged: string[] }>).some((t) => t.candidates.length === 3 && t.judged.length > 0)))
   // And the kept state: a move, tags and a name still open in some, and junk in others.
   const kept = cases.filter((c) => c.op === "org").map((c) => js(c) as { clean: unknown; move: unknown; tags: unknown[]; name: unknown })
