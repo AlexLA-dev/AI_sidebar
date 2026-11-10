@@ -763,5 +763,7 @@
   "similarSay": "사용자 평:",
   "similarPros": "장점: {0}",
   "similarCons": "단점: {0}",
-  "similarEstimated": "설명 기반 추정"
+  "similarEstimated": "설명 기반 추정",
+  "similarSame": "같은 상품, 다른 쇼핑몰",
+  "similarMisses": "선택한 조건에 맞지 않음"
 }

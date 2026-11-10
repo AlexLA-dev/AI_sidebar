@@ -763,5 +763,7 @@
   "similarSay": "Что говорят:",
   "similarPros": "хвалят {0}",
   "similarCons": "ругают {0}",
-  "similarEstimated": "оценка по описанию"
+  "similarEstimated": "оценка по описанию",
+  "similarSame": "Тот же товар, другой магазин",
+  "similarMisses": "Не подходит под выбор"
 }

@@ -2216,6 +2216,12 @@
  "similarEstimated": {
   "message": "оценка по описанию"
  },
+ "similarSame": {
+  "message": "Тот же товар, другой магазин"
+ },
+ "similarMisses": {
+  "message": "Не подходит под выбор"
+ },
  "tip_4cf1b54b00": {
   "message": "Советы"
  },

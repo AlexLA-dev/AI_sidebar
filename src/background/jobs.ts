@@ -6,6 +6,7 @@
 import { stamped, type Entry } from "../shared/conversation"
 import { afterRestart, prunedJobs, seenIn, withAnswer, withoutQuestion, type Job, type JobKind, type Jobs } from "../shared/jobs"
 import { similarMarkdown, type SimilarAnswer, type SimilarItem, type SimilarStep, type SimilarStreamEvent } from "../shared/similar"
+import { markdownWords } from "../shared/similarWords"
 import { prune, savedThread, type Threads } from "../shared/threads"
 import { t } from "../shared/i18n"
 import { STORAGE, type Grounding, type StreamEvent } from "../shared/types"
@@ -376,7 +377,7 @@ function answerOf(job: Live, event: AnyEvent): Entry | null {
   const answer = failed ? (items.length ? { intro: "", items, note: "", condition: "" } : null) : job.answer ?? { intro: "", items, note: "", condition: "" }
   if (!answer) return null
   const full: SimilarAnswer = { ...answer, asked: job.asked, at: Date.now() }
-  const content = similarMarkdown(full, { inStock: t("similarStockIn"), outOfStock: t("similarStockOut"), notConfirmed: t("similarNotConfirmed"), notOpened: t("similarNotOpened") })
+  const content = similarMarkdown(full, markdownWords())
   return stamped({ role: "assistant", content, similar: full })
 }
 

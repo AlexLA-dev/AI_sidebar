@@ -763,5 +763,7 @@
   "similarSay": "評判：",
   "similarPros": "好評：{0}",
   "similarCons": "不満：{0}",
-  "similarEstimated": "説明文からの推定"
+  "similarEstimated": "説明文からの推定",
+  "similarSame": "同じ商品・別のショップ",
+  "similarMisses": "選んだ条件に合いません"
 }

@@ -53,7 +53,8 @@ import { entryKey } from "../shared/conversation"
 import type { OrganizeCountsReply, OrganizeEvent, OrganizeNameReply, OrganizeReply } from "../shared/types"
 import { ProUpsell } from "./ProUpsell"
 import { shownPrice, SimilarIcon, SimilarList, SimilarPicker, SimilarUpsell, whereLabel } from "./similar/Similar"
-import { factsFrom, SIMILAR_SELECTION_MAX, similarAllowed, similarMarkdown, type SimilarAnswer, type SimilarItem, type SimilarStep, type SimilarStreamEvent } from "../shared/similar"
+import { factsFrom, SIMILAR_SELECTION_MAX, similarAllowed, similarMarkdown, type SimilarAnswer, type SimilarAsk, type SimilarChip, type SimilarItem, type SimilarStep, type SimilarStreamEvent } from "../shared/similar"
+import { markdownWords } from "../shared/similarWords"
 import { structured } from "../shared/watch/extract"
 import { conditionFor } from "./watch/draft"
 import { openWatchSheet } from "./watch/WatchSheet"
@@ -367,7 +368,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // The Pro offer, shown once more to an install that ran out of free answers before.
   const [offerCard, setOfferCard] = useState(false)
   const [findConsent, setFindConsent] = useState<{ resolve: (agreed: boolean) => void } | null>(null)
-  const [pending, setPending] = useState<{ text: string; label?: string; action?: string; mode?: "google"; similar?: string; similarSel?: string } | null>(null)
+  const [pending, setPending] = useState<{ text: string; label?: string; action?: string; mode?: "google"; similar?: string; similarSel?: string; similarAsk?: SimilarAsk } | null>(null)
   const [selection, setSelection] = useState<SelectionInfo | null>(null)
   // For closing the panel: whether it was about a selection, and whether it was open before (92: the buttons come back).
   const keptSelectionRef = useRef<SelectionInfo | null>(null)
@@ -1271,7 +1272,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (!isQuestion(last)) return
     // Asked again where it looked the first time (build 94: Retry after a break searched worldwide), not wherever the
     // picker points now.
-    if (last.similarAsk !== undefined) return findSimilarRef.current(last.similarAsk, last.label ?? last.content, true, last.similarSel, last.similarRegion ? { region: last.similarRegion, country: last.similarCountry } : undefined)
+    if (last.similarAsk !== undefined) return findSimilarRef.current(last.similarAsk, last.label ?? last.content, true, last.similarSel, last.similarRegion ? { region: last.similarRegion, country: last.similarCountry } : undefined, last.similarChip !== undefined || last.similarWords !== undefined ? { chip: last.similarChip as SimilarChip | undefined, words: last.similarWords } : undefined)
     if (withoutGoogle) setGoogleMode(false)
     ask(last.content, { label: last.label, retry: true, mode: withoutGoogle ? undefined : last.mode })
   }, [messages, ask])
@@ -1319,7 +1320,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (entry || answer) {
       // The list as the background wrote it into the chat (build 91), else as it came.
       const full: SimilarAnswer | null = entry ? null : { ...answer!, asked, at: Date.now() }
-      const content = full ? similarMarkdown(full, { inStock: t("similarStockIn"), outOfStock: t("similarStockOut"), notConfirmed: t("similarNotConfirmed"), notOpened: t("similarNotOpened") }) : ""
+      const content = full ? similarMarkdown(full, markdownWords()) : ""
       const next: Turn[] = [...history, entry ?? stamped({ role: "assistant", content, similar: full! })]
       setMessages(next)
       void saveThread(threadRef.current, next)
@@ -1328,11 +1329,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }
 
   /** Asks our server for checked alternatives to this page (engine A only); the list streams in as items pass. */
-  const findSimilar = (condition: string, label: string, again = false, subject?: string, where?: { region: "world" | "local"; country?: string }) => {
+  const findSimilar = (condition: string, label: string, again = false, subject?: string, where?: { region: "world" | "local"; country?: string }, ask?: SimilarAsk) => {
     if (portRef.current || askToken.current) return
     setSimilarCard(null)
     if (consent !== "ok") {
-      setPending({ text: label, label, action: "similar", similar: condition, ...(subject ? { similarSel: subject } : {}) })
+      setPending({ text: label, label, action: "similar", similar: condition, ...(subject ? { similarSel: subject } : {}), ...(ask ? { similarAsk: ask } : {}) })
       return
     }
     // Where to look: as asked the first time (Retry), else as the picker says; their country, the server's view of it
@@ -1348,6 +1349,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const user: Turn = stamped({
       role: "user", content: label, label, similarAsk: condition, ...(subject ? { similarSel: subject } : {}),
       ...(region ? { similarRegion: region, ...(region === "local" && country ? { similarCountry: country } : {}) } : {}),
+      ...(ask?.chip ? { similarChip: ask.chip } : {}), ...(ask?.words ? { similarWords: ask.words } : {}),
       page: { url: source.key(), title: source.title(), at: Date.now() }
     })
     const history: Turn[] = [...base, user]
@@ -1380,7 +1382,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           page: { title: full.title || source.title(), url: source.href(), text: full.text.slice(0, 5_000), facts }, condition, ...(subject ? { selection: subject } : {}),
           // Build 93: where to look, and their country (the server's view of it, else the device's region).
           ...(region ? { region } : {}),
-          ...(country ? { country } : {})
+          ...(country ? { country } : {}),
+          // Build 95: the chip apart from their own words (an ask without them: all of the condition is their words).
+          ...(ask ? { chip: ask.chip ?? "", words: ask.words ?? "" } : {})
         }
       })
     })
@@ -1445,7 +1449,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setConsent("ok")
     const p = pending
     setPending(null)
-    if (p?.action === "similar") setTimeout(() => findSimilarRef.current(p.similar ?? "", p.label ?? p.text, false, p.similarSel), 0)
+    if (p?.action === "similar") setTimeout(() => findSimilarRef.current(p.similar ?? "", p.label ?? p.text, false, p.similarSel, undefined, p.similarAsk), 0)
     else if (p) setTimeout(() => askRef.current(p.text, { label: p.label, action: p.action, mode: p.mode }), 0)
   }, [pending])
   // "Not now": the question stays in the box, nothing is sent.
@@ -3485,11 +3489,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     region={settings.similarRegion ?? null}
                     country={status?.country ?? localeCountry()}
                     onRegion={(r) => updateSettings({ similarRegion: r })}
-                    onFind={(condition, label) => {
-                      if (!similarSubject) return findSimilar(condition, label)
+                    onFind={(condition, label, ask) => {
+                      if (!similarSubject) return findSimilar(condition, label, false, undefined, undefined, ask)
                       // What was selected, in the question: "Find similar: “…”" (and the condition after it).
                       const quote = t("noteQuote", clip(similarSubject, 60))
-                      findSimilar(condition, condition ? `${quote} · ${label}` : quote, false, similarSubject)
+                      findSimilar(condition, condition ? `${quote} · ${label}` : quote, false, similarSubject, undefined, ask)
                     }}
                     onClose={() => setSimilarCard(null)}
                   />

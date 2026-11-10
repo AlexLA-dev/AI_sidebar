@@ -9,7 +9,7 @@ import { buildGrounding, type GoogleStats } from "../shared/google.mts"
 import { clip, ipSubject, isUuid, json, preflight, readJson, corsHeaders } from "../shared/http.mts"
 import { blockReason, resolveAccess, similarCountersFor, ultraUsage, type Access } from "../shared/plan.mts"
 import { readPrice } from "../shared/pagecheck.mts"
-import { MAX_CONDITION, MAX_PAGE_TEXT, MAX_SELECTION, runEngineA, similarEvalToken, type EngineOverrides, type EngineStats, type SimilarInput, type SourceFacts } from "../shared/similar.mts"
+import { CHIP_KINDS, MAX_CONDITION, MAX_PAGE_TEXT, MAX_SELECTION, runEngineA, similarEvalToken, type EngineOverrides, type EngineStats, type SimilarInput, type SourceFacts } from "../shared/similar.mts"
 import { googleCost, startEngineB } from "../shared/similar-google.mts"
 import { JOB_ID, jobKey, jobStore, sweepJobs, type StoredResult } from "../shared/jobs.mts"
 // Who may find similar things (Ultra in 2.6): one seam with the panel (src/shared/similar.ts).
@@ -27,7 +27,8 @@ import { similarAllowed } from "../../src/shared/similar.ts"
  * Body: { installId, client: {version, platform, locale, build, audience?}, entitlement, engine: "a" | "b",
  *         page: {title, url, text, facts?: {price?, currency?, stock?, published?, duration?, lang?}}, condition,
  *         selection? (≤ 1000 chars: what was selected; alternatives to what it describes, the page as context),
- *         region? ("world" | "local"), country? (two letters), job? (engine A, build 94: the question's id) }
+ *         region? ("world" | "local"), country? (two letters), job? (engine A, build 94: the question's id),
+ *         chip? (build 95: the chip they tapped, weighed softly), words? (their own words, a must) }
  * With a job, the search runs to its end even when the request goes away (the person left Safari) and its answer is
  * kept for /api/v2/similar-result (netlify/shared/jobs.mts).
  * Response (SSE): {type:"progress", step, …} … then
@@ -259,7 +260,16 @@ function readInput(body: Record<string, unknown>, locale: string, geo = ""): Sim
   const region = body.region === "world" || body.region === "local" ? body.region : undefined
   const sent = clip(body.country, 2).toUpperCase()
   const country = /^[A-Z]{2}$/.test(sent) ? sent : geo || (/^[a-z]{2,3}[-_]([A-Z]{2})\b/.exec(locale)?.[1] ?? "")
-  return { page, facts, condition: clip(body.condition, MAX_CONDITION), locale, ...(selection ? { selection } : {}), ...(region ? { region } : {}), ...(country ? { country } : {}) }
+  // Build 95: the chip they tapped (weighed softly) and their own words (a must). An older panel sends only the
+  // condition: all of it counts as their words, strict as before.
+  const condition = clip(body.condition, MAX_CONDITION)
+  const chip = typeof body.chip === "string" ? CHIP_KINDS[body.chip] : undefined
+  const told = typeof body.chip === "string" || typeof body.words === "string"
+  const words = told ? clip(body.words, MAX_CONDITION).trim() : condition.trim()
+  return {
+    page, facts, condition, locale, ...(selection ? { selection } : {}), ...(region ? { region } : {}), ...(country ? { country } : {}),
+    ...(chip ? { chip } : {}), ...(words ? { words } : {})
+  }
 }
 
 

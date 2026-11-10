@@ -2216,6 +2216,12 @@
  "similarEstimated": {
   "message": "根据描述估计"
  },
+ "similarSame": {
+  "message": "同款商品，其他商店"
+ },
+ "similarMisses": {
+  "message": "不符合你选的条件"
+ },
  "tip_4cf1b54b00": {
   "message": "技巧"
  },

@@ -42,6 +42,10 @@
   display: inline-block; padding: 0 6px; margin-inline-end: 4px; border-radius: 6px;
   font-size: 11px; font-weight: 600; color: var(--text-2); background: var(--border);
 }
+/* Build 95: their very item at another shop; a close item that misses the chip they tapped. */
+.cf-similar-host .cf-similar-same { color: var(--ok); font-weight: 600; }
+.cf .cf-similar-fit.no { color: var(--text-2); }
+.cf .cf-similar-fit.no .cf-similar-nc { color: var(--text-2); background: transparent; border: 1px solid var(--border); }
 .cf-similar-facts { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin-top: 2px; font-size: 12px; font-weight: 600; color: var(--text); }
 .cf-similar-facts span + span::before, .cf-similar-facts .cf-similar-pay + span::before { content: "·"; margin-inline-end: 10px; color: var(--text-3); font-weight: 400; }
 .cf-similar-facts .cf-similar-unopened { font-weight: 500; color: var(--text-3); }
