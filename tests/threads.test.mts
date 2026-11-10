@@ -416,6 +416,8 @@ test("organizing's record only: marked, sent with its base, and an app change on
   assert.equal(later.u, 251)
   assert.deepEqual(later.org?.nm, { k: "y", no: ["Third name"] })
   assert.deepEqual(later.ob, { u: 251, b: 200 })
+  // A chat this device doesn't have yet: the app's, marked with the app's copy.
+  assert.deepEqual(applyAppChanges({}, {}, [{ id: "c", updatedAt: 250, data: appData, base: 100 }]).threads.c.ob, { u: 250, b: 100 })
   // Made on this very copy: the app's, marked.
   const same = applyAppChanges(here, { c: 200 }, [{ id: "c", updatedAt: 250, data: appData, base: 200 }]).threads.c
   assert.equal(same.title, "Old name")

@@ -580,7 +580,7 @@ export function applyAppChanges(threads: Threads, synced: Record<string, number>
       // turned down, newer than both (so the app's copy takes it too); sent to iCloud as such a change again.
       next[c.id] = orgOnly(local, { ...withRefusals(local, app.org), u: Math.max(local.u, c.updatedAt) + 1 }, synced)
     } else {
-      next[c.id] = c.base !== undefined && local ? orgOnly(local, made, synced) : made
+      next[c.id] = c.base === undefined ? made : local ? orgOnly(local, made, synced) : { ...made, ob: { u: made.u, b: c.base } }
     }
     changed = true
   }

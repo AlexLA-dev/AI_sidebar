@@ -673,7 +673,7 @@ final class ChatLibrary: ObservableObject {
             while !Task.isCancelled {
                 try? await Task.sleep(nanoseconds: 20_000_000_000)
                 guard let self else { return }
-                if self.syncOn, Self.inFront, Date().timeIntervalSince(self.pulledAt) >= 15 { await self.syncCloud([]) }
+                if self.syncOn, Self.inFront, Date().timeIntervalSince(self.pulledAt) >= 15 { await self.syncCloud([], quiet: true) }
             }
         }
     }
@@ -681,7 +681,7 @@ final class ChatLibrary: ObservableObject {
     /// A chat opened: what iCloud has for it now, unless just asked.
     func pull() async {
         guard syncOn, Date().timeIntervalSince(pulledAt) >= 3 else { return }
-        await syncCloud([])
+        await syncCloud([], quiet: true)
     }
 
     private static var inFront: Bool {
@@ -734,8 +734,10 @@ final class ChatLibrary: ObservableObject {
         }
     }
 
-    private func syncCloud(_ changes: [ChatSync.Change]) async {
-        if cloud != .ok { cloud = .syncing }
+    /// `quiet`: asked by itself (2.6 (94)), every 20 s or as a chat opens: offline, the Chats screen's note about iCloud
+    /// doesn't blink with each ask.
+    private func syncCloud(_ changes: [ChatSync.Change], quiet: Bool = false) async {
+        if cloud != .ok, !quiet { cloud = .syncing }
         pulledAt = Date()
         let token = UserDefaults.standard.string(forKey: Self.tokenKey)
         do {
@@ -750,7 +752,7 @@ final class ChatLibrary: ObservableObject {
             UserDefaults.standard.set(result.token, forKey: Self.tokenKey)
             cloud = .ok
         } catch {
-            if !Task.isCancelled { cloud = .unavailable }
+            if !Task.isCancelled, !quiet || cloud != .ok { cloud = .unavailable }
         }
     }
 
