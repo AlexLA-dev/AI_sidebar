@@ -1613,6 +1613,7 @@ export class ItemFinisher {
   // Build 95: close items that miss a chip they tapped, kept for the end (listed only when few close ones meet it).
   private held: SimilarItem[] = []
   private models: ModelKey[] = []
+  private weak: SimilarItem[] = []
   private seenUrl = new Set<string>()
   private seenName = new Set<string>()
   private selfUrl: string
@@ -1631,11 +1632,26 @@ export class ItemFinisher {
     this.selfHost = (() => { try { return new URL(source.url).hostname.replace(/^www\./, "") } catch { return "" } })()
   }
 
+  /** How many times the price to beat a price is (in the same money at the day's rate); 0 when it can't be told. */
+  private overBy(price: PagePrice | undefined): number {
+    const limit = this.plan.condition.maxPrice || this.sourcePrice || this.plan.sourcePrice
+    const currency = this.plan.condition.currency || this.plan.sourceCurrency || this.plan.money?.currency || ""
+    if (!price || !limit) return 0
+    const n = !currency || !price.currency || price.currency === currency ? price.amount : convert(price.amount, price.currency, currency, this.plan.money?.rates ?? null)
+    return n ? n / limit : 0
+  }
+
   /**
    * The close items that missed the chip, when fewer than 3 items that meet it are close (80 % and up): at most two,
    * the closest first (build 95, the owner: chips «чуть мягче… особенно если нет вариантов с высоким (80%+) уровнем»).
    */
   softTail(): SimilarItem[] {
+    // Nothing else at all: the best of the weak ones rather than an empty answer.
+    if (!this.items.length && !this.held.length && this.weak.length) {
+      const best = [...this.weak].sort((a, b) => (b.similarity ?? 0) - (a.similarity ?? 0))[0]
+      this.items.push(best)
+      return [best]
+    }
     const close = this.items.filter((i) => i.met !== "no" && (i.similarity ?? 100) >= 80).length
     if (close >= 3 || this.items.length >= 6) return []
     const tail = this.held
@@ -1709,6 +1725,9 @@ export class ItemFinisher {
     if (wordsMet === "no" && !(proved && fromWords)) return drop("fails their words")
     const fails = c.condition.met === "no" || (met === "no" && !proved)
     if (fails && !this.plan.condition.soft) return drop("fails the condition")
+    // Softly, not far off (the set: 1341 and 1779 EUR shelves for a 202 EUR KALLAX under "cheaper"): a miss at most a
+    // fifth over the price to beat.
+    if (fails && kind === "cheaper" && this.overBy(page.price) > 1.2) return drop("far from the chip")
     this.seenUrl.add(key)
     if (nameKey) this.seenName.add(nameKey)
     // The condition as the page showed it wins over the model's word; their words not shown on the page leave it open.
@@ -1757,6 +1776,12 @@ export class ItemFinisher {
     // Missed the chip: held for the end (softTail), not shown as it comes.
     if (fails) {
       this.held.push(item)
+      return null
+    }
+    // One trait in five: rarely a real alternative (the set's judge: 1 in 5 of them strong); shown only when nothing
+    // else is (softTail).
+    if (!same && item.similarity !== undefined && item.similarity < 40) {
+      this.weak.push(item)
       return null
     }
     this.items.push(item)

@@ -100,7 +100,7 @@ test("the plan: a chip is the kind and weighed softly; a price their words name 
 })
 
 test("a close item that misses the chip comes last, only when fewer than 3 close ones meet it; their words must hold", () => {
-  const p = plan({ subject: "KitchenAid Artisan 5KSM125", traits: ["stand mixer", "4.7 L bowl", "tilt head", "10 speeds", "metal body"] })
+  const p = plan({ subject: "KitchenAid Artisan 5KSM125", traits: ["stand mixer", "4.7 L bowl", "tilt head", "10 speeds", "metal body"], sourcePrice: 351.2 })
   const mixer = { price: { amount: 351.2, currency: "EUR" } }
   const pages = [
     page("https://a.test/kenwood", "Kenwood Chef Titanium", offer("299"), p, mixer),
@@ -113,11 +113,12 @@ test("a close item that misses the chip comes last, only when fewer than 3 close
     items: [
       { page: 1, name: "Kenwood Chef Titanium", why: "w", fit: "f", met: "yes", words_met: "n/a", same: false, shares: [1, 2, 3, 4], differs: "" },
       { page: 2, name: "Bosch MUM9 OptiMUM", why: "w", fit: "not cheaper: 399 EUR", met: "no", words_met: "n/a", same: false, shares: [1, 2, 3, 4, 5], differs: "" },
-      { page: 3, name: "Smeg SMF03", why: "w", fit: "not cheaper", met: "no", words_met: "n/a", same: false, shares: [1, 2], differs: "" }
+      { page: 3, name: "Smeg SMF03", why: "w", fit: "not cheaper", met: "no", words_met: "n/a", same: false, shares: [1, 2, 3, 4, 5], differs: "" }
     ]
   }
-  const { result } = finishItems(raw, pages, p, source)
-  assert.deepEqual(result.items.map((i) => [i.name, i.met]), [["Kenwood Chef Titanium", "yes"], ["Bosch MUM9 OptiMUM", "no"]], "the 100 % one comes last; the 40 % one doesn't")
+  const { result, dropped } = finishItems(raw, pages, p, source)
+  assert.deepEqual(result.items.map((i) => [i.name, i.met]), [["Kenwood Chef Titanium", "yes"], ["Bosch MUM9 OptiMUM", "no"]], "399 EUR comes last; 459 EUR is too far over 351.20 EUR")
+  assert.ok(dropped.some((d) => d.name === "Smeg SMF03" && d.why === "far from the chip"))
   // Three close ones meet it: the one that misses isn't needed.
   const many = [0, 1, 2].map((i) => page(`https://m${i}.test/x`, `Mixer Model ${i}00`, offer("199"), p, mixer))
   const raw2 = { intro: "", note: "", items: [...many.map((_, i) => ({ page: i + 1, name: `Mixer Model ${i}00`, why: "w", fit: "f", met: "yes", words_met: "n/a", same: false, shares: [1, 2, 3, 4], differs: "" })), { page: 4, name: "Bosch MUM9 OptiMUM", why: "w", fit: "f", met: "no", words_met: "n/a", same: false, shares: [1, 2, 3, 4, 5], differs: "" }] }
@@ -239,7 +240,7 @@ test("one model in colours or at two shops is one item; other models of a brand 
   assert.ok(!same("Weber Spirit 3-Burner Gas Grill", "Weber Genesis 3-Burner Gas Grill"))
   assert.ok(!same("Sony WH-1000XM6", "Sony WH-1000XM5"))
   assert.ok(!same("Wantdo Women's Packable Puffer Jacket", "Wantdo Women's Hooded Puffer Jacket"))
-  const p = plan({ subject: "Weber Spirit E-310", traits: ["gas grill", "3 burners", "side tables"] })
+  const p = plan({ subject: "Weber Spirit E-310", traits: ["gas grill", "3 burners", "side tables"], condition: { kind: "none", maxPrice: 0, currency: "", language: "", place: "" } })
   const pages = ["https://pcrichard.test/e325", "https://abt.test/e325"].map((u, i) => page(u, i ? "Weber Spirit E-325 Liquid Propane Gas Grill" : "Weber Spirit E-325 3-Burner LP Gas Grill", offer("549", "USD"), p))
   const raw = { intro: "", note: "", items: pages.map((c, i) => ({ page: i + 1, name: c.name, why: "w", fit: "f", met: "yes", words_met: "n/a", same: false, shares: [1, 2], differs: "" })) }
   assert.equal(finishItems(raw, pages, p, source).result.items.length, 1)
@@ -262,4 +263,10 @@ test("a price without a currency on a country's own domain is in that country's 
   const meta = `<meta property="product:price:amount" content="599.99">`
   const p = describePage(html("Philips EP3249", meta), "https://www.superhome.com.cy/p/1", "https://www.superhome.com.cy/p/1", 200, 0)
   assert.deepEqual(p.price, { amount: 599.99, currency: "EUR" })
+})
+
+test("an expired deal is no offer", () => {
+  const p = describePage(html("LEGO 60511 for 56.99 EUR", offer("56.99")).replace("</main>", "<p>This deal has expired.</p></main>"), "https://deals.test/1", "https://deals.test/1", 200, 0)
+  assert.equal(p.reason, "unavailable")
+  assert.equal(checkCondition(plan(), facts, p).met, "no")
 })
