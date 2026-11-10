@@ -1650,6 +1650,19 @@ function ultraPanels(report, totalDays, marks, redraw) {
     el("p", { class: "hint" }, "Без тестов (TestFlight, отладочные сборки, наши устройства) и без версии, пока она на ревью: события 2.6 появятся здесь, когда ревью 2.6 закроют. Лимит недели общий на подписку; здесь он считается по устройству, неделя — с понедельника (UTC), как у счётчика."))
 }
 
+// «Без тестов»: how many of our own installs every report leaves out (contextflow.test_installs, migration
+// 20261110180000), by why; nothing before that migration.
+const TEST_REASON = {
+  version: "наши скрипты (dev-check, calibrate)", preview: "превью и тестовые деплои", audience: "отладочные и TestFlight-сборки",
+  own: "наши устройства по подписке", burst: "всплески автотестов без пометки"
+}
+function testsNote(byReason) {
+  if (!byReason) return null
+  const all = Object.values(byReason).reduce((x, v) => x + Number(v || 0), 0)
+  const lines = Object.entries(byReason).sort((a, b) => b[1] - a[1]).map(([why, count]) => `${TEST_REASON[why] || why}: ${n.format(count)}`)
+  return el("span", { class: "muted", title: `Не входят ни в один отчёт:\n${lines.join("\n")}` }, `без тестов · не считаем ${n.format(all)} наших установок`)
+}
+
 function render(data, fx) {
   const segments = data.segments || []
   const insights = data.insights || null
@@ -1756,6 +1769,7 @@ function render(data, fx) {
     el("div", { class: "bar" },
       el("h1", {}, "Аналитика"),
       el("span", { class: "muted" }, `${n.format(total)} запросов реальных пользователей за ${data.days} дн. · обновлено ${new Date(data.generated_at).toLocaleString("ru-RU")}`),
+      testsNote(data.test_installs),
       el("div", { class: "seg" }, periodButtons),
       el("button", { class: "link", onclick: () => load() }, "Обновить"),
       el("button", { class: "link", onclick: () => { store(""); login() } }, "Выйти")
