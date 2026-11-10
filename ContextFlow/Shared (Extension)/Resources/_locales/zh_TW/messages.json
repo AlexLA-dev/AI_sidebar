@@ -2186,6 +2186,30 @@
  "similarReviewersSay": {
   "message": "評價：{0}"
  },
+ "similarNotifyTitle": {
+  "message": "相似項目搜尋完成"
+ },
+ "similarNotifyFound": {
+  "message": "找到 {0} 個選項。點一下查看。"
+ },
+ "similarNotifyNone": {
+  "message": "沒有合適的。點一下更改條件。"
+ },
+ "similarNotifyFailed": {
+  "message": "搜尋未完成。點一下重試。"
+ },
+ "similarSay": {
+  "message": "評價："
+ },
+ "similarPros": {
+  "message": "好評：{0}"
+ },
+ "similarCons": {
+  "message": "負評：{0}"
+ },
+ "similarEstimated": {
+  "message": "依描述估計"
+ },
  "tip_4cf1b54b00": {
   "message": "提示"
  },

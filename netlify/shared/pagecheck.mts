@@ -56,8 +56,14 @@ export interface CheckedPage {
   // Apps (build 91): what it costs as this page shows it (an App Store page's price and in-app purchases); else where
   // to look next: the App Store page the app's site links to, the site's pricing page.
   pricing?: AppPricing
-  // Build 93: the item's rating as the page states it for machines (JSON-LD AggregateRating).
+  // Build 93: the item's rating as the page states it for machines (JSON-LD AggregateRating); build 94: else its
+  // microdata, a reviews widget's own attributes (Judge.me, Loox, Stamped…) or "4.6 out of 5 · 687 reviews" in the
+  // product's header — always read by our code, never by a model.
   rating?: PageRating
+  // Build 94: the page's own reviews (the text after its "Customer reviews" heading), for what reviewers say.
+  reviewsText?: string
+  // Build 94: a Shopify shop (its catalog, /products.json, lists the brand's other models).
+  shopify?: true
   storeLink?: string
   pricingLinks?: string[]
   // Build 91: the page's links (address and words) and its versions in other languages, for one or two pages more
@@ -212,6 +218,85 @@ function ratingOf(node: unknown): PageRating | undefined {
   const count = num(o.reviewCount ?? o.ratingCount)
   if (!Number.isFinite(value) || value <= 0 || value > best) return undefined
   return { value: Math.round(value * 10) / 10, best, ...(Number.isFinite(count) && count > 0 ? { count: Math.round(count) } : {}) }
+}
+
+const ratingNumber = (v: string | undefined) => (v === undefined ? NaN : Number(v.trim().replace(",", ".")))
+const countNumber = (v: string | undefined) => (v === undefined ? NaN : Number(v.replace(/[^\d]/g, "")))
+
+function scaled(value: number, best: number, count: number): PageRating | undefined {
+  if (!Number.isFinite(value) || value <= 0 || !Number.isFinite(best) || best <= 0 || value > best) return undefined
+  return { value: Math.round(value * 10) / 10, best, ...(Number.isFinite(count) && count > 0 ? { count: Math.round(count) } : {}) }
+}
+
+/**
+ * Build 94: the item's rating in the page's markup when its JSON-LD has none — microdata (itemprop ratingValue), else
+ * the first reviews widget that states both its average and how many (Judge.me's data-average-rating and
+ * data-number-of-reviews, Loox's data-rating and data-raters, Stamped's, Yotpo's): a star display without a count
+ * isn't a rating summary. The product's own widget comes before related products' in the page.
+ */
+export function markupRating(html: string): PageRating | undefined {
+  const prop = (name: string): string | undefined => {
+    const m = new RegExp(`<[^>]*\\bitemprop=["']${name}["'][^>]*>([^<]{0,24})`, "i").exec(html)
+    if (!m) return undefined
+    const tag = m[0].slice(0, m[0].indexOf(">") + 1)
+    return /\bcontent=["']([^"']+)["']/i.exec(tag)?.[1] ?? m[1]
+  }
+  const value = ratingNumber(prop("ratingValue"))
+  if (Number.isFinite(value)) {
+    const best = ratingNumber(prop("bestRating"))
+    const found = scaled(value, Number.isFinite(best) && best > 0 ? best : 5, countNumber(prop("reviewCount") ?? prop("ratingCount")))
+    if (found) return found
+  }
+  for (const m of html.matchAll(/<(?:div|span|a|p|section)\b[^>]*\bdata-(?:average-rating|rating|average-score|score|reviews-average)=["']?(\d(?:[.,]\d+)?)["']?[^>]*>/gi)) {
+    const count = /\bdata-(?:number-of-reviews|raters|count|reviews|reviews-count|total-reviews|rating-count|reviews-total)=["']?(\d[\d,.]*)/i.exec(m[0])?.[1]
+    if (!count) continue
+    const found = scaled(ratingNumber(m[1]), 5, countNumber(count))
+    if (found?.count) return found
+  }
+  return undefined
+}
+
+const REVIEW_COUNT = /(\d[\d,.  ]{0,9}\d|\d)\s*\+?\s*(?:verified\s+)?(?:reviews?|ratings?|отзыв\p{L}*|оцен\p{L}*|bewertungen|rezensionen|avis|reseñas|valoraciones|recensioni|avaliações)/iu
+
+/**
+ * Build 94: "4.6 out of 5 · 687 reviews" in the product's header (the start of the main text), read by our code: the
+ * average on a 5 scale with how many next to it; marketing's "5 out of 5" without a count isn't taken.
+ */
+export function textRating(text: string): PageRating | undefined {
+  const head = text.slice(0, 1_500)
+  const m = /(?<![\d.,])([1-5](?:[.,]\d{1,2})?)\s*(?:out of|of|\/|из|von|sur|su|de|di)\s*5(?![\d.,])/i.exec(head)
+  if (!m) return undefined
+  // Around the average, without it ("4.6 of 5 rating from 687 ratings": the count is 687, not the 5).
+  const near = `${head.slice(Math.max(0, m.index - 80), m.index)} | ${head.slice(m.index + m[0].length, m.index + m[0].length + 100)}`
+  const count = REVIEW_COUNT.exec(near)?.[1]
+  if (!count) return undefined
+  const found = scaled(ratingNumber(m[1]), 5, countNumber(count))
+  return found?.count ? found : undefined
+}
+
+const REVIEWS_HEAD = /(customer reviews|reviews\s*\(\d|\d[\d,.]*\s+reviews|what (?:our )?customers (?:are )?say(?:ing)?|verified (?:buyer|purchase)|отзывы|kundenbewertungen|bewertungen|avis clients|avis vérifiés|reseñas|opiniones|recensioni|avaliações)/gi
+// What reviews themselves look like: a reviewer marked verified, "helpful", a date, a star rating, a reviewer's name line.
+const REVIEW_MARKS = [
+  /verified (?:buyer|purchase|customer|reviewer)|подтвержд[её]нн|verifizierte|achat vérifié|compra verificada/i,
+  /helpful|полезн|hilfreich|utile|útil/i,
+  /\b(?:\d{1,2}[./]\d{1,2}[./]\d{2,4}|\d{4}-\d{2}-\d{2}|(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.? \d{1,2},? \d{4}|\d{1,2} (?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]* \d{4})\b/i,
+  /\b[1-5](?:[.,]\d)?\s*(?:out of 5|\/ ?5|stars?)\b|★/i,
+  /\b(?:days?|weeks?|months?|years?) ago\b|назад/i
+]
+
+/**
+ * Build 94 (the owner: «на сайте отзывов полно»): the page's own reviews — the text after a reviews heading, wherever
+ * the theme puts it (often after <main>) — for what reviewers say. Only a part that reads like reviews (two of: a
+ * verified reviewer, "helpful", dates, stars, "… ago"): a header's "687 reviews" or a marketing block isn't one.
+ */
+export function reviewsSection(html: string): string | undefined {
+  const text = pageText(html.replace(/<(script|style|noscript|template|svg)[^>]*>[\s\S]*?<\/\1>/gi, " "))
+  const tail = text.slice(400)
+  for (const m of tail.matchAll(REVIEWS_HEAD)) {
+    const out = tail.slice(m.index, m.index + 3_500).trim()
+    if (out.length > 300 && REVIEW_MARKS.filter((re) => re.test(out)).length >= 2) return out
+  }
+  return undefined
 }
 
 function ldFacts(html: string): LdFacts {
@@ -506,8 +591,12 @@ export function describePage(html: string, url: string, finalUrl: string, http: 
   if (validThrough) page.validThrough = validThrough
   if (duration) page.duration = duration
   if (ld.lang) page.inLanguage = String(ld.lang).slice(0, 12)
-  if (ld.rating) page.rating = ld.rating
+  const rating = ld.rating ?? markupRating(html) ?? textRating(text)
+  if (rating) page.rating = rating
   if (status === "ok") {
+    const reviews = reviewsSection(html)
+    if (reviews) page.reviewsText = reviews
+    if (/cdn\.shopify\.com|Shopify\.shop\s*=|window\.Shopify\b/.test(html)) page.shopify = true
     const links = pageLinks(html, finalUrl)
     if (links.length) page.links = links
     const alternates = hreflangs(html, finalUrl)

@@ -61,6 +61,12 @@ function countryLabel(code: string): string {
   }
 }
 
+/** Where a Find similar looked, for its question line (build 94): «Рядом · Кипр», «По всему миру». */
+export function whereLabel(region: "world" | "local", country?: string | null): string {
+  if (region === "world") return t("similarWorld")
+  return country ? t("similarLocalIn", countryLabel(country)) : t("similarLocal")
+}
+
 export function SimilarPicker({ title, region, country, onRegion, onFind, onClose }: {
   title: string
   // Build 93 (the owner: «уточнять worldwide нужно или локально»): where to look, as chosen last time (null: never
@@ -187,21 +193,30 @@ function proofLink(item: SimilarItem, onOpen: (url: string) => void): VNode | nu
   return <> · <a class="cf-similar-proof" href={item.proof} target="_blank" rel="noopener noreferrer" onClick={opening(item.proof, onOpen)}>{host}</a></>
 }
 
-/** "★ 4.8 · 90,645 ratings — Reviewers like …" with where it was read (build 93). */
+/**
+ * What reviewers say, one line in the same order for every item (build 94, the owner: one item had reviews without a
+ * rating, another a rating in its description and no reviews line): «Что говорят: ★ 4,6 · 687 оценок · хвалят … ·
+ * ругают … · mybackvac.com».
+ */
 function Reviews({ item, onOpen }: { item: SimilarItem; onOpen: (url: string) => void }): VNode | null {
   const r = item.reviews
   if (!r) return null
   const hosts = r.sources.map((u) => { try { return { url: u, host: new URL(u).hostname.replace(/^www\./, "") } } catch { return null } }).filter((x): x is { url: string; host: string } => x !== null)
   const stars = r.rating ? `★ ${new Intl.NumberFormat(uiLang(), { maximumFractionDigits: 1 }).format(r.rating.value)}${r.rating.best !== 5 ? `/${r.rating.best}` : ""}` : ""
   const count = r.rating?.count ? t("similarRatings", new Intl.NumberFormat(uiLang()).format(r.rating.count)) : ""
+  const parts = [
+    stars ? <span class="cf-similar-stars">{stars}</span> : null,
+    count ? <span class="cf-similar-count">{count}</span> : null,
+    r.pros ? <span class="cf-similar-pros">{t("similarPros", r.pros)}</span> : null,
+    r.cons ? <span class="cf-similar-cons">{t("similarCons", r.cons)}</span> : null,
+    !r.pros && !r.cons && r.summary ? <span class="cf-similar-said">{r.summary}</span> : null,
+    ...hosts.map((h) => <a key={h.url} class="cf-similar-src" href={h.url} target="_blank" rel="noopener noreferrer" onClick={opening(h.url, onOpen)}>{h.host}</a>)
+  ].filter((x): x is VNode => x !== null)
+  if (!parts.length) return null
   return (
     <p class="cf-similar-reviews" dir="auto">
-      {stars && <span class="cf-similar-stars">{stars}</span>}
-      {count && <span class="cf-similar-count">{count}</span>}
-      {r.summary && <span class="cf-similar-said">{t("similarReviewersSay", r.summary)}</span>}
-      {hosts.map((h) => (
-        <a key={h.url} class="cf-similar-src" href={h.url} target="_blank" rel="noopener noreferrer" onClick={opening(h.url, onOpen)}>{h.host}</a>
-      ))}
+      <span class="cf-similar-say">{t("similarSay")}</span>
+      {parts.map((part, i) => <>{i > 0 && <span class="cf-similar-dot" aria-hidden="true"> · </span>}{part}</>)}
     </p>
   )
 }
@@ -225,9 +240,13 @@ function Item({ item, n, onOpen, onWatch, less = false }: { item: SimilarItem; n
           {item.source === "list" ? ` · ${t("similarFromList")}` : ""}
         </span>
         {item.why && <p class="cf-similar-why" dir="auto">{item.why}</p>}
-        {less && (item.similarity !== undefined || item.differs) && (
-          <p class="cf-similar-differs" dir="auto">
-            {item.similarity !== undefined && <span class="cf-similar-pct">{t("similarPercent", item.similarity)}</span>}
+        {/* Build 94: on every item, the only one too (the owner: one item showed no share at all); a page that couldn't
+            be opened is judged from its search result's description, and says so. */}
+        {(item.similarity !== undefined || item.differs) && (
+          <p class={`cf-similar-differs${less ? " less" : ""}`} dir="auto">
+            {item.similarity !== undefined && (
+              <span class="cf-similar-pct">{t("similarPercent", item.similarity)}{item.estimated ? <span class="cf-similar-est"> · {t("similarEstimated")}</span> : null}</span>
+            )}
             {item.differs && <span>{t("similarDiffers", item.differs)}</span>}
           </p>
         )}

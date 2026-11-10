@@ -2186,6 +2186,30 @@
  "similarReviewersSay": {
   "message": "Reseñas: {0}"
  },
+ "similarNotifyTitle": {
+  "message": "Búsqueda de similares terminada"
+ },
+ "similarNotifyFound": {
+  "message": "Opciones encontradas: {0}. Toca para verlas."
+ },
+ "similarNotifyNone": {
+  "message": "Nada encaja. Toca para cambiar la condición."
+ },
+ "similarNotifyFailed": {
+  "message": "La búsqueda no terminó. Toca para reintentar."
+ },
+ "similarSay": {
+  "message": "Lo que dicen:"
+ },
+ "similarPros": {
+  "message": "gusta: {0}"
+ },
+ "similarCons": {
+  "message": "no gusta: {0}"
+ },
+ "similarEstimated": {
+  "message": "estimado por la descripción"
+ },
  "tip_4cf1b54b00": {
   "message": "Consejos"
  },

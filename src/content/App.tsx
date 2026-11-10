@@ -52,7 +52,7 @@ import { DEFAULT_ORGANIZE, looksMixed, openMove, openName, openTags } from "../s
 import { entryKey } from "../shared/conversation"
 import type { OrganizeCountsReply, OrganizeEvent, OrganizeNameReply, OrganizeReply } from "../shared/types"
 import { ProUpsell } from "./ProUpsell"
-import { shownPrice, SimilarIcon, SimilarList, SimilarPicker, SimilarUpsell } from "./similar/Similar"
+import { shownPrice, SimilarIcon, SimilarList, SimilarPicker, SimilarUpsell, whereLabel } from "./similar/Similar"
 import { factsFrom, SIMILAR_SELECTION_MAX, similarAllowed, similarMarkdown, type SimilarAnswer, type SimilarItem, type SimilarStep, type SimilarStreamEvent } from "../shared/similar"
 import { structured } from "../shared/watch/extract"
 import { conditionFor } from "./watch/draft"
@@ -81,7 +81,7 @@ import { TipsSheet } from "./tips/TipsSheet"
 import { SelIconsTip } from "./ux/SelTip"
 import { shadowSelection, trackPointer } from "./selectionShadow"
 import { restoredDraft, withoutStopped } from "./ux/stopped"
-import { type Jobs, extendsChat, interruption, repeatsLast, runningThreads, unreadThreads } from "../shared/jobs"
+import { type Jobs, extendsChat, interruption, isActive, repeatsLast, runningThreads, unreadThreads } from "../shared/jobs"
 import { scheduleReminder, thisDevice, useMessageUx } from "./ux/useMessageUx"
 import { Tour, tourSteps } from "./Tour"
 import { languageName, translateTarget } from "./translateTarget"
@@ -1266,7 +1266,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const retry = useCallback((withoutGoogle = false) => {
     const last = messages[messages.length - 1]
     if (!isQuestion(last)) return
-    if (last.similarAsk !== undefined) return findSimilarRef.current(last.similarAsk, last.label ?? last.content, true, last.similarSel)
+    // Asked again where it looked the first time (build 94: Retry after a break searched worldwide), not wherever the
+    // picker points now.
+    if (last.similarAsk !== undefined) return findSimilarRef.current(last.similarAsk, last.label ?? last.content, true, last.similarSel, last.similarRegion ? { region: last.similarRegion, country: last.similarCountry } : undefined)
     if (withoutGoogle) setGoogleMode(false)
     ask(last.content, { label: last.label, retry: true, mode: withoutGoogle ? undefined : last.mode })
   }, [messages, ask])
@@ -1323,20 +1325,28 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }
 
   /** Asks our server for checked alternatives to this page (engine A only); the list streams in as items pass. */
-  const findSimilar = (condition: string, label: string, again = false, subject?: string) => {
+  const findSimilar = (condition: string, label: string, again = false, subject?: string, where?: { region: "world" | "local"; country?: string }) => {
     if (portRef.current || askToken.current) return
     setSimilarCard(null)
     if (consent !== "ok") {
       setPending({ text: label, label, action: "similar", similar: condition, ...(subject ? { similarSel: subject } : {}) })
       return
     }
+    // Where to look: as asked the first time (Retry), else as the picker says; their country, the server's view of it
+    // else the device's region.
+    const region = where?.region ?? settingsRef.current.similarRegion
+    const country = where?.country ?? statusRef.current?.country ?? localeCountry()
     setUndoBar(null)
     setFirstWin(null)
     setError(null)
     setOfferCard(false)
     // Asked again after it was left without an answer (interrupted): it takes that question's place (2.6 (90): twice).
     const base = again || repeatsLast(messages, { content: label, similarAsk: condition, similarSel: subject }) ? messages.slice(0, messages.length - 1) : messages
-    const user: Turn = stamped({ role: "user", content: label, label, similarAsk: condition, ...(subject ? { similarSel: subject } : {}), page: { url: source.key(), title: source.title(), at: Date.now() } })
+    const user: Turn = stamped({
+      role: "user", content: label, label, similarAsk: condition, ...(subject ? { similarSel: subject } : {}),
+      ...(region ? { similarRegion: region, ...(region === "local" && country ? { similarCountry: country } : {}) } : {}),
+      page: { url: source.key(), title: source.title(), at: Date.now() }
+    })
     const history: Turn[] = [...base, user]
     setMessages(history)
     // In the chat before it goes: the background writes the list after it (build 91).
@@ -1366,8 +1376,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         payload: {
           page: { title: full.title || source.title(), url: source.href(), text: full.text.slice(0, 5_000), facts }, condition, ...(subject ? { selection: subject } : {}),
           // Build 93: where to look, and their country (the server's view of it, else the device's region).
-          ...(settingsRef.current.similarRegion ? { region: settingsRef.current.similarRegion } : {}),
-          ...((statusRef.current?.country ?? localeCountry()) ? { country: statusRef.current?.country ?? localeCountry() } : {})
+          ...(region ? { region } : {}),
+          ...(country ? { country } : {})
         }
       })
     })
@@ -1991,6 +2001,31 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     return onJobsChanged(setJobList)
   }, [])
   const jobs = useMemo(() => ({ running: runningThreads(jobList), unread: unreadThreads(jobList) }), [jobList])
+
+  // Build 94: a Find similar still at work when the page goes away (the person left Safari): the app watches it on our
+  // server, and its "found" notification brings them back to the chat here. Only while one is at work or ended a
+  // moment ago unseen, so pages without one send nothing (each message may wake the app's extension).
+  const similarAtWork = useMemo(() => Object.values(jobList).some((j) => j.kind === "similar" && (isActive(j) || (!j.seen && Date.now() - (j.end ?? j.at) < 30 * 60_000))), [jobList])
+  const jobListRef = useRef(jobList)
+  jobListRef.current = jobList
+  const openNowRef = useRef(open)
+  openNowRef.current = open
+  useEffect(() => {
+    if (popup || !similarAtWork) return
+    const onVisibility = () => {
+      if (document.visibilityState === "hidden") {
+        if (Object.values(jobListRef.current).some((j) => j.kind === "similar" && isActive(j))) void sendBackground({ type: "similarAway" })
+        return
+      }
+      // Back (or here from the notification's tap): the app stops watching; the chat it asked for opens.
+      void sendBackground<{ open?: string | null }>({ type: "similarBack" }).then((r) => {
+        if (r?.open && !openNowRef.current) show()
+      })
+    }
+    document.addEventListener("visibilitychange", onVisibility)
+    if (document.visibilityState === "visible") onVisibility()
+    return () => document.removeEventListener("visibilitychange", onVisibility)
+  }, [popup, similarAtWork, show])
   // The selection buttons were placed: the round button steps out of their way, or stays (fabDodge.ts).
   const onBubblePlace = useCallback((box: DOMRect, selection: DOMRect) => {
     const fab = fabRef.current
@@ -3346,6 +3381,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                           {m.mode === "google" && <span class="cf-user-mode"><Icon.Search size={12} /></span>}
                           {m.similarAsk !== undefined && <span class="cf-user-mode" title={t("similarTitle")} aria-label={t("similarTitle")}><SimilarIcon size={12} /></span>}
                           {m.label ?? m.content}
+                          {m.similarAsk !== undefined && m.similarRegion && <span class="cf-user-where">{whereLabel(m.similarRegion, m.similarCountry)}</span>}
                         </div>
                       )}
                       {m.sources && m.sources.length > 0 && <UsedSources notes={m.sources} />}

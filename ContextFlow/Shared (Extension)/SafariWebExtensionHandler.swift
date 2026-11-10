@@ -357,6 +357,19 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                 return
             }
             Self.reply(context, ["success": true, "data": ["ok": true, "total": part.total, "offset": offset, "length": part.data.count, "data": part.data.base64EncodedString()]])
+        // Find similar after leaving Safari (build 94, SimilarAway): the app watches a search the person left mid-way,
+        // calls it off when they're back, says "found" at once when it ended before Safari was suspended.
+        case "similarAway":
+            SimilarAway.start(message)
+            Self.reply(context, ["success": true])
+        case "similarBack":
+            let open = SimilarAway.back()
+            Self.reply(context, ["success": true, "data": open.map { ["open": $0] } ?? [:]])
+        case "similarEnded":
+            Task {
+                await SimilarAway.ended(message)
+                Self.reply(context, ["success": true])
+            }
         case "ping":
             let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
             let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""

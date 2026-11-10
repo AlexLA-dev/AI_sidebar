@@ -33,11 +33,13 @@ import { startInsert } from "./insert"
 import { startWatch } from "./watch"
 import { nameChatNow, organizeChat, organizeCounts, reportOrganize } from "./organize"
 import { organizeConfig } from "../shared/organize"
-import { askSimilar } from "./similar"
+import { askSimilar, keptSimilar } from "./similar"
 import type { SimilarPayload, SimilarStreamEvent } from "../shared/similar"
 import { base64 as speechBase64, clearSpeech, serveSpeak } from "./speak"
 import { withVoiced } from "../shared/voiced"
-import { follow, jobsOnStart, liveJobIds, markSeen, startJob, stopJob, type JobSpec } from "./jobs"
+import { activeLive, follow, jobsOnStart, jobsReady, liveJobIds, markSeen, onJobEnd, setPoller, startJob, stopJob, type JobSpec } from "./jobs"
+import { t } from "../shared/i18n"
+import type { Job } from "../shared/jobs"
 
 // ---------------------------------------------------------------- identity
 
@@ -435,7 +437,7 @@ chrome.runtime.onConnect.addListener((port) => {
   })
 })
 
-type Run = (emit: (event: StreamEvent | SimilarStreamEvent) => void, signal: AbortSignal) => Promise<void>
+type Run = (emit: (event: StreamEvent | SimilarStreamEvent | { type: "kept" }) => void, signal: AbortSignal) => Promise<void>
 
 /**
  * Answers a panel's question on its port. With a job (build 91), the question is the background's: it goes on when the
@@ -509,10 +511,13 @@ function serveJob(port: chrome.runtime.Port): void {
   }
   port.onDisconnect.addListener(() => unfollow?.())
   port.onMessage.addListener((message: { type?: string; id?: string }) => {
-    if (message?.type === "attach" && typeof message.id === "string" && !unfollow) {
+    if (message?.type === "attach" && typeof message.id === "string" && !unfollow && !id) {
       id = message.id
-      unfollow = follow(id, send)
-      if (!unfollow) send({ type: "gone" })
+      // After a restart, a Find similar waiting on our server is followed again first (build 94).
+      void jobsReady().catch(() => undefined).then(() => {
+        unfollow = follow(id, send)
+        if (!unfollow) send({ type: "gone" })
+      })
     } else if (message?.type === "stop" && id) stopJob(id)
   })
 }
@@ -526,13 +531,76 @@ chrome.runtime.onConnect.addListener((port) => {
   port.onMessage.addListener((message: { type: "similar"; payload: SimilarPayload; job?: JobSpec }) => {
     if (message?.type !== "similar" || asked) return
     asked = true
-    const run = async (emit: (event: SimilarStreamEvent) => void, signal: AbortSignal) => {
+    const run = async (emit: (event: SimilarStreamEvent | { type: "kept" }) => void, signal: AbortSignal) => {
       if (!(await consented())) return emit({ type: "error", code: "CONSENT" })
       const [id, ent, client] = await Promise.all([installId(), entitlement(), clientInfo()])
-      await askSimilar({ installId: id, client, entitlement: ent?.active ? ent.jws : null, payload: message.payload }, emit, signal)
+      // Build 94: as a job of our server's too (the question's id), so it carries on if Safari suspends this background.
+      await askSimilar({ installId: id, client, entitlement: ent?.active ? ent.jws : null, payload: message.payload, ...(message.job ? { job: message.job.id } : {}) }, emit, signal)
     }
-    servePort(port, message.job ? { ...message.job, kind: "similar", asked: message.payload.condition ?? "" } : null, run as Run)
+    servePort(port, message.job ? { ...message.job, kind: "similar", asked: message.payload.condition ?? "", open: message.payload.page?.url ?? "" } : null, run as Run)
   })
+})
+
+// ------------------------------------------------- Find similar after leaving Safari (build 94)
+// The owner: «Поиск прерывается, если выходишь из Safari, а надо, чтобы шел и приходила нотификация от приложения,
+// когда найдено, с переходом прямо к вариантам». Our server finishes the search on its own and keeps the answer;
+// this background picks it up when it runs again (jobs.ts). When the person leaves Safari mid-search, the app's
+// extension starts a download of that answer which iOS carries on with Safari suspended, and wakes the ContextFlow app
+// with it: the app says "found" in a notification, whose tap opens the page with the chat (SimilarAway.swift). Back in
+// Safari first, the download is called off: no notification for someone who stayed.
+
+setPoller({
+  result: async (id, wait, signal) => keptSimilar(await installId(), id, wait, signal),
+  take: async (id) => {
+    await keptSimilar(await installId(), id, 0, AbortSignal.timeout(10_000), true)
+  }
+})
+
+// The Find similar jobs the app watches (a download started for them), and whether Safari is left now.
+const watched = new Set<string>()
+let leftSafari = false
+
+/** The notification's words, in the person's language: what was asked, and how it ended. */
+function notifyTexts(job: Job): Record<string, string> {
+  const asked = (job.asked ?? "").trim()
+  const lead = asked ? `${asked.slice(0, 80)} — ` : ""
+  return {
+    title: t("similarNotifyTitle"),
+    found: `${lead}${t("similarNotifyFound", "%d")}`,
+    none: `${lead}${t("similarNotifyNone")}`,
+    failed: `${lead}${t("similarNotifyFailed")}`
+  }
+}
+
+/** A page went away: the app watches each Find similar still at work (iPhone and iPad; on a Mac nothing is suspended). */
+async function similarAway(): Promise<void> {
+  if (TARGET !== "safari") return
+  leftSafari = true
+  const jobs = activeLive().filter((j) => j.kind === "similar" && !watched.has(j.id))
+  if (!jobs.length) return
+  const install = await installId()
+  for (const job of jobs) {
+    watched.add(job.id)
+    void callNative("similarAway", { job: job.id, thread: job.thread, install, base: API_BASE, open: job.open ?? "", at: job.at, ...notifyTexts(job) }, 3000)
+  }
+}
+
+/** A page shows again: the app's downloads are called off; the chat a "found" notification asked to open, if any. */
+async function similarBack(): Promise<string | null> {
+  if (TARGET !== "safari") return null
+  leftSafari = false
+  const jobs = [...watched]
+  watched.clear()
+  const r = await callNative<{ open?: string }>("similarBack", { jobs }, 3000)
+  return typeof r?.open === "string" && r.open ? r.open : null
+}
+
+// A watched job ended here, Safari still left (its background ran on a while): the notification goes now, and the
+// app's download is called off. Stopped by the person: only called off.
+onJobEnd((job, items) => {
+  if (TARGET !== "safari" || job.kind !== "similar" || !watched.delete(job.id)) return
+  const outcome = job.code === "STOPPED" ? "" : job.state === "done" ? (items ? "found" : "none") : "failed"
+  void callNative("similarEnded", { job: job.id, thread: job.thread, open: job.open ?? "", notify: leftSafari && outcome !== "", outcome, items, ...notifyTexts(job) }, 3000)
 })
 
 // --------------------------------------------------------------- AI search
@@ -651,8 +719,16 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
       void tipClip(message.name, message.lang).then(sendResponse, () => sendResponse({ ok: false }))
       return true
     case "liveJobs":
-      sendResponse({ ids: liveJobIds() })
+      // After a restart, the Find similar searches waiting on our server count once they're followed again (build 94).
+      void jobsReady().catch(() => undefined).then(() => sendResponse({ ids: liveJobIds() }))
+      return true
+    case "similarAway":
+      void similarAway().catch(() => undefined)
+      sendResponse(true)
       return false
+    case "similarBack":
+      similarBack().then((open) => sendResponse({ open }), () => sendResponse({ open: null }))
+      return true
     case "jobsSeen":
       void markSeen(message.thread).then(() => sendResponse(true), () => sendResponse(false))
       return true

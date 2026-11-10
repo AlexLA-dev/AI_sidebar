@@ -196,6 +196,9 @@ export type BackgroundRequest =
   | { type: "listenReturn"; id: string }
   // Build 94: a text heard to its end here (shared/voiced.ts id): kept, and told to the app on this device.
   | { type: "listenVoiced"; id: string }
+  // Build 94: a page went away, or shows again, while a Find similar works (the app's "found" notification).
+  | { type: "similarAway" }
+  | { type: "similarBack" }
   // The line under a free answer that skipped the page's video or PDFs: shown, or its "Try Pro" tapped.
   | { type: "mediaNotice"; action: "shown" | "pro"; media: MediaKind[] }
   // An Own key subscriber and Pro: a refusal (starts the day before the discount), the discount card shown, a tap.

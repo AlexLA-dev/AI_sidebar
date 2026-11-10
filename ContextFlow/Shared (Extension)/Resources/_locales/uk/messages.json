@@ -2186,6 +2186,30 @@
  "similarReviewersSay": {
   "message": "Відгуки: {0}"
  },
+ "similarNotifyTitle": {
+  "message": "Пошук схожого завершено"
+ },
+ "similarNotifyFound": {
+  "message": "Знайдено варіантів: {0}. Торкніться, щоб переглянути."
+ },
+ "similarNotifyNone": {
+  "message": "Нічого відповідного. Торкніться, щоб змінити умову."
+ },
+ "similarNotifyFailed": {
+  "message": "Пошук не завершився. Торкніться, щоб повторити."
+ },
+ "similarSay": {
+  "message": "Що кажуть:"
+ },
+ "similarPros": {
+  "message": "хвалять {0}"
+ },
+ "similarCons": {
+  "message": "критикують {0}"
+ },
+ "similarEstimated": {
+  "message": "оцінка за описом"
+ },
  "tip_4cf1b54b00": {
   "message": "Поради"
  },

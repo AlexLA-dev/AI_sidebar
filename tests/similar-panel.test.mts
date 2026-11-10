@@ -21,7 +21,9 @@ const KEYS = ["actSimilar", "uxSimilar", "similarTitle", "similarConditions", "s
   // Build 91: an app's price, read on its App Store page or its pricing page.
   "similarPayFree", "similarPayFreeStart", "similarPaySub", "similarPayOnce", "similarPayIap", "similarPerWeek", "similarPerMonth", "similarPerYear",
   // Build 93: where to look, the less similar ones, their country's store, what reviewers say.
-  "similarWhere", "similarWorld", "similarLocal", "similarLocalIn", "similarWhereHint", "similarLess", "similarPercent", "similarDiffers", "similarRegionLocked", "similarRatings", "similarReviewersSay"]
+  "similarWhere", "similarWorld", "similarLocal", "similarLocalIn", "similarWhereHint", "similarLess", "similarPercent", "similarDiffers", "similarRegionLocked", "similarRatings", "similarReviewersSay",
+  // Build 94: one line of what people say, the share estimated from a description, the app's "found" notification.
+  "similarSay", "similarPros", "similarCons", "similarEstimated", "similarNotifyTitle", "similarNotifyFound", "similarNotifyNone", "similarNotifyFailed"]
 
 test("every language has Find similar's words, with their placeholders", () => {
   const files = readdirSync(locales).filter((f) => f.endsWith(".json"))
@@ -29,7 +31,7 @@ test("every language has Find similar's words, with their placeholders", () => {
   for (const file of files) {
     const s = JSON.parse(readFileSync(new URL(file, locales), "utf8")) as Record<string, string>
     for (const key of KEYS) assert.ok(s[key]?.trim(), `${file}: ${key}`)
-    for (const key of ["similarInLanguage", "similarAskedWith", "similarStepCheckN", "similarChecked", "similarLimit", "similarPaySub", "similarPayOnce", "similarPayIap", "similarPerWeek", "similarPerMonth", "similarPerYear", "similarLocalIn", "similarPercent", "similarDiffers", "similarRatings", "similarReviewersSay"]) assert.match(s[key], /\{0\}/, `${file}: ${key}`)
+    for (const key of ["similarInLanguage", "similarAskedWith", "similarStepCheckN", "similarChecked", "similarLimit", "similarPaySub", "similarPayOnce", "similarPayIap", "similarPerWeek", "similarPerMonth", "similarPerYear", "similarLocalIn", "similarPercent", "similarDiffers", "similarRatings", "similarReviewersSay", "similarPros", "similarCons", "similarNotifyFound"]) assert.match(s[key], /\{0\}/, `${file}: ${key}`)
     assert.match(s.similarLimit, /\{1\}/, `${file}: similarLimit's day`)
     // The menu item is the action's name with an ellipsis (it opens a card first).
     assert.equal(s.uxSimilar.replace(/…$/, ""), s.actSimilar, file)
@@ -102,7 +104,8 @@ before(async () => {
   const src = (p: string) => JSON.stringify(new URL(`../src/content/${p}`, import.meta.url).pathname)
   writeFileSync(join(dir, "entry.ts"), `
     import { h, render } from "preact"
-    import { SimilarList, SimilarPicker, SimilarUpsell } from ${src("similar/Similar.tsx")}
+    import { SimilarList, SimilarPicker, SimilarUpsell, whereLabel } from ${src("similar/Similar.tsx")}
+    export { whereLabel }
     import { PageMenu } from ${src("ux/PageMenu.tsx")}
     export function list(container: Element, props: unknown) { render(h(SimilarList, props as never), container) }
     export function picker(container: Element, onFind: (c: string, l: string) => void, region?: unknown) { render(h(SimilarPicker, { title: "Aero 2", onFind, onClose() {}, ...(region as object ?? {}) }), container) }
@@ -208,10 +211,12 @@ test("build 93: the less similar ones apart with how close and how they differ, 
   assert.match(el.querySelector(".cf-similar-locked").textContent, /Not in your country's App Store/)
   assert.match(el.querySelector(".cf-similar-stars").textContent, /★ 4\.6/)
   assert.match(text, /1,234 ratings/)
-  assert.match(text, /Reviewers: Fast summaries/)
+  // An answer kept from build 93: its one-sentence summary on the same line, after "What people say:".
+  assert.match(el.querySelector(".cf-similar-reviews").textContent, /^What people say:★ 4\.6 · 1,234 ratings · Fast summaries; the free plan is limited\. · apps\.apple\.com · techreview\.example$/)
   assert.deepEqual([...el.querySelectorAll(".cf-similar-src")].map((a: any) => [a.textContent, a.getAttribute("target")]), [["apps.apple.com", "_blank"], ["techreview.example", "_blank"]])
-  // The close one isn't shown with a percentage (only the less similar ones say how close).
-  assert.equal(el.querySelector(".cf-similar-list .cf-similar-pct")?.closest(".cf-similar-less") !== null, true)
+  // Build 94: the close one says how close too (the owner: the only item showed no share).
+  assert.match(el.querySelector(".cf-similar-list .cf-similar-pct").textContent, /^100% similar$/)
+  assert.equal(el.querySelector(".cf-similar-list .cf-similar-pct").closest(".cf-similar-less"), null)
 })
 
 test("build 93: where to look is asked the first time (Find waits for it), then shown as chosen", async () => {
@@ -270,4 +275,30 @@ test("the menu: Find similar… where there is a page, with Ultra's badge for so
   const upsell = root()
   ui.upsell(upsell)
   assert.ok(upsell.querySelector(".cf-ultra-badge"))
+})
+
+test("build 94: every item's share, estimated when its page wasn't opened; one line of what people say", async () => {
+  const el = root()
+  const base = { why: "Same idea.", fit: "", met: "n/a", source: "item", checked: true, title: "" }
+  const items = [
+    { ...base, name: "Fanwoli Rolling Vacuum Backpack", url: "https://www.amazon.com/dp/B0X", host: "amazon.com", checked: false, similarity: 75, estimated: true },
+    { ...base, name: "Backvac Pro", url: "https://mybackvac.com/products/backvacpro", host: "mybackvac.com", similarity: 50, differs: "No trolley; the brand's Pro Max has one, at 272.95 EUR — over your budget",
+      reviews: { rating: { value: 4.6, best: 5, count: 687 }, pros: "compression, sturdy zips", cons: "the price", sources: ["https://mybackvac.com/products/backvacpro"] } },
+    { ...base, name: "PacknTrip ProPack", url: "https://packntrip.store/p", host: "packntrip.store", similarity: 50, reviews: { pros: "carry-on fit", sources: ["https://packntrip.store/p"] } }
+  ]
+  ui.list(el, { answer: { intro: "", items, note: "", condition: "cheaper", asked: "", at: Date.now() }, items, onOpen() {} })
+  const pct = [...el.querySelectorAll(".cf-similar-pct")].map((p: any) => p.textContent)
+  assert.deepEqual(pct, ["75% similar · estimated from the description", "50% similar", "50% similar"])
+  const lines = [...el.querySelectorAll(".cf-similar-reviews")].map((p: any) => p.textContent)
+  assert.deepEqual(lines, [
+    "What people say:★ 4.6 · 687 ratings · like compression, sturdy zips · dislike the price · mybackvac.com",
+    "What people say:like carry-on fit · packntrip.store"
+  ])
+  assert.match(el.textContent, /Differs: No trolley; the brand's Pro Max has one/)
+})
+
+test("build 94: the question line says where it looked", () => {
+  assert.equal(ui.whereLabel("world"), "Worldwide")
+  assert.equal(ui.whereLabel("local", "CY"), "Near me · Cyprus")
+  assert.equal(ui.whereLabel("local"), "Near me")
 })

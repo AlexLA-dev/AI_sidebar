@@ -10,7 +10,8 @@ import { prune, savedThread, type Threads } from "../shared/threads"
 import { t } from "../shared/i18n"
 import { STORAGE, type Grounding, type StreamEvent } from "../shared/types"
 
-type AnyEvent = StreamEvent | SimilarStreamEvent
+// "kept" (build 94, the background's own): our server took the Find similar as a job it finishes without the request.
+type AnyEvent = StreamEvent | SimilarStreamEvent | { type: "kept" }
 
 /** What came so far, for a panel that comes back to the job: it shows the answer from there. */
 export interface Snapshot {
@@ -27,6 +28,9 @@ type Listener = (event: Record<string, unknown>) => void
 
 interface Live {
   job: Job
+  // Build 94: our server keeps this Find similar's answer (a cut stream then waits for it there), and it waits now.
+  kept?: boolean
+  waiting?: boolean
   // When the job last heard from its request (ms), and how it ends itself (a stale one, below).
   heard: number
   emit?: (event: AnyEvent) => void
@@ -82,14 +86,54 @@ export function liveJobIds(): string[] {
   return [...live.keys()]
 }
 
+/** A Find similar's answer as our server keeps it (null: it couldn't be asked: offline, the background suspended). */
+export type Kept = { state: "running" | "done" | "failed" | "unknown"; result?: Omit<SimilarAnswer, "asked" | "at">; code?: string }
+
+/** How a waiting job asks our server (set by the background's start: it knows the install and the address). */
+export interface Poller {
+  result(id: string, waitSeconds: number, signal: AbortSignal): Promise<Kept | null>
+  // The answer is in the chat: the server's copy goes.
+  take(id: string): Promise<void>
+}
+
+let poller: Poller | null = null
+export function setPoller(p: Poller): void {
+  poller = p
+}
+
+/** Told when a job ends (build 94: the app's "found" notification goes out, or is called off). */
+type EndListener = (job: Job, items: number) => void
+const endListeners = new Set<EndListener>()
+export function onJobEnd(listener: EndListener): void {
+  endListeners.add(listener)
+}
+
+/** The jobs active now, as kept (running here or waiting on our server). */
+export function activeLive(): Job[] {
+  return [...live.values()].map((j) => j.job)
+}
+
 /** The panel showed this chat: its jobs' outcomes were seen. */
 export function markSeen(thread: string): Promise<void> {
   return updateJobs((jobs) => seenIn(jobs, thread))
 }
 
-/** The background started: jobs a previous one was running were lost with it. */
+let ready: Promise<void> = Promise.resolve()
+
+/** Settles once the jobs a previous background left are sorted out (a panel asking for one waits for this). */
+export function jobsReady(): Promise<void> {
+  return ready
+}
+
+/**
+ * The background started: jobs a previous one was running were lost with it — except a recent Find similar, whose
+ * answer our server finished on its own (build 94): it's picked up from there.
+ */
 export function jobsOnStart(): Promise<void> {
-  return updateJobs((jobs) => afterRestart(jobs))
+  ready = updateJobs((jobs) => afterRestart(jobs)).then(async () => {
+    for (const job of Object.values(await readJobs())) if (job.state === "waiting" && !live.has(job.id)) resumeJob(job)
+  })
+  return ready
 }
 
 // While a job runs: every few seconds the panels following it hear it's alive (a panel that hears nothing asks again,
@@ -100,10 +144,19 @@ export function jobsOnStart(): Promise<void> {
 export const JOB_QUIET_MS = 75_000
 export const JOB_MAX_MS = 5 * 60_000
 
-/** Ends the jobs that went quiet or ran too long, as interrupted (their requests stopped). */
+/**
+ * Ends the jobs that went quiet or ran too long, as interrupted (their requests stopped). A Find similar our server
+ * keeps waits for its answer there instead (Safari suspended the background mid-answer); a waiting one ends by what
+ * the server says.
+ */
 export function sweepStale(now = Date.now()): void {
   for (const job of [...live.values()]) {
+    if (job.waiting) continue
     if (now - job.heard > JOB_QUIET_MS || now - job.job.at > JOB_MAX_MS) {
+      if (job.kept && poller) {
+        toWaiting(job)
+        continue
+      }
       job.emit?.({ type: "error", code: "STREAM" })
       job.controller.abort()
     }
@@ -120,7 +173,7 @@ function beating(): void {
       return
     }
     sweepStale()
-    for (const job of live.values()) for (const listener of job.listeners) listener({ type: "beat" })
+    for (const job of live.values()) for (const listener of job.listeners) listener({ type: job.waiting ? "waiting" : "beat" })
     try {
       void chrome.runtime.getPlatformInfo?.().catch(() => undefined)
     } catch {
@@ -147,6 +200,7 @@ export function stopJob(id: string): void {
   if (!job) return
   live.delete(id)
   job.controller.abort()
+  for (const l of endListeners) l({ ...job.job, state: "failed", code: "STOPPED" }, 0)
   void updateJobs((jobs) => {
     if (!jobs[id]) return null
     const next = { ...jobs }
@@ -159,8 +213,9 @@ export interface JobSpec {
   id: string
   thread: string
   kind: JobKind
-  // Find similar: the condition asked.
+  // Find similar: the condition asked, and the page it was asked on (the app's notification opens it; build 94).
   asked?: string
+  open?: string
 }
 
 /**
@@ -172,7 +227,7 @@ export function startJob(spec: JobSpec, run: (emit: (e: AnyEvent) => void, signa
   const running = follow(spec.id, listener)
   if (running) return running
   const job: Live = {
-    job: { id: spec.id, thread: spec.thread, kind: spec.kind, state: "running", at: Date.now() },
+    job: { id: spec.id, thread: spec.thread, kind: spec.kind, state: "running", at: Date.now(), ...(spec.kind === "similar" ? { asked: spec.asked ?? "", ...(spec.open ? { open: spec.open } : {}) } : {}) },
     heard: Date.now(),
     asked: spec.asked ?? "",
     controller: new AbortController(),
@@ -182,10 +237,34 @@ export function startJob(spec: JobSpec, run: (emit: (e: AnyEvent) => void, signa
   live.set(spec.id, job)
   beating()
   void updateJobs((jobs) => ({ ...jobs, [spec.id]: job.job }))
+  const emit = emitter(job)
+  const signal = job.controller.signal
+  void run(emit, signal)
+    .catch(() => emit({ type: "error", code: "STREAM" }))
+    .finally(() => {
+      // Ended without a word (an ended job ignores it; a waiting one goes on waiting).
+      if (live.get(spec.id) === job && !job.waiting && !signal.aborted) emit({ type: "error", code: "STREAM" })
+    })
+  return () => job.listeners.delete(listener)
+}
+
+/** How a job's events reach its panels and end it (once). */
+function emitter(job: Live): (event: AnyEvent) => void {
+  const id = job.job.id
   let ended = false
   const emit = (event: AnyEvent) => {
-    if (ended || live.get(spec.id) !== job) return
+    if (ended || live.get(id) !== job) return
     job.heard = Date.now()
+    if (event.type === "kept") {
+      job.kept = true
+      return
+    }
+    // Build 94: a Find similar cut mid-answer (Safari suspended the background) whose answer our server keeps: it
+    // waits for that answer instead of ending as interrupted.
+    if (event.type === "error" && event.code === "STREAM" && job.kept && job.job.kind === "similar" && poller) {
+      toWaiting(job)
+      return
+    }
     if (event.type === "done" || event.type === "error") {
       ended = true
       void end(job, event)
@@ -195,12 +274,75 @@ export function startJob(spec: JobSpec, run: (emit: (e: AnyEvent) => void, signa
     for (const l of job.listeners) l(event as unknown as Record<string, unknown>)
   }
   job.emit = emit
-  void run(emit, job.controller.signal)
-    .catch(() => emit({ type: "error", code: "STREAM" }))
-    .finally(() => {
-      if (!ended && live.get(spec.id) === job && !job.controller.signal.aborted) emit({ type: "error", code: "STREAM" })
-    })
-  return () => job.listeners.delete(listener)
+  return emit
+}
+
+/** A Find similar waits for its answer on our server (its request was cut): kept as "waiting", asked until it ends. */
+function toWaiting(job: Live): void {
+  if (job.waiting) return
+  job.waiting = true
+  // The cut request's; asking the server has its own.
+  job.controller.abort()
+  job.controller = new AbortController()
+  job.job = { ...job.job, state: "waiting" }
+  const id = job.job.id
+  void updateJobs((jobs) => (jobs[id] && jobs[id].state !== "waiting" ? { ...jobs, [id]: job.job } : null))
+  for (const l of job.listeners) l({ type: "waiting" })
+  void pollKept(job)
+}
+
+/** A job the previous background left waiting: followed again, its answer asked of our server. */
+function resumeJob(stored: Job): void {
+  const job: Live = {
+    job: stored,
+    heard: Date.now(),
+    asked: stored.asked ?? "",
+    controller: new AbortController(),
+    listeners: new Set(),
+    snapshot: { type: "snapshot", kind: stored.kind, text: "", items: [] },
+    kept: true,
+    waiting: true
+  }
+  live.set(stored.id, job)
+  beating()
+  emitter(job)
+  void pollKept(job)
+}
+
+const POLL_WAIT_S = 25
+const POLL_ROUNDS = 24
+
+/** Asks our server until the job ended there: its answer goes into the chat as if it had streamed. */
+async function pollKept(job: Live): Promise<void> {
+  const id = job.job.id
+  const signal = job.controller.signal
+  for (let round = 0; round < POLL_ROUNDS && poller; round++) {
+    const kept = await poller.result(id, POLL_WAIT_S, signal).catch(() => null)
+    if (signal.aborted || live.get(id) !== job) return
+    job.heard = Date.now()
+    // Offline, or the background was suspended mid-ask: again in a moment.
+    if (!kept) {
+      await new Promise((resolve) => setTimeout(resolve, 4_000))
+      continue
+    }
+    if (kept.state === "running") continue
+    if (kept.state === "done" && kept.result) {
+      job.waiting = false
+      job.emit?.({ type: "result", answer: kept.result })
+      job.emit?.({ type: "done" })
+      void poller.take(id).catch(() => undefined)
+      return
+    }
+    // Failed there, or not there at all (an older server, or never reached it): it ends here, as interrupted.
+    job.waiting = false
+    job.kept = false
+    job.emit?.({ type: "error", code: kept.state === "failed" ? kept.code ?? "UPSTREAM" : "STREAM" })
+    return
+  }
+  if (live.get(id) !== job) return
+  job.waiting = false
+  job.kept = false
+  job.emit?.({ type: "error", code: "STREAM" })
 }
 
 function take(job: Live, event: AnyEvent): void {
@@ -211,7 +353,11 @@ function take(job: Live, event: AnyEvent): void {
     snap.step = event.step
     if (event.pages !== undefined) snap.pages = event.pages
   } else if (event.type === "item") snap.items.push(event.item)
-  else if (event.type === "result") job.answer = event.answer
+  else if (event.type === "result") {
+    job.answer = event.answer
+    // Picked up from our server: the items as they were found (for a panel that follows it from here).
+    if (!snap.items.length) snap.items.push(...event.answer.items)
+  }
 }
 
 // Not in the person's plan after all, or the week's searches used: the question goes (the panel shows a card).
@@ -244,6 +390,7 @@ async function end(job: Live, event: AnyEvent): Promise<void> {
   const done: Job = { ...job.job, state: code ? "failed" : "done", end: Date.now(), ...(code ? { code } : {}), ...(entry?.id ? { answer: entry.id } : {}) }
   await updateJobs((jobs) => ({ ...jobs, [id]: done }))
   live.delete(id)
+  for (const l of endListeners) l(done, job.answer?.items.length ?? job.snapshot.items.length)
   for (const l of job.listeners) l({ ...(event as unknown as Record<string, unknown>), ...(entry ? { entry } : {}) })
   job.listeners.clear()
   // A chat written meanwhile from a copy without the answer (iCloud's sync, another tab): the answer goes back once.
