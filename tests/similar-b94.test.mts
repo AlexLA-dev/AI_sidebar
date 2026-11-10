@@ -12,7 +12,7 @@ process.env.SUPABASE_SERVICE_ROLE_KEY = "service-key"
 process.env.ANTHROPIC_API_KEY = "test-key"
 
 const { describePage, markupRating, reviewsSection, textRating } = await import("../netlify/shared/pagecheck.mts")
-const { Claims, checkCondition, finishItems, localQueries, reviewWords, searchLocation, shopifyCatalog, siblingLinks, siblingsStep, writeMessage, WRITE_SYSTEM } = await import("../netlify/shared/similar.mts")
+const { Claims, checkCondition, finishItems, localQueries, reviewWords, reviewsStep, searchLocation, shopifyCatalog, siblingLinks, siblingsStep, writeMessage, WRITE_SYSTEM } = await import("../netlify/shared/similar.mts")
 const { jobKey, jobState, sweepJobs, useJobStore, waitForJob, JOB_STALE_MS } = await import("../netlify/shared/jobs.mts")
 const { default: resultFn } = await import("../netlify/functions/v2-similar-result.mts")
 const { cleanItem } = await import("../src/shared/similar.ts")
@@ -279,4 +279,32 @@ test("one marketplace listing at most across all searches: their pages can't be 
     c("https://mybackvac.com/products/backvacpro", "Backvac Pro")
   ])
   assert.deepEqual(taken.map((t) => new URL(t.url).hostname), ["www.amazon.com", "packntrip.store", "mybackvac.com"])
+})
+
+test("a rated item without reviewers' words on its page still gets a review page looked for (the owner's Backvac: 687 ratings, no words)", async () => {
+  const rated = candidate("https://mybackvac.com/products/backvacpro", html("Backvac Pro", "", ld({ "@type": "Product", name: "Backvac Pro", aggregateRating: { ratingValue: 4.6, reviewCount: 687 } })), "Backvac Pro")
+  const withWords = candidate("https://packntrip.store/p", html("PacknTrip ProPack", `<section><h2>Customer Reviews</h2>${"<p>Compression works, sturdy through flights.</p>".repeat(10)}</section>`), "PacknTrip ProPack")
+  assert.ok(withWords.page.reviewsText)
+  const asked: string[] = []
+  const real = globalThis.fetch
+  globalThis.fetch = (async (url: string | URL | Request, init?: RequestInit) => {
+    const u = String(url instanceof Request ? url.url : url)
+    if (u.startsWith("https://api.anthropic.com/")) {
+      const body = JSON.parse(String(init?.body ?? "{}"))
+      asked.push(JSON.stringify(body.messages))
+      const content = [{ type: "text", text: Array.isArray(body.tools) && body.tools.length ? "done" : JSON.stringify({ items: [{ item: 2, page: 2, pros: "compression works", cons: "", quote: "Compression works, sturdy through flights." }] }) }]
+      return new Response(JSON.stringify({ id: "m", type: "message", role: "assistant", model: body.model, content, stop_reason: "end_turn", stop_sequence: null, usage: { input_tokens: 10, output_tokens: 10 } }), { headers: { "content-type": "application/json" } })
+    }
+    return new Response("<title>Not found</title>", { status: 404, headers: { "content-type": "text/html" } })
+  }) as typeof fetch
+  try {
+    const out = await reviewsStep([rated, withWords], plan(), input(), "en", 15_000)
+    // One search, for the rated one only (the other has its reviewers' words on its own page).
+    assert.match(asked[0], /Backvac Pro review/)
+    assert.doesNotMatch(asked[0], /PacknTrip ProPack review/)
+    assert.deepEqual(out.checked[0].reviews?.rating, { value: 4.6, best: 5, count: 687 })
+    assert.equal(out.checked[1].reviews?.pros, "compression works")
+  } finally {
+    globalThis.fetch = real
+  }
 })

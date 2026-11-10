@@ -1176,8 +1176,9 @@ export async function reviewsStep(checked: CheckedCandidate[], plan: Plan, input
     if (c.page.rating) next[i] = { ...next[i], reviews: { rating: c.page.rating, sources: [c.page.finalUrl] } }
     pages.set(i, [c.page])
   }
-  // A review page for those without a rating of their own.
-  const unrated = due.filter(({ c }) => !c.page.rating).slice(0, REVIEW_SEARCHES)
+  // A review page for those whose own page has no reviews to read (build 94: a rating alone says nothing of what
+  // reviewers like; the owner's Backvac had 687 ratings and no words) — those without a rating first.
+  const unrated = [...due.filter(({ c }) => !c.page.rating && !c.page.reviewsText), ...due.filter(({ c }) => c.page.rating && !c.page.reviewsText)].slice(0, REVIEW_SEARCHES)
   if (unrated.length && left() > 6_000) {
     try {
       const queries = unrated.map(({ c }) => `${c.name} review`)
