@@ -93,7 +93,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
 
   // Build 94: kept for the asker to pick up if it goes away meanwhile (a store that can't be written: as before).
   const jobId = engine === "a" && typeof body.job === "string" && JOB_ID.test(body.job) ? body.job : ""
-  const store = jobId ? jobStore() : null
+  const store = jobId ? (() => { try { return jobStore() } catch { return null } })() : null
   const key = jobId ? jobKey(installId, jobId) : ""
   const kept = store ? await store.set(key, { state: "running", at: Date.now() }).then(() => true, () => false) : false
   let result: StoredResult | null = null

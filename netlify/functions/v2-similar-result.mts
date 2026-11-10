@@ -24,7 +24,13 @@ export default async (req: Request): Promise<Response> => {
   if (!isUuid(install) || !JOB_ID.test(job)) return json({ code: "BAD_REQUEST" }, 400)
   const waitMs = Math.min(55, Math.max(0, Number(field("wait")) || 0)) * 1_000
   const take = field("take") === "1" || body.take === true
-  const store = jobStore()
+  let store: ReturnType<typeof jobStore>
+  try {
+    store = jobStore()
+  } catch {
+    // No store here (a local run without Netlify Blobs): nothing is ever kept.
+    return json({ state: "unknown" })
+  }
   const key = jobKey(install, job)
 
   const answer = async (found: StoredJob | null): Promise<string> => {
