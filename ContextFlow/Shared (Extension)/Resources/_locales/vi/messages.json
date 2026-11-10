@@ -2129,6 +2129,39 @@
  "offerRetryAt": {
   "message": "Câu trả lời có lại lúc {0}."
  },
+ "similarWhere": {
+  "message": "Tìm ở đâu"
+ },
+ "similarWorld": {
+  "message": "Toàn thế giới"
+ },
+ "similarLocal": {
+  "message": "Gần tôi"
+ },
+ "similarLocalIn": {
+  "message": "Gần tôi · {0}"
+ },
+ "similarWhereHint": {
+  "message": "Hãy chọn nơi tìm trước."
+ },
+ "similarLess": {
+  "message": "Ít giống hơn"
+ },
+ "similarPercent": {
+  "message": "Giống {0}%"
+ },
+ "similarDiffers": {
+  "message": "Khác biệt: {0}"
+ },
+ "similarRegionLocked": {
+  "message": "Không có trong App Store ở quốc gia của bạn"
+ },
+ "similarRatings": {
+  "message": "{0} lượt đánh giá"
+ },
+ "similarReviewersSay": {
+  "message": "Nhận xét: {0}"
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },

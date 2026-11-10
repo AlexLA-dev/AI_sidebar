@@ -25,6 +25,8 @@ export interface ProOffer {
 
 export interface StatusInfo {
   plan: Plan
+  // Build 93: the country the server saw the request come from (two letters), for Find similar's "near me".
+  country?: string
   usage: Usage | null
   // A free install that ran out of free answers on an earlier day, and the offer for it (from the server).
   limitedBefore: boolean
@@ -368,6 +370,8 @@ export interface Settings {
   // Build 91: the whole chat is Pro's memory, on unless the person turns it off (Pro and Ultra; free answers see the
   // last messages, and the switch offers Pro).
   chatMemory: boolean
+  // Build 93: where Find similar looks — anywhere, or near them (their country); asked the first time, then kept.
+  similarRegion?: "world" | "local"
   // Suggestions (2.5, Pro): a better chat for a block, one of the user's tags. Off until the user turns them on:
   // turning them on is the consent to send the messages' text for it.
   organize: boolean

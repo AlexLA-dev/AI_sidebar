@@ -736,5 +736,16 @@
   "offerMemoryTitle": "Pro recuerda todo el chat",
   "offerMemoryBody": "Una respuesta gratuita recuerda las últimas {0} respuestas y notas de un chat. Con Pro, la IA lo recuerda entero: cada mensaje, tus notas y las páginas sobre las que preguntaste.",
   "offerMemoryLong": "Este chat tiene más de las {0} respuestas y notas que recuerda una respuesta gratuita. Con Pro, la IA lo recuerda entero: cada mensaje, tus notas y las páginas sobre las que preguntaste.",
-  "offerRetryAt": "Las respuestas vuelven a las {0}."
+  "offerRetryAt": "Las respuestas vuelven a las {0}.",
+  "similarWhere": "Dónde buscar",
+  "similarWorld": "En todo el mundo",
+  "similarLocal": "Cerca de mí",
+  "similarLocalIn": "Cerca · {0}",
+  "similarWhereHint": "Elige primero dónde buscar.",
+  "similarLess": "Menos parecidos",
+  "similarPercent": "Parecido al {0} %",
+  "similarDiffers": "Diferencia: {0}",
+  "similarRegionLocked": "No está en el App Store de tu país",
+  "similarRatings": "{0} valoraciones",
+  "similarReviewersSay": "Reseñas: {0}"
 }

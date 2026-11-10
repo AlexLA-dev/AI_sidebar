@@ -736,5 +736,16 @@
   "offerMemoryTitle": "Pro merkt sich den ganzen Chat",
   "offerMemoryBody": "Eine kostenlose Antwort kennt die letzten {0} Antworten und Notizen eines Chats. Mit Pro merkt sich die KI alles: jede Nachricht, deine Notizen und die Seiten, zu denen du gefragt hast.",
   "offerMemoryLong": "Dieser Chat hat mehr als die {0} Antworten und Notizen, die eine kostenlose Antwort kennt. Mit Pro merkt sich die KI alles: jede Nachricht, deine Notizen und die Seiten, zu denen du gefragt hast.",
-  "offerRetryAt": "Antworten gibt es wieder um {0}."
+  "offerRetryAt": "Antworten gibt es wieder um {0}.",
+  "similarWhere": "Wo suchen",
+  "similarWorld": "Weltweit",
+  "similarLocal": "In meiner Nähe",
+  "similarLocalIn": "In der Nähe · {0}",
+  "similarWhereHint": "Wähle zuerst, wo gesucht wird.",
+  "similarLess": "Weniger ähnlich",
+  "similarPercent": "{0} % ähnlich",
+  "similarDiffers": "Unterschied: {0}",
+  "similarRegionLocked": "Nicht im App Store deines Landes",
+  "similarRatings": "{0} Bewertungen",
+  "similarReviewersSay": "Bewertungen: {0}"
 }

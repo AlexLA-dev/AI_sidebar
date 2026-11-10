@@ -92,6 +92,10 @@ export const limitsReport = (days: number) => rpc<Record<string, unknown>>("cf_l
 export const organizeReport = (days: number) => rpc<Record<string, unknown>>("cf_organize_report", { p_days: days })
 /** Read aloud and find similar (2.6, Ultra): requests, people, tokens by model, cost, failures (cf_ultra_report). */
 export const ultraReport = (days: number) => rpc<Record<string, unknown>>("cf_ultra_report", { p_days: days })
+/** MRR at the end of each day by plan, monthly or yearly, renewal on or off, and currency (cf_mrr_history). */
+export const mrrHistory = (days: number) => rpc<Record<string, unknown>>("cf_mrr_history", { p_days: days })
+/** Users by first week and subscribers by first payment month, still there later; first renewals (cf_retention). */
+export const retention = (days: number) => rpc<Record<string, unknown>>("cf_retention", { p_days: days })
 /** New people's way to the first answer, one row each, by the day they first showed up (cf_onboarding). */
 export const onboarding = (days: number) => rpc<Record<string, unknown>>("cf_onboarding", { p_days: days })
 /** By day: new users, how many of them ran out of free answers that day, Pro bought (cf_new_user_outcomes). */

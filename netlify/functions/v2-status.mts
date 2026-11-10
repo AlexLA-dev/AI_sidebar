@@ -66,8 +66,15 @@ export default async (req: Request, context: Context): Promise<Response> => {
       freeDaily: settings.freeDailyLimit, proWeekly: settings.proWeeklyLimit, searchFreeDaily: settings.searchFreeDailyLimit, searchProWeekly: settings.searchProWeeklyLimit,
       ultraWeekly: settings.ultra.weeklyLimit, speakWeeklySeconds: settings.ultra.speakWeeklySeconds, similarWeekly: settings.ultra.similarWeekly, watch: WATCH_LIMITS
     },
-    organize: { on: settings.organize.enabled, space: vectorSpace(), config: settings.organize.thresholds }
+    organize: { on: settings.organize.enabled, space: vectorSpace(), config: settings.organize.thresholds },
+    // Build 93: the country the request came from (Find similar's "near me"); missing when unknown.
+    ...(geoCountryOf(context) ? { country: geoCountryOf(context) } : {})
   })
+}
+
+function geoCountryOf(context: Context): string {
+  const code = (context as unknown as { geo?: { country?: { code?: string } } }).geo?.country?.code ?? ""
+  return /^[A-Z]{2}$/.test(code) ? code : ""
 }
 
 export const config: Config = { path: "/api/v2/status" }
