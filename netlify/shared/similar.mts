@@ -268,7 +268,7 @@ Work out, once, what to search for:
 - traits: up to 5 short facts that make something a real alternative (kind, key specs, price range, audience, cuisine, level, place…);
 - condition: kind (none, cheaper, in_stock, free, newer, shorter, nearby, language, other); max_price when they named a number (else 0); currency (3 letters, else ""); language they want the results in (BCP 47, else ""); place for nearby (else "");
 - source_price: the price the page itself shows, as a plain number (else 0), and source_currency;
-- queries: 2 to 4 web searches that find the alternatives themselves — their own pages (a shop's product page, the app's site or store page, the recipe, the article, the course page, the listing) — not pages about the item on screen. Mix a direct one with ones that carry the condition. When they want it cheaper or in stock, one search may look for this very item at other shops; the others find alternatives to it. Write each in the language that finds the best results for this person (usually theirs; English is fine for global products and software);
+- queries: 2 to 4 web searches that find the alternatives themselves — their own pages (a shop's product page, the app's site or store page, the recipe, the article, the course page, the listing) — not pages about the item on screen. Mix a direct one with ones that carry the condition. When they want it cheaper or in stock, at most one search may look for this very item at other shops; the others always find alternatives to it (other brands and models). Write each in the language that finds the best results for this person (usually theirs; English is fine for global products and software);
 - language: the person's language (BCP 47), from their words, else the device locale.
 They may have tapped a quick choice (a chip: cheaper, in stock, newer, free, their language, shorter) and written their own words; both can come together. Their own words are what they need most: a price, a language or anything else they wrote goes into the condition and the searches.
 When they selected a part of the page, the subject is what the selection describes (a product, an app, a place, an idea… named or described in it), not the page's main item; the page is context. Then source_price is the price the selection itself shows (else 0).
@@ -326,12 +326,12 @@ export const WRITE_SYSTEM = `You write ContextFlow's "Find similar" answer: a sh
 - A quick choice they tapped (a chip) is weighed more softly: items that meet it first. A page marked "condition: no" misses it: list it only when it has most of the traits, after the ones that meet it, with met "no" and fit saying plainly how it misses ("not cheaper: 259 EUR").
 - A price in another currency comes with its ≈ amount in theirs: compare with that, and say it is approximate.
 - why: one short, concrete sentence on what it shares with their item. No ratings or reviews in it: they have their own line.
-- shares: the numbers of the traits listed under "What makes an alternative" that this item has too. For a page that wasn't opened, judge from its search result title.
+- shares: the numbers of the traits listed under "What makes an alternative" that this item has too. For a page that wasn't opened, judge from its search result title. Traits say how close an item is, never whether it may be listed: one that differs in price, size or colour is still an alternative.
 - differs: one short phrase on how it differs most from their item ("" when it hardly does). No ratings or reviews in it either.
 - Before saying an item lacks something their item has, look at its "other models on its site": when one of them has it, say so in differs with that model's name and price and whether it fits their condition (e.g. "No trolley; the brand's Pro Max has one, at 272.95 EUR — over your budget"). Only what those pages show; never say a brand has no such model.
 - Reviews: when a page has a "reviews" fact, weigh it: among items that fit as well, the better rated first, a poorly rated one lower. Use only the facts given; never invent a rating.
 - An item marked "not in their country's App Store" can't be had there: say so in fit and put it after the ones they can get.
-- fit: how it meets their condition, using only the facts given for that page (price, stock, date, length, language). If the facts don't show it, say so plainly and set met to "unknown"; met "n/a" when there is no condition. Never invent prices, ratings, dates or features.
+- fit: how it meets their condition, using only the facts given for that page (price, stock, date, length, language). If the facts don't show it, say so plainly and set met to "unknown"; met "n/a" when there is no condition. With no chip, their condition is their own words: met and words_met say the same. A page's "condition: yes" is settled: never set met "no" for it. Never invent prices, ratings, dates or features.
 - For an app with a "pricing" fact, fit says plainly what it costs from that fact: free (nothing to buy), free with a subscription from a price, a one-time purchase, or in-app purchases from a price.
 - intro: one short sentence on what the list is; never say how many items there are. note: optional, one short sentence; never mention items that aren't in the list.
 - Write in the person's language.
@@ -1449,7 +1449,9 @@ export async function shopifyCatalog(origin: string, timeoutMs: number, signal?:
 export async function siblingsStep(checked: CheckedCandidate[], plan: Plan, facts: SourceFacts, lang: string, timeoutMs: number, signal?: AbortSignal): Promise<{ checked: CheckedCandidate[]; added: CheckedCandidate[]; stats: NonNullable<EngineStats["siblings"]> }> {
   const stats = { items: 0, opened: 0, added: 0 }
   if (!SIBLING_CATEGORIES.includes(plan.category)) return { checked, added: [], stats }
-  const due = checked.map((c, i) => ({ c, i })).filter(({ c }) => c.kept && c.kind === "item" && c.page.status === "ok").slice(0, SIBLING_ITEMS)
+  // A marketplace isn't the brand's own site: its other listings are other sellers' (build 95: a Walmart brand page and
+  // its terms of use came in as "models of the brand").
+  const due = checked.map((c, i) => ({ c, i })).filter(({ c }) => c.kept && c.kind === "item" && c.page.status === "ok" && !MARKETPLACE.test(hostOf(c.page.finalUrl || c.url))).slice(0, SIBLING_ITEMS)
   const known = new Set(checked.map((c) => normalizeUrl(c.page.finalUrl || c.url)))
   const jobs: Array<{ i: number; url: string }> = []
   const taken = new Set<string>()
@@ -1665,9 +1667,13 @@ export class ItemFinisher {
     if (key === this.selfUrl || (sameAsked && !same)) return drop("the item itself")
     if ((c.kind === "item" && this.seenUrl.has(key)) || (nameKey && this.seenName.has(nameKey))) return drop("duplicate")
     // Their own words must hold; a chip they tapped is weighed softly (the item may come at the end, see softTail).
+    // A condition its page proved (a price read, a quote on the page) wins over the writer's word (the set: two
+    // GORE-TEX shoes the page called waterproof were dropped as "no" for a price the trait list mentioned).
+    const proved = c.condition.met === "yes"
+    const fromWords = !this.plan.condition.soft && kind === "other"
     const wordsMet = this.plan.words ? oneOf(o.words_met, ["yes", "no", "unknown", "n/a"] as const, "unknown") : "n/a"
-    if (wordsMet === "no") return drop("fails their words")
-    const fails = c.condition.met === "no" || met === "no"
+    if (wordsMet === "no" && !(proved && fromWords)) return drop("fails their words")
+    const fails = c.condition.met === "no" || (met === "no" && !proved)
     if (fails && !this.plan.condition.soft) return drop("fails the condition")
     this.seenUrl.add(key)
     if (nameKey) this.seenName.add(nameKey)
@@ -1721,6 +1727,15 @@ export class ItemFinisher {
     this.items.push(item)
     return item
   }
+}
+
+/**
+ * Pages the writer could list as items (build 95): opened, the item's own page, meeting the condition or not shown,
+ * and not the very item they're on (unless that shop has it cheaper or in stock).
+ */
+export function listable(checked: CheckedCandidate[], plan: Plan): number {
+  return checked.filter((c) => c.kept && c.kind === "item" && c.condition.met !== "no" &&
+    (nameScore(plan.subject, c.page) < 0.6 || ((plan.condition.kind === "cheaper" || plan.condition.kind === "in_stock") && c.condition.met === "yes"))).length
 }
 
 /** Names compared as words, without what doesn't tell items apart ("the", "new", "official"…). */
@@ -1917,23 +1932,26 @@ export async function* runEngineA(input: SimilarInput, stats: EngineStats, opts:
     const taken = claims.take(found.candidates)
     yield { type: "progress", step: "check", pages: taken.length }
     t = Date.now()
+    // Few candidates that could be items of their own (not their very item at other shops, not list pages): one
+    // more search for alternatives at once, beside the checks (build 95: the set had answers with one shop or none).
+    const likely = taken.filter((c) => c.kind === "item" && nameScore(plan.subject, { title: c.resultTitle, name: c.name, text: "" }) < 0.6).length
+    const rescueQ = likely < 4 && left() > 30_000 ? rescueQueries(input, plan) : null
+    const rescue = rescueQ
+      ? searchWith(input, { ...plan, queries: rescueQ }, Math.max(8_000, Math.min(13_000, left() - 20_000)), opts.signal, over).catch((err) => {
+          if (opts.signal?.aborted) throw err
+          return null
+        })
+      : null
     checked = await checkCandidates(taken, plan, input.facts, lang(), checkTimeout(), opts.signal)
     mark("check", t)
-    // Too few items its pages back (one search came back with a single shop): one more round, for alternatives.
-    const backed = checked.filter((c) => c.kept && c.kind === "item").length
-    if (backed < 3 && left() > 27_000) {
-      t = Date.now()
-      const queries = rescueQueries(input, plan)
-      yield { type: "progress", step: "search", queries }
-      try {
-        const more = await searchWith(input, { ...plan, queries }, Math.max(8_000, Math.min(14_000, left() - 18_000)), opts.signal, over)
+    if (rescue) {
+      const more = await rescue
+      if (more) {
         stats.spend.search = addSpend(stats.spend.search, more.spend)
         const extra = claims.take(more.candidates)
         checked = [...checked, ...await checkCandidates(extra, plan, input.facts, lang(), checkTimeout(), opts.signal)]
-        stats.rescue = { queries, candidates: extra.length }
+        stats.rescue = { queries: rescueQ!, candidates: extra.length }
         if (opts.debug) stats.results = [...(stats.results ?? []), ...more.results]
-      } catch (err) {
-        if (opts.signal?.aborted) throw err
       }
       mark("rescue", t)
     }
