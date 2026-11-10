@@ -1493,6 +1493,9 @@
  "orgNameAs": {
   "message": "تسمية المحادثة «{0}»"
  },
+ "orgMatch": {
+  "message": "تطابق {0}٪"
+ },
  "recs_one": {
   "message": "توصية واحدة"
  },

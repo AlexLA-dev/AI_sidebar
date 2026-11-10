@@ -1493,6 +1493,9 @@
  "orgNameAs": {
   "message": "チャット名を「{0}」にする"
  },
+ "orgMatch": {
+  "message": "一致度 {0}%"
+ },
  "recs_one": {
   "message": "おすすめ {0} 件"
  },

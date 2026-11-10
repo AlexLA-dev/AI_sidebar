@@ -1493,6 +1493,9 @@
  "orgNameAs": {
   "message": "Llamar al chat «{0}»"
  },
+ "orgMatch": {
+  "message": "coincide en un {0} %"
+ },
  "recs_one": {
   "message": "{0} recomendación"
  },

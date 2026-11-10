@@ -1493,6 +1493,9 @@
  "orgNameAs": {
   "message": "将对话命名为“{0}”"
  },
+ "orgMatch": {
+  "message": "匹配度 {0}%"
+ },
  "recs_one": {
   "message": "{0} 条建议"
  },

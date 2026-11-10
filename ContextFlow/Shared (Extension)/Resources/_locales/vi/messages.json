@@ -1493,6 +1493,9 @@
  "orgNameAs": {
   "message": "Đặt tên “{0}”"
  },
+ "orgMatch": {
+  "message": "khớp {0}%"
+ },
  "recs_one": {
   "message": "{0} gợi ý"
  },

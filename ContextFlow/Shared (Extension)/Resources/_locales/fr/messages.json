@@ -1493,6 +1493,9 @@
  "orgNameAs": {
   "message": "Nommer la discussion « {0} »"
  },
+ "orgMatch": {
+  "message": "correspond à {0} %"
+ },
  "recs_one": {
   "message": "{0} recommandation"
  },

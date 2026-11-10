@@ -1493,6 +1493,9 @@
  "orgNameAs": {
   "message": "Назвати чат «{0}»"
  },
+ "orgMatch": {
+  "message": "збігається на {0}%"
+ },
  "recs_one": {
   "message": "{0} рекомендація"
  },
