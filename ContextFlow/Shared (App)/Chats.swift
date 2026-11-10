@@ -633,6 +633,10 @@ final class ChatLibrary: ObservableObject {
                 if c == 3, let last = m.last {
                     object["org"] = OrgState(n: m.count, k: Organize.entryKey(last), nm: .init(k: "seeded", t: "Espresso at home, from another device")).json
                 }
+                // 2.6 (94): chat 4 comes with a merge into chat 14 (same topic) suggested.
+                if c == 4, many > 14, let last = m.last {
+                    object["org"] = OrgState(n: m.count, k: Organize.entryKey(last), mv: .init(s: 0, e: m.count - 1, to: "debug-many-14", why: .merge, mt: 88)).json
+                }
                 if let data = try? JSONSerialization.data(withJSONObject: object), let text = String(data: data, encoding: .utf8) {
                     saves["debug-many-\(c)"] = ChatMirror.Item(updatedAt: at, data: text)
                 }
