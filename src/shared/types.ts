@@ -196,6 +196,9 @@ export type BackgroundRequest =
   // Back on the page after a hand-off (build 93): whether the app sent the person back for this text ("Back to Safari",
   // or notifications just turned on: then `play` it here), and whether the app has taken it over.
   | { type: "listenReturn"; id: string }
+  // Build 94: a page went away, or shows again, while a Find similar works (the app's "found" notification).
+  | { type: "similarAway" }
+  | { type: "similarBack" }
   // The line under a free answer that skipped the page's video or PDFs: shown, or its "Try Pro" tapped.
   | { type: "mediaNotice"; action: "shown" | "pro"; media: MediaKind[] }
   // An Own key subscriber and Pro: a refusal (starts the day before the discount), the discount card shown, a tap.

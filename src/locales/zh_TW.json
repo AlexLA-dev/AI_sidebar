@@ -753,5 +753,13 @@
   "similarDiffers": "不同之處：{0}",
   "similarRegionLocked": "你所在國家／地區的 App Store 沒有",
   "similarRatings": "{0} 則評分",
-  "similarReviewersSay": "評價：{0}"
+  "similarReviewersSay": "評價：{0}",
+  "similarNotifyTitle": "相似項目搜尋完成",
+  "similarNotifyFound": "找到 {0} 個選項。點一下查看。",
+  "similarNotifyNone": "沒有合適的。點一下更改條件。",
+  "similarNotifyFailed": "搜尋未完成。點一下重試。",
+  "similarSay": "評價：",
+  "similarPros": "好評：{0}",
+  "similarCons": "負評：{0}",
+  "similarEstimated": "依描述估計"
 }

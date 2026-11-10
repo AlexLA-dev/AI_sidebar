@@ -753,5 +753,13 @@
   "similarDiffers": "الاختلاف: {0}",
   "similarRegionLocked": "غير متوفر في App Store بلدك",
   "similarRatings": "{0} تقييم",
-  "similarReviewersSay": "المراجعات: {0}"
+  "similarReviewersSay": "المراجعات: {0}",
+  "similarNotifyTitle": "اكتمل البحث عن المشابه",
+  "similarNotifyFound": "الخيارات التي وُجدت: {0}. اضغط لعرضها.",
+  "similarNotifyNone": "لا شيء مناسب. اضغط لتغيير الشرط.",
+  "similarNotifyFailed": "لم يكتمل البحث. اضغط لإعادة المحاولة.",
+  "similarSay": "ماذا يقولون:",
+  "similarPros": "يمدحون {0}",
+  "similarCons": "ينتقدون {0}",
+  "similarEstimated": "تقدير من الوصف"
 }

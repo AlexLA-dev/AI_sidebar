@@ -2186,6 +2186,30 @@
  "similarReviewersSay": {
   "message": "レビュー: {0}"
  },
+ "similarNotifyTitle": {
+  "message": "類似アイテムの検索が完了"
+ },
+ "similarNotifyFound": {
+  "message": "見つかった候補：{0}件。タップして表示。"
+ },
+ "similarNotifyNone": {
+  "message": "条件に合うものはありません。タップして条件を変更。"
+ },
+ "similarNotifyFailed": {
+  "message": "検索が完了しませんでした。タップして再試行。"
+ },
+ "similarSay": {
+  "message": "評判："
+ },
+ "similarPros": {
+  "message": "好評：{0}"
+ },
+ "similarCons": {
+  "message": "不満：{0}"
+ },
+ "similarEstimated": {
+  "message": "説明文からの推定"
+ },
  "tip_4cf1b54b00": {
   "message": "ヒント"
  },

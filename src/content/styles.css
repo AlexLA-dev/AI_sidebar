@@ -380,6 +380,8 @@
 .cf-newpage .cf-actions.follow { margin: 0; }
 .cf-msg.user { align-items: flex-end; }
 .cf-user-mode { display: inline-flex; vertical-align: -1px; margin-inline-end: 5px; opacity: 0.85; }
+/* Build 94: where a Find similar looked, under its words («Рядом · Кипр», «По всему миру»). */
+.cf-user-where { display: block; margin-top: 3px; font-size: 12px; opacity: 0.85; }
 .cf-bubble-user {
   max-width: 86%;
   padding: 8px 13px;
