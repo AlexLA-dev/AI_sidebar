@@ -702,7 +702,7 @@
   "message": "Alles andere"
  },
  "tourMenuBody": {
-  "message": "Erinnerungen und beobachtete Seiten, Tipps, Einstellungen und diese Einführung findest du in diesem Menü."
+  "message": "Erinnerungen und beobachtete Seiten, Tipps, Einstellungen und die Grundlagen-Tour findest du in diesem Menü."
  },
  "guideSumTitle": {
   "message": "Deine erste Antwort"
@@ -753,7 +753,7 @@
   "message": "Wähle eine Schnellaktion wie „{0}“ oder schreib deine eigene Frage."
  },
  "uxShowIntro": {
-  "message": "Einführung erneut zeigen"
+  "message": "Grundlagen-Tour wiederholen"
  },
  "uxOther": {
   "message": "Weiteres …"
@@ -2153,6 +2153,12 @@
  "tip_4acd9995ac": {
   "message": "Klicke auf der Seite auf ✦ oder in der Symbolleiste auf das ContextFlow-Symbol – oder drücke Control-Shift-E."
  },
+ "tip_af26b6788c": {
+  "message": "✦ aus dem Weg schieben"
+ },
+ "tip_6d2694aec4": {
+  "message": "Verdeckt ✦, was du gerade liest? Zieh die Taste am Rand nach oben oder unten oder auf die andere Seite – sie bleibt dort, wo du sie loslässt."
+ },
  "tip_2749afe54a": {
   "message": "Das Wesentliche mit einem Tipp"
  },
@@ -2384,11 +2390,11 @@
  "tip_e2d1d4abd0": {
   "message": "Schreib unter „Über mich“ eine Zeile – was du machst, wie du Antworten magst – und ContextFlow passt sie an dich an."
  },
- "tip_10400d6345": {
-  "message": "Die ✦-Taste nach deinem Geschmack"
+ "tip_1e9a1535cb": {
+  "message": "✦ ausblenden, wenn du es nicht brauchst"
  },
- "tip_4c60874441": {
-  "message": "Verdeckt ✦ etwas auf der Seite? Zieh die Taste am Rand nach oben oder unten oder auf die andere Seite – sie bleibt dort, wo du sie loslässt. Du kannst sie auch auf einer einzelnen Website ausblenden oder in den Erweiterungseinstellungen überall abschalten. ContextFlow öffnet sich weiterhin über das Erweiterungsmenü von Safari."
+ "tip_6cc366173d": {
+  "message": "Brauchst du ✦ auf einer Website nicht? Blende die Taste dort aus oder schalte sie in den Erweiterungseinstellungen überall ab. ContextFlow öffnet sich weiterhin über das Erweiterungsmenü von Safari."
  },
  "tip_8a727e1bbe": {
   "message": "Eigenen API-Schlüssel nutzen"

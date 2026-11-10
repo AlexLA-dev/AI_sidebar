@@ -687,6 +687,10 @@ struct TipGroup {
     static let all: [TipGroup] = [
         TipGroup(id: "get-started", title: "Get started", tips: [
             openTip,
+            // 2.6 (93), the owner, twice: «в Tips не видел… про возможность перемещать кружок для удобства чтения
+            // страниц». Moving ✦ aside is a first-block card with the clip; hiding it stays under personalization.
+            Tip(symbol: "arrow.up.and.down.and.arrow.left.and.right", color: brandBlue, title: "Move ✦ out of the way",
+                text: "Is ✦ covering what you're reading? Drag it up or down along the edge, or across to the other side: it stays where you leave it.", clip: "button"),
             Tip(symbol: "list.bullet.rectangle", color: .orange, title: "One tap for the gist",
                 text: "Summarize, Key takeaways, Explain simply and Translate work on the whole page — no need to write a prompt.", clip: "gist"),
             Tip(symbol: "text.cursor", color: .purple, title: "Ask about a part",
@@ -756,8 +760,8 @@ struct TipGroup {
         TipGroup(id: "privacy-and-personalization", title: "Privacy & personalization", tips: [
             Tip(symbol: "person.text.rectangle", color: .mint, title: "Tell it about you",
                 text: "Add a line under About me — what you do, how you like answers — and ContextFlow will tailor them to you.", clip: "about"),
-            Tip(symbol: "hand.tap", color: .blue, title: "The ✦ button, your way",
-                text: "Covering something on the page? Drag ✦ up or down along the edge, or to the other side: it stays where you leave it. You can also hide it on a single site, or turn it off everywhere in the extension settings. ContextFlow still opens from Safari's extensions menu.", clip: "button"),
+            Tip(symbol: "eye.slash", color: .blue, title: "Hide ✦ when you don't need it",
+                text: "Don't need ✦ on a site? Hide it on that site, or turn it off everywhere in the extension settings. ContextFlow still opens from Safari's extensions menu."),
             Tip(symbol: "key.fill", color: .gray, title: "Use your own API key",
                 text: "With Pro or the Own key plan, paste an OpenAI or Claude key in the extension settings in Safari. Requests then go straight to that provider."),
             Tip(symbol: "lock.shield", color: .brown, title: "Private by design",

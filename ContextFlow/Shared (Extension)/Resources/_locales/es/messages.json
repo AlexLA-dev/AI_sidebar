@@ -702,7 +702,7 @@
   "message": "Todo lo demás"
  },
  "tourMenuBody": {
-  "message": "Recordatorios y páginas vigiladas, Consejos, Configuración y esta introducción de nuevo están en este menú."
+  "message": "Recordatorios y páginas vigiladas, Consejos, Configuración y el recorrido básico de nuevo están en este menú."
  },
  "guideSumTitle": {
   "message": "Tu primera respuesta"
@@ -753,7 +753,7 @@
   "message": "Elige una acción rápida, como «{0}», o escribe tu propia pregunta."
  },
  "uxShowIntro": {
-  "message": "Ver la introducción otra vez"
+  "message": "Repetir el recorrido básico"
  },
  "uxOther": {
   "message": "Más…"
@@ -2153,6 +2153,12 @@
  "tip_4acd9995ac": {
   "message": "Haz clic en ✦ en la página o en el icono de ContextFlow de la barra de herramientas, o pulsa Control-Shift-E."
  },
+ "tip_af26b6788c": {
+  "message": "Aparta ✦ de en medio"
+ },
+ "tip_6d2694aec4": {
+  "message": "¿✦ tapa lo que estás leyendo? Arrástralo hacia arriba o hacia abajo por el borde, o al otro lado: se queda donde lo sueltes."
+ },
  "tip_2749afe54a": {
   "message": "Lo esencial en un toque"
  },
@@ -2384,11 +2390,11 @@
  "tip_e2d1d4abd0": {
   "message": "Añade una línea en “Sobre mí” —a qué te dedicas, cómo te gustan las respuestas— y ContextFlow las adaptará a ti."
  },
- "tip_10400d6345": {
-  "message": "El botón ✦, a tu manera"
+ "tip_1e9a1535cb": {
+  "message": "Oculta ✦ cuando no lo necesites"
  },
- "tip_4c60874441": {
-  "message": "¿✦ tapa algo de la página? Arrástralo hacia arriba o hacia abajo por el borde, o al otro lado: se queda donde lo sueltes. También puedes ocultarlo en un sitio concreto o desactivarlo en todas partes en los ajustes de la extensión. ContextFlow seguirá abriéndose desde el menú de extensiones de Safari."
+ "tip_6cc366173d": {
+  "message": "¿No necesitas ✦ en un sitio? Ocúltalo en ese sitio o desactívalo en todas partes en los ajustes de la extensión. ContextFlow seguirá abriéndose desde el menú de extensiones de Safari."
  },
  "tip_8a727e1bbe": {
   "message": "Usa tu propia clave de API"

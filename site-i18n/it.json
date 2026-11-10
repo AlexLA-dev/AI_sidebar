@@ -185,8 +185,6 @@
   "8973e5b3692c": "Adattalo a te, e sappi cosa esce dal tuo dispositivo.",
   "1e1a2fad4e55": "Raccontagli di te",
   "3d3e45465dbd": "Vuoi risposte su misura per te? Aggiungi una riga in «Su di me», ad esempio che lavoro fai o come preferisci le risposte, e ContextFlow ne tiene conto.",
-  "10400d6345f7": "Il pulsante ✦, come vuoi tu",
-  "57a9df23e5d0": "Il pulsante ✦ copre qualcosa? Trascinalo in su o in giù lungo il bordo, o dall’altro lato, e resta lì. Puoi anche nasconderlo su quel sito, o disattivarlo ovunque nelle impostazioni dell’estensione. ContextFlow si apre comunque dal menu delle estensioni di Safari.",
   "8a727e1bbe52": "Usa la tua chiave API",
   "c5c00775219b": "Hai una chiave OpenAI o Claude? Con Pro o con il piano Chiave propria, incollala nelle impostazioni dell’estensione in Safari, e le richieste vanno direttamente a quel fornitore.",
   "3aaa9fd1f2ef": "Privacy fin dalla progettazione",
@@ -513,5 +511,9 @@
   "a3587d02c409": "Cosa viene inviato quando faccio una domanda?",
   "9e77c9846978": "La tua domanda e il testo della pagina (o la tua selezione), solo in quel momento e solo per generare la risposta. Dettagli nell’<a href=\"/privacy\">Informativa sulla privacy</a>.",
   "0943d5368501": "Avevo un account in una versione precedente. Come lo elimino?",
-  "17328923ce30": "Scrivici dall’indirizzo usato per la registrazione e lo elimineremo entro 30 giorni. La versione 2.0 non usa più gli account."
+  "17328923ce30": "Scrivici dall’indirizzo usato per la registrazione e lo elimineremo entro 30 giorni. La versione 2.0 non usa più gli account.",
+  "af26b6788c82": "Sposta ✦ dove non dà fastidio",
+  "beb31c6eb1e7": "Il pulsante ✦ copre quello che stai leggendo? Trascinalo in su o in giù lungo il bordo, o dall’altro lato, e resta lì.",
+  "1e9a1535cb3e": "Nascondi ✦ quando non serve",
+  "eead011c5123": "Non ti serve il pulsante ✦ su un sito? Nascondilo su quel sito o disattivalo ovunque nelle impostazioni dell’estensione. ContextFlow si apre comunque dal menu delle estensioni di Safari."
 }

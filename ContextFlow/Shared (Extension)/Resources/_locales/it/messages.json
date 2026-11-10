@@ -702,7 +702,7 @@
   "message": "Tutto il resto"
  },
  "tourMenuBody": {
-  "message": "Promemoria e pagine seguite, Suggerimenti, Impostazioni e questa introduzione sono in questo menu."
+  "message": "Promemoria e pagine seguite, Suggerimenti, Impostazioni e il tour di base sono in questo menu."
  },
  "guideSumTitle": {
   "message": "La tua prima risposta"
@@ -753,7 +753,7 @@
   "message": "Scegli un’azione rapida, come «{0}», o scrivi la tua domanda."
  },
  "uxShowIntro": {
-  "message": "Rivedi l’introduzione"
+  "message": "Ripeti il tour di base"
  },
  "uxOther": {
   "message": "Altro…"
@@ -2153,6 +2153,12 @@
  "tip_4acd9995ac": {
   "message": "Fai clic su ✦ nella pagina o sull’icona di ContextFlow nella barra degli strumenti, oppure premi Control-Shift-E."
  },
+ "tip_af26b6788c": {
+  "message": "Sposta ✦ dove non dà fastidio"
+ },
+ "tip_6d2694aec4": {
+  "message": "✦ copre quello che stai leggendo? Trascinalo in su o in giù lungo il bordo, o dall’altro lato: resta dove lo lasci."
+ },
  "tip_2749afe54a": {
   "message": "L’essenziale con un tocco"
  },
@@ -2384,11 +2390,11 @@
  "tip_e2d1d4abd0": {
   "message": "Aggiungi una riga in “Su di me” — che lavoro fai, come preferisci le risposte — e ContextFlow le adatterà a te."
  },
- "tip_10400d6345": {
-  "message": "Il pulsante ✦, come vuoi tu"
+ "tip_1e9a1535cb": {
+  "message": "Nascondi ✦ quando non serve"
  },
- "tip_4c60874441": {
-  "message": "✦ copre qualcosa nella pagina? Trascinalo in su o in giù lungo il bordo, o dall’altro lato: resta dove lo lasci. Puoi anche nasconderlo su un singolo sito o disattivarlo ovunque nelle impostazioni dell’estensione. ContextFlow si apre comunque dal menu delle estensioni di Safari."
+ "tip_6cc366173d": {
+  "message": "Non ti serve ✦ su un sito? Nascondilo su quel sito o disattivalo ovunque nelle impostazioni dell’estensione. ContextFlow si apre comunque dal menu delle estensioni di Safari."
  },
  "tip_8a727e1bbe": {
   "message": "Usa la tua chiave API"

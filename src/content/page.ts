@@ -121,8 +121,12 @@ export function trackSelection(): SelectionInfo | null {
   return current
 }
 
-/** Where the selection the panel is about is on the page: the live one, or the one last remembered. */
-export function selectionRange(): Range | null {
+/**
+ * Where the selection the panel is about is on the page: the live one, or the one last remembered. `liveOnly`: only the
+ * live one (the pop-up’s ring; a selection in a site's own shadow root isn't the document's, and the remembered one may
+ * be elsewhere).
+ */
+export function selectionRange(liveOnly = false): Range | null {
   const live = document.getSelection()
   if (live && live.rangeCount > 0 && !live.isCollapsed) {
     const range = live.getRangeAt(0)
@@ -130,7 +134,7 @@ export function selectionRange(): Range | null {
     const el = at instanceof Element ? at : at.parentElement
     if (!el?.closest(HOST_TAG)) return range.cloneRange()
   }
-  return lastRange
+  return liveOnly ? null : lastRange
 }
 
 /**

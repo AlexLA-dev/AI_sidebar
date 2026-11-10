@@ -702,7 +702,7 @@
   "message": "Todo o resto"
  },
  "tourMenuBody": {
-  "message": "Lembretes e páginas acompanhadas, Dicas, Ajustes e esta introdução de novo estão neste menu."
+  "message": "Lembretes e páginas acompanhadas, Dicas, Ajustes e o tour básico de novo estão neste menu."
  },
  "guideSumTitle": {
   "message": "Sua primeira resposta"
@@ -753,7 +753,7 @@
   "message": "Escolha uma ação rápida, como “{0}”, ou digite sua própria pergunta."
  },
  "uxShowIntro": {
-  "message": "Ver a introdução de novo"
+  "message": "Refazer o tour básico"
  },
  "uxOther": {
   "message": "Outros…"
@@ -2153,6 +2153,12 @@
  "tip_4acd9995ac": {
   "message": "Clique em ✦ na página ou no ícone do ContextFlow na barra de ferramentas, ou pressione Control-Shift-E."
  },
+ "tip_af26b6788c": {
+  "message": "Tire o ✦ do caminho"
+ },
+ "tip_6d2694aec4": {
+  "message": "O ✦ está cobrindo o que você lê? Arraste-o para cima ou para baixo pela borda, ou para o outro lado: ele fica onde você soltar."
+ },
  "tip_2749afe54a": {
   "message": "O essencial em um toque"
  },
@@ -2384,11 +2390,11 @@
  "tip_e2d1d4abd0": {
   "message": "Escreva uma linha em “Sobre mim” — o que você faz, como gosta das respostas — e o ContextFlow vai adaptá-las a você."
  },
- "tip_10400d6345": {
-  "message": "O botão ✦ do seu jeito"
+ "tip_1e9a1535cb": {
+  "message": "Oculte o ✦ quando não precisar"
  },
- "tip_4c60874441": {
-  "message": "O ✦ está cobrindo algo na página? Arraste-o para cima ou para baixo pela borda, ou para o outro lado: ele fica onde você soltar. Você também pode ocultá-lo em um site específico ou desativá-lo em todos nos ajustes da extensão. O ContextFlow continua abrindo pelo menu de extensões do Safari."
+ "tip_6cc366173d": {
+  "message": "Não precisa do ✦ em um site? Oculte-o nesse site ou desative-o em todos nos ajustes da extensão. O ContextFlow continua abrindo pelo menu de extensões do Safari."
  },
  "tip_8a727e1bbe": {
   "message": "Use sua própria chave de API"

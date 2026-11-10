@@ -185,8 +185,6 @@
   "8973e5b3692c": "Pass es an dich an und behalte im Blick, was dein Gerät verlässt.",
   "1e1a2fad4e55": "Erzähl etwas über dich",
   "3d3e45465dbd": "Willst du Antworten, die zu dir passen? Schreib unter „Über mich“ eine Zeile, etwa was du machst oder wie du Antworten magst, und ContextFlow berücksichtigt das.",
-  "10400d6345f7": "Die ✦-Taste nach deinem Geschmack",
-  "57a9df23e5d0": "Verdeckt die ✦-Taste etwas? Zieh sie am Rand nach oben oder unten oder auf die andere Seite – dort bleibt sie. Du kannst sie auch auf dieser Website ausblenden oder in den Erweiterungseinstellungen überall abschalten. ContextFlow öffnet sich weiterhin über das Erweiterungsmenü von Safari.",
   "8a727e1bbe52": "Eigenen API-Schlüssel nutzen",
   "c5c00775219b": "Du hast einen OpenAI- oder Claude-Schlüssel? Mit Pro oder dem Tarif „Eigener Schlüssel“ fügst du ihn in den Erweiterungseinstellungen in Safari ein, und Anfragen gehen direkt an diesen Anbieter.",
   "3aaa9fd1f2ef": "Privat von Anfang an",
@@ -513,5 +511,9 @@
   "a3587d02c409": "Was wird gesendet, wenn ich eine Frage stelle?",
   "9e77c9846978": "Deine Frage und der Seitentext (oder deine Auswahl) – nur in diesem Moment und nur, um die Antwort zu erzeugen. Details in der <a href=\"/privacy\">Datenschutzrichtlinie</a>.",
   "0943d5368501": "Ich hatte in einer älteren Version ein Konto. Wie lösche ich es?",
-  "17328923ce30": "Schreib uns eine E-Mail von der Adresse, mit der du dich registriert hast, und wir löschen es innerhalb von 30 Tagen. Version 2.0 nutzt keine Konten mehr."
+  "17328923ce30": "Schreib uns eine E-Mail von der Adresse, mit der du dich registriert hast, und wir löschen es innerhalb von 30 Tagen. Version 2.0 nutzt keine Konten mehr.",
+  "af26b6788c82": "✦ aus dem Weg schieben",
+  "beb31c6eb1e7": "Verdeckt die ✦-Taste, was du gerade liest? Zieh sie am Rand nach oben oder unten oder auf die andere Seite – dort bleibt sie.",
+  "1e9a1535cb3e": "✦ ausblenden, wenn du es nicht brauchst",
+  "eead011c5123": "Brauchst du die ✦-Taste auf einer Website nicht? Blende sie dort aus oder schalte sie in den Erweiterungseinstellungen überall ab. ContextFlow öffnet sich weiterhin über das Erweiterungsmenü von Safari."
 }

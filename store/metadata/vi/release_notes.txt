@@ -4,7 +4,7 @@ Có gì mới trong ContextFlow 2.6:
 • Tìm tương tự: đang xem một sản phẩm, ứng dụng, bài viết, công thức nấu ăn hay địa điểm? Chạm vào Tìm tương tự để có những lựa chọn thay thế có thật: rẻ hơn, mới hơn, còn hàng, miễn phí hoặc bằng ngôn ngữ của bạn, hay tự nói bạn cần gì. Mọi liên kết đều được mở và kiểm tra trước khi bạn thấy, và bạn có thể theo dõi giá của bất kỳ lựa chọn nào
 • Ultra theo dõi tới 50 trang cùng lúc
 • Gói theo năm cho Khóa riêng, Pro và Ultra. Chuyển từ Pro lên Ultra sẽ bắt đầu ngay, và Apple hoàn tiền phần còn lại của Pro
-• Mới dùng ContextFlow? Một hướng dẫn ngắn đưa bạn đến câu trả lời đầu tiên, và không tính vào số câu trả lời trong ngày. Để xem lại: … → Xem lại phần giới thiệu
+• Mới dùng ContextFlow? Một hướng dẫn ngắn đưa bạn đến câu trả lời đầu tiên, và không tính vào số câu trả lời trong ngày. Để xem lại: … → Khác… → Xem lại hướng dẫn cơ bản
 • Khi chọn văn bản trên iPhone hoặc iPad, các thao tác nhanh nằm ngay trong ô “Câu hỏi của bạn…”: vuốt để chọn Tóm tắt, Dịch, Giải thích đơn giản và nhiều thao tác khác
 • Văn bản đã chọn vốn là ngôn ngữ của bạn? Giờ nút Dịch sẽ gợi ý một ngôn ngữ khác, như tiếng Anh
 • ContextFlow giờ đã có tiếng Việt, cùng tiếng Trung phồn thể và tiếng Ả Rập: tổng cộng 14 ngôn ngữ

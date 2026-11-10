@@ -702,7 +702,7 @@
   "message": "其他功能"
  },
  "tourMenuBody": {
-  "message": "提醒和关注的页面、使用技巧、设置以及重新查看这段介绍，都在这个菜单里。"
+  "message": "提醒和关注的页面、使用技巧、设置以及重温基础教程，都在这个菜单里。"
  },
  "guideSumTitle": {
   "message": "你的第一个回答"
@@ -753,7 +753,7 @@
   "message": "选一个快捷操作，比如“{0}”，或输入你自己的问题。"
  },
  "uxShowIntro": {
-  "message": "再次查看介绍"
+  "message": "重温基础教程"
  },
  "uxOther": {
   "message": "其他…"
@@ -2153,6 +2153,12 @@
  "tip_4acd9995ac": {
   "message": "点按页面上的 ✦ 或工具栏中的 ContextFlow 图标，或按下 Control-Shift-E。"
  },
+ "tip_af26b6788c": {
+  "message": "把 ✦ 挪开"
+ },
+ "tip_6d2694aec4": {
+  "message": "✦ 挡住了你正在读的内容？沿着边缘上下拖动它，或拖到另一侧：放在哪里就停在哪里。"
+ },
  "tip_2749afe54a": {
   "message": "一键抓住要点"
  },
@@ -2384,11 +2390,11 @@
  "tip_e2d1d4abd0": {
   "message": "在“关于我”中写一句话，比如你的职业、喜欢的回答风格，ContextFlow 就会据此调整回答。"
  },
- "tip_10400d6345": {
-  "message": "按你的习惯使用 ✦ 按钮"
+ "tip_1e9a1535cb": {
+  "message": "不需要时隐藏 ✦"
  },
- "tip_4c60874441": {
-  "message": "✦ 挡住了页面上的内容？沿着边缘上下拖动它，或拖到另一侧，它会停在你松手的位置。也可以只在某个网站隐藏按钮，或在扩展设置中全部关闭。之后仍可从 Safari 的扩展菜单打开 ContextFlow。"
+ "tip_6cc366173d": {
+  "message": "某个网站上用不到 ✦？可以只在该网站隐藏它，或在扩展设置中全部关闭。ContextFlow 仍可从 Safari 的扩展菜单打开。"
  },
  "tip_8a727e1bbe": {
   "message": "使用自己的 API 密钥"
