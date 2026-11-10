@@ -542,6 +542,18 @@ test("speak: a text keeps its first part's model; a 400 never moves it to anothe
   assert.deepEqual(tts.calls.map((x) => x.model), ["gemini-3.8-flash-lite-tts"])
 })
 
+test("speak: a text begun on the full model keeps it for a part Flash-Lite could say (build 95: one voice per text)", async () => {
+  tts.calls = []
+  tts.failStatus = undefined
+  // The text's first part went to the full model (a language Flash-Lite lacks); this part is plain English.
+  await readAll(await speak(post("https://x/api/v2/speak", { installId: INSTALL, text: "Plain English this time.", lang: "en", part: 2, parts: 3, model: "gemini-3.8-flash-tts", entitlement: ultraJws() }), ctx()))
+  assert.deepEqual(tts.calls.map((x) => x.model), ["gemini-3.8-flash-tts"])
+  // Without a model of its own (a first part), plain English goes to Flash-Lite as before.
+  tts.calls = []
+  await readAll(await speak(post("https://x/api/v2/speak", { installId: INSTALL, text: "Plain English this time.", lang: "en", entitlement: ultraJws() }), ctx()))
+  assert.deepEqual(tts.calls.map((x) => x.model), ["gemini-3.8-flash-lite-tts"])
+})
+
 test("speak: a signed measuring request stands in for Ultra on a deploy preview only", async () => {
   const req = () => post("https://x/api/v2/speak", { installId: INSTALL, text: "Eval." }, { "x-cf-eval": evalHeader(INSTALL) })
   assert.equal((await speak(req(), ctx())).status, 403)
