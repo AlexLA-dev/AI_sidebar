@@ -8,10 +8,12 @@ export function takeSimilarMark(): string | null {
   if (!m) return null
   const rest = location.hash.slice(0, m.index) + location.hash.slice(m.index + m[0].length).replace(/^&/, m[1] === "#" ? "#" : "&")
   const hash = rest === "#" || rest === "" ? "" : rest.startsWith("#") ? rest : `#${rest}`
+  const clean = `${location.pathname}${location.search}${hash}`
   try {
-    history.replaceState(history.state, "", `${location.pathname}${location.search}${hash}`)
+    history.replaceState(history.state, "", clean)
   } catch {
-    // a page that won't let its address change: the mark stays, harmless
+    // The page's own state can't come across (an extension's script runs apart from the page): the address alone.
+    try { history.replaceState(null, "", clean) } catch { /* a page that won't let its address change: harmless */ }
   }
   return m[2]
 }

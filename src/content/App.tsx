@@ -2037,11 +2037,19 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // Build 95, the owner: «Никогда не открывает расширение на странице — нужно этого добиться». A "found" notification's
   // tap opens the page with the chat in its address (#cf-similar=<chat>, SimilarAway.swift): this tab, the one Safari
   // shows, opens the panel on it, however long after the search; the mark leaves the address at once.
+  const openThreadRef = useRef(openThread)
+  openThreadRef.current = openThread
   useEffect(() => {
     if (popup) return
-    const chat = takeSimilarMark()
-    if (!chat) return
-    void setActiveThread(chat).then(() => show(), () => show())
+    const take = () => {
+      const chat = takeSimilarMark()
+      if (!chat) return
+      void setActiveThread(chat).then(() => (openNowRef.current ? openThreadRef.current(chat) : show()), () => show())
+    }
+    take()
+    // Safari may show the page in the tab that already had it: then only the address's fragment changes.
+    window.addEventListener("hashchange", take)
+    return () => window.removeEventListener("hashchange", take)
   }, [popup, show])
   // Build 94, the owner: «в чате про чаты нужно делать ссылки на чаты, на которые ссылается ответ»: the chats an "Ask
   // your chats" answer names open from it (src/shared/chatMarks.ts).

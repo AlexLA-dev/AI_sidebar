@@ -623,7 +623,7 @@ export function pickCandidates(raw: unknown, results: SearchResult[], source: So
 }
 
 /** Runs the plan's searches; a seam for another provider later (Brave): same results, same picks. */
-export async function searchWith(input: SimilarInput, plan: Plan, timeoutMs: number, signal?: AbortSignal, over: EngineOverrides = {}): Promise<{ results: SearchResult[]; candidates: Candidate[]; spend: Spend; tool: string }> {
+export async function searchWith(input: SimilarInput, plan: Plan, timeoutMs: number, signal?: AbortSignal, over: EngineOverrides = {}, turns = 2): Promise<{ results: SearchResult[]; candidates: Candidate[]; spend: Spend; tool: string }> {
   const model = over.searchModel || config.similar.searchModel
   const country = searchLocation(input)
   const tool = {
@@ -639,8 +639,8 @@ export async function searchWith(input: SimilarInput, plan: Plan, timeoutMs: num
   let searches = 0
   let input_tokens = 0
   let output_tokens = 0
-  // A long server-side search loop pauses the turn: it's resumed once, as is.
-  for (let turn = 0; turn < 2; turn++) {
+  // A long server-side search loop pauses the turn: it's resumed once, as is (the rescue round: never).
+  for (let turn = 0; turn < turns; turn++) {
     const response = await createSearch(client, {
       model,
       max_tokens: 4_000,
@@ -702,6 +702,8 @@ interface SearchCall {
  * The rescue round's searches (build 95): alternatives to the subject, by what makes one, near them when they asked
  * (the planner's searches looked for the same item at other shops and found one).
  */
+const RESCUE_MS = 10_000
+
 export function rescueQueries(input: SimilarInput, plan: Plan): string[] {
   const near = input.region === "local" && input.country ? ` ${countryName(input.country)}` : ""
   const kind = plan.traits.slice(0, 2).join(" ")
@@ -1342,6 +1344,21 @@ export function distinctive(name: string, plan: Plan): string[] {
   return nameTokens(name).filter((w) => w.length >= 3 && !GENERIC.has(w) && !common.has(w) && !/^\d+[a-z]{0,3}$/.test(w))
 }
 
+/**
+ * Whether a name is their very item (build 95): its model words (with digits: "60511", "5ksm125") all there, else the
+ * first two words that name the item itself rather than its kind ("POÄNG Sessel mit Hocker": poäng and sessel —
+ * another armchair with a footstool isn't it).
+ */
+export function sameAsSubject(name: string, plan: Plan): boolean {
+  const subject = nameTokens(plan.subject)
+  const words = new Set(nameTokens(name))
+  const models = subject.filter((w) => /\d/.test(w) && w.length >= 3)
+  if (models.length) return models.every((w) => words.has(w))
+  const kind = new Set(plan.traits.flatMap((t) => nameTokens(t)))
+  const marks = subject.filter((w) => w.length >= 3 && !GENERIC.has(w) && !kind.has(w)).slice(0, 2)
+  return marks.length > 0 && marks.every((w) => words.has(w))
+}
+
 /** Whether a text names one of the item's distinctive words (an item without any: by its name alone). */
 function namesIt(text: string, mark: string[]): boolean {
   if (!mark.length) return true
@@ -1652,6 +1669,9 @@ export class ItemFinisher {
     // The page names the part before the dash as well or better: that's the item's name (the rest was the writer's
     // words, or the name again: "VacPack — VacPack").
     if (alone >= whole && bare && bare !== name) name = bare
+    // A name of one word ("Garmin", the brand alone) says nothing of the item: the name the search gave it, when its
+    // page bears that one too (build 95).
+    if (nameTokens(name).length <= 1 && nameTokens(c.name).length > 1 && scoreOf(c.name) >= 0.5) name = stripUrls(c.name)
     // Build 93: an App Store item in their country's store is linked there (its page, its price there).
     const page = c.region?.available && c.region.page ? c.region.page : c.page
     const url = unchecked ? c.url : page.finalUrl
@@ -1735,7 +1755,7 @@ export class ItemFinisher {
  */
 export function listable(checked: CheckedCandidate[], plan: Plan): number {
   return checked.filter((c) => c.kept && c.kind === "item" && c.condition.met !== "no" &&
-    (nameScore(plan.subject, c.page) < 0.6 || ((plan.condition.kind === "cheaper" || plan.condition.kind === "in_stock") && c.condition.met === "yes"))).length
+    (!sameAsSubject(c.page.name || c.page.title || c.name, plan) || ((plan.condition.kind === "cheaper" || plan.condition.kind === "in_stock") && c.condition.met === "yes"))).length
 }
 
 /** Names compared as words, without what doesn't tell items apart ("the", "new", "official"…). */
@@ -1934,10 +1954,12 @@ export async function* runEngineA(input: SimilarInput, stats: EngineStats, opts:
     t = Date.now()
     // Few candidates that could be items of their own (not their very item at other shops, not list pages): one
     // more search for alternatives at once, beside the checks (build 95: the set had answers with one shop or none).
-    const likely = taken.filter((c) => c.kind === "item" && nameScore(plan.subject, { title: c.resultTitle, name: c.name, text: "" }) < 0.6).length
-    const rescueQ = likely < 4 && left() > 30_000 ? rescueQueries(input, plan) : null
+    const likely = taken.filter((c) => c.kind === "item" && !sameAsSubject(`${c.name} ${c.resultTitle}`, plan)).length
+    const rescueQ = likely < 3 && left() > 30_000 ? rescueQueries(input, plan) : null
+    // At most RESCUE_MS, one call: a slow round is dropped rather than eat the writer's time (the set: one ran 26 s
+    // and the whole answer timed out).
     const rescue = rescueQ
-      ? searchWith(input, { ...plan, queries: rescueQ }, Math.max(8_000, Math.min(13_000, left() - 20_000)), opts.signal, over).catch((err) => {
+      ? searchWith(input, { ...plan, queries: rescueQ }, RESCUE_MS, opts.signal ? AbortSignal.any([opts.signal, AbortSignal.timeout(RESCUE_MS)]) : AbortSignal.timeout(RESCUE_MS), over, 1).catch((err) => {
           if (opts.signal?.aborted) throw err
           return null
         })
