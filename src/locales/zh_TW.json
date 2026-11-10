@@ -315,6 +315,8 @@
   "reorderChat": "拖移以重新排序",
   "chatPages": "這段對話中的頁面",
   "chatNotes": "你在這段對話中的筆記",
+  "chatWatches": "這段對話中追蹤的頁面:{0}",
+  "chatReminder": "這段對話設有提醒",
   "pages_one": "{0} 個頁面",
   "pages_few": "{0} 個頁面",
   "pages_many": "{0} 個頁面",

@@ -315,6 +315,8 @@
   "reorderChat": "Faites glisser pour réorganiser",
   "chatPages": "Pages de cette discussion",
   "chatNotes": "Vos notes dans cette discussion",
+  "chatWatches": "Pages surveillées dans cette discussion : {0}",
+  "chatReminder": "Un rappel est prévu dans cette discussion",
   "pages_one": "{0} page",
   "pages_few": "{0} pages",
   "pages_many": "{0} pages",

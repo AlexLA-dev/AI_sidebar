@@ -284,7 +284,8 @@ export function textFingerprint(text: string): string {
 
 /** Removes numbered source citations ("[2](url)") from an answer. */
 export function stripCitations(text: string): string {
-  return text.replace(/[ \t]*\[\d{1,2}\]\(https?:[^)\s]+\)/g, "")
+  // Build 94: a link to a chat in an "Ask your chats" answer ([name](chat:<id>)) keeps its name.
+  return text.replace(/[ \t]*\[\d{1,2}\]\(https?:[^)\s]+\)/g, "").replace(/\[([^\]\n]+)\]\(chat:[A-Za-z0-9_-]{1,64}\)/g, "$1")
 }
 
 /** The last page the conversation was on (from the latest user turn), if any. */

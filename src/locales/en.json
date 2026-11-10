@@ -315,6 +315,8 @@
   "reorderChat": "Drag to reorder",
   "chatPages": "Pages in this chat",
   "chatNotes": "Your notes in this chat",
+  "chatWatches": "Pages watched in this chat: {0}",
+  "chatReminder": "A reminder is set in this chat",
   "pages_one": "{0} page",
   "pages_few": "{0} pages",
   "pages_many": "{0} pages",

@@ -81,6 +81,7 @@ import { SelIconsTip } from "./ux/SelTip"
 import { shadowSelection, trackPointer } from "./selectionShadow"
 import { restoredDraft, withoutStopped } from "./ux/stopped"
 import { type Jobs, extendsChat, interruption, repeatsLast, runningThreads, unreadThreads } from "../shared/jobs"
+import { linkChats, pendingQuestion, remindsAhead, watchesOn } from "../shared/chatMarks"
 import { scheduleReminder, thisDevice, useMessageUx } from "./ux/useMessageUx"
 import { Tour, tourSteps } from "./Tour"
 import { languageName, translateTarget } from "./translateTarget"
@@ -468,6 +469,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [pageMenu, setPageMenu] = useState(false)
   // "…" → Tips: the app's Tips in a sheet (2.5 (78)).
   const [tipsOpen, setTipsOpen] = useState(false)
+  // Where Settings' back arrow goes: the chats list when it was opened from the list's "…" (build 94).
+  const settingsBack = useRef<"chat" | "threads">("chat")
   const [remindSaved, setRemindSaved] = useState<number | null>(null)
 
   // The source learnt something new (the PDF popup: the document's title once it's read).
@@ -996,7 +999,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const stats = { turns: history.length, pages: threadPages(history).length, chats: threadList.length }
     if (chats) {
       void saved.then(() => {
-        if (portRef.current === port) port.postMessage({ type: "ask", job, payload: { messages: historyForModel(history, url), page: null, action: opts.action, context: "history" as const, history: chats, stats } })
+        if (portRef.current === port) port.postMessage({ type: "ask", job, payload: { messages: historyForModel(history, url), page: null, action: opts.action, context: "history" as const, history: chats, links: true, stats } })
       })
       return
     }
@@ -1979,6 +1982,52 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     return onJobsChanged(setJobList)
   }, [])
   const jobs = useMemo(() => ({ running: runningThreads(jobList), unread: unreadThreads(jobList) }), [jobList])
+  // Build 94, the owner: «в чате про чаты нужно делать ссылки на чаты, на которые ссылается ответ»: the chats an "Ask
+  // your chats" answer names open from it (src/shared/chatMarks.ts).
+  const chatNames = useMemo(() => threadList.filter((th) => th.kind !== "history").map((th) => ({ id: th.id, name: threadName(th) })), [threadList])
+  const openChatLink = useCallback((id: string) => {
+    if (!threadList.some((th) => th.id === id)) return
+    void sendBackground({ type: "useEvent", f: "ask_chats", a: "link" })
+    openThread(id)
+  }, [threadList, openThread])
+  // Build 94, the owner: «на полоске чата хочется видеть глаз и число там где установлены наблюдения за изменениями и
+  // колокольчик, если напоминалка стоит»: the watched pages' addresses (this device's watches, Safari), read when the
+  // list opens and when watching changes them; the bell and the spinner come from the chats themselves.
+  const [watchedUrls, setWatchedUrls] = useState<string[]>([])
+  useEffect(() => {
+    if (view !== "threads" || !listsKind("watch")) return
+    let live = true
+    const read = () => void Promise.all(laterSources().map((src) => src.items().catch(() => [] as LaterItem[])))
+      .then((lists) => { if (live) setWatchedUrls(lists.flat().filter((i) => i.kind === "watch" && i.url).map((i) => i.url!)) }, () => undefined)
+    read()
+    const changed = (changes: Record<string, unknown>, area: string) => { if (area === "local" && "cf:watches" in changes) read() }
+    try { chrome.storage.onChanged.addListener(changed) } catch { /* no storage events here */ }
+    return () => {
+      live = false
+      try { chrome.storage.onChanged.removeListener(changed) } catch { /* as above */ }
+    }
+  }, [view])
+  // A tick every 30 s while the list shows: a reminder that rang loses its bell, a question left unanswered its spinner.
+  const [listTick, setListTick] = useState(0)
+  useEffect(() => {
+    if (view !== "threads") return
+    const timer = setInterval(() => setListTick((n) => n + 1), 30_000)
+    return () => clearInterval(timer)
+  }, [view])
+  const rowMarks = useMemo(() => {
+    const now = Date.now()
+    const watched: Record<string, number> = {}
+    const bells = new Set<string>()
+    const working = new Set(jobs.running)
+    for (const th of threadList) {
+      const n = watchesOn(th.m, watchedUrls)
+      if (n) watched[th.id] = n
+      if (remindsAhead(th.m, now)) bells.add(th.id)
+      // Asked on another device (or by a job this background lost): its question still waits for the answer.
+      if (!working.has(th.id) && !jobs.unread.has(th.id) && pendingQuestion(th.m, now) && !jobList[th.m[th.m.length - 1]?.id ?? ""]) working.add(th.id)
+    }
+    return { watched, bells, working }
+  }, [threadList, watchedUrls, jobs, jobList, listTick])
   // The selection buttons were placed: the round button steps out of their way, or stays (fabDodge.ts).
   const onBubblePlace = useCallback((box: DOMRect, selection: DOMRect) => {
     const fab = fabRef.current
@@ -2063,7 +2112,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       forgetSelection()
       setSelection(null)
     }
-    if (messages.length > 0) newChat()
+    // From the chats list's "…" (build 94) or over "Ask your chats": a new chat about the page.
+    if (messages.length > 0 || historyRef.current) newChat()
+    else setView("chat")
     setGuide("summarize")
     reportGuide("start")
   }
@@ -3017,7 +3068,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           {layout === "sheet" && <div class="cf-grabber" onClick={hide} />}
           <header class="cf-header">
             {view !== "chat" ? (
-              <button type="button" class="cf-icon" onClick={() => setView(view === "trash" ? "threads" : "chat")} aria-label={t("back")}><Icon.Back /></button>
+              <button type="button" class="cf-icon" onClick={() => {
+                // Settings opened from the chats list's "…" (build 94) goes back to the list.
+                const back = view === "trash" ? "threads" : view === "settings" ? settingsBack.current : "chat"
+                settingsBack.current = "chat"
+                setView(back)
+              }} aria-label={t("back")}><Icon.Back /></button>
             ) : (
               <span class="cf-logo"><Icon.Sparkle size={18} /></span>
             )}
@@ -3055,33 +3111,34 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             {((view === "chat" && messages.length > 0) || view === "threads") && (
               <button type="button" class="cf-icon" onClick={newChat} aria-label={t("newChat")} title={t("newChat")}><Icon.Plus /></button>
             )}
-            {view === "chat" && (
+            {/* Build 94: the chats list has its "…" too (its own items, PageMenu.tsx). */}
+            {(view === "chat" || view === "threads") && (
               <span class="cf-page-more-wrap">
                 <button type="button" class="cf-icon cf-page-more" aria-haspopup="menu" aria-expanded={pageMenu} aria-label={t("uxMorePage")} title={t("uxMorePage")} onClick={() => {
                   // Opened, and which item: to see whether Settings is still found a tap further.
                   if (!pageMenu) {
-                    void sendBackground({ type: "useEvent", f: "menu", a: "open" })
+                    void sendBackground({ type: "useEvent", f: "menu", a: "open", via: view === "threads" ? "list" : "chat" })
                     void laterItems().then((items) => setLaterCount(countOf(items))).catch(() => setLaterCount({ remind: 0, watch: 0 }))
                   }
                   setPageMenu(!pageMenu)
                 }}><More size={18} /></button>
                 {pageMenu && (
                   <PageMenu
-                    onLater={() => {
+                    onLater={view === "chat" ? () => {
                       setPageMenu(false)
-                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "later" })
+                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", via: "chat", what: "later" })
                       void sendBackground({ type: "useEvent", f: "later", a: "open", via: "menu" })
                       setLater({ selection, range: selectedRange() })
-                    }}
-                    onWatchPage={listsKind("watch") && pageWatcher() ? () => {
+                    } : undefined}
+                    onWatchPage={view === "chat" && listsKind("watch") && pageWatcher() ? () => {
                       setPageMenu(false)
-                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "watch_page" })
+                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", via: "chat", what: "watch_page" })
                       pageWatcher()?.({ url: source.href(), title: source.title() })
                     } : undefined}
-                    onSimilar={contextKind === "page" && !historyMode ? () => openSimilar("menu") : undefined}
+                    onSimilar={view === "chat" && contextKind === "page" && !historyMode ? () => openSimilar("menu") : undefined}
                     onNameChat={orgOn && view === "chat" && !historyMode && messages.length > 0 && !naming ? () => {
                       setPageMenu(false)
-                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "name_chat" })
+                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", via: "chat", what: "name_chat" })
                       nameByTopic()
                     } : undefined}
                     similarLocked={!similarAllowed(plan)}
@@ -3089,27 +3146,28 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     watches={listsKind("watch") ? laterCount.watch : null}
                     onReminders={() => {
                       setPageMenu(false)
-                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "reminders" })
+                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", via: view === "threads" ? "list" : "chat", what: "reminders" })
                       openReminders("menu", "remind")
                     }}
                     onWatching={() => {
                       setPageMenu(false)
-                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "watching" })
+                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", via: view === "threads" ? "list" : "chat", what: "watching" })
                       openReminders("menu", "watch")
                     }}
                     onTips={() => {
                       setPageMenu(false)
-                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "tips" })
+                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", via: view === "threads" ? "list" : "chat", what: "tips" })
                       setTipsOpen(true)
                     }}
                     onSettings={() => {
                       setPageMenu(false)
-                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "settings" })
+                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", via: view === "threads" ? "list" : "chat", what: "settings" })
+                      settingsBack.current = view === "threads" ? "threads" : "chat"
                       setView("settings")
                     }}
-                    onListen={TARGET === "safari" && source.readable() && source.kind() === "page" ? () => {
+                    onListen={view === "chat" && TARGET === "safari" && source.readable() && source.kind() === "page" ? () => {
                       setPageMenu(false)
-                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "listen" })
+                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", via: "chat", what: "listen" })
                       void listenPage()
                     } : undefined}
                     ultra={isUltra(plan)}
@@ -3117,14 +3175,21 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       label: t("ptMenu", plan === "ultra" ? t("planUltra") : t("planPro")),
                       start: () => {
                         setPageMenu(false)
-                        void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "plan_tour" })
+                        void sendBackground({ type: "useEvent", f: "menu", a: "pick", via: view === "threads" ? "list" : "chat", what: "plan_tour" })
                         startPlanTour(plan, "plan_menu")
                       }
                     } : undefined}
-                    onIntro={firstGuideRef.current() ? () => {
+                    onIntro={(view === "threads" ? pageReadable : firstGuideRef.current()) ? () => {
                       setPageMenu(false)
-                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "intro" })
+                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", via: view === "threads" ? "list" : "chat", what: "intro" })
                       startGuideRef.current("menu")
+                    } : undefined}
+                    trash={view === "threads" ? trashList.length : 0}
+                    onTrash={view === "threads" ? () => {
+                      setPageMenu(false)
+                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", via: "list", what: "trash" })
+                      setUndoBar(null)
+                      setView("trash")
                     } : undefined}
                     onClose={() => setPageMenu(false)}
                   />
@@ -3182,8 +3247,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 onGrouped={(on) => updateSettings({ groupByTags: on })}
                 touch={touch}
                 trashCount={trashList.length}
-                busy={jobs.running}
+                busy={rowMarks.working}
                 unread={jobs.unread}
+                watched={rowMarks.watched}
+                bells={rowMarks.bells}
                 onOpenTrash={() => {
                   setUndoBar(null)
                   setView("trash")
@@ -3315,7 +3382,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                           {m.similar ? (
                             <SimilarList answer={m.similar} items={m.similar.items} onOpen={openPage} onWatch={listsKind("watch") ? watchItem : undefined} />
                           ) : (
-                            <Markdown text={m.content} marks={m.marks} onCopyCode={(code) => void copyText(code)} />
+                            <Markdown text={historyMode ? linkChats(m.content, chatNames) : m.content} marks={m.marks} onCopyCode={(code) => void copyText(code)} onChat={historyMode ? openChatLink : undefined} />
                           )}
                           {m.grounding && <Sources grounding={m.grounding} />}
                           {!mediaOn && <MediaSkipped kinds={skippedFor(messages, idx)} onPro={tryPro} />}
@@ -3708,10 +3775,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           )}
           {view === "chat" && !picked && ux.overlay}
           {view === "chat" && later && laterSheet(false)}
-          {view === "chat" && listOpen && (
+          {(view === "chat" || view === "threads") && listOpen && (
             <RemindersSheet kind={listOpen} items={laterList} onOpen={openLaterItem} onCancel={(item) => void cancelLaterItem(item)} onReschedule={rescheduleLaterItem} onClose={() => setListOpen(null)} />
           )}
-          {view === "chat" && tipsOpen && (
+          {(view === "chat" || view === "threads") && tipsOpen && (
             <TipsSheet mac={!touch} onClose={() => setTipsOpen(false)} />
           )}
           {plansOpen && TARGET === "safari" && (

@@ -99,6 +99,9 @@ export interface AskPayload {
   context?: "chat" | "history"
   pages?: Array<{ title: string; url: string; text: string }>
   history?: ChatDigest[]
+  // Build 94: the client opens chats from links in the answer, so the model writes the chats it names as
+  // [name](chat:<id>) (src/shared/chatMarks.ts). Older clients don't send it and get the answer as before.
+  links?: boolean
   // How big the chat is (its messages and pages) and how many chats this device keeps: no text, for
   // /analytics to show whether the limits on them get in the way.
   stats?: ChatStats

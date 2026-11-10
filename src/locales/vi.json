@@ -315,6 +315,8 @@
   "reorderChat": "Kéo để sắp xếp lại",
   "chatPages": "Các trang trong cuộc trò chuyện này",
   "chatNotes": "Ghi chú của bạn trong cuộc trò chuyện này",
+  "chatWatches": "Trang đang theo dõi trong cuộc trò chuyện này: {0}",
+  "chatReminder": "Cuộc trò chuyện này có lời nhắc",
   "pages_one": "{0} trang",
   "pages_few": "{0} trang",
   "pages_many": "{0} trang",

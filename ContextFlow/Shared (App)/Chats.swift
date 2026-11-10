@@ -210,7 +210,7 @@ struct ChatThread: Identifiable, Hashable {
     /// The last answer's first line.
     var snippet: String {
         guard let last = entries.last(where: { !$0.isUser }) ?? entries.last else { return "" }
-        let plain = last.content
+        let plain = RowMarks.unlinked(last.content)
             .replacingOccurrences(of: #"\s*\[\d{1,2}\]\(https?:[^)\s]+\)"#, with: "", options: .regularExpression)
             .replacingOccurrences(of: #"[*_`]+"#, with: "", options: .regularExpression)
             .replacingOccurrences(of: #"[#>|]+"#, with: " ", options: .regularExpression)
@@ -345,7 +345,7 @@ enum ShareText {
 
     /// Plain text: Markdown syntax gone, structure and links kept.
     static func plain(_ text: String) -> String {
-        var out = replace(text, #"[ \t]*\[\d{1,2}\]\(https?:[^)\s]+\)"#, "")
+        var out = replace(RowMarks.unlinked(text), #"[ \t]*\[\d{1,2}\]\(https?:[^)\s]+\)"#, "")
         out = replace(out, #"```[a-z]*\n?"#, "", caseless: true)
         out = replace(out, #"(?m)^#{1,6}\s+"#, "")
         out = replace(out, #"\*\*([^*]+)\*\*"#, "$1")
@@ -633,6 +633,35 @@ final class ChatLibrary: ObservableObject {
                 }
                 if let data = try? JSONSerialization.data(withJSONObject: object), let text = String(data: data, encoding: .utf8) {
                     saves["debug-many-\(c)"] = ChatMirror.Item(updatedAt: at, data: text)
+                }
+            }
+            _ = ChatMirror.apply(saves: saves)
+        }
+        // Build 94 (the chats list's rows and "Ask your chats" links): -CFDebugSeedRows YES puts four chats here, one on
+        // a watched page (RowMarks.debugWatched), one with a reminder ahead, one whose question was just asked in Safari,
+        // and an "Ask your chats" answer that names them.
+        if UserDefaults.standard.bool(forKey: "CFDebugSeedRows"), ChatMirror.chats()["debug-row-mug"] == nil {
+            let now = Int64(Date().timeIntervalSince1970 * 1000)
+            let page = { (url: String, title: String, at: Int64) -> [String: Any] in ["url": url, "title": title, "at": at] }
+            let chats: [String: [String: Any]] = [
+                "debug-row-mug": ["title": "Price of the mug", "a": now - 7_000_000, "m": [
+                    ["role": "user", "content": "How much is the mug?", "id": "rq1", "t": now - 7_200_000, "page": page("https://shop.example/mug", "ContextFlow mug", now - 7_200_000)],
+                    ["role": "assistant", "content": "The mug is €24 and in stock.", "id": "ra1", "t": now - 7_190_000],
+                    ["role": "user", "content": "What do the reviews say?", "id": "rq2", "t": now - 7_000_000, "page": page("https://shop.example/mug/reviews", "Reviews", now - 7_000_000)],
+                    ["role": "assistant", "content": "People like the size; a few say the print fades.", "id": "ra2", "t": now - 6_990_000]]],
+                "debug-row-rome": ["title": "Trip to Rome", "a": now - 5_000_000, "m": [
+                    ["role": "user", "content": "What to see in Rome in three days?", "id": "rq3", "t": now - 5_000_000, "page": page("https://rome.example/three-days", "Rome in three days", now - 5_000_000)],
+                    ["role": "assistant", "content": "The Colosseum, the Forum, the Vatican, and Trastevere in the evening.", "id": "ra3", "t": now - 4_990_000, "remind": ["at": Double(now + 86_400_000)]]]],
+                "debug-row-phones": ["title": "Headphones like Aero 2", "a": now - 10_000, "m": [
+                    ["role": "user", "content": "Find similar", "label": "Find similar", "similarAsk": "", "id": "rq4", "t": now - 10_000, "page": page("https://headphones.example/aero-2", "Aero 2", now - 10_000)]]],
+                "debug-row-history": ["k": "history", "a": now - 20_000_000, "m": [
+                    ["role": "user", "content": "What did I read this week?", "id": "rq5", "t": now - 20_010_000],
+                    ["role": "assistant", "content": "**From your chats (3):**\n- **[Trip to Rome](chat:debug-row-rome)**: three days, the Colosseum first\n- **[Price of the mug](chat:debug-row-mug)**: €24, in stock\n- **Headphones like Aero 2**: Find similar is still looking", "id": "ra5", "t": now - 20_000_000]]]
+            ]
+            var saves: [String: ChatMirror.Item] = [:]
+            for (id, object) in chats {
+                if let data = try? JSONSerialization.data(withJSONObject: object), let text = String(data: data, encoding: .utf8) {
+                    saves[id] = ChatMirror.Item(updatedAt: (object["a"] as? Int64) ?? now, data: text)
                 }
             }
             _ = ChatMirror.apply(saves: saves)

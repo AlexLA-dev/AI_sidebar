@@ -501,6 +501,8 @@ nonisolated enum Organize {
     // and its `\d` takes any digits, JavaScript's only 0–9.
     private static let jsSpace = "\\t\\n\\u000B\\f\\r \\u00A0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF"
     private static let citations = try! NSRegularExpression(pattern: "[ \\t]*\\[[0-9]{1,2}\\]\\(https?:[^)\(jsSpace)]+\\)")
+    // Build 94: "[name](chat:<id>)", a chat named in an "Ask your chats" answer (src/shared/chatMarks.ts).
+    private static let chatLinks = try! NSRegularExpression(pattern: "\\[([^\\]\\n]+)\\]\\(chat:[A-Za-z0-9_-]{1,64}\\)")
     private static let marks = try! NSRegularExpression(pattern: "[*_`#>|]+")
     private static let spaces = try! NSRegularExpression(pattern: "[\(jsSpace)]+")
 
@@ -511,7 +513,8 @@ nonisolated enum Organize {
     /// A text as the rules read it: no citation links (`stripCitations`), no Markdown marks, its whitespace as
     /// single spaces, trimmed (src/shared/organize.ts `plain`).
     static func plain(_ text: String) -> String {
-        let bare = replacing(spaces, in: replacing(marks, in: replacing(citations, in: text, with: ""), with: " "), with: " ")
+        // Build 94: a chat link keeps its name, as stripCitations does.
+        let bare = replacing(spaces, in: replacing(marks, in: replacing(chatLinks, in: replacing(citations, in: text, with: ""), with: "$1"), with: " "), with: " ")
         // Only spaces are left of the whitespace.
         return bare.trimmingCharacters(in: CharacterSet(charactersIn: " "))
     }

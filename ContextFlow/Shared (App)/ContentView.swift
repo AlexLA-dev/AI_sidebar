@@ -246,7 +246,7 @@ struct ContentView: View {
                 if showsPro { proTab }
                 templatesTab
                 // A stack: chats open by value, so a chat's screen stays when its row moves (see ChatRoute).
-                NavigationStack { ChatsView(library: chats, activation: activation, openSetup: { showingSetup = true }, openPro: { tab = .pro }) }
+                NavigationStack { ChatsView(library: chats, activation: activation, openSetup: { showingSetup = true }, openPro: { tab = .pro }, openTab: { tab = $0 }) }
                     .tabItem { Label("Chats", systemImage: "bubble.left.and.bubble.right") }
                     .tag(AppTab.chats)
             } else {
@@ -295,7 +295,7 @@ struct ContentView: View {
         } detail: {
             switch tab {
             case .home: HomeView(store: store, activation: activation, openPro: { tab = .pro }, openTips: { tab = .tips })
-            case .chats: NavigationStack { ChatsView(library: chats, activation: activation, openPro: { tab = .pro }) }
+            case .chats: NavigationStack { ChatsView(library: chats, activation: activation, openSetup: { showingSetup = true }, openPro: { tab = .pro }, openTab: { tab = $0 }) }
             case .templates: NavigationStack { TemplatesView() }
             case .tips: TipsView(openPro: { tab = .pro })
             case .pro: ProView(store: store)
@@ -303,6 +303,16 @@ struct ContentView: View {
             }
         }
         .modifier(ListenMiniPlacement(shown: listenShown.mini, player: listen))
+        // Build 94: the setup guide from the Chats screen's "…" (Other… → How to turn on ContextFlow).
+        .sheet(isPresented: $showingSetup) {
+            NavigationStack {
+                HomeView(store: store, activation: activation, openPro: { showingSetup = false; tab = .pro }, openTips: { showingSetup = false; tab = .tips })
+                    .toolbar {
+                        ToolbarItem(placement: .confirmationAction) { Button("Done") { showingSetup = false } }
+                    }
+            }
+            .frame(minWidth: 560, minHeight: 600)
+        }
         .frame(minWidth: 720, minHeight: 560)
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
             chats.refresh()

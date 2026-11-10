@@ -908,6 +908,12 @@
  "chatNotes": {
   "message": "Ghi chú của bạn trong cuộc trò chuyện này"
  },
+ "chatWatches": {
+  "message": "Trang đang theo dõi trong cuộc trò chuyện này: {0}"
+ },
+ "chatReminder": {
+  "message": "Cuộc trò chuyện này có lời nhắc"
+ },
  "pages_one": {
   "message": "{0} trang"
  },

@@ -908,6 +908,12 @@
  "chatNotes": {
   "message": "이 채팅의 메모"
  },
+ "chatWatches": {
+  "message": "이 채팅에서 지켜보는 페이지: {0}"
+ },
+ "chatReminder": {
+  "message": "이 채팅에 리마인더가 있어요"
+ },
  "pages_one": {
   "message": "페이지 {0}개"
  },
