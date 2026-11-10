@@ -14,8 +14,10 @@
 		CFA100000000000000000005 /* TemplateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA100000000000000000001 /* TemplateStore.swift */; };
 		CFA200000000000000000002 /* TemplatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA200000000000000000001 /* TemplatesView.swift */; };
 		CFD100000000000000000002 /* WatchOpen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFD100000000000000000001 /* WatchOpen.swift */; };
+		CF9500000000000000000002 /* SimilarCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9500000000000000000001 /* SimilarCards.swift */; };
 		CFA200000000000000000003 /* TemplatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA200000000000000000001 /* TemplatesView.swift */; };
 		CFD100000000000000000003 /* WatchOpen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFD100000000000000000001 /* WatchOpen.swift */; };
+		CF9500000000000000000003 /* SimilarCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9500000000000000000001 /* SimilarCards.swift */; };
 		CFE200000000000000000002 /* Listen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE200000000000000000001 /* Listen.swift */; };
 		CFE200000000000000000003 /* Listen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE200000000000000000001 /* Listen.swift */; };
 		CF3000000000000000000005 /* ChatSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF3000000000000000000001 /* ChatSync.swift */; };
@@ -160,6 +162,7 @@
 		CFA100000000000000000001 /* TemplateStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplateStore.swift; sourceTree = "<group>"; };
 		CFA200000000000000000001 /* TemplatesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplatesView.swift; sourceTree = "<group>"; };
 		CFD100000000000000000001 /* WatchOpen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchOpen.swift; sourceTree = "<group>"; };
+		CF9500000000000000000001 /* SimilarCards.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimilarCards.swift; sourceTree = "<group>"; };
 		CFE200000000000000000001 /* Listen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Listen.swift; sourceTree = "<group>"; };
 		CF5000000000000000000001 /* PdfText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PdfText.swift; sourceTree = "<group>"; };
 		410D88912F41EE9800684748 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -280,6 +283,7 @@
 				CF7000000000000000000001 /* ChatsView.swift */,
 				CFA200000000000000000001 /* TemplatesView.swift */,
 				CFD100000000000000000001 /* WatchOpen.swift */,
+				CF9500000000000000000001 /* SimilarCards.swift */,
 				CFE200000000000000000001 /* Listen.swift */,
 				410D88912F41EE9800684748 /* ContentView.swift */,
 				CF4000000000000000000001 /* Setup.swift */,
@@ -605,6 +609,7 @@
 				CFA100000000000000000005 /* TemplateStore.swift in Sources */,
 				CFA200000000000000000002 /* TemplatesView.swift in Sources */,
 				CFD100000000000000000002 /* WatchOpen.swift in Sources */,
+				CF9500000000000000000002 /* SimilarCards.swift in Sources */,
 				CFE200000000000000000002 /* Listen.swift in Sources */,
 				CF6000000000000000000002 /* Chats.swift in Sources */,
 				CFB000000000000000000002 /* Organize.swift in Sources */,
@@ -635,6 +640,7 @@
 				CFA100000000000000000004 /* TemplateStore.swift in Sources */,
 				CFA200000000000000000003 /* TemplatesView.swift in Sources */,
 				CFD100000000000000000003 /* WatchOpen.swift in Sources */,
+				CF9500000000000000000003 /* SimilarCards.swift in Sources */,
 				CFE200000000000000000003 /* Listen.swift in Sources */,
 				410D88992F41EE9800684748 /* SharedDefaults.swift in Sources */,
 				410D889A2F41EE9800684748 /* StoreKitManager.swift in Sources */,

@@ -88,6 +88,12 @@ struct ChatEntry: Decodable, Hashable {
     var marks: [ChatMark]?
     var pinned: Double?
     var remind: ChatRemind?
+    /// Find similar (2.6): on the question, the condition asked and where it looked; on the answer, the whole list
+    /// (build 95: the app draws the panel's cards from it, SimilarCards.swift).
+    var similarAsk: String?
+    var similarRegion: String?
+    var similarCountry: String?
+    var similar: SimilarAnswerData?
 
     struct From: Decodable, Hashable {
         var chat: String

@@ -203,3 +203,26 @@ test("the one-call search keeps one marketplace listing at most; a rescue round 
   const q = rescueQueries({ page: source, facts: {}, condition: "", locale: "en-CY", region: "local", country: "CY" }, plan())
   assert.deepEqual(q, ["LEGO City Klassischer Dampfzug 60511 alternatives", "LEGO City set steam train Cyprus"])
 })
+
+// ---- the notification's tap opens the panel ----------------------------------------------------------------
+
+test("the page the notification opens names its chat in the address; the panel takes it out at once", async () => {
+  const g = globalThis as unknown as { location: { hash: string; pathname: string; search: string; href: string }; history: { state: unknown; replaceState: (s: unknown, t: string, u: string) => void } }
+  const urls: string[] = []
+  const at = (hash: string) => {
+    g.location = { hash, pathname: "/collections/vacuum-rollerbags", search: "?v=1", href: "" }
+    g.history = { state: null, replaceState: (_s, _t, u) => urls.push(u) }
+  }
+  const { takeSimilarMark } = await import("../src/content/similar/mark.ts")
+  at("#cf-similar=5f2c9e1a-4b7d-4c1e-9f00-1a2b3c4d5e6f")
+  assert.equal(takeSimilarMark(), "5f2c9e1a-4b7d-4c1e-9f00-1a2b3c4d5e6f")
+  assert.equal(urls.pop(), "/collections/vacuum-rollerbags?v=1")
+  at("#reviews&cf-similar=abc_123")
+  assert.equal(takeSimilarMark(), "abc_123")
+  assert.equal(urls.pop(), "/collections/vacuum-rollerbags?v=1#reviews")
+  at("#reviews")
+  assert.equal(takeSimilarMark(), null)
+  at("#cf-similar=../../etc")
+  assert.equal(takeSimilarMark(), null)
+  assert.equal(urls.length, 0)
+})

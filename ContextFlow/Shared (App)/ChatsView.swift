@@ -2126,6 +2126,10 @@ private struct MessageView: View {
                 ForEach(entry.sources ?? [], id: \.self) { read in
                     ReadChip(read: read)
                 }
+                // Find similar: where it looked, as in the panel (build 95).
+                if entry.similarAsk != nil, let region = entry.similarRegion {
+                    SimilarWhereLine(region: region, country: entry.similarCountry)
+                }
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
             .padding(.leading, 40)
@@ -2136,7 +2140,10 @@ private struct MessageView: View {
                         .font(.caption.weight(.semibold))
                         .foregroundColor(.secondary)
                 }
-                if let onMarks {
+                if let similar = entry.similar, !similar.items.isEmpty {
+                    // Find similar's list as the panel shows it (build 95), not its Markdown copy.
+                    SimilarCardsView(answer: similar)
+                } else if let onMarks {
                     AnswerText(text: entry.content, marks: entry.marks ?? [], onChange: onMarks, onSelecting: onSelecting)
                 } else {
                     MarkdownView(text: entry.content)

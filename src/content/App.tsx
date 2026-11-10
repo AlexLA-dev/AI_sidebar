@@ -55,6 +55,7 @@ import { ProUpsell } from "./ProUpsell"
 import { shownPrice, SimilarIcon, SimilarList, SimilarPicker, SimilarUpsell, whereLabel } from "./similar/Similar"
 import { factsFrom, SIMILAR_SELECTION_MAX, similarAllowed, similarMarkdown, type SimilarAnswer, type SimilarAsk, type SimilarChip, type SimilarItem, type SimilarStep, type SimilarStreamEvent } from "../shared/similar"
 import { markdownWords } from "../shared/similarWords"
+import { takeSimilarMark } from "./similar/mark"
 import { structured } from "../shared/watch/extract"
 import { conditionFor } from "./watch/draft"
 import { openWatchSheet } from "./watch/WatchSheet"
@@ -2033,6 +2034,15 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (document.visibilityState === "visible") onVisibility()
     return () => document.removeEventListener("visibilitychange", onVisibility)
   }, [popup, similarAtWork, show])
+  // Build 95, the owner: «Никогда не открывает расширение на странице — нужно этого добиться». A "found" notification's
+  // tap opens the page with the chat in its address (#cf-similar=<chat>, SimilarAway.swift): this tab, the one Safari
+  // shows, opens the panel on it, however long after the search; the mark leaves the address at once.
+  useEffect(() => {
+    if (popup) return
+    const chat = takeSimilarMark()
+    if (!chat) return
+    void setActiveThread(chat).then(() => show(), () => show())
+  }, [popup, show])
   // Build 94, the owner: «в чате про чаты нужно делать ссылки на чаты, на которые ссылается ответ»: the chats an "Ask
   // your chats" answer names open from it (src/shared/chatMarks.ts).
   const chatNames = useMemo(() => threadList.filter((th) => th.kind !== "history").map((th) => ({ id: th.id, name: threadName(th) })), [threadList])
