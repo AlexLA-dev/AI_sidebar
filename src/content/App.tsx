@@ -3037,9 +3037,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             ) : (
               <span class="cf-logo"><Icon.Sparkle size={18} /></span>
             )}
-            <div class={`cf-title${headerName ? " named" : ""}`}>
-              {/* 2.6 (94): the chat's name (the owner: in the chat its name wasn't seen, so a suggested one couldn't be judged). */}
-              {headerName && <span class="cf-chat-name" dir="auto" title={headerName}>{headerName}</span>}
+            <div class="cf-title">
               {view !== "chat" ? (
                 <strong>{view === "settings" ? t("settings") : view === "templates" ? t("qiTemplatesTitle") : view === "trash" ? t("trashTitle") : t("chatsTitle")}</strong>
               ) : (
@@ -3151,6 +3149,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             )}
             <button type="button" class="cf-icon" onClick={hide} aria-label={t("close")} title={t("close")}><Icon.Close /></button>
           </header>
+          {/* 2.6 (94): the chat's name, the whole width (the owner: in the chat its name wasn't seen, so a suggested one
+              couldn't be judged; next to the page in the header it was cut to a few letters on an iPhone). */}
+          {headerName && <div class="cf-chat-bar" dir="auto" title={headerName}>{headerName}</div>}
 
           {view === "threads" ? (
             <>
