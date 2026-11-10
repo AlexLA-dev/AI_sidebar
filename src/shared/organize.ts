@@ -28,6 +28,12 @@ export interface OrganizeConfig {
   // A new chat: the block fits its own chat less than this, and at least `splitMin` blocks stay in it.
   splitT: number
   splitMin: number
+  // 2.6 (94): the end of a block off its chat's topic (`tailMove`): an exchange's fit to the rest of the chat below
+  // `tailQA` by its question and answers (on one page every question carries the page's title, so this alone tells
+  // little) and below `tailA` by its answers; two such exchanges whose answers are `tailAlike` go together.
+  tailQA: number
+  tailA: number
+  tailAlike: number
   // How many of the chat's last blocks get move suggestions, and of its last answers and notes tag suggestions.
   window: number
   tagWindow: number
@@ -63,6 +69,12 @@ export const DEFAULT_ORGANIZE: OrganizeConfig = {
   minMatch: 75,
   splitT: 0.25,
   splitMin: 2,
+  // Calibrated on the 2.5 sample with every question of a chat asked on its first page (b94/calib-apart3.mjs): 1 of
+  // 99 of the chats' own exchanges off by both, 41% of unrelated exchanges in the same language and 68% in another
+  // (the rest mostly near topics); the question+answer fit alone, at splitT, caught 4% in the same language.
+  tailQA: 0.4,
+  tailA: 0.22,
+  tailAlike: 0.3,
   window: 3,
   tagWindow: 5,
   tagT: 0.3,
@@ -232,6 +244,13 @@ function scored(entries: Entry[], times: Array<number | null>, b: PageBlock, vec
   }
 }
 
+/** The mean of a range's answers' vectors (its other messages' when it has no answer with one). */
+function answersOf(entries: Entry[], x: PageBlock, vectorOf: VectorOf): Float32Array | null {
+  const list = entries.slice(x.start, x.end + 1)
+  const answers = list.filter((e) => e.role === "assistant").map((e) => vectorOf(e)).filter((v): v is Float32Array => Boolean(v))
+  return mean(answers.length ? answers : list.map((e) => vectorOf(e)).filter((v): v is Float32Array => Boolean(v)))
+}
+
 /** 2.6 (94): a block's exchanges — each question or note with the answers after it — scored like blocks, on its page. */
 export function exchangesOf(entries: Entry[], b: PageBlock, vectorOf: VectorOf): ScoredBlock[] {
   const ranges: PageBlock[] = []
@@ -387,7 +406,8 @@ function mergeFit(from: { thread: Thread; blocks: ScoredBlock[] }, to: { thread:
  * 2.6 (94): the end of a block off its chat's topic — an answer about something else asked on the same page, or in the
  * app (no page), which stays in that page's block (the owner: three answers on one topic and a last one on another got
  * nothing). Of the chat's last `window` blocks, the latest first: its longest run of last exchanges (`exchangesOf`) that
- * each fit the rest of the chat less than `splitT`, alike among themselves, with `splitMin` exchanges or blocks staying. They go to a
+ * each fit the rest of the chat less than `tailQA` by their questions and answers and less than `tailA` by their answers,
+ * whose answers are `tailAlike` among themselves, with `splitMin` exchanges or blocks staying. They go to a
  * chat mostly about them from `minMatch` %, else to a new chat when no chat fits them (one that fits but is a mix keeps
  * them from a new chat, as for blocks).
  */
@@ -398,15 +418,19 @@ function tailMove(chat: Thread, blocks: ScoredBlock[], others: Array<{ thread: T
     if (b.settled || b.dismissed) continue
     const xs = exchangesOf(chat.m, b, vectorOf)
     if (xs.length < 2) continue
-    const outer = blocks.filter((x, j) => j !== i && x.v).map((x) => ({ v: x.v! }))
+    const answers = xs.map((x) => answersOf(chat.m, x, vectorOf))
+    const besides = blocks.filter((x, j) => j !== i && x.v)
+    const outer = besides.map((x) => ({ v: x.v! }))
+    const outerA = besides.map((x) => ({ v: answersOf(chat.m, x, vectorOf)! }))
     // The longest such end.
     let from = -1
     for (let k = 1; k < xs.length && from < 0; k++) {
       const part = xs.slice(k)
       if (part.some((x) => !x.v || x.settled || x.dismissed) || blocks.length - 1 + k < cfg.splitMin) continue
       const rest = [...outer, ...xs.slice(0, k).filter((x) => x.v).map((x) => ({ v: x.v! }))]
-      if (!rest.length || part.some((x) => topMean(x.v!, rest, 2) >= cfg.splitT)) continue
-      if (part.some((x, a) => part.some((y, z) => z > a && dot(x.v!, y.v!) < cfg.topicT))) continue
+      const restA = [...outerA, ...answers.slice(0, k).filter((a): a is Float32Array => Boolean(a)).map((v) => ({ v }))]
+      if (!rest.length || part.some((x, z) => topMean(x.v!, rest, 2) >= cfg.tailQA || topMean(answers[k + z]!, restA, 2) >= cfg.tailA)) continue
+      if (part.some((_, a) => part.some((_, z) => z > a && dot(answers[k + a]!, answers[k + z]!) < cfg.tailAlike))) continue
       from = k
     }
     if (from < 0 || xs.slice(from).every((x) => x.weak)) continue

@@ -173,6 +173,11 @@ nonisolated struct OrganizeConfig: Sendable {
     // A new chat: the block fits its own chat less than this, and at least `splitMin` blocks stay in it.
     var splitT = 0.25
     var splitMin = 2.0
+    // 2.6 (94): the end of a block off its chat's topic (`tailMove`): its fit to the rest of the chat by its question and
+    // answers, by its answers, and how alike two such exchanges' answers are to go together.
+    var tailQA = 0.4
+    var tailA = 0.22
+    var tailAlike = 0.3
     // How many of the chat's last blocks get move suggestions, and of its last answers and notes tag suggestions.
     var window = 3.0
     var tagWindow = 5.0
@@ -208,7 +213,7 @@ nonisolated struct OrganizeConfig: Sendable {
     /// The fields by their names in /status.
     static let fields: [(name: String, path: WritableKeyPath<OrganizeConfig, Double>)] = [
         ("moveT", \.moveT), ("moveD", \.moveD), ("moveT1", \.moveT1), ("siteT", \.siteT), ("topicT", \.topicT), ("matchLo", \.matchLo), ("matchHi", \.matchHi), ("minMatch", \.minMatch), ("splitT", \.splitT),
-        ("splitMin", \.splitMin), ("window", \.window), ("tagWindow", \.tagWindow), ("tagT", \.tagT), ("tagD", \.tagD),
+        ("splitMin", \.splitMin), ("tailQA", \.tailQA), ("tailA", \.tailA), ("tailAlike", \.tailAlike), ("window", \.window), ("tagWindow", \.tagWindow), ("tagT", \.tagT), ("tagD", \.tagD),
         ("coherence", \.coherence), ("judge", \.judge), ("maxTags", \.maxTags), ("rollback", \.rollback),
         ("messSites", \.messSites), ("messBlocks", \.messBlocks), ("messHours", \.messHours)
     ]
@@ -678,6 +683,13 @@ nonisolated enum Organize {
         )
     }
 
+    /// The mean of a range's answers' vectors (its other messages' when it has no answer with one).
+    private static func answersOf(_ entries: [[String: Any]], _ start: Int, _ end: Int, _ vectorOf: VectorOf) -> [Float]? {
+        let list = entries[start...end]
+        let answers = list.filter { $0["role"] as? String == "assistant" }.compactMap(vectorOf)
+        return mean(answers.isEmpty ? list.compactMap(vectorOf) : answers)
+    }
+
     /// 2.6 (94): a block's exchanges — each question or note with the answers after it — scored like blocks, on its
     /// page (src/shared/organize.ts `exchangesOf`).
     static func exchanges(_ entries: [[String: Any]], _ b: ScoredBlock, _ vectorOf: VectorOf) -> [ScoredBlock] {
@@ -871,8 +883,9 @@ nonisolated enum Organize {
     }
 
     /// 2.6 (94): the end of a block off its chat's topic — an answer about something else asked on the same page, or in
-    /// the app (no page) — (src/shared/organize.ts `tailMove`): its longest run of last exchanges that each fit the rest of the chat less
-    /// than `splitT`, alike among themselves, with `splitMin` exchanges or blocks staying, go to a chat mostly about them
+    /// the app (no page) — (src/shared/organize.ts `tailMove`): its longest run of last exchanges that each fit the rest of
+    /// the chat less than `tailQA` by question and answers and `tailA` by answers, whose answers are `tailAlike`, with
+    /// `splitMin` exchanges or blocks staying, go to a chat mostly about them
     /// from `minMatch` %, else to a new chat when no chat fits them.
     private static func tailMove(_ chat: OrganizeThread, _ blocks: [ScoredBlock], _ others: [Other], _ vectorOf: VectorOf, _ cfg: OrganizeConfig) -> MoveSuggestion? {
         let first = Int(max(0, Double(blocks.count) - cfg.window).rounded(.up))
@@ -882,15 +895,19 @@ nonisolated enum Organize {
             if b.settled || b.dismissed { continue }
             let xs = exchanges(chat.entries, b, vectorOf)
             if xs.count < 2 { continue }
-            let outer = blocks.enumerated().filter { $0.offset != i && $0.element.v != nil }.map { (v: $0.element.v!, w: 1.0) }
+            let answers = xs.map { answersOf(chat.entries, $0.start, $0.end, vectorOf) }
+            let besides = blocks.enumerated().filter { $0.offset != i && $0.element.v != nil }.map(\.element)
+            let outer = besides.map { (v: $0.v!, w: 1.0) }
+            let outerA = besides.map { (v: answersOf(chat.entries, $0.start, $0.end, vectorOf)!, w: 1.0) }
             // The longest such end.
             var from = -1
             for k in 1..<xs.count {
                 let part = Array(xs[k...])
                 if part.contains(where: { $0.v == nil || $0.settled || $0.dismissed }) || Double(blocks.count - 1 + k) < cfg.splitMin { continue }
                 let rest = outer + xs[..<k].compactMap(\.v).map { (v: $0, w: 1.0) }
-                if rest.isEmpty || part.contains(where: { topMean($0.v!, rest, 2) >= cfg.splitT }) { continue }
-                if part.indices.contains(where: { a in part.indices.contains { z in z > a && dot(part[a].v!, part[z].v!) < cfg.topicT } }) { continue }
+                let restA = outerA + answers[..<k].compactMap { $0 }.map { (v: $0, w: 1.0) }
+                if rest.isEmpty || part.indices.contains(where: { z in topMean(part[z].v!, rest, 2) >= cfg.tailQA || topMean(answers[k + z]!, restA, 2) >= cfg.tailA }) { continue }
+                if part.indices.contains(where: { a in part.indices.contains { z in z > a && dot(answers[k + a]!, answers[k + z]!) < cfg.tailAlike } }) { continue }
                 from = k
                 break
             }
