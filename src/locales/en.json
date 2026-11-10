@@ -734,5 +734,16 @@
   "offerMemoryTitle": "Pro remembers the whole chat",
   "offerMemoryBody": "A free answer remembers the last {0} answers and notes of a chat. With Pro the AI remembers all of it: every message, your notes and the pages you asked about.",
   "offerMemoryLong": "This chat has more than the {0} answers and notes a free answer remembers. With Pro the AI remembers all of it: every message, your notes and the pages you asked about.",
-  "offerRetryAt": "Answers are back at {0}."
+  "offerRetryAt": "Answers are back at {0}.",
+  "similarWhere": "Where to look",
+  "similarWorld": "Worldwide",
+  "similarLocal": "Near me",
+  "similarLocalIn": "Near me · {0}",
+  "similarWhereHint": "Choose where to look first.",
+  "similarLess": "Less similar",
+  "similarPercent": "{0}% similar",
+  "similarDiffers": "Differs: {0}",
+  "similarRegionLocked": "Not in your country's App Store",
+  "similarRatings": "{0} ratings",
+  "similarReviewersSay": "Reviewers: {0}"
 }

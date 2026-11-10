@@ -44,6 +44,9 @@ export async function callSimilar(base: string, engine: "a" | "b", page: PageInp
         engine,
         page,
         condition,
+        // Build 93: where to look and the country are the request's own fields, not engine options.
+        ...(options.region ? { region: options.region } : {}),
+        ...(options.country ? { country: options.country } : {}),
         ...(Object.keys(options).length ? { options } : {})
       }),
       signal: AbortSignal.timeout(timeoutMs)

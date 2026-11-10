@@ -2129,6 +2129,39 @@
  "offerRetryAt": {
   "message": "Відповіді повернуться о {0}."
  },
+ "similarWhere": {
+  "message": "Де шукати"
+ },
+ "similarWorld": {
+  "message": "По всьому світу"
+ },
+ "similarLocal": {
+  "message": "Поруч зі мною"
+ },
+ "similarLocalIn": {
+  "message": "Поруч · {0}"
+ },
+ "similarWhereHint": {
+  "message": "Спершу виберіть, де шукати."
+ },
+ "similarLess": {
+  "message": "Менш схожі"
+ },
+ "similarPercent": {
+  "message": "Схоже на {0}%"
+ },
+ "similarDiffers": {
+  "message": "Відмінність: {0}"
+ },
+ "similarRegionLocked": {
+  "message": "Немає в App Store вашої країни"
+ },
+ "similarRatings": {
+  "message": "Оцінок: {0}"
+ },
+ "similarReviewersSay": {
+  "message": "Відгуки: {0}"
+ },
  "tip_4cf1b54b00": {
   "message": "Поради"
  },
