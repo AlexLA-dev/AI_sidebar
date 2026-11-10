@@ -1511,6 +1511,15 @@
  "orgMerged": {
   "message": "Đã gộp vào “{0}”"
  },
+ "orgMergeHere": {
+  "message": "Gộp “{0}” vào đây"
+ },
+ "orgMergeHereA11y": {
+  "message": "Gộp cuộc trò chuyện cũ “{0}” vào cuộc này"
+ },
+ "orgMergedHere": {
+  "message": "Đã gộp “{0}” vào đây"
+ },
  "recs_one": {
   "message": "{0} gợi ý"
  },

@@ -1511,6 +1511,15 @@
  "orgMerged": {
   "message": "Fusionné avec « {0} »"
  },
+ "orgMergeHere": {
+  "message": "Ramener « {0} » ici"
+ },
+ "orgMergeHereA11y": {
+  "message": "Fusionner l’ancien chat « {0} » avec celui-ci"
+ },
+ "orgMergedHere": {
+  "message": "« {0} » ramené ici"
+ },
  "recs_one": {
   "message": "{0} recommandation"
  },

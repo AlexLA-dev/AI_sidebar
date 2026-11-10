@@ -1511,6 +1511,15 @@
  "orgMerged": {
   "message": "Объединено с «{0}»"
  },
+ "orgMergeHere": {
+  "message": "Присоединить «{0}» сюда"
+ },
+ "orgMergeHereA11y": {
+  "message": "Присоединить к этому чату прежний чат «{0}»"
+ },
+ "orgMergedHere": {
+  "message": "«{0}» присоединён сюда"
+ },
  "recs_one": {
   "message": "{0} рекомендация"
  },

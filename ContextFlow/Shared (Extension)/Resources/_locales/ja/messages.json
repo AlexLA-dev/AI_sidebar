@@ -1511,6 +1511,15 @@
  "orgMerged": {
   "message": "「{0}」に統合しました"
  },
+ "orgMergeHere": {
+  "message": "「{0}」をここに統合"
+ },
+ "orgMergeHereA11y": {
+  "message": "前のチャット「{0}」をこのチャットに統合"
+ },
+ "orgMergedHere": {
+  "message": "「{0}」をここに統合しました"
+ },
  "recs_one": {
   "message": "おすすめ {0} 件"
  },

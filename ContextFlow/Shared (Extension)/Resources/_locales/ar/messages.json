@@ -1511,6 +1511,15 @@
  "orgMerged": {
   "message": "دُمجت مع «{0}»"
  },
+ "orgMergeHere": {
+  "message": "أضف «{0}» هنا"
+ },
+ "orgMergeHereA11y": {
+  "message": "أضف المحادثة الأقدم «{0}» إلى هذه المحادثة"
+ },
+ "orgMergedHere": {
+  "message": "أُضيفت «{0}» هنا"
+ },
  "recs_one": {
   "message": "توصية واحدة"
  },

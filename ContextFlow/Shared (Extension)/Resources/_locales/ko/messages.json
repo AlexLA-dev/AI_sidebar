@@ -1511,6 +1511,15 @@
  "orgMerged": {
   "message": "‘{0}’에 합쳤어요"
  },
+ "orgMergeHere": {
+  "message": "‘{0}’을 여기로 합치기"
+ },
+ "orgMergeHereA11y": {
+  "message": "이전 채팅 ‘{0}’을 이 채팅에 합치기"
+ },
+ "orgMergedHere": {
+  "message": "‘{0}’을 여기로 합쳤어요"
+ },
  "recs_one": {
   "message": "추천 {0}개"
  },
