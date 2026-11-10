@@ -4,7 +4,7 @@ What's new in ContextFlow 2.6:
 • Find similar: looking at a product, an app, an article, a recipe or a place? Tap Find similar for real alternatives: cheaper, newer, in stock, free or in your language, or say what you need in your own words. Every link is opened and checked before you see it, and you can watch the price of any of them
 • Ultra watches up to 50 pages at once
 • Yearly plans for Own key, Pro and Ultra. Moving up from Pro to Ultra starts at once, and Apple refunds what's left of Pro
-• New to ContextFlow? A short guide walks you through your first answer, and it doesn't use up your answers for the day. To see it again: … → Show the intro again
+• New to ContextFlow? A short guide walks you through your first answer, and it doesn't use up your answers for the day. To see it again: … → Other… → Replay the basics tour
 • Select text on iPhone or iPad and quick actions sit right in the “Your question…” field: swipe for Summarize, Translate, Explain simply and more
 • Selected text already in your language? Translate now offers another language, like English
 • ContextFlow now speaks Traditional Chinese, Arabic and Vietnamese: 14 languages in all

@@ -702,7 +702,7 @@
   "message": "Tout le reste"
  },
  "tourMenuBody": {
-  "message": "Rappels et pages surveillées, Astuces, Réglages et cette introduction sont dans ce menu."
+  "message": "Rappels et pages surveillées, Astuces, Réglages et la visite des bases sont dans ce menu."
  },
  "guideSumTitle": {
   "message": "Votre première réponse"
@@ -753,7 +753,7 @@
   "message": "Choisissez une action rapide, comme « {0} », ou écrivez votre question."
  },
  "uxShowIntro": {
-  "message": "Revoir l’introduction"
+  "message": "Refaire la visite des bases"
  },
  "uxOther": {
   "message": "Autres…"
@@ -1745,6 +1745,12 @@
  "listenStop": {
   "message": "Arrêter"
  },
+ "listenClose": {
+  "message": "Arrêter et fermer"
+ },
+ "listenPlayingHere": {
+  "message": "En cours de lecture"
+ },
  "listenLoading": {
   "message": "Préparation de la voix…"
  },
@@ -2186,6 +2192,12 @@
  "tip_4acd9995ac": {
   "message": "Cliquez sur ✦ dans la page ou sur l’icône ContextFlow dans la barre d’outils, ou appuyez sur Control-Shift-E."
  },
+ "tip_af26b6788c": {
+  "message": "Écartez ✦ de votre lecture"
+ },
+ "tip_6d2694aec4": {
+  "message": "✦ cache ce que vous lisez ? Faites-le glisser vers le haut ou le bas le long du bord, ou de l’autre côté : il reste là où vous le lâchez."
+ },
  "tip_2749afe54a": {
   "message": "L’essentiel en un geste"
  },
@@ -2210,11 +2222,8 @@
  "tip_b4d2d0edad": {
   "message": "Sélectionnez du texte sur une page : « Résumer », « Traduire », « Trouver similaire » et d’autres attendent dans le champ « Votre question… » juste en dessous. Faites-les défiler du doigt et touchez-en une, sans rien taper."
  },
- "tip_2aef052e5b": {
-  "message": "Boutons sous la sélection"
- },
- "tip_894f528548": {
-  "message": "Sélectionnez du texte sur une page : « Expliquer », « Traduire », Google et « Trouver similaire » sont des boutons juste en dessous. Cliquez sur l’un d’eux, ou tapez votre propre question dans le champ en dessous."
+ "tip_2105cc684e": {
+  "message": "Sélectionnez du texte sur une page : « Résumer », « Traduire », « Trouver similaire » et d’autres attendent dans le champ « Votre question… » juste en dessous. Faites-les défiler avec le trackpad ou la molette de la souris et cliquez sur l’une d’elles, sans rien taper."
  },
  "tip_9000896590": {
   "message": "La discussion vous suit"
@@ -2285,8 +2294,8 @@
  "tip_b2248495b1": {
   "message": "Touchez « Trouver similaire » parmi les actions du panneau, ou dans le menu « … » en haut du panneau. Ou sélectionnez du texte, comme le nom d’un produit, et touchez « Trouver similaire » dans les actions rapides en dessous. Ajoutez une condition comme « Moins cher » ou « En stock » si vous voulez : les alternatives sont réelles, et chaque lien est ouvert et vérifié avant que vous ne le voyiez."
  },
- "tip_9161a2ed42": {
-  "message": "Cliquez sur « Trouver similaire » parmi les actions du panneau, ou dans le menu « … » en haut du panneau. Ou sélectionnez du texte, comme le nom d’un produit, et cliquez sur le bouton « Trouver similaire » en dessous. Ajoutez une condition comme « Moins cher » ou « En stock » si vous voulez : les alternatives sont réelles, et chaque lien est ouvert et vérifié avant que vous ne le voyiez."
+ "tip_31666a3aab": {
+  "message": "Cliquez sur « Trouver similaire » parmi les actions du panneau, ou dans le menu « … » en haut du panneau. Ou sélectionnez du texte, comme le nom d’un produit, et cliquez sur « Trouver similaire » dans les actions rapides en dessous. Ajoutez une condition comme « Moins cher » ou « En stock » si vous voulez : les alternatives sont réelles, et chaque lien est ouvert et vérifié avant que vous ne le voyiez."
  },
  "tip_c518fb0674": {
   "message": "Écouter"
@@ -2417,11 +2426,11 @@
  "tip_e2d1d4abd0": {
   "message": "Ajoutez une ligne dans « À propos de moi » — votre métier, le style de réponse que vous aimez — et ContextFlow s’adaptera à vous."
  },
- "tip_10400d6345": {
-  "message": "Le bouton ✦, à votre façon"
+ "tip_1e9a1535cb": {
+  "message": "Masquez ✦ quand vous n’en avez pas besoin"
  },
- "tip_4c60874441": {
-  "message": "✦ cache quelque chose sur la page ? Faites-le glisser vers le haut ou le bas le long du bord, ou de l’autre côté : il reste là où vous le lâchez. Vous pouvez aussi le masquer sur un site précis ou le désactiver partout dans les réglages de l’extension. ContextFlow s’ouvre toujours depuis le menu des extensions de Safari."
+ "tip_6cc366173d": {
+  "message": "Pas besoin de ✦ sur un site ? Masquez-le sur ce site ou désactivez-le partout dans les réglages de l’extension. ContextFlow s’ouvre toujours depuis le menu des extensions de Safari."
  },
  "tip_8a727e1bbe": {
   "message": "Utilisez votre clé d’API"

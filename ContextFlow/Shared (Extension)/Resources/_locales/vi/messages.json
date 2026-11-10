@@ -702,7 +702,7 @@
   "message": "Mọi thứ khác"
  },
  "tourMenuBody": {
-  "message": "Lời nhắc, các trang đang theo dõi, Mẹo, Cài đặt và phần giới thiệu này đều nằm trong menu này."
+  "message": "Lời nhắc, các trang đang theo dõi, Mẹo, Cài đặt và hướng dẫn cơ bản đều nằm trong menu này."
  },
  "guideSumTitle": {
   "message": "Câu trả lời đầu tiên"
@@ -753,7 +753,7 @@
   "message": "Chọn một thao tác nhanh, như “{0}”, hoặc tự nhập câu hỏi."
  },
  "uxShowIntro": {
-  "message": "Xem lại phần giới thiệu"
+  "message": "Xem lại hướng dẫn cơ bản"
  },
  "uxOther": {
   "message": "Khác…"
@@ -1745,6 +1745,12 @@
  "listenStop": {
   "message": "Dừng"
  },
+ "listenClose": {
+  "message": "Dừng và đóng"
+ },
+ "listenPlayingHere": {
+  "message": "Đang phát"
+ },
  "listenLoading": {
   "message": "Đang chuẩn bị giọng đọc…"
  },
@@ -2186,6 +2192,12 @@
  "tip_4acd9995ac": {
   "message": "Bấm vào ✦ trên trang hoặc biểu tượng ContextFlow trên thanh công cụ, hoặc nhấn Control-Shift-E."
  },
+ "tip_af26b6788c": {
+  "message": "Dời ✦ ra chỗ khác"
+ },
+ "tip_6d2694aec4": {
+  "message": "✦ che mất phần bạn đang đọc? Kéo nút lên hoặc xuống dọc theo cạnh, hoặc sang phía bên kia: nút sẽ ở yên chỗ bạn thả."
+ },
  "tip_2749afe54a": {
   "message": "Nắm ý chính chỉ với một chạm"
  },
@@ -2210,11 +2222,8 @@
  "tip_b4d2d0edad": {
   "message": "Chọn văn bản trên trang: Tóm tắt, Dịch, Tìm tương tự và các thao tác khác nằm sẵn trong ô Câu hỏi của bạn… ngay bên dưới. Vuốt qua chúng và chạm vào một mục, không cần gõ."
  },
- "tip_2aef052e5b": {
-  "message": "Các nút dưới đoạn đã chọn"
- },
- "tip_894f528548": {
-  "message": "Chọn văn bản trên trang: Giải thích, Dịch, Google và Tìm tương tự là các nút ngay bên dưới. Bấm vào một nút, hoặc nhập câu hỏi của bạn vào ô bên dưới."
+ "tip_2105cc684e": {
+  "message": "Chọn văn bản trên trang: Tóm tắt, Dịch, Tìm tương tự và các thao tác khác nằm sẵn trong ô Câu hỏi của bạn… ngay bên dưới. Cuộn qua chúng bằng bàn di chuột hoặc con lăn chuột và bấm vào một mục, không cần gõ."
  },
  "tip_9000896590": {
   "message": "Cuộc trò chuyện đi theo bạn"
@@ -2285,8 +2294,8 @@
  "tip_b2248495b1": {
   "message": "Chạm vào Tìm tương tự trong các thao tác của bảng, hoặc trong menu … ở đầu bảng. Hoặc chọn văn bản, như tên một sản phẩm, rồi chạm vào Tìm tương tự trong các thao tác nhanh bên dưới. Thêm điều kiện như Rẻ hơn hoặc Còn hàng nếu muốn: các lựa chọn thay thế đều có thật, và mọi liên kết đều được mở và kiểm tra trước khi bạn xem."
  },
- "tip_9161a2ed42": {
-  "message": "Bấm vào Tìm tương tự trong các thao tác của bảng, hoặc trong menu … ở đầu bảng. Hoặc chọn văn bản, như tên một sản phẩm, rồi bấm nút Tìm tương tự bên dưới. Thêm điều kiện như Rẻ hơn hoặc Còn hàng nếu muốn: các lựa chọn thay thế đều có thật, và mọi liên kết đều được mở và kiểm tra trước khi bạn xem."
+ "tip_31666a3aab": {
+  "message": "Bấm vào Tìm tương tự trong các thao tác của bảng, hoặc trong menu … ở đầu bảng. Hoặc chọn văn bản, như tên một sản phẩm, rồi bấm Tìm tương tự trong các thao tác nhanh bên dưới. Thêm điều kiện như Rẻ hơn hoặc Còn hàng nếu muốn: các lựa chọn thay thế đều có thật, và mọi liên kết đều được mở và kiểm tra trước khi bạn xem."
  },
  "tip_c518fb0674": {
   "message": "Nghe"
@@ -2417,11 +2426,11 @@
  "tip_e2d1d4abd0": {
   "message": "Thêm một dòng vào Về tôi (bạn làm nghề gì, thích câu trả lời ra sao) và ContextFlow sẽ trả lời hợp với bạn hơn."
  },
- "tip_10400d6345": {
-  "message": "Nút ✦ theo ý bạn"
+ "tip_1e9a1535cb": {
+  "message": "Ẩn ✦ khi không cần"
  },
- "tip_4c60874441": {
-  "message": "Nút che mất thứ gì trên trang? Kéo ✦ lên hoặc xuống dọc theo cạnh, hoặc sang phía bên kia: nút sẽ ở yên chỗ bạn thả. Bạn cũng có thể ẩn nút trên một trang web, hoặc tắt ở mọi nơi trong phần cài đặt tiện ích mở rộng. ContextFlow vẫn mở được từ menu tiện ích mở rộng của Safari."
+ "tip_6cc366173d": {
+  "message": "Không cần ✦ trên một trang web? Ẩn nút trên trang đó, hoặc tắt ở mọi nơi trong phần cài đặt tiện ích mở rộng. ContextFlow vẫn mở được từ menu tiện ích mở rộng của Safari."
  },
  "tip_8a727e1bbe": {
   "message": "Dùng khóa API riêng"

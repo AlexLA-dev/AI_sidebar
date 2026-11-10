@@ -190,6 +190,9 @@ export type BackgroundRequest =
   // Read aloud playing in the panel on iPhone and iPad (2.6): what the app needs to carry on from the same second
   // ("state", as it plays), the page went away ("away": the notification now), came back ("back"), or it stopped.
   | { type: "listenHandoff"; op: "state" | "away" | "back" | "stop"; id: string; at?: number; starts?: number[]; parts?: string[]; complete?: boolean; speed?: number; title?: string; body?: string }
+  // Back on the page after a hand-off (build 93): whether the app sent the person back for this text ("Back to Safari",
+  // or notifications just turned on: then `play` it here), and whether the app has taken it over.
+  | { type: "listenReturn"; id: string }
   // The line under a free answer that skipped the page's video or PDFs: shown, or its "Try Pro" tapped.
   | { type: "mediaNotice"; action: "shown" | "pro"; media: MediaKind[] }
   // An Own key subscriber and Pro: a refusal (starts the day before the discount), the discount card shown, a tap.
@@ -224,7 +227,7 @@ export type BackgroundRequest =
   // Chat UX counts (2.5), no text: see UX_KINDS in netlify/functions/v2-event.mts.
   | { type: "uxEvent"; kind: "ux_mark" | "ux_pin" | "ux_delete" | "ux_remind"; action: string; what?: string; how?: string; preset?: string }
   // A step for the feature counters: the analytics registry's "use" kind (src/shared/usage.ts), named values only.
-  | { type: "useEvent"; f: "menu" | "later" | "tour" | "bubble" | "listen" | "plans" | "chat_plans"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string; heard_s?: number; cache_s?: number; icloud_s?: number; server_s?: number; charged_s?: number }
+  | { type: "useEvent"; f: "menu" | "later" | "tour" | "bubble" | "listen" | "plans" | "chat_plans"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string; heard_s?: number; cache_s?: number; icloud_s?: number; server_s?: number; charged_s?: number; cur?: string; sf?: string }
 
 /** A PDF's text, or why there is none ("none": nothing to read, e.g. scanned pages). */
 export type PdfResult =
@@ -308,6 +311,9 @@ export const STORAGE = {
   lastPrices: "cf:lastPrices",
   // Notifications on for ContextFlow, as the app's side last said (build 92): Listen decides from it inside the tap.
   notifyOn: "cf:notifyOn",
+  // iPhone, iPad (build 93): the last hand-off of Listen to the app, so coming back from it ("Back to Safari", or once
+  // notifications are on) brings the panel back as it was.
+  listenBack: "cf:listenBack",
   // Recent pages' text on this device ({ [url]: { title, text, at } }) for "whole chat" answers.
   pageTexts: "cf:pageTexts",
   // How many times the hint about writing notes with the send button was shown, or -1 once used.
