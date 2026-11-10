@@ -212,6 +212,10 @@ test("name (2.6): Haiku names the chat in the person's words, checks the current
   assert.deepEqual((await call({ op: "name", chat, current: "Chat sorting" })).body, { fits: true, title: "Sorting chats by topic" })
   claude.compare = '{"better":"B"}'
   assert.deepEqual((await call({ op: "name", chat, current: "Chat sorting" })).body, { fits: false, title: "Sorting chats by topic" })
+  // The same name in other capitals: it stays, nothing compared.
+  const asked = claude.calls
+  assert.deepEqual((await call({ op: "name", chat, current: "sorting chats BY TOPIC" })).body, { fits: true, title: "Sorting chats by topic" })
+  assert.equal(claude.calls, asked + 1)
   // It fits already: no comparison.
   claude.text = '{"fits":true,"title":"Sorting chats"}'
   const before = claude.calls

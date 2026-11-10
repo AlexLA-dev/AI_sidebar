@@ -1347,7 +1347,8 @@ nonisolated enum Organize {
     static func nameState(after previous: OrgState.Name?, key: String, fits: Bool, title: String, current: String) -> OrgState.Name {
         let no = previous?.no ?? []
         let refused = no.contains { lower($0) == lower(title) }
-        return OrgState.Name(k: key, t: !fits && !title.isEmpty && title != current && !refused ? title : nil, no: no)
+        // The same name in other capitals is no new one (2.6 (94)).
+        return OrgState.Name(k: key, t: !fits && !title.isEmpty && lower(title) != lower(current) && !refused ? title : nil, no: no)
     }
 }
 

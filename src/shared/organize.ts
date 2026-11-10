@@ -806,7 +806,8 @@ export function orgStateFor(thread: Thread, move: MoveSuggestion | null, tags: A
 export function nameStateAfter(previous: OrgState["nm"], key: string, answer: { fits: boolean; title: string }, current: string): NonNullable<OrgState["nm"]> {
   const no = previous?.no ?? []
   const refused = no.some((x) => x.toLowerCase() === answer.title.toLowerCase())
-  const suggest = !answer.fits && answer.title && answer.title !== current && !refused
+  // The same name in other capitals is no new one (2.6 (94)).
+  const suggest = !answer.fits && answer.title && answer.title.toLowerCase() !== current.toLowerCase() && !refused
   return { k: key, ...(suggest ? { t: answer.title } : {}), ...(no.length ? { no } : {}) }
 }
 

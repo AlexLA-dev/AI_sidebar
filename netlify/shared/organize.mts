@@ -336,7 +336,10 @@ export async function judgeTags(check: TagCheck, signal?: AbortSignal): Promise<
 export async function nameChat(check: NameCheck, signal?: AbortSignal): Promise<Asked<{ fits: boolean; title: string }> & { compared?: "new" | "current" | "same" }> {
   const named = await askJson({ name: "name", system: NAME_SYSTEM, prompt: namePrompt(check), schema: NAME_SCHEMA, read: (text) => nameFrom(text, check) }, signal)
   const current = check.current
-  if (named.answer.fits || !current || named.answer.title.toLowerCase() === current.toLowerCase()) return named
+  if (named.answer.fits || !current) return named
+  // The same name in other capitals is no new name (build 93 suggested "Japan Trip Planning in Kyoto" for "Japan trip
+  // planning in Kyoto").
+  if (named.answer.title.toLowerCase() === current.toLowerCase()) return { ...named, answer: { fits: true, title: named.answer.title } }
   const newFirst = coin() < 0.5
   const picked = await askJson({
     name: "compare",

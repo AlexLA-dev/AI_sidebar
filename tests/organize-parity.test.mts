@@ -432,6 +432,7 @@ move(site, [site, ikea, japan], { cfg: { minMatch: 10, siteT: 0.01 } })
     { n, k: last(pile), mv, tg: [[entryKey(pile.m[1]), "React"], [entryKey(pile.m[7]), "TRAVEL"], ["nope", "X"]] })
   kept(pile, { n, k: last(pile), nm: { k: "k1", t: "React and a trip", no: ["react AND a trip"] } }, { answer: { fits: false, title: "REACT and a trip" } })
   kept({ ...pile, title: "Mine", aiTitle: "Mine", ait: "Mine" } as Thread, { n, k: last(pile), nm: { k: "k1", t: "Mine" } }, { answer: { fits: true, title: "Whatever" } })
+  kept({ ...pile, title: "Japan trip", aiTitle: "Japan trip", ait: "Japan trip" } as Thread, { n, k: last(pile) }, { answer: { fits: false, title: "JAPAN Trip" }, current: "Japan trip" })
   kept({ ...pile, title: "Typed", aiTitle: "AI's", ait: "AI's" } as Thread, { n, k: last(pile), nm: { k: "k1", t: "React and a trip" } }, { current: "Typed" })
   for (const junk of [null, 5, "x", [], { n: "2", k: "" }, { n: true, k: "" }, { n: 1 }, { n: 1, k: "", mv: { s: 0, e: 0, to: 3, why: "topic" }, tg: [["a", 1], ["b", "B", "extra"], "c", ["d"]], nm: { k: "z", t: "", no: [1, "N"] } },
     { n: 1, k: "", mx: ["a", 5, "", "b"], mv: { s: 0, e: 3, to: "x", why: "merge", mt: 80 } }, { n: 1, k: "", mx: "a" },
