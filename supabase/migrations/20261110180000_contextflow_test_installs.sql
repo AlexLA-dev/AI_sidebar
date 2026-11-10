@@ -1,7 +1,13 @@
 -- Our own test installs marked at the source (contextflow.installs.is_test, with why), set from now on by triggers,
 -- and left out of every report through one place: the views contextflow.test_installs and contextflow.test_ids.
--- Applied after 20261110120000_contextflow_mrr_retention.sql. Before this, each report had its own copy of the test
--- filter (some without "calibrate", some without our own subscriptions, cf_ads_funnel without any).
+-- Before this, each report had its own copy of the test filter (some without "calibrate", some without our own
+-- subscriptions, cf_ads_funnel without any).
+--
+-- Order: apply after 20261108140000_contextflow_ultra_report.sql and 20261109120000_contextflow_memory_window.sql (and
+-- 20261110120000_contextflow_mrr_retention.sql). Its cf_ultra_report and cf_limits_report are those migrations' latest
+-- definitions with only the test filter replaced; the guard below stops it if either isn't applied yet, so a later
+-- run of one of them can't drop the shared filter again. Every function it creates or replaces gets its grants set
+-- here (reports: service_role only), so it's safe in any state of the database it accepts.
 --
 -- What the backfill touches: contextflow.installs only. Every row it changes, or adds for an install that has events
 -- but no installs row yet, gets is_test = true, test_reason, test_since = now(); nothing else changes and nothing is
@@ -14,6 +20,22 @@
 --            day only, at most one answer, never a paid plan (automation that didn't mark itself)
 -- From now on the triggers below mark an install the moment such an event, install_days row or own subscription
 -- arrives (the server already marks deploy previews and dev-check, and the apps mark debug and TestFlight builds).
+
+do $guard$
+begin
+  if to_regprocedure('public.cf_ultra_report(integer)') is null then
+    raise exception 'apply 20261108140000_contextflow_ultra_report.sql first: public.cf_ultra_report(integer) is missing';
+  end if;
+  if not exists (
+    select 1 from pg_proc where oid = to_regprocedure('public.cf_limits_report(integer)') and prosrc like '%memory (build 92)%'
+  ) then
+    raise exception 'apply 20261109120000_contextflow_memory_window.sql first: cf_limits_report is not its build 92 version';
+  end if;
+  if to_regprocedure('public.cf_retention(integer)') is null then
+    raise exception 'apply 20261110120000_contextflow_mrr_retention.sql first: public.cf_retention(integer) is missing';
+  end if;
+end
+$guard$;
 
 alter table contextflow.installs
   add column if not exists is_test boolean not null default false,
@@ -376,6 +398,8 @@ returns jsonb language sql security definer set search_path = '' stable as $$
     )
   );
 $$;
+revoke all on function public.cf_usage_report(integer) from public, anon, authenticated;
+grant execute on function public.cf_usage_report(integer) to service_role;
 
 -- public.cf_owner_insights: our test installs from contextflow.test_installs [latest version: 20261108120000_contextflow_ultra.sql]
 create or replace function public.cf_owner_insights(p_days integer default 30)
@@ -665,6 +689,8 @@ returns jsonb language sql stable security definer set search_path = '' as $$
     )
   );
 $$;
+revoke all on function public.cf_owner_insights(integer) from public, anon, authenticated;
+grant execute on function public.cf_owner_insights(integer) to service_role;
 
 -- public.cf_limits_report: our test installs from contextflow.test_installs [latest version: 20261109120000_contextflow_memory_window.sql]
 create or replace function public.cf_limits_report(p_days integer default 28)
@@ -813,6 +839,8 @@ returns jsonb language sql stable security definer set search_path = '' as $$
       ) order by key) from all_rows), '[]'::jsonb)
   )
 $$;
+revoke all on function public.cf_limits_report(integer) from public, anon, authenticated;
+grant execute on function public.cf_limits_report(integer) to service_role;
 
 -- public.cf_onboarding: our test installs from contextflow.test_installs [latest version: 20261106120000_contextflow_funnel_to_paid.sql]
 create or replace function public.cf_onboarding(p_days integer default 30)
@@ -956,6 +984,8 @@ returns jsonb language sql stable security definer set search_path = '' as $$
     ), '[]'::jsonb)
   );
 $$;
+revoke all on function public.cf_onboarding(integer) from public, anon, authenticated;
+grant execute on function public.cf_onboarding(integer) to service_role;
 
 -- public.cf_new_user_outcomes: our test installs from contextflow.test_installs [latest version: 20261110120000_contextflow_mrr_retention.sql]
 create or replace function public.cf_new_user_outcomes(p_days integer default 30)
@@ -1012,6 +1042,8 @@ returns jsonb language sql stable security definer set search_path = '' as $$
   ) order by x.day), '[]'::jsonb)
   from days x
 $$;
+revoke all on function public.cf_new_user_outcomes(integer) from public, anon, authenticated;
+grant execute on function public.cf_new_user_outcomes(integer) to service_role;
 
 -- public.cf_retention: our test installs from contextflow.test_installs [latest version: 20261110120000_contextflow_mrr_retention.sql]
 create or replace function public.cf_retention(p_days integer default 90)
@@ -1113,6 +1145,8 @@ returns jsonb language sql stable security definer set search_path = '' as $$
     )
   )
 $$;
+revoke all on function public.cf_retention(integer) from public, anon, authenticated;
+grant execute on function public.cf_retention(integer) to service_role;
 
 -- public.cf_after_limit: our test installs from contextflow.test_installs [latest version: 20261108120000_contextflow_ultra.sql]
 create or replace function public.cf_after_limit(p_days integer default 30)
@@ -1231,6 +1265,8 @@ returns jsonb language sql stable security definer set search_path = '' as $$
     ), '[]'::jsonb)
   )
 $$;
+revoke all on function public.cf_after_limit(integer) from public, anon, authenticated;
+grant execute on function public.cf_after_limit(integer) to service_role;
 
 -- public.cf_setup_funnel: our test installs from contextflow.test_installs [latest version: 20261102150000_contextflow_subscription_terms.sql]
 create or replace function public.cf_setup_funnel(p_days integer default 30)
@@ -1280,6 +1316,8 @@ returns jsonb language sql stable security definer set search_path = '' as $$
   ) order by d.day desc), '[]'::jsonb)
   from days d;
 $$;
+revoke all on function public.cf_setup_funnel(integer) from public, anon, authenticated;
+grant execute on function public.cf_setup_funnel(integer) to service_role;
 
 -- public.cf_organize_report: our test installs from contextflow.test_installs [latest version: 20261104100000_contextflow_organize_report.sql]
 create or replace function public.cf_organize_report(p_days integer default 28)
@@ -1339,6 +1377,8 @@ returns jsonb language sql stable security definer set search_path = '' as $$
     'api', (select to_jsonb(a) from api a)
   )
 $$;
+revoke all on function public.cf_organize_report(integer) from public, anon, authenticated;
+grant execute on function public.cf_organize_report(integer) to service_role;
 
 -- public.cf_ultra_report: our test installs from contextflow.test_installs [latest version: 20261108140000_contextflow_ultra_report.sql]
 create or replace function public.cf_ultra_report(p_days integer default 30)
@@ -1550,6 +1590,8 @@ returns jsonb language sql stable security definer set search_path = '' as $$
     )
   )
 $$;
+revoke all on function public.cf_ultra_report(integer) from public, anon, authenticated;
+grant execute on function public.cf_ultra_report(integer) to service_role;
 
 -- public.cf_features: our test installs from contextflow.test_installs [latest version: 20261104210000_contextflow_features_real_active.sql]
 create or replace function public.cf_features(p_days integer default 28, p_base jsonb default '{}'::jsonb)
@@ -1696,6 +1738,8 @@ returns jsonb language sql stable security definer set search_path = '' as $$
     )
   )
 $$;
+revoke all on function public.cf_features(integer, jsonb) from public, anon, authenticated;
+grant execute on function public.cf_features(integer, jsonb) to service_role;
 
 -- contextflow.feature_events: our test installs from contextflow.test_installs [latest version: 20261104120000_contextflow_feature_usage.sql]
 create or replace function contextflow.feature_events(p_from timestamptz)
@@ -1800,6 +1844,7 @@ language sql stable set search_path = '' as $$
     and not contextflow.in_review_any(e.data->>'platform', e.data->>'version', e.created_at)
   order by e.created_at
 $$;
+revoke all on function contextflow.feature_events(timestamptz) from public, anon, authenticated;
 
 -- public.cf_ads_funnel: our test installs from contextflow.test_installs [latest version: 20261108120000_contextflow_ultra.sql]
 create or replace function public.cf_ads_funnel(p_from date, p_to date)
@@ -1857,3 +1902,5 @@ language sql stable security definer set search_path = '' as $$
   group by 1, 2, 3
   order by 7 desc, 4 desc;
 $$;
+revoke all on function public.cf_ads_funnel(date, date) from public, anon, authenticated;
+grant execute on function public.cf_ads_funnel(date, date) to service_role;
