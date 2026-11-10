@@ -431,12 +431,12 @@ move(site, [site, ikea, japan], { cfg: { minMatch: 10, siteT: 0.01 } })
   move(japan, [japan, thread("onejapan2", [...qa("japan", "https://jg.example/2"), ...qa("japan", "https://jg.example/2")])])
   move(japan, [japan, thread("titleonly", [...qa2("japan", "bread", "https://jg.example/1"), ...qa2("japan", "bread", "https://jg.example/5")])])
   move(japan, [japan, fresh], { cfg: { mergeA: 0.99 } })
-  const luggage = thread("luggage", [...qa("bags", "https://ryanair.example/bags"), ...qa("bags", "https://cabinzero.example/36l")])
-  const ipad = thread("ipadmix", [...qa("ipad", "https://apple.example/ipad-mini"), ...qa("ipad", "https://apple.example/ipad-mini"), ...qa("bags", "https://airback.example/rollerbags")])
-  move(ipad, [ipad, luggage, bread])
-  move(ipad, [ipad, bread])
-  move(ipad, [ipad, bread], { cfg: { splitMin: 3 } })
-  move(thread("backagain", [...qa("ipad", "https://apple.example/ipad-mini"), ...qa("kombucha", "https://kitchn.example/k"), ...qa2("ipad", "kombucha", "https://apple.example/ipad-mini")]), [bread])
+  const tents = thread("tents", [...qa("tents", "https://outdoor.example/tents"), ...qa("tents", "https://campshop.example/2p")])
+  const camera = thread("cameramix", [...qa("camera", "https://shop.example/camera-x"), ...qa("camera", "https://shop.example/camera-x"), ...qa("tents", "https://other.example/tent-y")])
+  move(camera, [camera, tents, bread])
+  move(camera, [camera, bread])
+  move(camera, [camera, bread], { cfg: { splitMin: 3 } })
+  move(thread("backagain", [...qa("camera", "https://shop.example/camera-x"), ...qa("kombucha", "https://kitchn.example/k"), ...qa2("camera", "kombucha", "https://shop.example/camera-x")]), [bread])
   const monitors = thread("monitors", [...qa("monitor", "https://rtings.example/dell"), ...qa("monitor", "https://lg.example/27")])
   const vpage = "https://roborock.example/s8"
   const vacuum = thread("vacuum", [...qa("vacuum", vpage), ...qa("vacuum", vpage), ...qa("vacuum", vpage), ...qa2("vacuum", "monitor", vpage)])
@@ -445,6 +445,9 @@ move(site, [site, ikea, japan], { cfg: { minMatch: 10, siteT: 0.01 } })
   move(vacuum, [vacuum, monitors, bread], { cfg: { moveD: 0.9 } })
   const oneQ = thread("oneq", [...qa("monitor", "https://rtings.example/dell"), ...qa("monitor", "https://rtings.example/dell")])
   move(vacuum, [vacuum, oneQ, bread])
+  // A page with one question on the chat's topic and then one on another: only the latter goes.
+  move(thread("narrow", [...qa("react", "https://react.example/1"), ...qa("react", "https://react.example/2"), ...qa("react", "https://react.example/9"), ...qa("kombucha", "https://react.example/9")]), [bread])
+  move(thread("narrow2", [...qa("react", "https://react.example/1"), ...qa("react", "https://react.example/2"), ...qa("react", "https://react.example/9"), ...qa("japan", "https://react.example/9")]), [japan, bread])
   const headphones = thread("headphones", [...qa("headphones", "https://rtings.example/xm5"), ...qa("headphones", "https://rtings.example/airpods"), ...qa("headphones", "https://apple.example/airpods")])
   move(thread("monitorq", [...qa("monitor", "https://rtings.example/dell"), ...qa("monitor", "https://rtings.example/dell")]), [headphones])
   move(thread("monitorq2", [...qa("headphones", "https://rtings.example/dell"), ...qa("headphones", "https://rtings.example/dell")]), [headphones])
@@ -609,11 +612,11 @@ suggestions.push(
     { role: "user", content: "   ", note: true },
     { role: "assistant", content: "_*_ ### >>> |||" },
     // 2.6 (95): Find similar, by what it's about.
-    { role: "user", content: "Cheaper", label: "Cheaper", similarAsk: "", page: { url: "https://airback.example/r", title: "Vacuum **Rollerbags** - Airback" } },
-    { role: "user", content: "Дешевле", label: "Дешевле", similarAsk: "в наличии", similarSel: "  рюкзак  с насосом ", page: { url: "https://x.example/1", title: "Рюкзак" } },
+    { role: "user", content: "Cheaper", label: "Cheaper", similarAsk: "", page: { url: "https://shop.example/r", title: "Earbuds **X** - Example Shop" } },
+    { role: "user", content: "Дешевле", label: "Дешевле", similarAsk: "в наличии", similarSel: "  палатка  на двоих ", page: { url: "https://x.example/1", title: "Палатка" } },
     { role: "user", content: "Cheaper", label: "Cheaper", similarAsk: "", page: { url: "https://x.example/2", title: "" } },
     { role: "user", content: "Cheaper", similarAsk: "" },
-    { role: "assistant", content: "Rolling backpacks like the Airback, some with vacuum compression.\n\n1. **[Travel Backpack 55L, Grey](https://a.example/1)** (amazon.com) — Pump. The page states no price. _(Not confirmed)_\n2. **[Fanwoli [2-in-1] Vacuum Backpack](https://a.example/2)** (amazon.com) — Pump. _(132.29 USD · Not confirmed)_\n 3. **[Третий](https://a.example/3)** (x.ru) — y\n\nCheck the delivery to Cyprus." },
+    { role: "assistant", content: "Wireless earbuds like the Earbuds X, some with noise cancelling.\n\n1. **[Buds One, Black](https://a.example/1)** (a.example) — ANC. The page states no price. _(Not confirmed)_\n2. **[Sound [2-in-1] Pod](https://a.example/2)** (b.example) — Case. _(59.00 USD · Not confirmed)_\n 3. **[Третий](https://a.example/3)** (x.ru) — y\n\nCheck the delivery before buying." },
     { role: "assistant", content: "1. **[Only list](https://a.example/1)** (a) — x\n2. **[Second](https://a.example/2)** (b) — y" },
     { role: "assistant", content: "1. **[One item](https://a.example/1)** (a) — x\nnot a list" }
   ] },

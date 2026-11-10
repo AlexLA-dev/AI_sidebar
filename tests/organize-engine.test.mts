@@ -136,7 +136,7 @@ test("texts, packed vectors, thresholds and the pile signal", () => {
   assert.equal(looksMixed(japan, cfg), false)
 })
 
-// The owner's notes on 2.6 (90): notes count, and moves make chats more about one thing, in one direction.
+// 2.6 (90): notes count, and moves make chats more about one thing, in one direction.
 function note(topic: string, url: string, text: string): Entry {
   topicOf.set(text, topic)
   clock += 1_000
@@ -297,9 +297,8 @@ test("a name turned down never comes back; a fitting name, or one the user typed
   assert.equal(openName({ ...c, title: "Mine", org: { n: 4, k: "", nm: first } }), undefined)
 })
 
-// The owner's notes on 2.6 (93): «было 3 ответа по одной теме, а последний вообще по другой… не предлагаю это сообщение
-// вынести в отдельный чат, а должно»; and «чаты по одной теме и одним страницам… сливать в один, присоединяя более
-// старый к более новому».
+// 2.6 (94): an answer off its chat's topic at the end of a page block gets a suggestion of its own; chats on one topic
+// and the same pages merge, the older one into the newer one.
 test("an answer off the chat's topic on the same page goes to the chat about it, else to a new chat", () => {
   const page = "https://react/1"
   const off = chat("off", [...qa("react", page), ...qa("react", page), ...qa("react", page), ...qa("japan", page)])
@@ -370,16 +369,16 @@ test("2.6 (95): chats on a shared page merge when their answers are on one topic
   assert.deepEqual([suggestMove(older, [older, oneBlock], vectorOf, cfg)?.why, suggestMove(older, [older, oneBlock], vectorOf, cfg)?.to], ["merge", "oneblock"])
 })
 
-test("2.6 (95): a chat of two pages on two topics: the newer page goes (the owner's iPad mini and backpack)", () => {
-  const luggage = chat("luggage", [...qa("bags", "https://ryanair/bags"), ...qa("bags", "https://cabinzero/36l")])
-  const ipad = chat("ipad", [...qa("ipad", "https://apple/ipad-mini"), ...qa("ipad", "https://apple/ipad-mini"), ...qa("bags", "https://airback/rollerbags")])
-  const s = suggestMove(ipad, [ipad, luggage, bread], vectorOf, cfg)!
-  assert.deepEqual([s.start, s.end, s.to, s.why], [4, 5, "luggage", "topic"])
+test("2.6 (95): a chat of two pages on two topics: the newer page goes", () => {
+  const tents = chat("tents", [...qa("tents", "https://outdoor/tents"), ...qa("tents", "https://campshop/2p")])
+  const camera = chat("camera", [...qa("camera", "https://shop/camera-x"), ...qa("camera", "https://shop/camera-x"), ...qa("tents", "https://other/tent-y")])
+  const s = suggestMove(camera, [camera, tents, bread], vectorOf, cfg)!
+  assert.deepEqual([s.start, s.end, s.to, s.why], [4, 5, "tents", "topic"])
   // No chat for it: a new chat, as two questions stay.
-  const alone = suggestMove(ipad, [ipad, bread], vectorOf, cfg)!
+  const alone = suggestMove(camera, [camera, bread], vectorOf, cfg)!
   assert.deepEqual([alone.start, alone.end, alone.to, alone.why], [4, 5, null, "apart"])
   // A block on a page the chat has elsewhere is that chat's.
-  const back = chat("back", [...qa("ipad", "https://apple/ipad-mini"), ...qa("kombucha", "https://kitchn/k"), ...qa2("ipad", "kombucha", "https://apple/ipad-mini")])
+  const back = chat("back", [...qa("camera", "https://shop/camera-x"), ...qa("kombucha", "https://kitchn/k"), ...qa2("camera", "kombucha", "https://shop/camera-x")])
   assert.ok(suggestMove(back, [back, bread], vectorOf, cfg)?.start !== 4)
 })
 
@@ -399,11 +398,21 @@ test("2.6 (95): a site's chat takes a chat of questions on that site only on its
 })
 
 test("2.6 (95): a Find similar request and answer are embedded by what they're about, not by the condition and caveats", () => {
-  const page = { url: "https://airback.nl/en/vacuum-rollerbags", title: "Vacuum Rollerbags - Airback", at: 1 }
-  assert.equal(embedText({ role: "user", content: "Cheaper", label: "Cheaper", similarAsk: "", page }), "Vacuum Rollerbags - Airback")
-  assert.equal(embedText({ role: "user", content: "Cheaper", label: "Cheaper", similarAsk: "", similarSel: "the 55L model", page }), "the 55L model\nVacuum Rollerbags - Airback")
-  const list = "Rolling backpacks like the Airback.\n\n1. **[Travel Backpack 55L](https://a.com/1)** (amazon.com) — Pump. The page states no price, so it's unclear whether it is cheaper than 249 EUR; it is on amazon.com, not a Cyprus shop. _(Not confirmed)_\n2. **[Fanwoli Vacuum Backpack](https://a.com/2)** (amazon.com) — Electric pump. _(132.29 USD · Not confirmed)_\n\nCheck the price and delivery to Cyprus before buying."
-  assert.equal(embedText({ role: "assistant", content: list }), "Rolling backpacks like the Airback.\nTravel Backpack 55L; Fanwoli Vacuum Backpack")
+  const page = { url: "https://shop.example/earbuds-x", title: "Earbuds X - Example Shop", at: 1 }
+  assert.equal(embedText({ role: "user", content: "Cheaper", label: "Cheaper", similarAsk: "", page }), "Earbuds X - Example Shop")
+  assert.equal(embedText({ role: "user", content: "Cheaper", label: "Cheaper", similarAsk: "", similarSel: "the pro model", page }), "the pro model\nEarbuds X - Example Shop")
+  const list = "Wireless earbuds like the Earbuds X.\n\n1. **[Buds One](https://a.example/1)** (a.example) — Noise cancelling. The page states no price, so it's unclear whether it is cheaper than 99 EUR; it is not a local shop. _(Not confirmed)_\n2. **[Sound Pod 2](https://b.example/2)** (b.example) — Long battery. _(59.00 USD · Not confirmed)_\n\nCheck the price and delivery before buying."
+  assert.equal(embedText({ role: "assistant", content: list }), "Wireless earbuds like the Earbuds X.\nBuds One; Sound Pod 2")
   // An answer that only has a numbered list of its own is embedded as before.
   assert.equal(embedText({ role: "assistant", content: "1. Boil water\n2. Add pasta" }), "1. Boil water 2. Add pasta")
+})
+
+test("2.6 (95): a page with a question on the chat's topic and then one on another: only the latter goes", () => {
+  const sleep = chat("sleepchat", [...qa("sleep", "https://sleep/caffeine"), ...qa("sleep", "https://sleep/caffeine"), ...qa("sleep", "https://sleep/light"), ...qa("kombucha", "https://sleep/light")])
+  const s = suggestMove(sleep, [sleep, bread], vectorOf, cfg)!
+  assert.deepEqual([s.start, s.end, s.to], [6, 7, null])
+  // A page whose questions are all off the chat goes whole.
+  const two = chat("twoff", [...qa("sleep", "https://sleep/caffeine"), ...qa("sleep", "https://sleep/caffeine"), ...qa("kombucha", "https://k/1"), ...qa("kombucha", "https://k/1")])
+  const w = suggestMove(two, [two, bread], vectorOf, cfg)!
+  assert.deepEqual([w.start, w.end, w.to], [4, 7, null])
 })

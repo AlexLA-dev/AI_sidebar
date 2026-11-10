@@ -179,7 +179,8 @@ nonisolated struct OrganizeConfig: Sendable {
     var splitT = 0.35
     var splitMin = 2.0
     // 2.6 (94): the end of a block off its chat's topic (`tailMove`): its fit to the rest of the chat by its question and
-    // answers, by its answers, and how alike two such exchanges' answers are to go together.
+    // answers, by its answers, and how alike two such exchanges' answers are to go together (checked on the whole set in
+    // 2.6 (95): src/shared/organize.ts).
     var tailQA = 0.4
     var tailA = 0.22
     var tailAlike = 0.3
@@ -889,7 +890,13 @@ nonisolated enum Organize {
             if a.score - a.current != b.score - b.current { return a.score - a.current > b.score - b.current }
             return a.end > b.end
         }
-        return best ?? tailMove(chat, blocks, others, vectorOf, cfg)
+        guard let best else { return tailMove(chat, blocks, others, vectorOf, cfg) }
+        // 2.6 (95): a block whose start is on the chat's topic and whose end isn't: only its end goes.
+        if best.why == .apart || best.why == .topic, let index = groups.first(where: { $0.suggestion == best })?.index, blocks[index].start == best.start,
+           let end = tailMove(chat, blocks, others, vectorOf, cfg, only: index), end.start > best.start {
+            return end
+        }
+        return best
     }
 
     /// How many questions and notes of `entries` are outside `start`…`end`: what stays after a move of them.
@@ -942,7 +949,7 @@ nonisolated enum Organize {
     /// rest of the chat, whose answers are `tailAlike`, with `splitMin` questions or notes staying. Off: below `tailQA` by
     /// question and answers and `tailA` by answers, or (2.6 (95)) its answers fit another chat by `moveD` more than the
     /// rest. They go to a chat mostly about them from `minMatch` %, else to a new chat when no chat fits them.
-    private static func tailMove(_ chat: OrganizeThread, _ blocks: [ScoredBlock], _ others: [Other], _ vectorOf: VectorOf, _ cfg: OrganizeConfig) -> MoveSuggestion? {
+    private static func tailMove(_ chat: OrganizeThread, _ blocks: [ScoredBlock], _ others: [Other], _ vectorOf: VectorOf, _ cfg: OrganizeConfig, only: Int? = nil) -> MoveSuggestion? {
         let first = Int(max(0, Double(blocks.count) - cfg.window).rounded(.up))
         guard first < blocks.count else { return nil }
         func vectorsOf(_ o: Other) -> [(v: [Float], w: Double)] { o.blocks.compactMap(\.v).map { (v: $0, w: 1.0) } }
@@ -958,6 +965,7 @@ nonisolated enum Organize {
             return best
         }
         for i in stride(from: blocks.count - 1, through: first, by: -1) {
+            if let only, i != only { continue }
             let b = blocks[i]
             if b.settled || b.dismissed { continue }
             let xs = exchanges(chat.entries, b, vectorOf)
@@ -966,6 +974,11 @@ nonisolated enum Organize {
             let besides = blocks.enumerated().filter { $0.offset != i && $0.element.v != nil }.map(\.element)
             let outer = besides.map { (v: $0.v!, w: 1.0) }
             let outerA = besides.map { (v: $0.a!, w: 1.0) }
+            // Narrowing a block's move (`only`): its first exchange has to be on the rest of the chat's topic.
+            if only != nil {
+                guard !outer.isEmpty, let head = xs[0].v else { continue }
+                if topMean(head, outer, 2) < cfg.tailQA && topMean(xs[0].a!, outerA, 2) < cfg.tailA { continue }
+            }
             let elsewhere = answers.map { $0.flatMap(fitsElsewhere) }
             // The longest such end.
             var from = -1
