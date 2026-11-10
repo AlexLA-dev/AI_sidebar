@@ -95,11 +95,14 @@ test("a rating in the product's header text: the average with how many next to i
   assert.deepEqual(page.rating, { value: 4.6, best: 5, count: 687 })
 })
 
-test("the page's own reviews section is kept for what reviewers say", () => {
-  const reviews = `<section><h2>Customer Reviews</h2>${"<div class='jdgm-rev'><p>Fits a week of clothes, the pump is quick. Zips feel cheap though.</p></div>".repeat(8)}</section>`
+test("the page's own reviews section is kept for what reviewers say — only one that reads like reviews", () => {
+  const reviews = `<section><h2>Customer Reviews</h2>${"<div class='jdgm-rev'><span>★★★★★</span><b>Anna K. Verified Buyer</b><p>Fits a week of clothes, the pump is quick. Zips feel cheap though.</p><small>03/10/2026 · Was this helpful?</small></div>".repeat(8)}</section>`
   const text = reviewsSection(html("Backvac Pro", reviews))
-  assert.match(text ?? "", /^Customer Reviews Fits a week of clothes/)
+  assert.match(text ?? "", /^Customer Reviews ★★★★★ Anna K\. Verified Buyer Fits a week of clothes/)
   assert.equal(reviewsSection(html("No reviews here")), undefined)
+  // A header's count and a marketing block: not reviews.
+  const marketing = `<p>4.9 · 25,000 reviews</p><section><h2>Fits inside, from real travelers</h2>${"<p>Pack a week into a carry-on with our patented vacuum system and travel lighter than ever before.</p>".repeat(8)}</section>`
+  assert.equal(reviewsSection(html("Backvac Pro Max", marketing)), undefined)
 })
 
 test("what reviewers like and dislike: short, without numbers", () => {
@@ -283,7 +286,7 @@ test("one marketplace listing at most across all searches: their pages can't be 
 
 test("a rated item without reviewers' words on its page still gets a review page looked for (the owner's Backvac: 687 ratings, no words)", async () => {
   const rated = candidate("https://mybackvac.com/products/backvacpro", html("Backvac Pro", "", ld({ "@type": "Product", name: "Backvac Pro", aggregateRating: { ratingValue: 4.6, reviewCount: 687 } })), "Backvac Pro")
-  const withWords = candidate("https://packntrip.store/p", html("PacknTrip ProPack", `<section><h2>Customer Reviews</h2>${"<p>Compression works, sturdy through flights.</p>".repeat(10)}</section>`), "PacknTrip ProPack")
+  const withWords = candidate("https://packntrip.store/p", html("PacknTrip ProPack", `<section><h2>Customer Reviews</h2>${"<p>Verified Buyer · 2 weeks ago</p><p>Compression works, sturdy through flights.</p>".repeat(10)}</section>`), "PacknTrip ProPack")
   assert.ok(withWords.page.reviewsText)
   const asked: string[] = []
   const real = globalThis.fetch

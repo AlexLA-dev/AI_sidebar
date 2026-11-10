@@ -274,18 +274,29 @@ export function textRating(text: string): PageRating | undefined {
   return found?.count ? found : undefined
 }
 
-const REVIEWS_HEAD = /(customer reviews|reviews\s*\(\d|\d[\d,.]*\s+reviews|what (?:our )?customers (?:are )?say(?:ing)?|from real (?:travell?ers|customers|buyers)|verified (?:buyer|purchase)|отзывы|kundenbewertungen|bewertungen|avis clients|avis vérifiés|reseñas|opiniones|recensioni|avaliações)/i
+const REVIEWS_HEAD = /(customer reviews|reviews\s*\(\d|\d[\d,.]*\s+reviews|what (?:our )?customers (?:are )?say(?:ing)?|verified (?:buyer|purchase)|отзывы|kundenbewertungen|bewertungen|avis clients|avis vérifiés|reseñas|opiniones|recensioni|avaliações)/gi
+// What reviews themselves look like: a reviewer marked verified, "helpful", a date, a star rating, a reviewer's name line.
+const REVIEW_MARKS = [
+  /verified (?:buyer|purchase|customer|reviewer)|подтвержд[её]нн|verifizierte|achat vérifié|compra verificada/i,
+  /helpful|полезн|hilfreich|utile|útil/i,
+  /\b(?:\d{1,2}[./]\d{1,2}[./]\d{2,4}|\d{4}-\d{2}-\d{2}|(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.? \d{1,2},? \d{4}|\d{1,2} (?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]* \d{4})\b/i,
+  /\b[1-5](?:[.,]\d)?\s*(?:out of 5|\/ ?5|stars?)\b|★/i,
+  /\b(?:days?|weeks?|months?|years?) ago\b|назад/i
+]
 
 /**
- * Build 94 (the owner: «на сайте отзывов полно»): the page's own reviews — the text after its reviews heading,
- * wherever the theme puts it (often after <main>) — for what reviewers say. Undefined when there is none.
+ * Build 94 (the owner: «на сайте отзывов полно»): the page's own reviews — the text after a reviews heading, wherever
+ * the theme puts it (often after <main>) — for what reviewers say. Only a part that reads like reviews (two of: a
+ * verified reviewer, "helpful", dates, stars, "… ago"): a header's "687 reviews" or a marketing block isn't one.
  */
 export function reviewsSection(html: string): string | undefined {
   const text = pageText(html.replace(/<(script|style|noscript|template|svg)[^>]*>[\s\S]*?<\/\1>/gi, " "))
-  const m = REVIEWS_HEAD.exec(text.slice(400))
-  if (!m) return undefined
-  const out = text.slice(400 + m.index, 400 + m.index + 3_500).trim()
-  return out.length > 300 ? out : undefined
+  const tail = text.slice(400)
+  for (const m of tail.matchAll(REVIEWS_HEAD)) {
+    const out = tail.slice(m.index, m.index + 3_500).trim()
+    if (out.length > 300 && REVIEW_MARKS.filter((re) => re.test(out)).length >= 2) return out
+  }
+  return undefined
 }
 
 function ldFacts(html: string): LdFacts {

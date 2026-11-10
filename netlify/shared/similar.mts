@@ -291,7 +291,7 @@ export const WRITE_SYSTEM = `You write ContextFlow's "Find similar" answer: a sh
 - Use only the checked pages listed. Each item is one specific alternative with the number of the page that backs it: its own page when there is one; a list or review page only when that page itself names the item.
 - Never write web addresses: the app adds the links.
 - name: the item's name as its page gives it, not translated, nothing added to it.
-- Up to 6 items, best first: every checked page that is a real alternative, the weaker ones too (they are shown apart, as less similar). Never the item the person is on, never the same item twice.
+- Up to 6 items, best first: every checked page that is a real alternative, the weaker ones too (they are shown apart, as less similar). Never the item the person is on, never the same item twice (colors or sizes of one model are one item: take one).
 - why: one short, concrete sentence on what it shares with their item. No ratings or reviews in it: they have their own line.
 - shares: the numbers of the traits listed under "What makes an alternative" that this item has too. For a page that wasn't opened, judge from its search result title.
 - differs: one short phrase on how it differs most from their item ("" when it hardly does).
