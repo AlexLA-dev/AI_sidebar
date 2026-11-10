@@ -7,10 +7,10 @@ import assert from "node:assert/strict"
 import { readFileSync } from "node:fs"
 import { test } from "node:test"
 
-import { linkChats, pendingQuestion, remindsAhead, watchesOn } from "../src/shared/chatMarks.ts"
+import { linkChats, remindsAhead, watchesOn } from "../src/shared/chatMarks.ts"
 import { stripCitations, type Entry } from "../src/shared/conversation.ts"
 import { historyPrompt } from "../src/shared/history.ts"
-import { ORPHAN_MS } from "../src/shared/jobs.ts"
+import { ORPHAN_MS, pendingQuestion } from "../src/shared/jobs.ts"
 import { toPlainText } from "../src/shared/share.ts"
 
 const NOW = 1_800_000_000_000

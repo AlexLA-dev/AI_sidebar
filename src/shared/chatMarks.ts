@@ -1,12 +1,11 @@
 // A chat's row in the chats list, build 94 (the owner, on TestFlight 93: «на полоске чата хочется видеть глаз и число
 // там где установлены наблюдения за изменениями и колокольчик, если напоминалка стоит»): the eye with how many of the
-// chat's pages are watched, the bell while one of its reminders is still to ring, and a spinner while its last
-// question is being answered (an answer or Find similar). And the chats an "Ask your chats" answer names, as links
-// that open them («чтобы при тапе/клике по ним можно было бы сразу перейти на тот чат»).
+// chat's pages are watched, and the bell while one of its reminders is still to ring (the spinner's rule is
+// pendingQuestion, in jobs.ts next to interruption). And the chats an "Ask your chats" answer names, as links that open
+// them («чтобы при тапе/клике по ним можно было бы сразу перейти на тот чат»).
 // Pure, shared by the panel, the server and tests; the app has the same in RowMarks (Later.swift; the tests read both).
 
-import { isQuestion, urlKey, type Entry } from "./conversation.ts"
-import { ORPHAN_MS } from "./jobs.ts"
+import { urlKey, type Entry } from "./conversation.ts"
 
 /** Whether a reminder in the chat is still to ring: the bell on its row. */
 export function remindsAhead(m: readonly Entry[], now = Date.now()): boolean {
@@ -19,18 +18,6 @@ export function watchesOn(m: readonly Entry[], watched: readonly string[]): numb
   const pages = new Set<string>()
   for (const e of m) if (e.role === "user" && e.page?.url) pages.add(urlKey(e.page.url))
   return pages.size ? watched.filter((url) => pages.has(urlKey(url))).length : 0
-}
-
-/**
- * Whether the chat's last question is still being answered somewhere: no answer after it yet, asked under ORPHAN_MS
- * ago. What a device without the job sees (the app, another device); on the device running it the job says so
- * (runningThreads), however long it takes. The same rule as `interruption`, the other way round.
- */
-export function pendingQuestion(m: readonly Entry[], now = Date.now()): boolean {
-  const last = m[m.length - 1]
-  if (!isQuestion(last)) return false
-  const at = last.t ?? last.page?.at
-  return at !== undefined && now - at >= -60_000 && now - at < ORPHAN_MS
 }
 
 // ------------------------------------------------------------ chat links in "Ask your chats"

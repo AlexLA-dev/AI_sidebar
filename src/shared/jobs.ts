@@ -128,6 +128,19 @@ export function interruption(entries: Entry[], jobs: Jobs, live: boolean, now = 
 }
 
 /**
+ * Whether the chat's last question is still being answered somewhere: no answer after it yet, asked under ORPHAN_MS
+ * ago. The chats list's spinner (build 94) where no job here has it: the app, another device. On the device running
+ * it the job says so (runningThreads), however long it takes. The same rule as `interruption`, the other way round:
+ * after ORPHAN_MS a Find similar is over too (its budget and the engine's stop are well under it).
+ */
+export function pendingQuestion(entries: readonly Entry[], now = Date.now()): boolean {
+  const last = entries[entries.length - 1]
+  if (!isQuestion(last)) return false
+  const at = last.t ?? last.page?.at
+  return at !== undefined && now - at >= -60_000 && now - at < ORPHAN_MS
+}
+
+/**
  * Whether a new question repeats the chat's last one, left without an answer: it takes that question's place (2.6
  * (90): an interrupted Find similar asked again showed the question twice).
  */

@@ -284,8 +284,8 @@ struct RemindersView: View {
 /// там где установлены наблюдения за изменениями и колокольчик, если напоминалка стоит»): the eye with how many of the
 /// chat's pages are watched, the bell while one of its reminders is still to ring, and a spinner while its last question
 /// is being answered in Safari (an answer or Find similar, on this device or another one). And the chats an "Ask your
-/// chats" answer names, as links that open them. The same rules as src/shared/chatMarks.ts (tests/chatMarks.test.mts
-/// reads this file).
+/// chats" answer names, as links that open them. The same rules as src/shared/chatMarks.ts and, for the spinner,
+/// pendingQuestion in src/shared/jobs.ts (tests/chatMarks.test.mts reads this file).
 enum RowMarks {
     /// src/shared/jobs.ts ORPHAN_MS: by then a question without an answer isn't being answered any more.
     static let orphan: TimeInterval = 120
