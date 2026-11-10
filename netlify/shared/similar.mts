@@ -265,7 +265,7 @@ export const PLAN_SYSTEM = `Someone is on a web page and asks for similar things
 Work out, once, what to search for:
 - category: what the page is about: product, app (software, tool, online service), article (news, blog post, guide), recipe, place (hotel, restaurant, sight), course, video, paper, job, book, event, other;
 - subject: the thing itself in a few words, the way a person names it ("Sony WH-1000XM6 headphones", "Notion", "slow-cooker beef stew");
-- traits: up to 5 short facts that make something a real alternative: what it is and does (kind, key specs, audience, cuisine, level, place…), never its price (the condition weighs price);
+- traits: up to 5 short facts that make something a real alternative: what it is and does (kind, key specs, audience, cuisine, level, place…), in words another brand's item could share too ("stylus support", not "Apple Pencil Pro"; "compact 8-inch tablet", not "iPad mini"); never its price (the condition weighs price);
 - condition: kind (none, cheaper, in_stock, free, newer, shorter, nearby, language, other); max_price when they named a number (else 0); currency (3 letters, else ""); language they want the results in (BCP 47, else ""); place for nearby (else "");
 - source_price: the price the page itself shows for its item, as a plain number (else 0), and source_currency; a page that lists several items (a category or collection) — the lowest price it shows;
 - queries: 2 to 4 web searches that find the alternatives themselves — their own pages (a shop's product page, the app's site or store page, the recipe, the article, the course page, the listing) — not pages about the item on screen. Mix a direct one with ones that carry the condition. When they want it cheaper or in stock, at most one search may look for this very item at other shops; the others always find alternatives to it (other brands and models). For a branded product, one search names the competing brands or models you know (\"Bosch MUM5 Kenwood kMix Küchenmaschine\"), so the results aren't the same brand again. Write each in the language that finds the best results for this person (usually theirs; English is fine for global products and software);
@@ -1646,20 +1646,16 @@ export class ItemFinisher {
    * the closest first (build 95, the owner: chips «чуть мягче… особенно если нет вариантов с высоким (80%+) уровнем»).
    */
   softTail(): SimilarItem[] {
-    // Nothing else at all: the best of the weak ones rather than an empty answer.
-    if (!this.items.length && !this.held.length && this.weak.length) {
-      const best = [...this.weak].sort((a, b) => (b.similarity ?? 0) - (a.similarity ?? 0))[0]
-      this.items.push(best)
-      return [best]
-    }
     const close = this.items.filter((i) => i.met !== "no" && (i.similarity ?? 100) >= 80).length
-    if (close >= 3 || this.items.length >= 6) return []
-    const tail = this.held
+    const tail = close >= 3 || this.items.length >= 6 ? [] : this.held
       .filter((i) => (i.similarity ?? 0) >= 60)
       .sort((a, b) => (b.similarity ?? 0) - (a.similarity ?? 0))
       .slice(0, Math.min(2, 6 - this.items.length))
     this.items.push(...tail)
-    return tail
+    // Fewer than two items: the best of the weak ones fill in rather than a near-empty answer.
+    const weak = this.items.length < 2 ? [...this.weak].sort((a, b) => (b.similarity ?? 0) - (a.similarity ?? 0)).slice(0, 2 - this.items.length) : []
+    this.items.push(...weak)
+    return [...tail, ...weak]
   }
 
   get full(): boolean {
