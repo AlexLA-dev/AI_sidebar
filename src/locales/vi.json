@@ -748,5 +748,13 @@
   "similarDiffers": "Khác biệt: {0}",
   "similarRegionLocked": "Không có trong App Store ở quốc gia của bạn",
   "similarRatings": "{0} lượt đánh giá",
-  "similarReviewersSay": "Nhận xét: {0}"
+  "similarReviewersSay": "Nhận xét: {0}",
+  "similarNotifyTitle": "Đã tìm xong mục tương tự",
+  "similarNotifyFound": "Tìm thấy {0} lựa chọn. Chạm để xem.",
+  "similarNotifyNone": "Không có gì phù hợp. Chạm để đổi điều kiện.",
+  "similarNotifyFailed": "Tìm kiếm chưa xong. Chạm để thử lại.",
+  "similarSay": "Mọi người nói:",
+  "similarPros": "khen {0}",
+  "similarCons": "chê {0}",
+  "similarEstimated": "ước tính theo mô tả"
 }

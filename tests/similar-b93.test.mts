@@ -134,7 +134,7 @@ test("an intro that says how many is dropped, in any of the languages we know", 
 
 // ---- what reviewers say -------------------------------------------------------------------------
 
-test("reviews: the item's own rating, a review page found and checked, a summary borne out by the page", async () => {
+test("reviews: the item's own rating, a review page found and checked, what reviewers like and dislike borne out by the page", async () => {
   const rated = candidate("https://apps.apple.com/us/app/merlin/id222", appPage("Merlin"), "Merlin")
   const unrated = candidate("https://glarity.app/", html("Glarity – summaries for Safari"), "Glarity")
   const review = html("Glarity review: a fast summarizer", "<p>Reviewers say the summaries are fast and accurate, but the free plan is limited.</p>", ld({ "@type": "Review", itemReviewed: { "@type": "SoftwareApplication", name: "Glarity", aggregateRating: { "@type": "AggregateRating", ratingValue: "4.2", bestRating: "5", reviewCount: "87" } } }))
@@ -143,8 +143,8 @@ test("reviews: the item's own rating, a review page found and checked, a summary
     {
       results: [{ query: "Glarity review", url: "https://techreview.example/glarity-review", title: "Glarity review: a fast summarizer" }],
       reply: { items: [
-        { item: 2, page: 3, summary: "Fast, accurate summaries; the free plan is limited.", quote: "the summaries are fast and accurate, but the free plan is limited" },
-        { item: 1, page: 1, summary: "People love it.", quote: "words that are not on the page at all" }
+        { item: 2, page: 3, pros: "fast, accurate summaries", cons: "the free plan is limited.", quote: "the summaries are fast and accurate, but the free plan is limited" },
+        { item: 1, page: 1, pros: "people love it", cons: "", quote: "words that are not on the page at all" }
       ] }
     },
     () => reviewsStep([rated, unrated], plan(), input(), "en", 10_000)
@@ -154,7 +154,10 @@ test("reviews: the item's own rating, a review page found and checked, a summary
   assert.deepEqual(result.checked[0].reviews, { rating: { value: 4.6, best: 5, count: 1234 }, sources: ["https://apps.apple.com/us/app/merlin/id222"] })
   const g = result.checked[1].reviews!
   assert.deepEqual(g.rating, { value: 4.2, best: 5, count: 87 })
-  assert.equal(g.summary, "Fast, accurate summaries; the free plan is limited.")
+  // Build 94: likes and dislikes apart (a trailing stop dropped), no one-sentence summary.
+  assert.equal(g.pros, "fast, accurate summaries")
+  assert.equal(g.cons, "the free plan is limited")
+  assert.equal(g.summary, undefined)
   assert.deepEqual(g.sources, ["https://techreview.example/glarity-review"])
   assert.deepEqual(result.stats, { items: 2, searches: 1, pages: 1, summaries: 1 })
 })
@@ -169,7 +172,7 @@ test("no reviews for kinds nobody reviews, and nothing claimed when nothing hold
   const other = html("Best note apps reviewed", "<p>Notion and Bear are great note apps with fast sync.</p>")
   const { result: r2 } = await withWeb(
     { "https://reviews.example/notes": other },
-    { results: [{ query: "Glarity review", url: "https://reviews.example/notes", title: "Best note apps reviewed" }], reply: { items: [{ item: 1, page: 1, summary: "Rated 4.5 by 200 people.", quote: "A good description of the item" }] } },
+    { results: [{ query: "Glarity review", url: "https://reviews.example/notes", title: "Best note apps reviewed" }], reply: { items: [{ item: 1, page: 1, pros: "Rated 4.5 by 200 people", cons: "", quote: "A good description of the item" }] } },
     () => reviewsStep([unrated], plan(), input(), "en", 10_000)
   )
   assert.equal(r2.checked[0].reviews, undefined)

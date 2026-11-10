@@ -2171,6 +2171,30 @@
  "similarReviewersSay": {
   "message": "Nhận xét: {0}"
  },
+ "similarNotifyTitle": {
+  "message": "Đã tìm xong mục tương tự"
+ },
+ "similarNotifyFound": {
+  "message": "Tìm thấy {0} lựa chọn. Chạm để xem."
+ },
+ "similarNotifyNone": {
+  "message": "Không có gì phù hợp. Chạm để đổi điều kiện."
+ },
+ "similarNotifyFailed": {
+  "message": "Tìm kiếm chưa xong. Chạm để thử lại."
+ },
+ "similarSay": {
+  "message": "Mọi người nói:"
+ },
+ "similarPros": {
+  "message": "khen {0}"
+ },
+ "similarCons": {
+  "message": "chê {0}"
+ },
+ "similarEstimated": {
+  "message": "ước tính theo mô tả"
+ },
  "tip_4cf1b54b00": {
   "message": "Mẹo"
  },

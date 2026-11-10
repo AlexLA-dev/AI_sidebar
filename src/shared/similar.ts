@@ -36,11 +36,14 @@ export interface SimilarItem {
   // Build 93: how close it is (the share of the subject's traits it has too, 0–100) and how it differs most; under
   // CLOSE_SIMILARITY the panel shows it apart, as less similar, when there are fewer than 3 close ones.
   similarity?: number
+  // Build 94: the page couldn't be opened, so the share was judged from its search result's description only.
+  estimated?: true
   differs?: string
   // Build 93: an App Store app not sold in their country's store.
   regionLocked?: true
-  // Build 93: what its reviewers say — the rating its pages state, a summary its pages bear out, where it was read.
-  reviews?: { rating?: { value: number; best: number; count?: number }; summary?: string; sources: string[] }
+  // Build 93: what its reviewers say — the rating its pages state, where it was read; build 94: what they like (pros)
+  // and dislike (cons), borne out by their words on those pages (build 93's one-sentence summary in answers kept since).
+  reviews?: { rating?: { value: number; best: number; count?: number }; pros?: string; cons?: string; summary?: string; sources: string[] }
 }
 
 /**
@@ -174,7 +177,7 @@ export function cleanItem(raw: unknown): SimilarItem | null {
     ...(w && (w.source === "ld-price" || w.source === "meta-price") && s(w.value, 60) ? { watch: { source: w.source, value: s(w.value, 60) } } : {}),
     ...(cleanPricing(o.pricing) ?? {}),
     ...(/^https?:\/\//i.test(s(o.proof, 2_000)) ? { proof: s(o.proof, 2_000) } : {}),
-    ...(typeof o.similarity === "number" && o.similarity >= 0 && o.similarity <= 100 ? { similarity: Math.round(o.similarity) } : {}),
+    ...(typeof o.similarity === "number" && o.similarity >= 0 && o.similarity <= 100 ? { similarity: Math.round(o.similarity), ...(o.estimated === true ? { estimated: true as const } : {}) } : {}),
     ...(s(o.differs, 200) ? { differs: s(o.differs, 200) } : {}),
     ...(o.regionLocked === true ? { regionLocked: true as const } : {}),
     ...(cleanReviews(o.reviews) ?? {})
@@ -189,9 +192,12 @@ function cleanReviews(raw: unknown): { reviews: NonNullable<SimilarItem["reviews
   const rating = g && typeof g.value === "number" && typeof g.best === "number" && g.value > 0 && g.value <= g.best && g.best <= 100
     ? { value: g.value, best: g.best, ...(typeof g.count === "number" && g.count > 0 ? { count: Math.round(g.count) } : {}) }
     : null
-  const summary = typeof r.summary === "string" ? r.summary.slice(0, 300) : ""
-  if (!sources.length || (!rating && !summary)) return null
-  return { reviews: { ...(rating ? { rating } : {}), ...(summary ? { summary } : {}), sources } }
+  const text = (v: unknown, max: number) => (typeof v === "string" ? v.slice(0, max) : "")
+  const summary = text(r.summary, 300)
+  const pros = text(r.pros, 160)
+  const cons = text(r.cons, 160)
+  if (!sources.length || (!rating && !summary && !pros && !cons)) return null
+  return { reviews: { ...(rating ? { rating } : {}), ...(pros ? { pros } : {}), ...(cons ? { cons } : {}), ...(summary ? { summary } : {}), sources } }
 }
 
 function cleanPricing(raw: unknown): { pricing: SimilarPricing } | null {

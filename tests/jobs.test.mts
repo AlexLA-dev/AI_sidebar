@@ -13,8 +13,8 @@ import { build } from "esbuild"
 
 import type { Entry } from "../src/shared/conversation.ts"
 import {
-  afterRestart, extendsChat, hasUnread, interruption, keepingAnswers, ORPHAN_MS, prunedJobs, repeatsLast, runningThreads, seenIn, unreadThreads,
-  withAnswer, withoutQuestion, type Job, type Jobs
+  activeJobs, afterRestart, extendsChat, hasUnread, interruption, keepingAnswers, ORPHAN_MS, prunedJobs, repeatsLast, RESUME_MS, runningThreads, seenIn,
+  unreadThreads, withAnswer, withoutQuestion, type Job, type Jobs
 } from "../src/shared/jobs.ts"
 
 const q = (id: string, content = "Why?", extra: Partial<Entry> = {}): Entry => ({ role: "user", content, id, t: Date.now(), ...extra })
@@ -87,6 +87,35 @@ test("a background that started again: what it was running was interrupted", () 
   assert.equal(afterRestart({ d: jobs.d }), null)
 })
 
+test("build 94: a recent Find similar waits for its answer on our server after a restart; chats and old ones don't", () => {
+  const now = 1_000_000_000
+  const jobs: Jobs = {
+    s: job({ id: "s", kind: "similar", at: now - 60_000 }),
+    old: job({ id: "old", kind: "similar", at: now - RESUME_MS - 1 }),
+    c: job({ id: "c", kind: "chat", at: now - 1_000 }),
+    w: job({ id: "w", kind: "similar", state: "waiting", at: now - 120_000 })
+  }
+  const next = afterRestart(jobs, now)!
+  assert.equal(next.s.state, "waiting")
+  assert.equal(next.w.state, "waiting")
+  assert.equal(next.old.state, "failed")
+  assert.equal(next.c.state, "failed")
+  // Waiting is at work: the row shows it, nothing is unread, the chat isn't interrupted.
+  assert.deepEqual([...runningThreads({ w: next.w })], ["T"])
+  assert.deepEqual([...unreadThreads({ w: next.w })], [])
+  assert.equal(interruption([q("q1"), a("a1"), q("w")], { w: next.w }, false, now + ORPHAN_MS * 10), null)
+})
+
+test("build 94: the chats list's row knows a Find similar at work (product-26's indicator)", () => {
+  const jobs: Jobs = {
+    a: job({ id: "a", thread: "A", kind: "chat", at: 10 }),
+    b: job({ id: "b", thread: "A", kind: "similar", state: "waiting", at: 20 }),
+    c: job({ id: "c", thread: "B", kind: "similar", state: "done", at: 30 }),
+    d: job({ id: "d", thread: "C", kind: "similar", at: 40 })
+  }
+  assert.deepEqual([...activeJobs(jobs).entries()].sort(), [["A", { kind: "similar", since: 20 }], ["C", { kind: "similar", since: 40 }]])
+})
+
 test("a last question without an answer: interrupted, still working, or too fresh to tell", () => {
   const now = Date.now()
   const asked = [q("q1"), a("a1"), q("q2")]
@@ -147,6 +176,8 @@ let jobs: {
   markSeen: (thread: string) => Promise<void>
   jobsOnStart: () => Promise<void>
   sweepStale: (now?: number) => void
+  setPoller: (p: { result: (id: string, wait: number, signal: AbortSignal) => Promise<any>; take: (id: string) => Promise<void> }) => void
+  onJobEnd: (l: (job: Job, items: number) => void) => void
 }
 let panelStore: { saveThread: (id: string, entries: Entry[]) => Promise<void> }
 
@@ -352,4 +383,97 @@ test("a job that goes quiet ends as interrupted, its request stopped (build 92: 
   assert.equal(stored().q2.code, "STREAM")
   assert.equal(thread()[3].content, "Half") // what came stays
   assert.equal(heard.at(-1).type, "error")
+})
+
+// ---- build 94: Find similar picked up from our server -----------------------------------------------------------
+
+/** Waits until `ready` holds (the machine may be busy: a fixed tick isn't enough), at most 2 s. */
+async function until(ready: () => boolean) {
+  for (let i = 0; i < 200 && !ready(); i++) await tick(10)
+}
+
+/** Our server as the background asks it: answers in turn (the last one repeats), and what was taken. */
+function server(...answers: any[]) {
+  const asked: Array<{ id: string; wait: number }> = []
+  const taken: string[] = []
+  jobs.setPoller({
+    result: async (id, wait) => {
+      asked.push({ id, wait })
+      // A moment on the network, as the real one takes.
+      await tick(3)
+      return answers.length > 1 ? answers.shift() : answers[0]
+    },
+    take: async (id) => {
+      taken.push(id)
+    }
+  })
+  return { asked, taken }
+}
+
+const found = (n: number) => ({ intro: "", items: Array.from({ length: n }, (_, i) => ({ name: `Bag ${i + 1}`, url: `https://shop.example/${i + 1}`, host: "shop.example", why: "", fit: "", met: "n/a", title: "", source: "item", checked: true })), note: "", condition: "cheaper" })
+
+test("build 94: Safari left mid-search — the cut stream waits, the server's answer goes into the chat", async () => {
+  const srv = server({ state: "running" }, { state: "done", result: found(3) })
+  const ends: Array<[string, number]> = []
+  jobs.onJobEnd((j, n) => ends.push([j.state, n]))
+  const s = scripted()
+  const heard: any[] = []
+  jobs.startJob({ id: "q2", thread: "T", kind: "similar", asked: "cheaper" }, s.run, (e) => heard.push(e))
+  s.push({ type: "kept" })
+  s.push({ type: "progress", step: "search" })
+  s.push({ type: "error", code: "STREAM" })
+  await until(() => stored().q2?.state === "done" && thread().length > 3)
+  assert.equal(heard.some((e) => e.type === "waiting"), true)
+  const answer = thread()[3]
+  assert.equal(answer.similar?.items.length, 3)
+  assert.equal(answer.similar?.asked, "cheaper")
+  assert.equal(stored().q2.state, "done")
+  assert.deepEqual(srv.asked.map((x) => x.id), ["q2", "q2"])
+  assert.deepEqual(srv.taken, ["q2"])
+  assert.deepEqual(ends.at(-1), ["done", 3])
+})
+
+test("build 94: a search our server didn't keep ends as interrupted, as before", async () => {
+  server({ state: "unknown" })
+  const s = scripted()
+  jobs.startJob({ id: "q2", thread: "T", kind: "similar", asked: "" }, s.run, () => undefined)
+  s.push({ type: "error", code: "STREAM" }) // no "kept": the request never reached the server
+  await until(() => stored().q2?.state === "failed")
+  assert.equal(stored().q2.state, "failed")
+  const t = scripted()
+  jobs.startJob({ id: "q3", thread: "T", kind: "similar", asked: "" }, t.run, () => undefined)
+  t.push({ type: "kept" })
+  t.push({ type: "error", code: "STREAM" })
+  await until(() => stored().q3?.state === "failed")
+  // Kept, but the server has no such job (an older server): interrupted.
+  assert.equal(stored().q3.state, "failed")
+  assert.equal(stored().q3.code, "STREAM")
+})
+
+test("build 94: a kept search that goes quiet (the background suspended) waits instead of failing", async () => {
+  server({ state: "failed", code: "UPSTREAM" })
+  const s = scripted()
+  jobs.startJob({ id: "q2", thread: "T", kind: "similar", asked: "" }, s.run, () => undefined)
+  s.push({ type: "kept" })
+  jobs.sweepStale(Date.now() + 80_000)
+  await until(() => stored().q2?.state === "failed")
+  assert.equal(s.aborted(), true)
+  // The server said the search failed: that's the outcome, with its code.
+  assert.equal(stored().q2.state, "failed")
+  assert.equal(stored().q2.code, "UPSTREAM")
+})
+
+test("build 94: the background started again — a recent Find similar is followed and picked up from the server", async () => {
+  const srv = server({ state: "done", result: found(2) })
+  store["cf:jobs"] = { q2: job({ id: "q2", kind: "similar", asked: "in stock", at: Date.now() - 90_000 }) }
+  await jobs.jobsOnStart()
+  const back: any[] = []
+  // A panel coming back to it meanwhile follows it like any job.
+  jobs.follow("q2", (e) => back.push(e))
+  await until(() => stored().q2?.state === "done" && back.at(-1)?.type === "done")
+  assert.equal(stored().q2.state, "done")
+  assert.equal(thread()[3].similar?.items.length, 2)
+  assert.equal(thread()[3].similar?.asked, "in stock")
+  assert.deepEqual(srv.taken, ["q2"])
+  assert.equal(back.at(-1).type, "done")
 })

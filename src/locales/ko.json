@@ -748,5 +748,13 @@
   "similarDiffers": "차이: {0}",
   "similarRegionLocked": "내 국가의 App Store에 없음",
   "similarRatings": "평가 {0}개",
-  "similarReviewersSay": "리뷰: {0}"
+  "similarReviewersSay": "리뷰: {0}",
+  "similarNotifyTitle": "비슷한 항목 찾기 완료",
+  "similarNotifyFound": "찾은 항목: {0}개. 탭하여 보기.",
+  "similarNotifyNone": "맞는 항목이 없습니다. 탭하여 조건을 변경하세요.",
+  "similarNotifyFailed": "검색이 끝나지 않았습니다. 탭하여 다시 시도하세요.",
+  "similarSay": "사용자 평:",
+  "similarPros": "장점: {0}",
+  "similarCons": "단점: {0}",
+  "similarEstimated": "설명 기반 추정"
 }

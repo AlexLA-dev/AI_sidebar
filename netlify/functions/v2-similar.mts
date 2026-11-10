@@ -11,6 +11,7 @@ import { blockReason, resolveAccess, similarCountersFor, ultraUsage, type Access
 import { readPrice } from "../shared/pagecheck.mts"
 import { MAX_CONDITION, MAX_PAGE_TEXT, MAX_SELECTION, runEngineA, similarEvalToken, type EngineOverrides, type EngineStats, type SimilarInput, type SourceFacts } from "../shared/similar.mts"
 import { googleCost, startEngineB } from "../shared/similar-google.mts"
+import { JOB_ID, jobKey, jobStore, sweepJobs, type StoredResult } from "../shared/jobs.mts"
 // Who may find similar things (Ultra in 2.6): one seam with the panel (src/shared/similar.ts).
 import { similarAllowed } from "../../src/shared/similar.ts"
 
@@ -25,7 +26,10 @@ import { similarAllowed } from "../../src/shared/similar.ts"
  *
  * Body: { installId, client: {version, platform, locale, build, audience?}, entitlement, engine: "a" | "b",
  *         page: {title, url, text, facts?: {price?, currency?, stock?, published?, duration?, lang?}}, condition,
- *         selection? (≤ 1000 chars: what was selected; alternatives to what it describes, the page as context) }
+ *         selection? (≤ 1000 chars: what was selected; alternatives to what it describes, the page as context),
+ *         region? ("world" | "local"), country? (two letters), job? (engine A, build 94: the question's id) }
+ * With a job, the search runs to its end even when the request goes away (the person left Safari) and its answer is
+ * kept for /api/v2/similar-result (netlify/shared/jobs.mts).
  * Response (SSE): {type:"progress", step, …} … then
  *   "a": {type:"result", engine:"a", intro, items:[{name, why, fit, met, url, host, title, source, checked, price?, stock?, date?}], note, condition}
  *   "b": {type:"delta", text} … {type:"grounding", text, grounding:{sources, suggestions, queries}}
@@ -87,10 +91,28 @@ export default async (req: Request, context: Context): Promise<Response> => {
     }
   }
 
+  // Build 94: kept for the asker to pick up if it goes away meanwhile (a store that can't be written: as before).
+  const jobId = engine === "a" && typeof body.job === "string" && JOB_ID.test(body.job) ? body.job : ""
+  const store = jobId ? jobStore() : null
+  const key = jobId ? jobKey(installId, jobId) : ""
+  const kept = store ? await store.set(key, { state: "running", at: Date.now() }).then(() => true, () => false) : false
+  let result: StoredResult | null = null
+
   const started = Date.now()
   const encoder = new TextEncoder()
-  const send = (controller: ReadableStreamDefaultController<Uint8Array>, payload: unknown) =>
-    controller.enqueue(encoder.encode(`data: ${JSON.stringify(payload)}\n\n`))
+  // The asker may go away mid-answer: a kept job carries on without it.
+  let gone = false
+  const send = (controller: ReadableStreamDefaultController<Uint8Array>, payload: unknown) => {
+    if (gone) return
+    try {
+      controller.enqueue(encoder.encode(`data: ${JSON.stringify(payload)}\n\n`))
+    } catch {
+      gone = true
+      if (!kept) throw new Error("the asker went away")
+    }
+  }
+  // A kept job isn't stopped by its request going away; it ends at the engine's own time.
+  const signal = kept ? AbortSignal.timeout(settings.similar.budgetMs + 20_000) : req.signal
   const statsA: EngineStats = { ms: {}, spend: {}, usd: 0, searches: 0, candidates: 0, checked: 0, kept: 0 }
   const statsB: GoogleStats = { promptTokens: 0, completionTokens: 0, chars: 0, grounding: null }
   let ok = false
@@ -114,10 +136,11 @@ export default async (req: Request, context: Context): Promise<Response> => {
       }, 5_000)
       try {
         if (engine === "a") {
-          for await (const event of runEngineA(input, statsA, { signal: req.signal, debug: evaluating, overrides: evaluating ? overridesOf(body.options) : {} })) {
+          for await (const event of runEngineA(input, statsA, { signal, debug: evaluating, overrides: evaluating ? overridesOf(body.options) : {} })) {
             if (event.type === "result") {
               items = event.items.length
               condition = event.condition
+              result = { intro: event.intro, items: event.items, note: event.note, condition: event.condition }
             }
             send(controller, event)
           }
@@ -156,11 +179,18 @@ export default async (req: Request, context: Context): Promise<Response> => {
         } catch {
           // already closed
         }
+        // The answer for whoever picks it up: the panel back in Safari, or the app iOS woke for it.
+        if (kept && store) {
+          await store.set(key, ok && result ? { state: "done", at: started, end: Date.now(), result } : { state: "failed", at: started, end: Date.now(), code: "UPSTREAM" }).catch(() => undefined)
+          await sweepJobs(store, installId).catch(() => undefined)
+        }
         finished()
       }
     }
   })
 
+  // A kept job outlives its request: the function stays until it ended and its answer is stored.
+  if (kept) context.waitUntil(done)
   if (!evaluating) {
     context.waitUntil(done.then(() => Promise.all([
       ...(ok ? [] : [refund(counters).catch(() => undefined)]),
@@ -199,7 +229,8 @@ function overridesOf(raw: unknown): EngineOverrides {
     ...(o.searchMode === "single" || o.searchMode === "parallel" ? { searchMode: o.searchMode } : {}),
     ...(typeof o.followUps === "string" && /^[0-4]$/.test(o.followUps) ? { followUps: Number(o.followUps) } : {}),
     ...(o.stream === "off" ? { stream: false } : o.stream === "on" ? { stream: true } : {}),
-    ...(o.reviews === "off" ? { reviews: false } : o.reviews === "on" ? { reviews: true } : {})
+    ...(o.reviews === "off" ? { reviews: false } : o.reviews === "on" ? { reviews: true } : {}),
+    ...(o.siblings === "off" ? { siblings: false } : o.siblings === "on" ? { siblings: true } : {})
   }
 }
 

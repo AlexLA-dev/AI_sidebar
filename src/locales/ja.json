@@ -748,5 +748,13 @@
   "similarDiffers": "違い: {0}",
   "similarRegionLocked": "お住まいの国の App Store にはありません",
   "similarRatings": "{0}件の評価",
-  "similarReviewersSay": "レビュー: {0}"
+  "similarReviewersSay": "レビュー: {0}",
+  "similarNotifyTitle": "類似アイテムの検索が完了",
+  "similarNotifyFound": "見つかった候補：{0}件。タップして表示。",
+  "similarNotifyNone": "条件に合うものはありません。タップして条件を変更。",
+  "similarNotifyFailed": "検索が完了しませんでした。タップして再試行。",
+  "similarSay": "評判：",
+  "similarPros": "好評：{0}",
+  "similarCons": "不満：{0}",
+  "similarEstimated": "説明文からの推定"
 }

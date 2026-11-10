@@ -17,6 +17,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^1.2.0",
     "@mozilla/readability": "^0.6.0",
+    "@netlify/blobs": "11.1.5",
     "@supabase/supabase-js": "^2.93.2",
     "preact": "^10.27.2"
   },

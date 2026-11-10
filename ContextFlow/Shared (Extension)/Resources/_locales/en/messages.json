@@ -2171,6 +2171,30 @@
  "similarReviewersSay": {
   "message": "Reviewers: {0}"
  },
+ "similarNotifyTitle": {
+  "message": "Find similar is done"
+ },
+ "similarNotifyFound": {
+  "message": "Options found: {0}. Tap to see them."
+ },
+ "similarNotifyNone": {
+  "message": "Nothing that fits. Tap to change the condition."
+ },
+ "similarNotifyFailed": {
+  "message": "The search didn't finish. Tap to try again."
+ },
+ "similarSay": {
+  "message": "What people say:"
+ },
+ "similarPros": {
+  "message": "like {0}"
+ },
+ "similarCons": {
+  "message": "dislike {0}"
+ },
+ "similarEstimated": {
+  "message": "estimated from the description"
+ },
  "tip_4cf1b54b00": {
   "message": "Tips"
  },
