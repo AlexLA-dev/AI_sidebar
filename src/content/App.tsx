@@ -2575,7 +2575,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       <span class="cf-sel-remind-l">{t("uxRemind")}</span>
     </button>
   )
-  // The actions added to the selection bubble, after the bell (watching's eye); none for plain text.
+  // The actions added to the selection bubble, after the bell (watching's eye, on any selection where watching works).
   const bubbleExtras: VNode[] = bubble?.rect && !open && !popup
     ? bubbleActions().flatMap((render, i) => {
         const ctx: BubbleContext = { url: source.href(), key: source.key(), title: source.title(), selection: bubble.text, range: selectedRange(), close: () => setBubble(null) }
@@ -2588,7 +2588,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // вниз, куда-то над окошком для ввода запроса, чтобы вводя текст было понятно к чему он относится. При этом свечение
   // при выборе текста оставить» and «около окна ввода запроса нужно добавить какие-то чипы или кнопки Watch и Remind»
   // (with the panel open on a selected price, they were only in the pop-up). The row over the field: what the question
-  // is about (with its ring for a selection) and, by a selection, the pop-up's bell and eye, doing the same.
+  // is about (with its ring for a selection) and, by any selection, the pop-up's bell and eye, doing the same.
   const panelSelActs: VNode[] = open && !popup && view === "chat" && !historyMode && contextKind === "selection" && selection
     ? [
         <button

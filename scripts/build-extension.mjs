@@ -93,12 +93,14 @@ function locales() {
 }
 
 // The Tips clips (2.6 (91), the owner: «подтянуть их из приложения в расширение на том же девайсе»): none in the
-// extension. The app shares its own (TipClips/<en|ru>) through the App Group and the panel plays them from there
-// (TipClipShare.swift, src/background/tipClips.ts, src/pages/clip.ts). The build only checks that the app has every
-// clip a Tips card names, in both languages, so no card waits on a clip that doesn't exist.
+// extension. The app shares its own (TipClips/<language>) through the App Group and the panel plays them from there
+// (TipClipShare.swift, src/background/tipClips.ts, src/pages/clip.ts). The build only checks that every language the
+// app has clips in (English always) has every clip a Tips card names, so no card waits on a clip that doesn't exist.
 function clips() {
   const app = join(root, "ContextFlow/Shared (App)/TipClips")
-  for (const lang of ["en", "ru"]) {
+  const langs = readdirSync(app, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name)
+  if (!langs.includes("en")) throw new Error("tips: the app's TipClips has no en folder")
+  for (const lang of langs) {
     for (const name of tipClips(tips)) {
       if (!existsSync(join(app, lang, `${name}.mp4`))) throw new Error(`tips: no ${lang} clip ${name}.mp4 in the app's TipClips`)
     }

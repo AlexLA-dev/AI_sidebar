@@ -25,7 +25,7 @@ test("the header shows no label in a chat; the row over the field does, before t
   assert.match(app, /\{glowRange && <SelectionGlow range=\{glowRange\} \/>\}/)
 })
 
-test("by a selection, the row has the pop-up's bell and eye; the eye knows it's in the panel", () => {
+test("by any selection, the row has the pop-up's bell and eye; the eye knows it's in the panel", () => {
   const acts = app.slice(app.indexOf("const panelSelActs"), app.indexOf("const ctxRow = ("))
   assert.match(acts, /contextKind === "selection" && selection/)
   assert.match(acts, /setLater\(\{ selection, range: selectionRange\(\) \}\)/)
@@ -34,6 +34,8 @@ test("by a selection, the row has the pop-up's bell and eye; the eye knows it's 
   assert.match(acts, /panel: true/)
   const register = read("../src/content/watch/register.tsx")
   assert.match(register, /how: ctx\.panel \? "panel" : "bubble"/)
+  // On any selection (the owner: no fitting to his examples): a value as the page writes it, else the text itself.
+  assert.match(register, /const value = watchableAt\(ctx\.selection, ctx\.range\)\?\.value \?\? ctx\.selection\.replace\(\/\\s\+\/g, " "\)\.trim\(\)/)
   // In the panel the page keeps its selection (the label and the ring are about it).
   assert.match(register, /if \(ctx\.panel\) return\s*\n\s*\/\/[^\n]*\n\s*document\.getSelection\(\)\?\.removeAllRanges\(\)/)
   assert.ok(FEATURES.later.via?.includes("panel") && FEATURES.watch.via?.includes("panel"))

@@ -587,7 +587,7 @@ struct Tip {
     let color: Color
     let title: LocalizedStringKey
     let text: LocalizedStringKey
-    // A short recording of the extension doing it (TipClips/<en|ru>/<clip>.mp4).
+    // A short recording of the extension doing it (TipClips/<language>/<clip>.mp4, TipClip.language).
     var clip: String? = nil
     // Organizing (2.5): Turn on or Try Pro under it.
     var organize = false
@@ -886,10 +886,15 @@ enum TipClip {
     static let aspect: CGFloat = 540.0 / 794.0
     static let width: CGFloat = 270 // at most; about 400 pt tall
 
-    /// The clip recorded in the app's language: Russian, or English for every other language.
+    /// The clips' language (build 95, one rule for every language, TipClipShare.language): the first of the app's
+    /// language and the person's other languages that has its clips (TipClips/<language>/), else English.
+    static let language: String = {
+        let folder = Bundle.main.url(forResource: "TipClips", withExtension: nil)
+        return TipClipShare.language(Bundle.main.preferredLocalizations + Locale.preferredLanguages, available: folder.map(TipClipShare.languages) ?? [])
+    }()
+
     static func url(_ name: String) -> URL? {
-        let lang = Bundle.main.preferredLocalizations.first?.hasPrefix("ru") == true ? "ru" : "en"
-        return Bundle.main.url(forResource: name, withExtension: "mp4", subdirectory: "TipClips/\(lang)")
+        Bundle.main.url(forResource: name, withExtension: "mp4", subdirectory: "TipClips/\(language)")
     }
 }
 

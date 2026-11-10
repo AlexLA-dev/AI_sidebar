@@ -5,6 +5,7 @@
 import type { VNode } from "preact"
 import { useEffect, useRef, useState } from "preact/hooks"
 
+import { clipLanguage } from "../../shared/clipLanguage"
 import { t } from "../../shared/i18n"
 
 // The build's target (only Safari has the app the clips come from); read here alone, so the Tips sheet bundles
@@ -13,7 +14,7 @@ declare const __TARGET__: "safari" | "chrome"
 const SAFARI = typeof __TARGET__ === "undefined" || __TARGET__ === "safari"
 
 export function clipSrc(name: string, lang: string, still: boolean, motion = true): string {
-  return chrome.runtime.getURL(`dist/clip.html?name=${encodeURIComponent(name)}&lang=${lang === "ru" ? "ru" : "en"}${still ? "&still=1" : ""}${motion ? "" : "&motion=0"}`)
+  return chrome.runtime.getURL(`dist/clip.html?name=${encodeURIComponent(name)}&lang=${encodeURIComponent(clipLanguage(lang))}${still ? "&still=1" : ""}${motion ? "" : "&motion=0"}`)
 }
 
 export function ClipFrame({ name, lang, still, active, motion = true, onMissing }: {

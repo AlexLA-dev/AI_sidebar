@@ -2493,6 +2493,6 @@
   "message": "ContextFlow legge una pagina solo quando chiedi e invia solo il suo testo per ottenere la risposta. Le tue chat restano sui tuoi dispositivi e nel tuo iCloud. Con i suggerimenti attivi, il testo dei nuovi messaggi va anche al nostro server per capire dove vanno; non lo conserviamo."
  },
  "tip_clips": {
-  "message": "en"
+  "message": "it"
  }
 }

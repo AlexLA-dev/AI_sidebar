@@ -2493,6 +2493,6 @@
   "message": "ContextFlow chỉ đọc trang khi bạn hỏi và chỉ gửi phần văn bản của trang để lấy câu trả lời. Các cuộc trò chuyện của bạn nằm trên thiết bị của bạn và trong iCloud của bạn. Khi bật gợi ý, văn bản của tin nhắn mới cũng được gửi tới máy chủ của chúng tôi để tìm chỗ phù hợp; chúng tôi không lưu lại."
  },
  "tip_clips": {
-  "message": "en"
+  "message": "vi"
  }
 }
