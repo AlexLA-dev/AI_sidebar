@@ -27,7 +27,7 @@ begin
     raise exception 'apply 20261108140000_contextflow_ultra_report.sql first: public.cf_ultra_report(integer) is missing';
   end if;
   if not exists (
-    select 1 from pg_proc where oid = to_regprocedure('public.cf_limits_report(integer)') and prosrc like '%memory (build 92)%'
+    select 1 from pg_proc where oid = to_regprocedure('public.cf_limits_report(integer)') and prosrc like '%case when a.flagged then a.data->>''history_cut''%'
   ) then
     raise exception 'apply 20261109120000_contextflow_memory_window.sql first: cf_limits_report is not its build 92 version';
   end if;
