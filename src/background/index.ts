@@ -695,8 +695,9 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
       void tipClip(message.name, message.lang).then(sendResponse, () => sendResponse({ ok: false }))
       return true
     case "liveJobs":
-      sendResponse({ ids: liveJobIds() })
-      return false
+      // After a restart, the Find similar searches waiting on our server count once they're followed again (build 94).
+      void jobsReady().catch(() => undefined).then(() => sendResponse({ ids: liveJobIds() }))
+      return true
     case "similarAway":
       void similarAway().catch(() => undefined)
       sendResponse(true)

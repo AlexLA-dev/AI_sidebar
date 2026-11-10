@@ -39,12 +39,18 @@ const price = (amount: string, currency = "EUR", name = "") => ld({ "@type": "Pr
 
 // ---- where ------------------------------------------------------------------------------------
 
-test("near them in Cyprus (no search location there): every search names the country", () => {
+test("near them in Cyprus (no search location there): the searches name the country, some stay open to shops that deliver", () => {
   const cy = input({ region: "local", country: "CY" })
   assert.equal(searchLocation(cy), null)
-  assert.deepEqual(localQueries(cy, plan({ queries: ["vacuum compression rolling carry-on", "vacuum backpack delivery Cyprus", "rollerbag CY shop"] })), [
-    "vacuum compression rolling carry-on Cyprus", "vacuum backpack delivery Cyprus", "rollerbag CY shop"
+  // The planner named it already (in any language): as planned.
+  const named = ["vacuum compression rolling carry-on", "βαλίτσα trolley Κύπρος"]
+  assert.deepEqual(localQueries(cy, plan({ queries: named })), named)
+  assert.deepEqual(localQueries(cy, plan({ queries: ["a", "b CY shop"] })), ["a", "b CY shop"])
+  // No search names it: every other one does now.
+  assert.deepEqual(localQueries(cy, plan({ queries: ["vacuum compression rolling carry-on", "vacuum backpack trolley", "rollerbag cheaper"] })), [
+    "vacuum compression rolling carry-on", "vacuum backpack trolley Cyprus", "rollerbag cheaper"
   ])
+  assert.deepEqual(localQueries(cy, plan({ queries: ["vacuum rollerbag"] })), ["vacuum rollerbag Cyprus"])
   // Where the search can be located, or worldwide: the searches as planned.
   assert.deepEqual(localQueries(input({ region: "local", country: "DE" }), plan()), plan().queries)
   assert.deepEqual(localQueries(input({ region: "world", country: "CY" }), plan()), plan().queries)
@@ -208,4 +214,24 @@ test("/api/v2/similar-result: the answer once it's there, taken away when the ch
   } finally {
     useJobStore(null)
   }
+})
+
+test("a name the writer added words to after a dash: the item's own name is kept", () => {
+  const c = candidate("https://ecomelani.com/p/mark-ryden", html("Mark Ryden Infinity XL Air Bag", "", price("89", "EUR", "Mark Ryden Infinity XL Air Bag")), "Mark Ryden Infinity XL Air Bag")
+  const { result, dropped } = finishItems({ items: [{ page: 1, name: "Mark Ryden Infinity XL Air Bag — рюкзак с вакуумным сжатием 35 л", why: "", fit: "", met: "yes", shares: [1], differs: "" }], intro: "", note: "" }, [c], plan(), input().page)
+  assert.deepEqual(dropped, [])
+  assert.equal(result.items[0].name, "Mark Ryden Infinity XL Air Bag")
+})
+
+test("an item named on a list page doesn't take that page's price, stock or condition", () => {
+  const list = `<html lang="en"><head><title>Travel Bags</title></head><body><main><h1>Travel Bags</h1><p>${words}</p>
+    <div itemscope itemtype="https://schema.org/Product"><span itemprop="name">Luggage tag</span><span itemprop="offers" itemscope itemtype="https://schema.org/Offer"><meta itemprop="price" content="0.89"><meta itemprop="priceCurrency" content="EUR"></span></div>
+    <p>PACK&GO Backpack with Vacuum Pocket 24L 49.99 EUR</p></main></body></html>`
+  const page = describePage(list.replace("</head>", `${price("0.89", "EUR", "Luggage tag")}</head>`), "https://superhome.example/travel-bags", "https://superhome.example/travel-bags", 200, 0)
+  const c = candidate("https://superhome.example/travel-bags", list, "PACK&GO Backpack with Vacuum Pocket 24L", "list")
+  const checked = { ...c, page, condition: { met: "unknown" as const, note: "" } }
+  const { result } = finishItems({ items: [{ page: 1, name: "PACK&GO Backpack with Vacuum Pocket 24L", why: "", fit: "", met: "yes", shares: [1], differs: "" }], intro: "", note: "" }, [checked], plan(), input().page)
+  assert.equal(result.items[0].price, undefined)
+  assert.equal(result.items[0].met, "unknown")
+  assert.doesNotMatch(writeMessage(input(), plan(), [checked]), /price 0\.89/)
 })
