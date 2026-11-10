@@ -908,6 +908,12 @@
  "chatNotes": {
   "message": "Tus notas en este chat"
  },
+ "chatWatches": {
+  "message": "Páginas vigiladas en este chat: {0}"
+ },
+ "chatReminder": {
+  "message": "Hay un recordatorio en este chat"
+ },
  "pages_one": {
   "message": "{0} página"
  },

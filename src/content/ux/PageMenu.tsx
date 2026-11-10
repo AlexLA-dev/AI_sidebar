@@ -5,7 +5,10 @@
 // tips/TipsSheet) before Settings. 2.6, the owner's note: "Show the intro again" (93: "Replay the basics tour") (the guided first request,
 // Guide.tsx), last. 2.6 (91), the owner: «разрослось и его нужно структурировать»: each pair together (Remind me /
 // Reminders, Watch this page / Watching), then Ultra's two (Find similar, Listen), and the rest (Settings, Tips,
-// What's in Pro/Ultra, Show the intro again) under "Other…", folded until it's tapped.
+// What's in Pro/Ultra, Show the intro again) under "Other…", folded until it's tapped. Build 94, the owner: «в меню
+// чатов тоже нужно добавить кнопку <…> где будут подходящие функции, хотя бы watch list, settings, tips, все про
+// онбординг»: the chats list has this menu too, without what's about the page (Remind me about this page, Watch this
+// page, Find similar, Name by topic, Listen), with Recently Deleted after the lists.
 
 import type { VNode } from "preact"
 import { useEffect, useLayoutEffect, useRef, useState } from "preact/hooks"
@@ -18,11 +21,15 @@ import { tipsLabel, TipsIcon } from "../tips/TipsSheet"
 import { Bell, More } from "./MessageUx"
 import { SpeakerIcon } from "../listen/useListen"
 
-export function PageMenu({ reminders, watches, onLater, onWatchPage, onSimilar, similarLocked, onNameChat, onReminders, onWatching, onTips, onSettings, onIntro, planTour, onListen, ultra, onClose }: {
+export function PageMenu({ reminders, watches, trash = 0, onLater, onWatchPage, onSimilar, similarLocked, onNameChat, onReminders, onWatching, onTips, onSettings, onIntro, planTour, onListen, ultra, onTrash, onClose }: {
   reminders: number
   // null: no watching here (not Safari).
   watches: number | null
-  onLater: () => void
+  // Recently Deleted (the chats list's menu, build 94): how many chats are there; absent, no item.
+  trash?: number
+  onTrash?: () => void
+  // Absent: not about a page (the chats list).
+  onLater?: () => void
   // Absent: no watching here.
   onWatchPage?: () => void
   // "Find similar…" (2.6, Ultra); absent: no page to find alternatives to. `similarLocked`: not in their plan (a badge).
@@ -81,12 +88,13 @@ export function PageMenu({ reminders, watches, onLater, onWatchPage, onSimilar, 
   }, [more])
   return (
     <div ref={ref} class="cf-msg-menu cf-page-menu" role="menu">
-      <button type="button" role="menuitem" class="cf-page-later" onClick={onLater}><Bell size={16} /> {t("uxLater")}</button>
+      {onLater && <button type="button" role="menuitem" class="cf-page-later" onClick={onLater}><Bell size={16} /> {t("uxLater")}</button>}
       <button type="button" role="menuitem" class="cf-page-reminders" onClick={onReminders}><Bell size={16} /> {reminders > 0 ? t("uxRemindersN", reminders) : t("uxReminders")}</button>
       {onWatchPage && <button type="button" role="menuitem" class="cf-page-watch" onClick={onWatchPage}><Icon.Eye size={16} /> {t("uxWatchPage")}</button>}
       {watches !== null && (
         <button type="button" role="menuitem" class="cf-page-watching" onClick={onWatching}><Icon.Eye size={16} /> {watches > 0 ? t("uxWatchingN", watches) : t("uxWatching")}</button>
       )}
+      {onTrash && trash > 0 && <button type="button" role="menuitem" class="cf-page-trash" onClick={onTrash}><Icon.Trash /> {t("trashRow", trash)}</button>}
       {onSimilar && (
         <button type="button" role="menuitem" class="cf-page-similar" onClick={onSimilar}>
           <SimilarIcon size={16} /> {t("uxSimilar")}{similarLocked && <span class="cf-ultra-badge">Ultra</span>}

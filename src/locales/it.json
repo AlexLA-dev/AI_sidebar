@@ -315,6 +315,8 @@
   "reorderChat": "Trascina per riordinare",
   "chatPages": "Pagine di questa chat",
   "chatNotes": "Le tue note in questa chat",
+  "chatWatches": "Pagine seguite in questa chat: {0}",
+  "chatReminder": "In questa chat c'è un promemoria",
   "pages_one": "{0} pagina",
   "pages_few": "{0} pagine",
   "pages_many": "{0} pagine",

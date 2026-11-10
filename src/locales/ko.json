@@ -315,6 +315,8 @@
   "reorderChat": "끌어서 순서 변경",
   "chatPages": "이 채팅의 페이지",
   "chatNotes": "이 채팅의 메모",
+  "chatWatches": "이 채팅에서 지켜보는 페이지: {0}",
+  "chatReminder": "이 채팅에 리마인더가 있어요",
   "pages_one": "페이지 {0}개",
   "pages_few": "페이지 {0}개",
   "pages_many": "페이지 {0}개",

@@ -908,6 +908,12 @@
  "chatNotes": {
   "message": "此对话中的笔记"
  },
+ "chatWatches": {
+  "message": "此对话中关注的页面:{0}"
+ },
+ "chatReminder": {
+  "message": "此对话设有提醒"
+ },
  "pages_one": {
   "message": "{0} 个页面"
  },

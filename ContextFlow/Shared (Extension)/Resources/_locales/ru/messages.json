@@ -908,6 +908,12 @@
  "chatNotes": {
   "message": "Ваши заметки в этом чате"
  },
+ "chatWatches": {
+  "message": "Слежений за страницами этого чата: {0}"
+ },
+ "chatReminder": {
+  "message": "В этом чате стоит напоминание"
+ },
  "pages_one": {
   "message": "{0} страница"
  },

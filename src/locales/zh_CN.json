@@ -315,6 +315,8 @@
   "reorderChat": "拖动以排序",
   "chatPages": "此对话中的页面",
   "chatNotes": "此对话中的笔记",
+  "chatWatches": "此对话中关注的页面:{0}",
+  "chatReminder": "此对话设有提醒",
   "pages_one": "{0} 个页面",
   "pages_few": "{0} 个页面",
   "pages_many": "{0} 个页面",

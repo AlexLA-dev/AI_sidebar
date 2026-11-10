@@ -908,6 +908,12 @@
  "chatNotes": {
   "message": "このチャットのメモ"
  },
+ "chatWatches": {
+  "message": "このチャットで見守り中のページ: {0}"
+ },
+ "chatReminder": {
+  "message": "このチャットにリマインダーがあります"
+ },
  "pages_one": {
   "message": "{0}ページ"
  },
