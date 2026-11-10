@@ -315,6 +315,8 @@
   "reorderChat": "Zum Sortieren ziehen",
   "chatPages": "Seiten in diesem Chat",
   "chatNotes": "Deine Notizen in diesem Chat",
+  "chatWatches": "Beobachtete Seiten in diesem Chat: {0}",
+  "chatReminder": "In diesem Chat ist eine Erinnerung gestellt",
   "pages_one": "{0} Seite",
   "pages_few": "{0} Seiten",
   "pages_many": "{0} Seiten",

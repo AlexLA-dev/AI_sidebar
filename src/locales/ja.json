@@ -315,6 +315,8 @@
   "reorderChat": "ドラッグして並べ替え",
   "chatPages": "このチャットのページ",
   "chatNotes": "このチャットのメモ",
+  "chatWatches": "このチャットで見守り中のページ: {0}",
+  "chatReminder": "このチャットにリマインダーがあります",
   "pages_one": "{0}ページ",
   "pages_few": "{0}ページ",
   "pages_many": "{0}ページ",

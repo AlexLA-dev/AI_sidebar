@@ -26,6 +26,8 @@ struct ChatsView: View {
     var openSetup: () -> Void = {}
     /// The Pro screen (from the AI features, without Pro).
     var openPro: () -> Void = {}
+    /// Build 94: the "…" on the Chats screen opens Settings and Tips (their tabs).
+    var openTab: (AppTab) -> Void = { _ in }
 
     // AI search (Pro): on, the query it ran, and its answer.
     @State private var aiSearch = false
@@ -57,8 +59,13 @@ struct ChatsView: View {
     @State private var recsSeen = Set<String>()
     @State private var listShown = false
     @State private var linked: (threadId: String, index: Int)?
-    // "Reminders" or "Watching" (2.5 (77): two lists, never one), from the Chats toolbar.
+    // "Reminders" or "Watching" (2.5 (77): two lists, never one), from the Chats toolbar's "…" (build 94).
     @State private var showingList: LaterItem.Kind?
+    // Build 94: Recently Deleted from the "…"; the watched pages' addresses (the rows' eyes); a tick every 30 s while the
+    // list shows, so a reminder that rang loses its bell and an answered or abandoned question its spinner.
+    @State private var showingTrash = false
+    @State private var watched: [String] = []
+    @State private var tick = Date()
 
     #if DEBUG
     private func showListAtLaunch() {
@@ -102,19 +109,6 @@ struct ChatsView: View {
             if value.isEmpty { found = nil }
         }
         .toolbar {
-            // "Reminders" (the bell) and "Watching" (the eye, once watching is in): the director's split, 2.5 (77).
-            ToolbarItem(placement: .navigation) {
-                Button { showingList = .remind } label: { Image(systemName: "bell") }
-                    .accessibilityLabel(Text("Reminders"))
-                    .help(Text("Reminders"))
-            }
-            if LaterCenter.shared.lists(.watch) {
-                ToolbarItem(placement: .navigation) {
-                    Button { showingList = .watch } label: { Image(systemName: "eye") }
-                        .accessibilityLabel(Text("Watching"))
-                        .help(Text("Watching"))
-                }
-            }
             ToolbarItem {
                 Button {
                     if isPro {
@@ -135,6 +129,11 @@ struct ChatsView: View {
                 }
                 .accessibilityLabel(Text(isPro ? "AI search" : "AI search — Pro"))
             }
+            // Build 94, the owner: «в меню чатов тоже нужно добавить кнопку <…> где будут подходящие функции, хотя бы
+            // watch list, settings, tips, все про онбординг». The Safari panel's chats list has the same "…"
+            // (src/content/ux/PageMenu.tsx): the lists (the bell, the eye; 2.5 (77): two words, two icons), Recently
+            // Deleted, and the rest under "Other…". The bell and the eye were toolbar buttons of their own until 93.
+            ToolbarItem { listMenu }
         }
         .overlay {
             // With chats in Recently Deleted, its row is the list.
@@ -150,6 +149,18 @@ struct ChatsView: View {
                 }
         }
         .sheet(item: $showingList) { kind in RemindersView(library: library, kind: kind) }
+        .navigationDestination(isPresented: $showingTrash) { RecentlyDeletedView(library: library) }
+        // The rows' eyes and the tick (build 94).
+        .task(id: listShown) {
+            while listShown && !Task.isCancelled {
+                watched = LaterCenter.shared.lists(.watch) ? WatchStore.entries().map(\.url) : []
+                #if DEBUG
+                watched += RowMarks.debugWatched
+                #endif
+                tick = Date()
+                try? await Task.sleep(nanoseconds: 30_000_000_000)
+            }
+        }
         #if DEBUG
         // Local checks without taps: -CFShowReminders YES opens "Reminders", -CFShowWatching YES "Watching", once the
         // chats are in.
@@ -254,7 +265,8 @@ struct ChatsView: View {
             // iPad (2.6 (91–92): "I tap a chat and nothing happens"). A tap on a chat with recommendations is counted
             // when the chat shows (navigationDestination below).
             NavigationLink(value: ChatRoute(id: thread.id, history: thread.isHistory)) {
-                ChatRow(thread: thread, recs: recs[thread.id] ?? 0)
+                ChatRow(thread: thread, recs: recs[thread.id] ?? 0, watches: RowMarks.watches(thread.entries, watched: watched),
+                        reminder: RowMarks.remindsAhead(thread.entries, now: tick), working: RowMarks.pending(thread.entries, now: tick))
             }
             .contextMenu { menu(for: thread) }
             #if os(iOS)
@@ -444,6 +456,38 @@ struct ChatsView: View {
             }
     }
 
+    /// The Chats screen's "…" (build 94).
+    private var listMenu: some View {
+        let now = Date().timeIntervalSince1970 * 1000
+        let reminders = library.threads.reduce(0) { sum, thread in sum + thread.entries.filter { ($0.remind?.at ?? 0) > now }.count }
+        return Menu {
+            Button { showingList = .remind } label: {
+                Label(reminders > 0 ? "Reminders · \(reminders)" : "Reminders", systemImage: "bell")
+            }
+            if LaterCenter.shared.lists(.watch) {
+                Button { showingList = .watch } label: {
+                    Label(watched.isEmpty ? "Watching" : "Watching · \(watched.count)", systemImage: "eye")
+                }
+            }
+            if !library.trashed.isEmpty {
+                Button { showingTrash = true } label: { Label("Recently Deleted · \(library.trashed.count)", systemImage: "trash") }
+            }
+            Menu {
+                Button { openTab(.settings) } label: { Label("Settings", systemImage: "gearshape") }
+                Button { openTab(.tips) } label: { Label("Tips", systemImage: "lightbulb") }
+                if let tier = store.tier, tier != .byok {
+                    Button { PlanTour.shared.show(tier) } label: { Label("What's in \(tier.name)", systemImage: "sparkles") }
+                }
+                Button(action: openSetup) { Label("How to turn on ContextFlow", systemImage: "safari") }
+            } label: {
+                Label("Other…", systemImage: "ellipsis")
+            }
+        } label: {
+            Label("More", systemImage: "ellipsis.circle")
+        }
+        .accessibilityIdentifier("cf-list-menu")
+    }
+
     @ViewBuilder
     private var footer: some View {
         if library.cloud == .unavailable && !library.threads.isEmpty {
@@ -594,6 +638,8 @@ struct HistoryChatView: View {
     /// The answer just copied: "Copied" for a moment.
     @State private var copied: Int?
     @Environment(\.requestReview) private var requestReview
+    /// A chat opened from a link in an answer (build 94).
+    @State private var openedChat: String?
 
     private static let examples = ["What did I read this week?", "Summarize my notes", "What have I learned about AI?"]
 
@@ -627,7 +673,7 @@ struct HistoryChatView: View {
                                     .padding(.leading, 40)
                             } else {
                                 VStack(alignment: .leading, spacing: 8) {
-                                    MarkdownView(text: m["content"] ?? "")
+                                    MarkdownView(text: RowMarks.linkChats(m["content"] ?? "", chats: chatNames))
                                     MessageTools(tags: [], copied: copied == index, shareText: ShareText.answer(entries, index, labels), copy: {
                                         Clipboard.copy(ShareText.plain(m["content"] ?? ""))
                                         copied = index
@@ -682,6 +728,26 @@ struct HistoryChatView: View {
         #endif
         .aiConsent($consentAsk)
         .onAppear(perform: load)
+        // Build 94, the owner: «в чате про чаты нужно делать ссылки на чаты, на которые ссылается ответ»: a chat's
+        // name in an answer opens that chat over this one (Back comes back to the answer).
+        .environment(\.openURL, OpenURLAction { url in
+            guard url.scheme == "chat" else { return .systemAction }
+            let id = url.absoluteString.dropFirst("chat:".count).lowercased()
+            guard let chat = library.threads.first(where: { $0.id.lowercased() == id }) else { return .handled }
+            ChatAI.reportOrganize("use", ["f": "ask_chats", "a": "link"])
+            openedChat = chat.id
+            return .handled
+        })
+        .navigationDestination(isPresented: Binding(get: { openedChat != nil }, set: { if !$0 { openedChat = nil } })) {
+            if let openedChat {
+                ChatDetailView(library: library, threadId: openedChat, openPro: openPro)
+            }
+        }
+    }
+
+    /// The chats an answer may name (links to them, RowMarks.linkChats).
+    private var chatNames: [(id: String, name: String)] {
+        library.threads.filter { !$0.isHistory && $0.id != id }.map { (id: $0.id, name: $0.name) }
     }
 
     private func load() {
@@ -901,6 +967,11 @@ struct ChatRow: View {
     let thread: ChatThread
     /// Open organizing suggestions in it (2.6, Pro): "N recommendations" on its last line.
     var recs = 0
+    /// Build 94 (RowMarks): how many of its pages are watched (the eye), a reminder still to ring (the bell), its last
+    /// question still being answered in Safari (a spinner by the name, as the panel's list has).
+    var watches = 0
+    var reminder = false
+    var working = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -917,6 +988,11 @@ struct ChatRow: View {
                 Text(thread.name)
                     .font(.headline)
                     .lineLimit(1)
+                if working {
+                    ProgressView()
+                        .controlSize(.mini)
+                        .accessibilityLabel(Text("Working on it…"))
+                }
             }
             if !thread.snippet.isEmpty {
                 Text(thread.snippet)
@@ -937,6 +1013,14 @@ struct ChatRow: View {
                 if thread.notes > 0 {
                     Label("\(thread.notes)", systemImage: "pencil")
                         .accessibilityLabel(Text("\(thread.notes) notes"))
+                }
+                if watches > 0 {
+                    Label("\(watches)", systemImage: "eye")
+                        .accessibilityLabel(Text("Pages watched in this chat: \(watches)"))
+                }
+                if reminder {
+                    Image(systemName: "bell")
+                        .accessibilityLabel(Text("A reminder is set in this chat"))
                 }
                 if recs > 0 {
                     Label("\(recs) recommendations", systemImage: "sparkles")

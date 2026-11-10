@@ -12,7 +12,7 @@ export { stripCitations }
 
 type Inline = ComponentChildren
 
-const INLINE = /(`[^`\n]+`)|(\*\*[^*\n]+\*\*|__[^_\n]+__)|(\*[^*\s][^*\n]*\*|_[^_\s][^_\n]*_)|(\[[^\]\n]+\]\((https?:\/\/[^\s)]+)\))|(https?:\/\/[^\s<>)\]]+[^\s<>)\].,;:!?'"])/
+const INLINE = /(`[^`\n]+`)|(\*\*[^*\n]+\*\*|__[^_\n]+__)|(\*[^*\s][^*\n]*\*|_[^_\s][^_\n]*_)|(\[[^\]\n]+\]\(((?:https?:\/\/|chat:)[^\s)]+)\))|(https?:\/\/[^\s<>)\]]+[^\s<>)\].,;:!?'"])/
 
 function safeHref(url: string): string | null {
   try {
@@ -23,7 +23,9 @@ function safeHref(url: string): string | null {
   }
 }
 
-export function inline(text: string, keyBase = "i"): Inline[] {
+// Build 94: `onChat` opens a chat named in an "Ask your chats" answer ([name](chat:<id>), src/shared/chatMarks.ts);
+// without it, the name alone.
+export function inline(text: string, keyBase = "i", onChat?: (id: string) => void): Inline[] {
   const out: Inline[] = []
   let rest = text
   let k = 0
@@ -37,9 +39,13 @@ export function inline(text: string, keyBase = "i"): Inline[] {
     const token = m[0]
     const key = `${keyBase}${k++}`
     if (m[1]) out.push(<code key={key}>{token.slice(1, -1)}</code>)
-    else if (m[2]) out.push(<strong key={key}>{inline(token.slice(2, -2), key)}</strong>)
-    else if (m[3]) out.push(<em key={key}>{inline(token.slice(1, -1), key)}</em>)
-    else if (m[4]) {
+    else if (m[2]) out.push(<strong key={key}>{inline(token.slice(2, -2), key, onChat)}</strong>)
+    else if (m[3]) out.push(<em key={key}>{inline(token.slice(1, -1), key, onChat)}</em>)
+    else if (m[4] && m[5]?.startsWith("chat:")) {
+      const label = token.slice(1, token.indexOf("]("))
+      const id = m[5].slice(5)
+      out.push(onChat ? <a key={key} class="md-chat" href="#" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onChat(id) }}>{label}</a> : label)
+    } else if (m[4]) {
       const label = token.slice(1, token.indexOf("]("))
       const href = safeHref(m[5] ?? "")
       // "[2](url)" is a numbered source citation (Google answers).
@@ -64,7 +70,8 @@ function cells(line: string): string[] {
 }
 
 // `marks`: the user's highlights in this answer (2.5), drawn as <mark>.
-export function Markdown({ text, onCopyCode, marks }: { text: string; onCopyCode?: (code: string) => void; marks?: Mark[] }): VNode {
+export function Markdown({ text, onCopyCode, marks, onChat }: { text: string; onCopyCode?: (code: string) => void; marks?: Mark[]; onChat?: (id: string) => void }): VNode {
+  const il = (t: string, k?: string) => inline(t, k, onChat)
   const lines = text.replace(/\r\n?/g, "\n").split("\n")
   const blocks: VNode[] = []
   let i = 0
@@ -92,7 +99,7 @@ export function Markdown({ text, onCopyCode, marks }: { text: string; onCopyCode
     if (heading) {
       const level = Math.min(heading[1].length + 2, 6)
       const Tag = `h${level}` as "h3"
-      blocks.push(<Tag key={key++}>{inline(heading[2])}</Tag>)
+      blocks.push(<Tag key={key++}>{il(heading[2])}</Tag>)
       i++
       continue
     }
@@ -111,8 +118,8 @@ export function Markdown({ text, onCopyCode, marks }: { text: string; onCopyCode
       blocks.push(
         <div class="md-table" key={key++}>
           <table>
-            <thead><tr>{head.map((c, j) => <th key={j}>{inline(c)}</th>)}</tr></thead>
-            <tbody>{rows.map((r, ri) => <tr key={ri}>{head.map((_, j) => <td key={j}>{inline(r[j] ?? "")}</td>)}</tr>)}</tbody>
+            <thead><tr>{head.map((c, j) => <th key={j}>{il(c)}</th>)}</tr></thead>
+            <tbody>{rows.map((r, ri) => <tr key={ri}>{head.map((_, j) => <td key={j}>{il(r[j] ?? "")}</td>)}</tr>)}</tbody>
           </table>
         </div>
       )
@@ -122,7 +129,7 @@ export function Markdown({ text, onCopyCode, marks }: { text: string; onCopyCode
     if (/^\s*>/.test(line)) {
       const quote: string[] = []
       while (i < lines.length && /^\s*>/.test(lines[i])) quote.push(lines[i++].replace(/^\s*>\s?/, ""))
-      blocks.push(<blockquote key={key++}>{inline(quote.join(" "))}</blockquote>)
+      blocks.push(<blockquote key={key++}>{il(quote.join(" "))}</blockquote>)
       continue
     }
 
@@ -143,7 +150,7 @@ export function Markdown({ text, onCopyCode, marks }: { text: string; onCopyCode
       const List = ordered ? "ol" : "ul"
       blocks.push(
         <List key={key++}>
-          {items.map((it, j) => <li key={j} class={it.nested ? "nested" : undefined}>{inline(it.text)}</li>)}
+          {items.map((it, j) => <li key={j} class={it.nested ? "nested" : undefined}>{il(it.text)}</li>)}
         </List>
       )
       continue
@@ -160,7 +167,7 @@ export function Markdown({ text, onCopyCode, marks }: { text: string; onCopyCode
       !/^\s*(```|#{1,6}\s|>|([-*+•]|\d+[.)])\s)/.test(lines[i]) &&
       !(lines[i].includes("|") && i + 1 < lines.length && isTableDivider(lines[i + 1]))
     ) para.push(lines[i++])
-    blocks.push(<p key={key++}>{para.flatMap((l, j) => (j ? [<br key={`b${j}`} />, ...inline(l, `p${j}`)] : inline(l, `p${j}`)))}</p>)
+    blocks.push(<p key={key++}>{para.flatMap((l, j) => (j ? [<br key={`b${j}`} />, ...il(l, `p${j}`)] : il(l, `p${j}`)))}</p>)
   }
 
   // Its own direction, by its first letters: an Arabic answer in an English panel reads right to left, and back (2.6).

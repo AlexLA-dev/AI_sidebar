@@ -175,10 +175,12 @@ function findAnswer(system: string, query: string): string {
 
 // "Ask your chats": a short overview built from the chats the request carried.
 function historyAnswer(system: string, question: string): string {
-  const chats = [...system.matchAll(/<<<CHAT \d+ id=\S+\nTitle: ([^\n]*)\nDate: ([^\n]*)\n(?:Pages: ([^\n(]*))?/g)]
+  const chats = [...system.matchAll(/<<<CHAT \d+ id=(\S+)\nTitle: ([^\n]*)\nDate: ([^\n]*)\n(?:Pages: ([^\n(]*))?/g)]
   const ru = /[а-яё]/i.test(question)
+  // Build 94: a client that opens chats from the answer gets them as [name](chat:<id>), as the prompt asks.
+  const links = system.includes("[Title](chat:<id>)")
   const head = ru ? `**По вашим чатам (${chats.length}):**` : `**From your chats (${chats.length}):**`
-  const lines = chats.slice(0, 5).map((m) => `- **${m[1]}** — ${(m[3] ?? "").trim() || (ru ? "без страницы" : "no page")} *(${m[2].slice(0, 10)})*`)
+  const lines = chats.slice(0, 5).map((m) => `- **${links ? `[${m[2]}](chat:${m[1]})` : m[2]}** — ${(m[4] ?? "").trim() || (ru ? "без страницы" : "no page")} *(${m[3].slice(0, 10)})*`)
   const tail = ru ? "\n\nСпросите подробнее про любой из них — я отвечу по тому, что вы читали и записали." : "\n\nAsk about any of them for details: I answer from what you read and noted."
   return [head, ...lines].join("\n") + tail
 }

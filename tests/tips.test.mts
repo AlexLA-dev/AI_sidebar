@@ -266,7 +266,8 @@ test("Pro and Ultra badges on the app's Pro and Ultra cards; a Mac gets the Mac'
 test("the clips' loading rule: nothing before Tips opens, then the open block's first three, the rest on screen", async () => {
   // Before Tips opens there is no sheet: the panel renders it only while it's open.
   const app = readFileSync(join(root, "src/content/App.tsx"), "utf8")
-  assert.match(app, /\{view === "chat" && tipsOpen && \(\s*<TipsSheet /)
+  // Build 94: also over the chats list (its "…" has Tips too).
+  assert.match(app, /\{\(view === "chat" \|\| view === "threads"\) && tipsOpen && \(\s*<TipsSheet /)
   assert.ok(!/<video|<iframe/.test(app), "no clip anywhere else in the panel")
   stored = {}
   messages = {}

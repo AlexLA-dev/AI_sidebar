@@ -47,7 +47,7 @@ function chatsBlock(chats: ChatDigest[]): string[] {
 }
 
 /** System prompt for "Ask your chats". */
-export function historyPrompt(chats: ChatDigest[], profile: string, locale: string): string {
+export function historyPrompt(chats: ChatDigest[], profile: string, locale: string, links = false): string {
   const lines = [
     "You are ContextFlow, an AI assistant inside the user's web browser (Safari).",
     "The user is asking about their own earlier ContextFlow chats: the pages they read, what they asked, the answers they got and the notes they wrote. Below is a digest of those chats, newest first.",
@@ -56,6 +56,8 @@ export function historyPrompt(chats: ChatDigest[], profile: string, locale: stri
     "- Answer in the language the user writes in.",
     "- Answer only from these chats. When they don't contain the answer, say so briefly and suggest what to read or ask.",
     "- Name the chats and pages you draw on (title and date), so the user can find them again. Prefer short lists.",
+    // Build 94: clients that open chats from the answer say so; older ones get the prompt as it was.
+    ...(links ? ["- Each time you name one of these chats, write its title as a Markdown link to its id from the digest: [Title](chat:<id>), for example [Trip to Rome](chat:5b1e0c2a-7d4f-4c3a-9e2b-1f6a8d0c4e7b). Use only ids from the digest, and never put a chat: link anywhere else."] : []),
     // 2.5: only when a digest has highlights, so older clients get the same prompt.
     ...(chats.some((c) => c.text.includes("\nHighlighted: ")) ? ["- A \"Highlighted:\" line lists what the user marked as important in the answer above it: give it more weight."] : []),
     "- Be concise and concrete. Use Markdown when it helps.",

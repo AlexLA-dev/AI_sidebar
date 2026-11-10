@@ -908,6 +908,12 @@
  "chatNotes": {
   "message": "你在這段對話中的筆記"
  },
+ "chatWatches": {
+  "message": "這段對話中追蹤的頁面:{0}"
+ },
+ "chatReminder": {
+  "message": "這段對話設有提醒"
+ },
  "pages_one": {
   "message": "{0} 個頁面"
  },
