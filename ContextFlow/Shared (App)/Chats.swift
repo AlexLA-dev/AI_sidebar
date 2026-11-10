@@ -556,6 +556,10 @@ extension String {
 @MainActor
 final class ChatLibrary: ObservableObject {
     static let shared = ChatLibrary()
+    #if DEBUG
+    /// -CFDebugRemoteRename is done once per launch.
+    private static var remoteRenameScheduled = false
+    #endif
 
     enum Cloud: Equatable {
         /// Sync is switched off (here or in the extension's settings).
@@ -649,6 +653,10 @@ final class ChatLibrary: ObservableObject {
                 if c == 4, many > 14, let last = m.last {
                     object["org"] = OrgState(n: m.count, k: Organize.entryKey(last), mv: .init(s: 0, e: m.count - 1, to: "debug-many-14", why: .merge, mt: 88)).json
                 }
+                // 2.6 (95): and chat 14, the newer one, shows it too: chat 4 joins it here.
+                if c == 14, let last = m.last {
+                    object["org"] = OrgState(n: m.count, k: Organize.entryKey(last), mv: .init(s: m.count - 1, e: m.count - 1, to: "debug-many-14", why: .merge, mt: 88, fr: "debug-many-4")).json
+                }
                 if let data = try? JSONSerialization.data(withJSONObject: object), let text = String(data: data, encoding: .utf8) {
                     saves["debug-many-\(c)"] = ChatMirror.Item(updatedAt: at, data: text)
                 }
@@ -683,6 +691,26 @@ final class ChatLibrary: ObservableObject {
                 }
             }
             _ = ChatMirror.apply(saves: saves)
+        }
+        // Build 95 (the owner: a name taken in the panel stayed offered on the iPad): -CFDebugRemoteRename <id>
+        // -CFDebugRemoteRenameAfter <s>: after so many seconds that chat gets the name its record suggests, as another
+        // device that took it writes it (the title, and the record without the suggestion), and the library reloads as
+        // after a pull from iCloud.
+        if let id = UserDefaults.standard.string(forKey: "CFDebugRemoteRename"), !Self.remoteRenameScheduled {
+            Self.remoteRenameScheduled = true
+            let after = max(1, UserDefaults.standard.double(forKey: "CFDebugRemoteRenameAfter"))
+            DispatchQueue.main.asyncAfter(deadline: .now() + after) { [weak self] in
+                guard let item = ChatMirror.chats()[id], var object = (try? JSONSerialization.jsonObject(with: Data(item.data.utf8))) as? [String: Any],
+                      var org = OrgState(object["org"]), let name = org.nm?.t else { return }
+                org.nm = OrgState.Name(k: org.nm!.k, t: nil, no: org.nm!.no)
+                object["title"] = name
+                object["aiTitle"] = name
+                object["org"] = org.json
+                guard let data = try? JSONSerialization.data(withJSONObject: object), let text = String(data: data, encoding: .utf8) else { return }
+                _ = ChatMirror.apply(saves: [id: ChatMirror.Item(updatedAt: item.updatedAt + 1, data: text)])
+                DebugHangLog.mark("renamed \(id) elsewhere")
+                self?.reload()
+            }
         }
         // -CFDebugOpenChat <id> -CFDebugOpenAfter <s>: that chat opens after so many seconds (its first answer), as a tap
         // on it would; the hang log has when it was asked for and when it showed.
