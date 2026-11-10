@@ -57,3 +57,20 @@
 .cf-page-menu .cf-page-similar { display: flex; align-items: center; }
 .cf-similar-upsell .cf-ultra-badge { margin-inline-start: auto; }
 .cf-similar-upsell > p { margin: 0 0 8px; }
+
+/* Build 93: where to look; the less similar ones apart; what reviewers say; not in their country's store. */
+.cf-similar-where { margin: 4px 0 8px; }
+.cf-similar-where-label { display: block; margin-bottom: 4px; font-size: 12px; color: var(--text-3); }
+.cf-similar-where .cf-seg { display: flex; width: 100%; }
+.cf-similar-where .cf-seg button { flex: 1; padding: 6px 8px; font-size: 13px; }
+.cf-similar-where-hint { margin: 4px 0 0; font-size: 12px; color: var(--accent-text); }
+.cf-similar-less { margin-top: 10px; }
+.cf-similar-less-head { margin: 0 0 6px; font-size: 12.5px; font-weight: 600; color: var(--text-2); }
+.cf-similar-less .cf-similar-item { opacity: 0.92; }
+.cf-similar-differs { margin: 2px 0 0; font-size: 12.5px; color: var(--text-2); display: flex; flex-wrap: wrap; gap: 2px 8px; }
+.cf-similar-pct { font-weight: 600; color: var(--text); }
+.cf-similar-locked { margin: 2px 0 0; font-size: 12.5px; font-weight: 600; color: #b45309; }
+.cf-similar-reviews { margin: 3px 0 0; font-size: 12.5px; color: var(--text-2); display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; }
+.cf-similar-stars { font-weight: 700; color: #b45309; }
+.cf-similar-said { flex-basis: 100%; }
+.cf-similar-src { color: inherit; text-decoration: underline; text-decoration-color: color-mix(in srgb, currentColor 35%, transparent); text-underline-offset: 2px; font-size: 12px; }
