@@ -618,6 +618,7 @@ Then answer with JSON only, nothing else:
 - candidates: up to 8, best first, each a different specific item: kind "item" with the item's own page (the maker's product page or official site, a shop's product page, an app store page, the recipe, the article, the course, the listing); kind "list" with a list or review page that names the item, when its own page didn't come up;
 - only items that can meet their condition: when they asked for a language, pages in that language; when they asked for a price, pages that can be under it; a page that plainly fails it doesn't count, even if it's the only one;
 - when they want it near them (a "Where" line names their country): items they can get there — that country's shops, services and apps, or shops that deliver there (international ones count); a shop that plainly doesn't sell there comes last. A category page of a local shop isn't an item: take the specific products it lists;
+- prefer a brand's or a shop's own product page over a marketplace listing (Amazon, eBay, AliExpress, Temu, Walmart): those don't let our server check them; take a marketplace listing only when no other page has the item;
 - missing: up to 3 names of strong alternatives these results recommend (in lists or reviews) whose own page is not among them;
 - url: copied exactly from the search results; never an address that wasn't in them;
 - name: the specific item's name as its page gives it (brand and model, app name, recipe title, hotel name…);
@@ -710,7 +711,11 @@ export function interleave<T>(lists: T[][]): T[] {
   return out
 }
 
-/** Which candidates still get opened: each address and each item once across all searches, at most 3 a site. */
+// Marketplaces that turn servers away: their listings can't be checked (build 94: the owner's case came back as four
+// Amazon listings, all "not opened"), so at most one of them across all searches.
+const MARKETPLACE = /(^|\.)(amazon|ebay|aliexpress|temu|walmart|etsy)\.[a-z.]+$/i
+
+/** Which candidates still get opened: each address and each item once across all searches, at most 3 a site, 1 a marketplace. */
 export class Claims {
   private urls = new Set<string>()
   private names = new Set<string>()
@@ -725,10 +730,11 @@ export class Claims {
       const key = normalizeUrl(c.url)
       const name = nameTokens(c.name).join(" ")
       if (this.urls.has(key) || (c.kind === "item" && name && this.names.has(name))) return false
-      if ((this.hosts.get(host) ?? 0) >= 3) return false
+      const market = MARKETPLACE.test(host)
+      if ((this.hosts.get(market ? "marketplace" : host) ?? 0) >= (market ? 1 : 3)) return false
       this.urls.add(key)
       if (c.kind === "item" && name) this.names.add(name)
-      this.hosts.set(host, (this.hosts.get(host) ?? 0) + 1)
+      this.hosts.set(market ? "marketplace" : host, (this.hosts.get(market ? "marketplace" : host) ?? 0) + 1)
       return true
     })
   }

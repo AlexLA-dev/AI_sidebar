@@ -12,7 +12,7 @@ process.env.SUPABASE_SERVICE_ROLE_KEY = "service-key"
 process.env.ANTHROPIC_API_KEY = "test-key"
 
 const { describePage, markupRating, reviewsSection, textRating } = await import("../netlify/shared/pagecheck.mts")
-const { checkCondition, finishItems, localQueries, reviewWords, searchLocation, shopifyCatalog, siblingLinks, siblingsStep, writeMessage, WRITE_SYSTEM } = await import("../netlify/shared/similar.mts")
+const { Claims, checkCondition, finishItems, localQueries, reviewWords, searchLocation, shopifyCatalog, siblingLinks, siblingsStep, writeMessage, WRITE_SYSTEM } = await import("../netlify/shared/similar.mts")
 const { jobKey, jobState, sweepJobs, useJobStore, waitForJob, JOB_STALE_MS } = await import("../netlify/shared/jobs.mts")
 const { default: resultFn } = await import("../netlify/functions/v2-similar-result.mts")
 const { cleanItem } = await import("../src/shared/similar.ts")
@@ -266,4 +266,17 @@ test("a Shopify shop: the brand's other models from its catalog when the page li
   } finally {
     globalThis.fetch = real
   }
+})
+
+test("one marketplace listing at most across all searches: their pages can't be checked", () => {
+  const claims = new Claims({ title: "", url: "https://airback.store/collections/vacuum-rollerbags", text: "" })
+  const c = (url: string, name: string) => ({ url, name, kind: "item" as const, resultTitle: name, pageAge: null })
+  const taken = claims.take([
+    c("https://www.amazon.com/Fanwoli/dp/B0GJ5BMQH9", "Fanwoli Rolling Vacuum Backpack"),
+    c("https://us.amazon.com/Airpack/dp/B0DMW5GSPD", "Airpack Compression Backpack"),
+    c("https://www.ebay.com/itm/1", "Marketron Backpack"),
+    c("https://packntrip.store/p", "PacknTrip ProPack"),
+    c("https://mybackvac.com/products/backvacpro", "Backvac Pro")
+  ])
+  assert.deepEqual(taken.map((t) => new URL(t.url).hostname), ["www.amazon.com", "packntrip.store", "mybackvac.com"])
 })
