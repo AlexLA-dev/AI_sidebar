@@ -368,11 +368,11 @@ function newer(a: Thread, b: Thread): boolean {
  * turned down (`org.mx`). The move puts the messages in by time.
  */
 function mergeFit(from: { thread: Thread; blocks: ScoredBlock[] }, to: { thread: Thread; blocks: ScoredBlock[] }, cfg: OrganizeConfig): { score: number; match: number } | null {
-  if (to.blocks.length < 2 || (from.thread.org?.mx ?? []).includes(to.thread.id) || !newer(to.thread, from.thread)) return null
+  // The cheap checks first: every pair of chats is checked when the list counts.
+  if (to.blocks.length < 2) return null
   const pages = from.blocks.filter((b) => b.url)
-  if (!pages.length || from.blocks.some((b) => b.settled || b.dismissed)) return null
-  const urls = new Set(to.blocks.map((b) => b.url).filter(Boolean))
-  if (pages.filter((b) => urls.has(b.url)).length * 2 <= pages.length) return null
+  if (!pages.length || pages.filter((b) => to.blocks.some((x) => x.url === b.url)).length * 2 <= pages.length) return null
+  if (from.blocks.some((b) => b.settled || b.dismissed) || (from.thread.org?.mx ?? []).includes(to.thread.id) || !newer(to.thread, from.thread)) return null
   const mine = from.blocks.filter((b) => b.v).map((b) => ({ v: b.v! }))
   const theirs = to.blocks.filter((b) => b.v).map((b) => ({ v: b.v! }))
   if (!mine.length || !theirs.length) return null

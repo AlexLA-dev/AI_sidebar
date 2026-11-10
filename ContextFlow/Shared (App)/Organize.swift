@@ -854,11 +854,11 @@ nonisolated enum Organize {
     /// turned down or moved in, the chats fit each other from `minMatch` % on average both ways, and that merge wasn't
     /// turned down (`org.mx`).
     private static func mergeFit(_ from: Other, _ to: Other, _ cfg: OrganizeConfig) -> (score: Double, match: Double)? {
-        if to.blocks.count < 2 || (from.thread.org?.mx ?? []).contains(to.thread.id) || !newer(to.thread, from.thread) { return nil }
+        // The cheap checks first: every pair of chats is checked when the list counts.
+        if to.blocks.count < 2 { return nil }
         let pages = from.blocks.filter { $0.url != nil && !$0.url!.isEmpty }
-        if pages.isEmpty || from.blocks.contains(where: { $0.settled || $0.dismissed }) { return nil }
-        let urls = Set(to.blocks.compactMap { $0.url.flatMap { $0.isEmpty ? nil : $0 } })
-        if pages.filter({ urls.contains($0.url!) }).count * 2 <= pages.count { return nil }
+        if pages.isEmpty || pages.filter({ b in to.blocks.contains { $0.url == b.url } }).count * 2 <= pages.count { return nil }
+        if from.blocks.contains(where: { $0.settled || $0.dismissed }) || (from.thread.org?.mx ?? []).contains(to.thread.id) || !newer(to.thread, from.thread) { return nil }
         let mine = from.blocks.compactMap(\.v).map { (v: $0, w: 1.0) }
         let theirs = to.blocks.compactMap(\.v).map { (v: $0, w: 1.0) }
         if mine.isEmpty || theirs.isEmpty { return nil }
