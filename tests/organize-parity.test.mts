@@ -381,6 +381,40 @@ move(borsch, [thread("videoone", qa("cars", "https://video.example/7")), borsch]
 move(pile, [pile, japan, bread], { cfg: { minMatch: 99.5 } })
 move(pile, [pile, japan, bread], { cfg: { matchLo: 0.5, matchHi: 0.9 } })
 move(site, [site, ikea, japan], { cfg: { minMatch: 10, siteT: 0.01 } })
+// 2.6 (94): an answer off the chat's topic asked on the same page (one block): to the chat about it, from minMatch,
+// else a new chat; one a mix fits gets nothing; two off-topic answers alike go together; something has to stay; asked
+// in the app (no page) as well; turned down, never again.
+{
+  const page = "https://react.example/1"
+  const offTail = thread("offtail", [...qa("react", page), ...qa("react", page), ...qa("react", page), ...qa("japan", page)])
+  move(offTail, [offTail, japan, bread])
+  move(offTail, [offTail, bread])
+  move(offTail, [offTail, pile, bread])
+  move(offTail, [offTail, japan, bread], { cfg: { minMatch: 100.5 } })
+  move(thread("offtwo", [...qa("react", page), ...qa("react", page), ...qa("japan", page), ...qa("japan", page)]), [bread])
+  move(thread("offmixed", [...qa("react", page), ...qa("react", page), ...qa("japan", page), ...qa("bread", page)]), [bread])
+  move(thread("offshort", [...qa("react", page), ...qa("japan", page)]), [bread])
+  move(thread("offtwoblocks", [...qa("react", "https://react.example/2"), ...qa("react", page), ...qa("japan", page)]), [bread])
+  const appQ = qa("japan", page).map((e) => (e.role === "user" ? { ...e, page: undefined } : e))
+  move(thread("offapp", [...qa("react", page), ...qa("react", "https://react.example/2"), ...appQ]), [bread])
+  move(thread("offno", [...qa("react", page), ...qa("react", page), ...no(qa("japan", page))]), [bread])
+  move(thread("offwindow", [...qa("react", page), ...qa("react", page), ...qa("japan", page), ...qa("react", "https://react.example/5"), ...qa("react", "https://react.example/6"), ...qa("react", "https://react.example/7")]), [bread])
+}
+// 2.6 (94): a chat on the topic and pages of a newer one joins it whole; not into a chat of one block, not when turned
+// down, not into an older one, not on other pages or another topic.
+{
+  const fresh = thread("freshjapan", [...qa("japan", "https://jg.example/1"), ...qa("japan", "https://jg.example/2"), ...qa("japan", "https://jg.example/4")])
+  move(japan, [japan, fresh, bread])
+  move(fresh, [japan, fresh, bread])
+  move({ ...japan, org: { n: japan.m.length, k: entryKey(japan.m[japan.m.length - 1]), mx: ["freshjapan"] } }, [japan, fresh])
+  move(japan, [japan, thread("onejapan", qa("japan", "https://jg.example/1"))])
+  move(japan, [japan, thread("elsewhere", [...qa("japan", "https://other.example/1"), ...qa("japan", "https://other.example/2")])])
+  move(japan, [japan, thread("breadjg", [...qa("bread", "https://jg.example/1"), ...qa("bread", "https://jg.example/2"), ...qa("bread", "https://jg.example/3")])])
+  move(japan, [japan, fresh], { cfg: { minMatch: 100.5 } })
+  move(thread("lonejapan", qa("japan", "https://jg.example/2")), [japan, fresh])
+  move(thread("oldlone", [noteOn("japan", "https://jg.example/1", "A note about the rail pass for the trip")]), [fresh])
+  move(no(japan.m).length ? { ...japan, m: [...japan.m.slice(0, 2), ...no(japan.m.slice(2, 4)), ...japan.m.slice(4)] } : japan, [japan, fresh])
+}
 // 2.6 (93): organizing's state kept with the chat, as another device reads it back: the move while the chat is as it
 // was, the tags still open, the name unless turned down or typed by the user; junk dropped part by part.
 {
@@ -400,6 +434,7 @@ move(site, [site, ikea, japan], { cfg: { minMatch: 10, siteT: 0.01 } })
   kept({ ...pile, title: "Mine", aiTitle: "Mine", ait: "Mine" } as Thread, { n, k: last(pile), nm: { k: "k1", t: "Mine" } }, { answer: { fits: true, title: "Whatever" } })
   kept({ ...pile, title: "Typed", aiTitle: "AI's", ait: "AI's" } as Thread, { n, k: last(pile), nm: { k: "k1", t: "React and a trip" } }, { current: "Typed" })
   for (const junk of [null, 5, "x", [], { n: "2", k: "" }, { n: true, k: "" }, { n: 1 }, { n: 1, k: "", mv: { s: 0, e: 0, to: 3, why: "topic" }, tg: [["a", 1], ["b", "B", "extra"], "c", ["d"]], nm: { k: "z", t: "", no: [1, "N"] } },
+    { n: 1, k: "", mx: ["a", 5, "", "b"], mv: { s: 0, e: 3, to: "x", why: "merge", mt: 80 } }, { n: 1, k: "", mx: "a" },
     { n: 1, k: "", mv: { s: 0, e: 0, why: "topic" } }, { n: 1, k: "", mv: { s: 0, e: 0, to: null, why: "elsewhere" } }, { n: 1, k: "", mv: { s: 0, e: 1, to: null, why: "apart", mt: "84" } }, { n: 1, k: "", mv: { s: 0, e: 1, to: "x", why: "site", mt: 57.5 }, nm: { t: "no key" } }])
     kept(bread, junk)
 }
@@ -543,7 +578,7 @@ cases.push(...suggestions.map(withVectors))
 test("organizing gives the same results in the panel and in the app", { skip }, () => {
   // The cases reach every kind of move suggestion, and tags the judge confirms, or the parity would say little.
   const whys = new Set(cases.filter((c) => c.op === "suggestMove").map((c) => (js(c) as { why: string } | null)?.why ?? "none"))
-  assert.deepEqual([...whys].sort(), ["apart", "none", "page", "site", "topic"])
+  assert.deepEqual([...whys].sort(), ["apart", "merge", "none", "page", "site", "topic"])
   assert.ok(cases.some((c) => c.op === "tags" && (js(c) as Array<{ candidates: unknown[]; judged: string[] }>).some((t) => t.candidates.length === 3 && t.judged.length > 0)))
   // And the kept state: a move, tags and a name still open in some, and junk in others.
   const kept = cases.filter((c) => c.op === "org").map((c) => js(c) as { clean: unknown; move: unknown; tags: unknown[]; name: unknown })

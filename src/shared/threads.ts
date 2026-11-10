@@ -25,6 +25,10 @@ export interface Thread {
   // Fields of the iCloud copy this version doesn't know (a newer version wrote them): kept as they came, so they go
   // back with the chat instead of being dropped on the next save.
   x?: Record<string, unknown>
+  // On this device only (2.6 (94)): changed since its copy of time `b` (in sync with iCloud then) only in organizing's
+  // record, while `u` is still this one. Such a change never replaces a copy another device wrote since (ChatSync.swift
+  // `base`): build 93's stale suggestions record put back the old name of a chat renamed on another device.
+  ob?: { u: number; b: number }
 }
 
 export type Threads = Record<string, Thread>
@@ -39,9 +43,11 @@ export type Threads = Record<string, Thread>
 export interface OrgState {
   n: number
   k: string
-  mv?: { s: number; e: number; to: string | null; why: "page" | "site" | "topic" | "apart"; mt?: number }
+  mv?: { s: number; e: number; to: string | null; why: "merge" | "page" | "site" | "topic" | "apart"; mt?: number }
   tg?: Array<[string, string]>
   nm?: { k: string; t?: string; no?: string[] }
+  // 2.6 (94): the chats a merge into was turned down for (never suggested again).
+  mx?: string[]
 }
 
 /** An OrgState as read back from iCloud or storage, or undefined if it isn't one. */
@@ -51,7 +57,7 @@ export function cleanOrgState(raw: unknown): OrgState | undefined {
   if (typeof o.n !== "number" || typeof o.k !== "string") return undefined
   const out: OrgState = { n: o.n, k: o.k }
   const mv = o.mv as Record<string, unknown> | undefined
-  if (mv && typeof mv.s === "number" && typeof mv.e === "number" && (typeof mv.to === "string" || mv.to === null) && ["page", "site", "topic", "apart"].includes(String(mv.why))) {
+  if (mv && typeof mv.s === "number" && typeof mv.e === "number" && (typeof mv.to === "string" || mv.to === null) && ["merge", "page", "site", "topic", "apart"].includes(String(mv.why))) {
     out.mv = { s: mv.s, e: mv.e, to: mv.to as string | null, why: mv.why as "page", ...(typeof mv.mt === "number" ? { mt: mv.mt } : {}) }
   }
   if (Array.isArray(o.tg)) {
@@ -63,6 +69,8 @@ export function cleanOrgState(raw: unknown): OrgState | undefined {
     const no = Array.isArray(nm.no) ? nm.no.filter((x): x is string => typeof x === "string") : []
     out.nm = { k: nm.k, ...(typeof nm.t === "string" && nm.t ? { t: nm.t } : {}), ...(no.length ? { no } : {}) }
   }
+  const mx = Array.isArray(o.mx) ? o.mx.filter((x): x is string => typeof x === "string" && x.length > 0).slice(-20) : []
+  if (mx.length) out.mx = mx
   return out
 }
 
@@ -73,7 +81,42 @@ export interface ActiveThread {
 }
 
 /** A thread as iCloud stores it (`data` is the JSON conversation), or its deletion. */
-export type CloudChange = { id: string; updatedAt: number; data: string } | { id: string; deleted: true }
+export type CloudChange = { id: string; updatedAt: number; data: string; base?: number } | { id: string; deleted: true }
+
+/** The time of the copy a change only to organizing's record was made on, while it's the thread's last change. */
+export function orgOnlyBase(t: Thread): number | undefined {
+  return t.ob && t.ob.u === t.u ? t.ob.b : undefined
+}
+
+/**
+ * `next`, a change to organizing's record only of `stored`, marked as such (`ob`) when `stored` was in sync with iCloud
+ * (`synced`) or was itself such a change; otherwise (other changes not sent yet) it goes as any change.
+ */
+export function orgOnly(stored: Thread, next: Thread, synced: Record<string, number>): Thread {
+  const { ob: _ob, ...rest } = next
+  const base = stored.u <= (synced[stored.id] ?? -Infinity) ? stored.u : orgOnlyBase(stored)
+  return base === undefined ? rest : { ...rest, ob: { u: next.u, b: base } }
+}
+
+/**
+ * Another copy of a chat with what organizing's record `ours` turned down added: the names (`nm.no`, and the open
+ * name if it's one of them) and the merges (`mx`), at most 20 of each (ChatSync.swift `rebased`). The rest is theirs.
+ */
+export function withRefusals(theirs: Thread, ours: OrgState | undefined): Thread {
+  const no = ours?.nm?.no ?? []
+  const mx = ours?.mx ?? []
+  if (!no.length && !mx.length) return theirs
+  const org: OrgState = theirs.org ? { ...theirs.org } : { n: 0, k: "" }
+  if (no.length) {
+    const all = [...(org.nm?.no ?? [])]
+    for (const x of no) if (!all.some((y) => y.toLowerCase() === x.toLowerCase())) all.push(x)
+    const kept = all.slice(-20)
+    const t = org.nm?.t && !kept.some((y) => y.toLowerCase() === org.nm!.t!.toLowerCase()) ? org.nm.t : undefined
+    org.nm = { k: org.nm?.k ?? "", ...(t ? { t } : {}), no: kept }
+  }
+  if (mx.length) org.mx = [...new Set([...(org.mx ?? []), ...mx])].slice(-20)
+  return { ...theirs, org }
+}
 
 export const MAX_THREADS = 50
 export const MAX_TITLE = 80
@@ -338,7 +381,8 @@ export function pendingChanges(threads: Threads, synced: Record<string, number>)
     if (t.deleted) {
       if (t.id in synced) out.push({ id: t.id, deleted: true })
     } else if (t.m.length > 0 && t.u > (synced[t.id] ?? 0)) {
-      out.push({ id: t.id, updatedAt: t.u, data: threadForCloud(t) })
+      const base = orgOnlyBase(t)
+      out.push({ id: t.id, updatedAt: t.u, data: threadForCloud(t), ...(base !== undefined ? { base } : {}) })
     }
   }
   return out
@@ -530,7 +574,14 @@ export function applyAppChanges(threads: Threads, synced: Record<string, number>
     if (local && local.u >= c.updatedAt) continue
     const app = threadFromCloud(c.data)
     if (!app) continue
-    next[c.id] = { id: c.id, u: c.updatedAt, ...app }
+    const made: Thread = { id: c.id, u: c.updatedAt, ...app }
+    if (c.base !== undefined && local && !local.deleted && local.u > c.base) {
+      // 2.6 (94): organizing's record, made in the app on a copy this one has changed since: this one, with what the app
+      // turned down, newer than both (so the app's copy takes it too); sent to iCloud as such a change again.
+      next[c.id] = orgOnly(local, { ...withRefusals(local, app.org), u: Math.max(local.u, c.updatedAt) + 1 }, synced)
+    } else {
+      next[c.id] = c.base !== undefined && local ? orgOnly(local, made, synced) : made
+    }
     changed = true
   }
   return { threads: changed ? sweepMoved(next, synced, now).threads : next, changed }

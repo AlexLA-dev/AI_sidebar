@@ -306,6 +306,10 @@
 .cf[data-layout="sheet"] .cf-header { padding-top: 2px; }
 .cf-logo { color: var(--accent); display: flex; margin-inline-end: 4px; }
 .cf-title { flex: 1; min-width: 0; display: flex; align-items: center; }
+/* 2.6 (94): the chat's name over the page. */
+.cf-title.named { flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px; }
+.cf-title.named > :not(.cf-chat-name) { max-width: 100%; }
+.cf-chat-name { max-width: 100%; padding-inline-start: 2px; font-size: 12.5px; font-weight: 600; line-height: 1.2; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cf-title strong { font-size: 15px; font-weight: 600; }
 .cf-icon { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--text-2); }
 .cf-icon:hover { background: var(--bg-2); color: var(--text); }

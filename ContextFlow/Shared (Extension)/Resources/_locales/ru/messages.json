@@ -1496,6 +1496,15 @@
  "orgMatch": {
   "message": "совпадает на {0}%"
  },
+ "orgMergeInto": {
+  "message": "Объединить с «{0}»"
+ },
+ "orgMergeA11y": {
+  "message": "Объединить этот чат с «{0}»"
+ },
+ "orgMerged": {
+  "message": "Объединено с «{0}»"
+ },
  "recs_one": {
   "message": "{0} рекомендация"
  },

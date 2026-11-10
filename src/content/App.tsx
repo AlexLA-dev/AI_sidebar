@@ -65,7 +65,7 @@ import { hasPro, isUltra, type PaidPlan } from "../shared/plan"
 import { SettingsView } from "./Settings"
 import { shareLabels } from "./shareLabels"
 import { keptPlanNow, loadJobs, markHintSeen, markMemoryOffered, memoryOffered, onJobsChanged, resetHints, seenHints, type HintKey } from "./store"
-import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, onConsentChanged, loadThreads, markTourSeen, lastPlanSeen, setLastPlanSeen, planToursSeen, markPlanToursSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, purgeChats, nameThread, rememberPageText, renameThread, renewalAskedPeriod, setOrgState, settleNameSuggestion, unnameThread, restoreChat, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount, trashChat } from "./store"
+import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, onConsentChanged, loadThreads, markTourSeen, lastPlanSeen, setLastPlanSeen, planToursSeen, markPlanToursSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, purgeChats, nameThread, rememberPageText, refuseMerge, renameThread, renewalAskedPeriod, setOrgState, settleNameSuggestion, unnameThread, restoreChat, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount, trashChat } from "./store"
 import { TagChip, TagEditor } from "./Tags"
 import { ThreadsView } from "./Threads"
 import { TrashView } from "./Trash"
@@ -668,9 +668,15 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const timer = setInterval(() => {
       if (document.visibilityState === "visible" && !portRef.current) void refreshStatus()
     }, 30_000)
+    // 2.6 (94): other devices' changes while the panel stays open, every 20 s (before, only as it opened: a chat renamed
+    // on the iPhone kept its old name and the suggestion here). What changes comes through onThreadsChanged above.
+    const pull = setInterval(() => {
+      if (document.visibilityState === "visible" && !portRef.current) void sendBackground({ type: "syncThreads", quiet: true })
+    }, 20_000)
     return () => {
       off()
       clearInterval(timer)
+      clearInterval(pull)
     }
   }, [open, refreshStatus])
 
@@ -2673,7 +2679,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     else showChat(target, moved.threads)
     orgEvent({ kind: "organize", action: "accepted", what: move.to ? "move" : "new", why: move.why })
     setUndoBar({
-      text: t("orgMoved", move.toName),
+      text: t(move.why === "merge" ? "orgMerged" : "orgMoved", move.toName),
       kind: "move",
       actions: [
         { label: t("orgUndo"), run: () => void undoChatMove(moved.undo) },
@@ -2683,6 +2689,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     won()
   }
   const refuseMove = (move: OrganizeMove) => {
+    // A merge turned down (2.6 (94)) is kept with the chat, not on its messages: they may still go elsewhere.
+    if (move.why === "merge" && move.to) {
+      void refuseMerge(threadRef.current, move.to)
+      setOrg((o) => o && { ...o, move: null })
+      orgEvent({ kind: "organize", action: "dismissed", what: "move", why: move.why })
+      return
+    }
     setMessages((list) => list.map((m, i) => (i < move.start || i > move.end ? m : { ...m, dismissed: { ...m.dismissed, move: true as const } })))
     setOrg((o) => o && { ...o, move: null })
     orgEvent({ kind: "organize", action: "dismissed", what: move.to ? "move" : "new", why: move.why })
@@ -2873,6 +2886,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const lastIsUser = isQuestion(messages[messages.length - 1])
   // The conversation was last on another page: offer this page's actions.
   const onNewPage = messages.length > 0 && Boolean(lastPage(messages)) && lastPage(messages)?.url !== pageUrl
+  // The chat's name over the page in the header (2.6 (94)): as the chats list shows it.
+  const shownThreadNow = threadList.find((x) => x.id === threadRef.current)
+  const headerName = view === "chat" && !historyMode && messages.length > 0 ? (shownThreadNow ? threadName(shownThreadNow) : threadTitle(messages)) : null
 
   // ------------------------------------------------------------ render
   return (
@@ -3021,7 +3037,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             ) : (
               <span class="cf-logo"><Icon.Sparkle size={18} /></span>
             )}
-            <div class="cf-title">
+            <div class={`cf-title${headerName ? " named" : ""}`}>
+              {/* 2.6 (94): the chat's name (the owner: in the chat its name wasn't seen, so a suggested one couldn't be judged). */}
+              {headerName && <span class="cf-chat-name" dir="auto" title={headerName}>{headerName}</span>}
               {view !== "chat" ? (
                 <strong>{view === "settings" ? t("settings") : view === "templates" ? t("qiTemplatesTitle") : view === "trash" ? t("trashTitle") : t("chatsTitle")}</strong>
               ) : (

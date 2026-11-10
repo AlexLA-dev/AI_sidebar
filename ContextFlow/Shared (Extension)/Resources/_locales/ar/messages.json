@@ -1496,6 +1496,15 @@
  "orgMatch": {
   "message": "تطابق {0}٪"
  },
+ "orgMergeInto": {
+  "message": "ادمج مع «{0}»"
+ },
+ "orgMergeA11y": {
+  "message": "ادمج هذه المحادثة مع «{0}»"
+ },
+ "orgMerged": {
+  "message": "دُمجت مع «{0}»"
+ },
  "recs_one": {
   "message": "توصية واحدة"
  },
