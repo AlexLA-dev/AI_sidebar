@@ -692,7 +692,7 @@ final class ChatLibrary: ObservableObject {
             }
             _ = ChatMirror.apply(saves: saves)
         }
-        // Build 95 (the owner: a name taken in the panel stayed offered on the iPad): -CFDebugRemoteRename <id>
+        // Build 95 (a name taken on another device stayed offered here): -CFDebugRemoteRename <id>
         // -CFDebugRemoteRenameAfter <s>: after so many seconds that chat gets the name its record suggests, as another
         // device that took it writes it (the title, and the record without the suggestion), and the library reloads as
         // after a pull from iCloud.
@@ -853,7 +853,7 @@ final class ChatLibrary: ObservableObject {
         guard let current = threads.first(where: { $0.id == id }), var org = current.org, let nm = org.nm, let t = nm.t else { return }
         let no = taken ? nm.no : Array((nm.no.filter { $0.lowercased() != t.lowercased() } + [t]).suffix(20))
         // Taken: the check is about the chat under its new name (2.6 (95)), so no device asks again until the chat
-        // changes (the owner: renamed again and again). The name as nameByAI keeps it.
+        // changes (else taking a name started a check of it, and renames followed one another). The name as nameByAI keeps it.
         let named = String(t.replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression).trimmingCharacters(in: .whitespaces).prefix(80))
         let key = taken ? current.organized.map { Organize.nameCheckKey($0, title: named) } ?? nm.k : nm.k
         org.nm = OrgState.Name(k: key, t: nil, no: no)

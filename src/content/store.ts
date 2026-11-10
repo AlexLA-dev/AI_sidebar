@@ -387,7 +387,7 @@ export async function settleNameSuggestion(id: string, taken: boolean): Promise<
   if (!stored || stored.deleted || !stored.org || !nm?.t) return
   const no = taken ? nm.no ?? [] : [...(nm.no ?? []).filter((x) => x.toLowerCase() !== nm.t!.toLowerCase()), nm.t].slice(-20)
   // Taken: the check is about the chat under its new name (2.6 (95)), so no device asks again until the chat changes
-  // (the owner: renamed again and again).
+  // (else taking a name started a check of it, and renames followed one another).
   const k = taken ? nameCheckKey(stored, cleanTitle(nm.t)) : nm.k
   const next: OrgState = { ...stored.org, nm: { k, ...(no.length ? { no } : {}) } }
   const changed: Thread = { ...stored, u: Math.max(Date.now(), stored.u + 1), a: activity(stored), org: next }

@@ -36,8 +36,7 @@ struct SuggestionRow: View {
                     HStack(spacing: 0) {
                         (Text(Image(systemName: "arrow.turn.down.right")) + Text(" ") + moveText(move))
                             .lineLimit(1)
-                        // 2.6 (93): how well it fits there (the owner: «этот уровень показывал бы пользователю рядом с
-                        // рекомендацией»); a long name is cut, never this.
+                        // 2.6 (93): how well it fits there, shown with the suggestion; a long name is cut, never this.
                         if move.to != nil, let match = move.match {
                             (Text(" · ").foregroundColor(.secondary) + Text("\(Int(match))% match").fontWeight(.semibold).foregroundColor(.accentColor))
                                 .lineLimit(1)
@@ -55,7 +54,7 @@ struct SuggestionRow: View {
                 }
             }
         }
-        // 2.6 (94): a light tint, so the suggestions stand out from the chat (the owner: «подсвечивать… Очень лайтово»).
+        // 2.6 (94): a light tint, so the suggestions stand out from the chat without weighing on it.
         .padding(.horizontal, 8)
         .padding(.vertical, 5)
         .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Color.accentColor.opacity(0.07)))
@@ -178,7 +177,7 @@ struct UndoBar: View {
     }
 }
 
-/// What organizing does, drawn with its real pieces (2.6, the owner: the abstract bars read as placeholder art): a
+/// What organizing does, drawn with its real pieces (2.6: abstract bars read as placeholder art): a
 /// question, the answer under it and the row the app really shows there, a suggested tag and "3 messages to “Trips”".
 /// In a gentle loop the move is taken and the bar after a move shows, then it starts again; with Reduce Motion (or
 /// `-CFStillPictures YES`, for screenshots) it stays on the suggestions. `compact`: the row alone, for small cards.
@@ -523,8 +522,8 @@ final class OrganizeModel: ObservableObject {
         // (2.6 (91): never renamed by itself). 2.6 (93): the check is kept with the chat, so no device asks again what
         // another did, and a name turned down on one never comes back on another.
         var nm = chat.org?.nm
-        // 2.6 (95): first what moves out of the chat (or merges), then its name, once nothing is left to move (the owner:
-        // renamed again and again, with odd names for a chat on two topics). A name it had stays hidden meanwhile.
+        // 2.6 (95): first what moves out of the chat (or merges), then its name, once nothing is left to move (else a chat
+        // on two topics got names of both, and renames came and went). A name it had stays hidden meanwhile.
         if work.move == nil, Organize.wantsNameCheck(chat) {
             let key = Organize.nameCheckKey(chat)
             if nm?.k != key, let answer = try? await ChatAI.organizeName(chat: Organize.nameText(chat.entries), current: thread.name) {

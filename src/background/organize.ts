@@ -161,8 +161,8 @@ async function organizeOnce(chatId: string, ctx: Context): Promise<OrganizeReply
   // never renamed by itself). The check and its answer go with the chat (2.6 (93)): another device asks nothing again,
   // and a name turned down anywhere never comes back.
   let nm = chat.org?.nm
-  // 2.6 (95): first what moves out of the chat (or merges), then its name, once nothing is left to move (the owner:
-  // renamed again and again, with odd names for a chat on two topics). A name it had stays hidden meanwhile (openName).
+  // 2.6 (95): first what moves out of the chat (or merges), then its name, once nothing is left to move (else a chat on
+  // two topics got names of both, and renames came and went). A name it had stays hidden meanwhile (openName).
   if (!move && wantsNameCheck(chat)) {
     const key = nameCheckKey(chat)
     if (nm?.k !== key) {

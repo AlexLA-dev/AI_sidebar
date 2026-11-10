@@ -104,7 +104,7 @@ export function OrganizeRow({ tag, move, name, quiet, onTag, onTagNo, onMove, on
 const still = () => undefined
 
 /**
- * What organizing does, drawn with its real pieces (2.6, the owner: the abstract bars read as placeholder art): a
+ * What organizing does, drawn with its real pieces (2.6: abstract bars read as placeholder art): a
  * question, the answer and the row the panel really shows under it, a suggested tag and "3 messages to “Trips”"; in a
  * gentle loop the bar after a move takes its place (organize.css; it stays on the row with Reduce Motion). `compact`:
  * the row alone, for the small cards. Not interactive.
