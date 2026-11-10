@@ -2106,7 +2106,7 @@
   "message": "Continuer l’écoute dans ContextFlow — à partir de {0}"
  },
  "listenNotifyAsk": {
-  "message": "Activez les notifications pour continuer l’écoute quand vous quittez Safari ou verrouillez l’écran. Sinon, Listen ouvre l’app."
+  "message": "Activez les notifications pour continuer l’écoute quand vous quittez Safari ou verrouillez l’écran. Sinon, « Écouter » ouvre l’app."
  },
  "listenNotifyOn": {
   "message": "Activer les notifications"

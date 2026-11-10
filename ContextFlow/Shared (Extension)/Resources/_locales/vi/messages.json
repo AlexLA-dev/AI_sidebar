@@ -2106,7 +2106,7 @@
   "message": "Nghe tiếp trong ContextFlow — từ {0}"
  },
  "listenNotifyAsk": {
-  "message": "Bật thông báo để nghe tiếp khi bạn rời Safari hoặc khóa màn hình. Nếu không, Listen sẽ mở ứng dụng."
+  "message": "Bật thông báo để nghe tiếp khi bạn rời Safari hoặc khóa màn hình. Nếu không, “Nghe” sẽ mở ứng dụng."
  },
  "listenNotifyOn": {
   "message": "Bật thông báo"

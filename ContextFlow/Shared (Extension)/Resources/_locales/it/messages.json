@@ -2106,7 +2106,7 @@
   "message": "Continua ad ascoltare in ContextFlow — da {0}"
  },
  "listenNotifyAsk": {
-  "message": "Attiva le notifiche per continuare ad ascoltare quando esci da Safari o blocchi lo schermo. Altrimenti Listen apre l’app."
+  "message": "Attiva le notifiche per continuare ad ascoltare quando esci da Safari o blocchi lo schermo. Altrimenti «Ascolta» apre l’app."
  },
  "listenNotifyOn": {
   "message": "Attiva le notifiche"

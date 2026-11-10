@@ -2106,7 +2106,7 @@
   "message": "在 ContextFlow 中繼續收聽 — 從 {0} 開始"
  },
  "listenNotifyAsk": {
-  "message": "開啟通知，離開 Safari 或鎖定螢幕時也能繼續收聽。否則，Listen 會打開 App。"
+  "message": "開啟通知，離開 Safari 或鎖定螢幕時也能繼續收聽。否則，「朗讀」會打開 App。"
  },
  "listenNotifyOn": {
   "message": "開啟通知"

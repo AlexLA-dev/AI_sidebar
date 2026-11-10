@@ -2106,7 +2106,7 @@
   "message": "ContextFlowで続きを聴く — {0}から"
  },
  "listenNotifyAsk": {
-  "message": "Safariを離れたり画面をロックしたりしても聴き続けるには、通知をオンにしてください。オフの場合、Listenはアプリを開きます。"
+  "message": "Safariを離れたり画面をロックしたりしても聴き続けるには、通知をオンにしてください。オフの場合、「読み上げ」はアプリを開きます。"
  },
  "listenNotifyOn": {
   "message": "通知をオンにする"

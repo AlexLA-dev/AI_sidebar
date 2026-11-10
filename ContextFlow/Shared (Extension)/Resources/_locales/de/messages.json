@@ -2106,7 +2106,7 @@
   "message": "In ContextFlow weiterhören – ab {0}"
  },
  "listenNotifyAsk": {
-  "message": "Aktiviere Mitteilungen, um weiterzuhören, wenn du Safari verlässt oder den Bildschirm sperrst. Sonst öffnet Listen die App."
+  "message": "Aktiviere Mitteilungen, um weiterzuhören, wenn du Safari verlässt oder den Bildschirm sperrst. Sonst öffnet „Anhören“ die App."
  },
  "listenNotifyOn": {
   "message": "Mitteilungen aktivieren"
