@@ -127,6 +127,7 @@ final class SharedDefaults {
     private let listenKey = "cf_listen_v1"
     private let listenTakenKey = "cf_listen_taken"
     private let listenReturnKey = "cf_listen_return"
+    private let voicedKey = "cf_voiced"
 
     /// Local notifications the app schedules on a new install until the extension is switched on.
     static let setupReminderIds = ["cf.setup.15m", "cf.setup.24h"]
@@ -241,6 +242,38 @@ final class SharedDefaults {
               let at = stored["at"] as? Double, Date().timeIntervalSince1970 - at < 180 else { return (false, false) }
         defaults.removeObject(forKey: listenReturnKey)
         return (true, stored["play"] as? Bool ?? false)
+    }
+
+    // MARK: Already voiced (build 94)
+
+    /// The texts heard to their end on this device, in the app or the panel (src/shared/voiced.ts ids), the newest
+    /// first: Listen shows that replaying them costs no minutes.
+    func voicedIds() -> [String] {
+        let stored = defaults.dictionary(forKey: voicedKey) as? [String: Double] ?? [:]
+        return stored.sorted { $0.value > $1.value }.prefix(400).map(\.key)
+    }
+
+    /// Adds texts heard to their end (the newest 400 kept); false when they were all there already.
+    @discardableResult
+    func markVoiced(_ ids: [String]) -> Bool {
+        var stored = defaults.dictionary(forKey: voicedKey) as? [String: Double] ?? [:]
+        let now = Date().timeIntervalSince1970 * 1000
+        var added = false
+        for id in ids where id.range(of: "^[0-9a-f]{16}$", options: .regularExpression) != nil && stored[id] == nil {
+            stored[id] = now
+            added = true
+        }
+        guard added else { return false }
+        if stored.count > 400 {
+            stored = Dictionary(uniqueKeysWithValues: stored.sorted { $0.value > $1.value }.prefix(400).map { ($0.key, $0.value) })
+        }
+        defaults.set(stored, forKey: voicedKey)
+        return true
+    }
+
+    /// "Delete all chats": the list goes with what was read aloud.
+    func clearVoiced() {
+        defaults.removeObject(forKey: voicedKey)
     }
 
     // MARK: The question when auto-renew is off

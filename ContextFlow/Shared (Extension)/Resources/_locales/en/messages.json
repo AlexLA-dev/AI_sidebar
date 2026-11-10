@@ -1760,6 +1760,12 @@
  "listenPlayingHere": {
   "message": "Playing now"
  },
+ "listenVoiced": {
+  "message": "Already voiced: replay is free"
+ },
+ "listenGoTo": {
+  "message": "Go to where it's from"
+ },
  "listenSpeed": {
   "message": "Speed: {0}. Tap for another speed"
  },

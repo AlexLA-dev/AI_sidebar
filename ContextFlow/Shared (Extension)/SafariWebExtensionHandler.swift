@@ -82,6 +82,9 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                 let entitlement = await Self.currentEntitlement()
                 var data = entitlement.dictionary
                 data["ms"] = Int(Date().timeIntervalSince(started) * 1000)
+                // Build 94: the texts heard to their end in the app on this device (Listen's "already voiced" mark).
+                let voiced = SharedDefaults.shared.voicedIds()
+                if !voiced.isEmpty { data["voiced"] = voiced }
                 Self.reply(context, ["success": true, "data": data])
             }
         case "openApp":
@@ -322,6 +325,10 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         case "listenStop":
             ListenAway.withdraw()
             Self.reply(context, ["success": true])
+        // Build 94: texts heard to their end in the panel; the app shows the same mark by Listen.
+        case "voiced":
+            SharedDefaults.shared.markVoiced((message["ids"] as? [String] ?? []).prefix(20).map { $0 })
+            Self.reply(context, ["success": true])
         // Back on the page after a hand-off (build 93): whether the app sent the person back for this text, to play it
         // in the panel (notifications just turned on), and whether the app has taken it over.
         case "listenReturn":
@@ -331,6 +338,7 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         case "speechClear":
             // "Delete all chats" in the panel: what was read aloud goes from the App Group and iCloud too.
             SharedListenCache.clear()
+            SharedDefaults.shared.clearVoiced()
             Self.reply(context, ["success": true])
             Task.detached(priority: .utility) { await SpeechSync.deleteAll() }
         case "speechTextPut":
@@ -456,6 +464,8 @@ enum ListenAway {
         var handoff: [String: Any] = ["position": at]
         if let starts = message["starts"] as? [NSNumber] { handoff["starts"] = starts.prefix(80).map(\.doubleValue) }
         if let speed = (message["speed"] as? NSNumber)?.doubleValue { handoff["speed"] = speed }
+        // Part of it skipped ahead in Safari (build 94): the app doesn't mark it heard to its end.
+        if message["skipped"] as? Bool == true { handoff["skipped"] = true }
         var changes: [String: Any] = [:]
         if let parts = message["parts"] as? [String], !parts.isEmpty {
             changes["spoken"] = Array(parts.prefix(80).map { String($0.prefix(4000)) })

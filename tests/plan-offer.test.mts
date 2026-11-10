@@ -146,3 +146,9 @@ test("listen (build 93): back to Safari once notifications are on, and the panel
   assert.deepEqual(useFields({ f: "listen", a: "back_safari", what: "answer" }), { f: "listen", a: "back_safari", what: "answer" })
   assert.deepEqual(useFields({ f: "listen", a: "back_play", what: "page" }), { f: "listen", a: "back_play", what: "page" })
 })
+
+test("listen (build 94): back to what plays from the bar, and a text marked already voiced", async () => {
+  const { useFields } = await import("../src/shared/usage.ts")
+  assert.deepEqual(useFields({ f: "listen", a: "go", what: "answer" }), { f: "listen", a: "go", what: "answer" })
+  assert.deepEqual(useFields({ f: "listen", a: "voiced", what: "page" }), { f: "listen", a: "voiced", what: "page" })
+})

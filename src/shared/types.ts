@@ -189,10 +189,13 @@ export type BackgroundRequest =
   | { type: "notifStatus" }
   // Read aloud playing in the panel on iPhone and iPad (2.6): what the app needs to carry on from the same second
   // ("state", as it plays), the page went away ("away": the notification now), came back ("back"), or it stopped.
-  | { type: "listenHandoff"; op: "state" | "away" | "back" | "stop"; id: string; at?: number; starts?: number[]; parts?: string[]; complete?: boolean; speed?: number; title?: string; body?: string }
+  // `skipped` (build 94): part of it was skipped ahead here, so the app doesn't count it as heard to its end.
+  | { type: "listenHandoff"; op: "state" | "away" | "back" | "stop"; id: string; at?: number; starts?: number[]; parts?: string[]; complete?: boolean; speed?: number; title?: string; body?: string; skipped?: boolean }
   // Back on the page after a hand-off (build 93): whether the app sent the person back for this text ("Back to Safari",
   // or notifications just turned on: then `play` it here), and whether the app has taken it over.
   | { type: "listenReturn"; id: string }
+  // Build 94: a text heard to its end here (shared/voiced.ts id): kept, and told to the app on this device.
+  | { type: "listenVoiced"; id: string }
   // The line under a free answer that skipped the page's video or PDFs: shown, or its "Try Pro" tapped.
   | { type: "mediaNotice"; action: "shown" | "pro"; media: MediaKind[] }
   // An Own key subscriber and Pro: a refusal (starts the day before the discount), the discount card shown, a tap.
@@ -314,6 +317,9 @@ export const STORAGE = {
   // iPhone, iPad (build 93): the last hand-off of Listen to the app, so coming back from it ("Back to Safari", or once
   // notifications are on) brings the panel back as it was.
   listenBack: "cf:listenBack",
+  // Build 94: the texts heard to their end on this device, in the panel or the app ({ [id]: ms }, shared/voiced.ts):
+  // Listen shows that replaying them costs no minutes.
+  voiced: "cf:voiced",
   // Recent pages' text on this device ({ [url]: { title, text, at } }) for "whole chat" answers.
   pageTexts: "cf:pageTexts",
   // How many times the hint about writing notes with the send button was shown, or -1 once used.

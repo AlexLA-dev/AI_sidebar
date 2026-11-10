@@ -147,6 +147,8 @@ export interface ListenBack {
   panel: boolean
   at: number
   key?: string
+  // What it is, for the bar on coming back (build 94).
+  title?: string
   item?: { text: string; what: "answer" | "page"; lang: string; title: string; url: string }
 }
 
@@ -164,6 +166,26 @@ export async function setListenBack(back: ListenBack | null): Promise<void> {
       // No storage.
     }
   }
+}
+
+/** Build 94: the texts heard to their end on this device (the panel's and the app's), id → when. */
+export async function voicedNow(): Promise<Record<string, number>> {
+  const list = await get<Record<string, number>>(STORAGE.voiced)
+  return list && typeof list === "object" ? list : {}
+}
+
+/** Calls `listener` with the new list when a text is marked heard (here, in another tab, or by the app). */
+export function onVoicedChanged(listener: (list: Record<string, number>) => void): () => void {
+  const handler = (changes: Record<string, chrome.storage.StorageChange>, area: string) => {
+    const change = changes[STORAGE.voiced]
+    if (area === "local" && change) listener(change.newValue && typeof change.newValue === "object" ? change.newValue as Record<string, number> : {})
+  }
+  try {
+    chrome.storage.onChanged.addListener(handler)
+  } catch {
+    return () => undefined
+  }
+  return () => chrome.storage.onChanged.removeListener(handler)
 }
 
 /** Whether "Not now" to notifications at Listen still holds (until the next day): Listen just opens the app. */

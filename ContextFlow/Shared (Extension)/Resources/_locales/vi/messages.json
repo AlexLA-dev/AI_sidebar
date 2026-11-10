@@ -1754,6 +1754,12 @@
  "listenPlayingHere": {
   "message": "Đang phát"
  },
+ "listenVoiced": {
+  "message": "Đã đọc trước đó: nghe lại miễn phí"
+ },
+ "listenGoTo": {
+  "message": "Đến nơi phát"
+ },
  "listenLoading": {
   "message": "Đang chuẩn bị giọng đọc…"
  },

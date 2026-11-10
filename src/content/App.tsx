@@ -59,13 +59,14 @@ import { conditionFor } from "./watch/draft"
 import { openWatchSheet } from "./watch/WatchSheet"
 import { PlansSheet } from "./Plans"
 import { PlanOffer, type OfferChoice, type OfferPlace } from "./ux/PlanOffer"
-import { ListenBar, SpeakerIcon, useListen } from "./listen/useListen"
+import { ListenBar, SpeakerIcon, useListen, VoicedIcon } from "./listen/useListen"
+import { voicedId } from "../shared/voiced"
 import { dodgeFab } from "./fabDodge"
 import { hasPro, isUltra, type PaidPlan } from "../shared/plan"
 import { SettingsView } from "./Settings"
 import { shareLabels } from "./shareLabels"
 import { keptPlanNow, loadJobs, markHintSeen, markMemoryOffered, memoryOffered, onJobsChanged, resetHints, seenHints, type HintKey } from "./store"
-import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, onConsentChanged, loadThreads, markTourSeen, lastPlanSeen, setLastPlanSeen, planToursSeen, markPlanToursSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, purgeChats, nameThread, rememberPageText, renameThread, renewalAskedPeriod, setOrgState, settleNameSuggestion, unnameThread, restoreChat, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount, trashChat } from "./store"
+import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, onConsentChanged, loadThreads, markTourSeen, lastPlanSeen, setLastPlanSeen, planToursSeen, markPlanToursSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, purgeChats, nameThread, rememberPageText, renameThread, renewalAskedPeriod, setOrgState, settleNameSuggestion, unnameThread, restoreChat, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount, trashChat, voicedNow, onVoicedChanged } from "./store"
 import { TagChip, TagEditor } from "./Tags"
 import { ThreadsView } from "./Threads"
 import { TrashView } from "./Trash"
@@ -1596,19 +1597,23 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setView("chat")
     // Its answer still coming (asked before another chat was opened), or lost (build 91).
     if (thread) setTimeout(() => resumeRef.current(thread.m, id), 0)
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      const list = listRef.current
-      if (!list) return
-      const target = at !== undefined && at >= 0 ? list.querySelector<HTMLElement>(`[data-index="${at}"]`) : null
-      if (!target) {
-        list.scrollTop = list.scrollHeight
-        return
-      }
-      target.scrollIntoView({ block: "center" })
-      target.classList.add("found")
-      setTimeout(() => target.classList.remove("found"), 1600)
-    }))
+    requestAnimationFrame(() => requestAnimationFrame(() => showMessage(at)))
   }, [stop, threadList])
+
+  /** Scrolls the open chat to message `at` and marks it a moment (else to its end). */
+  const showMessage = (at?: number) => {
+    const list = listRef.current
+    if (!list) return
+    const target = at !== undefined && at >= 0 ? list.querySelector<HTMLElement>(`[data-index="${at}"]`) : null
+    if (!target) {
+      list.scrollTop = list.scrollHeight
+      return
+    }
+    // A long message from its start (build 94: a tap on what plays showed the middle of a long answer).
+    target.scrollIntoView({ block: target.offsetHeight > list.clientHeight * 0.6 ? "start" : "center" })
+    target.classList.add("found")
+    setTimeout(() => target.classList.remove("found"), 1600)
+  }
 
   // Tags: of a chat (from the list), of an answer or a note (`tagging`: the message's index).
   const [tagging, setTagging] = useState<number | null>(null)
@@ -1668,14 +1673,15 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           </button>
         )}
         {TARGET === "safari" && !m.note && m.role === "assistant" && (
-          <button type="button" class={`cf-listen-btn cf-ultra-tool ${idx === lastAnswerIdx ? "last" : ""} ${listenOn(`a:${idx}`) ? "on" : ""}`} onClick={() => {
+          <button type="button" class={`cf-listen-btn cf-ultra-tool ${idx === lastAnswerIdx ? "last" : ""} ${listenOn(`a:${idx}`) ? "on" : ""}`} data-voiced={voicedAnswer(m.content) ? "" : undefined} onClick={() => {
             if (listenOn(`a:${idx}`)) return listen.stop()
             // Titled by the page the answer is about (build 93): the one its question was asked on, which may not be the
             // page open now. The link stays this page's: "Back to Safari" in the app comes back here.
             const page = lastPage(messages.slice(0, idx + 1))
             void listen.start(listenKey(`a:${idx}`), { text: m.content, what: "answer", lang: textLanguage(m.content) ?? t("langCode"), title: page?.title || page?.url || source.title(), url: source.href() })
-          }} aria-label={t("listen")} title={t("listen")}>
+          }} aria-label={voicedAnswer(m.content) ? `${t("listen")} · ${t("listenVoiced")}` : t("listen")} title={voicedAnswer(m.content) ? t("listenVoiced") : t("listen")}>
             <SpeakerIcon /> <span class="cf-tl">{t("listen")}</span>{!isUltra(plan) && <span class="cf-ultra-badge">Ultra</span>}
+            {voicedAnswer(m.content) && <span class="cf-voiced"><VoicedIcon /></span>}
           </button>
         )}
         <button type="button" onClick={() => setTagging(tagging === idx ? null : idx)} aria-expanded={tagging === idx} aria-label={t("tagsButton")} title={t("tagsButton")}>
@@ -2238,6 +2244,25 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     panelOpen: () => panelOpenRef.current,
     reopen: () => show()
   })
+  // Build 94: the texts heard to their end on this device (here or in the app): Listen shows replaying them is free.
+  const [voiced, setVoiced] = useState<Record<string, number>>({})
+  useEffect(() => {
+    if (TARGET !== "safari") return
+    void voicedNow().then(setVoiced)
+    return onVoicedChanged(setVoiced)
+  }, [])
+  const anyVoiced = Object.keys(voiced).length > 0
+  const voicedAnswer = (text: string) => anyVoiced && isUltra(plan) && Boolean(voiced[voicedId("answer", text)])
+  // A tap on what plays, in the bar (build 94): back to its chat, at the message (the page's: the chat's end).
+  const listenGo = () => {
+    const key = "key" in listen.state ? listen.state.key : ""
+    const [chat, what = ""] = key.split("|")
+    if (!chat || chat === "new") return
+    const at = what.startsWith("a:") ? Number(what.slice(2)) : undefined
+    void sendBackground({ type: "useEvent", f: "listen", a: "go", what: at === undefined ? "page" : "answer" })
+    if (view === "chat" && threadRef.current === chat) return showMessage(at)
+    openThread(chat, at)
+  }
   // What plays is the chat's it was started in (build 93): its key carries the chat ("<chat>|a:3", "<chat>|page"), so
   // another chat's third answer doesn't show as playing, and the chats list can mark the chat that plays.
   const listenKey = (what: string) => `${threadRef.current || "new"}|${what}`
@@ -2245,7 +2270,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const listenSounds = listen.state.at === "playing" || listen.state.at === "paused" || listen.state.at === "loading"
   const playingChat = listenSounds && "key" in listen.state ? listen.state.key.split("|")[0] : null
   // The bar: under the chat's question field, and at the bottom of the chats list while something plays (build 93).
-  const listenBar = <ListenBar state={listen.state} speed={listen.speed} left={listen.left} onSpeed={listen.cycleSpeed} onAnyway={listen.anyway} onNotifyOn={listen.notifyTurnOn} onNotifyLater={listen.notifyNotNow} onToggle={listen.toggle} onSeek={listen.seek} onStop={listen.stop} onPlans={() => openPlans("ultra", "limit")} />
+  const listenBar = <ListenBar state={listen.state} title={listen.title} onTitle={listenGo} speed={listen.speed} left={listen.left} onSpeed={listen.cycleSpeed} onAnyway={listen.anyway} onNotifyOn={listen.notifyTurnOn} onNotifyLater={listen.notifyNotNow} onToggle={listen.toggle} onSeek={listen.seek} onStop={listen.stop} onPlans={() => openPlans("ultra", "limit")} />
   // The panel closed (build 92): what isn't playing goes, its audio and clock with it; what plays goes on (it's back
   // in the bar when the panel opens again).
   // Only at the moment it closes: a text paused later (the page left, with the panel closed) keeps its notification.

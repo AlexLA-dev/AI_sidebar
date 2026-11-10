@@ -607,6 +607,8 @@
   "listenStop": "停止",
   "listenClose": "停止して閉じる",
   "listenPlayingHere": "再生中",
+  "listenVoiced": "読み上げ済み：もう一度聞いても無料です",
+  "listenGoTo": "元の場所へ移動",
   "listenLoading": "音声を準備しています…",
   "listenUltraTitle": "読み上げは Ultra の機能です",
   "listenUltraBody": "回答やページ全体を自然な声で読み上げます。100以上の言語に対応。iPhone では画面をロックしても再生が続きます。",

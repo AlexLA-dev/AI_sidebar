@@ -607,6 +607,8 @@
   "listenStop": "Interrompi",
   "listenClose": "Interrompi e chiudi",
   "listenPlayingHere": "In riproduzione",
+  "listenVoiced": "Già letto ad alta voce: riascoltarlo è gratis",
+  "listenGoTo": "Vai al punto da cui viene",
   "listenLoading": "Preparo la voce…",
   "listenUltraTitle": "L’ascolto fa parte di Ultra",
   "listenUltraBody": "Risposte e pagine intere lette ad alta voce con una voce naturale, in oltre 100 lingue. Su iPhone continua anche a schermo bloccato.",

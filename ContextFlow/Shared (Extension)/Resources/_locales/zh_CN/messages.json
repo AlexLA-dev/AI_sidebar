@@ -1754,6 +1754,12 @@
  "listenPlayingHere": {
   "message": "正在播放"
  },
+ "listenVoiced": {
+  "message": "已朗读过：重听免费"
+ },
+ "listenGoTo": {
+  "message": "前往出处"
+ },
  "listenLoading": {
   "message": "正在准备语音…"
  },

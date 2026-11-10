@@ -1754,6 +1754,12 @@
  "listenPlayingHere": {
   "message": "Зараз грає"
  },
+ "listenVoiced": {
+  "message": "Уже озвучено: повтор безкоштовно"
+ },
+ "listenGoTo": {
+  "message": "Перейти туди, звідки це"
+ },
  "listenLoading": {
   "message": "Готую голос…"
  },

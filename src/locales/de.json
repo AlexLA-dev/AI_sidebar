@@ -607,6 +607,8 @@
   "listenStop": "Stopp",
   "listenClose": "Stoppen und schließen",
   "listenPlayingHere": "Wird gerade abgespielt",
+  "listenVoiced": "Schon vertont: erneut anhören ist gratis",
+  "listenGoTo": "Zur Stelle, von der es stammt",
   "listenLoading": "Stimme wird vorbereitet…",
   "listenUltraTitle": "Anhören ist Teil von Ultra",
   "listenUltraBody": "Antworten und ganze Seiten, vorgelesen mit natürlicher Stimme, in über 100 Sprachen. Auf dem iPhone läuft es bei gesperrtem Bildschirm weiter.",

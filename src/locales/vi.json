@@ -607,6 +607,8 @@
   "listenStop": "Dừng",
   "listenClose": "Dừng và đóng",
   "listenPlayingHere": "Đang phát",
+  "listenVoiced": "Đã đọc trước đó: nghe lại miễn phí",
+  "listenGoTo": "Đến nơi phát",
   "listenLoading": "Đang chuẩn bị giọng đọc…",
   "listenUltraTitle": "Tính năng nghe có trong Ultra",
   "listenUltraBody": "Đọc to câu trả lời và cả trang bằng giọng tự nhiên, hơn 100 ngôn ngữ. Trên iPhone, vẫn phát tiếp khi khóa màn hình.",

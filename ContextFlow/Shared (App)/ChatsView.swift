@@ -1078,6 +1078,8 @@ struct ChatDetailView: View {
     @State private var shownId: String?
     @ObservedObject private var organize = OrganizeModel.shared
     @ObservedObject private var store = StoreKitManager.shared
+    // Build 94: texts heard to their end on this device (here or in the panel): Listen shows replaying them is free.
+    @ObservedObject private var voiced = VoicedList.shared
     @State private var suggestions: OrganizeModel.Suggestions?
     @State private var undoBar: (text: String, undo: Organize.MoveUndo)?
     // When that bar came, when it goes and where the chat was scrolled to (a class: scrolling doesn't redraw), and
@@ -1158,8 +1160,11 @@ struct ChatDetailView: View {
                                                     delete: { deleteMessage(thread, index, how: "menu") }
                                                 ),
                                                 listen: entry.isNote ? nil : {
-                                                    ListenPlayer.shared.listen(answer: entry.content, id: "chat-\(thread.id)-\(index)", title: thread.name)
-                                                }
+                                                    // Titled by the page the answer is about (build 94, the owner: it had the
+                                                    // chat's name): the one its question was asked on, as in the panel.
+                                                    ListenPlayer.shared.listen(answer: entry.content, id: "chat-\(thread.id)-\(index)", title: answerTitle(thread, index))
+                                                },
+                                                voiced: !entry.isNote && store.isUltra && voiced.has("answer", entry.content)
                                             )
                                             .frame(maxWidth: .infinity, alignment: entry.isUser ? .trailing : .leading)
                                             if tagging == index {
@@ -1921,6 +1926,12 @@ struct ChatDetailView: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { chatCopied = false }
     }
 
+    /// An answer's title for Listen: the page its question was asked on (the last page up to it), else the chat's name.
+    private func answerTitle(_ thread: ChatThread, _ index: Int) -> String {
+        guard let page = thread.entries[...min(index, thread.entries.count - 1)].last(where: { $0.isUser && $0.page != nil })?.page else { return thread.name }
+        return page.title.isEmpty ? host(of: page.url) : page.title
+    }
+
     /// The page a question or note moved the chat to (the first one, and every change after it).
     private func newPage(_ entries: [ChatEntry], _ index: Int) -> ChatEntry.Page? {
         let entry = entries[index]
@@ -2233,6 +2244,8 @@ private struct MessageTools: View {
     var actions: MessageActions? = nil
     /// Listen (build 90, answers): Ultra's, in Ultra's tint; without Ultra with a tiny "Ultra" mark.
     var listen: (() -> Void)? = nil
+    /// Build 94: heard to its end on this device, so replaying it costs no minutes: a quiet check by Listen.
+    var voiced = false
     @ObservedObject var store = StoreKitManager.shared
 
     var body: some View {
@@ -2280,11 +2293,19 @@ private struct MessageTools: View {
                         Image(systemName: store.isUltra ? "speaker.wave.2.fill" : "speaker.wave.2")
                         if titles { Text("Listen").lineLimit(1) }
                         if !store.isUltra { UltraMark() }
+                        if voiced {
+                            Image(systemName: "checkmark.circle")
+                                .font(.caption2.weight(.semibold))
+                                .opacity(0.8)
+                                .accessibilityIdentifier("chat.listen.voiced")
+                        }
                     }
                     .foregroundColor(ultraTint)
                     .fixedSize()
                 }
+                .help(voiced ? Text("Already voiced: replay is free") : Text("Listen"))
                 .accessibilityLabel(Text("Listen"))
+                .accessibilityValue(voiced ? Text("Already voiced: replay is free") : Text(""))
                 .accessibilityIdentifier("chat.listen")
             }
             if let tag {
