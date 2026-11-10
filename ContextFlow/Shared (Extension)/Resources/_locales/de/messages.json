@@ -2180,6 +2180,30 @@
  "similarReviewersSay": {
   "message": "Bewertungen: {0}"
  },
+ "similarNotifyTitle": {
+  "message": "Ähnliches gefunden"
+ },
+ "similarNotifyFound": {
+  "message": "Gefundene Optionen: {0}. Tippen zum Ansehen."
+ },
+ "similarNotifyNone": {
+  "message": "Nichts Passendes. Tippen, um die Bedingung zu ändern."
+ },
+ "similarNotifyFailed": {
+  "message": "Die Suche wurde nicht beendet. Tippen, um es erneut zu versuchen."
+ },
+ "similarSay": {
+  "message": "Was andere sagen:"
+ },
+ "similarPros": {
+  "message": "gelobt: {0}"
+ },
+ "similarCons": {
+  "message": "kritisiert: {0}"
+ },
+ "similarEstimated": {
+  "message": "geschätzt anhand der Beschreibung"
+ },
  "tip_4cf1b54b00": {
   "message": "Tipps"
  },

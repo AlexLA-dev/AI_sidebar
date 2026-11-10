@@ -751,5 +751,13 @@
   "similarDiffers": "Differs: {0}",
   "similarRegionLocked": "Not in your country's App Store",
   "similarRatings": "{0} ratings",
-  "similarReviewersSay": "Reviewers: {0}"
+  "similarReviewersSay": "Reviewers: {0}",
+  "similarNotifyTitle": "Find similar is done",
+  "similarNotifyFound": "Options found: {0}. Tap to see them.",
+  "similarNotifyNone": "Nothing that fits. Tap to change the condition.",
+  "similarNotifyFailed": "The search didn't finish. Tap to try again.",
+  "similarSay": "What people say:",
+  "similarPros": "like {0}",
+  "similarCons": "dislike {0}",
+  "similarEstimated": "estimated from the description"
 }

@@ -751,5 +751,13 @@
   "similarDiffers": "Відмінність: {0}",
   "similarRegionLocked": "Немає в App Store вашої країни",
   "similarRatings": "Оцінок: {0}",
-  "similarReviewersSay": "Відгуки: {0}"
+  "similarReviewersSay": "Відгуки: {0}",
+  "similarNotifyTitle": "Пошук схожого завершено",
+  "similarNotifyFound": "Знайдено варіантів: {0}. Торкніться, щоб переглянути.",
+  "similarNotifyNone": "Нічого відповідного. Торкніться, щоб змінити умову.",
+  "similarNotifyFailed": "Пошук не завершився. Торкніться, щоб повторити.",
+  "similarSay": "Що кажуть:",
+  "similarPros": "хвалять {0}",
+  "similarCons": "критикують {0}",
+  "similarEstimated": "оцінка за описом"
 }

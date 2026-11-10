@@ -177,6 +177,8 @@ export const config = {
     followUps: int("SIMILAR_FOLLOW_UPS", 2),
     // Build 93: what reviewers say about the top items (a review search for those without a rating of their own).
     reviews: (env("SIMILAR_REVIEWS") ?? "on").trim() !== "off",
+    // Build 94: before saying an item lacks something, the brand's other models on its site (SIMILAR_SIBLINGS=off: none).
+    siblings: (env("SIMILAR_SIBLINGS") ?? "on").trim() !== "off",
     streamItems: (env("SIMILAR_STREAM") ?? "on").trim() !== "off",
     budgetMs: int("SIMILAR_BUDGET_MS", 52_000),
     // Pages a site won't open to servers may fill a list that has fewer than 3 checked items (marked "not opened").

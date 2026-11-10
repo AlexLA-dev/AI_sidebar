@@ -23,6 +23,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         return true
     }
 
+    // Find similar's answer, downloaded while Safari was away (build 94): iOS wakes the app when the download the
+    // extension started has ended; the app says how the search ended (SimilarAway).
+    func application(_ application: UIApplication, handleEventsForBackgroundURLSession identifier: String, completionHandler: @escaping () -> Void) {
+        guard identifier.hasPrefix(SimilarAway.sessionPrefix) else {
+            completionHandler()
+            return
+        }
+        SimilarAway.handleEvents(identifier, completion: completionHandler)
+    }
+
     func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
         return UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
     }
@@ -34,6 +44,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         // Page watch: "Changed: …" opens its page (WatchOpen).
         if info["watch"] != nil {
             await MainActor.run { WatchOpen.handle(info) }
+            return
+        }
+        // Find similar is done (build 94): its chat opens in the panel, on its page in Safari.
+        if info["similar"] is String {
+            await MainActor.run {
+                ChatAI.reportOrganize("use", ["f": "notif", "a": "tap", "what": "similar", "s": "notif"])
+                if let page = SimilarAway.opened(info) {
+                    UIApplication.shared.open(page)
+                } else if let chats = URL(string: "contextflow://chats") {
+                    DeepLinkRouter.shared.handle(chats)
+                }
+            }
             return
         }
         // Read aloud carried on from Safari (2.6): the app plays it from the second it had reached.

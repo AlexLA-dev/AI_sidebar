@@ -2180,6 +2180,30 @@
  "similarReviewersSay": {
   "message": "Отзывы: {0}"
  },
+ "similarNotifyTitle": {
+  "message": "Поиск похожего завершён"
+ },
+ "similarNotifyFound": {
+  "message": "Нашлось вариантов: {0}. Нажмите, чтобы посмотреть."
+ },
+ "similarNotifyNone": {
+  "message": "Подходящего не нашлось. Нажмите, чтобы изменить условие."
+ },
+ "similarNotifyFailed": {
+  "message": "Поиск не завершился. Нажмите, чтобы повторить."
+ },
+ "similarSay": {
+  "message": "Что говорят:"
+ },
+ "similarPros": {
+  "message": "хвалят {0}"
+ },
+ "similarCons": {
+  "message": "ругают {0}"
+ },
+ "similarEstimated": {
+  "message": "оценка по описанию"
+ },
  "tip_4cf1b54b00": {
   "message": "Советы"
  },

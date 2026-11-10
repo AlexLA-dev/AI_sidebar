@@ -751,5 +751,13 @@
   "similarDiffers": "Diferença: {0}",
   "similarRegionLocked": "Não está na App Store do seu país",
   "similarRatings": "{0} avaliações",
-  "similarReviewersSay": "Avaliações: {0}"
+  "similarReviewersSay": "Avaliações: {0}",
+  "similarNotifyTitle": "Busca de similares concluída",
+  "similarNotifyFound": "Opções encontradas: {0}. Toque para ver.",
+  "similarNotifyNone": "Nada adequado. Toque para mudar a condição.",
+  "similarNotifyFailed": "A busca não terminou. Toque para tentar de novo.",
+  "similarSay": "O que dizem:",
+  "similarPros": "elogiam: {0}",
+  "similarCons": "criticam: {0}",
+  "similarEstimated": "estimado pela descrição"
 }

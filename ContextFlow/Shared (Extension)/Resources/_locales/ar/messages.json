@@ -2180,6 +2180,30 @@
  "similarReviewersSay": {
   "message": "المراجعات: {0}"
  },
+ "similarNotifyTitle": {
+  "message": "اكتمل البحث عن المشابه"
+ },
+ "similarNotifyFound": {
+  "message": "الخيارات التي وُجدت: {0}. اضغط لعرضها."
+ },
+ "similarNotifyNone": {
+  "message": "لا شيء مناسب. اضغط لتغيير الشرط."
+ },
+ "similarNotifyFailed": {
+  "message": "لم يكتمل البحث. اضغط لإعادة المحاولة."
+ },
+ "similarSay": {
+  "message": "ماذا يقولون:"
+ },
+ "similarPros": {
+  "message": "يمدحون {0}"
+ },
+ "similarCons": {
+  "message": "ينتقدون {0}"
+ },
+ "similarEstimated": {
+  "message": "تقدير من الوصف"
+ },
  "tip_4cf1b54b00": {
   "message": "تلميحات"
  },

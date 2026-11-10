@@ -2180,6 +2180,30 @@
  "similarReviewersSay": {
   "message": "Avis : {0}"
  },
+ "similarNotifyTitle": {
+  "message": "Recherche d’articles similaires terminée"
+ },
+ "similarNotifyFound": {
+  "message": "Options trouvées : {0}. Touchez pour les voir."
+ },
+ "similarNotifyNone": {
+  "message": "Rien qui convienne. Touchez pour changer la condition."
+ },
+ "similarNotifyFailed": {
+  "message": "La recherche n’a pas abouti. Touchez pour réessayer."
+ },
+ "similarSay": {
+  "message": "Ce qu’on en dit :"
+ },
+ "similarPros": {
+  "message": "apprécié : {0}"
+ },
+ "similarCons": {
+  "message": "critiqué : {0}"
+ },
+ "similarEstimated": {
+  "message": "estimé d’après la description"
+ },
  "tip_4cf1b54b00": {
   "message": "Astuces"
  },
