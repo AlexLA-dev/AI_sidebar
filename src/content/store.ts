@@ -1,7 +1,7 @@
 import { SPEEDS, type Speed } from "../shared/stretch"
 import { CONSENT_VERSION, consentStatus, type ConsentStatus } from "../shared/consent"
 import type { Entry } from "../shared/conversation"
-import { lastKey, sameOrgState } from "../shared/organize"
+import { lastKey, nameCheckKey, sameOrgState } from "../shared/organize"
 import { activity, cleanTitle, liveThreads, namedByUser, orgOnly, type OrgState, moveEntries, newThreadId, prune, purgeTrash, restoreThread, savedThread, trashThread, undoMove, type ActiveThread, type MoveUndo, type Thread, type Threads, cleanTags } from "../shared/threads"
 import { MAX_OTHER_PAGE_CHARS } from "../shared/prompt"
 import { planOfProduct, type Plan } from "../shared/plan"
@@ -386,7 +386,10 @@ export async function settleNameSuggestion(id: string, taken: boolean): Promise<
   const nm = stored?.org?.nm
   if (!stored || stored.deleted || !stored.org || !nm?.t) return
   const no = taken ? nm.no ?? [] : [...(nm.no ?? []).filter((x) => x.toLowerCase() !== nm.t!.toLowerCase()), nm.t].slice(-20)
-  const next: OrgState = { ...stored.org, nm: { k: nm.k, ...(no.length ? { no } : {}) } }
+  // Taken: the check is about the chat under its new name (2.6 (95)), so no device asks again until the chat changes
+  // (the owner: renamed again and again).
+  const k = taken ? nameCheckKey(stored, cleanTitle(nm.t)) : nm.k
+  const next: OrgState = { ...stored.org, nm: { k, ...(no.length ? { no } : {}) } }
   const changed: Thread = { ...stored, u: Math.max(Date.now(), stored.u + 1), a: activity(stored), org: next }
   // Turned down: a change to organizing's record only (2.6 (94), `orgOnly`); taken, the chat is renamed with it.
   await set(STORAGE.threads, { ...threads, [id]: taken ? changed : orgOnly(stored, changed, await syncedThreads()) })

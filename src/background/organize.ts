@@ -161,7 +161,9 @@ async function organizeOnce(chatId: string, ctx: Context): Promise<OrganizeReply
   // never renamed by itself). The check and its answer go with the chat (2.6 (93)): another device asks nothing again,
   // and a name turned down anywhere never comes back.
   let nm = chat.org?.nm
-  if (wantsNameCheck(chat)) {
+  // 2.6 (95): first what moves out of the chat (or merges), then its name, once nothing is left to move (the owner:
+  // renamed again and again, with odd names for a chat on two topics). A name it had stays hidden meanwhile (openName).
+  if (!move && wantsNameCheck(chat)) {
     const key = nameCheckKey(chat)
     if (nm?.k !== key) {
       const current = threadName(chat)
@@ -178,9 +180,9 @@ async function organizeOnce(chatId: string, ctx: Context): Promise<OrganizeReply
     ok: true,
     move: move && {
       ...move,
-      // A new chat is named like any chat: after its first question.
-      toName: move.to ? threadName(threads[move.to]) : threadTitle(chat.m.slice(move.start, move.end + 1)),
-      count: move.end - move.start + 1
+      // A new chat is named like any chat: after its first question. A merge into this chat names the older one.
+      toName: move.from ? threadName(threads[move.from]) : move.to ? threadName(threads[move.to]) : threadTitle(chat.m.slice(move.start, move.end + 1)),
+      count: move.from ? threads[move.from].m.length : move.end - move.start + 1
     },
     tags,
     ...(name ? { name } : {}),
