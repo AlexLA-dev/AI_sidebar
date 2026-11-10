@@ -12,7 +12,7 @@ process.env.SUPABASE_SERVICE_ROLE_KEY = "service-key"
 process.env.ANTHROPIC_API_KEY = "test-key"
 
 const { describePage, markupRating, reviewsSection, textRating } = await import("../netlify/shared/pagecheck.mts")
-const { Claims, traitExcerpt, checkCondition, finishItems, localQueries, reviewWords, reviewsStep, searchLocation, shopifyCatalog, siblingLinks, siblingsStep, writeMessage, WRITE_SYSTEM } = await import("../netlify/shared/similar.mts")
+const { Claims, distinctive, traitExcerpt, checkCondition, finishItems, localQueries, reviewWords, reviewsStep, searchLocation, shopifyCatalog, siblingLinks, siblingsStep, writeMessage, WRITE_SYSTEM } = await import("../netlify/shared/similar.mts")
 const { jobKey, jobState, sweepJobs, useJobStore, waitForJob, JOB_STALE_MS } = await import("../netlify/shared/jobs.mts")
 const { default: resultFn } = await import("../netlify/functions/v2-similar-result.mts")
 const { cleanItem } = await import("../src/shared/similar.ts")
@@ -330,4 +330,33 @@ test("a model's excerpt keeps what it says of the traits, however far down the p
   assert.match(out, /^BACKVAC PRO MAX/)
   assert.match(out, /Built-In Trolley System/)
   assert.match(out, /TSA-Approved Lock/)
+})
+
+test("a review page is an item's when it names what sets the item apart, and when it isn't about two items at once", async () => {
+  assert.deepEqual(distinctive("Discoverer 60L Vacuum Backpack", plan()), ["discoverer"])
+  assert.deepEqual(distinctive("Backvac Pro Max", plan()), ["backvac", "pro", "max"])
+  const a = candidate("https://nomadity.store/discoverer", html("Discoverer 60L Vacuum Backpack", "", price("119.99", "USD", "Discoverer 60L Vacuum Backpack")), "Discoverer 60L Vacuum Backpack")
+  const b = candidate("https://nomadity.store/pioneer", html("Pioneer 55L Vacuum Backpack", "", price("139.99", "USD", "Pioneer 55L Vacuum Backpack")), "Pioneer 55L Vacuum Backpack")
+  const generic = html("Vacuum Compression Backpack reviews", "<p>Customers rate this vacuum backpack 3.9 out of 5.</p>", ld({ "@type": "Product", name: "Vacuum Compression Backpack", aggregateRating: { ratingValue: 3.9, reviewCount: 101 } }))
+  const real = globalThis.fetch
+  globalThis.fetch = (async (url: string | URL | Request, init?: RequestInit) => {
+    const u = String(url instanceof Request ? url.url : url)
+    if (u.startsWith("https://api.anthropic.com/")) {
+      const body = JSON.parse(String(init?.body ?? "{}"))
+      const q = JSON.stringify(body.messages).match(/Run this search: ([^"\\]+)/)?.[1] ?? ""
+      const content = Array.isArray(body.tools) && body.tools.length
+        ? [{ type: "server_tool_use", id: "s1", name: "web_search", input: { query: q } }, { type: "web_search_tool_result", tool_use_id: "s1", content: [{ type: "web_search_result", url: "https://www.walmart.com/reviews/product/1", title: "Vacuum Backpack 60L 55L reviews", page_age: null, encrypted_content: "x" }] }, { type: "text", text: "done" }]
+        : [{ type: "text", text: "{\"items\":[]}" }]
+      return new Response(JSON.stringify({ id: "m", type: "message", role: "assistant", model: body.model, content, stop_reason: "end_turn", stop_sequence: null, usage: { input_tokens: 10, output_tokens: 10, server_tool_use: { web_search_requests: 1 } } }), { headers: { "content-type": "application/json" } })
+    }
+    return new Response(u.includes("walmart") ? generic : "<title>x</title>", { status: u.includes("walmart") ? 200 : 404, headers: { "content-type": "text/html" } })
+  }) as typeof fetch
+  try {
+    const out = await reviewsStep([a, b], plan(), input(), "en", 15_000)
+    assert.equal(out.checked[0].reviews, undefined)
+    assert.equal(out.checked[1].reviews, undefined)
+    assert.equal(out.stats.pages, 0)
+  } finally {
+    globalThis.fetch = real
+  }
 })

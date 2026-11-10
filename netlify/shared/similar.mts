@@ -1199,12 +1199,16 @@ export async function reviewsStep(checked: CheckedCandidate[], plan: Plan, input
       }
       const picks = unrated.flatMap(({ c, i }) => {
         const own = (() => { try { return new URL(c.page.finalUrl).hostname } catch { return "" } })()
-        const r = results.find((x) => nameScore(c.name, { title: x.title, name: "", text: "" }) >= 0.5 && (REVIEW_WORDS.test(x.title) || REVIEW_WORDS.test(x.url)) && (() => { try { return new URL(x.url).hostname !== own } catch { return false } })())
-        return r ? [{ i, c, url: r.url }] : []
+        const mark = distinctive(c.name, plan)
+        const r = results.find((x) => nameScore(c.name, { title: x.title, name: "", text: "" }) >= 0.5 && namesIt(x.title, mark) && (REVIEW_WORDS.test(x.title) || REVIEW_WORDS.test(x.url)) && (() => { try { return new URL(x.url).hostname !== own } catch { return false } })())
+        return r ? [{ i, c, url: r.url, mark }] : []
       })
+      // A page that fits two items is about neither (build 94: one Walmart page gave two backpacks the same rating).
+      .filter((p, _, all) => all.filter((q) => normalizeUrl(q.url) === normalizeUrl(p.url)).length === 1)
       const opened = await Promise.all(picks.map(async (p) => ({ ...p, page: await checkPage(p.url, { timeoutMs: Math.min(5_000, left()), lang, signal, textChars: 6_000 }) })))
       for (const o of opened) {
         if (o.page.status !== "ok" || Math.max(nameScore(o.c.name, o.page), nameScore(o.c.name, { title: o.page.title, name: "", text: o.page.text.slice(0, 3_000) })) < 0.5) continue
+        if (!namesIt(`${o.page.title} ${o.page.name} ${o.page.text.slice(0, 3_000)}`, o.mark)) continue
         stats.pages++
         pages.get(o.i)!.push(o.page)
         if (o.page.rating && !next[o.i].reviews?.rating) next[o.i] = { ...next[o.i], reviews: { rating: o.page.rating, sources: [o.page.finalUrl] } }
@@ -1250,6 +1254,22 @@ export async function reviewsStep(checked: CheckedCandidate[], plan: Plan, input
     }
   }
   return { checked: next, stats, ...(spend ? { spend } : {}) }
+}
+
+/**
+ * The words of an item's name that set it apart (build 94): not what every alternative is called ("vacuum compression
+ * backpack"), nor sizes — "Discoverer", "Backvac", "Pro", "Max". A review page must name one of them to be its review.
+ */
+export function distinctive(name: string, plan: Plan): string[] {
+  const common = new Set([...nameTokens(plan.subject), ...plan.traits.flatMap((t) => nameTokens(t)), "travel", "backpack", "bag", "luggage", "carry", "on", "vacuum", "compression", "app", "review", "reviews"])
+  return nameTokens(name).filter((w) => w.length >= 3 && !GENERIC.has(w) && !common.has(w) && !/^\d+[a-z]{0,3}$/.test(w))
+}
+
+/** Whether a text names one of the item's distinctive words (an item without any: by its name alone). */
+function namesIt(text: string, mark: string[]): boolean {
+  if (!mark.length) return true
+  const words = new Set(nameTokens(text))
+  return mark.some((w) => words.has(w))
 }
 
 /** What reviewers like and dislike, as the reader wrote it: short, no numbers (null: nothing usable). */
