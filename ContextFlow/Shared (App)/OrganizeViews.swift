@@ -32,7 +32,7 @@ struct SuggestionRow: View {
                 }
             }
             if let move {
-                SuggestionChip(tint: .secondary, takeLabel: move.why == .merge ? Text("Merge this chat into “\(move.toName)”") : move.to == nil ? Text("Move these messages to a new chat, “\(move.toName)”") : Text("Move \(messagesCount(move.count)) to the chat “\(move.toName)”"), take: onMove, refuse: onMoveNo) {
+                SuggestionChip(tint: .secondary, takeLabel: move.from != nil ? Text("Merge the older chat “\(move.toName)” into this one") : move.why == .merge ? Text("Merge this chat into “\(move.toName)”") : move.to == nil ? Text("Move these messages to a new chat, “\(move.toName)”") : Text("Move \(messagesCount(move.count)) to the chat “\(move.toName)”"), take: onMove, refuse: onMoveNo) {
                     HStack(spacing: 0) {
                         (Text(Image(systemName: "arrow.turn.down.right")) + Text(" ") + moveText(move))
                             .lineLimit(1)
@@ -65,6 +65,7 @@ struct SuggestionRow: View {
 
     private func moveText(_ move: OrganizeModel.Move) -> Text {
         let name = Text(move.toName).fontWeight(.semibold).foregroundColor(.primary)
+        if move.from != nil { return Text("Bring “\(name)” here") }
         if move.why == .merge { return Text("Merge into “\(name)”") }
         return move.to == nil ? Text("To a new chat: “\(name)”") : Text("\(messagesCount(move.count)) to “\(name)”")
     }
@@ -323,6 +324,8 @@ final class OrganizeModel: ObservableObject {
         let why: Organize.MoveReason
         /// How well it fits there, in % (2.6 (93)): shown with a move to another chat by topic or site.
         var match: Double? = nil
+        /// 2.6 (95): an older chat joins this one whole (`toName` is its name).
+        var from: String? = nil
         var count: Int { end - start + 1 }
     }
 
@@ -490,8 +493,10 @@ final class OrganizeModel: ObservableObject {
 
         var out = Suggestions(chat: thread.id, length: thread.entries.count, move: nil, tags: [:])
         if let s = work.move {
-            let name = s.to.flatMap { id in threads.first { $0.id == id }?.name } ?? ChatThread.title(of: Array(thread.entries[s.start...s.end]))
-            out.move = Move(start: s.start, end: s.end, to: s.to, toName: name, why: s.why, match: s.match)
+            // A merge into this chat names the older chat (2.6 (95)).
+            let named = (s.from ?? s.to).flatMap { id in threads.first { $0.id == id }?.name }
+            let name = named ?? ChatThread.title(of: Array(thread.entries[s.start...s.end]))
+            out.move = Move(start: s.start, end: s.end, to: s.to, toName: name, why: s.why, match: s.match, from: s.from)
         }
         for tagging in work.tags {
             let hash = verdictHash(tagging.message, tagging.candidates)
@@ -518,7 +523,9 @@ final class OrganizeModel: ObservableObject {
         // (2.6 (91): never renamed by itself). 2.6 (93): the check is kept with the chat, so no device asks again what
         // another did, and a name turned down on one never comes back on another.
         var nm = chat.org?.nm
-        if Organize.wantsNameCheck(chat) {
+        // 2.6 (95): first what moves out of the chat (or merges), then its name, once nothing is left to move (the owner:
+        // renamed again and again, with odd names for a chat on two topics). A name it had stays hidden meanwhile.
+        if work.move == nil, Organize.wantsNameCheck(chat) {
             let key = Organize.nameCheckKey(chat)
             if nm?.k != key, let answer = try? await ChatAI.organizeName(chat: Organize.nameText(chat.entries), current: thread.name) {
                 nm = Organize.nameState(after: nm, key: key, fits: answer.fits, title: answer.title, current: thread.name)
@@ -536,12 +543,13 @@ final class OrganizeModel: ObservableObject {
     /// chat is still as it was then; this device's run follows. Nil without a record.
     func kept(_ thread: ChatThread, in threads: [ChatThread]) -> Suggestions? {
         guard !thread.isHistory, let org = thread.org, let chat = thread.organized else { return nil }
-        // The move's chat, if it's still here (openMove asks no more of the others).
-        let target = org.mv?.to.flatMap { id in threads.first { $0.id == id }?.organized }
+        // The move's chats, if they're still here (openMove asks no more of the others): where it goes, and (2.6 (95))
+        // the older chat that joins this one.
+        let named = [org.mv?.to, org.mv?.fr].compactMap { $0 }.compactMap { id in threads.first { $0.id == id }?.organized }
         var out = Suggestions(chat: thread.id, length: thread.entries.count, move: nil, tags: [:])
-        if let mv = Organize.openMove(chat, target.map { [$0] } ?? []) {
-            let name = mv.to.flatMap { id in threads.first { $0.id == id }?.name } ?? ChatThread.title(of: Array(thread.entries[mv.s...mv.e]))
-            out.move = Move(start: mv.s, end: mv.e, to: mv.to, toName: name, why: mv.why, match: mv.mt)
+        if let mv = Organize.openMove(chat, named) {
+            let name = (mv.fr ?? mv.to).flatMap { id in threads.first { $0.id == id }?.name } ?? ChatThread.title(of: Array(thread.entries[mv.s...mv.e]))
+            out.move = Move(start: mv.s, end: mv.e, to: mv.to, toName: name, why: mv.why, match: mv.mt, from: mv.fr)
         }
         for tag in Organize.openTags(chat) { out.tags[tag.index] = (tag.key, tag.tag) }
         out.name = Organize.openName(chat, name: thread.name)
@@ -552,17 +560,21 @@ final class OrganizeModel: ObservableObject {
     /// suggested on the iPad, where nothing was left open in the chat's record to show instead): the name once it's
     /// the chat's or turned down, a tag the message has or had turned down, a move whose messages were moved or turned
     /// down (or, for a merge, turned down for that chat).
-    func settled(_ s: Suggestions, _ thread: ChatThread) -> Suggestions {
+    func settled(_ s: Suggestions, _ thread: ChatThread, in threads: [ChatThread] = []) -> Suggestions {
         guard let chat = thread.organized else { return s }
         var out = s
-        if let name = s.name, name == thread.name || (thread.org?.nm?.no ?? []).contains(where: { $0.lowercased() == name.lowercased() }) { out.name = nil }
+        if let name = s.name, name.lowercased() == thread.name.lowercased() || thread.namedByUser || (thread.org?.nm?.no ?? []).contains(where: { $0.lowercased() == name.lowercased() }) { out.name = nil }
         for (index, item) in s.tags {
             guard chat.entries.indices.contains(index), Organize.entryKey(chat.entries[index]) == item.key else { out.tags[index] = nil; continue }
             let e = thread.entries[index]
             let has = { (list: [String]?) in (list ?? []).contains { $0.lowercased() == item.tag.lowercased() } }
             if has(e.tags) || has((chat.entries[index]["dismissed"] as? [String: Any])?["tags"] as? [String]) { out.tags[index] = nil }
         }
-        if let mv = s.move {
+        if let mv = s.move, let from = mv.from {
+            // 2.6 (95): a merge into this chat turned down (kept with the older chat) or that chat gone.
+            let older = threads.first { $0.id == from }
+            if older == nil || (older?.org?.mx ?? []).contains(thread.id) { out.move = nil }
+        } else if let mv = s.move {
             let gone = mv.end >= chat.entries.count || chat.entries[mv.start...mv.end].contains {
                 Organize.truthy(($0["dismissed"] as? [String: Any])?["move"]) || Organize.truthy($0["from"])
             }

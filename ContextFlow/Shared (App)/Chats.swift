@@ -824,7 +824,11 @@ final class ChatLibrary: ObservableObject {
     func settleName(_ id: String, taken: Bool) {
         guard let current = threads.first(where: { $0.id == id }), var org = current.org, let nm = org.nm, let t = nm.t else { return }
         let no = taken ? nm.no : Array((nm.no.filter { $0.lowercased() != t.lowercased() } + [t]).suffix(20))
-        org.nm = OrgState.Name(k: nm.k, t: nil, no: no)
+        // Taken: the check is about the chat under its new name (2.6 (95)), so no device asks again until the chat
+        // changes (the owner: renamed again and again). The name as nameByAI keeps it.
+        let named = String(t.replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression).trimmingCharacters(in: .whitespaces).prefix(80))
+        let key = taken ? current.organized.map { Organize.nameCheckKey($0, title: named) } ?? nm.k : nm.k
+        org.nm = OrgState.Name(k: key, t: nil, no: no)
         save(current, title: nil, pin: nil, org: .some(org), soft: taken ? false : true)
     }
 
