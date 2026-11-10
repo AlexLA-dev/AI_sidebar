@@ -2747,7 +2747,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }
   useEffect(() => {
     if (!firstWin || undoBar || !open || view !== "chat") return
-    if (firstWin === threadRef.current && orgOn) setUndoBar({ text: t("orgFirstWin"), actions: [] })
+    // As long as a move's bar (5 s, and a scroll takes it): a confirmation, nothing to act on.
+    if (firstWin === threadRef.current && orgOn) setUndoBar({ text: t("orgFirstWin"), actions: [], kind: "move" })
     setFirstWin(null)
   }, [firstWin, undoBar, open, view])
 
