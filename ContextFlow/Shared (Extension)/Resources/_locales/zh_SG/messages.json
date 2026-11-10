@@ -1496,6 +1496,15 @@
  "orgMatch": {
   "message": "匹配度 {0}%"
  },
+ "orgMergeInto": {
+  "message": "合并到“{0}”"
+ },
+ "orgMergeA11y": {
+  "message": "将此对话合并到“{0}”"
+ },
+ "orgMerged": {
+  "message": "已合并到“{0}”"
+ },
  "recs_one": {
   "message": "{0} 条建议"
  },

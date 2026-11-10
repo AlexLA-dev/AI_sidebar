@@ -578,6 +578,8 @@ final class ChatLibrary: ObservableObject {
 
     private static let tokenKey = "cf_chats_cloud_token"
     private var cloudTask: Task<Void, Never>?
+    private var pollTask: Task<Void, Never>?
+    private var pulledAt = Date.distantPast
 
     private init() {
         reload()
@@ -631,6 +633,10 @@ final class ChatLibrary: ObservableObject {
                 if c == 3, let last = m.last {
                     object["org"] = OrgState(n: m.count, k: Organize.entryKey(last), nm: .init(k: "seeded", t: "Espresso at home, from another device")).json
                 }
+                // 2.6 (94): chat 4 comes with a merge into chat 14 (same topic) suggested.
+                if c == 4, many > 14, let last = m.last {
+                    object["org"] = OrgState(n: m.count, k: Organize.entryKey(last), mv: .init(s: 0, e: m.count - 1, to: "debug-many-14", why: .merge, mt: 88)).json
+                }
                 if let data = try? JSONSerialization.data(withJSONObject: object), let text = String(data: data, encoding: .utf8) {
                     saves["debug-many-\(c)"] = ChatMirror.Item(updatedAt: at, data: text)
                 }
@@ -655,6 +661,35 @@ final class ChatLibrary: ObservableObject {
         }
         cloudTask?.cancel()
         cloudTask = Task { await syncCloud([]) }
+        keepPolling()
+    }
+
+    /// 2.6 (94): while the app is in front, iCloud is asked every 20 s. The owner renamed a chat on the iPhone and the
+    /// iPad still had the old name and the suggestion after five minutes: the app asked only at launch, back in front,
+    /// when its list showed again (never on an iPad, where the list stays) and after its own changes.
+    private func keepPolling() {
+        guard pollTask == nil else { return }
+        pollTask = Task { [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(nanoseconds: 20_000_000_000)
+                guard let self else { return }
+                if self.syncOn, Self.inFront, Date().timeIntervalSince(self.pulledAt) >= 15 { await self.syncCloud([], quiet: true) }
+            }
+        }
+    }
+
+    /// A chat opened: what iCloud has for it now, unless just asked.
+    func pull() async {
+        guard syncOn, Date().timeIntervalSince(pulledAt) >= 3 else { return }
+        await syncCloud([], quiet: true)
+    }
+
+    private static var inFront: Bool {
+        #if os(iOS)
+        UIApplication.shared.applicationState == .active
+        #else
+        NSApplication.shared.isActive
+        #endif
     }
 
     /// Waits for the refresh from iCloud (pull to refresh).
@@ -699,8 +734,11 @@ final class ChatLibrary: ObservableObject {
         }
     }
 
-    private func syncCloud(_ changes: [ChatSync.Change]) async {
-        if cloud != .ok { cloud = .syncing }
+    /// `quiet`: asked by itself (2.6 (94)), every 20 s or as a chat opens: offline, the Chats screen's note about iCloud
+    /// doesn't blink with each ask.
+    private func syncCloud(_ changes: [ChatSync.Change], quiet: Bool = false) async {
+        if cloud != .ok, !quiet { cloud = .syncing }
+        pulledAt = Date()
         let token = UserDefaults.standard.string(forKey: Self.tokenKey)
         do {
             let result = try await ChatSync.sync(token: token, changes: changes)
@@ -714,7 +752,7 @@ final class ChatLibrary: ObservableObject {
             UserDefaults.standard.set(result.token, forKey: Self.tokenKey)
             cloud = .ok
         } catch {
-            if !Task.isCancelled { cloud = .unavailable }
+            if !Task.isCancelled, !quiet || cloud != .ok { cloud = .unavailable }
         }
     }
 
@@ -723,11 +761,13 @@ final class ChatLibrary: ObservableObject {
     private var now: Int64 { Int64(Date().timeIntervalSince1970 * 1000) }
 
     /// Stores a changed chat here, for the extension, and in iCloud.
-    private func save(_ thread: ChatThread, title: String??, aiTitle: String?? = nil, pin: Double??, tags: [String]? = nil, entryTags: (index: Int, tags: [String])? = nil, org: OrgState?? = nil) {
+    /// `soft` (2.6 (94)): a change to organizing's record only, which never replaces a copy another device wrote since
+    /// this one (ChatSync.Snapshot `base`).
+    private func save(_ thread: ChatThread, title: String??, aiTitle: String?? = nil, pin: Double??, tags: [String]? = nil, entryTags: (index: Int, tags: [String])? = nil, org: OrgState?? = nil, soft: Bool = false) {
         // Always later than the copy it replaces, whatever the clocks say.
         let at = max(now, thread.updatedAt + 1)
         guard let item = thread.edited(title: title, aiTitle: aiTitle, pin: pin, tags: tags, entryTags: entryTags, org: org, updatedAt: at) else { return }
-        store(thread, item)
+        store(thread, item, base: soft ? thread.updatedAt : nil)
     }
 
     /// What organizing worked out for a chat (2.6 (93), src/content/store.ts `setOrgState`): kept with it, and so on
@@ -735,7 +775,7 @@ final class ChatLibrary: ObservableObject {
     /// keeps the new one).
     func keepOrg(_ id: String, _ org: OrgState) {
         guard let current = threads.first(where: { $0.id == id }), current.org != org, org.n == current.entries.count else { return }
-        save(current, title: nil, pin: nil, org: .some(org))
+        save(current, title: nil, pin: nil, org: .some(org), soft: true)
     }
 
     /// A suggested name taken or turned down (src/content/store.ts `settleNameSuggestion`): it goes from the chat's
@@ -744,7 +784,18 @@ final class ChatLibrary: ObservableObject {
         guard let current = threads.first(where: { $0.id == id }), var org = current.org, let nm = org.nm, let t = nm.t else { return }
         let no = taken ? nm.no : Array((nm.no.filter { $0.lowercased() != t.lowercased() } + [t]).suffix(20))
         org.nm = OrgState.Name(k: nm.k, t: nil, no: no)
-        save(current, title: nil, pin: nil, org: .some(org))
+        save(current, title: nil, pin: nil, org: .some(org), soft: taken ? false : true)
+    }
+
+    /// A merge into chat `to` turned down (2.6 (94), src/content/store.ts `refuseMerge`): kept with the chat, never
+    /// suggested again, on any device.
+    func refuseMerge(_ id: String, into to: String) {
+        guard let current = threads.first(where: { $0.id == id }) else { return }
+        var org = current.org ?? OrgState(n: current.entries.count, k: Organize.lastKey(current.organized?.entries ?? []))
+        guard !org.mx.contains(to) else { return }
+        org.mx = Array((org.mx + [to]).suffix(20))
+        if org.mv?.why == .merge { org.mv = nil }
+        save(current, title: nil, pin: nil, org: .some(org), soft: true)
     }
 
     /// Adds messages at the end of a chat (a question asked in the app and its answer, or a note).
@@ -754,12 +805,12 @@ final class ChatLibrary: ObservableObject {
         store(current, item)
     }
 
-    private func store(_ thread: ChatThread, _ item: ChatMirror.Item) {
+    private func store(_ thread: ChatThread, _ item: ChatMirror.Item, base: Int64? = nil) {
         ChatMirror.apply(saves: [thread.id: item])
-        ChatMirror.queue(.init(id: thread.id, updatedAt: item.updatedAt, data: item.data, deleted: nil, at: Double(now)))
+        ChatMirror.queue(.init(id: thread.id, updatedAt: item.updatedAt, data: item.data, deleted: nil, at: Double(now), base: base))
         reload()
         if syncOn {
-            Task { await syncCloud([.save(.init(id: thread.id, updatedAt: item.updatedAt, data: item.data))]) }
+            Task { await syncCloud([.save(.init(id: thread.id, updatedAt: item.updatedAt, data: item.data, base: base))]) }
         }
     }
 

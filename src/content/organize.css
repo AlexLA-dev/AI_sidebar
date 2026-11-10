@@ -2,6 +2,8 @@
 
 /* The suggestions: one row under the message's tools, dashed and a little faded, fading in. */
 .cf-org { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; animation: cf-org-in .45s ease-out both; }
+/* 2.6 (94): a light tint, so the suggestions stand out from the chat (the owner: «подсвечивать… Очень лайтово»). */
+.cf-org { padding: 5px 6px 5px 10px; border-radius: 16px; background: color-mix(in srgb, var(--accent) 7%, transparent); }
 /* Under a note or question (2.6: a note's chat can join another): as wide as the message, so a long chat name ends in
    an ellipsis instead of running off the panel's left edge. */
 .cf-msg.user .cf-org { justify-content: flex-end; align-self: stretch; min-width: 0; }

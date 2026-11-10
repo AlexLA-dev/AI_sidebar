@@ -1,8 +1,8 @@
 import { SPEEDS, type Speed } from "../shared/stretch"
 import { CONSENT_VERSION, consentStatus, type ConsentStatus } from "../shared/consent"
 import type { Entry } from "../shared/conversation"
-import { sameOrgState } from "../shared/organize"
-import { activity, cleanTitle, liveThreads, namedByUser, type OrgState, moveEntries, newThreadId, prune, purgeTrash, restoreThread, savedThread, trashThread, undoMove, type ActiveThread, type MoveUndo, type Thread, type Threads, cleanTags } from "../shared/threads"
+import { lastKey, sameOrgState } from "../shared/organize"
+import { activity, cleanTitle, liveThreads, namedByUser, orgOnly, type OrgState, moveEntries, newThreadId, prune, purgeTrash, restoreThread, savedThread, trashThread, undoMove, type ActiveThread, type MoveUndo, type Thread, type Threads, cleanTags } from "../shared/threads"
 import { MAX_OTHER_PAGE_CHARS } from "../shared/prompt"
 import { planOfProduct, type Plan } from "../shared/plan"
 import { keepingAnswers, type Jobs } from "../shared/jobs"
@@ -365,7 +365,27 @@ export async function settleNameSuggestion(id: string, taken: boolean): Promise<
   if (!stored || stored.deleted || !stored.org || !nm?.t) return
   const no = taken ? nm.no ?? [] : [...(nm.no ?? []).filter((x) => x.toLowerCase() !== nm.t!.toLowerCase()), nm.t].slice(-20)
   const next: OrgState = { ...stored.org, nm: { k: nm.k, ...(no.length ? { no } : {}) } }
-  await set(STORAGE.threads, { ...threads, [id]: { ...stored, u: Date.now(), a: activity(stored), org: next } })
+  const changed: Thread = { ...stored, u: Math.max(Date.now(), stored.u + 1), a: activity(stored), org: next }
+  // Turned down: a change to organizing's record only (2.6 (94), `orgOnly`); taken, the chat is renamed with it.
+  await set(STORAGE.threads, { ...threads, [id]: taken ? changed : orgOnly(stored, changed, await syncedThreads()) })
+}
+
+/** The time of each chat's copy iCloud has (background/sync.ts keeps it). */
+async function syncedThreads(): Promise<Record<string, number>> {
+  return (await get<Record<string, number>>(STORAGE.syncedThreads)) ?? {}
+}
+
+/** A merge into chat `to` turned down (2.6 (94)): kept with the chat (`org.mx`), never suggested again, on any device. */
+export async function refuseMerge(id: string, to: string): Promise<void> {
+  const threads = (await get<Threads>(STORAGE.threads)) ?? {}
+  const stored = threads[id]
+  if (!stored || stored.deleted) return
+  const org: OrgState = stored.org ?? { n: stored.m.length, k: lastKey(stored.m) }
+  if ((org.mx ?? []).includes(to)) return
+  const next: OrgState = { ...org, mx: [...(org.mx ?? []), to].slice(-20), ...(org.mv?.why === "merge" ? { mv: undefined } : {}) }
+  if (!next.mv) delete next.mv
+  const changed: Thread = { ...stored, u: Math.max(Date.now(), stored.u + 1), a: activity(stored), org: next }
+  await set(STORAGE.threads, { ...threads, [id]: orgOnly(stored, changed, await syncedThreads()) })
 }
 
 /** What organizing worked out for a chat (2.6 (93)): kept with it (and so synced), when it says something new. */
@@ -375,7 +395,9 @@ export async function setOrgState(id: string, org: OrgState): Promise<void> {
   if (!stored || stored.deleted || sameOrgState(stored.org, org)) return
   // The chat as it was then: a message added meanwhile makes it stale, the next run puts the new one.
   if (org.n !== stored.m.length) return
-  await set(STORAGE.threads, { ...threads, [id]: { ...stored, u: Date.now(), a: activity(stored), org } })
+  // A change to organizing's record only (2.6 (94)): never over another device's newer copy in iCloud.
+  const changed: Thread = { ...stored, u: Math.max(Date.now(), stored.u + 1), a: activity(stored), org }
+  await set(STORAGE.threads, { ...threads, [id]: orgOnly(stored, changed, await syncedThreads()) })
 }
 
 /** Undo for nameThread: the names as they were, if the chat still has the AI's one. */
