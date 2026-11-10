@@ -243,6 +243,12 @@ function offerUrl(code: string): string {
 // A question whose answer was lost while nobody followed it shows these as they were; anything else as "interrupted".
 const RESUMABLE = ["STREAM", "NETWORK", "UPSTREAM", "BUSY", "LIMIT_REACHED"]
 
+/** The device's region from its language ("ru-RU" → "RU"), for Find similar's "near me" before the server says. */
+function localeCountry(): string | undefined {
+  const m = /^[a-z]{2,3}-([A-Z]{2})\b/.exec(navigator.language || "")
+  return m ? m[1] : undefined
+}
+
 function errorText(error: ChatError): string {
   switch (error.code) {
     case "NETWORK":
@@ -1350,7 +1356,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       port.postMessage({
         type: "similar",
         job: { id: user.id!, thread },
-        payload: { page: { title: full.title || source.title(), url: source.href(), text: full.text.slice(0, 5_000), facts }, condition, ...(subject ? { selection: subject } : {}) }
+        payload: {
+          page: { title: full.title || source.title(), url: source.href(), text: full.text.slice(0, 5_000), facts }, condition, ...(subject ? { selection: subject } : {}),
+          // Build 93: where to look, and their country (the server's view of it, else the device's region).
+          ...(settingsRef.current.similarRegion ? { region: settingsRef.current.similarRegion } : {}),
+          ...((statusRef.current?.country ?? localeCountry()) ? { country: statusRef.current?.country ?? localeCountry() } : {})
+        }
       })
     })
   }
@@ -3278,6 +3289,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 {similarCard === "pick" && partial === null && (
                   <SimilarPicker
                     title={similarSubject ? t("noteQuote", clip(similarSubject, 140)) : source.title() || source.site()}
+                    region={settings.similarRegion ?? null}
+                    country={status?.country ?? localeCountry()}
+                    onRegion={(r) => updateSettings({ similarRegion: r })}
                     onFind={(condition, label) => {
                       if (!similarSubject) return findSimilar(condition, label)
                       // What was selected, in the question: "Find similar: “…”" (and the condition after it).

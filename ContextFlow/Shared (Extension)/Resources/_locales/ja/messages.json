@@ -2129,6 +2129,39 @@
  "offerRetryAt": {
   "message": "{0}に回答が戻ります。"
  },
+ "similarWhere": {
+  "message": "探す範囲"
+ },
+ "similarWorld": {
+  "message": "世界中"
+ },
+ "similarLocal": {
+  "message": "近く"
+ },
+ "similarLocalIn": {
+  "message": "近く · {0}"
+ },
+ "similarWhereHint": {
+  "message": "まず探す範囲を選んでください。"
+ },
+ "similarLess": {
+  "message": "あまり似ていないもの"
+ },
+ "similarPercent": {
+  "message": "{0}% 似ている"
+ },
+ "similarDiffers": {
+  "message": "違い: {0}"
+ },
+ "similarRegionLocked": {
+  "message": "お住まいの国の App Store にはありません"
+ },
+ "similarRatings": {
+  "message": "{0}件の評価"
+ },
+ "similarReviewersSay": {
+  "message": "レビュー: {0}"
+ },
  "tip_4cf1b54b00": {
   "message": "ヒント"
  },

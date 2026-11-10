@@ -33,6 +33,30 @@ export interface SimilarItem {
   pricing?: SimilarPricing
   // Build 91: the page that settled the condition when it isn't the item's own (its price page, a rates page…).
   proof?: string
+  // Build 93: how close it is (the share of the subject's traits it has too, 0–100) and how it differs most; under
+  // CLOSE_SIMILARITY the panel shows it apart, as less similar, when there are fewer than 3 close ones.
+  similarity?: number
+  differs?: string
+  // Build 93: an App Store app not sold in their country's store.
+  regionLocked?: true
+  // Build 93: what its reviewers say — the rating its pages state, a summary its pages bear out, where it was read.
+  reviews?: { rating?: { value: number; best: number; count?: number }; summary?: string; sources: string[] }
+}
+
+/**
+ * At or above it an item is close; below, "less similar" (shown apart when fewer than 3 are close). Shares come in
+ * steps of a fifth or a quarter (4–5 traits): measured on the preview, 70 % put a good match (3 of 5) apart.
+ */
+export const CLOSE_SIMILARITY = 60
+
+/** The items as the panel shows them: the close ones, and the less similar ones when fewer than 3 are close. */
+export function closeAndLess(items: SimilarItem[]): { close: SimilarItem[]; less: SimilarItem[] } {
+  const close = items.filter((i) => i.similarity === undefined || i.similarity >= CLOSE_SIMILARITY)
+  const less = items.filter((i) => i.similarity !== undefined && i.similarity < CLOSE_SIMILARITY)
+  // Enough close ones: the weaker ones aren't needed. None close at all: the best of them lead the list.
+  if (close.length >= 3) return { close, less: [] }
+  if (!close.length) return { close: less.slice(0, 1), less: less.slice(1, 4) }
+  return { close, less: less.slice(0, 3) }
 }
 
 export interface SimilarPricing {
@@ -73,6 +97,9 @@ export interface SimilarPayload {
   condition: string
   // 2.6 (build 90): from a selection, what was selected: alternatives to what it describes, the page as context.
   selection?: string
+  // Build 93: where to look (anywhere, or near them) and their country (two letters).
+  region?: "world" | "local"
+  country?: string
 }
 
 /** The longest selection sent as Find similar's subject. */
@@ -146,8 +173,25 @@ export function cleanItem(raw: unknown): SimilarItem | null {
     ...(/^\d{4}-\d{2}-\d{2}$/.test(s(o.date, 10)) ? { date: s(o.date, 10) } : {}),
     ...(w && (w.source === "ld-price" || w.source === "meta-price") && s(w.value, 60) ? { watch: { source: w.source, value: s(w.value, 60) } } : {}),
     ...(cleanPricing(o.pricing) ?? {}),
-    ...(/^https?:\/\//i.test(s(o.proof, 2_000)) ? { proof: s(o.proof, 2_000) } : {})
+    ...(/^https?:\/\//i.test(s(o.proof, 2_000)) ? { proof: s(o.proof, 2_000) } : {}),
+    ...(typeof o.similarity === "number" && o.similarity >= 0 && o.similarity <= 100 ? { similarity: Math.round(o.similarity) } : {}),
+    ...(s(o.differs, 200) ? { differs: s(o.differs, 200) } : {}),
+    ...(o.regionLocked === true ? { regionLocked: true as const } : {}),
+    ...(cleanReviews(o.reviews) ?? {})
   }
+}
+
+function cleanReviews(raw: unknown): { reviews: NonNullable<SimilarItem["reviews"]> } | null {
+  const r = (raw ?? null) as Record<string, unknown> | null
+  if (!r || typeof r !== "object") return null
+  const sources = (Array.isArray(r.sources) ? r.sources : []).filter((u): u is string => typeof u === "string" && /^https?:\/\//i.test(u)).map((u) => u.slice(0, 2_000)).slice(0, 3)
+  const g = (r.rating ?? null) as Record<string, unknown> | null
+  const rating = g && typeof g.value === "number" && typeof g.best === "number" && g.value > 0 && g.value <= g.best && g.best <= 100
+    ? { value: g.value, best: g.best, ...(typeof g.count === "number" && g.count > 0 ? { count: Math.round(g.count) } : {}) }
+    : null
+  const summary = typeof r.summary === "string" ? r.summary.slice(0, 300) : ""
+  if (!sources.length || (!rating && !summary)) return null
+  return { reviews: { ...(rating ? { rating } : {}), ...(summary ? { summary } : {}), sources } }
 }
 
 function cleanPricing(raw: unknown): { pricing: SimilarPricing } | null {

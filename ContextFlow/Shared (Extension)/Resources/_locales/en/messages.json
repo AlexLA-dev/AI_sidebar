@@ -2129,6 +2129,39 @@
  "offerRetryAt": {
   "message": "Answers are back at {0}."
  },
+ "similarWhere": {
+  "message": "Where to look"
+ },
+ "similarWorld": {
+  "message": "Worldwide"
+ },
+ "similarLocal": {
+  "message": "Near me"
+ },
+ "similarLocalIn": {
+  "message": "Near me · {0}"
+ },
+ "similarWhereHint": {
+  "message": "Choose where to look first."
+ },
+ "similarLess": {
+  "message": "Less similar"
+ },
+ "similarPercent": {
+  "message": "{0}% similar"
+ },
+ "similarDiffers": {
+  "message": "Differs: {0}"
+ },
+ "similarRegionLocked": {
+  "message": "Not in your country's App Store"
+ },
+ "similarRatings": {
+  "message": "{0} ratings"
+ },
+ "similarReviewersSay": {
+  "message": "Reviewers: {0}"
+ },
  "tip_4cf1b54b00": {
   "message": "Tips"
  },

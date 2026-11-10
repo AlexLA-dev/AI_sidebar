@@ -58,7 +58,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   // The panel's session fields come with the panel's UI (after the owner's choice); test traffic is marked.
   const step = client.audience === "test" ? { audience: "test" } : {}
 
-  const input = readInput(body, locale)
+  const input = readInput(body, locale, geoCountry(context))
   if (!input) return json({ code: "BAD_REQUEST", message: "page required" }, 400)
 
   let access: Access | null = null
@@ -198,11 +198,18 @@ function overridesOf(raw: unknown): EngineOverrides {
     planModel: model(o.planModel), searchModel: model(o.searchModel), searchTool: tool, writeModel: model(o.writeModel),
     ...(o.searchMode === "single" || o.searchMode === "parallel" ? { searchMode: o.searchMode } : {}),
     ...(typeof o.followUps === "string" && /^[0-4]$/.test(o.followUps) ? { followUps: Number(o.followUps) } : {}),
-    ...(o.stream === "off" ? { stream: false } : o.stream === "on" ? { stream: true } : {})
+    ...(o.stream === "off" ? { stream: false } : o.stream === "on" ? { stream: true } : {}),
+    ...(o.reviews === "off" ? { reviews: false } : o.reviews === "on" ? { reviews: true } : {})
   }
 }
 
-function readInput(body: Record<string, unknown>, locale: string): SimilarInput | null {
+/** The country the request came from (Netlify's geolocation), two letters; "" when unknown. */
+function geoCountry(context: Context): string {
+  const code = (context as unknown as { geo?: { country?: { code?: string } } }).geo?.country?.code ?? ""
+  return /^[A-Z]{2}$/.test(code) ? code : ""
+}
+
+function readInput(body: Record<string, unknown>, locale: string, geo = ""): SimilarInput | null {
   const p = (body.page ?? {}) as Record<string, unknown>
   const page = { title: clip(p.title, 300), url: clip(p.url, 2_000), text: clip(p.text, MAX_PAGE_TEXT) }
   if (!page.text.trim() && !page.title.trim()) return null
@@ -216,7 +223,12 @@ function readInput(body: Record<string, unknown>, locale: string): SimilarInput 
   if (typeof f.lang === "string") facts.lang = clip(f.lang, 12)
   // 2.6 (build 90): Find similar from a selection: what was selected is the subject, the page its context.
   const selection = clip(body.selection, MAX_SELECTION).trim()
-  return { page, facts, condition: clip(body.condition, MAX_CONDITION), locale, ...(selection ? { selection } : {}) }
+  // Build 93: where to look (the panel asks: worldwide or near them) and their country — the panel's, else where the
+  // request came from, else the device locale's.
+  const region = body.region === "world" || body.region === "local" ? body.region : undefined
+  const sent = clip(body.country, 2).toUpperCase()
+  const country = /^[A-Z]{2}$/.test(sent) ? sent : geo || (/^[a-z]{2,3}[-_]([A-Z]{2})\b/.exec(locale)?.[1] ?? "")
+  return { page, facts, condition: clip(body.condition, MAX_CONDITION), locale, ...(selection ? { selection } : {}), ...(region ? { region } : {}), ...(country ? { country } : {}) }
 }
 
 

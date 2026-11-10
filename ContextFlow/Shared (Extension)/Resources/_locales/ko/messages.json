@@ -2129,6 +2129,39 @@
  "offerRetryAt": {
   "message": "{0}에 답변이 다시 가능합니다."
  },
+ "similarWhere": {
+  "message": "찾을 범위"
+ },
+ "similarWorld": {
+  "message": "전 세계"
+ },
+ "similarLocal": {
+  "message": "내 주변"
+ },
+ "similarLocalIn": {
+  "message": "내 주변 · {0}"
+ },
+ "similarWhereHint": {
+  "message": "먼저 찾을 범위를 고르세요."
+ },
+ "similarLess": {
+  "message": "덜 비슷한 항목"
+ },
+ "similarPercent": {
+  "message": "{0}% 비슷함"
+ },
+ "similarDiffers": {
+  "message": "차이: {0}"
+ },
+ "similarRegionLocked": {
+  "message": "내 국가의 App Store에 없음"
+ },
+ "similarRatings": {
+  "message": "평가 {0}개"
+ },
+ "similarReviewersSay": {
+  "message": "리뷰: {0}"
+ },
  "tip_4cf1b54b00": {
   "message": "팁"
  },

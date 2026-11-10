@@ -2129,6 +2129,39 @@
  "offerRetryAt": {
   "message": "Ответы вернутся в {0}."
  },
+ "similarWhere": {
+  "message": "Где искать"
+ },
+ "similarWorld": {
+  "message": "По всему миру"
+ },
+ "similarLocal": {
+  "message": "Рядом со мной"
+ },
+ "similarLocalIn": {
+  "message": "Рядом · {0}"
+ },
+ "similarWhereHint": {
+  "message": "Сначала выберите, где искать."
+ },
+ "similarLess": {
+  "message": "Менее похожие"
+ },
+ "similarPercent": {
+  "message": "Похоже на {0}%"
+ },
+ "similarDiffers": {
+  "message": "Отличие: {0}"
+ },
+ "similarRegionLocked": {
+  "message": "Нет в App Store вашей страны"
+ },
+ "similarRatings": {
+  "message": "Оценок: {0}"
+ },
+ "similarReviewersSay": {
+  "message": "Отзывы: {0}"
+ },
  "tip_4cf1b54b00": {
   "message": "Советы"
  },

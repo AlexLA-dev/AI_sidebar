@@ -56,6 +56,8 @@ export interface CheckedPage {
   // Apps (build 91): what it costs as this page shows it (an App Store page's price and in-app purchases); else where
   // to look next: the App Store page the app's site links to, the site's pricing page.
   pricing?: AppPricing
+  // Build 93: the item's rating as the page states it for machines (JSON-LD AggregateRating).
+  rating?: PageRating
   storeLink?: string
   pricingLinks?: string[]
   // Build 91: the page's links (address and words) and its versions in other languages, for one or two pages more
@@ -156,9 +158,16 @@ export function mainText(html: string): string {
   return pageText(body)
 }
 
+export interface PageRating {
+  value: number
+  best: number
+  count?: number
+}
+
 interface LdFacts {
   types: Set<string>
   name?: string
+  rating?: PageRating
   published?: string
   modified?: string
   validThrough?: string
@@ -186,8 +195,23 @@ function ldWalk(node: unknown, out: LdFacts, depth = 0) {
     out.validThrough ??= str(o.validThrough) ?? str(o.expires)
     out.duration ??= str(o.duration) ?? str(o.totalTime) ?? str(o.timeRequired)
     out.lang ??= str(o.inLanguage)
+    // Build 93: the item's own rating (its reviews, as the page states them for machines).
+    out.rating ??= ratingOf(o.aggregateRating)
   }
+  if (types.includes("AggregateRating")) out.rating ??= ratingOf(o)
   for (const [k, v] of Object.entries(o)) if (k !== "@context" && v && typeof v === "object") ldWalk(v, out, depth + 1)
+}
+
+/** A schema.org AggregateRating as a rating (null: not one, or out of its own scale). */
+function ratingOf(node: unknown): PageRating | undefined {
+  if (!node || typeof node !== "object") return undefined
+  const o = node as Record<string, unknown>
+  const num = (v: unknown) => (typeof v === "number" ? v : typeof v === "string" ? Number(v.replace(",", ".")) : NaN)
+  const value = num(o.ratingValue)
+  const best = Number.isFinite(num(o.bestRating)) && num(o.bestRating) > 0 ? num(o.bestRating) : 5
+  const count = num(o.reviewCount ?? o.ratingCount)
+  if (!Number.isFinite(value) || value <= 0 || value > best) return undefined
+  return { value: Math.round(value * 10) / 10, best, ...(Number.isFinite(count) && count > 0 ? { count: Math.round(count) } : {}) }
 }
 
 function ldFacts(html: string): LdFacts {
@@ -482,6 +506,7 @@ export function describePage(html: string, url: string, finalUrl: string, http: 
   if (validThrough) page.validThrough = validThrough
   if (duration) page.duration = duration
   if (ld.lang) page.inLanguage = String(ld.lang).slice(0, 12)
+  if (ld.rating) page.rating = ld.rating
   if (status === "ok") {
     const links = pageLinks(html, finalUrl)
     if (links.length) page.links = links
