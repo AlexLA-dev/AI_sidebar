@@ -10,7 +10,7 @@ process.env.SUPABASE_SERVICE_ROLE_KEY = "service-key"
 process.env.ANTHROPIC_API_KEY = "test-key"
 
 const { describePage } = await import("../netlify/shared/pagecheck.mts")
-const { askedLines, checkCondition, checkPlan, finishItems, localPrice, rescueQueries, whereLine, writeMessage, Claims, WRITE_SYSTEM } = await import("../netlify/shared/similar.mts")
+const { askedLines, checkCondition, checkPlan, finishItems, localPrice, modelKey, rescueQueries, sameAsSubject, sameModel, whereLine, writeMessage, Claims, WRITE_SYSTEM } = await import("../netlify/shared/similar.mts")
 const { convert, currencyOf, parseEcb, roughAmount } = await import("../netlify/shared/money.mts")
 const { cleanItem, similarMarkdown } = await import("../src/shared/similar.ts")
 type Plan = import("../netlify/shared/similar.mts").Plan
@@ -225,4 +225,41 @@ test("the page the notification opens names its chat in the address; the panel t
   at("#cf-similar=../../etc")
   assert.equal(takeSimilarMark(), null)
   assert.equal(urls.length, 0)
+})
+
+// ---- one model once, and their item told apart ------------------------------------------------------------
+
+test("one model in colours or at two shops is one item; other models of a brand are not", () => {
+  const same = (a: string, b: string) => sameModel(modelKey(a)!, modelKey(b)!)
+  assert.ok(same("Small Leather Wallet/ Vegetable tanned", "Small Leather Wallet/ Ocean blue"))
+  assert.ok(same("Weber Spirit E-325 3-Burner LP Gas Grill", "Weber Spirit E-325 Liquid Propane Gas Grill"))
+  assert.ok(same("Garmin Forerunner 970", "GARMIN 010-02969-10 Forerunner 970 Music Smartwatch, Black"))
+  assert.ok(same("Allbirds Men's Tree Runner NZ", "Men's Tree Runner NZ"))
+  assert.ok(!same("Weber Spirit E-325", "Weber Spirit E-310"))
+  assert.ok(!same("Weber Spirit 3-Burner Gas Grill", "Weber Genesis 3-Burner Gas Grill"))
+  assert.ok(!same("Sony WH-1000XM6", "Sony WH-1000XM5"))
+  assert.ok(!same("Wantdo Women's Packable Puffer Jacket", "Wantdo Women's Hooded Puffer Jacket"))
+  const p = plan({ subject: "Weber Spirit E-310", traits: ["gas grill", "3 burners", "side tables"] })
+  const pages = ["https://pcrichard.test/e325", "https://abt.test/e325"].map((u, i) => page(u, i ? "Weber Spirit E-325 Liquid Propane Gas Grill" : "Weber Spirit E-325 3-Burner LP Gas Grill", offer("549", "USD"), p))
+  const raw = { intro: "", note: "", items: pages.map((c, i) => ({ page: i + 1, name: c.name, why: "w", fit: "f", met: "yes", words_met: "n/a", same: false, shares: [1, 2], differs: "" })) }
+  assert.equal(finishItems(raw, pages, p, source).result.items.length, 1)
+})
+
+test("their very item: by its model words, else by the words that name it, not by its kind", () => {
+  const lego = plan()
+  assert.ok(sameAsSubject("LEGO® City Klassischer Dampfzug (60511); Bauset", lego))
+  assert.ok(!sameAsSubject("LEGO City Güterzug 60336", lego))
+  const chair = plan({ subject: "POÄNG Sessel mit Hocker", traits: ["Birkenfurnier-Gestell", "Bezug in Beige", "Mit Fußhocker", "Bequemer Relaxsessel", "Preis unter 200 €"] })
+  assert.ok(sameAsSubject("IKEA POÄNG Sessel mit Hocker, beige", chair))
+  assert.ok(!sameAsSubject("SVITA Charles Relaxsessel Hocker Sessel Fernsehsessel", chair))
+})
+
+test("a price without a currency on a country's own domain is in that country's money", async () => {
+  const { domainCurrency } = await import("../netlify/shared/pagecheck.mts")
+  assert.equal(domainCurrency("https://www.stephanis.com.cy/en/products/1"), "EUR")
+  assert.equal(domainCurrency("https://shop.example.co.uk/x"), "GBP")
+  assert.equal(domainCurrency("https://www.example.com/x"), "")
+  const meta = `<meta property="product:price:amount" content="599.99">`
+  const p = describePage(html("Philips EP3249", meta), "https://www.superhome.com.cy/p/1", "https://www.superhome.com.cy/p/1", 200, 0)
+  assert.deepEqual(p.price, { amount: 599.99, currency: "EUR" })
 })

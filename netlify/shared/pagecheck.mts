@@ -5,6 +5,7 @@
 // Prices and stock are read with page watch's parser (src/shared/watch/extract.ts), so both read shops alike.
 // Nothing is stored: the page is read once and forgotten.
 
+import { currencyOf } from "./money.mts"
 import { isOutOfStock } from "../../src/shared/watch/detect.ts"
 import { pageText, parseNumber, structured } from "../../src/shared/watch/extract.ts"
 import { appStoreLink, appStorePricing, pricingLinks, type AppPricing } from "./apppricing.mts"
@@ -341,6 +342,15 @@ export function readPrice(raw: string | undefined, html = ""): PagePrice | undef
   return { amount, currency }
 }
 
+/** The money of a country's own domain (".cy" → EUR, ".co.uk" → GBP); "" for .com and the like. */
+export function domainCurrency(url: string): string {
+  let host = ""
+  try { host = new URL(url).hostname.toLowerCase() } catch { return "" }
+  const tld = host.split(".").pop() ?? ""
+  if (tld.length !== 2) return ""
+  return currencyOf(tld === "uk" ? "GB" : tld.toUpperCase())
+}
+
 // ------------------------------------------------------------ verdicts on a page
 
 // "Not found" in the title or the main heading, in the languages the app speaks.
@@ -577,6 +587,8 @@ export function describePage(html: string, url: string, finalUrl: string, http: 
     ms: 0
   }
   const price = readPrice(priceRaw, html)
+  // Build 95: a price without a currency on a country's own domain (a .cy shop's "599.99") is in that country's money.
+  if (price && !price.currency) price.currency = domainCurrency(finalUrl)
   if (price) {
     page.price = price
     page.priceRaw = priceRaw

@@ -1609,6 +1609,7 @@ export class ItemFinisher {
   readonly dropped: Array<{ name: string; why: string }> = []
   // Build 95: close items that miss a chip they tapped, kept for the end (listed only when few close ones meet it).
   private held: SimilarItem[] = []
+  private models: ModelKey[] = []
   private seenUrl = new Set<string>()
   private seenName = new Set<string>()
   private selfUrl: string
@@ -1686,6 +1687,10 @@ export class ItemFinisher {
     const nameKey = same ? `same ${host}` : nameKeyOf(name)
     if (key === this.selfUrl || (sameAsked && !same)) return drop("the item itself")
     if ((c.kind === "item" && this.seenUrl.has(key)) || (nameKey && this.seenName.has(nameKey))) return drop("duplicate")
+    // One model in colours, sizes or at two shops is one item (build 95, the set: one shop's wallet in three colours,
+    // the same grill at two shops), whatever the writer made of it.
+    const model = modelKey(name)
+    if (!same && model && this.models.some((m) => sameModel(m, model))) return drop("duplicate")
     // Their own words must hold; a chip they tapped is weighed softly (the item may come at the end, see softTail).
     // A condition its page proved (a price read, a quote on the page) wins over the writer's word (the set: two
     // GORE-TEX shoes the page called waterproof were dropped as "no" for a price the trait list mentioned).
@@ -1710,6 +1715,7 @@ export class ItemFinisher {
       if (nameKey) this.seenName.delete(nameKey)
       return drop("shares none of the traits")
     }
+    if (model && !same) this.models.push(model)
     if (same) this.sameShops++
     const differs = stripUrls(str(o.differs, 240))
     const local = !unchecked && c.kind === "item" ? localPrice(page.price, this.plan.money) : c.proof?.price ? localPrice(c.proof.price, this.plan.money) : ""
@@ -1756,6 +1762,33 @@ export class ItemFinisher {
 export function listable(checked: CheckedCandidate[], plan: Plan): number {
   return checked.filter((c) => c.kept && c.kind === "item" && c.condition.met !== "no" &&
     (!sameAsSubject(c.page.name || c.page.title || c.name, plan) || ((plan.condition.kind === "cheaper" || plan.condition.kind === "in_stock") && c.condition.met === "yes"))).length
+}
+
+/** What names a model (build 95): its brand word and its model words — those with digits, else the words before a variant. */
+interface ModelKey {
+  brand: string
+  model: string[]
+  base: string[]
+}
+
+/** The words of a name before a variant ("Small Leather Wallet / Ocean", "Tree Runner – Black", "(Midnight)"). */
+export function modelKey(name: string): ModelKey | null {
+  const base = nameTokens(name.split(/\s[\/|–—-]\s|\s\/|\/\s|\(|,/)[0])
+  const all = nameTokens(name)
+  if (!all.length) return null
+  return { brand: all[0], model: all.filter((w) => /\d/.test(w) && w.length >= 3), base }
+}
+
+/** Two names for one model: the same brand word and model words one within the other, or the same base of 3+ words. */
+export function sameModel(a: ModelKey, b: ModelKey): boolean {
+  if (a.model.length && b.model.length) {
+    const [short, long] = a.model.length <= b.model.length ? [a.model, b.model] : [b.model, a.model]
+    return a.brand === b.brand && short.every((w) => long.includes(w))
+  }
+  // No model words: the same base, or one within the other covering most of it ("Men's Tree Runner NZ" in "Allbirds
+  // Men's Tree Runner NZ").
+  const [short, long] = a.base.length <= b.base.length ? [a.base, b.base] : [b.base, a.base]
+  return short.length >= 3 && short.every((w) => long.includes(w)) && short.length / long.length >= 0.75
 }
 
 /** Names compared as words, without what doesn't tell items apart ("the", "new", "official"…). */
