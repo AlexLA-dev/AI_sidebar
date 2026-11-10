@@ -124,7 +124,6 @@
   "ca7dfa36cbd4": "Hỏi hoặc ghi chú đoạn đã chọn",
   "8a37b8219919": "Gặp một dòng đáng giữ lại? Chọn dòng đó và chạm vào Ghi chú: dòng đó sẽ vào cuộc trò chuyện cùng trang của nó. Hoặc nhập câu hỏi của bạn về dòng đó ngay dưới đoạn đã chọn. Ghi chú không tốn câu trả lời.",
   "2f27bc2271a5": "Thao tác nhanh dưới đoạn đã chọn",
-  "fe4d888ff56e": "Ngại gõ trên điện thoại? Trên iPhone và iPad, chọn văn bản, ô Câu hỏi của bạn… bên dưới sẽ có Tóm tắt, Dịch, Tìm tương tự và hơn thế. Vuốt qua chúng và chạm vào một mục. Trên Mac, các thao tác này là nút dưới đoạn đã chọn.",
   "900089659070": "Cuộc trò chuyện đi theo bạn",
   "2175d2bd787a": "Đọc qua nhiều trang? Cứ hỏi tiếp trong lúc đọc. Cuộc trò chuyện nhớ nội dung đã trao đổi và mỗi câu hỏi thuộc về trang nào. Chạm vào tên trang trong cuộc trò chuyện để quay lại trang đó.",
   "e5dff10006b0": "Thông tin mới từ Google",
@@ -185,8 +184,6 @@
   "8973e5b3692c": "Tùy chỉnh theo ý bạn, và biết rõ những gì rời khỏi thiết bị của bạn.",
   "1e1a2fad4e55": "Giới thiệu về bạn",
   "3d3e45465dbd": "Muốn câu trả lời hợp với bạn? Thêm một dòng vào Về tôi, như bạn làm nghề gì hay thích câu trả lời ra sao, và ContextFlow sẽ xét đến điều đó.",
-  "10400d6345f7": "Nút ✦ theo ý bạn",
-  "57a9df23e5d0": "Nút ✦ che mất thứ gì đó? Kéo nút lên hoặc xuống dọc theo cạnh, hoặc sang phía bên kia, nút sẽ ở yên đó. Bạn cũng có thể ẩn nút trên trang web đó, hoặc tắt ở mọi nơi trong phần cài đặt tiện ích mở rộng. ContextFlow vẫn mở được từ menu tiện ích mở rộng của Safari.",
   "8a727e1bbe52": "Dùng khóa API riêng",
   "c5c00775219b": "Có khóa OpenAI hoặc Claude? Với Pro hoặc gói Khóa riêng, hãy dán khóa vào phần cài đặt tiện ích mở rộng trong Safari, và yêu cầu sẽ đi thẳng tới nhà cung cấp đó.",
   "3aaa9fd1f2ef": "Riêng tư ngay từ đầu",
@@ -513,5 +510,10 @@
   "a3587d02c409": "Những gì được gửi đi khi tôi đặt câu hỏi?",
   "9e77c9846978": "Câu hỏi của bạn và văn bản của trang (hoặc phần bạn đã chọn) — chỉ vào lúc đó, chỉ để tạo câu trả lời. Chi tiết trong <a href=\"/privacy\">Chính sách quyền riêng tư</a>.",
   "0943d5368501": "Tôi có tài khoản ở phiên bản cũ. Làm sao để xóa?",
-  "17328923ce30": "Hãy gửi email cho chúng tôi từ địa chỉ bạn đã dùng để đăng ký, chúng tôi sẽ xóa tài khoản trong vòng 30 ngày. Phiên bản 2.0 không còn dùng tài khoản nữa."
+  "17328923ce30": "Hãy gửi email cho chúng tôi từ địa chỉ bạn đã dùng để đăng ký, chúng tôi sẽ xóa tài khoản trong vòng 30 ngày. Phiên bản 2.0 không còn dùng tài khoản nữa.",
+  "af26b6788c82": "Dời ✦ ra chỗ khác",
+  "beb31c6eb1e7": "Nút ✦ che mất phần bạn đang đọc? Kéo nút lên hoặc xuống dọc theo cạnh, hoặc sang phía bên kia, nút sẽ ở yên đó.",
+  "1e9a1535cb3e": "Ẩn ✦ khi không cần",
+  "eead011c5123": "Không cần nút ✦ trên một trang web? Ẩn nút trên trang đó, hoặc tắt ở mọi nơi trong phần cài đặt tiện ích mở rộng. ContextFlow vẫn mở được từ menu tiện ích mở rộng của Safari.",
+  "02291e317354": "Ngại gõ trên điện thoại? Trên iPhone và iPad, chọn văn bản, ô Câu hỏi của bạn… bên dưới sẽ có Tóm tắt, Dịch, Tìm tương tự và hơn thế. Vuốt qua chúng và chạm vào một mục. Trên Mac cũng là ô đó: cuộn bằng bàn di chuột hoặc con lăn chuột và bấm vào một mục."
 }

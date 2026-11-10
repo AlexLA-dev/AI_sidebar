@@ -40,9 +40,11 @@ test("the app's Tips, as the build reads them: seven blocks in order, iCloud bef
   // A Mac's own words where they differ.
   const swipes = data.groups[1].tips.find((t: any) => t.title.en === "Swipe to pin or delete")
   assert.equal(swipes.mac.title.en, "Pin or delete with a click")
-  // The selection's quick actions are touch only: a Mac has buttons under the selection instead.
+  // The selection's quick actions: touch first, and a Mac's own words for the same field.
   const chips = data.groups[0].tips.find((t: any) => t.title.en === "Quick actions under a selection")
-  assert.equal(chips.mac.title.en, "Buttons under a selection")
+  // Since 92 a Mac's pop-up has the same field and chips: the same title, its own words (trackpad, wheel, click).
+  assert.equal(chips.mac.title.en, "Quick actions under a selection")
+  assert.match(chips.mac.text.en, /trackpad or the mouse wheel and click/)
   // The plan's own block, before the last one: monthly or yearly, then the plan's tour.
   assert.deepEqual(data.groups.at(-2).tips.map((t: any) => t.title.en), ["Monthly or yearly", "What your plan adds"])
   assert.equal(data.groups.at(-2).title.en, "Your plan")
@@ -57,7 +59,10 @@ test("every card's clip, as the app shows it: on iPhone and iPad, on a Mac only 
   assert.deepEqual(tipClips(data), app("ru"))
   const tip = (title: string) => data.groups.flatMap((g: any) => g.tips).find((t: any) => t.title.en === title)
   assert.equal(tip("Share what you found").clip, "share")
-  assert.equal(tip("The ✦ button, your way").clip, "button")
+  // 2.6 (93): moving ✦ aside is a first-block card with the clip; hiding it, under personalization, has none.
+  assert.equal(tip("Move ✦ out of the way").clip, "button")
+  assert.ok(data.groups[0].tips.some((t: any) => t.title.en === "Move ✦ out of the way"), "in Get started")
+  assert.ok(!tip("Hide ✦ when you don't need it").clip)
   // No clip on a Mac where the app shows none: the touch ones and the button by a field.
   for (const title of ["Open it on any page", "Swipe to pin or delete", "Insert into any field", "Copied, kept for a day", "Quick actions under a selection", "Find similar"]) {
     assert.ok(tip(title).clip, title)

@@ -124,7 +124,6 @@
   "ca7dfa36cbd4": "Question ou note sur une sélection",
   "8a37b8219919": "Une ligne à garder&nbsp;? Sélectionnez-la et touchez «&nbsp;Note&nbsp;»&nbsp;: elle part dans la discussion avec sa page. Ou posez votre propre question juste sous la sélection. Les notes ne consomment aucune réponse.",
   "2f27bc2271a5": "Actions rapides sous la sélection",
-  "fe4d888ff56e": "Pas envie de taper sur votre téléphone ? Sur iPhone et iPad, sélectionnez du texte : le champ « Votre question… » juste en dessous propose « Résumer », « Traduire », « Trouver similaire » et d’autres. Faites-les défiler du doigt et touchez-en une. Sur Mac, les mêmes actions sont des boutons sous la sélection.",
   "900089659070": "La discussion vous suit",
   "2175d2bd787a": "Vous lisez plusieurs pages&nbsp;? Continuez à poser des questions au fil de la lecture. La discussion se souvient de l’échange et de la page concernée par chaque question. Touchez le nom d’une page dans la discussion pour y revenir.",
   "e5dff10006b0": "Des infos à jour avec Google",
@@ -185,8 +184,6 @@
   "8973e5b3692c": "Adaptez-le à vous, et sachez ce qui quitte votre appareil.",
   "1e1a2fad4e55": "Parlez-lui de vous",
   "3d3e45465dbd": "Des réponses adaptées à vous&nbsp;? Ajoutez une ligne dans «&nbsp;À propos de moi&nbsp;», comme votre métier ou le style de réponse que vous aimez, et ContextFlow en tient compte.",
-  "10400d6345f7": "Le bouton ✦, à votre façon",
-  "57a9df23e5d0": "Le bouton ✦ cache quelque chose&nbsp;? Faites-le glisser vers le haut ou le bas le long du bord, ou de l’autre côté&nbsp;: il reste là. Vous pouvez aussi le masquer sur ce site ou le désactiver partout dans les réglages de l’extension. ContextFlow s’ouvre toujours depuis le menu des extensions de Safari.",
   "8a727e1bbe52": "Utilisez votre clé d’API",
   "c5c00775219b": "Vous avez une clé OpenAI ou Claude&nbsp;? Avec Pro ou le forfait Clé personnelle, collez-la dans les réglages de l’extension dans Safari&nbsp;: les requêtes vont directement chez ce fournisseur.",
   "3aaa9fd1f2ef": "Confidentiel par nature",
@@ -513,5 +510,10 @@
   "a3587d02c409": "Qu’est-ce qui est envoyé quand je pose une question&nbsp;?",
   "9e77c9846978": "Votre question et le texte de la page (ou votre sélection) — uniquement à ce moment-là, uniquement pour générer la réponse. Les détails sont dans la <a href=\"/privacy\">Politique de confidentialité</a>.",
   "0943d5368501": "J’avais un compte dans une ancienne version. Comment le supprimer&nbsp;?",
-  "17328923ce30": "Écrivez-nous depuis l’adresse utilisée lors de l’inscription, et nous le supprimerons sous 30 jours. La version 2.0 n’utilise plus de comptes."
+  "17328923ce30": "Écrivez-nous depuis l’adresse utilisée lors de l’inscription, et nous le supprimerons sous 30 jours. La version 2.0 n’utilise plus de comptes.",
+  "af26b6788c82": "Écartez ✦ de votre lecture",
+  "beb31c6eb1e7": "Le bouton ✦ cache ce que vous lisez&nbsp;? Faites-le glisser vers le haut ou le bas le long du bord, ou de l’autre côté&nbsp;: il reste là.",
+  "1e9a1535cb3e": "Masquez ✦ quand vous n’en avez pas besoin",
+  "eead011c5123": "Pas besoin du bouton ✦ sur un site&nbsp;? Masquez-le sur ce site ou désactivez-le partout dans les réglages de l’extension. ContextFlow s’ouvre toujours depuis le menu des extensions de Safari.",
+  "02291e317354": "Pas envie de taper sur votre téléphone ? Sur iPhone et iPad, sélectionnez du texte : le champ « Votre question… » juste en dessous propose « Résumer », « Traduire », « Trouver similaire » et d’autres. Faites-les défiler du doigt et touchez-en une. Sur Mac, c’est le même champ&nbsp;: faites-le défiler avec le trackpad ou la molette de la souris et cliquez sur l’une d’elles."
 }
