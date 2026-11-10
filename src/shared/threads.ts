@@ -14,6 +14,9 @@ export interface Thread {
   // The name the AI gave it ("Name by topic", or renamed as its topic changed; 2.6). While `title` is still this one,
   // the AI may name it again; a name the user typed differs from it, and the AI never touches that one.
   aiTitle?: string
+  // What organizing suggested for this chat, with it so every device shows it at once and knows what was turned down
+  // (2.6 (93); iCloud "org"). See OrgState.
+  org?: OrgState
   pin?: number // pinned: its place among the pinned chats at the top of the list (lower first)
   kind?: "history" // "Ask your chats" (Pro): questions about all the other chats, not a page
   tags?: string[] // the user's tags for the chat (answers and notes have their own, on the entry)
@@ -25,6 +28,43 @@ export interface Thread {
 }
 
 export type Threads = Record<string, Thread>
+
+/**
+ * Organizing's suggestions for a chat, kept with it (2.6 (93)): worked out when the chat had `n` messages, the last one
+ * `k`; another device shows them at once while the chat is still like that. `mv`: the move (its messages `s`…`e`, the
+ * chat `to` or a new one, why, the match %); `tg`: [message key, tag] the check said yes to; `nm`: the name check (what
+ * it was about `k`, the name it suggests while open `t`, the names turned down `no`, which never come back).
+ * Turning a move or a tag down is on the messages themselves (`dismissed`).
+ */
+export interface OrgState {
+  n: number
+  k: string
+  mv?: { s: number; e: number; to: string | null; why: "page" | "site" | "topic" | "apart"; mt?: number }
+  tg?: Array<[string, string]>
+  nm?: { k: string; t?: string; no?: string[] }
+}
+
+/** An OrgState as read back from iCloud or storage, or undefined if it isn't one. */
+export function cleanOrgState(raw: unknown): OrgState | undefined {
+  if (!raw || typeof raw !== "object") return undefined
+  const o = raw as Record<string, unknown>
+  if (typeof o.n !== "number" || typeof o.k !== "string") return undefined
+  const out: OrgState = { n: o.n, k: o.k }
+  const mv = o.mv as Record<string, unknown> | undefined
+  if (mv && typeof mv.s === "number" && typeof mv.e === "number" && (typeof mv.to === "string" || mv.to === null) && ["page", "site", "topic", "apart"].includes(String(mv.why))) {
+    out.mv = { s: mv.s, e: mv.e, to: mv.to as string | null, why: mv.why as "page", ...(typeof mv.mt === "number" ? { mt: mv.mt } : {}) }
+  }
+  if (Array.isArray(o.tg)) {
+    const tg = o.tg.filter((x): x is [string, string] => Array.isArray(x) && typeof x[0] === "string" && typeof x[1] === "string").map((x) => [x[0], x[1]] as [string, string])
+    if (tg.length) out.tg = tg
+  }
+  const nm = o.nm as Record<string, unknown> | undefined
+  if (nm && typeof nm.k === "string") {
+    const no = Array.isArray(nm.no) ? nm.no.filter((x): x is string => typeof x === "string") : []
+    out.nm = { k: nm.k, ...(typeof nm.t === "string" && nm.t ? { t: nm.t } : {}), ...(no.length ? { no } : {}) }
+  }
+  return out
+}
 
 /** The thread this device shows, and when it was picked (a newer thread from another device takes over). */
 export interface ActiveThread {
@@ -239,6 +279,7 @@ export function withMessages(stored: Thread | undefined, id: string, m: Entry[],
     id, u: now, a: activityAfter(keep, m, now), m,
     ...(keep?.title ? { title: keep.title } : {}),
     ...(keep?.aiTitle ? { aiTitle: keep.aiTitle } : {}),
+    ...(keep?.org ? { org: keep.org } : {}),
     ...(keep?.pin !== undefined ? { pin: keep.pin } : {}),
     ...(keep?.tags?.length ? { tags: keep.tags } : {}),
     ...(keptKind ? { kind: keptKind } : {}),
@@ -313,6 +354,7 @@ export function threadForCloud(thread: Thread, maxChars = CLOUD_MAX_CHARS): stri
     ...thread.x,
     ...(thread.title ? { title: thread.title } : {}),
     ...(thread.aiTitle ? { ait: thread.aiTitle } : {}),
+    ...(thread.org ? { org: thread.org } : {}),
     ...(thread.a !== undefined && thread.a !== thread.u ? { a: thread.a } : {}),
     ...(thread.pin !== undefined ? { pin: thread.pin } : {}),
     ...(thread.kind ? { k: thread.kind } : {}),
@@ -330,13 +372,13 @@ export function threadForCloud(thread: Thread, maxChars = CLOUD_MAX_CHARS): stri
 }
 
 // The fields of a thread's iCloud JSON this version reads; any other is kept in `x` as it came.
-const CLOUD_FIELDS = new Set(["m", "a", "title", "ait", "pin", "k", "tags", "trashed"])
+const CLOUD_FIELDS = new Set(["m", "a", "title", "ait", "org", "pin", "k", "tags", "trashed"])
 
 /**
  * A thread read back from iCloud (2.3 build 56 stored just the messages), or null if it isn't one. Fields it doesn't
  * know are kept (`x`): 2.4 dropped those it didn't know, and saving such a chat there takes it out of Recently Deleted.
  */
-export function threadFromCloud(data: string): Pick<Thread, "m" | "a" | "title" | "aiTitle" | "pin" | "kind" | "tags" | "trashed" | "x"> | null {
+export function threadFromCloud(data: string): Pick<Thread, "m" | "a" | "title" | "aiTitle" | "org" | "pin" | "kind" | "tags" | "trashed" | "x"> | null {
   let parsed: unknown
   try {
     parsed = JSON.parse(data)
@@ -348,7 +390,7 @@ export function threadFromCloud(data: string): Pick<Thread, "m" | "a" | "title" 
     return m && { m }
   }
   if (parsed === null || typeof parsed !== "object") return null
-  const { m: raw, a, title, ait, pin, k, tags, trashed } = parsed as Record<string, unknown>
+  const { m: raw, a, title, ait, org, pin, k, tags, trashed } = parsed as Record<string, unknown>
   const m = entriesFrom(raw)
   if (!m) return null
   const unknown = Object.entries(parsed).filter(([key]) => !CLOUD_FIELDS.has(key))
@@ -357,6 +399,7 @@ export function threadFromCloud(data: string): Pick<Thread, "m" | "a" | "title" 
     ...(typeof a === "number" ? { a } : {}),
     ...(typeof title === "string" && title.trim() ? { title: cleanTitle(title) } : {}),
     ...(typeof ait === "string" && ait.trim() ? { aiTitle: cleanTitle(ait) } : {}),
+    ...(cleanOrgState(org) ? { org: cleanOrgState(org) } : {}),
     ...(typeof pin === "number" && Number.isFinite(pin) ? { pin } : {}),
     ...(k === "history" ? { kind: "history" as const } : {}),
     ...(Array.isArray(tags) && cleanTags(tags).length ? { tags: cleanTags(tags) } : {}),

@@ -17,6 +17,9 @@
 .cf-org-chip.move b { color: var(--text); font-weight: 600; }
 .cf-org-take { display: inline-flex; align-items: center; gap: 4px; min-width: 0; height: 100%; padding: 0 2px 0 10px; border-radius: 999px 0 0 999px; font-size: 12px; font-weight: 600; color: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cf-org-chip.move .cf-org-take { font-weight: 500; }
+/* 2.6 (93): how well it fits there, after the chat's name ("· 88% match"). */
+.cf-org-match { flex: none; margin-inline-start: 6px; font-size: 11.5px; font-weight: 600; color: var(--accent-text); }
+.cf-org-match::before { content: "· "; color: var(--text-3); font-weight: 400; }
 .cf-org-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .cf-org-take:hover { background: rgba(var(--tag), 0.08); }
 .cf-org-x { flex: none; display: grid; place-items: center; width: 26px; height: 100%; border-radius: 0 999px 999px 0; color: var(--text-3); }

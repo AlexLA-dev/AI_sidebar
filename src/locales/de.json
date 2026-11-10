@@ -518,6 +518,7 @@
   "orgNamed": "„{0}“ benannt",
   "orgNameFailed": "Ich konnte den Chat gerade nicht benennen. Versuch es später noch einmal.",
   "orgNameAs": "Chat „{0}“ nennen",
+  "orgMatch": "{0} % passend",
   "recs_one": "{0} Empfehlung",
   "recs_two": "{0} Empfehlungen",
   "recs_few": "{0} Empfehlungen",

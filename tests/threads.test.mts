@@ -32,6 +32,7 @@ import {
   shownThread,
   threadForCloud,
   threadFromCloud,
+  cleanOrgState,
   threadName,
   threadNotes,
   threadPages,
@@ -152,6 +153,18 @@ test("the AI's name (2.6) goes to iCloud as \"ait\", comes back, and stays with 
   assert.equal(namedByUser(named), false)
   assert.equal(namedByUser({ ...named, title: "My own" }), true)
   assert.equal(namedByUser({ ...named, title: undefined }), false)
+})
+
+test("organizing's state (2.6 (93)) goes to iCloud as \"org\", comes back cleaned, and stays with new messages", () => {
+  const m: Entry[] = [{ role: "user", content: "q" }, { role: "assistant", content: "a" }]
+  const org = { n: 2, k: "a1", mv: { s: 0, e: 1, to: "x", why: "topic" as const, mt: 84 }, tg: [["a1", "Work"]] as Array<[string, string]>, nm: { k: "nk", t: "Name", no: ["Old"] } }
+  const data = threadForCloud({ id: "t", u: 5, m, org })
+  assert.deepEqual(JSON.parse(data).org, org)
+  assert.deepEqual(threadFromCloud(data)?.org, org)
+  assert.deepEqual(withMessages({ id: "t", u: 5, m, org }, "t", [...m, { role: "user", content: "more" }], 9).org, org)
+  // Junk from a future or broken copy: dropped, or the parts that make sense.
+  assert.equal(cleanOrgState({ n: "2" }), undefined)
+  assert.deepEqual(cleanOrgState({ n: 1, k: "", mv: { s: 0, e: 0, to: 3, why: "topic" }, tg: [["a", 1], ["b", "B"]], nm: { k: "z", t: "", no: [1, "N"] } }), { n: 1, k: "", tg: [["b", "B"]], nm: { k: "z", no: ["N"] } })
 })
 
 test("threadForCloud fits one record; threadFromCloud reads both formats and rejects the rest", () => {

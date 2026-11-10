@@ -1493,6 +1493,9 @@
  "orgNameAs": {
   "message": "채팅 이름을 ‘{0}’(으)로"
  },
+ "orgMatch": {
+  "message": "{0}% 일치"
+ },
  "recs_one": {
   "message": "추천 {0}개"
  },

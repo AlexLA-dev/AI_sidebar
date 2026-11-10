@@ -1493,6 +1493,9 @@
  "orgNameAs": {
   "message": "Chat „{0}“ nennen"
  },
+ "orgMatch": {
+  "message": "{0} % passend"
+ },
  "recs_one": {
   "message": "{0} Empfehlung"
  },
