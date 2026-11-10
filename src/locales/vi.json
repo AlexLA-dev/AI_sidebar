@@ -518,6 +518,7 @@
   "orgNamed": "Đã đặt tên “{0}”",
   "orgNameFailed": "Mình chưa đặt được tên cho cuộc trò chuyện. Hãy thử lại sau.",
   "orgNameAs": "Đặt tên “{0}”",
+  "orgMatch": "khớp {0}%",
   "recs_one": "{0} gợi ý",
   "recs_two": "{0} gợi ý",
   "recs_few": "{0} gợi ý",

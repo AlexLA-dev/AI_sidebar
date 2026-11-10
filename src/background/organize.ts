@@ -6,9 +6,9 @@
 import { hasPro } from "../shared/plan"
 import { API_BASE } from "../shared/config"
 import { entryKey, textKey, type Entry } from "../shared/conversation"
-import { embedText, judgedTags, judgeText, nameCheckKey, nameText, suggestMove, tagCandidates, tagTargets, unpackVector, wantsNameCheck, type VectorOf } from "../shared/organize"
+import { embedText, judgedTags, judgeText, nameCheckKey, nameStateAfter, nameText, openName, openTags, orgStateFor, suggestMove, tagCandidates, tagTargets, unpackVector, wantsNameCheck, type VectorOf } from "../shared/organize"
 import { cleanTitle, liveThreads, threadName, threadTitle, type Thread, type Threads } from "../shared/threads"
-import { STORAGE, type OrganizeCountsReply, type OrganizeEvent, type OrganizeNameReply, type OrganizeReply, type OrgNames, type StatusInfo } from "../shared/types"
+import { STORAGE, type OrganizeCountsReply, type OrganizeEvent, type OrganizeNameReply, type OrganizeReply, type StatusInfo } from "../shared/types"
 
 interface Context {
   status: StatusInfo
@@ -24,8 +24,6 @@ const MAX_EMBED_PER_RUN = 640
 const BATCH = 128
 // Tag checks remembered (the newest), so opening a chat again asks nothing.
 const MAX_VERDICTS = 400
-// Name checks remembered (the newest chats).
-const MAX_NAMES = 200
 
 interface VectorStore {
   space: string
@@ -156,31 +154,25 @@ async function organizeOnce(chatId: string, ctx: Context): Promise<OrganizeReply
     if (tag) tags.push({ index, key: entryKey(chat.m[index]), tag })
   }
   const newest = Object.entries(verdicts).sort((a, b) => b[1].at - a[1].at).slice(0, MAX_VERDICTS)
-  const { [STORAGE.orgTagsShown]: shownBefore } = await chrome.storage.local.get(STORAGE.orgTagsShown)
-  const shown = { ...((shownBefore as TagsShown | undefined) ?? {}), [chat.id]: tags.map(({ key, tag }) => ({ key, tag })) }
-  for (const id of Object.keys(shown)) if (!threads[id] || threads[id].deleted) delete shown[id]
-  await chrome.storage.local.set({ [STORAGE.orgVerdicts]: Object.fromEntries(newest), [STORAGE.orgTagsShown]: shown })
+  await chrome.storage.local.set({ [STORAGE.orgVerdicts]: Object.fromEntries(newest) })
 
   // 2.6: the chat's name, unless the user typed it: checked once the chat has a second question or note, and again
   // when it gets another page or a move changes it. A better one is a suggestion until taken or turned down (2.6 (91):
-  // never renamed by itself), kept here so it's still there when the chat opens again.
-  let name: string | undefined
+  // never renamed by itself). The check and its answer go with the chat (2.6 (93)): another device asks nothing again,
+  // and a name turned down anywhere never comes back.
+  let nm = chat.org?.nm
   if (wantsNameCheck(chat)) {
-    const { [STORAGE.orgNames]: kept } = await chrome.storage.local.get(STORAGE.orgNames)
-    const names = (kept as OrgNames | undefined) ?? {}
     const key = nameCheckKey(chat)
-    const current = threadName(chat)
-    if (names[chat.id]?.key !== key) {
+    if (nm?.k !== key) {
+      const current = threadName(chat)
       const res = await api(ctx, { op: "name", chat: nameText(chat.m), current })
       const title = res.ok && typeof res.body.title === "string" ? cleanTitle(res.body.title) : ""
-      if (res.ok) {
-        names[chat.id] = { key, at: Date.now(), ...(!res.body.fits && title && title !== current ? { title } : {}) }
-        const recent = Object.entries(names).sort((a, b) => b[1].at - a[1].at).slice(0, MAX_NAMES)
-        await chrome.storage.local.set({ [STORAGE.orgNames]: Object.fromEntries(recent) })
-      }
+      // Answered: this check is done (a name that fits, or none, suggests nothing), as the app records it.
+      if (res.ok) nm = nameStateAfter(nm, key, { fits: res.body.fits === true, title }, current)
     }
-    name = openName(chat, names[chat.id])
   }
+  const state = orgStateFor(chat, move, tags, nm)
+  const name = openName({ ...chat, org: state })
 
   return {
     ok: true,
@@ -191,27 +183,11 @@ async function organizeOnce(chatId: string, ctx: Context): Promise<OrganizeReply
       count: move.end - move.start + 1
     },
     tags,
-    ...(name ? { name } : {})
+    ...(name ? { name } : {}),
+    org: state
   }
 }
 
-type TagsShown = Record<string, Array<{ key: string; tag: string }>>
-
-/** The tags `chat` last showed that are still open: the message is there, without that tag, and it wasn't turned down. */
-function openTags(chat: Thread, shown: TagsShown[string] | undefined): number {
-  let n = 0
-  for (const { key, tag } of shown ?? []) {
-    const e = chat.m.find((x) => entryKey(x) === key)
-    const has = (list?: string[]) => (list ?? []).some((x) => x.toLowerCase() === tag.toLowerCase())
-    if (e && !has(e.tags) && !has(e.dismissed?.tags)) n++
-  }
-  return n
-}
-
-/** The name suggested for `chat` while it's open: not turned down, not its name already. */
-function openName(chat: Thread, entry: OrgNames[string] | undefined): string | undefined {
-  return entry?.title && !entry.no && entry.title !== threadName(chat) && wantsNameCheck(chat) ? entry.title : undefined
-}
 
 /**
  * The open suggestions of every chat, for the chats list (2.6, "N recommendations"): its move, its suggested name, and
@@ -226,15 +202,13 @@ async function countsOnce(ctx: Context): Promise<OrganizeCountsReply> {
   const org = ctx.status.organize
   if (!org?.on || !ctx.on) return { ok: false, code: "OFF" }
   if (!hasPro(ctx.status.plan)) return { ok: false, code: "PRO_ONLY" }
-  const stored = await chrome.storage.local.get([STORAGE.threads, STORAGE.orgVectors, STORAGE.orgNames, STORAGE.orgTagsShown])
+  const stored = await chrome.storage.local.get([STORAGE.threads, STORAGE.orgVectors])
   const live = liveThreads((stored[STORAGE.threads] as Threads | undefined) ?? {}).filter((t) => t.kind !== "history")
-  const names = (stored[STORAGE.orgNames] as OrgNames | undefined) ?? {}
-  const shown = (stored[STORAGE.orgTagsShown] as TagsShown | undefined) ?? {}
   const vectors = await vectorsFor(null, live, ctx, stored)
   if ("code" in vectors) return { ok: false, code: vectors.code }
   const counts: Record<string, number> = {}
   for (const chat of live) {
-    const n = (suggestMove(chat, live, vectors.vectorOf, org.config) ? 1 : 0) + (openName(chat, names[chat.id]) ? 1 : 0) + openTags(chat, shown[chat.id])
+    const n = (suggestMove(chat, live, vectors.vectorOf, org.config) ? 1 : 0) + (openName(chat) ? 1 : 0) + openTags(chat).length
     if (n) counts[chat.id] = n
   }
   return { ok: true, counts }

@@ -48,7 +48,7 @@ import { OrganizeCard, OrganizeRow, panelSelectionStart, type OrganizeMove } fro
 import { UndoBar } from "./UndoBar"
 import { barDeadline, deadlineAfterHold, goesOnWork, type BarKind } from "./undoClock"
 import { moveBlock, organizeCards, setOrganizeCards, undoBlockMove, type OrganizeCards } from "./store"
-import { DEFAULT_ORGANIZE, looksMixed } from "../shared/organize"
+import { DEFAULT_ORGANIZE, looksMixed, openMove, openName, openTags } from "../shared/organize"
 import { entryKey } from "../shared/conversation"
 import type { OrganizeCountsReply, OrganizeEvent, OrganizeNameReply, OrganizeReply } from "../shared/types"
 import { ProUpsell } from "./ProUpsell"
@@ -65,7 +65,7 @@ import { hasPro, isUltra, type PaidPlan } from "../shared/plan"
 import { SettingsView } from "./Settings"
 import { shareLabels } from "./shareLabels"
 import { keptPlanNow, loadJobs, markHintSeen, markMemoryOffered, memoryOffered, onJobsChanged, resetHints, seenHints, type HintKey } from "./store"
-import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, onConsentChanged, loadThreads, markTourSeen, lastPlanSeen, setLastPlanSeen, planToursSeen, markPlanToursSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, purgeChats, nameThread, rememberPageText, renameThread, renewalAskedPeriod, settleNameSuggestion, unnameThread, restoreChat, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount, trashChat } from "./store"
+import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, onConsentChanged, loadThreads, markTourSeen, lastPlanSeen, setLastPlanSeen, planToursSeen, markPlanToursSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, purgeChats, nameThread, rememberPageText, renameThread, renewalAskedPeriod, setOrgState, settleNameSuggestion, unnameThread, restoreChat, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount, trashChat } from "./store"
 import { TagChip, TagEditor } from "./Tags"
 import { ThreadsView } from "./Threads"
 import { TrashView } from "./Trash"
@@ -91,7 +91,7 @@ import * as QIcon from "./insert/icons"
 import { keepCopied, report as reportInsert } from "./insert/store"
 import { insertFromPanel, useButtonShown, useHasField } from "./insert/target"
 import { TemplatesView } from "./insert/TemplatesView"
-import { allTags, chatDigests, chatList, cleanTags, newThreadId, pageBlocks, pinAt, shownThread, threadPages, threadTitle, trashedThreads, type MoveUndo, type Thread, type Threads } from "../shared/threads"
+import { allTags, chatDigests, chatList, cleanTags, newThreadId, pageBlocks, pinAt, shownThread, threadName, threadPages, threadTitle, trashedThreads, type MoveUndo, type Thread, type Threads } from "../shared/threads"
 import type { ChatDigest } from "../shared/history"
 import type { ConsentStatus } from "../shared/consent"
 
@@ -2465,13 +2465,37 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (open) void organizeCards().then(setCards)
   }, [open])
 
+  // What the chat's own record says (worked out here or on another device, 2.6 (93)): shown at once, while the chat is
+  // still as it was then; this device's own run follows.
+  const keptOrg = threadList.find((x) => x.id === threadRef.current)?.org
+  const keptSig = keptOrg ? JSON.stringify(keptOrg) : ""
+  const showKept = () => {
+    if (!open || !orgOn || streaming || historyMode || messages.length === 0) return
+    const chat = threadRef.current
+    const kept = threadList.find((x) => x.id === chat)
+    if (!kept?.org) return
+    const shown: Thread = { ...kept, m: messages }
+    const mv = openMove(shown, threadList)
+    const target = mv?.to ? threadList.find((x) => x.id === mv.to) : undefined
+    setOrg({
+      chat, length: messages.length,
+      move: mv ? { start: mv.s, end: mv.e, to: mv.to, toName: target ? threadName(target) : threadTitle(messages.slice(mv.s, mv.e + 1)), why: mv.why, count: mv.e - mv.s + 1, ...(mv.mt !== undefined ? { match: mv.mt } : {}) } : null,
+      tags: openTags(shown),
+      name: openName(shown) ?? null
+    })
+  }
+  // It came from another device while the chat is open: shown then too.
+  useEffect(showKept, [keptSig])
+
   useEffect(() => {
     if (!open || !orgOn || streaming || historyMode || messages.length === 0) return
     const chat = threadRef.current
     const length = messages.length
+    showKept()
     // After the answer is in, without delaying it; a fade in, not a jump.
     const timer = setTimeout(() => {
       void sendBackground<OrganizeReply>({ type: "organize", chat }).then((reply) => {
+        if (reply?.ok && reply.org) void setOrgState(chat, reply.org)
         if (!reply?.ok || threadRef.current !== chat || messagesRef.current.length !== length) return
         setOrg({ chat, length, move: reply.move, tags: reply.tags, name: reply.name ?? null })
       })

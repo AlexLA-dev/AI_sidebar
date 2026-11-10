@@ -10,10 +10,11 @@ import { test } from "node:test"
 
 import { entryKey, entryTimes, withPageChanges, type Entry } from "../src/shared/conversation.ts"
 import {
-  embedText, hostOf, judgedTags, judgeText, looksMixed, missingVectors, movesAllowed, nameText, organizeConfig, packVector, refusedTags, scoredBlocks,
-  suggestMove, tagCandidates, tagTargets, unpackVector, wantsNameCheck, type TagCandidate, type VectorOf
+  embedText, hostOf, judgedTags, judgeText, looksMixed, missingVectors, movesAllowed, nameCheckKey, nameStateAfter, nameText, openMove, openName, openTags,
+  organizeConfig, orgStateFor, packVector, refusedTags, scoredBlocks, suggestMove, tagCandidates, tagTargets, unpackVector, wantsNameCheck, type TagCandidate,
+  type VectorOf
 } from "../src/shared/organize.ts"
-import { moveEntries, pageBlocks, sweepMoved, undoMove, type Thread, type Threads } from "../src/shared/threads.ts"
+import { cleanOrgState, moveEntries, pageBlocks, sweepMoved, threadName, undoMove, type Thread, type Threads } from "../src/shared/threads.ts"
 
 const root = new URL("..", import.meta.url).pathname
 const swiftc = spawnSync("which", ["swiftc"]).status === 0
@@ -52,6 +53,20 @@ function js(c: Case): unknown {
       return nameText(c.m as Entry[])
     case "wantsNameCheck":
       return wantsNameCheck(c.chat as Thread)
+    case "org": {
+      // As the panel reads a chat back (threadFromCloud cleans its "org").
+      const org = cleanOrgState(chat.org)
+      const t: Thread = { ...chat, org }
+      return {
+        clean: org ?? null,
+        move: openMove(t, chats) ?? null,
+        tags: openTags(t),
+        name: openName(t) ?? null,
+        after: nameStateAfter(org?.nm, c.key as string, c.answer as { fits: boolean; title: string }, c.current as string),
+        state: orgStateFor(t, suggestMove(t, chats, vectorsOf(c.vectors), cfg), ((c.tg ?? []) as Array<[string, string]>).map(([key, tag]) => ({ key, tag })), org?.nm),
+        key: nameCheckKey(t)
+      }
+    }
     case "hostOf":
       return (c.urls as Array<string | null>).map(hostOf)
     case "pack": {
@@ -354,6 +369,40 @@ move(cfSite, [cfSite, changelog])
 const videoCars = thread("videocars", [...qa("cars", "https://video.example/1"), ...qa("cars", "https://video.example/2")])
 const borsch = thread("borsch", [noteOn("borsch", "https://video.example/3", "Try this borsch recipe with smoked pears on Sunday, for the guests")])
 move(borsch, [videoCars, borsch])
+// 2.6 (93): the questions about a site all on one page (one block) take a lone note on another page of it; two lone
+// notes don't join; one video's question doesn't take a note on another topic.
+const cfHome = thread("cfhome", [...qa("cf", "https://context-flow.example/"), ...qa("cf", "https://context-flow.example/"), ...qa("cf", "https://context-flow.example/")])
+const blogNote = thread("blognote", [noteOn("cf", "https://context-flow.example/blog", "Post about sorting")])
+move(changelog, [cfHome, changelog])
+move(cfHome, [cfHome, changelog])
+move(blogNote, [blogNote, changelog])
+move(borsch, [thread("videoone", qa("cars", "https://video.example/7")), borsch])
+// 2.6 (93): the match shown with moves by topic and site, and the minimum; a page needs none.
+move(pile, [pile, japan, bread], { cfg: { minMatch: 99.5 } })
+move(pile, [pile, japan, bread], { cfg: { matchLo: 0.5, matchHi: 0.9 } })
+move(site, [site, ikea, japan], { cfg: { minMatch: 10, siteT: 0.01 } })
+// 2.6 (93): organizing's state kept with the chat, as another device reads it back: the move while the chat is as it
+// was, the tags still open, the name unless turned down or typed by the user; junk dropped part by part.
+{
+  const kept = (chat: Thread, org: unknown, extra: Record<string, unknown> = {}) =>
+    suggestions.push({ op: "org", chat: { ...chat, org } as Thread, chats: [chat, japan, bread], name: threadName({ ...chat, org: undefined }), key: "k2", answer: { fits: false, title: "Japan, by rail" }, current: threadName(chat), tg: [], ...extra })
+  const last = (t: Thread) => entryKey(t.m[t.m.length - 1])
+  const n = pile.m.length
+  const mv = { s: 6, e: 7, to: "japan", why: "topic", mt: 91 }
+  kept(pile, { n, k: last(pile), mv, tg: [[entryKey(pile.m[1]), "React"], [entryKey(pile.m[7]), "Travel"]], nm: { k: "k1", t: "React and a trip" } }, { tg: [[entryKey(pile.m[1]), "React"]] })
+  kept(pile, { n: n - 1, k: last(pile), mv }) // a message since: not that move any more
+  kept(pile, { n, k: "other", mv: { ...mv, to: null, why: "apart" } })
+  kept(pile, { n, k: last(pile), mv: { ...mv, to: "gone" } })
+  kept(pile, { n, k: last(pile), mv: { ...mv, s: 7, e: 6 } })
+  kept({ ...pile, m: pile.m.map((e, i) => (i === 7 ? { ...e, dismissed: { move: true as const, tags: ["travel"] } } : i === 1 ? { ...e, tags: ["react"] } : e)) },
+    { n, k: last(pile), mv, tg: [[entryKey(pile.m[1]), "React"], [entryKey(pile.m[7]), "TRAVEL"], ["nope", "X"]] })
+  kept(pile, { n, k: last(pile), nm: { k: "k1", t: "React and a trip", no: ["react AND a trip"] } }, { answer: { fits: false, title: "REACT and a trip" } })
+  kept({ ...pile, title: "Mine", aiTitle: "Mine", ait: "Mine" } as Thread, { n, k: last(pile), nm: { k: "k1", t: "Mine" } }, { answer: { fits: true, title: "Whatever" } })
+  kept({ ...pile, title: "Typed", aiTitle: "AI's", ait: "AI's" } as Thread, { n, k: last(pile), nm: { k: "k1", t: "React and a trip" } }, { current: "Typed" })
+  for (const junk of [null, 5, "x", [], { n: "2", k: "" }, { n: true, k: "" }, { n: 1 }, { n: 1, k: "", mv: { s: 0, e: 0, to: 3, why: "topic" }, tg: [["a", 1], ["b", "B", "extra"], "c", ["d"]], nm: { k: "z", t: "", no: [1, "N"] } },
+    { n: 1, k: "", mv: { s: 0, e: 0, why: "topic" } }, { n: 1, k: "", mv: { s: 0, e: 0, to: null, why: "elsewhere" } }, { n: 1, k: "", mv: { s: 0, e: 1, to: null, why: "apart", mt: "84" } }, { n: 1, k: "", mv: { s: 0, e: 1, to: "x", why: "site", mt: 57.5 }, nm: { t: "no key" } }])
+    kept(bread, junk)
+}
 // Short questions, moved-in and turned-down blocks get nothing.
 const thanks: Entry[] = [{ role: "user", content: "ok thanks", id: "ok", t: 1_999_999 }, { role: "assistant", content: "You're welcome", id: "ok2", t: 1_999_999 }]
 table.ok = vectorFor("japan")
@@ -496,6 +545,9 @@ test("organizing gives the same results in the panel and in the app", { skip }, 
   const whys = new Set(cases.filter((c) => c.op === "suggestMove").map((c) => (js(c) as { why: string } | null)?.why ?? "none"))
   assert.deepEqual([...whys].sort(), ["apart", "none", "page", "site", "topic"])
   assert.ok(cases.some((c) => c.op === "tags" && (js(c) as Array<{ candidates: unknown[]; judged: string[] }>).some((t) => t.candidates.length === 3 && t.judged.length > 0)))
+  // And the kept state: a move, tags and a name still open in some, and junk in others.
+  const kept = cases.filter((c) => c.op === "org").map((c) => js(c) as { clean: unknown; move: unknown; tags: unknown[]; name: unknown })
+  assert.ok(kept.some((k) => k.move) && kept.some((k) => k.tags.length) && kept.some((k) => k.name) && kept.some((k) => !k.clean))
   const fromSwift = swift(cases)
   cases.forEach((c, i) => {
     // Through JSON, as the app reads and writes it.
