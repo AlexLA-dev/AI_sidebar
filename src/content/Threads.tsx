@@ -498,9 +498,10 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
                   }}
                 >
                   <span class="cf-thread-title" dir="auto">
+                    {/* Before the name (build 93): a long name is cut short with "…", and what follows it with it. */}
+                    {playing === thread.id && <span class="cf-thread-audio" role="status" aria-label={t("listenPlayingHere")} title={t("listenPlayingHere")}><SpeakerIcon size={13} /></span>}
                     {thread.kind === "history" && <Icon.Sparkle size={12} />} {threadName(thread)}
                     {busy?.has(thread.id) ? <span class="cf-thread-busy" role="status" aria-label={t("busyWorking")} /> : unread?.has(thread.id) ? <span class="cf-thread-unread" role="status" aria-label={t("busyNew")} /> : null}
-                    {playing === thread.id && <span class="cf-thread-audio" role="status" aria-label={t("listenPlayingHere")} title={t("listenPlayingHere")}><SpeakerIcon size={12} /></span>}
                   </span>
                   <span class="cf-thread-snippet" dir="auto">{threadSnippet(thread.m)}</span>
                   {tags.length > 0 && (
