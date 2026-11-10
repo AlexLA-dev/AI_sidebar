@@ -1555,6 +1555,12 @@ export class ItemFinisher {
     // differs most. Under CLOSE_SIMILARITY it goes to the panel's "less similar" block.
     const traits = this.plan.traits.length
     const shares = Array.isArray(o.shares) ? [...new Set(o.shares.map(Number).filter((n) => Number.isInteger(n) && n >= 1 && n <= traits))] : []
+    // Nothing of what makes an alternative: not one (build 94: a brand's gym bag and laptop backpack came in at 0 %).
+    if (traits && Array.isArray(o.shares) && !shares.length) {
+      this.seenUrl.delete(key)
+      if (nameKey) this.seenName.delete(nameKey)
+      return drop("shares none of the traits")
+    }
     const differs = stripUrls(str(o.differs, 240))
     const item: SimilarItem = {
       name,

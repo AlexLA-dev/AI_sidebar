@@ -360,3 +360,14 @@ test("a review page is an item's when it names what sets the item apart, and whe
     globalThis.fetch = real
   }
 })
+
+test("an item that shares none of the traits isn't an alternative (0 %)", () => {
+  const gym = candidate("https://markrydeneurope.com/cruise", html("Gym/Travel Bag Mark Ryden Cruise", "", price("99", "EUR", "Gym/Travel Bag Mark Ryden Cruise")), "Gym/Travel Bag Mark Ryden Cruise")
+  const pack = candidate("https://markrydeneurope.com/infinity", html("Backpack Mark Ryden Infinity Vacuum", "", price("129", "EUR", "Backpack Mark Ryden Infinity Vacuum")), "Backpack Mark Ryden Infinity Vacuum")
+  const { result, dropped } = finishItems({ items: [
+    { page: 1, name: "Gym/Travel Bag Mark Ryden Cruise", why: "", fit: "", met: "yes", shares: [], differs: "A gym bag" },
+    { page: 2, name: "Backpack Mark Ryden Infinity Vacuum", why: "", fit: "", met: "yes", shares: [1, 3], differs: "No trolley" }
+  ], intro: "", note: "" }, [gym, pack], plan(), input().page)
+  assert.deepEqual(result.items.map((i) => i.name), ["Backpack Mark Ryden Infinity Vacuum"])
+  assert.deepEqual(dropped.map((d) => d.why), ["shares none of the traits"])
+})
