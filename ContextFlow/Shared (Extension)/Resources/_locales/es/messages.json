@@ -702,7 +702,7 @@
   "message": "Todo lo demás"
  },
  "tourMenuBody": {
-  "message": "Recordatorios y páginas vigiladas, Consejos, Configuración y esta introducción de nuevo están en este menú."
+  "message": "Recordatorios y páginas vigiladas, Consejos, Configuración y el recorrido básico de nuevo están en este menú."
  },
  "guideSumTitle": {
   "message": "Tu primera respuesta"
@@ -753,7 +753,7 @@
   "message": "Elige una acción rápida, como «{0}», o escribe tu propia pregunta."
  },
  "uxShowIntro": {
-  "message": "Ver la introducción otra vez"
+  "message": "Repetir el recorrido básico"
  },
  "uxOther": {
   "message": "Más…"
@@ -2186,6 +2186,12 @@
  "tip_4acd9995ac": {
   "message": "Haz clic en ✦ en la página o en el icono de ContextFlow de la barra de herramientas, o pulsa Control-Shift-E."
  },
+ "tip_af26b6788c": {
+  "message": "Aparta ✦ de en medio"
+ },
+ "tip_6d2694aec4": {
+  "message": "¿✦ tapa lo que estás leyendo? Arrástralo hacia arriba o hacia abajo por el borde, o al otro lado: se queda donde lo sueltes."
+ },
  "tip_2749afe54a": {
   "message": "Lo esencial en un toque"
  },
@@ -2210,11 +2216,8 @@
  "tip_b4d2d0edad": {
   "message": "Selecciona texto en una página: «Resumir», «Traducir», «Buscar similares» y más esperan en el campo «Tu pregunta…» debajo. Desliza entre ellas y toca una, sin escribir nada."
  },
- "tip_2aef052e5b": {
-  "message": "Botones bajo la selección"
- },
- "tip_894f528548": {
-  "message": "Selecciona texto en una página: «Explicar», «Traducir», Google y «Buscar similares» son botones justo debajo. Haz clic en uno o escribe tu propia pregunta en el campo de abajo."
+ "tip_2105cc684e": {
+  "message": "Selecciona texto en una página: «Resumir», «Traducir», «Buscar similares» y más esperan en el campo «Tu pregunta…» debajo. Desplázate entre ellas con el trackpad o la rueda del ratón y haz clic en una, sin escribir nada."
  },
  "tip_9000896590": {
   "message": "El chat te acompaña"
@@ -2285,8 +2288,8 @@
  "tip_b2248495b1": {
   "message": "Toca «Buscar similares» entre las acciones del panel o en el menú «…» arriba del panel. O selecciona texto, como el nombre de un producto, y toca «Buscar similares» en las acciones rápidas de debajo. Añade una condición como «Más barato» o «En stock» si quieres: las alternativas son reales, y abrimos y comprobamos cada enlace antes de mostrártelo."
  },
- "tip_9161a2ed42": {
-  "message": "Haz clic en «Buscar similares» entre las acciones del panel o en el menú «…» arriba del panel. O selecciona texto, como el nombre de un producto, y haz clic en el botón «Buscar similares» de debajo. Añade una condición como «Más barato» o «En stock» si quieres: las alternativas son reales, y abrimos y comprobamos cada enlace antes de mostrártelo."
+ "tip_31666a3aab": {
+  "message": "Haz clic en «Buscar similares» entre las acciones del panel o en el menú «…» arriba del panel. O selecciona texto, como el nombre de un producto, y haz clic en «Buscar similares» en las acciones rápidas de debajo. Añade una condición como «Más barato» o «En stock» si quieres: las alternativas son reales, y abrimos y comprobamos cada enlace antes de mostrártelo."
  },
  "tip_c518fb0674": {
   "message": "Escuchar"
@@ -2417,11 +2420,11 @@
  "tip_e2d1d4abd0": {
   "message": "Añade una línea en “Sobre mí” —a qué te dedicas, cómo te gustan las respuestas— y ContextFlow las adaptará a ti."
  },
- "tip_10400d6345": {
-  "message": "El botón ✦, a tu manera"
+ "tip_1e9a1535cb": {
+  "message": "Oculta ✦ cuando no lo necesites"
  },
- "tip_4c60874441": {
-  "message": "¿✦ tapa algo de la página? Arrástralo hacia arriba o hacia abajo por el borde, o al otro lado: se queda donde lo sueltes. También puedes ocultarlo en un sitio concreto o desactivarlo en todas partes en los ajustes de la extensión. ContextFlow seguirá abriéndose desde el menú de extensiones de Safari."
+ "tip_6cc366173d": {
+  "message": "¿No necesitas ✦ en un sitio? Ocúltalo en ese sitio o desactívalo en todas partes en los ajustes de la extensión. ContextFlow seguirá abriéndose desde el menú de extensiones de Safari."
  },
  "tip_8a727e1bbe": {
   "message": "Usa tu propia clave de API"

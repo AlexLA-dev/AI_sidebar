@@ -124,7 +124,6 @@
   "ca7dfa36cbd4": "Domanda o nota su una selezione",
   "8a37b8219919": "Hai trovato una frase da tenere? Selezionala e tocca «Nota»: va nella chat con la sua pagina. Oppure scrivi la tua domanda su di essa, proprio sotto la selezione. Le note non consumano risposte.",
   "2f27bc2271a5": "Azioni rapide sotto la selezione",
-  "fe4d888ff56e": "Non hai voglia di scrivere sul telefono? Su iPhone e iPad seleziona del testo: nel campo «La tua domanda…» sotto trovi «Riassumi», «Traduci», «Trova simili» e altro. Scorrile col dito e toccane una. Su Mac le stesse azioni sono pulsanti sotto la selezione.",
   "900089659070": "La chat ti segue",
   "2175d2bd787a": "Leggi su più pagine? Continua a chiedere mentre vai avanti. La chat ricorda la conversazione e a quale pagina si riferiva ogni domanda. Tocca il nome di una pagina nella chat per tornarci.",
   "e5dff10006b0": "Notizie fresche da Google",
@@ -185,8 +184,6 @@
   "8973e5b3692c": "Adattalo a te, e sappi cosa esce dal tuo dispositivo.",
   "1e1a2fad4e55": "Raccontagli di te",
   "3d3e45465dbd": "Vuoi risposte su misura per te? Aggiungi una riga in «Su di me», ad esempio che lavoro fai o come preferisci le risposte, e ContextFlow ne tiene conto.",
-  "10400d6345f7": "Il pulsante ✦, come vuoi tu",
-  "57a9df23e5d0": "Il pulsante ✦ copre qualcosa? Trascinalo in su o in giù lungo il bordo, o dall’altro lato, e resta lì. Puoi anche nasconderlo su quel sito, o disattivarlo ovunque nelle impostazioni dell’estensione. ContextFlow si apre comunque dal menu delle estensioni di Safari.",
   "8a727e1bbe52": "Usa la tua chiave API",
   "c5c00775219b": "Hai una chiave OpenAI o Claude? Con Pro o con il piano Chiave propria, incollala nelle impostazioni dell’estensione in Safari, e le richieste vanno direttamente a quel fornitore.",
   "3aaa9fd1f2ef": "Privacy fin dalla progettazione",
@@ -513,5 +510,10 @@
   "a3587d02c409": "Cosa viene inviato quando faccio una domanda?",
   "9e77c9846978": "La tua domanda e il testo della pagina (o la tua selezione), solo in quel momento e solo per generare la risposta. Dettagli nell’<a href=\"/privacy\">Informativa sulla privacy</a>.",
   "0943d5368501": "Avevo un account in una versione precedente. Come lo elimino?",
-  "17328923ce30": "Scrivici dall’indirizzo usato per la registrazione e lo elimineremo entro 30 giorni. La versione 2.0 non usa più gli account."
+  "17328923ce30": "Scrivici dall’indirizzo usato per la registrazione e lo elimineremo entro 30 giorni. La versione 2.0 non usa più gli account.",
+  "af26b6788c82": "Sposta ✦ dove non dà fastidio",
+  "beb31c6eb1e7": "Il pulsante ✦ copre quello che stai leggendo? Trascinalo in su o in giù lungo il bordo, o dall’altro lato, e resta lì.",
+  "1e9a1535cb3e": "Nascondi ✦ quando non serve",
+  "eead011c5123": "Non ti serve il pulsante ✦ su un sito? Nascondilo su quel sito o disattivalo ovunque nelle impostazioni dell’estensione. ContextFlow si apre comunque dal menu delle estensioni di Safari.",
+  "02291e317354": "Non hai voglia di scrivere sul telefono? Su iPhone e iPad seleziona del testo: nel campo «La tua domanda…» sotto trovi «Riassumi», «Traduci», «Trova simili» e altro. Scorrile col dito e toccane una. Su Mac è lo stesso campo: scorrilo con il trackpad o la rotella del mouse e fai clic su una."
 }

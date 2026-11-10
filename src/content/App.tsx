@@ -2033,7 +2033,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // ------------------------------------------------------------ derived
   const contextKind: "selection" | "page" | "none" = selection ? "selection" : pageReadable ? "page" : "none"
   // The selection's place on the page, for its ring (none for a page, a chat about the chats, or the toolbar popup).
-  const glowRange = useMemo(() => (open && contextKind === "selection" && !popup ? selectionRange() : null), [open, selection, contextKind])
+  // The ring on the selection (92): with the panel open on it, and (93, the owner: «её нужно сохранять и при скрытом
+  // сайдбаре») while only its quick-actions pop-up shows. CSS only: three turns, then it stands still.
+  const glowRange = useMemo(() => {
+    if (popup) return null
+    if (open) return contextKind === "selection" ? selectionRange() : null
+    return bubble ? selectionRange(true) : null
+  }, [open, selection, contextKind, bubble])
   const actions = historyMode
     ? []
     : contextKind === "selection" && selection
@@ -2953,8 +2959,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         />
       )}
 
-      {/* 2.6 (92), the owner: with the panel open on a selection, the text it's about is ringed on the page. */}
-      {open && glowRange && <SelectionGlow range={glowRange} />}
+      {/* 2.6 (92), the owner: the selection the panel or its pop-up is about is ringed on the page. */}
+      {glowRange && <SelectionGlow range={glowRange} />}
 
       {open && (
         <section

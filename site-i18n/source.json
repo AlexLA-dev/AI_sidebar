@@ -1136,6 +1136,22 @@
   ]
  },
  {
+  "key": "af26b6788c82",
+  "kind": "html",
+  "en": "Move ✦ out of the way",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
+  "key": "beb31c6eb1e7",
+  "kind": "html",
+  "en": "Is the ✦ button covering what you're reading? Drag it up or down along the edge, or over to the other side, and it stays there.",
+  "pages": [
+   "features.html"
+  ]
+ },
+ {
   "key": "2749afe54a55",
   "kind": "html",
   "en": "One tap for the gist",
@@ -1192,9 +1208,9 @@
   ]
  },
  {
-  "key": "fe4d888ff56e",
+  "key": "02291e317354",
   "kind": "html",
-  "en": "Don't feel like typing on your phone? On iPhone and iPad, select text, and the “Your question…” field under it holds Summarize, Translate, Find similar and more. Swipe along them and tap one. On Mac, the same actions are buttons under the selection.",
+  "en": "Don't feel like typing on your phone? On iPhone and iPad, select text, and the “Your question…” field under it holds Summarize, Translate, Find similar and more. Swipe along them and tap one. On Mac, it's the same field: scroll along it with the trackpad or the mouse wheel and click one.",
   "pages": [
    "features.html"
   ]
@@ -1680,17 +1696,17 @@
   ]
  },
  {
-  "key": "10400d6345f7",
+  "key": "1e9a1535cb3e",
   "kind": "html",
-  "en": "The ✦ button, your way",
+  "en": "Hide ✦ when you don't need it",
   "pages": [
    "features.html"
   ]
  },
  {
-  "key": "57a9df23e5d0",
+  "key": "eead011c5123",
   "kind": "html",
-  "en": "Is the ✦ button covering something? Drag it up or down along the edge, or over to the other side, and it stays there. You can also hide it on that site, or turn it off everywhere in the extension settings. ContextFlow still opens from Safari's extensions menu.",
+  "en": "Don't need the ✦ button on a site? Hide it there, or turn it off everywhere in the extension settings. ContextFlow still opens from Safari's extensions menu.",
   "pages": [
    "features.html"
   ]
