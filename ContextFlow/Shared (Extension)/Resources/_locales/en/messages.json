@@ -2183,11 +2183,8 @@
  "tip_b4d2d0edad": {
   "message": "Select text on a page: Summarize, Translate, Find similar and more wait in the “Your question…” field under it. Swipe along them and tap one, no typing needed."
  },
- "tip_2aef052e5b": {
-  "message": "Buttons under a selection"
- },
- "tip_894f528548": {
-  "message": "Select text on a page: Explain, Translate, Google and Find similar are buttons right under it. Click one, or type your own question in the field below them."
+ "tip_2105cc684e": {
+  "message": "Select text on a page: Summarize, Translate, Find similar and more wait in the “Your question…” field under it. Scroll along them with the trackpad or the mouse wheel and click one, no typing needed."
  },
  "tip_9000896590": {
   "message": "A chat follows you"
@@ -2258,8 +2255,8 @@
  "tip_b2248495b1": {
   "message": "Tap Find similar among the panel's actions, or in the … menu at the top of the panel. Or select text, like a product's name, and tap Find similar among the quick actions under it. Add a condition like Cheaper or In stock if you want: the alternatives are real, and every link is opened and checked before you see it."
  },
- "tip_9161a2ed42": {
-  "message": "Click Find similar among the panel's actions, or in the … menu at the top of the panel. Or select text, like a product's name, and click the Find similar button under it. Add a condition like Cheaper or In stock if you want: the alternatives are real, and every link is opened and checked before you see it."
+ "tip_31666a3aab": {
+  "message": "Click Find similar among the panel's actions, or in the … menu at the top of the panel. Or select text, like a product's name, and click Find similar among the quick actions under it. Add a condition like Cheaper or In stock if you want: the alternatives are real, and every link is opened and checked before you see it."
  },
  "tip_c518fb0674": {
   "message": "Listen"

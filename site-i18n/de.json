@@ -124,7 +124,6 @@
   "ca7dfa36cbd4": "Frage oder Notiz zur Auswahl",
   "8a37b8219919": "Eine Zeile, die du behalten willst? Markiere sie und tippe auf „Notiz“: Sie kommt mit ihrer Seite in den Chat. Oder stell direkt unter der Auswahl deine eigene Frage dazu. Notizen verbrauchen keine Antworten.",
   "2f27bc2271a5": "Schnellaktionen unter der Auswahl",
-  "fe4d888ff56e": "Keine Lust, auf dem Handy zu tippen? Markiere auf iPhone und iPad Text, und im Feld „Deine Frage …“ darunter warten „Zusammenfassen“, „Übersetzen“, „Ähnliches finden“ und mehr. Wisch durch und tipp eine an. Auf dem Mac sind dieselben Aktionen Schaltflächen unter der Auswahl.",
   "900089659070": "Der Chat geht mit",
   "2175d2bd787a": "Du liest über mehrere Seiten hinweg? Frag einfach weiter. Der Chat merkt sich das Gespräch und zu welcher Seite jede Frage gehörte. Tippe im Chat auf den Namen einer Seite, um zu ihr zurückzukehren.",
   "e5dff10006b0": "Aktuelle Fakten von Google",
@@ -515,5 +514,6 @@
   "af26b6788c82": "✦ aus dem Weg schieben",
   "beb31c6eb1e7": "Verdeckt die ✦-Taste, was du gerade liest? Zieh sie am Rand nach oben oder unten oder auf die andere Seite – dort bleibt sie.",
   "1e9a1535cb3e": "✦ ausblenden, wenn du es nicht brauchst",
-  "eead011c5123": "Brauchst du die ✦-Taste auf einer Website nicht? Blende sie dort aus oder schalte sie in den Erweiterungseinstellungen überall ab. ContextFlow öffnet sich weiterhin über das Erweiterungsmenü von Safari."
+  "eead011c5123": "Brauchst du die ✦-Taste auf einer Website nicht? Blende sie dort aus oder schalte sie in den Erweiterungseinstellungen überall ab. ContextFlow öffnet sich weiterhin über das Erweiterungsmenü von Safari.",
+  "02291e317354": "Keine Lust, auf dem Handy zu tippen? Markiere auf iPhone und iPad Text, und im Feld „Deine Frage …“ darunter warten „Zusammenfassen“, „Übersetzen“, „Ähnliches finden“ und mehr. Wisch durch und tipp eine an. Auf dem Mac ist es dasselbe Feld: Scroll mit dem Trackpad oder dem Mausrad durch und klick eine an."
 }

@@ -124,7 +124,6 @@
   "ca7dfa36cbd4": "Pregunta o anota una selección",
   "8a37b8219919": "¿Encontraste una línea que vale la pena guardar? Selecciónala y toca Nota: va al chat con su página. O escribe tu propia pregunta sobre ella justo debajo de la selección. Las notas no gastan respuestas.",
   "2f27bc2271a5": "Acciones rápidas bajo la selección",
-  "fe4d888ff56e": "¿Sin ganas de escribir en el móvil? En iPhone y iPad, selecciona texto y el campo «Tu pregunta…» de debajo tendrá «Resumir», «Traducir», «Buscar similares» y más. Desliza entre ellas y toca una. En Mac, las mismas acciones son botones bajo la selección.",
   "900089659070": "Un chat te sigue",
   "2175d2bd787a": "¿Lees varias páginas? Sigue preguntando sobre la marcha. El chat recuerda la conversación y sobre qué página era cada pregunta. Toca el nombre de una página en el chat para volver a ella.",
   "e5dff10006b0": "Datos actuales de Google",
@@ -515,5 +514,6 @@
   "af26b6788c82": "Aparta ✦ de en medio",
   "beb31c6eb1e7": "¿El botón ✦ tapa lo que estás leyendo? Arrástralo hacia arriba o hacia abajo por el borde, o al otro lado, y se quedará ahí.",
   "1e9a1535cb3e": "Oculta ✦ cuando no lo necesites",
-  "eead011c5123": "¿No necesitas el botón ✦ en un sitio? Ocúltalo en ese sitio o desactívalo en todas partes en los ajustes de la extensión. ContextFlow seguirá abriéndose desde el menú de extensiones de Safari."
+  "eead011c5123": "¿No necesitas el botón ✦ en un sitio? Ocúltalo en ese sitio o desactívalo en todas partes en los ajustes de la extensión. ContextFlow seguirá abriéndose desde el menú de extensiones de Safari.",
+  "02291e317354": "¿Sin ganas de escribir en el móvil? En iPhone y iPad, selecciona texto y el campo «Tu pregunta…» de debajo tendrá «Resumir», «Traducir», «Buscar similares» y más. Desliza entre ellas y toca una. En Mac es el mismo campo: desplázate con el trackpad o la rueda del ratón y haz clic en una."
 }

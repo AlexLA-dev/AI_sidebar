@@ -124,7 +124,6 @@
   "ca7dfa36cbd4": "Pergunta ou nota sobre uma seleção",
   "8a37b8219919": "Achou uma frase que vale guardar? Selecione-a e toque em “Nota”: ela vai para a conversa com a página. Ou escreva sua própria pergunta sobre ela logo abaixo da seleção. Notas não gastam respostas.",
   "2f27bc2271a5": "Ações rápidas sob a seleção",
-  "fe4d888ff56e": "Sem vontade de digitar no celular? No iPhone e no iPad, selecione um texto e o campo “Sua pergunta…” logo abaixo traz “Resumir”, “Traduzir”, “Encontrar parecidos” e mais. Deslize por elas e toque em uma. No Mac, as mesmas ações são botões abaixo da seleção.",
   "900089659070": "A conversa vai com você",
   "2175d2bd787a": "Lendo várias páginas? Continue perguntando enquanto avança. A conversa guarda o que foi dito e de qual página era cada pergunta. Toque no nome de uma página na conversa para voltar a ela.",
   "e5dff10006b0": "Fatos atualizados do Google",
@@ -515,5 +514,6 @@
   "af26b6788c82": "Tire o ✦ do caminho",
   "beb31c6eb1e7": "O botão ✦ está cobrindo o que você lê? Arraste-o para cima ou para baixo pela borda, ou para o outro lado, e ele fica ali.",
   "1e9a1535cb3e": "Oculte o ✦ quando não precisar",
-  "eead011c5123": "Não precisa do botão ✦ em um site? Oculte-o nesse site ou desative-o em todos nos ajustes da extensão. O ContextFlow continua abrindo pelo menu de extensões do Safari."
+  "eead011c5123": "Não precisa do botão ✦ em um site? Oculte-o nesse site ou desative-o em todos nos ajustes da extensão. O ContextFlow continua abrindo pelo menu de extensões do Safari.",
+  "02291e317354": "Sem vontade de digitar no celular? No iPhone e no iPad, selecione um texto e o campo “Sua pergunta…” logo abaixo traz “Resumir”, “Traduzir”, “Encontrar parecidos” e mais. Deslize por elas e toque em uma. No Mac, é o mesmo campo: role com o trackpad ou a roda do mouse e clique em uma."
 }

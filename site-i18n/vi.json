@@ -124,7 +124,6 @@
   "ca7dfa36cbd4": "Hỏi hoặc ghi chú đoạn đã chọn",
   "8a37b8219919": "Gặp một dòng đáng giữ lại? Chọn dòng đó và chạm vào Ghi chú: dòng đó sẽ vào cuộc trò chuyện cùng trang của nó. Hoặc nhập câu hỏi của bạn về dòng đó ngay dưới đoạn đã chọn. Ghi chú không tốn câu trả lời.",
   "2f27bc2271a5": "Thao tác nhanh dưới đoạn đã chọn",
-  "fe4d888ff56e": "Ngại gõ trên điện thoại? Trên iPhone và iPad, chọn văn bản, ô Câu hỏi của bạn… bên dưới sẽ có Tóm tắt, Dịch, Tìm tương tự và hơn thế. Vuốt qua chúng và chạm vào một mục. Trên Mac, các thao tác này là nút dưới đoạn đã chọn.",
   "900089659070": "Cuộc trò chuyện đi theo bạn",
   "2175d2bd787a": "Đọc qua nhiều trang? Cứ hỏi tiếp trong lúc đọc. Cuộc trò chuyện nhớ nội dung đã trao đổi và mỗi câu hỏi thuộc về trang nào. Chạm vào tên trang trong cuộc trò chuyện để quay lại trang đó.",
   "e5dff10006b0": "Thông tin mới từ Google",
@@ -515,5 +514,6 @@
   "af26b6788c82": "Dời ✦ ra chỗ khác",
   "beb31c6eb1e7": "Nút ✦ che mất phần bạn đang đọc? Kéo nút lên hoặc xuống dọc theo cạnh, hoặc sang phía bên kia, nút sẽ ở yên đó.",
   "1e9a1535cb3e": "Ẩn ✦ khi không cần",
-  "eead011c5123": "Không cần nút ✦ trên một trang web? Ẩn nút trên trang đó, hoặc tắt ở mọi nơi trong phần cài đặt tiện ích mở rộng. ContextFlow vẫn mở được từ menu tiện ích mở rộng của Safari."
+  "eead011c5123": "Không cần nút ✦ trên một trang web? Ẩn nút trên trang đó, hoặc tắt ở mọi nơi trong phần cài đặt tiện ích mở rộng. ContextFlow vẫn mở được từ menu tiện ích mở rộng của Safari.",
+  "02291e317354": "Ngại gõ trên điện thoại? Trên iPhone và iPad, chọn văn bản, ô Câu hỏi của bạn… bên dưới sẽ có Tóm tắt, Dịch, Tìm tương tự và hơn thế. Vuốt qua chúng và chạm vào một mục. Trên Mac cũng là ô đó: cuộn bằng bàn di chuột hoặc con lăn chuột và bấm vào một mục."
 }

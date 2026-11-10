@@ -2183,11 +2183,8 @@
  "tip_b4d2d0edad": {
   "message": "Markiere Text auf einer Seite: „Zusammenfassen“, „Übersetzen“, „Ähnliches finden“ und mehr warten im Feld „Deine Frage …“ darunter. Wisch durch und tipp eine an – schreiben musst du nichts."
  },
- "tip_2aef052e5b": {
-  "message": "Schaltflächen unter der Auswahl"
- },
- "tip_894f528548": {
-  "message": "Markiere Text auf einer Seite: „Erklären“, „Übersetzen“, Google und „Ähnliches finden“ sind Schaltflächen direkt darunter. Klick auf eine oder schreib deine eigene Frage in das Feld darunter."
+ "tip_2105cc684e": {
+  "message": "Markiere Text auf einer Seite: „Zusammenfassen“, „Übersetzen“, „Ähnliches finden“ und mehr warten im Feld „Deine Frage …“ darunter. Scroll mit dem Trackpad oder dem Mausrad durch und klick eine an – schreiben musst du nichts."
  },
  "tip_9000896590": {
   "message": "Der Chat geht mit"
@@ -2258,8 +2255,8 @@
  "tip_b2248495b1": {
   "message": "Tippe bei den Aktionen im Panel oder im Menü „…“ oben im Panel auf „Ähnliches finden“. Oder markiere Text, etwa den Namen eines Produkts, und tippe in den Schnellaktionen darunter auf „Ähnliches finden“. Wenn du willst, füge eine Bedingung wie „Günstiger“ oder „Auf Lager“ hinzu: Die Alternativen sind echt, und jeder Link wird geöffnet und geprüft, bevor du ihn siehst."
  },
- "tip_9161a2ed42": {
-  "message": "Klick bei den Aktionen im Panel oder im Menü „…“ oben im Panel auf „Ähnliches finden“. Oder markiere Text, etwa den Namen eines Produkts, und klick auf die Schaltfläche „Ähnliches finden“ darunter. Wenn du willst, füge eine Bedingung wie „Günstiger“ oder „Auf Lager“ hinzu: Die Alternativen sind echt, und jeder Link wird geöffnet und geprüft, bevor du ihn siehst."
+ "tip_31666a3aab": {
+  "message": "Klick bei den Aktionen im Panel oder im Menü „…“ oben im Panel auf „Ähnliches finden“. Oder markiere Text, etwa den Namen eines Produkts, und klick in den Schnellaktionen darunter auf „Ähnliches finden“. Wenn du willst, füge eine Bedingung wie „Günstiger“ oder „Auf Lager“ hinzu: Die Alternativen sind echt, und jeder Link wird geöffnet und geprüft, bevor du ihn siehst."
  },
  "tip_c518fb0674": {
   "message": "Anhören"

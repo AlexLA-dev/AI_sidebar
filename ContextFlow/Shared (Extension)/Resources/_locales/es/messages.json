@@ -2183,11 +2183,8 @@
  "tip_b4d2d0edad": {
   "message": "Selecciona texto en una página: «Resumir», «Traducir», «Buscar similares» y más esperan en el campo «Tu pregunta…» debajo. Desliza entre ellas y toca una, sin escribir nada."
  },
- "tip_2aef052e5b": {
-  "message": "Botones bajo la selección"
- },
- "tip_894f528548": {
-  "message": "Selecciona texto en una página: «Explicar», «Traducir», Google y «Buscar similares» son botones justo debajo. Haz clic en uno o escribe tu propia pregunta en el campo de abajo."
+ "tip_2105cc684e": {
+  "message": "Selecciona texto en una página: «Resumir», «Traducir», «Buscar similares» y más esperan en el campo «Tu pregunta…» debajo. Desplázate entre ellas con el trackpad o la rueda del ratón y haz clic en una, sin escribir nada."
  },
  "tip_9000896590": {
   "message": "El chat te acompaña"
@@ -2258,8 +2255,8 @@
  "tip_b2248495b1": {
   "message": "Toca «Buscar similares» entre las acciones del panel o en el menú «…» arriba del panel. O selecciona texto, como el nombre de un producto, y toca «Buscar similares» en las acciones rápidas de debajo. Añade una condición como «Más barato» o «En stock» si quieres: las alternativas son reales, y abrimos y comprobamos cada enlace antes de mostrártelo."
  },
- "tip_9161a2ed42": {
-  "message": "Haz clic en «Buscar similares» entre las acciones del panel o en el menú «…» arriba del panel. O selecciona texto, como el nombre de un producto, y haz clic en el botón «Buscar similares» de debajo. Añade una condición como «Más barato» o «En stock» si quieres: las alternativas son reales, y abrimos y comprobamos cada enlace antes de mostrártelo."
+ "tip_31666a3aab": {
+  "message": "Haz clic en «Buscar similares» entre las acciones del panel o en el menú «…» arriba del panel. O selecciona texto, como el nombre de un producto, y haz clic en «Buscar similares» en las acciones rápidas de debajo. Añade una condición como «Más barato» o «En stock» si quieres: las alternativas son reales, y abrimos y comprobamos cada enlace antes de mostrártelo."
  },
  "tip_c518fb0674": {
   "message": "Escuchar"

@@ -2183,11 +2183,8 @@
  "tip_b4d2d0edad": {
   "message": "Sélectionnez du texte sur une page : « Résumer », « Traduire », « Trouver similaire » et d’autres attendent dans le champ « Votre question… » juste en dessous. Faites-les défiler du doigt et touchez-en une, sans rien taper."
  },
- "tip_2aef052e5b": {
-  "message": "Boutons sous la sélection"
- },
- "tip_894f528548": {
-  "message": "Sélectionnez du texte sur une page : « Expliquer », « Traduire », Google et « Trouver similaire » sont des boutons juste en dessous. Cliquez sur l’un d’eux, ou tapez votre propre question dans le champ en dessous."
+ "tip_2105cc684e": {
+  "message": "Sélectionnez du texte sur une page : « Résumer », « Traduire », « Trouver similaire » et d’autres attendent dans le champ « Votre question… » juste en dessous. Faites-les défiler avec le trackpad ou la molette de la souris et cliquez sur l’une d’elles, sans rien taper."
  },
  "tip_9000896590": {
   "message": "La discussion vous suit"
@@ -2258,8 +2255,8 @@
  "tip_b2248495b1": {
   "message": "Touchez « Trouver similaire » parmi les actions du panneau, ou dans le menu « … » en haut du panneau. Ou sélectionnez du texte, comme le nom d’un produit, et touchez « Trouver similaire » dans les actions rapides en dessous. Ajoutez une condition comme « Moins cher » ou « En stock » si vous voulez : les alternatives sont réelles, et chaque lien est ouvert et vérifié avant que vous ne le voyiez."
  },
- "tip_9161a2ed42": {
-  "message": "Cliquez sur « Trouver similaire » parmi les actions du panneau, ou dans le menu « … » en haut du panneau. Ou sélectionnez du texte, comme le nom d’un produit, et cliquez sur le bouton « Trouver similaire » en dessous. Ajoutez une condition comme « Moins cher » ou « En stock » si vous voulez : les alternatives sont réelles, et chaque lien est ouvert et vérifié avant que vous ne le voyiez."
+ "tip_31666a3aab": {
+  "message": "Cliquez sur « Trouver similaire » parmi les actions du panneau, ou dans le menu « … » en haut du panneau. Ou sélectionnez du texte, comme le nom d’un produit, et cliquez sur « Trouver similaire » dans les actions rapides en dessous. Ajoutez une condition comme « Moins cher » ou « En stock » si vous voulez : les alternatives sont réelles, et chaque lien est ouvert et vérifié avant que vous ne le voyiez."
  },
  "tip_c518fb0674": {
   "message": "Écouter"

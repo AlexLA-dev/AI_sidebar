@@ -2183,11 +2183,8 @@
  "tip_b4d2d0edad": {
   "message": "Chọn văn bản trên trang: Tóm tắt, Dịch, Tìm tương tự và các thao tác khác nằm sẵn trong ô Câu hỏi của bạn… ngay bên dưới. Vuốt qua chúng và chạm vào một mục, không cần gõ."
  },
- "tip_2aef052e5b": {
-  "message": "Các nút dưới đoạn đã chọn"
- },
- "tip_894f528548": {
-  "message": "Chọn văn bản trên trang: Giải thích, Dịch, Google và Tìm tương tự là các nút ngay bên dưới. Bấm vào một nút, hoặc nhập câu hỏi của bạn vào ô bên dưới."
+ "tip_2105cc684e": {
+  "message": "Chọn văn bản trên trang: Tóm tắt, Dịch, Tìm tương tự và các thao tác khác nằm sẵn trong ô Câu hỏi của bạn… ngay bên dưới. Cuộn qua chúng bằng bàn di chuột hoặc con lăn chuột và bấm vào một mục, không cần gõ."
  },
  "tip_9000896590": {
   "message": "Cuộc trò chuyện đi theo bạn"
@@ -2258,8 +2255,8 @@
  "tip_b2248495b1": {
   "message": "Chạm vào Tìm tương tự trong các thao tác của bảng, hoặc trong menu … ở đầu bảng. Hoặc chọn văn bản, như tên một sản phẩm, rồi chạm vào Tìm tương tự trong các thao tác nhanh bên dưới. Thêm điều kiện như Rẻ hơn hoặc Còn hàng nếu muốn: các lựa chọn thay thế đều có thật, và mọi liên kết đều được mở và kiểm tra trước khi bạn xem."
  },
- "tip_9161a2ed42": {
-  "message": "Bấm vào Tìm tương tự trong các thao tác của bảng, hoặc trong menu … ở đầu bảng. Hoặc chọn văn bản, như tên một sản phẩm, rồi bấm nút Tìm tương tự bên dưới. Thêm điều kiện như Rẻ hơn hoặc Còn hàng nếu muốn: các lựa chọn thay thế đều có thật, và mọi liên kết đều được mở và kiểm tra trước khi bạn xem."
+ "tip_31666a3aab": {
+  "message": "Bấm vào Tìm tương tự trong các thao tác của bảng, hoặc trong menu … ở đầu bảng. Hoặc chọn văn bản, như tên một sản phẩm, rồi bấm Tìm tương tự trong các thao tác nhanh bên dưới. Thêm điều kiện như Rẻ hơn hoặc Còn hàng nếu muốn: các lựa chọn thay thế đều có thật, và mọi liên kết đều được mở và kiểm tra trước khi bạn xem."
  },
  "tip_c518fb0674": {
   "message": "Nghe"

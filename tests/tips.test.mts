@@ -40,9 +40,11 @@ test("the app's Tips, as the build reads them: seven blocks in order, iCloud bef
   // A Mac's own words where they differ.
   const swipes = data.groups[1].tips.find((t: any) => t.title.en === "Swipe to pin or delete")
   assert.equal(swipes.mac.title.en, "Pin or delete with a click")
-  // The selection's quick actions are touch only: a Mac has buttons under the selection instead.
+  // The selection's quick actions: touch first, and a Mac's own words for the same field.
   const chips = data.groups[0].tips.find((t: any) => t.title.en === "Quick actions under a selection")
-  assert.equal(chips.mac.title.en, "Buttons under a selection")
+  // Since 92 a Mac's pop-up has the same field and chips: the same title, its own words (trackpad, wheel, click).
+  assert.equal(chips.mac.title.en, "Quick actions under a selection")
+  assert.match(chips.mac.text.en, /trackpad or the mouse wheel and click/)
   // The plan's own block, before the last one: monthly or yearly, then the plan's tour.
   assert.deepEqual(data.groups.at(-2).tips.map((t: any) => t.title.en), ["Monthly or yearly", "What your plan adds"])
   assert.equal(data.groups.at(-2).title.en, "Your plan")

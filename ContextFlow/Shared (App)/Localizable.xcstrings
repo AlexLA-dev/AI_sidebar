@@ -43236,170 +43236,6 @@
         }
       }
     },
-    "Buttons under a selection": {
-      "localizations": {
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "أزرار تحت التحديد"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Schaltflächen unter der Auswahl"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Botones bajo la selección"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Boutons sous la sélection"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pulsanti sotto la selezione"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "選択範囲の下のボタン"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "선택 영역 아래의 버튼"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Botões sob a seleção"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Кнопки под выделением"
-          }
-        },
-        "uk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Кнопки під виділенням"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Các nút dưới đoạn đã chọn"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "选中文字下方的按钮"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "選取文字下方的按鈕"
-          }
-        }
-      }
-    },
-    "Select text on a page: Explain, Translate, Google and Find similar are buttons right under it. Click one, or type your own question in the field below them.": {
-      "localizations": {
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "حدد نصًا في صفحة: «اشرح» و«ترجم» وGoogle و«ابحث عن مشابه» أزرار أسفله مباشرةً. انقر على أحدها، أو اكتب سؤالك في الحقل أسفلها."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Markiere Text auf einer Seite: „Erklären“, „Übersetzen“, Google und „Ähnliches finden“ sind Schaltflächen direkt darunter. Klick auf eine oder schreib deine eigene Frage in das Feld darunter."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Selecciona texto en una página: «Explicar», «Traducir», Google y «Buscar similares» son botones justo debajo. Haz clic en uno o escribe tu propia pregunta en el campo de abajo."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sélectionnez du texte sur une page : « Expliquer », « Traduire », Google et « Trouver similaire » sont des boutons juste en dessous. Cliquez sur l’un d’eux, ou tapez votre propre question dans le champ en dessous."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Seleziona del testo in una pagina: «Spiega», «Traduci», Google e «Trova simili» sono pulsanti proprio sotto. Fai clic su uno, oppure scrivi la tua domanda nel campo più in basso."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ページのテキストを選択すると、すぐ下に「説明」「翻訳」「Google」「似たものを探す」のボタンが表示されます。どれかをクリックするか、その下の欄に自分の質問を入力します。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "페이지에서 텍스트를 선택하면 바로 아래에 설명, 번역, Google, 비슷한 것 찾기 버튼이 나타나요. 하나를 클릭하거나 그 아래 칸에 직접 질문을 입력하세요."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Selecione um texto na página: “Explicar”, “Traduzir”, Google e “Encontrar parecidos” são botões logo abaixo. Clique em um ou escreva sua própria pergunta no campo abaixo deles."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Выделите текст на странице: «Объяснить», «Перевести», Google и «Найти похожее» — кнопки прямо под ним. Нажмите нужную или напишите свой вопрос в поле под ними."
-          }
-        },
-        "uk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Виділіть текст на сторінці: «Пояснити», «Перекласти», Google і «Знайти схоже» — кнопки просто під ним. Натисніть потрібну або напишіть своє запитання в полі під ними."
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chọn văn bản trên trang: Giải thích, Dịch, Google và Tìm tương tự là các nút ngay bên dưới. Bấm vào một nút, hoặc nhập câu hỏi của bạn vào ô bên dưới."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "在页面上选中文字后，下方会出现“解释”“翻译”“Google”和“查找相似”按钮。点按其中一个，或在下面的栏里输入你自己的问题。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "在頁面上選取文字後，下方會出現「解釋」、「翻譯」、「Google」和「尋找相似」按鈕。按一下其中一個，或在下面的欄位輸入你自己的問題。"
-          }
-        }
-      }
-    },
     "Tap Find similar among the panel's actions, or in the … menu at the top of the panel. Or select text, like a product's name, and tap Find similar among the quick actions under it. Add a condition like Cheaper or In stock if you want: the alternatives are real, and every link is opened and checked before you see it.": {
       "localizations": {
         "ar": {
@@ -43478,88 +43314,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "在面板的動作中，或在面板頂部的「…」選單中，點一下「尋找相似」。也可以選取文字（例如商品名稱），在下方的快速動作中點一下「尋找相似」。需要的話，可以加上「更便宜」或「有貨」等條件：列出的替代選擇都真實存在，每個連結都會先開啟檢查，再給你看。"
-          }
-        }
-      }
-    },
-    "Click Find similar among the panel's actions, or in the … menu at the top of the panel. Or select text, like a product's name, and click the Find similar button under it. Add a condition like Cheaper or In stock if you want: the alternatives are real, and every link is opened and checked before you see it.": {
-      "localizations": {
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "انقر على «ابحث عن مشابه» بين إجراءات اللوحة أو في قائمة … أعلى اللوحة. أو حدد نصًا، مثل اسم منتج، وانقر على زر «ابحث عن مشابه» أسفله. أضف شرطًا مثل «أرخص» أو «متوفر» إن أردت: البدائل حقيقية، ونفتح كل رابط ونتحقق منه قبل أن تراه."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Klick bei den Aktionen im Panel oder im Menü „…“ oben im Panel auf „Ähnliches finden“. Oder markiere Text, etwa den Namen eines Produkts, und klick auf die Schaltfläche „Ähnliches finden“ darunter. Wenn du willst, füge eine Bedingung wie „Günstiger“ oder „Auf Lager“ hinzu: Die Alternativen sind echt, und jeder Link wird geöffnet und geprüft, bevor du ihn siehst."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Haz clic en «Buscar similares» entre las acciones del panel o en el menú «…» arriba del panel. O selecciona texto, como el nombre de un producto, y haz clic en el botón «Buscar similares» de debajo. Añade una condición como «Más barato» o «En stock» si quieres: las alternativas son reales, y abrimos y comprobamos cada enlace antes de mostrártelo."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cliquez sur « Trouver similaire » parmi les actions du panneau, ou dans le menu « … » en haut du panneau. Ou sélectionnez du texte, comme le nom d’un produit, et cliquez sur le bouton « Trouver similaire » en dessous. Ajoutez une condition comme « Moins cher » ou « En stock » si vous voulez : les alternatives sont réelles, et chaque lien est ouvert et vérifié avant que vous ne le voyiez."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fai clic su «Trova simili» tra le azioni del pannello o nel menu «…» in alto nel pannello. Oppure seleziona del testo, come il nome di un prodotto, e fai clic sul pulsante «Trova simili» sotto. Aggiungi una condizione come «Più economico» o «Disponibile» se vuoi: le alternative sono reali, e ogni link viene aperto e verificato prima che tu lo veda."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "パネルのアクションか、パネル上部の「…」メニューで「似たものを探す」をクリックします。または、商品名などのテキストを選択し、その下の「似たものを探す」ボタンをクリックします。必要なら「もっと安い」「在庫あり」などの条件を追加できます。候補はどれも実在し、表示する前にすべてのリンクを開いて確認しています。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "패널의 동작 목록이나 패널 위쪽 ‘…’ 메뉴에서 ‘비슷한 것 찾기’를 클릭하세요. 또는 상품 이름 같은 텍스트를 선택하고 아래의 ‘비슷한 것 찾기’ 버튼을 클릭하세요. 원하면 ‘더 저렴하게’, ‘재고 있음’ 같은 조건을 더할 수 있어요. 대안은 모두 실제로 있는 것이고, 보여 드리기 전에 모든 링크를 열어 확인해요."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Clique em “Encontrar parecidos” entre as ações do painel ou no menu “…” no topo do painel. Ou selecione um texto, como o nome de um produto, e clique no botão “Encontrar parecidos” logo abaixo. Adicione uma condição como “Mais barato” ou “Em estoque” se quiser: as alternativas são reais, e cada link é aberto e verificado antes de você ver."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Нажмите «Найти похожее» среди действий панели или в меню «…» вверху панели. Или выделите текст, например название товара, и нажмите кнопку «Найти похожее» под ним. Если нужно, добавьте условие, например «Дешевле» или «В наличии»: альтернативы настоящие, и каждую ссылку мы открываем и проверяем, прежде чем показать."
-          }
-        },
-        "uk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Натисніть «Знайти схоже» серед дій панелі або в меню «…» угорі панелі. Або виділіть текст, наприклад назву товару, і натисніть кнопку «Знайти схоже» під ним. Якщо треба, додайте умову, як-от «Дешевше» чи «У наявності»: альтернативи справжні, і кожне посилання ми відкриваємо й перевіряємо, перш ніж показати."
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bấm vào Tìm tương tự trong các thao tác của bảng, hoặc trong menu … ở đầu bảng. Hoặc chọn văn bản, như tên một sản phẩm, rồi bấm nút Tìm tương tự bên dưới. Thêm điều kiện như Rẻ hơn hoặc Còn hàng nếu muốn: các lựa chọn thay thế đều có thật, và mọi liên kết đều được mở và kiểm tra trước khi bạn xem."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "在面板的操作中，或在面板顶部的“…”菜单中，点按“查找相似”。也可以选中文字（比如商品名称），点按下方的“查找相似”按钮。需要的话，可以加上“更便宜”或“有货”等条件：给出的替代选择都真实存在，每个链接都会先打开检查，再给你看。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "在面板的動作中，或在面板頂部的「…」選單中，按一下「尋找相似」。也可以選取文字（例如商品名稱），按一下下方的「尋找相似」按鈕。需要的話，可以加上「更便宜」或「有貨」等條件：列出的替代選擇都真實存在，每個連結都會先開啟檢查，再給你看。"
           }
         }
       }
@@ -45410,6 +45164,170 @@
           "stringUnit": {
             "state": "translated",
             "value": "某個網站用不到 ✦？可以只在該網站隱藏它，或在延伸功能設定中全部關閉。ContextFlow 仍可從 Safari 的延伸功能選單開啟。"
+          }
+        }
+      }
+    },
+    "Select text on a page: Summarize, Translate, Find similar and more wait in the “Your question…” field under it. Scroll along them with the trackpad or the mouse wheel and click one, no typing needed.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "حدد نصًا في صفحة: «تلخيص» و«ترجمة» و«ابحث عن مشابه» وغيرها تنتظرك في حقل «سؤالك…» أسفله. مرّر بينها بلوحة التتبع أو بعجلة الفأرة وانقر على واحد منها، دون كتابة أي شيء."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Markiere Text auf einer Seite: „Zusammenfassen“, „Übersetzen“, „Ähnliches finden“ und mehr warten im Feld „Deine Frage …“ darunter. Scroll mit dem Trackpad oder dem Mausrad durch und klick eine an – schreiben musst du nichts."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selecciona texto en una página: «Resumir», «Traducir», «Buscar similares» y más esperan en el campo «Tu pregunta…» debajo. Desplázate entre ellas con el trackpad o la rueda del ratón y haz clic en una, sin escribir nada."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sélectionnez du texte sur une page : « Résumer », « Traduire », « Trouver similaire » et d’autres attendent dans le champ « Votre question… » juste en dessous. Faites-les défiler avec le trackpad ou la molette de la souris et cliquez sur l’une d’elles, sans rien taper."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seleziona del testo in una pagina: «Riassumi», «Traduci», «Trova simili» e altre azioni ti aspettano nel campo «La tua domanda…» sotto. Scorrile con il trackpad o la rotella del mouse e fai clic su una, senza scrivere nulla."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ページのテキストを選択すると、その下の「質問を入力…」欄に「要約」「翻訳」「似たものを探す」などが並びます。トラックパッドかマウスホイールでスクロールして1つクリックするだけ。入力は不要です。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페이지에서 텍스트를 선택하면 아래 ‘질문 입력…’ 칸에 요약, 번역, 비슷한 것 찾기 등이 나타나요. 트랙패드나 마우스 휠로 넘겨 보고 하나를 클릭하면 돼요. 입력할 필요가 없어요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selecione um texto na página: “Resumir”, “Traduzir”, “Encontrar parecidos” e outras ações ficam no campo “Sua pergunta…” logo abaixo. Role por elas com o trackpad ou a roda do mouse e clique em uma, sem digitar nada."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выделите текст на странице: «Кратко», «Перевести», «Найти похожее» и другие действия ждут в поле «Ваш вопрос…» под ним. Прокрутите их трекпадом или колёсиком мыши и нажмите нужное — печатать не придётся."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Виділіть текст на сторінці: «Коротко», «Перекласти», «Знайти схоже» та інші дії чекають у полі «Ваше запитання…» під ним. Прокрутіть їх трекпадом або коліщатком миші й натисніть потрібну — друкувати не доведеться."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chọn văn bản trên trang: Tóm tắt, Dịch, Tìm tương tự và các thao tác khác nằm sẵn trong ô Câu hỏi của bạn… ngay bên dưới. Cuộn qua chúng bằng bàn di chuột hoặc con lăn chuột và bấm vào một mục, không cần gõ."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在页面上选中文字后，下方的“输入你的问题…”栏里会出现“总结”“翻译”“查找相似”等操作。用触控板或鼠标滚轮左右滚动，点按一个即可，无需打字。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在頁面上選取文字後，下方的「你的問題…」欄位中會出現「摘要」、「翻譯」、「尋找相似」等動作。用觸控板或滑鼠滾輪左右捲動，按一下其中一個就行，不用打字。"
+          }
+        }
+      }
+    },
+    "Click Find similar among the panel's actions, or in the … menu at the top of the panel. Or select text, like a product's name, and click Find similar among the quick actions under it. Add a condition like Cheaper or In stock if you want: the alternatives are real, and every link is opened and checked before you see it.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "انقر على «ابحث عن مشابه» بين إجراءات اللوحة أو في قائمة … أعلى اللوحة. أو حدد نصًا، مثل اسم منتج، وانقر على «ابحث عن مشابه» بين الإجراءات السريعة أسفله. أضف شرطًا مثل «أرخص» أو «متوفر» إن أردت: البدائل حقيقية، ونفتح كل رابط ونتحقق منه قبل أن تراه."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klick bei den Aktionen im Panel oder im Menü „…“ oben im Panel auf „Ähnliches finden“. Oder markiere Text, etwa den Namen eines Produkts, und klick in den Schnellaktionen darunter auf „Ähnliches finden“. Wenn du willst, füge eine Bedingung wie „Günstiger“ oder „Auf Lager“ hinzu: Die Alternativen sind echt, und jeder Link wird geöffnet und geprüft, bevor du ihn siehst."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haz clic en «Buscar similares» entre las acciones del panel o en el menú «…» arriba del panel. O selecciona texto, como el nombre de un producto, y haz clic en «Buscar similares» en las acciones rápidas de debajo. Añade una condición como «Más barato» o «En stock» si quieres: las alternativas son reales, y abrimos y comprobamos cada enlace antes de mostrártelo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cliquez sur « Trouver similaire » parmi les actions du panneau, ou dans le menu « … » en haut du panneau. Ou sélectionnez du texte, comme le nom d’un produit, et cliquez sur « Trouver similaire » dans les actions rapides en dessous. Ajoutez une condition comme « Moins cher » ou « En stock » si vous voulez : les alternatives sont réelles, et chaque lien est ouvert et vérifié avant que vous ne le voyiez."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fai clic su «Trova simili» tra le azioni del pannello o nel menu «…» in alto nel pannello. Oppure seleziona del testo, come il nome di un prodotto, e fai clic su «Trova simili» nelle azioni rapide sotto. Aggiungi una condizione come «Più economico» o «Disponibile» se vuoi: le alternative sono reali, e ogni link viene aperto e verificato prima che tu lo veda."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "パネルのアクションか、パネル上部の「…」メニューで「似たものを探す」をクリックします。または、商品名などのテキストを選択し、その下のクイック操作で「似たものを探す」をクリックします。必要なら「もっと安い」「在庫あり」などの条件を追加できます。候補はどれも実在し、表示する前にすべてのリンクを開いて確認しています。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "패널의 동작 목록이나 패널 위쪽 ‘…’ 메뉴에서 ‘비슷한 것 찾기’를 클릭하세요. 또는 상품 이름 같은 텍스트를 선택하고 아래 빠른 동작에서 ‘비슷한 것 찾기’를 클릭하세요. 원하면 ‘더 저렴하게’, ‘재고 있음’ 같은 조건을 더할 수 있어요. 대안은 모두 실제로 있는 것이고, 보여 드리기 전에 모든 링크를 열어 확인해요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clique em “Encontrar parecidos” entre as ações do painel ou no menu “…” no topo do painel. Ou selecione um texto, como o nome de um produto, e clique em “Encontrar parecidos” nas ações rápidas logo abaixo. Adicione uma condição como “Mais barato” ou “Em estoque” se quiser: as alternativas são reais, e cada link é aberto e verificado antes de você ver."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нажмите «Найти похожее» среди действий панели или в меню «…» вверху панели. Или выделите текст, например название товара, и нажмите «Найти похожее» среди быстрых действий под ним. Если нужно, добавьте условие, например «Дешевле» или «В наличии»: альтернативы настоящие, и каждую ссылку мы открываем и проверяем, прежде чем показать."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Натисніть «Знайти схоже» серед дій панелі або в меню «…» угорі панелі. Або виділіть текст, наприклад назву товару, і натисніть «Знайти схоже» серед швидких дій під ним. Якщо треба, додайте умову, як-от «Дешевше» чи «У наявності»: альтернативи справжні, і кожне посилання ми відкриваємо й перевіряємо, перш ніж показати."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bấm vào Tìm tương tự trong các thao tác của bảng, hoặc trong menu … ở đầu bảng. Hoặc chọn văn bản, như tên một sản phẩm, rồi bấm Tìm tương tự trong các thao tác nhanh bên dưới. Thêm điều kiện như Rẻ hơn hoặc Còn hàng nếu muốn: các lựa chọn thay thế đều có thật, và mọi liên kết đều được mở và kiểm tra trước khi bạn xem."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在面板的操作中，或在面板顶部的“…”菜单中，点按“查找相似”。也可以选中文字（比如商品名称），在下方的快捷操作中点按“查找相似”。需要的话，可以加上“更便宜”或“有货”等条件：给出的替代选择都真实存在，每个链接都会先打开检查，再给你看。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在面板的動作中，或在面板頂部的「…」選單中，按一下「尋找相似」。也可以選取文字（例如商品名稱），在下方的快速動作中按一下「尋找相似」。需要的話，可以加上「更便宜」或「有貨」等條件：列出的替代選擇都真實存在，每個連結都會先開啟檢查，再給你看。"
           }
         }
       }

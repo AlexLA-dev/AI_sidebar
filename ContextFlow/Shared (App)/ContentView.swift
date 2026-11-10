@@ -639,27 +639,27 @@ struct TipGroup {
             text: "Select a price, a stock status or a date on a page and tap the eye. For the whole page, choose Watch this page… in the … menu at the top of the panel. ContextFlow checks the page while you use Safari and tells you when it changes, or drops below the price you name. Up to 5 at a time, 20 with Pro.", clip: "watch")
     }
 
-    // Quick actions in the selection's field (2.6): touch only. A Mac has buttons under the selection instead, and no
-    // clip (it shows the chips).
+    // Quick actions in the selection's field (2.6). Since 92 a Mac's pop-up has the same field and chips, scrolled with the
+    // trackpad or the wheel; no clip there (the clip is touch).
     private static var chipsTip: Tip {
         #if os(iOS)
         Tip(symbol: "hand.point.up.left", color: .indigo, title: "Quick actions under a selection",
             text: "Select text on a page: Summarize, Translate, Find similar and more wait in the “Your question…” field under it. Swipe along them and tap one, no typing needed.", clip: "chips")
         #else
-        Tip(symbol: "cursorarrow.click", color: .indigo, title: "Buttons under a selection",
-            text: "Select text on a page: Explain, Translate, Google and Find similar are buttons right under it. Click one, or type your own question in the field below them.")
+        Tip(symbol: "cursorarrow.click", color: .indigo, title: "Quick actions under a selection",
+            text: "Select text on a page: Summarize, Translate, Find similar and more wait in the “Your question…” field under it. Scroll along them with the trackpad or the mouse wheel and click one, no typing needed.")
         #endif
     }
 
-    // Find similar (2.6, Ultra): from the panel's actions or its … menu, or from a selection (a chip in its field on
-    // iPhone and iPad, a button on a Mac). The clip picks it from the chips, so a Mac has none.
+    // Find similar (2.6, Ultra): from the panel's actions or its … menu, or from a selection (a chip in its field, on a
+    // Mac too since 92). The clip is touch, so a Mac has none.
     private static var similarTip: Tip {
         #if os(iOS)
         Tip(symbol: "square.on.square", color: ultraViolet, title: "Find similar",
             text: "Tap Find similar among the panel's actions, or in the … menu at the top of the panel. Or select text, like a product's name, and tap Find similar among the quick actions under it. Add a condition like Cheaper or In stock if you want: the alternatives are real, and every link is opened and checked before you see it.", clip: "similar", ultra: true)
         #else
         Tip(symbol: "square.on.square", color: ultraViolet, title: "Find similar",
-            text: "Click Find similar among the panel's actions, or in the … menu at the top of the panel. Or select text, like a product's name, and click the Find similar button under it. Add a condition like Cheaper or In stock if you want: the alternatives are real, and every link is opened and checked before you see it.", ultra: true)
+            text: "Click Find similar among the panel's actions, or in the … menu at the top of the panel. Or select text, like a product's name, and click Find similar among the quick actions under it. Add a condition like Cheaper or In stock if you want: the alternatives are real, and every link is opened and checked before you see it.", ultra: true)
         #endif
     }
 

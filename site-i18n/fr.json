@@ -124,7 +124,6 @@
   "ca7dfa36cbd4": "Question ou note sur une sélection",
   "8a37b8219919": "Une ligne à garder&nbsp;? Sélectionnez-la et touchez «&nbsp;Note&nbsp;»&nbsp;: elle part dans la discussion avec sa page. Ou posez votre propre question juste sous la sélection. Les notes ne consomment aucune réponse.",
   "2f27bc2271a5": "Actions rapides sous la sélection",
-  "fe4d888ff56e": "Pas envie de taper sur votre téléphone ? Sur iPhone et iPad, sélectionnez du texte : le champ « Votre question… » juste en dessous propose « Résumer », « Traduire », « Trouver similaire » et d’autres. Faites-les défiler du doigt et touchez-en une. Sur Mac, les mêmes actions sont des boutons sous la sélection.",
   "900089659070": "La discussion vous suit",
   "2175d2bd787a": "Vous lisez plusieurs pages&nbsp;? Continuez à poser des questions au fil de la lecture. La discussion se souvient de l’échange et de la page concernée par chaque question. Touchez le nom d’une page dans la discussion pour y revenir.",
   "e5dff10006b0": "Des infos à jour avec Google",
@@ -515,5 +514,6 @@
   "af26b6788c82": "Écartez ✦ de votre lecture",
   "beb31c6eb1e7": "Le bouton ✦ cache ce que vous lisez&nbsp;? Faites-le glisser vers le haut ou le bas le long du bord, ou de l’autre côté&nbsp;: il reste là.",
   "1e9a1535cb3e": "Masquez ✦ quand vous n’en avez pas besoin",
-  "eead011c5123": "Pas besoin du bouton ✦ sur un site&nbsp;? Masquez-le sur ce site ou désactivez-le partout dans les réglages de l’extension. ContextFlow s’ouvre toujours depuis le menu des extensions de Safari."
+  "eead011c5123": "Pas besoin du bouton ✦ sur un site&nbsp;? Masquez-le sur ce site ou désactivez-le partout dans les réglages de l’extension. ContextFlow s’ouvre toujours depuis le menu des extensions de Safari.",
+  "02291e317354": "Pas envie de taper sur votre téléphone ? Sur iPhone et iPad, sélectionnez du texte : le champ « Votre question… » juste en dessous propose « Résumer », « Traduire », « Trouver similaire » et d’autres. Faites-les défiler du doigt et touchez-en une. Sur Mac, c’est le même champ&nbsp;: faites-le défiler avec le trackpad ou la molette de la souris et cliquez sur l’une d’elles."
 }

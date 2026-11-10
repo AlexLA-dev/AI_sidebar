@@ -2183,11 +2183,8 @@
  "tip_b4d2d0edad": {
   "message": "Seleziona del testo in una pagina: «Riassumi», «Traduci», «Trova simili» e altre azioni ti aspettano nel campo «La tua domanda…» sotto. Scorrile col dito e toccane una, senza scrivere nulla."
  },
- "tip_2aef052e5b": {
-  "message": "Pulsanti sotto la selezione"
- },
- "tip_894f528548": {
-  "message": "Seleziona del testo in una pagina: «Spiega», «Traduci», Google e «Trova simili» sono pulsanti proprio sotto. Fai clic su uno, oppure scrivi la tua domanda nel campo più in basso."
+ "tip_2105cc684e": {
+  "message": "Seleziona del testo in una pagina: «Riassumi», «Traduci», «Trova simili» e altre azioni ti aspettano nel campo «La tua domanda…» sotto. Scorrile con il trackpad o la rotella del mouse e fai clic su una, senza scrivere nulla."
  },
  "tip_9000896590": {
   "message": "La chat ti segue"
@@ -2258,8 +2255,8 @@
  "tip_b2248495b1": {
   "message": "Tocca «Trova simili» tra le azioni del pannello o nel menu «…» in alto nel pannello. Oppure seleziona del testo, come il nome di un prodotto, e tocca «Trova simili» nelle azioni rapide sotto. Aggiungi una condizione come «Più economico» o «Disponibile» se vuoi: le alternative sono reali, e ogni link viene aperto e verificato prima che tu lo veda."
  },
- "tip_9161a2ed42": {
-  "message": "Fai clic su «Trova simili» tra le azioni del pannello o nel menu «…» in alto nel pannello. Oppure seleziona del testo, come il nome di un prodotto, e fai clic sul pulsante «Trova simili» sotto. Aggiungi una condizione come «Più economico» o «Disponibile» se vuoi: le alternative sono reali, e ogni link viene aperto e verificato prima che tu lo veda."
+ "tip_31666a3aab": {
+  "message": "Fai clic su «Trova simili» tra le azioni del pannello o nel menu «…» in alto nel pannello. Oppure seleziona del testo, come il nome di un prodotto, e fai clic su «Trova simili» nelle azioni rapide sotto. Aggiungi una condizione come «Più economico» o «Disponibile» se vuoi: le alternative sono reali, e ogni link viene aperto e verificato prima che tu lo veda."
  },
  "tip_c518fb0674": {
   "message": "Ascolta"
