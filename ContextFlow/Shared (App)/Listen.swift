@@ -43,12 +43,103 @@ struct ListenRequest: Equatable {
 @MainActor
 final class ListenShown: ObservableObject {
     @Published private(set) var visible = false
+    /// Build 93: the player's bar at the bottom of the app, while a text plays on with its sheet closed ("Done"); gone
+    /// once it has ended or stopped.
+    @Published private(set) var mini = false
     private var watching: AnyCancellable?
+    private var watchingMini: AnyCancellable?
 
     init() {
-        visible = ListenPlayer.shared.visible
-        watching = ListenPlayer.shared.$visible.removeDuplicates().receive(on: RunLoop.main).sink { [weak self] shown in
+        let player = ListenPlayer.shared
+        visible = player.visible
+        mini = Self.mini(player.visible, player.state)
+        watching = player.$visible.removeDuplicates().receive(on: RunLoop.main).sink { [weak self] shown in
             self?.visible = shown
+        }
+        watchingMini = Publishers.CombineLatest(player.$visible, player.$state)
+            .map { Self.mini($0, $1) }
+            .removeDuplicates()
+            .receive(on: RunLoop.main)
+            .sink { [weak self] shown in self?.mini = shown }
+    }
+
+    nonisolated static func mini(_ visible: Bool, _ state: ListenPlayer.State) -> Bool {
+        if visible { return false }
+        switch state {
+        case .idle, .ended: return false
+        default: return true
+        }
+    }
+}
+
+/// Build 93 (the owner: "after Done, while it still plays, show the player's bar at the bottom, as in the extension"):
+/// what plays and how far, Play or Pause, and close (it stops); tapping it opens the player again. It watches the player
+/// itself, so only this bar follows its clock.
+struct ListenMiniBar: View {
+    @ObservedObject var player: ListenPlayer
+
+    var body: some View {
+        HStack(spacing: 14) {
+            Button { player.visible = true } label: {
+                HStack(spacing: 10) {
+                    Image(systemName: "speaker.wave.2.fill").foregroundStyle(ultraGradient)
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text(player.request?.title ?? "")
+                            .font(.subheadline.weight(.semibold))
+                            .lineLimit(1)
+                        ProgressView(value: min(player.elapsed, max(player.duration, 1)), total: max(player.duration, 1))
+                            .tint(brandBlue)
+                    }
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityHint(Text("Opens the player"))
+            .accessibilityIdentifier("listen.mini")
+            Button { player.togglePause() } label: {
+                Image(systemName: player.state == .playing ? "pause.fill" : "play.fill").font(.title3)
+            }
+            .buttonStyle(.plain)
+            .disabled(player.state == .loading)
+            .accessibilityLabel(player.state == .playing ? Text("Pause") : Text("Play"))
+            .accessibilityIdentifier("listen.mini.play")
+            Button { player.stop() } label: {
+                Image(systemName: "xmark").font(.body.weight(.semibold))
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(Text("Stop and close"))
+            .accessibilityIdentifier("listen.mini.close")
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+    }
+}
+
+/// Where the bar goes: iPhone and iPad on iOS 26.1 and later, the tab bar's own place for it (as Music's player);
+/// before that and on the Mac, along the bottom of the window.
+struct ListenMiniPlacement: ViewModifier {
+    let shown: Bool
+    let player: ListenPlayer
+
+    func body(content: Content) -> some View {
+        #if os(iOS)
+        if #available(iOS 26.1, *) {
+            content.tabViewBottomAccessory(isEnabled: shown) { ListenMiniBar(player: player) }
+        } else {
+            content.safeAreaInset(edge: .bottom, spacing: 0) { bar }
+        }
+        #else
+        content.safeAreaInset(edge: .bottom, spacing: 0) { bar }
+        #endif
+    }
+
+    @ViewBuilder private var bar: some View {
+        if shown {
+            VStack(spacing: 0) {
+                Divider()
+                ListenMiniBar(player: player)
+            }
+            .background(.bar)
         }
     }
 }
@@ -138,32 +229,46 @@ final class ListenPlayer: NSObject, ObservableObject {
     // MARK: Opening
 
     /// Debug builds: `-CFDebugListen "<text>"` plays that text as if Safari had handed it over (simulator checks).
+    #if DEBUG
+    /// The App Group as the panel leaves it while playing on an iPhone (2.6): four parts as spoken and where each starts.
+    static func debugSeedHandoff(id given: String) {
+        let spoken = [
+            "Electric trains draw power from overhead lines or a third rail.",
+            "Modern ones return energy to the grid when they brake, so a busy line uses less than its timetable suggests.",
+            "Regenerative braking alone saves between a tenth and a third of the energy, depending on how often trains stop.",
+            "Lighter cars and smoother driving save the rest."
+        ]
+        var starts: [Double] = []
+        var at = 0.0
+        for part in spoken {
+            starts.append(at)
+            at += Self.estimate(part)
+        }
+        let id = SharedDefaults.shared.writeListenRequest([
+            "parts": spoken, "text": spoken.joined(separator: " "), "script": false, "lang": "en", "what": "answer",
+            "title": "How electric trains save energy", "url": "https://example.com/trains"
+        ], id: given)
+        SharedDefaults.shared.updateListenRequest(id, ["spoken": spoken, "spokenComplete": true, "handoff": ["starts": starts, "position": 0.0, "speed": 1.0]])
+        NSLog("[cf-handoff] seeded %@ starts %@", id, starts.map { String(format: "%.1f", $0) }.joined(separator: ","))
+    }
+    #endif
+
     func debugStartIfAsked() {
         #if DEBUG
         if UserDefaults.standard.bool(forKey: "CFDebugSpeechSync") { Task { await SpeechSync.debugSelfCheck() } }
         // -CFDebugSeedHandoff YES: the App Group holds what the panel would have stored while playing on an iPhone
         // (2.6): four parts as spoken and where each starts, id 0000aaaa-…-eeeeffff0001. A test then opens
         // contextflow://listen?id=…&at=N as the notification would.
-        if UserDefaults.standard.bool(forKey: "CFDebugSeedHandoff") {
-            let spoken = [
-                "Electric trains draw power from overhead lines or a third rail.",
-                "Modern ones return energy to the grid when they brake, so a busy line uses less than its timetable suggests.",
-                "Regenerative braking alone saves between a tenth and a third of the energy, depending on how often trains stop.",
-                "Lighter cars and smoother driving save the rest."
-            ]
-            var starts: [Double] = []
-            var at = 0.0
-            for part in spoken {
-                starts.append(at)
-                at += Self.estimate(part)
+        // -CFDebugSeedHandoffAfter N (build 93): N seconds after launch, the same text again under id …0002, as the panel
+        // would store it when the person listens to it in Safari after listening here.
+        let again = UserDefaults.standard.double(forKey: "CFDebugSeedHandoffAfter")
+        if again > 0 {
+            Task {
+                try? await Task.sleep(nanoseconds: UInt64(again * 1_000_000_000))
+                Self.debugSeedHandoff(id: "0000aaaa-bbbb-cccc-dddd-eeeeffff0002")
             }
-            let id = SharedDefaults.shared.writeListenRequest([
-                "parts": spoken, "text": spoken.joined(separator: " "), "script": false, "lang": "en", "what": "answer",
-                "title": "How electric trains save energy", "url": "https://example.com/trains"
-            ], id: "0000aaaa-bbbb-cccc-dddd-eeeeffff0001")
-            SharedDefaults.shared.updateListenRequest(id, ["spoken": spoken, "spokenComplete": true, "handoff": ["starts": starts, "position": 0.0, "speed": 1.0]])
-            NSLog("[cf-handoff] seeded %@ starts %@", id, starts.map { String(format: "%.1f", $0) }.joined(separator: ","))
         }
+        if UserDefaults.standard.bool(forKey: "CFDebugSeedHandoff") { Self.debugSeedHandoff(id: "0000aaaa-bbbb-cccc-dddd-eeeeffff0001") }
         // -CFDebugNotifyAt N: the notification the extension posts when Safari goes away, from second N, in 4 s (the
         // app needs notifications allowed). A test then leaves the app and taps it.
         let notifyAt = UserDefaults.standard.double(forKey: "CFDebugNotifyAt")
@@ -184,6 +289,8 @@ final class ListenPlayer: NSObject, ObservableObject {
         // -CFDebugListenScript YES: written for the ear first, as a page or an answer with a table would be.
         start(ListenRequest(id: "debug", parts: Self.sentenceParts(text), lang: lang, what: "page", title: "How electric trains save energy", url: URL(string: "https://example.com/trains"),
                             text: text, script: UserDefaults.standard.bool(forKey: "CFDebugListenScript")))
+        // -CFDebugListenMini YES (build 93): as after Done, the bar at the bottom (frames of it on the Mac).
+        if UserDefaults.standard.bool(forKey: "CFDebugListenMini") { visible = false }
         #endif
     }
 
@@ -308,8 +415,9 @@ final class ListenPlayer: NSObject, ObservableObject {
             return
         }
         // The same text again (Listen tapped twice in Safari) while it plays: it carries on, never starts over (build 91:
-        // starting over cut off a part still downloading, and it was asked for again).
-        if let request, request.parts == parts, request.text == (stored["text"] as? String ?? ""), state != .idle {
+        // starting over cut off a part still downloading, and it was asked for again). Not when carried on from Safari
+        // (`from`): then it goes on from the second Safari reached, not from where this app last was with it (build 93).
+        if from == nil, let request, request.parts == parts, request.text == (stored["text"] as? String ?? ""), state != .idle {
             visible = true
             return
         }
@@ -549,6 +657,8 @@ final class ListenPlayer: NSObject, ObservableObject {
     /// Back to the page in Safari ("◀ Safari" in the status bar does the same while it's there).
     func backToSafari() {
         guard let url = request?.url else { return }
+        // The panel opens again if it was open (build 93: it came back closed).
+        if let id = request?.id { SharedDefaults.shared.markListenReturn(id, play: false) }
         #if os(iOS)
         UIApplication.shared.open(url)
         #else

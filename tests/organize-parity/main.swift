@@ -40,7 +40,9 @@ func numbers(_ v: [Float]?) -> Any { v.map { $0.map(Double.init) } ?? NSNull() }
 
 func suggestion(_ s: Organize.MoveSuggestion?) -> Any {
     guard let s else { return NSNull() }
-    return ["start": s.start, "end": s.end, "to": s.to ?? NSNull(), "why": s.why.rawValue, "score": s.score, "current": s.current] as [String: Any]
+    var out: [String: Any] = ["start": s.start, "end": s.end, "to": s.to ?? NSNull(), "why": s.why.rawValue, "score": s.score, "current": s.current]
+    if let match = s.match { out["match"] = match }
+    return out
 }
 
 func candidate(_ c: Organize.TagCandidate) -> Any {
@@ -65,6 +67,21 @@ func run(_ c: [String: Any]) -> Any {
         return Organize.nameText(c["m"] as? [[String: Any]] ?? [])
     case "wantsNameCheck":
         return thread(c["chat"]).map(Organize.wantsNameCheck) ?? false
+    case "org":
+        // 2.6 (93): the state kept with a chat as it's read back, what it still suggests, a name check's answer on it,
+        // the state a run keeps, and what a name check is about.
+        guard let chat = thread(c["chat"]) else { return NSNull() }
+        let chats = threads(c["chats"])
+        let org = chat.org
+        let answer = c["answer"] as? [String: Any] ?? [:]
+        let after = Organize.nameState(after: org?.nm, key: c["key"] as? String ?? "", fits: answer["fits"] as? Bool ?? false,
+                                       title: answer["title"] as? String ?? "", current: c["current"] as? String ?? "")
+        let tg = (c["tg"] as? [[String]] ?? []).map { (key: $0[0], tag: $0[1]) }
+        let state = Organize.orgState(for: chat, move: Organize.suggestMove(chat, chats, vectors(c["vectors"]), cfg), tags: tg, nm: org?.nm)
+        return ["clean": org?.json ?? NSNull(), "move": Organize.openMove(chat, chats)?.json ?? NSNull(),
+                "tags": Organize.openTags(chat).map { ["index": $0.index, "key": $0.key, "tag": $0.tag] as [String: Any] },
+                "name": Organize.openName(chat, name: c["name"] as? String ?? "") ?? NSNull(), "after": after.json, "state": state.json,
+                "key": Organize.nameCheckKey(chat)] as [String: Any]
     case "hostOf":
         return (c["urls"] as? [Any] ?? []).map { Organize.hostOf($0 as? String) }
     case "pack":

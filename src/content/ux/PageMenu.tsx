@@ -2,7 +2,7 @@
 // reminders and watching (two words, two icons, never one list): "Remind me about this page…" (the bell; time
 // only), "Watch this page…" (the eye; the whole page, where watching works), "Reminders · N" (the bell),
 // "Watching · N" (the eye; where watching works) and Settings. 2.5 (78), the owner's note: Tips (the app's Tips,
-// tips/TipsSheet) before Settings. 2.6, the owner's note: "Show the intro again" (the guided first request,
+// tips/TipsSheet) before Settings. 2.6, the owner's note: "Show the intro again" (93: "Replay the basics tour") (the guided first request,
 // Guide.tsx), last. 2.6 (91), the owner: «разрослось и его нужно структурировать»: each pair together (Remind me /
 // Reminders, Watch this page / Watching), then Ultra's two (Find similar, Listen), and the rest (Settings, Tips,
 // What's in Pro/Ultra, Show the intro again) under "Other…", folded until it's tapped.

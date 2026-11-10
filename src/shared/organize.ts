@@ -5,7 +5,7 @@
 // give the same suggestions. Thresholds come from /api/v2/status, so they can be tuned without a release.
 
 import { entryKey, entryTimes, stripCitations, textKey, type Entry } from "./conversation.ts"
-import { activity, namedByUser, pageBlocks, type PageBlock, type Thread } from "./threads.ts"
+import { activity, namedByUser, pageBlocks, threadName, type OrgState, type PageBlock, type Thread } from "./threads.ts"
 
 /** What decides a suggestion (chat-organize-2.5.md §2); the server sends its own values in /status. */
 export interface OrganizeConfig {
@@ -19,6 +19,12 @@ export interface OrganizeConfig {
   // Two blocks this alike are on one topic: what "a chat is mostly about this" counts (2.6: moves only make chats
   // more about one thing).
   topicT: number
+  // The match shown with a move ("88% match", 2.6 (93)): a block's fit to a chat on a scale people read, 0% at what
+  // unrelated chats share (`matchLo`) and 100% at how alike a chat's own messages get (`matchHi`); a move by topic or
+  // site is suggested from `minMatch` % only.
+  matchLo: number
+  matchHi: number
+  minMatch: number
   // A new chat: the block fits its own chat less than this, and at least `splitMin` blocks stay in it.
   splitT: number
   splitMin: number
@@ -49,6 +55,12 @@ export const DEFAULT_ORGANIZE: OrganizeConfig = {
   moveT1: 0.65,
   siteT: 0.35,
   topicT: 0.4,
+  // Calibrated on the 2.5 sample (organize-26/calib93.mjs): unrelated chats' median fit 0.17, a chat's own messages'
+  // 95th percentile 0.66. moveT (0.55) is 78% on it; every move by topic there was right and 80% or more, the moves by
+  // site it left out were wrong and about 57%.
+  matchLo: 0.17,
+  matchHi: 0.66,
+  minMatch: 75,
   splitT: 0.25,
   splitMin: 2,
   window: 3,
@@ -229,6 +241,15 @@ export interface MoveSuggestion {
   why: "page" | "site" | "topic" | "apart"
   score: number
   current: number
+  // How well it fits there, in % (matchPercent), for a move by topic or by site (a page needs none).
+  match?: number
+}
+
+/** A block's fit to a chat as people read it: 0–100 %, 0 at what unrelated chats share, 100 at a chat's own messages. */
+export function matchPercent(score: number, cfg: OrganizeConfig): number {
+  const span = cfg.matchHi - cfg.matchLo
+  if (!(span > 0)) return 0
+  return Math.max(0, Math.min(100, Math.round(((score - cfg.matchLo) / span) * 100)))
 }
 
 const RANK = { page: 0, site: 1, topic: 2, apart: 3 } as const
@@ -286,8 +307,12 @@ export function suggestMove(chat: Thread, chats: Thread[], vectorOf: VectorOf, c
     const last = groups[groups.length - 1]
     const together = last && last.index + 1 === s.index && last.to === s.to && last.why === s.why &&
       (s.to !== null || (blocks[last.index].v && blocks[s.index].v && dot(blocks[last.index].v!, blocks[s.index].v!) >= cfg.moveT))
-    if (together) groups[groups.length - 1] = { ...last, end: s.end, index: s.index, score: Math.max(last.score, s.score), current: Math.min(last.current, s.current) }
-    else groups.push(s)
+    if (together) {
+      groups[groups.length - 1] = {
+        ...last, end: s.end, index: s.index, score: Math.max(last.score, s.score), current: Math.min(last.current, s.current),
+        ...(last.match !== undefined || s.match !== undefined ? { match: Math.max(last.match ?? 0, s.match ?? 0) } : {})
+      }
+    } else groups.push(s)
   }
   // A new chat for the chat's blocks but not everything: something stays.
   const best = groups
@@ -371,11 +396,13 @@ function movePlace(
   // A chat of one block on a site (a note, a question) joins the chat with the most of that site, when more than half
   // of it is that site and the block isn't about something else entirely there (2.6 (91): a note's chat joins the
   // chat with the questions about that site). A short note says too little to be judged by its words: its site will do.
-  const sites = b.host && !rest.some((x) => x.host === b.host)
-    ? others.map((o) => ({ o, on: o.blocks.filter((x) => x.host === b.host).length })).filter(({ o, on }) => on >= 2 && on * 2 >= o.blocks.length)
-    : []
+  // 2.6 (93): that chat may be one page's questions too (one block), when it has more messages than this one.
+  const onHost = b.host && !rest.some((x) => x.host === b.host) ? others.map((o) => ({ o, on: o.blocks.filter((x) => x.host === b.host).length })) : []
+  const sites = onHost.filter(({ o, on }) => on >= 2 && on * 2 >= o.blocks.length)
   if (!rest.length) {
-    const home = sites.filter(({ o, on }) => on * 2 > o.blocks.length).sort((a, z) => z.on - a.on || (larger(a.o.thread, z.o.thread) ? -1 : 1))[0]
+    const home = onHost
+      .filter(({ o, on }) => on * 2 > o.blocks.length && (on >= 2 || o.thread.m.length > chat.m.length))
+      .sort((a, z) => z.on - a.on || (larger(a.o.thread, z.o.thread) ? -1 : 1))[0]
     const vs = home ? home.o.blocks.filter((x) => x.v).map((x) => ({ v: x.v! })) : []
     if (home && (!b.v || !vs.length || topMean(b.v, vs, 2) >= cfg.siteT)) return { to: home.o.thread.id, why: "site", score: 1, current: 0 }
   }
@@ -391,7 +418,8 @@ function movePlace(
     if (about.length === 1 && goesTo(b, rest, chat, about[0], cfg)) {
       const vs = about[0].blocks.filter((x) => x.v).map((x) => ({ v: x.v! }))
       const score = topMean(b.v, vs, 2)
-      if (vs.length && score >= cfg.siteT && score >= current) return { to: about[0].thread.id, why: "site", score, current }
+      const match = matchPercent(score, cfg)
+      if (vs.length && score >= cfg.siteT && score >= current && match >= cfg.minMatch) return { to: about[0].thread.id, why: "site", score, current, match }
     }
   }
   // A chat it fits but that isn't mostly about it (a mix) gets nothing; it still keeps it from a new chat.
@@ -401,12 +429,12 @@ function movePlace(
     const vs = o.blocks.filter((x) => x.v).map((x) => ({ v: x.v! }))
     if (!vs.length) continue
     const score = topMean(b.v, vs, 2)
-    if (score < (vs.length >= 2 ? cfg.moveT : cfg.moveT1)) continue
+    if (score < (vs.length >= 2 ? cfg.moveT : cfg.moveT1) || matchPercent(score, cfg) < cfg.minMatch) continue
     fits = true
     if (!goesTo(b, rest, chat, o, cfg)) continue
     if (!best || score > best.score) best = { to: o.thread.id, score }
   }
-  if (best && best.score - current >= cfg.moveD) return { to: best.to, why: "topic", score: best.score, current }
+  if (best && best.score - current >= cfg.moveD) return { to: best.to, why: "topic", score: best.score, current, match: matchPercent(best.score, cfg) }
   if (!fits && base.length && current < cfg.splitT) return { to: null, why: "apart", score: 0, current }
   return null
 }
@@ -606,8 +634,73 @@ export function wantsNameCheck(thread: Thread): boolean {
   return thread.m.filter((e) => e.role === "user").length >= 2
 }
 
-/** What a name check was about: the name, the chat's pages and how many questions (up to 3). The same: no new check. */
+/**
+ * What a name check was about: the name, the chat's pages and how many questions (up to 3). The same: no new check.
+ * The app works it out the same way (2.6 (93): it's kept with the chat, so no device asks again what another did).
+ */
 export function nameCheckKey(thread: Thread, title = thread.title ?? ""): string {
   const asks = Math.min(3, thread.m.filter((e) => e.role === "user").length)
-  return textKey(JSON.stringify([title, pageBlocks(thread.m).map((b) => entryKey(thread.m[b.start])), asks]))
+  return textKey([title, pageBlocks(thread.m).map((b) => entryKey(thread.m[b.start])).join("\u0001"), String(asks)].join("\u0000"))
+}
+
+// ------------------------------------------------------------ organizing's state, kept with the chat (2.6 (93))
+
+/** The key of the chat's last message ("" without one): what OrgState.k is checked against. */
+export function lastKey(entries: Entry[]): string {
+  return entries.length ? entryKey(entries[entries.length - 1]) : ""
+}
+
+/** The name the chat's record suggests while it's open: not turned down, not its name already, not one the user typed. */
+export function openName(thread: Thread): string | undefined {
+  const nm = thread.org?.nm
+  if (!nm?.t || !wantsNameCheck(thread) || nm.t === threadName(thread)) return undefined
+  if ((nm.no ?? []).some((x) => x.toLowerCase() === nm.t!.toLowerCase())) return undefined
+  return nm.t
+}
+
+/** The tags the chat's record says the check confirmed, still open: the message is there, without that tag, not turned down. */
+export function openTags(thread: Thread): Array<{ index: number; key: string; tag: string }> {
+  const out: Array<{ index: number; key: string; tag: string }> = []
+  for (const [key, tag] of thread.org?.tg ?? []) {
+    const index = thread.m.findIndex((e) => entryKey(e) === key)
+    const e = thread.m[index]
+    const has = (list?: string[]) => (list ?? []).some((x) => x.toLowerCase() === tag.toLowerCase())
+    if (e && !has(e.tags) && !has(e.dismissed?.tags)) out.push({ index, key, tag })
+  }
+  return out
+}
+
+/** The move the chat's record suggests, while the chat is as it was then and the move still stands. */
+export function openMove(thread: Thread, chats: Thread[]): OrgState["mv"] {
+  const org = thread.org
+  const mv = org?.mv
+  if (!org || !mv || org.n !== thread.m.length || org.k !== lastKey(thread.m)) return undefined
+  if (mv.s < 0 || mv.s > mv.e || mv.e >= thread.m.length) return undefined
+  if (thread.m.slice(mv.s, mv.e + 1).some((e) => e.dismissed?.move || e.from)) return undefined
+  if (mv.to !== null && !chats.some((t) => t.id === mv.to && !t.deleted)) return undefined
+  return mv
+}
+
+/** The state to keep with the chat after a run: the move and tags worked out now, and the name check as it stands. */
+export function orgStateFor(thread: Thread, move: MoveSuggestion | null, tags: Array<{ key: string; tag: string }>, nm: OrgState["nm"]): OrgState {
+  return {
+    n: thread.m.length,
+    k: lastKey(thread.m),
+    ...(move ? { mv: { s: move.start, e: move.end, to: move.to, why: move.why, ...(move.match !== undefined ? { mt: move.match } : {}) } } : {}),
+    ...(tags.length ? { tg: tags.map((t) => [t.key, t.tag] as [string, string]) } : {}),
+    ...(nm ? { nm } : {})
+  }
+}
+
+/** The name check after asking: what it was about, the name it suggests (unless that one was turned down), and the names turned down. */
+export function nameStateAfter(previous: OrgState["nm"], key: string, answer: { fits: boolean; title: string }, current: string): NonNullable<OrgState["nm"]> {
+  const no = previous?.no ?? []
+  const refused = no.some((x) => x.toLowerCase() === answer.title.toLowerCase())
+  const suggest = !answer.fits && answer.title && answer.title !== current && !refused
+  return { k: key, ...(suggest ? { t: answer.title } : {}), ...(no.length ? { no } : {}) }
+}
+
+/** Whether two states say the same (then the chat isn't written again). */
+export function sameOrgState(a: OrgState | undefined, b: OrgState | undefined): boolean {
+  return JSON.stringify(a ?? null) === JSON.stringify(b ?? null)
 }

@@ -33,9 +33,18 @@ struct SuggestionRow: View {
             }
             if let move {
                 SuggestionChip(tint: .secondary, takeLabel: move.to == nil ? Text("Move these messages to a new chat, “\(move.toName)”") : Text("Move \(messagesCount(move.count)) to the chat “\(move.toName)”"), take: onMove, refuse: onMoveNo) {
-                    (Text(Image(systemName: "arrow.turn.down.right")) + Text(" ") + moveText(move))
-                        .font(.footnote)
-                        .lineLimit(1)
+                    HStack(spacing: 0) {
+                        (Text(Image(systemName: "arrow.turn.down.right")) + Text(" ") + moveText(move))
+                            .lineLimit(1)
+                        // 2.6 (93): how well it fits there (the owner: «этот уровень показывал бы пользователю рядом с
+                        // рекомендацией»); a long name is cut, never this.
+                        if move.to != nil, let match = move.match {
+                            (Text(" · ").foregroundColor(.secondary) + Text("\(Int(match))% match").fontWeight(.semibold).foregroundColor(.accentColor))
+                                .lineLimit(1)
+                                .fixedSize()
+                        }
+                    }
+                    .font(.footnote)
                 }
             }
             if let name {
@@ -307,6 +316,8 @@ final class OrganizeModel: ObservableObject {
         let to: String?
         let toName: String
         let why: Organize.MoveReason
+        /// How well it fits there, in % (2.6 (93)): shown with a move to another chat by topic or site.
+        var match: Double? = nil
         var count: Int { end - start + 1 }
     }
 
@@ -319,6 +330,8 @@ final class OrganizeModel: ObservableObject {
         var tags: [Int: (key: String, tag: String)]
         /// 2.6: the chat's name no longer fits its topic (and the user didn't type it): this one does.
         var name: String?
+        /// 2.6 (93): what to keep with the chat after a run (ChatLibrary.keepOrg), so other devices show it at once.
+        var org: OrgState? = nil
 
         static func == (a: Suggestions, b: Suggestions) -> Bool {
             a.chat == b.chat && a.length == b.length && a.move == b.move && a.tags.mapValues(\.tag) == b.tags.mapValues(\.tag) && a.name == b.name
@@ -335,8 +348,6 @@ final class OrganizeModel: ObservableObject {
     private let maxEmbedPerRun = 640
     private let batch = 128
     private let maxVerdicts = 400
-    // Name checks remembered (the newest chats): what each was about (Organize.nameCheckKey).
-    private let maxNames = 200
 
     // The caches as files: nonisolated, so they're written off the main thread.
     nonisolated private struct VectorStore: Codable {
@@ -349,32 +360,16 @@ final class OrganizeModel: ObservableObject {
         struct Item: Codable { var tag: String; var fits: Bool; var confidence: Double; }
         var items: [String: [Item]] = [:]
         var at: [String: Double] = [:]
-        /// The tags each chat last showed (chat → message key → tag), for the chats list's count (2.6 (91)).
-        var shown: [String: [String: String]]? = [:]
     }
 
-    /// Name checks by chat: what the last one was about, when, and the name it suggested while that's open (`title`;
-    /// `no`: turned down). Optional so a file from 2.6 (90/91) still reads.
-    nonisolated private struct Names: Codable {
-        var key: [String: String] = [:]
-        var at: [String: Double] = [:]
-        var title: [String: String]? = [:]
-        var no: [String: Bool]? = [:]
-    }
-
+    // 2.6 (93): the name checks and the tags a chat showed are kept with the chat ("org"), no longer in files here.
     private var vectors = VectorStore(space: "", v: [:])
     private var verdicts = Verdicts()
-    private var names = Names()
     private var running: Task<Suggestions?, Never>?
 
     private init() {
         vectors = Self.load("organize-vectors.json") ?? VectorStore(space: "", v: [:])
         verdicts = Self.load("organize-verdicts.json") ?? Verdicts()
-        names = Self.load("organize-names.json") ?? Names()
-        // Files from 2.6 (90/91) lack these.
-        if verdicts.shown == nil { verdicts.shown = [:] }
-        if names.title == nil { names.title = [:] }
-        if names.no == nil { names.no = [:] }
     }
 
     // MARK: Files (the app's caches: not synced, not in the App Group)
@@ -395,13 +390,11 @@ final class OrganizeModel: ObservableObject {
 
     /// The vectors go with the chats ("Delete all chats" in Safari, or the chats gone).
     func forget() {
-        guard !vectors.v.isEmpty || !verdicts.items.isEmpty || !names.key.isEmpty else { return }
+        guard !vectors.v.isEmpty || !verdicts.items.isEmpty else { return }
         vectors = VectorStore(space: space, v: [:])
         verdicts = Verdicts()
-        names = Names()
         Self.save(vectors, "organize-vectors.json")
         Self.save(verdicts, "organize-verdicts.json")
-        Self.save(names, "organize-names.json")
     }
 
     // MARK: When
@@ -493,7 +486,7 @@ final class OrganizeModel: ObservableObject {
         var out = Suggestions(chat: thread.id, length: thread.entries.count, move: nil, tags: [:])
         if let s = work.move {
             let name = s.to.flatMap { id in threads.first { $0.id == id }?.name } ?? ChatThread.title(of: Array(thread.entries[s.start...s.end]))
-            out.move = Move(start: s.start, end: s.end, to: s.to, toName: name, why: s.why)
+            out.move = Move(start: s.start, end: s.end, to: s.to, toName: name, why: s.why, match: s.match)
         }
         for tagging in work.tags {
             let hash = verdictHash(tagging.message, tagging.candidates)
@@ -512,53 +505,48 @@ final class OrganizeModel: ObservableObject {
             verdicts.items = verdicts.items.filter { keep.contains($0.key) }
             verdicts.at = verdicts.at.filter { keep.contains($0.key) }
         }
-        // What this chat showed, for the chats list's count (2.6 (91)).
-        verdicts.shown?[thread.id] = Dictionary(out.tags.values.map { ($0.key, $0.tag) }, uniquingKeysWith: { a, _ in a })
-        let liveIds = Set(threads.map(\.id))
-        verdicts.shown = verdicts.shown?.filter { liveIds.contains($0.key) }
         let kept = verdicts
         Task.detached(priority: .utility) { Self.save(kept, "organize-verdicts.json") }
 
         // 2.6: the chat's name, unless the user typed it: checked once the chat has a second question or note, and
         // again when it gets another page or a move changes it. A better one is a suggestion until taken or turned down
-        // (2.6 (91): never renamed by itself), kept so it's still there when the chat opens again.
+        // (2.6 (91): never renamed by itself). 2.6 (93): the check is kept with the chat, so no device asks again what
+        // another did, and a name turned down on one never comes back on another.
+        var nm = chat.org?.nm
         if Organize.wantsNameCheck(chat) {
             let key = Organize.nameCheckKey(chat)
-            if names.key[chat.id] != key, let answer = try? await ChatAI.organizeName(chat: Organize.nameText(chat.entries), current: thread.name) {
-                names.key[chat.id] = key
-                names.at[chat.id] = Date().timeIntervalSince1970
-                names.title?[chat.id] = !answer.fits && answer.title != thread.name ? answer.title : nil
-                names.no?[chat.id] = nil
-                if names.key.count > maxNames {
-                    let keep = Set(names.at.sorted { $0.value > $1.value }.prefix(maxNames).map(\.key))
-                    names.key = names.key.filter { keep.contains($0.key) }
-                    names.at = names.at.filter { keep.contains($0.key) }
-                    names.title = names.title?.filter { keep.contains($0.key) }
-                    names.no = names.no?.filter { keep.contains($0.key) }
-                }
-                Self.save(names, "organize-names.json")
+            if nm?.k != key, let answer = try? await ChatAI.organizeName(chat: Organize.nameText(chat.entries), current: thread.name) {
+                nm = Organize.nameState(after: nm, key: key, fits: answer.fits, title: answer.title, current: thread.name)
             }
-            out.name = openName(thread)
         }
+        // What this chat shows, kept with it: the list counts it, other devices show it at once.
+        let shown = out.tags.sorted { $0.key < $1.key }.map { (key: $0.value.key, tag: $0.value.tag) }
+        let state = Organize.orgState(for: chat, move: work.move, tags: shown, nm: nm)
+        out.org = state
+        out.name = Organize.openName(chat, name: thread.name, org: state)
         return out
     }
 
-    /// The name suggested for `thread` while it's open: not turned down, not its name already, not one the user typed.
-    func openName(_ thread: ChatThread) -> String? {
-        guard let title = names.title?[thread.id], names.no?[thread.id] != true, title != thread.name, !thread.namedByUser else { return nil }
-        return title
+    /// What the chat's own record suggests (worked out here or on another device, 2.6 (93)), shown at once while the
+    /// chat is still as it was then; this device's run follows. Nil without a record.
+    func kept(_ thread: ChatThread, in threads: [ChatThread]) -> Suggestions? {
+        guard !thread.isHistory, let org = thread.org, let chat = thread.organized else { return nil }
+        // The move's chat, if it's still here (openMove asks no more of the others).
+        let target = org.mv?.to.flatMap { id in threads.first { $0.id == id }?.organized }
+        var out = Suggestions(chat: thread.id, length: thread.entries.count, move: nil, tags: [:])
+        if let mv = Organize.openMove(chat, target.map { [$0] } ?? []) {
+            let name = mv.to.flatMap { id in threads.first { $0.id == id }?.name } ?? ChatThread.title(of: Array(thread.entries[mv.s...mv.e]))
+            out.move = Move(start: mv.s, end: mv.e, to: mv.to, toName: name, why: mv.why, match: mv.mt)
+        }
+        for tag in Organize.openTags(chat) { out.tags[tag.index] = (tag.key, tag.tag) }
+        out.name = Organize.openName(chat, name: thread.name)
+        return out.move == nil && out.tags.isEmpty && out.name == nil ? nil : out
     }
 
-    /// A suggested name taken or turned down: not suggested again for the chat as it is.
-    func settleName(_ chatId: String, taken: Bool) {
-        guard names.title?[chatId] != nil else { return }
-        if taken { names.title?[chatId] = nil } else { names.no?[chatId] = true }
-        Self.save(names, "organize-names.json")
-    }
-
-    /// The open suggestions of every chat, for the chats list (2.6, "N recommendations"): its move, a suggested name,
-    /// and the tags it last showed that are still open (2.6 (91): working out every chat's tag candidates again, on the
-    /// main thread, hung the app). Nothing is asked of the AI here but missing vectors. Only chats with some.
+    /// The open suggestions of every chat, for the chats list (2.6, "N recommendations"): its move, and the name and
+    /// tags its record (2.6 (93): kept with the chat, from any device) still suggests (2.6 (91): working out every
+    /// chat's tag candidates again, on the main thread, hung the app). Nothing is asked of the AI here but missing
+    /// vectors. Only chats with some.
     func counts(in threads: [ChatThread]) async -> [String: Int] {
         await refreshStatus()
         _ = await running?.value
@@ -567,9 +555,8 @@ final class OrganizeModel: ObservableObject {
         guard !live.value.isEmpty, await embedMissing(nil, live) else { return [:] }
         let known = vectors.v
         let cfg = config
-        let shown = verdicts.shown ?? [:]
-        let named = Set(threads.filter { openName($0) != nil }.map(\.id))
-        return await Task.detached(priority: .utility) { OrganizeWork.counts(live.value, known: known, cfg, shown: shown, named: named) }.value
+        let names = Dictionary(threads.map { ($0.id, $0.name) }, uniquingKeysWith: { a, _ in a })
+        return await Task.detached(priority: .utility) { OrganizeWork.counts(live.value, known: known, cfg, names: names) }.value
     }
 
     /// "Name by topic": a name for the chat by its topic now (nil: it couldn't be had).

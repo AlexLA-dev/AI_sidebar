@@ -702,7 +702,7 @@
   "message": "Todo o resto"
  },
  "tourMenuBody": {
-  "message": "Lembretes e páginas acompanhadas, Dicas, Ajustes e esta introdução de novo estão neste menu."
+  "message": "Lembretes e páginas acompanhadas, Dicas, Ajustes e o tour básico de novo estão neste menu."
  },
  "guideSumTitle": {
   "message": "Sua primeira resposta"
@@ -753,7 +753,7 @@
   "message": "Escolha uma ação rápida, como “{0}”, ou digite sua própria pergunta."
  },
  "uxShowIntro": {
-  "message": "Ver a introdução de novo"
+  "message": "Refazer o tour básico"
  },
  "uxOther": {
   "message": "Outros…"
@@ -1493,6 +1493,9 @@
  "orgNameAs": {
   "message": "Chamar a conversa de “{0}”"
  },
+ "orgMatch": {
+  "message": "{0}% de correspondência"
+ },
  "recs_one": {
   "message": "{0} recomendação"
  },
@@ -1744,6 +1747,12 @@
  },
  "listenStop": {
   "message": "Parar"
+ },
+ "listenClose": {
+  "message": "Parar e fechar"
+ },
+ "listenPlayingHere": {
+  "message": "Tocando agora"
  },
  "listenLoading": {
   "message": "Preparando a voz…"
@@ -2129,6 +2138,39 @@
  "offerRetryAt": {
   "message": "As respostas voltam às {0}."
  },
+ "similarWhere": {
+  "message": "Onde procurar"
+ },
+ "similarWorld": {
+  "message": "No mundo todo"
+ },
+ "similarLocal": {
+  "message": "Perto de mim"
+ },
+ "similarLocalIn": {
+  "message": "Perto · {0}"
+ },
+ "similarWhereHint": {
+  "message": "Escolha primeiro onde procurar."
+ },
+ "similarLess": {
+  "message": "Menos parecidos"
+ },
+ "similarPercent": {
+  "message": "{0}% parecido"
+ },
+ "similarDiffers": {
+  "message": "Diferença: {0}"
+ },
+ "similarRegionLocked": {
+  "message": "Não está na App Store do seu país"
+ },
+ "similarRatings": {
+  "message": "{0} avaliações"
+ },
+ "similarReviewersSay": {
+  "message": "Avaliações: {0}"
+ },
  "tip_4cf1b54b00": {
   "message": "Dicas"
  },
@@ -2152,6 +2194,12 @@
  },
  "tip_4acd9995ac": {
   "message": "Clique em ✦ na página ou no ícone do ContextFlow na barra de ferramentas, ou pressione Control-Shift-E."
+ },
+ "tip_af26b6788c": {
+  "message": "Tire o ✦ do caminho"
+ },
+ "tip_6d2694aec4": {
+  "message": "O ✦ está cobrindo o que você lê? Arraste-o para cima ou para baixo pela borda, ou para o outro lado: ele fica onde você soltar."
  },
  "tip_2749afe54a": {
   "message": "O essencial em um toque"
@@ -2177,11 +2225,8 @@
  "tip_b4d2d0edad": {
   "message": "Selecione um texto na página: “Resumir”, “Traduzir”, “Encontrar parecidos” e outras ações ficam no campo “Sua pergunta…” logo abaixo. Deslize por elas e toque em uma, sem digitar nada."
  },
- "tip_2aef052e5b": {
-  "message": "Botões sob a seleção"
- },
- "tip_894f528548": {
-  "message": "Selecione um texto na página: “Explicar”, “Traduzir”, Google e “Encontrar parecidos” são botões logo abaixo. Clique em um ou escreva sua própria pergunta no campo abaixo deles."
+ "tip_2105cc684e": {
+  "message": "Selecione um texto na página: “Resumir”, “Traduzir”, “Encontrar parecidos” e outras ações ficam no campo “Sua pergunta…” logo abaixo. Role por elas com o trackpad ou a roda do mouse e clique em uma, sem digitar nada."
  },
  "tip_9000896590": {
   "message": "A conversa vai com você"
@@ -2252,8 +2297,8 @@
  "tip_b2248495b1": {
   "message": "Toque em “Encontrar parecidos” entre as ações do painel ou no menu “…” no topo do painel. Ou selecione um texto, como o nome de um produto, e toque em “Encontrar parecidos” nas ações rápidas logo abaixo. Adicione uma condição como “Mais barato” ou “Em estoque” se quiser: as alternativas são reais, e cada link é aberto e verificado antes de você ver."
  },
- "tip_9161a2ed42": {
-  "message": "Clique em “Encontrar parecidos” entre as ações do painel ou no menu “…” no topo do painel. Ou selecione um texto, como o nome de um produto, e clique no botão “Encontrar parecidos” logo abaixo. Adicione uma condição como “Mais barato” ou “Em estoque” se quiser: as alternativas são reais, e cada link é aberto e verificado antes de você ver."
+ "tip_31666a3aab": {
+  "message": "Clique em “Encontrar parecidos” entre as ações do painel ou no menu “…” no topo do painel. Ou selecione um texto, como o nome de um produto, e clique em “Encontrar parecidos” nas ações rápidas logo abaixo. Adicione uma condição como “Mais barato” ou “Em estoque” se quiser: as alternativas são reais, e cada link é aberto e verificado antes de você ver."
  },
  "tip_c518fb0674": {
   "message": "Ouvir"
@@ -2384,11 +2429,11 @@
  "tip_e2d1d4abd0": {
   "message": "Escreva uma linha em “Sobre mim” — o que você faz, como gosta das respostas — e o ContextFlow vai adaptá-las a você."
  },
- "tip_10400d6345": {
-  "message": "O botão ✦ do seu jeito"
+ "tip_1e9a1535cb": {
+  "message": "Oculte o ✦ quando não precisar"
  },
- "tip_4c60874441": {
-  "message": "O ✦ está cobrindo algo na página? Arraste-o para cima ou para baixo pela borda, ou para o outro lado: ele fica onde você soltar. Você também pode ocultá-lo em um site específico ou desativá-lo em todos nos ajustes da extensão. O ContextFlow continua abrindo pelo menu de extensões do Safari."
+ "tip_6cc366173d": {
+  "message": "Não precisa do ✦ em um site? Oculte-o nesse site ou desative-o em todos nos ajustes da extensão. O ContextFlow continua abrindo pelo menu de extensões do Safari."
  },
  "tip_8a727e1bbe": {
   "message": "Use sua própria chave de API"

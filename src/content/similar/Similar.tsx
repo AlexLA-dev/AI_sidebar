@@ -7,7 +7,7 @@ import type { VNode } from "preact"
 import { useState } from "preact/hooks"
 
 import { t, uiLang } from "../../shared/i18n"
-import { SIMILAR_CHIPS, type SimilarAnswer, type SimilarChip, type SimilarItem, type SimilarPricing, type SimilarStep } from "../../shared/similar"
+import { closeAndLess, SIMILAR_CHIPS, type SimilarAnswer, type SimilarChip, type SimilarItem, type SimilarPricing, type SimilarStep } from "../../shared/similar"
 import { moneyIn } from "../../shared/watch/compare"
 import { parseNumber } from "../../shared/watch/extract"
 import * as Icon from "../icons"
@@ -52,10 +52,30 @@ function Tick({ size = 13 }: { size?: number }): VNode {
 }
 
 /** The start: an optional condition chip (one at a time) and the person's own words; Find. */
-export function SimilarPicker({ title, onFind, onClose }: { title: string; onFind: (condition: string, label: string) => void; onClose: () => void }): VNode {
+/** A country's name in the interface's language ("Россия"); the code when unknown. */
+function countryLabel(code: string): string {
+  try {
+    return new Intl.DisplayNames([uiLang()], { type: "region" }).of(code) ?? code
+  } catch {
+    return code
+  }
+}
+
+export function SimilarPicker({ title, region, country, onRegion, onFind, onClose }: {
+  title: string
+  // Build 93 (the owner: «уточнять worldwide нужно или локально»): where to look, as chosen last time (null: never
+  // chosen, asked now) and their country for "near me".
+  region?: "world" | "local" | null
+  country?: string | null
+  onRegion?: (region: "world" | "local") => void
+  onFind: (condition: string, label: string) => void
+  onClose: () => void
+}): VNode {
   const [chip, setChip] = useState<SimilarChip | null>(null)
   const [words, setWords] = useState("")
+  const asks = onRegion !== undefined
   const find = () => {
+    if (asks && !region) return
     const condition = [chip ? chipCondition(chip) : "", words.trim()].filter(Boolean).join(", ").slice(0, 300)
     // The question's bubble: the person's own words (or the chip's), in whatever language they wrote them; the Find
     // similar icon beside it says what it is (2.6 build 90: "Find similar:" in an English panel before Russian words).
@@ -90,9 +110,21 @@ export function SimilarPicker({ title, onFind, onClose }: { title: string; onFin
           }
         }}
       />
+      {asks && (
+        <div class="cf-similar-where" role="radiogroup" aria-label={t("similarWhere")}>
+          <span class="cf-similar-where-label">{t("similarWhere")}</span>
+          <div class="cf-seg">
+            <button type="button" role="radio" aria-checked={region === "world"} class={region === "world" ? "on" : ""} onClick={() => onRegion("world")}>{t("similarWorld")}</button>
+            <button type="button" role="radio" aria-checked={region === "local"} class={region === "local" ? "on" : ""} onClick={() => onRegion("local")}>
+              {country ? t("similarLocalIn", countryLabel(country)) : t("similarLocal")}
+            </button>
+          </div>
+          {!region && <p class="cf-similar-where-hint">{t("similarWhereHint")}</p>}
+        </div>
+      )}
       <p class="cf-similar-hint">{t("similarHint")}</p>
       <div class="cf-card-actions">
-        <button type="button" class="cf-primary" onClick={find}><SimilarIcon size={14} /> {t("similarFind")}</button>
+        <button type="button" class="cf-primary" onClick={find} disabled={asks && !region}><SimilarIcon size={14} /> {t("similarFind")}</button>
         <button type="button" class="cf-secondary" onClick={onClose}>{t("cancel")}</button>
       </div>
     </div>
@@ -155,7 +187,26 @@ function proofLink(item: SimilarItem, onOpen: (url: string) => void): VNode | nu
   return <> · <a class="cf-similar-proof" href={item.proof} target="_blank" rel="noopener noreferrer" onClick={opening(item.proof, onOpen)}>{host}</a></>
 }
 
-function Item({ item, n, onOpen, onWatch }: { item: SimilarItem; n: number; onOpen: (url: string) => void; onWatch?: (item: SimilarItem) => void }): VNode {
+/** "★ 4.8 · 90,645 ratings — Reviewers like …" with where it was read (build 93). */
+function Reviews({ item, onOpen }: { item: SimilarItem; onOpen: (url: string) => void }): VNode | null {
+  const r = item.reviews
+  if (!r) return null
+  const hosts = r.sources.map((u) => { try { return { url: u, host: new URL(u).hostname.replace(/^www\./, "") } } catch { return null } }).filter((x): x is { url: string; host: string } => x !== null)
+  const stars = r.rating ? `★ ${new Intl.NumberFormat(uiLang(), { maximumFractionDigits: 1 }).format(r.rating.value)}${r.rating.best !== 5 ? `/${r.rating.best}` : ""}` : ""
+  const count = r.rating?.count ? t("similarRatings", new Intl.NumberFormat(uiLang()).format(r.rating.count)) : ""
+  return (
+    <p class="cf-similar-reviews" dir="auto">
+      {stars && <span class="cf-similar-stars">{stars}</span>}
+      {count && <span class="cf-similar-count">{count}</span>}
+      {r.summary && <span class="cf-similar-said">{t("similarReviewersSay", r.summary)}</span>}
+      {hosts.map((h) => (
+        <a key={h.url} class="cf-similar-src" href={h.url} target="_blank" rel="noopener noreferrer" onClick={opening(h.url, onOpen)}>{h.host}</a>
+      ))}
+    </p>
+  )
+}
+
+function Item({ item, n, onOpen, onWatch, less = false }: { item: SimilarItem; n: number; onOpen: (url: string) => void; onWatch?: (item: SimilarItem) => void; less?: boolean }): VNode {
   const facts = [
     // An app's pricing says more than its store price ($0.00 for one with a subscription inside).
     item.price && !item.pricing ? shownPrice(item.price) : "",
@@ -174,11 +225,19 @@ function Item({ item, n, onOpen, onWatch }: { item: SimilarItem; n: number; onOp
           {item.source === "list" ? ` · ${t("similarFromList")}` : ""}
         </span>
         {item.why && <p class="cf-similar-why" dir="auto">{item.why}</p>}
+        {less && (item.similarity !== undefined || item.differs) && (
+          <p class="cf-similar-differs" dir="auto">
+            {item.similarity !== undefined && <span class="cf-similar-pct">{t("similarPercent", item.similarity)}</span>}
+            {item.differs && <span>{t("similarDiffers", item.differs)}</span>}
+          </p>
+        )}
+        {item.regionLocked && <p class="cf-similar-locked">{t("similarRegionLocked")}</p>}
         {item.met === "yes" && item.fit && <p class="cf-similar-fit ok" dir="auto"><Tick size={13} /> {item.fit}{proofLink(item, onOpen)}</p>}
         {item.met === "unknown" && (
           <p class="cf-similar-fit unknown" dir="auto"><span class="cf-similar-nc">{t("similarNotConfirmed")}</span>{item.fit ? ` ${item.fit}` : ""}</p>
         )}
         {item.met === "n/a" && item.fit && <p class="cf-similar-fit" dir="auto">{item.fit}</p>}
+        <Reviews item={item} onOpen={onOpen} />
         {(facts.length > 0 || item.pricing || !item.checked || (onWatch && item.watch)) && (
           <div class="cf-similar-facts">
             {item.pricing && (
@@ -219,11 +278,25 @@ export function SimilarList({ answer, items, step, pages, onOpen, onWatch }: {
   return (
     <div class="cf-similar" aria-busy={streaming}>
       {answer?.intro && <p class="cf-similar-intro" dir="auto">{answer.intro}</p>}
-      {items.length > 0 && (
-        <ol class="cf-similar-list">
-          {items.map((it, i) => <Item key={it.url + it.name} item={it} n={i + 1} onOpen={onOpen} onWatch={onWatch} />)}
-        </ol>
-      )}
+      {items.length > 0 && (() => {
+        // Build 93: fewer than 3 close ones, the less similar ones apart, with how close and how they differ.
+        const { close, less } = streaming ? { close: items, less: [] } : closeAndLess(items)
+        return (
+          <>
+            <ol class="cf-similar-list">
+              {close.map((it, i) => <Item key={it.url + it.name} item={it} n={i + 1} onOpen={onOpen} onWatch={onWatch} />)}
+            </ol>
+            {less.length > 0 && (
+              <div class="cf-similar-less">
+                <p class="cf-similar-less-head">{t("similarLess")}</p>
+                <ol class="cf-similar-list">
+                  {less.map((it, i) => <Item key={it.url + it.name} item={it} n={close.length + i + 1} onOpen={onOpen} onWatch={onWatch} less />)}
+                </ol>
+              </div>
+            )}
+          </>
+        )
+      })()}
       {streaming && (
         <div class="cf-thinking cf-similar-step"><span /><span /><span /> {step === "check" && pages ? t("similarStepCheckN", pages) : t(STEP_TEXT[step!])}</div>
       )}

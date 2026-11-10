@@ -129,6 +129,15 @@ struct ChatThread: Identifiable, Hashable {
     /// In Recently Deleted since then (ms), or nil (src/shared/threads.ts `trashed`, 2.5 (83)): hidden everywhere,
     /// deleted for good `ChatLibrary.trashDays` later.
     let trashedAt: Int64?
+    /// What organizing suggested for it, kept with it so every device shows it at once and knows what was turned down
+    /// (2.6 (93), "org").
+    let org: OrgState?
+
+    /// A part read on its own: one that doesn't make sense is nil, the chat still reads.
+    private struct Lenient<T: Decodable>: Decodable {
+        let value: T?
+        init(from decoder: Decoder) throws { value = try? T(from: decoder) }
+    }
 
     private struct Stored: Decodable {
         var title: String?
@@ -138,6 +147,7 @@ struct ChatThread: Identifiable, Hashable {
         var k: String?
         var tags: [String]?
         var trashed: Double?
+        var org: Lenient<OrgState>?
         var m: [ChatEntry]
     }
 
@@ -162,6 +172,7 @@ struct ChatThread: Identifiable, Hashable {
         isHistory = stored.k == "history"
         ownTags = Tags.clean(stored.tags ?? [])
         trashedAt = stored.trashed.flatMap { $0.isFinite && abs($0) < 9e15 ? Int64($0) : nil }
+        org = stored.org?.value
         entries = stored.m
     }
 
@@ -234,7 +245,7 @@ struct ChatThread: Identifiable, Hashable {
     /// The same chat with its name and pin changed, as of `updatedAt`. For each: nil keeps it,
     /// `.some(nil)` removes it, `.some(value)` sets it. `trashed` the same: in Recently Deleted since then, or out of it.
     /// Every other field stays as it is in the JSON, those this version doesn't know too.
-    func edited(title: String??, aiTitle: String?? = nil, pin: Double??, tags: [String]? = nil, entryTags: (index: Int, tags: [String])? = nil, trashed: Int64?? = nil, updatedAt: Int64) -> ChatMirror.Item? {
+    func edited(title: String??, aiTitle: String?? = nil, pin: Double??, tags: [String]? = nil, entryTags: (index: Int, tags: [String])? = nil, trashed: Int64?? = nil, org: OrgState?? = nil, updatedAt: Int64) -> ChatMirror.Item? {
         let parsed = try? JSONSerialization.jsonObject(with: Data(data.utf8))
         guard var object = (parsed as? [String: Any]) ?? (parsed as? [Any]).map({ ["m": $0] }) else { return nil }
         switch title {
@@ -263,6 +274,11 @@ struct ChatThread: Identifiable, Hashable {
         case .none: break
         case .some(.none): object.removeValue(forKey: "trashed")
         case .some(.some(let value)): object["trashed"] = value
+        }
+        switch org {
+        case .none: break
+        case .some(.none): object.removeValue(forKey: "org")
+        case .some(.some(let value)): object["org"] = value.json
         }
         // Renaming, pinning, tagging, deleting or restoring keeps the chat's place by its last message.
         if object["a"] == nil { object["a"] = lastAt }
@@ -609,7 +625,13 @@ final class ChatLibrary: ObservableObject {
                     m.append(answer)
                     if t == 1 { m.append(["role": "user", "content": "Remember to come back to \(topic) later", "note": true, "id": "dn\(c)", "t": at + 8000, "page": page]) }
                 }
-                if let data = try? JSONSerialization.data(withJSONObject: ["a": at, "m": m] as [String: Any]), let text = String(data: data, encoding: .utf8) {
+                var object: [String: Any] = ["a": at, "m": m]
+                // 2.6 (93): chat 3 comes with organizing's record from "another device" (a name it suggests), shown
+                // at once when it opens and counted in the list without asking anything.
+                if c == 3, let last = m.last {
+                    object["org"] = OrgState(n: m.count, k: Organize.entryKey(last), nm: .init(k: "seeded", t: "Espresso at home, from another device")).json
+                }
+                if let data = try? JSONSerialization.data(withJSONObject: object), let text = String(data: data, encoding: .utf8) {
                     saves["debug-many-\(c)"] = ChatMirror.Item(updatedAt: at, data: text)
                 }
             }
@@ -701,11 +723,28 @@ final class ChatLibrary: ObservableObject {
     private var now: Int64 { Int64(Date().timeIntervalSince1970 * 1000) }
 
     /// Stores a changed chat here, for the extension, and in iCloud.
-    private func save(_ thread: ChatThread, title: String??, aiTitle: String?? = nil, pin: Double??, tags: [String]? = nil, entryTags: (index: Int, tags: [String])? = nil) {
+    private func save(_ thread: ChatThread, title: String??, aiTitle: String?? = nil, pin: Double??, tags: [String]? = nil, entryTags: (index: Int, tags: [String])? = nil, org: OrgState?? = nil) {
         // Always later than the copy it replaces, whatever the clocks say.
         let at = max(now, thread.updatedAt + 1)
-        guard let item = thread.edited(title: title, aiTitle: aiTitle, pin: pin, tags: tags, entryTags: entryTags, updatedAt: at) else { return }
+        guard let item = thread.edited(title: title, aiTitle: aiTitle, pin: pin, tags: tags, entryTags: entryTags, org: org, updatedAt: at) else { return }
         store(thread, item)
+    }
+
+    /// What organizing worked out for a chat (2.6 (93), src/content/store.ts `setOrgState`): kept with it, and so on
+    /// every device, when it says something new and the chat is still as it was then (a message since: the next run
+    /// keeps the new one).
+    func keepOrg(_ id: String, _ org: OrgState) {
+        guard let current = threads.first(where: { $0.id == id }), current.org != org, org.n == current.entries.count else { return }
+        save(current, title: nil, pin: nil, org: .some(org))
+    }
+
+    /// A suggested name taken or turned down (src/content/store.ts `settleNameSuggestion`): it goes from the chat's
+    /// state; turned down, it joins the names never suggested again for it, on any device.
+    func settleName(_ id: String, taken: Bool) {
+        guard let current = threads.first(where: { $0.id == id }), var org = current.org, let nm = org.nm, let t = nm.t else { return }
+        let no = taken ? nm.no : Array((nm.no.filter { $0.lowercased() != t.lowercased() } + [t]).suffix(20))
+        org.nm = OrgState.Name(k: nm.k, t: nil, no: no)
+        save(current, title: nil, pin: nil, org: .some(org))
     }
 
     /// Adds messages at the end of a chat (a question asked in the app and its answer, or a note).

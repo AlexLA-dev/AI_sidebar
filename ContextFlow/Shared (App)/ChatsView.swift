@@ -143,7 +143,12 @@ struct ChatsView: View {
             }
         }
         .navigationTitle("Chats")
-        .navigationDestination(for: ChatRoute.self) { destination(for: $0) }
+        .navigationDestination(for: ChatRoute.self) { route in
+            destination(for: route)
+                .onAppear {
+                    if recs[route.id] != nil { ChatAI.reportOrganize("organize", ["action": "tap", "what": "badge"]) }
+                }
+        }
         .sheet(item: $showingList) { kind in RemindersView(library: library, kind: kind) }
         #if DEBUG
         // Local checks without taps: -CFShowReminders YES opens "Reminders", -CFShowWatching YES "Watching", once the
@@ -181,7 +186,8 @@ struct ChatsView: View {
         // 2.6 (Pro, suggestions on): how many open suggestions each chat has, again when chats or their messages
         // change (not a pin, a mark or a sync of the same messages: 2.6 (91), that recounted all the time while a
         // chat was open, on the main thread); each chat's "N recommendations" counted once as shown.
-        .task(id: listShown ? library.threads.map { "\($0.id):\($0.entries.count)" }.joined(separator: ",") : "") {
+        // 2.6 (93): and when a chat's record changes (its name or tags, from any device).
+        .task(id: listShown ? library.threads.map { "\($0.id):\($0.entries.count):\($0.org?.nm?.t ?? ""):\($0.org?.nm?.no.count ?? 0):\($0.org?.tg.count ?? 0)" }.joined(separator: ",") : "") {
             guard listShown else { return }
             // A moment first: a burst of changes (iCloud) counts once.
             try? await Task.sleep(nanoseconds: 700_000_000)
@@ -244,12 +250,12 @@ struct ChatsView: View {
     @ViewBuilder
     private func chatRows(_ threads: [ChatThread]) -> some View {
         ForEach(threads) { thread in
+            // No gesture of our own on the row: a simultaneous tap gesture here took the tap from the link on iPhone and
+            // iPad (2.6 (91–92): "I tap a chat and nothing happens"). A tap on a chat with recommendations is counted
+            // when the chat shows (navigationDestination below).
             NavigationLink(value: ChatRoute(id: thread.id, history: thread.isHistory)) {
                 ChatRow(thread: thread, recs: recs[thread.id] ?? 0)
             }
-            .simultaneousGesture(TapGesture().onEnded {
-                if recs[thread.id] != nil { ChatAI.reportOrganize("organize", ["action": "tap", "what": "badge"]) }
-            })
             .contextMenu { menu(for: thread) }
             #if os(iOS)
             .swipeActions(edge: .trailing) {
@@ -1307,6 +1313,8 @@ struct ChatDetailView: View {
                     }
                 }
                 .task(id: "\(thread.id):\(thread.entries.count):\(asking == nil):\(organizeTick)") { await suggest(thread) }
+                // 2.6 (93): the chat's record came from another device while it's open: shown at once too.
+                .onChange(of: thread.org) { _ in showKept(thread) }
                 // The bar after a move goes on the next action: a question, a note, another suggestion, leaving the chat.
                 .onDisappear { undoBar = nil }
                 .safeAreaInset(edge: .bottom) {
@@ -1495,9 +1503,12 @@ struct ChatDetailView: View {
         guard asking == nil, !thread.isHistory else { return }
         await organize.refreshStatus()
         guard organize.enabled(pro: store.isPro) else { suggestions = nil; return }
+        showKept(thread)
         try? await Task.sleep(nanoseconds: 900_000_000)
-        guard !Task.isCancelled, let found = await organize.suggestions(for: thread, in: library.threads),
-              found.chat == currentId, found.length == self.thread?.entries.count else { return }
+        guard !Task.isCancelled, let found = await organize.suggestions(for: thread, in: library.threads) else { return }
+        // Kept with the chat even if it's no longer shown: the list counts it, other devices show it at once.
+        if let org = found.org { library.keepOrg(found.chat, org) }
+        guard found.chat == currentId, found.length == self.thread?.entries.count else { return }
         withAnimation(.easeOut(duration: 0.4)) { suggestions = found }
         // Each suggestion counted once as shown.
         if let move = found.move, !seen.contains("m\(found.chat)\(move.start)") {
@@ -1509,6 +1520,14 @@ struct ChatDetailView: View {
             _ = index
             ChatAI.reportOrganize("organize", ["action": "shown", "what": "tag"])
         }
+    }
+
+    /// What the chat's own record suggests (worked out here or on another device, 2.6 (93)), at once: the run that
+    /// follows has the last word.
+    private func showKept(_ thread: ChatThread) {
+        guard asking == nil, organize.enabled(pro: store.isPro), let kept = organize.kept(thread, in: library.threads),
+              kept.chat == currentId, kept.length == self.thread?.entries.count, kept != suggestions else { return }
+        withAnimation(.easeOut(duration: 0.25)) { suggestions = kept }
     }
 
     /// 2.6: the AI's name on the chat, with "Named “…” · Undo": a suggested name taken (never over a name the user
@@ -1563,12 +1582,12 @@ struct ChatDetailView: View {
                     onName: {
                         guard let name else { return }
                         suggestions?.name = nil
-                        organize.settleName(thread.id, taken: true)
+                        library.settleName(thread.id, taken: true)
                         putName(thread, name, why: "drift")
                     },
                     onNameNo: {
                         suggestions?.name = nil
-                        organize.settleName(thread.id, taken: false)
+                        library.settleName(thread.id, taken: false)
                         ChatAI.reportOrganize("organize", ["action": "dismissed", "what": "name", "why": "drift"])
                     }
                 )

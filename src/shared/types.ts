@@ -6,6 +6,7 @@ import type { RenewalReason } from "./renewal.ts"
 // Messages exchanged between the content script (UI) and the background worker.
 
 import type { PaidPlan, Period, Plan } from "./plan.ts"
+import type { OrgState } from "./threads.ts"
 export type { Plan } from "./plan.ts"
 export type Platform = "ios" | "ipados" | "macos" | "chrome" | "other"
 
@@ -25,6 +26,8 @@ export interface ProOffer {
 
 export interface StatusInfo {
   plan: Plan
+  // Build 93: the country the server saw the request come from (two letters), for Find similar's "near me".
+  country?: string
   usage: Usage | null
   // A free install that ran out of free answers on an earlier day, and the offer for it (from the server).
   limitedBefore: boolean
@@ -187,6 +190,9 @@ export type BackgroundRequest =
   // Read aloud playing in the panel on iPhone and iPad (2.6): what the app needs to carry on from the same second
   // ("state", as it plays), the page went away ("away": the notification now), came back ("back"), or it stopped.
   | { type: "listenHandoff"; op: "state" | "away" | "back" | "stop"; id: string; at?: number; starts?: number[]; parts?: string[]; complete?: boolean; speed?: number; title?: string; body?: string }
+  // Back on the page after a hand-off (build 93): whether the app sent the person back for this text ("Back to Safari",
+  // or notifications just turned on: then `play` it here), and whether the app has taken it over.
+  | { type: "listenReturn"; id: string }
   // The line under a free answer that skipped the page's video or PDFs: shown, or its "Try Pro" tapped.
   | { type: "mediaNotice"; action: "shown" | "pro"; media: MediaKind[] }
   // An Own key subscriber and Pro: a refusal (starts the day before the discount), the discount card shown, a tap.
@@ -221,7 +227,7 @@ export type BackgroundRequest =
   // Chat UX counts (2.5), no text: see UX_KINDS in netlify/functions/v2-event.mts.
   | { type: "uxEvent"; kind: "ux_mark" | "ux_pin" | "ux_delete" | "ux_remind"; action: string; what?: string; how?: string; preset?: string }
   // A step for the feature counters: the analytics registry's "use" kind (src/shared/usage.ts), named values only.
-  | { type: "useEvent"; f: "menu" | "later" | "tour" | "bubble" | "listen" | "plans" | "chat_plans"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string; heard_s?: number; cache_s?: number; icloud_s?: number; server_s?: number; charged_s?: number }
+  | { type: "useEvent"; f: "menu" | "later" | "tour" | "bubble" | "listen" | "plans" | "chat_plans"; a: string; what?: string; via?: string; reminders?: string; watches?: string; plan?: string; period?: string; heard_s?: number; cache_s?: number; icloud_s?: number; server_s?: number; charged_s?: number; cur?: string; sf?: string }
 
 /** A PDF's text, or why there is none ("none": nothing to read, e.g. scanned pages). */
 export type PdfResult =
@@ -234,20 +240,18 @@ export type ContentRequest = { type: "toggle" } | { type: "open"; selection?: bo
 export type OrganizeReply =
   | {
       ok: true
-      move: { start: number; end: number; to: string | null; toName: string; why: "page" | "site" | "topic" | "apart"; count: number } | null
+      // `match`: how well it fits there, in % (a move by topic or site, 2.6 (93)).
+      move: { start: number; end: number; to: string | null; toName: string; why: "page" | "site" | "topic" | "apart"; count: number; match?: number } | null
       // A suggested tag for the message at `index` (its key, to check it's still that message).
       tags: Array<{ index: number; key: string; tag: string }>
       // 2.6: the chat's name no longer fits its topic (and the user didn't type it): this one would. A suggestion, like a
       // tag or a move (2.6 (91): the owner wants to OK each rename).
       name?: string
+      // 2.6 (93): what was worked out, for the panel to keep with the chat (it syncs with it: other devices show it at
+      // once, and know what was turned down).
+      org?: OrgState
     }
   | { ok: false; code: "OFF" | "PRO_ONLY" | "NETWORK" | "LIMIT_REACHED" | "UPSTREAM" }
-
-/**
- * Name checks (2.6), by chat: what the last one was about (nameCheckKey), and the name it suggested while it's open
- * (`title`; `no`: turned down). Only on this device.
- */
-export type OrgNames = Record<string, { key: string; at: number; title?: string; no?: true }>
 
 export type OrganizeCountsReply = { ok: true; counts: Record<string, number> } | { ok: false; code: "OFF" | "PRO_ONLY" | "NETWORK" | "LIMIT_REACHED" | "UPSTREAM" }
 
@@ -307,6 +311,9 @@ export const STORAGE = {
   lastPrices: "cf:lastPrices",
   // Notifications on for ContextFlow, as the app's side last said (build 92): Listen decides from it inside the tap.
   notifyOn: "cf:notifyOn",
+  // iPhone, iPad (build 93): the last hand-off of Listen to the app, so coming back from it ("Back to Safari", or once
+  // notifications are on) brings the panel back as it was.
+  listenBack: "cf:listenBack",
   // Recent pages' text on this device ({ [url]: { title, text, at } }) for "whole chat" answers.
   pageTexts: "cf:pageTexts",
   // How many times the hint about writing notes with the send button was shown, or -1 once used.
@@ -332,11 +339,6 @@ export const STORAGE = {
   // the tag checks' answers ({[hash]: tags}), and the cards about it already shown or closed.
   orgVectors: "cf:orgVectors",
   orgVerdicts: "cf:orgVerdicts",
-  // Name checks done (2.6), by chat: what each was about (nameCheckKey), so the same chat isn't checked again.
-  orgNames: "cf:orgNames",
-  // Tags the check said yes to, by chat, as the chat last showed them ({key, tag}[]): the chats list counts these
-  // (2.6 (91)) instead of working out every chat's tag candidates again.
-  orgTagsShown: "cf:orgTagsShown",
   orgCards: "cf:orgCards"
 } as const
 
@@ -362,6 +364,8 @@ export interface Settings {
   // Build 91: the whole chat is Pro's memory, on unless the person turns it off (Pro and Ultra; free answers see the
   // last messages, and the switch offers Pro).
   chatMemory: boolean
+  // Build 93: where Find similar looks — anywhere, or near them (their country); asked the first time, then kept.
+  similarRegion?: "world" | "local"
   // Suggestions (2.5, Pro): a better chat for a block, one of the user's tags. Off until the user turns them on:
   // turning them on is the consent to send the messages' text for it.
   organize: boolean

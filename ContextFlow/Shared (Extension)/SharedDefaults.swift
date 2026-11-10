@@ -34,8 +34,12 @@ enum PlanProducts {
     /// saves a year and in percent ("<id>#perMonth", "<id>#save", "<id>#percent"), all in the App Store's own format.
     /// Built by the app when it loads the plans, and by the extension itself when the app hasn't yet (build 91: the
     /// panel's plans sheet showed no prices).
-    static func priceTable(_ products: [Product]) -> [String: String] {
+    /// Build 93: also the prices' currency ("#currency", e.g. "USD") and, given, the App Store country ("#storefront",
+    /// e.g. "UKR"), so the panel's plans event says what the device's App Store gave (the owner saw USD).
+    static func priceTable(_ products: [Product], storefront: String? = nil) -> [String: String] {
         var table = Dictionary(products.map { ($0.id, $0.displayPrice) }, uniquingKeysWith: { a, _ in a })
+        if let currency = products.first?.priceFormatStyle.currencyCode, !currency.isEmpty { table["#currency"] = currency.uppercased() }
+        if let storefront, !storefront.isEmpty { table["#storefront"] = storefront.uppercased() }
         for ids in [ultra, pro, byok] {
             guard let monthly = products.first(where: { $0.id == ids[0] }), let yearly = products.first(where: { $0.id == ids[1] }),
                   monthly.price > 0 else { continue }
@@ -122,6 +126,7 @@ final class SharedDefaults {
     private let planChangeKey = "cf_plan_change_v1"
     private let listenKey = "cf_listen_v1"
     private let listenTakenKey = "cf_listen_taken"
+    private let listenReturnKey = "cf_listen_return"
 
     /// Local notifications the app schedules on a new install until the extension is switched on.
     static let setupReminderIds = ["cf.setup.15m", "cf.setup.24h"]
@@ -221,6 +226,21 @@ final class SharedDefaults {
 
     func listenTaken(_ id: String) -> Bool {
         defaults.string(forKey: listenTakenKey) == id
+    }
+
+    /// The app sends the person back to the page in Safari for this text (build 93): "Back to Safari" (the panel opens
+    /// again if it was open), or notifications just turned on (`play`: the panel plays the text itself).
+    func markListenReturn(_ id: String, play: Bool) {
+        defaults.set(["id": id, "play": play, "at": Date().timeIntervalSince1970], forKey: listenReturnKey)
+    }
+
+    /// Read once by the panel coming back (within 3 minutes of the app sending the person back): whether it was sent back
+    /// for this text, and to play it there.
+    func takeListenReturn(_ id: String) -> (back: Bool, play: Bool) {
+        guard let stored = defaults.dictionary(forKey: listenReturnKey), stored["id"] as? String == id,
+              let at = stored["at"] as? Double, Date().timeIntervalSince1970 - at < 180 else { return (false, false) }
+        defaults.removeObject(forKey: listenReturnKey)
+        return (true, stored["play"] as? Bool ?? false)
     }
 
     // MARK: The question when auto-renew is off

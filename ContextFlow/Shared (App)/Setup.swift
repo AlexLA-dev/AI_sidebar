@@ -206,7 +206,8 @@ final class NotifyAsk: ObservableObject {
     func show(_ reason: Reason, listen id: String? = nil) async {
         let status = await UNUserNotificationCenter.current().notificationSettings().authorizationStatus
         guard status == .notDetermined || status == .denied else {
-            if let id { play(id) }
+            // Already on (the panel hadn't heard yet): back to Safari, where it plays (build 93).
+            if let id, !backToSafari(id) { play(id) }
             return
         }
         ask = Ask(reason: reason, denied: status == .denied, listen: id)
@@ -248,7 +249,29 @@ final class NotifyAsk: ObservableObject {
     private func finish() {
         let id = ask?.listen
         ask = nil
-        if let id { play(id) }
+        guard let id else { return }
+        // Build 93 (the owner: "is it necessary to move it to the app if Safari wasn't hidden?"): with notifications on,
+        // back to the page in Safari, where the panel plays it; without them, it plays here (and the panel says so).
+        Task {
+            let status = await UNUserNotificationCenter.current().notificationSettings().authorizationStatus
+            if [.authorized, .provisional, .ephemeral].contains(status), backToSafari(id) { return }
+            SharedDefaults.shared.markListenTaken(id)
+            play(id)
+        }
+    }
+
+    /// The page the text came from, opened in Safari again with word to play it in the panel; false without one.
+    private func backToSafari(_ id: String) -> Bool {
+        guard let stored = SharedDefaults.shared.readListenRequest(id), let link = stored["url"] as? String,
+              let url = URL(string: link), url.scheme == "https" || url.scheme == "http" else { return false }
+        SharedDefaults.shared.markListenReturn(id, play: true)
+        ChatAI.reportUse("listen", "back_safari", ["what": stored["what"] as? String ?? "answer"])
+        Task {
+            // After this screen has gone.
+            try? await Task.sleep(nanoseconds: 400_000_000)
+            await UIApplication.shared.open(url)
+        }
+        return true
     }
 
     /// The text Listen handed over in Safari: played here (after this screen has gone).

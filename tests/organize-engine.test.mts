@@ -3,7 +3,7 @@ import { test } from "node:test"
 
 import type { Entry } from "../src/shared/conversation.ts"
 import {
-  DEFAULT_ORGANIZE, embedText, judgedTags, looksMixed, movesAllowed, nameCheckKey, nameText, organizeConfig, packVector, refusedTags, suggestMove, tagCandidates, tagTargets, unpackVector, wantsNameCheck, type VectorOf
+  DEFAULT_ORGANIZE, embedText, judgedTags, looksMixed, matchPercent, movesAllowed, nameCheckKey, nameStateAfter, nameText, openMove, openName, openTags, organizeConfig, orgStateFor, packVector, refusedTags, suggestMove, tagCandidates, tagTargets, unpackVector, wantsNameCheck, type VectorOf
 } from "../src/shared/organize.ts"
 import type { Thread } from "../src/shared/threads.ts"
 
@@ -221,4 +221,78 @@ test("2.6 (91): a chat with one short note on a page of a site joins the chat wi
   const videos = chat("videos", [...qa("cars", "https://video.example/1"), ...qa("cars", "https://video.example/2")])
   const cooking = chat("cooking", [note("borsch", "https://video.example/3", "Try this borsch recipe with smoked pears on Sunday, for the guests")])
   assert.equal(suggestMove(cooking, [videos, cooking], vectorOf, cfg), null)
+})
+
+test("2.6 (93): the questions about a site may all be on one page (one block): a lone note there joins them, one way", () => {
+  const home = chat("home", [...qa("cf", "https://context-flow.app/"), ...qa("cf", "https://context-flow.app/"), ...qa("cf", "https://context-flow.app/")])
+  const memo = chat("memo", [note("cf", "https://context-flow.app/changelog", "Release notes")])
+  const s = suggestMove(memo, [home, memo], vectorOf, cfg)!
+  assert.deepEqual([s.to, s.why], ["home", "site"])
+  assert.equal(suggestMove(home, [home, memo], vectorOf, cfg), null)
+  // Two lone notes on one site: neither has more, nothing joins.
+  const blog = chat("blog", [note("cf", "https://context-flow.app/blog", "Post about sorting")])
+  assert.equal(suggestMove(blog, [blog, memo], vectorOf, cfg), null)
+  // One video's question doesn't take a note on another topic from the same video site.
+  const car = chat("car", qa("cars", "https://video.example/7"))
+  const cooking = chat("cooking", [note("borsch", "https://video.example/8", "Try this borsch recipe with smoked pears on Sunday, for the guests")])
+  assert.equal(suggestMove(cooking, [car, cooking], vectorOf, cfg), null)
+})
+
+// ------------------------------------------------------------ the match % (2.6 (93))
+
+test("the match %: 0 at what unrelated chats score, 100 at what a chat's own messages score; moveT is 78 %", () => {
+  assert.equal(matchPercent(0.17, cfg), 0)
+  assert.equal(matchPercent(0.66, cfg), 100)
+  assert.equal(matchPercent(0.55, cfg), 78)
+  assert.equal(matchPercent(0.05, cfg), 0)
+  assert.equal(matchPercent(0.9, cfg), 100)
+})
+
+test("a move to another chat says how well it matches; under the minimum it doesn't go there; a new chat has no %", () => {
+  const pile = chat("pile", [...qa("react", "https://react/1"), ...qa("react", "https://react/2"), ...qa("react", "https://react/3"), ...qa("japan", "https://travel-blog/9")])
+  const s = suggestMove(pile, [pile, japan, bread], vectorOf, cfg)!
+  assert.equal(s.to, "japan")
+  assert.ok(s.match !== undefined && s.match >= cfg.minMatch && s.match <= 100, String(s.match))
+  // Under the minimum it doesn't go there (the block, not like its own chat either, is offered a new one).
+  assert.equal(suggestMove(pile, [pile, japan, bread], vectorOf, { ...cfg, minMatch: 100.5 })?.to, null)
+  const apart = chat("pile", [...qa("react", "https://react/1"), ...qa("react", "https://react/2"), ...qa("react", "https://react/3"), ...qa("cars", "https://car/1")])
+  assert.equal(suggestMove(apart, [apart, japan, bread], vectorOf, cfg)!.match, undefined)
+})
+
+// ------------------------------------------------------------ organizing's state, kept with the chat (2.6 (93))
+
+test("the kept move shows while the chat is as it was, and goes when it changes, is turned down or its chat is gone", () => {
+  const pile = chat("pile", [...qa("react", "https://react/1"), ...qa("react", "https://react/2"), ...qa("react", "https://react/3"), ...qa("japan", "https://travel-blog/9")])
+  const s = suggestMove(pile, [pile, japan, bread], vectorOf, cfg)!
+  const kept = { ...pile, org: orgStateFor(pile, s, [], undefined) }
+  assert.deepEqual(openMove(kept, [kept, japan, bread]), { s: 6, e: 7, to: "japan", why: "topic", mt: s.match })
+  // Another device, a message later: not this one any more (its own run says what now).
+  const more = { ...kept, m: [...kept.m, ...qa("react", "https://react/4")] }
+  assert.equal(openMove(more, [more, japan, bread]), undefined)
+  const refused = { ...kept, m: kept.m.map((e, i) => (i >= 6 ? { ...e, dismissed: { move: true as const } } : e)) }
+  assert.equal(openMove(refused, [refused, japan, bread]), undefined)
+  assert.equal(openMove(kept, [kept, { ...japan, deleted: true }, bread]), undefined)
+})
+
+test("kept tags show until taken or turned down", () => {
+  const m = [...qa("japan", "https://jg/1"), ...qa("japan", "https://jg/2")]
+  const keys = m.map((e) => e.id!)
+  const c = chat("c", m, { org: { n: m.length, k: keys[3], tg: [[keys[1], "Travel"], [keys[3], "Food"]] } })
+  assert.deepEqual(openTags(c).map((t) => t.tag), ["Travel", "Food"])
+  const taken = { ...c, m: c.m.map((e, i) => (i === 1 ? { ...e, tags: ["travel"] } : i === 3 ? { ...e, dismissed: { tags: ["food"] } } : e)) }
+  assert.deepEqual(openTags(taken), [])
+})
+
+test("a name turned down never comes back; a fitting name, or one the user typed, gets none", () => {
+  const m = [...qa("japan", "https://jg/1"), ...qa("japan", "https://jg/2")]
+  const c = chat("c", m)
+  const first = nameStateAfter(undefined, "k1", { fits: false, title: "Japan trip" }, "q")
+  assert.deepEqual(first, { k: "k1", t: "Japan trip" })
+  assert.equal(openName({ ...c, org: { n: 4, k: "", nm: first } }), "Japan trip")
+  // Turned down (store.settleNameSuggestion keeps it in `no`): the next check suggesting it again changes nothing.
+  const after = nameStateAfter({ k: "k1", no: ["Japan trip"] }, "k2", { fits: false, title: "japan trip" }, "q")
+  assert.deepEqual(after, { k: "k2", no: ["Japan trip"] })
+  assert.equal(openName({ ...c, org: { n: 4, k: "", nm: { k: "k2", t: "Japan trip", no: ["Japan trip"] } } }), undefined)
+  assert.deepEqual(nameStateAfter(undefined, "k1", { fits: true, title: "Japan trip" }, "q"), { k: "k1" })
+  assert.equal(openName({ ...c, title: "Mine", org: { n: 4, k: "", nm: first } }), undefined)
 })

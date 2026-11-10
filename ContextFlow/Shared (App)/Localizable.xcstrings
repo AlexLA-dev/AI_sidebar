@@ -10420,170 +10420,6 @@
         }
       }
     },
-    "The ✦ button, your way": {
-      "localizations": {
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "الزر ✦ على طريقتك"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Die ✦-Taste nach deinem Geschmack"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "El botón ✦, a tu manera"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Le bouton ✦, à votre façon"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Il pulsante ✦, come vuoi tu"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "✦ボタンを好みに"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "✦ 버튼을 원하는 대로"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "O botão ✦ do seu jeito"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Кнопка ✦ — как вам удобно"
-          }
-        },
-        "uk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Кнопка ✦ — як вам зручно"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nút ✦ theo ý bạn"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "按你的习惯使用 ✦ 按钮"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "✦ 按鈕，照你的方式"
-          }
-        }
-      }
-    },
-    "Covering something on the page? Drag ✦ up or down along the edge, or to the other side: it stays where you leave it. You can also hide it on a single site, or turn it off everywhere in the extension settings. ContextFlow still opens from Safari's extensions menu.": {
-      "localizations": {
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "هل يغطي شيئًا في الصفحة؟ اسحب ✦ لأعلى أو لأسفل على طول الحافة، أو إلى الجانب الآخر: يبقى حيث تتركه. يمكنك أيضًا إخفاؤه في موقع واحد، أو إيقافه في كل مكان من إعدادات الامتداد. ويظل ContextFlow يُفتح من قائمة الامتدادات في Safari."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Verdeckt ✦ etwas auf der Seite? Zieh die Taste am Rand nach oben oder unten oder auf die andere Seite – sie bleibt dort, wo du sie loslässt. Du kannst sie auch auf einer einzelnen Website ausblenden oder in den Erweiterungseinstellungen überall abschalten. ContextFlow öffnet sich weiterhin über das Erweiterungsmenü von Safari."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "¿✦ tapa algo de la página? Arrástralo hacia arriba o hacia abajo por el borde, o al otro lado: se queda donde lo sueltes. También puedes ocultarlo en un sitio concreto o desactivarlo en todas partes en los ajustes de la extensión. ContextFlow seguirá abriéndose desde el menú de extensiones de Safari."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "✦ cache quelque chose sur la page ? Faites-le glisser vers le haut ou le bas le long du bord, ou de l’autre côté : il reste là où vous le lâchez. Vous pouvez aussi le masquer sur un site précis ou le désactiver partout dans les réglages de l’extension. ContextFlow s’ouvre toujours depuis le menu des extensions de Safari."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "✦ copre qualcosa nella pagina? Trascinalo in su o in giù lungo il bordo, o dall’altro lato: resta dove lo lasci. Puoi anche nasconderlo su un singolo sito o disattivarlo ovunque nelle impostazioni dell’estensione. ContextFlow si apre comunque dal menu delle estensioni di Safari."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "✦ がページの内容を隠しているときは、端に沿って上下にドラッグするか、反対側へ動かせます。置いた場所はそのまま覚えています。特定のサイトだけで隠したり、拡張機能の設定ですべてのサイトでオフにしたりもできます。その場合もSafariの拡張機能メニューから開けます。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "✦ 버튼이 페이지 내용을 가리나요? 가장자리를 따라 위아래로 끌거나 반대쪽으로 옮기세요. 놓은 자리에 그대로 있습니다. 특정 사이트에서만 숨기거나, 확장 프로그램 설정에서 모든 곳에서 끌 수도 있습니다. 그래도 Safari의 확장 프로그램 메뉴에서 ContextFlow를 열 수 있어요."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "O ✦ está cobrindo algo na página? Arraste-o para cima ou para baixo pela borda, ou para o outro lado: ele fica onde você soltar. Você também pode ocultá-lo em um site específico ou desativá-lo em todos nos ajustes da extensão. O ContextFlow continua abrindo pelo menu de extensões do Safari."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "✦ что-то закрывает на странице? Перетащите кнопку вверх или вниз вдоль края или на другую сторону — она останется там, где вы её отпустите. Ещё её можно скрыть на отдельном сайте или выключить везде в настройках расширения. ContextFlow по-прежнему открывается из меню расширений Safari."
-          }
-        },
-        "uk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "✦ щось закриває на сторінці? Перетягніть кнопку вгору чи вниз уздовж краю або на інший бік — вона залишиться там, де ви її відпустите. Ще її можна сховати на окремому сайті або вимкнути скрізь у налаштуваннях розширення. ContextFlow і далі відкривається з меню розширень Safari."
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nút che mất thứ gì trên trang? Kéo ✦ lên hoặc xuống dọc theo cạnh, hoặc sang phía bên kia: nút sẽ ở yên chỗ bạn thả. Bạn cũng có thể ẩn nút trên một trang web, hoặc tắt ở mọi nơi trong phần cài đặt tiện ích mở rộng. ContextFlow vẫn mở được từ menu tiện ích mở rộng của Safari."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "✦ 挡住了页面上的内容？沿着边缘上下拖动它，或拖到另一侧，它会停在你松手的位置。也可以只在某个网站隐藏按钮，或在扩展设置中全部关闭。之后仍可从 Safari 的扩展菜单打开 ContextFlow。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "✦ 擋住頁面上的內容了嗎？沿著邊緣上下拖移，或拖到另一側：放開後它就會留在那裡。你也可以只在某個網站隱藏它，或在延伸功能設定中全部關閉。關閉後仍可從 Safari 的延伸功能選單打開 ContextFlow。"
-          }
-        }
-      }
-    },
     "Private by design": {
       "localizations": {
         "ar": {
@@ -43400,170 +43236,6 @@
         }
       }
     },
-    "Buttons under a selection": {
-      "localizations": {
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "أزرار تحت التحديد"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Schaltflächen unter der Auswahl"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Botones bajo la selección"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Boutons sous la sélection"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pulsanti sotto la selezione"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "選択範囲の下のボタン"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "선택 영역 아래의 버튼"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Botões sob a seleção"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Кнопки под выделением"
-          }
-        },
-        "uk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Кнопки під виділенням"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Các nút dưới đoạn đã chọn"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "选中文字下方的按钮"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "選取文字下方的按鈕"
-          }
-        }
-      }
-    },
-    "Select text on a page: Explain, Translate, Google and Find similar are buttons right under it. Click one, or type your own question in the field below them.": {
-      "localizations": {
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "حدد نصًا في صفحة: «اشرح» و«ترجم» وGoogle و«ابحث عن مشابه» أزرار أسفله مباشرةً. انقر على أحدها، أو اكتب سؤالك في الحقل أسفلها."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Markiere Text auf einer Seite: „Erklären“, „Übersetzen“, Google und „Ähnliches finden“ sind Schaltflächen direkt darunter. Klick auf eine oder schreib deine eigene Frage in das Feld darunter."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Selecciona texto en una página: «Explicar», «Traducir», Google y «Buscar similares» son botones justo debajo. Haz clic en uno o escribe tu propia pregunta en el campo de abajo."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sélectionnez du texte sur une page : « Expliquer », « Traduire », Google et « Trouver similaire » sont des boutons juste en dessous. Cliquez sur l’un d’eux, ou tapez votre propre question dans le champ en dessous."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Seleziona del testo in una pagina: «Spiega», «Traduci», Google e «Trova simili» sono pulsanti proprio sotto. Fai clic su uno, oppure scrivi la tua domanda nel campo più in basso."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ページのテキストを選択すると、すぐ下に「説明」「翻訳」「Google」「似たものを探す」のボタンが表示されます。どれかをクリックするか、その下の欄に自分の質問を入力します。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "페이지에서 텍스트를 선택하면 바로 아래에 설명, 번역, Google, 비슷한 것 찾기 버튼이 나타나요. 하나를 클릭하거나 그 아래 칸에 직접 질문을 입력하세요."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Selecione um texto na página: “Explicar”, “Traduzir”, Google e “Encontrar parecidos” são botões logo abaixo. Clique em um ou escreva sua própria pergunta no campo abaixo deles."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Выделите текст на странице: «Объяснить», «Перевести», Google и «Найти похожее» — кнопки прямо под ним. Нажмите нужную или напишите свой вопрос в поле под ними."
-          }
-        },
-        "uk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Виділіть текст на сторінці: «Пояснити», «Перекласти», Google і «Знайти схоже» — кнопки просто під ним. Натисніть потрібну або напишіть своє запитання в полі під ними."
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chọn văn bản trên trang: Giải thích, Dịch, Google và Tìm tương tự là các nút ngay bên dưới. Bấm vào một nút, hoặc nhập câu hỏi của bạn vào ô bên dưới."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "在页面上选中文字后，下方会出现“解释”“翻译”“Google”和“查找相似”按钮。点按其中一个，或在下面的栏里输入你自己的问题。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "在頁面上選取文字後，下方會出現「解釋」、「翻譯」、「Google」和「尋找相似」按鈕。按一下其中一個，或在下面的欄位輸入你自己的問題。"
-          }
-        }
-      }
-    },
     "Tap Find similar among the panel's actions, or in the … menu at the top of the panel. Or select text, like a product's name, and tap Find similar among the quick actions under it. Add a condition like Cheaper or In stock if you want: the alternatives are real, and every link is opened and checked before you see it.": {
       "localizations": {
         "ar": {
@@ -43642,88 +43314,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "在面板的動作中，或在面板頂部的「…」選單中，點一下「尋找相似」。也可以選取文字（例如商品名稱），在下方的快速動作中點一下「尋找相似」。需要的話，可以加上「更便宜」或「有貨」等條件：列出的替代選擇都真實存在，每個連結都會先開啟檢查，再給你看。"
-          }
-        }
-      }
-    },
-    "Click Find similar among the panel's actions, or in the … menu at the top of the panel. Or select text, like a product's name, and click the Find similar button under it. Add a condition like Cheaper or In stock if you want: the alternatives are real, and every link is opened and checked before you see it.": {
-      "localizations": {
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "انقر على «ابحث عن مشابه» بين إجراءات اللوحة أو في قائمة … أعلى اللوحة. أو حدد نصًا، مثل اسم منتج، وانقر على زر «ابحث عن مشابه» أسفله. أضف شرطًا مثل «أرخص» أو «متوفر» إن أردت: البدائل حقيقية، ونفتح كل رابط ونتحقق منه قبل أن تراه."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Klick bei den Aktionen im Panel oder im Menü „…“ oben im Panel auf „Ähnliches finden“. Oder markiere Text, etwa den Namen eines Produkts, und klick auf die Schaltfläche „Ähnliches finden“ darunter. Wenn du willst, füge eine Bedingung wie „Günstiger“ oder „Auf Lager“ hinzu: Die Alternativen sind echt, und jeder Link wird geöffnet und geprüft, bevor du ihn siehst."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Haz clic en «Buscar similares» entre las acciones del panel o en el menú «…» arriba del panel. O selecciona texto, como el nombre de un producto, y haz clic en el botón «Buscar similares» de debajo. Añade una condición como «Más barato» o «En stock» si quieres: las alternativas son reales, y abrimos y comprobamos cada enlace antes de mostrártelo."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cliquez sur « Trouver similaire » parmi les actions du panneau, ou dans le menu « … » en haut du panneau. Ou sélectionnez du texte, comme le nom d’un produit, et cliquez sur le bouton « Trouver similaire » en dessous. Ajoutez une condition comme « Moins cher » ou « En stock » si vous voulez : les alternatives sont réelles, et chaque lien est ouvert et vérifié avant que vous ne le voyiez."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fai clic su «Trova simili» tra le azioni del pannello o nel menu «…» in alto nel pannello. Oppure seleziona del testo, come il nome di un prodotto, e fai clic sul pulsante «Trova simili» sotto. Aggiungi una condizione come «Più economico» o «Disponibile» se vuoi: le alternative sono reali, e ogni link viene aperto e verificato prima che tu lo veda."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "パネルのアクションか、パネル上部の「…」メニューで「似たものを探す」をクリックします。または、商品名などのテキストを選択し、その下の「似たものを探す」ボタンをクリックします。必要なら「もっと安い」「在庫あり」などの条件を追加できます。候補はどれも実在し、表示する前にすべてのリンクを開いて確認しています。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "패널의 동작 목록이나 패널 위쪽 ‘…’ 메뉴에서 ‘비슷한 것 찾기’를 클릭하세요. 또는 상품 이름 같은 텍스트를 선택하고 아래의 ‘비슷한 것 찾기’ 버튼을 클릭하세요. 원하면 ‘더 저렴하게’, ‘재고 있음’ 같은 조건을 더할 수 있어요. 대안은 모두 실제로 있는 것이고, 보여 드리기 전에 모든 링크를 열어 확인해요."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Clique em “Encontrar parecidos” entre as ações do painel ou no menu “…” no topo do painel. Ou selecione um texto, como o nome de um produto, e clique no botão “Encontrar parecidos” logo abaixo. Adicione uma condição como “Mais barato” ou “Em estoque” se quiser: as alternativas são reais, e cada link é aberto e verificado antes de você ver."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Нажмите «Найти похожее» среди действий панели или в меню «…» вверху панели. Или выделите текст, например название товара, и нажмите кнопку «Найти похожее» под ним. Если нужно, добавьте условие, например «Дешевле» или «В наличии»: альтернативы настоящие, и каждую ссылку мы открываем и проверяем, прежде чем показать."
-          }
-        },
-        "uk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Натисніть «Знайти схоже» серед дій панелі або в меню «…» угорі панелі. Або виділіть текст, наприклад назву товару, і натисніть кнопку «Знайти схоже» під ним. Якщо треба, додайте умову, як-от «Дешевше» чи «У наявності»: альтернативи справжні, і кожне посилання ми відкриваємо й перевіряємо, перш ніж показати."
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bấm vào Tìm tương tự trong các thao tác của bảng, hoặc trong menu … ở đầu bảng. Hoặc chọn văn bản, như tên một sản phẩm, rồi bấm nút Tìm tương tự bên dưới. Thêm điều kiện như Rẻ hơn hoặc Còn hàng nếu muốn: các lựa chọn thay thế đều có thật, và mọi liên kết đều được mở và kiểm tra trước khi bạn xem."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "在面板的操作中，或在面板顶部的“…”菜单中，点按“查找相似”。也可以选中文字（比如商品名称），点按下方的“查找相似”按钮。需要的话，可以加上“更便宜”或“有货”等条件：给出的替代选择都真实存在，每个链接都会先打开检查，再给你看。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "在面板的動作中，或在面板頂部的「…」選單中，按一下「尋找相似」。也可以選取文字（例如商品名稱），按一下下方的「尋找相似」按鈕。需要的話，可以加上「更便宜」或「有貨」等條件：列出的替代選擇都真實存在，每個連結都會先開啟檢查，再給你看。"
           }
         }
       }
@@ -45246,6 +44836,744 @@
           "stringUnit": {
             "state": "translated",
             "value": "將對話命名為「%@」"
+          }
+        }
+      }
+    },
+    "%lld%% match": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تطابق %lld٪"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld %% passend"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "coincide en un %lld %%"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "correspond à %lld %%"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "corrisponde al %lld%%"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一致度 %lld%%"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld%% 일치"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld%% de correspondência"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "совпадает на %lld%%"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "збігається на %lld%%"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "khớp %lld%%"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "匹配度 %lld%%"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "相符度 %lld%%"
+          }
+        }
+      }
+    },
+    "Move ✦ out of the way": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أبعد ✦ عن طريقك"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ aus dem Weg schieben"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aparta ✦ de en medio"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Écartez ✦ de votre lecture"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sposta ✦ dove non dà fastidio"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ をじゃまにならない場所へ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ 버튼을 비켜 두기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tire o ✦ do caminho"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отодвиньте ✦, чтобы не мешал"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відсуньте ✦, щоб не заважав"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dời ✦ ra chỗ khác"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "把 ✦ 挪开"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "把 ✦ 移開"
+          }
+        }
+      }
+    },
+    "Is ✦ covering what you're reading? Drag it up or down along the edge, or across to the other side: it stays where you leave it.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "هل يغطي ✦ ما تقرؤه؟ اسحبه لأعلى أو لأسفل على طول الحافة، أو إلى الجانب الآخر: يبقى حيث تتركه."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verdeckt ✦, was du gerade liest? Zieh die Taste am Rand nach oben oder unten oder auf die andere Seite – sie bleibt dort, wo du sie loslässt."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿✦ tapa lo que estás leyendo? Arrástralo hacia arriba o hacia abajo por el borde, o al otro lado: se queda donde lo sueltes."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ cache ce que vous lisez ? Faites-le glisser vers le haut ou le bas le long du bord, ou de l’autre côté : il reste là où vous le lâchez."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ copre quello che stai leggendo? Trascinalo in su o in giù lungo il bordo, o dall’altro lato: resta dove lo lasci."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ が読んでいる文章を隠しているときは、端に沿って上下にドラッグするか、反対側へ動かせます。置いた場所はそのまま覚えています。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ 버튼이 읽고 있는 내용을 가리나요? 가장자리를 따라 위아래로 끌거나 반대쪽으로 옮기세요. 놓은 자리에 그대로 있습니다."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O ✦ está cobrindo o que você lê? Arraste-o para cima ou para baixo pela borda, ou para o outro lado: ele fica onde você soltar."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ закрывает то, что вы читаете? Перетащите кнопку вверх или вниз вдоль края или на другую сторону — она останется там, где вы её отпустите."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ закриває те, що ви читаєте? Перетягніть кнопку вгору чи вниз уздовж краю або на інший бік — вона залишиться там, де ви її відпустите."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ che mất phần bạn đang đọc? Kéo nút lên hoặc xuống dọc theo cạnh, hoặc sang phía bên kia: nút sẽ ở yên chỗ bạn thả."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ 挡住了你正在读的内容？沿着边缘上下拖动它，或拖到另一侧：放在哪里就停在哪里。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ 擋住了你正在讀的內容？沿著邊緣上下拖動它，或拖到另一側：放在哪裡就停在哪裡。"
+          }
+        }
+      }
+    },
+    "Hide ✦ when you don't need it": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أخفِ ✦ حين لا تحتاج إليه"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ ausblenden, wenn du es nicht brauchst"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oculta ✦ cuando no lo necesites"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masquez ✦ quand vous n’en avez pas besoin"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nascondi ✦ quando non serve"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使わないときは ✦ を隠す"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "필요 없을 때 ✦ 숨기기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oculte o ✦ quando não precisar"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Скройте ✦, когда он не нужен"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сховайте ✦, коли він не потрібен"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ẩn ✦ khi không cần"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "不需要时隐藏 ✦"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "不需要時隱藏 ✦"
+          }
+        }
+      }
+    },
+    "Don't need ✦ on a site? Hide it on that site, or turn it off everywhere in the extension settings. ContextFlow still opens from Safari's extensions menu.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لا تحتاج إلى ✦ في موقع ما؟ أخفِه في ذلك الموقع، أو أوقفه في كل مكان من إعدادات الامتداد. ويظل ContextFlow يُفتح من قائمة الامتدادات في Safari."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brauchst du ✦ auf einer Website nicht? Blende die Taste dort aus oder schalte sie in den Erweiterungseinstellungen überall ab. ContextFlow öffnet sich weiterhin über das Erweiterungsmenü von Safari."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿No necesitas ✦ en un sitio? Ocúltalo en ese sitio o desactívalo en todas partes en los ajustes de la extensión. ContextFlow seguirá abriéndose desde el menú de extensiones de Safari."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pas besoin de ✦ sur un site ? Masquez-le sur ce site ou désactivez-le partout dans les réglages de l’extension. ContextFlow s’ouvre toujours depuis le menu des extensions de Safari."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non ti serve ✦ su un sito? Nascondilo su quel sito o disattivalo ovunque nelle impostazioni dell’estensione. ContextFlow si apre comunque dal menu delle estensioni di Safari."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "あるサイトで ✦ が不要なら、そのサイトだけで隠すか、拡張機能の設定ですべてのサイトでオフにできます。その場合もSafariの拡張機能メニューから開けます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "어떤 사이트에서 ✦ 버튼이 필요 없나요? 그 사이트에서만 숨기거나, 확장 프로그램 설정에서 모든 곳에서 끌 수 있습니다. 그래도 Safari의 확장 프로그램 메뉴에서 ContextFlow를 열 수 있어요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não precisa do ✦ em um site? Oculte-o nesse site ou desative-o em todos nos ajustes da extensão. O ContextFlow continua abrindo pelo menu de extensões do Safari."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ не нужен на каком-то сайте? Скройте его на этом сайте или выключите везде в настройках расширения. ContextFlow по-прежнему открывается из меню расширений Safari."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "✦ не потрібен на якомусь сайті? Сховайте його на цьому сайті або вимкніть скрізь у налаштуваннях розширення. ContextFlow і далі відкривається з меню розширень Safari."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không cần ✦ trên một trang web? Ẩn nút trên trang đó, hoặc tắt ở mọi nơi trong phần cài đặt tiện ích mở rộng. ContextFlow vẫn mở được từ menu tiện ích mở rộng của Safari."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "某个网站上用不到 ✦？可以只在该网站隐藏它，或在扩展设置中全部关闭。ContextFlow 仍可从 Safari 的扩展菜单打开。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "某個網站用不到 ✦？可以只在該網站隱藏它，或在延伸功能設定中全部關閉。ContextFlow 仍可從 Safari 的延伸功能選單開啟。"
+          }
+        }
+      }
+    },
+    "Select text on a page: Summarize, Translate, Find similar and more wait in the “Your question…” field under it. Scroll along them with the trackpad or the mouse wheel and click one, no typing needed.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "حدد نصًا في صفحة: «تلخيص» و«ترجمة» و«ابحث عن مشابه» وغيرها تنتظرك في حقل «سؤالك…» أسفله. مرّر بينها بلوحة التتبع أو بعجلة الفأرة وانقر على واحد منها، دون كتابة أي شيء."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Markiere Text auf einer Seite: „Zusammenfassen“, „Übersetzen“, „Ähnliches finden“ und mehr warten im Feld „Deine Frage …“ darunter. Scroll mit dem Trackpad oder dem Mausrad durch und klick eine an – schreiben musst du nichts."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selecciona texto en una página: «Resumir», «Traducir», «Buscar similares» y más esperan en el campo «Tu pregunta…» debajo. Desplázate entre ellas con el trackpad o la rueda del ratón y haz clic en una, sin escribir nada."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sélectionnez du texte sur une page : « Résumer », « Traduire », « Trouver similaire » et d’autres attendent dans le champ « Votre question… » juste en dessous. Faites-les défiler avec le trackpad ou la molette de la souris et cliquez sur l’une d’elles, sans rien taper."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seleziona del testo in una pagina: «Riassumi», «Traduci», «Trova simili» e altre azioni ti aspettano nel campo «La tua domanda…» sotto. Scorrile con il trackpad o la rotella del mouse e fai clic su una, senza scrivere nulla."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ページのテキストを選択すると、その下の「質問を入力…」欄に「要約」「翻訳」「似たものを探す」などが並びます。トラックパッドかマウスホイールでスクロールして1つクリックするだけ。入力は不要です。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "페이지에서 텍스트를 선택하면 아래 ‘질문 입력…’ 칸에 요약, 번역, 비슷한 것 찾기 등이 나타나요. 트랙패드나 마우스 휠로 넘겨 보고 하나를 클릭하면 돼요. 입력할 필요가 없어요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selecione um texto na página: “Resumir”, “Traduzir”, “Encontrar parecidos” e outras ações ficam no campo “Sua pergunta…” logo abaixo. Role por elas com o trackpad ou a roda do mouse e clique em uma, sem digitar nada."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выделите текст на странице: «Кратко», «Перевести», «Найти похожее» и другие действия ждут в поле «Ваш вопрос…» под ним. Прокрутите их трекпадом или колёсиком мыши и нажмите нужное — печатать не придётся."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Виділіть текст на сторінці: «Коротко», «Перекласти», «Знайти схоже» та інші дії чекають у полі «Ваше запитання…» під ним. Прокрутіть їх трекпадом або коліщатком миші й натисніть потрібну — друкувати не доведеться."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chọn văn bản trên trang: Tóm tắt, Dịch, Tìm tương tự và các thao tác khác nằm sẵn trong ô Câu hỏi của bạn… ngay bên dưới. Cuộn qua chúng bằng bàn di chuột hoặc con lăn chuột và bấm vào một mục, không cần gõ."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在页面上选中文字后，下方的“输入你的问题…”栏里会出现“总结”“翻译”“查找相似”等操作。用触控板或鼠标滚轮左右滚动，点按一个即可，无需打字。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在頁面上選取文字後，下方的「你的問題…」欄位中會出現「摘要」、「翻譯」、「尋找相似」等動作。用觸控板或滑鼠滾輪左右捲動，按一下其中一個就行，不用打字。"
+          }
+        }
+      }
+    },
+    "Click Find similar among the panel's actions, or in the … menu at the top of the panel. Or select text, like a product's name, and click Find similar among the quick actions under it. Add a condition like Cheaper or In stock if you want: the alternatives are real, and every link is opened and checked before you see it.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "انقر على «ابحث عن مشابه» بين إجراءات اللوحة أو في قائمة … أعلى اللوحة. أو حدد نصًا، مثل اسم منتج، وانقر على «ابحث عن مشابه» بين الإجراءات السريعة أسفله. أضف شرطًا مثل «أرخص» أو «متوفر» إن أردت: البدائل حقيقية، ونفتح كل رابط ونتحقق منه قبل أن تراه."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klick bei den Aktionen im Panel oder im Menü „…“ oben im Panel auf „Ähnliches finden“. Oder markiere Text, etwa den Namen eines Produkts, und klick in den Schnellaktionen darunter auf „Ähnliches finden“. Wenn du willst, füge eine Bedingung wie „Günstiger“ oder „Auf Lager“ hinzu: Die Alternativen sind echt, und jeder Link wird geöffnet und geprüft, bevor du ihn siehst."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haz clic en «Buscar similares» entre las acciones del panel o en el menú «…» arriba del panel. O selecciona texto, como el nombre de un producto, y haz clic en «Buscar similares» en las acciones rápidas de debajo. Añade una condición como «Más barato» o «En stock» si quieres: las alternativas son reales, y abrimos y comprobamos cada enlace antes de mostrártelo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cliquez sur « Trouver similaire » parmi les actions du panneau, ou dans le menu « … » en haut du panneau. Ou sélectionnez du texte, comme le nom d’un produit, et cliquez sur « Trouver similaire » dans les actions rapides en dessous. Ajoutez une condition comme « Moins cher » ou « En stock » si vous voulez : les alternatives sont réelles, et chaque lien est ouvert et vérifié avant que vous ne le voyiez."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fai clic su «Trova simili» tra le azioni del pannello o nel menu «…» in alto nel pannello. Oppure seleziona del testo, come il nome di un prodotto, e fai clic su «Trova simili» nelle azioni rapide sotto. Aggiungi una condizione come «Più economico» o «Disponibile» se vuoi: le alternative sono reali, e ogni link viene aperto e verificato prima che tu lo veda."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "パネルのアクションか、パネル上部の「…」メニューで「似たものを探す」をクリックします。または、商品名などのテキストを選択し、その下のクイック操作で「似たものを探す」をクリックします。必要なら「もっと安い」「在庫あり」などの条件を追加できます。候補はどれも実在し、表示する前にすべてのリンクを開いて確認しています。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "패널의 동작 목록이나 패널 위쪽 ‘…’ 메뉴에서 ‘비슷한 것 찾기’를 클릭하세요. 또는 상품 이름 같은 텍스트를 선택하고 아래 빠른 동작에서 ‘비슷한 것 찾기’를 클릭하세요. 원하면 ‘더 저렴하게’, ‘재고 있음’ 같은 조건을 더할 수 있어요. 대안은 모두 실제로 있는 것이고, 보여 드리기 전에 모든 링크를 열어 확인해요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clique em “Encontrar parecidos” entre as ações do painel ou no menu “…” no topo do painel. Ou selecione um texto, como o nome de um produto, e clique em “Encontrar parecidos” nas ações rápidas logo abaixo. Adicione uma condição como “Mais barato” ou “Em estoque” se quiser: as alternativas são reais, e cada link é aberto e verificado antes de você ver."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нажмите «Найти похожее» среди действий панели или в меню «…» вверху панели. Или выделите текст, например название товара, и нажмите «Найти похожее» среди быстрых действий под ним. Если нужно, добавьте условие, например «Дешевле» или «В наличии»: альтернативы настоящие, и каждую ссылку мы открываем и проверяем, прежде чем показать."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Натисніть «Знайти схоже» серед дій панелі або в меню «…» угорі панелі. Або виділіть текст, наприклад назву товару, і натисніть «Знайти схоже» серед швидких дій під ним. Якщо треба, додайте умову, як-от «Дешевше» чи «У наявності»: альтернативи справжні, і кожне посилання ми відкриваємо й перевіряємо, перш ніж показати."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bấm vào Tìm tương tự trong các thao tác của bảng, hoặc trong menu … ở đầu bảng. Hoặc chọn văn bản, như tên một sản phẩm, rồi bấm Tìm tương tự trong các thao tác nhanh bên dưới. Thêm điều kiện như Rẻ hơn hoặc Còn hàng nếu muốn: các lựa chọn thay thế đều có thật, và mọi liên kết đều được mở và kiểm tra trước khi bạn xem."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在面板的操作中，或在面板顶部的“…”菜单中，点按“查找相似”。也可以选中文字（比如商品名称），在下方的快捷操作中点按“查找相似”。需要的话，可以加上“更便宜”或“有货”等条件：给出的替代选择都真实存在，每个链接都会先打开检查，再给你看。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在面板的動作中，或在面板頂部的「…」選單中，按一下「尋找相似」。也可以選取文字（例如商品名稱），在下方的快速動作中按一下「尋找相似」。需要的話，可以加上「更便宜」或「有貨」等條件：列出的替代選擇都真實存在，每個連結都會先開啟檢查，再給你看。"
+          }
+        }
+      }
+    },
+    "Stop and close": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إيقاف وإغلاق"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stoppen und schließen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Detener y cerrar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrêter et fermer"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Interrompi e chiudi"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "停止して閉じる"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "정지하고 닫기"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parar e fechar"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Остановить и закрыть"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Зупинити й закрити"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dừng và đóng"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "停止并关闭"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "停止並關閉"
+          }
+        }
+      }
+    },
+    "Opens the player": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يفتح المشغّل"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öffnet den Player"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abre el reproductor"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvre le lecteur"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apre il lettore"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プレーヤーを開きます"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "플레이어를 엽니다"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abre o player"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Открывает плеер"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відкриває плеєр"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mở trình phát"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开播放器"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打開播放器"
           }
         }
       }

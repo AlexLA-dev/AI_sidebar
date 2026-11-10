@@ -1,11 +1,12 @@
 import { SPEEDS, type Speed } from "../shared/stretch"
 import { CONSENT_VERSION, consentStatus, type ConsentStatus } from "../shared/consent"
 import type { Entry } from "../shared/conversation"
-import { activity, cleanTitle, liveThreads, namedByUser, moveEntries, newThreadId, prune, purgeTrash, restoreThread, savedThread, trashThread, undoMove, type ActiveThread, type MoveUndo, type Thread, type Threads, cleanTags } from "../shared/threads"
+import { sameOrgState } from "../shared/organize"
+import { activity, cleanTitle, liveThreads, namedByUser, type OrgState, moveEntries, newThreadId, prune, purgeTrash, restoreThread, savedThread, trashThread, undoMove, type ActiveThread, type MoveUndo, type Thread, type Threads, cleanTags } from "../shared/threads"
 import { MAX_OTHER_PAGE_CHARS } from "../shared/prompt"
 import { planOfProduct, type Plan } from "../shared/plan"
 import { keepingAnswers, type Jobs } from "../shared/jobs"
-import { DEFAULT_SETTINGS, STORAGE, type OrgNames, type Settings } from "../shared/types"
+import { DEFAULT_SETTINGS, STORAGE, type Settings } from "../shared/types"
 
 
 async function get<T>(key: string): Promise<T | undefined> {
@@ -136,6 +137,33 @@ export async function notifyKnown(): Promise<boolean> {
 
 export async function setNotifyKnown(on: boolean): Promise<void> {
   if ((await get<boolean>(STORAGE.notifyOn)) !== on) await set(STORAGE.notifyOn, on)
+}
+
+/** A hand-off of Listen to the app on iPhone and iPad (build 93): the text's id there, the page, whether the panel was
+ *  open, and, when the app was asked to turn notifications on, what to play here once they are. */
+export interface ListenBack {
+  id: string
+  url: string
+  panel: boolean
+  at: number
+  key?: string
+  item?: { text: string; what: "answer" | "page"; lang: string; title: string; url: string }
+}
+
+export async function listenBackNow(): Promise<ListenBack | null> {
+  const back = await get<ListenBack>(STORAGE.listenBack)
+  return back && typeof back === "object" && typeof back.id === "string" && typeof back.url === "string" ? back : null
+}
+
+export async function setListenBack(back: ListenBack | null): Promise<void> {
+  if (back) await set(STORAGE.listenBack, back)
+  else {
+    try {
+      await chrome.storage.local.remove(STORAGE.listenBack)
+    } catch {
+      // No storage.
+    }
+  }
 }
 
 /** Whether "Not now" to notifications at Listen still holds (until the next day): Listen just opens the app. */
@@ -326,13 +354,28 @@ export async function nameThread(id: string, name: string, asked = false): Promi
   return before
 }
 
-/** A suggested name (2.6 (91)) taken or turned down: it isn't suggested again for the chat as it is. */
+/**
+ * A suggested name taken or turned down (2.6 (91)): it goes from the chat's organizing state, and turned down it joins
+ * the names never suggested again. Kept with the chat, so every device knows (2.6 (93)).
+ */
 export async function settleNameSuggestion(id: string, taken: boolean): Promise<void> {
-  const names = (await get<OrgNames>(STORAGE.orgNames)) ?? {}
-  const entry = names[id]
-  if (!entry?.title) return
-  const { title: _title, ...rest } = entry
-  await set(STORAGE.orgNames, { ...names, [id]: taken ? rest : { ...entry, no: true as const } })
+  const threads = (await get<Threads>(STORAGE.threads)) ?? {}
+  const stored = threads[id]
+  const nm = stored?.org?.nm
+  if (!stored || stored.deleted || !stored.org || !nm?.t) return
+  const no = taken ? nm.no ?? [] : [...(nm.no ?? []).filter((x) => x.toLowerCase() !== nm.t!.toLowerCase()), nm.t].slice(-20)
+  const next: OrgState = { ...stored.org, nm: { k: nm.k, ...(no.length ? { no } : {}) } }
+  await set(STORAGE.threads, { ...threads, [id]: { ...stored, u: Date.now(), a: activity(stored), org: next } })
+}
+
+/** What organizing worked out for a chat (2.6 (93)): kept with it (and so synced), when it says something new. */
+export async function setOrgState(id: string, org: OrgState): Promise<void> {
+  const threads = (await get<Threads>(STORAGE.threads)) ?? {}
+  const stored = threads[id]
+  if (!stored || stored.deleted || sameOrgState(stored.org, org)) return
+  // The chat as it was then: a message added meanwhile makes it stale, the next run puts the new one.
+  if (org.n !== stored.m.length) return
+  await set(STORAGE.threads, { ...threads, [id]: { ...stored, u: Date.now(), a: activity(stored), org } })
 }
 
 /** Undo for nameThread: the names as they were, if the chat still has the AI's one. */

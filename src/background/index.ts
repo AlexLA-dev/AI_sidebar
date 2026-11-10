@@ -219,9 +219,11 @@ async function status(refresh = false, fresh = false): Promise<StatusInfo> {
       limits?: { freeDaily?: number; proWeekly?: number; ultraWeekly?: number; searchFreeDaily?: number; searchProWeekly?: number; speakWeeklySeconds?: number; similarWeekly?: number; watch?: Record<Plan, number> }
       organize?: { on?: unknown; space?: unknown; config?: unknown }
       ultra?: { speak?: Usage | null; similar?: Usage | null } | null
+      country?: string
     }
     value = {
-      plan: body.plan, usage: body.usage, limitedBefore: body.limitedBefore === true, offer: body.offer ?? null,
+      plan: body.plan,
+      ...(typeof body.country === "string" && /^[A-Z]{2}$/.test(body.country) ? { country: body.country } : {}), usage: body.usage, limitedBefore: body.limitedBefore === true, offer: body.offer ?? null,
       upgradeOffer: body.upgradeOffer ?? null,
       ultra: body.ultra ? { speak: body.ultra.speak ?? null, similar: body.ultra.similar ?? null } : null,
       plans: planFacts(body.limits),
@@ -611,7 +613,8 @@ async function reportUse(message: Extract<BackgroundRequest, { type: "useEvent" 
     body: JSON.stringify({
       kind: "use", installId: id, client, f: message.f, a: message.a, what: message.what, via: message.via, reminders: message.reminders,
       watches: message.watches, plan: message.plan, period: message.period,
-      heard_s: message.heard_s, cache_s: message.cache_s, icloud_s: message.icloud_s, server_s: message.server_s, charged_s: message.charged_s, s: "panel"
+      heard_s: message.heard_s, cache_s: message.cache_s, icloud_s: message.icloud_s, server_s: message.server_s, charged_s: message.charged_s,
+      cur: message.cur, sf: message.sf, s: "panel"
     })
   }).catch(() => undefined)
 }
@@ -667,6 +670,14 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
       }, 4000).then((r) => sendResponse({ ok: r !== null, taken: r?.taken === true }), () => sendResponse({ ok: false }))
       return true
     }
+    case "listenReturn":
+      if (TARGET !== "safari" || !/^[0-9a-f-]{8,64}$/i.test(message.id)) {
+        sendResponse({ back: false })
+        return false
+      }
+      callNative<{ back?: boolean; play?: boolean; taken?: boolean }>("listenReturn", { id: message.id }, 3000)
+        .then((r) => sendResponse({ back: r?.back === true, play: r?.play === true, taken: r?.taken === true }), () => sendResponse({ back: false }))
+      return true
     case "speechClear":
       // "Delete all chats": what was read aloud goes from this device and, in Safari, from the user's iCloud (2.6).
       if (TARGET === "safari") void callNative("speechClear", {}, 15_000)
