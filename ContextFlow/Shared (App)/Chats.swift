@@ -733,9 +733,9 @@ final class ChatLibrary: ObservableObject {
         keepPolling()
     }
 
-    /// 2.6 (94): while the app is in front, iCloud is asked every 20 s. The owner renamed a chat on the iPhone and the
-    /// iPad still had the old name and the suggestion after five minutes: the app asked only at launch, back in front,
-    /// when its list showed again (never on an iPad, where the list stays) and after its own changes.
+    /// 2.6 (94): while the app is in front, iCloud is asked every 20 s. A chat renamed on one device kept its old name
+    /// on another for minutes: the app asked only at launch, back in front, when its list showed again (never on an
+    /// iPad, where the list stays) and after its own changes.
     private func keepPolling() {
         guard pollTask == nil else { return }
         pollTask = Task { [weak self] in
