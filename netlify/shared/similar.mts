@@ -1273,33 +1273,61 @@ function brandOf(c: CheckedCandidate): string[] {
   return [...new Set([...(first ? [first] : []), ...site])]
 }
 
+// Things sold beside a model that aren't another model of it.
+const ACCESSORY = /\b(bundle|kit|set|cover|case|strap|belt|cube|pump|insurance|protection|warranty|gift|card|tag|mask|pouch|organi[sz]er|refill|spare|replacement|accessor(y|ies))\b/i
+
 /**
- * The item page's links to its brand's other models on the same site: a link that names the brand (in its words or its
- * address) and isn't the item itself (another variant of it, a cart, a collection of everything). Most like the item
+ * The brand's other models on the item's site: the item page's links, and its shop's catalog when there is one
+ * (`catalog`: a Shopify shop's /products.json — the owner's Backvac Pro page links its Pro Max only from a "Compare
+ * models" button). A model names the brand (in its words or its address) and isn't the item itself (another variant
+ * of it, a cart, a collection of everything); accessories (a kit, a cover, a bundle) count less. Most like the item
  * first: the more of its name they share, the closer the model.
  */
-export function siblingLinks(c: CheckedCandidate): Array<{ url: string; text: string }> {
+export function siblingLinks(c: CheckedCandidate, catalog: Array<{ url: string; text: string }> = []): Array<{ url: string; text: string }> {
   const host = hostOf(c.page.finalUrl)
   const self = pathOf(c.page.finalUrl)
   const brand = brandOf(c)
   if (!host || !brand.length) return []
-  const mine = new Set(nameTokens(c.page.name || c.name).filter((t) => !GENERIC.has(t)))
+  const itemName = c.page.name || c.name
+  const mine = new Set(nameTokens(itemName).filter((t) => !GENERIC.has(t)))
+  const mineKey = nameTokens(itemName).join(" ")
   const seen = new Set<string>([self])
   const out: Array<{ url: string; text: string; score: number }> = []
-  for (const link of c.page.links ?? []) {
+  for (const link of [...catalog, ...(c.page.links ?? [])]) {
     if (hostOf(link.url) !== host) continue
     const path = pathOf(link.url)
     if (!path || seen.has(path) || /\/(collections?|categor(y|ies)|search|blogs?|pages?|policies|account|cart)(\/|$)/.test(path) && !/\/products?\//.test(path)) continue
     const words = nameTokens(link.text)
+    // The item itself under another address (an older listing of the same name).
+    if (words.join(" ") === mineKey) continue
     const named = brand.some((b) => words.includes(b) || path.replace(/[^a-z0-9]/g, "").includes(b))
     if (!named) continue
     const shared = words.filter((w) => mine.has(w)).length
     // A link that is only the brand ("Backvac") goes to its home page, not a model.
     if (words.filter((w) => !brand.includes(w) && !GENERIC.has(w)).length === 0 && !/\/products?\//.test(path)) continue
     seen.add(path)
-    out.push({ url: link.url, text: link.text, score: shared + (/\/products?\//.test(path) ? 0.5 : 0) })
+    const accessory = ACCESSORY.test(link.text) && !ACCESSORY.test(itemName)
+    out.push({ url: link.url, text: link.text, score: shared + (/\/products?\//.test(path) ? 0.5 : 0) - (accessory ? 2 : 0) })
   }
   return out.sort((a, b) => b.score - a.score).map(({ url, text }) => ({ url, text }))
+}
+
+/** A Shopify shop's catalog (/products.json): its products' names and addresses (empty when it can't be read). */
+export async function shopifyCatalog(origin: string, timeoutMs: number, signal?: AbortSignal): Promise<Array<{ url: string; text: string }>> {
+  try {
+    const timer = AbortSignal.timeout(timeoutMs)
+    const res = await fetch(`${origin}/products.json?limit=250`, {
+      headers: { Accept: "application/json", "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Safari/605.1.15" },
+      signal: signal ? AbortSignal.any([timer, signal]) : timer
+    })
+    if (!res.ok || !(res.headers.get("content-type") ?? "").includes("json")) return []
+    const body = (await res.json()) as { products?: Array<{ title?: unknown; handle?: unknown }> }
+    return (Array.isArray(body.products) ? body.products : []).flatMap((p) =>
+      typeof p.title === "string" && typeof p.handle === "string" && /^[^/?#\s]{1,200}$/.test(p.handle) ? [{ url: `${origin}/products/${encodeURIComponent(p.handle)}`, text: p.title.slice(0, 120) }] : []
+    ).slice(0, 250)
+  } catch {
+    return []
+  }
 }
 
 /**
@@ -1314,8 +1342,18 @@ export async function siblingsStep(checked: CheckedCandidate[], plan: Plan, fact
   const known = new Set(checked.map((c) => normalizeUrl(c.page.finalUrl || c.url)))
   const jobs: Array<{ i: number; url: string }> = []
   const taken = new Set<string>()
-  for (const { c, i } of due) {
-    const links = siblingLinks(c).filter((l) => !taken.has(normalizeUrl(l.url))).slice(0, SIBLINGS_EACH)
+  // A Shopify shop's catalog, once a site.
+  const catalogs = new Map<string, Promise<Array<{ url: string; text: string }>>>()
+  const catalogOf = (c: CheckedCandidate) => {
+    if (!c.page.shopify) return Promise.resolve([])
+    let origin = ""
+    try { origin = new URL(c.page.finalUrl).origin } catch { return Promise.resolve([]) }
+    if (!catalogs.has(origin)) catalogs.set(origin, shopifyCatalog(origin, Math.min(3_000, timeoutMs), signal))
+    return catalogs.get(origin)!
+  }
+  const found = await Promise.all(due.map(async ({ c, i }) => ({ c, i, catalog: await catalogOf(c) })))
+  for (const { c, i, catalog } of found) {
+    const links = siblingLinks(c, catalog).filter((l) => !taken.has(normalizeUrl(l.url))).slice(0, SIBLINGS_EACH)
     if (links.length) stats.items++
     for (const l of links) {
       if (jobs.length >= SIBLING_PAGES) break

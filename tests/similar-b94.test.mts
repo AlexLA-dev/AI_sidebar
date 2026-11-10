@@ -12,7 +12,7 @@ process.env.SUPABASE_SERVICE_ROLE_KEY = "service-key"
 process.env.ANTHROPIC_API_KEY = "test-key"
 
 const { describePage, markupRating, reviewsSection, textRating } = await import("../netlify/shared/pagecheck.mts")
-const { checkCondition, finishItems, localQueries, reviewWords, searchLocation, siblingLinks, siblingsStep, writeMessage, WRITE_SYSTEM } = await import("../netlify/shared/similar.mts")
+const { checkCondition, finishItems, localQueries, reviewWords, searchLocation, shopifyCatalog, siblingLinks, siblingsStep, writeMessage, WRITE_SYSTEM } = await import("../netlify/shared/similar.mts")
 const { jobKey, jobState, sweepJobs, useJobStore, waitForJob, JOB_STALE_MS } = await import("../netlify/shared/jobs.mts")
 const { default: resultFn } = await import("../netlify/functions/v2-similar-result.mts")
 const { cleanItem } = await import("../src/shared/similar.ts")
@@ -234,4 +234,36 @@ test("an item named on a list page doesn't take that page's price, stock or cond
   assert.equal(result.items[0].price, undefined)
   assert.equal(result.items[0].met, "unknown")
   assert.doesNotMatch(writeMessage(input(), plan(), [checked]), /price 0\.89/)
+})
+
+// The real Backvac catalog's names (mybackvac.com/products.json, 2026-11-10), the Pro page linking none of its models.
+const CATALOG = [
+  ["Linen Laundry Bag", "linen-laundry-bag"], ["Blackout Mask", "eye-mask"], ["Backvac Flight Bundle", "backvac-flight-bundle"],
+  ["Backvac Flight Carry-on", "backvac-flight-carry-on"], ["Backvac Overnight Bag", "backvac-overnight-bag"], ["Backvac Vacuum Kit", "backvac-vacuum-kit"],
+  ["Backvac Pro", "backvacv1"], ["Backvac Pro Max Complete Kit", "backvac-pro-max-complete-travel-kit"], ["Backvac Pro Max - Travel Bundle", "backvac-pro-max-travel-bundle"],
+  ["Backvac Pro Max", "backvacpromax"], ["Backvac Pro Travel Cover", "travelcover"], ["Backvac® Pro", "backvacpro"], ["Portable Air Pump", "airpump"]
+].map(([title, handle]) => ({ title, handle }))
+
+test("a Shopify shop: the brand's other models from its catalog when the page links none (the owner's Backvac Pro)", async () => {
+  const proPage = html("Backvac® Pro | Backvac", `<button>Compare Models</button><script src="https://cdn.shopify.com/s/files/theme.js"></script>`, `<meta property="og:site_name" content="Backvac">${price("179.99", "USD", "Backvac® Pro")}`)
+  const c = candidate("https://mybackvac.com/products/backvacpro", proPage, "Backvac® Pro")
+  assert.equal(c.page.shopify, true)
+  assert.deepEqual(siblingLinks(c), [])
+  const real = globalThis.fetch
+  globalThis.fetch = (async (url: string | URL | Request) => {
+    const u = String(url instanceof Request ? url.url : url)
+    if (u === "https://mybackvac.com/products.json?limit=250") return new Response(JSON.stringify({ products: CATALOG }), { headers: { "content-type": "application/json; charset=utf-8" } })
+    const body = u.endsWith("/backvacpromax") ? proMax : u.endsWith("/backvac-flight-carry-on") ? flight : ""
+    return new Response(body || "<title>Not found</title>", { status: body ? 200 : 404, headers: { "content-type": "text/html" } })
+  }) as typeof fetch
+  try {
+    const catalog = await shopifyCatalog("https://mybackvac.com", 3_000)
+    // The model first; the item itself (an older listing of its name) left out; kits, bundles and covers after models.
+    assert.deepEqual(siblingLinks(c, catalog).slice(0, 3).map((l) => l.text), ["Backvac Pro Max", "Backvac Flight Carry-on", "Backvac Overnight Bag"])
+    const out = await siblingsStep([c], plan(), {}, "en", 5_000)
+    assert.deepEqual(out.checked[0].siblings!.map((s) => s.page.name), ["Backvac Pro Max", "Backvac Flight Carry-On"])
+    assert.match(writeMessage(input(), plan(), out.checked), /«Backvac Pro Max» — 272\.95 EUR — condition: no .*Built-In Trolley System/)
+  } finally {
+    globalThis.fetch = real
+  }
 })

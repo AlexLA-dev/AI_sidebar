@@ -62,6 +62,8 @@ export interface CheckedPage {
   rating?: PageRating
   // Build 94: the page's own reviews (the text after its "Customer reviews" heading), for what reviewers say.
   reviewsText?: string
+  // Build 94: a Shopify shop (its catalog, /products.json, lists the brand's other models).
+  shopify?: true
   storeLink?: string
   pricingLinks?: string[]
   // Build 91: the page's links (address and words) and its versions in other languages, for one or two pages more
@@ -583,6 +585,7 @@ export function describePage(html: string, url: string, finalUrl: string, http: 
   if (status === "ok") {
     const reviews = reviewsSection(html)
     if (reviews) page.reviewsText = reviews
+    if (/cdn\.shopify\.com|Shopify\.shop\s*=|window\.Shopify\b/.test(html)) page.shopify = true
     const links = pageLinks(html, finalUrl)
     if (links.length) page.links = links
     const alternates = hreflangs(html, finalUrl)
