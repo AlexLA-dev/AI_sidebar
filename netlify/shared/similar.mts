@@ -268,7 +268,7 @@ Work out, once, what to search for:
 - traits: up to 5 short facts that make something a real alternative: what it is and does (kind, key specs, audience, cuisine, level, place…), never its price (the condition weighs price);
 - condition: kind (none, cheaper, in_stock, free, newer, shorter, nearby, language, other); max_price when they named a number (else 0); currency (3 letters, else ""); language they want the results in (BCP 47, else ""); place for nearby (else "");
 - source_price: the price the page itself shows for its item, as a plain number (else 0), and source_currency; a page that lists several items (a category or collection) — the lowest price it shows;
-- queries: 2 to 4 web searches that find the alternatives themselves — their own pages (a shop's product page, the app's site or store page, the recipe, the article, the course page, the listing) — not pages about the item on screen. Mix a direct one with ones that carry the condition. When they want it cheaper or in stock, at most one search may look for this very item at other shops; the others always find alternatives to it (other brands and models). Write each in the language that finds the best results for this person (usually theirs; English is fine for global products and software);
+- queries: 2 to 4 web searches that find the alternatives themselves — their own pages (a shop's product page, the app's site or store page, the recipe, the article, the course page, the listing) — not pages about the item on screen. Mix a direct one with ones that carry the condition. When they want it cheaper or in stock, at most one search may look for this very item at other shops; the others always find alternatives to it (other brands and models). For a branded product, one search names the competing brands or models you know (\"Bosch MUM5 Kenwood kMix Küchenmaschine\"), so the results aren't the same brand again. Write each in the language that finds the best results for this person (usually theirs; English is fine for global products and software);
 - language: the person's language (BCP 47), from their words, else the device locale.
 They may have tapped a quick choice (a chip: cheaper, in stock, newer, free, their language, shorter) and written their own words; both can come together. Their own words are what they need most: a price, a language or anything else they wrote goes into the condition and the searches.
 When they selected a part of the page, the subject is what the selection describes (a product, an app, a place, an idea… named or described in it), not the page's main item; the page is context. Then source_price is the price the selection itself shows (else 0).
@@ -1621,9 +1621,11 @@ export class ItemFinisher {
   private sameShops = 0
   private pages: CheckedCandidate[]
   private plan: Plan
-  constructor(pages: CheckedCandidate[], plan: Plan, source: SourcePage) {
+  private sourcePrice: number
+  constructor(pages: CheckedCandidate[], plan: Plan, source: SourcePage, sourcePrice = 0) {
     this.pages = pages
     this.plan = plan
+    this.sourcePrice = sourcePrice
     this.selfUrl = source.url ? normalizeUrl(source.url) : ""
     this.selfName = nameTokens(plan.subject).join(" ")
     this.selfHost = (() => { try { return new URL(source.url).hostname.replace(/^www\./, "") } catch { return "" } })()
@@ -1685,7 +1687,11 @@ export class ItemFinisher {
     // page shows it (build 94 threw away the same LEGO set 30 % cheaper as "the item itself"): at most two shops.
     const sameAsked = o.same === true || Boolean(nameKeyOf(name) && nameKeyOf(name) === this.selfName)
     const kind = this.plan.condition.kind
-    const same = sameAsked && (kind === "cheaper" || kind === "in_stock") && c.kind === "item" && !unchecked && c.condition.met === "yes" && host !== this.selfHost &&
+    // Their page shows no price to compare with (apple.com's "From $xx"): one shop's price for the same item still helps,
+    // not confirmed as cheaper.
+    const noBase = kind === "cheaper" && !this.plan.condition.maxPrice && !this.plan.sourcePrice && !this.sourcePrice
+    const offered = c.condition.met === "yes" || (noBase && c.condition.met === "unknown" && Boolean(page.price) && this.sameShops < 1)
+    const same = sameAsked && (kind === "cheaper" || kind === "in_stock") && c.kind === "item" && !unchecked && offered && host !== this.selfHost &&
       this.sameShops < 2 && nameScore(this.plan.subject, page) >= 0.6
     const nameKey = same ? `same ${host}` : nameKeyOf(name)
     if (key === this.selfUrl || (sameAsked && !same)) return drop("the item itself")
@@ -2127,7 +2133,7 @@ export async function* runEngineA(input: SimilarInput, stats: EngineStats, opts:
   let dropped: Array<{ name: string; why: string }>
   if (over.stream ?? config.similar.streamItems) {
     // Each item goes out as soon as it is written and has passed the same checks as the whole list.
-    const finisher = new ItemFinisher(usable, plan, input.page)
+    const finisher = new ItemFinisher(usable, plan, input.page, input.facts.price?.amount ?? 0)
     const gen = writeStream(input, plan, usable, Math.max(6_000, left() - 1_000), opts.signal, over)
     let next = await gen.next()
     while (!next.done) {
