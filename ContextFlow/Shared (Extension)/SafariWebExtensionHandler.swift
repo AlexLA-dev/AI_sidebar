@@ -132,7 +132,7 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                 guard let id = item["id"] as? String else { return nil }
                 if item["deleted"] as? Bool == true { return .delete(id) }
                 guard let updatedAt = (item["updatedAt"] as? NSNumber)?.int64Value, let data = item["data"] as? String else { return nil }
-                return .save(ChatSync.Snapshot(id: id, updatedAt: updatedAt, data: data))
+                return .save(ChatSync.Snapshot(id: id, updatedAt: updatedAt, data: data, base: (item["base"] as? NSNumber)?.int64Value))
             }
             Task {
                 let result = await Self.withTimeout(seconds: 18) { try await ChatSync.sync(token: token, changes: changes) }

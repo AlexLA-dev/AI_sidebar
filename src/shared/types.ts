@@ -208,7 +208,8 @@ export type BackgroundRequest =
   // A page of the chat: its tab if it's open, else a new tab.
   | { type: "openPage"; url: string }
   // The panel opened: sync threads with iCloud (Safari); answers { changed }.
-  | { type: "syncThreads" }
+  // quiet (2.6 (94)): while the panel stays open, not when it opens: the app's "continue this chat" waits for that.
+  | { type: "syncThreads"; quiet?: boolean }
   // AI search over the chats (Pro); answers a FindReply.
   | { type: "find"; query: string; chats: ChatDigest[] }
   // Organizing (2.5, Pro, with suggestions on): the suggestions for a chat now; answers an OrganizeReply.
@@ -244,7 +245,7 @@ export type OrganizeReply =
   | {
       ok: true
       // `match`: how well it fits there, in % (a move by topic or site, 2.6 (93)).
-      move: { start: number; end: number; to: string | null; toName: string; why: "page" | "site" | "topic" | "apart"; count: number; match?: number } | null
+      move: { start: number; end: number; to: string | null; toName: string; why: "merge" | "page" | "site" | "topic" | "apart"; count: number; match?: number } | null
       // A suggested tag for the message at `index` (its key, to check it's still that message).
       tags: Array<{ index: number; key: string; tag: string }>
       // 2.6: the chat's name no longer fits its topic (and the user didn't type it): this one would. A suggestion, like a
@@ -262,7 +263,7 @@ export type OrganizeNameReply = { ok: true; name: string } | { ok: false; code: 
 
 /** Organizing events for /api/v2/event (src/background/organize.ts sends them). */
 export type OrganizeEvent =
-  | { kind: "organize"; action: "shown" | "accepted" | "dismissed" | "undone"; what: "move" | "new" | "tag"; why?: "page" | "site" | "topic" | "apart" }
+  | { kind: "organize"; action: "shown" | "accepted" | "dismissed" | "undone"; what: "move" | "new" | "tag"; why?: "merge" | "page" | "site" | "topic" | "apart" }
   // 2.6: the chat named by its topic: "Name by topic" (asked), or a suggested name ("drift": its name no longer fit)
   // shown, taken, turned down; either undone.
   | { kind: "organize"; action: "shown" | "accepted" | "dismissed" | "undone"; what: "name"; why: "asked" | "drift" }

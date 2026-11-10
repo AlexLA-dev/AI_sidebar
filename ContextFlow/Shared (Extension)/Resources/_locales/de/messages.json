@@ -1496,6 +1496,15 @@
  "orgMatch": {
   "message": "{0} % passend"
  },
+ "orgMergeInto": {
+  "message": "Mit „{0}“ zusammenführen"
+ },
+ "orgMergeA11y": {
+  "message": "Diesen Chat mit „{0}“ zusammenführen"
+ },
+ "orgMerged": {
+  "message": "Mit „{0}“ zusammengeführt"
+ },
  "recs_one": {
   "message": "{0} Empfehlung"
  },

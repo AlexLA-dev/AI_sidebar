@@ -1496,6 +1496,15 @@
  "orgMatch": {
   "message": "一致度 {0}%"
  },
+ "orgMergeInto": {
+  "message": "「{0}」に統合"
+ },
+ "orgMergeA11y": {
+  "message": "このチャットを「{0}」に統合"
+ },
+ "orgMerged": {
+  "message": "「{0}」に統合しました"
+ },
  "recs_one": {
   "message": "おすすめ {0} 件"
  },
