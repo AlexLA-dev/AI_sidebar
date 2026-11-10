@@ -265,9 +265,9 @@ export const PLAN_SYSTEM = `Someone is on a web page and asks for similar things
 Work out, once, what to search for:
 - category: what the page is about: product, app (software, tool, online service), article (news, blog post, guide), recipe, place (hotel, restaurant, sight), course, video, paper, job, book, event, other;
 - subject: the thing itself in a few words, the way a person names it ("Sony WH-1000XM6 headphones", "Notion", "slow-cooker beef stew");
-- traits: up to 5 short facts that make something a real alternative (kind, key specs, price range, audience, cuisine, level, place…);
+- traits: up to 5 short facts that make something a real alternative: what it is and does (kind, key specs, audience, cuisine, level, place…), never its price (the condition weighs price);
 - condition: kind (none, cheaper, in_stock, free, newer, shorter, nearby, language, other); max_price when they named a number (else 0); currency (3 letters, else ""); language they want the results in (BCP 47, else ""); place for nearby (else "");
-- source_price: the price the page itself shows, as a plain number (else 0), and source_currency;
+- source_price: the price the page itself shows for its item, as a plain number (else 0), and source_currency; a page that lists several items (a category or collection) — the lowest price it shows;
 - queries: 2 to 4 web searches that find the alternatives themselves — their own pages (a shop's product page, the app's site or store page, the recipe, the article, the course page, the listing) — not pages about the item on screen. Mix a direct one with ones that carry the condition. When they want it cheaper or in stock, at most one search may look for this very item at other shops; the others always find alternatives to it (other brands and models). Write each in the language that finds the best results for this person (usually theirs; English is fine for global products and software);
 - language: the person's language (BCP 47), from their words, else the device locale.
 They may have tapped a quick choice (a chip: cheaper, in stock, newer, free, their language, shorter) and written their own words; both can come together. Their own words are what they need most: a price, a language or anything else they wrote goes into the condition and the searches.
@@ -1788,7 +1788,7 @@ export function sameModel(a: ModelKey, b: ModelKey): boolean {
   // No model words: the same base, or one within the other covering most of it ("Men's Tree Runner NZ" in "Allbirds
   // Men's Tree Runner NZ").
   const [short, long] = a.base.length <= b.base.length ? [a.base, b.base] : [b.base, a.base]
-  return short.length >= 3 && short.every((w) => long.includes(w)) && short.length / long.length >= 0.75
+  return short.length >= 3 && short.every((w) => long.includes(w)) && short.length / long.length >= (short.length >= 5 ? 0.6 : 0.75)
 }
 
 /** Names compared as words, without what doesn't tell items apart ("the", "new", "official"…). */
