@@ -178,5 +178,5 @@ test("\"Watch this page…\": the whole page in watching's window, a page that c
   assert.match(reg, /setPageWatch\(\(page\) => openWatchSheet\(\{ url: page\.url, title: page\.title, selection: null, how: "later", remind: \(\) => openLater\(\) \}\)\)/)
   const app = readFileSync(new URL("../src/content/App.tsx", import.meta.url), "utf8")
   // Only where watching works, as "Watching · N".
-  assert.match(app, /onWatchPage=\{listsKind\("watch"\) && pageWatcher\(\) \?/)
+  assert.match(app, /onWatchPage=\{view === "chat" && listsKind\("watch"\) && pageWatcher\(\) \?/)
 })

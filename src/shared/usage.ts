@@ -38,7 +38,8 @@ export const FEATURES: Record<string, Feature> = {
     via: ["composer", "chip", "followup", "newpage", "bubble", "qi_adapt", "retry", "app_chat"]
   },
   ai_search: { since: "2.4", tracked: "2.4", actions: ["on", "answer", "error", "open"], fields: { hits: ["0", "1-5", "6+"] } },
-  ask_chats: { since: "2.4", tracked: "2.4", actions: ["open", "chip", "answer", "error"] },
+  // Build 94: "link", a chat opened from a link to it in an answer.
+  ask_chats: { since: "2.4", tracked: "2.4", actions: ["open", "chip", "answer", "error", "link"] },
   consent: {
     since: "2.0", actions: ["shown", "accepted", "declined"],
     via: ["ask", "find", "ask_chats", "qi", "organize"], fields: { step: "int" }
@@ -96,7 +97,8 @@ export const FEATURES: Record<string, Feature> = {
     fields: { what: ["summary", "translate", "selection", "note", "video", "pdf", "chats", "search", "tags", "ai_search", "ask_chats", "quick_insert", "templates", "copied", "organize"] }
   },
   setup: { since: "2.4", on: "app", actions: ["open_settings", "open_safari", "mac_settings", "notif_granted", "notif_denied", "banner_tap"] },
-  notif: { since: "2.4", on: "app", actions: ["tap"], fields: { what: ["remind", "remind_page", "setup", "watch"] } },
+  // Build 94: "similar" — Find similar's "found" notification (the search ended after the person left Safari).
+  notif: { since: "2.4", on: "app", actions: ["tap"], fields: { what: ["remind", "remind_page", "setup", "watch", "similar"] } },
   app: {
     since: "2.4", tracked: "2.4", on: "app", actions: ["open"], via: ["icon", "deeplink", "notif"],
     fields: { what: ["subscribe", "manage", "tips", "chats", "chat", "templates", "open"] }
@@ -107,7 +109,8 @@ export const FEATURES: Record<string, Feature> = {
   // The panel header's "…" (opened, an item picked) and "Come back later": its window in the panel ("open"),
   // the "Reminders" list in the panel ("list": from the menu or the window's "All reminders" link) and in the
   // app ("open" from its tab), with how many reminders and watches the list held.
-  menu: { since: "2.5", on: "ext", actions: ["open", "pick"], fields: { what: ["later", "reminders", "settings", "intro", "listen", "similar", "plan_tour", "name_chat"] } },
+  // Build 94: the chats list has its "…" too ("via": over a chat or over the list), with Recently Deleted ("trash").
+  menu: { since: "2.5", on: "ext", actions: ["open", "pick"], via: ["chat", "list"], fields: { what: ["later", "reminders", "watching", "watch_page", "settings", "tips", "intro", "listen", "similar", "plan_tour", "name_chat", "trash"] } },
   // 2.6: read aloud (Ultra) started from an answer or the page, handed to the app (iPhone, iPad), or refused (not
   // Ultra: the plans sheet; the week's minutes used up). The parts themselves are logged by the server ("speak").
   // Build 90 (the app): Apple's voice read a text the server couldn't start ("apple"), a text stopped short after
@@ -116,8 +119,10 @@ export const FEATURES: Record<string, Feature> = {
   // iCloud, the server) and what the server charged up front, so minutes charged can be set against minutes heard.
   // Build 93: the app sent the person back to Safari once notifications were on ("back_safari"), and the panel then
   // played the text ("back_play").
+  // Build 94: what plays tapped in the panel's bar, back to its chat ("go"); a text heard to its end, now marked
+  // "already voiced" by Listen ("voiced").
   listen: {
-    since: "2.6", tracked: "2.6", actions: ["start", "app", "ultra", "limit", "error", "apple", "interrupted", "retry", "heard", "notify", "notify_on", "notify_later", "carried_on", "back_safari", "back_play"],
+    since: "2.6", tracked: "2.6", actions: ["start", "app", "ultra", "limit", "error", "apple", "interrupted", "retry", "heard", "notify", "notify_on", "notify_later", "carried_on", "back_safari", "back_play", "go", "voiced"],
     fields: { what: ["answer", "page"], heard_s: "int", cache_s: "int", icloud_s: "int", server_s: "int", charged_s: "int" }
   },
   // 2.6: the plans sheet (Own key, Pro, Ultra): opened from where, and the plan and period chosen (to the app).

@@ -908,6 +908,12 @@
  "chatNotes": {
   "message": "此对话中的笔记"
  },
+ "chatWatches": {
+  "message": "此对话中关注的页面:{0}"
+ },
+ "chatReminder": {
+  "message": "此对话设有提醒"
+ },
  "pages_one": {
   "message": "{0} 个页面"
  },
@@ -1496,6 +1502,15 @@
  "orgMatch": {
   "message": "匹配度 {0}%"
  },
+ "orgMergeInto": {
+  "message": "合并到“{0}”"
+ },
+ "orgMergeA11y": {
+  "message": "将此对话合并到“{0}”"
+ },
+ "orgMerged": {
+  "message": "已合并到“{0}”"
+ },
  "recs_one": {
   "message": "{0} 条建议"
  },
@@ -1753,6 +1768,12 @@
  },
  "listenPlayingHere": {
   "message": "正在播放"
+ },
+ "listenVoiced": {
+  "message": "已朗读过：重听免费"
+ },
+ "listenGoTo": {
+  "message": "前往出处"
  },
  "listenLoading": {
   "message": "正在准备语音…"
@@ -2170,6 +2191,30 @@
  },
  "similarReviewersSay": {
   "message": "评价：{0}"
+ },
+ "similarNotifyTitle": {
+  "message": "相似项查找完成"
+ },
+ "similarNotifyFound": {
+  "message": "找到 {0} 个选项。轻点查看。"
+ },
+ "similarNotifyNone": {
+  "message": "没有合适的。轻点更改条件。"
+ },
+ "similarNotifyFailed": {
+  "message": "搜索未完成。轻点重试。"
+ },
+ "similarSay": {
+  "message": "评价："
+ },
+ "similarPros": {
+  "message": "好评：{0}"
+ },
+ "similarCons": {
+  "message": "差评：{0}"
+ },
+ "similarEstimated": {
+  "message": "根据描述估计"
  },
  "tip_4cf1b54b00": {
   "message": "技巧"

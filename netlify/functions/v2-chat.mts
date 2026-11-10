@@ -128,7 +128,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
   let answer: Answer | null = null
   try {
     if (google) completion = await startGoogle(googlePrompt(page, profile, locale, others, hasMarks(messages)), messages, await geminiModels(), req.signal)
-    else answer = await startAnswer(history ? historyPrompt(chats, profile, locale) : (tokens) => systemPromptParts(page, profile, locale, others, fromApp, hasMarks(messages), tokens), messages, hasPro(access.plan) ? "pro" : "free", build, req.signal)
+    else answer = await startAnswer(history ? historyPrompt(chats, profile, locale, body.links === true) : (tokens) => systemPromptParts(page, profile, locale, others, fromApp, hasMarks(messages), tokens), messages, hasPro(access.plan) ? "pro" : "free", build, req.signal)
   } catch (err) {
     console.error("[cf] upstream failed:", err instanceof Error ? err.message : err)
     context.waitUntil(Promise.all([

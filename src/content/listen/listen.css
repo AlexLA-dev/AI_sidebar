@@ -155,3 +155,13 @@ button.cf-tier-chip { border: 0; cursor: pointer; }
 .cf-thread-audio { display: inline-flex; vertical-align: -2px; margin-inline-end: 5px; color: var(--accent); }
 .cf-fab-audio { position: absolute; bottom: 0; inset-inline-start: 0; display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: var(--accent, #3b82f6); color: #fff; border: 2px solid #fff; }
 .cf-listen .cf-listen-close { font-size: 20px; line-height: 1; }
+
+/* Build 94: what plays, on its own line at the top of the bar; a tap goes back to its chat and message. And the quiet
+   check by Listen on a text heard to its end here (replaying it costs no minutes). */
+.cf-listen { flex-wrap: wrap; row-gap: 4px; }
+.cf-listen-name { flex: 1 0 100%; min-width: 0; margin: 0; padding: 0 2px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; text-align: start; font: inherit; font-size: 12px; font-weight: 600; color: var(--text); background: none; border: 0; }
+button.cf-listen-name { cursor: pointer; }
+button.cf-listen-name:hover { color: var(--accent-text); text-decoration: underline; }
+button.cf-listen-name:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-radius: 4px; }
+.cf[data-touch] .cf-listen-name { font-size: 13px; }
+.cf-msg-tools button .cf-voiced { display: inline-flex; margin-inline-start: 3px; opacity: 0.8; }

@@ -908,6 +908,12 @@
  "chatNotes": {
   "message": "Ghi chú của bạn trong cuộc trò chuyện này"
  },
+ "chatWatches": {
+  "message": "Trang đang theo dõi trong cuộc trò chuyện này: {0}"
+ },
+ "chatReminder": {
+  "message": "Cuộc trò chuyện này có lời nhắc"
+ },
  "pages_one": {
   "message": "{0} trang"
  },
@@ -1496,6 +1502,15 @@
  "orgMatch": {
   "message": "khớp {0}%"
  },
+ "orgMergeInto": {
+  "message": "Gộp vào “{0}”"
+ },
+ "orgMergeA11y": {
+  "message": "Gộp cuộc trò chuyện này vào “{0}”"
+ },
+ "orgMerged": {
+  "message": "Đã gộp vào “{0}”"
+ },
  "recs_one": {
   "message": "{0} gợi ý"
  },
@@ -1753,6 +1768,12 @@
  },
  "listenPlayingHere": {
   "message": "Đang phát"
+ },
+ "listenVoiced": {
+  "message": "Đã đọc trước đó: nghe lại miễn phí"
+ },
+ "listenGoTo": {
+  "message": "Đến nơi phát"
  },
  "listenLoading": {
   "message": "Đang chuẩn bị giọng đọc…"
@@ -2170,6 +2191,30 @@
  },
  "similarReviewersSay": {
   "message": "Nhận xét: {0}"
+ },
+ "similarNotifyTitle": {
+  "message": "Đã tìm xong mục tương tự"
+ },
+ "similarNotifyFound": {
+  "message": "Tìm thấy {0} lựa chọn. Chạm để xem."
+ },
+ "similarNotifyNone": {
+  "message": "Không có gì phù hợp. Chạm để đổi điều kiện."
+ },
+ "similarNotifyFailed": {
+  "message": "Tìm kiếm chưa xong. Chạm để thử lại."
+ },
+ "similarSay": {
+  "message": "Mọi người nói:"
+ },
+ "similarPros": {
+  "message": "khen {0}"
+ },
+ "similarCons": {
+  "message": "chê {0}"
+ },
+ "similarEstimated": {
+  "message": "ước tính theo mô tả"
  },
  "tip_4cf1b54b00": {
   "message": "Mẹo"

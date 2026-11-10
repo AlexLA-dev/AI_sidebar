@@ -174,8 +174,10 @@ struct ContentView: View {
             .onChange(of: hasChats) { _ in showWhatsNewIfDue() }
             .onReceive(router.$pending.compactMap { $0 }) { url in
                 switch url.host {
-                // 2.6: the panel's plans sheet names the plan and period; a plan above the current one opens on it.
-                case "subscribe" where Paywall.wantsUpgrade(url, from: store.tier):
+                // 2.6: the panel's plans sheet names the plan and period; the plans screen opens on it. Build 94: also for
+                // a subscriber choosing another period or a lower plan (they went to Settings, with nothing to buy);
+                // only the plan they already have goes to Settings.
+                case "subscribe" where Paywall.wantsPlan(url, current: store.entitlement.active ? store.entitlement.productId : nil):
                     Paywall.shared.open(url)
                     tab = .pro
                 case "subscribe", "manage":
@@ -221,6 +223,8 @@ struct ContentView: View {
             .onChange(of: scenePhase) { phase in
                 if phase == .active {
                     askForReviewIfDue()
+                    // What the panel heard to its end meanwhile (build 94): Listen's "already voiced" mark.
+                    VoicedList.shared.reload()
                     // Back from Settings or Safari: whether ContextFlow is on now (2.6), and the guide over Settings goes.
                     Task { await activation.refresh() }
                     #if os(iOS)
@@ -246,7 +250,7 @@ struct ContentView: View {
                 if showsPro { proTab }
                 templatesTab
                 // A stack: chats open by value, so a chat's screen stays when its row moves (see ChatRoute).
-                NavigationStack { ChatsView(library: chats, activation: activation, openSetup: { showingSetup = true }, openPro: { tab = .pro }) }
+                NavigationStack { ChatsView(library: chats, activation: activation, openSetup: { showingSetup = true }, openPro: { tab = .pro }, openTab: { tab = $0 }) }
                     .tabItem { Label("Chats", systemImage: "bubble.left.and.bubble.right") }
                     .tag(AppTab.chats)
             } else {
@@ -295,7 +299,7 @@ struct ContentView: View {
         } detail: {
             switch tab {
             case .home: HomeView(store: store, activation: activation, openPro: { tab = .pro }, openTips: { tab = .tips })
-            case .chats: NavigationStack { ChatsView(library: chats, activation: activation, openPro: { tab = .pro }) }
+            case .chats: NavigationStack { ChatsView(library: chats, activation: activation, openSetup: { showingSetup = true }, openPro: { tab = .pro }, openTab: { tab = $0 }) }
             case .templates: NavigationStack { TemplatesView() }
             case .tips: TipsView(openPro: { tab = .pro })
             case .pro: ProView(store: store)
@@ -303,6 +307,16 @@ struct ContentView: View {
             }
         }
         .modifier(ListenMiniPlacement(shown: listenShown.mini, player: listen))
+        // Build 94: the setup guide from the Chats screen's "…" (Other… → How to turn on ContextFlow).
+        .sheet(isPresented: $showingSetup) {
+            NavigationStack {
+                HomeView(store: store, activation: activation, openPro: { showingSetup = false; tab = .pro }, openTips: { showingSetup = false; tab = .tips })
+                    .toolbar {
+                        ToolbarItem(placement: .confirmationAction) { Button("Done") { showingSetup = false } }
+                    }
+            }
+            .frame(minWidth: 560, minHeight: 600)
+        }
         .frame(minWidth: 720, minHeight: 560)
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
             chats.refresh()
@@ -1241,11 +1255,14 @@ struct ProView: View {
 final class Paywall: ObservableObject {
     static let shared = Paywall()
 
-    /// The link names a plan above the current one (or there is none): the Pro screen opens on it.
-    static func wantsUpgrade(_ url: URL, from current: StoreKitManager.Tier?) -> Bool {
-        let plan = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first { $0.name == "plan" }?.value
-        guard let tier = plan.flatMap(StoreKitManager.Tier.init(rawValue:)) else { return false }
-        return (current?.rank ?? 0) < tier.rank
+    /// The link names a plan, and a period, other than the subscription the person has (or they have none): the plans
+    /// screen opens on it, its Buy for that product. Without a period, any other plan.
+    static func wantsPlan(_ url: URL, current productId: String?) -> Bool {
+        let items = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
+        guard let tier = items.first(where: { $0.name == "plan" })?.value.flatMap(StoreKitManager.Tier.init(rawValue:)) else { return false }
+        guard let productId else { return true }
+        guard let period = items.first(where: { $0.name == "period" })?.value else { return PlanProducts.plan(of: productId) != tier.rawValue }
+        return "com.contextflow.\(tier.rawValue).\(period == "yearly" ? "yearly" : "monthly")" != productId
     }
     @Published var focus: StoreKitManager.Tier?
     @Published var yearly = true

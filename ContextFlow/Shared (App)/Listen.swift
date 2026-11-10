@@ -36,6 +36,64 @@ struct ListenRequest: Equatable {
     var firstIndex = 0
     var base: Double = 0
     var skip: Double = 0
+    /// Build 94: the text's id for "already voiced" (src/shared/voiced.ts), and whether part of it was skipped ahead in
+    /// Safari before the app carried it on.
+    var voiced: String?
+    var skippedBefore = false
+}
+
+/// "Already voiced" by Listen (build 94, the owner: a mark that shows replaying costs no minutes). It goes on a text
+/// heard to its end, with nothing skipped, in the app or the panel on this device. The two share the list through the
+/// App Group. The week's minutes count each part of a text once per subscription, on any device, so hearing it again
+/// adds nothing.
+@MainActor
+final class VoicedList: ObservableObject {
+    static let shared = VoicedList()
+    @Published private(set) var ids: Set<String>
+
+    private init() {
+        ids = Set(SharedDefaults.shared.voicedIds())
+    }
+
+    func reload() {
+        let now = Set(SharedDefaults.shared.voicedIds())
+        if now != ids { ids = now }
+    }
+
+    func has(_ what: String, _ text: String) -> Bool {
+        !ids.isEmpty && ids.contains(Self.id(what: what, text: text))
+    }
+
+    /// False when it was marked already.
+    @discardableResult
+    func mark(_ id: String) -> Bool {
+        let added = SharedDefaults.shared.markVoiced([id])
+        reload()
+        return added
+    }
+
+    /// The text's id: cyrb53's two 32-bit lanes over "<what>|<its first 24,000 UTF-16 units>" (src/shared/voiced.ts).
+    nonisolated static func id(what: String, text: String) -> String {
+        var h1: UInt32 = 0xdeadbeef
+        var h2: UInt32 = 0x41c6ce57
+        func mix(_ unit: UInt16) {
+            h1 = (h1 ^ UInt32(unit)) &* 2654435761
+            h2 = (h2 ^ UInt32(unit)) &* 1597334677
+        }
+        for unit in what.utf16 { mix(unit) }
+        mix(124) // "|"
+        var count = 0
+        for unit in text.utf16 {
+            if count == 24_000 { break }
+            mix(unit)
+            count += 1
+        }
+        h1 = (h1 ^ (h1 >> 16)) &* 2246822507
+        h1 ^= (h2 ^ (h2 >> 13)) &* 3266489909
+        h2 = (h2 ^ (h2 >> 16)) &* 2246822507
+        h2 ^= (h1 ^ (h1 >> 13)) &* 3266489909
+        return String(format: "%08x%08x", h2, h1)
+    }
 }
 
 /// Whether the player's sheet is up, and nothing else (build 92): the app's root watches this instead of the player,
@@ -80,22 +138,23 @@ struct ListenMiniBar: View {
 
     var body: some View {
         HStack(spacing: 14) {
-            Button { player.visible = true } label: {
-                HStack(spacing: 10) {
-                    Image(systemName: "speaker.wave.2.fill").foregroundStyle(ultraGradient)
-                    VStack(alignment: .leading, spacing: 5) {
+            HStack(spacing: 10) {
+                Image(systemName: "speaker.wave.2.fill").foregroundStyle(ultraGradient)
+                VStack(alignment: .leading, spacing: 0) {
+                    // Tapped: the player again. Its position is dragged on the line under it (build 94).
+                    Button { player.visible = true } label: {
                         Text(player.request?.title ?? "")
                             .font(.subheadline.weight(.semibold))
                             .lineLimit(1)
-                        ProgressView(value: min(player.elapsed, max(player.duration, 1)), total: max(player.duration, 1))
-                            .tint(brandBlue)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .contentShape(Rectangle())
                     }
+                    .buttonStyle(.plain)
+                    .accessibilityHint(Text("Opens the player"))
+                    .accessibilityIdentifier("listen.mini")
+                    ListenScrubber(player: player, thin: true)
                 }
-                .contentShape(Rectangle())
             }
-            .buttonStyle(.plain)
-            .accessibilityHint(Text("Opens the player"))
-            .accessibilityIdentifier("listen.mini")
             Button { player.togglePause() } label: {
                 Image(systemName: player.state == .playing ? "pause.fill" : "play.fill").font(.title3)
             }
@@ -111,7 +170,85 @@ struct ListenMiniBar: View {
             .accessibilityIdentifier("listen.mini.close")
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 8)
+        .padding(.vertical, 5)
+    }
+}
+
+/// The position, dragged or tapped (build 94, the owner: in the app it moved only by 15 s, in the panel it's dragged):
+/// within what has come (a shade lighter than the rest); while dragging it shows where it would go, and letting go moves
+/// there once. VoiceOver moves it by 15 s. It follows the player's clock only while that runs.
+struct ListenScrubber: View {
+    @ObservedObject var player: ListenPlayer
+    /// The mini bar's: a thin line in a short hit area, no times.
+    var thin = false
+    @State private var dragging: Double?
+
+    var body: some View {
+        VStack(spacing: 6) {
+            track
+            if !thin {
+                HStack {
+                    Text(Self.clock(dragging ?? player.elapsed)).accessibilityIdentifier("listen.elapsed")
+                    Spacer()
+                    Text(Self.clock(player.duration))
+                }
+                .font(.caption.monospacedDigit())
+                .foregroundColor(.secondary)
+            }
+        }
+    }
+
+    private var track: some View {
+        let total = max(player.duration, 1)
+        let received = min(max(player.received, 0), total)
+        let shown = min(max(dragging ?? player.elapsed, 0), total)
+        let line: CGFloat = thin ? 3 : 4
+        let knob: CGFloat = thin ? (dragging == nil ? 0 : 11) : (dragging == nil ? 13 : 17)
+        return GeometryReader { g in
+            let width = max(g.size.width, 1)
+            let x = { (seconds: Double) in width * CGFloat(seconds / total) }
+            ZStack(alignment: .leading) {
+                Capsule().fill(Color.secondary.opacity(0.22)).frame(height: line)
+                Capsule().fill(brandBlue.opacity(0.32)).frame(width: x(received), height: line)
+                Capsule().fill(brandBlue).frame(width: x(shown), height: line)
+                Circle().fill(brandBlue).frame(width: knob, height: knob).offset(x: x(shown) - knob / 2)
+            }
+            .frame(width: width, height: g.size.height)
+            .contentShape(Rectangle())
+            .gesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { value in dragging = at(value.location.x, width: width, total: total) }
+                    .onEnded { value in
+                        let to = at(value.location.x, width: width, total: total)
+                        dragging = nil
+                        player.seek(to: to)
+                    }
+            )
+            .disabled(player.state == .loading || player.received <= 0)
+        }
+        .frame(height: thin ? 14 : 26)
+        .accessibilityElement()
+        .accessibilityLabel(Text("Playback position"))
+        .accessibilityValue(Text("\(Self.clock(player.elapsed)) of \(Self.clock(player.duration))"))
+        .accessibilityAdjustableAction { direction in
+            switch direction {
+            case .increment: player.skip(15)
+            case .decrement: player.skip(-15)
+            @unknown default: break
+            }
+        }
+        .accessibilityIdentifier(thin ? "listen.mini.position" : "listen.position")
+    }
+
+    /// The second under the finger, within what has come.
+    private func at(_ x: CGFloat, width: CGFloat, total: Double) -> Double {
+        let seconds = Double(max(0, min(x, width)) / width) * total
+        return min(seconds, max(0, player.received - 0.25))
+    }
+
+    static func clock(_ seconds: Double) -> String {
+        let s = max(0, Int(seconds.rounded()))
+        return String(format: "%d:%02d", s / 60, s % 60)
     }
 }
 
@@ -182,6 +319,8 @@ final class ListenPlayer: NSObject, ObservableObject {
     @Published private(set) var secondsLeft: Int?
     @Published private(set) var duration: Double = 0
     @Published var visible = false
+    /// The seconds of audio in hand (the whole text's clock): the position moves within it (build 94).
+    var received: Double { base + Double(samples.count) / Self.rate }
 
     private static let rate = 24_000.0
     private let engine = AVAudioEngine()
@@ -200,6 +339,10 @@ final class ListenPlayer: NSObject, ObservableObject {
     /// charged up front, and how far it was heard: reported when it stops (build 92, minutes charged against heard).
     private var counts = (cache: 0.0, icloud: 0.0, server: 0.0, charged: 0.0)
     private var heardTo: Double = 0
+    /// Build 94: how far it has been heard as it played, and whether a part was skipped ahead (a seek or 15 s ahead past
+    /// what was heard). Heard to its end with nothing skipped, the text is "already voiced".
+    private var reached: Double = 0
+    private var skippedAhead = false
     /// Each part's samples here (its key on the devices and the server), and the seconds heard of each (build 92: the
     /// week's minutes count what's heard; HeardStore keeps them until the server has).
     private var partRanges: [(key: String, start: Int, end: Int)] = []
@@ -348,7 +491,7 @@ final class ListenPlayer: NSObject, ObservableObject {
         guard !parts.isEmpty else { return }
         ChatAI.reportUse("listen", "start", ["what": "answer"])
         start(ListenRequest(id: id, parts: parts, lang: Self.language(of: plain), what: "answer", title: title, url: nil,
-                            text: markdown, script: Self.needsScript(markdown)))
+                            text: markdown, script: Self.needsScript(markdown), voiced: VoicedList.id(what: "answer", text: markdown)))
     }
 
     /// An answer's Markdown as plain sentences (no marks, links' words only).
@@ -431,6 +574,9 @@ final class ListenPlayer: NSObject, ObservableObject {
             text: stored["text"] as? String ?? "",
             script: stored["script"] as? Bool ?? false
         )
+        let what = request.what == "page" ? "page" : "answer"
+        request.voiced = request.text.isEmpty ? nil : VoicedList.id(what: what, text: request.text)
+        request.skippedBefore = (stored["handoff"] as? [String: Any])?["skipped"] as? Bool ?? false
         if let from {
             // Carried on from Safari: the panel won't play it again, and the speed it had goes on.
             SharedDefaults.shared.markListenTaken(id)
@@ -453,7 +599,7 @@ final class ListenPlayer: NSObject, ObservableObject {
         }
         let first = min(spoken.count - 1, starts.lastIndex { $0 <= from + 0.05 } ?? 0)
         out = ListenRequest(id: request.id, parts: Array(spoken[first...]), lang: request.lang, what: request.what, title: request.title,
-                            url: request.url, text: "", script: false)
+                            url: request.url, text: "", script: false, voiced: request.voiced, skippedBefore: request.skippedBefore)
         out.firstIndex = first
         out.base = starts[min(first, starts.count - 1)]
         out.skip = max(0, from - out.base)
@@ -470,6 +616,9 @@ final class ListenPlayer: NSObject, ObservableObject {
         base = request.base
         pendingSkip = request.skip > 0 ? request.skip : nil
         elapsed = base + request.skip
+        // Carried on from Safari: heard there up to this second (build 94: only a skip past what was heard counts).
+        reached = base + request.skip
+        skippedAhead = false
         duration = base + Self.estimate(request.parts.joined(separator: " "))
         if secondsLeft == nil { secondsLeft = StoreKitManager.shared.planFacts.speakLeftSeconds }
         // The week's minutes not known yet (the app just opened, Settings not visited): asked first, for at most 2 s,
@@ -650,6 +799,7 @@ final class ListenPlayer: NSObject, ObservableObject {
         gapFrames = 0
         pausedAt = nil
         elapsed = base + Double(startSample) / Self.rate
+        if elapsed > reached + 1 { skippedAhead = true }
         scheduleMore()
         if wasPlaying { play() } else { updateNowPlaying() }
     }
@@ -1175,11 +1325,14 @@ final class ListenPlayer: NSObject, ObservableObject {
             let heard = max(0, min(now, playerEnd) - gapFrames)
             elapsed = base + min(Double(samples.count) / Self.rate, Double(startSample + Int(heard)) / Self.rate)
             heardTo = max(heardTo, elapsed)
+            // Every jump goes through seek(), which says whether it skipped ahead: here it's only playing on.
+            if state == .playing { reached = max(reached, elapsed) }
             noteHeard(at: startSample + Int(heard))
             drained = now >= playerEnd
         }
         if drained, state == .playing {
             if fetchedAll {
+                noteVoiced()
                 finish(.ended)
                 return
             } else if let reason = pendingReason {
@@ -1193,6 +1346,14 @@ final class ListenPlayer: NSObject, ObservableObject {
             }
         }
         // While playing, the lock screen keeps its own clock (rate and elapsed): it's told only of changes.
+    }
+
+    /// Heard to its end with nothing skipped, here and in Safari before (build 94): Listen marks it "already voiced", in
+    /// the app and in the panel on this device.
+    private func noteVoiced() {
+        guard let request, let id = request.voiced, !skippedAhead, !request.skippedBefore,
+              reached >= base + Double(samples.count) / Self.rate - 1.5 else { return }
+        if VoicedList.shared.mark(id) { ChatAI.reportUse("listen", "voiced", ["what": request.what == "page" ? "page" : "answer"]) }
     }
 
     /// Done, or stopped short: nothing keeps running and the audio session is let go (the phone can rest).
@@ -1297,6 +1458,12 @@ final class ListenPlayer: NSObject, ObservableObject {
         center.skipBackwardCommand.preferredIntervals = [15]
         center.skipBackwardCommand.addTarget { [weak self] _ in
             Task { @MainActor in self?.skip(-15) }
+            return .success
+        }
+        // The position dragged on the lock screen and in Control Center (build 94), within what has come.
+        center.changePlaybackPositionCommand.addTarget { [weak self] event in
+            guard let position = (event as? MPChangePlaybackPositionCommandEvent)?.positionTime else { return .commandFailed }
+            Task { @MainActor in self?.seek(to: position) }
             return .success
         }
         // The speed on the lock screen and in Control Center, where the system offers it.
@@ -1491,6 +1658,7 @@ struct ListenView: View {
                     .font(.headline)
                     .multilineTextAlignment(.center)
                     .lineLimit(3)
+                    .accessibilityIdentifier("listen.title")
                 (player.request?.what == "page" ? Text("The page, read aloud") : Text("The answer, read aloud"))
                     .font(.subheadline)
                     .foregroundColor(.secondary)
@@ -1500,15 +1668,8 @@ struct ListenView: View {
 
             if showsControls {
                 VStack(spacing: 6) {
-                    ProgressView(value: min(player.elapsed, player.duration), total: max(player.duration, 1))
-                        .tint(brandBlue)
-                    HStack {
-                        Text(clock(player.elapsed)).accessibilityIdentifier("listen.elapsed")
-                        Spacer()
-                        Text(clock(player.duration))
-                    }
-                    .font(.caption.monospacedDigit())
-                    .foregroundColor(.secondary)
+                    // Dragged or tapped (build 94), as in the panel.
+                    ListenScrubber(player: player)
                     // The week's listening left (build 91: the owner wanted to see it somewhere).
                     if let left = player.secondsLeft {
                         Text("\(left / 60) min of listening left this week")
@@ -1639,11 +1800,6 @@ struct ListenView: View {
         default:
             EmptyView()
         }
-    }
-
-    private func clock(_ seconds: Double) -> String {
-        let s = max(0, Int(seconds.rounded()))
-        return String(format: "%d:%02d", s / 60, s % 60)
     }
 }
 

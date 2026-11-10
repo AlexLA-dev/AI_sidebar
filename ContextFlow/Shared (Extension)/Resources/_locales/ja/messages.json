@@ -908,6 +908,12 @@
  "chatNotes": {
   "message": "このチャットのメモ"
  },
+ "chatWatches": {
+  "message": "このチャットで見守り中のページ: {0}"
+ },
+ "chatReminder": {
+  "message": "このチャットにリマインダーがあります"
+ },
  "pages_one": {
   "message": "{0}ページ"
  },
@@ -1496,6 +1502,15 @@
  "orgMatch": {
   "message": "一致度 {0}%"
  },
+ "orgMergeInto": {
+  "message": "「{0}」に統合"
+ },
+ "orgMergeA11y": {
+  "message": "このチャットを「{0}」に統合"
+ },
+ "orgMerged": {
+  "message": "「{0}」に統合しました"
+ },
  "recs_one": {
   "message": "おすすめ {0} 件"
  },
@@ -1753,6 +1768,12 @@
  },
  "listenPlayingHere": {
   "message": "再生中"
+ },
+ "listenVoiced": {
+  "message": "読み上げ済み：もう一度聞いても無料です"
+ },
+ "listenGoTo": {
+  "message": "元の場所へ移動"
  },
  "listenLoading": {
   "message": "音声を準備しています…"
@@ -2170,6 +2191,30 @@
  },
  "similarReviewersSay": {
   "message": "レビュー: {0}"
+ },
+ "similarNotifyTitle": {
+  "message": "類似アイテムの検索が完了"
+ },
+ "similarNotifyFound": {
+  "message": "見つかった候補：{0}件。タップして表示。"
+ },
+ "similarNotifyNone": {
+  "message": "条件に合うものはありません。タップして条件を変更。"
+ },
+ "similarNotifyFailed": {
+  "message": "検索が完了しませんでした。タップして再試行。"
+ },
+ "similarSay": {
+  "message": "評判："
+ },
+ "similarPros": {
+  "message": "好評：{0}"
+ },
+ "similarCons": {
+  "message": "不満：{0}"
+ },
+ "similarEstimated": {
+  "message": "説明文からの推定"
  },
  "tip_4cf1b54b00": {
   "message": "ヒント"

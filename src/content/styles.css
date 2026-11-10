@@ -306,6 +306,8 @@
 .cf[data-layout="sheet"] .cf-header { padding-top: 2px; }
 .cf-logo { color: var(--accent); display: flex; margin-inline-end: 4px; }
 .cf-title { flex: 1; min-width: 0; display: flex; align-items: center; }
+/* 2.6 (94): the chat's name under the header, the whole width, two lines at most. */
+.cf-chat-bar { flex-shrink: 0; padding: 6px 14px 7px; font-size: 13px; font-weight: 600; line-height: 1.3; color: var(--text); border-bottom: 1px solid var(--border); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
 .cf-title strong { font-size: 15px; font-weight: 600; }
 .cf-icon { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--text-2); }
 .cf-icon:hover { background: var(--bg-2); color: var(--text); }
@@ -378,6 +380,8 @@
 .cf-newpage .cf-actions.follow { margin: 0; }
 .cf-msg.user { align-items: flex-end; }
 .cf-user-mode { display: inline-flex; vertical-align: -1px; margin-inline-end: 5px; opacity: 0.85; }
+/* Build 94: where a Find similar looked, under its words («Рядом · Кипр», «По всему миру»). */
+.cf-user-where { display: block; margin-top: 3px; font-size: 12px; opacity: 0.85; }
 .cf-bubble-user {
   max-width: 86%;
   padding: 8px 13px;
@@ -464,6 +468,10 @@
   font-size: 10.5px; font-weight: 650; line-height: 1; text-decoration: none; vertical-align: 2px;
 }
 .md a.md-cite:hover { background: var(--accent-soft); color: var(--accent-text); }
+/* Build 94: a chat named in an "Ask your chats" answer opens that chat: a link with a soft fill, so it reads as a place
+   in ContextFlow rather than a web page. */
+.md a.md-chat { padding: 0 3px; border-radius: 4px; background: var(--accent-soft); text-decoration: none; cursor: pointer; }
+.md a.md-chat:hover { text-decoration: underline; }
 .md code { font-family: var(--mono); font-size: 0.9em; background: var(--bg-2); padding: 1px 5px; border-radius: 5px; }
 .md hr { border: 0; border-top: 1px solid var(--border); margin: 12px 0; }
 .md blockquote { margin: 0 0 8px; padding-block: 2px; padding-inline: 12px 0; border-inline-start: 3px solid var(--bg-3); color: var(--text-2); }
@@ -649,6 +657,11 @@
 .cf-thread-recs { display: inline-flex; align-items: center; gap: 3px; padding: 1px 7px 1px 5px; border-radius: 8px; font-weight: 600; color: var(--accent-text); background: var(--accent-soft); }
 .cf-thread-recs svg { width: 11px; height: 11px; }
 .cf-thread-meta > * + .cf-thread-recs::before, .cf-thread-meta > .cf-thread-recs + *::before { content: none; }
+/* Build 94: the eye with how many of the chat's pages are watched, and the bell while a reminder is still to ring:
+   small marks in the line's own grey, without chips or dots, so the row stays light beside "N recommendations". */
+.cf-thread-mark { display: inline-flex; align-items: center; gap: 2px; color: var(--text-2); font-weight: 600; }
+.cf-thread-mark svg { width: 12px; height: 12px; }
+.cf-thread-meta > * + .cf-thread-mark::before, .cf-thread-meta > .cf-thread-mark + *::before { content: none; }
 .cf-pages-pop {
   position: absolute; left: 10px; right: 10px; top: calc(100% - 6px); z-index: 5;
   max-height: 240px; overflow-y: auto; padding: 6px;

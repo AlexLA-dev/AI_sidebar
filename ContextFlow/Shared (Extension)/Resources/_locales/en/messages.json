@@ -908,6 +908,12 @@
  "chatNotes": {
   "message": "Your notes in this chat"
  },
+ "chatWatches": {
+  "message": "Pages watched in this chat: {0}"
+ },
+ "chatReminder": {
+  "message": "A reminder is set in this chat"
+ },
  "pages_one": {
   "message": "{0} page"
  },
@@ -1496,6 +1502,15 @@
  "orgMatch": {
   "message": "{0}% match"
  },
+ "orgMergeInto": {
+  "message": "Merge into “{0}”"
+ },
+ "orgMergeA11y": {
+  "message": "Merge this chat into “{0}”"
+ },
+ "orgMerged": {
+  "message": "Merged into “{0}”"
+ },
  "recs_one": {
   "message": "{0} recommendation"
  },
@@ -1759,6 +1774,12 @@
  },
  "listenPlayingHere": {
   "message": "Playing now"
+ },
+ "listenVoiced": {
+  "message": "Already voiced: replay is free"
+ },
+ "listenGoTo": {
+  "message": "Go to where it's from"
  },
  "listenSpeed": {
   "message": "Speed: {0}. Tap for another speed"
@@ -2170,6 +2191,30 @@
  },
  "similarReviewersSay": {
   "message": "Reviewers: {0}"
+ },
+ "similarNotifyTitle": {
+  "message": "Find similar is done"
+ },
+ "similarNotifyFound": {
+  "message": "Options found: {0}. Tap to see them."
+ },
+ "similarNotifyNone": {
+  "message": "Nothing that fits. Tap to change the condition."
+ },
+ "similarNotifyFailed": {
+  "message": "The search didn't finish. Tap to try again."
+ },
+ "similarSay": {
+  "message": "What people say:"
+ },
+ "similarPros": {
+  "message": "like {0}"
+ },
+ "similarCons": {
+  "message": "dislike {0}"
+ },
+ "similarEstimated": {
+  "message": "estimated from the description"
  },
  "tip_4cf1b54b00": {
   "message": "Tips"

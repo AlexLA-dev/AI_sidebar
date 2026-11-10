@@ -32,7 +32,7 @@ struct SuggestionRow: View {
                 }
             }
             if let move {
-                SuggestionChip(tint: .secondary, takeLabel: move.to == nil ? Text("Move these messages to a new chat, “\(move.toName)”") : Text("Move \(messagesCount(move.count)) to the chat “\(move.toName)”"), take: onMove, refuse: onMoveNo) {
+                SuggestionChip(tint: .secondary, takeLabel: move.why == .merge ? Text("Merge this chat into “\(move.toName)”") : move.to == nil ? Text("Move these messages to a new chat, “\(move.toName)”") : Text("Move \(messagesCount(move.count)) to the chat “\(move.toName)”"), take: onMove, refuse: onMoveNo) {
                     HStack(spacing: 0) {
                         (Text(Image(systemName: "arrow.turn.down.right")) + Text(" ") + moveText(move))
                             .lineLimit(1)
@@ -55,12 +55,17 @@ struct SuggestionRow: View {
                 }
             }
         }
+        // 2.6 (94): a light tint, so the suggestions stand out from the chat (the owner: «подсвечивать… Очень лайтово»).
+        .padding(.horizontal, 8)
+        .padding(.vertical, 5)
+        .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Color.accentColor.opacity(0.07)))
         .padding(.top, 2)
         .transition(.opacity)
     }
 
     private func moveText(_ move: OrganizeModel.Move) -> Text {
         let name = Text(move.toName).fontWeight(.semibold).foregroundColor(.primary)
+        if move.why == .merge { return Text("Merge into “\(name)”") }
         return move.to == nil ? Text("To a new chat: “\(name)”") : Text("\(messagesCount(move.count)) to “\(name)”")
     }
 }
@@ -541,6 +546,29 @@ final class OrganizeModel: ObservableObject {
         for tag in Organize.openTags(chat) { out.tags[tag.index] = (tag.key, tag.tag) }
         out.name = Organize.openName(chat, name: thread.name)
         return out.move == nil && out.tags.isEmpty && out.name == nil ? nil : out
+    }
+
+    /// `s` without what was settled since, here or on another device (2.6 (94): a name taken on the iPhone stayed
+    /// suggested on the iPad, where nothing was left open in the chat's record to show instead): the name once it's
+    /// the chat's or turned down, a tag the message has or had turned down, a move whose messages were moved or turned
+    /// down (or, for a merge, turned down for that chat).
+    func settled(_ s: Suggestions, _ thread: ChatThread) -> Suggestions {
+        guard let chat = thread.organized else { return s }
+        var out = s
+        if let name = s.name, name == thread.name || (thread.org?.nm?.no ?? []).contains(where: { $0.lowercased() == name.lowercased() }) { out.name = nil }
+        for (index, item) in s.tags {
+            guard chat.entries.indices.contains(index), Organize.entryKey(chat.entries[index]) == item.key else { out.tags[index] = nil; continue }
+            let e = thread.entries[index]
+            let has = { (list: [String]?) in (list ?? []).contains { $0.lowercased() == item.tag.lowercased() } }
+            if has(e.tags) || has((chat.entries[index]["dismissed"] as? [String: Any])?["tags"] as? [String]) { out.tags[index] = nil }
+        }
+        if let mv = s.move {
+            let gone = mv.end >= chat.entries.count || chat.entries[mv.start...mv.end].contains {
+                Organize.truthy(($0["dismissed"] as? [String: Any])?["move"]) || Organize.truthy($0["from"])
+            }
+            if gone || (mv.why == .merge && mv.to.map { (thread.org?.mx ?? []).contains($0) } == true) { out.move = nil }
+        }
+        return out
     }
 
     /// The open suggestions of every chat, for the chats list (2.6, "N recommendations"): its move, and the name and

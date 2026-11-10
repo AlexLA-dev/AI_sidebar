@@ -45,6 +45,10 @@ export interface Entry extends ChatTurn {
   similarAsk?: string
   // …and, asked from a selection, what was selected (its subject; asked again with it).
   similarSel?: string
+  // …and where it looked (build 94, the owner: the question line shows it, and Retry asks the same): anywhere, or near
+  // them in their country (two letters).
+  similarRegion?: "world" | "local"
+  similarCountry?: string
   similar?: SimilarAnswer
   // User turns: where they were asked, and whether the page had changed since the last question there.
   page?: PageRef
@@ -284,7 +288,8 @@ export function textFingerprint(text: string): string {
 
 /** Removes numbered source citations ("[2](url)") from an answer. */
 export function stripCitations(text: string): string {
-  return text.replace(/[ \t]*\[\d{1,2}\]\(https?:[^)\s]+\)/g, "")
+  // Build 94: a link to a chat in an "Ask your chats" answer ([name](chat:<id>)) keeps its name.
+  return text.replace(/[ \t]*\[\d{1,2}\]\(https?:[^)\s]+\)/g, "").replace(/\[([^\]\n]+)\]\(chat:[A-Za-z0-9_-]{1,64}\)/g, "$1")
 }
 
 /** The last page the conversation was on (from the latest user turn), if any. */

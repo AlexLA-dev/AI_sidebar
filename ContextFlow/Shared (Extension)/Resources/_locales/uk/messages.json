@@ -908,6 +908,12 @@
  "chatNotes": {
   "message": "Ваші нотатки в цьому чаті"
  },
+ "chatWatches": {
+  "message": "Стежень за сторінками цього чату: {0}"
+ },
+ "chatReminder": {
+  "message": "У цьому чаті є нагадування"
+ },
  "pages_one": {
   "message": "{0} сторінка"
  },
@@ -1496,6 +1502,15 @@
  "orgMatch": {
   "message": "збігається на {0}%"
  },
+ "orgMergeInto": {
+  "message": "Об’єднати з «{0}»"
+ },
+ "orgMergeA11y": {
+  "message": "Об’єднати цей чат із «{0}»"
+ },
+ "orgMerged": {
+  "message": "Об’єднано з «{0}»"
+ },
  "recs_one": {
   "message": "{0} рекомендація"
  },
@@ -1753,6 +1768,12 @@
  },
  "listenPlayingHere": {
   "message": "Зараз грає"
+ },
+ "listenVoiced": {
+  "message": "Уже озвучено: повтор безкоштовно"
+ },
+ "listenGoTo": {
+  "message": "Перейти туди, звідки це"
  },
  "listenLoading": {
   "message": "Готую голос…"
@@ -2170,6 +2191,30 @@
  },
  "similarReviewersSay": {
   "message": "Відгуки: {0}"
+ },
+ "similarNotifyTitle": {
+  "message": "Пошук схожого завершено"
+ },
+ "similarNotifyFound": {
+  "message": "Знайдено варіантів: {0}. Торкніться, щоб переглянути."
+ },
+ "similarNotifyNone": {
+  "message": "Нічого відповідного. Торкніться, щоб змінити умову."
+ },
+ "similarNotifyFailed": {
+  "message": "Пошук не завершився. Торкніться, щоб повторити."
+ },
+ "similarSay": {
+  "message": "Що кажуть:"
+ },
+ "similarPros": {
+  "message": "хвалять {0}"
+ },
+ "similarCons": {
+  "message": "критикують {0}"
+ },
+ "similarEstimated": {
+  "message": "оцінка за описом"
  },
  "tip_4cf1b54b00": {
   "message": "Поради"

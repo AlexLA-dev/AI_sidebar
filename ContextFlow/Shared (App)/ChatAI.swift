@@ -358,6 +358,8 @@ enum ChatAI {
         body["messages"] = messages
         body["stats"] = stats(turns: messages.count, pages: 0)
         body["history"] = digests(chats, perChat: 2_500, perAnswer: 500, total: 55_000)
+        // Build 94: the chats the answer names come as [name](chat:<id>), links that open them (RowMarks).
+        body["links"] = true
         try await stream(try request("api/v2/chat", body), onText: onText)
     }
 

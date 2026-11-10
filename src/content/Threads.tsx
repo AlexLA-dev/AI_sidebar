@@ -7,7 +7,7 @@ import { t, uiLanguage } from "../shared/i18n"
 import { activity, allTags, groupByTag, hasTag, MAX_TITLE, searchThreads, threadName, threadNotes, threadPages, threadSnippet, threadTags, threadTitle, type SearchHit, type Thread } from "../shared/threads"
 import * as Icon from "./icons"
 import { TagChip, TagEditor } from "./Tags"
-import { PinIcon, TrashIcon } from "./ux/MessageUx"
+import { Bell, PinIcon, TrashIcon } from "./ux/MessageUx"
 import { Swipe } from "./ux/Swipe"
 import { ThreadMenu, ThreadMoreButton } from "./ux/ThreadMenu"
 import { SpeakerIcon } from "./listen/useListen"
@@ -50,6 +50,10 @@ interface Props {
   unread?: ReadonlySet<string>
   // Build 93: the chat whose text is being read aloud (a speaker on its row), null when nothing plays.
   playing?: string | null
+  // Build 94, the owner: «глаз и число там где установлены наблюдения за изменениями и колокольчик, если напоминалка
+  // стоит»: how many of a chat's pages are watched (the eye), and the chats with a reminder still to ring (the bell).
+  watched?: Record<string, number>
+  bells?: ReadonlySet<string>
 }
 
 /** "3 pages", in the UI language's plural form. */
@@ -250,7 +254,7 @@ interface Drag {
  * start a new one. Pinned chats come first and are reordered by dragging their handle; a chat that
  * was on several pages lists them (each opens its page).
  */
-export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onNew, onPin, onMove, onOpenPage, pro, onAskHistory, onFind, onUpsell, findError, findWaiting, onTags, grouped, onGrouped, touch = false, trashCount = 0, onOpenTrash, busy, unread, recs, playing }: Props): VNode {
+export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onNew, onPin, onMove, onOpenPage, pro, onAskHistory, onFind, onUpsell, findError, findWaiting, onTags, grouped, onGrouped, touch = false, trashCount = 0, onOpenTrash, busy, unread, recs, playing, watched, bells }: Props): VNode {
   const [query, setQuery] = useState("")
   // Only the chats with this tag (in the list and in search results).
   const [tagFilter, setTagFilter] = useState<string | null>(null)
@@ -512,6 +516,12 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
                   <span class="cf-thread-meta">
                     {notes > 0 && (
                       <span class="cf-thread-notes" title={t("chatNotes")} aria-label={t("chatNotes")}><Icon.Pencil />{notes}</span>
+                    )}
+                    {Boolean(watched?.[thread.id]) && (
+                      <span class="cf-thread-mark cf-thread-watch" title={t("chatWatches", watched![thread.id])} aria-label={t("chatWatches", watched![thread.id])}><Icon.Eye size={12} />{watched![thread.id]}</span>
+                    )}
+                    {bells?.has(thread.id) && (
+                      <span class="cf-thread-mark cf-thread-bell" title={t("chatReminder")} aria-label={t("chatReminder")}><Bell size={12} /></span>
                     )}
                     {pages.length > 1 ? (
                       <button

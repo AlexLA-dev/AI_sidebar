@@ -52,20 +52,21 @@ import { DEFAULT_ORGANIZE, looksMixed, openMove, openName, openTags } from "../s
 import { entryKey } from "../shared/conversation"
 import type { OrganizeCountsReply, OrganizeEvent, OrganizeNameReply, OrganizeReply } from "../shared/types"
 import { ProUpsell } from "./ProUpsell"
-import { shownPrice, SimilarIcon, SimilarList, SimilarPicker, SimilarUpsell } from "./similar/Similar"
+import { shownPrice, SimilarIcon, SimilarList, SimilarPicker, SimilarUpsell, whereLabel } from "./similar/Similar"
 import { factsFrom, SIMILAR_SELECTION_MAX, similarAllowed, similarMarkdown, type SimilarAnswer, type SimilarItem, type SimilarStep, type SimilarStreamEvent } from "../shared/similar"
 import { structured } from "../shared/watch/extract"
 import { conditionFor } from "./watch/draft"
 import { openWatchSheet } from "./watch/WatchSheet"
 import { PlansSheet } from "./Plans"
 import { PlanOffer, type OfferChoice, type OfferPlace } from "./ux/PlanOffer"
-import { ListenBar, SpeakerIcon, useListen } from "./listen/useListen"
+import { ListenBar, SpeakerIcon, useListen, VoicedIcon } from "./listen/useListen"
+import { voicedId } from "../shared/voiced"
 import { dodgeFab } from "./fabDodge"
 import { hasPro, isUltra, type PaidPlan } from "../shared/plan"
 import { SettingsView } from "./Settings"
 import { shareLabels } from "./shareLabels"
 import { keptPlanNow, loadJobs, markHintSeen, markMemoryOffered, memoryOffered, onJobsChanged, resetHints, seenHints, type HintKey } from "./store"
-import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, onConsentChanged, loadThreads, markTourSeen, lastPlanSeen, setLastPlanSeen, planToursSeen, markPlanToursSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, purgeChats, nameThread, rememberPageText, renameThread, renewalAskedPeriod, setOrgState, settleNameSuggestion, unnameThread, restoreChat, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount, trashChat } from "./store"
+import { deleteThread, giveConsent, hasSeenTour, loadConsent, loadSettings, onConsentChanged, loadThreads, markTourSeen, lastPlanSeen, setLastPlanSeen, planToursSeen, markPlanToursSeen, noteHintCount, onSettingsChanged, onThreadsChanged, pageTexts, pinThread, purgeChats, nameThread, rememberPageText, refuseMerge, renameThread, renewalAskedPeriod, setOrgState, settleNameSuggestion, unnameThread, restoreChat, saveSettings, saveThread, selHintCount, setActiveThread, setThreadTags, offerCardCount, setNoteHintCount, setOfferCardCount, setSelHintCount, trashChat, voicedNow, onVoicedChanged } from "./store"
 import { TagChip, TagEditor } from "./Tags"
 import { ThreadsView } from "./Threads"
 import { TrashView } from "./Trash"
@@ -80,7 +81,8 @@ import { TipsSheet } from "./tips/TipsSheet"
 import { SelIconsTip } from "./ux/SelTip"
 import { shadowSelection, trackPointer } from "./selectionShadow"
 import { restoredDraft, withoutStopped } from "./ux/stopped"
-import { type Jobs, extendsChat, interruption, repeatsLast, runningThreads, unreadThreads } from "../shared/jobs"
+import { type Jobs, extendsChat, interruption, isActive, pendingQuestion, repeatsLast, runningThreads, unreadThreads } from "../shared/jobs"
+import { linkChats, remindsAhead, watchesOn } from "../shared/chatMarks"
 import { scheduleReminder, thisDevice, useMessageUx } from "./ux/useMessageUx"
 import { Tour, tourSteps } from "./Tour"
 import { languageName, translateTarget } from "./translateTarget"
@@ -468,6 +470,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [pageMenu, setPageMenu] = useState(false)
   // "…" → Tips: the app's Tips in a sheet (2.5 (78)).
   const [tipsOpen, setTipsOpen] = useState(false)
+  // Where Settings' back arrow goes: the chats list when it was opened from the list's "…" (build 94).
+  const settingsBack = useRef<"chat" | "threads">("chat")
   const [remindSaved, setRemindSaved] = useState<number | null>(null)
 
   // The source learnt something new (the PDF popup: the document's title once it's read).
@@ -668,9 +672,15 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const timer = setInterval(() => {
       if (document.visibilityState === "visible" && !portRef.current) void refreshStatus()
     }, 30_000)
+    // 2.6 (94): other devices' changes while the panel stays open, every 20 s (before, only as it opened: a chat renamed
+    // on the iPhone kept its old name and the suggestion here). What changes comes through onThreadsChanged above.
+    const pull = setInterval(() => {
+      if (document.visibilityState === "visible" && !portRef.current) void sendBackground({ type: "syncThreads", quiet: true })
+    }, 20_000)
     return () => {
       off()
       clearInterval(timer)
+      clearInterval(pull)
     }
   }, [open, refreshStatus])
 
@@ -996,7 +1006,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     const stats = { turns: history.length, pages: threadPages(history).length, chats: threadList.length }
     if (chats) {
       void saved.then(() => {
-        if (portRef.current === port) port.postMessage({ type: "ask", job, payload: { messages: historyForModel(history, url), page: null, action: opts.action, context: "history" as const, history: chats, stats } })
+        if (portRef.current === port) port.postMessage({ type: "ask", job, payload: { messages: historyForModel(history, url), page: null, action: opts.action, context: "history" as const, history: chats, links: true, stats } })
       })
       return
     }
@@ -1259,7 +1269,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const retry = useCallback((withoutGoogle = false) => {
     const last = messages[messages.length - 1]
     if (!isQuestion(last)) return
-    if (last.similarAsk !== undefined) return findSimilarRef.current(last.similarAsk, last.label ?? last.content, true, last.similarSel)
+    // Asked again where it looked the first time (build 94: Retry after a break searched worldwide), not wherever the
+    // picker points now.
+    if (last.similarAsk !== undefined) return findSimilarRef.current(last.similarAsk, last.label ?? last.content, true, last.similarSel, last.similarRegion ? { region: last.similarRegion, country: last.similarCountry } : undefined)
     if (withoutGoogle) setGoogleMode(false)
     ask(last.content, { label: last.label, retry: true, mode: withoutGoogle ? undefined : last.mode })
   }, [messages, ask])
@@ -1316,20 +1328,28 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }
 
   /** Asks our server for checked alternatives to this page (engine A only); the list streams in as items pass. */
-  const findSimilar = (condition: string, label: string, again = false, subject?: string) => {
+  const findSimilar = (condition: string, label: string, again = false, subject?: string, where?: { region: "world" | "local"; country?: string }) => {
     if (portRef.current || askToken.current) return
     setSimilarCard(null)
     if (consent !== "ok") {
       setPending({ text: label, label, action: "similar", similar: condition, ...(subject ? { similarSel: subject } : {}) })
       return
     }
+    // Where to look: as asked the first time (Retry), else as the picker says; their country, the server's view of it
+    // else the device's region.
+    const region = where?.region ?? settingsRef.current.similarRegion
+    const country = where?.country ?? statusRef.current?.country ?? localeCountry()
     setUndoBar(null)
     setFirstWin(null)
     setError(null)
     setOfferCard(false)
     // Asked again after it was left without an answer (interrupted): it takes that question's place (2.6 (90): twice).
     const base = again || repeatsLast(messages, { content: label, similarAsk: condition, similarSel: subject }) ? messages.slice(0, messages.length - 1) : messages
-    const user: Turn = stamped({ role: "user", content: label, label, similarAsk: condition, ...(subject ? { similarSel: subject } : {}), page: { url: source.key(), title: source.title(), at: Date.now() } })
+    const user: Turn = stamped({
+      role: "user", content: label, label, similarAsk: condition, ...(subject ? { similarSel: subject } : {}),
+      ...(region ? { similarRegion: region, ...(region === "local" && country ? { similarCountry: country } : {}) } : {}),
+      page: { url: source.key(), title: source.title(), at: Date.now() }
+    })
     const history: Turn[] = [...base, user]
     setMessages(history)
     // In the chat before it goes: the background writes the list after it (build 91).
@@ -1359,8 +1379,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         payload: {
           page: { title: full.title || source.title(), url: source.href(), text: full.text.slice(0, 5_000), facts }, condition, ...(subject ? { selection: subject } : {}),
           // Build 93: where to look, and their country (the server's view of it, else the device's region).
-          ...(settingsRef.current.similarRegion ? { region: settingsRef.current.similarRegion } : {}),
-          ...((statusRef.current?.country ?? localeCountry()) ? { country: statusRef.current?.country ?? localeCountry() } : {})
+          ...(region ? { region } : {}),
+          ...(country ? { country } : {})
         }
       })
     })
@@ -1596,19 +1616,23 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setView("chat")
     // Its answer still coming (asked before another chat was opened), or lost (build 91).
     if (thread) setTimeout(() => resumeRef.current(thread.m, id), 0)
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      const list = listRef.current
-      if (!list) return
-      const target = at !== undefined && at >= 0 ? list.querySelector<HTMLElement>(`[data-index="${at}"]`) : null
-      if (!target) {
-        list.scrollTop = list.scrollHeight
-        return
-      }
-      target.scrollIntoView({ block: "center" })
-      target.classList.add("found")
-      setTimeout(() => target.classList.remove("found"), 1600)
-    }))
+    requestAnimationFrame(() => requestAnimationFrame(() => showMessage(at)))
   }, [stop, threadList])
+
+  /** Scrolls the open chat to message `at` and marks it a moment (else to its end). */
+  const showMessage = (at?: number) => {
+    const list = listRef.current
+    if (!list) return
+    const target = at !== undefined && at >= 0 ? list.querySelector<HTMLElement>(`[data-index="${at}"]`) : null
+    if (!target) {
+      list.scrollTop = list.scrollHeight
+      return
+    }
+    // A long message from its start (build 94: a tap on what plays showed the middle of a long answer).
+    target.scrollIntoView({ block: target.offsetHeight > list.clientHeight * 0.6 ? "start" : "center" })
+    target.classList.add("found")
+    setTimeout(() => target.classList.remove("found"), 1600)
+  }
 
   // Tags: of a chat (from the list), of an answer or a note (`tagging`: the message's index).
   const [tagging, setTagging] = useState<number | null>(null)
@@ -1668,14 +1692,15 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           </button>
         )}
         {TARGET === "safari" && !m.note && m.role === "assistant" && (
-          <button type="button" class={`cf-listen-btn cf-ultra-tool ${idx === lastAnswerIdx ? "last" : ""} ${listenOn(`a:${idx}`) ? "on" : ""}`} onClick={() => {
+          <button type="button" class={`cf-listen-btn cf-ultra-tool ${idx === lastAnswerIdx ? "last" : ""} ${listenOn(`a:${idx}`) ? "on" : ""}`} data-voiced={voicedAnswer(m.content) ? "" : undefined} onClick={() => {
             if (listenOn(`a:${idx}`)) return listen.stop()
             // Titled by the page the answer is about (build 93): the one its question was asked on, which may not be the
             // page open now. The link stays this page's: "Back to Safari" in the app comes back here.
             const page = lastPage(messages.slice(0, idx + 1))
             void listen.start(listenKey(`a:${idx}`), { text: m.content, what: "answer", lang: textLanguage(m.content) ?? t("langCode"), title: page?.title || page?.url || source.title(), url: source.href() })
-          }} aria-label={t("listen")} title={t("listen")}>
+          }} aria-label={voicedAnswer(m.content) ? `${t("listen")} · ${t("listenVoiced")}` : t("listen")} title={voicedAnswer(m.content) ? t("listenVoiced") : t("listen")}>
             <SpeakerIcon /> <span class="cf-tl">{t("listen")}</span>{!isUltra(plan) && <span class="cf-ultra-badge">Ultra</span>}
+            {voicedAnswer(m.content) && <span class="cf-voiced"><VoicedIcon /></span>}
           </button>
         )}
         <button type="button" onClick={() => setTagging(tagging === idx ? null : idx)} aria-expanded={tagging === idx} aria-label={t("tagsButton")} title={t("tagsButton")}>
@@ -1979,6 +2004,77 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     return onJobsChanged(setJobList)
   }, [])
   const jobs = useMemo(() => ({ running: runningThreads(jobList), unread: unreadThreads(jobList) }), [jobList])
+
+  // Build 94: a Find similar still at work when the page goes away (the person left Safari): the app watches it on our
+  // server, and its "found" notification brings them back to the chat here. Only while one is at work or ended a
+  // moment ago unseen, so pages without one send nothing (each message may wake the app's extension).
+  const similarAtWork = useMemo(() => Object.values(jobList).some((j) => j.kind === "similar" && (isActive(j) || (!j.seen && Date.now() - (j.end ?? j.at) < 30 * 60_000))), [jobList])
+  const jobListRef = useRef(jobList)
+  jobListRef.current = jobList
+  const openNowRef = useRef(open)
+  openNowRef.current = open
+  useEffect(() => {
+    if (popup || !similarAtWork) return
+    const onVisibility = () => {
+      if (document.visibilityState === "hidden") {
+        if (Object.values(jobListRef.current).some((j) => j.kind === "similar" && isActive(j))) void sendBackground({ type: "similarAway" })
+        return
+      }
+      // Back (or here from the notification's tap): the app stops watching; the chat it asked for opens.
+      void sendBackground<{ open?: string | null }>({ type: "similarBack" }).then((r) => {
+        if (r?.open && !openNowRef.current) show()
+      })
+    }
+    document.addEventListener("visibilitychange", onVisibility)
+    if (document.visibilityState === "visible") onVisibility()
+    return () => document.removeEventListener("visibilitychange", onVisibility)
+  }, [popup, similarAtWork, show])
+  // Build 94, the owner: «в чате про чаты нужно делать ссылки на чаты, на которые ссылается ответ»: the chats an "Ask
+  // your chats" answer names open from it (src/shared/chatMarks.ts).
+  const chatNames = useMemo(() => threadList.filter((th) => th.kind !== "history").map((th) => ({ id: th.id, name: threadName(th) })), [threadList])
+  const openChatLink = useCallback((id: string) => {
+    if (!threadList.some((th) => th.id === id)) return
+    void sendBackground({ type: "useEvent", f: "ask_chats", a: "link" })
+    openThread(id)
+  }, [threadList, openThread])
+  // Build 94, the owner: «на полоске чата хочется видеть глаз и число там где установлены наблюдения за изменениями и
+  // колокольчик, если напоминалка стоит»: the watched pages' addresses (this device's watches, Safari), read when the
+  // list opens and when watching changes them; the bell and the spinner come from the chats themselves.
+  const [watchedUrls, setWatchedUrls] = useState<string[]>([])
+  useEffect(() => {
+    if (view !== "threads" || !listsKind("watch")) return
+    let live = true
+    const read = () => void Promise.all(laterSources().map((src) => src.items().catch(() => [] as LaterItem[])))
+      .then((lists) => { if (live) setWatchedUrls(lists.flat().filter((i) => i.kind === "watch" && i.url).map((i) => i.url!)) }, () => undefined)
+    read()
+    const changed = (changes: Record<string, unknown>, area: string) => { if (area === "local" && "cf:watches" in changes) read() }
+    try { chrome.storage.onChanged.addListener(changed) } catch { /* no storage events here */ }
+    return () => {
+      live = false
+      try { chrome.storage.onChanged.removeListener(changed) } catch { /* as above */ }
+    }
+  }, [view])
+  // A tick every 30 s while the list shows: a reminder that rang loses its bell, a question left unanswered its spinner.
+  const [listTick, setListTick] = useState(0)
+  useEffect(() => {
+    if (view !== "threads") return
+    const timer = setInterval(() => setListTick((n) => n + 1), 30_000)
+    return () => clearInterval(timer)
+  }, [view])
+  const rowMarks = useMemo(() => {
+    const now = Date.now()
+    const watched: Record<string, number> = {}
+    const bells = new Set<string>()
+    const working = new Set(jobs.running)
+    for (const th of threadList) {
+      const n = watchesOn(th.m, watchedUrls)
+      if (n) watched[th.id] = n
+      if (remindsAhead(th.m, now)) bells.add(th.id)
+      // Asked on another device (or by a job this background lost): its question still waits for the answer.
+      if (!working.has(th.id) && !jobs.unread.has(th.id) && pendingQuestion(th.m, now) && !jobList[th.m[th.m.length - 1]?.id ?? ""]) working.add(th.id)
+    }
+    return { watched, bells, working }
+  }, [threadList, watchedUrls, jobs, jobList, listTick])
   // The selection buttons were placed: the round button steps out of their way, or stays (fabDodge.ts).
   const onBubblePlace = useCallback((box: DOMRect, selection: DOMRect) => {
     const fab = fabRef.current
@@ -2063,7 +2159,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       forgetSelection()
       setSelection(null)
     }
-    if (messages.length > 0) newChat()
+    // From the chats list's "…" (build 94) or over "Ask your chats": a new chat about the page.
+    if (messages.length > 0 || historyRef.current) newChat()
+    else setView("chat")
     setGuide("summarize")
     reportGuide("start")
   }
@@ -2238,6 +2336,25 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     panelOpen: () => panelOpenRef.current,
     reopen: () => show()
   })
+  // Build 94: the texts heard to their end on this device (here or in the app): Listen shows replaying them is free.
+  const [voiced, setVoiced] = useState<Record<string, number>>({})
+  useEffect(() => {
+    if (TARGET !== "safari") return
+    void voicedNow().then(setVoiced)
+    return onVoicedChanged(setVoiced)
+  }, [])
+  const anyVoiced = Object.keys(voiced).length > 0
+  const voicedAnswer = (text: string) => anyVoiced && isUltra(plan) && Boolean(voiced[voicedId("answer", text)])
+  // A tap on what plays, in the bar (build 94): back to its chat, at the message (the page's: the chat's end).
+  const listenGo = () => {
+    const key = "key" in listen.state ? listen.state.key : ""
+    const [chat, what = ""] = key.split("|")
+    if (!chat || chat === "new") return
+    const at = what.startsWith("a:") ? Number(what.slice(2)) : undefined
+    void sendBackground({ type: "useEvent", f: "listen", a: "go", what: at === undefined ? "page" : "answer" })
+    if (view === "chat" && threadRef.current === chat) return showMessage(at)
+    openThread(chat, at)
+  }
   // What plays is the chat's it was started in (build 93): its key carries the chat ("<chat>|a:3", "<chat>|page"), so
   // another chat's third answer doesn't show as playing, and the chats list can mark the chat that plays.
   const listenKey = (what: string) => `${threadRef.current || "new"}|${what}`
@@ -2245,7 +2362,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const listenSounds = listen.state.at === "playing" || listen.state.at === "paused" || listen.state.at === "loading"
   const playingChat = listenSounds && "key" in listen.state ? listen.state.key.split("|")[0] : null
   // The bar: under the chat's question field, and at the bottom of the chats list while something plays (build 93).
-  const listenBar = <ListenBar state={listen.state} speed={listen.speed} left={listen.left} onSpeed={listen.cycleSpeed} onAnyway={listen.anyway} onNotifyOn={listen.notifyTurnOn} onNotifyLater={listen.notifyNotNow} onToggle={listen.toggle} onSeek={listen.seek} onStop={listen.stop} onPlans={() => openPlans("ultra", "limit")} />
+  const listenBar = <ListenBar state={listen.state} title={listen.title} onTitle={listenGo} speed={listen.speed} left={listen.left} onSpeed={listen.cycleSpeed} onAnyway={listen.anyway} onNotifyOn={listen.notifyTurnOn} onNotifyLater={listen.notifyNotNow} onToggle={listen.toggle} onSeek={listen.seek} onStop={listen.stop} onPlans={() => openPlans("ultra", "limit")} />
   // The panel closed (build 92): what isn't playing goes, its audio and clock with it; what plays goes on (it's back
   // in the bar when the panel opens again).
   // Only at the moment it closes: a text paused later (the page left, with the panel closed) keeps its notification.
@@ -2673,7 +2790,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     else showChat(target, moved.threads)
     orgEvent({ kind: "organize", action: "accepted", what: move.to ? "move" : "new", why: move.why })
     setUndoBar({
-      text: t("orgMoved", move.toName),
+      text: t(move.why === "merge" ? "orgMerged" : "orgMoved", move.toName),
       kind: "move",
       actions: [
         { label: t("orgUndo"), run: () => void undoChatMove(moved.undo) },
@@ -2683,6 +2800,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     won()
   }
   const refuseMove = (move: OrganizeMove) => {
+    // A merge turned down (2.6 (94)) is kept with the chat, not on its messages: they may still go elsewhere.
+    if (move.why === "merge" && move.to) {
+      void refuseMerge(threadRef.current, move.to)
+      setOrg((o) => o && { ...o, move: null })
+      orgEvent({ kind: "organize", action: "dismissed", what: "move", why: move.why })
+      return
+    }
     setMessages((list) => list.map((m, i) => (i < move.start || i > move.end ? m : { ...m, dismissed: { ...m.dismissed, move: true as const } })))
     setOrg((o) => o && { ...o, move: null })
     orgEvent({ kind: "organize", action: "dismissed", what: move.to ? "move" : "new", why: move.why })
@@ -2873,6 +2997,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const lastIsUser = isQuestion(messages[messages.length - 1])
   // The conversation was last on another page: offer this page's actions.
   const onNewPage = messages.length > 0 && Boolean(lastPage(messages)) && lastPage(messages)?.url !== pageUrl
+  // The chat's name over the page in the header (2.6 (94)): as the chats list shows it.
+  const shownThreadNow = threadList.find((x) => x.id === threadRef.current)
+  const headerName = view === "chat" && !historyMode && messages.length > 0 ? (shownThreadNow ? threadName(shownThreadNow) : threadTitle(messages)) : null
 
   // ------------------------------------------------------------ render
   return (
@@ -3017,7 +3144,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           {layout === "sheet" && <div class="cf-grabber" onClick={hide} />}
           <header class="cf-header">
             {view !== "chat" ? (
-              <button type="button" class="cf-icon" onClick={() => setView(view === "trash" ? "threads" : "chat")} aria-label={t("back")}><Icon.Back /></button>
+              <button type="button" class="cf-icon" onClick={() => {
+                // Settings opened from the chats list's "…" (build 94) goes back to the list.
+                const back = view === "trash" ? "threads" : view === "settings" ? settingsBack.current : "chat"
+                settingsBack.current = "chat"
+                setView(back)
+              }} aria-label={t("back")}><Icon.Back /></button>
             ) : (
               <span class="cf-logo"><Icon.Sparkle size={18} /></span>
             )}
@@ -3055,33 +3187,34 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             {((view === "chat" && messages.length > 0) || view === "threads") && (
               <button type="button" class="cf-icon" onClick={newChat} aria-label={t("newChat")} title={t("newChat")}><Icon.Plus /></button>
             )}
-            {view === "chat" && (
+            {/* Build 94: the chats list has its "…" too (its own items, PageMenu.tsx). */}
+            {(view === "chat" || view === "threads") && (
               <span class="cf-page-more-wrap">
                 <button type="button" class="cf-icon cf-page-more" aria-haspopup="menu" aria-expanded={pageMenu} aria-label={t("uxMorePage")} title={t("uxMorePage")} onClick={() => {
                   // Opened, and which item: to see whether Settings is still found a tap further.
                   if (!pageMenu) {
-                    void sendBackground({ type: "useEvent", f: "menu", a: "open" })
+                    void sendBackground({ type: "useEvent", f: "menu", a: "open", via: view === "threads" ? "list" : "chat" })
                     void laterItems().then((items) => setLaterCount(countOf(items))).catch(() => setLaterCount({ remind: 0, watch: 0 }))
                   }
                   setPageMenu(!pageMenu)
                 }}><More size={18} /></button>
                 {pageMenu && (
                   <PageMenu
-                    onLater={() => {
+                    onLater={view === "chat" ? () => {
                       setPageMenu(false)
-                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "later" })
+                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", via: "chat", what: "later" })
                       void sendBackground({ type: "useEvent", f: "later", a: "open", via: "menu" })
                       setLater({ selection, range: selectedRange() })
-                    }}
-                    onWatchPage={listsKind("watch") && pageWatcher() ? () => {
+                    } : undefined}
+                    onWatchPage={view === "chat" && listsKind("watch") && pageWatcher() ? () => {
                       setPageMenu(false)
-                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "watch_page" })
+                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", via: "chat", what: "watch_page" })
                       pageWatcher()?.({ url: source.href(), title: source.title() })
                     } : undefined}
-                    onSimilar={contextKind === "page" && !historyMode ? () => openSimilar("menu") : undefined}
+                    onSimilar={view === "chat" && contextKind === "page" && !historyMode ? () => openSimilar("menu") : undefined}
                     onNameChat={orgOn && view === "chat" && !historyMode && messages.length > 0 && !naming ? () => {
                       setPageMenu(false)
-                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "name_chat" })
+                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", via: "chat", what: "name_chat" })
                       nameByTopic()
                     } : undefined}
                     similarLocked={!similarAllowed(plan)}
@@ -3089,27 +3222,28 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                     watches={listsKind("watch") ? laterCount.watch : null}
                     onReminders={() => {
                       setPageMenu(false)
-                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "reminders" })
+                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", via: view === "threads" ? "list" : "chat", what: "reminders" })
                       openReminders("menu", "remind")
                     }}
                     onWatching={() => {
                       setPageMenu(false)
-                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "watching" })
+                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", via: view === "threads" ? "list" : "chat", what: "watching" })
                       openReminders("menu", "watch")
                     }}
                     onTips={() => {
                       setPageMenu(false)
-                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "tips" })
+                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", via: view === "threads" ? "list" : "chat", what: "tips" })
                       setTipsOpen(true)
                     }}
                     onSettings={() => {
                       setPageMenu(false)
-                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "settings" })
+                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", via: view === "threads" ? "list" : "chat", what: "settings" })
+                      settingsBack.current = view === "threads" ? "threads" : "chat"
                       setView("settings")
                     }}
-                    onListen={TARGET === "safari" && source.readable() && source.kind() === "page" ? () => {
+                    onListen={view === "chat" && TARGET === "safari" && source.readable() && source.kind() === "page" ? () => {
                       setPageMenu(false)
-                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "listen" })
+                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", via: "chat", what: "listen" })
                       void listenPage()
                     } : undefined}
                     ultra={isUltra(plan)}
@@ -3117,14 +3251,21 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                       label: t("ptMenu", plan === "ultra" ? t("planUltra") : t("planPro")),
                       start: () => {
                         setPageMenu(false)
-                        void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "plan_tour" })
+                        void sendBackground({ type: "useEvent", f: "menu", a: "pick", via: view === "threads" ? "list" : "chat", what: "plan_tour" })
                         startPlanTour(plan, "plan_menu")
                       }
                     } : undefined}
-                    onIntro={firstGuideRef.current() ? () => {
+                    onIntro={(view === "threads" ? pageReadable : firstGuideRef.current()) ? () => {
                       setPageMenu(false)
-                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", what: "intro" })
+                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", via: view === "threads" ? "list" : "chat", what: "intro" })
                       startGuideRef.current("menu")
+                    } : undefined}
+                    trash={view === "threads" ? trashList.length : 0}
+                    onTrash={view === "threads" ? () => {
+                      setPageMenu(false)
+                      void sendBackground({ type: "useEvent", f: "menu", a: "pick", via: "list", what: "trash" })
+                      setUndoBar(null)
+                      setView("trash")
                     } : undefined}
                     onClose={() => setPageMenu(false)}
                   />
@@ -3133,6 +3274,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             )}
             <button type="button" class="cf-icon" onClick={hide} aria-label={t("close")} title={t("close")}><Icon.Close /></button>
           </header>
+          {/* 2.6 (94): the chat's name, the whole width (the owner: in the chat its name wasn't seen, so a suggested one
+              couldn't be judged; next to the page in the header it was cut to a few letters on an iPhone). */}
+          {headerName && <div class="cf-chat-bar" dir="auto" title={headerName}>{headerName}</div>}
 
           {view === "threads" ? (
             <>
@@ -3182,8 +3326,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 onGrouped={(on) => updateSettings({ groupByTags: on })}
                 touch={touch}
                 trashCount={trashList.length}
-                busy={jobs.running}
+                busy={rowMarks.working}
                 unread={jobs.unread}
+                watched={rowMarks.watched}
+                bells={rowMarks.bells}
                 onOpenTrash={() => {
                   setUndoBar(null)
                   setView("trash")
@@ -3302,6 +3448,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                           {m.mode === "google" && <span class="cf-user-mode"><Icon.Search size={12} /></span>}
                           {m.similarAsk !== undefined && <span class="cf-user-mode" title={t("similarTitle")} aria-label={t("similarTitle")}><SimilarIcon size={12} /></span>}
                           {m.label ?? m.content}
+                          {m.similarAsk !== undefined && m.similarRegion && <span class="cf-user-where">{whereLabel(m.similarRegion, m.similarCountry)}</span>}
                         </div>
                       )}
                       {m.sources && m.sources.length > 0 && <UsedSources notes={m.sources} />}
@@ -3315,7 +3462,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                           {m.similar ? (
                             <SimilarList answer={m.similar} items={m.similar.items} onOpen={openPage} onWatch={listsKind("watch") ? watchItem : undefined} />
                           ) : (
-                            <Markdown text={m.content} marks={m.marks} onCopyCode={(code) => void copyText(code)} />
+                            <Markdown text={historyMode ? linkChats(m.content, chatNames) : m.content} marks={m.marks} onCopyCode={(code) => void copyText(code)} onChat={historyMode ? openChatLink : undefined} />
                           )}
                           {m.grounding && <Sources grounding={m.grounding} />}
                           {!mediaOn && <MediaSkipped kinds={skippedFor(messages, idx)} onPro={tryPro} />}
@@ -3708,10 +3855,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           )}
           {view === "chat" && !picked && ux.overlay}
           {view === "chat" && later && laterSheet(false)}
-          {view === "chat" && listOpen && (
+          {(view === "chat" || view === "threads") && listOpen && (
             <RemindersSheet kind={listOpen} items={laterList} onOpen={openLaterItem} onCancel={(item) => void cancelLaterItem(item)} onReschedule={rescheduleLaterItem} onClose={() => setListOpen(null)} />
           )}
-          {view === "chat" && tipsOpen && (
+          {(view === "chat" || view === "threads") && tipsOpen && (
             <TipsSheet mac={!touch} onClose={() => setTipsOpen(false)} />
           )}
           {plansOpen && TARGET === "safari" && (

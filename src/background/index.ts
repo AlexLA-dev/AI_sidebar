@@ -33,10 +33,13 @@ import { startInsert } from "./insert"
 import { startWatch } from "./watch"
 import { nameChatNow, organizeChat, organizeCounts, reportOrganize } from "./organize"
 import { organizeConfig } from "../shared/organize"
-import { askSimilar } from "./similar"
+import { askSimilar, keptSimilar } from "./similar"
 import type { SimilarPayload, SimilarStreamEvent } from "../shared/similar"
 import { base64 as speechBase64, clearSpeech, serveSpeak } from "./speak"
-import { follow, jobsOnStart, liveJobIds, markSeen, startJob, stopJob, type JobSpec } from "./jobs"
+import { withVoiced } from "../shared/voiced"
+import { activeLive, follow, jobsOnStart, jobsReady, liveJobIds, markSeen, onJobEnd, setPoller, startJob, stopJob, type JobSpec } from "./jobs"
+import { t } from "../shared/i18n"
+import type { Job } from "../shared/jobs"
 
 // ---------------------------------------------------------------- identity
 
@@ -108,6 +111,12 @@ function askEntitlement(): Promise<NativeEntitlement | null> {
     // The install id lets the app link a purchase to this install (StoreKit appAccountToken) and tells it
     // the panel is in use, so it stops showing the setup guide.
     const value = await callNative<NativeEntitlement>("getEntitlement", { installId: await installId() }, 6000)
+    // What the app heard to its end on this device (build 94): kept with the panel's own, not with the entitlement.
+    if (value && "voiced" in value) {
+      const voiced = Array.isArray(value.voiced) ? value.voiced.filter((id): id is string => typeof id === "string") : []
+      delete value.voiced
+      void keepVoiced(voiced, false)
+    }
     if (value) {
       entitlementCache = { at: Date.now(), value }
       void keepEntitlement(value)
@@ -162,6 +171,23 @@ async function keepPrices(prices: unknown): Promise<void> {
   if (json === keptPricesJson) return
   keptPricesJson = json
   await chrome.storage.local.set({ [STORAGE.lastPrices]: prices }).catch(() => undefined)
+}
+
+// Build 94: the texts heard to their end on this device ("already voiced" by Listen). One writer, one change at a time;
+// written only when something new comes. The app is told of the panel's (one native message per text heard to its end).
+let voicedLane: Promise<unknown> = Promise.resolve()
+
+function keepVoiced(ids: string[], tellApp: boolean): Promise<void> {
+  const run = voicedLane.then(async () => {
+    if (!ids.length) return
+    const stored = (await chrome.storage.local.get(STORAGE.voiced).catch(() => ({} as Record<string, unknown>)))[STORAGE.voiced]
+    const list = stored && typeof stored === "object" ? stored as Record<string, number> : {}
+    const next = withVoiced(list, ids)
+    if (Object.keys(next).some((id) => !list[id])) await chrome.storage.local.set({ [STORAGE.voiced]: next }).catch(() => undefined)
+    if (tellApp && TARGET === "safari") await callNative("voiced", { ids }, 3000)
+  })
+  voicedLane = run.catch(() => undefined)
+  return run.catch(() => undefined)
 }
 
 async function lastEntitlement(): Promise<NativeEntitlement | null> {
@@ -411,7 +437,7 @@ chrome.runtime.onConnect.addListener((port) => {
   })
 })
 
-type Run = (emit: (event: StreamEvent | SimilarStreamEvent) => void, signal: AbortSignal) => Promise<void>
+type Run = (emit: (event: StreamEvent | SimilarStreamEvent | { type: "kept" }) => void, signal: AbortSignal) => Promise<void>
 
 /**
  * Answers a panel's question on its port. With a job (build 91), the question is the background's: it goes on when the
@@ -485,10 +511,13 @@ function serveJob(port: chrome.runtime.Port): void {
   }
   port.onDisconnect.addListener(() => unfollow?.())
   port.onMessage.addListener((message: { type?: string; id?: string }) => {
-    if (message?.type === "attach" && typeof message.id === "string" && !unfollow) {
+    if (message?.type === "attach" && typeof message.id === "string" && !unfollow && !id) {
       id = message.id
-      unfollow = follow(id, send)
-      if (!unfollow) send({ type: "gone" })
+      // After a restart, a Find similar waiting on our server is followed again first (build 94).
+      void jobsReady().catch(() => undefined).then(() => {
+        unfollow = follow(id, send)
+        if (!unfollow) send({ type: "gone" })
+      })
     } else if (message?.type === "stop" && id) stopJob(id)
   })
 }
@@ -502,13 +531,76 @@ chrome.runtime.onConnect.addListener((port) => {
   port.onMessage.addListener((message: { type: "similar"; payload: SimilarPayload; job?: JobSpec }) => {
     if (message?.type !== "similar" || asked) return
     asked = true
-    const run = async (emit: (event: SimilarStreamEvent) => void, signal: AbortSignal) => {
+    const run = async (emit: (event: SimilarStreamEvent | { type: "kept" }) => void, signal: AbortSignal) => {
       if (!(await consented())) return emit({ type: "error", code: "CONSENT" })
       const [id, ent, client] = await Promise.all([installId(), entitlement(), clientInfo()])
-      await askSimilar({ installId: id, client, entitlement: ent?.active ? ent.jws : null, payload: message.payload }, emit, signal)
+      // Build 94: as a job of our server's too (the question's id), so it carries on if Safari suspends this background.
+      await askSimilar({ installId: id, client, entitlement: ent?.active ? ent.jws : null, payload: message.payload, ...(message.job ? { job: message.job.id } : {}) }, emit, signal)
     }
-    servePort(port, message.job ? { ...message.job, kind: "similar", asked: message.payload.condition ?? "" } : null, run as Run)
+    servePort(port, message.job ? { ...message.job, kind: "similar", asked: message.payload.condition ?? "", open: message.payload.page?.url ?? "" } : null, run as Run)
   })
+})
+
+// ------------------------------------------------- Find similar after leaving Safari (build 94)
+// The owner: «Поиск прерывается, если выходишь из Safari, а надо, чтобы шел и приходила нотификация от приложения,
+// когда найдено, с переходом прямо к вариантам». Our server finishes the search on its own and keeps the answer;
+// this background picks it up when it runs again (jobs.ts). When the person leaves Safari mid-search, the app's
+// extension starts a download of that answer which iOS carries on with Safari suspended, and wakes the ContextFlow app
+// with it: the app says "found" in a notification, whose tap opens the page with the chat (SimilarAway.swift). Back in
+// Safari first, the download is called off: no notification for someone who stayed.
+
+setPoller({
+  result: async (id, wait, signal) => keptSimilar(await installId(), id, wait, signal),
+  take: async (id) => {
+    await keptSimilar(await installId(), id, 0, AbortSignal.timeout(10_000), true)
+  }
+})
+
+// The Find similar jobs the app watches (a download started for them), and whether Safari is left now.
+const watched = new Set<string>()
+let leftSafari = false
+
+/** The notification's words, in the person's language: what was asked, and how it ended. */
+function notifyTexts(job: Job): Record<string, string> {
+  const asked = (job.asked ?? "").trim()
+  const lead = asked ? `${asked.slice(0, 80)} — ` : ""
+  return {
+    title: t("similarNotifyTitle"),
+    found: `${lead}${t("similarNotifyFound", "%d")}`,
+    none: `${lead}${t("similarNotifyNone")}`,
+    failed: `${lead}${t("similarNotifyFailed")}`
+  }
+}
+
+/** A page went away: the app watches each Find similar still at work (iPhone and iPad; on a Mac nothing is suspended). */
+async function similarAway(): Promise<void> {
+  if (TARGET !== "safari") return
+  leftSafari = true
+  const jobs = activeLive().filter((j) => j.kind === "similar" && !watched.has(j.id))
+  if (!jobs.length) return
+  const install = await installId()
+  for (const job of jobs) {
+    watched.add(job.id)
+    void callNative("similarAway", { job: job.id, thread: job.thread, install, base: API_BASE, open: job.open ?? "", at: job.at, ...notifyTexts(job) }, 3000)
+  }
+}
+
+/** A page shows again: the app's downloads are called off; the chat a "found" notification asked to open, if any. */
+async function similarBack(): Promise<string | null> {
+  if (TARGET !== "safari") return null
+  leftSafari = false
+  const jobs = [...watched]
+  watched.clear()
+  const r = await callNative<{ open?: string }>("similarBack", { jobs }, 3000)
+  return typeof r?.open === "string" && r.open ? r.open : null
+}
+
+// A watched job ended here, Safari still left (its background ran on a while): the notification goes now, and the
+// app's download is called off. Stopped by the person: only called off.
+onJobEnd((job, items) => {
+  if (TARGET !== "safari" || job.kind !== "similar" || !watched.delete(job.id)) return
+  const outcome = job.code === "STOPPED" ? "" : job.state === "done" ? (items ? "found" : "none") : "failed"
+  void callNative("similarEnded", { job: job.id, thread: job.thread, open: job.open ?? "", notify: leftSafari && outcome !== "", outcome, items, ...notifyTexts(job) }, 3000)
 })
 
 // --------------------------------------------------------------- AI search
@@ -627,8 +719,16 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
       void tipClip(message.name, message.lang).then(sendResponse, () => sendResponse({ ok: false }))
       return true
     case "liveJobs":
-      sendResponse({ ids: liveJobIds() })
+      // After a restart, the Find similar searches waiting on our server count once they're followed again (build 94).
+      void jobsReady().catch(() => undefined).then(() => sendResponse({ ids: liveJobIds() }))
+      return true
+    case "similarAway":
+      void similarAway().catch(() => undefined)
+      sendResponse(true)
       return false
+    case "similarBack":
+      similarBack().then((open) => sendResponse({ open }), () => sendResponse({ open: null }))
+      return true
     case "jobsSeen":
       void markSeen(message.thread).then(() => sendResponse(true), () => sendResponse(false))
       return true
@@ -666,7 +766,8 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
         ...(message.parts ? { parts: message.parts.slice(0, 80).map((p) => p.slice(0, 4000)), complete: message.complete === true } : {}),
         ...(typeof message.speed === "number" ? { speed: message.speed } : {}),
         ...(message.title ? { title: message.title.slice(0, 200) } : {}),
-        ...(message.body ? { body: message.body.slice(0, 200) } : {})
+        ...(message.body ? { body: message.body.slice(0, 200) } : {}),
+        ...(message.skipped ? { skipped: true } : {})
       }, 4000).then((r) => sendResponse({ ok: r !== null, taken: r?.taken === true }), () => sendResponse({ ok: false }))
       return true
     }
@@ -678,9 +779,19 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
       callNative<{ back?: boolean; play?: boolean; taken?: boolean }>("listenReturn", { id: message.id }, 3000)
         .then((r) => sendResponse({ back: r?.back === true, play: r?.play === true, taken: r?.taken === true }), () => sendResponse({ back: false }))
       return true
+    case "listenVoiced":
+      if (!/^[0-9a-f]{16}$/.test(message.id)) {
+        sendResponse({ ok: false })
+        return false
+      }
+      void keepVoiced([message.id], true)
+      sendResponse({ ok: true })
+      return false
     case "speechClear":
       // "Delete all chats": what was read aloud goes from this device and, in Safari, from the user's iCloud (2.6).
+      // The list of texts heard to their end goes with it (build 94; the app's side clears its copy on speechClear).
       if (TARGET === "safari") void callNative("speechClear", {}, 15_000)
+      voicedLane = voicedLane.then(() => chrome.storage.local.remove(STORAGE.voiced)).catch(() => undefined)
       clearSpeech().then(() => sendResponse({ ok: true }), () => sendResponse({ ok: false }))
       return true
     case "mediaNotice":
@@ -755,8 +866,8 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
         sendResponse({ changed: false })
         return false
       }
-      // The app's changes and its "continue this chat" first, then iCloud.
-      mirrorThreads(true)
+      // The app's changes and its "continue this chat" first (not while the panel stays open), then iCloud.
+      mirrorThreads(!message.quiet)
         .catch(() => null)
         .then(async (open) => ({ open, changed: await syncThreads().catch(() => false) }))
         .then(({ open, changed }) => sendResponse({ changed: changed || Boolean(open), open }), () => sendResponse({ changed: false }))

@@ -7,7 +7,9 @@
 import { entryKey, isQuestion, type Entry } from "./conversation.ts"
 
 export type JobKind = "chat" | "similar"
-export type JobState = "running" | "done" | "failed"
+// "waiting" (build 94): a Find similar whose request was cut (Safari left, the background suspended) while our server
+// carries on: its answer is picked up from the server (/api/v2/similar-result).
+export type JobState = "running" | "waiting" | "done" | "failed"
 
 export interface Job {
   // The question's id in its chat (Entry.id): one job per question, asked once however often the request comes.
@@ -24,6 +26,10 @@ export interface Job {
   answer?: string
   // Its outcome was on screen: the panel open on that chat.
   seen?: true
+  // Find similar (build 94): the condition asked (the answer keeps it), and the page it was asked on (the app's
+  // "found" notification opens it).
+  asked?: string
+  open?: string
 }
 
 export type Jobs = Record<string, Job>
@@ -35,14 +41,36 @@ export const SEEN_KEEP_MS = 3_600_000
 // interrupted after this long: by then any device asking it has written its answer.
 export const ORPHAN_MS = 120_000
 
-/** The chats with a job running: the chats list shows them as working. */
+// A Find similar picked up from our server after the background restarted: within this long (the server keeps it a day).
+export const RESUME_MS = 3_600_000
+
+/** Whether a job is still at work: here, or on our server waiting to be picked up. */
+export function isActive(job: Job): boolean {
+  return job.state === "running" || job.state === "waiting"
+}
+
+/** The chats with a job running (or waiting on our server): the chats list shows them as working. */
 export function runningThreads(jobs: Jobs): Set<string> {
-  return new Set(Object.values(jobs).filter((j) => j.state === "running").map((j) => j.thread))
+  return new Set(Object.values(jobs).filter(isActive).map((j) => j.thread))
+}
+
+/**
+ * The chats at work, each with its newest active job's kind and start (ms): the chats list's row shows a Find similar
+ * as searching (build 94, the owner: «на полоске чата видеть, что там какой-то процесс идет»).
+ */
+export function activeJobs(jobs: Jobs): Map<string, { kind: JobKind; since: number }> {
+  const out = new Map<string, { kind: JobKind; since: number }>()
+  for (const j of Object.values(jobs)) {
+    if (!isActive(j)) continue
+    const had = out.get(j.thread)
+    if (!had || j.at > had.since) out.set(j.thread, { kind: j.kind, since: j.at })
+  }
+  return out
 }
 
 /** The chats whose job ended while they weren't on screen (an answer, or the interruption): the chats list's dot. */
 export function unreadThreads(jobs: Jobs): Set<string> {
-  return new Set(Object.values(jobs).filter((j) => j.state !== "running" && !j.seen).map((j) => j.thread))
+  return new Set(Object.values(jobs).filter((j) => !isActive(j) && !j.seen).map((j) => j.thread))
 }
 
 /** Whether any chat has news: the floating button's dot. */
@@ -52,7 +80,7 @@ export function hasUnread(jobs: Jobs): boolean {
 
 /** The jobs with those of `thread` seen (null: nothing to change). */
 export function seenIn(jobs: Jobs, thread: string): Jobs | null {
-  const unseen = Object.values(jobs).filter((j) => j.thread === thread && j.state !== "running" && !j.seen)
+  const unseen = Object.values(jobs).filter((j) => j.thread === thread && !isActive(j) && !j.seen)
   if (!unseen.length) return null
   const next = { ...jobs }
   for (const j of unseen) next[j.id] = { ...j, seen: true }
@@ -62,7 +90,7 @@ export function seenIn(jobs: Jobs, thread: string): Jobs | null {
 /** The jobs kept: running ones, unseen ones, seen ones for an hour after they ended; the newest MAX_JOBS. */
 export function prunedJobs(jobs: Jobs, now = Date.now()): Jobs {
   const kept = Object.values(jobs)
-    .filter((j) => j.state === "running" || !j.seen || now - (j.end ?? j.at) < SEEN_KEEP_MS)
+    .filter((j) => isActive(j) || !j.seen || now - (j.end ?? j.at) < SEEN_KEEP_MS)
     .sort((a, b) => b.at - a.at)
     .slice(0, MAX_JOBS)
   return Object.fromEntries(kept.map((j) => [j.id, j]))
@@ -70,14 +98,20 @@ export function prunedJobs(jobs: Jobs, now = Date.now()): Jobs {
 
 /**
  * The jobs after the background started: one still "running" lost its request with the background that ran it, so it
- * was interrupted (null: none was).
+ * was interrupted — except a recent Find similar, which our server finished on its own (build 94): it waits to be
+ * picked up from there (null: nothing to change).
  */
 export function afterRestart(jobs: Jobs, now = Date.now()): Jobs | null {
-  const lost = Object.values(jobs).filter((j) => j.state === "running")
+  const lost = Object.values(jobs).filter(isActive)
   if (!lost.length) return null
   const next = { ...jobs }
-  for (const j of lost) next[j.id] = { ...j, state: "failed", code: "STREAM", end: now }
+  for (const j of lost) next[j.id] = resumable(j, now) ? { ...j, state: "waiting" } : { ...j, state: "failed", code: "STREAM", end: now }
   return next
+}
+
+/** A job whose answer our server may still have: a Find similar asked within RESUME_MS. */
+export function resumable(job: Job, now = Date.now()): boolean {
+  return job.kind === "similar" && isActive(job) && now - job.at < RESUME_MS
 }
 
 /**
@@ -121,10 +155,23 @@ export function interruption(entries: Entry[], jobs: Jobs, live: boolean, now = 
   const last = entries[entries.length - 1]
   if (!isQuestion(last) || live) return null
   const job = last.id ? jobs[last.id] : undefined
-  if (job?.state === "running") return null
+  if (job && isActive(job)) return null
   if (job?.state === "failed") return { code: job.code ?? "STREAM" }
   if (job?.state === "done") return null
   return now - (last.t ?? last.page?.at ?? 0) > ORPHAN_MS ? { code: "STREAM" } : null
+}
+
+/**
+ * Whether the chat's last question is still being answered somewhere: no answer after it yet, asked under ORPHAN_MS
+ * ago. The chats list's spinner (build 94) where no job here has it: the app, another device. On the device running
+ * it the job says so (runningThreads), however long it takes. The same rule as `interruption`, the other way round:
+ * after ORPHAN_MS a Find similar is over too (its budget and the engine's stop are well under it).
+ */
+export function pendingQuestion(entries: readonly Entry[], now = Date.now()): boolean {
+  const last = entries[entries.length - 1]
+  if (!isQuestion(last)) return false
+  const at = last.t ?? last.page?.at
+  return at !== undefined && now - at >= -60_000 && now - at < ORPHAN_MS
 }
 
 /**

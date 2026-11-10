@@ -908,6 +908,12 @@
  "chatNotes": {
   "message": "Le tue note in questa chat"
  },
+ "chatWatches": {
+  "message": "Pagine seguite in questa chat: {0}"
+ },
+ "chatReminder": {
+  "message": "In questa chat c'è un promemoria"
+ },
  "pages_one": {
   "message": "{0} pagina"
  },
@@ -1496,6 +1502,15 @@
  "orgMatch": {
   "message": "corrisponde al {0}%"
  },
+ "orgMergeInto": {
+  "message": "Unisci a «{0}»"
+ },
+ "orgMergeA11y": {
+  "message": "Unisci questa chat a «{0}»"
+ },
+ "orgMerged": {
+  "message": "Unito a «{0}»"
+ },
  "recs_one": {
   "message": "{0} consiglio"
  },
@@ -1753,6 +1768,12 @@
  },
  "listenPlayingHere": {
   "message": "In riproduzione"
+ },
+ "listenVoiced": {
+  "message": "Già letto ad alta voce: riascoltarlo è gratis"
+ },
+ "listenGoTo": {
+  "message": "Vai al punto da cui viene"
  },
  "listenLoading": {
   "message": "Preparo la voce…"
@@ -2170,6 +2191,30 @@
  },
  "similarReviewersSay": {
   "message": "Recensioni: {0}"
+ },
+ "similarNotifyTitle": {
+  "message": "Ricerca di simili completata"
+ },
+ "similarNotifyFound": {
+  "message": "Opzioni trovate: {0}. Tocca per vederle."
+ },
+ "similarNotifyNone": {
+  "message": "Niente di adatto. Tocca per cambiare la condizione."
+ },
+ "similarNotifyFailed": {
+  "message": "La ricerca non si è conclusa. Tocca per riprovare."
+ },
+ "similarSay": {
+  "message": "Cosa dicono:"
+ },
+ "similarPros": {
+  "message": "piace: {0}"
+ },
+ "similarCons": {
+  "message": "non piace: {0}"
+ },
+ "similarEstimated": {
+  "message": "stimato dalla descrizione"
  },
  "tip_4cf1b54b00": {
   "message": "Suggerimenti"

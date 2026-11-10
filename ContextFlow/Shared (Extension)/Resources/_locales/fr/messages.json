@@ -908,6 +908,12 @@
  "chatNotes": {
   "message": "Vos notes dans cette discussion"
  },
+ "chatWatches": {
+  "message": "Pages surveillées dans cette discussion : {0}"
+ },
+ "chatReminder": {
+  "message": "Un rappel est prévu dans cette discussion"
+ },
  "pages_one": {
   "message": "{0} page"
  },
@@ -1496,6 +1502,15 @@
  "orgMatch": {
   "message": "correspond à {0} %"
  },
+ "orgMergeInto": {
+  "message": "Fusionner avec « {0} »"
+ },
+ "orgMergeA11y": {
+  "message": "Fusionner cette discussion avec « {0} »"
+ },
+ "orgMerged": {
+  "message": "Fusionné avec « {0} »"
+ },
  "recs_one": {
   "message": "{0} recommandation"
  },
@@ -1753,6 +1768,12 @@
  },
  "listenPlayingHere": {
   "message": "En cours de lecture"
+ },
+ "listenVoiced": {
+  "message": "Déjà lu à voix haute : la réécoute est gratuite"
+ },
+ "listenGoTo": {
+  "message": "Aller à l’endroit d’où ça vient"
  },
  "listenLoading": {
   "message": "Préparation de la voix…"
@@ -2170,6 +2191,30 @@
  },
  "similarReviewersSay": {
   "message": "Avis : {0}"
+ },
+ "similarNotifyTitle": {
+  "message": "Recherche d’articles similaires terminée"
+ },
+ "similarNotifyFound": {
+  "message": "Options trouvées : {0}. Touchez pour les voir."
+ },
+ "similarNotifyNone": {
+  "message": "Rien qui convienne. Touchez pour changer la condition."
+ },
+ "similarNotifyFailed": {
+  "message": "La recherche n’a pas abouti. Touchez pour réessayer."
+ },
+ "similarSay": {
+  "message": "Ce qu’on en dit :"
+ },
+ "similarPros": {
+  "message": "apprécié : {0}"
+ },
+ "similarCons": {
+  "message": "critiqué : {0}"
+ },
+ "similarEstimated": {
+  "message": "estimé d’après la description"
  },
  "tip_4cf1b54b00": {
   "message": "Astuces"

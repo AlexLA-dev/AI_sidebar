@@ -908,6 +908,12 @@
  "chatNotes": {
   "message": "Suas notas neste chat"
  },
+ "chatWatches": {
+  "message": "Páginas acompanhadas neste chat: {0}"
+ },
+ "chatReminder": {
+  "message": "Há um lembrete neste chat"
+ },
  "pages_one": {
   "message": "{0} página"
  },
@@ -1496,6 +1502,15 @@
  "orgMatch": {
   "message": "{0}% de correspondência"
  },
+ "orgMergeInto": {
+  "message": "Juntar com “{0}”"
+ },
+ "orgMergeA11y": {
+  "message": "Juntar esta conversa com “{0}”"
+ },
+ "orgMerged": {
+  "message": "Juntado com “{0}”"
+ },
  "recs_one": {
   "message": "{0} recomendação"
  },
@@ -1753,6 +1768,12 @@
  },
  "listenPlayingHere": {
   "message": "Tocando agora"
+ },
+ "listenVoiced": {
+  "message": "Já narrado: ouvir de novo é grátis"
+ },
+ "listenGoTo": {
+  "message": "Ir para onde está"
  },
  "listenLoading": {
   "message": "Preparando a voz…"
@@ -2170,6 +2191,30 @@
  },
  "similarReviewersSay": {
   "message": "Avaliações: {0}"
+ },
+ "similarNotifyTitle": {
+  "message": "Busca de similares concluída"
+ },
+ "similarNotifyFound": {
+  "message": "Opções encontradas: {0}. Toque para ver."
+ },
+ "similarNotifyNone": {
+  "message": "Nada adequado. Toque para mudar a condição."
+ },
+ "similarNotifyFailed": {
+  "message": "A busca não terminou. Toque para tentar de novo."
+ },
+ "similarSay": {
+  "message": "O que dizem:"
+ },
+ "similarPros": {
+  "message": "elogiam: {0}"
+ },
+ "similarCons": {
+  "message": "criticam: {0}"
+ },
+ "similarEstimated": {
+  "message": "estimado pela descrição"
  },
  "tip_4cf1b54b00": {
   "message": "Dicas"

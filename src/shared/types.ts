@@ -99,6 +99,9 @@ export interface AskPayload {
   context?: "chat" | "history"
   pages?: Array<{ title: string; url: string; text: string }>
   history?: ChatDigest[]
+  // Build 94: the client opens chats from links in the answer, so the model writes the chats it names as
+  // [name](chat:<id>) (src/shared/chatMarks.ts). Older clients don't send it and get the answer as before.
+  links?: boolean
   // How big the chat is (its messages and pages) and how many chats this device keeps: no text, for
   // /analytics to show whether the limits on them get in the way.
   stats?: ChatStats
@@ -189,10 +192,16 @@ export type BackgroundRequest =
   | { type: "notifStatus" }
   // Read aloud playing in the panel on iPhone and iPad (2.6): what the app needs to carry on from the same second
   // ("state", as it plays), the page went away ("away": the notification now), came back ("back"), or it stopped.
-  | { type: "listenHandoff"; op: "state" | "away" | "back" | "stop"; id: string; at?: number; starts?: number[]; parts?: string[]; complete?: boolean; speed?: number; title?: string; body?: string }
+  // `skipped` (build 94): part of it was skipped ahead here, so the app doesn't count it as heard to its end.
+  | { type: "listenHandoff"; op: "state" | "away" | "back" | "stop"; id: string; at?: number; starts?: number[]; parts?: string[]; complete?: boolean; speed?: number; title?: string; body?: string; skipped?: boolean }
   // Back on the page after a hand-off (build 93): whether the app sent the person back for this text ("Back to Safari",
   // or notifications just turned on: then `play` it here), and whether the app has taken it over.
   | { type: "listenReturn"; id: string }
+  // Build 94: a text heard to its end here (shared/voiced.ts id): kept, and told to the app on this device.
+  | { type: "listenVoiced"; id: string }
+  // Build 94: a page went away, or shows again, while a Find similar works (the app's "found" notification).
+  | { type: "similarAway" }
+  | { type: "similarBack" }
   // The line under a free answer that skipped the page's video or PDFs: shown, or its "Try Pro" tapped.
   | { type: "mediaNotice"; action: "shown" | "pro"; media: MediaKind[] }
   // An Own key subscriber and Pro: a refusal (starts the day before the discount), the discount card shown, a tap.
@@ -205,7 +214,8 @@ export type BackgroundRequest =
   // A page of the chat: its tab if it's open, else a new tab.
   | { type: "openPage"; url: string }
   // The panel opened: sync threads with iCloud (Safari); answers { changed }.
-  | { type: "syncThreads" }
+  // quiet (2.6 (94)): while the panel stays open, not when it opens: the app's "continue this chat" waits for that.
+  | { type: "syncThreads"; quiet?: boolean }
   // AI search over the chats (Pro); answers a FindReply.
   | { type: "find"; query: string; chats: ChatDigest[] }
   // Organizing (2.5, Pro, with suggestions on): the suggestions for a chat now; answers an OrganizeReply.
@@ -241,7 +251,7 @@ export type OrganizeReply =
   | {
       ok: true
       // `match`: how well it fits there, in % (a move by topic or site, 2.6 (93)).
-      move: { start: number; end: number; to: string | null; toName: string; why: "page" | "site" | "topic" | "apart"; count: number; match?: number } | null
+      move: { start: number; end: number; to: string | null; toName: string; why: "merge" | "page" | "site" | "topic" | "apart"; count: number; match?: number } | null
       // A suggested tag for the message at `index` (its key, to check it's still that message).
       tags: Array<{ index: number; key: string; tag: string }>
       // 2.6: the chat's name no longer fits its topic (and the user didn't type it): this one would. A suggestion, like a
@@ -259,7 +269,7 @@ export type OrganizeNameReply = { ok: true; name: string } | { ok: false; code: 
 
 /** Organizing events for /api/v2/event (src/background/organize.ts sends them). */
 export type OrganizeEvent =
-  | { kind: "organize"; action: "shown" | "accepted" | "dismissed" | "undone"; what: "move" | "new" | "tag"; why?: "page" | "site" | "topic" | "apart" }
+  | { kind: "organize"; action: "shown" | "accepted" | "dismissed" | "undone"; what: "move" | "new" | "tag"; why?: "merge" | "page" | "site" | "topic" | "apart" }
   // 2.6: the chat named by its topic: "Name by topic" (asked), or a suggested name ("drift": its name no longer fit)
   // shown, taken, turned down; either undone.
   | { kind: "organize"; action: "shown" | "accepted" | "dismissed" | "undone"; what: "name"; why: "asked" | "drift" }
@@ -314,6 +324,9 @@ export const STORAGE = {
   // iPhone, iPad (build 93): the last hand-off of Listen to the app, so coming back from it ("Back to Safari", or once
   // notifications are on) brings the panel back as it was.
   listenBack: "cf:listenBack",
+  // Build 94: the texts heard to their end on this device, in the panel or the app ({ [id]: ms }, shared/voiced.ts):
+  // Listen shows that replaying them costs no minutes.
+  voiced: "cf:voiced",
   // Recent pages' text on this device ({ [url]: { title, text, at } }) for "whole chat" answers.
   pageTexts: "cf:pageTexts",
   // How many times the hint about writing notes with the send button was shown, or -1 once used.

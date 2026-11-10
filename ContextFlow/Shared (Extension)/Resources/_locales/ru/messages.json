@@ -908,6 +908,12 @@
  "chatNotes": {
   "message": "Ваши заметки в этом чате"
  },
+ "chatWatches": {
+  "message": "Слежений за страницами этого чата: {0}"
+ },
+ "chatReminder": {
+  "message": "В этом чате стоит напоминание"
+ },
  "pages_one": {
   "message": "{0} страница"
  },
@@ -1496,6 +1502,15 @@
  "orgMatch": {
   "message": "совпадает на {0}%"
  },
+ "orgMergeInto": {
+  "message": "Объединить с «{0}»"
+ },
+ "orgMergeA11y": {
+  "message": "Объединить этот чат с «{0}»"
+ },
+ "orgMerged": {
+  "message": "Объединено с «{0}»"
+ },
  "recs_one": {
   "message": "{0} рекомендация"
  },
@@ -1753,6 +1768,12 @@
  },
  "listenPlayingHere": {
   "message": "Сейчас играет"
+ },
+ "listenVoiced": {
+  "message": "Уже озвучено: повтор бесплатно"
+ },
+ "listenGoTo": {
+  "message": "Перейти туда, откуда это"
  },
  "listenLoading": {
   "message": "Готовлю голос…"
@@ -2170,6 +2191,30 @@
  },
  "similarReviewersSay": {
   "message": "Отзывы: {0}"
+ },
+ "similarNotifyTitle": {
+  "message": "Поиск похожего завершён"
+ },
+ "similarNotifyFound": {
+  "message": "Нашлось вариантов: {0}. Нажмите, чтобы посмотреть."
+ },
+ "similarNotifyNone": {
+  "message": "Подходящего не нашлось. Нажмите, чтобы изменить условие."
+ },
+ "similarNotifyFailed": {
+  "message": "Поиск не завершился. Нажмите, чтобы повторить."
+ },
+ "similarSay": {
+  "message": "Что говорят:"
+ },
+ "similarPros": {
+  "message": "хвалят {0}"
+ },
+ "similarCons": {
+  "message": "ругают {0}"
+ },
+ "similarEstimated": {
+  "message": "оценка по описанию"
  },
  "tip_4cf1b54b00": {
   "message": "Советы"

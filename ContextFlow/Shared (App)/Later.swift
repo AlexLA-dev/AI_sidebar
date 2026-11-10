@@ -277,3 +277,93 @@ struct RemindersView: View {
         return parts.count == 3 && parts[0] == "remind" ? (parts[1], parts[2]) : nil
     }
 }
+
+// MARK: - The chats list's rows (build 94)
+
+/// A chat's row in the chats list, build 94 (the owner, on TestFlight 93: «на полоске чата хочется видеть глаз и число
+/// там где установлены наблюдения за изменениями и колокольчик, если напоминалка стоит»): the eye with how many of the
+/// chat's pages are watched, the bell while one of its reminders is still to ring, and a spinner while its last question
+/// is being answered in Safari (an answer or Find similar, on this device or another one). And the chats an "Ask your
+/// chats" answer names, as links that open them. The same rules as src/shared/chatMarks.ts and, for the spinner,
+/// pendingQuestion in src/shared/jobs.ts (tests/chatMarks.test.mts reads this file).
+enum RowMarks {
+    /// src/shared/jobs.ts ORPHAN_MS: by then a question without an answer isn't being answered any more.
+    static let orphan: TimeInterval = 120
+    /// A name shorter than this isn't looked for in an answer's text ("AI" or "Notes" would link ordinary words).
+    static let minName = 6
+    /// `[name](chat:<id>)`, as the server asks the model to write a chat it names.
+    static let chatLink = try! NSRegularExpression(pattern: #"\[([^\]\n]+)\]\(chat:([A-Za-z0-9_-]{1,64})\)"#)
+    private static let guarded = try! NSRegularExpression(pattern: #"```[\s\S]*?```|`[^`\n]*`|\[[^\]\n]*\]\([^)\n]*\)"#)
+
+    #if DEBUG
+    /// -CFDebugSeedRows YES (Chats.swift): the seeded mug chat's pages count as watched.
+    static var debugWatched: [String] {
+        UserDefaults.standard.bool(forKey: "CFDebugSeedRows") ? ["https://shop.example/mug", "https://shop.example/mug/reviews"] : []
+    }
+    #endif
+
+    /// Whether a reminder in the chat is still to ring: the bell.
+    static func remindsAhead(_ entries: [ChatEntry], now: Date = Date()) -> Bool {
+        let ms = now.timeIntervalSince1970 * 1000
+        return entries.contains { ($0.remind?.at ?? 0) > ms }
+    }
+
+    /// How many of `watched` (the watched pages' addresses) are pages of the chat: the eye's number.
+    static func watches(_ entries: [ChatEntry], watched: [String]) -> Int {
+        guard !watched.isEmpty else { return 0 }
+        let pages = Set(entries.compactMap { $0.isUser ? $0.page.map { urlKey($0.url) } : nil })
+        return pages.isEmpty ? 0 : watched.filter { pages.contains(urlKey($0)) }.count
+    }
+
+    /// The chat's last question still waits for its answer: asked under `orphan` ago, no answer after it yet.
+    static func pending(_ entries: [ChatEntry], now: Date = Date()) -> Bool {
+        guard let last = entries.last, last.isUser, !last.isNote, let at = last.t ?? last.page?.at else { return false }
+        let age = now.timeIntervalSince1970 - at / 1000
+        return age >= -60 && age < orphan
+    }
+
+    /// "The same page": no hash, no tracking parameters (src/shared/conversation.ts urlKey).
+    static func urlKey(_ href: String) -> String {
+        guard var parts = URLComponents(string: href) else { return href }
+        parts.fragment = nil
+        if let items = parts.queryItems {
+            let kept = items.filter { $0.name.range(of: #"^(utm_|fbclid|gclid|yclid|mc_|ref$|ref_src)"#, options: [.regularExpression, .caseInsensitive]) == nil }
+            parts.queryItems = kept.isEmpty ? nil : kept
+        }
+        if parts.path.isEmpty { parts.path = "/" }
+        return parts.string ?? href
+    }
+
+    /// The answer with the chats it names as links: the model's links kept for a chat that's there (else its name
+    /// alone), and a chat's name written out in full linked the first time it appears (answers from before the server
+    /// asked for links). Not in code, not inside a link, not inside a longer word; the longest names first.
+    static func linkChats(_ text: String, chats: [(id: String, name: String)]) -> String {
+        let known = Set(chats.map(\.id))
+        var out = text
+        var linked = Set<String>()
+        for match in chatLink.matches(in: out, range: NSRange(out.startIndex..., in: out)).reversed() {
+            guard let whole = Range(match.range, in: out), let label = Range(match.range(at: 1), in: out), let id = Range(match.range(at: 2), in: out) else { continue }
+            let chat = String(out[id])
+            if known.contains(chat) { linked.insert(chat) } else { out.replaceSubrange(whole, with: String(out[label])) }
+        }
+        let names = chats
+            .map { (id: $0.id, name: $0.name.replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression).trimmingCharacters(in: .whitespaces)) }
+            .filter { $0.name.count >= minName && !linked.contains($0.id) }
+            .sorted { $0.name.count > $1.name.count }
+        for chat in names {
+            let pattern = #"(^|[^\p{L}\p{N}])("# + NSRegularExpression.escapedPattern(for: chat.name).replacingOccurrences(of: " ", with: #"\s+"#) + #")(?![\p{L}\p{N}])"#
+            guard let word = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]) else { continue }
+            let all = NSRange(out.startIndex..., in: out)
+            let kept = guarded.matches(in: out, range: all).map(\.range)
+            guard let hit = word.matches(in: out, range: all).map({ $0.range(at: 2) }).first(where: { r in !kept.contains { NSIntersectionRange($0, r).length > 0 } }),
+                  let range = Range(hit, in: out) else { continue }
+            out.replaceSubrange(range, with: "[\(out[range])](chat:\(chat.id))")
+        }
+        return out
+    }
+
+    /// A chat link's name alone (copies, shares, snippets).
+    static func unlinked(_ text: String) -> String {
+        chatLink.stringByReplacingMatches(in: text, range: NSRange(text.startIndex..., in: text), withTemplate: "$1")
+    }
+}
