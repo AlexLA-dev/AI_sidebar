@@ -1119,7 +1119,8 @@ struct ExtensionOffBanner: View {
 
 // MARK: - A chat
 
-/// "Named “…” · Undo" (2.6), or why the chat couldn't be named (no Undo).
+/// "Named “…” · Undo" (2.6), or why the chat couldn't be named (no Undo), or (2.6 (95)) that suggestions now come by
+/// themselves, after the first one taken.
 private struct NameBar {
     let id = UUID()
     let chat: String
@@ -1407,12 +1408,15 @@ struct ChatDetailView: View {
                 // 2.6 (94): what iCloud has for it now (another device may have renamed it or settled a suggestion).
                 .task(id: thread.id) { await library.pull() }
                 // 2.6 (93): the chat's record came from another device while it's open: shown at once too. 2.6 (95): read
-                // afresh by its id (this closure's `thread` is the chat as it was before the change: a name taken on the
-                // iPhone stayed offered on the iPad), and on a rename too.
+                // afresh by its id (this closure's `thread` is the chat as it was before the change: a name taken on another
+                // device stayed offered), and on a rename too.
                 .onChange(of: thread.org) { _ in showKept(thread.id) }
                 .onChange(of: thread.name) { _ in showKept(thread.id) }
                 // The bar after a move goes on the next action: a question, a note, another suggestion, leaving the chat.
                 .onDisappear { undoBar = nil }
+                // 2.6 (95): the first suggestion's bar waits for the bar of its move.
+                .onChange(of: undoBar == nil) { gone in if gone { showFirstWin() } }
+                .onChange(of: nameBar == nil) { gone in if gone { showFirstWin() } }
                 .safeAreaInset(edge: .bottom) {
                     if let picked {
                         pickBar(thread, picked, labels)
@@ -1703,8 +1707,17 @@ struct ChatDetailView: View {
         }
     }
 
+    /// The first suggestion taken: that from now on they come by themselves (once). 2.6 (95): a bar that goes by itself,
+    /// not a line left at the end of the chat; after the bar of the move (its Undo comes first), if there is one.
     private func won() {
-        if organize.takeFirstWin() { withAnimation { firstWin = currentId } }
+        if organize.takeFirstWin() { firstWin = currentId; showFirstWin() }
+    }
+
+    private func showFirstWin() {
+        guard let chat = firstWin, undoBar == nil, nameBar == nil else { return }
+        firstWin = nil
+        guard chat == currentId, organize.enabled(pro: store.isPro) else { return }
+        withAnimation { nameBar = NameBar(chat: chat, text: String(localized: "Done. From now on I'll suggest on my own."), undo: nil) }
     }
 
     private func takeTag(_ thread: ChatThread, _ index: Int, _ tag: String) {
@@ -1959,11 +1972,6 @@ struct ChatDetailView: View {
                 ChatAI.reportOrganize("organize_promo", ["action": "tap", "where": "third_tag"])
                 openPro()
             }, close: { withAnimation { tagsCard = false } })
-        }
-        if firstWin == thread.id, organize.enabled(pro: store.isPro) {
-            Label("Done. From now on I'll suggest on my own.", systemImage: "sparkles")
-                .font(.footnote)
-                .foregroundColor(.secondary)
         }
     }
 

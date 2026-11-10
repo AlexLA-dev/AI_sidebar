@@ -2659,7 +2659,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }, [open, orgOn, streaming, historyMode, messages.length, threadRef.current, orgAgain])
 
   const orgNow = org && orgOn && org.chat === threadRef.current && org.length === messages.length && !picked && !streaming ? org : null
-  // 2.6 (95): a name that is the chat's by now (taken on another device: the owner's iPad still offered it), turned down
+  // 2.6 (95): a name that is the chat's by now (taken on another device, the record not here yet), turned down
   // or typed meanwhile, isn't offered.
   const hereChat = threadList.find((x) => x.id === threadRef.current)
   const orgName = orgNow?.name && !(hereChat && (namedByUser(hereChat) || orgNow.name.toLowerCase() === threadName(hereChat).toLowerCase() ||
@@ -2737,13 +2737,19 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     }
   }, [open, orgOn, view, threadList])
 
-  // The first suggestion taken: a line that from now on they come by themselves (once).
+  // The first suggestion taken: that from now on they come by themselves (once). 2.6 (95): a bar that goes by itself,
+  // not a line left at the end of the chat; after the bar of the move (its Undo comes first), if there is one.
   const won = () => {
     if (!cards || cards.firstWin) return
     setFirstWin(threadRef.current)
     void setOrganizeCards({ firstWin: true }).then(setCards)
     orgEvent({ kind: "organize_promo", action: "shown", where: "first_win" })
   }
+  useEffect(() => {
+    if (!firstWin || undoBar || !open || view !== "chat") return
+    if (firstWin === threadRef.current && orgOn) setUndoBar({ text: t("orgFirstWin"), actions: [] })
+    setFirstWin(null)
+  }, [firstWin, undoBar, open, view])
 
   const takeTag = (index: number, tag: string) => {
     setMessages((list) => list.map((m, i) => (i !== index ? m : {
@@ -3030,7 +3036,6 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       {tagsCard && !messCard && promoOk && (
         <OrganizeCard kind="tags" pro={byok ? t("upgradePro") : undefined} onPrimary={() => tryOrganizePro("third_tag")} onClose={() => setTagsCard(false)} />
       )}
-      {firstWin === threadRef.current && orgOn && <div class="cf-org-win" role="status"><Icon.Sparkle size={13} /> {t("orgFirstWin")}</div>}
     </>
   )
 
@@ -3316,8 +3321,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             )}
             <button type="button" class="cf-icon" onClick={hide} aria-label={t("close")} title={t("close")}><Icon.Close /></button>
           </header>
-          {/* 2.6 (94): the chat's name, the whole width (the owner: in the chat its name wasn't seen, so a suggested one
-              couldn't be judged; next to the page in the header it was cut to a few letters on an iPhone). */}
+          {/* 2.6 (94): the chat's name, the whole width (a suggested name is judged against it; next to the page in the
+              header it was cut to a few letters on an iPhone). */}
           {headerName && <div class="cf-chat-bar" dir="auto" title={headerName}>{headerName}</div>}
 
           {view === "threads" ? (
