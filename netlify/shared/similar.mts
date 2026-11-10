@@ -1463,12 +1463,15 @@ export async function shopifyCatalog(origin: string, timeoutMs: number, signal?:
  * checked against the person's condition like any page. A model that meets the condition and isn't listed yet also
  * becomes an item of its own (`added`).
  */
-export async function siblingsStep(checked: CheckedCandidate[], plan: Plan, facts: SourceFacts, lang: string, timeoutMs: number, signal?: AbortSignal): Promise<{ checked: CheckedCandidate[]; added: CheckedCandidate[]; stats: NonNullable<EngineStats["siblings"]> }> {
+export async function siblingsStep(checked: CheckedCandidate[], plan: Plan, facts: SourceFacts, lang: string, timeoutMs: number, signal?: AbortSignal, sourceUrl = ""): Promise<{ checked: CheckedCandidate[]; added: CheckedCandidate[]; stats: NonNullable<EngineStats["siblings"]> }> {
   const stats = { items: 0, opened: 0, added: 0 }
   if (!SIBLING_CATEGORIES.includes(plan.category)) return { checked, added: [], stats }
   // A marketplace isn't the brand's own site: its other listings are other sellers' (build 95: a Walmart brand page and
   // its terms of use came in as "models of the brand").
-  const due = checked.map((c, i) => ({ c, i })).filter(({ c }) => c.kept && c.kind === "item" && c.page.status === "ok" && !MARKETPLACE.test(hostOf(c.page.finalUrl || c.url))).slice(0, SIBLING_ITEMS)
+  // Nor is the site of the page they're on (build 95, the set: the subject's own shop took three of the four places and
+  // Backvac Pro, fifth, never had its Pro Max looked at).
+  const self = hostOf(sourceUrl)
+  const due = checked.map((c, i) => ({ c, i })).filter(({ c }) => c.kept && c.kind === "item" && c.page.status === "ok" && !MARKETPLACE.test(hostOf(c.page.finalUrl || c.url)) && !(self && hostOf(c.page.finalUrl || c.url) === self)).slice(0, SIBLING_ITEMS)
   const known = new Set(checked.map((c) => normalizeUrl(c.page.finalUrl || c.url)))
   const jobs: Array<{ i: number; url: string }> = []
   const taken = new Set<string>()
@@ -1965,6 +1968,36 @@ export async function* runEngineA(input: SimilarInput, stats: EngineStats, opts:
   mark("plan", t)
   if (opts.debug) stats.plan = { ...plan, money: plan.money ? { currency: plan.money.currency, rates: null } : undefined }
 
+  // The steps beside one another after the checks: each changes its own fields, put together on the same candidates.
+  let deepened = false
+  const deepen = async (base: CheckedCandidate[], budget: number): Promise<CheckedCandidate[]> => {
+    const t0 = Date.now()
+    const country = input.country ?? (/^[a-z]{2,3}[-_]([A-Z]{2})\b/.exec(input.locale)?.[1] ?? "")
+    const [dug, region, reviewed, siblings] = await Promise.all([
+      plan.condition.kind !== "none" && budget > 4_000 ? digDeeper(base, plan, input.condition, input.facts, lang(), Math.min(10_000, budget), opts.signal) : null,
+      country && budget > 2_000 ? regionCheck(base, country, lang(), Math.min(4_500, budget), opts.signal).catch(() => base) : null,
+      budget > 6_000 && (over.reviews ?? config.similar.reviews) ? reviewsStep(base, plan, input, lang(), budget, opts.signal).catch(() => null) : null,
+      // Build 94: the brand's other models, so "it lacks X" names the one that has it.
+      budget > 3_000 && (over.siblings ?? config.similar.siblings) ? siblingsStep(base, plan, input.facts, lang(), Math.min(5_000, budget), opts.signal, input.page.url).catch(() => null) : null
+    ])
+    if (dug?.spend) stats.spend.dig = dug.spend
+    if (dug?.stats.items) stats.dig = dug.stats
+    if (reviewed?.spend) stats.spend.reviews = reviewed.spend
+    if (reviewed?.stats.items) stats.reviews = reviewed.stats
+    if (siblings?.stats.items) stats.siblings = siblings.stats
+    if (dug?.stats.items || reviewed?.stats.items || region || siblings?.stats.items) stats.ms.deeper = Date.now() - t0
+    return [
+      ...base.map((c, i) => ({
+        ...(dug?.checked[i] ?? c),
+        ...(region?.[i]?.region ? { region: region[i].region } : {}),
+        ...(reviewed?.checked[i]?.reviews ? { reviews: reviewed.checked[i].reviews } : {}),
+        ...(siblings?.checked[i]?.siblings ? { siblings: siblings.checked[i].siblings } : {})
+      })),
+      // A model of the same brand that meets the condition: an item of its own, after the ones the searches found.
+      ...(siblings?.added ?? [])
+    ]
+  }
+
   yield { type: "progress", step: "search", queries: plan.queries }
   t = Date.now()
   const mode = over.searchMode ?? config.similar.searchMode
@@ -2000,7 +2033,12 @@ export async function* runEngineA(input: SimilarInput, stats: EngineStats, opts:
     checked = await checkCandidates(taken, plan, input.facts, lang(), checkTimeout(), opts.signal)
     mark("check", t)
     if (rescue) {
+      // The first round's pages go deeper meanwhile (build 95: run after the rescue, the deeper steps had no time left
+      // and were skipped — no reviews, no brand models).
+      const deep = deepen(checked, Math.min(12_000, left() - 20_000))
+      deepened = true
       const more = await rescue
+      checked = await deep
       if (more) {
         stats.spend.search = addSpend(stats.spend.search, more.spend)
         const extra = claims.take(more.candidates)
@@ -2059,37 +2097,9 @@ export async function* runEngineA(input: SimilarInput, stats: EngineStats, opts:
     }
   }
   // Beside one another, then the writer (build 93): conditions the first pages didn't show, one or two pages deeper
-  // (build 91); App Store items in their country's store; what reviewers say about the top items.
-  {
-    t = Date.now()
-    const base = checked
-    const budget = Math.min(12_000, left() - 20_000)
-    const country = input.country ?? (/^[a-z]{2,3}[-_]([A-Z]{2})\b/.exec(input.locale)?.[1] ?? "")
-    const [dug, region, reviewed, siblings] = await Promise.all([
-      plan.condition.kind !== "none" && budget > 4_000 ? digDeeper(base, plan, input.condition, input.facts, lang(), Math.min(10_000, budget), opts.signal) : null,
-      country && budget > 2_000 ? regionCheck(base, country, lang(), Math.min(4_500, budget), opts.signal).catch(() => base) : null,
-      budget > 6_000 && (over.reviews ?? config.similar.reviews) ? reviewsStep(base, plan, input, lang(), budget, opts.signal).catch(() => null) : null,
-      // Build 94: the brand's other models, so "it lacks X" names the one that has it.
-      budget > 3_000 && (over.siblings ?? config.similar.siblings) ? siblingsStep(base, plan, input.facts, lang(), Math.min(5_000, budget), opts.signal).catch(() => null) : null
-    ])
-    // Each step changed its own fields: put them together on the same candidates.
-    checked = [
-      ...base.map((c, i) => ({
-        ...(dug?.checked[i] ?? c),
-        ...(region?.[i]?.region ? { region: region[i].region } : {}),
-        ...(reviewed?.checked[i]?.reviews ? { reviews: reviewed.checked[i].reviews } : {}),
-        ...(siblings?.checked[i]?.siblings ? { siblings: siblings.checked[i].siblings } : {})
-      })),
-      // A model of the same brand that meets the condition: an item of its own, after the ones the searches found.
-      ...(siblings?.added ?? [])
-    ]
-    if (dug?.spend) stats.spend.dig = dug.spend
-    if (dug?.stats.items) stats.dig = dug.stats
-    if (reviewed?.spend) stats.spend.reviews = reviewed.spend
-    if (reviewed?.stats.items) stats.reviews = reviewed.stats
-    if (siblings?.stats.items) stats.siblings = siblings.stats
-    if (dug?.stats.items || reviewed?.stats.items || region || siblings?.stats.items) mark("deeper", t)
-  }
+  // (build 91); App Store items in their country's store; what reviewers say about the top items. Already done beside
+  // the rescue round (build 95), on the first round's pages.
+  if (!deepened) checked = await deepen(checked, Math.min(12_000, left() - 20_000))
   stats.searches = stats.spend.search?.searches ?? 0
   stats.checked = checked.length
   // The writer sees at most 14 checked pages, in the searches' rank order.
