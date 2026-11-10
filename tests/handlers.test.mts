@@ -116,6 +116,8 @@ const rpc: Record<string, (args: Record<string, any>) => unknown> = {
   cf_owner_insights: ({ p_days }) => ({ days: p_days, per_user: [{ plan: "free", users: 2, user_days: 3, asked_days: 2, requests: 4, max_per_day: 3 }] }),
   cf_limits_report: ({ p_days }) => ({ days: p_days, rows: [{ key: "memory_window", hits: 74, base: 311, status: "systematic" }] }),
   cf_organize_report: ({ p_days }) => ({ days: p_days, suggestions: [{ what: "move", why: "site", shown: 5, accepted: 3, dismissed: 1, undone: 1, users: 2 }], promo: [], optin: [], api: null }),
+  cf_mrr_history: ({ p_days }) => ({ days: p_days, today: "2026-11-10", points: [{ day: "2026-11-10", plan: "byok", yearly: false, renewal_off: false, currency: "EUR", subs: 1, amount: 1990, ending: 0, ending_amount: 0, estimated: 0 }] }),
+  cf_retention: ({ p_days }) => ({ days: p_days, today: "2026-11-10", users: { cohorts: [], cells: [] }, subscribers: { cohorts: [], cells: [], renewals: [] } }),
   cf_ultra_report: ({ p_days }) => ({ days: p_days, today: "2026-11-08", voice: { total: { texts: 3, minutes: 4.1 }, by_day: [], by_model: [], weeks: [] }, similar: { total: { searches: 4 }, by_day: [], by_model: [], weeks: [] } }),
   cf_onboarding: () => ({ people: [{ day: "2026-11-01", device: "iPhone", kind: "app", ext: 300, panel: 420, answer: 540, limit: 900, paid: 1200 }], open_reviews: [] }),
   cf_new_user_outcomes: () => [{ day: "2026-11-02", new: 12, limit_d0: 3, pro_bought: 2 }],
@@ -586,19 +588,24 @@ test("admin usage report needs ADMIN_TOKEN", async () => {
   // Read aloud and find similar (2.6) with the weekly allowances as configured.
   assert.deepEqual([body.ultra_report.days, body.ultra_report.voice.total.texts, body.ultra_report.similar.total.searches], [180, 3, 4])
   assert.deepEqual(body.ultra_report.allowance, { speak_minutes: serverConfig.ultra.speakWeeklySeconds / 60, similar_searches: serverConfig.ultra.similarWeekly })
+  // MRR by day with the period; retention over at least 90 days.
+  assert.deepEqual([body.mrr_history.days, body.mrr_history.points[0].plan], [180, "byok"])
+  assert.equal(body.retention.days, 180)
+  const week = await (await adminUsage(get("admin-test", "7"))).json()
+  assert.deepEqual([week.mrr_history.days, week.retention.days], [7, 90])
 })
 
-test("admin usage report still answers before cf_owner_insights, cf_limits_report, cf_onboarding, cf_new_user_outcomes, the feature reports, cf_after_limit, cf_releases, cf_organize_report and cf_ultra_report exist", async () => {
+test("admin usage report still answers before cf_owner_insights, cf_limits_report, cf_onboarding, cf_new_user_outcomes, the feature reports, cf_after_limit, cf_releases, cf_organize_report, cf_ultra_report, cf_mrr_history and cf_retention exist", async () => {
   serverConfig.adminToken = "admin-test"
   const saved = { ...rpc }
-  for (const fn of ["cf_owner_insights", "cf_limits_report", "cf_onboarding", "cf_new_user_outcomes", "cf_features", "cf_feature_funnels", "cf_after_limit", "cf_releases", "cf_organize_report", "cf_ultra_report"]) delete rpc[fn]
+  for (const fn of ["cf_owner_insights", "cf_limits_report", "cf_onboarding", "cf_new_user_outcomes", "cf_features", "cf_feature_funnels", "cf_after_limit", "cf_releases", "cf_organize_report", "cf_ultra_report", "cf_mrr_history", "cf_retention"]) delete rpc[fn]
   try {
     const res = await adminUsage(new Request("https://aisidebar.netlify.app/api/v2/admin/usage", { headers: { Authorization: "Bearer admin-test" } }))
     assert.equal(res.status, 200)
     const body = await res.json()
     assert.deepEqual(
-      [body.segments[0].requests, body.insights, body.limits_report, body.onboarding, body.new_outcomes, body.features, body.feature_funnels, body.after_limit, body.releases, body.organize_report, body.ultra_report],
-      [3, null, null, null, null, null, null, null, null, null, null]
+      [body.segments[0].requests, body.insights, body.limits_report, body.onboarding, body.new_outcomes, body.features, body.feature_funnels, body.after_limit, body.releases, body.organize_report, body.ultra_report, body.mrr_history, body.retention],
+      [3, null, null, null, null, null, null, null, null, null, null, null, null]
     )
   } finally {
     Object.assign(rpc, saved)
