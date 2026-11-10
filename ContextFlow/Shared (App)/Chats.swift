@@ -605,6 +605,18 @@ final class ChatLibrary: ObservableObject {
             if let data = try? JSONSerialization.data(withJSONObject: thread), let text = String(data: data, encoding: .utf8) {
                 _ = ChatMirror.apply(saves: ["debug-seed": ChatMirror.Item(updatedAt: at, data: text)])
             }
+            // Build 94 (the owner's case): a chat named after its first page, its last answer from another page.
+            let first: [String: Any] = ["url": "https://carhome.example/deepal-s05", "title": "Deepal S05 – CarHome | Drive Your Dream", "at": at - 60_000]
+            let second: [String: Any] = ["url": "https://context-flow.app/analytics", "title": "Analytics — ContextFlow", "at": at]
+            let pages: [String: Any] = ["title": "Google · Deepal S05 – CarHome | Drive Your Dream", "a": at + 1, "m": [
+                ["role": "user", "content": "Is the Deepal S05 a good car?", "id": "dp1", "t": at - 60_000, "page": first],
+                ["role": "assistant", "content": "The Deepal S05 is a comfortable electric crossover with a long range.", "id": "dp2", "t": at - 55_000],
+                ["role": "user", "content": "What does 11.02 mean here?", "id": "dp3", "t": at, "page": second, "mode": "google"],
+                ["role": "assistant", "content": "Most likely a date: the eleventh of February.", "id": "dp4", "t": at + 1]
+            ]]
+            if let data = try? JSONSerialization.data(withJSONObject: pages), let text = String(data: data, encoding: .utf8) {
+                _ = ChatMirror.apply(saves: ["debug-seed-pages": ChatMirror.Item(updatedAt: at + 1, data: text)])
+            }
         }
         // A big library (2.6 (92): the app hung opening chats with hundreds of them): -CFDebugSeedChats 300 puts that
         // many chats here, 40 topics over their sites, with page texts, notes and the user's tags.

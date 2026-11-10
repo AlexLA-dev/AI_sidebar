@@ -1769,6 +1769,12 @@
  "listenPlayingHere": {
   "message": "Сейчас играет"
  },
+ "listenVoiced": {
+  "message": "Уже озвучено: повтор бесплатно"
+ },
+ "listenGoTo": {
+  "message": "Перейти туда, откуда это"
+ },
  "listenLoading": {
   "message": "Готовлю голос…"
  },

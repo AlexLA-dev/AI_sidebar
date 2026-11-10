@@ -119,8 +119,10 @@ export const FEATURES: Record<string, Feature> = {
   // iCloud, the server) and what the server charged up front, so minutes charged can be set against minutes heard.
   // Build 93: the app sent the person back to Safari once notifications were on ("back_safari"), and the panel then
   // played the text ("back_play").
+  // Build 94: what plays tapped in the panel's bar, back to its chat ("go"); a text heard to its end, now marked
+  // "already voiced" by Listen ("voiced").
   listen: {
-    since: "2.6", tracked: "2.6", actions: ["start", "app", "ultra", "limit", "error", "apple", "interrupted", "retry", "heard", "notify", "notify_on", "notify_later", "carried_on", "back_safari", "back_play"],
+    since: "2.6", tracked: "2.6", actions: ["start", "app", "ultra", "limit", "error", "apple", "interrupted", "retry", "heard", "notify", "notify_on", "notify_later", "carried_on", "back_safari", "back_play", "go", "voiced"],
     fields: { what: ["answer", "page"], heard_s: "int", cache_s: "int", icloud_s: "int", server_s: "int", charged_s: "int" }
   },
   // 2.6: the plans sheet (Own key, Pro, Ultra): opened from where, and the plan and period chosen (to the app).

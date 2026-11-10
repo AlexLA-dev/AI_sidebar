@@ -1769,6 +1769,12 @@
  "listenPlayingHere": {
   "message": "Tocando agora"
  },
+ "listenVoiced": {
+  "message": "Já narrado: ouvir de novo é grátis"
+ },
+ "listenGoTo": {
+  "message": "Ir para onde está"
+ },
  "listenLoading": {
   "message": "Preparando a voz…"
  },

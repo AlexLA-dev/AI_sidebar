@@ -36,6 +36,7 @@ import { organizeConfig } from "../shared/organize"
 import { askSimilar, keptSimilar } from "./similar"
 import type { SimilarPayload, SimilarStreamEvent } from "../shared/similar"
 import { base64 as speechBase64, clearSpeech, serveSpeak } from "./speak"
+import { withVoiced } from "../shared/voiced"
 import { activeLive, follow, jobsOnStart, jobsReady, liveJobIds, markSeen, onJobEnd, setPoller, startJob, stopJob, type JobSpec } from "./jobs"
 import { t } from "../shared/i18n"
 import type { Job } from "../shared/jobs"
@@ -110,6 +111,12 @@ function askEntitlement(): Promise<NativeEntitlement | null> {
     // The install id lets the app link a purchase to this install (StoreKit appAccountToken) and tells it
     // the panel is in use, so it stops showing the setup guide.
     const value = await callNative<NativeEntitlement>("getEntitlement", { installId: await installId() }, 6000)
+    // What the app heard to its end on this device (build 94): kept with the panel's own, not with the entitlement.
+    if (value && "voiced" in value) {
+      const voiced = Array.isArray(value.voiced) ? value.voiced.filter((id): id is string => typeof id === "string") : []
+      delete value.voiced
+      void keepVoiced(voiced, false)
+    }
     if (value) {
       entitlementCache = { at: Date.now(), value }
       void keepEntitlement(value)
@@ -164,6 +171,23 @@ async function keepPrices(prices: unknown): Promise<void> {
   if (json === keptPricesJson) return
   keptPricesJson = json
   await chrome.storage.local.set({ [STORAGE.lastPrices]: prices }).catch(() => undefined)
+}
+
+// Build 94: the texts heard to their end on this device ("already voiced" by Listen). One writer, one change at a time;
+// written only when something new comes. The app is told of the panel's (one native message per text heard to its end).
+let voicedLane: Promise<unknown> = Promise.resolve()
+
+function keepVoiced(ids: string[], tellApp: boolean): Promise<void> {
+  const run = voicedLane.then(async () => {
+    if (!ids.length) return
+    const stored = (await chrome.storage.local.get(STORAGE.voiced).catch(() => ({} as Record<string, unknown>)))[STORAGE.voiced]
+    const list = stored && typeof stored === "object" ? stored as Record<string, number> : {}
+    const next = withVoiced(list, ids)
+    if (Object.keys(next).some((id) => !list[id])) await chrome.storage.local.set({ [STORAGE.voiced]: next }).catch(() => undefined)
+    if (tellApp && TARGET === "safari") await callNative("voiced", { ids }, 3000)
+  })
+  voicedLane = run.catch(() => undefined)
+  return run.catch(() => undefined)
 }
 
 async function lastEntitlement(): Promise<NativeEntitlement | null> {
@@ -742,7 +766,8 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
         ...(message.parts ? { parts: message.parts.slice(0, 80).map((p) => p.slice(0, 4000)), complete: message.complete === true } : {}),
         ...(typeof message.speed === "number" ? { speed: message.speed } : {}),
         ...(message.title ? { title: message.title.slice(0, 200) } : {}),
-        ...(message.body ? { body: message.body.slice(0, 200) } : {})
+        ...(message.body ? { body: message.body.slice(0, 200) } : {}),
+        ...(message.skipped ? { skipped: true } : {})
       }, 4000).then((r) => sendResponse({ ok: r !== null, taken: r?.taken === true }), () => sendResponse({ ok: false }))
       return true
     }
@@ -754,9 +779,19 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
       callNative<{ back?: boolean; play?: boolean; taken?: boolean }>("listenReturn", { id: message.id }, 3000)
         .then((r) => sendResponse({ back: r?.back === true, play: r?.play === true, taken: r?.taken === true }), () => sendResponse({ back: false }))
       return true
+    case "listenVoiced":
+      if (!/^[0-9a-f]{16}$/.test(message.id)) {
+        sendResponse({ ok: false })
+        return false
+      }
+      void keepVoiced([message.id], true)
+      sendResponse({ ok: true })
+      return false
     case "speechClear":
       // "Delete all chats": what was read aloud goes from this device and, in Safari, from the user's iCloud (2.6).
+      // The list of texts heard to their end goes with it (build 94; the app's side clears its copy on speechClear).
       if (TARGET === "safari") void callNative("speechClear", {}, 15_000)
+      voicedLane = voicedLane.then(() => chrome.storage.local.remove(STORAGE.voiced)).catch(() => undefined)
       clearSpeech().then(() => sendResponse({ ok: true }), () => sendResponse({ ok: false }))
       return true
     case "mediaNotice":

@@ -431,18 +431,37 @@ test("heard: the week's minutes count what's heard (30 s heard of 43 s made is 3
     await Promise.all(c.waits)
   }
   assert.equal(counters.get("speakmade:tx:3000000001"), 6)
-  const first = await (await speakHeard(heardReq([{ key: partKey("en", a), s: 2.2 }]), ctx())).json()
-  assert.equal(first.added, 2)
-  assert.deepEqual([first.usage.used, first.usage.limit], [2, 120])
-  assert.equal(counters.get("speak:tx:3000000001"), 2)
+  const first = await (await speakHeard(heardReq([{ key: partKey("en", a), s: 1.2 }]), ctx())).json()
+  assert.equal(first.added, 1)
+  assert.deepEqual([first.usage.used, first.usage.limit], [1, 120])
+  assert.equal(counters.get("speak:tx:3000000001"), 1)
   // The same report again (a batch sent twice): nothing more.
-  assert.equal((await (await speakHeard(heardReq([{ key: partKey("en", a), s: 2.2 }]), ctx())).json()).added, 0)
+  assert.equal((await (await speakHeard(heardReq([{ key: partKey("en", a), s: 1.2 }]), ctx())).json()).added, 0)
   // Heard to the end and past it (a report can't count more than the part's 3 s).
   const last = ctx()
-  assert.equal((await (await speakHeard(heardReq([{ key: partKey("en", a), s: 40 }]), last)).json()).added, 1)
+  assert.equal((await (await speakHeard(heardReq([{ key: partKey("en", a), s: 40 }]), last)).json()).added, 2)
   await Promise.all(last.waits)
   assert.equal(counters.get("speak:tx:3000000001"), 3)
-  assert.equal(events.filter((e) => e.kind === "speak_heard").at(-1)?.data.added_s, 1)
+  assert.equal(events.filter((e) => e.kind === "speak_heard").at(-1)?.data.added_s, 2)
+})
+
+test("heard: a part heard to its end, give or take a second, adds nothing when heard again a little longer (build 94)", async () => {
+  // 3 s made; the first listen's clock said 2.4 s (counted 2), the replay's 2.6 s (it would round to 3).
+  const text = "Q".repeat(70)
+  const c = ctx()
+  await readAll(await speak(post("https://x/api/v2/speak", { installId: INSTALL, text, lang: "en", entitlement: ultraJws() }), c))
+  await Promise.all(c.waits)
+  assert.equal((await (await speakHeard(heardReq([{ key: partKey("en", text), s: 2.4 }]), ctx())).json()).added, 2)
+  assert.equal((await (await speakHeard(heardReq([{ key: partKey("en", text), s: 2.6 }]), ctx())).json()).added, 0)
+  assert.equal((await (await speakHeard(heardReq([{ key: partKey("en", text), s: 3 }]), ctx())).json()).added, 0)
+  assert.equal(counters.get("speak:tx:3000000001"), 2)
+  // Half of a part heard is not "to its end": the rest counts when it's heard.
+  const long = "R".repeat(70)
+  const c2 = ctx()
+  await readAll(await speak(post("https://x/api/v2/speak", { installId: INSTALL, text: long, lang: "en", entitlement: ultraJws() }), c2))
+  await Promise.all(c2.waits)
+  assert.equal((await (await speakHeard(heardReq([{ key: partKey("en", long), s: 1 }]), ctx())).json()).added, 1)
+  assert.equal((await (await speakHeard(heardReq([{ key: partKey("en", long), s: 3 }]), ctx())).json()).added, 2)
 })
 
 test("heard: a replay costs nothing, on this device or another of the subscriber's", async () => {

@@ -612,6 +612,8 @@
   "listenStop": "إيقاف",
   "listenClose": "إيقاف وإغلاق",
   "listenPlayingHere": "قيد التشغيل الآن",
+  "listenVoiced": "تمت قراءته من قبل: إعادة الاستماع مجانية",
+  "listenGoTo": "الانتقال إلى مصدره",
   "listenLoading": "جارٍ تجهيز الصوت…",
   "listenUltraTitle": "الاستماع جزء من Ultra",
   "listenUltraBody": "تُقرأ لك الإجابات والصفحات كاملة بصوت طبيعي، بأكثر من 100 لغة. على iPhone يستمر التشغيل حتى مع قفل الشاشة.",

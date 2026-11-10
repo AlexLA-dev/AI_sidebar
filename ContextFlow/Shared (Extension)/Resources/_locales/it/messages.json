@@ -1769,6 +1769,12 @@
  "listenPlayingHere": {
   "message": "In riproduzione"
  },
+ "listenVoiced": {
+  "message": "Già letto ad alta voce: riascoltarlo è gratis"
+ },
+ "listenGoTo": {
+  "message": "Vai al punto da cui viene"
+ },
  "listenLoading": {
   "message": "Preparo la voce…"
  },

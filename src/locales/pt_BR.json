@@ -612,6 +612,8 @@
   "listenStop": "Parar",
   "listenClose": "Parar e fechar",
   "listenPlayingHere": "Tocando agora",
+  "listenVoiced": "Já narrado: ouvir de novo é grátis",
+  "listenGoTo": "Ir para onde está",
   "listenLoading": "Preparando a voz…",
   "listenUltraTitle": "Ouvir faz parte do Ultra",
   "listenUltraBody": "Respostas e páginas inteiras lidas em voz alta com uma voz natural, em mais de 100 idiomas. No iPhone, continua tocando com a tela bloqueada.",

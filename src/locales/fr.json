@@ -612,6 +612,8 @@
   "listenStop": "Arrêter",
   "listenClose": "Arrêter et fermer",
   "listenPlayingHere": "En cours de lecture",
+  "listenVoiced": "Déjà lu à voix haute : la réécoute est gratuite",
+  "listenGoTo": "Aller à l’endroit d’où ça vient",
   "listenLoading": "Préparation de la voix…",
   "listenUltraTitle": "L’écoute fait partie d’Ultra",
   "listenUltraBody": "Les réponses et des pages entières lues à voix haute avec une voix naturelle, dans plus de 100 langues. Sur iPhone, la lecture continue écran verrouillé.",

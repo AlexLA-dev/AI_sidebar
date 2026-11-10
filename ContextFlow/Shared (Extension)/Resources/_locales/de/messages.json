@@ -1769,6 +1769,12 @@
  "listenPlayingHere": {
   "message": "Wird gerade abgespielt"
  },
+ "listenVoiced": {
+  "message": "Schon vertont: erneut anhören ist gratis"
+ },
+ "listenGoTo": {
+  "message": "Zur Stelle, von der es stammt"
+ },
  "listenLoading": {
   "message": "Stimme wird vorbereitet…"
  },

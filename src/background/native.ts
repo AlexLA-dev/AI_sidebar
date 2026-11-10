@@ -50,5 +50,7 @@ export interface NativeEntitlement {
   prices?: Record<string, string>
   // Build 90: the last plan that started on this device (from, to: "free" | "byok" | "pro" | "ultra"; at: ms).
   planChange?: { from?: string; to?: string; productId?: string; at?: number }
+  // Build 94: the texts heard to their end in the app on this device (shared/voiced.ts ids); taken out before it's kept.
+  voiced?: string[]
   jws: string | null
 }

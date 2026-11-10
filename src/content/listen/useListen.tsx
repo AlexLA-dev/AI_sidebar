@@ -12,6 +12,7 @@ import { needsScript, speechParts, speechSeconds, speechText } from "../../share
 import type { Platform, Usage } from "../../shared/types"
 import type { SpeakIn, SpeakOut } from "../../background/speak"
 import { SPEEDS, speedLabel, type Speed } from "../../shared/stretch"
+import { voicedId } from "../../shared/voiced"
 import { isTouch } from "../page"
 import { listenBackNow, listenNotifyLater, listenNotifyLaterNow, listenSpeed, notifyKnown, setListenBack, setListenSpeed, setNotifyKnown } from "../store"
 import { clock, PcmPlayer } from "./player"
@@ -56,6 +57,8 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send, pa
   const panel = useRef({ panelOpen, reopen })
   panel.current = { panelOpen, reopen }
   const [state, setState] = useState<ListenState>({ at: "idle" })
+  // What plays, for the bar (build 94, the owner: going from chat to chat, it should say what plays and from where).
+  const [title, setTitle] = useState("")
   // iPhone and iPad: when the last hand-off to the app started (a tap again meanwhile does nothing).
   const handing = useRef(0)
   // Seconds of listening left this week: the status's, then each part's count (shown in the bar, build 91).
@@ -86,6 +89,11 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send, pa
     shown?: { at: "playing" | "paused"; position: number; total: number; received: number }
     // Started without a tap (back from the app, build 93): WebKit keeps it silent until Play, and the clock waits too.
     waitTap?: boolean
+    // Build 94: how far it has been heard, whether a part was skipped ahead (a seek past what was heard), and the text's
+    // id: heard to its end with nothing skipped, it's "already voiced" (replaying costs no minutes).
+    reached?: number
+    skipped?: boolean
+    voiced?: string
   } | null>(null)
   const speedRef = useRef<Speed>(1)
   speedRef.current = speed
@@ -123,7 +131,7 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send, pa
   // brings the panel back as it was; `play`: after "Turn on notifications", the text plays here once they're on.
   const noteBack = useCallback((id: string, key: string, item: ListenWhat, play: boolean) => {
     if (!isTouch(platform)) return
-    void setListenBack({ id, url: item.url, panel: panel.current.panelOpen?.() ?? false, at: Date.now(), key, ...(play ? { item } : {}) })
+    void setListenBack({ id, url: item.url, panel: panel.current.panelOpen?.() ?? false, at: Date.now(), key, title: item.title, ...(play ? { item } : {}) })
   }, [platform])
   // The player "Turn on notifications" unlocked in its tap: the text plays with it on coming back, if this page is
   // still the one (WebKit starts a page's sound only from a tap).
@@ -157,6 +165,7 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send, pa
     if (Date.now() - handing.current < 6000) return
     handing.current = Date.now()
     const id = newId()
+    setTitle(item.title)
     setState({ at: "handoff", key })
     // Kept for coming back (build 93): the panel as it was, and after "Turn on notifications", the text to play here.
     noteBack(id, key, item, to === "notifications")
@@ -211,12 +220,13 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send, pa
     const port = chrome.runtime.connect({ name: "speak" })
     const total = speechSeconds(text)
     // The first part is asked for at once (it's coming until its end).
-    const current: NonNullable<typeof run.current> = { port, player, ended: false, key, total, told: -1, timer: setInterval(() => tick(), 250), fetching: true, waitTap: Boolean(back) }
+    const current: NonNullable<typeof run.current> = { port, player, ended: false, key, total, told: -1, timer: setInterval(() => tick(), 250), fetching: true, waitTap: Boolean(back), voiced: voicedId(item.what, item.text) }
     current.clock = (on) => {
       clearInterval(current.timer)
       if (on) current.timer = setInterval(() => tick(), 250)
     }
     run.current = current
+    setTitle(item.title)
     setState({ at: "loading", key })
 
     // iPhone and iPad with notifications (2.6): the app is told what's playing as it plays, so when the page goes away
@@ -232,7 +242,7 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send, pa
         const known = `${away.parts.length}|${away.complete}`
         const parts = known !== away.sent ? { parts: away.parts, complete: away.complete } : {}
         away.sent = known
-        void send({ type: "listenHandoff", op, id: away.id, at: player.position, starts: player.starts, ...parts, speed: speedRef.current, title: item.title, body: body() })
+        void send({ type: "listenHandoff", op, id: away.id, at: player.position, starts: player.starts, ...parts, speed: speedRef.current, title: item.title, body: body(), ...(current.skipped ? { skipped: true } : {}) })
       }
       const hide = (event: Event) => {
         // Paused by the user: nothing to carry on. (iOS may already have interrupted the audio itself: that still counts.)
@@ -245,8 +255,10 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send, pa
         current.clock?.(false)
         // What was heard here so far (the app counts what it plays from this second).
         if (current.heard) port.postMessage({ type: "heard", heard: { ...current.heard } } satisfies SpeakIn)
-        // The clock is off: the bar is told itself (it showed Pause while the page was away).
+        // The clock is off: the bar is told itself (it showed Pause while the page was away), and the next tick after
+        // coming back tells it again (build 94: it kept showing Play until the clock had moved).
         setState((s) => (s.at === "playing" ? { ...s, at: "paused" } : s))
+        current.shown = undefined
         tell("away")
       }
       const show = () => {
@@ -306,6 +318,7 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send, pa
       const moved = pos - (current.lastPos ?? 0)
       current.lastPos = pos
       if (!player.paused && moved > 0 && moved <= 1.5 && player.received > 0) {
+        current.reached = Math.max(current.reached ?? 0, pos)
         const heardPart = Math.max(0, player.part)
         current.heard = current.heard ?? {}
         current.heard[heardPart] = (current.heard[heardPart] ?? 0) + moved
@@ -327,6 +340,11 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send, pa
         port.postMessage({ type: "more" } satisfies SpeakIn)
       }
       if (current.ended && player.drained && player.received > 0) {
+        // Heard to its end with nothing skipped (build 94): Listen shows it's voiced, here and in the app on this device.
+        if (!current.skipped && current.voiced && (current.reached ?? 0) >= player.received - 1.5) {
+          void send({ type: "listenVoiced", id: current.voiced })
+          step("voiced")
+        }
         stop()
         return
       }
@@ -399,6 +417,7 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send, pa
       current.player.pause()
       current.clock?.(false)
       setState((s) => (s.at === "playing" ? { ...s, at: "paused" } : s))
+      current.shown = undefined
       current.handoff?.paused()
     }
   }, [])
@@ -408,8 +427,9 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send, pa
     const current = run.current
     if (!current) return
     current.player.seek(seconds)
-    // A seek isn't heard.
+    // A seek isn't heard; past what was heard, the text isn't heard to its end this time (build 94).
     current.lastPos = current.player.position
+    if (current.player.position > (current.reached ?? 0) + 1) current.skipped = true
     current.handoff?.moved()
     const position = current.player.position
     setState((s) => (s.at === "playing" || s.at === "paused" ? { ...s, position } : s))
@@ -474,7 +494,10 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send, pa
       return
     }
     player?.stop()
-    if (r.taken) setState((s) => (s.at === "idle" || s.at === "handoff" ? { at: "taken", key: back.key ?? "" } : s))
+    if (r.taken) {
+      if (back.title) setTitle(back.title)
+      setState((s) => (s.at === "idle" || s.at === "handoff" ? { at: "taken", key: back.key ?? "" } : s))
+    }
   }, [send, askNotify])
   const checkRef = useRef(checkReturn)
   checkRef.current = checkReturn
@@ -496,7 +519,7 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send, pa
     handOff(s.key, s.item, speechParts(plainText(s.item)), "listen")
   }, [handOff, send])
 
-  return { state, start, stop, toggle, seek, speed, cycleSpeed, left, anyway, notifyTurnOn, notifyNotNow }
+  return { state, title, start, stop, toggle, seek, speed, cycleSpeed, left, anyway, notifyTurnOn, notifyNotNow }
 }
 
 /** What's read: an answer's words without its Markdown, or the page's text. */
@@ -514,8 +537,11 @@ function newId(): string {
 }
 
 /** The bar over the question field while something is read aloud (or why it isn't). */
-export function ListenBar({ state, speed, left, onSpeed, onAnyway, onNotifyOn, onNotifyLater, onToggle, onSeek, onStop, onPlans }: {
+export function ListenBar({ state, title, onTitle, speed, left, onSpeed, onAnyway, onNotifyOn, onNotifyLater, onToggle, onSeek, onStop, onPlans }: {
   state: ListenState
+  // What plays (build 94), and a tap on it: back to the chat and the message it's from.
+  title?: string
+  onTitle?: () => void
   speed: number
   // Seconds of listening left this week (null: not known).
   left?: number | null
@@ -531,7 +557,12 @@ export function ListenBar({ state, speed, left, onSpeed, onAnyway, onNotifyOn, o
   onPlans: () => void
 }): VNode | null {
   if (state.at === "idle") return null
-  if (state.at === "handoff") return <div class="cf-listen" role="status"><SpeakerIcon /> <span class="cf-listen-text">{t("listenInApp")}</span></div>
+  const name = title ? (
+    onTitle
+      ? <button type="button" class="cf-listen-name" onClick={onTitle} title={t("listenGoTo")}>{title}</button>
+      : <span class="cf-listen-name">{title}</span>
+  ) : null
+  if (state.at === "handoff") return <div class="cf-listen" role="status">{name}<SpeakerIcon /> <span class="cf-listen-text">{t("listenInApp")}</span></div>
   if (state.at === "notify") {
     return (
       <div class="cf-listen low" role="alert">
@@ -545,6 +576,7 @@ export function ListenBar({ state, speed, left, onSpeed, onAnyway, onNotifyOn, o
   if (state.at === "taken") {
     return (
       <div class="cf-listen" role="status">
+        {name}
         <SpeakerIcon /> <span class="cf-listen-text">{t("listenTaken")}</span>
         <button type="button" class="cf-icon-btn" onClick={onStop} aria-label={t("close")}>×</button>
       </div>
@@ -575,6 +607,7 @@ export function ListenBar({ state, speed, left, onSpeed, onAnyway, onNotifyOn, o
   const loading = state.at === "loading"
   return (
     <div class="cf-listen" role="group" aria-label={t("listen")}>
+      {name}
       <button type="button" class="cf-listen-play" disabled={loading} onClick={onToggle} aria-label={state.at === "playing" ? t("listenPause") : t("listenPlay")}>
         {state.at === "playing" ? <PauseIcon /> : <PlayIcon />}
       </button>
@@ -653,6 +686,16 @@ export function SpeakerIcon({ size = 16 }: { size?: number }): VNode {
       <path d="M11 5 6 9H3v6h3l5 4z" />
       <path d="M15.5 8.5a5 5 0 0 1 0 7" />
       <path d="M18.5 5.5a9 9 0 0 1 0 13" />
+    </svg>
+  )
+}
+
+/** Build 94: by Listen when the text was heard to its end here (replaying costs no minutes): a small, quiet check. */
+export function VoicedIcon(): VNode {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="9.5" />
+      <path d="m8 12.5 2.8 2.7L16.2 9.6" />
     </svg>
   )
 }

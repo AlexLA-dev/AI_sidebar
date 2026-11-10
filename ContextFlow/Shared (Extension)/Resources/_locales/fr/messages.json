@@ -1769,6 +1769,12 @@
  "listenPlayingHere": {
   "message": "En cours de lecture"
  },
+ "listenVoiced": {
+  "message": "Déjà lu à voix haute : la réécoute est gratuite"
+ },
+ "listenGoTo": {
+  "message": "Aller à l’endroit d’où ça vient"
+ },
  "listenLoading": {
   "message": "Préparation de la voix…"
  },

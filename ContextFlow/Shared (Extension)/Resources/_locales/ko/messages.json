@@ -1769,6 +1769,12 @@
  "listenPlayingHere": {
   "message": "재생 중"
  },
+ "listenVoiced": {
+  "message": "이미 읽어 준 내용: 다시 들어도 무료"
+ },
+ "listenGoTo": {
+  "message": "원래 위치로 이동"
+ },
  "listenLoading": {
   "message": "음성을 준비하고 있어요…"
  },

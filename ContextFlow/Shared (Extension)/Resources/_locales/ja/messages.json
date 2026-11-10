@@ -1769,6 +1769,12 @@
  "listenPlayingHere": {
   "message": "再生中"
  },
+ "listenVoiced": {
+  "message": "読み上げ済み：もう一度聞いても無料です"
+ },
+ "listenGoTo": {
+  "message": "元の場所へ移動"
+ },
  "listenLoading": {
   "message": "音声を準備しています…"
  },

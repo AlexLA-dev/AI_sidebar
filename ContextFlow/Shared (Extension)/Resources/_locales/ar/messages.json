@@ -1769,6 +1769,12 @@
  "listenPlayingHere": {
   "message": "قيد التشغيل الآن"
  },
+ "listenVoiced": {
+  "message": "تمت قراءته من قبل: إعادة الاستماع مجانية"
+ },
+ "listenGoTo": {
+  "message": "الانتقال إلى مصدره"
+ },
  "listenLoading": {
   "message": "جارٍ تجهيز الصوت…"
  },

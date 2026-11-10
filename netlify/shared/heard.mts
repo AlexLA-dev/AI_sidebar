@@ -49,6 +49,9 @@ export async function applyHeard(access: Access, raw: unknown): Promise<number> 
   for (const item of items) {
     const made = n(partMadeSubject(access, item.key))
     const counted = n(partHeardSubject(access, item.key))
+    // Heard to its end before, give or take a second (build 94): hearing it again adds nothing. A device's clock and
+    // rounding can make a replay report a little more than the first time; Listen says a replay is free, so it is.
+    if (made && counted > 0 && counted >= made - 1) continue
     const delta = Math.max(0, Math.round(Math.min(item.s, made || PART_MAX_S)) - counted)
     if (!delta) continue
     writes.push({ subject: partHeardSubject(access, item.key), period: "ever", limit: null, amount: delta })

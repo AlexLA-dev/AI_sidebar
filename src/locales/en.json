@@ -614,6 +614,8 @@
   "listenStop": "Stop",
   "listenClose": "Stop and close",
   "listenPlayingHere": "Playing now",
+  "listenVoiced": "Already voiced: replay is free",
+  "listenGoTo": "Go to where it's from",
   "listenSpeed": "Speed: {0}. Tap for another speed",
   "listenLoading": "Getting the voice ready…",
   "listenUltraTitle": "Listening is part of Ultra",
