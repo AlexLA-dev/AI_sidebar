@@ -12,7 +12,7 @@ process.env.SUPABASE_SERVICE_ROLE_KEY = "service-key"
 process.env.ANTHROPIC_API_KEY = "test-key"
 
 const { describePage, markupRating, reviewsSection, textRating } = await import("../netlify/shared/pagecheck.mts")
-const { Claims, checkCondition, finishItems, localQueries, reviewWords, reviewsStep, searchLocation, shopifyCatalog, siblingLinks, siblingsStep, writeMessage, WRITE_SYSTEM } = await import("../netlify/shared/similar.mts")
+const { Claims, traitExcerpt, checkCondition, finishItems, localQueries, reviewWords, reviewsStep, searchLocation, shopifyCatalog, siblingLinks, siblingsStep, writeMessage, WRITE_SYSTEM } = await import("../netlify/shared/similar.mts")
 const { jobKey, jobState, sweepJobs, useJobStore, waitForJob, JOB_STALE_MS } = await import("../netlify/shared/jobs.mts")
 const { default: resultFn } = await import("../netlify/functions/v2-similar-result.mts")
 const { cleanItem } = await import("../src/shared/similar.ts")
@@ -310,4 +310,24 @@ test("a rated item without reviewers' words on its page still gets a review page
   } finally {
     globalThis.fetch = real
   }
+})
+
+test("a name repeated after a dash is the name once, and a duplicate of an item already listed", () => {
+  const home = candidate("https://getvacpack.com/", html("VacPack", "", price("29.99", "USD", "VacPack")), "VacPack")
+  const product = candidate("https://getvacpack.com/products/vacpack", html("VacPack", "", price("24.99", "USD", "VacPack")), "VacPack")
+  const { result, dropped } = finishItems({ items: [
+    { page: 1, name: "VacPack", why: "", fit: "", met: "unknown", shares: [1], differs: "" },
+    { page: 2, name: "VacPack — VacPack", why: "", fit: "", met: "unknown", shares: [1], differs: "" }
+  ], intro: "", note: "" }, [home, product], plan(), input().page)
+  assert.deepEqual(result.items.map((i) => i.name), ["VacPack"])
+  assert.deepEqual(dropped.map((d) => d.why), ["duplicate"])
+})
+
+test("a model's excerpt keeps what it says of the traits, however far down the page", () => {
+  const text = `BACKVAC PRO MAX Excellent 4.9 | Loved By 25,000+ Travelers 272,95 € Compare Models Size Guide ${"Black Friday gifts and free shipping on every order. ".repeat(12)} Detachable Vacuum Bag Built-In Trolley System USB-C Charging TSA-Approved Lock`
+  const out = traitExcerpt(text, ["vacuum compression", "trolley wheels", "carry-on size", "TSA lock"])
+  assert.ok(out.length <= 450)
+  assert.match(out, /^BACKVAC PRO MAX/)
+  assert.match(out, /Built-In Trolley System/)
+  assert.match(out, /TSA-Approved Lock/)
 })

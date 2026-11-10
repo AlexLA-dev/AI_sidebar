@@ -1140,7 +1140,8 @@ export async function regionCheck(checked: CheckedCandidate[], country: string, 
 const REVIEWED: Category[] = ["product", "app", "place", "course", "book", "recipe", "other"]
 // Build 94: as many items as the list shows (the owner: the third item had no reviews line while its site had plenty).
 const REVIEW_ITEMS = 6
-const REVIEW_SEARCHES = 3
+// Review searches at most (each about a cent).
+const REVIEW_SEARCHES = 2
 const REVIEW_WORDS = /\b(reviews?|rating|ratings|tested|test|hands[- ]on|verdict|recensione|recensioni|bewertung|test|avis|reseña|reseñas|análise)\b|отзыв|обзор|рейтинг|огляд|відгук/i
 
 export const REVIEW_SEARCH_SYSTEM = `You find a review page. Run the one search you are given with the web_search tool, exactly as written, once. Then answer "done".`
@@ -1268,9 +1269,11 @@ export function reviewWords(o: Record<string, unknown>): { pros?: string; cons?:
 // lacks something, it sees the brand's other models on that site: opened and checked like any page.
 
 const SIBLING_CATEGORIES: Category[] = ["product", "other"]
-const SIBLING_ITEMS = 5
+const SIBLING_ITEMS = 4
 const SIBLINGS_EACH = 2
-const SIBLING_PAGES = 8
+const SIBLING_PAGES = 6
+// Models that meet the condition become items of their own, at most this many (each is a page more for the writer).
+const SIBLINGS_ADDED = 2
 // Words a model's name shares with its siblings that say nothing about which model it is.
 const GENERIC = new Set(["new", "the", "and", "for", "with", "all", "shop", "buy", "sale", "edition", "set", "kit", "bag", "bags", "black", "white", "grey", "gray", "blue", "green", "red"])
 
@@ -1386,7 +1389,7 @@ export async function siblingsStep(checked: CheckedCandidate[], plan: Plan, fact
     const condition = checkCondition(plan, facts, page)
     next[j.i] = { ...c, siblings: [...(c.siblings ?? []), { page, condition }] }
     const key = normalizeUrl(page.finalUrl)
-    if (condition.met !== "no" && !known.has(key)) {
+    if (condition.met !== "no" && !known.has(key) && added.length < SIBLINGS_ADDED) {
       known.add(key)
       const own = verdictOf({ url: page.finalUrl, name: page.name || page.title, kind: "item", resultTitle: page.title, pageAge: null }, page, plan, facts)
       if (own.kept) {
@@ -1398,18 +1401,37 @@ export async function siblingsStep(checked: CheckedCandidate[], plan: Plan, fact
   return { checked: next, added, stats }
 }
 
-/** The brand's other models for the writer: name, price, how it meets the condition, what the page says first. */
-function siblingsLine(siblings: Sibling[]): string {
+/**
+ * What a page says about the traits that matter (build 94): its start, then the parts that name a trait's words
+ * ("Built-In Trolley System" for "trolley wheels"), at most `max` characters — a feature far down the page counts.
+ */
+export function traitExcerpt(text: string, traits: string[], max = 450): string {
+  const flat = text.replace(/\s+/g, " ").trim()
+  const words = [...new Set(traits.flatMap((t) => nameTokens(t)).filter((w) => w.length >= 3 && !GENERIC.has(w)))]
+  let out = flat.slice(0, 160)
+  if (!words.length) return flat.slice(0, max)
+  for (let i = 0; i < flat.length && out.length < max; ) {
+    const hit = words.map((w) => flat.toLowerCase().indexOf(w, i)).filter((n) => n >= 160).sort((a, b) => a - b)[0]
+    if (hit === undefined) break
+    const from = Math.max(160, hit - 60)
+    out += ` … ${flat.slice(from, hit + 80)}`
+    i = hit + 80
+  }
+  return out.slice(0, max)
+}
+
+/** The brand's other models for the writer: name, price, how it meets the condition, what the page says of the traits. */
+function siblingsLine(siblings: Sibling[], traits: string[]): string {
   return siblings.map((s) => {
     const p = s.page
-    const said = `${p.description ? `${p.description} ` : ""}${p.text}`.replace(/\s+/g, " ").slice(0, 600)
+    const said = traitExcerpt(`${p.description ? `${p.description} ` : ""}${p.text}`, traits)
     return `«${p.name || p.title}»${p.price ? ` — ${fmtPrice(p.price)}` : ""}${s.condition.met !== "n/a" ? ` — condition: ${s.condition.met}${s.condition.note ? ` (${s.condition.note})` : ""}` : ""} — ${said}`
   }).join("\n  ")
 }
 
 // ------------------------------------------------------------ 4. write
 
-function pageLine(n: number, c: CheckedCandidate): string {
+function pageLine(n: number, c: CheckedCandidate, traits: string[] = []): string {
   const p = c.page
   const facts = [
     // A list page's own price and stock are other items' (build 94).
@@ -1429,7 +1451,7 @@ function pageLine(n: number, c: CheckedCandidate): string {
   const head = `[${n}] ${c.kind === "list" ? "LIST/REVIEW PAGE" : "ITEM PAGE"} — ${c.name} — ${host}${c.why === "unchecked" ? " — NOT OPENED (the site blocks servers; only the search result title is known)" : ""}`
   const title = `title: ${p.title || c.resultTitle}`
   const body = c.why === "unchecked" ? `search result title: ${c.resultTitle}` : `${p.description ? `description: ${p.description}\n` : ""}text: ${p.text.slice(0, c.kind === "list" ? 2_500 : 1_200)}`
-  const others = c.siblings?.length ? `other models on its site (opened now):\n  ${siblingsLine(c.siblings)}` : ""
+  const others = c.siblings?.length ? `other models on its site (opened now):\n  ${siblingsLine(c.siblings, traits)}` : ""
   return [head, title, facts, body, others].filter(Boolean).join("\n")
 }
 
@@ -1443,7 +1465,7 @@ export function writeMessage(input: SimilarInput, plan: Plan, pages: CheckedCand
     plan.traits.length ? `What makes an alternative:\n${plan.traits.map((t, i) => `${i + 1}. ${t}`).join("\n")}` : "",
     `Their condition: ${input.condition.trim() ? `"${input.condition.trim()}" (${plan.condition.kind})` : "none"}`,
     whereLine(input),
-    `Checked pages:\n\n${pages.map((c, i) => pageLine(i + 1, c)).join("\n\n")}`
+    `Checked pages:\n\n${pages.map((c, i) => pageLine(i + 1, c, plan.traits)).join("\n\n")}`
   ].filter(Boolean).join("\n\n")
 }
 
@@ -1493,8 +1515,9 @@ export class ItemFinisher {
     const whole = scoreOf(name)
     const alone = bare && bare !== name ? scoreOf(bare) : 0
     if (Math.max(whole, alone) < 0.5) return drop("the page doesn't name it")
-    // The page names the part before the dash better: that's the item's name (the rest was the writer's words).
-    if (alone > whole) name = bare
+    // The page names the part before the dash as well or better: that's the item's name (the rest was the writer's
+    // words, or the name again: "VacPack — VacPack").
+    if (alone >= whole && bare && bare !== name) name = bare
     // Build 93: an App Store item in their country's store is linked there (its page, its price there).
     const page = c.region?.available && c.region.page ? c.region.page : c.page
     const url = unchecked ? c.url : page.finalUrl
