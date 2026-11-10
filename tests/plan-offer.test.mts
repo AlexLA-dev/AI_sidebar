@@ -129,3 +129,20 @@ test("the plans message is logged: shown and every tap, by place, plan and perio
   assert.deepEqual(useFields({ f: "chat_plans", a: "shown", via: "limit", plan: "pro", period: "yearly" }), { f: "chat_plans", a: "shown", via: "limit", plan: "pro", period: "yearly" })
   assert.equal(useFields({ f: "chat_plans", a: "buy" }), null)
 })
+
+test("plans opened (build 93): the prices' currency and App Store country go with it, as codes only", async () => {
+  const { useFields } = await import("../src/shared/usage.ts")
+  assert.deepEqual(
+    useFields({ f: "plans", a: "open", via: "settings", plan: "ultra", cur: "UAH", sf: "UKR" }),
+    { f: "plans", a: "open", via: "settings", plan: "ultra", cur: "UAH", sf: "UKR" }
+  )
+  // Anything else (no prices, a price itself, lower case) is left out.
+  assert.deepEqual(useFields({ f: "plans", a: "open", via: "listen", cur: "$12.99", sf: "ukr" }), { f: "plans", a: "open", via: "listen" })
+  assert.deepEqual(useFields({ f: "plans", a: "open", via: "listen", cur: undefined }), { f: "plans", a: "open", via: "listen" })
+})
+
+test("listen (build 93): back to Safari once notifications are on, and the panel playing it there", async () => {
+  const { useFields } = await import("../src/shared/usage.ts")
+  assert.deepEqual(useFields({ f: "listen", a: "back_safari", what: "answer" }), { f: "listen", a: "back_safari", what: "answer" })
+  assert.deepEqual(useFields({ f: "listen", a: "back_play", what: "page" }), { f: "listen", a: "back_play", what: "page" })
+})

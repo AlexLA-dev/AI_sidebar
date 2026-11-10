@@ -227,7 +227,7 @@ final class StoreKitManager: ObservableObject {
             productsFailed = loaded.isEmpty
             // The panel's plans sheet shows these prices (it can't ask the App Store itself).
             // The panel's plans sheet shows these (with each yearly plan's month and saving).
-            if !loaded.isEmpty { SharedDefaults.shared.writePrices(PlanProducts.priceTable(loaded)) }
+            if !loaded.isEmpty { SharedDefaults.shared.writePrices(PlanProducts.priceTable(loaded, storefront: await Storefront.current?.countryCode)) }
             var eligible = Set<String>()
             for product in loaded {
                 if let subscription = product.subscription,

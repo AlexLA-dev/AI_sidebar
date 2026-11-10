@@ -611,7 +611,8 @@ async function reportUse(message: Extract<BackgroundRequest, { type: "useEvent" 
     body: JSON.stringify({
       kind: "use", installId: id, client, f: message.f, a: message.a, what: message.what, via: message.via, reminders: message.reminders,
       watches: message.watches, plan: message.plan, period: message.period,
-      heard_s: message.heard_s, cache_s: message.cache_s, icloud_s: message.icloud_s, server_s: message.server_s, charged_s: message.charged_s, s: "panel"
+      heard_s: message.heard_s, cache_s: message.cache_s, icloud_s: message.icloud_s, server_s: message.server_s, charged_s: message.charged_s,
+      cur: message.cur, sf: message.sf, s: "panel"
     })
   }).catch(() => undefined)
 }
@@ -667,6 +668,14 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
       }, 4000).then((r) => sendResponse({ ok: r !== null, taken: r?.taken === true }), () => sendResponse({ ok: false }))
       return true
     }
+    case "listenReturn":
+      if (TARGET !== "safari" || !/^[0-9a-f-]{8,64}$/i.test(message.id)) {
+        sendResponse({ back: false })
+        return false
+      }
+      callNative<{ back?: boolean; play?: boolean; taken?: boolean }>("listenReturn", { id: message.id }, 3000)
+        .then((r) => sendResponse({ back: r?.back === true, play: r?.play === true, taken: r?.taken === true }), () => sendResponse({ back: false }))
+      return true
     case "speechClear":
       // "Delete all chats": what was read aloud goes from this device and, in Safari, from the user's iCloud (2.6).
       if (TARGET === "safari") void callNative("speechClear", {}, 15_000)

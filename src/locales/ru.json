@@ -604,6 +604,8 @@
   "listenPause": "Пауза",
   "listenPlay": "Воспроизвести",
   "listenStop": "Стоп",
+  "listenClose": "Остановить и закрыть",
+  "listenPlayingHere": "Сейчас играет",
   "listenLoading": "Готовлю голос…",
   "listenUltraTitle": "Прослушивание входит в Ultra",
   "listenUltraBody": "Ответы и целые страницы вслух, естественным голосом, на 100+ языках. На iPhone звучит даже при заблокированном экране.",
