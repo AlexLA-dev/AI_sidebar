@@ -1496,6 +1496,15 @@
  "orgMatch": {
   "message": "coincide en un {0} %"
  },
+ "orgMergeInto": {
+  "message": "Unir con «{0}»"
+ },
+ "orgMergeA11y": {
+  "message": "Unir este chat con «{0}»"
+ },
+ "orgMerged": {
+  "message": "Unido con «{0}»"
+ },
  "recs_one": {
   "message": "{0} recomendación"
  },

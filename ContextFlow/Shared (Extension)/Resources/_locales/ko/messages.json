@@ -1496,6 +1496,15 @@
  "orgMatch": {
   "message": "{0}% 일치"
  },
+ "orgMergeInto": {
+  "message": "‘{0}’에 합치기"
+ },
+ "orgMergeA11y": {
+  "message": "이 채팅을 ‘{0}’ 채팅에 합치기"
+ },
+ "orgMerged": {
+  "message": "‘{0}’에 합쳤어요"
+ },
  "recs_one": {
   "message": "추천 {0}개"
  },

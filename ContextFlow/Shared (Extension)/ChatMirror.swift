@@ -26,10 +26,14 @@ enum ChatMirror {
         var deleted: Bool?
         /// When it was made (ms): the extension confirms everything up to the latest it applied.
         var at: Double
+        /// 2.6 (94): a change to organizing's record only, made on the copy of this time (ChatSync.Snapshot `base`).
+        var base: Int64? = nil
 
         var dictionary: [String: Any] {
             if deleted == true { return ["id": id, "deleted": true] }
-            return ["id": id, "updatedAt": updatedAt ?? 0, "data": data ?? ""]
+            var out: [String: Any] = ["id": id, "updatedAt": updatedAt ?? 0, "data": data ?? ""]
+            if let base { out["base"] = base }
+            return out
         }
     }
 
