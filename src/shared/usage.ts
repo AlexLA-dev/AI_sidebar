@@ -18,8 +18,8 @@ interface Feature {
   actions: readonly string[]
   /** How people got to it. */
   via?: readonly string[]
-  /** Extra named values; "int" is a whole number 0–9999. */
-  fields?: Record<string, readonly string[] | "int">
+  /** Extra named values; "int" is a whole number 0–9999, "code" 2–3 capital letters (a currency, a country). */
+  fields?: Record<string, readonly string[] | "int" | "code">
   /** Sent as its own event kind (or logged by the server), never as "use": named here for prev and reports. */
   own?: true
 }
@@ -114,15 +114,18 @@ export const FEATURES: Record<string, Feature> = {
   // ours had played ("interrupted"), "Try again" ("retry").
   // "heard" (build 92): when a text stops or ends, the seconds heard and where its audio came from (this device's copy,
   // iCloud, the server) and what the server charged up front, so minutes charged can be set against minutes heard.
+  // Build 93: the app sent the person back to Safari once notifications were on ("back_safari"), and the panel then
+  // played the text ("back_play").
   listen: {
-    since: "2.6", tracked: "2.6", actions: ["start", "app", "ultra", "limit", "error", "apple", "interrupted", "retry", "heard", "notify", "notify_on", "notify_later", "carried_on"],
+    since: "2.6", tracked: "2.6", actions: ["start", "app", "ultra", "limit", "error", "apple", "interrupted", "retry", "heard", "notify", "notify_on", "notify_later", "carried_on", "back_safari", "back_play"],
     fields: { what: ["answer", "page"], heard_s: "int", cache_s: "int", icloud_s: "int", server_s: "int", charged_s: "int" }
   },
   // 2.6: the plans sheet (Own key, Pro, Ultra): opened from where, and the plan and period chosen (to the app).
   plans: {
     since: "2.6", tracked: "2.6", on: "ext", actions: ["open", "choose", "yearly"],
     via: ["listen", "settings", "watch", "limit", "similar"],
-    fields: { plan: ["byok", "pro", "ultra"], period: ["monthly", "yearly"] }
+    // Build 93: the currency of the prices shown and the App Store country they came from (none: no prices came).
+    fields: { plan: ["byok", "pro", "ultra"], period: ["monthly", "yearly"], cur: "code", sf: "code" }
   },
   // Build 91: the plans message in the chat — out of answers ("limit"), the chat's memory ("memory": the switch, or a
   // free chat past its last messages), a Pro or Ultra feature refused; shown, and what was tapped: a plan and period
@@ -206,7 +209,8 @@ export function useFields(body: Record<string, unknown>): Record<string, unknown
   if (has(spec.via, body.via)) out.via = body.via
   for (const [name, allowed] of Object.entries(spec.fields ?? {})) {
     const value = allowed === "int" ? count(body[name]) : body[name]
-    if (allowed === "int" ? whole(value, 9999) : has(allowed, value)) out[name] = value
+    const ok = allowed === "int" ? whole(value, 9999) : allowed === "code" ? typeof value === "string" && /^[A-Z]{2,3}$/.test(value) : has(allowed, value)
+    if (ok) out[name] = value
   }
   return out
 }

@@ -604,6 +604,8 @@
   "listenPause": "Pausa",
   "listenPlay": "Riproduci",
   "listenStop": "Interrompi",
+  "listenClose": "Interrompi e chiudi",
+  "listenPlayingHere": "In riproduzione",
   "listenLoading": "Preparo la voce…",
   "listenUltraTitle": "L’ascolto fa parte di Ultra",
   "listenUltraBody": "Risposte e pagine intere lette ad alta voce con una voce naturale, in oltre 100 lingue. Su iPhone continua anche a schermo bloccato.",

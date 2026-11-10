@@ -1745,6 +1745,12 @@
  "listenStop": {
   "message": "إيقاف"
  },
+ "listenClose": {
+  "message": "إيقاف وإغلاق"
+ },
+ "listenPlayingHere": {
+  "message": "قيد التشغيل الآن"
+ },
  "listenLoading": {
   "message": "جارٍ تجهيز الصوت…"
  },

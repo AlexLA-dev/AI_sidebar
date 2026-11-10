@@ -1668,9 +1668,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
           </button>
         )}
         {TARGET === "safari" && !m.note && m.role === "assistant" && (
-          <button type="button" class={`cf-listen-btn cf-ultra-tool ${idx === lastAnswerIdx ? "last" : ""} ${listen.state.at !== "idle" && "key" in listen.state && listen.state.key === `a:${idx}` ? "on" : ""}`} onClick={() => {
-            if (listen.state.at !== "idle" && "key" in listen.state && listen.state.key === `a:${idx}`) return listen.stop()
-            void listen.start(`a:${idx}`, { text: m.content, what: "answer", lang: textLanguage(m.content) ?? t("langCode"), title: source.title(), url: source.href() })
+          <button type="button" class={`cf-listen-btn cf-ultra-tool ${idx === lastAnswerIdx ? "last" : ""} ${listenOn(`a:${idx}`) ? "on" : ""}`} onClick={() => {
+            if (listenOn(`a:${idx}`)) return listen.stop()
+            // Titled by the page the answer is about (build 93): the one its question was asked on, which may not be the
+            // page open now. The link stays this page's: "Back to Safari" in the app comes back here.
+            const page = lastPage(messages.slice(0, idx + 1))
+            void listen.start(listenKey(`a:${idx}`), { text: m.content, what: "answer", lang: textLanguage(m.content) ?? t("langCode"), title: page?.title || page?.url || source.title(), url: source.href() })
           }} aria-label={t("listen")} title={t("listen")}>
             <SpeakerIcon /> <span class="cf-tl">{t("listen")}</span>{!isUltra(plan) && <span class="cf-ultra-badge">Ultra</span>}
           </button>
@@ -2211,7 +2214,9 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   // Read aloud (2.6, Ultra): an answer or the page. Without Ultra, Listen opens the plans sheet on Ultra.
   const openPlans = useCallback((focus: PaidPlan, via: "listen" | "settings" | "watch" | "limit" | "similar" = "listen") => {
     setPlansOpen(focus)
-    void sendBackground({ type: "useEvent", f: "plans", a: "open", via, plan: focus })
+    // The prices' currency and App Store country as the app's side gave them (build 93: the owner saw USD).
+    const prices = statusRef.current?.store?.prices ?? {}
+    void sendBackground({ type: "useEvent", f: "plans", a: "open", via, plan: focus, cur: prices["#currency"], sf: prices["#storefront"] })
   }, [])
   if (status?.plan) planKnownRef.current = status.plan
   // The plans message in the chat (build 91): a plan and period chosen open the app on them, as the plans sheet does.
@@ -2220,14 +2225,27 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }
   const offerEvent = (place: OfferPlace) => (action: string, choice?: OfferChoice) =>
     void sendBackground({ type: "useEvent", f: "chat_plans", a: action, via: place, ...(choice ? { plan: choice.plan, period: choice.period } : {}) })
+  const panelOpenRef = useRef(open)
+  panelOpenRef.current = open
   const listen = useListen({
     platform,
     plan,
     speakLeft: status?.ultra?.speak ? Math.max(0, status.ultra.speak.limit - status.ultra.speak.used) : null,
     onUltra: () => openPlans("ultra"),
     follow: followLink,
-    send: (message) => sendBackground(message)
+    send: (message) => sendBackground(message),
+    // Back from the app (build 93): the panel opens again if it was open.
+    panelOpen: () => panelOpenRef.current,
+    reopen: () => show()
   })
+  // What plays is the chat's it was started in (build 93): its key carries the chat ("<chat>|a:3", "<chat>|page"), so
+  // another chat's third answer doesn't show as playing, and the chats list can mark the chat that plays.
+  const listenKey = (what: string) => `${threadRef.current || "new"}|${what}`
+  const listenOn = (what: string) => listen.state.at !== "idle" && "key" in listen.state && listen.state.key === listenKey(what)
+  const listenSounds = listen.state.at === "playing" || listen.state.at === "paused" || listen.state.at === "loading"
+  const playingChat = listenSounds && "key" in listen.state ? listen.state.key.split("|")[0] : null
+  // The bar: under the chat's question field, and at the bottom of the chats list while something plays (build 93).
+  const listenBar = <ListenBar state={listen.state} speed={listen.speed} left={listen.left} onSpeed={listen.cycleSpeed} onAnyway={listen.anyway} onNotifyOn={listen.notifyTurnOn} onNotifyLater={listen.notifyNotNow} onToggle={listen.toggle} onSeek={listen.seek} onStop={listen.stop} onPlans={() => openPlans("ultra", "limit")} />
   // The panel closed (build 92): what isn't playing goes, its audio and clock with it; what plays goes on (it's back
   // in the bar when the panel opens again).
   // Only at the moment it closes: a text paused later (the page left, with the panel closed) keeps its notification.
@@ -2247,7 +2265,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       setConsent("ok")
     }
     const read = await source.read(false)
-    void listen.start("page", { text: read.text, what: "page", lang: document.documentElement.lang || textLanguage(read.text) || t("langCode"), title: read.title || source.title(), url: source.href() })
+    void listen.start(listenKey("page"), { text: read.text, what: "page", lang: document.documentElement.lang || textLanguage(read.text) || t("langCode"), title: read.title || source.title(), url: source.href() })
   }, [listen.start, source])
   const ownKeyActive = viaOwnKey || (Boolean(status?.hasOwnKey) && plan !== "free")
   // The chat's memory as the next answer gets it (build 91): the whole chat for Pro and Ultra (and the own key, whose
@@ -2853,6 +2871,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         >
           <Icon.Sparkle size={22} />
           {jobs.unread.size > 0 && <span class="cf-fab-dot" role="status" aria-label={t("busyNew")} />}
+          {/* Something plays with the panel closed (build 93): a speaker on the circle. */}
+          {!open && (listen.state.at === "playing" || listen.state.at === "loading") && <span class="cf-fab-audio" role="status" aria-label={t("listenPlayingHere")}><SpeakerIcon size={11} /></span>}
         </button>
       )}
 
@@ -3145,8 +3165,10 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   setView("trash")
                 }}
                 recs={orgOn ? recs : undefined}
+                playing={playingChat}
               />
               <div class="cf-undo-host">{undoBar && <UndoBar text={undoBar.text} actions={undoBar.actions} onHold={holdBar} />}</div>
+              {listen.state.at !== "idle" && <footer class="cf-listen-dock">{listenBar}</footer>}
             </>
           ) : view === "trash" ? (
             <TrashView
@@ -3559,7 +3581,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                 </footer>
               ) : (
                 <footer class="cf-composer">
-                  <ListenBar state={listen.state} speed={listen.speed} left={listen.left} onSpeed={listen.cycleSpeed} onAnyway={listen.anyway} onNotifyOn={listen.notifyTurnOn} onNotifyLater={listen.notifyNotNow} onToggle={listen.toggle} onSeek={listen.seek} onStop={listen.stop} onPlans={() => openPlans("ultra", "limit")} />
+                  {listenBar}
                   {undoBar && <UndoBar text={undoBar.text} actions={undoBar.actions} onHold={holdBar} />}
                   {noteHint && draft.trim() && !noteMode && <div class="cf-note-hint" role="status">{t(touch ? "noteHintTouch" : "noteHintMouse")}</div>}
                   {weightNote && <div class="cf-weight-note" title={t("longPageWeightHint", pageWeight)}>{t("longPageWeight", pageWeight)}</div>}

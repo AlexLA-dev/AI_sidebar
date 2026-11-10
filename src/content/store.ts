@@ -138,6 +138,33 @@ export async function setNotifyKnown(on: boolean): Promise<void> {
   if ((await get<boolean>(STORAGE.notifyOn)) !== on) await set(STORAGE.notifyOn, on)
 }
 
+/** A hand-off of Listen to the app on iPhone and iPad (build 93): the text's id there, the page, whether the panel was
+ *  open, and, when the app was asked to turn notifications on, what to play here once they are. */
+export interface ListenBack {
+  id: string
+  url: string
+  panel: boolean
+  at: number
+  key?: string
+  item?: { text: string; what: "answer" | "page"; lang: string; title: string; url: string }
+}
+
+export async function listenBackNow(): Promise<ListenBack | null> {
+  const back = await get<ListenBack>(STORAGE.listenBack)
+  return back && typeof back === "object" && typeof back.id === "string" && typeof back.url === "string" ? back : null
+}
+
+export async function setListenBack(back: ListenBack | null): Promise<void> {
+  if (back) await set(STORAGE.listenBack, back)
+  else {
+    try {
+      await chrome.storage.local.remove(STORAGE.listenBack)
+    } catch {
+      // No storage.
+    }
+  }
+}
+
 /** Whether "Not now" to notifications at Listen still holds (until the next day): Listen just opens the app. */
 export async function listenNotifyLaterNow(): Promise<boolean> {
   return ((await get<number>(STORAGE.listenNotifyLater)) ?? 0) > Date.now()

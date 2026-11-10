@@ -1745,6 +1745,12 @@
  "listenStop": {
   "message": "Dừng"
  },
+ "listenClose": {
+  "message": "Dừng và đóng"
+ },
+ "listenPlayingHere": {
+  "message": "Đang phát"
+ },
  "listenLoading": {
   "message": "Đang chuẩn bị giọng đọc…"
  },

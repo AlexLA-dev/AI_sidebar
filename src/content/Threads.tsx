@@ -10,6 +10,7 @@ import { TagChip, TagEditor } from "./Tags"
 import { PinIcon, TrashIcon } from "./ux/MessageUx"
 import { Swipe } from "./ux/Swipe"
 import { ThreadMenu, ThreadMoreButton } from "./ux/ThreadMenu"
+import { SpeakerIcon } from "./listen/useListen"
 
 interface Props {
   threads: Thread[] // pinned first, then the newest
@@ -47,6 +48,8 @@ interface Props {
   // 2.6 (91): chats with a long answer under way off the panel (a spinner) and with one finished unseen (a dot).
   busy?: ReadonlySet<string>
   unread?: ReadonlySet<string>
+  // Build 93: the chat whose text is being read aloud (a speaker on its row), null when nothing plays.
+  playing?: string | null
 }
 
 /** "3 pages", in the UI language's plural form. */
@@ -247,7 +250,7 @@ interface Drag {
  * start a new one. Pinned chats come first and are reordered by dragging their handle; a chat that
  * was on several pages lists them (each opens its page).
  */
-export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onNew, onPin, onMove, onOpenPage, pro, onAskHistory, onFind, onUpsell, findError, findWaiting, onTags, grouped, onGrouped, touch = false, trashCount = 0, onOpenTrash, busy, unread, recs }: Props): VNode {
+export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onNew, onPin, onMove, onOpenPage, pro, onAskHistory, onFind, onUpsell, findError, findWaiting, onTags, grouped, onGrouped, touch = false, trashCount = 0, onOpenTrash, busy, unread, recs, playing }: Props): VNode {
   const [query, setQuery] = useState("")
   // Only the chats with this tag (in the list and in search results).
   const [tagFilter, setTagFilter] = useState<string | null>(null)
@@ -495,6 +498,8 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
                   }}
                 >
                   <span class="cf-thread-title" dir="auto">
+                    {/* Before the name (build 93): a long name is cut short with "…", and what follows it with it. */}
+                    {playing === thread.id && <span class="cf-thread-audio" role="status" aria-label={t("listenPlayingHere")} title={t("listenPlayingHere")}><SpeakerIcon size={13} /></span>}
                     {thread.kind === "history" && <Icon.Sparkle size={12} />} {threadName(thread)}
                     {busy?.has(thread.id) ? <span class="cf-thread-busy" role="status" aria-label={t("busyWorking")} /> : unread?.has(thread.id) ? <span class="cf-thread-unread" role="status" aria-label={t("busyNew")} /> : null}
                   </span>

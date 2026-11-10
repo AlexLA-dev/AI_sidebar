@@ -260,6 +260,8 @@ struct ContentView: View {
                 settingsTab
             }
         }
+        // Build 93: the player's bar while a text plays on with its sheet closed.
+        .modifier(ListenMiniPlacement(shown: listenShown.mini, player: listen))
         .sheet(isPresented: $showingSetup) {
             NavigationView {
                 HomeView(store: store, activation: activation, openPro: { showingSetup = false; tab = .pro }, openTips: { showingSetup = false; tab = .tips })
@@ -300,6 +302,7 @@ struct ContentView: View {
             case .settings: SettingsView(showPlan: $showPlan)
             }
         }
+        .modifier(ListenMiniPlacement(shown: listenShown.mini, player: listen))
         .frame(minWidth: 720, minHeight: 560)
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
             chats.refresh()

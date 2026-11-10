@@ -1751,6 +1751,12 @@
  "listenStop": {
   "message": "Stop"
  },
+ "listenClose": {
+  "message": "Stop and close"
+ },
+ "listenPlayingHere": {
+  "message": "Playing now"
+ },
  "listenSpeed": {
   "message": "Speed: {0}. Tap for another speed"
  },

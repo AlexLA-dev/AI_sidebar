@@ -57,7 +57,7 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         }
         let products = await load.value ?? []
         timeout.cancel()
-        if !products.isEmpty { SharedDefaults.shared.writePrices(PlanProducts.priceTable(products)) }
+        if !products.isEmpty { SharedDefaults.shared.writePrices(PlanProducts.priceTable(products, storefront: await Storefront.current?.countryCode)) }
     }
 
     func beginRequest(with context: NSExtensionContext) {
@@ -322,6 +322,12 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         case "listenStop":
             ListenAway.withdraw()
             Self.reply(context, ["success": true])
+        // Back on the page after a hand-off (build 93): whether the app sent the person back for this text, to play it
+        // in the panel (notifications just turned on), and whether the app has taken it over.
+        case "listenReturn":
+            let id = (message["id"] as? String ?? "").lowercased()
+            let back = SharedDefaults.shared.takeListenReturn(id)
+            Self.reply(context, ["success": true, "data": ["back": back.back, "play": back.play, "taken": SharedDefaults.shared.listenTaken(id)]])
         case "speechClear":
             // "Delete all chats" in the panel: what was read aloud goes from the App Group and iCloud too.
             SharedListenCache.clear()

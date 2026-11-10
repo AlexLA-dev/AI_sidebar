@@ -1745,6 +1745,12 @@
  "listenStop": {
   "message": "Stopp"
  },
+ "listenClose": {
+  "message": "Stoppen und schließen"
+ },
+ "listenPlayingHere": {
+  "message": "Wird gerade abgespielt"
+ },
  "listenLoading": {
   "message": "Stimme wird vorbereitet…"
  },

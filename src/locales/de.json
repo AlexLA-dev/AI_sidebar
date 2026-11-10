@@ -604,6 +604,8 @@
   "listenPause": "Pause",
   "listenPlay": "Abspielen",
   "listenStop": "Stopp",
+  "listenClose": "Stoppen und schließen",
+  "listenPlayingHere": "Wird gerade abgespielt",
   "listenLoading": "Stimme wird vorbereitet…",
   "listenUltraTitle": "Anhören ist Teil von Ultra",
   "listenUltraBody": "Antworten und ganze Seiten, vorgelesen mit natürlicher Stimme, in über 100 Sprachen. Auf dem iPhone läuft es bei gesperrtem Bildschirm weiter.",

@@ -1745,6 +1745,12 @@
  "listenStop": {
   "message": "Detener"
  },
+ "listenClose": {
+  "message": "Detener y cerrar"
+ },
+ "listenPlayingHere": {
+  "message": "Reproduciendo ahora"
+ },
  "listenLoading": {
   "message": "Preparando la voz…"
  },

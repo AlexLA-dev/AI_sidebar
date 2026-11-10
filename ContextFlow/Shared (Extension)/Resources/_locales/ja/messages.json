@@ -1745,6 +1745,12 @@
  "listenStop": {
   "message": "停止"
  },
+ "listenClose": {
+  "message": "停止して閉じる"
+ },
+ "listenPlayingHere": {
+  "message": "再生中"
+ },
  "listenLoading": {
   "message": "音声を準備しています…"
  },

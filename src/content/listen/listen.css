@@ -147,3 +147,11 @@ button.cf-tier-chip { border: 0; cursor: pointer; }
 .cf-g-more { margin: 0 0 0 4px; color: var(--text-2); }
 .cf[data-theme="dark"] .cf-g-row .tag { color: #c4b5fd; }
 @media (prefers-color-scheme: dark) { .cf:not([data-theme]) .cf-g-row .tag { color: #c4b5fd; } }
+
+/* Build 93: the bar at the bottom of the chats list while something plays, the speaker on the row of the chat that
+   plays, and on the circle while it plays with the panel closed. No animation: nothing runs while it shows. */
+.cf-listen-dock { flex-shrink: 0; padding: 8px 12px 10px; border-top: 1px solid var(--border); background: var(--bg); }
+.cf-listen-dock .cf-listen { margin: 0; }
+.cf-thread-audio { display: inline-flex; vertical-align: -2px; margin-inline-end: 5px; color: var(--accent); }
+.cf-fab-audio { position: absolute; bottom: 0; inset-inline-start: 0; display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: var(--accent, #3b82f6); color: #fff; border: 2px solid #fff; }
+.cf-listen .cf-listen-close { font-size: 20px; line-height: 1; }

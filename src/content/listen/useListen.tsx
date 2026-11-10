@@ -13,7 +13,7 @@ import type { Platform, Usage } from "../../shared/types"
 import type { SpeakIn, SpeakOut } from "../../background/speak"
 import { SPEEDS, speedLabel, type Speed } from "../../shared/stretch"
 import { isTouch } from "../page"
-import { listenNotifyLater, listenNotifyLaterNow, listenSpeed, notifyKnown, setListenSpeed, setNotifyKnown } from "../store"
+import { listenBackNow, listenNotifyLater, listenNotifyLaterNow, listenSpeed, notifyKnown, setListenBack, setListenSpeed, setNotifyKnown } from "../store"
 import { clock, PcmPlayer } from "./player"
 
 export type ListenState =
@@ -38,7 +38,7 @@ export interface ListenWhat {
   url: string
 }
 
-export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: {
+export function useListen({ platform, plan, speakLeft, onUltra, follow, send, panelOpen, reopen }: {
   platform: Platform
   plan: Plan
   // Seconds of this week's listening left (the status's), null when not known.
@@ -48,7 +48,13 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: 
   // Opens a contextflow:// link from the page (iPhone and iPad).
   follow: (url: string) => void
   send: <T>(message: Record<string, unknown>) => Promise<T | null>
+  // iPhone and iPad (build 93): whether the panel is open, and opening it again. A hand-off to the app is kept with it,
+  // so coming back from the app ("Back to Safari") brings the panel back as it was.
+  panelOpen?: () => boolean
+  reopen?: () => void
 }) {
+  const panel = useRef({ panelOpen, reopen })
+  panel.current = { panelOpen, reopen }
   const [state, setState] = useState<ListenState>({ at: "idle" })
   // iPhone and iPad: when the last hand-off to the app started (a tap again meanwhile does nothing).
   const handing = useRef(0)
@@ -78,6 +84,8 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: 
     clock?: (on: boolean) => void
     // What the bar shows now (the tick sets it only when it changes).
     shown?: { at: "playing" | "paused"; position: number; total: number; received: number }
+    // Started without a tap (back from the app, build 93): WebKit keeps it silent until Play, and the clock waits too.
+    waitTap?: boolean
   } | null>(null)
   const speedRef = useRef<Speed>(1)
   speedRef.current = speed
@@ -111,6 +119,16 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: 
     return () => document.removeEventListener("visibilitychange", onVisible)
   }, [platform, asking, askNotify])
 
+  // A hand-off to the app (build 93): kept with the page and whether the panel was open, so coming back from the app
+  // brings the panel back as it was; `play`: after "Turn on notifications", the text plays here once they're on.
+  const noteBack = useCallback((id: string, key: string, item: ListenWhat, play: boolean) => {
+    if (!isTouch(platform)) return
+    void setListenBack({ id, url: item.url, panel: panel.current.panelOpen?.() ?? false, at: Date.now(), key, ...(play ? { item } : {}) })
+  }, [platform])
+  // The player "Turn on notifications" unlocked in its tap: the text plays with it on coming back, if this page is
+  // still the one (WebKit starts a page's sound only from a tap).
+  const unlocked = useRef<PcmPlayer | null>(null)
+
   const stop = useCallback(() => {
     const current = run.current
     run.current = null
@@ -140,6 +158,8 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: 
     handing.current = Date.now()
     const id = newId()
     setState({ at: "handoff", key })
+    // Kept for coming back (build 93): the panel as it was, and after "Turn on notifications", the text to play here.
+    noteBack(id, key, item, to === "notifications")
     follow(to === "listen" ? `contextflow://listen?id=${encodeURIComponent(id)}` : `contextflow://notifications?listen=${encodeURIComponent(id)}`)
     void send({ type: "useEvent", f: "listen", a: to === "listen" ? "app" : "notify_on", what: item.what })
     // The app writes it for the ear itself (as the background does here); the parts are its way when it can't.
@@ -149,9 +169,11 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: 
       handing.current = 0
       setState((s) => (s.at === "handoff" && s.key === key ? { at: "idle" } : s))
     }, 6000)
-  }, [follow, send])
+  }, [follow, send, noteBack])
 
-  const start = useCallback(async (key: string, item: ListenWhat, anyway = false) => {
+  /** `back`: started on coming back from the app after turning notifications on (build 93), not from a tap here: with
+   *  the player an earlier tap unlocked, if this page still has it. */
+  const start = useCallback(async (key: string, item: ListenWhat, anyway = false, back?: { player: PcmPlayer | null }) => {
     stop()
     const step = (a: string) => void send({ type: "useEvent", f: "listen", a, what: item.what })
     if (!isUltra(plan)) {
@@ -182,12 +204,14 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: 
     step("start")
     // In the tap itself, before anything is awaited: WebKit lets a page's sound start only from the tap (the speed is
     // already known; build 92 read it from storage first).
-    const player = new PcmPlayer(speedRef.current)
+    const given = back?.player ?? null
+    const player = given ?? new PcmPlayer(speedRef.current)
+    if (given && given.speed !== speedRef.current) given.setSpeed(speedRef.current)
     await player.unlock()
     const port = chrome.runtime.connect({ name: "speak" })
     const total = speechSeconds(text)
     // The first part is asked for at once (it's coming until its end).
-    const current: NonNullable<typeof run.current> = { port, player, ended: false, key, total, told: -1, timer: setInterval(() => tick(), 250), fetching: true }
+    const current: NonNullable<typeof run.current> = { port, player, ended: false, key, total, told: -1, timer: setInterval(() => tick(), 250), fetching: true, waitTap: Boolean(back) }
     current.clock = (on) => {
       clearInterval(current.timer)
       if (on) current.timer = setInterval(() => tick(), 250)
@@ -212,9 +236,11 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: 
       }
       const hide = (event: Event) => {
         // Paused by the user: nothing to carry on. (iOS may already have interrupted the audio itself: that still counts.)
-        if (run.current !== current || away.gone || away.held || player.received === 0) return
+        if (run.current !== current || away.gone || away.held || current.waitTap || player.received === 0) return
         if (event.type === "visibilitychange" && document.visibilityState === "visible") return
         away.gone = true
+        // Kept for coming back from the app (build 93): "Back to Safari" there opens the panel again if it was open.
+        noteBack(away.id, key, item, false)
         player.pause()
         current.clock?.(false)
         // What was heard here so far (the app counts what it plays from this second).
@@ -313,7 +339,12 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: 
       const total = Math.max(current.total, player.received)
       const received = player.received
       const shown = current.shown
-      if (shown && shown.at === at && shown.position === position && shown.total === total && shown.received === received) return
+      if (shown && shown.at === at && shown.position === position && shown.total === total && shown.received === received) {
+        // Silent without a tap (back from the app, build 93: WebKit starts a page's sound only from one): the clock waits
+        // for Play instead of running.
+        if (at === "paused" && current.waitTap) current.clock?.(false)
+        return
+      }
       current.shown = { at, position, total, received }
       setState({ at, key, position, total, received })
     }
@@ -360,6 +391,7 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: 
     if (!current) return
     if (current.player.paused) {
       current.player.resume()
+      current.waitTap = false
       current.clock?.(true)
       current.handoff?.resumed()
     } else {
@@ -402,8 +434,57 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: 
   /** Without notifications: "Turn on notifications" opens the app (only it can ask), which then plays the text. */
   const notifyTurnOn = useCallback(() => {
     const s = stateRef.current
-    if (s.at === "notify") handOff(s.key, s.item, speechParts(plainText(s.item)), "notifications")
+    if (s.at !== "notify") return
+    // Unlocked in this tap, for playing here once they're on (build 93).
+    unlocked.current?.stop()
+    unlocked.current = new PcmPlayer(speedRef.current)
+    void unlocked.current.unlock()
+    handOff(s.key, s.item, speechParts(plainText(s.item)), "notifications")
   }, [handOff])
+
+  // Back on the page after a hand-off (build 93), on load or when the page shows again: if the app sent the person back
+  // ("Back to Safari"), the panel opens again if it was open; after notifications were turned on there, the text plays
+  // here (Play, if WebKit wants a tap); if the app plays it, the bar says so. One native message, only when a hand-off
+  // from this page is on record.
+  const startRef = useRef(start)
+  startRef.current = start
+  const checkReturn = useCallback(async () => {
+    const back = await listenBackNow()
+    if (!back) return
+    if (Date.now() - back.at > 12 * 3_600_000) return void setListenBack(null)
+    if (samePage(back.url, location.href) === false) return
+    const r = await send<{ back?: boolean; play?: boolean; taken?: boolean }>({ type: "listenReturn", id: back.id })
+    // Back without the app's word (◀ Safari): what was on record goes, except while the app may still be asking about
+    // notifications (ten minutes): its word to play it here can come after.
+    if (!r?.back) {
+      if (back.item && Date.now() - back.at < 600_000) return
+      unlocked.current?.stop()
+      unlocked.current = null
+      return void setListenBack(null)
+    }
+    await setListenBack(null)
+    const player = unlocked.current
+    unlocked.current = null
+    if (back.panel && !panel.current.panelOpen?.()) panel.current.reopen?.()
+    if (r.play && back.item && back.key) {
+      // Notifications are on now: it plays here.
+      await askNotify()
+      void send({ type: "useEvent", f: "listen", a: "back_play", what: back.item.what })
+      void startRef.current(back.key, back.item, false, { player })
+      return
+    }
+    player?.stop()
+    if (r.taken) setState((s) => (s.at === "idle" || s.at === "handoff" ? { at: "taken", key: back.key ?? "" } : s))
+  }, [send, askNotify])
+  const checkRef = useRef(checkReturn)
+  checkRef.current = checkReturn
+  useEffect(() => {
+    if (!isTouch(platform)) return
+    void checkRef.current()
+    const onVisible = () => { if (document.visibilityState === "visible") void checkRef.current() }
+    document.addEventListener("visibilitychange", onVisible)
+    return () => document.removeEventListener("visibilitychange", onVisible)
+  }, [platform])
 
   /** "Not now": the app plays it, and Listen doesn't ask again until tomorrow. */
   const notifyNotNow = useCallback(() => {
@@ -421,6 +502,11 @@ export function useListen({ platform, plan, speakLeft, onUltra, follow, send }: 
 /** What's read: an answer's words without its Markdown, or the page's text. */
 function plainText(item: ListenWhat): string {
   return item.what === "answer" ? speechText(item.text) : item.text.replace(/\s+\n/g, "\n").trim()
+}
+
+/** The same page, its #fragment aside (the app opens the address the panel gave it). */
+function samePage(a: string, b: string): boolean {
+  return a.split("#")[0] === b.split("#")[0]
 }
 
 function newId(): string {
@@ -502,7 +588,8 @@ export function ListenBar({ state, speed, left, onSpeed, onAnyway, onNotifyOn, o
       )}
       {typeof left === "number" && !loading && <span class="cf-listen-left" title={t("listenMinLeftTitle", String(Math.floor(left / 60)))}>{t("listenMinLeft", String(Math.floor(left / 60)))}</span>}
       <button type="button" class="cf-listen-speed" onClick={onSpeed} aria-label={t("listenSpeed", speedLabel(speed))} title={t("listenSpeed", speedLabel(speed))}>{speedLabel(speed)}</button>
-      <button type="button" class="cf-icon-btn" onClick={onStop} aria-label={t("listenStop")}><StopIcon /></button>
+      {/* Build 93: one control that stops and closes, said so (a square read as "stop" and then the bar went). */}
+      <button type="button" class="cf-icon-btn cf-listen-close" onClick={onStop} aria-label={t("listenClose")} title={t("listenClose")}>×</button>
     </div>
   )
 }
@@ -578,6 +665,3 @@ function PauseIcon(): VNode {
   return <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="4.5" width="4" height="15" rx="1" /><rect x="14" y="4.5" width="4" height="15" rx="1" /></svg>
 }
 
-function StopIcon(): VNode {
-  return <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2" /></svg>
-}

@@ -606,6 +606,8 @@
   "listenPause": "Pause",
   "listenPlay": "Play",
   "listenStop": "Stop",
+  "listenClose": "Stop and close",
+  "listenPlayingHere": "Playing now",
   "listenSpeed": "Speed: {0}. Tap for another speed",
   "listenLoading": "Getting the voice ready…",
   "listenUltraTitle": "Listening is part of Ultra",

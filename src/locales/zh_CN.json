@@ -604,6 +604,8 @@
   "listenPause": "暂停",
   "listenPlay": "播放",
   "listenStop": "停止",
+  "listenClose": "停止并关闭",
+  "listenPlayingHere": "正在播放",
   "listenLoading": "正在准备语音…",
   "listenUltraTitle": "朗读是 Ultra 的功能",
   "listenUltraBody": "用自然的声音朗读回答和整个页面，支持 100 多种语言。在 iPhone 上锁屏后也会继续播放。",

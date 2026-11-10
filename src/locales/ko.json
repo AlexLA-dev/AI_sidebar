@@ -604,6 +604,8 @@
   "listenPause": "일시정지",
   "listenPlay": "재생",
   "listenStop": "중지",
+  "listenClose": "정지하고 닫기",
+  "listenPlayingHere": "재생 중",
   "listenLoading": "음성을 준비하고 있어요…",
   "listenUltraTitle": "듣기는 Ultra에 포함돼요",
   "listenUltraBody": "답변과 페이지 전체를 자연스러운 목소리로 읽어 줘요. 100개 이상의 언어를 지원해요. iPhone에서는 화면을 잠가도 계속 재생돼요.",

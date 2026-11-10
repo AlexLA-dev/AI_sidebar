@@ -1745,6 +1745,12 @@
  "listenStop": {
   "message": "Interrompi"
  },
+ "listenClose": {
+  "message": "Interrompi e chiudi"
+ },
+ "listenPlayingHere": {
+  "message": "In riproduzione"
+ },
  "listenLoading": {
   "message": "Preparo la voce…"
  },
