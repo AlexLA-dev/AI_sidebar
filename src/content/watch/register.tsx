@@ -50,13 +50,14 @@ if (TARGET === "safari") {
         aria-label={t("watchEye")}
         title={t("watchEye")}
         {...press(() => {
-          openWatchSheet({ url: ctx.url, title: ctx.title, selection: value, how: "bubble" })
+          openWatchSheet({ url: ctx.url, title: ctx.title, selection: value, how: ctx.panel ? "panel" : "bubble" })
+          if (ctx.panel) return
           // The page's selection goes, and with it the system's edit menu that would stay over the window.
           document.getSelection()?.removeAllRanges()
           ctx.close()
         })}
       >
-        <Eye size={16} />
+        <Eye size={ctx.panel ? 14 : 16} />
         <span class="cf-sel-watch-l">{t("watchStart")}</span>
       </button>
     )

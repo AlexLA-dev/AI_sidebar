@@ -2102,11 +2102,23 @@ struct PlanTourView: View {
             return Info(symbol: "eye", color: .green, title: "Watch up to \(step == .ultraWatch ? facts.watchUltra : facts.watchPro) pages",
                         text: "In Safari, select a price, stock or a date and tap the eye. For the whole page: … → Watch this page.", clip: "watch")
         case .ultraListen:
+            // Build 95: the tour shows it working, as Tips do (its clip is the panel's player: a Mac's only).
+            #if os(iOS)
+            let clip: String? = nil
+            #else
+            let clip: String? = "listen"
+            #endif
             return Info(symbol: "speaker.wave.2.fill", color: Self.ultraColor, title: "Listen",
-                        text: "Tap Listen under an answer, or choose Listen to this page in the … menu at the top of the panel. A natural voice reads it aloud.")
+                        text: "Tap Listen under an answer, or choose Listen to this page in the … menu at the top of the panel. A natural voice reads it aloud.", clip: clip)
         case .ultraSimilar:
+            // Build 95: the tour shows it working, as Tips do (its clip is touch: iPhone and iPad only).
+            #if os(iOS)
+            let clip: String? = "similar"
+            #else
+            let clip: String? = nil
+            #endif
             return Info(symbol: "square.on.square", color: Self.ultraColor, title: "Find similar",
-                        text: "Tap Find similar in the panel, or select text on the page and tap Find similar. You get real alternatives — cheaper, newer, in stock or in your language. Every link is opened and checked before you see it.")
+                        text: "Tap Find similar in the panel, or select text on the page and tap Find similar. You get real alternatives — cheaper, newer, in stock or in your language. Every link is opened and checked before you see it.", clip: clip)
         }
     }
 

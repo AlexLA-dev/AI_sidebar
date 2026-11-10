@@ -2584,6 +2584,65 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       })
     : []
 
+  // Build 95, the owner on TestFlight 94: «перенести указание выделенного текста или всю страницу из шапки сайдбара
+  // вниз, куда-то над окошком для ввода запроса, чтобы вводя текст было понятно к чему он относится. При этом свечение
+  // при выборе текста оставить» and «около окна ввода запроса нужно добавить какие-то чипы или кнопки Watch и Remind»
+  // (with the panel open on a selected price, they were only in the pop-up). The row over the field: what the question
+  // is about (with its ring for a selection) and, by a selection, the pop-up's bell and eye, doing the same.
+  const panelSelActs: VNode[] = open && !popup && view === "chat" && !historyMode && contextKind === "selection" && selection
+    ? [
+        <button
+          type="button"
+          key="remind"
+          class="cf-ctx-act cf-ctx-remind"
+          aria-label={t("uxRemind")}
+          title={t("uxRemind")}
+          onClick={() => {
+            void sendBackground({ type: "useEvent", f: "later", a: "open", via: "panel" })
+            setLater({ selection, range: selectionRange() })
+          }}
+        >
+          <Bell size={13} />
+          <span class="cf-ctx-act-l">{t("uxRemind")}</span>
+        </button>,
+        ...bubbleActions().flatMap((render, i) => {
+          const ctx: BubbleContext = { url: source.href(), key: source.key(), title: source.title(), selection: selection.text, range: selectionRange(), close: () => undefined, panel: true }
+          const node = render(ctx)
+          return node ? [<Fragment key={i}>{node}</Fragment>] : []
+        })
+      ]
+    : []
+  // A narrow panel (an iPhone) with a few words selected: when the label would be cut ("Выделено …"), the two buttons
+  // keep only the bell and the eye, as in the pop-up on a phone. Measured once per selection with their words shown.
+  const ctxRowRef = useRef<HTMLDivElement>(null)
+  const ctxKey = selection ? `${selection.at}:${selection.text.length}` : ""
+  const [ctxTight, setCtxTight] = useState("")
+  useLayoutEffect(() => {
+    if (!panelSelActs.length || ctxTight === ctxKey) return
+    const text = ctxRowRef.current?.querySelector<HTMLElement>(".cf-ctx-text")
+    if (text && text.scrollWidth > text.clientWidth + 1) setCtxTight(ctxKey)
+  })
+  const ctxRow = (
+    <div ref={ctxRowRef} class={`cf-ctx-row${panelSelActs.length && ctxTight === ctxKey ? " tight" : ""}`}>
+      {historyMode ? (
+        <span class="cf-ctx history"><Icon.Sparkle size={13} /> <span class="cf-ctx-text">{t("askHistory")}</span></span>
+      ) : (
+        <ContextChip
+          kind={contextKind}
+          media={source.kind()}
+          title={source.title()}
+          words={selection?.words ?? 0}
+          text={selection?.text ?? ""}
+          onClear={() => {
+            forgetSelection()
+            setSelection(null)
+          }}
+        />
+      )}
+      {panelSelActs.length > 0 && <span class="cf-ctx-acts">{panelSelActs}</span>}
+    </div>
+  )
+
   // The allowance under the input: short, to share the line with "Whole chat" and Get Pro; in full on hover.
   const usageLine = useMemo(() => {
     if (ownKeyActive) return { short: t("usageOwnKey"), full: t("usageOwnKey") }
@@ -3153,23 +3212,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             ) : (
               <span class="cf-logo"><Icon.Sparkle size={18} /></span>
             )}
+            {/* Build 95: in a chat, what the question is about (the selection, the page, the chats) is over the field
+                (ctxRow), not here. */}
             <div class="cf-title">
-              {view !== "chat" ? (
+              {view !== "chat" && (
                 <strong>{view === "settings" ? t("settings") : view === "templates" ? t("qiTemplatesTitle") : view === "trash" ? t("trashTitle") : t("chatsTitle")}</strong>
-              ) : (
-                historyMode ? (
-                  <span class="cf-ctx history"><Icon.Sparkle size={13} /> <span class="cf-ctx-text">{t("askHistory")}</span></span>
-                ) : <ContextChip
-                  kind={contextKind}
-                  media={source.kind()}
-                  title={source.title()}
-                  words={selection?.words ?? 0}
-                  text={selection?.text ?? ""}
-                  onClear={() => {
-                    forgetSelection()
-                    setSelection(null)
-                  }}
-                />
               )}
             </div>
             {view === "chat" && messages.length > 0 && partial === null && (
@@ -3756,6 +3803,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
                   {undoBar && <UndoBar text={undoBar.text} actions={undoBar.actions} onHold={holdBar} />}
                   {noteHint && draft.trim() && !noteMode && <div class="cf-note-hint" role="status">{t(touch ? "noteHintTouch" : "noteHintMouse")}</div>}
                   {weightNote && <div class="cf-weight-note" title={t("longPageWeightHint", pageWeight)}>{t("longPageWeight", pageWeight)}</div>}
+                  {ctxRow}
                   <div class={`cf-input ${noteMode ? "note" : ""}`}>
                     {!noteMode && !historyMode && (
                       <button
