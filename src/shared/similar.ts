@@ -43,8 +43,11 @@ export interface SimilarItem {
   reviews?: { rating?: { value: number; best: number; count?: number }; summary?: string; sources: string[] }
 }
 
-/** At or above it an item is close; below, "less similar" (shown apart when fewer than 3 are close). */
-export const CLOSE_SIMILARITY = 70
+/**
+ * At or above it an item is close; below, "less similar" (shown apart when fewer than 3 are close). Shares come in
+ * steps of a fifth or a quarter (4–5 traits): measured on the preview, 70 % put a good match (3 of 5) apart.
+ */
+export const CLOSE_SIMILARITY = 60
 
 /** The items as the panel shows them: the close ones, and the less similar ones when fewer than 3 are close. */
 export function closeAndLess(items: SimilarItem[]): { close: SimilarItem[]; less: SimilarItem[] } {
