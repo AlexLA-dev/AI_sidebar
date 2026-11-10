@@ -1502,6 +1502,15 @@
  "orgMatch": {
   "message": "相符度 {0}%"
  },
+ "orgMergeInto": {
+  "message": "合併到「{0}」"
+ },
+ "orgMergeA11y": {
+  "message": "把此對話合併到「{0}」"
+ },
+ "orgMerged": {
+  "message": "已合併到「{0}」"
+ },
  "recs_one": {
   "message": "{0} 則建議"
  },

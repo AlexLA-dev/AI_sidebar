@@ -1502,6 +1502,15 @@
  "orgMatch": {
   "message": "{0}% de correspondência"
  },
+ "orgMergeInto": {
+  "message": "Juntar com “{0}”"
+ },
+ "orgMergeA11y": {
+  "message": "Juntar esta conversa com “{0}”"
+ },
+ "orgMerged": {
+  "message": "Juntado com “{0}”"
+ },
  "recs_one": {
   "message": "{0} recomendação"
  },

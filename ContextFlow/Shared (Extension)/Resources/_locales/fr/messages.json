@@ -1502,6 +1502,15 @@
  "orgMatch": {
   "message": "correspond à {0} %"
  },
+ "orgMergeInto": {
+  "message": "Fusionner avec « {0} »"
+ },
+ "orgMergeA11y": {
+  "message": "Fusionner cette discussion avec « {0} »"
+ },
+ "orgMerged": {
+  "message": "Fusionné avec « {0} »"
+ },
  "recs_one": {
   "message": "{0} recommandation"
  },

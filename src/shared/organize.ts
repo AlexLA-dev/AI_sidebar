@@ -28,6 +28,12 @@ export interface OrganizeConfig {
   // A new chat: the block fits its own chat less than this, and at least `splitMin` blocks stay in it.
   splitT: number
   splitMin: number
+  // 2.6 (94): the end of a block off its chat's topic (`tailMove`): an exchange's fit to the rest of the chat below
+  // `tailQA` by its question and answers (on one page every question carries the page's title, so this alone tells
+  // little) and below `tailA` by its answers; two such exchanges whose answers are `tailAlike` go together.
+  tailQA: number
+  tailA: number
+  tailAlike: number
   // How many of the chat's last blocks get move suggestions, and of its last answers and notes tag suggestions.
   window: number
   tagWindow: number
@@ -63,6 +69,12 @@ export const DEFAULT_ORGANIZE: OrganizeConfig = {
   minMatch: 75,
   splitT: 0.25,
   splitMin: 2,
+  // Calibrated on the 2.5 sample with every question of a chat asked on its first page (b94/calib-apart3.mjs): 1 of
+  // 99 of the chats' own exchanges off by both, 41% of unrelated exchanges in the same language and 68% in another
+  // (the rest mostly near topics); the question+answer fit alone, at splitT, caught 4% in the same language.
+  tailQA: 0.4,
+  tailA: 0.22,
+  tailAlike: 0.3,
   window: 3,
   tagWindow: 5,
   tagT: 0.3,
@@ -211,22 +223,43 @@ export function scoredBlocks(entries: Entry[], vectorOf: VectorOf): ScoredBlock[
 
 function scoreBlocks(entries: Entry[], vectorOf: VectorOf): ScoredBlock[] {
   const times = entryTimes(entries)
-  return pageBlocks(entries).map((b) => {
-    const list = entries.slice(b.start, b.end + 1)
-    let signal = 0
-    for (const e of list) if (e.role === "user") signal += plain(e.label ?? e.content).length + (e.page?.title ? MIN_QUESTION : 0)
-    const notesOnly = list.every((e) => e.note)
-    const vectors = list.map((e) => vectorOf(e)).filter((v): v is Float32Array => Boolean(v))
-    return {
-      ...b,
-      v: mean(vectors),
-      weak: signal < (notesOnly ? MIN_NOTE : MIN_QUESTION),
-      t: times[b.start],
-      host: hostOf(b.url),
-      settled: list.some((e) => e.from),
-      dismissed: list.some((e) => e.dismissed?.move)
-    }
-  })
+  return pageBlocks(entries).map((b) => scored(entries, times, b, vectorOf))
+}
+
+/** Messages `b.start`…`b.end` scored as a block. */
+function scored(entries: Entry[], times: Array<number | null>, b: PageBlock, vectorOf: VectorOf): ScoredBlock {
+  const list = entries.slice(b.start, b.end + 1)
+  let signal = 0
+  for (const e of list) if (e.role === "user") signal += plain(e.label ?? e.content).length + (e.page?.title ? MIN_QUESTION : 0)
+  const notesOnly = list.every((e) => e.note)
+  const vectors = list.map((e) => vectorOf(e)).filter((v): v is Float32Array => Boolean(v))
+  return {
+    ...b,
+    v: mean(vectors),
+    weak: signal < (notesOnly ? MIN_NOTE : MIN_QUESTION),
+    t: times[b.start],
+    host: hostOf(b.url),
+    settled: list.some((e) => e.from),
+    dismissed: list.some((e) => e.dismissed?.move)
+  }
+}
+
+/** The mean of a range's answers' vectors (its other messages' when it has no answer with one). */
+function answersOf(entries: Entry[], x: PageBlock, vectorOf: VectorOf): Float32Array | null {
+  const list = entries.slice(x.start, x.end + 1)
+  const answers = list.filter((e) => e.role === "assistant").map((e) => vectorOf(e)).filter((v): v is Float32Array => Boolean(v))
+  return mean(answers.length ? answers : list.map((e) => vectorOf(e)).filter((v): v is Float32Array => Boolean(v)))
+}
+
+/** 2.6 (94): a block's exchanges — each question or note with the answers after it — scored like blocks, on its page. */
+export function exchangesOf(entries: Entry[], b: PageBlock, vectorOf: VectorOf): ScoredBlock[] {
+  const ranges: PageBlock[] = []
+  for (let i = b.start; i <= b.end; i++) {
+    if (entries[i].role === "user" || !ranges.length) ranges.push({ start: i, end: i, url: b.url })
+    else ranges[ranges.length - 1].end = i
+  }
+  const times = entryTimes(entries)
+  return ranges.map((x) => scored(entries, times, x, vectorOf))
 }
 
 // ------------------------------------------------------------ moves
@@ -237,11 +270,12 @@ export interface MoveSuggestion {
   end: number
   // The chat to move them to; null: a new chat.
   to: string | null
-  // Why: the same page is in that chat, the same site, the same topic, or none fits (a new chat).
-  why: "page" | "site" | "topic" | "apart"
+  // Why: the whole chat joins a newer one on its topic and pages (2.6 (94)), the same page is in that chat, the same
+  // site, the same topic, or none fits (a new chat).
+  why: "merge" | "page" | "site" | "topic" | "apart"
   score: number
   current: number
-  // How well it fits there, in % (matchPercent), for a move by topic or by site (a page needs none).
+  // How well it fits there, in % (matchPercent), for a merge or a move by topic or by site (a page needs none).
   match?: number
 }
 
@@ -252,7 +286,7 @@ export function matchPercent(score: number, cfg: OrganizeConfig): number {
   return Math.max(0, Math.min(100, Math.round(((score - cfg.matchLo) / span) * 100)))
 }
 
-const RANK = { page: 0, site: 1, topic: 2, apart: 3 } as const
+const RANK = { merge: 0, page: 1, site: 2, topic: 3, apart: 4 } as const
 
 /** True while move suggestions stay on in this chat: fewer than `rollback` refused since the last one taken. */
 // When a move out of each chat was last taken, per list of chats (read once for all of them).
@@ -284,6 +318,9 @@ export function movesAllowed(chat: Thread, all: Thread[], cfg: OrganizeConfig): 
  * A move only makes chats more about one thing (2.6): a block leaves its chat when it's off that chat's topic, for a
  * chat mostly about it. A chat of one block (a note on a page, a single question) joins another chat mostly about
  * it; of two such chats, the smaller joins the larger. Two chats never suggest moves into each other.
+ *
+ * 2.6 (94): first, the whole chat may join a newer chat on its topic and pages (`mergeFit`); last, when no block goes
+ * anywhere, the end of a block off the chat's topic (`tailMove`).
  */
 export function suggestMove(chat: Thread, chats: Thread[], vectorOf: VectorOf, cfg: OrganizeConfig): MoveSuggestion | null {
   if (chat.kind === "history" || chat.deleted) return null
@@ -292,6 +329,12 @@ export function suggestMove(chat: Thread, chats: Thread[], vectorOf: VectorOf, c
   const others = chats
     .filter((t) => t.id !== chat.id && !t.deleted && t.kind !== "history" && t.m.length > 0)
     .map((t) => ({ thread: t, blocks: scoredBlocks(t.m, vectorOf) }))
+  let merge: { to: string; score: number; match: number } | null = null
+  for (const o of others) {
+    const fit = mergeFit({ thread: chat, blocks }, o, cfg)
+    if (fit && (!merge || fit.score > merge.score)) merge = { to: o.thread.id, ...fit }
+  }
+  if (merge) return { start: 0, end: chat.m.length - 1, to: merge.to, why: "merge", score: merge.score, current: 0, match: merge.match }
   const first = Math.max(0, blocks.length - cfg.window)
   const found: Array<MoveSuggestion & { index: number }> = []
   for (let i = first; i < blocks.length; i++) {
@@ -318,9 +361,97 @@ export function suggestMove(chat: Thread, chats: Thread[], vectorOf: VectorOf, c
   const best = groups
     .filter((g) => g.to !== null || blocks.filter((b) => b.end < g.start || b.start > g.end).length >= cfg.splitMin)
     .sort((a, b) => RANK[a.why] - RANK[b.why] || (b.score - b.current) - (a.score - a.current) || b.end - a.end)[0]
-  if (!best) return null
+  if (!best) return tailMove(chat, blocks, others, vectorOf, cfg)
   const { index: _index, ...suggestion } = best
   return suggestion
+}
+
+/** When a chat was started: its first message's time (else its last activity). */
+function startedAt(t: Thread): number {
+  return entryTimes(t.m).find((x): x is number => x !== null) ?? activity(t)
+}
+
+/** Of two chats, the newer one: started later, then written in last, then by id. */
+function newer(a: Thread, b: Thread): boolean {
+  if (startedAt(a) !== startedAt(b)) return startedAt(a) > startedAt(b)
+  if (activity(a) !== activity(b)) return activity(a) > activity(b)
+  return a.id > b.id
+}
+
+/**
+ * 2.6 (94): whether chat `from` joins `to` whole (the owner: «чаты по одной теме и одним страницам сливать в один,
+ * присоединяя более старый к более новому, сохраняя хронологию»), and how well it fits there: `to` is newer and has two
+ * blocks at least (a chat of one block, like a lone note, joins the other way as before: `joins`), more than half of
+ * `from`'s pages are pages `to` has, nothing in `from` was turned down or moved in, `from`'s blocks fit `to` from
+ * `minMatch` % on average and `to`'s fit `from` as well (the topic: the pages alone don't say it), and that merge wasn't
+ * turned down (`org.mx`). The move puts the messages in by time.
+ */
+function mergeFit(from: { thread: Thread; blocks: ScoredBlock[] }, to: { thread: Thread; blocks: ScoredBlock[] }, cfg: OrganizeConfig): { score: number; match: number } | null {
+  // The cheap checks first: every pair of chats is checked when the list counts.
+  if (to.blocks.length < 2) return null
+  const pages = from.blocks.filter((b) => b.url)
+  if (!pages.length || pages.filter((b) => to.blocks.some((x) => x.url === b.url)).length * 2 <= pages.length) return null
+  if (from.blocks.some((b) => b.settled || b.dismissed) || (from.thread.org?.mx ?? []).includes(to.thread.id) || !newer(to.thread, from.thread)) return null
+  const mine = from.blocks.filter((b) => b.v).map((b) => ({ v: b.v! }))
+  const theirs = to.blocks.filter((b) => b.v).map((b) => ({ v: b.v! }))
+  if (!mine.length || !theirs.length) return null
+  // Both ways: one chat on a topic and a pile that has it too aren't one chat.
+  const fit = (a: Array<{ v: Float32Array }>, b: Array<{ v: Float32Array }>) => a.reduce((s, x) => s + topMean(x.v, b, 2), 0) / a.length
+  const score = Math.min(fit(mine, theirs), fit(theirs, mine))
+  const match = matchPercent(score, cfg)
+  return match >= cfg.minMatch ? { score, match } : null
+}
+
+/**
+ * 2.6 (94): the end of a block off its chat's topic — an answer about something else asked on the same page, or in the
+ * app (no page), which stays in that page's block (the owner: three answers on one topic and a last one on another got
+ * nothing). Of the chat's last `window` blocks, the latest first: its longest run of last exchanges (`exchangesOf`) that
+ * each fit the rest of the chat less than `tailQA` by their questions and answers and less than `tailA` by their answers,
+ * whose answers are `tailAlike` among themselves, with `splitMin` exchanges or blocks staying. They go to a
+ * chat mostly about them from `minMatch` %, else to a new chat when no chat fits them (one that fits but is a mix keeps
+ * them from a new chat, as for blocks).
+ */
+function tailMove(chat: Thread, blocks: ScoredBlock[], others: Array<{ thread: Thread; blocks: ScoredBlock[] }>, vectorOf: VectorOf, cfg: OrganizeConfig): MoveSuggestion | null {
+  const first = Math.max(0, blocks.length - cfg.window)
+  for (let i = blocks.length - 1; i >= first; i--) {
+    const b = blocks[i]
+    if (b.settled || b.dismissed) continue
+    const xs = exchangesOf(chat.m, b, vectorOf)
+    if (xs.length < 2) continue
+    const answers = xs.map((x) => answersOf(chat.m, x, vectorOf))
+    const besides = blocks.filter((x, j) => j !== i && x.v)
+    const outer = besides.map((x) => ({ v: x.v! }))
+    const outerA = besides.map((x) => ({ v: answersOf(chat.m, x, vectorOf)! }))
+    // The longest such end.
+    let from = -1
+    for (let k = 1; k < xs.length && from < 0; k++) {
+      const part = xs.slice(k)
+      if (part.some((x) => !x.v || x.settled || x.dismissed) || blocks.length - 1 + k < cfg.splitMin) continue
+      const rest = [...outer, ...xs.slice(0, k).filter((x) => x.v).map((x) => ({ v: x.v! }))]
+      const restA = [...outerA, ...answers.slice(0, k).filter((a): a is Float32Array => Boolean(a)).map((v) => ({ v }))]
+      if (!rest.length || part.some((x, z) => topMean(x.v!, rest, 2) >= cfg.tailQA || topMean(answers[k + z]!, restA, 2) >= cfg.tailA)) continue
+      if (part.some((_, a) => part.some((_, z) => z > a && dot(answers[k + a]!, answers[k + z]!) < cfg.tailAlike))) continue
+      from = k
+    }
+    if (from < 0 || xs.slice(from).every((x) => x.weak)) continue
+    const part = xs.slice(from)
+    const x: ScoredBlock = { ...b, start: part[0].start, end: part[part.length - 1].end, v: mean(part.map((y) => y.v!)), weak: false, t: part[0].t, settled: false, dismissed: false }
+    const current = topMean(x.v!, [...outer, ...xs.slice(0, from).filter((y) => y.v).map((y) => ({ v: y.v! }))], 2)
+    let fits = false
+    let best: { to: string; score: number } | null = null
+    for (const o of others) {
+      const vs = o.blocks.filter((y) => y.v).map((y) => ({ v: y.v! }))
+      if (!vs.length) continue
+      const score = topMean(x.v!, vs, 2)
+      if (score < (vs.length >= 2 ? cfg.moveT : cfg.moveT1) || matchPercent(score, cfg) < cfg.minMatch) continue
+      fits = true
+      if (shareOn(x, o.blocks, cfg).share <= 0.5 || (o.blocks.length === 1 && joins(o.blocks[0], o.thread, { thread: chat, blocks }, cfg))) continue
+      if (!best || score > best.score) best = { to: o.thread.id, score }
+    }
+    if (best && best.score - current >= cfg.moveD) return { start: x.start, end: x.end, to: best.to, why: "topic", score: best.score, current, match: matchPercent(best.score, cfg) }
+    if (!fits) return { start: x.start, end: x.end, to: null, why: "apart", score: 0, current }
+  }
+  return null
 }
 
 /**
@@ -356,6 +487,8 @@ function isMix(blocks: ScoredBlock[], cfg: OrganizeConfig): boolean {
  * and has more on it or, with one such block each, is the larger chat. Never into a mix, and of two chats one way.
  */
 function joins(b: ScoredBlock, from: Thread, to: { thread: Thread; blocks: ScoredBlock[] }, cfg: OrganizeConfig): boolean {
+  // `to` joins this one whole (2.6 (94)): not the other way too.
+  if (mergeFit(to, { thread: from, blocks: [b] }, cfg)) return false
   // Most of `to` is on `b`'s site (its pages, whatever each one is about): that site's chat (2.6 (91)).
   const onSite = b.host ? to.blocks.filter((x) => x.host === b.host).length : 0
   if (onSite * 2 > to.blocks.length) return onSite > 1 || larger(to.thread, from)
@@ -401,7 +534,7 @@ function movePlace(
   const sites = onHost.filter(({ o, on }) => on >= 2 && on * 2 >= o.blocks.length)
   if (!rest.length) {
     const home = onHost
-      .filter(({ o, on }) => on * 2 > o.blocks.length && (on >= 2 || o.thread.m.length > chat.m.length))
+      .filter(({ o, on }) => on * 2 > o.blocks.length && (on >= 2 || o.thread.m.length > chat.m.length) && !mergeFit(o, { thread: chat, blocks }, cfg))
       .sort((a, z) => z.on - a.on || (larger(a.o.thread, z.o.thread) ? -1 : 1))[0]
     const vs = home ? home.o.blocks.filter((x) => x.v).map((x) => ({ v: x.v! })) : []
     if (home && (!b.v || !vs.length || topMean(b.v, vs, 2) >= cfg.siteT)) return { to: home.o.thread.id, why: "site", score: 1, current: 0 }
@@ -688,7 +821,8 @@ export function orgStateFor(thread: Thread, move: MoveSuggestion | null, tags: A
     k: lastKey(thread.m),
     ...(move ? { mv: { s: move.start, e: move.end, to: move.to, why: move.why, ...(move.match !== undefined ? { mt: move.match } : {}) } } : {}),
     ...(tags.length ? { tg: tags.map((t) => [t.key, t.tag] as [string, string]) } : {}),
-    ...(nm ? { nm } : {})
+    ...(nm ? { nm } : {}),
+    ...(thread.org?.mx?.length ? { mx: thread.org.mx } : {})
   }
 }
 
@@ -696,7 +830,8 @@ export function orgStateFor(thread: Thread, move: MoveSuggestion | null, tags: A
 export function nameStateAfter(previous: OrgState["nm"], key: string, answer: { fits: boolean; title: string }, current: string): NonNullable<OrgState["nm"]> {
   const no = previous?.no ?? []
   const refused = no.some((x) => x.toLowerCase() === answer.title.toLowerCase())
-  const suggest = !answer.fits && answer.title && answer.title !== current && !refused
+  // The same name in other capitals is no new one (2.6 (94)).
+  const suggest = !answer.fits && answer.title && answer.title.toLowerCase() !== current.toLowerCase() && !refused
   return { k: key, ...(suggest ? { t: answer.title } : {}), ...(no.length ? { no } : {}) }
 }
 

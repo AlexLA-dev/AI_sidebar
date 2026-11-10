@@ -1502,6 +1502,15 @@
  "orgMatch": {
   "message": "corrisponde al {0}%"
  },
+ "orgMergeInto": {
+  "message": "Unisci a «{0}»"
+ },
+ "orgMergeA11y": {
+  "message": "Unisci questa chat a «{0}»"
+ },
+ "orgMerged": {
+  "message": "Unito a «{0}»"
+ },
  "recs_one": {
   "message": "{0} consiglio"
  },

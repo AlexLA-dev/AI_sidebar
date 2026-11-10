@@ -18,7 +18,8 @@ import { evalAccess, hasPro, resolveAccess } from "../shared/plan.mts"
  *   op "tags": message: string, candidates: [{tag, examples: string[]}] (up to 3 tags, 5 examples each)
  *     → { verdicts: [{tag, fits, confidence}] }
  *   op "name" (2.6): chat: string (src/shared/organize.ts `nameText`, up to 6,000 characters), current?: its name
- *     → { title, fits } (a name by its topic; whether the current one still fits, false without one)
+ *     → { title, fits } (a name by its topic; whether the current one stays, false without one: it still fits, or
+ *       (2.6 (94)) a second check comparing both names doesn't find the new one better)
  * Errors: {code} — PRO_ONLY (403), OFF (503, switched off), LIMIT_REACHED (429), UPSTREAM (502), BAD_REQUEST (400).
  */
 export default async (req: Request, context: Context): Promise<Response> => {
@@ -74,7 +75,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
     if (op === "name") {
       const named = await nameChat(naming!, req.signal)
       context.waitUntil(logEvent("organize_api", installId, {
-        op, fits: named.answer.fits, checked: naming!.current !== null, provider: named.provider, model: named.model,
+        op, fits: named.answer.fits, checked: naming!.current !== null, ...(named.compared ? { compared: named.compared } : {}), provider: named.provider, model: named.model,
         ...(named.fallback ? { fallback: named.fallback } : {}),
         prompt_tokens: named.tokensIn, completion_tokens: named.tokensOut, cost_usd: organizeCost("name", named.tokensIn, named.tokensOut, named.provider),
         ms: Date.now() - started, platform, version

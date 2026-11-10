@@ -1397,6 +1397,8 @@ struct ChatDetailView: View {
                     }
                 }
                 .task(id: "\(thread.id):\(thread.entries.count):\(asking == nil):\(organizeTick)") { await suggest(thread) }
+                // 2.6 (94): what iCloud has for it now (another device may have renamed it or settled a suggestion).
+                .task(id: thread.id) { await library.pull() }
                 // 2.6 (93): the chat's record came from another device while it's open: shown at once too.
                 .onChange(of: thread.org) { _ in showKept(thread) }
                 // The bar after a move goes on the next action: a question, a note, another suggestion, leaving the chat.
@@ -1609,8 +1611,16 @@ struct ChatDetailView: View {
     /// What the chat's own record suggests (worked out here or on another device, 2.6 (93)), at once: the run that
     /// follows has the last word.
     private func showKept(_ thread: ChatThread) {
-        guard asking == nil, organize.enabled(pro: store.isPro), let kept = organize.kept(thread, in: library.threads),
-              kept.chat == currentId, kept.length == self.thread?.entries.count, kept != suggestions else { return }
+        guard asking == nil, organize.enabled(pro: store.isPro) else { return }
+        guard let kept = organize.kept(thread, in: library.threads) else {
+            // Nothing open in the record (2.6 (94)): what was settled meanwhile goes from what's shown.
+            if let s = suggestions, s.chat == thread.id {
+                let left = organize.settled(s, thread)
+                if left != s { withAnimation(.easeOut(duration: 0.25)) { suggestions = left } }
+            }
+            return
+        }
+        guard kept.chat == currentId, kept.length == self.thread?.entries.count, kept != suggestions else { return }
         withAnimation(.easeOut(duration: 0.25)) { suggestions = kept }
     }
 
@@ -1717,7 +1727,7 @@ struct ChatDetailView: View {
         if !library.threads.contains(where: { $0.id == thread.id }) { shownId = undo.target }
         undoBarClock.start()
         undoBarHeld = false
-        withAnimation { undoBar = (String(localized: "Moved to “\(move.toName)”"), undo) }
+        withAnimation { undoBar = (move.why == .merge ? String(localized: "Merged into “\(move.toName)”") : String(localized: "Moved to “\(move.toName)”"), undo) }
         won()
     }
 
@@ -1761,6 +1771,13 @@ struct ChatDetailView: View {
 
     private func refuseMove(_ thread: ChatThread, _ move: OrganizeModel.Move) {
         undoBar = nil
+        // A merge turned down (2.6 (94)) is kept with the chat, not on its messages: they may still go elsewhere.
+        if move.why == .merge, let to = move.to {
+            library.refuseMerge(thread.id, into: to)
+            suggestions?.move = nil
+            ChatAI.reportOrganize("organize", ["action": "dismissed", "what": "move", "why": move.why.rawValue])
+            return
+        }
         library.editEntries(thread) { entries in
             for i in move.start...move.end where entries.indices.contains(i) {
                 var dismissed = entries[i]["dismissed"] as? [String: Any] ?? [:]

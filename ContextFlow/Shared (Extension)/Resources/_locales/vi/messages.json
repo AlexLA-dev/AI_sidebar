@@ -1502,6 +1502,15 @@
  "orgMatch": {
   "message": "khớp {0}%"
  },
+ "orgMergeInto": {
+  "message": "Gộp vào “{0}”"
+ },
+ "orgMergeA11y": {
+  "message": "Gộp cuộc trò chuyện này vào “{0}”"
+ },
+ "orgMerged": {
+  "message": "Đã gộp vào “{0}”"
+ },
  "recs_one": {
   "message": "{0} gợi ý"
  },

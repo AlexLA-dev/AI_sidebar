@@ -755,8 +755,8 @@ chrome.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendR
         sendResponse({ changed: false })
         return false
       }
-      // The app's changes and its "continue this chat" first, then iCloud.
-      mirrorThreads(true)
+      // The app's changes and its "continue this chat" first (not while the panel stays open), then iCloud.
+      mirrorThreads(!message.quiet)
         .catch(() => null)
         .then(async (open) => ({ open, changed: await syncThreads().catch(() => false) }))
         .then(({ open, changed }) => sendResponse({ changed: changed || Boolean(open), open }), () => sendResponse({ changed: false }))
