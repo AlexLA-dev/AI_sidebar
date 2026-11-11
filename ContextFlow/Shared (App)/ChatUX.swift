@@ -945,7 +945,7 @@ struct RemindSheet: View {
                         if let quote { QuoteBlock(text: quote, lines: 3) }
                         if words != nil {
                             // Never focused by itself: a time saves at once, as before.
-                            TextField("What to check, or what to remind you of (optional)", text: $own, axis: .vertical)
+                            TextField("Your note (optional)", text: $own, axis: .vertical)
                                 .lineLimit(1...4)
                         }
                     }

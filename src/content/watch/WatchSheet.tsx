@@ -14,7 +14,7 @@ import { conditionLine, shown } from "../../shared/watch/line"
 import type { WatchDraft, WatchHow } from "../../shared/watch/messages"
 import type { Watch } from "../../shared/watch/types"
 import { panelRoot } from "../root"
-import { NoteWords } from "../ux/MessageUx"
+import { NoteWords, SheetClose } from "../ux/MessageUx"
 import { Eye } from "./icons"
 import { ago } from "./list"
 import { grow, WatchSection } from "./WatchSection"
@@ -128,7 +128,7 @@ function WatchEdit({ watch, close, changed }: { watch: Watch; close(): void; cha
   return (
     <Sheet label={t("watchSection")} close={close}>
       <section class="cf-watch cf-watch-edit">
-        <div class="cf-sheet-title cf-watch-h"><Eye size={16} /> {w.title || w.host}</div>
+        <div class="cf-sheet-title cf-watch-h"><Eye size={16} /> <span class="cf-watch-h-name">{w.title || w.host}</span><SheetClose onClose={close} /></div>
         <p class="cf-watch-msg">{conditionLine(w)}</p>
         <p class="cf-watch-note">{status(w)}</p>
         <label class="cf-watch-l" for="cf-watch-edit">{t("watchWhen")}</label>

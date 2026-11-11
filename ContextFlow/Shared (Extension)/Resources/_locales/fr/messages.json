@@ -306,7 +306,7 @@
   "message": "Quand dois-je vous le rappeler ?"
  },
  "uxNoteWords": {
-  "message": "Quoi vérifier, ou de quoi vous rappeler (facultatif)"
+  "message": "Votre note (facultatif)"
  },
  "uxRemindAsked": {
   "message": "Vous avez demandé un rappel : {0}"
@@ -1608,7 +1608,7 @@
   "message": "Quand vous prévenir"
  },
  "watchNoteWords": {
-  "message": "Quoi vérifier quand ça change (facultatif)"
+  "message": "Votre note (facultatif)"
  },
  "watchCondPrice": {
   "message": "quand le prix change (actuellement {0})"

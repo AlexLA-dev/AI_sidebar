@@ -104,7 +104,7 @@ test("the eye's window has the person's own note, optional; a watch's window cha
   const eye = [...root.children].at(-1)
   const field = eye.querySelector("textarea.cf-note-words")
   assert.ok(field, "the note field")
-  assert.equal(field.getAttribute("placeholder"), "What to check when it changes (optional)")
+  assert.equal(field.getAttribute("placeholder"), "Your note (optional)")
   assert.notEqual(eye.ownerDocument.activeElement, field, "not focused by itself")
   assert.equal(eye.querySelector(".cf-primary").disabled, false, "Watch works without a note")
 
@@ -131,4 +131,24 @@ test("the eye's window has the person's own note, optional; a watch's window cha
   // The list shows it over the status.
   const [listed] = await sheet.watchSource.items()
   assert.equal(listed.text, "for the office")
+})
+
+// Build 98 (the owner: no ✕ or Cancel, «приходится угадывать как закрыть»): both watching windows close with a ✕.
+test("the eye's window and a watch's window close with the ✕ in their title", async () => {
+  sheet.openWatchSheet({ url: "https://shop.example/mug", title: "Mug · Shop", selection: "USD 40", how: "bubble" })
+  await new Promise((r) => setTimeout(r, 20))
+  const eye = [...root.children].at(-1)
+  const x = eye.querySelector(".cf-sheet-title .cf-sheet-close")
+  assert.ok(x, "the ✕ in the eye's window")
+  x.dispatchEvent(new (globalThis as any).window.Event("click"))
+  await new Promise((r) => setTimeout(r, 10))
+  assert.equal(eye.querySelector(".cf-watch"), null, "closed")
+  const row = { id: "watch:b2", kind: "watch", title: "Mug", url: "https://shop.example/mug", status: "", sortAt: 0 }
+  assert.equal(sheet.watchSource.open(row, () => undefined), true)
+  await new Promise((r) => setTimeout(r, 30))
+  const edit = [...root.children].at(-1)
+  assert.ok(edit.querySelector(".cf-watch-edit"), "a watch's window")
+  edit.querySelector(".cf-sheet-title .cf-sheet-close").dispatchEvent(new (globalThis as any).window.Event("click"))
+  await new Promise((r) => setTimeout(r, 10))
+  assert.equal(edit.querySelector(".cf-watch-edit"), null, "closed")
 })
