@@ -65,6 +65,8 @@ export interface SimilarInput {
   // The chip they tapped, weighed softly (a quick tap is a direction, not a demand), and their own words, which must
   // hold. An older panel sends only `condition`: all of it counts as their words (strict, as before).
   chip?: ConditionKind
+  // Build 98: several chips at once ("cheaper" and "in stock"): `chip` is the first, every one is checked.
+  chips?: ConditionKind[]
   words?: string
 }
 
@@ -100,7 +102,7 @@ export interface Plan {
   traits: string[]
   // `soft` (build 95): the condition came from a chip only — an item that misses it may still be listed when few close
   // ones meet it; from their own words it must hold.
-  condition: { kind: ConditionKind; maxPrice: number; currency: string; language: string; place: string; soft?: boolean }
+  condition: { kind: ConditionKind; maxPrice: number; currency: string; language: string; place: string; soft?: boolean; also?: ConditionKind[] }
   sourcePrice: number
   sourceCurrency: string
   queries: string[]
@@ -469,7 +471,9 @@ export function checkPlan(raw: unknown, input: SimilarInput): Plan {
       currency: str(c.currency, 3).toUpperCase(),
       language: str(c.language, 12),
       place: str(c.place, 120),
-      ...(input.chip && !fromWords ? { soft: true } : {})
+      ...(input.chip && !fromWords ? { soft: true } : {}),
+      // Build 98: the other chips they tapped, each checked as the first is.
+      ...(input.chip && (input.chips?.length ?? 0) > 1 ? { also: [...new Set(input.chips!.filter((k) => k !== kind))].slice(0, 3) } : {})
     },
     sourcePrice: num(r.source_price),
     sourceCurrency: str(r.source_currency, 3).toUpperCase(),
@@ -966,7 +970,19 @@ export class Claims {
 const sameCurrency = (a: string, b: string) => !a || !b || a === b
 
 /** Whether a checked page meets the person's condition, from what the page states (never from the model). */
+/**
+ * Whether a page meets their condition, from what it states. Several chips (build 98): each one checked; one it
+ * misses is a miss, all met is met, else not confirmed; the note says each.
+ */
 export function checkCondition(plan: Plan, facts: SourceFacts, page: CheckedPage): ConditionCheck {
+  const also = plan.condition.also
+  if (!also?.length) return checkOneCondition(plan, facts, page)
+  const each = [plan.condition.kind, ...also].map((kind) => ({ kind, r: checkOneCondition({ ...plan, condition: { ...plan.condition, kind, also: undefined } }, facts, page) }))
+  const met: Met = each.some((e) => e.r.met === "no") ? "no" : each.every((e) => e.r.met === "yes" || e.r.met === "n/a") ? "yes" : "unknown"
+  return { met, note: each.map((e) => `${e.kind}: ${e.r.met}${e.r.note ? ` (${e.r.note})` : ""}`).join("; ") }
+}
+
+function checkOneCondition(plan: Plan, facts: SourceFacts, page: CheckedPage): ConditionCheck {
   const kind = plan.condition.kind
   if (page.reason === "expired") return { met: "no", note: "the listing has ended" }
   if (kind === "none") return { met: "n/a", note: "" }
@@ -2237,7 +2253,7 @@ export function writeMessage(input: SimilarInput, plan: Plan, pages: CheckedCand
     // Build 95: a chip is weighed softly, their own words must hold (an older panel's condition counts as their words).
     input.chip || plan.words
       ? [
-          input.chip ? `Their condition: a quick choice they tapped — ${plan.condition.kind}${plan.condition.soft ? " (weighed softly)" : ""}` : `Their condition: ${plan.condition.kind === "other" ? "in their words" : plan.condition.kind}`,
+          input.chip ? `Their condition: ${plan.condition.also?.length ? "quick choices they tapped, each one checked" : "a quick choice they tapped"} — ${[plan.condition.kind, ...(plan.condition.also ?? [])].join(", ")}${plan.condition.soft ? " (weighed softly)" : ""}` : `Their condition: ${plan.condition.kind === "other" ? "in their words" : plan.condition.kind}`,
           plan.words ? `Their own words (a must): "${plan.words}"` : "Their own words: none (words_met is n/a)"
         ].join("\n")
       : `Their condition: ${input.condition.trim() ? `"${input.condition.trim()}" (${plan.condition.kind})` : "none"}\nTheir own words: none (words_met is n/a)`,
