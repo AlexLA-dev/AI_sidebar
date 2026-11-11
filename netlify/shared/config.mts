@@ -181,8 +181,9 @@ export const config = {
     siblings: (env("SIMILAR_SIBLINGS") ?? "on").trim() !== "off",
     streamItems: (env("SIMILAR_STREAM") ?? "on").trim() !== "off",
     // Near them: a shop abroad's delivery page is read before it's offered; one that ships only elsewhere is dropped.
-    // Off by default (SIMILAR_SHIP_CHECK=on: read) until `shipsTo` reads negation and inflected country names: the
-    // overfit review of 80a36aa8 found "We do not ship internationally" read as "ships there" and «по России» as "no".
+    // Off by default (SIMILAR_SHIP_CHECK=on: read). `shipsTo` now reads refusals and country names in any form, but on
+    // delivery pages it hadn't seen it still said "ships there" wrongly about one time in eight (shops' service tiers,
+    // boilerplate, navigation text): not reliable enough to tell a person a shop delivers.
     shipCheck: (env("SIMILAR_SHIP_CHECK") ?? "off").trim() === "on",
     // A second search call beside the plan's, from the start, for things of the same kind (one search), instead of a
     // later round when few were found (SIMILAR_ALT_SEARCH=off: the later round).

@@ -166,3 +166,33 @@ test("a price's sign in every shipped language's money, the shared ones by the s
   ]
   for (const [raw, url, currency] of cases) assert.equal(readPrice(raw, "", url)?.currency, currency, raw)
 })
+
+test("a delivery page in each of the 14 languages: \"we ship to X\" is yes, \"we don't ship to X\" is no", async () => {
+  process.env.SUPABASE_URL ??= "https://db.test"
+  process.env.SUPABASE_SERVICE_ROLE_KEY ??= "service-key"
+  process.env.ANTHROPIC_API_KEY ??= "test-key"
+  const { shipsTo } = await import("../netlify/shared/similar.mts")
+  // The country each sentence names, in the page's own language (Intl's name).
+  const name = (code: string, lang: string) => new Intl.DisplayNames([lang], { type: "region" }).of(code)!
+  const pages: Record<string, [string, (c: string) => string, (c: string) => string]> = {
+    en: ["CA", (c) => `We ship to ${c}.`, (c) => `We do not ship to ${c}.`],
+    ru: ["KZ", (c) => `Доставляем в ${c}.`, (c) => `Мы не доставляем в ${c}.`],
+    uk: ["PL", (c) => `Доставляємо в ${c}.`, (c) => `Ми не доставляємо в ${c}.`],
+    de: ["AT", (c) => `Wir liefern nach ${c}.`, (c) => `Wir liefern nicht nach ${c}.`],
+    fr: ["BE", (c) => `Nous livrons en ${c}.`, (c) => `Nous ne livrons pas en ${c}.`],
+    es: ["MX", (c) => `Enviamos a ${c}.`, (c) => `No enviamos a ${c}.`],
+    it: ["CH", (c) => `Spediamo in ${c}.`, (c) => `Non spediamo in ${c}.`],
+    pt: ["BR", (c) => `Enviamos para o ${c}.`, (c) => `Não enviamos para o ${c}.`],
+    ja: ["KR", (c) => `${c}への発送を承ります。`, (c) => `${c}への発送はしておりません。`],
+    ko: ["JP", (c) => `${c}로 배송합니다.`, (c) => `${c}로 배송하지 않습니다.`],
+    zh: ["SG", (c) => `我们配送到${c}。`, (c) => `暂不配送到${c}。`],
+    "zh-Hant": ["HK", (c) => `我們配送到${c}。`, (c) => `暫不配送到${c}。`],
+    vi: ["TH", (c) => `Chúng tôi giao hàng đến ${c}.`, (c) => `Chúng tôi không giao hàng đến ${c}.`],
+    ar: ["EG", (c) => `نشحن إلى ${c}.`, (c) => `لا نشحن إلى ${c}.`]
+  }
+  for (const [lang, [code, yes, no]] of Object.entries(pages)) {
+    const c = name(code, lang)
+    assert.equal(shipsTo(yes(c), code, [lang]), "yes", `${lang}: ${yes(c)}`)
+    assert.equal(shipsTo(no(c), code, [lang]), "no", `${lang}: ${no(c)}`)
+  }
+})
