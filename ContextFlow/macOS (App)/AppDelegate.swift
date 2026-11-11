@@ -34,6 +34,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     // (the bell by a selection) opens its page in Safari; its note stays in the chat.
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
         let info = response.notification.request.content.userInfo
+        // 2.6 (98): "ContextFlow … is here" opens the What's new tab.
+        if info["whatsNew"] is String {
+            await MainActor.run { DeepLinkRouter.shared.handle(WhatsNew.link) }
+            return
+        }
         // Find similar is done: its chat opens in the panel, on its page in Safari (SimilarAway), not another default
         // browser, which has no panel.
         if info["similar"] is String {
