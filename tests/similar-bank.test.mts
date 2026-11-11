@@ -33,7 +33,7 @@ test("delivery: no case that was right goes wrong, and wrong verdicts never grow
   })
   const broke = now.filter((c) => c.rules === c.truth && c.now !== c.truth)
   assert.deepEqual(broke.map((c) => `${c.id}: ${c.truth} → ${c.now}`), [])
-  for (const set of ["tuned", "held-out"]) {
+  for (const set of ["tuned", "held-out", "fresh"]) {
     const of = (list: typeof now, key: "rules" | "now", v: string) => list.filter((c) => c.set === set && c[key] === v && c.truth !== v).length
     assert.ok(of(now, "now", "yes") <= of(now, "rules", "yes"), `${set}: more wrong "ships there"`)
     assert.ok(of(now, "now", "no") <= of(now, "rules", "no"), `${set}: more wrong "doesn't ship"`)

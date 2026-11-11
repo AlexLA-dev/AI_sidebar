@@ -60,12 +60,12 @@ test("a quote must be on the page and show the verdict: the country, worldwide o
   assert.equal(checkShipQuote("ships", ww, ww, "KR", ["ja", "ko"]), "yes")
 })
 
-test("the error bank: the reader's recorded responses on 103 labelled delivery pages, re-checked: no right one goes wrong, no wrong verdict grows", (t) => {
+test("the error bank: the reader's recorded responses on 208 labelled delivery cases, re-checked: no right one goes wrong, no wrong verdict grows", (t) => {
   const { cases } = JSON.parse(readFileSync(new URL("./fixtures/similar-bank/delivery-model.json", import.meta.url), "utf8")) as { cases: Array<{ id: string; set: string; country: string; langs: string[]; excerpt: string; verdict: string; quote: string; truth: string; expect: string }> }
-  assert.equal(cases.length, 103)
+  assert.equal(cases.length, 208)
   const now = cases.map((c) => ({ ...c, now: checkShipQuote(c.verdict, c.quote, c.excerpt, c.country, c.langs) }))
   assert.deepEqual(now.filter((c) => c.expect === c.truth && c.now !== c.truth).map((c) => c.id), [])
-  for (const set of ["tuned", "held-out"]) {
+  for (const set of ["tuned", "held-out", "fresh"]) {
     const wrong = (key: "expect" | "now", v: string) => now.filter((c) => c.set === set && c[key] === v && c.truth !== v).length
     assert.ok(wrong("now", "yes") <= wrong("expect", "yes") && wrong("now", "no") <= wrong("expect", "no"), set)
     const n = now.filter((c) => c.set === set)
