@@ -181,10 +181,10 @@ export const config = {
     siblings: (env("SIMILAR_SIBLINGS") ?? "on").trim() !== "off",
     streamItems: (env("SIMILAR_STREAM") ?? "on").trim() !== "off",
     // Near them: a shop abroad's delivery page is read before it's offered; one that ships only elsewhere is dropped.
-    // Off by default (SIMILAR_SHIP_CHECK=on: read). `shipsTo` now reads refusals and country names in any form, but on
-    // delivery pages it hadn't seen it still said "ships there" wrongly about one time in eight (shops' service tiers,
-    // boilerplate, navigation text): not reliable enough to tell a person a shop delivers.
-    shipCheck: (env("SIMILAR_SHIP_CHECK") ?? "off").trim() === "on",
+    // On by default for 2.6, owner's call (2026-11-11: «Даже 1 ошибка из 8 для начала не плохо»); SIMILAR_SHIP_CHECK=off:
+    // not read. `shipsTo` reads refusals and country names in any form; on delivery pages it hadn't seen it still said
+    // "ships there" wrongly about one time in eight, so a model reading the page with a quote that must be on it is next.
+    shipCheck: (env("SIMILAR_SHIP_CHECK") ?? "on").trim() !== "off",
     // A second search call beside the plan's, from the start, for things of the same kind (one search), instead of a
     // later round when few were found (SIMILAR_ALT_SEARCH=off: the later round).
     altSearch: (env("SIMILAR_ALT_SEARCH") ?? "on").trim() !== "off",
