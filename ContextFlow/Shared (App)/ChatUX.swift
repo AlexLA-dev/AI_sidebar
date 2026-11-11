@@ -570,16 +570,19 @@ struct SelectableText: UIViewRepresentable {
 
     func sizeThatFits(_ proposal: ProposedViewSize, uiView: UITextView, context: Context) -> CGSize? {
         let width = proposal.width ?? 320
+        let scale = max(uiView.traitCollection.displayScale, 1)
+        if let known = context.coordinator.measured, known.width == width, known.scale == scale, known.text.isEqual(to: text) { return known.size }
         let size = uiView.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude))
         // TextKit gives the last line its line gap too; SwiftUI's Text (the answer before 2.5) ends at the font's
         // line height. Without the gap the answer keeps the same height and spacing.
         var height = size.height
         if text.length > 0, let font = text.attribute(.font, at: text.length - 1, effectiveRange: nil) as? UIFont,
-           let pitch = Self.lastLinePitch(uiView), pitch > font.lineHeight {
+           let pitch = Self.lastLinePitch(text, width: width), pitch > font.lineHeight {
             height -= pitch - font.lineHeight
         }
-        let scale = max(uiView.traitCollection.displayScale, 1)
-        return CGSize(width: width, height: ceil(height * scale) / scale)
+        let fitted = CGSize(width: width, height: ceil(height * scale) / scale)
+        context.coordinator.measured = (width, scale, text, fitted)
+        return fitted
     }
 
     /// How far up to draw the text so its lines sit where SwiftUI's Text put them: both put the first baseline at
@@ -590,22 +593,27 @@ struct SelectableText: UIViewRepresentable {
         return (ascender.rounded(.down) - ascender.rounded(.up)) / s
     }
 
-    /// The height TextKit gives the text's last line, with its line gap.
-    private static func lastLinePitch(_ view: UITextView) -> CGFloat? {
-        if let layout = view.textLayoutManager {
-            var pitch: CGFloat?
-            layout.enumerateTextLayoutFragments(from: layout.documentRange.endLocation, options: [.reverse, .ensuresLayout]) { fragment in
-                pitch = fragment.textLineFragments.last?.typographicBounds.height
-                return false
-            }
-            return pitch
-        }
-        let glyphs = view.layoutManager.numberOfGlyphs
-        return glyphs > 0 ? view.layoutManager.lineFragmentRect(forGlyphAt: glyphs - 1, effectiveRange: nil).height : nil
+    /// The height TextKit gives the text's last line, with its line gap, laid out on its own at `width`. 2.6 (98), the
+    /// owner: «прыгают сообщения в чате … расстояние между строками периодически меняется туда-сюда». It was read from
+    /// the view's own layout, which follows the view's height: at the height without the gap the last line no longer
+    /// fit, had no gap to take off, and the next pass gave the gap back, so every answer's blocks went a point or two
+    /// up and down for good, and the messages under them with them.
+    static func lastLinePitch(_ text: NSAttributedString, width: CGFloat) -> CGFloat? {
+        let storage = NSTextStorage(attributedString: text)
+        let layout = NSLayoutManager()
+        let container = NSTextContainer(size: CGSize(width: width, height: .greatestFiniteMagnitude))
+        container.lineFragmentPadding = 0
+        layout.addTextContainer(container)
+        storage.addLayoutManager(layout)
+        layout.ensureLayout(for: container)
+        let glyphs = layout.numberOfGlyphs
+        return glyphs > 0 ? layout.lineFragmentRect(forGlyphAt: glyphs - 1, effectiveRange: nil).height : nil
     }
 
     final class Coordinator: NSObject, UITextViewDelegate {
         var parent: SelectableText
+        /// The last size given, for this text at this width: the same answer every pass.
+        var measured: (width: CGFloat, scale: CGFloat, text: NSAttributedString, size: CGSize)?
         init(_ parent: SelectableText) { self.parent = parent }
 
         func textView(_ textView: UITextView, editMenuForTextIn range: NSRange, suggestedActions: [UIMenuElement]) -> UIMenu? {
