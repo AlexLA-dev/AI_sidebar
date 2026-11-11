@@ -180,9 +180,10 @@ export const config = {
     // Build 94: before saying an item lacks something, the brand's other models on its site (SIMILAR_SIBLINGS=off: none).
     siblings: (env("SIMILAR_SIBLINGS") ?? "on").trim() !== "off",
     streamItems: (env("SIMILAR_STREAM") ?? "on").trim() !== "off",
-    // Near them: a shop abroad's delivery page is read before it's offered; one that ships only elsewhere is dropped
-    // (SIMILAR_SHIP_CHECK=off: not read).
-    shipCheck: (env("SIMILAR_SHIP_CHECK") ?? "on").trim() !== "off",
+    // Near them: a shop abroad's delivery page is read before it's offered; one that ships only elsewhere is dropped.
+    // Off by default (SIMILAR_SHIP_CHECK=on: read) until `shipsTo` reads negation and inflected country names: the
+    // overfit review of 80a36aa8 found "We do not ship internationally" read as "ships there" and «по России» as "no".
+    shipCheck: (env("SIMILAR_SHIP_CHECK") ?? "off").trim() === "on",
     // A second search call beside the plan's, from the start, for things of the same kind (one search), instead of a
     // later round when few were found (SIMILAR_ALT_SEARCH=off: the later round).
     altSearch: (env("SIMILAR_ALT_SEARCH") ?? "on").trim() !== "off",
