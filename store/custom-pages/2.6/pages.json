@@ -1,0 +1,92 @@
+{
+  "cpp-shop": {
+    "name": "2.6 Shopping: find similar, price drops",
+    "audience": "People choosing something to buy: they compare options and wait for a better price.",
+    "promo": {
+      "en-US": "Looking at something to buy? Find similar shows cheaper or newer options with every link checked, and ContextFlow tells you when a price drops.",
+      "ru": "Присматриваете покупку? «Найти похожее» покажет варианты дешевле или новее и проверит каждую ссылку, а ContextFlow сообщит, когда цена упадёт."
+    },
+    "keywords": {
+      "en-US": [
+        "shopping",
+        "price",
+        "tracker",
+        "stock"
+      ],
+      "ru": [
+        "покупок",
+        "трекер",
+        "цен"
+      ]
+    }
+  },
+  "cpp-study": {
+    "name": "2.6 Study: ask your chats, keep them in order",
+    "audience": "Students and researchers who read a lot and come back to it later.",
+    "promo": {
+      "en-US": "Ask all your chats at once, find one by what it was about, and let suggestions keep answers in the right chat. Ask about PDFs and videos too.",
+      "ru": "Спросите сразу все свои чаты, найдите нужный по смыслу, а подсказки разложат ответы по чатам. Можно спрашивать и про PDF и видео."
+    },
+    "keywords": {
+      "en-US": [
+        "pdf",
+        "notes",
+        "article",
+        "tldr"
+      ],
+      "ru": [
+        "статьи",
+        "pdf"
+      ]
+    }
+  },
+  "cpp-work": {
+    "name": "2.6 Work: templates, copies, reminders",
+    "audience": "Busy people who answer the same messages and fill the same forms every day.",
+    "promo": {
+      "en-US": "Templates fill in names and dates from the page, your last copies wait by every field, and a reminder keeps a note in your own words.",
+      "ru": "Шаблоны сами впишут имя и дату со страницы, последние копии ждут у каждого поля, а напоминание сохранит заметку вашими словами."
+    },
+    "keywords": {
+      "en-US": [
+        "clipboard"
+      ],
+      "ru": [
+        "буфер",
+        "обмена"
+      ]
+    }
+  },
+  "cpp-listen": {
+    "name": "2.6 Listen: pages read aloud",
+    "audience": "Commuters and people who would rather listen than read a long page.",
+    "promo": {
+      "en-US": "Too long to read? Listen to any page or answer in a natural voice. On iPhone it keeps playing with the screen locked.",
+      "ru": "Некогда читать? Слушайте любую страницу или ответ естественным голосом. На iPhone звук не прервётся и при заблокированном экране."
+    },
+    "keywords": {
+      "en-US": [
+        "listen"
+      ],
+      "ru": [
+        "озвучка"
+      ]
+    }
+  },
+  "cpp-lang": {
+    "name": "2.6 Other languages: summarize, translate, listen",
+    "audience": "People who read pages in a language that isn't their own.",
+    "promo": {
+      "en-US": "Reading in another language? Get the page summarized in yours, translate just the part you need, or have it read aloud.",
+      "ru": "Читаете на другом языке? ContextFlow перескажет страницу по-русски, переведёт только нужный кусок или прочитает вслух."
+    },
+    "keywords": {
+      "en-US": [
+        "translate"
+      ],
+      "ru": [
+        "перевод"
+      ]
+    }
+  }
+}
