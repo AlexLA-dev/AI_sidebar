@@ -244,7 +244,7 @@ test("the panel's Other… ends with Rate in App Store, and a tap on it rates", 
     ui.show(el, () => { rated++ })
     // Folded under Other… until it's tapped.
     assert.equal(el.querySelector(".cf-page-rate"), null)
-    el.querySelector(".cf-page-other").dispatchEvent(new dom.window.Event("click", { bubbles: true }))
+    el.querySelector(".cf-page-other")!.dispatchEvent(new dom.window.Event("click", { bubbles: true }))
     await new Promise((resolve) => setTimeout(resolve, 0))
     const items = [...el.querySelectorAll(".cf-page-more-group [role=menuitem]")]
     assert.equal(items.at(-1)?.className, "cf-page-rate", "the last item")
@@ -254,7 +254,7 @@ test("the panel's Other… ends with Rate in App Store, and a tap on it rates", 
     // Without a way to rate (not Safari): no item.
     const plain = dom.document.createElement("div")
     ui.show(plain, undefined)
-    plain.querySelector(".cf-page-other").dispatchEvent(new dom.window.Event("click", { bubbles: true }))
+    plain.querySelector(".cf-page-other")!.dispatchEvent(new dom.window.Event("click", { bubbles: true }))
     await new Promise((resolve) => setTimeout(resolve, 0))
     assert.equal(plain.querySelector(".cf-page-rate"), null)
     // Gone before the page is (its listeners are set a moment after it opens).
