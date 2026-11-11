@@ -180,12 +180,12 @@ export const config = {
     // Build 94: before saying an item lacks something, the brand's other models on its site (SIMILAR_SIBLINGS=off: none).
     siblings: (env("SIMILAR_SIBLINGS") ?? "on").trim() !== "off",
     streamItems: (env("SIMILAR_STREAM") ?? "on").trim() !== "off",
-    // A page with no price for machines: the price its text shows after the item's name (SIMILAR_TEXT_PRICE).
-    textPrice: (env("SIMILAR_TEXT_PRICE") ?? "off").trim() === "on",
-    // Near them: a shop abroad is offered once its delivery page names their country (SIMILAR_SHIP_CHECK).
-    shipCheck: (env("SIMILAR_SHIP_CHECK") ?? "off").trim() === "on",
-    // A second search call for alternatives beside the plan's, from the start, instead of a later round (SIMILAR_ALT_SEARCH).
-    altSearch: (env("SIMILAR_ALT_SEARCH") ?? "off").trim() === "on",
+    // Near them: a shop abroad's delivery page is read before it's offered; one that ships only elsewhere is dropped
+    // (SIMILAR_SHIP_CHECK=off: not read).
+    shipCheck: (env("SIMILAR_SHIP_CHECK") ?? "on").trim() !== "off",
+    // A second search call beside the plan's, from the start, for things of the same kind (one search), instead of a
+    // later round when few were found (SIMILAR_ALT_SEARCH=off: the later round).
+    altSearch: (env("SIMILAR_ALT_SEARCH") ?? "on").trim() !== "off",
     budgetMs: int("SIMILAR_BUDGET_MS", 52_000),
     // Pages a site won't open to servers may fill a list that has fewer than 3 checked items (marked "not opened").
     allowUnchecked: (env("SIMILAR_ALLOW_UNCHECKED") ?? "on").trim() !== "off",

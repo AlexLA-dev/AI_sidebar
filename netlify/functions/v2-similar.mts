@@ -232,7 +232,6 @@ function overridesOf(raw: unknown): EngineOverrides {
     ...(o.stream === "off" ? { stream: false } : o.stream === "on" ? { stream: true } : {}),
     ...(o.reviews === "off" ? { reviews: false } : o.reviews === "on" ? { reviews: true } : {}),
     ...(o.siblings === "off" ? { siblings: false } : o.siblings === "on" ? { siblings: true } : {}),
-    ...(o.textPrice === "off" ? { textPrice: false } : o.textPrice === "on" ? { textPrice: true } : {}),
     ...(o.shipCheck === "off" ? { shipCheck: false } : o.shipCheck === "on" ? { shipCheck: true } : {}),
     ...(o.altSearch === "off" ? { altSearch: false } : o.altSearch === "on" ? { altSearch: true } : {})
   }

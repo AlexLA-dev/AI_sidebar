@@ -23,7 +23,7 @@ import { checkPage, languageCheck, nameScore, nameTokens, normalizeUrl, type Che
 import { plansPricing, pricingLine, type AppPricing, type PlanSeen } from "./apppricing.mts"
 import { nextPages, quoteFacts, quoteOn } from "./dig.mts"
 import { convert, currencyOf, eurRates, roughAmount, type Rates } from "./money.mts"
-import { ALTERNATIVES, EUROPE, HOW_MANY, REVIEW_PAGE, SHIPPING, WORLDWIDE, pattern } from "./lexicon.mts"
+import { EUROPE, HOW_MANY, REVIEW_PAGE, SHIPPING, WORLDWIDE, pattern } from "./lexicon.mts"
 import type { Met, SimilarItem } from "../../src/shared/similar.ts"
 
 export const MAX_PAGE_TEXT = 5_000
@@ -108,8 +108,6 @@ export interface Plan {
   // Build 95: their own words (a must for every item), and their money with the day's rates.
   words?: string
   money?: Money
-  // This run's switches (config or an evaluation's overrides): a price read from a page's text counts.
-  textPrice?: boolean
 }
 
 /** Their currency and the day's rates (null: the ECB couldn't be reached; prices are then compared as they are). */
@@ -207,8 +205,7 @@ export interface EngineOverrides {
   reviews?: boolean
   // Build 94: the brand's other models on or off.
   siblings?: boolean
-  // The price a page's text shows; the delivery page of a shop abroad; the alternatives search beside the plan's.
-  textPrice?: boolean
+  // The delivery page of a shop abroad; the alternatives search beside the plan's.
   shipCheck?: boolean
   altSearch?: boolean
 }
@@ -767,16 +764,13 @@ export function rescueQueries(input: SimilarInput, plan: Plan): string[] {
 const ALT_GRACE_MS = 3_000
 
 /**
- * The alternatives search run beside the plan's from the start (one call, no follow-ups): "<subject> alternatives" in
- * the plan's language, and what makes one (its first traits); near them where the search can't be located, with the
- * country named, as the plan's are.
+ * The alternatives search run beside the plan's from the start (one call, one search, no follow-ups): what makes one
+ * (the subject's first traits), which finds things of the same kind rather than pages about the subject; near them
+ * where the search can't be located, with the country named, as the plan's are.
  */
 export function altQueries(input: SimilarInput, plan: Plan): string[] {
-  const lang = (plan.language || input.locale || "en").split(/[-_]/)[0]
-  const word = ALTERNATIVES[/^zh[-_](hant|tw|hk|mo)/i.test(plan.language || "") ? "zh-Hant" : lang] ?? ALTERNATIVES.en
-  const kind = plan.traits.slice(0, 2).join(" ") || plan.subject
-  const queries = [...new Set([`${plan.subject} ${word}`, kind])].map((q) => q.slice(0, 200))
-  return localQueries(input, { ...plan, queries })
+  const kind = (plan.traits.slice(0, 2).join(" ") || plan.subject).slice(0, 200)
+  return localQueries(input, { ...plan, queries: [kind] })
 }
 
 function contextLines(input: SimilarInput, plan: Plan): string[] {
@@ -967,10 +961,8 @@ export async function checkOne(c: Candidate, plan: Plan, facts: SourceFacts, lan
 // category page's first product's price says nothing of the item its title names).
 const PAGE_OWN: ConditionKind[] = ["cheaper", "in_stock", "free"]
 
-export function verdictOf(c: Candidate, read: CheckedPage, plan: Plan, facts: SourceFacts): CheckedCandidate {
-  const score = Math.max(nameScore(c.name, read), nameScore(c.resultTitle, read) * 0.9)
-  // No price for machines: the one its text shows after its heading, when the page is clearly the item.
-  const page = plan.textPrice && !read.price && read.textPrice && c.kind === "item" && score >= 0.6 ? { ...read, price: read.textPrice, priceFrom: "text" as const } : read
+function verdictOf(c: Candidate, page: CheckedPage, plan: Plan, facts: SourceFacts): CheckedCandidate {
+  const score = Math.max(nameScore(c.name, page), nameScore(c.resultTitle, page) * 0.9)
   const listed = c.kind === "list" && PAGE_OWN.includes(plan.condition.kind)
   const condition = page.status !== "ok" ? { met: "unknown" as Met, note: "" } : listed ? { met: "unknown" as Met, note: "a list page: its prices are other items'" } : checkCondition(plan, facts, page)
   let why = ""
@@ -1980,7 +1972,7 @@ export class ItemFinisher {
       ...(c.proof && normalizeUrl(c.proof.url) !== normalizeUrl(url) ? { proof: c.proof.url } : {}),
       ...(page.published ?? page.modified ? { date: (page.published ?? page.modified)!.slice(0, 10) } : {}),
       // "Watch price" in the panel: where page watch will read this page's price.
-      ...(page.priceRaw && (page.priceFrom === "ld" || page.priceFrom === "meta") && !unchecked && c.kind === "item" ? { watch: { source: page.priceFrom === "ld" ? "ld-price" as const : "meta-price" as const, value: page.priceRaw.slice(0, 60) } } : {}),
+      ...(page.priceRaw && page.priceFrom && !unchecked && c.kind === "item" ? { watch: { source: page.priceFrom === "ld" ? "ld-price" as const : "meta-price" as const, value: page.priceRaw.slice(0, 60) } } : {}),
       ...((page.pricing ?? c.page.pricing) && !unchecked ? { pricing: itemPricing((page.pricing ?? c.page.pricing)!) } : {}),
       // Build 94: on every item; a page that couldn't be opened is judged from its search result only, and says so.
       ...(same ? { same: true as const, similarity: 100 } : traits ? { similarity: Math.round((shares.length / traits) * 100), ...(unchecked ? { estimated: true as const } : {}) } : {}),
@@ -2203,7 +2195,6 @@ export async function* runEngineA(input: SimilarInput, stats: EngineStats, opts:
   // Near them where the search can't be located there: the country's name in the searches (build 94).
   await countriesP
   plan.queries = localQueries(input, plan)
-  plan.textPrice = over.textPrice ?? config.similar.textPrice
   // Their money: their country's, else the page's own.
   plan.money = { currency: currencyOf(input.country) || input.facts.price?.currency || plan.sourceCurrency, rates: await ratesP }
   // A selection is the subject: from here on the page's own facts don't stand for it (subjectInput).
