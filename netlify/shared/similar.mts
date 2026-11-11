@@ -229,6 +229,10 @@ export interface EngineStats {
   firstItemMs?: number
   followUps?: string[]
   dropped?: Array<{ name: string; why: string }>
+  // Debug (eval only, 2.6): what the writer wrote, item by item, and the pages it saw (their facts and the start of
+  // their text), so an answer that went wrong can be replayed through the answer's checks offline (the error bank).
+  written?: unknown[]
+  seen?: Array<{ url: string; finalUrl: string; name: string; kind: string; why: string; title: string; pageName: string; text: string; price?: PagePrice; stock?: string; lang: string; condition: ConditionCheck; delivery?: CheckedCandidate["delivery"] }>
   // Build 91: one or two pages deeper — items looked at, pages opened, model readings, conditions settled.
   dig?: { items: number; opened: number; read: number; settled: number }
   // Build 93: reviews — items looked at, review searches, review pages kept, summaries borne out.
@@ -861,10 +865,12 @@ export function interleave<T>(lists: T[][]): T[] {
 
 // Marketplaces, where listings are many sellers' copies (their pages can't be held to a brand's): the global ones and
 // each shipped language's market's own (Yandex Market, Ozon, Wildberries, Rozetka, Prom, Kaspi, Coupang, Gmarket,
-// 11st, Mercari, Yahoo Shopping, Rakuten, Tiki, Sendo, Shopee, Pinduoduo, Noon…). An answer shows one listing of each,
+// 11st, Mercari, Yahoo Shopping, Rakuten, Tiki, Sendo, Shopee, Pinduoduo, Noon…), and classifieds, where people sell
+// to each other (Gumtree, Leboncoin, Kleinanzeigen, Wallapop, Subito, Vinted, Jimoty, Daangn, Chotot, Haraj, Dubizzle,
+// Ruten, Carousell, Avito, OLX, Craigslist…). An answer shows one listing of each,
 // the one that fits best: a few are opened (MARKET_OPEN), the pages keep the two best for the writer (bestListings),
 // and the writer's verdict picks the one shown (ItemFinisher).
-const MARKETPLACE = /(?:^|\.)(amazon|ebay|aliexpress|temu|walmart|etsy|rakuten|mercadolibre|mercadolivre|allegro|flipkart|coupang|gmarket|11st|auction|ssg|lotteon|taobao|tmall|jd|pinduoduo|yangkeduo|shopee|lazada|tokopedia|bukalapak|blibli|tiki|sendo|ozon|wildberries|avito|market\.yandex|rozetka|prom|kaspi|mercari|shopping\.yahoo|paypaymall|qoo10|noon|jumia|takealot|trendyol|hepsiburada|bol|cdiscount|kaufland|olx|craigslist|wish|shein)\.[a-z.]+$/i
+const MARKETPLACE = /(?:^|\.)(amazon|ebay|aliexpress|temu|walmart|etsy|rakuten|mercadolibre|mercadolivre|allegro|flipkart|coupang|gmarket|11st|auction|ssg|lotteon|taobao|tmall|jd|pinduoduo|yangkeduo|shopee|lazada|tokopedia|bukalapak|blibli|tiki|sendo|ozon|wildberries|avito|market\.yandex|rozetka|prom|kaspi|mercari|shopping\.yahoo|paypaymall|qoo10|noon|jumia|takealot|trendyol|hepsiburada|bol|cdiscount|kaufland|olx|craigslist|wish|shein|gumtree|kijiji|leboncoin|vinted|kleinanzeigen|willhaben|wallapop|milanuncios|subito|marktplaats|jimoty|jmty|daangn|bunjang|chotot|haraj|dubizzle|opensooq|ruten|carousell|goofish|youla)\.[a-z.]+$/i
 
 /** Which marketplace a host is ("amazon" for amazon.de and amazon.co.jp alike); "" for a shop of its own. */
 export function marketplaceOf(host: string): string {
@@ -1740,6 +1746,20 @@ const SIBLINGS_ADDED = 2
 // Category-neutral: shop words and colours (in the app's European languages; names in other scripts rarely carry them).
 const GENERIC = new Set(foldedWords(SHOP_WORDS, COLOURS).flatMap((w) => nameTokens(w)))
 
+/**
+ * Whether a name could be the very item they're on: it shares a word of the subject's that isn't the kind of thing
+ * (the planner's brand-free search for the kind, else its traits) or a shop's word: its brand, model or name. A word
+ * the subject writes with a capital or a digit stays a name's word even when a trait has it ("Havaianas", "60511").
+ * The writer's "the same item" is taken only then (2.6, the error bank: other brands' shoes and serums were dropped as
+ * "the item itself").
+ */
+export function backsSame(name: string, plan: Plan): boolean {
+  const kind = new Set(plan.kindSearch ? nameTokens(plan.kindSearch) : plan.traits.flatMap((t) => nameTokens(t)))
+  const named = new Set((plan.subject.match(/[\p{L}\p{N}][\p{L}\p{N}'’-]*/gu) ?? []).filter((w) => /^\p{Lu}|\d/u.test(w)).flatMap((w) => nameTokens(w)))
+  const own = new Set(nameTokens(plan.subject).filter((w) => !GENERIC.has(w) && (w.length >= 2 || /\d/.test(w)) && (!kind.has(w) || named.has(w))))
+  return nameTokens(name).some((w) => own.has(w))
+}
+
 const hostOf = (url: string) => { try { return new URL(url).hostname.replace(/^www\./, "") } catch { return "" } }
 
 /** A price in their money at the day's rate (the condition's, else the item's, else theirs); 0 when it can't be told. */
@@ -2125,7 +2145,7 @@ export class ItemFinisher {
     const host = (() => { try { return new URL(url).hostname.replace(/^www\./, "") } catch { return "" } })()
     // The very item they're on, at another shop, when they asked for it cheaper or in stock and that shop's page shows
     // it (the same item for less is an answer to "cheaper"): at most two shops.
-    const sameAsked = o.same === true || Boolean(nameKeyOf(name) && nameKeyOf(name) === this.selfName)
+    const sameAsked = (o.same === true && (backsSame(name, this.plan) || backsSame(c.page.name || c.page.title || c.name, this.plan))) || Boolean(nameKeyOf(name) && nameKeyOf(name) === this.selfName)
     const kind = this.plan.condition.kind
     // Their page shows no price to compare with (apple.com's "From $xx"): one shop's price for the same item still helps,
     // not confirmed as cheaper.
@@ -2655,7 +2675,9 @@ export async function* runEngineA(input: SimilarInput, stats: EngineStats, opts:
     const finisher = new ItemFinisher(usable, plan, input.page, input.facts.price?.amount ?? 0)
     const gen = writeStream(input, plan, usable, Math.max(6_000, left() - 1_000), opts.signal, over)
     let next = await gen.next()
+    const written: unknown[] = []
     while (!next.done) {
+      if (opts.debug) written.push(next.value)
       const item = finisher.add(next.value)
       if (item) {
         stats.firstItemMs ??= Date.now() - started
@@ -2669,6 +2691,7 @@ export async function* runEngineA(input: SimilarInput, stats: EngineStats, opts:
       yield { type: "item", engine: "a", index: finisher.items.indexOf(item), item }
     }
     stats.spend.write = next.value.spend
+    if (opts.debug) stats.written = written
     const r = (next.value.raw ?? {}) as Record<string, unknown>
     const intro = stripUrls(str(r.intro, 300))
     result = { intro: saysCount(intro) ? "" : intro, items: finisher.items, note: stripUrls(str(r.note, 300)) }
@@ -2678,8 +2701,16 @@ export async function* runEngineA(input: SimilarInput, stats: EngineStats, opts:
     stats.spend.write = written.spend
     ;({ result, dropped } = finishItems(written.raw, usable, plan, input.page))
     stats.firstItemMs = Date.now() - started
+    if (opts.debug) stats.written = Array.isArray((written.raw as { items?: unknown[] } | null)?.items) ? (written.raw as { items: unknown[] }).items : []
   }
   mark("write", t)
+  if (opts.debug) {
+    stats.seen = usable.map((c) => ({
+      url: c.url, finalUrl: c.page.finalUrl, name: c.name, kind: c.kind, why: c.why, title: c.page.title || c.resultTitle, pageName: c.page.name,
+      text: c.page.text.slice(0, 1_500), ...(c.page.price ? { price: c.page.price } : {}), ...(c.page.stock ? { stock: c.page.stock } : {}), lang: c.page.lang,
+      condition: c.condition, ...(c.delivery ? { delivery: c.delivery } : {})
+    }))
+  }
   if (opts.debug) stats.dropped = [...(stats.dropped ?? []), ...dropped]
   await settleSpend()
   stats.usd = Math.round(Object.values(stats.spend).reduce((n, s) => n + s.usd, 0) * 1e6) / 1e6

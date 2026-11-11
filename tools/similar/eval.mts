@@ -17,6 +17,7 @@
 //              list on its own, without links or engine names, with evidence from the item's linked page
 //   report     the metrics side by side, per category, five examples; report.md and metrics.json
 //   compare    engine A before and after a change on the same pages (--before=main --after=fast), paired
+//   bank       the live error subset's rules on a run of it (snapshot --bank, run --bank --engines=a, bank --tag=…)
 // Spend (API calls of the engines and the judge) is kept in spend.json; `run` and `judge` stop at --cap (USD, 9.5).
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs"
 import { homedir } from "node:os"
@@ -24,6 +25,7 @@ import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 
 import { Readability } from "@mozilla/readability"
+import { liveFailures, type LiveCheck, type LiveItem } from "./bankchecks.mts"
 import { parseHTML } from "linkedom"
 
 import { ARCHIVE_HOSTS, BOT_WALL, describePage, languageCheck, nameScore, nameTokens, normalizeUrl, safeUrl, tagText, type CheckedPage } from "../../netlify/shared/pagecheck.mts"
@@ -70,7 +72,9 @@ const writeJson = (path: string, data: unknown) => {
   writeFileSync(path, JSON.stringify(data, null, 2))
 }
 const tests: Test[] = readJson(join(here, "testset.json"), [])
-const only = flag("only")?.split(",")
+// --bank: the live error subset only (tests/fixtures/similar-bank/live.json).
+const bankCases: Array<{ id: string; checks: LiveCheck[]; why: string }> = has("bank") || step === "bank" ? readJson(join(here, "../../tests/fixtures/similar-bank/live.json"), { cases: [] }).cases : []
+const only = flag("only")?.split(",") ?? (has("bank") ? bankCases.map((c) => c.id) : undefined)
 const chosen = tests.filter((t) => !only || only.includes(t.id))
 const snapPath = join(WORK, "snapshots.json")
 const snapshots: Record<string, Snapshot> = readJson(snapPath, {})
@@ -796,7 +800,30 @@ function spendStep() {
   console.log(`total          $${s.total.toFixed(3)}`)
 }
 
-const steps: Record<string, () => Promise<void> | void> = { snapshot, run, check, judge, report, compare, spend: spendStep }
+// ------------------------------------------------------------ bank: the live error subset's rules
+
+function bank() {
+  let failed = 0
+  let usd = 0
+  for (const c of bankCases) {
+    const path = runPath(TAG, "a", c.id)
+    if (!existsSync(path)) {
+      console.log(`${c.id.padEnd(14)} not run (run --bank --engines=a --tag=${TAG})`)
+      failed++
+      continue
+    }
+    const { call } = readJson(path, { call: null as unknown as SimilarCall })
+    usd += callSpend(call)
+    const result = call.events.find((e) => e.type === "result") as { items?: LiveItem[] } | undefined
+    const fails = call.ok ? liveFailures(result?.items ?? [], c.checks) : [`answer: ${call.error ?? "failed"}`]
+    if (fails.length) failed++
+    console.log(`${c.id.padEnd(14)} ${fails.length ? "FAIL" : "ok  "} ${fails.join("; ").slice(0, 300)}`)
+  }
+  console.log(`${bankCases.length - failed} of ${bankCases.length} keep their rules; spend $${usd.toFixed(3)}`)
+  if (failed) process.exitCode = 1
+}
+
+const steps: Record<string, () => Promise<void> | void> = { snapshot, run, check, judge, report, compare, spend: spendStep, bank }
 if (!steps[step]) {
   console.log("steps: snapshot | run | check | judge | report")
   process.exit(1)

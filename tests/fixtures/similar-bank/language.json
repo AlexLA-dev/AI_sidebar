@@ -1,0 +1,705 @@
+{
+ "about": "The eval set's pages (tools/similar/testset.json) as our server read them: the html lang, title and the first 1,500 characters of text (the verdicts are the same as on 3,000). truth: the page's own language, checked by hand against its text (an English Goodreads page with Arabic reviews is English; a German shop page with English reviews is German). The language check must say yes for that language and no for the others; a Traditional-Chinese page also passes for Chinese (zh). known: what the check says today where it misses (kept so a change shows).",
+ "pages": [
+  {
+   "id": "a-duolingo",
+   "url": "https://apps.apple.com/us/app/duolingo-learn-languages/id570060128",
+   "lang": "en-US",
+   "title": "‎Duolingo: Learn Languages App - App Store",
+   "text": "Spanish, French, Chess & Math Free · In‑App Purchases Learn a new language, chess & more with the world's most downloaded education app! Duolingo is the fun, free app for learning 40+ languages through quick, bite-sized lessons. Practice speaking, reading, listening & writing to build your vocabulary & grammar skills. Designed by learning experts & loved by hundreds of millions worldwide, our lessons make learning effective & fun and help you prepare for real conversations in Spanish, French, Japanese, Korean, Chinese, Italian, German, English and more. And now, you can learn CHESS on Duolingo! Whether you're a total beginner or looking to level up your game, you'll love learning chess the Duolingo way. Play matches and fun chess lessons for all levels, no matter the language - chess, ajedrez, xadrez, schach, Шахматы, الشطرنج. • Chess: Learn the moves, level up your game & play matches in our Chess course. Learn the basics, solve fun chess puzzles & improve your strategy with guided lessons. Whether you're new to chess or already play, our course is designed to help you have fun and build real skills. Checkmate! • Math: Forget lectures and math worksheets! Built by learning experts, our Math course makes math feel like a game. Boost learning and fight the summer slide with standards-aligned math lessons for elementary school, middle school, and high school students. • Music: Learn how to read music & play songs in our Music course, no instrument needed! Using an on-screen key",
+   "truth": "en"
+  },
+  {
+   "id": "a-figma",
+   "url": "https://www.figma.com/",
+   "lang": "en",
+   "title": "Figma: The collaborative canvas for design, code, and AI",
+   "text": "The full-stack creative canvasMove fast in the right direction on an AI-native canvas. Teammates and AI agents work in the same space with shared context. Generate new ideas, refine, and align—together.Your built-in creative collaboratorAsk Figma’s agent to add motion to designs, document your design systems, implement feedback, and more.One workspace for your entire product development process. Made so your whole team can go from WIP to ship, together.Design anything you can imagine Turn your ideas into apps, websites, and products.Build with intention Dev tools that take you all the way to production.Powerfully expressive. Incredibly precise. Every technical tool you need to dial in the details.Start with design context. Build with consistency. Your context, codebase, and agents stay connected so what you design is what gets shipped.The products you love are designed in Figma Everyone is able to influence, inspire, and give input without ever leaving the design file. That creates a really transparent, open, and honest process throughout the whole project.Francisco SeizSenior Design Director, Code and Theory95%95% of the Fortune 500 uses FigmaBased on data from March 2025.Explore what you can do in Figma. Browse resources made by the community.Slide 1 of 10",
+   "truth": "en"
+  },
+  {
+   "id": "a-notion",
+   "url": "https://apps.apple.com/us/app/notion-notes-tasks-ai/id1232780281",
+   "lang": "en-US",
+   "title": "‎Notion: Notes, Tasks, AI App - App Store",
+   "text": "Plan, organize, track projects Free · In‑App Purchases Notion is an AI-powered all-in-one workspace that helps individuals and teams write notes, manage tasks, organize projects, and collaborate in one place. Whether you’re tracking personal to-do lists, writing and organizing class notes, or managing projects with a team, Notion helps users plan work, stay organized, and achieve goals. \"AI's everything app\" — Forbes Notion is a productivity app where you can write, plan, and organize your notes, projects, tasks and more. Ask Notion AI about project updates, upcoming tasks, and suggestions for a more streamlined workflow. Simplify writing notes, project and task management, and collaboration. Whether for personal, student or professional use, Notion scales to meet your individual needs with customization tools for everyone. NEW features: • AI Meeting Notes: Perfect meeting memory. Your notetaker catches every detail and delivers actionable summaries, right where you work. • Maps View: Turn databases into interactive maps. Use the new Place property to pin restaurants, trips, offices, clients, and more. FREE FOR PERSONAL USE Individuals manage day-to-day tasks, notes, and personal organization. • Create as many notes, docs, and content as you want. • Use one of thousands of templates to get started. FREE TO TRY WITH YOUR TEAM Teams run on Notion every day, from next-generation startups to established enterprises. • Import Google Docs, PDFs, and other content types easily to ge",
+   "truth": "en"
+  },
+  {
+   "id": "a-raycast",
+   "url": "https://www.raycast.com/",
+   "lang": "en",
+   "title": "Raycast - Your shortcut to everything",
+   "text": "A collection of powerful productivity tools all within an extendable launcher. Fast, ergonomic and reliable.It’s not about saving time.It’s about feeling like you’re never wasting it.escF1F2F3F4F5F6F7F8F9F10F11F12±§!1@2#3$4%5^6&7*8(9)0_-+=deleteFast. Think in milliseconds.Ergonomic.Keyboard First.ERTYUIOP{[}]|\\Personal. Your tools, your way.Reliable. 99.8% crash-free rate.SDFGHJKL:;\",~`ZXCVBNM<,>.?/fncontroloptioncommandcommandoptionThere’s an extension for that.Use your favorite tools without even opening them.AI AgentMeet your new virtual assistantRaycast AI uses the tools you already rely on to get work done.AI ChatRaycast’s built in AI Agent seamlessly integrates with your favorite tools, enhancing your workflow effortlessly.Quick AIQuick AI lives a single hotkey away, giving you access to Raycast AI without leaving your workflow.AI ExtensionsConnect all of your everyday tools with AI so it can work in all the same places you do.Learn more about Raycast AIBuilt for professionals like you.Used by seriously productive people.Guillermo Rauch@rauchgCEO, VercelMarques Brownlee@MKBHDCreator, MKBHDKoen Bok@koenbokFounder, FramerAndreas Storm@avstormDesigner & IconographAdam Wathan@adamwathanCreator, Tailwind CSSWes Bos@wesbosCo-host, SyntaxFMRidd@ridd_designCreator, Dive ClubMax Stoiber@mxstbrCEO, StellateZach Holman@holmanAngel InvestorAnsub@justansubFounding EngineerKitze@thekitzeFounderFlorian Kiem@flornkmDesign EngineerWojtek Witkowski@pugsonDesign EngineerReece Atkinson@ree",
+   "truth": "en"
+  },
+  {
+   "id": "a-todoist",
+   "url": "https://www.todoist.com/",
+   "lang": "en",
+   "title": "Todoist | A To-Do List to Organize Your Work & Life",
+   "text": "Clarity, finally. Join 50+ million professionals who simplify work and life with the world’s #1 to-do list app. 347K+ ★★★★★ reviews Capture tasks at the speed of thought We’ve spent over a decade refining Todoist to be an extension of your mind. Capture and organize tasks instantly using easy-flowing, natural language. Stay organized and focused Achieve mental clarity by sorting tasks into Today, Upcoming, or using custom filters. See only what you need, when you need it. Simplify your planning Make the most of your time. Schedule due dates, visualize your week in calendar view, and set recurring tasks with ease. A home for your team’s tasks Give your team a shared space to collaborate and stay on top of it all – alongside but separate from your personal tasks and projects. Take a peek! Watch Todoist in action. Kickstart your next project with Todoist Templates No need to create projects or setups from scratch when we have 50+ templates made for you. Smart features that feel magical See how Todoist Assist works intelligently behind the scenes to transform scattered tasks into clear action plans. A task manager you can trust for life We’ve been building Todoist for 19 years and 282 days. Rest assured that we’ll never sell out to the highest bidder. Read about our long-term mission Available on phone, tablet, watch, desktop, and the web (yep, all of them) Trying to keep track of all the important details in spreadsheets, inboxes, WhatsApp messages, and busy brains. Inevitably, ",
+   "truth": "en"
+  },
+  {
+   "id": "ar-almosafer",
+   "url": "https://global.almosafer.com/ar",
+   "lang": "ar",
+   "title": "المسافر: رحلات طيران، فنادق، أنشطة، مواصلات، تأجير سيارات والمزيد",
+   "text": "المسافر: رحلات طيران، فنادق، أنشطة، مواصلات، تأجير سيارات والمزيد SAR English عرض رحلتي +966554400000 تسجيل الدخول طيران إقامة أنشطة تنقلات جديد العالم ينتظرك سافر حول العالم مع أكثر من 450 شركة طيران مميزة ذهاب فقط رحلة ذهاب وعودة وجهات متعددة رحلات مباشرة شاملة أمتعة السفر ​ ​ ​ ​ ​ ​ ​ ​ ​ ابحث المسافر eSIM قطار الحرمين Six Flags باقات مكة المكرمة أكواريبيا باقات المزيد من الخدمات أشهر الفنادق بانكوك فندق وأبراج رويال أوركيد شيراتون إسطنبول دوبل تري باي هيلتون - توبكابي بوكيت فور بوينتس باي شيراتون بوكيت دبي منتجع أتلانتس ذا رويال بارشيلونا غراند حيات أمستردام فندق أنانتارا جراند هوتل كراسنابولسكي أمستردام باريس لا كليه شنزليزيه باري باي ذا كريست كوليكشن لندن رويال لانكستر لندن كازابلانكا هيلتون جاردن إن كازابلانكا سود القاهرة فندق رمسيس هيلتون ماذا يقول الناس؟ موثَّق اريح واسهل واقل سعر وعروض جبارة شكراً المسافر App Store 26 مايو 2025 موثَّق تطبيق سلس وجميل وسهل وباللغة العربية، خيارات متنوعة وأكواد خصم، وتأكيد حجز فوري ويراسلونك بالايميل والواتساب وخدمة عملاء جيدة للغاية. Play Store 07 يوليو 2025 موثَّق و الاسهل في ادخال البيانات والأسعا❤️السعر طيب والخصم طيب App Store 25 يوليو 2025 موثَّق من أفضل التطبيقات في الحجز سهل جدا وخدمة العملاء من داخل وخارج المملكة تجاوبهم سريع Play Store 29 يوليو 2025 موثَّق التطبيق ممتاز و فيه جميع المطارات و خدمات شكرا لكم App Store 04 أغسطس 2025 موثَّق انصحكم فيه جيد جدا شكرا ع الثقه ودي مش اول مرة احجز من طرفكم شكرا جدا ع العروض الجميله بجد شكرا من القلب Play Store 10 يونيو 2025 لماذا تثق بنا تقييم التطبيق 4.7★ حصل على إعجاب أكثر من 400 أ",
+   "truth": "ar"
+  },
+  {
+   "id": "ar-careem",
+   "url": "https://apps.apple.com/sa/app/%D9%83%D8%B1%D9%8A%D9%85-%D9%85%D8%B4%D8%A7%D9%88%D9%8A%D8%B1-%D8%B7%D8%B9%D8%A7%D9%85-%D8%A8%D9%82%D8%A7%D9%84%D8%A9/id592978487?l=ar",
+   "lang": "ar",
+   "title": "‏‫تطبيق كريم: مشاوير، طعام، بقالة‬ - App Store",
+   "text": "كريم: مشاوير، طعام، بقالة تاكسي، توصيل، متاجر، مدفوعات فقط لأجهزة iPhone مجاني مشاركة ٥٠٥ ألف من التقييمات ٤٫٦ التصنيف العمري ⁧٤+‬ سنوات التصدر #13 سفر المطور Careem اللغة AR + ٤ إضافية الحجم 427.8 م.ب. ‏iPhone تعرف على كريم، التطبيق الشامل لكل احتياجاتك اليومية ملعبنا – EAT, GET, GO & PAY – هو التطبيق المتكامل الذي يلبي كل متطلباتك. هل تحتاج إلى طلب وجبتك المفضلة؟ شراء البقالة؟ حجز رحلة؟ كل ذلك على بعد نقرة واحدة فقط. أوه، وإذا كنت تحب العروض الرائعة، فإن Careem Plus هو تذكرتك الذهبية لادخار غير محدود وامتيازات حصرية. EAT - تناول طعامك متى شئت لا تدع رغبتك الشديدة في الطعام تفسد يومك. سواء كنت تشتهي الفطائر بالموز، أو البوريتو، أو البرياني، مع كريم، يمكنك الحصول على وجباتك المفضلة مباشرة إلى عتبة منزلك. يعمل تطبيقنا لتوصيل الطعام بجودة عالية، لذا ستحصل على أفضل خدمة توصيل للطعام. هل تبحث عن خدمة توصيل طعام سهلة؟ نحن نجعل الطلب سهلاً مع تتبع فوري حتى تعرف بالضبط متى تجهّز مائدتك. وإذا كنت خارج المنزل، يتيح لك Careem Food استكشاف أفضل المطاعم مع خصومات شهية. كما أن مشتركي Careem Plus يمكنهم التمتع بإعفاء من رسوم التوصيل وادخار حصري. المزيد من الطعام، مع قلق أقل! DINEOUT - احصل على عروض حصرية في المطاعم مع Careem Plus تمتع بخصومات تصل إلى 50% في أفضل المطاعم مع Careem DineOut. سواء كان الإفطار، العشاء، أو وجبة ليلية متأخرة، استمتع بأشهى الأطباق مع توفير كبير. لا تحتاج إلى قسائم، ولا متاعب—فقط تجربة طعام سلسة بخصومات رائعة. استكشف، احجز، واستمتع بوجبتك اللذيذة اليوم! GET - احصل على أي شيء، في أي وقت مع Careem Groceries Careem Groceries هو الحل الشامل للبقالة والمزيد! سواء كنت بح",
+   "truth": "ar"
+  },
+  {
+   "id": "ar-extra",
+   "url": "https://www.extra.com/ar-sa/small-appliances/home-environment-care/vacuum-cleaner/bissell-powerclean-drum-vacuum-cleaner-2000-watt-21-liter-with-blower-function/p/100009425",
+   "lang": "ar",
+   "title": "بيسل بور كلين مكنسة برميل كهربائية، 2000 واط، 21لتر مع ميزة نفخ الهواء - إكسترا",
+   "text": "بيسل\nبيسل بور كلين مكنسة برميل كهربائية، 2000 واط، 21لتر مع ميزة نفخ الهواء\nعرض جود\nالبيع والشحن من اكسترا\nقوة المحرك\n2000 واط\nسعة حاوية الأتربة\n21 لتر\nفلتر لحجز الغبار\nخاصية النفخ\nسهولة تفريغ الحاوية\n3.3\n•\n4\nDiscover\nSpecifications\nREVIEWS\n399  ( يشمل الضريبة المضافة)\n599\nوفر 200 \n%33.39 خصم\nقسطها على كيفك\nحتى 12 دفعة ابتداءً من 33.25  شهرياً\nأمان طوال الوقت\nباقة ضمان إكسترا (الشاملة تمديد الضمان او ضمان الاستبدال)\nاحصل عليه بطريقتك\nالاستلام من المعرض الرياض - الورود\nمتوفر\nاستلم خلال 1 ساعة\nمجاناً\nتوصيل الرياض\nمتوفر\nالتوصيل العادي\nاعرف اكثر عن طرق التوصيل\nالتوصيل السريع\nتوصيل في نفس اليوم. للمدن الرئيسية فقط.\nاضف إلى عربة التسوق\n14 يوم للإرجاع\n2 سنة ضمان\nبيسل\nبيسل بور كلين مكنسة برميل كهربائية، 2000 واط، 21لتر مع ميزة نفخ الهواء\nقيم هذا المنتج\nتحتاج منتج آخر؟\nأجهزة العناية المنزلية\nبيسل\nبيسل أجهزة العناية المنزلية\nالمكانس الكهربائية",
+   "truth": "ar"
+  },
+  {
+   "id": "ar-fatafeat",
+   "url": "https://www.fatafeat.com/recipe/122460/%D8%B7%D8%B1%D9%8A%D9%82%D8%A9-%D8%B9%D9%85%D9%84-%D8%A7%D9%84%D9%83%D8%A8%D9%8A%D8%A8%D9%87-%D9%81%D9%8A-%D8%A7%D9%84%D8%B5%D9%8A%D9%86%D9%8A%D8%A9",
+   "lang": "ar",
+   "title": "طريقة عمل الكبيبه في الصينية من فتافيت - فتافيت",
+   "text": "طريقة عمل الكبيبه في الصينية من فتافيت - فتافيت --> --> تسجيل الدخول أو --> ليس لديك حساب؟ --> حساب جديد أو --> هل لديك حساب؟ عند الضغط على \"تسجيل \"، تقر وتوافق على شروط الاستخدام و إشعار الخصوصية كتابة تعليق التعليقات 4 من 5 نجوم 5 نجوم 120 4 نجوم 120 2 نجوم 120 نجمة 120 عرض الأخيرة الأدنى تقييماً الأعلى تقييماً راشد عبد الله 12/04/2021 هناك حقيقة مثبتة منذ زمن طويل وهي أن المحتوى المقروء لصفحة ما سيلهي القارئ عن التركيز على الشكل الخارجي للنص أو شكل توضع الفقرات في الصفحة التي يقرأها. Reply number 1 Reply comment 1 Reply number 2 Reply comment 2 10 إعجاب 3 تعليقات راشد عبد الله 12/04/2021 هناك حقيقة مثبتة منذ زمن طويل وهي أن المحتوى المقروء لصفحة ما سيلهي القارئ عن التركيز على الشكل الخارجي للنص أو شكل توضع الفقرات في الصفحة التي يقرأها. Reply number 1 Reply comment 1 Reply number 2 Reply comment 2 10 إعجاب 3 تعليقات راشد عبد الله 12/04/2021 هناك حقيقة مثبتة منذ زمن طويل وهي أن المحتوى المقروء لصفحة ما سيلهي القارئ عن التركيز على الشكل الخارجي للنص أو شكل توضع الفقرات في الصفحة التي يقرأها. Reply number 1 Reply comment 1 Reply number 2 Reply comment 2 10 إعجاب 3 تعليقات الرد الرد على إرسال تم إرسال صورتك للموافقة عليها إغلاق نسيت كلمة السر؟ أدخل بريدك الالكتروني للبحث عن حسابك شارك مع اصدقائك على --> أو انسخ الرابط نسخ Copied to clipboard الكبيبه في الصينية طبق رئيسي 0 تقييم --> مدة الطبخ 90 دقيقة درجة الصعوبة سهلة إضافة إلى المفضلات شارك مع اصدقائك المكونات مقادير العجينه 1 كيلو برغل ناعم 1 كوب ماء ساخن 1/2 كيلو لحم مفروم 1 بصل 1 كوب ماء 1 ملعقه كبيره ملح 1 ملعقه صغيرة فلف",
+   "truth": "ar"
+  },
+  {
+   "id": "ar-lang",
+   "url": "https://en.wikipedia.org/wiki/Coffee",
+   "lang": "en",
+   "title": "Coffee - Wikipedia",
+   "text": "From Wikipedia, the free encyclopedia Brewed beverage This article is about the beverage. For other uses, see Coffee (disambiguation) . <ref name=\\\"ukers\\\">{{Cite book |last=Ukers |first=William Harrison |url=https://books.google.com/books?id=4O_RAAAAMAAJ |title=All About Coffee (revised 1935) |date=1922 |publisher=Tea and Coffee Trade Journal Company}}</ref><ref>{{Cite book |url=https://books.google.com/books?id=GSw7AAAAIAAJ |title=Johns Hopkins University Studies in Historical and Political Science |date=1967 |publisher=[[Johns Hopkins University Press]] |location=Baltimore |page=25 |ref=none}}</ref><ref>{{Cite book |last=Elzebroek |first=A. T. G. |url=https://books.google.com/books?id=YvU1XnUVxFQC |title=Guide to Cultivated Plants |date=2008 |publisher=[[CAB International|CABI]] |isbn=978-1-84593-356-2 |location=Wallingford, UK |page=7 |ref=none}}</ref>\"},\"flavor\":{\"wt\":\"Distinctive, somewhat bitter\"},\"ingredients\":{\"wt\":\"Roasted [[coffee bean]]s\"},\"drinkware\":{\"wt\":\"[[Mug]]\"}},\"i\":0}}]}'> Coffee Latte and black filtered coffee Type Usually hot; can be iced Origin Yemen [ 1 ] [ 2 ] [ 3 ] Introduced 15th century Color Black, dark brown, light brown, beige Flavor Distinctive, somewhat bitter Ingredients Roasted coffee beans Standard drinkware Mug Coffee is a beverage brewed from roasted, ground coffee beans . Dark-colored and bitter , coffee has a stimulating effect on humans due to its caffeine content; however decaffeinated coffee is also commercially available. There are ",
+   "truth": "en"
+  },
+  {
+   "id": "b-1984",
+   "url": "https://www.goodreads.com/book/show/5470.1984",
+   "lang": "en",
+   "title": "1984 by George Orwell | Goodreads",
+   "text": "795 reviews6,945 followersFebruary 5, 2013It's written 1948? Clearly History has its twisted ways to repeat itself..A Note that MUST be written in the cover of every edition..لم اتوقع أن هذا التحذير \"إن هذه الرواية تحذير وليست بدليل\" بهذه الواقعية، مازالت الحكومات العربية تراقب الجميع لحماية أمن الحكام..بينما مازال أمن الأفراد هزيلا..منعدماهي الرواية التي كتبت في 1948 بعبقرية، أرسي بها جورج أورويل قواعد روايات الديستوبيا بحقوإن كانت مستوحاه من واقع محيط به ولكن التاريخ دائما يجد وسيلة ليتكرر ويزيد وينتشر ويتوغلهي رواية مازالت صداها في روايات شبابية تصدر حتي الأن متأثرة بها..بل وقد تكون اكثر امتاعا منها*تحذير هام قبل البدء*كاتب الريفيو متأثرا ويعاني أعراض \"ازدواجية التفكير\" بشكل خطيرفأذا لم تقرأ الرواية بعد فستستشعر ان كاتب الريفيو \"مجنونا\"، أما اذا قد قرأتها فستتيقن انه حتما يعاني من الجنون =======*****=======عشقت هذه الروايه لدرجه الكراهيهاحببت جمال قبح العامه، وكرهت الحريه بشده..اقتنعت باننا يجب ان نخطئ وارتعبت جدا من الصوابوقد كرهت بشده الاجزاء السياسيه و ضجرت من تلك المقاله السياسيه الطويله \"في الجزء الثاني\" والتي عزمت علي ان اقرأها قراءه سريعه ..ولكن قرأت مايقرب من 40 صفحه في ساعه ونصف!! لأني شعرت انها فعلا يجب ان تقرأ بتمعن, فهي من اهم المقالات السياسية الواقعيةكرهت تلك المشاهد الجنسيه البسيطه ولعلي استشطت غضبا اذا لم تحدثوكم كرهت تلك النهايه التي شعرت انها قُدمت كنهاية سعيده..واكرهها اكثر كلما اشعر انها فعلا ليست سعيدهلقد عشقت تلك الروايه لاني شعرت بالملل المثير طوال احداثهالم اشعر انها كلاسيكيه,رايتها معاصره واحداثها واقعية وتدور في الوقت الحالي , ومع ذلك شعرت بملل ال",
+   "truth": "en",
+   "known": "ar",
+   "note": "Known miss: an English book's Goodreads page whose text is mostly Arabic readers' reviews reads as Arabic (a Latin title doesn't lead, the text decides)."
+  },
+  {
+   "id": "b-atomic",
+   "url": "https://www.goodreads.com/book/show/40121378-atomic-habits",
+   "lang": "en",
+   "title": "Atomic Habits: An Easy & Proven Way to Build Good Habits & Break Bad Ones by James Clear | Goodreads",
+   "text": "1,669 reviews8,989 followersJanuary 21, 2021A Book That Changed My LifeA book worth reading once a year. In 2023, my goal is to consume less and create more. The stories in my heart and mind were finally going to meet paper. But I wasn’t actually writing anything. When the day started, I knew that I had to write. I wasn’t feeling very well so I would write later. Then, dinner would happen, and I was behind on my reading and didn’t feel any better than earlier in the day. Enter Atomic Habits. After reading the book, I took out my calendar and scheduled, “Writing,” from 1 pm to 1:20 pm. Now, I am actually writing.How many of us have goals: to have better relationships, to lose weight, to learn a language? We have the best of intentions, but we don’t have a plan with manageable actionable steps.Have you ever wondered how I got to be the #3 US Book Reviewer on GoodReads? Atomic Habits.Before reading Atomic Habits, I had what I now realize as wishful thinking or dreams. At times, sometimes I made it on to the top 100 book reviewers, but it was always a complete mystery to me. When I made the list, I couldn't believe my luck! I wanted to rate higher, but I had no real plan.Then, I read Atomic Habits. I sat down and had a clearly articulated goal. \"I want to rate X on the best reviewer list.\" Okay. Sounds great. But what does that take? I looked at where I wanted to be on the weekly list and saw how many votes the reviewer received. I divided that number by 7 and knew that I needed ",
+   "truth": "en"
+  },
+  {
+   "id": "b-deepwork",
+   "url": "https://calnewport.com/deep-work-rules-for-focused-success-in-a-distracted-world/",
+   "lang": "en-US",
+   "title": "Deep Work: Rules for Focused Success in a Distracted World - Cal Newport",
+   "text": "Home » Blog » Deep Work: Rules for Focused Success in a Distracted World A New Book I’m excited to announce my new book, Deep Work: Rules for Focused Success in a Distracted World. The book will be published on January 5th (though it’s available now for pre-order). In this post, I want to provide you a brief sneak peek. My Deep Work Mission If you’ve been reading Study Hacks over the past few years, you’ve witnessed my increasing interest in the topic of deep work, which I define to be the act of focusing without distraction on a cognitively demanding task. I firmly believe that deep work is like a superpower in our current economy: it enables you to quickly (and deliberately) learn complicated new skills and produce high-value output at a high rate. Deep work is also an activity that generates a sense of meaning and fulfillment in your professional life. Few come home energized after an afternoon of frenetic e-mail replies, but the same time spent tackling a hard problem in a quiet location can be immensely satisfying. There’s a reason why the people who impress us most tend to be people who deployed intense focus to make a dent in the universe; c.f., Einstein and Jobs. Focus is the New I.Q. Which brings me to my new book… Deep Work is divided into two parts. The first part is dedicated to making the case for this activity. In particular, I provide evidence that the following hypothesis is true: The Deep Work Hypothesis. Deep work is becoming increasingly valuable at the sam",
+   "truth": "en"
+  },
+  {
+   "id": "c-borscht",
+   "url": "https://lifehacker.ru/classic-borshcht/",
+   "lang": "ru-RU",
+   "title": "Как приготовить борщ по классическому рецепту — Лайфхакер",
+   "text": "22 январяКак приготовить борщ по классическому рецептуПодробная инструкция и несколько секретов сделают блюдо идеальным.На каком бульоне можно готовить борщВ классическом рецепте используют говядину или свинину. Лучше всего брать мясо на кости — так бульон выходит более наваристым. Можно сварить борщ и на бульоне, который остался после варки говяжьего или свиного языка.Я предпочитаю готовить красный борщ на курином бульоне. Для этого беру голени, крылья или бёдрышки и варю их около часа на медленном огне, периодически снимая пену. Иногда добавляю целую луковицу и морковь. Однажды я пробовала использовать бульон из куриных спинок, но борщ получился слишком жирным, хотя, конечно, это дело вкуса.Если нет времени возиться с мясом и хочется сделать блюдо на скорую руку, можно варить и просто на воде. Технология и ингредиенты те же, но исключён этап приготовления бульона и последующей нарезки мяса. Борщ всё равно получается вкусным и сытным. Даже гости не всегда определяют, что едят именно вегетарианский вариант.Как сварить классический борщПроцесс состоит из трёх шагов: нужно сварить бульон, подготовить зажарку и затем собрать всё вместе.ИнгредиентыДля бульона:1½–2 л воды; 400–500 г говядины или свинины на кости. Для зажарки:2 небольшие свёклы; 1 средняя морковь; 3 средние луковицы; 4–5 столовых ложек растительного масла; щепотка лимонной кислоты, 1–2 столовые ложки столового уксуса (9%) или сок ½ лимона; 2 столовые ложки томатной пасты. Остальные ингредиенты:300 г белокочанной ка",
+   "truth": "ru"
+  },
+  {
+   "id": "c-chowmein",
+   "url": "https://www.recipetineats.com/chicken-chow-mein/",
+   "lang": "en-US",
+   "title": "Chow Mein - RecipeTin Eats",
+   "text": "A great Chow Mein comes down to the sauce, made of soy sauce, oyster sauce, sesame oil, sugar and cornstarch for thickening. Slippery noodles slick with the savoury sauce is noodle heaven! One of my favourite noodles, up there with all time greats Pad Thai, Pad See Ew and Singapore noodles. This is a reader-favourite recipe included by popular demand in my debut cookbook “Dinner”! I want to say that Chow Mein is my favourite noodle-child but I’m worried that I’ve said that in another recipe (or two… or three… 😂). Because there is, after all, some heavy hitting noodle competition in this big wide world. Pad Thai, Pad See Ew (Thai Stir Fried Noodles), Singapore Noodles, Yakisoba (Japanese noodles) – to name just a few. But Chow Mein is right up there and it’s not just because it’s noodle-slurpingly delicious, but also because of the following: Tons of hidden veggies– cabbage, carrot and bean sprouts, all in “noodle shapes” so they just meld right in there with the noodles so you have no idea how much you’re actually consuming (it’s like feeding a child); Faster to make that home delivery – 15 minutes from start to finish; Versatile– as all stir fries are. Switch the proteins and veg as you please; Charlie – Chow Mein Sauce can be made from scratch, or using Charlie, my all purpose Stir Fry Sauce that I always have on hand. Yes, I named him because I love him so much. What noodles to use for Chow Mein The thing that distinguishes Chow Mein from other stir fried noodles are the t",
+   "truth": "en"
+  },
+  {
+   "id": "c-curry",
+   "url": "https://www.bbcgoodfood.com/recipes/easy-chicken-curry",
+   "lang": "en",
+   "title": "Easy chicken curry recipe | Good Food",
+   "text": "HomeRecipesEasy chicken currySkip to ingredientsUnits:2 tbsp sunflower oil1 onion thinly sliced2 garlic cloves crushedthumb-sized piece of ginger grated6 chicken thighs boneless and skinless3 tbsp medium spice paste (tikka works well)400g can chopped tomatoes100g Greek yogurt1 small bunch of coriander leaves chopped50g ground almondsnaan breads or cooked basmati rice, to serveNutrition: per servingkcal354fat23gsaturates4gcarbs10gsugars8glowfibre3gprotein24gsalt0.6glowMethodstep 1Heat the oil in a flameproof casserole dish or large frying pan over a medium heat. Add the onion and a generous pinch of salt and fry for 8-10 mins, or until the onion has turned golden brown and sticky.step 2Add the garlic and ginger, cooking for a further minute.step 3Chop the chicken into chunky 3cm pieces, add to the pan and fry for 5 mins before stirring through the spice paste and tomatoes, along with 250ml water. Bring to the boil, lower to a simmer and cook on a gentle heat uncovered for 25-30 mins or until rich and slightly reduced.step 4Stir though the yogurt, coriander and ground almonds, season and serve with warm naan or fluffy basmati rice.How to thicken curry sauceIf you find your sauce is on the runny side, there are several ways to fix this. Here are our top 3 methods:Simmering gently on a low temperature will reduce the volume of liquid as well as intensifying the flavour of the curry.Add 1 tbsp cornflour to 2-3 tbsp of cold water to form a slurry. Then add this to the curry and sim",
+   "truth": "en"
+  },
+  {
+   "id": "c-stroganoff",
+   "url": "https://www.recipetineats.com/beef-stroganoff/",
+   "lang": "en-US",
+   "title": "Beef Stroganoff - RecipeTin Eats",
+   "text": "The most amazing Beef Stroganoff you will ever have! Golden seared juicy beef strips smothered in an incredible sour cream mushroom gravy, this Beef Stroganoff recipe is an easy 30 minute recipe. Never suffer through dry chewy beef or bland Stroganoff sauce again – this recipe delivers!! If you’ve ever chewed your way through dry, overcooked beef, you’re going to LOVE this Beef Stroganoff recipe! Just two simple rules for juicy, tender beef: using the right cut; and the 30 Second Sear ( <– PS I totally made up this name) The first rule is fairly self explanatory – for a quick cooking recipe like Beef Stroganoff, you can’t get away with using a better value tough cut like chuck beef. Sure, you could do a slow cooker stroganoff. But if you want to make this retro classic the way it’s intended and to experience all that Beef Stroganoff is when the beef is tender, juicy perfection, then there’s no getting around the fact that you will need a good quality steak that’s nicely marbled with fat. I know, I know, you see juicy steaks like the rib eyes above and your instinct is to throw them on the barbie. I hear you. I have to fight the urge myself. But then I remember that sour cream mushroom gravy, and I remind myself that the only way to experience a truly great stroganoff is to use a good steak, and it’s all good. We proceed with no regrets. What cut of beef is best for stroganoff? The best cuts of beef for stroganoff are tender, juicy cuts such as: Boneless rib eye – also called ",
+   "truth": "en"
+  },
+  {
+   "id": "c-syrniki",
+   "url": "https://lifehacker.ru/syrniki/",
+   "lang": "ru-RU",
+   "title": "4 простых рецепта сырников — Лайфхакер",
+   "text": "17 июня 2017Лайфхакер рассказывает, как приготовить сырники по классическому рецепту. А если вы хотите разнообразить привычный вкус, есть ещё три варианта этого завтрака: сырники с морковью, картофелем, орехами и изюмом. Чтобы сырники получились ещё лучше, воспользуйтесь дополнительными рекомендациями.Лучше всего для сырников подходит творог с жирностью 7–18%. Выбирайте однородную массу, без крупинок. Если при готовке вы используете суховатый творог, добавьте ложку сметаны или молока. Сырники получатся более сочными. Слишком влажный творог тоже не подходит для готовки. С помощью марли избавьтесь от лишней жидкости. Или во время приготовления добавьте побольше муки. Не делайте сырники слишком толстыми: так они не пропекутся до конца и начинка останется сырой. Оптимальное количество теста можно рассчитать так: 1 столовая ложка теста на 1 сырник. Подавайте готовые сырники с топпингами: шоколадом, сметаной, мёдом, вареньем, сгущёнкой, сахарной пудрой, ягодами или фруктами.",
+   "truth": "ru"
+  },
+  {
+   "id": "es-hawkers",
+   "url": "https://www.hawkersco.com/gafas-de-sol/ocean-coral-petite-400027.html",
+   "lang": "es",
+   "title": "Gafas de sol Hawkers OCEAN CORAL PETITE",
+   "text": "similares &iquest;Buscas inspiraci&oacute;n? Descubrir productos similares Ver similares similares 2-60% Gafas de sol Gafas de sol OCEAN CORAL PETITE 59.99&euro; 35.99&euro; 2 colores OCEAN CORAL PETITE 59.99&euro; 35.99&euro; a&ntilde;adir al carrito Envío gratis a partir de 49€. promociones 1-40% | 2-60% Llévate una gafa con 40% dto. o dos o más con un 60%. Envío gratis a partir de 49€. VER TODOS LOS PRODUCTOS DE LA PROMOCIÓN *Descuentos y promociones adicionales no son aplicables a este producto. caracter&iacute;sticas Gafas de sol retro con montura slim ovalada azul transparente y lentes cosméticas color coral. Los cortes angulares de los extremos del frontal le imprimen un distinguido toque soft cat eye y la hacen más femenina y sensual. Modelo Unisex Material de la lente: Lentes de TR18 con el sello de Eastman, gran calidad óptica y resistencia. Respetuoso con el medio ambiente. Protección 100% UV. Categoría de filtro 1, coloración suave, utilizar con luminosidad baja, no se recomiendan usar a pleno sol. Absorben entre un 20% y un 56% de luz solar. Apariencia de la lente: Cosmética Color de la lente: Naranja Material de la montura: Acetato Color de la montura: Azul Color de la varilla: Azul Acceso a declaraci&oacute;n de conformidad medidas varilla 140 mm puente 20 mm frontal 141 mm altura de la montura 43 mm ancho de la lente 53 mm garant&iacute;a y devoluciones Todos nuestros productos tienen una garantía de tres años . Consulta todos los detalles en nuestra sección d",
+   "truth": "es"
+  },
+  {
+   "id": "es-pompeii",
+   "url": "https://pompeiibrand.com/products/vega-leather-coffee",
+   "lang": "es",
+   "title": "VEGA LEATHER COFFEE – Pompeii",
+   "text": "VEGA LEATHER COFFEE\n241,65 €\n40\n41\n42\n43\n44\n45\n46\nAÑADIR A LA CESTA\nMocasín elaborado en suave napa vacuna y hecho a mano en España, siguiendo técnicas tradicionales de artesanía. Con una punta ligeramente cuadrada y suela 100% de piel, ofrece una combinación perfecta de elegancia y comodidad para cualquier ocasión.\nEste producto talla pequeño. Recomendamos escoger una talla más de la habitual.\nComposición\nCuidados\nGuía de tallas\nSOLD OUT\nFALCONS CORD JACKET\n199,00€\nFALCONS TRACK TOP\n199,00€\nSOLD OUT\nFALCONS WAFFLE TEE\n99,00€\nVEGA FLORENTIK BROWN\n241,65€\nVEGA COCO COFFEE\n241,65€\nVEGA ANTIK BLACK\n241,65€\nVEGA LEATHER MULTI ROAST\n241,65€",
+   "truth": "es"
+  },
+  {
+   "id": "fr-crepes",
+   "url": "https://www.marmiton.org/recettes/recette_pate-a-crepes_12372.aspx",
+   "lang": "fr",
+   "title": "La meilleure recette de pâte à crêpes",
+   "text": "La meilleure recette de pâte à crêpes Accueil Recettes Dessert Crêpe Pâte à crêpes La meilleure recette de pâte à crêpes La meilleure recette de pâte à crêpes De saison Dessert Végétarien Crêpe Pâte à crêpes Chandeleur 4.3/5 1017 commentaires + 89 40 min Facile Bon marché Partager la recette Ingrédients - crêpes + 3 cuillères à soupe de sucre 50 g de beurre fondu 2 cuillères à soupe d&#039; huile 5 cl de rhum 300 g de farine 3 oeufs entiers 60 cl de lait En cliquant sur les liens, vous pouvez être redirigé vers d’autres pages de notre site, ou sur Amazon.fr. Ustensiles 1 louche Les meilleures ventes Acheter 1 Fouet cuisine Top 5 des meilleurs fouets Acheter 1 Cuillère en bois Les meilleures ventes Acheter 1 Poêle à crêpes Top des poêles à crêpes + de détails 1 saladier Les meilleures ventes Acheter 1 balance de cuisine Top des meilleures balances + de détails 1 Set 3 poêles Notre sélection des meilleures poêles + de détails En cliquant sur les liens, vous pouvez être redirigé vers d’autres pages de notre site, ou sur Amazon.fr. Préparation Temps total : 40 min Préparation : 10 min Repos : - Cuisson : 30 min étape 1 Mettre la farine dans une terrine et former un puits. étape 2 Y déposer les oeufs entiers, le sucre, l&#039;huile et le beurre fondu (laisser le refroidir un peu avant de l&#039;incorporer aux autres ingrédients). étape 3 Mélanger délicatement avec un fouet en ajoutant au fur et à mesure le lait. La pâte ainsi obtenue doit avoir une consistance d&#039;un liquide lé",
+   "truth": "fr"
+  },
+  {
+   "id": "fr-cristel",
+   "url": "https://www.cristel.com/fr/produits/serie-3-casseroles-en-inox-brosse-1826-fixe",
+   "lang": "fr",
+   "title": "Série 3 casseroles en inox brossé - 1826 fixe, Casseroles - Cristel",
+   "text": "Série 3 casseroles en inox brossé Inox 1826 Compatible tous feux Sans PFAS 5/5 - 6 avis Offre coffret : Set de 3 284,70 € Prix des articles vendus &agrave; l&rsquo;unit&eacute; 219,90 € Réf. S3CMV En stock Guide des tailles € \" data-prix-orig=\"284,70 € \" data-prix-2=\"\" data-rang=\"0\" data-coloris-id=\"14\" data-colonne-dimension=\"diametre\" data-dimension=\"\" data-ofg=\"1\" data-is-set=\"1\" data-texte-set=\"Offre coffret : \" data-label-set=\"Set de 3\" data-texte-prix-set=\"Prix des articles vendus &agrave; l&rsquo;unit&eacute;\" data-prix-set-origine=\"284,70 € \" data-made_in_france=\"1\"> Set de 3 Ajouter au panier Fabriqu&eacute; en France** Garantie &agrave; vie* Paiement jusqu&rsquo;&agrave; 4x sans frais Livraison offerte d&egrave;s 100&euro; Découvrez l&#039;héritage exceptionnel de la marque CRISTEL à travers notre nouvelle collection 1826. Description Cette Série de Casseroles en inox brossé (Ø 16 - 18 et 20 cm) est le reflet d'une histoire riche provoquant un tournant dans le monde de la cuisine. C'est en 1826, dans notre usine à Fesches-le-Châtel, qu'est née la première casserole emboutie au monde.Deux siècles plus tard, CRISTEL décide de s'inspirer de ce produit historique pour lui rendre hommage en créant sa nouvelle collection, symboliquement baptisée 1826. Cette nouveauté est inspirée du passé et ancrée dans la modernité grâce à l'innovation et à la passion des hommes et des femmes qui ont œuvré au cours du temps pour proposer des produits de haute qualité. Ces casseroles en i",
+   "truth": "fr"
+  },
+  {
+   "id": "gb-brompton",
+   "url": "https://www.brompton.com/p/1029/a-line-23",
+   "lang": "en",
+   "title": "A Line - 3-speed | Brompton UK",
+   "text": "A Line - 3-speed | Brompton UK New Colours Just Landed 28 day satisfaction guarantee 7-year frame warranty Flexible ways to pay New Colours Just Landed 28 day satisfaction guarantee 7-year frame warranty Flexible ways to pay New Colours Just Landed A LINE A Line - 3-speed The essential Brompton Read all reviews Colour: Papyrus White Handlebars: Mid Mid £999.00 ✓ In Stock – Dispatched within 2 working days − + Add to cart Find your nearest store Features 3 Easy to use hub gears The A Line hub gears let you shift when stationary, so setting off is easy. Simply nudge the single lever up or down. Mid handlebar For a natural sit-up and enjoy the ride position. Reflectors Reflectors for visibility, both at the front and back. A Line saddle A Line saddle with black rails 147mm width. A Line bell Lightweight in design and easy-to-use, perfect for any Brompton bike. The Brompton Fold Invented by our founder, Andrew Ritchie, in 1975, expertly engineered to transform the bike into a small, locked package a little larger than its wheels—all in under 20-seconds. Nothing folds like a Brompton folds. All the essentials A Window Grey & Turkish Green steel frame. The original 3-part fold. Three easy-to-use hub gears. A natural sit-up and enjoy the ride position with a riser handlebar. And Genuine Brompton parts and fittings compatibility, so you can add as you go. As easy as 1,2,3 Ready to roll? The A Line hub gears let you shift when stationary, so setting off is easy. Simply nudge the singl",
+   "truth": "en"
+  },
+  {
+   "id": "in-boat",
+   "url": "https://www.boat-lifestyle.com/products/boat-partypal-500",
+   "lang": "en",
+   "title": "boAt PartyPal 500 - 200W Bluetooth Party Speaker with 6 Hours Playback",
+   "text": "boAt PartyPal 500 - 200W Bluetooth Party Speaker with 6 Hours Playback Skip to content Get Extra 5% Off On Prepaid Orders | Code: BOATHEAD | Shop Now! Get additional 5% off on Prepaid Orders | Code: BOATHEAD | Shop Now boAt Lifestyle Newsletter Search Most Searched And Bought True Wireless Earphones Personalized Products Smart Watches Nirvana Wireless Neckbands Bluetooth Speakers Wireless Headphones Powerbanks Dashcams Projectors Trimmers Wired Earphones Soundbars &times; Hi boAthead! Login 0 Search Most Searched And Bought True Wireless Earphones Personalized Products Smart Watches Nirvana Wireless Neckbands Bluetooth Speakers Wireless Headphones Powerbanks Dashcams Projectors Trimmers Wired Earphones Soundbars Categories True Wireless Earbuds Neckbands Smart Watches Headphones Wireless Speakers Soundbars Party Speakers Power Banks Dashcams Projectors Trimmers Gaming Series Chargers and Cables Wired Earphones Limited Edition Expand More Back View All boAt Personalisation Corporate Orders Gifting Store More Daily Deals Installation Services Blogs Refer & Earn Careers Store Locator Back View All Track Your Order Your Cart Your cart is feeling lonely Start shopping Be first to review Earn upto 899 boAt reward points on this product boAt PartyPal 500 Facebook Pinterest Twitter E-mail Facebook Pinterest Twitter Email Copy Link Be first to review Bluetooth Speaker with 200W Sound, RGB Lights, 6 Hours Playback, Karaoke & TWS Get 5% OFF on purchase of 2 or more items Earn upto 899 b",
+   "truth": "en"
+  },
+  {
+   "id": "it-alessi",
+   "url": "https://shop.mohd.it/it/plisse-bollitore-elettrico-170cl.html",
+   "lang": "it",
+   "title": "Plissè Bollitore Elettrico 170cl Alessi | Mohd Shop",
+   "text": "Plissè Bollitore Elettrico 170cl Alessi | Mohd Shop Spedisci in Italia Arredamento Living Divani Poltrone e Chaise Longue Pouf Librerie e sistemi Mensole Mobili TV Tavolini Scrivanie e scrittoi Tappeti Sistemi divisori Termoarredi e camini Dining Tavoli Sedie Sgabelli Madie e mobili contenitori Cassettiere Mobili bar e cantinette Ingresso Appendiabiti Specchi Panche Consolle Zona notte Letti Comò e comodini Armadi Vanity Cucine modulari Design per bambini Gift Card Top Brand B&B Italia Baxter Cassina Giorgetti Kartell Knoll Poliform Poltrona Frau Hay And Tradition USM Vitra In evidenza Le Icone del Design Mohdern Illuminazione Illuminazione decorativa Lampade a sospensione Lampade da soffitto Lampade da parete Lampade da tavolo Lampade da scrivania Lampade da comodino Lampade da terra Lampadine Lampade ricaricabili Rosoni e accessori Illuminazione da esterno Lampade a sospensione da esterno Lampade da parete e soffitto da esterno Lampade da terra da esterno Illuminazione architetturale Sistemi di Illuminazione architetturale Illuminazione architetturale da parete e soffitto Faretti Gift Card Top Brand Artemide Davide Groppi Flos Foscarini FontanaArte OLuce Louis Poulsen Tom Dixon In evidenza Illuminazione / Collezioni di successo Collezione Bellhop Flos Cucina Cucine Cucine modulari Cucine freestanding Cucine outdoor Elettrodomestici Accessori cucina Utensili Taglieri Pentole Barattoli e contenitori Caffettiere e thermos Teiere e bollitori Art de la table Piatti Bicchieri Pos",
+   "truth": "it"
+  },
+  {
+   "id": "it-bialetti",
+   "url": "https://www.bialetti.com/it_it/set-moka-express-the-north-face-bialetti.html",
+   "lang": "it",
+   "title": "Set Moka Express The North Face x Bialetti",
+   "text": "0 --> Vai alla fine della galleria di immagini Vai all&#039;inizio della galleria di immagini Set Moka Express The North Face 3 tz 2 bicchierini 2 cucchiaini e caffè Perfetto Moka 100 gr in latta SKU 0005379 Ogni spedizione ha bisogno di un buon caffè. Creato per ogni tipo di avventura, il set The North Face X Bialetti include una Moka 3 tazze, tazzine, cucchiaini e una miscela di caffè macinato Bialetti – tutto ciò di cui hai bisogno per una pausa perfetta. 150,00 € Facebook Twitter Disponibilità: Disponibile Caratteristiche tecniche Dimensioni box: 320x250x160mm Moka Express The North Face Capienza caldaia: 130 ML – 4.4 OZ, corrispondenti a 3 tazze di caffè erogato Materiale corpo: alluminio. Materiale pomolo e manico: termoplastico PA66 Raccoglitore e caldaia in alluminio. Valvola di sicurezza easy-clean. Adatto all'utilizzo di piani cottura a gas, elettrici e in vetro cottura. Su piastra ad induzione solo ed esclusivamente su utilizzata con il piattello per induzione Bialetti Bicchierini Coppia di bicchierini in acciaio per una perfetta pausa caffè in ogni spedizione. Bicchierini in acciaio inossidabile in due varianti colori: giallo e nero; Capacità massima: 60ml - 2oz; Diametro del bicchierino (Ø): 50mm; Altezza (H): 60mm Cucchiaini Cucchiaini in acciaio inossidabile; Spessore: 1,5 mm Lunghezza 114 mm Non lavabile in lavastoviglie Customizzati con la celebre scritta \"NEVER STOP EXPLORING\" Caffè Perfetto Moka Classico 100gr: caffè tostato e macinato, 50% arabica e 50% ro",
+   "truth": "it"
+  },
+  {
+   "id": "it-tiramisu",
+   "url": "https://www.misya.info/ricetta/tiramisu.htm",
+   "lang": "it",
+   "title": "Ricetta Tiramisù : Ricetta di Misya",
+   "text": "Tiramisù 5 /5 VOTA Ricetta Tiramisù Flavia Imperatore del 04-08-2007 [Aggiornata il 23-03-2023] Il tiramisù è un dolce tradizionale della cucina italiana, particolarmente apprezzato perché unisce il gusto forte e intenso del caffè, la delicatezza del mascarpone e la fragranza dei savoiardi. Viene preparato da Nord a Sud del nostro Paese ed la sua paternità è contesa da Piemonte, Friuli Venezia Giulia, Veneto e Toscana. Nella ricetta originale del tiramisù sono previsti ingredienti come uova, zucchero, mascarpone, savoiardi, caffè e cacao amaro, con l'aggiunta (a scelta) del Marsala per aromatizzare, ci però tante altre versioni di questo dolce: tra le più comuni, quella che utilizza il Pan di Spagna come base , o varianti più complesse come il tiramisù alle fragole, al pistacchio, al cioccolato bianco e addirittura il tiramisù con pavesini . Per fare il tiramisù classico bisognerà innanzitutto sbattere i tuorli con lo zucchero, rendendoli ben spumosi, ed unirli successivamente al mascarpone e alla panna montata (o agli albumi montati a neve, nella versione originale del dolce). Una volta preparato e fatto raffreddare il caffè ecco che ci si potranno inzuppare velocemente i savoiardi, prima di trasferirli in una pirofila e procedere all'assemblaggio. Ingredienti per 8 persone 400 gr di savoiardi 250 gr di mascarpone 250 gr di panna per dolci 3 tuorli d' uova 6 cucchiai di zucchero 12 tazzine di caffè 2 tazzine di latte 20 gr di cacao amaro 100 gr di cioccolato fondente Inviati",
+   "truth": "it"
+  },
+  {
+   "id": "j-backend",
+   "url": "https://job-boards.greenhouse.io/gitlab/jobs/8749950002",
+   "lang": "en",
+   "title": "Job Application for Backend Engineer (Ruby), Plan: Spec-Driven Development at GitLab",
+   "text": "GitLab is the intelligent orchestration platform for DevSecOps. GitLab enables organizations to increase developer productivity, improve operational efficiency, reduce security and compliance risk, and accelerate digital transformation. More than 50 million registered users and more than 50% of the Fortune 100* trust GitLab to ship better, more secure software faster. The same principles built into our products are reflected in how our team works: we embrace AI as a core productivity multiplier, with all team members expected to incorporate AI into their daily workflows to drive efficiency, innovation, and impact. GitLab is where careers accelerate, innovation flourishes, and every voice is valued. Our high-performance culture is driven by our values and continuous knowledge exchange, enabling our team members to reach their full potential while collaborating with industry leaders to solve complex problems. Co-create the future with us as we build technology that transforms how the world develops software. *Fortune 500® is a registered trademark of Fortune Media IP Limited, used under license. Claim based on GitLab data. Fortune 100 refers to the top 20% ranked companies in the 2025 Fortune 500 list, published in June 2025. Fortune and Fortune Media IP Limited are not affiliated with, and do not endorse products or services of GitLab.An overview of this role As a Backend Engineer on the Plan: Spec-Driven Development team, you'll help build GitLab's intent-to-code loop: agenti",
+   "truth": "en"
+  },
+  {
+   "id": "j-data-scientist",
+   "url": "https://job-boards.greenhouse.io/figma/jobs/5552580004?gh_jid=5552580004",
+   "lang": "en",
+   "title": "Job Application for Data Scientist at Figma",
+   "text": "Back to jobsFigma is growing our team of passionate creatives and builders on a mission to make design accessible to all. Figma’s platform helps teams bring ideas to life—whether you're brainstorming, creating a prototype, translating designs into code, or iterating with AI. From idea to product, Figma empowers teams to streamline workflows, move faster, and work together in real time from anywhere in the world. If you're excited to shape the future of design and collaboration, join us! We are looking for an experienced Data Scientist to join our growing data team. At Figma, Data Scientists are deeply embedded within cross-functional teams across the company—from Product to Finance, Marketing, and Platform. We are hiring across a number of roles in these areas. This is ideal for someone excited to own high-impact data projects, partner strategically with stakeholders, and shape the future of our products and business. Figma is uniquely positioned to harness advances in AI while keeping people at the heart of creative product development. As part of our Data Science team, you'll help address the most pressing challenges emerging from AI-driven development, shape next-generation data science workflows, and build AI-powered tools used by millions of product teams around the world. The ideal candidate will bring strong analytical and technical skills, business intuition, and a collaborative mindset to guide decision-making and unlock growth opportunities. You'll work on problems ",
+   "truth": "en"
+  },
+  {
+   "id": "j-pm-airbnb",
+   "url": "https://careers.airbnb.com/positions/8303742/?gh_jid=8303742",
+   "lang": "en-US",
+   "title": "Product Manager, Trips - Careers at Airbnb",
+   "text": "Airbnb was born in 2007 when two hosts welcomed three guests to their San Francisco home, and has since grown to over 5 million hosts who have welcomed over 2 billion guest arrivals in almost every country across the globe. Every day, hosts offer unique stays and experiences that make it possible for guests to connect with communities in a more authentic way. The Community You Will Join Your Location: Due to the nature of this position, the successful applicant will need to be based in San Francisco, CA to be able to conduct their work. Our Commitment To Inclusion & Belonging: Airbnb is committed to working with the broadest talent pool possible. We believe diverse ideas foster innovation and engagement, and allow us to attract creatively-led people, and to develop the best products, services and solutions. All qualified individuals are encouraged to apply. We strive to also provide a disability inclusive application and interview process. If you are a candidate with a disability and require reasonable accommodation in order to submit an application, please contact us at: reasonableaccommodations@airbnb.com. Please include your full name, the role you’re applying for and the accommodation necessary to assist you with the recruiting process. We ask that you only reach out to us if you are a candidate whose disability prevents you from being able to complete our online application. Equal Employment Opportunity: Airbnb values diversity & belonging and is proud to be an Equal Emp",
+   "truth": "en"
+  },
+  {
+   "id": "j-product-designer",
+   "url": "https://job-boards.greenhouse.io/anthropic/jobs/5446776008",
+   "lang": "en",
+   "title": "Job Application for Product Designer, Growth at Anthropic",
+   "text": "About Anthropic Anthropic’s mission is to create reliable, interpretable, and steerable AI systems. We want AI to be safe and beneficial for our users and for society as a whole. Our team is a quickly growing group of committed researchers, engineers, policy experts, and business leaders working together to build beneficial AI systems.About the role Growth at Anthropic is about helping people discover what Claude can do and make it part of how they work, from someone's first session to an entire company rolling out Claude. We're a small design team working across all of Anthropic's products, on problems that often don't have established playbooks, because the products and the capabilities behind them change so quickly. We drive growth by making the product itself better, favoring foundational changes and new product experiences over small optimizations. Our focus spans whatever most limits Anthropic's growth, and priorities can shift quickly. As a senior Product Designer on Growth, you'll own how Claude grows with people who use it for their everyday work. You'll dig into why some people make Claude a habit and others don't, find the real bottlenecks, and lead the product changes that move them. You'll set the vision for this area, partner closely with product, engineering, and data science, and raise the quality bar for the designers around you. We're looking for designers who thrive in ambiguity and pair sharp diagnostic judgment with exceptional craft. You form a clear poi",
+   "truth": "en"
+  },
+  {
+   "id": "ja-balmuda",
+   "url": "https://www.balmuda.com/jp/pot/",
+   "lang": "ja",
+   "title": "概要 | BALMUDA The Pot | BALMUDA（バルミューダ）公式サイト",
+   "text": "概要 | BALMUDA The Pot | BALMUDA（バルミューダ）公式サイト 概要 デザイン 淹れ方 ストーリー 限定カラー アクセサリ スペック Products Journal Recipe About Stores サポート ショッピングカート マイページ 概要 デザイン 淹れ方 ストーリー 限定カラー アクセサリ スペック 販売店 購入 オンラインストアの購入特典：メーカー保証の1年延長・30日間返金保証 詳しくはこちら 小さくて美しい 電気ケトル 電気ケトル BALMUDA The Potは、毎日使いたくなる 今までにない美しいデザインの電気ケトルです。 ブラック／ホワイト／クローム 購入 information ・心地よい時間の過ごし方をテーマにした期間限定の特別サイトをオープン more --> コンパクトで注ぎやすい デザイン スペースをとらない550mlのちょうどいいサイズ。注ぎごこちにこだわったノズルとハンドル。毎日、手軽に、気持ちよく使うことができます。 デザインを詳しく おいしい淹れ方 毎日のお茶の時間がもっと楽しくなる淹れ方をご紹介。コーヒー、紅茶、日本茶のおいしさがさらに広がります。 淹れ方を詳しく BALMUDA The Potが 生まれるまで おいしい食事は私たちに元気をくれます。特別なごちそうでなくても、おいしいと思う瞬間が多いほど、楽しい思いもふくらみます。BALMUDA The Potとともに素晴らしいひとときを。 ストーリーを読む 特別な存在感を放つ クローム プロ仕様を思わせる限定カラーが登場。なめらかな質感に深みのあるダークトーンを加え、魅力的な色合いに仕上げています。 限定カラーを詳しく ALL --> ブラック ホワイト クローム information 心地のよい時間の過ごし方をテーマに、さまざまなコンテンツ紹介している特設サイト「Have a GOOD TIME」をオープン。キッチンから暮らしをリフレッシュいただけるキャンペーンや、オンラインストアだけの特別なセットも用意しています。 詳しくは こちら --> 概要 デザイン 淹れ方 ストーリー 限定カラー アクセサリ スペック ●オンラインストアでご購入いただくと、 メーカー保証１年延長／全国送料無料 ●この製品は ギフトラッピング で発送可能です --> 購入 製品をご購入いただいた方を対象に、TRUNK COFFEEがバルミューダのためにブレンドした特別なコーヒー豆（200g）を、数量限定でプレゼントします。 ※STARBUCKS RESERVE LIMITED EDITIONは特典の対象外です。 --> オンラインストアだけの 特別なサービス メーカー保証を1年延長 通常のメーカー保証に加え、期間が1年延長されます。長く安心して使用いただけます。 30日間の返金保証 製品をご購入・ご使用になっても、30日以内なら返金可能です。自宅でゆっくりと製品をお試しください。 全国どこでも送料無料 注文の合計金額が3,300円(税込)以上であれば、全国一律送料無料でお届けいたします。 サービスについて詳しく 大切な家族や友人へのプレゼントに バルミューダ製品を贈りませんか イベントごとのメッセージシールも用意しています。 詳しく 販売店を探す お近くの正規取扱店のご案内 サポート よくあるご質問や取扱説明書 消耗品・専用パーツ ご購入はこちらから バルミューダのストーリー、会員限定の特典、 ストアのイベント情報などをお届けします。 購読す",
+   "truth": "ja"
+  },
+  {
+   "id": "ja-chiffon",
+   "url": "https://cookpad.com/jp/recipes/17612633",
+   "lang": "ja",
+   "title": "18cmバニラ香るふわふわシフォンケーキ by 。まーさん。 【クックパッド】 簡単おいしいみんなのレシピが392万品",
+   "text": "18cmバニラ香るふわふわシフォンケーキ 。まーさん。 @cook_40063619 バニラが香る、そのままでも美味しいシフォンケーキです。簡単に作れます^^ このレシピの生い立ち 2歳の息子がケーキ大好きなので、そのままで美味しく卵で栄養もとれるレシピで作ってみました。 もっと読む バニラが香る、そのままでも美味しいシフォンケーキです。簡単に作れます^^ このレシピの生い立ち 2歳の息子がケーキ大好きなので、そのままで美味しく卵で栄養もとれるレシピで作ってみました。 もっと読む 18cmバニラ香るふわふわシフォンケーキ 。まーさん。 @cook_40063619 バニラが香る、そのままでも美味しいシフォンケーキです。簡単に作れます^^ このレシピの生い立ち 2歳の息子がケーキ大好きなので、そのままで美味しく卵で栄養もとれるレシピで作ってみました。 もっと読む バニラが香る、そのままでも美味しいシフォンケーキです。簡単に作れます^^ このレシピの生い立ち 2歳の息子がケーキ大好きなので、そのままで美味しく卵で栄養もとれるレシピで作ってみました。 もっと読む 保存済み popover#show mouseleave->popover#hide\" class=\"block\"> レシピを保存 後で利用できるように、このレシピを保存します。 レシピを編集 レポートを見る フォルダへ追加・削除 つくれぽを送る 共有 URL をコピー コピーしました！ メール Facebook Pinterest X（旧Twitter） もっと見る 印刷 印刷 レシピのテキストをコピー つくれぽを送る レシピの報告 レポートを見る 削除 URL をコピー コピーしました！ メール Facebook Pinterest X（旧Twitter） もっと見る popover#show mouseleave->popover#hide\" class=\"block\"> 後で利用できるように、このレシピを保存します。 つくれぽを送る フォルダへ追加・削除 印刷 レシピのテキストをコピー レシピの報告 レポートを見る レシピを編集 削除 材料 18cm1個 小麦粉 80g 卵 L4個 殻のままで280g 砂糖 80g 油 29g バ ニラビーンズ なけ れば バニラエッセンス 3分の1本 牛乳 62g アプリでひらく 保存済み popover#show mouseleave->popover#hide\" class=\"block\"> レシピを保存 後で利用できるように、このレシピを保存します。 作り方 1 卵黄と卵白を分けてボウルに入れる。 2 卵黄に砂糖の三分の一くらい、バニラビーンズをさやから出していれ混ぜる。油、牛乳も入れて混ぜる。小麦粉を入れて混ぜる。 3 卵白を泡だてる。 始めは低速でじょじょに高速にし、大きな泡がたったら砂糖を2回に分けて入れ、しっかりメレンゲを作る。 4 メレンゲを少し卵黄のボウルに入れよく混ぜる。 5 卵黄のボウルの中身をメレンゲに入れ、ゴムベラでメレンゲをつぶさないように混ぜる。 6 型に流し入れ、上からトンッと一度落として空気を抜く。 7 170度のオーブンで30分焼く。 8 オーブンから取り出し、ワインの瓶などにさして逆さまにして冷ます。 9 ホイップした生クリームやフルーツと一緒にいただく。 そのままでも美味しいです^^ コツ・ポイント メレンゲはしっかり角が立つまで泡だてて、混ぜるときに泡がなるべくなくならないようにします。分量を間違えていたので",
+   "truth": "ja"
+  },
+  {
+   "id": "ja-lang",
+   "url": "https://www.coursera.org/learn/learning-how-to-learn",
+   "lang": "ja",
+   "title": "学び方を学ぶ難問をマスターするための強力なメンタルツール | Coursera",
+   "text": "学び方を学ぶ難問をマスターするための強力なメンタルツール Coursera Plusの1年間利用権で、需要の高いスキルを身につけましょう。今なら206ユーロ。 今すぐお求めください 。 学び方を学ぶ難問をマスターするための強力なメンタルツール インストラクター: Dr. Terrence Sejnowski +1 以上 一流講師 ベストセラー 4,200,435 人がすでに登録済みです • 詳細 に含まれています 4 モジュール 各トピックの知識を学び、基礎を身につけます。 4.8 93,295件のレビュー 初級 レベル 経験は不要です フレキシブルなスケジュール 2 週 at 10 時間 週 自分のペースで学習する 4 モジュール 各トピックの知識を学び、基礎を身につけます。 4.8 93,295件のレビュー 初級 レベル 経験は不要です フレキシブルなスケジュール 2 週 at 10 時間 週 自分のペースで学習する 習得できるスキル 生涯学習 創造性 学習戦略 時間管理 学習理論 適応性 詳細確認 共有できる証明書 LinkedInプロファイルに追加 評価 11 課題¹。 AIグレード免責事項参照 英語 で授業 25 言語が利用可能, 日本語 (オート) を含む 98% ほとんどの学習者がこのコースを気に入りました トップ企業の従業員がどのように需要の高いスキルを習得しているかを見る Coursera for Businessの詳細情報を見る このコースには4のモジュールがあります このコースでは、芸術、音楽、文学、数学、科学、スポーツなど、様々な分野の専門家が用いている貴重な学習テクニックに簡単にアクセスすることができます。脳がどのように2つの異なる学習モードを使うのか、また、どのように情報をカプセル化（「チャンク」）するのかについて学びます。また、学習の錯覚、記憶術、先延ばしへの対処法、難関科目の習得に最も効果的であると研究によって示されたベストプラクティスについても取り上げます。 これらのアプローチを使えば、マスターしたいトピックのスキルレベルに関係なく、考え方を変え、人生を変えることができます。すでにエキスパートであれば、直感にとらわれないテスト攻略のヒントや、宿題や問題集に費やす時間を最大限に活用するための洞察など、学習効果を高めるアイデアが満載です。もしあなたが悩んでいるなら、軌道に乗るために必要なことを順を追って説明する、実践的なテクニックの宝庫が構造化されています。このコースは、関連コースであるMindshiftから独立して受講することも、同時に受講することも、あるいはその前に受講することもできます。(Learning How to Learnはより学習に特化したコースで、Mindshiftはよりキャリアに特化したコースです）。 同じ講師陣による関連コースに、「Uncommon Sense Teaching」があります。 全訳ポルトガル語版のコースに参加するには、以下をご覧ください： https://www.coursera.org/learn/aprender 全訳スペイン語版のコースに参加するには、以下をご覧ください： https://www.coursera.org/learn/aprendiendo-a-aprender 全訳中国語版のコースに参加するには、以下をご覧ください： https://www.coursera.org/learn/ruhe-xuexi 全訳フランス語版のコースに参加するには、以下をご覧くださ",
+   "truth": "ja"
+  },
+  {
+   "id": "ja-line",
+   "url": "https://apps.apple.com/jp/app/line/id443904275",
+   "lang": "ja",
+   "title": "‎LINEアプリ - App Store",
+   "text": "LINE ソーシャルネットワーキング 無料 · アプリ内購入 共有 52万件の評価 2.9 年齢制限指定 13+ 歳 ランキング 12位 ソーシャルネットワーキング デベロッパ LINE Corporation 言語 JA + 16言語 サイズ 424.9 MB iPhone、iPad、Apple Watch 国内1億ユーザー※が利用するコミュニケーションアプリ「LINE」 「LINE」は、無料で友だちや家族と、トーク（チャット）・音声通話・ビデオ通話を楽しめます。 ユーザー同士であれば、国内・海外・通信キャリアを問わず、いつでも、どこでもリアルタイムのコミュニケーションができます。 なお、「LINE」は、2011年6月にサービスを開始して以来、世界約230の国と地域で利用されています。 ※日本国内の月間アクティブユーザー数 会話を楽しめる「トーク・音声通話・ビデオ通話」をはじめ、人や情報・ サービス、企業・ブランドとシームレスに繋がることができます。 ◆トーク・音声通話・ ビデオ通話 ユーザー同士であれば、個人間はもちろん、複数人でも、トーク・音声通話・ビデオ通話を利用することができます。 ◆LINEスタンプ・絵文字・着せかえ トークがより楽しくなる多種多様なスタンプ・絵文字や、好みに合わせてLINEをカスタマイズできる着せかえがご利用できます。 ◆ホーム 友だちリストやスタンプショップをはじめとする「LINE」の様々な情報・サービスにアクセスできるほか、ニュースなどの最新の話題やスキマ時間に楽しめるコンテンツで世の中の\"いまの空気\"を感じられる場へ。 ◆LINEオープンチャット 「LINE」で友だちではない興味関心事が近い人たちとも、日常生活に密着した話題についてトークを楽しむことができるサービスです。 ◆ショッピングタブ ギフトを贈りたい時も、お得にお買い物をしたい時も、LINEアプリを開くだけで欲しいものがすぐ見つかる、そんな新しいショッピング体験をお楽しみいただけます。 ◆LINE NEWS 忙しい一日の中でも世の中の動きを、さっと掴みたい。LINE NEWSなら政治・経済からエンタメまで、あらゆるジャンルのニュースが届く。“知りたい”が, ここにある。 ◆LINEミニアプリ 追加のアプリをダウンロードすることなく、普段使っている「LINE」からよく行くお店の会員証の提示、モバイルオーダー、キャンペーン参加、ゲームなど、さまざまなサービスを利用できます。 ◆LINE公式アカウント 好きなアーティストや有名人、企業やブランドのLINE公式アカウントを友だち追加すると、最新情報やクーポンなどを受け取ることができます。 ◆LYPプレミアム 「LINE」がもっと楽しく便利になるLINE特典や、「Yahoo!ショッピング」などがおトクになるヤフー特典を利用できる月額制のサービスです。ユーザーのニーズに合わせて選べる各種プランをご用意しています。 【料金プラン】 「LYPプレミアム スタンダードプラン」（iOSアプリ版）：月額650円（税込） 「LYPプレミアム ライトプラン エンジョイパック」：月額290円（税込） 「LYPプレミアム with Netflix」：月額890円（税込）〜 【主なプラン内容】 スタンダードプラン：1,500万種類以上の対象スタンプ使い放題や動画・オリジナル画質写真のアルバム保存、Yahoo!ショッピングでのPayPayポイント+2%など、すべてのLINE、ヤフー、PayPayの特典が利用できる基本プランです。 LYP",
+   "truth": "ja"
+  },
+  {
+   "id": "k-cs50",
+   "url": "https://www.edx.org/learn/computer-science/harvard-university-cs50-s-introduction-to-computer-science",
+   "lang": "en",
+   "title": "HarvardX: CS50's Introduction to Computer Science | edX",
+   "text": "An introduction to the intellectual enterprises of computer science and the art of programming.\nHarvardX: CS50's Introduction to Computer Science | edX",
+   "truth": "en"
+  },
+  {
+   "id": "k-mit",
+   "url": "https://ocw.mit.edu/courses/6-0001-introduction-to-computer-science-and-programming-in-python-fall-2016/",
+   "lang": "en",
+   "title": "Introduction to Computer Science and Programming in Python | Electrical Engineering and Computer Science | MIT OpenCourseWare",
+   "text": "Course Description 6.0001 Introduction to Computer Science and Programming in Python is intended for students with little or no programming experience. It aims to provide students with an understanding of the role computation can play in solving problems and to help students, regardless of their major, feel justifiably confident of their … 6.0001 Introduction to Computer Science and Programming in Python is intended for students with little or no programming experience. It aims to provide students with an understanding of the role computation can play in solving problems and to help students, regardless of their major, feel justifiably confident of their ability to write small programs that allow them to accomplish useful goals. The class uses the Python 3.5 programming language. Course Info Topics Algorithms and Data Structures Programming Languages Course Info Learning Resource Types Lecture Notes Lecture Videos Problem Sets Programming Assignments with Examples",
+   "truth": "en"
+  },
+  {
+   "id": "k-ml",
+   "url": "https://www.coursera.org/learn/machine-learning",
+   "lang": "en",
+   "title": "Supervised Machine Learning: Regression and Classification | Coursera",
+   "text": "For IndividualsFor BusinessesFor UniversitiesFor GovernmentsCategoriesData ScienceMachine LearningBuild in-demand skills with a full year of Coursera Plus, now €206. Save now.Supervised Machine Learning: Regression and Classification Top Instructor1,269,233 already enrolledGain insight into a topic and learn the fundamentals.33,013 reviewsBeginner levelRecommended experienceFlexible schedule3 weeks at 10 hours a weekLearn at your own paceGain insight into a topic and learn the fundamentals.33,013 reviewsBeginner levelRecommended experienceFlexible schedule3 weeks at 10 hours a weekLearn at your own paceBuild your subject-matter expertiseLearn new concepts from industry experts Gain a foundational understanding of a subject or toolDevelop job-relevant skills with hands-on projectsEarn a shareable career certificateThere are 3 modules in this courseIn the first course of the Machine Learning Specialization, you will:Earn a career certificateAdd this credential to your LinkedIn profile, resume, or CV. Share it on social media and in your performance review.InstructorsInstructor ratings(11,570 ratings)Top InstructorDeepLearning.AI53 Courses10,075,925 learnersOffered byCourseCourseWhy people choose Coursera for their careerFelipe M.Learner since 2018\"To be able to take courses at my own pace and rhythm has been an amazing experience. I can learn whenever it fits my schedule and mood.\"Jennifer J.Learner since 2020\"I directly applied the concepts and skills I learned from my courses",
+   "truth": "en"
+  },
+  {
+   "id": "k-pyde",
+   "url": "https://www.coursera.org/learn/python",
+   "lang": "en",
+   "title": "Python for Everybody: Write Your First Python Programs | Coursera",
+   "text": "Build in-demand skills with a full year of Coursera Plus, now €206. Save now.Programming for Everybody (Getting Started with Python)Bestseller3,659,975 already enrolledGain insight into a topic and learn the fundamentals.233,786 reviewsBeginner levelNo prior experience requiredFlexible schedule2 weeks at 10 hours a weekLearn at your own paceGain insight into a topic and learn the fundamentals.233,786 reviewsBeginner levelNo prior experience requiredFlexible schedule2 weeks at 10 hours a weekLearn at your own paceWhat you'll learnInstall Python and write your first programDescribe the basics of the Python programming languageUse variables to store, retrieve and calculate informationUtilize core programming tools such as functions and loopsDetails to knowShareable certificateAdd to your LinkedIn profileAssessments9 assignments¹AI Graded see disclaimerTaught in English98%Most learners liked this courseBuild your subject-matter expertiseLearn new concepts from industry experts Gain a foundational understanding of a subject or toolDevelop job-relevant skills with hands-on projectsEarn a shareable career certificateThere are 7 modules in this courseThis course aims to teach everyone the basics of programming computers using Python. We cover the basics of how one constructs a program from a series of simple instructions in Python. The course has no pre-requisites and avoids all but the simplest mathematics. Anyone with moderate computer experience should be able to master the materi",
+   "truth": "en"
+  },
+  {
+   "id": "ko-10x10",
+   "url": "https://www.10x10.co.kr/shopping/category_prd.asp?itemid=6000000",
+   "lang": "ko",
+   "title": "다이어리 블랙 자석 수첩노트 메모지 업무일지 A5 | 텐바이텐",
+   "text": "다이어리 블랙 자석 수첩노트 메모지 업무일지 A5 | 텐바이텐 구버전의 Internet Explorer로 접속하셨습니다. 텐바이텐은 IE 11에서 최적화 되어 보여집니다. 편리한 사이트 이용 및 보안성 향상을 위해 최신 브라우저로의 업그레이드를 권장합니다. 로그인 / 회원가입 알림 주문/배송 고객센터 장바구니 0 10X10 애플 --> 렌탈하기 --> 프리오더 유니버설 공식스토어 선물의 참견 --> 커뮤니티 브랜드관 대량구매 캐릭터+ 기획전 베스트 신상품 할인특가 디자인문구 디지털/핸드폰 디자인가전 가구/수납 패브릭/생활 데코/조명 키친 푸드 패션의류 패션잡화 뷰티 주얼리/시계 Cat&Dog 토이/취미 캠핑 HOME > 디자인문구 > 다이어리/플래너 > 다이어리 상품코드 6000000 Review ( 쓰기 ) Gift Talk 텐텐 가족들이 여러분의 선물 고민을 해결해 드립니다! 마음을 전하는 선물가이드, 텐바이텐 기프트톡! ( 쓰기 ) 재입고 알림 0 Twitter Facebook Pinterest 상품 설명 상품 후기 ( 0 ) 테스터 후기 ( 0 ) Q&A ( 0 ) 배송/교환/환불 추천상품 제주도건 추가배송비 공지사항 제주 및 도서산건 지역은 추가배송비(3,000원)가 부과됩니다. 자세한 사항은 주문후 판매자 연락처 (070-4603-2836)으로 연락부탁드립니다. 감사합니다. 주문 주의사항 ownerclan(오너클랜) 제품으로만 100,000원 이상 구매시 무료배송 됩니다.배송비(2,500원) 상품 설명 상품 필수 정보 전자상거래 등에서의 상품정보 제공 고시에 따라 작성 되었습니다. 품명 및 모델명 : [상세설명참조] 법의 의한 인증, 허가 확인사항 : [상세설명참조] 제조국 또는 원산지 : [상세설명참조] 제조자 : [상세설명참조] A/S 책임자/전화번호 : [상세설명참조] 사업자 등록번호 : 122-86-25760 대표자명 : 김기명 전자우편주소 : shopping1t@ownerclan.com 주소 : (06526) 서울특별시 서초구 강남대로99길 23-8 (잠원동) 통신판매업신고번호 : 2022-서울서초-0498 \" Response.Write \" 해외배송 기준 중량 : \" & formatNumber(oItem.Prd.FitemWeight,0) & \"g(1차 포장을 포함한 중량) \" Response.Write \" \" End If % --> 상품 후기 전체 ( 0 ) 포토 ( 0 ) 매장 ( 0 ) 최신순 높은평점순 낮은평점순 후기 작성하기 상품후기 목록 평점 내용 작성일자 작성자 뱃지 등록된 상품 후기가 없습니다 구매고객님, 첫 후기 작성 시 마일리지 200Point를 드립니다. Q&A ( 0 ) 상품 문의하기 Q&A 목록 답변여부 답변내용 작성일자 작성자 등록된 상품 문의가 없습니다 배송/교환/환불 반품/환불 신청하기 배송정보 및 교환/환불 AS안내 배송정보 배송기간은 주문일(무통장입금은 결제완료일)로부터 1일(24시간) ~ 5일정도 걸립니다. 단, 지정일 배송이 가능한 플라워 상품이나, 제작기간이 별도로 소요되는 상품의 ",
+   "truth": "ko"
+  },
+  {
+   "id": "ko-innisfree",
+   "url": "https://www.costco.co.kr/BeautyHouseholdPersonal-Care/Beauty/EssenceSerumAmpoule/Innisfree-Greentea-Seed-Serum-160ml90ml/p/630863",
+   "lang": "ko",
+   "title": "이니스프리 그린티 씨드세럼 160ml+90ml | 코스트코 코리아",
+   "text": "컨텐츠로 바로가기 메뉴로 바로가기 메인 화장품/미용/제지 화장품/향수 에센스/세럼/앰플 TOP 인쇄 이니스프리 그린티 씨드세럼 160ml+90ml Innisfree Greentea Seed Serum 160ml+90ml 상품 # 630863 판매금액 29,990원 10㎖당 1,000원 배송비 포함 상품 비교하기 공유 위시리스트에 추가하기 상품상세정보 수분 에센스로 매일 수분 손실로 인한 건조, 거칠음, 푸석함으로 손상되는 피부를 개선시켜주는 그린티 바이옴 고수분 세럼 제품구성 그린티 씨드 세럼 160ml x 1+30ml x 3 제품 특징 더 진화된 수분체력 케어 그린티 바이옴 함유, 수분장벽 손상 개선 도움 더 편안해진 진정 효과 일시적 피부 진정 효과 도움, 트러블성 피부 사용 적합 더 강화된 수분력 아미노산 풍부 생녹차수와 5중 히알루론산, 속보습 케어 손상된 수분 장벽을 빠르게 개선 도움 바르자마자 폭발하는 수분감 수분 장벽 10층까지 차오르는 속보습 이런 분들께 권해드립니다. 건성피부로 세안 후 피부가 당기는 등 건조로 인한 피부 고민이 많은 분 겉은 기름지지만 속당김도 느끼는 수분부족형지성 타입 트러블성 피부에도 적합한 제품을 찾는 분 일상 속 피부 자극으로 연약해진 수분 체력 강화가 필요할 때 데일리 수분케어로 속당김, 결, 생기, 피부 수분장벽 고민까지 스마트한 해결이 필요할 때 바이옴 과학으로 진화한 4세대 그린티 씨드 세럼도 놓치지 마세요. 스펙 용량 또는 중량 160ml x 1+30ml x 3 제품 주요 사양 모든 피부 타입 사용기한 또는 개봉 후 사용기간 제조일로부터 36개월, 개봉 후 12개월 사용방법 세안 후 적당량을 손에 덜어 부드럽게 펴발라 줍니다. 화장품제조업자, 화장품책임판매업자 및 맞춤형화장품판매업자 ㈜코스비전 / ㈜이니스프리 제조국 대한민국 화장품법에 따라 기재.표시하여야 하는 모든성분 정제수, 프로판다이올, 글리세린, 변성알코올, 1,2-헥산다이올, 트레할로오스, 나이아신아마이드, 베타인, 사카라이드아이소머레이트, 녹차씨오일(2,600 ppm), 세테아릴올리베이트, 하이드로제네이티드레시틴, 솔비탄올리베이트, 아크릴레이트/C10-30알킬아크릴레이트크로스폴리머, 락토바실러스발효용해물(1,360 ppm), 부틸렌글라이콜, 스쿠알란, 판테놀, 알란토인, 하이드록시에틸아크릴레이트/소듐아크릴로일다이메틸타우레이트코폴리머, 트로메타민, 캐롭검, 에틸헥실글리세린, 다이소듐이디티에이, 향료, 다이포타슘글리시리제이트, 녹차추출물(167 ppm), 소듐하이알루로네이트, 하이알루로닉애씨드, 덱스트린, 카카오추출물, 에칠아스코빌에텔, 솔비탄아이소스테아레이트, 소듐시트레이트, 시트릭애씨드, 리날룰, 리모넨, 폴록사머235, 수크로오스, 락틱애씨드, 에피갈로카테킨갈레이트(5 ppm), 에톡시다이글라이콜, 토코페솔란, 폴록사머338, 하이드롤라이즈드하이알루로닉애씨드, 소듐하이알루로네이트크로스폴리머, 카프릴릴글라이콜, 소듐아세틸레이티드하이알루로네이트 화장품법에 따른 기능성 화장품의 경우 화장품법에 따른 기능성 화장품 심사(또는 보고)",
+   "truth": "ko"
+  },
+  {
+   "id": "ko-kakao",
+   "url": "https://apps.apple.com/kr/app/%EC%B9%B4%EC%B9%B4%EC%98%A4%ED%86%A1-kakaotalk/id362057947",
+   "lang": "ko",
+   "title": "‎카카오톡 KakaoTalk 앱 - App Store",
+   "text": "카카오톡 KakaoTalk 더 나은 대화를 위해. 무료 · 앱 내 구입 공유 94만개의 평가 3.6 연령 등급 전체 앱 내 제어 차트 #16 소셜 네트워킹 개발자 Kakao Corp. 언어 KO + 14개 언어 크기 587.6 MB iPhone, iPad, Apple Watch ■ 대한민국 대표 메신저 카카오톡 채팅은 물론 숏폼과 AI까지, 언제 어디서나 무료로 이용할 수 있는 메신저예요. 친구, 가족, 동료와의 1:1채팅과 그룹채팅은 물론 오픈채팅에서 관심사가 같은 사람들과 자유롭게 소통해보세요. 사진·영상·파일도 간편하게 주고받을 수 있어요. ■ 더 새롭고 쾌적한 대화 경험 채팅방 폴더로 채팅방을 정리하고, 보낸 메시지를 수정·삭제할 수 있어 편리해요. 댓글 기능으로 하나의 주제로 대화를 깔끔하게 이어갈 수도 있어요. ■ 말풍선으로 볼 수 있는 통화 녹음 녹음 앱 없이 카카오톡에서 버튼 하나로 통화를 녹음하고, 카카오톡 대화처럼 말풍선으로 정리해 보여줘요. ■ 화면 공유가 가능한 보이스톡·페이스톡 최대 10명까지 그룹 보이스톡·페이스톡을 할 수 있어요. 통화 중 페이스톡으로 전환하거나 화면을 공유할 수 있어요. 페이스톡에 다양한 화면 효과로 더 즐겁게 통화해보세요. ■ 채팅방에서 함께 즐기는 지금탭 숏폼 지금탭에서 발견한 숏폼을 채팅방에서 공유하면, 채팅방에서 바로 친구들과 함께 보면서 대화할 수 있어요 ■ 실시간 트렌드를 한눈에 보는 오픈채팅 커뮤니티 채팅방에 입장하지 않고도 오픈채팅 커뮤니티에서 실시간 트렌드를 둘러볼 수 있어요. 원하는 주제를 골라 바로 대화에 참여해보세요. ■ 나를 더 입체적으로 보여주는 프로필 프로필은 관심사와 취향을 담을 수 있는 나만의 공간이에요. 사진 공개 범위는 채팅방 단위로 손쉽게 설정할 수 있어요. ■ 친구들의 일상을 모아보는 친구탭 친구탭에서 소중한 사람들의 일상을 모아 보고 대화를 이어가세요. 직접 말 걸기가 부담된다면 좋아요로 가볍게 안부를 전할 수도 있어요. ■ 대화를 더 즐겁게 만드는 이모티콘 말로 다 표현하기 어려울 때, 이모티콘으로 마음을 전해보세요. 다양한 인기 캐릭터도 이모티콘으로 만날 수 있어요. 이모티콘 플러스를 구독하고 70만 개 이상의 이모티콘을 무제한으로 즐겨보세요. ■ 안전하게 보관되는 톡클라우드 카카오톡으로 주고받은 대화는 물론이고 사진, 영상 같은 미디어 파일까지 만료 없이 안전하게 보관하며, 새 기기에서 복원해 그대로 이어쓸 수 있어요. ■ 맞춤 혜택을 받는 브랜드 메시지 광고성 정보 수신에 동의한 브랜드 채널에서 할인·이벤트 등 내 꼭 맞는 혜택을 카카오톡 채널로 받아보세요. 스팸 문자 대신 취향 맞춤 소식을 전해드려요. ■ 꼭 필요한 정보를 전하는 알림톡 주문, 결제, 예약, 배송현황 등 꼭 필요한 정보를 카카오톡 채널에서 알림톡으로 받아볼 수 있어요. 카카오톡 이용에 필요한 접근 권한입니다. 선택 접근 권한을 허용하지 않아도 앱은 이용 가능하지만 일부 기능은 제한될 수 있습니다. [선택 접근 권한] - 위치: 위치 정보 검색 및 공유 - 연락처: 친구 추가, 연",
+   "truth": "ko"
+  },
+  {
+   "id": "ko-lang",
+   "url": "https://www.ted.com/talks/amy_cuddy_your_body_language_may_shape_who_you_are",
+   "lang": "en",
+   "title": "Amy Cuddy: Your body language may shape who you are | TED Talk",
+   "text": "Your body language may shape who you are 77,910,071 plays | Amy Cuddy | TEDGlobal 2012 • June 2012 Read transcript (NOTE: Some of the findings presented in this talk have been referenced in an ongoing debate among social scientists about robustness and reproducibility. Read \"Corrections & Updates\" below for more details as well as Amy Cuddy's response.) Body language affects how others see us, but it may also change how we see ourselves. Social psychologist Amy Cuddy argues that \"power posing\" -- standing in a posture of confidence, even when we don't feel confident -- can boost feelings of confidence, and might have an impact on our chances for success. TED is supported by ads and partners",
+   "truth": "en"
+  },
+  {
+   "id": "l-hoxton",
+   "url": "https://thehoxton.com/paris/",
+   "lang": "en-US",
+   "title": "Book Our Boutique Hotel in Paris | The Hoxton",
+   "text": "GREAT TO SEE YOU! The Hoxton, Paris is a grand 18th century residence in Paris’ 2nd arrondissement with original staircases, plentiful Parisian flair, and camera-baiting corners aplenty. Sleep With Us Our Parisian abode has 172 hotel rooms with seriously comfy beds, chevron timber floors, bold feature walls and oodles of local Parisian charm. View Bedrooms Why Book via thehoxton.com? Book direct on thehoxton.com to enjoy early check-in and late check-out at any time for free with Flexy Time, and cancel for free up until 2pm the day before arrival. View Offer Sleep With Us Our Parisian abode has 172 hotel rooms with seriously comfy beds, chevron timber floors, bold feature walls and oodles of local Parisian charm. View Bedrooms Why Book via thehoxton.com? Book direct on thehoxton.com to enjoy early check-in and late check-out at any time for free with Flexy Time, and cancel for free up until 2pm the day before arrival. View Offer Our Location30-32 Rue du Sentier, 75002 Paris, France Charles de Gaulle - 1 hour via public transport Gare du Nord - 20 min walk Nearest Metro - 2 min walk Get Directions Popular FAQs Do The Hoxton hotels offer free Wi-Fi? Where do I park? Is there a gym? Do The Hoxton hotels have air conditioning? How can I contact the hotel? Our NeighbourhoodOur Paris neighbourhood is packed with tasty food, great bars and historical architecture. By day, cobbled streets house open-air markets and stylish boutiques, and by night, the area transforms, buzzing with bu",
+   "truth": "en"
+  },
+  {
+   "id": "l-louvre",
+   "url": "https://www.louvre.fr/en",
+   "lang": "en",
+   "title": "Musée du Louvre Official Website",
+   "text": "Welcome to the LouvreThe museum is open today9:00 a.m. à 6:00 p.m.Monday, 9 November 2026The museum may open later and some exhibition rooms may remain closed.We apologise for the inconvenience.HighlightsZurbarán 1598–1664Revisit the paintings of Francisco de Zurbarán with this chronological and thematic retrospective. From 7 October 2026 to 25 January 2027ExhibitionVisitor trailConcertsLouvre PhotoThrough more than 300 photos of the Louvre – its visitors both famous and anonymous, its hidden nooks and behind-the-scenes corridors – ‘Louvre Photo’ invites visitors on a photographic journey through history to the present day. Beginning 4 November 2026.ExhibitionOn the Roads of Medieval Karakum (Turkmenistan)The relation between the Silk Road and the cities of Merv, Bukhara and Samarkand – major stops along the network – has long been described as symbiotic, but what of the smaller towns and outposts dotted throughout the desert? Lecture, 12 November, 12:30 pmLecturesZurbarán 1598–1664Revisit the paintings of Francisco de Zurbarán with this chronological and thematic retrospective. From 7 October 2026 to 25 January 2027ExhibitionConcertsLouvre PhotoThrough more than 300 photos of the Louvre – its visitors both famous and anonymous, its hidden nooks and behind-the-scenes corridors – ‘Louvre Photo’ invites visitors on a photographic journey through history to the present day. Beginning 4 November 2026.ExhibitionVisitor trailOn the Roads of Medieval Karakum (Turkmenistan)The relati",
+   "truth": "en"
+  },
+  {
+   "id": "l-sagrada",
+   "url": "https://sagradafamilia.org/en/",
+   "lang": "en-US",
+   "title": "Sagrada Família - Official ticket vendors - Sagrada Familia",
+   "text": "Banner Top This evening’s international Mass will be held in the crypt of the Sagrada Família. This evening’s international Mass will be held in the crypt of the Sagrada Família. espacio espacio espacio Titol configurable CALENDARI ACTIIVTATS Activities Calendar espacio espacio espacio Sagrada Familia's Calendars News Keep up with the latest news on the Basilica and everything going on: masses, celebrations, workshops, exhibitions, concerts and much more! Keep up with the latest news on the Basilica and everything going on: masses, celebrations, workshops, exhibitions, concerts and much more! See all espai blanc espai blanc espai blanc Blog Official architecture blog of the Sagrada Família. Here you can follow the progress on Gaudí's masterpiece, which is expected to be completed in 2026, and learn about all the details. Official architecture blog of the Sagrada Família. Here you can follow the progress on Gaudí's masterpiece, which is expected to be completed in 2026, and learn about all the details. Follow us Locations Sagrada Família Metro: L2 i L5 Sagrada Familía Bus: 19, 33, 34, 43, 44, 50, 51, B20 i B24 Casa Museu Metro: L3 | Lesseps Casa Museu Bus: 24, V19, D40, H6, 116 espai blanc espai blanc espai blanc espai blanc espai blanc espai blanc Xarxes Socials - Vídeo Youtube Xarxes Socials - Vídeo Youtube youtube YOUR PRIVACY MATTERS We use our own and third-party cookies to improve this website, as well as collect and analyze access data. By clicking on 'OK' you accept th",
+   "truth": "en"
+  },
+  {
+   "id": "l-septime",
+   "url": "https://guide.michelin.com/en/ile-de-france/paris/restaurant/septime",
+   "lang": "en-US",
+   "title": "Septime – Paris - a MICHELIN Guide Restaurant",
+   "text": "Septime 80 rue de Charonne, Paris, 75011, France Cuisine: Modern Cuisine, Creative Price: €€€€ Bursting with brilliant ideas, boundlessly fresh and effortless, passionate and a touch mischievous, yet always precise and refined: this iconic spot in eastern Paris, founded by the late Bertrand Grébaut and his partner Théophile Pourriat, embodies the very best of a generation of Parisian haunts that have both style and substance. Guided by a surprise set menu, diners are swept away by modern, subtly creative, plant-forward cuisine. This is cooking that gets straight to the point – unfussy, complex, with character, and always flawlessly seasoned. The decor embraces the hallmarks of industrial chic – a large workshop-style glass partition, rough-hewn wooden tables and exposed metal beams – and relaxed and informal service to match. All that remains is to secure a table: bookings are online only, during a narrow window at 10am sharp each morning. Ready, set, click! MINDFUL VOICES Théophile Pourriat The market garden produce we use comes mainly from the Île-de-France region; meat and fish are sourced from suppliers practising responsible farming or fishing. We use ingredients in their entirety to combat waste, and our organic waste goes to a vermicomposting centre to be recycled. Monday 12:15-14:00 19:30-23:00 Tuesday 12:15-14:00 19:30-23:00 Wednesday 12:15-14:00 19:30-23:00 Thursday 12:15-14:00 19:30-23:00 Friday 12:15-14:00 19:30-23:00 Saturday closed Sunday closed",
+   "truth": "en"
+  },
+  {
+   "id": "l-yosemite",
+   "url": "https://www.nps.gov/yose/index.htm",
+   "lang": "en",
+   "title": "Yosemite National Park (U.S. National Park Service)",
+   "text": "What is there to do in Yosemite? A lot! Learn more about top things to know before you visit the park and how to plan ahead for your trip. If you're planning a trip to Yosemite in fall, plan ahead for what's open and what to expect during this variable time of year. Check entrance station wait times, current road and trail conditions, air quality, and other timely updates. Planning a visit to Yosemite? Check out these common questions related to reservations, what to do, where to go, and more. Camping is extremely popular in Yosemite. Plan ahead and figure out what options you have for this enjoyable activity. Looking for lodging? Learn more about our popular overnight accommodations. Find activities that fit into your Yosemite adventure! So many places to go and so little time! Learn more about all the areas and attractions in Yosemite. Find your route to Yosemite, check the status of roads, and view park maps. Wilderness permits are required for all overnight hikes. Learn how and when to apply for a permit. Permits to hike to the top of Half Dome are required when the cables are up and are distributed by lottery. Learn how to apply for a permit. Thinking about bringing your four-legged friend on vacation? Learn more about Yosemite's pet policies. One app, every park at your fingertips. The NPS App offers tools to explore more than 400 national parks nationwide. Yosemite is home to countless waterfalls. The best time to see waterfalls is during spring, when most of the snowm",
+   "truth": "en"
+  },
+  {
+   "id": "mx-duolingo",
+   "url": "https://apps.apple.com/mx/app/duolingo-aprende-idiomas/id570060128",
+   "lang": "es-MX",
+   "title": "‎App Duolingo - Aprende idiomas - App Store",
+   "text": "Duolingo - Aprende idiomas Aprende inglés, francés y más Gratis · Compras dentro de la app Compartir 748 k calificaciones 4.8 Premios Selección editorial Apps Clasificación por edades 4+ Años Lugar #1 Educación Desarrollador Duolingo Idioma ES y 32 más Tamaño 522.8 MB iPhone, iPad ¡Aprende un nuevo idioma con la app educativa más descargada del mundo! Duolingo es la app gratuita para aprender más de 40 idiomas, mientras que te diviertes con lecciones cortas. Practica conversación, comprensión, lectura, escritura y desarrolla tus habilidades de gramática y vocabulario. Diseñado por expertos en idiomas y querido por cientos de millones de personas en todo el mundo, Duolingo te ayuda a prepararte para conversar en la vida real en español, francés, chino, italiano, alemán, inglés ¡y más! ¡Ahora, también puedes aprender Matemáticas y Música a la manera de Duolingo! Desarrolla habilidades matemáticas que usarás en la vida real (desde calcular propinas a identificar patrones) y fortalece tu destreza mental con nuestro curso de matemáticas. Aprende a leer y tocar canciones famosas en tu dispositivo con nuestro nuevo curso de música. ¡No necesitas ningún instrumento! Ya sea que estés aprendiendo para viajar, para la escuela, tu profesión, tu familia, tus amigos o como ejercicio mental, te encantará aprender con Duolingo. ¿Por qué elegir Duolingo? • Duolingo es divertido y efectivo. Nuestras lecciones se sienten como un juego y los divertidos personajes te permitirán desarrollar sólida",
+   "truth": "es"
+  },
+  {
+   "id": "p-era100",
+   "url": "https://www.sonos.com/en-us/shop/era-100",
+   "lang": "en-us",
+   "title": "Era 100: The Next-Gen Stereo Bookshelf Speaker | Sonos",
+   "text": "Era 100 transforms any room with the rich stereo sound and deep bass your music deserves.More infoSuperb sonic powerNext-gen acoustics bring your music to life with detailed stereo separation and deep bass at any volume.Minor scale for major versatilityPlace this compact speaker on your bookshelf, kitchen counter, desk, or nightstand.Play from any service or device- WifiThe best sound experienceStream the highest-quality audio without interruptions from calls or notifications. Bluetooth®No missed connectionsWith the press of a button, stream directly from a paired Bluetooth device.1 Line inMore listening possibilitiesConnect a turntable or other audio source using an auxiliary cable and the Sonos Line-In Adapter.2Breeze through setupGo from unboxing to unbelievable sound in just a few minutes. Simply plug in the power cable, connect your phone or tablet to WiFi, and open the Sonos app.Music comes standardDiscover free music and thousands of live stations from around the world on Sonos Radio. Find it in the Sonos app as soon as you set up your system.Learn more Tunes itself for youWith a tap in the Sonos app, Trueplay™ tuning technology analyzes the unique acoustics of your space and optimizes the speaker’s EQ. So all your content sounds just the way it should.Control your wayMore powerful as a pairTake the sound from room-filling to thrilling when you put two speakers in the same room5. Get ready for an even wider stereo soundstage and truly awe-inspiring sweet spot.Shop the ",
+   "truth": "en"
+  },
+  {
+   "id": "p-everyday",
+   "url": "https://www.peakdesign.com/eu/products/everyday-backpack",
+   "lang": "en",
+   "title": "Everyday Backpack | Peak Design Official Site",
+   "text": "Size: Color: BlackBundle & save:Everyday Backpack onlyTech Bundle20L Everyday Backpack + Tech Pouch + Wash Pouch10% OffHip Belt Bundle20L Everyday Backpack + Hip Belt10% OffBuild a BundleBuy this with 2 accessories and save10% Off€279.99descriptionAn iconic, award-winning pack for everyday and photo carry, the newly revamped Everyday Backpack is built around access, organization, expansion, and protection. Unique MagLatch hardware provides lightning fast top access, with dual side access via two weatherproof UltraZips.",
+   "truth": "en"
+  },
+  {
+   "id": "p-macbook",
+   "url": "https://www.apple.com/macbook-air/",
+   "lang": "en-US",
+   "title": "MacBook Air 13-inch and MacBook Air 15-inch - Apple",
+   "text": "Lease a new Mac with low monthly payments for 24 or 36 months and upgrade at the end of your term with Apple Upgrade.§ Learn more Buy MacBook Air with education savings.* Shop Design Built to go places. MacBook Air is remarkably light at just 2.7 pounds, and less than half an inch thin. It’s designed to fit easily into your bag, so you can always take it with you. It’s also made with over 50 percent recycled materials and has a durable recycled aluminum enclosure built to withstand daily use. 13” display 15” display Two perfectly portable sizes. The 13‑inch MacBook Air is the ultimate on-the-go laptop, and the 15‑inch model gives you even more space onscreen for multitasking.3 Four beautiful colors will have you on cloud nine. And every MacBook Air comes with a color‑matched MagSafe charging cable. Performance M5. The chip that zips. Up to9.5xfaster than MacBook Airwith M14 Up to4xfaster than MacBook Airwith M45 Up to3.8xfaster than PC laptop with Intel Core Ultra X76 AI in the fast lane. MacBook Air delivers blazing‑fast AI performance thanks to the powerful combination of the GPU, Neural Engine, and unified memory in M5. With a Neural Accelerator built into each GPU core, AI tasks run with amazing efficiency. From AI image upscaling to running the latest large language models, you’ll be more productive and creative than ever. Multitasker. Multifaster. The M5 chip brings even more speed and fluidity to everything you do, like seamless switching between loads of apps and tabs",
+   "truth": "en"
+  },
+  {
+   "id": "p-mixer",
+   "url": "https://www.kitchenaid.com/countertop-appliances/stand-mixers/tilt-head-stand-mixers/p.artisan-series-5-quart-tilt-head-stand-mixer.KSM150PSOB.html",
+   "lang": "en-US",
+   "title": "Artisan® Series 5 Quart Tilt-Head Stand Mixer - Onyx Black | KitchenAid US",
+   "text": "Stand Mixers > Stand Mixers: Tilt Head > Artisan® Series 5 Quart Tilt-Head Stand Mixer Artisan® Series 5 Quart Tilt-Head Stand Mixer - Onyx Black KSM150PSOB 5 included accessories Juniper Milkshake Mineral Water Blue Feather Pink Onyx Black White Empire Red Pistachio Blue Steel Matcha Ice Porcelain White Scorched Orange Mint Julep Cast Iron Black Almond Cream Aqua Sky Contour Silver Cherry Tomato Blue Velvet Medallion Silver Ink Blue Black Matte Cardamom Matte Dried Rose Wildflower Blue Salt Beetroot Butter Hibiscus Elderberry Grey Loading personalisation options... Checked Free shipping on orders $49.99+³ Checked 60 days free return Checked 100% secure payment Save on stand mixers and attachments Artisan ® Series 5 Qt Tilt-Head Stand Mixers in Milkshake or Juniper, now $349.99.* Promotion Conditions SHOP THE COLLECTION Artisan® Series 5 Quart Tilt-Head Stand Mixer Whether you need 9 dozen of your signature chocolate chips cookies* or shredded chicken for Taco Tuesday with friends and family, the KitchenAid ® Artisan ® Series 5 Quart Tilt-Head Stand Mixer has the capacity for every occasion. #1 Mixer Brand in the World* The Power and Durability to Take It All On 5 Quart Capacity for Small or Large Batches Easily add Ingredients with the Tilt-Head Design 10 Speeds for Nearly any Task or Recipe 10+ Attachments Available to Make More with your Mixer OVERVIEW WHAT'S IN THE BOX? FEATURES SPECIFICATIONS REVIEWS Model KSM150PS includes 5 included accessories Stand Mixer in your colo",
+   "truth": "en"
+  },
+  {
+   "id": "p-mxmaster",
+   "url": "https://www.logitech.com/en-us/shop/p/mx-master-3s",
+   "lang": "en-us",
+   "title": "MX Master 3s Wireless Mouse - 8K Optical Sensor | Logitech",
+   "text": "See all Track anywhere, even glass now with 8K DPI precision MX Travel case included - Logitech.com exclusiveMade with recycled plastic All your MX tools in one flow Master Series MX Master 3S Bluetooth Edition Performance Wireless Mouse $89.99 $99.99 10% off Color Black In stock. Ready to ship 7.78 7.78 kg CO2e carbon footprint An icon. Remastered. Meet MX Master 3S – an iconic mouse remastered. Feel every moment of your workflow with even more precision, tactility, and performance, thanks to Quiet Clicks and an 8,000 DPI track-on-glass* sensor. *4 mm minimum glass thickness. High Performance. Engineered Responsibly. We engineer our products for speed, precision, and high performance, all while considering sustainability as a key criterion throughout every stage of the product development process Loading Reviews...",
+   "truth": "en"
+  },
+  {
+   "id": "p-notesleeve",
+   "url": "https://bellroy.com/products/note-sleeve-wallet",
+   "lang": "en",
+   "title": "Note Sleeve | Slim Men's Wallets with RFID | Bellroy",
+   "text": "Shop / Wallets / Men's Wallets / - Camera Edition - Carryology Essentials Edition - Google Edition - INNOVERA™ Edition - MIRUM® Edition - Premium Edition - Previous Edition - Second Edition - Single Rail System - Third Edition - Gaming Edition - FutureGrain™ Edition Camera Edition Carryology Essentials Edition Google Edition INNOVERA™ Edition MIRUM® Edition Premium Edition Previous Edition Second Edition Single Rail System Third Edition Gaming Edition FutureGrain™ Edition New #[sku.price] Features Holds 4–11+ cards Stores flat bills 3 quick-access slots Pull-tab section for less used cards Full-sized note section and coin pocket Main material: - Internal Apple AirTag slip pocket - Made from high-performance leather alternative INNOVERA™ Holds 4–11+ cards Stores flat bills 3 quick-access slots Pull-tab section for less used cards Full-sized note section and coin pocket Internal Apple AirTag slip pocket - AirTag slip pocket This bag’s internal label doubles as a mini pocket, designed to hold an Apple AirTag. Features Holds 4–11+ cards Stores flat bills 3 quick-access slots Pull-tab section for less used cards Full-sized note section and coin pocket Main material: - Internal Apple AirTag slip pocket - Made from high-performance leather alternative INNOVERA™ Holds 4–11+ cards Stores flat bills 3 quick-access slots Pull-tab section for less used cards Full-sized note section and coin pocket Internal Apple AirTag slip pocket - AirTag slip pocket This bag’s internal label doubles as",
+   "truth": "en"
+  },
+  {
+   "id": "p-pocket3",
+   "url": "https://www.dji.com/global/osmo-pocket-3",
+   "lang": "en",
+   "title": "Osmo Pocket 3 - For Moving Moments - DJI Global or Other Regions",
+   "text": "Authentic color and shadows any time of day.1-Inch CMOS & 4K/120fps [1] 10-Bit D-Log M & HLGLet your natural beauty radiate.Clear & Glowing Complexion Glamour Effects 2.0Quick and stable to focus on any moment.Full-Pixel Fast Focusing 3-Axis Gimbal Mechanical Stabilization Pocket-SizedInnovative options assist your creative vision.2-Inch Rotatable Screen & Smart Horizontal-Vertical Shooting ActiveTrack 6.0 Stereo Recording & DJI Mic 2/Mic Mini Compatibility",
+   "truth": "en"
+  },
+  {
+   "id": "p-q45",
+   "url": "https://www.soundcore.com/products/d1402-space-2-comfortable-noise-cancelling-headphones",
+   "lang": "en-US",
+   "title": "soundcore Space 2 - comfortable noise cancelling headphones for travel",
+   "text": "Home/All/Headphones/soundcore Space 2 | Comfortable Noise Cancelling Headphones for All-Day WearAdvanced Noise Cancelling Optimized for Low-Frequency Noise on the GoColor$129.99Shipping InfoStandard ShippingPlace your order now for estimated delivery within 3-7 business days.FreeNext-Day ShippingPlace your order now for estimated delivery within 1-2 business days.$9.99Members onlyExpress ShippingPlace your order now for estimated delivery within 1-3 business days.$6.99Members onlySee available shipping areas here.Express shipping is only available to registered users who are logged in.Services and benefitsWant More Perks?30 Days Price MatchPayment MethodDelivery MethodHear the Clarity, Feel the Thump40 mm double-layer diaphragm drivers sharpen every high note and deepen every bass drop for an exceptional high-fidelity experience.Lossless Sound On The GoEnjoy High-Resolution audio, wired or wireless. LDAC transmits 3× more data to preserve every detail on every leg of your journey.Notes: 1. Hi-Res Audio logo and Hi-Res Audio Wireless logo are registered trademarks or otherwise trademarks of Japan Audio Society. 2. LDAC enables the transmission of audio content at a maximum bitrate of 990kbps—three times the data transmission rate of the standard SBC codec at 328kbps. LDAC is only compatible with Android devices and can be enabled in the soundcore app. LDAC and the LDAC logo are trademarks of Sony Corporation.One Tap for Built‑In White NoiseEnable Nap Mode in the soundcore app ",
+   "truth": "en"
+  },
+  {
+   "id": "p-thomann",
+   "url": "https://www.thomann.de/de/fender_player_ii_strat_mn_blk.htm",
+   "lang": "de",
+   "title": "Fender Player II Strat MN BLK – Musikhaus Thomann",
+   "text": "I'd seen some very mixed reviews about build quality and had been worried about receiving something that was sub-par, but this guitar is really put together well. The neck is lovely, no sharp fret ends, well polished, no buzzing, nice relief. I did have to lower the action, which was quite high, but that was no problem. I don't use the trem, so I tightened up the screws at the claw to prevent movement. Sounds like a Strat should sound. What was missing from the back of the headstock was the Fender 70th Anniversary logo, but that's no big deal. All in all, a very good, well-made guitar. Edit : After having this guitar for a while, I can say that it stays in tune really really well. I had sourced some locking tuners to fit to it, but I don't think I'll bother now!",
+   "truth": "de",
+   "known": "en",
+   "note": "Known miss: a German shop's page whose text is English customers' reviews reads as English (the text decides over the site's language)."
+  },
+  {
+   "id": "pt-havaianas",
+   "url": "https://havaianas.com.br/products/chinelo-havaianas-top-glitter-neon-4150303_4622?variant=46532478763265",
+   "lang": "pt-BR",
+   "title": "Chinelo Havaianas Top Glitter Neon - Havaianas Brasil",
+   "text": "Pular para as informações do produto\nAbrir mídia 1 na janela modal\nAbrir mídia 2 na janela modal\nAbrir mídia 3 na janela modal\nAbrir mídia 4 na janela modal\n1\n/\nde\n6\nhava friday\n30% off\n49\nChinelo Havaianas Top Glitter Neon\nPreço normal\nR$ 89,99 \nPreço promocional\nR$ 62,99\nCor:\nRosa Gum\nTamanho:\n33/34\nGuia de tamanhos\n33/34\nVariante esgotada ou indisponível\n35/36\nVariante esgotada ou indisponível\n37/38\nVariante esgotada ou indisponível\n39/40\nVariante esgotada ou indisponível\n41/42\nVariante esgotada ou indisponível\nAdicionar à sacola\nR$ 62,99\nO estoque pode mudar por região.\nInforme seu CEP e veja o que está disponível.\nVerifique a disponibilidade em sua região\nInserir CEP\nSKU:\nREF. 4150303_4622_334\nLista de Cuidados\nAvaliações\n4.4\n5 avaliações\n86% dos avaliadores recomendam o produto\nTamanho\n5/5\nQualidade\n4/5\nMais úteis\nMais recentes\nMais antigas\nMaiores notas\nMenores notas\nClientes relatam que o glitter solta com facilidade. Também descrevem o chinelo como bonito e confortável.\nQualidade\nAparência\nConforto\nResumo gerado por I.A. com base nas avaliações dos clientes\nRosana S.\nhá 9 meses\ncomprador verificado\nEla é macia e confortável! A correia é mais larga, para quem tem o pé gordinho deve ser bom! Para mim ficou larga pois tenho o pé fino, mas gostei assim mesmo! Em algumas fotos ela parecia roxa, quase uva, mas na vdd ela é mais puxada para o rosa escuro.\nesta avaliação foi útil?\n3\n1\nthayssa m.\nhá 2 meses\ncomprador verificado\nComprei o laranja. Eu adorei o chinelo, inclusiv",
+   "truth": "pt"
+  },
+  {
+   "id": "pt-mbway",
+   "url": "https://apps.apple.com/pt/app/mb-way/id918126133",
+   "lang": "pt-PT",
+   "title": "‎App MB WAY – App Store",
+   "text": "MB WAY Finanças Grátis Partilhar 11 mil classificações 3,9 Classificação etária 4+ Anos Posição N.º 3 Finanças Programador SIBS FPS Idioma PT + 1 Tamanho 244,1 MB iPhone, iPad A app MB WAY da SIBS simplifica os seus pagamentos num só lugar! Ao associar o número de telemóvel ao cartão bancário, pode Enviar, Pedir e Receber Dinheiro, Dividir Contas, Gerar Cartões Virtuais MB NET, fazer compras online e em lojas físicas (QR Code ou NFC), e ainda ganhar prémios. Controle as suas subscrições e pagamentos recorrentes na app. Pode ainda levantar dinheiro e usar o MULTIBANCO apenas com o MB WAY. Com o MB WAY Pulse, pode pagar mesmo com o smartphone desligado, sem bateria ou sem internet. A app MB WAY é a app de pagamentos nº1 em Portugal e já uma referência, que conta com + de 6,5 milhões de utilizadores que diariamente aproveitam as suas vantagens tornando-a a app de pagamentos favorita dos portugueses. FUNCIONALIDADES Como Pagar com MB WAY? Para pagar em loja, selecione “Pagar com MB WAY” e escolha “QR Code” ou “NFC”. - QR Code: O comerciante gera o QR Code após inserir o valor. Leia o código no terminal e, se necessário, confirme com o seu PIN, touch ID ou face ID. - NFC: Encoste o telemóvel ao terminal. Se a compra for superior ao limite sem PIN, confirme na app e encoste novamente. Para compras online, selecione MB WAY, insira o número de telemóvel. Receberá uma notificação para confirmar o pagamento. Como comprar com MB NET? No momento de pagar as suas compras online aceda à ap",
+   "truth": "pt"
+  },
+  {
+   "id": "pt-tramontina",
+   "url": "https://www.tramontina.com.br/jogo-de-frigideiras-tramontina-turim-em-aluminio-com-revestimento-interno-e-externo-em-antiaderente-starflon-max-chumbo-2-pecas/20198660.html",
+   "lang": "pt",
+   "title": "Jogo de Frigideiras Tramontina Turim em Alumínio com Revestimento Interno e Externo em Antiaderente Starflon Max Chumbo 2 Peças de Qualidade em Promoção | Tramontina Store",
+   "text": "P&aacute;gina Inicial Ambientes Cozinha Panelas Frigideiras, Panquequeiras, Omeleteiras Compartilhe este produto Copie e cole o link Copiar Compartilhe este produto Preencha os dados abaixo para compartilhar o produto. A Tramontina n&atilde;o utiliza esse servi&ccedil;o para envio de ofertas por e-mail. Ops, ocorreu um erro inesperado. Tente mais tarde. Sua mensagem foi enviada com sucesso! Fechar Baixou de pre&ccedil;o 5 de 5 em classifica&ccedil;&atilde;o Avalia&ccedil;&otilde;es Refer&ecirc;ncia: 20198660 Jogo de Frigideiras Tramontina Turim em Alum&iacute;nio com Revestimento Interno e Externo em Antiaderente Starflon Max Chumbo 2 Pe&ccedil;as Ver mais detalhes O jogo de frigideiras Tramontina Turim em alumínio com revestimento interno e externo em antiaderente Starflon Max chumbo 2 peças é indis... Ver mais detalhes Cores selecionado Compartilhar Favoritar 5 de 5 em classifica&ccedil;&atilde;o Avalia&ccedil;&otilde;es Refer&ecirc;ncia: 20198660 Jogo de Frigideiras Tramontina Turim em Alum&iacute;nio com Revestimento Interno e Externo em Antiaderente Starflon Max Chumbo 2 Pe&ccedil;as Ver mais detalhes O jogo de frigideiras Tramontina Turim em alumínio com revestimento interno e externo em antiaderente Starflon Max chumbo 2 peças é indis... Ver mais detalhes Cores selecionado Compartilhar Favoritar 36 pessoas est&atilde;o de olho Formas de Pagamento Cart&atilde;o de Cr&eacute;dito Pix Boleto Pagamento r&aacute;pido, seguro e sem custo adicional. Prazo Parcela Valor total ",
+   "truth": "pt"
+  },
+  {
+   "id": "r-9to5",
+   "url": "https://9to5toys.com/2026/09/29/roborock-2026-qrevo-edge-3-pro-robot-vac-and-mop/",
+   "lang": "en-US",
+   "title": "Bring home roborock's premium 2026 Qrevo Edge 3 Pro robot vac and mop down at a new $1,100 low, more from $160",
+   "text": "$400 off/$1,100 low This offer has expired! Be sure to follow us on Twitter for the latest deals and more. Sign-up for our newsletters and have our best offers delivered to your inbox daily. Running alongside the Amazon early fall Prime Day deals, the official roborock storefront is currently offering its newest 2026 Qrevo Edge 3 Pro Robot Vacuum and Mop down at $1,099.99 shipped, matching the price from the brand’s direct website. Only on the market since mid-August, this new premium cleaning solution saw its first discount just last week, dropping the price from $1,500 to $1,200, but now its getting further savings taking things lower to $1,100 and marking a new all-time low price with $400 in total cut from the tag. We’ve also rounded up all the brand’s other current robot cleaner and mower deals for you below. Roborock has really stepped up its game with the new 2026 Qrevo Edge 3 Pro robot that brings along even more advanced features from the earlier 2026 Qrevo 2 Pro robot (currently at its $550 low). To start, whereas most robots usually climb up to 20,000Pa suction, the Qrevo Edge 3 Pro boasts a monstrous 36,000Pa suction power paired with dual zero-tangle brushes for vacuuming. On the flip side of its functionality is the newly designed spinning mop pads – plus, there’s the brand’s FlexiArm tech so all its cleaning functions get closer to walls, corners, furniture legs, and toe-kick areas, “achieving 100% edge and corner coverage.” Not only that, but it comes with the",
+   "truth": "en"
+  },
+  {
+   "id": "r-habr",
+   "url": "https://habr.com/ru/companies/leadertask/articles/992196/",
+   "lang": "ru",
+   "title": "Распорядок дня в 2026: Agile‑система дел в таск-менеджере &#x2F; Хабр",
+   "text": "Уровень сложностиПростойВремя на прочтение12 минОхват и читатели8.8KМнениеВы скачали шаблон распорядка дня из интернета, продержались 4 дня, на 5-й всё пошло не по плану, и вы забросили его навсегда. Знакомо? Мне — да, проходила через это не раз.Со временем пришла к одному выводу: проблема не в силе воли. Я просто пыталась построить жёсткий «механизм», а мне, как и большинству людей, нужна система, которая выдерживает реальную жизнь.Классический распорядок дня работает только в идеальных условиях. Но, давайте будем честны, реальность приносит незапланированные созвоны, срочные задачи, дорогу, усталость и провалы по энергии. Сетка по часам ломается — и мы воспринимаем это как провал всей идеи, хотя это всего лишь исключение, которое надо уметь обрабатывать.По моему опыту, в 2026 году ценность не в том, чтобы «жить по графику», а в правилах и триггерах, которые управляют задачами, энергией и вниманием. Я смотрю на личное планирование как на продукт: ему нужны итерации, приоритеты и регулярная корректировка — как в управлении проектами и разработке.В этой статье не будет «идеального шаблона дня». Вместо этого мы соберём понятный алгоритм, который можно повторить в ЛидерТаске или другом таск-менеджере на нейтральных примерах и схемах.Что именно разберём:Как провести аудит ресурсов: энергия, контексты, доступные инструменты.Как дробить большие задачи до уровня конкретных действий.Как собрать день в виде короткой итерации и не ломаться при сбоях.Как делать ретроспективу, чтобы сист",
+   "truth": "ru"
+  },
+  {
+   "id": "r-nng",
+   "url": "https://www.nngroup.com/articles/ten-usability-heuristics/",
+   "lang": "en",
+   "title": "10 Usability Heuristics for User Interface Design - NN/G",
+   "text": "Summary: Jakob Nielsen's 10 general principles for interaction design. They are called \"heuristics\" because they are broad rules of thumb and not specific usability guidelines. Thank you to Kelley Gordon for designing the visuals and posters included in this article. Thank you to Kate Moran and Feifei Liu for updating the heuristic names, descriptions, and examples. 1: Visibility of System Status 2: Match Between the System and the Real World 3: User Control and Freedom 4: Consistency and Standards 5: Error Prevention 6: Recognition Rather than Recall 7: Flexibility and Efficiency of Use 8: Aesthetic and Minimalist Design 9: Help Users Recognize, Diagnose, and Recover from Errors 10: Help and Documentation Free 10 Heuristics Poster 1: Visibility of System Status The design should always keep users informed about what is going on, through appropriate feedback within a reasonable amount of time. When users know the current system status, they learn the outcome of their prior interactions and determine next steps. Predictable interactions create trust in the product as well as the brand. 2: Match Between the System and the Real World The design should speak the users' language. Use words, phrases, and concepts familiar to the user, rather than internal jargon. Follow real-world conventions, making information appear in a natural and logical order. The way you should design depends very much on your specific users. Terms, concepts, icons, and images that seem perfectly clear to y",
+   "truth": "en"
+  },
+  {
+   "id": "r-pg",
+   "url": "https://paulgraham.com/greatwork.html",
+   "lang": "",
+   "title": "How to Do Great Work",
+   "text": "July 2023If you collected lists of techniques for doing great work in a lot of different fields, what would the intersection look like? I decided to find out by making it.Partly my goal was to create a guide that could be used by someone working in any field. But I was also curious about the shape of the intersection. And one thing this exercise shows is that it does have a definite shape; it's not just a point labelled \"work hard.\"The following recipe assumes you're very ambitious. The first step is to decide what to work on. The work you choose needs to have three qualities: it has to be something you have a natural aptitude for, that you have a deep interest in, and that offers scope to do great work.In practice you don't have to worry much about the third criterion. Ambitious people are if anything already too conservative about it. So all you need to do is find something you have an aptitude for and great interest in. [1]That sounds straightforward, but it's often quite difficult. When you're young you don't know what you're good at or what different kinds of work are like. Some kinds of work you end up doing may not even exist yet. So while some people know what they want to do at 14, most have to figure it out.The way to figure out what to work on is by working. If you're not sure what to work on, guess. But pick something and get going. You'll probably guess wrong some of the time, but that's fine. It's good to know about multiple things; some of the biggest discoveri",
+   "truth": "en"
+  },
+  {
+   "id": "r-pomodoro",
+   "url": "https://en.wikipedia.org/wiki/Pomodoro_Technique",
+   "lang": "en",
+   "title": "Pomodoro Technique - Wikipedia",
+   "text": "From Wikipedia, the free encyclopedia A pomodoro kitchen timer The Pomodoro Technique is a time management method developed by Francesco Cirillo in the late 1980s.[1] It uses a kitchen timer to break work into intervals, typically 25 minutes in length, separated by short breaks. Each interval is known as a pomodoro, from the Italian word for tomato, after the tomato-shaped kitchen timer that Cirillo used while he was a university student.[1][2] Apps and websites providing timers and instructions have popularized the technique. Closely related to concepts such as timeboxing and iterative and incremental development used in software design, the method has been adopted in pair programming contexts.[3] The original technique consists of deciding on the task, setting the timer (typically for 25 minutes), working on the task, taking a short break (typically 5–10 minutes) when the timer rings. This repeats until four pomodori are completed, after which a long break (typically 20 to 30 minutes) is taken before starting the cycle again.[4] For the purposes of the technique, a pomodoro (pl. pomodori)[5] is an interval of work time.[1] A goal of the technique is to reduce the effect of internal and external interruptions of attention and flow. A pomodoro is indivisible; when interrupted during a pomodoro, either the other activity must be recorded and postponed (using the inform — negotiate — schedule — call back strategy[6]) or the pomodoro must be abandoned.[1][7][8] The stages of pla",
+   "truth": "en"
+  },
+  {
+   "id": "tw-lang",
+   "url": "https://www.youtube.com/watch?v=arj7oStGLkU",
+   "lang": "en",
+   "title": "Inside the Mind of a Master Procrastinator | Tim Urban | TED - YouTube",
+   "text": "Inside the Mind of a Master Procrastinator | Tim Urban | TED\nTim Urban knows that procrastination doesn't make sense, but he's never been able to shake his habit of waiting until the last minute to get things done. In ...\n14:04",
+   "truth": "en"
+  },
+  {
+   "id": "tw-line",
+   "url": "https://apps.apple.com/tw/app/line/id443904275",
+   "lang": "zh-Hant-TW",
+   "title": "‎《LINE》App - App Store",
+   "text": "LINE 社交 免費 · App內購買 分享 23萬則評分 2.3 年齡分級 13+ 歲 排行榜 9 社交 開發者 LINE Corporation 語言 ZH + 其他 16 種 大小 424.9 MB iPhone、iPad、Apple Watch 在台灣，有 2,200 萬人都在用 LINE！不論想跟親友免費聊天、通話，還是用可愛貼圖傳達心情，LINE 都能幫你搞定。 不只如此，各種生活資訊和你喜愛的品牌，通通都能隨手連結。只要有 LINE，不分電信公司或人在國內外，隨時隨地都能即時聯繫。 自 2011 年 6 月推出以來，LINE 的足跡已遍及全球約 230 個國家與地區。 核心功能與服務 ◆ 文字聊天、語音與視訊通話 無論是好友間的一對一私聊，還是熱鬧的多人群組，都能輕鬆傳送訊息、撥打語音或視訊通話，讓彼此隨時隨地聊個夠！ ◆LINE貼圖、表情貼、主題 使用有趣的貼圖或表情貼豐富聊天，也能更換超讚的主題來表達自己。 ◆LINE社群 大型網路聊天室，支援最高5,000人即時群聊，配備管理員功能，可自訂暱稱並加入各式主題聊天室及Live talk，輕鬆分享共同興趣、開心聊出好麻吉！ ◆LINE TODAY 從國內外新聞、生活娛樂、運動賽事到美食旅遊，還有多元直播、影音內容與互動投票、趣味測驗，全方位精彩不間斷，隨點隨看，即時掌握最新話題！ ◆逛逛 全新電商專屬頁面，整合 LINE 購物、LINE 禮物、LINE 旅遊與官方帳號商店四大服務，打造一站式生活消費探索入口。透過「逛逛」，用戶可在 LINE 裡更直覺地瀏覽商品、掌握優惠資訊，並探索更符合個人需求的購物內容與生活靈感。 ◆LINE官方帳號 消費者可以與生活中喜愛的品牌、店家、公眾人物或各單位的官方帳號成為好友，掌握官方發出的第一手最新資訊。 品牌可向所有加入官方帳號好友的LINE用戶傳送訊息，與顧客及粉絲進行聊天，更可建立基本檔案、使用LINE官方帳號開店幫手販售商品，向粉絲及顧客宣傳更多資訊。 ◆主頁 LINE中的行動首頁，可以瀏覽好友列表與生日，並快速連結 LINE 的娛樂、生活、購物、旅遊、工具、相機等所有服務，同時提供您精彩的個人化內容推薦。 ◆錢包 連結安全便捷的LINE Pay行動支付，與提供LINE Bank全天候24小時不打烊線上金融服務。 全台每2人就有1人使用的LINE Pay，生活隨處輕鬆付，好康回饋隨手得，開啟無現生活的無限可能！ 不用跑銀行、不分夜間或週末皆能輕鬆申辦的LINE Bank，提供高利存款、好友轉帳、個人信貸服務外，更有簽帳卡、聯名信用卡、外幣存匯、基金、證券交割帳戶與保險產品等，帶給客戶創新、安心的純網銀服務。 ◆LINE Premium（訂閱制） 集結了LINE多項專屬福利的會員計畫，可將包含照片、影片等項目的聊天記錄即時自動備份，並能在相簿中上傳影片及原始畫質照片。此外，會員用戶還可以依據個人喜好設定LINE應用程式內的字型與應用程式圖示，並在特定條件下以不留痕跡的方式收回訊息，或收回7天以內所傳送的訊息。 【費用方案】每月165元 【訂閱方式】 ・訂閱方案時會向您的Apple帳號收取費用 ・當方案的有效期限少於24小時便會自動續訂，並向您的Apple帳號收取費用 ・首次訂閱可免費試用一個月 【停止自動續訂】 ・若想停止自動續訂，請在使用截止日的至少24小時前關閉自動續訂功能 ・即使停止自動續訂，在有效期限內仍可繼續使用訂閱方案 【確認方案與解約】 ・想確認訂閱內容或解約，請透過裝置的「設定」查看App Store的訂閱記錄 ・在使用截止日",
+   "truth": "zh-Hant"
+  },
+  {
+   "id": "tw-potato",
+   "url": "https://icook.tw/recipes/440345",
+   "lang": "zh-TW",
+   "title": "【早午餐】馬鈴薯煎餅 by 原汁圓胃Lin - 愛料理",
+   "text": "原汁圓胃Lin 359 食譜 6,136 粉絲 追蹤 【早午餐】馬鈴薯煎餅 描述 雖然沒有很愛吃薯條但是卻很喜歡馬鈴薯的其他料理 這次分享一道超簡單的馬鈴薯料理 可以作為早午餐 或是下午茶 91 說讚 1 一起做 讚 收藏 分享 分享 Facebook LINE 複製連結 列印 份量 2 人份 時間 15 分鐘 食材 小型馬鈴薯 2 個 火腿片 2 片 太白粉 1 大匙 調味料 黑胡椒粉 0.5 小匙 鹽 0.5 小匙 步驟 馬鈴薯 與火腿切成絲。 將 馬鈴薯 絲、火腿絲、太白粉以及所有調味料拌勻。 熱鍋加油，放入所有 馬鈴薯 絲與火腿絲，鋪平後用小火煎至兩面焦黃即可。 小撇步 歡迎追蹤我唷~~ FB粉絲專頁： https://www.facebook.com/rlincooking/ IG： https://www.instagram.com/rlincooking/ 個人網站： https://rlincooking.com/ Youtube頻道： https://bit.ly/2tyuEcs 1 萬 瀏覽 2023/06/14 發表 讚 收藏 分享 分享 Facebook LINE 複製連結 列印 追蹤 原汁圓胃Lin 359 食譜 6,136 粉絲 我是Lin，白天會開會，晚上會煮飯 下班也要好好吃飯 💓 晚餐不煩，Dinner with Lin. 影片看IG. 繼續閱讀 將愛料理新增至我的偏好來源 設定後，在 Google 搜尋食譜時，愛料理的食譜會優先出現！ 也可以試試看 脆皮蜂蜜奶油吐司 早午餐料理｜香草肉餅早餐小漢堡 台式早午餐 /魚排蛋 相關搜尋 馬鈴薯 馬鈴薯絲 火腿 早午餐 馬鈴薯煎餅 太白粉 薯條 有 1 個一起做 Helen 是不是不應該泡水🤣？ 上傳照片 one-meter 小白佐料機 四碗三刀 細膩攪打 堆疊收納 ikiiki 和風料理鍋 一鍋多用 快速加熱 輕巧收納 留言 登入會員，討論人氣食譜秘訣 發表留言 猜你可能會喜歡 大家都在查 早餐 家常菜 餅乾 豆腐 炒麵 麻婆豆腐 南瓜 雞蛋豆腐 娃娃菜 糖醋排骨 滷肉 雞湯 小黃瓜 櫛瓜 馬鈴薯燉肉 蒸蛋 排骨 低脂高蛋白 馬鈴薯 湯麵 高麗菜 蕃茄燉牛肉 菠菜 雞胸肉 白菜滷 雞肉 茄子 地瓜 瓜仔肉 炒飯 玉米濃湯 四季豆 番茄 香菇雞湯 三杯雞 糖葫蘆 台式泡菜 花椰菜 杏鮑菇 酸辣湯 高麗菜飯 義大利麵 粽子 鮭魚 番茄炒蛋 涼拌小黃瓜 金針菇 湯 竹筍 打拋豬",
+   "truth": "zh-Hant"
+  },
+  {
+   "id": "uk-lang",
+   "url": "https://en.wikipedia.org/wiki/Photosynthesis",
+   "lang": "en",
+   "title": "Photosynthesis - Wikipedia",
+   "text": "From Wikipedia, the free encyclopedia Biological process to convert light into chemical energy For other uses, see Photosynthesis (disambiguation) . Schematic of photosynthesis in plants. The carbohydrates produced are stored in or used by the plant. Composite image showing the global distribution of photosynthesis, including both oceanic phytoplankton and terrestrial vegetation . Dark red and blue-green indicate regions of high photosynthetic activity in the ocean and on land, respectively. Photosynthesis {{Cite web |title=Photosynthesis |url=https://www.lexico.com/definition/photosynthesis |archive-url=https://web.archive.org/web/20220811182212/https://www.lexico.com/definition/photosynthesis |archive-date=2022-08-11 |access-date=2023-07-15 |website= lexico.com |type= [[Lexico]] UK English Dictionary |publisher= Oxford University Press |url-status=dead }}</ref>\"}},\"i\":0}}]}'> [ note 1 ] is a system of biological processes by which photopigment -bearing autotrophic organisms , such as most plants , algae and cyanobacteria , convert light energy —typically from sunlight —into the chemical energy necessary to fuel their metabolism . The term photosynthesis usually refers to oxygenic photosynthesis , a process that releases oxygen as a byproduct of water splitting . Photosynthetic organisms store the converted chemical energy within the bonds of intracellular organic compounds (complex compounds containing carbon ), typically carbohydrates like sugars (mainly glucose , fructose",
+   "truth": "en"
+  },
+  {
+   "id": "uk-monobank",
+   "url": "https://apps.apple.com/ua/app/monobank-%D0%B1%D0%B0%D0%BD%D0%BA-%D1%83-%D1%82%D0%B5%D0%BB%D0%B5%D1%84%D0%BE%D0%BD%D1%96/id1287005205?l=uk",
+   "lang": "uk",
+   "title": "‎Програма monobank — банк у телефоні – App Store",
+   "text": "monobank — банк у телефоні Онлайн маркет, гроші і кредит Лише для iPhone Безплатні Поширити Оцінок: 976 тис. 4,9 Вікова категорія 4+ Елементи керування в програмі Графік #3 Фінанси Розробник UNIVERSAL BANK, PRAT Мова UK + ще 1 Розмір 425,4 МБ iPhone monobank — мобільний банк, 11+ мільйонів клієнтів, онлайн-банкінг, цифровий банк, картка, кредит, кешбек, депозит, перекази, платежі, комуналка, обмін валют, рахунок ФОП, Маркет, оплата, Розстрочка, Покупка Частинами, страховка, термінал, фінанси Це був просто набір слів, щоб ви нас точно знайшли. Далі — нормальний текст. Швидка реєстрація Завантажте додаток, підтвердьте номер телефону та швидко пройдіть ідентифікацію через Дію або за фото документів. Віртуальна картка з'явиться в застосунку одразу після реєстрації. Фізичну картку можна замовити з експрес-доставкою Новою поштою або Укрпоштою Картки на щодень Дебетова картка для зарплати, кредитна картка для витрат, валютна картка для доларів і євро, єдина Дія.Картка для державних виплат і дитяча картка для витрат під контролем батьків. Безконтактна оплата та підтримка Apple Pay — додайте картку в гаманець і платіть телефоном. Відстежуйте баланс картки в застосунку monobank Кредит онлайн Оформіть заявку на кредитний ліміт у застосунку. Рішення отримаєте після перевірки даних, а умови, тарифи та ліміти побачите до підтвердження Покупка Частинами та Розстрочка Купуйте техніку й нові товари в партнерських магазинах: KTC, Цитрус, MOYO, Фокстрот та інших. Покупка частинами й Розстрочка ",
+   "truth": "uk"
+  },
+  {
+   "id": "uk-prometheus",
+   "url": "https://prometheus.org.ua/prometheus-free/kubernetes-basics/",
+   "lang": "uk",
+   "title": "Основи Kubernetes | Prometheus",
+   "text": "Головна Курси ІТ Основи Kubernetes Основи Kubernetes Доступно постійно Цей курс допоможе вам розібратися в Kubernetes, освоїти базові концепції та навчитися керувати контейнерними додатками. Ви дізнаєтеся, як спростити оркестровку програмних контейнерів та масштабувати їх, використовуючи потужний інструментарій Kubernetes. Ідеально підходить для команд, які тільки починають використовувати Kubernetes, а також для тих, хто хоче розширити свої знання та вміння у хмарних технологіях. 8,5 Безкоштовно Цей курс допоможе вам розібратися в Kubernetes, освоїти базові концепції та навчитися керувати контейнерними додатками. Ви дізнаєтеся, як спростити оркестровку програмних контейнерів та масштабувати їх, використовуючи потужний інструментарій Kubernetes. Ідеально підходить для команд, які тільки починають використовувати Kubernetes, а також для тих, хто хоче розширити свої знання та вміння у хмарних технологіях. Записатись на курс Доступно постійно Мова курсу українська Сертифікат по закінченню Про курс Основи програмування Корисні інструменти Хочете вивчити Kubernetes? The Linux Foundation та платформа Prometheus підготували для вас детальний посібник з цієї потужної системи для керування контейнерними додатками українською мовою. Ваша команда починає використовувати Kubernetes для оркестрування контейнерів? Вам потрібні рекомендації про те, як почати трансформацію вашої організації за допомогою Kubernetes та хмарних патернів? Хочете спростити оркестровку програмних контейнерів та зн",
+   "truth": "uk"
+  },
+  {
+   "id": "v-3b1b",
+   "url": "https://www.youtube.com/watch?v=aircAruvnKk",
+   "lang": "en",
+   "title": "But what is a neural network? | Deep learning chapter 1 - YouTube",
+   "text": "What are the neurons, why are there layers, and what is the math underlying it?Help fund future projects: https://www.patreon.com/3blue1brownWritten/interact...\nBut what is a neural network? | Deep learning chapter 1 - YouTube About Press Copyright Contact us Creators Advertise Developers Terms Privacy Policy & Safety How YouTube works Test new features &copy; 2026 Google LLC",
+   "truth": "en"
+  },
+  {
+   "id": "v-jobs",
+   "url": "https://www.youtube.com/watch?v=UF8uR6Z6KLc",
+   "lang": "en",
+   "title": "Steve Jobs' 2005 Stanford Commencement Address - YouTube",
+   "text": "Drawing from some of the most pivotal points in his life, Steve Jobs, chief executive officer and co-founder of Apple Computer and of Pixar Animation Studios...\nSteve Jobs' 2005 Stanford Commencement Address - YouTube About Press Copyright Contact us Creators Advertise Developers Terms Privacy Policy & Safety How YouTube works Test new features &copy; 2026 Google LLC",
+   "truth": "en"
+  },
+  {
+   "id": "v-karpathy",
+   "url": "https://www.youtube.com/watch?v=kCc8FmEb1nY",
+   "lang": "en",
+   "title": "Let's build GPT: from scratch, in code, spelled out. - YouTube",
+   "text": "We build a Generatively Pretrained Transformer (GPT), following the paper \"Attention is All You Need\" and OpenAI's GPT-2 / GPT-3. We talk about connections t...\nLet's build GPT: from scratch, in code, spelled out. - YouTube About Press Copyright Contact us Creators Advertise Developers Terms Privacy Policy & Safety How YouTube works Test new features &copy; 2026 Google LLC",
+   "truth": "en"
+  },
+  {
+   "id": "v-ted",
+   "url": "https://www.ted.com/talks/sir_ken_robinson_do_schools_kill_creativity",
+   "lang": "en",
+   "title": "Sir Ken Robinson: Do schools kill creativity? | TED Talk",
+   "text": "Sir Ken Robinson makes an entertaining and profoundly moving case for creating an education system that nurtures (rather than undermines) creativity.\nSir Ken Robinson: Do schools kill creativity? | TED Talk Do schools kill creativity? 80,741,990 plays | Sir Ken Robinson | TED2006 • February 2006 Read transcript Sir Ken Robinson makes an entertaining and profoundly moving case for creating an education system that nurtures (rather than undermines) creativity. TED is supported by ads and partners",
+   "truth": "en"
+  },
+  {
+   "id": "vi-cellphones",
+   "url": "https://cellphones.com.vn/iphone-16-pro-max.html",
+   "lang": "vi",
+   "title": "iPhone 16 Pro Max giá giảm đến 4,5 triệu, đủ hàng mới",
+   "text": "iPhone 16 Pro Max giá giảm đến 4,5 triệu, đủ hàng mới Smember Vui lòng đăng nhập tài khoản Smember để . Đăng ký Đăng nhập Trang chủ / Điện thoại iPhone 16 Pro Max 256GB Điện thoại iPhone 16 Pro Max 256GB 4.9 (369 đánh giá) Yêu thích Yêu thích Hỏi đáp Thông số So sánh Tính năng nổi bật iPhone 16 Pro Max c&oacute; thiết kế titan nhẹ v&agrave; bền bỉ, với m&agrave;n h&igrave;nh Super Retina XDR 6,9 inch lớn hơn. T&iacute;nh năng Điều Khiển Camera cho ph&eacute;p truy cập nhanh c&aacute;c c&ocirc;ng cụ như thu ph&oacute;ng, gi&uacute;p chụp ảnh dễ d&agrave;ng. Camera Ultra Wide 48MP ghi lại chi tiết sắc n&eacute;t, trong khi camera Telephoto 5x chụp xa ấn tượng. Video 4K Dolby Vision ở 120 fps c&ugrave;ng micr&ocirc; chất lượng studio biến iPhone th&agrave;nh một studio chuy&ecirc;n nghiệp trong t&uacute;i bạn. Ngo&agrave;i ra, chip A18 Pro mang lại hiệu suất vượt trội cho cả việc chụp ảnh v&agrave; chơi game. Tính năng nổi bật iPhone 16 Pro Max c&oacute; thiết kế titan nhẹ v&agrave; bền bỉ, với m&agrave;n h&igrave;nh Super Retina XDR 6,9 inch lớn hơn. T&iacute;nh năng Điều Khiển Camera cho ph&eacute;p truy cập nhanh c&aacute;c c&ocirc;ng cụ như thu ph&oacute;ng, gi&uacute;p chụp ảnh dễ d&agrave;ng. Camera Ultra Wide 48MP ghi lại chi tiết sắc n&eacute;t, trong khi camera Telephoto 5x chụp xa ấn tượng. Video 4K Dolby Vision ở 120 fps c&ugrave;ng micr&ocirc; chất lượng studio biến iPhone th&agrave;nh một studio chuy&ecirc;n nghiệp trong t&uacute;i bạn. Ngo&agrave;i ra, chip A18 Pro",
+   "truth": "vi"
+  },
+  {
+   "id": "vi-monngon",
+   "url": "https://monngonmoingay.com/rau-cu-luoc-xot-nam/",
+   "lang": "vi",
+   "title": "Rau củ luộc xốt nấm - Món Ngon Mỗi Ngày",
+   "text": "Rau củ luộc xốt nấm - Món Ngon Mỗi Ngày Rau củ luộc xốt nấm Mô tả Nguyên liệu Sơ chế Thực hiện Cách dùng Mách nhỏ Rau củ luộc vừa chín tới, nhìn thì tươi ngon thích mắt, ăn thì giòn ngọt, thanh vị tự nhiên. Điểm nhấn đặc biệt là nước xốt nấm béo béo “nịnh miệng” vô cùng, ăn cùng rau luộc thì đúng là “chúng ta luôn thuộc về nhau!” Nguyên Liệu: Muỗng Gram M: muỗng canh - m: muỗng cafe Đậu bắp 200g Bắp non 100g Cà rốt 100g Nấm hương khô 20g Ớt chuông xanh, đỏ 50g Hành boaro cắt lát 20g Đậu hũ trắng 1 miếng Ớt hiểm băm Tiêu, đường, dầu hào chay, dầu ăn Hạt nêm Aji-ngon® Nấm Bột ngọt AJI-NO-MOTO® Nước tương \"Phú Sĩ\" Đậu bắp 200g Bắp non 100g Cà rốt 100g Nấm hương khô 20g Ớt chuông xanh, đỏ 50g Hành boaro cắt lát 20g Đậu hũ trắng 1 miếng Ớt hiểm băm Tiêu, đường, dầu hào chay, dầu ăn Hạt nêm Aji-ngon® Nấm Bột ngọt AJI-NO-MOTO® Nước tương \"Phú Sĩ\" Sơ Chế: &#8211; Nấm hương ngâm nở cắt sợi nhỏ, ướp với 1/2m hạt nêm Aji-ngon® từ nấm hương và hạt sen và 1/2m tiêu. &#8211; Đậu bắp, bắp non cắt chân, rửa sạch, để ráo. Cà rốt cắt que 5cm. Ớt chuông xanh, đỏ cắt hạt lựu nhỏ. Hành boa rô cắt sợi dài 3cm. Đậu hũ trắng cắt vuông 1cm. &#8211; Pha xốt xào: hòa tan 2m đường, 1/2m bột ngọt AJI-NO-MOTO®, 4M nước tương “Phú Sĩ”, 2M dầu hào chay và ít tiêu. Thực Hiện: &#8211; Đun nóng dầu ăn, cho boa ro vào phi thơm, rồi cho nấm hương vào xào chín, tiếp tục cho xốt đã pha, ớt chuông, đậu hũ vào, đảo đều, đến khi hỗn hợp hơi sệt lại, cho ớt băm vào. Tắt lửa. &#8211; Đun sôi nư",
+   "truth": "vi"
+  },
+  {
+   "id": "vi-zalo",
+   "url": "https://apps.apple.com/vn/app/zalo/id579523206?l=vi",
+   "lang": "vi",
+   "title": "‎Ứng dụng Zalo - App Store",
+   "text": "Zalo Nhanh. Ổn định. Riêng tư. Miễn phí · Mua in-app Chia sẻ 368 N xếp hạng 2,0 Độ tuổi 16+ Điều khiển in-app BXH #6 Mạng Xã Hội Nhà phát triển Zalo Group Ngôn ngữ VI + 1 ngôn ngữ Kích cỡ 291,2 MB iPhone, iPad Zalo là ứng dụng nhắn tin kiểu mới và kết nối cộng đồng hàng đầu cho người dùng di động Việt. * Zalo có điều gì đặc biệt? => Tốc độ gửi tin nhắn cực nhanh, bạn luôn nhận được thông báo khi có tin nhắn mới kể cả khi không mở ứng dụng. => Thể hiện cảm xúc với emoticon và hình động vui nhộn. => Nhắn tin lời nói với chất lượng âm thanh nén rõ ràng, không tạp âm, không méo tiếng. => Kết nối bạn với những người thú vị xung quanh nơi bạn ở. * Chat với bạn bè, gửi tin nhắn nhóm trong danh bạ thật dễ dàng (chat, sms, voice, photo, games). * Gặp gỡ với những người bạn thú vị trên Phòng Trò Chuyện hoặc Xung quanh nơi bạn ở. * Chia sẻ những khoảnh khắc ngay tức thì với gia đình và bạn bè. * Không cần đăng ký, tích hợp với mạng xã hội (Facebook, Google). * An toàn và riêng tư. Hãy kích hoạt Zalo và chat ngay với bạn bè trong danh bạ! Thỏa thuận dịch vụ: https://zalo.vn/dieukhoan/ Hỗ trợ người dùng: - Trực tuyến: https://zalo.me/zalohotroiOS - Email: feedback@zalo.me - Website: https://zalo.me thêm Xếp hạng & nhận xét 2,0 /5 368 N xếp hạng Góp ý 28/04/2021 치武 Tôi muốn tin nhắn được lưu trữ trong tài khoản khi chuyển sang thiết bị khác. Mong ad sẽ khắc phục. Xin cảm ơn Góp ý 28/04/2021 치武 Tôi muốn tin nhắn được lưu trữ trong tài khoản khi chuyển sang thiết bị khác. Mong ad sẽ khắc phụ",
+   "truth": "vi"
+  },
+  {
+   "id": "x-alphafold",
+   "url": "https://www.nature.com/articles/s41586-021-03819-2?error=cookies_not_supported&code=a9efa333-fc41-46eb-a55a-723fa69a83db",
+   "lang": "en",
+   "title": "Highly accurate protein structure prediction with AlphaFold | Nature",
+   "text": "AbstractProteins are essential to life, and understanding their structure can facilitate a mechanistic understanding of their function. Through an enormous experimental effort1,2,3,4, the structures of around 100,000 unique proteins have been determined5, but this represents a small fraction of the billions of known protein sequences6,7. Structural coverage is bottlenecked by the months to years of painstaking effort required to determine a single protein structure. Accurate computational approaches are needed to address this gap and to enable large-scale structural bioinformatics. Predicting the three-dimensional structure that a protein will adopt based solely on its amino acid sequence—the structure prediction component of the ‘protein folding problem’8—has been an important open research problem for more than 50 years9. Despite recent progress10,11,12,13,14, existing methods fall far short of atomic accuracy, especially when no homologous structure is available. Here we provide the first computational method that can regularly predict protein structures with atomic accuracy even in cases in which no similar structure is known. We validated an entirely redesigned version of our neural network-based model, AlphaFold, in the challenging 14th Critical Assessment of protein Structure Prediction (CASP14)15, demonstrating accuracy competitive with experimental structures in a majority of cases and greatly outperforming other methods. Underpinning the latest version of AlphaFold ",
+   "truth": "en"
+  },
+  {
+   "id": "x-attention",
+   "url": "https://arxiv.org/abs/1706.03762",
+   "lang": "en",
+   "title": "[1706.03762] Attention Is All You Need",
+   "text": "View PDF HTML (experimental) Abstract:The dominant sequence transduction models are based on complex recurrent or convolutional neural networks in an encoder-decoder configuration. The best performing models also connect the encoder and decoder through an attention mechanism. We propose a new simple network architecture, the Transformer, based solely on attention mechanisms, dispensing with recurrence and convolutions entirely. Experiments on two machine translation tasks show these models to be superior in quality while being more parallelizable and requiring significantly less time to train. Our model achieves 28.4 BLEU on the WMT 2014 English-to-German translation task, improving over the existing best results, including ensembles by over 2 BLEU. On the WMT 2014 English-to-French translation task, our model establishes a new single-model state-of-the-art BLEU score of 41.8 after training for 3.5 days on eight GPUs, a small fraction of the training costs of the best models from the literature. We show that the Transformer generalizes well to other tasks by applying it successfully to English constituency parsing both with large and limited training data. Comments: 15 pages, 5 figures Subjects: Computation and Language (cs.CL); Machine Learning (cs.LG) Cite as: arXiv:1706.03762 [cs.CL] (or arXiv:1706.03762v7 [cs.CL] for this version) https://doi.org/10.48550/arXiv.1706.03762 arXiv-issued DOI via DataCite Submission history From: Llion Jones [view email] [v1] Mon, 12 Jun 2017",
+   "truth": "en"
+  },
+  {
+   "id": "x-lora",
+   "url": "https://arxiv.org/abs/2106.09685",
+   "lang": "en",
+   "title": "[2106.09685] LoRA: Low-Rank Adaptation of Large Language Models",
+   "text": "View PDF HTML (experimental) Abstract:An important paradigm of natural language processing consists of large-scale pre-training on general domain data and adaptation to particular tasks or domains. As we pre-train larger models, full fine-tuning, which retrains all model parameters, becomes less feasible. Using GPT-3 175B as an example -- deploying independent instances of fine-tuned models, each with 175B parameters, is prohibitively expensive. We propose Low-Rank Adaptation, or LoRA, which freezes the pre-trained model weights and injects trainable rank decomposition matrices into each layer of the Transformer architecture, greatly reducing the number of trainable parameters for downstream tasks. Compared to GPT-3 175B fine-tuned with Adam, LoRA can reduce the number of trainable parameters by 10,000 times and the GPU memory requirement by 3 times. LoRA performs on-par or better than fine-tuning in model quality on RoBERTa, DeBERTa, GPT-2, and GPT-3, despite having fewer trainable parameters, a higher training throughput, and, unlike adapters, no additional inference latency. We also provide an empirical investigation into rank-deficiency in language model adaptation, which sheds light on the efficacy of LoRA. We release a package that facilitates the integration of LoRA with PyTorch models and provide our implementations and model checkpoints for RoBERTa, DeBERTa, and GPT-2 at this https URL. Comments: Draft V2 includes better baselines, experiments on GLUE, and more on ad",
+   "truth": "en"
+  },
+  {
+   "id": "x-rag",
+   "url": "https://arxiv.org/abs/2005.11401",
+   "lang": "en",
+   "title": "[2005.11401] Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+   "text": "Authors:Patrick Lewis, Ethan Perez, Aleksandra Piktus, Fabio Petroni, Vladimir Karpukhin, Naman Goyal, Heinrich Küttler, Mike Lewis, Wen-tau Yih, Tim Rocktäschel, Sebastian Riedel, Douwe Kiela View PDF HTML (experimental) Abstract:Large pre-trained language models have been shown to store factual knowledge in their parameters, and achieve state-of-the-art results when fine-tuned on downstream NLP tasks. However, their ability to access and precisely manipulate knowledge is still limited, and hence on knowledge-intensive tasks, their performance lags behind task-specific architectures. Additionally, providing provenance for their decisions and updating their world knowledge remain open research problems. Pre-trained models with a differentiable access mechanism to explicit non-parametric memory can overcome this issue, but have so far been only investigated for extractive downstream tasks. We explore a general-purpose fine-tuning recipe for retrieval-augmented generation (RAG) -- models which combine pre-trained parametric and non-parametric memory for language generation. We introduce RAG models where the parametric memory is a pre-trained seq2seq model and the non-parametric memory is a dense vector index of Wikipedia, accessed with a pre-trained neural retriever. We compare two RAG formulations, one which conditions on the same retrieved passages across the whole generated sequence, the other can use different passages per token. We fine-tune and evaluate our models on a wi",
+   "truth": "en"
+  },
+  {
+   "id": "zh-airpods",
+   "url": "https://www.apple.com.cn/airpods-5/",
+   "lang": "zh-CN",
+   "title": "AirPods 5 - Apple (中国大陆)",
+   "text": "AirPods 5 有请主动降噪 ， 尽享美妙 。 AirPods 5 购买 一个人通过触碰 AirPods 5 耳机柄启用主动降噪功能 AirPods 5，耳机，透明，内部架构 重点展示 AirPods 5 耳机柄内部的 H2 芯片 电池图标 主动降噪再进阶 ， 比前代最高提升至 1.5 倍 1 。 重新设计的声学架构 ， 带来更饱满细腻的 音质 。 搭载 H2 芯片， 音频效果和通话质量 更出色 2 。 无线充电盒款 AirPods 5 ， 启用 主动降噪 最长可续航 5 小时 3 。 无耳塞设计， 戴久一点也舒适贴合。 无线充电盒款 AirPods 5 的 力度感应器还支持轻扫调节音量。 内部设计精进， 聆听体验再进阶。 双波束成形麦克风 可带来清晰的通话效果，实现录音棚级音频 录制。 IP57 级别， 防尘、抗汗、抗水性更强 4 。 无线充电盒款 AirPods 5 的充电盒支持 USB-C 充电， 还可通过 Apple Watch 充电器和 Qi 认证充电器 充电 5 。 主动降噪 全都是响当当的 降噪高手 噪音退，妙音来 。 得益于先进的计算音频技术和重新设计的声学架构，这款耳机的 降噪 效果相比上一代最高提升至 1.5 倍 1 。 通透模式 6 让周围的声音更加自然地传入你耳中， 这样你就能随时留意身边的 环境。 自适应音频 2 实时融合通透模式和主动降噪功能，根据一天中你所在环境的变化，相应地调整对噪音的控制，自然又 顺畅。 对话感知 2 当感知到你和身边的人说话时，会自动调低耳机中播放的媒体音量，对话一结束，音量就会恢复。 音质表现 声声质的飞跃 声音更动听，全方位环绕你 。 AirPods 5 拥有重新设计的声学架构和新一代自适应均衡功能， 带来支持动态头部追踪的个性化空间音频， 音效表现更 出色 7 。 重新设计的多孔声学架构， 给你更有纵深感、更清晰、更细腻的听觉 体验。 新一代自适应均衡功能 可以根据你的耳廓形状来调节音效，覆盖更宽的频率范围，带来更令人沉浸也更真切的 音质。 个性化空间音频 个性化空间音频 支持动态头部追踪，可让声音环绕入耳，为你听音乐、看电影和玩游戏营造 3D 音效 体验 7 。 语音突显功能 会运用先进的计算音频技术，尽可能降低通话时的背景噪音，将你的声音突显出来，即使你在喧闹或大风环境中通话也没 问题 2 。 再加上录音棚级音频录制功能，无论你在家还是外出，随时都能录制高保真 音频。 顺畅体验 每个小细节 自有妙处 暂停 播放 重播 秒连秒配对 AirPods 5 可与你 Apple 账户下的各个设备配对。 将 AirPods 靠近你的 iPhone 或 iPad， 然后轻点“连接” 就行 8 。 好听一起听。 用任意两副 AirPods 共享歌曲或追剧，轻轻松松 2 。只需将 AirPods 靠近你正在聆听的 iPhone 和 iPad，即刻就能 连接。 超有感知力。 你可以跨 iPhone、Apple Watch、Apple Vision Pro、iPad 和 Mac 等设备，畅享丝滑的聆听体验。当你连着 Mac 听音乐，而 iPhone 上恰巧有来电时，无需重新切换配对就能接电话。每当你取下 AirPods 5，它就会有所感知，并暂停 播放 8 。 Siri， 我今天 有什么日程 ？ Siri 随时待命 9 。 说声“Siri”或“嘿 Siri”，就能播音乐、打电话、搜导航或查日程安排。而当 Siri 问你要不要听信息、接电话或管理通知时，如果你腾不出手或不方便开口，只要点点头就能表示可以，",
+   "truth": "zh"
+  },
+  {
+   "id": "zh-sspai",
+   "url": "https://sspai.com/post/73215",
+   "lang": "zh-CN",
+   "title": "一份 520 送礼清单，向 TA 表达你的心意 - 少数派",
+   "text": "商店 2022年05月16日 17 分钟阅读 一份 520 送礼清单，向 TA 表达你的心意 主作者 关注 水獭Store 少数派商店官方账号 欢迎光临 store.sspai.com 🦦 商品问题烦请咨询电商平台客服，私信有时看不到 水獭Store 关注 水獭Store 少数派商店官方账号 欢迎光临 store.sspai.com 🦦 商品问题烦请咨询电商平台客服，私信有时看不到 联合作者 关注 水獭Store 少数派商店官方账号 欢迎光临 store.sspai.com 🦦 商品问题烦请咨询电商平台客服，私信有时看不到 水獭Store 关注 水獭Store 少数派商店官方账号 欢迎光临 store.sspai.com 🦦 商品问题烦请咨询电商平台客服，私信有时看不到 欢迎光临 store.sspai.com 🦦 商品问题烦请咨询电商平台客服，私信有时看不到 17 分钟阅读 微信扫码分享 以图片分享 分享到微博 点击下方按钮可复制链接 分享 收藏 举报 回想起上次促销，应该还是在上次。🌚 一年一度的「520」即将到来，不管你想对你另一半表达什么心意，我们又为你筛选了一系列或有趣或实用的商品，有些适合送礼，也有的可以买来送给自己。依种类划分为了「生活有温度」和「数码也炫酷」两个分类，你可以点击右侧目录跳转，按需选购自己需要的商品。 ⏰ 促销时间： 5 月 16 日 - 5 月 20 日 🏷️ 活动优惠 16~17 日：店内每满 200 减 15 18~20 日：淘宝跨店每满 200 减 15 生活有温度 意外设计 玫瑰香薰 ￥435 原价￥498 🛒 点这买 > @Microhoo：送礼一般有两种思路，一种是送对方真正需要的，会长期使用的「实用品」；另一种则是送一些有趣、应景、别具一格且不落俗套的礼物，最好也是能够被用上而不是搁在抽屉里生灰，要想同时满足并不是一件容易的事儿。另外于我而言，它还得是可以长期存在循环使用的，毕竟也希望礼物摆在眼前对方能经常想起自己不是。 而所谓「标准答案」中的给情人送礼，可以有一次难忘的约会——晚餐与游乐，但花通常是我不会考虑的，毕竟作为一个成熟的大人，首先会从心理上抗拒其在节日中毫无逻辑的溢价，其次所有重要的日子里都断不可用不久就会衰败的物品来纪念。 但「花」的意义总是难以被取代的，越多的字句来描述我的坚定，也代表着有更多的纠结是我背后的叹息。正因为如此，遇到「玫瑰之诗」之后的喜悦是我难以言喻的——它基本满足了我对礼物所有完美的想象：长久、实用与意义。 简单来说，玫瑰之诗只是一件普通的无火香薰套装，它的巧妙在于把普通常见的香薰藤条做成了玫瑰的样子，而因为花瓣是特质的艺术纸制作，在精油逐渐浸润的过程中变色。 有趣的是，因为花瓣是全手工绕制，所以买到的每一朵玫瑰都是不尽相同的，绽放在光滑无瑕疵的金属花杆上，它既是精致的工业消费品，也是独一无二的手工艺术佳作。又因为化学反应的不稳定性，它无法被均匀地染上颜色，而是不规则、浓淡不一的复合红。在一定时间内花瓣将会不断被染色直至完全结束反应，上色过程中不同位置的浓淡显色也会不断变化，但上色后将会是不可逆变化。 作为一款无火香薰，花瓣设计使得玫瑰之诗的扩香效果要好于传统的木制藤条，味道上它是很「明显」的玫瑰香气，但相比于植物性玫瑰，它更趋向于玫瑰糖的香气；但因为还夹杂着一些淡淡的麝香、檀香和天竺葵等复合味道，它并不会显得甜腻。对玫瑰之诗的设计喜好可能因人而异，但它散发出来的气味一定是远远优于普通玫瑰所能给予的。 每支玫瑰都附赠一个挂墙配件可以贴在墙面上作为装饰 而玫瑰之诗的长久和",
+   "truth": "zh"
+  },
+  {
+   "id": "zh-tomato",
+   "url": "https://zh.wikipedia.org/zh-cn/%E7%95%AA%E8%8C%84%E7%82%92%E8%9B%8B",
+   "lang": "zh-Hans-CN",
+   "title": "西红柿炒蛋 - 维基百科，自由的百科全书",
+   "text": "维基百科，自由的百科全书 西红柿炒蛋 上菜顺序 主菜 上菜温度 热 主要成分 蛋 （尤指 鸡蛋 ）, 西红柿 , 盐 , 糖 , 油 西红柿炒蛋 ，又称 蕃茄炒鸡蛋 ，是中华文化常见的一道 菜肴 。 &#91; 1 &#93; &#91; 2 &#93; &#91; 3 &#93; &#91; 4 &#93; &#91; 5 &#93; &#91; 6 &#93; 因为它的原材料易于搜集，制作步骤也较为简单，所以也深受厨房初学者的喜爱。 概要 [ 编辑 ] 中国农业科学院蔬菜花卉研究所所著的《中国蔬菜栽培学》一书中，在论及 西红柿 何时传入中国时指出：“大约在十七、十八世纪由西方的传教士、商人或由华侨从东南亚引入我国南方沿海城市，称为番茄，其后由南方传到北方称为西红柿。” 在中国，烹饪鸡蛋已有数千年的历史，但将西红柿与鸡蛋同烹的做法，目前能找到的最早具体文献是1935年《园艺》杂志中邢锡永的文章，文中提到“油烙番茄片，去皮切片，用油烙加鸡卵食之”。但“油烙”的烹饪技法，和西红柿炒鸡蛋的做法不同。它只是一种使用了西红柿和鸡蛋的原材料，在烹饪技法上不同于西红柿炒鸡蛋的菜肴。 由于在马来西亚、新加坡、印度尼西亚等东南亚国家的华人社区，也有西红柿炒鸡蛋的菜肴。根据西红柿引入中国前的传播路径，不排除东南亚华人先于中国人做出西红柿炒鸡蛋这道菜肴的可能性。 参见 [ 编辑 ] 饮食主题 以鸡蛋为基础的菜肴列表 （ 英语 ： List of egg dishes ） 以西红柿为基础的菜肴列表 （ 英语 ： List of tomato dishes ） 以鸡蛋和西红柿为基础的菜肴列表 炒蛋 参考资料 [ 编辑 ] ^ 西红柿炒鸡蛋的做法_西红柿炒鸡蛋怎么做&#91;图解&#93;_家常菜谱 . Ttmeishi.com. &#91; 2011-12-08 &#93; . （ 原始内容 存档于2012-09-17）. ^ 西红柿炒鸡蛋_居家美食坊_百度空间 . Hi.baidu.com. 2006-11-10 &#91; 2011-12-08 &#93; . （ 原始内容 存档于2011-12-22）. ^ 番茄炒蛋的热量，番茄炒蛋减肥 - 薄荷食物库 . Boohee.com. 2008-12-06 &#91; 2011-12-08 &#93; . （ 原始内容 存档于2011-11-27）. ^ 做好番茄炒蛋的四大要点(图)_美食频道_新华网 . News.xinhuanet.com. &#91; 2011-12-08 &#93; . （ 原始内容 存档于2012-01-01）. ^ 西红柿炒鸡蛋的做法 . Jiujiuba.com. &#91; 2011-12-08 &#93; . （ 原始内容 存档于2011-10-08）. ^ 【图】西红柿炒鸡蛋的做法_西红柿炒鸡蛋怎么做 - COOKPAD菜谱网 . Cookpad.org. 2011-11-30 &#91; 2011-12-08 &#93; . （ 原始内容 存档于2012-04-05）. 外部链接 [ 编辑 ] 维基共享资源 上的相关多媒体资源： 西红柿炒蛋 维基教科书 的 食谱 有以下内容： 西红柿鸡蛋 这是一篇与 中国菜 相关的的 小作品 。您可以通过 编辑或修订 扩充其内容。 查 论 编 取自“ https://zh.wikipedia.org/w/index.php?title=番茄炒蛋&oldid=93383154 ” 分类 ： 蛋菜肴 中国饮食 番茄菜肴 食品组合 隐藏分类： 维基共享资",
+   "truth": "zh"
+  },
+  {
+   "id": "zh-wechat",
+   "url": "https://apps.apple.com/cn/app/%E5%BE%AE%E4%BF%A1/id414478124",
+   "lang": "zh-Hans-CN",
+   "title": "‎微信 App - App Store",
+   "text": "微信 社交 免费 · App 内购买 分享 814万个评分 4.1 年龄分级 13+ App 内控制 排行榜 #4 社交 开发者 WeChat 语言 ZH + 25 种语言 大小 998.8 MB iPhone、iPad、Apple Watch 微信是一款全方位的手机通讯应用，帮助你轻松连接全球好友。微信可以群聊、进行视频聊天、与好友一起玩游戏，以及分享自己的生活到朋友圈，让你感受耳目一新的移动生活方式。 为什么要使用微信： • 多媒体消息：支持发送视频、图片、文本和语音消息。 • 群聊和通话：组建高达500人的群聊和高达15人的实时视频聊天。 • 语音和视频聊天：提供全球的高质量通话。 • 表情商店：海量动态表情，包括热门卡通人物和电影，让聊天变得更生动有趣。 • 朋友圈：与好友分享每个精彩瞬间，记录自己的生活点滴。 • 更佳的隐私保障：微信为您提供最高级别的隐私控制权限，并已获得 TRUSTe 认证 — 查看我们的隐私政策以了解更多信息。 • 认识新朋友：通过“雷达加朋友”和“附近的人”认识新朋友。 • 实时位置共享：与好友分享地理位置，无需通过语言告诉对方。 • 多语言：支持超过20多种语言界面，并支持多国语言的消息翻译。 • 微信运动：支持接入Apple Watch及健康app数据，可在步数排行榜上和朋友一较高下。若需使用，可在“设置-通用-辅助功能”内启用。 • 更多功能: 支持跨平台、聊天室墙纸自定义、消息提醒自定义和公众号服务等。 • 关怀模式: 文字与按钮更大更清晰。 更多 评分及评论 4.1 满分 5 分 814万 个评分 提升用户体验 7月12日 Yuoxou 尊敬的微信产品运营及研发团队:您好!作为长期使用微信社交平台的忠实用户，在日常使用最新版本微信的过程中，发现软件目前存在两处影响用户使用体验、亟待优化调整的问题，特此正式提交使用建议，望团队能够重视并在后续版本更新中加以完善。其一，平台图片、视频传输与展示画质过低问题长期未得到有效改善。当前无论是日常私聊发送图片视频、群聊分享影像素材，还是朋友圈发布实拍照片、生活视频，均会出现严重的画质压缩情况。高清原图上传后自动被大幅降低分辨率，画面出现模糊、色彩失真、细节丢失、锐度不足等诸多问题，尤其是风景实拍、人像日常、高清生活记录类内容，发布后观感大打折扣。即便手动选择原图发送，依旧存在部分场景画质损耗严重的情况，极大影响了用户日常分享生活、传递清晰影像内容的使用需求，也降低了社交分享的整体体验，希望研发团队能够优化影像传输编码机制，提升默认上传画质，放宽高清素材传输限制，保障用户发布及接收内容的画面清晰度。其二，本次版本更新后,朋友圈点赞数量统计功能缺失，给广大用户造成极大不便。在以往版本中，用户可清晰查看朋友圈动态总计获得的点赞总数量,能够直观知晓动态受欢迎程度，也是众多用户长期以来的使用习惯。而本次更新改版后，该实用功能被取消，仅能查看点赞好友名单，无法快速查看全部点赞总人数，日常查看朋友圈数据、统计动态互动热度十分不便，违背了大众长久以来的使用习惯，引发众多用户不满。恳请产品团队恢复朋友圈动态点赞总数量显示功能，保留简洁直观的数字统计入口，贴合大众日常社交使用习惯，还原便捷实用的朋友圈互动体验。微信作为国民主流社交软件，始终贴合用户需求优化升级，深受广大用户信赖与喜爱。此次提出的画质优化与朋友圈点赞数量恢复两项建议，均为多数用户共同反馈的核心诉求，切实关乎日常基础使用体验。由衷希望产品团队能够认真收集倾听广大用户的使用心声，充分考量大众实际使用需求，在后续微信版本迭代更",
+   "truth": "zh"
+  }
+ ]
+}
