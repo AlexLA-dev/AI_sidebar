@@ -3,6 +3,7 @@
 
 import { entriesFrom, entryKey, entryTimes, MAX_SAVED_PAGE_CHARS, stripCitations, trimSavedPages, withoutText, withPageChanges, type Entry } from "./conversation.ts"
 import { marksLine } from "./marks.ts"
+import { unaccent } from "./fold.ts"
 import type { ChatDigest } from "./history.ts"
 
 export interface Thread {
@@ -803,18 +804,44 @@ export interface SearchResult {
 }
 
 /**
- * Folded for matching, the same length as `text` (positions carry over to the original): lower case,
- * Latin letters without accents (é → e), ё → е, any space a plain space.
+ * Folded for matching as template search folds (fold.ts): lower case, accents off in every language ("phan hoi"
+ * finds "Phản hồi", "مرحبا" finds "مَرْحَبًا", "елка" finds "Ёлка", "strasse" finds "Straße"), any space a plain space.
  */
 export function foldText(text: string): string {
-  let out = ""
-  for (const ch of text) {
-    let f = /\s/.test(ch) ? " " : ch.toLowerCase()
-    if (/[À-ɏ]/.test(f)) f = f.normalize("NFD").replace(/[̀-ͯ]/g, "")
-    if (f === "ё") f = "е"
-    out += f.length === ch.length ? f : ch
+  return unaccent(text).replace(/\s/g, " ")
+}
+
+/** A text folded for matching, and where each folded character came from in the original. */
+interface Folded {
+  text: string
+  // For each character of `text`: where the letter it comes from starts and ends in the original.
+  from: number[]
+  to: number[]
+}
+
+// Letters as folded, the alphabets in use (a few hundred).
+const folds = new Map<string, string>()
+
+/**
+ * The same fold letter by letter (a letter with the marks after it, so a text typed with separate accents folds
+ * alike), keeping positions for an excerpt's marks. Only for the few places shown; null in the rare text that folds
+ * otherwise letter by letter than as a whole (Korean typed as separate jamo).
+ */
+function foldMap(text: string): Folded | null {
+  const out: Folded = { text: "", from: [], to: [] }
+  for (const m of text.matchAll(/\P{M}\p{M}*|\p{M}+/gu)) {
+    let f = folds.get(m[0])
+    if (f === undefined) {
+      f = foldText(m[0])
+      if (folds.size < 4096) folds.set(m[0], f)
+    }
+    for (let i = 0; i < f.length; i++) {
+      out.from.push(m.index)
+      out.to.push(m.index + m[0].length)
+    }
+    out.text += f
   }
-  return out
+  return out.text === foldText(text) ? out : null
 }
 
 /** The words of a query (quotes keep a phrase together). */
@@ -827,19 +854,23 @@ export function queryWords(query: string): string[] {
   return words
 }
 
-/** An excerpt of `text` around `start`, at most `size` long, with the words in it marked. */
-function excerpt(text: string, folded: string, words: string[], start: number, size = 120): Omit<SearchHit, "at"> {
+/** An excerpt of `text` around the first of `words`, at most `size` long, with the words in it marked. */
+function excerpt(text: string, words: string[], size = 120): Omit<SearchHit, "at"> {
+  const folded = foldMap(text)
+  const starts = folded ? words.map((w) => folded.text.indexOf(w)).filter((i) => i >= 0).map((i) => folded.from[i]) : []
+  const start = starts.length ? Math.min(...starts) : 0
   const from = Math.max(0, Math.min(start - Math.floor(size / 3), text.length - size))
   const to = Math.min(text.length, from + size)
   const lead = from > 0 ? "…" : ""
   const piece = text.slice(from, to).replace(/\s/g, " ")
   const marks: Array<[number, number]> = []
-  const window = folded.slice(from, to)
-  for (const word of words) {
-    let i = window.indexOf(word)
+  for (const word of folded ? words : []) {
+    let i = folded!.text.indexOf(word)
     while (i >= 0) {
-      marks.push([lead.length + i, lead.length + i + word.length])
-      i = window.indexOf(word, i + word.length)
+      const s = folded!.from[i]
+      const e = folded!.to[i + word.length - 1]
+      if (s >= from && e <= to) marks.push([lead.length + s - from, lead.length + e - from])
+      i = folded!.text.indexOf(word, i + word.length)
     }
   }
   marks.sort((a, b) => a[0] - b[0])
@@ -877,8 +908,7 @@ export function searchThreads(threads: Thread[], query: string, maxHits = 3): Se
       if (present.length === words.length) together = true
       // The first question is already the chat's name in the list.
       if (hits.length < maxHits && field.at !== -1 && field.text.replace(/\s+/g, " ").trim() !== name) {
-        const first = Math.min(...present.map((w) => folded[i].indexOf(w)))
-        hits.push({ at: field.at, ...excerpt(field.text, folded[i], present, first) })
+        hits.push({ at: field.at, ...excerpt(field.text, present) })
       }
     })
     scored.push({ result: { thread, hits }, score: named * 100 + (together ? 10 : 0) })
