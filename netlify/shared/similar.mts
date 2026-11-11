@@ -1525,20 +1525,19 @@ export function shipExcerpt(text: string, country: string, langs: string[], max 
 }
 
 /**
- * What the reader's verdict proves, checked by our code: the quote must be on the page; "ships" must name the country,
- * worldwide or (for an EU country) the EU, and our rules must not read a refusal in it; "doesnt" must name the country
- * or carry a negation, "only" or "except", and our rules must not read it as shipping there. Else not shown.
+ * What the reader's verdict proves, checked by our code: the quote must be on the page. "ships": it is about shipping
+ * (or worldwide), names the country, worldwide or (for an EU country) the EU, and our rules read no refusal in it — a
+ * currency picker's "Germany (EUR)" isn't shipping there. "doesnt": our rules read the refusal in the quote itself — an
+ * "only" about rates, a service or an island isn't one (the error bank's delivery cases). Else not shown.
  */
 export function checkShipQuote(verdict: string, quote: string, text: string, country: string, langs: string[]): "yes" | "no" | "unknown" {
   if ((verdict !== "ships" && verdict !== "doesnt") || !quote.trim() || !quoteOn(text, quote)) return "unknown"
+  const rules = shipsTo(quote, country, langs)
+  if (verdict === "doesnt") return rules === "no" ? "no" : "unknown"
   const ours = countryRe(country, langs)
   const named = Boolean(ours && ours.search(quote) >= 0)
-  const rules = shipsTo(quote, country, langs)
-  if (verdict === "ships") {
-    const wide = WORLDWIDE_RE.test(quote) || (EU.has(country) && EUROPE_RE.test(quote))
-    return (named || wide) && rules !== "no" && !(!named && NEGATION_RE.test(quote)) ? "yes" : "unknown"
-  }
-  return rules !== "yes" && (named || NEGATION_RE.test(quote) || ONLY_RE.test(quote) || EXCEPT_RE.test(quote)) ? "no" : "unknown"
+  const wide = WORLDWIDE_RE.test(quote) || (EU.has(country) && EUROPE_RE.test(quote))
+  return (named || wide) && (SHIP_TALK_RE.test(quote) || WORLDWIDE_RE.test(quote)) && rules !== "no" && !(!named && NEGATION_RE.test(quote)) ? "yes" : "unknown"
 }
 
 /** A small model reads the delivery page's sentences about shipping; its quote is checked (checkShipQuote). */

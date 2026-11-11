@@ -1,6 +1,7 @@
 // Find similar: a small model reads a shop's delivery page, and our code checks what its quote proves (2.6). No quote,
 // a quote not on the page, or one that doesn't show the verdict, is "not shown".
 import assert from "node:assert/strict"
+import { readFileSync } from "node:fs"
 import { test } from "node:test"
 
 process.env.NODE_ENV = "test"
@@ -38,8 +39,16 @@ test("a quote must be on the page and show the verdict: the country, worldwide o
   assert.equal(checkShipQuote("ships", "Wir liefern nicht in die Schweiz.", page, "CH", langs), "unknown")
   assert.equal(checkShipQuote("doesnt", "Wir liefern nicht in die Schweiz.", page, "CH", langs), "no")
   assert.equal(checkShipQuote("doesnt", "International shipping is not available for furniture.", page, "JP", langs), "no")
-  // A refusal must carry its words: a list of other countries alone doesn't refuse.
+  // A refusal must carry its words: a list of other countries alone doesn't refuse; nor does an "only" about rates or a
+  // service, or a refusal of another country.
   assert.equal(checkShipQuote("doesnt", "We ship to France, Belgium, Germany and Italy.", page, "ES", langs), "unknown")
+  const rates = "These shipping rates apply to deliveries within Portugal only. Express shipping is unavailable for islands. Sorry, we can't currently ship to Norway."
+  assert.equal(checkShipQuote("doesnt", "These shipping rates apply to deliveries within Portugal only.", rates, "BR", ["en", "pt"]), "unknown")
+  assert.equal(checkShipQuote("doesnt", "Express shipping is unavailable for islands.", rates, "BR", ["en", "pt"]), "unknown")
+  assert.equal(checkShipQuote("doesnt", "Sorry, we can't currently ship to Norway.", rates, "BR", ["en", "pt"]), "unknown")
+  assert.equal(checkShipQuote("doesnt", "Sorry, we can't currently ship to Norway.", rates, "NO", ["en", "no"]), "no")
+  // A country picker's line isn't shipping there.
+  assert.equal(checkShipQuote("ships", "Austria (EUR)", "Change your country: Austria (EUR) Belgium (EUR)", "AT", ["en", "de"]), "unknown")
   // A "doesnt" quote our rules read as shipping there.
   assert.equal(checkShipQuote("doesnt", "We ship to France, Belgium, Germany and Italy.", page, "DE", langs), "unknown")
   assert.equal(checkShipQuote("unclear", "", page, "DE", langs), "unknown")
@@ -49,4 +58,17 @@ test("a quote must be on the page and show the verdict: the country, worldwide o
   assert.equal(checkShipQuote("ships", eu, eu, "CH", ["fr", "de"]), "unknown")
   const ww = "海外発送も承ります。"
   assert.equal(checkShipQuote("ships", ww, ww, "KR", ["ja", "ko"]), "yes")
+})
+
+test("the error bank: the reader's recorded responses on 103 labelled delivery pages, re-checked: no right one goes wrong, no wrong verdict grows", (t) => {
+  const { cases } = JSON.parse(readFileSync(new URL("./fixtures/similar-bank/delivery-model.json", import.meta.url), "utf8")) as { cases: Array<{ id: string; set: string; country: string; langs: string[]; excerpt: string; verdict: string; quote: string; truth: string; expect: string }> }
+  assert.equal(cases.length, 103)
+  const now = cases.map((c) => ({ ...c, now: checkShipQuote(c.verdict, c.quote, c.excerpt, c.country, c.langs) }))
+  assert.deepEqual(now.filter((c) => c.expect === c.truth && c.now !== c.truth).map((c) => c.id), [])
+  for (const set of ["tuned", "held-out"]) {
+    const wrong = (key: "expect" | "now", v: string) => now.filter((c) => c.set === set && c[key] === v && c.truth !== v).length
+    assert.ok(wrong("now", "yes") <= wrong("expect", "yes") && wrong("now", "no") <= wrong("expect", "no"), set)
+    const n = now.filter((c) => c.set === set)
+    t.diagnostic(`${set}: ${n.filter((c) => c.now === c.truth).length}/${n.length} right; wrong "ships there" ${wrong("now", "yes")}, wrong "doesn't ship" ${wrong("now", "no")}; real yes ${n.filter((c) => c.now === "yes" && c.truth === "yes").length}/${n.filter((c) => c.truth === "yes").length}`)
+  }
 })
