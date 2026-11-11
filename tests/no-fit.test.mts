@@ -80,7 +80,7 @@ test("Find similar's prompts and the read-aloud rules carry no price, currency o
   const prompts: Record<string, string> = {
     PLAN_SYSTEM: similar.PLAN_SYSTEM, SEARCH_SYSTEM: similar.SEARCH_SYSTEM, WRITE_SYSTEM: similar.WRITE_SYSTEM, SEARCH_ONE_SYSTEM: similar.SEARCH_ONE_SYSTEM,
     SEARCH_OWN_SYSTEM: similar.SEARCH_OWN_SYSTEM, PRICING_SYSTEM: similar.PRICING_SYSTEM, READ_SYSTEM: similar.READ_SYSTEM,
-    REVIEW_SEARCH_SYSTEM: similar.REVIEW_SEARCH_SYSTEM, REVIEW_READ_SYSTEM: similar.REVIEW_READ_SYSTEM, SCRIPT_RULES
+    REVIEW_SEARCH_SYSTEM: similar.REVIEW_SEARCH_SYSTEM, REVIEW_READ_SYSTEM: similar.REVIEW_READ_SYSTEM, SHIP_READ_SYSTEM: similar.SHIP_READ_SYSTEM, SCRIPT_RULES
   }
   for (const [name, text] of Object.entries(prompts)) {
     assert.ok(text && text.length > 100, name)
