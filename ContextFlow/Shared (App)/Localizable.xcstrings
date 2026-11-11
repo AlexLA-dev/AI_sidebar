@@ -29761,84 +29761,84 @@
         }
       }
     },
-    "What to check, or what to remind you of…": {
+    "What to check, or what to remind you of (optional)": {
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "ما الذي تريد التحقق منه أو التذكير به…"
+            "value": "ما الذي تريد التحقق منه أو التذكير به (اختياري)"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Was prüfen oder woran erinnern …"
+            "value": "Was prüfen oder woran erinnern (optional)"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Qué revisar o de qué avisarte…"
+            "value": "Qué revisar o de qué avisarte (opcional)"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Quoi vérifier, ou de quoi vous rappeler…"
+            "value": "Quoi vérifier, ou de quoi vous rappeler (facultatif)"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cosa controllare o di cosa ricordarti…"
+            "value": "Cosa controllare o di cosa ricordarti (facoltativo)"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "確認したいこと、リマインドしたいこと…"
+            "value": "確認したいこと、リマインドしたいこと（任意）"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "확인할 것이나 알려 줄 내용…"
+            "value": "확인할 것이나 알려 줄 내용 (선택)"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "O que conferir ou do que lembrar você…"
+            "value": "O que conferir ou do que lembrar você (opcional)"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Что проверить или о чём напомнить…"
+            "value": "Что проверить или о чём напомнить (необязательно)"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Що перевірити або про що нагадати…"
+            "value": "Що перевірити або про що нагадати (необов'язково)"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cần kiểm tra gì hoặc nhắc bạn điều gì…"
+            "value": "Cần kiểm tra gì hoặc nhắc bạn điều gì (không bắt buộc)"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "要检查什么，或要提醒你什么…"
+            "value": "要检查什么，或要提醒你什么（可选）"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "要確認什麼，或要提醒你什麼…"
+            "value": "要確認什麼，或要提醒你什麼（選填）"
           }
         }
       }
