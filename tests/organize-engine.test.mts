@@ -369,6 +369,22 @@ test("2.6 (95): chats on a shared page merge when their answers are on one topic
   assert.deepEqual([suggestMove(older, [older, oneBlock], vectorOf, cfg)?.why, suggestMove(older, [older, oneBlock], vectorOf, cfg)?.to], ["merge", "oneblock"])
 })
 
+test("2.6 (95): a merge needs the match it shows, by questions and answers, from minMatch % too", () => {
+  // The newer chat's questions are on another topic and its answers partly on the older chat's: the answers fit each
+  // other (mergeA), the questions and answers don't, and that is the % a merge shows.
+  const blend = (a: Float32Array, b: Float32Array) => { const v = a.map((x, i) => x * 0.6 + b[i] * 0.8); let n = 0; for (const x of v) n += x * x; return v.map((x) => x / Math.sqrt(n)) }
+  const custom = new Map<string, Float32Array>()
+  const vo: VectorOf = (e) => custom.get(e.content) ?? vectorOf(e)
+  const halfOn = (url: string) => { const m = qa2("bread", "japan", url); custom.set(m[1].content, blend(vectorFor("japan", 0), vectorFor("bread", 1))); return m }
+  const older = chat("older", [...qa("japan", "https://jg/1"), ...qa("japan", "https://jg/2")])
+  const newer = chat("newer", [...halfOn("https://jg/1"), ...halfOn("https://jg/5")])
+  const ungated = suggestMove(older, [older, newer], vo, { ...cfg, minMatch: 0 })!
+  assert.deepEqual([ungated.why, ungated.to], ["merge", "newer"])
+  assert.ok(ungated.match! < cfg.minMatch)
+  assert.notEqual(suggestMove(older, [older, newer], vo, cfg)?.why, "merge")
+  assert.notEqual(suggestMove(newer, [older, newer], vo, cfg)?.why, "merge")
+})
+
 test("2.6 (95): a chat of two pages on two topics: the newer page goes", () => {
   const tents = chat("tents", [...qa("tents", "https://outdoor/tents"), ...qa("tents", "https://campshop/2p")])
   const camera = chat("camera", [...qa("camera", "https://shop/camera-x"), ...qa("camera", "https://shop/camera-x"), ...qa("tents", "https://other/tent-y")])

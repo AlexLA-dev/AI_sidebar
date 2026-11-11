@@ -431,6 +431,19 @@ move(site, [site, ikea, japan], { cfg: { minMatch: 10, siteT: 0.01 } })
   move(japan, [japan, thread("onejapan2", [...qa("japan", "https://jg.example/2"), ...qa("japan", "https://jg.example/2")])])
   move(japan, [japan, thread("titleonly", [...qa2("japan", "bread", "https://jg.example/1"), ...qa2("japan", "bread", "https://jg.example/5")])])
   move(japan, [japan, fresh], { cfg: { mergeA: 0.99 } })
+  // Answers partly on the topic, questions on another: the answers fit, the match shown (by both) is below minMatch.
+  const halfOn = (url: string): Entry[] => {
+    const [q, a] = qa("bread", url)
+    const j = vectorFor("japan"), b = vectorFor("bread")
+    const v = j.map((x, i) => x * 0.6 + b[i] * 0.8)
+    const n = Math.sqrt(v.reduce((t, x) => t + x * x, 0))
+    table[a.id!] = v.map((x) => x / n)
+    return [q, a]
+  }
+  const halfJapan = thread("halfjapan", [...halfOn("https://jg.example/1"), ...halfOn("https://jg.example/5")])
+  move(japan, [japan, halfJapan])
+  move(halfJapan, [japan, halfJapan])
+  move(japan, [japan, halfJapan], { cfg: { minMatch: 0 } })
   const tents = thread("tents", [...qa("tents", "https://outdoor.example/tents"), ...qa("tents", "https://campshop.example/2p")])
   const camera = thread("cameramix", [...qa("camera", "https://shop.example/camera-x"), ...qa("camera", "https://shop.example/camera-x"), ...qa("tents", "https://other.example/tent-y")])
   move(camera, [camera, tents, bread])
