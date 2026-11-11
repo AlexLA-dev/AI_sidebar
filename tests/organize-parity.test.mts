@@ -10,7 +10,7 @@ import { test } from "node:test"
 
 import { entryKey, entryTimes, withPageChanges, type Entry } from "../src/shared/conversation.ts"
 import {
-  embedText, hostOf, judgedTags, judgeText, looksMixed, missingVectors, movesAllowed, nameCheckKey, nameStateAfter, nameText, openMove, openName, openTags,
+  embedText, hostOf, judgedTags, organizeScan, judgeText, looksMixed, missingVectors, movesAllowed, nameCheckKey, nameStateAfter, nameText, openMove, openName, openTags,
   organizeConfig, orgStateFor, packVector, refusedTags, scoredBlocks, suggestMove, tagCandidates, tagTargets, unpackVector, wantsNameCheck, type TagCandidate,
   type VectorOf
 } from "../src/shared/organize.ts"
@@ -81,6 +81,10 @@ function js(c: Case): unknown {
       return movesAllowed(chat, chats, cfg)
     case "suggestMove":
       return suggestMove(chat, chats, vectorsOf(c.vectors), cfg)
+    case "scan": {
+      const vectorOf = vectorsOf(c.vectors)
+      return organizeScan(chat, chats, vectorOf, cfg, suggestMove(chat, chats, vectorOf, cfg))
+    }
     case "tags": {
       const vectorOf = vectorsOf(c.vectors)
       return tagTargets(chat, cfg).map((i) => {
@@ -683,6 +687,8 @@ suggestions.push(
   { op: "unpack", packed: ["%%%", "", "AAAA", "AQID", " AQ ID\n", "AQI", "AQ", "A", "AQ==", "AQ=", "AQ===", "AR==", "/+8=", "gIGC", packVector(vectorFor("pack"))] },
   ...[{ moveT: 0.6, window: "5", nope: 1 }, { moveT: true, judge: false }, { moveT: -1, moveD: 1_001, moveT1: 1_000, siteT: 0 }, { splitMin: 2.5, maxTags: 0 }, null, [], "x", 5].map((raw) => ({ op: "config", raw }))
 )
+// 2.6 (98): each move case's scan too (what it compared, why nothing fired), as both engines report it.
+suggestions.push(...suggestions.filter((c) => c.op === "suggestMove").map((c) => ({ ...c, op: "scan" })))
 cases.push(...suggestions.map(withVectors))
 
 test("organizing gives the same results in the panel and in the app", { skip }, () => {
