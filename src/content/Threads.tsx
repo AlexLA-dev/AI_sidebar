@@ -22,7 +22,8 @@ interface Props {
   onNew: () => void
   onPin: (id: string, pinned: boolean) => void
   onMove: (id: string, index: number) => void // to `index` among the pinned chats
-  onOpenPage: (url: string) => void
+  // `chat`: the chat the page is in (2.6 (98): the page opens with the panel on it).
+  onOpenPage: (url: string, chat?: string) => void
   // Pro features: "Ask your chats" (the row on top) and AI search (✦ in the search field).
   pro: boolean
   onAskHistory: () => void
@@ -593,7 +594,7 @@ export function ThreadsView({ threads, activeId, onOpen, onRename, onDelete, onN
                     onClick={(e) => {
                       e.stopPropagation()
                       setPagesOf(null)
-                      onOpenPage(page.url)
+                      onOpenPage(page.url, thread.id)
                     }}
                   >
                     <span class="cf-pages-item-title" dir="auto">{page.title || host(page.url)}</span>

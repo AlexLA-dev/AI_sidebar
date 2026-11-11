@@ -214,7 +214,8 @@ export type BackgroundRequest =
   | { type: "setOwnKey"; key: string }
   | { type: "openUrl"; url: string }
   // A page of the chat: its tab if it's open, else a new tab.
-  | { type: "openPage"; url: string }
+  // `chat`, `at`: the chat and message the link was in (2.6 (98), src/shared/linkOpen.ts): the page opens with the panel there.
+  | { type: "openPage"; url: string; chat?: string; at?: string }
   // The panel opened: sync threads with iCloud (Safari); answers { changed }.
   // quiet (2.6 (94)): while the panel stays open, not when it opens: the app's "continue this chat" waits for that.
   | { type: "syncThreads"; quiet?: boolean }
@@ -246,7 +247,7 @@ export type PdfResult =
   | { ok: true; text: string; pages: number; title: string }
   | { ok: false; reason: "none" | "failed"; error: string }
 
-export type ContentRequest = { type: "toggle" } | { type: "open"; selection?: boolean }
+export type ContentRequest = { type: "toggle" } | { type: "open"; selection?: boolean } | { type: "openChat"; chat: string; at?: string }
 
 /** What organizing suggests for a chat now: a move (to a chat, or a new one) and a tag per message. */
 export type OrganizeReply =
