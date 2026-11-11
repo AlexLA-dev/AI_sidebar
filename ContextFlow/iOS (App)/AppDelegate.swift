@@ -20,6 +20,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         WatchOpen.start()
         // The Tips clips for the Safari panel, into the App Group once per build (TipClipShare).
         DispatchQueue.global(qos: .utility).async { TipClipShare.publish() }
+        // 2.6 (98): the App Store's version, read in the background too (What's new).
+        WhatsNew.registerBackground()
         return true
     }
 
@@ -41,6 +43,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     // (the bell by a selection) opens its page in Safari; its note stays in the chat.
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
         let info = response.notification.request.content.userInfo
+        // 2.6 (98): "ContextFlow … is here" opens the What's new tab.
+        if info["whatsNew"] is String {
+            await MainActor.run { DeepLinkRouter.shared.handle(WhatsNew.link) }
+            return
+        }
         // Page watch: "Changed: …" opens its page (WatchOpen).
         if info["watch"] != nil {
             await MainActor.run { WatchOpen.handle(info) }

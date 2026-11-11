@@ -15,9 +15,11 @@
 		CFA200000000000000000002 /* TemplatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA200000000000000000001 /* TemplatesView.swift */; };
 		CFD100000000000000000002 /* WatchOpen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFD100000000000000000001 /* WatchOpen.swift */; };
 		CF9500000000000000000002 /* SimilarCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9500000000000000000001 /* SimilarCards.swift */; };
+		CF9800000000000000000002 /* WhatsNew.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9800000000000000000001 /* WhatsNew.swift */; };
 		CFA200000000000000000003 /* TemplatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA200000000000000000001 /* TemplatesView.swift */; };
 		CFD100000000000000000003 /* WatchOpen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFD100000000000000000001 /* WatchOpen.swift */; };
 		CF9500000000000000000003 /* SimilarCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9500000000000000000001 /* SimilarCards.swift */; };
+		CF9800000000000000000003 /* WhatsNew.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9800000000000000000001 /* WhatsNew.swift */; };
 		CFE200000000000000000002 /* Listen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE200000000000000000001 /* Listen.swift */; };
 		CFE200000000000000000003 /* Listen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE200000000000000000001 /* Listen.swift */; };
 		CFE600000000000000000002 /* SpeechText.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE600000000000000000001 /* SpeechText.swift */; };
@@ -165,6 +167,7 @@
 		CFA200000000000000000001 /* TemplatesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplatesView.swift; sourceTree = "<group>"; };
 		CFD100000000000000000001 /* WatchOpen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchOpen.swift; sourceTree = "<group>"; };
 		CF9500000000000000000001 /* SimilarCards.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimilarCards.swift; sourceTree = "<group>"; };
+		CF9800000000000000000001 /* WhatsNew.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhatsNew.swift; sourceTree = "<group>"; };
 		CFE200000000000000000001 /* Listen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Listen.swift; sourceTree = "<group>"; };
 		CFE600000000000000000001 /* SpeechText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechText.swift; sourceTree = "<group>"; };
 		CF5000000000000000000001 /* PdfText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PdfText.swift; sourceTree = "<group>"; };
@@ -287,6 +290,7 @@
 				CFA200000000000000000001 /* TemplatesView.swift */,
 				CFD100000000000000000001 /* WatchOpen.swift */,
 				CF9500000000000000000001 /* SimilarCards.swift */,
+				CF9800000000000000000001 /* WhatsNew.swift */,
 				CFE200000000000000000001 /* Listen.swift */,
 				CFE600000000000000000001 /* SpeechText.swift */,
 				410D88912F41EE9800684748 /* ContentView.swift */,
@@ -614,6 +618,7 @@
 				CFA200000000000000000002 /* TemplatesView.swift in Sources */,
 				CFD100000000000000000002 /* WatchOpen.swift in Sources */,
 				CF9500000000000000000002 /* SimilarCards.swift in Sources */,
+				CF9800000000000000000002 /* WhatsNew.swift in Sources */,
 				CFE200000000000000000002 /* Listen.swift in Sources */,
 				CFE600000000000000000002 /* SpeechText.swift in Sources */,
 				CF6000000000000000000002 /* Chats.swift in Sources */,
@@ -646,6 +651,7 @@
 				CFA200000000000000000003 /* TemplatesView.swift in Sources */,
 				CFD100000000000000000003 /* WatchOpen.swift in Sources */,
 				CF9500000000000000000003 /* SimilarCards.swift in Sources */,
+				CF9800000000000000000003 /* WhatsNew.swift in Sources */,
 				CFE200000000000000000003 /* Listen.swift in Sources */,
 				CFE600000000000000000003 /* SpeechText.swift in Sources */,
 				410D88992F41EE9800684748 /* SharedDefaults.swift in Sources */,
