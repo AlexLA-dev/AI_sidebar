@@ -161,11 +161,28 @@ mark.cf-mark-last { border-start-end-radius: 2px; border-end-end-radius: 2px; }
   animation: cf-up 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 .cf-sheet-title svg { flex-shrink: 0; }
-/* "Remind me" from a selection: what the note will start with, under the title (3 lines at most). */
+/* "Remind me" from a selection: what was selected, under the title (3 lines at most), as the chat will show it: a
+   quote (2.6 (97)). */
 .cf-sheet-quote {
-  margin: -2px 10px 6px; font-size: 13px; line-height: 1.4; color: var(--text-2); font-style: italic;
+  margin: 0 10px 8px; padding-inline: 10px 0; border-inline-start: 3px solid var(--note); font-size: 13px; line-height: 1.4; color: var(--text-2);
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
 }
+/* The person's own words on a reminder or a watch (2.6 (97)): optional, as tall as its words. */
+.cf-note-words {
+  display: block; width: calc(100% - 20px); margin: 0 10px 6px; padding: 9px 11px; resize: none; overflow-y: auto;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--bg-2); color: var(--text);
+  font: inherit; font-size: 14px; line-height: 1.4;
+}
+.cf-note-words:focus { outline: none; border-color: var(--accent); }
+.cf-note-words::placeholder { color: var(--text-3); }
+/* iPhone and iPad: 16 px, or Safari zooms the page in on focus. */
+.cf[data-touch] .cf-note-words { font-size: 16px; }
+.cf-watch .cf-note-words { width: 100%; margin: 6px 0 2px; }
+/* A note on a selection in the chat (2.6 (97)): the selection as a quote, the person's words under it. */
+.cf-note-cite { margin: 2px 0 6px; padding-inline: 10px 0; border-inline-start: 3px solid var(--note); color: var(--text-2); font-size: 0.95em; white-space: pre-wrap; }
+.cf-note-cite:last-child { margin-bottom: 2px; }
+.cf-later-quote { font-size: 13px; line-height: 1.4; color: var(--text-2); padding-inline: 8px 0; border-inline-start: 3px solid var(--note); white-space: normal; overflow-wrap: anywhere; }
+.cf-later-item:not(.open) .cf-later-quote { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
 /* The bell in the selection bubble (2.5 (77)), before the eye: an icon on touch screens (the row stays one line,
    "Ask AI" and Google keep their words), with a word on Mac. */
 .cf-bubble button.cf-sel-remind { color: var(--accent-text); }

@@ -277,3 +277,45 @@ test("a page that's gone is told apart from one that turns the background away",
   assert.equal(watches()[0].mode, "live")
   assert.ok(events.some((e) => e.a === "error" && e.reason === "gone" && e.mode === "bg"))
 })
+
+// 2.6 (97), the owner: «мне некуда приписать себе заметку, что именно я хочу проверить». A watch keeps the person's own
+// note: the AI never gets it, the notification says it first, the app's list gets it, and it changes alone (no AI).
+test("a watch's own note: kept, said first when it changes, in the app's list, changed alone without the AI", async () => {
+  const prepared = await send({ type: "watchPrepare", draft: draft(), how: "bubble" })
+  await send({ type: "watchSave", draft: draft(), prepared, how: "bubble", live: false, note: "  ask   for the blue one \n " })
+  assert.equal(watches()[0].note, "ask for the blue one")
+  assert.ok(!JSON.stringify(aiCalls).includes("blue one"), "the AI never reads it")
+  await tick()
+  const sync = native.filter((m) => m.command === "watch_sync").at(-1)!
+  assert.equal(sync.watches[0].note, "ask for the blue one")
+
+  // The note alone: no AI, the rule as it was.
+  const calls = aiCalls.length
+  const rule = watches()[0].rule
+  const edited = await send({ type: "watchEdit", id: watches()[0].id, condition: watches()[0].condition, note: "only if it ships this week" })
+  assert.equal(edited.ok, true)
+  assert.equal(watches()[0].note, "only if it ships this week")
+  assert.deepEqual(watches()[0].rule, rule)
+  assert.equal(aiCalls.length, calls, "a new note goes nowhere")
+
+  pages[URL_A] = shop("89")
+  await round()
+  const notice = native.find((m) => m.command === "watch_notify")!
+  assert.equal(notice.body, "only if it ships this week\nNow: €89.00")
+
+  // Cleared: the notification says what changed alone again; no note in the list.
+  await send({ type: "watchEdit", id: watches()[0].id, condition: watches()[0].condition, note: "" })
+  assert.equal(watches()[0].note, undefined)
+})
+
+test("a watch without a note says what changed, as before; new words keep the note unless it's changed too", async () => {
+  const prepared = await send({ type: "watchPrepare", draft: draft(), how: "bubble" })
+  await send({ type: "watchSave", draft: draft(), prepared, how: "bubble", live: false })
+  assert.equal("note" in watches()[0], false)
+  await send({ type: "watchEdit", id: watches()[0].id, condition: "when it drops below 90" })
+  assert.equal(aiCalls.filter((c) => c.action === "plan").length, 2, "new words are planned again")
+  assert.equal("note" in watches()[0], false)
+  await send({ type: "watchEdit", id: watches()[0].id, condition: "when it drops below 80", note: "for the office" })
+  assert.equal(watches()[0].condition, "when it drops below 80")
+  assert.equal(watches()[0].note, "for the office")
+})

@@ -118,7 +118,8 @@ test("Note by a selection: the quoted text with the page and the comment, a note
   const page = { url: "https://weekly.example/four-day-week", title: "Four-day week", hash: "abc" }
   const note = selectionNote("  61 companies cut   hours\n\n\n\nby 20%.  ", "  check the pay part  ", page, (text) => `«${text}»`)
   const { id, t, ...rest } = note
-  assert.deepEqual(rest, { role: "user", content: "«61 companies cut hours\n\nby 20%.»\n\ncheck the pay part", note: true, quote: true, page })
+  // 2.6 (97): the selection apart too (the chat shows it as a quote, the comment as the note).
+  assert.deepEqual(rest, { role: "user", content: "«61 companies cut hours\n\nby 20%.»\n\ncheck the pay part", note: true, quote: true, cite: "61 companies cut hours\n\nby 20%.", page })
   // A new message: an id, and the time of its page (now when the page has none).
   assert.match(id!, /^[a-z0-9]{12}$/)
   assert.ok(Math.abs(t! - Date.now()) < 5_000)

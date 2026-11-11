@@ -14,6 +14,7 @@ let sheet: any
 let root: any
 const NOW = Date.UTC(2026, 10, 5, 12, 0)
 let cancels = 0
+const sent: any[] = []
 let watches: any[] = [{
   id: "a1", url: "https://shop.example/mug", host: "shop.example", title: "Mug", what: "price", label: "Price",
   condition: "when it drops below 35 EUR", source: "ld-price", value: "40 EUR", rule: { kind: "below", n: 35 }, mode: "bg",
@@ -29,6 +30,12 @@ before(async () => {
     runtime: {
       sendMessage: async (m: any) => {
         if (m.type === "watchList") return structuredClone(watches)
+        sent.push(m)
+        if (m.type === "watchEdit") {
+          const w = watches.find((x) => x.id === m.id)
+          if (w) Object.assign(w, { condition: m.condition, note: m.note || undefined })
+          return { ok: true, watch: structuredClone(w) }
+        }
         if (m.type === "watchCancel") {
           cancels++
           watches = watches.filter((w) => w.id !== m.id)
@@ -87,4 +94,41 @@ test("Stop watching in a row's window: the open list reads its rows again and th
   assert.equal(reread, 1, "the list was told to read its rows again")
   assert.deepEqual(await sheet.watchSource.items(), [], "and the row isn't among them")
   assert.doesNotMatch(window.innerHTML, /cf-watch-edit/, "the window closed")
+})
+
+// 2.6 (97): the person's own note, in the eye's window (optional, never focused by itself) and in a watch's window,
+// where it's changed alone with no consent card and no AI (the words stay).
+test("the eye's window has the person's own note, optional; a watch's window changes it alone", async () => {
+  sheet.openWatchSheet({ url: "https://shop.example/mug", title: "Mug · Shop", selection: "USD 40", how: "bubble" })
+  await new Promise((r) => setTimeout(r, 20))
+  const eye = [...root.children].at(-1)
+  const field = eye.querySelector("textarea.cf-note-words")
+  assert.ok(field, "the note field")
+  assert.equal(field.getAttribute("placeholder"), "What to check when it changes…")
+  assert.notEqual(eye.ownerDocument.activeElement, field, "not focused by itself")
+  assert.equal(eye.querySelector(".cf-primary").disabled, false, "Watch works without a note")
+
+  watches = [{ ...watches[0] ?? {}, id: "b2", url: "https://shop.example/mug", host: "shop.example", title: "Mug", what: "price", label: "Price",
+    condition: "when it drops below 35 EUR", source: "ld-price", value: "40 EUR", rule: { kind: "below", n: 35 }, mode: "bg", site: "shop",
+    createdAt: NOW, checkedAt: NOW, checks: 0, failures: 0 }]
+  const row = { id: "watch:b2", kind: "watch", title: "Mug", url: "https://shop.example/mug", status: "", sortAt: 0 }
+  assert.equal(sheet.watchSource.open(row, () => undefined), true)
+  await new Promise((r) => setTimeout(r, 30))
+  const edit = [...root.children].at(-1)
+  const note = edit.querySelector("textarea.cf-note-words")
+  assert.ok(note, "the note field in a watch's window")
+  const save = edit.querySelector(".cf-primary")
+  assert.equal(save.disabled, true, "nothing changed yet")
+  note.value = "for the office"
+  note.dispatchEvent(new (globalThis as any).window.Event("input", { bubbles: true }))
+  await new Promise((r) => setTimeout(r, 10))
+  assert.equal(edit.querySelector(".cf-primary").disabled, false, "a new note can be saved")
+  edit.querySelector(".cf-primary").dispatchEvent(new (globalThis as any).window.Event("click", { bubbles: true }))
+  await new Promise((r) => setTimeout(r, 30))
+  const message = sent.filter((m) => m.type === "watchEdit").at(-1)
+  assert.deepEqual(message, { type: "watchEdit", id: "b2", condition: "when it drops below 35 EUR", note: "for the office" })
+  assert.equal(edit.querySelector(".cf-consent"), null, "no consent card for a note")
+  // The list shows it over the status.
+  const [listed] = await sheet.watchSource.items()
+  assert.equal(listed.text, "for the office")
 })

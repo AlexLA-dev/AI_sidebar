@@ -189,6 +189,14 @@ extension ChatLibrary {
         }
     }
 
+    /// A reminder's new words (2.6 (97), ChatEntry.withRemindWords): the message's text, every other field kept.
+    func setRemindWords(_ thread: ChatThread, entry index: Int, _ content: String) {
+        editEntries(thread) { entries in
+            guard entries.indices.contains(index) else { return }
+            entries[index]["content"] = content
+        }
+    }
+
     func setRemind(_ thread: ChatThread, entry index: Int, _ remind: ChatRemind?) {
         editEntries(thread) { entries in
             guard entries.indices.contains(index) else { return }
@@ -872,18 +880,39 @@ struct RemindSheet: View {
     var current: Date?
     /// Why the last try didn't set it (notifications off).
     var note: String?
-    var pick: (Date, String) -> Void
+    /// 2.6 (97): a note on a selection's quote, shown over its words.
+    var quote: String? = nil
+    /// The person's own words on a reminder made with Remind on a selection or a page (ChatEntry.remindWords), changed
+    /// with its time; optional, a time saves without them. Nil: no field (a reminder on an answer).
+    var words: String? = nil
+    var pick: (Date, String, String?) -> Void
     var cancel: () -> Void
     @Environment(\.dismiss) private var dismiss
     @State private var custom = Date().addingTimeInterval(86400)
     @State private var picking = false
+    @State private var own = ""
+    @State private var started = false
+
+    private func picked(_ at: Date, _ preset: String) {
+        pick(at, preset, words == nil ? nil : own.trimmingCharacters(in: .whitespacesAndNewlines))
+    }
 
     var body: some View {
         NavigationStack {
             List {
+                if quote != nil || words != nil {
+                    Section {
+                        if let quote { QuoteBlock(text: quote, lines: 3) }
+                        if words != nil {
+                            // Never focused by itself: a time saves at once, as before.
+                            TextField("What to check, or what to remind you of…", text: $own, axis: .vertical)
+                                .lineLimit(1...4)
+                        }
+                    }
+                }
                 ForEach(ReminderTimes.presets(), id: \.preset) { item in
                     Button {
-                        pick(item.at, item.preset.rawValue)
+                        picked(item.at, item.preset.rawValue)
                     } label: {
                         HStack {
                             Text(ReminderTimes.title(item.preset)).foregroundColor(.primary)
@@ -894,7 +923,7 @@ struct RemindSheet: View {
                 }
                 if picking {
                     DatePicker("Date", selection: $custom, in: Date()..., displayedComponents: [.date, .hourAndMinute])
-                    Button("Remind") { pick(custom, "custom") }
+                    Button("Remind") { picked(custom, "custom") }
                         .disabled(custom <= Date())
                 } else {
                     Button("Pick a date") { picking = true }
@@ -916,6 +945,11 @@ struct RemindSheet: View {
         }
         .presentationDetents([.medium, .large])
         .frame(minWidth: 320, minHeight: 340)
+        .onAppear {
+            guard !started else { return }
+            started = true
+            own = words ?? ""
+        }
     }
 }
 

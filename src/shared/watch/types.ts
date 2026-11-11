@@ -28,6 +28,9 @@ export interface Watch {
   label: string
   // The person's own words: "when size 42 is back".
   condition: string
+  // 2.6 (97), the owner: «мне некуда приписать себе заметку, что именно я хочу проверить». Their own note to
+  // themselves, optional ("check it fits the desk"): the AI never reads it; the notification says it.
+  note?: string
   source: WatchSource
   // Text right before and after the value on the page (source "text").
   before?: string

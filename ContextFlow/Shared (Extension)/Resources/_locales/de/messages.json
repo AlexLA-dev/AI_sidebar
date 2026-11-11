@@ -305,6 +305,9 @@
  "uxRemindTitle": {
   "message": "Wann soll ich dich erinnern?"
  },
+ "uxNoteWords": {
+  "message": "Was prüfen oder woran erinnern …"
+ },
  "uxRemindAsked": {
   "message": "Du wolltest erinnert werden: {0}"
  },
@@ -1594,6 +1597,9 @@
  },
  "watchWhen": {
   "message": "Wann melden"
+ },
+ "watchNoteWords": {
+  "message": "Was prüfen, wenn es sich ändert …"
  },
  "watchCondPrice": {
   "message": "wenn sich der Preis ändert (jetzt {0})"

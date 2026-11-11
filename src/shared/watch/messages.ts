@@ -40,11 +40,13 @@ export interface WatchPrepared {
 
 export type WatchRequest =
   | { type: "watchPrepare"; draft: WatchDraft; how: WatchHow }
-  | { type: "watchSave"; draft: WatchDraft; prepared: WatchPrepared; how: WatchHow; live: boolean }
+  // `note`: the person's own note (2.6 (97)), optional.
+  | { type: "watchSave"; draft: WatchDraft; prepared: WatchPrepared; how: WatchHow; live: boolean; note?: string }
   | { type: "watchList" }
   | { type: "watchCancel"; id: string; via: "panel" | "list" }
-  // New words for what a watch waits for, from the list: the rule is planned again; what's read stays.
-  | { type: "watchEdit"; id: string; condition: string }
+  // New words for what a watch waits for, from the list: the rule is planned again; what's read stays. `note`: the
+  // person's own note, changed alone (no AI) when the words stay.
+  | { type: "watchEdit"; id: string; condition: string; note?: string }
   // The page the person has open: which watches it has, then the values read from it.
   | { type: "watchForUrl"; url: string }
   | { type: "watchLive"; url: string; values: Record<string, string | null>; text?: string }

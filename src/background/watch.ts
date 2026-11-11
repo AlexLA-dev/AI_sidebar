@@ -14,7 +14,7 @@ import { urlKey } from "../shared/conversation"
 import { t, uiLanguage } from "../shared/i18n"
 import { fallbackRule, sameValue, shownValue, verdict } from "../shared/watch/compare"
 import { readPage, readValue } from "../shared/watch/extract"
-import { conditionLine } from "../shared/watch/line"
+import { conditionLine, watchBody } from "../shared/watch/line"
 import {
   siteOf, type WatchDraft, type WatchHow, type WatchPrepared, type WatchRequest, type WatchSpec, type WatchStep
 } from "../shared/watch/messages"
@@ -152,8 +152,14 @@ const hostOf = (url: string) => {
   }
 }
 
-async function save(draft: WatchDraft, prepared: WatchPrepared & { value?: string | null }, how: WatchHow): Promise<{ ok: boolean; id?: string; full?: boolean; limit?: number; paid?: boolean; plan?: Plan; notify?: string }> {
+/** The person's own note on a watch (2.6 (97)): their words, one space between them, at most 500 characters. */
+function noteOf(note: string | undefined): string {
+  return (note ?? "").replace(/[ \t]+/g, " ").replace(/\s*\n\s*/g, "\n").trim().slice(0, 500)
+}
+
+async function save(draft: WatchDraft, prepared: WatchPrepared & { value?: string | null }, how: WatchHow, note?: string): Promise<{ ok: boolean; id?: string; full?: boolean; limit?: number; paid?: boolean; plan?: Plan; notify?: string }> {
   const now = Date.now()
+  const own = noteOf(note)
   const w: Watch = {
     id: crypto.randomUUID(),
     url: draft.url,
@@ -162,6 +168,7 @@ async function save(draft: WatchDraft, prepared: WatchPrepared & { value?: strin
     what: prepared.what,
     label: prepared.label,
     condition: draft.condition.slice(0, 300),
+    ...(own ? { note: own } : {}),
     source: prepared.source,
     ...(draft.before ? { before: draft.before } : {}),
     ...(draft.after ? { after: draft.after } : {}),
@@ -209,11 +216,29 @@ async function cancel(id: string, via: "panel" | "list" | "app"): Promise<void> 
  * New words for what a watch waits for (the list, the owner on build 75: "the condition can be changed"). The AI
  * plans the rule again from them (or the device's rules); the value and where it's read stay, the checks go on, and
  * a watch that had fired waits again. The new words count as the person's own: the list shows them as they are.
+ * 2.6 (97): the person's own note changes with them, or alone (the words as they were: no AI, the watch as it was).
  */
-async function edit(id: string, condition: string): Promise<{ ok: boolean; watch?: Watch }> {
+async function edit(id: string, condition: string, note?: string): Promise<{ ok: boolean; watch?: Watch }> {
   const words = condition.replace(/\s+/g, " ").trim().slice(0, 300)
   const w = (await load()).find((x) => x.id === id)
   if (!w || !words) return { ok: false }
+  const own = note === undefined ? undefined : noteOf(note)
+  const noted = (x: Watch) => {
+    if (own === undefined) return
+    if (own) x.note = own
+    else delete x.note
+  }
+  if (words === w.condition.replace(/\s+/g, " ").trim()) {
+    const kept = await update((list) => {
+      const x = list.find((y) => y.id === id)
+      if (!x) return null
+      noted(x)
+      return { ...x }
+    })
+    if (!kept) return { ok: false }
+    void syncApp()
+    return { ok: true, watch: kept }
+  }
   const planned = await ask("plan", { condition: words, selection: w.what === "page" ? "" : shown(w.value), around: "", title: w.title, host: w.host, candidates: {} })
   // The plan may read the value another way; this watch keeps its own reading (what and source), only the rule moves.
   const rule = planned?.what === w.what && planned?.rule ? planned.rule : fallbackRule(w.what, w.value, words)
@@ -221,6 +246,7 @@ async function edit(id: string, condition: string): Promise<{ ok: boolean; watch
     const x = list.find((y) => y.id === id)
     if (!x) return null
     x.condition = words
+    noted(x)
     x.rule = rule
     if (planned?.label && planned.what === w.what) x.label = planned.label
     delete x.metAt
@@ -340,7 +366,7 @@ async function notify(w: Watch, value: string, line: string): Promise<void> {
   await callNative("watch_notify", {
     id: w.id,
     title: t("watchChanged", label),
-    body: line || t("watchChangedBody", w.what === "page" ? w.title : shown(value)),
+    body: watchBody(w.note, line || t("watchChangedBody", w.what === "page" ? w.title : shown(value))),
     url: w.url
   }, 10_000)
   void syncApp()
@@ -371,7 +397,7 @@ async function syncApp(): Promise<void> {
   const list = await load()
   const reply = await callNative<{ cancelled?: string[] }>("watch_sync", {
     watches: list.map((w) => ({
-      id: w.id, title: w.title, url: w.url, label: w.label, condition: w.condition, line: conditionLine(w), what: w.what,
+      id: w.id, title: w.title, url: w.url, label: w.label, condition: w.condition, line: conditionLine(w), what: w.what, ...(w.note ? { note: w.note } : {}),
       mode: w.mode, checkedAt: w.checkedAt, ...(w.metAt ? { metAt: w.metAt, metValue: w.what === "page" ? "" : shown(w.metValue ?? "") } : {})
     }))
   }, 6_000)
@@ -434,7 +460,7 @@ export function startWatch(d: WatchDeps): void {
         prepare(message.draft, message.how).then(sendResponse, () => sendResponse({ ok: false }))
         return true
       case "watchSave":
-        save(message.draft, message.prepared, message.how).then(sendResponse, () => sendResponse({ ok: false }))
+        save(message.draft, message.prepared, message.how, message.note).then(sendResponse, () => sendResponse({ ok: false }))
         return true
       case "watchList":
         load().then(sendResponse, () => sendResponse([]))
@@ -443,7 +469,7 @@ export function startWatch(d: WatchDeps): void {
         cancel(message.id, message.via).then(() => sendResponse({ ok: true }), () => sendResponse({ ok: false }))
         return true
       case "watchEdit":
-        edit(message.id, message.condition).then(sendResponse, () => sendResponse({ ok: false }))
+        edit(message.id, message.condition, message.note).then(sendResponse, () => sendResponse({ ok: false }))
         return true
       case "watchForUrl":
         forUrl(message.url).then(sendResponse, () => sendResponse([]))

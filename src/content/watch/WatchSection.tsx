@@ -10,6 +10,7 @@ import { t } from "../../shared/i18n"
 import { WATCH_LIMIT, type WatchDraft, type WatchHow, type WatchPrepared } from "../../shared/watch/messages"
 import { ConsentCard } from "../Consent"
 import { giveConsent, loadConsent } from "../store"
+import { NoteWords } from "../ux/MessageUx"
 import { draftFor } from "./draft"
 import { Eye } from "./icons"
 import { detectPlatform, isTouch, openAppFromTap } from "../page"
@@ -51,6 +52,8 @@ export function WatchSection(p: WatchSectionProps) {
   // Read once, when the window opens: the page may change under the person while they type.
   const draft = useMemo(() => p.draft ?? draftFor(p.url, p.title, p.selection), [p.url, p.selection, p.draft])
   const [condition, setCondition] = useState(draft.condition)
+  // The person's own note (2.6 (97)), optional: Watch saves without it.
+  const [note, setNote] = useState("")
   // Where the window was opened from, as it was when it opened (the window may render again meanwhile).
   const [how] = useState(p.how)
   const [state, setState] = useState<State>({ at: "edit" })
@@ -58,7 +61,7 @@ export function WatchSection(p: WatchSectionProps) {
   useEffect(() => () => clearTimeout(closing.current), [])
 
   const save = async (prepared: WatchPrepared, live: boolean) => {
-    const reply = await send<{ ok: boolean; full?: boolean; limit?: number; paid?: boolean; plan?: string; notify?: string }>({ type: "watchSave", draft: { ...draft, condition }, prepared, how, live }).catch(() => null)
+    const reply = await send<{ ok: boolean; full?: boolean; limit?: number; paid?: boolean; plan?: string; notify?: string }>({ type: "watchSave", draft: { ...draft, condition }, prepared, how, live, ...(note.trim() ? { note: note.trim() } : {}) }).catch(() => null)
     if (!reply?.ok) return setState(reply?.full ? { at: "full", limit: reply.limit ?? 5, paid: reply.paid === true, ultra: reply.plan === "ultra" } : { at: "failed" })
     setState({ at: "set", live, notify: reply.notify ?? "ok" })
     if ((reply.notify ?? "ok") === "ok") closing.current = setTimeout(p.close, 1800)
@@ -102,6 +105,7 @@ export function WatchSection(p: WatchSectionProps) {
               }
             }}
           />
+          <NoteWords watch value={note} onInput={setNote} />
           <p class="cf-watch-note">{t("watchHonest")}</p>
           {state.at === "failed" && <p class="cf-watch-msg">{t("watchFailed")}</p>}
           {state.at === "full" && <p class="cf-watch-msg">{state.ultra || (state.paid && TARGET !== "safari") ? t("watchFull", state.limit) : state.paid ? t("watchFullPro", state.limit, WATCH_LIMIT.ultra) : t("watchFullFree", state.limit, WATCH_LIMIT.paid)}</p>}

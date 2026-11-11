@@ -60,7 +60,7 @@ struct WatchSource: LaterSource {
                 status = String(localized: "Watching: \(waits)")
             }
             return LaterItem(id: "watch:\(w.id)", kind: .watch, title: w.title.isEmpty ? label : w.title, url: URL(string: w.url),
-                             status: status, sortAt: Date(timeIntervalSince1970: (w.metAt ?? w.checkedAt) / 1000))
+                             status: status, detail: w.note, sortAt: Date(timeIntervalSince1970: (w.metAt ?? w.checkedAt) / 1000))
         }
     }
 
