@@ -76,16 +76,17 @@ export function SimilarPicker({ title, region, country, onRegion, onFind, onClos
   onFind: (condition: string, label: string, ask: SimilarAsk) => void
   onClose: () => void
 }): VNode {
-  const [chip, setChip] = useState<SimilarChip | null>(null)
+  // Build 98: several chips at once ("cheaper" and "in stock"), each checked.
+  const [chips, setChips] = useState<SimilarChip[]>([])
   const [words, setWords] = useState("")
   const asks = onRegion !== undefined
   const find = () => {
     if (asks && !region) return
-    const condition = [chip ? chipCondition(chip) : "", words.trim()].filter(Boolean).join(", ").slice(0, 300)
+    const condition = [...chips.map(chipCondition), words.trim()].filter(Boolean).join(", ").slice(0, 300)
     // The question's bubble: the person's own words (or the chip's), in whatever language they wrote them; the Find
     // similar icon beside it says what it is (2.6 build 90: "Find similar:" in an English panel before Russian words).
     // Build 95: the chip and their own words apart too: the server weighs the chip softly, their words strictly.
-    onFind(condition, condition || t("similarAsked"), { ...(chip ? { chip } : {}), ...(words.trim() ? { words: words.trim().slice(0, 300) } : {}) })
+    onFind(condition, condition || t("similarAsked"), { ...(chips.length ? { chips } : {}), ...(words.trim() ? { words: words.trim().slice(0, 300) } : {}) })
   }
   return (
     <div class="cf-card cf-similar-pick" role="dialog" aria-label={t("similarTitle")}>
@@ -96,7 +97,7 @@ export function SimilarPicker({ title, region, country, onRegion, onFind, onClos
       <p class="cf-similar-of" dir="auto">{title}</p>
       <div class="cf-similar-chips" role="group" aria-label={t("similarConditions")}>
         {SIMILAR_CHIPS.map((c) => (
-          <button key={c} type="button" class={`cf-chip small${chip === c ? " on" : ""}`} aria-pressed={chip === c} onClick={() => setChip(chip === c ? null : c)}>
+          <button key={c} type="button" class={`cf-chip small${chips.includes(c) ? " on" : ""}`} aria-pressed={chips.includes(c)} onClick={() => setChips(chips.includes(c) ? chips.filter((x) => x !== c) : SIMILAR_CHIPS.filter((x) => x === c || chips.includes(x)))}>
             {t(CHIP_LABEL[c])}
           </button>
         ))}

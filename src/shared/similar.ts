@@ -147,6 +147,8 @@ export interface SimilarPayload {
   country?: string
   // Build 95: the chip ("" for none) and their own words apart; `condition` stays both joined, for older servers.
   chip?: SimilarChip | ""
+  // Build 98: every chip they tapped (`chip` is the first, for a server before it).
+  chips?: SimilarChip[]
   words?: string
 }
 
@@ -172,7 +174,8 @@ export type SimilarChip = (typeof SIMILAR_CHIPS)[number]
 
 /** Build 95: what they asked, the chip apart from their own words (the server weighs one softly, the other strictly). */
 export interface SimilarAsk {
-  chip?: SimilarChip
+  // Build 98: several at once, in the panel's order.
+  chips?: SimilarChip[]
   words?: string
 }
 
