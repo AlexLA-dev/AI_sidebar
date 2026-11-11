@@ -98,7 +98,7 @@ import * as QIcon from "./insert/icons"
 import { keepCopied, report as reportInsert } from "./insert/store"
 import { insertFromPanel, useButtonShown, useHasField } from "./insert/target"
 import { TemplatesView } from "./insert/TemplatesView"
-import { allTags, chatDigests, chatList, cleanTags, namedByUser, newThreadId, pageBlocks, pinAt, shownThread, threadName, threadPages, threadTitle, trashedThreads, type MoveUndo, type Thread, type Threads } from "../shared/threads"
+import { allTags, chatDigests, chatForPage, chatList, cleanTags, namedByUser, newThreadId, pageBlocks, pinAt, shownThread, threadName, threadPages, threadTitle, trashedThreads, type MoveUndo, type Thread, type Threads } from "../shared/threads"
 import type { ChatDigest } from "../shared/history"
 import type { ConsentStatus } from "../shared/consent"
 
@@ -528,8 +528,12 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
 
   // ------------------------------------------------------------ open/close
   // `captured`: the selection our selection button saw (on iPhone the tap itself clears it).
-  const show = useCallback((captured?: SelectionInfo) => {
+  // Opened with the circle or Safari's toolbar button (2.6 (98)): the panel opens on this page's latest chat
+  // (chatForPage), not on a selection's Ask AI, a link or a notification, which bring their own chat.
+  const pageChatRef = useRef(false)
+  const show = useCallback((captured?: SelectionInfo, how?: { pageChat?: true }) => {
     openedAt.current = Date.now()
+    pageChatRef.current = Boolean(how?.pageChat && !captured)
     if (captured) {
       rememberSelection(captured)
       // On iPhone and iPad the system edit menu stays up while text is selected, over our panel.
@@ -569,8 +573,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   }, [])
 
   useEffect(() => {
-    const onToggle = () => (open ? hide() : show())
-    const onOpen = () => show()
+    const onToggle = () => (open ? hide() : show(undefined, { pageChat: true }))
+    const onOpen = () => show(undefined, { pageChat: true })
     bus.addEventListener("toggle", onToggle)
     bus.addEventListener("open", onOpen)
     return () => {
@@ -592,8 +596,15 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
         const list = listRef.current
         if (list) list.scrollTop = list.scrollHeight
       })
-      loadingRef.current = loadThreads().then(({ threads, active }) => {
+      const pageChat = pageChatRef.current
+      pageChatRef.current = false
+      loadingRef.current = loadThreads().then(async ({ threads, active: was }) => {
         loadedRef.current = true
+        // The circle on a page already talked about: its latest chat (or the site's); else the chat as it was. Stored
+        // before the sync below reads which chat is open.
+        const found = pageChat ? chatForPage(threads, key) : null
+        const active = found && found !== was.id ? { id: found, at: Date.now() } : was
+        if (active !== was) await setActiveThread(active.id)
         threadRef.current = active.id
         setKind(threads[active.id]?.kind)
         const entries = threads[active.id]?.m ?? []
@@ -2152,7 +2163,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       setDragY(null)
       updateSettings({ fabY: Math.round(y), fabSide: e.clientX < window.innerWidth / 2 ? "left" : "right" })
     } else {
-      show()
+      show(undefined, { pageChat: true })
     }
   }
 
