@@ -1617,8 +1617,9 @@ const SENTENCES = /(?<=[.!?;。！？])\s+|[;。！？\n]+/u
 /**
  * Whether a delivery page ships to `country`, from its sentences about shipping only (a shop's "trusted worldwide"
  * says nothing of it):
- * - "no" when such a sentence refuses it — a negation or "except" before the country's name ("we don't ship to X",
- *   "worldwide except X"), "we do not ship internationally / outside the UK", or "only" (or "must be in") with other
+ * - "no" when such a sentence refuses it — a negation before the country's name ("we don't ship to X"), or after it
+ *   between the same commas ("nach X liefern wir nicht"), unless that part is about a cost; "except" before the name
+ *   ("worldwide except X"), "we do not ship internationally / outside the UK", or "only" (or "must be in") with other
  *   countries named;
  * - "yes" when one names the country, ships worldwide or (for an EU country) within the EU, and says no "not";
  * - else "unknown": other countries named alone mean nothing (shops list their own regions and per-country prices).
@@ -1640,8 +1641,19 @@ export function shipsTo(text: string, country: string, langs: string[]): "yes" |
       if (at >= 0) {
         // A "not" before the name refuses it ("we don't ship to X"); in Japanese and Korean the refusal ends the clause
         // («韓国への発送はしておりません»), so there it refuses wherever it is.
-        const refuses = neg !== null && (negAt < at || DENSE.test(neg[0]))
-        if (refuses || (exceptAt >= 0 && exceptAt < at)) return "no"
+        if (neg !== null && (negAt < at || DENSE.test(neg[0]))) return "no"
+        if (exceptAt >= 0 && exceptAt < at) return "no"
+        // After the name, in any language, between the same commas: the verb or the "not" often ends the clause
+        // («Nach Österreich liefern wir leider nicht», «В Казахстан доставка не осуществляется», "Delivery to Canada:
+        // not available") — unless it's about a cost ("shipping to Canada isn't free"), which says nothing either way
+        // (the overfit review, S9). "Envío gratis a España, no incluye Canarias" is another part's "not".
+        const from = Math.max(clause.lastIndexOf(",", at), clause.lastIndexOf("，", at), clause.lastIndexOf("،", at), clause.lastIndexOf("、", at)) + 1
+        const ends = [",", "，", "،", "、"].map((c) => clause.indexOf(c, at)).filter((i) => i >= 0)
+        const part = clause.slice(from, ends.length ? Math.min(...ends) : clause.length)
+        if (NEGATION_RE.test(part)) {
+          if (!COST_RE.test(part)) return "no"
+          continue
+        }
         yes = true
         continue
       }
@@ -1703,7 +1715,8 @@ export function checkShipQuote(verdict: string, quote: string, text: string, cou
   const ours = countryRe(country, langs)
   const named = Boolean(ours && ours.search(quote) >= 0)
   const wide = WORLDWIDE_RE.test(quote) || (EU.has(country) && EUROPE_RE.test(quote))
-  return (named || wide) && (SHIP_TALK_RE.test(quote) || WORLDWIDE_RE.test(quote)) && rules !== "no" && !(!named && NEGATION_RE.test(quote)) ? "yes" : "unknown"
+  // A "not" anywhere in the quote: not shown to ship there (the overfit review, S9: a refusal after the country's name).
+  return (named || wide) && (SHIP_TALK_RE.test(quote) || WORLDWIDE_RE.test(quote)) && rules !== "no" && !NEGATION_RE.test(quote) ? "yes" : "unknown"
 }
 
 /** A small model reads the delivery page's sentences about shipping; its quote is checked (checkShipQuote). */
