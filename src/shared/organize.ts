@@ -58,9 +58,15 @@ export interface OrganizeConfig {
 
 // Calibrated on a deploy preview (tools/organize/calibrate.mts, 37 chats in en/ru/ko, text-embedding-3-small:256):
 // moves 95% right, 1 suggestion in 33 coherent chats; tags 100% right, none of the "later"-like ones.
+// 2.6 (96): measured again on 14 people's libraries, one person per shipped language (en, ru, uk, de, fr, es, it,
+// pt-BR, ja, ko, zh-Hans, zh-Hant, vi, ar; 98 chats of 7 kinds each, organize-26/b96 outside the repo), by script
+// group (Latin, Cyrillic, CJK, Arabic) and with every library holding all 98 chats. Only moveD changed.
 export const DEFAULT_ORGANIZE: OrganizeConfig = {
   moveT: 0.55,
-  moveD: 0.1,
+  // 2.6 (96): 0.08, not 0.1. An off-topic end of a page block fit its chat by 0.08–0.1 more than the rest of its chat
+  // in two of the 14 libraries (Cyrillic and CJK); at 0.08 those two move, and nothing else changes on that set, the
+  // 42-chat set (b95) or the 2.5 sample. At 0.05 coherent chats start getting moves as they grow.
+  moveD: 0.08,
   moveT1: 0.65,
   siteT: 0.35,
   topicT: 0.4,
@@ -72,6 +78,8 @@ export const DEFAULT_ORGANIZE: OrganizeConfig = {
   minMatch: 75,
   // 2.6 (95), on lib95 and the 2.5 sample (b95/calib-blocks.mjs): a coherent chat's own blocks fit the rest from 0.38 (1
   // of 59 below 0.35, an INP page in a React chat), blocks of other chats below 0.35 in 93% (same language) and 98%.
+  // 2.6 (96), the 14 libraries: own blocks from 0.49 in every script group; the same person's other chats' blocks
+  // below 0.35 in 44–67% by group (CJK 51%), other people's in 89–96%. 0.3 and 0.4 change no move there.
   splitT: 0.35,
   splitMin: 2,
   // Calibrated on the 2.5 sample with every question of a chat asked on its first page (b94/calib-apart3.mjs): 1 of
@@ -86,6 +94,9 @@ export const DEFAULT_ORGANIZE: OrganizeConfig = {
   tailAlike: 0.3,
   // lib95 and the 2.5 sample (b95/merge-neg.mjs): different topics asked on the same pages 0.51 at most (two plant-care
   // chats), 99% below 0.40; the same topic again 0.45 at least (median 0.56), the lib's merge pairs 0.49–0.72.
+  // 2.6 (96), the 14 libraries: the same topic from 75 % at 0.54 (5th percentile of 180); one person's neighbouring topics
+  // asked on each other's pages up to 0.53, mostly in Latin and CJK scripts (23 of 135 from 0.45). 0.48 would drop 14 of
+  // those but 4 real merges of the 2.5 sample (English and Russian, 0.45–0.47): it stays.
   mergeA: 0.45,
   window: 3,
   tagWindow: 5,
