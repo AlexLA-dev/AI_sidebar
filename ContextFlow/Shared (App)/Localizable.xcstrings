@@ -411,6 +411,88 @@
         }
       }
     },
+    "By words shows results as you type. By meaning: describe the chat, then tap Search by meaning.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«بالكلمات» تعرض النتائج أثناء الكتابة. «بالمعنى»: صِف المحادثة ثم اضغط «ابحث بالمعنى»."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Nach Wörtern“ zeigt Treffer schon beim Tippen. „Nach Bedeutung“: Beschreibe den Chat und tippe auf „Nach Bedeutung suchen“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«Por palabras» muestra resultados mientras escribes. «Por significado»: describe el chat y toca «Buscar por significado»."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« Par mots » affiche les résultats pendant la saisie. « Par sens » : décrivez la discussion, puis touchez « Rechercher par sens »."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«Per parole» mostra i risultati mentre scrivi. «Per significato»: descrivi la chat e tocca «Cerca per significato»."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「単語で」は入力中に結果を表示します。「意味で」はチャットを説明して「意味で検索」をタップします。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‘단어로’는 입력하는 동안 결과를 보여 줍니다. ‘의미로’는 채팅을 설명한 뒤 ‘의미로 검색’을 누르세요."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“Por palavras” mostra resultados enquanto você digita. “Por significado”: descreva a conversa e toque em “Buscar por significado”."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«По словам» — результаты сразу, пока вы печатаете. «По смыслу» — опишите чат и нажмите «Искать по смыслу»."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«За словами» — результати одразу, поки ви друкуєте. «За змістом» — опишіть чат і натисніть «Шукати за змістом»."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“Theo từ” hiện kết quả ngay khi bạn gõ. “Theo ý nghĩa”: mô tả cuộc trò chuyện rồi nhấn “Tìm theo ý nghĩa”."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“按字词”会在输入时显示结果。“按含义”：描述对话，然后点“按含义搜索”。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「按字詞」會在輸入時顯示結果。「按含義」：描述對話，然後點「按含義搜尋」。"
+          }
+        }
+      }
+    },
     "Changed: %@ · %@": {
       "comment": "Page watch in Reminders (2.5).",
       "localizations": {
@@ -3607,6 +3689,88 @@
           "stringUnit": {
             "state": "translated",
             "value": "Safari 延伸功能"
+          }
+        }
+      }
+    },
+    "Search by meaning": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ابحث بالمعنى"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nach Bedeutung suchen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buscar por significado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rechercher par sens"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cerca per significato"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "意味で検索"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "의미로 검색"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buscar por significado"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Искать по смыслу"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Шукати за змістом"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tìm theo ý nghĩa"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按含义搜索"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按含義搜尋"
           }
         }
       }

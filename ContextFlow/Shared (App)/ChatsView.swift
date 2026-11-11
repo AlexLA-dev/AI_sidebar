@@ -89,6 +89,18 @@ struct ChatsView: View {
         List {
             // The field's two ways, named, right under it while it's open (iOS 26 shows no system scope bar here).
             SearchWayRow(way: $way, pro: isPro, typed: searching)
+            // Build 98, the owner: «Оно есть, но не понятно, что с этим делать» (By meaning waited for the keyboard's
+            // Search): a button for it, under the field, while the words typed have no results yet.
+            if aiSearch && searching && !finding && found?.query != query.trimmingCharacters(in: .whitespaces) {
+                Section {
+                    Button(action: runFind) {
+                        Label("Search by meaning", systemImage: "sparkles")
+                            .font(.body.weight(.semibold))
+                            .foregroundColor(brandBlue)
+                    }
+                    .accessibilityIdentifier("cf-meaning-go")
+                }
+            }
             if aiSearch && (searching || finding || found != nil) {
                 aiResults
             } else if searching {
@@ -323,7 +335,9 @@ struct ChatsView: View {
             case .success(let results):
                 ForEach(results, id: \.self) { result in
                     if let thread = library.threads.first(where: { $0.id == result.id }) {
-                        NavigationLink(value: ChatRoute(id: thread.id, history: thread.isHistory)) {
+                        // Build 98 (the owner: a meaning result should land on what it refers to, highlighted like a
+                        // pinned answer): the chat opens at the message sharing the description's and the why's words.
+                        NavigationLink(value: ChatRoute(id: thread.id, history: thread.isHistory, scrollTo: thread.isHistory ? nil : meaningSpot(thread, found.query, result.why))) {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(thread.name).font(.headline).lineLimit(1)
                                 if !result.why.isEmpty {
@@ -342,6 +356,15 @@ struct ChatsView: View {
         } else {
             meaningHint
         }
+    }
+
+    /// The message a meaning result refers to (MeaningSpot.swift, the panel's src/shared/meaningSpot.ts): what each
+    /// message says, a question with its page's name, a note with its quote.
+    private func meaningSpot(_ thread: ChatThread, _ query: String, _ why: String) -> Int? {
+        let texts = thread.entries.map { entry in
+            [entry.content, entry.role == "user" ? entry.page?.title : nil, entry.cite].compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: "\n")
+        }
+        return MeaningSpot.index(texts: texts, query: query, why: why)
     }
 
     /// What "By meaning" does, as words under the field, not a row that looks like another field (2.6 (98)).
@@ -601,6 +624,9 @@ private struct SearchWayRow: View {
                 .pickerStyle(.segmented)
                 .labelsHidden()
                 .accessibilityIdentifier("cf-search-way")
+            } footer: {
+                // Build 98, the owner: what each way does, in a line (words: as you type; meaning: on its button).
+                Text("By words shows results as you type. By meaning: describe the chat, then tap Search by meaning.")
             }
         }
     }

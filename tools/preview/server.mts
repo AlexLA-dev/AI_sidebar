@@ -162,14 +162,17 @@ function geminiStream(lastQuestion: string): Response {
 }
 
 function findAnswer(system: string, query: string): string {
-  // Long words of the description (their stem: the first 5 letters); chats with most of them first,
-  // each "why" taken from the chat's first answer.
+  // Long words of the description (their stem: the first 5 letters); chats with most of them first. Each "why" is the
+  // chat's line with most of them, as the AI's why tells what fits (build 98: the result opens at that message), else
+  // the chat's first answer.
   const words = query.toLowerCase().split(/[^\p{L}\p{N}]+/u).filter((w) => w.length >= 6).map((w) => w.slice(0, 5))
   const scored: Array<{ id: string; why: string; n: number }> = []
   for (const m of system.matchAll(/<<<CHAT \d+ id=(\S+)\nTitle: ([^\n]*)\n[\s\S]*?CHAT>>>/g)) {
     const text = m[0].toLowerCase()
     const n = words.filter((w) => text.includes(w)).length
-    const answer = /\nA: ([^\n]*)/.exec(m[0])?.[1]?.replace(/[*_]/g, "") ?? m[2]
+    const lines = [...m[0].matchAll(/\n(?:Q|A|Note): ([^\n]*)/g)].map((x) => x[1].replace(/[*_]/g, ""))
+    const fits = lines.map((line) => ({ line, k: words.filter((w) => line.toLowerCase().includes(w)).length })).sort((x, y) => y.k - x.k)[0]
+    const answer = fits && fits.k > 0 ? fits.line : /\nA: ([^\n]*)/.exec(m[0])?.[1]?.replace(/[*_]/g, "") ?? m[2]
     if (n) scored.push({ id: m[1], why: answer.length > 90 ? `${answer.slice(0, 89)}…` : answer, n })
   }
   return JSON.stringify({ results: scored.sort((a, b) => b.n - a.n).slice(0, 5).map(({ id, why }) => ({ id, why })) })
