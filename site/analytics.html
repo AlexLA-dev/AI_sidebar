@@ -114,6 +114,16 @@
   .ob-note { grid-column: 2; font-size: 12px; color: var(--text-2); line-height: 1.4; }
   .ob-note .bad { display: block; color: var(--warn); font-weight: 600; }
   .ob-sep { font-size: 12px; font-weight: 600; color: var(--text-2); border-top: 1px solid var(--border); padding-top: 10px; }
+  /* Retention heatmap: one hue (the --o ramp), more kept = further along it; the share is written in every cell. Text
+     on the three far steps flips (white on the dark light-mode steps, dark on the light dark-mode steps). */
+  :root { --hm-on: #fff; }
+  @media (prefers-color-scheme: dark) { :root { --hm-on: #0b1a33; } }
+  table.hm th:nth-child(n+3), table.hm td.cell { text-align: center; }
+  table.hm td.cell { min-width: 44px; padding: 7px 4px; border-left: 2px solid var(--bg-2); }
+  table.hm td.b1 { background: var(--o1); } table.hm td.b2 { background: var(--o2); } table.hm td.b3 { background: var(--o3); }
+  table.hm td.b4 { background: var(--o4); } table.hm td.b5 { background: var(--o5); } table.hm td.b6 { background: var(--o6); }
+  table.hm td.b4, table.hm td.b5, table.hm td.b6 { color: var(--hm-on); }
+  table.hm td.cell.zero { color: var(--text-2); }
   @media (max-width: 760px) { .cards { grid-template-columns: 1fr; } .card.wide { grid-column: auto; } .seg { margin-left: 0; }
     .ob-step { grid-template-columns: 1fr; } .ob-note { grid-column: 1; } }
 </style>
@@ -130,9 +140,16 @@ const SEGMENTS = [
   { key: "own", segment: "ai", title: "Ключ пользователя", sub: "OpenAI / Claude напрямую с устройства", color: "var(--c3)" }
 ]
 const DEVICES = { iPhone: "iPhone", iPad: "iPad", Mac: "Mac", Chrome: "Chrome", unknown: "Версии 1.x (тип устройства не передают)" }
-const PRODUCTS = { "com.contextflow.pro.monthly": "Pro · месяц", "com.contextflow.pro.yearly": "Pro · год", "com.contextflow.byok.monthly": "Свой ключ · месяц" }
+const PRODUCTS = {
+  "com.contextflow.pro.monthly": "Pro · месяц", "com.contextflow.pro.yearly": "Pro · год",
+  "com.contextflow.ultra.monthly": "Ultra · месяц", "com.contextflow.ultra.yearly": "Ultra · год",
+  "com.contextflow.byok.monthly": "Свой ключ · месяц", "com.contextflow.byok.yearly": "Свой ключ · год"
+}
+// The paid plans in a fixed order and colour (MRR, new subscriptions, retention): the colour follows the plan.
+const PLAN_ORDER = [["pro", "Pro", "var(--c1)"], ["ultra", "Ultra", "var(--c3)"], ["byok", "Свой ключ", "var(--c4)"]]
+const PLAN_NAME = Object.fromEntries(PLAN_ORDER.map(([plan, name]) => [plan, name]))
 const PLANS = {
-  free: "Бесплатный", pro: "Pro", byok: "Подписка «Свой ключ», через наш сервер", own_key: "Ключ пользователя, с устройства",
+  free: "Бесплатный", pro: "Pro", ultra: "Ultra", byok: "Подписка «Свой ключ», через наш сервер", own_key: "Ключ пользователя, с устройства",
   legacy_anonymous: "1.x без аккаунта", legacy_user: "1.x с аккаунтом", unknown: "Не указан"
 }
 const SUB_STATUS = {
@@ -355,6 +372,29 @@ const dayLabel = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString("ru-RU", {
 // title may hold controls next to the text.
 // Series hidden by a click on the legend, per chart (kept while the page is open).
 const hiddenSeries = new Map()
+// Each chart's SVG patterns get their own ids.
+let chartSeq = 0
+// A series' mark: solid (default), "hatch" (45° stripes of its colour: paid upfront), "outline" (a light fill with
+// its colour's edge: still paid, leaving), "light" (its colour, light: not paid yet, comes with the renewal) or
+// "pale" (paler, with a dashed edge: a free trial that pays only if it isn't cancelled).
+const swatch = (s) => s.style === "hatch"
+  ? `background:repeating-linear-gradient(135deg, ${s.color} 0 2px, color-mix(in srgb, ${s.color} 30%, transparent) 2px 4px)`
+  : s.style === "outline"
+    ? `background:color-mix(in srgb, ${s.color} 16%, transparent);box-shadow:inset 0 0 0 1.5px ${s.color}`
+    : s.style === "light"
+      ? `background:color-mix(in srgb, ${s.color} 42%, transparent)`
+      : s.style === "pale"
+        ? `background:color-mix(in srgb, ${s.color} 12%, transparent);outline:1.5px dashed ${s.color};outline-offset:-1.5px`
+        : `background:${s.color}`
+function markFill(s, id) {
+  if (s.style === "hatch") return { fill: `url(#${id})` }
+  if (s.style === "outline") return { fill: s.color, "fill-opacity": "0.16", stroke: s.color, "stroke-width": "1.5" }
+  if (s.style === "light") return { fill: s.color, "fill-opacity": "0.42" }
+  if (s.style === "pale") return { fill: s.color, "fill-opacity": "0.12", stroke: s.color, "stroke-width": "1.5", "stroke-dasharray": "3 2" }
+  return { fill: s.color }
+}
+const hatch = (id, color) => svg("pattern", { id, patternUnits: "userSpaceOnUse", width: 5, height: 5, patternTransform: "rotate(45)" },
+  svg("rect", { width: 5, height: 5, fill: color, "fill-opacity": "0.3" }), svg("rect", { width: 2.5, height: 5, fill: color }))
 // A round top for an axis, so its middle line is a whole number.
 const niceMax = (v) => v <= 2 ? 2 : v <= 10 ? Math.ceil(v / 2) * 2 : Math.ceil(v / 10) * 10
 
@@ -399,9 +439,17 @@ function placeMarks(marks, xOf, right) {
 
 // Stacked bars by day on the left axis; series with axis "right" are lines on their own right axis. A click on a
 // legend item hides that series (another click brings it back); an axis with nothing left on it disappears.
-// opts: leftLabel, rightLabel (axis captions), note (a line under the chart), marks (releaseMarks: dashed version lines).
+// opts: leftLabel, rightLabel (axis captions), note (a line under the chart), marks (releaseMarks: dashed version lines),
+// format / tick (the left axis' values in the tooltip and on the axis; numbers by default), summary(day) (rows
+// [label, value, detail] in the tooltip in place of "Всего" and the left-axis lines).
+// A series may have style (swatch above), line: true (a line on the left axis, with the bars), detail(day) (a few words
+// after its value in the tooltip).
 function chart(title, series, totalDays, opts = {}) {
   const name = [title].flat()[0]
+  const fmt = opts.format || ((v) => n.format(v))
+  const tick = opts.tick || fmt
+  const pid = `cf${++chartSeq}`
+  const patternId = (s) => `${pid}-${series.indexOf(s)}`
   const hidden = hiddenSeries.get(name) || new Set()
   hiddenSeries.set(name, hidden)
   const keys = lastDays(totalDays)
@@ -420,20 +468,21 @@ function chart(title, series, totalDays, opts = {}) {
 
   const draw = () => {
     const shown = series.filter((s) => !hidden.has(s.title))
-    const bars = shown.filter((s) => s.axis !== "right")
+    const bars = shown.filter((s) => s.axis !== "right" && !s.line)
     const lines = shown.filter((s) => s.axis === "right")
+    const own = shown.filter((s) => s.line && s.axis !== "right")
     const totals = keys.map((d) => bars.reduce((t, x) => t + x.value(d), 0))
-    const max = niceMax(Math.max(0, ...totals))
+    const max = niceMax(Math.max(0, ...totals, ...own.flatMap((s) => keys.map((d) => s.value(d)))))
     const rmax = niceMax(Math.max(0, ...lines.flatMap((s) => keys.map((d) => s.value(d)))))
     const yOf = (v, top) => T + (H - T - B) * (1 - v / top)
     const nodes = []
     for (const f of [0, 0.5, 1]) {
       const y = T + (H - T - B) * (1 - f)
       nodes.push(svg("line", { x1: L, x2: W - R, y1: y, y2: y, stroke: "currentColor", "stroke-opacity": "0.12" }))
-      if (bars.length) nodes.push(svg("text", { x: L - 6, y: y + 3, "text-anchor": "end" }, n.format(max * f)))
+      if (bars.length || own.length) nodes.push(svg("text", { x: L - 6, y: y + 3, "text-anchor": "end" }, tick(max * f)))
       if (lines.length) nodes.push(svg("text", { x: W - R + 6, y: y + 3, "text-anchor": "start" }, n.format(rmax * f)))
     }
-    if (bars.length && opts.leftLabel) nodes.push(svg("text", { x: 2, y: 12, "text-anchor": "start", class: "axis" }, opts.leftLabel))
+    if ((bars.length || own.length) && opts.leftLabel) nodes.push(svg("text", { x: 2, y: 12, "text-anchor": "start", class: "axis" }, opts.leftLabel))
     if (lines.length && opts.rightLabel) nodes.push(svg("text", { x: W - 2, y: 12, "text-anchor": "end", class: "axis" }, opts.rightLabel))
     keys.forEach((d, i) => {
       let y = H - B
@@ -443,7 +492,7 @@ function chart(title, series, totalDays, opts = {}) {
         if (!v) continue
         const h = (H - T - B) * (v / max)
         y -= h
-        nodes.push(svg("rect", { x, y, width: Math.max(1, bw * 0.7), height: h, rx: 2, fill: s.color }))
+        nodes.push(svg("rect", { x, y, width: Math.max(1, bw * 0.7), height: h, rx: 2, ...markFill(s, patternId(s)) }))
       }
       const every = Math.ceil(keys.length / 10)
       if (i % every === 0 || i === keys.length - 1) nodes.push(svg("text", { x: L + i * bw + bw / 2, y: H - 6, "text-anchor": "middle" }, d.slice(5).replace("-", ".")))
@@ -457,6 +506,15 @@ function chart(title, series, totalDays, opts = {}) {
       keys.forEach((d, i) => {
         if (s.value(d)) nodes.push(svg("circle", { cx: pts[i][0], cy: pts[i][1], r: 4, fill: s.color, stroke: "var(--bg)", "stroke-width": 2 }))
       })
+    }
+    for (const s of own) {
+      // From its first day above zero: before it there's nothing to compare against.
+      const from = Math.max(0, keys.findIndex((d) => s.value(d) > 0))
+      const pts = keys.map((d, i) => [L + i * bw + bw / 2, yOf(s.value(d), max)]).slice(from)
+      nodes.push(svg("path", {
+        d: pts.map(([x, y], i) => `${i ? "L" : "M"}${x.toFixed(1)},${y.toFixed(1)}`).join(""),
+        fill: "none", stroke: s.color, "stroke-width": 2, "stroke-linejoin": "round", ...(s.dash ? { "stroke-dasharray": "5 4" } : {})
+      }))
     }
     const marks = hidden.has(MARKS) ? [] : placed
     for (const m of marks) {
@@ -474,9 +532,15 @@ function chart(title, series, totalDays, opts = {}) {
       highlight.setAttribute("visibility", "visible")
       tip.replaceChildren(...[
         el("b", {}, dayLabel(keys[i])),
-        ...bars.map((s) => el("div", { class: "row" }, el("span", {}, el("span", { class: "dot", style: `background:${s.color}` }), s.title), el("span", {}, n.format(s.value(keys[i]))))),
-        bars.length > 1 && el("div", { class: "row total" }, el("span", {}, "Всего"), el("span", {}, n.format(totals[i]))),
-        ...lines.map((s) => el("div", { class: `row${s === lines[0] && bars.length ? " total" : ""}` }, el("span", {}, el("span", { class: "dot", style: `background:${s.color}` }), s.title), el("span", {}, n.format(s.value(keys[i]))))),
+        ...bars.filter((s) => !opts.skipZero || s.value(keys[i])).map((s) => el("div", { class: "row" },
+          el("span", {}, el("span", { class: "dot", style: swatch(s) }), s.title),
+          el("span", {}, fmt(s.value(keys[i])), s.detail && s.detail(keys[i]) ? ` · ${s.detail(keys[i])}` : ""))),
+        ...(opts.summary ? opts.summary(keys[i]) : []).map(([label, value, detail], k) => el("div", { class: `row${k === 0 ? " total" : ""}` },
+          el("span", {}, label), el("span", {}, value, detail ? ` · ${detail}` : ""))),
+        !opts.summary && bars.length > 1 && el("div", { class: "row total" }, el("span", {}, "Всего"), el("span", {}, fmt(totals[i]))),
+        ...own.filter(() => !opts.summary).map((s) => el("div", { class: "row" }, el("span", {}, el("span", { class: "dot", style: `background:${s.color}` }), s.title), el("span", {}, fmt(s.value(keys[i]))))),
+        ...lines.map((s) => el("div", { class: `row${s === lines[0] && bars.length ? " total" : ""}` }, el("span", {}, el("span", { class: "dot", style: `background:${s.color}` }), s.title),
+          el("span", {}, n.format(s.value(keys[i])), s.detail && s.detail(keys[i]) ? ` · ${s.detail(keys[i])}` : ""))),
         ...marks.filter((m) => m.day === keys[i]).flatMap((m) => m.tips).map(([what, time], k) =>
           el("div", { class: `row${k === 0 ? " total" : ""}` }, el("span", {}, `Апрув ${what}`), el("span", {}, `${time} UTC`)))
       ].filter(Boolean))
@@ -497,7 +561,9 @@ function chart(title, series, totalDays, opts = {}) {
       hit.addEventListener("pointerdown", (e) => show(i, e))
       return hit
     }) : []
-    const chartSvg = svg("svg", { viewBox: `0 0 ${W} ${H}`, width: "100%", style: "min-width:640px", role: "img", "aria-label": name }, highlight, nodes, hits)
+    const patterns = series.filter((s) => s.style === "hatch").map((s) => hatch(patternId(s), s.color))
+    const chartSvg = svg("svg", { viewBox: `0 0 ${W} ${H}`, width: "100%", style: "min-width:640px", role: "img", "aria-label": name },
+      patterns.length ? svg("defs", {}, patterns) : null, highlight, nodes, hits)
     chartSvg.addEventListener("pointerleave", hide)
     const at = scroller.scrollLeft
     scroller.replaceChildren(chartSvg)
@@ -507,9 +573,9 @@ function chart(title, series, totalDays, opts = {}) {
       class: `lg${hidden.has(s.title) ? " off" : ""}`, type: "button", "aria-pressed": hidden.has(s.title) ? "false" : "true",
       title: [s.hint, hidden.has(s.title) ? "Нажмите, чтобы показать" : "Нажмите, чтобы скрыть"].filter(Boolean).join("\n"),
       onclick: () => { hidden.has(s.title) ? hidden.delete(s.title) : hidden.add(s.title); draw() }
-    }, s.axis === "right"
+    }, s.axis === "right" || s.line
       ? el("i", { class: `ln${s.dash ? " dash" : ""}`, style: `border-color:${s.color}` })
-      : el("i", { style: `background:${s.color}` }), s.title)),
+      : el("i", { style: swatch(s) }), s.title)),
     ...(placed.length ? [el("button", {
       class: `lg${hidden.has(MARKS) ? " off" : ""}`, type: "button", "aria-pressed": hidden.has(MARKS) ? "false" : "true",
       title: ["Пунктир — момент, когда App Review одобрил версию (UTC). Наведите на день, чтобы увидеть время.", hidden.has(MARKS) ? "Нажмите, чтобы показать" : "Нажмите, чтобы скрыть"].join("\n"),
@@ -565,7 +631,7 @@ function toggle(options, current, pick) {
 }
 
 const LIMIT_D0 = "«Упёрлись в лимит в d0» — из новых этого дня, сколько в тот же день (d0, по UTC) получили отказ: бесплатные ответы на сегодня кончились (обычные или Google)."
-const PRO_BOUGHT = "«Новые подписки Pro» — сколько Pro (месяц или год) куплено в этот день, по первой оплате: пробный период и бесплатный код — в день первой оплаты; продления, «Свой ключ» и наша подписка не считаются. Это все покупки дня, а не только новых этого дня."
+const PRO_BOUGHT = "«Новые подписки» — сколько подписок впервые оплачено в этот день: Pro, Ultra и «Свой ключ», на месяц или на год (по тарифу покупки; переход со «Своего ключа» на Pro — не новая подписка). Пробный период и бесплатный код — в день первой оплаты; продления и наша подписка не считаются. Это все покупки дня, а не только новых этого дня."
 const NO_INSIGHTS = "Нет данных: в базе ещё нет функции cf_owner_insights (миграция 20261102120000)."
 const nameOf = (names, code) => { try { return names.of(code) || code } catch { return code } }
 const unique = (list) => [...new Set(list.filter(Boolean))]
@@ -1054,8 +1120,115 @@ function priceCell(r, fx) {
     r.estimated && el("small", {}, "оценка: цена в США"))
 }
 
-// MRR: what active paying subscribers pay a month now, and at the end of each week (cf_owner_insights.mrr), in USD.
-function mrrCards(insights, fx) {
+// MRR by day (cf_mrr_history), in USD at today's rates: per plan and layer — monthly, yearly (a twelfth of the year's
+// price each month) and leaving (renewal off: still paid, counted until it ends) — with the subscriptions behind each.
+// With the renewal fields (migration 20261111120000) also what renewals bring: renewal (every subscription with
+// auto-renew on at its renewal price, plus free trials with it on), per plan what discounted ones add once their
+// offer ends ("disc") and free trials ("trial"), and other changes at renewal (a plan change, Apple's new price).
+const MRR_LAYERS = [["month", "помесячно", undefined], ["year", "годовые, 1/12 в месяц", "hatch"], ["off", "выключили автопродление", "outline"]]
+function mrrByDay(history, fx) {
+  const days = new Map()
+  const noRate = new Set()
+  const hasRenewal = (history?.points || []).some((p) => p.renewal_amount != null) || Array.isArray(history?.trials)
+  const blank = () => ({ total: 0, subs: 0, ending: 0, endingSubs: 0, estimated: 0, renewal: 0, other: 0, renewalEstimated: 0,
+    disc: { usd: 0, subs: 0 }, trial: { usd: 0, subs: 0 }, off: { usd: 0, subs: 0 } })
+  const add = (day, key, usd, subs) => {
+    const layer = day[key] || { usd: 0, subs: 0 }
+    layer.usd += usd
+    layer.subs += subs
+    day[key] = layer
+  }
+  for (const p of history?.points || []) {
+    const usd = toUsd(Number(p.amount) / 1000, p.currency, fx)
+    if (usd == null) { noRate.add(p.currency); continue }
+    const day = days.get(p.day) || blank()
+    const subs = Number(p.subs)
+    add(day, `${p.plan}:${p.renewal_off ? "off" : p.yearly ? "year" : "month"}`, usd, subs)
+    day.total += usd
+    day.subs += subs
+    day.ending += toUsd(Number(p.ending_amount) / 1000, p.currency, fx) ?? 0
+    day.endingSubs += Number(p.ending)
+    day.estimated += Number(p.estimated)
+    if (p.renewal_off) { day.off.usd += usd; day.off.subs += subs }
+    if (hasRenewal && !p.renewal_off) {
+      const next = toUsd(Number(p.renewal_amount) / 1000, p.renewal_currency || p.currency, fx)
+      if (next == null) noRate.add(p.renewal_currency)
+      day.renewal += next ?? usd
+      day.renewalEstimated += Number(p.renewal_estimated || 0)
+      const more = (next ?? usd) - usd
+      if (p.discounted) {
+        add(day, `${p.plan}:disc`, Math.max(0, more), subs)
+        day.disc.usd += Math.max(0, more)
+        day.disc.subs += subs
+        day.other += Math.min(0, more)
+      } else day.other += more
+    }
+    days.set(p.day, day)
+  }
+  for (const t of history?.trials || []) {
+    const usd = toUsd(Number(t.renewal_amount) / 1000, t.renewal_currency, fx)
+    if (usd == null) { noRate.add(t.renewal_currency); continue }
+    const day = days.get(t.day) || blank()
+    add(day, `${t.plan}:trial`, usd, Number(t.subs))
+    day.trial.usd += usd
+    day.trial.subs += Number(t.subs)
+    day.renewal += usd
+    day.renewalEstimated += Number(t.renewal_estimated || 0)
+    days.set(t.day, day)
+  }
+  return { days, noRate: [...noRate], hasRenewal }
+}
+const USD = (v) => money(v, "USD")
+const subsText = (k) => `подписок: ${n.format(k)}`
+// "2 со скидкой, 1 пробная" for what renewals add on a day.
+const trialsWord = (k) => k % 10 === 1 && k % 100 !== 11 ? "пробная" : [2, 3, 4].includes(k % 10) && ![12, 13, 14].includes(k % 100) ? "пробные" : "пробных"
+const plusText = (t) => [t.disc.subs && `${n.format(t.disc.subs)} со скидкой`, t.trial.subs && `${n.format(t.trial.subs)} ${trialsWord(t.trial.subs)}`].filter(Boolean).join(", ")
+
+// The MRR chart, stacked by plan: monthly at the bottom, yearly above (hatched) — what's paid now by those who renew;
+// then what renewals add (light: discounted ones at full price; paler with a dashed edge: free trials), so the dashed
+// line «MRR при продлении» runs along the top of it; leaving on top (outlined: paid now, gone at renewal). Before the
+// renewal fields, the dashed line is what stays in 30 days if none of the leaving ones come back.
+function mrrChart(history, fx, totalDays, marks) {
+  const { days, hasRenewal } = mrrByDay(history, fx)
+  const keys = lastDays(totalDays)
+  const layer = (plan, key) => ({
+    value: (d) => days.get(d)?.[`${plan}:${key}`]?.usd || 0,
+    detail: (d) => days.get(d)?.[`${plan}:${key}`] ? subsText(days.get(d)[`${plan}:${key}`].subs) : ""
+  })
+  const LAYERS = hasRenewal
+    ? [MRR_LAYERS[0], MRR_LAYERS[1], ["disc", "+ после скидок", "light"], ["trial", "пробные с автопродлением", "pale"], MRR_LAYERS[2]]
+    : MRR_LAYERS
+  const series = LAYERS.flatMap(([key, what, style]) => PLAN_ORDER.map(([plan, name, color]) => ({ title: `${name} · ${what}`, color, style, ...layer(plan, key) })))
+    .filter((x) => keys.some((d) => x.value(d) > 0))
+  const at = (d) => days.get(d)
+  if (hasRenewal) {
+    series.push({ title: "MRR при продлении", color: "var(--text)", line: true, dash: true, value: (d) => at(d)?.renewal || 0 })
+  } else if (keys.some((d) => (at(d)?.ending || 0) > 0)) {
+    series.push({ title: "Через 30 дней без уходящих", color: "var(--c2)", line: true, dash: true, value: (d) => Math.max(0, (at(d)?.total || 0) - (at(d)?.ending || 0)) })
+  }
+  const summary = hasRenewal ? (d) => {
+    const t = at(d)
+    if (!t) return []
+    const plus = t.disc.usd + t.trial.usd
+    return [
+      ["Сейчас", USD(t.total), subsText(t.subs)],
+      ["При продлении", USD(t.renewal), plus > 0 ? `+${USD(plus)}: ${plusText(t)}` : ""],
+      Math.abs(t.other) >= 0.005 && ["Другой тариф или цена при продлении", `${t.other > 0 ? "+" : "−"}${USD(Math.abs(t.other))}`],
+      ["Уходят", USD(t.off.usd), t.off.subs ? subsText(t.off.subs) : ""]
+    ].filter(Boolean)
+  } : undefined
+  return chart("MRR по дням", series, totalDays, {
+    format: USD, tick: (v) => `$${n.format(Math.round(v))}`, leftLabel: "USD в месяц", marks, skipZero: true, summary,
+    note: hasRenewal
+      ? "На конец дня (UTC), сегодня — на сейчас; в долларах по сегодняшнему курсу, до комиссии Apple. Сплошные столбики и контур — MRR сейчас: помесячные по цене транзакции, которая действует в этот день (со скидкой, пока она идёт), годовые — 1/12 цены каждый месяц оплаченного года, штриховкой (деньги получены сразу за год). Контур — выключили автопродление: оплачено, ещё в MRR, при продлении уйдут. Светлое — сколько добавят подписки со скидкой, когда продлятся по полной цене; бледное с пунктирным краем — пробные с включённым автопродлением, по цене первой оплаты. Пунктир — MRR при продлении: все, у кого автопродление включено, по полной цене продления (по цене, которую назвал Apple, иначе по полной цене этого тарифа в той же стране или валюте, иначе по цене в США). Песочница App Review и наши подписки не входят. Наведите на день, чтобы увидеть суммы и число подписок."
+      : "На конец дня (UTC), сегодня — на сейчас; в долларах по сегодняшнему курсу, до комиссии Apple. Помесячные — по цене транзакции, которая действует в этот день: скидка по коду, пока она идёт, потом полная цена. Годовые — 1/12 цены каждый месяц оплаченного года (так MRR считают для годовых), штриховкой: деньги получены сразу за год. Контур — выключили автопродление: срок оплачен, поэтому подписка ещё в MRR, пока не кончится. Пунктир — MRR через 30 дней, если уходящие не вернутся (без новых подписок). Пробные, подарочные и бесплатные по кодам — с первой оплаты; песочница App Review и наши подписки не входят. Наведите на день, чтобы увидеть суммы и число подписок."
+  })
+}
+
+// MRR now: what active paying subscribers pay a month, in USD. With cf_mrr_history the cards read today's point and
+// the chart above shows each day; without it (before its migration), cf_owner_insights.mrr by week as before.
+function mrrCards(insights, fx, history) {
+  if (history) return mrrNowCards(insights, fx, history)
   if (!insights?.mrr) return el("div", { class: "panel" }, el("h3", {}, "MRR"), el("p", { class: "empty" }, "Нет данных: в базе ещё нет MRR (миграция 20261102150000)."))
   const rows = insights.mrr
   const week = (w) => {
@@ -1100,6 +1273,131 @@ function mrrCards(insights, fx) {
       el("p", { class: "hint" }, "Цена каждой подписки — из её последней транзакции: месяц со скидкой — по фактической цене, бесплатные — 0, годовая — 1/12. Цена в App Store включает налоги (в ЕС — НДС), поэтому выплата Apple меньше, чем «после комиссии».")
     )
   )
+}
+
+function mrrNowCards(insights, fx, history) {
+  const { days, noRate, hasRenewal } = mrrByDay(history, fx)
+  const t = days.get(history.today) || { total: 0, subs: 0, ending: 0, endingSubs: 0, estimated: 0, renewal: 0, other: 0, renewalEstimated: 0,
+    disc: { usd: 0, subs: 0 }, trial: { usd: 0, subs: 0 }, off: { usd: 0, subs: 0 } }
+  const layer = (plan, key) => t[`${plan}:${key}`] || { usd: 0, subs: 0 }
+  const sumOf = (key) => PLAN_ORDER.reduce((x, [plan]) => ({ usd: x.usd + layer(plan, key).usd, subs: x.subs + layer(plan, key).subs }), { usd: 0, subs: 0 })
+  const year = sumOf("year"), off = sumOf("off")
+  // Free ones (codes, trials) are counted by cf_owner_insights for this week.
+  const thisWeek = weekOf(new Date().toISOString().slice(0, 10))
+  const free = insights?.mrr ? sum(insights.mrr.filter((r) => r.week === thisWeek), "free") : null
+  const planRow = ([plan, name]) => {
+    const all = ["month", "year", "off"].reduce((x, key) => ({ usd: x.usd + layer(plan, key).usd, subs: x.subs + layer(plan, key).subs }), { usd: 0, subs: 0 })
+    return all.subs > 0 && [name, `${USD(all.usd)} · ${n.format(all.subs)}`]
+  }
+  const now = statCard({
+    title: "MRR сейчас", sub: "Платящие подписчики в месяц · USD", color: "var(--c2)",
+    big: USD(t.total), unit: "в месяц",
+    rows: [
+      [`После комиссии Apple ${APPLE_CUT * 100} %`, USD(t.total * (1 - APPLE_CUT))],
+      ["Платящих", n.format(t.subs)],
+      ...PLAN_ORDER.map(planRow),
+      year.subs > 0 && ["Из них годовые, 1/12 в месяц", `${USD(year.usd)} · ${n.format(year.subs)}`],
+      free != null && ["Бесплатных по кодам и пробных", n.format(free)],
+      t.estimated > 0 && ["Цена не записана, по цене в США", n.format(t.estimated)],
+      noRate.length > 0 && ["Не пересчитано, нет курса", noRate.join(", "), "bad"]
+    ]
+  })
+  const renewal = hasRenewal && statCard({
+    title: "MRR при продлении", sub: "Все с автопродлением, по полной цене продления · USD", color: "var(--c1)",
+    big: USD(t.renewal), unit: "в месяц",
+    rows: [
+      ["Сейчас", USD(t.total)],
+      ["+ после скидок", t.disc.subs ? `+${USD(t.disc.usd)} · ${n.format(t.disc.subs)}` : "—"],
+      ["+ пробные с автопродлением", t.trial.subs ? `+${USD(t.trial.usd)} · ${n.format(t.trial.subs)}` : "—"],
+      Math.abs(t.other) >= 0.005 && ["Другой тариф или цена при продлении", `${t.other > 0 ? "+" : "−"}${USD(Math.abs(t.other))}`],
+      ["− выключили автопродление", off.subs ? `−${USD(off.usd)} · ${n.format(off.subs)}` : "—", off.subs ? "bad" : ""],
+      t.renewalEstimated > 0 && ["Цена продления неизвестна, по цене в США", n.format(t.renewalEstimated)]
+    ]
+  })
+  const leaving = statCard({
+    title: "Уходят", sub: "Выключили автопродление: оплачено, ещё в MRR", color: "var(--c4)",
+    big: USD(off.usd), unit: "в месяц",
+    rows: [
+      ["Подписок", n.format(off.subs), off.subs ? "bad" : ""],
+      ["Закончатся в ближайшие 30 дней", `${n.format(t.endingSubs)} · ${USD(t.ending)}`],
+      ["MRR через 30 дней без них", USD(Math.max(0, t.total - t.ending))]
+    ]
+  })
+  const byPlan = !hasRenewal && statCard({
+    title: "По тарифам", sub: "MRR сейчас · USD · подписок", color: "var(--c1)",
+    big: n.format(t.subs), unit: "платящих",
+    rows: PLAN_ORDER.map((x) => planRow(x) || [x[1], "—"])
+  })
+  return el("div", { class: "cards" }, now, renewal || byPlan, leaving)
+}
+
+// Retention (cf_retention): users by the week they were first seen, active in later weeks; paying subscribers by the
+// month of the first payment, still paying later; first renewals per plan.
+let retentionShow = "users"
+const NO_RETENTION = "Появится после миграции 20261110120000 (функция cf_retention)."
+const HM_STEPS = [0.1, 0.2, 0.35, 0.5, 0.75]
+function hmCell(kept, eligible) {
+  if (!eligible) return el("td", { class: "cell" })
+  const share = kept / eligible
+  const step = share > 0 ? 1 + HM_STEPS.filter((b) => share >= b).length : 0
+  return el("td", { class: `cell${step ? ` b${step}` : " zero"}`, title: `${n.format(kept)} из ${n.format(eligible)}` }, `${Math.round(share * 100)} %`)
+}
+const monthName = (m) => new Date(`${m}T12:00:00Z`).toLocaleDateString("ru-RU", { month: "short", year: "numeric", timeZone: "UTC" })
+
+function retentionPanel(report, redraw) {
+  const title = "Retention"
+  if (!report) return el("div", { class: "panel" }, el("h3", {}, title), el("p", { class: "empty" }, NO_RETENTION))
+  const pick = (v) => { retentionShow = v; redraw() }
+  const head = el("h3", {}, `${title} · когорты за ${report.days} дн.`, toggle([["users", "Пользователи"], ["subscribers", "Подписчики"]], retentionShow, pick))
+  if (retentionShow === "users") {
+    const u = report.users || {}
+    const cells = new Map((u.cells || []).map((c) => [`${c.week}:${c.k}`, c]))
+    const last = Math.max(0, ...(u.cells || []).filter((c) => c.k > 0).map((c) => c.k))
+    const cols = Array.from({ length: Math.min(12, Math.max(4, last)) }, (_, i) => i + 1)
+    const all = (k) => (u.cells || []).filter((c) => c.k === k).reduce((x, c) => [x[0] + c.active, x[1] + c.eligible], [0, 0])
+    const rows = [...(u.cohorts || [])].reverse().map((c) => el("tr", {},
+      el("td", {}, `с ${short(c.week)}`), el("td", {}, n.format(c.size)),
+      ...cols.map((k) => { const x = cells.get(`${c.week}:${k}`); return hmCell(x?.active || 0, x?.eligible || 0) })))
+    const total = (u.cohorts || []).length > 1 && el("tr", { class: "sum" }, el("td", {}, "Все когорты"), el("td", {}, n.format(sum(u.cohorts, "size"))),
+      ...cols.map((k) => { const [a, e] = all(k); return hmCell(a, e) }))
+    return el("div", { class: "panel" }, head,
+      rows.length
+        ? el("div", { class: "tbl" }, el("table", { class: "hm num2" },
+            el("thead", {}, el("tr", {}, ["Первый заход", "Людей", ...cols.map((k) => `Нед. ${k}`)].map((h) => el("th", {}, h)))),
+            el("tbody", {}, total, rows)))
+        : el("p", { class: "empty" }, "Новых пользователей за период не было."),
+      el("p", { class: "hint" }, "Доля людей из когорты, которые открыли панель или задали вопрос в эту неделю после первого захода (неделя 1 — дни 7–13 от их первого дня, неделя 2 — 14–20 и т. д.). Ячейка появляется, когда неделя закончилась для всех в когорте, поэтому таблица — треугольник. «Все когорты» — среднее, взвешенное по людям. Без тестов, наших устройств и версий на ревью. Открытия панели сервер видит с 28.10, раньше — только вопросы: у когорты с 19.10 первая неделя занижена. Наведите на ячейку: сколько из скольких."))
+  }
+  const sb = report.subscribers || {}
+  const cells = new Map((sb.cells || []).map((c) => [`${c.month}:${c.m}`, c]))
+  const last = Math.max(0, ...(sb.cells || []).filter((c) => c.m > 0).map((c) => c.m))
+  const cols = Array.from({ length: Math.min(12, Math.max(3, last)) }, (_, i) => i + 1)
+  const plansOf = (c) => PLAN_ORDER.filter(([plan]) => c[plan] > 0).map(([plan, name]) => `${name} ${n.format(c[plan])}`).join(" · ") + (c.yearly ? ` · из них на год ${n.format(c.yearly)}` : "")
+  const rows = [...(sb.cohorts || [])].reverse().map((c) => el("tr", {},
+    el("td", {}, monthName(c.month), el("small", {}, plansOf(c))), el("td", {}, n.format(c.size)),
+    ...cols.map((m) => { const x = cells.get(`${c.month}:${m}`); return hmCell(x?.paying || 0, x?.eligible || 0) })))
+  const date = (v) => v ? new Date(v).toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric" }) : "—"
+  const renewals = (sb.renewals || []).map((r) => el("tr", {},
+    el("td", {}, `${PLAN_NAME[r.plan] || r.plan} · ${r.yearly ? "год" : "месяц"}`),
+    el("td", {}, n.format(r.paid)), el("td", {}, n.format(r.due)), el("td", {}, n.format(r.renewed)),
+    el("td", { class: r.churned ? "bad" : "" }, n.format(r.churned)),
+    el("td", {}, r.due ? pct(r.renewed, r.due) : "—"),
+    el("td", { class: r.leaving ? "bad" : "" }, n.format(r.leaving)), el("td", {}, n.format(r.active)), el("td", {}, n.format(r.refunded)),
+    el("td", {}, date(r.next_due))))
+  return el("div", { class: "panel" }, head,
+    rows.length
+      ? el("div", { class: "tbl" }, el("table", { class: "hm num2" },
+          el("thead", {}, el("tr", {}, ["Первая оплата", "Платящих", ...cols.map((m) => `Мес. ${m}`)].map((h) => el("th", {}, h)))),
+          el("tbody", {}, rows)))
+      : el("p", { class: "empty" }, "Платящих подписчиков пока не было."),
+    el("p", { class: "hint" }, "Доля подписок из когорты, которые всё ещё оплачены через столько месяцев после первой оплаты (проверка через два дня после даты, чтобы Apple успела продлить). Годовая оплачена весь год, её продление — месяц 12. Возврат — уход с даты возврата. Пробный период и бесплатный код считаются с первой оплаты; подарки, песочница и наши подписки не входят."),
+    el("h4", {}, "Первые продления по тарифам"),
+    renewals.length
+      ? el("div", { class: "tbl" }, el("table", { class: "num2" },
+          el("thead", {}, el("tr", {}, ["Тариф", "Оплатили", "Дошли до продления", "Продлили", "Ушли", "Продлевают", "Выключили автопродление", "Активны", "Возвраты", "Ближайшее продление"].map((h) => el("th", {}, h)))),
+          el("tbody", {}, renewals)))
+      : el("p", { class: "empty" }, "Платящих подписчиков пока не было."),
+    el("p", { class: "hint" }, "Тариф — нынешний (после перехода со «Своего ключа» на Pro — Pro). «Дошли до продления» — первая дата продления (месяц или год после первой оплаты) прошла; «Продлевают» — доля продливших из них, отток — остальное. «Выключили автопродление» — ещё оплачены, но не продлятся."))
 }
 
 // After the limit (cf_after_limit): who ran out of free answers, what came next. "Ready" = ran out before today (UTC).
@@ -1204,7 +1502,7 @@ const LIMITS = {
   pro_near: ["Pro: 300+ ответов за неделю — близко к 375", "Pro", "Считаются недели подписок, а не ответы."],
   page_cut: ["Текст страницы обрезан: 24 000 знаков (выделение 12 000, видео и PDF 100 000)", "Ответы со страницей"],
   answer_cut: ["Ответ оборван: модель дошла до предела длины", "Все ответы"],
-  memory_window: ["Память чата: модель видит 12 последних сообщений", "Ответы без «Весь чат»", "В длинном чате ранние вопросы и ответы модель уже не видит."],
+  memory_window: ["Память чата: бесплатный ответ видит 5 последних ответов и заметок, Pro без «Весь чат» — 12 сообщений", "Ответы без «Весь чат»", "В длинном чате ранние вопросы и ответы модель уже не видит."],
   whole_chat_cut: ["«Весь чат»: в запрос вошли не все сообщения (48 000 знаков)", "Ответы с «Весь чат»"],
   other_pages: ["Страницы чата: дошли не все (панель — 3, приложение — 9) или обрезаны до 8 000 знаков", "Ответы с «Весь чат» и из приложения"],
   digest_cut: ["«Спросить по всем чатам» и ИИ-поиск: поместились не все чаты", "Эти ответы"],
@@ -1267,6 +1565,184 @@ function limitsPanel(report) {
     report.flags_since ? `Точные отметки сервер ставит с ${date(report.flags_since)}, раньше — по размерам (страница, дошедшая до предела; полное окно из 12 сообщений). ` : "Пока точных отметок нет: считается по размерам (страница, дошедшая до предела; полное окно из 12 сообщений). ",
     report.sizes_since ? `Размеры чатов присылает версия 2.4, с ${date(report.sizes_since)}.` : "Размеры чатов (40 сообщений, 50 чатов, 10 страниц) присылает версия 2.4 — до её выхода эти строки пустые."))
   return panel
+}
+
+// Read aloud and find similar, 2.6 Ultra (cf_ultra_report): requests, people, tokens by model, cost now and at the
+// 2027 TTS prices, failures, by day and for the period; who uses the most of a week's allowance.
+const ULTRA_STEP = {
+  tts: ["Озвучка", "Gemini TTS: вход — токены текста, выход — токены аудио"],
+  script: ["Текст для слуха", "Claude Haiku переписывает ответ или страницу перед озвучкой"],
+  plan: ["План поиска", "Claude Haiku читает страницу и пишет запросы"],
+  search: ["Веб-поиск", "Claude Haiku с веб-поиском Anthropic находит кандидатов"],
+  write: ["Список", "Claude Sonnet пишет ответ по проверенным страницам"],
+  google: ["Google (движок B)", "Gemini с поиском Google"],
+  unsplit: ["Без разбивки по шагам", "Записи до того, как сервер начал писать токены по шагам: только сумма"]
+}
+const NO_ULTRA = "Появится после миграции 20261108140000 (функция cf_ultra_report): её применяют вместе с релизом 2.6."
+let ultraShow = "voice"
+const num = (v) => Number(v || 0)
+// Dollars with as many digits as small sums need (a spoken part costs a fraction of a cent).
+const usd = (v) => {
+  const x = num(v)
+  const digits = x === 0 ? 2 : x < 0.1 ? 4 : x < 10 ? 3 : 2
+  return `$${x.toLocaleString("ru-RU", { minimumFractionDigits: Math.min(2, digits), maximumFractionDigits: digits })}`
+}
+const tokens = (a, b) => `${compact.format(num(a))} / ${compact.format(num(b))}`
+const minutes = (v) => `${num(v).toLocaleString("ru-RU", { maximumFractionDigits: 1 })} мин`
+// The device and, under it, its language and region (from the extension; nothing finer than the country).
+const deviceCell = (w) => {
+  const [lang, region] = localeParts(w.locale)
+  const where = [lang, region && nameOf(regions, region)].filter(Boolean).join(" · ")
+  return el("td", {}, PLATFORMS[w.platform] || w.platform || "—", where && el("small", {}, where))
+}
+const stat = (big, name, detail) => el("div", {}, el("b", {}, big), el("span", {}, name), detail && el("span", {}, detail))
+const sumRow = (cells) => el("tr", { class: "sum" }, cells.map((c) => el("td", {}, c)))
+const failCell = (v) => el("td", { class: num(v) ? "bad" : "" }, n.format(num(v)))
+
+function voiceSection(v, allowance, totalDays, marks) {
+  const t = v.total || {}
+  const days = [...(v.by_day || [])].reverse()
+  const byDay = new Map((v.by_day || []).map((r) => [r.day, r]))
+  const limit = allowance?.speak_minutes
+  const models = (v.by_model || []).map((m) => {
+    const [step, hint] = ULTRA_STEP[m.step] || [m.step]
+    return el("tr", {},
+      el("td", { title: hint || null }, step, el("small", {}, m.model)),
+      el("td", {}, n.format(num(m.requests))), failCell(m.failed),
+      el("td", {}, compact.format(num(m.input))), el("td", {}, compact.format(num(m.output))),
+      el("td", {}, m.step === "tts" ? minutes(m.minutes) : "—"),
+      el("td", {}, usd(m.usd)), el("td", {}, m.step === "tts" ? usd(m.usd_2027) : "то же"))
+  })
+  const dayRows = days.map((r) => el("tr", {},
+    el("td", {}, dayLabel(r.day)),
+    el("td", {}, n.format(num(r.texts))), el("td", {}, n.format(num(r.parts))), el("td", {}, n.format(num(r.people))),
+    el("td", {}, minutes(r.minutes)),
+    el("td", {}, tokens(r.tts_in, r.tts_out)), el("td", {}, tokens(r.script_in, r.script_out)),
+    el("td", {}, usd(num(r.tts_usd) + num(r.script_usd))), el("td", {}, usd(num(r.tts_usd_2027) + num(r.script_usd))),
+    failCell(num(r.failed) + num(r.script_failed) + num(r.busy)), el("td", {}, n.format(num(r.limit_hits)))))
+  const weeks = (v.weeks || []).slice(0, 10).map((w) => el("tr", {},
+    el("td", {}, `с ${short(w.week)}`), deviceCell(w),
+    el("td", {}, minutes(w.minutes)), el("td", { class: limit && num(w.minutes) >= limit ? "bad" : "" }, limit ? pct(num(w.minutes), limit) : "—"),
+    el("td", {}, n.format(num(w.texts))), el("td", {}, num(w.limit_hits) ? `да (отказов: ${n.format(num(w.limit_hits))})` : "нет")))
+  const failed = num(t.failed) + num(t.busy)
+  // Gemini or Haiku failing before anything came has no model in its log line: the total row names them apart.
+  const early = num(t.failed) + num(t.script_failed) - sum(v.by_model || [], "failed")
+  return [
+    el("div", { class: "al-stats" },
+      // Whole minutes from 100 on, so the number fits a phone's tile on one line.
+      stat(num(t.minutes) >= 100 ? `${n.format(Math.round(num(t.minutes)))} мин` : minutes(t.minutes), "Прослушано", `текстов: ${n.format(num(t.texts))} · частей: ${n.format(num(t.parts))}`),
+      stat(n.format(num(t.people)), "Слушали, устройств", limit ? `упёрлись в ${n.format(limit)} мин в неделю: ${n.format(num(t.limit_people))}` : null),
+      stat(usd(num(t.tts_usd) + num(t.script_usd)), "Стоимость сейчас", `по ценам TTS 2027: ${usd(num(t.tts_usd_2027) + num(t.script_usd))}${num(t.minutes) ? ` · ${usd((num(t.tts_usd) + num(t.script_usd)) / num(t.minutes))} за минуту` : ""}`),
+      stat(t.first_audio_p50 == null ? "—" : ms(Math.round(t.first_audio_p50)), "Первый звук, медиана", `90 %: ${t.first_audio_p90 == null ? "—" : ms(Math.round(t.first_audio_p90))} · ошибок: ${n.format(failed)} из ${n.format(num(t.parts))} частей`)
+    ),
+    chart("Голос по дням", [
+      { title: "Тексты", color: "var(--c1)", value: (d) => num(byDay.get(d)?.texts), hint: "Сколько текстов начали слушать (первая часть каждого)" },
+      { title: "Устройств", color: "var(--c4)", axis: "right", value: (d) => num(byDay.get(d)?.people), hint: "Сколько устройств слушали в этот день" }
+    ], totalDays, { leftLabel: "Тексты", rightLabel: "Устройства", marks }),
+    table("Голос: токены и стоимость по моделям", ["Шаг · модель", "Запросов", "Ошибок", "Токены вход", "Токены выход", "Прослушано", "Сейчас", "Цены 2027"], [
+      ...models,
+      models.length > 1 && sumRow(["Всего", n.format(num(t.parts) + num(t.scripts)),
+        el("span", { title: early > 0 ? "Gemini или Haiku не ответили до начала: в записи нет модели, поэтому в строках выше их нет" : null },
+          n.format(num(t.failed) + num(t.script_failed)), early > 0 && el("small", {}, `${n.format(early)} до начала`)),
+        compact.format(num(t.tts_in) + num(t.script_in)), compact.format(num(t.tts_out) + num(t.script_out)), minutes(t.minutes),
+        usd(num(t.tts_usd) + num(t.script_usd)), usd(num(t.tts_usd_2027) + num(t.script_usd))])
+    ].filter(Boolean), "Голосом за период не пользовались.", "num2"),
+    table("Голос по дням", ["День (UTC)", "Тексты", "Части", "Устройств", "Прослушано", "Озвучка: токены вход / выход", "Haiku: вход / выход", "Сейчас", "Цены 2027", "Ошибки", "Лимит"], [
+      days.length > 1 && sumRow([`За ${totalDays} дн.`, n.format(num(t.texts)), n.format(num(t.parts)), n.format(num(t.people)), minutes(t.minutes),
+        tokens(t.tts_in, t.tts_out), tokens(t.script_in, t.script_out), usd(num(t.tts_usd) + num(t.script_usd)),
+        usd(num(t.tts_usd_2027) + num(t.script_usd)), n.format(failed + num(t.script_failed)), n.format(num(t.limit_hits))]),
+      ...dayRows
+    ].filter(Boolean), "Голосом за период не пользовались.", "num2"),
+    table(`Больше всех слушали за неделю${limit ? ` (лимит ${n.format(limit)} мин в неделю)` : ""}`, ["Неделя", "Устройство · язык", "Прослушано", "Из лимита", "Текстов", "Упирался в лимит"], weeks, "Пока никто не слушал.")
+  ]
+}
+
+function similarSection(s, allowance, totalDays, marks) {
+  const t = s.total || {}
+  const days = [...(s.by_day || [])].reverse()
+  const byDay = new Map((s.by_day || []).map((r) => [r.day, r]))
+  const limit = allowance?.similar_searches
+  const worked = num(t.searches) - num(t.failed)
+  const models = (s.by_model || []).map((m) => {
+    const [step, hint] = ULTRA_STEP[m.step] || [m.step]
+    return el("tr", {},
+      el("td", { title: hint || null }, step, el("small", {}, m.model)),
+      el("td", {}, n.format(num(m.calls))),
+      el("td", {}, m.input == null ? "—" : compact.format(num(m.input))), el("td", {}, m.output == null ? "—" : compact.format(num(m.output))),
+      el("td", {}, num(m.web) ? n.format(num(m.web)) : "—"), el("td", {}, usd(m.usd)))
+  })
+  const dayRows = days.map((r) => el("tr", {},
+    el("td", {}, dayLabel(r.day)),
+    el("td", {}, n.format(num(r.searches))), el("td", {}, n.format(num(r.people))), failCell(num(r.failed) + num(r.busy)),
+    el("td", {}, n.format(num(r.web))), el("td", {}, tokens(r.tokens_in, r.tokens_out)),
+    el("td", {}, `${n.format(num(r.kept))} из ${n.format(num(r.checked))}`), el("td", {}, n.format(num(r.items))),
+    el("td", {}, usd(r.usd)), el("td", {}, n.format(num(r.limit_hits)))))
+  // Person-weeks by how much of the week's searches they used.
+  const all = s.weeks || []
+  const buckets = limit ? [
+    ["1 поиск", (x) => x === 1], [`2–${Math.max(2, Math.floor(limit / 2))}`, (x) => x >= 2 && x <= Math.floor(limit / 2)],
+    [`${Math.floor(limit / 2) + 1}–${limit - 1}`, (x) => x > Math.floor(limit / 2) && x < limit], [`все ${n.format(limit)}`, (x) => x >= limit]
+  ].map(([name, test]) => `${name}: ${n.format(all.filter((w) => test(num(w.searches))).length)}`).join(" · ") : null
+  const weeks = all.slice(0, 10).map((w) => el("tr", {},
+    el("td", {}, `с ${short(w.week)}`), deviceCell(w),
+    el("td", {}, n.format(num(w.searches))), el("td", { class: limit && num(w.searches) >= limit ? "bad" : "" }, limit ? `${n.format(num(w.searches))} из ${n.format(limit)}` : "—"),
+    failCell(w.failed), el("td", {}, num(w.limit_hits) ? `да (отказов: ${n.format(num(w.limit_hits))})` : "нет")))
+  const weeksPanel = table(`Поиски на устройство за неделю${limit ? ` (лимит ${n.format(limit)} в неделю)` : ""}`, ["Неделя", "Устройство · язык", "Поисков", "Из лимита", "Ошибок", "Упирался в лимит"], weeks, "Пока никто не искал.")
+  if (buckets && all.length) weeksPanel.append(el("p", { class: "hint" }, `Устройство-недель по числу поисков: ${buckets}.`))
+  return [
+    el("div", { class: "al-stats" },
+      stat(n.format(num(t.searches)), "Поисков", `устройств: ${n.format(num(t.people))}${limit ? ` · упёрлись в ${n.format(limit)} в неделю: ${n.format(num(t.limit_people))}` : ""}`),
+      stat(`${n.format(num(t.kept))} из ${n.format(num(t.checked))}`, "Страниц прошли проверку", worked ? `вариантов в ответе, в среднем: ${(num(t.items) / worked).toLocaleString("ru-RU", { maximumFractionDigits: 1 })}` : null),
+      stat(usd(t.usd), "Стоимость", `${num(t.searches) ? `${usd(num(t.usd) / num(t.searches))} за поиск · ` : ""}веб-поисков: ${n.format(num(t.web))}`),
+      stat(t.ms_p50 == null ? "—" : ms(Math.round(t.ms_p50)), "Время поиска, медиана", `90 %: ${t.ms_p90 == null ? "—" : ms(Math.round(t.ms_p90))} · ошибок: ${n.format(num(t.failed) + num(t.busy))}`)
+    ),
+    chart("Поиск похожего по дням", [
+      { title: "Нашли", color: "var(--c2)", value: (d) => num(byDay.get(d)?.searches) - num(byDay.get(d)?.failed), hint: "Поиски, которые дошли до ответа" },
+      { title: "С ошибкой", color: "var(--warn)", value: (d) => num(byDay.get(d)?.failed), hint: "Поиск оборвался или ничего не вернул" },
+      { title: "Устройств", color: "var(--c4)", axis: "right", value: (d) => num(byDay.get(d)?.people), hint: "Сколько устройств искали в этот день" }
+    ], totalDays, { leftLabel: "Поиски", rightLabel: "Устройства", marks }),
+    table("Поиск похожего: токены и стоимость по шагам", ["Шаг · модель", "Вызовов", "Токены вход", "Токены выход", "Веб-поисков", "Стоимость"], [
+      ...models,
+      models.length > 1 && sumRow(["Всего", n.format(num(t.searches)), compact.format(num(t.tokens_in)), compact.format(num(t.tokens_out)), n.format(num(t.web)), usd(t.usd)])
+    ].filter(Boolean), "Похожее за период не искали.", "num2"),
+    table("Поиск похожего по дням", ["День (UTC)", "Поиски", "Устройств", "Ошибки", "Веб-поиски", "Токены вход / выход", "Оставлено из проверенных", "Вариантов", "Стоимость", "Лимит"], [
+      days.length > 1 && sumRow([`За ${totalDays} дн.`, n.format(num(t.searches)), n.format(num(t.people)), n.format(num(t.failed) + num(t.busy)), n.format(num(t.web)),
+        tokens(t.tokens_in, t.tokens_out), `${n.format(num(t.kept))} из ${n.format(num(t.checked))}`, n.format(num(t.items)), usd(t.usd), n.format(num(t.limit_hits))]),
+      ...dayRows
+    ].filter(Boolean), "Похожее за период не искали.", "num2"),
+    weeksPanel
+  ]
+}
+
+function ultraPanels(report, totalDays, marks, redraw) {
+  const title = "Голос и поиск похожего · Ultra"
+  if (!report) return el("div", { class: "panel" }, el("h3", {}, title), el("p", { class: "empty" }, NO_ULTRA))
+  const pick = (v) => { ultraShow = v; redraw() }
+  const voice = ultraShow === "voice"
+  const t = (voice ? report.voice : report.similar)?.total || {}
+  // The first part of a section is its row of numbers: it goes in the panel with the switch.
+  const [stats, ...body] = voice ? voiceSection(report.voice || {}, report.allowance, totalDays, marks) : similarSection(report.similar || {}, report.allowance, totalDays, marks)
+  const head = el("div", { class: "panel" },
+    el("h3", {}, title, toggle([["voice", "Голос"], ["similar", "Поиск похожего"]], ultraShow, pick)),
+    stats,
+    el("p", { class: "hint", style: "margin:0" }, voice
+      ? `Чтение вслух: текст делится на части, каждую озвучивает Gemini TTS (Flash-Lite, для части языков — полная модель); перед озвучкой Claude Haiku может переписать текст для слуха. Стоимость сейчас и по ценам TTS с 2027 года (Haiku не меняется). Ошибки — оборвавшиеся части, сбои Gemini и Haiku, отказы по общему дневному лимиту (сейчас ${n.format(num(t.busy))}). «Лимит» — отказы, когда кончились минуты недели.`
+      : "Поиск похожего, движок A: Claude Haiku планирует запросы, ищет в вебе (веб-поиск Anthropic), сервер открывает и проверяет страницы, Claude Sonnet пишет список. Токены по шагам сервер пишет с этой версии; более ранние поиски — строкой «Без разбивки». Ошибки — оборвавшиеся поиски и отказы по общему дневному лимиту. «Лимит» — отказы, когда кончились поиски недели."))
+  return el("div", {}, head, ...body,
+    el("p", { class: "hint" }, "Без тестов (TestFlight, отладочные сборки, наши устройства) и без версии, пока она на ревью: события 2.6 появятся здесь, когда ревью 2.6 закроют. Лимит недели общий на подписку; здесь он считается по устройству, неделя — с понедельника (UTC), как у счётчика."))
+}
+
+// «Без тестов»: how many of our own installs every report leaves out (contextflow.test_installs, migration
+// 20261110180000), by why; nothing before that migration.
+const TEST_REASON = {
+  version: "наши скрипты (dev-check, calibrate)", preview: "превью и тестовые деплои", audience: "отладочные и TestFlight-сборки",
+  own: "наши устройства по подписке", burst: "всплески автотестов без пометки"
+}
+function testsNote(byReason) {
+  if (!byReason) return null
+  const all = Object.values(byReason).reduce((x, v) => x + Number(v || 0), 0)
+  const lines = Object.entries(byReason).sort((a, b) => b[1] - a[1]).map(([why, count]) => `${TEST_REASON[why] || why}: ${n.format(count)}`)
+  return el("span", { class: "muted", title: `Не входят ни в один отчёт:\n${lines.join("\n")}` }, `без тестов · не считаем ${n.format(all)} наших установок`)
 }
 
 function render(data, fx) {
@@ -1375,18 +1851,24 @@ function render(data, fx) {
     el("div", { class: "bar" },
       el("h1", {}, "Аналитика"),
       el("span", { class: "muted" }, `${n.format(total)} запросов реальных пользователей за ${data.days} дн. · обновлено ${new Date(data.generated_at).toLocaleString("ru-RU")}`),
+      testsNote(data.test_installs),
       el("div", { class: "seg" }, periodButtons),
       el("button", { class: "link", onclick: () => load() }, "Обновить"),
       el("button", { class: "link", onclick: () => { store(""); login() } }, "Выйти")
     ),
-    mrrCards(insights, fx),
+    mrrCards(insights, fx, data.mrr_history),
+    data.mrr_history && mrrChart(data.mrr_history, fx, data.days, marks),
     userCards(users, subs, data.days),
     chart("Активные пользователи по дням", [
       { title: "Новые", color: "var(--c2)", value: userDay("new"), hint: "Впервые открыли панель или спросили в этот день (UTC)" },
       { title: "Вернувшиеся", color: "var(--c1)", value: (d) => userDay("active")(d) - userDay("new")(d), hint: "Были и раньше" },
       ...(outcomes ? [
         { title: "Упёрлись в лимит в d0", color: "var(--c4)", axis: "right", dash: true, value: outcomeDay("limit_d0"), hint: LIMIT_D0 },
-        { title: "Новые подписки Pro", color: "var(--c3)", axis: "right", value: outcomeDay("pro_bought"), hint: PRO_BOUGHT }
+        // "bought" (every plan) from migration 20261110120000; before it, Pro and Ultra only.
+        outcomes.some((r) => "bought" in r)
+          ? { title: "Новые подписки", color: "var(--c3)", axis: "right", value: outcomeDay("bought"), hint: PRO_BOUGHT,
+              detail: (d) => PLAN_ORDER.filter(([plan]) => outcomeDay(`bought_${plan}`)(d) > 0).map(([plan, name]) => `${name} ${outcomeDay(`bought_${plan}`)(d)}`).join(", ") }
+          : { title: "Новые подписки Pro", color: "var(--c3)", axis: "right", value: outcomeDay("pro_bought"), hint: "«Новые подписки Pro» — Pro и Ultra по первой оплате; «Свой ключ» здесь появится после миграции 20261110120000." }
       ] : [])
     ], data.days, {
       leftLabel: "Люди: новые и вернувшиеся",
@@ -1401,6 +1883,7 @@ function render(data, fx) {
           : "Пунктир с версиями появится после миграции 20261105130000 (функция cf_releases)."
       ].join(" ")
     }),
+    live((redraw) => retentionPanel(data.retention, redraw)),
     live((redraw) => onboardingPanels(data.onboarding, data.days, redraw)),
     afterLimitPanel(data.after_limit),
     live((redraw) => featuresPanel(data.features, data.days, redraw)),
@@ -1432,6 +1915,7 @@ function render(data, fx) {
     table("По тарифам", ["Тариф", "Запросы", "Устройств", "Больше всего за день на устройство"], plans, "Пока нет запросов.", "num2"),
     table("По устройствам", ["Устройство", "Сегмент", "Запросы", "Устройств", "Токены вход", "Токены выход", "Поиск Google"], devices, "Пока нет запросов."),
     table("По моделям", ["Сегмент", "Модель", "Запросы", "Ошибки", "Токены вход", "Токены выход", "Поиск Google", "Ср. время"], models, "Пока нет запросов."),
+    live((redraw) => ultraPanels(data.ultra_report, data.days, marks, redraw)),
     table(`Ревью: вы или App Review (${n.format(sum(review, "requests"))})`, ["Устройство", "Сегмент", "Версия", "Запросы", "Устройств", "Дни"], reviewRows, "Пока версия на ревью, запросы с неё попадают сюда, а не в цифры выше."),
     limitsPanel(data.limits_report) || table("Упёрлись в лимит", ["Тип", "Лимит · план", "Раз"], limits, "Никто не упирался в лимиты."),
     organizePanel(data.organize_report),

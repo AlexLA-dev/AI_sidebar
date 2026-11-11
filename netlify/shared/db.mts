@@ -122,3 +122,10 @@ export async function maybeCleanup(): Promise<void> {
   if (Math.random() > 0.005) return
   await db().rpc("cf_cleanup").then(() => undefined, () => undefined)
 }
+
+/** Read aloud and find similar (2.6, Ultra): requests, people, tokens by model, cost, failures (cf_ultra_report). */
+export const ultraReport = (days: number) => rpc<Record<string, unknown>>("cf_ultra_report", { p_days: days })
+/** MRR at the end of each day by plan, monthly or yearly, renewal on or off, and currency (cf_mrr_history). */
+export const mrrHistory = (days: number) => rpc<Record<string, unknown>>("cf_mrr_history", { p_days: days })
+/** Users by first week and subscribers by first payment month, still there later; first renewals (cf_retention). */
+export const retention = (days: number) => rpc<Record<string, unknown>>("cf_retention", { p_days: days })
