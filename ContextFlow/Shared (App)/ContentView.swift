@@ -206,6 +206,10 @@ struct ContentView: View {
                     Task { await NotifyAsk.shared.show(.listen, listen: id) }
                 #endif
                 case "tips": tab = .tips
+                #if DEBUG
+                // 2.6 (100): suggestions coming from "another device" while a chat is read (ChatLibrary.debugOrg).
+                case "debug-org": chats.debugOrg(url)
+                #endif
                 // 2.6 (98): the "is here" notification, or a link to it.
                 case "whatsnew": openWhatsNew()
                 case "chats": tab = hasChats ? .chats : .home

@@ -124,6 +124,17 @@ struct ChatsView: View {
         }
         .onReceive(links.$pending) { _ in openLinked() }
         .onChange(of: library.threads.count) { _ in openLinked() }
+        #if DEBUG
+        // 2.6 (100) (the chat jumped when a suggestion came): -CFDebugOpenHere <chat id> -CFDebugOpenMessage <message id>
+        // opens that chat from this list at that message, a moment after the list shows (with -CFDebugOrgSteps: the
+        // suggestions coming while it's read).
+        .task {
+            guard let id = UserDefaults.standard.string(forKey: "CFDebugOpenHere") else { return }
+            try? await Task.sleep(nanoseconds: 2_000_000_000)
+            let message = UserDefaults.standard.string(forKey: "CFDebugOpenMessage") ?? ""
+            if let found = library.find(messageKey: message, hint: id) { linked = (found.thread.id, found.index) }
+        }
+        #endif
         .searchable(text: $query, prompt: aiSearch ? Text("Describe the chat you're looking for…") : Text("Search chats"))
         .onChange(of: way) { next in
             found = nil
