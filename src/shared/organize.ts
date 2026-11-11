@@ -1114,31 +1114,129 @@ export function lastKey(entries: Entry[]): string {
   return entries.length ? entryKey(entries[entries.length - 1]) : ""
 }
 
-/** A name's words, to tell a name from a near repeat: letters and digits, lower case; a run of Chinese or Japanese characters as its pairs of characters (they have no spaces). */
-function nameWords(name: string): Set<string> {
-  const out = new Set<string>()
-  for (const word of name.toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? []) {
-    const chars = Array.from(word)
-    if (chars.length > 1 && /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u.test(word)) {
-      for (let i = 0; i + 1 < chars.length; i++) out.add(chars[i] + chars[i + 1])
-    } else out.add(word)
+// ------------------------------------------------------------ names turned down (2.6 (98), the review's S5)
+
+/**
+ * Words that don't tell names apart (articles, prepositions, conjunctions: "the", "für", "và", "في"), by script: the
+ * Latin languages' together, Vietnamese's apart (its "da", "do" are words), Cyrillic's, Arabic's, Korean's.
+ */
+const NAME_STOP = {
+  latin: new Set([
+    "the", "a", "an", "and", "or", "of", "for", "with", "by", "in", "on", "to", "at", "from", "vs", "my", "your", "our", "about", "how", "what",
+    "der", "die", "das", "den", "dem", "des", "ein", "eine", "einen", "einem", "einer", "und", "für", "mit", "von", "vom", "im", "am", "zum", "zur", "oder", "auf", "über", "bei", "zu", "wie", "was",
+    "le", "la", "les", "l", "un", "une", "et", "pour", "avec", "de", "d", "du", "en", "ou", "au", "aux", "sur", "dans", "par", "à",
+    "el", "los", "las", "una", "y", "para", "con", "del", "al", "por", "sobre",
+    "il", "lo", "i", "gli", "e", "per", "di", "della", "dei", "delle", "degli", "alla", "su", "da", "nel", "nella", "dell",
+    "o", "os", "as", "um", "uma", "com", "do", "dos", "das", "em", "no", "na", "nos", "nas", "ao"
+  ]),
+  vi: new Set(["và", "cho", "của", "với", "các", "những", "về", "trong", "là", "một"]),
+  cyrillic: new Set(["и", "в", "во", "на", "с", "со", "по", "для", "от", "до", "из", "или", "о", "об", "обо", "про", "к", "ко", "у", "за", "это", "как", "что",
+    "і", "й", "та", "з", "із", "зі", "від", "або", "як", "що"]),
+  arabic: new Set(["و", "في", "من", "على", "مع", "أو", "عن", "إلى"]),
+  hangul: new Set(["및", "위한", "대한"])
+}
+/** Letters only Vietnamese has (ă, đ, ơ, ư, and those with a tone mark): a name with one is Vietnamese. */
+const VI_LETTER = /[ăđơư\u1EA0-\u1EF9]/u
+/** Korean particles at a word's end ("교토의" is "교토"), the longer first. */
+const KO_PARTICLES = ["에서", "으로", "에게", "까지", "부터", "의", "을", "를", "은", "는", "이", "가", "에", "로", "와", "과", "도", "만"]
+/** Arabic's article (with "and", "with", "for" before it) at a word's start ("السيارات" is "سيارات"). */
+const AR_ARTICLES = ["وال", "بال", "لل", "ال"]
+/** Japanese and Chinese particles between a name's words (の, と, 的): not words of it. */
+const DENSE_JOIN = new Set(Array.from("のをにはがとでへもや的和与與及"))
+const DENSE_CHAR = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\u30FC]/u
+const HAN_CHAR = /\p{Script=Han}/u
+/** How much a word counts; a Chinese character half a word, a kana a third (a word is two or three of them). */
+const WORD = 6
+const HAN = 3
+const KANA = 2
+/** Only the last turned-down names block near repeats; any of them blocks itself. */
+export const NEAR_TURNED_DOWN = 5
+
+/** A unit of a name's content: a word (`alt`: a Korean one without its particle), or a Chinese or Japanese character. */
+interface NameUnit { u: string; alt?: string; w: number; char: boolean }
+
+/**
+ * A name's content: its words in lower case without the words that don't tell names apart (NAME_STOP; Arabic's
+ * article off); Chinese and Japanese, which have no spaces, as their characters without particles.
+ */
+function nameUnits(name: string): NameUnit[] {
+  const text = name.toLowerCase().normalize("NFC")
+  const vi = VI_LETTER.test(text)
+  const out: NameUnit[] = []
+  const word = (raw: string) => {
+    let w = raw
+    let alt: string | undefined
+    let stop = vi ? NAME_STOP.vi : NAME_STOP.latin
+    if (/\p{Script=Cyrillic}/u.test(w)) stop = NAME_STOP.cyrillic
+    else if (/\p{Script=Arabic}/u.test(w)) {
+      stop = NAME_STOP.arabic
+      const p = AR_ARTICLES.find((x) => w.startsWith(x) && Array.from(w).length - Array.from(x).length >= 3)
+      if (p) w = w.slice(p.length)
+    } else if (/\p{Script=Hangul}/u.test(w)) {
+      stop = NAME_STOP.hangul
+      const p = KO_PARTICLES.find((x) => w.endsWith(x) && Array.from(w).length > Array.from(x).length)
+      if (p) alt = w.slice(0, w.length - p.length)
+    }
+    if (!stop.has(w)) out.push({ u: w, ...(alt ? { alt } : {}), w: WORD, char: false })
+  }
+  for (const run of text.match(/[\p{L}\p{M}\p{N}]+/gu) ?? []) {
+    let plain = ""
+    for (const c of Array.from(run)) {
+      if (!DENSE_CHAR.test(c)) {
+        plain += c
+        continue
+      }
+      if (plain) word(plain)
+      plain = ""
+      if (!DENSE_JOIN.has(c)) out.push({ u: c, w: HAN_CHAR.test(c) ? HAN : KANA, char: true })
+    }
+    if (plain) word(plain)
   }
   return out
 }
 
 /**
+ * Two words of names alike: the same (a Korean one with or without its particle), or one form of the other
+ * ("поездка" / "поездки", "hotel" / "hotels"): a shared start of 4 letters or more that leaves at most 3 of the longer.
+ */
+function sameWord(a: NameUnit, b: NameUnit): boolean {
+  if (a.u === b.u) return true
+  if (a.char || b.char) return false
+  if (a.alt !== undefined && (a.alt === b.u || a.alt === b.alt)) return true
+  if (b.alt !== undefined && b.alt === a.u) return true
+  const x = Array.from(a.u)
+  const y = Array.from(b.u)
+  let p = 0
+  while (p < x.length && p < y.length && x[p] === y[p]) p++
+  return p >= 4 && p >= Math.max(x.length, y.length) - 3
+}
+
+/**
  * 2.6 (98): whether two names are the same or nearly (a name turned down came back reworded after the chat changed a
- * little): equal in lower case, or two thirds of the shorter one's words are in the other.
+ * little): equal in lower case; or every content word of the smaller one is in the other, in any order and form, and
+ * the other adds at most one (none to a one-word name). A word that differs makes another name ("Tips for the
+ * garden" / "Tips for the kitchen"), however many words they share.
  */
 export function nearName(a: string, b: string): boolean {
   if (a.toLowerCase() === b.toLowerCase()) return true
-  const x = nameWords(a)
-  const y = nameWords(b)
-  const fewer = Math.min(x.size, y.size)
-  if (!fewer) return false
-  let shared = 0
-  for (const w of x) if (y.has(w)) shared++
-  return shared * 3 >= fewer * 2
+  const x = nameUnits(a)
+  const y = nameUnits(b)
+  const weight = (list: NameUnit[]) => list.reduce((s, u) => s + u.w, 0)
+  const [small, large] = weight(x) <= weight(y) ? [x, y] : [y, x]
+  if (!small.length) return false
+  const used = new Set<number>()
+  for (const u of small) {
+    const j = large.findIndex((v, k) => !used.has(k) && sameWord(u, v))
+    if (j < 0) return false
+    used.add(j)
+  }
+  const extra = large.reduce((s, v, k) => s + (used.has(k) ? 0 : v.w), 0)
+  return extra <= (weight(small) >= WORD + HAN ? WORD : 0)
+}
+
+/** Whether `name` was turned down for the chat (`no`, the oldest first): one of them, or a near repeat of one of the last NEAR_TURNED_DOWN. */
+export function turnedDownName(no: string[], name: string): boolean {
+  return no.some((x) => x.toLowerCase() === name.toLowerCase()) || no.slice(-NEAR_TURNED_DOWN).some((x) => nearName(x, name))
 }
 
 /** The name the chat's record suggests while it's open: not turned down (nor nearly), not its name already, not one the user typed. */
@@ -1147,7 +1245,7 @@ export function openName(thread: Thread): string | undefined {
   if (!nm?.t || !wantsNameCheck(thread) || nm.t.toLowerCase() === threadName(thread).toLowerCase()) return undefined
   // 2.6 (95): first what moves, then the name (a chat on two topics got names of both, and renames came and went).
   if (moveOpen(thread)) return undefined
-  if ((nm.no ?? []).some((x) => nearName(x, nm.t!))) return undefined
+  if (turnedDownName(nm.no ?? [], nm.t)) return undefined
   return nm.t
 }
 
@@ -1197,12 +1295,12 @@ export function orgStateFor(thread: Thread, move: MoveSuggestion | null, tags: A
 }
 
 /**
- * The name check after asking: what it was about, the name it suggests (unless that one or a near repeat of it was
- * turned down: 2.6 (98), they're kept with the chat for good), and the names turned down.
+ * The name check after asking: what it was about, the name it suggests (unless it was turned down, or is a near repeat
+ * of one of the last ones turned down: turnedDownName), and the names turned down.
  */
 export function nameStateAfter(previous: OrgState["nm"], key: string, answer: { fits: boolean; title: string }, current: string): NonNullable<OrgState["nm"]> {
   const no = previous?.no ?? []
-  const refused = no.some((x) => nearName(x, answer.title))
+  const refused = turnedDownName(no, answer.title)
   // The same name in other capitals is no new one (2.6 (94)).
   const suggest = !answer.fits && answer.title && answer.title.toLowerCase() !== current.toLowerCase() && !refused
   return { k: key, ...(suggest ? { t: answer.title } : {}), ...(no.length ? { no } : {}) }

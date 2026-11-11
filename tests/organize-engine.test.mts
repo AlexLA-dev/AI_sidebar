@@ -3,7 +3,7 @@ import { test } from "node:test"
 
 import { entryKey as entryKeyOf, type Entry } from "../src/shared/conversation.ts"
 import {
-  DEFAULT_ORGANIZE, embedText, judgedTags, looksMixed, matchPercent, movesAllowed, nameCheckKey, nameStateAfter, nearName, nameText, openMove, openName, openTags, organizeConfig, orgStateFor, packVector, refusedTags, suggestMove, tagCandidates, tagTargets, textSize, unpackVector, wantsNameCheck, type VectorOf
+  DEFAULT_ORGANIZE, embedText, judgedTags, looksMixed, matchPercent, movesAllowed, nameCheckKey, nameStateAfter, nearName, nameText, openMove, openName, openTags, organizeConfig, orgStateFor, packVector, refusedTags, suggestMove, tagCandidates, tagTargets, textSize, turnedDownName, unpackVector, wantsNameCheck, type VectorOf
 } from "../src/shared/organize.ts"
 import type { Thread } from "../src/shared/threads.ts"
 
@@ -452,16 +452,39 @@ test("2.6 (96): an answer no closer to its chat than to the person's other chats
 })
 
 test("2.6 (98): a name turned down stays turned down when it comes back reworded; another name still comes", () => {
-  assert.equal(nearName("Productivity and AI web tools comparison", "AI web tools for productivity"), true)
-  assert.equal(nearName("Flights and hotels for Rome", "Hotels and museums in Rome"), false)
-  assert.equal(nearName("Kyoto", "kyoto"), true)
-  assert.equal(nearName("京都の紅葉旅行", "京都の紅葉と旅館のプラン"), true)
-  assert.equal(nearName("京都の紅葉旅行", "大阪のラーメン"), false)
-  assert.equal(nearName("Ремонт кухни: плитка и смесители", "Плитка и смесители для кухни"), true)
-  const no = { k: "k1", no: ["Productivity and AI web tools comparison"] }
-  assert.equal(nameStateAfter(no, "k2", { fits: false, title: "AI web tools for productivity" }, "Chat").t, undefined)
-  assert.equal(nameStateAfter(no, "k2", { fits: false, title: "Summer trip to Lisbon" }, "Chat").t, "Summer trip to Lisbon")
-  const chat2 = chat("named", [...qa("japan", "https://jg/1"), ...qa("japan", "https://jg/2")], { org: { n: 4, k: "", nm: { k: "k1", t: "AI web tools for productivity", no: no.no } } })
+  // The review's S5: by content words in the 14 languages, in any order and form; a word that differs makes another
+  // name however many words they share; one word more at most, none to a one-word name.
+  const same: Array<[string, string]> = [
+    ["Choosing a road bike", "Road bike: choosing one"], ["Kyoto", "kyoto"],
+    ["Поездка в Японию", "Поездки по Японии"], ["Ремонт кухни: плитка и смесители", "Плитка и смесители для кухни"],
+    ["Оформлення закордонного паспорта", "Закордонний паспорт: оформлення"], ["Balkonkraftwerk Anmeldung", "Anmeldung des Balkonkraftwerks"],
+    ["Recette de gâteau au chocolat", "Recettes de gâteaux au chocolat"], ["Rutas de senderismo en Asturias", "Senderismo en Asturias: rutas"],
+    ["Ricette di pasta fresca", "Pasta fresca: ricette"], ["Financiamento de imóveis", "Imóvel: financiamento"],
+    ["Học tiếng Anh cho trẻ em", "Trẻ em học tiếng Anh"], ["京都の紅葉旅行", "紅葉の京都旅行"], ["京都旅行", "京都旅行のプラン"],
+    ["교토 여행", "교토의 여행 계획"], ["제주도 맛집", "제주도의 맛집 추천"], ["日本旅行攻略", "日本的旅行攻略"], ["台北美食推薦", "台北的美食"],
+    ["سيارة كهربائية", "السيارات الكهربائية"], ["تعلم اللغة الإنجليزية", "اللغة الإنجليزية: تعلم"]
+  ]
+  const other: Array<[string, string]> = [
+    ["Flights and hotels in Rome", "Hotels and museums in Rome"], ["Tips for the garden", "Tips for the kitchen"],
+    ["Electric car comparison", "Electric car insurance"], ["Travel", "Travel insurance for Japan"], ["Ремонт кухни", "Ремонт ванной"],
+    ["Ціни на квартири у Львові", "Ціни на квартири у Києві"], ["Kita Anmeldung Berlin", "Kita Anmeldung München"],
+    ["Vacances en Bretagne", "Vacances en Provence"], ["Seguro de coche", "Seguro de hogar"], ["Treni per Milano", "Treni per Napoli"],
+    ["Plano de saúde para idosos", "Plano de celular para idosos"], ["Mẹo chăm sóc vườn", "Mẹo chăm sóc da"],
+    ["Mua xe máy Honda Vision", "Bảo dưỡng xe máy Honda Vision"], ["東京のホテル", "京都のホテル"], ["京都", "京都旅行"],
+    ["서울 아파트 시세", "부산 아파트 시세"], ["上海租房", "北京租房"], ["台北美食", "台南美食"], ["شقق للإيجار في دبي", "شقق للإيجار في القاهرة"]
+  ]
+  for (const [a, b] of same) assert.equal(nearName(a, b) && nearName(b, a), true, `${a} / ${b}`)
+  for (const [a, b] of other) assert.equal(nearName(a, b) || nearName(b, a), false, `${a} / ${b}`)
+  // Any name turned down blocks itself; only the last five block near repeats.
+  const no = ["Kyoto trip", "Osaka", "Nara", "Kobe", "Nagoya", "Sapporo"]
+  assert.equal(turnedDownName(no, "kyoto TRIP"), true)
+  assert.equal(turnedDownName(no, "Kyoto trips"), false)
+  assert.equal(turnedDownName(no.slice(1), "Osaka city"), false)
+  assert.equal(turnedDownName([...no, "Kyoto trip"], "Kyoto trips"), true)
+  const state = { k: "k1", no: ["Road bike sizes"] }
+  assert.equal(nameStateAfter(state, "k2", { fits: false, title: "Sizes of road bikes" }, "Chat").t, undefined)
+  assert.equal(nameStateAfter(state, "k2", { fits: false, title: "Road bike tyres" }, "Chat").t, "Road bike tyres")
+  const chat2 = chat("named", [...qa("japan", "https://jg/1"), ...qa("japan", "https://jg/2")], { org: { n: 4, k: "", nm: { k: "k1", t: "Sizes of road bikes", no: state.no } } })
   assert.equal(openName({ ...chat2, org: { ...chat2.org!, k: entryKeyOf(chat2.m[3]) } }), undefined)
 })
 

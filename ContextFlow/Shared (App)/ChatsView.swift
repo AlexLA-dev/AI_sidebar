@@ -1788,7 +1788,7 @@ struct ChatDetailView: View {
     private func current(_ thread: ChatThread) -> OrganizeModel.Suggestions? {
         guard var s = suggestions, s.chat == thread.id, s.length == thread.entries.count, picked == nil, asking == nil else { return nil }
         // 2.6 (95): a name that is the chat's by now (taken on another device), turned down or typed meanwhile isn't offered.
-        if let name = s.name, name.lowercased() == thread.name.lowercased() || thread.namedByUser || (thread.org?.nm?.no ?? []).contains(where: { Organize.nearName($0, name) }) {
+        if let name = s.name, name.lowercased() == thread.name.lowercased() || thread.namedByUser || Organize.turnedDownName(thread.org?.nm?.no ?? [], name) {
             s.name = nil
         }
         return s
