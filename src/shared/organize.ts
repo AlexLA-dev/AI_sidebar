@@ -25,7 +25,8 @@ export interface OrganizeConfig {
   matchLo: number
   matchHi: number
   minMatch: number
-  // A new chat: the block fits its own chat less than this, and at least `splitMin` blocks stay in it.
+  // A new chat: the block fits its own chat less than this, and at least `splitMin` questions or notes stay in it (2.6
+  // (95): not blocks — a chat of two pages on two topics never got a new chat).
   splitT: number
   splitMin: number
   // 2.6 (94): the end of a block off its chat's topic (`tailMove`): an exchange's fit to the rest of the chat below
@@ -34,6 +35,8 @@ export interface OrganizeConfig {
   tailQA: number
   tailA: number
   tailAlike: number
+  // 2.6 (95): two chats on a shared page merge when their answers fit each other this well both ways (`mergeFit`).
+  mergeA: number
   // How many of the chat's last blocks get move suggestions, and of its last answers and notes tag suggestions.
   window: number
   tagWindow: number
@@ -67,14 +70,23 @@ export const DEFAULT_ORGANIZE: OrganizeConfig = {
   matchLo: 0.17,
   matchHi: 0.66,
   minMatch: 75,
-  splitT: 0.25,
+  // 2.6 (95), on lib95 and the 2.5 sample (b95/calib-blocks.mjs): a coherent chat's own blocks fit the rest from 0.38 (1
+  // of 59 below 0.35, an INP page in a React chat), blocks of other chats below 0.35 in 93% (same language) and 98%.
+  splitT: 0.35,
   splitMin: 2,
   // Calibrated on the 2.5 sample with every question of a chat asked on its first page (b94/calib-apart3.mjs): 1 of
   // 99 of the chats' own exchanges off by both, 41% of unrelated exchanges in the same language and 68% in another
   // (the rest mostly near topics); the question+answer fit alone, at splitT, caught 4% in the same language.
+  // 2.6 (95), checked again on the whole set (b95/tailgrid95.sh: lib95 as written and with another chat's question asked
+  // on each chat's last page, the 2.5 sample both ways): tailQA 0.35 loses 15–25% of the new chats found, 0.45 or 0.5
+  // adds needless ones in 1–2 of 33 coherent chats; tailA 0.26 or more pulls a chat's own question along with an
+  // unrelated one (26 of 1,056); tailAlike 0.2–0.4 changes nothing. 0.4, 0.22 and 0.3 stay.
   tailQA: 0.4,
   tailA: 0.22,
   tailAlike: 0.3,
+  // lib95 and the 2.5 sample (b95/merge-neg.mjs): different topics asked on the same pages 0.51 at most (two plant-care
+  // chats), 99% below 0.40; the same topic again 0.45 at least (median 0.56), the lib's merge pairs 0.49–0.72.
+  mergeA: 0.45,
   window: 3,
   tagWindow: 5,
   tagT: 0.3,
@@ -116,9 +128,34 @@ export function embedText(e: Entry): string {
   const title = e.page?.title ? `\n${plain(e.page.title)}` : ""
   let text: string
   if (e.note) text = plain(e.content).slice(0, 1_000) + title
+  // 2.6 (95): a Find similar request by what it's about (its selection, its page), not by its condition: "Cheaper" is
+  // the same word in every shopping chat, and made blocks about unrelated products look like one topic.
+  else if (e.role === "user" && e.similarAsk !== undefined) text = [e.similarSel ? plain(e.similarSel).slice(0, 300) : "", e.page?.title ? plain(e.page.title) : plain(e.label ?? e.content)].filter(Boolean).join("\n")
   else if (e.role === "user") text = (e.label ? plain(e.label) : plain(e.content).slice(0, 600)) + title
+  else if (isSimilarList(e.content)) text = similarGist(e.content)
   else text = plain(e.content).slice(0, 800)
   return text.slice(0, MAX_EMBED_CHARS)
+}
+
+// A Find similar answer's list (`similarMarkdown`): numbered items that start with a linked name in bold.
+const SIMILAR_ITEM = /^\d+\.\s+\*\*\[(.+?)\]\(/
+
+function isSimilarList(text: string): boolean {
+  return text.split("\n").filter((l) => SIMILAR_ITEM.test(l.trim())).length >= 2
+}
+
+/**
+ * 2.6 (95): what a Find similar answer is about: its first line and the names it lists. The rest of each item is the
+ * same in every list (the price against the person's one, their country's shops, "Not confirmed"), and made lists of
+ * unrelated things alike.
+ */
+function similarGist(text: string): string {
+  const lines = text.split("\n").map((l) => l.trim())
+  const first = lines.findIndex((l) => SIMILAR_ITEM.test(l))
+  // The line before the list (none: the list only; the note after it is the same in every answer).
+  const intro = lines.slice(0, Math.max(0, first)).filter(Boolean).join(" ")
+  const names = lines.map((l) => SIMILAR_ITEM.exec(l)?.[1]).filter((x): x is string => Boolean(x))
+  return `${plain(intro)}\n${names.map(plain).join("; ")}`.trim()
 }
 
 /** The vector space's name ("model:dims"): a vector from another one is never compared. */
@@ -190,6 +227,9 @@ export type VectorOf = (e: Entry) => Float32Array | null | undefined
 /** A page block with what the rules need: its vector, whether it says enough, its time and site. */
 export interface ScoredBlock extends PageBlock {
   v: Float32Array | null
+  // 2.6 (95): its answers' vector (its messages' without answers): what it's about apart from the page's title, which
+  // every question on that page carries.
+  a: Float32Array | null
   weak: boolean
   t: number | null
   host: string
@@ -233,22 +273,17 @@ function scored(entries: Entry[], times: Array<number | null>, b: PageBlock, vec
   for (const e of list) if (e.role === "user") signal += plain(e.label ?? e.content).length + (e.page?.title ? MIN_QUESTION : 0)
   const notesOnly = list.every((e) => e.note)
   const vectors = list.map((e) => vectorOf(e)).filter((v): v is Float32Array => Boolean(v))
+  const answers = list.filter((e) => e.role === "assistant").map((e) => vectorOf(e)).filter((v): v is Float32Array => Boolean(v))
   return {
     ...b,
     v: mean(vectors),
+    a: mean(answers.length ? answers : vectors),
     weak: signal < (notesOnly ? MIN_NOTE : MIN_QUESTION),
     t: times[b.start],
     host: hostOf(b.url),
     settled: list.some((e) => e.from),
     dismissed: list.some((e) => e.dismissed?.move)
   }
-}
-
-/** The mean of a range's answers' vectors (its other messages' when it has no answer with one). */
-function answersOf(entries: Entry[], x: PageBlock, vectorOf: VectorOf): Float32Array | null {
-  const list = entries.slice(x.start, x.end + 1)
-  const answers = list.filter((e) => e.role === "assistant").map((e) => vectorOf(e)).filter((v): v is Float32Array => Boolean(v))
-  return mean(answers.length ? answers : list.map((e) => vectorOf(e)).filter((v): v is Float32Array => Boolean(v)))
 }
 
 /** 2.6 (94): a block's exchanges — each question or note with the answers after it — scored like blocks, on its page. */
@@ -277,6 +312,9 @@ export interface MoveSuggestion {
   current: number
   // How well it fits there, in % (matchPercent), for a merge or a move by topic or by site (a page needs none).
   match?: number
+  // 2.6 (95): the other way round, an older chat joins this one whole (`to` is this chat; shown under message `end`).
+  // People work in the newer chat: a merge shown only in the older one goes unseen.
+  from?: string
 }
 
 /** A block's fit to a chat as people read it: 0–100 %, 0 at what unrelated chats share, 100 at a chat's own messages. */
@@ -329,10 +367,16 @@ export function suggestMove(chat: Thread, chats: Thread[], vectorOf: VectorOf, c
   const others = chats
     .filter((t) => t.id !== chat.id && !t.deleted && t.kind !== "history" && t.m.length > 0)
     .map((t) => ({ thread: t, blocks: scoredBlocks(t.m, vectorOf) }))
-  let merge: { to: string; score: number; match: number } | null = null
+  let merge: { to: string; from?: string; score: number; match: number } | null = null
   for (const o of others) {
-    const fit = mergeFit({ thread: chat, blocks }, o, cfg)
-    if (fit && (!merge || fit.score > merge.score)) merge = { to: o.thread.id, ...fit }
+    const out = mergeFit({ thread: chat, blocks }, o, cfg)
+    if (out && (!merge || out.score > merge.score)) merge = { to: o.thread.id, ...out }
+    const into = mergeFit(o, { thread: chat, blocks }, cfg)
+    if (into && (!merge || into.score > merge.score)) merge = { to: chat.id, from: o.thread.id, ...into }
+  }
+  if (merge?.from) {
+    const last = chat.m.length - 1
+    return { start: last, end: last, to: chat.id, from: merge.from, why: "merge", score: merge.score, current: 0, match: merge.match }
   }
   if (merge) return { start: 0, end: chat.m.length - 1, to: merge.to, why: "merge", score: merge.score, current: 0, match: merge.match }
   const first = Math.max(0, blocks.length - cfg.window)
@@ -357,13 +401,36 @@ export function suggestMove(chat: Thread, chats: Thread[], vectorOf: VectorOf, c
       }
     } else groups.push(s)
   }
-  // A new chat for the chat's blocks but not everything: something stays.
+  // A new chat for part of the chat, not everything: `splitMin` questions or notes stay.
   const best = groups
-    .filter((g) => g.to !== null || blocks.filter((b) => b.end < g.start || b.start > g.end).length >= cfg.splitMin)
+    .filter((g) => g.to !== null || asksOutside(chat.m, g.start, g.end) >= cfg.splitMin)
     .sort((a, b) => RANK[a.why] - RANK[b.why] || (b.score - b.current) - (a.score - a.current) || b.end - a.end)[0]
   if (!best) return tailMove(chat, blocks, others, vectorOf, cfg)
-  const { index: _index, ...suggestion } = best
+  const { index, ...suggestion } = best
+  // 2.6 (95): a block whose start is on the chat's topic and whose end isn't: only its end goes (a question on another
+  // topic asked on a page the chat had one question on took that question along).
+  if ((best.why === "apart" || best.why === "topic") && blocks[index].start === best.start) {
+    const end = tailMove(chat, blocks, others, vectorOf, cfg, index)
+    if (end && end.start > best.start) return end
+  }
   return suggestion
+}
+
+/**
+ * The fit the end of a block needs to go to chat `o` (its `blocks` vectors): `moveT`, or `moveT1` for a chat of a single
+ * question or note (2.6 (95): not a single block — several questions on one page are a chat on that topic). A whole
+ * block keeps `moveT1` for a chat of one block: with `moveT` there, chats on near topics got moves (lib95: two trips,
+ * sleep and coffee).
+ */
+function enough(o: { thread: Thread }, blocks: number, cfg: OrganizeConfig): number {
+  return blocks >= 2 || o.thread.m.filter((e) => e.role === "user").length >= 2 ? cfg.moveT : cfg.moveT1
+}
+
+/** How many questions and notes of `entries` are outside `start`…`end`: what stays after a move of them. */
+function asksOutside(entries: Entry[], start: number, end: number): number {
+  let n = 0
+  entries.forEach((e, i) => { if (e.role === "user" && (i < start || i > end)) n++ })
+  return n
 }
 
 /** When a chat was started: its first message's time (else its last activity). */
@@ -379,76 +446,116 @@ function newer(a: Thread, b: Thread): boolean {
 }
 
 /**
- * 2.6 (94): whether chat `from` joins `to` whole (the owner: «чаты по одной теме и одним страницам сливать в один,
- * присоединяя более старый к более новому, сохраняя хронологию»), and how well it fits there: `to` is newer and has two
- * blocks at least (a chat of one block, like a lone note, joins the other way as before: `joins`), more than half of
- * `from`'s pages are pages `to` has, nothing in `from` was turned down or moved in, `from`'s blocks fit `to` from
- * `minMatch` % on average and `to`'s fit `from` as well (the topic: the pages alone don't say it), and that merge wasn't
- * turned down (`org.mx`). The move puts the messages in by time.
+ * 2.6 (94): whether chat `from` joins `to` whole (chats on one topic and the same pages become one, the older joining
+ * the newer, the messages by time), and how well it fits there: `to` is newer, `from` has
+ * a page `to` has too, nothing in `from` was turned down or moved in, `from`'s blocks fit `to` from `minMatch` % on
+ * average and `to`'s fit `from` as well (the topic: the pages alone don't say it), and that merge wasn't turned down
+ * (`org.mx`). The move puts the messages in by time.
+ * 2.6 (95): one shared page is enough (an old and a new chat on a topic usually share one page of a few), and `to` may
+ * be one block; a chat of notes only still gets joined the other way (`joins`, 2.6 (91)). The answers decide: on a
+ * shared page the questions' vectors are mostly the page's title.
  */
 function mergeFit(from: { thread: Thread; blocks: ScoredBlock[] }, to: { thread: Thread; blocks: ScoredBlock[] }, cfg: OrganizeConfig): { score: number; match: number } | null {
   // The cheap checks first: every pair of chats is checked when the list counts.
-  if (to.blocks.length < 2) return null
-  const pages = from.blocks.filter((b) => b.url)
-  if (!pages.length || pages.filter((b) => to.blocks.some((x) => x.url === b.url)).length * 2 <= pages.length) return null
+  if (!from.blocks.some((b) => b.url && to.blocks.some((x) => x.url === b.url))) return null
+  if (to.thread.m.every((e) => e.note)) return null
   if (from.blocks.some((b) => b.settled || b.dismissed) || (from.thread.org?.mx ?? []).includes(to.thread.id) || !newer(to.thread, from.thread)) return null
-  const mine = from.blocks.filter((b) => b.v).map((b) => ({ v: b.v! }))
-  const theirs = to.blocks.filter((b) => b.v).map((b) => ({ v: b.v! }))
+  const mine = from.blocks.filter((b) => b.v)
+  const theirs = to.blocks.filter((b) => b.v)
   if (!mine.length || !theirs.length) return null
   // Both ways: one chat on a topic and a pile that has it too aren't one chat.
-  const fit = (a: Array<{ v: Float32Array }>, b: Array<{ v: Float32Array }>) => a.reduce((s, x) => s + topMean(x.v, b, 2), 0) / a.length
-  const score = Math.min(fit(mine, theirs), fit(theirs, mine))
-  const match = matchPercent(score, cfg)
-  return match >= cfg.minMatch ? { score, match } : null
+  const fit = (a: ScoredBlock[], b: ScoredBlock[], by: "v" | "a") => a.reduce((s, x) => s + topMean(x[by]!, b.map((y) => ({ v: y[by]! })), 2), 0) / a.length
+  // 2.6 (95): decided by the answers. On shared pages the questions' vectors are mostly the page's title: a monitor
+  // chat asked on an espresso machine's page fit that chat 100 % by questions and answers, 0.2 by answers.
+  if (Math.min(fit(mine, theirs, "a"), fit(theirs, mine, "a")) < cfg.mergeA) return null
+  const score = Math.min(fit(mine, theirs, "v"), fit(theirs, mine, "v"))
+  return { score, match: matchPercent(score, cfg) }
 }
 
 /**
  * 2.6 (94): the end of a block off its chat's topic — an answer about something else asked on the same page, or in the
- * app (no page), which stays in that page's block (the owner: three answers on one topic and a last one on another got
- * nothing). Of the chat's last `window` blocks, the latest first: its longest run of last exchanges (`exchangesOf`) that
- * each fit the rest of the chat less than `tailQA` by their questions and answers and less than `tailA` by their answers,
- * whose answers are `tailAlike` among themselves, with `splitMin` exchanges or blocks staying. They go to a
- * chat mostly about them from `minMatch` %, else to a new chat when no chat fits them (one that fits but is a mix keeps
- * them from a new chat, as for blocks).
+ * app (no page), which stays in that page's block (a page block was only ever moved whole). Of the chat's last `window` blocks, the latest first: its longest run of last exchanges (`exchangesOf`) that
+ * are each off the rest of the chat, whose answers are `tailAlike` among themselves, with `splitMin` questions or notes
+ * staying. Off: below `tailQA` by question and answers and below `tailA` by answers, or (2.6 (95)) its answers fit
+ * another chat from `minMatch` % by `moveD` more than the closest of the rest (a question carries its page's title, so
+ * a question on another topic asked on that page fits the page's chat by its question; lib95: a monitor question on a
+ * robot vacuum's page, 0.49 to its chat by question, 0.33 by answer, 0.78 to a monitors chat). They go to a chat mostly about them from `minMatch` %, else to a new chat when no chat fits them
+ * (one that fits but is a mix keeps them from a new chat, as for blocks). Measured on the 2.5 sample with an unrelated
+ * exchange asked on a chat's last page (b95/real95.mjs): to its own chat in 936 of 1,056 cases where it has one (672
+ * with the absolute signals only), a new chat in 730 of 1,056 where it has none, never to a wrong chat; on lib95 (b95/
+ * libpage95.mjs) 365 of 439 to their own chat and 280 of 439 to a new one, 2 elsewhere each.
  */
-function tailMove(chat: Thread, blocks: ScoredBlock[], others: Array<{ thread: Thread; blocks: ScoredBlock[] }>, vectorOf: VectorOf, cfg: OrganizeConfig): MoveSuggestion | null {
+function tailMove(chat: Thread, blocks: ScoredBlock[], others: Array<{ thread: Thread; blocks: ScoredBlock[] }>, vectorOf: VectorOf, cfg: OrganizeConfig, only?: number): MoveSuggestion | null {
   const first = Math.max(0, blocks.length - cfg.window)
+  const vectorsOf = (o: { blocks: ScoredBlock[] }) => o.blocks.filter((y) => y.v).map((y) => ({ v: y.v! }))
+  // The other chat a vector fits best, from moveT (moveT1 for a chat of one block) and minMatch; null: none.
+  const fitsElsewhere = (v: Float32Array): number | null => {
+    let best: number | null = null
+    for (const o of others) {
+      const vs = vectorsOf(o)
+      if (!vs.length) continue
+      const score = topMean(v, vs, 2)
+      if (score >= (enough(o, vs.length, cfg)) && matchPercent(score, cfg) >= cfg.minMatch && (best === null || score > best)) best = score
+    }
+    return best
+  }
   for (let i = blocks.length - 1; i >= first; i--) {
+    if (only !== undefined && i !== only) continue
     const b = blocks[i]
     if (b.settled || b.dismissed) continue
     const xs = exchangesOf(chat.m, b, vectorOf)
     if (xs.length < 2) continue
-    const answers = xs.map((x) => answersOf(chat.m, x, vectorOf))
+    const answers = xs.map((x) => x.a)
     const besides = blocks.filter((x, j) => j !== i && x.v)
     const outer = besides.map((x) => ({ v: x.v! }))
-    const outerA = besides.map((x) => ({ v: answersOf(chat.m, x, vectorOf)! }))
+    const outerA = besides.map((x) => ({ v: x.a! }))
+    // Narrowing a block's move (`only`): its first exchange has to be on the rest of the chat's topic.
+    if (only !== undefined && (!outer.length || !xs[0].v || (topMean(xs[0].v, outer, 2) < cfg.tailQA && topMean(xs[0].a!, outerA, 2) < cfg.tailA))) continue
+    const elsewhere = answers.map((a) => (a ? fitsElsewhere(a) : null))
     // The longest such end.
     let from = -1
     for (let k = 1; k < xs.length && from < 0; k++) {
       const part = xs.slice(k)
-      if (part.some((x) => !x.v || x.settled || x.dismissed) || blocks.length - 1 + k < cfg.splitMin) continue
+      if (part.some((x) => !x.v || x.settled || x.dismissed) || asksOutside(chat.m, part[0].start, part[part.length - 1].end) < cfg.splitMin) continue
       const rest = [...outer, ...xs.slice(0, k).filter((x) => x.v).map((x) => ({ v: x.v! }))]
       const restA = [...outerA, ...answers.slice(0, k).filter((a): a is Float32Array => Boolean(a)).map((v) => ({ v }))]
-      if (!rest.length || part.some((x, z) => topMean(x.v!, rest, 2) >= cfg.tailQA || topMean(answers[k + z]!, restA, 2) >= cfg.tailA)) continue
+      if (!rest.length || !restA.length) continue
+      const off = (x: ScoredBlock, z: number) => {
+        if (topMean(x.v!, rest, 2) < cfg.tailQA && topMean(answers[z]!, restA, 2) < cfg.tailA) return true
+        // Against the closest of the rest: in a chat on two related subjects, its own subject's answer alone (top-2 let
+        // the other subject halve the fit, and on-topic answers went to a chat on a near topic).
+        const there = elsewhere[z]
+        return there !== null && there - topMean(answers[z]!, restA, 1) >= cfg.moveD
+      }
+      if (!part.every((x, z) => off(x, k + z))) continue
       if (part.some((_, a) => part.some((_, z) => z > a && dot(answers[k + a]!, answers[k + z]!) < cfg.tailAlike))) continue
       from = k
     }
     if (from < 0 || xs.slice(from).every((x) => x.weak)) continue
     const part = xs.slice(from)
-    const x: ScoredBlock = { ...b, start: part[0].start, end: part[part.length - 1].end, v: mean(part.map((y) => y.v!)), weak: false, t: part[0].t, settled: false, dismissed: false }
-    const current = topMean(x.v!, [...outer, ...xs.slice(0, from).filter((y) => y.v).map((y) => ({ v: y.v! }))], 2)
+    const head = xs.slice(0, from)
+    const x: ScoredBlock = { ...b, start: part[0].start, end: part[part.length - 1].end, v: mean(part.map((y) => y.v!)), a: mean(answers.slice(from).map((y) => y!)), weak: false, t: part[0].t, settled: false, dismissed: false }
+    const current = topMean(x.v!, [...outer, ...head.filter((y) => y.v).map((y) => ({ v: y.v! }))], 2)
+    const currentA = topMean(x.a!, [...outerA, ...answers.slice(0, from).filter((y): y is Float32Array => Boolean(y)).map((v) => ({ v }))], 1)
+    // The chat as it would stay, for "a chat of one block would rather join this one" (its own end left out of that).
+    const staying = {
+      thread: { ...chat, m: chat.m.filter((_, j) => j < x.start || j > x.end) },
+      blocks: blocks.map((y, j) => (j === i ? { ...y, end: head[head.length - 1].end, v: mean(head.filter((h) => h.v).map((h) => h.v!)), a: mean(answers.slice(0, from).filter((h): h is Float32Array => Boolean(h))) } : y))
+    }
     let fits = false
-    let best: { to: string; score: number } | null = null
+    let best: { to: string; score: number; margin: number } | null = null
     for (const o of others) {
-      const vs = o.blocks.filter((y) => y.v).map((y) => ({ v: y.v! }))
+      const vs = vectorsOf(o)
       if (!vs.length) continue
       const score = topMean(x.v!, vs, 2)
-      if (score < (vs.length >= 2 ? cfg.moveT : cfg.moveT1) || matchPercent(score, cfg) < cfg.minMatch) continue
+      // Better there than here by its questions and answers, or by its answers (the question has this page's title).
+      const margin = Math.max(score - current, topMean(x.a!, vs, 2) - currentA)
+      if (score < (enough(o, vs.length, cfg)) || matchPercent(score, cfg) < cfg.minMatch) continue
       fits = true
-      if (shareOn(x, o.blocks, cfg).share <= 0.5 || (o.blocks.length === 1 && joins(o.blocks[0], o.thread, { thread: chat, blocks }, cfg))) continue
-      if (!best || score > best.score) best = { to: o.thread.id, score }
+      if (shareOn(x, o.blocks, cfg).share <= 0.5 || (o.blocks.length === 1 && joins(o.blocks[0], o.thread, staying, cfg))) continue
+      if (!best || score > best.score) best = { to: o.thread.id, score, margin }
     }
-    if (best && best.score - current >= cfg.moveD) return { start: x.start, end: x.end, to: best.to, why: "topic", score: best.score, current, match: matchPercent(best.score, cfg) }
+    if (best && best.margin >= cfg.moveD) return { start: x.start, end: x.end, to: best.to, why: "topic", score: best.score, current, match: matchPercent(best.score, cfg) }
     if (!fits) return { start: x.start, end: x.end, to: null, why: "apart", score: 0, current }
   }
   return null
@@ -537,7 +644,11 @@ function movePlace(
       .filter(({ o, on }) => on * 2 > o.blocks.length && (on >= 2 || o.thread.m.length > chat.m.length) && !mergeFit(o, { thread: chat, blocks }, cfg))
       .sort((a, z) => z.on - a.on || (larger(a.o.thread, z.o.thread) ? -1 : 1))[0]
     const vs = home ? home.o.blocks.filter((x) => x.v).map((x) => ({ v: x.v! })) : []
-    if (home && (!b.v || !vs.length || topMean(b.v, vs, 2) >= cfg.siteT)) return { to: home.o.thread.id, why: "site", score: 1, current: 0 }
+    // 2.6 (95): questions that say enough join a site's chat on their topic only (rtings.com and amazon.com hold every
+    // topic: a monitor review joined the headphones chat). A note keeps 2.6 (91)'s rule: its site's chat.
+    const notes = chat.m.every((e) => e.note)
+    const fit = b.v && vs.length ? topMean(b.v, vs, 2) : null
+    if (home && (fit === null || (fit >= cfg.siteT && (notes || b.weak || matchPercent(fit, cfg) >= cfg.minMatch)))) return { to: home.o.thread.id, why: "site", score: 1, current: 0 }
   }
   // Below, the block has to say enough.
   if (!b.v || b.weak) return null
@@ -568,7 +679,8 @@ function movePlace(
     if (!best || score > best.score) best = { to: o.thread.id, score }
   }
   if (best && best.score - current >= cfg.moveD) return { to: best.to, why: "topic", score: best.score, current, match: matchPercent(best.score, cfg) }
-  if (!fits && base.length && current < cfg.splitT) return { to: null, why: "apart", score: 0, current }
+  // 2.6 (95): and off the chat's topic, like a move (a block whose page is elsewhere in the chat is that chat's).
+  if (!fits && base.length && current < cfg.splitT && shareOn(b, rest, cfg).share < 0.5) return { to: null, why: "apart", score: 0, current }
   return null
 }
 
@@ -786,7 +898,9 @@ export function lastKey(entries: Entry[]): string {
 /** The name the chat's record suggests while it's open: not turned down, not its name already, not one the user typed. */
 export function openName(thread: Thread): string | undefined {
   const nm = thread.org?.nm
-  if (!nm?.t || !wantsNameCheck(thread) || nm.t === threadName(thread)) return undefined
+  if (!nm?.t || !wantsNameCheck(thread) || nm.t.toLowerCase() === threadName(thread).toLowerCase()) return undefined
+  // 2.6 (95): first what moves, then the name (a chat on two topics got names of both, and renames came and went).
+  if (moveOpen(thread)) return undefined
   if ((nm.no ?? []).some((x) => x.toLowerCase() === nm.t!.toLowerCase())) return undefined
   return nm.t
 }
@@ -805,12 +919,22 @@ export function openTags(thread: Thread): Array<{ index: number; key: string; ta
 
 /** The move the chat's record suggests, while the chat is as it was then and the move still stands. */
 export function openMove(thread: Thread, chats: Thread[]): OrgState["mv"] {
+  const mv = moveOpen(thread)
+  if (!mv) return undefined
+  // An older chat joining this one (2.6 (95)): while it's there and the merge wasn't turned down.
+  if (mv.fr) return chats.some((t) => t.id === mv.fr && !t.deleted && !(t.org?.mx ?? []).includes(thread.id)) ? mv : undefined
+  if (mv.to !== null && !chats.some((t) => t.id === mv.to && !t.deleted)) return undefined
+  return mv
+}
+
+/** The move the chat's record holds, while the chat is as it was then and nobody took or turned it down here. */
+function moveOpen(thread: Thread): OrgState["mv"] {
   const org = thread.org
   const mv = org?.mv
   if (!org || !mv || org.n !== thread.m.length || org.k !== lastKey(thread.m)) return undefined
   if (mv.s < 0 || mv.s > mv.e || mv.e >= thread.m.length) return undefined
-  if (thread.m.slice(mv.s, mv.e + 1).some((e) => e.dismissed?.move || e.from)) return undefined
-  if (mv.to !== null && !chats.some((t) => t.id === mv.to && !t.deleted)) return undefined
+  if (!mv.fr && thread.m.slice(mv.s, mv.e + 1).some((e) => e.dismissed?.move || e.from)) return undefined
+  if (mv.why === "merge" && !mv.fr && mv.to && (org.mx ?? []).includes(mv.to)) return undefined
   return mv
 }
 
@@ -819,7 +943,7 @@ export function orgStateFor(thread: Thread, move: MoveSuggestion | null, tags: A
   return {
     n: thread.m.length,
     k: lastKey(thread.m),
-    ...(move ? { mv: { s: move.start, e: move.end, to: move.to, why: move.why, ...(move.match !== undefined ? { mt: move.match } : {}) } } : {}),
+    ...(move ? { mv: { s: move.start, e: move.end, to: move.to, why: move.why, ...(move.match !== undefined ? { mt: move.match } : {}), ...(move.from ? { fr: move.from } : {}) } } : {}),
     ...(tags.length ? { tg: tags.map((t) => [t.key, t.tag] as [string, string]) } : {}),
     ...(nm ? { nm } : {}),
     ...(thread.org?.mx?.length ? { mx: thread.org.mx } : {})

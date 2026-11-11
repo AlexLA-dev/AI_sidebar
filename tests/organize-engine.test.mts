@@ -136,7 +136,7 @@ test("texts, packed vectors, thresholds and the pile signal", () => {
   assert.equal(looksMixed(japan, cfg), false)
 })
 
-// The owner's notes on 2.6 (90): notes count, and moves make chats more about one thing, in one direction.
+// 2.6 (90): notes count, and moves make chats more about one thing, in one direction.
 function note(topic: string, url: string, text: string): Entry {
   topicOf.set(text, topic)
   clock += 1_000
@@ -297,9 +297,8 @@ test("a name turned down never comes back; a fitting name, or one the user typed
   assert.equal(openName({ ...c, title: "Mine", org: { n: 4, k: "", nm: first } }), undefined)
 })
 
-// The owner's notes on 2.6 (93): «было 3 ответа по одной теме, а последний вообще по другой… не предлагаю это сообщение
-// вынести в отдельный чат, а должно»; and «чаты по одной теме и одним страницам… сливать в один, присоединяя более
-// старый к более новому».
+// 2.6 (94): an answer off its chat's topic at the end of a page block gets a suggestion of its own; chats on one topic
+// and the same pages merge, the older one into the newer one.
 test("an answer off the chat's topic on the same page goes to the chat about it, else to a new chat", () => {
   const page = "https://react/1"
   const off = chat("off", [...qa("react", page), ...qa("react", page), ...qa("react", page), ...qa("japan", page)])
@@ -327,10 +326,14 @@ test("a chat on the topic and pages of a newer one joins it whole; never the oth
   const s = suggestMove(older, [older, newer], vectorOf, cfg)!
   assert.deepEqual([s.to, s.why, s.start, s.end], ["newer", "merge", 0, 3])
   assert.ok(s.match! >= cfg.minMatch)
-  assert.equal(suggestMove(newer, [older, newer], vectorOf, cfg), null)
+  // 2.6 (95): the newer chat, where the person is, shows it too: the older one joins it here.
+  const into = suggestMove(newer, [older, newer], vectorOf, cfg)!
+  assert.deepEqual([into.why, into.from, into.to, into.start, into.end], ["merge", "older", "newer", 5, 5])
+  assert.deepEqual(orgStateFor(newer, into, [], undefined).mv, { s: 5, e: 5, to: "newer", why: "merge", mt: into.match, fr: "older" })
   // Turned down (kept with the chat, on every device): not again, and carried by the next run's state.
   const no = { ...older, org: { n: 4, k: "x", mx: ["newer"] } }
   assert.equal(suggestMove(no, [no, newer], vectorOf, cfg), null)
+  assert.equal(suggestMove(newer, [no, newer], vectorOf, cfg), null)
   assert.deepEqual(orgStateFor(no, null, [], undefined).mx, ["newer"])
   // Other pages, another topic on the same pages: no merge.
   const elsewhere = chat("elsewhere", [...qa("japan", "https://other/1"), ...qa("japan", "https://other/2")])
@@ -341,4 +344,75 @@ test("a chat on the topic and pages of a newer one joins it whole; never the oth
   const memo = chat("memo", [note("japan", "https://jg/1", "Rail pass: buy it before the trip, it costs less at home")])
   assert.equal(suggestMove(memo, [older, memo], vectorOf, cfg)?.to, "older")
   assert.equal(suggestMove(older, [older, memo], vectorOf, cfg), null)
+})
+
+// 2.6 (95): an exchange whose question and answer are on different topics (the question carries its page's title).
+function qa2(qTopic: string, aTopic: string, url: string): Entry[] {
+  const q = `${qTopic} question ${++salt} on the ${aTopic} subject, long enough`
+  const a = `${aTopic} answer ${salt} with details`
+  topicOf.set(q, qTopic)
+  topicOf.set(a, aTopic)
+  clock += 1_000
+  return [{ role: "user", content: q, page: { url, title: `${qTopic} page`, at: clock }, id: `q${salt}`, t: clock }, { role: "assistant", content: a, id: `a${salt}`, t: clock + 10 }]
+}
+
+test("2.6 (95): chats on a shared page merge when their answers are on one topic, not when only the page's title is", () => {
+  // The questions of both are mostly the page's title (japan); the newer chat's answers are about bread.
+  const older = chat("older", [...qa("japan", "https://jg/1"), ...qa("japan", "https://jg/2")])
+  const sameTopic = chat("same", [...qa2("japan", "japan", "https://jg/1"), ...qa2("japan", "japan", "https://jg/5")])
+  assert.equal(suggestMove(older, [older, sameTopic], vectorOf, cfg)?.to, "same")
+  const otherTopic = chat("other", [...qa2("japan", "bread", "https://jg/1"), ...qa2("japan", "bread", "https://jg/5")])
+  assert.notEqual(suggestMove(older, [older, otherTopic], vectorOf, cfg)?.why, "merge")
+  assert.notEqual(suggestMove(otherTopic, [older, otherTopic], vectorOf, cfg)?.why, "merge")
+  // One shared page of two is enough, and the newer chat may be one block.
+  const oneBlock = chat("oneblock", [...qa("japan", "https://jg/2"), ...qa("japan", "https://jg/2")])
+  assert.deepEqual([suggestMove(older, [older, oneBlock], vectorOf, cfg)?.why, suggestMove(older, [older, oneBlock], vectorOf, cfg)?.to], ["merge", "oneblock"])
+})
+
+test("2.6 (95): a chat of two pages on two topics: the newer page goes", () => {
+  const tents = chat("tents", [...qa("tents", "https://outdoor/tents"), ...qa("tents", "https://campshop/2p")])
+  const camera = chat("camera", [...qa("camera", "https://shop/camera-x"), ...qa("camera", "https://shop/camera-x"), ...qa("tents", "https://other/tent-y")])
+  const s = suggestMove(camera, [camera, tents, bread], vectorOf, cfg)!
+  assert.deepEqual([s.start, s.end, s.to, s.why], [4, 5, "tents", "topic"])
+  // No chat for it: a new chat, as two questions stay.
+  const alone = suggestMove(camera, [camera, bread], vectorOf, cfg)!
+  assert.deepEqual([alone.start, alone.end, alone.to, alone.why], [4, 5, null, "apart"])
+  // A block on a page the chat has elsewhere is that chat's.
+  const back = chat("back", [...qa("camera", "https://shop/camera-x"), ...qa("kombucha", "https://kitchn/k"), ...qa2("camera", "kombucha", "https://shop/camera-x")])
+  assert.ok(suggestMove(back, [back, bread], vectorOf, cfg)?.start !== 4)
+})
+
+test("2.6 (95): the end of a block whose answer fits another chat far better goes there, though its question has the page's title", () => {
+  const monitors = chat("monitors", [...qa("monitor", "https://rtings/dell"), ...qa("monitor", "https://lg/27up850")])
+  const vacuum = chat("vacuum", [...qa("vacuum", "https://roborock/s8"), ...qa("vacuum", "https://roborock/s8"), ...qa("vacuum", "https://roborock/s8"), ...qa2("vacuum", "monitor", "https://roborock/s8")])
+  const s = suggestMove(vacuum, [vacuum, monitors, bread], vectorOf, cfg)!
+  assert.deepEqual([s.start, s.end, s.to, s.why], [6, 7, "monitors", "topic"])
+  // Without that chat its question, with the page's title, keeps it with the page's chat (tailQA and tailA together).
+  assert.equal(suggestMove(vacuum, [vacuum, bread], vectorOf, cfg), null)
+})
+
+test("2.6 (95): a site's chat takes a chat of questions on that site only on its topic; a note's chat by its site as before", () => {
+  const headphones = chat("headphones", [...qa("headphones", "https://rtings/xm5"), ...qa("headphones", "https://rtings/airpods"), ...qa("headphones", "https://apple/airpods")])
+  const monitor = chat("monitor", [...qa("monitor", "https://rtings/dell"), ...qa("monitor", "https://rtings/dell")])
+  assert.equal(suggestMove(monitor, [monitor, headphones], vectorOf, cfg), null)
+})
+
+test("2.6 (95): a Find similar request and answer are embedded by what they're about, not by the condition and caveats", () => {
+  const page = { url: "https://shop.example/earbuds-x", title: "Earbuds X - Example Shop", at: 1 }
+  assert.equal(embedText({ role: "user", content: "Cheaper", label: "Cheaper", similarAsk: "", page }), "Earbuds X - Example Shop")
+  assert.equal(embedText({ role: "user", content: "Cheaper", label: "Cheaper", similarAsk: "", similarSel: "the pro model", page }), "the pro model\nEarbuds X - Example Shop")
+  const list = "Wireless earbuds like the Earbuds X.\n\n1. **[Buds One](https://a.example/1)** (a.example) — Noise cancelling. The page states no price, so it's unclear whether it is cheaper than 99 EUR; it is not a local shop. _(Not confirmed)_\n2. **[Sound Pod 2](https://b.example/2)** (b.example) — Long battery. _(59.00 USD · Not confirmed)_\n\nCheck the price and delivery before buying."
+  assert.equal(embedText({ role: "assistant", content: list }), "Wireless earbuds like the Earbuds X.\nBuds One; Sound Pod 2")
+  // An answer that only has a numbered list of its own is embedded as before.
+  assert.equal(embedText({ role: "assistant", content: "1. Boil water\n2. Add pasta" }), "1. Boil water 2. Add pasta")
+})
+
+test("2.6 (95): a page with a question on the chat's topic and then one on another: only the latter goes", () => {
+  const sleep = chat("sleepchat", [...qa("sleep", "https://sleep/caffeine"), ...qa("sleep", "https://sleep/caffeine"), ...qa("sleep", "https://sleep/light"), ...qa("kombucha", "https://sleep/light")])
+  const s = suggestMove(sleep, [sleep, bread], vectorOf, cfg)!
+  assert.deepEqual([s.start, s.end, s.to], [6, 7, null])
+  // A page whose questions are all off the chat goes whole.
+  const two = chat("twoff", [...qa("sleep", "https://sleep/caffeine"), ...qa("sleep", "https://sleep/caffeine"), ...qa("kombucha", "https://k/1"), ...qa("kombucha", "https://k/1")])
+  const w = suggestMove(two, [two, bread], vectorOf, cfg)!
+  assert.deepEqual([w.start, w.end, w.to], [4, 7, null])
 })

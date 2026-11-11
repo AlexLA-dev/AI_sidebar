@@ -93,7 +93,7 @@ import * as QIcon from "./insert/icons"
 import { keepCopied, report as reportInsert } from "./insert/store"
 import { insertFromPanel, useButtonShown, useHasField } from "./insert/target"
 import { TemplatesView } from "./insert/TemplatesView"
-import { allTags, chatDigests, chatList, cleanTags, newThreadId, pageBlocks, pinAt, shownThread, threadName, threadPages, threadTitle, trashedThreads, type MoveUndo, type Thread, type Threads } from "../shared/threads"
+import { allTags, chatDigests, chatList, cleanTags, namedByUser, newThreadId, pageBlocks, pinAt, shownThread, threadName, threadPages, threadTitle, trashedThreads, type MoveUndo, type Thread, type Threads } from "../shared/threads"
 import type { ChatDigest } from "../shared/history"
 import type { ConsentStatus } from "../shared/consent"
 
@@ -2610,6 +2610,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
   const [tagsCard, setTagsCard] = useState(false)
   const [firstWin, setFirstWin] = useState<string | null>(null)
   const orgSeen = useRef(new Set<string>())
+  // 2.6 (95): a move turned down asks again (the name comes once nothing is left to move).
+  const [orgAgain, setOrgAgain] = useState(0)
   const messagesRef = useRef(messages)
   messagesRef.current = messages
   const orgEvent = (event: OrganizeEvent) => void sendBackground({ type: "organizeEvent", event })
@@ -2628,10 +2630,11 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (!kept?.org) return
     const shown: Thread = { ...kept, m: messages }
     const mv = openMove(shown, threadList)
-    const target = mv?.to ? threadList.find((x) => x.id === mv.to) : undefined
+    // The chat the move names: where it goes, or (2.6 (95)) the older chat that joins this one.
+    const target = mv?.fr ? threadList.find((x) => x.id === mv.fr) : mv?.to ? threadList.find((x) => x.id === mv.to) : undefined
     setOrg({
       chat, length: messages.length,
-      move: mv ? { start: mv.s, end: mv.e, to: mv.to, toName: target ? threadName(target) : threadTitle(messages.slice(mv.s, mv.e + 1)), why: mv.why, count: mv.e - mv.s + 1, ...(mv.mt !== undefined ? { match: mv.mt } : {}) } : null,
+      move: mv ? { start: mv.s, end: mv.e, to: mv.to, toName: target ? threadName(target) : threadTitle(messages.slice(mv.s, mv.e + 1)), why: mv.why, count: mv.fr && target ? target.m.length : mv.e - mv.s + 1, ...(mv.mt !== undefined ? { match: mv.mt } : {}), ...(mv.fr ? { from: mv.fr } : {}) } : null,
       tags: openTags(shown),
       name: openName(shown) ?? null
     })
@@ -2653,9 +2656,14 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       })
     }, 900)
     return () => clearTimeout(timer)
-  }, [open, orgOn, streaming, historyMode, messages.length, threadRef.current])
+  }, [open, orgOn, streaming, historyMode, messages.length, threadRef.current, orgAgain])
 
   const orgNow = org && orgOn && org.chat === threadRef.current && org.length === messages.length && !picked && !streaming ? org : null
+  // 2.6 (95): a name that is the chat's by now (taken on another device, the record not here yet), turned down
+  // or typed meanwhile, isn't offered.
+  const hereChat = threadList.find((x) => x.id === threadRef.current)
+  const orgName = orgNow?.name && !(hereChat && (namedByUser(hereChat) || orgNow.name.toLowerCase() === threadName(hereChat).toLowerCase() ||
+    (hereChat.org?.nm?.no ?? []).some((x) => x.toLowerCase() === orgNow.name!.toLowerCase()))) ? orgNow.name : null
   // Each suggestion is counted once as shown.
   useEffect(() => {
     if (!orgNow) return
@@ -2664,13 +2672,13 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       seen.push([`m:${entryKey(messages[orgNow.move.start])}:${orgNow.move.to}`, { kind: "organize", action: "shown", what: orgNow.move.to ? "move" : "new", why: orgNow.move.why }])
     }
     for (const x of orgNow.tags) seen.push([`t:${x.key}:${x.tag}`, { kind: "organize", action: "shown", what: "tag" }])
-    if (orgNow.name) seen.push([`n:${orgNow.chat}:${orgNow.name}`, { kind: "organize", action: "shown", what: "name", why: "drift" }])
+    if (orgName) seen.push([`n:${orgNow.chat}:${orgName}`, { kind: "organize", action: "shown", what: "name", why: "drift" }])
     for (const [id, event] of seen) {
       if (orgSeen.current.has(id)) continue
       orgSeen.current.add(id)
       orgEvent(event)
     }
-  }, [orgNow])
+  }, [orgNow, orgName])
 
   // 2.6: the chat named by its topic, by "Name by topic" or by taking a suggested name (never over a name the user
   // typed, unless they asked): the list shows it, and a bar says so, with Undo. Never by itself (2.6 (91)).
@@ -2729,13 +2737,20 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     }
   }, [open, orgOn, view, threadList])
 
-  // The first suggestion taken: a line that from now on they come by themselves (once).
+  // The first suggestion taken: that from now on they come by themselves (once). 2.6 (95): a bar that goes by itself,
+  // not a line left at the end of the chat; after the bar of the move (its Undo comes first), if there is one.
   const won = () => {
     if (!cards || cards.firstWin) return
     setFirstWin(threadRef.current)
     void setOrganizeCards({ firstWin: true }).then(setCards)
     orgEvent({ kind: "organize_promo", action: "shown", where: "first_win" })
   }
+  useEffect(() => {
+    if (!firstWin || undoBar || !open || view !== "chat") return
+    // As long as a move's bar (5 s, and a scroll takes it): a confirmation, nothing to act on.
+    if (firstWin === threadRef.current && orgOn) setUndoBar({ text: t("orgFirstWin"), actions: [], kind: "move" })
+    setFirstWin(null)
+  }, [firstWin, undoBar, open, view])
 
   const takeTag = (index: number, tag: string) => {
     setMessages((list) => list.map((m, i) => (i !== index ? m : {
@@ -2776,6 +2791,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     orgEvent({ kind: "organize", action: "undone", what: undo.before.target ? "move" : "new" })
   }
   const takeMove = async (move: OrganizeMove) => {
+    if (move.from) return void takeMergeHere(move, move.from)
     const source = threadRef.current
     const target = move.to ?? newThreadId()
     setOrg(null)
@@ -2799,10 +2815,41 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     })
     won()
   }
+  // 2.6 (95): the older chat joins this one (the merge shown in the newer chat, where the person is): its messages come
+  // in by time, the panel stays here; Undo puts it back and the merge isn't suggested again.
+  const takeMergeHere = async (move: OrganizeMove, from: string) => {
+    const here = threadRef.current
+    setOrg(null)
+    const older = (await loadThreads()).threads[from]
+    if (!older || older.deleted) return
+    const moved = await moveBlock(from, 0, older.m.length - 1, here)
+    if (!moved) return
+    showLists(moved.threads)
+    if (moved.threads[here]) setMessages(moved.threads[here].m)
+    orgEvent({ kind: "organize", action: "accepted", what: "move", why: "merge" })
+    setUndoBar({
+      text: t("orgMergedHere", move.toName),
+      kind: "move",
+      actions: [{
+        label: t("orgUndo"),
+        run: () => {
+          setUndoBar(null)
+          void undoBlockMove(moved.undo).then(async (threads) => {
+            await refuseMerge(from, here)
+            showLists(threads)
+            if (threadRef.current === here && threads[here]) setMessages(threads[here].m)
+            orgEvent({ kind: "organize", action: "undone", what: "move" })
+          })
+        }
+      }]
+    })
+    won()
+  }
   const refuseMove = (move: OrganizeMove) => {
-    // A merge turned down (2.6 (94)) is kept with the chat, not on its messages: they may still go elsewhere.
+    // A merge turned down (2.6 (94)) is kept with the chat, not on its messages: they may still go elsewhere. 2.6 (95):
+    // turned down in the newer chat, it's kept with the older one, so neither shows it again.
     if (move.why === "merge" && move.to) {
-      void refuseMerge(threadRef.current, move.to)
+      void (move.from ? refuseMerge(move.from, threadRef.current) : refuseMerge(threadRef.current, move.to)).then(() => setOrgAgain((n) => n + 1))
       setOrg((o) => o && { ...o, move: null })
       orgEvent({ kind: "organize", action: "dismissed", what: "move", why: move.why })
       return
@@ -2810,6 +2857,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     setMessages((list) => list.map((m, i) => (i < move.start || i > move.end ? m : { ...m, dismissed: { ...m.dismissed, move: true as const } })))
     setOrg((o) => o && { ...o, move: null })
     orgEvent({ kind: "organize", action: "dismissed", what: move.to ? "move" : "new", why: move.why })
+    // Once the turned-down messages are saved, the run looks again (2.6 (95): then the name, if nothing else moves).
+    setTimeout(() => setOrgAgain((n) => n + 1), 1_200)
   }
 
   // The bar lives its seconds (undoClock.ts), then goes; before that an action takes it: a question, a note, another
@@ -2884,7 +2933,7 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
     if (!orgNow) return null
     const tag = orgNow.tags.find((x) => x.index === idx && messages[idx] && entryKey(messages[idx]) === x.key)?.tag
     const move = orgNow.move && orgNow.move.end === idx ? orgNow.move : undefined
-    const name = orgNow.name && idx === messages.length - 1 ? orgNow.name : undefined
+    const name = orgName && idx === messages.length - 1 ? orgName : undefined
     if (!tag && !move && !name) return null
     return (
       <OrganizeRow
@@ -2988,7 +3037,6 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
       {tagsCard && !messCard && promoOk && (
         <OrganizeCard kind="tags" pro={byok ? t("upgradePro") : undefined} onPrimary={() => tryOrganizePro("third_tag")} onClose={() => setTagsCard(false)} />
       )}
-      {firstWin === threadRef.current && orgOn && <div class="cf-org-win" role="status"><Icon.Sparkle size={13} /> {t("orgFirstWin")}</div>}
     </>
   )
 
@@ -3274,8 +3322,8 @@ export function App({ platform, bus, source, popup = false }: { platform: Platfo
             )}
             <button type="button" class="cf-icon" onClick={hide} aria-label={t("close")} title={t("close")}><Icon.Close /></button>
           </header>
-          {/* 2.6 (94): the chat's name, the whole width (the owner: in the chat its name wasn't seen, so a suggested one
-              couldn't be judged; next to the page in the header it was cut to a few letters on an iPhone). */}
+          {/* 2.6 (94): the chat's name, the whole width (a suggested name is judged against it; next to the page in the
+              header it was cut to a few letters on an iPhone). */}
           {headerName && <div class="cf-chat-bar" dir="auto" title={headerName}>{headerName}</div>}
 
           {view === "threads" ? (

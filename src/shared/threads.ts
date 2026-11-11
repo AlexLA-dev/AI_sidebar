@@ -36,14 +36,15 @@ export type Threads = Record<string, Thread>
 /**
  * Organizing's suggestions for a chat, kept with it (2.6 (93)): worked out when the chat had `n` messages, the last one
  * `k`; another device shows them at once while the chat is still like that. `mv`: the move (its messages `s`…`e`, the
- * chat `to` or a new one, why, the match %); `tg`: [message key, tag] the check said yes to; `nm`: the name check (what
+ * chat `to` or a new one, why, the match %; 2.6 (95) `fr`: an older chat joins this one whole, `to` being this one, shown
+ * under message `e`); `tg`: [message key, tag] the check said yes to; `nm`: the name check (what
  * it was about `k`, the name it suggests while open `t`, the names turned down `no`, which never come back).
  * Turning a move or a tag down is on the messages themselves (`dismissed`).
  */
 export interface OrgState {
   n: number
   k: string
-  mv?: { s: number; e: number; to: string | null; why: "merge" | "page" | "site" | "topic" | "apart"; mt?: number }
+  mv?: { s: number; e: number; to: string | null; why: "merge" | "page" | "site" | "topic" | "apart"; mt?: number; fr?: string }
   tg?: Array<[string, string]>
   nm?: { k: string; t?: string; no?: string[] }
   // 2.6 (94): the chats a merge into was turned down for (never suggested again).
@@ -58,7 +59,7 @@ export function cleanOrgState(raw: unknown): OrgState | undefined {
   const out: OrgState = { n: o.n, k: o.k }
   const mv = o.mv as Record<string, unknown> | undefined
   if (mv && typeof mv.s === "number" && typeof mv.e === "number" && (typeof mv.to === "string" || mv.to === null) && ["merge", "page", "site", "topic", "apart"].includes(String(mv.why))) {
-    out.mv = { s: mv.s, e: mv.e, to: mv.to as string | null, why: mv.why as "page", ...(typeof mv.mt === "number" ? { mt: mv.mt } : {}) }
+    out.mv = { s: mv.s, e: mv.e, to: mv.to as string | null, why: mv.why as "page", ...(typeof mv.mt === "number" ? { mt: mv.mt } : {}), ...(typeof mv.fr === "string" && mv.fr ? { fr: mv.fr } : {}) }
   }
   if (Array.isArray(o.tg)) {
     const tg = o.tg.filter((x): x is [string, string] => Array.isArray(x) && typeof x[0] === "string" && typeof x[1] === "string").map((x) => [x[0], x[1]] as [string, string])

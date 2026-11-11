@@ -1511,6 +1511,15 @@
  "orgMerged": {
   "message": "已合并到“{0}”"
  },
+ "orgMergeHere": {
+  "message": "把“{0}”合并到这里"
+ },
+ "orgMergeHereA11y": {
+  "message": "把之前的聊天“{0}”合并到这个聊天"
+ },
+ "orgMergedHere": {
+  "message": "已把“{0}”合并到这里"
+ },
  "recs_one": {
   "message": "{0} 条建议"
  },

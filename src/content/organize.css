@@ -2,7 +2,7 @@
 
 /* The suggestions: one row under the message's tools, dashed and a little faded, fading in. */
 .cf-org { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; animation: cf-org-in .45s ease-out both; }
-/* 2.6 (94): a light tint, so the suggestions stand out from the chat (the owner: «подсвечивать… Очень лайтово»). */
+/* 2.6 (94): a light tint, so the suggestions stand out from the chat without weighing on it. */
 .cf-org { padding: 5px 6px 5px 10px; border-radius: 16px; background: color-mix(in srgb, var(--accent) 7%, transparent); }
 /* Under a note or question (2.6: a note's chat can join another): as wide as the message, so a long chat name ends in
    an ellipsis instead of running off the panel's left edge. */
@@ -48,11 +48,6 @@
 
 /* Settings: what the suggestions are, for those without Pro. */
 .cf-org-setting-pro { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-
-/* After the first suggestion taken: a line under the chat. */
-.cf-org-win { display: flex; align-items: center; gap: 6px; margin: 8px 2px 4px; font-size: 12.5px; color: var(--text-2); animation: cf-org-in .45s ease-out both; }
-.cf-org-win svg { color: var(--accent); }
-
 /* The Pro card: organizing first, with its loop. */
 .cf-upsell-organize { display: flex; flex-direction: column; gap: 8px; margin: 2px 0 10px; }
 .cf-upsell-organize > div:first-child strong { display: block; font-size: 13.5px; margin-bottom: 2px; }
