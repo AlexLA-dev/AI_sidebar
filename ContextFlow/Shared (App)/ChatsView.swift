@@ -1244,11 +1244,12 @@ struct ChatDetailView: View {
                         LazyVStack(alignment: .leading, spacing: 14) {
                             ForEach(Array(thread.entries.enumerated()), id: \.offset) { index, entry in
                                 if let page = newPage(thread.entries, index) {
-                                    PageDivider(page: page) { library.open(page.url) }
+                                    PageDivider(page: page) { library.open(page.url, chat: thread.id, at: thread.entries[index].id ?? "i\(index)") }
                                 }
                                 pickRow(index) {
                                     VStack(alignment: entry.isUser ? .trailing : .leading, spacing: 8) {
                                         MessageView(entry: entry, onMarks: picked == nil ? { marks in setMarks(thread, index, marks) } : nil, onSelecting: { selecting = $0 })
+                                            .environment(\.openURL, pageLinks(thread, index))
                                         if let remind = entry.remind, !entry.isUser || entry.isNote {
                                             RemindChip(at: Date(timeIntervalSince1970: remind.at / 1000)) { remindNote = nil; reminding = index }
                                         }
@@ -2052,6 +2053,17 @@ struct ChatDetailView: View {
 
     /// While sharing the chat, a message is a row to tick: a tap anywhere on it picks or unpicks it.
     @ViewBuilder
+    /// Links in a message (an answer's, a note's page, Find similar's cards): 2.6 (98), the page opens in Safari with the
+    /// panel on this chat, at this message (ChatLibrary.open).
+    private func pageLinks(_ thread: ChatThread, _ index: Int) -> OpenURLAction {
+        OpenURLAction { url in
+            guard ["http", "https"].contains(url.scheme?.lowercased() ?? "") else { return .systemAction }
+            let at = thread.entries.indices.contains(index) ? (thread.entries[index].id ?? "i\(index)") : nil
+            library.open(url.absoluteString, chat: thread.id, at: at)
+            return .handled
+        }
+    }
+
     private func pickRow<Content: View>(_ index: Int, @ViewBuilder _ content: () -> Content) -> some View {
         if let picked {
             let on = picked.contains(index)

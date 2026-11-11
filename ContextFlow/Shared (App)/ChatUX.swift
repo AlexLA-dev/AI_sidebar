@@ -565,6 +565,7 @@ struct SelectableText: UIViewRepresentable {
 
     func updateUIView(_ view: UITextView, context: Context) {
         context.coordinator.parent = self
+        context.coordinator.openURL = context.environment.openURL
         if !view.attributedText.isEqual(to: text) { view.attributedText = text }
     }
 
@@ -606,7 +607,21 @@ struct SelectableText: UIViewRepresentable {
 
     final class Coordinator: NSObject, UITextViewDelegate {
         var parent: SelectableText
+        /// Where a link in the text goes: the chat's (2.6 (98): the page opens with the panel on the chat, at the message).
+        var openURL: OpenURLAction?
         init(_ parent: SelectableText) { self.parent = parent }
+
+        @available(iOS 17.0, *)
+        func textView(_ textView: UITextView, primaryActionFor textItem: UITextItem, defaultAction: UIAction) -> UIAction? {
+            guard case .link(let url) = textItem.content, let open = openURL else { return defaultAction }
+            return UIAction(title: defaultAction.title) { _ in open(url) }
+        }
+
+        func textView(_ textView: UITextView, shouldInteractWith url: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
+            guard interaction == .invokeDefaultAction, let open = openURL else { return true }
+            open(url)
+            return false
+        }
 
         func textView(_ textView: UITextView, editMenuForTextIn range: NSRange, suggestedActions: [UIMenuElement]) -> UIMenu? {
             guard range.length > 0 else { return nil }
@@ -663,7 +678,14 @@ struct SelectableText: NSViewRepresentable {
 
     final class Coordinator: NSObject, NSTextViewDelegate {
         var parent: SelectableText
+        /// Where a link in the text goes: the chat's (2.6 (98)).
+        var openURL: OpenURLAction?
         init(_ parent: SelectableText) { self.parent = parent }
+        func textView(_ textView: NSTextView, clickedOnLink link: Any, at charIndex: Int) -> Bool {
+            guard let open = openURL, let url = (link as? URL) ?? (link as? String).flatMap(URL.init(string:)) else { return false }
+            open(url)
+            return true
+        }
         func textViewDidChangeSelection(_ notification: Notification) {
             guard let view = notification.object as? NSTextView else { return }
             parent.onSelecting(view.selectedRange().length > 0)
@@ -687,6 +709,7 @@ struct SelectableText: NSViewRepresentable {
 
     func updateNSView(_ view: MarkableView, context: Context) {
         context.coordinator.parent = self
+        context.coordinator.openURL = context.environment.openURL
         view.onMark = onMark
         view.onUnmark = onUnmark
         view.marked = marked
