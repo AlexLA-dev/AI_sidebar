@@ -675,6 +675,22 @@ final class ChatLibrary: ObservableObject {
                 _ = ChatMirror.apply(saves: ["debug-seed-pages": ChatMirror.Item(updatedAt: at + 1, data: text)])
             }
         }
+        // 2.6 (98) (messages jumped in a chat): -CFDebugSeedLong YES puts a chat with long answers here (paragraphs,
+        // bullets, bold), on a neutral page.
+        if UserDefaults.standard.bool(forKey: "CFDebugSeedLong"), ChatMirror.chats()["debug-long"] == nil {
+            let at = Int64(Date().timeIntervalSince1970 * 1000)
+            let page: [String: Any] = ["url": "https://trains.example/energy", "title": "How electric trains use energy", "at": at - 600_000]
+            let answer = "**In short:** electric trains are efficient because they draw power from the grid and give some of it back when they brake.\n\n- **Regenerative braking** returns energy to the line, often a fifth of what the train used.\n- **Light, long trains** carry many people per unit of energy.\n- **Steel wheels on steel rails** roll with little friction, so the train coasts far.\n\nA high-speed line can use less energy per passenger than a short flight, and less still when the grid is clean. The gain shrinks on lines with many stops, where the train keeps speeding up and slowing down, and on old lines that can't take energy back.\n\n**What to watch:** the share of renewables on the grid, the age of the rolling stock, and how full the trains run."
+            var m: [[String: Any]] = []
+            for i in 0..<6 {
+                m.append(["role": "user", "content": "Question \(i + 1): how do electric trains save energy?", "id": "lq\(i)", "t": at - 600_000 + Int64(i) * 60_000, "page": page])
+                m.append(["role": "assistant", "content": answer, "id": "la\(i)", "t": at - 590_000 + Int64(i) * 60_000])
+            }
+            let thread: [String: Any] = ["title": "Electric trains and energy", "a": at, "m": m]
+            if let data = try? JSONSerialization.data(withJSONObject: thread), let text = String(data: data, encoding: .utf8) {
+                _ = ChatMirror.apply(saves: ["debug-long": ChatMirror.Item(updatedAt: at, data: text)])
+            }
+        }
         // A big library (2.6 (92): the app hung opening chats with hundreds of them): -CFDebugSeedChats 300 puts that
         // many chats here, 40 topics over their sites, with page texts, notes and the user's tags.
         DebugHangLog.start()

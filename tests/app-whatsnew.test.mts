@@ -57,10 +57,14 @@ test("its cards are Tips' (their words and clips, in every language); a version 
   assert.equal((project.match(/WhatsNew\.swift in Sources \*\/,/g) ?? []).length, 2)
 })
 
-test("Tips and the plan tour no longer send people to the ✦ by the search (gone in #130)", () => {
-  assert.doesNotMatch(content, /tap ✦ (next to|by) the search/i)
-  for (const key of ["Open the search over the chat list, choose By meaning and describe the chat you remember — “that article about sleep and coffee” — even without the exact words.", "In Chats, open the search, choose By meaning and describe the chat you remember. Ask your chats, at the top of the list, answers from all your chats at once."]) {
-    assert.equal(Object.keys(catalog[key].localizations).length, 13, key)
-    assert.doesNotMatch(JSON.stringify(catalog[key]), /✦/)
-  }
+test("the app's ✦ by the search is gone (#130): the plan tour says By meaning; Tips, shown in the panel too, say both", () => {
+  assert.doesNotMatch(content, /Tap ✦ next to the search and describe/)
+  const tour = "In Chats, open the search, choose By meaning and describe the chat you remember. Ask your chats, at the top of the list, answers from all your chats at once."
+  assert.equal(Object.keys(catalog[tour].localizations).length, 13)
+  assert.doesNotMatch(JSON.stringify(catalog[tour]), /✦/)
+  // The panel's chats list keeps its ✦; the same card shows there (scripts/tips-source.mjs).
+  const tip = "Describe the chat you remember — “that article about sleep and coffee” — even without the exact words. In the app, choose By meaning under the search; in Safari, tap ✦ next to it."
+  assert.ok(content.includes(tip))
+  assert.equal(Object.keys(catalog[tip].localizations).length, 13)
+  for (const lang of Object.keys(catalog[tip].localizations)) assert.match(catalog[tip].localizations[lang].stringUnit.value, /✦/, lang)
 })

@@ -19453,84 +19453,84 @@
         }
       }
     },
-    "Open the search over the chat list, choose By meaning and describe the chat you remember — “that article about sleep and coffee” — even without the exact words.": {
+    "Describe the chat you remember — “that article about sleep and coffee” — even without the exact words. In the app, choose By meaning under the search; in Safari, tap ✦ next to it.": {
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "افتح البحث فوق قائمة المحادثات، واختر «بالمعنى»، وصِف المحادثة التي تتذكرها — «ذلك المقال عن النوم والقهوة» — حتى دون الكلمات الدقيقة."
+            "value": "صِف المحادثة التي تتذكرها — «ذلك المقال عن النوم والقهوة» — حتى دون الكلمات الدقيقة. في التطبيق، اختر «بالمعنى» تحت البحث؛ وفي Safari، اضغط على ✦ بجانبه."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Öffne die Suche über der Chatliste, wähle „Nach Bedeutung“ und beschreibe den Chat, an den du dich erinnerst – „der Artikel über Schlaf und Kaffee“ – auch ohne die genauen Wörter."
+            "value": "Beschreibe den Chat, an den du dich erinnerst – „der Artikel über Schlaf und Kaffee“ – auch ohne die genauen Wörter. In der App wählst du unter der Suche „Nach Bedeutung“, in Safari tippst du auf ✦ daneben."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Abre la búsqueda sobre la lista de chats, elige «Por significado» y describe el chat que recuerdas —«ese artículo sobre el sueño y el café»—, aunque no uses las palabras exactas."
+            "value": "Describe el chat que recuerdas —«ese artículo sobre el sueño y el café»—, aunque no uses las palabras exactas. En la app, elige «Por significado» bajo la búsqueda; en Safari, toca ✦ junto a ella."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ouvrez la recherche au-dessus de la liste des discussions, choisissez « Par sens » et décrivez la discussion dont vous vous souvenez — « l’article sur le sommeil et le café » — même sans les mots exacts."
+            "value": "Décrivez la discussion dont vous vous souvenez — « l’article sur le sommeil et le café » — même sans les mots exacts. Dans l’app, choisissez « Par sens » sous la recherche ; dans Safari, touchez ✦ à côté."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Apri la ricerca sopra l’elenco delle chat, scegli «Per significato» e descrivi la chat che ricordi — «quell’articolo su sonno e caffè» — anche senza le parole esatte."
+            "value": "Descrivi la chat che ricordi — «quell’articolo su sonno e caffè» — anche senza le parole esatte. Nell’app, scegli «Per significato» sotto la ricerca; in Safari, tocca ✦ accanto."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "チャット一覧の上の検索を開いて「意味で」を選び、覚えているチャットを説明します（「睡眠とコーヒーの記事」など）。正確な言葉でなくても大丈夫です。"
+            "value": "覚えているチャットを説明します（「睡眠とコーヒーの記事」など）。正確な言葉でなくても大丈夫です。アプリでは検索の下の「意味で」を、Safari では検索の横の ✦ を選びます。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "채팅 목록 위의 검색을 열고 ‘의미로’를 고른 뒤 기억나는 채팅을 설명하세요. ‘수면과 커피에 관한 그 기사’처럼 정확한 단어가 아니어도 돼요."
+            "value": "기억나는 채팅을 설명하세요. ‘수면과 커피에 관한 그 기사’처럼 정확한 단어가 아니어도 돼요. 앱에서는 검색 아래의 ‘의미로’를, Safari에서는 검색 옆 ✦를 탭하세요."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Abra a busca acima da lista de conversas, escolha “Por significado” e descreva a conversa de que se lembra — “aquele artigo sobre sono e café” — mesmo sem as palavras exatas."
+            "value": "Descreva a conversa de que se lembra — “aquele artigo sobre sono e café” — mesmo sem as palavras exatas. No app, escolha “Por significado” sob a busca; no Safari, toque em ✦ ao lado."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Откройте поиск над списком чатов, выберите «По смыслу» и опишите чат, который помните, — «та статья про сон и кофе», — даже без точных слов."
+            "value": "Опишите чат, который помните, — «та статья про сон и кофе», — даже без точных слов. В приложении выберите «По смыслу» под поиском, в Safari нажмите ✦ рядом с ним."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Відкрийте пошук над списком чатів, виберіть «За змістом» і опишіть чат, який пам’ятаєте, — «та стаття про сон і каву», — навіть без точних слів."
+            "value": "Опишіть чат, який пам’ятаєте, — «та стаття про сон і каву», — навіть без точних слів. У застосунку виберіть «За змістом» під пошуком, у Safari натисніть ✦ поруч із ним."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mở ô tìm kiếm phía trên danh sách trò chuyện, chọn “Theo ý nghĩa” và mô tả cuộc trò chuyện bạn nhớ, như “bài viết về giấc ngủ và cà phê”, kể cả khi không nhớ đúng từ."
+            "value": "Mô tả cuộc trò chuyện bạn nhớ, như “bài viết về giấc ngủ và cà phê”, kể cả khi không nhớ đúng từ. Trong ứng dụng, chọn “Theo ý nghĩa” dưới ô tìm kiếm; trong Safari, chạm vào ✦ bên cạnh."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "打开对话列表上方的搜索，选择“按含义”，描述你记得的对话（“那篇关于睡眠和咖啡的文章”），即使没有确切字词也行。"
+            "value": "描述你记得的对话（“那篇关于睡眠和咖啡的文章”），即使没有确切字词也行。在 App 中选择搜索下方的“按含义”；在 Safari 中点按旁边的 ✦。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "打開對話列表上方的搜尋，選擇「按含義」，描述你記得的對話（「那篇關於睡眠和咖啡的文章」），就算沒有確切的字詞也行。"
+            "value": "描述你記得的對話（「那篇關於睡眠和咖啡的文章」），就算沒有確切的字詞也行。在 App 中選擇搜尋下方的「按含義」；在 Safari 中點一下旁邊的 ✦。"
           }
         }
       }

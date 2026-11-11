@@ -799,7 +799,7 @@ struct TipGroup {
             Tip(symbol: "bubble.left.and.bubble.right", color: .teal, title: "Your chats in the app",
                 text: "The Chats tab has every chat from Safari. Ask about its pages or add a note right there, tag, copy or share any answer, or share the whole chat. “Continue in Safari” picks it up where you left off.", clip: "appchat"),
             Tip(symbol: "sparkles", color: brandBlue, title: "AI search",
-                text: "Open the search over the chat list, choose By meaning and describe the chat you remember — “that article about sleep and coffee” — even without the exact words.", clip: "aisearch", pro: true),
+                text: "Describe the chat you remember — “that article about sleep and coffee” — even without the exact words. In the app, choose By meaning under the search; in Safari, tap ✦ next to it.", clip: "aisearch", pro: true),
             Tip(symbol: "text.bubble", color: .indigo, title: "Ask your chats",
                 text: "The first row of the chat list answers from all your chats at once: “What did I read this week?”, “Summarize my notes on AI”.", clip: "history", pro: true),
             Tip(symbol: "arrow.turn.down.right", color: brandBlue, title: "Where it belongs",
