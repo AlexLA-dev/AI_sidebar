@@ -748,7 +748,9 @@ async function reportUse(message: Extract<BackgroundRequest, { type: "useEvent" 
       kind: "use", installId: id, client, f: message.f, a: message.a, what: message.what, via: message.via, reminders: message.reminders,
       watches: message.watches, plan: message.plan, period: message.period,
       heard_s: message.heard_s, cache_s: message.cache_s, icloud_s: message.icloud_s, server_s: message.server_s, charged_s: message.charged_s,
-      cur: message.cur, sf: message.sf, s: "panel"
+      cur: message.cur, sf: message.sf,
+      // Listen's "unvoiced" (build 95): why it wasn't marked, and how far from the end (build 98: they never left the panel).
+      why: message.why, gap_s: message.gap_s, s: "panel"
     })
   }).catch(() => undefined)
 }
