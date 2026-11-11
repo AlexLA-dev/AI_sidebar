@@ -43,7 +43,8 @@ final class DeepLinkRouter: ObservableObject {
 }
 
 enum AppTab: Hashable {
-    case home, chats, templates, tips, pro, settings
+    // whatsNew (2.6 (98)): hidden until it opens by itself after an update or from the "is here" notification.
+    case home, chats, templates, tips, pro, settings, whatsNew
 }
 
 // MARK: - Root
@@ -97,6 +98,21 @@ struct ContentView: View {
 
     /// What's new in 2.5 (organizing): once, to those who already have chats.
     @State private var whatsNew = false
+    /// The "What's new" tab (2.6 (98), WhatsNew.swift): shown once it has opened, until the app quits.
+    @State private var whatsNewShown = false
+
+    private func openWhatsNew() {
+        whatsNewShown = true
+        tab = .whatsNew
+    }
+
+    /// After an update, the tab opens once by itself; the 2.5 sheet then never shows (its feature has a card in Tips).
+    private func openWhatsNewAfterUpdate() {
+        let existing = hasChats || UserDefaults.standard.object(forKey: "cf_whatsnew_organize") != nil
+        guard WhatsNew.dueAfterUpdate(existingUser: existing) else { return }
+        UserDefaults.standard.set(true, forKey: "cf_whatsnew_organize")
+        openWhatsNew()
+    }
 
     private func showWhatsNewIfDue() {
         #if DEBUG
@@ -192,6 +208,8 @@ struct ContentView: View {
                     Task { await NotifyAsk.shared.show(.listen, listen: id) }
                 #endif
                 case "tips": tab = .tips
+                // 2.6 (98): the "is here" notification, or a link to it.
+                case "whatsnew": openWhatsNew()
                 case "chats": tab = hasChats ? .chats : .home
                 // A reminder on a message (2.5): Chats opens at it.
                 case "chat":
@@ -214,7 +232,13 @@ struct ContentView: View {
                     await ListenPlayer.sendHeard()
                 }
                 chats.refresh()
+                openWhatsNewAfterUpdate()
                 showWhatsNewIfDue()
+                // The App Store's version (2.6 (98)): at most every 12 hours; on iPhone and iPad also in the background.
+                Task.detached(priority: .background) { await WhatsNew.check() }
+                #if os(iOS)
+                WhatsNew.schedule()
+                #endif
                 tour.debugStartIfAsked()
                 await store.refreshEntitlement()
                 askForReviewIfDue()
@@ -223,6 +247,7 @@ struct ContentView: View {
             .onChange(of: scenePhase) { phase in
                 if phase == .active {
                     askForReviewIfDue()
+                    Task.detached(priority: .background) { await WhatsNew.check() }
                     // What the panel heard to its end meanwhile (build 94): Listen's "already voiced" mark.
                     VoicedList.shared.reload()
                     // Back from Settings or Safari: whether ContextFlow is on now (2.6), and the guide over Settings goes.
@@ -245,6 +270,7 @@ struct ContentView: View {
         // With chats: Settings · Tips · Pro · Chats (Chats where the thumb is). Without: the setup guide first.
         TabView(selection: $tab) {
             if hasChats {
+                if whatsNewShown { whatsNewTab }
                 settingsTab
                 tipsTab
                 if showsPro { proTab }
@@ -262,6 +288,7 @@ struct ContentView: View {
                 tipsTab
                 if showsPro { proTab }
                 settingsTab
+                if whatsNewShown { whatsNewTab }
             }
         }
         // Build 93: the player's bar while a text plays on with its sheet closed.
@@ -292,6 +319,7 @@ struct ContentView: View {
                 }
                 Label("Templates", systemImage: "text.badge.plus").tag(AppTab.templates)
                 Label("Tips", systemImage: "lightbulb").tag(AppTab.tips)
+                if whatsNewShown { Label("What's new", systemImage: "sparkles.rectangle.stack").tag(AppTab.whatsNew) }
                 if showsPro { Label(proTabName, systemImage: "crown").tag(AppTab.pro) }
                 Label("Settings", systemImage: "gearshape").tag(AppTab.settings)
             }
@@ -302,6 +330,7 @@ struct ContentView: View {
             case .chats: NavigationStack { ChatsView(library: chats, activation: activation, openSetup: { showingSetup = true }, openPro: { tab = .pro }, openTab: { tab = $0 }) }
             case .templates: NavigationStack { TemplatesView() }
             case .tips: TipsView(openPro: { tab = .pro })
+            case .whatsNew: NavigationStack { WhatsNewView() }
             case .pro: ProView(store: store)
             case .settings: SettingsView(showPlan: $showPlan)
             }
@@ -330,6 +359,12 @@ struct ContentView: View {
     }
 
     #if os(iOS)
+    private var whatsNewTab: some View {
+        NavigationStack { WhatsNewView() }
+            .tabItem { Label("What's new", systemImage: "sparkles.rectangle.stack") }
+            .tag(AppTab.whatsNew)
+    }
+
     private var tipsTab: some View {
         NavigationView { TipsView(openPro: { tab = .pro }) }
             .navigationViewStyle(.stack)
@@ -646,19 +681,22 @@ struct TipGroup {
     }
 
     // Reminders and watching are two lists (2.5): the bell is about time, the eye about a change on the page.
-    private static var remindTip: Tip {
+    // Also in What's new (2.6 (98), WhatsNew.items).
+    static var remindTip: Tip {
         Tip(symbol: "bell", color: .orange, title: "Remind me about this page",
             text: "Reading something you want to finish later? Select a line and tap the bell, or tap … at the top of the panel, then Remind me about this page…, and pick a time: the reminder opens this page. Answers and notes have Remind me in their … menu.", clip: "later")
     }
 
-    private static var watchTip: Tip {
+    // Also in What's new (2.6 (98), WhatsNew.items).
+    static var watchTip: Tip {
         Tip(symbol: "eye", color: .green, title: "Know when a price drops",
             text: "Select a price, a stock status or a date on a page and tap the eye. For the whole page, choose Watch this page… in the … menu at the top of the panel. ContextFlow checks the page while you use Safari and tells you when it changes, or drops below the price you name. Up to 5 at a time, 20 with Pro.", clip: "watch")
     }
 
     // Quick actions in the selection's field (2.6). Since 92 a Mac's pop-up has the same field and chips, scrolled with the
     // trackpad or the wheel; no clip there (the clip is touch).
-    private static var chipsTip: Tip {
+    // Also in What's new (2.6 (98), WhatsNew.items).
+    static var chipsTip: Tip {
         #if os(iOS)
         Tip(symbol: "hand.point.up.left", color: .indigo, title: "Quick actions under a selection",
             text: "Select text on a page: Summarize, Translate, Find similar and more wait in the “Your question…” field under it. Swipe along them and tap one, no typing needed.", clip: "chips")
@@ -670,7 +708,8 @@ struct TipGroup {
 
     // Find similar (2.6, Ultra): from the panel's actions or its … menu, or from a selection (a chip in its field, on a
     // Mac too since 92). The clip is touch, so a Mac has none.
-    private static var similarTip: Tip {
+    // Also in What's new (2.6 (98), WhatsNew.items).
+    static var similarTip: Tip {
         #if os(iOS)
         Tip(symbol: "square.on.square", color: ultraViolet, title: "Find similar",
             text: "Tap Find similar among the panel's actions, or in the … menu at the top of the panel. Or select text, like a product's name, and tap Find similar among the quick actions under it. Add a condition like Cheaper or In stock if you want: the alternatives are real, and every link is opened and checked before you see it.", clip: "similar", ultra: true)
@@ -682,7 +721,8 @@ struct TipGroup {
 
     // Listen (2.6, Ultra): on iPhone and iPad the app plays it (it goes on with the screen locked), on a Mac the panel
     // does. The clip is the panel's player, so a Mac's only.
-    private static var listenTip: Tip {
+    // Also in What's new (2.6 (98), WhatsNew.items).
+    static var listenTip: Tip {
         #if os(iOS)
         Tip(symbol: "speaker.wave.2.fill", color: ultraViolet, title: "Listen",
             text: "Tap Listen under an answer, or choose Listen to this page in the … menu at the top of the panel. The ContextFlow app reads it in a natural voice, and it keeps playing with the screen locked. Tap the speed in the player for 1×, 1.2×, 1.5× or 2×.", ultra: true)
@@ -759,7 +799,7 @@ struct TipGroup {
             Tip(symbol: "bubble.left.and.bubble.right", color: .teal, title: "Your chats in the app",
                 text: "The Chats tab has every chat from Safari. Ask about its pages or add a note right there, tag, copy or share any answer, or share the whole chat. “Continue in Safari” picks it up where you left off.", clip: "appchat"),
             Tip(symbol: "sparkles", color: brandBlue, title: "AI search",
-                text: "Tap ✦ next to the search and describe the chat you remember — “that article about sleep and coffee” — even without the exact words.", clip: "aisearch", pro: true),
+                text: "Open the search over the chat list, choose By meaning and describe the chat you remember — “that article about sleep and coffee” — even without the exact words.", clip: "aisearch", pro: true),
             Tip(symbol: "text.bubble", color: .indigo, title: "Ask your chats",
                 text: "The first row of the chat list answers from all your chats at once: “What did I read this week?”, “Summarize my notes on AI”.", clip: "history", pro: true),
             Tip(symbol: "arrow.turn.down.right", color: brandBlue, title: "Where it belongs",
@@ -2142,7 +2182,7 @@ struct PlanTourView: View {
                         text: "ContextFlow now reads a video's transcript and the PDFs on a page. Ask as usual: answers point to the moment, like [4:15], or to the PDF's page.", clip: "video")
         case .proChats:
             return Info(symbol: "text.bubble", color: .indigo, title: "Search and ask your chats",
-                        text: "In Chats, tap ✦ by the search and describe the chat you remember. Ask your chats, at the top of the list, answers from all your chats at once.", clip: "history")
+                        text: "In Chats, open the search, choose By meaning and describe the chat you remember. Ask your chats, at the top of the list, answers from all your chats at once.", clip: "history")
         case .proSort:
             return Info(symbol: "arrow.turn.down.right", color: brandBlue, title: "Sorted by topic",
                         text: "Under a new answer or note, ContextFlow suggests the chat it belongs in, or a new one, and one of your own tags. One tap, and it's there.", clip: "organize")
