@@ -108,6 +108,8 @@ export interface Plan {
   // Build 95: their own words (a must for every item), and their money with the day's rates.
   words?: string
   money?: Money
+  // A search for things of the same kind (no brand or model), in the language of the queries: run beside them.
+  kindSearch?: string
 }
 
 /** Their currency and the day's rates (null: the ECB couldn't be reached; prices are then compared as they are). */
@@ -279,6 +281,7 @@ Work out, once, what to search for:
 - condition: kind (none, cheaper, in_stock, free, newer, shorter, nearby, language, other); max_price when they named a number (else 0); currency (3 letters, else ""); language they want the results in (BCP 47, else ""); place for nearby (else "");
 - source_price: the price the page itself shows for its item, as a plain number (else 0), and source_currency; a page that lists several items (a category or collection) — the lowest price it shows;
 - queries: 2 to 4 web searches that find the alternatives themselves — their own pages (a shop's product page, the app's site or store page, the recipe, the article, the course page, the listing) — not pages about the item on screen. Mix a direct one with ones that carry the condition. When they want it cheaper or in stock, at most one search may look for this very item at other shops; the others always find alternatives to it (other brands and models). For a branded product, one search names the competing brands or models you know (\"<rival brand> <model> <kind of thing>\"), so the results aren't the same brand again. Write each in the language that finds the best results for this person (usually theirs; English is fine for global products and software);
+- kind_search: one more web search, for things of the same kind from any brand: what the thing is and its one or two key traits, the way shops name such a category, with no brand, model or name of the item on screen; in the language of your queries, with their condition only if it's about where;
 - language: the person's language (BCP 47), from their words, else the device locale.
 They may have tapped a quick choice (a chip: cheaper, in stock, newer, free, their language, shorter) and written their own words; both can come together. Their own words are what they need most: a price, a language or anything else they wrote goes into the condition and the searches.
 When they selected a part of the page, the subject is what the selection describes (a product, an app, a place, an idea… named or described in it), not the page's main item; the page is context. Then source_price is the price the selection itself shows (else 0).
@@ -305,9 +308,10 @@ const PLAN_SCHEMA = {
     source_price: { type: "number" },
     source_currency: { type: "string" },
     queries: { type: "array", items: { type: "string" } },
+    kind_search: { type: "string" },
     language: { type: "string" }
   },
-  required: ["category", "subject", "traits", "condition", "source_price", "source_currency", "queries", "language"],
+  required: ["category", "subject", "traits", "condition", "source_price", "source_currency", "queries", "kind_search", "language"],
   additionalProperties: false
 }
 
@@ -424,7 +428,8 @@ export function checkPlan(raw: unknown, input: SimilarInput): Plan {
     sourceCurrency: str(r.source_currency, 3).toUpperCase(),
     queries: [...new Set(queries)].slice(0, 4).length ? [...new Set(queries)].slice(0, 4) : [`${subject} alternatives`],
     language: str(r.language, 12) || input.locale,
-    ...(words ? { words: words.slice(0, MAX_CONDITION) } : {})
+    ...(words ? { words: words.slice(0, MAX_CONDITION) } : {}),
+    ...(str(r.kind_search, 200) ? { kindSearch: str(r.kind_search, 200) } : {})
   }
 }
 
@@ -764,12 +769,12 @@ export function rescueQueries(input: SimilarInput, plan: Plan): string[] {
 const ALT_GRACE_MS = 3_000
 
 /**
- * The alternatives search run beside the plan's from the start (one call, one search, no follow-ups): what makes one
- * (the subject's first traits), which finds things of the same kind rather than pages about the subject; near them
+ * The search run beside the plan's from the start (one call, one search, no follow-ups): things of the same kind from
+ * any brand, as the planner wrote it in the language of its searches (else the subject's first traits); near them
  * where the search can't be located, with the country named, as the plan's are.
  */
 export function altQueries(input: SimilarInput, plan: Plan): string[] {
-  const kind = (plan.traits.slice(0, 2).join(" ") || plan.subject).slice(0, 200)
+  const kind = (plan.kindSearch || plan.traits.slice(0, 2).join(" ") || plan.subject).slice(0, 200)
   return localQueries(input, { ...plan, queries: [kind] })
 }
 
